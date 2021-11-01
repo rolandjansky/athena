@@ -58,7 +58,7 @@ L1TopoSimulation::initialize() {
    CHECK( m_energyInputProvider.retrieve() );
 
    ATH_MSG_DEBUG("retrieving " << m_muonInputProvider);
-   CHECK( m_muonInputProvider.retrieve() );
+   CHECK( m_muonInputProvider.retrieve(DisableTool{m_isLegacyTopo}) );
 
    if (m_isLegacyTopo){
      CHECK(m_legacyTopoCTPLocation.initialize());
@@ -185,7 +185,9 @@ L1TopoSimulation::execute() {
    CHECK(m_energyInputProvider->fillTopoInputEvent(inputEvent));
 
    // Muon
-   CHECK(m_muonInputProvider->fillTopoInputEvent(inputEvent));
+   if (m_muonInputProvider.isEnabled()) {
+      CHECK(m_muonInputProvider->fillTopoInputEvent(inputEvent));
+   }
 
    ATH_MSG_DEBUG("" << inputEvent);
 

@@ -19,6 +19,8 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     doOnline  = kwargs.get('doOnline',  False)
     doLumiBlock = kwargs.get('doLumiBlock', False)
+    doLowOccupancy = kwargs.get('doLowOccupancy', False)
+    doHeavyIonMon = kwargs.get('doHeavyIonMon', False)
     doFEPlots  = kwargs.get('doFEPlots',  False)
 
     forceOnline = doOnline and not athenaCommonFlags.isOnline
@@ -258,15 +260,31 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
         varName = addOnTrackTxt('ClustersPerEvent', ontrack) + '_val'
         title = fullDressTitle('Number of pixel clusters in an event', ontrack, ';# pixel clusters', ';# events')
         varName += ';'+ addOnTrackTxt('ClustersPerEvent', ontrack)
-        xmax1D = 10000 if ontrack else 40000
+        if doHeavyIonMon:
+            xmax1D = 20000 if ontrack else 80000
+            xbins1D = 2000
+        elif doLowOccupancy:
+            xmax1D = 50 if ontrack else 200
+            xbins1D = 200
+        else:
+            xmax1D = 10000 if ontrack else 40000
+            xbins1D = 1000
         clusterGroup[ontrack].defineHistogram(varName,
                                               type='TH1I', path=pathGroup, title=title,
-                                              xbins=1000, xmin=0, xmax=xmax1D)
+                                              xbins=xbins1D, xmin=0, xmax=xmax1D)
 
         histoGroupName = addOnTrackTxt('ClustersPerEvent', ontrack)
         title          = addOnTrackTxt('Number of pixel clusters in an event', ontrack, True)
-        binsizes1D = 10 if ontrack else 40
-        define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';# pixel clusters', ';# events', xbins=[200], xmins=[0], binsizes=[binsizes1D])
+        if doHeavyIonMon:
+            xbins1D = 200
+            binsizes1D = 25 if ontrack else 100
+        elif doLowOccupancy:
+            xbins1D = 20 if ontrack else 50
+            binsizes1D = 1
+        else:
+            xbins1D = 200
+            binsizes1D = 10 if ontrack else 40
+        define1DLayers(helper, alg, histoGroupName, title, pathGroup, ';# pixel clusters', ';# events', xbins=[xbins1D], xmins=[0], binsizes=[binsizes1D])
 
         varName = 'pixclusmontool_lb,' + addOnTrackTxt('ClustersPerEvent', ontrack) + '_val'
         title = fullDressTitle('Average number of pixel clusters per event per LB', ontrack, ';lumi block', ';# clusters/event')

@@ -11,6 +11,22 @@ from TrkConfig.AtlasExtrapolatorConfig import (
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 
 
+def EMLastCaloExtensionToolCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMLastCaloExtensionTool")
+    kwargs.setdefault("ParticleType", "electron")
+    if "Extrapolator" not in kwargs:
+        acc = ComponentAccumulator()
+        extrapAcc = egammaCaloExtrapolatorCfg(flags)
+        kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
+    return ParticleCaloExtensionToolCfg(flags, **kwargs)
+
+
+def EMParticleCaloExtensionToolCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMParticleCaloExtensionTool")
+    kwargs.setdefault("StartFromPerigee", True)
+    return EMLastCaloExtensionToolCfg(flags, **kwargs)
+
+
 def EMExtrapolationToolsCfg(flags, **kwargs):
 
     mlog = logging.getLogger('EMExtrapolationTools')
@@ -24,23 +40,12 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
         kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
 
     if "PerigeeCaloExtensionTool" not in kwargs:
-        perigeeCaloExtrapAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            name="EMParticleCaloExtensionTool",
-            Extrapolator=kwargs["Extrapolator"],
-            ParticleType="electron",
-            StartFromPerigee=True)
         kwargs["PerigeeCaloExtensionTool"] = acc.popToolsAndMerge(
-            perigeeCaloExtrapAcc)
+            EMParticleCaloExtensionToolCfg(flags))
 
     if "LastCaloExtensionTool" not in kwargs:
-        lastCaloExtrapAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            name="EMLastCaloExtensionTool",
-            ParticleType="electron",
-            Extrapolator=kwargs["Extrapolator"])
         kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
-            lastCaloExtrapAcc)
+            EMLastCaloExtensionToolCfg(flags))
 
     emExtrapolationTools = EMExtrapolationTools(**kwargs)
     acc.setPrivateTools(emExtrapolationTools)
@@ -59,6 +64,21 @@ def EMExtrapolationToolsCacheCfg(flags, **kwargs):
 def EMExtrapolationToolsCommonCacheCfg(flags, **kwargs):
     kwargs.setdefault("name", "EMExtrapolationToolsCommonCache")
     kwargs.setdefault("LastCache", "ParticleCaloExtension")
+    kwargs.setdefault("useCaching", False)
+    kwargs.setdefault("useLastCaching", True)
+    return EMExtrapolationToolsCfg(flags, **kwargs)
+
+
+def EMExtrapolationToolsLRTCacheCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMExtrapolationToolsLRTCache")
+    kwargs.setdefault("PerigeeCache", "LRTGSFPerigeeCaloExtension")
+    kwargs.setdefault("LastCache", "LRTGSFLastCaloExtension")
+    return EMExtrapolationToolsCacheCfg(flags, **kwargs)
+
+
+def EMExtrapolationToolsLRTCommonCacheCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMExtrapolationToolsLRTCommonCache")
+    kwargs.setdefault("LastCache", "ParticleCaloExtension_LRT")
     kwargs.setdefault("useCaching", False)
     kwargs.setdefault("useLastCaching", True)
     return EMExtrapolationToolsCfg(flags, **kwargs)

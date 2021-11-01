@@ -29,6 +29,7 @@
 #include "LArRecConditions/LArFebRodMapping.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRecConditions/LArRoIMap.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc> {
  public:
@@ -85,6 +86,8 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
    {this, "LArBadChannelKey", "LArBadChannel", "Key of the LArBadChannelCont CDO" };
   SG::ReadCondHandleKey<LArRoIMap> m_larRoIMapKey
    {this, "LArRoIMapKey", "LArRoIMap", "Key of the LArRoIMap CDO" };
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+   {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
   void reset_LArCol ( LArCellCollection* coll ){
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)

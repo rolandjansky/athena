@@ -14,6 +14,18 @@
 #include <cmath>
 #include <iostream>
 
+namespace {
+/* In Gaudi Units
+ * Units.tesla
+ * = Units.volt * Units.second / Units.meter2 = 1e-3
+ * So 1kT  is 1
+ * Unit.gauss = 1e-4 * Units.tesla
+ * the number below is  0.1 * 1e-3 * 1e-4 = 1e-8
+ * So 0.1 Gauss in Units of kT (which is what we return)
+ */
+constexpr double defaultB = 0.1 * Gaudi::Units::gauss;
+}
+
 #if defined(FLATTEN) && defined(__GNUC__)
 // We compile this package with optimization, even in debug builds; otherwise,
 // the heavy use of Eigen makes it too slow.  However, from here we may call
@@ -29,8 +41,9 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
 {
   // Allow for the case of no map for testing
   if (m_fieldMap == nullptr) {
-    // return 0 bfield if map is missing
-    bxyz[0] = bxyz[1] = bxyz[2] = 0;
+    // return default
+    bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
+    // return zero gradient if requested
     if (deriv) {
       for (int i = 0; i < 9; i++) {
         deriv[i] = 0.;
@@ -50,8 +63,7 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
     // cache is invalid -> refresh cache
     if (!fillFieldCache(z, r, phi)) {
       // caching failed -> outside the valid map volume
-      // return default field (0.1 gauss)
-      const double defaultB(0.1 * Gaudi::Units::gauss);
+      // return default
       bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
       // return zero gradient if requested
       if (deriv) {
@@ -85,10 +97,9 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
 
   // Allow for the case of no map for testing
   if (m_fieldMap == nullptr) {
-    // constant ATLAS magnetic field if no map has been set - for testing
-    constexpr double TEST_BFIELD = 1.997;
-    bxyz[0] = bxyz[1] = 0;
-    bxyz[2] = TEST_BFIELD;
+    // return default
+    bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
+      // return zero gradient if requested
     if (deriv) {
       for (int i = 0; i < 9; i++) {
         deriv[i] = 0.;

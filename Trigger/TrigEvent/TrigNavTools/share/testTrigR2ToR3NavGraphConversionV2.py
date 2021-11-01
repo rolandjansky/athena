@@ -32,6 +32,7 @@ if __name__=='__main__':
 #    ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_e5_lhvloose_nod0","HLT_e9_etcut","HLT_e26_lhtight_nod0","HLT_e28_lhtight_nod0"])
     #ConfigFlags.addFlag("TestNavConversion.Collections",["xAOD::MuonContainer","xAOD::L2StandAloneMuonContainer","xAOD::TrigMissingET","xAOD::JetContainer"])
  #   ConfigFlags.addFlag("TestNavConversion.Collections",["xAOD::ElectronContainer","xAOD::TrigEMClusterContainer","xAOD::TrigEMCluster","xAOD::TrigElectron","xAOD::TrigElectronContainer","xAOD::CaloCluster","xAOD::CaloClusterContainer"])
+    ConfigFlags.Exec.MaxEvents = 1
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
@@ -55,7 +56,8 @@ if __name__=='__main__':
     alg.Collections = ["xAOD::TrigElectronContainer"]
     alg.doCompression = True
     # alg.Chains = ["HLT_e26_lhtight_idperf", "HLT_e26_lhmedium_nod0_ivarloose"]
-    alg.Chains = ["HLT_mu4_j80_xe80_pufit_2dphi10_L1MU4_J50_XE50_DPHI-J20s2XE30"]
+#    alg.Chains = ["HLT_mu4_j80_xe80_pufit_2dphi10_L1MU4_J50_XE50_DPHI-J20s2XE30"]
+
     cfg.addEventAlgo(alg, sequenceName="AthAlgSeq")
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     outputType="AOD"

@@ -11,7 +11,7 @@ namespace Muon
   class MM_RawData_p1
   {
   public:
-  MM_RawData_p1() : m_id(0), m_channel(0), m_time(0), m_charge(0), m_relBcid(0) {}
+  MM_RawData_p1() : m_id(0), m_channel(0), m_time(0), m_charge(0) {}
     
     unsigned int        m_id; //!< FIXME! Remove this eventually
     
@@ -21,8 +21,6 @@ namespace Muon
     unsigned int m_time;
     
     unsigned int m_charge;
-
-    uint16_t m_relBcid;
     
   };
 }

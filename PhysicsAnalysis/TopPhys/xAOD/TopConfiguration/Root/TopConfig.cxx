@@ -1,5 +1,5 @@
 /*
-   Copyrightf (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyrightf (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopConfiguration/TopConfig.h"
@@ -196,7 +196,6 @@ namespace top {
     m_electronIsolationLoose("SetMe"),
     m_electronIsolationSF("SetMe"),
     m_electronIsolationSFLoose("SetMe"),
-    m_electronIsoSFs(true),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
     m_useElectronChargeIDSelection(false),
@@ -1075,12 +1074,19 @@ namespace top {
       std::string const& sf_wp = settings->value("ElectronIsolationSF");
       this->electronIsolation(cut_wp);
       this->electronIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
+
+      const std::string &isoWPs_str = settings->value("ElectronIsolationWPs");
+      tokenize_set(isoWPs_str, m_electronIsolationWPs, " ", true);
+      if (cut_wp != "None")
+	m_electronIsolationWPs.emplace(cut_wp);
     }
     {
       std::string const& cut_wp = settings->value("ElectronIsolationLoose");
       std::string const& sf_wp = settings->value("ElectronIsolationSFLoose");
       this->electronIsolationLoose(cut_wp);
       this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+      if (cut_wp != "None")
+	m_electronIsolationWPs.emplace(cut_wp);
     }
     this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
     this->useEgammaLeakageCorrection(settings->value("UseEgammaLeakageCorrection"));
@@ -1153,6 +1159,14 @@ namespace top {
     this->photonIdentificationLoose(settings->value("PhotonIDLoose"));
     this->photonIsolation(settings->value("PhotonIsolation"));
     this->photonIsolationLoose(settings->value("PhotonIsolationLoose"));
+    {
+      const std::string &isoWPs_str = settings->value("PhotonIsolationWPs");
+      tokenize_set(isoWPs_str, m_photonIsolationWPs, " ", true);
+      if (this->photonIsolation() != "None")
+	m_photonIsolationWPs.emplace(this->photonIsolation());
+      if (this->photonIsolationLoose() != "None")
+	m_photonIsolationWPs.emplace(this->photonIsolationLoose());
+    }
 
     // Muon configuration
     this->muonPtcut(std::stof(settings->value("MuonPt")));
@@ -1164,6 +1178,11 @@ namespace top {
       std::string const& sf_wp = settings->value("MuonIsolationSF");
       this->muonIsolation(cut_wp);
       this->muonIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
+
+      const std::string &isoWPs_str = settings->value("MuonIsolationWPs");
+      tokenize_set(isoWPs_str, m_muonIsolationWPs, " ", true);
+      if (cut_wp != "None")
+	m_muonIsolationWPs.emplace(cut_wp);
     }
     bool muonUse2stationHighPt = true;
     settings->retrieve("MuonUse2stationHighPt", muonUse2stationHighPt);
@@ -1192,6 +1211,8 @@ namespace top {
       std::string const& sf_wp = settings->value("MuonIsolationSFLoose");
       this->muonIsolationLoose(cut_wp);
       this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+      if (cut_wp != "None")
+	m_muonIsolationWPs.emplace(cut_wp);
     }
     bool muonDoSmearing2stationHighPt = false;
     settings->retrieve("MuonDoSmearing2stationHighPt", muonDoSmearing2stationHighPt);

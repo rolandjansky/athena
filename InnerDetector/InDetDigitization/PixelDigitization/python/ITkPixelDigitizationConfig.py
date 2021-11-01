@@ -90,8 +90,8 @@ def ITkSensorSimPlanarToolCfg(flags, name="ITkSensorSimPlanarTool", **kwargs):
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
-    kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
-    if flags.Digitization.DoRadiationDamage:
+    kwargs.setdefault("doRadDamage", flags.Digitization.DoPixelPlanarRadiationDamage)
+    if flags.Digitization.DoPixelPlanarRadiationDamage:
         # acc.merge(ITkPixelRadSimFluenceMapAlgCfg(flags))  # TODO: not supported yet
         pass
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
@@ -106,8 +106,8 @@ def ITkSensorSim3DToolCfg(flags, name="ITkSensorSim3DTool", **kwargs):
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     SensorSim3DTool = CompFactory.SensorSim3DTool
-    kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
-    if flags.Digitization.DoRadiationDamage:
+    kwargs.setdefault("doRadDamage", flags.Digitization.DoPixel3DRadiationDamage)
+    if flags.Digitization.DoPixel3DRadiationDamage:
         # acc.merge(ITkPixelRadSimFluenceMapAlgCfg(flags))  # TODO: not supported yet
         pass
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))

@@ -709,7 +709,7 @@ std::pair<EventIDRange, Trk::TrackingGeometry*> Muon::MuonTrackingGeometryBuilde
 
     const Trk::TrackingVolume* negDet = m_trackingVolumeHelper->glueTrackingVolumeArrays(*negEndcap, Trk::positiveFaceXY, *barrel,
                                                                                          Trk::negativeFaceXY, "All::Container::NegDet");
-    const Trk::TrackingVolume* detector =
+    Trk::TrackingVolume* detector =
         m_trackingVolumeHelper->glueTrackingVolumeArrays(*posEndcap, Trk::negativeFaceXY, *negDet, Trk::positiveFaceXY, m_exitVolume);
     // blend material
     if (m_blendInertMaterial) blendMaterial(aLVC);

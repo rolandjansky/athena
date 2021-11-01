@@ -561,7 +561,7 @@ Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeometry AT
 
    ATH_MSG_VERBOSE("       -> inserting beam pipe into detectors." ); 
 
-   const Trk::TrackingVolume* detectorWithBp = 
+   Trk::TrackingVolume* detectorWithBp = 
          m_trackingVolumeCreator->createContainerTrackingVolume(idVolumes,
                                                                 *m_materialProperties,
                                                                 volumeName,
@@ -569,7 +569,7 @@ Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeometry AT
                                                                 m_replaceJointBoundaries);
   
    // if packing is needed ------------------------------------------------------------------
-   const Trk::TrackingVolume* highestIdVolume = nullptr;
+   Trk::TrackingVolume* highestIdVolume = nullptr;
    if (enclose){
     
      // negative positions
@@ -607,7 +607,7 @@ Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeometry AT
         enclosedVolumes.push_back(detectorWithBp);
         enclosedVolumes.push_back(positiveEnclosure);
    
-     const Trk::TrackingVolume* enclosedDetector = 
+     Trk::TrackingVolume* enclosedDetector = 
          m_trackingVolumeCreator->createContainerTrackingVolume(enclosedVolumes,
                                                                 *m_materialProperties,
                                                                  m_exitVolume,

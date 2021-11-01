@@ -22,7 +22,7 @@ def ITkStripAlignmentCfg(flags):
         from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
         return addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align")
     else:
-        from SCT_ConditionsAlgorithms.SCT_AlignCondAlgConfig import ITkStripAlignCondAlgCfg
+        from SCT_ConditionsAlgorithms.ITkStripConditionsAlgorithmsConfig import ITkStripAlignCondAlgCfg
         return ITkStripAlignCondAlgCfg(flags)
 
 
@@ -37,6 +37,6 @@ def ITkStripReadoutGeometryCfg(flags):
     # main GeoModel config
     acc = ITkStripGeoModelCfg(flags)
     acc.merge(ITkStripAlignmentCfg(flags))
-    from SCT_ConditionsAlgorithms.SCT_DetectorElementCondAlgConfig import ITkStripDetectorElementCondAlgCfg
+    from SCT_ConditionsAlgorithms.ITkStripConditionsAlgorithmsConfig import ITkStripDetectorElementCondAlgCfg
     acc.merge(ITkStripDetectorElementCondAlgCfg(flags))
     return acc

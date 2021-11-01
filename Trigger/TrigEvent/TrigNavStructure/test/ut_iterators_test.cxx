@@ -96,7 +96,7 @@ size_t iterateAndPrint(StandaloneNavigation& tns, ComboIteratorBase& it) {
     comb = it.combination();
     printCombination(tns, counter, comb);
     counter++;
-    it++;    
+    ++it;
   }
   return counter;
 }

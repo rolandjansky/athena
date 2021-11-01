@@ -43,6 +43,49 @@ StatusCode FixHepMC::execute() {
         }
       }
     }
+
+    // Some heuristics
+    std::vector<HepMC::GenParticlePtr> tofix;
+    std::vector<HepMC::GenParticlePtr> bad_pdg_id_particles;
+    for (auto ip: evt->particles()) {
+      // Skip this particle if (somehow) its pointer is null
+      if (!ip) continue;
+      bool particle_to_fix = false;
+      /// Two types of bad particles: those w/o prod.vertex and with status other than 4.
+      if ( (!ip->production_vertex() || ip->production_vertex()->id() == 0 ) &&  ip->end_vertex() && ip->status() != 4 ) particle_to_fix = true;
+      /// Those w/o end vertex, but with bad status
+      if (ip->production_vertex() && !ip->end_vertex() && ip->status() != 1 ) particle_to_fix = true;
+      if (particle_to_fix) tofix.push_back(ip);
+      int pdg_id = ip->pdg_id();
+      if (pdg_id == 43 || pdg_id == 44 || pdg_id == -43 || pdg_id == -44 ) bad_pdg_id_particles.push_back(ip);
+    }
+
+    /// AV: In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
+    if (tofix.size() == 3 || tofix.size() == 2) {
+      int no_endv = 0;
+      int no_prov = 0;
+      HepMC::FourVector sum(0,0,0,0);
+      for (auto part: tofix) if (!part->production_vertex() || !part->production_vertex()->id()) { no_prov++; sum += part->momentum();}  
+      for (auto part: tofix) if (!part->end_vertex()) { no_endv++;  sum -= part->momentum(); }
+      ATH_MSG_INFO("Heuristics: found " << tofix.size() << "particles to fix. The momenta sum is " << sum);
+      if (no_endv == 1 && (no_prov == 2 || no_prov == 1) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
+          ATH_MSG_INFO("Try " << no_endv << "->" << no_prov << " splitting.");
+          auto v = HepMC::newGenVertexPtr();
+          for (auto part: tofix) if (!part->production_vertex() || part->production_vertex()->id() == 0) v->add_particle_out(part);  
+          for (auto part: tofix) if (!part->end_vertex()) v->add_particle_in(part);  
+          evt->add_vertex(v);
+      }
+    }
+    /// AV: Please note that this approach would distort some branching ratios.
+    /// If some particle would have decay products with bad PDG ids, after the operation below
+    /// the visible branching ratio of these decays would be zero.
+    for (auto part: bad_pdg_id_particles) {
+        if (!part->production_vertex()) continue;
+        if (!part->end_vertex()) continue;
+        for (auto p: part->end_vertex()->particles_out()) part->production_vertex()->add_particle_out(p);
+        evt->remove_particle(part);
+    }
+
     // Event particle content cleaning -- remove "bad" structures
     std::vector<HepMC::GenParticlePtr> toremove;
     long seenThisEvent = 0;
@@ -76,30 +119,10 @@ StatusCode FixHepMC::execute() {
         ATH_MSG_DEBUG( "Found a bad particle in a decay chain : " );
         if ( msgLvl( MSG::DEBUG ) ) HepMC::Print::line(ip);
       }
-      /// Two types of bad particles: those w/o prod.vertex and with status other than 4.
-      if ( (!ip->production_vertex() || !ip->production_vertex()->id()) &&  ip->end_vertex() && ip->status() != 4 ) bad_particle = true;
-      /// Those w/o end vertex, but with bad status
-      if (  ip->production_vertex() && !ip->end_vertex() && ip->status() != 1 ) bad_particle = true;
       // Only add to the toremove vector once, even if multiple tests match
       if (bad_particle) toremove.push_back(ip);
     }
-    // Some heuristics
-    // In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
-    if (toremove.size() == 3 || toremove.size() == 2) {
-      int no_endv = 0;
-      int no_prov = 0;
-      HepMC::FourVector sum(0,0,0,0);
-      for (auto part: toremove) if (!part->production_vertex() || !part->production_vertex()->id()) { no_prov++; sum += part->momentum();}  
-      for (auto part: toremove) if (!part->end_vertex()) { no_endv++;  sum -= part->momentum(); }
-      ATH_MSG_INFO("Heuristics: found " << toremove.size() << " bad particles. Try " << no_endv << "->" << no_prov << " splitting. The momenta sum is " << sum);
-      if (no_endv == 1 && (no_prov == 2 || no_prov == 1) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
-          auto v = HepMC::newGenVertexPtr();
-          for (auto part: toremove) if (!part->production_vertex() || !part->production_vertex()->id()) v->add_particle_out(part);  
-          for (auto part: toremove) if (!part->end_vertex()) v->add_particle_in(part);  
-          evt->add_vertex(v);
-          toremove.clear();
-      }
-    }
+
     // Escape here if there's nothing more to do, otherwise do the cleaning
     if (toremove.empty()) continue;
     ATH_MSG_DEBUG("Cleaning event record of " << toremove.size() << " bad particles");

@@ -52,16 +52,25 @@ def MuonSegmentTagAlgCfg(flags, name="MuonSegmentTagAlg", **kwargs ):
   
 def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
     #TODO: defaults in cxx
-    kwargs.setdefault("AssumeLocalErrors", True )
-    kwargs.setdefault("PhiCut", 30. )
-    kwargs.setdefault("GlobalPhiCut", 1.)
-    kwargs.setdefault("ThetaCut", 5. )
-    kwargs.setdefault("GlobalThetaCut", 0.5 )
-    kwargs.setdefault("ThetaAngleCut", 5. )
-    kwargs.setdefault("DoDistanceCut", True )
-    kwargs.setdefault("CombinedPullCut", 3.0 )
-    tool = CompFactory.MuTagMatchingTool(name,**kwargs)
     result = ComponentAccumulator()
+    kwargs.setdefault("AssumeLocalErrors", True)
+    kwargs.setdefault("PhiCut", 30.)
+    kwargs.setdefault("GlobalPhiCut", 1.)
+    kwargs.setdefault("ThetaCut", 5.)
+    kwargs.setdefault("GlobalThetaCut", 0.5)
+    kwargs.setdefault("ThetaAngleCut", 5.)
+    kwargs.setdefault("DoDistanceCut", True)
+    kwargs.setdefault("CombinedPullCut", 3.0)
+
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    result.merge(acc)
+    kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
+
+    tool = CompFactory.MuTagMatchingTool(name,**kwargs)
+    
     result.addPublicTool(tool, primary=True)
     return result
 

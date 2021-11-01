@@ -2,19 +2,18 @@
 
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-from AthenaCommon.Logging import logging
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
-from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
-from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
-from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ReadCalibChipDataCfg, SCT_SiliconConditionsCfg
+from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
+from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 
 import AthenaCommon.SystemOfUnits as Units
 

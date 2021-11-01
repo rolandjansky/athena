@@ -32,8 +32,8 @@
 struct ConvProxy {
   ConvProxy(const HLT::TriggerElement* te);
 
+  bool mergeAllowed(const ConvProxy* other) const;
   void merge(ConvProxy* other); // this will change the also the "other" so it knows it has been merged
-
   const HLT::TriggerElement* te = nullptr;
   std::vector<HLT::te_id_type> teIDs; // post merging will contain IDs of all merged TEs
 

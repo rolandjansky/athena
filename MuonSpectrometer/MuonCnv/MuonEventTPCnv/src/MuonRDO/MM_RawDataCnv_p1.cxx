@@ -14,7 +14,6 @@ void Muon::MM_RawDataCnv_p1::transToPers( const Muon::MM_RawData *transObj, Muon
   persObj->m_channel = transObj->channel();
   persObj->m_time = transObj->time();
   persObj->m_charge = transObj->charge();
-  persObj->m_relBcid = transObj->relBcid();
 }
 
 Muon::MM_RawData* Muon::MM_RawDataCnv_p1::createTransient(const Muon::MM_RawData_p1* persObj, MsgStream& /**log*/)
@@ -23,7 +22,7 @@ Muon::MM_RawData* Muon::MM_RawDataCnv_p1::createTransient(const Muon::MM_RawData
 					     persObj->m_channel,
 					     persObj->m_time, 
 					     persObj->m_charge,
-               persObj->m_relBcid );
+               0 );
   
   return trans;
 }

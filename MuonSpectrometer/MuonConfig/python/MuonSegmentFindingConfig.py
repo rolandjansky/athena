@@ -671,9 +671,10 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     if flags.Input.Format == 'BS':
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         result.merge( MuonByteStreamDecodersCfg(flags) )
+
+    if flags.Input.Format == 'BS' or 'StreamRDO' in flags.Input.ProcessingTags:
         from MuonConfig.MuonRdoDecodeConfig import MuonRDOtoPRDConvertorsCfg
         result.merge( MuonRDOtoPRDConvertorsCfg(flags) )
-
 
     # We need to add two algorithms - one for normal collisions, one for NCB
     result.merge( MooSegmentFinderAlgCfg(flags, Cardinality=cardinality) )

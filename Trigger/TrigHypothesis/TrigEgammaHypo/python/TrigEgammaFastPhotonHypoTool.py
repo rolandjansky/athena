@@ -99,7 +99,12 @@ class TrigEgammaFastPhotonHypoToolConfig:
 
     # add mon tool
     if hasattr(self.tool(), "MonTool"):
-      self.addMonitoring()
+      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
+      doOnlineMonAllChains = doOnlineMonForceCfg()
+      monGroups = self.__monGroups
+
+      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+        self.addMonitoring()
 
 
   #

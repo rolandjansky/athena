@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "src/TrigMufastHypoAlg.h"
 #include "src/TrigMufastHypoTool.h"
 #include "src/TrigmuCombHypoAlg.h"
@@ -9,6 +13,7 @@
 #include "src/TrigMuonEFInvMassHypoTool.h"
 #include "src/TrigMuonLateMuRoIHypoAlg.h"
 #include "src/TrigMuonLateMuRoIHypoTool.h"
+#include "src/TrigMuonTLAHypoAlg.h"
 
 
 DECLARE_COMPONENT( TrigMufastHypoAlg )
@@ -22,3 +27,4 @@ DECLARE_COMPONENT( TrigMuonEFHypoTool )
 DECLARE_COMPONENT( TrigMuonEFInvMassHypoTool )
 DECLARE_COMPONENT( TrigMuonLateMuRoIHypoAlg )
 DECLARE_COMPONENT( TrigMuonLateMuRoIHypoTool )
+DECLARE_COMPONENT( TrigMuonTLAHypoAlg )

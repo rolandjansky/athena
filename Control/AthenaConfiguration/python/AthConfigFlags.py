@@ -179,7 +179,7 @@ class AthConfigFlags(object):
 
     def _loadDynaFlags(self, name):
         """
-        loads the flags of the form "A.B.C" first attemprintg the path "A" then "A.B" and then "A.B.C"
+        loads the flags of the form "A.B.C" first attempting the path "A" then "A.B" and then "A.B.C"
         """
 
         def __load_impl( flagBaseName ):
@@ -262,7 +262,7 @@ class AthConfigFlags(object):
 
     def _tryModify(self):
         if self._locked:
-            raise RuntimeError("Attemp to modify locked flag container")
+            raise RuntimeError("Attempt to modify locked flag container")
         else:
             # if unlocked then invalidate hash
             self._hash = None

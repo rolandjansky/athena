@@ -19,6 +19,8 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointForSeed.h"
 
+#include <boost/container/static_vector.hpp>
+
 namespace ActsTrk {
   
   ActsSeedingFromAthenaAlgorithm::ActsSeedingFromAthenaAlgorithm( const std::string &name, 
@@ -115,13 +117,15 @@ namespace ActsTrk {
 	};
 	point.set( sp, r );
 	Acts::Vector2 variance(point.covr(), point.covz());
+
+	boost::container::static_vector<std::size_t, 2> indexes({counter++});
+	std::unique_ptr<ActsTrk::SpacePoint> toAdd = 
+	  std::make_unique<ActsTrk::SpacePoint>( globalPos, 
+						 variance, 
+						 *actsSpData.get(),
+						 indexes );
 	
-	ActsTrk::SpacePoint *toAdd = new ActsTrk::SpacePoint( globalPos, 
-							      variance,
-							      *actsSpData.get(),
-							      ++counter );
-	
-	actsSpContainer->push_back( toAdd );    
+	actsSpContainer->push_back( std::move(toAdd) );    
       }
     }
 

@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # For SCT geometry and cabling
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
     acc.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
-    from InDetConfig.InDetRecToolConfig import SCT_CablingToolCfg
+    from SCT_Cabling.SCT_CablingConfig import SCT_CablingToolCfg
     acc.popToolsAndMerge(SCT_CablingToolCfg(ConfigFlags))
 
     # For EventInfo necessary for ByteStream file writing

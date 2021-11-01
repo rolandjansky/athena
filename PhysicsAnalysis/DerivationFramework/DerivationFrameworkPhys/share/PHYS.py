@@ -69,14 +69,15 @@ ToolSvc += PHYSMuonTPThinningTool
 thinningTools.append(PHYSMuonTPThinningTool)
 
 # TauJets thinning
-tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-PHYSTauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSTauJetsThinningTool",
-                                                                     StreamName      = PHYSStream.Name,
-                                                                     ContainerName   = "TauJets",
-                                                                     SelectionString = tau_thinning_expression)
-ToolSvc += PHYSTauJetsThinningTool
-thinningTools.append(PHYSTauJetsThinningTool)
+# Disabled for 1st production in 2021, to allow use by tau CP group
+#tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
+#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+#PHYSTauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSTauJetsThinningTool",
+#                                                                     StreamName      = PHYSStream.Name,
+#                                                                     ContainerName   = "TauJets",
+#                                                                     SelectionString = tau_thinning_expression)
+#ToolSvc += PHYSTauJetsThinningTool
+#thinningTools.append(PHYSTauJetsThinningTool)
 
 # Only keep tau tracks (and associated ID tracks) classified as charged tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
@@ -84,7 +85,7 @@ PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name      
                                                                       StreamName             = PHYSStream.Name,
                                                                       TauKey                 = "TauJets",
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      SelectionString        = tau_thinning_expression,
+#                                                                      SelectionString        = tau_thinning_expression,
                                                                       DoTauTracksThinning    = True,
                                                                       TauTracksKey           = "TauTracks")
 ToolSvc += PHYSTauTPThinningTool
@@ -217,7 +218,7 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights.eProbabilityHT.numberOfTRTHits.numberOfTRTOutliers",
                                       "EventInfo.hardScatterVertexLink.timeStampNSOffset",
-                                      "TauJets.chargedPFOLinks.neutralPFOLinks.pi0PFOLinks.dRmax.etOverPtLeadTrk.etaTauEnergyScale.ptTauEnergyScale"]
+                                      "TauJets.dRmax.etOverPtLeadTrk"]
 
 # Add trigger matching
 PhysCommonTrigger.trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)

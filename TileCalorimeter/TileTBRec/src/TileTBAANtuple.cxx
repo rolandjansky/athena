@@ -392,7 +392,7 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
       m_drawerList.resize(m_nDrawers);    m_drawerType.resize(m_nDrawers);
       m_drawerList[0] = "0x200"; m_drawerType[0] = 2; // barrel neg
       m_drawerList[1] = "0x401"; m_drawerType[1] = 4; // ext.barrel neg
-    } else if (m_TBperiod == 2016 || m_TBperiod == 2018) {
+    } else if (m_TBperiod == 2016 || m_TBperiod == 2018 || m_TBperiod == 2021) {
       m_nDrawers = 5;
       m_drawerList.resize(m_nDrawers);    m_drawerType.resize(m_nDrawers);
       m_drawerList[0] = "0x100"; m_drawerType[0] = 1; // M0 pos
@@ -549,26 +549,44 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
     //m_beamBC2Y2 = -0.176182117624;
     //m_beamBC2Z  = 2760 /* 2600. */;
 
-      // September 2017 calibration with additional precision from Survey 
-      
-      m_beamBC1X1 =  0.181797 + 0.5;  // Results from Survey
-      m_beamBC1X2 = -0.175657;
-      m_beamBC1Y1 = -0.128910 - 1.9;  // Results from Survey
-      m_beamBC1Y2 = -0.175965;
-      m_beamBC1Z  = 12839.6  + 105. + 4470.7 - 50. + 36. -35. -17.5 /* 2600. */; // Results from Survey
-      m_beamBC1Z_0  = 12839.6  + 105. + 4470.7 - 50. + 36. -35. -17.5 /* 2600. */; // Results from Survey
-      m_beamBC1Z_90  = 12839.6  + 105. + 2665.95 + 36. - 35. -17.5 /* 2600. */; // Results from Survey
-      m_beamBC1Z_min90  = 12839.6  + 105. + 2643.7 + 36. - 35. -17.5 /* 2600. */; // Results from Survey bc1_bc2_dist + bc1_bc2_corr + tile_corr + bc2_corr
+      if (m_TBperiod == 2021) {
+	m_beamBC1X1 = -0.156736;
+	m_beamBC1X2 = -0.178455;
+	m_beamBC1Y1 = -0.452977;
+	m_beamBC1Y2 = -0.17734;
+	m_beamBC1Z  = 12839.6  + 105. + 4470.7 - 50. + 36. -35. -17.5 /* 2600. */; // Results from Survey
+	m_beamBC1Z_0  = 12839.6  + 105. + 4470.7 - 50. + 36. -35. -17.5 /* 2600. */; // Results from Survey
+	m_beamBC1Z_90  = 12839.6  + 105. + 2665.95 + 36. - 35. -17.5 /* 2600. */; // Results from Survey
+	m_beamBC1Z_min90  = 12839.6  + 105. + 2643.7 + 36. - 35. -17.5 /* 2600. */; // Results from Survey bc1_bc2_dist + bc1_bc2_corr + tile_corr + bc2_corr
 
-      m_beamBC2X1 = 0.622896039922 - 25. ; // Results from Survey
-      m_beamBC2X2 = -0.176735;
-      m_beamBC2Y1 = 0.195954125116 + 17.7; // Results from Survey
-      m_beamBC2Y2 = -0.176182117624;
-      m_beamBC2Z  = 4470.7 - 50. + 36. -35. -17.5 /* 2600. */;
-      m_beamBC2Z_0  = 4470.7 - 50. ;
-      m_beamBC2Z_90  = 2665.95 + 36. - 35. - 17.5;
-      m_beamBC2Z_min90  = 2643.7 + 36. - 35. - 17.5; // Results from Survey tile_bc2_dist + bc1_bc2_corr + tile_corr + bc2_corr
-    
+	m_beamBC2X1 = 2.88152;
+	m_beamBC2X2 = -0.187192;
+	m_beamBC2Y1 = -1.79832;
+	m_beamBC2Y2 = -0.190846;
+	m_beamBC2Z  = 4470.7 - 50. + 36. -35. -17.5 /* 2600. */;
+	m_beamBC2Z_0  = 4470.7 - 50. ;
+	m_beamBC2Z_90  = 2665.95 + 36. - 35. - 17.5;
+	m_beamBC2Z_min90  = 2643.7 + 36. - 35. - 17.5; // Results from Survey tile_bc2_dist + bc1_bc2_corr + tile_corr + bc2_corr
+      } else {
+	// September 2017 calibration with additional precision from Survey
+	m_beamBC1X1 =  0.181797 + 0.5;  // Results from Survey
+	m_beamBC1X2 = -0.175657;
+	m_beamBC1Y1 = -0.128910 - 1.9;  // Results from Survey
+	m_beamBC1Y2 = -0.175965;
+	m_beamBC1Z  = 12839.6  + 105. + 4470.7 - 50. + 36. -35. -17.5 /* 2600. */; // Results from Survey
+	m_beamBC1Z_0  = 12839.6  + 105. + 4470.7 - 50. + 36. -35. -17.5 /* 2600. */; // Results from Survey
+	m_beamBC1Z_90  = 12839.6  + 105. + 2665.95 + 36. - 35. -17.5 /* 2600. */; // Results from Survey
+	m_beamBC1Z_min90  = 12839.6  + 105. + 2643.7 + 36. - 35. -17.5 /* 2600. */; // Results from Survey bc1_bc2_dist + bc1_bc2_corr + tile_corr + bc2_corr
+
+	m_beamBC2X1 = 0.622896039922 - 25. ; // Results from Survey
+	m_beamBC2X2 = -0.176735;
+	m_beamBC2Y1 = 0.195954125116 + 17.7; // Results from Survey
+	m_beamBC2Y2 = -0.176182117624;
+	m_beamBC2Z  = 4470.7 - 50. + 36. -35. -17.5 /* 2600. */;
+	m_beamBC2Z_0  = 4470.7 - 50. ;
+	m_beamBC2Z_90  = 2665.95 + 36. - 35. - 17.5;
+	m_beamBC2Z_min90  = 2643.7 + 36. - 35. - 17.5; // Results from Survey tile_bc2_dist + bc1_bc2_corr + tile_corr + bc2_corr
+      }
     }
   }
 
@@ -1597,7 +1615,7 @@ StatusCode TileTBAANtuple::storeRawChannels(std::string containerId
         // cabling for testbeam (convert to pmt#-1)
         if ((m_TBperiod < 2015 ||
              (m_TBperiod==2015 && fragType<3) ||
-	     (m_TBperiod==2016 && ((fragId&0xFF)<4 && fragId != 0x201)) ||
+	     ((m_TBperiod==2016 || m_TBperiod==2021) && ((fragId&0xFF)<4 && fragId != 0x201)) ||
 	     (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))) ||
 	     (m_TBperiod==2018 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x402))) ||
 	     (m_TBperiod==2019 && ((fragId&0xFF)<5 && !(fragId == 0x201 || fragId == 0x203 || fragId >= 0x402))))
@@ -1816,7 +1834,7 @@ StatusCode TileTBAANtuple::storeDigits() {
 
             if ((m_TBperiod < 2015 ||
                  (m_TBperiod==2015 && fragType<3) ||
-		 (m_TBperiod==2016 && ((fragId&0xFF)<4 && fragId != 0x201)) ||
+		 ((m_TBperiod==2016 || m_TBperiod==2021) && ((fragId&0xFF)<4 && fragId != 0x201)) ||
 		 (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))) ||
 		 (m_TBperiod==2018 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x402))) ||
 		 (m_TBperiod==2019 && ((fragId&0xFF)<5 && !(fragId == 0x201 || fragId == 0x203 || fragId >= 0x402))))
@@ -1922,7 +1940,7 @@ StatusCode TileTBAANtuple::storeDigits() {
           // cabling for testbeam
           if ((m_TBperiod < 2015 ||
                (m_TBperiod==2015 && fragType<3) ||
-	       (m_TBperiod==2016 && ((fragId&0xFF)<4 && fragId != 0x201)) ||
+	       ((m_TBperiod==2016 || m_TBperiod==2021) && ((fragId&0xFF)<4 && fragId != 0x201)) ||
 	       (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))) ||
 	       (m_TBperiod==2018 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x402))) ||
 	       (m_TBperiod==2019 && ((fragId&0xFF)<5 && !(fragId == 0x201 || fragId == 0x203 || fragId >= 0x402))))
@@ -2119,7 +2137,7 @@ void TileTBAANtuple::storeHit(const TileHit *cinp, int fragType, int fragId, flo
   // cabling for testbeam
   if ((m_TBperiod < 2015 || 
        (m_TBperiod==2015 && fragType<3) ||
-       (m_TBperiod==2016 && ((fragId&0xFF)<4 && fragId != 0x201)) ||
+       ((m_TBperiod==2016 || m_TBperiod==2021) && ((fragId&0xFF)<4 && fragId != 0x201)) ||
        (m_TBperiod==2017 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x203))) ||
        (m_TBperiod==2018 && ((fragId&0xFF)<4 && !(fragId == 0x201 || fragId == 0x402))) ||
        (m_TBperiod==2019 && ((fragId&0xFF)<5 && !(fragId == 0x201 || fragId == 0x203 || fragId >= 0x402))))

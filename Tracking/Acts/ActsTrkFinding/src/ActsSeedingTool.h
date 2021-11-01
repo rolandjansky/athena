@@ -49,7 +49,7 @@ namespace ActsTrk {
 		  const ActsTrk::SpacePointContainer& spContainer,
 		  const InDet::BeamSpotData& beamSpotData,
 		  const Acts::MagneticFieldContext& magFieldContext,
-		  ActsTrk::SeedContainer& seedContainer ) const;
+		  ActsTrk::SeedContainer& seedContainer ) const override;
     
   private:    
     template< 

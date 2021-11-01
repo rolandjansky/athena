@@ -14,8 +14,7 @@ def createEgammaConfigFlags():
 
     # do standard cluster-based egamma algorithm
     egcf.addFlag("Egamma.doCaloSeeded",
-                 lambda prevFlags: prevFlags.Detector.EnableCalo and
-                 prevFlags.Output.doESD)
+                 lambda prevFlags: prevFlags.Detector.EnableCalo)
 
     # do forward egamma
     egcf.addFlag("Egamma.doForwardSeeded",
@@ -43,12 +42,7 @@ def createEgammaConfigFlags():
                  'v12phiflip_supercluster')
     egcf.addFlag("Egamma.Calib.MVAVersion", 'egammaMVACalib/offline/v7')
 
-    ##################################################
-    # The keys: should update to use file peeking info
-    # Also not sure what's the best way to do this, might want to revisit
-    # one idea is to make the keys have tuples with type, name, etc
-    ##################################################
-
+    # The output keys
     egcf.addFlag("Egamma.Keys.Input.CaloCells", 'AllCalo')
     egcf.addFlag("Egamma.Keys.Input.TopoClusters",
                  'CaloTopoClusters')  # input topoclusters
@@ -82,11 +76,6 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.CaloClusters", 'egammaClusters')
     egcf.addFlag("Egamma.Keys.Output.CaloClustersSuppESD", '')
     egcf.addFlag("Egamma.Keys.Output.CaloClustersSuppAOD", '')
-
-    egcf.addFlag("Egamma.Keys.Output.TopoSeededClusters",
-                 'egammaTopoSeededClusters')
-    egcf.addFlag("Egamma.Keys.Output.TopoSeededClustersSuppESD", '')
-    egcf.addFlag("Egamma.Keys.Output.TopoSeededClustersSuppAOD", '-CellLink')
 
     egcf.addFlag("Egamma.Keys.Output.Electrons", 'Electrons')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD", '')
