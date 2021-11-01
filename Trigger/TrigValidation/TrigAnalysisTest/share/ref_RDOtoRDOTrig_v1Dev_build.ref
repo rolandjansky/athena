@@ -8700,7 +8700,7 @@ HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan_L1MU14FCH_XE30:
     1: 3
     2: 1
     3: 2
-HLT_mu20_mu2noL1_invmJPsi_os_L1MU14FCH:
+HLT_mu20_mu2noL1_invmJPsiOS_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 6
