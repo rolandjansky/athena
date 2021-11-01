@@ -35,7 +35,7 @@
 #include "../RpcClusterPreparator.h"
 #include "../ClusterPatFinder.h"
 #include "../ClusterRoadDefiner.h"
-
+#include "../MuCalCircClient.h"
 using namespace TrigL2MuonSA;
 
 DECLARE_COMPONENT( MuFastSteering )
