@@ -63,7 +63,8 @@ TrigEgammaSuperClusterBuilder = AlgFactory( egammaAlgsConf.egammaSuperClusterBui
         MVACalibSvc=TrigEgammaMVASvc,
         CalibrationType='electron',
         EtThresholdCut = 1000,
-        doAdd = False
+        doAdd = False,
+        LinkToConstituents = False,
         )
 
 
