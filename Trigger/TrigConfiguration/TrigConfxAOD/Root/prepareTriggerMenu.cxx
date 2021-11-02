@@ -298,7 +298,7 @@ namespace TrigConf {
                                  const L1Menu& loadedL1,
                                  const HLTPrescalesSet& loadedHltps,
                                  const L1PrescalesSet& loadedL1ps,
-                                 const L1BunchGroupSet& /*loadedBgSet unused so far*/,
+                                 const L1BunchGroupSet& loadedBgSet,
                                  CTPConfig& ctpConfig,
                                  HLTChainList& chainList,
                                  HLTSequenceList& sequenceList,
@@ -447,27 +447,37 @@ namespace TrigConf {
       // modified... :-/
       BunchGroupSet bgSetNew;
 
-      // Temporary empty structure
-      for( size_t i = 0; i < 16; ++i ) {
-         BunchGroup bg;
-         bg.setInternalNumber( i );
-         bgSetNew.addBunchGroup( bg );
+      // Empty structure if data are missing
+      if (!loadedBgSet) {
+
+         for( size_t i = 0; i < 16; ++i ) {
+            BunchGroup bg;
+            bg.setInternalNumber(i);
+            bgSetNew.addBunchGroup(bg);
+         }
+
+      } else {
+
+         // Fill it with info:
+         for( size_t i = 0; i < loadedBgSet.size(); ++i ) {
+
+            const std::shared_ptr<L1BunchGroup> loadedBg = loadedBgSet.getBunchGroup(i);
+
+            // Create a BunchGroup object:
+            BunchGroup bg;
+            bg.setInternalNumber(i);
+
+            // Not the most efficient of copies, but one format has 16 bit ints whereas the other has 32 bit ints.
+            for (const uint16_t b : loadedBg->bunches()) {
+               bg.addBunch( static_cast<int>(b) );
+            }
+
+            // Add it to the set:
+            bgSetNew.addBunchGroup(bg);
+         }
+
       }
 
-      // // Fill it with info:
-      // for( size_t i = 0; i < loadedBgSet.size(); ++i ) {
-
-      //    const L1BunchGroup& loadedBg = loadedBgSet.getBunchGroup(i);
-
-      //    // Create a BunchGroup object:
-      //    BunchGroup bg;
-      //    bg.setInternalNumber( i );
-      //    // TODO - need to call  bg.addBunch( B ); for each bunch
-      //    // Might need to make some changes to L1BunchGroupSet to make this more efficient
-
-      //    // Add it to the set:
-      //     bgSetNew.addBunchGroup( bg );
-      // }
 
       // Replace the current bunch-group set with the new one:
       bgSet = bgSetNew;
