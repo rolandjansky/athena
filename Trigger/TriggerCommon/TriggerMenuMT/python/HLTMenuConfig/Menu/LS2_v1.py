@@ -951,14 +951,6 @@ def setupMenu():
         ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1eTAU60_2eTAU40', l1SeedThresholds=['eTAU60','eTAU40'], groups=PrimaryPhIGroup+MultiTauGroup),
         ChainProp(name='HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1eTAU60_2eTAU40', l1SeedThresholds=['eTAU60','eTAU40'], groups=PrimaryPhIGroup+MultiTauGroup),
 
-        # Test chain without clusters outside the ROI
-        ChainProp(name="HLT_tau25_idperf_tracktwoMVAClus_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau25_perf_tracktwoMVAClus_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVAClus_L1TAU12IM", groups=SingleTauGroup),   
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVAClus_tau25_mediumRNN_tracktwoMVAClus_03dRAB30_L1DR-TAU20ITAU12I-J25', l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup), 
-        ChainProp(name="HLT_tau160_idperf_tracktwoMVAClus_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_perf_tracktwoMVAClus_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVAClus_L1TAU100", groups=SingleTauGroup),
     ]
 
     chains['Bphysics'] += [
