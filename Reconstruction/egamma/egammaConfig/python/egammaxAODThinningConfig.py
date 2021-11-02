@@ -20,8 +20,20 @@ def egammaxAODThinningCfg(flags, name="EGammaxAODThinning"):
             egammaTrackSlimmerCfg)
         acc.merge(egammaTrackSlimmerCfg(flags))
 
-    # Need to add the Cell Thinning for
-    # egamma and egammaLargeClusters
+    # Add the Cell Thinning for egamma and egammaLargeClusters
+    outFlags = flags.Egamma.Keys.Output
+    allClusters = [outFlags.CaloClusters, outFlags.EgammaLargeClusters,
+                   outFlags.ForwardClusters, outFlags.EgammaLargeFWDClusters]
+    samplings = ['TileGap1', 'TileGap2', "TileGap3",
+                 'TileBar0', 'TileExt0', 'HEC0']
+    from CaloRec.CaloThinCellsByClusterAlgConfig import (
+        CaloThinCellsByClusterAlgCfg)
+    for clus in allClusters:
+        acc.merge(CaloThinCellsByClusterAlgCfg(
+            flags,
+            streamName='AOD',
+            clusters=clus,
+            samplings=samplings))
 
     mlog.info("EGamma xAOD Thinning configured")
     return acc
