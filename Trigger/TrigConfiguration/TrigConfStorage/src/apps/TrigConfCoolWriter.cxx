@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigConfStorage/TrigConfCoolWriter.h"
 #include "TrigConfStorage/TrigConfCoolFolderSpec.h"
 #include "TrigConfStorage/TrigConfCoolHLTPayloadConverters.h"
 #include "TrigConfStorage/TrigConfCoolL1PayloadConverters.h"
@@ -48,6 +47,10 @@
 #include <set>
 #include <iterator>
 
+#include "TrigConfCoolWriter.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // only used in standalone app
 
 using boost::lexical_cast;
 using namespace std;
@@ -167,8 +170,6 @@ TrigConf::TrigConfCoolWriter::closeDb() {
       m_ostream << "*** COOL  exception caught: " << e.what() << endl 
                 << "Couldn't close conditions database: " << m_dbId << endl;
    }
-   TrigConfCoolFolderSpec::resetSchemaVersion();
-   return;
 }
 
 

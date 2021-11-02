@@ -24,7 +24,6 @@
 #include "TrigConfStorage/DBLoader.h"
 #include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfStorage/IHLTFrameLoader.h"
-#include "TrigConfStorage/TrigConfCoolWriter.h"
 #include "TrigConfStorage/MCKLoader.h"
 
 #include "TrigConfL1Data/CaloInfo.h"
@@ -35,6 +34,7 @@
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfJobOptData/JobOptionTable.h"
 
+#include "TrigConfCoolWriter.h"
 #include "Run2toRun3ConvertersL1.h"
 #include "Run2toRun3ConvertersHLT.h"
 
@@ -102,12 +102,9 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
    o << "================================================================================\n";
 }
 
-class JobConfig {
-public:
+struct JobConfig {
    enum Format { UNDEF=0x00, DB=0x01, COOL=0x02, XML=0x04, JSON=0x08 };
    enum ETriggerLevel { LVL1 = 0, HLT = 1, NONE = 2 };
-   ~JobConfig(){}
-   JobConfig() {}
 
    std::vector<std::string>  inpar, inpar2, outpar;
 
@@ -149,7 +146,7 @@ public:
 
    unsigned int getKey2(unsigned int which) { return keys2.size()>which?keys2[which]:0; }
 
-} gConfig;
+};
 
 
 namespace {
@@ -360,6 +357,7 @@ int main( int argc, char* argv[] ) {
     * Getting the program parameters
     *
     ***************************************/
+   JobConfig gConfig;
    gConfig.parseProgramOptions(argc, argv);
    if(gConfig.help) {
       printhelp(cout, endl);
@@ -426,7 +424,7 @@ int main( int argc, char* argv[] ) {
       ctpc->setSMK( gConfig.getKey(0) );
       ctpc->setPrescaleSetId( gConfig.getKey(1) );
       ctpc->setBunchGroupSetId( gConfig.getKey(3) );
-      DBLoader::setEnv(DBLoader::CTPOnl);
+      sm->menuLoader().setEnv(IMenuLoader::CTPOnl);
       ctpc->setLoadCtpFiles(gConfig.fw); // load CTP files ?
       sm->masterTableLoader().setLevel( gConfig.outputlevel );
       sm->masterTableLoader().load(*ctpc);
@@ -526,7 +524,7 @@ int main( int argc, char* argv[] ) {
          ctpc2->setSMK( gConfig.getKey2(0) );
          ctpc2->setPrescaleSetId( gConfig.getKey2(1) );
          ctpc2->setBunchGroupSetId( gConfig.getKey2(3) );
-         TrigConf::DBLoader::setEnv(TrigConf::DBLoader::CTP);
+         sm->menuLoader().setEnv(IMenuLoader::CTP);
          sm->masterTableLoader().setLevel(gConfig.outputlevel);
          sm->masterTableLoader().load(*ctpc2);
          ctpc2->muCTPi().setSMK( gConfig.getKey2(0) );
@@ -606,7 +604,7 @@ int main( int argc, char* argv[] ) {
       }
       catch(const cool::StorageTypeStringTooLong& e){
          log << "FATAL: Unable to write data to COOL";
-         exit(1);
+         return 1;
       }
       if(mck) {
          coolWriter->writeMCKPayload(runNr, mck, release, info);
