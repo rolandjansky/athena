@@ -24,7 +24,6 @@
 #include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IHLTFrameLoader.h"
-#include "TrigConfStorage/TrigConfCoolWriter.h"
 
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
@@ -35,6 +34,7 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string.hpp"
 
+#include "TrigConfCoolWriter.h"
 
 #include <iostream>
 #include <fstream>

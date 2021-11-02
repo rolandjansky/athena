@@ -24,7 +24,6 @@
 #include "TrigConfStorage/DBLoader.h"
 #include "TrigConfStorage/IStorageMgr.h"
 #include "TrigConfStorage/IHLTFrameLoader.h"
-#include "TrigConfStorage/TrigConfCoolWriter.h"
 #include "TrigConfStorage/MCKLoader.h"
 
 #include "TrigConfL1Data/CaloInfo.h"
@@ -35,6 +34,7 @@
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 #include "TrigConfJobOptData/JobOptionTable.h"
 
+#include "TrigConfCoolWriter.h"
 #include "Run2toRun3ConvertersL1.h"
 #include "Run2toRun3ConvertersHLT.h"
 
