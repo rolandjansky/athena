@@ -59,6 +59,10 @@ class PtEndcapLUTSvc(MuonSA.TrigL2MuonSA__PtEndcapLUTSvc):
         self.FileName = "pt_endcap.lut"
         self.EMeanLUT = "pt_comb_mean.lut"
         self.ESigmaLUT = "pt_comb_sigma.lut"
+        if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+          self.UseRun3LUT = True
+        else:
+          self.UseRun3LUT = False
 
 class PtEndcapLUTSvc_MC(MuonSA.TrigL2MuonSA__PtEndcapLUTSvc):
     def __init__(self,name = 'PtEndcapLUTSvc_MC'):
@@ -66,6 +70,10 @@ class PtEndcapLUTSvc_MC(MuonSA.TrigL2MuonSA__PtEndcapLUTSvc):
         self.FileName = "pt_endcap.mc10.lut"
         self.EMeanLUT = "pt_comb_mean.lut"
         self.ESigmaLUT = "pt_comb_sigma.lut"
+        if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+          self.UseRun3LUT = True
+        else:
+          self.UseRun3LUT = False
 
 class AlignmentBarrelLUTSvc(MuonSA.TrigL2MuonSA__AlignmentBarrelLUTSvc):
     def __init__(self,name = 'AlignmentBarrelLUTSvc'):
