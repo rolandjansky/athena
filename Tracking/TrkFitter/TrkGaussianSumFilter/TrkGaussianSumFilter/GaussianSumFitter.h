@@ -23,8 +23,10 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 //
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthContainers/DataVectorWithAlloc.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 //
@@ -41,6 +43,10 @@ class GaussianSumFitter
   , public AthAlgTool
 {
 public:
+  using MCSOSContainer = DataVector<const Trk::MultiComponentStateOnSurface>;
+  using SmoothedTrajectoryProt = DataVectorWithAlloc<MCSOSContainer>;
+  using SmoothedTrajectoryProtPtr = SmoothedTrajectoryProt::ContainerUniquePtr;
+
   /** Constructor with parameters to be passed to AlgTool */
   GaussianSumFitter(const std::string&, const std::string&, const IInterface*);
 
@@ -111,14 +117,15 @@ public:
 
 private:
   /** Produces a perigee from a smoothed trajectory */
-  const MultiComponentStateOnSurface* makePerigee(
+  Trk::GaussianSumFitter::SmoothedTrajectoryProt::Ptr
+  makePerigee(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
-    const SmoothedTrajectory&,
+    SmoothedTrajectoryProt&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Gsf smoothe trajectory*/
-  SmoothedTrajectory fit(
+  SmoothedTrajectoryProtPtr fit(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
     const ForwardTrajectory&,
@@ -135,7 +142,7 @@ private:
     const EventContext& ctx,
     const Trk::TrackStateOnSurface* currentState,
     const Trk::CaloCluster_OnTrack* ccot,
-    Trk::SmoothedTrajectory& smoothedTrajectory) const;
+    SmoothedTrajectoryProt& smoothedTrajectory) const;
 
   /** Forward GSF fit using PrepRawData */
   ForwardTrajectory fitPRD(

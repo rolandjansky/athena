@@ -24,16 +24,18 @@ log = logging.getLogger(__name__)
 class TrigEgammaKeys(object):
       """Static class to collect all string manipulation in Electron sequences """
       SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
-      outputElectronKey = recordable('HLT_egamma_Electrons')
       SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
+      outputElectronKey = recordable('HLT_egamma_Electrons')
+      outputTopoCollection = 'HLT_egammaTopoCluster'
       EgammaRecKey = 'HLT_egammaRecCollection'
+      PrecisionCaloEgammaRecKey = 'HLT_prcisionCaloEgammaRecCollection'
       IDTrigConfig = getInDetTrigConfig( 'electron' )
       outputPhotonKey = recordable('HLT_egamma_Photons')
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = recordable('HLT_TrigEMClusters')
       TrigElectronTracksCollectionName = IDTrigConfig.tracks_IDTrig()
       pidVersion = 'rel22_20210611'
-      dnnVersion = 'mc16_20210430'
+      dnnVersion = 'rel21_20210928'
       ringerVersion = 'TrigL2_20210702_r4'
       
 
@@ -58,7 +60,7 @@ class TrigEgammaKeys_GSF(object):
 def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
     # We should include the DNN here
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/offline/'+TrigEgammaKeys.dnnVersion
+      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.dnnVersion
   
     import collections
     SelectorNames = collections.OrderedDict({

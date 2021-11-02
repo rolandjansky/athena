@@ -19,7 +19,7 @@ namespace MuonGM {
 #include "MuonCalibDbOperations/CalibDbConnection.h"
 #include "MuonCalibDbOperations/CalibHeadOperations.h"
 #include "MuonCalibMath/SamplePoint.h"
-#include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonCalibStandAloneBase/ICalibrationIOTool.h"
 class RegionSelectionSvc;
 
 namespace MuonCalib {
@@ -27,10 +27,11 @@ namespace MuonCalib {
     // class CalibDbConnection;
     class IRtRelation;
 
-    class CalibrationDbIOTool : public AthAlgTool, virtual public CalibrationIOTool {
+    class CalibrationDbIOTool : public AthAlgTool, virtual public ICalibrationIOTool {
     public:
         /** constructor*/
         CalibrationDbIOTool(const std::string &t, const std::string &n, const IInterface *p);
+        virtual ~CalibrationDbIOTool();
         /** initialisation */
         StatusCode initialize() override;
         /** write out t0 */

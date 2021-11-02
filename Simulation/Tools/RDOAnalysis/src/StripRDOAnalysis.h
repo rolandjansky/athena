@@ -30,6 +30,8 @@ namespace InDetDD {
    class SCT_DetectorManager;
 }
 
+namespace ITk
+{
 
 class StripRDOAnalysis : public AthAlgorithm {
 
@@ -39,7 +41,6 @@ public:
 
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
-  virtual StatusCode finalize() override final;
 
 private:
   SG::ReadHandleKey<SCT_RDO_Container> m_inputKey;
@@ -164,5 +165,7 @@ private:
   bool m_doPos;
 
 };
+
+} // namespace ITk
 
 #endif // STRIP_RDO_ANALYSIS_H

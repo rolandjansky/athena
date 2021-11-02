@@ -243,6 +243,13 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             #Run either nominal or LLP rnn, not both 
+
+            from AthenaCommon.Logging import log
+            if doLLP and doRNN:
+               log.warning( "WARNING doLLP and doRNN flags both set to True -> will set doRNN to False")
+               doRNN = False
+               
+
             if doLLP:
                     doRNN = False
             if doRNN:
@@ -263,7 +270,8 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                                                            NetworkFile3P="llpdev/net_experimental_llz_mp.json",
                                                            MaxTracks=10, 
                                                            MaxClusters=6,
-                                                           MaxClusterDR=1.0))
+                                                           MaxClusterDR=1.0,
+                                                           suffix = "_LLP"))
                 # flattened RNN score and WP
                 tools.append(taualgs.getTauWPDecoratorJetLLP())
 

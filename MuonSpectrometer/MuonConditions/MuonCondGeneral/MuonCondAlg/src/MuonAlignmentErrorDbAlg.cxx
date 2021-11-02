@@ -80,7 +80,7 @@ StatusCode MuonAlignmentErrorDbAlg::execute() {
     std::string line;
     while (getline(indata, line)) {
         // READING COMMENTS
-        if (line.substr(0, 1) == "#") {
+        if (line.compare(0, 1,"#") == 0) {
             // ATH_MSG_DEBUG("Reading a commented line saying " << line);
             continue;
         }
@@ -94,7 +94,7 @@ StatusCode MuonAlignmentErrorDbAlg::execute() {
         double rotation(0.);
 
         // GET INPUT FILE VERSION
-        if (line.substr(0, 7) == "version") {
+        if (line.compare(0, 7, "version") == 0) {
             std::istringstream(line) >> flag >> version_tag;
             ATH_MSG_INFO("*****************************************");
             ATH_MSG_INFO("Input file version " << version_tag);

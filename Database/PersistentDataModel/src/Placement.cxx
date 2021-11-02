@@ -15,7 +15,13 @@ Placement::Placement() : m_technology(0L), m_fileName(""), m_containerName("") {
 const std::string Placement::toString() const {
    char text[128];
    sprintf(text, fmt_tech, m_technology);
-   std::string str = "[FILE=" + m_fileName + "][CONT=" + m_containerName + "]" + text + m_auxString;
+   std::string str = "[FILE=";
+   str += m_fileName;
+   str += "][CONT=";
+   str += m_containerName;
+   str += ']';
+   str += text;
+   str += m_auxString;
    return str;
 }
 
@@ -36,7 +42,7 @@ Placement& Placement::fromString(const std::string& source) {
             }
             if (!p3) p3 = source.c_str() + source.size();
             m_auxString.append (p1, p3-p1);
-            m_auxString += "]";
+            m_auxString += ']';
          }
       }
    }

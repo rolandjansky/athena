@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -56,11 +56,6 @@ AmdcsimrecAthenaSvc::AmdcsimrecAthenaSvc(const std::string& name,ISvcLocator* sv
    p_AmdcAlineStoreExternal = new AmdcAlineStore;
    p_AmdcBlineStoreExternal = new AmdcBlineStore;
    p_AmdcIlineStoreExternal = new AmdcIlineStore ;
-
-   m_LocationOfTheFile = "" ;
-
-   m_AmdcString = "" ;
-   m_AgddString = "" ;
 
    m_AmdcABlinesStamp = 1;
    

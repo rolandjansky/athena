@@ -228,17 +228,19 @@ def MuonStationIntersectSvcCfg(flags, name='MuonStationIntersectSvc',**kwargs):
 
 # default muon navigator
 def MuonNavigatorCfg(flags, name="MuonNavigator", **kwargs):
-    Trk__Navigator=CompFactory.Trk.Navigator
-    
+    Trk__Navigator = CompFactory.Trk.Navigator
     result = ComponentAccumulator()
-
-    acc  = TrackingGeometrySvcCfg(flags)
+    
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
     result.merge(acc)
-    kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
+    kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
 
     navigator = Trk__Navigator(name=name, **kwargs)
-    result.setPrivateTools(navigator)   
-    return result     
+    result.setPrivateTools(navigator)
+    return result
 
 def MuonStraightLineExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator",**kwargs):
     # This is a bit odd , but this is exactly what was in the old configuration
@@ -316,10 +318,13 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     # take propagator and navigator from the extrapolator
     kwargs.setdefault("PropagatorTool", extrapolator.Propagators[0])
     kwargs.setdefault("NavigatorTool",  extrapolator.Navigator)
-    ### We need to include the tracking geometry conditions alg later
-    acc  = TrackingGeometrySvcCfg(flags)
-    result.merge(acc)
-    kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary() )
+    ### We need to include the tracking geometry conditions 
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    result.merge(TrackingGeometryCondAlgCfg(flags))
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
     fitter = Trk__GlobalChi2Fitter(name=name, **kwargs)
     result.setPrivateTools(fitter)
     # print fitter
@@ -416,12 +421,20 @@ def MuPatHitToolCfg(flags, name="MuPatHitTool",**kwargs):
     result.setPrivateTools(Muon__MuPatHitTool(name,**kwargs))
     return result
 
+
 def MuonTrackExtrapolationToolCfg(flags, name="MuonTrackExtrapolationTool", **kwargs):
-    # FIXME - it seems like this tool needs a lot of configuration still. But perhaps it can be simplified first?
-    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-    result = TrackingGeometryCondAlgCfg(flags) 
+    # FIXME - it seems like this tool needs a lot of configuration still.
+    # But perhaps it can be simplified first?
+    result = ComponentAccumulator()
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    result.merge(acc)
+    kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
     kwargs.setdefault("Cosmics", flags.Beam.Type == 'cosmics')
-    result.setPrivateTools(CompFactory.Muon.MuonTrackExtrapolationTool(name, **kwargs))
+    result.setPrivateTools(
+        CompFactory.Muon.MuonTrackExtrapolationTool(name, **kwargs))
     return result
 
 def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):

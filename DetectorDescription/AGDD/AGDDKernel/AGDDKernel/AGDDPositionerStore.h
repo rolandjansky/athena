@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AGDDPositionerStore_H
@@ -16,7 +16,6 @@ public:
 	AGDDPositionerStore();
 	void RegisterPositioner(AGDDPositioner *);
 	AGDDPositioner* GetPositioner(unsigned int i);
-	static AGDDPositionerStore* GetPositionerStore();
 	int NrOfPositioners() {return (*this).size();}
 private:
 

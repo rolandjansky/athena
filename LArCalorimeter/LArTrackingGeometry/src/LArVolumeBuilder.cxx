@@ -138,10 +138,10 @@ StatusCode LAr::LArVolumeBuilder::finalize()
   return StatusCode::SUCCESS;
 }
 
-const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes() const
+const std::vector<Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes() const
 {
   // the return vector
-  std::vector<const Trk::TrackingVolume*>* lArTrackingVolumes = new std::vector<const Trk::TrackingVolume*>;
+  std::vector<Trk::TrackingVolume*>* lArTrackingVolumes = new std::vector<Trk::TrackingVolume*>;
   // the converter helpers
   Trk::GeoShapeConverter    geoShapeToVolumeBounds;
   Trk::GeoMaterialConverter geoMaterialToMaterialProperties;
@@ -174,10 +174,10 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   // THE BARREL SECTION
   ATH_MSG_DEBUG( "============ Barrel Section ======================" );
   
-  const Trk::TrackingVolume* solenoid             = nullptr;
-  const Trk::TrackingVolume* solenoidLArBarrelGap = nullptr;
-  const Trk::TrackingVolume* lArBarrelPresampler  = nullptr;
-  const Trk::TrackingVolume* lArBarrel            = nullptr;
+  Trk::TrackingVolume* solenoid             = nullptr;
+  Trk::TrackingVolume* solenoidLArBarrelGap = nullptr;
+  Trk::TrackingVolume* lArBarrelPresampler  = nullptr;
+  Trk::TrackingVolume* lArBarrel            = nullptr;
   
   Trk::CylinderVolumeBounds* solenoidBounds             = nullptr;
   Trk::CylinderVolumeBounds* solenoidLArBarrelGapBounds = nullptr;
@@ -580,20 +580,20 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   //   FCAL3_POS, FCAL3_NEG
   
   // positive Side
-  const Trk::TrackingVolume* lArPositiveEndcapInnerGap   = nullptr;
-  const Trk::TrackingVolume* lArPositiveEndcap           = nullptr;
-  const Trk::TrackingVolume* lArPositiveHec              = nullptr;
-  const Trk::TrackingVolume* lArPositiveHecFcalCover     = nullptr;
-  const Trk::TrackingVolume* lArPositiveFcal             = nullptr;
-  const Trk::TrackingVolume* lArPosECPresampler          = nullptr;
+  Trk::TrackingVolume* lArPositiveEndcapInnerGap   = nullptr;
+  Trk::TrackingVolume* lArPositiveEndcap           = nullptr;
+  Trk::TrackingVolume* lArPositiveHec              = nullptr;
+  Trk::TrackingVolume* lArPositiveHecFcalCover     = nullptr;
+  Trk::TrackingVolume* lArPositiveFcal             = nullptr;
+  Trk::TrackingVolume* lArPosECPresampler          = nullptr;
   
   // negative Side
-  const Trk::TrackingVolume* lArNegativeEndcapInnerGap   = nullptr;
-  const Trk::TrackingVolume* lArNegativeEndcap           = nullptr;
-  const Trk::TrackingVolume* lArNegativeHec              = nullptr;
-  const Trk::TrackingVolume* lArNegativeHecFcalCover     = nullptr;
-  const Trk::TrackingVolume* lArNegativeFcal             = nullptr;
-  const Trk::TrackingVolume* lArNegECPresampler          = nullptr;
+  Trk::TrackingVolume* lArNegativeEndcapInnerGap   = nullptr;
+  Trk::TrackingVolume* lArNegativeEndcap           = nullptr;
+  Trk::TrackingVolume* lArNegativeHec              = nullptr;
+  Trk::TrackingVolume* lArNegativeHecFcalCover     = nullptr;
+  Trk::TrackingVolume* lArNegativeFcal             = nullptr;
+  Trk::TrackingVolume* lArNegECPresampler          = nullptr;
   
   // the smoothed ones
   Trk::CylinderVolumeBounds* lArPositiveHecBounds            = nullptr;

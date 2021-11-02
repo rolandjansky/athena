@@ -54,8 +54,8 @@ def getPFCellLevelSubtractionTool(inputFlags,toolName):
     PFCellLevelSubtractionToolFactory = CompFactory.PFCellLevelSubtractionTool
     PFCellLevelSubtractionTool = PFCellLevelSubtractionToolFactory(toolName)
 
-    eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
-    PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
+    eflowCellEOverPTool_Run2_mc20_JetETMiss = CompFactory.eflowCellEOverPTool_Run2_mc20_JetETMiss
+    PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_Run2_mc20_JetETMiss()
 
     if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.CalcEOverP = True
@@ -68,6 +68,7 @@ def getPFCellLevelSubtractionTool(inputFlags,toolName):
     else:
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,1.64,"EtaPhiSquareSignificance","GeomCenterEtaPhi","CalObjBldMatchingTool")
 
+    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_015 = getPFTrackClusterMatchingTool(inputFlags,0.15,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_015")
     PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_02")
 
     return PFCellLevelSubtractionTool
@@ -76,8 +77,8 @@ def getPFRecoverSplitShowersTool(inputFlags,toolName):
     PFRecoverSplitShowersToolFactory = CompFactory.PFRecoverSplitShowersTool
     PFRecoverSplitShowersTool = PFRecoverSplitShowersToolFactory(toolName)
 
-    eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
-    PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
+    eflowCellEOverPTool_Run2_mc20_JetETMiss = CompFactory.eflowCellEOverPTool_Run2_mc20_JetETMiss
+    PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_Run2_mc20_JetETMiss("eflowCellEOverPTool_Run2_mc20_JetETMiss_Recover")
 
     PFRecoverSplitShowersTool.RecoverIsolatedTracks = inputFlags.PF.recoverIsolatedTracks
 

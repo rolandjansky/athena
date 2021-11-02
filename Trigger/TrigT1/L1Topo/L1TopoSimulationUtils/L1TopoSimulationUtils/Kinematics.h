@@ -48,6 +48,10 @@ namespace TSU {
       */
 	static unsigned long quadraticSumBW(int i1, int i2);
 
+	static unsigned int calcDeltaPhiLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned int calcDeltaEtaLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned int calcDeltaR2Legacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+
 	static unsigned int calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);

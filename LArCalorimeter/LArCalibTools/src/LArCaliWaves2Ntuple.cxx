@@ -72,7 +72,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
   }
 
   StatusCode sc;
-  sc=m_nt->addItem("DAC",m_dac,0,64000);
+  sc=m_nt->addItem("DAC",m_dac,0,600000);
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR( "addItem 'DAC' failed" );
     return StatusCode::FAILURE;

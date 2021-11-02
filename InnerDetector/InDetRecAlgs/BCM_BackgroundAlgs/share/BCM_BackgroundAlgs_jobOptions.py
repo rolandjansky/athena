@@ -1,4 +1,0 @@
-include.block ('BCM_BackgroundAlgs/BCM_BackgroundAlgs_jobOptions.py')
-from BCM_BackgroundAlgs.BCM_BackgroundAlgsConf import BcmCollisionTimeAlg
-BcmCollisionTimeAlg=BcmCollisionTimeAlg()
-topSequence+=BcmCollisionTimeAlg

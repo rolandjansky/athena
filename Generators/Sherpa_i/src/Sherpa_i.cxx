@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AtlasHepMC/GenEvent.h"
@@ -235,8 +235,18 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
     }
   }
 
+#ifdef HEPMC3
+// units correction
+      event->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
+//uncomment to list HepMC3 events
+//    std::cout << " print::listing Sherpa " << std::endl;
+//    HepMC3::Print::listing(std::cout, *event);
+#else
   GeVToMeV(event); //unit check
-
+//    std::cout << " print::printing Sherpa " << std::endl;
+//    event->print();
+#endif
+  
   return StatusCode::SUCCESS;
 }
 

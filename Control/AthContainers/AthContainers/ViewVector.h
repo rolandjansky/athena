@@ -81,6 +81,11 @@ public:
   typedef typename DV::const_reference          const_reference;
   typedef typename DV::pointer                  pointer;
   typedef typename DV::const_pointer            const_pointer;
+  typedef typename DV::unique_type              unique_type;
+
+  /// If true, then this type must own its contents.
+  // cppcheck-suppress duplInheritedMember
+  static constexpr bool must_own = DV::must_own;
 
   /// The old persistent form of this class.
   typedef std::vector<ElementLink<DV> > Pers_t;

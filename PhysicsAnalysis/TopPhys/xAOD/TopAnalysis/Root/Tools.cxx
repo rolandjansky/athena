@@ -87,7 +87,7 @@ namespace top {
   }
 
   void parseCutBookkeepers(xAOD::TEvent& xaodEvent, const std::size_t size,
-      std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC) {
+      std::vector<std::string> &names, std::vector<float>& sumW) {
 
     // workaround for PMGTruthWeightTool returning ZERO weights, when sample has ONLY ONE weight...
     const std::size_t modifiedSize = (size == 0) ? 1 : size;
@@ -102,7 +102,7 @@ namespace top {
         // skip RDO and ESD numbers, which are nonsense; and
         // skip the derivation number, which is the one after skimming
         // we want the primary xAOD numbers
-        if ((cbk->inputStream() != "StreamAOD") && !(isHLLHC && cbk->inputStream() == "StreamDAOD_TRUTH1"))
+        if ((cbk->inputStream() != "StreamAOD"))
           continue;
         if (cbk->name() != "AllExecutedEvents") continue;
         const std::string name = cbk->name() + "_weight_" + std::to_string(icbk);
@@ -121,12 +121,12 @@ namespace top {
     }
   }
 
-  ULong64_t getRawEventsBookkeeper(const xAOD::CutBookkeeperContainer *cutBookKeepers, const bool isHLLHC) {
+  ULong64_t getRawEventsBookkeeper(const xAOD::CutBookkeeperContainer *cutBookKeepers) {
     int maxCycle = -1;
     ULong64_t rawEntries = 0;
     // search for "AllExecutedEvents" bookkeeper -- this one should always exist
     for (const xAOD::CutBookkeeper *cbk : *cutBookKeepers) {
-      if ((cbk->inputStream() != "StreamAOD") && !(isHLLHC && cbk->inputStream() == "StreamDAOD_TRUTH1"))
+      if ((cbk->inputStream() != "StreamAOD"))
         continue;
       if (cbk->name() != "AllExecutedEvents")
         continue;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDDATA_RPCCONDDBDATA_H
@@ -28,10 +28,10 @@ public:
     RpcCondDbData();
     virtual ~RpcCondDbData() = default;
 
-    void setDeadPanel       (std::string, Identifier        );
+    void setDeadPanel       (const std::string&, Identifier );
     void setDeadStrip       (Identifier                     );
     void setDeadStripInt    (Identifier, int                );
-    void setDeadStripList   (Identifier, std::string        );
+    void setDeadStripList   (Identifier, const std::string& );
     void setEfficiency      (Identifier, double             );
     void setFracClusterSize1(Identifier, double             );
     void setFracClusterSize2(Identifier, double             );
@@ -40,9 +40,9 @@ public:
     void setGapEfficiency   (Identifier, double             );
     void setLowEffPanel     (Identifier                     );
     void setMeanClusterSize (Identifier, double             );
-    void setOffPanel        (std::string, Identifier        );
+    void setOffPanel        (const std::string&, Identifier );
     void setProjectedTrack  (Identifier, int                );
-    void setStripTime       (Identifier, std::vector<double>);
+    void setStripTime       (Identifier, const std::vector<double>&);
 
     const std::vector<std::string>& getDeadPanels() const;
     const std::vector<std::string>& getOffPanels () const;

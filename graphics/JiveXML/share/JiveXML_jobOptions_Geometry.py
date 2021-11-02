@@ -4,8 +4,6 @@ jp.Rec.doWriteAOD=False
 jp.Rec.doTrigger=False
 jp.Rec.doMonitoring=False
 
-##include ("RecExCommon/RecExCommon_flags.py")
-
 include ("RecExCommon/myTopOptions.py")
 
 include( "JiveXML/JiveXML_jobOptionBase.py" )

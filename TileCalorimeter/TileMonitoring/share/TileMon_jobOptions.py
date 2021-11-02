@@ -196,24 +196,6 @@ if tileESDMon:
 
 if  tileRawMon:
 
-    if 'doTileMonOld' in dir() and doTileMonOld:
-        TileMBTSMon = CfgMgr.TileMBTSMonTool(name              = 'TileMBTSMon'
-                                             , OutputLevel     = INFO
-                                             , histoPathBase   = "/Tile/MBTS_OLD"
-                                             , LVL1ConfigSvc   = "TrigConf::TrigConfigSvc/TrigConfigSvc"
-                                             , doOnline        = athenaCommonFlags.isOnline()
-                                             , readTrigger     = False
-                                             , UseTrigger      = False
-                                             , FillHistogramsPerMBTS = False)
-        #                                         , readTrigger     = DQMonFlags.useTrigger());
-
-
-        from AthenaCommon.GlobalFlags import globalflags
-        if globalflags.InputFormat() == 'pool':
-            TileMBTSMon.TileDigitsContainerName = 'TileDigitsFlt'
-
-        ManagedAthenaTileMon.AthenaMonTools += [ TileMBTSMon ]
-
     from TileMonitoring.TileMBTSMonitorAlgorithm import TileMBTSMonitoringConfigOld
     topSequence += TileMBTSMonitoringConfigOld(DQMonFlags)
 

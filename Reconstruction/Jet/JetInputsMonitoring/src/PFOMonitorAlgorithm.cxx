@@ -122,7 +122,7 @@ StatusCode PFOMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       eta = pfo->eta();
       phi = pfo->phi();
       mass= pfo->m();
-      E   = pfo->e();
+      E   = pfo->e();     
       y   = pfo->rapidity();
       //float score = bdtPi0Score();
 
@@ -152,11 +152,14 @@ StatusCode PFOMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     }
 
     for (const auto& pfo : *nupfos) {
+      E   = pfo->e();
+      //some neutral particle flow FlowELement can have their energy set to exactly zero. Will get FPE if
+      //try to calculate rapidity, so skip these.
+      if (0 == E) continue;
       pT  = pfo->pt();
       eta = pfo->eta();
       phi = pfo->phi();
-      mass= pfo->m();
-      E   = pfo->e();
+      mass= pfo->m();      
       y   = pfo->rapidity();
       
       NupT  = pfo->pt();

@@ -16,7 +16,7 @@ namespace MuonGM {
 
     FPVMAP::FPVMAP() { m_nreused = 0; }
 
-    GeoVPhysVol *FPVMAP::GetDetector(std::string name) {
+    GeoVPhysVol *FPVMAP::GetDetector(const std::string& name) {
         if (m_Detectors.find(name) != m_Detectors.end()) {
             m_nreused++;
             // std::cout<<"FPVMAP:: the pointer to "<<name
@@ -26,7 +26,7 @@ namespace MuonGM {
             return 0;
     }
 
-    void FPVMAP::StoreDetector(GeoVPhysVol *s, std::string name) {
+    void FPVMAP::StoreDetector(GeoVPhysVol *s, const std::string& name) {
         // std::cout<<"FPVMAP:: store the pointer to "<<name<<std::endl;
         m_Detectors[name] = s;
     }
@@ -34,9 +34,8 @@ namespace MuonGM {
     void FPVMAP::PrintAllDetectors() {
         MsgStream log(Athena::getMessageSvc(), "MuonGM::FPVMAP");
 
-        for (DetectorIterator it = m_Detectors.begin(); it != m_Detectors.end(); it++) {
-            std::string key = (*it).first;
-            log << MSG::INFO << "---> A PhysVol corresponds to  " << key << endmsg;
+        for (const auto& p : m_Detectors) {
+            log << MSG::INFO << "---> A PhysVol corresponds to  " << p.first << endmsg;
         }
     }
 

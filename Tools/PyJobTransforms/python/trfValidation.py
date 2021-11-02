@@ -22,6 +22,7 @@ msg = logging.getLogger(__name__)
 
 from PyUtils import RootUtils
 
+from PyJobTransforms.trfExeStepTools import getExecutorStepEventCounts
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfArgClasses import argFile
@@ -912,7 +913,7 @@ class eventMatch(object):
         self._eventCountConf = {}
         self._eventCountConf['EVNT'] = {'EVNT_MRG':"match", "HITS": simEventEff, "EVNT_TR": "filter", "DAOD_TRUTH*" : "match"}
         self._eventCountConf['EVNT_TR'] = {'HITS': simEventEff}
-        self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter", "DAOD_TRUTH*" : "match"}
+        self._eventCountConf['HITS'] = {'RDO':"match", 'HITS_RSM': simEventEff, "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter", "DAOD_TRUTH*" : "match"}
         self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD*': "filter", 'AOD':"match", 'DAOD*':"filter"}
         self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match", 'AOD':"match", 'DAOD*':"filter"}
         self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
@@ -988,6 +989,12 @@ class eventMatch(object):
                     self._maxEvents = None
             else:
                 self._maxEvents = None
+
+            # Executor substeps handling
+            if self._executor.conf.totalExecutorSteps > 1 and self._executor.conf.executorStep < self._executor.conf.totalExecutorSteps - 1:
+                executorEventCounts, executorEventSkips = getExecutorStepEventCounts(self._executor)
+                self._maxEvents = executorEventCounts[self._executor.conf.executorStep]
+                self._skipEvents = executorEventSkips[self._executor.conf.executorStep]
 
             # Global eventAcceptanceEfficiency set?
             if "eventAcceptanceEfficiency" in self._executor.conf.argdict:

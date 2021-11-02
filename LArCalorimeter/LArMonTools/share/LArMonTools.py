@@ -6,7 +6,10 @@ ProblemsToMask=[
 
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-include("LArMonTools/LArFEBMon_jobOptions.py") # Data integrity checks - Includes LArFEBMon tool and LArEventInfo
+from LArMonTools.LArMonFlags import LArMonFlags
+if LArMonFlags.doLArFEBMon:
+    include("LArMonTools/LArFEBMon_jobOptions.py") # Data integrity checks - Includes LArFEBMon tool and LArEventInfo
+
 if Type == 'Pedestal':
     coherent_noise_calibration_run=True
     include("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")    # Coherent noise plots
@@ -20,4 +23,4 @@ elif Type == 'Ramp':
 elif Type == 'Cosmic':
     include("LArMonTools/LArDigitMon_jobOptions.py")
 else:
-    print "Unknown Type !!!"
+    print("Unknown Type !!!")

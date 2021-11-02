@@ -56,8 +56,20 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
     auto eta = Monitored::Scalar<Float_t>("Eta",0.0);
     auto phi = Monitored::Scalar<Float_t>("Phi",0.0);
     auto is_pt_gt_2_5gev = Monitored::Scalar<bool>("is_pt_gt_2_5gev",false);
+    auto is_pt_gt_2_5gev_barrel = Monitored::Scalar<bool>("is_pt_gt_2_5gevBARREL",false);
+    auto is_pt_gt_2_5gev_endcap = Monitored::Scalar<bool>("is_pt_gt_2_5gevENDCAP",false);
+    auto is_pt_gt_2_5gev_crack = Monitored::Scalar<bool>("is_pt_gt_2_5gevCRACK",false);
+
     auto is_pt_gt_4gev = Monitored::Scalar<bool>("is_pt_gt_4gev",false);
+    auto is_pt_gt_4gev_barrel = Monitored::Scalar<bool>("is_pt_gt_4gevBARREL",false);
+    auto is_pt_gt_4gev_endcap = Monitored::Scalar<bool>("is_pt_gt_4gevENDCAP",false);
+    auto is_pt_gt_4gev_crack = Monitored::Scalar<bool>("is_pt_gt_4gevCRACK",false);
+
     auto is_pt_gt_20gev = Monitored::Scalar<bool>("is_pt_gt_20gev",false);
+    auto is_pt_gt_20gev_crack = Monitored::Scalar<bool>("is_pt_gt_20gevCRACK",false);
+    auto is_pt_gt_20gev_barrel = Monitored::Scalar<bool>("is_pt_gt_20gevBARREL",false);
+    auto is_pt_gt_20gev_endcap = Monitored::Scalar<bool>("is_pt_gt_20gevENDCAP",false);
+
     auto time = Monitored::Scalar<Float_t>("Time",0.0);
     auto topoetcone40 = Monitored::Scalar<Float_t>("TopoEtCone40",0.0);
     auto ptcone20 = Monitored::Scalar<Float_t>("PtCone20",0.0);
@@ -65,7 +77,6 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
     // Particle variables per Region
 
     // BARREL
-    auto np_barrel = Monitored::Scalar<int>("NinBARREL",0.0);
     auto et_barrel = Monitored::Scalar<Float_t>("EtinBARREL",0.0);
     auto eta_barrel = Monitored::Scalar<Float_t>("EtainBARREL",0.0);
     auto phi_barrel = Monitored::Scalar<Float_t>("PhiinBARREL",0.0);
@@ -77,11 +88,10 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
     auto f1_barrel = Monitored::Scalar<Float_t>("F1inBARREL",0.0);
     auto f2_barrel = Monitored::Scalar<Float_t>("F2inBARREL",0.0);
     auto f3_barrel = Monitored::Scalar<Float_t>("F3inBARREL",0.0);
-    auto re233e237_barrel = Monitored::Scalar<Float_t>("Re233e337inBARREL",0.0);
+    auto re233e237_barrel = Monitored::Scalar<Float_t>("Re233e237inBARREL",0.0);
     auto re237e277_barrel = Monitored::Scalar<Float_t>("Re237e277inBARREL",0.0);
 
     // ENDCAP
-    auto np_endcap = Monitored::Scalar<int>("NinENDCAP",0.0);
     auto et_endcap = Monitored::Scalar<Float_t>("EtinENDCAP",0.0);
     auto eta_endcap = Monitored::Scalar<Float_t>("EtainENDCAP",0.0);
     auto phi_endcap = Monitored::Scalar<Float_t>("PhiinENDCAP",0.0);
@@ -93,7 +103,7 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
     auto f1_endcap = Monitored::Scalar<Float_t>("F1inENDCAP",0.0);
     auto f2_endcap = Monitored::Scalar<Float_t>("F2inENDCAP",0.0);
     auto f3_endcap = Monitored::Scalar<Float_t>("F3inENDCAP",0.0);
-    auto re233e237_endcap = Monitored::Scalar<Float_t>("Re233e337inENDCAP",0.0);
+    auto re233e237_endcap = Monitored::Scalar<Float_t>("Re233e237inENDCAP",0.0);
     auto re237e277_endcap = Monitored::Scalar<Float_t>("Re237e277inENDCAP",0.0);
 
     // CRACK
@@ -109,10 +119,20 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
     auto f1_crack = Monitored::Scalar<Float_t>("F1inCRACK",0.0);
     auto f2_crack = Monitored::Scalar<Float_t>("F2inCRACK",0.0);
     auto f3_crack = Monitored::Scalar<Float_t>("F3inCRACK",0.0);
-    auto re233e237_crack = Monitored::Scalar<Float_t>("Re233e337inCRACK",0.0);
+    auto re233e237_crack = Monitored::Scalar<Float_t>("Re233e237inCRACK",0.0);
     auto re237e277_crack = Monitored::Scalar<Float_t>("Re237e277inCRACK",0.0);
 
     // Specific Photon variables
+
+    auto npconv = Monitored::Scalar<int>("NConv",0.0);
+    auto etconv = Monitored::Scalar<Float_t>("EtConv",0.0);
+    auto etaconv = Monitored::Scalar<Float_t>("EtaConv",0.0);
+    auto phiconv = Monitored::Scalar<Float_t>("PhiConv",0.0);
+
+    auto npunconv = Monitored::Scalar<int>("NUnconv",0.0);
+    auto etunconv = Monitored::Scalar<Float_t>("EtUnconv",0.0);
+    auto etaunconv = Monitored::Scalar<Float_t>("EtaUnconv",0.0);
+    auto phiunconv = Monitored::Scalar<Float_t>("PhiUnconv",0.0);
 
     auto lb = Monitored::Scalar<u_int16_t>("LB",0);
 
@@ -134,24 +154,31 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
 
     auto rconv_barrel = Monitored::Scalar<Float_t>("RConvinBARREL",0.0);
     auto convtype_barrel = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinBARREL",nullptr);
-    auto contrkmatch1_barrel = Monitored::Scalar<u_int8_t>("ConvTrkmatch1inBARREL",0);
-    auto contrkmatch2_barrel = Monitored::Scalar<u_int8_t>("ConvTrkmatch2inBARREL",0);
+    auto contrkmatch1_barrel = Monitored::Scalar<u_int8_t>("ConvTrkMatch1inBARREL",0);
+    auto contrkmatch2_barrel = Monitored::Scalar<u_int8_t>("ConvTrkMatch2inBARREL",0);
 
     // ENDCAP
     auto rconv_endcap = Monitored::Scalar<Float_t>("RConvinENDCAP",0.0);
     auto convtype_endcap = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinENDCAP",nullptr);
-    auto contrkmatch1_endcap = Monitored::Scalar<u_int8_t>("ConvTrkmatch1inENDCAP",0);
-    auto contrkmatch2_endcap = Monitored::Scalar<u_int8_t>("ConvTrkmatch2inENDCAP",0);
+    auto contrkmatch1_endcap = Monitored::Scalar<u_int8_t>("ConvTrkMatch1inENDCAP",0);
+    auto contrkmatch2_endcap = Monitored::Scalar<u_int8_t>("ConvTrkMatch2inENDCAP",0);
 
     // CRACK
     auto rconv_crack = Monitored::Scalar<Float_t>("RConvinCRACK",0.0);
     auto convtype_crack = Monitored::Scalar<xAOD::EgammaParameters::ConversionType>("ConvTypeinCRACK",nullptr);
-    auto contrkmatch1_crack = Monitored::Scalar<u_int8_t>("ConvTrkmatch1inCRACK",0);
-    auto contrkmatch2_crack = Monitored::Scalar<u_int8_t>("ConvTrkmatch2inCRACK",0);
+    auto contrkmatch1_crack = Monitored::Scalar<u_int8_t>("ConvTrkMatch1inCRACK",0);
+    auto contrkmatch2_crack = Monitored::Scalar<u_int8_t>("ConvTrkMatch2inCRACK",0);
 
     // Set the values of the monitored variables for the event
 
     u_int16_t mynp=0;
+    u_int16_t mynpconv = 0;
+    u_int16_t mynpunconv = 0;
+
+    Float_t myet = 0.;
+    Float_t myeta = 0.;
+    Float_t myphi = 0.;
+
     for (const auto *const p_iter : *photons) {
       // Check that the electron meets our requirements
       bool isGood;
@@ -159,12 +186,30 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
         ATH_MSG_WARNING("Misconfiguration: " << m_RecoName << " is not a valid working point for photons");
         break; // no point in continuing
       }
-      if(isGood) {mynp++;}
+
+      if(isGood) {
+	mynp++;
+	Float_t myetaloc = p_iter->eta();
+	auto regionloc = GetRegion(myetaloc);
+        ATH_MSG_DEBUG("Test photon in region : " << regionloc);
+	
+	switch(regionloc){
+        case BARREL :
+	  break;
+        case CRACK :
+	  break;
+	case ENDCAP : 
+	  break;
+	default :
+	  ATH_MSG_DEBUG("Found a photon out the acceptance region : " << regionloc);
+	  break;
+	}
+      }
       else continue;
 
-      Float_t myet = p_iter->pt(); // in MeV (/Gaudi::Units::GeV; // in GeV)
-      Float_t myeta = p_iter->eta();
-      Float_t myphi = p_iter->phi();
+      myet = p_iter->pt(); // in MeV (/Gaudi::Units::GeV; // in GeV)
+      myeta = p_iter->eta();
+      myphi = p_iter->phi();
       et = myet ; eta = myeta ; phi = myphi ;
 
       bool myis_pt_gt_2_5gev = myet > 2500. ;
@@ -174,6 +219,18 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
       is_pt_gt_2_5gev = myis_pt_gt_2_5gev ;
       is_pt_gt_4gev = myis_pt_gt_4gev ;
       is_pt_gt_20gev = myis_pt_gt_20gev ;
+
+      is_pt_gt_4gev_barrel = myis_pt_gt_4gev ;
+      is_pt_gt_4gev_endcap = myis_pt_gt_4gev ;
+      is_pt_gt_4gev_crack = myis_pt_gt_4gev ;
+
+      is_pt_gt_2_5gev_barrel = myis_pt_gt_2_5gev ;
+      is_pt_gt_2_5gev_endcap = myis_pt_gt_2_5gev ;
+      is_pt_gt_2_5gev_crack = myis_pt_gt_2_5gev ;
+
+      is_pt_gt_20gev_barrel = myis_pt_gt_20gev ;
+      is_pt_gt_20gev_endcap = myis_pt_gt_20gev ;
+      is_pt_gt_20gev_crack = myis_pt_gt_20gev ;
 
       // Isolation Energy
       Float_t mytopoetcone40 = -999.;
@@ -229,6 +286,25 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
       xAOD::EgammaParameters::ConversionType myconvtype = xAOD::EgammaHelpers::conversionType(p_iter);
       bool isUnconverted = (myconvtype==xAOD::EgammaParameters::ConversionType::unconverted) ;
 
+      if (isUnconverted) {
+	npunconv++;
+	etconv = -1.;
+	etaconv = -6.;
+	phiconv = -6.;
+	etunconv = myet;
+        etaunconv = myeta;
+	phiunconv = myphi;
+      }
+      else {
+	npconv++;
+	etunconv = -1.;
+	etaunconv = -6.;
+	phiunconv = -6.;
+        etconv = myet;
+	etaconv = myeta;
+	phiconv = myphi;
+      } 
+
       is_pt_gt_2_5gevandconv = myis_pt_gt_2_5gev && !isUnconverted ;
       is_pt_gt_2_5gevandunconv = myis_pt_gt_2_5gev && isUnconverted ;
 
@@ -241,11 +317,6 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
       lb = mylb;
       lbevonphotonsconv = mylb;
       lbevonphotonsunconv = mylb;
-
-      fill("MonitorPhoton",lbevonphotonsconv,lbevonphotonsunconv,
-          is_pt_gt_4gevandconv,is_pt_gt_4gevandunconv,
-          is_pt_gt_2_5gevandconv,is_pt_gt_2_5gevandunconv,
-          is_pt_gt_20gevandconv, is_pt_gt_20gevandunconv);
 
       Float_t myrconv = 0.0;
       myrconv = xAOD::EgammaHelpers::conversionRadius(p_iter);
@@ -260,59 +331,58 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
       switch(region){
         case BARREL :
           et_barrel = myet ; eta_barrel = myeta ; phi_barrel = myphi ;
-          fill("MonitorPhoton",np_barrel,et_barrel,eta_barrel,phi_barrel,is_pt_gt_4gev);
           time_barrel = mytime; ehad1_barrel = myehad1; coreem_barrel = myecore;
-          fill("MonitorPhoton",time_barrel, ehad1_barrel,coreem_barrel,is_pt_gt_4gev);
           f0_barrel = myf0; f1_barrel = myf1; f2_barrel = myf2; f3_barrel = myf3; re233e237_barrel = myre233e237; re237e277_barrel = myre237e277;
-          fill("MonitorPhoton",f0_barrel,f1_barrel,f2_barrel, f3_barrel,re233e237_barrel,re237e277_barrel,is_pt_gt_4gev);
           rconv_barrel = myrconv ; convtype_barrel = myconvtype ; contrkmatch1_barrel = mycontrkmatch1 ; contrkmatch2_barrel = mycontrkmatch2 ;
-          fill("MonitorPhoton",rconv_barrel,convtype_barrel,contrkmatch1_barrel,contrkmatch2_barrel,is_pt_gt_4gev);
+          fill("MonitorPhoton", et_barrel,eta_barrel,phi_barrel, time_barrel, ehad1_barrel,coreem_barrel,
+	       f0_barrel,f1_barrel,f2_barrel, f3_barrel,re233e237_barrel,re237e277_barrel,
+	       rconv_barrel,convtype_barrel,contrkmatch1_barrel,contrkmatch2_barrel,is_pt_gt_4gev_barrel,is_pt_gt_2_5gev_barrel,is_pt_gt_20gev_barrel);
           break;
 
         case ENDCAP :
           et_endcap = myet ; eta_endcap = myeta ; phi_endcap = myphi ;
-          fill("MonitorPhoton",np_endcap,et_endcap,eta_endcap,phi_endcap,is_pt_gt_4gev);
           time_endcap = mytime; ehad1_endcap = myehad1; coreem_endcap = myecore;
-          fill("MonitorPhoton",time_endcap, ehad1_endcap,coreem_endcap,is_pt_gt_4gev);
           f0_endcap = myf0; f1_endcap = myf1; f2_endcap = myf2; f3_endcap = myf3; re233e237_endcap = myre233e237; re237e277_endcap = myre237e277;
-          fill("MonitorPhoton",f0_endcap,f1_endcap,f2_endcap,f3_endcap,re233e237_endcap,re237e277_endcap,is_pt_gt_4gev);
           rconv_endcap = myrconv ; convtype_endcap = myconvtype ; contrkmatch1_endcap = mycontrkmatch1 ; contrkmatch2_endcap = mycontrkmatch2 ;
-          fill("MonitorPhoton",rconv_endcap,convtype_endcap,contrkmatch1_endcap,contrkmatch2_endcap,is_pt_gt_4gev);
+          fill("MonitorPhoton",et_endcap,eta_endcap,phi_endcap,
+	       time_endcap, ehad1_endcap,coreem_endcap,
+	       f0_endcap,f1_endcap,f2_endcap,f3_endcap,re233e237_endcap,re237e277_endcap,
+	       rconv_endcap,convtype_endcap,contrkmatch1_endcap,contrkmatch2_endcap,is_pt_gt_4gev_endcap,is_pt_gt_2_5gev_endcap,is_pt_gt_20gev_endcap);
           break;
 
         case CRACK :
           et_crack = myet ; eta_crack = myeta ; phi_crack = myphi ;
-          fill("MonitorPhoton",np_crack,et_crack,eta_crack,phi_crack,is_pt_gt_4gev);
           time_crack = mytime; ehad1_crack = myehad1; coreem_crack = myecore;
-          fill("MonitorPhoton",time_crack, ehad1_crack,coreem_crack,is_pt_gt_4gev);
           f0_crack = myf0; f1_crack = myf1; f2_crack = myf2; f3_crack = myf3; re233e237_crack = myre233e237; re237e277_crack = myre237e277;
-          fill("MonitorPhoton",f0_crack,f1_crack,f2_crack,f3_crack,re233e237_crack,re237e277_crack,is_pt_gt_4gev);
           rconv_crack = myrconv ; convtype_crack = myconvtype ; contrkmatch1_crack = mycontrkmatch1 ; contrkmatch2_crack = mycontrkmatch2 ;
-          fill("MonitorPhoton",rconv_crack,convtype_crack,contrkmatch1_crack,contrkmatch2_crack,is_pt_gt_4gev);
+          fill("MonitorPhoton",et_crack,eta_crack,phi_crack,time_crack, ehad1_crack,coreem_crack,
+          f0_crack,f1_crack,f2_crack,f3_crack,re233e237_crack,re237e277_crack,
+	  rconv_crack,convtype_crack,contrkmatch1_crack,contrkmatch2_crack,is_pt_gt_4gev_crack,is_pt_gt_2_5gev_crack,is_pt_gt_20gev_crack);
           break;
 
         default :
-          ATH_MSG_DEBUG("found an electron outside the |eta| > 2.47 acceptance");
+          ATH_MSG_DEBUG("found an photon outside the |eta| > 2.47 acceptance");
           break;
       }
       // Fill. First argument is the tool name, all others are the variables to be histogramed
 
-
-      fill("MonitorPhoton",et,eta,phi,time,ptcone20,topoetcone40,is_pt_gt_4gev,is_pt_gt_20gev,
-        is_pt_gt_2_5gevandconv,is_pt_gt_2_5gevandunconv,
-        is_pt_gt_4gevandconv,is_pt_gt_4gevandunconv,
-        is_pt_gt_20gevandconv,is_pt_gt_20gevandunconv);
-
       lb = mylb; lbevonphotonsunconv = mylb ; lbevonphotonsconv = mylb; lbNCandidates = mylb;
-      fill("MonitorPhoton",lb, lbNCandidates,
-          is_pt_gt_2_5gev,is_pt_gt_2_5gevandconv,is_pt_gt_2_5gevandunconv,
-          is_pt_gt_4gev,is_pt_gt_4gevandconv,is_pt_gt_4gevandunconv,
-          is_pt_gt_20gev,is_pt_gt_20gevandconv,is_pt_gt_20gevandunconv);
-
+      fill("MonitorPhoton",
+	   lbevonphotonsconv,lbevonphotonsunconv,lb,lbNCandidates,
+	   et,eta,phi,time,ptcone20,topoetcone40,
+	   etconv,etaconv,phiconv,
+	   etunconv,etaunconv,phiunconv,
+	   is_pt_gt_4gev,is_pt_gt_20gev,is_pt_gt_2_5gev,
+	   is_pt_gt_2_5gevandconv,is_pt_gt_2_5gevandunconv,
+	   is_pt_gt_4gevandconv,is_pt_gt_4gevandunconv,
+	   is_pt_gt_20gevandconv,is_pt_gt_20gevandunconv);
     }
 
     np = mynp;
-    fill("MonitorPhoton",np);
+    npconv = mynpconv;
+    npunconv = mynpunconv;
+
+    fill("MonitorPhoton",np,npconv,npunconv);
 
     return StatusCode::SUCCESS;
 }

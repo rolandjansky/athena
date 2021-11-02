@@ -25,7 +25,6 @@
 #include "Rivet/Tools/RivetYODA.hh"
 
 
-
 #include <cstdlib>
 #include <memory>
 #include <regex>
@@ -92,7 +91,7 @@ StatusCode Rivet_i::initialize() {
     const std::string cmtconfig = getenv_str("CMTCONFIG");
     if (cmtconfig.empty()) {
       ATH_MSG_WARNING("$CMTCONFIG variable not set: finding the main analysis plugin directory will be difficult...");
-    } 
+    }
     else {
       const std::string libpath = "/InstallArea/" + cmtconfig + "/lib";
       for (const std::string& p : cmtpaths) {
@@ -208,7 +207,7 @@ StatusCode Rivet_i::finalize() {
 
   // Setting cross-section in Rivet
   // If no user-specified cross-section available,
-  // set AMI cross-section at plotting time 
+  // set AMI cross-section at plotting time
   double custom_xs = m_crossSection != 0 ? m_crossSection : 1.0;
   m_analysisHandler->setCrossSection({custom_xs, m_crossSection_uncert});
 
@@ -247,14 +246,25 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   // overwrite the HEPMC dummy event number with the proper ATLAS event number
   const DataHandle<EventInfo> eventInfo;
   if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
-    //int run=eventInfo->event_ID()->run_number();
     uint64_t eventNumber = eventInfo->event_ID()->event_number();
     modEvent->set_event_number((int)eventNumber);
   }
 
   // weight-name cleaning
 #ifdef HEPMC3
-  std::vector<std::string>  w_names = event->weight_names();
+  std::shared_ptr<HepMC3::GenRunInfo> modRunInfo;
+  if (event->run_info()) {
+    modRunInfo = std::make_shared<HepMC3::GenRunInfo>(*(event->run_info().get()));
+  }
+  else {
+    ATH_MSG_DEBUG("No run info, event weights size is " << event->weights().size() );
+    modRunInfo = std::make_shared<HepMC3::GenRunInfo>();
+    std::vector<std::string> w_names;
+    for (size_t i = 0; i < event->weights().size(); i++) { w_names.push_back(std::string("badweight") + std::to_string(i)); }
+    modRunInfo->set_weight_names(w_names);
+  }
+  modEvent->set_run_info(modRunInfo);
+  std::vector<std::string>  w_names = modEvent->weight_names();
   if (w_names.size()) {
     std::vector<std::pair<std::string,std::string> > w_subs = {
       {" nominal ",""},
@@ -325,8 +335,6 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
 #endif
 
 #ifdef HEPMC3
-  //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
-  //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
   modEvent->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
   return modEvent;
 #else

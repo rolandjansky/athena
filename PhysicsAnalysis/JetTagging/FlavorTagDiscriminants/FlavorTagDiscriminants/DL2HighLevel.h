@@ -6,10 +6,12 @@
 #define DL2_HIGH_LEVEL_HH
 
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
+#include "FlavorTagDiscriminants/AssociationEnums.h"
 #include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
 
 // EDM includes
 #include "xAODBTagging/BTaggingFwd.h"
+#include "xAODJet/JetFwd.h"
 
 #include <memory>
 #include <string>
@@ -24,10 +26,12 @@ namespace FlavorTagDiscriminants {
   public:
     DL2HighLevel(const std::string& nn_file_name,
                  FlipTagConfig = FlipTagConfig::STANDARD,
-                 std::map<std::string, std::string> remap_scalar = {});
+                 std::map<std::string, std::string> remap_scalar = {},
+                 TrackLinkType = TrackLinkType::TRACK_PARTICLE);
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::BTagging& btag) const;
+    void decorate(const xAOD::Jet& jet) const;
     DL2DataDependencyNames getDataDependencyNames() const;
   private:
     std::unique_ptr<DL2> m_dl2;

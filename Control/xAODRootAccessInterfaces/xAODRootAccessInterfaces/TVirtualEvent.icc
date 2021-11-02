@@ -5,6 +5,8 @@
 #ifndef XAODROOTACCESSINTERFACES_TVIRTUALEVENT_ICC
 #define XAODROOTACCESSINTERFACES_TVIRTUALEVENT_ICC
 
+#include "AthContainers/normalizedTypeinfoName.h"
+
 // ROOT include(s):
 #include <TError.h>
 
@@ -59,6 +61,12 @@ namespace xAOD {
                                  bool silent ) {
 
       return retrieve( obj, getHash( key ), silent );
+   }
+
+   template< typename T >
+   void TVirtualEvent::keys( std::vector< std::string >& vkeys,
+                             bool metadata ) const {
+      getNames( SG::normalizedTypeinfoName( typeid( T ) ), vkeys, metadata);
    }
 
 } // namespace xAOD

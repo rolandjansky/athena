@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDModel/AGDDSimpleMaterial.h"
@@ -14,12 +14,13 @@ std::ostream& operator <<(std::ostream& os, const AGDDSimpleMaterial &obj)
 }
 
 
-void AGDDSimpleMaterial::RegisterToStore(AGDDSimpleMaterial *e)
+void AGDDSimpleMaterial::RegisterToStore(AGDDMaterialStore& ms,
+                                         AGDDSimpleMaterial *e)
 {
-	AGDDMaterialStore::GetMaterialStore()->RegisterMaterial(e);
+	ms.RegisterMaterial(e);
 }
 
-std::string AGDDSimpleMaterial::GetName()
+std::string AGDDSimpleMaterial::GetName() const
 {
 	return m_name;
 }

@@ -3,32 +3,34 @@ def get_and_fix_PDGTABLE(replace):
     import os, shutil, re
 
     # Download generic PDGTABLE (overwrite existing one if it exists)
-    import ExtraParticles.PDGHelpers
-    shutil.move('PDGTABLE.MeV', 'PDGTABLE.MeV.org')
+    from G4AtlasApps.SimFlags import simFlags
+    from ExtraParticles.PDGHelpers import getPDGTABLE
+    if getPDGTABLE(simFlags.ExtraParticlesPDGTABLE.get_Value()):
+        shutil.move('PDGTABLE.MeV', 'PDGTABLE.MeV.org')
 
-    # an example line to illustrate the fixed format, see PDGTABLE.MeV for more details
-    # M 1000022                          0.E+00         +0.0E+00 -0.0E+00 ~chi(0,1)     0
+        # an example line to illustrate the fixed format, see PDGTABLE.MeV for more details
+        # M 1000022                          0.E+00         +0.0E+00 -0.0E+00 ~chi(0,1)     0
 
-    lines = open('PDGTABLE.MeV.org').readlines()
-    for pdgid,mass,name,charge in replace:
-        if not re.search(r'[MW]\s+'+str(pdgid)+'\s+\S+', ''.join(lines)):
-            lines.append('M' + str(pdgid).rjust(8) +''.ljust(26) +
-                         ('%11.5E' % mass).ljust(15) +
-                         '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
-                         name.strip() + ''.ljust(6) + charge.strip()+''.rjust(20-len(name.strip())) + '\n')
-            lines.append('W' + str(pdgid).rjust(8) +''.ljust(26) +
-                         '0.E+00'.ljust(15) + '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
-                         name.strip() + ''.ljust(6) + charge.strip()+''.rjust(20-len(name.strip())) + '\n')
-        else:
-            from past.builtins import xrange # Temporary workaround for python3 compatibility use range in CA-based config
-            for i in xrange(len(lines)):
-                if re.search(r'M\s+'+str(pdgid)+'\s+\S+', lines[i]):
-                    l = lines[i]
-                    lines[i] = l[0:35] + ('%11.5E' % mass).ljust(14) + l[49:]
+        lines = open('PDGTABLE.MeV.org').readlines()
+        for pdgid,mass,name,charge in replace:
+            if not re.search(r'[MW]\s+'+str(pdgid)+'\s+\S+', ''.join(lines)):
+                lines.append('M' + str(pdgid).rjust(8) +''.ljust(26) +
+                             ('%11.5E' % mass).ljust(15) +
+                             '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
+                             name.strip() + ''.ljust(6) + charge.strip()+''.rjust(20-len(name.strip())) + '\n')
+                lines.append('W' + str(pdgid).rjust(8) +''.ljust(26) +
+                             '0.E+00'.ljust(15) + '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
+                             name.strip() + ''.ljust(6) + charge.strip()+''.rjust(20-len(name.strip())) + '\n')
+            else:
+                from past.builtins import xrange # Temporary workaround for python3 compatibility use range in CA-based config
+                for i in xrange(len(lines)):
+                    if re.search(r'M\s+'+str(pdgid)+'\s+\S+', lines[i]):
+                        l = lines[i]
+                        lines[i] = l[0:35] + ('%11.5E' % mass).ljust(14) + l[49:]
 
-    update = open('PDGTABLE.MeV', 'w')
-    update.write(''.join(lines))
-    update.close()
+        update = open('PDGTABLE.MeV', 'w')
+        update.write(''.join(lines))
+        update.close()
 
 
 doG4SimConfig = True

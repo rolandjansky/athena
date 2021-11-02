@@ -91,6 +91,7 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
  # Reco step based on test InDetPhysValMonitoring ART setup from Josh Moss.
  run Reco_tf.py \
    --inputHITSFile   "$hits" \
+   --outputRDOFile   output.RDO.root \
    --outputAODFile   physval.AOD.root \
    --outputNTUP_PHYSVALFile ${dcubemon_rec} \
    --conditionsTag   'OFLCOND-MC16-SDR-RUN2-08' \
@@ -106,7 +107,7 @@ if [ $sim_tf_exit_code -eq 0 ]  ;then
    InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); \
    InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
    InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
-   InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True); \
+   InDetPhysValFlags.doExpertOutput.set_Value_and_Lock(True); \
    rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
    rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
    rec.doLArg=True; rec.doLucid=True; rec.doMuon=True; rec.doMuonCombined=True; \

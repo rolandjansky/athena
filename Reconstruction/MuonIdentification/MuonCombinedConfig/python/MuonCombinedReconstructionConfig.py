@@ -52,16 +52,25 @@ def MuonSegmentTagAlgCfg(flags, name="MuonSegmentTagAlg", **kwargs ):
   
 def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
     #TODO: defaults in cxx
-    kwargs.setdefault("AssumeLocalErrors", True )
-    kwargs.setdefault("PhiCut", 30. )
-    kwargs.setdefault("GlobalPhiCut", 1.)
-    kwargs.setdefault("ThetaCut", 5. )
-    kwargs.setdefault("GlobalThetaCut", 0.5 )
-    kwargs.setdefault("ThetaAngleCut", 5. )
-    kwargs.setdefault("DoDistanceCut", True )
-    kwargs.setdefault("CombinedPullCut", 3.0 )
-    tool = CompFactory.MuTagMatchingTool(name,**kwargs)
     result = ComponentAccumulator()
+    kwargs.setdefault("AssumeLocalErrors", True)
+    kwargs.setdefault("PhiCut", 30.)
+    kwargs.setdefault("GlobalPhiCut", 1.)
+    kwargs.setdefault("ThetaCut", 5.)
+    kwargs.setdefault("GlobalThetaCut", 0.5)
+    kwargs.setdefault("ThetaAngleCut", 5.)
+    kwargs.setdefault("DoDistanceCut", True)
+    kwargs.setdefault("CombinedPullCut", 3.0)
+
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    result.merge(acc)
+    kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
+
+    tool = CompFactory.MuTagMatchingTool(name,**kwargs)
+    
     result.addPublicTool(tool, primary=True)
     return result
 
@@ -278,7 +287,7 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
     kwargs.setdefault("CopySegments", False)
-    # if not TriggerFlags.MuonSlice.doTrigMuonConfig:
+    # if not flags.Muon.MuonTrigger:
     #     recordMuonCreatorAlgObjs (kwargs)
     acc = MuonCreatorAlgCfg(flags, name,**kwargs)
     result.merge(acc)
@@ -286,30 +295,6 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
 
 def MuonCombinedReconstructionCfg(flags):
     result = ComponentAccumulator()
-
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    result.merge( GeoModelCfg(flags) )
-
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
-    result.merge( MuonGeoModelCfg(flags) )
-
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    result.merge( LArGMCfg(flags) )
-
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    result.merge( TileGMCfg(flags) )
-
-    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    result.merge( BeamPipeGeometryCfg(flags) ) 
-
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge(PixelGeometryCfg(flags))
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result.merge(SCT_GeometryCfg(flags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result.merge(TRT_GeometryCfg(flags))
 
 # @TODO retire once migration to TrackingGeometry conditions data is complete
     from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg

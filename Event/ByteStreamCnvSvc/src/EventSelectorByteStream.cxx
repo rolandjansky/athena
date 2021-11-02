@@ -18,6 +18,7 @@
 #include "GaudiKernel/IIoComponentMgr.h"
 
 #include "AthenaKernel/IAthenaIPCTool.h"
+#include "AthenaKernel/IMetaDataSvc.h"
 #include "EventInfo/EventInfo.h"
 
 // EventInfoAttributeList includes
@@ -165,6 +166,10 @@ StatusCode EventSelectorByteStream::initialize() {
       return(StatusCode::FAILURE);
    }
 
+   // Make sure MetaDataSvc is initialized before the first file is opened
+   ServiceHandle<IMetaDataSvc> metaDataSvc("MetaDataSvc", name());
+   ATH_CHECK(metaDataSvc.retrieve());
+
    // Must happen before trying to open a file
    lock_t lock (m_mutex);
    StatusCode risc = this->reinit(lock);
@@ -172,7 +177,7 @@ StatusCode EventSelectorByteStream::initialize() {
    return risc;
 }
 //__________________________________________________________________________
-StatusCode EventSelectorByteStream::reinit(lock_t& /*lock*/) {
+StatusCode EventSelectorByteStream::reinit(lock_t& lock) {
    ATH_MSG_INFO("reinitialization...");
    // reset markers
    if (m_inputCollectionsProp.value().size()>0) {
@@ -200,13 +205,7 @@ StatusCode EventSelectorByteStream::reinit(lock_t& /*lock*/) {
       ATH_MSG_FATAL("Failed to postInitialize() helperTools");
       return(StatusCode::FAILURE);
    }
-   return(StatusCode::SUCCESS);
-}
 
-//________________________________________________________________________________
-StatusCode EventSelectorByteStream::start() {
-   ATH_MSG_DEBUG("Calling EventSelectorByteStream::start()");
-   lock_t lock (m_mutex);
    // If file based input then fire appropriate incidents
    if (m_filebased) {
       if (!m_firstFileFired) {
@@ -224,6 +223,13 @@ StatusCode EventSelectorByteStream::start() {
       m_beginFileFired = true;
    }
 
+   return(StatusCode::SUCCESS);
+}
+
+//________________________________________________________________________________
+StatusCode EventSelectorByteStream::start() {
+   ATH_MSG_DEBUG("Calling EventSelectorByteStream::start()");
+   lock_t lock (m_mutex);
    // Create the begin and end iterator's for this selector.
    m_beginIter =  new EventContextByteStream(this);
    // Increment to get the new event in.
@@ -507,12 +513,12 @@ EventSelectorByteStream::nextImpl(IEvtSelector::Context& ctxt,
 }
 
 //________________________________________________________________________________
-StatusCode EventSelectorByteStream::nextHandleFileTransition(IEvtSelector::Context& it) const
+StatusCode EventSelectorByteStream::nextHandleFileTransition(IEvtSelector::Context& ctxt) const
 {
   lock_t lock (m_mutex);
-  return nextHandleFileTransitionImpl (it, lock);
+  return nextHandleFileTransitionImpl (ctxt, lock);
 }
-StatusCode EventSelectorByteStream::nextHandleFileTransitionImpl(IEvtSelector::Context& it,
+StatusCode EventSelectorByteStream::nextHandleFileTransitionImpl(IEvtSelector::Context& ctxt,
                                                                  lock_t& lock) const
 {
    const RawEvent* pre{};
@@ -544,7 +550,7 @@ StatusCode EventSelectorByteStream::nextHandleFileTransitionImpl(IEvtSelector::C
    }
    // Check whether a RawEvent has actually been provided
    if (pre == nullptr) {
-      it = *m_endIter;
+      ctxt = *m_endIter;
       return StatusCode::FAILURE;
    }
 
@@ -562,7 +568,49 @@ StatusCode EventSelectorByteStream::nextHandleFileTransitionImpl(IEvtSelector::C
 
    return StatusCode::SUCCESS;
 }
+//________________________________________________________________________________
+StatusCode EventSelectorByteStream::nextWithSkip(IEvtSelector::Context& ctxt) const
+{
+   lock_t lock (m_mutex);
+   return nextWithSkipImpl (ctxt, lock);
+}
+StatusCode EventSelectorByteStream::nextWithSkipImpl(IEvtSelector::Context& ctxt,
+                                                     lock_t& lock) const {
+   ATH_MSG_DEBUG("EventSelectorByteStream::nextWithSkip");
 
+   for (;;) {
+      // Check if we're at the end of file
+      StatusCode sc = nextHandleFileTransitionImpl(ctxt, lock);
+      if (sc.isRecoverable()) {
+         continue; // handles empty files
+      }
+      if (sc.isFailure()) {
+         return StatusCode::FAILURE;
+      }
+
+      // Increase event count
+      ++m_NumEvents;
+
+      if (!m_counterTool.empty() && !m_counterTool->preNext().isSuccess()) {
+         ATH_MSG_WARNING("Failed to preNext() CounterTool.");
+      }
+      if ( m_NumEvents > m_skipEvents.value() &&
+            (m_skipEventSequence.empty() || m_NumEvents != m_skipEventSequence.front()) ) {
+         return StatusCode::SUCCESS;
+      } else {
+         if (!m_skipEventSequence.empty() && m_NumEvents == m_skipEventSequence.front()) {
+            m_skipEventSequence.erase(m_skipEventSequence.begin());
+         }
+         if (m_isSecondary.value()) {
+            ATH_MSG_INFO("skipping secondary event " << m_NumEvents);
+         } else {
+            ATH_MSG_INFO("skipping event " << m_NumEvents);
+         }
+      }
+   }
+
+   return StatusCode::SUCCESS;
+}
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& ctxt) const
 {
@@ -1073,13 +1121,6 @@ StatusCode EventSelectorByteStream::io_reinit() {
    m_inputCollectionsProp.declareUpdateHandler (old_cb);;
 
    return(this->reinit(lock));
-}
-
-//__________________________________________________________________________
-void EventSelectorByteStream::syncEventCount(int count) const
-{
-   lock_t lock (m_mutex);
-   m_NumEvents = count;
 }
 
 //__________________________________________________________________________

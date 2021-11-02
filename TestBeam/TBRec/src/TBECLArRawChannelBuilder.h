@@ -11,11 +11,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArElecCalib/ILArOFC.h"
 
-// sandrine
-//#include "CaloIdentifier/LArEM_ID.h"
-
-//#include "LArRawUtils/LArRoI_Map.h"
-//#include "LArRawUtils/LArRawOrdering.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 
 #include "LArIdentifier/LArOnlineID.h"
@@ -26,7 +21,6 @@
 #include "LArElecCalib/ILArHVScaleCorr.h"
 
 class CaloCell_ID;
-class CaloDetDescrManager;
 
 class TBECLArRawChannelBuilder : public AthAlgorithm
 {
@@ -40,7 +34,6 @@ private:
   //Services & Tools 
   const LArOnlineID* m_onlineHelper;
   const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd_man; 
 
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey {this,"keyCabling", "LArOnOffIdMap", "Input key for Id mapping"} ;
   SG::ReadCondHandleKey<ILArHVScaleCorr> m_offlineHVScaleCorrKey{this, "keyOfflineHVCorr", "LArHVScaleCorrRecomputed","Key for LArHVScaleCorr"};

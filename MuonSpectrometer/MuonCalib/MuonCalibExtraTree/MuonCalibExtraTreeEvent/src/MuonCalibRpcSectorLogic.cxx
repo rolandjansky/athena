@@ -1,20 +1,33 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/MuonCalibRpcSectorLogic.h"
 
 #include <iostream>
 
-namespace MuonCalib{
-  
-  MuonCalibRpcSectorLogic::MuonCalibRpcSectorLogic( int sectorId, int fel1Id, int bcid, int errorCode, int crc, int hasMoreThan2TriggerCand, 
-						    int slIndex, float triggerRates, int counters,
-						    int slIndex2, int rowinBcid, int padid, int ptid, int roi, int outerPlane, 
-						    int overlapPhi, int overlapEta, int triggerBcid, int isInput ) : 
-    m_sectorId(sectorId), m_fel1Id(fel1Id), m_bcid(bcid), m_errorCode(errorCode), m_crc(crc), m_hasMoreThan2TriggerCand(hasMoreThan2TriggerCand), m_slIndex(slIndex), m_triggerRates(triggerRates), m_counters(counters), m_slIndex2(slIndex2), m_rowinBcid(rowinBcid), m_padid(padid), m_ptid(ptid), m_roi(roi), m_outerPlane(outerPlane), m_overlapPhi(overlapPhi), m_overlapEta(overlapEta), m_triggerBcid(triggerBcid), m_isInput(isInput)
-    
-  {
-  }
-  
-}//namespace MuonCalib
+namespace MuonCalib {
+
+    int MuonCalibRpcSectorLogic::sectorId() const { return m_params.sectorId; }
+    int MuonCalibRpcSectorLogic::fel1Id() const { return m_params.fel1Id; }
+    int MuonCalibRpcSectorLogic::bcid() const { return m_params.bcid; }
+    int MuonCalibRpcSectorLogic::errorCode() const { return m_params.errorCode; }
+    int MuonCalibRpcSectorLogic::crc() const { return m_params.crc; }
+    int MuonCalibRpcSectorLogic::hasMoreThan2TriggerCand() const { return m_params.hasMoreThan2TriggerCand; }
+    int MuonCalibRpcSectorLogic::slIndex() const { return m_params.slIndex; }
+    float MuonCalibRpcSectorLogic::triggerRates() const { return m_params.triggerRates; }
+    int MuonCalibRpcSectorLogic::counters() const { return m_params.counters; }
+    int MuonCalibRpcSectorLogic::slIndex2() const { return m_params.slIndex2; }
+    int MuonCalibRpcSectorLogic::rowinBcid() const { return m_params.rowinBcid; }
+    int MuonCalibRpcSectorLogic::padid() const { return m_params.padid; }
+    int MuonCalibRpcSectorLogic::ptid() const { return m_params.ptid; }
+    int MuonCalibRpcSectorLogic::roi() const { return m_params.roi; }
+    int MuonCalibRpcSectorLogic::outerPlane() const { return m_params.outerPlane; }
+    int MuonCalibRpcSectorLogic::overlapPhi() const { return m_params.overlapPhi; }
+    int MuonCalibRpcSectorLogic::overlapEta() const { return m_params.overlapEta; }
+    int MuonCalibRpcSectorLogic::triggerBcid() const { return m_params.triggerBcid; }
+    int MuonCalibRpcSectorLogic::isInput() const { return m_params.isInput; }
+
+    MuonCalibRpcSectorLogic::MuonCalibRpcSectorLogic(MuonCalibRpcSectorLogic::defineParams pars) : m_params{pars} {}
+
+}  // namespace MuonCalib

@@ -71,17 +71,17 @@ void makePlot(Char_t filename[300], TString psname){
   t->SetTextSize(0.035);
   histname = "IDAlignMon/"+FirstTrackCollection+"/GenericTracks/Nhits_per_event";
   h_events = (TH1F*)file->Get(histname);
-  float iEvents = h_events->GetEntries();	
+  int iEvents = h_events->GetEntries();	
   sprintf(nameh,"Events: %d",iEvents);
   t->DrawLatex(0.08,0.78,nameh);
   histname = "IDAlignMon/"+FirstTrackCollection+"/GenericTracks/Nhits_per_track";
   h_tracks = (TH1F*)file->Get(histname);
-  float TotalTracks = h_tracks->GetEntries();
+  int TotalTracks = h_tracks->GetEntries();
   sprintf(nameh,"ResolvedTrks_all: %d",TotalTracks);
   t->DrawLatex(0.08,0.74,nameh);
   histname = "IDAlignMon/"+SecondTrackCollection+"/GenericTracks/Nhits_per_track";
   h_Aligntracks = (TH1F*)file->Get(histname);
-  float AlignTracks = h_Aligntracks->GetEntries();
+  int AlignTracks = h_Aligntracks->GetEntries();
   sprintf(nameh,"AlignTrks_all: %d",AlignTracks);
   t->DrawLatex(0.08,0.70,nameh);
 

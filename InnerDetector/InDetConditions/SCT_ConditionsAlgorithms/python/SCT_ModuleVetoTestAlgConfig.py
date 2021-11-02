@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_ModuleVetoTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,8 +8,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_StripVetoTestAlgCfg(flags, name="SCT_ModuleVetoTestAlg", **kwargs):
     """Return a configured SCT_ModuleVetoTestAlg"""
     acc = ComponentAccumulator()
-    from SCT_ConditionsTools.SCT_ModuleVetoConfig import SCT_ModuleVetoCfg
-    acc.addEventAlgo(CompFactory.SCT_ModuleVetoTestAlg(name=name,
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ModuleVetoCfg
+    acc.addEventAlgo(CompFactory.SCT_ModuleVetoTestAlg(name,
                                                        ModuleVetoTool=acc.popToolsAndMerge(SCT_ModuleVetoCfg(flags, **kwargs))))
     return acc
 

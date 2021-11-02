@@ -43,6 +43,10 @@ import collections
 from datetime import datetime as dt
 import six
 
+# Use single-threaded oracle client library to avoid extra
+# threads when forking (see ATR-21890, ATDBOPS-115)
+os.environ["CORAL_ORA_NO_OCI_THREADED"] = "1"
+
 from TrigCommon import AthHLT
 from AthenaCommon.Logging import logging
 log = logging.getLogger('athenaHLT')

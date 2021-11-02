@@ -77,6 +77,10 @@ if (rec.doTrigger() == False and
    DQMonFlags.doLVL1CaloMon=False
    DQMonFlags.doCTPMon=False
    DQMonFlags.doHLTMon=False
+elif rec.doTrigger() == True and ConfigFlags.Trigger.EDMVersion < 3:
+   # CTP/L1Calo monitoring currently not supported on old data (ATR-24262)
+   DQMonFlags.doLVL1CaloMon=False
+   DQMonFlags.doCTPMon=False
 
 if not DQMonFlags.doMonitoring():
    local_logger.info("monitoring globally switched off")
@@ -485,19 +489,11 @@ DQMonFlags.lock_JobProperties()
 DQMonFlags.print_JobProperties()
 
 local_logger.info("DQ: setting up ConfigFlags")
-from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-# Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-ConfigFlags = getNewConfigFlags()
 
-ConfigFlags.InDet.usePixelDCS=InDetFlags.usePixelDCS()
-ConfigFlags.InDet.doTIDE_Ambi=InDetFlags.doTIDE_Ambi()
-
-ConfigFlags.Output.HISTFileName=DQMonFlags.histogramFile()
 ConfigFlags.DQ.FileKey=DQMonFlags.monManFileKey()
 ConfigFlags.DQ.Environment=DQMonFlags.monManEnvironment()
 ConfigFlags.DQ.useTrigger=DQMonFlags.useTrigger()
 ConfigFlags.DQ.triggerDataAvailable=DQMonFlags.useTrigger()
-ConfigFlags.IOVDb.GlobalTag=globalflags.ConditionsTag()
 ConfigFlags.DQ.isReallyOldStyle=False
 
 from AthenaConfiguration import ComponentAccumulator
@@ -516,6 +512,8 @@ Steering.doCTPMon=DQMonFlags.doCTPMon() and not mixedModeFlag
 Steering.doPixelMon=DQMonFlags.doPixelMon()
 Steering.doSCTMon=DQMonFlags.doSCTMon()
 Steering.doTRTMon=DQMonFlags.doTRTMon()
+Steering.InDet.doGlobalMon=DQMonFlags.doInDetGlobalMon()
+Steering.InDet.doAlignMon=DQMonFlags.doInDetAlignMon()
 Steering.doInDetMon = Steering.InDet.doGlobalMon or Steering.InDet.doAlignMon
 Steering.doLArMon=DQMonFlags.doLArMon()
 Steering.doTileMon=DQMonFlags.doTileMon()
@@ -531,5 +529,6 @@ Steering.doJetMon=DQMonFlags.doJetMon()
 Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
 Steering.doTauMon=DQMonFlags.doTauMon()
 Steering.doJetTagMon=DQMonFlags.doJetTagMon()
+Steering.doJetInputsMon=DQMonFlags.doJetInputsMon()
 
 del local_logger

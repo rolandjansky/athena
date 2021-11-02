@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StripGeoModelXml/StripGmxInterface.h"
+#include "StripGmxInterface.h"
 
 #include <InDetReadoutGeometry/SiDetectorDesign.h>
 #include <InDetReadoutGeometry/SiDetectorElement.h>
@@ -19,11 +19,14 @@ constexpr int SCT_HitIndex{1};
 }
 
 
+namespace InDetDD
+{
+
 namespace ITk
 {
 
-StripGmxInterface::StripGmxInterface(InDetDD::SCT_DetectorManager *detectorManager,
-                                     InDetDD::SiCommonItems *commonItems,
+StripGmxInterface::StripGmxInterface(SCT_DetectorManager *detectorManager,
+                                     SiCommonItems *commonItems,
                                      WaferTree *waferTree)
   : AthMessaging(Athena::getMessageSvc(), "StripGmxInterface"),
     m_detectorManager(detectorManager),
@@ -93,9 +96,9 @@ int StripGmxInterface::splitSensorId(std::map<std::string, int> &index,
 }
 
 
-void StripGmxInterface::addSensorType(std::string clas,
-                                      std::string typeName,
-                                      std::map<std::string, std::string> parameters)
+void StripGmxInterface::addSensorType(const std::string& clas,
+                                      const std::string& typeName,
+                                      const std::map<std::string, std::string>& parameters)
 {
   ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
 
@@ -111,13 +114,13 @@ void StripGmxInterface::addSensorType(std::string clas,
 
 
 void StripGmxInterface::makeSiStripBox(const std::string &typeName,
-                                       std::map<std::string, std::string> &parameters)
+                                       const std::map<std::string, std::string> &parameters)
 {
   //
   // Get all parameters.
   //
-  InDetDD::SiDetectorDesign::Axis stripDirection;
-  InDetDD::SiDetectorDesign::Axis fieldDirection;
+  SiDetectorDesign::Axis stripDirection;
+  SiDetectorDesign::Axis fieldDirection;
   double thickness{0.320};
   int readoutSide{1};
   InDetDD::CarrierType carrier(InDetDD::electrons);
@@ -151,11 +154,11 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
   std::string fieldDirectionString;
   getParameter(typeName, parameters, "fieldDirection", fieldDirectionString);
   if (fieldDirectionString == "x") {
-    fieldDirection = InDetDD::SiDetectorDesign::xAxis;
+    fieldDirection = SiDetectorDesign::xAxis;
   } else if (fieldDirectionString == "y") {
-    fieldDirection = InDetDD::SiDetectorDesign::yAxis;
+    fieldDirection = SiDetectorDesign::yAxis;
   } else if (fieldDirectionString == "z") {
-    fieldDirection = InDetDD::SiDetectorDesign::zAxis;
+    fieldDirection = SiDetectorDesign::zAxis;
   } else {
     ATH_MSG_FATAL("makeSiStripBox: Error: parameter fieldDirection should be x, y, or z for " << typeName);
     exit(999);
@@ -164,11 +167,11 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
   std::string stripDirectionString;
   getParameter(typeName, parameters, "stripDirection", stripDirectionString);
   if (stripDirectionString == "x") {
-    stripDirection = InDetDD::SiDetectorDesign::xAxis;
+    stripDirection = SiDetectorDesign::xAxis;
   } else if (stripDirectionString == "y") {
-    stripDirection = InDetDD::SiDetectorDesign::yAxis;
+    stripDirection = SiDetectorDesign::yAxis;
   } else if (stripDirectionString == "z") {
-    stripDirection = InDetDD::SiDetectorDesign::zAxis;
+    stripDirection = SiDetectorDesign::zAxis;
   } else {
     ATH_MSG_FATAL("makeSiStripBox: Error: parameter stripDirection should be x, y, or z for " << typeName);
     exit(999);
@@ -192,31 +195,31 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
     // now, the "Mother"...
     // This is a container for all the other designs, to allow navigation
     // between the different rows on a simulated sensor in the HITS
-    auto motherDesign = std::make_unique<InDetDD::StripBoxDesign>(stripDirection,
-                                                                  fieldDirection,
-                                                                  thickness,
-                                                                  readoutSide,
-                                                                  carrier,
-                                                                  nRows,
-                                                                  nStrips,
-                                                                  pitch,
-                                                                  length);
+    auto motherDesign = std::make_unique<StripBoxDesign>(stripDirection,
+                                                         fieldDirection,
+                                                         thickness,
+                                                         readoutSide,
+                                                         carrier,
+                                                         nRows,
+                                                         nStrips,
+                                                         pitch,
+                                                         length);
 
     for (int i = 0; i< splitLevel; i++) {
       for (int side : {0,1}) { //need different additional shift transform per side...
         int sign = (side == 0) ? 1 : -1; //...because shift in different direction per side
         double zShift = sign * (initZShift + (i * length));
 
-        auto design = std::make_unique<InDetDD::StripBoxDesign>(stripDirection,
-                                                                fieldDirection,
-                                                                thickness,
-                                                                readoutSide,
-                                                                carrier,
-                                                                1, //single row
-                                                                nStrips,
-                                                                pitch,
-                                                                length,
-                                                                zShift);
+        auto design = std::make_unique<StripBoxDesign>(stripDirection,
+                                                       fieldDirection,
+                                                       thickness,
+                                                       readoutSide,
+                                                       carrier,
+                                                       1, //single row
+                                                       nStrips,
+                                                       pitch,
+                                                       length,
+                                                       zShift);
 
         design->setMother(motherDesign.get());
         motherDesign->addChildDesign(i,design.get());
@@ -231,15 +234,15 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
     m_motherMap[typeName] = motherDesign.get();
     m_detectorManager->addMotherDesign(std::move(motherDesign));
   } else { // no split level
-    auto design = std::make_unique<InDetDD::StripBoxDesign>(stripDirection,
-                                                            fieldDirection,
-                                                            thickness,
-                                                            readoutSide,
-                                                            carrier,
-                                                            nRows,
-                                                            nStrips,
-                                                            pitch,
-                                                            length);
+    auto design = std::make_unique<StripBoxDesign>(stripDirection,
+                                                   fieldDirection,
+                                                   thickness,
+                                                   readoutSide,
+                                                   carrier,
+                                                   nRows,
+                                                   nStrips,
+                                                   pitch,
+                                                   length);
 
     // Add to map for addSensor routine
     m_geometryMap[typeName] = design.get();
@@ -249,14 +252,14 @@ void StripGmxInterface::makeSiStripBox(const std::string &typeName,
 
 
 void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
-                                          std::map<std::string, std::string> &parameters)
+                                          const std::map<std::string, std::string> &parameters)
 {
   //
   //  Get all parameters.
   //
   int readoutSide{1};
-  InDetDD::SiDetectorDesign::Axis fieldDirection;
-  InDetDD::SiDetectorDesign::Axis stripDirection;
+  SiDetectorDesign::Axis fieldDirection;
+  SiDetectorDesign::Axis stripDirection;
   InDetDD::CarrierType carrier{InDetDD::electrons};
   double thickness{0.320};
   double stereoAngle{0.020};
@@ -293,11 +296,11 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   std::string fieldDirectionString;
   getParameter(typeName, parameters, "fieldDirection", fieldDirectionString);
   if (fieldDirectionString == "x") {
-    fieldDirection = InDetDD::SiDetectorDesign::xAxis;
+    fieldDirection = SiDetectorDesign::xAxis;
   } else if (fieldDirectionString == "y") {
-    fieldDirection = InDetDD::SiDetectorDesign::yAxis;
+    fieldDirection = SiDetectorDesign::yAxis;
   } else if (fieldDirectionString == "z") {
-    fieldDirection = InDetDD::SiDetectorDesign::zAxis;
+    fieldDirection = SiDetectorDesign::zAxis;
   } else {
     ATH_MSG_FATAL("makeStereoAnnulus: Error: parameter fieldDirection should be x, y, or z for " << typeName);
     exit(999);
@@ -306,11 +309,11 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   std::string stripDirectionString;
   getParameter(typeName, parameters, "stripDirection", stripDirectionString);
   if (stripDirectionString == "x") {
-    stripDirection = InDetDD::SiDetectorDesign::xAxis;
+    stripDirection = SiDetectorDesign::xAxis;
   } else if (stripDirectionString == "y") {
-    stripDirection = InDetDD::SiDetectorDesign::yAxis;
+    stripDirection = SiDetectorDesign::yAxis;
   } else if (stripDirectionString == "z") {
-    stripDirection = InDetDD::SiDetectorDesign::zAxis;
+    stripDirection = SiDetectorDesign::zAxis;
   } else {
     ATH_MSG_FATAL("makeStereoAnnulus: Error: parameter stripDirection should be x, y, or z for " << typeName);
     exit(999);
@@ -358,19 +361,19 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   int splitLevel{};
   if (checkParameter(typeName, parameters, "splitLevel", splitLevel)) {
     // now the mother...
-    auto motherDesign = std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
-                                                                            fieldDirection,
-                                                                            thickness,
-                                                                            readoutSide,
-                                                                            carrier,
-                                                                            nRows,
-                                                                            nStrips,
-                                                                            phiPitch,
-                                                                            startR,
-                                                                            endR,
-                                                                            stereoAngle,
-                                                                            centreR,
-                                                                            usePC);
+    auto motherDesign = std::make_unique<StripStereoAnnulusDesign>(stripDirection,
+                                                                   fieldDirection,
+                                                                   thickness,
+                                                                   readoutSide,
+                                                                   carrier,
+                                                                   nRows,
+                                                                   nStrips,
+                                                                   phiPitch,
+                                                                   startR,
+                                                                   endR,
+                                                                   stereoAngle,
+                                                                   centreR,
+                                                                   usePC);
 
     for (int i = 0; i < splitLevel; i++) {
       singleRowStrips.clear();
@@ -387,20 +390,20 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
     //since the strip frame is defined per wafer not per row
       double thisCentreR = (singleRowMinR[0] + singleRowMaxR[0] ) *0.5;
 
-      auto design = std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
-                                                                        fieldDirection,
-                                                                        thickness,
-                                                                        readoutSide,
-                                                                        carrier,
-                                                                        1,//this design represents a single row by definition
-                                                                        singleRowStrips,
-                                                                        singleRowPitch,
-                                                                        singleRowMinR,
-                                                                        singleRowMaxR,
-                                                                        stereoAngle,
-                                                                        thisCentreR,
-                                                                        centreR,
-                                                                        usePC);
+      auto design = std::make_unique<StripStereoAnnulusDesign>(stripDirection,
+                                                               fieldDirection,
+                                                               thickness,
+                                                               readoutSide,
+                                                               carrier,
+                                                               1,//this design represents a single row by definition
+                                                               singleRowStrips,
+                                                               singleRowPitch,
+                                                               singleRowMinR,
+                                                               singleRowMaxR,
+                                                               stereoAngle,
+                                                               thisCentreR,
+                                                               centreR,
+                                                               usePC);
 
       // Add to map for addSensor routine
       std::string splitName = typeName + "_" + std::to_string(i);
@@ -417,26 +420,26 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
     m_detectorManager->addMotherDesign(std::move(motherDesign));
 
   } else {
-    auto design = std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
-                                                                      fieldDirection,
-                                                                      thickness,
-                                                                      readoutSide,
-                                                                      carrier,
-                                                                      nRows,
-                                                                      nStrips,
-                                                                      phiPitch,
-                                                                      startR,
-                                                                      endR,
-                                                                      stereoAngle,
-                                                                      centreR,
-                                                                      usePC);
+    auto design = std::make_unique<StripStereoAnnulusDesign>(stripDirection,
+                                                             fieldDirection,
+                                                             thickness,
+                                                             readoutSide,
+                                                             carrier,
+                                                             nRows,
+                                                             nStrips,
+                                                             phiPitch,
+                                                             startR,
+                                                             endR,
+                                                             stereoAngle,
+                                                             centreR,
+                                                             usePC);
 
     m_geometryMap[typeName] = design.get();
     m_detectorManager->addDesign(std::move(design));
   }
 }
 
-void StripGmxInterface::addSplitSensor(std::string typeName,
+void StripGmxInterface::addSplitSensor(const std::string& typeName,
                                        std::map<std::string, int> &index,
                                        std::pair<std::string, int> &extraIndex,
                                        int /* hitIdOfWafer */,
@@ -479,13 +482,14 @@ void StripGmxInterface::addSplitSensor(std::string typeName,
     splitTypeName += "_" + std::to_string(updatedIndex["side"]);
   }
 
-  const InDetDD::SiDetectorDesign *design = m_geometryMap[splitTypeName];
-  if (design == nullptr) {
+  auto it = m_geometryMap.find(splitTypeName);
+  if(it == m_geometryMap.end() || it->second == nullptr) {
     ATH_MSG_ERROR("addSplitSensor: Error: Readout sensor type " << typeName << " not found.");
     throw std::runtime_error("readout sensor type " + typeName + " not found.");
   }
+  const SiDetectorDesign *design = it->second;
 
-  m_detectorManager->addDetectorElement(new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems));
+  m_detectorManager->addDetectorElement(new SiDetectorElement(id, design, fpv, m_commonItems));
 
   //
   // Build up a map-structure for numerology
@@ -506,7 +510,7 @@ void StripGmxInterface::addSplitSensor(std::string typeName,
 }
 
 
-void StripGmxInterface::addSensor(std::string typeName,
+void StripGmxInterface::addSensor(const std::string& typeName,
                                   std::map<std::string, int> &index,
                                   int /* sensitiveId */,
                                   GeoVFullPhysVol *fpv)
@@ -540,13 +544,14 @@ void StripGmxInterface::addSensor(std::string typeName,
   //
   // Create the detector element and add to the DetectorManager
   //
-  const InDetDD::SiDetectorDesign *design = m_geometryMap[typeName];
-  if (design == nullptr) {
+  auto it = m_geometryMap.find(typeName);
+  if(it == m_geometryMap.end() || it->second == nullptr) {
     ATH_MSG_ERROR("addSensor: Error: Readout sensor type " << typeName << " not found.");
     throw std::runtime_error("readout sensor type " + typeName + " not found.");
   }
+  const SiDetectorDesign *design = it->second;
 
-  m_detectorManager->addDetectorElement(new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems));
+  m_detectorManager->addDetectorElement(new SiDetectorElement(id, design, fpv, m_commonItems));
 
   //
   // Build up a map-structure for numerology
@@ -616,3 +621,4 @@ void StripGmxInterface::addAlignable(int level,
 }
 
 } // namespace ITk
+} // namespace InDetDD

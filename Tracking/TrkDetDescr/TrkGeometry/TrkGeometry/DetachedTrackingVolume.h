@@ -89,9 +89,6 @@ class DetachedTrackingVolume {
   /** set the simplified calculable components */
   void saveConstituents(
       const std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float>>*);
-  void saveConstituents ATLAS_NOT_THREAD_SAFE(
-      const std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float>>*)
-      const;
   /** get the simplified calculable components */
   const std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float>>*
   constituents() const;
@@ -100,10 +97,6 @@ class DetachedTrackingVolume {
    * transform */
 
   void setBaseTransform(Amg::Transform3D* transf = nullptr);
-  void setBaseTransform
-  ATLAS_NOT_THREAD_SAFE(Amg::Transform3D* transf = nullptr) const;
-  /** alignment methods: realign  / default argument to base transform */
-  void realign ATLAS_NOT_THREAD_SAFE(Amg::Transform3D* transf = nullptr) const;
 
  private:
   /** Compactify -- set TG as owner to surfaces */
@@ -139,21 +132,12 @@ inline void DetachedTrackingVolume::saveConstituents(
         constituents) {
   m_constituents = constituents;
 }
-inline void DetachedTrackingVolume::saveConstituents ATLAS_NOT_THREAD_SAFE(
-    const std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float>>*
-        constituents) const {
-  const_cast<DetachedTrackingVolume*>(this)->saveConstituents(constituents);
-}
 
 inline const std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float>>*
 DetachedTrackingVolume::constituents() const {
   return m_constituents;
 }
 
-inline void DetachedTrackingVolume::setBaseTransform ATLAS_NOT_THREAD_SAFE(
-    Amg::Transform3D* transf) const {
-  const_cast<DetachedTrackingVolume*>(this)->setBaseTransform(transf);
-}
 
 }  // namespace Trk
 

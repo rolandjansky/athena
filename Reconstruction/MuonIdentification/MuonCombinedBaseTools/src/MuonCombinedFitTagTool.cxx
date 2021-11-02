@@ -110,11 +110,9 @@ namespace MuonCombined {
             // ensure that the id trackparticle has a track
             if (!(*rit).second->indetTrackParticle().track()) continue;
 
-            if (msgLevel() >= MSG::VERBOSE) {
-                ATH_MSG_VERBOSE("Doing combined fit with ID track " << *((*rit).second->indetTrackParticle().track()));
-                ATH_MSG_VERBOSE("Doing combined fit with MS track " << muonCandidate.muonSpectrometerTrack());
-            }
-
+            ATH_MSG_DEBUG("Doing combined fit with ID track " << *((*rit).second->indetTrackParticle().track()->perigeeParameters()));
+            ATH_MSG_DEBUG("Doing combined fit with MS track " << (*muonCandidate.muonSpectrometerTrack().perigeeParameters()));
+           
             // fit the combined ID-MS track
             combinedTrack = buildCombinedTrack(*((*rit).second->indetTrackParticle().track()), muonCandidate.muonSpectrometerTrack(),
                                                muonCandidate.extrapolatedTrack(), ctx);

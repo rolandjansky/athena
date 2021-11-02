@@ -163,7 +163,7 @@ namespace Crest {
  *
  */
     std::string performRequest(const std::string& current_path, Action action, nlohmann::json& js,
-                               const std::string& method_name);
+                               const char* method_name);
 
 
 /**
@@ -209,7 +209,7 @@ namespace Crest {
  *  It was used to throw an exception if the library method not implemented for file system.
  * @param method_name - method name.
  */
-    void checkFsException(std::string& method_name);
+    void checkFsException(const char* method_name);
 
 
 /**
@@ -224,14 +224,14 @@ namespace Crest {
  * </pre>
  * @param method - method name, where was the error.
  */
-    int checkErrors(const nlohmann::json& js, const std::string& method);
+    int checkErrors(const nlohmann::json& js, const char* method);
 
 /**
  * This method removes all XML/HTML tags from a string.
  * (It is an auxillary method to clear the CREST Server response.)
  * @param xmlBuffer - the text (a std::string ) to be cleared.
  */
-    std::string ParseXMLOutput(std::string xmlBuffer);
+    std::string ParseXMLOutput(std::string_view xmlBuffer);
 
 /**
  * This method removes all end of line and carriage return symbols from a string.
@@ -249,7 +249,7 @@ namespace Crest {
  * @param st - the CURL response,
  * @param method_name - the name on a method which calls one of the perform request methods.
  */
-    void checkResult(CURLcode res, long response_code, const std::string& st, const std::string& method_name);
+    void checkResult(CURLcode res, long response_code, const std::string& st, const char* method_name);
   public:
 // ===================================
 // CONSTRUCTORS
@@ -283,7 +283,7 @@ namespace Crest {
  *    CrestClient myCrestClient = CrestClient(url);
  * </pre>
  */
-    CrestClient(const std::string& url);
+    CrestClient(std::string_view url);
 
     ~CrestClient();
 
@@ -308,7 +308,7 @@ namespace Crest {
  * @return - JSON object as nlohmann::json
  *
  */
-    nlohmann::json getJson(const std::string& str, const std::string& method); // string to json
+    nlohmann::json getJson(const std::string& str, const char* method); // string to json
 
 /**
  * Auxillary method to get a file as a string.
@@ -1065,7 +1065,7 @@ namespace Crest {
  *    myCrestClient.storeBatchPayloadsFs(name39, str39);
  * </pre>
  */
-    void storeBatchPayloadsFs(std::string tag_name, std::string& iovsetupload);
+    void storeBatchPayloadsFs(const std::string &tag_name, std::string& iovsetupload);
 
 /**
  * This auxillary method stores several payloads in batch mode in the file storage.
@@ -1080,7 +1080,7 @@ namespace Crest {
  *    myCrestClient.storeBatchPayloadsFs(name39, js39);
  * </pre>
  */
-    void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
+    void storeBatchPayloadsFs(const std::string &tag_name, nlohmann::json& js);
 
 
 /**
@@ -1094,7 +1094,7 @@ namespace Crest {
  *
  * @param varname - a variable name.
  */
-    std::string getEnvA(const std::string& varname);
+    std::string getEnvA(const char* varname);
 
 /**
  * Auxillary method to get an environment variable DAT_PATH.
@@ -1275,7 +1275,7 @@ namespace Crest {
  * @param str - a string to split.
  * @param delim - a deliminator.
  */
-    std::vector<std::string> split(const std::string& str, const std::string& delim);
+    std::vector<std::string> split(std::string_view str, char delim);
 
 /**
  * This method gets a tag meta info from the CREST database in IOVDbSvc format.
@@ -1394,7 +1394,7 @@ namespace Crest {
  * This method uses SHA256 algorithm (PicoSHA2 C++ library)
  * @param str - a string
  */
-    std::string getHash(std::string str);
+    std::string getHash(std::string_view str);
 
 /**
  * The auxillary method to get a current data and time.

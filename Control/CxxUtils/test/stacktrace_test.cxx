@@ -48,6 +48,7 @@ void filter (char* buf)
 {
   char* buf0 = buf;
   char* sl = 0;
+  char* sp = 0;
   while (*buf) {
     if (buf[0] == '0' && buf[1] == 'x') {
       buf += 2;
@@ -76,6 +77,7 @@ void filter (char* buf)
     else if (buf[0] == ' ') {
       ++buf;
       sl = 0;
+      sp = buf;
     }
 
     else if (buf[0] == '?') {
@@ -111,8 +113,14 @@ void filter (char* buf)
         ++buf;
       if (*buf == ' ')
         ++buf;
-      if (sl) {
+      if (sp) {
+        buf = snip (sp, buf);
+        sp = 0;
+        sl = 0;
+      }
+      else if (sl) {
         buf = snip (sl, buf);
+        sp = 0;
         sl = 0;
       }
       else {
@@ -133,6 +141,7 @@ void dumptrace (FILE* fp)
   while (fgets (buf, sizeof (buf), fp)) {
     if (strstr (buf, "libasan") != nullptr)
       continue;
+    fputs (buf, stdout);
     filter (buf);
     fputs (buf, stdout);
   }

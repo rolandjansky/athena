@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArRawDataContByteStreamTool.h"
@@ -63,7 +63,7 @@ LArRawDataContByteStreamTool::initialize()
   ATH_CHECK( AthAlgTool::initialize() );
   ATH_MSG_DEBUG ( "Initializing LArRawDataContByteStream" );
 
-  ATH_CHECK( toolSvc()->retrieveTool("LArRodDecoder",m_decoder) );
+  ATH_CHECK( m_decoder.retrieve() );
 
   if (m_initializeForWriting) {
    if (m_DSPRunMode == 0) {

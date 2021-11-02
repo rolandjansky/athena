@@ -7,8 +7,8 @@
 // Package includes
 #include "egammaInterfaces/IegammaCaloClusterSelector.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "egammaCaloUtils/egammaMiddleShape.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
-#include "egammaInterfaces/IegammaMiddleShape.h"
 #include "egammaInterfaces/IegammaIso.h"
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -65,11 +65,6 @@ private:
   ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this, 
       "egammaCheckEnergyDepositTool", "",
       "Optional tool that performs basic checks of viability of cluster"};
-
-  /** @brief Middle shape tool; only used if cuts needing it are defined */
-  ToolHandle<IegammaMiddleShape> m_egammaMiddleShape {this, 
-      "egammaMiddleShapeTool", "egammaMiddleShape/egammamiddleshape",
-      "Optional tool that performs cuts on middle shape variables"};
 
   /** @brief Tool for hadronic leakage calculation; onlud used if cuts needing are defined*/
   ToolHandle<IegammaIso> m_HadronicLeakageTool {this,

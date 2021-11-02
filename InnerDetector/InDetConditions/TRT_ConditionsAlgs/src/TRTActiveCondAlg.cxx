@@ -107,7 +107,7 @@ StatusCode TRTActiveCondAlg::execute()
   float rMinEndcap = 617.; 
   float rMaxEndcap = 1106.;
   int countAll(0), countDead(0), countSaved(0), countPhiSkipped(0), countEtaSkipped(0), countInvalidEtaValues(0); 
-  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); it++  ) {
+  for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); ++it  ) {
      int nStrawsInLayer = m_trtId->straw_max(*it);
      for (int i=0; i<=nStrawsInLayer; i++) { 
 
@@ -121,7 +121,7 @@ StatusCode TRTActiveCondAlg::execute()
         countAll++; if (status) countDead++;
 
         const Amg::Vector3D &strawPosition = elements->getDetectorElement(hashId)->center(id);
-        double phi = atan2( strawPosition.y(), strawPosition.x() );
+        double phi = std::atan2( strawPosition.y(), strawPosition.x() );
         int phiBin = writeCdo->findPhiBin( phi );
 	if (phiBin<0) { 
            ATH_MSG_DEBUG("TRTCond::ActiveFraction phiBin<0: " << phi << " " << phiBin);
@@ -131,7 +131,7 @@ StatusCode TRTActiveCondAlg::execute()
 
 	// calculate etaMin, etaMax
 	int side = m_trtId->barrel_ec(id);
-        float z = fabs( strawPosition.z() );
+        float z = std::abs( strawPosition.z() );
 	float thetaMin(0.), thetaMax(0.);
 	if (abs(side)==1) { // barrel
            float zRange = 360.; // straw length / 2  
@@ -153,7 +153,7 @@ StatusCode TRTActiveCondAlg::execute()
         float etaCheck[] = {0., 0.};
         for (int ti=0; ti<2; ti++) {
            if (thetaCheck[ti]<=0.||thetaCheck[ti]>=M_PI) ATH_MSG_DEBUG("TRTCond::ActiveFraction: theta " << ti << " " << thetaCheck[ti]);
-           float tanTheta = tan(thetaCheck[ti]/2.);
+           float tanTheta = std::tan(thetaCheck[ti]/2.);
            if (tanTheta<=0.) {
               ATH_MSG_DEBUG("TRTCond::ActiveFraction: theta tan " << ti << " " << tanTheta );
               countInvalidEtaValues++;

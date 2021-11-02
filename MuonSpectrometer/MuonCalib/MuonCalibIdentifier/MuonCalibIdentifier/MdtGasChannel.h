@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_MdtGasChannel_h
@@ -8,11 +8,13 @@
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "CxxUtils/checker_macros.h"
 
-#include "string"
-#include "map"
-#include "set"
-#include "iostream"
+#include <string>
+#include <map>
+#include <set>
+#include <iostream>
+#include <mutex>
 
 namespace MuonCalib {
 
@@ -31,7 +33,8 @@ class MdtGasChannel
 	private:
 		bool readFile();
 		std::map<MuonFixedId, GasChannel> m_channel_map;
-		mutable std::set<MuonFixedId> m_warning_printed;
+                mutable std::mutex m_mutex;
+		mutable std::set<MuonFixedId> m_warning_printed ATLAS_THREAD_SAFE;
 	};
 
 }

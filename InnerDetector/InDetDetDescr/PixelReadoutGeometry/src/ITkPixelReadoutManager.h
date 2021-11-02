@@ -18,11 +18,13 @@ namespace InDetDD
 {
 class PixelDetectorManager;
 
-class ITkPixelReadoutManager final : public extends<AthService, IPixelReadoutManager>
+namespace ITk
+{
+class PixelReadoutManager final : public extends<AthService, IPixelReadoutManager>
 {
 public:
-  ITkPixelReadoutManager(const std::string &name,
-                         ISvcLocator *svc);
+  PixelReadoutManager(const std::string &name,
+                      ISvcLocator *svc);
 
   virtual StatusCode initialize() override final;
 
@@ -51,6 +53,7 @@ private:
   const PixelID *m_idHelper{};
 };
 
-}
+} // namespace ITk
+} // namespace InDetDD
 
 #endif

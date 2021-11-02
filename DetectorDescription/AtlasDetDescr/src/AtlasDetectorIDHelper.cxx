@@ -37,7 +37,9 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr,
     }
     else {
 	// Check if this is High Luminosity LHC layout
-	m_isHighLuminosityLHC = (dict->m_version=="ITkHGTD");
+    if (dict->m_version=="ITkHGTD" || dict->m_version=="ITkHGTDPLR") {
+      m_isHighLuminosityLHC = true;
+    }
 
 	// Save index to a PIXEL region for unpacking
 	id = atlas_id.pixel_exp(); 

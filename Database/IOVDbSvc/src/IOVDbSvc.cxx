@@ -513,7 +513,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
   if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
-    const std::string tagstub=m_globalTag.substr(0,7);
+    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
          (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
@@ -607,7 +607,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
   if (!m_par_dbinst.empty() && !m_globalTag.empty() and m_par_source!="CREST") {
-    const std::string tagstub=m_globalTag.substr(0,7);
+    const std::string_view tagstub=std::string_view(m_globalTag).substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
          (tagstub!="COMCOND" && tagstub!="CONDBR2")) ||
@@ -1083,10 +1083,10 @@ StatusCode IOVDbSvc::setupFolders() {
   // check for folders to be written to metadata
   for (const auto & folderToWrite : m_par_foldersToWrite) {
     // match wildcard * at end of string only (i.e. /A/* matches /A/B, /A/C/D)
-    std::string match=folderToWrite;
+    std::string_view match=folderToWrite;
     std::string::size_type idx=folderToWrite.find('*');
     if (idx!=std::string::npos) {
-      match=folderToWrite.substr(0,idx);
+      match=std::string_view(folderToWrite).substr(0,idx);
     }
     for (const auto & thisFolder : m_foldermap) {
       IOVDbFolder* fptr=thisFolder.second;

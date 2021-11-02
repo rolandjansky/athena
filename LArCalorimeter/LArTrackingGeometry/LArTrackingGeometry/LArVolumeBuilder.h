@@ -61,7 +61,7 @@ namespace LAr {
       StatusCode finalize();
 
       /** TrackingVolumeBuilder interface method - returns vector of Volumes */
-      const std::vector<const Trk::TrackingVolume*>* trackingVolumes() const;
+      const std::vector<Trk::TrackingVolume*>* trackingVolumes() const;
           
     private:
       // ------------- private methods -----------------------------------------

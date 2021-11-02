@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Generate_tf transform"""
 
@@ -405,6 +405,10 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 ## Process random seed arg and pass to generators
 include("EvgenJobTransforms/Generate_randomseeds.py")
 
+## Propagate debug output level requirement to generators
+if (hasattr( runArgs, "VERBOSE") and runArgs.VERBOSE ) or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "DEBUG") or (hasattr( runArgs, "loglevel") and runArgs.loglevel == "VERBOSE"):
+   include("EvgenJobTransforms/Generate_debug_level.py")
+
 ##=============================================================
 ## Check release number
 ##=============================================================
@@ -654,8 +658,8 @@ def _checkattr(attr, required=False):
 # counting the number of events in LHE output
 count_ev = 0
 with open(eventsFile) as f:
-    contents = f.read()
-    count_ev = contents.count("/event")
+    for line in f:
+       count_ev += line.count('/event')
     
 evgenLog.info('Requested output events = '+str(count_ev))
 printfunc("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))

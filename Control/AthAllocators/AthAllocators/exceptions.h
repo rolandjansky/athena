@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthAllocators/exceptions.h
  * @author scott snyder <snyder@bnl.gov>
@@ -35,6 +32,35 @@ public:
    * @brief Constructor.
    */
   ExcDifferentArenas();
+};
+
+
+/**
+ * @brief Exception --- Attempt to change memory protection failed.
+ */
+class ExcProtection
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param errnum The system error code.
+   */
+  ExcProtection (int errnum);
+};
+
+
+/**
+ * @brief Exception --- Attempt to change protected arena.
+ */
+class ExcProtected
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcProtected();
 };
 
 

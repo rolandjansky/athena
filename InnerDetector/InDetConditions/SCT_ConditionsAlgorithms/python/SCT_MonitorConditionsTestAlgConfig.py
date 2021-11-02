@@ -1,6 +1,6 @@
 """Define method to configure and test SCT_MonitorConditionsTestAlg
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def SCT_MonitorConditionsTestAlgCfg(flags, name="SCT_MonitorConditionsTestAlg", **kwargs):
     """Return a configured SCT_MonitorConditionsTestAlg"""
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecToolConfig import SCT_MonitorConditionsToolCfg
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_MonitorConditionsToolCfg
     kwargs.setdefault("SCT_MonitorConditionsTool", acc.popToolsAndMerge(SCT_MonitorConditionsToolCfg(flags)))
     acc.addEventAlgo(CompFactory.SCT_MonitorConditionsTestAlg(**kwargs))
     return acc

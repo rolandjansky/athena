@@ -26,7 +26,7 @@ class LArCalib_Flags:
     LArCaliWaveFolderXtlk        = "/LAR/ElecCalibOfl/CaliWaves/CaliWave"
 
     LArPhysWaveFolder            = "/LAR/ElecCalibOfl/PhysWaves/RTM"
-    LArMPhysOverMCalFolder       = "/LAR/ElecCalibOfl/MphysOverMcal/RTM"
+    LArMphysOverMcalFolder       = "/LAR/ElecCalibOfl/MphysOverMcal/RTM"
 
     LArPhysCaliTdiffFolder       = "/LAR/ElecCalibOfl/PhysCaliTdiff"
 

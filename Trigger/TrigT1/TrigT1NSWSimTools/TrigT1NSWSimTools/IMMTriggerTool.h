@@ -24,8 +24,6 @@ namespace NSWL1 {
     virtual ~IMMTriggerTool() {}
 
     virtual StatusCode runTrigger(const bool do_MMDiamonds) = 0;
-    virtual StatusCode initDiamondAlgorithm() = 0;
-    virtual StatusCode finalizeDiamondAlgorithm(const bool do_MMDiamonds) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IMMTriggerTool("NSWL1::IMMTriggerTool", 1 ,0);

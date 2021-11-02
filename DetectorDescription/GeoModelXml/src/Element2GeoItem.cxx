@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <string>
 
@@ -20,7 +20,7 @@ Element2GeoItem::Element2GeoItem() {}
 
 Element2GeoItem::~Element2GeoItem() {}
 
-const RCBase * Element2GeoItem::process(const xercesc::DOMElement *element, GmxUtil &gmxUtil) {
+RCBase * Element2GeoItem::process(const xercesc::DOMElement *element, GmxUtil &gmxUtil) {
 
     char *name2release;
     XMLCh * name_tmp = XMLString::transcode("name");
@@ -30,8 +30,8 @@ const RCBase * Element2GeoItem::process(const xercesc::DOMElement *element, GmxU
     XMLString::release(&name2release);
     XMLString::release(&name_tmp);
 
-    const RCBase *item;
-    map<string, const RCBase *>::iterator entry;
+    RCBase *item;
+    map<string, RCBase *>::iterator entry;
     if (name == "") { // Unnamed item; cannot store in the map; make a new one 
         item = make(element, gmxUtil);
     }
@@ -46,11 +46,11 @@ const RCBase * Element2GeoItem::process(const xercesc::DOMElement *element, GmxU
     return item;
 }
 
-const RCBase * Element2GeoItem::make(const xercesc::DOMElement *element, GmxUtil & /* gmxUtil */) const {
+RCBase * Element2GeoItem::make(const xercesc::DOMElement *element, GmxUtil & /* gmxUtil */) const {
     char *name2release = XMLString::transcode(element->getNodeName());
     OUTPUT_STREAM;
     msglog << MSG::FATAL << "Oh oh: called base class make() method of Element2GeoType object; tag " << name2release << endmsg;
     XMLString::release(&name2release);
 
-    exit(999); // Should improve on this 
+    std::abort();
 }

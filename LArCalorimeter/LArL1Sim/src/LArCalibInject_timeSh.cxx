@@ -35,7 +35,6 @@
 LArCalibInject_timeSh::LArCalibInject_timeSh(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
   , m_calocell_id(nullptr)
-  , m_dd_mgr(nullptr)
 {
 //
 // ........ default values of private data
@@ -70,7 +69,7 @@ StatusCode LArCalibInject_timeSh::initialize()
   CHECK( m_hitMapKey.initialize(SG::AllowEmpty) );
   CHECK( m_hitMapOutKey.initialize() );
   ATH_CHECK( detStore()->retrieve(m_calocell_id,"CaloCell_ID") );
-  ATH_CHECK( detStore()->retrieve(m_dd_mgr) );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   
   // Incident Service: 
@@ -94,10 +93,14 @@ StatusCode LArCalibInject_timeSh::execute(const EventContext& context) const
   auto fracS = this->retrieve(context,m_fracSKey);
   */
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,context};
+  ATH_CHECK(caloMgrHandle.isValid());
+
+
   auto cabling = this->retrieve(context,m_cablingKey) ;
 
   SG::WriteHandle<LArHitEMap> hitEMapOutHandle( m_hitMapOutKey, context);
-  auto hitEMapOut = std::make_unique<LArHitEMap> (cabling,m_calocell_id,m_dd_mgr,false);
+  auto hitEMapOut = std::make_unique<LArHitEMap> (cabling,m_calocell_id,*caloMgrHandle,false);
 
   //
   // ... initialise vectors for sums of energy in each TT

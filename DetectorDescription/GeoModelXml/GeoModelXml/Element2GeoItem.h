@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -28,9 +28,9 @@ class Element2GeoItem {
 public:
     Element2GeoItem();
     virtual ~Element2GeoItem();
-    const RCBase * process(const xercesc::DOMElement *element, GmxUtil &gmxUtil);
-    virtual const RCBase * make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const;
+    RCBase * process(const xercesc::DOMElement *element, GmxUtil &gmxUtil);
+    virtual RCBase * make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const;
 protected:
-    std::map<std::string, const RCBase *> m_map;  
+    std::map<std::string, RCBase *> m_map;  
 };
 #endif // ELEMENT2GEO_ITEM_H

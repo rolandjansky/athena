@@ -160,8 +160,8 @@ G4bool CSCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
       // now get the geoIdentifierTag of the rpc components
       int gmID = 0;
-      if ((loc1 = volName.find("[")) != std::string::npos) {
-        if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
+      if ((loc1 = volName.find('[')) != std::string::npos) {
+        if ((loc2 = volName.find(']', loc1+1)) != std::string::npos) {
           std::istringstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
           istrvar>>gmID;
         }

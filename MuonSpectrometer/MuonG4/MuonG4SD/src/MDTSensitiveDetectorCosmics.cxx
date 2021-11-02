@@ -210,8 +210,8 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
     else if ((npos = volName.find("component")) != std::string::npos && (!isAssembly)) {     // multilayer
 
       int gmID = 0;
-      if ((loc1 = volName.find("[")) != std::string::npos) {
-        if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
+      if ((loc1 = volName.find('[')) != std::string::npos) {
+        if ((loc2 = volName.find(']', loc1+1)) != std::string::npos) {
           std::istringstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
           istrvar>>gmID;
         }
@@ -250,8 +250,8 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
       stationPhi = fi;
 
       int gmID = 0;
-      if ((loc1 = volName.find("[")) != std::string::npos) {
-        if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
+      if ((loc1 = volName.find('[')) != std::string::npos) {
+        if ((loc2 = volName.find(']', loc1+1)) != std::string::npos) {
           std::istringstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
           istrvar>>gmID;
         }

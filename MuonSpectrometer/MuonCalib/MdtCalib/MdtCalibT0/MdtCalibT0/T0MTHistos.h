@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //   T0MTHistos.h
@@ -17,11 +17,8 @@
 #include <iostream>
 
 // root
+#include "TF1.h"
 #include "TH1.h"
-//#include "TF1.h"
-//#include "TDirectory.h"
-// class TH1F;
-class TF1;
 class TDirectory;
 
 // this
@@ -44,37 +41,24 @@ namespace MuonCalib {
     public:
         //---------------------------constructor----------------------------------------
         /** Default Constructor */
-        inline T0MTHistos() :
-            m_time(NULL),
-            m_id(-1),
-            m_t0_fermi(NULL),
-            m_t0_ok(false),
-            m_status_code(1),
-            m_tmax_fermi(NULL),
-            m_tmax_ok(false),
-            m_dir(NULL),
-            m_settings(NULL) {
-            m_chi2 = 9e9;
-        }
+        T0MTHistos() = default;
         /** Initializing constructor
             @param id tube id
             @param settings t0-fit settings: settings will be asked about histogram binning
 
         */
-        inline T0MTHistos(int id, const T0MTSettings *settings, const char *hname = NULL) : m_t0_fermi(NULL), m_tmax_fermi(NULL) {
+        T0MTHistos(int id, const T0MTSettings *settings, const char *hname = nullptr) : m_t0_fermi(nullptr), m_tmax_fermi(nullptr) {
             Initialize(id, settings, hname);
-            m_status_code = 99;
-            m_chi2 = 9e9;
         }
         //---------------------------static constants-----------------------------------
         //! number of parameters in t0 fit
-        static const int N_T0_FIT_PAR = 4;
+        static constexpr int N_T0_FIT_PAR = 4;
         //! parameter numbers in t0 fit
-        static const int T0_PAR_NR_T0 = 0, T0_PAR_NR_T = 1, T0_PAR_NR_BACK = 2, T0_PAR_NR_A = 3;
+        static constexpr int T0_PAR_NR_T0 = 0, T0_PAR_NR_T = 1, T0_PAR_NR_BACK = 2, T0_PAR_NR_A = 3;
         //! number of parameters for tmax fit
-        static const int N_TMAX_FIT_PAR = 6;
+        static constexpr int N_TMAX_FIT_PAR = 6;
         //! parameters numbers for tmax fit
-        static const int TMAX_PAR_NR_TMAX = 0, TMAX_PAR_NR_T = 1, TMAX_PAR_NR_BACK = 2, TMAX_PAR_NR_A = 3, TMAX_PAR_NR_B = 4,
+        static constexpr int TMAX_PAR_NR_TMAX = 0, TMAX_PAR_NR_T = 1, TMAX_PAR_NR_BACK = 2, TMAX_PAR_NR_A = 3, TMAX_PAR_NR_B = 4,
                          TMAX_PAR_NR_T0 = 5;
         //---------------------------public member functions----------------------------
         /** Initialize class
@@ -82,10 +66,10 @@ namespace MuonCalib {
             @param settings t0-fit settings: settings will be asked about histogram binning
 
         */
-        void Initialize(int id, const T0MTSettings *settings, const char *hname = NULL);
+        void Initialize(int id, const T0MTSettings *settings, const char *hname = nullptr);
 
         /** get drift time spectrum */
-        inline TH1F *GetTSpec() { return m_time; }
+        inline TH1F *GetTSpec() const { return m_time.get(); }
 
         /** set the pointer of the drift-time spectrum to an existing spectrum.
             This is for testapps
@@ -117,40 +101,40 @@ namespace MuonCalib {
         /** returns status code - the status code applies only to the t0 fit*/
         inline int StatusCode() const { return m_status_code; }
         /** returns function fitted to the riding edge of the spectrum */
-        inline const TF1 *GetT0Function() const { return m_t0_fermi; }
+        inline const TF1 *GetT0Function() const { return m_t0_fermi.get(); }
         /** returns function fitted to the riding edge of the spectrum */
-        inline TF1 *GetT0Function() { return m_t0_fermi; }
+        inline TF1 *GetT0Function() { return m_t0_fermi.get(); }
         /** returns true if tmax-fir was successfull */
         inline bool TmaxOk() const { return m_tmax_ok; }
         /** returns function fitted to the riding edge of the spectrum */
-        inline const TF1 *GetTMaxFunction() const { return m_tmax_fermi; }
+        inline const TF1 *GetTMaxFunction() const { return m_tmax_fermi.get(); }
         /** returns function fitted to the riding edge of the spectrum */
-        inline TF1 *GetTMaxFunctionNC() { return m_tmax_fermi; }
+        inline TF1 *GetTMaxFunctionNC() const { return m_tmax_fermi.get(); }
         /** returns t0 chi2*/
         inline const double &T0Chi2() const { return m_chi2; }
 
     private:
         //---------------------------private data members-------------------------------
         //! time spectrum
-        TH1F *m_time;
+        std::unique_ptr<TH1F> m_time{nullptr};
         //! tube id;
-        int m_id;
+        int m_id{-1};
         //! function fitted to the riding edghe of the spectrum
-        TF1 *m_t0_fermi;
+        std::unique_ptr<TF1> m_t0_fermi{nullptr};
         //! is true if t0 fit was successful
-        bool m_t0_ok;
+        bool m_t0_ok{false};
         //! status code for t0 fit (0 ok, 1 not fitted, 2 low statistics, 3 failed)
-        int m_status_code;
+        int m_status_code{99};
         //! function fitted to the falling edge of the spectrum
-        TF1 *m_tmax_fermi;
+        std::unique_ptr<TF1> m_tmax_fermi{nullptr};
         //! is true if tmax fit was successful
-        double m_tmax_ok;
+        double m_tmax_ok{FLT_MAX};
         //! TDirectory where debug and result histograms are stored
-        TDirectory *m_dir;
+        TDirectory *m_dir{nullptr};
         //! Pointer to settings class
-        const T0MTSettings *m_settings;
+        const T0MTSettings *m_settings{nullptr};
         //! chi2/NDF value
-        double m_chi2;
+        double m_chi2{FLT_MAX};
         /** normal t0 fit */
         bool NormalFit();
         /** try to get better start values from a scrambled histogram*/
@@ -161,10 +145,10 @@ namespace MuonCalib {
         void TopSlicing();
         class Slice {
         public:
-            double chi_2;
-            int min_bin;
-            int max_bin;
-            int n_bins;
+            double chi_2{FLT_MAX};
+            int min_bin{0};
+            int max_bin{0};
+            int n_bins{0};
         };
 
     };  // end  class T0MTHistos

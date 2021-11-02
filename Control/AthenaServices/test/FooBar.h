@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TEST_FOOBAR_H
@@ -43,7 +43,7 @@ class Baz
 {
 };
 SG_BASE (Baz, SG::AuxElement);
-CLASS_DEF( Baz, 8111, 0)
+CLASS_DEF( Baz, 8211, 0)
 
 
 class BazAuxContainer
@@ -51,7 +51,7 @@ class BazAuxContainer
 {
 };
 SG_BASE (BazAuxContainer, xAOD::AuxContainerBase);
-CLASS_DEF( BazAuxContainer, 8112, 0)
+CLASS_DEF( BazAuxContainer, 8212, 0)
 
 
 #endif // TEST_FOOBAR_H

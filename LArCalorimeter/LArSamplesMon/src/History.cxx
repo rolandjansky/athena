@@ -39,7 +39,8 @@ using namespace LArSamples;
 History::History(const HistoryContainer& container, 
                  const std::vector<const EventData*>& eventData, unsigned hash, 
                  const AbsShapeErrorGetter* shapeErrorGetter)
-  : m_cellInfo(new CellInfo(*container.cellInfo())), m_eventData(eventData),
+  : m_cellInfo(*container.cellInfo()),
+    m_eventData(eventData),
     m_hash(hash), m_shapeErrorGetter(shapeErrorGetter)
 {
   ClassCounts::incrementInstanceCount("History");
@@ -52,27 +53,23 @@ History::History(const HistoryContainer& container,
 History::History(const std::vector<const Data*>& data, const CellInfo& info, 
 		 const std::vector<const EventData*>& eventData, 
 		 unsigned int hash, const AbsShapeErrorGetter* shapeErrorGetter)
-  : m_data(data), m_cellInfo(&info), m_eventData(eventData), m_hash(hash), 
+  : m_data(data), m_cellInfo(info), m_eventData(eventData), m_hash(hash), 
     m_shapeErrorGetter(shapeErrorGetter) 
 {
   ClassCounts::incrementInstanceCount("History");
   unsigned int i = 0;
-  for (std::vector<const Data*>::iterator data = m_data.begin(); 
-       data != m_data.end(); data++, i++) 
-    (*data)->setCallBacks(this, i);
+  for (const Data* data : m_data)
+    data->setCallBacks(this, i);
 }
       
 
 History::~History()
 {
   ClassCounts::decrementInstanceCount("History");
-  for (std::vector<const Data*>::iterator data = m_data.begin(); 
-       data != m_data.end(); data++) 
-    if (*data) delete *data;
-  if (m_cellInfo) delete m_cellInfo;
-  for (std::vector<const EventData*>::iterator eventData = m_eventData.begin(); 
-       eventData != m_eventData.end(); eventData++) 
-    if (*eventData) delete *eventData;  
+  for (const Data* data : m_data)
+    delete data;
+  for (const EventData* eventData : m_eventData)
+    delete eventData;  
 }
 
 
@@ -151,12 +148,11 @@ bool History::sum(SimpleShape*& sum, SimpleShape*& reference) const
 
 bool History::isValid() const
 {
-  if (!m_cellInfo || !m_cellInfo->isValid()) return false;
+  if (!m_cellInfo.isValid()) return false;
   if (nData() == 0) return false;
   
-  for (std::vector<const Data*>::const_iterator data = m_data.begin(); 
-       data != m_data.end(); data++) 
-    if (!(*data)->isValid()) return false;
+  for (const Data* data : m_data)
+    if (!data->isValid()) return false;
   
   return true;
 }
@@ -168,7 +164,6 @@ double History::chi2(int i, int lwb, int upb, int chi2Params, ShapeErrorType sha
   if (!reference) return -1;
   Chi2Calc c2c(chi2Params);
   if ( m_data[i]->isDisconnected()) return -1;
-  if (!reference) return -1;
   const ScaledErrorData* sea = scaledErrorData(i, -1, Definitions::none, shapeErrorType);
   if (!sea && shapeErrorType != NoShapeError && shapeErrorType != BestShapeError) return -1;
   double chi2Value = c2c.chi2(*m_data[i], *reference, sea, lwb, upb);
@@ -251,8 +246,8 @@ History* History::refit(Chi2Params pars) const
   }
 
   std::vector<const EventData*> eventData;
-  for (std::vector<const EventData*>::const_iterator event = m_eventData.begin();
-       event != m_eventData.end(); event++) eventData.push_back(new EventData(**event));
+  for (const EventData* event : m_eventData)
+    eventData.push_back(new EventData(*event));
 
   return new History(datas, *cellInfo(), eventData, hash(), shapeErrorGetter());
 }
@@ -274,8 +269,8 @@ History* History::adjust() const
   }
 
   std::vector<const EventData*> eventData;
-  for (std::vector<const EventData*>::const_iterator event = m_eventData.begin();
-       event != m_eventData.end(); event++) eventData.push_back(new EventData(**event));
+  for (const EventData* event : m_eventData)
+    eventData.push_back(new EventData(*event));
 
   return new History(datas, *cellInfo(), eventData, hash(), shapeErrorGetter());
 }
@@ -294,8 +289,8 @@ History* History::filter(const TString& cuts) const
   }
 
   std::vector<const EventData*> eventData;
-  for (std::vector<const EventData*>::const_iterator event = m_eventData.begin();
-       event != m_eventData.end(); event++) eventData.push_back(new EventData(**event));
+  for (const EventData* event : m_eventData)
+    eventData.push_back(new EventData(*event));
 
   return new History(datas, *cellInfo(), eventData, hash(), shapeErrorGetter());
 }
@@ -655,9 +650,9 @@ double History::upstreamEnergy(unsigned int k) const
   std::vector<const Data*> unData;
   if (!m_interface->data(upstreamNeighbors, *data(k)->eventData(), unData)) return -1;
   double upstreamE = 0;
-  for (std::vector<const Data*>::const_iterator data = unData.begin(); data != unData.end(); data++) {
-    upstreamE += (*data)->energy();
-    delete *data;
+  for (const Data* data : unData) {
+    upstreamE += data->energy();
+    delete data;
   }
   return upstreamE;
 }

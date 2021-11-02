@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibIdentifier/MdtGasChannel.h"
@@ -44,16 +44,13 @@ bool MdtGasChannel::readFile()
 		lnstr>>chan;
 		if(lnstr.eof()) continue;
 		lnstr>>stations;
-		if((pos=chan.find("/"))==std::string::npos) continue;
+		if((pos=chan.find('/'))==std::string::npos) continue;
 		chan[pos]=' ';
 		std::istringstream chanstr(chan);
 		GasChannel c;
 		chanstr>>c.first;
 		chanstr>>c.second;
-		while((pos=stations.find(","))!=std::string::npos)
-			{
-			stations[pos]=' ';
-			}
+		std::replace(stations.begin(), stations.end(), ',', ' ');
 		std::istringstream st_stream(stations);
 		std::string station;
 		while(1)
@@ -84,6 +81,7 @@ const  MdtGasChannel::GasChannel & MdtGasChannel::GetGasChannel(const MuonFixedI
 	std::map<MuonFixedId, GasChannel>::const_iterator it=m_channel_map.find(id);
 	if(it==m_channel_map.end())
 		{
+                std::scoped_lock lock (m_mutex);
 		if(m_warning_printed.find(id)==m_warning_printed.end()) {
 			MsgStream log(Athena::getMessageSvc(),"MdtGasChannel");
 			log<<MSG::WARNING<<"Invalid Gas channel for "<<id.stationNameString()<<" "<<id.phi()<<" "<<id.eta()<<" "<<id.mdtMultilayer()<<endmsg;

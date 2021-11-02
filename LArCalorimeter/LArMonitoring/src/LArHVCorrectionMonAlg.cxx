@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -18,7 +18,7 @@ LArHVCorrectionMonAlg::LArHVCorrectionMonAlg(const std::string& name, ISvcLocato
    : AthMonitorAlgorithm(name, pSvcLocator),
     m_LArOnlineIDHelper(0),
     m_caloIdMgr(0),
-    m_lastLB(0)
+    m_filledLB()
 { }
 
 /*---------------------------------------------------------*/
@@ -37,6 +37,8 @@ StatusCode LArHVCorrectionMonAlg::initialize()
 
   ATH_CHECK( m_scaleCorrKey.initialize() );
   ATH_CHECK( m_onlineScaleCorrKey.initialize() );
+
+  ATH_CHECK( m_caloMgrKey.initialize() );
   
   ATH_MSG_DEBUG( "Successful Initialize LArHVCorrection " );
   return AthMonitorAlgorithm::initialize();
@@ -46,20 +48,22 @@ StatusCode LArHVCorrectionMonAlg::initialize()
 StatusCode LArHVCorrectionMonAlg::fillHistograms(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in fillHists()" );
-  
-  bool doMonitor = false;
+
+  unsigned int thisLB=ctx.eventID().lumi_block();
+  bool doMonitor=false;
   {
     std::lock_guard<std::mutex> lock(m_mut);
-    if (ctx.eventID().lumi_block() > m_lastLB) {
-      m_lastLB = ctx.eventID().lumi_block();
-      doMonitor = true;
+    if(!m_filledLB.count(thisLB)) {
+      m_filledLB.insert(thisLB);
+      doMonitor=true;
     }
   }
 
-  if (doMonitor) {
+  if(doMonitor) { //LB not yet monitored, so do the monitoring now
 
-    const CaloDetDescrManager* ddman = nullptr;
-    ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+    ATH_CHECK(caloMgrHandle.isValid());
+    const CaloDetDescrManager* ddman = *caloMgrHandle;
     
     // Retrieve event information
     int lumi_block = ctx.eventID().lumi_block();

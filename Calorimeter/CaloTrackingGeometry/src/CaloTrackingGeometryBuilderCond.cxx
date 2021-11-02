@@ -190,14 +190,17 @@ StatusCode Calo::CaloTrackingGeometryBuilderCond::finalize()
   return StatusCode::SUCCESS;
 }
 
-std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(const EventContext&, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const
+std::pair<EventIDRange, Trk::TrackingGeometry*>
+Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
+  const EventContext&,
+  std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const
 {
 
   ATH_MSG_VERBOSE( "Starting to build CaloTrackingGeometry ..." );   
   
   // the return TG
-  const Trk::TrackingGeometry* caloTrackingGeometry = nullptr; 
-  const Trk::TrackingVolume*            calorimeter = nullptr;                     
+  Trk::TrackingGeometry* caloTrackingGeometry = nullptr; 
+  Trk::TrackingVolume*            calorimeter = nullptr;                     
 
   // the key dimensions
   RZPairVector keyDim; 
@@ -349,13 +352,13 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
     
   // PART 1 : Liquid Argon Volumes ===========================================================================================
   // get the Tracking Volumes from the LAr Builder 
-  const std::vector<const Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes();
+  const std::vector<Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes();
 
   ATH_MSG_INFO( lArVolumes->size() << " volumes retrieved from " << m_lArVolumeBuilder.name() );   
   if (msgLvl(MSG::VERBOSE)){
     ATH_MSG_VERBOSE( "--------------- detailed output ---------------------------------------------------------- " );
-    std::vector<const Trk::TrackingVolume*>::const_iterator lArVolIter    = lArVolumes->begin();
-    std::vector<const Trk::TrackingVolume*>::const_iterator lArVolIterEnd = lArVolumes->end();
+    std::vector<Trk::TrackingVolume*>::const_iterator lArVolIter    = lArVolumes->begin();
+    std::vector<Trk::TrackingVolume*>::const_iterator lArVolIterEnd = lArVolumes->end();
     for ( ; lArVolIter != lArVolIterEnd; ++lArVolIter)
      if (*lArVolIter) (*lArVolIter)->screenDump(msg(MSG::VERBOSE)) ;
   }           
@@ -384,13 +387,13 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 
   // PART 2 : Tile Volumes ===========================================================================================
   // get the Tracking Volumes from the Tile Builder 
-  const std::vector<const Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes();
+  const std::vector<Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes();
 
   ATH_MSG_INFO( tileVolumes->size() << " volumes retrieved from " << m_tileVolumeBuilder.name() );   
   if (msgLvl(MSG::INFO)){
     ATH_MSG_INFO( "--------------- detailed output ---------------------------------------------------------- " );
-    std::vector<const Trk::TrackingVolume*>::const_iterator tileVolIter = tileVolumes->begin();
-    std::vector<const Trk::TrackingVolume*>::const_iterator tileVolIterEnd = tileVolumes->end();
+    std::vector<Trk::TrackingVolume*>::const_iterator tileVolIter = tileVolumes->begin();
+    std::vector<Trk::TrackingVolume*>::const_iterator tileVolIterEnd = tileVolumes->end();
     for ( ; tileVolIter != tileVolIterEnd;  (*tileVolIter)->screenDump(msg(MSG::VERBOSE)), ++tileVolIter)
       ;
   }
@@ -848,7 +851,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
      ATH_MSG_ERROR("PROBLEM : beam pipe collide with Fcal:"<< rFcalBP <<">" << lArPositiveFcalBounds->innerRadius()<<", abort" );  
      // create dummy infinite IOV Range 
      EventIDRange range=IOVInfiniteRange::infiniteMixed();
-     return std::pair<EventIDRange, const Trk::TrackingGeometry*>(range,0);
+     return std::pair<EventIDRange, Trk::TrackingGeometry*>(range,0);
      
    }
 
@@ -1223,7 +1226,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    //std::cout <<"Combined LAr ready " << std::endl; 
 
    // glue with LAr sector
-   const Trk::TrackingVolume* caloCombined    = nullptr;
+   Trk::TrackingVolume* caloCombined    = nullptr;
    // ++ has 2 sub volumes in R
    std::vector<const Trk::TrackingVolume*> caloVolumes;
    // ++++ (a) -> LAr sector

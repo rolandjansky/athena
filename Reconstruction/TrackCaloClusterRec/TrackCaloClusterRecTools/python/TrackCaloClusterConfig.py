@@ -1,4 +1,4 @@
-#   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon import Logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -36,59 +36,12 @@ def tmpSetupTrackServices(inputFlags):
     result=ComponentAccumulator()
     StoreGateSvc=CompFactory.StoreGateSvc
     result.addService(StoreGateSvc("DetectorStore"))
-    
-    #Setup up general geometry
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
-    result.merge(InDetGeometryCfg(inputFlags))
  
-    #Setup TRT conditions                                                                                                                                  
-    TRTAlignCondAlg=CompFactory.TRTAlignCondAlg
-    result.addCondAlgo(TRTAlignCondAlg(name = "TRTAlignCondAlg",UseDynamicFolders = inputFlags.GeoModel.Align.Dynamic))
- 
-    #Setup Pixel conditions
-    PixelAlignCondAlg=CompFactory.PixelAlignCondAlg
-    result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
- 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
-    result.merge(PixelDetectorElementCondAlgCfg(inputFlags))
- 
-    #Setup SCT conditions
-    SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
-    result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = inputFlags.GeoModel.Align.Dynamic))
- 
-    
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_DetectorElementCondAlgCfg
-    result.merge(SCT_DetectorElementCondAlgCfg(inputFlags))
-    
-    GeometryDBSvc=CompFactory.GeometryDBSvc
-    result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    
- 
-    #Setup TRT geometry
-    TRT_DetectorTool=CompFactory.TRT_DetectorTool
-    trtDetectorTool = TRT_DetectorTool()
-    #These two lines fix ATLASRECTS-5053. I expect eventually we can remove them, once the underlying issue is fixed.
-    trtDetectorTool.DoXenonArgonMixture = False
-    trtDetectorTool.DoKryptonMixture = False
-    result.getService("GeoModelSvc").DetectorTools += [ trtDetectorTool ]
- 
-    #Setup up material for inner detector
-    InDetServMatTool=CompFactory.InDetServMatTool
-    result.getService("GeoModelSvc").DetectorTools += [ InDetServMatTool() ]
-    
     #Setup up tracking geometry
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
-    
-    #load folders needed for Run2 ID alignment
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
-    
-    #Setup up muon geometry
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))    
- 
+
     #setup magnetic field service
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
@@ -104,7 +57,7 @@ def getDecorationKeyFunc(trackParticleName, assocPostfix):
     """Simple helper returning a function to build decoration keys """
     return lambda d : trackParticleName+'.'+d+assocPostfix
 
-def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles", assocPostfix = "TCC", onlyPV0Tracks=False):
+def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",detectorEtaName="default",trackParticleName="InDetTrackParticles", assocPostfix = "TCC", onlyPV0Tracks=False):
     """ Schedule a TrackParticleClusterAssociationAlg in the top sequence, taking as input clusters and tracks defined 
     by the keys caloClusterName and trackParticleName.
 
@@ -133,6 +86,7 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",track
         PtCut = 400.,
         CaloExtensionName = "ParticleCaloExtension",
         CaloClusterLocation = caloClusterName,
+        DetectorEtaName = detectorEtaName if detectorEtaName.lower() != "default" else ("DetectorEta" if "Origin" in caloClusterName else ""),
         TrackVertexAssoTool=setupTrackVertexAssocTool(), # will associate trks from PV0 only
         VertexContainerName = "PrimaryVertices" if onlyPV0Tracks else "",
         AssociatedClusterDecorKey = decorKey("AssoClusters"),
@@ -144,7 +98,7 @@ def setupTrackCaloAssoc(configFlags, caloClusterName="CaloCalTopoClusters",track
     return components
 
     
-def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trackParticleName="InDetTrackParticles",
+def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", trackParticleName="InDetTrackParticles",
                          assocPostfix="TCC", doCombined=False, doNeutral=True, doCharged=False, outputTCCName="TrackCaloClusters"):
     """Create a TrackCaloCluster collection from clusters and tracks (caloClusterName and trackParticleName). 
     Depending on options, the collection contains combined, neutral and/or charged TCC.
@@ -161,7 +115,7 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trac
     components = ComponentAccumulator()    
     
     components.merge(
-        setupTrackCaloAssoc(configFlags, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=False)
+        setupTrackCaloAssoc(configFlags, caloClusterName, detectorEtaName, trackParticleName, assocPostfix, onlyPV0Tracks=False)
     )
 
     
@@ -242,7 +196,7 @@ def runTCCReconstruction(configFlags, caloClusterName="CaloCalTopoClusters",trac
     return components
 
 
-def runUFOReconstruction( constits, configFlags, caloClusterName="CaloCalTopoClusters", trackParticleName="InDetTrackParticles",
+def runUFOReconstruction( constits, configFlags, caloClusterName="CaloCalTopoClusters", detectorEtaName = "default", trackParticleName="InDetTrackParticles",
                          assocPostfix="TCC", ):
     """Create a TrackCaloCluster collection from PFlow and tracks (PFO retrieved from PFOPrefix and tracks directly from trackParticleName). 
     This functions schedules 2 UFO specific algs : 
@@ -258,7 +212,7 @@ def runUFOReconstruction( constits, configFlags, caloClusterName="CaloCalTopoClu
     
     
     components.merge(
-        setupTrackCaloAssoc(configFlags, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=True)
+        setupTrackCaloAssoc(configFlags, caloClusterName, detectorEtaName, trackParticleName, assocPostfix, onlyPV0Tracks=True)
     )
 
         

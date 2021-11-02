@@ -12,6 +12,8 @@
 #define READOUTGEOMETRYBASE_DETECTORDESIGN_H
 
 // base class
+#include "GeoPrimitives/GeoPrimitives.h"
+/// Ensure that the ATLAS eigen extensions are properly loaded
 #include "GeoModelKernel/RCBase.h"
 
 #include "ReadoutGeometryBase/SiDiodesParameters.h"

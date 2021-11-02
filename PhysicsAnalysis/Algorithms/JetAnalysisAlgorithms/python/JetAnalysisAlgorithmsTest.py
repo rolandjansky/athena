@@ -57,7 +57,7 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
         ntupleMaker.Branches += [
             # 'EventInfo.jvt_effSF_%SYS% -> jvtSF_%SYS%',
             # 'EventInfo.fjvt_effSF_%SYS% -> fjvtSF_%SYS%',
-            'AnalysisJets_%SYS%.jvt_effSF_NOSYS -> jet_%SYS%_jvtEfficiency',
+            'AnalysisJets_%SYS%.jvt_effSF_%SYS% -> jet_%SYS%_jvtEfficiency',
             # 'AnalysisJets_%SYS%.fjvt_effSF_NOSYS -> jet_%SYS%_fjvtEfficiency',
             ]
         algSeq += ntupleMaker

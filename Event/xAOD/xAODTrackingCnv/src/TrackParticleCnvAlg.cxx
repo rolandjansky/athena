@@ -59,6 +59,8 @@ TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
                   m_RecTrackParticleContainerCnvTool);
   declareProperty("DoMonitoring", m_doMonitoring = false);
   declareProperty("TrackMonTool", m_trackMonitoringTool);
+  declareProperty("AugmentObservedTracks", m_augmentObservedTracks = false, "augment observed tracks");
+  declareProperty("TracksMapName", m_tracksMap, "name of observed tracks map saved in store");
 }
 
 StatusCode
@@ -97,6 +99,8 @@ TrackParticleCnvAlg::initialize()
   // Retrieve monitoring tool if provided
   ATH_CHECK(m_trackMonitoringTool.retrieve(DisableTool{ !m_doMonitoring }));
 
+  ATH_CHECK(m_tracksMap.initialize(m_augmentObservedTracks));
+
   // Return gracefully:
   return StatusCode::SUCCESS;
 }
@@ -110,6 +114,7 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
   const xAODTruthParticleLinkVector* truthLinks = nullptr;
   const TrackParticleTruthCollection* aodTruth = nullptr;
   const TrackTruthCollection* trackTruth = nullptr;
+  const ObservedTracksMap* tracksMap = nullptr;
 
   // Retrieve the AOD particles:
   if (m_convertAODTrackParticles) {
@@ -169,9 +174,27 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
     ATH_CHECK(
       wh_xaodout.record(std::make_unique<xAOD::TrackParticleContainer>(),
                         std::make_unique<xAOD::TrackParticleAuxContainer>()));
-    convert(
-      (*tracks), trackTruth, m_TrackCollectionCnvTool, wh_xaodout, truthLinks);
 
+    // Augment track particles with information from observer tool
+    if (m_augmentObservedTracks){
+      SG::ReadHandle<ObservedTracksMap> rh_tracksMap(m_tracksMap, ctx);
+      if (!rh_tracksMap.isValid()) {
+        ATH_MSG_ERROR(m_tracksMap.key() << " not found");
+        return StatusCode::FAILURE;
+      }
+      else {
+        tracksMap = rh_tracksMap.cptr();
+        ATH_MSG_VERBOSE("Got ObservedTracksMap with key " << m_tracksMap.key()
+                                                        << " found.");
+      }
+
+      convert(
+        (*tracks), trackTruth, m_TrackCollectionCnvTool, wh_xaodout, truthLinks, tracksMap);
+    }
+    else{
+      convert(
+        (*tracks), trackTruth, m_TrackCollectionCnvTool, wh_xaodout, truthLinks);
+    }
     // Monitor track parameters
     if (m_doMonitoring)
       m_trackMonitoringTool->monitor_tracks("Track", "Pass", *wh_xaodout);
@@ -242,28 +265,39 @@ TrackParticleCnvAlg::convert(
   const TRUTHCONT& truth,
   CONVTOOL& conv_tool,
   SG::WriteHandle<xAOD::TrackParticleContainer>& xaod,
-  const xAODTruthParticleLinkVector* truthLinkVec) const
+  const xAODTruthParticleLinkVector* truthLinkVec,
+  const ObservedTracksMap* obs_track_map /*=0*/) const
 {
   // Create the xAOD container and its auxiliary store:
 
   // convert the track containers separately with the converting tools that are
   // also used by TrigHLTtoxAODTool
   ATH_MSG_DEBUG("calling the converting tool for " << xaod.name());
-  if (conv_tool->convert(&container, xaod.ptr()).isFailure()) {
-    ATH_MSG_ERROR("Couldn't convert aod to xaod ("
-                  << xaod.name() << ") with the converting tool");
-    return -1;
+  // Augment track particles using track map if available
+  if (obs_track_map){
+    if (conv_tool->convertAndAugment(&container, xaod.ptr(), obs_track_map).isFailure()) {
+      ATH_MSG_ERROR("Couldn't convert and augment aod to xaod ("
+                    << xaod.name() << ") with the converting tool");
+      return -1;
+    }
   }
-
+  else{
+    if (conv_tool->convert(&container, xaod.ptr()).isFailure()) {
+      ATH_MSG_ERROR("Couldn't convert aod to xaod ("
+                    << xaod.name() << ") with the converting tool");
+      return -1;
+    }
+  }
   // Create the xAOD objects:
   xAOD::TrackParticleContainer::iterator itr_xaod = xaod->begin();
   xAOD::TrackParticleContainer::iterator end_xaod = xaod->end();
 
   AssociationHelper<CONT> association_to_src(container, xaod.ptr());
+  unsigned int trackCounter(0);
   // loop over AOD and converted xAOD for summary info and truth links
   for (; itr_xaod != end_xaod; ++itr_xaod) {
     // protect if something went wrong and there is no converted xaod equivalent
-
+    
     if (!(*itr_xaod)) {
       ATH_MSG_WARNING("WTaF? Empty element in xAOD container!");
       continue;
@@ -275,6 +309,37 @@ TrackParticleCnvAlg::convert(
       ATH_MSG_WARNING("Failed to get an xAOD::TrackParticle");
       continue;
     }
+
+    trackCounter++;
+    if(msgLvl(MSG::DEBUG)){
+      int npix, nsct, ntrt, npixh, nscth, npixshim, npixsplit;
+      npix = nsct = ntrt = npixh = nscth = npixshim = npixsplit = -1;
+      const Trk::Track *tr = particle->track();
+      if (tr){
+	const Trk::TrackSummary *ts = tr->trackSummary();
+	if (ts){
+	  npix = ts->get(Trk::numberOfPixelHits);
+	  nsct = ts->get(Trk::numberOfSCTHits);
+	  ntrt = ts->get(Trk::numberOfTRTHits);
+	  nscth= ts->get(Trk::numberOfSCTHoles);
+	  npixh= ts->get(Trk::numberOfPixelHoles);
+	  npixshim = ts->get(Trk::numberOfInnermostPixelLayerSharedHits);
+	  npixsplit= ts->get(Trk::numberOfPixelSplitHits);
+	  
+	}
+      }
+      msg() << MSG::DEBUG << "REGTEST: " << std::setw(5) << trackCounter
+	    << "  pT:  " << std::setw(10) << particle->pt()
+	    << "  eta: " << particle->eta()
+	    << "  phi: " << particle->phi()
+	    << "  d0:  " << particle->d0()
+	    << "  z0:  " << particle->z0()
+	    << "\t" << npix << "/" << nsct << "/" << ntrt << "/holes/" << npixh << "/" << nscth
+	    << "/sharedIM/" << npixshim << "/pixsplit/" << npixsplit 
+	    << endmsg;
+
+    }
+ 
 
     //
     // --------- statistics

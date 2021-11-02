@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDDetectorStore.h"
@@ -13,11 +13,6 @@
 
 AGDDDetectorStore::AGDDDetectorStore()
 {
-}
-AGDDDetectorStore* AGDDDetectorStore::GetDetectorStore()
-{
-	static AGDDDetectorStore* theStore=new AGDDDetectorStore;
-	return theStore;
 }
 void AGDDDetectorStore::RegisterDetector(AGDDDetector *s)
 {
@@ -51,17 +46,17 @@ void AGDDDetectorStore::PrintAllDetectors()
     }
 }
 
-detectorList& AGDDDetectorStore::GetDetectorList() const
+const detectorList& AGDDDetectorStore::GetDetectorList() const
 {
-	return AGDDDetectorStore::GetDetectorStore()->GetDetectorList();
+	return m_the_detectors;
 }
 
-std::vector<AGDDDetector*> AGDDDetectorStore::GetDetectorsByType(std::string dt) const
+std::vector<AGDDDetector*> AGDDDetectorStore::GetDetectorsByType(const std::string& dt) const
 {
 	std::vector<AGDDDetector*> detectors;
-	detectorList& theDetectors=GetDetectorList();
+	const detectorList& theDetectors=GetDetectorList();
 	detectorList::const_iterator it=theDetectors.begin();
-	for (;it!=theDetectors.end();it++)
+	for (;it!=theDetectors.end();++it)
 	{
 		AGDDDetector* det=(*it).second;
 		if (dt==det->DetectorType()) detectors.push_back(det);
@@ -69,11 +64,11 @@ std::vector<AGDDDetector*> AGDDDetectorStore::GetDetectorsByType(std::string dt)
 	return detectors;
 }
 
-AGDDDetector* AGDDDetectorStore::GetDetectorByID(std::string dt) const
+AGDDDetector* AGDDDetectorStore::GetDetectorByID(const std::string& dt) const
 {
-	detectorList& theDetectors=GetDetectorList();
+	const detectorList& theDetectors=GetDetectorList();
 	detectorList::const_iterator it=theDetectors.begin();
-	for (;it!=theDetectors.end();it++)
+	for (;it!=theDetectors.end();++it)
 	{
 		AGDDDetector* det=(*it).second;
 		if (dt==det->DetectorID()) return det;
@@ -84,20 +79,20 @@ AGDDDetector* AGDDDetectorStore::GetDetectorByID(std::string dt) const
 template<class T> std::vector<T*> AGDDDetectorStore::GetDetectorsByType() const 
 {
 	std::vector<T*> detectors;
-	detectorList& theDetectors=GetDetectorList();
+	const detectorList& theDetectors=GetDetectorList();
 	detectorList::const_iterator it=theDetectors.begin();
-	for (;it!=theDetectors.end();it++)
+	for (;it!=theDetectors.end();++it)
 	{
 		T* det=dynamic_cast<T*>((*it).second);
 		if (det) detectors.push_back(det);
 	}
 	return detectors;
 }
-template<class T> T* AGDDDetectorStore::GetDetectorByID(std::string id) const 
+template<class T> T* AGDDDetectorStore::GetDetectorByID(const std::string& id) const 
 {
-	detectorList& theDetectors=GetDetectorList();
+	const detectorList& theDetectors=GetDetectorList();
 	detectorList::const_iterator it=theDetectors.begin();
-	for (;it!=theDetectors.end();it++)
+	for (;it!=theDetectors.end();++it)
 	{
 		if (id==(*it).second->DetectorID())
 	    {

@@ -2,7 +2,7 @@
 
 from ..Menu.ChainDictTools import splitChainDict
 from ..Menu.ChainMerging import mergeChainDefs
-from .PhotonChainConfiguration import PhotonChainConfiguration
+from ..Photon.PhotonChainConfiguration import PhotonChainConfiguration
 
 import pprint
 from AthenaCommon.Logging import logging

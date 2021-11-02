@@ -63,8 +63,6 @@
 
 #include "TopDataPreparation/SampleXsection.h"
 
-//#include "TopHLUpgrade/UpgradeObjectLoader.h"
-
 // to disable the sending of file access statistics
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
 
@@ -275,21 +273,15 @@ int main(int argc, char** argv) {
   top::check(systObjMaker->setProperty("config", topConfig), "Failed to setProperty of systObjMaker");
   if (!topConfig->isTruthDxAOD()) top::check(systObjMaker->initialize(), "Failed to initialize systObjMaker");
 
-  //setup object definitions - not used in HLUpgrade tools
   std::unique_ptr<top::TopObjectSelection> objectSelection;
-  if (!topConfig->HLLHC()) {
-    objectSelection.reset(top::loadObjectSelection(topConfig));
-    objectSelection->print(msg(MSG::Level::INFO)); // forward to msg stream using INFO level
-  }
+  objectSelection.reset(top::loadObjectSelection(topConfig));
+  objectSelection->print(msg(MSG::Level::INFO)); // forward to msg stream using INFO level
 
   //setup event-level cuts
   top::EventSelectionManager eventSelectionManager(settings->selections(), outputFile.get(), libraryNames, topConfig);
 
   //The loader tool for top::ParticleLevelEvent objects
   top::ParticleLevelLoader particleLevelLoader(topConfig);
-
-  // The loader tool for Upgrade objects
-//  top::UpgradeObjectLoader upgradeLoader(topConfig);
 
   // Fix the configuration - it now knows about:
   //     * all objects collections to work with
@@ -478,7 +470,6 @@ int main(int argc, char** argv) {
   unsigned int totalYieldSoFar = 0;
   unsigned int skippedEventsSoFar = 0;
   unsigned int eventSavedReco(0), eventSavedRecoLoose(0), eventSavedTruth(0), eventSavedParticle(0);
-//  unsigned int  eventSavedUpgrade(0);
 
   // Close the file that we opened only for metadata
   metadataInitFile->Close();
@@ -530,19 +521,19 @@ int main(int argc, char** argv) {
 
         const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
         // try to retrieve CutBookKeepers for LHE3Weights first
-        top::parseCutBookkeepers(xaodEvent, weight_names.size(), LHE3_names_file, LHE3_sumW_file, topConfig->HLLHC());
+        top::parseCutBookkeepers(xaodEvent, weight_names.size(), LHE3_names_file, LHE3_sumW_file);
         // if we have MC generator weights, we rename the bookkeepers in sumWeights TTree to match the weight names from MetaData
         top::renameCutBookkeepers(LHE3_names_file, weight_names);
 
         // raw number of events taken from "AllExecutedEvents" bookkeeper, which corresponds to 0th MC weight
         // but these are raw entries, so doesn't matter if 0th MC weight is nominal or not
-        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
+        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers);
 
         // determine the nominal sum of weight -- we already found the nominal weight in ScaleFactorCalculator
         const size_t nominalWeightIndex = topConfig->nominalWeightIndex();
         sumW_file = LHE3_sumW_file.at(nominalWeightIndex);
       } else {
-        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
+        initialEvents = top::getRawEventsBookkeeper(cutBookKeepers);
         sumW_file = initialEvents; // this is data, it's the same number...
       }
     }
@@ -656,19 +647,6 @@ int main(int argc, char** argv) {
         // Save, if requested, MC truth block, PDFInfo, TopPartons
         eventSaver->saveTruthEvent();
         if(topConfig->doTopPartonLevel()) ++eventSavedTruth;
-
-        // Upgrade analysis - only for truth DAODs when asking to do upgrade studies
-        if (topConfig->isTruthDxAOD() && topConfig->HLLHC()) {
-          //top::ParticleLevelEvent upgradeEvent = upgradeLoader.load();
-
-          ////event selection
-          //const bool saveEventInOutputFile = eventSelectionManager.applyUpgradeLevel(upgradeEvent);
-
-          //if (saveEventInOutputFile) {
-          //  eventSaver->saveUpgradeEvent(upgradeEvent);
-          //  ++eventSavedUpgrade;
-          //}
-        }
 
         // Particle level analysis, saved only for truth events passing fiducial selection
 
@@ -1072,9 +1050,6 @@ int main(int argc, char** argv) {
     if (particleLevelLoader.active()) {
       ATH_MSG_INFO("Events saved to output file particle level tree : " << eventSavedParticle);
     }
-    //if (upgradeLoader.active()) {
-    //  ATH_MSG_INFO("Events saved to output file upgrade tree : " << eventSavedUpgrade);
-    //}
   }
   ATH_MSG_INFO("Total sum-of-weights (for normalization) : " << totalEventsWeighted);
 

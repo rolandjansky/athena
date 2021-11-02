@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -73,7 +73,7 @@ namespace G4UA{
 
       m_entryLayerMap["CALO::CALO"]       = m_config.truthVolLevel+1;
       m_entryLayerMap["MUONQ02::MUONQ02"] = m_config.truthVolLevel+1;
-      m_entryLayerMap["IDET::IDET"]       = m_config.truthVolLevel+1;
+      m_entryLayerMap[m_config.isITkGeometry ? "ITK::ITK" : "IDET::IDET"] = m_config.truthVolLevel+1;
 
     }
 
@@ -207,7 +207,8 @@ namespace G4UA{
 
       ISF::EntryLayer layer=ISF::fUnsetEntryLayer;
       if (pass) {
-        if      (vname1=="IDET::IDET")       layer=ISF::fAtlasCaloEntry;
+        if      (!m_config.isITkGeometry && vname1=="IDET::IDET") layer=ISF::fAtlasCaloEntry;
+        else if ( m_config.isITkGeometry && vname1=="ITK::ITK")   layer=ISF::fAtlasCaloEntry;
         else if (vname1=="CALO::CALO")       layer=ISF::fAtlasMuonEntry;
         else if (vname1=="MUONQ02::MUONQ02") layer=ISF::fAtlasMuonExit;
       }

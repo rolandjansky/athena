@@ -32,6 +32,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include <type_traits>
+#include "TFile.h"
 
 class AthAnalysisHelper { //thought about being a namespace but went for static methods instead, in case I want private data members in future
 
@@ -374,6 +375,11 @@ public:
     if(!handle.isSet()) {std::cout << "Please retrieve handle before dumping properties" << std::endl; return;}
     return dumpProperties(dynamic_cast<const IProperty&>(*handle));
   }
+
+
+
+  //Obtain TFile pointer to THistSvc's output file with the given streamName
+  static TFile* getOutputFile(const std::string& streamName);
 
 
 

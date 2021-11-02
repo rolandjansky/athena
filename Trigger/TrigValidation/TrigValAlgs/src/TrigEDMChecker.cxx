@@ -4266,10 +4266,13 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
 
   // Now process them
   for (const std::string& key : keys) {
-    if (m_doDumpAllTrigComposite && key.find("HLTNav_") != 0) { // Nav containers should always start with HLTNav_
-      continue;
+    if ( not m_doDumpAllTrigComposite ) {
+      if ( key.find("HLTNav_") != 0) { // Nav containers should always start with HLTNav_
+        continue;
+      }
     }
     ATH_CHECK( evtStore()->retrieve( container, key ) );
+    ATH_MSG_DEBUG("Processing collection " << key << " to be added to the navigation graph");
     // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
     bool writtenHeader = false;
     for (const Decision* tc : *container ) {

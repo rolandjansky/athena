@@ -32,7 +32,7 @@ scConfig.etabmax   = 2.4           # Maximum eta of outgoing object b
 scConfig.acoabmax  = 100
 
 
-#SuperChicRun(scConfig, genSeq)
+SuperChicRun(scConfig, genSeq)
 
 import Superchic_i.EventFiller as EF
 ef = EF.LheEVNTFiller()

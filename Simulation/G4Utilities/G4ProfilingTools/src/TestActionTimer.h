@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ namespace G4UA
        First timers are by subdetector, second few are by particle
        These are not straightforward for the non-expert to interpret*/
     enum { eEMB, eEMEC, eFC1, eFC23, eFCO, eHEC, eCry, eLAr, eHCB,
-           ePre, eMu, ePx, eSct, eSev, eTrt, eOther,
+           ePre, eMu, ePx, eSct, eITkPix, eITkStrip, eSev, eTrt, eOther,
            eElec, ePos, eGam, eNeut, eMax };
 
   private:

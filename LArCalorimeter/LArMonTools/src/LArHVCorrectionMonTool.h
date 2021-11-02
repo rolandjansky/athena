@@ -36,7 +36,6 @@
 
 class LArEM_ID;
 class LArOnlineID;
-class CaloDetDescrManager;
 class CaloDetDescrElement;
 class ITHistSvc;
 
@@ -58,18 +57,18 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
   virtual ~LArHVCorrectionMonTool();
 
   /** @brief Overwrite dummy method from AlgTool */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** Book general histograms
    *  Implement pure virtual methods of IMonitorToolBase */
-  StatusCode bookHistograms();
+  virtual StatusCode bookHistograms() override;
 
   /** Called each event */
-  StatusCode fillHistograms();
+  virtual StatusCode fillHistograms() override;
 
   /** Regularly called to fill noise maps
    *  Overwrite dummy method from MonitorToolBase */
-  StatusCode procHistograms();
+  virtual StatusCode procHistograms() override;
 
  protected:
 
@@ -89,6 +88,10 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
   { this, "OnlineLArHVScaleCorr", "LArHVScaleCorr", "" };
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey
     {this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
  private:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -9,6 +9,7 @@
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>
+#include "CxxUtils/checker_macros.h"
 
 extern "C" {
     #include <zlib.h>
@@ -24,7 +25,8 @@ string decompress(const string& str) {
     zs.zalloc   = NULL;
     zs.zfree    = NULL;
     zs.opaque   = NULL;
-    zs.next_in  = (Bytef *)str.c_str();
+    char* str_nc ATLAS_THREAD_SAFE = const_cast<char*> (str.c_str());
+    zs.next_in  = reinterpret_cast<Bytef *>(str_nc);
     zs.avail_in = str.size();
 
     // According to the official manual, 2nd param is windowsBits and is max. 15. But a web page somewhere 

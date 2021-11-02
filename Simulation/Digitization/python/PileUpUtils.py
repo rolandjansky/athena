@@ -134,6 +134,12 @@ def generatePileUpProfile(flags,
 
     jobNumber = flags.Digitization.JobNumber
     maxEvents = flags.Exec.MaxEvents
+    totalEvents = flags.Exec.MaxEvents
+    skipEvents = flags.Exec.SkipEvents
+
+    # executor splitting
+    if flags.ExecutorSplitting.TotalSteps > 1:
+        totalEvents = flags.ExecutorSplitting.TotalEvents
 
     if maxEvents == -1:
         raise SystemExit("maxEvents = %d is not supported! Please set this to the number of events per file times the number of files per job." % (
@@ -152,6 +158,10 @@ def generatePileUpProfile(flags,
     #  the number of events specified by this run is not evenly
     #  divisible by trfMaxEvents.
     generatedProfile = loadPileUpProfile(flags, profile)
+    # do executor step filtering
+    if flags.ExecutorSplitting.TotalSteps > 1:
+        generatedProfile = list(filter(lambda lb: 'step' not in lb or lb['step'] == flags.ExecutorSplitting.Step, generatedProfile))
+
     runMaxEvents = sum(lb["evts"] for lb in generatedProfile)
     logger.info("There are %d events in this run.", runMaxEvents)
     jobsPerRun = int(ceil(float(runMaxEvents)/corrMaxEvents))
@@ -172,13 +182,18 @@ def generatePileUpProfile(flags,
             jobnumber=(jobNumber-1),
             task=generatedProfile,
             maxEvents=maxEvents,
+            totalEvents=totalEvents,
+            skipEvents=skipEvents,
             sequentialEventNumbers=sequentialEventNumbers)
     else:
         # Load needed tools
         from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
         fragment = getRunLumiInfoFragment(
             jobnumber=(jobNumber-1),
-            task=generatedProfile, maxEvents=maxEvents,
+            task=generatedProfile,
+            maxEvents=maxEvents,
+            totalEvents=totalEvents,
+            skipEvents=skipEvents,
             sequentialEventNumbers=sequentialEventNumbers)
     
     # Remove lumiblocks with no events

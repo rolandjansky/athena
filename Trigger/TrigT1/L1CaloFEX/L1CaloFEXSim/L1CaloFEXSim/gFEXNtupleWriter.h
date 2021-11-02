@@ -29,13 +29,18 @@ public:
    StatusCode finalize ();
 
 private:
+  //readhandle key for gFEXOutputCollection
+  SG::ReadHandleKey<LVL1::gFEXOutputCollection> m_gFEXOutputCollectionSGKey {this, "MyOutputs", "gFEXOutputCollection", "MyOutputs"};
+
   gFEXOutputCollection* m_gFEXOutputCollection;
   float m_jet_nTOBs;
+  float m_global_nTOBs;
   bool m_load_truth_jet;
 
   std::vector<float> m_truth_jet_eta;
   std::vector<float> m_truth_jet_phi;
   std::vector<float> m_truth_jet_ET;
+
   std::vector<float> m_jet_TOB;
   std::vector<float> m_jet_TOB_Eta;
   std::vector<float> m_jet_TOB_Phi;
@@ -43,10 +48,20 @@ private:
   std::vector<float> m_jet_TOB_ID;
   std::vector<float> m_jet_TOB_Status;
 
+
+  std::vector<float> m_global_TOB;
+  std::vector<float> m_global_TOB_Quantity1;
+  std::vector<float> m_global_TOB_Quantity2;
+  std::vector<float> m_global_TOB_Saturation;
+  std::vector<float> m_global_TOB_ID;
+  std::vector<float> m_global_TOB_Status1;
+  std::vector<float> m_global_TOB_Status2;
+
   std::string m_jet_container_name = "AntiKt10TruthJets";
   TTree *m_myTree;
 
-  StatusCode loadJetAlgoVariables();
+  StatusCode loadJetAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);
+  StatusCode loadGlobalAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);
   StatusCode loadTruthElectron();
   StatusCode loadTruthJets();
 

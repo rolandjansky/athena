@@ -23,15 +23,17 @@ namespace LVL1 {
   {
    //gFEXOutputCollection class stores the output of gFEX simulation for the use of gFEXNtupleWriter.
 
+  
   public:
     //constructor
-    gFEXOutputCollection() {};
+    gFEXOutputCollection();
 
     //Destructor
     ~gFEXOutputCollection();
 
 
-    void clear();
+    void clearJets();
+    void clearGlobals();
 
     /**
      * @brief add a value related to the jet finder algorithm for a TOB
@@ -41,29 +43,45 @@ namespace LVL1 {
      *
      */
     void addValueJet(std::string key, float value);
+    void addValueGlobal(std::string key, float value);
 
     //Save all jet values. Use only after finishing defining all jet values for one TOB.
     void fillJet();
+    void fillGlobal();
 
     //Get total number of TOBs saved
-    int size();
+    int jetsSize() const; 
+    int globalsSize() const; 
 
-    //Get all jeta related values the ith TOB
+    //Get all jets related values
     std::unordered_map<std::string, float> getJet(int) const;
+    std::unordered_map<std::string, float> getGlobal(int) const;
 
     //Add a 32-bit jet TOB word
     void addJetTob(uint32_t);
+    void addGlobalTob(uint32_t);
 
     //Get all jet TOB words of an event
     std::vector<uint32_t> getJetTob() const;
+    std::vector<uint32_t> getGlobalTob() const;
+
+    //setting true if ntuple output is needed
+    void setdooutput(bool);
+
+    //return true if ntuple output is needed
+    bool getdooutput() const;
 
   private:
+    bool m_dooutput; //if write Ntuple
     //vector of TOB words
     std::vector<uint32_t> m_jettob;
+    std::vector<uint32_t> m_globaltob;
     // /// jet related values of a TOB
     std::unordered_map<std::string, float> m_values_gFEXJet;
+    std::unordered_map<std::string, float> m_values_gFEXGlobal;
     /// jet related values of all TOBs in an event
     std::vector<std::unordered_map<std::string, float>> m_allvalues_gFEXjet;
+    std::vector<std::unordered_map<std::string, float>> m_allvalues_gFEXglobal;
 
   };
 }

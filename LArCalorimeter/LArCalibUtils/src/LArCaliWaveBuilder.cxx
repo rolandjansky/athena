@@ -150,16 +150,21 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
  
  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-
+ int foundkey = 0;
  for (;key_it!=key_it_e; ++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
  
    sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
    if (sc.isFailure()) {
      ATH_MSG_WARNING( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
-     continue; // Try next container
+     if ( (std::next(key_it) == key_it_e) && foundkey==0 ){
+       ATH_MSG_ERROR("None of the provided LArAccumulatedDigitContainer keys could be read");
+       return StatusCode::FAILURE;
+     }else{
+       continue;
+     }
    }
-
-
+   foundkey+=1;
+   
    const LArFebErrorSummary* febErrSum=NULL;
    if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
      sc=evtStore()->retrieve(febErrSum);
@@ -459,7 +464,7 @@ StatusCode LArCaliWaveBuilder::stop()
 		                         thisWave.getErrors(),
 					 thisWave.getTriggers(),
 					 thisWave.getDt(), 
-					 (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<16)), 
+					 (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<24)), 
 					 thisWave.getFlag() );
        
 		    dacWaves.push_back(newWave);

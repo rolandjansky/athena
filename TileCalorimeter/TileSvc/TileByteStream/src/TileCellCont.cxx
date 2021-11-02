@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -82,7 +82,7 @@ StatusCode TileCellCont::initialize() {
   }
 
   // Get pointer to TileCablingService
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
   int maxChannels = cabling->getMaxChannels();
 
   //m_hash.initialize(0);

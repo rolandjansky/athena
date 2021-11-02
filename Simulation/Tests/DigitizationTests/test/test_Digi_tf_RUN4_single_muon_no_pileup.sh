@@ -11,7 +11,6 @@ DigiOutFileName="RUN4_muons.RDO.pool.root"
 
 Digi_tf.py \
 --CA \
---detectors RPC \
 --conditionsTag default:OFLCOND-MC15c-SDR-14-05 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-P2-ITK-24-00-00 \

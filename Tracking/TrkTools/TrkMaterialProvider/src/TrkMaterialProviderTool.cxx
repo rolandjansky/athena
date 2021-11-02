@@ -156,7 +156,12 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 
   // back extrapolate to perigee, get pAtCaloEntry from list of TSOSs
   // and update/add calo+ID material to mstrack to be refitted.
-  Trk::TrackStates* inputTSOS = track.trackStateOnSurfaces();
+  const Trk::TrackStates* inputTSOS_orig = track.trackStateOnSurfaces();
+
+  auto inputTSOS = std::make_unique<Trk::TrackStates>();
+  for (const Trk::TrackStateOnSurface* tsos : *inputTSOS_orig) {
+    inputTSOS->push_back (tsos->clone());
+  }
 
   // Iterators
   Trk::TrackStates::iterator lastIDwP  = inputTSOS->end();
@@ -248,9 +253,10 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 #endif
 
   // apply X0 and Eloss scale to MuonSpectrometer
-  this->updateVectorMS(inputTSOS,firstMS,X0ScaleMS,ElossScaleMS);
+  this->updateVectorMS(inputTSOS.get(),firstMS,X0ScaleMS,ElossScaleMS);
   // update the original vector
-  Trk::TrkMaterialProviderTool::updateVector(inputTSOS, firstCALO, firstMS, caloTSOS);
+  Trk::TrkMaterialProviderTool::updateVector(inputTSOS.get(), firstCALO, firstMS, caloTSOS);
+  track.setTrackStateOnSurfaces (std::move (*inputTSOS));
   myLocal_resetTrack(track);
 }
 
@@ -261,7 +267,12 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(const Trk::Track& idTrack, Trk
   ATH_MSG_VERBOSE("updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack)");
 
   const Trk::TrackStates* inputTSOS_ID = idTrack.trackStateOnSurfaces();
-  Trk::TrackStates* inputTSOS_MS = extrapolatedTrack.trackStateOnSurfaces();
+  const Trk::TrackStates* inputTSOS_MS_orig = extrapolatedTrack.trackStateOnSurfaces();
+
+  auto inputTSOS_MS = std::make_unique<Trk::TrackStates>();
+  for (const Trk::TrackStateOnSurface* tsos : *inputTSOS_MS_orig) {
+    inputTSOS_MS->push_back (tsos->clone());
+  }
 
 
   // find last ID TSOS
@@ -338,14 +349,14 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(const Trk::Track& idTrack, Trk
   double ElossScaleMS = 0.;
   // get calorimeter TSOS from TG
   Trk::TrackStates* caloTSOS = this->getCaloTSOS (*(*lastIDwP)->trackParameters(),
-									    extrapolatedTrack,
-									    (*firstMSnotPerigee)->surface(),
-									    Trk::alongMomentum,
-									    Trk::muon,
-                                                                            Eloss, X0ScaleMS, ElossScaleMS,
-									    (firstMSwP == inputTSOS_MS->end()) ? nullptr : (*firstMSwP)->trackParameters(),
-									    false,
-									    true);
+                                                  extrapolatedTrack,
+                                                  (*firstMSnotPerigee)->surface(),
+                                                  Trk::alongMomentum,
+                                                  Trk::muon,
+                                                  Eloss, X0ScaleMS, ElossScaleMS,
+                                                  (firstMSwP == inputTSOS_MS->end()) ? nullptr : (*firstMSwP)->trackParameters(),
+                                                  false,
+                                                  true);
 
 
   if(!caloTSOS || caloTSOS->size()!=3) {
@@ -362,10 +373,11 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(const Trk::Track& idTrack, Trk
 #endif
 
   // apply X0 and Eloss scale to MuonSpectrometer
-  this->updateVectorMS(inputTSOS_MS,firstMS,X0ScaleMS,ElossScaleMS);
+  this->updateVectorMS(inputTSOS_MS.get(),firstMS,X0ScaleMS,ElossScaleMS);
   // update the original vector
-  Trk::TrkMaterialProviderTool::updateVector(inputTSOS_MS, firstCALO, firstMS, caloTSOS);
+  Trk::TrkMaterialProviderTool::updateVector(inputTSOS_MS.get(), firstCALO, firstMS, caloTSOS);
 
+  extrapolatedTrack.setTrackStateOnSurfaces (std::move (*inputTSOS_MS));
   myLocal_resetTrack(extrapolatedTrack);
 }
 

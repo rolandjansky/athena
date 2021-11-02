@@ -16,9 +16,9 @@ find_package( CORAL COMPONENTS CoralBase )
 atlas_add_library( LArSamplesMon
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                      PUBLIC_HEADERS LArSamplesMon
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCablingLib LWHists TrigDecisionToolLib CaloConditions AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions LArRawConditions LArRecEvent LArCafJobsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCablingLib LWHists TrigDecisionToolLib CaloConditions AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions LArRawConditions LArRecEvent LArCafJobsLib )
 
 # Component(s) in the package:
 atlas_add_dictionary( LArSamplesMonDict
@@ -30,7 +30,7 @@ atlas_add_dictionary( LArSamplesMonDict
 atlas_add_executable( LCE_CellList
                       src/LCE_CellList.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel LArSamplesMonDict LArCafJobsLib ) #LArSamplesMonLib LArCafJobsDict  
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel LArSamplesMon LArCafJobsLib ) #LArSamplesMonLib LArCafJobsDict  
 
 # Install files from the package:
 atlas_install_headers( LArSamplesMon )

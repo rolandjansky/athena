@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -19,8 +19,10 @@ class Element2GeoItemRegistry {
 public:
     Element2GeoItemRegistry();
     ~Element2GeoItemRegistry();
-    void enregister(const std::string tagName,  Element2GeoItem *processor); // register = keyword
-    Element2GeoItem *find(const std::string tagName);
+    Element2GeoItemRegistry(const Element2GeoItemRegistry&) = delete;
+    Element2GeoItemRegistry& operator=(const Element2GeoItemRegistry&) = delete;
+    void enregister(const std::string& tagName,  Element2GeoItem *processor); // register = keyword
+    Element2GeoItem *find(const std::string& tagName);
 
 private:
     Element2GeoItem *m_defaultProcessor;

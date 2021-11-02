@@ -18,7 +18,9 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "CxxUtils/hexdump.h"
 
 Trk::TrackSlimmingTool::TrackSlimmingTool(const std::string& t,
                                           const std::string& n,
@@ -97,6 +99,20 @@ Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
   if (oldTrackStates == nullptr) {
     ATH_MSG_WARNING("Track has no TSOS vector! Skipping track, returning 0.");
     return nullptr;
+  }
+
+  auto prot = Trk::TrackStateOnSurfaceProtContainer::fromDataVector (oldTrackStates);
+  auto prot_nc = const_cast<Trk::TrackStateOnSurfaceProtContainer*> (prot);
+  if (prot_nc) {
+    for (const TrackStateOnSurface* tsos : *prot_nc) {
+      const char* p = reinterpret_cast<const char*>(tsos->alignmentEffectsOnTrack());
+      if (p && reinterpret_cast<uintptr_t>(p) < 0x1000) {
+        ATH_MSG_FATAL ("ERROR: ~TrackStateOnSurface bad AEOT pointer 2");
+        CxxUtils::safeHexdump (std::cerr, ((const char*)tsos)-32, sizeof(TrackStateOnSurface)+32);
+        std::abort();
+      }
+    }
+    prot_nc->elt_allocator().unprotect();
   }
 
   const TrackStateOnSurface* firstValidIDTSOS(nullptr);
@@ -184,14 +200,26 @@ Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
       }
     }
   }
+  if (prot_nc) {
+    prot_nc->elt_allocator().protect();
+    for (const TrackStateOnSurface* tsos : *prot_nc) {
+      const char* p = reinterpret_cast<const char*>(tsos->alignmentEffectsOnTrack());
+      if (p && reinterpret_cast<uintptr_t>(p) < 0x1000) {
+        ATH_MSG_FATAL("ERROR: ~TrackStateOnSurface bad AEOT pointer 2");
+        CxxUtils::safeHexdump (std::cerr, ((const char*)tsos)-32, sizeof(TrackStateOnSurface)+32);
+        std::abort();
+      }
+    }
+  }
   return nullptr;
 }
 
 void
 Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
 {
+  const Trk::Track& track_c = track;
   const DataVector<const TrackStateOnSurface>* oldTrackStates =
-    track.trackStateOnSurfaces();
+    track_c.trackStateOnSurfaces();
   if (oldTrackStates == nullptr) {
     ATH_MSG_WARNING("Track has no TSOS vector! Skipping track, returning 0.");
   }

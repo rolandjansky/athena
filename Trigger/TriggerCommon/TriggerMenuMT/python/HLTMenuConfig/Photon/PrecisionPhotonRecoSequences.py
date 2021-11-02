@@ -41,7 +41,7 @@ def precisionPhotonRecoSequence(RoIs):
     # Add to the sequence the three steps:
     #  - TrigEgammaBuilder, TrigPhotonSuperClusters, TrigTopoEgammaPhotons
     TrigEgammaAlgo = TrigEgammaRecPhoton()
-    TrigEgammaAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
+    TrigEgammaAlgo.InputClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
     thesequence += TrigEgammaAlgo
 
     trigPhotonAlgo = TrigPhotonSuperClusterBuilder()
@@ -49,7 +49,7 @@ def precisionPhotonRecoSequence(RoIs):
     thesequence += trigPhotonAlgo
 
     trigTopoEgammaAlgo = TrigTopoEgammaPhotons()
-    trigTopoEgammaAlgo.SuperPhotonRecCollectionName = trigPhotonAlgo.SuperPhotonRecCollectionName
+    trigTopoEgammaAlgo.InputPhotonRecCollectionName = trigPhotonAlgo.SuperPhotonRecCollectionName
     collectionOut = trigTopoEgammaAlgo.PhotonOutputName
     thesequence += trigTopoEgammaAlgo
 

@@ -68,10 +68,12 @@ GeoNameTag *physVolName;
         DOMNode *parent = refShape->getParentNode();
         if (XMLString::compareIString(parent->getNodeName(), XMLString::transcode("shapes")) != 0) {
 
+            char* shape_s = XMLString::transcode (shape);
             msglog << MSG::FATAL << "Processing logvol " << name << 
                     ". Error in gmx file. An IDREF for a logvol shape did not refer to a shape.\n" <<
-                    "Shape ref was " << shape << "; exiting" << endmsg;
-            exit (1); // Need to improve...
+              "Shape ref was " << shape_s << "; exiting" << endmsg;
+            XMLString::release (&shape_s);
+            std::abort();
         }
 //
 //    What sort of shape?
@@ -81,7 +83,7 @@ GeoNameTag *physVolName;
         XMLString::release(&name2release);
 	XMLString::release(&shape_tmp);
 
-        GeoShape *s = (GeoShape *) gmxUtil.geoItemRegistry.find(shapeType)->process(refShape, gmxUtil);
+        const GeoShape *s = static_cast<const GeoShape *> (gmxUtil.geoItemRegistry.find(shapeType)->process(refShape, gmxUtil));
 //
 //    Get the material
 //
@@ -92,13 +94,15 @@ GeoNameTag *physVolName;
         parent = refMaterial->getParentNode();
 	XMLCh * materials_tmp = XMLString::transcode("materials");
         if (XMLString::compareIString(parent->getNodeName(), materials_tmp) != 0) {
+            char* material_s = XMLString::transcode (material);
             msglog << MSG::FATAL << "Processing logvol " << name << 
                     ". Error in gmx file. An IDREF for a logvol material did not refer to a material.\n" <<
-                    "Material ref was " << material << "; exiting" << endmsg;
-            exit (1); // Need to improve...
+                    "Material ref was " << material_s << "; exiting" << endmsg;
+           XMLString::release (&material_s);
+           std::abort();
         }
 
-        GeoMaterial *m = (GeoMaterial *) gmxUtil.tagHandler.material.process(refMaterial, gmxUtil);
+        const GeoMaterial *m = static_cast<const GeoMaterial *> (gmxUtil.tagHandler.material.process(refMaterial, gmxUtil));
 
 //
 //    Make the LogVol and add it to the map ready for next time

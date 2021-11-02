@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DED_H
@@ -11,12 +11,14 @@
 
 namespace MuonGM {
 
+    class MYSQL;
+
     class DED : public Technology {
       public:
         double AlThickness;
         double HoneyCombThickness;
 
-        DED(std::string s);
+        DED(MYSQL& mysql, std::string s);
 
         bool hasAlHoneyComb() { return false; };
         bool hasPaperHoneyComb() { return true; };

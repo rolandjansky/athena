@@ -17,9 +17,10 @@
 #include <vector>
 #include <string>
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/StatusCode.h"
 #include "Identifier/Identifier.h"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "MuonSimEvent/sTGCSimHit.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -33,10 +34,9 @@ namespace MuonGM {
 class sTgcDigitCollection;
 class sTgcHitIdHelper;
 class sTgcIdHelper;
-class sTGCSimHit; 
 
 //--- class description
-class sTgcDigitMaker {
+class sTgcDigitMaker : public AthMessaging {
   //------ for public
  public:
 
@@ -45,17 +45,16 @@ class sTgcDigitMaker {
   virtual ~sTgcDigitMaker();
 
   /**
-     Initializes sTgcHitIdHelper, sTgcIdHelper and random number
-     of a stream for the digitization.  
+     Initializes sTgcHitIdHelper and sTgcIdHelper, 
+     and call the functions to read files containing digitization parameters.
   */
-  StatusCode initialize(CLHEP::HepRandomEngine* m_rndmEngine, const int channelTypes);
+  StatusCode initialize(const int channelTypes);
 
-  std::unique_ptr<sTgcDigitCollection> executeDigi(const sTGCSimHit* hit, const float globalHitTime);
+  /**
+     Digitize a given hit, determining the time and charge spread on wires, pads and strips.
+  */
+  std::unique_ptr<sTgcDigitCollection> executeDigi(const sTGCSimHit* hit, const float globalHitTime, CLHEP::HepRandomEngine* rndmEngine);
 
-  //Declaring the Message method for further use
-  MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }
-  bool msgLvl(const MSG::Level lvl) const { return m_msg.get().level() <= lvl ; }
-  void setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
   //====== for private
  private:
 
@@ -76,20 +75,20 @@ class sTgcDigitMaker {
     OFFSET_CHANNELTYPE = 0
   };
 
-
-  /**
-     Reads parameters for intrinsic time response from timejitter.dat.
-  */
-  void  readFileOfTimeJitter();
-  /**
-     Calculates intrinsic time response according to incident angle of a track based on time response parameters
-  */
-  float timeJitter(float inAngle_time) const;
+  /** Parameters of a gamma probability distribution function, required for 
+   *  estimating wire digit's time of arrival.
+   *  More detail in the dat file.
+   */
+  struct GammaParameter {
+    double lowEdge; // low side of the interval in ns
+    double kParameter;
+    double thetaParameter;
+    double mostProbableTime;
+  };
 
   /**
      Determines whether a hit is detected or not.
   */
-  bool efficiencyCheck(const int channelType) const;
   bool efficiencyCheck(const std::string& stationName, const int stationEta, const int stationPhi, const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const;
 
   //uint16_t bcTagging(const float digittime, const int channelType) const;
@@ -97,17 +96,22 @@ class sTgcDigitMaker {
   void addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) const;
 
   /** Read share/sTGC_Digitization_energyThreshold.dat file */
-  void readFileOfEnergyThreshold();
+  StatusCode readFileOfEnergyThreshold();
   ///** Read share/sTGC_Digitization_crossTalk.dat file */
-  //void readFileOfCrossTalk();
+  //StatusCode readFileOfCrossTalk();
   /** Read share/sTGC_Digitization_deadChamber.dat file */
-  void readFileOfDeadChamber();
+  StatusCode readFileOfDeadChamber();
   /** Read share/sTGC_Digitization_EffChamber.dat file */
-  void readFileOfEffChamber();
+  StatusCode readFileOfEffChamber();
   /** Read share/sTGC_Digitization_timeWindowOffset.dat file */
-  void readFileOfTimeWindowOffset();
+  StatusCode readFileOfTimeWindowOffset();
   /** Read share/sTGC_Digitization_alignment.dat file */
-  //void readFileOfAlignment();
+  //StatusCode readFileOfAlignment();
+  /** Read share/sTGC_Digitization_timeArrival.dat */
+  StatusCode readFileOfTimeArrival();
+  /** Read share/sTGC_Digitization_timeOffsetStrip.dat */
+  StatusCode readFileOfTimeOffsetStrip();
+
   ///** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int multiPlet, int gasGap, int channelType) const;
   //void randomCrossTalk(const Identifier elemId, const int gasGap, const int channelType, const int channel,
@@ -121,6 +125,25 @@ class sTgcDigitMaker {
   /** Ad hoc implementation of detector position shift */
   //void adHocPositionShift(const std::string stationName, int stationEta, int stationPhi,
   //                        const Amg::Vector3D direCos, Amg::Vector3D &localPos) const;
+
+  /** Compute the distance between a track segment and a wire. 
+   *  Expected distance is between zero and half of wire pitch (i.e. 0.9 mm),
+   *  but can be greater if particle passes through the edge of a chamber.
+   *  Assumig the hit is near wire k, the sign of the distance returned is:
+   *   - negative if particle crosses the wire surface between wire k and wire k-1
+   *   + positive if particle crosses the wire surface between wire k and wire k+1
+   *  In case of error, the function returns -9.99.
+   */
+  double distanceToWire(Amg::Vector3D& position, Amg::Vector3D& direction, Identifier id, int wire_number) const;
+
+  /** Get digit time offset of a strip depending on its relative position to 
+   *  the strip at the centre of the cluster.
+   *  It returns 0 ns by default, as well as when it fails or container is empty.
+   */
+  double getTimeOffsetStrip(int neighbor_index) const;
+
+  /** Find the gamma pdf parameters of a given distance */
+  GammaParameter getGammaParameter(double distance) const;
 
   /** Energy threshold value for each chamber */
   double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_MULTIPLET][N_GASGAP][N_CHANNELTYPE]{};
@@ -141,14 +164,15 @@ class sTgcDigitMaker {
   ///** Alignment ths constants. Rotation around the global phi direction */
   //double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
 
-  std::vector<std::vector<float> > m_vecAngle_Time;
+  // Parameters of the gamma pdf required for determining digit time
+  std::vector<GammaParameter> m_gammaParameter;
 
-  CLHEP::HepRandomEngine* m_engine{}; // not owned here
+  // Time offset to add to Strip timing
+  std::vector<double> m_timeOffsetStrip;
+
   const sTgcHitIdHelper* m_hitIdHelper{}; // not owned here
   const MuonGM::MuonDetectorManager* m_mdManager{}; // not owned here
   const sTgcIdHelper* m_idHelper{}; // not owned here
-  float m_efficiencyOfWireGangs;
-  float m_efficiencyOfStrips;
   float m_IntegralTimeOfElectr;
   bool m_doEfficiencyCorrection;
  
@@ -159,8 +183,8 @@ class sTgcDigitMaker {
      length corrections. Bunch crossing time is specified.
   */
   bool m_doTimeCorrection;
-  double m_timeWindowOffsetPad;
-  double m_timeWindowOffsetStrip;
+  // Flag to enable strip time offset 
+  bool m_doTimeOffsetStrip;
   //double m_timeWindowWire;
   //double m_timeWindowStrip;
   //double m_bunchCrossingTime;
@@ -172,10 +196,6 @@ class sTgcDigitMaker {
   double m_StripResolution;
   double m_ChargeSpreadFactor;
 
- protected:
-  //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("sTgcDigitMaker");
-  
 };
 
 #endif

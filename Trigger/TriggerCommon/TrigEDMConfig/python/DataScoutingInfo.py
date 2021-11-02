@@ -11,7 +11,7 @@ When adding new identifiers, please follow the naming convention SomeNameDS,
 where SomeName is generally camel-case unless it's an acronym like LAr or MET.
 
 Possible examples:
-CostMonDS, JetDS, PhotonDS
+CostMonDS, PhysicsTLA
 '''
 
 
@@ -20,8 +20,7 @@ CostMonDS, JetDS, PhotonDS
 # WARNING: ID=0 is reserved for full HLT result
 DataScoutingIdentifiers = {
     'CostMonDS': 1,
-    'JetDS': 5,
-    'PhotonDS' : 6
+    'PhysicsTLA': 5,
 }
 
 
@@ -29,8 +28,8 @@ DataScoutingIdentifiers = {
 TruncationThresholds = {
     0: 5*(1024**2),  # Main: 5 MB
     1: 2*(1024**2),  # CostMonDS: 2 MB
-    5: 1*(1024**2),  # JetDS: 1 MB
-    6: 1*(1024**2),  # PhotonDS: 1 MB
+    5: 1*(1024**2),  # PhysicsTLA: 1 MB
+    
 }
 
 

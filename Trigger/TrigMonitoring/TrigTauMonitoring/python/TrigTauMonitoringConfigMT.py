@@ -103,7 +103,7 @@ class TrigTauMonAlgBuilder:
         l1seed = ''
         splits = self.chain().split("_")
         for split in splits:
-            if split.startswith('L1TAU'):
+            if split.startswith('L1TAU') or split.startswith('L1eTAU'):
                 l1seed = split
         return l1seed
 
@@ -224,7 +224,13 @@ class TrigTauMonAlgBuilder:
     'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
     'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
     'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
-    'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40'
+    'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+     # Phase-I
+    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
+ 
     ]
 
     self.tauList = monitoring_tau

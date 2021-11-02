@@ -203,7 +203,6 @@ recAlgs.doStaco.set_Value_and_Lock           (False)
 recAlgs.doCaloTrkMuId.set_Value_and_Lock     (False)
 recAlgs.doTileMuID.set_Value_and_Lock        (False)
 # --- trigger
-recAlgs.doTrigger.set_Value_and_Lock         (False)
 rec.doTagRawSummary.set_Value_and_Lock   (False)
 rec.doTrigger.set_Value_and_Lock             (False)
 

@@ -70,14 +70,13 @@ namespace top {
     registerParameter("ElectronEfficiencySystematicModelEtBinning",
                       "Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)",
                       "default");
-    registerParameter("ElectronIsolation",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad), (DANGEROUS: PflowTight, PflowLoose), None",
-                      "FCTight");
-    registerParameter("ElectronIsolationLoose",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad), (DANGEROUS: PflowTight, PflowLoose), None",
-                      "None");
-    registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
-    registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
+    registerParameter("ElectronIsolationWPs",
+                      "Space-separated list of electron isolation WPs for which to store decisions as auxdecor<char> AnalysisTop_Isol_nameOfWorkingPoint.",
+                      " ");
+    registerParameter("ElectronIsolation", "Which isolation working point for electron selection", "FCTight");
+    registerParameter("ElectronIsolationLoose", "Which isolation working point for electron selection", "None");
+    registerParameter("ElectronIsolationSF", "Force electron isolation SF to specific WP (e.g. None).", " ");
+    registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF to specific WP (e.g. None).", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).",
                       "True");
     registerParameter("UseElectronChargeIDSelection",
@@ -102,12 +101,11 @@ namespace top {
     registerParameter("PhotonID", "Type of photon. Definition to use : Tight, Loose and None.", "Tight");
     registerParameter("PhotonIDLoose", "Type of photon for background. Definition to use : Tight, Loose, None.",
                       "Loose");
-    registerParameter("PhotonIsolation",
-                      "Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, (EXPERIMENTAL: TightCaloOnly, Tight, Loose), None.",
-                      "FixedCutTight");
-    registerParameter("PhotonIsolationLoose",
-                      "Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, (EXPERIMENTAL: TightCaloOnly, Tight, Loose), None.",
-                      "FixedCutLoose");
+    registerParameter("PhotonIsolation", "Which isolation working point for photon selection", "FixedCutTight");
+    registerParameter("PhotonIsolationLoose", "Which isolation working point for photon selection", "FixedCutLoose");
+    registerParameter("PhotonIsolationWPs",
+                      "Space-separated list of photon isolation WPs for which to store decisions as auxdecor<char> AnalysisTop_Isol_nameOfWorkingPoint.",
+                      " ");
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5");
@@ -129,14 +127,13 @@ namespace top {
     registerParameter("MuonUse2stationHighPtLoose",
 		      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 for Loose tree - Default: True (only for HighPt)",
 		      "True");
-    registerParameter("MuonIsolation",
-                      "Isolation to use : PflowTight_VarRad, PflowTight_FixedRad, PflowLoose_VarRad, PflowLoose_FixedRad, HighPtTrackOnly, TightTrackOnly_VarRad, TightTrackOnly_FixedRad, PLVTight, PLVLoose, Tight_VarRad, Tight_FixedRad, Loose_VarRad, Loose_FixedRad, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, FCTight_FixedRad, AntiMuon_nominal, AntiMuon_shapeSyst1, AntiMuon_shapeSyst2, None",
-		      "PflowTight_FixedRad");
-    registerParameter("MuonIsolationLoose",
-                      "Isolation to use : PflowTight_VarRad, PflowTight_FixedRad, PflowLoose_VarRad, PflowLoose_FixedRad, HighPtTrackOnly, TightTrackOnly_VarRad, TightTrackOnly_FixedRad, PLVTight, PLVLoose, Tight_VarRad, Tight_FixedRad, Loose_VarRad, Loose_FixedRad, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, FCTight_FixedRad, None",
-		      "None");
-    registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
-    registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
+    registerParameter("MuonIsolationWPs",
+                      "Space-separated list of muon isolation WPs for which to store decisions as auxdecor<char> AnalysisTop_Isol_nameOfWorkingPoint.",
+                      " ");
+    registerParameter("MuonIsolation", "Which isolation working point for muon selection", "PflowTight_FixedRad");
+    registerParameter("MuonIsolationLoose", "Which isolation working point for loose muon selection", "PflowTight_FixedRad");
+    registerParameter("MuonIsolationSF", "Force muon isolation SF to specific WP (e.g. None).", " ");
+    registerParameter("MuonIsolationSFLoose", "Force loose muon isolation SF to specific WP (e.g. None).", " ");
     registerParameter("MuonDoSmearing2stationHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True", "True");
     registerParameter("MuonDoExtraSmearingHighPt", "True/False, To be used by analyses using willing to check their sensitivity to momentum resolution effects at large muon momenta and in case move to the HighPt WP - Default: false", "false");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
@@ -629,16 +626,6 @@ namespace top {
                                                                 " calculation for overlap removal in particle level", "True", {"True", "False"});
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
-
-    registerParameter("HLLHC",
-                      "Set to run HL-LHC studies,"
-                      "True or False (default False)",
-                      "False");
-
-    registerParameter("HLLHCFakes",
-                      "Set to enable Fakes HL-LHC studies,"
-                      "True or False (default False)",
-                      "False");
 
     registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
                                               "True or False (default False)", "False");

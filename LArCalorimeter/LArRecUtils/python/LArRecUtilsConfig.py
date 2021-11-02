@@ -1,6 +1,6 @@
 """ComponentAccumulator configuration utilities for LArRecUtils
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -95,6 +95,25 @@ def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwarg
     return acc
 
 
+def LArRoIMapCondAlgCfg (flags, name = 'LArRoIMapCondAlg', **kwargs):
+    acc = ComponentAccumulator()
+
+    from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArOnOffIdMappingCfg
+    acc.merge (LArFebRodMappingCfg (flags))
+    acc.merge (LArOnOffIdMappingCfg (flags))
+
+    from CaloConditions.CaloConditionsConfig import LArTTCellMapCfg, CaloTTIdMapCfg
+    acc.merge(LArTTCellMapCfg(flags))
+    acc.merge(CaloTTIdMapCfg(flags))
+
+    CaloTriggerTowerService = CompFactory.CaloTriggerTowerService # CaloTriggerTool
+    kwargs.setdefault ('TriggerTowerSvc', CaloTriggerTowerService())
+    
+    LArRoIMapCondAlg = CompFactory.LArRoIMapCondAlg
+    acc.addCondAlgo (LArRoIMapCondAlg (name, **kwargs))
+    return acc
+
+
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -116,3 +135,10 @@ if __name__ == "__main__":
     acc4 = LArAutoCorrTotalCondAlgCfg (flags4)
     acc4.printCondAlgs(summariseProps=True)
     acc4.wasMerged()
+
+    print ('--- LArRoIMapCondAlg')
+    flags5 = ConfigFlags.clone()
+    flags5.Input.Files = defaultTestFiles.RDO
+    acc5 = LArRoIMapCondAlgCfg (flags5)
+    acc5.printCondAlgs(summariseProps=True)
+    acc5.wasMerged()

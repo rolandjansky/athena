@@ -6,23 +6,12 @@
 
 #include "MuonNSWCommonDecode/NSWResourceId.h"
 #include "MuonNSWCommonDecode/NSWElink.h"
+#include "MuonNSWCommonDecode/NSWOfflineHelper.h"
 
 namespace Muon
 {
   namespace nsw
   {
-    enum channel_type
-    {
-      OFFLINE_CHANNEL_TYPE_PAD = 0,
-      OFFLINE_CHANNEL_TYPE_STRIP = 1,
-      OFFLINE_CHANNEL_TYPE_WIRE = 2
-    };
-
-    static const uint16_t s_VMM_per_MMFE8 = 8;
-    static const uint16_t s_VMM_per_sFEB  = 3;
-    static const uint16_t s_VMM_per_pFEB  = 3;
-    static const uint16_t s_VMM_channels  = 64;
-
     class VMMChannel
     {
      private:
@@ -38,9 +27,12 @@ namespace Muon
 
       Muon::nsw::NSWElink *m_elink;
 
+      // Offline helper converts online parameters into channel type and channel number
+
+      std::unique_ptr <Muon::nsw::helper::NSWOfflineHelper> m_offlineHelper;
+
      private:
-      uint8_t  calculate_word_parity (uint32_t, uint8_t p = 0);
-      uint32_t fix_outward (uint32_t vmm_word);
+      uint8_t  calculate_word_parity (uint32_t w, uint8_t p = 0);
 
      public:
       VMMChannel (uint32_t vmm_word, Muon::nsw::NSWElink *elink);
@@ -77,30 +69,10 @@ namespace Muon
 
       // Offline parameters
 
-      uint8_t  channel_type   ();
-      uint16_t channel_number ();
+      uint8_t  channel_type   () {return m_offlineHelper->channel_type ();};
+      uint16_t channel_number () {return m_offlineHelper->channel_number ();};
     };
   }
-}
-
-inline uint8_t Muon::nsw::VMMChannel::channel_type ()
-{
-  uint8_t det_id = m_elink->elinkId ()->detId ();
-  uint8_t channel_type = Muon::nsw::OFFLINE_CHANNEL_TYPE_STRIP;
-
-  if (det_id == eformat::MUON_STGC_ENDCAP_A_SIDE || det_id == eformat::MUON_STGC_ENDCAP_C_SIDE)
-    if (m_elink->elinkId ()->resourceType () == Muon::nsw::NSW_RESOURCE_PAD)
-      channel_type = m_vmm == 0 ? Muon::nsw::OFFLINE_CHANNEL_TYPE_WIRE : Muon::nsw::OFFLINE_CHANNEL_TYPE_PAD;
-
-  return channel_type;
-}
-
-inline uint32_t Muon::nsw::VMMChannel::fix_outward (uint32_t hit_word)
-{
-  // To transform inward-counted VMM and channels into outward-counted.
-  // Parity bit is also changed accordingy.
-
-  return (hit_word ^ 0x87fc0000);
 }
 
 inline uint8_t Muon::nsw::VMMChannel::calculate_word_parity (uint32_t w, uint8_t p)
@@ -127,7 +99,7 @@ inline bool Muon::nsw::VMMChannel::calculate_parity ()
 }
 
 inline Muon::nsw::VMMChannel::VMMChannel (uint32_t vmm_word, Muon::nsw::NSWElink *elink)
-  : m_vmm_word (vmm_word), m_elink (elink)
+	    : m_vmm_word (vmm_word), m_elink (elink)
 {
   m_tdo      = Muon::nsw::helper::get_bits (vmm_word, Muon::nsw::bitMaskVmmHitTDC, Muon::nsw::bitPosVmmHitTDC);  // should be 0 if noTDC is true
   m_pdo      = Muon::nsw::helper::get_bits (vmm_word, Muon::nsw::bitMaskVmmHitADC, Muon::nsw::bitPosVmmHitADC);
@@ -136,6 +108,8 @@ inline Muon::nsw::VMMChannel::VMMChannel (uint32_t vmm_word, Muon::nsw::NSWElink
   m_rel      = Muon::nsw::helper::get_bits (vmm_word, Muon::nsw::bitMaskVmmHitRELBCID, Muon::nsw::bitPosVmmHitRELBCID);
   m_neighbor = Muon::nsw::helper::get_bits (vmm_word, Muon::nsw::bitMaskVmmHitN, Muon::nsw::bitPosVmmHitN);
   m_parity   = Muon::nsw::helper::get_bits (vmm_word, Muon::nsw::bitMaskVmmHitP, Muon::nsw::bitPosVmmHitP);
+
+  m_offlineHelper = std::make_unique <Muon::nsw::helper::NSWOfflineHelper> (elink->elinkId (), m_vmm, m_chan);
 }
 
 #endif // _MUON_VMM_CHANNEL_H_

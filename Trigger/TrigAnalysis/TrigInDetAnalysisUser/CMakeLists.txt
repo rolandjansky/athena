@@ -57,7 +57,7 @@ atlas_add_executable( TIDAreader
    LINK_LIBRARIES ${ROOT_LIBRARIES} TrigInDetAnalysis Readcards )
 
 atlas_add_executable( TIDArdict
-   Analysis/src/rmain.cxx Analysis/src/TagNProbe.h Analysis/src/TagNProbe.cxx
+   Analysis/src/rmain.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} TrigInDetAnalysis TrigInDetAnalysisUtils
    TrigInDetAnalysisExampleLib Resplot Readcards TIDA TIDAcomputils )

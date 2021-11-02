@@ -40,6 +40,11 @@ jobproperties.RingerReFexFlags.add_JobProperty(DumpCells)
 ringerReFexFlags = jobproperties.RingerReFexFlags
 #=======================================================================
 
+def enableDumpCells():
+    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import ringerReFexFlags
+    ringerReFexFlags.DumpCells.set_Value_and_Lock(True)
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3, addExtraCollectionsToEDMList
+    addExtraCollectionsToEDMList(TriggerHLTListRun3,[['xAOD::TrigRingerRingsAuxContainer#HLT_FastCaloRingerAux.cells_eta.cells_phi.cells_et.cells_sampling.cells_size.rings_sum']]) 
 
 class RingerReFexConfig( CompFactory.RingerReFex ):
 
@@ -79,12 +84,10 @@ class RingerReFexConfig( CompFactory.RingerReFex ):
 
     # NOTE: This properties should be test soon
     #self.DoQuarter        = same( ringerReFexFlags.DoQuarter )
-    #self.DumpCells        = ringerReFexFlags.DumpCells
+    self.DumpCells         = ringerReFexFlags.DumpCells.get_Value()
     self.DoQuarter         = same( False )
     self.DoEtaAxesDivision = same(True)
     self.DoPhiAxesDivision = same(True)
-
-    
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram( "TIME_total", title="Total Time;time [us]",xbins=100, xmin=0, xmax=500,type='TH1F', path='EXPERT')
@@ -121,7 +124,7 @@ class T2CaloEgamma_All (CompFactory.T2CaloEgammaReFastAlgo):
        self.PhiWidth = 0.1
        self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ),
                             ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ),
-                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel') ]
     
 #=======================================================================
 
@@ -141,7 +144,7 @@ class T2CaloEgamma_AllEm (CompFactory.T2CaloEgammaReFastAlgo):
        self.PhiWidth = 0.1
        self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ),
                             ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ),
-                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel') ]
 
 #=======================================================================
 
@@ -165,7 +168,7 @@ class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
         self.IReAlgToolList = [ samp2, samp1, sampe, samph ]
         self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), 
                             ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), 
-                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel') ]
         
         if doRinger:
             from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
@@ -220,7 +223,7 @@ class T2CaloEgamma_ReFastFWDAlgo (CompFactory.T2CaloEgammaForwardReFastAlgo):
         self.IReAlgToolList = []
         self.ExtraInputs = [( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), 
                             ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), 
-                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
+                            ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ), ( 'LArBadChannelCont', 'ConditionStore+LArBadChannel') ]
         
         self.EtaWidth = 0.2
         self.PhiWidth = 0.2

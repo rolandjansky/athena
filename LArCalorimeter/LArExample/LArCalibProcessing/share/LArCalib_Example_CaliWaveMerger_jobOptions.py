@@ -31,7 +31,6 @@ DetDescrCnvSvc.DoIdChecks
 DetDescrCnvSvc.LArIDFileName = "IdDictParser/IdDictLArCalorimeter_H8_2004.xml"
 
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print = False
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.all_setOff()

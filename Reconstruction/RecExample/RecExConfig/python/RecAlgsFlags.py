@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   RecExConfig/python/RecAlgsFlags
@@ -100,13 +100,6 @@ class doEgammaBremReco(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False 
-class doTrigger(JobProperty):
-    """ Switch for trigger"""
-    # TODO: Remove this flag and assume False in all client configuration
-    # once the Run-2 trigger execution is removed from release 22
-    statusOn=True 
-    allowedTypes=['bool']
-    StoredValue=False
 class doAtlfast(JobProperty):
     """ Switch for fast simulation (but normally run at ESD->AOD stage)"""
     statusOn=True
@@ -138,7 +131,6 @@ recAlgs=rec.RecAlgs
 _list_Rec=[doTrackRecordFilter,\
            doMissingET,doObjMissingET,doMissingETSig,\
            doEFlow,doEFlowJet,doEgammaBremReco,\
-           doTrigger,\
            doMuonIDStandAlone,doMuonIDCombined,doMuidLowPt,doMuGirl,\
            doStaco,doMuTag,doTileMuID,doMuonSpShower,doCaloTrkMuId,
            doAtlfast,doMonteCarloReact,doTrackParticleCellAssociation ]

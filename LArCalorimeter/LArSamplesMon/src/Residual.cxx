@@ -159,19 +159,18 @@ Residuals* Residuals::truncate(double nWidthsRes, double nWidthsTime, unsigned i
   }
   Residuals* truncated = new Residuals();
 
-  for (std::vector<Residual>::const_iterator residual = m_residuals.begin();
-       residual != m_residuals.end(); residual++) {
+  for (const Residual& residual : m_residuals) {
     bool pass = true;
     if (nMax > 0 && truncated->size() == nMax) break;
     for (short i = lwb(); i <= upb(); i++) {
-      if (nWidthsRes > 0 && TMath::Abs(residual->scaledDelta(i) - medians[i]) > nWidthsRes*widths[i]) {
+      if (nWidthsRes > 0 && TMath::Abs(residual.scaledDelta(i) - medians[i]) > nWidthsRes*widths[i]) {
         pass = false;
         break;
       }
     }
     if (!pass) continue;
-    if (nWidthsTime > 0 && TMath::Abs(residual->time() - medians[upb() + 1]) > nWidthsTime*widths[upb() + 1]) continue;
-    truncated->add(*residual);
+    if (nWidthsTime > 0 && TMath::Abs(residual.time() - medians[upb() + 1]) > nWidthsTime*widths[upb() + 1]) continue;
+    truncated->add(residual);
   }
   return truncated;
 }
@@ -180,8 +179,8 @@ Residuals* Residuals::truncate(double nWidthsRes, double nWidthsTime, unsigned i
 TH1D* Residuals::histogram(short sample, const TString& name, int nBins, double xMin, double xMax) const
 {
   TH1D* h = new TH1D(name, "", nBins, xMin, xMax);
-  for (std::vector<Residual>::const_iterator residual = m_residuals.begin(); residual != m_residuals.end(); residual++)
-    h->Fill(sample <= upb() ? residual->scaledDelta(sample) : residual->time());
+  for (const Residual& residual : m_residuals)
+    h->Fill(sample <= upb() ? residual.scaledDelta(sample) : residual.time());
   return h;
 }
 
@@ -191,8 +190,8 @@ ResidualCalculator* Residuals::calculator(bool weigh) const
   if (size() == 0) return nullptr;
 
   ResidualCalculator* calc = new ResidualCalculator(lwb(), upb(), weigh);
-  for (std::vector<Residual>::const_iterator residual = m_residuals.begin(); residual != m_residuals.end(); residual++)
-    calc->fill(*residual);
+  for (const Residual& residual : m_residuals)
+    calc->fill(residual);
   
   return calc;
 }

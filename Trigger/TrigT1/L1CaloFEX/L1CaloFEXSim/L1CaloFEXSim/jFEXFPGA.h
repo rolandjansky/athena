@@ -64,7 +64,7 @@ namespace LVL1 {
 
     virtual StatusCode init(int id, int efexid) override ;
 
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(jFEXOutputCollection* inputOutputCollection) override ;
 
     virtual void reset() override ;
 
@@ -114,13 +114,13 @@ namespace LVL1 {
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
     int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
-    std::map<int,jTower> m_jTowersColl;
-    std::map<int,std::vector<int> > m_map_Etvalues_FPGA;
-    std::map<int,std::vector<int> > m_map_HAD_Etvalues_FPGA;
-    std::map<int,std::vector<int> > m_map_EM_Etvalues_FPGA;
+    std::unordered_map<int,jTower> m_jTowersColl;
+    std::unordered_map<int,std::vector<int> > m_map_Etvalues_FPGA;
+    std::unordered_map<int,std::vector<int> > m_map_HAD_Etvalues_FPGA;
+    std::unordered_map<int,std::vector<int> > m_map_EM_Etvalues_FPGA;
     
 
-    std::map<int, jFEXForwardJetsInfo> m_FCALJets; 
+    std::unordered_map<int, jFEXForwardJetsInfo> m_FCALJets; 
 
     int m_SRJetET;
     int m_LRJetET;
@@ -141,6 +141,7 @@ namespace LVL1 {
     ToolHandle<IjFEXPileupAndNoise> m_jFEXPileupAndNoiseTool {this, "jFEXPileupAndNoiseTool", "LVL1::jFEXPileupAndNoise", "Tool that applies Pileup and Noise"};
     
     int getTTowerET_SG(unsigned int TTID);
+    std::string m_jfex_string[6] = {"1C","2C","3C","3A","2A","1A"};
   };
   
 } // end of namespace

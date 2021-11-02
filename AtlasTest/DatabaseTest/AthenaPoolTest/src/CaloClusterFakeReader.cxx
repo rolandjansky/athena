@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,7 +21,6 @@
 
 // DetDescr includes
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
@@ -35,7 +34,6 @@
 CaloClusterFakeReader::CaloClusterFakeReader(const std::string &name, 
 					     ISvcLocator *pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_caloMgr(0),
     m_calocellId(0)
 {}
 
@@ -47,7 +45,7 @@ StatusCode CaloClusterFakeReader::initialize()
 {
     ATH_MSG_INFO( "CaloClusterFakeReader::initialize()"  );
     ATH_CHECK( detStore()->retrieve(m_calocellId, "CaloCell_ID") );
-    ATH_CHECK( detStore()->retrieve(m_caloMgr) );
+    ATH_CHECK(m_caloMgrKey.initialize());
     return StatusCode::SUCCESS;
 }
 
@@ -55,6 +53,9 @@ StatusCode CaloClusterFakeReader::initialize()
 StatusCode CaloClusterFakeReader::execute() 
 {
     ATH_MSG_DEBUG( "CaloClusterFakeReader::execute()"  );
+
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    ATH_CHECK(caloMgrHandle.isValid());
 
     const CaloClusterContainer* clusCont = nullptr;
     ATH_CHECK( evtStore()->retrieve(clusCont,"LArClusterCont") );
@@ -66,7 +67,7 @@ StatusCode CaloClusterFakeReader::execute()
 
     // Create container
     const CaloCellContainer* caloCont1 = creator.createCaloCellContainer(m_calocellId,
-									 m_caloMgr,
+									 *caloMgrHandle,
 									 msg());
 
     CaloCellContainer::const_iterator first1 = caloCont1->begin();

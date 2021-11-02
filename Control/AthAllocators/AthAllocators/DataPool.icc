@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------
@@ -22,7 +22,7 @@ DataPool<VALUE>::DataPool(size_type n /*= 0*/)
   : m_handle (&s_params)
 {
   if (n > 0)
-    m_handle.reserve (n);
+    m_handle.reserve (std::max (n, s_minRefCount));
 }
 
 template <typename VALUE>
@@ -31,7 +31,7 @@ DataPool<VALUE>::DataPool(const EventContext& ctx,
   : m_handle (static_cast<SG::ArenaHeader*>(nullptr), ctx, &s_params)
 {
   if (n > 0)
-    m_handle.reserve (n);
+    m_handle.reserve (std::max (n, s_minRefCount));
 }
 
 template <typename VALUE>
@@ -40,7 +40,7 @@ DataPool<VALUE>::DataPool(SG::Arena* arena,
   : m_handle (arena, nullptr, &s_params)
 {
   if (n > 0)
-    m_handle.reserve (n);
+    m_handle.reserve (std::max (n, s_minRefCount));
 }
 
 //-----------------------------------------------------------

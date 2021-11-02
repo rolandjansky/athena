@@ -39,6 +39,7 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <memory>
 
 
 Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollection* elements) {
@@ -48,38 +49,32 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
   //std::cout<<counter++<<std::endl;
   auto trackStateOnSurfaces = DataVector<const Trk::TrackStateOnSurface>();
   PerigeeSurface periSurf;
-  const RIO_OnTrack*              rot            = nullptr;
-  const TrackParameters*          trackParameter = new Perigee(4.0, 3.0, 2.0, 1.0, 0.001, periSurf);
-  const FitQuality*               fitQoS         = nullptr;
-  const MaterialEffectsBase*      mefBase        = nullptr;
-
-  trackStateOnSurfaces.push_back( new TrackStateOnSurface(rot, trackParameter, fitQoS,  mefBase) );
+  auto           trackParameter = std::make_unique<Perigee>(4.0, 3.0, 2.0, 1.0, 0.001, periSurf);
+  //parameters to TrackStateOnSurface are unique_ptr to: RIO_OnTrack, TrackParameters, FitQuality, MaterialEffectsBase
+  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, std::move(trackParameter), nullptr,  nullptr) );
 
   //std::cout<<counter++<<std::endl;
 
   // test state #1 - arbitrary TP AtaCylinder
   Trk::CylinderSurface surface(1.0, 2*M_PI, 4.0);
-  trackParameter = surface.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
-  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, trackParameter, nullptr,  nullptr) );
+  auto trackParameter2=surface.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt);
+  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, std::move(trackParameter2), nullptr,  nullptr) );
 
   // test state #2 - arbitrary TP AtaDisc
   Amg::Translation3D amgtranslation(1.,2.,3.);
   Amg::Transform3D amgTransf = Amg::Transform3D(amgtranslation);
   DiscSurface discSf(amgTransf, 1.0, 2.0);
-  trackParameter = discSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
-  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, trackParameter, nullptr,  nullptr) );
+  auto trackParameter3 = discSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt);
+  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, std::move(trackParameter3), nullptr,  nullptr) );
 
   // test state #3 - arbitrary AtaPlane + Estimated Brem
   Amg::Transform3D amgTransf2(amgtranslation);
   PlaneSurface planeSf(amgTransf2, 1.0, 2.0);
-  trackParameter = planeSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
-  const MaterialEffectsBase *ebr
-    = new EstimatedBremOnTrack((0.7), -0.3,
-  0.3, 0.03,
-  planeSf);
+  auto trackParameter4 = planeSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt);
+  auto ebr = std::make_unique<EstimatedBremOnTrack>((0.7), -0.3,0.3, 0.03,planeSf);
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type1(0);
   type1.set(Trk::TrackStateOnSurface::BremPoint);
-  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, trackParameter, nullptr,  ebr,type1) );
+  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, std::move(trackParameter4), nullptr,  std::move(ebr),type1) );
 
   if (elements){
     // test state #4 - AtaPlane at a valid detector element + MatEffects
@@ -97,21 +92,21 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
 
     //AtaPlane on det el
     const PlaneSurface& planeDetElSf = dynamic_cast<const PlaneSurface&>(detEl->surface());
-    trackParameter = planeDetElSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt).release();
+    auto trackParameter5 = planeDetElSf.createUniqueParameters<5,Trk::Charged>(0.0,1.0,3.0,4.0,0.5,std::nullopt);
 
-    mefBase = new Trk::MaterialEffectsOnTrack(70.7,std::move(scatt),eloss,planeDetElSf, mefPattern);
+    auto mefBase = std::make_unique<Trk::MaterialEffectsOnTrack>(70.7,std::move(scatt),eloss,planeDetElSf, mefPattern);
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
     typePattern.set(Trk::TrackStateOnSurface::Scatterer);
-    trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, trackParameter, nullptr, mefBase,  typePattern) );
+    trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, std::move(trackParameter5), nullptr, std::move(mefBase),  typePattern) );
   }
   //Curvi
   Amg::Vector3D pos(1.0,2.0,3.0);
   Amg::Vector3D mom(4.0,5.0,6.0);
 
-  trackParameter = new CurvilinearParameters(pos,mom,1.0);
+  auto trackParameter6 = std::make_unique<CurvilinearParameters>(pos,mom,1.0);
   std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
   typePattern.set(Trk::TrackStateOnSurface::Parameter);
-  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, trackParameter, nullptr, nullptr,  typePattern) );
+  trackStateOnSurfaces.push_back( new TrackStateOnSurface(nullptr, std::move(trackParameter6), nullptr, nullptr,  typePattern) );
   
   AmgSymMatrix(2)  locCov;
   locCov.setIdentity();           // sets it to identity
@@ -148,10 +143,9 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollect
         = new std::vector<double>;
       assgnProb->push_back(0.4);
       assgnProb->push_back(0.6);
-      InDet::CompetingPixelClustersOnTrack* cProt
-        = new InDet::CompetingPixelClustersOnTrack(childrots,assgnProb);
+      auto cProt= std::make_unique<InDet::CompetingPixelClustersOnTrack>(childrots,assgnProb);
       trackStateOnSurfaces.push_back( new TrackStateOnSurface(
-        cProt,nullptr,nullptr,nullptr));
+        std::move(cProt),nullptr,nullptr,nullptr));
     }
   }
   //std::cout<<counter++<<std::endl;

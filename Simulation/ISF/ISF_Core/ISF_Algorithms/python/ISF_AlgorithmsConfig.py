@@ -54,12 +54,10 @@ def getSimEventFilter(name="ISF_SimEventFilter", **kwargs):
     kwargs.setdefault( "GenParticleCommonFilters", ['ISF_ParticlePositionFilterDynamic','ISF_EtaPhiFilter','ISF_GenParticleInteractingFilter'] )
     kwargs.setdefault( "GenParticleOldFilters", ['ISF_ParticleFinalStateFilter'] )
     kwargs.setdefault( "GenParticleNewFilters", ['ISF_ParticleSimWhiteList_ExtraParticles'] )
-
-    from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimEventFilter
-    simEventFilter = ISF__SimEventFilter(name, **kwargs)
-    return simEventFilter
+    return CfgMgr.ISF__SimEventFilter(name, **kwargs)
 
 def getInvertedSimEventFilter(name="ISF_InvertedSimEventFilter", **kwargs):
+    kwargs.setdefault("FilterKey", "ISF_InvertedSimEventFilter")
     kwargs.setdefault("InvertFilter", True)
     return getSimEventFilter(name, **kwargs)
 
@@ -79,7 +77,7 @@ def getRenameHitCollections(name="RenameHitCollections", **kwargs):
         kwargs.setdefault( "InputBLMHits",              "BLMHitsOLD" )
         kwargs.setdefault( "OutputBCMHits",             "BCMHits"             )
         kwargs.setdefault( "OutputBLMHits",             "BLMHits"             )
-    if DetFlags.simulate.Pixel_on():
+    if DetFlags.simulate.pixel_on():
         kwargs.setdefault( "InputPixelHits",            "PixelHitsOLD" )
         kwargs.setdefault( "OutputPixelHits",           "PixelHits"           )
     if DetFlags.simulate.SCT_on():
@@ -116,11 +114,11 @@ def getRenameHitCollections(name="RenameHitCollections", **kwargs):
         kwargs.setdefault( "OutputTileActiveCalibHits", "TileCalibHitActiveCell")
         kwargs.setdefault( "OutputTileInactiveCalibHits", "TileCalibHitInactiveCell")
         kwargs.setdefault( "OutputTileDeadCalibHits", "TileCalibHitDeadMaterial")
-    if DetFlags.simulate.Tile_on() and not DetFlags.simulate.HGTD_on():
         kwargs.setdefault( "InputMBTSHits",             "MBTSHitsOLD" )
         kwargs.setdefault( "OutputMBTSHits",            "MBTSHits"            )
 
-    if DetFlags.simulate.CSC_on():
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on():
         kwargs.setdefault( "InputCSCHits",              "CSC_HitsOLD" )
         kwargs.setdefault( "OutputCSCHits",             "CSC_Hits"            )
     if DetFlags.simulate.MDT_on():
@@ -132,12 +130,11 @@ def getRenameHitCollections(name="RenameHitCollections", **kwargs):
     if DetFlags.simulate.TGC_on():
         kwargs.setdefault( "InputTGCHits",              "TGC_HitsOLD" )
         kwargs.setdefault( "OutputTGCHits",             "TGC_Hits"            )
-    if DetFlags.simulate.Micromegas_on():
+    if MuonGeometryFlags.hasMM() and DetFlags.simulate.Micromegas_on():
         kwargs.setdefault( "InputMMHits",              "MicromegasSensitiveDetectorOLD" )
         kwargs.setdefault( "OutputMMHits",              "MicromegasSensitiveDetector"  )
-    if DetFlags.simulate.sTGC_on():
+    if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on():
         kwargs.setdefault( "InputsTGCHits",              "sTGCSensitiveDetectorOLD" )
         kwargs.setdefault( "OutputsTGCHits",           "sTGCSensitiveDetector"           )
 
-    from ISF_Algorithms.ISF_AlgorithmsConf import ISF__RenameHitCollectionsAlg
-    return ISF__RenameHitCollectionsAlg(name, **kwargs)
+    return CfgMgr.ISF__RenameHitCollectionsAlg(name, **kwargs)

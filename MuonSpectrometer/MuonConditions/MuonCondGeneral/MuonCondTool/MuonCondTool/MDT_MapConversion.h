@@ -31,7 +31,7 @@ public:
   virtual StatusCode initialize();
 
 
-  virtual const Identifier& ConvertToOffline(const std::string &OnlineId,
+  virtual const Identifier& ConvertToOffline(std::string_view OnlineId,
                                              bool quiet = false) const;
 
   //  const std::string OnlineName(Identifier OfflineId);

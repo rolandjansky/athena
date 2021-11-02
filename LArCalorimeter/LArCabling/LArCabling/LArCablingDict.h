@@ -16,5 +16,6 @@
 
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "LArCabling/LArLATOMEMapping.h"
 
 #endif // LARCABLING_LARCABLINGDICT_H

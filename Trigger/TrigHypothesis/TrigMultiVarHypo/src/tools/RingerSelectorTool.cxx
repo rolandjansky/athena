@@ -144,15 +144,14 @@ bool  RingerSelectorTool::accept( double discriminant, double et, double eta, do
 const {
 
   eta = std::fabs(eta);
-  if(eta>2.50) eta=2.50;///fix for events out of the ranger
   et  = et/Gaudi::Units::GeV; ///in GeV
   double threshold = 0.0;
   double avgmu = mu;
   //Apply cut
   for(unsigned i=0; i < m_cutDefs.size(); ++i){
-    if((avgmu  > m_cutDefs[i]->mumin()) && (avgmu  <= m_cutDefs[i]->mumax())){
-      if((et  > m_cutDefs[i]->etmin()) && (et  <= m_cutDefs[i]->etmax())){
-        if((eta > m_cutDefs[i]->etamin()) && (eta <= m_cutDefs[i]->etamax())){
+    if((avgmu  >= m_cutDefs[i]->mumin()) && (avgmu  < m_cutDefs[i]->mumax())){
+      if((et  >= m_cutDefs[i]->etmin()) && (et  < m_cutDefs[i]->etmax())){
+        if((eta >= m_cutDefs[i]->etamin()) && (eta < m_cutDefs[i]->etamax())){
           
           if(m_doPileupCorrection){
             // Limited Pileup
@@ -183,14 +182,13 @@ bool RingerSelectorTool::retrieve(double et, double eta, double mu, std::shared_
 const {
 
   eta = std::fabs(eta);
-  if(eta>2.50) eta=2.50;///fix for events out of the ranger
   et  = et/Gaudi::Units::GeV; ///in GeV
   
   if(!m_discriminators.empty()){
     for(unsigned i=0; i<m_discriminators.size(); ++i){
-      if(mu > m_discriminators[i]->mumin() && mu <= m_discriminators[i]->mumax()){
-        if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
-          if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
+      if(mu >= m_discriminators[i]->mumin() && mu < m_discriminators[i]->mumax()){
+        if(et >= m_discriminators[i]->etmin() && et < m_discriminators[i]->etmax()){
+          if(eta >= m_discriminators[i]->etamin() && eta < m_discriminators[i]->etamax()){
             discr   = m_discriminators[i];
             preproc = m_preprocs[i];
             return true;

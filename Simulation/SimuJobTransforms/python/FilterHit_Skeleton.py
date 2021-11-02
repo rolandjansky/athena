@@ -16,6 +16,9 @@ def getStreamHITS_ItemList(ConfigFlags):
                 "xAOD::TruthParticleContainer#TruthPileupParticles",
                 "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
+    #PLR
+    if ConfigFlags.Detector.EnablePLR:
+        ItemList += ["SiHitCollection#PLRHits"]
     #BCM
     if ConfigFlags.Detector.EnableBCM:
         ItemList += ["SiHitCollection#BCMHits"]
@@ -97,26 +100,11 @@ def fromRunArgs(runArgs):
     else:
         raise RuntimeError('No input HITS file defined')
 
-    if hasattr(runArgs, 'detectors'):
-        detectors = runArgs.detectors
-    else:
-        from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
-        detectors = getDefaultDetectors(ConfigFlags.GeoModel.AtlasVersion)
-
-    # Support switching on Forward Detectors
-    if hasattr(runArgs, 'LucidOn'):
-        detectors = detectors+['Lucid']
-    if hasattr(runArgs, 'ZDCOn'):
-        detectors = detectors+['ZDC']
-    if hasattr(runArgs, 'AFPOn'):
-        detectors = detectors+['AFP']
-    if hasattr(runArgs, 'ALFAOn'):
-        detectors = detectors+['ALFA']
-    if hasattr(runArgs, 'FwdRegionOn'):
-        detectors = detectors+['FwdRegion']
-
-    # Setup common simulation flags
-    defaultFilterHitFlags(ConfigFlags, detectors)
+    # Generate detector list and setup detector flags
+    from SimuJobTransforms.SimulationHelpers import getDetectorsFromRunArgs
+    detectors = getDetectorsFromRunArgs(ConfigFlags, runArgs)
+    from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
+    setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
     ## from SimuJobTransforms.HitsFilePeeker import HitsFilePeeker
     ## HitsFilePeeker(runArgs, filterHitLog)
@@ -128,7 +116,7 @@ def fromRunArgs(runArgs):
         else:
             ConfigFlags.Output.HITSFileName  = runArgs.outputHITS_FILTFile
     else:
-        raise RuntimeError('No outputHITSFile defined')
+        raise RuntimeError('No outputHITS_FILTFile defined')
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
@@ -145,7 +133,8 @@ def fromRunArgs(runArgs):
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
-    cfg.merge(PoolWriteCfg(ConfigFlags))
+    # force TreeAutoFlush=1 as events will be accessed randomly
+    cfg.merge(PoolWriteCfg(ConfigFlags, forceTreeAutoFlush=1))
 
     # add LArHitFilter + AddressRemappingSvc
     if ConfigFlags.Detector.EnableLAr:
@@ -217,11 +206,6 @@ def fromRunArgs(runArgs):
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
-
-    # FIXME hack because deduplication is broken
-    PoolAttributes = ["TREE_BRANCH_OFFSETTAB_LEN = '100'"]
-    PoolAttributes += ["DatabaseName = '" + ConfigFlags.Output.HITSFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'"]
-    cfg.getService("AthenaPoolCnvSvc").PoolAttributes += PoolAttributes
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)
