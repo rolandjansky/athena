@@ -28,7 +28,7 @@ def ITkStripSiPropertiesCfg(flags, name="ITkStripSiPropertiesCondAlg", **kwargs)
     #Specify correct DetElCollection for ITkStrip
     algkwargs["SCTDetEleCollKey"] = "ITkStripDetectorElementCollection"
     acc.merge(ITkStripReadoutGeometryCfg(flags))
-    acc.addCondAlgo(CompFactory.ITkStripSiPropertiesCondAlg(name, **algkwargs))
+    acc.addCondAlgo(CompFactory.SCTSiPropertiesCondAlg(name, **algkwargs))
 
     # Condition tool
     toolkwargs = {}

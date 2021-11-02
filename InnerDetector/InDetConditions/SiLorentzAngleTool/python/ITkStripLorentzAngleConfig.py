@@ -37,7 +37,7 @@ def ITkStripLorentzAngleCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
             algkwargs["SiConditionsTool"] = acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags, **sikwargs))
     #Specify correct DetElCollection for ITkStrip
     algkwargs["SCTDetEleCollKey"] = "ITkStripDetectorElementCollection"
-    acc.addCondAlgo(CompFactory.StripSiLorentzAngleCondAlg(name, **algkwargs))
+    acc.addCondAlgo(CompFactory.SCTSiLorentzAngleCondAlg(name, **algkwargs))
 
     # Condition tool
     toolkwargs = {}

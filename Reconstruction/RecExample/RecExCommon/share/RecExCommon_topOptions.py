@@ -451,9 +451,8 @@ if rec.doMonitoring():
     include ("AthenaMonitoring/DataQualityInit_jobOptions.py")
 
 # Lock the flags
-if not rec.doDPD():  # except for derivations: ATLASRECTS-6636
-    logRecExCommon_topOptions.info("Locking ConfigFlags")
-    ConfigFlags.lock()
+logRecExCommon_topOptions.info("Locking ConfigFlags")
+ConfigFlags.lock()
 #################################################################################
 
 

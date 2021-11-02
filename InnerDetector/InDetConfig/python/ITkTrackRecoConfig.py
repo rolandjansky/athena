@@ -75,8 +75,10 @@ def ITkStripClusterizationPUCfg(flags, name="ITkStripClusterizationPU", **kwargs
 
 ##------------------------------------------------------------------------------
 def ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs) :
+    acc = ComponentAccumulator()
+
     from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
-    acc = ITkPixelReadoutGeometryCfg(flags)
+    acc.merge(ITkPixelReadoutGeometryCfg(flags))
 
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
 

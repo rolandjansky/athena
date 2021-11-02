@@ -21,9 +21,9 @@ class HGTD_RDOContainer
 
 public:
   /**
-   * @brief Default constructor should NOT be used, but is needed for pool I/O.
+   * @brief Default constructor should NOT be used.
    */
-  HGTD_RDOContainer() = default;
+  HGTD_RDOContainer() = delete;
   ~HGTD_RDOContainer() = default;
 
   HGTD_RDOContainer(unsigned int hashmax);

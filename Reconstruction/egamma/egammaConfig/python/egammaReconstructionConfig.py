@@ -90,7 +90,10 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
+    flags.Output.doWriteESD = True  # To test the AOD parts
+    flags.Output.doWriteAOD = True  # To test the AOD parts
     flags.lock()
+
     acc = MainServicesCfg(flags)
     acc.merge(egammaReconstructionCfg(flags))
     acc.printConfig(withDetails=True,
