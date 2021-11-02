@@ -8,7 +8,7 @@ from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-def precisionElectronRecoSequence(RoIs, ion=False):
+def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
     """ With this function we will setup the sequence of offline EgammaAlgorithms so to make a electron for TrigEgamma 
 
     Sequence of algorithms is the following:
@@ -19,7 +19,7 @@ def precisionElectronRecoSequence(RoIs, ion=False):
           https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/src/topoEgammaBuilder.cxx
     """
 
-    log.debug('precisionElectronRecoSequence(RoIs = %s)',RoIs)
+    log.debug('precisionElectronRecoSequence(RoIs = %s, variant = %s)',(RoIs,variant))
 
     tag = '_ion' if ion is True else ''
     
@@ -29,10 +29,12 @@ def precisionElectronRecoSequence(RoIs, ion=False):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
        
     # precision Tracking related data dependencies
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
+
+    TrigEgammaKeys = getTrigEgammaKeys()
 
     caloClusters = precisionCaloMenuDefs.caloClusters(ion)
-    trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName
+    trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName[variant]
 
     ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier" + tag)
 

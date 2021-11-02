@@ -1,15 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#----------------------------------------------------------------
-# Static classes to configure photon chain container names
-#----------------------------------------------------------------
-
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ROOT import egammaPID
-from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-IDTrigConfig = getInDetTrigConfig( 'electron' )
 
 # Add ONNX into app service mgr (in rec-ex common style), but only in Run 2 conf style
 from AthenaCommon.Configurable import Configurable
@@ -19,23 +12,9 @@ if not Configurable.configurableRun3Behavior:
     ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
 
-log = logging.getLogger(__name__)
+from TrigEgammaKeys import getTrigEgammaKeys
 
-class TrigEgammaKeys(object):
-      """Static class to collect all string manipulation in Electron sequences """
-      SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
-      outputElectronKey = recordable('HLT_egamma_Electrons')
-      SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
-      EgammaRecKey = 'HLT_egammaRecCollection'
-      IDTrigConfig = getInDetTrigConfig( 'electron' )
-      outputPhotonKey = recordable('HLT_egamma_Photons')
-      outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
-      TrigEMClusterToolOutputContainer = recordable('HLT_TrigEMClusters')
-      TrigElectronTracksCollectionName = IDTrigConfig.tracks_IDTrig()
-      pidVersion = 'rel22_20210611'
-      dnnVersion = 'mc16_20210430'
-      ringerVersion = 'TrigL2_20210702_r4'
-      
+TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
 
 
 class TrigEgammaKeys_LRT(object):
@@ -49,8 +28,6 @@ class TrigEgammaKeys_GSF(object):
       outputElectronKey_GSF = recordable('HLT_egamma_Electrons_GSF')
       outputTrackKey_GSF = 'HLT_IDTrkTrack_Electron_GSF'
       outputTrackParticleKey_GSF = recordable('HLT_IDTrack_Electron_GSF')
-      
-
 
 #
 # Electron DNN Selectors

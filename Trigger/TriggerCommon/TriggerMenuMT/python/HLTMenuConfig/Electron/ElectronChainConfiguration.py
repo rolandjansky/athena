@@ -15,9 +15,8 @@ from ..Electron.FastElectronMenuSequences_LRT import fastElectronMenuSequence_LR
 from ..Egamma.PrecisionCaloMenuSequences import precisionCaloMenuSequence
 from ..Egamma.PrecisionCaloMenuSequences_LRT import precisionCaloMenuSequence_LRT
 from ..Egamma.PrecisionCaloMenuSequences_FWD import precisionCaloMenuSequence_FWD
-from ..Electron.PrecisionElectronMenuSequences import precisionElectronMenuSequence
+from ..Electron.PrecisionElectronMenuSequences import precisionElectronMenuSequence, precisionElectronMenuSequence_LRT
 from ..Electron.PrecisionElectronMenuSequences_GSF import precisionElectronMenuSequence_GSF
-from ..Electron.PrecisionElectronMenuSequences_LRT import precisionElectronMenuSequence_LRT
 from ..Electron.PrecisionTrackingMenuSequences import precisionTrackingMenuSequence
 from ..Electron.PrecisionTrackingMenuSequences_LRT import precisionTrackingMenuSequence_LRT
 

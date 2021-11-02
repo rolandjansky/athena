@@ -10,7 +10,7 @@ import AthenaCommon.CfgMgr as CfgMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys_LRT
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import TrigEgammaKeys_LRT
 
 def precisionTracking_LRT(RoIs):
 ## Taking Fast Track information computed in 2nd step ##
