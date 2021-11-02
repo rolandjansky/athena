@@ -16,6 +16,7 @@ namespace EL {
 
 namespace top {
   class TopConfig;
+  class ScaleFactorRetriever;
 
 /**
  * @brief An example of how to quickly make some plots at a certain point in
@@ -61,6 +62,7 @@ namespace top {
     std::size_t m_nominalHashValue;
 
     std::shared_ptr<top::TopConfig> m_config;
+    top::ScaleFactorRetriever *m_sfRetriever;
   };
 }
 
