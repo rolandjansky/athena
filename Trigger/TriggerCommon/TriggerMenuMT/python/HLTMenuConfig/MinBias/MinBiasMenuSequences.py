@@ -11,6 +11,12 @@ from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 import AthenaCommon.SystemOfUnits as Units
 
 
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
+
+
 ########
 # to move into TrigMinBiasHypoConfigMT?
 
@@ -67,6 +73,17 @@ def TrigZVertexHypoToolGen(chainDict):
         raise RuntimeError("Chain {} w/o pileup suppression required to configure z vertex hypo".format(chainDict["chainName"]))
     return hypo
 
+@AccumulatorCache
+def SPCounterRecoAlgCfg(flags):
+    acc = ComponentAccumulator()
+    from TrigMinBias.TrigMinBiasMonitoring import SpCountMonitoring
+    alg = CompFactory.TrigCountSpacePoints( SpacePointsKey = recordable("HLT_SpacePointCounts"), 
+                                            MonTool = SpCountMonitoring() ) # TODO, decide if we want to deliver flags to monitroing config as well
+    acc.addEventAlgo(alg)
+    return acc
+    
+
+
 ### Now the sequences
 
 def MinBiasSPSequence():
@@ -101,12 +118,10 @@ def MinBiasSPSequence():
 #    spAlgsList = idAlgs[:-2]
     spAlgsList = idAlgs
 
-
-    spCount = TrigCountSpacePoints()
-    spCount.SpacePointsKey = recordable("HLT_SpacePointCounts")
-
-    from TrigMinBias.TrigMinBiasMonitoring import SpCountMonitoring
-    spCount.MonTool = SpCountMonitoring()
+    with ConfigurableRun3Behavior():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags # this will disappear once the flags are transported down here
+        from ..Menu.MenuComponents import decayEventAlgos # this will disappear once whole sequence would be configured at once
+        spCount = decayEventAlgos(SPCounterRecoAlgCfg(ConfigFlags))
 
     spRecoSeq = parOR("spRecoSeq", spAlgsList + [spCount])
     spSequence = seqAND("spSequence", [spInputMakerAlg, spRecoSeq])
@@ -206,3 +221,11 @@ def MinBiasMbtsSequence():
                         Maker       = MbtsInputMakerAlg,
                         Hypo        = hypo,
                         HypoToolGen = MbtsHypoToolGen)
+
+
+if __name__ == "__main__":
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    flags.lock()
+    spca = SPCounterRecoAlgCfg(flags)
+    spca.printConfig(withDetails=True)
+    spca.wasMerged()

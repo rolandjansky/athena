@@ -653,6 +653,22 @@ class MenuSequenceCA(MenuSequence):
         return self._hypo
 
 
+# mainline/rec-ex-common and CA based JO compatibility layer (basically converters)
+def decayEventAlgos(ca):
+    """Merges CA with athena for all components except the algorithms. Those are converted to Run2 objects and returned.
+
+    If CA contains more than one algorithm, a list is returned, else a single algorithm is returned.
+    
+    """
+    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
+    algs = ca.getEventAlgos()
+    ca._algorithms = {}
+    ca._allSequences = []
+    appendCAtoAthena(ca)
+    converted = [conf2toConfigurable(alg) for alg in algs]
+    if len(converted)  == 0:
+        return converted[0]
+    return converted
 
 class Chain(object):
     """Basic class to define the trigger menu """
