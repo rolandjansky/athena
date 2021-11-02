@@ -35,7 +35,7 @@ def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
     return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
 
 def precisionPhotonCaloSequenceCfg( flags ):
-    return precisionCaloMenuSequence('Photon')
+    return precisionCaloMenuSequence('Photon', is_photon=True)
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')

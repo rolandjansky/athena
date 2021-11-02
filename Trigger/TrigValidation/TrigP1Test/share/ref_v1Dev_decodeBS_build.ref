@@ -948,51 +948,51 @@ HLT_e5_dnnloose_L1EM3:
     0: 46
     1: 62
     2: 17
-    3: 19
+    3: 18
 HLT_e5_dnnmedium_L1EM3:
   eventCount: 0
   stepCounts:
     0: 27
     1: 18
-    2: 13
-    3: 13
+    2: 14
+    3: 14
   stepFeatures:
     0: 48
     1: 62
-    2: 17
-    3: 18
+    2: 18
+    3: 19
 HLT_e5_dnntight_L1EM3:
   eventCount: 0
   stepCounts:
     0: 24
     1: 15
-    2: 10
-    3: 10
+    2: 11
+    3: 11
   stepFeatures:
     0: 41
     1: 51
-    2: 13
-    3: 14
+    2: 14
+    3: 15
 HLT_e5_etcut_L1eEM3:
-  eventCount: 36
+  eventCount: 37
   stepCounts:
     0: 46
     1: 38
-    2: 36
-    3: 36
+    2: 37
+    3: 37
   stepFeatures:
     0: 329
     1: 283
-    2: 160
-    3: 160
+    2: 182
+    3: 185
 HLT_e5_idperf_gsf_tight_L1EM3:
-  eventCount: 13
+  eventCount: 14
   stepCounts:
     0: 24
     1: 19
-    2: 13
-    3: 13
-    4: 13
+    2: 14
+    3: 14
+    4: 14
   stepFeatures:
     0: 41
     1: 30
@@ -1010,31 +1010,31 @@ HLT_e5_idperf_loose_L1EM3:
   stepFeatures:
     0: 46
     1: 34
-    2: 22
-    3: 24
-    4: 21
+    2: 21
+    3: 22
+    4: 20
 HLT_e5_idperf_loose_lrtloose_L1EM3:
-  eventCount: 16
+  eventCount: 18
   stepCounts:
     0: 27
     1: 26
-    2: 16
-    3: 16
-    4: 16
+    2: 18
+    3: 18
+    4: 18
   stepFeatures:
     0: 46
     1: 45
-    2: 24
-    3: 39
-    4: 23
+    2: 25
+    3: 59
+    4: 24
 HLT_e5_idperf_medium_L1EM3:
-  eventCount: 15
+  eventCount: 16
   stepCounts:
     0: 27
     1: 21
-    2: 15
-    3: 15
-    4: 15
+    2: 16
+    3: 16
+    4: 16
   stepFeatures:
     0: 48
     1: 36
@@ -1042,13 +1042,13 @@ HLT_e5_idperf_medium_L1EM3:
     3: 23
     4: 21
 HLT_e5_idperf_tight_L1EM3:
-  eventCount: 13
+  eventCount: 14
   stepCounts:
     0: 24
     1: 19
-    2: 13
-    3: 13
-    4: 13
+    2: 14
+    3: 14
+    4: 14
   stepFeatures:
     0: 41
     1: 30
@@ -1131,7 +1131,7 @@ HLT_e5_lhtight_noringer_e9_etcut_probe_1invmAB5_L1JPSI-1M5-EM7:
     0: 5
     1: 8
     2: 2
-    3: 2
+    3: 4
 HLT_e5_lhvloose_bBeeM6000_L14J15:
   eventCount: 0
 HLT_e5_lhvloose_bBeeM6000_L1All:
@@ -1157,7 +1157,7 @@ HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled:
     0: 24
     1: 42
     2: 8
-    3: 10
+    3: 9
 HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary:
   eventCount: 0
   stepCounts:
@@ -1290,12 +1290,12 @@ HLT_g10_loose_L1EM7:
   stepCounts:
     0: 22
     1: 15
-    2: 15
+    2: 14
     3: 5
   stepFeatures:
     0: 27
     1: 16
-    2: 16
+    2: 15
     3: 6
 HLT_g120_loose_L1EM22VHI:
   eventCount: 0
