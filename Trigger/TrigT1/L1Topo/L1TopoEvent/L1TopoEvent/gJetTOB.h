@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#ifndef JTAUTOB_H
-#define JTAUTOB_H
+#ifndef GJETTOB_H
+#define GJETTOB_H
 
 #include <iostream>
 
@@ -9,31 +9,32 @@
 #include "L1TopoEvent/Heap.h"
 
 
+// TODO implement sizecheck lile in ClusterTOB
+
 namespace TCS {
    
    class GenericTOB;
    
-   class jTauTOB : public BaseTOB {
+   class gJetTOB : public BaseTOB {
    public:
       
       // default constructor
-      jTauTOB(uint32_t roiWord = 0, const std::string& tobName = "jTauTOB");
+      gJetTOB(uint32_t roiWord = 0, const std::string& tobName = "gJetTOB");
 
       // copy constructor
-      jTauTOB(const jTauTOB & jtau);
+      gJetTOB(const gJetTOB & jet);
 
       // constructor with initial values
-      jTauTOB(unsigned int Et, unsigned int isolation, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jTauTOB" );
+      gJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "gJetTOB" );
 
       // destructor
-      virtual ~jTauTOB();
+      virtual ~gJetTOB();
       
       // accessors
       unsigned int energy() const { return m_Et; }
       unsigned int Et() const { return m_Et; }
       
       // accessors
-      unsigned int isolation() const { return m_isolation; }    
       int eta() const { return m_eta; }
       unsigned phi() const { return m_phi; }
       
@@ -50,12 +51,12 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
 
-      inputTOBType_t tobType() const { return TCS::JTAU; }
+      inputTOBType_t tobType() const { return JET; }
 
-      static jTauTOB* createOnHeap(const jTauTOB& jtau);
+      static gJetTOB* createOnHeap(const gJetTOB& jet);
       static void clearHeap();
 
-      static const Heap<TCS::jTauTOB>& heap() { return fg_heap; }
+      static const Heap<TCS::gJetTOB>& heap() { return fg_heap; }
 
    private:
 
@@ -68,14 +69,13 @@ namespace TCS {
       int m_eta { 0 };
       unsigned m_phi { 0 };
 
-      unsigned int m_isolation {0};
       double m_EtDouble { 0 };
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };
 
       virtual void print(std::ostream &o) const;
 
-      static thread_local Heap<TCS::jTauTOB> fg_heap;
+      static thread_local Heap<TCS::gJetTOB> fg_heap;
    };
    
 }
