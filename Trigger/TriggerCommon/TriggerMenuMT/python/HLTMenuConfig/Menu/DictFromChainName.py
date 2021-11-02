@@ -11,6 +11,7 @@ __author__  = 'Catrin Bernius'
 __version__=""
 __doc__="Decoding of chain name into a dictionary"
 
+from TrigConfHLTUtils.HLTUtils import string2hash
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
@@ -478,7 +479,6 @@ def dictFromChainName(chainInfo):
     """
 
     # these if/elif/else statements are due to temporary development
-    from TrigConfHLTData.HLTUtils import string2hash
     if type(chainInfo) == str:
         chainName       = chainInfo
         l1Thresholds    = []
