@@ -1,0 +1,15 @@
+Starting branchContIdx_test
+Start WRITE session
+Session connect
+Sample Tokens to written objects:
+Token for object A1 = [DB=6222A3B2-4F2A-1F4F-027F-34B2FF2534B8][CNT=ContainerA][CLID=DA8F479C-09BC-49D4-94BC-99D025A23A3B][TECH=00000202][OID=0000533000000003-0000000000000000]
+Token for object B2 = [DB=6222A3B2-4F2A-1F4F-027F-34B2FF2534B8][CNT=ContainerB][CLID=DA8F479C-09BC-49D4-94BC-99D025A23A3B][TECH=00000202][OID=0000533000000004-0000000000000001]
+
+Starting READ
+read back A1: This is my string A1
+read back B1: This is my string B1
+read back A3: This is my string A3
+read back A6: This is my string A6
+read back A4: This is my string A4
+read back B2: This is my string B2
+read back A5: This is my string A5
