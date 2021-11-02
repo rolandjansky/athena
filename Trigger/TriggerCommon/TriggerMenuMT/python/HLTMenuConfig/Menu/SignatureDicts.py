@@ -165,7 +165,6 @@ JetChainParts = {
        'presel4j85',
        'presel5j25',
        'presel5j50',
-       'presel6j25',
        'presel6j40',
        'presel7j30',
        # Multiple threshold
@@ -173,7 +172,13 @@ JetChainParts = {
        'preselj140XXj45',
        'preselj80XX2j45',
        'presel2j180XXj80',
-       'preselj60XXj45XXj25XXj20', # L1J45p0ETA21_3J15p0ETA25
+       # Nonstandard eta regions
+       'presel6c25',
+       'preselj45XX2f40',
+       'preselc60XXc45XXc25XXc20', # L1J45p0ETA21_3J15p0ETA25
+       'preselc60XXj45XXf40',
+       'preselj60XXj45XXf40',
+       'presela60XXa40XX2a25'
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
@@ -336,7 +341,7 @@ MuonChainParts = {
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
-    'invMassInfo'    : ['invmJPsi'],
+    'invMassInfo'    : ['invmJPsi','invmDimu'],
     'msonlyInfo'     : ['msonly'],
     'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual","nscan","os"],
     'topo'           : AllowedTopos_mu,

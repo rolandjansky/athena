@@ -744,7 +744,8 @@ class SCTCalibExecutor( athenaExecutor ):
                     prefixTmp = prefix
                 if runArgs['splitHitMap']._value == 2:
                     os.rename('SCTHitMaps.root',prefix+'.SCTHitMaps.root')
-                    os.rename('SCTLB.root',prefix+'.SCTLB.root')
+                    if 'doNoisyStrip' in runArgs['part']._value:
+                    	os.rename('SCTLB.root',prefix+'.SCTLB.root')
                     if ('doDeadStrip' in runArgs['part']._value or 'doDeadChip' in runArgs['part']._value or 'doQuietStrip' in runArgs['part']._value or 'doQuietChip' in runArgs['part']._value ):
                         os.rename('SCTBSErrors.root',prefix+'.SCTBSErrors.root')
             except:

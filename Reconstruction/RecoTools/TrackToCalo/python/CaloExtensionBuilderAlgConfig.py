@@ -31,7 +31,6 @@ def CaloExtensionBuilder(useLRT):
     topSequence=AlgSequence()
     
     theAtlasExtrapolator=AtlasExtrapolator(name = "CaloExtensionBuilderAtlasExtrapolator")
-    theAtlasExtrapolator.DoCaloDynamic = False # this turns off dynamic
 
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = theAtlasExtrapolator)
     ToolSvc += pcExtensionTool

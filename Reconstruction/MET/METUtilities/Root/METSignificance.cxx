@@ -166,7 +166,7 @@ namespace met {
 
     toolName = "TauPerfTool";
     m_tauCombinedTES.setTypeAndName("TauCombinedTES/METSigAutoConf_" + toolName);
-    ATH_CHECK( m_tauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_v0.root") );
+    ATH_CHECK( m_tauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_Round2.5.root") );
     ATH_CHECK( m_tauCombinedTES.retrieve() );
 
     return StatusCode::SUCCESS;

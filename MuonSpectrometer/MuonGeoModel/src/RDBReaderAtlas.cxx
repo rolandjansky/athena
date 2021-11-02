@@ -310,44 +310,43 @@ namespace MuonGM {
         log << MSG::INFO << "Access granted for all dbObjects needed by muon detectors" << endmsg;
     }
 
-    StatusCode RDBReaderAtlas::ProcessDB() {
+    StatusCode RDBReaderAtlas::ProcessDB(MYSQL& mysql) {
         MsgStream log(m_msgSvc, "MuGM:RDBReadAtlas");
         // Check access to the database (from the constructor)
         if (m_SCdbaccess == StatusCode::FAILURE) {
             return m_SCdbaccess;
         }
 
-        MYSQL *mysql = MYSQL::GetPointer();
         // set GeometryVersion in MYSQL
-        mysql->setGeometryVersion(getGeometryVersion());
+        mysql.setGeometryVersion(getGeometryVersion());
         // set LayoutName read from amdb
-        mysql->setLayoutName(m_dbam[0].amdb);
+        mysql.setLayoutName(m_dbam[0].amdb);
         // set NovaVersion     in MYSQL
-        mysql->setNovaVersion(m_dbam[0].version);
+        mysql.setNovaVersion(m_dbam[0].version);
         // set AmdbVersion     in MYSQL
-        mysql->setNovaReadVersion(m_dbam[0].nvrs);
+        mysql.setNovaReadVersion(m_dbam[0].nvrs);
 
         // Process Stations and components
-        MuonGM::ProcessStations(m_dhalmn, m_almn, m_dhatyp, m_atyp, m_dhwmdt, m_wmdt);
+        MuonGM::ProcessStations(mysql, m_dhalmn, m_almn, m_dhatyp, m_atyp, m_dhwmdt, m_wmdt);
 
         // Process Technologies
-        ProcessTechnologies();
+        ProcessTechnologies(mysql);
 
         // Process Positions
-        MuonGM::ProcessPositions(m_dhaptp, m_aptp);
+        MuonGM::ProcessPositions(mysql, m_dhaptp, m_aptp);
 
         // Process Cutouts
         if (getGeometryVersion().substr(0, 1) != "P") {
-            MuonGM::ProcessCutouts(m_dhacut, m_acut, m_dhalin, m_alin, m_dhatyp, m_atyp);
+            MuonGM::ProcessCutouts(mysql, m_dhacut, m_acut, m_dhalin, m_alin, m_dhatyp, m_atyp);
         }
 
         // Process Alignements
         if (m_dhaszt && m_dhaszt->size() > 0) {
-            MuonGM::ProcessAlignements(m_dhaszt, m_aszt);
+            MuonGM::ProcessAlignements(mysql, m_dhaszt, m_aszt);
         }
 
         // Process TgcReadout
-        RDBReaderAtlas::ProcessTGCreadout();
+        RDBReaderAtlas::ProcessTGCreadout(mysql);
 
         // Process CSC Internal Alignements
         if (m_dhiacsc && m_dhiacsc->size() > 0 && m_useICSCAlines) {
@@ -443,18 +442,18 @@ namespace MuonGM {
         return;
     }
 
-    void RDBReaderAtlas::ProcessTechnologies() {
+    void RDBReaderAtlas::ProcessTechnologies(MYSQL& mysql) {
         MsgStream log(m_msgSvc, "MuGM:ProcTechnol.s");
         // here loop over station-components to init technologies at each new entry
         std::vector<std::string> slist;
         slist.push_back("*");
-        StationSelector sel(slist);
+        StationSelector sel(mysql, slist);
         StationSelector::StationIterator it;
         log << MSG::DEBUG << " from RDBReaderAtlas --- start " << endmsg;
 
         bool have_spa_details = (getGeometryVersion().substr(0, 1) != "P");
 
-        for (it = sel.begin(); it != sel.end(); it++) {
+        for (it = sel.begin(); it != sel.end(); ++it) {
             Station *station = (*it).second;
             for (int ic = 0; ic < station->GetNrOfComponents(); ic++) {
                 Component *c = station->GetComponent(ic);
@@ -463,27 +462,27 @@ namespace MuonGM {
                 const std::string &cname = c->name;
 
                 if (cname.compare(0, 3, "CSC") == 0)
-                    MuonGM::ProcessCSC(m_dhwcsc, m_wcsc, cname);
+                    MuonGM::ProcessCSC(mysql, m_dhwcsc, m_wcsc, cname);
                 else if (cname.compare(0, 3, "MDT") == 0)
-                    MuonGM::ProcessMDT(m_dhwmdt, m_wmdt, cname);
+                    MuonGM::ProcessMDT(mysql, m_dhwmdt, m_wmdt, cname);
                 else if (cname.compare(0, 3, "RPC") == 0)
-                    MuonGM::ProcessRPC(m_dhwrpc, m_wrpc, m_dhwrpcall, m_wrpcall, cname);
+                    MuonGM::ProcessRPC(mysql, m_dhwrpc, m_wrpc, m_dhwrpcall, m_wrpcall, cname);
                 else if (cname.compare(0, 3, "TGC") == 0)
-                    MuonGM::ProcessTGC(m_dhwtgc, m_wtgc, m_dhwtgcall, m_wtgcall, cname);
+                    MuonGM::ProcessTGC(mysql, m_dhwtgc, m_wtgc, m_dhwtgcall, m_wtgcall, cname);
                 else if (cname.compare(0, 3, "SPA") == 0)
-                    MuonGM::ProcessSPA(m_dhwspa, m_wspa, cname);
+                    MuonGM::ProcessSPA(mysql, m_dhwspa, m_wspa, cname);
                 else if (cname.compare(0, 3, "DED") == 0)
-                    MuonGM::ProcessDED(m_dhwded, m_wded, cname);
+                    MuonGM::ProcessDED(mysql, m_dhwded, m_wded, cname);
                 else if (cname.compare(0, 3, "SUP") == 0)
-                    MuonGM::ProcessSUP(m_dhwsup, m_wsup, cname);
+                    MuonGM::ProcessSUP(mysql, m_dhwsup, m_wsup, cname);
                 else if (cname.compare(0, 3, "CHV") == 0 && have_spa_details)
-                    MuonGM::ProcessCHV(m_dhwchv, m_wchv, cname);
+                    MuonGM::ProcessCHV(mysql, m_dhwchv, m_wchv, cname);
                 else if (cname.compare(0, 3, "CRO") == 0 && have_spa_details)
-                    MuonGM::ProcessCRO(m_dhwcro, m_wcro, cname);
+                    MuonGM::ProcessCRO(mysql, m_dhwcro, m_wcro, cname);
                 else if (cname.compare(0, 3, "CMI") == 0 && have_spa_details)
-                    MuonGM::ProcessCMI(m_dhwcmi, m_wcmi, cname);
+                    MuonGM::ProcessCMI(mysql, m_dhwcmi, m_wcmi, cname);
                 else if (cname.compare(0, 2, "LB") == 0 && have_spa_details)
-                    MuonGM::ProcessLBI(m_dhwlbi, m_wlbi, cname);
+                    MuonGM::ProcessLBI(mysql, m_dhwlbi, m_wlbi, cname);
             }
         }
 
@@ -492,7 +491,7 @@ namespace MuonGM {
         log << MSG::INFO << "nCHV " << nchv << " nCRO " << ncro << " nCMI " << ncmi << " nLBI " << nlbi << endmsg;
     }
 
-    void RDBReaderAtlas::ProcessTGCreadout() {
+    void RDBReaderAtlas::ProcessTGCreadout(MYSQL& mysql) {
         MsgStream log(m_msgSvc, "MuGM:RDBReadAtlas");
 
         if (getGeometryVersion().substr(0, 1) == "P") {
@@ -549,7 +548,7 @@ namespace MuonGM {
 
                     auto rpar = std::make_unique<TgcReadoutParams>(name, type, version, wirespacing, nchrng, &(nwgs[0]), &(iwgs1[0]), &iwgs2[0], &iwgs3[0], &roffst[0], &nsps[0],
                                                                    &poffst[0]);
-                    MYSQL::GetPointer()->StoreTgcRPars(rpar.get());
+                    mysql.StoreTgcRPars(rpar.get());
                     m_mgr->storeTgcReadoutParams(std::move(rpar));
                 }
             }
@@ -574,8 +573,6 @@ namespace MuonGM {
             }
 
             log << MSG::INFO << " ProcessTGCreadout - version " << version << " wirespacing " << wirespacing << endmsg;
-
-            MYSQL *mysql = MYSQL::GetPointer();
 
             // loop over the banks of station components: ALMN
             for (unsigned int ich = 0; ich < gglnSize; ++ich) {
@@ -633,7 +630,7 @@ namespace MuonGM {
 
                 auto rpar = std::make_unique<TgcReadoutParams>(name, type, version, wirespacing, nchrng, &(nwgs[0]), &(iwgs1[0]), &iwgs2[0], &iwgs3[0], pdist, &slarge[0],
                                                                &sshort[0], &roffst[0], &nsps[0], &poffst[0]);
-                MYSQL::GetPointer()->StoreTgcRPars(rpar.get());
+                mysql.StoreTgcRPars(rpar.get());
                 m_mgr->storeTgcReadoutParams(std::move(rpar));
 
                 // parameters for TGC inactive inner structure
@@ -645,7 +642,7 @@ namespace MuonGM {
                     Astr << ich + 1;
                 }
                 std::string A = Astr.str();
-                TGC *tgc = (TGC *)mysql->GetTechnology("TGC" + A);
+                TGC *tgc = dynamic_cast<TGC*>(mysql.GetTechnology("TGC" + A));
                 tgc->widthWireSupport = (*ggln)[ich]->getFloat("S1PP");
                 tgc->widthGasChannel = (*ggln)[ich]->getFloat("S2PP");
                 tgc->distanceWireSupport = (*ggln)[ich]->getFloat("WSEP");

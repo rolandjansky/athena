@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeometryJiveXML/GeometryWriter.h"
@@ -10,14 +10,11 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "TileDetDescr/TileDetDescrManager.h"
 
 #include "LArReadoutGeometry/LArDetectorManager.h"
-// #include "GeoModelKernel/GeoPVConstLink.h"
-// #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoTrd.h"
 
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
@@ -34,6 +31,11 @@
 
 namespace JiveXML {
 
+  StatusCode GeometryWriter::initialize()
+  {
+    ATH_CHECK(m_caloMgrKey.initialize());
+    return StatusCode::SUCCESS;
+  }
 
   StatusCode GeometryWriter::writeGeometry() 
   {
@@ -79,7 +81,8 @@ namespace JiveXML {
 
     writeSolenoidGeometry(outputFile);
 
-    if ( detStore()->retrieve(m_calo_manager, "CaloMgr").isFailure() ) {
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    if(!caloMgrHandle.isValid()) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve CaloDetDescrManager" << endmsg;
     } else {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved CaloDetDescrManager" << endmsg;
@@ -110,7 +113,7 @@ namespace JiveXML {
       m_larMax[CaloCell_ID::HEC2] = 203.4;
       m_larMin[CaloCell_ID::HEC3] = 47.5;
       m_larMax[CaloCell_ID::HEC3] = 203.4;
-      writeLArGeometry(outputFile);
+      writeLArGeometry(outputFile,*caloMgrHandle);
     }
 
     if ( detStore()->retrieve(m_tile_manager, "Tile").isFailure() ) {
@@ -610,9 +613,9 @@ namespace JiveXML {
     }
   }
 
-  void GeometryWriter::writeLArGeometry(std::ofstream &out) {
+  void GeometryWriter::writeLArGeometry(std::ofstream &out, const CaloDetDescrManager* caloMgr) {
 
-    const CaloCell_ID *idHelper = m_calo_manager->getCaloCell_ID();
+    const CaloCell_ID *idHelper = caloMgr->getCaloCell_ID();
     CaloDetDescrManager::calo_element_const_iterator it;
 
     // This code is not very efficient in terms of speed. Since it will only be used 
@@ -627,7 +630,7 @@ namespace JiveXML {
 	  double minEta = 0.0;
 	  const CaloDetDescrElement *oneSuchElement = 0;
 
-	  for (it=m_calo_manager->element_begin(); it<m_calo_manager->element_end(); it++) {
+	  for (it=caloMgr->element_begin(); it<caloMgr->element_end(); it++) {
 
 	    const CaloDetDescrElement *element = *it;
 	    int etaIndex, phiIndex;

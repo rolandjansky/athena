@@ -5,37 +5,34 @@ builders with default configuration"""
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 from egammaTools.EMTrackMatchBuilderConfig import EMTrackMatchBuilderCfg
 from egammaTools.EMConversionBuilderConfig import EMConversionBuilderCfg
-from egammaTools.egammaMVACalibConfig import egammaMVASvcCfg
 from egammaTools.egammaSwToolConfig import egammaSwToolCfg
-from egammaCaloTools.egammaCaloToolsConf import egammaCheckEnergyDepositTool
+from egammaMVACalib.egammaMVACalibConfig import egammaMVASvcCfg
 
 
-def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **kwargs):
-
-    from egammaAlgs.egammaAlgsConf import electronSuperClusterBuilder
+def electronSuperClusterBuilderCfg(flags,
+                                   name='electronSuperClusterBuilder',
+                                   **kwargs):
 
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
 
-    if "MVACalibSvc" not in kwargs:
-        mvacal = egammaMVASvcCfg(flags)
-        kwargs["MVACalibSvc"] = mvacal.popPrivateTools()
-        acc.merge(mvacal)
-
     if "TrackMatchBuilderTool" not in kwargs:
         emtrkmatch = EMTrackMatchBuilderCfg(flags)
-        kwargs["TrackMatchBuilderTool"] = emtrkmatch.popPrivateTools()
-        acc.merge(emtrkmatch)
+        kwargs["TrackMatchBuilderTool"] = acc.popToolsAndMerge(emtrkmatch)
 
     if "ClusterCorrectionTool" not in kwargs:
         egswtool = egammaSwToolCfg(flags)
-        kwargs["ClusterCorrectionTool"] = egswtool.popPrivateTools()
-        acc.merge(egswtool)
+        kwargs["ClusterCorrectionTool"] = acc.popToolsAndMerge(egswtool)
+
+    if "MVACalibSvc" not in kwargs:
+        mvacal = egammaMVASvcCfg(flags)
+        kwargs["MVACalibSvc"] = acc.getPrimaryAndMerge(mvacal)
 
     kwargs.setdefault(
         "InputEgammaRecContainerName",
@@ -45,10 +42,9 @@ def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **
         flags.Egamma.Keys.Internal.ElectronSuperRecs)
     kwargs.setdefault(
         "egammaCheckEnergyDepositTool",
-        egammaCheckEnergyDepositTool())
+        CompFactory.egammaCheckEnergyDepositTool())
     kwargs.setdefault("EtThresholdCut", 1000)
-
-    elscAlg = electronSuperClusterBuilder(name, **kwargs)
+    elscAlg = CompFactory.electronSuperClusterBuilder(name, **kwargs)
 
     acc.addEventAlgo(elscAlg)
     return acc
@@ -59,27 +55,24 @@ def photonSuperClusterBuilderCfg(
         name='photonSuperClusterBuilder',
         **kwargs):
 
-    from egammaAlgs.egammaAlgsConf import photonSuperClusterBuilder
-
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
-
-    if "MVACalibSvc" not in kwargs:
-        mvacal = egammaMVASvcCfg(flags)
-        kwargs["MVACalibSvc"] = mvacal.popPrivateTools()
-        acc.merge(mvacal)
+    photonSuperClusterBuilder = CompFactory.photonSuperClusterBuilder
+    egammaCheckEnergyDepositTool = CompFactory.egammaCheckEnergyDepositTool
 
     if "ConversionBuilderTool" not in kwargs:
         emcnv = EMConversionBuilderCfg(flags)
-        kwargs["ConversionBuilderTool"] = emcnv.popPrivateTools()
-        acc.merge(emcnv)
+        kwargs["ConversionBuilderTool"] = acc.popToolsAndMerge(emcnv)
 
     if "ClusterCorrectionTool" not in kwargs:
         egswtool = egammaSwToolCfg(flags)
-        kwargs["ClusterCorrectionTool"] = egswtool.popPrivateTools()
-        acc.merge(egswtool)
+        kwargs["ClusterCorrectionTool"] = acc.popToolsAndMerge(egswtool)
+
+    if "MVACalibSvc" not in kwargs:
+        mvacal = egammaMVASvcCfg(flags)
+        kwargs["MVACalibSvc"] = acc.getPrimaryAndMerge(mvacal)
 
     kwargs.setdefault(
         "InputEgammaRecContainerName",
@@ -95,3 +88,31 @@ def photonSuperClusterBuilderCfg(
 
     acc.addEventAlgo(phscAlg)
     return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    flags.Input.Files = defaultTestFiles.RDO
+
+    acc = MainServicesCfg(flags)
+    acc.merge(electronSuperClusterBuilderCfg(flags))
+    mlog = logging.getLogger("egammaSuperClusterBuilderConfigTest")
+    mlog.info("Configuring  electronSuperClusterBuilder: ")
+    printProperties(mlog,
+                    acc.getEventAlgo("electronSuperClusterBuilder"),
+                    nestLevel=1,
+                    printDefaults=True)
+    acc.merge(photonSuperClusterBuilderCfg(flags))
+    mlog.info("Configuring  photonSuperClusterBuilder: ")
+    printProperties(mlog,
+                    acc.getEventAlgo("photonSuperClusterBuilder"),
+                    nestLevel=1,
+                    printDefaults=True)
+
+    with open("egammasuperclusterbuilder.pkl", "wb") as f:
+        acc.store(f)

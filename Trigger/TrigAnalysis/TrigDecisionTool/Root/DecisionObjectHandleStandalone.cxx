@@ -9,9 +9,9 @@
 #include "AsgDataHandles/ReadHandle.h"
 
 // Include for the event store type:
-#ifdef XAOD_STANDALONE
+#ifdef XAOD_STANDALONE // AnalysisBase
 #   include "AsgTools/SgTEvent.h"
-#elif !defined(XAOD_STANDALONE)
+#elif !defined(XAOD_STANDALONE) // AthAnalysis or full Athena
 #   include "StoreGate/StoreGateSvc.h"
 #else
 #   error "Wrong environment configuration detected!"

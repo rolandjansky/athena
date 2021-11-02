@@ -28,6 +28,8 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArFebRodMapping.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRecConditions/LArRoIMap.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc> {
  public:
@@ -62,9 +64,6 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   PublicToolHandle<LArRodDecoder> m_larDecoder { this, "LArDecoderTool", "LArRodDecoder/LArRodDecoder", "Tool to decode LAr raw data" };
   PublicToolHandle<TileROD_Decoder> m_tileDecoder { this, "TileDecoderTool", "TileROD_Decoder/TileROD_Decoder", "Tool to decode Tile raw data" };
 
-  //!< LArRoI_Map used by LArTT_Selector, TB this is apparently a tool!
-  PublicToolHandle<LArRoI_Map> m_roiMapTool { this, "LArRoIMapTool", "LArRoI_Map/LArRoI_Map", "Tool used by selectors" };           
-
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Tool to monitor performance of the service" };
 
   ServiceHandle<IROBDataProviderSvc>  m_robDataProvider{ this, "ROBDataProvider", "ROBDataProviderSvc/ROBDataProviderSvc", ""};
@@ -85,6 +84,10 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
    {this, "RodFebKey", "LArFebRodMap", "SG Key for LArFebRodMapping"} ;
   SG::ReadCondHandleKey<LArBadChannelCont> m_bcContKey
    {this, "LArBadChannelKey", "LArBadChannel", "Key of the LArBadChannelCont CDO" };
+  SG::ReadCondHandleKey<LArRoIMap> m_larRoIMapKey
+   {this, "LArRoIMapKey", "LArRoIMap", "Key of the LArRoIMap CDO" };
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+   {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
   void reset_LArCol ( LArCellCollection* coll ){
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)

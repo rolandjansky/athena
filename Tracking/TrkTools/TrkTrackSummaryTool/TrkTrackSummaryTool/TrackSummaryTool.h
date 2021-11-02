@@ -238,11 +238,10 @@ private:
   ToolHandle<IExtendedTrackSummaryHelperTool>
     m_muonTool{ this, "MuonSummaryHelperTool", "", "" };
 
-  /** controls whether holes on track are produced
+  /** controls whether holes on track in MS are produced
       Turning this on will (slightly) increase processing time.*/
   Gaudi::Property<bool> m_doHolesMuon{ this, "doHolesMuon", false, "" };
-  /** For the InDet it is switched on automatically as soon as the
-   * HoleSearchTool is given */
+  /** controls whether holes on track in ID are produced */
   Gaudi::Property<bool> m_doHolesInDet{ this, "doHolesInDet", false, "" };
   /** controls whether shared hits in Pix+SCT are produced
      Turning this on will increase processing time.*/

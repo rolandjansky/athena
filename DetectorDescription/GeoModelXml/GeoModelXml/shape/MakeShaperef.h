@@ -15,7 +15,7 @@
 class MakeShaperef: public Element2GeoItem {
 public:
 //    MakeShaperef() {};
-    const RCBase * process(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const;
+    RCBase * process(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const;
 };
 
 #endif // GEO_MODEL_XML_MAKE_SHAPEREF_H

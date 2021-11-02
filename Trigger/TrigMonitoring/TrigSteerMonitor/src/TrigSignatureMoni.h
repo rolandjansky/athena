@@ -20,6 +20,7 @@
 #include "DecisionCollectorTool.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 #include "TrigConfData/DataStructure.h"
 
 #include "TimeDivider.h"
@@ -92,6 +93,7 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalDecisionKey{ this, "FinalDecisionKey", "HLTNav_Summary", "Final stage of all decisions" };
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{ this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu" };
   SG::ReadHandleKey<TrigConf::L1Menu> m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
+  SG::ReadHandleKey<TrigConf::L1BunchGroupSet> m_L1BunchGroupKey{ this, "L1BunchGroup", "DetectorStore+L1BunchGroup", "L1 BunchGroup" };
   
   ServiceHandle<IIncidentSvc> m_incidentSvc{ this, "IncidentSvc", "IncidentSvc", "Incident service"};
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
@@ -143,15 +145,15 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
   // Returns number of base steps: in, after ps, out steps
   int nBaseSteps() const;
 
-  // Returns number of bunchgroups from l1 menu
-  int nBunchGroups(SG::ReadHandle<TrigConf::L1Menu>& ) const;
+  // Returns number of bunchgroups from L1 BunchGroupSet
+  int nBunchGroups(SG::ReadHandle<TrigConf::L1BunchGroupSet>& ) const;
 
   // Returns number of BCID chains to monitor
   int nBCIDchains() const;
 
   // Init different types of histograms
   StatusCode initHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
-  StatusCode initBunchHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1Menu>&);
+  StatusCode initBunchHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1BunchGroupSet>&);
   StatusCode initBCIDhist(LockedHandle<TH2>&, const std::vector<std::string>&);
   StatusCode initSeqHist(LockedHandle<TH2>&, std::set<std::string>&);
   

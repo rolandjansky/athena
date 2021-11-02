@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_H
@@ -9,6 +9,7 @@
 
 #define RPCprint false
 namespace MuonGM {
+    class MYSQL;
 
     class RPC : public Technology {
       public:
@@ -114,8 +115,8 @@ namespace MuonGM {
         double zNumberOfStripsReadouts;
         double sGasGapsNumber;
 
-        RPC(std::string s)
-            : Technology(s), externalSupPanelThickness(0.), externalAlSupPanelThickness(0.), lowerSupPanelThickness(0.), lowerAlSupPanelThickness(0.), upperSupPanelThickness(0.),
+        RPC(MYSQL& mysql, const std::string& s)
+            : Technology(mysql, s), externalSupPanelThickness(0.), externalAlSupPanelThickness(0.), lowerSupPanelThickness(0.), lowerAlSupPanelThickness(0.), upperSupPanelThickness(0.),
               upperAlSupPanelThickness(0.), centralSupPanelThickness(0.), centralAlSupPanelThickness(0.), rpcLayerThickness(0.), TotalThickness(0.), NGasGaps_in_s(0),
               NGasGaps_in_z(0), GasGapThickness(0.), bakeliteThickness(0.), bakeliteframesize(0.), bakelitePetThickness(0.), gasThickness(0.), totalAirThickness(0.),
               spacerDiameter(0.), spacerPitch(0.), petFoilThickness(0.), NstripPanels_in_s(0), NstripPanels_in_z(0), MidChamberDeadRegion_in_s(0.), MidChamberDeadRegion_in_z(0.),

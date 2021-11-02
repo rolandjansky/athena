@@ -16,7 +16,6 @@ from TrigEgammaKeys import getTrigEgammaKeys
 
 TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
 
-
 class TrigEgammaKeys_LRT(object):
       """Static class to collect all string manipulation in Electron_LRT sequences """
       outputElectronKey_LRT = recordable('HLT_egamma_Electrons_LRT')
@@ -35,7 +34,7 @@ class TrigEgammaKeys_GSF(object):
 def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
     # We should include the DNN here
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/offline/'+TrigEgammaKeys.dnnVersion
+      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.dnnVersion
   
     import collections
     SelectorNames = collections.OrderedDict({

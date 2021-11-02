@@ -10,9 +10,11 @@
 
 namespace MuonGM {
 
-    DBReader::DBReader(StoreGateSvc * /*pDetStore*/) : m_mgr(0) {
-        m_SCdbaccess = StatusCode::SUCCESS;
-        m_msgSvc = Athena::getMessageSvc();
+    DBReader::DBReader(StoreGateSvc * /*pDetStore*/) :
+      m_SCdbaccess (StatusCode::SUCCESS),
+      m_mgr(0),
+      m_msgSvc (Athena::getMessageSvc())
+    {
     }
 
     void DBReader::setGeometryVersion(std::string geoVersion) { m_version = std::move(geoVersion); }

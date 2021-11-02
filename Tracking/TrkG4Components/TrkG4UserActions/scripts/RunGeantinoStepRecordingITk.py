@@ -10,7 +10,6 @@ from AthenaCommon.Configurable import Configurable
 from AthenaCommon.Logging import log
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Set up logging and new style config

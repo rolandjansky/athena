@@ -15,7 +15,7 @@ def LArDelay_OFCCaliCfg(flags):
     digKey=gainStrMap[flags.LArCalib.Gain]
 
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     tagResolver=FolderTagResolver()
     pedestalTag=tagResolver.getFolderTag(flags.LArCalib.Pedestal.Folder)
     caliWaveTag=tagResolver.getFolderTag(flags.LArCalib.CaliWave.Folder)
@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     ConfigFlags.LArCalib.Output.ROOTFile="ofccali.root"
 
-    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDDBR2"
+    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDBR2"
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
     print ("Input files to be processed:")

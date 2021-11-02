@@ -25,7 +25,7 @@ StatusCode TrigMuonTruthMonMT :: initialize(){
 }
 
 StatusCode TrigMuonTruthMonMT :: fillVariablesPerChain(const EventContext &ctx, const std::string &chain) const {
-  ATH_MSG_INFO ("Filling muon truth monitoring histograms for " << name() << "...");
+  ATH_MSG_DEBUG ("Filling muon truth monitoring histograms for " << name() << "...");
 
   SG::ReadHandle<xAOD::TruthParticleContainer> truthMuons(m_muonTruthParticlesKey, ctx);
   

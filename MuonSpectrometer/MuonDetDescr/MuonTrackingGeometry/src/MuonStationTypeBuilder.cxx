@@ -2336,7 +2336,8 @@ std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> Muon::MuonSt
     } else if (trdBounds) {
         double thickness = 2 * trdBounds->halflengthZ();
         double sf = 2 * (trdBounds->minHalflengthX() + trdBounds->maxHalflengthX()) * trdBounds->halflengthY();
-        const std::vector<const Trk::Surface*>* surfs = trdBounds->decomposeToSurfaces(Trk::s_idTransform);
+        const std::vector<const Trk::Surface*>* surfs = 
+          const_cast<Trk::TrapezoidVolumeBounds*>(trdBounds)->decomposeToSurfaces(Trk::s_idTransform);
         const Trk::TrapezoidBounds* tbounds = dynamic_cast<const Trk::TrapezoidBounds*>(&(*(surfs))[0]->bounds());
         Trk::SharedObject<const Trk::SurfaceBounds> bounds(new Trk::TrapezoidBounds(*tbounds));
         Trk::OverlapDescriptor* od = nullptr;
@@ -2369,7 +2370,8 @@ std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> Muon::MuonSt
         double thickness = 2 * dtrdBounds->halflengthZ();
         double sf = 2 * (dtrdBounds->minHalflengthX() + dtrdBounds->medHalflengthX()) * dtrdBounds->halflengthY1() +
                     2 * (dtrdBounds->medHalflengthX() + dtrdBounds->maxHalflengthX()) * dtrdBounds->halflengthY2();
-        const std::vector<const Trk::Surface*>* surfs = dtrdBounds->decomposeToSurfaces(Trk::s_idTransform);
+        const std::vector<const Trk::Surface*>* surfs = 
+          const_cast<Trk::DoubleTrapezoidVolumeBounds*>(dtrdBounds)->decomposeToSurfaces(Trk::s_idTransform);
         const Trk::DiamondBounds* dbounds = dynamic_cast<const Trk::DiamondBounds*>(&(*(surfs))[0]->bounds());
         Trk::SharedObject<const Trk::SurfaceBounds> bounds(new Trk::DiamondBounds(*dbounds));
         Trk::OverlapDescriptor* od = nullptr;
@@ -2611,14 +2613,16 @@ Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const MuonGM::MuonDetector
             Amg::Vector3D mtg_pos = (transf * subt * trVol->transform()).translation();
             transf *= Amg::Translation3D(mrg_pos - mtg_pos);
         } else {
-            const std::vector<const Trk::Surface*>* surfs = trdBounds->decomposeToSurfaces(Amg::Transform3D(Trk::s_idTransform));
+            const std::vector<const Trk::Surface*>* surfs = 
+              const_cast<Trk::TrapezoidVolumeBounds*>(trdBounds)->decomposeToSurfaces(Amg::Transform3D(Trk::s_idTransform));
             const Trk::TrapezoidBounds* tbounds = dynamic_cast<const Trk::TrapezoidBounds*>(&(*(surfs))[0]->bounds());
             Trk::SharedObject<const Trk::SurfaceBounds> bounds(new Trk::TrapezoidBounds(*tbounds));
             layer = new Trk::PlaneLayer(Amg::Transform3D(subt * trVol->transform()), bounds, mat, thickness, od, 1);
         }
     } else if (dtrdBounds) {
         double thickness = 2 * dtrdBounds->halflengthZ();
-        const std::vector<const Trk::Surface*>* surfs = dtrdBounds->decomposeToSurfaces(Amg::Transform3D(Trk::s_idTransform));
+        const std::vector<const Trk::Surface*>* surfs = 
+          const_cast<Trk::DoubleTrapezoidVolumeBounds*>(dtrdBounds)->decomposeToSurfaces(Amg::Transform3D(Trk::s_idTransform));
         const Trk::DiamondBounds* dbounds = dynamic_cast<const Trk::DiamondBounds*>(&(*(surfs))[0]->bounds());
         Trk::SharedObject<const Trk::SurfaceBounds> bounds(new Trk::DiamondBounds(*dbounds));
         Trk::OverlapDescriptor* od = nullptr;

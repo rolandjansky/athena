@@ -13,14 +13,17 @@
 namespace InDetDD
 {
 
-ITkPixelReadoutManager::ITkPixelReadoutManager(const std::string &name,
-                                               ISvcLocator *svc)
+namespace ITk
+{
+
+PixelReadoutManager::PixelReadoutManager(const std::string &name,
+                                         ISvcLocator *svc)
   : base_class(name, svc)
 {
 }
 
 
-StatusCode ITkPixelReadoutManager::initialize()
+StatusCode PixelReadoutManager::initialize()
 {
   ATH_MSG_DEBUG("ITkPixelReadoutManager::initialize()");
 
@@ -32,7 +35,7 @@ StatusCode ITkPixelReadoutManager::initialize()
 }
 
 
-PixelModuleType ITkPixelReadoutManager::getModuleType(Identifier id) const
+PixelModuleType PixelReadoutManager::getModuleType(Identifier id) const
 {
   const Identifier wafer_id = m_idHelper->wafer_id(id);
   const SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
@@ -54,7 +57,7 @@ PixelModuleType ITkPixelReadoutManager::getModuleType(Identifier id) const
 }
 
 
-PixelDiodeType ITkPixelReadoutManager::getDiodeType(Identifier id) const
+PixelDiodeType PixelReadoutManager::getDiodeType(Identifier id) const
 {
   const Identifier wafer_id = m_idHelper->wafer_id(id);
   const SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
@@ -98,19 +101,19 @@ PixelDiodeType ITkPixelReadoutManager::getDiodeType(Identifier id) const
 }
 
 
-Identifier ITkPixelReadoutManager::getPixelIdfromHash(IdentifierHash offlineIdHash,
-                                                      uint32_t FE,
-                                                      uint32_t row,
-                                                      uint32_t column) const
+Identifier PixelReadoutManager::getPixelIdfromHash(IdentifierHash offlineIdHash,
+                                                   uint32_t FE,
+                                                   uint32_t row,
+                                                   uint32_t column) const
 {
   return getPixelId(m_idHelper->wafer_id(offlineIdHash), FE, row, column);
 }
 
 
-Identifier ITkPixelReadoutManager::getPixelId(Identifier offlineId,
-                                              uint32_t FE,
-                                              uint32_t row,
-                                              uint32_t column) const
+Identifier PixelReadoutManager::getPixelId(Identifier offlineId,
+                                           uint32_t FE,
+                                           uint32_t row,
+                                           uint32_t column) const
 {
   const SiDetectorElement *element = m_detManager->getDetectorElement(offlineId);
   const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign *>(&element->design());
@@ -163,8 +166,8 @@ Identifier ITkPixelReadoutManager::getPixelId(Identifier offlineId,
 }
 
 
-uint32_t ITkPixelReadoutManager::getFE(Identifier diodeId,
-                                       Identifier offlineId) const
+uint32_t PixelReadoutManager::getFE(Identifier diodeId,
+                                    Identifier offlineId) const
 {
   const SiDetectorElement *element = m_detManager->getDetectorElement(offlineId);
   const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign *>(&element->design());
@@ -206,8 +209,8 @@ uint32_t ITkPixelReadoutManager::getFE(Identifier diodeId,
 }
 
 
-uint32_t ITkPixelReadoutManager::getColumn(Identifier diodeId,
-                                           Identifier offlineId) const
+uint32_t PixelReadoutManager::getColumn(Identifier diodeId,
+                                        Identifier offlineId) const
 {
   const SiDetectorElement *element = m_detManager->getDetectorElement(offlineId);
   const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign *>(&element->design());
@@ -241,8 +244,8 @@ uint32_t ITkPixelReadoutManager::getColumn(Identifier diodeId,
 }
 
 
-uint32_t ITkPixelReadoutManager::getRow(Identifier diodeId,
-                                        Identifier offlineId) const
+uint32_t PixelReadoutManager::getRow(Identifier diodeId,
+                                     Identifier offlineId) const
 {
   const SiDetectorElement *element = m_detManager->getDetectorElement(offlineId);
   const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign *>(&element->design());
@@ -286,4 +289,5 @@ uint32_t ITkPixelReadoutManager::getRow(Identifier diodeId,
   return row;
 }
 
+} // namespace ITk
 } // namespace InDetDD

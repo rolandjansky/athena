@@ -102,7 +102,6 @@ if 'PixelDigitization' in dir(job):
     #
     # for cosmics only!
     #    
-    #job.PixelDigitization.UseComTime = True    # default False
     #job.PixelDigitization.TimeZero = -300.     # default 30
     #job.PixelDigitization.TimeBCN = 24         # default 5
 

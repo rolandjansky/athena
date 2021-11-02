@@ -33,9 +33,11 @@ class IjFEXPileupAndNoise : virtual public IAlgTool {
         virtual std::unordered_map<int,std::vector<int> > Get_EM_Et_values() =0;        
         virtual std::unordered_map<int,std::vector<int> > Get_HAD_Et_values() =0;        
         
-        virtual std::vector<int> CalculatePileup() =0;
-        virtual void ApplyPileupJets() =0;
-        virtual void ApplyPileupMet()  =0;        
+        virtual std::vector<float> CalculatePileup() =0;
+        virtual void ApplyPileup2Jets(bool) =0;
+        virtual void ApplyPileup2Met(bool)  =0;        
+        virtual void ApplyNoise2Jets(bool) =0;
+        virtual void ApplyNoise2Met(bool)  =0;     
         
     private:
 

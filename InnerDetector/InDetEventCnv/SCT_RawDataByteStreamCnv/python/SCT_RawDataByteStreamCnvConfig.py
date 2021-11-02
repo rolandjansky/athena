@@ -4,8 +4,10 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from InDetConfig.InDetRecToolConfig import SCT_CablingToolCfg, SCT_ConfigurationConditionsToolCfg
+from SCT_Cabling.SCT_CablingConfig import SCT_CablingToolCfg
+from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConfigurationConditionsToolCfg
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+
 
 def SCT_RodDecoderCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()
@@ -16,12 +18,14 @@ def SCT_RodDecoderCfg(flags, prefix="InDet", suffix="", **kwargs):
                                                    **kwargs))
     return acc
 
+
 def SCTRawDataProviderToolCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("Decoder", acc.popToolsAndMerge(SCT_RodDecoderCfg(flags, prefix=prefix, suffix=suffix)))
     acc.setPrivateTools(CompFactory.SCTRawDataProviderTool(name=prefix+"SCTRawDataProviderTool"+suffix,
                                                            **kwargs))
     return acc
+
 
 def SCTRawDataProviderCfg(flags, prefix="InDet", suffix="", **kwargs):
     """ Configures the main algorithm for SCT raw data decoding """
@@ -30,6 +34,15 @@ def SCTRawDataProviderCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc.addEventAlgo(CompFactory.SCTRawDataProvider(name=prefix+"SCTRawDataProvider"+suffix,
                                                     **kwargs))
     return acc
+
+
+def SCTOverlayRawDataProviderCfg(flags, prefix="InDet", suffix="", **kwargs):
+    """ Configures the main algorithm for SCT raw data decoding for data overlay """
+    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "SCT_RDOs")
+    kwargs.setdefault("LVL1IDKey", flags.Overlay.BkgPrefix + "SCT_LVL1ID")
+    kwargs.setdefault("BCIDKey", flags.Overlay.BkgPrefix + "SCT_BCID")
+    return SCTRawDataProviderCfg(flags, prefix, suffix, **kwargs)
+
 
 def SCTEventFlagWriterCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()

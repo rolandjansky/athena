@@ -10,7 +10,7 @@
 # Navigation graphs can be converted from the dot format to pdf using:
 # dot -Tpdf input.dot -o output.pdf
 # or for all the files: 
-# for f in *dot; do dot -Tpdf $f -o ${f/dot/pdf} ; done
+
 
 from Gaudi.Configuration import *
 

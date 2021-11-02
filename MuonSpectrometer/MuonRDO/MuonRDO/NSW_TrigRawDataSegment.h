@@ -16,6 +16,9 @@ class NSW_TrigRawDataSegment
  public:
   NSW_TrigRawDataSegment();
 
+  NSW_TrigRawDataSegment(uint8_t deltaTheta, uint8_t phiIndex, uint8_t rIndex, uint8_t spare,
+			 bool lowRes, bool phiRes, bool monitor);
+
   NSW_TrigRawDataSegment(uint8_t deltaTheta, uint8_t phiIndex, uint8_t rIndex,
 			 bool lowRes, bool phiRes);
 
@@ -24,19 +27,32 @@ class NSW_TrigRawDataSegment
   uint8_t deltaTheta() {return m_deltaTheta;}
   uint8_t phiIndex() {return m_phiIndex;}
   uint8_t rIndex() {return m_rIndex;}
+  uint8_t spare() {return m_spare;}
 
   bool lowRes()   {return m_lowRes;}
   bool phiRes()   {return m_phiRes;}
+  bool monitor()  {return m_monitor;}
 
+  void setDeltaTheta(uint8_t deltaTheta) { m_deltaTheta=deltaTheta; }
+  void setPhiIndex(uint8_t phiIndex)     { m_phiIndex=phiIndex; }
+  void setRIndex(uint8_t rIndex) { m_rIndex=rIndex; }
+  void setSpare(uint8_t spare) {m_spare=spare; }
+
+  void setLowRes(bool lowRes)   {m_lowRes=lowRes;}
+  void setPhiRes(bool phiRes)   {m_phiRes=phiRes;}
+  void setMonitor(bool monitor) {m_monitor=monitor;}
 
  private:
 
   uint8_t m_deltaTheta;
   uint8_t m_phiIndex;
   uint8_t m_rIndex;
+  
+  uint8_t m_spare;
 
   bool m_lowRes;
   bool m_phiRes;
+  bool m_monitor;
 
 };
 }

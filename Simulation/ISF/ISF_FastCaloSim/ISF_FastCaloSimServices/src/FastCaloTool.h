@@ -24,7 +24,6 @@
 //ISF
 #include "ISF_Interfaces/BaseSimulatorTool.h"
 #include "ISF_Event/ISFParticleContainer.h"
-#include "ISF_FastCaloSimInterfaces/IPunchThroughTool.h"
 #include "ISF_Interfaces/ITruthSvc.h"
 
 // Tracking includes
@@ -61,11 +60,11 @@ public:
 
   virtual StatusCode setupEventST() override;
 
-  virtual StatusCode setupEvent() override;
+  virtual StatusCode setupEvent(const EventContext&) override;
 
   virtual StatusCode releaseEventST() override;
 
-  virtual StatusCode releaseEvent() override;
+  virtual StatusCode releaseEvent(const EventContext&) override;
 
   virtual SimulationFlavor simFlavor() const override { return ISF::FastCaloSim; };
 private:
@@ -95,8 +94,6 @@ private:
 
     // authorise input to be the same as output (to be done with care)
     bool m_caloCellHack{false};
-    //check if punch through simulation is used
-    bool m_doPunchThrough{false};
 
     Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
 
@@ -104,7 +101,6 @@ private:
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_setup{this, "CaloCellMakerTools_setup", {}, ""};
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_simulate{this, "CaloCellMakerTools_simulate", {}, ""};
     PublicToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_release{this, "CaloCellMakerTools_release", {}, ""};
-    PublicToolHandle< IPunchThroughTool > m_punchThroughTool{this, "PunchThroughTool", "", ""};
     CaloCellContainer *                 m_theContainer{};
 
   SG::WriteHandleKey< CaloCellContainer > m_caloCellKey{ this, "CaloCells", "DefaultCaloCellContainer", "The name of the output CaloCellContainer" };

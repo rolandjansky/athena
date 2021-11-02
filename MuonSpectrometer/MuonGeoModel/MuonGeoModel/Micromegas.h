@@ -27,9 +27,12 @@ namespace MuonGM {
         int index;
 
         Micromegas(Component *s);
-        GeoFullPhysVol *build(int minimalgeo);
-        GeoFullPhysVol *build(int minimalgeo, int cutoutson, const std::vector<Cutout *>&);
-        void print();
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              int minimalgeo);
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              int minimalgeo, int cutoutson,
+                              const std::vector<Cutout *>&);
+        virtual void print() override;
 
       private:
         MicromegasComponent *m_component;

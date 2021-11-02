@@ -18,10 +18,6 @@ def LVL1InterfacesMonitoringCfg(flags):
     if not flags.DQ.triggerDataAvailable:
         return result
 
-    # to deal with trigger menu updates                                                                                                    
-    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
-    result.merge(L1ConfigSvcCfg(flags))
-
     isData = not flags.Input.isMC
 
     # monitoring algorithm configs

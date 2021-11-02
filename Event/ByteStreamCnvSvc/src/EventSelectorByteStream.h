@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSELECTORBYTESTREAM_H
@@ -132,9 +132,9 @@ protected:
    //-------------------------------------------------
    // ISecondaryEventSelector
    /// Handle file transition at the next iteration
-   virtual StatusCode nextHandleFileTransition(IEvtSelector::Context& it) const override;
-   /// Sync event count
-   virtual void syncEventCount(int count) const override;
+   virtual StatusCode nextHandleFileTransition(IEvtSelector::Context& ctxt) const override;
+   /// Go to next event and skip if necessary
+   virtual StatusCode nextWithSkip(IEvtSelector::Context& ctxt) const override;
    /// Record AttributeList in StoreGate
    virtual StatusCode recordAttributeList() const override;
    /// Fill AttributeList with specific items from the selector and a suffix
@@ -147,8 +147,10 @@ private: // internal member functions
    StatusCode nextImpl(Context& it, int jump, lock_t& lock) const;
    StatusCode previousImpl(Context& it, lock_t& lock) const;
    StatusCode previousImpl(Context& it, int jump, lock_t& lock) const;
-   StatusCode nextHandleFileTransitionImpl(IEvtSelector::Context& it,
+   StatusCode nextHandleFileTransitionImpl(IEvtSelector::Context& ctxt,
                                            lock_t& lock) const;
+   StatusCode nextWithSkipImpl(IEvtSelector::Context& ctxt,
+                               lock_t& lock) const;
    StatusCode recordAttributeListImpl(lock_t& lock) const;
    StatusCode fillAttributeListImpl(coral::AttributeList *attrList, const std::string &suffix, bool copySource,
                                     lock_t& lock) const;

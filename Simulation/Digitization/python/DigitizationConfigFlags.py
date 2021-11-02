@@ -51,7 +51,7 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.PileUp", False)
     # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
     flags.addFlag("Digitization.TRTRangeCut",
-                  lambda prevFlags: float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 0.05)))
+                  lambda prevFlags: float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 30.0)))
     # Temporary TGC flag
     flags.addFlag("Digitization.UseUpdatedTGCConditions", False)
     # Write out truth information?
@@ -71,8 +71,10 @@ def createDigitizationCfgFlags():
     # Beam spot reweighting (-1 disables it)
     flags.addFlag("Digitization.InputBeamSigmaZ", -1)
 
-    # Run radiation damage simulation
-    flags.addFlag("Digitization.DoRadiationDamage", False)
+    # Run radiation damage simulation for pixel planar sensors
+    flags.addFlag("Digitization.DoPixelPlanarRadiationDamage", False)
+    # Run radiation damage simulation for pixel 3D sensors
+    flags.addFlag("Digitization.DoPixel3DRadiationDamage", False)
 
     # for PileUp digitization
     # Bunch structure configuration

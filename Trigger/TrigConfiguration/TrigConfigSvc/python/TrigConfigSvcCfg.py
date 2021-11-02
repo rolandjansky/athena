@@ -90,7 +90,7 @@ def getTrigConfigFromFlag( flags ):
         lbNumber = flags.Input.LumiBlockNumber[0]
         if dbconn == "":
             dbconn = getTrigConfFromCool(runNumber, lbNumber)["DB"]
-        if dbconn in ["TRIGGERDBR3","TRIGGERDBR2", "TRIGGERDB_RUN3", "TRIGGERDBDEV1_I8", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
+        if dbconn in ["TRIGGERDB_RUN3", "TRIGGERDBDEV1_I8", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
             d = getTrigConfFromCool(runNumber, lbNumber)            
             if smk is None:
                 smk = d["SMK"]
@@ -235,11 +235,9 @@ def L1ConfigSvcCfg( flags ):
         else:
             l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS = generateL1Menu( flags )
 
-        l1ConfigSvc.ConfigSource = "none"
-        l1ConfigSvc.InputType = "file"
-        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='file', JsonFileName=%s and JsonFileNameBGS=%s", l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS )
+        l1ConfigSvc.InputType = "FILE"
+        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='FILE', JsonFileName=%s and JsonFileNameBGS=%s", l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS )
     elif cfg["SOURCE"] == "DB":
-        l1ConfigSvc.ConfigSource = "none"
         l1ConfigSvc.InputType = "DB"
         l1ConfigSvc.JsonFileName = ""
         l1ConfigSvc.TriggerDB = cfg["DBCONN"]
@@ -267,12 +265,10 @@ def HLTConfigSvcCfg( flags ):
                                          lb = flags.Input.LumiBlockNumber[0])
             hltConfigSvc.SMK = dbKeys['SMK']
 
-        hltConfigSvc.ConfigSource = "none"
-        hltConfigSvc.InputType = "file"
+        hltConfigSvc.InputType = "FILE"
         hltConfigSvc.JsonFileName = getHLTMenuFileName( flags )
-        log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltConfigSvc.JsonFileName )
+        log.info( "Configured HLTConfigSvc with InputType='FILE' and JsonFileName=%s", hltConfigSvc.JsonFileName )
     elif cfg["SOURCE"] == "DB":
-        hltConfigSvc.ConfigSource = "none"
         hltConfigSvc.InputType = "DB"
         hltConfigSvc.JsonFileName = ""
         hltConfigSvc.TriggerDB = cfg["DBCONN"]

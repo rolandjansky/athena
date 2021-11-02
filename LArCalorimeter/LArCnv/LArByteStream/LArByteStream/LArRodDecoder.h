@@ -29,10 +29,7 @@
 
 
 #include "LArByteStream/LArRodBlockStructure.h"
-#include "LArRecUtils/MakeLArCellFromRaw.h"
 #include "CaloUtils/CaloCellCorrection.h"
-
-#include "LArRawUtils/LArRoI_Map.h"
 
 #include "ByteStreamData/RawEvent.h" 
 #include "LArRecEvent/LArFebEnergy.h" 
@@ -228,7 +225,6 @@ private:
   
   SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
   float	m_LArCellEthreshold ;
-  bool m_larCell; // set to True if it is used for ConvertingLArCell 
   bool m_readtdc; // set to True if the tdc phase is read from the upper byte of the nsamples word.
   bool m_febExchange; //HW cause, can not be fixed otherwise: Ugly hack for swapped FEB
   unsigned int m_febId1, m_febId2, m_febIdHLT = 0U;
@@ -247,7 +243,6 @@ private:
   std::vector<unsigned int> m_vFinalPreselection;
   uint32_t m_StatusMask, m_StatusNMask = 0U;
   const LArOnlineID*       m_onlineHelper; 
-  MakeLArCellFromRaw m_makeCell;  
   std::vector<std::string> m_LArCellCorrNames;
   std::vector<unsigned int> m_IgnoreCheckFEBs;
   std::vector<const CaloCellCorrection*> m_LArCellCorrTools;
@@ -259,7 +254,6 @@ private:
   bool m_MultiDSPMode;
   bool m_CheckSum;
   unsigned short m_requiredPhysicsNSamples;
-
 } ; 
 
 template <class T>
@@ -343,7 +337,6 @@ uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
     ATH_MSG_DEBUG("Setting the Gain Problem");
   }
 
-  //LArRoI_Map::TT_ID ttId;
   int feb_number=0;
   do //Loop over FEB's
     {

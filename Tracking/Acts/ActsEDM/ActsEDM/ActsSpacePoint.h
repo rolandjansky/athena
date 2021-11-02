@@ -8,6 +8,7 @@
 #define ACTSEDM_SPACEPOINT_H 1
 
 #include "ActsEDM/ActsSpacePointData.h"
+#include <boost/container/static_vector.hpp>
 
 namespace ActsTrk {
   
@@ -18,20 +19,19 @@ namespace ActsTrk {
     SpacePoint(const Eigen::MatrixBase<position_t>& pos,
 	       const Eigen::MatrixBase<variance_t>& var,
 	       SpacePointData& data,
-	       std::size_t measIndex);
+	       const boost::container::static_vector<std::size_t, 2>& measIndexes);
     
-    
-    inline double x() const;
-    inline double y() const;
-    inline double z() const;
-    inline double varianceR() const;
-    inline double varianceZ() const;
+    double x() const;
+    double y() const;
+    double z() const;
+    double varianceR() const;
+    double varianceZ() const;
 
-    inline std::size_t measurementIndex() const;
+    const boost::container::static_vector<std::size_t, 2>& measurementIndexes() const;
 
   private:
     std::size_t m_index;
-    std::size_t m_measurementIndex;
+    boost::container::static_vector<std::size_t, 2> m_measurementIndexes;
     SpacePointData* m_data;
   };
   
@@ -39,8 +39,8 @@ namespace ActsTrk {
   SpacePoint::SpacePoint(const Eigen::MatrixBase<position_t>& pos,
 			 const Eigen::MatrixBase<variance_t>& var,
 			 SpacePointData& data,
-			 std::size_t measIndex) 
-    : m_measurementIndex(measIndex),
+			 const boost::container::static_vector<std::size_t, 2>& measIndexes)
+    : m_measurementIndexes(measIndexes),
       m_data(&data)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(position_t, 3);
@@ -55,7 +55,7 @@ namespace ActsTrk {
   inline double SpacePoint::varianceR() const { return m_data->varianceR(m_index); }
   inline double SpacePoint::varianceZ() const { return m_data->varianceZ(m_index); }
 
-  std::size_t SpacePoint::measurementIndex() const { return m_measurementIndex; }
+  inline const boost::container::static_vector<std::size_t, 2>& SpacePoint::measurementIndexes() const { return m_measurementIndexes; }
 } // Acts namespace
 
 #include "AthContainers/DataVector.h"

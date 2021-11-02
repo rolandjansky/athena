@@ -28,7 +28,7 @@ elif 'Hijing' in evgenConfig.generators:
     genSeq.Hijing.OutputLevel = DEBUG
 
 if 'EvtGen' in evgenConfig.generators:
-    genSeq.EvtGen.OutputLevel = DEBUG     
+    genSeq.EvtInclusiveDecay.OutputLevel = DEBUG     
 if 'Tauolapp' in evgenConfig.generators:
     genSeq.TauolaPP.OutputLevel = DEBUG   
 if 'Photospp' in evgenConfig.generators:

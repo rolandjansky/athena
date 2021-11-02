@@ -693,6 +693,44 @@ StatusCode EventSelectorAthenaPool::nextHandleFileTransition(IEvtSelector::Conte
    return StatusCode::SUCCESS;
 }
 //________________________________________________________________________________
+StatusCode EventSelectorAthenaPool::nextWithSkip(IEvtSelector::Context& ctxt) const {
+   ATH_MSG_DEBUG("EventSelectorAthenaPool::nextWithSkip");
+
+   for (;;) {
+      // Check if we're at the end of file
+      StatusCode sc = nextHandleFileTransition(ctxt);
+      if (sc.isRecoverable()) {
+         continue; // handles empty files
+      }
+      if (sc.isFailure()) {
+         return StatusCode::FAILURE;
+      }
+
+      // Increase event count
+      ++m_evtCount;
+
+      if (!m_counterTool.empty() && !m_counterTool->preNext().isSuccess()) {
+         ATH_MSG_WARNING("Failed to preNext() CounterTool.");
+      }
+      if( m_evtCount > m_skipEvents
+         && (m_skipEventRanges.empty() || m_evtCount < m_skipEventRanges.front().first))
+      {
+         return StatusCode::SUCCESS;
+      } else {
+         while( !m_skipEventRanges.empty() && m_evtCount >= m_skipEventRanges.front().second ) {
+            m_skipEventRanges.erase(m_skipEventRanges.begin());
+         }
+         if (m_isSecondary.value()) {
+            ATH_MSG_INFO("skipping secondary event " << m_evtCount);
+         } else {
+            ATH_MSG_INFO("skipping event " << m_evtCount);
+         }
+      }
+   }
+
+   return StatusCode::SUCCESS;
+}
+//________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::previous(IEvtSelector::Context& /*ctxt*/) const {
    ATH_MSG_ERROR("previous() not implemented");
    return(StatusCode::FAILURE);
@@ -1187,10 +1225,4 @@ bool EventSelectorAthenaPool::disconnectIfFinished( const SG::SourceID &fid ) co
       }
    }
    return false;
-}
-
-//__________________________________________________________________________
-void EventSelectorAthenaPool::syncEventCount(int count) const
-{
-   m_evtCount = count;
 }

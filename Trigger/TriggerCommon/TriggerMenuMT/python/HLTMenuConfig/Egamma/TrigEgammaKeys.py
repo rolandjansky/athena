@@ -101,7 +101,7 @@ class TrigEgammaKeys_base():
 
       @property
       def TrigElectronTracksCollectionName():
-          return self._IDTrigConfig_IDTrig().tracks_IDTrig()
+          return self._IDTrigConfig().tracks_IDTrig()
 
       @property
       def pidVersion():                      

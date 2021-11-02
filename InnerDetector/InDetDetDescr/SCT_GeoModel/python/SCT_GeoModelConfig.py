@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 def SCT_GeoModelCfg(flags):
     from AtlasGeoModel.GeometryDBConfig import InDetGeometryDBSvcCfg
@@ -20,11 +20,11 @@ def SCT_GeoModelCfg(flags):
 
 
 def SCT_AlignmentCfg(flags):
-    if flags.GeoModel.Align.LegacyConditionsAccess:
+    if flags.GeoModel.Align.LegacyConditionsAccess:  # revert to old style CondHandle in case of simulation
         from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
         return addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align")
     else:
-        from SCT_ConditionsAlgorithms.SCT_AlignCondAlgConfig import SCT_AlignCondAlgCfg
+        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_AlignCondAlgCfg
         return SCT_AlignCondAlgCfg(flags)
 
 
@@ -39,6 +39,6 @@ def SCT_ReadoutGeometryCfg(flags):
     # main GeoModel config
     acc = SCT_GeoModelCfg(flags)
     acc.merge(SCT_AlignmentCfg(flags))
-    from SCT_ConditionsAlgorithms.SCT_DetectorElementCondAlgConfig import SCT_DetectorElementCondAlgCfg
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_DetectorElementCondAlgCfg
     acc.merge(SCT_DetectorElementCondAlgCfg(flags))
     return acc

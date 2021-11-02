@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -388,7 +388,7 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
   //nadc = 0;
 
   // loop over all adcs
-  for (; adcIter != adcIterE; adcIter++) {
+  for (; adcIter != adcIterE; ++adcIter) {
     hwid = (adcIter)->first;
     MeanDacMap = (adcIter)->second;
     MeanSqDacMap = m_MeanSqMap[hwid];
@@ -433,7 +433,7 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
       badPts = 0;
       maxPointInFitRange = 0.0;
       maxRMS = 0.0;
-      for (; dacIter != dacIterE; dacIter++) {
+      for (; dacIter != dacIterE; ++dacIter) {
         dac = (dacIter)->first;
         mean = (dacIter)->second;
         meansq = (*MeanSqDacMap)[dac];

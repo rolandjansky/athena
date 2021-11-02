@@ -133,7 +133,7 @@ def go(iov, systems, db, indb, timewise=False):
     if db != "None":
         with timer("write result (%i iovs)" % len(result_iovs)):
             log.debug("Writing result (%i iovs)", len(result_iovs))
-            defect_iovs = filter(lambda iov: isinstance(iov, DefectIOV), result_iovs)
+            defect_iovs = list(filter(lambda iov: isinstance(iov, DefectIOV), result_iovs))
             if len(defect_iovs) > 0:
                 ddb = DefectsDB(db, read_only=False, create=True)
                 defect_names = set(i.channel for i in defect_iovs)
@@ -181,8 +181,7 @@ def main(argv):
             if system not in SYSTEM_MAP:
                 invalid_systems.append(system)
             else:
-                if system != "Pixels":                
-                    systems.append(SYSTEM_MAP[system])
+                systems.append(SYSTEM_MAP[system])
                 
         if invalid_systems:
             optp.error("Invalid system(s) specified: {0}. "

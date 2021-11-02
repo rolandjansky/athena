@@ -26,27 +26,31 @@ class GeoMaterial;
 
 namespace MuonGM {
 
-    MMSpacer::MMSpacer(Component *ss) : DetectorElement(ss->name) {
-        MMSpacerComponent *s = (MMSpacerComponent *)ss;
+    MMSpacer::MMSpacer(const MYSQL& mysql, Component *ss) : DetectorElement(ss->name) {
+        MMSpacerComponent *s = dynamic_cast<MMSpacerComponent*>(ss);
         m_component = s;
         width = s->dx1;
         longWidth = s->dx2;
         length = s->dy;
         name = s->name;
-        thickness = s->GetThickness();
+        thickness = s->GetThickness(mysql);
         index = s->index;
     }
 
-    GeoPhysVol *MMSpacer::build(int minimalgeo) {
+    GeoPhysVol *MMSpacer::build(const StoredMaterialManager& matManager,
+                                const MYSQL& mysql,
+                                int minimalgeo) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
-        return build(minimalgeo, cutoutson, vcutdef);
+        return build(matManager, mysql, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoPhysVol *MMSpacer::build(int minimalgeo, int, const std::vector<Cutout *>&) {
-        MYSQL *mysql = MYSQL::GetPointer();
+    GeoPhysVol *MMSpacer::build(const StoredMaterialManager& matManager,
+                                const MYSQL& mysql,
+                                int minimalgeo, int,
+                                const std::vector<Cutout *>&) {
 
-        MMSpacer_Technology *t = (MMSpacer_Technology *)mysql->GetTechnology(name);
+        const MMSpacer_Technology *t = dynamic_cast<const MMSpacer_Technology*>(mysql.GetTechnology(name));
         thickness = t->Thickness();
 
         // Build Micromegas mother volume out of G10
@@ -73,7 +77,7 @@ namespace MuonGM {
             strd = &(strd->subtract((*sbox) << cut2));
         }
 
-        const GeoMaterial *mtrd = getMaterialManager()->getMaterial("muo::Honeycomb");
+        const GeoMaterial *mtrd = matManager.getMaterial("muo::Honeycomb");
         GeoLogVol *ltrd = new GeoLogVol(logVolName, strd, mtrd);
         GeoPhysVol *ptrd = new GeoPhysVol(ltrd);
 

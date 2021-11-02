@@ -23,7 +23,7 @@ HGTD_ModuleDesign::HGTD_ModuleDesign(const double thickness,
                                      DetectorDesign::Axis yDirection,
                                      DetectorDesign::Axis depthDirection):
     DetectorDesign(thickness, 
-                   true, true, true, // phi,eta,depth axes symmetric
+                   false, false, true, // phi,eta,depth axes symmetric
                    carrierType,
                    readoutSide,
                    yDirection,

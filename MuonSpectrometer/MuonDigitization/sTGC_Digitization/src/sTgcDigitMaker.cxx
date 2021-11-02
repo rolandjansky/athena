@@ -41,6 +41,7 @@ sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper,
   m_mdManager               = mdManager;
   m_doEfficiencyCorrection  = doEfficiencyCorrection;
   m_doTimeCorrection        = true;
+  m_doTimeOffsetStrip       = false;
   //m_timeWindowPad          = 30.; // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
   //m_timeWindowStrip         = 30.; // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
   //m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
@@ -103,8 +104,10 @@ StatusCode sTgcDigitMaker::initialize(const int channelTypes)
   // Read share/sTGC_Digitization_timeArrivale.dat, containing the digit time of arrival
   ATH_CHECK(readFileOfTimeArrival());
   
-  // Read share/sTGC_Digitization_timeOffsetStrip.dat
-  ATH_CHECK(readFileOfTimeOffsetStrip());
+  // Read share/sTGC_Digitization_timeOffsetStrip.dat if the the strip time correction is enable
+  if (m_doTimeOffsetStrip) {
+    ATH_CHECK(readFileOfTimeOffsetStrip());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -481,7 +484,12 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         if (std::abs(stripnum - middleStrip[1]) < indexFromMiddleStrip) {
           indexFromMiddleStrip = std::abs(stripnum - middleStrip[1]);
         }
-        double strip_time = sDigitTimeStrip + getTimeOffsetStrip(indexFromMiddleStrip);
+        double strip_time = sDigitTimeStrip;
+        // Strip time response can be delayed due to the resistive layer. 
+        // A correction would be required if the actual VMM front-end doesn't re-align the strip timing.
+        if (m_doTimeOffsetStrip) {
+          strip_time += getTimeOffsetStrip(indexFromMiddleStrip);
+        }
       
         addDigit(digits.get(),newId, bctag, strip_time, charge, channelType);
 

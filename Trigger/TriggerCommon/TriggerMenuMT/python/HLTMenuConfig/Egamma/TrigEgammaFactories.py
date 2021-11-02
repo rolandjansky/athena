@@ -35,6 +35,30 @@ from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__TrackParticlesInConeTool
 
 from AthenaCommon import CfgMgr
+from egammaAlgs import egammaAlgsConf
+from .PrecisionCaloMenuSequences import precisionCaloMenuDefs
+
+"""Configuring egammaRecBuilder """
+TrigEgammaRec   = AlgFactory( egammaAlgsConf.egammaRecBuilder,
+                            name = 'TrigEgammaRec',
+                            InputClusterContainerName= TrigEgammaKeys.outputTopoCollection,
+                            egammaRecContainer= TrigEgammaKeys.PrecisionCaloEgammaRecKey,
+                            doTrackMatching = False,
+                            doConversions = False,
+                            doAdd= False,
+                            # Builder tools
+                            TrackMatchBuilderTool = None, # Don't want to use these for trigger....
+                            ConversionBuilderTool = None,  # Don't want to use these for trigger....
+                            )
+
+#Factory for egamma SC builder
+TrigEgammaSuperClusterBuilder = AlgFactory( egammaAlgsConf.egammaSuperClusterBuilder,
+        name = 'TrigEgammaSuperClusterBuilder',
+        InputEgammaRecContainerName=TrigEgammaKeys.PrecisionCaloEgammaRecKey,
+        SuperClusterCollectionName=precisionCaloMenuDefs.precisionCaloClusters,   
+        doAdd = False
+        )
+
 """Configuring the TrackParticlesInConeTool """
 TrigTrackParticlesInConeTool =  ToolFactory(xAOD__TrackParticlesInConeTool, name = 'TrigTrackParticlesInConeTool')
 

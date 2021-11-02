@@ -156,7 +156,10 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
       return StatusCode::FAILURE;
     } 
 
+    // Run 3 note: with only a two-level system, with no passthrough bit, no resurrection bit
+    // the raw-pass equates to the physics-pass.
     trigDec->setEFPassedRaw(passRaw);
+    trigDec->setEFPassedPhysics(passRaw);
     trigDec->setEFPrescaled(prescaled);
 
   }

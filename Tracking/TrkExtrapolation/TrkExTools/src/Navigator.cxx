@@ -527,7 +527,15 @@ Trk::Navigator::finalize() {
 const Trk::TrackingGeometry*
 Trk::Navigator::trackingGeometry(const EventContext& ctx) const
 {
-  if (!m_useConditions) {
+  if (m_useConditions) {
+    SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+    if (!handle.isValid()) {
+      ATH_MSG_FATAL(
+        "Could not retrieve TrackingGeometry from Conditions Store.");
+      throw Trk::NavigatorException();
+    }
+    return handle.cptr();
+  } else {
     const TrackingGeometry* trackingGeometry = nullptr;
     if (detStore()
           ->retrieve(trackingGeometry, m_trackingGeometryName)
@@ -536,13 +544,6 @@ Trk::Navigator::trackingGeometry(const EventContext& ctx) const
       throw Trk::NavigatorException();
     }
     return trackingGeometry;
-  } else {
-    SG::ReadCondHandle<TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
-    if (!handle.isValid()) {
-      ATH_MSG_FATAL("Could not retrieve TrackingGeometry from DetectorStore.");
-      throw Trk::NavigatorException();
-    }
-    return handle.cptr();
   }
 }
 

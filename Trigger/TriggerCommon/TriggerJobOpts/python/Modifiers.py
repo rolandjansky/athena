@@ -14,7 +14,6 @@
 
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('Modifiers.py')
@@ -126,14 +125,6 @@ class ForceMuonDataType(_modifier):
         muonByteStreamFlags.MdtDataType = 'atlas'
         muonByteStreamFlags.TgcDataType = 'atlas'
 
-
-class RPCcablingHack(_modifier):
-    """
-    Hack for low pt thresholds - doesn't seem to do anything for HLT?
-    """
-    def postSetup(self):
-        if hasattr(svcMgr,'RPCcablingSimSvc'):
-            svcMgr.RPCcablingSimSvc.HackFor1031 = True
 
 class useNewRPCCabling(_modifier):
     """
@@ -400,14 +391,6 @@ class rewriteLVL1(_modifier):
                 streamBS.ItemList += [ 'ROIB::RoIBResult#RoIBResult' ]
 
 
-class writeBS(_modifier):
-    """
-    Write bytestream output in athena
-    """
-    def postSetup(self):
-        from AthenaCommon.Include import include
-        include("TriggerJobOpts/BStoBS_post.py")
-
 class DisableMdtT0Fit(_modifier):
     """
     Disable MDT T0 re-fit and use constants from COOL instead
@@ -535,11 +518,11 @@ class enableFPE(_modifier):
 
 class doValidation(_modifier):
     """
-    Force validation mode (i.e. no message timestamps)
+    Enable validation mode (e.g. extra histograms)
     """
-
     def preSetup(self):
-        TriggerFlags.doValidationMonitoring = True
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.doValidationMonitoring = True
 
 class autoConditionsTag(_modifier):
     """

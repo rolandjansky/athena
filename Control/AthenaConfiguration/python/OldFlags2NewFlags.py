@@ -17,12 +17,16 @@ def getNewConfigFlags():
     import AthenaCommon.ConcurrencyFlags # noqa: F401
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     from AthenaMonitoring.DQMonFlags import DQMonFlags
+    from RecExConfig.RecFlags import rec
 
     # Files and conditions
     if jobproperties.Global.InputFormat() == 'bytestream':
-        ConfigFlags.Input.Files = jobproperties.AthenaCommonFlags.BSRDOInput()
+        ConfigFlags.Input.Files = ( jobproperties.AthenaCommonFlags.FilesInput() or
+                                    jobproperties.AthenaCommonFlags.BSRDOInput() )
     elif jobproperties.Global.InputFormat() == 'pool':
-        ConfigFlags.Input.Files = jobproperties.AthenaCommonFlags.FilesInput.get_Value()
+        ConfigFlags.Input.Files = ( jobproperties.AthenaCommonFlags.FilesInput() or
+                                    jobproperties.AthenaCommonFlags.PoolHitsInput() )
+
     ConfigFlags.IOVDb.GlobalTag = jobproperties.Global.ConditionsTag()
     ConfigFlags.Beam.BunchSpacing = jobproperties.Beam.bunchSpacing()
     ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
@@ -75,6 +79,11 @@ def getNewConfigFlags():
     from InDetRecExample.InDetJobProperties import InDetFlags
     ConfigFlags.InDet.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
+
+    if rec.doDPD():
+        # flags for Physics Validation (ATLASRECTS-6636)
+        ConfigFlags.BTagging.SaveSV1Probabilities = True
+        ConfigFlags.BTagging.RunJetFitterNN = True
 
     return ConfigFlags
 

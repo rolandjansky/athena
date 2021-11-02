@@ -19,6 +19,7 @@
 egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
   : egammaSuperClusterBuilderBase(name, pSvcLocator)
+  , m_calibrationType("electron")
 {}
 
 StatusCode
@@ -29,6 +30,7 @@ egammaSuperClusterBuilder::initialize()
   // the data handle keys
   ATH_CHECK(m_inputEgammaRecContainerKey.initialize());
   ATH_CHECK(m_egammaSuperRecCollectionKey.initialize());
+  ATH_CHECK(m_outputegammaSuperClustersKey.initialize());
   ATH_CHECK(m_precorrClustersKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_caloDetDescrMgrKey.initialize());
   if (m_calibrationType == "electron") {

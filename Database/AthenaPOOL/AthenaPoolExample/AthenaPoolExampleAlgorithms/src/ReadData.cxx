@@ -14,6 +14,8 @@
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 #include "AthenaPoolExampleData/ExampleTrackContainer.h"
 
+#include "PersistentDataModel/DataHeader.h"
+
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventStreamInfo.h"
@@ -47,6 +49,7 @@ StatusCode ReadData::initialize() {
       return StatusCode::FAILURE;
    }
 
+   ATH_CHECK( m_dataHeaderKey.initialize() );
    if (!m_exampleTrackKey.key().empty()) {
      ATH_CHECK( m_exampleTrackKey.initialize() );
    }
@@ -99,6 +102,15 @@ StatusCode ReadData::execute (const EventContext& ctx) const {
          ATH_MSG_INFO("EventBookkeeper (In) " << (*iter)->getName() << " accepted events: = " << (*iter)->getNAcceptedEvents());
       }
    }
+
+   SG::ReadHandle<DataHeader> dh (m_dataHeaderKey, ctx);
+   for (std::vector<DataHeaderElement>::const_iterator dhe_p = dh->begin(); dhe_p != dh->end(); dhe_p++) {
+      ATH_MSG_INFO("DataHeader (Event Content) " << dhe_p->getToken()->toString());
+   }
+   for (std::vector<DataHeaderElement>::const_iterator dhe_p = dh->beginProvenance(); dhe_p != dh->endProvenance(); dhe_p++) {
+      ATH_MSG_INFO("DataHeader (Provenance) " << dhe_p->getToken()->toString());
+   }
+
    // Get the event header, print out event and run number
    const EventIDBase& eid = ctx.eventID();
    ATH_MSG_INFO("EventInfo event: " << eid.event_number() << " run: " << eid.run_number());

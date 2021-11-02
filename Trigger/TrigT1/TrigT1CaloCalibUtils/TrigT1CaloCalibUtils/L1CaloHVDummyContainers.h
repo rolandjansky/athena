@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1CALOHVDUMMYCONTAINERS_H
 #define L1CALOHVDUMMYCONTAINERS_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <string>
 
@@ -14,7 +16,6 @@ class CaloIdManager;
 class CaloCell_ID;
 class CaloDetDescriptor;
 class CaloDetDescrElement;
-class CaloDetDescrManager;
 
 /**
  * This algorithms creates dummy containers so HV job will run without data.
@@ -28,9 +29,9 @@ class L1CaloHVDummyContainers : public AthAlgorithm
     L1CaloHVDummyContainers(const std::string& name, ISvcLocator *pSvcLocator);
     virtual ~L1CaloHVDummyContainers();
 
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
  private:
     std::string m_triggerTowerCollectionName;
@@ -38,7 +39,11 @@ class L1CaloHVDummyContainers : public AthAlgorithm
 
     const CaloIdManager* m_caloMgr;
     const CaloCell_ID* m_caloCellHelper;
-    const CaloDetDescrManager* m_caloDetDescrMgr;
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+	, "CaloDetDescrManager"
+	, "CaloDetDescrManager"
+	, "SG Key for CaloDetDescrManager in the Condition Store" };
+
 
     bool m_firstEvent;
 };

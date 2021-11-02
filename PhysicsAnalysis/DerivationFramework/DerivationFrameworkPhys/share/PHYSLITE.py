@@ -115,7 +115,9 @@ if (inputIsDAODPHYS == False):
   ToolSvc += PHYSLITEMuonTPThinningTool
   thinningTools.append(PHYSLITEMuonTPThinningTool)
   
+  '''
   # TauJets thinning
+  # Disabled for 1st production in 2021
   tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
   from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
   PHYSLITETauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSLITETauJetsThinningTool",
@@ -124,19 +126,20 @@ if (inputIsDAODPHYS == False):
                                                                        SelectionString = tau_thinning_expression)
   ToolSvc += PHYSLITETauJetsThinningTool
   thinningTools.append(PHYSLITETauJetsThinningTool)
-  
+  '''
+
   # Only keep tau tracks (and associated ID tracks) classified as charged tracks
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
   PHYSLITETauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "PHYSLITETauTPThinningTool",
                                                                         StreamName             = PHYSLITEStream.Name,
                                                                         TauKey                 = "TauJets",
                                                                         InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                        SelectionString        = tau_thinning_expression,
+#                                                                        SelectionString        = tau_thinning_expression,
                                                                         DoTauTracksThinning    = True,
                                                                         TauTracksKey           = "TauTracks")
   ToolSvc += PHYSLITETauTPThinningTool
   thinningTools.append(PHYSLITETauTPThinningTool)
-  
+
   # ID tracks associated with high-pt di-tau
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__DiTauTrackParticleThinning
   PHYSLITEDiTauTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "PHYSLITEDiTauTPThinningTool",
@@ -339,7 +342,7 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "CombinedMuonTrackParticles.qOverP.d0.z0.vz.phi.theta.truthOrigin.truthType.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPixelHoles.numberOfSCTDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfTRTHits.numberOfTRTOutliers.chiSquared.numberDoF",
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.truthOrigin.truthType.qOverP.theta.phi",
   "MuonSpectrometerTrackParticles.phi.d0.z0.vz.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.vertexLink.theta.qOverP.truthParticleLink",
-  "AnalysisTauJets.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.ptCombined.etaCombined.phiCombined.mCombined.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.RNNEleScore.RNNEleScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink.etaTauEnergyScale.ptTauEnergyScale",
+  "AnalysisTauJets.pt.eta.phi.m.ptFinalCalib.etaFinalCalib.ptTauEnergyScale.etaTauEnergyScale.charge.isTauFlags.PanTau_DecayMode.NNDecayMode.RNNJetScore.RNNJetScoreSigTrans.RNNEleScore.RNNEleScoreSigTrans.tauTrackLinks.vertexLink.truthParticleLink.truthJetLink.IsTruthMatched.truthOrigin.truthType",
   "AnalysisJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PSFrac.JetAccessorMap.EMFrac.Width.ActiveArea4vec_pt.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.EnergyPerSampling.SumPtChargedPFOPt500",
   "BTagging_AntiKt4EMPFlow.DL1r_pu.DL1rmu_pu.DL1r_pb.DL1rmu_pb.DL1r_pc.DL1rmu_pc",
   "TruthPrimaryVertices.t.x.y.z",
@@ -347,7 +350,8 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "METAssoc_AnalysisMET.",
   "InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights.numberOfTRTHits.numberOfTRTOutliers",
   "EventInfo.hardScatterVertexLink.RandomRunNumber",
-  "Kt4EMPFlowEventShape.Density"
+  "Kt4EMPFlowEventShape.Density",
+  "TauTracks.pt.eta.phi.flagSet.trackLinks",
   ]
 
 if DerivationFrameworkIsMonteCarlo:

@@ -57,7 +57,11 @@ class MenuTopoAlgorithmsCollection(object):
         self.topoAlgos = odict()
         for cat in AlgCategory:
             self.topoAlgos[cat] = odict()
-
+            if cat in [AlgCategory.TOPO, AlgCategory.MUCTPI, AlgCategory.LEGACY]:
+                self.topoAlgos[cat][AlgType.DEC] = odict()
+                self.topoAlgos[cat][AlgType.SORT] = odict()
+            elif cat in [AlgCategory.MULTI]:
+                self.topoAlgos[cat][AlgType.MULT] = odict()
 
     def addAlgo(self, algo, category):
         if type(category) != AlgCategory:

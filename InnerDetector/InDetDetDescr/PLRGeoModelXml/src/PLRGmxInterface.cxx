@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PLRGeoModelXml/PLRGmxInterface.h"
+#include "PLRGmxInterface.h"
 
 #include <InDetReadoutGeometry/SiDetectorDesign.h>
 #include <InDetReadoutGeometry/SiDetectorElement.h>
@@ -13,25 +13,20 @@
 #include <ReadoutGeometryBase/SiCommonItems.h>
 
 
-namespace
-{
-constexpr int PixelHitIndex{0};
-}
-
-
-namespace ITk
+namespace InDetDD
 {
 
-PLRGmxInterface::PLRGmxInterface(InDetDD::PixelDetectorManager *detectorManager,
-                                     InDetDD::SiCommonItems *commonItems,
-                                     WaferTree *moduleTree)
+PLRGmxInterface::PLRGmxInterface(PixelDetectorManager *detectorManager,
+                                 SiCommonItems *commonItems,
+                                 WaferTree *moduleTree)
   : PixelGmxInterface(detectorManager, commonItems, moduleTree),
     m_detectorManager(detectorManager)
 {}
 
-void PLRGmxInterface::addSensorType(std::string clas,
-                                      std::string typeName,
-                                      std::map<std::string, std::string> parameters)
+
+void PLRGmxInterface::addSensorType(const std::string& clas,
+                                    const std::string& typeName,
+                                    const std::map<std::string, std::string>& parameters)
 {
   ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
   // only load the sensor type that the PLR will use
@@ -42,7 +37,7 @@ void PLRGmxInterface::addSensorType(std::string clas,
 
 
 void PLRGmxInterface::makePLRModule(const std::string &typeName,
-                                        const std::map<std::string, std::string> &parameters)
+                                    const std::map<std::string, std::string> &parameters)
 {
   int circuitsPerEta{1}; // row
   int circuitsPerPhi{1}; // column
@@ -86,13 +81,13 @@ void PLRGmxInterface::makePLRModule(const std::string &typeName,
   //
   // Make Module Design and add to DetectorManager
   //
-  std::shared_ptr<const InDetDD::PixelDiodeMatrix> fullMatrix = buildMatrix(pitchPhi, pitchEta,
-                                                                            pitchPhiLong, pitchPhiEnd,
-                                                                            pitchEtaLong, pitchEtaEnd,
-                                                                            nPhiLongPerSide, nPhiEndPerSide,
-                                                                            nEtaLongPerSide, nEtaEndPerSide,
-                                                                            circuitsPerPhi, circuitsPerEta,
-                                                                            columnsPerChip, rowsPerChip);
+  std::shared_ptr<const PixelDiodeMatrix> fullMatrix = buildMatrix(pitchPhi, pitchEta,
+                                                                   pitchPhiLong, pitchPhiEnd,
+                                                                   pitchEtaLong, pitchEtaEnd,
+                                                                   nPhiLongPerSide, nPhiEndPerSide,
+                                                                   nEtaLongPerSide, nEtaEndPerSide,
+                                                                   circuitsPerPhi, circuitsPerEta,
+                                                                   columnsPerChip, rowsPerChip);
 
   ATH_MSG_DEBUG("fullMatrix = buildMatrix(" << pitchPhi << ", " << pitchEta << ", "
                                             << pitchPhiLong << ", " << pitchPhiEnd << ", "
@@ -111,12 +106,12 @@ void PLRGmxInterface::makePLRModule(const std::string &typeName,
   // (so far) primarily useful to avoid orientation warnings
   InDetDD::DetectorType detectorType{InDetDD::PLR};
 
-  auto design = std::make_unique<InDetDD::PixelModuleDesign>(thickness,
-                                                            circuitsPerPhi, circuitsPerEta,
-                                                            columnsPerChip, rowsPerChip,
-                                                            columnsPerChip, rowsPerChip,
-                                                            fullMatrix, carrier,
-                                                            readoutSide, is3D, detectorType);
+  auto design = std::make_unique<PixelModuleDesign>(thickness,
+                                                    circuitsPerPhi, circuitsPerEta,
+                                                    columnsPerChip, rowsPerChip,
+                                                    columnsPerChip, rowsPerChip,
+                                                    fullMatrix, carrier,
+                                                    readoutSide, is3D, detectorType);
   
 
   ATH_MSG_DEBUG("readout geo - design : " << design->width() << " " << design->length() << " " << design->thickness() << " " <<design->rows() << " " << design->columns());
@@ -127,5 +122,4 @@ void PLRGmxInterface::makePLRModule(const std::string &typeName,
   m_geometryMap[typeName] = m_detectorManager->numDesigns() - 1;
 }
 
-
-} // namespace ITk
+} // namespace InDetDD

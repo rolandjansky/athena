@@ -8,9 +8,9 @@ from RecExConfig.Configured import Configured
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
-from AthenaCommon.Resilience import protectedInclude
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
+log = logging.getLogger( "TriggerConfigGetter.py" )
 
 class TriggerConfigGetter(Configured):
     """ This class brings to the job Trigger Configuration.
@@ -19,60 +19,13 @@ class TriggerConfigGetter(Configured):
     _environment=""
 
     def __init__(self, environment=""):
-        log = logging.getLogger( "TriggerConfigGetter.py" )
+
         if environment:
             log.info('Initialize (environment "%s")', environment)
         else:
             log.info('Initialize (interpreting rec and trigger flags)')
         self._environment = environment
         super(TriggerConfigGetter,self).__init__() # calls configure
-
-
-    def checkFileMetaData(self):
-        log = logging.getLogger( "TriggerConfigGetter.py" )
-        from PyUtils.MetaReaderPeekerFull import metadata
-        self.hasLBwiseHLTPrescalesAndL1ItemDef = True
-
-        # protection against early runs
-        if 'runNumbers' in metadata and self._environment == "" and globalflags.DataSource() == 'data' and rec.readRDO() and any([run < 134230 for run in metadata['runNumbers']]):
-            self.hasLBwiseHLTPrescalesAndL1ItemDef = False
-        if self.hasLBwiseHLTPrescalesAndL1ItemDef:
-            log.info("Using LB-wise HLT prescales")
-        else:
-            log.info("Using run-wise HLT prescales")
-
-
-    def checkInput(self):
-        self.checkFileMetaData()
-
-        log = logging.getLogger( "TriggerConfigGetter.py" )
-        if "ReadPool" in self._environment or "WritePool" in self._environment:
-            log.info("Flags are ignored, since 'ReadPool' or  'WritePool' is specified")
-            return True
-
-        if rec.readESD() or rec.readAOD(): # and globalflags.DataSource()=='data':  # need this for MC as well
-            protectedInclude("TriggerJobOpts/TriggerConfigCheckMetadata.py")
-
-        if rec.readRDO() and globalflags.InputFormat()=='bytestream' and globalflags.DataSource()=='data' and TriggerFlags.configForStartup()!='HLToffline':
-            protectedInclude("TriggerJobOpts/TriggerConfigCheckHLTpsk.py")
-
-        log.info("The following flags are set:")
-        log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
-        log.info("rec.read.*                          : RDO: %s, ESD: %s, AOD: %s, TAG: %s", rec.readRDO(), rec.readESD(), rec.readAOD(), rec.readTAG())
-        log.info("rec.doWrite.*                       : ESD: %s, AOD: %s, TAG: %s", rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG())
-        log.info("globalflags.DataSource              : %s", globalflags.DataSource())
-        log.info("TriggerFlags.configForStartup       : %s", TriggerFlags.configForStartup())
-        log.info("TriggerFlags.dataTakingConditions   : %s", TriggerFlags.dataTakingConditions())
-        log.info("TriggerFlags.configurationSourceList: %s", TriggerFlags.configurationSourceList())
-
-        count = len([1 for x in [rec.readRDO(),rec.readESD(),rec.readAOD()] if x ]) #readTAG is only set with another input
-        if count == 0:
-            log.warning("Don't know what the input format is.")
-            return False
-        if count >= 2:
-            log.warning("More than one input format specified, please set only the appropriate one.")
-            return False
-        return True
 
 
     def setConfigSvcConnParams(self,connectionParameters):
@@ -116,91 +69,35 @@ class TriggerConfigGetter(Configured):
 
 
     def configure(self):
-        log = logging.getLogger( "TriggerConfigGetter.py" )
-        from PyUtils.MetaReaderPeekerFull import metadata
 
-        # first check the input
-        if "HIT2RDO" in self._environment:
-            TriggerFlags.doHLT = False
-            log.info("For simulation jobs the following flags are set:")
-            log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
-            log.info("globalflags.DataSource              : %s", globalflags.DataSource())
-            log.info("TriggerFlags.configForStartup       : %s", TriggerFlags.configForStartup())
-            log.info("TriggerFlags.dataTakingConditions   : %s", TriggerFlags.dataTakingConditions())
-            log.info("TriggerFlags.doHLT                  : %s", TriggerFlags.doHLT())
-        else:
-            if not self.checkInput():
-                log.error("Could not determine job input. Can't setup trigger configuration and will return!")
-                return
-            # self.checkInput() may call TriggerConfigCheckMetadata, this can in turn set "rec.doTrigger.set_Value_and_Lock(False)"
-            # but TriggerConfigGetter might have only been called in the first place due to this flag having been true, 
-            # so re-check that we're still OK to be executing here
-            if not (rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
-                log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false in checkInput()")
+        log.info("The following flags are set:")
+        log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
+        log.info("globalflags.DataSource              : %s", globalflags.DataSource())
+        log.info("rec.read.*                          : RDO: %s, ESD: %s, AOD: %s, TAG: %s", rec.readRDO(), rec.readESD(), rec.readAOD(), rec.readTAG())
+        log.info("rec.doWrite.*                       : ESD: %s, AOD: %s, TAG: %s", rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG())
+
+        # first check the input (TODO: review these environments)
+        if self._environment not in ["HIT2RDO", "ReadPool", "WritePool"]:
+
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            if not ConfigFlags.Trigger.availableRecoMetadata:
+                log.error("At least one run does not contain any trigger configuration data. "
+                          "Turning off trigger [rec.doTrigger=False]")
+                rec.doTrigger = False
+
+            if not rec.doTrigger():
+                log.info("Aborting TriggerConfigGetter as the trigger flags were switched to false")
                 return True
 
-        self.readPool       = globalflags.InputFormat() == 'pool'
-        self.readRDO        = rec.readRDO()
-        self.writeESDAOD    = rec.doWriteESD() or rec.doWriteAOD() or rec.doWriteDPD()
-        self.writeAOD       = rec.doWriteAOD() or rec.doWriteDPD()
-        self.ConfigSrcList  = TriggerFlags.configurationSourceList()
-        self.readMC         = globalflags.DataSource()=='geant3' or globalflags.DataSource()=='geant4'
         self.readTriggerDB  = TriggerFlags.readMenuFromTriggerDb() and self.readRDO
-        self.isCommisioning = globalflags.DataSource()=='data' and globalflags.DetGeo()=='commis' 
-        self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
-        self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
-        self.isRun1Data     = False 
-        self.hasxAODMeta    = ( 
-            ("metadata_items" in metadata)
-            and 
-            any((('TriggerMenu' or 'MenuJSON') in key) for key in metadata["metadata_items"].keys())
-        )
-
-        if globalflags.DataSource()=='data':
-            from RecExConfig.AutoConfiguration  import GetRunNumber
-            runNumber = GetRunNumber()
-            if runNumber is not None and runNumber > 0 and runNumber < 230000 :
-                self.isRun1Data = True
-        self.isTriggerReprocessing = False
-
-        if self._environment: # I don't think anyone calls TriggerConfigGetter with an argument
-            self.readPool  = False
-            self.writeESDAOD = False
-            self.readHits = False
-            if "ReadPoolRDO" in self._environment:
-                self.readPool = True
-                self.readRDO = True
-            elif "ReadPool" in self._environment:
-                self.readPool = True
-                self.readRDO = False
-            if "WritePool" in self._environment:
-                self.writeESDAOD = True
-            if "HIT2RDO" in self._environment:
-                self.readRDO = False
-                self.readHits = True
-
-
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        # define ConfigSvc (for Run 1 + 2)
-        if ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2:
-            if not self.ConfigSrcList:
-                if (self.readPool and not self.readRDO) or (self.readRDO and not self.readPool): # (ESD, AOD, DPD) or (RDO-BS)
-                    self.ConfigSrcList = ['ds']
-                elif (self.readRDO and self.readPool) or rec.readTAG() or self.readHits:           # (RDO-MC) or TAG
-                    self.ConfigSrcList = ['xml']
-                else: # should not get here: should be found by checkInput
-                    log.fatal('no reading of BS, RDO, AOD, ESD, or TAG specified')
 
         log.info('Creating the Trigger Configuration Services')
-
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-        ########################################################################
-        # START OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
-        ########################################################################
         log.info("ConfigFlags.Trigger.EDMVersion: %i", ConfigFlags.Trigger.EDMVersion)
         if ConfigFlags.Trigger.EDMVersion >= 3:
-            if self.hasxAODMeta:
+            if ConfigFlags.Trigger.InputContainsConfigMetadata:
                 if not hasattr(svcMgr, 'xAODConfigSvc'):
                     from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
                     svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
@@ -210,39 +107,14 @@ class TriggerConfigGetter(Configured):
                 from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg
                 CAtoGlobalWrapper(TrigConfigSvcCfg,ConfigFlags)
 
-        else:
-            # non-MT (Run-2) Trigger Configuration
-            if 'ds' in self.ConfigSrcList:
-                log.info("setup DSConfigSvc and add instance to ServiceMgr")
-                from TrigConfigSvc.TrigConfigSvcConf import TrigConf__DSConfigSvc
-                svcMgr += TrigConf__DSConfigSvc("DSConfigSvc")
-
-        ########################################################################
-        # END OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
-        ########################################################################
-
         if self.readTriggerDB:
             log.info( "Using TriggerDB connection '%s'", TriggerFlags.triggerDbConnection() )
             self.trigDbConnectionParameters = interpretConnection(TriggerFlags.triggerDbConnection(), resolveAlias=False)
             self.setConfigSvcConnParams(self.trigDbConnectionParameters)
 
         log.info("TriggerFlags.triggerCoolDbConnection is '%s' [default: '']", TriggerFlags.triggerCoolDbConnection())
-        if ('ds' in self.ConfigSrcList) and not self.hasxAODMeta:
-            self.setupCOOLReading(TriggerFlags.triggerCoolDbConnection())
 
-        if hasattr(svcMgr, 'DSConfigSvc'):
-            db = 'TRIGGERDB'
-            if self.isRun1Data:
-                db = 'TRIGGERDB_RUN1'
-            elif self.readMC:
-                db = 'TRIGGERDBMC'
-            elif self.isTriggerReprocessing:
-                db = 'TRIGGERDBREPR'
-            svcMgr.DSConfigSvc.ConfigSource = 'dblookup'
-            svcMgr.DSConfigSvc.DBServer = db
-            log.info("DSConfigSvc trigger database is '%s'", db)
-        
-        if not self.hasxAODMeta:
+        if not ConfigFlags.Trigger.InputContainsConfigMetadata:
             self.setupxAODWriting()
         else:
             log.info("Input file already has xAOD trigger metadata. Will not re-create it.")
@@ -251,70 +123,12 @@ class TriggerConfigGetter(Configured):
         return True
 
 
-    def setupCOOLReading(self,TrigCoolDbConnection):
-        log = logging.getLogger( "TriggerConfigGetter.py" )
-        log.info( 'Will setup IOVDbSvc to access configuration meta data because "ds" specified and no xAODMetadata available')
-        log.info( '  local ConfigSrcList: %r', self.ConfigSrcList)
-        log.info( '  hasxAODMeta        : %r', self.hasxAODMeta)
-
-        ## if we process MC from an XML file the dbConnection needs to
-        ## be set to a local SQlite file
-
-        # when reading from the COOL database (either form
-        # ORACLE/SQlite) we need an algorithm that triggers the
-        # copying
-        #
-        # In addition for MC the IOV has to be adjusted since in COOL the config data is written with IOV=infinity
-
-        if TrigCoolDbConnection=='':
-            log.info("COOL DBConnection: not set, will use default conditions database" )
-            TrigCoolDbConnection = 'TRIGGER'
-            addNewFolders = TriggerFlags.configForStartup()=="HLTonline" and self.readRDO
-        else: # for sqlite COOL: temp (usually /tmp/hltMenu.xxx.db) or predefined (e.g. trigconf.db)
-            log.info("COOL DBConnection: %s", TrigCoolDbConnection)
-            addNewFolders = globalflags.DataSource()!='data' and self.readRDO # bytestream or MC RDO
-
-        # add folders for reading
-        from IOVDbSvc.CondDB import conddb
-        folders = []
-        if self.hltFolders:
-            folders += [ "HLT/Menu", "HLT/HltConfigKeys" ]
-        if self.l1Folders:
-            folders += [ "LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales" ]
-        if globalflags.DataSource() == 'data':
-            if self.l1Folders:
-                folders += [ "LVL1/BunchGroupKey" ]
-                #if TriggerFlags.EDMDecodingVersion() < 3:
-                #   folders += [ "LVL1/BunchGroupDescription", "LVL1/BunchGroupContent" ]
-
-        if self.hasLBwiseHLTPrescalesAndL1ItemDef:
-            if self.hltFolders:
-                folders += [ "HLT/Prescales", "HLT/PrescaleKey" ]
-            if self.l1Folders:
-                folders += [ "LVL1/ItemDef" ]
-
-        log.info("Adding folders to IOVDbSvc")
-
-        if addNewFolders:
-            # Need thresholds folders but only for Tier0 BS->ESD
-            log.info("Also adding new folders to IOVDbSvc")
-            if self.hltFolders:
-                folders += [ "HLT/Groups" ]
-            if self.l1Folders:
-                folders += [ "LVL1/Thresholds" ]
-
-        for f in folders:
-            log.info("     /TRIGGER/%s", f)
-            conddb.addFolderWithTag(TrigCoolDbConnection, "/TRIGGER/%s" % f, "HEAD")
-
     def setupxAODWriting( self ):
         """
         Method setting up the writing of the ROOT-readable trigger configuration
         metadata.
         """
 
-        # Get a logger:
-        log = logging.getLogger( "TriggerConfigGetter.py" )
         log.info( "ESD/AOD writing enabled, will set up xAOD trigger "
                   "configuration metadata writing" )
 
@@ -363,17 +177,3 @@ class TriggerConfigGetter(Configured):
             acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
         appendCAtoAthena( acc )
 
-        # Set up the metadata for the output ESD and AOD:
-        from RecExConfig.ObjKeyStore import objKeyStore
-        metadataItems = [ "xAOD::TriggerMenuJsonContainer#MenuJSON_HLT",
-                          "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTAux.",
-                          "xAOD::TriggerMenuJsonContainer#MenuJSON_L1",
-                          "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1Aux.",
-                          "xAOD::TriggerMenuJsonContainer#MenuJSON_HLTPS",
-                          "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTPSAux.",
-                          "xAOD::TriggerMenuJsonContainer#MenuJSON_L1PS",
-                          "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1PSAux.",
-                          # "xAOD::TriggerMenuJsonContainer#MenuJSON_BG", // TODO
-                          # "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_BGAux.", // TODO
-                        ]
-        objKeyStore.addManyTypesMetaData( metadataItems )

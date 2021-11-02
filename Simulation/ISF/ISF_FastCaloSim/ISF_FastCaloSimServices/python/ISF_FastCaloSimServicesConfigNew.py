@@ -4,7 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from RngComps.RandomServices import RNG, dSFMT
+from RngComps.RandomServices import RNG
 from ISF_Services.ISF_ServicesConfigNew import TruthServiceCfg
 
 ###################################################################################################
@@ -20,10 +20,6 @@ def PunchThroughToolCfg(flags, name="ISF_PunchThroughTool", **kwargs):
     from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
     from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
     acc = ComponentAccumulator()
-    seed = 'FastCaloSimRnd OFFSET 0 98346412 12461240'
-    acc.merge(dSFMT(seed))
-    kwargs.setdefault("RandomNumberService", acc.getService("AtDSFMTGenSvc"))
-    kwargs.setdefault("RandomStreamName", "FastCaloSimRnd")
     kwargs.setdefault("FilenameLookupTable", "FastCaloSim/MC16/TFCSparam_mpt_v01.root")
     kwargs.setdefault("PunchThroughInitiators", [211])
     kwargs.setdefault("InitiatorsMinEnergy"     , [ 65536 ]                                         )
@@ -211,14 +207,6 @@ def FastCaloToolBaseCfg(flags, name="ISF_FastCaloTool", **kwargs):
     kwargs.setdefault("BatchProcessMcTruth"              , False)
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False)
     kwargs.setdefault("CaloCellsOutputName"              , flags.Sim.FastCalo.CaloCellsName)
-    kwargs.setdefault("DoPunchThroughSimulation"         , False)
-    if "PunchThroughTool" not in kwargs:
-        if kwargs["DoPunchThroughSimulation"]:
-            PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
-            acc.addPublicTool(PT_tool)
-            kwargs.setdefault("PunchThroughTool"                 , acc.getPublicTool(PT_tool.name))
-        else:
-            kwargs.setdefault("PunchThroughTool"                 , "")
     if "CaloCellMakerTools_setup" not in kwargs:
         EmptyCellBuilder = acc.popToolsAndMerge(EmptyCellBuilderToolCfg(flags))
         acc.addPublicTool(EmptyCellBuilder)
@@ -351,8 +339,6 @@ def FastHitConvAlgFastCaloSimSvcCfg(flags, name="ISF_FastHitConvAlgFastCaloSimSv
 def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs):
     acc = ComponentAccumulator()
     
-    PT_tool = acc.popToolsAndMerge(PunchThroughToolCfg(flags))
-    acc.addPublicTool(PT_tool)
     FastHit = acc.popToolsAndMerge(FastHitConvertToolCfg(flags))
     acc.addPublicTool(FastHit)
     EmptyCellBuilder = acc.popToolsAndMerge(EmptyCellBuilderToolCfg(flags))
@@ -368,8 +354,6 @@ def FastCaloSimPileupOTSvcCfg(flags, name="ISF_FastCaloSimPileupOTSvc", **kwargs
     kwargs.setdefault("SimulateUndefinedBarcodeParticles", False)
     kwargs.setdefault("Identifier", "FastCaloSim")
     kwargs.setdefault("CaloCellsOutputName", flags.Sim.FastCalo.CaloCellsName + "PileUp")
-    kwargs.setdefault("PunchThroughTool", acc.getPublicTool(PT_tool.name))
-    kwargs.setdefault("DoPunchThroughSimulation", False)
     kwargs.setdefault("PUWeights_lar_bapre", flags.Sim.FastChain.PUWeights_lar_bapre)
     kwargs.setdefault("PUWeights_lar_hec", flags.Sim.FastChain.PUWeights_lar_hec)
     kwargs.setdefault("PUWeights_lar_em", flags.Sim.FastChain.PUWeights_lar_em)

@@ -2649,7 +2649,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newSeed
 void InDet::SiSpacePointsSeedMaker_ATLxk::initializeEventData(EventData& data) const {
   int seedArrayPerSPSize = (m_maxOneSizePPP>m_maxOneSizeSSS ? m_maxOneSizePPP : m_maxOneSizeSSS); 
   if (m_alwaysKeepConfirmedStripSeeds || m_alwaysKeepConfirmedPixelSeeds)  seedArrayPerSPSize = 50; 
-  data.initialize(EventData::ATLxk,
+  data.initialize(EventData::ToolType::ATLxk,
                   m_maxsizeSP,
                   seedArrayPerSPSize,
                   0, /// maxsize not used

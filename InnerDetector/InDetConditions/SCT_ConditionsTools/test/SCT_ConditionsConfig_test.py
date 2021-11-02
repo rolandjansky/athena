@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 """Run tests on SCT_ConditionsTools/python/*Config.py scripts
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
-from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
+from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_DCSConditionsCfg, SCT_ReadCalibChipDataCfg, SCT_SiliconConditionsCfg
 
 # test setup
 log.setLevel(DEBUG)
@@ -32,4 +29,3 @@ dcs_acc.wasMerged()
 acc1.wasMerged()
 acc2.wasMerged()
 acc3.wasMerged()
-

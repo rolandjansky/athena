@@ -785,7 +785,6 @@ void IOVSvcTool::setRange_impl (SG::DataProxy* proxy, IOVRange& iovr)
 
     IOVEntry *ent = itr->second;
     const IOVRange *irn = ent->range();
-    string objname = m_names[proxy];
 
     if (*irn == iovr) {
       ATH_MSG_DEBUG("Range has not changed. Returning");
@@ -1448,8 +1447,6 @@ IOVSvcTool::scanStartSet(startSet &pSet, const std::string &type,
                          std::set<SG::DataProxy*, SortDPptr> &proxiesToReset,
 			 const IOVTime& curTime) const {
 
-  std::string objname;
-  
   if (pSet.begin()==pSet.end())  return;
   
   if (msgLvl(MSG::DEBUG)) {
@@ -1486,8 +1483,6 @@ void
 IOVSvcTool::scanStopSet(stopSet &pSet, const std::string &type,
                         std::set<SG::DataProxy*, SortDPptr> &proxiesToReset,
 			const IOVTime& curTime) const {
-
-  std::string objname;
 
   if (pSet.begin()==pSet.end())  return;
   if (msgLvl(MSG::DEBUG)) {
@@ -1601,12 +1596,20 @@ std::string
 IOVSvcTool::fullProxyName( const CLID& clid, const std::string& key ) const {
 
   std::string fullname, tname;
-  ostringstream ost;
-  ost << clid;
   if (p_CLIDSvc->getTypeNameOfID( clid, tname ).isFailure()) {
-    fullname = "[" + ost.str() + "/" + key + "]";
+    fullname = "[";
+    fullname += std::to_string(clid);
+    fullname += '/';
+    fullname += key;
+    fullname += ']';
   } else {
-    fullname = "[" + tname + ":" + ost.str() + "/" + key + "]";
+    fullname = "[";
+    fullname += tname;
+    fullname += ':';
+    fullname += std::to_string(clid);
+    fullname += '/';
+    fullname += key;
+    fullname += ']';
   }
 
   return fullname;

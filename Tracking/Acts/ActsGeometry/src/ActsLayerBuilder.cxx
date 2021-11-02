@@ -257,9 +257,12 @@ void ActsLayerBuilder::buildBarrel(const Acts::GeometryContext &gctx,
       return m_cfg.surfaceMatcher(gctx, bv, &a, &b);
     };
 
-    auto countKey = [&surfaces](auto equal) -> size_t {
+    // Work around issue with clang10 --- it doesn't allow
+    // listing surfaces directly in the capture list.
+    auto& xsurfaces = surfaces;
+    auto countKey = [&xsurfaces](auto equal) -> size_t {
       std::vector<const Acts::Surface *> keySurfaces;
-      for (const auto &surface : surfaces) {
+      for (const auto &surface : xsurfaces) {
         bool exists = false;
         for (const auto* existing : keySurfaces) {
           if (equal(*surface, *existing)) {

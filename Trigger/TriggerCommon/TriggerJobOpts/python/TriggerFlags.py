@@ -5,7 +5,6 @@ log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties # noqa: F401
-from TriggerJobOpts.CommonSignatureHelper import AllowedList
 from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuNameFromDB
 
 
@@ -21,59 +20,24 @@ def bool_flag_with_default(name, val):
                    "StoredValue": val,
                 })
 
-default_true_flags = [
-    "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
-    "doNavigationSlimming",  # Enable the trigger navigation slimming"""
-]
-
 default_false_flags = [
-    "useRun1CaloEnergyScale",
-    "doTruth",
-    "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
     "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
 ]
-
-for name in default_true_flags:
-    newFlag = bool_flag_with_default(name, True)
-    globals()[newFlag.__name__] = newFlag
-    _flags.append(newFlag)
 
 for name in default_false_flags:
     newFlag = bool_flag_with_default(name, False)
     globals()[newFlag.__name__] = newFlag
     _flags.append(newFlag)
 
-class doHLT(JobProperty):
-    """ if True, run HLT selection algorithms """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-    
-_flags.append(doHLT)
-
-class doValidationMonitoring(JobProperty):
-    """Enables extra validation monitoring"""
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doValidationMonitoring)
-
-# trigger configuration source list
-class configurationSourceList(JobProperty):
-    """ define where to read trigger configuration from. Allowed values: ['aod','ds']"""
-    statusOn=True
-    allowedType=['list']
-    StoredValue=[]
-    allowedValues = AllowedList( ['aod','ds'] )
-
-_flags.append(configurationSourceList)
-
 class AODEDMSet(JobProperty):
     """ Define which sets of object go to AOD """
     statusOn=True
     allowedType=['list']
     StoredValue='AODSLIM'
+    def _do_action(self):
+        log.warning("TriggerFlags.AODEDMSet is deprecated. Use ConfigFlags.Trigger.AODEDMSet instead.")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.AODEDMSet = self.get_Value()
 
 _flags.append(AODEDMSet)
 
@@ -82,6 +46,10 @@ class ESDEDMSet(JobProperty):
     statusOn=True
     allowedType=['list']
     StoredValue='ESD'
+    def _do_action(self):
+        log.warning("TriggerFlags.ESDEDMSet is deprecated. Use ConfigFlags.Trigger.ESDEDMSet instead.")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.ESDEDMSet = self.get_Value()
 
 _flags.append(ESDEDMSet)
 
@@ -95,30 +63,12 @@ class configForStartup(JobProperty):
     """ A temporary flag to determine the actions to be taken for the different cases of HLT running in the startup phase"""
     statusOn=True
     allowedType=['string']
-    StoredValue = 'HLTonline'
-    
-    allowedValues = [
-        'HLTonline',
-        'HLToffline'
-        ]
+    StoredValue = None
+    def _do_action(self):
+        log.warning("TriggerFlags.configForStartup is deprecated. Remove it from your configuration.")
 
 _flags.append(configForStartup)
 
-
-class dataTakingConditions(JobProperty):
-    """ A flag that describes the conditions of the Trigger at data taking, and determines which part of it will be processed in reconstruction."""
-    statusOn=True
-    allowedType=['string']
-    StoredValue = 'FullTrigger'
-    
-    allowedValues = [
-        'HltOnly',
-        'Lvl1Only',
-        'FullTrigger',
-        'NoTrigger'
-        ]
-
-_flags.append(dataTakingConditions)
 
 class triggerUseFrontier(JobProperty):
     """Flag determines if frontier should be used to connect to the oracle database, current default is False"""
@@ -375,7 +325,3 @@ def sync_Trigger2Reco():
     if globalflags.InputFormat() == 'bytestream':
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.readBS = True
-        TriggerFlags.doLVL1 = False
-        TriggerFlags.doHLT   = False
-
-del log

@@ -43,8 +43,8 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
     acc = ComponentAccumulator()
 
     # Need to get SCT_ConditionsSummaryTool for e.g. SCT_ClusteringTool
-    from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-    InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
+    from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+    InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool=False))
 
     #### Clustering tool ######
     InDetClusterMakerTool = acc.getPrimaryAndMerge(ClusterMakerToolCfg(flags))
@@ -204,8 +204,8 @@ def TrackRecoCfg(flags):
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
     result.merge( SCT_ReadoutGeometryCfg(flags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result.merge(TRT_GeometryCfg(flags))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    result.merge(TRT_ReadoutGeometryCfg(flags))
 
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge(BeamPipeGeometryCfg(flags))
@@ -238,7 +238,7 @@ def TrackRecoCfg(flags):
         from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg
         result.merge(SCTRawDataProviderCfg(flags))
         result.merge(SCTEventFlagWriterCfg(flags))
-        from InDetConfig.TRTPreProcessing import TRTRawDataProviderCfg
+        from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConfig import TRTRawDataProviderCfg
         result.merge(TRTRawDataProviderCfg(flags))
 
     # up to here

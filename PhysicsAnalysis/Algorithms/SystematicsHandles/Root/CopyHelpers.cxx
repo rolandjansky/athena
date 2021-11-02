@@ -17,6 +17,7 @@
 #include <xAODMuon/MuonContainer.h>
 #include <xAODTau/TauJetContainer.h>
 #include <xAODTracking/TrackParticleContainer.h>
+#include <xAODTruth/TruthParticleContainer.h>
 
 //
 // method implementations
@@ -57,7 +58,8 @@ namespace CP
       COPY( xAOD::ElectronContainer );
       COPY( xAOD::PhotonContainer );
       COPY( xAOD::TauJetContainer );
-      COPY(xAOD::TrackParticleContainer);
+      COPY( xAOD::TrackParticleContainer );
+      COPY( xAOD::TruthParticleContainer );
 
 #undef COPY
 

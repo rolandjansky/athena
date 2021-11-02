@@ -299,8 +299,10 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
     messageVerbose("Extending to Volume");
     //get individual surfaces
 
-    //TODO - optimise this!
-    const std::vector< const Trk::Surface * > * bsurfs = volume->volumeBounds ().decomposeToSurfaces (volume->transform ());
+    // TODO - optimise this!
+    const std::vector<const Trk::Surface*>* bsurfs =
+      const_cast<Trk::VolumeBounds&>(volume->volumeBounds())
+        .decomposeToSurfaces(volume->transform());
 
     if (bsurfs){
       messageVerbose("Has this many surfaces:"+str(bsurfs->size()));

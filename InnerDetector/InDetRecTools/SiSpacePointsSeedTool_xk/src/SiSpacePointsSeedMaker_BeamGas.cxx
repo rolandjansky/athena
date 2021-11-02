@@ -1208,7 +1208,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::fillSeeds(EventData& data)
 }
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::initializeEventData(EventData& data) const {
-  data.initialize(EventData::BeamGas,
+  data.initialize(EventData::ToolType::BeamGas,
                   m_maxsizeSP,
                   m_maxOneSize,
                   0, // maxsize not used

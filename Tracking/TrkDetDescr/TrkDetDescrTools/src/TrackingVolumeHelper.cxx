@@ -556,7 +556,7 @@ Trk::TrackingVolume* Trk::TrackingVolumeHelper::glueTrackingVolumeArrays(
 
     // ENVELOPE GLUE DESCRIPTION -----------------------------------------------------------------
     // glue descriptors ---- they jump to the first one
-    const Trk::GlueVolumesDescriptor& glueDescr  = enclosingVolume->glueVolumesDescriptor();
+    Trk::GlueVolumesDescriptor& glueDescr  = enclosingVolume->glueVolumesDescriptor();
 
     // for the outside volumes, could be done in a loop as well, but will only save 4 lines
     std::vector<const Trk::TrackingVolume*> glueNegXY;

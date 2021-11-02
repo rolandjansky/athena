@@ -6,7 +6,7 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def _TileMuonReceiverDecision(flags):
     acc = ComponentAccumulator()
-    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
     TileMuonReceiverDecision = CompFactory.TileMuonReceiverDecision('TileMuonReceiverDecision'
                                                                     , TileRawChannelContainer = "MuRcvRawChCnt" # input
@@ -177,6 +177,7 @@ if __name__ == "__main__":
     flags.Scheduler.ShowDataFlow=True
     flags.Trigger.enableL1MuonPhase1=True
     flags.Trigger.triggerMenuSetup='LS2_v1'
+    flags.lock()
 
     acc = MainServicesCfg(flags)
 

@@ -6,3 +6,4 @@
 #include "GeoModelKernel/GeoGraphNode.h"
 
 typedef std::vector<GeoGraphNode *> GeoNodeList;
+typedef std::vector<const GeoGraphNode *> GeoConstNodeList;
