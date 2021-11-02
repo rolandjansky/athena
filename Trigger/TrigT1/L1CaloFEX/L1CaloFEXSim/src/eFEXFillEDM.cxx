@@ -45,7 +45,8 @@ namespace LVL1 {
   void eFEXFillEDM::fillEmEDM(std::unique_ptr<xAOD::eFexEMRoIContainer> &container, uint8_t eFexNum, uint32_t tobWord)
   {
     uint32_t tobWord0 = tobWord;
-    uint32_t tobWord1 = 0;
+    // Only needed for xTOBs, which aren't filled yet
+    // uint32_t tobWord1 = 0;
 
     // Translate eFEX index into Shelf+eFEX:
     // Messy because this eFEX index runs A, B, C while the readout order is C, B, A
@@ -58,7 +59,7 @@ namespace LVL1 {
     
     container->push_back(myEmEDM);
     
-    myEmEDM->initialize(eFEX, shelf, tobWord0, tobWord1);
+    myEmEDM->initialize(eFEX, shelf, tobWord0); 
 
     ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEmEDM->eFexNumber() << " shelf: " << +myEmEDM->shelfNumber() << " et: " << myEmEDM->et() << " eta: " << myEmEDM->eta() <<  " phi: " << myEmEDM->phi() << " input eFexNum: " << MSG::hex << +eFexNum << " TOB word: " << tobWord0 << MSG::dec );
 
@@ -67,7 +68,8 @@ namespace LVL1 {
   void eFEXFillEDM::fillTauEDM(std::unique_ptr<xAOD::eFexTauRoIContainer> &container, uint8_t eFexNum, uint32_t tobWord)
   {
     uint32_t tobWord0 = tobWord;
-    uint32_t tobWord1 = 0;
+    // Only needed for xTOBs, which aren't filled yet
+    //  uint32_t tobWord1 = 0;
 
     // Translate eFEX index into Shelf+eFEX:
     // Messy because this eFEX index runs A, B, C while the readout order is C, B, A
@@ -79,7 +81,7 @@ namespace LVL1 {
 
     container->push_back(myTauEDM);
 
-    myTauEDM->initialize(eFEX, shelf, tobWord0, tobWord1);
+    myTauEDM->initialize(eFEX, shelf, tobWord0);
     ATH_MSG_DEBUG(" setting tau eFEX Number: " << +myTauEDM->eFexNumber() << " et: " << myTauEDM->et() << " eta: " << myTauEDM->eta() << " phi: " << myTauEDM->phi() );
 
   }

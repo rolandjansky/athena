@@ -101,8 +101,8 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_ForwardTracks);
   } else if (m_patternName == "SiSpacePointsSeedMaker_LargeD0"    )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0    );
-  } else if (m_patternName == "SiSpacePointsSeedMaker_SLHCConversionTracks")  {
-    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_SLHCConversionTracks);
+  } else if (m_patternName == "SiSpacePointsSeedMaker_ITkConversionTracks")  {
+    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_ITkConversionTracks);
   } else {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder                  );
   }

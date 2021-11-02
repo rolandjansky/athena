@@ -74,7 +74,7 @@ namespace InDet {
        public:
 
          /** Constructor */
-         SCT_OverlapDescriptor();
+         SCT_OverlapDescriptor(bool addMoreSurfaces = false, int eta_slices = 3);
          
          /** Destructor */
          virtual ~SCT_OverlapDescriptor() = default;
@@ -91,6 +91,8 @@ namespace InDet {
         private:
           bool dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
           bool                                 m_robustMode;
+          bool                                 m_addMoreSurfaces;
+          int                                  m_etaSlices;         
           mutable std::atomic<const SCT_ID*>   m_sctIdHelper{nullptr};
     };
 

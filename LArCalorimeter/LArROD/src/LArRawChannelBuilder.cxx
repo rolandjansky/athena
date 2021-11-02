@@ -30,7 +30,6 @@ using CLHEP::picosecond;
 LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
   m_onlineHelper(NULL),
-  //m_roiMap("LArRoI_Map"),
   m_useTDC(false),
   m_Ecut(256*MeV),
   m_initialTimeSampleShift(0),

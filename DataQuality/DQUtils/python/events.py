@@ -339,7 +339,7 @@ def quantize_iovs_slow_mc(lbtime, iovs, quantizer=default_quantizing_function):
             
             if beginning:
                 # LB start: Remove events which finished in the last LB.
-                for key, c_ended_events in ended_events.iteritems():
+                for key, c_ended_events in ended_events.items():
                     if key in current_events:
                         current_events[key] -= c_ended_events
                         c_ended_events.clear()
@@ -354,7 +354,7 @@ def quantize_iovs_slow_mc(lbtime, iovs, quantizer=default_quantizing_function):
                     for channel in current_events:
                         evaluate_until[channel] = lb_n + 2
                 
-                for channel, active_events in current_events.iteritems():
+                for channel, active_events in current_events.items():
                     
                     if evaluate_until[channel] >= lb_n:
                         state = current_state[channel] = quantizer(active_events)
@@ -373,4 +373,4 @@ def quantize_iovs_slow_mc(lbtime, iovs, quantizer=default_quantizing_function):
             (current_events[c] if beginning else ended_events[c]).add(iov)
             evaluate_until[c] = lb_n + 2
             
-    return [value for key, value in sorted(resultstore.iteritems())]
+    return [value for key, value in sorted(resultstore.items())]

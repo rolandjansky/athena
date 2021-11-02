@@ -504,7 +504,7 @@ Amg::Vector2D
 Trk::AnnulusBoundsPC::closestOnSegment(const Amg::Vector2D& a,
                                        const Amg::Vector2D& b,
                                        const Amg::Vector2D& p,
-                                       const Eigen::Matrix<double, 2, 2>& weight) const
+                                       const Eigen::Matrix<double, 2, 2>& weight) 
 {
   // connecting vector
   auto     n       = b - a;
@@ -517,7 +517,7 @@ Trk::AnnulusBoundsPC::closestOnSegment(const Amg::Vector2D& a,
 }
 
 double
-Trk::AnnulusBoundsPC::squaredNorm(const Amg::Vector2D& v, const Eigen::Matrix<double, 2, 2>& weight) const
+Trk::AnnulusBoundsPC::squaredNorm(const Amg::Vector2D& v, const Eigen::Matrix<double, 2, 2>& weight) 
 {
   return (v.transpose() * weight * v).value();
 }

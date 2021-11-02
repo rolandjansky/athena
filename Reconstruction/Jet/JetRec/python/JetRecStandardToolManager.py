@@ -155,6 +155,7 @@ if jetFlags.useTracks():
   lcgetters += trackjetgetters
   empfgetters += trackjetgetters
 
+empfgetters += [jtm.gtowerget]
 
 # Add getter lists to jtm indexed by input type name.
 jtm.gettersMap["emtopo"]    = list(emgetters)

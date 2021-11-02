@@ -63,41 +63,37 @@ void LVL1::jFEXForwardJetsAlgo::setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algo
 }
 
 //Gets geometric global centre Phi coord of the TT
-float LVL1::jFEXForwardJetsAlgo::globalPhi(int nphi, int neta) {
+float LVL1::jFEXForwardJetsAlgo::globalPhi(int nphi, int neta, const jTowerContainer& towers) const {
     int TTID = m_jFEXalgoTowerID[nphi][neta];
     if(TTID == 0) {
         return 999;
     }
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
-    float phi = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(TTID)->centrePhi();
+    float phi = towers.findTower(TTID)->centrePhi();
     return phi;
 }
 
 //Gets geometric global centre Eta coord of the TT
-float LVL1::jFEXForwardJetsAlgo::globalEta(int nphi, int neta) {
+float LVL1::jFEXForwardJetsAlgo::globalEta(int nphi, int neta, const jTowerContainer& towers) const {
     int TTID = m_jFEXalgoTowerID[nphi][neta];
     if(TTID == 0) {
         return 999;
     }
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
-    float eta = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(TTID)->centreEta();
+    float eta = towers.findTower(TTID)->centreEta();
     return eta;
 }
 
 //Gets Phi of the TT
-unsigned int LVL1::jFEXForwardJetsAlgo::localPhi(int nphi, int neta) {
-    SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
-    unsigned int phi = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[nphi][neta])->phi();
+unsigned int LVL1::jFEXForwardJetsAlgo::localPhi(int nphi, int neta, const jTowerContainer& towers) const {
+    unsigned int phi = towers.findTower(m_jFEXalgoTowerID[nphi][neta])->phi();
     return phi;
 }
 
 //Gets Eta of the TT
-unsigned int LVL1::jFEXForwardJetsAlgo::localEta(int nphi, int neta) {
+unsigned int LVL1::jFEXForwardJetsAlgo::localEta(int nphi, int neta, const jTowerContainer& towers) const {
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXForwardJetsAlgo_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
-    unsigned int eta  = jk_jFEXForwardJetsAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[nphi][neta])->eta();
+    unsigned int eta  = towers.findTower(m_jFEXalgoTowerID[nphi][neta])->eta();
     return eta;
 }
 
@@ -116,9 +112,9 @@ unsigned int LVL1::jFEXForwardJetsAlgo::getTTowerET(int nphi, int neta ) {
     return 0;
 }
 
-std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLists() {
-
-    std::map<int, jFEXForwardJetsInfo> FCALJetTowerIDLists;
+std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLists() {
+    
+    std::unordered_map<int, jFEXForwardJetsInfo> FCALJetTowerIDLists;
 
     std::vector<int> lower_centre_neta;
     std::vector<int> upper_centre_neta;
@@ -148,6 +144,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
     std::vector<int> upper_centre_nphi{FEXAlgoSpaceDefs::jFEX_algoSpace_EMB_end_phi, FEXAlgoSpaceDefs::jFEX_algoSpace_EMIE_end_phi,  FEXAlgoSpaceDefs::jFEX_algoSpace_FCAL_end_phi};
 
     //STEP 3: loop over different EM/FCAL0 eta phi core fpga regions. These are potential central trigger towers for jets
+    SG::ReadHandle<jTowerContainer> towers(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
     for(int myCounter = 0; myCounter<3; myCounter++) {
         for(int centre_nphi = lower_centre_nphi[myCounter]; centre_nphi < upper_centre_nphi[myCounter]; centre_nphi++) {
             for(int centre_neta = lower_centre_neta[myCounter]; centre_neta < upper_centre_neta[myCounter]; centre_neta++) {
@@ -167,8 +164,8 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
                 TriggerTowerInformation.setCentreLocalTTPhi(centre_nphi);
                 TriggerTowerInformation.setCentreLocalTTEta(centre_neta);
 
-                float centreTT_phi = globalPhi(centre_nphi, centre_neta);
-                float centreTT_eta = globalEta(centre_nphi, centre_neta);
+                float centreTT_phi = globalPhi(centre_nphi, centre_neta, *towers);
+                float centreTT_eta = globalEta(centre_nphi, centre_neta, *towers);
                 TriggerTowerInformation.setCentreTTPhi(centreTT_phi);
                 TriggerTowerInformation.setCentreTTEta(centreTT_eta);
                 TriggerTowerInformation.includeTTinSeed(m_jFEXalgoTowerID[centre_nphi][centre_neta]);
@@ -183,7 +180,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
                         if(m_jFEXalgoTowerID[centre_nphi][centre_neta]==m_jFEXalgoTowerID[nphi][neta]  || m_jFEXalgoTowerID[nphi][neta]==0 ) {
                             continue;
                         }
-                        float TT_phi = globalPhi(nphi, neta);
+                        float TT_phi = globalPhi(nphi, neta, *towers);
                         if(m_fpga==0 || m_fpga==3) { //This corrects the overlap of FPGA 0 with FPGA 3 and viceversa
                             if(m_fpga==0) {
                                 if(TT_phi>M_PI){
@@ -196,7 +193,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
                                 }
                             }
                         }
-                        float TT_eta = globalEta(nphi, neta);
+                        float TT_eta = globalEta(nphi, neta, *towers);
                         int DeltaR = std::round(std::sqrt(std::pow((centreTT_eta - TT_eta),2) + std::pow((centreTT_phi - TT_phi),2))*100); // cast float to int to avoid misbehaviours
                         if(DeltaR < 20 ) {
                             //STEP 9.0: fill TTID in seed
@@ -231,15 +228,16 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJetsTowerIDLis
             }//end of centre_neta loop
         }//end of centre_nphi loop
     }//end of myCounter loop
+    
     return FCALJetTowerIDLists;
 }
 
 
 
-std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima() {
+std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima() {
     //std::vector<int> localMaximas;
-    std::map<int, jFEXForwardJetsInfo> localMaximaCandidates = FcalJetsTowerIDLists();
-    std::map<int, jFEXForwardJetsInfo> localMaximaList ;
+    std::unordered_map<int, jFEXForwardJetsInfo> localMaximaCandidates = FcalJetsTowerIDLists();
+    std::unordered_map<int, jFEXForwardJetsInfo> localMaximaList ;
     SG::ReadHandle<jTowerContainer> my_jTowerContainer(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
 
     size_t isLocalMaxima = 0;
@@ -278,7 +276,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima(
                         if(m_jFEXalgoTowerID[nphi][neta]==0 ) {
                             continue;
                         }
-                        float TT_phi = globalPhi(nphi, neta);
+                        float TT_phi = globalPhi(nphi, neta, *my_jTowerContainer);
                         if(m_fpga==0 || m_fpga==3) { //This corrects the overlap of FPGA 0 with FPGA 3 and viceversa
                             if(m_fpga==0) {
                                 if(TT_phi>M_PI){
@@ -291,7 +289,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima(
                                 }
                             }
                         }
-                        float TT_eta = globalEta(nphi, neta);
+                        float TT_eta = globalEta(nphi, neta, *my_jTowerContainer);
                         int DeltaR = std::round(std::sqrt(std::pow((seed_eta - TT_eta),2) + std::pow((seed_phi - TT_phi),2))*100); // cast float to int to avoid misbehaviours
                         if(DeltaR < 20 ) {
                             seed_energy+=getTTowerET(nphi, neta);
@@ -320,8 +318,8 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLocalMaxima(
 }
 
 
-std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() {
-    
+std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() {
+
     // setting the lower/upper eta range for the FCAL 2 and 3 since they are not added in the seed information yet 
     int lowerFCAL_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_lowerFCAL_eta;
     int upperFCAL_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_C_upperFCAL_eta;
@@ -331,7 +329,8 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() 
         upperFCAL_eta = FEXAlgoSpaceDefs::jFEX_algoSpace_A_upperFCAL_eta;
     } 
     // Adding the FCAL 2 and 3 TT in the seed, 1st and 2nd energy rings
-    std::map<int, jFEXForwardJetsInfo> localMaximas = isSeedLocalMaxima();
+    SG::ReadHandle<jTowerContainer> towers(m_jFEXForwardJetsAlgo_jTowerContainerKey/*,ctx*/);
+    std::unordered_map<int, jFEXForwardJetsInfo> localMaximas = isSeedLocalMaxima();
     for(std::pair<int, jFEXForwardJetsInfo> element : localMaximas) {
         jFEXForwardJetsInfo myFCALJetInfoClass = element.second;
 
@@ -340,8 +339,8 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() 
         for(int nphi = 0; nphi < 8; nphi++) {
             for(int neta = lowerFCAL_eta; neta < upperFCAL_eta; neta++) {
                 
-                float TT_phi = globalPhi(nphi, neta);
-                float TT_eta = globalEta(nphi, neta);
+                float TT_phi = globalPhi(nphi, neta, *towers );
+                float TT_eta = globalEta(nphi, neta, *towers);
 
                 if(m_fpga==0 || m_fpga==3) { //This corrects the overlap of FPGA 0 with FPGA 3 and viceversa
                     if(m_fpga==0) {
@@ -381,7 +380,7 @@ std::map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculateJetETs() 
 }
 
 
-void LVL1::jFEXForwardJetsAlgo::setFPGAEnergy(std::map<int,std::vector<int> > et_map){
+void LVL1::jFEXForwardJetsAlgo::setFPGAEnergy(std::unordered_map<int,std::vector<int> > et_map){
     m_map_Etvalues=et_map;
 }
 

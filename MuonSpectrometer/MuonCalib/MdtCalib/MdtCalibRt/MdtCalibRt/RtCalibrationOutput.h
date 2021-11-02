@@ -22,7 +22,7 @@ namespace MuonCalib {
     public:
         RtCalibrationOutput(std::shared_ptr<const IRtRelation> rt_rel, std::shared_ptr<const RtFullInfo> fi) :
             IMdtCalibrationOutput("RtCalibrationOutput"), m_rtRelation(rt_rel), m_fullInfo(fi) {}
-
+        virtual ~RtCalibrationOutput() = default;
         /** access to private attributes */
         std::shared_ptr<const IRtRelation> rt() const { return m_rtRelation; }
         std::shared_ptr<const RtFullInfo> fullInfo() const { return m_fullInfo; }

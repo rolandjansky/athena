@@ -1062,7 +1062,7 @@ void VP1TrackingGeometrySystem::processTrkVolume(const Trk::TrackingVolume* tvol
                   surfaceSepHelper = m_d->sephelper_pixSurfECC;
               }
            }    
-        } else if (volumeName.contains("SCT") > 0) {
+        } else if ((volumeName.contains("SCT") > 0) or (volumeName.contains("Strip") > 0)) {
             // SCT sector
             if ( volumeName.contains("Barrel") > 0 ){
                 // sct barrel surfaces & layers

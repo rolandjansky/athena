@@ -10,30 +10,20 @@ if DQMonFlags.useTrigger():
       from RecExConfig.RecFlags import rec
 
    if rec.readESD() and (DQMonFlags.monManEnvironment=='tier0ESD'):
-      # for ESD->AOD use trigger config stored as in-file meta-data,
-      if not 'TriggerFlags' in dir():
-         from TriggerJobOpts.TriggerFlags import TriggerFlags
-      TriggerFlags.configurationSourceList = ['ds']
-
       # set up trigger config service
       if not 'TriggerConfigGetter' in dir():
          from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
          cfg = TriggerConfigGetter()
 
-   if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool().split('/')[-1]):
-      if rec.doTrigger():
-         tdt_local_logger.error('DQ Monitoring is being asked to set up the TrigDecisionTool for some reason.  THIS IS A TERRIBLE IDEA AND SHOULD BE CONSIDERED A BUG!')
-      from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
-      from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-      # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-      ConfigFlags = getNewConfigFlags()
+   from AthenaCommon.Configurable import Configurable
+   Configurable.configurableRun3Behavior+=1
+   from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool 
+   tdtAcc = getTrigDecisionTool(ConfigFlags)
+   Configurable.configurableRun3Behavior-=1
 
-      from AthenaConfiguration import ComponentAccumulator
-      ComponentAccumulator.CAtoGlobalWrapper(getTrigDecisionTool, ConfigFlags)
-
-      monTrigDecTool = getattr(ToolSvc, 'TrigDecisionTool')
-   else:
-      monTrigDecTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool().split('/')[-1])
+   from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
+   monTrigDecTool = conf2toConfigurable(tdtAcc.getPrimary())
+   appendCAtoAthena( tdtAcc )
    tdt_local_logger.info('Scheduled monitoring TDT %s', monTrigDecTool)
 
    tdt_local_logger.info('Scheduling the trigger translator')

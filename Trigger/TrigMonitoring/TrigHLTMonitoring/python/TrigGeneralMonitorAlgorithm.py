@@ -37,10 +37,6 @@ def TrigGeneralMonConfig(inputFlags):
     trigHLTMonAlg.TrigConfigSvc = cfgsvc
 
 
-
-    # Edit properties of a algorithm
-    # 
-
     ####### Signature names 
 
     signature_names = []
@@ -53,7 +49,7 @@ def TrigGeneralMonConfig(inputFlags):
     signature_names.append("Jets") #6
     signature_names.append("MinBias") #7
   
-    # Add a monitoring tool per signature (a "group" in old language). 
+
     hltGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTMonitor',
@@ -103,12 +99,12 @@ def TrigGeneralMonConfig(inputFlags):
     ###########################################################
     ##### HLTResult and ConfigConsistency  ####################
   
-    hltGroup.defineHistogram('HLTResultHLT', title='HLT Result PLACEHOLDER;result;Events',
-                             path='',xbins=3,xmin=0,xmax=3)
+    hltGroup.defineHistogram('HLTEvents', title='HLT events;HLT;Events',
+                             path='',xbins=2,xmin=0,xmax=2)
 
-    consistency_names=['SMK DB NULL','SMK BS NULL','SMK Inconsistent','HLT Prescale DB NULL','HLT Prescale BS NULL','HLT Prescale Inconsistent','No HLTResult']
+    consistency_names=['SMK DB NULL','SMK BS NULL','SMK Inconsistent','HLT Prescale DB NULL','HLT Prescale BS NULL','HLT Prescale Inconsistent','No onlineKeys','No eventKeys']
     hltGroup.defineHistogram('ConfigConsistency_HLT', title='ConfigConsistency_HLT;;Events',
-                             path='',xbins=7,xmin=1,xmax=8,xlabels=consistency_names)
+                             path='',xbins=8,xmin=1,xmax=9,xlabels=consistency_names,opt='kAlwaysCreate')
 
  
     ############################################################
@@ -116,35 +112,47 @@ def TrigGeneralMonConfig(inputFlags):
 
     from AthenaConfiguration.AutoConfigFlags import GetFileMD
 
-    ### Set up counters ########################################
 
+    ########################
     ## The HLT chains
-    counter_i = 1
+    HLT_names_AllChains = []
+    log_trighlt.debug('HLT chains:')
     for chain_name in GetFileMD(inputFlags.Input.Files)['TriggerMenu']['HLTChains']:
-        counter_i = counter_i+1
         log_trighlt.debug('HLT chain_name = %s',chain_name)
-    max_hlt_chains = counter_i-1
-    log_trighlt.debug('max_hlt_chains = %i', max_hlt_chains)
+        HLT_names_AllChains.append(chain_name)
+    max_hlt_chains = len(HLT_names_AllChains)
+    log_trighlt.debug('max_hlt_chains = %i', max_hlt_chains) 
 
 
+    #Sort HLT names alphabetically, to make the HLT histograms have the same 
+    #x axes for different runs and reprocessings
+    HLT_names_AllChains_sorted = sorted(HLT_names_AllChains)
+
+
+
+    #########################
     ## The L1 items
-    counter_L1 = 1
+    L1_names =[]
     for item_name in GetFileMD(inputFlags.Input.Files)['TriggerMenu']['L1Items']:
-        counter_L1 = counter_L1+1
-        log_trighlt.debug('L1 item_name = %s',item_name)
-    max_L1_items = counter_L1-1 
-    log_trighlt.debug('max_L1_items = %i', max_L1_items)
+        log_trighlt.debug('L1 item_name = %s',item_name) 
+        L1_names.append(item_name)
+    max_L1_items = len(L1_names)
+    log_trighlt.debug('max_L1_items = %i', max_L1_items) 
 
+    #Sort L1 names alphabetically, to make the L1 histograms have the same 
+    #x axes for different runs and reprocessings
+    L1_names_sorted = sorted(L1_names)
 
     ##### L1 summary histogram ################################
 
     hltGroup.defineHistogram('L1Events',title='Events per Item at L1;;Events',
-                             path='',xbins=max_L1_items,xmin=1,xmax=max_L1_items+1)
-
+                             path='',xbins=len(L1_names_sorted), xmin=0, 
+                             xmax=len(L1_names_sorted), xlabels=L1_names_sorted)
 
     #### HLT summary histograms for the signatures #############
 
     triggerstatus = ['RAW','PS'] #all chains or prescaled chains
+
     for sig in signature_names: #loop over signatures
         log_trighlt.debug("Signature %s",sig)
 
@@ -154,8 +162,9 @@ def TrigGeneralMonConfig(inputFlags):
             histname = "HLT_"+sig+trigstatus
             log_trighlt.debug('Histname = %s', histname)
             hltGroup.defineHistogram(histname,title=titlename,
-                                     path=sig,xbins=max_hlt_chains+1,
-                                     xmin=1,xmax=max_hlt_chains+1)
+                                     path=sig,xbins=len(HLT_names_AllChains_sorted),
+                                     xmin=0,xmax=len(HLT_names_AllChains_sorted), 
+                                     xlabels=HLT_names_AllChains_sorted)
 
  
     ### RoIs, one per signature

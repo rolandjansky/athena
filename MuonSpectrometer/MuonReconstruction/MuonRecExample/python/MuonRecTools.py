@@ -23,7 +23,7 @@ from RecExConfig.RecFlags import rec
 
 from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getService
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from InDetRecExample import TrackingCommon
 
 #--------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     else:
         kwargs.setdefault("IsMC", True)
 
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("doMDT", True)
 
     return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs)
@@ -178,7 +178,7 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
     getPublicTool("MuonHoughPatternTool")
     if muonStandaloneFlags.reconstructionMode() == 'collisions':
         kwargs.setdefault("MDT_TDC_cut", False)
-    if muonStandaloneFlags.reconstructionMode() == 'collisions' or TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if muonStandaloneFlags.reconstructionMode() == 'collisions' or ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("RecordAll",False)
     return CfgMgr.Muon__MuonHoughPatternFinderTool(name,**kwargs)
 
@@ -376,7 +376,7 @@ def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags
     kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401
     from AthenaCommon.AppMgr import ToolSvc
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     else:
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
@@ -439,7 +439,7 @@ def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwa
 # end of factory function DCMathSegmentMaker
 
 def MuonLayerHoughTool(name='MuonLayerHoughTool',extraFlags=None,**kwargs):
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+    if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("DoTruth", False)
     else:
         kwargs.setdefault("DoTruth", rec.doTruth())

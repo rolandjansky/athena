@@ -117,12 +117,12 @@ namespace Ringer{
     bool RingerSelector::accept( const xAOD::TrigRingerRings *ringsCluster, float discr, float avgmu ) const 
     {
       float et = ringsCluster->emCluster()->et()/Gaudi::Units::GeV;
-      float eta = std::min( std::abs(ringsCluster->emCluster()->eta()), float(2.5));
+      float eta = std::abs(ringsCluster->emCluster()->eta());
     
       ATH_MSG_DEBUG( "Event et = "<< et << ", eta = " << eta );
       for( auto& cutDef : m_thresholds ){
-        if ( et <= cutDef.etMin() || et > cutDef.etMax() ) continue;
-        if ( eta <= cutDef.etaMin() || eta > cutDef.etaMax() ) continue;
+        if ( et < cutDef.etMin() || et >= cutDef.etMax() ) continue;
+        if ( eta < cutDef.etaMin() || eta >= cutDef.etaMax() ) continue;
         return cutDef.accept( discr, avgmu );
       }// loop over all thresholds
     
@@ -204,13 +204,13 @@ namespace Ringer{
     float RingerSelector::predict(const xAOD::TrigRingerRings *ringsCluster , const xAOD::TrigElectron *el ) const
     {
       float et = ringsCluster->emCluster()->et()/Gaudi::Units::GeV;
-      float eta = std::min( std::abs(ringsCluster->emCluster()->eta()), float(2.5));
+      float eta = std::abs(ringsCluster->emCluster()->eta());
 
       // Find the correct model and predict
       for( auto& model : m_models ){
         
-        if(et<=model.etMin() || et > model.etMax()) continue;
-        if(eta<=model.etaMin() || eta > model.etaMax()) continue;
+        if(et<model.etMin() || et >= model.etMax()) continue;
+        if(eta<model.etaMin() || eta >= model.etaMax()) continue;
 
         auto inputs = prepare_inputs( model.barcode(), ringsCluster, el );
         auto output = model.predict( inputs ); // propagate the input throut the model

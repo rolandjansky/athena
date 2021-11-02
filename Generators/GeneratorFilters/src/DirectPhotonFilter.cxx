@@ -16,8 +16,6 @@ DirectPhotonFilter::DirectPhotonFilter(const std::string& name, ISvcLocator* pSv
   declareProperty("Etacut", m_EtaRange = 2.50);
   declareProperty("AllowSUSYDecay",m_AllowSUSYDecay = false);
 
-  // Backward compatibility aliases
-  declareProperty("Ptcut", m_Ptmin);
 }
 
 StatusCode DirectPhotonFilter::filterInitialize() {
@@ -62,7 +60,6 @@ StatusCode DirectPhotonFilter::filterEvent() {
   for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     ATH_MSG_DEBUG("----->>> Process : " << HepMC::signal_process_id(genEvt));
-
     // Find all prompt photons with within given eta range
     for (auto pitr: *genEvt) {
       if (pitr->pdg_id() == 22 &&
@@ -87,7 +84,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
         }
         phot++;
         if (!fromHadron) promptPhotonsInEta.push_back(pitr);
-        else ATH_MSG_INFO("non-prompt photon ignored");
+        else ATH_MSG_DEBUG("non-prompt photon ignored");
       }
     }
   }
@@ -115,7 +112,9 @@ StatusCode DirectPhotonFilter::filterEvent() {
         }
       }
 
-      if (pass) ATH_MSG_DEBUG("Passed!");
+      if (pass) {
+         ATH_MSG_DEBUG("Passed!");
+         }
       setFilterPassed(pass);
     }
     else { // just require NPhotons to pass m_Ptmin/max[0]

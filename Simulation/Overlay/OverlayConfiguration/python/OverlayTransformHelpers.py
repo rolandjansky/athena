@@ -3,7 +3,7 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
-from PyJobTransforms.trfArgClasses import argBSFile, argFactory, argList, argRDOFile, argSubstep
+from PyJobTransforms.trfArgClasses import argBSFile, argFactory, argList, argRDOFile, argSubstep, argSubstepInt
 from PyJobTransforms.trfExe import athenaExecutor
 
 
@@ -13,6 +13,10 @@ def addOverlayTrfArgs(parser):
     parser.add_argument('--detectors', nargs='*',
                         type=argFactory(argList),
                         help='Detectors autoconfiguration string',
+                        group='Overlay')
+    parser.add_argument('--skipSecondaryEvents', nargs='+',
+                        type=argFactory(argSubstepInt, defaultSubstep='first'), 
+                        help='Number of secondary input events to skip over in the first processing step (skipping substep can be overridden)',
                         group='Overlay')
     parser.add_argument('--outputRDO_SGNLFile', nargs='+',
                         type=argFactory(argRDOFile, io='output'),

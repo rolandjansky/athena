@@ -40,9 +40,9 @@ struct diamond_t {
   unsigned int wedgeCounter;
   char sector;
   int phi;
-  std::vector<MMT_Road*> ev_roads;
+  std::vector<std::shared_ptr<MMT_Road> > ev_roads;
   std::vector<slope_t> slopes;
-  std::vector<MMT_Hit*> ev_hits;
+  std::vector<std::shared_ptr<MMT_Hit> > ev_hits;
 };
 
 class MMT_Diamond : public AthMessaging {
@@ -50,13 +50,13 @@ class MMT_Diamond : public AthMessaging {
     MMT_Diamond(const MuonGM::MuonDetectorManager* detManager);
 
     void clearEvent();
-    void createRoads_fillHits(const unsigned int iterator, std::vector<hitData_entry> &hitDatas, const MuonGM::MuonDetectorManager* detManager, MMT_Parameters *par, const int phi);
+    void createRoads_fillHits(const unsigned int iterator, std::vector<hitData_entry> &hitDatas, const MuonGM::MuonDetectorManager* detManager, std::shared_ptr<MMT_Parameters> par, const int phi);
     void findDiamonds(const unsigned int iterator, const double &sm_bc, const int &event);
     double phiShift(const int &n, const double &phi, const char &side);
     std::vector<diamond_t> getDiamondVector() const { return m_diamonds; }
     diamond_t getDiamond(const unsigned int iterator) const { return m_diamonds.at(iterator); }
     std::vector<double> getHitSlopes() const { return m_hitslopes; }
-    std::vector<MMT_Hit*> getHitVector(const unsigned int iterator) const { return m_diamonds.at(iterator).ev_hits; }
+    std::vector<std::shared_ptr<MMT_Hit> > getHitVector(const unsigned int iterator) const { return m_diamonds.at(iterator).ev_hits; }
     std::vector<slope_t> getSlopeVector(const unsigned int iterator) const { return m_diamonds.at(iterator).slopes; }
     unsigned int getDiamondSize() const { return m_diamonds.size(); }
     int getUVfactor() const { return m_uvfactor; }

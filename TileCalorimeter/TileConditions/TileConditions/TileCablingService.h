@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECABLINGSERVICE_H
@@ -20,7 +20,7 @@
 
 #include <vector>
 
-class ATLAS_CHECK_THREAD_SAFETY TileCablingService {
+class TileCablingService {
   friend class TileInfoLoader;
   friend class TileDetectorTool;
   friend class TileDetectorFactory;
@@ -32,7 +32,7 @@ class ATLAS_CHECK_THREAD_SAFETY TileCablingService {
 public:
 
     /** get pointer to service instance*/
-    static TileCablingService* getInstance();
+    static const TileCablingService* getInstance();
     
     // Conversion between TileID and Trigger Tower ID
 
@@ -102,17 +102,14 @@ public:
 
     bool isDisconnected(int ros, int drawer, int channel) const;
 
-protected:
-    
-    /** Default constructor protected */                
     TileCablingService() ;
-    
-
-    /** Destructor protected */
     virtual ~TileCablingService() ;
      
 
 private:
+
+    /** get (non-const) pointer to service instance*/
+    static TileCablingService* getInstance_nc ATLAS_NOT_THREAD_SAFE ();
 
     static int          hwid2section            ( int ros, int channel );
            int          hwid2side               ( int ros, int channel ) const;

@@ -58,7 +58,7 @@ class TrigEgammaFastElectronHypoToolConfig:
                              'lrttight' :5.0
                            }
 
-  def __init__(self, name, cpart, tool=None):
+  def __init__(self, name, monGroups, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastElectronHypoTool')
@@ -67,6 +67,7 @@ class TrigEgammaFastElectronHypoToolConfig:
     self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
     self.__idperfInfo    = cpart['idperfInfo']
     self.__lrtInfo    = cpart['lrtInfo']
+    self.__monGroups       = monGroups
 
     if not tool:
       from AthenaConfiguration.ComponentFactory import CompFactory
@@ -153,7 +154,12 @@ class TrigEgammaFastElectronHypoToolConfig:
 
     # add mon tool
     if hasattr(self.tool(), "MonTool"):
-      self.addMonitoring()
+      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
+      doOnlineMonAllChains = doOnlineMonForceCfg()
+      monGroups = self.__monGroups
+
+      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+        self.addMonitoring()
 
 
   #
@@ -180,8 +186,8 @@ class TrigEgammaFastElectronHypoToolConfig:
 
 
 
-def _IncTool(name, cpart, tool=None):
-  config = TrigEgammaFastElectronHypoToolConfig(name, cpart, tool=tool)
+def _IncTool(name, monGroups, cpart, tool=None):
+  config = TrigEgammaFastElectronHypoToolConfig(name,monGroups, cpart, tool=tool)
   config.compile()
   return config.tool()
 
@@ -191,7 +197,8 @@ def TrigEgammaFastElectronHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if (i['signature']=='Electron')]
     name = d['chainName']
-    return _IncTool( name, cparts[0] , tool=tool)
+    monGroups = d['monGroups']
+    return _IncTool( name, monGroups, cparts[0] , tool=tool)
 
 
 

@@ -1058,7 +1058,12 @@ Trk::RungeKuttaUtils::stepEstimator(
   double D[3] = { Pout[0] - Pinp[0], Pout[1] - Pinp[1], Pout[2] - Pinp[2] };
   double Smax = sqrt(D[0] * D[0] + D[1] * D[1] + D[2] * D[2]);
   double Sign = D[0] * Pinp[3] + D[1] * Pinp[4] + D[2] * Pinp[5];
-
+  // The magnitude of the vector is essentially 0. No 
+  /// sensible estimate of the next step possible.
+  if (Smax < DBL_EPSILON){
+      next = true;
+      return std::make_pair(0., -1);
+  }
   Amg::Vector3D pos(Pinp[0], Pinp[1], Pinp[2]);
   Amg::Vector3D dir(D[0] / Smax, D[1] / Smax, D[2] / Smax);
 

@@ -6,7 +6,6 @@
 #include "LArOnlineIDStrHelper.h"
 
 // --- athena ---
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -181,6 +180,7 @@ StatusCode LArRawChannelMonTool::initialize()
 
   ATH_CHECK( m_noiseKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   // ---
   // Get Michel's LArOnlineIDStrHelper: All names are Expert view
@@ -1197,8 +1197,9 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   // --- check set in bookHistogram ---
   if ( !m_has_lar_raw_channels ) return StatusCode::SUCCESS;
 
-  const CaloDetDescrManager *ddman = nullptr;
-  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager *ddman = *caloMgrHandle;
 
   // --- retrieve raw channels ---
   SG::ReadHandle<LArRawChannelContainer> raw_channels (m_LArRawChannel_container_key, ctx);

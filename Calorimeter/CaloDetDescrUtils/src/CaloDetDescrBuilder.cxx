@@ -13,6 +13,8 @@
 #include "CaloDetDescr/CaloDescriptors.h"
 #include "CaloDetDescr/CaloDetDescrElementContainer.h"
 
+#include "CaloConditions/CaloCellPositionShift.h"
+
 #include "LArReadoutGeometry/LArDetectorManager.h"
 
 #include "LArReadoutGeometry/EMBCell.h"
@@ -43,8 +45,8 @@
 
 std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 						       , IMessageSvc* msgSvc
-						       , const GeoAlignmentStore* /*geoAlignStore*/
-						       , const CaloRec::CaloCellPositionShift* /*cellPosShift*/)
+						       , const GeoAlignmentStore* geoAlignStore
+						       , const CaloRec::CaloCellPositionShift* cellPosShift)
 {
   MsgStream log(msgSvc, "buildCaloDetDescr"); 
 
@@ -80,15 +82,9 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
   // geometry layout
   caloMgr->set_lar_geometry(cellVol.layout());
 
-  //unsigned int idhash;
-  IdentifierHash min;
-  IdentifierHash max;
-
   const LArEM_ID* em_id = caloId_mgr->getEM_ID();
   const LArHEC_ID* hec_id = caloId_mgr->getHEC_ID();
   const LArFCAL_ID* fcal_id = caloId_mgr->getFCAL_ID();
-
-  // Create Calo Detector Elements
 
   // Check whether we are working with Test Beam geometry
   bool isTestBeam = false;
@@ -101,11 +97,19 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
     isTestBeam = larMgr->isTestBeam();
   }
 
+  // Get minimal value for Hash ID - needed to retrieve sagging information
+  IdentifierHash minHash,maxHash;
+  cell_id->calo_cell_hash_range(CaloCell_ID::LAREM,minHash,maxHash);
+
+  // Two objects needed to pass sagging info to updateAlignment() methods
+  CaloElementPositionShift elementPosShift;
+  CaloRec::CaloCellPositionShift::size_type posShiftInd;
+
   // ****************************************************************
   // **                   --- --- EMB --- ---                      **
   // ****************************************************************
 
-  // --- Retrieve Emec Detector Manager
+  // --- Retrieve EMB Detector Manager
   const EMBDetectorManager* embManager{nullptr};
   status = detStore->retrieve(embManager);
   if(status.isFailure()) {
@@ -115,13 +119,13 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
     //         --- --- Iterate over EMB regions and cells --- ---
     EMBDetectorManager::DetectorRegionConstIterator embregIt;
 
-    for (embregIt=embManager->beginDetectorRegion(); embregIt!=embManager->endDetectorRegion(); embregIt++) {
+    for (embregIt=embManager->beginDetectorRegion(); embregIt!=embManager->endDetectorRegion(); ++embregIt) {
       const EMBDetectorRegion *embRegion = *embregIt;
 
-      // *** ***  Create descriptor for this region *** ***
-      // Region identifier.
-      // Do some mapping between LArReadoutGeometry and CaloID
+      // _________ Create descriptor for this region _________
 
+      // Build region identifier.
+      // Do some mapping between LArReadoutGeometry and CaloID
       int barrel_ec = 0;
       switch(embRegion->getEndcapIndex()) {
       case EMBDetectorRegion::NEG:
@@ -138,7 +142,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 					  , embRegion->getSamplingIndex()
 					  , embRegion->getRegionIndex());
 
-      EMBDescriptor* embDescr = new EMBDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,embRegion);
+      EMBDescriptor* embDescr = new EMBDescriptor(regId
+						  , (AtlasDetectorID *)cell_id
+						  , cell_id
+						  , embRegion
+						  , geoAlignStore);
       caloMgr->add(embDescr);
 
       double phi_min = 0.;
@@ -152,14 +160,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 
       std::vector<double> depth_in;
       std::vector<double> depth_out;
+      // __________________________________________________________
 
-      // *** ***  Create descriptor for this region *** ***
-
-      //
-      //            *** *** *** Iterate over cells *** *** ***
-      //
-      for (unsigned int iPhi=embRegion->beginPhiIndex();iPhi<embRegion->endPhiIndex();iPhi++) {
-	for (unsigned int iEta=embRegion->beginEtaIndex();iEta<embRegion->endEtaIndex();iEta++) {
+      // _________ Create EMB detector elements _________
+      for (unsigned int iPhi=embRegion->beginPhiIndex(); iPhi<embRegion->endPhiIndex(); ++iPhi) {
+	for (unsigned int iEta=embRegion->beginEtaIndex(); iEta<embRegion->endEtaIndex(); ++iEta) {
 	  EMBCellConstLink cellPtr = embRegion->getEMBCell(iEta,iPhi);
 
 	  // build hash identifier for this cell
@@ -169,17 +174,32 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 						, iEta
 						, iPhi);
 
-	  // Create the element and store it
+	  // Create new element and store it
+	  if(cellPosShift) {
+            posShiftInd = cell_id->calo_cell_hash(chanId) - minHash;
+            elementPosShift.dx = cellPosShift->deltaX(posShiftInd);
+            elementPosShift.dy = cellPosShift->deltaY(posShiftInd);
+            elementPosShift.dz = cellPosShift->deltaZ(posShiftInd);
+          }
 	  EMBDetectorElement* embElement = new EMBDetectorElement(em_id->channel_hash(chanId)
 								  , 0
 								  , 0
 								  , embDescr
 								  , cellPtr
 								  , embRegion
-								  , isTestBeam);
-	  if(iPhi==embRegion->beginPhiIndex()) {
-	    phi_min = embElement->phi() - 0.5*embElement->dphi();
-	  }
+								  , isTestBeam
+								  , geoAlignStore
+								  , cellPosShift ? &elementPosShift : nullptr);
+	  if(cellPosShift) {
+            if(iPhi==0 && (iEta==0||iEta==1)) {
+              phi_min = embElement->phi() - 0.5*embElement->dphi();
+            }
+          }
+          else {
+            if(iPhi==embRegion->beginPhiIndex()) {
+              phi_min = embElement->phi() - 0.5*embElement->dphi();
+            }
+          }
 
 	  // cell volume
 	  embElement->set_volume(cellVol.CellVolume(chanId));
@@ -208,7 +228,7 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 	  }
 	} // Eta loop
       } // Phi loop
-      //            *** *** *** Iterate over cells *** *** ***
+      // _____________________________________________________________
 
       double eta_min = (embRegion->getSamplingIndex()==1 && embRegion->getRegionIndex()==0)
 	? embRegion->getDescriptor()->getEtaBinning().getStart() - embRegion->getDescriptor()->getEtaBinning().getDelta()
@@ -235,9 +255,18 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
       // 'alignable' values
       embDescr->setLArRegMin(reg_min);
       embDescr->setLArRegMax(reg_max);
-      embDescr->setLArEtaMin(eta_min);
       embDescr->setLArPhiMin(phi_min);
-
+      if(cellPosShift) {
+        if(embRegion->getEndcapIndex()==EMBDetectorRegion::NEG) {
+          embDescr->setLArEtaMin(-reg_max);
+        }
+        else {
+          embDescr->setLArEtaMin(reg_min);
+        }
+      }
+      else {
+        embDescr->setLArEtaMin(eta_min);
+      }
     }// Region loop
   } // if EMB manager has been retrieved
 
@@ -259,11 +288,12 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
     //         --- --- Iterate over EMEC regions and cells --- ---
     EMECDetectorManager::DetectorRegionConstIterator emecregIt;
 
-    for (emecregIt=emecManager->beginDetectorRegion(); emecregIt!=emecManager->endDetectorRegion(); emecregIt++) {
+    for (emecregIt=emecManager->beginDetectorRegion(); emecregIt!=emecManager->endDetectorRegion(); ++emecregIt) {
       const EMECDetectorRegion *emecRegion = *emecregIt;
 
-      // *** ***  Create descriptor for this region *** ***
-      // Region identifier.
+      // _________ Create descriptor for this region _________
+
+      // Build Region identifier.
       // Do some mapping between LArReadoutGeometry and CaloID
       EMECDetectorRegion::DetectorSide endcapInd = emecRegion->getEndcapIndex();
 
@@ -296,7 +326,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 					  , emecRegion->getSamplingIndex()
 					  , emecRegion->getRegionIndex());
 
-      EMECDescriptor* emecDescr = new EMECDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,emecRegion);
+      EMECDescriptor* emecDescr = new EMECDescriptor(regId
+						     , (AtlasDetectorID *)cell_id
+						     , cell_id
+						     , emecRegion
+						     , geoAlignStore);
       caloMgr->add(emecDescr);
 
       double phi_min = 0.;
@@ -310,13 +344,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 
       std::vector<double> depth_in;
       std::vector<double> depth_out;
-      // *** ***  Create descriptor for this region *** ***
+      // _____________________________________________________________
 
-      //
-      //            *** *** *** Iterate over cells *** *** ***
-      //
-      for (unsigned int iPhi=emecRegion->beginPhiIndex();iPhi<emecRegion->endPhiIndex();iPhi++) {
-	for (unsigned int iEta=emecRegion->beginEtaIndex();iEta<emecRegion->endEtaIndex();iEta++) {
+      // _________ Create EMEC detector elements _________
+      for (unsigned int iPhi=emecRegion->beginPhiIndex(); iPhi<emecRegion->endPhiIndex(); ++iPhi) {
+	for (unsigned int iEta=emecRegion->beginEtaIndex(); iEta<emecRegion->endEtaIndex(); ++iEta) {
 	  EMECCellConstLink cellPtr = emecRegion->getEMECCell(iEta,iPhi);
 
 	  Identifier chanId = em_id->channel_id(barrel_ec
@@ -325,15 +357,24 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 						, iEta
 						, iPhi);
 
-	  // Create the element and store it
+	  // Create new element and store it
+	  if(cellPosShift) {
+            posShiftInd = cell_id->calo_cell_hash(chanId) - minHash;
+            elementPosShift.dx = cellPosShift->deltaX(posShiftInd);
+            elementPosShift.dy = cellPosShift->deltaY(posShiftInd);
+            elementPosShift.dz = cellPosShift->deltaZ(posShiftInd);
+          }
 	  EMECDetectorElement* emecElement = new EMECDetectorElement(em_id->channel_hash(chanId)
 								     , 0
 								     , 0
 								     , emecDescr
 								     , cellPtr
 								     , emecRegion
-								     , isTestBeam);
-	  if(iPhi==emecRegion->beginPhiIndex()) {
+								     , isTestBeam
+								     , geoAlignStore
+								     , cellPosShift ? &elementPosShift : nullptr);
+	  if((cellPosShift && iPhi==0)
+	     ||(!cellPosShift && iPhi==emecRegion->beginPhiIndex())) {
 	    phi_min = emecElement->phi() - 0.5*emecElement->dphi();
 	  }
 
@@ -363,7 +404,7 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 	  }
 	} // Eta loop
       } // Phi loop
-      //            *** *** *** Iterate over cells *** *** ***
+      // ____________________________________________________________________
 
       double eta_min = emecRegion->getDescriptor()->getEtaBinning().getStart();
       double eta_max = emecRegion->getDescriptor()->getEtaBinning().getEnd();
@@ -387,8 +428,18 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
       // 'alignable' values
       emecDescr->setLArRegMin(reg_min);
       emecDescr->setLArRegMax(reg_max);
-      emecDescr->setLArEtaMin(eta_min);
       emecDescr->setLArPhiMin(phi_min);
+      if(cellPosShift) {
+        if(emecRegion->getEndcapIndex()==EMECDetectorRegion::NEG) {
+          emecDescr->setLArEtaMin(-reg_max);
+        }
+        else {
+          emecDescr->setLArEtaMin(reg_min);
+        }
+      }
+      else {
+        emecDescr->setLArEtaMin(eta_min);
+      }
     }// Region loop
   }// if EMEC manager has been retrieved
 
@@ -411,11 +462,12 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
     //         --- --- Iterate over HEC regions and cells --- ---
     HECDetectorManager::DetectorRegionConstIterator hecregIt;
 
-    for (hecregIt=hecManager->beginDetectorRegion(); hecregIt!=hecManager->endDetectorRegion(); hecregIt++) {
+    for (hecregIt=hecManager->beginDetectorRegion(); hecregIt!=hecManager->endDetectorRegion(); ++hecregIt) {
       const HECDetectorRegion *hecregion = *hecregIt;
 
-      // *** ***  Create descriptor for this region *** ***
-      // Region identifier.
+      // _________ Create descriptor for this region _________
+
+      // Build Region identifier.
       // Do some mapping between LArReadoutGeometry and CaloID
       HECDetectorRegion::DetectorSide endcapInd = hecregion->getEndcapIndex();
       int pos_neg = endcapInd==HECDetectorRegion::NEG ? -2 : 2;
@@ -424,7 +476,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 					   , hecregion->getSamplingIndex()
 					   , hecregion->getRegionIndex());
 
-      HECDescriptor* hecDescr = new HECDescriptor(regId,(AtlasDetectorID *)cell_id,cell_id,hecregion);
+      HECDescriptor* hecDescr = new HECDescriptor(regId
+						  , (AtlasDetectorID *)cell_id
+						  , cell_id
+						  , hecregion
+						  , geoAlignStore);
       caloMgr->add(hecDescr);
 
       double phi_min = 0.;
@@ -438,12 +494,11 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 
       std::vector<double> depth_in;
       std::vector<double> depth_out;
+      // _____________________________________________________________
 
-      //
-      //            *** *** *** Iterate over cells *** *** ***
-      //
-      for (unsigned int iPhi=hecregion->beginPhiIndex();iPhi<hecregion->endPhiIndex();iPhi++) {
-	for (unsigned int iEta=hecregion->beginEtaIndex();iEta<hecregion->endEtaIndex();iEta++)	{
+      // _________ Create HEC detector elements _________
+      for (unsigned int iPhi=hecregion->beginPhiIndex(); iPhi<hecregion->endPhiIndex(); ++iPhi) {
+	for (unsigned int iEta=hecregion->beginEtaIndex(); iEta<hecregion->endEtaIndex(); ++iEta) {
 	  HECCellConstLink cellPtr = hecregion->getHECCell(iEta,iPhi);
 	  // build hash identifier for this cell
 	  // Do some mapping between LArReadoutGeometry and CaloID
@@ -456,16 +511,26 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 						   , iPhi);
 
 	    // Create the element and store it
+	    if(cellPosShift) {
+              posShiftInd = cell_id->calo_cell_hash(chanId) - minHash;
+              elementPosShift.dx = cellPosShift->deltaX(posShiftInd);
+              elementPosShift.dy = cellPosShift->deltaY(posShiftInd);
+              elementPosShift.dz = cellPosShift->deltaZ(posShiftInd);
+            }
 	    HECDetectorElement* hecElement = new HECDetectorElement(hec_id->channel_hash(chanId)
 								    , 0
 								    , 0
 								    , hecDescr
 								    , cellPtr
 								    , hecregion
-								    , isTestBeam);
-	    if(iPhi==hecregion->beginPhiIndex()) {
-	      phi_min = hecElement->phi() - 0.5*hecElement->dphi();
-	    }
+								    , isTestBeam
+								    , geoAlignStore
+								    , cellPosShift ? &elementPosShift : nullptr);
+
+	    if((cellPosShift && iPhi==0)
+               || (!cellPosShift && iPhi==hecregion->beginPhiIndex())) {
+              phi_min = hecElement->phi() - 0.5*hecElement->dphi();
+            }
 
 	    // cell volume
 	    hecElement->set_volume(cellVol.CellVolume(chanId));
@@ -519,8 +584,19 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
       // 'alignable' values
       hecDescr->setLArRegMin(reg_min);
       hecDescr->setLArRegMax(reg_max);
-      hecDescr->setLArEtaMin(eta_min);
       hecDescr->setLArPhiMin(phi_min);
+      if(cellPosShift) {
+        if(hecregion->getEndcapIndex()==HECDetectorRegion::NEG) {
+          hecDescr->setLArEtaMin(-reg_max);
+        }
+        else {
+          hecDescr->setLArEtaMin(reg_min);
+        }
+      }
+      else {
+        hecDescr->setLArEtaMin(eta_min);
+      }
+
     }// Region loop
   } // if HEC manager has been retrieved
 
@@ -543,11 +619,12 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
     //         --- --- Iterate over FCAL modules and tiles --- ---
     FCALDetectorManager::ConstIterator fcalmodIt;
 
-    for (fcalmodIt=fcalManager->beginFCAL(); fcalmodIt!=fcalManager->endFCAL(); fcalmodIt++) {
+    for (fcalmodIt=fcalManager->beginFCAL(); fcalmodIt!=fcalManager->endFCAL(); ++fcalmodIt) {
       const FCALModule* fcalmodule = *fcalmodIt;
 
-      // *** ***  Create descriptor for this module *** ***
-      // Module identifier.
+      // _________ Create descriptor for this module _________
+
+      // Build module identifier.
       // Do some mapping between LArReadoutGeometry and CaloID
 
       FCALModule::Endcap endcapInd = fcalmodule->getEndcapIndex();
@@ -557,9 +634,10 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
       Identifier regId = fcal_id->module_id(pos_neg,(int)fcalmodule->getModuleIndex());
 
       FCALDescriptor* fcalDescr = new FCALDescriptor(regId
-						     ,(AtlasDetectorID *)cell_id
-						     ,cell_id
-						     ,fcalmodule);
+						     , (AtlasDetectorID *)cell_id
+						     , cell_id
+						     , fcalmodule
+						     , geoAlignStore);
       caloMgr->add(fcalDescr);
 
       double eta_min = 10000.;
@@ -574,24 +652,31 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
 
       std::vector<double> depth_in;
       std::vector<double> depth_out;
+      // ___________________________________________________________
 
-      //
-      //            *** *** *** Iterate over cells *** *** ***
-      //
+      // _________ Create FCAL detector elements _________
       FCALModule::ConstIterator fcaltileIt;
-      for (fcaltileIt=fcalmodule->beginTiles();fcaltileIt!=fcalmodule->endTiles();fcaltileIt++) {
+      for (fcaltileIt=fcalmodule->beginTiles(); fcaltileIt!=fcalmodule->endTiles(); ++fcaltileIt) {
 	Identifier chanId = fcal_id->channel_id(pos_neg
 						, (int)fcalmodule->getModuleIndex()
 						, fcaltileIt->getIndexJ()   // eta
 						, fcaltileIt->getIndexI());  // phi
 
+	if(cellPosShift) {
+          posShiftInd = cell_id->calo_cell_hash(chanId) - minHash;
+          elementPosShift.dx = cellPosShift->deltaX(posShiftInd);
+          elementPosShift.dy = cellPosShift->deltaY(posShiftInd);
+          elementPosShift.dz = cellPosShift->deltaZ(posShiftInd);
+        }
 	FCALDetectorElement* fcalElement = new FCALDetectorElement(fcal_id->channel_hash(chanId)
 								   , 0
 								   , 0
 								   , fcalDescr
 								   , &(*fcaltileIt)
 								   , fcalmodule
-								   , isTestBeam);
+								   , isTestBeam
+								   , geoAlignStore
+								   , cellPosShift ? &elementPosShift : nullptr);
 	// calculate cell volume
 	double tubeSpacing = cellVol.getFcalTubeSpacing((int)fcalmodule->getModuleIndex());
 	unsigned int numTubes = fcaltileIt->getNumTubes();
@@ -667,8 +752,9 @@ std::unique_ptr<CaloDetDescrManager> buildCaloDetDescr(ISvcLocator* svcLocator
   }
   else {
     log << MSG::DEBUG << " Found the TileDetDescrManager " << endmsg;
-    cell_id->calo_cell_hash_range((int)CaloCell_ID::TILE,min,max);
-    for(unsigned int idhash=0; idhash < max-min; idhash++) {
+    cell_id->calo_cell_hash_range((int)CaloCell_ID::TILE,minHash,maxHash);
+    unsigned idHashMax = maxHash-minHash;
+    for(unsigned int idhash=0; idhash < idHashMax; ++idhash) {
       CaloDetDescrElement* newelt = tile_mgr->get_cell_element(idhash);
       if(newelt) {
 	caloMgr->add(newelt);

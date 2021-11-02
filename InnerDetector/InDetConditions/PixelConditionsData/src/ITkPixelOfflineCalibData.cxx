@@ -11,12 +11,12 @@
 
 #include <sstream>
 
+namespace ITk
+{
 
-namespace ITkPixelCalib{
+  std::vector<float> PixelOfflineCalibData::getConstants() const {
 
-  std::vector<float> ITkPixelOfflineCalibData::getConstants() const {
-
-    std::map< const Identifier, std::vector<double> > constMap = m_clustererrordata->getConstMap();
+    std::map< const Identifier, std::vector<double> > constMap = m_clusterErrorData->getConstMap();
 
     int entry_size = 9; // pixel Id + period_phi + period_sinheta + delta_x_slope + delta_x_offset + delta_err_x + delta_y_slope + delta_y_offset +  delta_err_y
     int data_size = entry_size*constMap.size();
@@ -38,12 +38,12 @@ namespace ITkPixelCalib{
 
   }
 
-  void ITkPixelOfflineCalibData::dump(){
-    m_clustererrordata->print("ITkPixelClusterDump.txt");
+  void PixelOfflineCalibData::dump() {
+    m_clusterErrorData->print("ITkPixelClusterDump.txt");
   }
 
 
-  void ITkPixelOfflineCalibData::setConstants(const std::vector<float> &constants){
+  void PixelOfflineCalibData::setConstants(const std::vector<float> &constants) {
 
     int entry_size = 9;
     int map_size = constants.size()/entry_size;
@@ -65,17 +65,12 @@ namespace ITkPixelCalib{
       double delta_y_slope = constants[i*entry_size + 6];
       double delta_y_offset = constants[i*entry_size + 7];
       double delta_err_y = constants[i*entry_size + 8];
-      
-      m_clustererrordata->setDeltaError(&pixelId, period_phi, period_sinheta,
+
+      m_clusterErrorData->setDeltaError(&pixelId, period_phi, period_sinheta,
 					delta_x_slope, delta_x_offset, delta_err_x,
 					delta_y_slope, delta_y_offset, delta_err_y);
 
     }
+  }
 
-    return;
-
-  } 
-  
-  
-
-} // end of namespace 
+} // end of namespace ITk

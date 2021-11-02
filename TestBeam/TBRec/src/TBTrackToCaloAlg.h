@@ -22,12 +22,12 @@
 //#include "Particle/TrackParticle.h"
 //#include "TrackToCalo/ImpactInCalo.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 //class IExtrapolTrackToCaloTool;
 class IExtrapolateToCaloTool;
 class TBExtrapolTrackToCaloTool;
 class ICaloCoordinateTool;
-class CaloDetDescrManager;
 class CaloCellList;
 class CaloDepthTool;
 class ImpactInCalo;
@@ -119,7 +119,6 @@ private:
   std::string m_cluster_container;
   std::string m_cell_container;
   const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd;
 
   // Between the 2 :
   std::string m_ImpactInCalosOutputName;
@@ -129,6 +128,8 @@ private:
 
   // these ones are only here for debugging, not for general use !
   ICaloCoordinateTool* m_calo_tb_coord;
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
 
 }; 
 

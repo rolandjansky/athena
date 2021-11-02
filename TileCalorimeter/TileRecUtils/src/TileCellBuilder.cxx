@@ -1155,12 +1155,16 @@ void TileCellBuilder::build (const EventContext& ctx,
                                26,25,24,29,31,32,27,28,30,35,34,33,38,37,43,44,41,40,39,36,42,47,46,45};
         channel1 = pmt2channel[channel];
 
-    } else if ( (m_useDemoCabling == 2016 || m_useDemoCabling == 2017 )
-                && (/* (ros == 1 && drawer == 0) || */ (ros == 2 && drawer == 1) || (drawer>2) )) {
+    } else if ( (m_useDemoCabling >= 2016 && m_useDemoCabling <= 2019)
+		&& (ros == 2 && (drawer == 1 || drawer>2)) ) {
       int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
-                             26,25,24,29,28,27,32,31,30,35,34,33,38,37,36,41,40,39,44,43,42,47,46,45
-      };
+			     26,25,24,29,28,27,32,31,30,35,34,33,38,37,36,41,40,39,44,43,42,47,46,45};
       channel1 = pmt2channel[channel];
+    } else if ( (m_useDemoCabling >= 2018)
+                && (ros == 4 && drawer>=2) ) {
+      int pmt2channelEB[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
+			       31,32,30,35, 33,34, 38,37,41,40,39,36, 26,25,24,29,28,27, 44,43,42,47,46,45};
+      channel1 = pmt2channelEB[channel];
     }
 
     Identifier cell_id = m_cabling->h2s_cell_id_index (ros, drawer, channel1, index, pmt);

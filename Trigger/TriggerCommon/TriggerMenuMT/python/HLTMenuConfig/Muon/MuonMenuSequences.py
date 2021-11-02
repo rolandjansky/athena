@@ -184,8 +184,7 @@ def muCombAlgSequence(ConfigFlags):
     
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
     muonChainFilter = MuonChainFilterAlg("FilterBphysChains")
-    bphysChains =getBphysChainNames()
-    muonChainFilter.ChainsToFilter=bphysChains
+    muonChainFilter.ChainsToFilter = getBphysChainNames()
     muonChainFilter.InputDecisions = [ CFNaming.inputMakerOutName(l2muCombViewsMaker.name()) ]
     muonChainFilter.L2MuCombContainer = sequenceOut
     muonChainFilter.WriteMuFast = False
@@ -810,13 +809,9 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
 ##############################
 
 def getBphysChainNames():
-
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    bphysSlice = TriggerFlags.BphysicsSlice.signatures()
-    chains =[]
-    if bphysSlice:
-        for chain in bphysSlice:
-            chains.append(chain.name)
+    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()  # get menu singleton
+    chains = [chain.name for chain in menu.chainsInMenu['Bphysics']]
     return chains
 
 ############################################################
@@ -825,21 +820,10 @@ def getBphysChainNames():
 ############################################################
 
 def getInsideOutMuonChainNames():
-
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    muonSlice = TriggerFlags.MuonSlice.signatures()
-    bphysSlice = TriggerFlags.BphysicsSlice.signatures()
-    chains =[]
-
-    try:
-        chains += [chain.name for chain in muonSlice if "l2io" in chain.name]
-    except Exception as e:
-        log.debug(e)
-    try:
-        chains += [chain.name for chain in bphysSlice if "noL2Comb" not in chain.name]
-    except Exception as e:
-        log.debug(e)
-
+    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()  # get menu singleton
+    chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2io" in chain.name]
+    chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if not any(key in chain.name for key in ['noL2Comb','l2mt'])]
     return chains
 
 ############################################################
@@ -848,14 +832,8 @@ def getInsideOutMuonChainNames():
 ############################################################
 
 def getMultiTrackChainNames():
-
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    muonSlice = TriggerFlags.MuonSlice.signatures()
-    chains =[]
-
-    try:
-        chains += [chain.name for chain in muonSlice if "l2mt" in chain.name]
-    except Exception as e:
-        log.debug(e)
-    
+    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    menu = GenerateMenuMT()  # get menu singleton
+    chains = [chain.name for chain in menu.chainsInMenu['Muon'] if "l2mt" in chain.name]
+    chains += [chain.name for chain in menu.chainsInMenu['Bphysics'] if "l2mt" in chain.name]
     return chains

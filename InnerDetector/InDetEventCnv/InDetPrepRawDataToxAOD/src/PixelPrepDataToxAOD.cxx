@@ -366,7 +366,7 @@ StatusCode PixelPrepDataToxAOD::execute()
     }
   }
 
-  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ ) {
+  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); ++clusItr ) {
       AUXDATA(*clusItr,char,broken) = false;
   }
 
@@ -374,7 +374,7 @@ StatusCode PixelPrepDataToxAOD::execute()
   static const SG::AuxElement::Accessor<int> acc_phi_module ("phi_module");
   static const SG::AuxElement::Accessor<int> acc_eta_module ("eta_module");
   static const SG::AuxElement::Accessor<std::vector<int> > acc_sihit_barcode ("sihit_barcode");
-  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
+  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); ++clusItr)
   {
       auto pixelCluster = *clusItr;
       int layer = acc_layer(*pixelCluster);
@@ -586,7 +586,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
   std::vector<const SiHit* >::iterator siHitIter  = multiMatchingHits.begin();
   std::vector<const SiHit* >::iterator siHitIter2 = multiMatchingHits.begin();
   ATH_MSG_DEBUG( "Found " << multiMatchingHits.size() << " SiHit " );
-  for ( ; siHitIter != multiMatchingHits.end(); siHitIter++) {
+  for ( ; siHitIter != multiMatchingHits.end(); ++siHitIter) {
     const SiHit* lowestXPos  = *siHitIter;
     const SiHit* highestXPos = *siHitIter;
 
@@ -705,8 +705,6 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
   for (; rdosBegin!= rdosEnd; ++rdosBegin)
   {
     Identifier rId =  *rdosBegin;
-    // rowList.push_back( m_PixelHelper->phi_index(rId) );
-    // colList.push_back( m_PixelHelper->eta_index(rId) );  
     phiIndexList.push_back( m_PixelHelper->phi_index(rId) );
     etaIndexList.push_back( m_PixelHelper->eta_index(rId) );  
 
@@ -723,8 +721,6 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
   }//end iteration on rdos
 
 
-  // AUXDATA(xprd, std::vector<int>, rdo_row)  = rowList;
-  // AUXDATA(xprd, std::vector<int>, rdo_col)  = colList;
   AUXDATA(xprd, std::vector<int>,rdo_phi_pixel_index)  = phiIndexList;
   AUXDATA(xprd, std::vector<int>,rdo_eta_pixel_index)  = etaIndexList;
   AUXDATA(xprd, std::vector<float>,rdo_charge)  = chList;

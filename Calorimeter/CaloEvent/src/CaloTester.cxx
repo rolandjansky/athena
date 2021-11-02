@@ -14,7 +14,9 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ServiceHandle.h"
-
+#include "AthenaKernel/IOVInfiniteRange.h"
+#include "AthenaKernel/CondCont.h"
+#include "AthenaKernel/DummyRCUSvc.h"
 
 /**
  * @brief Constructor.
@@ -34,14 +36,25 @@ CaloTester::CaloTester()
 
 
 /**
- * @brief Record the CaloDetDescrManager in the detector store.
+ * @brief Record the CaloDetDescrManager in the detector store
+          and the ConditionStore.
  *        This may create the detector store as a side effect.
  */
 StatusCode CaloTester::record_mgr()
 {
+  //Mock ConditonStore-infrastructure 
+  Athena_test::DummyRCUSvc rcu;
+  DataObjID id1 ("testDetDescr");
+  ServiceHandle<StoreGateSvc> condStore ("ConditionStore", "test");
+  auto mgr_cc=std::make_unique<CondCont<CaloDetDescrManager> >(rcu, id1);
+  CHECK_WITH_CONTEXT(mgr_cc->insert(IOVInfiniteRange::infiniteTime(),std::move(m_mgr_up)),"CaloTester");
+  CHECK_WITH_CONTEXT(condStore->record(std::move(mgr_cc),"CaloDetDescrManager"),"CaloTester");
+
+  //Record the CaloDetDescrManager also to ConditionStore. Double-delete?  
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "test");
   CHECK_WITH_CONTEXT( detStore.retrieve(), "CaloTester" );
-  CHECK_WITH_CONTEXT( detStore->record (std::move (m_mgr_up), "CaloMgr"), "CaloTester" );
+  CHECK_WITH_CONTEXT( detStore->record (m_mgr, "CaloMgr"), "CaloTester" );
+  
   return StatusCode::SUCCESS;
 }
 

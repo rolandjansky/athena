@@ -31,23 +31,24 @@
 //#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-//include "CaloEvent/CaloCell.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "TileConditions/TileCablingSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+//
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "TileConditions/TileCablingSvc.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-
+//
 #include "JetUtils/TiledEtaPhiMap.h"
-
+//
 #include "xAODCore/CLASS_DEF.h"
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetExecuteTool.h"
 
 // Forward declaration
 
-class CaloCell;
-class CaloDetDescrManager;
 class ITileBadChanTool ;
 
 namespace jet {
@@ -156,7 +157,6 @@ class MissingCellListTool
  private: 
   
 
-  const CaloDetDescrManager * m_caloDDM;
 
   typedef std::vector<unsigned int> cellidvec_t;
   cellidvec_t m_userRemovedCells;
@@ -172,10 +172,29 @@ class MissingCellListTool
 
   ServiceHandle<TileCablingSvc> m_tileCabling;
   ToolHandle<ITileBadChanTool> m_tileTool;
-  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{ this,
+                                                    "BadChanKey",
+                                                    "LArBadChannel",
+                                                    "SG bad channels key" };
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey{
+    this,
+    "CaloDetDescrManager",
+    "CaloDetDescrManager",
+    "SG Key for CaloDetDescrManager in the Condition Store"
+  };
 
-  std::string m_missingCellMapName;
-}; 
+  SG::ReadHandleKey<CaloCellContainer> m_cells_name{ this,
+                                                     "cells_name",
+                                                     "AllCalo",
+                                                     "" };
+
+  SG::WriteHandleKey<jet::CaloCellFastMap> m_badCellMap_key{
+    this,
+    "MissingCellMapName",
+    "MissingCaloCellsMap",
+    "SG key for missing cell map"
+  };
+};
 
 // I/O operators
 //////////////////////

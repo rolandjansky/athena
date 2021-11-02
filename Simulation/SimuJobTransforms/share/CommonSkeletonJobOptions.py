@@ -11,9 +11,15 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 ## Max/skip events
 if hasattr(runArgs,"skipEvents"):
-    athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )
+    if hasattr(runArgs,"totalExecutorSteps") and runArgs.totalExecutorSteps > 1:
+        athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.executorEventSkips[runArgs.executorStep] )
+    else:
+        athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )
 if hasattr(runArgs,"maxEvents"):
-    athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.maxEvents )
+    if hasattr(runArgs,"totalExecutorSteps") and runArgs.totalExecutorSteps > 1:
+        athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.executorEventCounts[runArgs.executorStep] )
+    else:
+        athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.maxEvents )
 else:
     athenaCommonFlags.EvtMax=-1
 
@@ -24,14 +30,6 @@ if hasattr(runArgs,"beamType"):
     if runArgs.beamType != 'NONE':
         # Setting beamType='cosmics' keeps cavern in world volume for g4sim also with non-commissioning geometries
         jobproperties.Beam.beamType.set_Value_and_Lock( runArgs.beamType )
-## if hasattr(runArgs,"AMITag"): rec.AMITag=runArgs.AMITag
-## if hasattr(runArgs,"userExec"): rec.UserExecs=runArgs.userExec
-## if hasattr(runArgs,"RunNumber"): rec.RunNumber=runArgs.RunNumber
-## if hasattr(runArgs,"projectName"): rec.projectName=runArgs.projectName
-## if hasattr(runArgs,"trigStream"): rec.triggerStream=runArgs.trigStream
-## if hasattr(runArgs,"triggerConfig"):
-##     from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-##     tf.triggerConfig=runArgs.triggerConfig
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:

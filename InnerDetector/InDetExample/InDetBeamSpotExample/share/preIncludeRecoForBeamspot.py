@@ -34,7 +34,6 @@ rec.doHIP.set_Value_and_Lock(False)
 #Diable some additional algs which throw warnings
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doTrackParticleCellAssociation.set_Value_and_Lock(False)
-recAlgs.doTrigger.set_Value_and_Lock(False)
 
 from ParticleBuilderOptions.AODFlags import AODFlags 
 AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)

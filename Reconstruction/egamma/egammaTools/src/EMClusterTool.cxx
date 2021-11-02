@@ -13,11 +13,9 @@
 #include "xAODEgamma/PhotonContainer.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloUtils/CaloCellDetPos.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "StoreGate/WriteHandle.h"
 
-// =============================================================
 EMClusterTool::EMClusterTool(const std::string& type,
                              const std::string& name,
                              const IInterface* parent)

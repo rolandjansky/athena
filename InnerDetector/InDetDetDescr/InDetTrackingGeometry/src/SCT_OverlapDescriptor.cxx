@@ -18,8 +18,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-InDet::SCT_OverlapDescriptor::SCT_OverlapDescriptor()
-  : m_robustMode(true)
+InDet::SCT_OverlapDescriptor::SCT_OverlapDescriptor(bool addMoreSurfaces, int eta_slices)
+  : m_robustMode(true),
+  m_addMoreSurfaces(addMoreSurfaces), 
+  m_etaSlices(eta_slices)
 {}
 
 /** get the compatible surfaces */
@@ -31,14 +33,6 @@ InDet::SCT_OverlapDescriptor::reachableSurfaces(
   const Amg::Vector3D&) const
 
 {
-  size_t newCapacity = cSurfaces.size() + 2;
-  if (m_robustMode) {
-    newCapacity += 16;
-  } else {
-    newCapacity += 6;
-  }
-  cSurfaces.reserve(newCapacity);
-
   // first add the target surface and the backside surface (in the if statement)
   cSurfaces.emplace_back(Trk::Intersection(pos, 0., true), &tsf);
 
@@ -48,13 +42,26 @@ InDet::SCT_OverlapDescriptor::reachableSurfaces(
     tmp->detectorType() == Trk::DetectorElemType::Silicon
       ? static_cast<const InDetDD::SiDetectorElement*>(tmp)
       : nullptr;
- 
-  //!< position phi and surface phi - rescale to 0 -> 2PI
-  double surfacePhi = tsf.center().phi() + M_PI;
-  double positionPhi = pos.phi() + M_PI;
-
-  // now get the overlap options
+      
   if (sElement) {
+    
+    size_t newCapacity = cSurfaces.size() + 2;
+    if (m_robustMode and m_addMoreSurfaces and sElement->isBarrel()) {
+      // sum up the defined slices to evaluate the new capacity
+      // only uses one additional slice in phi
+      newCapacity += (2 + 6*m_etaSlices)*2;
+    } else if (m_robustMode) {
+      newCapacity += 16;
+    } else {
+      newCapacity += 6;
+    }
+    cSurfaces.reserve(newCapacity);
+    
+    //!< position phi and surface phi - rescale to 0 -> 2PI
+    double surfacePhi = tsf.center().phi() + M_PI;
+    double positionPhi = pos.phi() + M_PI;
+
+    // now get the overlap options
     addOtherSide(sElement, cSurfaces);
 
     // 8-cell-connectivity depending on track/surface geometry
@@ -76,6 +83,33 @@ InDet::SCT_OverlapDescriptor::reachableSurfaces(
       nElement = sElement->prevInPhi();
       addNextInEtaOS(nElement, cSurfaces);
       addPrevInEtaOS(nElement, cSurfaces);
+      
+      if (m_addMoreSurfaces and sElement->isBarrel()) {  
+        unsigned int next = 1;
+        const InDetDD::SiDetectorElement* currentElement = sElement->nextInEta();
+        while (currentElement and next<(unsigned int)m_etaSlices) {
+          addNextInEtaOS(currentElement,cSurfaces);
+          currentElement = currentElement->nextInEta();
+          if (currentElement) {
+            addNextInPhiOS(currentElement,cSurfaces);
+            addPrevInPhiOS(currentElement,cSurfaces);
+          }
+          next++;
+        }
+        
+        unsigned int prev = 1;
+        currentElement = sElement->prevInEta();
+        while (currentElement and prev<(unsigned int)m_etaSlices) {
+          addPrevInEtaOS(currentElement,cSurfaces);
+          currentElement = currentElement->prevInEta();
+          if (currentElement) {
+            addNextInPhiOS(currentElement,cSurfaces);
+            addPrevInPhiOS(currentElement,cSurfaces);
+          }
+          prev++;
+        }
+      }      
+      
     } else {
       // get the phi information
       if (surfacePhi < positionPhi) {

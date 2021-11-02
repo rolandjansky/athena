@@ -49,7 +49,7 @@ MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string &name, ISvcLocator *s
 //:: METHOD queryInterface ::
 //:::::::::::::::::::::::::::
 StatusCode MdtCalibOutputDbSvc::queryInterface(const InterfaceID &riid, void **ppvUnknown) {
-    if (IID_IMdtCalibOutputDbSvc.versionMatch(riid)) {
+    if (interfaceID().versionMatch(riid)) {
         *ppvUnknown = (MdtCalibOutputDbSvc *)this;
     } else {
         return AthService::queryInterface(riid, ppvUnknown);
@@ -63,7 +63,7 @@ StatusCode MdtCalibOutputDbSvc::queryInterface(const InterfaceID &riid, void **p
 //:::::::::::::::::::::::
 //:: METHOD initialize ::
 //:::::::::::::::::::::::
-StatusCode MdtCalibOutputDbSvc::initialize(void) {
+StatusCode MdtCalibOutputDbSvc::initialize() {
     // to get service via static function
     //  m_MdtCalibOutputDbSvc_pointer = this;
     ATH_MSG_INFO("initialize MdtCalibOutputDbSvc");
@@ -95,7 +95,7 @@ StatusCode MdtCalibOutputDbSvc::initialize(void) {
 //:::::::::::::::::::::
 //:: METHOD finalize ::
 //:::::::::::::::::::::
-StatusCode MdtCalibOutputDbSvc::finalize(void) {
+StatusCode MdtCalibOutputDbSvc::finalize() {
     ATH_CHECK(saveCalibrationResults());
     ATH_MSG_INFO("Results saved!");
     return StatusCode::SUCCESS;

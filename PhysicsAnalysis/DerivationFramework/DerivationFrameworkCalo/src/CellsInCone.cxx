@@ -5,15 +5,16 @@
 #include "CaloUtils/CaloCellList.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "xAODEgamma/Egamma.h"
 #include "CellsInCone.h"
 
-void DerivationFramework::CellsInCone::egammaSelect(xAOD::CaloCluster* inputCl, 
-						    const CaloCellContainer* inputcells, const xAOD::Egamma* eg, const double dr){
+void DerivationFramework::CellsInCone::egammaSelect(xAOD::CaloCluster* inputCl,  const CaloCellContainer* inputcells, 
+                                                    const CaloDetDescrManager* caloMgr,const xAOD::Egamma* eg, const double dr){
 
   std::vector<const CaloCell*> cells;
   cells.reserve(100);
-  CaloCellList myList(inputcells);
+  CaloCellList myList(caloMgr,inputcells);
   
   double egEta = eg->caloCluster()->etaBE(2);
   double egPhi = eg->caloCluster()->phiBE(2);

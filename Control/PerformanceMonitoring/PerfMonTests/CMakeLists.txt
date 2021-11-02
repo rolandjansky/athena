@@ -46,3 +46,15 @@ atlas_add_test( BaseLine
    SCRIPT test/BaseLine.sh
    PROPERTIES TIMEOUT 600
    LOG_IGNORE_PATTERN "running" )
+
+atlas_add_test ( PerfMonMTSvc_serial
+  SCRIPT test/test_perfMonMTSvc_serial.py
+  PROPERTIES TIMEOUT 300)
+
+atlas_add_test ( PerfMonMTSvc_mt1
+  SCRIPT test/test_perfMonMTSvc_mt1.py
+  PROPERTIES TIMEOUT 300)
+
+atlas_add_test ( PerfMonMTSvc_mt8
+  SCRIPT test/test_perfMonMTSvc_mt8.py
+  PROPERTIES TIMEOUT 300)

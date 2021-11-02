@@ -13,7 +13,7 @@ export ATHENA_CORE_NUMBER=1
 Digi_tf.py \
 --multithreaded \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
---conditionsTag default:OFLCOND-MC16-SDR-RUN2-08 \
+--conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
 --digiSeedOffset1 170 \
 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \

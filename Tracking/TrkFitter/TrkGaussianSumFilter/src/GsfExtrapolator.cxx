@@ -36,7 +36,6 @@
 namespace {
 const bool useBoundaryMaterialUpdate(true);
 
-
 int
 radialDirection(const Trk::MultiComponentState& pars, Trk::PropDirection dir)
 {
@@ -363,13 +362,15 @@ Trk::GsfExtrapolator::extrapolateImpl(
     Amg::Vector3D newDestination;
     if (parametersAtDestination) {
       newDestination = parametersAtDestination->position();
-      //delete parametersAtDestination;
+      // delete parametersAtDestination;
     } else {
       newDestination = surface.center();
     }
 
     double revisedDistance =
-      (cache.m_stateAtBoundarySurface.navigationParameters->position() - newDestination).mag();
+      (cache.m_stateAtBoundarySurface.navigationParameters->position() -
+       newDestination)
+        .mag();
 
     double distanceChange = std::abs(revisedDistance - initialDistance);
 
@@ -601,7 +602,10 @@ Trk::GsfExtrapolator::extrapolateM(
     return nullptr;
   }
   cache.m_matstates->push_back(new TrackStateOnSurface(
-    nullptr, parameterAtDestination.begin()->first->uniqueClone(), nullptr, nullptr));
+    nullptr,
+    parameterAtDestination.begin()->first->uniqueClone(),
+    nullptr,
+    nullptr));
 
   // assign the temporary states
   std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> tmpMatStates =
@@ -1217,31 +1221,13 @@ Trk::GsfExtrapolator::extrapolateSurfaceBasedMaterialEffects(
     return {};
   }
 
-  // const Trk::TrackingVolume* currentVolume = m_navigator->highestVolume();
-
-  Trk::MultiComponentState lastState = multiStatePropagate(ctx,
-                                                           propagator,
-                                                           multiComponentState,
-                                                           surface,
-                                                           direction,
-                                                           boundaryCheck,
-                                                           particleHypothesis);
-
-  if (lastState.empty()) {
-    return {};
-  }
-
-  /* ----------------------------------------
-     Material effects
-     ---------------------------------------- */
-
-  Trk::MultiComponentState finalState =
-    m_materialUpdator->simplifiedMaterialUpdate(
-      lastState, direction, particleHypothesis);
-  if (finalState.empty()) {
-    return lastState;
-  }
-  return finalState;
+  return multiStatePropagate(ctx,
+                             propagator,
+                             multiComponentState,
+                             surface,
+                             direction,
+                             boundaryCheck,
+                             particleHypothesis);
 }
 
 /*
@@ -1269,20 +1255,20 @@ Trk::GsfExtrapolator::multiStatePropagate(
     if (!currentParameters) {
       continue;
     }
-    auto propagatedParameters =
-      propagator.propagate(ctx,
-                           *currentParameters,
-                           surface,
-                           direction,
-                           boundaryCheck,
-                           m_fieldProperties,
-                           particleHypothesis);
+    auto propagatedParameters = propagator.propagate(ctx,
+                                                     *currentParameters,
+                                                     surface,
+                                                     direction,
+                                                     boundaryCheck,
+                                                     m_fieldProperties,
+                                                     particleHypothesis);
     if (!propagatedParameters) {
       continue;
     }
     sumw += component->second;
     // Propagation does not affect the weightings of the states
-    propagatedState.emplace_back(std::move(propagatedParameters), component->second);
+    propagatedState.emplace_back(std::move(propagatedParameters),
+                                 component->second);
   }
 
   // Protect against empty propagation
@@ -1503,7 +1489,7 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
     double thick = pathcorr * materialProperties->thickness();
     double dInX0 = thick / materialProperties->x0();
     double absP = 1 / std::abs(nextPar->parameters()[Trk::qOverP]);
-    //scatterning 
+    // scatterning
     double scatsigma = sqrt(
       m_msupdators->sigmaSquare(*materialProperties, absP, pathcorr, particle));
     auto newsa = Trk::ScatteringAngles(
@@ -1517,8 +1503,8 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
       nextPar->position(), nextPar->momentum(), nextPar->charge());
     auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
       dInX0, newsa, eloss, cvlTP->associatedSurface());
-    cache.m_matstates->push_back(
-      new TrackStateOnSurface(nullptr, std::move(cvlTP), nullptr, std::move(mefot)));
+    cache.m_matstates->push_back(new TrackStateOnSurface(
+      nullptr, std::move(cvlTP), nullptr, std::move(mefot)));
   }
 }
 

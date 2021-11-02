@@ -4,14 +4,11 @@
 
 def DataQualityToolsConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from .DQTDataFlowMonAlg import DQTDataFlowMonAlgConfig
     from .DQTLumiMonAlg import DQTLumiMonAlgConfig
     from .DQTBackgroundMon import DQTBackgroundMonAlgConfig
     from .DQTDetSynchMonAlg import DQTDetSynchMonAlgConfig
 
     result = ComponentAccumulator()
-    # the following should run in all configurations
-    result.merge(DQTDataFlowMonAlgConfig(flags))
 
     # the following should not run in RAW to ESD, if we're in two-step
     if flags.DQ.Environment != 'tier0Raw':

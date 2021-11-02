@@ -94,6 +94,11 @@ def fromRunArgs(runArgs):
     from Digitization.DigitizationConfigFlags import pileupRunArgsToFlags
     pileupRunArgsToFlags(runArgs, ConfigFlags)
 
+    # Setup pile-up profile
+    if ConfigFlags.Digitization.PileUp:
+        from Digitization.PileUpUtils import setupPileUpProfile
+        setupPileUpProfile(ConfigFlags)
+
     ConfigFlags.Sim.DoFullChain = True
     # FastChain Flags
     from AthenaConfiguration.Enums import ProductionStep
@@ -114,10 +119,6 @@ def fromRunArgs(runArgs):
 
     from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
     cfg.merge(BeamEffectsAlgCfg(ConfigFlags))
-
-    from ISF_Algorithms.CollectionMergerConfig import ISFCollectionMergerCfg
-    algo = ISFCollectionMergerCfg(ConfigFlags)
-    cfg.addEventAlgo(algo)
 
     from ISF_Config.ISF_MainConfigNew import ISF_KernelCfg
     cfg.merge(ISF_KernelCfg(ConfigFlags))

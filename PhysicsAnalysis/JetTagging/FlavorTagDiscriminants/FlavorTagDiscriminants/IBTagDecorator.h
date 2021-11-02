@@ -6,10 +6,14 @@
 #ifndef I_BTAG_DECORATOR_H
 #define I_BTAG_DECORATOR_H
 
+#include "IDependencyReporter.h"
+
 #include "AsgTools/IAsgTool.h"
 #include "xAODBTagging/BTaggingFwd.h"
 
-class IBTagDecorator : virtual public asg::IAsgTool {
+class IBTagDecorator : virtual public asg::IAsgTool,
+                       virtual public IDependencyReporter
+{
 ASG_TOOL_INTERFACE(IBTagDecorator)
 
 public:
@@ -19,11 +23,6 @@ public:
 
   /// Method to decorate a jet.
   virtual void decorate(const xAOD::BTagging& btag) const = 0;
-
-  // Names of the decorations being added
-  virtual std::set<std::string> getDecoratorKeys() const = 0;
-  virtual std::set<std::string> getAuxInputKeys() const = 0;
-  virtual std::set<std::string> getConstituentAuxInputKeys() const = 0;
 };
 
 

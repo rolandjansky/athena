@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   RecExConfig/python/CaloFlags.py
@@ -123,13 +123,6 @@ class doTileMuId(CaloRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class doTileCellCorrection(CaloRecFlagsJobProperty):
-    """ switch to enable TileCell correction when reading from ESD
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
 class doLArAffectedRegion(CaloRecFlagsJobProperty):
     """ switch to store in metedata affected LAr regions
     """
@@ -191,7 +184,7 @@ jobproperties.add_Container(CaloRecFlags)
 
 
 # I want always the following flags in the Rec container  
-_list_Calo=[Enabled,doCaloTopoCluster,doEmCluster,doCaloEMTopoCluster,emTopoClusterThreshold,doCaloCluster,doCaloTopoTower,doCaloTopoSignal,doExtendedClusterMoments,doTileMuId,doTileCellCorrection,doLArAffectedRegion,doLArAutoConfiguration,doLArNoisyRO,doEMDigits,doFillMBTSBackgroundBit,doLArNoiseBurstVeto,clusterCellGetterName,doCaloTowerFromCells,doCaloTowerFromCluster, doCaloFwdTopoTower]
+_list_Calo=[Enabled,doCaloTopoCluster,doEmCluster,doCaloEMTopoCluster,emTopoClusterThreshold,doCaloCluster,doCaloTopoTower,doCaloTopoSignal,doExtendedClusterMoments,doTileMuId,doLArAffectedRegion,doLArAutoConfiguration,doLArNoisyRO,doEMDigits,doFillMBTSBackgroundBit,doLArNoiseBurstVeto,clusterCellGetterName,doCaloTowerFromCells,doCaloTowerFromCluster, doCaloFwdTopoTower]
 for j in _list_Calo: 
     jobproperties.CaloRecFlags.add_JobProperty(j)
 del _list_Calo

@@ -220,6 +220,7 @@ InDet::TRT_TrackExtensionTool_DAF::extendTrack(const EventContext& ctx,
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
     if (fieldCondObj == nullptr) {
         ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        return event_data.m_measurement;
     }
     MagField::AtlasFieldCache fieldCache;
     fieldCondObj->getInitializedCache (fieldCache);
@@ -404,7 +405,7 @@ InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginIndex,
         ATH_MSG_DEBUG( "There are "  << container->size() << " entries in the TRT_DriftCircleCollection" );
         // loop over RIOs in the collection
         InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
-        for (; driftCircleIterator != container->end(); driftCircleIterator++) {
+        for (; driftCircleIterator != container->end(); ++driftCircleIterator) {
             // get the straw center of the RIO
             Amg::Vector3D strawGlobPos( event_data.m_detectorElements[index]->center( (*driftCircleIterator)->identify() ) );
             ATH_MSG_DEBUG("straw center at: ("<< strawGlobPos.x() <<", "<< strawGlobPos.y() << ")" );
@@ -538,7 +539,7 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
         ATH_MSG_DEBUG( "There are "  << container->size() << " entries in the TRT_DriftCircleCollection" );
 
         InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
-        for (; driftCircleIterator != container->end(); driftCircleIterator++) {
+        for (; driftCircleIterator != container->end(); ++driftCircleIterator) {
             // get the straw center of the RIO
             Amg::Vector3D strawGlobPos( event_data.m_detectorElements[index]->center( (*driftCircleIterator)->identify() ) );
             strawGlobPos[Amg::z]=0.;
@@ -653,7 +654,7 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
     // --------
     // delete the global positions
     std::vector< Amg::Vector3D* >::iterator globPosIterator = trackGlobalPos.begin();
-    for (; globPosIterator != trackGlobalPos.end(); globPosIterator++ ) {
+    for (; globPosIterator != trackGlobalPos.end(); ++globPosIterator ) {
         delete (*globPosIterator);
         (*globPosIterator) = 0;
     }
@@ -700,7 +701,7 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
 
     // delete the RIOlists
     std::vector< std::list< const Trk::PrepRawData* >* >::iterator RIOlistIterator = groupedRIOs.begin();
-    for (; RIOlistIterator != groupedRIOs.end(); RIOlistIterator++ ) {
+    for (; RIOlistIterator != groupedRIOs.end(); ++RIOlistIterator ) {
         // just delete the list, the entries (RIOs) belong to the driftcircle collection
         delete (*RIOlistIterator);
         (*RIOlistIterator) = 0;

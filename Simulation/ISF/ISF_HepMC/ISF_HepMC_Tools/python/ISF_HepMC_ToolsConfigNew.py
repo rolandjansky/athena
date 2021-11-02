@@ -84,8 +84,7 @@ def ParticlePositionFilterWorldCfg(ConfigFlags, name="ISF_ParticlePositionFilter
 def ParticlePositionFilterDynamicCfg(ConfigFlags, name="ISF_ParticlePositionFilterDynamic", **kwargs):
     # automatically choose the best fitting filter region
 
-    #if ConfigFlags.Detector.EnableMuon:
-    if True:
+    if ConfigFlags.Detector.EnableMuon:
       return ParticlePositionFilterWorldCfg(ConfigFlags, name, **kwargs)
     elif ConfigFlags.Detector.EnableCalo:
       return ParticlePositionFilterCaloCfg(ConfigFlags, name, **kwargs)

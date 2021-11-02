@@ -8,6 +8,7 @@
 // local includes
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
+#include "FlavorTagDiscriminants/AssociationEnums.h"
 #include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
 #include "xAODBTagging/ftagfloat_t.h"
 
@@ -67,6 +68,7 @@ namespace FlavorTagDiscriminants {
     FlipTagConfig flip;
     std::string track_link_name;
     std::map<std::string,std::string> remap_scalar;
+    TrackLinkType track_link_type;
   };
 
 
@@ -87,7 +89,7 @@ namespace FlavorTagDiscriminants {
                                  const xAOD::Jet&)> TrackSequenceFilter;
 
     // getter functions
-    typedef std::function<NamedVar(const BTagging&)> VarFromBTag;
+    typedef std::function<NamedVar(const SG::AuxElement&)> VarFromBTag;
     typedef std::function<NamedSeq(const Jet&, const Tracks&)> SeqFromTracks;
 
     // ___________________________________________________________________
@@ -112,7 +114,7 @@ namespace FlavorTagDiscriminants {
         m_name(name)
         {
         }
-      NamedVar operator()(const xAOD::BTagging& btag) const {
+      NamedVar operator()(const SG::AuxElement& btag) const {
         T ret_value = m_getter(btag);
         bool is_default = m_default_flag(btag);
         if constexpr (std::is_floating_point<T>::value) {
@@ -140,7 +142,7 @@ namespace FlavorTagDiscriminants {
         m_name(name)
         {
         }
-      NamedVar operator()(const xAOD::BTagging& btag) const {
+      NamedVar operator()(const SG::AuxElement& btag) const {
         T ret_value = m_getter(btag);
         if constexpr (std::is_floating_point<T>::value) {
           if (std::isnan(ret_value)) {
@@ -159,11 +161,15 @@ namespace FlavorTagDiscriminants {
     public:
       TracksFromJet(SortOrder, TrackSelection, const DL2Options&);
       Tracks operator()(const xAOD::Jet& jet,
-                        const xAOD::BTagging& btag) const;
+                        const SG::AuxElement& btag) const;
     private:
-      typedef SG::AuxElement AE;
-      typedef std::vector<ElementLink<xAOD::TrackParticleContainer>> TrackLinks;
-      AE::ConstAccessor<TrackLinks> m_trackAssociator;
+      using AE = SG::AuxElement;
+      using IPC = xAOD::IParticleContainer;
+      using TPC = xAOD::TrackParticleContainer;
+      using TrackLinks = std::vector<ElementLink<TPC>>;
+      using PartLinks = std::vector<ElementLink<IPC>>;
+      using TPV = std::vector<const xAOD::TrackParticle*>;
+      std::function<TPV(const SG::AuxElement&)> m_associator;
       TrackSortVar m_trackSortVar;
       TrackFilter m_trackFilter;
     };
@@ -199,6 +205,8 @@ namespace FlavorTagDiscriminants {
         const std::vector<DL2TrackSequenceConfig>& = {},
         const DL2Options& = DL2Options());
     void decorate(const xAOD::BTagging& btag) const;
+    void decorate(const xAOD::Jet& jet) const;
+    void decorate(const xAOD::Jet& jet, const SG::AuxElement& decorated) const;
 
     // functions to report data depdedencies
     DL2DataDependencyNames getDataDependencyNames() const;

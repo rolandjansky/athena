@@ -28,6 +28,7 @@
 #include "CaloEvent/CaloTester.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloRec/Blob2ToolConstants.h"
 #include "StoreGate/setupStoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -60,7 +61,8 @@ void create_cluster (xAOD::CaloClusterContainer& clusts,
                                      std::set<IdentifierHash>& hashes,
                                      CaloSampling::CaloSample sam)
                   {
-                    CaloCellList cell_list (&cells);
+                    CaloCellList cell_list (CaloDetDescrManager::instance(), 
+					    &cells);
                     cell_list.select (eta, phi, 5*0.025, 5*0.025, sam);
                     for (const CaloCell* cell : cell_list) {
                       IdentifierHash idhash = cell->caloDDE()->calo_hash();
@@ -225,6 +227,8 @@ int main (int /*argc*/, char** argv)
 
   EventContext ctx;
   ctx.setExtension( Atlas::ExtendedEventContext (&*sg, 0) );
+  EventIDBase eid (1, 0, 0, 0, 20);
+  ctx.setEventID (eid);
   Gaudi::Hive::setCurrentContext (ctx);
 
   test1 (calotest, *sg, ctx);

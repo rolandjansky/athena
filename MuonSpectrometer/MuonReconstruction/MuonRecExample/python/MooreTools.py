@@ -32,7 +32,7 @@ from .MuonRecFlags import muonRecFlags
 from .MuonStandaloneFlags import muonStandaloneFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from InDetRecExample import TrackingCommon
 #==============================================================
@@ -378,7 +378,7 @@ def MuonTrackCleaner(name,extraFlags=None,**kwargs):
   kwargs.setdefault("Fitter",        getPrivateTool('MCTBFitterMaterialFromTrack') )
   kwargs.setdefault("SLFitter",      getPrivateTool('MCTBSLFitterMaterialFromTrack'))
   kwargs.setdefault("MdtRotCreator", getPrivateTool('MdtDriftCircleOnTrackCreator'))
-  if TriggerFlags.MuonSlice.doTrigMuonConfig:
+  if ConfigFlags.Muon.MuonTrigger:
       kwargs.setdefault("Iterate", False)
       kwargs.setdefault("RecoverOutliers", False)
   # kwargs.setdefault("CompRotCreator", getPrivateTool('TriggerChamberClusterOnTrackCreator')) Not in DB

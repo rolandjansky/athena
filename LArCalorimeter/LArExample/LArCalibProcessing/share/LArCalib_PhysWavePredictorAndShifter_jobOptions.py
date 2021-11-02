@@ -257,8 +257,9 @@ if not 'TimeShiftGuardRegion' in dir():
 ###########################################################################
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
-   
+   if not SuperCells: GroupingType = "ExtendedSubDetector"
+   if SuperCells:     GroupingType = "SuperCells"
+
 if not 'WriteNtuple' in dir():
    WriteNtuple = LArCalib_Flags.WriteNtuple
 
@@ -318,7 +319,7 @@ if not 'LArPhysFolderOutputTag' in dir():
    LArPhysFolderOutputTag=rs.getFolderTagSuffix(LArCalib_Flags.LArPhysWaveFolder)
 
 if not 'LArPhysFolderOutputTag' in dir():
-   LArPhysFolderOutputTag=rs.getFolderTagSuffix(LArCalib_Flags.LArMPhysOverMCalFolder)
+   LArPhysFolderOutputTag=rs.getFolderTagSuffix(LArCalib_Flags.LArMphysOverMcalFolder)
 
 if not 'DTimeLArCalibFolderTag' in dir():
    DTimeLArCalibFolderTag=rs.getFolderTagSuffix(LArCalib_Flags.LArDTimeFolder)
@@ -341,8 +342,8 @@ if not 'OutputObjectSpecPhysWave' in dir():
    OutputObjectSpecTagPhysWave    = LArCalibFolderTag(LArCalib_Flags.LArPhysWaveFolder,LArPhysFolderOutputTag)
 						
 if not 'OutputObjectSpecMphysOverMcal' in dir():
-   OutputObjectSpecMphysOverMcal = "LArMphysOverMcalComplete#"+"LArMphysOverMcal"+"#"+ LArCalib_Flags.LArMPhysOverMCalFolder		
-   OutputObjectSpecTagMphysOverMcal  = LArCalibFolderTag(LArCalib_Flags.LArMPhysOverMCalFolder,LArPhysFolderOutputTag)
+   OutputObjectSpecMphysOverMcal = "LArMphysOverMcalComplete#"+"LArMphysOverMcal"+"#"+ LArCalib_Flags.LArMphysOverMcalFolder		
+   OutputObjectSpecTagMphysOverMcal  = LArCalibFolderTag(LArCalib_Flags.LArMphysOverMcalFolder,LArPhysFolderOutputTag)
 
 ## Bad Channel   
    
@@ -440,9 +441,9 @@ else :
    PhysWaveLog.info( "Read Bad Channels from SQLite file") 
 
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 
 if 'BadChannelsLArCalibFolderTag' in dir() :
@@ -615,7 +616,7 @@ LArPhysWavePredictor.NormalizeCali	      = True
 if (isHEC) :
    LArPhysWavePredictor.NormalizeCali	      = False
 LArPhysWavePredictor.KeyMphysMcali	      = LArMphysMcaliKey
-LArPhysWavePredictor.DumpMphysMcali           = False # set to True to dump on a ASCII file
+LArPhysWavePredictor.DumpMphysMcali           = True # False # set to True to dump on a ASCII file
 LArPhysWavePredictor.KeyPhys                  = InputKey
 LArPhysWavePredictor.isHEC                    = isHEC
 #
@@ -779,11 +780,11 @@ theApp.EvtMax = 1
 
 ###########################################################################
 
-svcMgr.MessageSvc.OutputLevel  = WARNING
+svcMgr.MessageSvc.OutputLevel  = VERBOSE # WARNING
 svcMgr.MessageSvc.defaultLimit = 10000
 svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
-svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = INFO)
+svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = VERBOSE)
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable

@@ -11,7 +11,7 @@ atlas_add_library( MuPatPrimitives
                    src/*.cxx
                    PUBLIC_HEADERS MuPatPrimitives
                    LINK_LIBRARIES CxxUtils EventPrimitives TrkMeasurementBase TrkParameters MuonStationIndexLib 
-			          MuonSegment TrkSegment TrkTrack TrkTrackSummary)
+			          MuonSegment TrkSegment TrkTrack TrkTrackSummary MuonIdHelpersLib)
 
 # Install files from the package:
 #atlas_install_joboptions( share/*.py )

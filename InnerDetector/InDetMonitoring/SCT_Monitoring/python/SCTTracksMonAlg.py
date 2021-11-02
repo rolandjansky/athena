@@ -52,7 +52,7 @@ def SCTTracksMonAlgConfig(inputFlags):
     # myMonAlg.RandomHist = True
 
     # Set InDetTrackSummaryTool to TrackSummaryTool of SCTLorentzMonAlg
-    from .TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
+    from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
     myMonAlg.TrackSummaryTool = result.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
 
     ### STEP 4 ###
@@ -60,7 +60,7 @@ def SCTTracksMonAlgConfig(inputFlags):
     # standard one that is included with AthMonitorAlgorithm.
 
     # set up geometry / conditions
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In
@@ -190,10 +190,6 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    geoCfg=AtlasGeometryCfg(ConfigFlags)
-    cfg.merge(geoCfg)
 
     sctTracksMonAcc = SCTTracksMonAlgConfig(ConfigFlags)
     cfg.merge(sctTracksMonAcc)

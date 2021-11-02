@@ -53,21 +53,18 @@ namespace top {
  * @param number of the generator weights
  * @param names Vector of names of the selected bookkeepers
  * @param sumW Vector of sum of weights of the selected bookkeepers
- * @param isHLLHC Whether this is a HLLHC ugprade sample, it uses different stream for bookkeepers
  */
   void parseCutBookkeepers(xAOD::TEvent& event, const std::size_t size,
-      std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC=false);
+      std::vector<std::string> &names, std::vector<float>& sumW);
 
 /**
  * @brief Get raw number of events before skimming from "AllExecutedEvents" bookkeeper
  * 
  * @param cutBookKeepers Container with CutBookkeepers
- * @param isHLLHC Whether this is a HLLHC ugprade sample, it uses different stream for bookkeepers
  *
  * @return number of raw events before skimming
  */
-  ULong64_t getRawEventsBookkeeper(const xAOD::CutBookkeeperContainer *cutBookKeepers,
-      const bool isHLLHC=false);
+  ULong64_t getRawEventsBookkeeper(const xAOD::CutBookkeeperContainer *cutBookKeepers);
 
 /**
  * @brief Rename CutBookkeeper names according to MC generator weight names reported by PMGTruthWeightTool

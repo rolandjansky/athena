@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -38,6 +38,6 @@ namespace InDetDD {
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( InDetDD::SiDetectorElementCollection , 1330395642 , 1 )
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( InDetDD::SiDetectorElementCollection, 1098715294 );
+CONDCONT_MIXED_DEF( InDetDD::SiDetectorElementCollection, 1098715294 );
 
 #endif // INDETREADOUTGEOMETRY_SIDETECTORELEMENTCOLLECTION_H

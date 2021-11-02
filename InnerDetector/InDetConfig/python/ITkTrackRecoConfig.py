@@ -39,7 +39,7 @@ def ITkStripClusterizationCfg(flags, name="ITkStripClusterization", **kwargs) :
     acc = ComponentAccumulator()
 
     # Need to get ITkStrip_ConditionsSummaryTool for e.g. ITkStripClusteringTool
-    from InDetConfig.ITkRecToolConfig import ITkStripConditionsSummaryToolCfg
+    from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
     ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
 
     from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
@@ -77,8 +77,8 @@ def ITkStripClusterizationPUCfg(flags, name="ITkStripClusterizationPU", **kwargs
 def ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
 
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    acc.merge( ITkPixelGeometryCfg(flags))
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    acc.merge(ITkPixelReadoutGeometryCfg(flags))
 
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
 
@@ -141,10 +141,9 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
 def ITkTrackToVertexCfg(flags, name="ITkTrackToVertex", **kwargs):
     result = ComponentAccumulator()
     if "Extrapolator" not in kwargs:
-        #Run 3 uses
-        #from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg 
-        from InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-        kwargs["Extrapolator"] = result.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
+        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+        Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+        kwargs["Extrapolator"] = Extrapolator
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
 
     result.merge(BeamSpotCondAlgCfg(flags))
@@ -179,10 +178,29 @@ def ITkTrackCollectionCnvToolCfg(flags, name="ITkTrackCollectionCnvTool", ITkTra
     result.setPrivateTools(CompFactory.xAODMaker.TrackCollectionCnvTool(name, **kwargs))
     return result
 
-def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
+def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", InputCombinedTracks=None, **kwargs):
+    result = ComponentAccumulator()
+
+    kwargs.setdefault("TracksLocation", InputCombinedTracks)
+    kwargs.setdefault("OutputTracksLocation", 'CombinedITkTracks')
+    from InDetConfig.ITkTrackingCommonConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
+    ITkPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
+    kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
+    kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMapCombinedITkTracks')
+    kwargs.setdefault("UpdateSharedHits", True)
+    kwargs.setdefault("UpdateAdditionalInfo", True)
+    from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
+    TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
+    kwargs.setdefault("SummaryTool", TrackSummaryTool)
+
+    result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
+    return result
+
+def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContainerName="CombinedITkTracks", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("ConvertTracks", True)
     kwargs.setdefault("ConvertTrackParticles", False)
+    kwargs.setdefault("TrackContainerName", TrackContainerName)
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
     if "TrackParticleCreator" not in kwargs:
@@ -210,12 +228,6 @@ def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", OutputTrackP
 def ITkTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
-
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    result.merge( ITkPixelGeometryCfg(flags))
-
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    result.merge( ITkStripGeometryCfg(flags))
 
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge(BeamPipeGeometryCfg(flags))
@@ -247,9 +259,7 @@ def ITkTrackRecoCfg(flags):
         result.merge(SCTRawDataProviderCfg(flags))
         result.merge(SCTEventFlagWriterCfg(flags))
 
-    # up to here
     # needed for brem/seeding, TODO decided if needed here
-    # commented for now
     if flags.Detector.GeometryLAr:
         from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
         result.merge(LArBadFebCfg(flags))
@@ -257,14 +267,35 @@ def ITkTrackRecoCfg(flags):
         result.merge(CaloRecoCfg(flags,doLCCalib=True))
         from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
         result.merge(egammaTopoClusterCopierCfg(flags))
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-        result.merge(CaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
+        result.merge(ITkCaloClusterROI_SelectorCfg(flags))
 
     from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     result.merge(ITkRecPreProcessingSiliconCfg(flags))
+
+    if flags.ITk.doFastTracking:
+        flags = flags.cloneAndReplace("ITk.Tracking","ITk.FastTracking")
+
     from InDetConfig.ITkTrackingSiPatternConfig import ITkTrackingSiPatternCfg
     result.merge(ITkTrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
-    result.merge(ITkTrackParticleCnvAlgCfg(flags, TrackContainerName="ResolvedTracks"))
+    InputCombinedITkTracks = ["ResolvedTracks"]
+
+    # LRT
+    if flags.ITk.doITkLargeD0:
+        flagsLRT = flags.cloneAndReplace("ITk.Tracking","ITk.LargeD0Tracking")
+        if flags.ITk.doFastTracking:
+            flagsLRT = flags.cloneAndReplace("ITk.Tracking","ITk.LargeD0FastTracking")
+        result.merge(ITkTrackingSiPatternCfg(flagsLRT, InputCombinedITkTracks, "ResolvedLargeD0Tracks", "SiSPSeededLargeD0Tracks"))
+        InputCombinedITkTracks += ["ResolvedLargeD0Tracks"]
+
+    # Photon conversion tracking reco
+    if flags.Detector.GeometryLAr and flags.ITk.doITkConversionFinding:
+        flagsConv = flags.cloneAndReplace("ITk.Tracking","ITk.ConversionFindingTracking")
+        result.merge(ITkTrackingSiPatternCfg(flagsConv, InputCombinedITkTracks, "ResolvedROIConvTracks", "SiSpSeededROIConvTracks"))
+        InputCombinedITkTracks += ["ResolvedROIConvTracks"]
+
+    result.merge(ITkTrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedITkTracks))
+    result.merge(ITkTrackParticleCnvAlgCfg(flags))
 
     if flags.ITk.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg

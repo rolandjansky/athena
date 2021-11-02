@@ -3,8 +3,9 @@
 */
 
 #include "CSCSDOVariables.h"
-#include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonSimData/CscSimDataCollection.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "TTree.h"
 
 StatusCode CscSDOVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
@@ -14,14 +15,14 @@ StatusCode CscSDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
 
   ATH_CHECK( this->clearVariables() );
 
-  ATH_MSG_DEBUG( "Retrieve CSC SDO container with name = " << m_ContainerName.c_str() );
-  const MuonSimDataCollection* cscSdoContainer = nullptr;
-  ATH_CHECK( m_evtStore->retrieve(cscSdoContainer, m_ContainerName.c_str()) );
+  ATH_MSG_DEBUG( "Retrieve CSC SDO container with name = " << "CSC_SDO" );
+  const CscSimDataCollection* cscSdoContainer = nullptr;
+  ATH_CHECK( m_evtStore->retrieve(cscSdoContainer, "CSC_SDO") );
 
   for (const auto& coll : *cscSdoContainer ) {
 
     const Identifier id = coll.first;
-    const MuonSimData csc_sdo = coll.second;
+    const CscSimData csc_sdo = coll.second;
 
     // Get information on the SDO
     std::string stName   = m_CscIdHelper->stationNameString(m_CscIdHelper->stationName(id));
@@ -52,29 +53,48 @@ StatusCode CscSDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muo
     m_csc_sdo_Strip.push_back(strip);
 
     ATH_MSG_DEBUG( "Get the truth deposits from the SDO." );
-    std::vector<MuonSimData::Deposit> deposits;
+    std::vector<CscSimData::Deposit> deposits;
     csc_sdo.deposits(deposits);
 
-    const Amg::Vector3D hit_gpos = csc_sdo.globalPosition();
-    m_csc_sdo_globalPosX.push_back( hit_gpos.x() );
-    m_csc_sdo_globalPosY.push_back( hit_gpos.y() );
-    m_csc_sdo_globalPosZ.push_back( hit_gpos.z() );
+    int    truth_barcode   = deposits[0].first.barcode();
+    double truth_localPosX = deposits[0].second.zpos();
+    double truth_localPosY = deposits[0].second.ypos();
+    double truth_charge    = deposits[0].second.charge();
 
-    m_csc_sdo_globaltime.push_back( csc_sdo.getTime() );
     m_csc_sdo_word.push_back( csc_sdo.word() );    
 
-    // use the information of the first deposit
-    int barcode = deposits[0].first.barcode();
-    double MuonMCdata_firstentry = deposits[0].second.firstEntry();
-    double MuonMCdata_secondentry = deposits[0].second.secondEntry();
+    const MuonGM::CscReadoutElement* rdoEl = MuonDetMgr->getCscReadoutElement(id);
+	if (!rdoEl) {
+	  ATH_MSG_ERROR("CSCSDOVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ << m_CscIdHelper->print_to_string(id).c_str());
+	  return StatusCode::FAILURE;
+	}
 
-    ATH_MSG_DEBUG("CSC SDO barcode=" << barcode);
-    ATH_MSG_DEBUG("CSC SDO localPosX=" << std::setw(9) << std::setprecision(2) << MuonMCdata_firstentry
-                               << ", localPosY=" << std::setw(9) << std::setprecision(2) << MuonMCdata_secondentry);
+    Amg::Vector2D hit_on_surface(truth_localPosX, truth_localPosY);
+    Amg::Vector3D hit_gpos(0., 0., 0.);
+    rdoEl->surface(id).localToGlobal(hit_on_surface, Amg::Vector3D(0., 0., 0.), hit_gpos);
 
-    m_csc_sdo_barcode.push_back( barcode );
-    m_csc_sdo_localPosX.push_back( MuonMCdata_firstentry );
-    m_csc_sdo_localPosY.push_back( MuonMCdata_secondentry );
+    ATH_MSG_DEBUG("CSC Digit, truth barcode=" << truth_barcode);
+    ATH_MSG_DEBUG("CSC Digit, truth localPosX=" << std::setw(9) << std::setprecision(2) << truth_localPosX
+                  << ", truth localPosY=" << std::setw(9) << std::setprecision(2) << truth_localPosY
+                  << ", truth charge=" << std::setw(8) << std::setprecision(5) << truth_charge);
+
+    // truth information like positions and barcode
+    // to be stored in the ntuple
+    m_csc_sdo_barcode.push_back( truth_barcode );
+
+    if ( rdoEl->surface(id).insideBounds(hit_on_surface,0.,0.) ){
+      m_csc_sdo_localPosX.push_back( truth_localPosX );
+      m_csc_sdo_localPosY.push_back( truth_localPosY );
+    }
+
+    if ( rdoEl->surface(id).isOnSurface(hit_gpos,true,0.,0.) ){
+      m_csc_sdo_globalPosX.push_back( hit_gpos[0] );
+      m_csc_sdo_globalPosY.push_back( hit_gpos[1] );
+      m_csc_sdo_globalPosZ.push_back( hit_gpos[2] );
+    }
+
+    m_csc_sdo_charge.push_back( truth_charge );
+
 
     m_csc_nsdo++;
   }
@@ -97,7 +117,7 @@ StatusCode CscSDOVariables::clearVariables()
   m_csc_sdo_globalPosX.clear();
   m_csc_sdo_globalPosY.clear();
   m_csc_sdo_globalPosZ.clear();
-  m_csc_sdo_globaltime.clear();
+  m_csc_sdo_charge.clear();
   m_csc_sdo_localPosX.clear();
   m_csc_sdo_localPosY.clear();
   return StatusCode::SUCCESS;
@@ -120,7 +140,7 @@ StatusCode CscSDOVariables::initializeVariables()
     m_tree->Branch("SDO_CSC_globalPosX",    &m_csc_sdo_globalPosX);
     m_tree->Branch("SDO_CSC_globalPosY",    &m_csc_sdo_globalPosY);
     m_tree->Branch("SDO_CSC_globalPosZ",    &m_csc_sdo_globalPosZ);
-    m_tree->Branch("SDO_CSC_global_time",   &m_csc_sdo_globaltime);
+    m_tree->Branch("SDO_CSC_charge",      &m_csc_sdo_charge);
     m_tree->Branch("SDO_CSC_localPosX",     &m_csc_sdo_localPosX);
     m_tree->Branch("SDO_CSC_localPosY",     &m_csc_sdo_localPosY);
   }

@@ -41,7 +41,7 @@ from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.Calo_setOff()
+DetFlags.Calo_setOn()
 DetFlags.ID_setOff()
 DetFlags.Muon_setOff()
 DetFlags.Truth_setOff()
@@ -64,7 +64,7 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 
 theApp.EvtMax = 1
 
-svcMgr.EventSelector.RunNumber         = 222222
+svcMgr.EventSelector.RunNumber         = 999999
 svcMgr.EventSelector.FirstEvent        = 1
 #svcMgr.EventSelector.InitialTimeStamp  = 0
 #svcMgr.EventSelector.TimeStampInterval = 5

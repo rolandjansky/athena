@@ -94,7 +94,7 @@ namespace {
       lib = std::string("lib") + lib;
     }
     if (!boost::algorithm::ends_with(lib, SHLIB_SUFFIX)) {
-      lib = lib + SHLIB_SUFFIX;
+      lib += SHLIB_SUFFIX;
     }
     return lib;
   }
@@ -590,7 +590,7 @@ DsoDb::content(bool pedantic) const
             baselibs.insert(baselib);
           }
         }
-        db[idb->first] = libs;
+        db[idb->first] = std::move(libs);
       }
     }
   }
@@ -627,7 +627,7 @@ DsoDb::get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic) const
       }
     }
     if (libs.size() > 1) {
-      dups[idb->first] = Libs_t(libs.begin(), libs.end());
+      dups[idb->first] = std::move(libs);
     }
   }
 }

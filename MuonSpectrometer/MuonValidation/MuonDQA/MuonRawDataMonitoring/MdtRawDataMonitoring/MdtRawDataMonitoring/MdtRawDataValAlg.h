@@ -133,12 +133,12 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   bool AinB( int A, std::vector<int> & B );
   virtual StatusCode  binMdtGlobal( TH2*, char ecap );
-  virtual StatusCode  binMdtRegional( TH2*, std::string &xAxis );
+  virtual StatusCode  binMdtRegional( TH2*, std::string_view xAxis );
   virtual StatusCode  binMdtGlobal_byLayer( TH2*, TH2*, TH2*);
   virtual StatusCode binMdtOccVsLB(TH2* &h, int region, int layer);
   virtual StatusCode binMdtOccVsLB_Crate(TH2* &h, int region, int crate);
-  void TubeID_to_ID_L_ML(int & tubeID, const std::string & hardware_name, int & tube, int & layer, int & ML, int max);
-  void ChamberTubeNumberCorrection(int & tubeNum, const std::string & hardware_name, int tubePos, int numLayers);
+  void TubeID_to_ID_L_ML(int & tubeID, std::string_view hardware_name, int & tube, int & layer, int & ML, int max);
+  void ChamberTubeNumberCorrection(int & tubeNum, std::string_view hardware_name, int tubePos, int numLayers);
   void CorrectTubeMax(const std::string & hardware_name, int & numTubes);
   void CorrectLayerMax(const std::string & hardware_name, int & numLayers);
   virtual StatusCode  bookMDTHisto_overview( TH1*&, TString, TString, TString, int, float, float, MonGroup&);
@@ -150,12 +150,12 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   void putBox(TH2* h, float x1, float y1, float x2, float y2);
   void putLine(TH2* h, float x1, float y1, float x2, float y2, Color_t c=kBlack);
   int get_bin_for_LB_hist(int region, int layer, int phi, int eta, bool isBIM);
-  int get_bin_for_LB_crate_hist(int region, int layer, int phi, int eta, std::string chamber);
+  int get_bin_for_LB_crate_hist(int region, int layer, int phi, int eta, std::string_view chamber);
   // private function to initialize the selection of a certain region
   void mdtchamberId();    
   //private function to find mdt mezz cards
   int mezzmdt(Identifier);
-  int GetTubeMax(const Identifier & digcoll_id, const std::string & hardware_name);
+  int GetTubeMax(const Identifier & digcoll_id,  std::string_view  hardware_name);
   StatusCode StoreTriggerType();
   void StoreTriggerType(int type);
   int GetTriggerType() { return m_trigtype; }

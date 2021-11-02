@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -20,6 +20,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "IdDictParser/IdDictParser.h"
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <cassert>
@@ -33,7 +34,7 @@ class TileCablingSvc
 public:
   IdDictParser parser;
 
-  TileCablingSvc()
+  TileCablingSvc() ATLAS_CTORDTOR_NOT_THREAD_SAFE
   {
     ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "test");
     assert( detStore.retrieve().isSuccess() );
@@ -51,7 +52,7 @@ public:
     assert (hwid->initialize_from_dictionary (idd) == 0);
     assert (tbid->initialize_from_dictionary (idd) == 0);
     assert (tileid->initialize_from_dictionary (idd) == 0);
-    TileCablingService* svc = TileCablingService::getInstance();
+    TileCablingService* svc = TileCablingService::getInstance_nc();
     svc->setTileHWID (hwid.get());
     svc->setTileTBID (tbid.get());
     svc->setTileID (tileid.get());
@@ -201,7 +202,7 @@ void test3 (TileROD_Decoder* decoder_nc)
 {
   std::cout << "test3 (fillCollectionHLT)\n";
 
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
   int maxChannels = cabling->getMaxChannels();
   std::vector<int> r2map (maxChannels, -1);
   for (int i=1; i < 4; i++) {
@@ -302,7 +303,7 @@ void test5 (const TileROD_Decoder* decoder)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "TileROD_Decoder_test\n";
 

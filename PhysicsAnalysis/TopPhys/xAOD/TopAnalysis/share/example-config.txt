@@ -27,7 +27,6 @@ DoLoose Data
 Systematics Nominal #Nominal->only nominal. All -> all systematics (will be much slower). You can also use AllMuons, AllJets... see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#Systematics
 
 #If you use MedaData (as you usually should) IsAFII (needed for fast simulation) is automatically set, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TopxAODStartGuideR21#FullSim_vs_AFII
-UseAodMetaData True
 #IsAFII False
 
 ############GRL and PRW#############

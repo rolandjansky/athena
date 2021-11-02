@@ -1058,7 +1058,7 @@ void AthenaOutputStream::handleVariableSelection (const SG::IConstAuxStore& auxs
   SG::auxid_set_t selected = sel.getSelectedAuxIDs( all );
 
   // Loop over all and build a list of vetoed AuxIDs from non selected ones
-  for( const auto& auxid : all ) {
+  for( const SG::auxid_t auxid : all ) {
     if ( !selected.test( auxid ) ) {
       vset.insert( auxid );
     }

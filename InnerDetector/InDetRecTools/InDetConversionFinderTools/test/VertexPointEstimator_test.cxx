@@ -112,7 +112,7 @@ int main()
 
   ToolHandle<InDet::VertexPointEstimator> tool ("InDet::VertexPointEstimator");
   assert( tool.retrieve().isSuccess() );
-
+  tool->setProperty("ReturnOnError", false).ignore();
   test1 (*tool);
 
   return 0;

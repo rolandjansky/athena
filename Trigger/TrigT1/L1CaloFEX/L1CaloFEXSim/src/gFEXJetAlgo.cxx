@@ -59,10 +59,6 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   std::array<std::array<int, 3>, FEXAlgoSpaceDefs::BTOBFIB> gBlockTOBeta = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
   std::array<std::array<int, 3>, FEXAlgoSpaceDefs::BTOBFIB> gBlockTOBphi = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
 
-  // std::array<std::array<int, 3>, 4> gBlockTOBv   = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
-  // std::array<std::array<int, 3>, 4> gBlockTOBeta = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
-  // std::array<std::array<int, 3>, 4> gBlockTOBphi = {{ {{0,0,0}}, {{0,0,0}}, {{0,0,0}}, {{0,0,0}} }};
-
 
   // calculate A & B  remote partial sums first
   gTowersPartialSums RAlps_out, RArps_out;
@@ -81,7 +77,7 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
 
   gTowersCentral AjetsRestricted;
   singleAB(Atwr, AjetsRestricted);
-
+  
   gTowersCentral BjetsRestricted;
   singleAB(Btwr, BjetsRestricted);
 
@@ -195,7 +191,6 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[1]->setPhi(0);
   tobs_v[1]->setTobID(0);
   tobs_v[1]->setStatus(1);//is 1 only if rho calculation is valid, but rho is not calculated at the moment
-
   // leading gBlocks  (available first and go in first TOB value)
   // TOBs 2-5 are leading gBlocks
   ATOB1_dat[1] =  0x00000001; //set the TOB ID in the corresponding slot (LSB)
@@ -212,7 +207,6 @@ std::vector<std::unique_ptr<gFEXJetTOB>> gFEXJetAlgo::largeRfinder(
   tobs_v[2]->setTobID(1);
   if(  gBlockTOBv[0][0] > seedThreshold ) tobs_v[2]->setStatus(1);
   else tobs_v[2]->setStatus(0);
-
 
   ATOB2_dat[1] =  0x00000002;
   if(  gBlockTOBv[1][0] > seedThreshold ) ATOB2_dat[1] =  ATOB2_dat[1] | 0x00000080;
@@ -410,7 +404,7 @@ void gFEXJetAlgo::RemotePartialAB(gTowersCentral twrs, gTowersPartialSums & lps,
   // twrs are the 32 x 12 = 284 gTowers in FPGA A or B
 
   // number of rows above/below for right partial sum
-  // when sending to the right send values for largest partial sum first, i.e.for column 0
+  // when sending to the right send values for largest partial sum first, i.e. for column 0
   typedef  std::array<std::array<int, 4>, 4> gTowersNeighbours;
   gTowersNeighbours NUpDwnR = {{ {{2,3,4,4}}, {{0,2,3,4}}, {{0,0,2,3}}, {{0,0,0,2}} }};
 
@@ -527,10 +521,8 @@ void gFEXJetAlgo::singleAB(gTowersCentral twrs, gTowersCentral & FPGAsum){
 
   // Number of up and down FPGAs to add
   std::array<int, 9> NUpDwn =  {{2,3,4,4,4,4,4,3,2}};
-  // int NUpDwn[9]  =  {2,3,4,4,4,4,4,3,2};
 
   //  Evaluate jet centered on each possible eta and phi gTower
-
   for( int irow = 0; irow < FEXAlgoSpaceDefs::ABCrows; irow++ ){
     for(int jcolumn = 0; jcolumn<FEXAlgoSpaceDefs::ABcolumns; jcolumn++){
       // zero jet sum here
@@ -666,8 +658,6 @@ void gFEXJetAlgo::gBlockMax2(gTowersCentral gBlkSum, int BjetColumn, std::array<
   // need to wait until the end for this!
   gBlockEta[0] =  gBlockEta[0] + 8 + 6*BjetColumn;
   gBlockEta[1] =  gBlockEta[1] + 8 + 6*BjetColumn;
-  // std::cout<< "gFEXJetAlgo::gBlockMax2  gBlockEta[0]   "<< gBlockEta[0] << std::endl;
-  // std::cout<< "gFEXJetAlgo::gBlockMax2  gBlockEta[1]   "<< gBlockEta[1] << std::endl;
 }
 
 
@@ -785,16 +775,10 @@ void gFEXJetAlgo::gBlockMax192(  gTowersJetEngine gBlkSum,
     }
   }
 
-  // std::cout<< "gFEXJetAlgo::gBlockMax192  gBlockVp "<< gBlockVp << std::endl;
-  // std::cout<< "gFEXJetAlgo::gBlockMax192  &gBlockVp[0] "<< &gBlockVp[0] << std::endl;
 
   gBlockVp[index]   =  maxvall ;
   gBlockEtap[index] =  maxiall/32;
   gBlockPhip[index] =  maxiall%32;
-
-  // std::cout<< "gFEXJetAlgo::gBlockMax192  gBlockVp[index] "<< gBlockVp[index] << std::endl;
-  // std::cout<< "gFEXJetAlgo::gBlockMax192  gBlockEtap[index] "<< gBlockEtap[index] << std::endl;
-  // std::cout<< "gFEXJetAlgo::gBlockMax192  gBlockPhip[index] "<< gBlockPhip[index] << std::endl;
 
 }
 
@@ -863,8 +847,8 @@ void gFEXJetAlgo::gBlockVetoAB( gTowersCentral twrs,
 
 
 void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedThreshold,
-                           std::array<int, 32> jetOutL, std::array<int, 32> etaIndL,
-                           std::array<int, 32> jetOutR, std::array<int, 32> etaIndR ){
+                           std::array<int, 32> & jetOutL, std::array<int, 32> & etaIndL,
+                           std::array<int, 32> & jetOutR, std::array<int, 32> & etaIndR ){
   // find maximum in each jet engine or either gJets and requires corresponding gBlock be above threhsold
   //loop over left engines
   for(int ieng=0; ieng<FEXAlgoSpaceDefs::ABCrows; ieng++){
@@ -893,10 +877,10 @@ void gFEXJetAlgo::jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedT
 
 void gFEXJetAlgo::gJetTOBgen(std::array<int, FEXAlgoSpaceDefs::ABCrows> jetOut,
                              std::array<int, FEXAlgoSpaceDefs::ABCrows> etaInd,
-                             int TOBnum, int jetThreshold, std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> gJetTOBs,
-                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> gJetTOBv,
-                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> gJetTOBeta,
-                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> gJetTOBphi ){
+                             int TOBnum, int jetThreshold, std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBs,
+                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBv,
+                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBeta,
+                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBphi ){
 
   // offset of TOBs according to official format
   int etaOff[4] = {8,14,20,26};
@@ -992,7 +976,6 @@ void gFEXJetAlgo::gJetTOBgen(std::array<int, FEXAlgoSpaceDefs::ABCrows> jetOut,
       gJetTOBs[TOBnum]   = 0;
     }
  }
-
 
 }
 

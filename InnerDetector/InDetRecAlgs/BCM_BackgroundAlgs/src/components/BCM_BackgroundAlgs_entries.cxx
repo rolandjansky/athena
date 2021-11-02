@@ -1,3 +1,3 @@
-#include "BCM_BackgroundAlgs/BcmCollisionTimeAlg.h"
+#include "../BcmCollisionTimeAlg.h"
 DECLARE_COMPONENT( BcmCollisionTimeAlg )
 

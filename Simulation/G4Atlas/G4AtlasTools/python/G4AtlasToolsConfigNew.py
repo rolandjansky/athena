@@ -94,7 +94,10 @@ def ITkSensitiveDetectorListCfg(ConfigFlags):
     if ConfigFlags.Detector.EnableITkStrip:
         from SCT_G4_SD.SCT_G4_SDToolConfig import ITkStripSensorSDCfg
         tools += [ result.popToolsAndMerge(ITkStripSensorSDCfg(ConfigFlags)) ]
-
+    if ConfigFlags.Detector.EnablePLR:
+        from PixelG4_SD.PixelG4_SDToolConfig import PLRSensorSDCfg
+        tools += [ result.popToolsAndMerge(PLRSensorSDCfg(ConfigFlags)) ]
+    
     result.setPrivateTools(tools)
     return result
 

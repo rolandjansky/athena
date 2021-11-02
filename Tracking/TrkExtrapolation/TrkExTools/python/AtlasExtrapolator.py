@@ -102,7 +102,6 @@ class AtlasExtrapolator(Trk__Extrapolator):
                                    Propagators=self.AtlasPropagators,
                                    SubPropagators=AtlasSubPropagators,
                                    SubMEUpdators=AtlasSubUpdators,
-                                   DoCaloDynamic=False
                                    )
 
     # switches for simple steering : output navigators

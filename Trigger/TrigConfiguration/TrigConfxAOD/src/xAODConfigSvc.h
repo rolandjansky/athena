@@ -233,7 +233,7 @@ namespace TrigConf {
 
       Gaudi::Property<bool> m_stopOnFailure{this, "StopOnFailure", true, "Flag for stopping the job in case of a failure"};
       /// Internal state of the service
-      bool m_isInFailure;
+      bool m_isInFailure{false};
 
       /// 
       /// @name The configuration objects copied from all input files. R1 and R2 AOD
@@ -295,9 +295,9 @@ namespace TrigConf {
       ServiceHandle< StoreGateSvc > m_metaStore{this, "MetaDataStore", "InputMetaDataStore"};
 
       /// Is decoded R2 format data available?
-      bool m_triggerMenuContainerAvailable;
+      bool m_triggerMenuContainerAvailable{false};
       /// Is decoded R3 format data available?
-      bool m_menuJSONContainerAvailable;
+      bool m_menuJSONContainerAvailable{false};
 
    }; // class xAODConfigSvc
 

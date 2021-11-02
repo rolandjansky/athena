@@ -1,23 +1,26 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/polyplaneHandler.h"
 #include "AGDDHandlers/Polyplane.h"
+#include "AGDDControl/AGDDController.h"
 #include <iostream>
 
-Polyplane polyplaneHandler::s_pPlane(0.,0.,0.);
 
-
-polyplaneHandler::polyplaneHandler(std::string s):XMLHandler(s)
+polyplaneHandler::polyplaneHandler(const std::string& s,
+                                   AGDDController& c)
+  : XMLHandler(s, c),
+    m_pPlane (0, 0, 0)
 {
 }
 
-void polyplaneHandler::ElementHandle()
+void polyplaneHandler::ElementHandle(AGDDController& c,
+                                     xercesc::DOMNode *t)
 {
 	bool res;
-	std::vector<double> vvv=getAttributeAsVector("Rio_Z",res);
-	s_pPlane.rin(vvv[0]);
-	s_pPlane.rou(vvv[1]);
-	s_pPlane.z(vvv[2]);
+	std::vector<double> vvv=getAttributeAsVector(c, t, "Rio_Z",res);
+	m_pPlane.rin(vvv[0]);
+	m_pPlane.rou(vvv[1]);
+	m_pPlane.z(vvv[2]);
 }

@@ -2,7 +2,7 @@
 
 
 # run the test
-python -m RecJobTransforms.RecoSteering "PF.useElPhotMuLinks=False" --RAW 2>&1 > reco.log
+RecoSteeringTest.py --RAW 2>&1 > reco.log
 export testStatus=$?
 if [[ $testStatus -ne 0 ]]
     then

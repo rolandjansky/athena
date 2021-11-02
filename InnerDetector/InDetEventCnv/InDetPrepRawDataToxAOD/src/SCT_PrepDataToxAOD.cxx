@@ -390,7 +390,7 @@ void SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const InDet::SCT_Clust
   std::vector<const SiHit*>::iterator siHitIter{multiMatchingHits.begin()};
   std::vector<const SiHit*>::iterator siHitIter2{multiMatchingHits.begin()};
   ATH_MSG_DEBUG("Found " << multiMatchingHits.size() << " SiHit ");
-  for (; siHitIter != multiMatchingHits.end(); siHitIter++) {
+  for (; siHitIter != multiMatchingHits.end(); ++siHitIter) {
     const SiHit* lowestXPos{*siHitIter};
     const SiHit* highestXPos{*siHitIter};
 

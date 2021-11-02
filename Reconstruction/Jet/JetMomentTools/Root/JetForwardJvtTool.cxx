@@ -74,10 +74,10 @@
     SG::WriteDecorHandle<xAOD::JetContainer, float> fjvtDecHandle(m_fjvtDecKey);
 
     getPV();
-    if (jetCont.size() > 0) calculateVertexMomenta(&jetCont);
+    if (m_recalculateFjvt && jetCont.size() > 0) calculateVertexMomenta(&jetCont);
     for(const auto jetF : jetCont) {
       outHandle(*jetF) = 1;
-      fjvtDecHandle(*jetF) = 0;
+      if(m_recalculateFjvt) fjvtDecHandle(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
       double fjvt = getFJVT(jetF)/jetF->pt();
       if (fjvt>m_fjvtThresh) outHandle(*jetF) = 0;
@@ -87,6 +87,11 @@
   }
 
   float JetForwardJvtTool::getFJVT(const xAOD::Jet *jet) const {
+    if(!m_recalculateFjvt){
+      SG::WriteDecorHandle<xAOD::JetContainer, float> fjvtDecHandle(m_fjvtDecKey);
+      return fjvtDecHandle(*jet);
+    } 
+
     TVector2 fjet(-jet->pt()*cos(jet->phi()),-jet->pt()*sin(jet->phi()));
     double fjvt = 0;
     for (size_t pui = 0; pui < m_pileupMomenta.size(); pui++) {

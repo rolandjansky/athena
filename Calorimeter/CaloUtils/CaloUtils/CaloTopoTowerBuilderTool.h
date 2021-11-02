@@ -1,25 +1,22 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOTOPOTOWERBUILDERTOOL_H
 #define CALOREC_CALOTOPOTOWERBUILDERTOOL_H
-///////////////////////////////////////////////////////////////////////////////
-/// \brief CaloTopoTowerBuilderTool is a tower builder tool implementation class
-///
-/// CaloTopoTowerBuilderTool is a tower builder tool implementation class.
-///
-/// \author Ian M. Nugent
-/// \date March 15, 2010 - first implementation
-///
-/// Based on CaloTowerBuilderTool
-///
-///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @brief CaloTopoTowerBuilderTool is a tower builder tool implementation class
+ *
+ * @author Ian M. Nugent
+ * @date March 15, 2010 - first implementation
+ *
+ * Based on CaloTowerBuilderTool
+ */
 
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "CaloUtils/CaloTopoTowerBuilderToolBase.h"
-
 
 #include <string>
 #include <vector>
@@ -67,9 +64,8 @@ class CaloTopoTowerBuilderTool : public CaloTopoTowerBuilderToolBase
 
  private:
   const CaloCell2ClusterMap* CreateCaloCell2ClusterMap(const CaloClusterContainer* c) const;
-  const CaloDetDescrManager* m_calo_dd_man; 
-  const CaloCell_ID* m_calo_id;
 
+  const CaloCell_ID* m_calo_id;
   // Type definitions 
   typedef Navigable<CaloClusterContainer>           nav_t;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EventInfoMgt )
@@ -6,7 +6,7 @@ atlas_subdir( EventInfoMgt )
 atlas_add_library( EventInfoMgtLib
                    INTERFACE
                    PUBLIC_HEADERS EventInfoMgt
-                   LINK_LIBRARIES AthenaKernel GaudiKernel EventInfo )
+                   LINK_LIBRARIES AthenaKernel GaudiKernel EventInfo CxxUtils )
 
 # Component(s) in the package:
 atlas_add_component( EventInfoMgt

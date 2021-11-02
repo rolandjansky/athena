@@ -454,6 +454,7 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
 // isToBeDecayed() to never enable decays of such particles by EvtGen.
 //
 void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr part) {
+// TODO the printout below crashes with segfault for HepMC3 - needs expert action
   ATH_MSG_DEBUG("Decaying particle " << pdgName(part) << " (barcode " << HepMC::barcode(part) << ")");
   if (msgLvl(MSG::VERBOSE)) HepMC::Print::line(std::cout,part);
 
@@ -812,7 +813,7 @@ unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
 std::string EvtInclusiveDecay::pdgName(HepMC::ConstGenParticlePtr p, bool statusHighlighting, std::set<HepMC::GenParticlePtr>* barcodeList) {
   std::ostringstream buf;
   bool inlist=false;
-  for (auto pinl: *barcodeList) if (pinl&&p) if (pinl.get()==p.get()) inlist=true;
+  if (barcodeList) for (auto pinl: *barcodeList) if (pinl&&p) if (pinl.get()==p.get()) inlist=true;
   if (statusHighlighting) {
     if ( ((barcodeList!=0) && (inlist)) ||  
          ((barcodeList==0) && isToBeDecayed(p,false)) )

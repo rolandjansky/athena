@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -21,7 +21,7 @@ from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
 # Pulled in from ISF G4 to avoid circular dependence
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
-    if flags.Sim.ISF.Simulator in ["FullG4MT"]:
+    if flags.Sim.ISF.Simulator in ['FullG4MT', 'FullG4MT_QS']:
         tool = result.popToolsAndMerge(EntryLayerToolMTCfg(flags))
     else:
         tool = result.popToolsAndMerge(EntryLayerToolCfg(flags))
@@ -31,6 +31,7 @@ def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserA
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     if flags.Detector.GeometryCavern:
         kwargs.setdefault("TruthVolumeLevel", 2)
+    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'])
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionFullG4Tool(name, **kwargs))
     return result
 
@@ -62,6 +63,8 @@ def TrackProcessorUserActionToolCfg(flags, name="ISFG4TrackProcessorUserActionTo
 
 
 def PassBackG4TrackProcessorUserActionToolCfg(flags, name="PassBackG4TrackProcessorUserActionTool", **kwargs):
+    if flags.Sim.ISF.Simulator in ["PassBackG4MT"]:
+        kwargs.setdefault("ParticleBroker", "")
     return TrackProcessorUserActionToolCfg(flags, name, **kwargs)
 
 
@@ -69,7 +72,7 @@ def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUse
     result = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"]:
         kwargs.setdefault("ParticleBroker", "")
-    if flags.Sim.ISF.Simulator in ["ATLFASTII","ATLFASTIIF_G4MS"]:
+    if flags.Sim.ISF.Simulator in ["ATLFASTIIF_G4MS"]:
         result.merge(AFIIParticleBrokerSvcCfg(flags))
         kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
     result.merge(AFIIGeoIDSvcCfg(flags))

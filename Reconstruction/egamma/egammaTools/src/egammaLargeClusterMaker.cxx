@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaLargeClusterMaker.h"
@@ -32,6 +32,7 @@ egammaLargeClusterMaker::initialize()
   ATH_MSG_DEBUG("Initializing " << name() << "...");
   ATH_CHECK(m_inputClusterCollection.initialize());
   ATH_CHECK(m_cellsKey.initialize());
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
   ATH_MSG_DEBUG("Initialization successful");
   return StatusCode::SUCCESS;
 }
@@ -51,8 +52,11 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
   // retrieve the cell containers
   SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
 
-  const CaloDetDescrManager* dd_man = nullptr;
-  ATH_CHECK(detStore()->retrieve(dd_man, "CaloMgr"));
+  // retrieve CaloDetDescr
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
   
   // The main loop over clusters
   for (const auto *cluster : *inputClusters) {
@@ -97,7 +101,7 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
       //                  the easiest is to look for the CaloDetDescrElement
       
       const CaloDetDescrElement* dde =
-	dd_man->get_element(CaloCell_ID::LAREM, 0, barrel, eta, phi);
+	calodetdescrmgr->get_element(CaloCell_ID::LAREM, 0, barrel, eta, phi);
       
       // if object does not exist then return
       if (!dde) {
@@ -113,7 +117,7 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
       // around this position a hot cell is searched for in a window
       // (m_neta*m_deta,m_nphi*m_dphi), by default (m_neta,m_nphi)=(7,7)
       CaloLayerCalculator calc;
-      StatusCode sc = calc.fill(*dd_man,
+      StatusCode sc = calc.fill(*calodetdescrmgr,
 				cellcoll.ptr(),
 				cluster->etaSample(sam),
 				cluster->phiSample(sam),
@@ -176,7 +180,7 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
       //                  the easiest is to look for the CaloDetDescrElement
       //    const CaloDetDescrElement* get_element_FCAL (const CaloDetDescriptor* reg, double eta, double phi) const;
       const CaloDetDescrElement* dde =
-	dd_man->get_element(subcalo, sampling_or_module, emec, eta, phi);
+	calodetdescrmgr->get_element(subcalo, sampling_or_module, emec, eta, phi);
       
       // if object does not exist then return
       if (!dde) {
@@ -199,7 +203,7 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
       
       // if In EMEC
       CaloLayerCalculator calc;
-      StatusCode sc = calc.fill(*dd_man,
+      StatusCode sc = calc.fill(*calodetdescrmgr,
 				cellcoll.ptr(),
 				cluster->etaSample(sam),
 				cluster->phiSample(sam),
@@ -220,9 +224,9 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
 	// If FCAL need to add cell to cluster in a cone
 	std::vector<const CaloCell*> cells;
 	cells.reserve(300);
-	CaloCellList myList(cellcoll.ptr());
+	CaloCellList myList(calodetdescrmgr, cellcoll.ptr());
 	myList.select(cluster->etaSample(sam), cluster->phiSample(sam), m_drFWD,(CaloSampling::CaloSample)sam);
-	//  myList.select(dde,newCluster->eta0(), newCluster->phi0(),m_drFWD,(CaloSampling::CaloSample)sam); 
+	
 	cells.insert(cells.end(), myList.begin(), myList.end());
 	
 	for ( const auto *cell : cells ) {

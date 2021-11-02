@@ -10,7 +10,7 @@ from ISF_SimulationSelectors import SimulationFlavor
 
 def usesSimKernelMT():
     from ISF_Config.ISF_jobProperties import ISF_Flags
-    return (ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'PassBackG4MT', 'ATLFASTIIMT', 'ATLFAST3MT', 'ATLFAST3MT_QS', 'FullG4MT_LongLived', 'ATLFASTIIF_ACTS'])
+    return (ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'FullG4MT_QS', 'PassBackG4MT', 'ATLFASTIIMT', 'ATLFAST3MT', 'ATLFAST3MT_QS', 'FullG4MT_LongLived', 'ATLFASTIIF_ACTS'])
 
 def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
     return CfgMgr.ISF__DefaultSimSelector(name, **kwargs )

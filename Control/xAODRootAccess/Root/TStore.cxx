@@ -1,5 +1,7 @@
 // Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+#include <set>
+
 // ROOT include(s):
 #include <TError.h>
 #include <TClass.h>
@@ -370,6 +372,27 @@ namespace xAOD {
                  ptr );
       static const std::string dummy( "" );
       return dummy;
+   }
+
+   void TStore::getNames( const std::string& targetTypeName,
+                          std::vector< std::string >& vkeys ) const {
+      std::set< std::string > keys;
+
+      for ( const auto& pair : m_objects ) {
+         const std::string& key = pair.first;
+         ::TClass* cl = pair.second->getClass();
+         const std::type_info* ti = pair.second->getTypeInfo();
+         std::string typeName;
+         if (cl)
+            typeName = cl->GetName();
+         else if (ti)
+            typeName = SG::normalizedTypeinfoName( *ti );
+
+         if (!typeName.empty() && typeName == targetTypeName)
+            keys.insert( key );
+      }
+
+      vkeys.insert( vkeys.end(), keys.begin(), keys.end() );
    }
 
 } // namespace xAOD

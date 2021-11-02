@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -315,6 +315,7 @@ class TileTBAANtuple: public AthAlgorithm {
     int* m_btdc2;
     std::vector<std::vector<int> > *m_btdc;
     int m_tjitter;
+    int m_tscTOF;
     int m_btdcNhit[16];
     int m_btdcNchMultiHit[2];
 

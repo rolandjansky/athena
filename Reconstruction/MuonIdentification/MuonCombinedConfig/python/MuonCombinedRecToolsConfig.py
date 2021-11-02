@@ -348,6 +348,12 @@ def MuonCombinedToolCfg(flags, name="MuonCombinedTool",**kwargs):
     kwargs.setdefault("MuonCombinedTagTools", tools )
     kwargs.setdefault("MuonCombinedDebuggerTool", result.popToolsAndMerge( MuonCombinedDebuggerToolCfg(flags) ) )
 
+    acc = MuonAlignmentUncertToolThetaCfg(flags)
+    result.merge(acc)
+    kwargs.setdefault("AlignmentUncertTool", result.getPublicTool('MuonAlignmentUncertToolTheta') )
+ 
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)    
     tool = CompFactory.MuonCombined.MuonCombinedTool(name,**kwargs)
     result.setPrivateTools(tool)
     return result 
@@ -665,6 +671,14 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     kwargs.setdefault("MdtRotCreator"                 , acc.popPrivateTools() )
     result.merge(acc)
 
+    ### Tracking Geometry
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    result.merge(TrackingGeometryCondAlgCfg(flags))
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
+
     kwargs.setdefault("CleanCombined"                 , True )
     kwargs.setdefault("CleanStandalone"               , True )
     kwargs.setdefault("BadFitChi2"                    , 2.5 )
@@ -868,14 +882,6 @@ def CaloTrkMuIdAlgTrackSelectorToolCfg(flags, name='CaloTrkMuIdAlgTrackSelectorT
     result.setPrivateTools(tool)
     return result
 
-def TrackEnergyInCaloToolCfg(flags, name ='TrackEnergyInCaloTool', **kwargs ):
-    result = AtlasExtrapolatorCfg(flags)
-    extrapolator = result.popPrivateTools()
-    result.addPublicTool( extrapolator )
-    kwargs.setdefault("ExtrapolatorHandle", extrapolator )
-    tool = CompFactory.TrackEnergyInCaloTool(name, **kwargs )
-    result.setPrivateTools(tool)
-    return result
 
 def TrackDepositInCaloToolCfg(flags, name ='TrackDepositInCaloTool', **kwargs ):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg, ParticleCaloCellAssociationToolCfg
@@ -986,6 +992,12 @@ def MuonLayerSegmentMatchingToolCfg(flags, name="MuonLayerSegmentMatchingTool", 
     result = AtlasExtrapolatorCfg(flags)
     extrap = result.getPrimary()
     kwargs.setdefault("Extrapolator", extrap)
+    from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuTagMatchingToolCfg
+    
+    acc = MuTagMatchingToolCfg(flags)
+    MuTagTool = acc.getPrimary()
+    kwargs.setdefault("MatchTool", MuTagTool) 
+    result.merge(acc)
 
     tool = CompFactory.Muon.MuonLayerSegmentMatchingTool(name, **kwargs)
     result.setPrivateTools(tool)

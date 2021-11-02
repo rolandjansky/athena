@@ -3,7 +3,7 @@
 # Adding SiHitValidation for whichever parts of ITk are running
 def ITkHitAnalysis(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from HitAnalysis.SiHitAnalysis import ITkPixelHitAnalysisCfg, ITkStripHitAnalysisCfg
+    from HitAnalysis.SiHitAnalysis import ITkPixelHitAnalysisCfg, ITkStripHitAnalysisCfg, PLRHitAnalysisCfg
 
     result = ComponentAccumulator()
 
@@ -12,5 +12,19 @@ def ITkHitAnalysis(flags):
 
     if flags.Detector.EnableITkStrip:
         result.merge(ITkStripHitAnalysisCfg(flags))
+
+    if flags.Detector.EnablePLR:
+        result.merge(PLRHitAnalysisCfg(flags))
+
+    return result
+
+def HGTDHitAnalysis(flags):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from HitAnalysis.SiHitAnalysis import HGTD_HitAnalysisCfg
+
+    result = ComponentAccumulator()
+
+    if flags.Detector.EnableHGTD:
+        result.merge(HGTD_HitAnalysisCfg(flags))
 
     return result

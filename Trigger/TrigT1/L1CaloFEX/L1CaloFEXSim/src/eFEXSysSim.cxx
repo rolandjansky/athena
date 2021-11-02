@@ -64,6 +64,8 @@ namespace LVL1 {
 
     ATH_CHECK( m_eFEXFPGATowerIdProviderTool.retrieve() );
 
+    ATH_CHECK( m_eFEXFPGATool.retrieve() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -107,7 +109,6 @@ namespace LVL1 {
 
     // do mapping with preloaded csv file if it is available
     if (m_eFEXFPGATowerIdProviderTool->ifhaveinputfile()) {
-      ATH_CHECK( m_eFEXFPGATool.retrieve() );
       int tmp_eTowersIDs_subset_eFEX[10][18];
       for (int i_efex{ 0 }; i_efex < 24; i_efex++) {
           ATH_CHECK(m_eFEXFPGATowerIdProviderTool->getRankedTowerIDineFEX(i_efex, tmp_eTowersIDs_subset_eFEX));

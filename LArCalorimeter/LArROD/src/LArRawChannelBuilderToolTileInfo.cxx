@@ -35,7 +35,6 @@ LArRawChannelBuilderToolTileInfo::LArRawChannelBuilderToolTileInfo(const std::st
 									   const std::string& name,
 									   const IInterface* parent) : 
   LArRawChannelBuilderToolBase(type,name,parent),
-  m_man(0),
   m_peakReco("LArOFPeakRecoTool"),
   m_delayTile(0)
 {
@@ -70,14 +69,8 @@ StatusCode LArRawChannelBuilderToolTileInfo::initTool()
   
   log << MSG::INFO << " DefaultPhase  "<<m_defaultPhase <<endmsg;
   
-  //retrieve CaloDetDescrManager from det store
 
-  sc = detStore()->retrieve(m_man);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to retrieve CaloDetDescrManager from DetectorStore" << endmsg;
-    return sc;
-  }
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -138,9 +131,11 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
   }
   
   else {//TileComTime exists
-    
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
     Identifier id=currentID();
-    const CaloDetDescrElement* caloDDE = m_man->get_element(id);
+    const CaloDetDescrElement* caloDDE = caloDDMgr->get_element(id);
 
     double tileComTime = comTime->getTime();
     Hep3Vector muonpos = comTime->GetCounterPosition();

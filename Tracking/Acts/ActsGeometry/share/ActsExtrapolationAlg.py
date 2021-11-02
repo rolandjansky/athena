@@ -10,25 +10,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ActsGeometry.ActsGeometryConfig import ActsExtrapolationToolCfg
-from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg, ActsPropStepRootWriterSvcCfg
-
-def ActsExtrapolationAlgCfg(configFlags, name = "ActsExtrapolationAlg", **kwargs):
-  result = ComponentAccumulator()
-
-  if "ExtrapolationTool" not in kwargs:
-    extrapTool = ActsExtrapolationToolCfg(configFlags)
-    kwargs["ExtrapolationTool"] = extrapTool.getPrimary()
-    result.merge(extrapTool)
-
-  propStepWriterSvc = ActsPropStepRootWriterSvcCfg(configFlags)
-  result.merge(propStepWriterSvc)
-
-  ActsExtrapolationAlg = CompFactory.ActsExtrapolationAlg
-  alg = ActsExtrapolationAlg(name, **kwargs)
-  result.addEventAlgo(alg)
-
-  return result
+from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg, ActsPropStepRootWriterSvcCfg, ActsExtrapolationAlgCfg, ActsExtrapolationToolCfg
 
 if "__main__" == __name__:
   from AthenaCommon.Configurable import Configurable

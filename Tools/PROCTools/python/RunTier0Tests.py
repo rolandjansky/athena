@@ -36,16 +36,13 @@ def RunCleanOTest(otest,input_file,bkg_file,pwd,release,extraArg,CleanRunHeadDir
 
     if data_overlay and "triggerConfig" not in extraArg:
         extraArg += " --triggerConfig 'Overlay=NONE'"
-    
-    if not data_overlay and "CA" not in extraArg:
-        extraArg += " --CA Overlay:True"
 
     o=otest.split('-')[-1]
     logging.info("Running clean in rel "+release)
     if data_overlay:
         logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
     else:
-        logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+        logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
 
     CleanDirName="clean_run_"+otest+"_"+UniqID
 
@@ -57,14 +54,14 @@ def RunCleanOTest(otest,input_file,bkg_file,pwd,release,extraArg,CleanRunHeadDir
     if data_overlay:
         cmd += "Overlay_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
     else:
-        cmd += "Reco_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
+        cmd += "Overlay_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
     subprocess.call(cmd,shell=True)
 
     logging.info("Finished clean in rel "+release)
     if data_overlay:
         logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
     else:
-        logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+        logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
     pass
 
 def RunPatchedOTest(otest,input_file,bkg_file,pwd,release,extraArg,nosetup=False,data_overlay=False):
@@ -74,16 +71,13 @@ def RunPatchedOTest(otest,input_file,bkg_file,pwd,release,extraArg,nosetup=False
 
     if data_overlay and "triggerConfig" not in extraArg:
         extraArg += " --triggerConfig 'Overlay=NONE'"
-    
-    if not data_overlay and "CA" not in extraArg:
-        extraArg += " --CA Overlay:True"
 
     o=otest.split('-')[-1]
     logging.info("Running patched in rel "+release)
     if data_overlay:
         logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
     else:
-        logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+        logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
 
     cmd = " cd "+pwd+" ;"
     if nosetup:
@@ -98,7 +92,7 @@ def RunPatchedOTest(otest,input_file,bkg_file,pwd,release,extraArg,nosetup=False
     if data_overlay:
         cmd += " Overlay_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
     else:
-        cmd += " Reco_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
+        cmd += " Overlay_tf.py --AMIConfig="+o+" --inputHITSFile "+input_file + " --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" " +extraArg+" > "+o+".log 2>&1"
 
     subprocess.call(cmd,shell=True)
 
@@ -106,7 +100,7 @@ def RunPatchedOTest(otest,input_file,bkg_file,pwd,release,extraArg,nosetup=False
     if data_overlay:
         logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputBS_SKIMFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
     else:
-        logging.info("\"Reco_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
+        logging.info("\"Overlay_tf.py --AMIConfig "+o+" --inputHITSFile "+input_file+" --inputRDO_BKGFile "+bkg_file+" --outputRDOFile myRDO.pool.root --imf False --athenaopts=\" --pmon=sdmonfp\" "+extraArg+"\"")
     pass
 
 def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
@@ -528,7 +522,7 @@ def main():
                       type="string",
                       dest="extraArgs",
                       default="",
-                      help="define additional args to pass e.g. --preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' ")
+                      help="define additional args to pass e.g. --preExec 'r2e':'...' ")
     parser.add_option("-a",
                       "--r2a",
                       action="store_true",
@@ -607,12 +601,7 @@ def main():
 
     (options,args)=parser.parse_args()
 
-    extraArg = ""
-    if options.extraArgs == "MC_pp_v5":
-        extraArg = "--preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' "
-    else:
-        extraArg = options.extraArgs
-
+    extraArg        = options.extraArgs
     RunSim          = options.sim_flag
     RunOverlay      = options.overlay_flag
     RunFast         = options.fast_flag
@@ -680,7 +669,7 @@ def main():
             }
         elif RunOverlay:
             qTestsToRun = {
-            'overlay-d1592':[ 'Overlay' ],
+            'overlay-d1726':[ 'Overlay' ],
             'dataoverlay-d1590':[ 'Overlay' ]
             }
         elif RunPileUp:
@@ -726,7 +715,7 @@ def main():
         logging.info("------------------ Run Athena q-test jobs---------------"                )
 
         release = os.environ['AtlasVersion'][0:4]
-        OverlayInputBkgFormatted = OverlayInputBkg.format(release, ciRefFileMap['overlay-bkg-' + release])
+        OverlayInputBkgFormatted = OverlayInputBkg  # hardcoded during the transition to the new test system
         OverlayInputHitsDataFormatted = OverlayInputHitsData.format(release, ciRefFileMap['dataoverlay-hits-' + release])
 
         if RunFast:

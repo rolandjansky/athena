@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -76,7 +76,7 @@ DblQ00Wsup::DblQ00Wsup(AmdcDb* wsup) :
 
   int i = -1;
   it = pIRDBRecordset->begin();
-  for( ; it<pIRDBRecordset->end(); it++){
+  for( ; it<pIRDBRecordset->end(); ++it){
      pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
      if(pAmdcDbRecord == 0){
        std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;

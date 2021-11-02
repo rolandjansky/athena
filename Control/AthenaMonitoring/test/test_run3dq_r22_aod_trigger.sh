@@ -7,9 +7,9 @@
 # art-output: ExampleMonitorOutput.root
 # art-output: log*
 
-art.py download TrigAnalysisTest test_trigAna_RDOtoAOD_v1Dev_grid.py
-AODFILE=(./ref-*/AOD.pool.root)
-Run3DQTestingDriver.py --inputFiles=${AODFILE} DQ.Steering.doHLTMon=True DQ.Environment=AOD --threads=1 --dqOffByDefault > log.HIST_Creation 2>&1
+art.py download Tier0ChainTests test_q221_mt1.sh 
+AODFILE=(./ref-*/myAOD.pool.root)
+Run3DQTestingDriver.py --inputFiles=${AODFILE} DQ.Steering.doHLTMon=True DQ.Environment=AOD --dqOffByDefault > log.HIST_Creation 2>&1
 
 echo "art-result: $? HIST_Creation"
 rm -rf ref-*
@@ -20,7 +20,3 @@ art.py download ${ArtPackage} ${ArtJobName}
 REFFILE=(./ref-*/ExampleMonitorOutput.root)
 hist_diff.sh ExampleMonitorOutput.root $REFFILE -i > log.HIST_Diff 2>&1
 echo "art-result: $? HIST_Diff"
-
-art.py download AthenaMonitoring test_run3dq_r22_aod_trigger.sh
-hist_diff.sh ExampleMonitorOutput.root $REFFILE -i > log.HIST_Diff_Serial 2>&1
-echo "art-result: $? HIST_Diff_Serial"

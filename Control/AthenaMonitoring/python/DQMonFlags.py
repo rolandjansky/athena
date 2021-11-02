@@ -55,6 +55,13 @@ class doLVL1CaloMon(JobProperty):
     StoredValue=True
 list+=[doLVL1CaloMon]
 
+class doLVL1InterfacesMon(JobProperty):
+    """ Switch for L1 interfaces monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doLVL1InterfacesMon]
+
 class doCTPMon(JobProperty):
     """ Switch for CTP monitoring """
     statusOn=True
@@ -152,6 +159,13 @@ class doJetMon(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 list+=[doJetMon]
+
+class doJetInputsMon(JobProperty):
+    """ Switch for jet monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doJetInputsMon]
 
 class doMissingEtMon(JobProperty):
     """ Switch for missing E_T monitoring"""
@@ -434,6 +448,20 @@ class triggerMixedMode(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 list+=[triggerMixedMode]
+
+class doPostProcessing(JobProperty):
+    """ Run histogram postprocessing in Athena job """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[doPostProcessing]
+
+class postProcessingInterval(JobProperty):
+    """ Set number of events between postprocessing steps """
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=100
+list+=[postProcessingInterval] 
 
 ##-----------------------------------------------------------------------------
 ## 2nd step

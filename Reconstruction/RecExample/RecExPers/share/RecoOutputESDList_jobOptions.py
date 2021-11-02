@@ -100,7 +100,7 @@ if DetFlags.detdescr.FTK_on():
 
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
-    protectedInclude ("CaloRecEx/CaloRecOutputItemList_jobOptions.py") 
+    protectedInclude ("CaloRec/CaloRecOutputItemList_jobOptions.py") 
     fullESDList += CfgItemList( "CaloEsd", items = CaloESDList )
 
 # Muon Spectrometer

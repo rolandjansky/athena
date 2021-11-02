@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./L1TopoSimulationTest.h"
@@ -8,7 +8,6 @@
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoConfig/L1TopoMenu.h"
 #include "L1TopoEvent/TopoInputEvent.h"
-#include "L1TopoConfig/L1TopoXMLParser.h"
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -27,7 +26,6 @@ LVL1::L1TopoSimulationTest::L1TopoSimulationTest(const std::string &name, ISvcLo
    m_OffhistSvc( "THistSvc/THistSvc", name),
    m_OfftopoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
 {
-   declareProperty( "InputXMLFile", m_OffinputXMLFile, "File name for menu XML");
    declareProperty( "InputJSONFile", m_OffinputJSONFile, "File name for menu JSON");
    declareProperty( "InputASCIIFile", m_OffinputASCIIFile, "File name for ASCII TOB vector");
    declareProperty( "HistSvc", m_OffhistSvc, "Histogramming service for L1Topo algorithms");
@@ -54,7 +52,7 @@ LVL1::L1TopoSimulationTest::initialize() {
 
   ATH_MSG_INFO("initialize");
 
-  if (m_OffinputXMLFile.empty() || m_OffinputJSONFile.empty()){
+  if (m_OffinputJSONFile.empty()){
     ATH_MSG_FATAL("No L1 Topo menu from JSON " << m_OffinputJSONFile);
     return StatusCode::FAILURE;
   }

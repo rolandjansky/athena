@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOUTILS_CALOLCDEADMATERIALTOOL_TOOL
-#define CALOUTILS_CALOLCDEADMATERIALTOOL_TOOL
+#ifndef CALOUTILS_CALOLCDEADMATERIALTOOL_H
+#define CALOUTILS_CALOLCDEADMATERIALTOOL_H
 
 /**
  * @class CaloLCDeadMaterialTool
@@ -34,7 +34,6 @@
 #include <string>
 
 
-class CaloDetDescrManager;
 class CaloCell_ID;
 
 

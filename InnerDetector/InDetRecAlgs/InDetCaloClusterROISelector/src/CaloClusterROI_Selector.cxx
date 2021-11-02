@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /********************************************************************
@@ -18,7 +18,6 @@ PURPOSE:   For each cluster create a new CaloClusterROI object and fills it then
 // INCLUDE HEADER FILES:
 
 #include "InDetCaloClusterROISelector/CaloClusterROI_Selector.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 //Cluster cuts
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include <stdexcept>
@@ -51,6 +50,7 @@ StatusCode InDet::CaloClusterROI_Selector::initialize()
 
     ATH_CHECK( m_egammaCaloClusterSelector.retrieve() );
     ATH_CHECK( m_caloClusterROI_Builder.retrieve() );
+    ATH_CHECK( m_caloMgrKey.initialize() );
 
     m_allClusters=0;
     m_selectedClusters=0;
@@ -98,15 +98,16 @@ StatusCode InDet::CaloClusterROI_Selector::execute(const EventContext& ctx) cons
     SG::ReadHandle<xAOD::CaloClusterContainer> inputClusterContainer(m_inputClusterContainerName,ctx);
     ATH_CHECK(inputClusterContainer.isValid());
 
-    const CaloDetDescrManager* calodetdescrmgr = nullptr;
-    ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr"));
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+    ATH_CHECK(caloMgrHandle.isValid());
+
     // loop over clusters 
     unsigned int all_clusters{};
     unsigned int selected_clusters{};
     for(const xAOD::CaloCluster* cluster : *inputClusterContainer )
     {
         all_clusters++;
-        if (m_egammaCaloClusterSelector->passSelection(cluster,*calodetdescrmgr))
+        if (m_egammaCaloClusterSelector->passSelection(cluster,**caloMgrHandle))
         {
             selected_clusters++;
             ATH_MSG_DEBUG("Pass cluster selection");

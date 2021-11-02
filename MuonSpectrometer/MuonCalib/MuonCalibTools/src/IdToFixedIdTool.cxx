@@ -87,14 +87,15 @@ namespace MuonCalib {
     Identifier IdToFixedIdTool::fixedIdToId(const MuonFixedId& fid) const {
         Identifier tmp;
         if (fid.is_mdt()) {
-            tmp = m_idHelperSvc->mdtIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.mdtMultilayer(), fid.mdtTubeLayer(),
-                                                         fid.mdtTube());
+            tmp = m_idHelperSvc->mdtIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.mdtMultilayer(),
+                                                         fid.mdtTubeLayer(), fid.mdtTube());
         } else if (fid.is_rpc()) {
-            tmp = m_idHelperSvc->rpcIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.rpcDoubletR(), fid.rpcDoubletZ(),
-                                                         fid.rpcDoubletPhi(), fid.rpcGasGap(), fid.rpcMeasuresPhi(), fid.rpcStrip());
+            tmp =
+                m_idHelperSvc->rpcIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.rpcDoubletR(), fid.rpcDoubletZ(),
+                                                       fid.rpcDoubletPhi(), fid.rpcGasGap(), fid.rpcMeasuresPhi(), fid.rpcStrip());
         } else if (m_idHelperSvc->hasCSC() && fid.is_csc()) {
-            tmp = m_idHelperSvc->cscIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.cscChamberLayer(), fid.cscWireLayer(),
-                                                         fid.cscMeasuresPhi(), fid.cscStrip());
+            tmp = m_idHelperSvc->cscIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.cscChamberLayer(),
+                                                         fid.cscWireLayer(), fid.cscMeasuresPhi(), fid.cscStrip());
         } else if (fid.is_tgc()) {
             tmp = m_idHelperSvc->tgcIdHelper().channelID(fid.stationNameString(), fid.eta(), fid.phi(), fid.tgcGasGap(), fid.tgcIsStrip(),
                                                          fid.tgcChannel());

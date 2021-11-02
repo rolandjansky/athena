@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/XMLHandlerStore.h"
@@ -9,16 +9,8 @@
 
 using namespace xercesc;
 
-XMLHandlerStore* XMLHandlerStore::s_theStore=0;
-
 XMLHandlerStore::XMLHandlerStore()
 {
-}
-
-XMLHandlerStore* XMLHandlerStore::GetHandlerStore()
-{
-	if (!s_theStore) s_theStore=new XMLHandlerStore;
-	return s_theStore;
 }
 
 void XMLHandlerStore::RegisterHandler(XMLHandler* handler)
@@ -30,28 +22,33 @@ void XMLHandlerStore::RegisterHandler(XMLHandler* handler)
 		(*this)[name]=handler;
 }
 
-void XMLHandlerStore::Handle(DOMNode *element)
+void XMLHandlerStore::Handle(AGDDController& c, DOMNode *element)
 {
 	char* temp=XMLString::transcode(element->getNodeName());
 	std::string name=temp;
 	XMLString::release(&temp);
 	if (this->find(name)!=this->end()) 
-		((*this)[name])->Handle(element);
+		((*this)[name])->Handle(c, element);
 	else
 		std::cout<<" Handler for "<<name<<" not found! continuing"<<std::endl;
 }
+
+XMLHandler* XMLHandlerStore::GetHandler(const std::string& name)
+{
+  auto it = this->find (name);
+  if (it != this->end()) {
+    return it->second;
+  }
+  std::cout<<" Handler for "<<name<<" not found! continuing"<<std::endl;
+  return nullptr;
+}
+
 
 XMLHandler* XMLHandlerStore::GetHandler(DOMNode *element)
 {
         char* temp=XMLString::transcode(element->getNodeName());
         std::string name=temp;
         XMLString::release(&temp);
-	if (this->find(name)!=this->end()) 
-		return (*this)[name];
-	else
-	{
-		std::cout<<" Handler for "<<name<<" not found! continuing"<<std::endl;
-		return 0;
-	}
+        return GetHandler (name);
 }
 

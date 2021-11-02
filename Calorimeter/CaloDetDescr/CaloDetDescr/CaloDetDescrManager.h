@@ -15,6 +15,7 @@
 #define CALODETDESCR_CALODETDESCRMANAGER_H
 
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloConstIteratorAdaptor.h"
 #include "boost/range/iterator_range.hpp"
@@ -479,7 +480,7 @@ public:
 };
 
 CLASS_DEF( CaloDetDescrManager , 4548337 , 1 )
-
+CONDCONT_DEF( CaloDetDescrManager , 206559529 );
 
 class CaloSuperCellDetDescrManager
   : public CaloDetDescrManager_Base

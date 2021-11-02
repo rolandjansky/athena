@@ -14,6 +14,12 @@ from .TriggerJetMods import stdJetModifiers  # noqa: F401
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+def getHLTPrefix():
+    prefix = "HLT_"
+    return prefix
+
+### functions to interpret reco dict and get parameters
+
 def interpretJetCalibDefault(recoDict):
     if recoDict['recoAlg'] == 'a4':
         if recoDict['constitType'] == 'tc':
@@ -29,7 +35,7 @@ def interpretJetCalibDefault(recoDict):
     else:
         raise RuntimeError('No default calibration is defined for %s' % recoDict['recoAlg'])
 
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt']
+recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','ionopt']
 
 cleaningDict = {
     'CLEANlb':  'LooseBad',
@@ -43,6 +49,17 @@ def extractCleaningsFromPrefilters(prefilters_list):
     else:
         raise RuntimeError(
             'Multijet jet cleanings found in jet trigger reco dictionary {}. Multiple jet cleanings are currently unsupported'.format(found_cleanings))
+
+def getClustersKey(recoDict):
+        clusterCalib = recoDict["clusterCalib"]
+        if clusterCalib == "em":
+            from ..CommonSequences.FullScanDefs import em_clusters
+            return em_clusters
+        elif clusterCalib == "lcw":
+            from ..CommonSequences.FullScanDefs import lc_clusters
+            return lc_clusters
+        else:
+            raise ValueError("Invalid value for calib: '{}'".format(clusterCalib))
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
@@ -146,8 +163,16 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             constitMods = ["EM"] + constitMods
         elif jetRecoDict["clusterCalib"] == "lcw":
             constitMods = ["LC"] + constitMods
+        else:
+            log.error("cluster calib state not recognised : ",jetRecoDict["clusterCalib"])
+        if not clustersKey:
+            raise ValueError("cluster key must be provided for topocluster jets.")
+            
 
-        jetConstit = JetInputConstitSeq( "HLT_"+constitMods[0]+"Topo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label=constitMods[0]+'Topo'+modstring)
+        if not constitMods:
+            jetConstit = JetInputConstitSeq( "HLT_EMTopo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label='EMTopo'+modstring)
+        else:
+            jetConstit = JetInputConstitSeq( "HLT_"+constitMods[0]+"Topo",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey+modstring,label=constitMods[0]+'Topo'+modstring)
 
     # declare our new JetInputConstitSeq in the standard dictionary
     from JetRecConfig.StandardJetConstits import stdConstitDic
@@ -204,6 +229,22 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
     }[groomAlg]
     return groomDef
 
+def defineHIJets(jetRecoDict,clustersKey=None,prefix='',suffix=''):
+    minpt = {
+        4:  7000,
+        10: 50000,
+    }
+    jetalg, jetradius, jetextra = interpretRecoAlg(jetRecoDict["recoAlg"])
+    actualradius = float(jetradius)/10
+
+    constitMods = [] # modifiers
+    jetConstit = []
+    jetConstit = JetInputConstitSeq( "HLT_HIConstit",xAODType.CaloCluster, constitMods, inputname=clustersKey, outputname=clustersKey,label='HI')
+    from JetRecConfig.StandardJetConstits import stdConstitDic
+    stdConstitDic.setdefault(jetConstit.name, jetConstit)
+
+    jetDef = JetDefinition( "AntiKt", actualradius, jetConstit, ptmin=minpt[jetradius], prefix=prefix, suffix=suffix)
+    return jetDef
 ##########################################################################################
 # Generation of modifier lists. So far only calib, but can add track, substructure mods
 

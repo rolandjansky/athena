@@ -74,6 +74,11 @@ ClusterSamplingFillerTool::ClusterSamplingFillerTool
   std::fill (m_etamax,   m_etamax + NSAMP,   (float*)0);
 }
 
+StatusCode ClusterSamplingFillerTool::initialize()
+{
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
+  return  StatusCode::SUCCESS;
+}
 
 /**
  * @brief Book variables for this block.
@@ -235,8 +240,7 @@ ClusterSamplingFillerTool::fillSamplings (const std::vector<double>& eSamp,
                                           const std::vector<double>& etaSamp,
                                           const std::vector<double>& phiSamp)
 {
-  CaloCellDetPos detpos;
-
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey };
   if( m_writeEmHadEnergies && eSamp.size() >= NSAMP) {
     *m_Eem = 
       vget (eSamp, CaloSampling::PreSamplerB) +
@@ -279,14 +283,15 @@ ClusterSamplingFillerTool::fillSamplings (const std::vector<double>& eSamp,
     }
     if (m_writeSamplingEtaPhiRaw) {
       double eta_raw=0, phi_raw=0;
-      if (detpos.getDetPosition (static_cast<CaloCell_ID::CaloSample>(m_samplings[i]),
-                                 vget (etaSamp, m_samplings[i]),
-                                 vget (phiSamp, m_samplings[i]),
-                                 eta_raw,
-                                 phi_raw))
-      {
-          *m_raw_etas[i] = eta_raw;
-          *m_raw_phis[i] = phi_raw;
+      if (CaloCellDetPos::getDetPosition(
+            **caloDetDescrMgrHandle,
+            static_cast<CaloCell_ID::CaloSample>(m_samplings[i]),
+            vget(etaSamp, m_samplings[i]),
+            vget(phiSamp, m_samplings[i]),
+            eta_raw,
+            phi_raw)) {
+        *m_raw_etas[i] = eta_raw;
+        *m_raw_phis[i] = phi_raw;
       }
     }
   }

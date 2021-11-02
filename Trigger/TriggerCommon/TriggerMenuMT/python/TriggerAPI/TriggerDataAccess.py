@@ -4,6 +4,7 @@ __author__  = 'Javier Montejo'
 __version__="$Revision: 2.0 $"
 __doc__="Access to Trigger DB and TriggerMenu to read past and future prescales"
 
+import itertools
 import sys
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, LBexceptions, TriggerRenaming
 from TriggerMenuMT.TriggerAPI.TriggerPeriodData import TriggerPeriodData
@@ -299,18 +300,11 @@ def getHLTmap_fromTM(period, release):
         The format is the same as for TriggerDBAccess for compatibility but rerun is always false
     '''
 
-    menu = "Physics_pp_run3_v1"
-    
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.triggerMenuSetup = menu
-    TriggerFlags.readLVL1configFromXML = True
-    TriggerFlags.outputLVL1configFile = None
-    
+
     mutelog = logging.getLogger(__name__)
     mutelog.setLevel(logging.WARNING) #avoid spam from Menu.L1.L1MenuConfig
 
-    ConfigFlags.Trigger.triggerMenuSetup = menu
     from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
     generateL1Menu(ConfigFlags)
     createL1PrescalesFileFromMenu(ConfigFlags)
@@ -323,7 +317,7 @@ def getHLTmap_fromTM(period, release):
     hltMap = {}
     dummyfutureLBs = 1e6
 
-    for chain in menu.chainsInMenu:
+    for chain in itertools.chain.from_iterable(menu.chainsInMenu.values()):
         hltname = chain.name
         l1seed  = chain.name[chain.name.rfind("_L1")+3:] #surely a better way to do this
         primary = any('Primary' in g or 'TagAndProbe' in g for g in chain.groups)

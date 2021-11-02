@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -26,7 +26,7 @@ AmdcDb2Sql::~AmdcDb2Sql(){}
 void AmdcDb2Sql::SetAsNewTableOn(int AsNewTableOn){ m_AsNewTableOn  = AsNewTableOn ;}
 void AmdcDb2Sql::SetUseKeysOn(int UseKeysOn){ m_UseKeysOn  = UseKeysOn ;}
 
-void AmdcDb2Sql::DoIt(std::string TagFileName,std::string tag,IRDBAccessSvc* pIRDBAccessSvc){
+void AmdcDb2Sql::DoIt(const std::string& TagFileName,const std::string& tag,IRDBAccessSvc* pIRDBAccessSvc){
 
   DoSql(TagFileName,"AMDC",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"AGDD",tag,pIRDBAccessSvc);
@@ -60,7 +60,7 @@ void AmdcDb2Sql::DoIt(std::string TagFileName,std::string tag,IRDBAccessSvc* pIR
 
 }
 
-void AmdcDb2Sql::DoSql(std::string TagFileName,std::string NameOfTheSet,std::string tag, IRDBAccessSvc* pIRDBAccessSvc) {
+void AmdcDb2Sql::DoSql(const std::string& TagFileName,const std::string& NameOfTheSet,std::string tag, IRDBAccessSvc* pIRDBAccessSvc) {
 
   std::ofstream OutFile;
   std::string FileName = TagFileName + ".";
@@ -159,7 +159,7 @@ void AmdcDb2Sql::DoSql(std::string TagFileName,std::string NameOfTheSet,std::str
 
   int ElementKounter = -1;
   it = pIRDBRecordset->begin();
-  for ( ; it<pIRDBRecordset->end(); it++){
+  for ( ; it<pIRDBRecordset->end(); ++it){
     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
     if (pAmdcDbRecord == 0){
       OutFile << "No way to cast in AmdcDbRecord for " << NameOfTheSet << std::endl;

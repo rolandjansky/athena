@@ -102,7 +102,6 @@ DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and
 DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloSuperCellMgr with CLID 241807251 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
@@ -306,12 +305,6 @@ ClassIDSvc           INFO  getRegistryEntries: read 1413 CLIDRegistry entries fo
 ToolSvc.tool1        INFO Initializing LArCellDeadOTXCorr
 ToolSvc.tool1        INFO L1Calo database won't be used. Pedestal values will be constant and equal to 32.
 ToolSvc.CaloTri...   INFO  => CaloTriggerTowerService::initialize() 
-LArIdMgrDetDesc...   INFO in createObj: creating a LArDescrManager object in the detector store
-LArIdMgrDetDesc...   INFO Set LArOnlineID helper in LArIdMgr 
-LArIdMgrDetDesc...   INFO Set LArHVLineID helper in LArIdMgr 
-LArIdMgrDetDesc...   INFO Set LArElectrodeID helper in LArIdMgr 
-LArIdMgrDetDesc...   INFO Set CaloCell_ID helper in LArIdMgr 
-LArIdMgrDetDesc...   INFO Initializing LArIdMgr from values in LArIdMgrDetDescrCnv 
 ToolSvc.CaloTri...   INFO  ====> ...CaloTriggerTowerService::init() OK 
 ClassIDSvc           INFO  getRegistryEntries: read 60 CLIDRegistry entries for module ALL
 ToolSvc.tool2        INFO Initializing LArCellDeadOTXCorr
@@ -434,6 +427,8 @@ Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/r
 RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000027.gen.COND/cond09_mc.000027.gen.COND._0001.pool.root File version:52600
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 303FCBD8-653E-DD11-ABBD-000423D99862
+ of type TileDetDescrManager(CLID 2941)
+buildCaloDetDescr WARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
 LArOnOffMappingAlg   INFO Done reading online/offline identifier mapping
 LArOnOffMappingAlg   INFO Found 195072 online identifier and 182468 offline identifier. 12604 disconnected channels.
 LArOnOffMappingAlg   INFO recorded new LArOnOffIdMap with range {[0,l:0] - [INVALID]} into Conditions Store

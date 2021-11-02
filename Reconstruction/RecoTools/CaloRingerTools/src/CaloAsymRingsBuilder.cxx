@@ -121,6 +121,7 @@ StatusCode CaloAsymRingsBuilder::initialize()
     ATH_MSG_DEBUG(str.str());
   }
 
+  ATH_CHECK( m_caloMgrKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -143,7 +144,11 @@ StatusCode CaloAsymRingsBuilder::buildRingSet(
     ATH_MSG_FATAL("Failed to retrieve "<< m_cellsContName.key());
     return StatusCode::FAILURE;
   }
-  CaloCellList cells( cellsCont.ptr() );
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloMgr=*caloMgrHandle;
+
+  CaloCellList cells(caloMgr, cellsCont.ptr() );
 
   // Get this RingSet size:
   const auto nRings = rawConf.nRings;

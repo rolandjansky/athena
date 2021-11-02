@@ -57,6 +57,7 @@ class MuFastSteering : public AthReentrantAlgorithm
   MuFastSteering(const std::string& name, ISvcLocator* svc);
 
   virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /** execute(), main code of the algorithm for AthenaMT*/
   virtual StatusCode execute(const EventContext& ctx) const override;
@@ -205,9 +206,14 @@ class MuFastSteering : public AthReentrantAlgorithm
   StatusCode updateMonitor(const xAOD::MuonRoI*                     roi,
 			   const TrigL2MuonSA::MdtHits&             mdtHits,
                            std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns ) const;
+
+
+
  protected:
 
   // Services
+
+
 
   /** Timers */
   ServiceHandle<ITrigTimerSvc> m_timerSvc;
@@ -233,7 +239,7 @@ class MuFastSteering : public AthReentrantAlgorithm
 
   // calibration streamer tool
   ToolHandle<TrigL2MuonSA::MuCalStreamerTool> m_calStreamer {
-  	this, "CalibrationStreamer", "TrigL2MuonSA::MuCalStreamerTool", "" };
+  	this, "CalibrationStreamer", "TrigL2MuonSA::MuCalStreamerTool", "calibration stream" };
 
   // Utils
   TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
@@ -244,6 +250,7 @@ class MuFastSteering : public AthReentrantAlgorithm
 
 
  private:
+
 
   // Property
   Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1 };
@@ -260,10 +267,11 @@ class MuFastSteering : public AthReentrantAlgorithm
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_CSC  { this, "USE_ROIBASEDACCESS_CSC",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_STGC { this, "USE_ROIBASEDACCESS_STGC", true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_MM   { this, "USE_ROIBASEDACCESS_MM",   true};
-  Gaudi::Property< bool > m_doCalStream { this, "DoCalibrationStream", false};
+  Gaudi::Property< bool > m_doCalStream { this, "DoCalibrationStream", true};
   Gaudi::Property< bool > m_calDataScouting { this, "MuonCalDataScouting", false};
   Gaudi::Property< bool > m_rpcErrToDebugStream { this, "RpcErrToDebugStream", false};
   Gaudi::Property< bool > m_use_endcapInnerFromBarrel { this, "UseEndcapInnerFromBarrel", false};
+
 
   Gaudi::Property< int > m_esd_rpc_size { this, "ESD_RPC_size", 100 };
   Gaudi::Property< int > m_esd_tgc_size { this, "ESD_TGC_size", 50 };

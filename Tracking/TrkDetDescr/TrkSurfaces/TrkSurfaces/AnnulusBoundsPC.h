@@ -198,13 +198,13 @@ private:
   std::vector<TDD_real_t>   m_boundValues;
 
   Amg::Vector2D stripXYToModulePC(const Amg::Vector2D& vStripXY) const;
-  Amg::Vector2D
+  static Amg::Vector2D
   closestOnSegment(const Amg::Vector2D& a,
                    const Amg::Vector2D& b,
                    const Amg::Vector2D& p,
-                   const Eigen::Matrix<double, 2, 2>& weight) const;
-  double
-  squaredNorm(const Amg::Vector2D& v, const Eigen::Matrix<double, 2, 2>& weight) const;
+                   const Eigen::Matrix<double, 2, 2>& weight) ;
+  static double
+  squaredNorm(const Amg::Vector2D& v, const Eigen::Matrix<double, 2, 2>& weight) ;
 };
 
 } // End of Trk Namespace

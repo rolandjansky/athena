@@ -164,7 +164,8 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			self.StreamToFileTool.getProperty('FileNamePrefix').setValue("%s/JiveXML" % self.directory)
 
 			# And also for the VP1 event producer algorithm
-			#self.VP1EventProducer.getProperty('DestinationDirectory').setValue(self.directory) # lshi June 22 2020
+			if self.VP1EventProducer:
+				self.VP1EventProducer.getProperty('DestinationDirectory').setValue(self.directory)
 		except Exception as err:
 			self.msg.error("Exception occured while setting job options: %s", err)
 			return StatusCode.Failure
@@ -175,9 +176,11 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 	def endEvent(self):
 		# Prune events and make index file for atlas-live.cern.ch
 		if self.directory:
-			# Hack for missing VP1 files, create an empty file to make cleanup/sync work
-			#open("%s/vp1_%d_%d_0.pool.root" % (self.directory, self.run, self.event), 'a').close()
-			EventUtils.cleanDirectory(self.msg, self.directory, self.maxevents)
+			# If VP1 event producer is missing, skip the pair check to make cleanup/sync work
+			if self.VP1EventProducer:
+				EventUtils.cleanDirectory(self.msg, self.directory, self.maxevents, removeunpaired=True)
+			else:
+				EventUtils.cleanDirectory(self.msg, self.directory, self.maxevents, removeunpaired=False)
 
 		# And cleanup the variables
 		self.run = 0

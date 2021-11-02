@@ -20,11 +20,12 @@ def RpcDataPreparatorCfg( flags, roisKey ):
 
     # Set Rpc data preparator for MuFast data preparator
     TrigL2MuonSA__RpcDataPreparator=CompFactory.getComp("TrigL2MuonSA::RpcDataPreparator")
+    from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
     RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator()
-    acc.addPublicTool( RpcDataPreparator, primary=True ) # Now this is needed, but should be removed
+    RpcDataPreparator.TrigT1RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
     from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
     RpcDataPreparator.RegSel_RPC = acc.popToolsAndMerge( regSelTool_RPC_Cfg( flags ) )
- 
+
     return acc, RpcDataPreparator
 
 # Get Tgc data decoder for MuFast data preparator 
@@ -60,7 +61,6 @@ def CscDataPreparatorCfg( flags, roisKey ):
     TrigL2MuonSA__CscDataPreparator=CompFactory.getComp("TrigL2MuonSA::CscDataPreparator")
     CscDataPreparator = TrigL2MuonSA__CscDataPreparator()
 
-    acc.addPublicTool( CscDataPreparator, primary=True ) # This should be removed
 
     return acc, CscDataPreparator
 
@@ -71,7 +71,6 @@ def StgcDataPreparatorCfg( flags, roisKey ):
     # Set Stgc data preparator for MuFast data preparator
     TrigL2MuonSA__StgcDataPreparator=CompFactory.getComp("TrigL2MuonSA::StgcDataPreparator")
     StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator()
-    acc.addPublicTool( StgcDataPreparator, primary=True ) # Now this is needed, but should be removed
     from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
     StgcDataPreparator.RegSel_STGC = acc.popToolsAndMerge( regSelTool_STGC_Cfg( flags ) )
 
@@ -86,7 +85,6 @@ def MmDataPreparatorCfg( flags, roisKey ):
     MmDataPreparator = TrigL2MuonSA__MmDataPreparator()
     from RegionSelector.RegSelToolConfig import regSelTool_MM_Cfg
     MmDataPreparator.RegSel_MM = acc.popToolsAndMerge( regSelTool_MM_Cfg( flags ) )
-    acc.addPublicTool( MmDataPreparator, primary=True ) # Now this is needed, but should be removed
 
     return acc, MmDataPreparator
 
