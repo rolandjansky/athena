@@ -9,11 +9,11 @@
 
 set -e
 
-Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1 --outputDAODFile art.pool.root --reductionConf HION3 --maxEvents -1 --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "BTagCalibRUN12-08-49" ' 
+Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.18954529._000014.pool.root.1 --outputDAODFile art.pool.root --reductionConf HION3 --maxEvents -1 --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True); rec.doTrigger.set_Value_and_Lock(False); from BTagging.BTaggingFlags import BTaggingFlags; BTaggingFlags.CalibrationTag = "BTagCalibRUN12Onl-08-49"; from HIRecExample.HIRecExampleFlags import jobproperties; jobproperties.HIRecExampleFlags.doHIAODFix.set_Value_and_Lock(True); from HIJetRec.HIJetRecFlags import HIJetFlags; HIJetFlags.SeedSuffix.set_Value_and_Lock("DFSeed"); from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( "BTaggingFixer", Containers=["BTagging_AntiKt4HIAux."] )'
 
 echo "art-result: $? reco"
 
-DAODMerge_tf.py --inputDAOD_HION3File DAOD_HION3.art.pool.root --outputDAOD_HION3_MRGFile art_merged.pool.root
+DAODMerge_tf.py --inputDAOD_HION3File DAOD_HION3.art.pool.root --outputDAOD_HION3_MRGFile art_merged.pool.root --preExec 'rec.doHeavyIon.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False)'
 
 echo "art-result: $? merge"
 
