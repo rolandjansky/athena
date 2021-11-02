@@ -6,8 +6,9 @@
 #define MCAST_MuonCalibrationPeriodTool_H
 
 // Framework include(s):
-#include <AsgTools/AsgMetadataTool.h>
 #include <AsgTools/AnaToolHandle.h>
+#include <AsgTools/AsgMetadataTool.h>
+
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 
@@ -16,64 +17,63 @@
 
 namespace CP {
 
+    class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool,
+                                      public virtual ISystematicsTool,
+                                      public asg::AsgMetadataTool {
+        // Create a proper constructor for Athena
+        ASG_TOOL_CLASS3(MuonCalibrationPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool)
 
-class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgMetadataTool {
-  
-  // Create a proper constructor for Athena
-  ASG_TOOL_CLASS3( MuonCalibrationPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
-  
-  public:
-     // There are two recommended options by MCP to setup the tool (https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/MCPAnalysisConsolidationMC16)
-     //  1) Correct data for the sagitta bias -- if no statistical limits
-     //  2) Add extra systematic for MC and keep data untouched
-     //  The calibration mode can be set via the property 'calibrationMode'
-     enum CalibMode{
-        correctData =0,
-        additionalMCsys = 1, // <--- default
-        expert =2
-     };
-     /// Apply the correction on a modifyable object
-    virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const override;
-    /// Create a corrected copy from a constant muon
-    virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const override;
-    /// Get the expected pT resolution
-    virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const override;
-    /// Get the expected pT resolution - int argument is more efficient
-    virtual double expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const override;
-    /// Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
-    virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType) const override;
-    
-    
-    // Interface - Is the tool affected by a specific systematic?
-    virtual bool isAffectedBySystematic( const SystematicVariation& systematic ) const override;
-    // Interface - Which systematics have an effect on the tool's behaviour?
-    virtual SystematicSet affectingSystematics() const override;
-    // Interface - Systematics to be used for physics analysis
-    virtual SystematicSet recommendedSystematics() const override;
-    // Interface - Use specific systematic
-    virtual StatusCode applySystematicVariation ( const SystematicSet& systConfig ) override;
-    
-    // Constructor
-    MuonCalibrationPeriodTool( const std::string& name );
+    public:
+        // There are two recommended options by MCP to setup the tool
+        // (https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/MCPAnalysisConsolidationMC16)
+        //  1) Correct data for the sagitta bias -- if no statistical limits
+        //  2) Add extra systematic for MC and keep data untouched
+        //  The calibration mode can be set via the property 'calibrationMode'
+        enum CalibMode {
+            correctData = 0,
+            additionalMCsys = 1,  // <--- default
+            expert = 2
+        };
+        /// Apply the correction on a modifyable object
+        virtual CorrectionCode applyCorrection(xAOD::Muon& mu) const override;
+        /// Create a corrected copy from a constant muon
+        virtual CorrectionCode correctedCopy(const xAOD::Muon& input, xAOD::Muon*& output) const override;
+        /// Get the expected pT resolution
+        virtual double expectedResolution(const std::string& DetType, const xAOD::Muon& mu, const bool mc) const override;
+        /// Get the expected pT resolution - int argument is more efficient
+        virtual double expectedResolution(const int& DetType, const xAOD::Muon& mu, const bool mc) const override;
+        /// Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
+        virtual CorrectionCode applyCorrectionTrkOnly(xAOD::TrackParticle& inTrk, const int DetType) const override;
 
-    // Destructor
-    virtual ~MuonCalibrationPeriodTool();
+        // Interface - Is the tool affected by a specific systematic?
+        virtual bool isAffectedBySystematic(const SystematicVariation& systematic) const override;
+        // Interface - Which systematics have an effect on the tool's behaviour?
+        virtual SystematicSet affectingSystematics() const override;
+        // Interface - Systematics to be used for physics analysis
+        virtual SystematicSet recommendedSystematics() const override;
+        // Interface - Use specific systematic
+        virtual StatusCode applySystematicVariation(const SystematicSet& systConfig) override;
 
-    // Initializing the subtools
-    virtual StatusCode initialize() override;
-    
+        // Constructor
+        MuonCalibrationPeriodTool(const std::string& name);
+
+        // Destructor
+        virtual ~MuonCalibrationPeriodTool();
+
+        // Initializing the subtools
+        virtual StatusCode initialize() override;
+
     private:
-        
         unsigned int getPeriod() const;
         const CP::IMuonCalibrationAndSmearingTool* getTool() const;
-        
+
         // Have three tool instances for each Monte Carlo campaign
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_1516;
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_17;
         asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibTool_18;
-        
+
         SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
-        
+
         // Sagitta and calibration releases which are parsed to
         // the three instances of the tool
         std::string m_sagittaRelease1516;
@@ -84,39 +84,36 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
         bool m_doExtraSmearing;
 
         int m_calib_mode;
-        
+
         bool m_StatComb1516;
         bool m_SagittaCorr1516;
         bool m_SagittaMCDistortion1516;
         bool m_SagittaCorrPhaseSpace1516;
         bool m_do2StationsHighPt1516;
         bool m_doExtraSmearing1516;
-        
+
         bool m_StatComb17;
         bool m_SagittaCorr17;
         bool m_SagittaMCDistortion17;
         bool m_SagittaCorrPhaseSpace17;
         bool m_do2StationsHighPt17;
         bool m_doExtraSmearing17;
-        
+
         bool m_StatComb18;
         bool m_SagittaCorr18;
         bool m_SagittaMCDistortion18;
         bool m_SagittaCorrPhaseSpace18;
         bool m_do2StationsHighPt18;
         bool m_doExtraSmearing18;
-        
-        
-        
+
         // Monte Carlo runNumbers correspond to different production campaigns
         std::vector<unsigned int> m_MCperiods1516;
         std::vector<unsigned int> m_MCperiods17;
         std::vector<unsigned int> m_MCperiods18;
         // Optionally one can use the random run number to assign the right tool in MC
         bool m_useRndRun;
- 
-  }; 
+    };
 
-} // namespace CP
+}  // namespace CP
 
 #endif
