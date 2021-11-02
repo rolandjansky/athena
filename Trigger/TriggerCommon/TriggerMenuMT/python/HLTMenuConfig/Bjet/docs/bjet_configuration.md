@@ -265,13 +265,13 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
      This file assembles all reconstruction algorithms into the bjet sequence mentioned above. As input it requires only the name of the jet-collection. In this way the code can be run for "EMTopo" and "EMPFlow" jet-collections. In the end a '*MenuSequence*' is being returned. A '*MenuSequence*' consits of three parts: '*InputMaker*', '*Sequence*' and '*Hypo*'.
     - **InputMaker**\
       The **InputMaker** defines the environement in which the **sequence** will be executed.\
-      At first an event view is being created for every Region-of-Interest (RoI, `outputRoIName = "HLT_Roi_Bjet"`)
+      At first an event view is being created for every Region-of-Interest (RoI, `outputRoIName = getInDetTrigConfig('bjet').roi`, currently "HLT_Roi_Bjet")
       ```python
-        InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2" )
+        InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_{jc_name}_step2" )
       ```
       In our case the RoIs are the jets. Consequently a plane in $`\eta-\phi`$ around the jet axis will be cut out and put into a single event view
       ```python
-        newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
+        RoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
       ```
       Currently the default values of $`\eta (\text{half-width}) = \phi (\text{half-width}) = 0.4`$ are being used (cf. [ViewCreatorCentredOnJetWithPVConstraintROITool.h](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigSteer/DecisionHandling/src/ViewCreatorCentredOnJetWithPVConstraintROITool.h)). Hence, the total size will be $`0.8 \times 0.8`$. The event views allow us to process only the most relevant parts of the detector information and thereby speed up the computation time. In addition a constraint on the distance between jet and primary vertex of $`z < 10 mm`$ is applied when creating the view.\
       The primary vertex (PV) has already been determined by the jet code upstream. The collection name is configured from [TrigInDetConfig/ConfigSettings.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigTools/TrigInDetConfig/python/ConfigSettings.py), currently being `HLT_IDVertex_FS`  
@@ -279,26 +279,25 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
        config=getInDetTrigConfig('jet')
        prmVtxKey = config.vertex
       ```
-      In addition to the RoI the vertex-collection
+      The vertex-collection is attached to the RoI
       ```python
         VertexReadHandleKey = prmVtxKey,
         PrmVtxLink = prmVtxKey.replace( "HLT_","" ),
       ```
-      and jet-collection is placed inside the view
-      ```python
-        PlaceJetInView = True
-      ```
-      The vertex-collection is read from outside of the event view. Hence, the option 
+      It is read from outside of the event view. Hence, the option 
       ```python
         ViewFallThrough = True
       ```
       is set.\
-      In contrast, for the jet-collection a deep-copy of it is placed inside the view (cf. [EventViewCreatorAlgorithm.cxx](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigSteer/ViewAlgs/src/EventViewCreatorAlgorithm.cxx)), since it will be modified inside the view.\
+      In contrast, for the jet-collection a deep-copy of it is placed inside the view (cf. [EventViewCreatorAlgorithm.cxx](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigSteer/ViewAlgs/src/EventViewCreatorAlgorithm.cxx)), since it will be modified inside the view.
+      ```python
+        PlaceJetInView = True
+      ```
       The name of the jet-collection inside the view is
       ```python
-        InputMakerAlg.InViewJets = recordable( f'HLT_{jc_key}bJets' )
+        InViewJets = recordable( f'HLT_{jc_key}bJets' )
       ```
-      At this point all of our inputs are defined and accessible inside the view. Though important to remember is that all collections inside the view have to be defined in [TriggerEDMRun3.py](https://gitlab.cern.ch/atlas/athena/-/blob/BjetDoc/Trigger/TriggerCommon/TrigEDMConfig/python/TriggerEDMRun3.py) with the respective '*inViews*'-name, here '*BTagViews*' cf.
+      At this point all of our inputs are defined and accessible inside the view. Though important to remember is that all collections inside the view have to be defined in [TriggerEDMRun3.py](https://gitlab.cern.ch/atlas/athena/-/blob/BjetDoc/Trigger/TriggerCommon/TrigEDMConfig/python/TriggerEDMRun3.py) with the respective '*inViews*'-name, here
       ```python
         Views = f"BTagViews_{jc_name}"
       ```
@@ -307,9 +306,13 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
       The **sequence** is a sequence of all algorithms that will be executed with extra informations on it's ordering, i.e. which algorithms can be run in parallel and which have to be run sequential. All algorithms in our sequence are being run inside the single event views.\
       The first algorithms are second stage of fast tracking and precision tracking (see [BjetTrackingConfiguration.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetTrackingConfiguration.py)).
       ```python
-      secondStageAlgs, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs, dataObjects=viewDataObjects )
+        secondStageAlgs, PTTrackParticles = getSecondStageBjetTracking(
+          inputRoI=InputMakerAlg.InViewRoIs,
+          inputVertex=prmVtxKey,
+          inputJets=InputMakerAlg.InViewJets
+        )
       ```
-      '*secondStageAlgs*' and '*PTTrackParticles*' are the sequence of tracking algorithms and precision tracking particle-collection, respectively.\
+      '*secondStageAlgs*' and '*PTTrackParticles*' are the sequences of tracking algorithms which produces the final precision-track particle-collections.\
       Afterwards flavour-tagging algorithms are executed. This code is written in new-style format, so the configuration has to be adapted correspondingly
       ```python
         from AthenaCommon.Configurable import ConfigurableRun3Behavior
@@ -349,20 +352,21 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
       The **hypo** algorithm tests whether a given hypothesis is `True` or `False`. For the bjet signature it tests whether the chain fulfills the given b-tagging requirements.\
       The algorithm for this (see [TrigBjetBtagHypoAlg.cxx](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetBtagHypoAlg.cxx)) is loaded via
       ```python
-        hypo = TrigBjetBtagHypoAlg( f"TrigBjetBtagHypoAlg_{jc_name}" )
+        hypo = TrigBjetBtagHypoAlg(
+         f"TrigBjetBtagHypoAlg_{jc_name}",
+         # keys
+         BTaggedJetKey = InputMakerAlg.InViewJets,
+         BTaggingKey = BTagName,
+         TracksKey = PTTrackParticles[0],
+         PrmVtxKey = InputMakerAlg.RoITool.VertexReadHandleKey,
+         # links for navigation
+         BTaggingLink = BTagName.replace( "HLT_","" ),
+         PrmVtxLink = InputMakerAlg.RoITool.PrmVtxLink,
+         MonTool = TrigBjetOnlineMonitoring()
+       )
       ```
-      The inputs to it are the names of the jet, b-Tagging, tracks and PV collections
-      ```python
-        hypo.BTaggedJetKey = InputMakerAlg.InViewJets
-        hypo.BTaggingKey = BTagName
-        hypo.TracksKey = PTTrackParticles[0]
-        hypo.PrmVtxKey = newRoITool.VertexReadHandleKey
-      ```
-      The hypo-algorithms retrive the collections from the view.\
-      For this reason online monitoring is being performed at this instance (see [TrigBjetMonitoringConfig.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/python/TrigBjetMonitoringConfig.py))
-      ```python
-        hypo.MonTool = TrigBjetOnlineMonitoring()
-      ```
+      The inputs to it are the names of the jet, b-Tagging, tracks and PV collections.\
+      The hypo-algorithms retrive the collections from the view. For this reason online monitoring is being performed at this instance (see [TrigBjetMonitoringConfig.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/python/TrigBjetMonitoringConfig.py)).\
       In the end the hypothesis is being tested with the help of the hypotool (see [TrigBjetBtagHypoTool.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/python/TrigBjetBtagHypoTool.py))
       ```python
         from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
@@ -379,11 +383,16 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
                              Hypo        = hypo,
                              HypoToolGen = TrigBjetBtagHypoToolFromDict)
       ```
+      The name of the new b-tagging collection is
+      ```python
+        jc_key = f'{jc_name}_'
+        BTagName = recordable(f'{jc_key}BTagging')
+      ```
 
 4. [BjetTrackingConfiguration.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetTrackingConfiguration.py)\
      This file configures the tracking algorithms run in the bjet signature code.\
      The function '*getSecondStageBjetTracking*' is called in '*BjetMenuSequence*'.\
-     Inputs to it are on one hand the name of the RoI it should run on. For bjet this is the RoI inside the view (`inputRoI=InputMakerAlg.InViewRoIs`).And on the other hand additional '*dataobjetcs*' that are need inside the view to run the tracking algorithms. For bjet this are the RoI, Jets and Vertices.\
+     Inputs to it are the name of the RoI, PV and Jets it should run on.\
      With this setup all tracking algorithms can be executed inside the view context.\
      In case the '*Inputfile*' is not in '*bytestream*'-format, the '*TRT*' informations have to be added by hand. To make sure it is also available at whole event-level, the topSequence is loaded and the data is added
      ```python
