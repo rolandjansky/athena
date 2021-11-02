@@ -80,10 +80,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
   o << "================================================================================\n";
 }
 
-class JobConfig {
-public:
-   ~JobConfig(){}
-   JobConfig() {}
+struct JobConfig {
    // input parameters
    string       cooldb{"COOLONL_TRIGGER/CONDBR2"};
    unsigned int run {0};
@@ -110,7 +107,7 @@ public:
    string       coolConnection {""};
    int parseProgramOptions(int argc, char* argv[]);
    void PrintSetup();
-} gConfig;
+};
 
 
 
@@ -213,7 +210,7 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
       return 0;
    }
    if(error.size()!=0) {
-      for(const string& e: gConfig.error)
+      for(const string& e: error)
          cerr << e << endl;
       printhelp(cout, endl);
       return 1;
@@ -264,6 +261,7 @@ int main( int argc, char* argv[] ) {
     * Getting the program parameters
     *
     ***************************************/
+   JobConfig gConfig;
    int retCode = gConfig.parseProgramOptions(argc, argv);
    if(retCode>=0)
       return retCode;
@@ -443,10 +441,10 @@ int main( int argc, char* argv[] ) {
    {
       unique_ptr<StorageMgr> sm(new StorageMgr(gConfig.triggerdb, "", "", cout));
 
+      ctpConfig = new TrigConf::CTPConfig();
       if(loadL1) {
-         ctpConfig = new TrigConf::CTPConfig();
          ctpConfig->setSMK( gConfig.smk );
-         DBLoader::setEnv(DBLoader::CTPOnl);
+         sm->menuLoader().setEnv(IMenuLoader::CTPOnl);
          cout << endl << endl << "Retrieving Lvl1 CTP configuration" << endl;
          sm->masterTableLoader().setLevel(gConfig.outputlevel);
          sm->masterTableLoader().load(*ctpConfig);
@@ -476,7 +474,7 @@ int main( int argc, char* argv[] ) {
          cout << endl << endl << "Retrieving L1 prescales" << endl;
          l1pss = new PrescaleSet();
          l1pss->setId(gConfig.l1psk);
-         sm->prescaleSetLoader().load(*l1pss);
+         sm->prescaleSetLoader().load(ctpConfig->ctpVersion(), *l1pss);
          if( gConfig.printlevel>=0)
             l1pss->print("  ",gConfig.printlevel);
       }

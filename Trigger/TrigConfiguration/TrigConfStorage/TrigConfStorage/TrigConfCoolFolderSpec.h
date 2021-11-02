@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ============================================================
@@ -55,12 +55,6 @@ namespace TrigConf {
 
       /**@brief get the version of the COOL database */
       static int readSchemaVersion(cool::IDatabasePtr db);
-
-      /**@brief resets the version of the COOL database */
-      static void resetSchemaVersion() { mSchemaVersion = 0; }
-
-      /**@brief read the version from the COOL database */
-      static int getSchemaVersion() { return mSchemaVersion; }
 
       /**@brief access to the version */
       static int getDefaultSchemaVersion() { return mDefaultSchemaVersion; }
@@ -167,7 +161,7 @@ namespace TrigConf {
       static FolderDefinition Lvl1ItemDefFolderDefinition();
       static FolderDefinition Lvl1ThresholdFolderDefinition();
       static FolderDefinition Lvl1ConfigKeysFolderDefinition();
-      static FolderDefinition Lvl1PrescalesFolderDefinition();
+      static FolderDefinition Lvl1PrescalesFolderDefinition(int schemaVersion);
       static FolderDefinition Lvl1InputMapFolderDefinition();
       static FolderDefinition Lvl1BGKeyFolderDefinition();
       static FolderDefinition Lvl1BGContentFolderDefinition();
@@ -184,7 +178,7 @@ namespace TrigConf {
       static cool::RecordSpecification createLvl1ItemDefFolderSpecification();    ///< defines the folder structure for the LVL1 item def
       static cool::RecordSpecification createLvl1ThresholdFolderSpecification();  ///< defines the folder structure for the LVL1 thresholds
       static cool::RecordSpecification createLvl1ConfigKeysFolderSpecification(); ///< defines the folder structure for the LVL1 config key
-      static cool::RecordSpecification createLvl1PrescalesFolderSpecification();  ///< defines the folder structure for the LVL1 prescales
+      static cool::RecordSpecification createLvl1PrescalesFolderSpecification(int schemaVersion);  ///< defines the folder structure for the LVL1 prescales
       static cool::RecordSpecification createLvl1InputMapFolderSpecification();   ///< defines the folder structure for the LVL1 CTP input map
       static cool::RecordSpecification createLvl1MonMapFolderSpecification();     ///< defines the folder structure for the LVL1 monitoring counter map
       static cool::RecordSpecification createLvl1BGKeyFolderSpecification();      ///< defines the folder structure for the LVL1 bunch group key
@@ -196,11 +190,9 @@ namespace TrigConf {
       static cool::RecordSpecification createHltPrescalesFolderSpecification();   ///< defines the folder structure for the HLT prescales
       static cool::RecordSpecification createHltPrescaleKeyFolderSpecification(); ///< defines the folder structure for the HLT prescales
 
-
-      static int  mSchemaVersion;
-      static int  mDefaultSchemaVersion;
-      static long mBGDescBlobSize;
-      static long mBGContentBlobSize;
+      const static int  mDefaultSchemaVersion;
+      const static long mBGDescBlobSize;
+      const static long mBGContentBlobSize;
 
    private:
       /**@brief default constructor*/ 

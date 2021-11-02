@@ -15,6 +15,9 @@
 #include <vector>
 #include <map>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // only used in standalone app
+
 namespace TrigConf {
 
    class ThresholdConfig;
