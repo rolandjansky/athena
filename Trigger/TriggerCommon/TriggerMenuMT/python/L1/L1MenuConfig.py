@@ -40,8 +40,8 @@ class L1MenuConfig(object):
         L1MenuFlags.MenuSetup = menuName
 
         self.menuFullName    = L1MenuFlags.MenuSetup()
-        self.menuName        = self._getMenuBaseName(self.menuFullName)
         self.menuFilesToLoad = self._menuToLoad()
+        self.menuName        = self.menuFilesToLoad[0]
         self.inputFile       = inputFile
         self.l1menuFromFile  = (self.inputFile is not None)
         self.generated       = False
@@ -227,9 +227,9 @@ class L1MenuConfig(object):
             log.error("No menu was generated, can not create json file")
             return None
 
-    def _menuToLoad(self,silent=False):
+    def _menuToLoad(self, silent=False):
         """ resolve the menu name to the menu files to load"""
-        menuToLoadReq = self.menuName
+        menuToLoadReq = self.menuFullName
         from .Menu.MenuMapping import menuMap
         if menuToLoadReq in menuMap:
             menuToLoad = menuMap[menuToLoadReq]
@@ -720,7 +720,6 @@ class L1MenuConfig(object):
     def configureCTP(self):
         self.l1menu.ctp.addMonCounters()
 
-
     # remove prescale suffixes
     def _getMenuBaseName(self, menuName):
         pattern = re.compile(r'_v\d+|DC14')
@@ -729,5 +728,5 @@ class L1MenuConfig(object):
             menuName=menuName[:patternPos.end()]
         else:
             log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
-        return menuName         
+        return menuName
 

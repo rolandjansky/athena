@@ -1,20 +1,23 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from InDetConfig.InDetRecToolConfig import SCT_CablingToolCfg, SCT_ConfigurationConditionsToolCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+from SCT_Cabling.SCT_CablingConfig import SCT_CablingToolCfg
+from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConfigurationConditionsToolCfg
+from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+
 
 def SCT_RodDecoderCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(SCT_GeometryCfg(flags))
+    acc.merge(SCT_ReadoutGeometryCfg(flags))
     kwargs.setdefault("SCT_CablingTool", acc.popToolsAndMerge(SCT_CablingToolCfg(flags)))
     kwargs.setdefault("ConfigTool", acc.popToolsAndMerge(SCT_ConfigurationConditionsToolCfg(flags)))
     acc.setPrivateTools(CompFactory.SCT_RodDecoder(name=prefix+"SCTRodDecoder"+suffix,
                                                    **kwargs))
     return acc
+
 
 def SCTRawDataProviderToolCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()
@@ -23,6 +26,7 @@ def SCTRawDataProviderToolCfg(flags, prefix="InDet", suffix="", **kwargs):
                                                            **kwargs))
     return acc
 
+
 def SCTRawDataProviderCfg(flags, prefix="InDet", suffix="", **kwargs):
     """ Configures the main algorithm for SCT raw data decoding """
     acc = ComponentAccumulator()    
@@ -30,6 +34,15 @@ def SCTRawDataProviderCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc.addEventAlgo(CompFactory.SCTRawDataProvider(name=prefix+"SCTRawDataProvider"+suffix,
                                                     **kwargs))
     return acc
+
+
+def SCTOverlayRawDataProviderCfg(flags, prefix="InDet", suffix="", **kwargs):
+    """ Configures the main algorithm for SCT raw data decoding for data overlay """
+    kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "SCT_RDOs")
+    kwargs.setdefault("LVL1IDKey", flags.Overlay.BkgPrefix + "SCT_LVL1ID")
+    kwargs.setdefault("BCIDKey", flags.Overlay.BkgPrefix + "SCT_BCID")
+    return SCTRawDataProviderCfg(flags, prefix, suffix, **kwargs)
+
 
 def SCTEventFlagWriterCfg(flags, prefix="InDet", suffix="", **kwargs):
     acc = ComponentAccumulator()

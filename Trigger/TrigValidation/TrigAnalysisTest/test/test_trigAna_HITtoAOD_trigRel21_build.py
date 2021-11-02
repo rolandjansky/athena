@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: Test running HITS->RDO in master, then RDO->RDO_TRIG in 21.0, then RDO_TRIG->AOD in master
 # art-type: build
@@ -75,7 +75,7 @@ rdotrig2aod.type = 'Reco_tf'
 rdotrig2aod.input = ''
 rdotrig2aod.explicit_input = True
 rdotrig2aod.args = '--inputRDO_TRIGFile=RDO_TRIG.pool.root --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
-rdotrig2aod.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
+rdotrig2aod.args += ' --preExec="all:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'"'
 
 # Define the test with the above steps
 test = Test.Test()

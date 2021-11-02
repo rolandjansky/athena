@@ -10,85 +10,73 @@
 #ifndef MUONREADOUTGEOMETRY_CSCDETECTORELEMENT_H
 #define MUONREADOUTGEOMETRY_CSCDETECTORELEMENT_H
 
-#include "MuonReadoutGeometry/MuonDetectorElement.h"
+#include <vector>
 
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
+#include "MuonReadoutGeometry/MuonDetectorElement.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
-
-#include <vector>
 
 class GeoVFullPhysVol;
 
 namespace MuonGM {
 
-class CscReadoutElement;
-class MuonDetectorManager;
-class MuonStation;
+    class CscReadoutElement;
+    class MuonDetectorManager;
+    class MuonStation;
 
-class CscDetectorElement final : public MuonDetectorElement
-{
+    class CscDetectorElement final : public MuonDetectorElement {
+    public:
+        CscDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idhash);
 
-public:
+        virtual int getStationEta() const override { return 0; };  //!< returns stationEta
+        virtual int getStationPhi() const override { return 0; };  //!< returns stationPhi
 
+        unsigned int nMDTinStation() const override { return 0; }
+        unsigned int nCSCinStation() const override { return 1; }
+        unsigned int nTGCinStation() const override { return 0; }
+        unsigned int nRPCinStation() const override { return 0; }
 
-   CscDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr, Identifier id, IdentifierHash idhash);
+        // access to the readout-elements in this DetectorElement
+        const CscReadoutElement* readoutElement() const { return m_cscre; }
 
-   virtual int getStationEta() const override {return 0;}; //!< returns stationEta
-   virtual int getStationPhi() const override {return 0;}; //!< returns stationPhi
+        void setReadoutElement(const CscReadoutElement* re) {
+            m_cscre = re;
+            ++m_nREinDetectorElement;
+        }
+        // access to the MuonStation this DetectorElement belongs to
+        MuonStation* parentMuonStation() const;
 
+        unsigned int NreadoutElements() const { return 1; }
 
-   unsigned int nMDTinStation() const override {return 0;}
-   unsigned int nCSCinStation() const override {return 1;}
-   unsigned int nTGCinStation() const override {return 0;}
-   unsigned int nRPCinStation() const override {return 0;}
+        virtual const Amg::Transform3D& transform() const override final;
 
+        virtual const Trk::Surface& surface() const override final;
 
-   // access to the readout-elements in this DetectorElement
-   const CscReadoutElement* readoutElement() const {return m_cscre;}
+        virtual const Trk::SurfaceBounds& bounds() const override final;
 
-   void setReadoutElement(const CscReadoutElement *re) {m_cscre=re; ++m_nREinDetectorElement;}
-   // access to the MuonStation this DetectorElement belongs to
-   MuonStation* parentMuonStation() const;
+        virtual const Amg::Vector3D& center() const override final;
 
-   unsigned int NreadoutElements() const {return 1;}
+        virtual const Amg::Vector3D& normal() const override final;
 
-    virtual const Amg::Transform3D& transform() const override final;
+        virtual const Amg::Vector3D& normal(const Identifier& id) const override final;
 
-    virtual const Trk::Surface& surface() const override final;
+        virtual const Trk::Surface& surface(const Identifier& id) const override final;
 
-    virtual const Trk::SurfaceBounds& bounds() const override final;
+        virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const override final;
 
-    virtual const Amg::Vector3D& center() const override final;
+        virtual const Amg::Transform3D& transform(const Identifier& id) const override final;
 
-    virtual const Amg::Vector3D& normal() const override final;
+        virtual const Amg::Vector3D& center(const Identifier& id) const override final;
 
-    virtual const Amg::Vector3D& normal(const Identifier& id) const override final;
+        std::vector<const Trk::Surface*> surfaces() const;
 
-    virtual const Trk::Surface& surface(const Identifier& id) const override final;
+        /** TrkDetElementInterface */
+        virtual Trk::DetectorElemType detectorType() const override final { return Trk::DetectorElemType::Csc; }
 
-    virtual const Trk::SurfaceBounds& bounds(const Identifier& id) const override final;
+    private:
+        const CscReadoutElement* m_cscre{nullptr};
+    };
 
-    virtual const Amg::Transform3D& transform(const Identifier& id) const override final;
+}  // namespace MuonGM
 
-    virtual const Amg::Vector3D& center(const Identifier& id) const override final;
-
-    std::vector<const Trk::Surface*> surfaces() const;
-
-    /** TrkDetElementInterface */
-    virtual Trk::DetectorElemType detectorType() const override final
-    {
-      return Trk::DetectorElemType::Csc;
-    }
-
-
-private:
-   const CscReadoutElement *m_cscre;
-
-
-};
-
-} // namespace MuonGM
-
-#endif // MUONREADOUTGEOMETRY_CSCDETECTORELEMENT_H
+#endif  // MUONREADOUTGEOMETRY_CSCDETECTORELEMENT_H

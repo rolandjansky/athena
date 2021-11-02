@@ -147,7 +147,7 @@ if( ATLAS_RELEASE_MODE )
 endif()
 
 # Install the ubsan.supp file already during the CMake configuration.
-# This is necessary because the file may be needer very early during the
+# This is necessary because the file may be needed very early during the
 # build, and we don't explicitly make everything else wait for this
 # file's installation. Creating a race condition.
 file( INSTALL share/ubsan.supp

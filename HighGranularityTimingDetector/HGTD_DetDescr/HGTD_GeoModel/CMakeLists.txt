@@ -22,4 +22,5 @@ atlas_add_component( HGTD_GeoModel
                      src/components/*.cxx
                      LINK_LIBRARIES GaudiKernel HGTD_GeoModelLib )
 
-atlas_install_python_modules( python/*.py )
+# Install files from the package:
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

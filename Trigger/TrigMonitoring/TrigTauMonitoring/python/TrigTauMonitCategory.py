@@ -69,6 +69,12 @@ monitoring_tau_pp = [
 
      # Run 3 
     'tau0_ptonly_L1TAU100',
+    'tau25_idperf_tracktwoMVA_L1TAU12IM',
+    'tau25_idperf_tracktwoMVABDT_L1TAU12IM',
+    'tau25_perf_tracktwoMVA_L1TAU12IM',
+    'tau25_perf_tracktwoMVABDT_L1TAU12IM',
+    'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+    'tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
     'tau80_medium1_tracktwo_L1TAU60',
     'tau160_idperf_track_L1TAU100',
     'tau160_idperf_tracktwo_L1TAU100',

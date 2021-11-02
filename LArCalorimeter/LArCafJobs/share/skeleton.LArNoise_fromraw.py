@@ -204,8 +204,6 @@ LArNoisyROSummaryGetter()
 if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HECNOISEFile"):
    include("LArCellRec/LArTimeVetoAlg_jobOptions.py")
 
-   include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
-
    ## trigger configuration
    #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
    #cfg = TriggerConfigGetter()

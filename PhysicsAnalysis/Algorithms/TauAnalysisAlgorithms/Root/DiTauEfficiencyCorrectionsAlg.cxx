@@ -25,7 +25,6 @@ namespace CP
     , m_efficiencyCorrectionsTool ("TauAnalysisTools::DiTauEfficiencyCorrectionsTool", this)
   {
     declareProperty ("efficiencyCorrectionsTool", m_efficiencyCorrectionsTool, "the calibration and smearing tool we apply");
-    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the tau scale factor");
   }
 
 
@@ -38,10 +37,10 @@ namespace CP
       ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
-    m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionsTool.retrieve());
     ANA_CHECK (m_tauHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize (m_systematicsList, m_tauHandle));
     ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionsTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
@@ -57,15 +56,17 @@ namespace CP
     for (const auto& sys : m_systematicsList.systematicsVector())
     {
       ANA_CHECK (m_efficiencyCorrectionsTool->applySystematicVariation (sys));
-      xAOD::DiTauJetContainer *taus = nullptr;
-      ANA_CHECK (m_tauHandle.getCopy (taus, sys));
-      for (xAOD::DiTauJet *tau : *taus)
+      const xAOD::DiTauJetContainer *taus = nullptr;
+      ANA_CHECK (m_tauHandle.retrieve (taus, sys));
+      for (const xAOD::DiTauJet *tau : *taus)
       {
         if (m_preselection.getBool (*tau))
         {
           double sf = 0;
           ANA_CHECK_CORRECTION (m_outOfValidity, *tau, m_efficiencyCorrectionsTool->getEfficiencyScaleFactor (*tau, sf));
-          (*m_scaleFactorAccessor) (*tau) = sf;
+          m_scaleFactorDecoration.set (*tau, sf, sys);
+        } else {
+          m_scaleFactorDecoration.set (*tau, invalidScaleFactor(), sys);
         }
       }
     }

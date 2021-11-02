@@ -18,6 +18,6 @@ atlas_add_library( GeoModelXml
    PRIVATE_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS}
    LINK_LIBRARIES ${XERCESC_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES}
    PRIVATE_LINK_LIBRARIES ${ZLIB_LIBRARIES} GaudiKernel GeoModelInterfaces
-                          StoreGateLib )
+                          StoreGateLib CxxUtils )
 
 atlas_install_runtime( data/*.dtd )

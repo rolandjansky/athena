@@ -41,7 +41,6 @@ recFlags.doWriteTAG             = False
 recFlags.doJiveXML              = False
 recFlags.doAOD                  = False
 recFlags.doAODall               = False
-recFlags.doTrigger              = False
 recFlags.doPerfMon              = False
 recFlags.doHeavyIon             = False
 recFlags.doEgamma               = False
@@ -51,7 +50,6 @@ recFlags.doJetMissingETTag      = False
 # Set default recAlgsFlags
 #--------------------------------------------------------------
 muonCombinedRecFlags.Enabled = False
-recAlgsFlags.doTrigger          = False
 recAlgsFlags.doTrackRecordFilter = True # filter truth muons getting into the spectrometer
 recAlgsFlags.doMissingET        = False
 recAlgsFlags.doMissingETSig     = False

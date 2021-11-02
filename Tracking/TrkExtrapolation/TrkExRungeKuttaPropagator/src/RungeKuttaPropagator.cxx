@@ -397,7 +397,6 @@ Trk::RungeKuttaPropagator::propagate
     if(D < 0) S = -S;
     S = straightLineStep(useJac,S,Po);
   }
-
   double Wmax  = 50000.    ; // Max pass
   double W     = 0.        ; // Current pass
   double Smax  = 100.      ; // Max step
@@ -406,6 +405,7 @@ Trk::RungeKuttaPropagator::propagate
 
   std::multimap<double,int> DN; double Scut[3];
   int Nveto = Trk::RungeKuttaUtils::fillDistancesMap(DS,DN,Po,W,&Tp.associatedSurface(),Scut);
+  
 
   // Test conditions tor start propagation and chocse direction if D == 0
   //
@@ -440,7 +440,7 @@ Trk::RungeKuttaPropagator::propagate
     if(cache.m_mcondition) {
 
       //----------------------------------Niels van Eldik patch
-      if (reverted_P && St == last_St && InS == last_InS /*&& condition_fulfiled*/) {
+      if (reverted_P && std::abs(St - last_St) <= DBL_EPSILON &&  InS==last_InS /*&& condition_fulfiled*/) {
           // inputs are not changed will get same result.
           break;
       }
@@ -454,7 +454,7 @@ Trk::RungeKuttaPropagator::propagate
     else  {
 
       //----------------------------------Niels van Eldik patch
-      if (reverted_P && St == last_St /*&& !condition_fulfiled*/) {
+      if (reverted_P && std::abs(St- last_St) <= DBL_EPSILON /*&& !condition_fulfiled*/) {
           // inputs are not changed will get same result.
           break;
       }
@@ -468,8 +468,8 @@ Trk::RungeKuttaPropagator::propagate
     reverted_P=false;
     //----------------------------------
 
-    bool next = 0; SN=Trk::RungeKuttaUtils::stepEstimator(DS,DN,Po,Pn,W,m_straightStep,Nveto,next);
-
+    bool next {false}; 
+    SN=Trk::RungeKuttaUtils::stepEstimator(DS,DN,Po,Pn,W,m_straightStep,Nveto,next);
     if(next) {for(int i=0; i!=45; ++i) Po[i]=Pn[i]; W+=S; Nveto=-1; }
     else     {for(int i=0; i!=45; ++i) Pn[i]=Po[i]; reverted_P=true; cache.m_newfield= true;}
 
@@ -488,7 +488,7 @@ Trk::RungeKuttaPropagator::propagate
 	if(auto To {crossPoint(Tp,DS,Sol,Pn,SN)};To) return To;
 	Nveto = SN.second; St = Sl;
       }
-    }
+    } else if (std::abs(S)< DBL_EPSILON) return nullptr;
   }
   return nullptr;
 }

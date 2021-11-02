@@ -24,8 +24,11 @@
 
 #include "MuonRDO/NSW_PadTriggerDataContainer.h"
 #include "TrigT1NSWSimTools/PadTriggerAdapter.h"
+#include "TrigT1NSWSimTools/TriggerProcessorTool.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 // Forward includes
 class StoreGateSvc;
@@ -80,8 +83,9 @@ namespace NSWL1 {
     ToolHandle < IStripTdsTool >         m_strip_tds;       //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     ToolHandle < IStripClusterTool >     m_strip_cluster;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     ToolHandle < IStripSegmentTool >     m_strip_segment;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    ToolHandle < IMMStripTdsTool >       m_mmstrip_tds;     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink                                                   
+    ToolHandle < IMMStripTdsTool >       m_mmstrip_tds;     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     ToolHandle < IMMTriggerTool >        m_mmtrigger;       //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
+    ToolHandle < TriggerProcessorTool >  m_trigProcessor;   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
 
     // put analysis variables here
     TTree*       m_tree;                                    //!< analysis ntuple
@@ -100,6 +104,7 @@ namespace NSWL1 {
     
     protected:
     SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey{this,"xAODEventInfoKey","EventInfo","Key of xAOD::EventInfo"};
+    SG::ReadHandleKey<EventInfo> m_eventInfoKey{this,"EventInfoKey","McEventInfo","Key of RDO EventInfo"};
     SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
     SG::WriteHandleKey<Muon::NSW_PadTriggerDataContainer> m_padTriggerRdoKey;
 

@@ -1152,7 +1152,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newSeed
 }
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::initializeEventData(EventData& data) const {
-  data.initialize(EventData::Cosmic,
+  data.initialize(EventData::ToolType::Cosmic,
                   m_maxsizeSP,
                   0, // maxOneSize not used
                   m_maxsize,

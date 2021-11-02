@@ -34,28 +34,30 @@ class DynamicallyLoadMetadata:
         return default
 
     def __contains__(self, key):
-        return self.get(key, None) is not None
+        self.get(key, None)
+        return key in self.metadata
 
     def __getitem__(self, key):
-        result =  self.get(key, None)
-        if result is None:
-            raise RuntimeError("Key {} not found".format(key))
-        return result
+        return self.get(key, None)
+
+    def __repr__(self):
+        return repr(self.metadata)
 
 def GetFileMD(filenames):
     if isinstance(filenames, str):
         filenames = [filenames]
-    filename=filenames[0]
-    if filename == '_ATHENA_GENERIC_INPUTFILE_NAME_':
+    if ['_ATHENA_GENERIC_INPUTFILE_NAME_'] == filenames:
         raise RuntimeError('Input file name not set, instead _ATHENA_GENERIC_INPUTFILE_NAME_ found. Cannot read metadata.')
-    if filename not in _fileMetaData:
-        if len(filenames)>1:
-            msg.info("Multiple input files. Use the first one for auto-configuration")
-        msg.info("Obtaining metadata of auto-configuration by peeking into '%s'", filename)
-        _fileMetaData[filename] = DynamicallyLoadMetadata(filename)
-
-    return _fileMetaData[filename]
-
+    for filename in filenames:
+        if filename not in _fileMetaData:
+            msg.info("Obtaining metadata of auto-configuration by peeking into '%s'", filename)
+            _fileMetaData[filename] = DynamicallyLoadMetadata(filename)
+        if _fileMetaData[filename]['nentries'] not in [None, 0]: 
+            return _fileMetaData[filename]
+        else:
+            msg.info("The file: %s has no entries, going to the next one for harvesting the metadata", filename)
+    msg.info("No file with events found, returning anyways metadata associated to the first file %s", filenames[0])
+    return _fileMetaData[filenames[0]]
 
 def _initializeGeometryParameters(geoTag):
     """Read geometry database for all detectors"""
@@ -72,7 +74,9 @@ def _initializeGeometryParameters(geoTag):
     params = { 'Common' : CommonGeoDB.InitializeGeometryParameters(dbGeomCursor),
                'Pixel' : PixelGeoDB.InitializeGeometryParameters(dbGeomCursor),
                'LAr' : LArGeoDB.InitializeGeometryParameters(dbGeomCursor),
-               'Muon' : MuonGeoDB.InitializeGeometryParameters(dbGeomCursor) }
+               'Muon' : MuonGeoDB.InitializeGeometryParameters(dbGeomCursor),
+               'Luminosity' : CommonGeoDB.InitializeLuminosityDetectorParameters(dbGeomCursor),
+             }
 
     return params
 
@@ -102,6 +106,10 @@ def getDefaultDetectors(geoTag):
     if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
         detectors.add('ITkPixel')
         detectors.add('ITkStrip')
+        if DetDescrInfo(geoTag)['Luminosity']['BCMPrime']:
+            pass  # keep disabled for now
+        if DetDescrInfo(geoTag)['Luminosity']['PLR']:
+            detectors.add('PLR')
     else:
         detectors.add('Pixel')
         detectors.add('SCT')

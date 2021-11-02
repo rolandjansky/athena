@@ -72,7 +72,7 @@ class PrismVolumeBounds final: public VolumeBounds {
 
   /** Method to decompose the Bounds into Surfaces */
   const std::vector<const Trk::Surface*>* decomposeToSurfaces
-  ATLAS_NOT_THREAD_SAFE(const Amg::Transform3D& transform) const override final;
+  (const Amg::Transform3D& transform) override final;
 
   /** Provide accessor for BoundarySurfaces */
   ObjectAccessor boundarySurfaceAccessor(

@@ -172,7 +172,7 @@ void ArenaBlock::protect()
   int stat = mprotect (this, m_size*m_elt_size+ArenaBlockBodyOffset,
                        PROT_READ);
   if (stat) {
-    throw SG::ExcProtection (stat);
+    throw SG::ExcProtection (errno);
   }
 }
 
@@ -188,7 +188,7 @@ void ArenaBlock::unprotect()
   int stat = mprotect (this, m_size*m_elt_size+ArenaBlockBodyOffset,
                        PROT_READ + PROT_WRITE);
   if (stat) {
-    throw SG::ExcProtection (stat);
+    throw SG::ExcProtection (errno);
   }
 }
 

@@ -4,11 +4,9 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def ITkSiElementPropertiesTableCondAlgCfg(flags, name="ITkSiElementPropertiesTableCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-
     # For strip DetectorElementCollection used
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    acc.merge(ITkStripGeometryCfg(flags))
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc = ITkStripReadoutGeometryCfg(flags)
     
     kwargs.setdefault("ReadKey", "ITkStripDetectorElementCollection")
     kwargs.setdefault("WriteKey", "ITkStripElementPropertiesTable")
@@ -33,14 +31,13 @@ def ITkSiSpacePointMakerToolCfg(flags, name="ITkSiSpacePointMakerTool", **kwargs
     return acc
 
 def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder", **kwargs):
-    acc = ComponentAccumulator()
     #
     # SiTrackerSpacePointFinder algorithm
     #
 
     # For strip DetectorElementCollection used
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    acc.merge(ITkStripGeometryCfg(flags))
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc = ITkStripReadoutGeometryCfg(flags)
 
     ITkSiSpacePointMakerTool = acc.popToolsAndMerge(ITkSiSpacePointMakerToolCfg(flags))
 
@@ -72,12 +69,12 @@ def ITkPRD_MultiTruthMakerSiCfg(flags, name="ITkPRD_MultiTruthMakerSi", **kwargs
 
     # For pixel + strip DetectorElementCollection used
     if flags.Detector.GeometryITkPixel:
-        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-        acc.merge(ITkPixelGeometryCfg(flags))
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+        acc.merge(ITkPixelReadoutGeometryCfg(flags))
 
     if flags.Detector.GeometryITkStrip:
-        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-        acc.merge(ITkStripGeometryCfg(flags))
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+        acc.merge(ITkStripReadoutGeometryCfg(flags))
 
     if flags.ITk.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'ITkPixelClusters')
@@ -111,12 +108,12 @@ def ITkPRD_MultiTruthMakerSiPUCfg(flags, name="ITkPRD_MultiTruthMakerSiPU", **kw
 
     # For pixel + strip DetectorElementCollection used
     if flags.Detector.GeometryITkPixel:
-        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-        acc.merge(ITkPixelGeometryCfg(flags))
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+        acc.merge(ITkPixelReadoutGeometryCfg(flags))
 
     if flags.Detector.GeometryITkStrip:
-        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-        acc.merge(ITkStripGeometryCfg(flags))
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+        acc.merge(ITkStripReadoutGeometryCfg(flags))
 
     if flags.ITk.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'ITkPixelPUClusters')

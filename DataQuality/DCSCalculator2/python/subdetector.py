@@ -108,7 +108,7 @@ class DCSC_Subdetector(object):
                 # If any state is out of config, we know the result.
                 return state
                 
-            elif state < result:
+            elif state is None or state < result:
                 if state is WHITE and variable.is_config_variable:
                     # Empty config variables are equivalent to "GOOD", so these
                     # states should be skipped.

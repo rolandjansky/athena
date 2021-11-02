@@ -59,6 +59,13 @@ public:
                 double* ATH_RESTRICT bxyz,
                 double* ATH_RESTRICT deriv = nullptr);
 
+  /** get B field valaue on the z-r plane at given position
+   * works only inside the solenoid.
+   * Otherwise call getField above.
+   * xyz[3] is in mm, bxyz[3] is in kT
+   * if deriv[9] is given, field 
+   * derivatives are returned in kT/mm
+   * */
   void getFieldZR(const double* ATH_RESTRICT xyz,
                   double* ATH_RESTRICT bxyz,
                   double* ATH_RESTRICT deriv = nullptr);

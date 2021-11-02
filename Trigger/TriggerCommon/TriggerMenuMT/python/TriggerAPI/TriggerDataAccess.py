@@ -300,14 +300,11 @@ def getHLTmap_fromTM(period, release):
         The format is the same as for TriggerDBAccess for compatibility but rerun is always false
     '''
 
-    menu = "Physics_pp_run3_v1"
-    
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     mutelog = logging.getLogger(__name__)
     mutelog.setLevel(logging.WARNING) #avoid spam from Menu.L1.L1MenuConfig
 
-    ConfigFlags.Trigger.triggerMenuSetup = menu
     from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
     generateL1Menu(ConfigFlags)
     createL1PrescalesFileFromMenu(ConfigFlags)

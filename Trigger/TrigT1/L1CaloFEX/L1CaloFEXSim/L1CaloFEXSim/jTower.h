@@ -61,6 +61,20 @@ namespace LVL1 {
     /** Add to ET of a specified cell */
     void recordMD_ET(float et, int cell);
 
+    /** Add to eta/phi values of a specified tower */
+    void setCentreEta(float ieta);
+    void setCentrePhi(float iphi);
+
+    /** Add to Area values of a specified tower */
+    void setTTowerArea(float area,int layer);
+    float getTTowerArea(int layer) const;
+
+    /** Add to pilup lower and upper thresholds */
+    void setMinEtforPileup(int etval){m_minEt_pileup_thr=etval;};
+    int getMinEtforPileup() const {return m_minEt_pileup_thr;};
+    void setMaxEtforPileup(int etval){m_maxEt_pileup_thr=etval;};
+    int getMaxEtforPileup() const {return m_maxEt_pileup_thr;};
+
     /** Get coordinates of tower */
     int iEta() const;
     int iPhi() const;
@@ -122,6 +136,12 @@ namespace LVL1 {
 
     /** Set supercell position ID **/
     void setSCID(Identifier ID, int cell, float et, int layer, bool doenergysplit);
+    
+    /** Noise values for each layer and object **/
+    void  setNoiseForMet(int noiseVal,int layer);
+    int getNoiseForMet(int layer)const;
+    void  setNoiseForJet(int noiseVal,int layer);
+    int getNoiseForJet(int layer)const;
 
     std::vector<Identifier> getEMSCIDs() const { return m_EM_scID; }
     std::vector<Identifier> getHADSCIDs() const { return m_HAD_scID; }
@@ -130,9 +150,6 @@ namespace LVL1 {
     Identifier getHADSCID(int cell) const { return m_HAD_scID[cell]; }
 
     std::vector<Identifier> getLayerSCIDs(unsigned int layer) const;
-
-    /** Apply supercell noise cut **/
-    bool noiseCut(int et, int layer) const;
 
     void setPosNeg(int posneg);
 
@@ -152,12 +169,12 @@ namespace LVL1 {
     std::vector<Identifier> m_HAD_scID;
     std::vector<int> m_et;    
     std::vector<float> m_et_float;
+    std::vector<float> m_TTowerArea{ 1.0, 1.0};
     int m_fcal_layer = -1;
-    int m_noisecutPS = 100;
-    int m_noisecutL1 = 100;
-    int m_noisecutL2 = 100;
-    int m_noisecutL3 = 100;
-    int m_noisecutHad = 100;
+    int m_NoiseForMet[2] = {0};
+    int m_NoiseForJet[2] = {0};
+    int m_minEt_pileup_thr = -999;
+    int m_maxEt_pileup_thr = -999;
 
   };
   

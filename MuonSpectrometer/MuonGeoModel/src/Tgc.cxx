@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/Tgc.h"
@@ -32,25 +32,29 @@
 
 namespace MuonGM {
 
-    Tgc::Tgc(Component *ss) : DetectorElement(ss->name), irad(0.), orad(0.), dphi(0.) {
+    Tgc::Tgc(const MYSQL& mysql, Component *ss) : DetectorElement(ss->name), irad(0.), orad(0.), dphi(0.) {
         TgcComponent *s = (TgcComponent *)ss;
         m_component = s;
         width = s->dx1;
         longWidth = s->dx2;
         length = s->dy;
-        thickness = s->GetThickness();
+        thickness = s->GetThickness(mysql);
         index = s->index;
     }
 
-    GeoFullPhysVol *Tgc::build(int minimalgeo) {
+    GeoFullPhysVol *Tgc::build(const StoredMaterialManager& matManager,
+                               const MYSQL& mysql,
+                               int minimalgeo) {
         std::vector<Cutout *> vcutdef;
         int cutoutson = 0;
-        return build(minimalgeo, cutoutson, vcutdef);
+        return build(matManager, mysql, minimalgeo, cutoutson, vcutdef);
     }
 
-    GeoFullPhysVol *Tgc::build(int minimalgeo, int cutoutson, std::vector<Cutout *> vcutdef) {
-        MYSQL *mysql = MYSQL::GetPointer();
-        TGC *t = (TGC *)mysql->GetTechnology(name);
+    GeoFullPhysVol *Tgc::build(const StoredMaterialManager& matManager,
+                               const MYSQL& mysql,
+                               int minimalgeo, int cutoutson,
+                               const std::vector<Cutout *>& vcutdef) {
+        const TGC *t = dynamic_cast<const TGC*>(mysql.GetTechnology(name));
         thickness = t->thickness;
 
         // Build TGC mother volume out of G10
@@ -67,7 +71,7 @@ namespace MuonGM {
             }
         }
 
-        const GeoMaterial *mtrd = getMaterialManager()->getMaterial("std::G10");
+        const GeoMaterial *mtrd = matManager.getMaterial("std::G10");
         GeoLogVol *ltrd = new GeoLogVol(logVolName, strd, mtrd);
         GeoFullPhysVol *ptrd = new GeoFullPhysVol(ltrd);
 
@@ -240,7 +244,7 @@ namespace MuonGM {
                     }
                 }
 
-                GeoLogVol *ltrdtmp = new GeoLogVol(t->materials[i], sGasVolume, getMaterialManager()->getMaterial(t->materials[i]));
+                GeoLogVol *ltrdtmp = new GeoLogVol(t->materials[i], sGasVolume, matManager.getMaterial(t->materials[i]));
                 GeoPhysVol *ptrdtmp = new GeoPhysVol(ltrdtmp);
                 GeoNameTag *ntrdtmp = new GeoNameTag(name + t->materials[i]);
                 GeoTransform *ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newpos + (t->tck[i] / 2)));
@@ -270,7 +274,7 @@ namespace MuonGM {
                         strdtmp = &(strdtmp->subtract((*cutoutShape) << cutTrans));
                     }
                 }
-                GeoLogVol *ltrdtmp = new GeoLogVol(t->materials[i], strdtmp, getMaterialManager()->getMaterial(t->materials[i]));
+                GeoLogVol *ltrdtmp = new GeoLogVol(t->materials[i], strdtmp, matManager.getMaterial(t->materials[i]));
                 GeoPhysVol *ptrdtmp = new GeoPhysVol(ltrdtmp);
                 GeoNameTag *ntrdtmp = new GeoNameTag(name + t->materials[i]);
                 GeoTransform *ttrdtmp = new GeoTransform(GeoTrf::TranslateX3D(newpos + (t->tck[i] / 2)));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -15,7 +15,7 @@
 class MakeBox: public Element2GeoItem {
 public:
     MakeBox();
-    const RCBase * make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const;
+    virtual RCBase * make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const override;
 };
 
 #endif // GEO_MODEL_XML_MAKE_BOX_H

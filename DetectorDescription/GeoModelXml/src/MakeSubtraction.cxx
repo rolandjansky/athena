@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Automatically generated code from /home/hessey/prog/gmx2geo/makeshape
@@ -16,39 +16,40 @@
 
 #include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
+#include "CxxUtils/checker_macros.h"
 
 using namespace xercesc;
 using namespace std;
 
 MakeSubtraction::MakeSubtraction() {}
 
-const RCBase * MakeSubtraction::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
+RCBase * MakeSubtraction::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
 // 
 //    Process child elements; first is first shaperef; then transformation; then second shaperef.
 //
-    GeoShape *first = 0;
-    GeoShape *second = 0;
+    const GeoShape *first = 0;
+    const GeoShape *second = 0;
     GeoTrf::Transform3D hepXf=GeoTrf::Transform3D::Identity();
     int elementIndex = 0;
     for (DOMNode *child = element->getFirstChild(); child != 0; child = child->getNextSibling()) {
         if (child->getNodeType() == DOMNode::ELEMENT_NODE) { // Skips text nodes
             switch (elementIndex) {
                 case 0: { // First element is first shaperef
-                    first = (GeoShape *) gmxUtil.tagHandler.shaperef.process(dynamic_cast<DOMElement *> (child), gmxUtil);
+                    first = static_cast<const GeoShape *> (gmxUtil.tagHandler.shaperef.process(dynamic_cast<DOMElement *> (child), gmxUtil));
                     break;
                 }
                 case 1: { // Second element is transformation or transformationref
                     char *toRelease = XMLString::transcode(child->getNodeName());
                     string nodeName(toRelease);
                     XMLString::release(&toRelease);
-                    GeoTransform *geoXf = nodeName == "transformation"? 
-(GeoTransform *) gmxUtil.tagHandler.transformation.process(dynamic_cast<DOMElement *>(child), gmxUtil):
-(GeoTransform *) gmxUtil.tagHandler.transformationref.process(dynamic_cast<DOMElement *>(child), gmxUtil);
+                    const GeoTransform *geoXf = nodeName == "transformation"? 
+static_cast<const GeoTransform *> (gmxUtil.tagHandler.transformation.process(dynamic_cast<DOMElement *>(child), gmxUtil)):
+static_cast<const GeoTransform *> (gmxUtil.tagHandler.transformationref.process(dynamic_cast<DOMElement *>(child), gmxUtil));
                     hepXf = geoXf->getTransform();
                     break;
                 }
                 case 2: { // Third element is second shaperef
-                    second = (GeoShape *) gmxUtil.tagHandler.shaperef.process(dynamic_cast<DOMElement *> (child), gmxUtil);
+                    second = static_cast<const GeoShape *> (gmxUtil.tagHandler.shaperef.process(dynamic_cast<DOMElement *> (child), gmxUtil));
                     break;
                 }
                 default: // More than 3 elements?
@@ -59,7 +60,12 @@ const RCBase * MakeSubtraction::make(const xercesc::DOMElement *element, GmxUtil
         }
     }
 
-    const GeoShapeSubtraction *temp = &(first->subtract(*(GeoShape *) &(*(second) << hepXf)));
+    if (!first || !second) std::abort();
+
+    // FIXME: subtract() returns a new'd object --- should really be
+    // returning a `unique_ptr<GeoShapeSubtraction>' not a
+    // `const GeoShapeSubtraction'
+    GeoShapeSubtraction *temp ATLAS_THREAD_SAFE = const_cast<GeoShapeSubtraction*>(&(first->subtract(*(GeoShape *) &(*(second) << hepXf))));
 
     return (RCBase *) temp;
 }

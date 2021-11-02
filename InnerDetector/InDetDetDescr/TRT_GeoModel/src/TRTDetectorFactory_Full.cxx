@@ -164,7 +164,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
                           m_sumTool->getStrawStatusHTContainer() != nullptr;
   }
   // --------------------- In a normal reconstruction or digitization job, the folder will not be available at this point. No reason for warnings here.
-  ATH_MSG_DEBUG( "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable) ;
+  ATH_MSG_INFO( "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable) ;
   if (!m_strawsvcavailable) ATH_MSG_DEBUG("The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" );
   if (!m_doArgon  )	ATH_MSG_DEBUG("Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION");
   if (!m_doKrypton)	ATH_MSG_DEBUG( "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION");

@@ -40,7 +40,7 @@ namespace InDetDD {
                                        const SiCommonItems* commonItems,
                                        const GeoAlignmentStore* geoAlignStore) :
     SolidStateDetectorElementBase(id,design,geophysvol,commonItems,geoAlignStore),
-    m_design(design)
+    m_siDesign(design)
   {
     commonConstructor();
   }
@@ -157,7 +157,7 @@ namespace InDetDD {
 	  int strip = sctIdHelper->strip(identifier);
 	  int row = sctIdHelper->row(identifier);
 	  if(row>0){
-	    auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_design);
+	    auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_siDesign);
 	    int strip1D = sctDesign.strip1Dim(strip, row);
 	    cellId = SiCellId(strip1D);
 	  }
@@ -305,7 +305,7 @@ namespace InDetDD {
   {
     // The equation below will work for rectangle detectors as well in which 
     // case it will return 0. But we return zero immediately as there is no point doing the calculation.
-    if (m_design->shape() == InDetDD::Box) return 0.;
+    if (m_siDesign->shape() == InDetDD::Box) return 0.;
     double oneOverRadius = (maxWidth() - minWidth()) / (width() * length());
     double x = localPos[distPhi];
     double y = localPos[distEta];
@@ -345,13 +345,13 @@ namespace InDetDD {
   SiDetectorElement::nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const
   {
     //again, can we avoid casting here?
-    return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition, etaTol);
+    return static_cast<const SiDetectorDesign *>(m_siDesign)->nearBondGap(localPosition, etaTol);
   }
 
   bool
   SiDetectorElement::nearBondGap(const Amg::Vector3D& globalPosition, double etaTol) const
   {
-    return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition(globalPosition), etaTol);
+    return static_cast<const SiDetectorDesign *>(m_siDesign)->nearBondGap(localPosition(globalPosition), etaTol);
   }
 
 
@@ -362,7 +362,7 @@ namespace InDetDD {
   {
     //again with the casting...
     const std::pair<Amg::Vector2D,Amg::Vector2D> localEnds=
-      static_cast<const SiDetectorDesign *>(m_design)->endsOfStrip(position);
+      static_cast<const SiDetectorDesign *>(m_siDesign)->endsOfStrip(position);
     return std::pair<Amg::Vector3D,Amg::Vector3D >(globalPosition(localEnds.first),
                                                    globalPosition(localEnds.second));
   }
@@ -420,7 +420,7 @@ namespace InDetDD {
     //Similar to 21.9, but ... Do we actually need this? If not, we could just rely on the base-class implementation?
     if (isBarrel() && !m_axisDir.ptr()->m_barrelLike) {
       ATH_MSG_WARNING("Element has endcap like orientation with barrel identifier.");
-    } else if (!isBarrel() && m_axisDir.ptr()->m_barrelLike && (m_design->type())!=InDetDD::PixelInclined) {
+    } else if (!isBarrel() && m_axisDir.ptr()->m_barrelLike && (m_siDesign->type())!=InDetDD::PixelInclined && (m_siDesign->type())!=InDetDD::PLR) {
       ATH_MSG_WARNING("Element has barrel like orientation with endcap identifier.");
     }
   }
@@ -432,7 +432,7 @@ namespace InDetDD {
       double sinStereoThis = std::abs(sinStereoImpl()); // Call the private impl method
       double sinStereoOther = std::abs(m_otherSide->sinStereo());
       if (sinStereoThis == sinStereoOther) {
-        // If they happend to be equal then set side0 as axial and side1 as stereo.
+        // If they happen to be equal then set side0 as axial and side1 as stereo.
         const SCT_ID* sctId = dynamic_cast<const SCT_ID*>(getIdHelper());
         if (sctId) {
           int side = sctId->side(m_id);
@@ -478,10 +478,10 @@ namespace InDetDD {
     if (isBarrel()) {
       sinStereo = this->phiAxis().z();
     } else { // endcap
-      if (m_design->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
-	Amg::Vector3D sensorCenter = m_design->sensorCenter();
+      if (m_siDesign->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
+	Amg::Vector3D sensorCenter = m_siDesign->sensorCenter();
 	//Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
-	double sinStereoReco = - (m_design->sinStripAngleReco(sensorCenter[1], sensorCenter[0]));
+	double sinStereoReco = - (m_siDesign->sinStripAngleReco(sensorCenter[1], sensorCenter[0]));
 	double cosStereoReco = sqrt(1-sinStereoReco*sinStereoReco); 
 	double radialShift = sensorCenter[0]; 
 	//The focus of all strips in the local reco frame
@@ -511,7 +511,7 @@ namespace InDetDD {
     //
     double sinStereo = 0.;
     if (isBarrel()) {
-      if (m_design->shape() != InDetDD::Trapezoid) {
+      if (m_siDesign->shape() != InDetDD::Trapezoid) {
         sinStereo = this->phiAxis().z();
       } else { // trapezoid
         assert (minWidth() != maxWidth());
@@ -523,7 +523,7 @@ namespace InDetDD {
         sinStereo = (stripAxis.x() * normal.y() - stripAxis.y() * normal.x()) / stripAxis.mag();
       }
     } else { // endcap
-      if (m_design->shape() != InDetDD::Trapezoid) {
+      if (m_siDesign->shape() != InDetDD::Trapezoid) {
         const Amg::Vector3D& etaAxis = this->etaAxis();
         sinStereo = (globalPos.y() * etaAxis.x() - globalPos.x() * etaAxis.y()) / globalPos.perp();
       } else { // trapezoid

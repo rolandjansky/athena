@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -37,6 +37,8 @@ StatusCode LArHVCorrectionMonAlg::initialize()
 
   ATH_CHECK( m_scaleCorrKey.initialize() );
   ATH_CHECK( m_onlineScaleCorrKey.initialize() );
+
+  ATH_CHECK( m_caloMgrKey.initialize() );
   
   ATH_MSG_DEBUG( "Successful Initialize LArHVCorrection " );
   return AthMonitorAlgorithm::initialize();
@@ -59,8 +61,9 @@ StatusCode LArHVCorrectionMonAlg::fillHistograms(const EventContext& ctx) const
 
   if(doMonitor) { //LB not yet monitored, so do the monitoring now
 
-    const CaloDetDescrManager* ddman = nullptr;
-    ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+    ATH_CHECK(caloMgrHandle.isValid());
+    const CaloDetDescrManager* ddman = *caloMgrHandle;
     
     // Retrieve event information
     int lumi_block = ctx.eventID().lumi_block();

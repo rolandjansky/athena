@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileConditions/TileBadChannels.h"
@@ -15,7 +15,7 @@ TileBadChannels::~TileBadChannels() {
 
 }
 
-void TileBadChannels::addAdcStatus(const HWIdentifier channel_id, const HWIdentifier adc_id, TileBchStatus adcStatus) {
+void TileBadChannels::addAdcStatus(const HWIdentifier channel_id, const HWIdentifier adc_id, const TileBchStatus& adcStatus) {
   m_channelStatus[channel_id] += adcStatus;
   m_adcStatus[adc_id] += adcStatus;
 }

@@ -98,6 +98,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
   ATH_CHECK(l1Menu.isValid());
 
   auto & thr_eEM = l1Menu->thrExtraInfo().eEM();
+  auto & thr_eTAU = l1Menu->thrExtraInfo().eTAU();
 
   for(int ieta = 1; ieta < 5; ieta++) {
     for(int iphi = 1; iphi < 9; iphi++) {
@@ -164,10 +165,19 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int RetaBitS = 3;
       unsigned int RhadBitS = 3;
       unsigned int WstotBitS = 5;
-      
-      SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
-      SetIsoWP(RhadCoreEnv,threshRhad,RhadWP,RhadBitS);
-      SetIsoWP(WstotCoreEnv,threshWstot,WstotWP,WstotBitS);
+
+      unsigned int maxEt = iso_loose.maxEt();//since it's not 'MeV' or Counts, must be in GeV
+      unsigned int maxEtCounts = (maxEt*m_GeV)/m_eFexStep;//Note: this should be changed in the menu to access in MeV. 
+      if (eEMTobEt > maxEtCounts){
+	RetaWP = 3;
+	RhadWP = 3;
+	WstotWP = 3;
+      }
+      else{
+	SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
+	SetIsoWP(RhadCoreEnv,threshRhad,RhadWP,RhadBitS);
+	SetIsoWP(WstotCoreEnv,threshWstot,WstotWP,WstotBitS);
+      }
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
 
@@ -212,7 +222,6 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
     }
   }
 
-
   // --------------- TAU -------------
   for(int ieta = 1; ieta < 5; ieta++)
   {
@@ -229,14 +238,53 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
       if (!m_eFEXtauAlgoTool->isCentralTowerSeed()){ continue; }
 
+      // the minimum energy to send to topo (not eta dependent yet, but keep inside loop as it will be eventually?)
+      unsigned int ptTauMinToTopoCounts = 0;
+      ptTauMinToTopoCounts = thr_eTAU.ptMinToTopoCounts();
+
       // Get Et of eFEX tau object in internal units (25 MeV)
       unsigned int eTauTobEt = 0;
       eTauTobEt = m_eFEXtauAlgoTool->getEt();
 
+      // thresholds from Trigger menu
+      auto iso_loose  = thr_eTAU.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+      auto iso_medium = thr_eTAU.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
+      auto iso_tight  = thr_eTAU.isolation(TrigConf::Selection::WP::TIGHT, ieta);  
+
+      std::vector<unsigned int> threshRCore;
+      threshRCore.push_back(iso_loose.rCore_fw());
+      threshRCore.push_back(iso_medium.rCore_fw());
+      threshRCore.push_back(iso_tight.rCore_fw());
+
+      // Get isolation values
+      std::vector<unsigned int> rCoreVec; 
+      m_eFEXtauAlgoTool->getRCore(rCoreVec);
+
+      // Set isolation WP
+      unsigned int rCoreWP = 0;
+
+      // Isolation bitshift value
+      unsigned int RcoreBitS = 3;
+
+      SetIsoWP(rCoreVec,threshRCore,rCoreWP,RcoreBitS);
+
+      // Currently only one WP defined for tau iso, decided to set as Medium WP for freedom to add looser and tighter WPs in the future 
+      if (rCoreWP > 2) {
+        rCoreWP = 1;
+      }
+
+      unsigned int seed = 0;
+      seed = m_eFEXtauAlgoTool->getSeed();
+      // Seed as returned is supercell value within 3x3 area, here want it within central cell
+      seed = seed - 4;      
+
+      unsigned int und = 0;
+      und = m_eFEXtauAlgoTool->getUnD();
+
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
       
-      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt);
+      uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt, rCoreWP, seed, und, ptTauMinToTopoCounts);
       if ( tobword != 0 ) m_tauTobwords.push_back(tobword);
 
       // for plotting
@@ -248,7 +296,12 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
         const LVL1::eTower * centerTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
         inputOutputCollection->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
         inputOutputCollection->addValue_tau("FloatPhi", centerTower->phi());
-        inputOutputCollection->addValue_tau("Iso", m_eFEXtauAlgoTool->getIso());
+        inputOutputCollection->addValue_tau("IsoCore", rCoreVec[0]);
+        inputOutputCollection->addValue_tau("IsoEnv", rCoreVec[1]);
+        inputOutputCollection->addValue_tau("RealIso", m_eFEXtauAlgoTool->getRealIso());
+        inputOutputCollection->addValue_tau("IsoWP", rCoreWP);
+        inputOutputCollection->addValue_tau("Seed", seed);
+        inputOutputCollection->addValue_tau("UnD", und);
         
         inputOutputCollection->fill_tau();
       }
@@ -338,7 +391,6 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
 
 void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint, unsigned int & bitshift) {
   // Working point evaluted by Core * 2^bitshift > Threshold * Environment conditions
-
   bool CoreOverflow = false;
   bool EnvOverflow = false;
   bool ThrEnvOverflowL = false;
@@ -355,14 +407,14 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
   if (CoreOverflow == false) {
     if (EnvOverflow == false) {
-      if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
-	workingPoint = 1;
+      if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
+	workingPoint = 3;
       } 
       else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
 	workingPoint = 2;
       } 
-      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
-	workingPoint = 3;
+      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
+	workingPoint = 1;
       }
       else { 
 	workingPoint = 0;

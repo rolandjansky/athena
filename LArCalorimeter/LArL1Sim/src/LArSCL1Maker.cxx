@@ -17,9 +17,10 @@
 //
 #include <math.h>
 #include <fstream>
+#include "AthenaKernel/RNGWrapper.h"
+
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "LArSimEvent/LArHitContainer.h"
@@ -61,9 +62,6 @@ using CLHEP::RandGaussZiggurat;
 
 LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
-  , m_atRndmGenSvc("AtRndmGenSvc",name)
-  , m_rndmEngineName("LArSCL1Maker")
-  , m_rndmEngine(0)
   //, p_triggerTimeTool()
   , m_scidtool("CaloSuperCellIDTool")
   , m_scHelper(0)
@@ -100,7 +98,6 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   //
 
   declareProperty("SubDetectors",m_SubDetectors);
-  declareProperty("RndmSvc", m_atRndmGenSvc);
 
   declareProperty("NoiseOnOff",m_NoiseOnOff);
 
@@ -221,12 +218,6 @@ StatusCode LArSCL1Maker::initialize()
 
   CHECK( m_atRndmGenSvc.retrieve() );
   
-  m_rndmEngine = m_atRndmGenSvc->GetEngine(m_rndmEngineName);
-  if(!m_rndmEngine) {
-    ATH_MSG_ERROR( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE ;
-  }
-
   CHECK( detStore()->retrieve (m_sem_mgr, "CaloSuperCellMgr") );
 
   return StatusCode::SUCCESS;
@@ -374,6 +365,9 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
   double Rndm[32];
   std::vector<float> zeroSamp; 
   zeroSamp.assign(m_nSamples,0); // for empty channels 
+  ATHRNG::RNGWrapper* rngWrapper = m_atRndmGenSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeedLegacy( m_randomStreamName, context, m_randomSeedOffset, m_useLegacyRandomSeeds );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(context);
   for( ; it != it_end; ++it){
       std::vector< float > *vecPtr = &zeroSamp; 
       if ( alreadyThere[it] ) vecPtr= &(scFloatContainerTmp.at(it)); 
@@ -392,7 +386,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
          int index;
          const std::vector<float>& CorrGen = (autoCorrNoise->autoCorrSqrt(id,0));
 
-         RandGaussZiggurat::shootArray(m_rndmEngine,m_nSamples,Rndm,0.,1.);
+         RandGaussZiggurat::shootArray(rndmEngine,static_cast<int>(m_nSamples),Rndm,0.,1.);
 
          for(int i=0;i<(int)m_nSamples;i++){
          noise[i]=0.;

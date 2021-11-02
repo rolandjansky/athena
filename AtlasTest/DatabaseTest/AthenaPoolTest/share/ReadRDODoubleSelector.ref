@@ -1,141 +1,8 @@
-sob jan 30 15:37:49 CET 2021
-Preloading tcmalloc_minimal.so
-Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.26] [x86_64-centos7-gcc8-opt] [overlay/c60e951] -- built on [2021-01-30T1524]
-Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO executing ROOT6Setup
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "AthenaPoolTest/ReadRDODoubleSelector.py"
-Py:ConfigurableDb    INFO Read module info for 5475 configurables from 18 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "RecExCond/AllDet_detDescr.py"
-Py:Athena            INFO including file "RecExCond/RecExCommon_DetFlags.py"
-Py:RecExCommon_DetFlags    INFO DetFlags already defined.by user : user should have fully configured it already! 
-Py:Athena            INFO Importing MuonRecExample.MuonRecUtils
-Py:Athena            INFO Importing module MuonCnvExample.MuonCalibFlags
-Py:Athena            INFO Importing MuonCnvExample.MuonCnvUtils
-Py:MuonCnvExample.MuonCalibFlags    INFO Changing default mdtPropagationSpeedBeta = 1.0
-Py:MuonRec           INFO Importing MuonRecExample.MuonRecFlags
-Py:MuonRec           INFO Changing default applyResilience = True
-Py:MuonRec           INFO Changing default doMSVertex = True
-Py:MuonRec           INFO Changing default enableErrorTuning = True
-Py:MuonRec           INFO Changing default writeSDOs = True
-Py:MuonRec           INFO Changing default calibNtupleTrigger = False
-Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-EventInfoMgtInit: Got release version  Athena-22.0.26
-Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
-Py:Athena            INFO SetGeometryVersion.py obtained major release version 22
-Py:ConfiguredFactory    INFO imported 142 confDb modules in 0.23 seconds
-Py:Athena            INFO including file "CaloIdCnv/CaloIdCnv_joboptions.py"
-Py:Athena            INFO including file "CaloConditions/CaloConditions_jobOptions.py"
-Py:Athena            INFO including file "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py"
-Py:Athena            INFO including file "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py"
-Py:Athena            INFO including file "TileIdCnv/TileIdCnv_jobOptions.py"
-Py:Athena            INFO including file "LArDetDescr/LArDetDescr_joboptions.py"
-now initializing the LAr readout geometry : standard Atlas flavour
-Py:Athena            INFO including file "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py"
-Py:JobPropertyContainer::    INFO ATLAS-R2-2016-01-00-01
-Py:JobPropertyContainer::    INFO  use global tag for all LArElecCalibMC constants 
-Py:Athena            INFO including file "LArConditionsCommon/LArIdMap_MC_jobOptions.py"
-Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/OnOffIdMap with tag LARIdentifierOnOffIdMap-012
-Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/CalibIdMap with tag LARIdentifierCalibIdMap-012
-Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/FebRodMap with tag LARIdentifierFebRodMap-005
-Py:Athena            INFO including file "BeamSpotConditions/BeamCondAlgSetup.py"
-['EventInfo#*', 'EventInfo#*', 'CaloCellContainer#*', 'PixelRDO_Container#*', 'SCT_RDO_Container#*', 'TRT_RDO_Container#*', 'PixelRDOElemLinkVec#*']
-Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
-Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
-ApplicationMgr    SUCCESS 
-====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0)
-                                          running on f9pc10.ijs.si on Sat Jan 30 15:37:55 2021
-====================================================================================================================================
-ApplicationMgr       INFO Application Manager Configured successfully
-PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
-PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
-EventSelector       DEBUG Property update for OutputLevel : new value = 2
-EventSelector       DEBUG Initializing EventSelector
-EventSelector       DEBUG Service base class initialized successfully
-EventSelector       DEBUG reinitialization...
-EventSelector        INFO EventSelection with query 
-EventSelector       DEBUG Try item: "LArRDO.root" from the collection list.
-SecondaryEventS...  DEBUG Property update for OutputLevel : new value = 2
 SecondaryEventS...  DEBUG Initializing secondary event selector SecondaryEventSelector
-SecondaryEventS...  DEBUG Service base class initialized successfully
 SecondaryEventS...  DEBUG reinitialization...
 SecondaryEventS...   INFO EventSelection with query 
-SecondaryEventS...  DEBUG Try item: "InDetRDO.root" from the collection list.
-Error in cling::AutoLoadingVisitor::InsertIntoAutoLoadingState:
-   Missing FileEntry for AthenaPoolTestAthenaPool/PixelRDOElemLinkVec_p1.h
-   requested to autoload type PixelRDOElemLinkVec_p1
-GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
-GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
-GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
-GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
-indet 1 2,4,5,7,10,11,12,13 7 1fffffffffffffff 61 3 0 min/max 2 13 values  2 4 5 7 10 11 12 13 indexes  0 0 1 2 0 3 0 0 4 5 6 7 indices  8 prev  0 next  0 mode  enumerated  cont mode  none  
-pixel 1 1:3 3 e7ffffffffffffff 59 2 3 min/max 1 3 values  indexes  indices  3 prev  0 next  0 mode  both_bounded  cont mode  none  
-bec 1 -4,-2,0,2,4 7 f8ffffffffffffff 56 3 5 min/max -4 4 values  -4 -2 0 2 4 indexes  0 0 1 0 2 0 3 0 4 indices  5 prev  0 next  0 mode  enumerated  cont mode  none  
-bec_shift 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
-lay_disk 0 0:3 3 ff3fffffffffffff 54 2 8 min/max 0 3 values  indexes  indices  4 prev  0 next  0 mode  both_bounded  cont mode  none  
-lay_disk_shift 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
-phi_mod 0 0:63 3f ffc0ffffffffffff 48 6 10 min/max 0 63 values  indexes  indices  64 prev  0 next  0 mode  both_bounded  cont mode  none  
-phi_mod_shift 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
-eta_mod 1 -10:9 1f ffff07ffffffffff 43 5 16 min/max -10 9 values  indexes  indices  20 prev  0 next  0 mode  both_bounded  cont mode  none  
-eta_mod_shift 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
-phi_index 0 0:376 1ff fffff803ffffffff 34 9 21 min/max 0 376 values  indexes  indices  377 prev  0 next  0 mode  both_bounded  cont mode  none  
-eta_index 0 0:335 1ff fffffffc01ffffff 25 9 30 min/max 0 335 values  indexes  indices  336 prev  0 next  0 mode  both_bounded  cont mode  none  
-bec_eta_mod 0 0 0 0 0 0 0 min/max 0 0 values  indexes  indices  0 prev  0 next  0 mode  both_bounded  cont mode  none  
-PixelID::initLevelsFromDict - found levels 
-subdet        0
-part          1
-barrel_endcap 2
-layer or disk 3
-phi_module    4
-eta_module    5
-phi_index     6
-eta_index     7
-GEOPIXELSERVICES pixel : 28.995 245 //  3460
-GEOPIXELSERVICES barrel : 28.997 143 //  -460 460
-GEOPIXELSERVICES endcap : 82 175 //  484 670
-DataProxy         WARNING accessData: conversion failed for data object 1112780409//TRT/Cond/StatusHT
- Returning NULL DataObject pointer  
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-RDOReaderDouble...  DEBUG Property update for OutputLevel : new value = 2
 RDOReaderDouble...   INFO RDOReaderDoubleSelector::initialize()
-CaloMgrDetDescrCnvWARNING Attempting to create a Calo Detector Manager object outside of the event loop. Geometry may not be aligned.
-DetectorStore     WARNING retrieve(default): No valid proxy for default object 
- of type TileDetDescrManager(CLID 2941)
-CaloMgrDetDescrCnvWARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
-RDOReaderDouble...  DEBUG input handles: 0
-RDOReaderDouble...  DEBUG output handles: 0
-RDOReaderDouble...  DEBUG Data Deps for RDOReaderDoubleSelector
-AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-AthenaEventLoopMgr   INFO Using secondary event number.
-ApplicationMgr       INFO Application Manager Initialized successfully
-SecondaryEventS...  DEBUG Try item: "InDetRDO.root" from the collection list.
-EventSelector       DEBUG Try item: "LArRDO.root" from the collection list.
-ApplicationMgr       INFO Application Manager Started successfully
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000000].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000000].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000000].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000000].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000000]
-AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
-Warning in <TClass::Init>: no dictionary for class DataHeader_p1 is available
-Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p1 is available
-PixelDetectorMa...WARNING Cannot set AlignableTransform for identifier  [2.1.0.0.0] at level 2
-PixelDetectorMa...WARNING Subsequent WARNINGS will be printed at DEBUG level.
-PixelDetectorMa...WARNING Invalid HashID for identifier [2.1.0.0.0]
-PixelDetectorMa...WARNING No IBLDist corrections can be applied for invalid HashID's - exiting
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-Warning in <TClass::Init>: no dictionary for class DataHeader_p2 is available
-Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p2 is available
-Warning in <TClass::Init>: no dictionary for class PoolToken_p1 is available
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -411,18 +278,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000001].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000001].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000001].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000001].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000001]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -698,18 +554,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000002].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000002].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000002].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000002].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000002]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -985,18 +830,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000003].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000003].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000003].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000003].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000003]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -1272,18 +1106,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000004].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000004].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000004].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000004].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000004]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -1559,18 +1382,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000005].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000005].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000005].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000005].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000005]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -1846,18 +1658,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000006].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000006].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000006].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000006].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000006]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -2133,18 +1934,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000007].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000007].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000007].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000007].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000007]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -2420,18 +2210,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000008].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000008].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000008].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000008].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000008]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -2707,18 +2486,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000009].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000009].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000009].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000009].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000009]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -2994,18 +2762,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000A].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000A].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000A].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000A].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000A]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -3281,18 +3038,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000B].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000B].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000B].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000B].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000B]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -3568,18 +3314,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000C].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000C].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000C].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000C].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000C]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -3855,18 +3590,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000D].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000D].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000D].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000D].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000D]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -4142,18 +3866,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000E].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000E].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000E].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000E].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000E]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -4429,18 +4142,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000F].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000F].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000F].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-000000000000000F].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-000000000000000F]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -4716,18 +4418,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000010].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000010].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000010].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000010].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000010]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -5003,18 +4694,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000011].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000011].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000011].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000011].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000011]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -5290,18 +4970,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000012].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000012].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000012].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000012].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000012]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -5577,18 +5246,7 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::next
-EventSelector       DEBUG DoubleEventSelectorAthenaPool::recordAttributeList
-EventSelector       DEBUG Get AttributeList from the collection
-EventSelector       DEBUG AttributeList size 0
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000013].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000013].
-EventSelector       DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
-SecondaryEventS...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000013].
-SecondaryEventS...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=EDBF3986-3AC8-5344-815E-19A952988CA4][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0600000008-0000000000000013].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=E0BDA143-11EE-024B-BF19-199B99C31CC7][CNT=POOLContainer(DataHeader)][CLID=4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D][TECH=00000203][OID=00000A0100000005-0000000000000013]
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
+SecondaryEventS...  DEBUG EventSelectorAthenaPool::nextWithSkip
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::execute()
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::checkPixel()
 RDOReaderDouble...  DEBUG PixelRDO_Container size 2048 
@@ -5864,10 +5522,4 @@ RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.3.0] energy  19.941 time    
 RDOReaderDouble...  DEBUG CaloCell: id [4.1.1.1.0.4.4.0] energy  19.941 time    39.993 quality 8 provenance 8200 eta     0.014547 phi     0.43721
 RDOReaderDouble...  DEBUG RDOReaderDoubleSelector::printCells() end
 RDOReaderDouble...   INFO Successful check of CaloCellContainer I/O. Cells read: 8
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-ApplicationMgr       INFO Application Manager Stopped successfully
 RDOReaderDouble...   INFO RDOReaderDoubleSelector::finalize()
-IOVDbFolder       WARNING Folder /LAR/Identifier/LArTTCellMapAtlas is requested but no data retrieved
-ApplicationMgr       INFO Application Manager Finalized successfully
-ApplicationMgr       INFO Application Manager Terminated successfully
-Py:Athena            INFO leaving with code 0: "successful run"

@@ -12,18 +12,7 @@ def ITkMaterialMappingCfg(flags, name="ITkMaterialMapping", **kwargs):
   result=ComponentAccumulator()
   LayerMaterialName = 'LayerMaterialITK'    
   LayerMaterialDirectory = '/GLOBAL/TrackingGeo/'
-  
-  from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-  itkPixel = ITkPixelGeometryCfg(flags)
-  result.merge(itkPixel)
-   
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  itkStrip = ITkStripGeometryCfg(flags)
-  result.merge(itkStrip)
-    
-  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-  result.merge(BeamPipeGeometryCfg(flags))
-      
+
   # get the correct TrackingGeometry setup
   geom_svc=None
   geom_cond_key=''
@@ -90,20 +79,8 @@ def ITkMaterialMappingCfg(flags, name="ITkMaterialMapping", **kwargs):
   
 def ITkMaterialValidationCfg(flags, name="MaterialValidation", **kwargs):
   """Return configured ComponentAccumulator and tool for MaterialMapping"""
-  
   result=ComponentAccumulator()
-  
-  from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-  itkPixel = ITkPixelGeometryCfg(flags)
-  result.merge(itkPixel)
-   
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  itkStrip = ITkStripGeometryCfg(flags)
-  result.merge(itkStrip)
-    
-  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-  result.merge(BeamPipeGeometryCfg(flags))
-  
+
   # get the correct TrackingGeometry setup
   geom_svc=None
   geom_cond_key=''

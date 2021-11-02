@@ -2,4 +2,4 @@
 #include "../ITkPixelReadoutManager.h"
 
 DECLARE_COMPONENT( InDetDD::PixelReadoutManager )
-DECLARE_COMPONENT( InDetDD::ITkPixelReadoutManager )
+DECLARE_COMPONENT( InDetDD::ITk::PixelReadoutManager )

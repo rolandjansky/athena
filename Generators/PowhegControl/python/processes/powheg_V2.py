@@ -75,7 +75,13 @@ class PowhegV2(PowhegBase):
     def mandatory_integration_file_names(self):
         """! Wildcarded list of integration files that are needed for this process."""
         """! If some of the patterns don't match any files before running, a warning will be made to inform that no pre-made integration grid will be used."""
-        return self.integration_file_names
+        return [
+            "pwg*xg*.dat",
+            #"pwg*upb*.dat", # not needed by ttj MiNNLO
+            "pwggrid*.dat",
+            #"pwgfullgrid*.dat", # not needed by ttj MiNNLO
+            "pwgubound*.dat",
+        ]
 
     @property
     def powheg_version(self):

@@ -155,6 +155,10 @@ def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     if muonCombinedRecFlags.doStatisticalCombination() and beamFlags.beamType() != 'cosmics':
         tools.append(getPublicTool("MuonCombinedStacoTagTool"))
     kwargs.setdefault("MuonCombinedTagTools", tools )
+    ### Retune the angular selection for the muons
+    kwargs.setdefault("AlignmentUncertTool", getPublicTool("MuonAlignmentUncertToolTheta"))
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)    
     return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
 
 def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):

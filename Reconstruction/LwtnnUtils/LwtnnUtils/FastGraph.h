@@ -13,7 +13,7 @@
 
 #include "lwtnn/lightweight_network_config.hh"
 #include "lwtnn/Graph.hh"
-
+#include "EventPrimitives/EventPrimitives.h"
 #include <Eigen/Dense>
 
 namespace lwt::atlas {

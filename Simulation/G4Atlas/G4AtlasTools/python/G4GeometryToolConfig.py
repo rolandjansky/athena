@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon import Logging
 
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg,ITkPixelPhysicsRegionToolCfg,ITkStripPhysicsRegionToolCfg,HGTDPhysicsRegionToolCfg,BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, FCAL2ParaPhysicsRegionToolCfg, EMECParaPhysicsRegionToolCfg, FCALParaPhysicsRegionToolCfg, PreSampLArPhysicsRegionToolCfg, DeadMaterialPhysicsRegionToolCfg
 from G4AtlasTools.G4PhysicsRegionConfigNew import DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
 
 #the field config tools
@@ -46,8 +46,8 @@ def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
 
 def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
     #set up geometry
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result = PixelGeometryCfg(ConfigFlags)
+    from PixelGeoModel.PixelGeoModelConfig import PixelSimulationGeometryCfg
+    result = PixelSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Pixel")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -58,9 +58,20 @@ def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):
 
 def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
     #set up geometry
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result = SCT_GeometryCfg(ConfigFlags)
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_SimulationGeometryCfg
+    result = SCT_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "SCT")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+def PLRGeoDetectorToolCfg(ConfigFlags, name='PLR', **kwargs):
+    #set up geometry
+    from PLRGeoModelXml.PLRGeoModelConfig import PLRGeometryCfg
+    result = PLRGeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "PLR")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
     kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
@@ -69,8 +80,8 @@ def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
 
 def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
     #set up geometry
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    result = ITkPixelGeometryCfg(ConfigFlags)
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelSimulationGeometryCfg
+    result = ITkPixelSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkPixel")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -81,8 +92,8 @@ def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
 
 def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
     #set up geometry
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    result = ITkStripGeometryCfg(ConfigFlags)
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripSimulationGeometryCfg
+    result = ITkStripSimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ITkStrip")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -93,8 +104,8 @@ def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
 
 def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
     #set up geometry
-    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
-    result = HGTD_GeometryCfg(ConfigFlags)
+    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
+    result = HGTD_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "HGTD")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -105,8 +116,8 @@ def HGTDGeoDetectorToolCfg(ConfigFlags, name='HGTD', **kwargs):
 
 def TRTGeoDetectorToolCfg(ConfigFlags, name='TRT', **kwargs):
     #set up geometry
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result = TRT_GeometryCfg(ConfigFlags)
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_SimulationGeometryCfg
+    result = TRT_SimulationGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "TRT")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
@@ -242,8 +253,8 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     kwargs.setdefault("DetectorName", "ITK")
     kwargs.setdefault("InnerRadius", 32.15*mm)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    if ConfigFlags.Detector.GeometryHGTD:
-        # ITk should include the HGTD (3420 mm < |z| < 3545 mm) when turned on
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
+        # ITk should include the HGTD (3420 mm < |z| < 3545 mm) for now
         kwargs.setdefault("dZ", 354.5*cm)
     else:
         kwargs.setdefault("dZ", 347.5*cm)
@@ -255,6 +266,13 @@ def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     if ConfigFlags.Detector.GeometryITkStrip:
         toolITkStrip = result.popToolsAndMerge(ITkStripGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [toolITkStrip]
+    if ConfigFlags.Detector.GeometryPLR:
+        toolPLR = result.popToolsAndMerge(PLRGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [toolPLR]
+    # TODO: for now HGTD is also here
+    if ConfigFlags.Detector.GeometryHGTD:
+        toolHGTD = result.popToolsAndMerge(HGTDGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [toolHGTD]
 
     kwargs.setdefault("SubDetectors", SubDetectorList)
     result.setPrivateTools(CylindricalEnvelope(name, **kwargs))
@@ -296,8 +314,8 @@ def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    if ConfigFlags.Detector.GeometryHGTD:
-        # Make room for HGTD (3420 mm < |z| < 3545 mm) when turned on
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
+        # Make room for HGTD (3420 mm < |z| < 3545 mm)
         kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
     else:
         kwargs.setdefault("ZSurfaces", [-6781.,-6747.,-6747.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6747.,6747.,6781.]) #FIXME Units?
@@ -385,12 +403,9 @@ def generateSubDetectorList(ConfigFlags):
     if ConfigFlags.Detector.GeometryID:
         toolIDET = result.popToolsAndMerge(IDETEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolIDET ]
-    if ConfigFlags.Detector.GeometryITk:
+    if ConfigFlags.Detector.GeometryITk or ConfigFlags.Detector.GeometryHGTD:  # TODO: HGTD is also here for now
         toolITK = result.popToolsAndMerge(ITKEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolITK ]
-    if ConfigFlags.Detector.GeometryHGTD:
-        toolHGTD = result.popToolsAndMerge(HGTDGeoDetectorToolCfg(ConfigFlags))
-        SubDetectorList += [ toolHGTD ]
     if ConfigFlags.Detector.GeometryCalo:
         toolCALO = result.popToolsAndMerge(CALOEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolCALO ]
@@ -538,9 +553,12 @@ def getATLAS_RegionCreatorList(ConfigFlags):
                 regionCreatorList += [FWDBeamLinePhysicsRegionToolCfg(ConfigFlags)]
     if ConfigFlags.Detector.GeometryITk:
         if ConfigFlags.Detector.GeometryITkPixel:
-            regionCreatorList += [ITkPixelPhysicsRegionToolCfg(ConfigFlags)] #TODO: add dedicated config
+            regionCreatorList += [ITkPixelPhysicsRegionToolCfg(ConfigFlags)]
         if ConfigFlags.Detector.GeometryITkStrip:
-            regionCreatorList += [ITkStripPhysicsRegionToolCfg(ConfigFlags)] #TODO: And here...
+            regionCreatorList += [ITkStripPhysicsRegionToolCfg(ConfigFlags)]
+    if ConfigFlags.Detector.GeometryHGTD:
+        regionCreatorList += [HGTDPhysicsRegionToolCfg(ConfigFlags)]
+    if ConfigFlags.Detector.GeometryITk or ConfigFlags.Detector.GeometryHGTD:  # TODO: I do not know why this is only for ITk (and HGTD)
         # FIXME dislike the ordering here, but try to maintain the same ordering as in the old configuration.
         if ConfigFlags.Detector.GeometryBpipe:
             if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
@@ -629,12 +647,11 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
         acc = InDetFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
-    if ConfigFlags.Detector.GeometryITk:
+    if ConfigFlags.Detector.GeometryITk or ConfigFlags.Detector.GeometryHGTD:  # TODO: while HGTD is included in the ITK envelope
         acc = ITkFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
-    #if ConfigFlags.Detector.GeometryCalo and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
-    if False:
+    if ConfigFlags.Detector.GeometryCalo and ConfigFlags.Sim.MuonFieldOnlyInCalo:
         acc = MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]

@@ -12,6 +12,7 @@ ConfigFlags.Input.isMC             = True
 
 ConfigFlags.GeoModel.useLocalGeometry = False
 detectors = [
+  "HGTD",
   "ITkPixel",
   "ITkStrip",
   "Bpipe"
@@ -23,7 +24,7 @@ setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-ITK-24-00-00"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
 ConfigFlags.GeoModel.Align.Dynamic = False
-#ConfigFlags.TrackingGeometry.MaterialSource = "Input"
+ConfigFlags.TrackingGeometry.MaterialSource = "Input"
 ConfigFlags.Beam.Type =''
 
 ConfigFlags.Detector.GeometryCalo = False
@@ -63,7 +64,7 @@ topoAcc=ExtrapolationEngineTestITkCfg(ConfigFlags,
                                       CollectPassive          = True,
                                       CollectBoundary         = True,
                                       CollectMaterial         = True,
-                                      UseHGTD                 = False,
+                                      UseHGTD                 = ConfigFlags.Detector.GeometryHGTD,
                                       # the path limit to test                        
                                       PathLimit               = -1.,
                                       )

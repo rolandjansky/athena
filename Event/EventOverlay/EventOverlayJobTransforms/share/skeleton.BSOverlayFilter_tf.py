@@ -78,7 +78,10 @@ if hasattr( runArgs, "triggerBit"):
     # disables the decoding of it in RoIBResultToxAOD:
     ConfigFlags.Detector.EnableMuon = False
     ConfigFlags.Detector.EnableCalo = False
-    include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
+    ConfigFlags.Trigger.readBS = True
+    ConfigFlags.lock()
+    from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
+    triggerGetter = TriggerRecoGetter()
 else:
     filAlg.L1Trigger = ""
 

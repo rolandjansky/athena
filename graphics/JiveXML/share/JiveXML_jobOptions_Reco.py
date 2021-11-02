@@ -1,7 +1,7 @@
 jp.Rec.doWriteESD=False
 jp.Rec.doWriteTAG=False
 
-include ("RecExCommon/RecExCommon_flags.py")
+include ("RecExCond/RecExCommon_flags.py")
 
 #### Use standard input testfile from RecExCommon, not this.
 #### This was used in other RTT jOs:

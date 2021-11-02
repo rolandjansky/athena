@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //TileTBBeamMonTool
@@ -78,6 +78,8 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
   , m_muTag(0)
   , m_muHalo(0)
   , m_muVeto(0)
+  , m_btdc{}
+  , m_btdcFirstHit{}
   , m_pmt1cou(0)
   , m_pmt2cou(0)
   , m_pmt3cou(0)
@@ -107,6 +109,8 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
 
 
   //Beam Chamber Calibrations
+
+  declareProperty("TBperiod", m_TBperiod = 2016);
 
   declareProperty("BC1Z", m_beamBC1Z  = 15600.0);
   declareProperty("BC2Z", m_beamBC2Z  = 2600.0); 
@@ -314,8 +318,16 @@ StatusCode TileTBBeamMonTool::storeBeamElements() {
           
           FRAG_FOUND(frag, cha, dsize);
           
-          if (cha < 16) m_btdc[cha] = amplitude;
-          else WRONG_CHANNEL(frag, cha);
+          if (cha < 16) {
+	    if (m_TBperiod == 2021) {
+	      if (m_btdcFirstHit[cha]) {
+		m_btdc[cha] = amplitude;
+		m_btdcFirstHit[cha] = false;
+	      }
+	    } else {
+	      m_btdc[cha] = amplitude;
+	    }
+	  } else WRONG_CHANNEL(frag, cha);
           break;
           
         case BEAM_ADC_FRAG:
@@ -417,6 +429,15 @@ StatusCode TileTBBeamMonTool::fillHistograms() {
   // fill event info like L1 trigger type, run number, etc...
   fillEvtInfo();
   initFirstEvent();
+  }
+
+  for (int i=0; i<16; i+=2) {
+    m_btdc[i] = +0xFFFF;
+    m_btdc[i+1] = -0xFFFF;
+  }
+
+  for (int i=0; i<16; ++i) {
+    m_btdcFirstHit[i] = true;
   }
 
   CHECK( storeBeamElements() );

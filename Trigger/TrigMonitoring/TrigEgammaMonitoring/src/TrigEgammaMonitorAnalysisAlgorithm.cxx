@@ -57,13 +57,13 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< st
     if(pairObj.first->type()==xAOD::Type::Electron){
       const xAOD::Electron* el = static_cast<const xAOD::Electron *> (pairObj.first);
       float et = getEt(el)/Gaudi::Units::GeV;
-      if(et < info.trigThrHLT-5.0) continue; 
+      if(et < info.etthr-5.0) continue; 
      
     }else if(pairObj.first->type()==xAOD::Type::Photon){
       float et = getCluster_et(pairObj.first)/Gaudi::Units::GeV;
-      if(et < info.trigThrHLT-5.0) continue; 
+      if(et < info.etthr-5.0) continue; 
       
-       if(boost::contains(info.trigName,"icalovloose")) {
+       if(boost::contains(info.trigger,"icalovloose")) {
           if (getIsolation_topoetcone20(pairObj.first)/getCluster_et(pairObj.first) >= 0.065) continue; // pass FixedCutLoose offline isolation
       }
       else {
@@ -76,7 +76,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< st
     // Good pair to be measure
     if(m_doEmulation){ // Emulation
         bool valid=false;
-        auto acceptData = m_emulatorTool->emulate( pairObj.second, info.trigName , valid);
+        auto acceptData = m_emulatorTool->emulate( pairObj.second, info.trigger , valid);
         // skip this probe since the emulation is not possible. Avoid diff denominators between emulation and efficiecy
         if(!valid) {
             ATH_MSG_WARNING("Emulation fail. Skip this probe...");
@@ -105,51 +105,39 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( const std::vector< st
   }
 
   std::string dirname= "Efficiency";
-  
-  if (info.trigL1){
-    fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
-  }else{
-
-    std::string l2step = "FastElectron";
-    if( info.trigType == "electron" ){
-      l2step = "FastElectron";
-    }else if( info.trigType == "photon" ){
-      l2step = "FastPhoton";
-    }
-    fillEfficiency( "L1Calo"        , "L1Calo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
-    fillEfficiency( "FastCalo"      , "L2Calo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
-    fillEfficiency( l2step          , "L2"       , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
-    fillEfficiency( "PrecisionCalo" , "EFCalo"   , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
-    fillEfficiency( "HLT"           , "HLT"      , info.trigPidDecorator, info, pair_vec , accept_vec, dirname);
-
-    
-    if( m_detailedHists ){
-      for( const auto& pid : m_isemname ){
-        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec , accept_vec, dirname);
-        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec, dirname );
-      }
-      for( const auto& pid : m_lhname ){
-        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec, accept_vec, dirname );
-        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec, accept_iso_vec, dirname );
-      }
-    } 
-
-    // Fill emulator efficiency plots
-    if ( m_doEmulation ){
-        dirname= "Emulation";
-        if (info.trigL1){
-            fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
-        }else{
-            fillEfficiency( "L1Calo"        , "L1Calo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
-            fillEfficiency( "FastCalo"      , "L2Calo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
-            fillEfficiency( l2step          , "L2"       , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
-            fillEfficiency( "PrecisionCalo" , "EFCalo"   , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
-            fillEfficiency( "HLT"           , "HLT"      , info.trigPidDecorator, info, pair_vec , emu_accept_vec, dirname);
-        }
-    }
-    
-
+  std::string l2step = "FastElectron";
+  if( info.signature == "Electron" ){
+    l2step = "FastElectron";
+  }else if( info.signature == "Photon" ){
+    l2step = "FastPhoton";
   }
+  fillEfficiency( "L1Calo"        , "L1Calo"   , info.pidname, info, pair_vec , accept_vec, dirname);
+  fillEfficiency( "FastCalo"      , "L2Calo"   , info.pidname, info, pair_vec , accept_vec, dirname);
+  fillEfficiency( l2step          , "L2"       , info.pidname, info, pair_vec , accept_vec, dirname);
+  fillEfficiency( "PrecisionCalo" , "EFCalo"   , info.pidname, info, pair_vec , accept_vec, dirname);
+  fillEfficiency( "HLT"           , "HLT"      , info.pidname, info, pair_vec , accept_vec, dirname);
+  
+  if( m_detailedHists ){
+    for( const auto& pid : m_isemname ){
+      fillEfficiency( "HLT_" + pid, "HLT", pid, info, pair_vec , accept_vec, dirname);
+      fillEfficiency( "HLT_" + pid + "Iso", "HLT", pid, info, pair_iso_vec, accept_iso_vec, dirname );
+    }
+    for( const auto& pid : m_lhname ){
+      fillEfficiency( "HLT_" + pid, "HLT", pid, info, pair_vec, accept_vec, dirname );
+      fillEfficiency( "HLT_" + pid + "Iso", "HLT", pid, info, pair_iso_vec, accept_iso_vec, dirname );
+    }
+  } 
+
+  // Fill emulator efficiency plots
+  if ( m_doEmulation ){
+      dirname= "Emulation";
+      fillEfficiency( "L1Calo"        , "L1Calo"   , info.pidname, info, pair_vec , emu_accept_vec, dirname);
+      fillEfficiency( "FastCalo"      , "L2Calo"   , info.pidname, info, pair_vec , emu_accept_vec, dirname);
+      fillEfficiency( l2step          , "L2"       , info.pidname, info, pair_vec , emu_accept_vec, dirname);
+      fillEfficiency( "PrecisionCalo" , "EFCalo"   , info.pidname, info, pair_vec , emu_accept_vec, dirname);
+      fillEfficiency( "HLT"           , "HLT"      , info.pidname, info, pair_vec , emu_accept_vec, dirname);
+  }
+
 
 }
 
@@ -167,8 +155,8 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
 
 
     
-    const float etthr = info.trigThrHLT;
-    const std::string trigger = info.trigName;
+    const float etthr = info.etthr;
+    const std::string trigger = info.trigger;
 
 
     auto monGroup = getGroup( trigger + "_"+dirname+"_" + subgroup );
@@ -214,7 +202,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
         if(xAOD::EgammaHelpers::isElectron(eg)){
             ATH_MSG_DEBUG("Offline Electron with pidword " << pidword);
             const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-            pid=el->auxdecor<bool>(pidword);
+            pid=el->auxdecor<bool>("is"+pidword);
             ATH_MSG_DEBUG("Electron pid " << pid);
             et = getEt(el)/Gaudi::Units::GeV;
         }
@@ -226,7 +214,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
         float avgmu=lbAverageInteractionsPerCrossing( Gaudi::Hive::currentContext() );
         float npvtx=0.0;
         
-        ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));
+        ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>("is"+pidword));
         
         if(pid){  
             et_vec.push_back( et );
@@ -301,180 +289,124 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( const std::vector< s
                                                            const TrigInfo& info ) const
 {
 
-  const std::string trigger = info.trigName;
+  const std::string trigger = info.trigger;
 
   unsigned int condition=TrigDefs::includeFailedDecisions;
   //unsigned int condition=TrigDefs::Physics;
 
-
-  if (info.trigL1){
-  
-      //  Fill L1 features
-      std::vector<const xAOD::EmTauRoI*> l1_vec;
-      auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
-      for( auto &initRoi: initRois ){               
-        if( !initRoi.link.isValid() ) continue;      
-        const auto *feat = match()->getL1Feature( initRoi.source );
-        if(feat)
-          l1_vec.push_back(feat);
+  // Offline
+  std::vector<const xAOD::Egamma*> eg_vec;
+  std::vector<const xAOD::Electron*> el_vec;
+  for( auto pairObj: pairObjs )
+  {
+      eg_vec.push_back(pairObj.first);
+      if( xAOD::EgammaHelpers::isElectron(pairObj.first)){
+          const xAOD::Electron* elOff = static_cast<const xAOD::Electron*> (pairObj.first);
+          el_vec.push_back(elOff);
       }
-
-      fillL1Calo( trigger, l1_vec );
-
-  
-  }else{
- 
-
-    // Offline
-    std::vector<const xAOD::Egamma*> eg_vec;
-    std::vector<const xAOD::Electron*> el_vec;
-    for( auto pairObj: pairObjs )
-    {
-        eg_vec.push_back(pairObj.first);
-        if( xAOD::EgammaHelpers::isElectron(pairObj.first)){
-            const xAOD::Electron* elOff = static_cast<const xAOD::Electron*> (pairObj.first);
-            el_vec.push_back(elOff);
-        }
-    }
-    
-    // Offline
-    fillShowerShapes( trigger, eg_vec, false );
-    fillTracking( trigger, el_vec, false );
-   
-
-
-    if( m_tp ){
-        
-        if( info.trigType == "electron" ){
-            // HLT Electron
-            std::string key = match()->key("Electrons");
-            if(info.isGSF) key = match()->key("Electrons_GSF");
-            if(info.isLRT) key = match()->key("Electrons_LRT");
-            
-            std::vector<const xAOD::Electron*> el_vec;
-            std::vector<const xAOD::Egamma*> eg_vec;
-            auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,condition,key);      
-            for( auto &featLinkInfo : vec ){
-                const auto *feat = *(featLinkInfo.link);
-                if(!feat) continue;
-                // If not pass, continue
-                el_vec.push_back(feat);
-                eg_vec.push_back(feat);
-            }
-            fillShowerShapes( trigger, eg_vec, true );
-            fillTracking( trigger, el_vec, true );
-        }else{
-          ATH_MSG_WARNING( "Chain type not Electron for TP trigger" );
-        }
-    
-    }else{
-
-        // L1Calo
-        {
-          //  Fill L1 features
-          std::vector<const xAOD::EmTauRoI*> l1_vec;
-          auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
-          for( auto &initRoi: initRois ){               
-            if( !initRoi.link.isValid() ) continue;      
-            const auto *feat = match()->getL1Feature( initRoi.source );
-            if(feat)
-              l1_vec.push_back(feat);
-          }
-
-          fillL1Calo( trigger, l1_vec );
-        }
- 
-
-        // L2Calo
-        {
-          std::vector<const xAOD::TrigEMCluster*> emCluster_vec;
-          auto vec =  tdt()->features<xAOD::TrigEMClusterContainer>(trigger,condition ,match()->key("FastCalo") );      
-          for(auto &featLinkInfo : vec ){                                             
-            if(! featLinkInfo.isValid() ) continue;
-            const auto *feat = *(featLinkInfo.link);                   
-            if(!feat) continue;
-            emCluster_vec.push_back(feat);
-          }
-          fillL2Calo( trigger, emCluster_vec );
-        }
-
-
-        // EFCalo
-        {
-          std::string key = match()->key("PrecisionCalo");
-          if(info.isLRT) key = match()->key("PrecisionCalo_LRT");
-          
-          std::vector<const xAOD::CaloCluster* > clus_vec;
-          auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,TrigDefs::Physics,key);      
-          for(auto &featLinkInfo : vec ){                                             
-            if(! featLinkInfo.isValid() ) continue;
-            const auto *feat = *(featLinkInfo.link);                   
-            if(!feat) continue;
-            clus_vec.push_back(feat);
-          } 
-          fillEFCalo( trigger,  clus_vec );
-        }
-
-
-        if ( info.trigType == "electron" ){
-            
-            // L2 Electron
-            {
-                std::string key = match()->key("FastElectrons");
-                if(info.isLRT) key = match()->key("FastElectrons_LRT");
-                
-                std::vector<const xAOD::TrigElectron*> el_vec;
-                // Get only passed objects
-                auto vec =  tdt()->features<xAOD::TrigElectronContainer>(trigger,TrigDefs::Physics,key );      
-                for( auto &featLinkInfo : vec ){
-                    if(! featLinkInfo.isValid() ) continue;
-                    const auto *feat = *(featLinkInfo.link);
-                    if(!feat) continue;
-                    el_vec.push_back(feat);
-                }
-                fillL2Electron( trigger, el_vec );
-            }
-
-            // HLT Electron
-            {
-                std::string key = match()->key("Electrons");
-                if(info.isGSF) key = match()->key("Electrons_GSF");
-                if(info.isLRT) key = match()->key("Electrons_LRT");
-               
-                std::vector<const xAOD::Electron*> el_vec;
-                std::vector<const xAOD::Egamma*> eg_vec;
-                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,key );      
-                for( auto &featLinkInfo : vec ){
-                    if(! featLinkInfo.isValid() ) continue;
-                    const auto *feat = *(featLinkInfo.link);
-                    if(!feat) continue;
-                    el_vec.push_back(feat);
-                    eg_vec.push_back(feat);
-                }
-                fillShowerShapes( trigger, eg_vec, true );
-                fillTracking( trigger, el_vec, true );
-            }
-
-        }else if ( info.trigType == "photon"){
-            // HLT Photon
-            {
-                std::vector<const xAOD::Egamma*> ph_vec;
-                auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::Physics ,match()->key("Photons") );      
-                for( auto &featLinkInfo : vec ){
-                    if(! featLinkInfo.isValid() ) continue;
-                    const auto *feat = *(featLinkInfo.link);
-                    if(!feat) continue;
-                    ph_vec.push_back(feat);
-                }
-                fillShowerShapes( trigger, ph_vec, true );
-            }
-        }else{
-            ATH_MSG_INFO( "Chain type not specified" );
-        }
-
-    }
-  
   }
+
+  // Offline
+  fillShowerShapes( trigger, eg_vec, false );
+  fillTracking( trigger, el_vec, false );
+
+  // L1Calo
+  {
+    //  Fill L1 features
+    std::vector<const xAOD::EmTauRoI*> l1_vec;
+    auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,condition,"",TrigDefs::allFeaturesOfType,"initialRoI");       
+    for( auto &initRoi: initRois ){               
+      if( !initRoi.link.isValid() ) continue;      
+      const auto *feat = match()->getL1Feature( initRoi.source );
+      if(feat)
+        l1_vec.push_back(feat);
+    }
+    fillL1Calo( trigger, l1_vec );
+  }
+
+  // L2Calo
+  {
+    std::vector<const xAOD::TrigEMCluster*> emCluster_vec;
+    auto vec =  tdt()->features<xAOD::TrigEMClusterContainer>(trigger,condition ,match()->key("FastCalo") );      
+    for(auto &featLinkInfo : vec ){                                             
+      if(! featLinkInfo.isValid() ) continue;
+      const auto *feat = *(featLinkInfo.link);                   
+      if(!feat) continue;
+      emCluster_vec.push_back(feat);
+    }
+    fillL2Calo( trigger, emCluster_vec );
+  }
+  // EFCalo
+  {
+    std::string key = info.lrt? match()->key("PrecisionCalo_LRT") : match()->key("PrecisionCalo");
+    
+    std::vector<const xAOD::CaloCluster* > clus_vec;
+    auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,TrigDefs::Physics,key);      
+    for(auto &featLinkInfo : vec ){                                             
+      if(! featLinkInfo.isValid() ) continue;
+      const auto *feat = *(featLinkInfo.link);                   
+      if(!feat) continue;
+      clus_vec.push_back(feat);
+    } 
+    fillEFCalo( trigger,  clus_vec );
+  }
+
+  if ( info.signature == "Electron" ){
+      
+      // L2 Electron
+      {
+          std::string key = match()->key("FastElectrons");
+          if(info.lrt) key = match()->key("FastElectrons_LRT");
+          
+          std::vector<const xAOD::TrigElectron*> el_vec;
+          // Get only passed objects
+          auto vec =  tdt()->features<xAOD::TrigElectronContainer>(trigger,TrigDefs::Physics,key );      
+          for( auto &featLinkInfo : vec ){
+              if(! featLinkInfo.isValid() ) continue;
+              const auto *feat = *(featLinkInfo.link);
+              if(!feat) continue;
+              el_vec.push_back(feat);
+          }
+          fillL2Electron( trigger, el_vec );
+      }
+      // HLT Electron
+      {
+          std::string key = match()->key("Electrons");
+          if(info.gsf) key = match()->key("Electrons_GSF");
+          if(info.lrt) key = match()->key("Electrons_LRT");
+         
+          std::vector<const xAOD::Electron*> el_vec;
+          std::vector<const xAOD::Egamma*> eg_vec;
+          auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,key );      
+          for( auto &featLinkInfo : vec ){
+              if(! featLinkInfo.isValid() ) continue;
+              const auto *feat = *(featLinkInfo.link);
+              if(!feat) continue;
+              el_vec.push_back(feat);
+              eg_vec.push_back(feat);
+          }
+          fillShowerShapes( trigger, eg_vec, true );
+          fillTracking( trigger, el_vec, true );
+      }
+  }else if ( info.signature == "Photon"){
+      // HLT Photon
+      {
+          std::vector<const xAOD::Egamma*> ph_vec;
+          auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::Physics ,match()->key("Photons") );      
+          for( auto &featLinkInfo : vec ){
+              if(! featLinkInfo.isValid() ) continue;
+              const auto *feat = *(featLinkInfo.link);
+              if(!feat) continue;
+              ph_vec.push_back(feat);
+          }
+          fillShowerShapes( trigger, ph_vec, true );
+      }
+  }else{
+      ATH_MSG_INFO( "Chain type not specified" );
+  }
+
+
+  
 }
 
 
@@ -772,11 +704,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( const std::vector< std
 
   std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >> pair_l1_vec;
   std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pair_eg_vec;
-  const std::string trigger = info.trigName;
-  bool filliso=false;
-  if(boost::contains(info.trigName,"iloose") || boost::contains(info.trigName,"ivarloose")) filliso=true;
-  if(boost::contains(info.trigName,"icaloloose") || boost::contains(info.trigName,"icalovloose") || boost::contains(info.trigName,"icalotight")) filliso=true;
-
+  const std::string trigger = info.trigger;
 
   for( auto pairObj : pairObjs ){
 
@@ -784,58 +712,41 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( const std::vector< std
     const auto *feat = pairObj.second;
 
     if (feat){
-      if (info.trigL1){
-        // Get l1 for all level one objects found for each off object
-        const auto *l1 = match()->getL1Feature( feat );
-        if(l1){
-          pair_l1_vec.emplace_back(eg,l1 );
-        }
-      }else{
-        //
-        // Get only off and l1 where the offline object passed by the offline pid selector
-        //
-        const auto *l1 = match()->getL1Feature( feat  );
-        if(eg->type()==xAOD::Type::Electron){
-          const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
-          float et = getEt(el)/Gaudi::Units::GeV;
-          if( et < info.trigThrHLT-5.0) continue;
-          if(!eg->auxdecor<bool>(info.trigPidDecorator)) continue;
-          pair_eg_vec.emplace_back(el,feat);
-          if(l1)  pair_l1_vec.emplace_back(eg,l1 );
-        }
-        else if(eg->type()==xAOD::Type::Photon){
-          float et = getCluster_et(eg)/Gaudi::Units::GeV;
-          if( et < info.trigThrHLT-5.0) continue;
-          pair_eg_vec.emplace_back(eg,feat);
-          if(l1)  pair_l1_vec.emplace_back(eg,l1 );
-        }
+
+      //
+      // Get only off and l1 where the offline object passed by the offline pid selector
+      //
+      const auto *l1 = match()->getL1Feature( feat  );
+      if(eg->type()==xAOD::Type::Electron){
+        const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
+        float et = getEt(el)/Gaudi::Units::GeV;
+        if( et < info.etthr-5.0) continue;
+        if(!eg->auxdecor<bool>("is"+info.pidname)) continue;
+        pair_eg_vec.emplace_back(el,feat);
+        if(l1)  pair_l1_vec.emplace_back(eg,l1 );
       }
-
+      else if(eg->type()==xAOD::Type::Photon){
+        float et = getCluster_et(eg)/Gaudi::Units::GeV;
+        if( et < info.etthr-5.0) continue;
+        pair_eg_vec.emplace_back(eg,feat);
+        if(l1)  pair_l1_vec.emplace_back(eg,l1 );
+      }
     }
+
   }
-
-
-  if (info.trigL1){
-    fillL1CaloResolution( trigger, pair_l1_vec );
-    fillL1CaloAbsResolution( trigger, pair_l1_vec );
-  }else{
    
-    // Fill L1Calo for all level 1 objects found
-    fillL1CaloResolution( trigger, pair_l1_vec );
-    fillL1CaloAbsResolution( trigger, pair_l1_vec );
-    fillL2CaloResolution( trigger, pair_eg_vec ); 
-    
-    // Fill HLT electron for all onl objects found
-    if ( info.trigType=="electron"){
-      fillHLTElectronResolution( trigger, pair_eg_vec, filliso ); 
+  // Fill L1Calo for all level 1 objects found
+  fillL1CaloResolution( trigger, pair_l1_vec );
+  fillL1CaloAbsResolution( trigger, pair_l1_vec );
+  fillL2CaloResolution( trigger, pair_eg_vec ); 
+  
+  // Fill HLT electron for all onl objects found
+  if ( info.signature=="Electron"){
+    fillHLTElectronResolution( trigger, pair_eg_vec, info.isolated ); 
+  }  
+  else if ( info.signature=="Photon"){
+    fillHLTPhotonResolution( trigger, pair_eg_vec, info.isolated );
     }
-
-    else if ( info.trigType=="photon"){
-      fillHLTPhotonResolution( trigger, pair_eg_vec, filliso );
-    }
-
-
-  }
 
 }
 

@@ -39,6 +39,6 @@ def EmonByteStreamCfg(flags, type_names=[]):
     acc.addService(proxy)
 
     loader_type_names = [(t.split("/")[0], 'StoreGateSvc+'+t.split("/")[1]) for t in address_provider.TypeNames]
-    acc.merge(SGInputLoaderCfg(flags, Load=loader_type_names, FailIfNoProxy=True))
+    acc.merge(SGInputLoaderCfg(flags, Load=loader_type_names))
 
     return acc

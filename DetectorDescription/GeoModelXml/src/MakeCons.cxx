@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Automatically generated code from /home/hessey/prog/gmx2geo/makeshape
@@ -14,7 +14,7 @@ using namespace xercesc;
 
 MakeCons::MakeCons() {}
 
-const RCBase * MakeCons::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
+RCBase * MakeCons::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
 const int nParams = 7; 
 char const *parName[nParams] = {"rmin1", "rmin2", "rmax1", "rmax2", "dz", "sphi", "dphi"};
 double p[nParams];

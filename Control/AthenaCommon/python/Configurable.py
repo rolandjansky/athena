@@ -4,15 +4,13 @@
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
-from __future__ import print_function
-
 import copy, os, weakref
 from AthenaCommon import ConfigurableMeta
 
 # Note: load iProperty etc. from GaudiPython only as-needed
 import GaudiKernel.GaudiHandles as GaudiHandles
 import GaudiKernel.DataHandle as DataHandle
-from collections import MutableSequence
+from collections.abc import MutableSequence
 
 ### data ---------------------------------------------------------------------
 __version__ = '3.2.0'

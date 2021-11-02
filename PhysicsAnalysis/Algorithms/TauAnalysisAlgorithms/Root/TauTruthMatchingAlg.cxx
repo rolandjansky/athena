@@ -46,9 +46,9 @@ namespace CP
   {
     for (const auto& sys : m_systematicsList.systematicsVector())
     {
-      xAOD::TauJetContainer *taus = nullptr;
-      ANA_CHECK (m_tauHandle.getCopy (taus, sys));
-      for (xAOD::TauJet *tau : *taus)
+      const xAOD::TauJetContainer *taus = nullptr;
+      ANA_CHECK (m_tauHandle.retrieve (taus, sys));
+      for (const xAOD::TauJet *tau : *taus)
       {
         if (m_preselection.getBool (*tau))
         {

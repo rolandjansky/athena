@@ -127,7 +127,7 @@ StatusCode InDet::StagedTrackingGeometryBuilder::initialize()
 }
 
 
-const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
+Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
 (const Trk::TrackingVolume*) const
 {
    // only one assumption: 
@@ -235,45 +235,62 @@ const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeome
    
    ATH_MSG_DEBUG( "[ STEP 4 ] : Create the ID detector volumes" );
    // build the central enclosure first
-   const Trk::TrackingVolume* centralEnclosure =  m_trackingVolumeCreator->createGapTrackingVolume(*m_materialProperties,
-                                                                           lastFlushRadius, envelopeVolumeRadius,
-                                                                           -maximumLayerExtendZ, maximumLayerExtendZ,
-                                                                           1, true,
-                                                                           m_namespace+"Gaps::CentralEnclosure");
+   Trk::TrackingVolume* centralEnclosure =
+     m_trackingVolumeCreator->createGapTrackingVolume(
+       *m_materialProperties,
+       lastFlushRadius,
+       envelopeVolumeRadius,
+       -maximumLayerExtendZ,
+       maximumLayerExtendZ,
+       1,
+       true,
+       m_namespace + "Gaps::CentralEnclosure");
    idVolumes.push_back(centralEnclosure);
    // now lets create the container
    std::string volumeName = m_namespace+"Detectors::Container";
-   const Trk::TrackingVolume* idContainer = 
-         m_trackingVolumeCreator->createContainerTrackingVolume(idVolumes,
-                                                                *m_materialProperties,
-                                                                volumeName,
-                                                                m_buildBoundaryLayers,
-                                                                m_replaceJointBoundaries);
+   Trk::TrackingVolume* idContainer =
+     m_trackingVolumeCreator->createContainerTrackingVolume(
+       idVolumes,
+       *m_materialProperties,
+       volumeName,
+       m_buildBoundaryLayers,
+       m_replaceJointBoundaries);
    // finally create the two endplates: negative
-   const Trk::TrackingVolume* negativeEnclosure =  m_trackingVolumeCreator->createGapTrackingVolume(*m_materialProperties,
-                                                                                                   0., envelopeVolumeRadius,
-                                                                                                   -envelopeVolumeHalfZ, -maximumLayerExtendZ,
-                                                                                                   1, false,
-                                                                                                   m_namespace+"Gaps::NegativeEnclosure");
-  
+   Trk::TrackingVolume* negativeEnclosure =
+     m_trackingVolumeCreator->createGapTrackingVolume(
+       *m_materialProperties,
+       0.,
+       envelopeVolumeRadius,
+       -envelopeVolumeHalfZ,
+       -maximumLayerExtendZ,
+       1,
+       false,
+       m_namespace + "Gaps::NegativeEnclosure");
+
    // finally create the two endplates: positive
-   const Trk::TrackingVolume* positiveEnclosure =  m_trackingVolumeCreator->createGapTrackingVolume(*m_materialProperties,
-                                                                                                   0., envelopeVolumeRadius,
-                                                                                                   maximumLayerExtendZ,envelopeVolumeHalfZ,
-                                                                                                   1, false,
-                                                                                                   m_namespace+"Gaps::PositiveEnclosure");
+   Trk::TrackingVolume* positiveEnclosure =
+     m_trackingVolumeCreator->createGapTrackingVolume(
+       *m_materialProperties,
+       0.,
+       envelopeVolumeRadius,
+       maximumLayerExtendZ,
+       envelopeVolumeHalfZ,
+       1,
+       false,
+       m_namespace + "Gaps::PositiveEnclosure");
    // and the final tracking volume
    std::vector<const Trk::TrackingVolume*> enclosedVolumes;
    enclosedVolumes.push_back(negativeEnclosure);
    enclosedVolumes.push_back(idContainer);
    enclosedVolumes.push_back(positiveEnclosure);
-   
-   const Trk::TrackingVolume* enclosedDetector = 
-       m_trackingVolumeCreator->createContainerTrackingVolume(enclosedVolumes,
-                                                              *m_materialProperties,
-                                                               m_exitVolume,
-                                                               m_buildBoundaryLayers,
-                                                               m_replaceJointBoundaries);
+
+   Trk::TrackingVolume* enclosedDetector =
+     m_trackingVolumeCreator->createContainerTrackingVolume(
+       enclosedVolumes,
+       *m_materialProperties,
+       m_exitVolume,
+       m_buildBoundaryLayers,
+       m_replaceJointBoundaries);
 
    //  create the TrackingGeometry ------------------------------------------------------  
    trackingGeometry = new Trk::TrackingGeometry(enclosedDetector);
@@ -303,53 +320,65 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::packVolumeTripl
   
   // create the strings
   std::string volumeBase = m_namespace+"Detectors::"+layerSetup.identification;
-  
-  const Trk::TrackingVolume* negativeVolume = createTrackingVolume(layerSetup.negativeLayers, 
-                                                                   rMin,rMax,
-                                                                   -zMax,-zPosCentral,
-                                                                   volumeBase+"::NegativeEndcap",
-                                                                   (Trk::BinningType)layerSetup.binningEndcap,
-                                                                   false);
 
-  const Trk::TrackingVolume* centralVolume = 
-         m_trackingVolumeCreator->createTrackingVolume(layerSetup.centralLayers,
-                                                       *m_materialProperties,
-                                                       rMin,rMax,
-                                                       -zPosCentral,zPosCentral,
-                                                       volumeBase+"::Barrel",
-                                                       (Trk::BinningType)layerSetup.binningCenter);
-                                                       
-   const Trk::TrackingVolume* positiveVolume = createTrackingVolume(layerSetup.positiveLayers,
-                                                                    rMin,rMax,
-                                                                    zPosCentral,zMax,
-                                                                    volumeBase+"::PositiveEndcap",
-                                                                    (Trk::BinningType)layerSetup.binningEndcap,
-                                                                    false);
-   
-   // the base volumes have been created
-   ATH_MSG_VERBOSE('\t' << '\t'<< "Volumes have been created, now pack them into a triple.");
-   // registerColorCode                                                   
-   negativeVolume->registerColorCode(layerSetup.colorCode);   
-   centralVolume->registerColorCode(layerSetup.colorCode);
-   positiveVolume->registerColorCode(layerSetup.colorCode);
-                                                         
-   // pack them together
-   std::vector<const Trk::TrackingVolume*> tripleVolumes;
-   tripleVolumes.push_back(negativeVolume);
-   tripleVolumes.push_back(centralVolume);
-   tripleVolumes.push_back(positiveVolume);
-   
-   // create the tiple container
-   const Trk::TrackingVolume* tripleContainer = 
-         m_trackingVolumeCreator->createContainerTrackingVolume(tripleVolumes,
-                                                                *m_materialProperties,
-                                                                volumeBase,
-                                                                m_buildBoundaryLayers,
-                                                                m_replaceJointBoundaries);
-                                                                
-   ATH_MSG_VERBOSE( '\t' << '\t'<< "Created container volume with bounds: " << tripleContainer->volumeBounds() );
-                                                                
-   return tripleContainer;
+  Trk::TrackingVolume* negativeVolume =
+    createTrackingVolume(layerSetup.negativeLayers,
+                         rMin,
+                         rMax,
+                         -zMax,
+                         -zPosCentral,
+                         volumeBase + "::NegativeEndcap",
+                         (Trk::BinningType)layerSetup.binningEndcap,
+                         false);
+
+  Trk::TrackingVolume* centralVolume =
+    m_trackingVolumeCreator->createTrackingVolume(
+      layerSetup.centralLayers,
+      *m_materialProperties,
+      rMin,
+      rMax,
+      -zPosCentral,
+      zPosCentral,
+      volumeBase + "::Barrel",
+      (Trk::BinningType)layerSetup.binningCenter);
+
+  Trk::TrackingVolume* positiveVolume =
+    createTrackingVolume(layerSetup.positiveLayers,
+                         rMin,
+                         rMax,
+                         zPosCentral,
+                         zMax,
+                         volumeBase + "::PositiveEndcap",
+                         (Trk::BinningType)layerSetup.binningEndcap,
+                         false);
+
+  // the base volumes have been created
+  ATH_MSG_VERBOSE(
+    '\t' << '\t' << "Volumes have been created, now pack them into a triple.");
+  // registerColorCode
+  negativeVolume->registerColorCode(layerSetup.colorCode);
+  centralVolume->registerColorCode(layerSetup.colorCode);
+  positiveVolume->registerColorCode(layerSetup.colorCode);
+
+  // pack them together
+  std::vector<const Trk::TrackingVolume*> tripleVolumes;
+  tripleVolumes.push_back(negativeVolume);
+  tripleVolumes.push_back(centralVolume);
+  tripleVolumes.push_back(positiveVolume);
+
+  // create the tiple container
+  Trk::TrackingVolume* tripleContainer =
+    m_trackingVolumeCreator->createContainerTrackingVolume(
+      tripleVolumes,
+      *m_materialProperties,
+      volumeBase,
+      m_buildBoundaryLayers,
+      m_replaceJointBoundaries);
+
+  ATH_MSG_VERBOSE('\t' << '\t' << "Created container volume with bounds: "
+                       << tripleContainer->volumeBounds());
+
+  return tripleContainer;
 }
 
 
@@ -485,7 +514,7 @@ bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Tr
   // get the maximum extent in z
   std::vector<std::pair<double,double>> radii;
   ATH_MSG_DEBUG("Checking for Ring layout ... ");
-  for (auto& ring : layers) {
+  for (const auto & ring : layers) {
     // Surface
     const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
     const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
@@ -526,16 +555,18 @@ bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Tr
    
   //add rmin and rmax
   return (rmins.size() > 1 );
-}                                              
- 
- 
+}
 
-const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingVolume(const std::vector<const Trk::Layer*>& layers, 
-                                                                                      double innerRadius, double& outerRadius,
-                                                                                      double zMin, double zMax,
-                                                                                      const std::string& volumeName,
-                                                                                      Trk::BinningType binningType,
-										       bool doAdjustOuterRadius) const
+Trk::TrackingVolume*
+InDet::StagedTrackingGeometryBuilder::createTrackingVolume(
+  const std::vector<const Trk::Layer*>& layers,
+  double innerRadius,
+  double& outerRadius,
+  double zMin,
+  double zMax,
+  const std::string& volumeName,
+  Trk::BinningType binningType,
+  bool doAdjustOuterRadius) const
 {
 
     // first loop - this is for diagnostics for the radii 
@@ -544,7 +575,8 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
     if (m_checkForRingLayout && ringLayout(layers,ringRmins, ringRmaxa)){
         ATH_MSG_INFO("Ring layout is present for volume '" << volumeName << "' dealing with it.");
         // create the vector for the sub volumes
-        std::vector<const Trk::TrackingVolume* > ringVolumes;
+        std::vector<Trk::TrackingVolume* > ringVolumes;
+        std::vector<const Trk::TrackingVolume* > const_ringVolumes;
 
         // now sort the necessary layers --- for the sub volumes
         std::vector< std::vector< const Trk::Layer*> > groupedDiscs(ringRmins.size(), std::vector< const Trk::Layer*>() );
@@ -579,17 +611,17 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
           merge.back().push_back(idset);
           if (ringRmaxa[idset]>mergedRmax.back()) mergedRmax.back()=ringRmaxa[idset]; 
         } else {
-          merge.push_back(std::vector<int>(1,idset));
+          merge.emplace_back(1,idset);
           mergedRmax.push_back(ringRmaxa[idset]);
         }
         rCurr = ringRmaxa[idset];
       } 
-      for ( auto layset : merge ) {
+      for ( const auto& layset : merge ) {
         std::vector<const Trk::Layer*> ringSet;
         for ( auto lay : layset ) {
-          for ( auto ring : groupedDiscs[lay]) {
+          for ( const auto *ring : groupedDiscs[lay]) {
             float zPos = ring->surfaceRepresentation().center().z();
-            if (!ringSet.size() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
+            if (ringSet.empty() || zPos>ringSet.back()->surfaceRepresentation().center().z()) ringSet.push_back(ring);
             else {
               std::vector<const Trk::Layer*>::iterator lit = ringSet.begin();
               while (lit!=ringSet.end() && zPos>(*lit)->surfaceRepresentation().center().z()) ++lit;
@@ -608,14 +640,18 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
         if(idset==int(mergedLayers.size())-1 && !doAdjustOuterRadius) crmax = outerRadius; 
         // now create the sub volume
         std::string ringVolumeName = volumeName+"Ring"+std::to_string(idset);
-        const Trk::TrackingVolume* ringVolume = m_trackingVolumeCreator->createTrackingVolume(mergedLayers[idset],
-                                                                                              *m_materialProperties,
-                                                                                              crmin,crmax,
-                                                                                              zMin,zMax,
-                                                                                              ringVolumeName,
-                                                                                              binningType);
-        // push back into the 
+        Trk::TrackingVolume* ringVolume =
+          m_trackingVolumeCreator->createTrackingVolume(mergedLayers[idset],
+                                                        *m_materialProperties,
+                                                        crmin,
+                                                        crmax,
+                                                        zMin,
+                                                        zMax,
+                                                        ringVolumeName,
+                                                        binningType);
+        // push back into the vectors
         ringVolumes.push_back(ringVolume);
+        const_ringVolumes.push_back(ringVolume);
       }
       // set the outer radius
       if(doAdjustOuterRadius) outerRadius = ringRmaxa[ringRmaxa.size()-1]+m_layerEnvelopeCover;
@@ -626,7 +662,7 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingV
       if (ringVolumes.size()==1)
         return ringVolumes.at(0);
       else 
-        return m_trackingVolumeCreator->createContainerTrackingVolume(ringVolumes,
+        return m_trackingVolumeCreator->createContainerTrackingVolume(const_ringVolumes,
                                                                       *m_materialProperties,
                                                                       volumeName,
                                                                       m_buildBoundaryLayers,
@@ -684,22 +720,34 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createFlushVolu
              if(orE>orC) orC=orE; else orE=orC;
            }
            // create the three volumes
-           const Trk::TrackingVolume* nVolume = createTrackingVolume(layerSetupCache[ilS].negativeLayers,
-                                                                     irE,orE,
-                                                                     -extendZ,-layerSetupCache[ilS].zSector,
-                                                                     layerSetupCache[ilS].identification+"::NegativeEndcap",
-                                                                     (Trk::BinningType)layerSetupCache[ilS].binningEndcap,false);               
-           const Trk::TrackingVolume* cVolume = m_trackingVolumeCreator->createTrackingVolume(layerSetupCache[ilS].centralLayers,
-                                                                                  *m_materialProperties,
-                                                                                  irC,orC,
-                                                                                  -layerSetupCache[ilS].zSector,layerSetupCache[ilS].zSector,
-                                                                                  layerSetupCache[ilS].identification+"::Barrel",
-                                                                                  (Trk::BinningType)layerSetupCache[ilS].binningCenter);
-           const Trk::TrackingVolume* pVolume = createTrackingVolume(layerSetupCache[ilS].positiveLayers,
-                                                                     irE,orE,
-                                                                     layerSetupCache[ilS].zSector,extendZ,
-                                                                     layerSetupCache[ilS].identification+"::PositiveEndcap",
-                                                                     (Trk::BinningType)layerSetupCache[ilS].binningEndcap,false);
+           Trk::TrackingVolume* nVolume = createTrackingVolume(
+             layerSetupCache[ilS].negativeLayers,
+             irE,
+             orE,
+             -extendZ,
+             -layerSetupCache[ilS].zSector,
+             layerSetupCache[ilS].identification + "::NegativeEndcap",
+             (Trk::BinningType)layerSetupCache[ilS].binningEndcap,
+             false);
+           Trk::TrackingVolume* cVolume =
+             m_trackingVolumeCreator->createTrackingVolume(
+               layerSetupCache[ilS].centralLayers,
+               *m_materialProperties,
+               irC,
+               orC,
+               -layerSetupCache[ilS].zSector,
+               layerSetupCache[ilS].zSector,
+               layerSetupCache[ilS].identification + "::Barrel",
+               (Trk::BinningType)layerSetupCache[ilS].binningCenter);
+           Trk::TrackingVolume* pVolume = createTrackingVolume(
+             layerSetupCache[ilS].positiveLayers,
+             irE,
+             orE,
+             layerSetupCache[ilS].zSector,
+             extendZ,
+             layerSetupCache[ilS].identification + "::PositiveEndcap",
+             (Trk::BinningType)layerSetupCache[ilS].binningEndcap,
+             false);
            // register the right color code
            nVolume->registerColorCode(layerSetupCache[ilS].colorCode);
            cVolume->registerColorCode(layerSetupCache[ilS].colorCode);
@@ -792,7 +840,7 @@ std::vector<const Trk::Layer*> InDet::StagedTrackingGeometryBuilder::checkZoverl
   // if one layer location is compatible with 
   // another one (considering the layer thickness)
   // then the two layers have to be merged
-  for (auto lay : lays) {
+  for (const auto *lay : lays) {
     float zpos= lay->surfaceRepresentation().center().z();
     float thick = 0.5*lay->thickness(); 
     
@@ -845,17 +893,17 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   // order discs in radius
   std::vector< std::pair<float,float> > rbounds; std::vector<size_t> discOrder;
   size_t id=0;
-  for ( auto  lay : inputDiscs ) {
+  for ( const auto *  lay : inputDiscs ) {
     zb.first = fmin( zb.first, lay->surfaceRepresentation().center().z()-0.5*lay->thickness());
     zb.second = fmax( zb.second, lay->surfaceRepresentation().center().z()+0.5*lay->thickness());
     const Trk::DiscBounds* db = dynamic_cast<const Trk::DiscBounds*>(&(lay->surfaceRepresentation().bounds()));
     if (!db) {
       ATH_MSG_WARNING("attempt to merge non-disc layers, bailing out");
-      return 0;    
+      return nullptr;    
     }
     float r = db->rMin();
-    if (!rbounds.size() ||  r>rbounds.back().first) {
-      rbounds.push_back(std::pair<float,float> (r,db->rMax()));  
+    if (rbounds.empty() ||  r>rbounds.back().first) {
+      rbounds.emplace_back(r,db->rMax());  
       discOrder.push_back(id);
     } else {
       int ir=rbounds.size()-1;
@@ -878,11 +926,11 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
     if (surfArray) {
       if (surfArray->binUtility()->binningValue()!=Trk::binPhi) {
         ATH_MSG_WARNING("attempt to merge 2D disc arrays, bailing out");
-        return 0;
+        return nullptr;
       }
       binUtils->push_back(surfArray->binUtility()->clone());
       if (id+1<discOrder.size()) rsteps.push_back( 0.5*(rbounds[id].second+rbounds[id+1].first));
-      const std::vector<const Trk::Surface*> ringSurf =surfArray->arrayObjects();
+      const std::vector<const Trk::Surface*>& ringSurf =surfArray->arrayObjects();
       surfs.insert(surfs.end(),ringSurf.begin(),ringSurf.end());
             
     }  
@@ -890,7 +938,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   rsteps.push_back(rbounds.back().second);
 
   std::vector< std::pair< Trk::SharedObject<const Trk::Surface>, Amg::Vector3D >  > surfaces;
-  for ( auto  sf : surfs ) {
+  for ( const auto *  sf : surfs ) {
     Trk::SharedObject<const Trk::Surface> sharedSurface(sf,Trk::do_not_delete<const Trk::Surface>);
     std::pair< Trk::SharedObject<const Trk::Surface>, Amg::Vector3D >  surfaceOrder(sharedSurface, sf->center());
     surfaces.push_back(surfaceOrder);
@@ -904,7 +952,7 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   //DiscOverlapDescriptor takes possession of clonedBinUtils, will delete it on destruction.
   // but *does not* manage mergeBA.      
   std::vector<Trk::BinUtility*>* clonedBinUtils = new std::vector<Trk::BinUtility*>();
-  for (auto bu : *binUtils) clonedBinUtils->push_back(bu->clone());
+  for (auto *bu : *binUtils) clonedBinUtils->push_back(bu->clone());
   Trk::OverlapDescriptor* olDescriptor = new InDet::DiscOverlapDescriptor(mergeBA,clonedBinUtils,true);
     
   // position & bounds of the disc layer
@@ -928,14 +976,14 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilder::mergeDiscLayers (std::ve
   
    // register the layer to the surfaces 
    const std::vector<const Trk::Surface*>& layerSurfaces     = mergeBA->arrayObjects();
-   for (auto sf : layerSurfaces) {
+   for (const auto *sf : layerSurfaces) {
      const InDetDD::SiDetectorElement* detElement = dynamic_cast<const InDetDD::SiDetectorElement*>(sf->associatedDetectorElement());
      const std::vector<const Trk::Surface*>& allSurfacesVector = detElement->surfaces();
-     for (auto subsf : allSurfacesVector)  
+     for (const auto *subsf : allSurfacesVector)  
        Trk::IGeometryBuilder::associateLayer(*layer, const_cast<Trk::Surface&>(*subsf));
    }
    
-   for (auto disc : inputDiscs)   delete disc;      // cleanup
+   for (const auto *disc : inputDiscs)   delete disc;      // cleanup
 
    return layer; 
 

@@ -31,7 +31,8 @@ def getStreamHITS_ItemList(ConfigFlags):
                  "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
     if ConfigFlags.Detector.EnablePixel or  ConfigFlags.Detector.EnableSCT or \
-       ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip:
+       ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip or ConfigFlags.Detector.EnablePLR or \
+       ConfigFlags.Detector.EnableHGTD:
         ItemList += ["SiHitCollection#*"]
 
     if ConfigFlags.Detector.EnableTRT:

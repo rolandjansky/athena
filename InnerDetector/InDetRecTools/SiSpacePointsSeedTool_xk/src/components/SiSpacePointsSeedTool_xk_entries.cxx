@@ -4,7 +4,7 @@
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_Cosmic.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_HeavyIon.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_Trigger.h"
-#include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_ITK.h"
+#include "SiSpacePointsSeedTool_xk/ITkSiSpacePointsSeedMaker.h"
 
 using namespace InDet;
 
@@ -14,5 +14,5 @@ DECLARE_COMPONENT( SiSpacePointsSeedMaker_BeamGas )
 DECLARE_COMPONENT( SiSpacePointsSeedMaker_Cosmic )
 DECLARE_COMPONENT( SiSpacePointsSeedMaker_HeavyIon )
 DECLARE_COMPONENT( SiSpacePointsSeedMaker_Trigger )
-DECLARE_COMPONENT( SiSpacePointsSeedMaker_ITK )
+DECLARE_COMPONENT( ITk::SiSpacePointsSeedMaker )
 

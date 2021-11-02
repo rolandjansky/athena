@@ -114,7 +114,7 @@ def DiElecPrecisionComboHypoCfg(name):
         trigLevel = 'EF',
         doElectrons = True,
         outputTrigBphysCollection = 'HLT_DiElecPrecision')
-    hypo.mergedElectronChains = ['BPH-0DR3-EM7J15','HLT_e5_lhvloose_bBeeM6000_L1EM22VHI','HLT_e5_lhvloose_bBeeM6000_L14J15','HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary','HLT_e5_lhvloose_bBeeM6000_L1All']
+    hypo.mergedElectronChains = ['BPH-0DR3-EM7J15','HLT_e5_lhvloose_bBeeM6000_L1EM22VHI','HLT_e5_lhvloose_bBeeM6000_L14J15','HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary','HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled','HLT_e5_lhvloose_bBeeM6000_L1All']
     return hypo
 
 def NoMuonDiElecPrecisionComboHypoCfg(name):
@@ -143,6 +143,7 @@ def BmutrkComboHypoCfg(name):
     hypo.isMuTrkMode = True
     hypo.chi2 = 20.
     hypo.nTracks = [ 2 ]
+    hypo.totalCharge = [ 0 ]
     hypo.massRange = [ (2500., 4400.) ]
     hypo.trackPtThresholds = [ [ 10000., 3000. ] ]
     return hypo
@@ -246,7 +247,7 @@ class TrigMultiTrkComboHypoConfig(object):
 
         if 'bJpsimutrk' in chainDict['topo']:
             tool.isMuonTrkPEB = True
-            tool.totalCharge = -100
+            tool.totalCharge = 0
 
         signatures = chainDict['signatures']
         tool.isCombinedChain = (signatures.count(signatures[0]) != len(signatures))

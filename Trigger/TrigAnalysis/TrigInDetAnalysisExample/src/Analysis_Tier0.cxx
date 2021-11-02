@@ -131,7 +131,11 @@ void Analysis_Tier0::initialise() {
   h_trkpT  = new TH1F("reftrk_pT" , "Reference track pT",  25,   &ptbins[0]   );
   h_trkphi = new TH1F("reftrk_phi", "Reference track Phi", 25,   -M_PI,   M_PI);
   h_trketa = new TH1F("reftrk_eta", "Reference track Eta", 25,   -2.5,     2.5) ;
-  h_trkd0  = new TH1F("reftrk_d0" , "Reference track d0", 101,   -5.0,     5.0 );
+  if (name().find("LRT")!=std::string::npos || name().find("lrt")!=std::string::npos) { 
+    h_trkd0  = new TH1F("reftrk_d0" , "Reference track d0", 201, -100.0,  100.0 ); 
+  } else { 
+    h_trkd0  = new TH1F("reftrk_d0" , "Reference track d0", 101,   -5.0,    5.0 ); 
+  }      
   h_trkz0  = new TH1F("reftrk_z0" , "Reference track z0",  50,   -225.,    225.);
 
   /// the error estimates are always positive ...
@@ -165,7 +169,11 @@ void Analysis_Tier0::initialise() {
   h_trkpT_rec  = new TH1F("testtrk_pT" , "Test track pT",  25,   &ptbins[0]   );
   h_trkphi_rec = new TH1F("testtrk_phi", "Test track Phi", 25,   -M_PI,  M_PI);
   h_trketa_rec = new TH1F("testtrk_eta", "Test track Eta", 25,   -2.5,    2.5) ;
-  h_trkd0_rec  = new TH1F("testtrk_d0" , "Test track d0", 101,   -5.0,    5.0 );
+  if (name().find("LRT")!=std::string::npos || name().find("lrt")!=std::string::npos) { 
+    h_trkd0_rec  = new TH1F("testtrk_d0" , "Test track d0", 201,   -100.0,    100.0 ); 
+  } else { 
+    h_trkd0_rec  = new TH1F("testtrk_d0" , "Test track d0", 101,   -5.0,    5.0 );
+  }  
   h_trkz0_rec  = new TH1F("testtrk_z0" , "Test track z0",  50,   -225.,   225.);
 
   h_trkdd0_rec  = new TH1F("testtrk_dd0" , "Test track sigma(d0)", 50,   0,     0.5);
@@ -187,6 +195,29 @@ void Analysis_Tier0::initialise() {
 
   /// trigger tracking efficiencies
 
+  double d0bins_LRT[124] = { -100.5, 
+			     -97.5, -93.5, -90.5, 
+			     -86.5, -83.5, -80.5, 
+			     -77.5, -74.5, -71.5,  
+			     -69.5, -66.5, -63.5, -61.5, 
+			     -59.5, -57.5, -54.5, -52.5, -50.5, 
+			     -49.5, -47.5, -45.5, -43.5, -42.5, -40.5, 
+			     -39.5, -37.5, -36.5, -34.5, -33.5, -32.5, -31.5, 
+			     -29.5, -28.5, -27.5, -26.5, -25.5, -24.5, -23.5, -22.5, -21.5, -20.5, 
+			     -19.5, -18.5, -17.5, -16.5, -15.5, -14.5, -13.5, -12.5, -11.5, -10.5, 
+			     -9.5, -8.5, -7.5, -6.5, -5.5, -4.5, -3.5, -2.5, -1.5, -0.5,
+			     0.5,  1.5,  2.5,  3.5,  4.5,  5.5,  6.5,  7.5,  8.5,  9.5,  
+			     10.5,  11.5,  12.5,  13.5,  14.5,  15.5,  16.5,  17.5,  18.5,  19.5, 
+			     20.5,  21.5,  22.5,  23.5,  24.5,  25.5,  26.5,  27.5,  28.5,  29.5, 
+			     31.5,  32.5,  33.5,  34.5,  36.5,  37.5,  39.5, 
+			     40.5,  42.5,  43.5,  45.5,  47.5,  49.5, 
+			     50.5,  52.5,  54.5,  57.5,  59.5, 
+			     61.5,  63.5,  66.5,  69.5, 
+			     71.5,  74.5,  77.5,    
+			     80.5,  83.5,  86.5,   
+			     90.5,  93.5,  97.5,    
+			     100.5 };
+
   double d0bins[40] = { -5.0,  -4.0,  -3.0,  -2.5,   
 			-2.0,  -1.8,  -1.6,  -1.4,  -1.2,  
 			-1.05, -0.95, -0.85, -0.75, -0.65, -0.55, -0.45, -0.35, -0.25, -0.15, -0.05, 
@@ -202,7 +233,11 @@ void Analysis_Tier0::initialise() {
   h_pTeff    = new TProfile( "Eff_pT",     "pT efficiency",     25,   &ptbins[0]   );
   h_etaeff   = new TProfile( "Eff_Eta",    "eta efficiency",    25,   -2.5,   2.5  );
   h_phieff   = new TProfile( "Eff_Phi",    "phi  efficiency",   25,   -M_PI, M_PI  );
-  h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",     39,   d0bins    );
+  if (name().find("LRT")!=std::string::npos || name().find("lrt")!=std::string::npos) { 
+    h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",     123,  d0bins_LRT );
+  } else { 
+    h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",     39,  d0bins      ); 
+  } 
   h_z0eff    = new TProfile( "Eff_z0",     "z0 efficiency",     50, -225.,  225.   );
   h_nVtxeff  = new TProfile( "Eff_nVtx",   "nVtx efficiency",   71,   -0.5,  70.5  );
 
@@ -238,11 +273,19 @@ void Analysis_Tier0::initialise() {
   h_ntrtvsphi     = new TProfile("ntrt_vs_phi",      "offline ntrt vs phi;offline #phi;# mean number of offline trt hits", 30,   -M_PI, M_PI );
   h_ntrtvsphi_rec = new TProfile("ntrt_vs_phi_rec",  "trigger ntrt vs phi;offline #phi;# mean number of trigger trt hits", 30,   -M_PI, M_PI );
 
-  h_npixvsd0     = new TProfile("npix_vs_d0",      "offline npix vs d0;offline #d0;# mean number of offline pixel hits", 39,  d0bins );
-  h_npixvsd0_rec = new TProfile("npix_vs_d0_rec",  "trigger npix vs d0;offline #d0;# mean number of trigger pixel hits", 39,  d0bins );
+  if (name().find("LRT")!=std::string::npos || name().find("lrt")!=std::string::npos) {
+    h_npixvsd0     = new TProfile("npix_vs_d0",      "offline npix vs d0;offline #d0;# mean number of offline pixel hits", 123,  d0bins_LRT );
+    h_npixvsd0_rec = new TProfile("npix_vs_d0_rec",  "trigger npix vs d0;offline #d0;# mean number of trigger pixel hits", 123,  d0bins_LRT );
 
-  h_nsctvsd0     = new TProfile("nsct_vs_d0",      "offline nsct vs d0;offline #d0;# mean number of offline sct hits", 39,   d0bins );
-  h_nsctvsd0_rec = new TProfile("nsct_vs_d0_rec",  "trigger nsct vs d0;offline #d0;# mean number of trigger sct hits", 39,   d0bins );
+    h_nsctvsd0     = new TProfile("nsct_vs_d0",      "offline nsct vs d0;offline #d0;# mean number of offline sct hits", 123,   d0bins_LRT );
+    h_nsctvsd0_rec = new TProfile("nsct_vs_d0_rec",  "trigger nsct vs d0;offline #d0;# mean number of trigger sct hits", 123,   d0bins_LRT );
+  } else {
+    h_npixvsd0     = new TProfile("npix_vs_d0",      "offline npix vs d0;offline #d0;# mean number of offline pixel hits", 39,  d0bins );
+    h_npixvsd0_rec = new TProfile("npix_vs_d0_rec",  "trigger npix vs d0;offline #d0;# mean number of trigger pixel hits", 39,  d0bins );
+
+    h_nsctvsd0     = new TProfile("nsct_vs_d0",      "offline nsct vs d0;offline #d0;# mean number of offline sct hits", 39,   d0bins ); 
+    h_nsctvsd0_rec = new TProfile("nsct_vs_d0_rec",  "trigger nsct vs d0;offline #d0;# mean number of trigger sct hits", 39,   d0bins );
+  }  
 
   h_npixvspT     = new TProfile("npix_vs_pT",      "offline npix vs pT;offline #p_{T};# mean number of offline pixel hits", 25, &ptbins[0] );
   h_npixvspT_rec = new TProfile("npix_vs_pT_rec",  "trigger npix vs pT;offline #p_{T};# mean number of trigger pixel hits", 25, &ptbins[0] );

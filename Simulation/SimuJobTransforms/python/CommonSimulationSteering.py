@@ -37,6 +37,11 @@ def CommonSimulationCfg(ConfigFlags, log):
         # Cases 3a, 3b
         from AthenaConfiguration.MainServicesConfig import MainEvgenServicesCfg
         cfg = MainEvgenServicesCfg(ConfigFlags)
+        # For Simulation we need to override the RunNumber to pick up
+        # the right conditions. These next two lines are required for
+        # this to work.
+        cfg.getService("EventSelector").FirstLB = ConfigFlags.Input.LumiBlockNumber[0]
+        cfg.getService("EventSelector").OverrideRunNumber = True
         from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
         cfg.merge(EvtIdModifierSvcCfg(ConfigFlags))
         if ConfigFlags.Beam.Type == 'cosmics':

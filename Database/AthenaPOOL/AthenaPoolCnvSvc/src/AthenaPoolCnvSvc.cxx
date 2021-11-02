@@ -77,18 +77,10 @@ StatusCode AthenaPoolCnvSvc::initialize() {
 	   last = m_maxFileSizes.value().end(); iter != last; ++iter) {
       if (auto p = iter->find('='); p != std::string::npos) {
          long long maxFileSize = atoll(iter->data() + (p + 1));
-         if (maxFileSize > 15000000000LL) {
-            ATH_MSG_INFO("Files larger than 15GB are disallowed by ATLAS policy.");
-            ATH_MSG_INFO("They should only be produced for private use or in special cases.");
-         }
          std::string databaseName = iter->substr(0, iter->find_first_of(" 	="));
          m_databaseMaxFileSize.insert(std::make_pair(databaseName, maxFileSize));
       } else {
          m_domainMaxFileSize = atoll(iter->c_str());
-         if (m_domainMaxFileSize > 15000000000LL) {
-            ATH_MSG_INFO("Files larger than 15GB are disallowed by ATLAS policy.");
-            ATH_MSG_INFO("They should only be produced for private use or in special cases.");
-         }
       }
    }
    // Extracting INPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.

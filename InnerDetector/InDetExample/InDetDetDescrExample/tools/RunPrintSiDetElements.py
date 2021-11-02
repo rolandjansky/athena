@@ -62,8 +62,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 # ITk Pixel
 if ConfigFlags.Detector.EnableITkPixel:
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    acc.merge(ITkPixelGeometryCfg(ConfigFlags))
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    acc.merge(ITkPixelReadoutGeometryCfg(ConfigFlags))
 
     ReadPixelDetElements = CompFactory.ReadSiDetectorElements('ReadPixelDetElements')
     ReadPixelDetElements.ManagerName = "ITkPixel"
@@ -78,8 +78,8 @@ if ConfigFlags.Detector.EnableITkPixel:
 
 # ITk Strip
 if ConfigFlags.Detector.EnableITkStrip:
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    acc.merge(ITkStripGeometryCfg(ConfigFlags))
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc.merge(ITkStripReadoutGeometryCfg(ConfigFlags))
 
     ReadStripDetElements = CompFactory.ReadSiDetectorElements('ReadStripDetElements')
     ReadStripDetElements.ManagerName = "ITkStrip"

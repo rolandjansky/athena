@@ -8,6 +8,9 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
   
   Acts_ActsTrackingGeometrySvc = CompFactory.ActsTrackingGeometrySvc
   subDetectors = []
+  if configFlags.Detector.GeometryBpipe:
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    result.merge(BeamPipeGeometryCfg(configFlags))
   if configFlags.Detector.GeometryPixel:
     subDetectors += ["Pixel"]
   if configFlags.Detector.GeometrySCT:
@@ -28,7 +31,7 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
     subDetectors += ["ITkStrip"]
 
 
-  idSub = [sd in subDetectors for sd in ("Pixel", "SCT", "TRT")]
+  idSub = [sd in subDetectors for sd in ("Pixel", "SCT", "TRT", "ITkPixel", "ITkStrip")]
   if any(idSub):
     # ANY of the ID subdetectors are on => we require GM sources
     # In principle we could require only what is enabled, but the group

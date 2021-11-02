@@ -9,12 +9,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-MDTCondSummarySvc, RPCCondSummarySvc, CSCCondSummarySvc, TGCCondSummarySvc, MDT_DCSConditionsRun2Svc, MDT_DCSConditionsSvc =\
-CompFactory.getComps("MDTCondSummarySvc", "RPCCondSummarySvc", "CSCCondSummarySvc", "TGCCondSummarySvc","MDT_DCSConditionsRun2Svc","MDT_DCSConditionsSvc")
-
-MDT_DCSConditionsTool, MDT_DCSConditionsRun2Tool, MDT_MapConversion=\
-CompFactory.getComps("MDT_DCSConditionsTool","MDT_DCSConditionsRun2Tool","MDT_MapConversion")
-
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
 
 # def MDT_DCSConditionsSvcCfg(flags, **kwargs):
@@ -30,9 +24,9 @@ def MDTCondSummarySvcCfg(flags, **kwargs):
       kwargs['ConditionsServices'] = []  # COOL folders not available online
     else:    
       if flags.Input.isMC : # OFLP200
-          mdt_dcs_cond_tool = MDT_DCSConditionsTool(Simulation_Setup=flags.Input.isMC)
+          mdt_dcs_cond_tool = CompFactory.MDT_DCSConditionsTool(Simulation_Setup=flags.Input.isMC)
           result.addPublicTool(mdt_dcs_cond_tool)      
-          cond_svc = MDT_DCSConditionsSvc(MDT_DCSConditionsTool = mdt_dcs_cond_tool)
+          cond_svc = CompFactory.MDT_DCSConditionsSvc(MDT_DCSConditionsTool = mdt_dcs_cond_tool)
           folders = [ "/MDT/DCS/DROPPEDCH", "/MDT/DCS/PSLVCHSTATE" ] # FIXME got this by observing other job ... not really sure if it's correct
       else:
           # if conddb.dbdata=="CONDBR2":
@@ -40,24 +34,24 @@ def MDTCondSummarySvcCfg(flags, **kwargs):
           # else:
           #     kwargs['ConditionsServices'] = ['MDT_DCSConditionsSvc']
           if flags.IOVDb.DatabaseInstance=='CONDBR2': # CONDBR2 - run 2 data
-              map_conversion_tool = MDT_MapConversion()
+              map_conversion_tool = CompFactory.MDT_MapConversion()
               result.addPublicTool(map_conversion_tool)
           
-              mdt_dcs_cond_tool=MDT_DCSConditionsRun2Tool(MDT_MapConversion=map_conversion_tool)
+              mdt_dcs_cond_tool=CompFactory.MDT_DCSConditionsRun2Tool(MDT_MapConversion=map_conversion_tool)
               result.addPublicTool(mdt_dcs_cond_tool)
-              cond_svc = MDT_DCSConditionsRun2Svc(MDT_DCSConditionsRun2Tool=mdt_dcs_cond_tool)
+              cond_svc = CompFactory.MDT_DCSConditionsRun2Svc(MDT_DCSConditionsRun2Tool=mdt_dcs_cond_tool)
               # folders = ['/MDT/DCS/DROPPEDCH','/MDT/DCS/PSHVMLSTATE','/MDT/DCS/PSLVCHSTATE','/MDT/DCS/JTAGCHSTATE','/MDT/DCS/PSV0SETPOINTS', '/MDT/DCS/PSV1SETPOINTS']
               folders = [ "LVFolder", "HVFolder" ]
           else: 
               # Not yet implemented. Need to try to understand what on earth is going on first.
-              mdt_dcs_cond_tool = MDT_DCSConditionsTool(Simulation_Setup=flags.Input.isMC)
+              mdt_dcs_cond_tool = CompFactory.MDT_DCSConditionsTool(Simulation_Setup=flags.Input.isMC)
               result.addPublicTool(mdt_dcs_cond_tool)
-              cond_svc = MDT_DCSConditionsSvc(MDT_DCSConditionsTool=mdt_dcs_cond_tool)
+              cond_svc = CompFactory.MDT_DCSConditionsSvc(MDT_DCSConditionsTool=mdt_dcs_cond_tool)
               folders = [ "LVFolder", "HVFolder" ]
       result.merge( addFolders(flags, folders , detDb="DCS_OFL") ) # TODO FIXME! Get correct list
       result.addService(cond_svc)
       kwargs['ConditionsServices'] = [cond_svc]  # COOL folders not available online
-    cond_summary = MDTCondSummarySvc(**kwargs)
+    cond_summary = CompFactory.MDTCondSummarySvc(**kwargs)
     result.addService(cond_summary, primary=True)
     return result
  
@@ -73,7 +67,7 @@ def RPCCondSummarySvcCfg(flags,**kwargs):
       else:
           kwargs['ConditionsServices'] = ['RPC_STATUSConditionsSvc','RPC_DCSConditionsSvc']  # COOL folders not available online
           
-    return RPCCondSummarySvc(**kwargs)
+    return CompFactory.RPCCondSummarySvc(**kwargs)
  
 def CSCCondSummarySvcCfg(flags,**kwargs):
     result = ComponentAccumulator() 
@@ -81,7 +75,7 @@ def CSCCondSummarySvcCfg(flags,**kwargs):
     
     if flags.Common.isOnline:
       kwargs['ConditionsServices'] = []  # COOL folders not available online
-    return CSCCondSummarySvc(**kwargs)
+    return CompFactory.CSCCondSummarySvc(**kwargs)
 
 def TGCCondSummarySvcCfg(flags,**kwargs):
     result = ComponentAccumulator()
@@ -89,4 +83,4 @@ def TGCCondSummarySvcCfg(flags,**kwargs):
 
     if flags.Common.isOnline:
       kwargs['ConditionsServices'] = []  # COOL folders not available online
-    return TGCCondSummarySvc(**kwargs)
+    return CompFactory.TGCCondSummarySvc(**kwargs)

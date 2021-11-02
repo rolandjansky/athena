@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -293,7 +293,7 @@ float TileExpertToolEmscale::getLasPartition(unsigned int drawerIdx) const {
 
 //
 //____________________________________________________________________
-void TileExpertToolEmscale::setEmOptions(TileEmscaleCalibOptions emOptions) {
+void TileExpertToolEmscale::setEmOptions(const TileEmscaleCalibOptions& emOptions) {
   //=== check whether the m_emOptions were not already set (except for the constructor)
   if (!m_setOnceCounter) {
     m_emOptions = emOptions;

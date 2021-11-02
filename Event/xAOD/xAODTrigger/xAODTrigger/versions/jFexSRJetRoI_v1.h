@@ -94,8 +94,8 @@ namespace xAOD {
       //static const int s_resMask  = 0x7ff; 
       static const int s_satMask = 0x1; 
       
-      float unpackTTweightEta();
-      float unpackTTweightPhi();
+      float unpackTTweightEta() const;
+      float unpackTTweightPhi() const;
 
    }; // class jFexSRJetRoI_v1
 

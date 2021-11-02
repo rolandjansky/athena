@@ -418,10 +418,17 @@ using Trk::distDepth;
 	      ATH_MSG_DEBUG( "Unable to swap local depth axis.");
             }
         }
-        if (std::abs(dir.m_depthAngle) < 0.5) { // Check that it is in roughly the right direction.
-	  ATH_MSG_ERROR( "Orientation of local depth axis does not follow correct convention.");
-          dir.m_depthDirection = true; // Don't swap.
+        if (std::abs(dir.m_depthAngle) < 0.5 && (m_design->type())!=InDetDD::PLR) { // Check that it is in roughly the right direction. Ignore this for the PLR as it gives values as low as 0.489)
+            ATH_MSG_ERROR( "Orientation of local depth axis does not follow correct convention.");
+            dir.m_depthDirection = true; // Don't swap.
         }
+        
+        // for HGTD modules, the check on phi and eta directions don't make sense
+        // as the modules do not respect the conventional position for endcap discs:
+        // - the local eta axis is never parallel to the radial direction
+        // - the local phi axis is never perpendicular to the radial direction
+        // hence, removing errors and allowing swap of the axis when needed
+        bool isHGTD = this->getIdHelper()->is_hgtd(m_id);
     
         //
         // Phi axis
@@ -435,8 +442,7 @@ using Trk::distDepth;
 	      ATH_MSG_DEBUG("Unable to swap local xPhi axis.");
             }
         }
-
-        if (std::abs(dir.m_phiAngle) < 0.5) { // Check that it is in roughly the right direction.
+        if (not isHGTD and std::abs(dir.m_phiAngle) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local xPhi axis does not follow correct convention.");
           dir.m_phiDirection = true; // Don't swap.
         }
@@ -453,7 +459,7 @@ using Trk::distDepth;
 	      ATH_MSG_DEBUG("Unable to swap local xEta axis.");
             }
         }
-        if (std::abs(dir.m_etaAngle) < 0.5) { // Check that it is in roughly the right direction.
+        if (not isHGTD and std::abs(dir.m_etaAngle) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local xEta axis does not follow correct convention.");
           dir.m_etaDirection = true; // Don't swap
         }

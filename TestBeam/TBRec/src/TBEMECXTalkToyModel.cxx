@@ -23,7 +23,6 @@ PURPOSE:  A simple toy model to simulate longitudinal cross-talk
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 
 /////////////////////////////////////////////////////////////////////
 // CONSTRUCTOR:
@@ -35,7 +34,6 @@ TBEMECXTalkToyModel::TBEMECXTalkToyModel(
 			     const IInterface* parent)
   :base_class (type, name, parent),
    m_caloSelection(false),
-   m_calo_dd_man(nullptr),
    m_calo_id(nullptr)
 {
   declareProperty("CaloNums",m_caloNums);
@@ -84,8 +82,7 @@ StatusCode TBEMECXTalkToyModel::initialize()
     }
   }
 
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-  m_calo_id = m_calo_dd_man->getCaloCell_ID();	
+  ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
 
   ATH_MSG_VERBOSE ("XTalkScaleLong     = " << m_xtalkScaleLong);
   ATH_MSG_VERBOSE ("XTalkScaleEta      = " << m_xtalkScaleEta);

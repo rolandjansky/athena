@@ -32,10 +32,10 @@ namespace xAOD{
     CMMRoIAuxInfo_v1();
 
   private:
-    uint32_t jetEtRoiWord;
-    uint32_t energyRoiWord0;
-    uint32_t energyRoiWord1;
-    uint32_t energyRoiWord2;    
+    uint32_t jetEtRoiWord = 0U;
+    uint32_t energyRoiWord0 = 0U;
+    uint32_t energyRoiWord1 = 0U;
+    uint32_t energyRoiWord2 = 0U;    
     
   }; // class CMMRoIAuxInfo_v1  
 } // namespace xAOD

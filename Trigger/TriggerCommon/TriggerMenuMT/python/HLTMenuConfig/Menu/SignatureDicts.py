@@ -141,35 +141,44 @@ JetChainParts = {
       ['notrk','ftf'],
     'trkpresel'    : # Tracking preselection
       ['nopresel',
-       #Loose
-       'preselj20',        #L1J15, L1J20
-       'preselj60',        #L1J30
-       'preselj135',       #L1J50, #L1J100
-       'presel2j135',      #L1J50, L1J100
-       'presel2j135XXj60', #L1J50, L1J100
-       'presel3j100',      #L1J100
-       'presel4j33',       #L13J50
-       'presel5j24',       #L14J15
-       'presel6j36',       #L14J15
-       'presel7j21',       #L14J15
-       #Medium
-       'preselj180',       #L1J100
-       'presel2j180',      #L1J100
-       'presel2j180XXj80', #L1J100
-       'presel3j125',      #L1J100
-       'presel4j55',       #L13J50
-       'presel5j35',       #L14J15
-       'presel6j40',       #L14J15
-       'presel7j28',       #L14J15
-       #Tight
-       'preselj225',        #L1J100
-       'presel2j225',       #L1J100
-       'presel2j225XXj100', #L1J100
-       'presel3j150',       #L1J100
-       'presel4j85',        #L13J50
-       'presel5j50',        #L14J15
-       'presel6j45',        #L14J15
-       'presel7j35',        #L14j15
+       # Single jet
+       'preselj20',
+       'preselj50',
+       'preselj80',
+       'preselj120',
+       'preselj140',
+       'preselj180',
+       'preselj200',
+       'preselj225',
+       # Multijets
+       'presel2j140',
+       'presel2j180',
+       'presel2j200',
+       'presel2j225',
+       'presel3j45',
+       'presel3j100',
+       'presel3j125',
+       'presel3j150',
+       'presel4j20',
+       'presel4j25',
+       'presel4j50',
+       'presel4j85',
+       'presel5j25',
+       'presel5j50',
+       'presel6j40',
+       'presel7j30',
+       # Multiple threshold
+       'preselj60XXj40',
+       'preselj140XXj45',
+       'preselj80XX2j45',
+       'presel2j180XXj80',
+       # Nonstandard eta regions
+       'presel6c25',
+       'preselj45XX2f40',
+       'preselc60XXc45XXc25XXc20', # L1J45p0ETA21_3J15p0ETA25
+       'preselc60XXj45XXf40',
+       'preselj60XXj45XXf40',
+       'presela60XXa40XX2a25'
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
@@ -332,7 +341,7 @@ MuonChainParts = {
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],
     'lrtInfo'        : ['d0loose','d0medium','d0tight'],
-    'invMassInfo'    : ['invmJPsi'],
+    'invMassInfo'    : ['invmJPsi','invmDimu'],
     'msonlyInfo'     : ['msonly'],
     'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual","nscan","os"],
     'topo'           : AllowedTopos_mu,
@@ -402,7 +411,7 @@ TauChainParts = {
     'L1threshold'   : '',
     'chainPartName' : '',
     'threshold'     : '',
-    'preselection'  : ['tracktwo', 'tracktwoMVA', 'tracktwoMVATest', 'tracktwoMVABDT', 'tracktwoLLP', 'ptonly', ],
+    'preselection'  : ['tracktwo', 'tracktwoMVA', 'tracktwoMVAClus','tracktwoMVATest', 'tracktwoMVABDT', 'tracktwoLLP', 'ptonly', ],
     'selection'     : ['medium1', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf',
                        'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4', 'dikaonmass', 'singlepion'],
     'multiplicity'  : '',
@@ -1051,6 +1060,7 @@ UnconventionalTrackingChainParts_Default = {
 #==========================================================
 AllowedTopos_comb = [
     'dRAA12', 'dRAB15', '03dRAB','03dRAB30','dRAB03','02dRAB','02dRAC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
+    '90invmAB',# TEST
     '1invmAB5','50invmAB130', # Jpsiee, Zee/Zeg
     '25dphiAA','invmAA80', # Low-mass diphoton
     '10invmAA70', # Low-mass dimuon

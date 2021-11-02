@@ -3,16 +3,19 @@
 # Declare the package name:
 atlas_subdir( StripGeoModelXml )
 
-# Component(s) in the package:
-atlas_add_library( StripGeoModelXmlLib
-                   src/*.cxx
-                   PUBLIC_HEADERS StripGeoModelXml
-                   LINK_LIBRARIES GaudiKernel GeoModelUtilities GeoModelXml InDetGeoModelUtils SCT_ReadoutGeometry
-                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaPoolUtilities DetDescrConditions GeoModelInterfaces InDetReadoutGeometry ReadoutGeometryBase  InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
+find_package( GeoModelCore )
 
+# Component(s) in the package:
 atlas_add_component( StripGeoModelXml
+                     src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES StripGeoModelXmlLib )
+                     LINK_LIBRARIES GaudiKernel GeoModelUtilities GeoModelXml InDetGeoModelUtils SCT_ReadoutGeometry
+                     PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaPoolUtilities DetDescrConditions GeoModelInterfaces InDetReadoutGeometry ReadoutGeometryBase  InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+# Test(s) in the package:
+atlas_add_test( ITkStripGMConfig_test
+                SCRIPT test/ITkStripGMConfig_test.py
+                PROPERTIES TIMEOUT 300 )

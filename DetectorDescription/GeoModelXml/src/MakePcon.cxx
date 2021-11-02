@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Automatically generated code from /home/hessey/prog/gmx2geo/makeshape
@@ -15,7 +15,7 @@ using namespace xercesc;
 
 MakePcon::MakePcon() {}
 
-const RCBase * MakePcon::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
+RCBase * MakePcon::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
 const int nParams = 2; 
 char const *parName[nParams] = {"sphi", "dphi"};
 double p[nParams];

@@ -349,6 +349,9 @@ if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.TRT_BuildStrawLayers=True
     fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
+    # BCM should be off for FATRAS simulators
+    DetFlags.simulate.BCM_setOff()
+    DetFlags.digitize.BCM_setOff()
 
 
 DetFlags.Print()

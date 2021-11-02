@@ -396,6 +396,7 @@ namespace top {
             m_perjet_weight_bTagSF_eigen_Light_down[tagWP] = std::vector<std::vector<float> >();
             systematicTree->makeOutputVariable(m_perjet_weight_bTagSF[tagWP],
                                                "weight_perjet_bTagSF_" + shortBtagWP(tagWP));
+            if ((systematicTree->name() != nominalTTreeName) && (systematicTree->name() != nominalLooseTTreeName) && !(m_config->dumpBtagSystsInSystTrees())) continue;
             systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_B_up[tagWP], "weight_perjet_bTagSF_" + shortBtagWP(
                                                  tagWP) + "_eigenvars_B_up");
             systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_B_down[tagWP], "weight_perjet_bTagSF_" + shortBtagWP(
@@ -434,6 +435,7 @@ namespace top {
               m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP] = std::vector<std::vector<float> >();
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP));
+              if ((systematicTree->name() != nominalTTreeName) && (systematicTree->name() != nominalLooseTTreeName) && !(m_config->dumpBtagSystsInSystTrees())) continue;
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP) + "_eigenvars_B_up");
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
@@ -829,6 +831,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_tau_pt, "tau_pt");
         systematicTree->makeOutputVariable(m_tau_eta, "tau_eta");
         systematicTree->makeOutputVariable(m_tau_phi, "tau_phi");
+        systematicTree->makeOutputVariable(m_tau_e, "tau_e");
         systematicTree->makeOutputVariable(m_tau_charge, "tau_charge");
       }
 
@@ -2376,11 +2379,13 @@ namespace top {
       m_tau_pt.resize(event.m_tauJets.size());
       m_tau_eta.resize(event.m_tauJets.size());
       m_tau_phi.resize(event.m_tauJets.size());
+      m_tau_e.resize(event.m_tauJets.size());
       m_tau_charge.resize(event.m_tauJets.size());
       for (const auto* const tauPtr : event.m_tauJets) {
         m_tau_pt[i] = tauPtr->pt();
         m_tau_eta[i] = tauPtr->eta();
         m_tau_phi[i] = tauPtr->phi();
+        m_tau_e[i] = tauPtr->e();
         m_tau_charge[i] = tauPtr->charge();
         ++i;
       }

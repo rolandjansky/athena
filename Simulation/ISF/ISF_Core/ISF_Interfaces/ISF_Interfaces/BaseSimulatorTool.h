@@ -62,12 +62,12 @@ namespace ISF {
     }
 
     /** Setup Event chain - in case of a begin-of event action is needed */
-    virtual StatusCode setupEvent() override
+    virtual StatusCode setupEvent(const EventContext&) override
     { return StatusCode::FAILURE; }
 
     /** Setup Event chain - in case of a begin-of event action is needed (called by ISimulationSvc) */
     virtual StatusCode setupEventST() override
-    { return setupEvent(); }
+    { return setupEvent(Gaudi::Hive::currentContext()); }
 
     /** */
     virtual StatusCode simulate( const ISFParticle& , ISFParticleContainer&, McEventCollection*) const override
@@ -89,12 +89,12 @@ namespace ISF {
     }
 
     /** Release Event chain - in case of an end-of event action is needed */
-    virtual StatusCode releaseEvent() override
+    virtual StatusCode releaseEvent(const EventContext&) override
     { return StatusCode::FAILURE; }
 
     /** Release Event chain - in case of an end-of event action is needed (called by ISimulationSvc) */
     virtual StatusCode releaseEventST() override
-    { return releaseEvent(); }
+    { return releaseEvent(Gaudi::Hive::currentContext()); }
 
     /** wrapper call to start chrono with given tag */
     const ChronoEntity* chronoStart(const IChronoSvc::ChronoTag& tag ) {

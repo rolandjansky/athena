@@ -8,14 +8,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def TrackingGeoCfg(inputFlags):
     result = ComponentAccumulator()
 
-    # TODO: we should properly declare dependencies
-    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
-    result.merge(InDetGeometryCfg(inputFlags))
-
-    # Something builds muon stations -- extrapolator?
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-    result.merge(MuonGeoModelCfg(inputFlags))
-
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     result.merge(TrackingGeometrySvcCfg(inputFlags))
 
@@ -41,7 +33,7 @@ def CaloGeoAndNoiseCfg(inputFlags):
     return result
 
 def PFExtrapolatorCfg(flags):
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     result = ComponentAccumulator()
     extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
     result.merge(extrapolator_acc)
@@ -85,7 +77,7 @@ def MuonCaloTagCfg(flags, tracktype, tracksin, extcache, cellsin):
     
     Return the component accumulator and the tracks with muons removed
     """
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     result = ComponentAccumulator()
     extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
     result.merge(extrapolator_acc)

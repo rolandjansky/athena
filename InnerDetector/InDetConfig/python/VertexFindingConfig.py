@@ -72,8 +72,6 @@ def primaryVertexFindingCfg(flags):
 
     return acc
 
-###################################################################
-# secondary vertex finding (for egamma)
 
 
 
@@ -145,7 +143,7 @@ def TrkVKalVrtFitterCfg(flags, name="TrkVKalVrtFitter"):
     acc = ComponentAccumulator()
     kwargs= {}
     from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
+    kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["FirstMeasuredPoint"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPoint
     kwargs["FirstMeasuredPointLimit"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPointLimit
     kwargs["InputParticleMasses"] = flags.InDet.SecVertex.Fitter.InputParticleMasses

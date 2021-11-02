@@ -21,9 +21,7 @@ namespace {
 }
 
 //------------------------------------------------------------
-// TEMPORARY: This needs to change to return const once clients
-// have been updated.
-TileCablingService * TileCablingService::getInstance()
+const TileCablingService * TileCablingService::getInstance()
 {
     return &cablingService;
 }

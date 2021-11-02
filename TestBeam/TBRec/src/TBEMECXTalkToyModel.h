@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBEMECXTALKTOYMODEL_H
@@ -11,9 +11,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-
-class CaloDetDescrManager;
-
 
 class TBEMECXTalkToyModel
   : public extends<AthAlgTool, ICaloCellMakerTool>
@@ -37,7 +34,6 @@ public:
 
   bool m_caloSelection ;
 
-  const CaloDetDescrManager * m_calo_dd_man;
   const CaloCell_ID * m_calo_id;
 
 

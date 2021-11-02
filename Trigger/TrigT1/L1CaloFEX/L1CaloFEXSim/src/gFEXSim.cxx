@@ -56,7 +56,7 @@ namespace LVL1 {
 
  }
 
-StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
+StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputCollection* gFEXOutputs){
 
    typedef  std::array<std::array<int, 12>, 32> gTowersCentral;
    typedef  std::array<std::array<int, 7>, 32> gTowersForward;
@@ -142,7 +142,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(3));
-   m_gFEXFPGA_Tool->SetTowersAndCells_SG(tmp_gTowersIDs_subset_forwardFPGA);
+   m_gFEXFPGA_Tool->SetTowersAndCells_SG(tmp_gTowersIDs_subset_forwardFPGA_N);
    m_gFEXFPGA_Tool->GetEnergyMatrix(CNtwr);
    m_gFEXFPGA_Tool->reset();
    //FPGA C-N----------------------------------------------------------------------------------------------------------------------------------------------
@@ -211,9 +211,6 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset){
    m_gMETComponentsJwojTobWords[0] = outTOB[1];//
    m_gMHTComponentsJwojTobWords[0] = outTOB[2];//
    m_gMSTComponentsJwojTobWords[0] = outTOB[3];//
-
-   gFEXOutputCollection* gFEXOutputs;
-   ATH_CHECK(evtStore()->retrieve(gFEXOutputs, "gFEXOutputCollection"));
 
 
    for (int i = 0; i <14; i++){

@@ -139,7 +139,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
 
-        if self.dict["eventBuildType"]=="JetDS":
+        if self.dict["eventBuildType"]=="PhysicsTLA":
             # Select the TLA jets from the full jet container
             # rather than the filtered one seen by the hypo
             # (No diff in practice if the TLA cut is higher than the hypo filter)
@@ -208,7 +208,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         assert 'recoAlg' in self.trkpresel_parsed_reco.keys(), "Impossible to find \'recoAlg\' key in last chain dictionary for preselection"
         #Want to match now only a4 and a10 in the original reco algorithm. We don't want to use a10sd or a10t in the preselection
         matched_reco = re.match(r'^a\d?\d?',self.trkpresel_parsed_reco['recoAlg'])
-        assert matched_reco is not None, "Impossible to get matched reco algorithm for jet trigger preselectiona The reco expression {0} seems to be impossible to be parsed.".format(self.trkpresel_parsed_reco['recoAlg'])
+        assert matched_reco is not None, "Impossible to get matched reco algorithm for jet trigger preselection The reco expression {0} seems to be impossible to be parsed.".format(self.trkpresel_parsed_reco['recoAlg'])
 
         # Define a fixed preselection dictionary for prototyping -- we may expand the options
         preselRecoDict = {
@@ -235,17 +235,22 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         # Get from the last chainPart in order to avoid to specify preselection for every leg
         #TODO: add protection for cases where the preselection is not specified in the last chainPart
-        presel_matched = re.match(r'presel(?P<cut>\d?\d?j[\d\D]+)', self.trkpresel)
+        presel_matched = re.match(r'presel(?P<cut>\d?\d?[jacf][\d\D]+)', self.trkpresel)
         assert presel_matched is not None, "Impossible to match preselection pattern for self.trkpresel=\'{0}\'.".format(self.trkpresel)
         presel_cut_str = presel_matched.groupdict()['cut'] #This is the cut string you want to parse. For example 'presel2j50XXj40'
 
         for p in presel_cut_str.split('XX'):
-            matched = re.match(r'(?P<mult>\d?\d?)j(?P<cut>\d+)', p)
+            matched = re.match(r'(?P<mult>\d?\d?)(?P<region>[jacf])(?P<cut>\d+)', p)
             assert matched is not None, "Impossible to extract preselection cut for \'{0}\' substring. Please investigate.".format(p)
             cut_dict = matched.groupdict()
-            mult,cut=cut_dict['mult'],cut_dict['cut']
+            mult,region,cut=cut_dict['mult'],cut_dict['region'],cut_dict['cut']
             chainPartName=f'{mult}j{cut}'
             if mult=='': mult='1'
+            etarange = {
+                "j":"0eta320", # default
+                "a":"0eta490",
+                "c":"0eta240",
+                "f":"320eta490"}[region]
 
             tmpChainDict = dict(preselCommonJetParts) 
             tmpChainDict.update(
@@ -253,11 +258,36 @@ class JetChainConfiguration(ChainConfigurationBase):
                  'chainPartName': chainPartName,
                  'multiplicity': mult,
                  'threshold': cut,
+                 'etaRange':etarange,
                  'jvt':'',
                  }
             )
             preselChainDict['chainParts'] += [tmpChainDict]
 
+        # We need to pad by the legs not in the preselection expression
+        # otherwise the ComboHypo does not find the corresponding
+        # legs in the DecisionObject and kills the event
+        jetlegs = sum([p['signature'] in ["Jet","Bjet"] for p in self.chainPart])
+        padding = jetlegs-len(preselChainDict['chainParts'])
+        if padding>0:
+            preselChainDict['chainParts'][-1]['chainPartName']+='_SHARED'
+            preselChainDict['chainParts'][-1]['tboundary']='SHARED'
+            dummyLegPart = dict(preselCommonJetParts)
+            dummyLegPart.update(
+                {'L1threshold': 'FSNOSEED',
+                 'chainPartName': 'j0_SHARED',
+                 'multiplicity': '1',
+                 'threshold': '0',
+                 'jvt':'',
+                 'tboundary': 'SHARED'
+                 }
+            )
+            preselChainDict['chainParts'] += [dict(dummyLegPart) for i in range(padding)]
+            # Last one is not permitted to be shared as there is nothing following
+            preselChainDict['chainParts'][-1]['chainPartName']='j0'
+            preselChainDict['chainParts'][-1]['tboundary']=''
+
+        assert(len(preselChainDict['chainParts'])==len(self.chainPart))
         jetDefStr = jetRecoDictToString(preselRecoDict)
 
         stepName = "PreselStep_jet_"+jetDefStr

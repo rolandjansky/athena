@@ -39,7 +39,7 @@ def ITkStripClusterizationCfg(flags, name="ITkStripClusterization", **kwargs) :
     acc = ComponentAccumulator()
 
     # Need to get ITkStrip_ConditionsSummaryTool for e.g. ITkStripClusteringTool
-    from InDetConfig.ITkRecToolConfig import ITkStripConditionsSummaryToolCfg
+    from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
     ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
 
     from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
@@ -77,8 +77,8 @@ def ITkStripClusterizationPUCfg(flags, name="ITkStripClusterizationPU", **kwargs
 def ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs) :
     acc = ComponentAccumulator()
 
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    acc.merge( ITkPixelGeometryCfg(flags))
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    acc.merge(ITkPixelReadoutGeometryCfg(flags))
 
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
 
@@ -141,10 +141,9 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
 def ITkTrackToVertexCfg(flags, name="ITkTrackToVertex", **kwargs):
     result = ComponentAccumulator()
     if "Extrapolator" not in kwargs:
-        #Run 3 uses
-        #from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg 
-        from InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-        kwargs["Extrapolator"] = result.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
+        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+        Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+        kwargs["Extrapolator"] = Extrapolator
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
 
     result.merge(BeamSpotCondAlgCfg(flags))
@@ -229,12 +228,6 @@ def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContain
 def ITkTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
-
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-    result.merge( ITkPixelGeometryCfg(flags))
-
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    result.merge( ITkStripGeometryCfg(flags))
 
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     result.merge(BeamPipeGeometryCfg(flags))

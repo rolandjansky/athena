@@ -18,6 +18,9 @@
 
 class IPileUpTool;
 
+namespace ITk
+{
+
 /** Top algorithm class for Strip digitization */
 class StripDigitization : public AthAlgorithm {
 
@@ -39,5 +42,7 @@ class StripDigitization : public AthAlgorithm {
   ToolHandle<IPileUpTool> m_stripDigitizationTool{this, "DigitizationTool", "StripDigitizationTool", "StripDigitizationTool name"};
 
 };
+
+} // namespace ITk
 
 #endif // STRIPDIGITIZATION_STRIPDIGITIZATION_H

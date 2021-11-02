@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // implementation of MakeLArCellFromRaw
@@ -14,8 +14,8 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
-#include "LArCabling/LArCablingLegacyService.h"
-#include "LArRawUtils/LArRoI_Map.h" 
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArRoIMap.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -31,7 +31,6 @@ using CLHEP::GeV;
 MakeLArCellFromRaw::MakeLArCellFromRaw()
   : m_poolMaxSize(0),
     m_msgSvc (0),
-    m_cablingSvc (0),
     m_onlineID (0),
     m_ethreshold(-1.e5) 
 {
@@ -43,7 +42,8 @@ MakeLArCellFromRaw::~MakeLArCellFromRaw()
  return ; 
 }
 
-void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* roiMap ,
+void MakeLArCellFromRaw::initialize ( const LArRoIMap& roiMap,
+                                      const LArOnOffIdMapping& onOffMap,
 	const std::vector<const CaloCellCorrection*>* pCorr, unsigned int poolMaxSize )
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
@@ -77,20 +77,6 @@ void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* ro
   const CaloDetDescrManager* man = nullptr;
   if ( detStore->retrieve (man, "CaloMgr").isFailure() ) {
     log << MSG::ERROR << "MakeLArCellFromRaw ERROR cannot retrieve CaloMgr " << endmsg;
-    return;
-  }
-
-  IToolSvc* p_toolSvc;
-  StatusCode status = svcLoc->service( "ToolSvc",p_toolSvc );
-  if(status.isFailure())
-  {
-    log <<MSG::ERROR << "cannot find ToolSvc in MakeLArCellFromRaw " << endmsg;
-    return;
-  }
-  sc = p_toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc);
-  if (sc.isFailure())
-  {
-    log <<MSG::INFO<< "cannot find LArCablingLegacyService in MakeLArCellFromRaw " << endmsg;
     return;
   }
 
@@ -141,13 +127,6 @@ void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* ro
   info0.eCorr=1.; 
   info0.elem = 0 ; 
 
-  // Make sure that the OnOff map has been set up.
-  if (!m_cablingSvc->checkOnOff().isSuccess()) {
-    MsgStream log(m_msgSvc, "MakeLArCellFromRaw");
-    log << MSG::ERROR << "Accessing OnOff map" << endmsg;
-  }
-
-
   // EM
   std::vector<Identifier>::const_iterator it = emIds.begin();
   std::vector<Identifier>::const_iterator it2 = emIds.end();
@@ -157,9 +136,7 @@ void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* ro
 
     try{ 
      
-      HWIdentifier sigId 
-              =m_cablingSvc->createSignalChannelID(chan_id);
-// GU 
+      HWIdentifier sigId = onOffMap.createSignalChannelID(chan_id);
       HWIdentifier feb   = m_onlineID->feb_Id(sigId);
       CELL_VEC::size_type chan  = m_onlineID->channel(sigId);   
       CELL_VEC& cellVec= m_cellMap[ feb.get_identifier32().get_compact() ] ; 
@@ -167,7 +144,7 @@ void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* ro
 
       CellInfo& cell = cellVec[chan] ;
 
-      if(roiMap) cell.tt  = roiMap->TrigTowerID(sigId); 
+      cell.tt  = roiMap.trigTowerID(sigId); 
 
       const CaloDetDescrElement* caloDDE =man->get_element( chan_id);
 
@@ -201,8 +178,7 @@ void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* ro
 
     try{ 
      
-      HWIdentifier sigId 
-              =m_cablingSvc->createSignalChannelID(chan_id);
+      HWIdentifier sigId = onOffMap.createSignalChannelID(chan_id);
 // to change using LArOnline methods
       HWIdentifier feb   = m_onlineID->feb_Id(sigId);
       CELL_VEC::size_type chan  = m_onlineID->channel(sigId);  
@@ -211,7 +187,7 @@ void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* ro
 
       CellInfo& cell = cellVec[chan] ;
 
-      if(roiMap) cell.tt  = roiMap->TrigTowerID(sigId); 
+      cell.tt  = roiMap.trigTowerID(sigId); 
 
       const CaloDetDescrElement* caloDDE =man->get_element( chan_id);
 
@@ -242,8 +218,7 @@ void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* ro
 
     try{ 
      
-      HWIdentifier sigId 
-              =m_cablingSvc->createSignalChannelID(chan_id);
+      HWIdentifier sigId = onOffMap.createSignalChannelID(chan_id);
 // GU to change to use LArOnlineID method
       HWIdentifier feb   = m_onlineID->feb_Id(sigId);
       CELL_VEC::size_type chan  = m_onlineID->channel(sigId);  
@@ -252,7 +227,7 @@ void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* ro
 
       CellInfo& cell = cellVec[chan] ;
 
-      if(roiMap) cell.tt  = roiMap->TrigTowerID(sigId); 
+      cell.tt  = roiMap.trigTowerID(sigId); 
 
       const CaloDetDescrElement* caloDDE =man->get_element( chan_id);
 

@@ -73,7 +73,7 @@ GeoNameTag *physVolName;
                     ". Error in gmx file. An IDREF for a logvol shape did not refer to a shape.\n" <<
               "Shape ref was " << shape_s << "; exiting" << endmsg;
             XMLString::release (&shape_s);
-            exit (1); // Need to improve...
+            std::abort();
         }
 //
 //    What sort of shape?
@@ -83,7 +83,7 @@ GeoNameTag *physVolName;
         XMLString::release(&name2release);
 	XMLString::release(&shape_tmp);
 
-        GeoShape *s = (GeoShape *) gmxUtil.geoItemRegistry.find(shapeType)->process(refShape, gmxUtil);
+        const GeoShape *s = static_cast<const GeoShape *> (gmxUtil.geoItemRegistry.find(shapeType)->process(refShape, gmxUtil));
 //
 //    Get the material
 //
@@ -99,10 +99,10 @@ GeoNameTag *physVolName;
                     ". Error in gmx file. An IDREF for a logvol material did not refer to a material.\n" <<
                     "Material ref was " << material_s << "; exiting" << endmsg;
            XMLString::release (&material_s);
-           exit (1); // Need to improve...
+           std::abort();
         }
 
-        GeoMaterial *m = (GeoMaterial *) gmxUtil.tagHandler.material.process(refMaterial, gmxUtil);
+        const GeoMaterial *m = static_cast<const GeoMaterial *> (gmxUtil.tagHandler.material.process(refMaterial, gmxUtil));
 
 //
 //    Make the LogVol and add it to the map ready for next time

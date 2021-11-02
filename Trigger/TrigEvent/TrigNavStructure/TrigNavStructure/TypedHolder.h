@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVSTRUCTURE_TYPEDHOLDER_H
@@ -176,8 +176,8 @@ namespace HLT{
     }
     
     TypedHolder(){;}
-    EventPtr m_store;
-    const CONTAINER* m_cont;
+    EventPtr m_store = nullptr;
+    const CONTAINER* m_cont = nullptr;
     std::string m_key;
   };    
 

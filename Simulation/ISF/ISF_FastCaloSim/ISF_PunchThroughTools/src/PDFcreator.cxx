@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// PDFcreator.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header
 #include "PDFcreator.h"
@@ -51,7 +47,7 @@ void ISF::PDFcreator::addToEnergyEtaRangeHist2DMap(double energy, std::vector<do
   }
 }
 
-double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, const double& outEnergy, const double& randMin, const double& randMax) const
+double ISF::PDFcreator::getRand(CLHEP::HepRandomEngine* rndmEngine, const std::vector<double>& inputParameters, const double& outEnergy, const double& randMin, const double& randMax) const
 {
 
     //define variable to return from getRand call, should never return zero
@@ -107,7 +103,7 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
         double distance = std::fabs(energyBinEdge - inputParameters.at(0))/std::fabs(selectedEnergy->first - energyBinEdge);
 
         //if we get a random number larger than the distance then choose other energy.
-        double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+        double rand = CLHEP::RandFlat::shoot(rndmEngine);
         if(rand > distance){
           selectedEnergy = secondSelectedEnergy;
         }
@@ -159,7 +155,7 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
     //calculate a distance of the input eta to the bin edge
     double distance = std::fabs(etaBinEdge - inputParameters.at(1))/std::fabs(itSelectedEtaWindow->first.at(0)  - itSelectedEtaWindow->first.at(1));
     //if we get a random number larger than the distance then choose other energy.
-    double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+    double rand = CLHEP::RandFlat::shoot(rndmEngine);
     if(rand > distance){
       itSelectedEtaWindow = itSecondEtaWindow;
     }
@@ -170,15 +166,15 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
     TFCS1DFunction* hist = itSelectedEtaWindow->second;
     //Draw randomly from the histogram distribution.
     //if obj is 1D histogram just draw randomly from it
-    random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
+    random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(rndmEngine));
     if(randMax != 0.){
       while (random < randMin || random > randMax){
-      random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
+      random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(rndmEngine));
       }
     }
     else{
       while (random < randMin){
-        random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
+        random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(rndmEngine));
       }
     }
 
@@ -235,7 +231,7 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
         double distance = std::fabs(energyBinEdge - inputParameters.at(0))/std::fabs(selectedEnergy->first - energyBinEdge);
 
         //if we get a random number larger than the distance then choose other energy.
-        double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+        double rand = CLHEP::RandFlat::shoot(rndmEngine);
         if(rand > distance){
           selectedEnergy = secondSelectedEnergy;
         }
@@ -286,7 +282,7 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
       //calculate a distance of the input eta to the bin edge
       double distance = std::fabs(etaBinEdge - inputParameters.at(1))/std::fabs(itSelectedEtaWindow->first.at(0)  - itSelectedEtaWindow->first.at(1));
       //if we get a random number larger than the distance then choose other energy.
-      double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+      double rand = CLHEP::RandFlat::shoot(rndmEngine);
       if(rand > distance){
         itSelectedEtaWindow = itSecondEtaWindow;
       }
@@ -315,15 +311,15 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
     TFCS1DFunction* hist = chosenBin->second;
 
     //draw random number from chosen hist
-    random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
+    random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(rndmEngine));
     if(randMax != 0.){
       while (random < randMin || random > randMax){
-      random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
+      random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(rndmEngine));
       }
     }
     else{
       while (random < randMin){
-        random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(m_randomEngine));
+        random = hist->rnd_to_fct(CLHEP::RandFlat::shoot(rndmEngine));
       }
     }
 
