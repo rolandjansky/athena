@@ -3,6 +3,7 @@
 #ifndef PATINTERFACES_CORRECTIONCODE_H
 #define PATINTERFACES_CORRECTIONCODE_H
 
+#include "CxxUtils/nodiscard.h"
 //          
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -32,7 +33,7 @@ namespace CP {
    /// $Revision: 719663 $
    /// $Date: 2016-01-25 21:27:50 +0100 (Mon, 25 Jan 2016) $
    ///
-   class [[nodiscard]] CorrectionCode {
+   class ATLAS_NODISCARD CorrectionCode {
 
    public:
       /// Possible values for the correction code
