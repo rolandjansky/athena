@@ -70,9 +70,9 @@ def muEFLateRoISequenceCfg(flags,is_probe_leg=False):
 def muEFLateSequenceCfg(flags,is_probe_leg=False):
     return efLateMuSequence()
 
-def TLAMuonMenuSequenceCfg(flags, is_probe_leg=False):
-    muonsIn = "HLT_Muons_RoI"
-    return TLAMuonMenuSequence(flags, muonsIn)
+# def TLAMuonMenuSequenceCfg(flags, is_probe_leg=False):
+#     muonsIn = "HLT_Muons_RoI"
+#     return TLAMuonMenuSequence(flags, muonsIn)
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -101,10 +101,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
                 chainstep = getattr(self, step)(is_probe_leg=is_probe_leg)
                 chainSteps+=[chainstep]
 
-        if self.dict["eventBuildType"] == "PhysicsTLA" :
-            log.debug('Adding muon trigger step getTLAMu')
-            TLAStep = self.getTLAMu()
-            chainSteps+= [TLAStep]
+        # if self.dict["eventBuildType"] == "PhysicsTLA" :
+        #     log.debug('Adding muon trigger step getTLAMu')
+        #     TLAStep = self.getTLAMu()
+        #     chainSteps+= [TLAStep]
     
         myChain = self.buildChain(chainSteps)
         return myChain
@@ -250,8 +250,8 @@ class MuonChainConfiguration(ChainConfigurationBase):
         return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])
 
 
-#--------------------
-    def getTLAMu(self,is_probe_leg=False): # No T&P support, add if needed
-        return self.getStep(5,'muonTLA',[TLAMuonMenuSequenceCfg])
+# #--------------------
+#     def getTLAMu(self,is_probe_leg=False): # No T&P support, add if needed
+#         return self.getStep(5,'muonTLA',[TLAMuonMenuSequenceCfg])
 
    

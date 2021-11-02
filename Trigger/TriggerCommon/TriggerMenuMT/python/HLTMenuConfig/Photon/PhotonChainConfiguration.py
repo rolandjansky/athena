@@ -30,9 +30,9 @@ def fastPhotonCaloSequenceCfg( flags ):
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence( flags )
 
-def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
-    photonsIn = "HLT_egamma_Photons"
-    return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
+# def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
+#     photonsIn = "HLT_egamma_Photons"
+#     return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
 
 def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Photon')
@@ -116,10 +116,10 @@ class PhotonChainConfiguration(ChainConfigurationBase):
 
 
  
-        if self.dict["eventBuildType"] == "PhysicsTLA" :
-            log.debug('Adding photon trigger step getTLAPhoton')
-            TLAStep = self.getTLAPhoton()
-            chainSteps+= [TLAStep]
+        # if self.dict["eventBuildType"] == "PhysicsTLA" :
+        #     log.debug('Adding photon trigger step getTLAPhoton')
+        #     TLAStep = self.getTLAPhoton()
+        #     chainSteps+= [TLAStep]
 
 
 
@@ -139,16 +139,16 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         stepName = "FastPhoton"
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
 
-    def getTLAPhoton(self):
-        stepName = "TLAPhoton"
-        HLT_threshold = 0
+    # def getTLAPhoton(self):
+    #     stepName = "TLAPhoton"
+    #     HLT_threshold = 0
        
-        for cPart in self.dict['chainParts']:
-            if 'Photon' in cPart['signature']:
-                HLT_threshold = float(cPart['threshold'])
+    #     for cPart in self.dict['chainParts']:
+    #         if 'Photon' in cPart['signature']:
+    #             HLT_threshold = float(cPart['threshold'])
             
-        #print("MARCOLOG ", HLT_threshold)    
-        return self.getStep(5, stepName, [TLAPhotonSequenceCfg],  HLT_threshold=HLT_threshold)
+    #     #print("MARCOLOG ", HLT_threshold)    
+    #     return self.getStep(5, stepName, [TLAPhotonSequenceCfg],  HLT_threshold=HLT_threshold)
 
     def getPrecisionCaloPhoton(self):
         stepName = "PhotonPrecisionCalo"
