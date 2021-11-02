@@ -28,9 +28,7 @@ def precisionElectronRecoSequence_LRT(RoIs):
        
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import TrigEgammaKeys_LRT
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
 
-    TrigEgammaKeys = getTrigEgammaKeys()
 
     ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier_LRT")
 

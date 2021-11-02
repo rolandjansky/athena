@@ -11,12 +11,12 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
-TrigEgammaKeys = getTrigEgammaKeys()
 
 def precisionTracking(RoIs, ion=False, variant=''):
 ## Taking Fast Track information computed in 2nd step ##
+    TrigEgammaKeys = getTrigEgammaKeys(variant)
 
-    IDTrigConfig = TrigEgammaKeys.getIDTrigConfig(variant)
+    IDTrigConfig = TrigEgammaKeys.IDTrigConfig
 
     tag = '_ion' if ion is True else ''
 
@@ -48,7 +48,7 @@ def precisionTracking(RoIs, ion=False, variant=''):
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois= RoIs )
     PTSeq = parOR("precisionTrackingInElectrons" + variant + tag, PTAlgs)
     #trackParticles = PTTrackParticles[-1]    
-    trackParticles = TrigEgammaKeys.getTrigElectronTracksCollectionName(variant)
+    trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName
 
     electronPrecisionTrack = parOR("electronPrecisionTrack" + variant + tag)
     electronPrecisionTrack += ViewVerifyTrk

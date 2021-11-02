@@ -18,7 +18,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 def fastElectronSequence(ConfigFlags, variant=''):
     """ second step:  tracking....."""
     
-    IDTrigConfig = TrigEgammaKeys.IDTrigConfig[variant]
+    IDTrigConfig = TrigEgammaKeys.IDTrigConfig
   
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs"+variant # contract with the fastCalo

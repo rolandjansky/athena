@@ -25,6 +25,101 @@ def getTrigEgammaKeys(name=''):
         raise Exception('getTrigEgammaKeys() called with non valid name : ' + name + ' valid names are:' + str(validnames))
 
 
+class TrigEgammaKeys_base():
+      """Base clas to configure TrigEgamma Container names, tuning names and other configurations"""
+      def __init__(self):
+        # First Egamma, calo and common configuration stuff
+        self._EgammaRecKey = 'HLT_egammaRecCollection'
+        self._TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusters'
+        self._outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
+        self._outputTopoCollection = 'HLT_egammaTopoCluster'
+        self._PrecisionCaloEgammaRecKey = 'HLT_prcisionCaloEgammaRecCollection'
+
+
+        # Tracking configuration stuff now
+        self._IDTrigConfig = getInDetTrigConfig( 'electron' )
+        self._outputTrackKey = 'HLT_IDTrkTrack_Electron'
+        self._outputTrackParticleKey = 'HLT_IDTrack_Electron'
+
+        # Electron Specific
+        self._SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
+        self._outputElectronKey = 'HLT_egamma_Electrons'
+
+        # Photon specific
+        self._SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
+        self._outputPhotonKey = 'HLT_egamma_Photons'
+
+        # Tunning configuration
+        self._pidVersion = 'rel22_20210611'
+        self._dnnVersion = 'mc16_20210430'
+        self._ringerVersion = 'TrigL2_20210702_r4'
+
+                                                
+      @property
+      def SuperElectronRecCollectionName(self):  
+          return self._SuperElectronRecCollectionName
+
+      @property
+      def outputElectronKey(self):               
+          return recordable(self._outputElectronKey)
+
+      @property
+      def SuperPhotonRecCollectionName(self):    
+          return self._SuperPhotonRecCollectionName
+
+      @property
+      def EgammaRecKey(self):                    
+          return self._EgammaRecKey
+
+      @property
+      def outputPhotonKey(self):                 
+          return recordable(self._outputPhotonKey)
+
+      @property
+      def outputTopoSeededClusterKey(self):      
+          return self._outputTopoSeededClusterKey
+
+      @property
+      def outputTopoCollection(self):      
+          return self._outputTopoCollection
+
+      @property
+      def PrecisionCaloEgammaRecKey(self):      
+          return self._PrecisionCaloEgammaRecKey
+
+      @property
+      def TrigEMClusterToolOutputContainer(self):
+          return recordable(self._TrigEMClusterToolOutputContainer)
+
+      @property
+      def IDTrigConfig(self):
+          return self._IDTrigConfig
+
+      @property
+      def TrigElectronTracksCollectionName(self):
+          return self._IDTrigConfig.tracks_IDTrig()
+
+      @property
+      def pidVersion(self):                      
+          return self._pidVersion
+
+      @property
+      def dnnVersion(self):                      
+          return self._dnnVersion
+
+      @property
+      def ringerVersion(self):                   
+          return self._ringerVersion
+
+
+      @property
+      def outputTrackKey(self):
+        return self._outputTrackKey
+
+      @property
+      def  outputTrackParticleKey(self):
+        return recordable(self._outputTrackParticleKey)
+      
 
 class TrigEgammaKeys_electrons_LRT(TrigEgammaKeys_base):
     # This class contians modified base configuration class for LRT electron trigger chains
@@ -44,86 +139,6 @@ class TrigEgammaKeys_electrons_GSF(TrigEgammaKeys_base):
 
 
 
-class TrigEgammaKeys_base():
-      """Base clas to configure TrigEgamma Container names, tuning names and other configurations"""
-      def __init__(self):
-        # First Egamma, calo and common configuration stuff
-        self._EgammaRecKey = 'HLT_egammaRecCollection'
-        self._TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusters'
-        self._outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
-
-        # Tracking configuration stuff now
-        self._IDTrigConfig = getInDetTrigConfig( 'electron' )
-        self._outputTrackKey = 'HLT_IDTrkTrack_Electron'
-        self._outputTrackParticleKey = recordable('HLT_IDTrack_Electron')
-
-        # Electron Specific
-        self._SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
-        self._outputElectronKey = 'HLT_egamma_Electrons'
-
-        # Photon specific
-        self._SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
-        self._outputPhotonKey = 'HLT_egamma_Photons'
-
-        # Tunning configuration
-        self._pidVersion = 'rel22_20210611'
-        self._dnnVersion = 'mc16_20210430'
-        self._ringerVersion = 'TrigL2_20210702_r4'
-
-                                                
-      @property
-      def SuperElectronRecCollectionName():  
-          return self._SuperElectronRecCollectionName
-
-      @property
-      def outputElectronKey():               
-          return recordable(self._outputElectronKey)
-
-      @property
-      def SuperPhotonRecCollectionName():    
-          return self._SuperPhotonRecCollectionName
-
-      @property
-      def EgammaRecKey():                    
-          return self._EgammaRecKey
-
-      @property
-      def outputPhotonKey():                 
-          return recordable(self._outputPhotonKey)
-
-      @property
-      def outputTopoSeededClusterKey():      
-          return self._outputTopoSeededClusterKey
-
-      @property
-      def TrigEMClusterToolOutputContainer():
-          return recordable(self._TrigEMClusterToolOutputContainer)
-
-      @property
-      def TrigElectronTracksCollectionName():
-          return self._IDTrigConfig().tracks_IDTrig()
-
-      @property
-      def pidVersion():                      
-          return self._pidVersion
-
-      @property
-      def dnnVersion():                      
-          return self._dnnVersion
-
-      @property
-      def ringerVersion():                   
-          return self._ringerVersion
-
-
-      @property
-      def outputTrackKey():
-        return self._outputTrackKey
-
-      @property
-      def  outputTrackParticleKey():
-        return recordable(self._outputTrackParticleKey)
-      
 
 
 _TrigEgammaConfigurations = {
