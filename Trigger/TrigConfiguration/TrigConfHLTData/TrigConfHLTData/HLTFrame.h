@@ -49,7 +49,6 @@ namespace TrigConf {
       const HLTChainList&             getHLTChainList() const { return m_HLTChainList; }    ///< const accessor to the list of HLT chains
       const HLTSequenceList&          getHLTSequenceList() const { return m_HLTSequenceList; } ///< const accessor to the list of HLT sequences
       const HLTPrescaleSetCollection& getPrescaleSetCollection() const { return m_hltPrescaleSets; }
-      const HLTPrescaleSet*           getPrescaleSet() const { return m_hltPrescaleSets.prescaleSet(); }
       const HLTPrescaleSet*           getPrescaleSet(unsigned int lbn) const { return m_hltPrescaleSets.prescaleSet(lbn); }
       bool                            mergedHLT() const { return m_setMergedHLT; }
       const std::string&              configSource() const { return m_ConfigSrc; }

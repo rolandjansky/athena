@@ -350,9 +350,12 @@ TrigConf::TrigConfCoolWriter::writeHLTPayload( ValidityRange vr,
       }
    }
 
-   if(hltFrame.getPrescaleSet() != 0)
-      writeHltPrescalePayload(vr.since(), vr.until(),  *(hltFrame.getPrescaleSet()));//*fHLTPrescaleSet);
-   
+   if(!hltFrame.getPrescaleSetCollection().sets().empty()) {
+      // we only support one prescale set at a time here
+      const HLTPrescaleSet& pss = *hltFrame.getPrescaleSetCollection().sets().front().pss;
+      writeHltPrescalePayload(vr.since(), vr.until(), pss);
+   }
+
    if( shouldFolderBeUpdated("/TRIGGER/HLT/Menu") ||
        shouldFolderBeUpdated("/TRIGGER/HLT/Groups") ) {
       if( hltFrame.getHLTChainList().size() > 0 ) {
@@ -413,7 +416,7 @@ TrigConf::TrigConfCoolWriter::writeHLTPayload( ValidityRange vr,
             throw;
          }
          catch(std::exception & e) {
-            m_ostream << "<writeRunPayload> Caught std::exception: " << e.what() << endl;
+            m_ostream << "<writeHLTPayload> Caught std::exception: " << e.what() << endl;
             throw;
          }
       } else {
