@@ -51,8 +51,9 @@ class TrigEgammaKeys_base():
 
         # Tunning configuration
         self._pidVersion = 'rel22_20210611'
-        self._dnnVersion = 'mc16_20210430'
+        self._dnnVersion = 'rel21_20210928'
         self._ringerVersion = 'TrigL2_20210702_r4'
+
 
                                                 
       @property
