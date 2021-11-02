@@ -16,7 +16,7 @@ from .ChainDictTools import splitInterSignatureChainDict
 from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from .ChainMerging import mergeChainDefs
 from .MenuAlignmentTools import MenuAlignment
-from ..CommonSequences import EventBuildingSequences
+from ..CommonSequences import EventBuildingSequences, TLABuildingSequences
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 
@@ -409,6 +409,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:
             log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
+            
+            if 'TLA' in eventBuildType:
+                TLABuildingSequences.addTLAStep(theChainConfig, mainChainDict)
+
             EventBuildingSequences.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
 
         log.debug('ChainConfigs  %s ', theChainConfig)
