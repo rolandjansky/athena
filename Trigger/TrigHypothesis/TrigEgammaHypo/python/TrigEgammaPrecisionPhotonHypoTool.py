@@ -8,7 +8,7 @@ from AthenaCommon.SystemOfUnits import GeV
 #
 def createTrigEgammaPrecisionPhotonHypoAlg(name, sequenceOut):
 
-  from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionPhotonSelectors
+  from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaPrecisionPhotonSelectors
   from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoAlg
   thePrecisionPhotonHypo = TrigEgammaPrecisionPhotonHypoAlg(name)
   thePrecisionPhotonHypo.IsEMNames = ['tight','medium','loose']
