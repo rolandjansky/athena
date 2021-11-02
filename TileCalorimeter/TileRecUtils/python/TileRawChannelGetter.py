@@ -112,6 +112,13 @@ class TileRawChannelGetter ( Configured)  :
             from TileConditions.TileCondToolConf import getTileCondToolOfcCool
             toolOfcCool = None
             toolOfcCoolOF1 = None
+            toolOfcOnFly = None
+
+            if not jobproperties.TileRecFlags.OfcFromCOOL:
+                from TileConditions.TileConditionsConf import TileCondToolOfc
+                toolOfcOnFly = TileCondToolOfc()
+                toolOfcOnFly.nSamples = TileFrameLength # default = 7
+                toolOfcOnFly.OptFilterDeltaCorrelation = False if TileFrameLength == 7 else True  # False - use matrix from DB
 
             NoiseFilterTools = []
             TileRawChannelContainerDSP = ''
@@ -428,6 +435,8 @@ class TileRawChannelGetter ( Configured)  :
                 # setup COOL to get OFCs
                 if jobproperties.TileRecFlags.OfcFromCOOL():
                     theTileRawChannelBuilderOpt2Filter.TileCondToolOfc = toolOfcCool
+                else:
+                    theTileRawChannelBuilderOpt2Filter.TileCondToolOfc = toolOfcOnFly
                     
                 #TileRawChannelBuilderOpt2Filter Options:
                 jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelOpt2"
@@ -463,6 +472,8 @@ class TileRawChannelGetter ( Configured)  :
                 # setup COOL to get OFCs
                 if jobproperties.TileRecFlags.OfcFromCOOL():
                     theTileRawChannelBuilderOptATLAS.TileCondToolOfc = toolOfcCool
+                else:
+                    theTileRawChannelBuilderOptATLAS.TileCondToolOfc = toolOfcOnFly
                     
                 #TileRawChannelBuilderOptATLAS Options:
                 if globalflags.DataSource()=='data': # don't use the name which is used for reco data from DSP
