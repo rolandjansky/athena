@@ -191,15 +191,12 @@ for radius in [0.2, 0.6]:
 #=======================================
 if DerivationFrameworkIsMonteCarlo:
     ###addMETTruthMap('AntiKt4EMTopo',"JETMX")
-    #addMETTruthMap('AntiKt4LCTopo',"JETMX")
     ###addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm3Seq,"JETMX")
     ## Add GhostTruthAssociation information ##
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    #addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
     #addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    #addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
 
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
@@ -215,23 +212,13 @@ JETM3SlimmingHelper = SlimmingHelper("JETM3SlimmingHelper")
 JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "MET_Reference_AntiKt4EMTopo",
-                                        #"MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt2LCTopoJets", "AntiKt6LCTopoJets",
                                         "AntiKt4TruthWZJets",
                                         "AntiKt10TruthJets",
-                                        "AntiKt10UFOCSSKJets",
-                                        "AntiKt10UFOCHSJets",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TruthSoftDropBeta100Zcut10Jets",
-                                        "AntiKt10TruthBottomUpSoftDropBeta100Zcut5Jets",
-                                        "AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-                                        "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
-                                        "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
                                         "BTagging_AntiKt4EMPFlow",
                                         "BTagging_AntiKt4EMTopo",
 					]
@@ -242,7 +229,7 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "LVL1JetRoIs",
                                     "JetETMissChargedParticleFlowObjects",
                                     "JetETMissNeutralParticleFlowObjects",
-                                    "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",#"Kt4LCTopoOriginEventShape",
+                                    "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
 JETM3SlimmingHelper.ExtraVariables = [
   'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',

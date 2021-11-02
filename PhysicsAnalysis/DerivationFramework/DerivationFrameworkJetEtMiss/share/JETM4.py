@@ -22,8 +22,8 @@ from DerivationFrameworkPhys import PhysCommon
 # NOTE: need to add isSimulation as OR with trigger
 
 JETM4SkimmingTools = []
+from DerivationFrameworkJetEtMiss import TriggerLists
 if not DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkJetEtMiss import TriggerLists
   triggerlist = TriggerLists.single_photon_Trig()
 
   triggers = '||'.join(triggerlist)
@@ -152,9 +152,6 @@ jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
 
 OutputJets["JETM4"] = []
 
-# AntiKt10*PtFrac5Rclus20
-addDefaultTrimmedJets(jetm4Seq,"JETM4")
-
 #====================================================================
 # ADD PFLOW AUG INFORMATION 
 #====================================================================
@@ -166,8 +163,8 @@ applyPFOAugmentation(DerivationFrameworkJob)
 #===================================================
 
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
-addVRJets(jetm4Seq,largeRColls=largeRJetCollections)
-addVRJets(jetm4Seq,largeRColls=largeRJetCollections, training='201903')
+addVRJets(jetm4Seq,largeRColls=["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
+addVRJets(jetm4Seq,largeRColls=["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"], training='201903')
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
@@ -175,7 +172,6 @@ addVRJets(jetm4Seq,largeRColls=largeRJetCollections, training='201903')
 
 if DerivationFrameworkIsMonteCarlo:
     #addMETTruthMap('AntiKt4EMTopo',"JETMX")
-    #addMETTruthMap('AntiKt4LCTopo',"JETMX")
     #addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     #scheduleMETAssocAlg(jetm4Seq,"JETMX")
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
@@ -201,24 +197,11 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt10TruthJets",
                                         "AntiKt10LCTopoJets",
-                                        "AntiKt10UFOCSSKJets",
-                                        "AntiKt10UFOCHSJets",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-                                        "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
-                                        "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
-                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
-                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
-                                        #"AntiKt4EMPFlowJets_BTagging201810",
-                                        #"AntiKt4EMPFlowJets_BTagging201903",
-                                        #"AntiKt4EMTopoJets_BTagging201810",
                                         "BTagging_AntiKt4EMPFlow",
                                         "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02Track"
-
+                                        "BTagging_AntiKtVR30Rmax4Rmin02PV0TrackJets"
                                         ]
 
 JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
