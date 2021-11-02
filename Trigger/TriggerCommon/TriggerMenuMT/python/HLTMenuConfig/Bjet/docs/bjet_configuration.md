@@ -251,7 +251,8 @@ The following list will describe the available files and their functionality:
      Those two files are being called by '*GenerateBjetChainDefs.py*'. Input are the chain dictionaries with only one chain part, created in `GenerateBjetChainDefs.py`. They interpret the chain dict and build the chain for jet reconstruction and b-tagging, respectively. For details on the jet reconstruction please consult the respective documentation. Here we will focus on the b-tagging code.\
 In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the chain part steps. The sequence is extracted from `getBJetSequence`, which is defined in '*BjetMenuSequence*'.
      ```python
-      chainSteps = [self.getStep(2, "Step2_bjet", [bjetSequenceCfg])]
+      stepName = f"Step2_{self.jc_name}_bjet"
+      chainSteps = [self.getStep(2, stepName, [bjetSequenceCfg])]
      ```
      Based on these steps the chain is being build
      ```python
@@ -261,7 +262,7 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
      In the log-files this step can be recognised by its name "Step2_bjet". It is called "Step2" as the first step is the jet-reconstruction.
 
 3. [BjetMenuSequence](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetMenuSequences.py)\
-     This file assembles all reconstruction algorithms into the bjet sequence mentioned above. As input it requires only the name of the jet-collection. In the end a '*MenuSequence*' is being returned. A '*MenuSequence*' consits of three parts: '*InputMaker*', '*Sequence*' and '*Hypo*'.
+     This file assembles all reconstruction algorithms into the bjet sequence mentioned above. As input it requires only the name of the jet-collection. In this way the code can be run for "EMTopo" and "EMPFlow" jet-collections. In the end a '*MenuSequence*' is being returned. A '*MenuSequence*' consits of three parts: '*InputMaker*', '*Sequence*' and '*Hypo*'.
     - **InputMaker**\
       The **InputMaker** defines the environement in which the **sequence** will be executed.\
       At first an event view is being created for every Region-of-Interest (RoI, `outputRoIName = "HLT_Roi_Bjet"`)
@@ -299,7 +300,7 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
       ```
       At this point all of our inputs are defined and accessible inside the view. Though important to remember is that all collections inside the view have to be defined in [TriggerEDMRun3.py](https://gitlab.cern.ch/atlas/athena/-/blob/BjetDoc/Trigger/TriggerCommon/TrigEDMConfig/python/TriggerEDMRun3.py) with the respective '*inViews*'-name, here '*BTagViews*' cf.
       ```python
-        Views = "BTagViews"
+        Views = f"BTagViews_{jc_name}"
       ```
       in order to be saved.
     - **Sequence**\
@@ -314,9 +315,9 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
         from AthenaCommon.Configurable import ConfigurableRun3Behavior
         with ConfigurableRun3Behavior():
       ```
-      Then we can extract the sequence of algorithms and output b-tagging container name from '*getFlavourTagging*' (see [BjetFlavourTaggingConfiguration.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetFlavourTaggingConfiguration.py))
+      Then we can extract the sequence of flavour-tagging algorithms from '*getFlavourTagging*' (see [BjetFlavourTaggingConfiguration.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetFlavourTaggingConfiguration.py))
       ```python
-        acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging(
+        acc_flavourTaggingAlgs = getFlavourTagging(
             inputJets=str(InputMakerAlg.InViewJets),
             inputVertex=prmVtxKey,
             inputTracks=PTTrackParticles[0],
@@ -327,29 +328,33 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
       The '*Trackparticles*' together with the '*Jets*' and '*Primary Vertex*' serve as inputs (Muons are not supported, yet.).\
       In a next step the flavour-tagging algorithms are converted back to old-style format, since the rest of the code is in old-style format, too. To do so the algorithms are being extracted from the '*ComponentAccumulator*' and reconfigured.
       ```python
-        for alg in findAllAlgorithms(acc_flavourTaggingAlgs.getSequence("AthAlgSeq")):
-        AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
+        flavourTaggingAlgs = [conf2toConfigurable(alg)
+                          for alg in findAllAlgorithms(acc_flavourTaggingAlgs._sequence)]
       ```
+      Parts of the ComponentAccumulator "acc_flavourTaggingAlgs" that aren't algorithms, e.g. conditionsAlgs, are added to athena via
+       ```python
+         appendCAtoAthena(acc_flavourTaggingAlgs)
+       ```
       Finally the tracking and flavour-tagging sequence are merged into one sequence.
       ```python
-        bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
+        bJetBtagSequence = seqAND( f"bJetBtagSequence_{jc_name}", secondStageAlgs + flavourTaggingAlgs )
       ```
       They are merged sequentially ('*seqAND*'), since flavour-tagging needs the trackparticle-collection as an input.\
       For a similar reason **InputMaker** and the above sequence are merged sequentially, too
       ```python
-        BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
+        BjetAthSequence = seqAND( f"BjetAthSequence_{jc_name}_step2",[InputMakerAlg,bJetBtagSequence] )
       ```
       This is the final sequence being given to '*MenuSequence*'.
     - **Hypo**\
       The **hypo** algorithm tests whether a given hypothesis is `True` or `False`. For the bjet signature it tests whether the chain fulfills the given b-tagging requirements.\
       The algorithm for this (see [TrigBjetBtagHypoAlg.cxx](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetBtagHypoAlg.cxx)) is loaded via
       ```python
-        hypo = TrigBjetBtagHypoAlg( "TrigBjetBtagHypoAlg" )
+        hypo = TrigBjetBtagHypoAlg( f"TrigBjetBtagHypoAlg_{jc_name}" )
       ```
       The inputs to it are the names of the jet, b-Tagging, tracks and PV collections
       ```python
         hypo.BTaggedJetKey = InputMakerAlg.InViewJets
-        hypo.BTaggingKey = bTaggingContainerName
+        hypo.BTaggingKey = BTagName
         hypo.TracksKey = PTTrackParticles[0]
         hypo.PrmVtxKey = newRoITool.VertexReadHandleKey
       ```
@@ -451,10 +456,17 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
        - DL1d_loose: `HLT_{jc_key}BTagging.DL1d20210519r22_pb`, `.DL1d20210519r22_pc`, `.DL1d20210519r22_pu`
        - DL1d: `HLT_{jc_key}BTagging.DL1d20210528r22_pb`, `.DL1d20210528r22_pc`, `.DL1d20210528r22_pu`
 
-     For more informations on the specific flavour-tagging algorithms consult [atlassoftwaredocs-ftag](https://atlassoftwaredocs.web.cern.ch/_staging/create-ftag-guides/guides/ftag/).
-     In the end the BTaggingContainer, with the decorated b-tagging probabilities, will be returned.
+     For more informations on the specific flavour-tagging algorithms consult [atlassoftwaredocs-ftag](https://atlassoftwaredocs.web.cern.ch/_staging/create-ftag-guides/guides/ftag/).\
+     For the "old" Run2 taggers the calibration of the algorithms are stored in the conditions database. The function `JetTagCalibConfig` is a condition algorithm that takes care of loading the correct calibrations
      ```python
-       return [acc,BTagName]
+       acc.merge(JetTagCalibCfg(ConfigFlags, scheme="Trig",
+                             TaggerList=ConfigFlags.BTagging.Run2TrigTaggers,
+                             NewChannel = [f"{inputJetsPrefix}->{inputJetsPrefix},AntiKt4EMTopo"]))
+     ```
+     This is then also added to the ComponentAccumulator.\
+     In the end the ComponentAccumulator will be returned
+     ```python
+       return acc
      ```
 
 ## TrigBjetHypo
