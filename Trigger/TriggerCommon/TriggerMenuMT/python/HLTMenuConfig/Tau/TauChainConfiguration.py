@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauCaloMVAClusMenuSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelTTSeq, tauPrecTrackIsoSeq, tauTrackTwoMVATestSeq, tauTrackTwoMVAClusSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauTrackTwoPrecSeq, tauTrackTwoMVASeq, tauTrackTwoLLPSeq, tauPreSelTTSeq, tauPrecTrackIsoSeq, tauTrackTwoMVATestSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -21,9 +21,6 @@ def getTauCaloCfg(flags, is_probe_leg=False):
 
 def getTauCaloMVACfg(flags, is_probe_leg=False):
     return tauCaloMVAMenuSeq("Tau", is_probe_leg=is_probe_leg)
-
-def getTauCaloMVAClusCfg(flags, is_probe_leg=False):
-    return tauCaloMVAClusMenuSeq("Tau", is_probe_leg=is_probe_leg)
 
 def getFTFCoreCfg(flags, is_probe_leg=False):
     return tauFTFTauCoreSeq(is_probe_leg=is_probe_leg)
@@ -39,9 +36,6 @@ def getTrackTwoPrecCfg(flags, is_probe_leg=False):
 
 def getTrackTwoMVACfg(flags, is_probe_leg=False):
     return tauTrackTwoMVASeq(is_probe_leg=is_probe_leg)
-
-def getTrackTwoMVAClusCfg(flags, is_probe_leg=False):
-    return tauTrackTwoMVAClusSeq(is_probe_leg=is_probe_leg)
 
 def getTrackTwoMVATestCfg(flags, is_probe_leg=False):
     return tauTrackTwoMVATestSeq(is_probe_leg=is_probe_leg)
@@ -78,7 +72,6 @@ class TauChainConfiguration(ChainConfigurationBase):
             "ptonly"        :['getCaloSeq'   , 'getFTFEmpty', 'getTrkEmpty' , 'getTauEmpty'  , 'getPTEmpty'      , 'getIDEmpty'      ], 
             "tracktwo"      :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
             "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
-            "tracktwoMVAClus" :['getCaloMVAClusSeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVAClus' ],
             "tracktwoMVATest" :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVATest' ],
             "tracktwoMVABDT":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
             "tracktwoLLP":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoLLP' ],
@@ -108,11 +101,6 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getCaloMVASeq(self, is_probe_leg=False):
         stepName = 'MVA_tau'
         return self.getStep(1,stepName, [getTauCaloMVACfg], is_probe_leg=is_probe_leg)
-
-    # --------------------
-    def getCaloMVAClusSeq(self, is_probe_leg=False):
-        stepName = 'MVAClus_tau'
-        return self.getStep(1,stepName, [getTauCaloMVAClusCfg], is_probe_leg=is_probe_leg)
         
     # --------------------
     def getFTFCore(self, is_probe_leg=False):
@@ -168,11 +156,6 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getTrackTwoMVA(self, is_probe_leg=False):
         stepName = "TrkTwoMVA_tau"
         return self.getStep(6,stepName,[getTrackTwoMVACfg],is_probe_leg=is_probe_leg)
-  
-    # --------------------
-    def getTrackTwoMVAClus(self, is_probe_leg=False):
-        stepName = "TrkTwoMVAClus_tau"
-        return self.getStep(6,stepName,[getTrackTwoMVAClusCfg],is_probe_leg=is_probe_leg)
 
     # --------------------                                                                                                                                                                                  
     def getTrackTwoMVATest(self, is_probe_leg=False):

@@ -7,7 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauCaloMVAClusSequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauTrackTwoSequence, tauMVASequence, tauLLPSequence, tauPreSelTTSequence, tauPrecIsoTrackSequence, tauMVAClusSequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauTrackTwoSequence, tauMVASequence, tauLLPSequence, tauPreSelTTSequence, tauPrecIsoTrackSequence
 
 # ===============================================================================================
 #      Calo step
@@ -46,25 +46,6 @@ def tauCaloMVAMenuSeq(name, is_probe_leg=False):
     return  MenuSequence( Sequence    = sequence,
                           Maker       = tauCaloMVAViewsMaker,
                           Hypo        = theTauCaloMVAHypo,
-                          HypoToolGen = TrigL2TauHypoToolFromDict,
-                          IsProbe     = is_probe_leg )
-
-# ===============================================================================================
-#      Calo MVA Clus step
-# ===============================================================================================
-def tauCaloMVAClusMenuSeq(name, is_probe_leg=False):
-    (sequence, tauCaloMVAClusViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauCaloMVAClusSequence,ConfigFlags)
-
-    # hypo
-    from TrigTauHypo.TrigTauHypoConf import TrigTauCaloHypoAlg
-    theTauCaloMVAClusHypo = TrigTauCaloHypoAlg(name+"L2CaloMVAClusHypo")
-    theTauCaloMVAClusHypo.taujets     = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigL2TauHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = tauCaloMVAClusViewsMaker,
-                          Hypo        = theTauCaloMVAClusHypo,
                           HypoToolGen = TrigL2TauHypoToolFromDict,
                           IsProbe     = is_probe_leg )
 
@@ -163,26 +144,6 @@ def tauTrackTwoMVASeq(is_probe_leg=False):
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict,
                           IsProbe     = is_probe_leg )
-
-# ===============================================================================================
-#     Tau Precision MVA Alg + EFMVHypo step   (tracktwoMVAClus)
-# ===============================================================================================
-
-def tauTrackTwoMVAClusSeq(is_probe_leg=False):
-    (sequence, mvaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauMVAClusSequence,ConfigFlags )
-
-    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
-    precisionHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgMVAClus")
-    precisionHypo.taujetcontainer = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = mvaViewsMaker,
-                          Hypo        = precisionHypo,
-                          HypoToolGen = TrigEFTauMVHypoToolFromDict,
-                          IsProbe     = is_probe_leg )
-
 
 # ===============================================================================================                                                                                                                                     
 #     Tau Precision MVA Alg + EFMVHypo test step   (tracktwoMVATest)                                                                                                                                                                  
