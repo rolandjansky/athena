@@ -37,22 +37,21 @@ def get_alignment_group_ordering():
     return [v for v in the_signature_grouping.values() if not (v in seen or seen.add(v))]
 
 def get_alignment_group_from_pattern(signature, tnpInfo, extra):
-    log.debug("debo 1")
-    signature_tnp_for_alignment = signature + tnpInfo
-    log.debug("debo 2")
-    signature_extra_for_alignment = signature + extra
-    log.debug("debo 3")
-    log.debug("[get_alignment_group_from_pattern] Searching for alignment group for %s",signature_tnp_for_alignment)
+
+    if tnpInfo :
+        signature_for_alignment = signature + tnpInfo
+    else :
+        signature_for_alignment = signature + extra
+
+    log.debug("[get_alignment_group_from_pattern] Searching for alignment group for %s",signature_for_alignment)
     
-    if signature_tnp_for_alignment in the_signature_grouping.keys():
-        return the_signature_grouping[signature_tnp_for_alignment]
-    elif signature_extra_for_alignment in the_signature_grouping.keys():
-        return the_signature_grouping[signature_extra_for_alignment]
+    if signature_for_alignment in the_signature_grouping.keys():
+        return the_signature_grouping[signature_for_alignment]
     elif signature in the_signature_grouping.keys():
-        log.debug("[get_alignment_group_from_pattern] Falling back to signature alignment grouping for %s (%s)",signature,tnpInfo)
+        log.debug("[get_alignment_group_from_pattern] Falling back to signature alignment grouping for %s",signature)
         return the_signature_grouping[signature]
     else:
-        log.debug("[get_alignment_group_from_pattern] No dedicated alignment grouping for signature %s (%s) ",signature,tnpInfo)
+        log.debug("[get_alignment_group_from_pattern] No dedicated alignment grouping for signature %s",signature)
         return signature
 
 def remove_duplicates(config_tuples):
