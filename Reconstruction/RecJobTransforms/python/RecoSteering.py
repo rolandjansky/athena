@@ -22,6 +22,12 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(PoolReadCfg(flags))
         log.info("---------- Configured POOL reading")
 
+    # AOD2xAOD Truth conversion
+    if flags.Input.isMC:
+        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        acc.merge(GEN_AOD2xAODCfg(flags))
+        log.info("---------- Configured xAODTruthCnvAlg")
+
     # calorimeter
     if flags.Reco.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
