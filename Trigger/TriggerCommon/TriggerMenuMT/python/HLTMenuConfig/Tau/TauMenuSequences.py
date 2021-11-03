@@ -145,25 +145,6 @@ def tauTrackTwoMVASeq(is_probe_leg=False):
                           HypoToolGen = TrigEFTauMVHypoToolFromDict,
                           IsProbe     = is_probe_leg )
 
-# ===============================================================================================                                                                                                                                     
-#     Tau Precision MVA Alg + EFMVHypo test step   (tracktwoMVATest)                                                                                                                                                                  
-# ===============================================================================================                                                                                                                                     
-
-def tauTrackTwoMVATestSeq(is_probe_leg=False):
-    (sequence, mvaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauMVASequence,ConfigFlags )
-
-    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
-    precisionHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgMVATest")
-    precisionHypo.taujetcontainer = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = mvaViewsMaker,
-                          Hypo        = precisionHypo,
-                          HypoToolGen = TrigEFTauMVHypoToolFromDict,
-                          IsProbe     = is_probe_leg )
-
 # ===============================================================================================
 #     Tau Precision LLP Alg + EFMVHypo step   (tracktwoLLP)
 # ===============================================================================================
