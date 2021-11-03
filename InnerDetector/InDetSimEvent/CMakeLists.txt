@@ -5,17 +5,15 @@ atlas_subdir( InDetSimEvent )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( Geant4 )
 
 # Component(s) in the package:
 atlas_add_library( InDetSimEvent
                    src/*.cxx
                    PUBLIC_HEADERS InDetSimEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators AthenaKernel GeneratorObjects HitManagement
-                   PRIVATE_LINK_LIBRARIES ${GEANT4_LIBRARIES} GaudiKernel InDetIdentifier StoreGateLib )
+                   PRIVATE_LINK_LIBRARIES GaudiKernel InDetIdentifier StoreGateLib )
 
 atlas_add_dictionary( InDetSimEventDict
                       InDetSimEvent/InDetSimEventDict.h
