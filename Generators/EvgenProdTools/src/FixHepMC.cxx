@@ -67,9 +67,10 @@ StatusCode FixHepMC::execute() {
       HepMC::FourVector sum(0,0,0,0);
       for (auto part: tofix) if (!part->production_vertex() || !part->production_vertex()->id()) { no_prov++; sum += part->momentum();}  
       for (auto part: tofix) if (!part->end_vertex()) { no_endv++;  sum -= part->momentum(); }
-      ATH_MSG_INFO("Heuristics: found " << tofix.size() << "particles to fix. The momenta sum is " << sum);
-      if (no_endv == 1 && (no_prov == 2 || no_prov == 1) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
-          ATH_MSG_INFO("Try " << no_endv << "->" << no_prov << " splitting.");
+      ATH_MSG_INFO("Heuristics: found " << tofix.size() << " particles to fix. The momenta sum is " << sum);
+      /// The condition below will cover 1->1, 1->2 and 2->1 cases
+      if ( no_endv && no_prov  && ( no_endv + no_prov  == tofix.size() ) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
+          ATH_MSG_INFO("Try " << no_endv << "->" << no_prov << " splitting/merging.");
           auto v = HepMC::newGenVertexPtr();
           for (auto part: tofix) if (!part->production_vertex() || part->production_vertex()->id() == 0) v->add_particle_out(part);  
           for (auto part: tofix) if (!part->end_vertex()) v->add_particle_in(part);  
