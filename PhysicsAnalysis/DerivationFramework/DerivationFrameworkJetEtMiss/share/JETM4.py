@@ -158,14 +158,6 @@ OutputJets["JETM4"] = []
 from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 applyPFOAugmentation(DerivationFrameworkJob)
 
-#===================================================
-#add variable-R track jets for b-tagging
-#===================================================
-
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
-addVRJets(jetm4Seq,largeRColls=["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
-addVRJets(jetm4Seq,largeRColls=["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"], training='201903')
-
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
@@ -175,7 +167,6 @@ if DerivationFrameworkIsMonteCarlo:
     #addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     #scheduleMETAssocAlg(jetm4Seq,"JETMX")
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
 
 #===============================
@@ -193,22 +184,20 @@ JETM4SlimmingHelper = SlimmingHelper("JETM4SlimmingHelper")
 JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "MET_Reference_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt10TruthJets",
-                                        "AntiKt10LCTopoJets",
                                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
                                         "BTagging_AntiKt4EMPFlow",
                                         "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02PV0TrackJets"
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track"
                                         ]
 
 JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
-                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
+                                    "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape"]
 
 JETM4SlimmingHelper.ExtraVariables = ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawE.rawEta.rawPhi.rawM","Photons."+NewTrigVars["Photons"],"JetETMissNeutralParticleFlowObjects.m.mEM.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_CENTER_LAMBDA.pt.ptEM.phi.eta",
 "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",
