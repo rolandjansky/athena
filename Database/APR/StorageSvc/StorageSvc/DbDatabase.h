@@ -118,7 +118,7 @@ namespace pool  {
     const DbDomain& containedIn()    const;
           DbDomain& containedIn();
     /// Check for existence of Database within domain
-    bool exist(const DbDomain& domH, const std::string& nam) const;
+    bool exist(DbDomain& domH, const std::string& nam) const;
     /// Open Database using given domain
     /** @param   domH      [IN]  Valid handle to domain object.
       * @param   pfn       [IN]  Physical file name of the database.
