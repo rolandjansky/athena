@@ -14,26 +14,42 @@ theStationFitter     = MuonSA.TrigL2MuonSA__MuFastStationFitter(PtFromAlphaBeta 
 from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool
 trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1MuonPhase1)
 
-theDataPreparator    = MuonSA.TrigL2MuonSA__MuFastDataPreparator()
+theDataPreparator    = MuonSA.TrigL2MuonSA__MuFastDataPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)
 theDataPreparator.RPCDataPreparator  = MuonSA.TrigL2MuonSA__RpcDataPreparator( TrigT1RPCRecRoiTool = trigRpcRoiTool)
 theDataPreparator.MDTDataPreparator  = MuonSA.TrigL2MuonSA__MdtDataPreparator()
 theDataPreparator.TGCDataPreparator  = MuonSA.TrigL2MuonSA__TgcDataPreparator()
-theDataPreparator.CSCDataPreparator  = MuonSA.TrigL2MuonSA__CscDataPreparator()
-theDataPreparator.STGCDataPreparator = MuonSA.TrigL2MuonSA__StgcDataPreparator()
-theDataPreparator.MMDataPreparator   = MuonSA.TrigL2MuonSA__MmDataPreparator()
 theDataPreparator.RpcRoadDefiner     = MuonSA.TrigL2MuonSA__RpcRoadDefiner()
 theDataPreparator.TgcRoadDefiner     = MuonSA.TrigL2MuonSA__TgcRoadDefiner()
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-if not MuonGeometryFlags.hasSTGC():
-    theDataPreparator.STGCDataPreparator.StgcPrepDataContainer=""
-if not MuonGeometryFlags.hasMM():
-    theDataPreparator.MMDataPreparator.MmPrepDataContainer=""
-if not MuonGeometryFlags.hasCSC():
+if MuonGeometryFlags.hasSTGC():
+    theDataPreparator.STGCDataPreparator = MuonSA.TrigL2MuonSA__StgcDataPreparator()
+else:
+    theDataPreparator.STGCDataPreparator=""
+if MuonGeometryFlags.hasMM():
+    theDataPreparator.MMDataPreparator   = MuonSA.TrigL2MuonSA__MmDataPreparator()
+else:
+    theDataPreparator.MMDataPreparator=""
+if MuonGeometryFlags.hasCSC():
+    theDataPreparator.CSCDataPreparator  = MuonSA.TrigL2MuonSA__CscDataPreparator()
+else:
     theDataPreparator.CSCDataPreparator.CSCPrepDataContainer  = ""
 
 theDataPreparator.RPCDataPreparator.RpcClusterPreparator = MuonSA.TrigL2MuonSA__RpcClusterPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)
 
+from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
+theDataPreparator.MDTDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
+from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
+theDataPreparator.RPCDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
+theDataPreparator.RpcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
+theDataPreparator.TgcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
+theDataPreparator.ClusterRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
+if MuonGeometryFlags.hasSTGC():
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
+    theDataPreparator.STGCDataPreparator.RegSel_STGC = makeRegSelTool_sTGC()
+if MuonGeometryFlags.hasMM():
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
+    theDataPreparator.MMDataPreparator.RegSel_MM = makeRegSelTool_MM()
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
