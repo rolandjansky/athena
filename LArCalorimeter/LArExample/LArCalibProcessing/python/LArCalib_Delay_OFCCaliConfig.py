@@ -34,6 +34,7 @@ def LArDelay_OFCCaliCfg(flags):
 
     result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccCalibDigitKey=digKey,
                                                               LArFebHeaderKey="LArFebHeader",
+                                                              SubCaloPreselection=flags.LArCalib.Input.SubDet,
                                                               PosNegPreselection=flags.LArCalib.Preselection.Side,
                                                               BEPreselection=flags.LArCalib.Preselection.BEC,
                                                               FTNumPreselection=flags.LArCalib.Preselection.FT))
@@ -64,6 +65,35 @@ def LArDelay_OFCCaliCfg(flags):
     theLArCaliWaveBuilder.isSC       = flags.LArCalib.isSC
     result.addEventAlgo(theLArCaliWaveBuilder)
     
+
+    if flags.LArCalib.Input.SubDet == "HEC": 
+        theLArCaliWaveBuilder.KeyOutput="LArCaliWave_multi"
+        theLArCaliWaveSelector = CompFactory.LArCaliWaveSelector("LArCaliWaveSelector")
+        theLArCaliWaveSelector.KeyList         = ["LArCaliWave_multi",]
+        theLArCaliWaveSelector.KeyOutput       = "LArCaliWave"
+        theLArCaliWaveSelector.GroupingType    = flags.LArCalib.GroupingType
+        if flags.LArCalib.Gain==0: #HIGH gain 
+            theLArCaliWaveSelector.SelectionList = [ "HEC/0/0/460","HEC/1/0/460","HEC/2/0/230","HEC/3/0/230" ] 
+
+        elif flags.LArCalib.Gain==1: #MEDIUM gain
+            theLArCaliWaveSelector.SelectionList = [ "HEC/0/1/3600","HEC/1/1/3600","HEC/2/1/1800","HEC/3/1/1800"]
+   
+        elif flags.LArCalib.Gain==2: #LOW gain
+            theLArCaliWaveSelector.SelectionList = [ "HEC/0/2/24000","HEC/1/2/24000","HEC/2/2/18000","HEC/3/2/18000" ]
+      
+        result.addEventAlgo(theLArCaliWaveSelector)
+    pass
+
+    if flags.LArCalib.CorrectBadChannels:
+        theLArCaliWavePatcher=CompFactory.getComp("LArCalibPatchingAlg<LArCaliWaveContainer>")("LArCaliWavePatch")
+        theLArCaliWavePatcher.ContainerKey= "LArCaliWave"
+        #theLArCaliWavePatcher.PatchMethod="PhiNeighbor" ##take the first neigbour
+        theLArCaliWavePatcher.PatchMethod="PhiAverage" ##do an aveage in phi after removing bad and empty event
+        theLArCaliWavePatcher.ProblemsToPatch=[
+            "deadCalib","deadReadout","deadPhys","almostDead","short",
+        ]
+        result.addEventAlgo(theLArCaliWavePatcher)
+    pass
     
 
     LArCaliOFCAlg = CompFactory.LArOFCAlg("LArCaliOFCAlg")
@@ -72,7 +102,7 @@ def LArDelay_OFCCaliCfg(flags):
     LArCaliOFCAlg.Nphase    = 50
     LArCaliOFCAlg.Dphase    = 1
     LArCaliOFCAlg.Ndelay    = 24
-    LArCaliOFCAlg.Nsample   = 4
+    LArCaliOFCAlg.Nsample   = 5
     LArCaliOFCAlg.Normalize = True
     LArCaliOFCAlg.TimeShift = False
     LArCaliOFCAlg.TimeShiftByIndex = -1
@@ -89,7 +119,9 @@ def LArDelay_OFCCaliCfg(flags):
     rootfile=flags.LArCalib.Output.ROOTFile
     if rootfile != "":
         result.addEventAlgo(CompFactory.LArCaliWaves2Ntuple(KeyList = ["LArCaliWave",],
-                                                            AddFEBTempInfo = False
+                                                            NtupleName  = "CALIWAVE",
+                                                            AddFEBTempInfo = False,
+                                                            ApplyCorrection = True
                                                         ))
 
         result.addEventAlgo(CompFactory.LArOFC2Ntuple(ContainerKey = "LArOFC",

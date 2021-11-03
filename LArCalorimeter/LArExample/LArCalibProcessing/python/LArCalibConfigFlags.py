@@ -37,7 +37,7 @@ def addLArCalibFlags(flags):
 
     flags.addFlag("LArCalib.doValidation",True)
 
-    flags.addFlag("LArCalib.CorrectBadChannels",True)
+    flags.addFlag("LArCalib.CorrectBadChannels",lambda prevFlags: not prevFlags.LArCalib.isSC)
 
     #Flags to find the input files/databases
     flags.addFlag("LArCalib.Input.Dir",".")
