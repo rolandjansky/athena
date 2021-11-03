@@ -108,7 +108,6 @@ def TrigPresTauMVHypoToolFromDict( chainDict ):
 
     chainPart = chainDict['chainParts'][0]
 
-    preselection = chainPart['preselection']
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
 
@@ -125,9 +124,6 @@ def TrigPresTauMVHypoToolFromDict( chainDict ):
     if 'idperf' in criteria:
         currentHypo.AcceptAll = True
 
-    if 'tracktwoMVATest' in preselection:
-        currentHypo.highpt = False
-
     return currentHypo
 
 
@@ -137,7 +133,6 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     chainPart = chainDict['chainParts'][0]
 
-    preselection = chainPart['preselection']
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
 
@@ -177,10 +172,6 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
             currentHypo.AcceptAll = True
         elif 'perf' in criteria:
             currentHypo.method      = 0
-
-        if 'tracktwoMVATest' in preselection:
-            currentHypo.highpt = False
-
 
     elif criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4', 'singlepion' ]: # ATR-22644
         currentHypo = CompFactory.TrigEFTauDiKaonHypoTool(name)

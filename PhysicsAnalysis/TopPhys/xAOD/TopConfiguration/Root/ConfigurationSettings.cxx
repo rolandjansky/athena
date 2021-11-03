@@ -518,10 +518,6 @@ namespace top {
                       " ");
     registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default");
 
-    registerParameter("BTaggingWP",
-                      "DEPRECATED OPTION, use BTaggingCaloJetWP and BTaggingTrackJetWP for specifying b-tagging WPs for jet collections using calorimeter information and for track jets respectively.",
-                      " ");
-
     registerParameter("BTaggingTrackJetWP",
                       "b-tagging WPs to use for track jet collection in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."

@@ -2,27 +2,27 @@
 
 __doc__ = """
           Instantiate the full EGamma reconstruction.
-          Note that
-          egammaTopoClusterCopier is scheduled in TrackRecoConfig
           """
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
+def egammaReconstructionCfg(flags, name="EGammaReconstruction"):
 
     mlog = logging.getLogger(name)
     mlog.info('Starting EGamma reconstruction configuration')
 
     acc = ComponentAccumulator()
 
-    # if not enabled add nothing
-    if not flags.Egamma.enabled:
-        return acc
+    # egamma selected/copied topo clusters
+    if flags.Detector.EnableCalo:
+        from egammaAlgs.egammaTopoClusterCopierConfig import (
+            egammaTopoClusterCopierCfg)
+        acc.merge(egammaTopoClusterCopierCfg(flags))
 
     # Add e/gamma tracking algorithms
-    if flags.Egamma.doGSF:
+    if flags.Egamma.doTracking:
         from egammaAlgs.egammaSelectedTrackCopyConfig import (
             egammaSelectedTrackCopyCfg)
         acc.merge(egammaSelectedTrackCopyCfg(flags))
@@ -41,8 +41,9 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
             EMVertexBuilderCfg)
         acc.merge(EMVertexBuilderCfg(flags))
 
-    # Add calo seeded central algorithms
-    if flags.Egamma.doCaloSeeded:
+    # Add algorithms to produce
+    # xAOD Electrons and Photons
+    if flags.Egamma.doCentral:
         from egammaAlgs.egammaRecBuilderConfig import (
             egammaRecBuilderCfg)
         acc.merge(egammaRecBuilderCfg(flags))
@@ -60,8 +61,9 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
             egammaLargeClusterMakerAlgCfg)
         acc.merge(egammaLargeClusterMakerAlgCfg(flags))
 
-    # Add calo seeded forward algorithms
-    if flags.Egamma.doForwardSeeded:
+    # Add calo seeded forward algorithms to produce
+    # xAOD Forward Electrons
+    if flags.Egamma.doForward:
         from egammaAlgs.egammaForwardBuilderConfig import (
             egammaForwardBuilderCfg)
         acc.merge(egammaForwardBuilderCfg(flags))
@@ -75,18 +77,6 @@ def EGammaReconstructionCfg(flags, name="EGammaReconstruction"):
         from egammaAlgs.egammaTruthAssociationConfig import (
             egammaTruthAssociationCfg)
         acc.merge(egammaTruthAssociationCfg(flags))
-
-    # Add e/gamma track thinning
-    # (although we call the Alg slimming)
-    if flags.Egamma.doTrackThinning:
-        from egammaAlgs.egammaTrackSlimmerConfig import (
-            egammaTrackSlimmerCfg)
-        acc.merge(egammaTrackSlimmerCfg(flags))
-
-    # Add e/gamma and related containers to the output stream
-    from egammaConfig.egammaWriteOutputConfig import (
-        egammaWriteOutputCfg)
-    acc.merge(egammaWriteOutputCfg(flags))
 
     mlog.info("EGamma reconstruction configured")
 
@@ -105,9 +95,9 @@ if __name__ == "__main__":
     flags.lock()
 
     acc = MainServicesCfg(flags)
-    acc.merge(EGammaReconstructionCfg(flags))
+    acc.merge(egammaReconstructionCfg(flags))
     acc.printConfig(withDetails=True,
                     printDefaults=True)
 
-    with open("egammabuilderconfig.pkl", "wb") as f:
+    with open("egammareconstructionconfig.pkl", "wb") as f:
         acc.store(f)

@@ -191,10 +191,15 @@ class BFieldFromDCS(_modifier):
     def postSetup(self):
         from IOVDbSvc.CondDB import conddb
         conddb._SetAcc("DCS_OFL","COOLOFL_DCS")
-        conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA")
+        conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA",className="CondAttrListCollection")
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
+        # see ATLASRECTS-5604 for these settings:
+        condSeq.AtlasFieldMapCondAlg.LoadMapOnStart = False
+        condSeq.AtlasFieldMapCondAlg.UseMapsFromCOOL = True
         condSeq.AtlasFieldCacheCondAlg.UseDCS = True
+        if hasattr(svcMgr,'HltEventLoopMgr'):
+            svcMgr.HltEventLoopMgr.setMagFieldFromPtree = False
 
 class BFieldAutoConfig(_modifier):
     """

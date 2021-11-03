@@ -198,9 +198,15 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
     Double_t *xmax=0;
     double parCL[2]={wfParam.tcal(),wfParam.fstep()};
     TF1 *deriv=0;
-    PhysWaveFunc= (TF1*)CaliWave2PhysWaveHEC(&pcal, par, parCL, deriv, uset0, norm, adc, xmax,gslflag)->Clone();  
+    TF1* pwf=CaliWave2PhysWaveHEC(&pcal, par, parCL, deriv, uset0, norm, adc, xmax,gslflag);  
+    if (deriv) delete deriv; 
+    if (!pwf) {
+      ATH_MSG_ERROR("Failed to create PhysWaveFunc");
+      return;
+    }
+    PhysWaveFunc= (TF1*)pwf->Clone();  
     DIFF=0;DIFF_AMPL=0;Ampl_problem=-1; Time_problem=-1; Ampl_problem_ampl=-1; Time_problem_ampl=-1;
-    if (deriv) delete deriv;
+  
 
     for(int i=1;i<pcal.GetNbinsX(); ++i){
       double TimePhys1 = pcal.GetBinCenter(i+1);

@@ -171,7 +171,7 @@ TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
    BaseTOB(muon.roiWord(), muon.tobName())
    , m_Et(muon.Et())
    , m_eta(muon.eta())
-   , m_phi(muon.phi())
+   , m_phi(static_cast<int>(muon.phi()))
    , m_bw2or3(muon.bw2or3())
    , m_innerCoin(muon.innerCoin())
    , m_goodMF(muon.goodMF())
