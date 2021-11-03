@@ -9,31 +9,31 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createEgammaConfigFlags():
     egcf = AthConfigFlags()
 
-    # enable/disable the full egamma
-    egcf.addFlag("Egamma.enabled", True)
-
     # do standard cluster-based egamma algorithm
-    egcf.addFlag("Egamma.doCaloSeeded",
+    egcf.addFlag("Egamma.doCentral",
                  lambda prevFlags: prevFlags.Detector.EnableCalo)
 
     # do forward egamma
-    egcf.addFlag("Egamma.doForwardSeeded",
+    egcf.addFlag("Egamma.doForward",
                  lambda prevFlags: prevFlags.Detector.EnableCalo)
+
+    # run the GSF refitting/egamma Tracking it is calo seeded
+    egcf.addFlag("Egamma.doTracking",
+                 lambda prevFlags: prevFlags.Detector.EnableID
+                 and prevFlags.Detector.EnableCalo)
+
+    # build photon conversion vertices
+    egcf.addFlag("Egamma.doConversionBuilding",
+                 lambda prevFlags: prevFlags.Egamma.doTracking)
 
     # do egamma truth association when running on MC
     egcf.addFlag("Egamma.doTruthAssociation",
                  lambda prevFlags: prevFlags.Input.isMC)
 
-    # run the GSF refitting /egamma Tracking
-    egcf.addFlag("Egamma.doGSF", lambda prevFlags: prevFlags.Detector.EnableID)
-
-    # build photon conversion vertices
-    egcf.addFlag("Egamma.doConversionBuilding",
-                 lambda prevFlags: prevFlags.Detector.EnableID)
-
     # Do e/gamma track thinning (Although we call the alg slimming...)
     egcf.addFlag("Egamma.doTrackThinning",
-                 lambda prevFlags: prevFlags.Output.doWriteAOD)
+                 lambda prevFlags: prevFlags.Output.doWriteAOD and
+                 prevFlags.Egamma.doTracking)
 
     # The cluster corrections/calib
     egcf.addFlag("Egamma.Calib.ClusterCorrectionVersion",
