@@ -46,7 +46,7 @@ void frontview_sp3D(int SaveOpt=0,char option[80]="") {
       jj++;
     }
 
-    sprintf(options,"sct_sp_layer==%d && sct_sp_phi==%d",layer,phi,side);
+    sprintf(options,"sct_sp_layer==%d && sct_sp_phi==%d",layer,phi);
     tree->Draw("sct_sp_y:sct_sp_z",options,"goff");
 
     for (int ii=0;ii<tree->GetSelectedRows();ii++)
