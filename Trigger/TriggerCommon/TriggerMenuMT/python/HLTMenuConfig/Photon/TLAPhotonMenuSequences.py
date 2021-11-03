@@ -14,7 +14,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 def TLAPhotonMenuSequence( flags, photonsIn ):
     
     ## add the InputMaker (event context)    
-    tlaPhotonInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAPhotos", RoIsLink="initialRoI")
+    tlaPhotonInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAPhotons", RoIsLink="initialRoI")
     tlaPhotonInputMakerAlg.mergeUsingFeature = True
     
     tlaPhotonAthSequence = seqAND( "TLAPhotonAthSequence", [tlaPhotonInputMakerAlg] )
@@ -22,7 +22,7 @@ def TLAPhotonMenuSequence( flags, photonsIn ):
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTLAPhotonHypoAlg
     from TrigEgammaHypo.TrigEgammaTLAPhotonHypoTool import TrigEgammaTLAPhotonHypoToolFromDict 
 
-    hypo = TrigEgammaTLAPhotonHypoAlg("TrigPhotonLAHypoAlg") 
+    hypo = TrigEgammaTLAPhotonHypoAlg("TrigPhotonTLAHypoAlg") 
 
     sequenceOut = photonsIn+"_TLA"
     hypo.TLAOutputName = sequenceOut

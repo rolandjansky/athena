@@ -1058,7 +1058,11 @@ def setupMenu():
         ChainProp(name='HLT_tau80_mediumRNN_tracktwoLLP_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU60','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
         ChainProp(name='HLT_tau180_mediumRNN_tracktwoLLP_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU100','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
  
-        
+        # photon + multijets TLA
+        ChainProp(name="HLT_g35_loose_3j25_PhysicsTLA_L1EM22VHI", stream=['TLA'], l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
+        # easy one for testing
+        ChainProp(name="HLT_g5_loose_2j10_PhysicsTLA_L1EM3", stream=['TLA'], l1SeedThresholds=['EM3','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
+
         # photon + multijets (ATR-22594)
         ChainProp(name='HLT_g85_tight_3j50_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaJetGroup),
         ChainProp(name='HLT_g45_loose_6j45_L14J15p0ETA25',l1SeedThresholds=['EM15','FSNOSEED'],stream=[PhysicsStream], groups=PrimaryLegGroup+EgammaJetGroup),

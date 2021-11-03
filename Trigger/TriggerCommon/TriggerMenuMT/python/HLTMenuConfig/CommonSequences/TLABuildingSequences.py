@@ -19,9 +19,10 @@ def addTLAStep(chain, chainDict):
 
     signatures = chainDict['signatures'] # EG: ['Photon'] or ['Photon', 'Jet']
     tlaSequencesList = []
-
+    print("addTLAStep: processing chain: ", chainDict['chainName'])
     for tlaSignature in signatures:
         
+        print("addTLAStep: processing signature: ", tlaSignature)
         # call the sequence from their respective signatures
         tlaSequencesList.append( getTLASignatureSequence(tlaSignature) )
 
@@ -45,17 +46,17 @@ def addTLAStep(chain, chainDict):
 
 
             
-                
-        # we add one step per TLA chain, with sequences matching the list of signatures
-        # and multiplicities matching those of the previous step of the chain (already merged if combined)
-        prevStep = chain.steps[-1]
-        stepName = 'Step{:d}_merged{:d}_TLAStep_{:s}'.format(len(chain.steps)+1,len(prevStep.legIds), prevStep.name)
-        step = ChainStep(name         = stepName,
-                        Sequences     = tlaSequencesList,
-                        multiplicity = prevStep.multiplicity,
-                        chainDicts   = prevStep.stepDicts)	
+    print("addTLAStep: About to add a step with: ", len(tlaSequencesList), "parallel sequences.")            
+    # we add one step per TLA chain, with sequences matching the list of signatures
+    # and multiplicities matching those of the previous step of the chain (already merged if combined)
+    prevStep = chain.steps[-1]
+    stepName = 'Step{:d}_merged{:d}_TLAStep_{:s}'.format(len(chain.steps)+1,len(prevStep.legIds), prevStep.name)
+    step = ChainStep(name         = stepName,
+                    Sequences     = tlaSequencesList,
+                    multiplicity = prevStep.multiplicity,
+                    chainDicts   = prevStep.stepDicts)	
 
-        chain.steps.append(step)
+    chain.steps.append(step)
 
 
 def getTLASignatureSequence(tlaSignature):
@@ -71,24 +72,24 @@ def getTLASignatureSequence(tlaSignature):
         return TLAMuonMenuSequence(ConfigFlags)
     
     elif "Jet" in tlaSignature:
-        from ..Jet.JetTLASequences import jetTLAMenuSequence
+        from ..Jet.JetTLASequences import TLAJetMenuSequence
         jetOutCollectionName = "HLT_AntiKt4EMTopoJets_subjesIS"
-        return jetTLAMenuSequence(ConfigFlags, jetOutCollectionName)
+        return TLAJetMenuSequence(ConfigFlags, jetOutCollectionName)
 
 def getTLAHypoAlg(tlaSignature):
 
     if "Photon" in tlaSignature:
-        hypo = TLAPhotonHypoAlg("TLAPhotonHypoAlg")
+        hypo = TrigEgammaTLAPhotonHypoAlg("TLAPhotonHypoAlg")
         hypo.TLAOutputName = "HLT_Egamma_Photons_TLA"
         return hypo
 
     elif "Muon" in tlaSignature:
-        hypo = TLAMuonHypoAlg("TLAMuonHypoAlg")
+        hypo = TrigMuonTLAHypoAlg("TLAMuonHypoAlg")
         hypo.TLAOutputName = "HLT_Muon_RoI_TLA"
         return hypo
 
     elif "Jet" in tlaSignature:
-        hypo = TLAJetHypoAlg("TLAJetHypoAlg")
+        hypo = TrigJetTLAHypoAlg("TLAJetHypoAlg")
         # how do we handle the case where the standard jet collection changes and we want this to be reflected in the TLA collectionName?
         jetCollectionName = "HLT_AntiKt4EMTopoJets_subjesIS"
         hypo.TLAOutputName = jetCollectionName+"_TLA" 
@@ -113,11 +114,11 @@ def getTLAHypoTool(tlaSignature):
 
 
 def findTLAStep(chainConfig):
-    tlaSteps = [s for s in chainConfig.steps if 'TLAStep' in s.name and 'EmptyTLAAlign' not in s.name]
+    tlaSteps = [s for s in chainConfig.steps if 'TLAStep' in s.name and 'EmptyPEBAlign' not in s.name and 'EmptyTLAAlign' not in s.name]
     if len(tlaSteps) == 0:
         return None
     elif len(tlaSteps) > 1:
-        raise RuntimeError('Multiple TLA steps in one chain are not supported but found in chain ' + chainConfig.name)
+        raise RuntimeError('Multiple TLA steps in one chain are not supported. ', len(tlaSteps), ' were found in chain ' + chainConfig.name)
     return tlaSteps[0]
 
 
@@ -129,10 +130,14 @@ def alignTLASteps(chain_configs, chain_dicts):
     all_tla_chain_dicts = dict(filter(is_tla_dict, chain_dicts.items()))
     all_tla_chain_names = list(all_tla_chain_dicts.keys())
 
+    
     def is_tla_config(chainNameAndConfig):
         return chainNameAndConfig[0] in all_tla_chain_names
 
     all_tla_chain_configs = dict(filter(is_tla_config, chain_configs.items()))
+
+    for chainName, chainConfig in all_tla_chain_configs.items():
+        print("MARCO: Before alignment steps are: ", chainConfig.steps)
 
     maxTLAStepPosition = {} # {eventBuildType: N}
 
@@ -156,3 +161,6 @@ def alignTLASteps(chain_configs, chain_dicts):
             log.debug('Aligning TLA step for chain %s by adding %d empty steps', chainName, numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyTLAAlign', numStepsNeeded, tlaStepPosition-1)
 
+    #post alignment printout
+    for chainName, chainConfig in all_tla_chain_configs.items():
+        print("MARCO: AFTER alignment steps are: ", chainConfig.steps)

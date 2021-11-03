@@ -265,8 +265,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         log.info("[generateAllChainConfigs] general alignment complete, will now align PEB chains")
         # align event building sequences
+        TLABuildingSequences.alignTLASteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
         EventBuildingSequences.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
-
+        
+         
         log.info("[generateAllChainConfigs] all chain configurations have been generated.")
         return TriggerConfigHLT.configsList()
 
@@ -414,6 +416,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 TLABuildingSequences.addTLAStep(theChainConfig, mainChainDict)
 
             EventBuildingSequences.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
+
+        
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs
