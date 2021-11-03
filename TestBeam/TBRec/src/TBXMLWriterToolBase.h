@@ -32,7 +32,7 @@ class TBXMLWriterToolBase : public AthAlgTool
     { } 
 
   // initialize
-  virtual StatusCode initialize()
+  virtual StatusCode initialize() override
     {
       return StatusCode::SUCCESS;
     }
