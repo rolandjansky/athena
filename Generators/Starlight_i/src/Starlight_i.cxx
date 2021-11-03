@@ -49,6 +49,7 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
              GenModule(name,pSvcLocator), m_events(0), 
              m_lheOutput(false),
              m_maxevents(5500), 
+             m_doTauolappLheFormat(false),
 	     m_starlight(),
 	     m_inputParameters(),
 	     m_randomGenerator(),
@@ -93,6 +94,7 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
   declareProperty("ConfigFileName", m_configFileName);
   declareProperty("lheOutput",	m_lheOutput);
   declareProperty("maxevents",	m_maxevents);
+  declareProperty("doTauolappLheFormat", m_doTauolappLheFormat);
 }
 
 Starlight_i::~Starlight_i()
@@ -306,7 +308,7 @@ Starlight_i::starlight2lhef()
     lheStream << "-->\n";
  
     lheStream << "<init>\n";
-    lheStream << "  11  -11  2.510000e+03  2.510000e+03  0  0  0  0  3  1\n";
+    lheStream << "  13  -13  2.510000e+03  2.510000e+03  0  0  0  0  3  1\n";
     lheStream << "  1.000000e+00  0.000000e+00  1.000000e+00   9999\n";
     lheStream << "</init>\n";
     
@@ -326,13 +328,23 @@ Starlight_i::starlight2lhef()
          photon_system += particle_sl;
          ptscale += sqrt((*part).GetPx()*(*part).GetPx() + (*part).GetPy()*(*part).GetPy()); 
       }
+      
       // avg pt is the correct scale here
       ptscale /= (float) ipart;
       lheStream << "     4  9999  1.000000e+00  "<<ptscale<<"  7.297e-03  2.569093e-01\n";
-      lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
-                << photon_system.m()/2.*exp(photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
-      lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
-                << -photon_system.m()/2.*exp(-photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(-photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
+      
+      if(m_doTauolappLheFormat){
+      	lheStream << " -11    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << photon_system.m()/2.*exp(photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
+      	lheStream << " 11    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << -photon_system.m()/2.*exp(-photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(-photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";     
+      }
+      else{
+      	lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << photon_system.m()/2.*exp(photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
+      	lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << -photon_system.m()/2.*exp(-photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(-photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
+      }
       
       for (part = m_event->getParticles()->begin(); part != m_event->getParticles()->end(); part++, ipart++) 
       {
