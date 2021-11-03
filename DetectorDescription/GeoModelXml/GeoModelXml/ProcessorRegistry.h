@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -19,8 +19,10 @@ class ElementProcessor;
 class ProcessorRegistry {
 public:
     ProcessorRegistry();
-    void enregister(const std::string tagName, ElementProcessor *processor);
-    ElementProcessor *find(const std::string name);
+    ProcessorRegistry(const ProcessorRegistry&) = delete;
+    ProcessorRegistry& operator=(const ProcessorRegistry&) = delete;
+    void enregister(const std::string& tagName, ElementProcessor *processor);
+    ElementProcessor *find(const std::string& name);
 
 private:
     ElementProcessor *m_defaultProcessor;

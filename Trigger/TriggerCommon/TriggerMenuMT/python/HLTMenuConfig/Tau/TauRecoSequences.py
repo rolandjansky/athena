@@ -41,8 +41,9 @@ def _getTauSignatureShort( name ):
 
     return signature, signatureID
 
-def _algoTauRoiUpdater(inputRoIs, clusters):
+def _algoTauRoiUpdater(name, inputRoIs, clusters):
     from TrigTauHypo.TrigTauHypoConf import TrigTauCaloRoiUpdater
+
     algo                               = TrigTauCaloRoiUpdater("TauCaloRoiUpdater")
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedCaloRoI"
@@ -63,9 +64,10 @@ def _algoTauCaloOnly(L1RoIs, inputRoIs, clusters):
     algo.Key_trigTauTrackOutputContainer = "HLT_tautrack_dummy"
     return algo
 
-def _algoTauCaloOnlyMVA(L1RoIs, inputRoIs, clusters):
+def _algoTauCaloOnlyMVA(name, L1RoIs, inputRoIs, clusters):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauCaloOnlyMVA
-    algo                               = TrigTauRecMerged_TauCaloOnlyMVA()
+
+    algo                            = TrigTauRecMerged_TauCaloOnlyMVA(name="TrigTauRecMerged_TauCaloOnlyMVA")
     algo.RoIInputKey                   = inputRoIs
     algo.L1RoIKey                      = L1RoIs
     algo.clustersKey                   = clusters
@@ -120,68 +122,46 @@ def _algoTauPreselection(inputRoIs, tracks, step):
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Presel")
     return algo 
 
-def _algoTauPrecision(inputRoIs, tracks, step):
-    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecision
+def _algoTauPrecision(name, inputRoIs, tracks):
+    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecision,TrigTauRecMerged_TauPrecisionMVA
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
-    algo                                 = TrigTauRecMerged_TauPrecision(name= "TrigTauRecMerged_TauPrecision_"+step)
+    if "TrackTwo" in name:
+      algo                                 = TrigTauRecMerged_TauPrecision(name= "TrigTauRecMerged_TauPrecision_TrackTwo")  
+      algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_Presel"
+      algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_Presel"
+      algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Precision")
+      algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Precision")
+    else:
+      if "MVA" in name:
+        algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionMVA", doMVATES=True, doTrackBDT=False, doRNN=True, doLLP=False) 
+        algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_MVA")
+        algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_MVA")
+      elif "LLP" in name:
+        algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionLLP", doMVATES=True, doTrackBDT=False, doRNN=False,doLLP=True)
+        algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_LLP")
+        algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_LLP")
+      else:
+        raise Exception( "_algoTauPrecisio : called with incorrect non existent name: "+name )
+        return None
+
+      algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
+      algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
+      algo.Key_trigJetSeedOutputKey        = recordable("HLT_jet_seed")
+
     algo.RoIInputKey                     = inputRoIs
     algo.L1RoIKey                        = "HLT_TAURoI"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = getInDetTrigConfig( "tauIso" ).vertex
     algo.Key_trackPartInputContainer     = tracks
-    if "Id" in step:
-       algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
-       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
-    elif "Track" in step:
-       algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_Presel"
-       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_Presel"
 
-    algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Precision")   
-    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Precision")
-    return algo
-
-def _algoTauPrecisionMVA(inputRoIs, tracks, step):
-    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    algname = "TrigTauRecMerged_PrecisionMVA"
-    
-    algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= algname, doMVATES=True, doTrackBDT=False, doRNN=True,doLLP=False) 
-    algo.RoIInputKey                     = inputRoIs
-    algo.L1RoIKey                        = "HLT_TAURoI"
-    algo.clustersKey                     = ""
-    algo.Key_vertexInputContainer        = getInDetTrigConfig( "tauIso" ).vertex
-    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
-    algo.Key_trackPartInputContainer     = tracks
-    algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
-    algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_MVA")
-    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_MVA")
-    algo.Key_trigJetSeedOutputKey        = recordable("HLT_jet_seed")
-    return algo
-
-def _algoTauPrecisionLLP(inputRoIs, tracks, step):
-    from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecisionMVA
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    algname = "TrigTauRecMerged_PrecisionLLP"
-
-    algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= algname, doMVATES=True, doTrackBDT=False, doRNN=False,doLLP=True) 
-    algo.RoIInputKey                     = inputRoIs
-    algo.L1RoIKey                        = "HLT_TAURoI"
-    algo.clustersKey                     = ""
-    algo.Key_vertexInputContainer        = getInDetTrigConfig( "tauIso" ).vertex
-    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
-    algo.Key_trackPartInputContainer     = tracks
-    algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
-    algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_LLP")
-    algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_LLP")
-    algo.Key_trigJetSeedOutputKey        = recordable("HLT_jet_seed")
     return algo
 
 def tauCaloRecoSequence(InViewRoIs, SeqName):
     global TauCaloJetContainer
     # lc sequence
     (lcTopoInViewSequence, lcCaloSequenceOut) = RecoFragmentsPool.retrieve(HLTLCTopoRecoSequence, None, RoIs=InViewRoIs)
-    tauCaloRoiUpdaterAlg                      = _algoTauRoiUpdater(inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
+    tauCaloRoiUpdaterAlg                      = _algoTauRoiUpdater(SeqName, inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
     updatedRoIs                               = tauCaloRoiUpdaterAlg.RoIOutputKey
     tauCaloOnlyAlg                            = _algoTauCaloOnly(L1RoIs = InViewRoIs,inputRoIs   = updatedRoIs, clusters = lcCaloSequenceOut)
     RecoSequence                              = parOR( SeqName, [lcTopoInViewSequence,tauCaloRoiUpdaterAlg,tauCaloOnlyAlg] )
@@ -191,9 +171,9 @@ def tauCaloMVARecoSequence(InViewRoIs, SeqName):
     global TauCaloJetContainer
     # lc sequence
     (lcTopoInViewSequence, lcCaloSequenceOut) = RecoFragmentsPool.retrieve(HLTLCTopoRecoSequence, None, RoIs=InViewRoIs)
-    tauCaloRoiUpdaterAlg                      = _algoTauRoiUpdater(inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
+    tauCaloRoiUpdaterAlg                      = _algoTauRoiUpdater(SeqName, inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
     updatedRoIs                               = tauCaloRoiUpdaterAlg.RoIOutputKey
-    tauCaloOnlyMVAAlg	                      = _algoTauCaloOnlyMVA(L1RoIs = InViewRoIs,inputRoIs = updatedRoIs, clusters = lcCaloSequenceOut)
+    tauCaloOnlyMVAAlg	                      = _algoTauCaloOnlyMVA(SeqName, L1RoIs = InViewRoIs,inputRoIs = updatedRoIs, clusters = lcCaloSequenceOut)
     RecoSequence                              = parOR( SeqName, [lcTopoInViewSequence,tauCaloRoiUpdaterAlg,tauCaloOnlyMVAAlg] )
     return (RecoSequence, tauCaloOnlyMVAAlg.Key_trigTauJetOutputContainer)
 
@@ -296,16 +276,11 @@ def tauIdSequence( RoIs, name):
 
     tauIdSequence+= ViewVerifyId
 
-    tauPrecisionAlg = ""
-
+    tauPrecisionAlg = _algoTauPrecision(name, inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig())
     if "TrackTwo" in name:
-      tauPrecisionAlg = _algoTauPrecision(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig(), step = "TrackTwo")
       ViewVerifyId.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),
                                    ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_Presel' )]
-    elif "MVA" in name:
-      tauPrecisionAlg = _algoTauPrecisionMVA(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig(), step = "PrecisionMVA")
-    elif "LLP" in name:
-      tauPrecisionAlg = _algoTauPrecisionLLP(inputRoIs = RoIs, tracks = IDTrigConfig.tracks_IDTrig(), step = "PrecisionLLP")
+  
 
     tauIdSequence += tauPrecisionAlg
 

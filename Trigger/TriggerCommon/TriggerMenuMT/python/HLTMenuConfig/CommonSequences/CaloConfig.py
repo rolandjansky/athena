@@ -55,3 +55,21 @@ def CaloClusterCfg(flags, doLCCalib=False):
             )
         )
     return acc
+
+def HICaloTowerCfg(flags):
+    """ Create the towers for heavy ion """
+    acc = ComponentAccumulator()
+
+    acc.merge(FSCaloCellCfg(flags))
+
+    from TrigCaloRec.TrigCaloRecConfig import hltHICaloTowerMakerCfg
+    # Then build the clusters
+    acc.merge(
+        hltHICaloTowerMakerCfg(
+            flags,
+            "HLTHICaloTowerMakerFS",
+            clustersKey=caloFSRoI,
+            cellsKey=fs_cells,
+        )
+    )
+    return acc

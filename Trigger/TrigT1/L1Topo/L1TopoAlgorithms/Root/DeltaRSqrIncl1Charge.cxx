@@ -115,7 +115,7 @@ TCS::DeltaRSqrIncl1Charge::processBitCorrect( const std::vector<TCS::TOBArray co
                   // OneBarrel
                   if (p_OneBarrel && parType_t(std::abs((*tob1)->eta())) > 10 && parType_t(std::abs((*tob2)->eta())) > 10 ) continue;
                   // DeltaR2 cuts
-                  unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
+                  unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
                   // Charge cut ( 1 = positive, -1 = negative, 0 = undefined (RPC) )
                   int charge1 = (*tob1)->charge();
                   int charge2 = (*tob2)->charge();
@@ -169,7 +169,7 @@ TCS::DeltaRSqrIncl1Charge::process( const std::vector<TCS::TOBArray const *> & i
                     // OneBarrel
                     if (p_OneBarrel && parType_t(std::abs((*tob1)->eta())) > 10 && parType_t(std::abs((*tob2)->eta())) > 10 ) continue;
                     // DeltaR2 cuts
-                    unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
+                    unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
                     // Charge cut ( 1 = positive, -1 = negative, 0 = undefined (RPC) )
                     int charge1 = (*tob1)->charge();
                     int charge2 = (*tob2)->charge();

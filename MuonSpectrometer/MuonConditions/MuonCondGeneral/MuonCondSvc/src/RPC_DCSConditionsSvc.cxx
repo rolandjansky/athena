@@ -188,103 +188,92 @@ const std::vector<Identifier>& RPC_DCSConditionsSvc::offPanelId() const{
 
 
 const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_EfficiencyMap(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
- s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty.clear(); 
+  static const  std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
  ATH_MSG_VERBOSE("Efficiency Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
+  return RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
 }
 const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_EfficiencyGapMap(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
  
-  s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty.clear(); 
   ATH_MSG_VERBOSE("EfficiencyGap Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
+  return RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
 }
 
 
 const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_MeanClusterSizeMap(){
- static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty.clear();
   ATH_MSG_VERBOSE("MeanClusterSize Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
+  return RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
 }
 
 
 const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_FracClusterSize1Map(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
  
-  s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty.clear(); 
   ATH_MSG_VERBOSE("FracClusterSize1 Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
+  return RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
 }
 
 
 const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_FracClusterSize2Map(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
  
-  s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty.clear();
   ATH_MSG_VERBOSE("FracClusterSize2 Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
+  return RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
 }
 
 const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_FracClusterSize3Map(){
-static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
+  static const std::map<Identifier ,double> RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
  
-  s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty.clear();
   ATH_MSG_VERBOSE("FracClusterSize3 Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
+  return RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
 }
 
 const std::map<Identifier,std::string>& RPC_DCSConditionsSvc::RPC_DeadStripListMap(){
- static  std::map<Identifier ,std::string> s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
+ static const std::map<Identifier ,std::string> RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty.clear();
   ATH_MSG_VERBOSE("DeadStripList Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
+  return RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
 }
 
 
 const std::map<Identifier,float>& RPC_DCSConditionsSvc::RPC_FracDeadStripMap(){
-static  std::map<Identifier ,float> s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
+  static const std::map<Identifier ,float> RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty.clear(); 
   ATH_MSG_VERBOSE("FracDeadStrip Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
+  return RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
 }
 
 const std::map<Identifier,int>& RPC_DCSConditionsSvc::RPC_ProjectedTracksMap(){
-static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
+  static const std::map<Identifier ,int> RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty.clear(); 
   ATH_MSG_VERBOSE("ProjectedTracks Map per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
+  return RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
 }
 
 
 const std::map<Identifier,int>& RPC_DCSConditionsSvc::RPC_DeadStripList(){
-static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
+  static const std::map<Identifier ,int> RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
 
-  s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty.clear(); 
   ATH_MSG_VERBOSE("DeadStripList per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
+  return RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
 }
 
 const std::map<Identifier,std::vector<double> >& RPC_DCSConditionsSvc::RPC_TimeMapforStrip(){
-static  std::map<Identifier ,std::vector<double> > s_RPCCondSummarySvc_RPC_StripTimeMap_empty;
+  static const std::map<Identifier ,std::vector<double> > RPCCondSummarySvc_RPC_StripTimeMap_empty;
 
-  s_RPCCondSummarySvc_RPC_StripTimeMap_empty.clear(); 
   ATH_MSG_VERBOSE("StripTimeMap per RPC panel" );
  
-  return s_RPCCondSummarySvc_RPC_StripTimeMap_empty;
+  return RPCCondSummarySvc_RPC_StripTimeMap_empty;
 }

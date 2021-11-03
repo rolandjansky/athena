@@ -11,10 +11,15 @@ TCS::inputTypeAsString(TCS::inputTOBType_t type) {
   if(type == TCS::CLUSTER) return "Clusters";
   else if(type == TCS::TAU) return "Taus";
   else if(type == TCS::EEM) return "eEms";
+  else if(type == TCS::JEM) return "jEms";
   else if(type == TCS::JET) return "Jets";
+  else if(type == TCS::ETAU) return "eTaus";
   else if(type == TCS::JTAU) return "jTaus";
+  else if(type == TCS::CTAU) return "cTaus";
   else if(type == TCS::JLARGERJET) return "jLargeRJets";
+  else if(type == TCS::GLARGERJET) return "gLargeRJets";
   else if(type == TCS::JJET) return "jJets";
+  else if(type == TCS::GJET) return "gJets";
   else if(type == TCS::MET) return "MET";
   else if(type == TCS::MUON) return "Muons";
   else if(type == TCS::MUONNEXTBC) return "MuonsNextBC";
@@ -33,28 +38,34 @@ TCS::inputType(const std::string& input) {
       return TCS::EEM;
 
    if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
+      return TCS::JEM;
+
+   if ( input == "jEM" || input == "jEMTobArray" || input == "jEmTobs" )
       return TCS::CLUSTER;
 
-   if ( input == "eTau" || input == "eTauTobArray" || input == "eTauTobs" )
+   if ( input == "eTAU" || input == "eTauTobArray" || input == "eTauTobs" )
       return TCS::ETAU;
 
    if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
       return TCS::JTAU;
 
+   if ( input == "cTau" || input == "cTauTobArray" || input == "cTauTobs" )
+      return TCS::CTAU;
+
    if ( input == "Jets" || input == "JetTobArray" )
       return TCS::JET;
 
-   if ( input == "jJet" || input == "jJetTobArray" || input == "jJetTobs" )
+   if ( input == "jJ" || input == "jJetTobArray" || input == "jJetTobs" )
       return TCS::JJET;
+
+   if ( input == "gJ" || input == "gJetTobArray" || input == "gJetTobs" )
+      return TCS::GJET;
 
    if ( input == "jLargeRJet" || input == "jLargeRJetTobArray" || input == "jLargeRJetTobs" )
       return TCS::JLARGERJET;
 
-   if ( input == "gJet" || input == "gJetTobArray" || input == "gJetTobs" )
-      return TCS::JET;
-
    if ( input == "gLargeRJet" || input == "gLargeRJetTobArray" || input == "gLargeRJetTobs" )
-      return TCS::JET;
+      return TCS::GLARGERJET;
 
    if ( input == "Muons" || input == "MuonTobArray" || input == "MuonTobs")
       return TCS::MUON;

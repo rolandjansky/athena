@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCaloTruthMatchCfg
+from MCTruthClassifier.MCTruthClassifierConfig import (
+    MCTruthClassifierCaloTruthMatchCfg)
 __doc__ = "Configure egammaTruthAssociation"
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-egammaTruthAssociationAlg = CompFactory.egammaTruthAssociationAlg
 
 
 def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
@@ -48,7 +48,29 @@ def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
     kwargs.setdefault("SimBarcodeOffset",
                       flags.Sim.SimBarcodeOffset)
 
-    egtruthAlg = egammaTruthAssociationAlg(name, **kwargs)
+    egtruthAlg = CompFactory.egammaTruthAssociationAlg(name, **kwargs)
 
     acc.addEventAlgo(egtruthAlg)
     return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = True
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    flags.Input.Files = defaultTestFiles.RDO
+    flags.lock()
+
+    acc = MainServicesCfg(flags)
+    mlog = logging.getLogger("egammaTruthAssociationConfigTest")
+    mlog.info("Configuring  egammaTruthAssociation: ")
+    acc.merge(egammaTruthAssociationCfg(flags))
+    printProperties(mlog,
+                    acc.getEventAlgo("egammaTruthAssociation"),
+                    nestLevel=1,
+                    printDefaults=True)
+    with open("egammatruthassociation.pkl", "wb") as f:
+        acc.store(f)

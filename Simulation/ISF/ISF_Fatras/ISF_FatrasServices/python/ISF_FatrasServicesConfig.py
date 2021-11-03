@@ -57,13 +57,6 @@ def initialiseCoolDataBaseFolder():
             # make sure that the pool files are in the catalog
             #from PoolSvc.PoolSvcConf import PoolSvc
             #PoolSvc.ReadCatalog += [ DataBasePath+'PoolFileCatalog.xml' ]
-        elif TrkDetFlags.SLHC_Geometry() :
-            # set the folder to the SLHC location
-            CoolDataBaseFolder = '/GLOBAL/TrackingGeo/SLHC_LayerMaterial'
-            ctag = AtlasMaterialTag+TrkDetFlags.MaterialMagicTag()
-            cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
-            conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag,
-                                    className = 'Trk::LayerMaterialMap')
         else :
             # load the right folders (preparation for calo inclusion)
             cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
@@ -93,11 +86,8 @@ def getInDetTrackingGeometryBuilder(name="ISF_InDetTrackingGeometryBuilder", **k
     kwargs.setdefault("namePrefix"              , 'Fatras')
     kwargs.setdefault("setLayerAssociation"     , False)
     #kwargs.setdefault("VolumeEnclosureOuterR"   , 1148.) ### HACK: Cannot set via imput arguments. Is this right?? -kg
-    if not TrkDetFlags.SLHC_Geometry() :
-        kwargs.setdefault("buildTrtStrawLayers" , True)
-        from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
-    else :
-        from InDetTrackingGeometry.ConfiguredSLHC_InDetTrackingGeometryBuilder import ConfiguredSLHC_InDetTrackingGeometryBuilder as IDGeometryBuilder
+    kwargs.setdefault("buildTrtStrawLayers" , True)
+    from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilder import ConfiguredInDetTrackingGeometryBuilder as IDGeometryBuilder
     t = IDGeometryBuilder(name, **kwargs )
     t.VolumeEnclosureOuterR = 1148.
     #t.EnvelopeDefinitionSvc = 'ISF_EnvelopeDefSvc'

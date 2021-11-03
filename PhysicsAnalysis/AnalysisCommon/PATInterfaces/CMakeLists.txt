@@ -23,6 +23,7 @@ atlas_add_library( PATInterfaces
    PUBLIC_HEADERS PATInterfaces
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} AsgTools
+   CxxUtils
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 # Helper macro for declaring the "simple" tests:

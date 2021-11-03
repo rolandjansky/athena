@@ -37,6 +37,8 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_myTree = new TTree("data","data");
   CHECK( histSvc->regTree("/ANALYSIS/data",m_myTree) );
 
+  ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
+
   m_load_truth_jet = false;
 
   if (m_load_truth_jet){
@@ -65,19 +67,23 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LVL1::gFEXNtupleWriter::execute () {
-  ATH_MSG_DEBUG("==== gFEXNtupleWriter ============ execute()");
-  ServiceHandle<StoreGateSvc> evtStore("StoreGateSvc/StoreGateSvc",  "arbitrary");
-  CHECK(evtStore.retrieve() );
+StatusCode LVL1::gFEXNtupleWriter::execute () {  
+  SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj = SG::ReadHandle<LVL1::gFEXOutputCollection>(m_gFEXOutputCollectionSGKey);
+    if(!gFEXOutputCollectionobj.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gFEXOutputCollection " << m_gFEXOutputCollectionSGKey.key());
+      return StatusCode::FAILURE;
+  }
+  
+  if (!gFEXOutputCollectionobj->getdooutput()) {
+    return StatusCode::SUCCESS; 
+  }
 
-  CHECK(evtStore->retrieve(m_gFEXOutputCollection, "gFEXOutputCollection"));
-
-  CHECK(loadJetAlgoVariables());
+  CHECK(loadJetAlgoVariables(gFEXOutputCollectionobj));
   if (m_load_truth_jet){
     CHECK(loadTruthJets());
   }
 
-  CHECK(loadGlobalAlgoVariables());
+  CHECK(loadGlobalAlgoVariables(gFEXOutputCollectionobj));
 
   m_myTree->Fill();
   return StatusCode::SUCCESS;
@@ -88,7 +94,7 @@ StatusCode LVL1::gFEXNtupleWriter::finalize () {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LVL1::gFEXNtupleWriter::loadJetAlgoVariables() {
+StatusCode LVL1::gFEXNtupleWriter::loadJetAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj) {
   m_jet_TOB.clear();
   m_jet_TOB_Eta.clear();
   m_jet_TOB_Phi.clear();
@@ -97,12 +103,13 @@ StatusCode LVL1::gFEXNtupleWriter::loadJetAlgoVariables() {
   m_jet_TOB_Status.clear();
 
 
-  m_jet_nTOBs = m_gFEXOutputCollection->jetsSize();
-  for (int i = 0; i < m_gFEXOutputCollection->jetsSize(); i++)
+  m_jet_nTOBs = gFEXOutputCollectionobj->jetsSize();
+  for (int i = 0; i < gFEXOutputCollectionobj->jetsSize(); i++)
   {
-    uint32_t TOB = m_gFEXOutputCollection->getJetTob()[i];
+    uint32_t TOB = gFEXOutputCollectionobj->getJetTob()[i];
     m_jet_TOB.push_back(TOB);
-    std::unordered_map<std::string, float> gFEXjetvalue = (m_gFEXOutputCollection->getJet(i));
+    
+    std::unordered_map<std::string, float> gFEXjetvalue = (gFEXOutputCollectionobj->getJet(i));
     m_jet_TOB_Eta.push_back(gFEXjetvalue["EtaJet"]);
     m_jet_TOB_Phi.push_back(gFEXjetvalue["PhiJet"]);
     m_jet_TOB_ET.push_back(gFEXjetvalue["ETJet"]);
@@ -113,7 +120,7 @@ StatusCode LVL1::gFEXNtupleWriter::loadJetAlgoVariables() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LVL1::gFEXNtupleWriter::loadGlobalAlgoVariables() {
+StatusCode LVL1::gFEXNtupleWriter::loadGlobalAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj) {
   m_global_TOB.clear();
   m_global_TOB_Quantity1.clear();
   m_global_TOB_Quantity2.clear();
@@ -122,12 +129,13 @@ StatusCode LVL1::gFEXNtupleWriter::loadGlobalAlgoVariables() {
   m_global_TOB_Status1.clear();
   m_global_TOB_Status2.clear();
 
-  m_global_nTOBs = m_gFEXOutputCollection->globalsSize();
-  for (int i = 0; i < m_gFEXOutputCollection->globalsSize(); i++)
+  m_global_nTOBs = gFEXOutputCollectionobj->globalsSize();
+  for (int i = 0; i < gFEXOutputCollectionobj->globalsSize(); i++)
   {
-    uint32_t TOB = m_gFEXOutputCollection->getGlobalTob()[i];
+    uint32_t TOB = gFEXOutputCollectionobj->getGlobalTob()[i];
     m_global_TOB.push_back(TOB);
-    std::unordered_map<std::string, float> gFEXglobalvalue = (m_gFEXOutputCollection->getGlobal(i));
+
+    std::unordered_map<std::string, float> gFEXglobalvalue = (gFEXOutputCollectionobj->getGlobal(i));
     m_global_TOB_Quantity1.push_back(gFEXglobalvalue["GlobalQuantity1"]);
     m_global_TOB_Quantity2.push_back(gFEXglobalvalue["GlobalQuantity2"]);
     m_global_TOB_Saturation.push_back(gFEXglobalvalue["SaturationGlobal"]);

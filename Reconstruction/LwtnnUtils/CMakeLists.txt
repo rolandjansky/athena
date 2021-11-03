@@ -15,7 +15,7 @@ atlas_add_library( LwtnnUtils
   src/FastInputPreprocessor.cxx
   PUBLIC_HEADERS LwtnnUtils
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-  LINK_LIBRARIES ${LWTNN_LIBRARIES} ${EIGEN_LIBRARIES} )
+  LINK_LIBRARIES EventPrimitives ${LWTNN_LIBRARIES} ${EIGEN_LIBRARIES} )
 
 atlas_add_executable(
   test_lwtnn_fastgraph

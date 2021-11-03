@@ -5,7 +5,6 @@
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 //
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
-#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 //
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"

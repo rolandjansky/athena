@@ -15,6 +15,7 @@ namespace FlavorTagDiscriminants {
     declareProperty("nnFile", m_props.nnFile);
     declareProperty("flipTagConfig", m_props.flipTagConfig);
     declareProperty("variableRemapping", m_props.variableRemapping);
+    declareProperty("trackLinkType", m_props.trackLinkType);
   }
   DL2Tool::~DL2Tool() {}
 
@@ -24,16 +25,26 @@ namespace FlavorTagDiscriminants {
     if (m_props.flipTagConfig.size() > 0) {
       flipConfig = flipTagConfigFromString(m_props.flipTagConfig);
     }
+    TrackLinkType trackLinkType = TrackLinkType::TRACK_PARTICLE;
+    if (m_props.trackLinkType.size() > 0) {
+      trackLinkType = trackLinkTypeFromString(m_props.trackLinkType);
+    }
     m_dl2.reset(
       new DL2HighLevel(
         m_props.nnFile,
         flipConfig,
-        m_props.variableRemapping)
+        m_props.variableRemapping,
+        trackLinkType
+        )
       );
     return StatusCode::SUCCESS;
   }
 
-  void DL2Tool::decorate(const xAOD::BTagging& jet) const {
+  void DL2Tool::decorate(const xAOD::BTagging& btag) const {
+    ATH_MSG_DEBUG("Decoration from: " + m_props.nnFile);
+    m_dl2->decorate(btag);
+  }
+  void DL2Tool::decorate(const xAOD::Jet& jet) const {
     ATH_MSG_DEBUG("Decoration from: " + m_props.nnFile);
     m_dl2->decorate(jet);
   }

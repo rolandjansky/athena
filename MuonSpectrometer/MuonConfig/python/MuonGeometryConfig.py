@@ -4,14 +4,10 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-MuonDetectorTool=CompFactory.MuonDetectorTool
-Muon__MuonIdHelperSvc=CompFactory.Muon.MuonIdHelperSvc
-AGDDtoGeoSvc=CompFactory.AGDDtoGeoSvc
-MuonAGDDTool, NSWAGDDTool=CompFactory.getComps("MuonAGDDTool","NSWAGDDTool",)
 
 def MuonIdHelperSvcCfg(flags):
     acc = ComponentAccumulator()
-    acc.addService( Muon__MuonIdHelperSvc("MuonIdHelperSvc",
+    acc.addService( CompFactory.Muon.MuonIdHelperSvc("MuonIdHelperSvc",
         HasCSC=flags.Detector.GeometryCSC,
         HasSTgc=flags.Detector.GeometrysTGC,
         HasMM=flags.Detector.GeometryMM
@@ -21,7 +17,7 @@ def MuonIdHelperSvcCfg(flags):
 
 def MuonDetectorToolCfg(flags):
     acc = ComponentAccumulator()
-    detTool = MuonDetectorTool(
+    detTool = CompFactory.MuonDetectorTool(
         HasCSC=flags.Detector.GeometryCSC,
         HasSTgc=flags.Detector.GeometrysTGC,
         HasMM=flags.Detector.GeometryMM
@@ -79,11 +75,11 @@ def MuonDetectorToolCfg(flags):
             detTool.FillCacheInitTime = 0
 
     ## Additional material in the muon system
-    AGDD2Geo = AGDDtoGeoSvc()
-    muonAGDDTool = MuonAGDDTool("MuonSpectrometer", BuildNSW=False)
+    AGDD2Geo = CompFactory.AGDDtoGeoSvc()
+    muonAGDDTool = CompFactory.MuonAGDDTool("MuonSpectrometer", BuildNSW=False)
     AGDD2Geo.Builders += [ muonAGDDTool ]
     if (flags.Detector.GeometrysTGC and flags.Detector.GeometryMM):
-        nswAGDDTool = NSWAGDDTool("NewSmallWheel", Locked=False)
+        nswAGDDTool = CompFactory.NSWAGDDTool("NewSmallWheel", Locked=False)
         nswAGDDTool.Volumes = ["NewSmallWheel"]
         nswAGDDTool.DefaultDetector = "Muon"
         AGDD2Geo.Builders += [ nswAGDDTool ]

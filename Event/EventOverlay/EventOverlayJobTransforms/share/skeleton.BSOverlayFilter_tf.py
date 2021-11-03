@@ -21,11 +21,9 @@ globalflags.InputFormat = "bytestream"
 globalflags.DataSource = "data"
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 if hasattr( runArgs, 'inputZeroBiasBSFile'):
-    athenaCommonFlags.FilesInput=runArgs.inputZeroBiasBSFile
+    athenaCommonFlags.BSRDOInput=runArgs.inputZeroBiasBSFile
 else:
-    athenaCommonFlags.FilesInput=runArgs.inputBS_SKIMFile
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+    athenaCommonFlags.BSRDOInput=runArgs.inputBS_SKIMFile
 
 #---------------------------
 ## Run performance monitoring (memory logging)
@@ -44,7 +42,7 @@ if hasattr( runArgs, 'inputZeroBiasBSFile'):
     svcMgr.EventSelector.Input=runArgs.inputZeroBiasBSFile
 else:
     svcMgr.EventSelector.Input=runArgs.inputBS_SKIMFile
-printfunc (ByteStreamInputSvc)
+print (ByteStreamInputSvc)
 
 # ---------------------------
 # Service to write out BS events
@@ -58,7 +56,7 @@ for n in range(0,runArgs.noutputs):
         else: myn=str(n)
         bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc"+myn,OutputDirectory='./',SimpleFileName=getattr(runArgs,"outputBS_TRIGSKIM"+myn+"File"))
     svcMgr += bsOutputSvc
-    printfunc (bsOutputSvc)
+    print (bsOutputSvc)
 
 # ---------------------------
 BSFilterLog.info( '**** ByteStreamFilter configuration' )
@@ -66,28 +64,26 @@ BSFilterLog.info( '**** ByteStreamFilter configuration' )
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-# get the filter algortihm
-from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import CTPByteStreamTool,RecCTPByteStreamTool
-if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
-    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
-    svcMgr += ByteStreamAddressProviderSvc()
-#svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["MuCTPI_RDO/MUCTPI_RDO", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO"]
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", 
-                                                  "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
-
 # main alg
 from OverlayByteStreamUtils.OverlayByteStreamUtilsConf import BSFilter
 filAlg = BSFilter("BSFilter")
-topSequence += filAlg
+
+# convert flags to ConfigFlags
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+ConfigFlags = getNewConfigFlags()
+
 if hasattr( runArgs, "triggerBit"):
-    filAlg.TriggerBit = runArgs.triggerBit
-    #to get HLT info decoded
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.configurationSourceList=['ds']
-    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-    cfg = TriggerConfigGetter()
+    filAlg.L1Trigger = runArgs.triggerBit
+    # We don't need any Calo/Muon RoI information. The following hack
+    # disables the decoding of it in RoIBResultToxAOD:
+    ConfigFlags.Detector.EnableMuon = False
+    ConfigFlags.Detector.EnableCalo = False
+    ConfigFlags.Trigger.readBS = True
+    ConfigFlags.lock()
+    from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
+    triggerGetter = TriggerRecoGetter()
 else:
-    filAlg.TriggerBit = -1
+    filAlg.L1Trigger = ""
 
 if hasattr(runArgs, 'outputTXT_EVENTIDFile'):
     filAlg.EventIdFile=runArgs.outputTXT_EVENTIDFile # The name of the file to write to for EventIdModifierSvc lines
@@ -98,6 +94,8 @@ if hasattr( runArgs, "inputFilterFile") and not hasattr( runArgs, 'InputLbnMapFi
     filAlg.filterfile=runArgs.inputFilterFile # The thing made from the TAG files via "root -l -b -q HITAGprinter_run.C"
 else:
     filAlg.filterfile = ""
+
+topSequence += filAlg
 
 # ---------------------------
 BSFilterLog.info( '**** ByteStreamCopyTool configuration' )
@@ -132,7 +130,7 @@ topSequence += OutputStreamBSCopy
 
 OutputStreamBSCopy.AcceptAlgs =["BSFilter"] 
 
-printfunc (topSequence)
+print (topSequence)
 
 # ---------------------------
 # Post-include/exec

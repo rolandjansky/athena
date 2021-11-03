@@ -144,18 +144,11 @@ def L1TriggerByteStreamDecoderCfg(flags):
   acc.addEventAlgo(decoderAlg, primary=True)
 
   # The decoderAlg needs to load ByteStreamMetadata for the detector mask
-  #
-  # FIXME: BS metadata is unavailable in start() in offline athenaMT,
-  # but it works in athenaHLT (online) and in offline serial athena
-  # - keep the detector mask check only for online until an offline solution is found
-  if flags.Trigger.Online.isPartition:
-    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
-    readBSAcc = ByteStreamReadCfg(flags)
-    readBSAcc.getEventAlgo('SGInputLoader').Load += [
-      ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
-    acc.merge(readBSAcc)
-  else:
-    decoderAlg.ByteStreamMetadataRHKey = ""
+  from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+  readBSAcc = ByteStreamReadCfg(flags)
+  readBSAcc.getEventAlgo('SGInputLoader').Load += [
+    ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
+  acc.merge(readBSAcc)
 
   Configurable.configurableRun3Behavior = cb
   return acc

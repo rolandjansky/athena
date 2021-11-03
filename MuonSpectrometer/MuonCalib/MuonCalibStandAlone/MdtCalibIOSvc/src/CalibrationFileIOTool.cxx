@@ -39,7 +39,7 @@ namespace MuonCalib {
 
     CalibrationFileIOTool::CalibrationFileIOTool(const std::string &t, const std::string &n, const IInterface *p) :
         AthAlgTool(t, n, p), m_calib_dir("calibration"), m_use_fixed_id(false), m_rt_lookup(true) {
-        declareInterface<CalibrationIOTool>(this);
+        declareInterface<ICalibrationIOTool>(this);
         declareProperty("outputLocation", m_calib_dir);
         declareProperty("UseFixedId", m_use_fixed_id);
         declareProperty("RtRelationLookup", m_rt_lookup);

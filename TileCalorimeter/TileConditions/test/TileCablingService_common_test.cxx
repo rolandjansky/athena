@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/Identifier.h"
@@ -33,9 +33,10 @@
 
 class TileCablingSvcMock {
  public:
-  static void init_idhelpers (IdDictParser& parser,
-                              std::string idDictFile = "IdDictTileCalorimeter.xml",
-                              TileCablingService::TileCablingType cablingType = TileCablingService::RUN2aCabling)
+  static void init_idhelpers ATLAS_NOT_THREAD_SAFE
+    (IdDictParser& parser,
+     std::string idDictFile = "IdDictTileCalorimeter.xml",
+     TileCablingService::TileCablingType cablingType = TileCablingService::RUN2aCabling)
   {
 
      TileHWID* tileHWID = new TileHWID();
@@ -56,15 +57,16 @@ class TileCablingSvcMock {
      assert( (detStore->record(tileTBID, "TileTBID")).isSuccess() );
      assert( (detStore->record(tileID, "TileID")).isSuccess() );
 
-     TileCablingService* svc = TileCablingService::getInstance();
+     TileCablingService* svc = TileCablingService::getInstance_nc();
      svc->setTileHWID(tileHWID);
      svc->setTileTBID(tileTBID);
      svc->setTileID(tileID);
      svc->setCablingType(cablingType);
   }
 
-  static void set_cabling_type(TileCablingService::TileCablingType cablingType) {
-   TileCablingService* svc = TileCablingService::getInstance();
+  static void set_cabling_type ATLAS_NOT_THREAD_SAFE
+    (TileCablingService::TileCablingType cablingType) {
+   TileCablingService* svc = TileCablingService::getInstance_nc();
    svc->setCablingType(cablingType);
   }
 };

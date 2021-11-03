@@ -251,13 +251,54 @@ def scoringTool_builder( signature, config, summaryTool, prefix=None ):
   #     In both of these cases, using the tool might be problematic, so we hope to 
   #     be able to disable it in the tool completely at some point in the near future 
   from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-  scoringTool =  InDet__InDetAmbiScoringTool( name = '%sScoringTool_%s'%( prefix, config.input_name),
+  from InDetRecExample.TrackingCommon import setDefaults
+  kwargs = {}
+
+  kwargs = setDefaults(kwargs, name = '%sScoringTool_%s'%( prefix, config.input_name),
                                               Extrapolator = InDetTrigExtrapolator,
                                               minPt        = config.pTmin, 
                                               doEmCaloSeed = False,
                                               SummaryTool  = summaryTool,
                                               minTRTonTrk        = 0,
-                                              DriftCircleCutTool = InDetTrigTRTDriftCircleCut )
+                                              DriftCircleCutTool = InDetTrigTRTDriftCircleCut)
+
+  if(config.maxRPhiImpact is not None):
+    kwargs = setDefaults(kwargs, maxRPhiImp = config.maxRPhiImpact)
+
+  if(config.maxZImpact is not None):
+    kwargs = setDefaults(kwargs, maxZImp = config.maxZImpact)
+    
+  if(config.maxEta is not None):
+    kwargs = setDefaults(kwargs, maxEta = config.maxEta)
+
+  if(config.minSiClusters is not None):
+    kwargs = setDefaults(kwargs, minSiClusters = config.minSiClusters)
+
+  if(config.maxSiHoles is not None):
+    kwargs = setDefaults(kwargs, maxSiHoles = config.maxSiHoles)
+
+  if(config.maxPixelHoles is not None):
+    kwargs = setDefaults(kwargs, maxPixelHoles = config.maxPixelHoles)
+
+  if(config.maxSCTHoles is not None):
+    kwargs = setDefaults(kwargs, maxSCTHoles = config.maxSCTHoles)
+
+  if(config.maxDoubleHoles is not None):
+    kwargs = setDefaults(kwargs, maxDoubleHoles = config.maxDoubleHoles)
+
+  if(config.usePixel is not None):
+    kwargs = setDefaults(kwargs, usePixel = config.usePixel)
+
+  if(config.useSCT is not None):
+    kwargs = setDefaults(kwargs, useSCT = config.useSCT)
+
+  if(config.doEmCaloSeed is not None):
+    kwargs = setDefaults(kwargs, doEmCaloSeed = config.doEmCaloSeed)
+
+  if(config.minTRTonTrk is not None):
+    kwargs = setDefaults(kwargs, minTRTonTrk = config.minTRTonTrk)
+
+  scoringTool =  InDet__InDetAmbiScoringTool(**kwargs)
                                                                                           
   log.info( scoringTool )
 
@@ -516,10 +557,10 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
                                               useSCT             = cutValues.useSCT(),
                                               doEmCaloSeed       = False,
                                               minTRTonTrk        = cutValues.minTRTonTrk(),
+                                              minTRTPrecisionFraction = cutValues.minTRTPrecFrac(),
                                               #useSigmaChi2   = False # tuning from Thijs
                                               DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
                                               minPt              = config.pTmin )
-    
     ToolSvc += scoringTool
 
 
@@ -533,15 +574,13 @@ def trtExtensionProcessor_builder( signature, config, summaryTool, inputTracks, 
                                                             NewTrackName       = outputTracks,
                                                             TrackFitter        = InDetTrigTrackFitter,
                                                             TrackSummaryTool   = summaryTool,
-                                                            ScoringTool        = scoringTool, #TODO do I provide the same tool as for ambiguity solver?
+                                                            ScoringTool        = scoringTool, 
                                                             suppressHoleSearch = False,
                                                             RefitPrds = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() == 'DAF')))
                                                             # Check these option after DAF is implemented
                                                             # tryBremFit         = InDetFlags.doBremRecovery(),
                                                             # caloSeededBrem     = InDetFlags.doCaloSeededBrem(),
                                                             # pTminBrem          = NewTrackingCuts.minPTBrem() )
-                                                            # RefitPrds          = not (InDetFlags.refitROT() or (InDetFlags.trtExtensionType() is 'DAF')))
-    
     return trtExtensionProcessor
 
 

@@ -59,14 +59,14 @@ LArSuperCellBCIDEmAlg::execute(const EventContext& context) const
 
         for(auto sc : *scells_from_sg){
                 if ( !sc ) continue;
-                CaloCell* cell = sc->clone();
+                std::unique_ptr<CaloCell> cell = sc->clone();
                 // calculate the BCID for all the cells associated to the SC
                 // since this is emulation
                 float correction(0.0);
                 std::vector<Identifier> ids = m_scidtool->superCellToOfflineID( sc->ID() );
                 for ( auto id : ids ) correction+=caloLumiBCID->average(id); ;
                 cell->setEnergy( sc->energy() - correction );
-                new_scell_cont->push_back( cell );
+                new_scell_cont->push_back( std::move(cell) );
         }
 	ATH_CHECK( scellContainerHandle.record( std::move(new_scell_cont) ) );
 

@@ -34,8 +34,8 @@ def InDetRttTruthSelectionToolCfg(flags, name="InDetRttTruthSelectionTool", **kw
 
     Extrapolator = None
     if flags.Detector.GeometryITk:
-        from  InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
+        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
     else:
         from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
         Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
@@ -123,7 +123,7 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
         kwargs.setdefault("JetContainerName", '')
         kwargs.setdefault("FillTrackInJetPlots", False)
         kwargs.setdefault("FillTrackInBJetPlots", False)
-        kwargs.setdefault("FillTruthToRecoNtuple ", False)
+        kwargs.setdefault("FillTruthToRecoNtuple", False)
 
     if flags.Detector.GeometryITk:
         #Disable vertex container for now

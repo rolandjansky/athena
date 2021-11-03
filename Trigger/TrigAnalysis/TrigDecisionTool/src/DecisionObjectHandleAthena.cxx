@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS // Full Athena only
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigDecisionTool/DecisionObjectHandleAthena.h"

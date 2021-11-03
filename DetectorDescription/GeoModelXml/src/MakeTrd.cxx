@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Automatically generated code from /home/hessey/prog/gmx2geo/makeshape
@@ -14,7 +14,7 @@ using namespace xercesc;
 
 MakeTrd::MakeTrd() {}
 
-const RCBase * MakeTrd::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
+RCBase * MakeTrd::make(const xercesc::DOMElement *element, GmxUtil &gmxUtil) const {
 const int nParams = 5; 
 char const *parName[nParams] = {"xhalflength1", "xhalflength2", "yhalflength1", "yhalflength2", "zhalflength"};
 double p[nParams];

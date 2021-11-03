@@ -18,19 +18,8 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 
 HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator),
-    m_tileEMScaleKey ("TileEMScale"),
-    m_dataAccessSvc( "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", name ),
-    m_roiMode(true),
-    m_monCells(false)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
-  declareProperty("CellsVName", m_cellContainerVKey = std::string("CellsVClusters"), "Calo cells container");
-  declareProperty("CellsName", m_cellContainerKey = std::string("CellsClusters"), "Calo cells container");
-  declareProperty("TrigDataAccessMT",m_dataAccessSvc,"Data Access for LVL2 Calo Algorithms in MT");
-  declareProperty("roiMode",m_roiMode,"RoiMode roi->CaloCellCollection");
-  declareProperty("monitorCells",m_monCells,"monitorCells");
-  declareProperty("TileEMSCaleKey", m_tileEMScaleKey);
 }
 
 StatusCode HLTCaloCellMaker::initialize() {
@@ -113,10 +102,13 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	}
 	cdv->setHasCalo(CaloCell_ID::LARHEC);
 	// TILE PART
-	for(int sampling=0;sampling<4;sampling++){
+	{
 	TileCellCollection sel;
 	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
-	for( const auto cell : sel ) {cdv->push_back( cell ); }
+	for( const auto cell : sel ) { 
+	  if(m_tileCellsInROI && !tileCellEtaInRoi(cell, roiDescriptor)) continue;
+	  cdv->push_back( cell );
+	}
 	}
 	cdv->setHasCalo(CaloCell_ID::TILE);
 	// TT FCAL EM PART
@@ -189,10 +181,13 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         }
         c->setHasCalo(CaloCell_ID::LARHEC);
         // TILE PART
-        for(int sampling=0;sampling<4;sampling++){
+        {
         TileCellCollection sel;
         ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
-        for( const auto cell : sel ) {c->push_back( cell ); }
+        for( const auto cell : sel ) {
+	  if(m_tileCellsInROI && !tileCellEtaInRoi(cell, roiDescriptor)) continue;
+	  c->push_back( cell );
+	}
         }
         c->setHasCalo(CaloCell_ID::TILE);
         // TT FCAL EM PART
@@ -220,8 +215,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
       }
     }
   }
-
-
    
   if ( seedLess ) { delete roiCollection; }
   return StatusCode::SUCCESS;

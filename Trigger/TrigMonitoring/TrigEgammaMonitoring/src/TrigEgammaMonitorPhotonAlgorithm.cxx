@@ -24,8 +24,8 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::initialize()
 
   ATH_CHECK(m_offPhotonKey.initialize());
 
-
-  for(const auto& trigName:m_trigInputList)
+  
+  for(auto& trigName : m_trigInputList)
   {
     if(getTrigInfoMap().count(trigName) != 0){
       ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
@@ -46,7 +46,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
     ATH_MSG_DEBUG("Executing TrigEgammaMonitorPhotonAlgorithm");
 
 
-    if(tdt()->ExperimentalAndExpertMethods().isHLTTruncated()){
+    if(isHLTTruncated()){
         ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
         return StatusCode::SUCCESS; 
     }
@@ -58,11 +58,11 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
         
         const TrigInfo info = getTrigInfo(trigger);
         
-        ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigName);
+        ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigger);
           
         std::vector< std::pair<std::shared_ptr<const xAOD::Egamma>, const TrigCompositeUtils::Decision * >> pairObjs;
     
-        if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType,pairObjs).isFailure() ) 
+        if ( executeNavigation( ctx, info.trigger,info.etthr,info.pidname,pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
@@ -73,6 +73,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
         for (const auto& itr : pairObjs) {
           pairObjsRaw.emplace_back(itr.first.get(), itr.second);
         }
+        
         fillDistributions( pairObjsRaw, info );
         fillEfficiencies( pairObjsRaw, info );
         fillResolutions( pairObjsRaw, info );

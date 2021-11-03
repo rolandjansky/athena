@@ -10,7 +10,6 @@ __doc__ = """Configuration of tools for Moore muon reconstruction"""
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
 
-from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
@@ -32,7 +31,7 @@ from .MuonRecFlags import muonRecFlags
 from .MuonStandaloneFlags import muonStandaloneFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from InDetRecExample import TrackingCommon
 #==============================================================
@@ -378,7 +377,7 @@ def MuonTrackCleaner(name,extraFlags=None,**kwargs):
   kwargs.setdefault("Fitter",        getPrivateTool('MCTBFitterMaterialFromTrack') )
   kwargs.setdefault("SLFitter",      getPrivateTool('MCTBSLFitterMaterialFromTrack'))
   kwargs.setdefault("MdtRotCreator", getPrivateTool('MdtDriftCircleOnTrackCreator'))
-  if TriggerFlags.MuonSlice.doTrigMuonConfig:
+  if ConfigFlags.Muon.MuonTrigger:
       kwargs.setdefault("Iterate", False)
       kwargs.setdefault("RecoverOutliers", False)
   # kwargs.setdefault("CompRotCreator", getPrivateTool('TriggerChamberClusterOnTrackCreator')) Not in DB
@@ -531,11 +530,9 @@ class MuonTrackExtrapolationTool(CfgMgr.Muon__MuonTrackExtrapolationTool,Configu
     __slots__ = ()
     
     def __init__(self,name="MuonTrackExtrapolationTool",**kwargs):
-        if TrackingCommon.use_tracking_geometry_cond_alg:
-            cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-            kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
-        else:
-            kwargs.setdefault('TrackingGeometrySvc', ServiceMgr.AtlasTrackingGeometrySvc )
+        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+        kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
+  
         if beamFlags.beamType() == 'cosmics':
             kwargs.setdefault( 'Cosmics',  True )
         

@@ -492,7 +492,7 @@ int fitVertex(VKVertex * vk)
         FitCONTROL->renewFullCovariance(new double[ (3*NTRK+3)*(3*NTRK+3+1)/2 ]);
         int out=0;
         for(int ti=0; ti<3+3*NTRK; ti++){
-          for(int tj=ti; tj<3+3*NTRK; tj++){
+          for(int tj=0; tj<=ti; tj++){
             FitCONTROL->getFullCovariance()[out] = ARR2D_FS(MainVRT->ader, 3*vkalNTrkM+3, ti, tj);
             out++;
         } }

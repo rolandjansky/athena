@@ -16,6 +16,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "L1CaloFEXSim/jTower.h"
+#include "TH1.h"
+#include "TH1F.h"
+#include "TH1I.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/jTowerContainer.h"
@@ -33,8 +36,9 @@ Interface definition for jSuperCellTowerMapper
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    virtual StatusCode AssignSuperCellsToTowers(/*jTowerContainer**/std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw) = 0;
-    virtual StatusCode AssignTriggerTowerMapper(/*jTowerContainer**/std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw) = 0;
+    virtual StatusCode AssignSuperCellsToTowers(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw) = 0;
+    virtual StatusCode AssignTriggerTowerMapper(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw) = 0;
+    virtual StatusCode AssignPileupAndNoiseValues (std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,TH1F *jTowerArea_hist, TH1I *Firmware2BitwiseID,TH1I *BinLayer,TH1F *EtaCoords,TH1F *PhiCoords) =0;
     
     virtual void reset() = 0;
     

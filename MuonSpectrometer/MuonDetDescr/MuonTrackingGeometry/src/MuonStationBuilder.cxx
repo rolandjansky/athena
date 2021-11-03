@@ -115,10 +115,10 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
     while (!vol.atEnd()) {
         const GeoVPhysVol* cv = &(*(vol.getVolume()));
         const GeoLogVol* clv = cv->getLogVol();
-        std::string vname = clv->getName();
+        const std::string &vname = clv->getName();
 
         // special treatment for NSW
-        if (vname.substr(0, 3) == "NSW" || vname.substr(0, 8) == "NewSmall") {
+        if (vname.compare(0, 3, "NSW") == 0 || vname.compare(0, 8, "NewSmall") == 0) {
             ATH_MSG_INFO(vname << " processing NSW ");
             std::vector<std::pair<const Trk::DetachedTrackingVolume*, std::vector<Amg::Transform3D> > > objs;
 
@@ -131,7 +131,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
                 std::vector<Amg::Transform3D> volTr;
                 volTr.push_back(vol.getTransform());
                 std::pair<const GeoLogVol*, Trk::MaterialProperties*> cpair(clv, 0);
-                vols.emplace_back(cpair, volTr);
+                vols.emplace_back(cpair, std::move(volTr));
                 volNames.push_back(vname);
                 simpleTree = true;
             } else {
@@ -835,7 +835,8 @@ void Muon::MuonStationBuilder::glueComponents(const Trk::DetachedTrackingVolume*
 void Muon::MuonStationBuilder::identifyLayers(const Trk::DetachedTrackingVolume* station, int eta, int phi) const {
     ATH_MSG_VERBOSE(name() << " identifying layers ");
 
-    std::string stationName = station->trackingVolume()->volumeName();
+    const std::string &stationNamestr = station->trackingVolume()->volumeName();
+    std::string_view stationName(stationNamestr);
     ATH_MSG_VERBOSE(" in station " << station->name());
 
     if (stationName.substr(0, 1) == "C") {

@@ -18,6 +18,7 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include "Math/GenVector/VectorUtil.h"
 
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionIDContainer;
@@ -55,7 +56,7 @@ StatusCode TrigMultiTrkComboHypoTool::initialize() {
   else {  // chain with symmetric legs, as HLT_2mu4_bDimu_L12MU4
     m_legDecisionIDs.insert(m_legDecisionIDs.end(), m_legMultiplicities[0], decisionId().numeric());
   }
-  ATH_CHECK( m_nTrk <= m_legDecisionIDs.size() || m_isMergedElectronChain );
+  ATH_CHECK( m_nTrk <= m_legDecisionIDs.size() || m_isMergedElectronChain || m_isMuonTrkPEB );
 
   if (!m_monTool.empty()) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -89,7 +90,8 @@ bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
                       isInMassRange(trigBphys->mass()) &&
                       passedChi2Cut(trigBphys->fitchi2()) &&
                       passedChargeCut(totalCharge(trigBphys)) &&
-                      trigBphys->lxy() > m_LxyCut)) {
+                      trigBphys->lxy() > m_LxyCut &&
+                      passedDeltaRcut(trigBphys))) {
     mon_Lxy = trigBphys->lxy();
     mon_totalCharge = totalCharge(trigBphys);
     mon_chi2 = trigBphys->fitchi2();
@@ -116,7 +118,7 @@ StatusCode TrigMultiTrkComboHypoTool::decideOnSingleObject(Decision* decision, c
   auto trigBphysEL = decision->objectLink<xAOD::TrigBphysContainer>(TrigCompositeUtils::featureString());
   ATH_CHECK( trigBphysEL.isValid() );
 
-  if (previousDecisionIDs.size() != (m_isMergedElectronChain ? 1 : m_nTrk.value())) {
+  if (previousDecisionIDs.size() != (m_isMergedElectronChain || m_isMuonTrkPEB ? 1 : m_nTrk.value())) {
     return StatusCode::SUCCESS;
   }
 
@@ -144,9 +146,9 @@ bool TrigMultiTrkComboHypoTool::checkPreviousDecisionIDs(const std::vector<const
   // trigger with asymmetric legs (like HLT_mu6_2mu4_bDimu_L1MU6_3MU4) is treated in a specific way:
   // all 6 possible combinations should be checked: {leg0, leg1}, {leg0, leg2}, {leg1, leg0}, {leg1, leg2}, {leg2, leg0}, {leg2, leg1}
 
-  if (m_isMergedElectronChain) {
+  if (m_isMergedElectronChain || m_isMuonTrkPEB) {
     if (!TrigCompositeUtils::passed(m_legDecisionIDs.at(0), *previousDecisionIDs[0])) {
-      ATH_MSG_DEBUG( "Trigger for close-by electrons didn't pass previous decision" );
+      ATH_MSG_DEBUG( "Trigger for " << (m_isMergedElectronChain ? "close-by electrons" : "muon+track") << " didn't pass previous decision" );
       return false;
     }
     return true;
@@ -194,6 +196,21 @@ bool TrigMultiTrkComboHypoTool::isInMassRange(double mass) const {
   return true;
 }
 
+bool TrigMultiTrkComboHypoTool::passedDeltaRcut(const xAOD::TrigBphys* trigBphys) const {
+  if (m_deltaRMax == std::numeric_limits<float>::max() && m_deltaRMin == std::numeric_limits<float>::lowest()) { // Cut disabled
+    return true;
+  }
+  size_t N = trigBphys->nTrackParticles();
+  for (size_t i = 0 ; i < N; i++) {
+    auto p1 = trigBphys->trackParticle(i)->genvecP4();
+    for (size_t j = i + 1; j < N; j++) {
+      auto p2 = trigBphys->trackParticle(j)->genvecP4();
+      double deltaR = ROOT::Math::VectorUtil::DeltaR(p1, p2);
+      if (deltaR > m_deltaRMax || deltaR < m_deltaRMin) return false;
+    }
+  }
+  return true;
+}
 
 int TrigMultiTrkComboHypoTool::totalCharge(const xAOD::TrigBphys* trigBphys) const {
 

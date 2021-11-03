@@ -178,9 +178,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
 
     // Front-End simulation
     if (bunch >= 0 && bunch < moduleData->getNumberOfBCID(barrel_ec, layerIndex)) {
-      Pixel1RawData* p_rdo = new Pixel1RawData(id_readout, nToT, bunch, 0, bunch);
-      rdoCollection.push_back(p_rdo);
-      p_rdo = nullptr;
+      rdoCollection.push_back(new Pixel1RawData(id_readout, nToT, bunch, 0, bunch));
     }
 
     // Duplication mechanism for FEI3 small hits :
@@ -191,9 +189,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
       }
 
       if (smallHitChk && bunch > 0 && bunch <= moduleData->getNumberOfBCID(barrel_ec, layerIndex)) {
-        Pixel1RawData* p_rdo = new Pixel1RawData(id_readout, nToT, bunch - 1, 0, bunch - 1);
-        rdoCollection.push_back(p_rdo);
-        p_rdo = nullptr;
+        rdoCollection.push_back(new Pixel1RawData(id_readout, nToT, bunch - 1, 0, bunch - 1));
       }
     }
   }
@@ -228,7 +224,7 @@ int FEI3SimTool::relativeBunch2009(const double threshold, const double intimeth
   //double G4Time	 = totalCharge.time();
 
   double G4Time = getG4Time(totalCharge);
-  double timing = moduleData->getTimeOffset(0, 1) + myTimeWalkEff + (randomjitter) + G4Time - moduleData->getComTime();
+  double timing = moduleData->getTimeOffset(0, 1) + myTimeWalkEff + (randomjitter) + G4Time;
   BCID = static_cast<int>(floor(timing / moduleData->getBunchSpace()));
   //ATH_MSG_DEBUG (  CTW << " , " << myTimeWalkEff << " , " << G4Time << " , " << timing << " , " << BCID );
 

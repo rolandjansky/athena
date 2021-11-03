@@ -64,7 +64,7 @@ namespace LVL1 {
 
     virtual StatusCode init(int id, int efexid) override ;
 
-    virtual StatusCode execute() override ;
+    virtual StatusCode execute(jFEXOutputCollection* inputOutputCollection) override ;
 
     virtual void reset() override ;
 
@@ -141,6 +141,7 @@ namespace LVL1 {
     ToolHandle<IjFEXPileupAndNoise> m_jFEXPileupAndNoiseTool {this, "jFEXPileupAndNoiseTool", "LVL1::jFEXPileupAndNoise", "Tool that applies Pileup and Noise"};
     
     int getTTowerET_SG(unsigned int TTID);
+    std::string m_jfex_string[6] = {"1C","2C","3C","3A","2A","1A"};
   };
   
 } // end of namespace

@@ -28,8 +28,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-class CaloDetDescrManager; 
-class CaloDetDescrElement;
 class CaloCell_ID;
 class LArHVFraction;
 

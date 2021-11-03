@@ -20,6 +20,7 @@ namespace FlavorTagDiscriminants {
     track_prefix = "btagIp_";
     flip = FlipTagConfig::STANDARD;
     track_link_name = "BTagTrackToJetAssociator";
+    track_link_type = TrackLinkType::TRACK_PARTICLE;
   }
 
   // DL2
@@ -109,6 +110,18 @@ namespace FlavorTagDiscriminants {
   }
 
   void DL2::decorate(const xAOD::BTagging& btag) const {
+    auto jetLink = m_jetLink(btag);
+    if (!jetLink.isValid()) {
+      throw std::runtime_error("invalid jetLink");
+    }
+    const xAOD::Jet& jet = **jetLink;
+    decorate(jet, btag);
+  }
+  void DL2::decorate(const xAOD::Jet& jet) const {
+    decorate(jet, jet);
+  }
+
+  void DL2::decorate(const xAOD::Jet& jet, const SG::AuxElement& btag) const {
     using namespace internal;
     std::vector<NamedVar> vvec;
     for (const auto& getter: m_varsFromBTag) {
@@ -126,11 +139,6 @@ namespace FlavorTagDiscriminants {
     }
 
     // add track sequences
-    auto jetLink = m_jetLink(btag);
-    if (!jetLink.isValid()) {
-      throw std::runtime_error("invalid jetLink");
-    }
-    const xAOD::Jet& jet = **jetLink;
     std::map<std::string,std::map<std::string, std::vector<double>>> seqs;
     for (const auto& builder: m_trackSequenceBuilders) {
       Tracks sorted_tracks = builder.tracksFromJet(jet, btag);
@@ -174,19 +182,51 @@ namespace FlavorTagDiscriminants {
     TracksFromJet::TracksFromJet(SortOrder order,
                                  TrackSelection selection,
                                  const DL2Options& options):
-      m_trackAssociator(options.track_link_name),
       m_trackSortVar(get::trackSortVar(order, options)),
       m_trackFilter(get::trackFilter(selection, options).first)
     {
+      // We have several ways to get tracks: either we retrieve an
+      // IParticleContainer and cast the pointers to TrackParticle, or
+      // we retrieve a TrackParticleContainer directly. Unfortunately
+      // the way tracks are stored isn't consistent across the EDM, so
+      // we allow configuration for both setups.
+      //
+      if (options.track_link_type == TrackLinkType::IPARTICLE) {
+        SG::AuxElement::ConstAccessor<PartLinks> acc(options.track_link_name);
+        m_associator = [acc](const SG::AuxElement& btag) -> TPV {
+          TPV tracks;
+          for (const ElementLink<IPC>& link: acc(btag)) {
+            if (!link.isValid()) {
+              throw std::logic_error("invalid particle link");
+            }
+            const auto* trk = dynamic_cast<const xAOD::TrackParticle*>(*link);
+            if (!trk) {
+              throw std::logic_error("iparticle does not cast to Track");
+            }
+            tracks.push_back(trk);
+          }
+          return tracks;
+        };
+      } else if (options.track_link_type == TrackLinkType::TRACK_PARTICLE){
+        SG::AuxElement::ConstAccessor<TrackLinks> acc(options.track_link_name);
+        m_associator = [acc](const SG::AuxElement& btag) -> TPV {
+          TPV tracks;
+          for (const ElementLink<TPC>& link: acc(btag)) {
+            if (!link.isValid()) {
+              throw std::logic_error("invalid track link");
+            }
+            tracks.push_back(*link);
+          }
+          return tracks;
+        };
+      } else {
+        throw std::logic_error("Unknown TrackLinkType");
+      }
     }
     Tracks TracksFromJet::operator()(const xAOD::Jet& jet,
-                                     const xAOD::BTagging& btagging) const {
+                                     const SG::AuxElement& btagging) const {
       std::vector<std::pair<double, const xAOD::TrackParticle*>> tracks;
-      for (const auto &link : m_trackAssociator(btagging)) {
-        if(!link.isValid()) {
-          throw std::logic_error("invalid track link");
-        }
-        const xAOD::TrackParticle *tp = *link;
+      for (const xAOD::TrackParticle *tp : m_associator(btagging)) {
         if (m_trackFilter(tp)) {
           tracks.push_back({m_trackSortVar(tp, jet), tp});
         };

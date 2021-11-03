@@ -14,8 +14,13 @@ if __name__ == "__main__":
     ConfigFlags.GeoModel.Align.Dynamic    = False
     ConfigFlags.lock()
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    acc = PixelGeometryCfg(ConfigFlags)
-    f=open('PixelGeometryCfg.pkl','wb')
+    if ConfigFlags.Common.Project == "AthSimulation":
+        from PixelGeoModel.PixelGeoModelConfig import PixelSimulationGeometryCfg
+        acc = PixelSimulationGeometryCfg(ConfigFlags)
+        f=open('PixelSimulationGeometryCfg.pkl','wb')
+    else:
+        from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+        acc = PixelReadoutGeometryCfg(ConfigFlags)
+        f=open('PixelReadoutGeometryCfg.pkl','wb')
     acc.store(f)
     f.close()

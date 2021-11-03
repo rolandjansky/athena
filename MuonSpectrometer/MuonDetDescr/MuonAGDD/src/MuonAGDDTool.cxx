@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDD/MuonAGDDTool.h"
@@ -24,7 +24,7 @@ MuonAGDDTool::MuonAGDDTool(const std::string& type, const std::string& name, con
 #endif
 {}
 
-StatusCode MuonAGDDTool::initialize()
+StatusCode MuonAGDDTool::initialize ATLAS_NOT_THREAD_SAFE ()
 {
 	ATH_CHECK(AGDDToolBase::initialize());
     ATH_MSG_INFO("MuonAGDDTool::initialize");
@@ -50,13 +50,16 @@ StatusCode MuonAGDDTool::initialize()
 	return StatusCode::SUCCESS;
 }
 
-StatusCode MuonAGDDTool::construct() 
+// Base class method is also marked not thread-safe.
+// Uses unsafe function UseGeoModelDetector
+StatusCode MuonAGDDTool::construct  ATLAS_NOT_THREAD_SAFE  () 
 {
 	ATH_MSG_INFO(name()<<"::construct()");
 	MuonAGDDToolHelper theHelper;
 	theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
 
-	m_controller->UseGeoModelDetector("Muon");
+        IAGDDtoGeoSvc::LockedController controller = m_svc->getController();
+	controller->UseGeoModelDetector("Muon");
 	
 	if (!m_locked)
 	{
@@ -70,7 +73,7 @@ StatusCode MuonAGDDTool::construct()
 	// reading from a local AGDD xml file
 	if (!m_readAGDD) {
 		ATH_MSG_INFO(" Parsing local xml file ");
-		m_controller->ParseFiles();
+		controller->ParseFiles();
     // reading the AGDD xml blob from the ATLAS geometry database
 	} else {
 	    ATH_MSG_INFO(" now reading AGDD blob ");
@@ -83,36 +86,36 @@ StatusCode MuonAGDDTool::construct()
 		    ATH_MSG_ERROR("\t-- empty AGDDfile - this cannot be correct " );
 		    return StatusCode::FAILURE;
 	    }
-	    m_controller->ParseString(AGDDfile);
+	    controller->ParseString(AGDDfile);
 	}
 
 	if (m_printSections) {	
 		ATH_MSG_INFO("\t Printing all sections");
-		m_controller->PrintSections();
+		controller->PrintSections();
 	}
 
     // when reading from a local AGDD xml file and not creating a layout (i.e. running simulation from a local xml file),
     // only build those volumes that are specified at the 'Volumes' property (analogously to the AGDD2GeoSwitches when reading the blob)
     if (!m_readAGDD && !m_writeDBfile) {
         for (const auto &vol:m_volumesToBuild) {
-            m_controller->GetBuilder()->BuildFromVolume(vol);
+            controller->GetBuilder()->BuildFromVolume(vol);
         }
     } else {
     // when reading the AGDD xml blob, only build the volumes specified via the AGDD2GeoSwitches
 	    for (const auto &structure: m_structuresFromFlags) {
             if (!m_buildNSW && structure=="NewSmallWheel") continue;
-            m_controller->GetBuilder()->BuildFromVolume(structure);
+            controller->GetBuilder()->BuildFromVolume(structure);
         }
     }
 
 	if(m_writeDBfile)
 	{
 		// build model before writing blob - if Athena crashes the XML is not good and should not become a blob
-		((AGDD2GeoModelBuilder*)m_controller->GetBuilder())->BuildAllVolumes();
+		((AGDD2GeoModelBuilder*)controller->GetBuilder())->BuildAllVolumes();
 		ATH_MSG_INFO("\t-- attempting to write output to "<< m_outFileName );
 		if( !m_outFileName.empty() )
 		{
-			if(!m_controller->WriteAGDDtoDBFile( m_outFileName ))
+			if(!controller->WriteAGDDtoDBFile( m_outFileName ))
 			{
 				ATH_MSG_ERROR("\t-- something went wrong during writing AGDD file - crashing" );
 				return StatusCode::FAILURE;
@@ -135,7 +138,7 @@ StatusCode MuonAGDDTool::construct()
 		}
 	}
 
-	m_controller->Clean();
+	controller->Clean();
 
 	return StatusCode::SUCCESS;
 }

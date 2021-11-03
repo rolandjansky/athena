@@ -164,6 +164,12 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
 
     binlabels=["TotalEvents","ATLAS Ready","with Good LAr LB","with No LAr Collision","with No Beam Background", "with No Trigger Filter","with No LArError"] 
 
+    # triggers to use
+    LArCellMonAlg.rndmTriggerNames    = "L1_RD0, L1_RD0_FILLED, L1_RD0_EMPTY, L1_RD1, L1_RD1_NOISE, L1_RD1_HIST, L1_RD1_BGRP4, L1_RD1_BGRP5"
+    LArCellMonAlg.caloTriggerNames    = "L1_EM[0-9]+, L1_HA[0-9]+, L1_J[0-9]+.*, L1_JB[0-9]+, L1_JF[0-9]+, L1_TE[0-9]+, L1_JE[0-9]+, L1_XE[0-9]+, L1_2EM[0-9]+, L1_2FJ[0-9]+, L1_2J[0-9]+,L1_3J[0-9]+.*,L1_4J[0-9]+.*,L1_5J[0-9]+,L1_6J[0-9]+,L1_FJ[0-9]+.*"
+    LArCellMonAlg.minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1"
+    LArCellMonAlg.metTriggerNames     = "EF_xe[0-9]+.*"
+    LArCellMonAlg.miscTriggerNames    = ""
 
     # Global Settings:
 
@@ -407,10 +413,10 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
     allMonArray = helper.addArray([LArCellMonAlg.LayerNames, LArCellMonAlg.ThresholdType], LArCellMonAlg, "allMon", 
                                     "/CaloMonitoring/LArCellMon_NoTrigSel/")
 
-
+    allMonArray.defineHistogram('dummy', type='TH1F', xbins=1, xmin=0, xmax=1) # dummy to have at least 1 plot defined
+    
     #now histograms
     for part in LArCellMonAlg.LayerNames:
-        allMonArray.defineHistogram('dummy'+part, type='TH1F', xbins=1, xmin=0, xmax=1) # dummy to have at least 1 plot defined
 
         allMonArray.defineHistogram('celleta,cellphi;CellOccupancyVsEtaPhi',
                                                 title='No. of events in (#eta,#phi) for '+part+';cell #eta;cell #phi',

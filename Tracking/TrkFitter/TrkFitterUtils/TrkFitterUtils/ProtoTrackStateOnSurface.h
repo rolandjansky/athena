@@ -21,12 +21,16 @@
 #include "TrkFitterUtils/TrackCalibDefs.h"
 #include <vector>
 #include "CxxUtils/CachedUniquePtr.h"
+#include <memory> //unique_ptr
+//the following can in principle can be fwd declared, but clients need access
+//to destructors of the classes
+#include "TrkFitterUtils/DNA_MaterialEffects.h"
+#include "TrkFitterUtils/ProtoMaterialEffects.h"
 namespace Trk {
 
   class MeasurementBase;
   class TrackStateOnSurface;
-  class DNA_MaterialEffects;
-  class ProtoMaterialEffects;
+
   /** @brief This class is a container to group all fitter internal
   information (input, temp and final results) for each surface.
 
@@ -72,15 +76,17 @@ namespace Trk {
     void swap(ProtoTrackStateOnSurface& rhs) throw (); // No throw exception guarantee
 
     //! checkin for data member: Measurement
-    void checkinMeasurement(const MeasurementBase*,
+    void checkinMeasurement(MeasurementBase*,
                             bool  classShallOwnMbase=true);
 
     //! replace measurement by new, eg recalibrated one
     void replaceMeasurement(const MeasurementBase*,
                             TrackState::CalibrationType=Trk::TrackState::CalibrationNotKnown);
+    void replaceMeasurement(std::unique_ptr<const Trk::MeasurementBase> meas,
+                            TrackState::CalibrationType=Trk::TrackState::CalibrationNotKnown);
 
     //! checkout for data member: Measurement
-    const MeasurementBase* checkoutMeasurement();
+    std::unique_ptr<Trk::MeasurementBase> checkoutMeasurement();
 
     //! read access for data member: Measurement
     const MeasurementBase* measurement() const;
@@ -132,23 +138,23 @@ namespace Trk {
     const AmgSymMatrix(5)* parametersCovariance() const;
 
     //! checkin method for data member: TPs from forward fit
-    void checkinForwardPar(const TrackParameters*);
+    void checkinForwardPar(std::unique_ptr<const Trk::TrackParameters>);
     //! checkout method for data member: TPs from forward fit
-    const TrackParameters* checkoutForwardPar();
+    std::unique_ptr<const Trk::TrackParameters> checkoutForwardPar();
     //! read access method for data member: TPs from forward fit
     const TrackParameters* forwardTrackParameters() const;
 
     //! checkin method for data member: TPs from smoothing
-    void checkinSmoothedPar(const TrackParameters*);
+    void checkinSmoothedPar(std::unique_ptr<const Trk::TrackParameters> );
     //! checkout method for data member: TPs from smoothing
-    const TrackParameters* checkoutSmoothedPar();
+    std::unique_ptr<const Trk::TrackParameters> checkoutSmoothedPar();
     //! read access method for data member: TPs from smoothing
     const TrackParameters* smoothedTrackParameters() const;
 
     //! checkin method for data member: FitQualityOnSurface (smoothed state)
-    void checkinFitQuality(const FitQualityOnSurface*);
+    void checkinFitQuality(std::unique_ptr<const Trk::FitQualityOnSurface> );
     //! checkout method for data member: FitQualityOnSurface (smoothed state)
-    const FitQualityOnSurface* checkoutFitQuality();
+    std::unique_ptr<const Trk::FitQualityOnSurface> checkoutFitQuality();
     //! read access method for data member: FitQualityOnSurface (smoothed state)
     const FitQualityOnSurface* fitQuality() const;
 
@@ -163,16 +169,16 @@ namespace Trk {
     double backwardStateChiSquared() const;
 
     //! checkin method for data member: ProtoMaterialEffects
-    void checkinMaterialEffects(const ProtoMaterialEffects*);
+    void checkinMaterialEffects(std::unique_ptr<const Trk::ProtoMaterialEffects>);
     //! checkout method for data member: ProtoMaterialEffects
-    const ProtoMaterialEffects* checkoutMaterialEffects();
+    std::unique_ptr<const Trk::ProtoMaterialEffects> checkoutMaterialEffects();
     //! read access method for data member: ProtoMaterialEffects
     const ProtoMaterialEffects* materialEffects() const;
 
     //! checkin method for data member: DNA_MaterialEffects
-    void checkinDNA_MaterialEffects(const DNA_MaterialEffects*);
+    void checkinDNA_MaterialEffects(std::unique_ptr<const Trk::DNA_MaterialEffects>);
     //! checkout method for data member: DNA_MaterialEffects
-    const DNA_MaterialEffects* checkoutDNA_MaterialEffects();
+    std::unique_ptr<const Trk::DNA_MaterialEffects> checkoutDNA_MaterialEffects();
     //! read access method for data member: DNA_MaterialEffects
     const DNA_MaterialEffects* dnaMaterialEffects() const;
 
@@ -213,11 +219,11 @@ namespace Trk {
     bool                       m_iOwnMeasurement; //!< flag to decide if the MB may be checked out/deleted
     TrackState::TrackStateType m_tsType;          //!< flag if outlier and which
     int                        m_iterationShowingOutlier; //!< outlier from it #
-    const TrackParameters*     m_forwardState;    //!< track state obtaine during forward filtering
-    const TrackParameters*     m_smoothedState;   //!< possibly final state after smoothing
-    const FitQualityOnSurface* m_fitQuality;      //!< fit quality on this surface
-    const DNA_MaterialEffects* m_dnaMaterialEffects; //!< extended mefot for DNA
-    const ProtoMaterialEffects* m_protoMaterialEffects; //!< material layer and scattering info
+    std::unique_ptr<const TrackParameters>     m_forwardState{};    //!< track state obtaine during forward filtering
+    std::unique_ptr<const TrackParameters>     m_smoothedState{};   //!< possibly final state after smoothing
+    std::unique_ptr<const FitQualityOnSurface> m_fitQuality{};      //!< fit quality on this surface
+    std::unique_ptr<const DNA_MaterialEffects> m_dnaMaterialEffects{}; //!< extended mefot for DNA
+    std::unique_ptr<const ProtoMaterialEffects> m_protoMaterialEffects{}; //!< material layer and scattering info
     int                        m_stateID;         //!< simple counter to ease state numbering in fitter
     Identifier                 m_identifier;      //!< identify measurement for debugging
     TrackState::MeasurementType m_mType;           //!< store result once Meas is identified
@@ -266,15 +272,15 @@ inline const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::referenceParam
 inline const AmgVector(5)* Trk::ProtoTrackStateOnSurface::parametersDifference() const { return m_parametersDifference; }
 inline const AmgSymMatrix(5)* Trk::ProtoTrackStateOnSurface::parametersCovariance() const { return m_parametersCovariance; }
 inline const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::forwardTrackParameters() const
-  {return m_forwardState; }
+  {return m_forwardState.get(); }
 inline const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::smoothedTrackParameters() const
-  {return m_smoothedState; }
+  {return m_smoothedState.get(); }
 inline const Trk::FitQualityOnSurface* Trk::ProtoTrackStateOnSurface::fitQuality() const
-{return m_fitQuality; }
+{return m_fitQuality.get(); }
 inline const Trk::DNA_MaterialEffects* Trk::ProtoTrackStateOnSurface::dnaMaterialEffects() const
-{return m_dnaMaterialEffects; }
+{return m_dnaMaterialEffects.get(); }
 inline const Trk::ProtoMaterialEffects* Trk::ProtoTrackStateOnSurface::materialEffects() const
-{return m_protoMaterialEffects; }
+{return m_protoMaterialEffects.get(); }
 inline const Identifier Trk::ProtoTrackStateOnSurface::identify() const
   {return m_identifier; }
 inline void  Trk::ProtoTrackStateOnSurface::identifier(Identifier id)

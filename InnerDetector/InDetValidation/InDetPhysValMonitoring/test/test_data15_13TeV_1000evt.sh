@@ -23,7 +23,7 @@ run  Reco_tf.py \
   --inputBSFile "$inputBS" \
   --maxEvents 1000 \
   --autoConfiguration everything \
-  --conditionsTag="CONDBR2-BLKPA-RUN2-06" \
+  --conditionsTag="CONDBR2-BLKPA-RUN2-09" \
   --outputAODFile   physval.AOD.root \
   --outputNTUP_PHYSVALFile physval.ntuple.root \
   --steering        doRAWtoALL \

@@ -19,11 +19,6 @@ muonCombinedRecFlags.setDefaults()
 if muonCombinedRecFlags.useNewConfig():
     from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
     from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedReconstructionCfg
-
-    from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-    # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-    ConfigFlags = getNewConfigFlags()
-     
     # TODO Keep here for the moment, since we still have debugging to do.
     from AthenaCommon.Logging import logging
     log = logging.getLogger( "Py:conf2toConfigurable" )

@@ -13,7 +13,6 @@
 #include "TH2.h"
 #include "TTree.h"
 
-
 SiHitAnalysis::SiHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
 {
@@ -33,6 +32,10 @@ StatusCode SiHitAnalysis::initialize()
   else if (m_hitsContainerKey.key()=="ITkPixelHits") {
     detName = "ITkPixel";
     ntupName = "SiITkPixel";
+  }
+  else if (m_hitsContainerKey.key()=="PLRHits") {
+    detName = "PLR";
+    ntupName = "SiPLR";
   }
   else if (m_hitsContainerKey.key()=="SCT_Hits") {
     detName = "SCT";
@@ -88,11 +91,16 @@ StatusCode SiHitAnalysis::initialize()
   } else if (detName == "HGTD") {
     bin_down = -1000;
     bin_up = 1000;
-    radius_up = 1000;
-    radius_down = 350;
+    radius_up = 700;
+    radius_down = 0;
     z_max = 3600;
+  } else if (detName == "PLR") {
+    bin_down = -125;
+    bin_up = 125;
+    radius_up = 125;
+    radius_down = 0;
+    z_max = 3000;
   }
-
   m_h_hits_x = new TH1D(("h_"+detName+"_x").c_str(),("h_"+detName+"_x").c_str(), 100,bin_down, bin_up);
   m_h_hits_x->StatOverflows();
 

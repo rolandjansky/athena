@@ -83,9 +83,10 @@ def flatten_channels(iovs):
     If an iov specifies an iterable for its channel, then expand it into 
     a list of channels.
     """
+    from six import string_types
     result = iovs.empty()
     for iov in iovs:
-        if hasattr(iov.channel, "__iter__"):
+        if not isinstance(iov.channel, string_types) and hasattr(iov.channel, "__iter__"):
             for c in iov.channel:
                 result.append(iov._replace(channel=c))
         else:

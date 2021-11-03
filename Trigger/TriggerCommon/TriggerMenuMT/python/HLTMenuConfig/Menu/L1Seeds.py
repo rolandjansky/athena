@@ -1,28 +1,16 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("TriggerMenuMT.LVL1MenuConfig.L1Seeds")
-
-from TriggerJobOpts.TriggerFlags  import TriggerFlags
+log = logging.getLogger(__name__)
 
 #######################################
 # trigger type definitions
 ######################################
-from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
-run1 = Lvl1Flags.CTPVersion()<=3
-
-if run1:
-    from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDefRun1 import TT
-    rpcout_type = TT.rpcout | TT.phys
-    rpcin_type  = TT.rpcin  | TT.phys             
-else:
-    from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDef import TT
-    rpcout_type = TT.muon   | TT.phys
-    rpcin_type  = TT.muon   | TT.phys             
-
-
-cl_type     = TT.calo      | TT.phys
-mb_type     = TT.minb      | TT.phys
+from TriggerMenuMT.L1.Config.TriggerTypeDef import TT
+rpcout_type = TT.muon | TT.phys
+rpcin_type  = TT.muon | TT.phys
+cl_type     = TT.calo | TT.phys
+mb_type     = TT.minb | TT.phys
 
 
 calo_exceptions = set([])
@@ -52,7 +40,7 @@ def Lvl1ItemByTriggerType(l1object, triggertype_pattern, triggertype_bitmask):
 ##############################
 # define the various seeds
 ##############################
-def getL1BackgroundSeed(menul1items):        
+def getL1BackgroundSeed(menul1items, menu_name):
     l1bgditems = [
         'L1_BCM_AC_CA_BGRP0',
         'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
@@ -69,7 +57,7 @@ def getL1BackgroundSeed(menul1items):
         'L1_J12_EMPTY', 'L1_J12_BGRP12',
         ]
     
-    if TriggerFlags.triggerMenuSetup() == 'LS1_v1':
+    if menu_name == 'LS1_v1':
         l1bgditems = [
             'L1_BCM_AC_CA_BGRP0','L1_BCM_AC_CA_UNPAIRED_ISO',
             'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',
@@ -386,15 +374,92 @@ def getL1LowLumi(l1seed):
     return L1LowLumi_seeds
         
 #####################################
+def getL1BKeePrimary(l1seed):
+
+    l1bgditems = [
+        'L1_2EM20VH',
+        'L1_2EM15VHI',
+        'L1_EM22VHI',
+        'L1_EM20VH_3EM10VH',
+        'L1_EM18VHI_MJJ-300',
+        'L1_EM15VH_MU8F',
+        'L1_2EM8VH_MU8F',
+        'L1_BPH-0M9-EM7-EM5_2MU3V',
+        'L1_MU14FCH',
+        'L1_MU8F_2MU5VF',
+        'L1_MU8F_TAU20IM',
+        'L1_MU8F_TAU12IM_3J12',
+        'L1_XE50',
+        'L1_TAU60_2TAU40',
+        'L1_TAU40_2TAU12IM_XE40',
+        'L1_EM15VHI_2TAU12IM_XE35',
+        'L1_TAU25IM_2TAU20IM_2J25_3J20',
+        'L1_TAU20IM_2TAU12IM_4J12p0ETA25',
+        'L1_EM15VHI_2TAU12IM_4J12',
+        'L1_DR-TAU20ITAU12I-J25',
+        'L1_MJJ-700',
+        'L1_MJJ-500-NFF',
+        'L1_J85_3J30',
+        'L1_J40p0ETA25_2J25_J20p31ETA49',
+        'L1_J25p0ETA23_2J15p31ETA49',
+        'L1_J100',
+        'L1_4J15', 
+        'L1_3J35p0ETA23',
+        'L1_3J15p0ETA25_XE40' 
+    ]
+
+    # check if all the l1 background seeds given are in the current L1 menu
+    for item in l1bgditems:
+        if item not in l1seed:
+            log.error('L1 item %s from L1BKeePrimary_seeds seeds is not in current L1 menu', item)
+            
+    L1BKeePrimary_seeds = ','.join(l1bgditems)
+    return L1BKeePrimary_seeds
+
+#####################################
+def getL1BKeePrescaled(l1seed):
+
+    l1bgditems = [
+        'L1_LFV-MU5VF',
+        'L1_BPH-2M9-0DR15-MU5VFMU3V',
+        'L1_BPH-2M9-0DR15-2MU3V', 
+        'L1_BPH-2M9-0DR15-2MU3V',
+        'L1_BPH-0M9-EM7-EM5_MU5VF', 
+        'L1_BPH-0DR3-EM7J15_MU5VF', 
+        'L1_BPH-0DR3-EM7J15_2MU3V', 
+        'L1_JPSI-1M5-EM7',
+        'L1_JPSI-1M5-EM12',
+        'L1_TAU60', 
+        'L1_J50',
+        'L1_J50_DETA20-J50J',
+        'L1_J40',
+        'L1_EM22VH',#  exist in menu, but we may not have it a CTP output 
+        'L1_EM15',#  exist in menu, but we may not have it a CTP output. L1_EM15VH has been requested as support chain
+        'L1_2EM15',#  exist in menu, but we may not have it a CTP output 
+        'L1_2EM15VH',#  already requested as support trigger, so OK. what PS?
+        'L1_3J25p0ETA23', # exist in menu, but currently not used at HLT. We may drop as CTP output
+        'L1_EM20VH_3J20', # exist in menu, but currently not used at HLT. We may drop as CTP output
+        'L1_EM18VHI_3J20' #  exist in menu, but currently not used at HLT. We may drop as CTP output
+    ]
+
+    # check if all the l1 background seeds given are in the current L1 menu
+    for item in l1bgditems:
+        if item not in l1seed:
+            log.error('L1 item %s from L1BKeePrescaled_seeds seeds is not in current L1 menu', item)
+            
+    L1BKeePrescaled_seeds = ','.join(l1bgditems)
+    return L1BKeePrescaled_seeds
+
+#####################################
 # assigned the seeds to the L1 names
 #####################################
-def getSpecificL1Seeds(l1seedname, l1itemobject):
+def getSpecificL1Seeds(l1seedname, l1itemobject, menu_name):
     l1items = l1itemobject.keys()
     L1Seed = ''
     if l1seedname == 'L1_J':
         L1Seed = getL1JetBS()
     if (l1seedname == 'L1_Bkg'):
-        L1Seed = getL1BackgroundSeed(l1items)
+        L1Seed = getL1BackgroundSeed(l1items, menu_name)
 #    elif (l1seedname == 'L1_ALFA_Diff_Phys' ):
 #        L1Seed = getL1_ALFA_Diff_Phys_Seeds(l1items)
 #    elif (l1seedname == 'L1_ALFA_CDiff_Phys' ):
@@ -466,6 +531,12 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     elif (l1seedname == 'L1_LowLumi'):
         L1Seed = getL1LowLumi(l1items)
         
+    elif (l1seedname == 'L1_BKeePrimary'):
+        L1Seed = getL1BKeePrimary(l1items)
+        
+    elif (l1seedname == 'L1_BKeePrescaled'):
+        L1Seed = getL1BKeePrescaled(l1items)
+        
     elif (l1seedname == 'L1_All'):
         return ''
 
@@ -485,7 +556,7 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
 #####################################
 # map from l1item name to inputTE
 #####################################
-def getInputTEfromL1Item(l1item):
+def getInputTEfromL1Item(l1item, menu_name):
     
     L1Map = {
         'L1_TAU8_EMPTY'          : ['HA8'],
@@ -504,7 +575,7 @@ def getInputTEfromL1Item(l1item):
         'L1_TAU100'              : ['HA100'],
         }
 
-    if TriggerFlags.triggerMenuSetup() == 'LS1_v1': 
+    if menu_name == 'LS1_v1':
         L1Map['L1_CALREQ2']=['NIM30']
     else:
         L1Map['L1_CALREQ2']=['CAL2']

@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 
@@ -59,6 +60,11 @@ class TrackParticleClusterAssociationAlg : public AthAlgorithm
   SG::ReadHandleKey<CaloExtensionCollection> m_caloExtKey {this, "CaloExtensionName", "", ""};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleCollectionHandle {this,"TrackParticleContainerName",  "InDetTrackParticles", "input tracks" };
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClusters {this, "CaloClusterLocation", "CaloCalTopoClusters","input calo clusters"};
+
+  // Whether or not to use the DetectorEta attribute of the clusters, which is important if the input cluster container has had the origin correction applied
+  // Default assumes no origin correction, must be configured if desired
+  SG::ReadDecorHandleKey<xAOD::CaloClusterContainer> m_detectorEtaDecor { this, "DetectorEtaName", "", "Decoration for CaloCluster DetectorEta" };
+  bool m_doDetEta;
 
   // vertex handling
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContHandle {this, "VertexContainerName", "", "if empty all tracks will be decorated. if not only those corresponding to the PV[0] will."};

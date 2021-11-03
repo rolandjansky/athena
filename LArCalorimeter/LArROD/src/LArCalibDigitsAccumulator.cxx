@@ -203,8 +203,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	  //ATH_MSG_WARNING( "oi " << id << cellLegHWID);
 	  const std::vector<HWIdentifier>& calibLineLeg = clcabling->calibSlotLine(cellLegHWID);
           for (HWIdentifier calibLineHWID : calibLineLeg) {// loop legacy calib lines
-	    bool ispulsed=calibParams->isPulsed(eventNb,calibLineHWID);
-	    if (ispulsed ){
+	    if ( calibParams->isPulsed(eventNb,calibLineHWID) ){
 	      numPulsedLeg += 1;
 	    }else{
 	      if ( digit->isPulsed() ) ATH_MSG_WARNING("SC "<< chid << " constituent cell "<< cellLegHWID << " calib line "<< calibLineHWID<< " not pulsed");}
@@ -213,6 +212,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	if ( numPulsedLeg != (int)(ccellIds.size()) &&  numPulsedLeg != digit->isPulsed() ){
 	  ATH_MSG_WARNING("Different number of pulsed cells from different tools!! LArParams counter = " << numPulsedLeg << ", SC2CCMappingTool = " << ccellIds.size() << " pulsed legacy cells" );
 	}
+	ATH_MSG_DEBUG("SC "<<chid<<" pulsed cells "<< numPulsedLeg <<" or "<< ccellIds.size() );
       } // end m_isSC
 
       //// ############################
@@ -290,13 +290,9 @@ StatusCode LArCalibDigitsAccumulator::execute()
 	//	accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,0,m_nStepTrigger,(uint16_t)digit->DAC(),(uint16_t)m_delay,isPulsed);
 	
 	if ( m_isSC ){	  
-	  if ( isPulsed ){
-	    ATH_MSG_DEBUG("DAC "<< digit->DAC()<< " NOT PULSED, will multiply by "<<ccellIds.size()<< " = "<<digit->DAC()*ccellIds.size());
-	    accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,(int32_t)(digit->DAC()*ccellIds.size()),(uint16_t)m_delay,isPulsed,0,0);
-	  }else{
-	    ATH_MSG_DEBUG("DAC "<< digit->DAC()<< " will multiply by "<<numPulsedLeg<< " = "<<digit->DAC()*numPulsedLeg);
-	    accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,(int32_t)(digit->DAC()*numPulsedLeg),(uint16_t)m_delay,isPulsed,0,0);
-	  }
+	  ATH_MSG_DEBUG("Channel "<<chid<<" DAC "<< digit->DAC()<< " will multiply by "<<numPulsedLeg<< " = "<<digit->DAC()*numPulsedLeg<<" is pulsed??? "<<isPulsed);
+	  accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,(int32_t)(digit->DAC()*numPulsedLeg),(uint16_t)m_delay,isPulsed,0,0);
+	  //}
 	}else{
 	  accuCalibDigit = new LArAccumulatedCalibDigit(chid,gain,sizeSamples,(uint16_t)digit->DAC(),(uint16_t)m_delay,isPulsed,0,0);
 	}

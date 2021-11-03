@@ -26,7 +26,7 @@
 using namespace std;
 
 
-bool file_exists(const string p_name) {
+bool file_exists(const string & p_name) {
   return (gSystem->AccessPathName(p_name.c_str(), kFileExists))?
     false : true;    
 }

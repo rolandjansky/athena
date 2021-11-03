@@ -208,8 +208,10 @@ else:
                 Year = 2018
             elif RunNumber < 374260:
                 Year = 2019
-            else:
+            elif RunNumber < 387000:
                 Year = 2020
+            else:
+                Year = 2021
 
 
             if 'RunStream' in dir():
@@ -321,7 +323,7 @@ if not 'Version' in dir():
     Version = "0"
 
 if not 'OutputDirectory' in dir():
-    OutputDirectory = "/tmp/Reco-" + str(RunNumber) + "-" + Version + "/"
+    OutputDirectory = "/tmp/Reco-" + str(RunNumber) + "-" + Version
 
 system('mkdir -p %s' % (OutputDirectory))
 
@@ -366,6 +368,9 @@ if not 'TileL1CaloRun' in dir():
 
 TileLasPulse = TileLasRun
 TileCisPulse = (TileCisRun or TileMonoRun or TileRampRun or TileL1CaloRun)
+
+if not (TilePhysRun or TileL1CaloRun) and EvtMinNotSet in dir():
+    EvtMin = 1
 
 if not 'TilePhysTiming' in dir():
     TilePhysTiming = False
@@ -615,7 +620,7 @@ if not 'doCaloCell' in dir():
         doCaloCell = False
 
 if not 'TileD3PDSavePosition' in dir():
-    TileD3PDSavePosition = False
+    TileD3PDSavePosition = True
 
 if not 'TileFragIDsToIgnoreDMUErrors' in dir():
     # List of Tile module frag IDs for which ignore DMU errors
@@ -623,6 +628,9 @@ if not 'TileFragIDsToIgnoreDMUErrors' in dir():
         TileFragIDsToIgnoreDMUErrors = [0x10D] # Tile Demonstrator
     else:
         TileFragIDsToIgnoreDMUErrors = []
+
+if not 'doTilePedDiffMon' in dir():
+    doTilePedDiffMon = False  # Needed during maintanance campaign
 
 #---------------
 # end of options
@@ -1282,7 +1290,11 @@ if doTileMon:
                                                book2D          = b2d,
                                                runType         = runType,
                                                FragIDsToIgnoreDMUErrors = TileFragIDsToIgnoreDMUErrors,
-                                               FillPedestalDifference = True)
+                                               FillPedestalDifference = doTilePedDiffMon)
+
+        if not TileBiGainRun:
+            theTileDigitsMon.ZeroLimitHG = 2
+            theTileDigitsMon.SaturationLimitHG = 1022
 
         TileMon.AthenaMonTools += [ theTileDigitsMon ]
         printfunc (theTileDigitsMon)
@@ -1323,6 +1335,9 @@ if doTileMon:
 
         if useRODReco:
             theTileRawChannelMon.TileRawChannelContainerDSP = "TileRawChannelCnt"
+
+        if TileLasRun:
+            theTileRawChannelMon.overlaphists = True
 
         #theTileRawChannelMon.MinAmpForCorrectedTime = 0.1
 
@@ -1385,9 +1400,9 @@ if doTileMon:
                                              cellsContainerName = "AllCalo",
                                              histoPathBase      = "/Tile/Cell");
 
-            #theTileCellMon.energyThreshold = 300.
-            #theTileCellMon.energyThresholdForTime = 150.
-            #theTileCellMon.FillTimeHistograms = True
+            theTileCellMon.energyThreshold = 300.
+            theTileCellMon.energyThresholdForTime = 150.
+            theTileCellMon.FillTimeHistograms = True
             TileMon.AthenaMonTools += [ theTileCellMon ];
             printfunc (theTileCellMon)
 
@@ -1757,8 +1772,4 @@ svcMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
 if not 'db' in dir():
     from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
     svcMgr += DBReplicaSvc(UseCOOLSQLite=False)
-
-
-# Needed during maintanance campaign
-# if doTileMon and doTileMonDigi: ToolSvc.TileDigitsMon.FillPedestalDifference = False
 

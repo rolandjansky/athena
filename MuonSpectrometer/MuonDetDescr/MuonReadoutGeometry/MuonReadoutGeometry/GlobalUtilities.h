@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -12,11 +12,10 @@
 
 #include <string>
 
-namespace MuonGM 
-{
+namespace MuonGM {
     std::string buildString(int i, int ncha);
-    int strtoint(const std::string& str, unsigned int istart, unsigned int length);
-    int stationPhiTGC(const std::string& stName, int fi, int zi_input, const std::string& geometry_version);
-}
+    int strtoint(std::string_view str, unsigned int istart, unsigned int length);
+    int stationPhiTGC(std::string_view stName, int fi, int zi_input, std::string_view geometry_version);
+}  // namespace MuonGM
 
-#endif // MUONREADOUTGEOMETRY_GLOBALUTILITIES_H
+#endif  // MUONREADOUTGEOMETRY_GLOBALUTILITIES_H

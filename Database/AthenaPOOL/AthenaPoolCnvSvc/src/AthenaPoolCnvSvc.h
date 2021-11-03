@@ -27,6 +27,7 @@
 #include <vector>
 #include <map>
 #include <mutex>
+#include <limits>
 
 // Forward declarations
 class IAthenaSerializeSvc;
@@ -229,7 +230,7 @@ private: // properties
 
    /// MaxFileSizes, vector with maximum file sizes for Athena POOL output files
    StringArrayProperty m_maxFileSizes{this,"MaxFileSizes",{}};
-   long long m_domainMaxFileSize=15000000000LL;
+   long long m_domainMaxFileSize=std::numeric_limits<long long>::max();
    std::map<std::string, long long> m_databaseMaxFileSize;
 
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
@@ -253,6 +254,8 @@ private: // properties
    StringProperty  m_metadataContainerProp{this,"OutputMetadataContainer","MetaData"};
    /// Make this instance a Streaming Client during first connect/write automatically
    IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
+   /// Use Streaming for selected technologies only
+   IntegerProperty m_streamingTechnology{this,"StreamingTechnology",-1};
    /// Use Athena Object sharing for metadata only, event data is collected and send via ROOT TMemFile
    BooleanProperty m_parallelCompression{this,"ParallelCompression",true};
    /// Extension to use ROOT TMemFile for event data, "?pmerge=<host>:<port>"

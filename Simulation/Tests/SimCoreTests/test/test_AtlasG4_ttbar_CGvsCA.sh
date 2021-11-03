@@ -12,11 +12,8 @@
 AtlasG4_tf.py \
 --CA \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
---physicsList 'FTFP_BERT_ATL' \
---truthStrategy 'MC15aPlus' \
 --postInclude 'PyJobTransforms.UseFrontier' \
---preInclude 'SimuJobTransforms.BeamPipeKill,SimuJobTransforms.FrozenShowersFCalOnly,SimuJobTransforms.TightMuonStepping' \
---DataRunNumber '284500' \
+--preInclude 'Campaigns.MC16Simulation' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
 --outputHITSFile "test.NEW.HITS.pool.root" \
@@ -32,12 +29,8 @@ if [ $rc -eq 0 ]
 then
     AtlasG4_tf.py \
     --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-    --physicsList 'FTFP_BERT_ATL' \
-    --truthStrategy 'MC15aPlus' \
     --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-    --preInclude 'AtlasG4Tf:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
-    --preExec 'AtlasG4Tf:simFlags.TightMuonStepping=True' \
-    --DataRunNumber '284500' \
+    --preInclude 'AtlasG4Tf:Campaigns/MC16Simulation.py' \
     --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
     --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
     --outputHITSFile "test.NEW.HITS.pool.root" \
@@ -47,12 +40,8 @@ then
 
      AtlasG4_tf.py \
     --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
-    --physicsList 'FTFP_BERT_ATL' \
-    --truthStrategy 'MC15aPlus' \
     --postInclude 'default:PyJobTransforms/UseFrontier.py' \
-    --preInclude 'AtlasG4Tf:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
-    --preExec 'AtlasG4Tf:simFlags.TightMuonStepping=True' \
-    --DataRunNumber '284500' \
+    --preInclude 'AtlasG4Tf:Campaigns/MC16Simulation.py' \
     --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
     --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
     --outputHITSFile "test.OLD.HITS.pool.root" \

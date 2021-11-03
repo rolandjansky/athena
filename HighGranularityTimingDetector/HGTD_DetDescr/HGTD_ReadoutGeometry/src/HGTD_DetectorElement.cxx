@@ -6,6 +6,7 @@
 #include "HGTD_Identifier/HGTD_ID.h"
 
 #include "GeoModelKernel/GeoVFullPhysVol.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "TrkSurfaces/PlaneSurface.h"
@@ -16,8 +17,9 @@ namespace InDetDD {
 HGTD_DetectorElement::HGTD_DetectorElement(const Identifier &id,
                                            const HGTD_ModuleDesign *design,
                                            const GeoVFullPhysVol *geophysvol,
-                                           SiCommonItems * commonItems) :
-  SolidStateDetectorElementBase(id, design, geophysvol, commonItems),
+                                           const SiCommonItems * commonItems,
+                                           const GeoAlignmentStore* geoAlignStore) :
+  SolidStateDetectorElementBase(id, design, geophysvol, commonItems, geoAlignStore),
   m_design(design)
 {
     const HGTD_ID* hgtdId = dynamic_cast<const HGTD_ID *>(getIdHelper());
@@ -29,22 +31,6 @@ HGTD_DetectorElement::HGTD_DetectorElement(const Identifier &id,
 // Destructor:
 HGTD_DetectorElement::~HGTD_DetectorElement()
 {
-}
-
-// update cache
-// This is supposed to be called inside a block like
-//
-// if (!m_cacheValid) {
-//     std::lock_guard<std::mutex> lock(m_mutex);
-//     if (!m_cacheValid) updateCache();
-// }
-//
-void 
-HGTD_DetectorElement::updateCache() const
-{
-    SolidStateDetectorElementBase::updateCache();
-    m_cacheValid.store(true);
-    if (m_firstTime) m_firstTime.store(false);
 }
 
 Identifier 
@@ -81,16 +67,15 @@ const std::vector<const Trk::Surface*>& HGTD_DetectorElement::surfaces() const
 {
     // This method is needed to satisfy inheritance from TrkDetElementBase
     // so just return the one surface
-    if (!m_surfacesValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_surfacesValid) {
-        // get this surface
-        m_surfaces.push_back(&surface());
-      }
-      m_surfacesValid.store(true);
+    if (!m_surfaces.isValid()) {
+      std::vector<const Trk::Surface*> s;
+      // get this surface
+      s.push_back(&surface());
+      m_surfaces.set (std::move (s));
     }
+
     // return the surfaces
-    return m_surfaces;
+    return *m_surfaces.ptr();
 }
 
 double HGTD_DetectorElement::get_rz() const

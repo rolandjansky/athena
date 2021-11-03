@@ -16,6 +16,7 @@
 #include "AthContainers/DataVector.h"
 #include <cstdlib> //rand
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 struct apple
 {
@@ -50,7 +51,7 @@ void fillWithApples(apples & appleDataVec){
 }
 
 int
-main()
+main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "AthContainers/DataVector_rule5_test\n";
 

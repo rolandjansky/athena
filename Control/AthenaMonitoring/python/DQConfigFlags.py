@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
-_steeringFlags = [ 'doGlobalMon', 'doLVL1CaloMon', 'doCTPMon', 'doHLTMon',
+_steeringFlags = [ 'doGlobalMon', 'doLVL1CaloMon', 'doLVL1InterfacesMon', 'doCTPMon', 'doHLTMon',
                    'doPixelMon', 'doSCTMon', 'doTRTMon', 'doInDetMon',
                    'doLArMon', 'doTileMon',
                    'doCaloGlobalMon', 'doMuonMon',

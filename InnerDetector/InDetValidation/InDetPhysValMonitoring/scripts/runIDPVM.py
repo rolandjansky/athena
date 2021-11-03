@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from glob import glob
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -45,16 +46,12 @@ ConfigFlags.IDPVM.doHitLevelPlots = MyArgs.doHitLevelPlots
 ConfigFlags.IDPVM.ancestorIDs = MyArgs.ancestorIDList
 ConfigFlags.IDPVM.hardScatterStrategy = int(MyArgs.hardScatterStrategy)
 
-ConfigFlags.Input.Files = [MyArgs.filesInput]
+ConfigFlags.Input.Files = glob(MyArgs.filesInput)
 
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 acc = MainServicesCfg(ConfigFlags)
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 acc.merge(PoolReadCfg(ConfigFlags))
-
-if ConfigFlags.Detector.GeometryITk:
-    #Temporary
-    ConfigFlags.TrackingGeometry.MaterialSource = 'Input'
 
 ConfigFlags.lock()
 

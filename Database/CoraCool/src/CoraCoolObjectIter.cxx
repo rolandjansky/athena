@@ -18,6 +18,7 @@
 #include "CoraCool/CoraCoolObject.h"
 #include "CoraCool/CoraCoolException.h"
 #include "CoraCool/CoraCoolObjectIter.h"
+#include <unordered_map>
 
 // performance tuning parameters
 // maximum number of ranges and query terms to use for CORAL query
@@ -73,7 +74,7 @@ void  CoraCoolObjectIter::readDataToBuffer(){
     std::string fktypestr;
     // keep map of FKvalue to list of associated COOL channels
     typedef std::vector<unsigned int> KeyVec;
-    typedef std::map<long long,KeyVec > KeyMap;
+    typedef std::unordered_map<long long,KeyVec > KeyMap;
     KeyMap keymap;
 
     while (m_inbuf<m_buflen && iHasNext() && 
@@ -328,13 +329,23 @@ void CoraCoolObjectIter::QueryBuilder::getQuery(std::string& where,
     if (m_lower[i]==m_upper[i]) {
       // bounds are equal - simple equivalence term
       std::string keyname=addKey(ikey,fkeys,spec,m_lower[i]);
-      where+=coralkey+"=:"+keyname;
+      where+=coralkey;
+      where+="=:";
+      where+=keyname;
     } else {
       // bounds are not equal - need  A>=B and A<=C
       std::string keyname=addKey(ikey,fkeys,spec,m_lower[i]);
-      where+="("+coralkey+">=:"+keyname+" AND "+coralkey+"<=:";
+      where+='(';
+      where+=coralkey;
+      where+=">=:";
+      where+=keyname;
+      where+=" AND ";
+      where+=coralkey;
+      where+="<=:";
+
       keyname=addKey(ikey,fkeys,spec,m_upper[i]);
-      where+=keyname+")";
+      where+=keyname;
+      where+=')';
     }
   }
 }

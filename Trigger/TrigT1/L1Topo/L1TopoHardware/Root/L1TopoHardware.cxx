@@ -21,6 +21,32 @@
 
 const std::map<std::string, TCS::HardwareParam>& TCS::L1TopoHWParameters::get() {
    static const std::map<std::string, TCS::HardwareParam> _hw = {
+
+      DEF_HW(eEmInputWidth),
+      DEF_HW(eTauInputWidth),
+
+      DEF_HW(jJetInputWidth),
+      DEF_HW(jLargeRJetInputWidth),
+      DEF_HW(jTauInputWidth),
+      DEF_HW(jEmInputWidth),
+      DEF_HW(jMetInputWidth),
+
+      DEF_HW(gJetInputWidth),
+      DEF_HW(gLargeRJetInputWidth),
+
+      DEF_HW(muonInputWidth),
+
+      DEF_HW(eEmOutputWidthSort),
+      DEF_HW(eEmOutputWidthSelect),
+      DEF_HW(eTauOutputWidthSort),
+      DEF_HW(eTauOutputWidthSelect),
+      DEF_HW(jJetOutputWidthSort),
+      DEF_HW(jJetOutputWidthSelect),
+      DEF_HW(muonOutputWidthSort),
+      DEF_HW(NumberOfDelayedMuons),
+      DEF_HW(muonOutputWidthSelect),
+      DEF_HW(metOutputWidth),
+
       DEF_HW(InputWidthEM),
       DEF_HW(InputWidthTAU),
       DEF_HW(InputWidthJET),
@@ -84,9 +110,6 @@ const std::map<std::string, TCS::HardwareParam>& TCS::L1TopoHWParameters::get() 
 
       DEF_HW(MassSqrBitWidth,"","GenericEtBitWidth +  METEnergyBitWidth + 1 + CosSinBitWidth + 1"),
 
-      DEF_HW(ParameterBitWidth, "Internal Data width"),
-
-      DEF_HW(MaxParams, "Maximum number of parameters"),
    };
 
    return _hw;

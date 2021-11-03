@@ -9,6 +9,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
+#include "xAODTracking/TrackParticlexAODHelpers.h"
+
 // NOTE: would be nice to include this to access track parameters, but
 // it's not in all builds.
 //
@@ -48,15 +50,13 @@ namespace Pmt {
   // this one is going to be harder, there's some lead here:
   // https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Tracking/TrkVertexFitter/TrkVertexFitterUtils/src/TrackToVertexIPEstimator.cxx
   double getSigmaD0(const xAOD::TrackParticle& trk,
-                    const xAOD::Vertex& vtx) {
+                    const Eigen::Matrix2d& vtxCov) {
 
     // start with the track part
     double trackComponent = trk.definingParametersCovMatrixDiagVec().at(
       Pmt::d0);
 
     // now do the vertex part
-    // first two elements of the vertex covariance is xy
-    Eigen::Matrix2d vtxCov = vtx.covariancePosition().block<2,2>(0,0);
     double phi = trk.phi();
     // The sign seems inverted below, but maybe that doesn't
     // matter. I'm just following TrackToVertexIPEstimator...
@@ -65,6 +65,32 @@ namespace Pmt {
 
     return std::sqrt(trackComponent + vertexComponent);
 
+  }
+
+  double getSigmaD0(const xAOD::TrackParticle& trk,
+                    const xAOD::Vertex& vtx) {
+
+    // first two elements of the vertex covariance is xy
+    Eigen::Matrix2d vtxCov = vtx.covariancePosition().block<2,2>(0,0);
+    return getSigmaD0(trk, vtxCov);
+
+  }
+
+  double getSigmaD0WithRespectToBeamspot(const xAOD::TrackParticle& trk,
+                                         const xAOD::EventInfo& evt) {
+    Eigen::Matrix2d bsCov;
+    // based on what I read in the beamspot code [1] and some code
+    // that copies it to the EventInfo [2] I'm pretty sure the
+    // beamPosSigmaX and beamPosSigmaY need to be squared in the
+    // covariance matrix, whereas beamPosSigmaXY does not.
+    //
+    // [1]: https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/InnerDetector/InDetConditions/BeamSpotConditionsData/src/BeamSpotData.cxx
+    // [2]: https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Simulation/BeamEffects/src/BeamSpotFixerAlg.cxx#0068
+    bsCov(0, 0) = std::pow(evt.beamPosSigmaX(),2);
+    bsCov(0, 1) = evt.beamPosSigmaXY();
+    bsCov(1, 0) = evt.beamPosSigmaXY();
+    bsCov(1, 1) = std::pow(evt.beamPosSigmaY(),2);
+    return getSigmaD0(trk, bsCov);
   }
 
 
@@ -107,9 +133,11 @@ namespace FlavorTagDiscriminants {
     ATH_MSG_DEBUG( "Inizializing containers:"        );
     ATH_MSG_DEBUG( "    ** " << m_TrackContainerKey  );
     ATH_MSG_DEBUG( "    ** " << m_VertexContainerKey );
+    ATH_MSG_DEBUG( "    ** " << m_eventInfoKey );
 
     ATH_CHECK( m_TrackContainerKey.initialize() );
     ATH_CHECK( m_VertexContainerKey.initialize() );
+    ATH_CHECK( m_eventInfoKey.initialize() );
 
     // Prepare decorators
     m_dec_d0_sigma = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_d0_sigma.key();
@@ -135,6 +163,9 @@ namespace FlavorTagDiscriminants {
 
   StatusCode PoorMansIpAugmenterAlg::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG( "Executing " << name() << "... " );
+
+    SG::ReadHandle<xAOD::EventInfo> event_info(m_eventInfoKey, ctx);
+    CHECK( event_info.isValid() );
 
     SG::ReadHandle<xAOD::VertexContainer> verteces(
       m_VertexContainerKey,ctx );
@@ -163,11 +194,32 @@ namespace FlavorTagDiscriminants {
 
     // now decorate the tracks
     for (const xAOD::TrackParticle *trk: *tracks) {
-      decor_d0_sigma(*trk) = Pmt::getSigmaD0(*trk, *primary);
+
+      const xAOD::EventInfo& evt = *event_info;
+      float d0_sigma2 = trk->definingParametersCovMatrixDiagVec().at(Pmt::d0);
+      float bs_d0_sigma2 = xAOD::TrackingHelpers::d0UncertaintyBeamSpot2(
+        trk->phi(),
+        evt.beamPosSigmaX(),
+        evt.beamPosSigmaY(),
+        evt.beamPosSigmaXY());
+      float full_d0_sigma = std::sqrt(d0_sigma2 + bs_d0_sigma2);
+      ATH_MSG_DEBUG("track    d0Uncertainty: " << std::sqrt(d0_sigma2));
+      ATH_MSG_DEBUG("beamspot d0Uncertainty: " << std::sqrt(bs_d0_sigma2));
+      ATH_MSG_DEBUG("combined d0Uncertainty: " << full_d0_sigma);
+
+      decor_d0_sigma(*trk) = full_d0_sigma;
       decor_z0_sigma(*trk) = Pmt::getSigmaZ0SinTheta(*trk, *primary);
 
+      // the primary vertex position is absolute, whereas the track
+      // perigee parameters are all relative to the beamspot. The x
+      // and y coordinates are zero so that the 2d impact parameter
+      // has no idea about the primary vertex location.
+      const Amg::Vector3D primary_relative_to_beamspot(
+        0, 0,
+        primary->position().z() - trk->vz());
       const Amg::Vector3D position = (
-        Pmt::getPosition(*trk) - primary->position());
+        Pmt::getPosition(*trk) - primary_relative_to_beamspot);
+
       auto trkp4 = trk->p4();
       const Amg::Vector3D momentum(trkp4.Px(), trkp4.Py(), trkp4.Pz());
 

@@ -25,13 +25,9 @@
 namespace TrigConf {
 
    xAODConfigSvc::xAODConfigSvc( const std::string& name, ISvcLocator* svcLoc )
-      : base_class( name, svcLoc ),
-        m_stopOnFailure( true ), m_isInFailure( false ),
+      : base_class( name, svcLoc ),        
         m_tmcAux( nullptr ), m_tmc( nullptr ), m_menu(),
-        m_ctpConfig(), m_chainList(), m_sequenceList(), m_bgSet(),
-        m_metaStore( "InputMetaDataStore", name ),
-        m_triggerMenuContainerAvailable( false ),
-        m_menuJSONContainerAvailable( false ) {
+        m_ctpConfig(), m_chainList(), m_sequenceList(), m_bgSet() {
 
    }
 
@@ -40,8 +36,12 @@ namespace TrigConf {
       // Greet the user:
       ATH_MSG_INFO( "Initialising" );
 
-      // Register read handle key
+      // Note this is a service, there is NO scheduler propagation of these read handle keys to clients of this service.
+      // We still however use the ReadHandle mechanism to consume the collection, along with validation checks.
+      // Attempting to use this service when no eventKey is available will cause the service to fail.
+      // Attempting to use this service when no eventBGKey is available will return empty bunch group data.
       CHECK( m_eventKey.initialize() );
+      CHECK( m_eventBGKey.initialize() );
 
       // Set up the callbacks for the service:
       ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
@@ -346,7 +346,12 @@ namespace TrigConf {
 
    const L1BunchGroupSet& xAODConfigSvc::l1BunchGroupSet(const EventContext& ctx) const {
       if (!m_useInFileMetadata) {
-         // TODO 
+         REPORT_MESSAGE( MSG::FATAL ) << "Cannot access L1 Bunchg Group data via the xAODConfigSvc when UseInFileMetadata=False. " 
+         << "Please instead use a SG::ReadCondHandle<BunchCrossingCondData>, note that this is a different format to the "
+         << "TrigConf::L1BunchGroupSet returned by this function, hence simple forwarding is not an option here." << endmsg;
+         throw GaudiException( "Service not used correctly, use a ReadCondHandle to access these data when processing RAW input.",
+                               "TrigConf::xAODConfigSvc::l1BunchGroupSet",
+                               StatusCode::FAILURE );
       }
       if (!m_menuJSONContainerAvailable) {
          REPORT_MESSAGE( MSG::FATAL ) << "Run 3 l1BunchGroupSet JSON not loaded." << endmsg;
@@ -425,7 +430,7 @@ namespace TrigConf {
       const xAOD::TriggerMenuJsonContainer* input_l1 = nullptr;
       const xAOD::TriggerMenuJsonContainer* input_hltps = nullptr;
       const xAOD::TriggerMenuJsonContainer* input_l1ps = nullptr;
-      // const xAOD::TriggerMenuJsonContainer* input_bg = nullptr;
+      const xAOD::TriggerMenuJsonContainer* input_bg = nullptr;
       if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hlt)
           or m_metaStore->retrieve( input_hlt, m_metaNameJSON_hlt ).isFailure() )
       {
@@ -446,11 +451,12 @@ namespace TrigConf {
       {
          m_menuJSONContainerAvailable = false;
       }
-      // if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_bg)
-      //     or m_metaStore->retrieve( input_bg, m_metaNameJSON_bg ).isFailure() )
-      // {
-      //    m_menuJSONContainerAvailable = false;
-      // }
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_bg)
+          or m_metaStore->retrieve( input_bg, m_metaNameJSON_bg ).isFailure() )
+      {
+         // m_menuJSONContainerAvailable = false;
+         // This was not written up to the end of 2021, we have to make it optional for at least a while
+      }
 
       if (!m_triggerMenuContainerAvailable && !m_menuJSONContainerAvailable) {
          // Update the internal flag:
@@ -465,7 +471,7 @@ namespace TrigConf {
          }
       }
 
-      // From file #2 and onwards, check for mixed-messages from the input files.
+      // From file #2 and onward, check for mixed-messages from the input files.
       // Note from the check just above, we know that we have at least one type of data available on this input file
       //
       // We do this as we currently have just two "available" flags, for the two data formats. Not two per slot
@@ -512,7 +518,9 @@ namespace TrigConf {
          copyMetadataToPersonalStore(input_l1, m_l1Json.get());
          copyMetadataToPersonalStore(input_hltps, m_hltpsJson.get());
          copyMetadataToPersonalStore(input_l1ps, m_l1psJson.get());
-         // copyMetadataToPersonalStore(input_bg, m_bgJson.get());
+         if (input_bg) {
+            copyMetadataToPersonalStore(input_bg, m_bgJson.get());
+         }
 
          return StatusCode::SUCCESS;
 
@@ -585,8 +593,11 @@ namespace TrigConf {
 
       // Otherwise we're dealing with in-file data
       // Read the current event's trigger keys:
-      SG::ReadHandle<xAOD::TrigConfKeys> keys(m_eventKey, context);
-      if( !keys.isValid() ) {
+      SG::ReadHandle<xAOD::TrigConfKeys> keysRH(m_eventKey, context);
+      const xAOD::TrigConfKeys* keys = nullptr;
+      if( keysRH.isValid() ) {
+         keys = keysRH.cptr();
+      } else {
          // Update the internal flag:
          m_isInFailure = true;
          // Decide what to do:
@@ -600,10 +611,16 @@ namespace TrigConf {
          }
       }
 
+      SG::ReadHandle<xAOD::BunchConfKey> bgKeyRH(m_eventBGKey, context);
+      const xAOD::BunchConfKey* bgKey = nullptr;
+      if (bgKeyRH.isValid()) {
+         bgKey = bgKeyRH.cptr();
+      } // Note: This is optional, no errors if it cannot be found
+
       if (m_menuJSONContainerAvailable) { // Run 3 AOD decoding mode
-         return prepareEventxAODTriggerMenuJson(keys.cptr(), context);
+         return prepareEventxAODTriggerMenuJson(keys, bgKey, context);
       } else if (m_triggerMenuContainerAvailable) {  // Run 2 AOD decoding mode
-         return prepareEventxAODTriggerMenu(keys.cptr(), context);
+         return prepareEventxAODTriggerMenu(keys, context);
       }
       ATH_MSG_ERROR( "Both m_menuJSONContainerAvailable and m_triggerMenuContainerAvailable are false" );
       return StatusCode::FAILURE;
@@ -735,9 +752,9 @@ namespace TrigConf {
             }        
          }
    
-         // if (BunchGroup TODO) {
-         //    validConfig = false;
-         // }
+         // Bunchgroup data are not accessible via this service in this mode as the conditions alg uses a different
+         // format to the JSON interface used by the trigger.
+
       }
 
       if (validConfig) {
@@ -778,12 +795,12 @@ namespace TrigConf {
 
 
 
-   StatusCode xAODConfigSvc::prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const EventContext& context) {
+   StatusCode xAODConfigSvc::prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const xAOD::BunchConfKey* bgKey, const EventContext& context) {
       const xAOD::TriggerMenuJson* loadedHltJson = m_currentHltJson.get(context)->m_ptr;
       const xAOD::TriggerMenuJson* loadedL1Json = m_currentL1Json.get(context)->m_ptr;
       const xAOD::TriggerMenuJson* loadedHltpsJson = m_currentHltpsJson.get(context)->m_ptr;
       const xAOD::TriggerMenuJson* loadedL1psJson = m_currentL1psJson.get(context)->m_ptr;
-      //const xAOD::TriggerMenuJson* loadedBgJson = m_currentBgJson.get(context)->m_ptr;
+      const xAOD::TriggerMenuJson* loadedBgJson = m_currentBgJson.get(context)->m_ptr;
 
       bool validConfig = true;
       if (loadedHltJson == nullptr || loadedHltJson->key() != keys->smk()) {
@@ -798,9 +815,11 @@ namespace TrigConf {
       if (loadedL1psJson == nullptr || loadedL1psJson->key() != keys->l1psk()) {
          validConfig = false;
       }
-      // if (loadedBgJson == nullptr || loadedBgJson->key() != TODO) {
-      //    validConfig = false;
-      // }
+      if (bgKey) {
+         if (loadedBgJson == nullptr || loadedBgJson->key() != static_cast<unsigned int>(bgKey->id())) {
+             validConfig = false;
+         }
+      }
 
       if (validConfig) {
          REPORT_MESSAGE( MSG::DEBUG )
@@ -817,7 +836,7 @@ namespace TrigConf {
       TriggerMenuJsonPtrWrapper& currentL1Json    = *(m_currentL1Json.get(context));
       TriggerMenuJsonPtrWrapper& currentHltpsJson = *(m_currentHltpsJson.get(context));
       TriggerMenuJsonPtrWrapper& currentL1psJson  = *(m_currentL1psJson.get(context));
-      //TriggerMenuJsonPtrWrapper& currentBgJson    = *(m_currentBgJson.get(context));
+      TriggerMenuJsonPtrWrapper& currentBgJson    = *(m_currentBgJson.get(context));
 
       TrigConf::HLTMenu&         currentHlt   = *(m_currentHlt.get(context));
       TrigConf::L1Menu&          currentL1    = *(m_currentL1.get(context));
@@ -829,7 +848,9 @@ namespace TrigConf {
       ATH_CHECK( loadPtree("L1 Menu",       m_l1Json.get(),    keys->smk(),    currentL1Json,    currentL1) );
       ATH_CHECK( loadPtree("HLT Prescales", m_hltpsJson.get(), keys->hltpsk(), currentHltpsJson, currentHltps) );
       ATH_CHECK( loadPtree("L1 Prescales",  m_l1psJson.get(),  keys->l1psk(),  currentL1psJson,  currentL1ps) );
-      // ATH_CHECK( loadPtree("Bunchgroups",   m_bgJson.get(),    TODO,           currentBgGJson,    currentBg) );
+      if (bgKey) {
+         ATH_CHECK( loadPtree("Bunchgroups",   m_bgJson.get(),    bgKey->id(),           currentBgJson,    currentBg) );
+      }
 
       // Loading the payload doesn't additionally let the object know about its own key. We can load this in now too.
       // The current*Json objects were updated by loadPtree to point to the entry with the correct key.
@@ -838,7 +859,9 @@ namespace TrigConf {
       currentL1.setSMK( currentL1Json.m_ptr->key() );
       currentHltps.setPSK( currentHltpsJson.m_ptr->key() );
       currentL1ps.setPSK( currentL1psJson.m_ptr->key() );
-      //currentBg 
+      if (bgKey) {
+         currentBg.setBGSK( currentBgJson.m_ptr->key() );
+      }
 
       CTPConfig& ctpConfig = *(m_ctpConfig.get(context));
       HLTChainList& chainList = *(m_chainList.get(context));
@@ -897,6 +920,7 @@ namespace TrigConf {
             REPORT_MESSAGE( MSG::FATAL ) << e.what();
             return StatusCode::FAILURE;
          }
+         break;
       }
 
       if (ptrToLocatedMenu == nullptr) {

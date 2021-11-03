@@ -58,7 +58,7 @@ MMT_Hit::MMT_Hit(const MMT_Hit &hit) : AthMessaging(Athena::getMessageSvc(), "MM
   m_RZslope = hit.m_RZslope;
   m_YZslope = hit.m_YZslope;
   m_isNoise = hit.m_isNoise;
-  m_detManager = NULL;
+  m_detManager = nullptr;
 }
 
 MMT_Hit& MMT_Hit::operator=(const MMT_Hit& hit) {
@@ -84,7 +84,7 @@ MMT_Hit& MMT_Hit::operator=(const MMT_Hit& hit) {
   m_RZslope = hit.m_RZslope;
   m_YZslope = hit.m_YZslope;
   m_isNoise = hit.m_isNoise;
-  m_detManager = NULL;
+  m_detManager = nullptr;
 
   return *this;
 }
@@ -130,7 +130,7 @@ void MMT_Hit::setHitProperties(const Hit &hit) {
   m_Z = hit.info.z;
 }
 
-void MMT_Hit::updateHitProperties(const MMT_Parameters *par) {
+void MMT_Hit::updateHitProperties(std::shared_ptr<MMT_Parameters> par) {
   Identifier strip_id = this->getDetManager()->mmIdHelper()->channelID(this->getStationName(), this->getStationEta(), this->getStationPhi(), this->getMultiplet(), this->getGasGap(), this->getChannel());
   const MuonGM::MMReadoutElement* readout = this->getDetManager()->getMMReadoutElement(strip_id);
   Amg::Vector3D globalPos(0.0, 0.0, 0.0);

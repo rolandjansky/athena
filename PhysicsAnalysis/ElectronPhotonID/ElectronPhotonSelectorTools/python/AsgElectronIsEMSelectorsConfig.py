@@ -1,27 +1,35 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "Configure the AsgElectronIsEMSelector with the quality cuts and allow for (re-)setting of all provided cuts."
+
+__doc__ = """Configure the AsgElectronIsEMSelector with the quality cuts
+         and allow for (re-)setting of all provided cuts."""
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
-# Import the needed stuff specific to the ElectronPhotonSelectorTools
-AsgElectronIsEMSelector=CompFactory.AsgElectronIsEMSelector
-from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap, electronPIDmenu
+from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import (
+    ElectronIsEMMap, electronPIDmenu)
 
 
-def AsgElectronIsEMSelectorCfg(flags, name, quality, menu=electronPIDmenu.menuDC14):
-    
+def AsgElectronIsEMSelectorCfg(
+        flags,
+        name,
+        quality,
+        menu=electronPIDmenu.menuDC14):
+
     mlog = logging.getLogger('AsgElectronIsEMSelector')
     mlog.debug('Start configuration')
 
+    AsgElectronIsEMSelector = CompFactory.AsgElectronIsEMSelector
     acc = ComponentAccumulator()
     try:
         ntuple = ElectronIsEMMap(quality, menu)
         mlog.debug('ntuple: %s', ntuple)
     except KeyError:
-        mlog.error('Electron quality not found. Please use an egammaIDQuality (ElectronPhotonSelectorTools/egammaPIDdefs.h).This function only supports standard electron IDs, and not photon or forward IDs')
+        mlog.error("Electron quality not found. Please use an egammaIDQuality"
+                   "(ElectronPhotonSelectorTools/egammaPIDdefs.h)."
+                   "This function only supports standard electron IDs,"
+                   "and not photon or forward IDs")
         raise
 
     # Create and instance of the tool

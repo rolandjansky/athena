@@ -62,6 +62,11 @@ class jFEXDriver : public AthAlgorithm
   ToolHandle<IjFEXSysSim> m_jFEXSysSimTool {this, "jFEXSysSimTool", "LVL1::jFEXSysSim", "Tool that creates the jFEX System Simulation"};
 
   std::unordered_map<Identifier, std::pair<int,int> > m_cell_to_tower_map;
+  std::string m_PileupWeigthFile;
+  
+  // This string is used to convert the m_PileupweigthFile file in a readable file for jFEX
+  std::string m_PileupHelperFile;
+
 
 };
 

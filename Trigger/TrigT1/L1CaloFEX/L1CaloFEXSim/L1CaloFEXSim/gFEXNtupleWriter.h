@@ -29,6 +29,9 @@ public:
    StatusCode finalize ();
 
 private:
+  //readhandle key for gFEXOutputCollection
+  SG::ReadHandleKey<LVL1::gFEXOutputCollection> m_gFEXOutputCollectionSGKey {this, "MyOutputs", "gFEXOutputCollection", "MyOutputs"};
+
   gFEXOutputCollection* m_gFEXOutputCollection;
   float m_jet_nTOBs;
   float m_global_nTOBs;
@@ -57,8 +60,8 @@ private:
   std::string m_jet_container_name = "AntiKt10TruthJets";
   TTree *m_myTree;
 
-  StatusCode loadJetAlgoVariables();
-  StatusCode loadGlobalAlgoVariables();
+  StatusCode loadJetAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);
+  StatusCode loadGlobalAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);
   StatusCode loadTruthElectron();
   StatusCode loadTruthJets();
 

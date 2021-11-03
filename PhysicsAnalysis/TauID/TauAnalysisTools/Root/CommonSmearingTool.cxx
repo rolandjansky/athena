@@ -8,14 +8,14 @@
 // local include(s)
 #include "TauAnalysisTools/CommonSmearingTool.h"
 #include "TauAnalysisTools/TauSmearingTool.h"
+
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // ROOT include(s)
 #include "TF1.h"
 
 // tauRecTools include(s)
-#include "tauRecTools/MvaTESVariableDecorator.h"
-#include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/TauCombinedTES.h"
 
 using namespace TauAnalysisTools;
@@ -75,20 +75,14 @@ CommonSmearingTool::CommonSmearingTool(const std::string& sName)
   , m_fY(&finalTauEta)
   , m_bIsData(false)
   , m_bIsConfigured(false)
-  , m_tMvaTESVariableDecorator("MvaTESVariableDecorator", this)
-  , m_tMvaTESEvaluator("MvaTESEvaluator", this)
   , m_tTauCombinedTES("TauCombinedTES", this)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bNoMultiprong(false)
-  , m_bPtTauEtaCalibIsAvailable(false)
-  , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
   declareProperty("InputFilePath",       m_sInputFilePath       = "" );
   declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty("ApplyFading",         m_bApplyFading         = true );
-  declareProperty("ApplyMVATES",         m_bApplyMVATES         = true );
-  declareProperty("ApplyCombinedTES",    m_bApplyCombinedTES    = false );
-  declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
+  declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = false );
   declareProperty("ApplyInsituCorrection",   m_bApplyInsituCorrection   = true );
 }
 
@@ -140,10 +134,11 @@ StatusCode CommonSmearingTool::initialize()
   if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS )
     return StatusCode::FAILURE;
 
-  if (m_bApplyCombinedTES || m_bApplyMVATES) // CombinedTES has to be available for MVA fix
+  // TauCombinedTES tool must be set up when checking compatibility between calo TES and MVA TES
+  if (m_bApplyMVATESQualityCheck) 
   {
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTauCombinedTES, TauCombinedTES));
-    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_v0.root"));
+    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_Round2.5.root"));
     ATH_CHECK(m_tTauCombinedTES.initialize());
   }
 
@@ -159,71 +154,26 @@ StatusCode CommonSmearingTool::initialize()
 //______________________________________________________________________________
 CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
 {
-  if (not m_bPtTauEtaCalibIsAvailableIsChecked)
-  {
-    m_bPtTauEtaCalibIsAvailable = xTau.isAvailable<float>("ptTauEtaCalib");
-    m_bPtTauEtaCalibIsAvailableIsChecked = true;
-  }
-
-  // save calo based TES before another TES is applied
-  if (not m_bPtTauEtaCalibIsAvailable) 
-  {
-    xTau.auxdecor<float>("ptTauEtaCalib") = xTau.pt();
-    xTau.auxdecor<float>("etaTauEtaCalib") = xTau.eta();
-    xTau.auxdecor<float>("phiTauEtaCalib") = xTau.phi();
-    xTau.auxdecor<float>("mTauEtaCalib") = xTau.m();
-  }
-
-  if (m_bApplyMVATES)
-  {    
-    // veto MVA TES for unreasonably low resolution values
-    bool bVeto = false;
-    if (auto combp4 = dynamic_cast<TauCombinedTES*>(m_tTauCombinedTES.get())) {
-      bVeto = combp4->getUseCaloPtFlag(xTau);
-    }
-    if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
+  // optional consistency check between calo-only pt ("ptTauEnergyScale") and MVA pt ("ptFinalCalib" i.e. "pt", MVA TES is the default calibration)
+  // not recommended until validated in R22: MVA TES always has better resolution than calo-only TES for true taus
+  // in practice this check mostly discards muons faking taus with large track momentum but little energy deposit in the calorimeter:
+  // when enforcing calo-only pt, the muon will likely fail the tau pt cut applied by TauSelectionTool
+  if (m_bApplyMVATESQualityCheck) 
     {
-      static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
-      static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
-      static SG::AuxElement::ConstAccessor<float> accPhiFinalCalib("phiFinalCalib");
-      static SG::AuxElement::ConstAccessor<float> accMFinalCalib("mFinalCalib");
-
-      xTau.auxdecor<char>("MVATESQuality") = (char)bVeto;
-      if (bVeto && m_bApplyMVATESQualityCheck)
-      {
-        ATH_MSG_DEBUG("veto against MVA TES");
-        xTau.auxdata<float>("ptFinalCalib") = xTau.pt();
-        xTau.auxdata<float>("etaFinalCalib") = xTau.eta();
-        xTau.auxdata<float>("phiFinalCalib") = xTau.phi();
-        xTau.auxdata<float>("mFinalCalib") = xTau.m();
+      bool useCaloPt = false;     
+      if(xTau.isAvailable<float>("ptTauEnergyScale")) {
+	auto combinedTEStool = dynamic_cast<TauCombinedTES*>(m_tTauCombinedTES.get());
+	useCaloPt = combinedTEStool->getUseCaloPtFlag(xTau);	
+	if (useCaloPt) {
+	  // only override pt, keep eta and phi from substructure as it has likely better angular resolution than calo-only
+	  ATH_MSG_DEBUG("overriding MVA pt with calo pt");
+	  xTau.setP4(xAOD::TauJetParameters::FinalCalib, xTau.ptTauEnergyScale(), xTau.eta(), xTau.phi(), xTau.m()); 
+	  xTau.setP4(xTau.ptTauEnergyScale(), xTau.eta(), xTau.phi(), xTau.m()); 
+	}
       }
-      else
-      {
-        xTau.setP4(accPtFinalCalib(xTau),
-                   accEtaFinalCalib(xTau),
-                   accPhiFinalCalib(xTau),
-                   accMFinalCalib(xTau));
-      }
+      static const SG::AuxElement::Accessor<char> accUseCaloPt("useCaloPt");
+      accUseCaloPt(xTau) = char(useCaloPt);
     }
-  }
-
-  if (m_bApplyCombinedTES)
-  {
-    // TODO: only call eventInitialize once per event, probably via migration to
-    // AsgMetadataTool
-    if (m_tTauCombinedTES->eventInitialize().isFailure())
-      return CP::CorrectionCode::Error;
-    if (m_tTauCombinedTES->execute(xTau).isFailure())
-      return CP::CorrectionCode::Error;
-
-    if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
-    {
-      xTau.setP4(xTau.auxdata<float>("ptCombined"),
-                 xTau.auxdata<float>("etaCombined"),
-                 xTau.auxdata<float>("phiCombined"),
-                 xTau.auxdata<float>("mCombined"));
-    }
-  }
 
   // step out here if we run on data
   if (m_bIsData)

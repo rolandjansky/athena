@@ -461,28 +461,32 @@ egammaSuperClusterBuilderBase::createNewCluster(
     ATH_MSG_DEBUG("Negative et after calibration/corrections");
     return nullptr;
   }
-  // EDM vector to constituent clusters
-  std::vector<ElementLink<xAOD::CaloClusterContainer>> constituentLinks;
-  static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer>>
-    sisterCluster("SisterCluster");
-  for (size_t i = 0; i < acSize; i++) {
-    // Set the element Link to the constitents
-    if (sisterCluster.isAvailable(*clusters[i])) {
-      constituentLinks.push_back(sisterCluster(*clusters[i]));
-    } else {
-      ATH_MSG_WARNING("No sister Link available");
-    }
-  }
-  // Set the link from the super cluster to the constituents (accumulated)
-  // clusters used.
-  static const SG::AuxElement::Accessor<
-    std::vector<ElementLink<xAOD::CaloClusterContainer>>>
-    caloClusterLinks("constituentClusterLinks");
-  caloClusterLinks(*newCluster) = constituentLinks;
 
+
+  if (m_linkToConstituents){
+    // EDM vector to constituent clusters
+    std::vector<ElementLink<xAOD::CaloClusterContainer>> constituentLinks;
+    static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer>>
+      sisterCluster("SisterCluster");
+    for (size_t i = 0; i < acSize; i++) {
+      // Set the element Link to the constitents
+      if (sisterCluster.isAvailable(*clusters[i])) {
+        constituentLinks.push_back(sisterCluster(*clusters[i]));
+      } else {
+        ATH_MSG_WARNING("No sister Link available");
+      }
+    }
+    // Set the link from the super cluster to the constituents (accumulated)
+    // clusters used.
+    static const SG::AuxElement::Accessor<
+      std::vector<ElementLink<xAOD::CaloClusterContainer>>>
+      caloClusterLinks("constituentClusterLinks");
+    caloClusterLinks(*newCluster) = constituentLinks;
+  }
   // return the new cluster
   return newCluster;
 }
+
 bool
 egammaSuperClusterBuilderBase::seedClusterSelection(
   const xAOD::CaloCluster* clus) const
@@ -678,15 +682,14 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
     return StatusCode::FAILURE;
   }
 
-  CaloCellList myList(inputcells);
+  CaloCellList myList(&mgr,inputcells);
 
   const std::vector<CaloSampling::CaloSample> samples = {
     CaloSampling::TileGap3
   };
   for (auto samp : samples) {
     // quite slow
-    myList.select(mgr,
-                  tofill.eta0(),
+    myList.select(tofill.eta0(),
                   tofill.phi0(),
                   searchWindowEta,
                   searchWindowPhi,

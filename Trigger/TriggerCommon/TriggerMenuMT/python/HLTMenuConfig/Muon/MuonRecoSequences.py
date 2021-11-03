@@ -20,8 +20,6 @@ CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
 ExtrpTPname = recordable("HLT_MSExtrapolatedMuons_RoITrackParticles")
 ExtrpTPnameFS = recordable("HLT_MSExtrapolatedMuons_FSTrackParticles")
 MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.MuonSlice.doTrigMuonConfig=True
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
@@ -406,86 +404,16 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   
   muFastRecoSequence += ViewVerify
 
-  if MuonGeometryFlags.hasCSC():
-    # Configure the L2 CSC data preparator - we can turn off the data decoding here
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-    L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator")
-    ToolSvc += L2CscDataPreparator
- 
-  # Configure the L2 MDT data preparator - we can turn off the data decoding here
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(name = "L2MuonSAMdtDataPreparator")
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
-  L2MdtDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
-
   from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool
   trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1MuonPhase1)
-
-  ### RPC RDO data - turn off the data decoding here ###
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
-  L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(name = "L2MuonSARpcDataPreparator",
-                                                        RpcPrepDataContainer = "RPC_Measurements",
-                                                        TrigT1RPCRecRoiTool  = trigRpcRoiTool)
-  ToolSvc += L2RpcDataPreparator
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
-  L2RpcDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
-
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcClusterPreparator
   L2RpcClusterPreparator = TrigL2MuonSA__RpcClusterPreparator(name = "L2RpcClusterPreparator",
                                                               TrigT1RPCRecRoiTool = trigRpcRoiTool)
   ToolSvc += L2RpcClusterPreparator
 
-  ### TGC data preparation - turn off the data decoding here ###
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(name = "L2MuonSATgcDataPreparator")
-
-
-  ### sTGC RDO data - turn off the data decoding here ###
-  if MuonGeometryFlags.hasSTGC():
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__StgcDataPreparator
-    L2StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator(name = "L2MuonSAStgcDataPreparator",
-                                                            StgcPrepDataContainer = "STGC_Measurements")
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
-    L2StgcDataPreparator.RegSel_STGC = makeRegSelTool_sTGC()
-    ToolSvc += L2StgcDataPreparator
-
-
-  ### MM RDO data - turn off the data decoding here ###
-  if MuonGeometryFlags.hasMM():
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MmDataPreparator
-    L2MmDataPreparator = TrigL2MuonSA__MmDataPreparator(name = "L2MuonSAMmDataPreparator",
-                                                        MmPrepDataContainer = "MM_Measurements")
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
-    L2MmDataPreparator.RegSel_MM = makeRegSelTool_MM()
-    ToolSvc += L2MmDataPreparator
-
   ### set up MuFastSteering ###
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
   muFastAlg = TrigL2MuonSAConfig("Muon"+postFix)
-
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
-  MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)
-  if MuonGeometryFlags.hasCSC():
-    MuFastDataPreparator.CSCDataPreparator  = L2CscDataPreparator
-  else:
-    MuFastDataPreparator.CSCDataPreparator  = ""
-  MuFastDataPreparator.MDTDataPreparator  = L2MdtDataPreparator
-  MuFastDataPreparator.RPCDataPreparator  = L2RpcDataPreparator
-  MuFastDataPreparator.TGCDataPreparator  = L2TgcDataPreparator
-  if MuonGeometryFlags.hasSTGC():
-    MuFastDataPreparator.STGCDataPreparator = L2StgcDataPreparator
-  else:
-    MuFastDataPreparator.STGCDataPreparator = ""
-  if MuonGeometryFlags.hasMM():
-    MuFastDataPreparator.MMDataPreparator   = L2MmDataPreparator
-  else:
-    MuFastDataPreparator.MMDataPreparator   = ""
-
-  MuFastDataPreparator.RpcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
-  MuFastDataPreparator.TgcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
-  MuFastDataPreparator.ClusterRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
-  
-  muFastAlg.DataPreparator = MuFastDataPreparator
 
   muFastAlg.Run2RecMuonRoI = "HLT_RecMURoIs"
   muFastAlg.RecMuonRoI = "LVL1MuonRoIs"

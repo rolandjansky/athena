@@ -63,7 +63,6 @@ LArHECNoise::LArHECNoise(const std::string& name,
     m_tree(0),
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_LArOnlineIDHelper(0),
-    m_calodetdescrmgr(0),
     m_calocell_id(nullptr),
     m_nt_run(0),
     m_nt_evtId(0),
@@ -131,7 +130,7 @@ StatusCode LArHECNoise::initialize() {
 
   // Retrieve ID helpers
   ATH_CHECK( detStore()->retrieve (m_calocell_id, "CaloCell_ID") );
-  ATH_CHECK( detStore()->retrieve (m_calodetdescrmgr, "CaloMgr") );
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   /** get a handle on the NTuple and histogramming service */
   ATH_CHECK( service("THistSvc", m_thistSvc) );
@@ -233,6 +232,10 @@ StatusCode LArHECNoise::execute() {
      return StatusCode::FAILURE;
   }
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloMgr = *caloMgrHandle;
+
 
   const LArDigitContainer* ld = 0;
   if (evtStore()->contains<LArDigitContainer>("LArDigitContainer")) {
@@ -317,11 +320,13 @@ StatusCode LArHECNoise::execute() {
                     }
                  }
               }
-              const CaloDetDescrElement *cdde =  m_calodetdescrmgr->get_element(oid);
-              m_nt_eta = cdde->eta();
-              m_nt_phi = cdde->phi();
-              m_nt_z = cdde->z();
-              m_nt_r = cdde->r();
+              const CaloDetDescrElement *cdde =  caloMgr->get_element(oid);
+              if(cdde) {
+                 m_nt_eta = cdde->eta();
+                 m_nt_phi = cdde->phi();
+                 m_nt_z = cdde->z();
+                 m_nt_r = cdde->r();
+              }
               m_tree->Fill();
         }//found our digit
    }//over digits

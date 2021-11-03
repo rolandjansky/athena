@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  AthContainers/DataVector.icc
@@ -77,10 +77,11 @@ struct VirtBases<B1, DataModel_detail::NoBase, DataModel_detail::NoBase>
   typedef typename DataVector<B1>::size_type size_type;
   typedef typename DataVector<B1>::difference_type difference_type;
   typedef typename DataVector<B1>::allocator_type allocator_type;
+  typedef typename DataVector<B1>::Deleter Deleter;
+  static constexpr bool must_own = DataVector<B1>::must_own;
 
   // We're using virtual derivation.
-  static const bool has_virtual = true;
-
+  static constexpr bool has_virtual = true;
 
   // We need to delete the move ctor; otherwise, we get warnings about
   // a virtual base having a non-trivial move ctor.  Then we also need
@@ -154,9 +155,11 @@ struct VirtBases<B1, B2, DataModel_detail::NoBase>
   typedef typename DataVector<B1>::size_type size_type;
   typedef typename DataVector<B1>::difference_type difference_type;
   typedef typename DataVector<B1>::allocator_type allocator_type;
+  typedef typename DataVector<B1>::Deleter Deleter;
+  static constexpr bool must_own = DataVector<B1>::must_own;
 
   // We're using virtual derivation.
-  static const bool has_virtual = true;
+  static constexpr bool has_virtual = true;
 
 
   // We need to delete the move ctor; otherwise, we get warnings about
@@ -240,9 +243,11 @@ struct VirtBases
   typedef typename DataVector<B1>::size_type size_type;
   typedef typename DataVector<B1>::difference_type difference_type;
   typedef typename DataVector<B1>::allocator_type allocator_type;
+  typedef typename DataVector<B1>::Deleter Deleter;
+  static constexpr bool must_own = DataVector<B1>::must_own;
 
   // We're using virtual derivation.
-  static const bool has_virtual = true;
+  static constexpr bool has_virtual = true;
 
 
   // We need to delete the move ctor; otherwise, we get warnings about
@@ -409,6 +414,8 @@ DataVector<T, BASE>::DataVector (DataVector&& rhs) noexcept
   SG::AuxVectorBase::operator= (std::move (rhs));
   this->m_ownPolicy = rhs.m_ownPolicy;
   this->m_pCont = std::move (rhs.m_pCont);
+  this->m_deleter = std::move(rhs.m_deleter);
+  rhs.m_deleter = nullptr;
 
   // Need to reset the container pointer on elements.
   this->setIndices (this->begin(), this->end());
@@ -551,6 +558,10 @@ DataVector<T, BASE>::operator= (DataVector<T, BASE>&& rhs) noexcept
     this->m_ownPolicy = rhs.m_ownPolicy;
     this->m_pCont = std::move (rhs.m_pCont);
 
+    delete this->m_deleter;
+    this->m_deleter = std::move(rhs.m_deleter);
+    rhs.m_deleter = nullptr;
+
     // Need to reset the container pointer on elements.
     this->setIndices (this->begin(), this->end());
   }
@@ -647,9 +658,8 @@ void DataVector<T, BASE>::resize(size_type sz)
     this->erase (this->begin()+sz, this->end());
   } else {
     this->m_pCont.insert(this->m_pCont.end(), sz - this->m_pCont.size(), 0);
+    SG::AuxVectorBase::resize<DataVector> (sz);
   }
-  // xxx ??? Is this redundant with the erase() above?
-  SG::AuxVectorBase::resize<DataVector> (sz);
 } 
 
 
@@ -1369,7 +1379,7 @@ void DataVector<T, BASE>::pop_back()
 {
   if (!this->m_pCont.empty()) {
     if (this->m_ownPolicy == SG::OWN_ELEMENTS)
-      delete this->m_pCont.back();
+      this->doDelete (this->m_pCont.back());
     else
       this->clearIndex (iterator (this->m_pCont.end() - 1, this));
     this->m_pCont.pop_back();
@@ -1420,6 +1430,7 @@ void DataVector<T, BASE>::swap(DataVector& rhs)
   std::swap(this->m_ownPolicy, rhs.m_ownPolicy);
   SG::AuxVectorBase::swap (rhs);
   this->m_pCont.swap(rhs.m_pCont);
+  std::swap (this->m_deleter, rhs.m_deleter);
   this->setIndices (this->begin(), this->end());
   rhs.setIndices (rhs.begin(), rhs.end());
 }
@@ -1433,7 +1444,9 @@ void DataVector<T, BASE>::swap(DataVector& rhs)
 template <class T, class BASE>
 void DataVector<T, BASE>::iter_swap (iterator a, iterator b)
 {
-  ATHCONTAINERS_ASSERT (a.ownPolicy() == b.ownPolicy());
+  if (a.ownPolicy() != b.ownPolicy()) {
+    throw SG::ExcBadIterSwap();
+  }
   a.testInsert ("iter_swap");
   b.testInsert ("iter_swap");
   std::iter_swap (a.base(), b.base());
@@ -1671,6 +1684,26 @@ const DataModel_detail::DVLInfoBase& DataVector<T, BASE>::dvlinfo()
 
 
 /**
+ * @brief Erase all the elements in the collection, and change 
+ *        how elements are to be deleted.
+ * @param deleter Object to be used to delete object.
+ *                Passing nullptr will change back to the default.
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ * After the current elements are deleted, the Deleter object is changed.
+ */
+template <class T, class BASE>
+void DataVector<T, BASE>::clear (std::unique_ptr<Deleter> deleter)
+{
+  this->clear();
+  delete this->m_deleter;
+  this->m_deleter = deleter.release();
+}
+
+
+/**
  * @brief Return the DV/DL info struct for this class.
  *
  * This can be used to make sure that it's instantiated.
@@ -1815,7 +1848,7 @@ void DataVector<T, BASE>::assignElement (typename BaseContainer::iterator pos,
 {
   testInsert ("assignElement");
   if (this->m_ownPolicy == SG::OWN_ELEMENTS)
-    delete *pos;
+    this->doDelete (*pos);
   else
     this->clearIndex (iterator (pos, this));
   *pos = newElem;
@@ -1841,7 +1874,7 @@ DataVector<T, BASE>::assignElement (typename BaseContainer::iterator pos,
     SG::throwExcNonowningContainer();
 
   testInsert ("assignElement");
-  delete *pos;
+  this->doDelete (*pos);
   value_type ptr = newElem.release();
   *pos = ptr;
   this->moveAux (pos - this->m_pCont.begin(), ptr);
@@ -1863,7 +1896,7 @@ DataVector<T, BASE>::assignBaseElement (typename BaseContainer::iterator pos,
 {
   testInsert ("assignBaseElement");
   if (this->m_ownPolicy == SG::OWN_ELEMENTS)
-    delete *pos;
+    this->doDelete (*pos);
   else
     this->clearIndex (iterator (pos, this));
   *pos = newElem;
@@ -1915,6 +1948,23 @@ template <class T, class BASE>
 inline
 const T*
 DataVector<T, BASE>::do_cast (const typename PtrVector::value_type p)
+{
+  return DataModel_detail::DVLCast<DataVector>::cast (p);
+}
+
+
+/**
+ * @brief Helper to shorten calls to @c DataVector_detail::DVLCast.
+ * @param p The value to convert.
+ * @return The value as a @c T*.
+ *
+ * The conversion will be done with @c static_cast if possible,
+ * with @c dynamic_cast otherwise.
+ */
+template <class T, class BASE>
+inline
+T*
+DataVector<T, BASE>::do_cast_nc (typename PtrVector::value_type p)
 {
   return DataModel_detail::DVLCast<DataVector>::cast (p);
 }
@@ -2058,6 +2108,9 @@ DATAVECTOR::DataVector(DataVector&& rhs) noexcept
     m_ownPolicy(rhs.m_ownPolicy),
     m_pCont(std::move (rhs.m_pCont))
 {
+  m_deleter = std::move(rhs.m_deleter);
+  rhs.m_deleter = nullptr;
+
   // Need to reset the container pointer on elements.
   this->setIndices (this->begin(), this->end());
 
@@ -2172,6 +2225,10 @@ DATAVECTOR& DATAVECTOR::operator= (DATAVECTOR&& rhs) noexcept
     this->m_ownPolicy = rhs.m_ownPolicy;
     this->m_pCont = std::move (rhs.m_pCont);
 
+    delete this->m_deleter;
+    this->m_deleter = std::move(rhs.m_deleter);
+    rhs.m_deleter = nullptr;
+
     // Need to reset the container pointer on elements.
     this->setIndices (this->begin(), this->end());
   }
@@ -2250,10 +2307,9 @@ DATAVECTOR::~DataVector()
   if (m_ownPolicy == SG::OWN_ELEMENTS) {
     typename PtrVector::iterator new_end =
       DataVector_detail::remove_duplicates(m_pCont.begin(), m_pCont.end());
-    typename PtrVector::iterator iter = m_pCont.begin();
-    while (iter != new_end)
-      delete *(iter++);
-    }
+    this->doDelete (m_pCont.begin(), new_end);
+  }
+  delete m_deleter;
 }
 
 
@@ -2313,9 +2369,8 @@ void DATAVECTOR::resize(size_type sz)
     this->erase (this->begin()+sz, this->end());
   } else {
     this->m_pCont.insert(this->m_pCont.end(), sz - this->m_pCont.size(), 0);
+    SG::AuxVectorBase::resize<DataVector> (sz);
   }
-  // xxx ??? Is this redundant with the erase() above?
-  SG::AuxVectorBase::resize<DataVector> (sz);
 } 
 
 
@@ -3063,7 +3118,7 @@ void DATAVECTOR::pop_back()
 {
   if (!m_pCont.empty()) {
     if (m_ownPolicy == SG::OWN_ELEMENTS)
-      delete m_pCont.back();
+      this->doDelete (m_pCont.back());
     else
       this->clearIndex (m_pCont.end() - 1);
     m_pCont.pop_back();
@@ -3114,6 +3169,7 @@ void DATAVECTOR::swap(DataVector& rhs)
   std::swap(m_ownPolicy, rhs.m_ownPolicy);
   SG::AuxVectorBase::swap (rhs);
   m_pCont.swap(rhs.m_pCont);
+  std::swap (this->m_deleter, rhs.m_deleter);
   this->setIndices (this->begin(), this->end());
   rhs.setIndices (rhs.begin(), rhs.end());
 }
@@ -3122,12 +3178,14 @@ void DATAVECTOR::swap(DataVector& rhs)
 /**
  * @brief Swap the referents of two @c DataVector iterators.
  * @param a The first iterator for the swap.
- * @param b The second iterator for the swap/
+ * @param b The second iterator for the swap.
  */
 template <class T>
 void DATAVECTOR::iter_swap (iterator a, iterator b)
 {
-  ATHCONTAINERS_ASSERT (a.ownPolicy() == b.ownPolicy());
+  if (a.ownPolicy() != b.ownPolicy()) {
+    throw SG::ExcBadIterSwap();
+  }
   a.testInsert ("iter_swap");
   b.testInsert ("iter_swap");
   std::iter_swap (a.base(), b.base());
@@ -3389,6 +3447,27 @@ const DataModel_detail::DVLInfoBase& DATAVECTOR::dvlinfo()
 
 
 /**
+ * @brief Erase all the elements in the collection, and change 
+ *        how elements are to be deleted.
+ * @param deleter Object to be used to delete object.
+ *                (The DataVector does not take ownership.)
+ *                Passing nullptr will change back to the default.
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ * After the current elements are deleted, the Deleter object is changed.
+ */
+template <class T>
+void DATAVECTOR::clear (std::unique_ptr<Deleter> deleter)
+{
+  this->clear();
+  delete this->m_deleter;
+  this->m_deleter = deleter.release();
+}
+
+
+/**
  * @brief Return the DV/DL info struct for this class.
  *
  * This can be used to make sure that it's instantiated.
@@ -3492,7 +3571,7 @@ void DATAVECTOR::assignElement (typename BaseContainer::iterator pos,
 {
   testInsert ("assignElement");
   if (this->m_ownPolicy == SG::OWN_ELEMENTS)
-    delete *pos;
+    this->doDelete (*pos);
   else
     this->clearIndex (iterator (pos, this));
   *pos = newElem;
@@ -3518,7 +3597,7 @@ DATAVECTOR::assignElement (typename BaseContainer::iterator pos,
     SG::throwExcNonowningContainer();
 
   testInsert ("assignElement");
-  delete *pos;
+  this->doDelete (*pos);
   value_type ptr = newElem.release();
   *pos = ptr;
   this->moveAux (pos - this->m_pCont.begin(), ptr);
@@ -3539,7 +3618,7 @@ void DATAVECTOR::assignBaseElement (typename BaseContainer::iterator pos,
 {
   testInsert ("assignBaseElement");
   if (this->m_ownPolicy == SG::OWN_ELEMENTS)
-    delete *pos;
+    this->doDelete (*pos);
   else
     this->clearIndex (iterator (pos, this));
   *pos = newElem;
@@ -3594,6 +3673,21 @@ const T* DATAVECTOR::do_cast (const typename PtrVector::value_type p)
 
 
 /**
+ * @brief Helper to shorten calls to @c DataModel_detail::DVLCast.
+ * @param p The value to convert.
+ * @return The value as a @c T*.
+ *
+ * This is a no-op for the base class.
+ */
+template <class T>
+inline
+T* DATAVECTOR::do_cast_nc (typename PtrVector::value_type p)
+{
+  return p;
+}
+
+
+/**
  * @brief Find the most-derived @c DataVector class in the hierarchy.
  * @return The @c type_info for the class for which this method gets run.
  *
@@ -3624,7 +3718,7 @@ typename DATAVECTOR::PtrVector::iterator
 DATAVECTOR::erase_base(typename PtrVector::iterator position)
 { 
   if (m_ownPolicy == SG::OWN_ELEMENTS && position != m_pCont.end())
-    delete *position;
+    this->doDelete (*position);
   return m_pCont.erase(position);
 }
 
@@ -3649,10 +3743,47 @@ DATAVECTOR::erase_base(typename PtrVector::iterator first,
   if (m_ownPolicy == SG::OWN_ELEMENTS) {
     typename PtrVector::iterator new_end =
       DataVector_detail::remove_duplicates(first, last);
-    typename PtrVector::iterator iter = first;
-    while (iter != new_end) delete *(iter++);
+    this->doDelete (first, new_end);
   }
   return m_pCont.erase(first, last);
+}
+
+
+/**
+ * @brief Delete an element
+ * @param p The element to delete.
+ */
+template <class T>
+inline
+void DATAVECTOR::doDelete (value_type p)
+{
+  if (m_deleter) {
+    m_deleter->doDelete (p);
+  }
+  else {
+    delete p;
+  }
+}
+
+
+/**
+ * @brief Delete a range of elements
+ * @param first Start of range to delete.
+ * @param last End of range to delete.
+ */
+template <class T>
+inline
+void DATAVECTOR::doDelete (typename PtrVector::iterator first,
+                           typename PtrVector::iterator last)
+{
+  if (m_deleter) {
+    m_deleter->doDelete (first, last);
+  }
+  else {
+    for (; first != last; ++first) {
+      delete *first;
+    }
+  }
 }
 
 
@@ -3733,7 +3864,7 @@ void DATAVECTOR::setMostDerived()
 /**
  * @brief  Vector equality comparison.
  * @param  a  A @c DataVector.
- * @param  b  A @c DataVector of the same type as @a x.
+ * @param  b  A @c DataVector of the same type as @a b.
  * @return  True iff the size and elements of the vectors are equal.
  *
  * This is an equivalence relation.  It is linear in the size of the
@@ -3759,7 +3890,7 @@ bool operator!= (const DataVector<T>& a, const DataVector<T>& b)
  * @brief  Vector ordering relation.
  * @param  a  A @c DataVector.
  * @param  b  A @c DataVector of the same type as @a x.
- * @return  True iff @a x is lexicographically less than @a y.
+ * @return  True iff @a a is lexicographically less than @a b.
  *
  * This is a total ordering relation.  It is linear in the size of the
  * vectors.  Comparisons are done on the pointer values of the elements.

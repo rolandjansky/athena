@@ -23,7 +23,7 @@ def LArADC2MeVSCCondAlgDefault (name="LArADC2MeVSCCondAlgDefault"):
         return getattr(condSeq,"LArADC2MeVSCCondAlg")
 
 
-    theADC2MeVCondAlg=LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeV',isSuperCell=True)
+    theADC2MeVCondAlg=LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeVSC',isSuperCell=True)
  
     if conddb.isMC:
         from LArConditionsCommon.LArCondFlags import larCondFlags 

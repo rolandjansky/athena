@@ -82,7 +82,7 @@ Trk::SubtractedVolumeBounds::operator=(const Trk::SubtractedVolumeBounds& bobo)
 
 const std::vector<const Trk::Surface*>*
   Trk::SubtractedVolumeBounds::decomposeToSurfaces
-  ATLAS_NOT_THREAD_SAFE(const Amg::Transform3D& transf) const
+  (const Amg::Transform3D& transf)
 {
   // double tol=0.001;
   // get surfaces for outer boundaries

@@ -229,7 +229,8 @@ if not 'ShapeTreename2' in dir():
 ###########################################################################
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
+   if not SuperCells: GroupingType = "ExtendedSubDetector"
+   if SuperCells:     GroupingType = "SuperCells"
    
 if not 'WriteNtuple' in dir():
    WriteNtuple = LArCalib_Flags.WriteNtuple
@@ -390,7 +391,7 @@ if ( ReadPhysCaliTdiffFromCOOL ):
    if 'InputPhysCaliTdiffSQLiteFile' in dir():
       InputDBConnectionPhysCaliTdiff = DBConnectionFile(InputPhysCaliTdiffSQLiteFile)
    else:
-      InputDBConnectionPhysCaliTdiff = "COOLOFL_LAR/CONDBR2"
+      InputDBConnectionPhysCaliTdiff = "COOLOFL_LAR/COMP200"
 
 ## Bad Channel   
    
@@ -636,7 +637,6 @@ from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
 theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
 theLArAutoCorrDecoderTool.UseAlwaysHighGain=True
 theLArAutoCorrDecoderTool.isSC = SuperCells
-ToolSvc += theLArAutoCorrDecoderTool
 
 if NColl > 0:
    theLArPhysAutoCorrDecoderTool = LArAutoCorrDecoderTool("LArPhysAutoCorrDecoderTool")
@@ -644,7 +644,6 @@ if NColl > 0:
    theLArPhysAutoCorrDecoderTool.UseAlwaysHighGain=True
    theLArPhysAutoCorrDecoderTool.isSC = SuperCells
    theLArPhysAutoCorrDecoderTool.KeyAutoCorr="LArPhysAutoCorr"
-   ToolSvc += theLArPhysAutoCorrDecoderTool
 
 from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
 

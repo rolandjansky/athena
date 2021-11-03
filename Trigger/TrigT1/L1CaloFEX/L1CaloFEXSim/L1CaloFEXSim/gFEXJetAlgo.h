@@ -72,15 +72,15 @@ virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atw
     virtual void gBlockVetoAB(gTowersCentral twrs, gTowersCentral & blocks, int seed_threshold) ;
 
     virtual void jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedThreshold,
-                           std::array<int, 32> jetOutL, std::array<int, 32> etaIndL,
-                           std::array<int, 32> jetOutR, std::array<int, 32> etaIndR);
+                           std::array<int, 32> &jetOutL, std::array<int, 32> &etaIndL,
+                           std::array<int, 32> &jetOutR, std::array<int, 32> &etaIndR);
 
     virtual void gJetTOBgen(std::array<int, FEXAlgoSpaceDefs::ABCrows> jetOut,
                              std::array<int, FEXAlgoSpaceDefs::ABCrows> etaInd,
-                             int TOBnum, int jetThreshold, std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> gJetTOBs,
-                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> gJetTOBv,
-                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> gJetTOBeta,
-                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> gJetTOBphi );
+                             int TOBnum, int jetThreshold, std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBs,
+                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBv,
+                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBeta,
+                             std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBphi );
 
     SG::ReadHandleKey<LVL1::gTowerContainer> m_gFEXJetAlgo_gTowerContainerKey {this, "MyGTowers", "gTowerContainer", "Input container for gTowers"};
 

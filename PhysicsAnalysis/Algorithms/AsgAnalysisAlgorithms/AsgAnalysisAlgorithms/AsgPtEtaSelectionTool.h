@@ -10,6 +10,7 @@
 #define ASG_ANALYSIS_ALGORITHMS__ASG_PT_ETA_SELECTION_TOOL_H
 
 #include <AsgTools/AsgTool.h>
+#include <AthContainers/AuxElement.h>
 #include <PATCore/IAsgSelectionTool.h>
 #include <atomic>
 
@@ -77,6 +78,7 @@ namespace CP
     float m_etaGapLow {0};
     float m_etaGapHigh {0};
     bool m_useClusterEta {false};
+    bool m_useDressedProperties {false};
     bool m_printCastWarning {true};
     bool m_printClusterWarning {true};
 
@@ -94,6 +96,8 @@ namespace CP
     int m_egammaCastCutIndex{ -1 };
     /// Index for the e/gamma calo-cluster
     int m_egammaClusterCutIndex{ -1 };
+    /// Index for the existence of dressed properties
+    int m_dressedPropertiesIndex{ -1 };
 
     /// \brief a version of \ref m_printCastWarning that we modify
     /// once we printed the warning
@@ -124,6 +128,11 @@ namespace CP
     /// \brief the \ref asg::AcceptInfo we are using
   private:
     mutable asg::AcceptInfo m_accept;
+
+    /// \brief dressed pt and eta accessors
+  private:
+    std::unique_ptr<SG::AuxElement::ConstAccessor<float>> m_dressedPtAccessor{};
+    std::unique_ptr<SG::AuxElement::ConstAccessor<float>> m_dressedEtaAccessor{};
   };
 }
 

@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 
 from .MuonMenuSequences import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence
+from .TLAMuonSequence import TLAMuonMenuSequence
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFInvMassHypoToolFromDict
 
 
@@ -69,6 +70,9 @@ def muEFLateRoISequenceCfg(flags,is_probe_leg=False):
 def muEFLateSequenceCfg(flags,is_probe_leg=False):
     return efLateMuSequence()
 
+def TLAMuonMenuSequenceCfg(flags, is_probe_leg=False):
+    muonsIn = "HLT_Muons_RoI"
+    return TLAMuonMenuSequence(flags, muonsIn)
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -87,44 +91,53 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = self.getStepDictionary()
 
-        iso = ""
-        if self.chainPart['isoInfo']:
-            iso = 'iso'
         is_probe_leg = self.chainPart['extra']=="probe"
-        key = self.chainPart['extra']+iso if not is_probe_leg else iso
+        key = self.chainPart['extra'] if not is_probe_leg else ""
 
         steps=stepDictionary[key]
 
-        for step_level in steps:
-            for step in step_level:
+        for step in steps:
+            if step:
                 chainstep = getattr(self, step)(is_probe_leg=is_probe_leg)
                 chainSteps+=[chainstep]
+
+        if self.dict["eventBuildType"] == "PhysicsTLA" :
+            log.debug('Adding muon trigger step getTLAMu')
+            TLAStep = self.getTLAMu()
+            chainSteps+= [TLAStep]
     
         myChain = self.buildChain(chainSteps)
         return myChain
 
     def getStepDictionary(self):
 
-
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration
-        # each value is a list [ L2, EF ] where L2 = [list of L2 steps] and EF = [ EF steps]
-        # this way, Bphys (or others) can insert steps at the end of L2 and end of EF after
-        # the muon steps are defined
-        # note that bphys chains are by default noL2Comb, even though this is not in the name
         # --------------------
         doMSonly = 'msonly' in self.chainPart['msonlyInfo']
+        muCombStep = 'getmuComb'
+        efCBStep = 'getmuEFCB'
+        if self.chainPart['isoInfo']:
+            isoStep = 'getmuEFIso'
+            if doMSonly:
+                isoStep = 'getmuEFMSIso'
+                #need to align SA and isolation steps between
+                # ms-only and standard iso chains
+                muCombStep = 'getmuMSEmpty'
+                efCBStep = 'getEFCBEmpty'
+        else:
+            isoStep=None
+            if doMSonly:
+                #need to align final SA step between ms-only
+                #and standard chains
+                muCombStep = 'getmuMSEmpty'
+                efCBStep = None
 
         stepDictionary = {
-            "":[['getmuFast', 'getmuMSEmpty' if doMSonly else 'getmuComb'], ['getmuEFSA'] if doMSonly else ['getmuEFSA', 'getmuEFCB']],
-            "l2io":[['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB']],
-            "l2mt":[['getmuFastl2mt', 'getmuCombl2mt'], ['getmuEFSA', 'getmuEFCB']],
-            "noL2Comb" : [['getmuFast', 'getmuMSEmpty'], ['getmuEFSA', 'getmuEFCB']],
-            "noL1":[[],['getFSmuEFSA'] if doMSonly else ['getFSmuEFSA', 'getFSmuEFCB']],
-            "iso":[['getmuFast', 'getmuMSEmpty' if doMSonly else 'getmuComb'], ['getmuEFSA', 'getEFCBEmpty', 'getmuEFMSIso'] if doMSonly else ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
-            "lateMu":[[],['getLateMuRoI','getLateMu']],
-            "muoncalib":[['getmuFast']],
-            "l2lrt":[['getmuFast', 'getmuComb']],
+            "":['getmuFast', muCombStep, 'getmuEFSA',efCBStep, isoStep], #RoI-based triggers
+            "noL1":['getFSmuEFSA'] if doMSonly else ['getFSmuEFSA', 'getFSmuEFCB'], #full scan triggers
+            "lateMu":['getLateMuRoI','getLateMu'], #late muon triggers
+            "muoncalib":['getmuFast'], #calibration
 
         }
 
@@ -134,7 +147,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getmuFast(self,is_probe_leg=False):
         doOvlpRm = False
-        if any(x in self.chainName for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau', 'l2io']):
+        if self.chainPart['signature'] == 'Bphysics' or 'l2io' in self.chainPart['l2AlgInfo']:
            doOvlpRm = False
         elif self.mult>1:
            doOvlpRm = True
@@ -143,20 +156,19 @@ class MuonChainConfiguration(ChainConfigurationBase):
         else:
            doOvlpRm = False
 
-        if doOvlpRm:
+        if 'l2mt' in self.chainPart['l2AlgInfo']:
+            return self.getStep(1,"mufastl2mt", [mul2mtSAOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
+        elif doOvlpRm:
            return self.getStep(1,"mufast", [muFastOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
         else:
            return self.getStep(1,"mufast", [muFastSequenceCfg], is_probe_leg=is_probe_leg )
          
-    # --------------------
-    def getmuFastl2mt(self,is_probe_leg=False):
-        return self.getStep(1,"mufastl2mt", [mul2mtSAOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
          
     # --------------------
     def getmuComb(self,is_probe_leg=False):
 
         doOvlpRm = False
-        if any(x in self.chainName for x in ['bJpsi', 'bUpsi', 'bDimu', 'bBmu', 'bPhi', 'bTau']):
+        if self.chainPart['signature'] == 'Bphysics':
            doOvlpRm = False
         elif self.mult>1:
            doOvlpRm = True
@@ -165,8 +177,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
         else:
            doOvlpRm = False
 
-
-        if doOvlpRm:
+        if 'l2mt' in self.chainPart['l2AlgInfo']:
+            return self.getStep(2,"muCombl2mt", [mul2mtCBOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
+        elif 'l2io' in self.chainPart['l2AlgInfo']:
+            return self.getStep(2, 'muCombIO', [mul2IOOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
+        elif doOvlpRm:
            return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
         elif "LRT" in self.chainPart['addInfo']:
            return self.getStep(2, 'muCombLRT', [muCombLRTSequenceCfg], is_probe_leg=is_probe_leg )
@@ -176,10 +191,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getmuCombIO(self,is_probe_leg=False):
         return self.getStep(2, 'muCombIO', [mul2IOOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
-
-    # --------------------
-    def getmuCombl2mt(self,is_probe_leg=False):
-          return self.getStep(2,"muCombl2mt", [mul2mtCBOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
 
     # --------------------
     def getmuEFSA(self,is_probe_leg=False):
@@ -238,3 +249,9 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getLateMu(self,is_probe_leg=False): # No T&P support, add if needed
         return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])
 
+
+#--------------------
+    def getTLAMu(self,is_probe_leg=False): # No T&P support, add if needed
+        return self.getStep(5,'muonTLA',[TLAMuonMenuSequenceCfg])
+
+   

@@ -14,7 +14,7 @@ find_package( GeoModel COMPONENTS GeoModelKernel )
 atlas_add_library( MuonGeoModelLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonGeoModel
-                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel MuonCondInterface MuonReadoutGeometry MuonGMdbObjects StoreGateLib MuonIdHelpersLib MuonAGDDDescription AGDDKernel AmdcDbLib
+                   LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel GeoModelUtilities GaudiKernel MuonCondInterface MuonReadoutGeometry MuonGMdbObjects StoreGateLib MuonIdHelpersLib MuonAGDDDescription AGDDControl AGDDKernel AmdcDbLib CxxUtils
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities IdDictDetDescr MuonDetDescrUtils )
 
 atlas_add_component( MuonGeoModel

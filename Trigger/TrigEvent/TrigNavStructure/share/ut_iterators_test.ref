@@ -1,5 +1,3 @@
-ServiceManager      FATAL No Service factory for EventDataSvc available.
-getNSlots_once....  ERROR ServiceLocatorHelper::service: can not locate service EventDataSvc
 
 
 ApplicationMgr       INFO Application Manager Configured successfully

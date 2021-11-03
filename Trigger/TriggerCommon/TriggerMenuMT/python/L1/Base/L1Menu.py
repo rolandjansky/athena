@@ -8,6 +8,7 @@ from .Boards import MenuBoardsCollection
 from .Connectors import MenuConnectorsCollection
 from .MenuUtils import get_smk_psk_Name
 from .Limits import Limits
+from .L1MenuFlags import L1MenuFlags
 
 from collections import OrderedDict as odict
 from AthenaCommon.Logging import logging
@@ -46,8 +47,7 @@ class L1Menu(object):
 
     @staticmethod
     def partitioning():
-        from Lvl1Flags import Lvl1Flags
-        first = Lvl1Flags.MenuPartitioning()
+        first = L1MenuFlags.MenuPartitioning()
         last = first[1:] + [ Limits.MaxTrigItems ]
         partitioning = dict( zip([1,2,3],zip(first,last)) )
         return partitioning
@@ -125,6 +125,16 @@ class L1Menu(object):
         for thrName in sorted(extraThresholds.keys()):
             log.warning("Threshold %s (used by %s) should not be used!", thrName,",".join(extraThresholds[thrName]))
 
+    def checkPerfThresholds(self):
+        if 'MC' not in self.menuName:
+            from collections import defaultdict as dd
+            perfThresholds = dd(list)
+            for item in self.items:
+                for thrName in item.thresholdNames():
+                    if 'Perf' in thrName:
+                        perfThresholds[thrName].append(item.name)
+            for thrName in sorted(perfThresholds.keys()):
+                raise RuntimeError("Threshold %s (used by %s) should not be used!", thrName,",".join(perfThresholds[thrName]))
 
     def checkBoardInputs(self, algo, connDefName, fpgaName ):
         if 'MuCTPi' in connDefName or 'Legacy' in connDefName:
@@ -132,10 +142,10 @@ class L1Menu(object):
         boardName = connDefName+fpgaName
 
         allowedInputs = odict()
-        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'g', ] # TOPO1A, FPGA1
-        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'g', ] # TOPO1A, FPGA2
-        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j', 'g', ] # TOPO1B, FPGA1
-        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j', 'g', ] # TOPO1B, FPGA2
+        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',               ] # TOPO1A, FPGA1
+        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',               ] # TOPO1A, FPGA2
+        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', ] # TOPO1B, FPGA1
+        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', ] # TOPO1B, FPGA2
         allowedInputs['Topo2El0']  = ['MU',        'eTAU',         'j',      ] # TOPO2, FPGA1
         allowedInputs['Topo2El1']  = [      'eEM',                 'j',      ] # TOPO2, FPGA2
         allowedInputs['Topo3El0']  = [      'eEM', 'eTAU',         'j',      ] # TOPO3, FPGA1

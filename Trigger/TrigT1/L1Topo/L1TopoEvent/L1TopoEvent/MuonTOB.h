@@ -17,10 +17,7 @@ namespace TCS {
       // default constructor
       MuonTOB(uint32_t roiWord = 0, const std::string& tobName = "MuonTOB");
       
-      // constructor with individual values (int phi, legacy)
-      MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0, const std::string& tobName = "MuonTOB");
-
-      // constructor with individual values (unsigned int phi, phase-1)
+      // constructor with individual values
       MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord = 0, const std::string& tobName = "MuonTOB");
 
       // constructor with initial values
@@ -30,16 +27,15 @@ namespace TCS {
       virtual ~MuonTOB();
 
       // accessors
-      // phi type needs to be changed to unsigned int once legacy is removed
       unsigned int nBitsEt() const { return m_nBitsEt; }
       unsigned int nBitsIsolation() const { return m_nBitsIsolation; }
       unsigned int nBitsEta() const { return m_nBitsEta; }
       unsigned int nBitsPhi() const { return m_nBitsPhi; }
 
-      unsigned int Et() const { return m_Et; }                  // Et threshold in units of 100 MeV (phase-1) or 1 GeV (legacy)
+      unsigned int Et() const { return m_Et; }                  // Et threshold in units of 100 MeV
       unsigned int isolation() const { return m_isolation; }
-      int eta() const { return m_eta; }                         // Int eta for L1Topo, granularity = 0.025 (phase-1) or 0.1 (legacy)
-      int phi() const { return m_phi; }                         // Int phi for L1Topo, granularity = 0.05 (phase-1) or 0.1 (legacy)
+      int eta() const { return m_eta; }                         // Int eta for L1Topo, granularity = 0.025
+      unsigned int phi() const { return m_phi; }                // Int phi for L1Topo, granularity = 0.05
 
       int bw2or3() const { return m_bw2or3; }
       int innerCoin() const { return m_innerCoin; }
@@ -51,18 +47,20 @@ namespace TCS {
       double EtaDouble() const { return m_etaDouble; }         // Real muon eta
       double PhiDouble() const { return m_phiDouble; }         // Real muon phi
       
+      inline bool isTGC() const {return m_isTGC;} // Additonal flag that identifies muons from TGC
+
       // setters
-      // phi type needs to be changed to unsigned int once legacy is removed
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
       void setIsolation(unsigned int iso) { m_isolation = sizeCheck(iso, nBitsIsolation()); }
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
-      void setPhi(int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
+      void setPhi(unsigned int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
       void setBW2or3(int bw2or3) { m_bw2or3 = bw2or3; }
       void setInnerCoin(int innerCoin) { m_innerCoin = innerCoin; }
       void setGoodMF(int goodMF) { m_goodMF = goodMF; }
       void setCharge(int charge) { m_charge = charge; }
       void setIs2cand(int is2cand) { m_is2cand = is2cand; }
+      void setIsTGC(int isTGC) { m_isTGC = isTGC; }
 
       void setEtDouble(double et) { m_EtDouble = et; }
       void setEtaDouble(double eta) { m_etaDouble = eta; }
@@ -83,24 +81,22 @@ namespace TCS {
       virtual void print(std::ostream &o) const;
 
    private:
-      // phase-1: 13 bits for Et, 9 bits for eta, 7 bits for phi (default)
-      // legacy: 8 bits for Et, 6 bits for eta, 6 bits for phi
       unsigned int m_nBitsEt{13};
       unsigned int m_nBitsIsolation{5};
       unsigned int m_nBitsEta{9};
       unsigned int m_nBitsPhi{7};
 
-      // phi type needs to be changed to unsigned int once legacy is removed
       unsigned int m_Et{0};
       unsigned int m_isolation{0};
       int m_eta{0};
-      int m_phi{0};
+      unsigned int m_phi{0};
 
       int m_bw2or3{0};
       int m_innerCoin{0};
       int m_goodMF{0};
       int m_charge{0};
       int m_is2cand{0};
+      int m_isTGC{0};
 
       double m_EtDouble{0};
       double m_etaDouble{0};

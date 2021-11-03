@@ -624,7 +624,7 @@ Identifier TgcIdHelper::elementID(int stationName, int stationEta, int stationPh
     return result;
 }
 
-Identifier TgcIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+Identifier TgcIdHelper::elementID( std::string_view stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
     Identifier id;
     int stationName = stationNameIndex(stationNameStr);
     id = elementID(stationName, stationEta, stationPhi, check, isValid);
@@ -653,7 +653,7 @@ Identifier TgcIdHelper::channelID(int stationName, int stationEta, int stationPh
     return result;
 }
 
-Identifier TgcIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int gasGap, int isStrip, int channel,
+Identifier TgcIdHelper::channelID(std::string_view stationNameStr, int stationEta, int stationPhi, int gasGap, int isStrip, int channel,
                                   bool check, bool* isValid) const {
     Identifier id;
     int stationName = stationNameIndex(stationNameStr);

@@ -14,18 +14,18 @@
 #define MUONCALIB_MDTRTRELATIONCOLLECTION_H
 
 #include "AthContainers/DataVector.h"
-#include "MdtCalibData/MdtRtRelation.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "MdtCalibData/MdtRtRelation.h"
 
 /**
 This typedef representing:
-- a collection of MdtRtRelation objects. 
+- a collection of MdtRtRelation objects.
 It is a DataVector. It can be saved to storegate.
 */
 typedef DataVector<MuonCalib::MdtRtRelation> MdtRtRelationCollection;
-CLASS_DEF(MdtRtRelationCollection, 1270996316, 1 )
+CLASS_DEF(MdtRtRelationCollection, 1270996316, 1)
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( MdtRtRelationCollection, 1160701058 );
+CONDCONT_DEF(MdtRtRelationCollection, 1160701058);
 
 #endif

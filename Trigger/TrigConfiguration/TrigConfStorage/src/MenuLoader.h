@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_MenuLoader
@@ -26,7 +26,7 @@ namespace TrigConf {
        * @param sm reference to storage manager
        * @param session reference to the database session
        */
-      MenuLoader( StorageMgr& sm, coral::ISessionProxy& session) : 
+      MenuLoader( StorageMgr& sm, coral::ISessionProxy& session ) :
          IMenuLoader(), DBLoader("MenuLoader", sm, session) {}
 
       /**@brief destructor*/       
@@ -34,9 +34,9 @@ namespace TrigConf {
     
       virtual bool load( Menu& data);
     
-      void setUseTM2TT(bool); // not longer used
-    
+      virtual void setEnv(ENV env) { m_env = env;  }
    private:
+      ENV m_env{CTP};
 
       struct ThrInfo {
          int thrId;

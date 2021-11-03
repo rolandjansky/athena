@@ -17,6 +17,9 @@
 #include <functional>
 #include <iostream>
 
+namespace ITk
+{
+
 StripRDOAnalysis::StripRDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_inputKey("ITkStripRDOs")
@@ -687,8 +690,4 @@ StatusCode StripRDOAnalysis::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode StripRDOAnalysis::finalize() {
-
-  return StatusCode::SUCCESS;
-
-}
+} // namespace ITk

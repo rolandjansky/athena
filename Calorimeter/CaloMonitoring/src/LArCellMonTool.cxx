@@ -16,7 +16,6 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "AthenaMonitoring/DQBadLBFilterTool.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
@@ -153,6 +152,7 @@ StatusCode LArCellMonTool::initialize() {
 
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK(m_noiseKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   //JobO consistency check:
   if (m_useTriggerCaloMon && std::all_of(m_triggerNames.begin(),m_triggerNames.end(),[](const std::string& trigName){return trigName.empty();})) {
@@ -777,12 +777,15 @@ StatusCode LArCellMonTool::procHistograms() {
 
   ATH_MSG_DEBUG("procHistogram called newEB/newLB/newRun=" <<  newEventsBlockFlag() << "/" << newLumiBlockFlag() << "/" << newRunFlag());
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+
   //Loop over thresholds
   for (thresholdHist_t& thr : m_thresholdHists) {
     ATH_MSG_INFO("processHist for threshold '" << thr.m_threshName << "', nb of events passed Trigger and Background removal: " << thr.m_eventsPassed);
     if (thr.m_eventsPassed>0 && m_oncePerJobHistosDone) {
       //fill the 1D and 2D occupancy histograms based on the counter of cells above threshold
-      ATH_CHECK(fillOccupancyHist(thr));
+      ATH_CHECK(fillOccupancyHist(thr,*caloMgrHandle));
 
       for (size_t iLyr=0;iLyr<MAXLAYER;++iLyr) {
 
@@ -1268,7 +1271,8 @@ void LArCellMonTool::resetInternals() {
 }
 
 
-StatusCode LArCellMonTool::fillOccupancyHist(LArCellMonTool::thresholdHist_t& thr) {
+StatusCode LArCellMonTool::fillOccupancyHist(LArCellMonTool::thresholdHist_t& thr
+					     , const CaloDetDescrManager* detDescMgr) {
   
   for (size_t iLyr=0;iLyr<MAXLAYER;++iLyr) {
     if (thr.m_h_occupancy_etaphi[iLyr]) thr.m_h_occupancy_etaphi[iLyr]->Reset();
@@ -1276,10 +1280,6 @@ StatusCode LArCellMonTool::fillOccupancyHist(LArCellMonTool::thresholdHist_t& th
     if (thr.m_h_occupancy_phi[iLyr]) thr.m_h_occupancy_phi[iLyr]->Reset();
   }
 
-
-  const CaloDetDescrManager* detDescMgr;
-  ATH_CHECK(detStore()->retrieve(detDescMgr));
-  
   auto it=detDescMgr->element_begin();
   auto it_e=detDescMgr->element_end();
 

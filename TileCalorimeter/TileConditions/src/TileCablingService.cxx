@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileConditions/TileCablingService.h"
@@ -11,10 +11,24 @@
 
 // Singleton method
 
+// Ideally we should just create this fully initialized and not expose
+// a non-const accessor.  However, there's many pieces of code scattered
+// around that want to twiddle things here; getting rid of those would
+// entail a significant redesign.  For now, separate const and non-const
+// access, and tag the non-const access as not thread-safe.
+namespace {
+  TileCablingService cablingService ATLAS_THREAD_SAFE;
+}
+
 //------------------------------------------------------------
-TileCablingService * TileCablingService::getInstance()
+const TileCablingService * TileCablingService::getInstance()
 {
-    static TileCablingService cablingService ATLAS_THREAD_SAFE;
+    return &cablingService;
+}
+
+//------------------------------------------------------------
+TileCablingService * TileCablingService::getInstance_nc ATLAS_NOT_THREAD_SAFE()
+{
     return &cablingService;
 }
 

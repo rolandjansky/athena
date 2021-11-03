@@ -11,7 +11,7 @@
 
 //--------------------------------------------------------------
 typedef struct { // OFC weights
-  float w_a[9], w_b[9], w_c[9], g[9], dg[9];   // <--- only for one gain
+  float w_a[99], w_b[99], w_c[99], g[99], dg[99];   // <--- only for one gain
   int n_samples;
   bool of2;
 } TileOfcWeightsStruct;

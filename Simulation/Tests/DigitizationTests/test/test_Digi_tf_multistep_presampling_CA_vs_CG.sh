@@ -12,8 +12,12 @@ Events=100
 DigiOutFileNameCG="multistep_presampling.CG.RDO.pool.root"
 DigiOutFileNameCA="multistep_presampling.CA.RDO.pool.root"
 HSHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/mc16_13TeV.900149.PG_single_nu_Pt50.simul.HITS.e8307_s3482/HITS.24078104._234467.pool.root.1"
-HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.800831.Py8EG_minbias_inelastic_highjetphotonlepton.simul.HITS_FILT.e8341_s3687_s3704/*"
-LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.900311.Epos_minbias_inelastic_lowjetphoton.simul.HITS_FILT.e8341_s3687_s3704/*"
+HighPtMinbiasHitsFiles1="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.800831.Py8EG_minbias_inelastic_highjetphotonlepton.simul.HITS_FILT.e8341_s3687_s3704/HITS_FILT.26106512._000149.pool.root.1"
+HighPtMinbiasHitsFiles2="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.800831.Py8EG_minbias_inelastic_highjetphotonlepton.simul.HITS_FILT.e8341_s3687_s3704/HITS_FILT.26106512._000581.pool.root.1"
+HighPtMinbiasHitsFiles3="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.800831.Py8EG_minbias_inelastic_highjetphotonlepton.simul.HITS_FILT.e8341_s3687_s3704/HITS_FILT.26106512._000717.pool.root.1"
+LowPtMinbiasHitsFiles1="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.900311.Epos_minbias_inelastic_lowjetphoton.simul.HITS_FILT.e8341_s3687_s3704/HITS_FILT.26106626._000068.pool.root.1"
+LowPtMinbiasHitsFiles2="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.900311.Epos_minbias_inelastic_lowjetphoton.simul.HITS_FILT.e8341_s3687_s3704/HITS_FILT.26106626._000480.pool.root.1"
+LowPtMinbiasHitsFiles3="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.900311.Epos_minbias_inelastic_lowjetphoton.simul.HITS_FILT.e8341_s3687_s3704/HITS_FILT.26106626._000574.pool.root.1"
 
 
 # config only
@@ -26,8 +30,12 @@ Digi_tf.py \
 --digiSteeringConf "StandardSignalOnlyTruth" \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHITSFile ${HSHitsFile} \
---inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
---inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
+--inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles1} \
+--inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles2} \
+--inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles3} \
+--inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles1} \
+--inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles2} \
+--inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles3} \
 --jobNumber 568 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
@@ -51,8 +59,12 @@ Digi_tf.py \
 --digiSteeringConf "StandardSignalOnlyTruth" \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHITSFile ${HSHitsFile} \
---inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
---inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
+--inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles1} \
+--inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles2} \
+--inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles3} \
+--inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles1} \
+--inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles2} \
+--inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles3} \
 --jobNumber 568 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileNameCG} \
@@ -91,8 +103,12 @@ then
     --digiSteeringConf "StandardSignalOnlyTruth" \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
     --inputHITSFile ${HSHitsFile} \
-    --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
-    --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
+    --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles1} \
+    --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles2} \
+    --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles3} \
+    --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles1} \
+    --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles2} \
+    --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles3} \
     --jobNumber 568 \
     --maxEvents ${Events} \
     --outputRDOFile ${DigiOutFileNameCA} \

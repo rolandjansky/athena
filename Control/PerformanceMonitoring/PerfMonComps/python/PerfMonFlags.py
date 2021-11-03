@@ -129,24 +129,14 @@ class doMonitoringMT(JobProperty):
         if not hasattr(svcMgr, 'PerfMonMTSvc'):
             from PerfMonComps.MTJobOptCfg import PerfMonMTSvc
             svcMgr += PerfMonMTSvc("PerfMonMTSvc")
-        # Setup PerfMonAlg
-        from AthenaCommon.AlgSequence import AthSequencer
-        algSeq = AthSequencer("AthAlgSeq")
-        if not hasattr(algSeq, "PerfMonMTAlg"):
-            from PerfMonComps.PerfMonCompsConf import PerfMonMTAlg
-            algSeq += PerfMonMTAlg("PerfMonMTAlg")
         return
 
     def _undo_action(self):
         # Uninstall the service and the algorithm
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaCommon.AlgSequence import AthSequencer
-        algSeq = AthSequencer("AthAlgSeq")
 
         if hasattr(svcMgr, 'PerfMonMTSvc'):
             del svcMgr.PerfMonMTSvc
-        if hasattr(algSeq, 'PerfMonMTAlg'):
-            del algSeq.PerfMonMTAlg
         return
 #
 class doFastMonMT(JobProperty):

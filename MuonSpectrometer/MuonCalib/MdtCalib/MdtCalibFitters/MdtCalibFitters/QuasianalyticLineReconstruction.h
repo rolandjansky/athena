@@ -19,10 +19,6 @@
 /// reconstruction with the DCSLFitter can requested.
 /// The user can set a time-out for the track finding. It is set to 10 seconds
 /// by default.
-///
-/// \author Oliver.Kortner@CERN.CH
-///
-/// \date 01.03.2006, 16.07.2006, 13.12.2007
 
 #include <vector>
 
@@ -35,8 +31,10 @@
 
 namespace MuonCalib {
 
-    class ATLAS_NOT_THREAD_SAFE QuasianalyticLineReconstruction : public IMdtPatRecFitter {
+    class QuasianalyticLineReconstruction : public IMdtPatRecFitter {
     public:
+        using MdtHitPtr = MuonCalibSegment::MdtHitPtr;
+        using MdtHitVec = MuonCalibSegment::MdtHitVec;
         // Constructors //
         QuasianalyticLineReconstruction() { init(); }
         ///< Default constructor: road width for pattern recognition = 0.5 mm.

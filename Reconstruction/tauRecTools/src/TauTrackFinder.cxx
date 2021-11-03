@@ -32,8 +32,7 @@ StatusCode TauTrackFinder::initialize() {
   ATH_CHECK( m_trackToVertexIPEstimator.retrieve() );
 
   // initialize ReadHandleKey
-  // allow empty for trigger
-  ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_trackPartInputContainer.initialize() );
   // use CaloExtensionTool when key is empty 
   ATH_CHECK( m_ParticleCacheKey.initialize(SG::AllowEmpty) );
   // allow empty for LRT
@@ -57,32 +56,21 @@ StatusCode TauTrackFinder::initialize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackCon, const xAOD::TrackParticleContainer* trackContainer) const {
+StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackCon) const {
   
   std::vector<const xAOD::TrackParticle*> tauTracks;
   std::vector<const xAOD::TrackParticle*> wideTracks;
   std::vector<const xAOD::TrackParticle*> otherTracks;
 
-  //Retrieve standard tracking for offline
+  //Retrieve standard track container
   const xAOD::TrackParticleContainer* trackParticleCont = nullptr; 
   
-  if (! m_trackPartInputContainer.empty()) { // MT version of trigger or offline
-    SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
-    if (!trackPartInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackPartInHandle.key());
-      return StatusCode::FAILURE;
-    }
-    trackParticleCont = trackPartInHandle.cptr();
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
+  if (!trackPartInHandle.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackPartInHandle.key());
+    return StatusCode::FAILURE;
   }
-  else { // could be possible in trigger
-    if (trackContainer != nullptr) { 
-      trackParticleCont = trackContainer;
-    }
-    else {
-      ATH_MSG_WARNING("No track container found");
-      return StatusCode::FAILURE;
-    }
-  }
+  trackParticleCont = trackPartInHandle.cptr();
 
   //Retrieve LRT container
   const xAOD::TrackParticleContainer* largeD0TracksParticleCont = nullptr; 

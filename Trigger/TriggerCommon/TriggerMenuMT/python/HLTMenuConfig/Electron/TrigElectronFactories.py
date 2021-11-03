@@ -26,7 +26,7 @@ from egammaRec.Factories import AlgFactory, FcnWrapper
 """Configuring egammaRecBuilder """
 TrigEgammaRecElectron = AlgFactory( egammaAlgsConf.egammaRecBuilder,
                             name = 'TrigEgammaRecElectron',
-                            InputTopoClusterContainerName= "precisionCaloCluster",
+                            InputClusterContainerName= "precisionCaloCluster",
                             egammaRecContainer= TrigEgammaKeys.EgammaRecKey,
                             doConversions = False,
                             doAdd= False,
@@ -42,7 +42,8 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
                                               MVACalibSvc=egammaMVASvc,
                                               EtThresholdCut=1000,
                                               TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
-                                              doAdd= False
+                                              doAdd= False,
+                                              LinkToConstituents = False,
                                              )
 
 
@@ -51,9 +52,9 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
     
     mlog = logging.getLogger(__name__)
     mlog.info('Starting configuration')
-    TrigTopoEgammaElectron = AlgFactory( egammaAlgsConf.topoEgammaBuilder, name = name,
-            SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-            SuperPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
+    TrigTopoEgammaElectron = AlgFactory( egammaAlgsConf.xAODEgammaBuilder, name = name,
+            InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
+            InputPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
             ElectronOutputName = TrigEgammaKeys.outputElectronKey,
             PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
             AmbiguityTool = EGammaAmbiguityTool,

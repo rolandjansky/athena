@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ namespace InDet {
       /** AlgTool finalize method */
       StatusCode finalize();
       /** TrackingGeometry Interface methode */
-      std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry
+      std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry
       ATLAS_NOT_THREAD_SAFE(
         const EventContext& ctx,
         std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
@@ -139,7 +139,7 @@ namespace InDet {
       std::string                                    m_namespace;                //!< identificaton namespace 
       // ID container                                                            
       std::string                                    m_exitVolume;                //!< the final ID container             
-      bool                                           m_isSLHC;                   //!< changes volume boundary calculation for SLHC layouts      
+      bool                                           m_isITk;                   //!< changes volume boundary calculation for ITk layouts
   };
 
 } // end of namespace

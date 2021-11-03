@@ -136,11 +136,11 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigne
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
-      { "jet", {"JET", "jJ", "gJ"} },
+      { "jet", {"JET", "jJ", "jLJ", "gJ"} },
       { "xe", {"XE", "gXE", "jXE"} },
-      { "te", {"TE"} },
+      { "te", {"TE", "jTE", "gTE"} },
       { "xs", {"XS"} },
-      { "em", {"EM", "eEM"} },
+      { "em", {"EM", "eEM", "jEM"} },
       { "tau", {"TAU", "eTAU", "jTAU", "cTAU"} }
    };
    std::vector<TrigConf::L1Threshold> thrV;
@@ -159,11 +159,11 @@ LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
-      { "jet", {"JET", "jJ", "gJ"} },
+      { "jet", {"JET", "jJ", "jLJ", "gJ"} },
       { "xe", {"XE", "gXE", "jXE"} },
-      { "te", {"TE"} },
+      { "te", {"TE", "jTE", "gTE"} },
       { "xs", {"XS"} },
-      { "em", {"EM", "eEM"} },
+      { "em", {"EM", "eEM", "jEM"} },
       { "tau", {"TAU", "eTAU", "jTAU", "cTAU"} }
    };
 
@@ -738,54 +738,6 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::L1Threshold & 
             }
          }
       }
-   } else {
-      // Run-3 threshold
-      const SG::ReadHandleKey< xAOD::JetRoIContainer > * rhk { nullptr };
-      if( confThr.type() == ("gJ") ) {
-         rhk = & m_iKeyGFexJets;
-      } else if( confThr.name().find("jL") == 0 ) {
-         rhk = & m_iKeyJFexLJets;
-      } else if( confThr.name().find('j') == 0 ) {
-         rhk = & m_iKeyJFexJets;
-      } else {
-         ATH_MSG_ERROR( "Unexpected threshold name " << confThr.name() << ". Should start with j, jL, g, or J.");
-      }
-      if(rhk!=nullptr && !rhk->empty()) {
-         auto jets = SG::makeHandle( *rhk, context );
-         if ( jets.isValid() ) {
-            auto pt = confThr.getAttribute<unsigned int>("pt");
-            auto ranges = confThr.getList("ranges");
-            for ( const auto jet : *jets ) {
-               if( (unsigned int) (jet->et8x8()/1000.) < pt ) continue;
-               // calculate eta index from eta
-               float eta = jet->eta();
-               LVL1::Coordinate coord(/*phi=*/0, eta);
-               LVL1::CoordToHardware converter;
-               unsigned int jepCoord = converter.jepCoordinateWord(coord);
-               uint32_t roiword = jepCoord << 19;
-               auto coordRange = m_jetDecoder->coordinate(roiword);
-               int ieta =
-                  int((coordRange.eta() + ((coordRange.eta() > 0.01) ? 0.025 : -0.025)) / 0.1) - 1;
-               // Adjustment due to irregular geometries
-               if (ieta > 24)
-                  ieta += 2;
-               // copied from
-         // https://acode-browser.usatlas.bnl.gov/lxr/source/athena/Trigger/TrigT1/TrigT1CaloUtils/src/JetAlgorithm.cxx#0337
-         //int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
-         //int iphi = 0; // int((m_refPhi-0.005)*32/M_PI); iphi = 16*(iphi/16) + 8;
-               bool inRange = false;
-               for( auto r : ranges ) {
-                  if( ieta >= r.getAttribute<int>("etamin") &&
-                     ieta <= r.getAttribute<int>("etamax") ) {
-                     inRange = true; break;
-                  }
-               }
-               if( ! inRange )
-                  continue;
-               ++multiplicity;
-            }
-         }
-      }
    }
    get2DHist( "/multi/jet/" + confThr.type() + "Mult" )->Fill(confThr.mapping(), multiplicity);
    ATH_MSG_DEBUG("JET MULT calculated mult for threshold " << confThr.name() << " : " << multiplicity);
@@ -954,11 +906,15 @@ LVL1CTP::CTPSimulation::calculateTopoOptMultiplicity( const TrigConf::L1Threshol
   std::string subfolder = "";
   if (confThr.type().find("XE") != std::string::npos) {
     subfolder = "xe";
+  } else if (confThr.type().find("TE") != std::string::npos) {
+    subfolder = "te";
   } else if (confThr.type().find("TAU") != std::string::npos) {
     subfolder = "tau";
   } else if (confThr.type().find("EM") != std::string::npos) {
     subfolder = "em";
   } else if (confThr.type().find("jJ") != std::string::npos) {
+    subfolder = "jet";
+  } else if (confThr.type().find("jLJ") != std::string::npos) {
     subfolder = "jet";
   } else if (confThr.type().find("gJ") != std::string::npos) {
     subfolder = "jet";
@@ -1152,7 +1108,7 @@ LVL1CTP::CTPSimulation::finalize() {
    {
       // run 3 thresholds
       auto hist = * get2DHist( "/multi/all/R3Mult" );
-      std::vector<std::string> thrHists = { "em/eEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/gJ", "xe/gXE", "xe/jXE" };
+      std::vector<std::string> thrHists = { "em/eEM", "em/jEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/jLJ", "jet/gJ", "xe/gXE", "xe/jXE", "te/jTE", "te/gTE" };
       for(const std::string & histpath : thrHists) {
          auto h = * get2DHist( "/multi/" + histpath + "Mult" );
          auto xaxis = h->GetXaxis();

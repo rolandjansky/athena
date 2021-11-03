@@ -35,10 +35,14 @@ namespace MuonCalib {
 
     class TgcCalibHitBase {
     public:
-        TgcCalibHitBase();  //!< default constructor
+        TgcCalibHitBase() = default;                                       //!< default constructor
+        TgcCalibHitBase& operator=(const TgcCalibHitBase& rhs) = default;  //!< assignment operator
+        TgcCalibHitBase(const TgcCalibHitBase& event) = default;           //!< Copy constructor
+
+        ~TgcCalibHitBase() = default;  //!< destructor
+
         TgcCalibHitBase(int nStrips, double stripWidth, double error, const Amg::Vector3D& globalPos,
                         const Amg::Vector3D& localPos);  //!< constructor initializing most of its members
-        ~TgcCalibHitBase();                              //!< destructor
 
         void setIdentifier(const MuonFixedId& id);          //!< sets the identifier (MuonFixedId)
         void setNStrips(int nStrips);                       //!< sets the number of strips used to cluster the hit
@@ -59,42 +63,14 @@ namespace MuonCalib {
         std::ostream& dump(std::ostream& stream) const;  //!< dump to be used for operator<<() to dump the TgcCalibHitBase
 
     private:
-        MuonFixedId m_id;                //!< Identifier of the hit (a MuonFixedId, not an Identifier)
-        int m_nStrips;                   //!< number of strips used to cluster the hit
-        double m_stripWidth;             //!< strip width
-        double m_stripLength;            //!< strip length
-        double m_error;                  //!< error on the hit
-        Amg::Vector3D m_globalPosition;  //!< position of the hit expressed in global coordinates
-        Amg::Vector3D m_localPosition;   //!< position of the hit expressed in local (station) coordinates
+        MuonFixedId m_id{0};                         //!< Identifier of the hit (a MuonFixedId, not an Identifier)
+        int m_nStrips{0};                            //!< number of strips used to cluster the hit
+        double m_stripWidth{0.};                     //!< strip width
+        double m_stripLength{0.};                    //!< strip length
+        double m_error{0.};                          //!< error on the hit
+        Amg::Vector3D m_globalPosition{0., 0., 0.};  //!< position of the hit expressed in global coordinates
+        Amg::Vector3D m_localPosition{0., 0., 0.};   //!< position of the hit expressed in local (station) coordinates
     };
-
-    inline void TgcCalibHitBase::setIdentifier(const MuonFixedId& id) { m_id = id; }
-
-    inline void TgcCalibHitBase::setNStrips(int nStrips) { m_nStrips = nStrips; }
-
-    inline void TgcCalibHitBase::setError(double error) { m_error = error; }
-
-    inline void TgcCalibHitBase::setGlobalPos(const Amg::Vector3D& globalPos) { m_globalPosition = globalPos; }
-
-    inline void TgcCalibHitBase::setLocalPos(const Amg::Vector3D& localPos) { m_localPosition = localPos; }
-
-    inline void TgcCalibHitBase::setStripWidth(double stripWidth) { m_stripWidth = stripWidth; }
-
-    inline void TgcCalibHitBase::setStripLength(double stripLength) { m_stripLength = stripLength; }
-
-    inline const MuonFixedId& TgcCalibHitBase::identify() const { return m_id; }
-
-    inline const Amg::Vector3D& TgcCalibHitBase::globalPosition() const { return m_globalPosition; }
-
-    inline const Amg::Vector3D& TgcCalibHitBase::localPosition() const { return m_localPosition; }
-
-    inline double TgcCalibHitBase::stripWidth() const { return m_stripWidth; }
-
-    inline double TgcCalibHitBase::stripLength() const { return m_stripLength; }
-
-    inline int TgcCalibHitBase::nStrips() const { return m_nStrips; }
-
-    inline double TgcCalibHitBase::error() const { return m_error; }
 
 }  // namespace MuonCalib
 

@@ -6,6 +6,8 @@
 //#include "MuonJiveXML/MuidTrackRetriever.h"
 #include "MuonJiveXML/TrigRpcDataRetriever.h"
 #include "MuonJiveXML/TrigMuonROIRetriever.h"
+#include "MuonJiveXML/sTgcPrepDataRetriever.h"
+#include "MuonJiveXML/MMPrepDataRetriever.h"
 
 using namespace JiveXML;
 
@@ -17,4 +19,6 @@ DECLARE_COMPONENT( RpcPrepDataRetriever )
 //DECLARE_COMPONENT( MuidTrackRetriever )
 DECLARE_COMPONENT( TrigRpcDataRetriever )
 DECLARE_COMPONENT( TrigMuonROIRetriever )
+DECLARE_COMPONENT( sTgcPrepDataRetriever )
+DECLARE_COMPONENT( MMPrepDataRetriever )
 

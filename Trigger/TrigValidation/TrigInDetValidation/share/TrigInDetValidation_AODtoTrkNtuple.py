@@ -188,10 +188,9 @@ if ( True ) :
     "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
     "HLT_mu.*iv.*:HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
 
-    "HLT_mu24_LRT_idperf_L1MU20:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
-    "HLT_mu6_LRT_idperf_L1MU6:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
-    "HLT_mu6_LRT_idperf_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
-    "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon",
+    "HLT_mu.*_LRT_idperf_.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+    "HLT_mu.*_LRT_idperf_.*:HLT_IDTrack_MuonLRT_IDTrig:HLT_Roi_L2SAMuon_LRT",
+    "HLT_mu.*_LRT_idperf_.*:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
 
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_FTF",
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_IDTrig",
@@ -242,17 +241,17 @@ if ( True ) :
     # should work for a two stage tau ??
     # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
 
-    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_FTF",
-    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_IDTrig",
-    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_EFID",
+    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_FTF",
+    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_IDTrig",
+    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_EFID",
 
     #"HLT_mb.*:HLT_IDTrack_Cosmic_EFID",
     #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here
     "HLT_mb.*:HLT_IDTrack_MinBias_IDTrig",
     #"HLT_mb.*:HLT_IDTrack_MinBias_EFID"  #There are no tracks here
     
-    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_FTF",
-    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:HLT_IDTrack_Bmumux_IDTrig"
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_FTF",
+    "HLT_2mu4_bBmumux_BsmumuPhi_L12MU3V:HLT_IDTrack_Bmumux_IDTrig"
     
     ]
 

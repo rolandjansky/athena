@@ -17,6 +17,7 @@ namespace MuonGM {
     class CscComponent;
     class CscMultiLayer;
     class Cutout;
+    class MYSQL;
 
     class Csc : public DetectorElement {
 
@@ -32,12 +33,17 @@ namespace MuonGM {
 
         int index;
 
-        Csc(Component *s);
+        Csc(const MYSQL& mysql, Component *s);
         ~Csc();
         CscMultiLayer *layer;
-        GeoFullPhysVol *build(int minimalgeo);
-        GeoFullPhysVol *build(int minimalgeo, int cutoutson, std::vector<Cutout *>);
-        void print();
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql,
+                              int minimalgeo);
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql,
+                              int minimalgeo, int cutoutson,
+                              const std::vector<Cutout *>&);
+        virtual void print() override;
 
       private:
         CscComponent *m_component;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #example of personal topOptions
 #
@@ -39,7 +39,7 @@ else:
 # rec.doCalo=False
 # rec.doMuon=False
 #rec.doEgamma=False
-rec.doTrigger = False; recAlgs.doTrigger=False # disable trigger (maybe necessary if detectors switched of)
+rec.doTrigger = False # disable trigger (maybe necessary if detectors switched of)
 rec.doMuon=False
 rec.doMuonCombined=False
 #rec.doWriteAOD=False

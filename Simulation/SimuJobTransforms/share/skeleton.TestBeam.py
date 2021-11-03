@@ -6,7 +6,7 @@ atlasG4log = logging.getLogger('TestBeam')
 atlasG4log.info('****************** STARTING ATLASG4 Test Beam ******************')
 
 ## Include common skeleton
-include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 svcMgr.MessageSvc.defaultLimit = 1000000
 svcMgr.MessageSvc.Format = "% F%60W%S%7W%R%T %0W%M"
@@ -90,6 +90,9 @@ if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
+## Include common skeleton after the preExec/preInclude
+include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+
 include( "AthenaCommon/MemTraceInclude.py" )
 
 ## Select detectors
@@ -158,6 +161,8 @@ elif hasattr(runArgs,'jobNumber'):
         atlasG4log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         atlasG4log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
+else:
+    atlasG4log.info( 'Using run number: %s ', simFlags.RunNumber )
 
 if hasattr(runArgs, 'testBeamConfig') and 'tbtile' == runArgs.testBeamConfig:
     # avoid reading CaloTTMap from COOL

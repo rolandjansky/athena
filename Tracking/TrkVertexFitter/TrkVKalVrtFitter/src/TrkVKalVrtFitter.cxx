@@ -681,11 +681,11 @@ void TrkVKalVrtFitter::FillMatrixP(int iTrk, AmgSymMatrix(5)& CovMtx, std::vecto
     int pnt = (iTmp+1)*iTmp/2 + iTmp;   if( pnt   > NContent ) return;
     CovMtx(2,2) =  Matrix[pnt];
     pnt = (iTmp+1+1)*(iTmp+1)/2 + iTmp; if( pnt+1 > NContent ){ CovMtx.setIdentity();  return; }
-    CovMtx(2,3) =  Matrix[pnt];
+    CovMtx.fillSymmetric(2,3,Matrix[pnt]);
     CovMtx(3,3) =  Matrix[pnt+1];
     pnt = (iTmp+2+1)*(iTmp+2)/2 + iTmp; if( pnt+2 > NContent ){ CovMtx.setIdentity();  return; }
-    CovMtx(2,4) = Matrix[pnt];
-    CovMtx(3,4) = Matrix[pnt+1];
+    CovMtx.fillSymmetric(2,4,Matrix[pnt]);
+    CovMtx.fillSymmetric(3,4,Matrix[pnt+1]);
     CovMtx(4,4) = Matrix[pnt+2];
 }
 

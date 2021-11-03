@@ -19,23 +19,32 @@ if not Configurable.configurableRun3Behavior:
     ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
 
+from egammaRec.egammaRecFlags import jobproperties
+from egammaRec.Factories import ToolFactory, ServiceFactory
+from egammaMVACalib import egammaMVACalibConf
+from xAODEgamma.xAODEgammaParameters import xAOD
+
+
 log = logging.getLogger(__name__)
 
 class TrigEgammaKeys(object):
       """Static class to collect all string manipulation in Electron sequences """
       SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
-      outputElectronKey = recordable('HLT_egamma_Electrons')
       SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
+      outputElectronKey = recordable('HLT_egamma_Electrons')
+      outputTopoCollection = 'HLT_egammaTopoCluster'
       EgammaRecKey = 'HLT_egammaRecCollection'
+      PrecisionCaloEgammaRecKey = 'HLT_prcisionCaloEgammaRecCollection'
       IDTrigConfig = getInDetTrigConfig( 'electron' )
       outputPhotonKey = recordable('HLT_egamma_Photons')
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = recordable('HLT_TrigEMClusters')
       TrigElectronTracksCollectionName = IDTrigConfig.tracks_IDTrig()
       pidVersion = 'rel22_20210611'
-      dnnVersion = 'mc16_20210430'
+      dnnVersion = 'rel21_20210928'
       ringerVersion = 'TrigL2_20210702_r4'
-      
+      calibMVAVersion = '"egammaMVACalib/online/v6"'
+
 
 
 class TrigEgammaKeys_LRT(object):
@@ -58,7 +67,7 @@ class TrigEgammaKeys_GSF(object):
 def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
     # We should include the DNN here
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/offline/'+TrigEgammaKeys.dnnVersion
+      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.dnnVersion
   
     import collections
     SelectorNames = collections.OrderedDict({
@@ -338,3 +347,34 @@ def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
       SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors
+
+
+
+def createTrigEgammaMVASvc( ConfigFilePath=None ):
+
+    if not ConfigFilePath:
+      ConfigFilePath = jobproperties.egammaRecFlags.calibMVAVersion()
+
+    trigElectronMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigElectronMVATool",
+        ParticleType=xAOD.EgammaParameters.electron,
+        folder=ConfigFilePath )
+    trigUnconvPhotonMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigUnconvPhotonMVATool",
+        ParticleType=xAOD.EgammaParameters.unconvertedPhoton,
+        folder=ConfigFilePath )
+    trigConvertedPhotonMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigConvertePhotonMVATool",
+        ParticleType=xAOD.EgammaParameters.convertedPhoton,
+        folder=ConfigFilePath)
+    trigEgammaMVASvc = ServiceFactory(
+        egammaMVACalibConf.egammaMVASvc,
+        name = "TrigEgammaMVASvc",
+        ElectronTool=trigElectronMVATool,
+        ConvertedPhotonTool=trigConvertedPhotonMVATool,
+        UnconvertedPhotonTool=trigUnconvPhotonMVATool)
+    return trigEgammaMVASvc
+

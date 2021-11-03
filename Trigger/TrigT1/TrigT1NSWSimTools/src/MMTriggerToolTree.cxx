@@ -19,7 +19,7 @@ namespace NSWL1 {
 
     void MMTriggerTool::handle(const Incident& inc) {
       if( inc.type()==IncidentType::BeginEvent ) {
-        ATH_MSG_INFO( "Handling..." );
+        ATH_MSG_DEBUG( "Handling..." );
         this->clear_ntuple_variables();
       }
     }

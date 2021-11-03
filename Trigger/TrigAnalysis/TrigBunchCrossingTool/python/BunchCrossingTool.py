@@ -56,9 +56,7 @@ def BunchCrossingTool( type = "" ):
         return LHCBunchCrossingTool()
     if globalflags.DataSource() == "data":
         from RecExConfig.RecFlags import rec
-        from RecExConfig.RecAlgsFlags import recAlgs
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly() or recAlgs.doTrigger():
+        if rec.doTrigger():
             __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
             return TrigConfBunchCrossingTool()
         else:
@@ -76,10 +74,6 @@ def BunchCrossingTool( type = "" ):
 # constructor of a fully fledged python configurable. But in reality one really
 # just calls a function which returns a python configurable.
 #
-# To make configuration a bit more simple, the function assumes that it's called from
-# a RecExCommon environment, so it assumes that ServiceMgr.TrigConfigSvc has already
-# been instantiated. If it doesn't find the service, it will raise an exception.
-#
 # Note: As it turns out, the BunchGroup information in the trigger COOL folders is wrong
 # for some runs. So this should not be the default tool for accessing information about
 # data anymore.
@@ -87,9 +81,6 @@ def BunchCrossingTool( type = "" ):
 # @returns The default configuration of a public Trig::TrigConfBunchCrossingTool
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 784782 $
-# $Date: 2016-11-17 10:42:26 +0100 (Thu, 17 Nov 2016) $
 def TrigConfBunchCrossingTool():
 
     # The default name of the tool:
@@ -115,27 +106,11 @@ def TrigConfBunchCrossingTool():
     __logger.info( "Set the default values for the TrigConfBunchCrossingTool "
                    "configuration" )
 
-    # Check for a TrigConfigSvc:
+    # Check for xAODConfigSvc:
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    if not hasattr( svcMgr, "TrigConfigSvc" ):
-        __logger.info( "Job has no TrigConfigSvc, falling back to xAODConfigSvc")
+    if not hasattr( svcMgr, "xAODConfigSvc" ):
         from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
-        from AthenaCommon.AppMgr import ServiceMgr
-        cfgsvc = TrigConf__xAODConfigSvc('xAODConfigSvc')
-        ServiceMgr += cfgsvc
-        __tool.ConfigSvc = cfgsvc
-    else: 
-        # We do have a TrigConfigSvc. Now make sure that DSConfigSvc has access to the BG COOL folders:
-        from IOVDbSvc.CondDB import conddb
-        __dbConnection = "TRIGGER"
-        __folders = [ "LVL1/BunchGroupKey", "LVL1/BunchGroupDescription",
-                      "LVL1/BunchGroupContent" ]
-        for f in __folders:
-            if not conddb.folderRequested( "/TRIGGER/%s" % f ):
-                __logger.info( "Adding folder to IOVDbSvc: /TRIGGER/%s", f ) 
-                conddb.addFolderWithTag( __dbConnection, "/TRIGGER/%s" % f, "HEAD" )
-                pass
-            pass
+        svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
 
     # Add the tool to ToolSvc and return it to the user:
     ToolSvc += __tool

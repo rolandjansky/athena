@@ -349,9 +349,18 @@ bool Trig::ChainGroup::isCorrelatedL1items(const std::string& item) const {
 float Trig::ChainGroup::correlatedL1Prescale(const std::string& item) const {
   if( (item == "L1_MU20,L1_MU21") || (item == "L1_MU21,L1_MU20") ) {
     //see discussion in ATR-16612
-    auto l1mu20   = cgm(true)->config_item("L1_MU20");
-    float l1mu20ps = cgm(true)->item_prescale(l1mu20->ctpId()); 
-    auto l1mu21   = cgm(true)->config_item("L1_MU21");
+    auto l1mu20 = cgm(true)->config_item("L1_MU20");
+    if (l1mu20==nullptr) {
+      ATH_MSG_WARNING("Configuration for the item L1_MU20 not known");
+      return std::numeric_limits<float>::quiet_NaN();
+    }
+    float l1mu20ps = cgm(true)->item_prescale(l1mu20->ctpId());
+ 
+    auto l1mu21 = cgm(true)->config_item("L1_MU21");
+    if (l1mu21==nullptr) {
+      ATH_MSG_WARNING("Configuration for the item L1_MU21 not known");
+      return std::numeric_limits<float>::quiet_NaN();
+    }
     float l1mu21ps = cgm(true)->item_prescale(l1mu21->ctpId()); 
     
     if( (l1mu20ps  < 1.0) && (l1mu21ps < 1.0) ) return 0.0;
@@ -370,7 +379,7 @@ float Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*condi
     const  TrigConf::TriggerItem* fitem=cgm(true)->config_item(item);
     if (fitem==0) {
       ATH_MSG_WARNING("Configuration for the item: " << item << " not known");
-      return std::numeric_limits<int>::quiet_NaN();
+      return std::numeric_limits<float>::quiet_NaN();
     }
     // now we can;t access the prescale value because this information doe not come togehther as in HLT
     // we need to go to the cache of L1 items and get it from there  

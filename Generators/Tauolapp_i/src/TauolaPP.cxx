@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Tauolapp_i/TauolaPP.h"
@@ -69,6 +69,7 @@ TauolaPP::TauolaPP(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("spin_correlation",m_spin_correlation=true);
   declareProperty("setRadiation",m_setRadiation=true);
   declareProperty("setRadiationCutOff",m_setRadiationCutOff=0.01); 
+
 }
 
 
@@ -148,7 +149,7 @@ StatusCode TauolaPP::execute() {
     ATH_MSG_ERROR ("Could not retrieve McEventCollection");
     return StatusCode::FAILURE;
   }
-	 
+
   HepRandomEngine* engine = atRndmGenSvc()->GetEngine(tauolapp_stream());
   const long*   sip     =       engine->getSeeds();
   long  int     si1     =       sip[0];
@@ -168,16 +169,36 @@ StatusCode TauolaPP::execute() {
   // Loop over all events in McEventCollection
   McEventCollection::iterator itr;
   for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
-
     // Convert event record to format readable by tauola interface
     TauolaHepMCEvent * t_event = new TauolaHepMCEvent(*itr);
 
-    // t_event->getEvent()->print();
+#ifdef HEPMC3
+//move to GeV
+    for (auto p: t_event->getEvent()->particles()) {
+        p->set_momentum(p->momentum()*1.0/1000);
+        p->set_generated_mass(1.0/1000* p->generated_mass());}
+    // remove tau decays first
+      t_event->undecayTaus();
+    // decay taus
+      t_event->decayTaus();
+// move back to MeV
+    for (auto p: t_event->getEvent()->particles()) {
+        p->set_momentum(p->momentum()*1000);
+        p->set_generated_mass(1000* p->generated_mass());}
+
+// for event listing uncomment the line below
+//    HepMC3::Print::listing(std::cout, *(t_event->getEvent()));
+
+#else
 
     // remove tau decays first
-    t_event->undecayTaus();
+      t_event->undecayTaus();
     // decay taus
-    t_event->decayTaus();
+      t_event->decayTaus();
+    // t_event->getEvent()->print();
+#endif
+
   }
+
   return StatusCode::SUCCESS;
 }

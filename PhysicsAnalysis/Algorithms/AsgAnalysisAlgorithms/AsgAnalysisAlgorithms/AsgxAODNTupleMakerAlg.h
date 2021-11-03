@@ -14,6 +14,7 @@
 
 // Framework include(s):
 #include "AsgMessaging/AsgMessaging.h"
+#include "AsgServices/ServiceHandle.h"
 #include "AnaAlgorithm/AnaAlgorithm.h"
 #include "SystematicsHandles/SysListHandle.h"
 
@@ -356,8 +357,8 @@ namespace CP {
       ///
       bool m_isInitialized = false;
 
-      /// The systematic list to consider during execution
-      SysListHandle m_systematicsList{ this };
+      /// \brief the handle for the systematics service
+      ServiceHandle<ISystematicsSvc> m_systematicsService {"SystematicsSvc", ""};
 
       /// @}
 

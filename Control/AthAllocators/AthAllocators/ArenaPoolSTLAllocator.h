@@ -54,6 +54,7 @@
 
 
 #include "AthAllocators/ArenaPoolAllocator.h"
+#include "CxxUtils/concepts.h"
 #include "CxxUtils/checker_macros.h"
 #include <string>
 #include <type_traits>
@@ -212,7 +213,9 @@ public:
 
   /// Convert a reference to an address.
   pointer address (reference x) const;
-  const_pointer address (const_reference x) const;
+  ATH_MEMBER_REQUIRES(!(std::is_same_v<reference,const_reference>),
+                      const_pointer)
+  address (const_reference x) const { return &x; }
 
 
   /**
@@ -243,9 +246,10 @@ public:
   /**
    * @brief Call the @c T constructor.
    * @param p Location of the memory.
-   * @param val Parameter to pass to the constructor.
+   * @param args Arguments to pass to the constructor.
    */
-  void construct (pointer p, const T& val);
+  template <class... Args>
+  void construct (pointer p, Args&&... args);
 
 
   /**

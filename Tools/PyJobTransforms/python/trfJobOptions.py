@@ -120,12 +120,21 @@ class JobOptionsTemplate(object):
                 # Now deal with our input and output files
                 print(os.linesep, "# Input data", file=runargsFile)
                 for dataType, dataArg in input.items():
-                    print('{0}.input{1}File = {2!r}'.format(self._runArgsName, dataType, dataArg.value), file=runargsFile)
-                    print('{0}.input{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArg.type), file=runargsFile)
-                    # Add the input event count, if we know it
-                    if dataArg.isCached(metadataKeys = ['nentries']):
-                        print('{0}.input{1}FileNentries = {2!r}'.format(self._runArgsName, dataType, dataArg.nentries), file=runargsFile)
-                    print("{0}.{1}FileIO = {2!r}".format(self._runArgsName, dataType, self._exe.conf.dataDictionary[dataType].io), file=runargsFile) 
+                    if isinstance(dataArg, list) and dataArg:
+                        dataArgStep = dataArg[self._exe.conf.executorStep]
+                        print('{0}.input{1}File = {2!r}'.format(self._runArgsName, dataType, dataArgStep.value), file=runargsFile)
+                        print('{0}.input{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArgStep.type), file=runargsFile)
+                        # Add the input event count, if we know it
+                        if dataArgStep.isCached(metadataKeys = ['nentries']):
+                            print('{0}.input{1}FileNentries = {2!r}'.format(self._runArgsName, dataType, dataArgStep.nentries), file=runargsFile)
+                        print("{0}.{1}FileIO = {2!r}".format(self._runArgsName, dataType, dataArgStep.io), file=runargsFile)
+                    else:
+                        print('{0}.input{1}File = {2!r}'.format(self._runArgsName, dataType, dataArg.value), file=runargsFile)
+                        print('{0}.input{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArg.type), file=runargsFile)
+                        # Add the input event count, if we know it
+                        if dataArg.isCached(metadataKeys = ['nentries']):
+                            print('{0}.input{1}FileNentries = {2!r}'.format(self._runArgsName, dataType, dataArg.nentries), file=runargsFile)
+                        print("{0}.{1}FileIO = {2!r}".format(self._runArgsName, dataType, dataArg.io), file=runargsFile)
                 
                 print(os.linesep, "# Output data", file=runargsFile)
                 for dataType, dataArg in output.items():

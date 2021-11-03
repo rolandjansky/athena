@@ -15,7 +15,6 @@
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloID.h"
-#include "LArIdentifier/LArIdManager.h"
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCell_P.h"
 #include "CaloTriggerTool/LArTTCellMap.h"

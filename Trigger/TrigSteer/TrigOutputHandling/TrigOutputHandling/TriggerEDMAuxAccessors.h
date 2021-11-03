@@ -124,7 +124,9 @@ auto floatAccessors = initAccessors<float>(
   "disTrkCand_refit_chi2sum_br_ibl","disTrkCand_refit_chi2sum_br_pix1","disTrkCand_refit_chi2sum_br_pix2","disTrkCand_refit_chi2sum_br_pix3",
   "disTrkCand_refit_chi2sum_br_sct1","disTrkCand_refit_chi2sum_br_sct2","disTrkCand_refit_chi2sum_br_sct3","disTrkCand_refit_chi2sum_br_sct4",
   "disTrkCand_refit_ndofsum_br_ibl","disTrkCand_refit_ndofsum_br_pix1","disTrkCand_refit_ndofsum_br_pix2","disTrkCand_refit_ndofsum_br_pix3",
-  "disTrkCand_refit_ndofsum_br_sct1","disTrkCand_refit_ndofsum_br_sct2","disTrkCand_refit_ndofsum_br_sct3","disTrkCand_refit_ndofsum_br_sct4");
+  "disTrkCand_refit_ndofsum_br_sct1","disTrkCand_refit_ndofsum_br_sct2","disTrkCand_refit_ndofsum_br_sct3","disTrkCand_refit_ndofsum_br_sct4",
+  "ptcone20", "ptvarcone20", "etcone20", "topoetcone20"
+  );
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");
 
@@ -160,6 +162,6 @@ auto velmuAccessors = initAccessors<std::vector<ElementLink<xAOD::MuonContainer>
 
 auto velvtxAccessors = initAccessors<std::vector<ElementLink<xAOD::VertexContainer>>>("SV1_vertices");
 
-auto velipAccessors = initAccessors<std::vector<ElementLink<xAOD::IParticleContainer>>>("GhostTrack");
+auto velipAccessors = initAccessors<std::vector<ElementLink<xAOD::IParticleContainer>>>("GhostTrack", "HLT_HIClusters_DR8Assoc");
 
 } // namespace TriggerEDMAuxAccessors

@@ -1,10 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 from AthenaCommon.SystemOfUnits import TeV
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.AutoConfigFlags import GetFileMD, getInitialTimeStampsFromRunNumbers, getRunToTimestampDict
+from AthenaConfiguration.AutoConfigFlags import GetFileMD, getInitialTimeStampsFromRunNumbers, getRunToTimestampDict, getSpecialConfigurationMetadata
 from AthenaConfiguration.Enums import ProductionStep
 from PyUtils.moduleExists import moduleExists
 
@@ -45,6 +43,7 @@ def _createCfgFlags():
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
     acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
     acf.addFlag('Input.ProcessingTags', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("processingTags","") ) # list of names of streams written to this file
+    acf.addFlag('Input.SpecialConfiguration', lambda prevFlags : getSpecialConfigurationMetadata(prevFlags.Input.Files))  # special Configuration options read from input file metadata
 
     def _inputCollections(inputFile):
         if not inputFile:
@@ -117,7 +116,6 @@ def _createCfgFlags():
     acf.addFlag('Output.doWriteRDO', lambda prevFlags: bool(prevFlags.Output.RDOFileName)) # write out RDO file
     acf.addFlag('Output.doWriteRDO_SGNL', lambda prevFlags: bool(prevFlags.Output.RDO_SGNLFileName)) # write out RDO_SGNL file
     acf.addFlag('Output.doWriteESD', lambda prevFlags: bool(prevFlags.Output.ESDFileName)) # write out ESD file
-    acf.addFlag('Output.doESD',      lambda prevFlags: prevFlags.Output.doWriteESD) # produce ESD containers
     acf.addFlag('Output.doWriteAOD', lambda prevFlags: bool(prevFlags.Output.AODFileName)) # write out AOD file
     acf.addFlag('Output.doWriteBS',  False) # write out RDO ByteStream file
 
@@ -156,6 +154,12 @@ def _createCfgFlags():
         from AthenaConfiguration.GeoModelConfigFlags import createGeoModelConfigFlags
         return createGeoModelConfigFlags()
     acf.addFlagsCategory( "GeoModel", __geomodel )
+
+#Reco Flags:
+    def __reco():
+        from RecJobTransforms.RecoConfigFlags import createRecoConfigFlags
+        return createRecoConfigFlags()
+    _addFlagsCategory(acf, "Reco", __reco, 'RecJobTransforms')
 
 #IOVDbSvc Flags:
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-2017-05")
@@ -256,8 +260,6 @@ def _createCfgFlags():
 
 
 ConfigFlags=_createCfgFlags()
-
-del _createCfgFlags
 
 if __name__=="__main__":
     import sys

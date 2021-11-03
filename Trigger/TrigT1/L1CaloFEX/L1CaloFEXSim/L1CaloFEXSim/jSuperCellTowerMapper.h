@@ -34,8 +34,9 @@ class jSuperCellTowerMapper: public AthAlgTool, virtual public IjSuperCellTowerM
   /** standard Athena-Algorithm method */
   virtual StatusCode initialize() override;
   
-  virtual StatusCode AssignSuperCellsToTowers(/*jTowerContainer**/std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw) override;
-  virtual StatusCode AssignTriggerTowerMapper(/*jTowerContainer**/std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw) override;
+  virtual StatusCode AssignSuperCellsToTowers(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw) override;
+  virtual StatusCode AssignTriggerTowerMapper(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw) override;
+  virtual StatusCode AssignPileupAndNoiseValues (std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,TH1F *jTowerArea_hist, TH1I *Firmware2BitwiseID,TH1I *BinLayer,TH1F *EtaCoords,TH1F *PhiCoords) override;
   
   virtual void reset() override;
 
@@ -48,6 +49,7 @@ class jSuperCellTowerMapper: public AthAlgTool, virtual public IjSuperCellTowerM
   virtual void ConnectSuperCellToTower(/*jTowerContainer**/std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw, int iETower, Identifier ID, int iCell, float et, int layer, bool doenergysplit) override;
   virtual int FindTowerIDForSuperCell(int towereta, int towerphi) override;
   virtual void PrintCellSpec(const CaloSampling::CaloSample sample, int layer, const int region, const int eta_index, const int phi_index, const int pos_neg, int iETower, int iCell, int prov, Identifier ID, bool doenergysplit,float eta_min, float eta_max, float eta0, float phi_min, float phi_max, float phi0,bool cellValid=true) override;
+  
 
 };
 

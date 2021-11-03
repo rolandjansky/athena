@@ -41,3 +41,22 @@ def BeamspotSplitMC21a():
     event_fractions = [0.3, 0.3, 0.4]
 
     return substeps, event_fractions
+
+
+def MC21Simulation(flags):
+    """MC21 flags for simulation"""
+    flags.Sim.PhysicsList = 'FTFP_BERT_ATL'
+    flags.Sim.TruthStrategy = 'MC15aPlus'
+
+    flags.Input.RunNumber = [330000]
+    flags.Input.OverrideRunNumber = True
+    flags.Input.LumiBlockNumber = [1] # dummy value
+
+    flags.Digitization.TRTRangeCut = 30.0
+    flags.Sim.TightMuonStepping = True
+
+    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill, enableFrozenShowersFCalOnly
+    enableBeamPipeKill(flags)
+    enableFrozenShowersFCalOnly(flags)
+    from SimuJobTransforms.G4Optimizations import enableG4Optimizations
+    enableG4Optimizations(flags)

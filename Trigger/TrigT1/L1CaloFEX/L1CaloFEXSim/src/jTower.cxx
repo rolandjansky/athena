@@ -168,29 +168,6 @@ void jTower::setSCID(Identifier ID, int cell, float et, int layer, bool doenergy
 
 }
 
-/** Apply noise cut per layer **/
-bool jTower::noiseCut(int et, int layer) const //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
-{
-
-    bool pass=true;
-    if(layer==0) {
-        if(et<m_noisecutPS) {
-            pass = false;    //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
-        }
-    }
-    else if (layer==1) {
-        if(et<m_noisecutL1) {
-            pass = false;    //PROBABLY NOT TRUSTWORTHY - NEED TO UPDATE FOR JFEX
-        }
-    }
-    else {
-        pass = false;
-    }
-
-    return pass;
-
-}
-
 /** Return global eta index.
     Should be derived from tower ID, should be corrected in the future.
     Need to also think what index range should be (thinking ahead to Run2) */
@@ -326,6 +303,42 @@ std::vector<Identifier> jTower::getLayerSCIDs(unsigned int layer) const {
 
 }
 
+void jTower::setCentreEta(float ieta){
+    m_centre_eta = ieta;
+}
+
+void jTower::setCentrePhi(float iphi){
+    m_centre_phi_toPI = iphi;
+    m_centre_phi = iphi;
+    if(m_centre_phi<0) m_centre_phi = 2*M_PI+iphi;    
+
+}
+
+void jTower::setTTowerArea(float area,int layer){
+    m_TTowerArea.at(layer)=area;
+}
+
+float jTower::getTTowerArea(int layer)const{
+    return m_TTowerArea.at(layer);
+}
+
+void jTower::setNoiseForMet(int noiseVal,int layer){
+    m_NoiseForMet[layer]=noiseVal;
+}
+
+
+int jTower::getNoiseForMet(int layer) const{
+    return m_NoiseForMet[layer];
+}
+
+void jTower::setNoiseForJet(int noiseVal,int layer){
+    m_NoiseForJet[layer]=noiseVal;
+}
+
+
+int jTower::getNoiseForJet(int layer) const{
+    return m_NoiseForJet[layer];
+}
 
 } // end of namespace bracket
 

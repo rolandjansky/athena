@@ -328,7 +328,7 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  
 	  //take the closest one in case it satisfies some default cuts
 	  InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
-	  for (; driftCircleIterator != container->end(); driftCircleIterator++) {
+	  for (; driftCircleIterator != container->end(); ++driftCircleIterator) {
 
 	    //get the associated surface of the driftcircle
 	    const Trk::Surface &dc_surface=(*driftCircleIterator)->detectorElement()->surface((*driftCircleIterator)->identify());

@@ -63,7 +63,7 @@ LVL1::eFEXtauTOB *LVL1::eFEXtauAlgo::getTauTOB()
   unsigned int et = getEt();
   tob->setEt(et);
   tob->setBitwiseEt(getBitwiseEt());
-  tob->setIso(getIso());
+  tob->setIso(getRealIso());
   tob->setSeedUnD(getUnD());
   return tob;
 }
@@ -75,23 +75,22 @@ void LVL1::eFEXtauAlgo::buildLayers()
   SG::ReadHandle<eTowerContainer> jk_eFEXtauAlgo_eTowerContainer(m_eFEXtauAlgo_eTowerContainerKey/*,ctx*/);
 
   for(unsigned int ieta = 0; ieta < 3; ieta++)
+  {
+    for(unsigned int iphi = 0; iphi < 3; iphi++)
     {
-      for(unsigned int iphi = 0; iphi < 3; iphi++)
-        {
 	  const LVL1::eTower * tmpTower = jk_eFEXtauAlgo_eTowerContainer->findTower(m_eFexalgoTowerID[iphi][ieta]);
 	  m_twrcells[ieta][iphi] = tmpTower->getTotalET();
 	  m_em0cells[ieta][iphi] = tmpTower->getLayerTotalET(0);
 	  m_em3cells[ieta][iphi] = tmpTower->getLayerTotalET(3);
 	  m_hadcells[ieta][iphi] = tmpTower->getLayerTotalET(4);
 	  for(unsigned int i = 0; i < 4; i++)
-            {
-	      m_em1cells[4 * ieta + i][iphi] = tmpTower->getET(1, i);
-	      m_em2cells[4 * ieta + i][iphi] = tmpTower->getET(2, i);
-            }
-        }
+      {  
+	    m_em1cells[4 * ieta + i][iphi] = tmpTower->getET(1, i);
+	    m_em2cells[4 * ieta + i][iphi] = tmpTower->getET(2, i);
+      }
     }
+  }
   m_cellsSet = true;
-
 }
 
 // Check if central tower qualifies as a seed tower for the tau algorithm
@@ -107,11 +106,6 @@ bool LVL1::eFEXtauAlgo::isCentralTowerSeed()
   // Get central tower ET
   unsigned int centralET = m_twrcells[1][1];
   
-  // Enforce minimum of 1 GeV in central tower
-  if (centralET < 1000.){
-    out = false;
-  }
-  
   // Loop over all cells and check that the central tower is a local maximum
   for (unsigned int beta = 0; beta < 3; beta++)
   {
@@ -124,11 +118,12 @@ bool LVL1::eFEXtauAlgo::isCentralTowerSeed()
       
       // Cells to the up and right must have strictly lesser ET
       if (((beta == 0) && (bphi == 0)) || ((beta == 1) && (bphi == 0)) || ((beta == 2) && (bphi == 0)) || ((beta == 2) && (bphi == 1)))
-	{
-	  if (centralET <= m_twrcells[beta][bphi]){
-	    out = false;
-	  }
-	}
+      {
+        if (centralET <= m_twrcells[beta][bphi])
+        {
+          out = false;
+        }
+      }
     }
   }
   
@@ -190,8 +185,43 @@ unsigned int LVL1::eFEXtauAlgo::getEt()
   return out;
 }
 
-// Calculate isolation variable
-float LVL1::eFEXtauAlgo::getIso()
+void LVL1::eFEXtauAlgo::getRCore(std::vector<unsigned int> & rCoreVec)
+{
+  if (m_cellsSet == false){
+    ATH_MSG_DEBUG("Layers not built, cannot calculate isolation.");
+  }
+
+  unsigned int core = 0;  
+
+  core += m_em2cells[m_seed][1];
+  core += m_em2cells[m_seed + 1][1];
+  core += m_em2cells[m_seed - 1][1];
+  core += m_em2cells[m_seed][m_offPhi];
+  core += m_em2cells[m_seed + 1][m_offPhi];
+  core += m_em2cells[m_seed - 1][m_offPhi];
+
+  unsigned int env = 0;
+
+  env += m_em2cells[m_seed + 2][1];
+  env += m_em2cells[m_seed - 2][1];
+  env += m_em2cells[m_seed + 3][1];
+  env += m_em2cells[m_seed - 3][1];
+  env += m_em2cells[m_seed + 4][1];
+  env += m_em2cells[m_seed - 4][1];
+  env += m_em2cells[m_seed + 2][m_offPhi];
+  env += m_em2cells[m_seed - 2][m_offPhi];
+  env += m_em2cells[m_seed + 3][m_offPhi];
+  env += m_em2cells[m_seed - 3][m_offPhi];
+  env += m_em2cells[m_seed + 4][m_offPhi];
+  env += m_em2cells[m_seed - 4][m_offPhi];
+
+  rCoreVec.push_back(core);
+  rCoreVec.push_back(env);
+
+}
+
+// Calculate float isolation variable
+float LVL1::eFEXtauAlgo::getRealIso()
 {
   if (m_cellsSet == false){
     ATH_MSG_DEBUG("Layers not built, cannot accurately calculate isolation.");
@@ -221,7 +251,7 @@ float LVL1::eFEXtauAlgo::getIso()
   isoOuter += m_em2cells[m_seed + 4][m_offPhi];
   isoOuter += m_em2cells[m_seed - 4][m_offPhi];
 
-  float out = isoOuter ? (float)isoInner / (float)isoOuter : (float)isoInner;
+  float out = isoOuter ? (float)isoInner / (float)isoOuter : 0;
 
   return out;
 }
@@ -279,3 +309,7 @@ bool LVL1::eFEXtauAlgo::getUnD()
     return m_und;
 }
 
+unsigned int LVL1::eFEXtauAlgo::getSeed()
+{
+    return m_seed;
+}

@@ -19,7 +19,6 @@
  * CaloCluster in the CaloClusterContainer are considered in the map.
  * */
 
-class CaloDetDescrManager; 
 class CaloCell_ID;
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"

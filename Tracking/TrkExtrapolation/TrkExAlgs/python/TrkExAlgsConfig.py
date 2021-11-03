@@ -69,7 +69,8 @@ if __name__=="__main__":
 
     cfg=MainServicesCfg(ConfigFlags)
 
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg     
+    # TODO: we should properly declare dpendencies
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     cfg.merge(InDetGeometryCfg(ConfigFlags))
     
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg

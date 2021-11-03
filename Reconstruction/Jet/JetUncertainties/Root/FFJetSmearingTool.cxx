@@ -188,7 +188,32 @@ CP::SystematicSet FFJetSmearingTool::affectingSystematics() const
 //-----------------------------------------------------------------------------
 CP::SystematicSet FFJetSmearingTool::recommendedSystematics() const
 {
-    return m_SysList;
+    
+  CP::SystematicSet filteredSysts;
+  if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){//take only Calo-like syst
+    for (auto ci = m_SysList.begin(); ci != m_SysList.end(); ci++) {
+      if ((*ci).basename().find("CALO_")!=std::string::npos)
+	filteredSysts.insert(*ci);
+    }
+    return filteredSysts;    
+  }
+  if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){//take only TA-like syst 
+    for (auto ci = m_SysList.begin(); ci != m_SysList.end(); ci++) {
+      if ((*ci).basename().find("TA_") !=std::string::npos)
+	filteredSysts.insert(*ci);
+    }
+    return filteredSysts;    
+  }
+  if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb){//take only TA-like syst 
+    for (auto ci = m_SysList.begin(); ci != m_SysList.end(); ci++) {
+      if ((*ci).basename().find("COMB_")!=std::string::npos){
+	filteredSysts.insert(*ci);
+      }
+    }
+    return filteredSysts;    
+  }
+  
+  return m_SysList;
 }
 
 //-----------------------------------------------------------------------------
@@ -202,10 +227,8 @@ StatusCode FFJetSmearingTool::applySystematicVariation
     // Look for it in our sysData map.
     auto iter = m_sysData.find (systematics);
 
-
     // If this is a new input set, we need to filter it.
     if(iter == m_sysData.end()){
-
         // Filter the input systematics with my affecting systematics.
         const CP::SystematicSet affectingSysts = affectingSystematics();
         CP::SystematicSet filteredSysts;
@@ -226,8 +249,6 @@ StatusCode FFJetSmearingTool::applySystematicVariation
                     filteredSysts.name());
             return StatusCode::FAILURE;
         }
-
-
 
         // Insert the new systematic data onto our map
         SysData myData;
@@ -262,18 +283,18 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
 
 
-
-    TString CaloResponseMap_path = settings.GetValue("CaloResponseMap","");
-
-    if(CaloResponseMap_path.IsNull())
-    {
-        ATH_MSG_ERROR("Cannot find the CaloResponseMap in the config file");
-        return StatusCode::FAILURE;
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
+      TString CaloResponseMap_path = settings.GetValue("CaloResponseMap","");
+      
+      if(CaloResponseMap_path.IsNull())
+	{
+	  ATH_MSG_ERROR("Cannot find the CaloResponseMap in the config file");
+	  return StatusCode::FAILURE;
+	}
+      
+      m_CALO_ResponseMap  = std::unique_ptr<TH2>(dynamic_cast<TH2*>(data_file->Get( CaloResponseMap_path )));
+      m_CALO_ResponseMap->SetDirectory(0);
     }
-
-    m_CALO_ResponseMap  = std::make_unique<TH2D>(*dynamic_cast<TH2D*>(data_file->Get( CaloResponseMap_path )));
-    m_CALO_ResponseMap->SetDirectory(0);
-
 
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
         TString TAResponseMap_path = settings.GetValue("TAResponseMap","");
@@ -284,7 +305,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             return StatusCode::FAILURE;
         }
 
-        m_TA_ResponseMap  = std::make_unique<TH2D>(*dynamic_cast<TH2D*>(data_file->Get( TAResponseMap_path )));
+        m_TA_ResponseMap  = std::unique_ptr<TH2>(dynamic_cast<TH2*>(data_file->Get( TAResponseMap_path )));
         m_TA_ResponseMap->SetDirectory(0);//To keep it open when we close the .root file
     }
 
@@ -300,16 +321,20 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         if( !Syst_Name.empty()){
             m_SysList.insert( CP::SystematicVariation(Syst_Name, 1) );
             m_SysList.insert( CP::SystematicVariation(Syst_Name, -1) );
-
-            m_Syst_HistPath_map[Syst_Name] = settings.GetValue(prefix+"Hist","");
             m_Syst_MassDefAffected_map[Syst_Name] = settings.GetValue(prefix+"MassDef","");
             m_Syst_TopologyAffected_map[Syst_Name] = settings.GetValue(prefix+"Topology","");
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMS";
-
-            m_Syst_Hist_map[Syst_Name] = std::make_unique<TH2D>(*dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str())));
+            m_Syst_HistPath_map[Syst_Name] = settings.GetValue(prefix+"Hist","");
+            m_Syst_Hist_map[Syst_Name] = std::unique_ptr<TH2>(dynamic_cast<TH2*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str())));
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
-
-        }
+	    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb){//for comb mass we need to read two histograms
+	      m_Syst_HistTAPath_map[Syst_Name] = settings.GetValue(prefix+"HistTA","");
+	      if(m_Syst_HistTAPath_map[Syst_Name]!=""){
+	      m_Syst_HistTA_map[Syst_Name] = std::unique_ptr<TH2>(dynamic_cast<TH2*>(data_file->Get(m_Syst_HistTAPath_map[Syst_Name].c_str())));
+	      m_Syst_HistTA_map[Syst_Name]->SetDirectory(0);
+	      }
+	    }
+	}
     }
     //JMR Systematics
     for (size_t iComp = 0; iComp < 999; ++iComp)
@@ -318,20 +343,23 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
         std::string Syst_Name = settings.GetValue(prefix+"Name","");
 
-
         if( !Syst_Name.empty()){
             m_SysList.insert( CP::SystematicVariation(Syst_Name, 1) );
             m_SysList.insert( CP::SystematicVariation(Syst_Name, -1) );
-
-            m_Syst_HistPath_map[Syst_Name] = settings.GetValue(prefix+"Hist","");
             m_Syst_MassDefAffected_map[Syst_Name] = settings.GetValue(prefix+"MassDef","");
             m_Syst_TopologyAffected_map[Syst_Name] = settings.GetValue(prefix+"Topology","");
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMR";
-
-            m_Syst_Hist_map[Syst_Name] = std::make_unique<TH2D>(*dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str())));
+            m_Syst_HistPath_map[Syst_Name] = settings.GetValue(prefix+"Hist","");
+            m_Syst_Hist_map[Syst_Name] = std::unique_ptr<TH2>(dynamic_cast<TH2*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str())));
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
-
-        }
+	    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb){//for comb mass we need to read two histograms
+	      m_Syst_HistTAPath_map[Syst_Name] = settings.GetValue(prefix+"HistTA","");
+	      if(m_Syst_HistTAPath_map[Syst_Name]!=""){
+		m_Syst_HistTA_map[Syst_Name] = std::unique_ptr<TH2>(dynamic_cast<TH2*>(data_file->Get(m_Syst_HistTAPath_map[Syst_Name].c_str())));
+		m_Syst_HistTA_map[Syst_Name]->SetDirectory(0);
+	      }
+	    }      
+	}
     }
 
     data_file->Close();
@@ -374,8 +402,8 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         return StatusCode::FAILURE;
     }
 
-    m_caloMassWeight = std::make_unique<TH3F>(*dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(Calo_weight_hist_name)));
-    m_TAMassWeight = std::make_unique<TH3F>(*dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(TA_weight_hist_name)));
+    m_caloMassWeight = std::unique_ptr<TH3F>(dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(Calo_weight_hist_name)));
+    m_TAMassWeight = std::unique_ptr<TH3F>(dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(TA_weight_hist_name)));
 
     m_caloMassWeight->SetDirectory(0);
     m_TAMassWeight->SetDirectory(0);//To keep it open when we close the .root file
@@ -479,19 +507,21 @@ LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(acc
 //-----------------------------------------------------------------------------
 // The function "getJMSJMR" read the JMS and JMR uncertainties associated with the systematic 
 //-----------------------------------------------------------------------------
-
 StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet& jet_reco, double jet_mass_value, JetTools::FFJetAllowedMassDefEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err) const{
 
     //JMS/JMR systematic variations
     JMS_err=0;
     JMR_err=0;
 
-    if(m_Syst_MassDefAffected_map.at(m_currentSysData->SysBaseName) ==  JetTools::enumToString(MassDef_of_syst)){
-        ATH_MSG_VERBOSE("This uncertainty affects to the " << JetTools::enumToString(MassDef_of_syst) << " mass");
+    //Some variables to simplify the logic in the "if" structure found below
+    auto calo = JetTools::FFJetAllowedMassDefEnum::Calo;
+    auto ta = JetTools::FFJetAllowedMassDefEnum::TA;
+    auto massAffectedSys = m_Syst_MassDefAffected_map.at(m_currentSysData->SysBaseName);
+
+    if(m_Syst_MassDefAffected_map.at(m_currentSysData->SysBaseName) ==  JetTools::enumToString(MassDef_of_syst) || massAffectedSys ==  JetTools::enumToString(JetTools::FFJetAllowedMassDefEnum::Comb) ){
+      ATH_MSG_VERBOSE("This uncertainty affects to the " << JetTools::enumToString(MassDef_of_syst) << " mass");
     } //Only apply the systematic to the proper mass definition
     else{return StatusCode::SUCCESS;}
-
-
 
     if(m_Syst_TopologyAffected_map.at(m_currentSysData->SysBaseName) != "All" && m_Syst_TopologyAffected_map.at(m_currentSysData->SysBaseName) != jetTopology){
         ATH_MSG_VERBOSE("The systematic do not affects to this jet topology");
@@ -502,24 +532,44 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet& jet_reco, double jet_mass_va
     float jet_mass = jet_mass_value*m_MeVtoGeV;//jet_reco->m()*m_MeVtoGeV; The TA mass can not be extracted this way
     float jet_pT = jet_reco.pt()*m_MeVtoGeV;
 
-
     if(m_Syst_Affects_JMSorJMR.at(m_currentSysData->SysBaseName) == "JMS"){
-
-        JMS_err=m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetBinContent(m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetYaxis()->FindBin(jet_mass)) * m_currentSysData->SysParameter;
-
         JMR_err= 0;
+
+        const TH2* hist = nullptr; //This variable will contain the pointer to the proper histogram to use in the interpolation
+
+        if(m_Syst_MassDefAffected_map.at(m_currentSysData->SysBaseName)== JetTools::enumToString(calo) || massAffectedSys== JetTools::enumToString(ta) ){//TA and Calo mass defs take values from one hisogram only
+
+            hist = m_Syst_Hist_map.at(m_currentSysData->SysBaseName).get();
+        }
+        else if(m_Syst_MassDefAffected_map.at(m_currentSysData->SysBaseName)==JetTools::enumToString(JetTools::FFJetAllowedMassDefEnum::Comb) ){//Comb mass defs can take values from two histograms, depending ifits Calo- or TA- part is affected
+            if(MassDef_of_syst==calo)
+                hist = m_Syst_Hist_map.at(m_currentSysData->SysBaseName).get();
+            else if(MassDef_of_syst==ta)
+                hist = m_Syst_HistTA_map.at(m_currentSysData->SysBaseName).get();
+        }
+        JMS_err = FFJetSmearingTool::Interpolate2D(hist, jet_pT, jet_mass) * m_currentSysData->SysParameter;
     }
 
-    if(m_Syst_Affects_JMSorJMR.at(m_currentSysData->SysBaseName) == "JMR"){
+    else if(m_Syst_Affects_JMSorJMR.at(m_currentSysData->SysBaseName) == "JMR"){           
+	JMS_err=0;
 
-        JMS_err=0;
-        JMR_err= m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetBinContent(m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map.at(m_currentSysData->SysBaseName)->GetYaxis()->FindBin(jet_mass)) * m_currentSysData->SysParameter;
+        const TH2* hist = nullptr;
+
+	if(m_Syst_MassDefAffected_map.at(m_currentSysData->SysBaseName)== JetTools::enumToString(calo) || massAffectedSys== JetTools::enumToString(ta) ){//TA and Calo mass defs take values from one hisogram only
+
+            hist = m_Syst_Hist_map.at(m_currentSysData->SysBaseName).get();
+        }
+
+        else if(m_Syst_MassDefAffected_map.at(m_currentSysData->SysBaseName)==JetTools::enumToString(JetTools::FFJetAllowedMassDefEnum::Comb) ){//Comb mass defs can take values from two histograms, depending ifits Calo- or TA- part is affected
+	    if(MassDef_of_syst==calo)
+                hist = m_Syst_Hist_map.at(m_currentSysData->SysBaseName).get();
+	    else if(MassDef_of_syst==ta)
+                hist = m_Syst_HistTA_map.at(m_currentSysData->SysBaseName).get();
+        }
+        JMR_err = FFJetSmearingTool::Interpolate2D(hist, jet_pT, jet_mass) * m_currentSysData->SysParameter; 
     }
 
-
-
-
-
+    
     ATH_MSG_DEBUG("Systematic applied: " << m_currentSysData->SysBaseName);
 
     ATH_MSG_VERBOSE("JMS_err: " << JMS_err);
@@ -599,7 +649,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
 
         jet_mass_CALO = jet_reco_CALO.mass();
         jet_mass_TA = jet_reco_TA.mass();
-
         jet_reco.getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
     }
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
@@ -608,6 +657,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
     }
     else if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
         jet_mass_TA = jet_reco.m();
+	jet_reco.getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
         calo_mass_weight = 0;
     }
 
@@ -621,23 +671,14 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
 
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
 
-        if(m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()*m_MeVtoGeV),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()*m_MeVtoGeV)) == 0){//If we look outside the Th2 histogram, we would obtain a 0 so we apply the nominal response (1)
-        avg_response_CALO=1;
-        }
-        else{
-            avg_response_CALO = m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()*m_MeVtoGeV),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()*m_MeVtoGeV));
-        }
+        avg_response_CALO = FFJetSmearingTool::Interpolate2D(m_CALO_ResponseMap.get(), jet_reco.pt()*m_MeVtoGeV, jet_truth_matched.m()*m_MeVtoGeV);
+        if(avg_response_CALO==0) avg_response_CALO=1;//If we look outside the Th2 histogram, we would obtain a 0 so we apply the nominal response (1)
     }
 
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
 
-        if(m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()*m_MeVtoGeV),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()*m_MeVtoGeV))==0){
-
-            avg_response_TA=1;
-        }
-        else{           
-            avg_response_TA = m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco.pt()*m_MeVtoGeV),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()*m_MeVtoGeV));
-        }
+        avg_response_TA = FFJetSmearingTool::Interpolate2D(m_TA_ResponseMap.get(), jet_reco.pt()*m_MeVtoGeV, jet_truth_matched.m()*m_MeVtoGeV);
+        if(avg_response_TA==0) avg_response_TA = 1;
     }
 
 
@@ -657,7 +698,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
 
         if(!(getJMSJMR( jet_reco, jet_mass_CALO, JetTools::FFJetAllowedMassDefEnum::Calo,jetTopology, JMS_err, JMR_err)).isSuccess()){
             return CP::CorrectionCode::Ok;
-        }	
+        }
 
         scale = JMS + JMS_err;
         resolution = JMR + JMR_err;
@@ -703,7 +744,6 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
 
 
     //Recalculate the weights after the smearing
-
     if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb && JetTrackAssistedMassCalibrated_from_JetCalibTools != 0 && jet_mass_CALO != 0){
                                         //we check that JetTrackAssistedMassCalibrated_from_JetCalibTools != 0 instead of jet_mass_TA != 0 becuase
                                         //there is a problem in the conversion between the mass itself and the four-vector representation (due to a
@@ -733,7 +773,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
 
         TARes=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight.get() ,jet_reco_TA.e()*m_MeVtoGeV,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),std::abs(jet_reco_TA.eta()));
 
-        //The histograms with the weights that we are reading was deffined with the code "e_LOGmOe_eta" what means that each axis correspond to:
+        //The histograms with the weights that we are reading were defined with the code "e_LOGmOe_eta" which means that each axis correspond to:
         //-X: Jet Energy
         //-Y: Log(Jet_Energy/Jet_mass)
         //-Z:Eta
@@ -750,13 +790,12 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
             TAFactor   = 1./(TARes*TARes);
         }
 
-
         calo_mass_weight = caloFactor /(caloFactor + TAFactor);
 
         ATH_MSG_VERBOSE(" Map Calo weight = " << calo_mass_weight  );
         ATH_MSG_VERBOSE(" Map TA weight = " << 1 - calo_mass_weight  );
     }
-    else if( JetTrackAssistedMassCalibrated_from_JetCalibTools == 0){calo_mass_weight = 1;}
+    else if(JetTrackAssistedMassCalibrated_from_JetCalibTools == 0){calo_mass_weight = 1;}
     else if(jet_mass_CALO == 0){calo_mass_weight = 0;}
 
     double smeared_mass = calo_mass_weight*smeared_CALO_mass + (1 - calo_mass_weight)*smeared_TA_mass;
@@ -766,15 +805,11 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet& jet_reco) cons
 
     xAOD::JetFourMom_t p4 = jet_reco.jetP4();
 
-
     p4 = xAOD::JetFourMom_t(jet_reco.pt(),jet_reco.eta(),jet_reco.phi(),smeared_mass);
     jet_reco.setJetP4(p4);
 
 
-    ATH_MSG_VERBOSE("Smeared Reco Jet: pt = " << jet_reco.pt() << ", mass = " << jet_reco.m() << ", eta = " << jet_reco.eta());
-	
-
-
+    ATH_MSG_VERBOSE("Smeared Reco Jet: pt = " << jet_reco.pt() << ", mass = " << jet_reco.m() << ", eta = " << jet_reco.eta());	
 
     ATH_MSG_VERBOSE("//---------------------------------------------------------------//");
 
@@ -850,5 +885,19 @@ double FFJetSmearingTool::Read3DHistogram(const TH3* histo, double x, double y, 
 
   return weight;
 }
+
+double FFJetSmearingTool::Interpolate2D(const TH2* histo, double x, double y) const //The function in JetHelpers can not be used because it needs a TH1 and we use TH2 histograms. We define our own function.
+{
+    Int_t bin_x = histo->GetXaxis()->FindFixBin(x);
+    Int_t bin_y = histo->GetYaxis()->FindFixBin(y);
+    if(bin_x<1 || bin_x>histo->GetNbinsX() || bin_y<1 || bin_y>histo->GetNbinsY()) {
+       ATH_MSG_VERBOSE("The point is outside the histogram domain.");
+       return 0;
+    }
+    
+    double interpolated_value = JetHelpers::Interpolate(histo, x, y);
+    return interpolated_value;
+}
+
 
 } // namespace CP

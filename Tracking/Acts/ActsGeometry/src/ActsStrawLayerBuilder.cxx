@@ -120,7 +120,7 @@ ActsStrawLayerBuilder::centralLayers(const Acts::GeometryContext& gctx)
                                                     istraw);
 
             auto elem = std::make_shared<const ActsDetectorElement>(
-                trf, brlElem, straw_id);
+                trf, *brlElem, straw_id);
 
             m_cfg.elementStore->push_back(elem);
 
@@ -221,7 +221,7 @@ ActsStrawLayerBuilder::endcapLayers(const Acts::GeometryContext& gctx, int side)
 
 
           auto elem = std::make_shared<const ActsDetectorElement>(
-              trf, ecElem, straw_id);
+              trf, *ecElem, straw_id);
 
           m_cfg.elementStore->push_back(elem);
 

@@ -37,7 +37,7 @@ StatusCode LArRawSCDataReadingAlg::initialize() {
   m_doLATOMEHeader = !m_latomeHeaderCollKey.empty();
   ATH_CHECK(m_latomeHeaderCollKey.initialize(m_doLATOMEHeader));  
 
-  ATH_CHECK(m_eventInfoKey.initialize() );
+  ATH_CHECK(m_mapKey.initialize() );
 
   ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));  
@@ -91,12 +91,23 @@ StatusCode LArRawSCDataReadingAlg::execute(const EventContext& ctx) const {
 	latome_header_coll->reserve(1000);
   }
 
+  // Get the mapping
+  SG::ReadCondHandle<LArLATOMEMapping> mapHdl(m_mapKey, ctx);
+  const LArLATOMEMapping *map=*mapHdl;
+  if(!map) {
+     ATH_MSG_ERROR("Do not have LATOME mapping with the key " << m_mapKey.key());
+     return StatusCode::FAILURE;
+  }
+
   //Get the raw event
   const RawEvent* rawEvent = m_robDataProviderSvc->getEvent(ctx);
 
   // Call the converter
-  StatusCode sc = m_latomeDecoder->convert(rawEvent, adc_coll, adc_bas_coll, et_coll, et_id_coll, latome_header_coll);
-  if (sc != StatusCode::SUCCESS) std::cout << "ERROR LATOMEDecoder tool returned an error. LAr SC containers might be garbage" << std::endl;
+  StatusCode sc = m_latomeDecoder->convert(rawEvent, map,
+                                           adc_coll, adc_bas_coll, et_coll, et_id_coll, 
+                                           latome_header_coll);
+  if (sc != StatusCode::SUCCESS) 
+     ATH_MSG_WARNING("ERROR LATOMEDecoder tool returned an error. LAr SC containers might be garbage");
 
   return StatusCode::SUCCESS;
 }

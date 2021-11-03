@@ -5,10 +5,10 @@
 /**
 @page MdtCalibUtils_page MdtCalibUtils Package
 @author Niels.Van.Eldik@cern.ch
-                                                                                
+
 @section MdtCalibUtils_MdtCalibUtilsIntro Introduction
 This package contains the utilities used for Mdt calibration.
-                                                                                
+
 @section MdtCalibUtils_MdtCalibUtilsOverview Class Overview
 The MdtCalibUtils package contains the following classes and structures:
 
@@ -21,7 +21,8 @@ The MdtCalibUtils package contains the following classes and structures:
 - MuonCalib::SimplePatternSelector: Basic Pattern selector
 - MuonCalib::SingleTubeConstants: Holds the tube constants: t0, inverse propagation speed, an adc correction factor and a status flag
 - MuonCalib::TubeDataFromFile: Manage the I/O of MuonCalib::MdtTubeConstants objects
-- MuonCalib::UpdateCalibHit: Provides the operator to update drift radius and error of a given MuonCalib::MdtCalibHit using the pointer to the MuonCalib::IRtRelation passed to the constructor
-                                                                                
-                                                                                
+- MuonCalib::UpdateCalibHit: Provides the operator to update drift radius and error of a given MuonCalib::MdtCalibHit using the pointer to
+the MuonCalib::IRtRelation passed to the constructor
+
+
 */
