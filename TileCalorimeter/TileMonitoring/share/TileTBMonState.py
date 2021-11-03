@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from __future__ import print_function
@@ -150,8 +150,6 @@ if 'KeyValue' not in dir() or True:
 
 ByteStreamEmonInputSvc.KeyValue = KeyValue
 
-ByteStreamEmonInputSvc.Dispersion = True
-
 # ##############################
 # one of 'Ignore', 'Or', 'And'
 # ##############################
@@ -251,6 +249,11 @@ PublishInclude = '.*LBA01.*|.*LBC01.*|.*LBA02.*|.*LBC02.*|.*EBC03.*|.*BeamElemen
 if 'PublishInclude' in dir():
     ByteStreamEmonInputSvc.Include = PublishInclude
 
+
+if 'GroupName' in dir():
+    ByteStreamEmonInputSvc.GroupName = GroupName
+else:
+    ByteStreamEmonInputSvc.GroupName = "TileTBMon"
 
 ByteStreamCnvSvc = Service( 'ByteStreamCnvSvc' )
 theApp.ExtSvc += [ 'ByteStreamCnvSvc']
