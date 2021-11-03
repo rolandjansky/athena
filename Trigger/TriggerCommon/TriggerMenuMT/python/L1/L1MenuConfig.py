@@ -678,7 +678,8 @@ class L1MenuConfig(object):
 
         # check that only the minimal set of legacy and detector thresholds is used
         self.l1menu.checkLegacyThresholds()   
-
+        # check that performance thresholds are not used in the physics L1 menu
+        self.l1menu.checkPerfThresholds()
 
 
     def mapThresholds(self):
