@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -13,6 +13,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/PileUpEventInfo.h"
+#include <utility>
 
 PileUpEventInfo::PileUpEventInfo() :
   EventInfo()
@@ -148,5 +149,6 @@ PileUpEventInfo::SubEvent::SubEvent(time_type t, unsigned int BCID,
 
 unsigned int
 PileUpEventInfo::SubEvent::BCID() const {
-  return(0 == pSubEvt ? 0 :  pSubEvt->event_ID()->bunch_crossing_id());
+  // Be sure to call const methods to avoid checker warnings.
+  return(0 == pSubEvt ? 0 :  std::as_const(*pSubEvt).event_ID()->bunch_crossing_id());
 }
