@@ -57,18 +57,17 @@ public:
     std::pair<IdentifierHash, Identifier> getHash(Identifier ident) const;
 
 private:
-    std::unique_ptr<MDT_Hid2RESrcID> m_hid2re;
+    std::unique_ptr<MDT_Hid2RESrcID> m_hid2re{};
     SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-
     /** TMP special ROB number for sector13 runs*/
-    int m_specialROBNumber;
+    int m_specialROBNumber{-1};
 
-    bool m_BMEpresent;
-    bool m_BMGpresent;
-    int m_BMEid;
-    int m_BMGid;
+    bool m_BMEpresent{false};
+    bool m_BMGpresent{false};
+    int m_BMEid{-1};
+    int m_BMGid{-1};
 
     // variables to count how often the caching kicks in
     // Mutable as this is just to count calls of const function
