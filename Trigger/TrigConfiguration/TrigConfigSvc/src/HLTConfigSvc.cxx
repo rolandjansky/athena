@@ -3,6 +3,7 @@
 */
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfIO/JsonFileLoader.h"
@@ -26,27 +27,15 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
     TrigConf::TrigDBMenuLoader dbloader(m_dbConnection);
     dbloader.setLevel(TrigConf::MSGTC::WARNING);
 
-    if (dbloader.loadHLTMenu(m_smk, *hltmenu)) {
-      ATH_MSG_INFO("Loaded HLT menu from DB " << m_dbConnection << " for SMK " << m_smk.value());
-    }
-    else {
-      ATH_MSG_ERROR("Failed loading HLT menu from DB for SMK " << m_smk.value());
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( dbloader.loadHLTMenu(m_smk, *hltmenu) );
   }
   else if (m_inputType == "FILE") {
     // load the json file into TrigConf::HLTMenu
     TrigConf::JsonFileLoader fileLoader;
     fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
-    if (fileLoader.loadFile(m_hltFileName, *hltmenu)) {
-      hltmenu->setSMK(m_smk);
-      ATH_MSG_INFO("Loaded HLT menu file " << m_hltFileName.value());
-    }
-    else {
-      ATH_MSG_ERROR("Failed loading HLT menu file " << m_hltFileName.value());
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( fileLoader.loadFile(m_hltFileName, *hltmenu) );
+    hltmenu->setSMK(m_smk);  // allow assigning a dummy SMK when running from FILE
   }
   else {
     ATH_MSG_ERROR("Unknown input type '" << m_inputType
@@ -57,7 +46,7 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
   ServiceHandle<StoreGateSvc> detStore("StoreGateSvc/DetectorStore", name());
   ATH_CHECK( detStore.retrieve() );
   if (detStore->record(std::move(hltmenu), "HLTTriggerMenu").isSuccess()) {
-    ATH_MSG_INFO("Recorded HLT menu with key 'HLTTriggerMenu' in the detector store");
+    ATH_MSG_INFO("Recorded HLT menu as 'HLTTriggerMenu' in detector store");
   }
 
   return StatusCode::SUCCESS;
@@ -74,9 +63,18 @@ StatusCode TrigConf::HLTConfigSvc::initialize()
     }
   }
   else {
-    ATH_MSG_INFO("Did not locate TrigConf::JobOptionsSvc, not running athenaHLT");
+    ATH_MSG_DEBUG("Did not locate TrigConf::JobOptionsSvc, not running athenaHLT");
   }
 
+  ATH_MSG_INFO("Loading HLT trigger menu from:");
+  ATH_MSG_INFO(m_inputType);
+  if (m_inputType == "FILE") {
+    ATH_MSG_INFO(m_hltFileName);
+  }
+  else if (m_inputType == "DB") {
+    ATH_MSG_INFO(m_dbConnection);
+    ATH_MSG_INFO(m_smk);
+  }
   ATH_CHECK( writeConfigToDetectorStore() );
 
   return StatusCode::SUCCESS;

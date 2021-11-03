@@ -18,6 +18,18 @@ ConvProxy::ConvProxy(const HLT::TriggerElement* t) : te{ t } {
   teIDs.push_back(te->getId());
 }
 
+bool ConvProxy::mergeAllowed(const ConvProxy* other)  const {
+    if ( this == other ) return false; // no merging with self
+    // never merge children with parents
+    for ( auto c: children ) {
+      if (other == c) return false;
+    } 
+    for ( auto p: parents ) {
+      if (other == p) return false;
+    } 
+  return true;
+}
+
 void ConvProxy::merge(ConvProxy* other) {
   if ( other == this ) {
     return;
@@ -266,6 +278,34 @@ StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& conv
       }
     }
   }
+
+  if (m_doSelfValidation) {
+    int counter = -1;
+    for (auto proxy: convProxies) {      
+      counter++;
+      ATH_MSG_WARNING("Proxy " << counter << " " << proxy->description() << "ptr " << proxy);
+      for ( auto p: proxy->children )
+        ATH_MSG_DEBUG("Child ptr " << p);
+      for ( auto p: proxy->parents )
+        ATH_MSG_DEBUG("Parent ptr " << p);
+
+      for ( auto p: proxy->parents) {
+        for ( auto pp: p->parents) {
+          if ( pp == proxy ) {
+            ATH_MSG_WARNING("Weird, proxy is in parents list of parents");
+          }
+        }
+      }
+      for ( auto c: proxy->children) {
+        for ( auto cc: c->children) {
+          if ( cc == proxy ) {
+            ATH_MSG_WARNING("Weird, proxy is in children list of children");
+          }
+        }
+      }
+    }
+  }
+
   ATH_MSG_DEBUG("Created " << convProxies.size() << " proxy objects");
   return StatusCode::SUCCESS;
 }
@@ -373,10 +413,11 @@ StatusCode Run2ToRun3TrigNavConverterV2::collapseProxies(ConvProxySet_t& convPro
     if (proxies.size() > 1 ) {
       ATH_MSG_DEBUG("Merging " << proxies.size() << " similar proxies");
       for ( auto p: proxies ) {
-        if ( p != *(proxies.begin())) {
+        if ( p->mergeAllowed( *proxies.begin() ) ) {
           (*proxies.begin())->merge(p);
           todelete.push_back(p);
         }
+        // TODO consider scanning proxies another time if merge is not allowed, it may be allowed with other proxies here
       }
     }
   }

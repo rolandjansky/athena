@@ -29,7 +29,10 @@ def treat_list_of_chains_by_name( list_of_chains, part_name=None):
     else:
         return list_of_chains
 
-
+#Force generation of all online monitoring histograms on HypoAlgs side 
+def doOnlineMonForceCfg():
+    doOnlineMonForce = True
+    return doOnlineMonForce
 
 class TrigEgammaMonAlgBuilder:
   
@@ -44,6 +47,7 @@ class TrigEgammaMonAlgBuilder:
   activate_zee = False
   activate_jpsiee = False
   activate_topo = False
+  activate_onlineMonHypos = False
   tagItems = []
   jpsitagItems = []
   electronList = []
@@ -71,14 +75,17 @@ class TrigEgammaMonAlgBuilder:
     self.derivation = derivation
     self.emulator = emulator
     self.basePath = basePath
-    self.detailedHistograms = detailedHistograms
+    self.detailedHistograms = detailedHistograms 
     self.configureMode()
-
+    self.doOnlineMonForceCfg()
+    
 
 
   def configureMode(self):
 
     self.__logger.info("TrigEgammaMonToolBuilder.configureMode()")
+    self.activate_onlineMonHypos = True
+
     if not self.get_monitoring_mode():
       self.__logger.warning("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
     else:
@@ -115,6 +122,10 @@ class TrigEgammaMonAlgBuilder:
     self.configureMonitor()
     self.configureHistograms()
 
+
+  def doOnlineMonForceCfg(self):
+    doOnlineMonForce = self.activate_onlineMonHypos
+    return doOnlineMonForce
 
 
   def get_monitoring_mode(self):

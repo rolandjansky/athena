@@ -4,10 +4,9 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
+from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_SiliconConditionsCfg
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
-SiPropertiesTool=CompFactory.SiPropertiesTool
-SCTSiPropertiesCondAlg=CompFactory.SCTSiPropertiesCondAlg
+
 
 def SCT_SiPropertiesCfg(flags, name="SCTSiPropertiesCondAlg", **kwargs):
     """Return configured ComponentAccumulator and tool for SCT_SiProperties
@@ -27,13 +26,12 @@ def SCT_SiPropertiesCfg(flags, name="SCTSiPropertiesCondAlg", **kwargs):
     # For SCT_ID and SCT_DetectorElementCollection
     # used in SCTSiPropertiesCondAlg and SiPropertiesTool
     acc.merge(SCT_ReadoutGeometryCfg(flags))
-    alg = SCTSiPropertiesCondAlg(name, **algkwargs)
-    acc.addCondAlgo(alg)
+    acc.addCondAlgo(CompFactory.SCTSiPropertiesCondAlg(name, **algkwargs))
 
     # Condition tool
     toolkwargs = {}
     toolkwargs["DetectorName"] = "SCT"
     toolkwargs["ReadKey"] = "SCTSiliconPropertiesVector"
-    acc.setPrivateTools(SiPropertiesTool(name="SCT_SiPropertiesTool", **toolkwargs))
+    acc.setPrivateTools(CompFactory.SiPropertiesTool(name="SCT_SiPropertiesTool", **toolkwargs))
 
     return acc

@@ -439,13 +439,20 @@ ConfigFlags = getNewConfigFlags()
 if rec.doTrigger and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
     ConfigFlags.Trigger.readBS = True
 
+# For cosmics runs, we need to turn off doTIDE_Ambi to be consistent
+# with the settings in InDetJobProperties.py.
+# We used to do that there, but that doesn't work anymore
+# since we started locking ConfigFlags in here.
+from InDetRecExample.InDetJobProperties import InDetFlags
+if jobproperties.Beam.beamType() == 'cosmics':
+    ConfigFlags.InDet.doTIDE_Ambi = False
+
 if rec.doMonitoring():
     include ("AthenaMonitoring/DataQualityInit_jobOptions.py")
 
 # Lock the flags
-if not rec.doDPD():  # except for derivations: ATLASRECTS-6636
-    logRecExCommon_topOptions.info("Locking ConfigFlags")
-    ConfigFlags.lock()
+logRecExCommon_topOptions.info("Locking ConfigFlags")
+ConfigFlags.lock()
 #################################################################################
 
 

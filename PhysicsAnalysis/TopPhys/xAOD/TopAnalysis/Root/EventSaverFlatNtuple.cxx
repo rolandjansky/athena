@@ -831,6 +831,7 @@ namespace top {
         systematicTree->makeOutputVariable(m_tau_pt, "tau_pt");
         systematicTree->makeOutputVariable(m_tau_eta, "tau_eta");
         systematicTree->makeOutputVariable(m_tau_phi, "tau_phi");
+        systematicTree->makeOutputVariable(m_tau_e, "tau_e");
         systematicTree->makeOutputVariable(m_tau_charge, "tau_charge");
       }
 
@@ -2378,11 +2379,13 @@ namespace top {
       m_tau_pt.resize(event.m_tauJets.size());
       m_tau_eta.resize(event.m_tauJets.size());
       m_tau_phi.resize(event.m_tauJets.size());
+      m_tau_e.resize(event.m_tauJets.size());
       m_tau_charge.resize(event.m_tauJets.size());
       for (const auto* const tauPtr : event.m_tauJets) {
         m_tau_pt[i] = tauPtr->pt();
         m_tau_eta[i] = tauPtr->eta();
         m_tau_phi[i] = tauPtr->phi();
+        m_tau_e[i] = tauPtr->e();
         m_tau_charge[i] = tauPtr->charge();
         ++i;
       }

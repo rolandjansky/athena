@@ -3,7 +3,7 @@
 */
 
 
-#include "BCM_BackgroundAlgs/BcmCollisionTimeAlg.h"
+#include "BcmCollisionTimeAlg.h"
 #include "BCM_CollisionTime/BcmCollisionTime.h"
 
 #include "Identifier/Identifier.h"

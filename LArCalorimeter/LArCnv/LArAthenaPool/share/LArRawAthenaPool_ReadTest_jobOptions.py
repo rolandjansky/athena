@@ -18,8 +18,6 @@ ReadLArRaw = Algorithm( "ReadLArRaw" )
 ReadLArRaw.LArRawChannelContainerName = "LArRawChannels" 
 ReadLArRaw.HistogramID = 168 
 ReadLArRaw.NtupleLocID = "/FILE1/LARG" 
-ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 
 include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_joboptions.py" )

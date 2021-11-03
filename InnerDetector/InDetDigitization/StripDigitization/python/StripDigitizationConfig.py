@@ -2,21 +2,19 @@
 
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-from AthenaCommon.Logging import logging
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
-#Eventually we want ITkStrip specific versions of these
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import ITkStripSiliconConditionsCfg
-#Doesn't work for ITkStrip - specific verion needed?
-#from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
-from SiPropertiesTool.ITkStripSiPropertiesConfig import ITkStripSiPropertiesCfg
-from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
-from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripSiliconConditionsCfg
+#from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ItkStripReadCalibChipDataCfg
+from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
+from SiPropertiesTool.ITkStripSiPropertiesConfig import ITkStripSiPropertiesCfg
+from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
 
 import AthenaCommon.SystemOfUnits as Units
 

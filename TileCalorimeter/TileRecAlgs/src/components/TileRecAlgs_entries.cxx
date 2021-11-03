@@ -2,7 +2,6 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileRecUtils/TileCellMaskingTool.h"
 
-#include "../TileCellCorrection.h"
 #include "../TileCellSelector.h"
 #include "../TileCellIDCToCell.h"
 #include "../TileCellVerify.h"
@@ -16,7 +15,6 @@
 #include "../MBTSTimeDiffEventInfoAlg.h"
 #include "../TileMuonReceiverReadCnt.h"
 
-DECLARE_COMPONENT( TileCellCorrection )
 DECLARE_COMPONENT( TileCellSelector )
 DECLARE_COMPONENT( TileCellIDCToCell )
 DECLARE_COMPONENT( TileCellVerify )

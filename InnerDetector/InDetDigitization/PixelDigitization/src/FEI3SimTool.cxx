@@ -224,7 +224,7 @@ int FEI3SimTool::relativeBunch2009(const double threshold, const double intimeth
   //double G4Time	 = totalCharge.time();
 
   double G4Time = getG4Time(totalCharge);
-  double timing = moduleData->getTimeOffset(0, 1) + myTimeWalkEff + (randomjitter) + G4Time - moduleData->getComTime();
+  double timing = moduleData->getTimeOffset(0, 1) + myTimeWalkEff + (randomjitter) + G4Time;
   BCID = static_cast<int>(floor(timing / moduleData->getBunchSpace()));
   //ATH_MSG_DEBUG (  CTW << " , " << myTimeWalkEff << " , " << G4Time << " , " << timing << " , " << BCID );
 

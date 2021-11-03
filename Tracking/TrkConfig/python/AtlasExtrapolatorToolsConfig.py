@@ -15,17 +15,17 @@ def AtlasNavigatorCfg(flags, name='AtlasNavigator'):
     geom_cond_key = ''
     if not use_tracking_geometry_cond_alg:
         from TrkConfig.AtlasTrackingGeometrySvcConfig import (
-               TrackingGeometrySvcCfg)
+            TrackingGeometrySvcCfg)
         acc = TrackingGeometrySvcCfg(flags)
         geom_svc = acc.getPrimary()
         result.merge(acc)
     else:
         from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
-               TrackingGeometryCondAlgCfg)
-        result.merge(TrackingGeometryCondAlgCfg(flags))
-        geom_cond_key = 'AtlasTrackingGeometry'
-        # @TOOD how to get the key of the TrackingGeometry conditions data ?
-    # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
+            TrackingGeometryCondAlgCfg)
+        acc = TrackingGeometryCondAlgCfg(flags)
+        geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+        result.merge(acc)
+    # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) ------------------------
     Trk__Navigator = CompFactory.Trk.Navigator
     AtlasNavigator = Trk__Navigator(name=name,
                                     TrackingGeometrySvc=geom_svc,

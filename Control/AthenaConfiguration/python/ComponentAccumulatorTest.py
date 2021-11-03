@@ -84,7 +84,6 @@ class TestComponentAccumulator( unittest.TestCase ):
         with open("testFile.pkl", "wb") as outf:
             acc.store(outf)
         acc.printConfig(withDetails=True, summariseProps=True)
-        acc.popPrivateTools()
         self.acc = acc
 
     def test_conflict_in_public_tools(self):

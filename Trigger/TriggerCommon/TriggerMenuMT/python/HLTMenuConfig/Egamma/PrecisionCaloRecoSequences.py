@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # in the RecoFragmentsPool -- only the RoIs are used to distinguish
 # different sequences. New convention is just to pass "None" for flags
 # taken from Jet/JetRecoSequences.py
-def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
+def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False, is_photon=False):
     log.debug('DummyFlag = %s',str(DummyFlag))
     log.debug('RoIs = %s',RoIs)
 
@@ -29,25 +29,26 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
     topoRecoSequence = HLTHIRoITopoRecoSequence if ion is True else HLTRoITopoRecoSequence
     (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix='')
 
-    tag = 'HI' if ion is True else ''
+    tag = 'HI' if ion is True else '' 
     outputCaloClusters = precisionCaloMenuDefs.caloClusters(ion)
     log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
-                                          name = 'TrigEgammaTopoClusterCopier' + tag + RoIs ,
+                                          name = ('g' if is_photon else 'e') + 'TrigEgammaTopoClusterCopier' + tag + RoIs ,
                                           InputTopoCollection = caloclusters,
                                           OutputTopoCollection = TrigEgammaKeys.outputTopoCollection,
                                           OutputTopoCollectionShallow = "tmp_" + TrigEgammaKeys.outputTopoCollection,
                                           doAdd = False )
 
     algo = egammaTopoClusterCopier()
-    precisionRecoSequence = parOR( "electronRoITopoRecoSequence"+tag)
+    precisionRecoSequence = parOR( ('photon' if is_photon else 'electron')+"RoITopoRecoSequence"+tag)
     precisionRecoSequence += caloRecoSequence
     precisionRecoSequence += algo
-    _trigEgammaRec = TrigEgammaRec(name = 'TrigEgammaRec%s' % RoIs)
+    _trigEgammaRec = TrigEgammaRec(name = ('g' if is_photon else 'e') + 'TrigEgammaRec%s' % RoIs)
     precisionRecoSequence += _trigEgammaRec
-    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name ='TrigEgammaSuperClusterBuilder%s' % RoIs)
+    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name = ('g' if is_photon else 'e') + 'TrigEgammaSuperClusterBuilder%s' % RoIs)
     _trigEgammaSuperClusterBuilder.SuperClusterCollectionName = outputCaloClusters
+    _trigEgammaSuperClusterBuilder.CalibrationType = 'photon' if is_photon else 'electron'
     precisionRecoSequence +=  _trigEgammaSuperClusterBuilder
     sequenceOut = outputCaloClusters
 
@@ -59,7 +60,7 @@ def precisionCaloRecoSequence_LRT(DummyFlag, RoIs):
     log.info('RoIs_LRT = %s',RoIs)
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
-                                          name = 'TrigEgammaTopoClusterCopier%s' % RoIs ,
+                                          name = 'eTrigEgammaTopoClusterCopier%s' % RoIs ,
                                           InputTopoCollection= "caloclusters",
                                           OutputTopoCollection=TrigEgammaKeys.outputTopoCollection,
                                           OutputTopoCollectionShallow="tmp_"+TrigEgammaKeys.outputTopoCollection,
@@ -72,10 +73,11 @@ def precisionCaloRecoSequence_LRT(DummyFlag, RoIs):
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters
     precisionRecoSequence += algo
-    _trigEgammaRec = TrigEgammaRec(name ='TrigEgammaRec%s' % RoIs)
+    _trigEgammaRec = TrigEgammaRec(name ='eTrigEgammaRec%s' % RoIs)
     precisionRecoSequence += _trigEgammaRec
-    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder('TrigEgammaSuperClusterBuilder%s' % RoIs)
+    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder('eTrigEgammaSuperClusterBuilder%s' % RoIs)
     _trigEgammaSuperClusterBuilder.SuperClusterCollectionName = precisionCaloMenuDefs_LRT.precisionCaloClusters
+    _trigEgammaSuperClusterBuilder.CalibrationType = 'electron'
     precisionRecoSequence += _trigEgammaSuperClusterBuilder
     sequenceOut = precisionCaloMenuDefs_LRT.precisionCaloClusters
 
@@ -89,7 +91,7 @@ def precisionCaloRecoSequence_FWD(DummyFlag, RoIs):
     log.info('RoIs_FWD = %s',RoIs)
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
-                                          name = 'TrigEgammaTopoClusterCopier%s' % RoIs ,
+                                          name = 'eTrigEgammaTopoClusterCopier%s' % RoIs ,
                                           InputTopoCollection= "caloclusters",
                                           OutputTopoCollection=TrigEgammaKeys.outputTopoCollection,
                                           OutputTopoCollectionShallow="tmp_"+TrigEgammaKeys.outputTopoCollection,
@@ -103,10 +105,11 @@ def precisionCaloRecoSequence_FWD(DummyFlag, RoIs):
     algo = egammaTopoClusterCopier()
     algo.InputTopoCollection = caloclusters
     precisionRecoSequence += algo
-    _trigEgammaRec = TrigEgammaRec(name ='TrigEgammaRec%s' % RoIs)
+    _trigEgammaRec = TrigEgammaRec(name ='eTrigEgammaRec%s' % RoIs)
     precisionRecoSequence +=  _trigEgammaRec
-    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name ='TrigEgammaSuperClusterBuilder%s' % RoIs)
+    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name ='eTrigEgammaSuperClusterBuilder%s' % RoIs)
     _trigEgammaSuperClusterBuilder.SuperClusterCollectionName = precisionCaloMenuDefs_FWD.precisionCaloClusters
+    _trigEgammaSuperClusterBuilder.CalibrationType = 'electron'
     precisionRecoSequence += _trigEgammaSuperClusterBuilder
     sequenceOut = precisionCaloMenuDefs_FWD.precisionCaloClusters
 

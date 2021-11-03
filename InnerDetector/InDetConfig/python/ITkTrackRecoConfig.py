@@ -39,7 +39,7 @@ def ITkStripClusterizationCfg(flags, name="ITkStripClusterization", **kwargs) :
     acc = ComponentAccumulator()
 
     # Need to get ITkStrip_ConditionsSummaryTool for e.g. ITkStripClusteringTool
-    from InDetConfig.ITkRecToolConfig import ITkStripConditionsSummaryToolCfg
+    from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
     ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
 
     from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
@@ -75,8 +75,10 @@ def ITkStripClusterizationPUCfg(flags, name="ITkStripClusterizationPU", **kwargs
 
 ##------------------------------------------------------------------------------
 def ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs) :
+    acc = ComponentAccumulator()
+
     from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
-    acc = ITkPixelReadoutGeometryCfg(flags)
+    acc.merge(ITkPixelReadoutGeometryCfg(flags))
 
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
 

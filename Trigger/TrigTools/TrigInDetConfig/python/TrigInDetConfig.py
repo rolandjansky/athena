@@ -92,8 +92,8 @@ def SiCombinatorialTrackFinder_xkCfg( flags, name="InDetTrigSiComTrackFinder" ):
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
   pixelCondSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) )
 
-  from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-  sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags, withFlaggedCondTool=False, withTdaqTool=False ) )
+  from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+  sctCondSummaryTool = acc.popToolsAndMerge( SCT_ConditionsSummaryToolCfg( flags, withFlaggedCondTool=False, withTdaqTool=False ) )
 
 
   tool = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name,
@@ -166,8 +166,8 @@ def InDetHoleSearchToolCfg(flags, name="InDetTrigHoleSearchTool"):
   acc = ComponentAccumulator()
 
 # a possible change in HoleSearchTool impl? - This two tools do not seem to be needed now, leaving them commented out  TODO - decide if can be removed ( also func above creting the config )
-#  from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-#  sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
+#  from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+#  sctCondSummaryTool = acc.popToolsAndMerge( SCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
 
 #  acc.merge( InDetTestPixelLayerToolCfg( flags, **kwargs ) )
 
@@ -512,8 +512,8 @@ def sctClusterizationCfg(flags, roisKey, signature):
   from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
   RegSelTool_SCT   = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
 
-  from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool = False, withTdaqTool = False))
+  from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool = False, withTdaqTool = False))
 
   InDet__ClusterMakerTool=CompFactory.InDet.ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool"+ signature)

@@ -52,6 +52,7 @@ include("RecExCond/AllDet_detDescr.py")
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+ConfigFlags.lock() 
 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 
 svcMgr += CfgMgr.THistSvc()
