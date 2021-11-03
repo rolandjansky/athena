@@ -62,7 +62,6 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
 	double fXShift,fYShift,fZShift;
 
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
-    const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
     
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
 	AFPTOF_LBARDIMENSIONS BarDims11=TofCfg.mapBarDims[11];
@@ -70,7 +69,7 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
 	fYShift=(BarDims11.fRadLength+TofCfg.mapTrainInfo[BarDims11.nTrainID].fPerpShiftInPixel-0.5*(BarDims11.fLGuideWidth-TofCfg.mapTrainInfo[BarDims11.nTrainID].fTaperOffset)-0.5*BarDims11.fLBarThickness/tan(TofCfg.fAlpha))*sin(TofCfg.fAlpha);
 	fZShift=fabs(fYShift)/tan(TofCfg.fAlpha)+0.5*BarDims11.fLBarThickness/sin(TofCfg.fAlpha);
     
-	HepGeom::Transform3D TofTransform=TransInMotherVolume*HepGeom::Translate3D(fXShift,fYShift,signFactor*fZShift)*HepGeom::RotateX3D(signFactor*(90.0*CLHEP::deg-TofCfg.fAlpha))*HepGeom::RotateZ3D(-90.0*CLHEP::deg);
+	HepGeom::Transform3D TofTransform=TransInMotherVolume*HepGeom::Translate3D(fXShift,fYShift,fZShift)*HepGeom::RotateX3D((90.0*CLHEP::deg-TofCfg.fAlpha))*HepGeom::RotateZ3D(-90.0*CLHEP::deg);
 
 	for(i=0;i<m_CfgParams.tdcfg[eStation].nX1PixCnt;i++)
 	{
@@ -101,7 +100,6 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
 	AFPTOF_LBARDIMENSIONS BarDims=TofCfg.mapBarDims[nBarID];
-    const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
 
 	double fTaperOffset=TofCfg.mapTrainInfo[BarDims.nTrainID].fTaperOffset;
 	m_pGeometry->getPixelLocalPosition(eStation,nBarID,&fX1Pos,&fX2Pos);
@@ -186,8 +184,7 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 		vecA2 = 0.5*fd*sqrt(2.0)*(CLHEP::HepRotationY(-(45*CLHEP::deg-falpha))*CLHEP::Hep3Vector(1.0,0.0,0.0)).unit();
 		vecX = vecA1 + vecA2;
 		vecCutShift = CLHEP::Hep3Vector(0.5*fRadLength,0.0,0.5*BarDims.fLBarThickness) + CLHEP::Hep3Vector(vecX);
-        vecCutShift[2] *= signFactor;
-		Rot3.rotateY(signFactor*falpha);
+		Rot3.rotateY(falpha);
 
 		pSolAux=new GeoBox(0.5*fd,0.5*fRadYDim+SLIMCUT,0.5*fd);
 		TransCut=HepGeom::Transform3D(Rot3,vecCutShift);
