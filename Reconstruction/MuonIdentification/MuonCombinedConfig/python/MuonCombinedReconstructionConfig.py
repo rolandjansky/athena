@@ -296,18 +296,11 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
 def MuonCombinedReconstructionCfg(flags):
     result = ComponentAccumulator()
 
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg :
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-        result.merge( TrackingGeometryCondAlgCfg(flags) )
-    else :
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-        result.merge( TrackingGeometrySvcCfg(flags) )
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+    result.merge( TrackingGeometryCondAlgCfg(flags) )
 
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
-
 
     # Set up to read Tracks.
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg

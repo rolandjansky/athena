@@ -15,10 +15,8 @@ tgcRawDataMonAlg = helper.addAlgorithm(TgcRawDataMonitorAlgorithm,'TgcRawDataMon
 tgcRawDataMonAlg.TrackExtrapolator = getPublicTool('AtlasExtrapolator')
 
 from InDetRecExample import TrackingCommon
-if TrackingCommon.use_tracking_geometry_cond_alg :
-  cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-  tgcRawDataMonAlg.TrackExtrapolator.Navigator.TrackingGeometryReadKey = cond_alg.TrackingGeometryWriteKey # Probably not necessary?
-
+cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+tgcRawDataMonAlg.TrackExtrapolator.Navigator.TrackingGeometryReadKey = cond_alg.TrackingGeometryWriteKey # Probably not necessary?
 
 tgcRawDataMonAlg.TagAndProbe = False
 
