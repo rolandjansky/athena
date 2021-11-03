@@ -172,7 +172,6 @@ StatusCode RpcTrackAnaAlg::fillHistograms(const EventContext& ctx) const
     ATH_CHECK( fillMuonExtrapolateEff(ctx) );
   }
 
-  
   if(m_plotPRD) {
     ATH_CHECK( fillHistPRD(ctx) );
   }

@@ -27,7 +27,6 @@ StatusCode RPCLv1AnaAlg::initialize()
 //========================================================================================================
 StatusCode RPCLv1AnaAlg::fillHistograms(const EventContext& ctx) const
 {
-
   using namespace Monitored;
   auto tool = getGroup(m_packageName);
   

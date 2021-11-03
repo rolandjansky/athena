@@ -44,6 +44,9 @@ def RpcMonitoringConfig(inputFlags):
     rpcTrackAnaAlg.TagAndProbe         = False
     rpcTrackAnaAlg.TagAndProbeZmumu    = False
 
+    if not inputFlags.DQ.triggerDataAvailable:
+        rpcTrackAnaAlg.MuonRoIContainerName = ''
+
     ######################################################################################################
     ## Occupancy histograms
     ######################################################################################################
@@ -271,6 +274,9 @@ def RpcMonitoringConfig(inputFlags):
     Lv1AnaAlg  = helper.addAlgorithm(RPCLv1AnaAlg, "RPCLv1AnaAlgAlg")
     # Lv1AnaAlg.TriggerChain  = 'HLT_mu26_ivarmedium'
     
+    if not inputFlags.DQ.triggerDataAvailable:
+        Lv1AnaAlg.MuonRoIContainerName = ''
+
     myGroup_lv1Trigger = helper.addGroup(Lv1AnaAlg, 'RPCLv1AnaAlg', 'Muon/MuonRawDataMonitoring/RPC/')
 
     myGroup_lv1Trigger.defineHistogram('nMu;NMuon',
@@ -439,4 +445,4 @@ if __name__=="__main__":
 
     cfg.printConfig(withDetails=True, summariseProps = True)
 
-    cfg.run()
+    cfg.run(10)
