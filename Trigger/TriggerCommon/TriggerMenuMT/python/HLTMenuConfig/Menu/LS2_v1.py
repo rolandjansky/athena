@@ -141,7 +141,7 @@ def setupMenu():
         ChainProp(name='HLT_2mu50_msonly_L1MU14FCH', groups=PrimaryL1MuGroup+SingleMuonGroup),   
 
         #ATR-23614 
-        ChainProp(name='HLT_mu20_mu2noL1_invmJPsi_os_L1MU14FCH', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu20_mu2noL1_invmJPsiOS_L1MU14FCH', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=MultiMuonGroup),
 
         #ART-23577
         ChainProp(name='HLT_mu20_L1MU5VF_AFP_A_OR_C',     l1SeedThresholds=['MU5VF'],   groups=SingleMuonGroup+LowMuGroup),
