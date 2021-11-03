@@ -7,105 +7,109 @@ from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTLAPhotonHypoAlg
 from TrigMuonHypo.TrigMuonHypoConf import TrigMuonTLAHypoAlg
 from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetTLAHypoAlg
 from AthenaCommon.CFElements import seqAND, findAlgorithm
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 
 def addTLAStep(chain, chainDict):
-'''
-Add one extra chain step for TLA Activities
-'''
+    '''
+    Add one extra chain step for TLA Activities
+    '''
 
-	signatures = chainDict['signatures'] # EG: ['Photon'] or ['Photon', 'Jet']
-	tlaSequencesList = []
-	
-	for tlaSignature in signatures:
+    signatures = chainDict['signatures'] # EG: ['Photon'] or ['Photon', 'Jet']
+    tlaSequencesList = []
+
+    for tlaSignature in signatures:
         
         # call the sequence from their respective signatures
         tlaSequencesList.append( getTLASignatureSequence(tlaSignature) )
-       	
+
         # # the tlaImputMaker does not need to be RoI-based as we access features through previousDecisions
         # # which live in the full eventContext
-		# tlaInputMaker = CompFactory.InputMakerForRoI("IMTLA_"+tlaSignature, RoIsLink="initialRoI")
+        # tlaInputMaker = CompFactory.InputMakerForRoI("IMTLA_"+tlaSignature, RoIsLink="initialRoI")
         # tlaInputMaker.mergeUsingFeature = True
 
         # # the HypoAlg is where the object-copying is performed
         # # for the moment, each signature has a distinct hypo implementation
-		# tlaHypoAlg = getTLAHypoAlg(tlaSignature)
-		# tlaHypoTool = getTLAHypoTool(tlaSignature)
+        # tlaHypoAlg = getTLAHypoAlg(tlaSignature)
+        # tlaHypoTool = getTLAHypoTool(tlaSignature)
 
-		# seq = MenuSequence(
-		# 	Sequence    = tlaSequence(tlaSignature, inputMaker),								
-		# 	Maker       = tlaInputMaker,
-		# 	Hypo        = tlaHypoAlg, #not sure if this works
-		# 	HypoToolGen = tlaHypoTool
-		# 	)
+        # seq = MenuSequence(
+        # 	Sequence    = tlaSequence(tlaSignature, inputMaker),								
+        # 	Maker       = tlaInputMaker,
+        # 	Hypo        = tlaHypoAlg, #not sure if this works
+        # 	HypoToolGen = tlaHypoTool
+        # 	)
         # tlaSequencesList.append(seq)	
 
-		
-			
-				
-	# we add one step per TLA chain, with sequences matching the list of signatures
-    # and multiplicities matching those of the previous step of the chain (already merged if combined)
-	prevStep = chain.steps[-1]
-    stepName = 'Step{:d}_merged{:d}_TLAStep_{:s}'.format(len(chain.steps)+1,len(prevStep.legIds), prevStep.name)
-	step = ChainStep(name         = stepName,
-					 Sequence     = tlaSequencesList,
-					 Multiplicity = prevStep.multiplicity,
-					 chainDicts   = prevStep.stepDicts)	
-	
-	chain.steps.append(step)
+
+            
+                
+        # we add one step per TLA chain, with sequences matching the list of signatures
+        # and multiplicities matching those of the previous step of the chain (already merged if combined)
+        prevStep = chain.steps[-1]
+        stepName = 'Step{:d}_merged{:d}_TLAStep_{:s}'.format(len(chain.steps)+1,len(prevStep.legIds), prevStep.name)
+        step = ChainStep(name         = stepName,
+                        Sequences     = tlaSequencesList,
+                        multiplicity = prevStep.multiplicity,
+                        chainDicts   = prevStep.stepDicts)	
+
+        chain.steps.append(step)
 
 
 def getTLASignatureSequence(tlaSignature):
     # Here we simply retrieve the TLA sequence from the existing signature code f
     
     if "Photon" in tlaSignature:
-        from HLTMenuConfig.Photon.TLAPhotonMenuSequences import TLAPhotonMenuSequence
-        return TLAPhotonMenuSequences(???flags???)
+        from ..Photon.TLAPhotonMenuSequences import TLAPhotonMenuSequence
+        photonOutCollectionName = "HLT_egamma_Photons"
+        return TLAPhotonMenuSequence(ConfigFlags, photonOutCollectionName)
     
     elif "Muon" in tlaSignature:
-        from HLTMenuConfig.Muon.TLAMuonSequence import TLAMuonMenuSequence
-        return TLAMuonMenuSequence(???flags???)
+        from ..Muon.TLAMuonSequence import TLAMuonMenuSequence
+        return TLAMuonMenuSequence(ConfigFlags)
     
     elif "Jet" in tlaSignature:
-        from HLTMenuConfig.Jet.JetTLASequences import jetTLAMenuSequence
-        return jetTLAMenuSequence(???flags,jetInCollectionName???)
+        from ..Jet.JetTLASequences import jetTLAMenuSequence
+        jetOutCollectionName = "HLT_AntiKt4EMTopoJets_subjesIS"
+        return jetTLAMenuSequence(ConfigFlags, jetOutCollectionName)
 
 def getTLAHypoAlg(tlaSignature):
-	
-	if "Photon" in tlaSignature:
-		hypo = TLAPhotonHypoAlg("TLAPhotonHypoAlg")
-		hypo.TLAOutputName = "HLT_Egamma_Photons_TLA"
-		return hypo
 
-	elif "Muon" in tlaSignature:
+    if "Photon" in tlaSignature:
+        hypo = TLAPhotonHypoAlg("TLAPhotonHypoAlg")
+        hypo.TLAOutputName = "HLT_Egamma_Photons_TLA"
+        return hypo
+
+    elif "Muon" in tlaSignature:
         hypo = TLAMuonHypoAlg("TLAMuonHypoAlg")
-		hypo.TLAOutputName = "HLT_Muon_RoI_TLA"
-		return hypo
-	
+        hypo.TLAOutputName = "HLT_Muon_RoI_TLA"
+        return hypo
+
     elif "Jet" in tlaSignature:
-		hypo = TLAJetHypoAlg("TLAJetHypoAlg")
-		# how do we handle the case where the standard jet collection changes and we want this to be reflected in the TLA collectionName?
-		hypo.TLAOutputName = "HLT_Jets_TLA" 
-		return hypo
+        hypo = TLAJetHypoAlg("TLAJetHypoAlg")
+        # how do we handle the case where the standard jet collection changes and we want this to be reflected in the TLA collectionName?
+        jetCollectionName = "HLT_AntiKt4EMTopoJets_subjesIS"
+        hypo.TLAOutputName = jetCollectionName+"_TLA" 
+        return hypo
 
 def getTLAHypoTool(tlaSignature):
-  
+
     if "Photon" in tlaSignature:
         from TrigEgammaHypo.TrigEgammaTLAPhotonHypoTool import TrigEgammaTLAPhotonHypoToolFromDict
         hypoToolGen = TrigEgammaTLAPhotonHypoToolFromDict
-		return hypoToolGen
+        return hypoToolGen
 
-	elif "Muon" in tlaSignature:
+    elif "Muon" in tlaSignature:
         from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
-		hypoToolGen = TrigMuonEFMSonlyHypoToolFromDict
-		return hypoToolGen
-	
+        hypoToolGen = TrigMuonEFMSonlyHypoToolFromDict
+        return hypoToolGen
+
     elif "Jet" in tlaSignature:
-		from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetTLAHypoToolFromDict
+        from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetTLAHypoToolFromDict
         hypoToolGen = trigJetTLAHypoToolFromDict
-		return hypoToolGen
+        return hypoToolGen
 
 
 def findTLAStep(chainConfig):
