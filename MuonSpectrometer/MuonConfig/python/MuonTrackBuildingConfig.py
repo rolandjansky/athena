@@ -142,7 +142,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     hole_recovery_tool =  acc.getPrimary()
     result.addPublicTool(hole_recovery_tool)
     result.merge(acc)
-    kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) # FIXME? Remove duplicate from cxx?
+    kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) 
 
     acc  = MagneticFieldSvcCfg(flags) 
     result.merge(acc)
@@ -434,7 +434,7 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
         # I have simplified this. Also, in the old configuration there was the possiblity to set optimiseMomentumResolutionUsingChi2 to true in extraflags (which were passed to TrackBuilderTool but not TrackRefinementTool) - however I don't think this was used, and have removed it.
         # However some other things were set in extraFlags here: https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py#L39
         # So I might well have made a mistake. TODO check
-        acc = MooTrackBuilderCfg(flags)
+        acc = MooTrackBuilderCfg(flags, name='TrackBuilderTemplate')
         builder = acc.getPrimary()
         kwargs["TrackBuilderTool"] = builder
         result.merge(acc)
