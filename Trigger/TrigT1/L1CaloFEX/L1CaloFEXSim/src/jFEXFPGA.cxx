@@ -101,12 +101,11 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
     
     if(m_jfexid == 0 || m_jfexid == 5) {
         m_jFEXPileupAndNoiseTool->setup(m_jTowersIDs_Wide);
-        //return StatusCode::SUCCESS;
     }
     else {
-        //return StatusCode::SUCCESS;
         m_jFEXPileupAndNoiseTool->setup(m_jTowersIDs_Thin);
     }
+
     //Calculating and sustracting pileup
     std::vector<float> pileup_rho;
     pileup_rho = m_jFEXPileupAndNoiseTool->CalculatePileup();
@@ -327,18 +326,19 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
 
     //FCAL region algorithm
     if(m_jfexid ==0 || m_jfexid ==5) {
+        ATH_CHECK(m_jFEXForwardJetsAlgoTool->reset());
         ATH_CHECK(m_jFEXForwardJetsAlgoTool->safetyTest());
         m_jFEXForwardJetsAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
         m_jFEXForwardJetsAlgoTool->setup(m_jTowersIDs_Wide,m_jfexid,m_id);
-
+        
         m_FCALJets =  m_jFEXForwardJetsAlgoTool->calculateJetETs();
 
         for(std::unordered_map<int, jFEXForwardJetsInfo>::iterator it = m_FCALJets.begin(); it!=(m_FCALJets.end()); ++it) {
 
             jFEXForwardJetsInfo FCALJets = it->second;
+
             int iphi = FCALJets.getCentreLocalTTPhi();
             int ieta = FCALJets.getCentreLocalTTEta();
-
             float centre_eta = std::round(FCALJets.getCentreTTEta()*10);
             float centre_phi = std::round(FCALJets.getCentreTTPhi()*10);
             int output_centre_eta = static_cast<int> (centre_eta);
@@ -354,6 +354,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             if (m_SRJetET/200. > 0x7ff) SRFCAL_TOB_saturated = 1;
             unsigned int LRFCAL_TOB_saturated = 0;
             if (m_LRJetET/200. >  0x1fff) LRFCAL_TOB_saturated = 1;
+            
             inputOutputCollection->addValue_smallRJet("smallRJet_phi", output_centre_phi);
             inputOutputCollection->addValue_smallRJet("smallRJet_eta", output_centre_eta);
             inputOutputCollection->addValue_smallRJet("smallRJet_clusterET", m_SRJetET);
@@ -616,7 +617,7 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
             phi = iphi -8 ;
         } 
     }
-
+    
     jFEXSmallRJetTOBEt = et/jFEXETResolution;
     if(jFEXSmallRJetTOBEt > 0x7ff) {
         jFEXSmallRJetTOBEt = 0x7ff;
@@ -630,7 +631,6 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
     const TrigConf::L1ThrExtraInfo_jJ & thr_jJ = l1Menu->thrExtraInfo().jJ();
     std::string str_jfexname = m_jfex_string[m_jfexid];
     unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
-
     if (jFEXSmallRJetTOBEt < minEtThreshold) return 0;
     else return tobWord;
 }
