@@ -4322,8 +4322,6 @@ HLT_tau160_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50:
   eventCount: 0
   stepFeatures:
     0: 1
-HLT_tau160_mediumRNN_tracktwoMVATest_L1TAU100:
-  eventCount: 0
 HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100:
   eventCount: 0
 HLT_tau160_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50:
@@ -4331,8 +4329,6 @@ HLT_tau160_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50:
   stepFeatures:
     0: 1
 HLT_tau160_perf_tracktwoMVABDT_L1TAU100:
-  eventCount: 0
-HLT_tau160_perf_tracktwoMVATest_L1TAU100:
   eventCount: 0
 HLT_tau160_perf_tracktwoMVA_L1TAU100:
   eventCount: 0

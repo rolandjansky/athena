@@ -204,7 +204,6 @@ class TrigTauMonAlgBuilder:
     'HLT_tau160_perf_tracktwoMVA_L1TAU100',
     'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
-    'HLT_tau160_mediumRNN_tracktwoMVATest_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
     # tau180
