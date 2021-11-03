@@ -127,6 +127,7 @@ else:
     # ------------------------------------------------------------
     if DetFlags.detdescr.Calo_allOn() and (
          (InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem())
+      or InDetFlags.doCaloSeededAmbi()
       or (InDetNewTrackingCuts.RoISeededBackTracking() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTSeededTrackFinder())) :
       include ("InDetRecExample/InDetRecCaloSeededROISelection.py")
 
