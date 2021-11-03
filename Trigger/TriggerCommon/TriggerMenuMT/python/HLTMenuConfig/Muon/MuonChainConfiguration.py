@@ -86,13 +86,14 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
+    
     def assembleChainImpl(self):                            
         chainSteps = []
 
         stepDictionary = self.getStepDictionary()
 
         is_probe_leg = self.chainPart['tnpInfo']=="probe"
-        key = self.chainPart['extra'] if not is_probe_leg else ""
+        key = self.chainPart['extra']
 
         steps=stepDictionary[key]
 
@@ -108,7 +109,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     
         myChain = self.buildChain(chainSteps)
         return myChain
-
+     
     def getStepDictionary(self):
 
         # --------------------

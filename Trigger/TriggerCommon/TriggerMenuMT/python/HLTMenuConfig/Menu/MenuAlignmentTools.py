@@ -36,12 +36,9 @@ def get_alignment_group_ordering():
     seen = set()
     return [v for v in the_signature_grouping.values() if not (v in seen or seen.add(v))]
 
-def get_alignment_group_from_pattern(signature, tnpInfo, extra):
+def get_alignment_group_from_pattern(signature, extra):
 
-    if tnpInfo :
-        signature_for_alignment = signature + tnpInfo
-    else :
-        signature_for_alignment = signature + extra
+    signature_for_alignment = signature + extra
 
     log.debug("[get_alignment_group_from_pattern] Searching for alignment group for %s",signature_for_alignment)
     
