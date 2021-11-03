@@ -164,10 +164,13 @@ StatusCode Run2ToRun3TrigNavConverterV2::finalize()
 
 StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) const
 {
-  // need to check if this step works in start() or initialize, if so we need to it once
-  // and remember this mapping 
-  TEIdToChainsMap_t allTEIdsToChains, finalTEIdsToChains;
-  ATH_CHECK(extractTECtoChainMapping(allTEIdsToChains, finalTEIdsToChains));
+  {
+    // configuration reading could not be done before the event loop
+    // it needs to be done only once though
+    std::scoped_lock lock(m_configUpdateMutex);
+    if ( m_allTEIdsToChains.empty() )
+      ATH_CHECK( extractTECtoChainMapping( const_cast<TEIdToChainsMap_t&>(m_allTEIdsToChains), const_cast<TEIdToChainsMap_t&>(m_finalTEIdsToChains)) );
+  }
 
   ConvProxySet_t convProxies;
   HLT::StandaloneNavigation standaloneNav; // needed to keep TEs around
@@ -176,7 +179,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   if (m_doSelfValidation)
     ATH_CHECK(allProxiesConnected(convProxies));
 
-  ATH_CHECK(associateChainsToProxies(convProxies, allTEIdsToChains));
+  ATH_CHECK(associateChainsToProxies(convProxies, m_allTEIdsToChains));
   ATH_CHECK(cureUnassociatedProxies(convProxies));
   ATH_MSG_DEBUG("Proxies to chains mapping done");
 
@@ -202,7 +205,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   if (m_doSelfValidation) {
     ATH_CHECK(numberOfHNodesPerProxyNotExcessive(convProxies));
   }
-  ATH_CHECK(createFSNodes(convProxies, *decisionOutput, finalTEIdsToChains, context));
+  ATH_CHECK(createFSNodes(convProxies, *decisionOutput, m_finalTEIdsToChains, context));
   ATH_CHECK(linkTopNode(*decisionOutput));
   ATH_MSG_DEBUG("Conversion done, from " << convProxies.size() << " elements to " << decisionOutput->size() << " elements");
 
@@ -219,6 +222,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
 
 StatusCode Run2ToRun3TrigNavConverterV2::extractTECtoChainMapping(TEIdToChainsMap_t& allTEs, TEIdToChainsMap_t& finalTEs) const {
   // port chains iteration code from previous version
+  ATH_CHECK(not m_configSvc->chains().empty());
   for (auto ptrChain : m_configSvc->chains()) {
       std::string chainName = ptrChain->name();
       if ( not m_chainsToSave.empty() )  {
