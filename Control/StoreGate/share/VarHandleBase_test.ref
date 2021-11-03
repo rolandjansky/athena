@@ -1,24 +1,24 @@
 
 
-Initializing Gaudi ApplicationMgr using job opts ../share/VarHandleBase_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/VarHandleBase_test.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/OtherStore"]
-JobOptionsSvc        INFO # (2,1): OtherStore.ProxyProviderSvc = ""
-JobOptionsSvc        INFO Job options successfully read in from ../share/VarHandleBase_test.txt
+Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/rootaccess/build/joboptions/StoreGate/VarHandleBase_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build/joboptions/StoreGate/VarHandleBase_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/StoreGateSvc"]
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/OtherStore"]
+JobOptionsSvc        INFO # (3,1): OtherStore.ProxyProviderSvc = ""
+JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/rootaccess/build/joboptions/StoreGate/VarHandleBase_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Fri Jul 13 04:46:33 2018
+                                          running on karma on Wed Nov  3 21:06:32 2021
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 753 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 813 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
-ClassIDSvc           INFO  getRegistryEntries: read 952 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 973 CLIDRegistry entries for module ALL
 ServiceManager      FATAL No Service factory for BazSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
                     ERROR FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code FAILURE: Cannot locate store: BazSvc
@@ -56,7 +56,7 @@ VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointe
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_fromProxy(SG::DataProxy*, bool) const): Proxy  [293847295/foo] is in an invalid state
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_fromProxy(SG::DataProxy*, bool) const): Request for an invalid object; requested CLID = 293847295, proxy primary ID is 293847296
 test9
-VarHandleBase @0x7ffcdf09c5d0 store=FooSvc, clid=293847295, key=foo----------- ptr@0, proxy@0
+VarHandleBase @0x7fff34567950 store=FooSvc, clid=293847295, key=foo----------- ptr@0, proxy@0
 test10
 ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
@@ -69,6 +69,6 @@ ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
 VarHandle(FooSv...  ERROR FILE:LINE (const void*SG::VarHandleBase::get_impl(const EventContext*, bool) const): code FAILURE: Cannot find proxy for 293847295/foo
 test12
-VarHandle(FooSv...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::symLink_impl(unsigned int, const std::string&) const): code FAILURE: symlink: Handle not valid.
-VarHandle(FooSv...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::symLink_impl(unsigned int, const std::string&) const): code FAILURE: symlink: Handle not valid.
+VarHandle(FooSv...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::symLink_impl(unsigned int, const std::string&)): code FAILURE: symlink: Handle not valid.
+VarHandle(FooSv...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::symLink_impl(unsigned int, const std::string&)): code FAILURE: symlink: Handle not valid.
 test13
