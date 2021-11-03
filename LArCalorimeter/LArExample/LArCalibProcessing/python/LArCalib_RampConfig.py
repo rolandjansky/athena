@@ -34,6 +34,7 @@ def LArRampCfg(flags):
 
     result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccCalibDigitKey=digKey,
                                                               LArFebHeaderKey="LArFebHeader",
+                                                              SubCaloPreselection=flags.LArCalib.Input.SubDet,
                                                               PosNegPreselection=flags.LArCalib.Preselection.Side,
                                                               BEPreselection=flags.LArCalib.Preselection.BEC,
                                                               FTNumPreselection=flags.LArCalib.Preselection.FT))
@@ -46,10 +47,10 @@ def LArRampCfg(flags):
     if flags.LArCalib.Input.SubDet == "EM":
         from LArCalibProcessing.LArStripsXtalkCorrConfig import LArStripsXtalkCorrCfg
         result.merge(LArStripsXtalkCorrCfg(flags,[digKey,]))
-    
-    
+
         theLArCalibShortCorrector = CompFactory.LArCalibShortCorrector(KeyList = [digKey,])
         result.addEventAlgo(theLArCalibShortCorrector)
+    pass
 
 
 
@@ -68,19 +69,19 @@ def LArRampCfg(flags):
     theLArRampBuilder.Polynom      = 1    
     theLArRampBuilder.RampRange    = 3600 # Check on the raw data ADC sample before ped subtraction and pulse reconstruction to include point in fit
     theLArRampBuilder.correctBias  = False
-    theLArRampBuilder.ConsecutiveADCs = 0
+    #theLArRampBuilder.ConsecutiveADCs = 0
     theLArRampBuilder.minDAC = 10      # minimum DAC value to use in fit
     theLArRampBuilder.KeyOutput = "LArRamp"
     theLArRampBuilder.DeadChannelCut = -9999
     theLArRampBuilder.GroupingType = flags.LArCalib.GroupingType
-    theLArRampBuilder.LongNtuple = False
+    #theLArRampBuilder.LongNtuple = False
 
     theLArRampBuilder.isSC = flags.LArCalib.isSC
 
     if flags.LArCalib.Input.SubDet == "HEC":
-        theLArRampBuilder.isHEC = flags.LArCalib.SubDet=="HEC"
+        theLArRampBuilder.isHEC = True
         theLArRampBuilder.HECKey = "LArHEC_PAmap"
-   
+        result.merge(addFolders(flags,'/LAR/ElecCalibOfl/HecPAMap','LAR_OFL'))
     
     result.addEventAlgo(theLArRampBuilder)
 

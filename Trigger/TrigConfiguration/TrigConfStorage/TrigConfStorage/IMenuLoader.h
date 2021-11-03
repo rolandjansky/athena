@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_IMenuLoader
@@ -13,9 +13,11 @@ namespace TrigConf {
   
    class IMenuLoader : virtual public ILoader {
    public:
+      typedef enum  {ALL, CTP, CTPOnl, HLT, COOLL1, COOLHLT, L1Simu} ENV;
 
       virtual ~IMenuLoader() {};
 
+      virtual void setEnv(ENV env) = 0;
       virtual bool load( Menu& data ) = 0;
    };
 

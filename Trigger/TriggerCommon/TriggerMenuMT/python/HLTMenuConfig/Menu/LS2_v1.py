@@ -951,14 +951,6 @@ def setupMenu():
         ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1eTAU60_2eTAU40', l1SeedThresholds=['eTAU60','eTAU40'], groups=PrimaryPhIGroup+MultiTauGroup),
         ChainProp(name='HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1eTAU60_2eTAU40', l1SeedThresholds=['eTAU60','eTAU40'], groups=PrimaryPhIGroup+MultiTauGroup),
 
-        # Test chain without clusters outside the ROI
-        ChainProp(name="HLT_tau25_idperf_tracktwoMVAClus_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau25_perf_tracktwoMVAClus_L1TAU12IM", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVAClus_L1TAU12IM", groups=SingleTauGroup),   
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVAClus_tau25_mediumRNN_tracktwoMVAClus_03dRAB30_L1DR-TAU20ITAU12I-J25', l1SeedThresholds=['TAU20IM','TAU12IM'], groups=SupportLegGroup+MultiTauGroup), 
-        ChainProp(name="HLT_tau160_idperf_tracktwoMVAClus_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_perf_tracktwoMVAClus_L1TAU100", groups=SingleTauGroup),
-        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVAClus_L1TAU100", groups=SingleTauGroup),
     ]
 
     chains['Bphysics'] += [
@@ -1039,24 +1031,24 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhtight_ivarloose_tau100_mediumRNN_tracktwoLLP_03dRAB_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU60'], stream=[PhysicsStream], groups=TagAndProbeLegGroup+SingleElectronGroup),
 
         # MET + tau tag and probe chains (ATR-23507)
-        ChainProp(name='HLT_tau25_medium1_tracktwo_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU12IM','FSNOSEED'], groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau20_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU8','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau20_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU8','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU12IM','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU12IM','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU20IM','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU20IM','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau40_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU25IM','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau40_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU25IM','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau60_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU40','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau60_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU40','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU60','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU60','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau160_mediumRNN_tracktwoMVA_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU100','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau160_mediumRNN_tracktwoMVABDT_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU100','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau60_mediumRNN_tracktwoLLP_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU40','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau80_mediumRNN_tracktwoLLP_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU60','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
-        ChainProp(name='HLT_tau180_mediumRNN_tracktwoLLP_probe_xe110_pfsum_vssk_L1XE50', l1SeedThresholds=['PROBETAU100','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau25_medium1_tracktwo_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU12IM','FSNOSEED','FSNOSEED'], groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau20_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU8','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau20_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU8','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU12IM','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU12IM','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU20IM','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau35_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU20IM','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau40_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU25IM','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau40_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU25IM','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau60_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU40','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau60_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU40','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU60','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau80_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU60','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau160_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU100','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau160_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU100','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau60_mediumRNN_tracktwoLLP_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU40','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau80_mediumRNN_tracktwoLLP_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU60','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
+        ChainProp(name='HLT_tau180_mediumRNN_tracktwoLLP_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU100','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
  
         
         # photon + multijets (ATR-22594)

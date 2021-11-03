@@ -540,7 +540,9 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
                                                                     namePrefix=namePrefix,
                                                                     nameSuffix=nameSuffix)
       atlas_geometry_builder.InDetTrackingGeometryBuilder = inDetTrackingGeometryBuilder
-      
+
+    # Temporarily disabled
+    '''
     if flags.Detector.GeometryHGTD:
       hgtdTrackingGeometryBuilder = _getHGTD_TrackingGeometryBuilder(name ='HGTD_TrackingGeometryBuilder',
                                                                      flags=flags,
@@ -549,6 +551,7 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
                                                                      namePrefix=namePrefix,
                                                                      nameSuffix=nameSuffix)
       atlas_geometry_builder.HGTD_TrackingGeometryBuilder = hgtdTrackingGeometryBuilder
+    '''
       
     if flags.Detector.GeometryCalo:
       Trk__CylinderVolumeCreator=CompFactory.Trk.CylinderVolumeCreator

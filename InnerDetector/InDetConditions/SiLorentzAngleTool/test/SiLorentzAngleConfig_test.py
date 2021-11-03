@@ -19,14 +19,17 @@ ConfigFlags.Input.Files = defaultTestFiles.HITS
 # using __init__ to reset, preventing errors on deletion
 # case online
 ConfigFlags.Common.isOnline = True
+ConfigFlags.lock()
 tacc = SCT_LorentzAngleCfg(ConfigFlags, name="SCT_LorentzAngleTestOnline")
 tacc.__init__()
 tacc = PixelLorentzAngleCfg(ConfigFlags, name="PixelLorentzAngleTestOnline")
 tacc.__init__()
 # case offline
-ConfigFlags.Common.isOnline = False
-tacc = SCT_LorentzAngleCfg(ConfigFlags, name="SCT_LorentzAngleTestOffline")
+flagsOffline = ConfigFlags.clone()
+flagsOffline.Common.isOnline=False
+flagsOffline.lock()
+tacc = SCT_LorentzAngleCfg(flagsOffline, name="SCT_LorentzAngleTestOffline")
 tacc.__init__()
-tacc = PixelLorentzAngleCfg(ConfigFlags, name="PixelLorentzAngleTestOffline")
+tacc = PixelLorentzAngleCfg(flagsOffline, name="PixelLorentzAngleTestOffline")
 tacc.__init__()
 

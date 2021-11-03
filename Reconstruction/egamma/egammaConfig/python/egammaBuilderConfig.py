@@ -102,6 +102,7 @@ if __name__ == "__main__":
     flags.Input.Files = defaultTestFiles.RDO
     flags.Output.doWriteESD = True  # To test the AOD parts
     flags.Output.doWriteAOD = True  # To test the AOD parts
+    flags.lock()
 
     acc = MainServicesCfg(flags)
     acc.merge(EGammaReconstructionCfg(flags))

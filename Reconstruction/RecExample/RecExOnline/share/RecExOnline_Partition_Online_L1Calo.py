@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 ## Job options for Running the L1Calo Athena Online Monitoring
 ## A few notes:
 ## At the moment one needs to edit the RecExOnline_monitoring.py 
@@ -19,10 +21,47 @@ useEmon           = True
 
 import os
 
-# set partition name (default is ATLAS)
+# set partition name (default is ATLAS)  
 partitionName = os.getenv("TDAQ_PARTITION","ATLAS")
 
-# set name of this publisher as it will appear in IS
+# Debug for ATLASDQ-853: Crash with traceback instead of printing errors and continuing (May 2021)
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.AllowIgnoreConfigError = False # This will force Athena to crash in case of errors (for debugging)
+athenaCommonFlags.BSRDOInput.set_Value_and_Lock([]) # Fix from ATLASDQ-853 (June 2021)
+
+# Fix for ID monitoring errors (ATLASDQ-853; Sept. 2021)
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+NewConfigFlags=getNewConfigFlags()
+ID = NewConfigFlags.DQ.Steering.InDet
+ID.doGlobalMon=False
+ID.doAlignMon=False
+
+# Enable L1Topo monitoring (Oct. 2021 pilot beams)
+NewConfigFlags.DQ.Steering.doLVL1InterfacesMon=True
+
+## ------------------------------------------- set online defaults for new config flags
+# Fix for autoconfig problem ATR-22872 (April 2021)
+from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
+NewConfigFlags.Trigger.triggerConfig = 'DB' # temporary 02/2021
+autoConfigOnlineRecoFlags(NewConfigFlags, partitionName)
+
+# Fix for unavailable LBLB info (ATR-23464)
+NewConfigFlags.DQ.enableLumiAccess = False
+NewConfigFlags.DQ.Environment = "online"
+
+# Fix for missing output file ATR-22872 (May 2021)
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+# Added flags to run AthenaMT
+DQMonFlags.doNewMonitoring.set_Value_and_Lock(True) # Change to true to enable MT (needs --threads = 1 to run)
+DQMonFlags.doHLTMon.set_Value_and_Lock(False)
+DQMonFlags.monManFileKey.set_Value_and_Lock('') # Set top-level path 
+DQMonFlags.histogramFile.set_Value_and_Lock('monitoring.root')
+
+# To get rid of rogue DQT, PFO, and TopoCluster monitoring plots (ATLASDQ-888)
+DQMonFlags.doJetInputsMon=False
+DQMonFlags.doDataFlowMon=False
+
+# set name of this publisher as it will appear in IS (default is "l1calo-athenaHLT"; change to something sensible for testing)
 publishName       = "l1calo-athenaHLT"
 
 # name of the stream type (physics,express, etc.)
@@ -156,7 +195,6 @@ doAllReco   = False
 
 doTrigger = False
 
-
 ################
 ## -- flags set in: RecExOnline_monitoring.py (from RecExOnline_jobOptions.py)
 
@@ -186,6 +224,10 @@ jetFlags.useMuonSegments.set_Value_and_Lock(False)
 
 #rec.doMuon.set_Value_and_Lock(False)
 
+# KW fix for CaloExtensionBuilder conflict (ATLASDQ-853)
+from RecExConfig.RecAlgsFlags import recAlgs
+recAlgs.doEFlow.set_Value_and_Lock(False)
+recAlgs.doTrackParticleCellAssociation.set_Value_and_Lock(False)
 
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
@@ -405,7 +447,7 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
 
     DBInstance = svcMgr.IOVDbSvc.properties()['DBInstance']
     printfunc ("L1Calo Monitoring check DBInstance ",DBInstance)
-    connstring = "COOLONL_TRIGGER/"+str(DBInstance) 
+    connstring = "COOLONL_TRIGGER/"+str(DBInstance)
     from CoolConvUtilities.AtlCoolLib import indirectOpen
     coolDB=indirectOpen(connstring,oracle='True')
     SMKfolder=coolDB.getFolder('/TRIGGER/HLT/HltConfigKeys')
@@ -415,7 +457,7 @@ if (partitionName.find("L1CaloStandalone") >= 0) or (partitionName.find("ATLAS")
     retrieved_format=retrieved_payload['MasterConfigurationKey']
     SuperMasterKey=int(999)
     printfunc ("SMK SuperMasterKey default =",SuperMasterKey)
-    SuperMasterKey = int(retrieved_format)                                 
+    SuperMasterKey = int(retrieved_format)
     printfunc ("SMK SuperMasterKey from Cool =",SuperMasterKey)
     coolDB.closeDatabase()
 

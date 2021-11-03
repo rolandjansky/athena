@@ -50,7 +50,8 @@ TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBui
         doConversions = False,
         AddClustrsMatchingVtxTracks = False,
         ConversionBuilderTool = None,
-        doAdd = False
+        doAdd = False,
+        LinkToConstituents = False,
         )
 
 #Factory for photons

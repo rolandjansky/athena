@@ -37,23 +37,17 @@ if (not 'beamType' in dir()):
 if (not 'is_T0_project_tag' in dir()):
     is_T0_project_tag = 'data15_cos'
 
-### tag created 2015-11-04 : Based on CONDBR2-HLTP-2015-07, TRT folders for rel. 20.7 were added and updated.
 if (not 'ConditionsTag' in dir()):
-    ConditionsTag = 'CONDBR2-HLTP-2015-08'
+    ConditionsTag = 'CONDBR2-HLTP-2017-03' # for new ID alignment 26 May 2017
 
 if (not 'DetDescrVersion' in dir()):
-    DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
+    DetDescrVersion = 'ATLAS-R2-2016-01-00-01' # for new ID alignment 26 May 2017
 
 if (not 'doPixelOnlyMon' in dir()):
     doPixelOnlyMon = False
 
 if (not 'REO_doAutoConfiguration' in dir()):
     REO_doAutoConfiguration = False
-
-### harmonize conditions tag and geometry for all monitoring jobs; 26 May 2017
-DetDescrVersion = 'ATLAS-R2-2016-01-00-01' # for new ID alignment 26 May 2017
-if isOnline:
-    ConditionsTag = 'CONDBR2-HLTP-2017-03' # for new ID alignment 26 May 2017
 
 ## -------------------------------------------------------------------
 ## configuration from pickle file
