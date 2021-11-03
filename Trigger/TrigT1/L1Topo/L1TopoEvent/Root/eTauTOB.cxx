@@ -42,5 +42,5 @@ TCS::eTauTOB::clearHeap() {
 }
 
 void TCS::eTauTOB::print(std::ostream &o) const {
-    o << "eTau energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+  o << "eTau energy: " << Et() << ", eta: " << eta() << ", phi: " << phi() << ", isolation: "<< isolation();
 }

@@ -40,13 +40,9 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }          // float eta with granularity 0.025
       double phiDouble() const { return m_phiDouble; }          // float phi with granularity 0.05
       
-      unsigned int Reta() const { return m_reta; }
-      unsigned int Rhad() const { return m_rhad; }
-      unsigned int Wstot() const { return m_wstot; }
-     
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
-      void setIsolation(unsigned int et) { m_isolation = sizeCheck(et, nBitsIsolation()); }
+      void setIsolation(unsigned int isolation) { m_isolation = sizeCheck(isolation, nBitsIsolation()); }
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
       void setPhi(unsigned int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
@@ -54,10 +50,6 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
      
-      void setReta(unsigned int th) { m_reta = th; }
-      void setRhad(unsigned int th) { m_rhad = th; }
-      void setWstot(unsigned int th) { m_wstot = th; }
-      
       // memory management
       static eTauTOB* createOnHeap(const eTauTOB& eem);
       static void clearHeap();
@@ -83,10 +75,6 @@ namespace TCS {
       double m_EtDouble {0};
       double m_etaDouble {0};
       double m_phiDouble {0};
-
-      unsigned int m_reta {0};
-      unsigned int m_rhad {0};
-      unsigned int m_wstot {0};
 
       inputTOBType_t  m_tobType { NONE };
 

@@ -226,43 +226,44 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
   }
   
   for(const auto it : * eTau_EDM){
-    const xAOD::eFexTauRoI* eFexRoI = it;
+    const xAOD::eFexTauRoI* eFexTauRoI = it;
     ATH_MSG_DEBUG( "EDM eFex Number: " 
-		   << +eFexRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
+		   << +eFexTauRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
 		   << " et: " 
-		   << eFexRoI->et() // returns the et value of the Tau cluster in MeV
+		   << eFexTauRoI->et() // returns the et value of the Tau cluster in MeV
 		   << " etTOB: " 
-		   << eFexRoI->etTOB() // returns the et value of the Tau cluster in units of 100 MeV
+		   << eFexTauRoI->et() // returns the et value of the Tau cluster in units of 100 MeV
 		   << " eta: "
-		   << eFexRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		   << eFexTauRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
 		   << " phi: "
-		   << eFexRoI->phi() // returns a floating point global phi
-		   << " is TOB? "
-		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
+		   << eFexTauRoI->phi() // returns a floating point global phi
+		   << " fcore "
+		   << eFexTauRoI->fCoreThresholds() // returns 1 if true, returns 0 if xTOB)
 		  );
 
-    if (!eFexRoI->isTOB()) {continue;}
+    if (!eFexTauRoI->isTOB()) {continue;}
 
-    unsigned int EtTopo = eFexRoI->etTOB();
-    int etaTopo = eFexRoI->iEta();
-    int phiTopo = eFexRoI->iPhi();
+    unsigned int EtTopo = eFexTauRoI->et(); // MeV units
+    int etaTopo = eFexTauRoI->iEtaTopo();
+    int phiTopo = eFexTauRoI->iPhiTopo();
+    int isolation = eFexTauRoI->fCoreThresholds();
     
     //Tau TOB
-    TCS::eTauTOB etau( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
+    TCS::eTauTOB etau( EtTopo, isolation, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
     etau.setEtDouble( static_cast<double>(EtTopo/10.) );
     etau.setEtaDouble( static_cast<double>(etaTopo/40.) );
     etau.setPhiDouble( static_cast<double>(phiTopo/20.) );
-    etau.setReta( 0 );
-    etau.setRhad( 0 );
-    etau.setWstot( 0 );
+    etau.setIsolation( isolation );
     
     inputEvent.addeTau( etau );
     inputEvent.addcTau( etau );
     
     m_hTauEt->Fill(etau.EtDouble());  // GeV
+    m_hTauIsolation->Fill(etau.isolation());  
     m_hTauEtaPhi->Fill(etau.eta(),etau.phi());
     m_hTauEtEta->Fill(etau.EtDouble(),etau.eta());
     m_hTauEtPhi->Fill(etau.EtDouble(),etau.phi());
+    m_hTauEtIsolation->Fill(etau.EtDouble(),etau.isolation());
     
   }
 
