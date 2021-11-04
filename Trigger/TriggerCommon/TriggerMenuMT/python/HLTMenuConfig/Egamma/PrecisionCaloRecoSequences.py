@@ -9,9 +9,11 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 from .PrecisionCaloMenuSequences import precisionCaloMenuDefs
 from .PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
 from .PrecisionCaloMenuSequences_FWD import precisionCaloMenuDefs_FWD
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEgammaRec, TrigEgammaSuperClusterBuilder 
 from AthenaCommon.Logging import logging
+
+TrigEgammaKeys = getTrigEgammaKeys()
 
 log = logging.getLogger(__name__)
 
