@@ -22,9 +22,9 @@ elTriggers = TriggerLists.single_el_Trig()
 muTriggers = TriggerLists.single_mu_Trig()
 orstr  = ' || '
 andstr = ' && '
-trackRequirements = '(InDetTrackParticles.pt > 10.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3.0*mm )'
-trackRequirementsMu = '(InDetTrackParticles.pt > 70.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3.0*mm )'
-jetRequirementsTtbar = '( AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 20*GeV && log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb / (0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1.0-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu) ) > 0.665 )'
+trackRequirements = '(InDetTrackParticles.pt > 6.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3.0*mm )'
+trackRequirementsMu = '(InDetTrackParticles.pt > 40.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3.0*mm )'
+jetRequirementsTtbar = '( AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 18*GeV && log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb / (0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1.0-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu) ) > 0.665 )'
 trackRequirementsNoIso = '(InDetTrackParticles.pt > 10.*GeV && abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3.0*mm )'
 
 muonsRequirements = '(Muons.pt >= 20.*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
@@ -34,10 +34,10 @@ expressionW = '( (' + orstr.join(metTriggers) + ' )' + andstr + '( count('+track
 expressionMu = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsMu+') >=1 ) )'
 
 expressionTtbarEl = '( (' + orstr.join(elTriggers) + ' )' + andstr + '( count('+electronsRequirements+') >=1 )' + andstr + '( count('+jetRequirementsTtbar+') >=1 ) '+ andstr + '( count('+trackRequirementsNoIso+') >=2 ) '+ andstr + '( count('+trackRequirements+') >=1 ) )' 
-expressionTtbarElNoTag = '( (' + orstr.join(elTriggers) + ' )' + andstr + '( count('+electronsRequirements+') >=1 )' + andstr + '( count('+trackRequirementsNoIso+') >=2 ) '+ andstr + '( count('+trackRequirements+') >=1 ) )'
+expressionTtbarElNoTag = '( (' + orstr.join(elTriggers) + ' )' + andstr + '( count('+electronsRequirements+') >=1 )' + andstr + '( count('+trackRequirements+') >=1 ) )'
 
 expressionTtbarMu = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+muonsRequirements+') >=1 )' + andstr + '( count('+jetRequirementsTtbar+') >=1 ) '+ andstr + '( count('+trackRequirementsNoIso+') >=2 ) '+ andstr + '( count('+trackRequirements+') >=1 ) )' 
-expressionTtbarMuNoTag = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+muonsRequirements+') >=1 )' + andstr + '( count('+trackRequirementsNoIso+') >=2 ) '+ andstr + '( count('+trackRequirements+') >=1 ) )'
+expressionTtbarMuNoTag = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+muonsRequirements+') >=1 )' + andstr + '( count('+trackRequirements+') >=1 ) )'
 
 expression = '( '+expressionW+' || '+expressionMu+' || '+expressionTtbarElNoTag+' || '+expressionTtbarMuNoTag+' )'
 expression2 = '( '+expressionW+' || '+expressionMu+' || '+expressionTtbarEl+' || '+expressionTtbarMu+' )'
@@ -117,7 +117,7 @@ AugmentationTools.append(Pt500IsoTrackDecorator)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 JETM12TPThinningTool = DerivationFramework__TrackParticleThinning(name = "JETM12TPThinningTool",
                                                                  ThinningService         = JETM12ThinningHelper.ThinningSvc(),
-                                                                 SelectionString         = "( InDetTrackParticles.pt > 10*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )",
+                                                                 SelectionString         = "( InDetTrackParticles.pt > 6*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM12TPThinningTool
 thinningTools.append(JETM12TPThinningTool)
@@ -164,7 +164,7 @@ JETM12CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name      
                                                                        ThinningService       = JETM12ThinningHelper.ThinningSvc(),
                                                                        SGKey                 = "InDetTrackParticles",
                                                                        TopoClCollectionSGKey = "CaloCalTopoClusters",
-                                                                       SelectionString = "( InDetTrackParticles.pt > 10*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )",
+                                                                       SelectionString = "( InDetTrackParticles.pt > 6*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )",
                                                                        ConeSize = 0.6,
                                                                        )
 ToolSvc += JETM12CaloClusterThinning
