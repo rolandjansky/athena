@@ -48,6 +48,7 @@ protected:
     int m_events;   
     bool         m_lheOutput;
     unsigned int          m_maxevents;
+    bool m_doTauolappLheFormat;
 
     starlight*       m_starlight;         // pointer to starlight instance
     inputParameters m_inputParameters;   // pointer to parameter instance
