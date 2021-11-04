@@ -64,7 +64,7 @@ inline MdtDigit* Muon::MdtRDO_Decoder::getDigit(const MdtAmtHit* amtHit, uint16_
     bool cab = readCdo->getOfflineId(cabling_data, msg);
     if (!cab) return nullptr;
     Identifier chanId;
-    if (!readCdo->convert(cabling_data,chanId)) return nullptr;
+    if (!readCdo->convert(cabling_data,chanId,false)) return nullptr;
     int tdcCounts = coarse * 32 + fine;
     MdtDigit* mdtDigit = new MdtDigit(chanId, tdcCounts, width, amtHit->isMasked());
     return mdtDigit;
