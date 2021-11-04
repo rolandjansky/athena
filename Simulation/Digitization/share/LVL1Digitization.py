@@ -38,6 +38,10 @@ if DetFlags.simulateLVL1.LAr_on():
         topSequence.LArTTL1Maker.PileUp = True
     else:
         topSequence.LArTTL1Maker.PileUp = False
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    if commonGeoFlags.Run()=="RUN3":
+        from LArL1Sim.LArSCL1Getter import *
+        theLArSCL1Getter = LArSCL1Getter()
 
 if DetFlags.simulateLVL1.Tile_on():
     protectedInclude( "TileSimAlgs/TileTTL1_jobOptions.py" )
