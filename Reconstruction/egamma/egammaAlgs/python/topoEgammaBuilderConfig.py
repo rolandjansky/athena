@@ -18,9 +18,6 @@ from egammaTools.EMPIDBuilderConfig import (
 
 def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Starting configuration')
-
     acc = ComponentAccumulator()
     if "EMClusterTool" not in kwargs:
         emclustool = EMClusterToolCfg(flags)

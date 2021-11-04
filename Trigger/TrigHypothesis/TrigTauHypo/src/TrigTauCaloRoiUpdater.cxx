@@ -20,7 +20,6 @@ StatusCode TrigTauCaloRoiUpdater::initialize() {
 
   ATH_MSG_DEBUG( "declareProperty review:"   );
   ATH_MSG_DEBUG( "    " << m_dRForCenter     );
-  ATH_MSG_DEBUG( "    " << m_SkipClusterOutsideROI ); 
   ATH_MSG_DEBUG( "    " << m_etaHalfWidth    );
   ATH_MSG_DEBUG( "    " << m_phiHalfWidth    );
 
@@ -82,13 +81,6 @@ StatusCode TrigTauCaloRoiUpdater::execute() {
     if((*clusterIt)->e() < 0)
       continue;
 
-    if(m_SkipClusterOutsideROI) {
-      // remove clusters outside the ROI    
-      if( std::abs((*clusterIt)->eta() - eta ) > dEta){
-        continue;
-      }
-    }
-
     myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
     TauBarycenter += myCluster;
   }
@@ -103,13 +95,6 @@ StatusCode TrigTauCaloRoiUpdater::execute() {
     myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
     if(TauBarycenter.DeltaR(myCluster) > m_dRForCenter)
       continue;
-
-    if(m_SkipClusterOutsideROI) {
-      // remove clusters outside the ROI  
-      if( std::abs((*clusterIt)->eta() - eta ) > dEta){
-        continue;
-      }
-    }  
 
     TauDetectorAxis += myCluster;
   } // end loop on clusters

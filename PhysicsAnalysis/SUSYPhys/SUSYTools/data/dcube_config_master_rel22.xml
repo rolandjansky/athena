@@ -170,18 +170,30 @@ for x in el mu tau jet bjet ph; do for z in bsl sig nom; do for y in pt eta phi 
    <hist1D name="Tau/tau_bsl_e" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_bsl_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_bsl_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_nTracks" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_nTracksCharged" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_nTracksIsolation" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_bsl_RNNJetScoreSigTrans" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_sig_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_sig_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_sig_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_sig_e" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_sig_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_sig_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_nTracks" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_nTracksCharged" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_nTracksIsolation" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_sig_RNNJetScoreSigTrans" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_nom_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_nom_eta" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_nom_phi" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_nom_e" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_nom_mass" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Tau/tau_nom_N" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_nTracks" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_nTracksCharged" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_nTracksIsolation" plotopts="" tests="KS,bbb" type="TH1D"/>
+   <hist1D name="Tau/tau_nom_RNNJetScoreSigTrans" plotopts="" tests="KS,bbb" type="TH1D"/>
    <!-- -->
    <hist1D name="Jet/jet_bsl_pt" plotopts="" tests="KS,bbb" type="TH1D"/>
    <hist1D name="Jet/jet_bsl_eta" plotopts="" tests="KS,bbb" type="TH1D"/>

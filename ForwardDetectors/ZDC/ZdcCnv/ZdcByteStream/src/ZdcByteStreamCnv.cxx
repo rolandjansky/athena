@@ -53,13 +53,13 @@
 
 //==================================================================================================
 ZdcByteStreamCnv::ZdcByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(storageType(), classID(), svcloc), m_name("ZdcByteStreamCnv"),
+    AthConstConverter(storageType(), classID(), svcloc, "ZdcByteStreamCnv"),
+    m_name("ZdcByteStreamCnv"),
 	//m_tool("ZdcByteStreamTool/ZdcByteStreamTool"), // old style
 	m_tool("ZdcByteStreamReadV1V2Tool/ZdcByteStreamReadV1V2Tool"), // new style
 	m_robDataProvider("ROBDataProviderSvc",m_name),
 	m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
-        m_evtStore("StoreGateSvc", m_name),
-	m_debug(false)
+        m_evtStore("StoreGateSvc", m_name)
 {
 }
 //==================================================================================================
@@ -101,8 +101,6 @@ StatusCode ZdcByteStreamCnv::initialize()
 	 *   - ROBDataProvider
 	 */
 
-	m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-
 	ATH_CHECK( Converter::initialize() );
 	ATH_CHECK( m_ByteStreamEventAccess.retrieve() );
 	ATH_CHECK( m_tool.retrieve() );
@@ -111,7 +109,7 @@ StatusCode ZdcByteStreamCnv::initialize()
 	StatusCode sc = m_robDataProvider.retrieve();
 	if (sc.isFailure())
 	{
-                REPORT_MESSAGE (MSG::WARNING) << "ZDC: Failed to retrieve service " << m_robDataProvider;
+          ATH_MSG_WARNING( "ZDC: Failed to retrieve service " << m_robDataProvider );
 	}
 
 	return StatusCode::SUCCESS;
@@ -120,22 +118,20 @@ StatusCode ZdcByteStreamCnv::initialize()
 
 
 //==================================================================================================
-StatusCode ZdcByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
+StatusCode ZdcByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const
 {
 	/// Create the RDO from bytestream.
 	ByteStreamAddress *pBS_Addr;
 	pBS_Addr = dynamic_cast<ByteStreamAddress *> (pAddr);
 	if (!pBS_Addr)
 	{
-                REPORT_ERROR (StatusCode::FAILURE) << "ZDC: Can not cast to ByteStreamAddress ";
+                ATH_MSG_ERROR( "ZDC: Can not cast to ByteStreamAddress " );
 		return StatusCode::FAILURE;
 	}
 
 	const std::string nm = *(pBS_Addr->par());
 
-	if (m_debug) {
-          REPORT_MESSAGE (MSG::DEBUG) << "ZDC: Creating Objects " << nm;
-        }
+        ATH_MSG_DEBUG( "ZDC: Creating Objects " << nm );
 
 	// Get SourceIDs; This is NOT related to the ZDC Identifiers
 	//const std::vector<uint32_t>& vID(m_tool->sourceIDs()); // old style
@@ -146,10 +142,7 @@ StatusCode ZdcByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 	m_robDataProvider->getROBData(vID, robFrags);
 
 	// size check
-	if (m_debug)
-	{
-          REPORT_MESSAGE (MSG::DEBUG) << "ZDC: Number of ROB fragments is " << robFrags.size();
-	}
+        ATH_MSG_DEBUG( "ZDC: Number of ROB fragments is " << robFrags.size() );
 
 	//ZdcDigitsCollection* const ttCollection = new ZdcDigitsCollection;
 	auto TTCollection = std::make_unique<xAOD::TriggerTowerContainer>(); // new style

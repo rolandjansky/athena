@@ -244,6 +244,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_fJvtPtMax(-99.),
     m_fJvtEtaMin(-99.),
     m_fJvtConfig(""),
+    m_fJvtRecalculate(false),
     m_JMScalib(false),
     //
     m_orDoTau(false),
@@ -920,7 +921,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     // configure PRW rtag options from m_autoconfigPRWRtags string
     // e.g. "mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265"
     std::map<std::string,std::vector<std::string>> PRWRtags = {};
-    std::string allcampaigns = "mc16a.mc16c.mc16d.mc16e.mc16ans.mc16dns.mc16ens";
+    std::string allcampaigns = "mc16a.mc16c.mc16d.mc16e.mc20a.mc20d.mc20e.mc16ans.mc16dns.mc16ens";
     bool standard_like = true;
     for ( auto campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
        std::string icampaign = campaign_rtags.substr(0, campaign_rtags.find(":"));                              // first field = campaign, split by ":"
@@ -1426,6 +1427,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fJvtPtMax, "FwdJet.JvtPtMax", rEnv, 120e3);
   configFromFile(m_fJvtEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fJvtConfig, "FwdJet.JvtConfig", rEnv, "May2020/");
+  configFromFile(m_fJvtRecalculate, "FwdJet.JvtRecalculate", rEnv, false);
   configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
@@ -1526,7 +1528,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_autoconfigPRWCombinedmode, "PRW.autoconfigPRWCombinedmode", rEnv, false);
   configFromFile(m_autoconfigPRWRPVmode, "PRW.autoconfigPRWRPVmode", rEnv, false);
   configFromFile(m_autoconfigPRWHFFilter, "PRW.autoconfigPRWHFFilter", rEnv, "None");
-  configFromFile(m_autoconfigPRWRtags, "PRW.autoconfigPRWRtags", rEnv, "mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265");
+  configFromFile(m_autoconfigPRWRtags, "PRW.autoconfigPRWRtags", rEnv, "mc16a:r9364_r11505_r11285,mc16c:r9781,mc16d:r10201_r11506_r11279,mc16e:r10724_r11507_r11249,mc20a:r13167,mc20d:r13144,mc20e:r13145,mc16ans:r10740_r10832_r10847_r11008_r11036,mc16dns:r10739_r10833_r10848_r11009_r11037,mc16ens:r10790_r11038_r11265");
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 

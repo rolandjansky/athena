@@ -2495,7 +2495,6 @@ namespace top {
     std::unordered_map<std::string, std::vector<std::string>> m_boostedTaggersSFSysNames;
 
     // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
-    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
     std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP_caloJet;
     std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP_trkJet;
     // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons

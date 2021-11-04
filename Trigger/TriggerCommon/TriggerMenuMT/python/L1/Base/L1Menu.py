@@ -125,6 +125,16 @@ class L1Menu(object):
         for thrName in sorted(extraThresholds.keys()):
             log.warning("Threshold %s (used by %s) should not be used!", thrName,",".join(extraThresholds[thrName]))
 
+    def checkPerfThresholds(self):
+        if 'MC' not in self.menuName:
+            from collections import defaultdict as dd
+            perfThresholds = dd(list)
+            for item in self.items:
+                for thrName in item.thresholdNames():
+                    if 'Perf' in thrName:
+                        perfThresholds[thrName].append(item.name)
+            for thrName in sorted(perfThresholds.keys()):
+                raise RuntimeError("Threshold %s (used by %s) should not be used!", thrName,",".join(perfThresholds[thrName]))
 
     def checkBoardInputs(self, algo, connDefName, fpgaName ):
         if 'MuCTPi' in connDefName or 'Legacy' in connDefName:

@@ -117,7 +117,7 @@ namespace xAOD {
 
    /// TOB or xTOB?
    eFexTauRoI_v1::ObjectType eFexTauRoI_v1::type() const {
-     if (word1() == 0) return TOB;
+     if (etXTOB() == 0) return TOB;
      else              return xTOB;
    }
     
@@ -162,11 +162,8 @@ namespace xAOD {
    
    /// Full precision ET (25 MeV/count, only available if object is an xTOB
    unsigned int eFexTauRoI_v1::etXTOB() const {
-     /// If the object is not an xTOB return 0 as high-precision ET unavailable
-     if (word1() == 0) return 0; 
-     else {
-       return (word1() >> s_etBit) & s_etFullMask;
-     }
+     /// If the object is not an xTOB this will return 0
+     return (word1() >> s_etBit) & s_etFullMask;
    }
     
    /// Results of the 3 jet discriminant algorithms

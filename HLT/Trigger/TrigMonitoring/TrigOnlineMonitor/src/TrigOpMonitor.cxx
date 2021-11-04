@@ -59,7 +59,8 @@ TrigOpMonitor::TrigOpMonitor(const std::string& name, ISvcLocator* pSvcLocator) 
 StatusCode TrigOpMonitor::initialize()
 {
   ATH_CHECK(m_histSvc.retrieve());
-  ATH_CHECK(m_lumiDataKey.initialize(!m_lumiDataKey.empty()));
+  ATH_CHECK(m_lumiDataKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_fieldMapKey.initialize(SG::AllowEmpty));
 
   ATH_CHECK( m_incidentSvc.retrieve() );
   m_incidentSvc->addListener(this, AthenaInterprocess::UpdateAfterFork::type());
@@ -71,7 +72,6 @@ void TrigOpMonitor::handle( const Incident& incident ) {
   // One time fills after fork
   if (incident.type() == AthenaInterprocess::UpdateAfterFork::type()) {
     if (!m_IOVDbSvc) service("IOVDbSvc", m_IOVDbSvc, /*createIf=*/false).ignore();
-    fillMagFieldHist();
     fillIOVDbHist();
     fillSubDetHist();
     const AthenaInterprocess::UpdateAfterFork& updinc = dynamic_cast<const AthenaInterprocess::UpdateAfterFork&>(incident);
@@ -91,6 +91,12 @@ StatusCode TrigOpMonitor::start()
 
 StatusCode TrigOpMonitor::execute()
 {
+  /* One-time fills */
+  [[maybe_unused]] const static bool once = [&]() {
+    fillMagFieldHist();
+    return true;
+  }();
+
   /* Per-LB fills */
   const EventContext& ctx = getContext();
   if (m_previousLB != ctx.eventID().lumi_block()) { // New LB
@@ -108,7 +114,6 @@ StatusCode TrigOpMonitor::execute()
 
 StatusCode TrigOpMonitor::bookHists()
 {
-  m_magFieldHist = nullptr;
   m_iovChangeHist = nullptr;
   m_currentIOVs.clear();
   m_folderHist.clear();
@@ -116,15 +121,11 @@ StatusCode TrigOpMonitor::bookHists()
   m_iovChangeHist = new TH2I("CoolFolderUpdate_LB", "COOL folder updates;Lumiblock;", 1, 0, 1, 1, 0, 1);
 
   // create histogram for magnetic field information
-  if (!m_magFieldSvc) service("AtlasFieldSvc", m_magFieldSvc, /*createIf=*/false).ignore();
-  if (m_magFieldSvc) {
-    m_magFieldHist = new TH2I("MagneticFieldSettings", "Magnetic field settings", 2, 0, 2, 2, 0, 2);
-
-    m_magFieldHist->GetYaxis()->SetBinLabel(1, "off");
-    m_magFieldHist->GetYaxis()->SetBinLabel(2, "on");
-    m_magFieldHist->GetXaxis()->SetBinLabel(1, "Solenoid");
-    m_magFieldHist->GetXaxis()->SetBinLabel(2, "Toroid");
-  }
+  m_magFieldHist = new TH2I("MagneticFieldSettings", "Magnetic field settings", 2, 0, 2, 2, 0, 2);
+  m_magFieldHist->GetYaxis()->SetBinLabel(1, "off");
+  m_magFieldHist->GetYaxis()->SetBinLabel(2, "on");
+  m_magFieldHist->GetXaxis()->SetBinLabel(1, "Solenoid");
+  m_magFieldHist->GetXaxis()->SetBinLabel(2, "Toroid");
 
   m_releaseHist = new TH1I("GeneralOpInfo", "General operational info;;Applications", 1, 0, 1);
 
@@ -161,10 +162,13 @@ StatusCode TrigOpMonitor::bookHists()
 
 void TrigOpMonitor::fillMagFieldHist()
 {
-  if (!m_magFieldSvc || !m_magFieldHist) return;
-
-  m_magFieldHist->Fill("Solenoid", m_magFieldSvc->solenoidOn() ? "on" : "off", 1.0);
-  m_magFieldHist->Fill("Toroid", m_magFieldSvc->toroidOn() ? "on" : "off", 1.0);
+  if (!m_fieldMapKey.empty()) {
+    SG::ReadCondHandle<AtlasFieldMapCondObj> fieldMapHandle(m_fieldMapKey);
+    const MagField::AtlasFieldMap* fieldMap = fieldMapHandle->fieldMap();
+    // if there is no field map, the field is off
+    m_magFieldHist->Fill("Solenoid", fieldMap && fieldMap->solenoidOn() ? "on" : "off", 1.0);
+    m_magFieldHist->Fill("Toroid", fieldMap && fieldMap->toroidOn() ? "on" : "off", 1.0);
+  }
 }
 
 void TrigOpMonitor::fillIOVDbHist()

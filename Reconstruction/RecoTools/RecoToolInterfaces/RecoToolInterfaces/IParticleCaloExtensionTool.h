@@ -52,6 +52,7 @@
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
 #include <memory>
 #include <unordered_map>
@@ -72,7 +73,6 @@ public:
    * if it is  neutral/TruthParticle
    * The memory ownership is handled by the unique_ptr
    * @param ctx         event context needed for multithreading
-   * @param particle    reference to the Particle
    * @param particle    reference to the Particle
    * @return unique_ptr  to a CaloExtension
    */
@@ -156,6 +156,23 @@ public:
     PropDirection propDir,
     ParticleHypothesis particleType) const = 0;
 
+  /**
+   * Method returning a vector of the Track Parameters at the cluster
+   * layers/samplings
+   * @param ctx          event context needed for multithreading
+   * @param startPars    the starting track parameters
+   * @param caloCluster  the cluster we aim for
+   * @param particleType type of particle
+   */
+
+  virtual std::vector<std::pair<CaloSampling::CaloSample,
+                                std::unique_ptr<const Trk::TrackParameters>>>
+  egammaCaloExtension(
+    const EventContext& ctx,
+    const TrackParameters& startPars,
+    const xAOD::CaloCluster& cluster,
+    ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
+
   static const InterfaceID& interfaceID();
 };
 
@@ -166,6 +183,5 @@ Trk::IParticleCaloExtensionTool::interfaceID()
 }
 
 } // end of namespace
-
 
 #endif
