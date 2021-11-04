@@ -122,11 +122,13 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
   for (int modHash = 12; modHash < maxHash - 12; modHash++) {
     Identifier waferID = m_pixelid->wafer_id(modHash);
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
-    int nFE;
-    bool is_fei4;
+    int nFE(0);
+    bool is_fei4(false);     // FEI4 readout architecture (IBL, DBM)
+    bool is_ibl3Dodd(false); // IBL 3D modules with |eta_module| = 7 and 9, for them errors are stored as FE-1 error, s.a.
     if (pixlayer == PixLayers::kIBL) {
       nFE = 1; // IBL 3D
-      if (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) nFE = 2; //IBL Planar
+      if (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) nFE = 2; // IBL Planar
+      else if (std::abs(m_pixelid->eta_module(waferID)) == 7 || std::abs(m_pixelid->eta_module(waferID)) == 9) is_ibl3Dodd = true;
       is_fei4 = true;
     } else { // for fei3 Pixel layers
       nFE = 16;
@@ -166,7 +168,9 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
     // getting fe_error information (all pixel layers)
     //
     for (int iFE = 0; iFE < nFE; iFE++) {
+
       int offsetFE = (1 + iFE) * maxHash + modHash;    // (FE index+1)*2048 + moduleHash
+      if (is_ibl3Dodd) offsetFE+=maxHash;
       uint64_t fe_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx);
 
       fillErrorCatRODmod(fe_errorword, is_fei4, nerrors_cat_rodmod, iFE);
@@ -200,18 +204,18 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
     int state_offset(8); // serviceCode part starts from state 8 of kNumErrorStatesFEI4
     const int serviceRecordFieldOffset = 17 * maxHash;
     if (pixlayer == PixLayers::kIBL) {
-      int moduleOffset = (modHash - 156) * nFE;
+      int moduleOffset = (modHash - 156) * 2;
       for (int serviceCode = 0; serviceCode < 32; serviceCode++) {
         // skip irrelevant SR's (as in rel21)
         if ((serviceCode >= 9 && serviceCode <= 14) || (serviceCode >= 17 && serviceCode <= 23)) {
           state_offset--;
           continue;
         }
-        int serviceCodeOffset = serviceCode * 280 * nFE;
+        int serviceCodeOffset = serviceCode * 280 * 2;
         for (int iFE = 0; iFE < nFE; iFE++) {
           Identifier pixelIDperFEI4 = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
-          // index = offset + (serviceCode)*(#IBL*nFE) + (moduleHash-156)*nFE + FE
-          int serviceCodeCounterIndex = serviceRecordFieldOffset + serviceCodeOffset + moduleOffset + iFE;
+          // index = offset + (serviceCode)*(#IBL*nFEmax) + (moduleHash-156)*nFEmax + iFE
+          int serviceCodeCounterIndex = serviceRecordFieldOffset + serviceCodeOffset + moduleOffset + iFE + int(is_ibl3Dodd);
           uint64_t serviceCodeCounter = m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx);
           if (serviceCodeCounter > 0) {
             float payload = serviceCodeCounter; // NB: + 1, as in rel 21, is now added upstream
