@@ -159,16 +159,6 @@ else:
 AODFix.AODFix_addMetaData()
 RecoFix.RecoFix_addMetaData()
 
-if rec.oldFlagCompatibility:
-    print ("RecExCommon_flags.py flags values:")
-    try:
-        for o in RecExCommonFlags.keys():
-            print ("%s =" % o, globals()[o])
-    except Exception:
-        print ("WARNING RecExCommonFlags not available, cannot delete")
-else:
-    print ("Old flags have been deleted")
-
 # end flag settings section
 ##########################################################################
 # set up job
@@ -1333,17 +1323,6 @@ if rec.doWriteBS():
     StreamBSFileOutput.ItemList +=["CscRawDataContainer#*"]
 
     # EOF BS Writting (T Bold)
-
-
-# end of configuration : check that some standalone flag have not been reinstantiated
-varInit=dir()
-if not rec.oldFlagCompatibility:
-    try:
-        for i in RecExCommonFlags.keys():
-            if i in varInit:
-                logRecExCommon_topOptions.warning("Variable %s has been re-declared, forbidden !", i)
-    except Exception:
-        print ("WARNING RecExCommonFlags not available, cannot check")
 
 
 if rec.readAOD():
