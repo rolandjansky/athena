@@ -249,12 +249,12 @@ def analyseChainName(chainName, L1thresholds, L1item):
             
             groupdict['signature'] = sName
             log.debug("groupdict['signature']: %s",groupdict['signature'])
-
-            if "tnpInfo" in groupdict.keys():
+            
+            if "tnpInfo" in groupdict.keys() and groupdict['tnpInfo'] != "":
                 groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['tnpInfo'])
             else:
                 groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
-            log.debug('groupdictionary groupdict: %s', groupdict)
+       
             mdicts.append(groupdict)
 
         elif cpart =='noalg':
@@ -339,7 +339,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         chainProperties['multiplicity'] = multiplicity
         chainProperties['threshold']=mdicts[chainindex]['threshold']
         chainProperties['signature']=mdicts[chainindex]['signature']
-
+       
         # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
         # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
         # have to keep it in the name
@@ -364,7 +364,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         for t in genchainDict['topo']:
             if (t in AllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
-                if "tnpInfo" in chainProperties.keys():
+                if "tnpInfo" in chainProperties.keys() and chainProperties['tnpInfo'] != "":
                     chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['tnpInfo'])
                 else:
                     chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['extra'])
@@ -439,14 +439,15 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- set the alignment group here, once we have fully worked out the properties ----
         # ---- this is for the benefit of the probe leg in T&P chains ----
+    
         if 'larnoiseburst' in chainName:
             chainProperties['alignmentGroup'] = 'JetMET'
         else:
-            if 'tnpInfo' in chainProperties.keys():
+            if 'tnpInfo' in chainProperties.keys() and chainProperties['tnpInfo'] != "":
                 chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'],chainProperties['tnpInfo'])
             else:
                 chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'],chainProperties['extra'])
-
+                
         # ---- the info of the general and the specific chain parts dict ----
         allChainProperties.append(chainProperties)
 
@@ -456,7 +457,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     for cPart in allChainProperties:
         if cPart['signature'] == 'Jet' and cPart['bTag'] != '':
             cPart['signature'] = 'Bjet'
-            if 'tnpInfo' in cPart.keys():
+            if 'tnpInfo' in cPart.keys() and cPart['tnpInfo'] != "":
                 cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['tnpInfo'])
             else:
                 cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['extra'])
@@ -464,7 +465,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         genchainDict['alignmentGroups'] += [cPart['alignmentGroup']]
 
     #genchainDict['signature'] = allChainProperties[0]['signature']
-
+   
     return genchainDict
 
 

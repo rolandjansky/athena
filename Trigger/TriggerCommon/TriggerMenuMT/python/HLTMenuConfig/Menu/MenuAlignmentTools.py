@@ -45,10 +45,10 @@ def get_alignment_group_from_pattern(signature, extra):
     if signature_for_alignment in the_signature_grouping.keys():
         return the_signature_grouping[signature_for_alignment]
     elif signature in the_signature_grouping.keys():
-        log.debug("[get_alignment_group_from_pattern] Falling back to signature alignment grouping for %s",signature)
+        log.debug("[get_alignment_group_from_pattern] Falling back to signature alignment grouping for %s (%s)",signature, extra)
         return the_signature_grouping[signature]
     else:
-        log.debug("[get_alignment_group_from_pattern] No dedicated alignment grouping for signature %s",signature)
+        log.debug("[get_alignment_group_from_pattern] No dedicated alignment grouping for signature %s (%s)",signature, extra)
         return signature
 
 def remove_duplicates(config_tuples):
