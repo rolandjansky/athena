@@ -56,7 +56,7 @@ class TrigEgammaKeys_GSF(object):
 #
 # Electron DNN Selectors
 #
-def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronDNNSelector', **kwargs):
+def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronDNNSelector', ConfigFilePath=None):
     acc = ComponentAccumulator()
     # We should include the DNN here
 
@@ -90,11 +90,13 @@ def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronD
 #
 # Electron LH Selectors
 #
-def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronLHSelector', **kwargs):
+def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronLHSelector', ConfigFilePath=None):
 
     # Configure the LH selectors
     acc = ComponentAccumulator()
-    ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+    
+    if not ConfigFilePath:
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
 
     import collections
     SelectorNames = collections.OrderedDict({
@@ -134,7 +136,7 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
 #
 # Electron CB Selectors
 #
-def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCBSelector', **kwargs):
+def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCBSelector', ConfigFilePath=None):
     #from AthenaCommon.Configurable import ConfigurableRun3Behavior
     #with ConfigurableRun3Behavior():
     acc = ComponentAccumulator()
@@ -159,7 +161,8 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
             | 1 << BitDefElectron.ClusterStripsWeta1c_Electron
     )
 
-    ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+    if not ConfigFilePath:
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
 
     from collections import OrderedDict
     SelectorNames = OrderedDict({
