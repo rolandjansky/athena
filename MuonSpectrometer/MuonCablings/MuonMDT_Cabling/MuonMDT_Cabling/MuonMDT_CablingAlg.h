@@ -24,7 +24,7 @@
 
 class IIOVSvc;
 class IIOVDbSvc;
-class MuonMDT_CablingMap;
+
 
 class MuonMDT_CablingAlg: public AthAlgorithm {
 
@@ -35,14 +35,26 @@ class MuonMDT_CablingAlg: public AthAlgorithm {
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
   
+  using CablingData = MuonMDT_CablingMap::CablingData;
  private:
-
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMez;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMap;
-  SG::WriteCondHandleKey<MuonMDT_CablingMap> m_writeKey{this, "WriteKey", "MuonMDT_CablingMap", "Key of output MDT cabling map"};
-  ServiceHandle<ICondSvc> m_condSvc;
+   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMez{this, "MezzanineFolders", "/MDT/CABLING/MEZZANINE_SCHEMA"};
+   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyMap{this, "MapFolders", "/MDT/CABLING/MAP_SCHEMA"};
+   SG::WriteCondHandleKey<MuonMDT_CablingMap> m_writeKey{this, "WriteKey", "MuonMDT_CablingMap", "Key of output MDT cabling map"};
+   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   
+
+  /// Retrieves the general MDT station info from the coral attribute
+  bool extractStationInfo(const coral::AttributeList& atr, CablingData& map_data ) const;
+  /// Retrieves the channel info from the coral attribute
+  bool extractLayerInfo(std::vector<std::string>& , CablingData& map_data ) const;
+
+  /// Load the mezzanine schem into the cabling
+  StatusCode loadMezzanineSchema(const EventContext& ctx, EventIDRange& iov_range, MuonMDT_CablingMap& cabling_map) const;
+  /// Load the cabling schema of the tubes
+
+  StatusCode loadCablingSchema(const EventContext& ctx, EventIDRange& iov_range, MuonMDT_CablingMap& cabling_map) const;
+
 };
 
 #endif

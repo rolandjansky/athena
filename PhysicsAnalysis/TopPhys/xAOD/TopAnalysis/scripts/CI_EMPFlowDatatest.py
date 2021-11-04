@@ -4,9 +4,9 @@
 # We will augment the NEvents line in our cutfile to limit the job
 # This is primarily to catch any runtime changes introduced before they are merged
 
-from PathResolver import PathResolver
 from CI_test import CITest
-import sys,ROOT
+import sys
+import ROOT
 
 cutfilename = "validation-cuts.txt"
 cutfilepath = ROOT.PathResolver.find_file(cutfilename,
@@ -16,9 +16,9 @@ cutfilepath = ROOT.PathResolver.find_file(cutfilename,
 returnCode = CITest("DAOD_PHYS DATA",
                     cutfilename,
                     cutfilepath,
-                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/Data/p4173/"+
-                    "data16_13TeV.AllYear.physics_Main.PhysCont.DAOD_TOPQ1.grp16_v01_p4173/DAOD_TOPQ1.21542408._000018.pool.root.1",
-                    [("#NEvents.*","NEvents 3000")])
+                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/R22/Data/p4844/"
+                    "DAOD_PHYS.data18_r13100_p4844.pool.root",
+                    [("#NEvents.*", "NEvents 3000")])
 
 if returnCode != 0:
     print("Error in DAOD_PHYS Data")

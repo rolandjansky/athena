@@ -14,26 +14,23 @@
 using namespace TopObjectSelectionTools;
 
 namespace top {
-  PhotonMC16::PhotonMC16(double ptcut, double etamax, IsolationBase* isolation, bool usePhotonShowerShapeVariables) :
+  PhotonMC16::PhotonMC16(double ptcut, double etamax, IsolationBase* isolation) :
     m_ptcut(ptcut),
     m_etamax(etamax),
     m_photon_selection("DFCommonPhotonsIsEMTight"),
     m_loose_photon_selection("DFCommonPhotonsIsEMLoose"),
-    m_isolation(isolation),
-    m_usePhotonShowerShapeVariables(usePhotonShowerShapeVariables) {
+    m_isolation(isolation) {
   }
 
   PhotonMC16::PhotonMC16(double ptcut, double etamax,
                          const std::string& tightID,
                          const std::string& looseID,
-                         IsolationBase* isolation,
-                         bool usePhotonShowerShapeVariables) :
+                         IsolationBase* isolation) :
     m_ptcut(ptcut),
     m_etamax(etamax),
     m_photon_selection(tightID),
     m_loose_photon_selection(looseID),
-    m_isolation(isolation),
-    m_usePhotonShowerShapeVariables(usePhotonShowerShapeVariables) {
+    m_isolation(isolation) {
     // Make a map of shortcuts e.g "Tight = DFCommonPhotonsIsEMTight"
     std::map<std::string, std::string> id_map;
     id_map["Tight"] = "DFCommonPhotonsIsEMTight";
@@ -88,23 +85,13 @@ namespace top {
     // Remove crack region
     if (abs_eta > 1.37 && abs_eta < 1.52) return false;
 
-    // Photon cleaning [http://cern.ch/go/8RdK]
-    // <tom.neep@cern.ch>: This is madness!! I *think* this is the right way
-    // to do this but there should really be a helper function supplied by egamma!
-    // <iconnell@cern.ch>: Updating the cleaning for R21, using similar options...
-    if (m_usePhotonShowerShapeVariables) {
-      try {
-        if ((ph.OQ() & 1073741824) != 0 ||
-            ((ph.OQ() & 134217728) != 0 &&
-             (ph.showerShapeValue(xAOD::EgammaParameters::Reta) > 0.98
-              || ph.showerShapeValue(xAOD::EgammaParameters::f1) > 0.4
-              || (ph.OQ() & 67108864) != 0))) return false;
-      }
-      catch (const SG::ExcBadAuxVar& e) {
-        ATH_MSG_WARNING("Didn't find the necessary photon shower shapes variables for photon cleaning! This might be a derivation issue, skipping from now on.");
-        m_usePhotonShowerShapeVariables = false;
-      }
-    }
+    // Photon cleaning
+    static const SG::AuxElement::ConstAccessor<char> accDFCommonPhotonsCleaning("DFCommonPhotonsCleaning");
+    static const SG::AuxElement::ConstAccessor<char> accDFCommonPhotonsCleaningNoTime("DFCommonPhotonsCleaningNoTime");
+
+    if (!accDFCommonPhotonsCleaning(ph)) return false;
+    if (!accDFCommonPhotonsCleaningNoTime(ph)) return false;
+    
     // removing photon cluster in EMEC bad HV regions
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
     if (!m_deadHVTool->accept(ph)) return false;

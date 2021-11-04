@@ -3,7 +3,6 @@
 */
 
 #include "MuonMDT_Cabling/MuonMDT_CablingAlg.h"
-
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
@@ -17,13 +16,8 @@
 #include <map>
 
 MuonMDT_CablingAlg::MuonMDT_CablingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKeyMez("/MDT/CABLING/MEZZANINE_SCHEMA"),
-  m_readKeyMap("/MDT/CABLING/MAP_SCHEMA"),
-  m_condSvc{"CondSvc", name}
-{
-  declareProperty("MezzanineFolders", m_readKeyMez);
-  declareProperty("MapFolders", m_readKeyMap);
+  AthAlgorithm(name, pSvcLocator) {
+  
 }
 
 StatusCode MuonMDT_CablingAlg::initialize(){
@@ -44,9 +38,8 @@ StatusCode MuonMDT_CablingAlg::initialize(){
 StatusCode MuonMDT_CablingAlg::execute(){
   
   ATH_MSG_DEBUG( "execute " << name() );  
-  const auto ctx = Gaudi::Hive::currentContext();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // Write Cond Handle
-
   SG::WriteCondHandle<MuonMDT_CablingMap> writeHandle{m_writeKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -55,164 +48,21 @@ StatusCode MuonMDT_CablingAlg::execute(){
     return StatusCode::SUCCESS; 
   }
   std::unique_ptr<MuonMDT_CablingMap> writeCdo{std::make_unique<MuonMDT_CablingMap>()};
-
-  // Read Cond Handle
   
-  SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez, ctx };
-  const CondAttrListCollection* readCdoMez{*readHandleMez}; 
-  if(readCdoMez==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read conditions object");
-    return StatusCode::FAILURE; 
-  }   
   EventIDRange rangeMez;
-  if ( !readHandleMez.range(rangeMez) ) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleMez.key());
-    return StatusCode::FAILURE;
-  }  
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleMez.fullKey() << " readCdoMez->size()= " << readCdoMez->size());
-  ATH_MSG_INFO("Range of input is " << rangeMez);
-
-  SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap, ctx };
-  const CondAttrListCollection* readCdoMap{*readHandleMap}; 
-  if(readCdoMap==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read conditions object");
-    return StatusCode::FAILURE; 
-  }   
+  ATH_CHECK(loadMezzanineSchema(ctx,rangeMez,*writeCdo));
+  
   EventIDRange rangeMap;
-  if ( !readHandleMap.range(rangeMap) ) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleMap.key());
-    return StatusCode::FAILURE;
-  }  
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleMap.fullKey() << " readCdoMap->size()= " << readCdoMap->size());
-  ATH_MSG_INFO("Range of input is " << rangeMap);
+  ATH_CHECK(loadCablingSchema(ctx,rangeMap,*writeCdo));
+  
 
   // Create an intersection of input IOVs
-  EventIDRange rangeIntersection = EventIDRange::intersect(rangeMez,rangeMap);
+  EventIDRange rangeIntersection = EventIDRange::intersect(rangeMez, rangeMap);
   if(rangeIntersection.start()>rangeIntersection.stop()) {
     ATH_MSG_ERROR("Invalid intersection range: " << rangeIntersection);
     return StatusCode::FAILURE;
   }
   
-  // begin like MDTCablingDbTool::loadMDTMap() ----------
-
-  // access to Mezzanine Schema Table to obtained the mezzanine type   
-  
-  CondAttrListCollection::const_iterator itrMez;
-  for (itrMez = readCdoMez->begin(); itrMez != readCdoMez->end(); ++itrMez) {
-    const coral::AttributeList& atr=itrMez->second;
-    int sequence; 
-    int layer;
-    int mezzanine_type;    
-    mezzanine_type=*(static_cast<const int*>((atr["Mezzanine_Type"]).addressOfData()));
-    layer=*(static_cast<const int*>((atr["Layer"]).addressOfData()));
-    sequence=*(static_cast<const int*>((atr["Sequence"]).addressOfData()));    
-    ATH_MSG_VERBOSE( "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer  );        
-    // here add the mezzanine type to the cabling class
-    bool addLine = writeCdo->addMezzanineLine(mezzanine_type, layer, sequence, msgStream());
-    if (!addLine) {
-      ATH_MSG_ERROR( "Could not add the mezzanine sequence to the map " );
-    }
-    else {
-      ATH_MSG_VERBOSE( "Sequence added successfully to the map"  );
-    }    
-  }
-    
-  // access to Map Schema Table to obtained the Map
-  CondAttrListCollection::const_iterator itrMap;
-  for (itrMap = readCdoMap->begin(); itrMap != readCdoMap->end(); ++itrMap) {
-    const coral::AttributeList& atr=itrMap->second;
-    
-    std::string map;
-    std::string chamber_name, subdetector_id;
-    int  eta, phi, chan;
-    int mrod, csm, mezzanine_type;
-   
-    chamber_name=*(static_cast<const std::string*>((atr["Chamber_Name"]).addressOfData()));
-    eta=*(static_cast<const int*>((atr["Eta"]).addressOfData()));   
-    phi=*(static_cast<const int*>((atr["Phi"]).addressOfData()));
-    subdetector_id=*(static_cast<const std::string*>((atr["SubDet_Id"]).addressOfData()));
-    mrod=*(static_cast<const int*>((atr["MROD"]).addressOfData()));
-    csm=*(static_cast<const int*>((atr["CSM"]).addressOfData()));
-    chan=*(static_cast<const int*>((atr["Chan"]).addressOfData()));
-    mezzanine_type=*(static_cast<const int*>((atr["Mezzanine_Type"]).addressOfData()));
-    map=*(static_cast<const std::string*>((atr["Map"]).addressOfData()));
-    
-    ATH_MSG_VERBOSE( "Data load is: /n" <<
-                     "Chamber_Name = " << chamber_name << " eta= " << eta << "   Phi= " << phi 
-		     << " sub_id = " <<subdetector_id << "  mrod = " << mrod << " csm = " << csm 
-		     << "  chan= " << chan << " mezzanine_type= " << mezzanine_type << "  map = " <<map 
-		     << " FINISHED HERE " );
-
-    // convert the string name to index
-    std::string stationNameString = chamber_name.substr(0,3);
-    // fix for the BOE chambers, which in the offline are treated as BOL                                                                            
-    if (stationNameString == "BOE") {
-      stationNameString = "BOL";
-    }
-    int stationIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationNameString);
-    ATH_MSG_VERBOSE( "station name: " << stationNameString << " index: " << stationIndex  );
-    // convert the subdetector id to integer
-    int subdetectorId = atoi(subdetector_id.c_str());
-
-    char delimiter = ',';
-    auto info_map = MuonCalib::MdtStringUtils::tokenize(map,delimiter);   
-    ATH_MSG_VERBOSE( " parsing of the map"  );
-
-    int index=0;
-    int tdcId = -99;
-    int channelId = -99;
-    int multilayer = -99;
-    int layer = -99;
-    int tube = -99;
-
-    // this is a loop on the mezzanines, add each mezzanine to the map
-
-    for(unsigned int i=0; i<info_map.size();i++){
-      ATH_MSG_VERBOSE( i << "..."<< info_map[i] );
-      int info = MuonCalib::MdtStringUtils::atoi(info_map[i]);
-      index++;
-      // this is a tdcid
-      if (index==1) {
-	tdcId = info;	
-      }
-      // this is a channel Id
-      else if (index==2) {
-	channelId = info;
-      }
-      // this is a tube id that must be unpacked
-      else if (index==3) {
-	// unpack the tube Id
-  // this will for sure not work for BIS78, multilayer2, since there, we have 108 tubes per tubeLayer (cf. ATLASRECTS-5961)
-	tube = info%100;
-	layer = ((info-tube)/100)%10;
-	multilayer = (((info-tube)/100)-layer)/10 ;
-	index = 0;
-  // the stationIndex is later on passed to the MdtIdHelper, thus, it must be a reasonable station name, i.e. not < 0
-  if (stationIndex<0) {
-    static std::atomic<bool> stWarningPrinted = false;
-    if (!stWarningPrinted) {
-      ATH_MSG_WARNING("Found stationIndex="<<stationIndex<<" which is not reasonable, maybe related to ATLASRECTS-5961, continuing...");
-      stWarningPrinted.store(true, std::memory_order_relaxed);
-    }
-    continue;
-  }
-	ATH_MSG_VERBOSE( "Adding new mezzanine: tdcId " << tdcId << " channel " << channelId
-                         << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube  );
-	// now this mezzanine can be added to the map:
-	writeCdo->addMezzanine(mezzanine_type, stationIndex, eta, phi, multilayer,
-				    layer, tube, subdetectorId, mrod, csm, tdcId, channelId, msgStream());				    
-      }
-    } // end of info_map loop
-
-  } // end of CondAttrListCollection loop
-    
-  ATH_MSG_VERBOSE( "Collection CondAttrListCollection CLID "
-		   << readCdoMap->clID()  );
-
-  // end like MDTCablingDbTool::loadMDTMap() ----------
-
-  // maybe better empty check here
-
   if ( writeHandle.record(rangeIntersection, std::move(writeCdo)).isFailure() ) {
     ATH_MSG_FATAL("Could not record MuonMDT_CablingMap " << writeHandle.key() 
 		  << " with EventRange " << rangeIntersection << " into Conditions Store");
@@ -220,5 +70,170 @@ StatusCode MuonMDT_CablingAlg::execute(){
   }
   ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeIntersection << " into Conditions Store");
   
+  return StatusCode::SUCCESS;
+}
+StatusCode MuonMDT_CablingAlg::loadCablingSchema(const EventContext& ctx, EventIDRange& iov_range, MuonMDT_CablingMap& cabling_map) const{
+
+  SG::ReadCondHandle<CondAttrListCollection> readHandleMap{ m_readKeyMap, ctx };
+  const CondAttrListCollection* readCdoMap{*readHandleMap}; 
+  if(!readCdoMap){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return StatusCode::FAILURE; 
+  }   
+ 
+  if ( !readHandleMap.range(iov_range) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleMap.key());
+    return StatusCode::FAILURE;
+  }  
+  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleMap.fullKey() << " readCdoMap->size()= " << readCdoMap->size());
+  ATH_MSG_INFO("Range of input is " << iov_range);
+  
+  ATH_MSG_VERBOSE( "Collection CondAttrListCollection CLID "
+		   << readCdoMap->clID()  );
+
+  
+  // access to Map Schema Table to obtained the Map
+  CondAttrListCollection::const_iterator itrMap;
+  for (itrMap = readCdoMap->begin(); itrMap != readCdoMap->end(); ++itrMap) {
+    const coral::AttributeList& atr=itrMap->second;
+    
+    CablingData map_data;
+    if (!extractStationInfo(atr, map_data)) continue;
+
+    constexpr char delimiter = ',';
+    const std::string map=*(static_cast<const std::string*>((atr["Map"]).addressOfData()));
+    std::vector<std::string> info_map; 
+    MuonCalib::MdtStringUtils::tokenize(map,info_map,delimiter);       
+    
+    while (extractLayerInfo(info_map,map_data)) {
+      /// now this mezzanine can be added to the map:
+      ATH_MSG_DEBUG( "Adding new mezzanine "<<map_data );
+      cabling_map.addMezzanine(map_data, msgStream());
+    }
+  } // end of CondAttrListCollection loop
+  return StatusCode::SUCCESS;
+}
+
+bool MuonMDT_CablingAlg::extractStationInfo(const coral::AttributeList& atr, CablingData& map_data ) const {
+
+    map_data.eta=*(static_cast<const int*>((atr["Eta"]).addressOfData()));   
+    map_data.phi=*(static_cast<const int*>((atr["Phi"]).addressOfData()));
+    map_data.mrod=*(static_cast<const int*>((atr["MROD"]).addressOfData()));
+    map_data.csm=*(static_cast<const int*>((atr["CSM"]).addressOfData()));
+    map_data.channelId=*(static_cast<const int*>((atr["Chan"]).addressOfData()));
+    map_data.mezzanine_type=*(static_cast<const int*>((atr["Mezzanine_Type"]).addressOfData()));
+    
+    const std::string chamber_name=*(static_cast<const std::string*>((atr["Chamber_Name"]).addressOfData()));
+    const std::string subdetector_id=*(static_cast<const std::string*>((atr["SubDet_Id"]).addressOfData()));
+   
+  
+    // convert the string name to index
+    std::string stationNameString = chamber_name.substr(0,3);
+    // fix for the BOE chambers, which in the offline are treated as BOL                                                                            
+    if (stationNameString == "BOE") {
+        stationNameString = "BOL";
+    }
+    map_data.stationIndex = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationNameString);
+    ATH_MSG_VERBOSE( "station name: " << stationNameString << " index: " << map_data.stationIndex  );
+   // convert the subdetector id to integer
+   map_data.subdetectorId = atoi(subdetector_id.c_str());
+   const std::string tube_attr{"TubesPerLayer"};
+
+   const int* layer_size = atr.exists(tube_attr) ? static_cast<const int*>((atr[tube_attr]).addressOfData()) : nullptr;
+   if(layer_size){
+     static std::atomic<bool> sInfoPrinted{false};
+     if (!sInfoPrinted){
+          sInfoPrinted = true;
+          ATH_MSG_INFO("Additional information found in the database concerning the number of tubes per layer");
+     }
+      map_data.tubes_per_layer = (*layer_size);
+      ATH_MSG_VERBOSE("Over write the tubes per layer to "<<map_data.tubes_per_layer);
+   }
+   ATH_MSG_DEBUG( "Data load is: /n" <<
+                     "Chamber_Name = " << chamber_name << " eta= " <<  map_data.eta << "   Phi= " << map_data.phi 
+		     << " sub_id = " <<subdetector_id << "  mrod = " << map_data.mrod << " csm = " << map_data.csm 
+		     << "  chan= " << map_data.channelId << " mezzanine_type= " << map_data.mezzanine_type<< " FINISHED HERE " );
+
+
+   if (map_data.stationIndex<0) {
+      static std::atomic<bool> stWarningPrinted {false};
+      if (!stWarningPrinted) {
+        ATH_MSG_WARNING("Found stationIndex="<< map_data.stationIndex<<" which is not reasonable, maybe related to ATLASRECTS-5961, continuing...");
+        stWarningPrinted = true;    
+     }
+   }   
+   return  map_data.stationIndex >= 0;
+}
+bool MuonMDT_CablingAlg::extractLayerInfo(std::vector<std::string>& info_map, CablingData& map_data ) const{    
+    ATH_MSG_VERBOSE( " parsing of the map"  );
+    /// The map data is endcoded in repitive blocks of
+    ///   <tdcId>,<channelId>,<tube_numbering>,<tdcId>,<channelId>,<tube_numbering>,...
+    constexpr unsigned int coding_block_size = 3; 
+    const unsigned int n = info_map.size() >= coding_block_size? coding_block_size: info_map.size();
+    bool decoded_full_block{false};
+    for(unsigned int i=0; i<n;++i){
+      ATH_MSG_VERBOSE( i << "..."<< info_map[i] );
+      int info = MuonCalib::MdtStringUtils::atoi(info_map[i]);
+      // this is a tdcid
+      if (i==0) {
+	      map_data.tdcId = info;	
+      }
+      // this is a channel Id
+      else if (i==1) {
+	      map_data.channelId = info;
+      }
+      // this is a tube id that must be unpacked
+      else if (i==2) {
+        /// unpack the tube Id
+        map_data.tube = info % map_data.tubes_per_layer;
+	      map_data.layer = ((info-map_data.tube)/map_data.tubes_per_layer)%map_data.layer_block;
+	      map_data.multilayer = (((info-map_data.tube)/map_data.tubes_per_layer)- map_data.layer) / map_data.layer_block ;
+        decoded_full_block = true;
+      }
+  }
+
+  // the stationIndex is later on passed to the MdtIdHelper, thus, it must be a reasonable station name, i.e. not < 0  
+	if (decoded_full_block) info_map.erase(info_map.begin(),info_map.begin()+coding_block_size);
+  return decoded_full_block;
+
+}
+
+
+
+StatusCode MuonMDT_CablingAlg::loadMezzanineSchema(const EventContext& ctx, EventIDRange& iov_range, MuonMDT_CablingMap& cabling_map) const{
+  /// Read Cond Handle
+  
+  SG::ReadCondHandle<CondAttrListCollection> readHandleMez{ m_readKeyMez, ctx };
+  const CondAttrListCollection* readCdoMez{*readHandleMez}; 
+  if ( !readHandleMez.range(iov_range) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandleMez.key());
+    return StatusCode::FAILURE;
+  } 
+  if(!readCdoMez){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    return StatusCode::FAILURE; 
+  }   
+   
+  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleMez.fullKey() << " readCdoMez->size()= " << readCdoMez->size());
+  ATH_MSG_INFO("Range of input is " << iov_range);
+
+  CondAttrListCollection::const_iterator itrMez;
+  for (itrMez = readCdoMez->begin(); itrMez != readCdoMez->end(); ++itrMez) {
+    const coral::AttributeList& atr=itrMez->second;
+    int sequence{0}, layer{0}, mezzanine_type{0};
+
+    mezzanine_type=*(static_cast<const int*>((atr["Mezzanine_Type"]).addressOfData()));
+    layer=*(static_cast<const int*>((atr["Layer"]).addressOfData()));
+    sequence=*(static_cast<const int*>((atr["Sequence"]).addressOfData()));    
+    ATH_MSG_VERBOSE( "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer  );        
+    
+    // here add the mezzanine type to the cabling class
+    if (!cabling_map.addMezzanineLine(mezzanine_type, layer, sequence, msgStream())) {
+      ATH_MSG_ERROR( "Could not add the mezzanine sequence to the map " );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_VERBOSE( "Sequence added successfully to the map"  );
+    }    
+  }
   return StatusCode::SUCCESS;
 }
