@@ -11,6 +11,9 @@ from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 import AthenaCommon.SystemOfUnits as Units
 
 
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+
 ########
 # to move into TrigMinBiasHypoConfigMT?
 
@@ -56,8 +59,7 @@ def MbtsHypoToolGen(chainDict):
     
 
 def TrigZVertexHypoToolGen(chainDict):
-    from TrigMinBias.TrigMinBiasConf import TrigZVertexHypoTool
-    hypo = TrigZVertexHypoTool(chainDict["chainName"])
+    hypo = CompFactory.TrigZVertexHypoTool(chainDict["chainName"])
     if "pusup" in chainDict["chainName"]:
         # TODO enable when we setup more chains and have the cuts available
         # at the moment we require a vertex to be found
@@ -121,32 +123,21 @@ def MinBiasSPSequence():
                         Hypo        = spCountHypo,
                         HypoToolGen = SPCountHypoToolGen )
 
-def MinBiasZVertexFinderSequence():
-    import AthenaCommon.CfgMgr as CfgMgr
-    vdv = CfgMgr.AthViews__ViewDataVerifier( "VDVZFinderInputs" )
-    vdv.DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), ( 'PixelID' , 'DetectorStore+PixelID' ) ]
+@AccumulatorCache
+def MinBiasZVertexFinderSequenceCfg(flags):
+    from ..Menu.MenuComponents import InViewRecoCA, SelectionCA, MenuSequenceCA
+    recoAcc = InViewRecoCA(name="ZVertFinderReco", roisKey="InputRoI", RequireParentView=True)
+    vdv = CompFactory.AthViews.ViewDataVerifier( "VDVZFinderInputs",
+                                                  DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), 
+                                                                 ( 'PixelID' , 'DetectorStore+PixelID' ) ])
 
-    from IDScanZFinder.ZFinderAlgConfig import  MinBiasZFinderAlg
-    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, MinBiasZFinderAlg ])
-    
-    #idTrigConfig = getInDetTrigConfig('InDetSetup')
-    ZVertFindInputMakerAlg = EventViewCreatorAlgorithm("IM_ZVertFinder")
-    ZVertFindInputMakerAlg.ViewFallThrough = True
-    ZVertFindInputMakerAlg.RoITool = ViewCreatorInitialROITool()
-    ZVertFindInputMakerAlg.InViewRoIs = "InputRoI"
-    ZVertFindInputMakerAlg.Views = "ZVertFinderView"
-    ZVertFindInputMakerAlg.RequireParentView = True 
-    ZVertFindInputMakerAlg.ViewNodeName =  ZVertFindRecoSeq.name()
-    
-
-    ZVertFindSequence = seqAND("ZVertFindSequence", [ZVertFindInputMakerAlg, ZVertFindRecoSeq])
-    from TrigMinBias.TrigMinBiasConf import TrigZVertexHypoAlg
-
-    hypoAlg = TrigZVertexHypoAlg("TrigZVertexHypoAlg", ZVertexKey=recordable("HLT_vtx_z"))
-    
-    return MenuSequence(Sequence    = ZVertFindSequence,
-                        Maker       = ZVertFindInputMakerAlg,
-                        Hypo        = hypoAlg,
+    recoAcc.addRecoAlgo(vdv)
+    from IDScanZFinder.ZFinderAlgConfig import  MinBiasZFinderCfg
+    recoAcc.mergeReco( MinBiasZFinderCfg(flags) )
+    selAcc = SelectionCA("ZVertexFinderSel")    
+    selAcc.mergeReco(recoAcc)
+    selAcc.addHypoAlgo( CompFactory.TrigZVertexHypoAlg("TrigZVertexHypoAlg", ZVertexKey=recordable("HLT_vtx_z")))
+    return MenuSequenceCA(selAcc,
                         HypoToolGen = TrigZVertexHypoToolGen)
 
 
@@ -206,3 +197,17 @@ def MinBiasMbtsSequence():
                         Maker       = MbtsInputMakerAlg,
                         Hypo        = hypo,
                         HypoToolGen = MbtsHypoToolGen)
+
+
+if __name__ == "__main__":
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    flags.lock()
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    ca = MinBiasZVertexFinderSequenceCfg(flags)    
+    ca.ca.printConfig(withDetails=True)
+
+    from ..Menu.MenuComponents import menuSequenceCAToGlobalWrapper
+    ms = menuSequenceCAToGlobalWrapper(MinBiasZVertexFinderSequenceCfg, flags)
+    print (ms)
+#    ca.ca.wasMerged()

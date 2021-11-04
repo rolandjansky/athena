@@ -1056,7 +1056,44 @@ def createComboAlg(dummyFlags, name, comboHypoCfg):
     return ComboMaker(name, comboHypoCfg)
 
 
-# this is fragment for New JO
+def menuSequenceCAToGlobalWrapper(gen, flags, *args, **kwargs):
+    """
+    Generates & converts MenuSequenceCA into the MenuSequence, in addition appending aux stuff to global configuration
+    """
+    from AthenaCommon.Configurable import ConfigurableRun3Behavior
+    with ConfigurableRun3Behavior():
+        msca = gen(flags, *args, **kwargs)
+        assert isinstance(msca, MenuSequenceCA), "Function provided to menuSequenceCAToGlobalWrapper does not generate MenuSequenceCA"
+
+    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
+    from AthenaCommon.AlgSequence import AthSequencer
+    from AthenaCommon.CFElements import compName, isSequence
+    hypo = conf2toConfigurable(msca.hypo.Alg)
+    maker = conf2toConfigurable(msca.maker.Alg)
+
+    def _convertSeq(s):
+        sname = compName(s)
+        old = AthSequencer( sname )
+        if s.ModeOR: #this seems stupid way to do it but in fact this was we avoid setting this property if is == default, this streamlining comparisons
+            old.ModeOR = True
+        if s.Sequential:
+            old.Sequential = True
+        old.StopOverride =    s.StopOverride 
+        for member in s.Members:
+            if isSequence(member):
+                old += _convertSeq(member)
+            else:
+                old += conf2toConfigurable(member)
+        return old
+    sequence = _convertSeq(msca.sequence.Alg.Members[0]) 
+    msca.ca._algorithms = {}
+    msca.ca._sequence = None
+    msca.ca._allSequences = []
+    appendCAtoAthena(msca.ca)
+    return MenuSequence(Sequence   = sequence,
+                        Maker       = maker,
+                        Hypo        = hypo,
+                        HypoToolGen = msca._hypoToolConf.hypoToolGen)
 
 
 class InEventRecoCA( ComponentAccumulator ):
@@ -1091,7 +1128,7 @@ class InEventRecoCA( ComponentAccumulator ):
 
 class InViewRecoCA(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None):
+    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None): #TODO - make RequireParentView requireParentView for consistency
         super( InViewRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
@@ -1101,15 +1138,15 @@ class InViewRecoCA(ComponentAccumulator):
 
         if viewMaker:
             self.viewMakerAlg = viewMaker
-            assert RequireParentView is None, "Can not specify viewMaker and settings (RequreParentView) of default ViewMaker"
+            assert RequireParentView is None, "Can not specify viewMaker and settings (RequireParentView) of default ViewMaker"
             assert roisKey is None, "Can not specify viewMaker and settings (roisKey) of default ViewMaker"
         else:
-            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+name,
+            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM_"+name,
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI',
                                                           RoITool         = ViewCreatorInitialROITool(),
                                                           InViewRoIs      = roisKey if roisKey else name+'RoIs',
-                                                          Views           = name+'Views',
+                                                          Views           = name+'View',
                                                           ViewNodeName    = name+"InView", 
                                                           RequireParentView = RequireParentView if RequireParentView else False)
 
@@ -1132,7 +1169,9 @@ class SelectionCA(ComponentAccumulator):
     def __init__(self, name):
         self.name = name
         super( SelectionCA, self ).__init__()
-        self.stepRecoSequence, self.stepViewSequence = createStepView(name)
+
+        self.stepRecoSequence = parOR(CFNaming.stepRecoName(name))
+        self.stepViewSequence = seqAND(CFNaming.stepViewName(name), [self.stepRecoSequence])
         self.addSequence(self.stepViewSequence)
 
     def mergeReco(self, other):
@@ -1234,7 +1273,3 @@ class RecoFragmentsPool(object):
 def getChainStepName(chainName, stepNumber):
     return '{}_step{}'.format(chainName, stepNumber)
 
-def createStepView(stepName):
-    stepReco = parOR(CFNaming.stepRecoName(stepName))
-    stepView = seqAND(CFNaming.stepViewName(stepName), [stepReco])
-    return stepReco, stepView
