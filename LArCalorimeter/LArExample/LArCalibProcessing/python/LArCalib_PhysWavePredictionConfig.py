@@ -6,7 +6,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 def LArPhysWavePredictionCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     from LArCalibProcessing.utils import FolderTagResolver
@@ -38,7 +38,7 @@ def LArPhysWavePredictionCfg(flags):
 
     #Retrieve inputs 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(flags,flags.LArCalib.CaliWave.Folder,detDb=flags.LArCalib.Input.Database, tag=CaliWaveTag))
+    result.merge(addFolders(flags,flags.LArCalib.CaliWave.Folder,detDb=flags.LArCalib.Input.Database, tag=CaliWaveTag, modifiers=chanSelStr(flags)))
     result.merge(addFolders(flags,"/LAR/ElecCalibOfl/Tdrift/Computed",detDb="LAR_OFL",tag="LARElecCalibOflTdriftComputed-calib-03"))
     
 
