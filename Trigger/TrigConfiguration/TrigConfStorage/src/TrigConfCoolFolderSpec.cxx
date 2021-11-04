@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfStorage/TrigConfCoolFolderSpec.h"
@@ -18,21 +18,18 @@ using namespace TrigConf;
 // Size of BLOB used for ItemToBunchGroup map; BLOBs are cheap, in case
 // we want to add information later on like more complicated logic /
 // also OR's, we can easily increase the size here
-long TrigConf::TrigConfCoolFolderSpec::mBGDescBlobSize = 512;
+const long TrigConf::TrigConfCoolFolderSpec::mBGDescBlobSize = 512;
 
 // BLOB size of BG content is the number of LHC bunches
-long TrigConf::TrigConfCoolFolderSpec::mBGContentBlobSize = 3564;
+const long TrigConf::TrigConfCoolFolderSpec::mBGContentBlobSize = 3564;
 
-int TrigConf::TrigConfCoolFolderSpec::mSchemaVersion = 0;
-int TrigConf::TrigConfCoolFolderSpec::mDefaultSchemaVersion = 3;
+const int TrigConf::TrigConfCoolFolderSpec::mDefaultSchemaVersion = 3;
 
 // ------------------------------------------------------------
 // readSchemaVersion
 // ------------------------------------------------------------
 int
 TrigConfCoolFolderSpec::readSchemaVersion(cool::IDatabasePtr db) {
-
-   mSchemaVersion = -1;
 
    // version 4:
    // L1 prescales are Int64
@@ -41,8 +38,7 @@ TrigConfCoolFolderSpec::readSchemaVersion(cool::IDatabasePtr db) {
    const IRecordSpecification & l1psSpec = l1prescaleFolder->payloadSpecification();
    const IFieldSpecification& l1psfield = l1psSpec["Lvl1Prescale"];
    if(l1psfield.storageType() == StorageType::Int64) {
-      mSchemaVersion = 4;
-      return mSchemaVersion;
+      return 4;
    }
 
    const IFolderPtr & hltMenuFolder = db->getFolder("/TRIGGER/HLT/Menu");
@@ -55,8 +51,7 @@ TrigConfCoolFolderSpec::readSchemaVersion(cool::IDatabasePtr db) {
       // version 3:
       // hlt menu has long (4000 char) lower chain name field
       if(lowChNField.storageType() == StorageType::String4k) {
-         mSchemaVersion = 3;
-         return mSchemaVersion;
+         return 3;
       }
 
       const IFieldSpecification& psField = hltMenuSpec["Prescale"];
@@ -64,22 +59,20 @@ TrigConfCoolFolderSpec::readSchemaVersion(cool::IDatabasePtr db) {
       // version 1:
       // hlt menu has integer prescale and pass_through values
       if(psField.storageType() == StorageType::UInt32) {
-         mSchemaVersion = 1;
-         return mSchemaVersion;
+         return 1;
       }
 
       // version 2:
       // hlt menu has float prescale and pass_through values
       if(psField.storageType() == StorageType::Float) {
-         mSchemaVersion = 2;
-         return mSchemaVersion;
+         return 2;
       }
    }
 
    // should never happen
    throw runtime_error("Could not determine the COOL schema of the TriggerDB");
 
-   return mSchemaVersion;
+   return -1;
 }
 
 // --------------------------------------------------------------------------------
@@ -154,16 +147,16 @@ TrigConfCoolFolderSpec::Lvl1ConfigKeysFolderDefinition() {
 // --------------------------------------------------------------------------------
 
 RecordSpecification
-TrigConfCoolFolderSpec::createLvl1PrescalesFolderSpecification() {
-   return Lvl1PrescalesFolderDefinition().rspec();
+TrigConfCoolFolderSpec::createLvl1PrescalesFolderSpecification(int schemaVersion) {
+   return Lvl1PrescalesFolderDefinition(schemaVersion).rspec();
 }
 
 FolderDefinition
-TrigConfCoolFolderSpec::Lvl1PrescalesFolderDefinition() {
+TrigConfCoolFolderSpec::Lvl1PrescalesFolderDefinition(int schemaVersion) {
    cool::RecordSpecification rspec;
-   if(mSchemaVersion<4) {
+   if(schemaVersion<4) {
       rspec.extend( "Lvl1Prescale", StorageType::Int32 );
-   } else if(mSchemaVersion>=4) {
+   } else if(schemaVersion>=4) {
       rspec.extend( "Lvl1Prescale", StorageType::Int64 );
    }
    FolderDefinition fd( "/TRIGGER/LVL1/Prescales", 
@@ -427,8 +420,6 @@ TrigConfCoolFolderSpec::createFolderStructure(IDatabasePtr db, int schemaVersion
    std::string multiChannelDesc  = "<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
    //std::string timeDesc  = "<timeStamp>time</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName>";
 
-   mSchemaVersion = schemaVersion; // will be picked up by the createHltMenuFolderSpecification
-
    bool newFolder = false;
 
    static const bool singleChannel(false);
@@ -456,7 +447,7 @@ TrigConfCoolFolderSpec::createFolderStructure(IDatabasePtr db, int schemaVersion
      
    newFolder |= CreateFolderIfNotExist(db, Lvl1ConfigKeysFolderDefinition(), singleChannel);
      
-   newFolder |= CreateFolderIfNotExist(db, Lvl1PrescalesFolderDefinition(),  multiChannel);
+   newFolder |= CreateFolderIfNotExist(db, Lvl1PrescalesFolderDefinition(schemaVersion),  multiChannel);
      
    newFolder |= CreateFolderIfNotExist(db, Lvl1BGKeyFolderDefinition(),      singleChannel);
      

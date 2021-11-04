@@ -1528,22 +1528,8 @@ namespace top {
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa
-    parse_bTagWPs(settings->value("BTaggingWP"), m_chosen_btaggingWP, m_sgKeyJets + ", " + m_sgKeyTrackJets);
     parse_bTagWPs(settings->value("BTaggingCaloJetWP"), m_chosen_btaggingWP_caloJet, m_sgKeyJets);
     parse_bTagWPs(settings->value("BTaggingTrackJetWP"), m_chosen_btaggingWP_trkJet, m_sgKeyTrackJets);
-
-    // check whether user is using the deprecated BTaggingWP option
-    if (m_chosen_btaggingWP.size() > 0) {
-      ATH_MSG_WARNING("You specified b-tagging WPs via BTaggingWP which is obsolete. Please switch to options BTaggingCaloJetWP for specifying EMTopo/EMPFlow b-tagging, and BTaggingTrackJetWP for track-jet b-tagging.");
-      if (m_chosen_btaggingWP_caloJet.size() > 0 || m_chosen_btaggingWP_trkJet.size() > 0) {
-        ATH_MSG_ERROR("You specified b-tagging WPs both via BTaggingWP as well as BTaggingCaloJetWP or BTaggingTrackJetWP. The BTaggingWP option is deprecated and conflicts with the other two options!");
-        throw std::runtime_error("TopConfig: Failed to determine what b-tagging WPs to configure.");
-      } else {
-        // if deprecated option used, assume both calo and track jet WPs are the same
-        m_chosen_btaggingWP_caloJet = m_chosen_btaggingWP;
-        m_chosen_btaggingWP_trkJet = m_chosen_btaggingWP;
-      }
-    }
 
     m_btagging_calibration_B = settings->value("BTaggingCalibrationB");
     m_btagging_calibration_C = settings->value("BTaggingCalibrationC");
@@ -3468,9 +3454,10 @@ namespace top {
 
     typedef std::unordered_map<std::size_t, std::string>::const_iterator Itr;
 
-    for (std::vector<std::pair<std::string, std::string> >::const_iterator i = m_chosen_btaggingWP.begin();
-         i != m_chosen_btaggingWP.end(); ++i)
-      out->m_chosen_btaggingWP.push_back(*i);
+    for (const auto& btagWP : m_chosen_btaggingWP_caloJet)
+      out->m_chosen_btaggingWP_caloJet.emplace_back(btagWP);
+    for (const auto& btagWP : m_chosen_btaggingWP_trkJet)
+      out->m_chosen_btaggingWP_trkJet.emplace_back(btagWP);
 
     for (Itr i = m_systSgKeyMapPhotons->begin(); i != m_systSgKeyMapPhotons->end(); ++i)
       out->m_systSgKeyMapPhotons.insert(std::make_pair((*i).first, (*i).second));
@@ -3627,10 +3614,6 @@ namespace top {
     m_muonIsolationLoose = settings->m_muonIsolationLoose;
 
     m_softmuonQuality = settings->m_softmuonQuality;
-
-    for (std::vector<std::pair<std::string, std::string> >::const_iterator i = settings->m_chosen_btaggingWP.begin();
-         i != settings->m_chosen_btaggingWP.end(); ++i)
-      m_chosen_btaggingWP.push_back(*i);
 
     typedef std::map<std::size_t, std::string>::const_iterator Itr;
 

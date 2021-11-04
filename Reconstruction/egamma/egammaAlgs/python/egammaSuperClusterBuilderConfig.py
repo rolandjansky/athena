@@ -55,9 +55,6 @@ def photonSuperClusterBuilderCfg(
         name='photonSuperClusterBuilder',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
     acc = ComponentAccumulator()
     photonSuperClusterBuilder = CompFactory.photonSuperClusterBuilder
     egammaCheckEnergyDepositTool = CompFactory.egammaCheckEnergyDepositTool
@@ -98,7 +95,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
-
+    flags.lock()
     acc = MainServicesCfg(flags)
     acc.merge(electronSuperClusterBuilderCfg(flags))
     mlog = logging.getLogger("egammaSuperClusterBuilderConfigTest")

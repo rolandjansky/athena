@@ -35,6 +35,7 @@
 #include "xAODTrigger/TriggerMenuJsonContainer.h"
 #include "xAODTrigger/TriggerMenuJsonAuxContainer.h"
 #include "xAODTrigger/TrigConfKeys.h"
+#include "xAODTrigger/BunchConfKey.h"
 
 #include <shared_mutex>
 
@@ -167,7 +168,7 @@ namespace TrigConf {
       StatusCode prepareEventRun3Athena(const EventContext& context);
 
       /// Do per-event decoding for R3 in-file serialised xAOD::TriggerMenuJson metadata
-      StatusCode prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const EventContext& context);
+      StatusCode prepareEventxAODTriggerMenuJson(const xAOD::TrigConfKeys* keys, const xAOD::BunchConfKey* bgKey, const EventContext& context);
 
       /// Do per-event decoding for R2 in-file serialised xAOD::TriggerMenu metadata 
       StatusCode prepareEventxAODTriggerMenu(const xAOD::TrigConfKeys* keys, const EventContext& context);
@@ -186,6 +187,9 @@ namespace TrigConf {
 
       SG::ReadHandleKey<xAOD::TrigConfKeys> m_eventKey{this, "EventObjectName", "TrigConfKeys", 
         "Key for the event-level configuration identifier object"};
+
+      SG::ReadHandleKey<xAOD::BunchConfKey> m_eventBGKey{this, "BGKeysObjectName", "BunchConfKey", 
+        "Key for the event-level bunchgroup configuration identifier object. Only written from late 2021, optional input."};
 
       /// @name Names for reading the R2 (and R1) AOD metadata payload
       /// @{

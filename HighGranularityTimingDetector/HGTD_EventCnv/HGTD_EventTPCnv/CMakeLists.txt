@@ -11,7 +11,7 @@ atlas_add_tpcnv_library( HGTD_EventTPCnv
                          PUBLIC_HEADERS HGTD_EventTPCnv
                          LINK_LIBRARIES AthLinks DataModelAthenaPoolLib StoreGateLib
                            AthenaPoolCnvSvcLib AthenaPoolUtilities Identifier GaudiKernel
-                           HGTD_Identifier TrkEventTPCnv HGTD_PrepRawData InDetEventTPCnv
+                           HGTD_Identifier TrkEventTPCnv HGTD_RawData HGTD_PrepRawData InDetEventTPCnv
                          PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaKernel TrkMeasurementBase
                            EventPrimitives HGTD_ReadoutGeometry TrkEventPrimitives)
 
@@ -23,6 +23,17 @@ set( _jobOPath "${CMAKE_CURRENT_SOURCE_DIR}/share" )
 set( _jobOPath "${_jobOPath}:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}" )
 set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 
+atlas_add_test( HGTD_RDOCnv_p1_test
+    SOURCES test/HGTD_RDOCnv_p1_test.cxx
+    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+    LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv IdDictParser)
+
+atlas_add_test( HGTD_RDOContainerCnv_p1_test
+    SOURCES test/HGTD_RDOContainerCnv_p1_test.cxx
+    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+    LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv IdDictParser TestTools SGTools GaudiKernel
+    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}")
+
 atlas_add_test( HGTD_ClusterCnv_p1_test
     SOURCES test/HGTD_ClusterCnv_p1_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
@@ -31,6 +42,5 @@ atlas_add_test( HGTD_ClusterCnv_p1_test
 atlas_add_test( HGTD_ClusterContainerCnv_p1_test
     SOURCES test/HGTD_ClusterContainerCnv_p1_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-    LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv TestTools IdDictParser SGTools
-      GaudiKernel
+    LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv TestTools IdDictParser SGTools GaudiKernel
     ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}")

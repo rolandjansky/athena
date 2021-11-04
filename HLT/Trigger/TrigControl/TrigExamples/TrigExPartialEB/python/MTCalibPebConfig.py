@@ -334,7 +334,7 @@ def hlt_seq_cfg(flags, num_chains, concurrent=False, hackCA2Global=False, hypo_a
 
 def write_dummy_menu_json(flags, chains, chain_to_streams):
     import json
-    from TrigConfHLTData.HLTUtils import string2hash
+    from TrigConfHLTUtils.HLTUtils import string2hash
     from TrigConfigSvc.TrigConfigSvcCfg import getHLTPrescalesSetFileName
     menu_dict = dict([
         ("filetype", "hltmenu"),

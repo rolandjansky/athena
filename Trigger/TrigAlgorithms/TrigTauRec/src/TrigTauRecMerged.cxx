@@ -308,13 +308,6 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 	  ATH_MSG_DEBUG(" Negative energy cluster is rejected");
 	  continue;
         }
-   
-      if(m_SkipClusterOutsideROI){
-        float dEta = fabs(roiDescriptor->etaPlus() - roiDescriptor->eta());  
-        if( std::abs((*clusterIt)->eta() - roiDescriptor->eta() ) > dEta) {
-          continue;
-        }
-      }
  
       myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
       aJet->addConstituent(*clusterIt);

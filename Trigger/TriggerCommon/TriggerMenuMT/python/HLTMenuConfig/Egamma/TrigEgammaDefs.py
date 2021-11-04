@@ -17,6 +17,14 @@ if not Configurable.configurableRun3Behavior:
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from .TrigEgammaKeys import getTrigEgammaKeys
+from egammaRec.egammaRecFlags import jobproperties
+from egammaRec.Factories import ToolFactory, ServiceFactory
+from egammaMVACalib import egammaMVACalibConf
+from xAODEgamma.xAODEgammaParameters import xAOD
+
+
+log = logging.getLogger(__name__)
+
 
 
 class TrigEgammaKeys_LRT(object):
@@ -318,3 +326,34 @@ def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
       SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
       selectors.append(SelectorTool)
     return selectors
+
+
+
+def createTrigEgammaMVASvc( ConfigFilePath=None ):
+
+    if not ConfigFilePath:
+      ConfigFilePath = jobproperties.egammaRecFlags.calibMVAVersion()
+
+    trigElectronMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigElectronMVATool",
+        ParticleType=xAOD.EgammaParameters.electron,
+        folder=ConfigFilePath )
+    trigUnconvPhotonMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigUnconvPhotonMVATool",
+        ParticleType=xAOD.EgammaParameters.unconvertedPhoton,
+        folder=ConfigFilePath )
+    trigConvertedPhotonMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigConvertePhotonMVATool",
+        ParticleType=xAOD.EgammaParameters.convertedPhoton,
+        folder=ConfigFilePath)
+    trigEgammaMVASvc = ServiceFactory(
+        egammaMVACalibConf.egammaMVASvc,
+        name = "TrigEgammaMVASvc",
+        ElectronTool=trigElectronMVATool,
+        ConvertedPhotonTool=trigConvertedPhotonMVATool,
+        UnconvertedPhotonTool=trigUnconvPhotonMVATool)
+    return trigEgammaMVASvc
+

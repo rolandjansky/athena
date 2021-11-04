@@ -142,10 +142,10 @@ StatusCode LArCaliWaves2Ntuple::stop()
       return StatusCode::FAILURE;
     } else 
       ATH_MSG_INFO( "Read LArCaliWaveContainer from StoreGate! key= "  << key );
-    
+    LArCaliWaveContainer* caliWaveContainer_nc=nullptr;
     if (m_applyCorr) {
       if (!caliWaveContainer->correctionsApplied()) {
-	LArCaliWaveContainer* caliWaveContainer_nc=const_cast<LArCaliWaveContainer*>(caliWaveContainer);
+	caliWaveContainer_nc=const_cast<LArCaliWaveContainer*>(caliWaveContainer);
 	sc=caliWaveContainer_nc->applyCorrections();
 	if (sc.isFailure()) {
 	  ATH_MSG_ERROR( "Failed to apply corrections to LArCaliWaveContainer!" );
@@ -210,7 +210,11 @@ StatusCode LArCaliWaves2Ntuple::stop()
 	}//end loop over corrections
       }//end loop over gain
     }//end if addUndoCorr
-  }//end loop over container keys
+    if (caliWaveContainer_nc) {
+      ATH_CHECK(caliWaveContainer_nc->undoCorrections());
+      ATH_MSG_INFO("Reverted corrections of CaliWave container");
+    }
+  }
   ATH_MSG_INFO( "LArWave2Ntuple has finished." );
   return StatusCode::SUCCESS;
 } // end finalize-method.

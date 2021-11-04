@@ -665,6 +665,7 @@ namespace ST {
     double m_fJvtEtaMin;
     std::string m_fJvtConfig;
     std::string m_fJvtConfig_SFFile;
+    bool m_fJvtRecalculate;
     bool m_fJvt_useTightOP;
 
     bool m_JMScalib;

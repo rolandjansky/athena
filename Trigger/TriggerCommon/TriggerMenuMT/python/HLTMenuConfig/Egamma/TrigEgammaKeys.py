@@ -53,6 +53,7 @@ class TrigEgammaKeys_base():
         self._pidVersion = 'rel22_20210611'
         self._dnnVersion = 'rel21_20210928'
         self._ringerVersion = 'TrigL2_20210702_r4'
+        self._calibMVAVersion = '"egammaMVACalib/online/v6"'
 
 
                                                 
@@ -111,6 +112,10 @@ class TrigEgammaKeys_base():
       @property
       def ringerVersion(self):                   
           return self._ringerVersion
+
+      @property
+      def calibMVAVersion(self):                   
+          return self._calibMVAVersion
 
 
       @property

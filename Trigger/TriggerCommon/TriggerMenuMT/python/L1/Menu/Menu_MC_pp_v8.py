@@ -183,7 +183,7 @@ def defineMenu():
         'L1_jXEC50', 'L1_jTE100', 'L1_jTEC100', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
            
         # ATR-24037 
-        'L1_jXEPerf50', 
+        'L1_jXEPerf50',
     
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',

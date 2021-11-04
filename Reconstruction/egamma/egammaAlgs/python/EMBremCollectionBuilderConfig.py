@@ -121,7 +121,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
-
+    flags.lock()
     acc = MainServicesCfg(flags)
     acc.merge(EMBremCollectionBuilderCfg(flags))
     mlog = logging.getLogger("EMBremCollectionBuilderConfigTest")
