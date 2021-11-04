@@ -85,7 +85,7 @@ def defineInputsMenu():
         "thresholds" : [  # Topo1A: eFex EM, eFex TAU, gJ, gLJ 
             ('eEM3',3), ('eEM5',3), ('eEM8',3), ('eEM8L',3), 
             'eEM8M', 'eEM10L', 'eEM15', 'eEM15L', 'eEM15M',
-            'eEM20', 'eEM20L', 'eEM20M', 
+            'eEM18M', 'eEM20', 'eEM20L', 
             'eEM22', 'eEM22L', 'eEM22M', 'eEM22T',
         ]
     })
@@ -134,7 +134,7 @@ def defineInputsMenu():
 
             ('jJ12',3),  ('jJ12p0ETA25',3), ('jJ15',3),  ('jJ15p0ETA25',3), 'jJ15p31ETA49', 
             ('jJ20',3),  'jJ20p31ETA49', ('jJ25',3),  ('jJ25p0ETA23',3),  ('jJ30',3), 'jJ30p31ETA49',
-            'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA20', 'jJ50', 'jJ50p31ETA49', 'jJ75', 'jJ75p31ETA49',
+            'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA21', 'jJ50', 'jJ50p31ETA49', 'jJ75', 'jJ75p31ETA49',
             'jJ85', 'jJ100', 'jJ120', 'jJ400',
 
             ('jXE30',1), ('jXE35',1), ('jXE40',1), ('jXE50',1), ('jXE55',1), ('jXE300',1),
