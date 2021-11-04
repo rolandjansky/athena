@@ -15,6 +15,7 @@
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 // Gaudi includes
 #include "Gaudi/Interfaces/IOptionsSvc.h"
@@ -53,6 +54,10 @@ private:
     this, "HLTResultWHKey", "HLTResultMT",
     "Key of the output HLTResultMT object"
   };
+  /// StoreGate key for HLT Runtime Metadata container
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_runtimeMetadataWHKey { 
+    this, "HLTRuntimeMetadataWHKey", "HLT_RuntimeMetadata",
+    "Key of the output with additional runtime metadata" };
   /// StoreGate key for the ByteStreamMetadata container to retrieve detector mask
   SG::ReadHandleKey<ByteStreamMetadataContainer> m_bsMetaDataContRHKey {
     this, "ByteStreamMetadataRHKey", "InputMetaDataStore+ByteStreamMetadata",
