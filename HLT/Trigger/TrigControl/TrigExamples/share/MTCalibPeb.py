@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
-from TrigExPartialEB import MTCalibPebConfig
+from TrigExamples import MTCalibPebConfig
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MTCalibPeb.py')
 

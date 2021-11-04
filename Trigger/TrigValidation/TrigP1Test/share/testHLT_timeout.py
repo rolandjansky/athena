@@ -15,7 +15,7 @@ AlgScheduler.setDataLoaderAlg('SGInputLoader')
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior += 1
 
-import TrigExPartialEB.MTCalibPebConfig as Conf
+import TrigExamples.MTCalibPebConfig as Conf
 hypo_tools = [Conf.make_hypo_tool('HLT_MTCalibPeb{:d}'.format(num)) for num in range(1, 4)]
 for tool in hypo_tools:
     # 100% accept rate, no ROB requests, sleeps for up to 1.4 seconds
