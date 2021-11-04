@@ -20,6 +20,10 @@
 #include <iostream>
 #include <setjmp.h>
 #include <signal.h>
+#include <unistd.h>
+
+
+static const size_t pageSize = sysconf (_SC_PAGESIZE);
 
 
 struct Payload
@@ -126,9 +130,9 @@ void test1()
   const size_t nelt2 = Payload::v.size();
   assert (nelt2 >= 500);
   test_stats (bab, 1, nelt2);
-  bab.reserve (1000);
+  bab.reserve (2000);
   const size_t nelt3 = Payload::v.size();
-  assert (nelt3 >= 1000);
+  assert (nelt3 >= 2000);
   test_stats (bab, 2, nelt3);
   bab.reserve (500);
   test_stats (bab, 1, nelt2);
