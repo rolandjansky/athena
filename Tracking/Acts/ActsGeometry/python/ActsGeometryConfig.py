@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **kwargs) :
   result = ComponentAccumulator()
-  
+
   Acts_ActsTrackingGeometrySvc = CompFactory.ActsTrackingGeometrySvc
   subDetectors = []
   if configFlags.Detector.GeometryBpipe:
@@ -16,10 +16,19 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
   if configFlags.Detector.GeometrySCT:
     subDetectors += ["SCT"]
   if configFlags.Detector.GeometryTRT:
-    subDetectors += ["TRT"]
+    # Commented out because TRT is not production ready yet and we don't 
+    # want to turn it on even if the global flag is set
+    #  subDetectors += ["TRT"]
+    pass
+
   if configFlags.Detector.GeometryCalo:
-    subDetectors += ["Calo"]
+    # Commented out because Calo is not production ready yet and we don't 
+    # want to turn it on even if the global flag is set
+    #  subDetectors += ["Calo"]
+
     # need to configure calo geometry, otherwise we get a crash
+    # Do this even though it's not production ready yet, so the service can
+    # be forced to build the calorimeter later on anyway
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     result.merge(LArGMCfg(configFlags))
     from TileGeoModel.TileGMConfig import TileGMCfg
@@ -34,16 +43,17 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
   idSub = [sd in subDetectors for sd in ("Pixel", "SCT", "TRT", "ITkPixel", "ITkStrip")]
   if any(idSub):
     # ANY of the ID subdetectors are on => we require GM sources
-    # In principle we could require only what is enabled, but the group
-    # does extra config that I don't want to duplicate here
     from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(configFlags))
 
-    if not all(idSub):
-      from AthenaCommon.Logging import log
-      log.warning("ConfigFlags indicate %s should be built. Not all ID subdetectors are set, but I'll set all of them up to capture the extra setup happening here.", ", ".join(subDetectors))
-      
-  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors=subDetectors, **kwargs)
+  if "Calo" in subDetectors:
+    # in case Calo is enabled, we need this tool
+    kwargs.setdefault("CaloVolumeBuilder", CompFactory.ActsCaloTrackingVolumeBuilder())
+
+  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name,
+                                                         BuildSubDetectors=subDetectors,
+                                                         **kwargs)
+
 
   if configFlags.TrackingGeometry.MaterialSource == "Input":
     actsTrackingGeometrySvc.UseMaterialMap = True
