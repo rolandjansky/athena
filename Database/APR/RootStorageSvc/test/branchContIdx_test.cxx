@@ -29,12 +29,14 @@
 using namespace std;
 
 const string            filename = "branchContIdx_testfile.root";    // test file name
-const string            containerNameA = "ContainerA";               // container for objects A
-const string            containerNameB = "ContainerB";               // container for objects B
+//const string            containerNameA = "ContainerA";               // container for objects A
+//const string            containerNameB = "ContainerB";               // container for objects B
+const string            containerNameA = "Containers(A)";               // container for objects A
+const string            containerNameB = "Containers(B)";               // container for objects B
 
 
-const pool::DbType      storageType = pool::ROOTTREE_StorageType;
-//const pool::DbType      storageType = pool::ROOTTREEINDEX_StorageType;
+//const pool::DbType      storageType = pool::ROOTTREE_StorageType;
+const pool::DbType      storageType = pool::ROOTTREEINDEX_StorageType;
 
 pool::DbString       myStringA1("This is my string A1");
 pool::DbString       myStringA2("This is my string A2");
@@ -87,6 +89,11 @@ int main() {
       throw std::runtime_error( "Could not create a persistent shape." );
    }
 
+   // Commit here to test empty commits
+   if( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+      throw std::runtime_error( "Empty commit FAILED" );
+   }
+
    // helper lambda to write a string object into a container
    auto writeStr = [&](const string& contName, pool::DbString& str) {
       Token* token{nullptr};
@@ -106,8 +113,8 @@ int main() {
       throw std::runtime_error( "Commit FAILED" );
    }
 
-   refB2 = writeStr(containerNameB, myStringB2)->toString();
    refA4 = writeStr(containerNameA, myStringA4)->toString();
+   refB2 = writeStr(containerNameB, myStringB2)->toString();
    refA5 = writeStr(containerNameA, myStringA5)->toString();
    refA6 = writeStr(containerNameA, myStringA6)->toString();
 
@@ -129,6 +136,12 @@ int main() {
 
    cout << "Sample Tokens to written objects:" << endl;
    cout << "Token for object A1 = " << refA1 << endl;
+   cout << "Token for object A2 = " << refA2 << endl;
+   cout << "Token for object A3 = " << refA3 << endl;
+   cout << "Token for object A4 = " << refA4 << endl;
+   cout << "Token for object A5 = " << refA5 << endl;
+   cout << "Token for object A6 = " << refA6 << endl;
+   cout << "Token for object B1 = " << refB1 << endl;
    cout << "Token for object B2 = " << refB2 << endl;
 
 
@@ -168,6 +181,7 @@ int main() {
    readfun(refA4);   cout << "read back A4: " << readString << endl;
    readfun(refB2);   cout << "read back B2: " << readString << endl;
    readfun(refA5);   cout << "read back A5: " << readString << endl;
+   readfun(refA2);   cout << "read back A2: " << readString << endl;
    
    // Close session
    if( !storSvc->disconnect( fd ).isSuccess() ) {

@@ -37,7 +37,7 @@ namespace pool {
       RootTreeIndexContainer& operator= (const RootTreeIndexContainer&) = delete;
 
       /// Standard destructor
-      virtual ~RootTreeIndexContainer();
+      virtual ~RootTreeIndexContainer() {}
 
       /// Number of entries within the container
       virtual long long int nextRecordId();
@@ -59,15 +59,13 @@ namespace pool {
       virtual DbStatus transAct(Transaction::Action action);
 
    private:
-      /// Pointer to index branch (ref owns the branch, shr doesn't)
-      TBranch* m_index_ref;
-      TBranch* m_index_shr;
+      /// Pointer to index branch
+      TBranch* m_indexBranch;
       long long int m_index_entries;
-      long long int m_ttree_entries;
       /// Index multiplier (e.g. pid - ppid), fill in c'tor
-      int m_index_multi;
+      const int m_index_multi;
       /// Index (64 bit)
-      long long int* m_index;
+      long long int m_index;
    };
 }
 #endif //POOL_ROOTTREEINDEXCONTAINER_H
