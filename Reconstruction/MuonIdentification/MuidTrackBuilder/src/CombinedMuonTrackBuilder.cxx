@@ -1107,20 +1107,18 @@ namespace Rec {
                 ATH_MSG_VERBOSE(" SA::failed (9)");
                 return nullptr;
             }
-
+            const Trk::TrackStates* prefit_tsos = prefit->trackStateOnSurfaces();
             // create spectrometerTSOS corresponding to prefit
             //   skip start perigee, then preferentially take everything following MS perigee,
             //   otherwise (if no MS perigee) rely on VolumesSvc,
             //   but be aware that by design there are inconsistencies wrt tracking geometry
-            Trk::TrackStates::const_iterator s = prefit->trackStateOnSurfaces()->begin() + 1;
+            Trk::TrackStates::const_iterator s = std::find_if(prefit_tsos->begin()+1, prefit_tsos->end(),[this](const Trk::TrackStateOnSurface * tsos)->bool{
+                return (tsos->trackParameters() && !m_calorimeterVolume->inside(tsos->trackParameters()->position())) || tsos->type(Trk::TrackStateOnSurface::Perigee);
+            }); 
+           
+            if (s != prefit_tsos->end() && (*s)->type(Trk::TrackStateOnSurface::Perigee)) ++s;
 
-            while (m_calorimeterVolume->inside((**s).trackParameters()->position()) && !(**s).type(Trk::TrackStateOnSurface::Perigee)) {
-                ++s;
-            }  // end while
-
-            if ((**s).type(Trk::TrackStateOnSurface::Perigee)) ++s;
-
-            for (; s != prefit->trackStateOnSurfaces()->end(); ++s) { spectrometerTSOS.emplace_back((*s)->clone()); }
+            for (; s != prefit_tsos->end(); ++s) { spectrometerTSOS.emplace_back((*s)->clone()); }
         }
 
         // update rot's (but not from trigger chambers) using TrackParameters
@@ -1158,7 +1156,7 @@ namespace Rec {
         // extrapolate and fit track
         particleHypothesis = Trk::muon;
         bool returnAfterCleaner = !fieldCache.toroidOn();
-
+  
         ATH_MSG_VERBOSE("Calling createExtrapolatedTrack from " << __func__ << " at line " << __LINE__);
         std::unique_ptr<Trk::Track> extrapolated(createExtrapolatedTrack(ctx, spectrometerTrack, *parameters, particleHypothesis,
                                                                          m_cleanStandalone, spectrometerTSOS, vertexInFit, mbeamAxis.get(),
