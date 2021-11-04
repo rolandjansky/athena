@@ -219,17 +219,6 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string& strAlgo, const s
       std::list<SIDRESULT>::const_iterator iter;
       for(iter=listSIDResults.begin(); iter!=listSIDResults.end(); ++iter) {
         if (iter->nStationID != -1) {
-          // fill the container with a "dummy" track, then set it properly
-          auto *track = afpTrkContainer->push_back(std::make_unique<xAOD::AFPTrack>());
-
-          track->setStationID(iter->nStationID);
-          track->setXLocal(iter->x_pos);
-          track->setYLocal(iter->y_pos);
-          track->setZLocal(iter->z_pos);
-          track->setXSlope(iter->x_slope);
-          track->setYSlope(iter->y_slope);
-          track->setNHoles(iter->nHoles);
-          track->setChi2(iter->fChi2);
 
 	  auto trkStationID = Monitored::Scalar("TrkStationID", -999.0);
 	  auto trkXLocal = Monitored::Scalar("TrkXLocal", -999.0);
@@ -239,10 +228,22 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string& strAlgo, const s
 	  auto trkYSlope = Monitored::Scalar("TrkYSlope", -999.0);
 	  auto trkNHoles = Monitored::Scalar("TrkNHoles", -999.0);
 	  auto trkChi2 = Monitored::Scalar("TrkChi2", -999.0);
+	  
+          // fill the container with a "dummy" track, then set it properly
+          auto *track = afpTrkContainer->push_back(std::make_unique<xAOD::AFPTrack>());
 
-	  ATH_MSG_DEBUG("AFP_SIDLocReco::Trk XLocal "<<trkXLocal);
-	  ATH_MSG_DEBUG("AFP_SIDLocReco::Trk ZLocal "<<trkZLocal);
-	  ATH_MSG_DEBUG("AFP_SIDLocReco::NHoles "<<trkNHoles);
+	  ATH_MSG_DEBUG("AFP track x:"<<iter->x_pos);
+	  ATH_MSG_DEBUG("AFP track z:"<<iter->z_pos);
+	  ATH_MSG_DEBUG("AFP track holes:"<<iter->nHoles);
+
+          track->setStationID(iter->nStationID);
+          track->setXLocal(iter->x_pos);
+          track->setYLocal(iter->y_pos);
+          track->setZLocal(iter->z_pos);
+          track->setXSlope(iter->x_slope);
+          track->setYSlope(iter->y_slope);
+          track->setNHoles(iter->nHoles);
+          track->setChi2(iter->fChi2);
 	  
 	  trkStationID = track->stationID();
 	  trkXLocal = track->xLocal();
@@ -252,6 +253,10 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string& strAlgo, const s
 	  trkYSlope = track->ySlope();
 	  trkNHoles = track->nHoles();
 	  trkChi2 = track->chi2();
+
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::Trk XLocal "<<trkXLocal);
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::Trk ZLocal "<<trkZLocal);
+	  ATH_MSG_DEBUG("AFP_SIDLocReco::NHoles "<<trkNHoles);
 
 	  auto monitorItTrkProp = Monitored::Group(m_monTool, trkStationID, trkXLocal, trkYLocal, trkZLocal, trkXSlope, trkYSlope, trkNHoles, trkChi2);
 	  Monitored::fill(m_monTool, trkStationID, trkXLocal, trkYLocal, trkZLocal, trkXSlope, trkYSlope, trkNHoles, trkChi2);
@@ -301,7 +306,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const std::string& strAlgo, const s
 
   ATH_MSG_DEBUG("There are "<<afpTrkContainer->size()<<" / "<<afpTrkAuxContainer->size()<<" entries in the track container / aux");
 
-  auto trkSize = Monitored::Scalar( "TrksSize"   , -1.0 );
+  auto trkSize = Monitored::Scalar( "TrkSize"   , -1.0 );
   trkSize = afpTrkContainer->size();
   auto monitorItTrkSize = Monitored::Group( m_monTool, trkSize); 
   Monitored::fill(m_monTool,trkSize);

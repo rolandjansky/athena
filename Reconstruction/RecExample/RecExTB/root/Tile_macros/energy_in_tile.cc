@@ -12,12 +12,14 @@ void energy_in_tile(){
    c1 = new TCanvas("energy","Total energy in tile (pi & e)",20,20,820,820);
    c1->Divide(1,2);
    c1->cd(1); 
-   if( tile->Draw("ecell/1000", Phys && "MuTag<500")!=0) { 
+   TCut lessThan500 = "MuTag<500"
+   if( tile->Draw("ecell/1000", Phys && lessThan500)!=0) { 
       htemp->SetTitle("Energy in tile #pi and e");
       htemp->SetFillColor(4);
    }
-   c1->cd(2); 
-   if( tile->Draw("ecell/1000", Phys && "MuTag>500")!=0) { 
+   c1->cd(2);
+   TCut moreThan500 = "MuTag>500"
+   if( tile->Draw("ecell/1000", Phys && moreThan500)!=0) { 
       htemp->SetTitle("Energy in tile #mu");
       htemp->SetFillColor(4);
    }  

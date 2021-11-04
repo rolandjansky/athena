@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CxxUtils/page_access.h"
+#include <unistd.h>
+#include <limits.h>
 namespace athena{
+  const size_t PAGESIZE = sysconf(_SC_PAGE_SIZE);
 
   const void* page_address(const void* addr) { 
     return (const void*)((long)addr & ~(PAGESIZE-1)); 
