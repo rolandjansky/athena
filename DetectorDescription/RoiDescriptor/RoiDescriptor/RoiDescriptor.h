@@ -124,7 +124,7 @@ public:
 
   /// is this a full scan RoI?
   bool  isFullscan() const { return m_fullscan; }
-  
+ 
   /// SuperRoI compatability methods
 
   /// am I a SuperRoi?
