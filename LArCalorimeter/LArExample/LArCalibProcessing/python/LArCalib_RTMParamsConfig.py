@@ -6,7 +6,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 def LArRTMParamsCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     from LArCalibProcessing.utils import FolderTagResolver
@@ -19,7 +19,7 @@ def LArRTMParamsCfg(flags):
 
     #Retrieve CaliWave: 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(flags,flags.LArCalib.CaliWave.Folder,detDb=flags.LArCalib.Input.Database, tag=CaliWaveTag))
+    result.merge(addFolders(flags,flags.LArCalib.CaliWave.Folder,detDb=flags.LArCalib.Input.Database, tag=CaliWaveTag, modifiers=chanSelStr(flags)))
 
     if not flags.LArCalib.RTM.ExtractAll:
         #Get information from database:
