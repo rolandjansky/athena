@@ -9,7 +9,8 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from .ChainDefInMenu import ChainProp
 from .SignatureDicts import ChainStore
-from .Physics_pp_run3_v1 import SingleMuonGroup,SinglePhotonGroup,MinBiasGroup,PrimaryL1MuGroup
+#from .Physics_pp_run3_v1 import SingleMuonGroup,SinglePhotonGroup,MinBiasGroup,PrimaryL1MuGroup
+from .Physics_pp_run3_v1 import SingleMuonGroup,MinBiasGroup,PrimaryL1MuGroup
 
 HardProbesStream="HardProbes"
 MinBiasStream="MinBias"
@@ -33,10 +34,10 @@ def setupMenu():
             ChainProp(name='HLT_mu4_L1MU3V', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
     ]
 
-    chains['Egamma'] = [
+    #chains['Egamma'] = [
         #Dectetor monitoring
-        ChainProp(name='HLT_g20_etcut_LArPEB_L1EM15',stream=['LArCells'], groups=SinglePhotonGroup),
-    ]
+        #ChainProp(name='HLT_g20_etcut_LArPEB_L1EM15',stream=['LArCells'], groups=SinglePhotonGroup),
+    #]
 
     chains['Streaming'] = [
           ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup),
