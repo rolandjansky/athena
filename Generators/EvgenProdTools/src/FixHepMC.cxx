@@ -62,8 +62,8 @@ StatusCode FixHepMC::execute() {
 
     /// AV: In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
     if (tofix.size() == 3 || tofix.size() == 2) {
-      int no_endv = 0;
-      int no_prov = 0;
+      size_t no_endv = 0;
+      size_t no_prov = 0;
       HepMC::FourVector sum(0,0,0,0);
       for (auto part: tofix) if (!part->production_vertex() || !part->production_vertex()->id()) { no_prov++; sum += part->momentum();}  
       for (auto part: tofix) if (!part->end_vertex()) { no_endv++;  sum -= part->momentum(); }
