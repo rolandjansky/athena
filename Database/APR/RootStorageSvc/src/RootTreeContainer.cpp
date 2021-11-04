@@ -379,7 +379,7 @@ RootTreeContainer::loadObject(void** obj_p, ShapeH /*shape*/, Token::OID_t& oid)
      for( auto& dsc : m_branches ) {
         RootDataPtr p(nullptr), q(nullptr);
         int typ = dsc.column->typeID();
-        // cout << "LOAD: object=" << object << " p.ptr=" << p.ptr << " col offset=" << dsc.column->offset() << endl;
+        // cout << "LOAD object, typ=" << typ << ",  col offset=" << dsc.column->offset() << endl;
         // associate branch with an object
         switch ( typ )    {
          case DbColumn::STRING:
@@ -575,7 +575,8 @@ DbStatus RootTreeContainer::open( DbDatabase& dbH,
                const DbColumn* c = *i;
                BranchDesc& dsc = m_branches[count];
                TClass* cl = nullptr;
-               TLeaf* leaf = pBranch->GetLeaf(colnam.c_str());
+               TLeaf* leaf = pBranch->GetLeaf( (*i)->name().c_str() );
+               // cout << "GetLeaf for "<<  (*i)->name().c_str()  << " = " << leaf << endl;
                switch ( (*i)->typeID() )    {
                 case DbColumn::ANY:
                 case DbColumn::BLOB:
