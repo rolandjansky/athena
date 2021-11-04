@@ -38,7 +38,7 @@ StatusCode Muon::MDT_RawDataProviderTool::convert() const  // call decoding func
 StatusCode Muon::MDT_RawDataProviderTool::convert(const EventContext& ctx) const {
     SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey, ctx};
     const MuonMDT_CablingMap* readCdo{*readHandle};
-    if (readCdo == nullptr) {
+    if (!readCdo) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }
@@ -53,7 +53,7 @@ StatusCode Muon::MDT_RawDataProviderTool::convert(const std::vector<IdentifierHa
 StatusCode Muon::MDT_RawDataProviderTool::convert(const std::vector<IdentifierHash>& HashVec, const EventContext& ctx) const {
     SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey, ctx};
     const MuonMDT_CablingMap* readCdo{*readHandle};
-    if (readCdo == nullptr) {
+    if (!readCdo) {
         ATH_MSG_ERROR("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
     }

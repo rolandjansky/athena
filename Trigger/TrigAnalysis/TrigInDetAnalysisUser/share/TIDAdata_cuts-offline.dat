@@ -1,4 +1,12 @@
 
+#ifdef COSMIC
+a0 = 1000;
+a0v = 1000;
+z0v = 1000;
+npix=-1;
+nsct=1;
+#endif
+
 #ifdef MINBIAS
 pT     = 400;
 #else

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./MenuLoader.h"
@@ -292,10 +292,10 @@ TrigConf::MenuLoader::constructTree(const LogicExpression& def, const std::vecto
  *********************************************/
 void
 TrigConf::MenuLoader::loadMonitoring(TrigConf::Menu& menu) {
-   if( ! (DBLoader::getEnv() == DBLoader::ALL    ||
-          DBLoader::getEnv() == DBLoader::CTP    ||
-          DBLoader::getEnv() == DBLoader::CTPOnl ||
-          DBLoader::getEnv() == DBLoader::COOLL1) ) return;
+   if( ! (m_env == MenuLoader::ALL    ||
+          m_env == MenuLoader::CTP    ||
+          m_env == MenuLoader::CTPOnl ||
+          m_env == MenuLoader::COOLL1) ) return;
 
    TRG_MSG_DEBUG("Load monitoring counter mapping ");
 
@@ -409,9 +409,9 @@ TrigConf::MenuLoader::loadThresholds(TrigConf::Menu& menu) {
 
 void
 TrigConf::MenuLoader::loadPIT(TrigConf::Menu& menu) {
-   if( ! (DBLoader::getEnv() == DBLoader::ALL    ||
-          DBLoader::getEnv() == DBLoader::CTPOnl ||
-          DBLoader::getEnv() == DBLoader::COOLL1) ) return;
+   if( ! (m_env == MenuLoader::ALL    ||
+          m_env == MenuLoader::CTPOnl ||
+          m_env == MenuLoader::COOLL1) ) return;
 
    set<int> tipNumbersUsed;
 
@@ -622,10 +622,4 @@ TrigConf::MenuLoader::loadMenuAttributes(TrigConf::Menu& menu) {
    menu.setName   ( row["TM.L1TM_NAME"].data<string>() );
    menu.setVersion( row["TM.L1TM_VERSION"].data<int>() );
    menu.thresholdConfig().setLvl1MasterTableId( row["MT.L1MT_ID"].data<int>() );
-}
-
-
-void
-TrigConf::MenuLoader::setUseTM2TT(bool) { 
-   cout << "!!!! WARNING DEPRECATED TrigConf::MenuLoader::setUseTM2TT(bool b)" << endl;
 }

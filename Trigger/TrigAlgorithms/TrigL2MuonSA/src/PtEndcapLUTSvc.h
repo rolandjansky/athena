@@ -27,6 +27,8 @@ class PtEndcapLUTSvc : public AthService
     virtual StatusCode initialize() override;
 
   private:
+    Gaudi::Property< std::string >    m_lut_fileNameRun3 {
+	this, "FileNameRun3", "pt_endcap_run3.lut", ""};
     Gaudi::Property< std::string >    m_lut_fileNameRun2 {
 	this, "FileNameRun2", "pt_endcap_run2.lut", ""};
     Gaudi::Property< std::string >    m_lut_fileName {
@@ -35,6 +37,8 @@ class PtEndcapLUTSvc : public AthService
 	this, "EMeanLUT", "pt_comb_mean.lut", ""};
     Gaudi::Property< std::string >    m_lut_sigma {
 	this, "ESigmaLUT", "pt_comb_sigma.lut", ""};
+    Gaudi::Property<bool>             m_useRun3LUT{
+	this,"UseRun3LUT",true,"Select LUT at geometry"};
 
     ToolHandle<PtEndcapLUT> m_ptEndcapLUT{this, "PtEndcapLUT", "TrigL2MuonSA::PtEndcapLUT"};
 

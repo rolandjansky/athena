@@ -59,6 +59,7 @@ namespace TrigConf {
         m_impl (std::make_unique<Impl>()) {
 
       declareProperty( "EventObjectName", m_eventName = "TrigConfKeys" );
+      declareProperty( "BGKeysObjectName", m_bgkeysName = "BunchConfKey" );
       declareProperty( "MetaObjectName", m_metaName_run2 = "TriggerMenu" );
 
       declareProperty( "JSONMetaObjectNameHLT", m_metaNameJSON_hlt = "TriggerMenuJson_HLT" );
@@ -287,9 +288,11 @@ namespace TrigConf {
       {
          m_menuJSONContainerAvailable = false;
       }
-      // if( inputMetaStore()->retrieve( m_bgJson, m_metaNameJSON_bg ).isFailure() ) {
-      //    m_menuJSONContainerAvailable = false;
-      // }
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_bg)
+          or inputMetaStore()->retrieve( m_bgJson, m_metaNameJSON_bg ).isFailure() ) {
+         // m_menuJSONContainerAvailable = false;
+         // This was not written up to the end of 2021, we have to make it optional for at least a while
+      }
 
 
       if( !m_triggerMenuContainerAvailable && !m_menuJSONContainerAvailable ) {
@@ -316,13 +319,17 @@ namespace TrigConf {
          ATH_CHECK( m_l1Json->size() > 0 );
          ATH_CHECK( m_hltpsJson->size() > 0 );
          ATH_CHECK( m_l1psJson->size() > 0 );
-         // ATH_CHECK( m_bgJson->size() > 0 );
+         if (m_bgJson) { // Considered optional for now
+            ATH_CHECK( m_bgJson->size() > 0 );
+         }
 
          m_currentHltJson = m_hltJson->at( 0 );
          m_currentL1Json = m_l1Json->at( 0 );
          m_currentHltpsJson = m_hltpsJson->at( 0 );
          m_currentL1psJson = m_l1psJson->at( 0 );
-         // m_currentBgJson = m_bgJson->at( 0 );
+         if (m_bgJson) {  // Considered optional for now
+            m_currentBgJson = m_bgJson->at( 0 );
+         }
 
          ATH_CHECK( loadPtrees() );
 
@@ -331,7 +338,9 @@ namespace TrigConf {
          m_impl->m_currentL1.setSMK( m_currentL1Json->key() );
          m_impl->m_currentHltps.setPSK( m_currentHltpsJson->key() );
          m_impl->m_currentL1ps.setPSK( m_currentL1psJson->key() );
-         //m_impl->m_currentBg 
+         if (m_bgJson) {
+            m_impl->m_currentBg.setBGSK( m_currentBgJson->key() );
+         }
 
          ATH_CHECK( prepareTriggerMenu( m_impl->m_currentHlt,
                                         m_impl->m_currentL1,
@@ -385,9 +394,14 @@ namespace TrigConf {
       const xAOD::TrigConfKeys* keys = nullptr;
       ATH_CHECK( evtStore()->retrieve( keys, m_eventName ) );
 
+      const xAOD::BunchConfKey* bgKey = nullptr; // The BG key is currently optional, only files written from late 2021 will contain this 
+      if (evtStore()->contains<xAOD::BunchConfKey>(m_bgkeysName)) {
+         ATH_CHECK(evtStore()->retrieve(bgKey, m_bgkeysName));
+      }
+
       // Prefer Run 3 data if available
       if (m_menuJSONContainerAvailable) {
-         return beginEvent_Run3(keys);
+         return beginEvent_Run3(keys, bgKey);
       } else if (m_triggerMenuContainerAvailable) {
          return beginEvent_Run2(keys);
       }
@@ -427,7 +441,7 @@ namespace TrigConf {
       return StatusCode::FAILURE;
    }
 
-   StatusCode xAODConfigTool::beginEvent_Run3(const xAOD::TrigConfKeys* keys) {
+   StatusCode xAODConfigTool::beginEvent_Run3(const xAOD::TrigConfKeys* keys, const xAOD::BunchConfKey* bgKey) {
       if (keys==nullptr) {
          ATH_MSG_ERROR("nullptr TrigConfKeys");
          return StatusCode::FAILURE;
@@ -447,9 +461,9 @@ namespace TrigConf {
       if (m_currentL1psJson->key() != keys->l1psk()) {
          validConfig = false;
       }
-      // if (m_currentBgJson->key() != TODO) {
-      //    validConfig = false;
-      // }
+      if (m_bgJson && m_currentBgJson && bgKey && m_currentBgJson->key() != static_cast<unsigned int>(bgKey->id())) {
+          validConfig = false;
+      }
 
       if (validConfig) {
          return StatusCode::SUCCESS;
@@ -460,7 +474,9 @@ namespace TrigConf {
       ATH_CHECK( loadJsonByKey("L1 Menu", m_l1Json, keys->smk(), m_currentL1Json) );
       ATH_CHECK( loadJsonByKey("HLT Prescales", m_hltpsJson, keys->hltpsk(), m_currentHltpsJson) );
       ATH_CHECK( loadJsonByKey("L1 Prescales", m_l1psJson, keys->l1psk(), m_currentL1psJson) );
-      // ATH_CHECK( loadJsonByKey("Bunchgroups", m_bgJson, TODO, m_currentBgJson) );
+      if (m_bgJson && bgKey) {
+         ATH_CHECK( loadJsonByKey("Bunchgroups", m_bgJson, bgKey->id(), m_currentBgJson) );
+      }
 
       // ... and from these serialised JSON strings, populate the ptree data structures...
       ATH_CHECK( loadPtrees() ); 
@@ -470,6 +486,9 @@ namespace TrigConf {
       m_impl->m_currentL1.setSMK( m_currentL1Json->key() );
       m_impl->m_currentHltps.setPSK( m_currentHltpsJson->key() );
       m_impl->m_currentL1ps.setPSK( m_currentL1psJson->key() );
+      if (m_bgJson && bgKey) {
+         m_impl->m_currentBg.setBGSK( m_currentBgJson->key() );
+      }
 
       // R3 interfaces now active
 
@@ -512,7 +531,9 @@ namespace TrigConf {
       ATH_CHECK( loadPtree("L1 Menu", m_currentL1Json, m_impl->m_currentL1) );
       ATH_CHECK( loadPtree("HLT Prescales", m_currentHltpsJson, m_impl->m_currentHltps) );
       ATH_CHECK( loadPtree("L1 Prescales", m_currentL1psJson, m_impl->m_currentL1ps) );
-      // ATH_CHECK( loadPtree("Bunchgroups", m_currentBgJson, m_impl->m_currentBg) );
+      if (m_bgJson) {
+         ATH_CHECK( loadPtree("Bunchgroups", m_currentBgJson, m_impl->m_currentBg) );
+      }
       return StatusCode::SUCCESS;
    }
 

@@ -9,7 +9,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "G4Types.hh"
 
 //
 // private constructor

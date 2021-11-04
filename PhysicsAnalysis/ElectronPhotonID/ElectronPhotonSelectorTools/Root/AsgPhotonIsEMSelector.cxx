@@ -18,6 +18,7 @@
 #include "TPhotonIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
+#include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -371,10 +372,11 @@ asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xA
 /// Get the name of the current operating point
 //=============================================================================
 std::string AsgPhotonIsEMSelector::getOperatingPointName() const{
- 
-  if (m_rootTool->m_isEMMask == egammaPID::PhotonLoose){ return "Loose"; }
-  if (m_rootTool->m_isEMMask == egammaPID::PhotonMedium ){ return "Medium"; }
-  if (m_rootTool->m_isEMMask == egammaPID::PhotonTight){ return "Tight"; }
+  //
+  // For Loose, Medium and Tight ignore if the difference is in bit 23
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonLoose || (egammaPID::PhotonLoose ^ m_rootTool->m_isEMMask) == (0x1 << egammaPID::AmbiguityResolution_Photon) ){ return "Loose"; }
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonMedium || (egammaPID::PhotonMedium ^ m_rootTool->m_isEMMask) == (0x1 << egammaPID::AmbiguityResolution_Photon) ){ return "Medium"; }
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonTight || (egammaPID::PhotonTight ^ m_rootTool->m_isEMMask) == (0x1 << egammaPID::AmbiguityResolution_Photon) ){ return "Tight"; }
   if (m_rootTool->m_isEMMask == egammaPID::PhotonLooseEF ){ return "LooseEF"; }
   if (m_rootTool->m_isEMMask == egammaPID::PhotonMediumEF){ return "MediumEF"; }
   if (m_rootTool->m_isEMMask == 0){ return "0 No cuts applied"; }
@@ -521,6 +523,15 @@ StatusCode AsgPhotonIsEMSelector::execute(const EventContext& ctx, const xAOD::E
                               f3,
                               ep,
                               xAOD::EgammaHelpers::isConvertedPhoton(eg));
+  
+  // Add ambiguity resolution cut for photon (vs electron)
+  // to reproduce release 21.2 ambiguity tool configuration
+  static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+  int AmbiguityType = acc(*eg);
+  if (eg->author() == xAOD::EgammaParameters::AuthorAmbiguous && AmbiguityType == xAOD::AmbiguityTool::ambiguousNoInnermost){
+    isEM |= (0x1 << egammaPID::AmbiguityResolution_Photon);
+  }
+
   return StatusCode::SUCCESS;
 }
 

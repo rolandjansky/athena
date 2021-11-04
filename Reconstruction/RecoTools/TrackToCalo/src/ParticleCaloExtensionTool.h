@@ -19,12 +19,14 @@
 
 /* interfce for the extrapolator tool*/
 
+#include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 #include "TrkDetDescrUtils/GeometrySignature.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 /*
  * xAOD includes
  */
+#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/NeutralParticle.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
@@ -40,11 +42,9 @@ class ParticleCaloExtensionTool final
   , public AthAlgTool
 {
 public:
-
-  ParticleCaloExtensionTool(
-    const std::string&,
-    const std::string&,
-    const IInterface*);
+  ParticleCaloExtensionTool(const std::string&,
+                            const std::string&,
+                            const IInterface*);
   virtual ~ParticleCaloExtensionTool();
 
   virtual StatusCode initialize() override final;
@@ -77,6 +77,13 @@ public:
     const TrackParameters& startPars,
     PropDirection propDir,
     ParticleHypothesis particleType) const override final;
+  
+  virtual std::vector<std::pair<CaloSampling::CaloSample,
+                                std::unique_ptr<const Trk::TrackParameters>>>
+  egammaCaloExtension(const EventContext& ctx,
+                      const TrackParameters& startPars,
+                      const xAOD::CaloCluster& cluster,
+                      ParticleHypothesis particleType) const override final;
 
 private:
   std::unique_ptr<Trk::CaloExtension> caloExtension(
@@ -90,6 +97,14 @@ private:
     const xAOD::TrackParticle& particle) const;
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator{ this, "Extrapolator", "" };
+
+  /** @brief Tool to build calorimeter layer surfaces */
+  ToolHandle<ICaloSurfaceBuilder> m_calosurf{
+    this,
+    "CaloSurfaceBuilder",
+    "CaloSurfaceBuilder",
+    "Tool to build calorimeter layer surfaces"
+  };
   Gaudi::Property<std::string> m_particleTypeName{
     this,
     "ParticleType",

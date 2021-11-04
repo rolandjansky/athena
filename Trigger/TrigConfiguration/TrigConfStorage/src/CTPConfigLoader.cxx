@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./CTPConfigLoader.h"
@@ -80,15 +80,17 @@ bool TrigConf::CTPConfigLoader::load(CTPConfig& ctpcTarget) {
          randomid = row0["L1MT_RANDOM_ID"].data<long>();
          if( isRun1() ) deadtimeid = row0["L1MT_DEAD_TIME_ID"].data<long>();
 
+         unsigned int ctpVersion;
+         unsigned int l1Version;
          if(isRun1()) {
-            s_ctpVersion = 3;
-            s_l1Version = 0;
+            ctpVersion = 3;
+            l1Version = 0;
          } else {
-            s_ctpVersion = row0["L1MT_CTPVERSION"].data<long>();
-            s_l1Version = row0["L1MT_L1VERSION"].data<long>();
+            ctpVersion = row0["L1MT_CTPVERSION"].data<long>();
+            l1Version = row0["L1MT_L1VERSION"].data<long>();
          }
-         ctpcTarget.setCTPVersion(s_ctpVersion);
-         ctpcTarget.setL1Version(s_l1Version);
+         ctpcTarget.setCTPVersion(ctpVersion);
+         ctpcTarget.setL1Version(l1Version);
 
          TRG_MSG_INFO("CTP version " << ctpcTarget.ctpVersion());
          TRG_MSG_INFO("L1  version " << ctpcTarget.l1Version());
@@ -214,7 +216,7 @@ bool TrigConf::CTPConfigLoader::load(CTPConfig& ctpcTarget) {
          if( prescalesetid > 0 && (schema > 6 || isRun2()) ) { //defined in old schema
             TRG_MSG_INFO("loding LVL1 prescales.");
             pss.setId(prescalesetid);
-            if ( !psldr.load( pss ) ) {
+            if ( !psldr.load( ctpcTarget.ctpVersion(), pss ) ) {
                TRG_MSG_ERROR("CTPConfigLoader: Error loading PrescaleSet " << pss.id());
                throw std::runtime_error( "CTPConfigLoader: Error loading PrescaleSet" );
             }

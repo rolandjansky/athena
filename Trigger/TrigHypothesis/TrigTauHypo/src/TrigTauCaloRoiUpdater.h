@@ -27,7 +27,6 @@ class TrigTauCaloRoiUpdater : public AthAlgorithm {
 
  private:
   Gaudi::Property< float > m_dRForCenter {this,"dRForCenter",0.2,"Delta R from the center of ROI"};
-  Gaudi::Property< bool > m_SkipClusterOutsideROI { this, "SkipClusterOutsideROI", false, "do not consider cluster outside the ROI"};
   Gaudi::Property< float > m_etaHalfWidth {this,"etaHalfWidth",0.1,"eta Half width for tracking"};
   Gaudi::Property< float > m_phiHalfWidth {this,"phiHalfWidth",0.1,"phi Half width for tracking"};
 

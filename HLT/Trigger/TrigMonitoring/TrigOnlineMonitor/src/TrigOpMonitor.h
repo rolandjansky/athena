@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGONLINEMONITOR_TRIGOPMONITOR_H
@@ -20,7 +20,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LumiBlockData/LuminosityCondData.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldConditions/AtlasFieldMapCondObj.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "TH1I.h"
@@ -70,7 +70,6 @@ private:
   ServiceHandle<IIncidentSvc> m_incidentSvc{ this, "IncidentSvc", "IncidentSvc", "Incident service"};
   ServiceHandle<ITHistSvc> m_histSvc{this, "THistSvc", "THistSvc"};
 
-  MagField::IMagFieldSvc* m_magFieldSvc{nullptr};
   IIOVDbSvc* m_IOVDbSvc{nullptr};
 
   TH2I* m_magFieldHist{nullptr};
@@ -88,8 +87,8 @@ private:
   std::string m_histPath;                                   //!< histogram booking path
 
   /* Properties */
-  SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey{this, "LuminosityCondDataKey",
-                                                          "LuminosityCondData", ""};
+  SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey{this, "LuminosityCondDataKey", ""};
+  SG::ReadCondHandleKey<AtlasFieldMapCondObj> m_fieldMapKey {this, "AtlasFieldMapCondDataKey", ""};
 
   Gaudi::Property<std::string> m_releaseData{
       this, "ReleaseDataFile", "../ReleaseData",

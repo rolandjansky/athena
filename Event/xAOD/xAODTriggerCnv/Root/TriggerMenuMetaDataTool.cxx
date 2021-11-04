@@ -40,14 +40,14 @@ namespace xAODMaker {
       declareProperty("OutputKeyJSON_HLTPS", m_outputKeyJSON_HLTPS = "TriggerMenuJson_HLTPS");
       declareProperty("InputKeyJSON_L1PS", m_inputKeyJSON_L1PS = "TriggerMenuJson_L1PS");
       declareProperty("OutputKeyJSON_L1PS", m_outputKeyJSON_L1PS = "TriggerMenuJson_L1PS");
+      declareProperty("InputKeyJSON_BG", m_inputKeyJSON_BG = "TriggerMenuJson_BG");
+      declareProperty("OutputKeyJSON_BG", m_outputKeyJSON_BG = "TriggerMenuJson_BG");
    }
 
    StatusCode TriggerMenuMetaDataTool::initialize() {
 
       // Greet the user:
       ATH_MSG_DEBUG( "Initialising TriggerMenuMetaDataTool" );
-
-
 
 
       // Reset the internal variable(s):
@@ -61,8 +61,8 @@ namespace xAODMaker {
       m_menuJSON_hltpsAux.reset();
       m_menuJSON_l1ps.reset();
       m_menuJSON_l1psAux.reset();
-      // m_menuJSON_bg.reset(); // TODO
-      // m_menuJSON_bgAux.reset();
+      m_menuJSON_bg.reset();
+      m_menuJSON_bgAux.reset();
 
       m_beginFileIncidentSeen = false;
 
@@ -137,7 +137,7 @@ namespace xAODMaker {
       ATH_CHECK( checkCopyJSON(m_inputKeyJSON_L1, m_menuJSON_l1, m_menuJSON_l1Aux) );
       ATH_CHECK( checkCopyJSON(m_inputKeyJSON_HLTPS, m_menuJSON_hltps, m_menuJSON_hltpsAux) );
       ATH_CHECK( checkCopyJSON(m_inputKeyJSON_L1PS, m_menuJSON_l1ps, m_menuJSON_l1psAux) );
-      // ATH_CHECK( checkCopyJSON(m_inputKeyJSON_BG, m_menuJSON_bg, m_menuJSON_bgAux) );
+      ATH_CHECK( checkCopyJSON(m_inputKeyJSON_BG, m_menuJSON_bg, m_menuJSON_bgAux) );
       return StatusCode::SUCCESS;
    }
 
@@ -233,7 +233,7 @@ namespace xAODMaker {
       ATH_CHECK( checkExportJSON(m_outputKeyJSON_L1, m_menuJSON_l1, m_menuJSON_l1Aux) );
       ATH_CHECK( checkExportJSON(m_outputKeyJSON_HLTPS, m_menuJSON_hltps, m_menuJSON_hltpsAux) );
       ATH_CHECK( checkExportJSON(m_outputKeyJSON_L1PS, m_menuJSON_l1ps, m_menuJSON_l1psAux) );
-      // ATH_CHECK( checkExportJSON(m_outputKeyJSON_BG, m_menuJSON_bg, m_menuJSON_bgAux) );
+      ATH_CHECK( checkExportJSON(m_outputKeyJSON_BG, m_menuJSON_bg, m_menuJSON_bgAux) );
       return StatusCode::SUCCESS;
    }
 

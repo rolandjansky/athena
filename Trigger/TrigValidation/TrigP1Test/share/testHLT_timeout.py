@@ -33,6 +33,7 @@ Configurable.configurableRun3Behavior -= 1
 # Set flags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 Conf.set_flags(ConfigFlags)
+ConfigFlags.lock()
 
 # Configure the L1 and HLT sequences
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper

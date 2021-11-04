@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021, 2019, 2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -17,6 +17,11 @@
 #include "xAODEventInfo/versions/EventInfo_v1.h"
 #include "xAODEventInfo/EventInfoContainer.h"
 #include "EventInfoAccessors_v1.h"
+
+#ifndef XAOD_STANDALONE
+# include "StoreGate/StoreGateSvc.h"
+# include "SGTools/CurrentEventStore.h"
+#endif
 
 namespace xAODEventInfoPrivate {
 
@@ -1010,7 +1015,11 @@ namespace xAOD {
 
       m_streamTags.reset();
       m_subEvents.reset();
+#ifdef XAOD_STANDALONE
       m_evtStore = nullptr;
+#else
+      m_evtStore = dynamic_cast<StoreGateSvc*> (SG::CurrentEventStore::store());
+#endif
 
       if( usingStandaloneStore() ) {
          setStore( ( SG::IAuxStore* ) nullptr );

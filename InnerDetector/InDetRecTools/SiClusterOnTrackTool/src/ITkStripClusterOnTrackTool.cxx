@@ -159,7 +159,7 @@ ITk::StripClusterOnTrackTool::correct
       = dynamic_cast<const Trk::AnnulusBoundsPC *> (&trackPar.associatedSurface().bounds());
 
     if(aboundspc != nullptr) {
-      return correctAnnulusPC(SC, trackPar).get();
+      return correctAnnulusPC(SC, trackPar).release();
     }
     else if(abounds != nullptr) {
       const InDetDD::SiCellId & lp = EL->cellIdOfPosition(SC->localPosition());

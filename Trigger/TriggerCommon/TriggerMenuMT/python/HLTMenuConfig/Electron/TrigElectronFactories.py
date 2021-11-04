@@ -42,7 +42,8 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
                                               MVACalibSvc=egammaMVASvc,
                                               EtThresholdCut=1000,
                                               TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
-                                              doAdd= False
+                                              doAdd= False,
+                                              LinkToConstituents = False,
                                              )
 
 

@@ -183,6 +183,13 @@ StatusCode TileCondToolOfc::getOfcWeights(unsigned int drawerIdx
       m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, channel, gain
                                              , phase + 25 * (i - m_t0Sample), py, pdy, ctx);
 
+      // If overflow/underflow using boundary value of y and dy=0, OF affected when the number of samples is high. Set y=0 and dy=0 for OF weights computation
+      if( (phase + 25 * (i - m_t0Sample) < -150) || (phase + 25 * (i - m_t0Sample) > 150) ){ 
+        py=0;
+        pdy=0;
+      }
+
+
       PulseShape[i][0] = py;
       DPulseShape[i][0] = pdy;
       weights.g[i] = PulseShape[i][0];

@@ -48,22 +48,13 @@ def getTrigConfFromCool(runNumber, lumiBlock):
 
 
 @lru_cache(maxsize=None)
-def createJsonMenuFiles(isMC, run, lb):
-    """Retrieve Run-2 trigger configuration from the DN and save as Run3 .JSON files.x"""
+def createJsonMenuFiles(run, lb):
+    """Retrieve Run-2 trigger configuration from the DB and save as Run3 .JSON files"""
     import subprocess
 
     log.info("Configuring Run-1&2 to Run-3 configuration metadata conversion")
-    triggerDBKeys = {}
-    if isMC:  # TODO: migrate to ConfigFlags
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        triggerDBKeys['DB'] = TriggerFlags.triggerDbConnection()
-        triggerDBKeys['SMK'] = TriggerFlags.triggerDbKeys()[0]
-        triggerDBKeys['L1PSK'] = TriggerFlags.triggerDbKeys()[1]
-        triggerDBKeys['HLTPSK'] = TriggerFlags.triggerDbKeys()[2]
-        triggerDBKeys['BGSK'] = TriggerFlags.triggerDbKeys()[3]
-    else:
-        triggerDBKeys = getTrigConfFromCool(run, lb)
-        triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
+    triggerDBKeys = getTrigConfFromCool(run, lb)
+    triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
 
     cmd = "TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys)
     log.info("Running command '%s'", cmd)
@@ -121,8 +112,9 @@ def getHLTPrescaleFolderName():
 
 
 def _doMenuConversion(flags):
-    """Do JSON menu conversion for for Run-1&2 data"""
-    return '_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files and flags.Trigger.EDMVersion in [1,2]
+    """Do JSON menu conversion for Run-1&2 data"""
+    return ('_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files and
+            flags.Trigger.EDMVersion in [1,2] and not flags.Input.isMC)
 
 def _getMenuFileName(flags):
     """Return base name for menu files"""
@@ -225,8 +217,7 @@ def L1ConfigSvcCfg( flags ):
     if cfg["SOURCE"] == "FILE":
         if _doMenuConversion(flags):
             # Save the menu in JSON format
-            dbKeys = createJsonMenuFiles(isMC = flags.Input.isMC,
-                                         run = flags.Input.RunNumber[0],
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
             l1ConfigSvc.JsonFileName = getL1MenuFileName(flags)
             l1ConfigSvc.JsonFileNameBGS  = getBunchGroupSetFileName(flags)
@@ -260,8 +251,7 @@ def HLTConfigSvcCfg( flags ):
     if cfg["SOURCE"] == "FILE":
         if _doMenuConversion(flags):
             # Save the menu in JSON format
-            dbKeys = createJsonMenuFiles(isMC = flags.Input.isMC,
-                                         run = flags.Input.RunNumber[0],
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
             hltConfigSvc.SMK = dbKeys['SMK']
 
@@ -308,8 +298,7 @@ def L1PrescaleCondAlgCfg( flags ):
         l1PrescaleCondAlg.Filename = getL1PrescalesSetFileName( flags )
         if _doMenuConversion(flags):
             # Save the menu in JSON format
-            dbKeys = createJsonMenuFiles(isMC = flags.Input.isMC,
-                                         run = flags.Input.RunNumber[0],
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
             l1PrescaleCondAlg.L1Psk = dbKeys['L1PSK']
     else:
@@ -340,8 +329,7 @@ def HLTPrescaleCondAlgCfg( flags ):
         hltPrescaleCondAlg.Filename = getHLTPrescalesSetFileName( flags )
         if _doMenuConversion(flags):
             # Save the menu in JSON format
-            dbKeys = createJsonMenuFiles(isMC = flags.Input.isMC,
-                                         run = flags.Input.RunNumber[0],
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
             hltPrescaleCondAlg.HLTPsk = dbKeys['HLTPSK']
     else:
@@ -375,7 +363,7 @@ if __name__ == "__main__":
             HLTPrescaleCondAlgCfg( ConfigFlags )
 
         def test_jsonConverter(self):
-            keys = createJsonMenuFiles(isMC=False, run=360026, lb=151)
+            keys = createJsonMenuFiles(run=360026, lb=151)
             for k,v in {"SMK" : 2749, "L1PSK" : 23557, "HLTPSK" : 17824, "BGSK" : 2181}.items():
                 assert  k in keys, "Missing key {}".format(k)
                 assert v == keys[k], "Wrong value {}".format(v)

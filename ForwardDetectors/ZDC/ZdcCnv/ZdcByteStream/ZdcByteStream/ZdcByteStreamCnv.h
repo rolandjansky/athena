@@ -24,8 +24,8 @@
 #include <stdint.h>
 #include <map>
 
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -47,7 +47,7 @@ template <typename > class CnvFactory;
  * The converter class has the methods to create the collection objects from a file
  * (RDO to ByteStream) and ByteStream from RDO.
  */
-class ZdcByteStreamCnv: public Converter
+class ZdcByteStreamCnv: public AthConstConverter
 {
 public:
 	ZdcByteStreamCnv(ISvcLocator* svcloc);
@@ -55,7 +55,7 @@ public:
 	virtual ~ZdcByteStreamCnv();
 
 	virtual StatusCode initialize() override;
-	virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
+	virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const override;
 	//virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
 
 	/// Storage type and class ID
@@ -79,9 +79,6 @@ private:
 	ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
 
         ServiceHandle<StoreGateSvc> m_evtStore;
-
-        /// Message log
-	bool m_debug;
 };
 
 #endif /* ZDCBYTESTREAMCNV_H */

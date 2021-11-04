@@ -166,8 +166,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int RhadBitS = 3;
       unsigned int WstotBitS = 5;
 
-      unsigned int maxEt = iso_loose.maxEt();//since it's not 'MeV' or Counts, must be in GeV
-      unsigned int maxEtCounts = (maxEt*m_GeV)/m_eFexStep;//Note: this should be changed in the menu to access in MeV. 
+      unsigned int maxEtCounts = thr_eEM.maxEtCounts(m_eFexStep);
       if (eEMTobEt > maxEtCounts){
 	RetaWP = 3;
 	RhadWP = 3;
