@@ -1056,45 +1056,6 @@ def createComboAlg(dummyFlags, name, comboHypoCfg):
     return ComboMaker(name, comboHypoCfg)
 
 
-def menuSequenceCAToGlobalWrapper(gen, flags, *args, **kwargs):
-    """
-    Generates & converts MenuSequenceCA into the MenuSequence, in addition appending aux stuff to global configuration
-    """
-    from AthenaCommon.Configurable import ConfigurableRun3Behavior
-    with ConfigurableRun3Behavior():
-        msca = gen(flags, *args, **kwargs)
-        assert isinstance(msca, MenuSequenceCA), "Function provided to menuSequenceCAToGlobalWrapper does not generate MenuSequenceCA"
-
-    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
-    from AthenaCommon.AlgSequence import AthSequencer
-    from AthenaCommon.CFElements import compName, isSequence
-    hypo = conf2toConfigurable(msca.hypo.Alg)
-    maker = conf2toConfigurable(msca.maker.Alg)
-
-    def _convertSeq(s):
-        sname = compName(s)
-        old = AthSequencer( sname )
-        if s.ModeOR: #this seems stupid way to do it but in fact this was we avoid setting this property if is == default, this streamlining comparisons
-            old.ModeOR = True
-        if s.Sequential:
-            old.Sequential = True
-        old.StopOverride =    s.StopOverride 
-        for member in s.Members:
-            if isSequence(member):
-                old += _convertSeq(member)
-            else:
-                old += conf2toConfigurable(member)
-        return old
-    sequence = _convertSeq(msca.sequence.Alg.Members[0]) 
-    msca.ca._algorithms = {}
-    msca.ca._sequence = None
-    msca.ca._allSequences = []
-    appendCAtoAthena(msca.ca)
-    return MenuSequence(Sequence   = sequence,
-                        Maker       = maker,
-                        Hypo        = hypo,
-                        HypoToolGen = msca._hypoToolConf.hypoToolGen)
-
 
 class InEventRecoCA( ComponentAccumulator ):
     """ Class to handle in-event reco """
@@ -1184,6 +1145,69 @@ class SelectionCA(ComponentAccumulator):
     def addHypoAlgo(self, algo):
         """To be used when the hypo alg configuration does not require auxiliary tools/services"""
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
+
+
+# mainline/rec-ex-common and CA based JO compatibility layer (basically converters)
+def algorithmCAToGlobalWrapper(gen, flags, *args, **kwargs):
+    """Merges CA with athena for all components except the algorithms. Those are converted to Run2 objects and returned.
+
+    If CA contains more than one algorithm, a list is returned, else a single algorithm is returned.
+    
+    """
+    from AthenaCommon.Configurable import ConfigurableRun3Behavior
+    with ConfigurableRun3Behavior():
+        ca = gen(flags, *args, **kwargs)
+        assert isinstance(ca, ComponentAccumulator), "Function provided does not generate ComponentAccumulator"
+    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
+    algs = ca.getEventAlgos()
+    ca._algorithms = {}
+    ca._allSequences = []
+    appendCAtoAthena(ca)
+    converted = [conf2toConfigurable(alg) for alg in algs]
+    if len(converted)  == 0:
+        return converted[0]
+    return converted
+
+
+
+def menuSequenceCAToGlobalWrapper(gen, flags, *args, **kwargs):
+    """
+    Generates & converts MenuSequenceCA into the MenuSequence, in addition appending aux stuff to global configuration
+    """
+    from AthenaCommon.Configurable import ConfigurableRun3Behavior
+    with ConfigurableRun3Behavior():
+        msca = gen(flags, *args, **kwargs)
+        assert isinstance(msca, MenuSequenceCA), "Function provided to menuSequenceCAToGlobalWrapper does not generate MenuSequenceCA"
+
+    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
+    from AthenaCommon.AlgSequence import AthSequencer
+    from AthenaCommon.CFElements import compName, isSequence
+    hypo = conf2toConfigurable(msca.hypo.Alg)
+    maker = conf2toConfigurable(msca.maker.Alg)
+
+    def _convertSeq(s):
+        sname = compName(s)
+        old = AthSequencer( sname )
+        if s.ModeOR: #this seems stupid way to do it but in fact this was we avoid setting this property if is == default, this streamlining comparisons
+            old.ModeOR = True
+        if s.Sequential:
+            old.Sequential = True
+        old.StopOverride =    s.StopOverride 
+        for member in s.Members:
+            if isSequence(member):
+                old += _convertSeq(member)
+            else:
+                old += conf2toConfigurable(member)
+        return old
+    sequence = _convertSeq(msca.sequence.Alg.Members[0]) 
+    msca.ca._algorithms = {}
+    msca.ca._sequence = None
+    msca.ca._allSequences = []
+    appendCAtoAthena(msca.ca)
+    return MenuSequence(Sequence   = sequence,
+                        Maker       = maker,
+                        Hypo        = hypo,
+                        HypoToolGen = msca._hypoToolConf.hypoToolGen)
 
 
 def lockConfigurable(conf):

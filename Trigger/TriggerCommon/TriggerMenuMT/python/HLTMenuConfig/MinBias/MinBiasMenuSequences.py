@@ -13,6 +13,8 @@ import AthenaCommon.SystemOfUnits as Units
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
 
 ########
 # to move into TrigMinBiasHypoConfigMT?
@@ -69,11 +71,22 @@ def TrigZVertexHypoToolGen(chainDict):
         raise RuntimeError("Chain {} w/o pileup suppression required to configure z vertex hypo".format(chainDict["chainName"]))
     return hypo
 
+@AccumulatorCache
+def SPCounterRecoAlgCfg(flags):
+    acc = ComponentAccumulator()
+    from TrigMinBias.TrigMinBiasMonitoring import SpCountMonitoring
+    alg = CompFactory.TrigCountSpacePoints( SpacePointsKey = recordable("HLT_SpacePointCounts"), 
+                                            MonTool = SpCountMonitoring() ) 
+    acc.addEventAlgo(alg)
+    return acc
+    
+
+
 ### Now the sequences
 
 def MinBiasSPSequence():
     spAlgsList = []
-    from TrigMinBias.TrigMinBiasConf import TrigCountSpacePoints, SPCountHypoAlg
+    from TrigMinBias.TrigMinBiasConf import SPCountHypoAlg
 
     spInputMakerAlg = EventViewCreatorAlgorithm("IM_SPEventViewCreator")
     spInputMakerAlg.ViewFallThrough = True
@@ -103,12 +116,9 @@ def MinBiasSPSequence():
 #    spAlgsList = idAlgs[:-2]
     spAlgsList = idAlgs
 
-
-    spCount = TrigCountSpacePoints()
-    spCount.SpacePointsKey = recordable("HLT_SpacePointCounts")
-
-    from TrigMinBias.TrigMinBiasMonitoring import SpCountMonitoring
-    spCount.MonTool = SpCountMonitoring()
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags# this will disappear once the flags are transported down here
+    from ..Menu.MenuComponents import algorithmCAToGlobalWrapper # this will disappear once whole sequence would be configured at once
+    spCount = algorithmCAToGlobalWrapper(SPCounterRecoAlgCfg, flags)
 
     spRecoSeq = parOR("spRecoSeq", spAlgsList + [spCount])
     spSequence = seqAND("spSequence", [spInputMakerAlg, spRecoSeq])
@@ -209,5 +219,6 @@ if __name__ == "__main__":
 
     from ..Menu.MenuComponents import menuSequenceCAToGlobalWrapper
     ms = menuSequenceCAToGlobalWrapper(MinBiasZVertexFinderSequenceCfg, flags)
-    print (ms)
-#    ca.ca.wasMerged()
+    spca = SPCounterRecoAlgCfg(flags)
+    spca.printConfig(withDetails=True)
+    spca.wasMerged()
