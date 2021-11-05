@@ -7952,6 +7952,22 @@ HLT_mu10_L1MU8F:
     1: 9
     2: 10
     3: 9
+HLT_mu10_PhysicsTLA_L1MU8F:
+  eventCount: 8
+  stepCounts:
+    0: 10
+    1: 8
+    2: 8
+    3: 8
+    4: 8
+    5: 8
+  stepFeatures:
+    0: 12
+    1: 9
+    2: 10
+    3: 9
+    4: 9
+    5: 9
 HLT_mu10_bJpsimutrk_MuonTrkPEB_L1MU8F:
   eventCount: 0
 HLT_mu10_ivarmedium_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF:
