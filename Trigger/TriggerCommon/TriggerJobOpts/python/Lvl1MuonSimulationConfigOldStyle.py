@@ -38,14 +38,20 @@ def NSWTriggerSequence(flags):
     nsw = CompFactory.NSWL1__NSWL1Simulation("NSWL1Simulation")
     nsw.DoNtuple=False
 
-    PadTdsTool = CompFactory.NSWL1__PadTdsOfflineTool("PadTdsOfflineTool",DoNtuple=False)
+    PadTdsTool = CompFactory.NSWL1__PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False)
     nsw.PadTdsTool = PadTdsTool
-    PadTriggerLogicTool = CompFactory.NSWL1__PadTriggerLogicOfflineTool("PadTriggerLogicOfflineTool",DoNtuple=False)
+
+    PadTriggerLogicTool = CompFactory.NSWL1__PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     nsw.PadTriggerTool = PadTriggerLogicTool
-    PadTriggerLookupTool = CompFactory.NSWL1__PadTriggerLookupTool("PadTriggerLookupTool",DumpSectorGeometry=False)
+
+    PadTriggerLookupTool = CompFactory.NSWL1__PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
     nsw.PadTriggerLookupTool = PadTriggerLookupTool
-    StripTdsTool = CompFactory.NSWL1__StripTdsOfflineTool("StripTdsOfflineTool",DoNtuple=False)
+
+    StripTdsTool = CompFactory.NSWL1__StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
     nsw.StripTdsTool = StripTdsTool
+
+    MMTriggerProcessorTool = CompFactory.NSWL1__TriggerProcessorTool("NSWL1__TriggerProcessorTool")
+    nsw.MMTriggerProcessorTool = MMTriggerProcessorTool
 
     # no MM trigger for this moment
     nsw.MMStripTdsTool = ""
@@ -57,7 +63,6 @@ def NSWTriggerSequence(flags):
     nsw.DosTGC=True
     nsw.UseLookup=False #use lookup table for the pad trigger
     nsw.NSWTrigRDOContainerName="NSWTRGRDO"
-    nsw.PadTriggerRDOName="NSWPADTRGRDO"
     nsw.StripSegmentTool.rIndexScheme=0
 
     return nsw
@@ -200,6 +205,9 @@ def TGCTriggerConfig(flags):
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
         tgc.MaskFileName12 = "TrigT1TGCMaskedChannel.noFI._12.db"
+        tgc.USENSW = True
+        tgc.NSWSideInfo = "AC"
+        tgc.NSWTrigger_Input = "NSWTRGRDO"
     else:
         tgc.MaskFileName12 = "TrigT1TGCMaskedChannel._12.db"
 
