@@ -82,8 +82,6 @@ def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronD
           'dnnloose'  :'ElectronDNNMulticlassLoose.conf',
           })
 
-    selectors = []
-    from AthenaCommon.AppMgr import ToolSvc
     log.debug('Configuring electron DNN' )
     for dnnname, name in SelectorNames.items():
       SelectorTool = CompFactory.AsgElectronSelectorTool(name)
@@ -127,9 +125,7 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
           'lhvloose_nopix'  :'ElectronLikelihoodVeryLooseTriggerConfig_NoPix.conf',
           })
 
-    selectors = []
     log.debug('Configuring electron PID' )
-    from AthenaCommon.AppMgr import ToolSvc
     for pidname, name in SelectorNames.items():
       SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
@@ -189,8 +185,6 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
           'mergedtight'  : egammaPID.ElectronTightHLT,
     }
 
-    selectors = []
-    from AthenaCommon.AppMgr import ToolSvc
     for sel, name in SelectorNames.items():
         SelectorTool = CompFactory.AsgElectronIsEMSelector(name)
         SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
@@ -231,7 +225,6 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
             'medium' : egammaPID.PhotonMedium,
             'tight'  : egammaPID.PhotonTight,
             }
-
     selectors = []
     for sel, name in SelectorNames.items():
         log.debug('Configuring photon PID for %s', sel)
@@ -274,8 +267,8 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
           'loose'   :['ElectronJpsieeRingerLooseTriggerConfig_RingsOnly.conf'     , 'ElectronZeeRingerLooseTriggerConfig_RingsOnly.conf'    ],
           'vloose'  :['ElectronJpsieeRingerVeryLooseTriggerConfig_RingsOnly.conf' , 'ElectronZeeRingerVeryLooseTriggerConfig_RingsOnly.conf'],
           })
-        
-    selectors = []
+    
+    selectors = []    
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
       SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
@@ -313,8 +306,7 @@ def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
           'loose'   :['ElectronJpsieeRingerLooseTriggerConfig.conf'     , 'ElectronZeeRingerLooseTriggerConfig.conf'    ],
           'vloose'  :['ElectronJpsieeRingerVeryLooseTriggerConfig.conf' , 'ElectronZeeRingerVeryLooseTriggerConfig.conf'],
           })
-        
-    selectors = []
+    selectors = []    
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
       SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
@@ -346,6 +338,7 @@ def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
       'medium': ['PhotonRingerMediumTriggerConfig.conf'],
       'loose' : ['PhotonRingerLooseTriggerConfig.conf' ],
     })
+
     selectors = []
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)

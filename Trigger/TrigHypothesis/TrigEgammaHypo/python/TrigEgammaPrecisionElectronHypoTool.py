@@ -32,7 +32,7 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     acc.merge(acc_ElectronDNNSelectorTools)
   
     thePrecisionElectronHypo = CompFactory.TrigEgammaPrecisionElectronHypoAlg(name)
-    thePrecisionElectronHypo.Electrons = sequenceOut
+    thePrecisionElectronHypo.Electrons = str(sequenceOut)
     thePrecisionElectronHypo.Do_idperf = do_idperf
     thePrecisionElectronHypo.RunInView = True
     thePrecisionElectronHypo.ElectronCBSelectorTools = acc_ElectronCBSelectorTools.getPublicTools()
