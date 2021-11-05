@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -443,7 +443,7 @@ StatusCode TileCellSelector::execute() {
 
     using namespace boost::local_time;
     using namespace boost::posix_time;
-    static time_zone_ptr gva_tz(new posix_time_zone((std::string)"CET+01CEST01:00:00,M3.5.0/02:00:00,M10.5.0/03:00:00"));
+    static const time_zone_ptr gva_tz(new posix_time_zone((std::string)"CET+01CEST01:00:00,M3.5.0/02:00:00,M10.5.0/03:00:00"));
     local_date_time gva_time(from_time_t(eventInfo->timeStamp()),gva_tz);
     evState << " " << gva_time << " ";
    
