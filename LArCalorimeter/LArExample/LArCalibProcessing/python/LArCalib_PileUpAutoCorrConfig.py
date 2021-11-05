@@ -6,7 +6,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 def LArPileUpAutoCorrCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -41,7 +41,8 @@ def LArPileUpAutoCorrCfg(flags):
 
     del rs
 
-    result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=AutoCorrTag,className="LArAutoCorrComplete"))
+    result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=AutoCorrTag, modifiers=chanSelStr(flags), 
+                            className="LArAutoCorrComplete"))
 
     #Need ADC2MeV values for AutoCorrCondAlg ... 
     #use current production values as input conditions

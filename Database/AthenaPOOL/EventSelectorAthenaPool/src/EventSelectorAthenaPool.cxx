@@ -670,6 +670,7 @@ StatusCode EventSelectorAthenaPool::nextHandleFileTransition(IEvtSelector::Conte
          disconnectIfFinished( old_guid );
       }
       m_guid = guid;
+      m_activeEventsPerSource[guid.toString()] = 0;
       // Fire BeginInputFile incident if current InputCollection is a payload file;
       // otherwise, ascertain whether the pointed-to file is reachable before firing any incidents and/or proceeding
       if (m_collectionType.value() == "ImplicitROOT") {
@@ -1187,7 +1188,10 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
       ATH_MSG_WARNING("could not read event source ID from incident event context");
       return;
    }
-
+   if( m_activeEventsPerSource.find( fid ) == m_activeEventsPerSource.end()) {
+      ATH_MSG_DEBUG("Incident handler ignoring unknown input FID: " << fid );
+      return;
+   }
    ATH_MSG_DEBUG("**  MN Incident handler " << inc.type() << " Event source ID=" << fid );
    if( inc.type() == IncidentType::BeginProcessing ) {
       // increment the events-per-file counter for FID
@@ -1210,7 +1214,8 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
 */
 bool EventSelectorAthenaPool::disconnectIfFinished( const SG::SourceID &fid ) const
 {
-   if( m_eventStreamingTool.empty() && m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
+   if( m_eventStreamingTool.empty() && m_activeEventsPerSource.find(fid) != m_activeEventsPerSource.end() 
+           && m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
       // Explicitly disconnect file corresponding to old FID to release memory
       if( !m_keepInputFilesOpen.value() ) {
          // Assume that the end of collection file indicates the end of payload file.

@@ -101,7 +101,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         if "Combined" in extendedSignatureToGenerate:
             log.info("Combined chains requested -- activate other necessary signatures")
             extendedSignatureToGenerate.remove("Combined")
-            extendedSignatureToGenerate.update(["Egamma","Muon","Tau","Jet",
+            extendedSignatureToGenerate.update(["MinBias","Egamma","Muon","Tau","Jet",
                                                 "Bjet","MET","UnconventionalTracking"])
 
         for sig in extendedSignatureToGenerate:

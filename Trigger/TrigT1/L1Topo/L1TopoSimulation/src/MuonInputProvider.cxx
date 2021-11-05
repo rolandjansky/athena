@@ -69,6 +69,10 @@ MuonInputProvider::handle(const Incident& incident) {
    auto hPt = std::make_unique<TH1I>("MuonTOBPt", "Muon TOB Pt", 40, 0, 40);
    hPt->SetXTitle("p_{T}");
 
+   auto hPtEta = std::make_unique<TH2I>("MuonTOBPtEta", "Muon TOB Pt vs Eta", 200, -200, 200, 40, 0, 40);
+   hPtEta->SetXTitle("#eta");
+   hPtEta->SetYTitle("p_{T}");
+
    auto hEtaPhiTopo = std::make_unique<TH2I>("MuonTOBPhiEtaTopo", "Muon TOB Location", 200, -200, 200, 64, 0, 128);
    hEtaPhiTopo->SetXTitle("#eta");
    hEtaPhiTopo->SetYTitle("#phi");
@@ -77,23 +81,29 @@ MuonInputProvider::handle(const Incident& incident) {
    hEtaPhi->SetXTitle("#eta");
    hEtaPhi->SetYTitle("#phi");
 
-   auto hBW2or3 = std::make_unique<TH1I>("MuonTOBBW2or3", "Muon TOB BW2or3", 3, -1, 2);
-   hBW2or3->SetXTitle("TGC full-station coincidence");
+   auto hBW2or3Eta = std::make_unique<TH2I>("MuonTOBBW2or3Eta", "Muon TOB BW2or3 vs Eta", 200, -200, 200, 3, -1, 2);
+   hBW2or3Eta->SetXTitle("#eta");
+   hBW2or3Eta->SetYTitle("TGC full-station coincidence");
 
-   auto hInnerCoin = std::make_unique<TH1I>("MuonTOBInnerCoin", "Muon TOB InnerCoin", 3, -1, 2);
-   hInnerCoin->SetXTitle("TGC inner coincidence");
+   auto hInnerCoinEta = std::make_unique<TH2I>("MuonTOBInnerCoinEta", "Muon TOB InnerCoin vs Eta", 200, -200, 200, 3, -1, 2);
+   hInnerCoinEta->SetXTitle("#eta");
+   hInnerCoinEta->SetYTitle("TGC inner coincidence");
 
-   auto hGoodMF = std::make_unique<TH1I>("MuonTOBGoodMF", "Muon TOB GoodMF", 3, -1, 2);
-   hGoodMF->SetXTitle("good magnetic field");
+   auto hGoodMFEta = std::make_unique<TH2I>("MuonTOBGoodMFEta", "Muon TOB GoodMF vs Eta", 200, -200, 200, 3, -1, 2);
+   hGoodMFEta->SetXTitle("#eta");
+   hGoodMFEta->SetYTitle("good magnetic field");
 
-   auto hCharge = std::make_unique<TH1I>("MuonTOBCharge", "Muon TOB Charge", 3, -1, 2);
-   hCharge->SetXTitle("charge");
+   auto hChargeEta = std::make_unique<TH2I>("MuonTOBChargeEta", "Muon TOB Charge vs Eta", 200, -200, 200, 3, -1, 2);
+   hChargeEta->SetXTitle("#eta");
+   hChargeEta->SetYTitle("charge");
 
-   auto hIs2cand = std::make_unique<TH1I>("MuonTOBIs2cand", "Muon TOB Is2cand", 3, -1, 2);
-   hIs2cand->SetXTitle(">1 cand. in RPC pad");
+   auto hIs2candEta = std::make_unique<TH2I>("MuonTOBIs2candEta", "Muon TOB Is2cand vs Eta", 200, -200, 200, 3, -1, 2);
+   hIs2candEta->SetXTitle("#eta");
+   hIs2candEta->SetYTitle(">1 cand. in RPC pad");
 
-   auto hIsTGC = std::make_unique<TH1I>("MuonTOBIsTGC", "Muon TOB IsTGC", 2, -0.5, 1.5);
-   hIsTGC->SetXTitle("Is a TGC muon");
+   auto hIsTGCEta = std::make_unique<TH2I>("MuonTOBIsTGCEta", "Muon TOB IsTGC vs Eta", 200, -200, 200, 2, -0.5, 1.5);
+   hIsTGCEta->SetXTitle("#eta");
+   hIsTGCEta->SetYTitle("Is a TGC muon");
 
 
    if (m_histSvc->regShared( histPath + "TOBPt", std::move(hPt), m_hPt ).isSuccess()){
@@ -101,6 +111,12 @@ MuonInputProvider::handle(const Incident& incident) {
    }
    else{
       ATH_MSG_WARNING("Could not register TOBPt histogram for MuonProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TOBPtEta", std::move(hPtEta), m_hPtEta ).isSuccess()){
+      ATH_MSG_DEBUG("TOBPtEta histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+      ATH_MSG_WARNING("Could not register TOBPtEta histogram for MuonProvider");
    }
    if (m_histSvc->regShared( histPath + "TOBPhiEtaTopo", std::move(hEtaPhiTopo), m_hEtaPhiTopo ).isSuccess()){
       ATH_MSG_DEBUG("TOBPhiEtaTopo histogram has been registered successfully for MuonProvider.");
@@ -114,41 +130,41 @@ MuonInputProvider::handle(const Incident& incident) {
    else{
       ATH_MSG_WARNING("Could not register TOBPhiEta histogram for MuonProvider");
    }
-   if (m_histSvc->regShared( histPath + "TOBBW2or3", std::move(hBW2or3), m_hBW2or3 ).isSuccess()){
-      ATH_MSG_DEBUG("TOBBW2or3 histogram has been registered successfully for MuonProvider.");
+   if (m_histSvc->regShared( histPath + "TOBBW2or3Eta", std::move(hBW2or3Eta), m_hBW2or3Eta ).isSuccess()){
+      ATH_MSG_DEBUG("TOBBW2or3Eta histogram has been registered successfully for MuonProvider.");
    }
    else{
-      ATH_MSG_WARNING("Could not register TOBBW2or3 histogram for MuonProvider");
+      ATH_MSG_WARNING("Could not register TOBBW2or3Eta histogram for MuonProvider");
    }
-   if (m_histSvc->regShared( histPath + "TOBInnerCoin", std::move(hInnerCoin), m_hInnerCoin ).isSuccess()){
-      ATH_MSG_DEBUG("TOBInnerCoin histogram has been registered successfully for MuonProvider.");
-   }
-   else{
-      ATH_MSG_WARNING("Could not register TOBInnerCoin histogram for MuonProvider");
-   }
-   if (m_histSvc->regShared( histPath + "TOBGoodMF", std::move(hGoodMF), m_hGoodMF ).isSuccess()){
-      ATH_MSG_DEBUG("TOBGoodMF histogram has been registered successfully for MuonProvider.");
+   if (m_histSvc->regShared( histPath + "TOBInnerCoinEta", std::move(hInnerCoinEta), m_hInnerCoinEta ).isSuccess()){
+      ATH_MSG_DEBUG("TOBInnerCoinEta histogram has been registered successfully for MuonProvider.");
    }
    else{
-      ATH_MSG_WARNING("Could not register TOBGoodMF histogram for MuonProvider");
+      ATH_MSG_WARNING("Could not register TOBInnerCoinEta histogram for MuonProvider");
    }
-   if (m_histSvc->regShared( histPath + "TOBCharge", std::move(hCharge), m_hCharge ).isSuccess()){
-      ATH_MSG_DEBUG("TOBCharge histogram has been registered successfully for MuonProvider.");
-   }
-   else{
-      ATH_MSG_WARNING("Could not register TOBCharge histogram for MuonProvider");
-   }
-   if (m_histSvc->regShared( histPath + "TOBIs2cand", std::move(hIs2cand), m_hIs2cand ).isSuccess()){
-      ATH_MSG_DEBUG("TOBIs2cand histogram has been registered successfully for MuonProvider.");
+   if (m_histSvc->regShared( histPath + "TOBGoodMFEta", std::move(hGoodMFEta), m_hGoodMFEta ).isSuccess()){
+      ATH_MSG_DEBUG("TOBGoodMFEta histogram has been registered successfully for MuonProvider.");
    }
    else{
-      ATH_MSG_WARNING("Could not register TOBIs2cand histogram for MuonProvider");
+      ATH_MSG_WARNING("Could not register TOBGoodMFEta histogram for MuonProvider");
    }
-   if (m_histSvc->regShared( histPath + "TOBIsTGC", std::move(hIsTGC), m_hIsTGC ).isSuccess()){
-      ATH_MSG_DEBUG("TOBIsTGC histogram has been registered successfully for MuonProvider.");
+   if (m_histSvc->regShared( histPath + "TOBChargeEta", std::move(hChargeEta), m_hChargeEta ).isSuccess()){
+      ATH_MSG_DEBUG("TOBChargeEta histogram has been registered successfully for MuonProvider.");
    }
    else{
-      ATH_MSG_WARNING("Could not register TOBIsTGC histogram for MuonProvider");
+      ATH_MSG_WARNING("Could not register TOBChargeEta histogram for MuonProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TOBIs2candEta", std::move(hIs2candEta), m_hIs2candEta ).isSuccess()){
+      ATH_MSG_DEBUG("TOBIs2candEta histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+      ATH_MSG_WARNING("Could not register TOBIs2candEta histogram for MuonProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TOBIsTGCEta", std::move(hIsTGCEta), m_hIsTGCEta ).isSuccess()){
+      ATH_MSG_DEBUG("TOBIsTGCEta histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+      ATH_MSG_WARNING("Could not register TOBIsTGCEta histogram for MuonProvider");
    }
 }
 
@@ -210,16 +226,17 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
       muon.setIsTGC( 0 );
    }
 
-   m_hPt->Fill(muon.EtDouble());
-   m_hEtaPhiTopo->Fill(muon.eta(),muon.phi());
-   m_hEtaPhi->Fill(muon.EtaDouble(),muon.PhiDouble());
+   m_hPt->Fill( muon.EtDouble() );
+   m_hPtEta->Fill( muon.eta(), muon.EtDouble() );
+   m_hEtaPhiTopo->Fill( muon.eta(), muon.phi() );
+   m_hEtaPhi->Fill( muon.EtaDouble(), muon.PhiDouble() );
 
-   m_hBW2or3->Fill( muon.bw2or3() );
-   m_hInnerCoin->Fill( muon.innerCoin() );
-   m_hGoodMF->Fill( muon.goodMF() );
-   m_hCharge->Fill( muon.charge() );
-   m_hIs2cand->Fill( muon.is2cand() );
-   m_hIsTGC->Fill( muon.isTGC() );
+   m_hBW2or3Eta->Fill( muon.eta(), muon.bw2or3() );
+   m_hInnerCoinEta->Fill( muon.eta(), muon.innerCoin() );
+   m_hGoodMFEta->Fill( muon.eta(), muon.goodMF() );
+   m_hChargeEta->Fill( muon.eta(), muon.charge() );
+   m_hIs2candEta->Fill( muon.eta(), muon.is2cand() );
+   m_hIsTGCEta->Fill( muon.eta(), muon.isTGC() );
 
    return muon;
 }

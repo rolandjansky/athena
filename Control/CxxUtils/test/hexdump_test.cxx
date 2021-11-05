@@ -41,7 +41,7 @@ void test2()
   std::cout << "test2\n";
 
   // Granularity of this test.  Must be a multiple of the HW page size.
-  const unsigned int BLOCK = 4096;
+  const unsigned int BLOCK = 65536;
 
   unsigned int pagesize = sysconf (_SC_PAGESIZE);
   assert ((BLOCK % pagesize) == 0);
@@ -54,7 +54,9 @@ void test2()
     buf[i] = (i % 0x7f);
   }
 
-  CxxUtils::safeHexdump (std::cout, buf+BLOCK-10, BLOCK+20,
+  CxxUtils::safeHexdump (std::cout, buf+BLOCK-10, 20,
+                         reinterpret_cast<uintptr_t> (buf));
+  CxxUtils::safeHexdump (std::cout, buf+2*BLOCK-10, 20,
                          reinterpret_cast<uintptr_t> (buf));
 
   mprotect (buf+BLOCK, BLOCK, PROT_NONE);

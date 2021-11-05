@@ -22,7 +22,7 @@ ElectronCollectionName Electrons
 MuonCollectionName Muons
 JetCollectionName AntiKt4EMPFlowJets
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
-TauCollectionName None
+TauCollectionName TauJets
 PhotonCollectionName Photons
 TrackJetCollectionName None
 
