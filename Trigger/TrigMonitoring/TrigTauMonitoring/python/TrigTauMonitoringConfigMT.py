@@ -178,7 +178,6 @@ class TrigTauMonAlgBuilder:
     'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
     'HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM',
     'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_medium1_tracktwo_L1TAU12IM',
     # tau35
     'HLT_tau35_ptonly_L1TAU20IM',
     'HLT_tau35_idperf_tracktwo_L1TAU20IM',
@@ -193,8 +192,6 @@ class TrigTauMonAlgBuilder:
     'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
     'HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM',
     'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
-    # tau80
-    'HLT_tau80_medium1_tracktwo_L1TAU60',
     # tau160
     'HLT_tau160_ptonly_L1TAU100',
     'HLT_tau160_idperf_tracktwo_L1TAU100',
@@ -205,7 +202,6 @@ class TrigTauMonAlgBuilder:
     'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_medium1_tracktwo_L1TAU100',
     # tau180
     'HLT_tau180_mediumRNN_tracktwoLLP_L1TAU100',
     'HLT_tau180_tightRNN_tracktwoLLP_L1TAU100',
@@ -213,7 +209,6 @@ class TrigTauMonAlgBuilder:
     'HLT_tau200_ptonly_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau200_medium1_tracktwo_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100',
     'HLT_tau200_tightRNN_tracktwoLLP_L1TAU100',
     # ditau
