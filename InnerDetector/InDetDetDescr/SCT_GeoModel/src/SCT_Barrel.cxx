@@ -165,7 +165,7 @@ SCT_Barrel::build(SCT_Identifier id)
   
 }
 
-void SCT_Barrel::buildThermalShield(GeoFullPhysVol * parent) const
+void SCT_Barrel::buildThermalShield(GeoFullPhysVol * parent)
 {
  
   // The thermal shield is now in 3 parts:
@@ -225,7 +225,7 @@ void SCT_Barrel::buildThermalShield(GeoFullPhysVol * parent) const
 
 }
 
-void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent) const
+void SCT_Barrel::buildEMIShield(GeoFullPhysVol * parent)
 {
   
   const SCT_BarrelParameters * parameters = m_geometryManager->barrelParameters();
