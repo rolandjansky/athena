@@ -6732,11 +6732,11 @@ HLT_j45_320eta490_L1J15p31ETA49:
 HLT_j45_L1J15:
   eventCount: 0
 HLT_j45_cssk_nojcalib_L1J15:
-  eventCount: 16
+  eventCount: 15
   stepCounts:
-    0: 16
+    0: 15
   stepFeatures:
-    0: 31
+    0: 29
 HLT_j45_cssk_pf_nojcalib_ftf_L1J15:
   eventCount: 19
   stepCounts:
@@ -6744,7 +6744,7 @@ HLT_j45_cssk_pf_nojcalib_ftf_L1J15:
     1: 19
   stepFeatures:
     0: 20
-    1: 50
+    1: 49
 HLT_j45_ftf_L1J15:
   eventCount: 19
   stepCounts:
@@ -7709,7 +7709,7 @@ HLT_j85_a10sd_cssk_pf_jes_ftf_preselj50_L1J20:
     1: 20
   stepFeatures:
     0: 20
-    1: 44
+    1: 41
 HLT_j85_a10sd_cssk_pf_nojcalib_ftf_preselj50_L1J20:
   eventCount: 16
   stepCounts:
