@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Tool configuration for the track to calo tools."
 
@@ -6,13 +6,13 @@ __doc__ = "Tool configuration for the track to calo tools."
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
 
-def ParticleCaloExtensionToolCfg(flags, **kwargs):
+def ITkParticleCaloExtensionToolCfg(flags, **kwargs):
     acc=ComponentAccumulator()
 
     if "Extrapolator" not in kwargs:
-        extrapAcc = AtlasExtrapolatorCfg(flags)
+        extrapAcc = AtlasUpgradeExtrapolatorCfg(flags)
         kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
 
     caloExtensionTool = CompFactory.Trk.ParticleCaloExtensionTool(**kwargs)
@@ -20,11 +20,11 @@ def ParticleCaloExtensionToolCfg(flags, **kwargs):
     acc.setPrivateTools(caloExtensionTool)
     return acc
 
-def ParticleCaloCellAssociationToolCfg(flags, **kwargs):
+def ITkParticleCaloCellAssociationToolCfg(flags, **kwargs):
     acc=ComponentAccumulator()
 
     if "ParticleCaloExtensionTool" not in kwargs:
-        pcExtrapToolAcc = ParticleCaloExtensionToolCfg(flags)
+        pcExtrapToolAcc = ITkParticleCaloExtensionToolCfg(flags)
         kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(pcExtrapToolAcc)
 
     # should this be a more global flag? It depends on whether you are in AOD
