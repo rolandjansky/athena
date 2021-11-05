@@ -43,7 +43,7 @@ class TrigJetTLAHypoAlg : public ::HypoBase {
   SG::WriteHandleKey< xAOD::JetContainer > m_TLAjetsKey {
     this, "TLAOutputName", "TLAOutputName", "TLA jet container key"};  
 
-  Gaudi::Property<float> m_jetPtThreshold {this, "jetPtThreshold", 20e3 , "Threshold for saving jets in TLA container"};
+  
   
 }; 
 
