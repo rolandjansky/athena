@@ -129,6 +129,7 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   //
   const InDetDD::SiDetectorElement* EL = SC->detectorElement(); 
   if(!EL) return 0;
+  auto designShape = EL->design().shape();
 
   IdentifierHash                    iH = EL->identifyHash();
 
@@ -233,7 +234,7 @@ if (boundsy>0 && distance*cosAlpha> boundsy){ //skip this for Annulus (which has
         break;
       }
     // rotation for endcap SCT
-    if(EL->design().shape() == InDetDD::Trapezoid || EL->design().shape() == InDetDD::Annulus){
+    if(designShape == InDetDD::Trapezoid || designShape == InDetDD::Annulus){
           double sn      = EL->sinStereoLocal(SC->localPosition ()); 
           double sn2     = sn*sn;
           double cs2     = 1.-sn2;
@@ -244,12 +245,12 @@ if (boundsy>0 && distance*cosAlpha> boundsy){ //skip this for Annulus (which has
 	  mat(1,0) = (sn*std::sqrt(cs2)*(v0-v1));
 	  mat(0,1) = mat(1,0);
 	  mat(1,1) = (sn2*v0+cs2*v1);
-	}
+	} // else if (designShape == InDetDD::PolarAnnulus) {}
     oldcov = mat;
   }
 
   Amg::MatrixX  cov(oldcov);
-  if(EL->design().shape()!=InDetDD::Trapezoid && EL->design().shape()!=InDetDD::Annulus) {                     // barrel
+  if(designShape == InDetDD::Box) { // barrel
 
     Trk::DefinedParameter lpos1dim(SC->localPosition().x(),Trk::locX);
     locpar = (m_option_make2dimBarrelClusters)       ?
@@ -269,7 +270,9 @@ if (boundsy>0 && distance*cosAlpha> boundsy){ //skip this for Annulus (which has
       cov = *newCov;
       delete newCov;
     }
-  }else{                                            // endcap
+  } 
+  // else if (designShape == InDetDD::PolarAnnulus) {//Space for polar verison if needed}
+  else{                                            // endcap
    
     locpar = Trk::LocalParameters(SC->localPosition ());
     if( m_scaleSctCov ){

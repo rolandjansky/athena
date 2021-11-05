@@ -452,9 +452,10 @@ void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & po
 }
 
 DetectorShape StripStereoAnnulusDesign::shape() const
- {
-   return InDetDD::Annulus;
- }
+{
+  if (m_usePC) return InDetDD::PolarAnnulus; 
+  else return InDetDD::Annulus;
+}
 
 const HepGeom::Transform3D StripStereoAnnulusDesign::SiHitToGeoModel() const {
    return HepGeom::RotateY3D(90.*CLHEP::deg) ;

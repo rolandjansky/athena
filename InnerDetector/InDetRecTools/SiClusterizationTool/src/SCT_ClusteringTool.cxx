@@ -579,12 +579,13 @@ namespace InDet{
     double shift      = element->getLorentzCorrection();
     double stripPitch = design->stripPitch();
     bool badStripInClusterOnThisModuleSide =  (idGroups.size() != tbinGroups.size());
-    bool   rotate     = element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus;
+    auto designShape = design->shape();
+    bool   rotate     = designShape == InDetDD::Trapezoid || designShape == InDetDD::Annulus;
     double stripL(0.),COV11(0.);
 
     if(!rotate) {
       stripL   = design->etaPitch(); COV11 = stripL*stripL*(1./12.);
-    }
+    } //else if (designShape == InDetDD::PolarAnnulus) {}
 
     for (; pGroup!= lastGroup; ++pGroup) {
 
@@ -639,7 +640,7 @@ namespace InDet{
         V[0]           = cs2*v0+sn2*v1;
         V[1]  =  V[2]  = sn*sqrt(cs2)*(v0-v1);
         V[3]           = sn2*v0+cs2*v1;
-      }
+      } //else if (designShape == InDetDD::PolarAnnulus) {}
 
       Amg::MatrixX* errorMatrix(new Amg::MatrixX(2,2)); *errorMatrix<<V[0],V[1],V[2],V[3];
 
