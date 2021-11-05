@@ -19,7 +19,8 @@ from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVA
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder ,TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+TrigEgammaKeys = getTrigEgammaKeys()
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
 
 

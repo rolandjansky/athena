@@ -14,7 +14,7 @@ def same( val , tool):
 def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
+  #from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
   from AthenaConfiguration.ComponentFactory import CompFactory
   theFastCaloHypo = CompFactory.TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut

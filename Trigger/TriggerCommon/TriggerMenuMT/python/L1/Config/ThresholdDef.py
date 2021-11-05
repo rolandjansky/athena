@@ -118,7 +118,7 @@ class ThresholdDef:
             #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iL' % thrV, 'eEM').setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" ), pt = thrV, shift_set = 1 )
 
         # M section (used to be VHI in Run2)
-        for thrV in [8,15,20,22]:
+        for thrV in [8,15,18,22]:
             eEMThreshold('eEM%iM' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" )
             #ThresholdDef.addVaryingThrValues( eEMThreshold( 'eEM%iM' % thrV, 'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt = thrV, shift_set = 1 )
 
@@ -160,7 +160,7 @@ class ThresholdDef:
             ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ%i' % thrV, 'jJ'), pt=thrV, shift_set=0, rangemin=0, rangemax=31 )
 
         # jJET central
-        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25), (45,20)]:
+        for (thrV, etamax) in [(12,25), (15,25), (25,23), (35,23), (40,25), (45,21)]:
             ThresholdDef.addJetVaryingThrValues( jJetThreshold( 'jJ%ip0ETA%i'  % (thrV, etamax), 'jJ'), pt=thrV, shift_set=0, rangemin=0, rangemax=etamax )
 
         # jJET central, variable eta (EXAMPLE)

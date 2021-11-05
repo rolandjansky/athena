@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellEnergyCorr2Ntuple.h"
@@ -54,6 +54,8 @@ StatusCode CaloCellEnergyCorr2Ntuple::initialize()
   ATH_CHECK( detStore()->retrieve( mgr ) );
   m_calo_id      = mgr->getCaloCell_ID();
 
+  ATH_CHECK(m_caloMgrKey.initialize());
+
   ATH_CHECK( detStore()->regHandle(m_AttrListColl,m_key) );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
@@ -98,8 +100,9 @@ StatusCode CaloCellEnergyCorr2Ntuple::stop()
   int nchan=flt->getNChans();
   ATH_MSG_INFO ( "NObjs: "<<nobj<<" nChans: "<<nchan<<" nGains: "<<flt->getNGains() );
 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );

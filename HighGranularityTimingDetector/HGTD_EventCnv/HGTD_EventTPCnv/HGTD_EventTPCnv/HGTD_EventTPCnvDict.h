@@ -11,9 +11,12 @@
 #ifndef HGTD_EVENTTPCNV_HGTD_EVENTTPCNVDICT_H
 #define HGTD_EVENTTPCNV_HGTD_EVENTTPCNVDICT_H
 
-#include "HGTD_EventTPCnv/HGTD_ClusterContainer_p1.h"
+#include "HGTD_EventTPCnv/HGTD_RDO_p1.h"
+#include "HGTD_EventTPCnv/HGTD_RDOCollection_p1.h"
+#include "HGTD_EventTPCnv/HGTD_RDOContainer_p1.h"
 #include "HGTD_EventTPCnv/HGTD_Cluster_p1.h"
 #include "HGTD_EventTPCnv/HGTD_PRD_Collection_p1.h"
+#include "HGTD_EventTPCnv/HGTD_ClusterContainer_p1.h"
 
 namespace HGTD_EventTPCnvDict {
 struct tmp {

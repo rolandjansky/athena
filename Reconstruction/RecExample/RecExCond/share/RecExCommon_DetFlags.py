@@ -7,8 +7,6 @@ if 'DetFlags' in dir():
    logRecExCommon_DetFlags.info("DetFlags already defined.by user : user should have fully configured it already! ")
 else:
    
-   include ("RecExCond/RecExCommon_GlobalFlags.py")
-
    # include DetFlags
    # by default everything is off
    from AthenaCommon.DetFlags import DetFlags

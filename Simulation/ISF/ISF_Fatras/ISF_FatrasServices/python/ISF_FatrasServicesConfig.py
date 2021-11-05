@@ -17,6 +17,9 @@ from ISF_FatrasServices.ISF_FatrasJobProperties import ISF_FatrasFlags
 from ISF_FatrasServices.FatrasTuning import FatrasTuningFlags
 from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 
+# global to decide on if we go for TrackingGeometry or Service
+ISF_use_tracking_geometry_cond_alg = False
+
 #################################################################################
 # Material for the Geometry
 #
@@ -164,21 +167,34 @@ def getFatrasTrackingGeometrySvc(name="ISF_FatrasTrackingGeometrySvc", **kwargs)
 #         needs new ExtrapolationEngine for this
 ################################################################################
 
+
 def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     # the Navigator (needed for several instances)
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
-    if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
-      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
-      TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
-      condSeq+= TrkGeoCondAlg
+    if (ISF_use_tracking_geometry_cond_alg
+            and 'TrackingGeometryKey' not in kwargs):
+        if not hasattr(condSeq, 'AtlasTrackingGeometryCondAlg'):
+            from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401
+            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import (
+                ConfiguredTrackingGeometryCondAlg)
+            TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg(
+                'AtlasTrackingGeometryCondAlg')
+            condSeq += TrkGeoCondAlg
+
+        kwargs.setdefault('TrackingGeometryKey',
+                          condSeq.AtlasTrackingGeometryCondAlg.TrackingGeometryWriteKey)
+    elif 'TrackingGeometrySvc' not in kwargs:
+        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+        kwargs.setdefault('TrackingGeometrySvc', AtlasTrackingGeometrySvc)
+        kwargs.setdefault('TrackingGeometryKey', '')
 
     from TrkExTools.TrkExToolsConf import Trk__Navigator
-    return Trk__Navigator(name, **kwargs )
-
+    return Trk__Navigator(name, **kwargs)
+    
+  
 # Not used anywhere - not migrated to CA config
 def getFatrasNeutralPropagatorID(name="ISF_FatrasNeutralPropagatorID", **kwargs):
     # the neutral particle propagator

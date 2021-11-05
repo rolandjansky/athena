@@ -36,8 +36,17 @@ namespace FlavorTagDiscriminants {
 
   enum class EDMType {UCHAR, INT, FLOAT, DOUBLE, CUSTOM_GETTER};
   enum class SortOrder {
-    ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
-  enum class TrackSelection {ALL, IP3D_2018, DIPS_LOOSE_202102};
+    ABS_D0_SIGNIFICANCE_DESCENDING,
+    D0_SIGNIFICANCE_DESCENDING,
+    PT_DESCENDING,
+    ABS_D0_DESCENDING
+  };
+  enum class TrackSelection {
+    ALL,
+    IP3D_2018,
+    DIPS_LOOSE_202102,
+    LOOSE_202102_NOIP
+  };
 
 
   // Structures to define DL2 input.
@@ -90,6 +99,7 @@ namespace FlavorTagDiscriminants {
 
     // getter functions
     typedef std::function<NamedVar(const SG::AuxElement&)> VarFromBTag;
+    typedef std::function<NamedVar(const Jet&)> VarFromJet;
     typedef std::function<NamedSeq(const Jet&, const Tracks&)> SeqFromTracks;
 
     // ___________________________________________________________________
@@ -228,6 +238,7 @@ namespace FlavorTagDiscriminants {
     std::unique_ptr<lwt::LightweightGraph> m_graph;
     std::unique_ptr<lwt::NanReplacer> m_variable_cleaner;
     std::vector<internal::VarFromBTag> m_varsFromBTag;
+    std::vector<internal::VarFromJet> m_varsFromJet;
     std::vector<TrackSequenceBuilder> m_trackSequenceBuilders;
     std::map<std::string, OutNode> m_decorators;
 

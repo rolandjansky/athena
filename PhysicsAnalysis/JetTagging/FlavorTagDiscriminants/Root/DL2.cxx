@@ -48,15 +48,17 @@ namespace FlavorTagDiscriminants {
                                  lwt::rep::all));
     }
     for (const auto& input: inputs) {
-      auto filler = get::varFromBTag(input.name, input.type,
-                                     input.default_flag);
       if (input.type != EDMType::CUSTOM_GETTER) {
+        auto filler = get::varFromBTag(input.name, input.type,
+                                       input.default_flag);
         m_dataDependencyNames.bTagInputs.insert(input.name);
+        m_varsFromBTag.push_back(filler);
+      } else {
+        m_varsFromJet.push_back(customGetterAndName(input.name));
       }
       if (input.default_flag.size() > 0) {
         m_dataDependencyNames.bTagInputs.insert(input.default_flag);
       }
-      m_varsFromBTag.push_back(filler);
     }
 
     // set up sequence inputs
@@ -127,6 +129,9 @@ namespace FlavorTagDiscriminants {
     for (const auto& getter: m_varsFromBTag) {
       vvec.push_back(getter(btag));
     }
+    for (const auto& getter: m_varsFromJet) {
+      vvec.push_back(getter(jet));
+    }
     std::map<std::string, std::map<std::string, double> > nodes;
     if (m_variable_cleaner) {
       std::map<std::string, double> variables(vvec.begin(), vvec.end());
@@ -147,7 +152,6 @@ namespace FlavorTagDiscriminants {
         seqs[builder.name].insert(seq_builder(jet, flipped_tracks));
       }
     }
-
 
     // save out things
     for (const auto& dec: m_decorators) {
@@ -256,7 +260,6 @@ namespace FlavorTagDiscriminants {
           case EDMType::FLOAT: return BVarGetterNoDefault<float>(name);
           case EDMType::DOUBLE: return BVarGetterNoDefault<double>(name);
           case EDMType::UCHAR: return BVarGetterNoDefault<char>(name);
-          case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
           default: {
             throw std::logic_error("Unknown EDM type");
           }
@@ -268,7 +271,6 @@ namespace FlavorTagDiscriminants {
           case EDMType::FLOAT: return BVarGetter<float>(name, default_flag);
           case EDMType::DOUBLE: return BVarGetter<double>(name, default_flag);
           case EDMType::UCHAR: return BVarGetter<char>(name, default_flag);
-          case EDMType::CUSTOM_GETTER: return customGetterAndName(name);
           default: {
             throw std::logic_error("Unknown EDM type");
           }
@@ -294,6 +296,10 @@ namespace FlavorTagDiscriminants {
                  };
         case SortOrder::PT_DESCENDING:
           return [](const Tp* tp, const Jet&) {return tp->pt();};
+        case SortOrder::ABS_D0_DESCENDING:
+          return [aug](const Tp* tp, const Jet&) {
+            return std::abs(aug.d0(*tp));
+          };
         default: {
           throw std::logic_error("Unknown sort function");
         }
@@ -311,9 +317,10 @@ namespace FlavorTagDiscriminants {
         auto data_deps = aug.getTrackIpDataDependencyNames();
 
         // make sure we record accessors as data dependencies
-        auto addAccessor = [&data_deps](const std::string& n) {
+        std::set<std::string> track_deps;
+        auto addAccessor = [&track_deps](const std::string& n) {
                              AE::ConstAccessor<unsigned char> a(n);
-                             data_deps.insert(n);
+                             track_deps.insert(n);
                              return a;
                            };
         auto pix_hits = addAccessor("numberOfPixelHits");
@@ -324,6 +331,10 @@ namespace FlavorTagDiscriminants {
         auto sct_holes = addAccessor("numberOfSCTHoles");
         auto sct_shared = addAccessor("numberOfSCTSharedHits");
         auto sct_dead = addAccessor("numberOfSCTDeadSensors");
+
+        // data deps is all possible dependencies. We insert here to
+        // avoid removing them from track_deps (as merge would).
+        data_deps.insert(track_deps.begin(), track_deps.end());
 
         switch (config) {
         case TrackSelection::ALL: return {[](const Tp*) {return true;}, {} };
@@ -376,6 +387,21 @@ namespace FlavorTagDiscriminants {
               if (pix_holes(*tp) > 1) return false;
               return true;
             }, data_deps
+          };
+        case TrackSelection::LOOSE_202102_NOIP:
+          return {
+            [=](const Tp* tp) {
+              if (std::abs(tp->eta()) > 2.5) return false;
+              double n_module_shared = (
+                pix_shared(*tp) + sct_shared(*tp) / 2);
+              if (n_module_shared > 1) return false;
+              if (tp->pt() <= 0.5e3) return false;
+              if (pix_hits(*tp) + pix_dead(*tp) + sct_hits(*tp)
+                  + sct_dead(*tp) < 7) return false;
+              if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
+              if (pix_holes(*tp) > 1) return false;
+              return true;
+            }, track_deps
           };
         default:
           throw std::logic_error("unknown track selection function");
