@@ -47,9 +47,9 @@ class TBXMLCaloCellWriterTool : public TBXMLWriterToolBase
  protected:
 
   virtual StatusCode writeRunFiles(const std::string& fileDir,
-				   unsigned int runNumber);
+				   unsigned int runNumber) override;
   virtual StatusCode writeEvent(std::ostream& outFile, 
-				const std::string& /* entryTag */ );
+				const std::string& /* entryTag */ ) override;
 
   virtual StatusCode convertProperties();
 
