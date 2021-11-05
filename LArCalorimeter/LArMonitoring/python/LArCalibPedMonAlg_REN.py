@@ -4,16 +4,33 @@
 
 def LArCalibPedMonConfig_REN(inputFlags,gain="",doAccDigit=False,doCalibDigit=False,doAccCalibDigit=False):
 
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCalibPedMonCfg')
 
-    from LArMonitoring.GlobalVariables import lArDQGlobals
-
-    from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg 
-
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaConfiguration.ComponentFactory import CompFactory
-    larPedMonAlgTest = helper.addAlgorithm(CompFactory.LArCalibPedMonAlgREN,'larCalibPedMonAlgTest')
+    LArCalibPedMonConfigCore_REN(helper,CompFactory.LArCalibPedMonAlgREN,inputFlags,gain,doAccDigit,doCalibDigit,doAccCalibDigit)
+ 
+    rv = ComponentAccumulator()
+
+    # adding LAr*Mapping algos
+    from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
+    rv.merge(LArFebRodMappingCfg(inputFlags))
+    rv.merge(LArCalibIdMappingCfg(inputFlags))
+
+    # adding LArFebErrorSummary algo
+    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+    rv.merge(LArFebErrorSummaryMakerCfg(inputFlags))
+    
+    rv.merge(helper.result())
+
+    return rv
+
+def LArCalibPedMonConfigCore_REN(helper,algoinstance,inputFlags,gain="",doAccDigit=False,doCalibDigit=False,doAccCalibDigit=False):
+
+    from LArMonitoring.GlobalVariables import lArDQGlobals
+    
+    larPedMonAlgTest = helper.addAlgorithm(algoinstance,'larCalibPedMonAlgTest')
     if gain != "":
        if doAccDigit:
           larPedMonAlgTest.LArAccumulatedDigitContainerKey=gain
@@ -21,7 +38,6 @@ def LArCalibPedMonConfig_REN(inputFlags,gain="",doAccDigit=False,doCalibDigit=Fa
           larPedMonAlgTest.LArAccumulatedCalibDigitContainerKey=gain
        elif doCalibDigit:
           larPedMonAlgTest.LArCalibDigitContainerKey=gain
-
 # this creates a "Group" called "PedMonGroup" which will put its histograms into the subdirectory "'/LAr/'+GroupName+'/'"
     GroupName="PedMonGroup"
 
@@ -67,13 +83,13 @@ def LArCalibPedMonConfig_REN(inputFlags,gain="",doAccDigit=False,doCalibDigit=Fa
                                   xbins=lArDQGlobals.N_FEBErrors, xmin=0.5, xmax=lArDQGlobals.N_FEBErrors+0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   xlabels=lArDQGlobals.FEBErrors, ylabels=lArDQGlobals.Partitions)
-    #Group.defineHistogram('LB0,EvtRejYield;RAW_YieldOfRejectedEventsVsLB', 
-                                  #title='Yield of corrupted events (DATACORRUPTED);LBs;Yield(%)',
-                                  #type='TProfile',
-                                  #path=summary_hist_path,
-                                  #xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
+    Group.defineHistogram('LB0,EvtRejYield;RAW_YieldOfRejectedEventsVsLB', 
+                                  title='Yield of corrupted events (DATACORRUPTED);LBs;Yield(%)',
+                                  type='TProfile',
+                                  path=summary_hist_path,
+                                  xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
     Group.defineHistogram('LB0;NbOfEventsVsLB', 
-                                  title='Nb of events per LB:LBs;Events',
+                                  title='Nb of events per LB;LBs;Events',
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
@@ -113,18 +129,6 @@ def LArCalibPedMonConfig_REN(inputFlags,gain="",doAccDigit=False,doCalibDigit=Fa
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
              
-       
-    return helper.result()
-
-    rv = ComponentAccumulator()
-
-    # adding LArFebErrorSummary algo
-    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
-    rv.merge(LArFebErrorSummaryMakerCfg(inputFlags))
-    
-    rv.merge(helper.result())
-
-    return rv
 
 if __name__=='__main__':
 
@@ -166,7 +170,7 @@ if __name__=='__main__':
    
 # If you want to turn on more detailed messages ...
 # LArCalibPedMonConfig_REN.getEventAlgo('larPedMonAlgTest').OutputLevel = 2 # DEBUG
-   cfg.printConfig(withDetails=False) #set True for exhaustive info
+   cfg.printConfig(withDetails=True) #set True for exhaustive info
 
    ConfigFlags.dump()
    f=open("LArCalibPedMon_"+run+".pkl","wb")
@@ -174,4 +178,4 @@ if __name__=='__main__':
    f.close()
 
 #   cfg.run(500,OutputLevel=DEBUG) #to only run on first 500 events
-   cfg.run(OutputLevel=DEBUG)
+   cfg.run(OutputLevel=1)
