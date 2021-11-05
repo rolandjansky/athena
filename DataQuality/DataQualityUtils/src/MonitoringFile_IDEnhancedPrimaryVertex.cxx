@@ -33,7 +33,7 @@ double error_func( float  x, const Double_t *par);
 double scaleFactorFitFcn(double *x, double *par);
 std::vector<float> stableGaussianFit(TH1 * histo);
 
-void MonitoringFile::pv_PrimaryVertexMonitoring_calcResoAndEfficiency( std::string inFilename, bool /* isIncremental */ )
+void MonitoringFile::pv_PrimaryVertexMonitoring_calcResoAndEfficiency( const std::string & inFilename, bool /* isIncremental */ )
 {
 //  std::cout << "\n";
 //  std::cout << "Running Inner-Detector primary vertexing monitoring analysis\n";
