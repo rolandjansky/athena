@@ -11,7 +11,7 @@ from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
 def EMGSFExtrapolatorToolCfg(flags, **kwargs):
 
     mlog = logging.getLogger('EMGSFExtrapolatorTool')
-    mlog.debug('Start configuration')
+    mlog.info('Start configuration')
 
     acc = ComponentAccumulator()
 
@@ -37,33 +37,25 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
     kwargs.setdefault("StickyConfiguration",          True)
     kwargs.setdefault("SurfaceBasedMaterialEffects",  False)
 
-    gsfextrapolatorTool = CompFactory.Trk.GsfExtrapolator(
-        name='GsfExtrapolator', **kwargs)
-    acc.setPrivateTools(gsfextrapolatorTool)
+    acc.setPrivateTools(CompFactory.Trk.GsfExtrapolator(**kwargs))
     return acc
 
 
 def EMGSFTrackFitterCfg(flags, name='EMGSFTrackFitter', **kwargs):
 
     mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
+    mlog.info('Start configuration')
 
     acc = ComponentAccumulator()
 
     if "RefitOnMeasurementBase" not in kwargs:
         kwargs["RefitOnMeasurementBase"] = True
 
+    kwargs["ToolForROTCreation"] = None
     if not kwargs["RefitOnMeasurementBase"]:
         from InDetConfig.TrackingCommonConfig import InDetRotCreatorCfg
-        egRotCreator = InDetRotCreatorCfg(
-            flags,
-            name='egRotCreator')
-        kwargs["ToolForROTCreation"] = acc.popToolsAndMerge(egRotCreator)
-
-        # TODO
-        # TrackingCommon.createAndAddCondAlg(
-        #    TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
-        #    'RIO_OnTrackErrorScalingCondAlg')
+        kwargs["ToolForROTCreation"] = acc.popToolsAndMerge(
+            InDetRotCreatorCfg(flags))
 
     if "ToolForExtrapolation" not in kwargs:
         gsfextrap = EMGSFExtrapolatorToolCfg(flags)
@@ -73,9 +65,8 @@ def EMGSFTrackFitterCfg(flags, name='EMGSFTrackFitter', **kwargs):
     kwargs.setdefault("MakePerigee",         True)
     kwargs.setdefault("DoHitSorting",        True)
 
-    GSFTrackFitter = CompFactory.Trk.GaussianSumFitter(
-        name='GSFTrackFitter', **kwargs)
-    acc.setPrivateTools(GSFTrackFitter)
+    acc.setPrivateTools(CompFactory.Trk.GaussianSumFitter(**kwargs))
+
     return acc
 
 

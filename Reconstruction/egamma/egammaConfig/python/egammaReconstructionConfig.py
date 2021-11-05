@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
-          Instantiate the full EGamma reconstruction.
+          Instantiate the EGamma reconstruction.
           """
 
 from AthenaCommon.Logging import logging
@@ -14,12 +14,6 @@ def egammaReconstructionCfg(flags, name="EGammaReconstruction"):
     mlog.info('Starting EGamma reconstruction configuration')
 
     acc = ComponentAccumulator()
-
-    # egamma selected/copied topo clusters
-    if flags.Detector.EnableCalo:
-        from egammaAlgs.egammaTopoClusterCopierConfig import (
-            egammaTopoClusterCopierCfg)
-        acc.merge(egammaTopoClusterCopierCfg(flags))
 
     # Add e/gamma tracking algorithms
     if flags.Egamma.doTracking:
@@ -78,6 +72,13 @@ def egammaReconstructionCfg(flags, name="EGammaReconstruction"):
             egammaTruthAssociationCfg)
         acc.merge(egammaTruthAssociationCfg(flags))
 
+    # To use egamma CA within standard config
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
+        for el in acc._allSequences:
+            el.name = "TopAlg"
+
     mlog.info("EGamma reconstruction configured")
 
     return acc
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
-    flags.Output.doWriteESD = True  # To test the AOD parts
+    flags.Output.doWriteESD = True  # To test the ESD parts
     flags.Output.doWriteAOD = True  # To test the AOD parts
     flags.lock()
 
