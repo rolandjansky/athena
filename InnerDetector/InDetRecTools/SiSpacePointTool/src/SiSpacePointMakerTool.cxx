@@ -330,8 +330,9 @@ namespace InDet{
         double dm  = (m_SCTgapParameter*r)*fabs(s*x12);
         
         double d;
-        if(element1->design().shape() == InDetDD::Trapezoid || element1->design().shape() == InDetDD::Annulus) 
-            d = dm*(1./.04);
+        auto designShape1 = element1->design().shape();
+        if(designShape1 == InDetDD::Trapezoid || designShape1 == InDetDD::Annulus || designShape1 == InDetDD::PolarAnnulus ) 
+            d = dm*25.0; // 1.0 / 0.04
         else                                                                                                   
             d = dm/sqrt((1.-x12)*(1+x12));
         

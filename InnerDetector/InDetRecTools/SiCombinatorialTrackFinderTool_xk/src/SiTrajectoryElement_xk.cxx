@@ -65,9 +65,10 @@ bool InDet::SiTrajectoryElement_xk::set
     else         {m_xi2max =  4.; m_xi2maxNoAdd =  8.;}
   }
 
-  noiseInitiate()                          ;
-  (m_detelement->isSCT() && (m_detelement->design().shape()==InDetDD::Trapezoid || m_detelement->design().shape()==InDetDD::Annulus)   ) ? 
-    m_stereo = true : m_stereo = false;
+  noiseInitiate();
+  auto designShape = m_detelement->design().shape();
+  bool rotate = (designShape==InDetDD::Trapezoid || designShape==InDetDD::Annulus || designShape==InDetDD::PolarAnnulus);
+  (m_detelement->isSCT() && rotate) ? m_stereo = true : m_stereo = false;
 
 
   if(!m_detstatus) {

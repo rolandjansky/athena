@@ -365,7 +365,8 @@ double SiDetectorElement::sinStereo() const
   if (isBarrel()) {
     sinStereo = m_phiAxis.z();
   } else { // endcap
-    if (m_design->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
+    auto designShape = m_design->shape();
+    if (designShape == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
       HepGeom::Point3D<double> sensorCenter = m_design->sensorCenter();
       //Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
       double sinStereoReco = - static_cast<const SiDetectorDesign *>(m_design)->sinStripAngleReco(sensorCenter[1], sensorCenter[0]);
@@ -379,8 +380,9 @@ double SiDetectorElement::sinStereo() const
       Amg::Vector3D globalSFxAxis =(m_center - globalfocus)/radialShift;
       //Stereo angle is the angle between global radial direction and the x-axis of the Strip frame in the global frame 
       sinStereo = (m_center.y() * globalSFxAxis.x() - m_center.x() * globalSFxAxis.y()) / m_center.perp();   
-    }
-    else{ //non built-in Stereo angle
+    // } else if (designShape == InDetDD::PolarAnnulus) { // Polar specialisation
+    //   sinStereo = m_design->getStereo();
+    } else { //non built-in Stereo angle
       sinStereo = (m_center.y() * m_etaAxis.x() - m_center.x() * m_etaAxis.y()) / m_center.perp();
     }
   }      
