@@ -34,7 +34,7 @@ def makeSequence (dataType, likelihood=True) :
     from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
         makePhotonAnalysisSequence
     photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', postfix = 'tight',
-                                                 recomputeIsEM=True, enableCutflow=True, enableKinematicHistograms=True )
+                                                 recomputeIsEM=False, enableCutflow=True, enableKinematicHistograms=True )
     photonSequence.configure( inputName = 'Photons',
                               outputName = 'AnalysisPhotons_%SYS%' )
     algSeq += photonSequence
