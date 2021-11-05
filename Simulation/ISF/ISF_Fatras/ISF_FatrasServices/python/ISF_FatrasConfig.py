@@ -323,19 +323,20 @@ def fatrasNavigatorCfg(flags, name="ISF_FatrasNavigator", **kwargs):
     mlog.debug('Start configuration')
 
     result = ComponentAccumulator()
-
-    if 'TrackingGeometrySvc' not in kwargs:
-        if not use_tracking_geometry_cond_alg:
+    if not flags.Sim.ISF.UseTrackingGeometryCond:
+        if 'TrackingGeometrySvc' not in kwargs:
             from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
             acc = TrackingGeometrySvcCfg(flags)
             kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+            kwargs.setdefault("TrackingGeometryKey", '')
             result.merge(acc)
-    if 'TrackingGeometryKey' not in kwargs:
-        if use_tracking_geometry_cond_alg:
+    else:
+        if 'TrackingGeometryKey' not in kwargs:
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            result.merge(TrackingGeometryCondAlgCfg(flags))
-            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-            kwargs.setdefault("TrackingGeometryKey", 'AtlasTrackingGeometry')
+            acc = TrackingGeometryCondAlgCfg(flags)
+            geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+            result.merge(acc)
+            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
 
     Trk__Navigator = CompFactory.Trk.Navigator
     navigator = Trk__Navigator(name=name, **kwargs)

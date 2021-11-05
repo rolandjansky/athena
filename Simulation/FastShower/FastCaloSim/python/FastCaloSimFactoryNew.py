@@ -40,12 +40,23 @@ def NIMatEffUpdatorCfg(flags, name="NIMatEffUpdator", **kwargs):
 
 # NAVIGATOR
 def AtlasNavigatorCfg(flags, name="AtlasNavigator", **kwargs):
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     mlog = logging.getLogger(name)
     mlog.debug("Start configuration")
-
-    result = TrackingGeometrySvcCfg(flags)
-    kwargs.setdefault("TrackingGeometrySvc", result.getPrimary())
+    result = ComponentAccumulator()
+    if not flags.Sim.ISF.UseTrackingGeometryCond:
+        if 'TrackingGeometrySvc' not in kwargs:
+            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+            acc = TrackingGeometrySvcCfg(flags)
+            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+            kwargs.setdefault("TrackingGeometryKey", '')
+            result.merge(acc)
+    else:
+        if 'TrackingGeometryKey' not in kwargs:
+            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+            acc = TrackingGeometryCondAlgCfg(flags)
+            geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+            result.merge(acc)
+            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
 
     result.setPrivateTools(CompFactory.Trk.Navigator(name, **kwargs))
     return result
