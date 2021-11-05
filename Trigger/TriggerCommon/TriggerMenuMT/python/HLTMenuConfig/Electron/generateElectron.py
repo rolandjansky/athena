@@ -144,7 +144,8 @@ def _precisionElectronSeq(flags, doIDperf=False):
     selAcc=SelectionCA(name)
     recoAcc = InViewRecoCA(name, RequireParentView=True)
     #TODO this should likely go elsewhere (egamma experts to decide)
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+    TrigEgammaKeys = getTrigEgammaKeys()
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
     recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,

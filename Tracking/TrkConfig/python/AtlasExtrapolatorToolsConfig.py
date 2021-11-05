@@ -4,37 +4,28 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-# @TODO reture once migration to tracking geometry cond alg is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 
-def AtlasNavigatorCfg(flags, name='AtlasNavigator'):
+def AtlasNavigatorCfg(flags,
+                      name='AtlasNavigator'):
     # get the correct TrackingGeometry setup
     result = ComponentAccumulator()
-    geom_svc = None
-    geom_cond_key = ''
-    if not use_tracking_geometry_cond_alg:
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import (
-            TrackingGeometrySvcCfg)
-        acc = TrackingGeometrySvcCfg(flags)
-        geom_svc = acc.getPrimary()
-        result.merge(acc)
-    else:
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
-            TrackingGeometryCondAlgCfg)
-        acc = TrackingGeometryCondAlgCfg(flags)
-        geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
-        result.merge(acc)
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    result.merge(acc)
     # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) ------------------------
     Trk__Navigator = CompFactory.Trk.Navigator
     AtlasNavigator = Trk__Navigator(name=name,
-                                    TrackingGeometrySvc=geom_svc,
                                     TrackingGeometryKey=geom_cond_key)
     result.addPublicTool(AtlasNavigator, primary=True)
     return result
 
 
-def AtlasRKPropagatorCfg(flags, name='AtlasRungeKuttaPropagator', **kwargs):
+def AtlasRKPropagatorCfg(flags,
+                         name='AtlasRungeKuttaPropagator',
+                         **kwargs):
     result = ComponentAccumulator()
     RkPropagator = CompFactory.Trk.RungeKuttaPropagator
     AtlasRungeKuttaPropagator = RkPropagator(name, **kwargs)
@@ -42,7 +33,9 @@ def AtlasRKPropagatorCfg(flags, name='AtlasRungeKuttaPropagator', **kwargs):
     return result
 
 
-def AtlasSTEP_PropagatorCfg(flags, name='AtlasSTEP_Propagator', **kwargs):
+def AtlasSTEP_PropagatorCfg(flags,
+                            name='AtlasSTEP_Propagator',
+                            **kwargs):
     result = ComponentAccumulator()
     STEP_Propagator = CompFactory.Trk.STEP_Propagator
     AtlasSTEP_Propagator = STEP_Propagator(name, **kwargs)
@@ -50,12 +43,16 @@ def AtlasSTEP_PropagatorCfg(flags, name='AtlasSTEP_Propagator', **kwargs):
     return result
 
 
-def AtlasNoMatSTEP_PropagatorCfg(flags, name='AtlasNoMatSTEP_Propagator', **kwargs):
+def AtlasNoMatSTEP_PropagatorCfg(flags,
+                                 name='AtlasNoMatSTEP_Propagator',
+                                 **kwargs):
     kwargs.setdefault("MaterialEffects", False)
     return AtlasSTEP_PropagatorCfg(flags, name, **kwargs)
 
 
-def InDetPropagatorCfg(flags, name='InDetPropagator', **kwargs):
+def InDetPropagatorCfg(flags,
+                       name='InDetPropagator',
+                       **kwargs):
     result = ComponentAccumulator()
 
     InDetPropagator = None
@@ -72,7 +69,9 @@ def InDetPropagatorCfg(flags, name='InDetPropagator', **kwargs):
     return result
 
 
-def ITkPropagatorCfg(flags, name='ITkPropagator', **kwargs):
+def ITkPropagatorCfg(flags,
+                     name='ITkPropagator',
+                     **kwargs):
     result = ComponentAccumulator()
 
     ITkPropagator = None
@@ -89,7 +88,9 @@ def ITkPropagatorCfg(flags, name='ITkPropagator', **kwargs):
     return result
 
 
-def AtlasMaterialEffectsUpdatorCfg(flags, name='AtlasMaterialEffectsUpdator', **kwargs):
+def AtlasMaterialEffectsUpdatorCfg(flags,
+                                   name='AtlasMaterialEffectsUpdator',
+                                   **kwargs):
     result = ComponentAccumulator()
     MaterialEffectsUpdator = CompFactory.Trk.MaterialEffectsUpdator
     AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name, **kwargs)
@@ -97,24 +98,32 @@ def AtlasMaterialEffectsUpdatorCfg(flags, name='AtlasMaterialEffectsUpdator', **
     return result
 
 
-def AtlasMaterialEffectsUpdatorLandauCfg(flags, name='AtlasMaterialEffectsUpdatorLandau', **kwargs):
+def AtlasMaterialEffectsUpdatorLandauCfg(flags,
+                                         name='AtlasMaterialEffectsUpdatorLandau',
+                                         **kwargs):
     kwargs.setdefault("LandauMode", True)
     return AtlasMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
 
-def AtlasNoElossMaterialEffectsUpdatorCfg(flags, name='AtlasNoElossMaterialEffectsUpdator', **kwargs):
+def AtlasNoElossMaterialEffectsUpdatorCfg(flags,
+                                          name='AtlasNoElossMaterialEffectsUpdator',
+                                          **kwargs):
     kwargs.setdefault("EnergyLoss", False)
     return AtlasMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
 
-def InDetMaterialEffectsUpdatorCfg(flags, name="InDetMaterialEffectsUpdator", **kwargs):
+def InDetMaterialEffectsUpdatorCfg(flags,
+                                   name="InDetMaterialEffectsUpdator",
+                                   **kwargs):
     if not flags.BField.solenoidOn:
         import AthenaCommon.SystemOfUnits as Units
-        kwargs.setdefault(EnergyLoss=False)
-        kwargs.setdefault(ForceMomentum=True)
-        kwargs.setdefault(ForcedMomentumValue=1000*Units.MeV)
+        kwargs.setdefault("EnergyLoss", False)
+        kwargs.setdefault("ForceMomentum", True)
+        kwargs.setdefault("ForcedMomentumValue", 1000*Units.MeV)
     return AtlasMaterialEffectsUpdatorCfg(flags, name, **kwargs)
 
 
-def ITkMaterialEffectsUpdatorCfg(flags, name="ITkMaterialEffectsUpdator", **kwargs):
+def ITkMaterialEffectsUpdatorCfg(flags,
+                                 name="ITkMaterialEffectsUpdator",
+                                 **kwargs):
     return InDetMaterialEffectsUpdatorCfg(flags, name, **kwargs)

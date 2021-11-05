@@ -1,16 +1,11 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-#----------------------------------------------------------------
-# Static classes to configure photon chain container names
-#----------------------------------------------------------------
-
-from TrigEDMConfig.TriggerEDMRun3 import recordable
-from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from ROOT import egammaPID
-from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-IDTrigConfig = getInDetTrigConfig( 'electron' )
+from AthenaCommon.Logging import logging
+
+log = logging.getLogger(__name__)
 
 # Add ONNX into app service mgr (in rec-ex common style), but only in Run 2 conf style
 from AthenaCommon.Configurable import Configurable
@@ -19,30 +14,15 @@ if not Configurable.configurableRun3Behavior:
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+from TrigEDMConfig.TriggerEDMRun3 import recordable
+from .TrigEgammaKeys import getTrigEgammaKeys
 from egammaRec.egammaRecFlags import jobproperties
 from egammaRec.Factories import ToolFactory, ServiceFactory
 from egammaMVACalib import egammaMVACalibConf
 from xAODEgamma.xAODEgammaParameters import xAOD
 
 log = logging.getLogger(__name__)
-
-class TrigEgammaKeys(object):
-      """Static class to collect all string manipulation in Electron sequences """
-      SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
-      SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
-      outputElectronKey = recordable('HLT_egamma_Electrons')
-      outputTopoCollection = 'HLT_egammaTopoCluster'
-      EgammaRecKey = 'HLT_egammaRecCollection'
-      PrecisionCaloEgammaRecKey = 'HLT_prcisionCaloEgammaRecCollection'
-      IDTrigConfig = getInDetTrigConfig( 'electron' )
-      outputPhotonKey = recordable('HLT_egamma_Photons')
-      outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
-      TrigEMClusterToolOutputContainer = recordable('HLT_TrigEMClusters')
-      TrigElectronTracksCollectionName = IDTrigConfig.tracks_IDTrig()
-      pidVersion = 'rel22_20210611'
-      dnnVersion = 'rel21_20210928'
-      ringerVersion = 'TrigL2_20210702_r4'
-      calibMVAVersion = '"egammaMVACalib/online/v6"'
 
 
 
@@ -57,7 +37,6 @@ class TrigEgammaKeys_GSF(object):
       outputElectronKey_GSF = recordable('HLT_egamma_Electrons_GSF')
       outputTrackKey_GSF = 'HLT_IDTrkTrack_Electron_GSF'
       outputTrackParticleKey_GSF = recordable('HLT_IDTrack_Electron_GSF')
-      
 
 #
 # Electron DNN Selectors
@@ -65,7 +44,7 @@ class TrigEgammaKeys_GSF(object):
 def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronDNNSelector', ConfigFilePath=None):
     acc = ComponentAccumulator()
     # We should include the DNN here
-
+    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     if not ConfigFilePath:
       ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.dnnVersion
   
@@ -98,7 +77,8 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
 
     # Configure the LH selectors
     acc = ComponentAccumulator()
-    
+    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
+    #TrigEgammaKeys.pidVersion.set_On()
     if not ConfigFilePath:
         ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
 
@@ -138,10 +118,10 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
 #
 # Electron CB Selectors
 #
+
 def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCBSelector', ConfigFilePath=None):
-    #from AthenaCommon.Configurable import ConfigurableRun3Behavior
-    #with ConfigurableRun3Behavior():
     acc = ComponentAccumulator()
+    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
 
     ElectronLooseHI = (0
@@ -199,6 +179,7 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
 #
 def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
     from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
+    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
 
     if not ConfigFilePath:
       ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
@@ -244,8 +225,7 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
 def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 
     import collections
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger(__name__)
+    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
 
     # We should include the ringer here
     if not ConfigFilePath:
@@ -284,8 +264,7 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
 
     import collections
-    from AthenaCommon.Logging import logging
-    log = logging.getLogger(__name__)
+    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
 
     # We should include the ringer here
     if not ConfigFilePath:
@@ -320,13 +299,12 @@ def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
 #
 def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
 
-    from AthenaCommon.Logging import logging
     import collections
+    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     # We should include the ringer here
     if not ConfigFilePath:
       ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
 
-    log = logging.getLogger(__name__)
     SelectorNames = collections.OrderedDict( {
       'tight'  : 'AsgPhotonFastCaloRingerTightSelectorTool' ,
       'medium' : 'AsgPhotonFastCaloRingerMediumSelectorTool',

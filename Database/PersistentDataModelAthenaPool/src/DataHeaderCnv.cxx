@@ -143,7 +143,7 @@ StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pO
 {
    static const pool::Guid dhf_p6_guid("7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD");
    std::string dhid = pAddress->par()[1];
-   if( pAddress && pObject ) {
+   if( pObject ) {
       this->setToken( pAddress->par()[0] );
       if( !compareClassGuid( dhf_p6_guid ) ) {
          ATH_MSG_ERROR( "updateRepRefs called without DataHeaderForm" );

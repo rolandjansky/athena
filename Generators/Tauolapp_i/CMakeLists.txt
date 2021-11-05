@@ -21,3 +21,8 @@ atlas_add_component( Tauolapp_i
 
 # Install files from the package:
 atlas_install_joboptions( share/common/*.py )
+
+set( TauolappEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of TauolappEnvironment.cmake" )
+find_package( TauolappEnvironment )
+

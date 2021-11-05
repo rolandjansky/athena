@@ -11,7 +11,7 @@ from AthenaCommon.SystemOfUnits import GeV
 def createTrigEgammaFastElectronHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #rom TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
+  #rom TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
   from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlg
   theFastElectronHypo = TrigEgammaFastElectronHypoAlg(name)
   theFastElectronHypo.Electrons = sequenceOut

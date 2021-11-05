@@ -141,6 +141,10 @@ void dumptrace (FILE* fp)
   while (fgets (buf, sizeof (buf), fp)) {
     if (strstr (buf, "libasan") != nullptr)
       continue;
+    if (strstr (buf, " _start") != nullptr)
+      continue;
+    if (strstr (buf, "$x") != nullptr)
+      continue;
     fputs (buf, stdout);
     filter (buf);
     fputs (buf, stdout);
@@ -322,6 +326,8 @@ std::string accumtrace (FILE* fp)
       continue;
     if (strstr (buf, "__restore_rt") != nullptr)
       continue;
+    if (strstr (buf, " _start") != nullptr)
+      continue;
     filter (buf);
     s += std::string (buf);
   }
@@ -363,7 +369,6 @@ void testhandle(int)
  0xX testbad + 0xX [/stacktrace_test.exe D[0xX]]\n\
  0xX main + 0xX [/stacktrace_test.exe D[0xX]]\n\
  0xX __libc_start_main + 0xX [/libc.so.6 D[0xX]]\n\
- 0xX _start + 0xX [/stacktrace_test.exe D[0xX]]\n\
 ";
   if (s != exp) {
     puts ("Comparison fails!\n");

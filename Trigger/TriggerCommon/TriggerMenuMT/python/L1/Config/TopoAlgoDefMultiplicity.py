@@ -20,7 +20,7 @@ class TopoAlgoDefMultiplicity(object):
         ]
         emThresholds_2bits = [
             'eEM8M', 'eEM10L',  'eEM15', 'eEM15L', 'eEM15M', 
-            'eEM20', 'eEM20L', 'eEM20M', 'eEM22', 'eEM22L', 'eEM22M', 'eEM22T',
+            'eEM18M', 'eEM20', 'eEM20L', 'eEM22', 'eEM22L', 'eEM22M', 'eEM22T',
         ]
 
         for em in emThresholds_3bits:
@@ -104,7 +104,7 @@ class TopoAlgoDefMultiplicity(object):
             currentAlgoId += 1
 
         jJThresholds_3bits = [ 'jJ12', 'jJ12p0ETA25', 'jJ15', 'jJ15p0ETA25', 'jJ20', 'jJ25', 'jJ25p0ETA23', 'jJ30',]
-        jJThresholds_2bits = [ 'jJ15p31ETA49', 'jJ20p31ETA49', 'jJ30p31ETA49', 'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA20',
+        jJThresholds_2bits = [ 'jJ15p31ETA49', 'jJ20p31ETA49', 'jJ30p31ETA49', 'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA21',
                                'jJ50', 'jJ50p31ETA49', 'jJ75', 'jJ75p31ETA49',
                                'jJ85', 'jJ100', 'jJ120', 'jJ400',]
 

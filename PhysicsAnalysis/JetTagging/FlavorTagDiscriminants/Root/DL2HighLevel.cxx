@@ -81,7 +81,7 @@ namespace FlavorTagDiscriminants {
       {"(rnnip|iprnn|dips[^_]*)(flip)?_p(b|c|u|tau)"_r, EDMType::FLOAT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
-      {"pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
+      {"(log_)?pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
       {"softMuon_p[bcu]"_r, EDMType::FLOAT},
       {"softMuon_.*"_r, EDMType::FLOAT},
     };
@@ -103,7 +103,7 @@ namespace FlavorTagDiscriminants {
       {"iprnn_.*"_r, ""},
       {"smt_.*"_r, "softMuon_isDefaults"},
       {"softMuon_.*"_r, "softMuon_isDefaults"},
-      {"(pt|abs_eta|eta)"_r, ""}}; // no default required for custom cases
+      {"((log_)?pt|(abs_)?eta)"_r, ""}}; // no default for custom cases
 
     std::vector<DL2InputConfig> input_config;
     if (config.inputs.size() == 1) {
@@ -138,8 +138,10 @@ namespace FlavorTagDiscriminants {
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
       {"btagIp_(d0|z0SinTheta)Uncertainty"_r, EDMType::FLOAT},
-      {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
-      {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
+      {"(numberDoF|chiSquared|qOverP|theta)"_r, EDMType::FLOAT},
+      {"(^.*[_])?(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
+      {"(log_)?(ptfrac|dr|pt).*"_r, EDMType::CUSTOM_GETTER},
+      {"(deta|dphi)"_r, EDMType::CUSTOM_GETTER},
     };
     // We have a number of special naming conventions to sort and
     // filter tracks. The track nodes should be named according to
@@ -150,11 +152,13 @@ namespace FlavorTagDiscriminants {
       {".*absSd0sort"_r, SortOrder::ABS_D0_SIGNIFICANCE_DESCENDING},
       {".*sd0sort"_r, SortOrder::D0_SIGNIFICANCE_DESCENDING},
       {".*ptsort"_r, SortOrder::PT_DESCENDING},
+      {".*absD0DescendingSort"_r, SortOrder::ABS_D0_DESCENDING},
     };
     TrkSelRegexes trk_select_regexes {
       {".*_ip3d_.*"_r, TrackSelection::IP3D_2018},
       {".*_all_.*"_r, TrackSelection::ALL},
       {".*_dipsLoose202102_.*"_r, TrackSelection::DIPS_LOOSE_202102},
+      {".*_loose202102NoIpCuts_.*"_r, TrackSelection::LOOSE_202102_NOIP},
     };
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
