@@ -24,9 +24,9 @@ PLRGmxInterface::PLRGmxInterface(PixelDetectorManager *detectorManager,
 {}
 
 
-void PLRGmxInterface::addSensorType(const std::string& clas,
-                                    const std::string& typeName,
-                                    const std::map<std::string, std::string>& parameters)
+void PLRGmxInterface::addSensorType(std::string clas,
+                                    std::string typeName,
+                                    std::map<std::string, std::string> parameters)
 {
   ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
   // only load the sensor type that the PLR will use
