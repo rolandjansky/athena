@@ -49,11 +49,11 @@ MuonMDT_CablingMap::MuonMDT_CablingMap() :
 
 MuonMDT_CablingMap::~MuonMDT_CablingMap() = default;
 
-bool MuonMDT_CablingMap::convert(const CablingData& cabling_data, Identifier& id )const{
+bool MuonMDT_CablingMap::convert(const CablingData& cabling_data, Identifier& id, bool check_valid )const{
   bool valid{false};
   id = m_mdtIdHelper->channelID(cabling_data.stationIndex, cabling_data.eta, cabling_data.phi,
-                                cabling_data.multilayer, cabling_data.layer, cabling_data.tube, true, &valid);
-  return valid;
+                                cabling_data.multilayer, cabling_data.layer, cabling_data.tube, check_valid, &valid);
+  return !check_valid || valid;
 }
 bool MuonMDT_CablingMap::convert(const Identifier&module_id , CablingData& cabling_data) const{
   if (!m_mdtIdHelper->is_mdt(module_id)) return false;
