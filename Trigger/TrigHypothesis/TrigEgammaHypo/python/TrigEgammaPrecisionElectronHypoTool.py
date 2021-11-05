@@ -19,9 +19,9 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     MonTool = GenericMonitoringTool("MonTool_"+name)
   
     # make the Hypo
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaPrecisionElectronCBSelectorCfg
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaPrecisionElectronLHSelectorCfg
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaPrecisionElectronDNNSelectorCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import TrigEgammaPrecisionElectronCBSelectorCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import TrigEgammaPrecisionElectronLHSelectorCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import TrigEgammaPrecisionElectronDNNSelectorCfg
 
     acc_ElectronCBSelectorTools = TrigEgammaPrecisionElectronCBSelectorCfg()
     acc_ElectronLHSelectorTools = TrigEgammaPrecisionElectronLHSelectorCfg()
