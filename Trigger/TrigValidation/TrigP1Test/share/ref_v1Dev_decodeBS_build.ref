@@ -3403,7 +3403,19 @@ HLT_mu26_ivarmedium_mu4_probe_L1MU14FCH:
     0: 1
   stepFeatures:
     0: 1
+HLT_mu26_ivarmedium_mu6_msonly_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
 HLT_mu26_ivarmedium_mu6_probe_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 1
+HLT_mu26_ivarmedium_mu8_msonly_probe_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
