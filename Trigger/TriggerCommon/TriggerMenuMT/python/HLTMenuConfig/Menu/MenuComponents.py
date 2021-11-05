@@ -14,6 +14,9 @@ from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from GaudiKernel.DataHandle import DataHandle
 from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 from TrigCompositeUtils.TrigCompositeUtils import legName
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
+
 
 from inspect import signature
 from collections import MutableSequence
@@ -1154,19 +1157,14 @@ def algorithmCAToGlobalWrapper(gen, flags, *args, **kwargs):
     If CA contains more than one algorithm, a list is returned, else a single algorithm is returned.
     
     """
-    from AthenaCommon.Configurable import ConfigurableRun3Behavior
     with ConfigurableRun3Behavior():
         ca = gen(flags, *args, **kwargs)
         assert isinstance(ca, ComponentAccumulator), "Function provided does not generate ComponentAccumulator"
-    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
     algs = ca.getEventAlgos()
     ca._algorithms = {}
     ca._allSequences = []
     appendCAtoAthena(ca)
-    converted = [conf2toConfigurable(alg) for alg in algs]
-    if len(converted)  == 0:
-        return converted[0]
-    return converted
+    return [conf2toConfigurable(alg) for alg in algs]
 
 
 
@@ -1174,12 +1172,10 @@ def menuSequenceCAToGlobalWrapper(gen, flags, *args, **kwargs):
     """
     Generates & converts MenuSequenceCA into the MenuSequence, in addition appending aux stuff to global configuration
     """
-    from AthenaCommon.Configurable import ConfigurableRun3Behavior
     with ConfigurableRun3Behavior():
         msca = gen(flags, *args, **kwargs)
         assert isinstance(msca, MenuSequenceCA), "Function provided to menuSequenceCAToGlobalWrapper does not generate MenuSequenceCA"
 
-    from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
     from AthenaCommon.AlgSequence import AthSequencer
     from AthenaCommon.CFElements import compName, isSequence
     hypo = conf2toConfigurable(msca.hypo.Alg)

@@ -118,7 +118,7 @@ def MinBiasSPSequence():
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags# this will disappear once the flags are transported down here
     from ..Menu.MenuComponents import algorithmCAToGlobalWrapper # this will disappear once whole sequence would be configured at once
-    spCount = algorithmCAToGlobalWrapper(SPCounterRecoAlgCfg, flags)
+    spCount = algorithmCAToGlobalWrapper(SPCounterRecoAlgCfg, flags)[0]
 
     spRecoSeq = parOR("spRecoSeq", spAlgsList + [spCount])
     spSequence = seqAND("spSequence", [spInputMakerAlg, spRecoSeq])
