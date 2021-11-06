@@ -11,12 +11,12 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 def TLAPhotonSequence (flags, photonsIn):
     
     ## add the InputMaker (event context)    
-    tlaJetInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAJets", RoIsLink="initialRoI")
-    tlaJetInputMakerAlg.mergeUsingFeature = True
+    tlaPhotonInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAPhotons", RoIsLink="initialRoI")
+    tlaPhotonInputMakerAlg.mergeUsingFeature = True
     
-    tlaJetAthSequence = seqAND( "TLAJetAthSequence", [tlaJetInputMakerAlg] )
+    tlaPhotonAthSequence = seqAND( "TLAPhotonAthSequence", [tlaPhotonInputMakerAlg] )
     sequenceOut = photonsIn+"_TLA"
-    return (tlaJetAthSequence, tlaJetInputMakerAlg, sequenceOut)
+    return (tlaPhotonAthSequence, tlaPhotonInputMakerAlg, sequenceOut)
 
 def TLAPhotonMenuSequence( flags, photonsIn ):
     

@@ -53,7 +53,7 @@ StatusCode TrigEgammaTLAPhotonHypoAlg::execute( const EventContext& ctx) const
   // retrieves the HLT decision container for the TLA photons
   auto previousDecisionHandle = SG::makeHandle(decisionInput(), ctx);
   ATH_CHECK(previousDecisionHandle.isValid());
-  const DecisionContainer* prevDecisions = previousDecisionHandle.get();
+  //const DecisionContainer* prevDecisions = previousDecisionHandle.get();
 
   // get a pointer to the TLA Photons
   ATH_MSG_DEBUG("Retrieving photons from the TLA container \"" <<m_TLAPhotonsKey << "\" ");
@@ -86,15 +86,17 @@ for (const auto previousDecision : *previousDecisionHandle)
             h_TLAPhotons->push_back(copiedPhoton);
             *copiedPhoton = *photonPrev;
 
+              // now go on with the normal Hypo, linking new decision with previous one
+            auto newDecision = newDecisionIn( outputDecisions, hypoAlgNodeName() );
+            TrigCompositeUtils::linkToPrevious( newDecision, previousDecision, ctx );
+            // do we need to re-link the feature?
+            newDecision->setObjectLink(featureString(), prevPhotonLink); 
+            photonHypoInputs.push_back( std::make_pair(previousDecision, newDecision) );
+
             ATH_MSG_WARNING("Copied photon with pT: " << copiedPhoton->pt() << " from decision " << nDecision);
         }
 
-        // now go on with the normal Hypo, linking new decision with previous one
-      auto newDecision = newDecisionIn( outputDecisions, hypoAlgNodeName() );
-      TrigCompositeUtils::linkToPrevious( newDecision, previousDecision, ctx );
-      // do we need to re-link the feature?
-      //newDecision->setObjectLink(featureString(), prevMuons); 
-      photonHypoInputs.push_back( std::make_pair(previousDecision, newDecision) );
+      
 
     // for (const xAOD::Photon* currPhoton : *hltPhotonsCollectionHandle)
     // {
