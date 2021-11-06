@@ -1293,3 +1293,7 @@ class RecoFragmentsPool(object):
 def getChainStepName(chainName, stepNumber):
     return '{}_step{}'.format(chainName, stepNumber)
 
+def createStepView(stepName):
+    stepReco = parOR(CFNaming.stepRecoName(stepName))
+    stepView = seqAND(CFNaming.stepViewName(stepName), [stepReco])
+    return stepReco, stepView
