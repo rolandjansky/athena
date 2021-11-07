@@ -33,6 +33,7 @@
 #include "xAODTrigger/TriggerMenuJsonContainer.h"
 
 #include "xAODTrigger/TrigConfKeys.h"
+#include "xAODTrigger/BunchConfKey.h"
 
 #include "AsgTools/CurrentContext.h"
 
@@ -140,7 +141,7 @@ namespace TrigConf {
       StatusCode beginEvent_Run2(const xAOD::TrigConfKeys* keys);
 
       /// Internal call to check / load from a file with Run3 metadata
-      StatusCode beginEvent_Run3(const xAOD::TrigConfKeys* keys);
+      StatusCode beginEvent_Run3(const xAOD::TrigConfKeys* keys, const xAOD::BunchConfKey* bgKey);
 
       /// @}
 
@@ -167,6 +168,8 @@ namespace TrigConf {
 
       /// Key for the event-level configuration identifier object
       std::string m_eventName;
+      /// Key for the event-level bunchgroup identification object, in the codebase since R2 but only being used since R3
+      std::string m_bgkeysName;
       /// Key for the trigger configuration metadata object (Run 2)
       std::string m_metaName_run2;
       /// Key for the trigger configuration metadata objects (Run 3)

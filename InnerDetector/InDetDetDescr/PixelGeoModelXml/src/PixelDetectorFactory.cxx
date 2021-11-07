@@ -90,7 +90,7 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
     gmxInput = PathResolver::find_file(m_options.gmxFilename(), "DATAPATH");
     if (gmxInput.empty()) { // File not found
       std::string errMessage("PixelDetectorFactory::create: Unable to find file " + m_options.gmxFilename() +
-                             " with PathResolver; check filename and DATAPATH environment variable");
+			     " with PathResolver; check filename and DATAPATH environment variable");
       throw std::runtime_error(errMessage);
     }
   }

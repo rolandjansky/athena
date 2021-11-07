@@ -63,10 +63,12 @@ def getTLASignatureSequence(ConfigFlags, tlaSignature):
 
 
 def findTLAStep(chainConfig):
-    tlaSteps = [s for s in chainConfig.steps if 'TLAStep' in s.name and 'EmptyPEBAlign' not in s.name and 'EmptyTLAAlign' not in s.name]
+    tlaSteps = [s for s in chainConfig.steps if 'TLAStep' in s.name and 'EmptyPEBAlign' not in s.name and 'EmptyTLAAlign' not in s.name and 'PEBInfoWriter' not in s.name]
     if len(tlaSteps) == 0:
         return None
     elif len(tlaSteps) > 1:
+        print("Found multiple step in chain: ", chainConfig.name, "steps: ")
+        print(chainConfig.steps)
         raise RuntimeError('Multiple TLA steps in one chain are not supported. ', len(tlaSteps), ' were found in chain ' + chainConfig.name)
     return tlaSteps[0]
 

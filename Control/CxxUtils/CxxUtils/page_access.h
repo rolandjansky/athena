@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CXXUTILS_PAGEADDRESS_H
@@ -10,8 +10,6 @@
 #include <sys/mman.h> /* mprotect */
 #define DEBUG 1
 namespace athena {
-  const size_t PAGESIZE= 0x1000;  //sysconf(_SC_PAGE_SIZE)
-
   const void* page_address(const void* addr);
   void* page_address(void* addr);
   void* next_page_address(void* addr);

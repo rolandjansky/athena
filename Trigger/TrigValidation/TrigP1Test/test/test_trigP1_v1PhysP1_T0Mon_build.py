@@ -34,8 +34,6 @@ tzrecoPreExec = ' '.join([
   "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
   "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
   "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
-  "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
-  "TriggerFlags.configForStartup=\'HLToffline\';",
 ])
 
 tzreco = ExecStep.ExecStep('Tier0Reco')

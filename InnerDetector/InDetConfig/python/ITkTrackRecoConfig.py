@@ -75,8 +75,10 @@ def ITkStripClusterizationPUCfg(flags, name="ITkStripClusterizationPU", **kwargs
 
 ##------------------------------------------------------------------------------
 def ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs) :
+    acc = ComponentAccumulator()
+
     from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
-    acc = ITkPixelReadoutGeometryCfg(flags)
+    acc.merge(ITkPixelReadoutGeometryCfg(flags))
 
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
 
@@ -210,13 +212,13 @@ def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContain
         ))
 
     if flags.ITk.doTruth:
-        if not kwargs.get("TrackTruthContainerName", None):
-            kwargs.setdefault("AddTruthLink", False)
-        else:
-            kwargs.setdefault("AddTruthLink", True)
-            if "MCTruthClassifier" not in kwargs:
-                from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCfg
-                kwargs["MCTruthClassifier"] = result.popToolsAndMerge(MCTruthClassifierCfg(flags))
+        kwargs.setdefault("TrackTruthContainerName", TrackContainerName+"TruthCollection")
+        kwargs.setdefault("AddTruthLink", True)
+
+        if "MCTruthClassifier" not in kwargs:
+            from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCfg
+            kwargs["MCTruthClassifier"] = result.getPrimaryAndMerge(MCTruthClassifierCfg(flags))
+
     else:
         kwargs.setdefault("AddTruthLink", False)
 
@@ -293,6 +295,11 @@ def ITkTrackRecoCfg(flags):
         InputCombinedITkTracks += ["ResolvedROIConvTracks"]
 
     result.merge(ITkTrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedITkTracks))
+
+    if flags.ITk.doTruth:
+        from InDetConfig.ITkTrackTruthConfig import ITkTrackTruthCfg
+        result.merge(ITkTrackTruthCfg(flags))
+
     result.merge(ITkTrackParticleCnvAlgCfg(flags))
 
     if flags.ITk.doVertexFinding:

@@ -12,21 +12,6 @@ from collections import namedtuple
 # ('Id working point', 'pt threshold': ['Maximum number of tracks[0]', 'etmincalib[1]', 'Id level[2]'])
 TauCuts = namedtuple('TauCuts','numTrackMax numTrackWideTrackMax EtCalibMin level')
 thresholdsEF = {
-    ('medium1', 0): TauCuts(3, 1,  0000.0, 2), 
-    ('medium1', 12): TauCuts(3, 1, 12000.0, 2),
-    ('medium1', 20): TauCuts(3, 1, 20000.0, 2),
-    ('medium1', 25): TauCuts(3, 1, 25000.0, 2),
-    ('medium1', 29): TauCuts(3, 1, 29000.0, 2),
-    ('medium1', 35): TauCuts(3, 1, 35000.0, 2),
-    ('medium1', 38): TauCuts(3, 1, 38000.0, 2),
-    ('medium1', 40): TauCuts(3, 1, 40000.0, 2),
-    ('medium1', 50): TauCuts(3, 1, 50000.0, 2),
-    ('medium1', 60): TauCuts(3, 1, 60000.0, 2),
-    ('medium1', 80): TauCuts(3, 1, 80000.0, 2),
-    ('medium1', 115): TauCuts(3, 1, 115000.0, 2),
-    ('medium1', 125): TauCuts(3, 1, 125000.0, 2), 
-    ('medium1', 160): TauCuts(3, 1, 160000.0, 2), 
-    ('medium1', 200): TauCuts(3, 1, 200000.0, 2),
     ('looseRNN', 20): TauCuts(3, 1, 20000.0, 1),
     ('looseRNN', 25): TauCuts(3, 1, 25000.0, 1),
     ('looseRNN', 29): TauCuts(3, 1, 29000.0, 1),
@@ -108,7 +93,6 @@ def TrigPresTauMVHypoToolFromDict( chainDict ):
 
     chainPart = chainDict['chainParts'][0]
 
-    preselection = chainPart['preselection']
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
 
@@ -125,9 +109,6 @@ def TrigPresTauMVHypoToolFromDict( chainDict ):
     if 'idperf' in criteria:
         currentHypo.AcceptAll = True
 
-    if 'tracktwoMVATest' in preselection:
-        currentHypo.highpt = False
-
     return currentHypo
 
 
@@ -137,12 +118,11 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     chainPart = chainDict['chainParts'][0]
 
-    preselection = chainPart['preselection']
     criteria  = chainPart['selection']
     threshold = chainPart['threshold']
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    if criteria in ['medium', 'loose1', 'medium1', 'tight1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'idperf', 'perf'] :
+    if criteria in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'idperf', 'perf'] :
     
         currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
 
@@ -167,8 +147,8 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         currentHypo.numTrackWideTrackMax = theThresh.numTrackWideTrackMax
         currentHypo.EtCalibMin  = theThresh.EtCalibMin
         currentHypo.level       = theThresh.level
-        currentHypo.method      = 2
-        
+        currentHypo.method      = 3   
+     
         if criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
             currentHypo.numTrackMin = 0
             currentHypo.highptidthr = 280000.
@@ -177,10 +157,6 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
             currentHypo.AcceptAll = True
         elif 'perf' in criteria:
             currentHypo.method      = 0
-
-        if 'tracktwoMVATest' in preselection:
-            currentHypo.highpt = False
-
 
     elif criteria in [ 'dikaonmass', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion2', 'dipion3', 'dipion4', 'singlepion' ]: # ATR-22644
         currentHypo = CompFactory.TrigEFTauDiKaonHypoTool(name)

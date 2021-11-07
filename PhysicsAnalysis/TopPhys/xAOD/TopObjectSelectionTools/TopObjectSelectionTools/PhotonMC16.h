@@ -28,10 +28,9 @@ namespace top {
      * @param ptcut The minimum pT cut to apply to the photons.
      * @param etamax The maximum eta cut
      * @param isolation nullptr for un-isolated, or a new "isolation object" to
-     * @param usePhotonShowerShapeVariables to turn on/off the reading of shower shape variables
      * apply isolation cuts
      */
-    PhotonMC16(double ptcut, double etamax, IsolationBase* isolation, bool usePhotonShowerShapeVariables);
+    PhotonMC16(double ptcut, double etamax, IsolationBase* isolation);
 
     /**
      * @brief Class to help select good photons.
@@ -41,14 +40,12 @@ namespace top {
      * @param tightID The ID level used to select tight photons.
      * @param looseID The ID level used to select loose photons.
      * @param isolation nullptr for un-isolated, or a new "isolation object" to
-     * @param usePhotonShowerShapeVariables to turn on/off the reading of shower shape variables
      * apply isolation cuts
      */
     PhotonMC16(double ptcut, double etamax,
                const std::string& tightID,
                const std::string& looseID,
-               IsolationBase* isolation,
-               bool usePhotonShowerShapeVariables);
+               IsolationBase* isolation);
 
     /**
      * @brief The cuts to select good photons for your analysis should be
@@ -104,8 +101,6 @@ namespace top {
 
     // The isolation tool, or nullptr if we don't want isolation
     std::unique_ptr<top::IsolationBase> m_isolation;
-
-    mutable bool m_usePhotonShowerShapeVariables;
 
     // Removing photon clusters from EMEC bad HV regions
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust

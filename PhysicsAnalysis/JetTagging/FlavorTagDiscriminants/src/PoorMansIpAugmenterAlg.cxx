@@ -95,7 +95,7 @@ namespace Pmt {
 
 
   double getSigmaZ0SinTheta(const xAOD::TrackParticle& trk,
-                            const xAOD::Vertex& vtx) {
+                            double vxZCov) {
 
     // first do the track part
     const auto& fullCov = trk.definingParametersCovMatrix();
@@ -111,11 +111,15 @@ namespace Pmt {
     double trackComponent = trkJacobian.transpose()*trkCov*trkJacobian;
 
     // now do the vertex part
-    double vxZCov = vtx.covariancePosition()(Pmt::z,Pmt::z);
     double vertexComponent = std::sin(theta)*vxZCov*std::sin(theta);
 
     return std::sqrt(trackComponent + vertexComponent);
 
+  }
+  double getSigmaZ0SinTheta(const xAOD::TrackParticle& trk,
+                            const xAOD::Vertex& vtx) {
+    double vxZCov = vtx.covariancePosition()(Pmt::z,Pmt::z);
+    return getSigmaZ0SinTheta(trk, vxZCov);
   }
 
 }
@@ -136,8 +140,10 @@ namespace FlavorTagDiscriminants {
     ATH_MSG_DEBUG( "    ** " << m_eventInfoKey );
 
     ATH_CHECK( m_TrackContainerKey.initialize() );
-    ATH_CHECK( m_VertexContainerKey.initialize() );
     ATH_CHECK( m_eventInfoKey.initialize() );
+
+    bool use_vertices = !m_VertexContainerKey.empty();
+    ATH_CHECK( m_VertexContainerKey.initialize(use_vertices) );
 
     // Prepare decorators
     m_dec_d0_sigma = m_TrackContainerKey.key() + "." + m_prefix.value() + m_dec_d0_sigma.key();
@@ -167,14 +173,16 @@ namespace FlavorTagDiscriminants {
     SG::ReadHandle<xAOD::EventInfo> event_info(m_eventInfoKey, ctx);
     CHECK( event_info.isValid() );
 
-    SG::ReadHandle<xAOD::VertexContainer> verteces(
-      m_VertexContainerKey,ctx );
-    CHECK( verteces.isValid() );
-
-    const xAOD::Vertex* primary = getPrimaryVertex( *verteces );
-    if ( primary == nullptr ) {
-      ATH_MSG_FATAL("No primary vertex found");
-      return StatusCode::FAILURE;
+    const xAOD::Vertex* primary = nullptr;
+    if (!m_VertexContainerKey.empty()) {
+      SG::ReadHandle<xAOD::VertexContainer> verteces(
+        m_VertexContainerKey,ctx );
+      CHECK( verteces.isValid() );
+      primary = getPrimaryVertex( *verteces );
+      if ( primary == nullptr ) {
+        ATH_MSG_FATAL("No primary vertex found");
+        return StatusCode::FAILURE;
+      }
     }
 
     SG::ReadHandle<xAOD::TrackParticleContainer> tracks(
@@ -208,7 +216,14 @@ namespace FlavorTagDiscriminants {
       ATH_MSG_DEBUG("combined d0Uncertainty: " << full_d0_sigma);
 
       decor_d0_sigma(*trk) = full_d0_sigma;
-      decor_z0_sigma(*trk) = Pmt::getSigmaZ0SinTheta(*trk, *primary);
+      if (primary) {
+        decor_z0_sigma(*trk) = Pmt::getSigmaZ0SinTheta(*trk, *primary);
+      } else {
+        // if we don't have a primary we take the beamspot z
+        // uncertainty
+        double vxZCov = std::pow(evt.beamPosSigmaZ(), 2);
+        decor_z0_sigma(*trk) = Pmt::getSigmaZ0SinTheta(*trk, vxZCov);
+      }
 
       // the primary vertex position is absolute, whereas the track
       // perigee parameters are all relative to the beamspot. The x
@@ -216,7 +231,7 @@ namespace FlavorTagDiscriminants {
       // has no idea about the primary vertex location.
       const Amg::Vector3D primary_relative_to_beamspot(
         0, 0,
-        primary->position().z() - trk->vz());
+        primary ? primary->position().z() - trk->vz() : 0);
       const Amg::Vector3D position = (
         Pmt::getPosition(*trk) - primary_relative_to_beamspot);
 

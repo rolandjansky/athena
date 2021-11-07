@@ -403,7 +403,7 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
             ispulsed_int=( ispulsed_int | ((uint16_t)ispulsed<<bitShift) );
             bitShift++;
           }
-          caccdigits->emplace_back(new LArAccumulatedCalibDigit(cId, (CaloGain::CaloGain)gain, std::move(samplesSum), std::move(samples2Sum), nTrigger, dac, delay, ispulsed, nstep, istep));
+          caccdigits->emplace_back(new LArAccumulatedCalibDigit(cId, (CaloGain::CaloGain)gain, std::move(samplesSum), std::move(samples2Sum), nTrigger, dac, delay, ispulsed_int, nstep, istep));
 	}//end getNext loop
         caccdigits->setDelayScale(m_delayScale);
       }//end if m_doAccDigits

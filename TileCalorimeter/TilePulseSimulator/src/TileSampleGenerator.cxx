@@ -61,31 +61,39 @@ void TileSampleGenerator::fillSamples(double t0, double pedestal, double amplitu
 
 //
 //________________________________________________________
-void TileSampleGenerator::fill7Samples(double t0, double pedestal, double amp_it, vector<float> amp_pu, TF1* pdf, bool addNoise, double itOffset) {
+void TileSampleGenerator::fillNSamples(double t0, double pedestal, double amp_it, vector<float> amp_pu, TF1* pdf, bool addNoise, double itOffset, int nSamples, int nPul) {
 
-	TileSampleBuffer* bufall = new TileSampleBuffer(21, -250., 25.);
+    std::unique_ptr<TileSampleBuffer> bufall(new TileSampleBuffer(nPul, -25*((nPul-1)/2), 25.));
 
-	for (int i = 0; i < 7; i++) { //Loop over output samples
+	if(m_DEBUG){
+		cout << "Pileup pulses:" << std::endl;
+		for (std::vector<float>::const_iterator i = amp_pu.begin(); i != amp_pu.end(); ++i)
+    		std::cout << *i << ' ';
+		std::cout << std::endl;
+	}
+	
+
+	for (int i = 0; i < nSamples; i++) { //Loop over output samples
 		double tin, amp_it_out;
 		int nPul = amp_pu.size();
 		vector<int> t(nPul);
 		vector<float> amp_pu_out(nPul);
-
+		int x = (nPul-1)/2 + nSamples;  
 		double amp_total = pedestal;
 
 		if (m_DEBUG)
 			cout << "sample to compute: " << i << "  " << amp_total << std::endl;
 
-		for (int j = 0; j < 21; j++) { //Loop over PU pulses
+		for (int j = 0; j < nPul ; j++) { //Loop over PU pulses
 
-			t[j] = bufall->getTime(17 + i - j) - t0;
+			t[j] = bufall->getTime(x + i - j) - t0;
 
 			if (m_DEBUG)
 				cout << "pileupsample to compute " << j << std::endl;
 			if (m_DEBUG)
-				cout << "                time in " << i << " " << j << " " << (17 + i - j) << " " << " buf " << bufall->getTime(17 + i - j) << "  time_out " << t[j] << std::endl;
+				cout << "                time in " << i << " " << j << " " << (x + i - j) << " " << " buf " << bufall->getTime(x + i - j) << "  time_out " << t[j] << std::endl;
 
-			if (t[j] < -75. || t[j] > 125.)
+			if (t[j] < -((nSamples-1)/2)*25. || t[j] > ((nSamples+1)/2)*25.)
 				continue; //Limits of the PulseShape
 			amp_pu_out[j] = m_ps->eval(t[j]) * amp_pu.at(j); // PU Contribution
 			amp_total += amp_pu_out[j];

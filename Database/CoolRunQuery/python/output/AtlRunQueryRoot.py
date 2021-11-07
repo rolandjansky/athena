@@ -207,10 +207,10 @@ def MakePlots( tree, datapath ):
 # Creation of ROOT output file
 # ---------------------------------------------------------------------------------------------------
 
-def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '' ):
+def makeLBPlotSummaryForLHC( lbrange, xvecStb, yvec, runNr, datapath, printText = '' ):
 
     # sanity check
-    if not xvec or len(yvec)==0 or not yvec[0]:
+    if not lbrange or len(yvec)==0 or not yvec[0]:
         return "None"
 
     ylegend = ['Intensity Beam-1', 'Intensity Beam-2', 'Beam energy', 'Online inst. luminosity' ]
@@ -225,8 +225,8 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
     c.GetPad(0).SetLeftMargin(0.09)
     c.GetPad(0).SetRightMargin(1.3)
     # c.GetPad(0).SetGrid()
-    x1 = xvec[0]
-    x2 = xvec[-1]
+    x1 = lbrange[0]
+    x2 = lbrange[-1]
 
     h  = TH1F( name, title, x2 - x1 + 1, x1, x2 + 1 ) # for stable beams
     hg = []
@@ -237,10 +237,9 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
     h.GetYaxis().SetTitle( 'Beam intensity (10^{11} protons)' )
     h.GetYaxis().SetTitleOffset( 1.0 )
     h.SetTitle( title )    
-
-    for i in range(len(xvec)):
+    for lb in lbrange:
         for iy,y in enumerate(yvec):
-            hg[iy].SetBinContent( xvec[i], y[i] )
+            hg[iy].SetBinContent( lb, y[lb] )
     
     # first draw histogram        
     ymax = max(hg[0].GetMaximum(),hg[1].GetMaximum())
@@ -273,9 +272,9 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
     heb.Draw("same")
 
     if xvecStb:
-        for i in range(len(xvec)):
-            if xvec[i] in xvecStb:
-                h.SetBinContent( xvec[i], yvec[2][i]*scale/1000.0 ) # draw for beam energy (in TeV)
+        for lb in lbrange:
+            if lbrange[lb] in xvecStb:
+                h.SetBinContent( lbrange[lb], yvec[2][lb]*scale/1000.0 ) # draw for beam energy (in TeV)
         h.SetFillColor( TColor.GetColor( "#63bD58" ) )
         h.SetFillStyle( 3007 )
         h.SetLineColor( TColor.GetColor( "#C3FDB8" ) )

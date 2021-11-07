@@ -140,13 +140,9 @@ def RpcMonitoringConfig(inputFlags):
 
         rpcTrackAnaAlg = helper.addAlgorithm(CompFactory.RpcTrackAnaAlg, "RpcTrackAnaAlgAlg", TrackExtrapolator = extrapolator)
 
-        from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-        if use_tracking_geometry_cond_alg:
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
-        else:
-            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-            result.merge(TrackingGeometrySvcCfg(inputFlags))
+
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+        result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
 
         rpcTrackAnaAlg.plotMuonEff = True
         rpcTrackAnaAlg.analyseTrack= True

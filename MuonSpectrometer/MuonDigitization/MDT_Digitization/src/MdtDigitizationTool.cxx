@@ -145,14 +145,14 @@ StatusCode MdtDigitizationTool::initialize() {
     ATH_CHECK(m_calibrationDbTool.retrieve());
 
     // Gather masked stations
+    m_vMaskedStations.reserve(m_maskedStations.size());
     for (unsigned int i = 0; i < m_maskedStations.size(); ++i) {
-        std::string mask = m_maskedStations[i];
-        std::string maskedName = mask.substr(0, mask.find(':'));
-        std::string temps = mask.substr(maskedName.size() + 1, std::string::npos);
-        std::string maskedEta = temps.substr(0, temps.find(':'));
-        std::string maskedPhi = temps.substr(maskedEta.size() + 1, std::string::npos);
-        maskedStation ms(maskedName, maskedEta, maskedPhi);
-        m_vMaskedStations.push_back(ms);
+        std::string_view mask(m_maskedStations[i]);
+        std::string_view maskedName = mask.substr(0, mask.find(':'));
+        std::string_view temps = mask.substr(maskedName.size() + 1, std::string::npos);
+        std::string_view maskedEta = temps.substr(0, temps.find(':'));
+        std::string_view maskedPhi = temps.substr(maskedEta.size() + 1, std::string::npos);
+        m_vMaskedStations.emplace_back(maskedName, maskedEta, maskedPhi);
         if (!m_UseDeadChamberSvc)
             ATH_MSG_DEBUG("mask = " << mask << "  maskedName = " << maskedName << "  temps = " << temps << "  maskedEta = " << maskedEta
                                     << "  maskedPhi = " << maskedPhi);

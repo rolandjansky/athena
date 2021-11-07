@@ -9,16 +9,19 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+TrigEgammaKeys = getTrigEgammaKeys()
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-def fastElectronSequence(ConfigFlags):
+
+
+def fastElectronSequence(ConfigFlags, variant=''):
     """ second step:  tracking....."""
     
     IDTrigConfig = TrigEgammaKeys.IDTrigConfig
   
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    RoIs = "EMIDRoIs" # contract with the fastCalo
+    RoIs = "EMIDRoIs"+variant # contract with the fastCalo
     viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
 
     # A simple algorithm to confirm that data has been inherited from parent view
@@ -34,48 +37,58 @@ def fastElectronSequence(ConfigFlags):
       
 
     from TrigEgammaRec.TrigEgammaFastElectronConfig import TrigEgammaFastElectron_ReFastAlgo_Clean
-    theElectronFex = TrigEgammaFastElectron_ReFastAlgo_Clean("EgammaFastElectronFex_Clean_gen")
+    theElectronFex = TrigEgammaFastElectron_ReFastAlgo_Clean("EgammaFastElectronFex_Clean_gen"+variant)
 
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
-    theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
+    theElectronFex.ElectronsName=recordable("HLT_FastElectrons"+variant)
     theElectronFex.DummyElectronsName= "HLT_FastDummyElectrons"
  
     # EVCreator:
-    l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
+    l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron"+variant)
     l2ElectronViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
     # Spawn View on SuperRoI encompassing all clusters found within the L1 RoI
     roiTool = ViewCreatorCentredOnClusterROITool()
     roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
-    roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastElectron")
+    roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastElectron"+variant)
     roiTool.RoIEtaWidth = IDTrigConfig.etaHalfWidth
     roiTool.RoIPhiWidth = IDTrigConfig.phiHalfWidth
     l2ElectronViewsMaker.RoITool = roiTool
     l2ElectronViewsMaker.InViewRoIs = RoIs
-    l2ElectronViewsMaker.Views = "EMElectronViews"
+    l2ElectronViewsMaker.Views = "EMElectronViews"+variant
     l2ElectronViewsMaker.ViewFallThrough = True
     l2ElectronViewsMaker.RequireParentView = True
 
     theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
-    electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
-    l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
+    electronInViewAlgs = parOR("electronInViewAlgs"+variant, viewAlgs + [ theElectronFex ])
+    l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"+variant
 
-    electronAthSequence = seqAND("electronAthSequence", [l2ElectronViewsMaker, electronInViewAlgs ] )
+    electronAthSequence = seqAND("electronAthSequence"+variant, [l2ElectronViewsMaker, electronInViewAlgs ] )
     return (electronAthSequence, l2ElectronViewsMaker)
-   
-def fastElectronMenuSequence(do_idperf,is_probe_leg=False):
+
+def fastElectronSequence_LRT(ConfigFlags):
+    # This is SAME as fastElectronSequence but for variant "_LRT"
+    return fastElectronSequence(ConfigFlags,"_LRT")
+
+
+
+def fastElectronMenuSequence(do_idperf,is_probe_leg=False, variant=''):
     """ Creates 2nd step Electron  MENU sequence"""
     # retrieve the reco sequence+IM
-    (electronAthSequence, l2ElectronViewsMaker) = RecoFragmentsPool.retrieve(fastElectronSequence, ConfigFlags)
+    theSequence = {
+            '' : fastElectronSequence,
+            '_LRT': fastElectronSequence_LRT
+            }
+    (electronAthSequence, l2ElectronViewsMaker) = RecoFragmentsPool.retrieve(theSequence[variant], ConfigFlags)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlg
     if do_idperf is True:
-        theElectronHypo = TrigEgammaFastElectronHypoAlg("TrigEgammaFastElectronHypoAlg_idperf")
+        theElectronHypo = TrigEgammaFastElectronHypoAlg("TrigEgammaFastElectronHypoAlg_idperf"+variant)
         theElectronHypo.Electrons = "HLT_FastDummyElectrons"
     else:
-        theElectronHypo = TrigEgammaFastElectronHypoAlg("TrigEgammaFastElectronHypoAlg")
-        theElectronHypo.Electrons = "HLT_FastElectrons"
+        theElectronHypo = TrigEgammaFastElectronHypoAlg("TrigEgammaFastElectronHypoAlg"+variant)
+        theElectronHypo.Electrons = "HLT_FastElectrons"+variant
 
     theElectronHypo.RunInView=True
 
@@ -87,3 +100,7 @@ def fastElectronMenuSequence(do_idperf,is_probe_leg=False):
                           HypoToolGen = TrigEgammaFastElectronHypoToolFromDict,
                           IsProbe=is_probe_leg)
 
+
+def fastElectronMenuSequence_LRT(do_idperf,is_probe_leg=False):
+    # This is to call fastElectronMenuSequence for the _LRT variant
+    return fastElectronMenuSequence(do_idperf,is_probe_leg=is_probe_leg, variant='_LRT')

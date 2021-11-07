@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -22,7 +22,8 @@ int main(void) {
   //protect a heap object
   int* pi= new int(2);
   void* pv = malloc(10);
-  assert(pac.forbidPage(pi));
+  //assert(pac.forbidPage(pi));
+  if (!pac.forbidPage(pi)) perror("forbidPage fails");
   //FIXME assert(pac.forbidPage(pv, 10));
   //assert(pac.protectPage(pv, 10, PROT_READ));
   assert(pac.restorePageProt(pi));

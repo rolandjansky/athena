@@ -371,6 +371,9 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
    {
       auto & ex = l1menu.thrExtraInfo().eEM();
       cout << "  eEM" << endl;
+      cout << "    iso maxEt (GeV) " << ex.maxEt() << endl;
+      cout << "    iso maxEt (MeV) " << ex.maxEtMeV() << endl;
+      cout << "    iso maxEt (Counts) " << ex.maxEtCounts(ex.resolutionMeV()) << endl;
       cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
       cout << "    ptMinToTopo " << ex.ptMinToTopo() << endl;
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
@@ -395,6 +398,19 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       }
       //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,-20) << endl;
       cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::LOOSE,20) << endl;
+
+      for( int ieta : { -30, -20, -10, 0, 10, 20, 30 } ) {
+         auto iso_loose  = ex.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+         int reta_loose_fw = iso_loose.reta_fw();
+         int rhad_loose_fw = iso_loose.rhad_fw();
+         int wstot_loose_fw = iso_loose.wstot_fw();
+         int reta_loose_d = iso_loose.reta_d();
+         int rhad_loose_d = iso_loose.rhad_d();
+         int wstot_loose_d = iso_loose.wstot_d();
+         cout << "ieta=" << ieta << "  loose => reta_fw=" << reta_loose_fw << ", rhad_fw=" << rhad_loose_fw << ", wstot_fw=" << wstot_loose_fw << endl;
+         cout << "ieta=" << ieta << "  loose => reta_d=" << reta_loose_d << ", rhad_d=" << rhad_loose_d << ", wstot_d=" << wstot_loose_d << endl;
+      }
+     
    }
    {
       auto & ex = l1menu.thrExtraInfo().jEM();

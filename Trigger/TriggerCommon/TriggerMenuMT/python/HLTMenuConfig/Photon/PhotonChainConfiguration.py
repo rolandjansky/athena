@@ -30,7 +30,7 @@ def fastPhotonSequenceCfg( flags ):
     return fastPhotonMenuSequence( flags )
 
 def precisionPhotonCaloSequenceCfg( flags ):
-    return precisionCaloMenuSequence('Photon')
+    return precisionCaloMenuSequence('Photon', is_photon=True)
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')

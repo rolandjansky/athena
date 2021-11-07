@@ -20,7 +20,6 @@
 Trk::TrackingGeometry::TrackingGeometry(Trk::TrackingVolume* highestVolume,
                                         Trk::NavigationLevel navLev)
   : m_world(highestVolume)
-  , m_beam(nullptr)
   , m_navigationLevel(navLev)
 {
   // for the time being only world
@@ -30,7 +29,6 @@ Trk::TrackingGeometry::TrackingGeometry(Trk::TrackingVolume* highestVolume,
 
 Trk::TrackingGeometry::~TrackingGeometry()
 {
-  delete m_beam;
   delete m_world;
   auto bLayerIter = m_boundaryLayers.begin();
   auto bLayerIterE = m_boundaryLayers.end();

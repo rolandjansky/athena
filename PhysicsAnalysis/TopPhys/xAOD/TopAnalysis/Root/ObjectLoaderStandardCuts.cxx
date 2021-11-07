@@ -44,8 +44,7 @@ namespace top {
                                                            topConfig->photonIdentification(),
                                                            topConfig->photonIdentificationLoose(),
                                                            new top::StandardIsolation(topConfig->photonIsolation(),
-                                                                                      topConfig->photonIsolationLoose()),
-                                                           topConfig->recomputeCPvars()));
+                                                                                      topConfig->photonIsolationLoose())));
     }
 
     ///-- Electrons --///

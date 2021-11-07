@@ -215,8 +215,6 @@ class FrontierCursor(object):
 
 def testQuery(query, bindvars):
     log = logging.getLogger( "TrigConfFrontier.py" )
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-    tf.triggerUseFrontier = True
 
     from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
     connectionParameters = interpretConnection("TRIGGERDBMC")

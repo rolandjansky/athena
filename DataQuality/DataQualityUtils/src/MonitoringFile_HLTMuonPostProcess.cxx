@@ -40,7 +40,7 @@ namespace dqutils {
   // static const bool fpdbg = true;
 
   void 
-  MonitoringFile::HLTMuonPostProcess( std::string inFilename, bool /* isIncremental */ ) 
+  MonitoringFile::HLTMuonPostProcess( const std::string & inFilename, bool /* isIncremental */ ) 
   {
     if (fpdbg) std::cout << "Start HLTMuon post-processing" << std::endl;
 
@@ -71,7 +71,7 @@ namespace dqutils {
   }//MonitoringFile::HLTMuonCheckHistogram
 
   void
-  MonitoringFile::HLTMuonTriggerOverlapMatrix(std::string inFilename, TString& run_dir)
+  MonitoringFile::HLTMuonTriggerOverlapMatrix(const std::string & inFilename, TString& run_dir)
   {
     if (fpdbg) std::cout << "  Start to fill HLTMuon Trigger Overlap Matrix" << std::endl;
 

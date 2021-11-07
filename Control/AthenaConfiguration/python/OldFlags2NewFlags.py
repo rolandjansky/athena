@@ -17,6 +17,7 @@ def getNewConfigFlags():
     import AthenaCommon.ConcurrencyFlags # noqa: F401
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     from AthenaMonitoring.DQMonFlags import DQMonFlags
+    from RecExConfig.RecFlags import rec
 
     # Files and conditions
     if jobproperties.Global.InputFormat() == 'bytestream':
@@ -78,6 +79,11 @@ def getNewConfigFlags():
     from InDetRecExample.InDetJobProperties import InDetFlags
     ConfigFlags.InDet.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
+
+    if rec.doDPD():
+        # flags for Physics Validation (ATLASRECTS-6636)
+        ConfigFlags.BTagging.SaveSV1Probabilities = True
+        ConfigFlags.BTagging.RunJetFitterNN = True
 
     return ConfigFlags
 

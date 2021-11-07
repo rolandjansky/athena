@@ -146,7 +146,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
            doOvlpRm = True
         else:
            doOvlpRm = False
-
+        
         if 'l2mt' in self.chainPart['l2AlgInfo']:
             return self.getStep(1,"mufastl2mt", [mul2mtSAOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
         elif doOvlpRm:

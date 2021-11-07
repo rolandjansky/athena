@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTPrescaleSetCollection
@@ -46,12 +46,6 @@ namespace TrigConf {
 
       const HLTPrescaleSet* prescaleSet(unsigned int lumiblock) const;
 
-      /** @brief access current prescale set (for current lumiblock) **/
-      HLTPrescaleSet* thePrescaleSet() const { return m_currentPSS; }
-
-      const HLTPrescaleSet* prescaleSet() const { return m_currentPSS; }
-
-
       /** @brief number of prescale sets */
       size_t size() const { return m_prescaleSets.size(); }
 
@@ -62,7 +56,7 @@ namespace TrigConf {
       HLTPrescaleSet* setPrescaleSet( HLTPrescaleSet* pss );
 
       /**@brief Add prescale set for this lumiblock number */
-      HLTPrescaleSet* addPrescaleSet( unsigned int lumiblock, HLTPrescaleSet* pss );
+      void addPrescaleSet( unsigned int lumiblock, HLTPrescaleSet* pss );
 
       /**@brief Check if prescale set with this lumiblock and prescale keys exists */
       bool contains(unsigned int lumiblock, unsigned int psk );
@@ -80,8 +74,6 @@ namespace TrigConf {
 
       void set_prescale_keys_to_load(const std::vector<std::pair<unsigned int, unsigned int> >&);
 
-      void setCurrentToFirstIfUnset();
-
       /**@brief Print the prescale set*/
       void print(const std::string& indent="", unsigned int detail=1) const;
 
@@ -93,12 +85,9 @@ namespace TrigConf {
 
       HLTPrescaleSetCollection( const HLTPrescaleSetCollection & );
 
-      HLTPrescaleSet* addPrescaleSet( const cont& add_psinfo );
+      void addPrescaleSet( const cont& add_psinfo );
 
-      mutable unsigned int m_currentLB;
-      mutable HLTPrescaleSet* m_currentPSS;
-
-      std::list<cont> m_prescaleSets;         //!< all prescale sets with start lb      
+      std::list<cont> m_prescaleSets;         //!< all prescale sets with start lb
 
       mutable std::recursive_mutex m_prescaleSetCollection_mutex;  //!< Mutex for m_prescaleSetCollection
      

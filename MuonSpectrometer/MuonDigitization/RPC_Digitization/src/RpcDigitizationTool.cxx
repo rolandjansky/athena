@@ -156,8 +156,8 @@ StatusCode RpcDigitizationTool::initialize() {
     IRDBAccessSvc* rdbAccess(nullptr);
     ATH_CHECK(service("RDBAccessSvc", rdbAccess));
 
-    enum DataPeriod { Run1, Run2, Run3, Run4 };
-    DataPeriod run = Run1;
+    enum DataPeriod {Unknown, Run1, Run2, Run3, Run4 };
+    DataPeriod run = Unknown;
 
     std::string configVal = "";
     const IGeoModelSvc* geoModel(nullptr);
@@ -175,13 +175,17 @@ StatusCode RpcDigitizationTool::initialize() {
         ATH_MSG_INFO("From DD Database, MuonSpectrometer geometry version is " << MSgeoVersion);
         if (configVal == "RUN1" || MSgeoVersion == "R.06") {
             run = Run1;
-        } else if (configVal == "RUN2" || MSgeoVersion == "R.07") {
+        } 
+        if (configVal == "RUN2" || MSgeoVersion == "R.07") {
             run = Run2;
-        } else if (configVal == "RUN3" || MSgeoVersion == "R.09") {
+        }
+        if (configVal == "RUN3" || MSgeoVersion == "R.09") {
             run = Run3;
-        } else if (configVal == "RUN4" || MSgeoVersion == "R.10") {
+        }
+        if (configVal == "RUN4" || MSgeoVersion == "R.10") {
             run = Run4;
-        } else {
+        } 
+        if (run == DataPeriod::Unknown) {
             ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal
                                                                                           << " Geometry version=" << MSgeoVersion);
             return StatusCode::FAILURE;

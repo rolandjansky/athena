@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CFElements import findAllAlgorithms
-from AthenaCommon.AthenaCommonFlags import jobproperties as jps
 
 from GaudiKernel.Configurable import WARNING
 
@@ -24,10 +23,6 @@ def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
     
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
-
-    # flags for Physics Validation 
-    cfgFlags.BTagging.SaveSV1Probabilities = True
-    cfgFlags.BTagging.RunJetFitterNN = True
 
     taggerlist = ['IP2D', 'IP3D', 'SV1', 'JetFitterNN']
 
@@ -67,8 +62,6 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
 
     track_collection = 'InDetTrackParticles'
     muon_collection = 'Muons'
-
-    cfgFlags.Input.Files = jps.AthenaCommonFlags.FilesInput.get_Value()
 
     acc = ComponentAccumulator()
 

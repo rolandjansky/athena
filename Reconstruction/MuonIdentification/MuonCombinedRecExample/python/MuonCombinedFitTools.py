@@ -37,10 +37,8 @@ def MuidMaterialAllocator( name='MuidMaterialAllocator', **kwargs):
     kwargs.setdefault("Extrapolator", getPublicTool('AtlasExtrapolator') )
     kwargs.setdefault("TrackingGeometrySvc", getService("AtlasTrackingGeometrySvc") )
 
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg:
-      cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-      kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
+    cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
 
     return CfgMgr.Trk__MaterialAllocator(name,**kwargs)
 
@@ -180,13 +178,11 @@ def MuonCombinedPropagator( name='MuonCombinedPropagator', **kwargs ):
 
 
 def MuonTrackQuery( name="MuonTrackQuery", **kwargs ):
-     from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-     if use_tracking_geometry_cond_alg:
-        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-        kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
-     kwargs.setdefault("MdtRotCreator",   getPublicTool("MdtDriftCircleOnTrackCreator") )
-     kwargs.setdefault("Fitter", getPublicTool("iPatFitter"))
-     return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
+    cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
+    kwargs.setdefault("MdtRotCreator",   getPublicTool("MdtDriftCircleOnTrackCreator") )
+    kwargs.setdefault("Fitter", getPublicTool("iPatFitter"))
+    return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
 
 def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwargs ):
     kwargs.setdefault("Builder",  getPublicTool("CombinedMuonTrackBuilderFit") )
@@ -253,7 +249,7 @@ def MuonAlignmentUncertToolPhi(name ="MuonAlignmentUncertToolPhi", **kwargs):
 def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     # N.B. This is a duplication of CombinedMuonTrackBuilder but I tried to remove it and got into circular dependency hell
     # Leave to new configuration to fix. EJWM. 
-    from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
+    from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
@@ -327,16 +323,13 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("MdtRotCreator"                 , "" )
 
     getPublicTool("MuonCaloParticleCreator")
-    if TrackingCommon.use_tracking_geometry_cond_alg:
-        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-        kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
-    else:
-        kwargs.setdefault('TrackingGeometrySvc', ServiceMgr.AtlasTrackingGeometrySvc )
+    cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
     
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
 def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
-    from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
+    from AthenaCommon.AppMgr import ToolSvc
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
 
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
@@ -411,11 +404,8 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("MdtRotCreator"                 , "" )
     getPublicTool("MuonCaloParticleCreator")
 
-    if TrackingCommon.use_tracking_geometry_cond_alg:
-        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-        kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
-    else:
-        kwargs.setdefault('TrackingGeometrySvc', ServiceMgr.AtlasTrackingGeometrySvc )
+    cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    kwargs.setdefault('TrackingGeometryReadKey', cond_alg.TrackingGeometryWriteKey)
        
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
@@ -462,9 +452,7 @@ def CombinedMuonTagTestTool( name='CombinedMuonTagTestTool', **kwargs ):
     kwargs.setdefault("ExtrapolatorTool",getPublicTool("AtlasExtrapolator") )
     kwargs.setdefault("TrackingGeometrySvc",  getService("AtlasTrackingGeometrySvc") )
     kwargs.setdefault("Chi2Cut",50000.)
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg:
-      cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-      kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
+    cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
     return CfgMgr.MuonCombined__MuonTrackTagTestTool(name,**kwargs)
 
