@@ -26,7 +26,6 @@ TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
                                          ISvcLocator* svcLoc)
   : AthReentrantAlgorithm(name, svcLoc)
   , m_particleCreator("Trk::TrackParticleCreatorTool/TrackParticleCreatorTool")
-  , m_truthClassifier("MCTruthClassifier/MCTruthClassifier")
   , m_TrackCollectionCnvTool(
       "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool",
       this)
@@ -42,7 +41,6 @@ TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
   , m_aodTruth("")
   , m_trackTruth("")
 {
-  declareProperty("MCTruthClassifier", m_truthClassifier);
   declareProperty("AODContainerName", m_aod);
   declareProperty("xAODContainerName", m_xaodTrackParticlesout);
   declareProperty("TrackParticleCreator", m_particleCreator);
