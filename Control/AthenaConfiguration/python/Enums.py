@@ -9,3 +9,4 @@ class ProductionStep(Enum):
     PileUpPresampling = 'PileUpPresampling'
     Overlay = 'Overlay'
     FastChain = 'FastChain'
+    Digitization = 'Digitization'
