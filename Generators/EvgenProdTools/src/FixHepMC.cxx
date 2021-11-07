@@ -81,10 +81,31 @@ StatusCode FixHepMC::execute() {
     /// If some particle would have decay products with bad PDG ids, after the operation below
     /// the visible branching ratio of these decays would be zero.
     for (auto part: bad_pdg_id_particles) {
-        if (!part->production_vertex()) continue;
-        if (!part->end_vertex()) continue;
-        for (auto p: part->end_vertex()->particles_out()) part->production_vertex()->add_particle_out(p);
-        evt->remove_particle(part);
+      /// Check the bad particles have prod and end vertices
+      auto vend = part->end_vertex();
+      auto vprod = part->production_vertex();
+      if (!vend) continue;
+      if (!vprod) continue;
+      bool loop_in_decay = true;
+      /// Check that all particles coming into the decay vertex of bad particle cam from the same production vertex.
+      /// E.g.   
+      ///      vertex1
+      ///    /         \
+      ///   /           \
+      /// bad part.1   part.2
+      ///   \           /
+      ///      vertex2
+      ///     /   |   \
+      ///    decay products
+      auto sisters = vend->particles_in();
+      for (auto sister: sisters) if (vprod != sister->production_vertex()) loop_in_decay = false;
+      if (!loop_in_decay) continue;
+      
+      auto daughters = vend->particles_out();
+      for (auto p: daughters) vprod->add_particle_out(p);
+      for (auto sister: sisters) { vprod->remove_particle_out(sister); vend->remove_particle_in(sister); evt->remove_particle(sister); }
+      evt->remove_vertex(vend);
+
     }
 
     // Event particle content cleaning -- remove "bad" structures
