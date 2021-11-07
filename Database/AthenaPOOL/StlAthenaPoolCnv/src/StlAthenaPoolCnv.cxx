@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCnv.h"
@@ -55,6 +55,7 @@ public:
   DECLARE_CONVERTER(TDEF)
 
 #include "SGTools/BuiltinsClids.h"
+// cppcheck-suppress unknownMacro
 DECL_CNV(int, AthenaPoolIntCnv)
 DECL_CNV(unsigned int, AthenaPoolUIntCnv)
 DECL_CNV(float, AthenaPoolFloatCnv)
