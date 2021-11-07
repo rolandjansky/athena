@@ -150,7 +150,8 @@ StatusCode MdtDigitizationTool::initialize() {
         std::string_view mask(m_maskedStations[i]);
         std::string_view maskedName = mask.substr(0, mask.find(':'));
         std::string_view temps = mask.substr(maskedName.size() + 1, std::string::npos);
-        std::string_view maskedEta = temps.substr(0, temps.find(':'));
+        auto col = temps.find(':');
+        std::string_view maskedEta = (col !=  std::string_view::npos) ? temps.substr(0, col) : temps.substr(0);
         std::string_view maskedPhi = temps.substr(maskedEta.size() + 1, std::string::npos);
         m_vMaskedStations.emplace_back(maskedName, maskedEta, maskedPhi);
         if (!m_UseDeadChamberSvc)
