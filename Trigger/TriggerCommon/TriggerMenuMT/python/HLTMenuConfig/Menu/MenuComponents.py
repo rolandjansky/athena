@@ -1110,8 +1110,8 @@ class InViewRecoCA(ComponentAccumulator):
                                                           RoIsLink        = 'initialRoI',
                                                           RoITool         = ViewCreatorInitialROITool(),
                                                           InViewRoIs      = roisKey if roisKey else name+'RoIs',
-                                                          Views           = name+'View',
-                                                          ViewNodeName    = name+"InView", 
+                                                          Views           = name+'Views',
+                                                          ViewNodeName    = name+"InViews", 
                                                           RequireParentView = RequireParentView if RequireParentView else False)
 
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name )
