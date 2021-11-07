@@ -217,7 +217,8 @@ def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContain
 
         if "MCTruthClassifier" not in kwargs:
             from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCfg
-            kwargs["MCTruthClassifier"] = result.getPrimaryAndMerge(MCTruthClassifierCfg(flags))
+            kwargs["MCTruthClassifier"] = result.popToolsAndMerge(
+                MCTruthClassifierCfg(flags))
 
     else:
         kwargs.setdefault("AddTruthLink", False)
