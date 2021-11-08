@@ -277,6 +277,18 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
             }
          } catch(std::bad_cast&) {};
 
+         // gJ
+         try {
+            auto gJThr = dynamic_cast<const TrigConf::L1Threshold_gJ &>(*thr);
+            jThr["value"] = int(gJThr.thrValue());
+         } catch(std::bad_cast&) {};
+
+         // gLJ
+         try {
+            auto gLJThr = dynamic_cast<const TrigConf::L1Threshold_gLJ &>(*thr);
+            jThr["value"] = int(gLJThr.thrValue());
+         } catch(std::bad_cast&) {};         
+
          // jXE
          try {
             auto jXEThr = dynamic_cast<const TrigConf::L1Threshold_jXE &>(*thr);
@@ -555,6 +567,20 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          jThrType["ptMinxTOB3"] = (int)jljinfo.ptMinxTOB("3A");
       }
 
+      if(thrType == "gJ") {
+         auto & gjinfo = l1menu.thrExtraInfo().gJ();
+         jThrType["ptMinToTopoA"] = (int)gjinfo.ptMinToTopo("A");
+         jThrType["ptMinToTopoB"] = (int)gjinfo.ptMinToTopo("B");
+         jThrType["ptMinToTopoC"] = (int)gjinfo.ptMinToTopo("C");     
+      }
+
+      if(thrType == "gLJ") {
+         auto & gljinfo = l1menu.thrExtraInfo().gLJ();
+         jThrType["ptMinToTopoA"] = (int)gljinfo.ptMinToTopo("A");
+         jThrType["ptMinToTopoB"] = (int)gljinfo.ptMinToTopo("B");
+         jThrType["ptMinToTopoC"] = (int)gljinfo.ptMinToTopo("C");
+      }
+
       if(thrType == "jXE") {
           // nothing to do for now...
       }
@@ -675,7 +701,6 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          for(auto & algName : l1menu.topoAlgorithmNames(topoCat)) {
             json jalg = json::object_t({});
             auto & alg = l1menu.algorithm(algName,topoCat);
-            jalg["algId"]     = alg.algId();
             jalg["klass"]     = alg.klass();
             // input
             if(alg.type()==L1TopoAlgorithm::AlgorithmType::MULTIPLICITY) {
