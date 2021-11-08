@@ -19,6 +19,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('Modifiers.py')
 
 _run_number = None   # set by runHLT_standalone
+_lb_number = None   # set by runHLT_standalone
 
 # Base class
 class _modifier:
@@ -324,17 +325,19 @@ class forceConditions(_modifier):
                      '/MUONALIGN/Onl/TGC/SIDEA',
                      '/MUONALIGN/Onl/TGC/SIDEC']
 
-        from RecExConfig.RecFlags import rec
+        assert _run_number and _lb_number, f'Run or LB number is undefined ({_run_number}, {_lb_number})'
+
         from TrigCommon.AthHLT import get_sor_params
-        sor = get_sor_params(rec.RunNumber())
+        sor = get_sor_params(_run_number)
+        timestamp = sor['SORTime'] // int(1e9)
 
         for i,f in enumerate(svcMgr.IOVDbSvc.Folders):
             if any(name in f for name in ignore):
                 continue
             if any(name in f for name in timebased):
-                svcMgr.IOVDbSvc.Folders[i] += '<forceTimestamp>%d</forceTimestamp>' % (sor['SORTime'] // int(1e9))
+                svcMgr.IOVDbSvc.Folders[i] += f'<forceTimestamp>{timestamp:d}</forceTimestamp>'
             else:
-                svcMgr.IOVDbSvc.Folders[i] += '<forceRunNumber>%d</forceRunNumber>' % sor['RunNumber']
+                svcMgr.IOVDbSvc.Folders[i] += f'<forceRunNumber>{_run_number:d}</forceRunNumber> <forceLumiblockNumber>{_lb_number:d}</forceLumiblockNumber>'
 
 
 class forceAFPLinkNum(_modifier):

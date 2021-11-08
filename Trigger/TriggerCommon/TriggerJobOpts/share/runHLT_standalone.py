@@ -144,25 +144,20 @@ if len(athenaCommonFlags.FilesInput())>0:
             opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
         else:
             opt.setGlobalTag = 'OFLCOND-MC16-SDR-25-02'
-    TriggerJobOpts.Modifiers._run_number = af.fileinfos['run_number'][0]
+    TriggerJobOpts.Modifiers._run_number = ConfigFlags.Input.RunNumber[0]
+    TriggerJobOpts.Modifiers._lb_number = ConfigFlags.Input.LumiBlockNumber[0]
 
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.Collections = []
-    if '_run_number' not in dir():
-        import PyUtils.AthFile as athFile
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
-        _run_number = af.run_number[0]
-
-    TriggerJobOpts.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
-    ConfigFlags.Input.RunNumber = [_run_number]
-
-    from RecExConfig.RecFlags import rec
-    rec.RunNumber =_run_number
-    del _run_number
+    TriggerJobOpts.Modifiers._run_number = globals().get('_run_number')  # set by athenaHLT
+    TriggerJobOpts.Modifiers._lb_number = globals().get('_lb_number')  # set by athenaHLT
+    if '_run_number' in globals():
+        del _run_number  # noqa, set by athenaHLT
+    if '_lb_number' in globals():
+        del _lb_number  # noqa, set by athenaHLT
 
 ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
 
@@ -291,6 +286,7 @@ if setModifiers:
 #-------------------------------------------------------------
 # Output flags
 #-------------------------------------------------------------
+from RecExConfig.RecFlags import rec
 if opt.doWriteRDOTrigger:
     if ConfigFlags.Trigger.Online.isPartition:
         log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
