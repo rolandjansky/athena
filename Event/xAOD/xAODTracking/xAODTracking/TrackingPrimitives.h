@@ -484,6 +484,40 @@ namespace xAOD {
     subtrackCreatedWithRecoveredShared,
     other
   };
+  enum ObserverToolIndex {
+    track,
+    score,
+    rejectStep,
+    rejectReason,
+    parentId,
+    numPixelHoles,
+    numSCTHoles,
+    numSplitSharedPixel,
+    numSplitSharedSCT,
+    numSharedOrSplit,
+    numSharedOrSplitPixels,
+    numShared,
+    isPatternTrack,
+    totalSiHits,
+    inROI,
+    hasIBLHit,
+    hasSharedIBLHit,
+    hasSharedPixel,
+    firstPixIsShared,
+    numPixelDeadSensor,
+    numSCTDeadSensor,
+    numPixelHits,
+    numSCTHits,
+    numUnused,
+    numTRT_Unused,
+    numSCT_Unused,
+    numPseudo,
+    averageSplit1,
+    averageSplit2,
+    numWeightedShared,
+    rejectStep_full,
+    rejectReason_full,
+  };
 
   /// A convenience namespace to make the client code easier to understand
   namespace VxType {
