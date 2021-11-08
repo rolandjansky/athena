@@ -2,8 +2,6 @@
 
 __doc__ = """
           Instantiate the EGamma LRT reconstruction.
-          Note that
-          egammaTopoClusterCopier is scheduled in TrackRecoConfig
           """
 
 from AthenaCommon.Logging import logging
@@ -12,22 +10,15 @@ from egammaTrackTools.egammaTrackToolsConfig import (
     EMExtrapolationToolsLRTCommonCacheCfg, EMExtrapolationToolsLRTCacheCfg)
 
 
-def EGammaLRTReconstructionCfg(flags, name="EGammaLRTReconstruction"):
+def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
 
     mlog = logging.getLogger(name)
     mlog.info('Starting EGamma LRT reconstruction configuration')
 
     acc = ComponentAccumulator()
 
-    # if large radius tracking not enabled add nothing
-    if not flags.InDet.doR3LargeD0 or not flags.Egamma.enabled:
-        if not flags.InDet.doR3LargeD0 and flags.Egamma.enabled:
-            mlog.info('Large radius tracking not enabled. Do nothing')
-        return acc
-
     # Add e/gamma tracking algorithms
-    if flags.Egamma.doGSF:
-
+    if flags.Egamma.doTracking:
         from egammaAlgs.egammaSelectedTrackCopyConfig import (
             egammaSelectedTrackCopyCfg)
         emextLRTCommonCache = acc.popToolsAndMerge(
@@ -62,8 +53,7 @@ def EGammaLRTReconstructionCfg(flags, name="EGammaLRTReconstruction"):
         )
 
     # Add calo seeded central algorithms
-    if flags.Egamma.doCaloSeeded:
-
+    if flags.Egamma.doCentral:
         from egammaAlgs.egammaRecBuilderConfig import (
             egammaRecBuilderCfg)
         from egammaTools.EMTrackMatchBuilderConfig import (
@@ -117,7 +107,6 @@ def EGammaLRTReconstructionCfg(flags, name="EGammaLRTReconstruction"):
 
     # Add truth association
     if flags.Egamma.doTruthAssociation:
-
         from egammaAlgs.egammaTruthAssociationConfig import (
             egammaTruthAssociationCfg)
         acc.merge(egammaTruthAssociationCfg(
@@ -141,10 +130,12 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
+    flags.Output.doWriteESD = True  # To test the ESD parts
     flags.Output.doWriteAOD = True  # To test the AOD parts
+    flags.lock()
 
     acc = MainServicesCfg(flags)
-    acc.merge(EGammaLRTReconstructionCfg(flags))
+    acc.merge(egammaLRTReconstructionCfg(flags))
     acc.printConfig(withDetails=True,
                     printDefaults=True)
 
