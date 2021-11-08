@@ -459,15 +459,13 @@ StatusCode LArCaliWaveBuilder::stop()
 		    ATH_MSG_INFO( "Absolute ADC saturation at DAC = " << thisWave.getDAC() << " ... skip!" ) ;
 		    continue ;
 		} else {
-
-		    LArCaliWave newWave( ((thisWave)+(-pedAve)).getWave() ,
+                    dacWaves.emplace_back(((thisWave)+(-pedAve)).getWave() ,
 		                         thisWave.getErrors(),
 					 thisWave.getTriggers(),
 					 thisWave.getDt(), 
 					 (thisWave.getDAC() + (thisWave.getIsPulsedInt()<<24)), 
 					 thisWave.getFlag() );
        
-		    dacWaves.push_back(newWave);
 		    NCaliWave++;
 		}
 	    

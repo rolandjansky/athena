@@ -14,20 +14,21 @@
 #include<cmath>
 
 std::ostream& operator<<(std::ostream& ostr, const MuonMDT_CablingMap::CablingData & obj){
-      ostr<<"StationIndex: "<<obj.stationIndex
-          <<" eta: "<<obj.eta
-          <<" phi: "<<obj.phi
-          <<" multilayer: "<<obj.multilayer
-          <<" tube-layer: "<<obj.layer
-          <<" tube: "<<obj.tube
-          <<"  ----  MROD: "<<obj.mrod
-          <<" CSM: "<<obj.csm
-          <<" mezzanine-type: "<<obj.mezzanine_type
-          <<" subdetector id: "<<obj.subdetectorId
-          <<" TDC: "<<obj.tdcId
-          <<" tdc-channel: "<<obj.channelId;
+      ostr<<"StationIndex: "<<(int)obj.stationIndex
+          <<" eta: "<<(int)obj.eta
+          <<" phi: "<<(int)obj.phi
+          <<" multilayer: "<<(int)obj.multilayer
+          <<" tube-layer: "<<(int)obj.layer
+          <<" tube: "<<(int)obj.tube
+          <<"  ----  MROD: "<<(int)obj.mrod
+          <<" CSM: "<<(int)obj.csm
+          <<" mezzanine-type: "<<(int)obj.mezzanine_type
+          <<" subdetector id: "<<(int)obj.subdetectorId
+          <<" TDC: "<<(int)obj.tdcId
+          <<" tdc-channel: "<<(int)obj.channelId;
       return ostr;
  } 
+ 
 
 MuonMDT_CablingMap::MuonMDT_CablingMap() :
   MdtMapBase<MdtSubdetectorMap>(0,"MdtSubdetectorMap")

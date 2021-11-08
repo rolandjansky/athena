@@ -3,7 +3,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-FlavorTagDiscriminants__DL2Tool=CompFactory.FlavorTagDiscriminants.DL2Tool
 
 def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
     acc = ComponentAccumulator()
@@ -21,18 +20,38 @@ def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
                 f'JetFitterSecondaryVertex_{aggragate}AllJetTrackRelativeEta')
         options['variableRemapping'] = remap
 
-    dl2 = FlavorTagDiscriminants__DL2Tool(**options)
+    dl2 = CompFactory.FlavorTagDiscriminants.DL2Tool(**options)
 
     acc.setPrivateTools(dl2)
 
     return acc
 
+def GNNToolCfg(ConfigFlags, NNFile = '', **options):
+    acc = ComponentAccumulator()
+
+    options['nnFile'] = NNFile
+    options['name'] = "decorator"
+
+    gnntool = CompFactory.FlavorTagDiscriminants.GNNTool(**options)
+
+    acc.setPrivateTools(gnntool)
+
+    return acc
+
+
 def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", **options):
 
     acc = ComponentAccumulator()
 
-    nn_name = NNFile.replace("/", "_").replace("_network.json", "")
-    dl2 = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile, **options))
+    NNFile_extension = NNFile.split(".")[-1]
+    if NNFile_extension == "json":
+        nn_name = NNFile.replace("/", "_").replace("_network.json", "")
+        decorator = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile, **options))
+    elif NNFile_extension == "onnx":
+        nn_name = NNFile.replace("/", "_").replace(".onnx", "")
+        decorator = acc.popToolsAndMerge(GNNToolCfg(ConfigFlags, NNFile, **options))
+    else:
+        raise ValueError("HighLevelBTagAlgCfg: Wrong NNFile extension. Please check the NNFile argument")
 
     name = '_'.join([nn_name.lower(), BTaggingCollection])
 
@@ -91,7 +110,7 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
         name=name,
         container=BTaggingCollection,
         constituentContainer=TrackCollection,
-        decorator=dl2,
+        decorator=decorator,
         undeclaredReadDecorKeys=sorted(veto_list),
     )
 

@@ -28,7 +28,7 @@ def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
         extAcc = None
         if flags.Detector.GeometryITk:
             from TrkConfig.AtlasUpgradeExtrapolatorConfig import (
-                MCTruthClassifierUpgradeExtrapolatorCfg )
+                MCTruthClassifierUpgradeExtrapolatorCfg)
             extrapolator = acc.popToolsAndMerge(
                 MCTruthClassifierUpgradeExtrapolatorCfg(flags))
             from TrackToCalo.ITkTrackToCaloConfig import (
@@ -54,7 +54,7 @@ def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
     from AthenaConfiguration.ComponentFactory import CompFactory
     MCTruthClassifier = CompFactory.MCTruthClassifier
 
-    acc.addPublicTool(MCTruthClassifier(**kwargs), primary=True)
+    acc.setPrivateTools(MCTruthClassifier(**kwargs))
     return acc
 
 ##########################################################

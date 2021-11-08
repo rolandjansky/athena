@@ -855,7 +855,8 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
                 ATH_MSG_DEBUG("Digit Id = " << m_idHelper->show_to_string(theId) << " digit time " << newDigit_time);
 
                 // put new collection in storegate
-                const RpcDigitCollection* coll = digitContainer->indexFindPtr(coll_hash);
+                RpcDigitCollection* coll = nullptr;
+                ATH_CHECK(digitContainer->naughtyRetrieve(coll_hash, coll));
                 if (!coll) {
                     digitCollection = new RpcDigitCollection(elemId, coll_hash);
                     digitCollection->push_back(newDigit);
@@ -870,7 +871,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
                         ATH_MSG_DEBUG("New RpcHitCollection with key=" << coll_hash << " recorded in StoreGate.");
                     }
                 } else {
-                    digitCollection = const_cast<RpcDigitCollection*>(coll);
+                    digitCollection = coll;
                     digitCollection->push_back(newDigit);
                 }
 

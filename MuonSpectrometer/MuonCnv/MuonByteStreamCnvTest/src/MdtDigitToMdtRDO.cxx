@@ -212,11 +212,12 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
           // as long as there is no BIS sMDT cabling, to avoid a hard crash, replace the tubeNumber
           // of tubes not covered in the cabling by 1
           if (m_idHelperSvc->mdtIdHelper().stationName(channelId)== m_BIS_station_name && m_idHelperSvc->issMdt(channelId)) {
-                cabling_data.layer =  std::min(cabling_data.layer, 3);
                  if (!bisWarningPrinted) {
                     ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<cabling_data.layer<<" and tubeNumber="<<cabling_data.tube<<". Setting to "<<cabling_data.layer<<",1 until a proper cabling is implemented, cf. ATLASRECTS-5804");
                     bisWarningPrinted = true;
                  }
+               cabling_data.layer =  std::min(cabling_data.layer, 3);
+               cabling_data.tube = 1;
                cabling = cabling_ptr->getOnlineId(cabling_data, msg);
           }
           if (!cabling) {
