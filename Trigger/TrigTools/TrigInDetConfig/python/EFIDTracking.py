@@ -242,7 +242,7 @@ def ambiguitySolverForIDPatternRecognition( config, summaryTool, inputTracks,ver
    #-----------------------------------------------------------------------------
    #                      Track particle conversion algorithm
    from .InDetTrigCommon import trackParticleCnv_builder
-   from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary
+   from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigParticleCreatorToolWithSummary
    creatorTool = InDetTrigParticleCreatorToolWithSummary
    
    trackParticleCnvAlg = trackParticleCnv_builder(name                 = add_prefix( 'xAODParticleCreatorAlg', config.name + '_IDTrig' ), 
