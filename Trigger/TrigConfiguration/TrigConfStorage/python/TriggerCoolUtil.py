@@ -42,12 +42,8 @@ class TriggerCoolUtil:
     def GetConnection(dbconn,verbosity=0):
         connection = None
         m = match(r".*?([^/.]+)\.db",dbconn)
-        if dbconn=="COMP":
-            connection = 'COOLONL_TRIGGER/COMP200'
-        elif dbconn=="OFLP":
-            connection = 'COOLONL_TRIGGER/OFLP200'
-        elif dbconn=="CONDBR2":
-            connection = 'COOLONL_TRIGGER/CONDBR2'
+        if dbconn in ["CONDBR2","COMP200","OFLP200"]:
+            connection = f'COOLONL_TRIGGER/{dbconn}'
         elif m:
             dbname=m.group(1).upper()
             connection = "sqlite://;schema=%s;dbname=%s;" % (dbconn,dbname)

@@ -108,7 +108,6 @@ namespace Trk {
     ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
     /**Observer tool      This tool is used to observe the tracks and their 'score' */
-    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
     PublicToolHandle<Trk::ITrkObserverTool> m_observerToolWriter{this, "TrackObserverToolWriter", "", "track observer writer within ambiguity solver"};
 
     bool m_rejectInvalidTracks{};

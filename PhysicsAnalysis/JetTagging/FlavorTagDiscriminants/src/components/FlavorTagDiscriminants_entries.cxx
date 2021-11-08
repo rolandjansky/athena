@@ -5,6 +5,7 @@
 #include "FlavorTagDiscriminants/VRJetOverlapDecoratorTool.h"
 #include "FlavorTagDiscriminants/HbbTagTool.h"
 #include "FlavorTagDiscriminants/DL2Tool.h"
+#include "FlavorTagDiscriminants/GNNTool.h"
 #include "FlavorTagDiscriminants/BTagAugmenterTool.h"
 #include "FlavorTagDiscriminants/BTagMuonAugmenterTool.h"
 #include "FlavorTagDiscriminants/BTagDecoratorAlg.h"
@@ -20,6 +21,7 @@ using namespace FlavorTagDiscriminants;
 DECLARE_COMPONENT(VRJetOverlapDecoratorTool)
 DECLARE_COMPONENT(HbbTagTool)
 DECLARE_COMPONENT(DL2Tool)
+DECLARE_COMPONENT(GNNTool)
 DECLARE_COMPONENT(BTagAugmenterTool)
 DECLARE_COMPONENT(BTagMuonAugmenterTool)
 DECLARE_COMPONENT(BTagDecoratorAlg)

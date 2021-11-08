@@ -18,6 +18,7 @@
 #include "TPhotonIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
+#include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -371,10 +372,11 @@ asg::AcceptData AsgPhotonIsEMSelector::accept( const EventContext& ctx, const xA
 /// Get the name of the current operating point
 //=============================================================================
 std::string AsgPhotonIsEMSelector::getOperatingPointName() const{
- 
-  if (m_rootTool->m_isEMMask == egammaPID::PhotonLoose){ return "Loose"; }
-  if (m_rootTool->m_isEMMask == egammaPID::PhotonMedium ){ return "Medium"; }
-  if (m_rootTool->m_isEMMask == egammaPID::PhotonTight){ return "Tight"; }
+  //
+  // For Loose, Medium and Tight ignore if the difference is in bit 23
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonLoose || (egammaPID::PhotonLoose ^ m_rootTool->m_isEMMask) == (0x1 << egammaPID::AmbiguityResolution_Photon) ){ return "Loose"; }
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonMedium || (egammaPID::PhotonMedium ^ m_rootTool->m_isEMMask) == (0x1 << egammaPID::AmbiguityResolution_Photon) ){ return "Medium"; }
+  if (m_rootTool->m_isEMMask == egammaPID::PhotonTight || (egammaPID::PhotonTight ^ m_rootTool->m_isEMMask) == (0x1 << egammaPID::AmbiguityResolution_Photon) ){ return "Tight"; }
   if (m_rootTool->m_isEMMask == egammaPID::PhotonLooseEF ){ return "LooseEF"; }
   if (m_rootTool->m_isEMMask == egammaPID::PhotonMediumEF){ return "MediumEF"; }
   if (m_rootTool->m_isEMMask == 0){ return "0 No cuts applied"; }
@@ -427,59 +429,44 @@ StatusCode AsgPhotonIsEMSelector::execute(const EventContext& ctx, const xAOD::E
     et = (cosheta != 0.) ? energy/cosheta : 0.;
   }
 
-  float Rhad1(0);
-  float Rhad(0);
-  float Reta(0);
-  float Rphi(0);
-  float e277(0);
-  float weta2c(0);
-  float Eratio(0);
-  float DeltaE(0);
-  float f1(0);
-  float weta1c(0);
-  float wtot(0);
-  float fracm(0);
-  float f3(0);
-
-  bool allFound = true;
     
   // variables based on HCAL
   // transverse energy in 1st scintillator of hadronic calorimeter/ET
-  allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
+  float Rhad1 = eg->showerShapeValue(xAOD::EgammaParameters::Rhad1);
   // transverse energy in hadronic calorimeter/ET
-  allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
+  float Rhad = eg->showerShapeValue(xAOD::EgammaParameters::Rhad);
 
   // variables based on S2 of EM CAL
   // E(7*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
+  float e277 = eg->showerShapeValue(xAOD::EgammaParameters::e277);
   // E(3*7)/E(7*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
+  float Reta = eg->showerShapeValue(xAOD::EgammaParameters::Reta);
   // E(3*3)/E(3*7) in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
+  float Rphi = eg->showerShapeValue(xAOD::EgammaParameters::Rphi);
   // shower width in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(weta2c, xAOD::EgammaParameters::weta2);
+  float weta2c = eg->showerShapeValue(xAOD::EgammaParameters::weta2);
 
   // variables based on S1 of EM CAL
   // fraction of energy reconstructed in the 1st sampling
-  allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
+  float f1 = eg->showerShapeValue(xAOD::EgammaParameters::f1);
   // shower width in 3 strips in 1st sampling
-  allFound = allFound && eg->showerShapeValue(weta1c, xAOD::EgammaParameters::weta1);
-  // E of 2nd max between max and min in strips [NOT USED]
-  // allFound = allFound && eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
+  float weta1c = eg->showerShapeValue(xAOD::EgammaParameters::weta1);
   // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
-  allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
+  float Eratio = eg->showerShapeValue(xAOD::EgammaParameters::Eratio);
   // E(2nd max)-E(min) in strips
-  allFound = allFound && eg->showerShapeValue(DeltaE, xAOD::EgammaParameters::DeltaE);
+  float DeltaE = eg->showerShapeValue(xAOD::EgammaParameters::DeltaE);
   // total shower width in 1st sampling
-  allFound = allFound && eg->showerShapeValue(wtot, xAOD::EgammaParameters::wtots1);
+  float wtot = eg->showerShapeValue(xAOD::EgammaParameters::wtots1);
   // E(+/-3)-E(+/-1)/E(+/-1)
-  allFound = allFound && eg->showerShapeValue(fracm, xAOD::EgammaParameters::fracs1);
+  float fracm = eg->showerShapeValue(xAOD::EgammaParameters::fracs1);
 
+  float f3(0);
   if (m_useF3core) {
-    allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3core);
+    f3 = eg->showerShapeValue(xAOD::EgammaParameters::f3core);
   } else {
-    allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
+    f3 = eg->showerShapeValue(xAOD::EgammaParameters::f3);
   }    
+
 
   // cut on E/p
   double ep = 1.0; // default passes
@@ -521,6 +508,15 @@ StatusCode AsgPhotonIsEMSelector::execute(const EventContext& ctx, const xAOD::E
                               f3,
                               ep,
                               xAOD::EgammaHelpers::isConvertedPhoton(eg));
+  
+  // Add ambiguity resolution cut for photon (vs electron)
+  // to reproduce release 21.2 ambiguity tool configuration
+  static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+  int AmbiguityType = acc(*eg);
+  if (eg->author() == xAOD::EgammaParameters::AuthorAmbiguous && AmbiguityType == xAOD::AmbiguityTool::ambiguousNoInnermost){
+    isEM |= (0x1 << egammaPID::AmbiguityResolution_Photon);
+  }
+
   return StatusCode::SUCCESS;
 }
 

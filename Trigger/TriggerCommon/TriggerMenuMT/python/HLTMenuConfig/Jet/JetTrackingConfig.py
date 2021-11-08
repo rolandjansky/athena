@@ -64,8 +64,8 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     trackcollmap = None
 
     if trkopt=="ftf":
-        from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-        viewAlgs = makeInDetAlgsNoView( config = IDTrigConfig, rois=RoIs)
+        from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
+        viewAlgs = makeInDetTrigFastTrackingNoView( config = IDTrigConfig, rois=RoIs)
         jetTrkSeq += viewAlgs
 
         # add the collections for the eflowRec reconstriction in the trigger

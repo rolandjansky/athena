@@ -14,6 +14,7 @@ from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_DCSConditionsCfg, 
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.lock()
 # call tests
 dcs_acc = SCT_DCSConditionsCfg(ConfigFlags, name="DCSTest")
 dcs_acc.popPrivateTools()

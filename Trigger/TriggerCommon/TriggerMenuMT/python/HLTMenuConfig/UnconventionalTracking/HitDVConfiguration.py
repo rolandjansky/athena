@@ -11,7 +11,7 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
 
-def JetRecoSequence():
+def UTTJetRecoSequence():
         from TrigStreamerHypo.TrigStreamerHypoConf   import TrigStreamerHypoAlg
         from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
 

@@ -14,6 +14,7 @@
 #include <vector>
 #include <memory>
 
+#include "TrigConfMuctpi/MuctpiXMLHelper.h"
 #include "MUCTPIResults.h"
 
 namespace LVL1MUONIF {

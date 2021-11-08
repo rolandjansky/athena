@@ -85,6 +85,13 @@ if __name__ == "__main__":
         cscGlobalR = ROOT.TH1F("cscGlobalR","cscGlobalR;CSC_hitGlobalPositionR",100,500,2500)
         cscGlobalP = ROOT.TH1F("cscGlobalP","cscGlobalP;CSC_hitGlobalPositionP",100,-3,3)
         cscWireLayer = ROOT.TH1F("cscWireLayer","cscWireLayer;CSC_Sim_wireLayer",5,0,5)
+        cscStrip = ROOT.TH1F("cscStrip","cscStrip;CSC_strip",3,0,3)
+        cscglobalTime = ROOT.TH1F("cscglobalTime","cscglobalTime;CSC_globalTime",100,0,60)
+        cscKineticEnergy = ROOT.TH1F("cscKineticEnergy","cscKineticEnergy;CSC_kineticEnergy",100,0,400000)
+        cscDepositEnergy = ROOT.TH1F("cscDepositEnergy","cscDeposityEnergy;CSC_depositEnergy",100,0,0.008)
+        cscSimStationEta = ROOT.TH1F("cscSimStationEta","cscSimStationEta;CSC_Sim_stationEta",4,-3,1)
+        cscSimStationPhi = ROOT.TH1F("cscSimStationPhi","cscSimStationPhi;CSC_Sim_stationPhi",9,0,9)
+        cscSimChamberLayer = ROOT.TH1F("cscSimChamberLayer","cscSimChamberLayer;CSC_Sim_chamberLayer",4,0,4)
     #############################################################################  
     # TGCs
     tgcLocalX = ROOT.TH1F("tgcLocalX","tgcLocalX;TGC_hitLocalPositionX",100,-1.5,1.5)
@@ -98,6 +105,10 @@ if __name__ == "__main__":
     tgcGlobalR = ROOT.TH1F("tgcGlobalR","tgcGlobalR;TGC_hitGlobalPositionR",100,1000,13000)
     tgcGlobalP = ROOT.TH1F("tgcGlobalP","tgcGlobalP;TGC_hitGlobalPositionP",100,-3.6,3.6)
     tgcGasGap = ROOT.TH1F("tgcGasGap","tgcGasGap;TGC_gasGap",4,0,4)
+    tgcChannel = ROOT.TH1F("tgcChannel","tgcChannel;TGC_channel",3,0,3)
+    tgcGlobalTime = ROOT.TH1F("tgcGlobalTime","tgcGlobalTime;TGC_globalTime",100,0,120)
+    tgcKineticEnergy = ROOT.TH1F("tgcKineticEnergy","tgcKineticEnergy;TGC_kineticEnergy",100,0,400000)
+    tgcDepositEnergy = ROOT.TH1F("tgcDepositEnergy","tgcDepositEnergy;TGC_depositEnergy",100,0,0.0018)
     #############################################################################
     # MMs
     if Options.doMM == True:
@@ -160,6 +171,13 @@ if __name__ == "__main__":
                 cscGlobalR.Fill(inputTree.CSC_hitGlobalPositionR[ncscHit])
                 cscGlobalP.Fill(inputTree.CSC_hitGlobalPositionP[ncscHit])
                 cscWireLayer.Fill(inputTree.CSC_Sim_wireLayer[ncscHit])
+                cscStrip.Fill(inputTree.CSC_strip[ncscHit])
+                cscglobalTime.Fill(inputTree.CSC_globalTime[ncscHit])
+                cscKineticEnergy.Fill(inputTree.CSC_kineticEnergy[ncscHit])
+                cscDepositEnergy.Fill(inputTree.CSC_depositEnergy[ncscHit])
+                cscSimStationEta.Fill(inputTree.CSC_Sim_stationEta[ncscHit])
+                cscSimStationPhi.Fill(inputTree.CSC_Sim_stationPhi[ncscHit])
+                cscSimChamberLayer.Fill(inputTree.CSC_Sim_chamberLayer[ncscHit])
 # TGC
         for ntgcHit in range(0,len(inputTree.TGC_hitLocalPositionX)):
             tgcLocalX.Fill(inputTree.TGC_hitLocalPositionX[ntgcHit])
@@ -173,6 +191,10 @@ if __name__ == "__main__":
             tgcGlobalR.Fill(inputTree.TGC_hitGlobalPositionR[ntgcHit])
             tgcGlobalP.Fill(inputTree.TGC_hitGlobalPositionP[ntgcHit])
             tgcGasGap.Fill(inputTree.TGC_gasGap[ntgcHit])
+            tgcChannel.Fill(inputTree.TGC_channel[ntgcHit])
+            tgcGlobalTime.Fill(inputTree.TGC_globalTime[ntgcHit])
+            tgcKineticEnergy.Fill(inputTree.TGC_kineticEnergy[ntgcHit])
+            tgcDepositEnergy.Fill(inputTree.TGC_depositEnergy[ntgcHit])
 # MM
         if Options.doMM == True:
             for nmmHit in range(0,len(inputTree.Hits_MM_hitGlobalPositionX)):
@@ -228,6 +250,13 @@ if __name__ == "__main__":
         ODir.WriteTObject(cscGlobalR, cscGlobalR.GetName())
         ODir.WriteTObject(cscGlobalP, cscGlobalP.GetName())
         ODir.WriteTObject(cscWireLayer,cscWireLayer.GetName())
+        ODir.WriteTObject(cscStrip,cscStrip.GetName())
+        ODir.WriteTObject(cscglobalTime,cscglobalTime.GetName())
+        ODir.WriteTObject(cscKineticEnergy,cscKineticEnergy.GetName())
+        ODir.WriteTObject(cscDepositEnergy,cscDepositEnergy.GetName())
+        ODir.WriteTObject(cscSimStationEta,cscSimStationEta.GetName())
+        ODir.WriteTObject(cscSimStationPhi,cscSimStationPhi.GetName())
+        ODir.WriteTObject(cscSimChamberLayer,cscSimChamberLayer.GetName())
 # TGC
     ODir.WriteTObject(tgcLocalX, tgcLocalX.GetName())
     ODir.WriteTObject(tgcLocalY, tgcLocalY.GetName())
@@ -240,6 +269,10 @@ if __name__ == "__main__":
     ODir.WriteTObject(tgcGlobalR, tgcGlobalR.GetName())
     ODir.WriteTObject(tgcGlobalP, tgcGlobalP.GetName())
     ODir.WriteTObject(tgcGasGap, tgcGasGap.GetName())
+    ODir.WriteTObject(tgcChannel, tgcChannel.GetName())
+    ODir.WriteTObject(tgcGlobalTime, tgcGlobalTime.GetName())
+    ODir.WriteTObject(tgcKineticEnergy, tgcKineticEnergy.GetName())
+    ODir.WriteTObject(tgcDepositEnergy, tgcDepositEnergy.GetName())
 # MM
     if Options.doMM == True:
         ODir.WriteTObject(mmGlobalX, mmGlobalX.GetName())

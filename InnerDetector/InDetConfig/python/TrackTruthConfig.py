@@ -85,8 +85,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryTRT   = True
 
     ConfigFlags.InDet.doPixelClusterSplitting = True
-
-    ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
+    ConfigFlags.InDet.useHolesFromPattern =  False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
@@ -138,7 +137,7 @@ if __name__ == "__main__":
 
     SiSPSeededTrackCollectionKey = 'SiSPSeededPixelTracks'
     ResolvedTrackCollectionKey = 'ResolvedPixelTracks'
-    from InDetConfig.TRTExtensionConfig import SiSPSeededTrackFinderCfg
+    from InDetConfig.TrackingSiPatternConfig import SiSPSeededTrackFinderCfg
     top_acc.merge(SiSPSeededTrackFinderCfg( ConfigFlags,
                                             InputCollections = InputCollections, 
                                             SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))

@@ -1,80 +1,71 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-#include "xAODMuon/MuonContainer.h"
-
 // Local include(s):
 #include "CalibratedMuonsProvider.h"
-#include "xAODCore/ShallowCopy.h"
+
 #include "xAODBase/IParticleHelpers.h"
+#include "xAODCore/ShallowCopy.h"
 
 namespace CP {
-static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
- 
-CalibratedMuonsProvider::CalibratedMuonsProvider( const std::string& name, ISvcLocator* svcLoc ):
-         AthAlgorithm( name, svcLoc ),
-         m_tool( "CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool"),
-         m_prwTool(""),
-         m_useRndNumber(false) {
-      declareProperty( "Input", m_inputKey = "Muons" );
-      declareProperty( "Output", m_outputKey = "CalibratedMuons"); 
-      declareProperty( "Tool", m_tool );
-      declareProperty( "prwTool", m_prwTool );
-}
+    static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
 
-StatusCode CalibratedMuonsProvider::initialize() {
-    ATH_CHECK(m_eventInfo.initialize());
-    ATH_CHECK(m_tool.retrieve() );
-    if (!m_prwTool.empty()){
-        m_useRndNumber = true;
-        ATH_MSG_DEBUG("prwTool is given assume that the selection of the periods is based on the random run number");
-        ATH_CHECK(m_prwTool.retrieve());
+    CalibratedMuonsProvider::CalibratedMuonsProvider(const std::string& name, ISvcLocator* svcLoc) : AthAlgorithm(name, svcLoc) {}
+
+    StatusCode CalibratedMuonsProvider::initialize() {
+        ATH_CHECK(m_eventInfo.initialize());
+        ATH_CHECK(m_inputKey.initialize());
+        ATH_CHECK(m_outputKey.initialize());
+        ATH_CHECK(m_tool.retrieve());
+        if (!m_prwTool.empty()) {
+            m_useRndNumber = true;
+            ATH_MSG_DEBUG("prwTool is given assume that the selection of the periods is based on the random run number");
+            ATH_CHECK(m_prwTool.retrieve());
+        }
+        return StatusCode::SUCCESS;
     }
-    return StatusCode::SUCCESS;
-}
 
-StatusCode CalibratedMuonsProvider::execute() {
-       
-      xAOD::MuonContainer* nonconst_muons = 0;
-      const xAOD::MuonContainer* muons = 0;
-      std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > out;
-    
-      if(m_inputKey==m_outputKey) { //attempt to modify in-situ, but must retrieve as non-const
-         CHECK( evtStore()->retrieve( nonconst_muons, m_inputKey ) );
-              muons = nonconst_muons;
-               out.first = nonconst_muons;
-      } else {
-         CHECK( evtStore()->retrieve( muons, m_inputKey ) );
-         out = xAOD::shallowCopyContainer( *muons );
-         //record to storegate 
-         CHECK( evtStore()->record( out.first, m_outputKey ) );
-         CHECK( evtStore()->record( out.second, m_outputKey+"Aux.") );
-         //add original object link to met recalculations work
-         if(!setOriginalObjectLink( *muons, *out.first )) { 
+    StatusCode CalibratedMuonsProvider::execute() {
+        const EventContext& ctx = Gaudi::Hive::currentContext();
+        SG::ReadHandle<xAOD::MuonContainer> readHandle{m_inputKey, ctx};
+        if (!readHandle.isValid()) {
+            ATH_MSG_FATAL("No muon container found");
+            return StatusCode::FAILURE;
+        }
+        const xAOD::MuonContainer* muons{readHandle.cptr()};
+
+        std::pair<std::unique_ptr<xAOD::MuonContainer>, std::unique_ptr<xAOD::ShallowAuxContainer>> output =
+            xAOD::shallowCopyContainer(*muons, ctx);
+
+        if (!output.first || !output.second) {
+            ATH_MSG_FATAL("Creation of shallow copy failed");
+            return StatusCode::FAILURE;
+        }
+
+        if (!setOriginalObjectLink(*muons, *output.first)) {
             ATH_MSG_ERROR("Failed to add original object links to shallow copy of " << m_inputKey);
             return StatusCode::FAILURE;
-         }  
-      }
-      if (m_useRndNumber) {
-            SG::ReadHandle<xAOD::EventInfo> evInfo(m_eventInfo);
+        }
+
+        if (m_useRndNumber) {
+            SG::ReadHandle<xAOD::EventInfo> evInfo{m_eventInfo, ctx};
             if (!evInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
                 m_useRndNumber = false;
                 ATH_MSG_DEBUG("On data no random run number is needed.");
-            } else if (!acc_rnd.isAvailable(*evInfo)){
-                 ATH_MSG_DEBUG("Apply the prw tool");
-                 ATH_CHECK(m_prwTool->apply(*evInfo));
+            } else if (!acc_rnd.isAvailable(*evInfo)) {
+                ATH_MSG_DEBUG("Apply the prw tool");
+                ATH_CHECK(m_prwTool->apply(*evInfo));
             }
-      }      
-      for(auto iParticle : *(out.first)) {
-         ATH_MSG_DEBUG(" Old pt=" << iParticle->pt());
-         if(m_tool->applyCorrection(*iParticle).code()==CorrectionCode::Error) return StatusCode::FAILURE;
-         ATH_MSG_DEBUG(" New pt=" << iParticle->pt());
-     }
+        }
+        for (xAOD::Muon* iParticle : *(output.first)) {
+            ATH_MSG_DEBUG(" Old pt=" << iParticle->pt());
+            if (m_tool->applyCorrection(*iParticle).code() == CorrectionCode::Error) return StatusCode::FAILURE;
+            ATH_MSG_DEBUG(" New pt=" << iParticle->pt());
+        }
+        SG::WriteHandle<xAOD::MuonContainer> writeHandle{m_outputKey, ctx};
+        ATH_CHECK(writeHandle.record(std::move(output.first), std::move(output.second)));
+        // Return gracefully:
+        return StatusCode::SUCCESS;
+    }
 
-
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-   }
-
-} // namespace CP
+}  // namespace CP

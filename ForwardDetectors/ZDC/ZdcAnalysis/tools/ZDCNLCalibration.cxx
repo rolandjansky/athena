@@ -12,6 +12,7 @@
 
 #include <iomanip>
 #include <numeric>
+#include <stdexcept>
 
 void ZDCNLCalibration::FillLumiBlockEvtMap()
 {
@@ -79,7 +80,7 @@ std::pair<float, float> ZDCNLCalibration::FindSNRange(size_t LBLow, size_t LBHig
   //
   const bool& trigger = (side == 1 ? L1_ZDC_C : L1_ZDC_A);
 
-  for ( LBEvtMap::const_iterator iter = LBStart; iter != LBEnd; iter++) {
+  for ( LBEvtMap::const_iterator iter = LBStart; iter != LBEnd; ++iter) {
     unsigned int entryStart = iter->second.first;
     unsigned int entryEnd = iter->second.second;
 
@@ -87,7 +88,7 @@ std::pair<float, float> ZDCNLCalibration::FindSNRange(size_t LBLow, size_t LBHig
       Long64_t nb = m_tree->GetEntry(entry);
       if (nb < 0) {
 	std::cout << "Error reading entry " << entry << ", quitting" << std::endl;
-	throw;
+	throw std::runtime_error("Error reading entry for ZDCNLCalibration");
       }
       
       if (!trigger) continue;
@@ -135,15 +136,15 @@ ZDCNLCalibration::FindSNTwoNRanges(size_t LBLow, size_t LBHigh, size_t side)
   //
   const bool& trigger = (side == 1 ? L1_ZDC_C : L1_ZDC_A);
 
-  for ( LBEvtMap::const_iterator iter = LBStart; iter != LBEnd; iter++) {
+  for ( LBEvtMap::const_iterator iter = LBStart; iter != LBEnd; ++iter) {
     unsigned int entryStart = iter->second.first;
     unsigned int entryEnd = iter->second.second;
 
-    for (unsigned int entry = entryStart; entry < entryEnd; entry++) {
+    for (unsigned int entry = entryStart; entry < entryEnd; ++entry) {
       Long64_t nb = m_tree->GetEntry(entry);
       if (nb < 0) {
 	std::cout << "Error reading entry " << entry << ", quitting" << std::endl;
-	throw;
+	throw std::runtime_error("Error reading entry for ZDCNLCalibration");
       }
       
       if (!trigger) continue;
@@ -192,7 +193,7 @@ ZDCNLCalibration::FindSNTwoNRanges(size_t LBLow, size_t LBHigh, size_t side)
 								      std::pair<float, float>(cutLow2, cutHigh2));
 }
 
-void ZDCNLCalibration::Calibrate(size_t side, std::string calibInput, std::string calibOutput, 
+void ZDCNLCalibration::Calibrate(size_t side, const std::string & calibInput, const std::string & calibOutput, 
 				 size_t LBLow, size_t LBHigh, std::array<int, 4> maxPowerModule,
 				 std::vector<std::pair<double, double> >  nNeutERange, 
 				 bool excludeHE, float heSumThresh, float HEDeweight)
@@ -236,15 +237,15 @@ void ZDCNLCalibration::Calibrate(size_t side, std::string calibInput, std::strin
   std::string calibName = (calibInput != "" ? calibInput : "default");
   CalibData calib = GetCalibration(side, calibName);
 
-  for ( LBEvtMap::const_iterator iter = LBStart; iter != LBEnd; iter++) {
+  for ( LBEvtMap::const_iterator iter = LBStart; iter != LBEnd; ++iter) {
     unsigned int entryStart = iter->second.first;
     unsigned int entryEnd = iter->second.second;
 
-    for (unsigned int entry = entryStart; entry < entryEnd; entry++) {
+    for (unsigned int entry = entryStart; entry < entryEnd; ++entry) {
       Long64_t nb = m_tree->GetEntry(entry);
       if (nb < 0) {
 	std::cout << "Error reading entry " << entry << ", quitting" << std::endl;
-	throw;
+	throw std::runtime_error("Error reading entry for ZDCNLCalibration");
       }
       
       int testMask = zdc_ZdcModuleMask >> side*4;
@@ -412,15 +413,15 @@ void ZDCNLCalibration::TestCalibration(int side, std::string name)
   LBEvtMap::const_iterator LBEnd = m_LumiBlockEvtMap.upper_bound(calib.LBEnd);
 
   int count = 0;
-  for ( LBEvtMap::const_iterator iter = LBStart; iter != LBEnd; iter++) {
+  for ( LBEvtMap::const_iterator iter = LBStart; iter != LBEnd; ++iter) {
     unsigned int entryStart = iter->second.first;
     unsigned int entryEnd = iter->second.second;
 
-    for (unsigned int entry = entryStart; entry < entryEnd; entry++) {
+    for (unsigned int entry = entryStart; entry < entryEnd; ++entry) {
       Long64_t nb = m_tree->GetEntry(entry);
       if (nb < 0) {
 	std::cout << "Error reading entry " << entry << ", quitting" << std::endl;
-	throw;
+	throw std::runtime_error("Error reading entry for ZDCNLCalibration");
       }
       
       int testMask = zdc_ZdcModuleMask >> side*4;
@@ -489,7 +490,9 @@ void ZDCNLCalibration::FillMinimizationData(TMatrixD& minimMatrix, TVectorD& min
   size_t numRows = minimMatrix.GetNrows();
   size_t numNeutMax = sums1DVec.size();
 
-  if (numRows != numWeights || numColumns != numWeights) throw;
+  if (numRows != numWeights || numColumns != numWeights){
+    throw std::runtime_error("ZDCNLCalibration::FillMinimizationData; incompatible row/col numbers");
+  }
 
   //  if (m_debugLevel > 0) std::cout << "Filling single neutorn entries in matrix" << std::endl;
 

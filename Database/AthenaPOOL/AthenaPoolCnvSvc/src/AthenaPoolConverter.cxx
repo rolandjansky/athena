@@ -32,6 +32,18 @@ StatusCode AthenaPoolConverter::initialize() {
       ATH_MSG_FATAL("Cannot get AthenaPoolCnvSvc.");
       return(StatusCode::FAILURE);
    }
+   IProperty* propertyServer(dynamic_cast<IProperty*>(m_athenaPoolCnvSvc.operator->()));
+   StringProperty containerPrefixProp("PoolContainerPrefix", "ROOTTREEINDEX:CollectionTree");
+   StringProperty containerNameHintProp("TopLevelContainerName", "");
+   StringProperty branchNameHintProp("SubLevelBranchName", "<type>/<key>");
+   if (propertyServer != nullptr) {
+      propertyServer->getProperty(&containerPrefixProp).ignore();
+      propertyServer->getProperty(&containerNameHintProp).ignore();
+      propertyServer->getProperty(&branchNameHintProp).ignore();
+   }
+   m_containerPrefix = containerPrefixProp.value();
+   m_containerNameHint = containerNameHintProp.value();
+   m_branchNameHint = branchNameHintProp.value();
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -142,9 +154,12 @@ AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLo
 		::AthMessaging((pSvcLocator != nullptr ? msgSvc() : nullptr),
                                name ? name : "AthenaPoolConverter"),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", "AthenaPoolConverter"),
-	m_placementHints(),
+	m_classDesc(),
 	m_className(),
 	m_classDescs(),
+	m_containerPrefix(""),
+	m_containerNameHint(""),
+	m_branchNameHint(""),
 	m_dataObject(nullptr),
 	m_i_poolToken(nullptr) {
 }
@@ -159,28 +174,17 @@ Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, co
    // Set DB and Container names
    placement.setFileName(outputConnectionSpec);
    std::string containerName;
-   if (m_placementHints.find(tname + key) != m_placementHints.end()) { // PlacementHint already generated?
-      containerName = m_placementHints[tname + key];
-   } else { // Generate PlacementHint
       // Override streaming parameters from StreamTool if requested.
-      IProperty* propertyServer(dynamic_cast<IProperty*>(m_athenaPoolCnvSvc.operator->()));
-      StringProperty containerPrefixProp("PoolContainerPrefix", "ROOTTREEINDEX:CollectionTree");
-      StringProperty containerNameHintProp("TopLevelContainerName", "");
-      StringProperty branchNameHintProp("SubLevelBranchName", "<type>/<key>");
-      if (propertyServer != nullptr) {
-         propertyServer->getProperty(&containerPrefixProp).ignore();
-         propertyServer->getProperty(&containerNameHintProp).ignore();
-         propertyServer->getProperty(&branchNameHintProp).ignore();
-      }
-      std::string containerPrefix = containerPrefixProp.value();
+      std::string containerPrefix = m_containerPrefix;
       std::string dhContainerPrefix = "POOLContainer";
       // Get Technology from containerPrefix
       std::size_t colonPos = containerPrefix.find(':');
       if (colonPos != std::string::npos) {
          dhContainerPrefix = containerPrefix.substr(0, colonPos + 1) + dhContainerPrefix;
       }
-      std::string containerNameHint = containerNameHintProp.value();
-      std::string branchNameHint = branchNameHintProp.value();
+      std::string containerNameHint = m_containerNameHint;
+      std::string branchNameHint = m_branchNameHint;
+      std::string containerFriendPostfix;
       while (pos1 != std::string::npos) {
          const std::string::size_type pos2 = output.find('=', pos1);
          const std::string key = output.substr(pos1 + 1, pos2 - pos1 - 1);
@@ -194,6 +198,8 @@ Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, co
             containerNameHint = value;
          } else if (key == "SubLevelBranchName") {
             branchNameHint = value;
+         } else if (key == "PoolContainerFriendPostfix") {
+            containerFriendPostfix = value;
          }
          pos1 = output.find('[', pos3);
       }
@@ -209,7 +215,7 @@ Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, co
          containerName = "ROOTTREE:POOLCollectionTree(" + key + ")";
       } else {
          const std::string typeTok = "<type>", keyTok = "<key>";
-         containerName = containerPrefix + containerNameHint;
+         containerName = containerPrefix + containerFriendPostfix + containerNameHint;
          if (!branchNameHint.empty()) {
             containerName += "(" + branchNameHint + ")";
          }
@@ -226,8 +232,6 @@ Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, co
             }
          }
       }
-      m_placementHints.insert(std::pair<std::string, std::string>(key, containerName));
-   }
    m_athenaPoolCnvSvc->decodeOutputSpec(containerName, tech).ignore();
    placement.setContainerName(containerName);
    placement.setTechnology(tech);

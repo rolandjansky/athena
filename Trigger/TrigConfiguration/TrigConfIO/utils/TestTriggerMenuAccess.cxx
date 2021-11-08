@@ -126,6 +126,7 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.connectorNames().size() << " connectors configured" << endl;
    for( const string & connName : l1menu.connectorNames() ) {
       auto & conn = l1menu.connector(connName);
+      if(connName == "LegacyTopoMerged") continue;
       cout << "Connector " << connName << (conn.legacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
       if( connName == "MuCTPiOpt0" ) {
          for( auto & tl : conn.triggerLines() ) {
@@ -186,10 +187,10 @@ testL1Menu_Topo(const TrigConf::L1Menu & l1menu, bool printdetail)
       topoAlgInvmassLeg.print();
       cout << "Explicit access to 'NumResultBits' as unsigned int: " << topoAlgInvmassLeg.genericParameter<unsigned int>("NumResultBits") << endl;
       
-      auto & topoAlgEMJ = l1menu.algorithmFromOutput("0DR03-EM7ab-CJ15ab", "TOPO");
+      auto & topoAlgEMJ = l1menu.algorithmFromOutput("0DR03-eEM7ab-CjJ15ab", "TOPO");
       topoAlgEMJ.print();
 
-      auto & topoMultAlg = l1menu.algorithm("Mult_eEM22VHI","MULTTOPO");
+      auto & topoMultAlg = l1menu.algorithm("Mult_eEM22M","MULTTOPO");
       topoMultAlg.print();
       cout << "  threshold definition: " << topoMultAlg.getAttribute("threshold") << endl;
 
@@ -371,6 +372,9 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
    {
       auto & ex = l1menu.thrExtraInfo().eEM();
       cout << "  eEM" << endl;
+      cout << "    iso maxEt (GeV) " << ex.maxEt() << endl;
+      cout << "    iso maxEt (MeV) " << ex.maxEtMeV() << endl;
+      cout << "    iso maxEt (Counts) " << ex.maxEtCounts(ex.resolutionMeV()) << endl;
       cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
       cout << "    ptMinToTopo " << ex.ptMinToTopo() << endl;
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
@@ -395,6 +399,19 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       }
       //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,-20) << endl;
       cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::LOOSE,20) << endl;
+
+      for( int ieta : { -30, -20, -10, 0, 10, 20, 30 } ) {
+         auto iso_loose  = ex.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+         int reta_loose_fw = iso_loose.reta_fw();
+         int rhad_loose_fw = iso_loose.rhad_fw();
+         int wstot_loose_fw = iso_loose.wstot_fw();
+         int reta_loose_d = iso_loose.reta_d();
+         int rhad_loose_d = iso_loose.rhad_d();
+         int wstot_loose_d = iso_loose.wstot_d();
+         cout << "ieta=" << ieta << "  loose => reta_fw=" << reta_loose_fw << ", rhad_fw=" << rhad_loose_fw << ", wstot_fw=" << wstot_loose_fw << endl;
+         cout << "ieta=" << ieta << "  loose => reta_d=" << reta_loose_d << ", rhad_d=" << rhad_loose_d << ", wstot_d=" << wstot_loose_d << endl;
+      }
+     
    }
    {
       auto & ex = l1menu.thrExtraInfo().jEM();

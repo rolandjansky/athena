@@ -454,8 +454,7 @@ class MenuSequence(object):
     """ By construction it has one Hypo Only; behaviour changed to support muFastOvlpRmSequence() which has two, but this will change"""
 
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, IsProbe=False):
-        assert compName(Maker).startswith("IM"), "The input maker {} name needs to start with letter: IM".format(compName(Maker))
-
+        assert compName(Maker).startswith("IM"), "The input maker {} name needs to start with letter: IM".format(compName(Maker))        
         # For probe legs we need to substitute the inputmaker and hypo alg
         # so we will use temp variables for both
         if IsProbe:
@@ -463,7 +462,7 @@ class MenuSequence(object):
             # Clone hypo & input maker
             def getProbeHypo(dummyFlags,basehypo):
                 probehypo = basehypo.clone(basehypo.name()+"_probe")
-                for p,v in basehypo.getValuedProperties().items():
+                for p,v in basehypo.getValuedProperties().items():                    
                     setattr(probehypo,p,getattr(basehypo,p))
                 return probehypo
             _Hypo = RecoFragmentsPool.retrieve(getProbeHypo,None,basehypo=Hypo)
@@ -473,18 +472,22 @@ class MenuSequence(object):
 
             def getProbeInputMaker(dummyFlags,baseIM):
                 probeIM = baseIM.clone(baseIM.name()+"_probe")
-                for p,v in baseIM.getValuedProperties().items():
+                for p,v in baseIM.getValuedProperties().items():                    
                     setattr(probeIM,p,getattr(baseIM,p))
 
                 if isinstance(probeIM,CompFactory.EventViewCreatorAlgorithm):
                     assert(baseIM.Views)
                     probeIM.Views = baseIM.Views.Path + "_probe"
                     probeIM.RoITool = baseIM.RoITool
+                    probeIM.InputCachedViews = baseIM.InputMakerOutputDecisions
                     if hasattr(baseIM.RoITool,"RoisWriteHandleKey") and baseIM.RoITool.RoisWriteHandleKey.Path!="StoreGateSvc+":
                         probeIM.RoITool.RoisWriteHandleKey = baseIM.RoITool.RoisWriteHandleKey.Path + "_probe"
                 else:
                     raise TypeError(f"Probe leg input maker may not be of type '{baseIM.__class__}'.")
-                probeIM.InputCachedViews = baseIM.InputMakerOutputDecisions
+                
+                # Reset this initially to avoid interference
+                # with the original
+                probeIM.InputMakerInputDecisions = []
                 return probeIM
             _Maker = RecoFragmentsPool.retrieve(getProbeInputMaker,None,baseIM=Maker)
 
@@ -508,16 +511,14 @@ class MenuSequence(object):
             def getProbeSequence(dummyFlags,baseSeq,probeIM):
                 # Add IM and sequence contents to duplicated sequence
                 probeSeq = baseSeq.clone(baseSeq.name()+"_probe")
-                probeSeq += _Maker
-                ViewSeq = baseSeq.getChildren()[1] # There can only be one?
-                _ViewSeq = ViewSeq.clone(ViewSeq.name()+"_probe")
-                probeIM.ViewNodeName = _ViewSeq.name()
-                # Reset this initially to avoid interference
-                # with the original
-                probeIM.InputMakerInputDecisions = []
-                for viewalg in ViewSeq.getChildren():
-                    _ViewSeq += viewalg
-                probeSeq += _ViewSeq
+                probeSeq += probeIM                
+                if isinstance(probeIM,CompFactory.EventViewCreatorAlgorithm):
+                    ViewSeq = baseSeq.getChildren()[1] # There can only be one?
+                    _ViewSeq = ViewSeq.clone(ViewSeq.name()+"_probe")
+                    probeIM.ViewNodeName = _ViewSeq.name()                    
+                    for viewalg in ViewSeq.getChildren():
+                        _ViewSeq += viewalg
+                    probeSeq += _ViewSeq                
                 return probeSeq
                 # Make sure nothing was lost
             _Sequence = RecoFragmentsPool.retrieve(getProbeSequence,None,baseSeq=Sequence,probeIM=_Maker)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from xml.dom import minidom
 import re
 import os
@@ -205,7 +205,6 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
         log.info("Trying server %s", server)
 
         if server=='ATLF':
-            #if not tf.triggerUseFrontier() and not os.getenv('TRIGGER_USE_FRONTIER',False): continue
             frontierconnections = [conn for conn in connectionServices if conn.startswith("frontier")]
             if len(frontierconnections) == 0:
                 log.debug("FroNTier connection not defined for alias %s in dblookup", connection )
@@ -968,8 +967,6 @@ def test():
 ##   Testing FRONTIER
 ##
 ####################################""")
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-    tf.triggerUseFrontier = True
     strm_frontier = getStreams("TRIGGERDBREPR", 539)
     print("\nList of Streams in SMK 539 %s\n" % strm_frontier)
 

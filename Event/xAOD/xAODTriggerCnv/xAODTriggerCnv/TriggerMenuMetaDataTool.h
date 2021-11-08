@@ -134,9 +134,8 @@ namespace xAODMaker {
       std::string m_inputKeyJSON_L1PS;
       std::string m_outputKeyJSON_L1PS;
 
-      // TODO
-      // Gaudi::Property<std::string> m_inputKeyJSON_BG {this, "InputKeyJSON_BG", "TriggerMenuJson_BG"};
-      // Gaudi::Property<std::string> m_outputKeyJSON_BG {this, "OutputKeyJSON_BG", "TriggerMenuJson_BG"};
+      std::string m_inputKeyJSON_BG;
+      std::string m_outputKeyJSON_BG;
 
       std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_hlt;
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_hltAux;
@@ -150,9 +149,8 @@ namespace xAODMaker {
       std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_l1ps;
       std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_l1psAux;
 
-      // TODO
-      // std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_bg;
-      // std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_bgAux;
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_bg;
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_bgAux;
 
       /// @} 
 

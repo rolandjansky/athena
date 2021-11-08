@@ -8,10 +8,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 import TrkConfig.AtlasExtrapolatorToolsConfig as TC
 
-# import the Extrapolator configurable
-Trk__Extrapolator = CompFactory.Trk.Extrapolator
-
-
 # define the class
 def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     result = ComponentAccumulator()
@@ -62,7 +58,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # Cavern
 
     # call the base class constructor
-    Extrapolator = Trk__Extrapolator(name,
+    Extrapolator = CompFactory.Trk.Extrapolator(name,
                                      Navigator=AtlasNavigator,
                                      MaterialEffectsUpdators=AtlasUpdators,
                                      Propagators=AtlasPropagators,

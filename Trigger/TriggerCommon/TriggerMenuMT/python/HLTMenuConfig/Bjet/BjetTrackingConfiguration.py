@@ -11,8 +11,9 @@ def getSecondStageBjetTracking( inputRoI, inputVertex, inputJets ):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'bjet' )
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois=inputRoI)
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+
+    viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=inputRoI)
 
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % inputRoI ),
                                ( 'xAOD::VertexContainer' , 'StoreGateSvc+%s' % inputVertex ),
@@ -29,8 +30,8 @@ def getSecondStageBjetTracking( inputRoI, inputVertex, inputJets ):
     algSequence.append( parOR("SecondStageFastTrackingSequence",viewAlgs) )
 
     # Precision Tracking
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
+    from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
     algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
 
     return [ algSequence, PTTrackParticles ]

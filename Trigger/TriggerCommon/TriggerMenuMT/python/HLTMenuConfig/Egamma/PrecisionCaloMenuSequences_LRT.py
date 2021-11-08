@@ -18,7 +18,7 @@ def precisionCaloSequence_LRT(ConfigFlags):
     """ Creates PrecisionCalo sequence """
     # EV creator
     InViewRoIs="PrecisionCaloRoIs_LRT"     
-    precisionCaloViewsMaker = EventViewCreatorAlgorithm( "IMprecisionCalo_LRT")
+    precisionCaloViewsMaker = EventViewCreatorAlgorithm( "IMprecisionCaloElectron_LRT")
     precisionCaloViewsMaker.ViewFallThrough = True
     precisionCaloViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
     roiTool = ViewCreatorPreviousROITool()
@@ -28,7 +28,7 @@ def precisionCaloSequence_LRT(ConfigFlags):
     roiTool.RoISGKey = "HLT_Roi_FastElectron_LRT"
     precisionCaloViewsMaker.RoITool = roiTool
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs
-    precisionCaloViewsMaker.Views = "precisionCaloViews_LRT"
+    precisionCaloViewsMaker.Views = "precisionCaloElectronViews_LRT"
     precisionCaloViewsMaker.RequireParentView = True
     precisionCaloViewsMaker.CacheDisabled = True
 
@@ -39,8 +39,9 @@ def precisionCaloSequence_LRT(ConfigFlags):
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
 
     # connect EVC and reco
-    theSequence = seqAND("precisionCaloSequence_LRT", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
+    theSequence = seqAND("precisionCaloElectronSequence_LRT", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
     return (theSequence, precisionCaloViewsMaker, sequenceOut)
+
 
 def precisionCaloMenuSequence_LRT(name,is_probe_leg=False):
     """ Creates precisionCalo MENU sequence """
@@ -50,7 +51,7 @@ def precisionCaloMenuSequence_LRT(name,is_probe_leg=False):
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoAlg
     from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict
 
-    thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlg(name+"precisionCaloHypo_LRT")
+    thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlg(name+"precisionCaloElectronHypo_LRT")
     thePrecisionCaloHypo.CaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,

@@ -11,15 +11,11 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Start configuration')
-
     acc = ComponentAccumulator()
 
     if "MCTruthClassifier" not in kwargs:
-        mctruth = MCTruthClassifierCaloTruthMatchCfg(flags)
-        kwargs["MCTruthClassifier"] = mctruth.popPrivateTools()
-        acc.merge(mctruth)
+        kwargs["MCTruthClassifier"] = acc.popToolsAndMerge(
+            MCTruthClassifierCaloTruthMatchCfg(flags))
 
     kwargs.setdefault(
         "ClusterContainerName",
@@ -44,7 +40,7 @@ def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
         flags.Egamma.Keys.Output.TruthParticles)
     kwargs.setdefault(
         "MatchForwardElectrons",
-        flags.Egamma.doForwardSeeded)
+        flags.Egamma.doForward)
     kwargs.setdefault("SimBarcodeOffset",
                       flags.Sim.SimBarcodeOffset)
 
@@ -62,7 +58,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
-
+    flags.lock()
     acc = MainServicesCfg(flags)
     mlog = logging.getLogger("egammaTruthAssociationConfigTest")
     mlog.info("Configuring  egammaTruthAssociation: ")

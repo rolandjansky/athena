@@ -51,7 +51,8 @@ namespace top {
 
     m_trackQuality("SetMe"),
 
-    m_chosen_btaggingWP(),
+    m_chosen_btaggingWP_caloJet(),
+    m_chosen_btaggingWP_trkJet(),
 
     m_systSgKeyMapPhotons(),
     m_systSgKeyMapElectrons(),

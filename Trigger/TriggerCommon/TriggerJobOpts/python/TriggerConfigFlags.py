@@ -189,9 +189,6 @@ def createTriggerFlags():
     # list of enabled trigger sub-systems in reconstruction: ['L1,'HLT']
     flags.addFlag('Trigger.availableRecoMetadata', lambda flags: __availableRecoMetadata(flags))
 
-    # use or not frontier proxies
-    flags.addFlag('Trigger.triggerUseFrontier', False)
-
     # the configuration source
     # see https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerConfigFlag
     flags.addFlag('Trigger.triggerConfig', 'FILE')

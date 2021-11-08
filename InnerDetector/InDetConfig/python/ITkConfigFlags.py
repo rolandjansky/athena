@@ -59,6 +59,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.pixelClusterBadClusterID", 3) # Select the mode to identify suspicous pixel clusteri 
   itkcf.addFlag("ITk.KeepFirstParameters", False) # Keep the first set of track parameters in addition to the defining ones for TrackParticles. False to drop them
   itkcf.addFlag("ITk.doVertexFinding", False) # Turn on the primary vertex reconstruction, temporarily disabled
+  itkcf.addFlag("ITk.truthMatchStrategy", 'TruthMatchRatio') # defines how truth matching is done. possible values TruthMatchRatio (old style) or TruthMatchTanimoto (new style)
   itkcf.addFlag("ITk.useBroadClusterErrors", False) # Use broad cluster errors for Pixel/Strip
   itkcf.addFlag("ITk.useBroadPixClusterErrors", False) # Use broad cluster errors for Pixel
   itkcf.addFlag("ITk.useBroadStripClusterErrors", False) # Use broad cluster errors for Strip

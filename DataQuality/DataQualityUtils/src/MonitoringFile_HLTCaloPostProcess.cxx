@@ -14,7 +14,7 @@
 
 namespace dqutils {
 
-  void MonitoringFile::HLTCaloPostProcess( std::string inFilename, bool isIncremental  ) {
+  void MonitoringFile::HLTCaloPostProcess( const std::string & inFilename, bool isIncremental  ) {
     if (isIncremental == true) {
       return;
     }

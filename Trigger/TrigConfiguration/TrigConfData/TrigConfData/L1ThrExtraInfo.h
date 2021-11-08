@@ -25,6 +25,8 @@ namespace TrigConf {
    class L1ThrExtraInfo_cTAU;
    class L1ThrExtraInfo_jJ;
    class L1ThrExtraInfo_jLJ;
+   class L1ThrExtraInfo_gJ;
+   class L1ThrExtraInfo_gLJ;
    class L1ThrExtraInfo_gXE;
    class L1ThrExtraInfo_jXE;
    class L1ThrExtraInfo_gTE;
@@ -47,6 +49,8 @@ namespace TrigConf {
       const L1ThrExtraInfo_jTAU & jTAU() const;
       const L1ThrExtraInfo_cTAU & cTAU() const;
       const L1ThrExtraInfo_jJ & jJ() const;
+      const L1ThrExtraInfo_gJ & gJ() const;
+      const L1ThrExtraInfo_gLJ & gLJ() const;
       const L1ThrExtraInfo_jLJ & jLJ() const;
       const L1ThrExtraInfo_gXE & gXE() const;
       const L1ThrExtraInfo_jXE & jXE() const;
@@ -148,7 +152,6 @@ namespace TrigConf {
          int reta_fw()       const { return m_reta_fw; } 
          int wstot_fw()      const { return m_wstot_fw; }
          int rhad_fw()       const { return m_rhad_fw; }
-         unsigned int maxEt()  const { return m_maxEt; }
          float reta_d()       const { return m_reta_d; } 
          float wstot_d()     const { return m_wstot_d; }
          float rhad_d()       const { return m_rhad_d; }
@@ -160,12 +163,14 @@ namespace TrigConf {
          int   m_reta_fw { 0 };
          int   m_wstot_fw { 0 };
          int   m_rhad_fw { 0 };
-         unsigned int m_maxEt { 0 };
       };
       L1ThrExtraInfo_eEM(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_eEM() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_eEM"; }
+      unsigned int maxEtMeV()  const { return m_maxEt; }
+      unsigned int maxEtCounts(const unsigned int resolutionMeV)  const { return TrigConf::energyInCounts( m_maxEt, resolutionMeV ); }
+      float maxEt()  const { return m_maxEt/1000.0f; }
       float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
       unsigned int ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
       unsigned int ptMinToTopoCounts() const { return energyInCounts( m_ptMinToTopoMeV, resolutionMeV() ); }
@@ -176,6 +181,7 @@ namespace TrigConf {
       void load();
       /** eEM specific data */
       unsigned int m_ptMinToTopoMeV{0};
+      unsigned int m_maxEt { 0 };
       std::map<TrigConf::Selection::WP, ValueWithEtaDependence<WorkingPoints_eEM>> m_isolation{};
    };
    std::ostream & operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM & iso);
@@ -190,7 +196,6 @@ namespace TrigConf {
          int iso_fw()       const { return m_iso_fw; }
          int frac_fw()      const { return m_frac_fw; }
          int frac2_fw()       const { return m_frac2_fw; }
-         unsigned int maxEt()  const { return m_maxEt; }
          float iso_d()       const { return m_iso_d; }
          float frac_d()     const { return m_frac_d; }
          float frac2_d()       const { return m_frac2_d; }
@@ -202,7 +207,6 @@ namespace TrigConf {
          int   m_iso_fw { 0 };
          int   m_frac_fw { 0 };
          int   m_frac2_fw { 0 };
-         unsigned int m_maxEt { 0 };
       };
       L1ThrExtraInfo_jEM(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
@@ -210,6 +214,9 @@ namespace TrigConf {
       virtual std::string className() const { return "L1ThrExtraInfo_jEM"; }
       const WorkingPoints_jEM & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_jEM> & isolation(TrigConf::Selection::WP wp) const { return m_isolation.at(wp); }
+      unsigned int maxEtMeV()  const { return m_maxEt; }
+      unsigned int maxEtCounts(const unsigned int resolutionMeV)  const { return TrigConf::energyInCounts( m_maxEt, resolutionMeV ); }
+      float maxEt()  const { return m_maxEt/1000.0f; }
       float ptMinToTopo(const std::string& module) const { return ptMinToTopoMeV(module)/ 1000.0; }
       unsigned int ptMinToTopoCounts(const std::string& module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
       unsigned int ptMinToTopoMeV(const std::string& module) const {
@@ -230,6 +237,7 @@ namespace TrigConf {
       /** Update the internal members */
       void load();
       /** jEM specific data */
+      unsigned int m_maxEt { 0 };
       unsigned int m_ptMinToTopoMeV1{0};
       unsigned int m_ptMinToTopoMeV2{0};
       unsigned int m_ptMinToTopoMeV3{0};
@@ -250,19 +258,20 @@ namespace TrigConf {
          float rCore_d() const { return m_rCore_d; }
          int rHad_fw() const { return m_rHad_fw; }
          float rHad_d() const { return m_rHad_d; }
-         unsigned int maxEt() const { return m_maxEt; } 
       private:
          bool m_isDefined { false };
          int m_rCore_fw {0};
          int m_rHad_fw {0};
          float m_rCore_d { 0 };
          float m_rHad_d { 0 };      
-         unsigned int m_maxEt { 0 };
       };
       L1ThrExtraInfo_eTAU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_eTAU() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_eTAU"; }
+      unsigned int maxEtMeV()  const { return m_maxEt; }
+      unsigned int maxEtCounts(const unsigned int resolutionMeV)  const { return TrigConf::energyInCounts( m_maxEt, resolutionMeV ); }
+      float maxEt()  const { return m_maxEt/1000.0f; }
       float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
       unsigned int ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
       unsigned int ptMinToTopoCounts() const { return energyInCounts( m_ptMinToTopoMeV, resolutionMeV() ); }
@@ -272,6 +281,7 @@ namespace TrigConf {
       /** Update the internal members */
       void load();
       /** eTAU specific data */
+      unsigned int m_maxEt { 0 };
       unsigned int m_ptMinToTopoMeV{0};
       std::map<TrigConf::Selection::WP, ValueWithEtaDependence<WorkingPoints_eTAU>> m_isolation{};
    };
@@ -285,12 +295,10 @@ namespace TrigConf {
          bool isDefined() const { return m_isDefined; }
          int isolation_fw() const { return m_isolation_fw; }
          float isolation_d() const { return m_isolation_d; }
-         unsigned int maxEt() const { return m_maxEt; }
       private:
          bool m_isDefined { false };
          int m_isolation_fw {0};
          float m_isolation_d { 0 };
-         unsigned int m_maxEt { 0 };
       };
       L1ThrExtraInfo_jTAU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
@@ -298,6 +306,9 @@ namespace TrigConf {
       virtual std::string className() const { return "L1ThrExtraInfo_jTAU"; }
       const WorkingPoints_jTAU & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_jTAU> & isolation(TrigConf::Selection::WP wp) const  { return m_isolation.at(wp); }
+      unsigned int maxEtMeV()  const { return m_maxEt; }
+      unsigned int maxEtCounts(const unsigned int resolutionMeV)  const { return TrigConf::energyInCounts( m_maxEt, resolutionMeV ); }
+      float maxEt()  const { return m_maxEt/1000.0f; }
       float ptMinToTopo(const std::string& module) const { return ptMinToTopoMeV(module)/ 1000.0; }
       unsigned int ptMinToTopoCounts(const std::string& module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
       unsigned int ptMinToTopoMeV(const std::string& module) const {
@@ -318,6 +329,7 @@ namespace TrigConf {
       /** Update the internal members */
       void load();
      /** jTAU specific data */
+      unsigned int m_maxEt { 0 };
       unsigned int m_ptMinToTopoMeV1{0};
       unsigned int m_ptMinToTopoMeV2{0};
       unsigned int m_ptMinToTopoMeV3{0};
@@ -421,6 +433,52 @@ namespace TrigConf {
       unsigned int m_ptMinxTOBMeV1{0};
       unsigned int m_ptMinxTOBMeV2{0};
       unsigned int m_ptMinxTOBMeV3{0};
+   };
+
+   class L1ThrExtraInfo_gJ final : public L1ThrExtraInfoBase {
+   public:
+      L1ThrExtraInfo_gJ(const std::string & thrTypeName, const ptree & data) :
+         L1ThrExtraInfoBase(thrTypeName, data) { load(); }
+      virtual ~L1ThrExtraInfo_gJ() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_gJ"; }
+      float ptMinToTopo(const std::string& fpga) const { return ptMinToTopoMeV(fpga)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const std::string& fpga) const { return energyInCounts(ptMinToTopoMeV(fpga), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const std::string& fpga) const {
+          if(fpga=="A") return m_ptMinToTopoMeVA;
+          if(fpga=="B") return m_ptMinToTopoMeVB;
+          if(fpga=="C") return m_ptMinToTopoMeVC;
+          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised");
+      }
+   private:
+      /** Update the internal members */
+      void load();
+      /** gJ specific data */
+      unsigned int m_ptMinToTopoMeVA{0};
+      unsigned int m_ptMinToTopoMeVB{0};
+      unsigned int m_ptMinToTopoMeVC{0};
+   };
+
+   class L1ThrExtraInfo_gLJ final : public L1ThrExtraInfoBase {
+   public:
+      L1ThrExtraInfo_gLJ(const std::string & thrTypeName, const ptree & data) :
+         L1ThrExtraInfoBase(thrTypeName, data) { load(); }
+      virtual ~L1ThrExtraInfo_gLJ() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_gLJ"; }
+      float ptMinToTopo(const std::string& fpga) const { return ptMinToTopoMeV(fpga)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const std::string& fpga) const { return energyInCounts(ptMinToTopoMeV(fpga), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const std::string& fpga) const {
+          if(fpga=="A") return m_ptMinToTopoMeVA;
+          if(fpga=="B") return m_ptMinToTopoMeVB;
+          if(fpga=="C") return m_ptMinToTopoMeVC;
+          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised");
+      }
+   private:
+      /** Update the internal members */
+      void load();
+      /** gLJ specific data */
+      unsigned int m_ptMinToTopoMeVA{0};
+      unsigned int m_ptMinToTopoMeVB{0};
+      unsigned int m_ptMinToTopoMeVC{0};
    };
 
    class L1ThrExtraInfo_jXE final : public L1ThrExtraInfoBase {

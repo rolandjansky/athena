@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloAddCellPedShift.h
@@ -42,13 +42,13 @@ class ATLAS_NOT_THREAD_SAFE /* CallBacks*/CaloAddCellPedShift : public AthAlgori
     ~CaloAddCellPedShift();
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    virtual StatusCode          initialize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    virtual StatusCode          execute() override;
     /** standard Athena-Algorithm method */
-    StatusCode          finalize();
+    virtual StatusCode          finalize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          stop();
+    virtual StatusCode          stop() override;
     
   private:
 
@@ -61,6 +61,7 @@ class ATLAS_NOT_THREAD_SAFE /* CallBacks*/CaloAddCellPedShift : public AthAlgori
   ITHistSvc* m_thistSvc;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager","CaloDetDescrManager","SG Key for CaloDetDescrManager in the Condition Store" };
   const CaloCell_ID*       m_calo_id;
   const LArOnlineID*      m_onlineID;
 

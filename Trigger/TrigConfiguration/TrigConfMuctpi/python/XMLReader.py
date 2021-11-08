@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 import xml.etree.cElementTree as ET
@@ -42,9 +42,7 @@ class TrigXMLElement:
 class TrigXMLDocumentReader(object):
     def __init__(self,filename):
         self.filename=filename
-        from TrigConfMuctpi.Utils import findFileInXMLPATH
-        self.fullFileName = findFileInXMLPATH(filename)
-        self.read(self.fullFileName)
+        self.read(self.filename)
 
     def read(self,filename):
         self.doc = ET.parse(filename)
@@ -52,7 +50,7 @@ class TrigXMLDocumentReader(object):
         self.__dict__[root.tag] = root
 
     def getFileName(self):
-        return self.fullFileName
+        return self.filename
 
 
 class MioctGeometryXMLReader(TrigXMLDocumentReader):

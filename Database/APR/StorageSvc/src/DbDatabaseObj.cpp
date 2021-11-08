@@ -210,7 +210,9 @@ DbStatus DbDatabaseObj::makeLink(Token* pTok, Token::OID_t& refLnk) {
 const DbTypeInfo* DbDatabaseObj::objectShape(const Guid& id)  {
   if ( 0 == m_info ) open();
   ShapeMap::const_iterator i = m_shapeMap.find(id);
-  return (i == m_shapeMap.end()) ? 0 : (*i).second;
+  if( i != m_shapeMap.end() ) return (*i).second;
+  if( id == m_string_t->shapeID() ) return m_string_t;
+  return nullptr;
 }
 
 // Retrieve shape information for a specified object by reflection handle
@@ -829,13 +831,14 @@ DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object)
       DbContainer cntH( type() );
       const DbTypeInfo* typ_info = objectShape( token.classID() );
       DbDatabase dbd (this);
+
       if( cntH.open( dbd, containerName, typ_info, token.technology(), mode() ).isSuccess() )  {
          if ( typ_info && typ_info == shape ) {
             return DbObjectAccessor::read(object, shape, cntH, oid, sectionN );
          }
          DbPrint log( name() );
-         log << DbPrintLvl::Error << " The object shape " << token.classID().toString()
-             << " is unknown for this container!" << DbPrint::endmsg;
+         log << DbPrintLvl::Error << "Token ClassID " << token.classID().toString()
+             << " is different from requested Shape " << shape->shapeID().toString() << DbPrint::endmsg;
       }
    }
    return Error;

@@ -41,6 +41,13 @@
     <hist1D name="cscGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="cscGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="cscGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="cscStrip" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="cscglobalTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="cscKineticEnergy" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="cscDepositEnergy" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="cscSimStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="cscSimStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="cscSimChamberLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="cscWireLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
@@ -53,6 +60,10 @@
     <hist1D name="tgcGlobalR" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcGlobalP" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="tgcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcGlobalTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcKineticEnergy" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="tgcDepositEnergy" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mmGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mmGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="mmGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>

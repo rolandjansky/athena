@@ -79,11 +79,11 @@ def createEGammaPileUpSecVertexingFlags():
     flags.TrkSel.maxSiZ0                    = 10000. # off ?
     flags.TrkSel.maxTrtZ0                   = 10000. # off ?
     flags.TrkSel.RatioCut1                  = 0.0    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt < 15
-    flags.TrkSel.RatioCut2                  = 0.0    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): 15 < Ntrt < 25
-    flags.TrkSel.RatioCut3                  = 0.0    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt > 25
-    flags.TrkSel.RatioTRT                   = 0.0    # e-prob cut for TRT conversion tracks (affects 1TRT, 2TRT, SiTRT) (see also below)
-    flags.TrkSel.TRTTrksEtaBins                  = [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
-    flags.TrkSel.TRTTrksBinnedRatioTRT           = [   0,   0,   0,   0,   0,   0,   0,   0,   0,   0] # eta-dep e-prob cut for TRT conversion tracks
+    flags.TrkSel.RatioCut2                  = 0.1    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): 15 < Ntrt < 25
+    flags.TrkSel.RatioCut3                  = 0.1    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt > 25
+    flags.TrkSel.RatioTRT                   = 0.51    # e-prob cut for TRT conversion tracks (affects 1TRT, 2TRT, SiTRT) (see also below)
+    flags.TrkSel.TRTTrksEtaBins             = [  0.7,   0.8,   0.9,  1.2,  1.3,  1.6,  1.7,  1.8,  1.9,  999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
+    flags.TrkSel.TRTTrksBinnedRatioTRT      = [ 0.60,  0.80,  0.90, 0.80, 0.51, 0.51, 0.51, 0.51, 0.51, 0.51] # eta-dep e-prob cut for TRT conversion tracks
     flags.TrkSel.IsConversion               = True
     flags.TrkSel.significanceD0_Si          = -1.    # V0 only cuts
     flags.TrkSel.RatioV0                    = -1.    # V0 only cuts      
@@ -96,20 +96,20 @@ def createEGammaPileUpSecVertexingFlags():
     # Vertex point estimator
     flags.VtxPt.MinDeltaR                   = [-5.,-25.,-50.]              # D-R1-R2 min cut
     flags.VtxPt.MaxDeltaR                   = [5.,10.,10.]                 # D-R1-R2 max cut
-    flags.VtxPt.MaxPhi                      = [0.05, 0.5, 0.5]             # dphi cut at vertex      
+    flags.VtxPt.MaxPhi                      = [0.05, 0.2, 0.2]             # dphi cut at vertex
     # Secondary Vertex post selector
     flags.SecVtxPost.MaxChi2Vtx             = [50.,50.,50.]                  # was [40.,100.,80.]
     flags.SecVtxPost.MaxInvariantMass       = [10000.,10000.,10000.]         # off, was [60.,60.,30.]
     flags.SecVtxPost.MinFitMomentum         = [0.,0.,0.]                     # off, was [2000.,2000.,2000.]
-    flags.SecVtxPost.MinRadius              = [-10000.0, -10000.0, -10000.0] # off
-    flags.SecVtxPost.MinPt                  = 0.                             # off
-    flags.SecVtxPost.MaxdR                  = -10000.                        # off, -250.
-    flags.SecVtxPost.MaxPhiVtxTrk           = 10000.                         # off, was 0.2    
+    flags.SecVtxPost.MinRadius              = [20.0, 70.0, 250.0]
+    flags.SecVtxPost.MinPt                  = 0.                           # off
+    flags.SecVtxPost.MaxdR                  = -250.                        # off, -250.
+    flags.SecVtxPost.MaxPhiVtxTrk           = 0.2
     # Single track secondary vertex tool
     flags.SingleTrk.MaxBLayerHits              = 0
     flags.SingleTrk.MinInitialHitRadius        = 70.
-    flags.SingleTrk.MinInitialHitRadius_noBlay = 70.
-    flags.SingleTrk.MinRatioOfHLhits           = 0.95 # e-prob cut for 1TRT and 1Si converisons    
+    flags.SingleTrk.MinInitialHitRadius_noBlay = 120.
+    flags.SingleTrk.MinRatioOfHLhits           = 0.51 # e-prob cut for 1TRT and 1Si converisons
     #  InDetSecVtxFinderTool 
     flags.Finder.RemoveTrtTracks            = False
     flags.Finder.IsConversion               = True

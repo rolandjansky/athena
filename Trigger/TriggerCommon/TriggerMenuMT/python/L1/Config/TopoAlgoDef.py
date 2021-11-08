@@ -338,12 +338,16 @@ class TopoAlgoDef:
             toponame = "%iDR%iC-%s%s"  % (d.minDr, d.maxDr, obj1, "" if d.mult>1 else obj2)
             log.debug("Define %s", toponame)
             inputList = [d.otype1] if (d.mult>1) else [d.otype1, d.otype2]
-            if d.mult!=2:
-                raise RuntimeError("DeltaRSqrIncl2Charge algorithm not available for two input lists")
-            algoname = AlgConf.DeltaRSqrIncl1Charge 
+            algoname = AlgConf.DeltaRSqrIncl1Charge if (d.mult>1) else AlgConf.DeltaRSqrIncl2Charge
             alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
-            alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
-            alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+            if (d.mult>1):
+                alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+            else:
+                alg.addgeneric('InputWidth1', HW.muonOutputWidthSelect)
+                alg.addgeneric('InputWidth2', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob1', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob2', HW.muonOutputWidthSelect)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('DeltaRMin', d.minDr*d.minDr*_dr_conversion*_dr_conversion)
             alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
@@ -1250,28 +1254,9 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
             tm.registerTopoAlgo(alg)
 
-        #ATR-19639 and ATR-22782, BPH DR+M+OS dimuon, 1 input list
-        # TODO: add variant for two input lists
-
-        #2INVM9-0DR15-C-MU5VFab-MU3Vab, temporary hack!
-        toponame = "2INVM9-0DR15-C-MU5VFab-MU3Vab"
-        log.debug("Define %s", toponame)
-        inputList = ["MU3Vab"] 
-        algoname = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1Charge
-        alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
-        alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
-        alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addvariable('MinET1',    6*_et_conversion)
-        alg.addvariable('MinET2',    0*_et_conversion)
-        alg.addvariable('MinMSqr',   d.minInvm*d.minInvm*_et_conversion*_et_conversion)
-        alg.addvariable('MaxMSqr',   d.maxInvm*d.maxInvm*_et_conversion*_et_conversion)
-        alg.addvariable('DeltaRMin', d.minDr*d.minDr*_dr_conversion*_dr_conversion)
-        alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
-        tm.registerTopoAlgo(alg)
-
+        #ATR-19639 and ATR-22782, BPH DR+M+OS dimuon
         listofalgos=[
-            #{"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab",}, #2INVM9-0DR15-C-MU5VFab-MU3Vab #need variant with 2 input lists
+            {"minInvm": 2, "maxInvm": 9,  "minDr": 0,  "maxDr": 15, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab",}, #2INVM9-0DR15-C-MU5VFab-MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},       #8INVM15-20DR99-C-2MU3Vab
         ]
         for x in listofalgos:
@@ -1284,13 +1269,16 @@ class TopoAlgoDef:
             toponame = "%iINVM%i-%iDR%i-C-%s%s"  % (d.minInvm, d.maxInvm, d.minDr, d.maxDr, obj1, "" if d.mult>1 else obj2)
             log.debug("Define %s", toponame)
             inputList = [d.otype1] if (d.mult>1) else [d.otype1, d.otype2]
-            if d.mult!=2:
-                # TODO: temporary exception
-                raise RuntimeError("DeltaRSqrIncl2Charge algorithm not available for two input lists")
-            algoname = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1Charge
+            algoname = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1Charge if (d.mult>1) else AlgConf.InvariantMassInclusiveDeltaRSqrIncl2Charge
             alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
-            alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
-            alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+            if (d.mult>1):
+                alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+            else:
+                alg.addgeneric('InputWidth1', HW.muonOutputWidthSelect)
+                alg.addgeneric('InputWidth2', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob1', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob2', HW.muonOutputWidthSelect)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET1',    0*_et_conversion)
             alg.addvariable('MinET2',    0*_et_conversion)

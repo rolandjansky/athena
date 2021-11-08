@@ -228,7 +228,8 @@ def Lvl1SimulationCfg(flags, seqName = None):
 
     return acc
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
+    import sys
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
@@ -250,6 +251,9 @@ if __name__ == '__main__':
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(flags))
 
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+    generateL1Menu(flags)
+
     acc.merge(Lvl1SimulationCfg(flags))
     from AthenaCommon.Constants import DEBUG
     acc.getEventAlgo("CTPSimulation").OutputLevel=DEBUG  # noqa: ATL900
@@ -259,8 +263,4 @@ if __name__ == '__main__':
         acc.store(p)
         p.close()
 
-    status = acc.run()
-    
-    if status.isFailure():
-        import sys
-        sys.exit(1)
+    sys.exit(acc.run().isFailure())

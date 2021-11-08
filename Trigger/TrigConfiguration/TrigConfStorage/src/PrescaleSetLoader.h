@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ namespace TrigConf {
       PrescaleSetLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader("PrescaleSetLoader", sm, session) {}
       virtual ~PrescaleSetLoader(){};
 
-      virtual bool load( PrescaleSet& data);
+      virtual bool load(unsigned int ctpVersion, PrescaleSet& data);
    };
 }
 

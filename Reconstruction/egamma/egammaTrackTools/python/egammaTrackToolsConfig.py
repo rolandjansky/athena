@@ -7,7 +7,7 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkConfig.AtlasExtrapolatorConfig import (
-    egammaCaloExtrapolatorCfg, InDetExtrapolatorCfg)
+    AtlasExtrapolatorCfg, egammaCaloExtrapolatorCfg)
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 
 
@@ -35,8 +35,10 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     acc = ComponentAccumulator()
     EMExtrapolationTools = CompFactory.EMExtrapolationTools
 
+    # in the std config, it is egammaExtrapolator
+    # (called AtlasExtrapolator now). Should this be egammaCaloExtrapolator ?
     if "Extrapolator" not in kwargs:
-        extrapAcc = egammaCaloExtrapolatorCfg(flags)
+        extrapAcc = AtlasExtrapolatorCfg(flags)
         kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
 
     if "PerigeeCaloExtensionTool" not in kwargs:
@@ -96,7 +98,7 @@ def egammaTrkRefitterToolCfg(flags,
     kwargs.setdefault("ReintegrateOutliers", True)
     if "Extrapolator" not in kwargs:
         kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-            InDetExtrapolatorCfg(flags, name="egammaTrkRefitExtrapolator"))
+            AtlasExtrapolatorCfg(flags))
     tool = CompFactory.egammaTrkRefitterTool(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc

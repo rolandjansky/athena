@@ -83,10 +83,6 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   //m_ttSvc                 = 0;
   m_scHelper            = 0;
 
-  m_SubDetectors             = "LAr_All";
-  m_SCL1ContainerName        = "LArDigitSCL1";
-  
-
   m_NoiseOnOff               = true;
   m_PileUp                   = false;
   m_noEmCalibMode            = false;
@@ -97,7 +93,7 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   // ........ declare the private data as properties
   //
 
-  declareProperty("SubDetectors",m_SubDetectors);
+  declareProperty("SubDetectors",m_SubDetectors = "LAr_All");
 
   declareProperty("NoiseOnOff",m_NoiseOnOff);
 

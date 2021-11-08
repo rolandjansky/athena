@@ -166,9 +166,8 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       unsigned int RhadBitS = 3;
       unsigned int WstotBitS = 5;
 
-      unsigned int maxEt = iso_loose.maxEt();//since it's not 'MeV' or Counts, must be in GeV
-      unsigned int maxEtCounts = (maxEt*m_GeV)/m_eFexStep;//Note: this should be changed in the menu to access in MeV. 
-      if (eEMTobEt > maxEtCounts){
+      unsigned int maxEtCounts = thr_eEM.maxEtCounts(m_eFexStep);
+      if (eEMTobEt >= maxEtCounts){
 	RetaWP = 3;
 	RhadWP = 3;
 	WstotWP = 3;
@@ -405,26 +404,28 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
   if (CoreEnv[1]*thresholds[1] > 0xffff) ThrEnvOverflowM = true;
   if (CoreEnv[1]*thresholds[2] > 0xffff) ThrEnvOverflowT = true;
 
-  if (CoreOverflow == false) {
+  if (CoreOverflow ==  false) {
     if (EnvOverflow == false) {
-      if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[0]*CoreEnv[1])) && ThrEnvOverflowT == false ) {
-	workingPoint = 3;
-      } 
-      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[1]*CoreEnv[1])) && ThrEnvOverflowM == false ) {
-	workingPoint = 2;
-      } 
-      else if ( (CoreEnv[0]*bsmap[bitshift] > (thresholds[2]*CoreEnv[1])) && ThrEnvOverflowL == false ) {
-	workingPoint = 1;
-      }
-      else { 
+      if ( (CoreEnv[0]*bsmap[bitshift] < (thresholds[0]*CoreEnv[1])) || ThrEnvOverflowL == true ) {
 	workingPoint = 0;
       }
+      else if ( (CoreEnv[0]*bsmap[bitshift] < (thresholds[1]*CoreEnv[1])) || ThrEnvOverflowM == true ) {
+	workingPoint = 1;
+      }
+      else if ( (CoreEnv[0]*bsmap[bitshift] < (thresholds[2]*CoreEnv[1])) || ThrEnvOverflowT == true ) {
+        workingPoint = 2;
+      }
+      else {
+        workingPoint = 3;
+      }
     } else {
-      workingPoint = 0; //env overflow
+      //env overflow
+      workingPoint = 0;
     }
   } 
   else {
-    workingPoint = 3; // core overflow 
+    // core overflow
+    workingPoint = 3;
   }
 
 }

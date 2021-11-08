@@ -285,7 +285,6 @@ def MuonParticleCreatorTool(name="MuonParticleCreatorTool",**kwargs):
 
 def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
-    from AthenaCommon.AppMgr import ServiceMgr
     kwargs.setdefault("ExtrapolationTool"    , "MCTBExtrapolator")
     kwargs.setdefault("RotCreatorTool"       , "MuonRotCreator")
     kwargs.setdefault("MeasurementUpdateTool", "MuonMeasUpdator")
@@ -299,11 +298,9 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     kwargs.setdefault("PropagatorTool",Extrapolator.Propagators[0].getName())
     kwargs.setdefault("NavigatorTool",TrackingCommon.getInDetNavigator())
     
-    cond_alg = None
-    if TrackingCommon.use_tracking_geometry_cond_alg :
-        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
-        kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '')
-    kwargs.setdefault("TrackingGeometrySvc", ServiceMgr.AtlasTrackingGeometrySvc if not cond_alg else '')
+    cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
+    kwargs.setdefault("TrackingGeometrySvc", '')
     return Trk__GlobalChi2Fitter(name,**kwargs)
 
 

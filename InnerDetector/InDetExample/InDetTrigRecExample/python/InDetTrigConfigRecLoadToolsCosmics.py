@@ -20,7 +20,7 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCo
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
 from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTStrawStatusSummaryTool
 
 InDetTrigTrackSummaryHelperToolCosmics = \
     InDet__InDetTrackSummaryHelperTool(name = "InDetTrigSummaryHelperCosmics",
