@@ -389,12 +389,12 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
      ```
      The first set of algorithms being added to the sequence are '*Second Stage of Fast Tracking*'
      ```python
-       viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois=inputRoI)
+       viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=inputRoI)
        algSequence.append( parOR("SecondStageFastTrackingSequence",viewAlgs) )
      ```
      The second set of algorthms being added to the sequence are '*Precision Tracking*'
      ```python
-       PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
+       PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
        algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
      ```
      In the end the complete sequence of tracking algorithms and the new precision track '*TrackParticle*'-Collection is being returned

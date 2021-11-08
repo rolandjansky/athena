@@ -165,15 +165,15 @@ Typically it should be used as in th following example
       from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
       idconfig = getInDetTrigConfig( "jet" )
 
-      from TrigInDetConfig.InDetTrigFastTracking import makeVertices
+      from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigVertices
 
-      vtxAlgs = makeVertices( "jet", idconfig.tracks_FTF(), idconfig.vertex, idconfig )
+      vtxAlgs = makeInDetTrigVertices( "jet", idconfig.tracks_FTF(), idconfig.vertex, idconfig )
 
       vertexCollection = idconfig.vertex
 
 The actual function is defined 
 ```
-def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection=None, config=None, adaptiveVertex=None ) :
+def makeInDetTrigVertices( whichSignature, inputTrackCollection, outputVtxCollection=None, config=None, adaptiveVertex=None ) :
 ```
 where the arguments are    
 
@@ -185,7 +185,7 @@ where the arguments are
 
 The reason for this somewhat redundent structure, is because of the prior need to be able to run both  the adaptive, and iterative vertex finders in the jet slice, and as such the signature name and the configuration needed to be able to be set to be independent, as did the output vertex collection name, and whether the adaptive vertex algorithm should be run.
 
-As such, this ```makeVertices()``` function contains code to determine the ID config automatically from  ```whichSignature```.
+As such, this ```makeInDetTrigVertices()``` function contains code to determine the ID config automatically from  ```whichSignature```.
 
 Now that both vertex algorithms do not need to be run in the chain, this should probably be replaced by calls to the principle ```vertexFinder_builder()``` function 
 
