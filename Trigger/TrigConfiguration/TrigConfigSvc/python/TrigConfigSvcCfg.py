@@ -14,7 +14,7 @@ log = logging.getLogger('TrigConfigSvcCfg')
 @lru_cache(maxsize=None)
 def getTrigConfFromCool(runNumber, lumiBlock):
     from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil 
-    db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP')
+    db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP200')
     runRange = [[runNumber,runNumber]]
     d = {key: value for key, value in TriggerCoolUtil.getHLTConfigKeys(db, runRange)[runNumber].items() if  key in ["SMK", "DB"]}
     d["DB"] = d["DB"].split(';')[0]
