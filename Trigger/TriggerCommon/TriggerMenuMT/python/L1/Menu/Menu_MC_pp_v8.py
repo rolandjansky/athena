@@ -186,7 +186,7 @@ def defineMenu():
         'L1_gXE30', 'L1_gXE40', 'L1_gXE50',
         'L1_gTE50',
 
-        'L1_jXE30', 'L1_jXE35', 'L1_jXE40', 'L1_jXE50', 'L1_jXE55', 'L1_jXE300', 
+        'L1_jXE30', 'L1_jXE40', 'L1_jXE50', 'L1_jXE55', 'L1_jXE300', 
         'L1_jXEC50', 'L1_jTE100', 'L1_jTEC100', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
            
         # ATR-24037 
@@ -223,7 +223,7 @@ def defineMenu():
         'L1_CALREQ2',
 
         # BPTX
-        'L1_BPTX0_BGRP0','L1_BPTX1_BGRP0',
+        #'L1_BPTX0_BGRP0','L1_BPTX1_BGRP0',
 
         # BCM
         'L1_BCM_Wide_BGRP0', 'L1_BCM_AC_CA_BGRP0', 'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',

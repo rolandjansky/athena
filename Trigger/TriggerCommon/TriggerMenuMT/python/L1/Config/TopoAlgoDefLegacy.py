@@ -17,14 +17,14 @@ class TopoAlgoDefLegacy:
         _minet = 0
         _emscale_for_decision = 1000 / getTypeWideThresholdConfig("EM")["resolutionMeV"]
 
-        alg = AlgConf.ClusterNoSort( name = 'EMall', inputs = 'ClusterTobArray', outputs = 'EMall', algoId = 0) 
+        alg = AlgConf.ClusterNoSort( name = 'EMall', inputs = 'ClusterTobArray', outputs = 'EMall') 
         alg.addgeneric('InputWidth', HW.InputWidthEM)
         alg.addgeneric('OutputWidth', HW.InputWidthEM)
         alg.addvariable('IsoMask', 0)
         tm.registerTopoAlgo(alg)  
 
 
-        alg = AlgConf.ClusterSelect( name = 'TAUabi', inputs = 'ClusterTobArray', outputs = 'TAUabi', algoId = 1 )
+        alg = AlgConf.ClusterSelect( name = 'TAUabi', inputs = 'ClusterTobArray', outputs = 'TAUabi')
         alg.addgeneric('InputWidth',  HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectTAU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectTAU)        
@@ -36,7 +36,7 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg) 
 
 
-        alg = AlgConf.ClusterSelect( name = 'EMabi', inputs = 'ClusterTobArray', outputs = 'EMabi', algoId = 2 )
+        alg = AlgConf.ClusterSelect( name = 'EMabi', inputs = 'ClusterTobArray', outputs = 'EMabi')
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM ) 
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
@@ -48,7 +48,7 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg) 
 
 
-        alg = AlgConf.ClusterSelect( name = 'EMabhi', inputs = 'ClusterTobArray', outputs = 'EMabhi', algoId = 3 )
+        alg = AlgConf.ClusterSelect( name = 'EMabhi', inputs = 'ClusterTobArray', outputs = 'EMabhi')
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM ) 
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
@@ -60,7 +60,7 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg) 
 
         
-        alg = AlgConf.ClusterSelect( name = 'TAUab', inputs = 'ClusterTobArray', outputs = 'TAUab', algoId = 4 )
+        alg = AlgConf.ClusterSelect( name = 'TAUab', inputs = 'ClusterTobArray', outputs = 'TAUab')
         alg.addgeneric('InputWidth',  HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectTAU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectTAU)
@@ -72,7 +72,7 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg) 
 
 
-        alg = AlgConf.ClusterSort( name = 'EMs', inputs = 'ClusterTobArray', outputs = 'EMs', algoId = 5 )
+        alg = AlgConf.ClusterSort( name = 'EMs', inputs = 'ClusterTobArray', outputs = 'EMs')
         alg.addgeneric('InputWidth', HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortEM)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortEM)
@@ -83,7 +83,7 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg) 
 
         
-        alg = AlgConf.ClusterSort( name = 'EMshi', inputs = 'ClusterTobArray', outputs = 'EMshi', algoId = 6 )
+        alg = AlgConf.ClusterSort( name = 'EMshi', inputs = 'ClusterTobArray', outputs = 'EMshi')
         alg.addgeneric('InputWidth', HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortEM)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortEM)
@@ -94,7 +94,7 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg)
 
 
-        alg = AlgConf.ClusterSort( name = 'TAUsi', inputs = 'ClusterTobArray', outputs = 'TAUsi', algoId = 7 )
+        alg = AlgConf.ClusterSort( name = 'TAUsi', inputs = 'ClusterTobArray', outputs = 'TAUsi')
         alg.addgeneric('InputWidth', HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortTAU)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortTAU)
@@ -105,14 +105,14 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg)
 
         
-        alg = AlgConf.JetNoSort( name = 'AJall', inputs = 'JetTobArray', outputs = 'AJall', algoId = 8 ) 
+        alg = AlgConf.JetNoSort( name = 'AJall', inputs = 'JetTobArray', outputs = 'AJall') 
         alg.addgeneric('InputWidth', HW.InputWidthJET)
         alg.addgeneric('OutputWidth', HW.InputWidthJET)
         alg.addgeneric('JetSize', HW.DefaultJetSize)
         tm.registerTopoAlgo(alg)
 
 
-        alg = AlgConf.JetNoSort( name = 'AJjall', inputs = 'JetTobArray', outputs = 'AJjall', algoId = 9 ) 
+        alg = AlgConf.JetNoSort( name = 'AJjall', inputs = 'JetTobArray', outputs = 'AJjall') 
         alg.addgeneric('InputWidth', HW.InputWidthJET)
         alg.addgeneric('OutputWidth', HW.InputWidthJET)
         alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)
@@ -120,7 +120,7 @@ class TopoAlgoDefLegacy:
 
 
         # for 0MATCH-4AJ20-4AJj15
-        alg = AlgConf.JetNoSortMatch( name = 'AJMatchall', inputs = 'JetTobArray', outputs = 'AJMatchall', algoId = 10 ) 
+        alg = AlgConf.JetNoSortMatch( name = 'AJMatchall', inputs = 'JetTobArray', outputs = 'AJMatchall') 
         alg.addgeneric('InputWidth', HW.InputWidthJET)
         alg.addgeneric('OutputWidth', HW.InputWidthJET)
         alg.addgeneric('JetSize', 2 if HW.DefaultJetSize.value==2 else 1)
@@ -143,7 +143,7 @@ class TopoAlgoDefLegacy:
             elif jet_type=='FJ':
                 _mineta = 31
                 _minet = 15
-            alg = AlgConf.JetSelect( name = jet_type+'ab', inputs = 'JetTobArray', outputs = jet_type+'ab', algoId = 11 + idc )
+            alg = AlgConf.JetSelect( name = jet_type+'ab', inputs = 'JetTobArray', outputs = jet_type+'ab')
             alg.addgeneric('InputWidth', HW.InputWidthJET)
             alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectJET )            
             alg.addgeneric('OutputWidth', HW.OutputWidthSelectJET)
@@ -155,7 +155,7 @@ class TopoAlgoDefLegacy:
             tm.registerTopoAlgo(alg) 
 
 
-        alg = AlgConf.JetSort( name = 'AJjs', inputs = 'JetTobArray', outputs = 'AJjs', algoId = 14)
+        alg = AlgConf.JetSort( name = 'AJjs', inputs = 'JetTobArray', outputs = 'AJjs')
         alg.addgeneric('InputWidth',  HW.InputWidthJET)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
@@ -181,7 +181,7 @@ class TopoAlgoDefLegacy:
                 _mineta = 31
                 _minet = 15
                 
-            alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s', algoId = 15 + idc )
+            alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s')
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
@@ -195,7 +195,7 @@ class TopoAlgoDefLegacy:
             tm.registerTopoAlgo(alg) 
 
 
-        alg = AlgConf.JetSort( name = 'Js', inputs = 'JetTobArray', outputs = 'Js', algoId = 17 )
+        alg = AlgConf.JetSort( name = 'Js', inputs = 'JetTobArray', outputs = 'Js')
         alg.addgeneric('InputWidth',  HW.InputWidthJET)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
@@ -206,17 +206,17 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg)
 
 
-        alg = AlgConf.METNoSort( name = 'XENoSort', inputs = 'MetTobArray', outputs = 'XENoSort', algoId = 18 )
+        alg = AlgConf.METNoSort( name = 'XENoSort', inputs = 'MetTobArray', outputs = 'XENoSort')
         alg.addgeneric('InputWidth', HW.InputWidthMET)
         alg.addgeneric('OutputWidth', HW.OutputWidthMET)
         tm.registerTopoAlgo(alg)
                 
-        alg = AlgConf.MetSort( name = 'XE', inputs = 'MetTobArray', outputs = 'XE', algoId = 19 )
+        alg = AlgConf.MetSort( name = 'XE', inputs = 'MetTobArray', outputs = 'XE')
         alg.addgeneric('InputWidth', HW.InputWidthMET)
         alg.addgeneric('OutputWidth', HW.OutputWidthMET)
         tm.registerTopoAlgo(alg)
         
-        alg = AlgConf.MuonSelect( name = 'MUab', inputs = 'MuonTobArray', outputs = 'MUab', algoId = 20 )
+        alg = AlgConf.MuonSelect( name = 'MUab', inputs = 'MuonTobArray', outputs = 'MUab')
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectMU)
@@ -225,7 +225,7 @@ class TopoAlgoDefLegacy:
         alg.addvariable('MaxEta', 25)
         tm.registerTopoAlgo(alg)            
 
-        alg = AlgConf.MuonSort( name = 'MUs', inputs = 'MuonTobArray', outputs = 'MUs', algoId = 21 )
+        alg = AlgConf.MuonSort( name = 'MUs', inputs = 'MuonTobArray', outputs = 'MUs')
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortMU)
@@ -235,7 +235,7 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg)
 
 
-        alg = AlgConf.MuonSelect( name = 'CMUab', inputs = 'MuonTobArray', outputs = 'CMUab', algoId = 22 )
+        alg = AlgConf.MuonSelect( name = 'CMUab', inputs = 'MuonTobArray', outputs = 'CMUab')
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectMU)
@@ -245,7 +245,7 @@ class TopoAlgoDefLegacy:
         tm.registerTopoAlgo(alg)
 
 
-        alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs', algoId = 23 )
+        alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs')
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         #alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSortMU)
@@ -256,7 +256,7 @@ class TopoAlgoDefLegacy:
 
         
         # Abbreviated lists:
-        alg = AlgConf.ClusterSelect( name = 'EMab', inputs = 'ClusterTobArray', outputs = 'EMab', algoId = 24 )
+        alg = AlgConf.ClusterSelect( name = 'EMab', inputs = 'ClusterTobArray', outputs = 'EMab')
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM ) 
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
@@ -269,7 +269,7 @@ class TopoAlgoDefLegacy:
         
 
         # "all" lists:
-        alg = AlgConf.ClusterNoSort( name = 'TAUall', inputs = 'ClusterTobArray', outputs = 'TAUall', algoId = 25) 
+        alg = AlgConf.ClusterNoSort( name = 'TAUall', inputs = 'ClusterTobArray', outputs = 'TAUall') 
         alg.addgeneric('InputWidth', HW.InputWidthTAU)
         alg.addgeneric('OutputWidth', HW.InputWidthTAU)
         alg.addvariable('IsoMask', 0)
@@ -281,7 +281,6 @@ class TopoAlgoDefLegacy:
         ## Decision algorithms
         ##
         #######
-        currentAlgoId = 0        
 
         # VBF items
         algoList = [
@@ -302,8 +301,7 @@ class TopoAlgoDefLegacy:
                                                             d.otype, str(d.ocut1) , d.olist, str(d.nleading1) if d.olist=="s" else "",
                                                             d.otype, str(d.ocut2) , d.olist, str(d.nleading2) if d.olist=="s" else "")
                 toponames.append(toponame)
-            alg = AlgConf.InvariantMassInclusive1( name = d.algoname, inputs = inputList, outputs = toponames, algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.InvariantMassInclusive1( name = d.algoname, inputs = inputList, outputs = toponames)
             alg.addgeneric('InputWidth', d.inputwidth1)
             alg.addgeneric('MaxTob', d.nleading1)
             alg.addgeneric('NumResultBits', len(toponames))
@@ -337,8 +335,7 @@ class TopoAlgoDefLegacy:
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist, d.otype2 + d.olist]
             algoname = AlgConf.InvariantMassInclusive1 if (d.mult>1 or d.otype1==d.otype2) else AlgConf.InvariantMassInclusive2
-            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ]) 
             if (d.mult>1 or d.otype1==d.otype2):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU) 
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
@@ -380,8 +377,7 @@ class TopoAlgoDefLegacy:
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist, d.otype2 + d.olist]
             algoname = AlgConf.DeltaRSqrIncl1 if (d.mult>1 or d.otype1==d.otype2) else AlgConf.DeltaRSqrIncl2
-            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1 
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
             if (d.mult>1 or d.otype1==d.otype2):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
@@ -417,8 +413,7 @@ class TopoAlgoDefLegacy:
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist1, d.otype2 + d.olist2]
             algoname = AlgConf.DeltaEtaPhiIncl1 if (d.mult>1 or d.otype1==d.otype2) else AlgConf.DeltaEtaPhiIncl2
-            alg = algoname( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = algoname( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('NumResultBits', 1)
             if (d.mult>1 or d.otype1==d.otype2):
                 alg.addgeneric('InputWidth', d.nleading1)
@@ -462,8 +457,7 @@ class TopoAlgoDefLegacy:
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1] if d.otype1==d.otype2 else [d.otype1 + d.olist1, d.otype2 + d.olist2]
             algoname = AlgConf.DeltaRSqrIncl1 if d.otype1==d.otype2 else AlgConf.DeltaRSqrIncl2
-            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
             if d.otype1==d.otype2:
                 alg.addgeneric('InputWidth', d.inputwidth1)
                 alg.addgeneric('MaxTob', d.nleading1)
@@ -503,8 +497,7 @@ class TopoAlgoDefLegacy:
             toponame = "HT%d-%s%s%s%spETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta))            
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.JetHT( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.JetHT( name = toponame, inputs = inputList, outputs = [toponame]) 
             alg.addgeneric('InputWidth', d.inputwidth)
             alg.addgeneric('MaxTob', d.nleading)
             alg.addgeneric('NumRegisters', 2 if d.olist=="all" else 0)
@@ -530,8 +523,7 @@ class TopoAlgoDefLegacy:
             for ocut in d.ocutlist:
                 toponame = "%iINVM%i-%s%s%s%s-EMs6"   % (d.minInvm, d.maxInvm, d.otype, str(ocut) if ocut > 0 else "", d.olist, str(d.nleading) if d.olist=="s" else "")
                 toponames.append(toponame)
-            alg = AlgConf.InvariantMassInclusive2( name = d.algoname, inputs = [inputList, 'EMs'], outputs = toponames, algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.InvariantMassInclusive2( name = d.algoname, inputs = [inputList, 'EMs'], outputs = toponames)
             alg.addgeneric('InputWidth1', d.inputwidth)
             #alg.addgeneric('InputWidth2', HW.InputWidthEM)
             alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
@@ -563,8 +555,7 @@ class TopoAlgoDefLegacy:
             toponame = "%02dMINDPHI-%s%s%s%s-XE0"  % (d.minDPhi, d.otype, str(d.ocut) if d.ocut > 0 else "", d.olist, str(d.nleading) if d.olist=="s" else "")
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ])
             alg.addgeneric('InputWidth1', d.inputwidth)
             alg.addgeneric('InputWidth2', 1) 
             alg.addgeneric('MaxTob1', d.nleading)
@@ -589,8 +580,7 @@ class TopoAlgoDefLegacy:
             toponame = "%iMT-%s%s%s%s-XE0"  % (d.minMT, d.otype, str(d.ocut) if d.ocut > 0 else "", d.olist, str(d.nleading) if d.olist=="s" else "")
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist            
-            alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ])
             alg.addgeneric('InputWidth', HW.OutputWidthSortEM)
             alg.addgeneric('MaxTob', d.nleading)
             alg.addgeneric('NumResultBits', 1)
@@ -617,8 +607,7 @@ class TopoAlgoDefLegacy:
                                                         d.otype, str(d.ocut2) if d.ocut2 > 0 else "", d.olist, str(d.nleading2) if d.olist=="s" else "")
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.DeltaEtaIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.DeltaEtaIncl1( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth', d.inputwidth1)
             alg.addgeneric('MaxTob', d.nleading2)
             alg.addgeneric('NumResultBits', 1)                        
@@ -644,8 +633,7 @@ class TopoAlgoDefLegacy:
             toponame = "%iMINDPHI-%s%s%s%s-XE%i"  % (d.minDPhi, d.otype, str(d.ocut) if d.ocut > 0 else "", d.olist, str(d.nleading) if d.olist=="s" else "",d.ocut2)
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [inputList, 'XE'], outputs = [ toponame ])
             alg.addgeneric('InputWidth1', d.inputwidth)
             alg.addgeneric('InputWidth2', 1)  
             alg.addgeneric('MaxTob1', d.nleading)
@@ -673,8 +661,7 @@ class TopoAlgoDefLegacy:
             toponame = "%iDR%02d-%s%s%s-%s%s%s"  % (d.minDr, d.maxDr, d.otype1, str(d.ocut1), d.olist1, d.otype2, str(d.ocut2), d.olist2)
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
-            alg = AlgConf.DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
             alg.addgeneric('InputWidth2', HW.OutputWidthSelectJET)
             alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
@@ -703,8 +690,7 @@ class TopoAlgoDefLegacy:
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist, d.otype2 + d.olist]
             algoname = AlgConf.InvariantMassInclusive1 if (d.mult>1 or d.otype1==d.otype2) else AlgConf.InvariantMassInclusive2
-            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
             if (d.mult>1 or d.otype1==d.otype2):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU) 
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
@@ -738,8 +724,7 @@ class TopoAlgoDefLegacy:
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist, d.otype2 + d.olist]
             algoname = AlgConf.DeltaRSqrIncl1 if (d.mult>1 or d.otype1==d.otype2) else AlgConf.DeltaRSqrIncl2
-            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
             if (d.mult>1 or d.otype1==d.otype2):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
@@ -773,8 +758,7 @@ class TopoAlgoDefLegacy:
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist1, d.otype2 + d.olist2]
             algoname = AlgConf.DeltaEtaPhiIncl1 if (d.mult>1 or d.otype1==d.otype2) else AlgConf.DeltaEtaPhiIncl2
-            alg = algoname( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = algoname( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('NumResultBits', 1)                        
             if (d.mult>1 or d.otype1==d.otype2):
                 alg.addgeneric('InputWidth', d.nleading1)
@@ -814,8 +798,7 @@ class TopoAlgoDefLegacy:
             toponame = "%sDETA%s-%s%s%s-%s%s%s"  % (d.minDeta, d.maxDeta, d.otype1, str(d.ocut1), d.olist1, d.otype2, str(d.ocut2) if d.ocut2>0 else "", d.olist2)
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
-            alg = AlgConf.DeltaEtaIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.DeltaEtaIncl2( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('NumResultBits', 1)
             alg.addgeneric('InputWidth1', d.nleading1)
             alg.addgeneric('InputWidth2', d.nleading2)
@@ -842,8 +825,7 @@ class TopoAlgoDefLegacy:
             toponame = "%sDPHI%s-%s%s%s-%s%s%s"  % (d.minDphi, d.maxDphi, d.otype1, str(d.ocut1), d.olist1, d.otype2, str(d.ocut2) if d.ocut2>0 else "", d.olist2)
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
-            alg = AlgConf.DeltaPhiIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.DeltaPhiIncl2( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('NumResultBits', 1)            
             alg.addgeneric('InputWidth1', d.nleading1)
             alg.addgeneric('InputWidth2', d.nleading2)
@@ -857,8 +839,7 @@ class TopoAlgoDefLegacy:
             
         # JetMatch
         toponame = "0MATCH-4AJ20pETA31-4AJj15pETA31"
-        alg = AlgConf.MultiplicityCustom( name = toponame, inputs = [ 'AJMatchall' ], outputs = [ toponame ], algoId = currentAlgoId )
-        currentAlgoId += 1
+        alg = AlgConf.MultiplicityCustom( name = toponame, inputs = [ 'AJMatchall' ], outputs = [ toponame ])
         alg.addgeneric('InputWidth', HW.InputWidthJET)
         alg.addgeneric('NumResultBits', 1)
         alg.addvariable('MinET', 0)
@@ -870,8 +851,7 @@ class TopoAlgoDefLegacy:
         
         # NoMatch for W T&P
         toponame = "NOT-02MATCH-EM10s1-AJj15allpETA49"
-        alg = AlgConf.NotMatch( name = toponame, inputs = [ 'EMs', 'AJjall'], outputs = [ toponame ], algoId = currentAlgoId )
-        currentAlgoId += 1
+        alg = AlgConf.NotMatch( name = toponame, inputs = [ 'EMs', 'AJjall'], outputs = [ toponame ])
         alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
         alg.addgeneric('InputWidth2', HW.InputWidthJET)
         alg.addgeneric('MaxTob1', 1)
@@ -900,8 +880,7 @@ class TopoAlgoDefLegacy:
                 setattr (d, k, x[k])
             toponame = "%02d%s-XE0-HT0-AJj%sallpETA49"  % (d.minRatio, d.Ratio, str(d.ocut))
             log.debug("Define %s", toponame)            
-            alg = AlgConf.Ratio( name = toponame, inputs = ['XE', 'AJjall'], outputs = [ toponame ], algoId = currentAlgoId ) 
-            currentAlgoId += 1
+            alg = AlgConf.Ratio( name = toponame, inputs = ['XE', 'AJjall'], outputs = [ toponame ]) 
             alg.addgeneric('InputWidth1', 1) 
             alg.addgeneric('InputWidth2', HW.InputWidthJET) 
             alg.addgeneric('MaxTob1', 1)
@@ -919,8 +898,7 @@ class TopoAlgoDefLegacy:
 
         # RATIO MATCH dedicated to Exotic 
         toponame = '100RATIO-0MATCH-TAU30si2-EMall'
-        alg = AlgConf.RatioMatch( name = toponame, inputs = [ 'TAUsi', 'EMall'], outputs = [ toponame ], algoId = currentAlgoId )
-        currentAlgoId += 1
+        alg = AlgConf.RatioMatch( name = toponame, inputs = [ 'TAUsi', 'EMall'], outputs = [ toponame ])
         alg.addgeneric('InputWidth1', HW.OutputWidthSortTAU)
         alg.addgeneric('InputWidth2', HW.InputWidthEM)      
         alg.addgeneric('MaxTob1', 2)
@@ -934,8 +912,7 @@ class TopoAlgoDefLegacy:
 
         # NOT MATCH dedicated to Exotic
         toponame = 'NOT-0MATCH-TAU30si1-EMall'
-        alg = AlgConf.NotMatch( name = toponame, inputs = [ 'TAUsi', 'EMall'], outputs = [ toponame ], algoId = currentAlgoId )
-        currentAlgoId += 1
+        alg = AlgConf.NotMatch( name = toponame, inputs = [ 'TAUsi', 'EMall'], outputs = [ toponame ])
         alg.addgeneric('InputWidth1', HW.OutputWidthSortTAU)
         alg.addgeneric('InputWidth2', HW.InputWidthEM)
         alg.addgeneric('MaxTob1', 1)
@@ -965,8 +942,7 @@ class TopoAlgoDefLegacy:
             toponames = [toponame+"[0]", toponame+"[1]"]
             log.debug("Define %s", toponames)
             inputList = [d.otype1 + d.olist1]
-            alg = AlgConf.Multiplicity( name = toponame,  inputs = inputList, outputs = toponames, algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.Multiplicity( name = toponame,  inputs = inputList, outputs = toponames)
             alg.addgeneric('InputWidth', d.inputwidth1)
             alg.addgeneric('NumResultBits', 2)
             alg.addvariable('MinET', d.ocut1-1) # for MU threshold -1
@@ -988,8 +964,7 @@ class TopoAlgoDefLegacy:
             toponame = "%sDISAMB-%s%s"  % ( d.disamb if d.disamb>0 else "", obj1, obj2)            
             log.debug("Define %s", toponame)            
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
-            alg = AlgConf.DisambiguationIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.DisambiguationIncl2( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('InputWidth1', d.nleading1 if d.olist1.find("ab")>=0 else -1000)
             alg.addgeneric('InputWidth2', d.nleading2 if d.olist2.find("ab")>=0 else -1000)
             alg.addgeneric('MaxTob1', d.nleading1)
@@ -1023,8 +998,7 @@ class TopoAlgoDefLegacy:
             toponame = "%sDISAMB-%s%s%s"  % ( d.disamb if d.disamb>0 else "", obj1, obj2, obj3)
             log.debug("Define %s", toponame)            
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2, d.otype3 + d.olist3]
-            alg = AlgConf.DisambiguationIncl3( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.DisambiguationIncl3( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('InputWidth1', d.inputwidth1)
             alg.addgeneric('InputWidth2', d.inputwidth2)
             alg.addgeneric('InputWidth3', d.inputwidth3)
@@ -1066,8 +1040,7 @@ class TopoAlgoDefLegacy:
             toponame = "%sDISAMB-%s-%dDR%d%s%s"  % ( str(d.disamb) if d.disamb>0 else "", obj3, d.drcutmin, d.drcutmax, obj1, obj2)
             log.debug("Define %s", toponame)            
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2, d.otype3 + d.olist3]
-            alg = AlgConf.DisambiguationDRIncl3( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.DisambiguationDRIncl3( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('InputWidth1', d.inputwidth1)
             alg.addgeneric('InputWidth2', d.inputwidth2)
             alg.addgeneric('InputWidth3', d.inputwidth3)
@@ -1097,8 +1070,7 @@ class TopoAlgoDefLegacy:
             toponame = "LAR-%s%s%s1"  % ( d.otype, str(d.ocut), d.olist )
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth', d.inputwidth)
             alg.addgeneric('MaxTob', 0)
             alg.addgeneric('NumResultBits', 1)
@@ -1123,8 +1095,7 @@ class TopoAlgoDefLegacy:
             toponames=[]
             for minxe in d.Threlist:
                 toponames.append("KF-XE%s-AJall"  % (minxe))            
-            alg = AlgConf.KalmanMETCorrection( name = "KF-XE-AJall", inputs = inputList, outputs = toponames, algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.KalmanMETCorrection( name = "KF-XE-AJall", inputs = inputList, outputs = toponames)
             alg.addgeneric('InputWidth', HW.InputWidthJET)
             alg.addgeneric('NumResultBits', len(toponames))
             alg.addvariable('MinET', 0)
@@ -1146,8 +1117,7 @@ class TopoAlgoDefLegacy:
             toponame = "%02dMINDPHI-%s%s%s%s-XE0"  % (d.minDPhi, d.otype, str(d.ocut) if d.ocut > 0 else "", d.olist, str(d.nleading) if d.olist=="s" else "")
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ])
             alg.addgeneric('InputWidth1', d.inputwidth)
             alg.addgeneric('InputWidth2', 1) 
             alg.addgeneric('MaxTob1', d.nleading)
@@ -1171,8 +1141,7 @@ class TopoAlgoDefLegacy:
             toponame = "%iMT-%s%s%s%s-XE0"  % (d.minMT, d.otype, str(d.ocut) if d.ocut > 0 else "", d.olist, str(d.nleading) if d.olist=="s" else "")
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ])
             alg.addgeneric('InputWidth', HW.OutputWidthSortEM)
             alg.addgeneric('MaxTob', d.nleading)
             alg.addgeneric('NumResultBits', 1)
@@ -1197,8 +1166,7 @@ class TopoAlgoDefLegacy:
             toponame = "%sDISAMB-%dDR%d%s%s"  % ( str(d.disamb) if d.disamb>0 else "", d.drcutmin, d.drcutmax, obj1, obj2)
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
-            alg = AlgConf.DisambiguationDRIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.DisambiguationDRIncl2( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('InputWidth1', d.inputwidth1)
             alg.addgeneric('InputWidth2', d.inputwidth2)
             alg.addgeneric('MaxTob1', d.nleading1)
@@ -1223,8 +1191,7 @@ class TopoAlgoDefLegacy:
             toponame = "%iMINDPHI-%s%s%s%s-XE50"  % (d.minDPhi, d.otype, str(d.ocut) if d.ocut > 0 else "", d.olist, str(d.nleading) if d.olist=="s" else "")
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [inputList, 'XE'], outputs = [ toponame ])
             alg.addgeneric('InputWidth1', d.inputwidth)
             alg.addgeneric('InputWidth2', 1)  
             alg.addgeneric('MaxTob1', d.nleading)
@@ -1248,8 +1215,7 @@ class TopoAlgoDefLegacy:
             toponame = "%s%ss1"  % ( d.otype, str(d.ocut) )
             log.debug("Define %s", toponame)
             inputList = 'LMUs'
-            alg = AlgConf.EtCut( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.EtCut( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth', d.inputwidth)
             alg.addgeneric('MaxTob', 1)
             alg.addgeneric('NumResultBits', 1)
@@ -1270,8 +1236,7 @@ class TopoAlgoDefLegacy:
             toponame = "SC%d-%s%s%s%spETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta))
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.SimpleCone( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.SimpleCone( name = toponame, inputs = inputList, outputs = [toponame])
             alg.addgeneric('InputWidth', d.inputwidth)
             alg.addvariable('MinET', d.ocut)
             alg.addvariable('MinSumET', d.minHT)
@@ -1296,9 +1261,8 @@ class TopoAlgoDefLegacy:
             toponame = "%sDISAMB-%iINVM%s-%s%s"  % ( d.disamb if d.disamb>0 else "", d.minInvm, str(d.maxInvm) if d.maxInvm<9999 else "", obj1, obj2)
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
-            #alg = AlgConf.DisambiguationInvariantMass2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
-            alg = AlgConf.DisambiguationInvmIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId)
-            currentAlgoId += 1
+            #alg = AlgConf.DisambiguationInvariantMass2( name = toponame, inputs = inputList, outputs = toponame); 
+            alg = AlgConf.DisambiguationInvmIncl2( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth1', d.inputwidth1)
             alg.addgeneric('InputWidth2', d.inputwidth2)
             alg.addgeneric('MaxTob1', d.nleading1)
@@ -1326,8 +1290,7 @@ class TopoAlgoDefLegacy:
             obj2 = "-%s%s%sp%sETA%i"  % (d.otype2, str(d.ocut2), d.olist2 + (str(d.nleading2) if d.olist2.find('s')>=0 else ""),str(d.minEta2) if d.minEta2>0 else "", d.maxEta2)
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
             toponame = "%iINVM%i-%s%s"   % (d.minInvm, d.maxInvm, obj1, obj2)
-            alg = AlgConf.InvariantMassInclusive2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.InvariantMassInclusive2( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth1', d.inputwidth1)
             alg.addgeneric('InputWidth2', d.inputwidth2)
             alg.addgeneric('MaxTob1', d.nleading1)
@@ -1362,8 +1325,7 @@ class TopoAlgoDefLegacy:
             toponame = "FTK-%s%ss1"  % ( d.otype, str(d.ocut) if not d.otype=="EM" else "20" )  # noqa: F821
             log.debug("Define %s", toponame)
             inputList = d.otype + 's'  # noqa: F821
-            alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth', d.inputwidth)  # noqa: F821
             alg.addgeneric('MaxTob', 1)
             alg.addgeneric('NumResultBits', 1)
@@ -1387,8 +1349,7 @@ class TopoAlgoDefLegacy:
             toponame = 'ZEE-EM20shi2'
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth', d.inputwidth)
             alg.addgeneric('MaxTob', d.nleading1)
             alg.addgeneric('NumResultBits', 1)
@@ -1412,8 +1373,7 @@ class TopoAlgoDefLegacy:
             toponame = "%iINVM%i-%s%s%s-%s%s"  % (d.minInvm, d.maxInvm,
                                                   d.otype, str(d.ocut1) , d.olist,
                                                   d.otype, d.olist)
-            alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth', d.inputwidth)
             alg.addgeneric('MaxTob', HW.OutputWidthSelectEM)
             alg.addgeneric('NumResultBits', 1)
@@ -1436,8 +1396,7 @@ class TopoAlgoDefLegacy:
             toponame = "%iDR%02d-%s%s%s-%s%s%s"  % (d.minDr, d.maxDr, d.otype1, str(d.ocut1), d.olist1, d.otype2, str(d.ocut2), d.olist2)
             log.debug("Define %s", toponame)
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
-            alg = AlgConf.DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = AlgConf.DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = [ toponame ])
             alg.addgeneric('InputWidth1', HW.OutputWidthSelectEM)
             alg.addgeneric('InputWidth2', HW.OutputWidthSelectJET)
             alg.addgeneric('MaxTob1', HW.OutputWidthSelectEM)
@@ -1467,8 +1426,7 @@ class TopoAlgoDefLegacy:
                                                             d.otype1, str(d.ocut1) , d.olist1, str(d.nleading1) if d.olist1=="s" else "",
                                                             d.otype2, str(d.ocut2) , d.olist2, str(d.nleading2) if d.olist2=="s" else "")
                 toponames.append(toponame)
-            alg = AlgConf.InvariantMassInclusive2( name = d.algoname, inputs = inputList, outputs = toponames, algoId = 93)
-            currentAlgoId += 1
+            alg = AlgConf.InvariantMassInclusive2( name = d.algoname, inputs = inputList, outputs = toponames)
             alg.addgeneric('InputWidth1', d.inputwidth)
             alg.addgeneric('InputWidth2', d.inputwidth)
             alg.addgeneric('MaxTob1', d.nleading1)
@@ -1497,8 +1455,7 @@ class TopoAlgoDefLegacy:
                                                         d.otype, str(d.ocut2) if d.ocut2 > 0 else "", d.olist, str(d.nleading2) if d.olist=="s" else "")
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist
-            alg = AlgConf.DeltaPhiIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
-            currentAlgoId += 1
+            alg = AlgConf.DeltaPhiIncl1( name = toponame, inputs = inputList, outputs = toponame)
             alg.addgeneric('InputWidth', d.inputwidth1)
             alg.addgeneric('MaxTob', d.nleading2)
             alg.addgeneric('NumResultBits', 1)                        
@@ -1513,7 +1470,7 @@ class TopoAlgoDefLegacy:
         toponame = "8INVM15-2CMU4ab"
         log.debug("Define %s", toponame)
         inputList = ['CMUab']
-        alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+        alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame)
         alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
         alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
         alg.addgeneric('NumResultBits', 1)

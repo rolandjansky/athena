@@ -53,9 +53,6 @@ namespace TrigConf {
 
       virtual std::string className() const override;
 
-      /** Accessor to algorithm index */
-      unsigned int algId() const;
-
       AlgorithmType type() const;
 
       const std::string & category() const;
