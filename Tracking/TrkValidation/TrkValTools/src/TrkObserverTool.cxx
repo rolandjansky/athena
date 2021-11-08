@@ -34,7 +34,7 @@
 // which serves as Id for the tool. If a track has a parent, the unique 
 // Id of the parent is also saved by the tool. As the ambiguity processor
 // tools delete tracks, all tracks (including temporary tracks) are
-// saved to the tool's cache entry, i.e. an ObservedTracksMap object.
+// saved to the tool's cache entry, i.e. an ObservedTrackMap object.
 
 // Two instances of the TrkObserverTool must be instantiated in order
 // to avoid data handle conflicts:
@@ -96,7 +96,7 @@ void Trk::TrkObserverTool::newEvent(CacheEntry* ent) const {
 		ent->m_observedTrkMap->clear();
 		delete ent->m_observedTrkMap;
 	}
-	ent->m_observedTrkMap = new ObservedTracksMap;
+	ent->m_observedTrkMap = new ObservedTrackMap;
 }
 
 void Trk::TrkObserverTool::updateTrackMap(int uid, double score, xAOD::RejectionStep rejectStep, xAOD::RejectionReason rejectReason) const {
@@ -105,7 +105,7 @@ void Trk::TrkObserverTool::updateTrackMap(int uid, double score, xAOD::Rejection
 	// get event context and map from cache
 	const EventContext& ctx{Gaudi::Hive::currentContext()};
 	std::lock_guard<std::mutex> lock{m_mutex};
-	ObservedTracksMap* trk_map = getTrackMap(ctx);
+	ObservedTrackMap* trk_map = getTrackMap(ctx);
 	// find track and update score
 	if ( trk_map->find(uid) == trk_map->end() ) {
 		// not found
@@ -113,9 +113,12 @@ void Trk::TrkObserverTool::updateTrackMap(int uid, double score, xAOD::Rejection
 	}
 	else {
 		// found
-		std::get<1>(trk_map->at(uid)) = score;
-		std::get<2>(trk_map->at(uid)) = rejectStep;
-		std::get<3>(trk_map->at(uid)) = rejectReason;
+		std::get<xAOD::ObserverToolIndex::score>(trk_map->at(uid)) = score;
+		std::get<xAOD::ObserverToolIndex::rejectStep>(trk_map->at(uid)) = rejectStep;
+		std::get<xAOD::ObserverToolIndex::rejectReason>(trk_map->at(uid)) = rejectReason;
+		// Keep track of cumulative rejection steps/reasons
+		std::get<xAOD::ObserverToolIndex::rejectStep_full>(trk_map->at(uid)).push_back(rejectStep);
+		std::get<xAOD::ObserverToolIndex::rejectReason_full>(trk_map->at(uid)).push_back(rejectReason);
 		ATH_MSG_DEBUG("updateTrackMap: track "<<uid<<" with score, rejectStep, rejectReason: "<<score<<", "<<rejectStep<<", "<<rejectReason);
 	}
 }
@@ -126,7 +129,7 @@ void Trk::TrkObserverTool::updateScore(int uid, double score) const {
 	// get event context and map from cache
 	const EventContext& ctx{Gaudi::Hive::currentContext()};
 	std::lock_guard<std::mutex> lock{m_mutex};
-	ObservedTracksMap* trk_map = getTrackMap(ctx);
+	ObservedTrackMap* trk_map = getTrackMap(ctx);
 	// find track and update score
 	if ( trk_map->find(uid) == trk_map->end() ) {
 		// not found
@@ -134,7 +137,7 @@ void Trk::TrkObserverTool::updateScore(int uid, double score) const {
 	}
 	else {
 		// found
-		std::get<1>(trk_map->at(uid)) = score;
+		std::get<xAOD::ObserverToolIndex::score>(trk_map->at(uid)) = score;
 		ATH_MSG_DEBUG("updateScore: track "<<uid<<" with score "<<score);
 	}
 }
@@ -145,7 +148,7 @@ void Trk::TrkObserverTool::rejectTrack(int uid, xAOD::RejectionStep rejectStep, 
 	// get event context and map from cache
 	const EventContext& ctx{Gaudi::Hive::currentContext()};
 	std::lock_guard<std::mutex> lock{m_mutex};
-	ObservedTracksMap* trk_map = getTrackMap(ctx);
+	ObservedTrackMap* trk_map = getTrackMap(ctx);
 	// find track and update rejection location
 	if ( trk_map->find(uid) == trk_map->end() ) {
 		// not found
@@ -153,8 +156,11 @@ void Trk::TrkObserverTool::rejectTrack(int uid, xAOD::RejectionStep rejectStep, 
 	}
 	else {
 		// found
-		std::get<2>(trk_map->at(uid)) = rejectStep;
-		std::get<3>(trk_map->at(uid)) = rejectReason;
+		std::get<xAOD::ObserverToolIndex::rejectStep>(trk_map->at(uid)) = rejectStep;
+		std::get<xAOD::ObserverToolIndex::rejectReason>(trk_map->at(uid)) = rejectReason;
+		// Keep track of cumulative rejection steps/reasons
+		std::get<xAOD::ObserverToolIndex::rejectStep_full>(trk_map->at(uid)).push_back(rejectStep);
+		std::get<xAOD::ObserverToolIndex::rejectReason_full>(trk_map->at(uid)).push_back(rejectReason);
 		ATH_MSG_DEBUG("rejectTrack: track "<<uid<<" with rejection in "<<dumpRejection(rejectStep, rejectReason));
 	}
 }
@@ -173,13 +179,16 @@ void Trk::TrkObserverTool::addInputTrack(int uid, const Trk::Track& track) const
 	}
 	// add input track to cache map
 	Trk::Track* copiedTrack = new Trk::Track(track);
+	std::vector<xAOD::RejectionStep> v_rejectStep = {xAOD::RejectionStep::solveTracks};
+	std::vector<xAOD::RejectionReason> v_rejectReason = {xAOD::RejectionReason::acceptedTrack};
 	ent->m_observedTrkMap->insert( std::make_pair(uid, std::make_tuple(copiedTrack, // Id, track
 											 -1, // score
 											 xAOD::RejectionStep::solveTracks, // rejection step
 											 xAOD::RejectionReason::acceptedTrack, // rejection reason
 											 0, // unique parentId
 											 // holes/shared/split hits information (-2 means not filled yet)
-											 -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2.0f, -2.0f, -2)));
+											 -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2.0f, -2.0f, -2,
+											 v_rejectStep, v_rejectReason)));
 }
 
 void Trk::TrkObserverTool::addSubTrack(int track_uid, int parent_uid, const Trk::Track& track) const {
@@ -188,7 +197,7 @@ void Trk::TrkObserverTool::addSubTrack(int track_uid, int parent_uid, const Trk:
 	// get event context and map from cache
 	const EventContext& ctx{Gaudi::Hive::currentContext()};
 	std::lock_guard<std::mutex> lock{m_mutex};
-	ObservedTracksMap* trk_map = getTrackMap(ctx);
+	ObservedTrackMap* trk_map = getTrackMap(ctx);
 
 	// deep copy of the track (because some subtracks get deleted), information has to be available later
 	Trk::Track* copiedTrack = new Trk::Track(track);
@@ -201,21 +210,24 @@ void Trk::TrkObserverTool::addSubTrack(int track_uid, int parent_uid, const Trk:
 	}
 	else {
 		// found
-		score = std::get<1>(trk_map->at(parent_uid));
-		rejectStep = std::get<2>(trk_map->at(parent_uid));
+		score = std::get<xAOD::ObserverToolIndex::score>(trk_map->at(parent_uid));
+		rejectStep = std::get<xAOD::ObserverToolIndex::rejectStep>(trk_map->at(parent_uid));
 		ATH_MSG_DEBUG("addSubTrack: track "<<track_uid<<" with parent "<<parent_uid<<", score "<<score);
 	}
 	// add subtrack to cache map
+	std::vector<xAOD::RejectionStep> v_rejectStep = {rejectStep};
+	std::vector<xAOD::RejectionReason> v_rejectReason = {xAOD::RejectionReason::acceptedTrack};
 	trk_map->insert( std::make_pair(track_uid, std::make_tuple(copiedTrack, // Id, track
 											 score, // score
 											 rejectStep, // rejection step
 											 xAOD::RejectionReason::acceptedTrack, // rejection reason
 											 parent_uid, // unique parentId
 											 // holes/shared/split hits information (-2 means not filled yet)
-											 -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2.0f, -2.0f, -2)));
+											 -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2.0f, -2.0f, -2,
+											 v_rejectStep, v_rejectReason)));
 }
 
-ObservedTracksMap* Trk::TrkObserverTool::getTrackMap(const EventContext& ctx) const {
+ObservedTrackMap* Trk::TrkObserverTool::getTrackMap(const EventContext& ctx) const {
 
 	ATH_MSG_DEBUG("Get track map from cache");
 	// get cache
@@ -227,7 +239,7 @@ ObservedTracksMap* Trk::TrkObserverTool::getTrackMap(const EventContext& ctx) co
 	return ent->m_observedTrkMap;
 }
 
-int Trk::TrkObserverTool::saveTracksToStore(const EventContext& ctx, const ObservedTracksMap* trk_map) const {
+int Trk::TrkObserverTool::saveTracksToStore(const EventContext& ctx, const ObservedTrackMap* trk_map) const {
 
 	std::lock_guard<std::mutex> lock{m_mutex};
 	// Save tracks and map to store
@@ -236,7 +248,7 @@ int Trk::TrkObserverTool::saveTracksToStore(const EventContext& ctx, const Obser
 	ATH_MSG_DEBUG("\tm_savedTracksMapWriteKey: "<<m_savedTracksMapWriteKey.key());
 
 	SG::WriteHandle<TrackCollection> wh_tracks{m_savedTracksWriteKey, ctx};
-	SG::WriteHandle<ObservedTracksMap> wh_tracksMap{m_savedTracksMapWriteKey, ctx};
+	SG::WriteHandle<ObservedTrackMap> wh_tracksMap{m_savedTracksMapWriteKey, ctx};
 
 	// Tracks write handle
 	StatusCode sc = wh_tracks.record(std::make_unique<TrackCollection>());
@@ -254,7 +266,7 @@ int Trk::TrkObserverTool::saveTracksToStore(const EventContext& ctx, const Obser
 	}
 
 	// Tracks map write handle
-	sc = wh_tracksMap.record(std::make_unique<ObservedTracksMap>());
+	sc = wh_tracksMap.record(std::make_unique<ObservedTrackMap>());
 	if (sc.isFailure()) {
 		ATH_MSG_ERROR("saveTracksToStore: Could not record tracks map: "<<m_savedTracksMapWriteKey.key());
 	}
@@ -269,8 +281,8 @@ int Trk::TrkObserverTool::saveTracksToStore(const EventContext& ctx, const Obser
 	}
 
 	for (auto& itrMap : *trk_map) {
-		ATH_MSG_DEBUG("saveTracksToStore: Writing track with id "<<itrMap.first<<" and rejection reason "<<std::get<3>(itrMap.second));
-		wh_tracks->push_back(std::get<0>(itrMap.second));
+		ATH_MSG_DEBUG("saveTracksToStore: Writing track with id "<<itrMap.first<<" and rejection reason "<<std::get<xAOD::ObserverToolIndex::rejectReason>(itrMap.second));
+		wh_tracks->push_back(std::get<xAOD::ObserverToolIndex::track>(itrMap.second));
 		wh_tracksMap->insert(std::make_pair(itrMap.first, itrMap.second));
 	}
 
@@ -291,7 +303,7 @@ void Trk::TrkObserverTool::updateHolesSharedHits(int uid, int numPixelHoles, int
 	// get event context and map from cache
 	const EventContext& ctx{Gaudi::Hive::currentContext()};
 	std::lock_guard<std::mutex> lock{m_mutex};
-	ObservedTracksMap* trk_map = getTrackMap(ctx);
+	ObservedTrackMap* trk_map = getTrackMap(ctx);
 
 	// find track and update rejection location
 	if ( trk_map->find(uid) == trk_map->end() ) {
@@ -300,36 +312,36 @@ void Trk::TrkObserverTool::updateHolesSharedHits(int uid, int numPixelHoles, int
 	}
 	else {
 		// found
-		std::get<5>(trk_map->at(uid))  = numPixelHoles;	
-		std::get<6>(trk_map->at(uid))  = numSCTHoles;	
-		std::get<7>(trk_map->at(uid))  = numSplitSharedPixel; // Number of Pixel clusters comptaible with being split that are also shared
-		std::get<8>(trk_map->at(uid))  = numSplitSharedSCT; // Number of SCT clusters comptaible with being split that are also shared
-		std::get<9>(trk_map->at(uid))  = numSharedOrSplit; // Number of split + shared clusters
-		std::get<10>(trk_map->at(uid)) = numSharedOrSplitPixels; // Number of pixel clusters that are either split or shared
-		std::get<11>(trk_map->at(uid)) = numShared; // Number of shared hits on track
-		std::get<12>(trk_map->at(uid)) = isPatternTrack; // Pattern Track or Fitted track
-		std::get<13>(trk_map->at(uid)) = totalSiHits; // totalSiHits
-		std::get<14>(trk_map->at(uid)) = inROI;
-		std::get<15>(trk_map->at(uid)) = hasIBLHit;
-		std::get<16>(trk_map->at(uid)) = hasSharedIBLHit;
-		std::get<17>(trk_map->at(uid)) = hasSharedPixel;
-		std::get<18>(trk_map->at(uid)) = firstPixIsShared;
-		std::get<19>(trk_map->at(uid)) = numPixelDeadSensor;
-		std::get<20>(trk_map->at(uid)) = numSCTDeadSensor;
-		std::get<21>(trk_map->at(uid)) = numPixelHits;
-		std::get<22>(trk_map->at(uid)) = numSCTHits;
-		std::get<23>(trk_map->at(uid)) = numUnused;
-		std::get<24>(trk_map->at(uid)) = numTRT_Unused;
-		std::get<25>(trk_map->at(uid)) = numSCT_Unused;
-		std::get<26>(trk_map->at(uid)) = numPseudo;
-		std::get<27>(trk_map->at(uid)) = averageSplit1;
-		std::get<28>(trk_map->at(uid)) = averageSplit2;
-		std::get<29>(trk_map->at(uid)) = numWeightedShared;
+		std::get<xAOD::ObserverToolIndex::numPixelHoles>(trk_map->at(uid))  = numPixelHoles;	
+		std::get<xAOD::ObserverToolIndex::numSCTHoles>(trk_map->at(uid))  = numSCTHoles;	
+		std::get<xAOD::ObserverToolIndex::numSplitSharedPixel>(trk_map->at(uid))  = numSplitSharedPixel; // Number of Pixel clusters comptaible with being split that are also shared
+		std::get<xAOD::ObserverToolIndex::numSplitSharedSCT>(trk_map->at(uid))  = numSplitSharedSCT; // Number of SCT clusters comptaible with being split that are also shared
+		std::get<xAOD::ObserverToolIndex::numSharedOrSplit>(trk_map->at(uid))  = numSharedOrSplit; // Number of split + shared clusters
+		std::get<xAOD::ObserverToolIndex::numSharedOrSplitPixels>(trk_map->at(uid)) = numSharedOrSplitPixels; // Number of pixel clusters that are either split or shared
+		std::get<xAOD::ObserverToolIndex::numShared>(trk_map->at(uid)) = numShared; // Number of shared hits on track
+		std::get<xAOD::ObserverToolIndex::isPatternTrack>(trk_map->at(uid)) = isPatternTrack; // Pattern Track or Fitted track
+		std::get<xAOD::ObserverToolIndex::totalSiHits>(trk_map->at(uid)) = totalSiHits; // totalSiHits
+		std::get<xAOD::ObserverToolIndex::inROI>(trk_map->at(uid)) = inROI;
+		std::get<xAOD::ObserverToolIndex::hasIBLHit>(trk_map->at(uid)) = hasIBLHit;
+		std::get<xAOD::ObserverToolIndex::hasSharedIBLHit>(trk_map->at(uid)) = hasSharedIBLHit;
+		std::get<xAOD::ObserverToolIndex::hasSharedPixel>(trk_map->at(uid)) = hasSharedPixel;
+		std::get<xAOD::ObserverToolIndex::firstPixIsShared>(trk_map->at(uid)) = firstPixIsShared;
+		std::get<xAOD::ObserverToolIndex::numPixelDeadSensor>(trk_map->at(uid)) = numPixelDeadSensor;
+		std::get<xAOD::ObserverToolIndex::numSCTDeadSensor>(trk_map->at(uid)) = numSCTDeadSensor;
+		std::get<xAOD::ObserverToolIndex::numPixelHits>(trk_map->at(uid)) = numPixelHits;
+		std::get<xAOD::ObserverToolIndex::numSCTHits>(trk_map->at(uid)) = numSCTHits;
+		std::get<xAOD::ObserverToolIndex::numUnused>(trk_map->at(uid)) = numUnused;
+		std::get<xAOD::ObserverToolIndex::numTRT_Unused>(trk_map->at(uid)) = numTRT_Unused;
+		std::get<xAOD::ObserverToolIndex::numSCT_Unused>(trk_map->at(uid)) = numSCT_Unused;
+		std::get<xAOD::ObserverToolIndex::numPseudo>(trk_map->at(uid)) = numPseudo;
+		std::get<xAOD::ObserverToolIndex::averageSplit1>(trk_map->at(uid)) = averageSplit1;
+		std::get<xAOD::ObserverToolIndex::averageSplit2>(trk_map->at(uid)) = averageSplit2;
+		std::get<xAOD::ObserverToolIndex::numWeightedShared>(trk_map->at(uid)) = numWeightedShared;
 		ATH_MSG_DEBUG("updateHolesSharedHits: track "<<uid<<" with totalSiHits "<<totalSiHits);
 	}
 }
 
-void Trk::TrkObserverTool::dumpTrackMap(const ObservedTracksMap* trk_map) const {
+void Trk::TrkObserverTool::dumpTrackMap(const ObservedTrackMap* trk_map) const {
 
 	// prints out/dumps all entries in m_observedTrkMap
 
@@ -338,35 +350,35 @@ void Trk::TrkObserverTool::dumpTrackMap(const ObservedTracksMap* trk_map) const 
 	ATH_MSG_INFO ("Dump observedTrkMap (size = " << getNObservedTracks(trk_map) << ")");
 	for (auto& itrMap : *trk_map) {
 		ATH_MSG_DEBUG("Id: " << itrMap.first);
-		ATH_MSG_DEBUG("\tscore:                  " << std::get<1>(itrMap.second));
-		ATH_MSG_DEBUG("\trejectStep:             " << std::get<2>(itrMap.second));
-		ATH_MSG_DEBUG("\trejectReason:           " << std::get<3>(itrMap.second));
-		ATH_MSG_DEBUG("\tparentId:               " << std::get<4>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumPixelHoles:          " << std::get<5>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumSCTHoles:            " << std::get<6>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumSplitSharedPixel:    " << std::get<7>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumSplitSharedSCT:      " << std::get<8>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumSharedOrSplit:       " << std::get<9>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumSharedOrSplitPixels: " << std::get<10>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumShared:              " << std::get<11>(itrMap.second));
-		ATH_MSG_DEBUG("\tisPatternTrack:         " << std::get<12>(itrMap.second));
-		ATH_MSG_DEBUG("\ttotalSiHits:            " << std::get<13>(itrMap.second));
-		ATH_MSG_DEBUG("\tinROI:                  " << std::get<14>(itrMap.second));
-		ATH_MSG_DEBUG("\thasIBLHit:      	     " << std::get<15>(itrMap.second));
-		ATH_MSG_DEBUG("\thasSharedIBLHit:        " << std::get<16>(itrMap.second));
-		ATH_MSG_DEBUG("\thasSharedPixel:         " << std::get<17>(itrMap.second));
-		ATH_MSG_DEBUG("\tfirstPixIsShared:       " << std::get<18>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumPixelDeadSensor:     " << std::get<19>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumSCTDeadSensor:       " << std::get<20>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumPixelHits:           " << std::get<21>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumSCTHits:             " << std::get<22>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumUnused:              " << std::get<23>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumTRT_Unused:          " << std::get<24>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumSCT_Unused:          " << std::get<25>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumPseudo:              " << std::get<26>(itrMap.second));
-		ATH_MSG_DEBUG("\taverageSplit1:          " << std::get<27>(itrMap.second));
-		ATH_MSG_DEBUG("\taverageSplit2:          " << std::get<28>(itrMap.second));
-		ATH_MSG_DEBUG("\tnumWeightedShared:      " << std::get<29>(itrMap.second));
+		ATH_MSG_DEBUG("\tscore:                  " << std::get<xAOD::ObserverToolIndex::score>(itrMap.second));
+		ATH_MSG_DEBUG("\trejectStep:             " << std::get<xAOD::ObserverToolIndex::rejectStep>(itrMap.second));
+		ATH_MSG_DEBUG("\trejectReason:           " << std::get<xAOD::ObserverToolIndex::rejectReason>(itrMap.second));
+		ATH_MSG_DEBUG("\tparentId:               " << std::get<xAOD::ObserverToolIndex::parentId>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumPixelHoles:          " << std::get<xAOD::ObserverToolIndex::numPixelHoles>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumSCTHoles:            " << std::get<xAOD::ObserverToolIndex::numSCTHoles>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumSplitSharedPixel:    " << std::get<xAOD::ObserverToolIndex::numSplitSharedPixel>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumSplitSharedSCT:      " << std::get<xAOD::ObserverToolIndex::numSplitSharedSCT>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumSharedOrSplit:       " << std::get<xAOD::ObserverToolIndex::numSharedOrSplit>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumSharedOrSplitPixels: " << std::get<xAOD::ObserverToolIndex::numSharedOrSplitPixels>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumShared:              " << std::get<xAOD::ObserverToolIndex::numShared>(itrMap.second));
+		ATH_MSG_DEBUG("\tisPatternTrack:         " << std::get<xAOD::ObserverToolIndex::isPatternTrack>(itrMap.second));
+		ATH_MSG_DEBUG("\ttotalSiHits:            " << std::get<xAOD::ObserverToolIndex::totalSiHits>(itrMap.second));
+		ATH_MSG_DEBUG("\tinROI:                  " << std::get<xAOD::ObserverToolIndex::inROI>(itrMap.second));
+		ATH_MSG_DEBUG("\thasIBLHit:              " << std::get<xAOD::ObserverToolIndex::hasIBLHit>(itrMap.second));
+		ATH_MSG_DEBUG("\thasSharedIBLHit:        " << std::get<xAOD::ObserverToolIndex::hasSharedIBLHit>(itrMap.second));
+		ATH_MSG_DEBUG("\thasSharedPixel:         " << std::get<xAOD::ObserverToolIndex::hasSharedPixel>(itrMap.second));
+		ATH_MSG_DEBUG("\tfirstPixIsShared:       " << std::get<xAOD::ObserverToolIndex::firstPixIsShared>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumPixelDeadSensor:     " << std::get<xAOD::ObserverToolIndex::numPixelDeadSensor>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumSCTDeadSensor:       " << std::get<xAOD::ObserverToolIndex::numSCTDeadSensor>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumPixelHits:           " << std::get<xAOD::ObserverToolIndex::numPixelHits>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumSCTHits:             " << std::get<xAOD::ObserverToolIndex::numSCTHits>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumUnused:              " << std::get<xAOD::ObserverToolIndex::numUnused>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumTRT_Unused:          " << std::get<xAOD::ObserverToolIndex::numTRT_Unused>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumSCT_Unused:          " << std::get<xAOD::ObserverToolIndex::numSCT_Unused>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumPseudo:              " << std::get<xAOD::ObserverToolIndex::numPseudo>(itrMap.second));
+		ATH_MSG_DEBUG("\taverageSplit1:          " << std::get<xAOD::ObserverToolIndex::averageSplit1>(itrMap.second));
+		ATH_MSG_DEBUG("\taverageSplit2:          " << std::get<xAOD::ObserverToolIndex::averageSplit2>(itrMap.second));
+		ATH_MSG_DEBUG("\tnumWeightedShared:      " << std::get<xAOD::ObserverToolIndex::numWeightedShared>(itrMap.second));
 	}
 	ATH_MSG_DEBUG("Number of RejectionReason = acceptedTrack (should equal final tracks): " << getNFinalTracks(trk_map));
 }
@@ -396,16 +408,16 @@ std::string Trk::TrkObserverTool::dumpRejection(xAOD::RejectionStep rejectStep, 
 	return rejection_description;
 }
 
-int Trk::TrkObserverTool::getNFinalTracks(const ObservedTracksMap* trk_map) const {
+int Trk::TrkObserverTool::getNFinalTracks(const ObservedTrackMap* trk_map) const {
 	// counts the tracks which did not get rejected (this number should equal finalTracks)
 	int nFinalTracks = 0;
 	for (auto& itrMap : *trk_map) {
-		if (std::get<3>(itrMap.second) == xAOD::RejectionReason::acceptedTrack) nFinalTracks++;
+		if (std::get<xAOD::ObserverToolIndex::rejectReason>(itrMap.second) == xAOD::RejectionReason::acceptedTrack) nFinalTracks++;
 	}
 	return nFinalTracks;
 }
 
-int Trk::TrkObserverTool::getNObservedTracks(const ObservedTracksMap* trk_map) const {
+int Trk::TrkObserverTool::getNObservedTracks(const ObservedTrackMap* trk_map) const {
 	// check the number of tracks in the observer tool map
 	return trk_map->size();
 }

@@ -3,13 +3,13 @@
 */
 
 /***************************************************************************
- CLASS_DEF for ObservedTracksMap used in TrkObserverTool
+ CLASS_DEF for ObservedTrackMap used in TrkObserverTool
  ------------------------------
  ATLAS Collaboration
  ***************************************************************************/
 
-#ifndef OBSERVEDTRACKSMAP_H
-#define OBSERVEDTRACKSMAP_H
+#ifndef OBSERVEDTRACKMAP_H
+#define OBSERVEDTRACKMAP_H
 
 #include "xAODCore/CLASS_DEF.h"
 #include "xAODTracking/TrackingPrimitives.h"
@@ -44,9 +44,11 @@ typedef std::map< int, std::tuple< Trk::Track*, // unique ID, track object
                         int, // numPseudo
                         float, // averageSplit1
                         float, // averageSplit2
-                        int // numWeightedShared
-                        > > ObservedTracksMap;
+                        int, // numWeightedShared
+                        std::vector<xAOD::RejectionStep>, // cumulative rejection steps
+                        std::vector<xAOD::RejectionReason> // cumulative rejection reasons
+                        > > ObservedTrackMap;
 
-CLASS_DEF( ObservedTracksMap , 717976956 , 1 )
+CLASS_DEF( ObservedTrackMap , 200633685 , 1 )
 
-#endif // OBSERVEDTRACKSMAP_H
+#endif // OBSERVEDTRACKMAP_H
