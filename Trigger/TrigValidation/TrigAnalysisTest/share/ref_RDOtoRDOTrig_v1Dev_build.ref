@@ -10350,23 +10350,23 @@ HLT_noalg_L1cTAU20M:
 HLT_noalg_L1cTAU25M:
   eventCount: 0
 HLT_noalg_L1eEM10L:
-  eventCount: 8
+  eventCount: 10
 HLT_noalg_L1eEM15:
-  eventCount: 16
+  eventCount: 15
 HLT_noalg_L1eEM15L:
-  eventCount: 7
+  eventCount: 9
 HLT_noalg_L1eEM15M:
-  eventCount: 7
+  eventCount: 6
 HLT_noalg_L1eEM18M:
-  eventCount: 7
+  eventCount: 6
 HLT_noalg_L1eEM20:
-  eventCount: 14
+  eventCount: 13
 HLT_noalg_L1eEM20L:
-  eventCount: 7
+  eventCount: 8
 HLT_noalg_L1eEM22:
   eventCount: 13
 HLT_noalg_L1eEM22L:
-  eventCount: 6
+  eventCount: 8
 HLT_noalg_L1eEM22M:
   eventCount: 6
 HLT_noalg_L1eEM22T:
@@ -10378,7 +10378,7 @@ HLT_noalg_L1eEM5:
 HLT_noalg_L1eEM8:
   eventCount: 18
 HLT_noalg_L1eEM8L:
-  eventCount: 8
+  eventCount: 10
 HLT_noalg_L1eEM8M:
   eventCount: 8
 HLT_noalg_L1eTAU100:
