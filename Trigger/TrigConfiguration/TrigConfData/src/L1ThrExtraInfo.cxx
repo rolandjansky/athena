@@ -49,6 +49,12 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    if( thrTypeName == "jLJ" )
       return std::make_unique<L1ThrExtraInfo_jLJ>(thrTypeName, data);
 
+   if( thrTypeName == "gJ" )
+      return std::make_unique<L1ThrExtraInfo_gJ>(thrTypeName, data);
+
+   if( thrTypeName == "gLJ" )
+      return std::make_unique<L1ThrExtraInfo_gLJ>(thrTypeName, data);
+
    if( thrTypeName == "jXE" )
       return std::make_unique<L1ThrExtraInfo_jXE>(thrTypeName, data);
 
@@ -146,6 +152,16 @@ TrigConf::L1ThrExtraInfo::jJ() const {
 const TrigConf::L1ThrExtraInfo_jLJ &
 TrigConf::L1ThrExtraInfo::jLJ() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_jLJ&>( * m_thrExtraInfo.at("jLJ") );
+}
+
+const TrigConf::L1ThrExtraInfo_gJ &
+TrigConf::L1ThrExtraInfo::gJ() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_gJ&>( * m_thrExtraInfo.at("gJ") );
+}
+
+const TrigConf::L1ThrExtraInfo_gLJ &
+TrigConf::L1ThrExtraInfo::gLJ() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_gLJ&>( * m_thrExtraInfo.at("gLJ") );
 }
 
 const TrigConf::L1ThrExtraInfo_jXE &
@@ -264,7 +280,7 @@ TrigConf::L1ThrExtraInfo_JETLegacy::load()
 /*******
  * eEM
  *******/
-TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost::property_tree::ptree & pt ) {
+TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost::property_tree::ptree & pt) {
    m_isDefined = true;
    m_reta_d  = pt.get_optional<float>("reta").get_value_or(0);
    m_wstot_d = pt.get_optional<float>("wstot").get_value_or(0);
@@ -272,7 +288,6 @@ TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost:
    m_reta_fw  = pt.get_optional<int>("reta_fw").get_value_or(0);
    m_wstot_fw = pt.get_optional<int>("wstot_fw").get_value_or(0);
    m_rhad_fw  = pt.get_optional<int>("rhad_fw").get_value_or(0);
-   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 std::ostream &
@@ -285,7 +300,9 @@ void
 TrigConf::L1ThrExtraInfo_eEM::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
+      if( x.first == "maxEt" ){
+         m_maxEt = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo" ) {
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
@@ -313,7 +330,6 @@ TrigConf::L1ThrExtraInfo_jEM::WorkingPoints_jEM::WorkingPoints_jEM( const boost:
    m_iso_fw  = pt.get_optional<int>("iso_fw").get_value_or(0);
    m_frac_fw = pt.get_optional<int>("frac_fw").get_value_or(0);
    m_frac2_fw  = pt.get_optional<int>("frac2_fw").get_value_or(0);
-   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 std::ostream &
@@ -326,7 +342,9 @@ void
 TrigConf::L1ThrExtraInfo_jEM::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo1" ) {
+      if( x.first == "maxEt" ){
+         m_maxEt = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo1" ) {
          m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
       } else if( x.first == "ptMinToTopo2" ){
          m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
@@ -362,7 +380,6 @@ TrigConf::L1ThrExtraInfo_eTAU::WorkingPoints_eTAU::WorkingPoints_eTAU( const boo
    m_rHad_d    = pt.get_optional<float>("rHad").get_value_or(0);
    m_rCore_fw  = pt.get_optional<float>("rCore_fw").get_value_or(0);
    m_rHad_fw   = pt.get_optional<float>("rHad_fw").get_value_or(0);
-   m_maxEt     = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 std::ostream &
@@ -375,7 +392,9 @@ void
 TrigConf::L1ThrExtraInfo_eTAU::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo" ) {
+      if( x.first == "maxEt" ){
+         m_maxEt = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo" ) {
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
@@ -399,7 +418,6 @@ TrigConf::L1ThrExtraInfo_jTAU::WorkingPoints_jTAU::WorkingPoints_jTAU( const boo
    m_isDefined = true;
    m_isolation_d    = pt.get_optional<float>("isolation").get_value_or(0);
    m_isolation_fw   = pt.get_optional<float>("isolation_fw").get_value_or(0);
-   m_maxEt          = pt.get_optional<unsigned int>("maxEt").get_value_or(0); 
 }
 
 std::ostream &
@@ -412,7 +430,9 @@ void
 TrigConf::L1ThrExtraInfo_jTAU::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopo1" ) {
+      if( x.first == "maxEt" ){
+         m_maxEt = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo1" ) {
          m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
       } else if( x.first == "ptMinToTopo2" ){
          m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
@@ -518,6 +538,40 @@ TrigConf::L1ThrExtraInfo_jLJ::load()
          m_ptMinxTOBMeV3 = 1000*x.second.getValue<unsigned int>();
       } 
    }
+}
+
+/*******
+ * gJ
+ *******/
+void
+TrigConf::L1ThrExtraInfo_gJ::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopoA" ) {
+         m_ptMinToTopoMeVA = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopoB" ){
+         m_ptMinToTopoMeVB = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopoC" ){
+         m_ptMinToTopoMeVC = 1000*x.second.getValue<unsigned int>();
+      } 
+   }
+}
+
+/*******
+ * gLJ
+ *******/
+void
+TrigConf::L1ThrExtraInfo_gLJ::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopoA" ) {
+         m_ptMinToTopoMeVA = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopoB" ){
+         m_ptMinToTopoMeVB = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopoC" ){
+         m_ptMinToTopoMeVC = 1000*x.second.getValue<unsigned int>();
+      }
+   }  
 }
 
 /*******

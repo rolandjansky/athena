@@ -28,6 +28,7 @@ xAODTruthParticleSlimmerMET::xAODTruthParticleSlimmerMET(const std::string &name
 {
     declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerName = "TruthParticles");
     declareProperty("xAODTruthParticleContainerNameMET", m_xaodTruthParticleContainerNameMET = "TruthMET");
+    declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName = "TruthEvents");
 }
 
 StatusCode xAODTruthParticleSlimmerMET::initialize()
@@ -61,42 +62,52 @@ StatusCode xAODTruthParticleSlimmerMET::execute()
         ATH_MSG_ERROR("No TruthParticle collection with name " << m_xaodTruthParticleContainerName << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
+    // Retrieve full TruthEventContainer container
+    const xAOD::TruthEventContainer *xTruthEventContainer=NULL;
+    if (evtStore()->retrieve(xTruthEventContainer, m_xaodTruthEventContainerName).isFailure())
+    {
+        ATH_MSG_ERROR("No TruthEvent collection with name " << m_xaodTruthEventContainerName << " found in StoreGate!");
+        return StatusCode::FAILURE;
+    }
 
     // Set up decorators if needed
     const static SG::AuxElement::Decorator<bool> isFromWZDecorator("isFromWZ");
     const static SG::AuxElement::Decorator<bool> isFromTauDecorator("isFromTau");
 
     // Loop over full TruthParticle container
-    unsigned int nParticles = xTruthParticleContainer->size();
-    for (unsigned int iPart = 0; iPart < nParticles; ++iPart)
-    {
-        const xAOD::TruthParticle *theParticle = (*xTruthParticleContainer)[iPart];
+    xAOD::TruthEventContainer::const_iterator itr;
+    for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
 
-        // stable and non-interacting, implemented from DerivationFramework 
-        //https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/python/MCTruthCommon.py#L183
-        // which in turn use the implementation from Reconstruction
-        //https://gitlab.cern.ch/atlas/athena/blob/21.0/Reconstruction/MET/METReconstruction/Root/METTruthTool.cxx#L143
-        if (!MC::isGenStable(theParticle->status(),theParticle->barcode())) continue;
-        if (!MC::isNonInteracting(theParticle->pdgId())) continue;
+        unsigned int nPart = (*itr)->nTruthParticles();
+        for (unsigned int iPart = 0; iPart < nPart; ++iPart) {
+            const xAOD::TruthParticle* theParticle =  (*itr)->truthParticle(iPart);
+
+          // stable and non-interacting, implemented from DerivationFramework 
+          //https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/python/MCTruthCommon.py#L183
+          // which in turn use the implementation from Reconstruction
+          //https://gitlab.cern.ch/atlas/athena/blob/21.0/Reconstruction/MET/METReconstruction/Root/METTruthTool.cxx#L143
+          if (!MC::isGenStable(theParticle->status(),theParticle->barcode())) continue;
+          if (!MC::isNonInteracting(theParticle->pdgId())) continue;
 
 
-        xAOD::TruthParticle *xTruthParticle = new xAOD::TruthParticle();
-        xTruthParticleContainerMET->push_back( xTruthParticle );
+          xAOD::TruthParticle *xTruthParticle = new xAOD::TruthParticle();
+          xTruthParticleContainerMET->push_back( xTruthParticle );
 
-        // Fill with numerical content
-        xTruthParticle->setPdgId(theParticle->pdgId());
-        xTruthParticle->setBarcode(theParticle->barcode());
-        xTruthParticle->setStatus(theParticle->status());
-        xTruthParticle->setM(theParticle->m());
-        xTruthParticle->setPx(theParticle->px());
-        xTruthParticle->setPy(theParticle->py());
-        xTruthParticle->setPz(theParticle->pz());
-        xTruthParticle->setE(theParticle->e());
+          // Fill with numerical content
+          xTruthParticle->setPdgId(theParticle->pdgId());
+          xTruthParticle->setBarcode(theParticle->barcode());
+          xTruthParticle->setStatus(theParticle->status());
+          xTruthParticle->setM(theParticle->m());
+          xTruthParticle->setPx(theParticle->px());
+          xTruthParticle->setPy(theParticle->py());
+          xTruthParticle->setPz(theParticle->pz());
+          xTruthParticle->setE(theParticle->e());
 
-        //Decorate
-        isFromWZDecorator(*xTruthParticle) = fromWZ(theParticle);
-        isFromTauDecorator(*xTruthParticle) = fromTau(theParticle);
+          //Decorate
+          isFromWZDecorator(*xTruthParticle) = fromWZ(theParticle);
+          isFromTauDecorator(*xTruthParticle) = fromTau(theParticle);
         
+        }
     }
 
     return StatusCode::SUCCESS;

@@ -448,7 +448,7 @@ namespace top {
                       "False");
     registerParameter("NominalWeightNames",
                       "List of nominal weight names to attempt to retrieve. Attempts are made in the order as specified. If none of the names can be found, we will crash with error message. Use index instead in such case.",
-                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \",\" mur=1 muf=1 \"");
+                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \",\" mur=1 muf=1 \", \" dyn=   0 muR=0.10000E+01 muF=0.10000E+01 \"");
     registerParameter("NominalWeightFallbackIndex",
                       "Index of nominal weight in MC weights vector. This option is only used in case the MC sample has broken metadata. (Default: -1 means no fallback index specified, rely on metadata and crash if metadata cannot be read)",
                       "-1");
@@ -517,10 +517,6 @@ namespace top {
                       "Base PDF set used to recalculate XF1,XF2 values if they are zero. Will be added to LHAPDFSets.",
                       " ");
     registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default");
-
-    registerParameter("BTaggingWP",
-                      "DEPRECATED OPTION, use BTaggingCaloJetWP and BTaggingTrackJetWP for specifying b-tagging WPs for jet collections using calorimeter information and for track jets respectively.",
-                      " ");
 
     registerParameter("BTaggingTrackJetWP",
                       "b-tagging WPs to use for track jet collection in the analysis, separated by commas."

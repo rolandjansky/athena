@@ -36,9 +36,6 @@ namespace TrigConf {
       /** Accessor to the algorithm name */
       const std::string & algName() const;
 
-      /** Accessor to the algorithm name */
-      unsigned int algId() const;
-
       /** Accessor to the clock the signals are sent on
        *
        * The clock is 0 or 1. In case of multiple output signals from 

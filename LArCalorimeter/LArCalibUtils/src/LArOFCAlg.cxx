@@ -458,6 +458,7 @@ StatusCode LArOFCAlg::stop()
   //Undo corrections, if they are applied by this algo:
   if (m_waveCnt_nc) {
     ATH_CHECK(m_waveCnt_nc->undoCorrections());
+    ATH_MSG_INFO("Reverted corrections of non-cost wave container");
   }
 
   return StatusCode::SUCCESS;
@@ -702,6 +703,9 @@ StatusCode LArOFCAlg::initCaliWaveContainer() {
 	if (m_waveCnt_nc->applyCorrections().isFailure()) {
 	  ATH_MSG_ERROR( "Failed to apply corrections to LArCaliWaveContainer!" );
 	  return StatusCode::FAILURE;
+	}
+	else {
+	  ATH_MSG_INFO("Applied corrections to non-const Wave container");
 	}
       }
     }

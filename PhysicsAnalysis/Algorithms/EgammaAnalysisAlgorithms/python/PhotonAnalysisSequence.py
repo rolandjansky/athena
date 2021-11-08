@@ -123,17 +123,6 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
                 stageName = 'calibration' )
 
-    # should this be applied to data?  or to AFII?
-    alg = createAlgorithm( 'CP::PhotonShowerShapeFudgeAlg',
-                           'PhotonShowerShapeFudgeAlg' + postfix )
-    addPrivateTool( alg, 'showerShapeFudgeTool',
-                    'ElectronPhotonShowerShapeFudgeTool' )
-    alg.showerShapeFudgeTool.Preselection = 21 # 21 = MC15
-    alg.showerShapeFudgeTool.FFCalibFile = \
-        'ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root' #only for rel21
-    seq.append( alg, inputPropName = 'photons', outputPropName = 'photonsOut',
-                stageName = 'calibration' )
-
     # Set up the isolation correction algorithm.
     alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg',
                            'PhotonIsolationCorrectionAlg' + postfix )

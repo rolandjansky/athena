@@ -182,7 +182,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
 	FullEventFragment<const uint32_t*> fe(fragment);
       
 	if (checkevents) fe.check_tree();
-	totalSize+=fe. fragment_size_word()*4;
+	totalSize+=fe.readable_payload_size_word()*4;
 	
 	const uint32_t eventNo=fe.global_id();
 	const uint32_t runNo=fe.run_no();

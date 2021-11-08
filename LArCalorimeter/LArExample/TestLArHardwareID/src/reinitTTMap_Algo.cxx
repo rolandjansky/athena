@@ -2,10 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <fstream>
-#include <math.h>
+
 #include "TestLArHardwareID/reinitTTMap_Algo.h"
 
 #include "GaudiKernel/IService.h"
@@ -24,7 +21,10 @@
 
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
-
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <cmath>
 /********************************************************/
 reinitTTMap_Algo::reinitTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
   AthAlgorithm( name , pSvcLocator) ,
@@ -155,7 +155,7 @@ StatusCode reinitTTMap_Algo::initMap(){
 
     } else {
       // keep everything else
-      it++;
+      ++it;
       nLineF++;
       
     }

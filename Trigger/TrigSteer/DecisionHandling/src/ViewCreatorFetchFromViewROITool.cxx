@@ -18,6 +18,8 @@ StatusCode ViewCreatorFetchFromViewROITool::initialize() {
   ATH_CHECK(m_roisWriteHandleKey.initialize());
   ATH_CHECK(m_inViewRoIKey.initialize());
   renounce(m_inViewRoIKey); // Will be read from in-View
+
+  m_viewToFetchFromProbe=m_viewToFetchFrom + "_probe";
   return StatusCode::SUCCESS;
 }
 
@@ -32,7 +34,8 @@ StatusCode ViewCreatorFetchFromViewROITool::attachROILinks(TrigCompositeUtils::D
       const std::vector<LinkInfo<ViewContainer>> myViews = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::allFeaturesOfType);
       bool found = false;
       for(const LinkInfo<ViewContainer>& v : myViews){
-        if(v.link.dataID() == m_viewToFetchFrom){
+        ATH_MSG_DEBUG("view "<<v.link.dataID());
+        if(v.link.dataID() == m_viewToFetchFrom or v.link.dataID() == m_viewToFetchFromProbe) {
           found = true;
           viewToFetchFrom = v;
           break;

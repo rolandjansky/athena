@@ -174,6 +174,8 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
 
     # Set MuFast data preparator
     TrigL2MuonSA__MuFastDataPreparator=CompFactory.getComp("TrigL2MuonSA::MuFastDataPreparator")
+
+    from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
     MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator( CSCDataPreparator = CscDataPreparator,
                                                                MDTDataPreparator = MdtDataPreparator,
                                                                RPCDataPreparator = RpcDataPreparator,
@@ -182,7 +184,8 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                                                MMDataPreparator = MmDataPreparator,
                                                                RpcRoadDefiner = RpcRoadDefiner,
                                                                TgcRoadDefiner = TgcRoadDefiner,
-                                                               ClusterRoadDefiner = ClusterRoadDefiner )
+                                                               ClusterRoadDefiner = ClusterRoadDefiner,
+                                                               TrigT1RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1) )
 
     # Setup the station fitter
     TrigL2MuonSA__MuFastStationFitter,TrigL2MuonSA__PtFromAlphaBeta=CompFactory.getComps("TrigL2MuonSA::MuFastStationFitter","TrigL2MuonSA::PtFromAlphaBeta")

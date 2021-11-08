@@ -19,7 +19,6 @@
 egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
   : egammaSuperClusterBuilderBase(name, pSvcLocator)
-  , m_calibrationType("electron")
 {}
 
 StatusCode

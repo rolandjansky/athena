@@ -96,8 +96,8 @@ def MinBiasSPSequence():
 
     idTrigConfig = getInDetTrigConfig('minBias')
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    idAlgs, verifier = makeInDetAlgs(config=idTrigConfig, 
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+    idAlgs, verifier = makeInDetTrigFastTracking(config=idTrigConfig, 
                                      rois=spInputMakerAlg.InViewRoIs, 
                                      viewVerifier='SPViewDataVerifier', 
                                      doFTF=False)
@@ -147,8 +147,35 @@ def MinBiasZVertexFinderSequenceCfg(flags):
     selAcc = SelectionCA("ZVertexFinderSel")    
     selAcc.mergeReco(recoAcc)
     selAcc.addHypoAlgo( CompFactory.TrigZVertexHypoAlg("TrigZVertexHypoAlg", ZVertexKey=recordable("HLT_vtx_z")))
-    return MenuSequenceCA(selAcc,
-                        HypoToolGen = TrigZVertexHypoToolGen)
+    return MenuSequenceCA(selAcc, HypoToolGen = TrigZVertexHypoToolGen)
+    
+# def MinBiasZVertexFinderSequence():
+#     import AthenaCommon.CfgMgr as CfgMgr
+#     vdv = CfgMgr.AthViews__ViewDataVerifier( "VDVZFinderInputs" )
+#     vdv.DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), ( 'PixelID' , 'DetectorStore+PixelID' ) ]
+
+#     from IDScanZFinder.ZFinderAlgConfig import  MinBiasZFinderAlg
+#     ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, MinBiasZFinderAlg ])
+    
+#     #idTrigConfig = getInDetTrigConfig('InDetTrigFastTracking')
+#     ZVertFindInputMakerAlg = EventViewCreatorAlgorithm("IM_ZVertFinder")
+#     ZVertFindInputMakerAlg.ViewFallThrough = True
+#     ZVertFindInputMakerAlg.RoITool = ViewCreatorInitialROITool()
+#     ZVertFindInputMakerAlg.InViewRoIs = "InputRoI"
+#     ZVertFindInputMakerAlg.Views = "ZVertFinderView"
+#     ZVertFindInputMakerAlg.RequireParentView = True 
+#     ZVertFindInputMakerAlg.ViewNodeName =  ZVertFindRecoSeq.name()
+    
+
+#     ZVertFindSequence = seqAND("ZVertFindSequence", [ZVertFindInputMakerAlg, ZVertFindRecoSeq])
+#     from TrigMinBias.TrigMinBiasConf import TrigZVertexHypoAlg
+
+#     hypoAlg = TrigZVertexHypoAlg("TrigZVertexHypoAlg", ZVertexKey=recordable("HLT_vtx_z"))
+    
+#     return MenuSequence(Sequence    = ZVertFindSequence,
+#                         Maker       = ZVertFindInputMakerAlg,
+#                         Hypo        = hypoAlg,
+#                         HypoToolGen = TrigZVertexHypoToolGen)                        
 
 
 

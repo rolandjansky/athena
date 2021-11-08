@@ -439,12 +439,11 @@ StatusCode LArRampBuilder::stop()
       continue; //No data for this gain
     }
     //Create transient object for raw ramp (one container per gain)
-    LArRawRampContainer* larRawRampContainer;
-    if (m_saveRawRamp)
-      larRawRampContainer=new LArRawRampContainer();
-    else
-      larRawRampContainer=NULL;
-
+    std::unique_ptr<LArRawRampContainer> larRawRampContainer;
+    if (m_saveRawRamp) {
+      larRawRampContainer=std::make_unique<LArRawRampContainer>();
+    }
+    
     //Inner loop goes over the cells.
     for (;cell_it!=cell_it_e;cell_it++){
       
@@ -452,7 +451,7 @@ StatusCode LArRampBuilder::stop()
 
       ACCRAMP::const_iterator dac_it=cell_it->begin();
       ACCRAMP::const_iterator dac_it_e=cell_it->end();
-      LArRawRamp* rawramp=new LArRawRamp(chid,gain);
+      auto rawramp=std::make_unique<LArRawRamp>(chid,gain);
       
       std::vector<float> peak;
       float adcpeak, timepeak;
@@ -626,7 +625,6 @@ StatusCode LArRampBuilder::stop()
 	  
 	} else {
 	  ATH_MSG_ERROR( "Both OF and Parabola reconstruction modes not available!" ) ;
-          delete larRawRampContainer;
 	  return StatusCode::FAILURE ;
 	} 
 	
@@ -691,10 +689,7 @@ StatusCode LArRampBuilder::stop()
       }// end if (build ramp object)
       //Save raw ramp for this cell, if requested by jobOpts
       if (larRawRampContainer){
-	larRawRampContainer->push_back(rawramp);
-      }
-      else{
-	delete rawramp;
+	larRawRampContainer->push_back(std::move(rawramp));
       }
     }//end loop cells
 
@@ -716,7 +711,7 @@ StatusCode LArRampBuilder::stop()
       }
       key = m_keyoutput + key;
       ATH_MSG_INFO( "Recording LArRawRampContainer for gain " << (int)gain << " key=" << key);
-      sc=detStore()->record(larRawRampContainer,key);
+      sc=detStore()->record(std::move(larRawRampContainer),key);
       if (sc.isFailure()) {
 	ATH_MSG_ERROR( "Failed to record LArRawRamp object");
       }

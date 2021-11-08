@@ -124,6 +124,7 @@ if __name__ == "__main__":
     print ('--- LArOFCCondAlg 1')
     flags1 = ConfigFlags.clone()
     flags1.Input.Files = defaultTestFiles.RDO
+    flags1.lock()
     acc1 = LArOFCCondAlgCfg (flags1)
     acc1.printCondAlgs(summariseProps=True)
     acc1.wasMerged()
@@ -132,6 +133,7 @@ if __name__ == "__main__":
     flags4 = ConfigFlags.clone()
     flags4.Input.Files = defaultTestFiles.RDO
     flags4.LAr.ROD.nSamples = 32
+    flags4.lock()
     acc4 = LArAutoCorrTotalCondAlgCfg (flags4)
     acc4.printCondAlgs(summariseProps=True)
     acc4.wasMerged()
@@ -139,6 +141,7 @@ if __name__ == "__main__":
     print ('--- LArRoIMapCondAlg')
     flags5 = ConfigFlags.clone()
     flags5.Input.Files = defaultTestFiles.RDO
+    flags5.lock()
     acc5 = LArRoIMapCondAlgCfg (flags5)
     acc5.printCondAlgs(summariseProps=True)
     acc5.wasMerged()

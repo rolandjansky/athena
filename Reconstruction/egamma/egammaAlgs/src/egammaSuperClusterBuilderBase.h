@@ -243,6 +243,14 @@ private:
   float m_extraL3EtaSize;
 
   /** @brief Size of topocluster search window in eta for the barrel */
+  Gaudi::Property<bool> m_linkToConstituents{
+    this,
+    "LinkToConstituents",
+    true,
+    "Link sister clusters to new cluster"
+  };
+
+  /** @brief Size of topocluster search window in eta for the barrel */
   Gaudi::Property<int> m_searchWindowEtaCellsBarrel{
     this,
     "SearchWindowEtaCellsBarrel",
@@ -336,6 +344,9 @@ private:
     "",
     "Optional tool that performs basic checks of viability of cluster"
   };
+
+
+  
 };
 
 #endif

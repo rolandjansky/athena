@@ -15,6 +15,7 @@ from .Base.Thresholds import TopoThreshold
 from .Base.TopoAlgorithms import AlgCategory
 from .Base.L1Menu2JSON import L1MenuJSONConverter
 from .Config.TriggerTypeDef import TT
+from .Config.TopoAlgoDefMultiplicity import TopoAlgoDefMultiplicity 
 
 """
 L1MenuConfig is responsible for building the L1 Menu
@@ -125,7 +126,7 @@ class L1MenuConfig(object):
         if algo.name in self._registeredTopoAlgos[self.currentAlgoDef]:
             raise RuntimeError('%s algo %s is already registered as such' % (self.currentAlgoDef.desc, algo.name))
         self._registeredTopoAlgos[self.currentAlgoDef][algo.name] = algo
-        log.debug("Added in the %s type the algo: %s ID:%s", self.currentAlgoDef.desc, algo.name, algo.algoId)
+        log.debug("Added in the %s type the algo: %s ID:%s", self.currentAlgoDef.desc, algo.name)
 
         return algo
 
@@ -453,9 +454,13 @@ class L1MenuConfig(object):
                 fpgaNames = []
                 if connDef["format"] == 'multiplicity':
                     for thrName in connDef["thresholds"]:
+                        if thrName is None:
+                            continue
                         nBits = connDef["nbitsDefault"]
                         if type(thrName)==tuple:
                             (thrName,nBits) = thrName
+                        if thrName is None:
+                            continue                        
                         algoname = "Mult_" + thrName
                         algoNames += [ algoname ]
                         algoNbits += [ int(nBits) ]
@@ -521,7 +526,7 @@ class L1MenuConfig(object):
                 for thrName in connDef["thresholds"]:
                     if type(thrName) == tuple:
                         (thrName, _) = thrName
-                    if thrName is None or thrName in self.l1menu.thresholds:
+                    if (thrName is None) or (thrName in self.l1menu.thresholds):
                         continue
                     threshold = self.getDefinedThreshold(thrName)
                     if threshold is None:
@@ -679,6 +684,11 @@ class L1MenuConfig(object):
         # check that only the minimal set of legacy and detector thresholds is used
         self.l1menu.checkLegacyThresholds()   
 
+        # check for the topo multiplicity algorithms and CTP inputs
+        TopoAlgoDefMultiplicity.checkMultAlgoFWconstraints(self.l1menu)
+
+        # check that performance thresholds are not used in the physics L1 menu
+        self.l1menu.checkPerfThresholds()
 
 
     def mapThresholds(self):

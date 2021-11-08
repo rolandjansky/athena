@@ -17,7 +17,7 @@ from __future__ import with_statement, print_function
 from CoolRunQuery.AtlRunQueryQueryConfig import QC
 from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey
 
-import pickle,sys,os
+import pickle,sys
 from CoolRunQuery.AtlRunQueryRun import Run
 
 def CreateResultDict( runlist ):
@@ -25,11 +25,7 @@ def CreateResultDict( runlist ):
     if len(runlist)==0:
         return {}, {}
 
-    print("Creating result in path '%s'" % QC.datapath )
-
-    # output directory
-    if QC.datapath=='' and 'data' not in os.listdir('.'):
-        os.mkdir('data')
+    print("Creating results in path '%s'" % QC.datapath )
 
     # define the header
     header = []

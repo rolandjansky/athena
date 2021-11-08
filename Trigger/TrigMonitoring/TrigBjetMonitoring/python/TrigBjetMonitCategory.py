@@ -9,10 +9,9 @@ from __future__ import print_function
 #General trigger chains  -  default values
 
 monitoring_bjet      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split",
-                        "E_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
-                        "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_L1J100",
-                        "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_L1J100",
-                        "S_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20"]
+                        "S_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
+                        "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_preselj80_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_preselj120_L1J100",
+                        "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_preselj140_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_preselj225_L1J100"]
 
 monitoring_mujet     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02",
                         "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
@@ -20,11 +19,9 @@ monitoring_mujet     = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu
 # triggers in pp collisions   -  used for q431 test
 
 monitoring_bjet_pp      = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split",
-                           "E_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
-                           "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_L1J100",
-                           "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_L1J100",
-                           "S_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20"]
-
+                           "S_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
+                           "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_preselj80_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_preselj120_L1J100",
+                           "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_preselj140_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_preselj225_L1J100"]
 
 monitoring_mujet_pp  = ["S_HLT_mu4_j45_gsc55_boffperf_split_dr05_dz02","E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02_L1BTAG-MU6J20","E_HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02",
                         "E_HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02"]
@@ -46,10 +43,9 @@ monitoring_mujet_hi    = ["E_HLT_mu4_j20_ion_dr05", "S_HLT_mu4_j60_ion_dr05", "S
 # Triggers for MC  -  used for q221 test
 
 monitoring_bjet_validation = ["E_HLT_j35_boffperf_split","E_HLT_j55_boffperf_split","S_HLT_j85_gsc110_boffperf_split","S_HLT_j45_gsc55_boffperf_split","E_HLT_j225_gsc300_boffperf_split",
-                              "E_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
-                              "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_L1J100",
-                              "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_L1J100",
-                              "S_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20"]
+                              "S_HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20","E_HLT_j60_0eta290_020jvt_pf_ftf_boffperf_L1J50",
+                              "E_HLT_j80_0eta290_020jvt_pf_ftf_boffperf_L1J50","E_HLT_j100_0eta290_020jvt_pf_ftf_boffperf_preselj80_L1J50","E_HLT_j150_0eta290_020jvt_pf_ftf_boffperf_preselj120_L1J100",
+                              "E_HLT_j200_0eta290_020jvt_pf_ftf_boffperf_preselj140_L1J100","E_HLT_j300_0eta290_020jvt_pf_ftf_boffperf_preselj225_L1J100"]
 
 
 

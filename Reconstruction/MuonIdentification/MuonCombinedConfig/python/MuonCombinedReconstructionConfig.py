@@ -51,8 +51,10 @@ def MuonSegmentTagAlgCfg(flags, name="MuonSegmentTagAlg", **kwargs ):
     return result
   
 def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasRKPropagatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+
     #TODO: defaults in cxx
-    result = ComponentAccumulator()
     kwargs.setdefault("AssumeLocalErrors", True)
     kwargs.setdefault("PhiCut", 30.)
     kwargs.setdefault("GlobalPhiCut", 1.)
@@ -61,6 +63,11 @@ def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
     kwargs.setdefault("ThetaAngleCut", 5.)
     kwargs.setdefault("DoDistanceCut", True)
     kwargs.setdefault("CombinedPullCut", 3.0)
+
+    result = AtlasExtrapolatorCfg(flags)
+    kwargs.setdefault("IExtrapolator", result.getPrimary())
+
+    kwargs.setdefault("Propagator", result.getPrimaryAndMerge( AtlasRKPropagatorCfg(flags) ))
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
         TrackingGeometryCondAlgCfg)
@@ -296,18 +303,11 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
 def MuonCombinedReconstructionCfg(flags):
     result = ComponentAccumulator()
 
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg :
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-        result.merge( TrackingGeometryCondAlgCfg(flags) )
-    else :
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-        result.merge( TrackingGeometrySvcCfg(flags) )
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+    result.merge( TrackingGeometryCondAlgCfg(flags) )
 
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
-
 
     # Set up to read Tracks.
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg

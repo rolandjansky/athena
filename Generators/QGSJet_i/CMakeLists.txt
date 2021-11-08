@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( QGSJet_i )
@@ -34,3 +34,8 @@ atlas_install_runtime( share/file/qgsjet_crmc.param )
 
 atlas_install_runtime( ${CRMC_LCGROOT}/tabs/sectnu-II-04
    ${CRMC_LCGROOT}/tabs/qgsdat-II-04.lzma )
+
+set( QGSJetEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of QGSJetEnvironment.cmake" )
+find_package( QGSJetEnvironment )
+

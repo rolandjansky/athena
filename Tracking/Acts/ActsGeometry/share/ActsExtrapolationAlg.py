@@ -50,6 +50,8 @@ if "__main__" == __name__:
 
   cfg.merge(alignCondAlgCfg)
 
+
+
   alg = ActsExtrapolationAlgCfg(ConfigFlags,
                                 OutputLevel=INFO,
                                 NParticlesPerEvent = int(100),
@@ -58,6 +60,18 @@ if "__main__" == __name__:
                                 PtRange = [20, 100])
 
   cfg.merge(alg)
+
+  tgSvc = cfg.getService("ActsTrackingGeometrySvc")
+
+  # Service will have removed TRT and Calo
+  # We want them enabled for testing
+  tgSvc.BuildSubDetectors += [
+    "TRT",
+    "Calo"
+  ]
+  # needed to construct the calo geometry in ACTS
+  tgSvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()
+
 
   cfg.printConfig()
 

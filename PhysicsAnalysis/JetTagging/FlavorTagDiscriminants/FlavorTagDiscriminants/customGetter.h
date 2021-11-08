@@ -54,7 +54,7 @@ namespace FlavorTagDiscriminants {
 
   // internal functions
   namespace internal {
-    std::function<std::pair<std::string, double>(const SG::AuxElement&)>
+    std::function<std::pair<std::string, double>(const xAOD::Jet&)>
     customGetterAndName(const std::string&);
 
     std::pair<std::function<std::pair<std::string, std::vector<double>>(

@@ -272,6 +272,36 @@ namespace TrigConf {
       void load();
    };
 
+   class L1Threshold_gJ final : public L1Threshold_Calo {
+   public:
+      L1Threshold_gJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_gJ() = default;
+      virtual std::string className() const override { return "L1Threshold_gJ"; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+   };
+
+   class L1Threshold_gLJ final : public L1Threshold_Calo {
+   public:
+      L1Threshold_gLJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
+         L1Threshold_Calo(name, type, extraInfo, data) { load(); }
+      virtual ~L1Threshold_gLJ() = default;
+      virtual std::string className() const override { return "L1Threshold_gLJ"; }
+   protected:
+      virtual void update() override {
+         L1Threshold_Calo::update();
+         load();
+      }
+   private:
+      void load();
+   };
+
    class L1Threshold_jXE final : public L1Threshold_Calo {
    public:
       L1Threshold_jXE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :

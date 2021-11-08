@@ -5,6 +5,7 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets, addAntiKt4PV0TrackJets
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
 from DerivationFrameworkPhys import PhysCommon
@@ -20,7 +21,6 @@ jobproperties.egammaDFFlags.print_JobProperties("full")
 
 # additional settings for this derivation
 thinCells = True
-
 
 #====================================================================
 # check if we run on data or MC (DataSource = geant4)
@@ -354,7 +354,7 @@ EGAM7Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addAntiKt4TruthJets
+addAntiKt4PV0TrackJets(EGAM7Sequence,"EGAM7")
 addAntiKt4TruthJets(EGAM7Sequence,"EGAM7")
 
 

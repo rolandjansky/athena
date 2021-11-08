@@ -18,6 +18,7 @@
 #define CXXUTILS_SEAL_SIGNAL_H // wlav SEAL_BASE_SIGNAL_H
 
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/SealCommon.h"
 //# include "SealBase/sysapi/IOTypes.h"           wlav
 
 // These should be hidden, but we can't do that for now: the clients
@@ -273,11 +274,15 @@ public:
     static int			fatalLevel ATLAS_NOT_THREAD_SAFE (void);
     static bool			crashed ATLAS_NOT_THREAD_SAFE (void);
 
-    static void			dumpInfo    (IOFD fd, char *buf, int sig,
+    static void			dumpInfo    (IOFD fd, char *buf,
+                                             unsigned int buf_size,
+                                             int sig,
 					     const siginfo_t *info);
     static void			dumpMemory  (IOFD fd, char *buf,
+                                             unsigned int buf_size,
 					     const void *data, size_t n);
     static unsigned long        dumpContext (IOFD fd, char *buf,
+                                             unsigned int buf_size,
 					     const void *context);
 
     static const char *		describe (int sig, int code);

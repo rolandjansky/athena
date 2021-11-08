@@ -13,7 +13,7 @@ AtlasG4_tf.py \
 --conditionsTag 'OFLCOND-RUN12-SDR-19' \
 --physicsList 'FTFP_BERT' \
 --postInclude 'PyJobTransforms.TransformUtils.UseFrontier' \
---preInclude 'SimuJobTransforms.PreIncludes.FrozenShowersFCalOnly' \
+--preInclude 'SimuJobTransforms.FrozenShowersFCalOnly' \
 --DataRunNumber '222525' \
 --geometryVersion 'ATLAS-R2-2015-03-01-00' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/e_E50_eta34_49.EVNT.pool.root" \

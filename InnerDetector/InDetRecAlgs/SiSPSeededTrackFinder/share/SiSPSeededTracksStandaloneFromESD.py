@@ -244,7 +244,7 @@ if doPixel:
     #####################
     # Calibration Setup #
     #####################
-    if commonGeoFlags.Run()=="RUN3":
+    if commonGeoFlags.Run()=="RUN3" and 'UseOldIBLCond' not in digitizationFlags.experimentalDigi():
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
@@ -404,6 +404,10 @@ if doPixel:
                                                              NnCollectionReadKey          = "PixelClusterNN",
                                                              NnCollectionWithTrackReadKey = "PixelClusterNNWithTrack")
     ToolSvc += NnClusterizationFactory
+
+# Set up tracking geometry
+from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+condSeq += ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
 
 # Set up InDet__SiTrackerSpacePointFinder (alg)
 # Taken from InDetRecExample/share/InDetRecPreProcessingSilicon.py

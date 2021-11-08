@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModelTPCnv/DataHeader_p4.h"
@@ -40,6 +40,7 @@ DataHeaderElement_p4& DataHeaderElement_p4::operator=(const DataHeaderElement_p4
       m_classIdIdx = rhs.m_classIdIdx;
       m_keyPos = rhs.m_keyPos;
       m_hashes = rhs.m_hashes;
+      m_prefixIdx = rhs.m_prefixIdx;
    }
    return(*this);
 }

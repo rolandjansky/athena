@@ -89,6 +89,7 @@ private:
    StringProperty  m_containerPrefix{ this, "PoolContainerPrefix", "", "prefix for top level POOL container: default = \"CollectionTree\""};
    StringProperty  m_containerNameHint{ this, "TopLevelContainerName", "0", "naming hint policy for top level POOL container: default = \"0\""};
    StringProperty  m_branchNameHint{ this, "SubLevelBranchName", "0", "naming hint policy for POOL branching: default = \"0\"" };
+   std::string  m_outputAttributes{""};
    SG::ReadHandleKey<AthenaAttributeList>  m_attrListKey{this, "AttributeListKey", "", "optional key for AttributeList to be written as part of the DataHeader: default = \"\""};
    //SG::WriteHandleKey<AthenaAttributeList>  m_attrListWrite{this, "AttributeListWrite", "", "optional key for AttributeList to be written as part of the DataHeader: default = <AttributeListKey>+\"Decisions\""};
    std::string  m_attrListWrite{""};

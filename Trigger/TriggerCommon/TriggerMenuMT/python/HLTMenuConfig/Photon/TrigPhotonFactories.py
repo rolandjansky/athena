@@ -19,7 +19,8 @@ from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVA
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder ,TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+TrigEgammaKeys = getTrigEgammaKeys()
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
 
 
@@ -50,7 +51,8 @@ TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBui
         doConversions = False,
         AddClustrsMatchingVtxTracks = False,
         ConversionBuilderTool = None,
-        doAdd = False
+        doAdd = False,
+        LinkToConstituents = False,
         )
 
 #Factory for photons

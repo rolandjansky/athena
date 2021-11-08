@@ -22,7 +22,6 @@ class TTree;
 #include "MMLoadVariables.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
 
-
 namespace MuonGM {
   class MuonDetectorManager;
 }
@@ -42,12 +41,11 @@ namespace NSWL1 {
     std::vector<hitData_key> event_hitData_keys(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
     std::shared_ptr<MMT_Parameters> m_par_large;
     std::shared_ptr<MMT_Parameters> m_par_small;
+    std::unique_ptr<MMT_Diamond> m_diamond;
 
     //MMT_Loader stuff end
 
-    MMTriggerTool(const std::string& type,
-			  const std::string& name,
-			  const IInterface* parent);
+    MMTriggerTool(const std::string& type, const std::string& name, const IInterface* parent);
 
     virtual ~MMTriggerTool();
 
@@ -56,6 +54,8 @@ namespace NSWL1 {
     virtual void handle (const Incident& inc);
 
     StatusCode runTrigger(const bool do_MMDiamonds);
+
+    StatusCode fillRDO(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds);
 
   private:
 

@@ -11,9 +11,9 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'bjet' )
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
 
-    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois=inputRoI)
+    viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=inputRoI)
 
     viewVerify.DataObjects += dataObjects
 
@@ -28,8 +28,8 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
     algSequence.append( parOR("SecondStageFastTrackingSequence",viewAlgs) )
 
     # Precision Tracking
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
+    from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
     algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
 
     return [ algSequence, PTTrackParticles ]

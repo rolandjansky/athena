@@ -386,6 +386,7 @@ MatVisAttributes::MatVisAttributes() {
     m->specularColor.setValue(0.71, 0.48, 0.46);
     m->shininess.setValue(0.23);
     add("Aluminium",m);
+    add("std::Aluminium",m);
   }
 
   {
@@ -395,6 +396,7 @@ MatVisAttributes::MatVisAttributes() {
     m->specularColor.setValue(0.92, 0.92, 0.89);
     m->shininess.setValue(0.60);
     add("Iron",m);
+    add("std::Iron",m);
   }
 
   {

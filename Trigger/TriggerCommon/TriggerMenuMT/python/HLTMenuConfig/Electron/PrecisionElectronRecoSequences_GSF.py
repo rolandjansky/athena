@@ -21,7 +21,10 @@ def precisionElectronRecoSequence_GSF(RoIs):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
        
     # precision Tracking related data dependencies
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys, TrigEgammaKeys_GSF
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import  TrigEgammaKeys_GSF
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
+
+    TrigEgammaKeys = getTrigEgammaKeys()
 
     ViewVerifyTrk_GSF   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier_GSF")
 

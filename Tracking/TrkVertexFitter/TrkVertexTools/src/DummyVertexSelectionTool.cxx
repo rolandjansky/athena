@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexTools/DummyVertexSelectionTool.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <vector> 
 
@@ -11,11 +12,9 @@ namespace Trk{
  
    //constructor
   DummyVertexSelectionTool::DummyVertexSelectionTool ( const std::string& t, const std::string& n, const IInterface*  p )
-          : AthAlgTool ( t,n,p ),m_randomSvc("AtRndmGenSvc", n),  m_randomEngineName("VertexRnd"), m_randomEngine(nullptr)
+    : base_class ( t,n,p ),m_randomEngineName("VertexRnd")
   {
-    declareInterface<IVertexSelectionTool> ( this );
      declareProperty("RandomStreamName",           m_randomEngineName,     "Name of the random number stream");
-   
   }
   
   //destructor
@@ -24,24 +23,7 @@ namespace Trk{
 //initialize
   StatusCode DummyVertexSelectionTool::initialize()
   {
-     msg(MSG::INFO) << "Initialization successful" << endmsg;
-   
-// Random number service
-    if ( m_randomSvc.retrieve().isFailure() ) 
-    {
-      ATH_MSG_ERROR( "Could not retrieve " << m_randomSvc );
-      return StatusCode::FAILURE;
-    }
-
-//Get own engine with own seeds:
-    m_randomEngine = m_randomSvc->GetEngine(m_randomEngineName);
-    if (!m_randomEngine) 
-    {
-      ATH_MSG_ERROR( "Could not get random engine '" << m_randomEngineName << "'" );
-      return StatusCode::FAILURE;
-    }
-
-     
+    ATH_CHECK( m_randomSvc.retrieve() );
     return StatusCode::SUCCESS;
    }///EndOfInitialize
 
@@ -54,12 +36,20 @@ namespace Trk{
   {
    if(vertexContainer->size()>2)
    {
+
+     // Get the RNG engine.  Reseed if a new event.
+     const EventContext& ctx = Gaudi::Hive::currentContext();
+     ATHRNG::RNGWrapper* wrapper = m_randomSvc->getEngine(this, m_randomEngineName);
+     if (wrapper->evtSeeded (ctx) != ctx.evt()) {
+       wrapper->setSeed (name(), ctx);
+     }
+     CLHEP::HepRandomEngine* engine = wrapper->getEngine (ctx);
    
 //only do anything if >1 real vertex is actually present   
-     if( CLHEP::RandFlat::shoot(m_randomEngine)>0.9)
+     if( CLHEP::RandFlat::shoot(engine)>0.9)
      {
 //and only in 10% of cases   let us randomize the vertex choice
-     unsigned int ivtx = (unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) *  vertexContainer->size());
+     unsigned int ivtx = (unsigned int)( CLHEP::RandFlat::shoot(engine) *  vertexContainer->size());
 
       ATH_MSG_VERBOSE("Vertex Selection changed to " << ivtx << "!");
       return ivtx;

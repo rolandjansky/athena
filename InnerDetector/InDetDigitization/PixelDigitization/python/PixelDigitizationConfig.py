@@ -469,7 +469,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     # Calibration Setup #
     #####################
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-    if commonGeoFlags.Run()=="RUN3":
+    if commonGeoFlags.Run()=="RUN3" and 'UseOldIBLCond' not in digitizationFlags.experimentalDigi():
         if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):

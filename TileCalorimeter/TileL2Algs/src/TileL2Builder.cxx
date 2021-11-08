@@ -177,7 +177,6 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *l2C
   std::vector<float> EMuons1;
   std::vector<float> EMuons2;
   std::vector<unsigned int> qf;
-  std::vector<float> sumE(3);
 
   float E_MeV[48];
   bool bad[48];
@@ -229,8 +228,9 @@ StatusCode TileL2Builder::process(int fragmin, int fragmax, TileL2Container *l2C
       MaskBad(ros, E_MeV, gain, bad);
 
       // MET
+      std::vector<float> sumE(3);
       SumE(ros, drawer, TileRawChannelUnit::MegaElectronVolts, E_MeV, gain, sumE);
-      (*l2Container)[m_hashFunc(fragId)]->setEt(sumE);
+      (*l2Container)[m_hashFunc(fragId)]->setEt(std::move(sumE));
 
       // MTag
 

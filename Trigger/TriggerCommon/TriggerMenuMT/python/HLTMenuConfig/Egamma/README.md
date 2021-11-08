@@ -15,7 +15,9 @@ Modules in this directory
   * Assembles the menu sequence for the precision electron reconstruction step
 * [PrecisionElectronMenuSequences_GSF.py](PrecisionElectronMenuSequences_GSF.py)
   * Assembles the menu sequence for the precision electron reconstruction step with Gaussian Sum Filter tracks
-* [EgammaDefs](EgammaDefs.py)
+* [TrigEgammaDefs](TrigEgammaDefs.py)
   * Common definitions
+* [TrigEgammaKeys](TrigEgammaKeys.py)
+  * Configuration of container names for HLT electrons, HLT photons and identification working points for Cut=Based selection, likelihood, Dnn and Ringer
 * [TrigEgammaFactories](TrigEgammaFactories.py)
   * ToolFactories to configure common TrigEgamma Tools

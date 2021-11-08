@@ -44,7 +44,7 @@ namespace dqutils {
   static const bool tgc_debug = false;
 
   void 
-  MonitoringFile::TGCPostProcess( std::string inFilename, bool /* isIncremental */ ) 
+  MonitoringFile::TGCPostProcess( const std::string & inFilename, bool /* isIncremental */ ) 
   {
     //start postprocessing
     std::vector< std::pair< std::string, float > > NoisyChambers;
@@ -82,7 +82,7 @@ namespace dqutils {
   }//MonitoringFile::TGCCheckHistogram
 
   void 
-  MonitoringFile::TGCChamberOccupancy(std::string inFilename, 
+  MonitoringFile::TGCChamberOccupancy(const std::string & inFilename, 
 				      std::vector< std::pair< std::string, float > >& noisychambers, 
 				      std::vector< std::pair< std::string, float > >& deadchambers)
   {
@@ -362,7 +362,7 @@ namespace dqutils {
   }//MonitoringFile::TGCChamberOccupancy
 
   void 
-  MonitoringFile::TGCChamberEfficiency(std::string inFilename, 
+  MonitoringFile::TGCChamberEfficiency(const std::string & inFilename, 
 				       std::vector< std::pair< std::string, 
 				       float > >& loweffchambers)
   {
@@ -601,7 +601,7 @@ namespace dqutils {
   }//MonitoringFile::TGCChamberEfficiency
 
   void 
-  MonitoringFile::TGCChamberTiming(std::string inFilename, 
+  MonitoringFile::TGCChamberTiming(const std::string & inFilename, 
                                    std::vector< std::pair< std::string, float > >& badrotimingchambers, 
                                    std::vector< std::pair< std::string, float > >& badtrgtimingchambers)
   {
@@ -695,7 +695,6 @@ namespace dqutils {
 	    continue;
 	  }
 
-          if(!hsum||!htmap||!htfrac)continue;
           TGCResetContents(hsum);
           TGCResetContents(htfrac);
 
@@ -804,7 +803,7 @@ namespace dqutils {
   }//MonitoringFile::TGCChamberTiming
 
   void 
-  MonitoringFile::TGCChannelOccupancy(std::string inFilename, 
+  MonitoringFile::TGCChannelOccupancy(const std::string & inFilename, 
 				      std::vector< std::pair< std::string, 
 				      float > >& noisychannels)
   {

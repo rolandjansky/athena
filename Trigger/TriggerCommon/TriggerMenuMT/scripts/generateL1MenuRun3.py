@@ -9,7 +9,7 @@ def parseCmdLine(possibleMenus):
     import argparse
     parser = argparse.ArgumentParser()
     # mandatory argument is the menu
-    parser.add_argument("menu", help="the menu to generate (possible menus: %s)" % ', '.join(possibleMenus), nargs='?', default="mc8")
+    parser.add_argument("menu", help="the menu to generate (possible menus: %s)" % ', '.join(possibleMenus), nargs='?', default="phyp1r3v1")
     parser.add_argument("-v", "--verbose", help="increase output verbosity", action="count", default=0)
     parser.add_argument("--destdir", dest="dest", help="directory for output files", default = "./")
     return parser.parse_args()

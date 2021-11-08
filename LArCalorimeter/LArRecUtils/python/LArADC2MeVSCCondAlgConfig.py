@@ -4,26 +4,29 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def LArADC2MeVSCCondAlgCfg(configFlags):
-    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
-    from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
+    from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg, LArElecCalibDBMCSCCfg
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    
+
     result=ComponentAccumulator()
-    result.merge(LArOnOffIdMappingCfg(configFlags))
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingSCCfg
+    result.merge(LArOnOffIdMappingSCCfg(configFlags))
     result.merge(LArGMCfg(configFlags)) #Needed for identifier helpers
 
-    theADC2MeVCondAlg=CompFactory.LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeVSC')
+    theADC2MeVCondAlg=CompFactory.LArADC2MeVCondAlg(name = "LArADC2MeVSCCondAlg", LArADC2MeVKey = 'LArADC2MeVSC')
 
     isMC=configFlags.Input.isMC
-    
+
     if isMC:
-        requiredConditions=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
+        requiredConditions=["RampSC","DAC2uASC","uA2MeVSC"]
         theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSC"
         theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASC"
         theADC2MeVCondAlg.LArRampKey="LArRampSC"
-        theADC2MeVCondAlg.LArMphysOverMcalKey="LArMphysOverMcalSC"
-        theADC2MeVCondAlg.LArHVScaleCorrKey="LArHVScaleCorr"
+        theADC2MeVCondAlg.LArMphysOverMcalKey=""
+        theADC2MeVCondAlg.LArHVScaleCorrKey=""
         theADC2MeVCondAlg.UseFEBGainTresholds=False
+        theADC2MeVCondAlg.LArOnOffIdMappingKey="LArOnOffIdMapSC"
+        theADC2MeVCondAlg.isSuperCell=True
+        result.merge(LArElecCalibDBMCSCCfg(configFlags,requiredConditions))
     else: # not MC:
         requiredConditions=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
         from LArRecUtils.LArFebConfigCondAlgConfig import LArFebConfigCondAlgCfg
@@ -31,8 +34,7 @@ def LArADC2MeVSCCondAlgCfg(configFlags):
             theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSC"
             theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASC"
         result.merge(LArFebConfigCondAlgCfg(configFlags))
-
-    result.merge(LArElecCalibDbCfg(configFlags,requiredConditions))
+        result.merge(LArElecCalibDbCfg(configFlags,requiredConditions))
     result.addCondAlgo(theADC2MeVCondAlg,primary=True)
     return result
 
