@@ -318,11 +318,11 @@ void eFEXegAlgo::setSeed() {
     unsigned int rETDown;
     getWindowET(2,2,iSeedR,rETDown);
     
-    // greater for left and up cells, greater or equal for right and down ones
-    if (iSeedET>lET && iSeedET>=rET 
-        && iSeedET>lETUp    && iSeedET>cETUp    && iSeedET>rETUp 
-        && iSeedET>=lETDown && iSeedET>=cETDown && iSeedET>=rETDown) {
-      if (iSeedET>maxET) { // if two maxima exist, keep the one to the left
+    // greater or equal than for left and down cells, greater than for right and up ones
+    if (iSeedET>=lET && iSeedET>rET 
+        && iSeedET>=lETUp    && iSeedET>cETUp    && iSeedET>rETUp 
+        && iSeedET>=lETDown && iSeedET>=cETDown && iSeedET>rETDown) {
+      if (iSeedET>=maxET) { // if two maxima exist and have the same ET, keep the one to the right
         maxET = iSeedET;
         tmpID = i;
       }

@@ -34,14 +34,14 @@ namespace FlavorTagDiscriminants {
 
     // Input Containers
     SG::ReadHandleKey< xAOD::TrackParticleContainer > m_TrackContainerKey {
-      this,"TrackContainer","InDetTrackParticles",
+      this,"trackContainer","InDetTrackParticles",
         "Key for the input track collection"};
     SG::ReadHandleKey< xAOD::VertexContainer > m_VertexContainerKey {
-      this,"PrimaryVertexContainer","PrimaryVertices",
-      "Key for the input vertex collection"};
+      this,"primaryVertexContainer","",
+      "Key for the input vertex collection, (empty to use beamspot)"};
 
     SG::ReadHandleKey< xAOD::EventInfo > m_eventInfoKey {
-      this, "EventInfo", "EventInfo", "Key for EventInfo"};
+      this, "eventInfo", "EventInfo", "Key for EventInfo"};
 
     // Decorators for tracks
     Gaudi::Property< std::string > m_prefix{this,"prefix","poboyIp_",""};

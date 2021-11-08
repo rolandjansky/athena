@@ -1,8 +1,11 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
-          Instantiate the EGamma Reconstruction, Output Item Lists,
-          and xAOD related Thinning
+          Instantiate the
+          Things needed upstream the main egamma Reconstruction,
+          EGamma Reconstruction,
+          Output Item Lists,
+          xAOD related Thinning
           """
 
 from AthenaCommon.Logging import logging
@@ -15,6 +18,11 @@ def EGammaSteeringCfg(flags, name="EGammaSteering"):
     mlog.info('Starting EGamma steering')
 
     acc = ComponentAccumulator()
+
+    # Things upstream main egamma reconstruction
+    from egammaConfig.egammaUpstreamConfig import (
+        egammaUpstreamCfg)
+    acc.merge(egammaUpstreamCfg(flags))
 
     # Reconstruction
     from egammaConfig.egammaReconstructionConfig import (

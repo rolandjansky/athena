@@ -13,12 +13,8 @@ def GSFTrackSummaryToolCfg(flags,
     acc = ComponentAccumulator()
 
     if "PixelToTPIDTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import (
-            InDetPixelToTPIDToolCfg)
-        kwargs["PixelToTPIDTool"] = acc.popToolsAndMerge(
-            InDetPixelToTPIDToolCfg(
-                flags,
-                name="GSFBuildPixelToTPIDTool"))
+        kwargs["PixelToTPIDTool"] = CompFactory.InDet.PixelToTPIDTool(
+            name="GSFBuildPixelToTPIDTool")
 
     # TODO what happens to
     # ClusterSplitProbabilityName=
@@ -70,12 +66,6 @@ def EMBremCollectionBuilderCfg(flags,
         Create the relevant TrackParticles """
 
     acc = ComponentAccumulator()
-    # FIXME runtime testing required this, but since this is not a
-    # direct dependency it should be added elsewhere,
-    # but I do not know where yet
-    if not flags.Input.isMC:
-        from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-        acc.merge(LumiBlockMuWriterCfg(flags))
 
     if "TrackRefitTool" not in kwargs:
         from egammaTrackTools.egammaTrackToolsConfig import (

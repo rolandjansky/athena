@@ -182,13 +182,14 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticl
         ))
     
     if flags.InDet.doTruth:
-        if not kwargs.get("TrackTruthContainerName", None):
-            kwargs.setdefault("AddTruthLink", False)
-        else:
-            kwargs.setdefault("AddTruthLink", True)
-            if "MCTruthClassifier" not in kwargs:
-                from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCfg
-                kwargs["MCTruthClassifier"] = result.popToolsAndMerge(MCTruthClassifierCfg(flags))
+        kwargs.setdefault("TrackTruthContainerName", "ExtendedTracksTruthCollection")
+        kwargs.setdefault("AddTruthLink", True)
+
+        if "MCTruthClassifier" not in kwargs:
+            from MCTruthClassifier.MCTruthClassifierConfig import MCTruthClassifierCfg
+            kwargs["MCTruthClassifier"] = result.popToolsAndMerge(
+                MCTruthClassifierCfg(flags))
+
     else:
         kwargs.setdefault("AddTruthLink", False)
     result.addEventAlgo(CompFactory.xAODMaker.TrackParticleCnvAlg(name, **kwargs))
@@ -265,6 +266,11 @@ def TrackRecoCfg(flags):
     result.merge(TRTPreProcessingCfg(flags))
     from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
     result.merge(NewTrackingTRTExtensionCfg(flags, SiTrackCollection = "ResolvedTracks", ExtendedTrackCollection = "ExtendedTracks", ExtendedTracksMap = "ExtendedTracksMap", doPhase=False))
+
+    if flags.InDet.doTruth:
+        from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+        result.merge(InDetTrackTruthCfg(flags, Tracks = "ExtendTracks", DetailedTruth = "ExtendTracksDetailedTruth", TracksTruth = "ExtendTracksTruthCollection"))
+
     # TODO add followup algs
     result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ExtendedTracks"))
 

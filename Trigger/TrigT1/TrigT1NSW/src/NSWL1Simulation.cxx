@@ -135,6 +135,7 @@ namespace NSWL1 {
     std::vector<std::unique_ptr<StripData>> strips;
     std::vector< std::unique_ptr<StripClusterData> > clusters;
     auto padTriggerContainer = std::make_unique<Muon::NSW_PadTriggerDataContainer>();
+    auto MMTriggerContainer = std::make_unique<Muon::NSW_TrigRawDataContainer>();
 
     if(m_dosTGC){
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
@@ -155,6 +156,7 @@ namespace NSWL1 {
     //retrive the MM Strip hit data
     if(m_doMM){
       ATH_CHECK( m_mmtrigger->runTrigger(m_doMMDiamonds) );
+      ATH_CHECK( m_mmtrigger->fillRDO(MMTriggerContainer.get(), m_doMMDiamonds) );
     }
     if(m_doNtuple){
       for ( auto& mon : m_monitors) {

@@ -203,7 +203,7 @@ class TrigMultiTrkComboHypoConfig(object):
             isStreamer = isStreamer,
             trigLevel = trigLevel,
             nTracks = [ 2, 3 ],
-            massRange = [ (100., 20000.), (100., 11000.) ],
+            massRange = [ (100., 20000.), (0., 11000.) ],
             trackPtThresholds = [ [ 3650., 3650. ], [ 3650., 3650., 3650. ] ],
             TrackCollectionKey = trackCollection,
             TrigBphysCollectionKey = outputTrigBphysCollection,
@@ -248,6 +248,10 @@ class TrigMultiTrkComboHypoConfig(object):
         if 'bJpsimutrk' in chainDict['topo']:
             tool.isMuonTrkPEB = True
             tool.totalCharge = 0
+
+        if 'bTau' in chainDict['topo']:
+            tool.nTrk = sum(int(chainPart['multiplicity']) for chainPart in chainDict['chainParts'])
+            tool.totalCharge = 1 if tool.nTrk == 3 else -1
 
         signatures = chainDict['signatures']
         tool.isCombinedChain = (signatures.count(signatures[0]) != len(signatures))

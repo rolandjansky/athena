@@ -200,15 +200,13 @@ private:
     // STATIONS TO MASK
     Gaudi::Property<std::vector<std::string>> m_maskedStations{this, "MaskedStations", {}, "Stations to be masked at digi level"};
     struct maskedStation {
-        maskedStation(std::string n, std::string e, std::string p) :
+        maskedStation(std::string_view n, std::string_view e, std::string_view p) :
             maskedName(n), maskedEta(e), maskedPhi(p), imaskedEta(0), imaskedPhi(0) {
             if (e != "*") {
-                std::istringstream v1(maskedEta);
-                v1 >> imaskedEta;
+                imaskedEta = atoi(maskedEta.c_str());
             }
             if (p != "*") {
-                std::istringstream v1(maskedPhi);
-                v1 >> imaskedPhi;
+                imaskedPhi = atoi(maskedPhi.c_str());
             }
         }
         std::string maskedName;

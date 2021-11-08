@@ -7,6 +7,7 @@
 
 //basic includes
 #include "GaudiKernel/IAlgTool.h"
+#include "MuonRDO/NSW_TrigRawDataContainer.h"
 
 //local includes
 #include <vector>
@@ -15,15 +16,13 @@
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
- 
-
-
   class IMMTriggerTool: public virtual IAlgTool {
 
   public:
     virtual ~IMMTriggerTool() {}
 
     virtual StatusCode runTrigger(const bool do_MMDiamonds) = 0;
+    virtual StatusCode fillRDO(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IMMTriggerTool("NSWL1::IMMTriggerTool", 1 ,0);

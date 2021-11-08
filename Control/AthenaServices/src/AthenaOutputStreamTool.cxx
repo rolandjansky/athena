@@ -95,6 +95,20 @@ StatusCode AthenaOutputStreamTool::initialize() {
      m_attrListWrite = m_attrListKey.key() + "Decisions";
      //ATH_CHECK(m_attrListWrite.initialize());
    }
+
+   if (!m_outputCollection.value().empty()) {
+      m_outputAttributes += "[OutputCollection=" + m_outputCollection.value() + "]";
+   }
+   if (!m_containerPrefix.value().empty()) {
+      m_outputAttributes += "[PoolContainerPrefix=" + m_containerPrefix.value() + "]";
+   }
+   if (m_containerNameHint.value() != "0") {
+      m_outputAttributes += "[TopLevelContainerName=" + m_containerNameHint.value() + "]";
+   }
+   if (m_branchNameHint.value() != "0") {
+      m_outputAttributes += "[SubLevelBranchName=" + m_branchNameHint.value() + "]";
+   }
+
    if (m_extend) ATH_CHECK(m_decSvc.retrieve());
    return(StatusCode::SUCCESS);
 }
@@ -391,18 +405,12 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
    }
    // Connect the output file to the service
    std::string outputConnectionString = outputName;
-   if (!m_outputCollection.value().empty() && outputConnectionString.find("[OutputCollection=") == std::string::npos) {
-      outputConnectionString += "[OutputCollection=" + m_outputCollection.value() + "]";
+   for (std::string::size_type pos = m_outputAttributes.find("["); pos != std::string::npos; pos = m_outputAttributes.find("[", ++pos)) {
+      if (outputConnectionString.find(m_outputAttributes.substr(pos, m_outputAttributes.find("=", pos) + 1 - pos)) == std::string::npos) {
+         outputConnectionString += m_outputAttributes.substr(pos, m_outputAttributes.find("]", pos) + 1 - pos);
+      }
    }
-   if (!m_containerPrefix.value().empty() && outputConnectionString.find("[PoolContainerPrefix=") == std::string::npos) {
-      outputConnectionString += "[PoolContainerPrefix=" + m_containerPrefix.value() + "]";
-   }
-   if (m_containerNameHint.value() != "0" && outputConnectionString.find("[TopLevelContainerName=") == std::string::npos) {
-      outputConnectionString += "[TopLevelContainerName=" + m_containerNameHint.value() + "]";
-   }
-   if (m_branchNameHint.value() != "0" && outputConnectionString.find("[SubLevelBranchName=") == std::string::npos) {
-      outputConnectionString += "[SubLevelBranchName=" + m_branchNameHint.value() + "]";
-   }
+
    // Check that the DataHeader is still valid
    DataObject* dataHeaderObj = m_store->accessData(ClassID_traits<DataHeader>::ID(), m_dataHeaderKey);
    std::map<DataObject*, IOpaqueAddress*> written;

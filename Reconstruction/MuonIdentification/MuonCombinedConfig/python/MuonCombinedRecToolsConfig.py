@@ -152,11 +152,9 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
 
     result = ParticleCaloCellAssociationToolCfg(flags)
     particle_calo_cell_association_tool = result.getPrimary()
-    result.addPublicTool( particle_calo_cell_association_tool )
 
     acc = ParticleCaloExtensionToolCfg(flags)
     particle_calo_extension_tool = acc.getPrimary()
-    result.addPublicTool( particle_calo_cell_association_tool )
     result.merge(acc)
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
@@ -193,7 +191,6 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     acc  = TrackingGeometryCondAlgCfg(flags)
     result.merge( acc )
     tool = CompFactory.Trk.TrkMaterialProviderTool(name = name, MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas, TrackingGeometryReadKey= acc.getPrimary().TrackingGeometryWriteKey)
-    result.addPublicTool(tool)
     result.setPrivateTools(tool)
 
     return result 
