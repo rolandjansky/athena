@@ -985,7 +985,7 @@ HLT_e5_etcut_L1eEM3:
     2: 37
     3: 37
   stepFeatures:
-    0: 329
+    0: 328
     1: 281
     2: 180
     3: 183
@@ -4065,15 +4065,15 @@ HLT_noalg_L1cTAU20M:
 HLT_noalg_L1cTAU25M:
   eventCount: 0
 HLT_noalg_L1eEM10L:
-  eventCount: 2
+  eventCount: 1
 HLT_noalg_L1eEM15:
   eventCount: 11
 HLT_noalg_L1eEM15L:
-  eventCount: 2
-HLT_noalg_L1eEM15M:
-  eventCount: 2
-HLT_noalg_L1eEM18M:
   eventCount: 1
+HLT_noalg_L1eEM15M:
+  eventCount: 0
+HLT_noalg_L1eEM18M:
+  eventCount: 0
 HLT_noalg_L1eEM20:
   eventCount: 7
 HLT_noalg_L1eEM20L:
@@ -4093,9 +4093,9 @@ HLT_noalg_L1eEM5:
 HLT_noalg_L1eEM8:
   eventCount: 22
 HLT_noalg_L1eEM8L:
-  eventCount: 2
+  eventCount: 1
 HLT_noalg_L1eEM8M:
-  eventCount: 2
+  eventCount: 0
 HLT_noalg_L1eTAU100:
   eventCount: 0
 HLT_noalg_L1eTAU12:
