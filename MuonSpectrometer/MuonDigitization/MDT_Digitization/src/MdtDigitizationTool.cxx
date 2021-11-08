@@ -889,7 +889,12 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
     }
 
     // Get the messaging service, print where you are
-    const MdtDigitCollection* coll = digitContainer->indexFindPtr(coll_hash);
+    MdtDigitCollection* coll = nullptr;
+    auto sc = digitContainer->naughtyRetrieve(coll_hash,coll);
+    if(sc.isFailure()){
+        ATH_MSG_ERROR("Not allowed to naughtyRetrieve");
+        return nullptr;
+    }
     if (!coll) {
         digitCollection = new MdtDigitCollection(elementId, coll_hash);
         if (digitContainer->addCollection(digitCollection, coll_hash).isFailure())
@@ -897,7 +902,7 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
         else
             ATH_MSG_DEBUG("New MdtDigitCollection with key=" << coll_hash << " recorded in StoreGate.");
     } else {
-        digitCollection = const_cast<MdtDigitCollection*>(coll);
+        digitCollection = coll;
     }
     return digitCollection;
 }
