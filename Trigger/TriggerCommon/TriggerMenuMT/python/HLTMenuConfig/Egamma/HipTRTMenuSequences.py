@@ -41,7 +41,7 @@ def TRTHitGeneratorSequence(ConfigFlags):
         ViewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
     # calling trtRIOMaker
-    from TrigInDetConfig.InDetPT import trtRIOMaker_builder
+    from TrigInDetConfig.InDetTrigPrecisionTracking import trtRIOMaker_builder
     trtInviewAlgs = trtRIOMaker_builder(signature = "electrontrt", config = None, rois=InViewRoIs)
     
     trtHTHFex = TrigTRTHTHCounterFex("TrigTRTH_fex")

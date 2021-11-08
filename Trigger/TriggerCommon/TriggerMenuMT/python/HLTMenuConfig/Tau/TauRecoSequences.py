@@ -215,10 +215,10 @@ def precTrackSequence( RoIs , name):
     PTTracks = [] #List of TrackCollectionKeys
     PTTrackParticles = [] #List of TrackParticleKeys
     
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
     #Pass verifier as an argument and it will automatically append necessary DataObjects@NOTE: Don't provide any verifier if loaded in the same view as FTF
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois = RoIs )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois = RoIs )
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
     vtxAlg = makeVertices( whichSignature       = signatureName, 
@@ -242,8 +242,8 @@ def tauFTFSequence( RoIs, name ):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( signatureNameID )
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+    viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois = RoIs )
 
     TrackCollection = IDTrigConfig.trkTracks_FTF()
 

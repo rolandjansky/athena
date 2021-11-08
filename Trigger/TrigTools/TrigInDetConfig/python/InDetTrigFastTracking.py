@@ -5,22 +5,25 @@
 from AthenaCommon.Include import include
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger("InDetSetup")
+log = logging.getLogger("InDetTrigFastTracking")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
-def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None ):
+def makeInDetTrigFastTrackingNoView( config = None, rois = 'EMViewRoIs', doFTF = True, secondStageConfig = None ):
 
-  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None, secondStageConfig)
+  viewAlgs, viewVerify = makeInDetTrigFastTracking( config, rois, doFTF, None, secondStageConfig)
   return viewAlgs
 
-def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
+def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier', secondStageConfig = None):
+
   if config is None :
-    raise ValueError('makeInDetAlgs() No config provided!')
+    raise ValueError('makeInDetTrigFastTracking() No config provided!')
   #Add suffix to the algorithms
   signature =  '_{}'.format( config.input_name )
+
+  log.info( "Fast tracking using new configuration: {} {}".format( config.input_name, config.name ) )
 
   #Global keys/names for Trigger collections
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
@@ -309,7 +312,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   if doFTF:
 
       if config is None:
-            raise ValueError('makeInDetAlgs() No signature config specified')
+            raise ValueError('makeInDetTrigFastTracking() No signature config specified')
 
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
       #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)

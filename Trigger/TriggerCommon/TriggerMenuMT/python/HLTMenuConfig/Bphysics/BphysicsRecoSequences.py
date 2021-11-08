@@ -15,8 +15,8 @@ def bmumuxRecoSequence(rois, muons):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     config = getInDetTrigConfig('bmumux')
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewDataVerifier = makeInDetAlgs(config, rois)
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+    viewAlgs, viewDataVerifier = makeInDetTrigFastTracking(config, rois)
     viewDataVerifier.DataObjects += [('TrigRoiDescriptorCollection', 'StoreGateSvc+%s' % rois),
                                      ('xAOD::MuonContainer', 'StoreGateSvc+%s' % muons)]
 
@@ -31,8 +31,8 @@ def bmumuxRecoSequence(rois, muons):
         recoSequence += viewAlg
 
     # Precision Tracking is requested in the same view as FTF, so viewDataVerifier must not be provided
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-    ptTracks, ptTrackParticles, ptAlgs = makeInDetPrecisionTracking(config, None, rois)
+    from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
+    ptTracks, ptTrackParticles, ptAlgs = makeInDetTrigPrecisionTracking(config, None, rois)
 
     precisionTrackingSequence = parOR('precisionTrackingInBmumux', ptAlgs)
     recoSequence += precisionTrackingSequence
