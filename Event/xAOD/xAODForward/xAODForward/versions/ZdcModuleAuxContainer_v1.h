@@ -38,7 +38,8 @@ namespace xAOD {
      /// @name Information from LocRecEvCollection and LocRecODEvCollection
      /// @{
      //std::vector<uint64_t> id;
-     std::vector<uint32_t> id;
+     //std::vector<uint32_t> id;
+     std::vector<int> id;
      std::vector<int> side;
      std::vector<int> zdcModule;
      std::vector<int> type;
