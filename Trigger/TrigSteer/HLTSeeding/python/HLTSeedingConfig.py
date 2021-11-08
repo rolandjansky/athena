@@ -19,6 +19,7 @@ _mapL1ThresholdToDecisionCollection = {
     "PROBEeEM" : "HLTNav_L1PROBEeEM",
     "PROBEeTAU" : "HLTNav_L1PROBEeTAU",
     "PROBEjTAU" : "HLTNav_L1PROBEjTAU",
+    "jJ" : "HLTNav_L1jJ",
     # Run-2 L1Calo
     "EM" : "HLTNav_L1EM",
     "J"  : "HLTNav_L1J",
