@@ -5,14 +5,14 @@
 from __future__ import print_function
 
 from AthenaCommon.Logging import logging 
-log = logging.getLogger("InDetPrecisionTracking")
+log = logging.getLogger("InDetTrigPrecisionTracking")
 
 
 
 
-def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', prefix="InDetTrigMT" ) :      
+def makeInDetTrigPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', prefix="InDetTrigMT" ) :      
     
-    log.info( "makeInDetPRecisionTracking:: {} {} doTRT: {} ".format(  config.input_name, config.name, config.doTRT ) )
+    log.info( "makeInDetTrigPrecisionTracking:: {} {} doTRT: {} ".format(  config.input_name, config.name, config.doTRT ) )
     
     ptAlgs = [] # List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
     
