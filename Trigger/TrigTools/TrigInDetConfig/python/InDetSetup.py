@@ -321,7 +321,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
       if not config.doZFinderOnly: 
 
-        from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+        from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import  InDetTrigParticleCreatorToolFTF
         from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
         theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
@@ -344,7 +344,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
           viewAlgs.append(theFTF2)
 
           
-          from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+          from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import  InDetTrigParticleCreatorToolFTF
           from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
           
           

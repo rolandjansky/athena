@@ -65,7 +65,7 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
     #  Track particle conversion algorithm
     #
     from .InDetTrigCommon import trackParticleCnv_builder
-    from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary, \
+    from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigParticleCreatorToolWithSummary, \
         InDetTrigParticleCreatorToolWithSummaryTRTPid
 
     creatorTool = InDetTrigParticleCreatorToolWithSummary
@@ -372,7 +372,7 @@ def trtRIOMaker_builder( signature, config, rois, prefix="InDetTrigMT" ):
     # trkExtensionType = 'XK'
     # if InDetTrigFlags.trtExtensionType() is 'DAF' :
     
-    from InDetTrigRecExample.InDetTrigCommonTools import  InDetTrigTRT_DriftCircleTool
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTRT_DriftCircleTool
     
     from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__TRT_RIO_Maker
     trtRIOMaker = InDet__TRT_RIO_Maker( name = "%sTRTDriftCircleMaker%s"%(prefix, signature),

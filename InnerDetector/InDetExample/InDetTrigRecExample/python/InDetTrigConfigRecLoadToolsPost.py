@@ -17,10 +17,80 @@ from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
 InDetTrigCutValues = EFIDTrackingCuts
 
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
+    InDetTrigTrackSummaryToolSharedHits
+
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigFastTrackSummaryTool, InDetTrigTrackSummaryToolSharedHitsWithTRTPid
+
+
+from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
+InDetTrigParticleCreatorTool = \
+    Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorTool",
+                                   TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
+                                   KeepParameters = False,
+                                   #ForceTrackSummaryUpdate = False,
+                                   )
+
+ToolSvc += InDetTrigParticleCreatorTool
+if (InDetTrigFlags.doPrintConfigurables()):
+    print (InDetTrigParticleCreatorTool)
+
+InDetTrigParticleCreatorToolWithSummary = \
+    Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummary",
+                                   TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
+                                   KeepParameters = True,
+                                   ComputeAdditionalInfo = True,
+                                   #ForceTrackSummaryUpdate = True,
+                                   )
+
+ToolSvc += InDetTrigParticleCreatorToolWithSummary
+if (InDetTrigFlags.doPrintConfigurables()):
+    print (InDetTrigParticleCreatorToolWithSummary)
+
+InDetTrigParticleCreatorToolWithSummaryTRTPid = \
+    Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolWithSummaryTRTPid",
+                                   TrackSummaryTool = InDetTrigTrackSummaryToolSharedHitsWithTRTPid,
+                                   KeepParameters = True,
+                                   ComputeAdditionalInfo = True,
+                                   #ForceTrackSummaryUpdate = True,
+                                   )
+
+ToolSvc += InDetTrigParticleCreatorToolWithSummaryTRTPid
+if (InDetTrigFlags.doPrintConfigurables()):
+    print (InDetTrigParticleCreatorToolWithSummaryTRTPid)
+
+
+InDetTrigParticleCreatorToolParams = \
+    Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolParams",
+                                   TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
+                                   KeepParameters = True,
+                                   #ForceTrackSummaryUpdate = False,
+                                   )
+
+ToolSvc += InDetTrigParticleCreatorToolParams
+if (InDetTrigFlags.doPrintConfigurables()):
+    print (InDetTrigParticleCreatorToolParams)
+
+InDetTrigParticleCreatorToolFTF = \
+    Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
+                                   TrackSummaryTool = InDetTrigFastTrackSummaryTool,
+                                   KeepParameters = True,
+                                   ComputeAdditionalInfo = True,
+                                   ExtraSummaryTypes     = ['eProbabilityComb', 'eProbabilityHT', 'eProbabilityNN','TRTTrackOccupancy', 'TRTdEdx', 'TRTdEdxUsedHits'],
+                                   #ForceTrackSummaryUpdate = False,
+                                   )
+
+ToolSvc += InDetTrigParticleCreatorToolFTF
+if (InDetTrigFlags.doPrintConfigurables()):
+    print (InDetTrigParticleCreatorToolFTF)
+
+
+
+
 
 from InDetRecExample.TrackingCommon import makePublicTool,makeName
 @makePublicTool
-def getInDetTrigFullLinearizedTrackFactory(name='InDetTrigFullLinearizedTrackFactory', **kwargs) :
+def getInDetTrigFullLinearizedTrackFactory(name='InDetFullLinearizedTrackFactory', **kwargs) :
     the_name                    = makeName( name, kwargs)
     if 'Extrapolator' not in kwargs :
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
@@ -30,7 +100,7 @@ def getInDetTrigFullLinearizedTrackFactory(name='InDetTrigFullLinearizedTrackFac
     return Trk__FullLinearizedTrackFactory(the_name, **kwargs)
 
 @makePublicTool
-def getInDetTrigTrackToVertexIPEstimator(name='InDetTrigTrackToVertexIPEstimator', **kwargs) :
+def getInDetTrigTrackToVertexIPEstimator(name='InDetTrackToVertexIPEstimator', **kwargs) :
     the_name                    = makeName( name, kwargs)
     if 'Extrapolator' not in kwargs :
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
@@ -43,10 +113,19 @@ def getInDetTrigTrackToVertexIPEstimator(name='InDetTrigTrackToVertexIPEstimator
 #move from the TrigVxPrimary
 if InDetTrigFlags.doNewTracking():
 
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigTrackSelectorTool
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSelectorTool
   import AthenaCommon.SystemOfUnits as Units
 
-  from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigLinFactory
+  from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+
+  InDetTrigLinFactory = Trk__FullLinearizedTrackFactory(name              = "InDetTrigFullLinearizedTrackFactory",
+                                                        Extrapolator      = InDetTrigExtrapolator,
+                                                        )
+  ToolSvc += InDetTrigLinFactory
+  if (InDetTrigFlags.doPrintConfigurables()):
+      print      (InDetTrigLinFactory)
+
 
 
   if InDetTrigFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or \
@@ -89,14 +168,6 @@ if InDetTrigFlags.doNewTracking():
       print (     InDetTrigAnnealingMaker)
 
         
-    from TrkVertexFitters.TrkVertexFittersConf import Trk__DummyVertexSmoother
-    InDetTrigDummyVertexSmoother =  Trk__DummyVertexSmoother(name="InDetTrigDummyVertexSmoother",
-                                                             ExtrapolatorInstance = "InDetTrigExtrapolator",
-                                                             ExtrapolatorName="Trk::Extrapolator")
-    ToolSvc += InDetTrigDummyVertexSmoother
-    if (InDetTrigFlags.doPrintConfigurables()):
-      print (InDetTrigDummyVertexSmoother)
-
 
   #smoother
   if InDetTrigFlags.primaryVertexSetup() == 'DefaultKalmanFinding' or \
