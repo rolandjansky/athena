@@ -1423,12 +1423,12 @@ namespace CP {
             //
             ATH_MSG_VERBOSE("Applying tight WP cuts to a high pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")");
             // No interpolation, since bins with -1 mean we should cut really loose
-            double rhoCut = m_tightWP_highPt_rhoCuts->GetBinContent(m_tightWP_highPt_rhoCuts->FindBin(pt, symmetric_eta));
+            double rhoCut = m_tightWP_highPt_rhoCuts->GetBinContent(m_tightWP_highPt_rhoCuts->FindFixBin(pt, symmetric_eta));
             ATH_MSG_VERBOSE("Rho value " << rho << ", required to be less than " << rhoCut << " unless -1, in which no cut is applied");
             //
             if (rhoCut < 0.0) return true;
             if (rho > rhoCut) return false;
-            ATH_MSG_VERBOSE("Muon passd tight WP, high pT rho cut!");
+            ATH_MSG_VERBOSE("Muon passed tight WP, high pT rho cut!");
 
             return true;
         }
