@@ -394,8 +394,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           TrackMaker_FTF.CosmicTrack=True
 
-        #if remapped_type=="fullScan":         #TODO: To validate the dynamic RoI settings.
-        #  self.useBeamSpotForRoiZwidth=True
+        self.useBeamSpotForRoiZwidth = config.useBeamSpotForRoiZwidth
         
         ToolSvc += TrackMaker_FTF
         self.initialTrackMaker = TrackMaker_FTF
