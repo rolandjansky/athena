@@ -21,8 +21,6 @@
 
 class MsgStream;
 
-namespace HGTD {
-
 class HGTD_ClusterCnv_p1
     : public T_AthenaPoolTPPolyCnvBase<Trk::PrepRawData, HGTD_Cluster,
                                        HGTD_Cluster_p1> {
@@ -44,7 +42,5 @@ public:
 protected:
   InDet::SiWidthCnv_p2 m_si_width_cnv;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_EVENTTPCNV_HGTD_CLUSTER_CNV_P1_H

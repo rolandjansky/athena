@@ -7,5 +7,4 @@ atlas_subdir( HGTD_EventAthenaPool )
 atlas_add_poolcnv_library( HGTD_EventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES HGTD_RawData/HGTD_RDOContainer.h HGTD_PrepRawData/HGTD_ClusterContainer.h
-                           TYPES_WITH_NAMESPACE HGTD::HGTD_ClusterContainer
                            LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib AtlasSealCLHEP GaudiKernel HGTD_RawData HGTD_PrepRawData HGTD_EventTPCnv )
