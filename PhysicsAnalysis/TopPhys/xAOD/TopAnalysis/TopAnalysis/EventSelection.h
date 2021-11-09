@@ -78,19 +78,19 @@ namespace top {
     /**
      * @brief Count the number of initial events
      */
-    virtual void countInitial(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const;
+    virtual void countInitial(const float mcEventWeight, const float pileupWeight) const;
     /**
      * @brief Count the number of events passing GRL
      */
-    virtual void countGRL(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const;
+    virtual void countGRL(const float mcEventWeight, const float pileupWeight) const;
     /**
      * @brief Count the number of events passing Good Calo
      */
-    virtual void countGoodCalo(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const;
+    virtual void countGoodCalo(const float mcEventWeight, const float pileupWeight) const;
     /**
      * @brief Count the number of events passing Primary Vertex
      */
-    virtual void countPrimaryVertex(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const;
+    virtual void countPrimaryVertex(const float mcEventWeight, const float pileupWeight) const;
 
     /**
      * @brief Apply the selection for each event.
@@ -176,25 +176,13 @@ namespace top {
     mutable TH1D* m_cutflowPUWeights;
     mutable TH1D* m_cutflowPUWeights_Loose;
 
-    ///Cutflow counting ZVtx weights instead of events
-    mutable TH1D* m_cutflowZVtxWeights;
-    mutable TH1D* m_cutflowZVtxWeights_Loose;
-
     ///Cutflow counting MC*Pileup weights instead of events
     mutable TH1D* m_cutflowMCPUWeights;
     mutable TH1D* m_cutflowMCPUWeights_Loose;
 
-    ///Cutflow counting MC*Pileup*ZVtx weights instead of events
-    mutable TH1D* m_cutflowMCPUZVtxWeights;
-    mutable TH1D* m_cutflowMCPUZVtxWeights_Loose;
-
     ///Cutflow counting ScaleFactors instead of events
     mutable TH1D* m_cutflowScaleFactors;
     mutable TH1D* m_cutflowScaleFactors_Loose;
-
-    ///Cutflow counting b-tagging scale factors instead of events
-    mutable TH1D* m_cutflowBScaleFactors;
-    mutable TH1D* m_cutflowBScaleFactors_Loose;
 
     ///The particle level cutflow histogram filled by the tool.
     mutable TH1D* m_cutflowParticleLevel;

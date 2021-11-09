@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes:
@@ -140,15 +140,8 @@ StatusCode RoIBResultByteStreamTool::convertToBS(std::vector<OFFLINE_FRAGMENTS_N
   ATH_CHECK(roibResult.isValid());
   ATH_MSG_DEBUG("Obtained ROIB::RoIBResult with key " << m_roibResultReadKey.key() << " for conversion to ByteStream");
 
-  const EventIDBase& eid = eventContext.eventID();
   auto addRob = [&](const eformat::helper::SourceIdentifier& sid, const size_t ndata, const uint32_t* data){
-    vrobf.push_back(newRobFragment(
-      eventContext, sid.code(),
-      eid.run_number(), eid.event_number(), eid.bunch_crossing_id(),
-      0, m_detEvType,
-      ndata, data,
-      eformat::STATUS_BACK
-    ));
+    vrobf.push_back(newRobFragment(eventContext, sid.code(), ndata, data, m_detEvType, eformat::STATUS_BACK));
     return vrobf.back();
   };
   auto convertDataToRob = [&](const eformat::helper::SourceIdentifier& sid, const auto& dataVec){
@@ -195,6 +188,10 @@ StatusCode RoIBResultByteStreamTool::convertToBS(std::vector<OFFLINE_FRAGMENTS_N
       ++iset;
     }
     rawEvent->lvl1_trigger_info(num_words, l1bits_data);
+
+    // Update L1 TriggerType in event header
+    const uint32_t triggerType = roibResult->cTPResult().header().triggerType();
+    rawEvent->lvl1_trigger_type(static_cast<uint8_t>(triggerType & 0xFF));
   }
 
   // Muon

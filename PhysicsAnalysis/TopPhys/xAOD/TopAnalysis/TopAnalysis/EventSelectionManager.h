@@ -68,19 +68,19 @@ namespace top {
     /**
      * @brief Count the number of initial events
      */
-    virtual void countInitial(const float mcEventWeight, const float pileupWeight, const float zvtxWeight);
+    virtual void countInitial(const float mcEventWeight, const float pileupWeight);
     /**
      * @brief Count the number of events passing GRL
      */
-    virtual void countGRL(const float mcEventWeight, const float pileupWeight, const float zvtxWeight);
+    virtual void countGRL(const float mcEventWeight, const float pileupWeight);
     /**
      * @brief Count the number of events passing Good Calo
      */
-    virtual void countGoodCalo(const float mcEventWeight, const float pileupWeight, const float zvtxWeight);
+    virtual void countGoodCalo(const float mcEventWeight, const float pileupWeight);
     /**
      * @brief Count the number of events passing Primary Vertex
      */
-    virtual void countPrimaryVertex(const float mcEventWeight, const float pileupWeight, const float zvtxWeight);
+    virtual void countPrimaryVertex(const float mcEventWeight, const float pileupWeight);
 
     /**
      * @brief Run through the event selections for each event.

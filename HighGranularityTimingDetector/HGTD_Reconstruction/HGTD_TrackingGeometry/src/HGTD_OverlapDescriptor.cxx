@@ -23,10 +23,10 @@
 #include "Identifier/Identifier.h"
 
 
-HGTDet::HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array,
-                                                       std::vector < float > valuesR,
-                                                       std::vector < std::vector< float> > valuesPhi,
-                                                       int nStepsR, int nStepsPhi):
+HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array,
+                                               std::vector < float > valuesR,
+                                               std::vector < std::vector< float> > valuesPhi,
+                                               int nStepsR, int nStepsPhi):
   m_binnedArray(bin_array),
   m_valuesR(std::move(valuesR)),
   m_valuesPhi(std::move(valuesPhi)),
@@ -35,10 +35,10 @@ HGTDet::HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<Tr
 {}
 
 /** get the compatible surfaces */
-bool HGTDet::HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
-                                                       const Trk::Surface& tsf,
-                                                       const Amg::Vector3D& pos,
-                                                       const Amg::Vector3D&) const
+bool HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
+                                               const Trk::Surface& tsf,
+                                               const Amg::Vector3D& pos,
+                                               const Amg::Vector3D&) const
   
 {
   surfaces.emplace_back(Trk::Intersection(pos, 0., true),&tsf);
@@ -87,7 +87,7 @@ bool HGTDet::HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceI
 }
 
 
-bool HGTDet::HGTD_OverlapDescriptor::dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const {
+bool HGTD_OverlapDescriptor::dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const {
   
   if (m_hgtdIdHelper==nullptr) {
     // Get Storegate, ID helpers, and so on

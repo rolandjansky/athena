@@ -308,6 +308,10 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
 }
 
 StatusCode RatesAnalysisAlg::checkGotTDT() {
+  if (m_tdt.empty()){
+    ATH_MSG_ERROR("TriggerDecisionTool is not available!");
+    return StatusCode::FAILURE;
+  }
   static bool printed = false;
   if (!printed) ATH_MSG_INFO("TDT contains: " << m_tdt->getListOfTriggers().size() << " triggers, " 
     << m_tdt->getListOfStreams().size() << " streams and " 
@@ -357,14 +361,16 @@ StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const 
     return StatusCode::FAILURE;
   }
   iterator->second->setPassedAndExecute(threshold, m_weightingValues); // There is logic in the RatesScanTrigger to prevent multiple calls per event by accident.
-  m_activatedTriggers.insert( static_cast<RatesTrigger*>( iterator->second.get() ) );
+  m_activatedTriggers.insert( static_cast<RatesTrigger*>(iterator->second.get()));
   return StatusCode::SUCCESS;
 }
 
 StatusCode RatesAnalysisAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  ATH_CHECK( m_tdt.retrieve() );
+  if (!m_tdt.empty()){
+    ATH_CHECK( m_tdt.retrieve() );
+  }
 
   if(!m_configSvc.empty()) {
     ATH_CHECK( m_configSvc.retrieve() );
@@ -443,7 +449,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
   for (size_t i = 0; i < m_triggers.size(); i++)
     m_hltChainIDGroup.at(i).resize(3);
 
-  if(m_configSvc.isValid()) {
+  if(!m_configSvc.empty() && m_configSvc.isValid()) {
     const TrigConf::HLTMenu& hltmenu = m_configSvc->hltMenu( Gaudi::Hive::currentContext() );
     
     TrigConf::HLTMenu::const_iterator chain_itr = hltmenu.begin();
@@ -472,7 +478,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
 
   ATH_MSG_INFO("Retrieving L1 item's ID from L1 menu.");
 
-  if(m_configSvc.isValid()) {
+  if(!m_configSvc.empty() && m_configSvc.isValid()) {
     const TrigConf::L1Menu& l1menu = m_configSvc->l1Menu( Gaudi::Hive::currentContext() );
 
     m_l1ItemID.resize(l1menu.size());
@@ -847,7 +853,7 @@ void RatesAnalysisAlg::writeMetadata() {
   uint32_t hltPrescaleKey = 0;
   uint32_t lvl1PrescaleKey = 0;
 
-  if(m_configSvc.isValid()) {
+  if(!m_configSvc.empty() && m_configSvc.isValid()) {
     const TrigConf::BunchGroupSet* bgs = m_configSvc->bunchGroupSet();
     for (const TrigConf::BunchGroup& bg : bgs->bunchGroups()) {
       bunchGroups.push_back(bg.bunches().size());

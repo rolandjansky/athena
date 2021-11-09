@@ -33,38 +33,35 @@ def TgcRawDataMonitoringConfig(inputFlags):
     tgcRawDataMonAlg.PrintAvailableMuonTriggers = False
 
     tgcRawDataMonAlg.MonitorTriggerMultiplicity = False
-    tgcRawDataMonAlg.CtpDecisionMoniorList  = "Tit:L1_MU4_Run2,Mul:1,HLT:HLT_mu4_l2io_L1MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU6_Run2,Mul:1,HLT:HLT_mu6_L1MU6,RPC:2,TGC:2;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU10_Run2,Mul:1,HLT:HLT_mu10_L1MU10,RPC:3,TGC:3;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU20_Run2,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:5,TGC:5;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU4_Run2,Mul:2,HLT:HLT_2mu4_L12MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU6_Run2,Mul:2,HLT:HLT_2mu6_L12MU6,RPC:2,TGC:2;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU10_Run2,Mul:2,HLT:HLT_2mu14_L12MU10,RPC:3,TGC:3;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU4_Run2,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU6_Run2,Mul:3,HLT:HLT_3mu6_L13MU6,RPC:2,TGC:2;"
-
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU4_Run3,Mul:1,HLT:HLT_mu4_l2io_L1MU4,RPC:1,TGC:1;"
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU6_Run3,Mul:1,HLT:HLT_mu6_L1MU6,RPC:2,TGC:3F;"
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU10_Run3,Mul:1,HLT:HLT_mu10_L1MU10,RPC:3,TGC:6F;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU20_Run3,Mul:1,HLT:HLT_mu26_ivarmedium_L1MU20,RPC:6,TGC:12FCH;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU20_Run3,Mul:1,HLT:HLT_mu24_L1MU20,RPC:6,TGC:12FCH;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU3V_Run3,Mul:1,HLT:HLT_mu4_l2io_L1MU3V,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU5VF_Run3,Mul:1,HLT:HLT_mu20_L1MU5VF,RPC:2,TGC:3F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU8F_Run3,Mul:1,HLT:HLT_mu10_L1MU8F,RPC:3,TGC:6F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU14FCH_Run3,Mul:1,HLT:HLT_mu50_L1MU14FCH,RPC:6,TGC:12FCH;"
+
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU4_Run3,Mul:2,HLT:HLT_2mu4_L12MU4,RPC:1,TGC:1;"
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU6_Run3,Mul:2,HLT:HLT_2mu6_L12MU6,RPC:2,TGC:3F;"
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU10_Run3,Mul:2,HLT:HLT_2mu14_L12MU10,RPC:3,TGC:6F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU3V_Run3,Mul:2,HLT:HLT_2mu4_L12MU3V,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU5VF_Run3,Mul:2,HLT:HLT_2mu6_L12MU5VF,RPC:2,TGC:3F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_2MU8F_Run3,Mul:2,HLT:HLT_2mu14_L12MU8F,RPC:3,TGC:6F;"
+
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU4_Run3,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU4,RPC:1,TGC:1;"
     tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU6_Run3,Mul:3,HLT:HLT_3mu6_L13MU6,RPC:2,TGC:3F;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU3V_Run3,Mul:3,HLT:HLT_3mu4_bJpsi_L13MU3V,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_3MU5VF_Run3,Mul:3,HLT:HLT_3mu6_L13MU5VF,RPC:2,TGC:3F;"
 
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_MU4_Run2Legacy,Mul:1,HLT:HLT_mu4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_MU6_Run2Legacy,Mul:1,HLT:HLT_mu6,RPC:2,TGC:2;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_MU10_Run2Legacy,Mul:1,HLT:HLT_mu10,RPC:3,TGC:3;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_MU20_Run2Legacy,Mul:1,HLT:HLT_mu26_ivarmedium,RPC:5,TGC:5;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_2MU4_Run2Legacy,Mul:2,HLT:HLT_2mu4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_2MU6_Run2Legacy,Mul:2,HLT:HLT_2mu6,RPC:2,TGC:2;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_2MU10_Run2Legacy,Mul:2,HLT:HLT_2mu14,RPC:3,TGC:3;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_3MU4_Run2Legacy,Mul:3,HLT:HLT_3mu4,RPC:1,TGC:1;"
-    tgcRawDataMonAlg.CtpDecisionMoniorList  += "Tit:L1_3MU6_Run2Legacy,Mul:3,HLT:HLT_3mu6,RPC:2,TGC:2;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_4MU3V_Run3,Mul:4,HLT:HLT_4mu4_L14MU3V,RPC:1,TGC:1;"
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_4MU4_Run3,Mul:4,HLT:HLT_4mu4_L14MU4,RPC:1,TGC:1;"
+
+    tgcRawDataMonAlg.CtpDecisionMoniorList += "Tit:L1_MU10BOM_Run3,Mul:1,HLT:HLT_2mu10_l2mt_L1MU10BOM,RPC:4M,TGC:99;"
 
     tgcRawDataMonAlg.MonitorThresholdPatterns = False
-    tgcRawDataMonAlg.ThrPatternList = "MU4,MU6,MU10,MU11,MU20,MU21"
+    tgcRawDataMonAlg.ThrPatternList = "MU4,MU6,MU10,MU11,MU20,MU21,"
+    tgcRawDataMonAlg.ThrPatternList += "MU3V,MU3VF,MU3VC,MU5VF,MU8F,MU8VF,MU8FC,MU9VF,MU9VFC,MU14FCH,MU14FCHR,MU15VFCH,MU15VFCHR,MU18VFCH,MU10BOM,MU12BOM,MU8FH,MU20FC,MU12FCH,MU4BOM,MU4BO,MU14EOF,MU8EOF,MU3EOF,"
 
     tgcRawDataMonAlg.TagAndProbe = True
     tgcRawDataMonAlg.TagAndProbeZmumu = False
@@ -717,8 +714,8 @@ if __name__=='__main__':
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
-    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg
-    cfg.merge(TrigConfigSvcCfg(ConfigFlags))
+    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+    cfg.merge(L1ConfigSvcCfg(ConfigFlags))
 
     cfg.printConfig(withDetails=False, summariseProps = False)
 

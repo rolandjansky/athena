@@ -148,9 +148,7 @@ TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    , m_EtDouble(etau.EtDouble())
    , m_etaDouble(etau.etaDouble())
    , m_phiDouble(etau.phiDouble())
-   , m_reta(etau.Reta())
-   , m_rhad(etau.Rhad())
-   , m_wstot(etau.Wstot())
+   , m_fcore(etau.isolation())
    , m_tobType(etau.tobType())
 {}
 

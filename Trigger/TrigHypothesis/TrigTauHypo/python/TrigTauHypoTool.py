@@ -101,19 +101,20 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
     
         currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
 
-        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-        monTool = GenericMonitoringTool('MonTool_' + name)
-        monTool.HistPath = 'TrigTauRecMerged_TrigEFTauMVHypo/' + name
+        if 'tauMon:online' in chainDict['monGroups']:
+           from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+           monTool = GenericMonitoringTool('MonTool_' + name)
+           monTool.HistPath = 'TrigTauRecMerged_TrigEFTauMVHypo/' + name
 
-        # define quantities to be monitored
-        monTool.defineHistogram("CutCounter", path='EXPERT',type='TH1I',title=';CutCounter; Entries', xbins=10, xmin=0.,xmax=10.) 
-        monTool.defineHistogram("ptAccepted", path='EXPERT',type='TH1F',title=';ptAccepted; Entries', xbins=50, xmin=0.,xmax=500.)
-        monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
-        monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
-        monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
-        monTool.defineHistogram("RNNJetScore", path='EXPERT',type='TH1F',title=';RNN score; Entries', xbins=40, xmin=0.,xmax=1.)
-        monTool.defineHistogram("RNNJetScoreSigTrans", path='EXPERT',type='TH1F',title=';RNN score sig trans; Entries', xbins=40, xmin=0.,xmax=1.)
-        currentHypo.MonTool = monTool
+           # define quantities to be monitored
+           monTool.defineHistogram("CutCounter", path='EXPERT',type='TH1I',title=';CutCounter; Entries', xbins=10, xmin=0.,xmax=10.) 
+           monTool.defineHistogram("ptAccepted", path='EXPERT',type='TH1F',title=';ptAccepted; Entries', xbins=50, xmin=0.,xmax=500.)
+           monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
+           monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
+           monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
+           monTool.defineHistogram("RNNJetScore", path='EXPERT',type='TH1F',title=';RNN score; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreSigTrans", path='EXPERT',type='TH1F',title=';RNN score sig trans; Entries', xbins=40, xmin=0.,xmax=1.)
+           currentHypo.MonTool = monTool
 
  
         # setup the Hypo parameter
@@ -188,15 +189,16 @@ def TrigTauTrackHypoToolFromDict( chainDict ):
     from AthenaConfiguration.ComponentFactory import CompFactory
     currentHypo = CompFactory.TrigTrackPreSelHypoTool(name)
 
-    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-    monTool = GenericMonitoringTool('MonTool_' + name)
-    monTool.HistPath = 'TrigTauRecMerged_TrigTrackPreSelHypo/' + name
+    if 'tauMon:online' in chainDict['monGroups']:
+       from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+       monTool = GenericMonitoringTool('MonTool_' + name)
+       monTool.HistPath = 'TrigTauRecMerged_TrigTrackPreSelHypo/' + name
 
-    # define quantities to be monitored
-    monTool.defineHistogram("nTracksInCore", path='EXPERT', type='TH1I',title=';nTracksInCore; Entries', xbins=10, xmin=0.,xmax=10.)
-    monTool.defineHistogram("nTracksInIso",  path='EXPERT', type='TH1I',title=';nTracksInIso; Entries',  xbins=10, xmin=0.,xmax=10.)
-    monTool.defineHistogram("CutCounter",   path='EXPERT',  type='TH1I',title=';CutCounter; Entries',    xbins=10, xmin=0.,xmax=10.)
-    currentHypo.MonTool = monTool
+       # define quantities to be monitored
+       monTool.defineHistogram("nTracksInCore", path='EXPERT', type='TH1I',title=';nTracksInCore; Entries', xbins=10, xmin=0.,xmax=10.)
+       monTool.defineHistogram("nTracksInIso",  path='EXPERT', type='TH1I',title=';nTracksInIso; Entries',  xbins=10, xmin=0.,xmax=10.)
+       monTool.defineHistogram("CutCounter",   path='EXPERT',  type='TH1I',title=';CutCounter; Entries',    xbins=10, xmin=0.,xmax=10.)
+       currentHypo.MonTool = monTool
 
     currentHypo.AcceptAll = True
 

@@ -144,6 +144,8 @@ def digitizationRunArgsToFlags(runArgs, flags):
 
     if hasattr(runArgs, "PileUpPresampling"):
         flags.Common.ProductionStep = ProductionStep.PileUpPresampling
+    elif flags.Common.ProductionStep == ProductionStep.Default: # Do not override previous settings
+        flags.Common.ProductionStep = ProductionStep.Digitization
 
     if hasattr(runArgs, "doAllNoise"):
         flags.Digitization.DoInnerDetectorNoise = runArgs.doAllNoise

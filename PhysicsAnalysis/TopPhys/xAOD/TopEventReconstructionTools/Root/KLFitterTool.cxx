@@ -298,13 +298,13 @@ namespace top {
     std::string btagWP = "";
     if (findOption(custom_tokens, "KLFitterBTaggingWP", temp_option)) btagWP = temp_option;
     else {
-      if (m_config->bTagWP_available().size() != 1) {
+      if (m_config->bTagWP().size() != 1) {
         ATH_MSG_ERROR(
-          m_config->bTagWP_available().size() <<
+          m_config->bTagWP().size() <<
             " b-tagging WP - cannot pick b-jets. Please select only 1 WP or specify the desired one in your selection!");
         return StatusCode::FAILURE;
       }
-      btagWP = m_config->bTagWP_available()[0];
+      btagWP = m_config->bTagWP()[0];
     }
     if (btagWP.find("Continuous") != std::string::npos) {
       ATH_MSG_ERROR(
@@ -825,8 +825,8 @@ namespace top {
   bool KLFitterTool::HasTag(const xAOD::Jet& jet, double& weight) const {
     weight = -99.;
 
-    for (const auto& tagWP : m_config->bTagWP_available()) {
-      if (tagWP == "DL1_Continuous") continue;
+    for (const std::string& tagWP : m_config->bTagWP()) {
+      if (tagWP.find("Continuous") != std::string::npos) continue;
       if (!jet.isAvailable<char>("isbtagged_" + tagWP)) {
         ATH_MSG_ERROR("Failed to retrieve jet decoration isbtagged_" + tagWP);
         break;

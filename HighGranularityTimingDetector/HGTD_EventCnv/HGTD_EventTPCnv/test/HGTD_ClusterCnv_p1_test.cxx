@@ -28,22 +28,22 @@
 
 #include "HGTD_EventTPCnv_testfunctions.cxx"
 
-void convertAndBack(const HGTD::HGTD_Cluster& trans1) {
+void convertAndBack(const HGTD_Cluster& trans1) {
   std::cout << "convertAndBack\n";
   Identifier wafer_id = trans1.identify();
   std::cout << "Transient wafer ID: " << wafer_id << '\n';
   MsgStream log(0, "test");
-  HGTD::HGTD_ClusterCnv_p1 cnv;
-  HGTD::HGTD_Cluster_p1 pers;
+  HGTD_ClusterCnv_p1 cnv;
+  HGTD_Cluster_p1 pers;
   cnv.transToPers(&trans1, &pers, log);
-  HGTD::HGTD_Cluster trans2;
+  HGTD_Cluster trans2;
   cnv.persToTrans(&pers, &trans2, log);
 
   HGTDtest::compare(trans1, trans2);
   std::cout << "convertAndBack done\n";
 }
 
-HGTD::HGTD_Cluster setupTransientCluster() {
+HGTD_Cluster setupTransientCluster() {
   std::cout << "setupTransientCluster\n";
 
   Amg::Vector2D locpos(1.5, 2.5);
@@ -56,19 +56,19 @@ HGTD::HGTD_Cluster setupTransientCluster() {
     for (int j = 0; j < 2; j++)
       cov(i, j) = 100 * (i + 1) * (j + 1);
 
-  HGTD::HGTD_Cluster trans_cluster(Identifier(1234), locpos, std::move(rdoList), width,
-                                   nullptr, std::move(cov), 14.5, 0.35,
-                                   {145});
+  HGTD_Cluster trans_cluster(Identifier(1234), locpos, std::move(rdoList), width,
+                             nullptr, std::move(cov), 14.5, 0.35,
+                             {145});
 
   std::cout << "setupTransientCluster done\n";
   return trans_cluster;
 }
 
-BOOST_AUTO_TEST_CASE(HGTD_ClusterCnv_p1) {
+BOOST_AUTO_TEST_CASE(HGTD_ClusterCnv_p1_test) {
 
   std::cout << "start test\n";
 
-  HGTD::HGTD_Cluster cluster = setupTransientCluster();
+  HGTD_Cluster cluster = setupTransientCluster();
 
   convertAndBack(cluster);
 
