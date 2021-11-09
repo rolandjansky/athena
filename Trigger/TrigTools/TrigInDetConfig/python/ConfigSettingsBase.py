@@ -61,6 +61,7 @@ class _ConfigSettingsBase() :
       self._doHitDV             = False 
       self._doDisappearingTrk   = False
       self._usePixelNN          = False
+      self._useBeamSpotForRoiZwidth = False
       #precision tracking configuration values
       self._maxRPhiImpactPT   = None
       self._maxZImpactPT      = None
@@ -369,7 +370,10 @@ class _ConfigSettingsBase() :
    def minTRTonTrk(self):
       return self._minTRTonTrkPT
 
-      
+     
+   @property
+   def useBeamSpotForRoiZwidth(self):
+      return self._useBeamSpotForRoiZwidth 
 
    def printout(self):
       from AthenaCommon.Logging import logging
@@ -420,4 +424,5 @@ class _ConfigSettingsBase() :
       log.info( "   useSCT                : {}".format( self._useSCTPT ) )
       log.info( "   doEmCaloSeed          : {}".format( self._doEmCaloSeedPT ) )
       log.info( "   minTRTonTrk           : {}".format( self._minTRTonTrkPT ) )
+      log.info( "   BeamSpotForRoiZwidth  : {}".format( self._useBeamSpotForRoiZwidth ) )
 
