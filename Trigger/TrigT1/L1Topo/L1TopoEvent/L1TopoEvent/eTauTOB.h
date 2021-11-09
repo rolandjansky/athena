@@ -22,7 +22,7 @@ namespace TCS {
       eTauTOB(uint32_t roiWord = 0, const std::string& tobName = "eTauTOB");
       
       // constructor with individual values
-      eTauTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "eTauTOB");
+      eTauTOB(unsigned int et, double isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "eTauTOB");
 
       // constructor with initial values
       eTauTOB(const eTauTOB & eem);
@@ -32,7 +32,7 @@ namespace TCS {
 
       // accessors
       unsigned int Et() const { return m_Et; }                  // Et in units of 100 MeV
-      unsigned int isolation() const { return m_isolation; }    
+      double isolation() const { return m_isolation; }    
       int eta() const { return m_eta; }                         // eta in units of 0.025
       unsigned int phi() const { return m_phi; }                // phi in units of 0.05
 
@@ -42,7 +42,7 @@ namespace TCS {
       
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
-      void setIsolation(unsigned int isolation) { m_isolation = sizeCheck(isolation, nBitsIsolation()); }
+      void setIsolation(double isolation) { m_isolation = isolation ; }
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
       void setPhi(unsigned int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
@@ -68,7 +68,7 @@ namespace TCS {
       static const unsigned int g_nBitsPhi;
       
       unsigned int m_Et {0};
-      unsigned int m_isolation {0};
+      double m_isolation {0};
       int m_eta {0};
       unsigned int m_phi {0};
 
