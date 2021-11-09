@@ -17,11 +17,9 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "TrkPrepRawData/PrepRawDataContainer.h"
 
-namespace HGTD {
 typedef Trk::PrepRawDataContainer<HGTD_ClusterCollection> HGTD_ClusterContainer;
-}
 
-CLASS_DEF(HGTD::HGTD_ClusterContainer, 1313575059, 1)
-CONTAINER_IS_IDENTCONT(HGTD::HGTD_ClusterContainer)
+CLASS_DEF(HGTD_ClusterContainer, 1124691928, 1)
+CONTAINER_IS_IDENTCONT(HGTD_ClusterContainer)
 
 #endif // HGTD_PREPRAWDATA_HGTD_CLUSTERCONTAINER_H
