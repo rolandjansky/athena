@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from ROOT import egammaPID
 from AthenaCommon.Logging import logging
 
@@ -13,7 +14,6 @@ if not Configurable.configurableRun3Behavior:
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
-
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from .TrigEgammaKeys import getTrigEgammaKeys
@@ -21,7 +21,6 @@ from egammaRec.egammaRecFlags import jobproperties
 from egammaRec.Factories import ToolFactory, ServiceFactory
 from egammaMVACalib import egammaMVACalibConf
 from xAODEgamma.xAODEgammaParameters import xAOD
-
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +41,8 @@ class TrigEgammaKeys_GSF(object):
 #
 # Electron DNN Selectors
 #
-def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
+def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronDNNSelector', ConfigFilePath=None):
+    acc = ComponentAccumulator()
     # We should include the DNN here
     TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     if not ConfigFilePath:
@@ -61,26 +61,26 @@ def createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath=None):
           'dnnloose'  :'ElectronDNNMulticlassLoose.conf',
           })
 
-    selectors = []
     log.debug('Configuring electron DNN' )
     for dnnname, name in SelectorNames.items():
       SelectorTool = CompFactory.AsgElectronSelectorTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[dnnname]
       SelectorTool.skipDeltaPoverP = True
-      selectors.append(SelectorTool)
+      acc.addPublicTool(SelectorTool)
 
-    return selectors
+    return acc
 
 #
 # Electron LH Selectors
 #
-def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
+def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronLHSelector', ConfigFilePath=None):
 
     # Configure the LH selectors
+    acc = ComponentAccumulator()
     TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     #TrigEgammaKeys.pidVersion.set_On()
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
 
     import collections
     SelectorNames = collections.OrderedDict({
@@ -105,42 +105,42 @@ def createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath=None):
           'lhvloose_nopix'  :'ElectronLikelihoodVeryLooseTriggerConfig_NoPix.conf',
           })
 
-    selectors = []
     log.debug('Configuring electron PID' )
     for pidname, name in SelectorNames.items():
       SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
       SelectorTool.usePVContainer = False 
       SelectorTool.skipDeltaPoverP = True
-      selectors.append(SelectorTool)
-
-    return selectors
+      acc.addPublicTool(SelectorTool)
+    return acc
 
 
 #
 # Electron CB Selectors
 #
-def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
+
+def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCBSelector', ConfigFilePath=None):
+    acc = ComponentAccumulator()
     TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
 
     ElectronLooseHI = (0
-        | 1 << BitDefElectron.ClusterEtaRange_Electron
-        | 1 << BitDefElectron.ClusterHadronicLeakage_Electron
-        | 1 << BitDefElectron.ClusterMiddleEnergy_Electron
-        | 1 << BitDefElectron.ClusterMiddleEratio37_Electron
-        | 1 << BitDefElectron.ClusterMiddleWidth_Electron
-        | 1 << BitDefElectron.ClusterStripsWtot_Electron
+            | 1 << BitDefElectron.ClusterEtaRange_Electron
+            | 1 << BitDefElectron.ClusterHadronicLeakage_Electron
+            | 1 << BitDefElectron.ClusterMiddleEnergy_Electron
+            | 1 << BitDefElectron.ClusterMiddleEratio37_Electron
+            | 1 << BitDefElectron.ClusterMiddleWidth_Electron
+            | 1 << BitDefElectron.ClusterStripsWtot_Electron
     )
 
     ElectronMediumHI = (ElectronLooseHI
-        | 1 << BitDefElectron.ClusterMiddleEratio33_Electron
-        | 1 << BitDefElectron.ClusterBackEnergyFraction_Electron
-        | 1 << BitDefElectron.ClusterStripsEratio_Electron
-        | 1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron
-        | 1 << BitDefElectron.ClusterStripsDeltaE_Electron
-        | 1 << BitDefElectron.ClusterStripsFracm_Electron
-        | 1 << BitDefElectron.ClusterStripsWeta1c_Electron
+            | 1 << BitDefElectron.ClusterMiddleEratio33_Electron
+            | 1 << BitDefElectron.ClusterBackEnergyFraction_Electron
+            | 1 << BitDefElectron.ClusterStripsEratio_Electron
+            | 1 << BitDefElectron.ClusterStripsDeltaEmax2_Electron
+            | 1 << BitDefElectron.ClusterStripsDeltaE_Electron
+            | 1 << BitDefElectron.ClusterStripsFracm_Electron
+            | 1 << BitDefElectron.ClusterStripsWeta1c_Electron
     )
 
     if not ConfigFilePath:
@@ -148,31 +148,30 @@ def createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath=None):
 
     from collections import OrderedDict
     SelectorNames = OrderedDict({
-        'medium': 'AsgElectronIsEMSelectorHIMedium',
-        'loose': 'AsgElectronIsEMSelectorHILoose',
-        'mergedtight'  : 'AsgElectronIsEMSelectorMergedTight',
+          'medium': 'AsgElectronIsEMSelectorHIMedium',
+          'loose': 'AsgElectronIsEMSelectorHILoose',
+          'mergedtight'  : 'AsgElectronIsEMSelectorMergedTight',
     })
 
     ElectronToolConfigFile = {
-        'medium': 'ElectronIsEMMediumSelectorCutDefs.conf',
-        'loose': 'ElectronIsEMLooseSelectorCutDefs.conf',
-        'mergedtight'  : 'ElectronIsEMMergedTightSelectorCutDefs.conf',
+          'medium': 'ElectronIsEMMediumSelectorCutDefs.conf',
+          'loose': 'ElectronIsEMLooseSelectorCutDefs.conf',
+          'mergedtight'  : 'ElectronIsEMMergedTightSelectorCutDefs.conf',
     }
 
     ElectronMaskBits = {
-        'medium': ElectronMediumHI,
-        'loose': ElectronLooseHI,
-        'mergedtight'  : egammaPID.ElectronTightHLT,
+          'medium': ElectronMediumHI,
+          'loose': ElectronLooseHI,
+          'mergedtight'  : egammaPID.ElectronTightHLT,
     }
 
-    selectors = []
     for sel, name in SelectorNames.items():
         SelectorTool = CompFactory.AsgElectronIsEMSelector(name)
         SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
         SelectorTool.isEMMask = ElectronMaskBits[sel]
-        selectors.append(SelectorTool)
-
-    return selectors
+        acc.addPublicTool(SelectorTool)
+    
+    return acc
 
 
 #
@@ -207,7 +206,6 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
             'medium' : egammaPID.PhotonMedium,
             'tight'  : egammaPID.PhotonTight,
             }
-
     selectors = []
     for sel, name in SelectorNames.items():
         log.debug('Configuring photon PID for %s', sel)
@@ -249,8 +247,8 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
           'loose'   :['ElectronJpsieeRingerLooseTriggerConfig_RingsOnly.conf'     , 'ElectronZeeRingerLooseTriggerConfig_RingsOnly.conf'    ],
           'vloose'  :['ElectronJpsieeRingerVeryLooseTriggerConfig_RingsOnly.conf' , 'ElectronZeeRingerVeryLooseTriggerConfig_RingsOnly.conf'],
           })
-        
-    selectors = []
+    
+    selectors = []    
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
       SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
@@ -287,8 +285,7 @@ def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
           'loose'   :['ElectronJpsieeRingerLooseTriggerConfig.conf'     , 'ElectronZeeRingerLooseTriggerConfig.conf'    ],
           'vloose'  :['ElectronJpsieeRingerVeryLooseTriggerConfig.conf' , 'ElectronZeeRingerVeryLooseTriggerConfig.conf'],
           })
-        
-    selectors = []
+    selectors = []    
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)
       SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
@@ -319,6 +316,7 @@ def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
       'medium': ['PhotonRingerMediumTriggerConfig.conf'],
       'loose' : ['PhotonRingerLooseTriggerConfig.conf' ],
     })
+
     selectors = []
     for pidname , name in SelectorNames.items():
       log.debug('Configuring electron ringer PID for %s', pidname)

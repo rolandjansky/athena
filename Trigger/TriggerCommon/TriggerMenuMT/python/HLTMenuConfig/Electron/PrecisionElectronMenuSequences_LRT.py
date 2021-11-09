@@ -9,7 +9,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
-
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
 
 def precisionElectronSequence_LRT(ConfigFlags):
     """ fifth step:  precision electron....."""
@@ -42,10 +43,16 @@ def precisionElectronMenuSequence_LRT(is_probe_leg=False, do_idperf=False):
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlg
     if do_idperf:
-        thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_LRT_idperf", sequenceOut_dummy, do_idperf)
+        with ConfigurableRun3Behavior():
+            hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_LRT_idperf", sequenceOut_dummy, do_idperf)
     else:
-        thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_LRT", sequenceOut, do_idperf)
+        with ConfigurableRun3Behavior():
+            hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_LRT", sequenceOut, do_idperf)
     
+    thePrecisionElectronHypo = conf2toConfigurable(hypo_tuple[0])
+    hypo_acc = hypo_tuple[1]
+    appendCAtoAthena( hypo_acc )
+
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
     
     return  MenuSequence( Maker       = precisionElectronViewsMaker,
@@ -53,6 +60,3 @@ def precisionElectronMenuSequence_LRT(is_probe_leg=False, do_idperf=False):
                           Hypo        = thePrecisionElectronHypo,
                           HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict,
                           IsProbe     = is_probe_leg )
-
-
-
