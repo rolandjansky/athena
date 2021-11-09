@@ -330,14 +330,7 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
       ```
       The '*Trackparticles*' together with the '*Jets*' and '*Primary Vertex*' serve as inputs (Muons are not supported, yet.).\
       In a next step the flavour-tagging algorithms are converted back to old-style format, since the rest of the code is in old-style format, too. To do so the algorithms are being extracted from the '*ComponentAccumulator*' and reconfigured.
-      ```python
-        flavourTaggingAlgs = [conf2toConfigurable(alg)
-                          for alg in findAllAlgorithms(acc_flavourTaggingAlgs._sequence)]
-      ```
-      Parts of the ComponentAccumulator "acc_flavourTaggingAlgs" that aren't algorithms, e.g. conditionsAlgs, are added to athena via
-       ```python
-         appendCAtoAthena(acc_flavourTaggingAlgs)
-       ```
+      Parts of the ComponentAccumulator "acc_flavourTaggingAlgs" that aren't algorithms, e.g. conditionsAlgs, are added to athena separately.\
       Finally the tracking and flavour-tagging sequence are merged into one sequence.
       ```python
         bJetBtagSequence = seqAND( f"bJetBtagSequence_{jc_name}", secondStageAlgs + flavourTaggingAlgs )
