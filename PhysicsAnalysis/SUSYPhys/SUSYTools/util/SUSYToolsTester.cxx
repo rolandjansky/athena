@@ -650,11 +650,12 @@ int main( int argc, char* argv[] ) {
     }
 
     // Taus
-    if(slices["tau"]) 
+    if(slices["tau"]) {
       ANA_MSG_DEBUG( "Nominal tau step" );
       ANA_CHECK( objTool.GetTaus(taus_nominal,taus_nominal_aux, true, isPHYSLite?"AnalysisTauJets":"TauJets") );
       ANA_MSG_DEBUG( taus_nominal->size() << " taus");
-
+    }
+    
     // MET
     metcst_nominal->setStore(metcst_nominal_aux);
     metcst_nominal->reserve(10);
