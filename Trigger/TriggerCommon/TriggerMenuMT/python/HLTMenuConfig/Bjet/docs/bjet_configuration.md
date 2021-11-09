@@ -458,9 +458,82 @@ In '*BjetChainConfiguration.py*' the bjet sequence is added as one step of the c
      ```
 
 ## TrigBjetHypo
-[TrigBjetHypo](https://gitlab.cern.ch/atlas/athena/-/tree/master/Trigger/TrigHypothesis/TrigBjetHypo)
-To be added at hackathon
+The bjet hypothesis package is located at [TrigBjetHypo](https://gitlab.cern.ch/atlas/athena/-/tree/master/Trigger/TrigHypothesis/TrigBjetHypo).\
+The purpose of the hypo-tool is to decide on whether an event passes the chain-hypothesis or not. In our case the hypothsis is that a certain number of b-jets are present in the event. I.e. we test whether a the jets pass a certain b-tagging probability threshold. If this is the case, the event will be recorded.\
+In addition the hypo-tool takes care of navigation, which means linking the hypothesis decisions to the objects (jets). Also online monitoring, i.e. histogramming of b-tagging quantities at online-level, is being performed at the hypothesis testing step.\
+The package consists of two main parts. The python-code which takes care of configuring the hypo-tools. And the c++-code which contain the hypo-tools. (Currently there is only one tool in use.)
 
+### Python code -- HypoTool configuration
+The file [`TrigBjetBtagHypoTool.py`](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/python/TrigBjetBtagHypoTool.py) takes care of configuring the hypothesis tool correctly.\
+  1. The function `TrigBjetBtagHypoToolFromDict` is being called by the `MenuSequence`. Input to it is the _JetChainDictionary_. The relevant informations for configuring the hypo-tool, like `bTag`, `maxEta`, etc. are copied into a slimmed dictionary.
+  2. This slimmed dictionary together with the chain-name is being passed to the function `getBjetBtagHypoConfiguration`. There the main hypo-tool [`TrigBjetBtagHypoTool`](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetBtagHypoTool.cxx) (written in c++) is loaded.
+  3. Then the value of the key `bTag` is being passed to the function `decodeThreshold`. This function interprets the b-tagger and the working-point. With the help of the dictionary `bTaggingWP` the cut-value is determined. Finally tagger and cut-value are returned to `getBjetBtagHypoConfiguration`.
+  4. A `bTag`-value of "offperf" means that no b-tagging cut is applied. Hence, a flag of the hypo-tool called `AcceptAll` is being set to "True". Consequently all objects in this event will be recorded. Chains like this are interesting for performance checks.\
+  Next `MethodTag` (b-tagger), `BTaggingCut` (cut-value) and `cFraction` arguments of the hypo-tool are being set. The `cFraction` value is hardcoded (currently 0.018) and is important for DL1r taggers to compute the log-likelihood ratio.\
+  This tool is then returned to `TrigBjetBtagHypoToolFromDict`.
+  5. Monitoring code is also being configured at this step. Therefore the function `addMonitoring` is being called. It adds the monitoring class [`TrigBjetBtagHypoToolMonitoring`](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/python/TrigBjetMonitoringConfig.py) as the argument `MonTool` to the hypo-tool.
+  6. Finally the hypo-tool is being returned.
+```mermaid
+graph TB;
+  subgraph TrigBjetBtagHypoTool.py
+    TrigBjetBtagHypoToolFromDict(TrigBjetBtagHypoToolFromDict) --1--> getBjetBtagHypoConfiguration(getBjetBtagHypoConfiguration) --2--> decodeThreshold(decodeThreshold) --3--> getBjetBtagHypoConfiguration --4--> TrigBjetBtagHypoToolFromDict
+    TrigBjetBtagHypoToolFromDict --5--> addMonitoring(addMonitoring) --6--> TrigBjetBtagHypoToolFromDict
+
+  end
+```
+The file [`TrigBjetMonitoringConfig.py`](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/python/TrigBjetMonitoringConfig.py) contains two classes for monitoring.\
+The first one is `TrigBjetBtagHypoToolMonitoring`. It monitors only the flavour-probabilities and the log-likelihood-ratio, and is added to the hypo-tool in `TrigBjetBtagHypoTool.py`, as described above.\
+The second one is `TrigBjetOnlineMonitoring`. It monitors all kinds of flavour-tagging related quantities, and is added to the hypo-tool in [`BjetMenuSequence.py`](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetMenuSequences.py).\
+Both classes contain only the definition of the histograms. The histograms will be filled in the hypothesis-Algorithms (see next section).
+
+### C++ code -- HypoTools
+- [TrigBjetBtagHypoAlg.cxx](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetBtagHypoAlg.cxx)/[TrigBjetBtagHypoAlg.h](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetBtagHypoAlg.h)\
+  This is the main hypothesis algorithm at the moment. It is called / added to the `MenuSequence` in [`BjetMenuSequence.py`](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetMenuSequences.py).\
+  Arguments to be set are:
+  - ReadHandleKeys of the Jet, BTagging, Track, and PV-Container (On which to test the hypothesis, i.e. the containers inside the views)
+  - GaudiProperties which are the names of the links to the BTagging, and PV-Container used for navigation
+
+  The function `initialize` is called only before the first event and ensures that the keys are initialised correctly and the tools can be retrieved.\
+  The function `execute` is called for every event. It can be divided in four parts
+  1. Monitoring\
+     Firstly, the tracks, jets, and vertices are being retrieved from the event views, navigation, and StoreGate, respectively. After retrieving the collections, the respective histograms are filled with the help of the functions `monitor_*` (jets from views are retrieved in the next step and will be monitored separately as "Bjet" instead of "jet").
+  2. Preparing the new output decisions
+     First any previous decisions on the decision-objects (jets) will be loaded (at the moment these are only the decisions made by the jet-hypo algorithms).\
+     Then a new container containing the output decisions is created.
+     ```python
+       SG::WriteHandle< TrigCompositeUtils::DecisionContainer > handle = TrigCompositeUtils::createAndStore( decisionOutput(), context );
+       TrigCompositeUtils::DecisionContainer *outputDecisions = handle.ptr();
+     ```
+     In a next step a loop over the previous decision-objects is being performed. For each previous decision-object an entry is added to the new output decision container (`outputDecisions`). The jets, on which we have run flavour-tagging, and the corresponding b-tagging container are retrieved from the views and added as _ObjectLinks_ to the decisions.
+  3. Prepare input to Hypo-Tool
+     The hypo-tool is responsible for calculating the final decision and taking care of storing the output decision. The hypo-tool that is used for b-jets is called `TrigBjetBtagHypoTool`. More information on it can be found below.\
+     In this step the necessary information for running the hypo-tool is stored in a `TrigBjetBtagHypoToolInfo`-object. In order to do so another loop over the decision-objects is being executed. A `TrigBjetBtagHypoToolInfo`-object is created for every decision and the following information is passed to it: previousDecisionIDs, _ElementLinks_ to the BTagging, and PV-Container, and the new decision objects (which have been created in the previous step).
+  4. Calculating decision on trigger chains
+     In a last loop over the hypo-tools the output decision, depending on the `TrigBjetBtagHypoToolInfo`, is calculated. There is one hypo-tool for each splitted JetChainParts-Dictionary. For our example chain this would be two hypo.tools.
+- [TrigBjetBtagHypoTool.cxx](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetBtagHypoTool.cxx)/[TrigBjetBtagHypoTool.h](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetBtagHypoTool.h)\
+  This is the main bjet hypothesis-tool.\
+  Arguments to be set are:
+  1. Gaudi property _bool_ whether to accept all events
+  2. Gaudi property _string_ name of the flavour-tagger
+  3. Gaudi property _double_ cut value on the b-jet probability
+  4. Gaudi property _double_ c-fraction (used to calculate log-likelihood ratio for DL1r)
+  5. ToolHandle MonitoringTool
+
+  Those arguments are being configured in the file `TrigBjetBtagHypoTool.py` (see above). In the `initialize` function the monitoring tool is retrieved.\
+  The function `decide` is the main function that decides whether a jet passes the b-jet hypothesis or not. As an input it requires a vector of `TrigBjetBtagHypoToolInfo`. This function is only called inside the `execute` function in `TrigBjetBtagHypoAlg` (see above). This is also where the `TrigBjetBtagHypoToolInfo`-objects are being filled with the corresponding informations. In the end there is one `TrigBjetBtagHypoToolInfo`-object for each jet.\
+  Now in order to test the hypothesis it loops over all `TrigBjetBtagHypoToolInfo`-objects and checks whether the object (jet) passes the hypothesis. The checks are
+  1. Jet passed all previous decisions (Chain is active)
+  2. Vertex associated to the jet is the primary vertex
+  3. b-tagging Weight is greater than the cut value\
+     In order to perform this check, the "MVx"-score or "DL1r"-probabilities are retrieved from the b-tagging container. For DL1r the log-likelihood ratio is then also calculated. Other taggers are not supported at the moment. 
+  
+  If all of the checks are successfull, a new decisionID will be added to the output-decision container, if not, nothing will be added. When the argument `m_acceptAll` is set to "true", the jet will pass the decision, even if the thrid check is not successfull (b-tagging weight smaller than cut value).
+
+- [TrigBjetHypoAlgBase.cxx](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetHypoAlgBase.cxx)/[TrigBjetHypoAlgBase.h](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetHypoAlgBase.h)/[TrigBjetHypoAlgBase.icc](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetHypoAlgBase.icc)\
+  These files contain helper functions for retrieving objects or collections from StoreGate, EventViews and Navigation as well as functions to attach links from objects or collections to the output decision. These functions are used in [TrigBjetBtagHypoAlg.cxx](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigHypothesis/TrigBjetHypo/src/TrigBjetBtagHypoAlg.cxx).
+
+### Combo-Hypo
+All of the hypothesis code explained above only works on single chain parts. Now the combo-hypo tests whether an event passes the full chain, which can consist of multiple chain parts. To do so it simply tests all kind of possible combinations of jets to find a combination where all jets pass their respective assigned single chain part hypothesis. This is done with the help of the previously created output decision containers. If one combination is successfull, the chain is passed and the event will be stored.
 
 ## Full Sequence
 The full bjet sigature sequence looks as follows (excluding jet steps)
