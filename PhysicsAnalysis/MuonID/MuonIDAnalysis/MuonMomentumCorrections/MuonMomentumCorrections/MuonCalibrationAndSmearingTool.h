@@ -42,7 +42,7 @@ namespace MCAST {
   namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
   namespace SagittaCorType { enum { CB=0, ID=1, ME=2, WEIGHTS=3, AUTO=4}; }
-  namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2}; }
+  namespace SagittaSysType { enum { NOMINAL=0, RHO=1, BIAS=2, DATASTAT=3}; }
   namespace MST_Categories { enum { Undefined = -1, Zero = 0, One = 1, Two = 2, Three = 3, Four = 4, Total = 5 }; }
   namespace SagittaInputHistType { enum {NOMINAL=0,SINGLE=1 };   } 
 }
@@ -99,7 +99,11 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double smearDeltaID = 0;
       double smearDeltaCB = 0;
       double smearDeltaCBOnly = 0;
+      double smearDeltaCBDirect = 0;
       int    sel_category = -1;
+      double uncorrected_ptcb = 0;
+      double uncorrected_ptid = 0;
+      double uncorrected_ptms = 0;
     };
 
   public:
@@ -121,8 +125,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     // Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
     virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType ) const;
 
-    virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle,
-                                                 const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
+    virtual CorrectionCode applyStatCombination( AmgVector(5) parsID, AmgSymMatrix(5) covID,
+                                                 AmgVector(5) parsMS, AmgSymMatrix(5) covMS,
                                                  int charge,
                                                  AmgVector(5)& parsCB,
                                                  AmgSymMatrix(5)& covCB,
@@ -130,7 +134,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SystCase, InfoHelper& muonInfo) const;
     virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC, double p2Kin=0) const;
-    virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
+  virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo, const unsigned int SystCase=0) const;
 
 
   protected:
@@ -142,8 +146,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     float        GetRegionInnerEta( const int r_i ) const; //Return Eta closer to the origin
     std::string  GetRegionName( const int r_i ) const;
     std::string  GetRegionName( const double eta, const double phi ) const;
-    double GetSmearing( int DetType, InfoHelper& muonInfo ) const;
-    double GetSystVariation( int DetType, double var, InfoHelper& muonInfo ) const;
+    double GetSmearing( int DetType, InfoHelper& muonInfo, bool doDirectCB ) const;
+    double GetSystVariation( int DetType, double var, InfoHelper& muonInfo, bool doDirectCB ) const;
     StatusCode SetInfoHelperCorConsts(InfoHelper& inMuonInfo) const;
     void CalcCBWeights( xAOD::Muon&, InfoHelper& muonInfo ) const;
     double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVarID, const double scaleMS_scale, const double scaleMS_egLoss, InfoHelper& muonInfo ) const;
@@ -181,7 +185,11 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double ScaleMS_egLoss;
       double SagittaRho;
       double SagittaBias;
+      double SagittaDataStat;
     };
+
+    bool m_expertMode;
+    bool m_expertMode_isData;
 
     bool  m_useExternalSeed;
     int   m_externalSeed;
@@ -196,7 +204,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     int m_Tdata;
     int m_Trel;
     int m_Talgo;
+    double m_extraRebiasSys;
     double m_useNsigmaForICombine;
+    bool m_doDirectCBCalib;
     std::vector<double> m_scale_ID, m_enLoss_MS, m_scale_MS, m_scale_CB;
 
     //sys variations (stat error added in quadrature), one if it's simmetrized, 2 if Up != Dw.
@@ -214,6 +224,14 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector<double> m_SUp_p1_ID, m_SUp_p2_ID, m_SUp_p2_ID_TAN, m_SUp_p0_MS, m_SUp_p1_MS, m_SUp_p2_MS;
     std::vector<double> m_SDw_p1_ID, m_SDw_p2_ID, m_SDw_p2_ID_TAN, m_SDw_p0_MS, m_SDw_p1_MS, m_SDw_p2_MS;
     std::vector<double> m_MC_p1_ID, m_MC_p2_ID, m_MC_p2_ID_TAN, m_MC_p0_MS, m_MC_p1_MS, m_MC_p2_MS;
+
+
+    std::vector<double> m_S_0_CB, m_SUp_0_CB, m_SDw_0_CB;
+    std::vector<double> m_S_1_CB, m_SUp_1_CB, m_SDw_1_CB;
+    std::vector<double> m_R_0_CB, m_RUp_0_CB, m_RDw_0_CB;
+    std::vector<double> m_R_1_CB, m_RUp_1_CB, m_RDw_1_CB;
+    std::vector<double> m_R_2_CB, m_RUp_2_CB, m_RDw_2_CB;
+
     // Special "p2" systematics and corrections for non-three-station muons
     // Maps have two keys: detector region and category
     std::map<std::pair<int, int>, std::pair<double, double> > m_extra_p1_p2_MS_AlignedOnly, m_extra_p1_p2_MS_AlignedAndCorrected, m_extra_p1_p2_MS_Misaligned;
