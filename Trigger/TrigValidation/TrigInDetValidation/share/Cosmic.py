@@ -69,9 +69,9 @@ topSequence += viewSequence
 
 
   # Adding vertexing
-  # from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+  # from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
   ## TODO need to change the name of the output vertex collection to something recordable
-  # vtxAlgs = makeVertices( "egamma", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
+  # vtxAlgs = makeInDetTrigVertices( "egamma", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
   # allViewAlgorithms += vtxAlgs
 
 
