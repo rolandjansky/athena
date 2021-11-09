@@ -148,7 +148,7 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
   xAOD::TrigComposite* tc = new xAOD::TrigComposite();
   runtimeMetadataOutput->push_back(tc);
   char hostname [HOST_NAME_MAX];
-  bool errcode = gethostname(hostname, HOST_NAME_MAX);
+  bool errcode = !gethostname(hostname, HOST_NAME_MAX); // returns 0 on success and -1 on failure, casted to false on success, true on failure
   std::string hostnameString = std::string(hostname); // setDetail needs a reference
   errcode &= tc->setDetail("hostname", hostnameString);
   if (!errcode) ATH_MSG_WARNING("Failed to append hostname to HLT Runtime Metadata TC");
