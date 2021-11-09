@@ -40,7 +40,7 @@ def IDEtaDepCutsSvc_InDetVKalVxInJetFinder(name):
     InDetEtaDependentCutsSvc.etaBins                 = [-1.0, 1.65, 2.0, 9999.]
     InDetEtaDependentCutsSvc.minPT                   = [0.7 * Units.GeV]
     InDetEtaDependentCutsSvc.maxPrimaryImpact        = [5.0 * Units.mm]
-    InDetEtaDependentCutsSvc.maxZImpact              = [25.0 * Units.mm]
+    InDetEtaDependentCutsSvc.maxZImpact              = [3.0 * Units.mm]
     InDetEtaDependentCutsSvc.minPixelHits            = [1, 1, 2]
     InDetEtaDependentCutsSvc.minStripHits            = [4, 5, 6]
     InDetEtaDependentCutsSvc.minClusters             = [7]

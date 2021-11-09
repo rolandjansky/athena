@@ -8,7 +8,7 @@ from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 from IOVDbSvc.CondDB import conddb
 btagrun1=False
 btagItk=False
-btagItk_version=5
+btagItk_version=7
 
 if conddb.dbdata == 'COMP200':
     btagrun1=True
