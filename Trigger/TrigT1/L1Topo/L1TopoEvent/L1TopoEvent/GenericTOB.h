@@ -119,6 +119,9 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }
       double phiDouble() const { return m_phiDouble; }
 
+      //jtau isolation 
+      unsigned int jtauiso() const { return m_jtauiso; }
+
       virtual void print(std::ostream &o) const;
 
       void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
@@ -149,6 +152,8 @@ namespace TCS {
       unsigned int m_reta {0};
       unsigned int m_rhad {0};
       unsigned int m_wstot {0};
+
+      unsigned int  m_jtauiso {0};
       
       inputTOBType_t   m_tobType { NONE };
 
