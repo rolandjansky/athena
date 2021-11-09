@@ -1,6 +1,6 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 import ROOT
 import unittest
 
@@ -68,7 +68,7 @@ class TestEgammaFactory(unittest.TestCase):
             self.assertGreater(ph.caloCluster().energyBE(i), 0)
 
     def test_photon(self):
-         ROOT.xAOD.TEvent()
+        ROOT.xAOD.TEvent()
         factory = ROOT.EgammaFactory()
 
         runnumber = 10000
@@ -170,5 +170,4 @@ class TestEgammaFactory(unittest.TestCase):
         el.auxdataConst("double")("mydeco")
 
 if __name__ == '__main__':
-    ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
     unittest.main()
