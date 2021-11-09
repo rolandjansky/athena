@@ -519,19 +519,23 @@ namespace top {
     registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default");
 
     registerParameter("BTaggingTrackJetWP",
-                      "b-tagging WPs to use for track jet collection in the analysis, separated by commas."
+                      "b-tagging WPs to use for VR track jet collection in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
-                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
-                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
-                      " By default, no WP is used.",
+                      " The specified WPs must be calibrated, otherwise use the BTaggingTrackJetWPUncalib option.",
                       " ");
 
+    registerParameter("BTaggingTrackJetUncalibWP",
+                      "List of uncalibrated b-tagging WPs for track jets. See BTaggingTrackJetWP option description",
+	                    " ");
+
     registerParameter("BTaggingCaloJetWP",
-                      "b-tagging WPs to use for calorimeter jet collection (e.g. EMTopo, EMPFlow) in the analysis, separated by commas."
+                      "b-tagging WPs to use for calo jet collection in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
-                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
-                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
-                      " By default, no WP is used.",
+                      " The specified WPs must be calibrated, otherwise use the BTaggingCaloJetWPUncalib option.",
+                      " ");
+
+    registerParameter("BTaggingCaloJetUncalibWP",
+                      "List of uncalibrated b-tagging WPs for calo jets. See BTaggingCaloJetWP option description",
                       " ");
 
     registerParameter("BTaggingSystExcludedFromEV",
