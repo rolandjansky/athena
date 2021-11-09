@@ -449,7 +449,9 @@ ParticleCaloExtensionTool::egammaCaloExtension(
   }
 
   // figure which layer we need
-  // egamma related const arrays
+  // based on the where most of the energy of the cluster
+  // is we might want to do EM barrel, EM endCap
+  // or forward calo layers/samplings
   constexpr std::array<CaloSampling::CaloSample, 4> barrelLayers = {
     CaloSampling::PreSamplerB,
     CaloSampling::EMB1,
@@ -462,6 +464,11 @@ ParticleCaloExtensionTool::egammaCaloExtension(
     CaloSampling::EME2,
     CaloSampling::EME3
   };
+  constexpr std::array<CaloSampling::CaloSample, 1> forwardLayers = {
+    CaloSampling::FCAL0,
+  };
+
+  // figure which layers we  want to shoot at
   bool isBarrel = false;
   if (cluster.inBarrel() && cluster.inEndcap()) {
     isBarrel = cluster.eSample(CaloSampling::EMB2) >=
@@ -469,15 +476,33 @@ ParticleCaloExtensionTool::egammaCaloExtension(
   } else if (cluster.inBarrel()) {
     isBarrel = true;
   }
+
+  bool isEMEC = false;
+  if (!isBarrel && cluster.eSample(CaloSampling::EME2) >
+                     cluster.eSample(CaloSampling::FCAL0)) {
+    isEMEC = true;
+  }
+
   std::vector<CaloSampling::CaloSample> clusterLayers;
   clusterLayers.reserve(4);
   if (isBarrel) {
-    clusterLayers.insert(
-      clusterLayers.begin(), barrelLayers.begin(), barrelLayers.end());
-
+    for (const CaloSampling::CaloSample lay : barrelLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  } else if (isEMEC) {
+    for (const CaloSampling::CaloSample lay : endcapLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
   } else {
-    clusterLayers.insert(
-      clusterLayers.begin(), endcapLayers.begin(), endcapLayers.end());
+    for (const CaloSampling::CaloSample lay : forwardLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
   }
   //
 

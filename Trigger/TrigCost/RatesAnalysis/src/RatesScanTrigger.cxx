@@ -71,18 +71,18 @@ void RatesScanTrigger::execute(const WeightingValuesSummary_t& weights) {
   double w = m_totalPrescaleWeight * weights.m_enhancedBiasWeight * getExtrapolationFactor(weights, m_extrapolationStrategy);
   // Fill the histogram cumulatively
   // We match exactly with the *lower* edge of all bins
-  const int nBins = m_rateScanHist->GetNbinsX();
+  const int nBins = m_rateScanHistCachedPtr->GetNbinsX();
   for (int bin = 1; bin <= nBins; ++bin) {
-    const double low = m_rateScanHist->GetBinLowEdge(bin);
-    const double width = m_rateScanHist->GetBinWidth(bin);
+    const double low = m_rateScanHistCachedPtr->GetBinLowEdge(bin);
+    const double width = m_rateScanHistCachedPtr->GetBinWidth(bin);
     if ( (m_behaviour == kTriggerAboveThreshold && m_thresholdPassed < (low + width)) ||
          (m_behaviour == kTriggerBelowThreshold && m_thresholdPassed > low)) {
-      m_rateScanHistCachedPtr->Fill(m_rateScanHist->GetBinCenter(bin), w);
+      m_rateScanHistCachedPtr->Fill(m_rateScanHistCachedPtr->GetBinCenter(bin), w);
     }
   }
   // Underflow && Overflow
-  const double xMin = m_rateScanHist->GetXaxis()->GetXmin();
-  const double xMax = m_rateScanHist->GetXaxis()->GetXmax();
+  const double xMin = m_rateScanHistCachedPtr->GetXaxis()->GetXmin();
+  const double xMax = m_rateScanHistCachedPtr->GetXaxis()->GetXmax();
   if ( (m_behaviour == kTriggerAboveThreshold && m_thresholdPassed < xMin) || m_behaviour == kTriggerBelowThreshold ) {
     m_rateScanHistCachedPtr->Fill(xMin - 1., w);
   }
@@ -93,7 +93,7 @@ void RatesScanTrigger::execute(const WeightingValuesSummary_t& weights) {
 
 const std::string RatesScanTrigger::printRate(const double ratesDenominator) const {
   std::stringstream ss;
-  const int nBins = m_rateScanHist->GetNbinsX();
+  const int nBins = m_rateScanHistCachedPtr->GetNbinsX();
   ss << std::setfill(' '); 
   ss << m_name << " [PS:" << m_prescale << "]";
   if (m_seed != "") ss << " <- " << m_seed << " [PS:" << m_seedPrescale << "]";
@@ -107,7 +107,7 @@ const std::string RatesScanTrigger::printRate(const double ratesDenominator) con
 
     for (int bin = 1; bin <= nBins; ++bin) {
       ss << "    Threshold <= ";
-      ss << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinLowEdge(bin) + m_rateScanHist->GetBinWidth(bin);
+      ss << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinLowEdge(bin) + m_rateScanHistCachedPtr->GetBinWidth(bin);
       ss << " Rate :" << std::setw(11) << std::right << m_rateScanHistCachedPtr->GetBinContent(bin)/ratesDenominator;
       ss << " +- "   << std::setw(11) << std::left << m_rateScanHistCachedPtr->GetBinError(bin)/ratesDenominator << " Hz";
       ss << std::endl;

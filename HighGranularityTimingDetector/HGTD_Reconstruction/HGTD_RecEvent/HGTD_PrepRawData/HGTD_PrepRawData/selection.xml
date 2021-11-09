@@ -1,6 +1,6 @@
 <lcgdict>
  <!-- HGTD_Cluster and its containers -->
-  <class name="HGTD::HGTD_Cluster" >
+  <class name="HGTD_Cluster" >
    <field name="m_width"                     transient="false" />
    <field name="m_glob_pos"                  transient="true" />
    <field name="m_det_el"                    transient="true" />
@@ -8,15 +8,15 @@
    <field name="m_time_over_threshold"       transient="true" />
   </class>
 
-  <class name="Trk::PrepRawDataCollection< HGTD::HGTD_Cluster >" />
-  <class name="DataVector<HGTD::HGTD_Cluster>"  />
-  <class name="std::vector<HGTD::HGTD_Cluster*>"  />
+  <class name="Trk::PrepRawDataCollection< HGTD_Cluster >" />
+  <class name="DataVector<HGTD_Cluster>"  />
+  <class name="std::vector<HGTD_Cluster*>"  />
 
-  <class name="HGTD::HGTD_ClusterContainer"  />
+  <class name="HGTD_ClusterContainer"  />
 
-  <class name="IdentifiableContainer<Trk::PrepRawDataCollection<HGTD::HGTD_Cluster> >" />
+  <class name="IdentifiableContainer<Trk::PrepRawDataCollection<HGTD_Cluster> >" />
 
-  <class name="ElementLink<HGTD::HGTD_ClusterContainer>"/>
-  <class name="ElementLink<HGTD::HGTD_ClusterContainer>::Base"/>
+  <class name="ElementLink<HGTD_ClusterContainer>"/>
+  <class name="ElementLink<HGTD_ClusterContainer>::Base"/>
 
 </lcgdict>

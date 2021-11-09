@@ -61,10 +61,7 @@ if not 'FullFileName' in dir():
 if not 'EvtMax' in dir():
    EvtMax=-1
 
-if not 'WriteNtuple' in dir():
-   WriteNtuple = LArCalib_Flags.WriteNtuple
-
-if not 'SuperCells' in dir():   
+if not 'SuperCells' in dir():
    SuperCells=False
 
 if not 'GainList' in dir():

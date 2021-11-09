@@ -9,7 +9,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
-
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
 
 def tag(ion):
     return 'precision' + ('HI' if ion is True else '') + 'Electron'
@@ -45,10 +46,17 @@ def precisionElectronMenuSequence(is_probe_leg=False, ion=False, do_idperf=False
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlg
+
     if do_idperf:
-        thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF_idperf", sequenceOut_dummy, do_idperf)
+        with ConfigurableRun3Behavior():
+           hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF_idperf", sequenceOut_dummy, do_idperf)
     else:
-        thePrecisionElectronHypo = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF", sequenceOut, do_idperf)
+        with ConfigurableRun3Behavior():
+           hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF", sequenceOut, do_idperf)
+
+    thePrecisionElectronHypo = conf2toConfigurable(hypo_tuple[0])
+    hypo_acc = hypo_tuple[1]
+    appendCAtoAthena( hypo_acc )
     
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
     

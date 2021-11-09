@@ -32,26 +32,20 @@ namespace top {
     ATH_MSG_INFO(" top::BTagScaleFactorCalculator initialize");
 
     // for calo jets
-    std::vector<std::string> availableWPs = m_config->bTagWP_available();
-    for (auto& WP : availableWPs) {
+    for (const std::string& WP : m_config->bTagWP_calib()) {
       m_btagSelTools[WP] = "BTaggingSelectionTool_" + WP + "_" + m_config->sgKeyJets();
       top::check(m_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool");
-      if (std::find(m_config->bTagWP_calibrated().begin(),
-                    m_config->bTagWP_calibrated().end(), WP) != m_config->bTagWP_calibrated().end()) {// need scale-factors only for calibrated WPs
-        m_btagEffTools[WP] = "BTaggingEfficiencyTool_" + WP + "_" + m_config->sgKeyJets();
-        top::check(m_btagEffTools[WP].retrieve(), "Failed to retrieve b-tagging Efficiency tool");
-        m_systs[WP] = m_btagEffTools[WP]->affectingSystematics();
-        std::set<std::string> base_names = m_systs[WP].getBaseNames();
-        m_config->setBTaggingSFSysts(WP, base_names);
-      }
+      m_btagEffTools[WP] = "BTaggingEfficiencyTool_" + WP + "_" + m_config->sgKeyJets();
+      top::check(m_btagEffTools[WP].retrieve(), "Failed to retrieve b-tagging Efficiency tool");
+      m_systs[WP] = m_btagEffTools[WP]->affectingSystematics();
+      std::set<std::string> base_names = m_systs[WP].getBaseNames();
+      m_config->setBTaggingSFSysts(WP, base_names);
     }
-    // for track jets
-    availableWPs = m_config->bTagWP_available_trkJet();
-    for (auto& WP : availableWPs) {
-      m_trkjet_btagSelTools[WP] = "BTaggingSelectionTool_" + WP + "_" + m_config->sgKeyTrackJets();
-      top::check(m_trkjet_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool");
-      if (std::find(m_config->bTagWP_calibrated_trkJet().begin(),
-                    m_config->bTagWP_calibrated_trkJet().end(), WP) != m_config->bTagWP_calibrated_trkJet().end()) {// need scale-factors only for calibrated WPs
+    if (m_config->useTrackJets()) {
+      // for track jets
+      for (const std::string& WP : m_config->bTagWP_calib_trkJet()) {
+        m_trkjet_btagSelTools[WP] = "BTaggingSelectionTool_" + WP + "_" + m_config->sgKeyTrackJets();
+        top::check(m_trkjet_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool");
         m_trkjet_btagEffTools[WP] = "BTaggingEfficiencyTool_" + WP + "_" + m_config->sgKeyTrackJets();
         top::check(m_trkjet_btagEffTools[WP].retrieve(), "Failed to retrieve b-tagging Efficiency tool");
         m_trkjet_systs[WP] = m_trkjet_btagEffTools[WP]->affectingSystematics();
@@ -99,16 +93,7 @@ namespace top {
         if (passSelection) {
           // now loop over all available WPs
 
-          for (auto& tagWP : (use_trackjets ? m_config->bTagWP_available_trkJet() : m_config->bTagWP_available())) {
-            // skip uncalibrated though available WPs
-            if (use_trackjets &&
-                std::find(m_config->bTagWP_calibrated_trkJet().begin(),
-                          m_config->bTagWP_calibrated_trkJet().end(), tagWP)
-                == m_config->bTagWP_calibrated_trkJet().end()) continue;
-            else if (!use_trackjets &&
-                     std::find(m_config->bTagWP_calibrated().begin(),
-                               m_config->bTagWP_calibrated().end(), tagWP)
-                     == m_config->bTagWP_calibrated().end()) continue;
+          for (const std::string& tagWP : (use_trackjets ? m_config->bTagWP_calib_trkJet() : m_config->bTagWP_calib())) {
             ToolHandle<IBTaggingEfficiencyTool>& btageff =
               use_trackjets ? m_trkjet_btagEffTools[tagWP] : m_btagEffTools[tagWP];
             ToolHandle<IBTaggingSelectionTool>& btagsel =
@@ -187,7 +172,7 @@ namespace top {
   StatusCode BTagScaleFactorCalculator::debug() {
     ATH_MSG_INFO("BTagScaleFactorCalculator::debug function");
     // Use after package is initialised otherwise vectors will be empty
-    for (auto& tagWP :  m_config->bTagWP_available()) {
+    for (const std::string& tagWP :  m_config->bTagWP()) {
       ATH_MSG_INFO("Tagger working point : " << tagWP);
       ToolHandle<IBTaggingEfficiencyTool>& btageff = m_btagEffTools[tagWP];
       // Retrieve tool

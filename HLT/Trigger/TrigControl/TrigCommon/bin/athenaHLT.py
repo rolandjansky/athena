@@ -112,6 +112,7 @@ def update_pcommands(args, cdict):
    """Apply modifications to pre/postcommands"""
 
    cdict['trigger']['precommand'].append('_run_number=%d' % args.run_number)
+   cdict['trigger']['precommand'].append('_lb_number=%d' % args.lb_number)
 
    if args.perfmon:
       cdict['trigger']['precommand'].insert(0, "include('TrigCommon/PerfMon.py')")
@@ -127,9 +128,14 @@ def update_pcommands(args, cdict):
 def update_run_params(args):
    """Update run parameters from file/COOL"""
 
+   if (args.run_number and not args.lb_number) or (not args.run_number and args.lb_number):
+      log.error("Both or neither of the options -R (--run-number) and -L (--lb-number) have to be specified")
+
    if args.run_number is None:
       from eformat import EventStorage
-      args.run_number = EventStorage.pickDataReader(args.file[0]).runNumber()
+      dr = EventStorage.pickDataReader(args.file[0])
+      args.run_number = dr.runNumber()
+      args.lb_number = dr.lumiblockNumber()
 
    sor_params = None
    if args.sor_time is None or args.detector_mask is None:
@@ -362,6 +368,8 @@ def main():
    g = parser.add_argument_group('Conditions')
    g.add_argument('--run-number', '-R', metavar='RUN', type=int,
                   help='run number (if None, read from first event)')
+   g.add_argument('--lb-number', '-L', metavar='LBN', type=int,
+                  help='lumiblock number (if None, read from first event)')
    g.add_argument('--sor-time', type=arg_sor_time,
                   help='The Start Of Run time. Three formats are accepted: '
                   '1) the string "now", for current time; '

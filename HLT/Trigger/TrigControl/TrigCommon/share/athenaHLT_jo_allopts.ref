@@ -127,6 +127,7 @@
               <preCommand>x=1</preCommand>
               <preCommand>y=2</preCommand>
               <preCommand>_run_number=360026</preCommand>
+              <preCommand>_lb_number=151</preCommand>
             </preCommands>
             <pythonSetupFile>TrigPSC/TrigPSCPythonSetup.py</pythonSetupFile>
             <showInclude>false</showInclude>

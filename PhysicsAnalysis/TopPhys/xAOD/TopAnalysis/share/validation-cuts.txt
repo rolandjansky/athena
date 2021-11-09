@@ -24,7 +24,7 @@ JetCollectionName AntiKt4EMPFlowJets
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName TauJets
 PhotonCollectionName Photons
-TrackJetCollectionName None
+TrackJetCollectionName AntiKtVR30Rmax4Rmin02PV0TrackJets
 
 UseEgammaLeakageCorrection False
 

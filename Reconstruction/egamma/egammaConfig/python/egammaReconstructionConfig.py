@@ -8,7 +8,7 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def egammaReconstructionCfg(flags, name="EGammaReconstruction"):
+def egammaReconstructionCfg(flags, name="egammaReconstruction"):
 
     mlog = logging.getLogger(name)
     mlog.info('Starting EGamma reconstruction configuration')
