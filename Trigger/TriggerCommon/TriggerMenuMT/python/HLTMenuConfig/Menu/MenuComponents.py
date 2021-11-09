@@ -688,6 +688,11 @@ class Chain(object):
         self.setSeedsToSequences()
         log.debug("[Chain.__init__] Made Chain %s with seeds: %s ", name, self.L1decisions)
 
+    def append_bjet_steps(self,new_steps):
+        assert len(self.nSteps) == 1, "[Chain.append_bjet_steps] appending already-merged step lists - chain object will be broken. This should only be used to append Bjets to jets!"
+        self.steps = self.steps + new_steps
+        self.nSteps = [len(self.steps)]
+
     def numberAllSteps(self):
         if len(self.steps)==0:
             return
