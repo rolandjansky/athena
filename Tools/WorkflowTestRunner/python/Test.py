@@ -26,6 +26,7 @@ class TestSetup:
         self.release_validation = ""
         self.release_ID = environ['AtlasVersion'][0:4]
         self.parallel_execution = False
+        self.disable_output_checks = False
 
     def setup_release(self, reference=None, validation=None) -> None:
         if reference and validation:
@@ -145,8 +146,9 @@ class WorkflowTest:
             return False
 
         # output checks
-        for check in self.output_checks:
-            result = result and check.run(self)
+        if not self.setup.disable_output_checks:
+            for check in self.output_checks:
+                result = result and check.run(self)
 
         if self.setup.validation_only or self.skip_performance_checks:
             return result  # Performance checks against static references not possible
