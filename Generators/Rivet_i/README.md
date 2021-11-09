@@ -306,6 +306,12 @@ The routine will have familiar `init()`, `analyze()` and `finalize()` methods.
 Check out the [Rivet wiki](https://gitlab.com/hepcedar/rivet/-/blob/master/doc/tutorials) 
 for more information.
 
+Note: To enable the Rivet commands for merging and plotting to work with your new local routine,
+you will have to set an enviroment variable as e.g.:
+```
+export RIVET_ANALYSIS_PATH=$PWD
+```
+
 
 ## How to compile
 
