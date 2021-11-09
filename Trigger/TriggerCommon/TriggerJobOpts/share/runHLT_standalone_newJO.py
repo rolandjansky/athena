@@ -118,7 +118,8 @@ if flags.Trigger.doLVL1:
 acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
 # The L1 presacles do not get created in the menu setup
-from TrigConfigSvc.TrigConfigSvcCfg import createL1PrescalesFileFromMenu
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
+generateL1Menu(flags)
 createL1PrescalesFileFromMenu(flags)
 
 

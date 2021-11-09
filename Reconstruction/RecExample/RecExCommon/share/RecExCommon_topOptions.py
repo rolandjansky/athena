@@ -440,6 +440,10 @@ if jobproperties.Beam.beamType() == 'cosmics':
 if rec.doMonitoring():
     include ("AthenaMonitoring/DataQualityInit_jobOptions.py")
 
+if recAlgs.doEFlow():
+    #Some settings for pflow have to toggle to a different setup for RecExCommon workflows.
+    ConfigFlags.PF.useRecExCommon=True
+
 # Lock the flags
 logRecExCommon_topOptions.info("Locking ConfigFlags")
 ConfigFlags.lock()
@@ -1129,7 +1133,8 @@ if rec.doWriteAOD():
             thinTRTStandaloneTrackAlg = ThinTRTStandaloneTrackAlg('ThinTRTStandaloneTrackAlg',
                                                                   doElectron = (rec.doEgamma() and AODFlags.Electron()),
                                                                   doPhoton = (rec.doEgamma() and AODFlags.Photon()),
-                                                                  doTau = rec.doTau())
+                                                                  doTau = rec.doTau(),
+                                                                  doMuon = rec.doMuonCombined())
             topSequence += thinTRTStandaloneTrackAlg
         
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):

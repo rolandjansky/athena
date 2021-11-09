@@ -174,8 +174,18 @@ def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputNam
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
 
-
     return FlowElementNeutralCreatorAlgorithm
+
+def getLCNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName):
+    LCFlowElementNeutralCreatorAlgorithmFactory = CompFactory.PFLCNeutralFlowElementCreatorAlgorithm
+    LCFlowElementNeutralCreatorAlgorithm = LCFlowElementNeutralCreatorAlgorithmFactory("PFLCNeutralFlowElementCreatorAlgorithm")
+    if neutralFlowElementOutputName:
+      LCFlowElementNeutralCreatorAlgorithm.FELCOutputName==neutralFlowElementOutputName
+    if(inputFlags.PF.EOverPMode):
+      LCFlowElementNeutralCreatorAlgorithm.EInputContainerName="EOverPNeutralParticleFlowObjects"
+      LCFlowElementNeutralCreatorAlgorithm.FELCOutputName="EOverPLCNeutralParticleFlowObjects"
+    
+    return LCFlowElementNeutralCreatorAlgorithm 
 
 def getEGamFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False,doTCC=False):
 

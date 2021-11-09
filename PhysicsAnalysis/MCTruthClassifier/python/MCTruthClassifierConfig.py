@@ -24,15 +24,29 @@ def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     if "ParticleCaloExtensionTool" not in kwargs:
-        from TrkConfig.AtlasExtrapolatorConfig import (
-            MCTruthClassifierExtrapolatorCfg)
-        extrapolator = acc.popToolsAndMerge(
-            MCTruthClassifierExtrapolatorCfg(flags))
-        from TrackToCalo.TrackToCaloConfig import (
-            ParticleCaloExtensionToolCfg)
-        extAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            Extrapolator=extrapolator)
+
+        extAcc = None
+        if flags.Detector.GeometryITk:
+            from TrkConfig.AtlasUpgradeExtrapolatorConfig import (
+                MCTruthClassifierUpgradeExtrapolatorCfg)
+            extrapolator = acc.popToolsAndMerge(
+                MCTruthClassifierUpgradeExtrapolatorCfg(flags))
+            from TrackToCalo.ITkTrackToCaloConfig import (
+                ITkParticleCaloExtensionToolCfg)
+            extAcc = ITkParticleCaloExtensionToolCfg(
+                flags,
+                Extrapolator=extrapolator)
+        else:
+            from TrkConfig.AtlasExtrapolatorConfig import (
+                MCTruthClassifierExtrapolatorCfg)
+            extrapolator = acc.popToolsAndMerge(
+                MCTruthClassifierExtrapolatorCfg(flags))
+            from TrackToCalo.TrackToCaloConfig import (
+                ParticleCaloExtensionToolCfg)
+            extAcc = ParticleCaloExtensionToolCfg(
+                flags,
+                Extrapolator=extrapolator)
+
         kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(extAcc)
 
     kwargs.setdefault("barcodeG4Shift", flags.Sim.SimBarcodeOffset + 1)
@@ -101,14 +115,14 @@ if __name__ == "__main__":
 
     mlog.info("Configuring standard MCTruthClassifier")
     printProperties(mlog,
-                    cfg.popToolsAndMerge(
+                    cfg.getPrimaryAndMerge(
                         MCTruthClassifierCfg(ConfigFlags)),
                     nestLevel=1,
                     printDefaults=True)
 
     mlog.info("Configuring MCTruthClassifier with calo truth matching")
     printProperties(mlog,
-                    cfg.popToolsAndMerge(
+                    cfg.getPrimaryAndMerge(
                         MCTruthClassifierCaloTruthMatchCfg(ConfigFlags)),
                     nestLevel=1,
                     printDefaults=True)

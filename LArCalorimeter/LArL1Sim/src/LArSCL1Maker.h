@@ -194,8 +194,6 @@ class LArSCL1Maker : public AthReentrantAlgorithm
 
 /** algorithm property: sub-detectors to be simulated */
   std::string m_SubDetectors;          
-/** algorithm property: container name for the EM TTL1s */
-  std::string m_SCL1ContainerName;   
 
 #ifdef DONTDO
 /** algorithm property: container name of the EMB hits */

@@ -841,9 +841,9 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
    // check all TTrees with branch containers, if they need Filling
    for( map< TTree*, ContainerSet_t >::iterator treeIt = m_containersInTree.begin(),
            mapEnd = m_containersInTree.end(); treeIt != mapEnd; ++treeIt ) {
+      TTree *tree = treeIt->first;
       ContainerSet_t &containers = treeIt->second;
       if( (*containers.begin())->usingTreeFillMode() ) {
-         TTree *tree = treeIt->first;
          // cout << "------- TTree " << tree->GetName() << " - checking containers for commit" << endl;
          int    clean = 0, dirty = 0;
          for( ContainerSet_t::const_iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
@@ -865,7 +865,7 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
             }
             for( ContainerSet_t::iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
                (*cIt)->clearDirty();
-            } 
+            }
          } else {
             // error - some containers in this TTree were not updated
             DbPrint err( m_file->GetName() );
@@ -878,6 +878,12 @@ DbStatus RootDatabase::transAct(Transaction::Action action)
             }
             return Error;
          }
+      } else { // not TreeFillMode
+         long long maxbranchlen = 0;
+         for( ContainerSet_t::iterator cIt = containers.begin(); cIt != containers.end(); ++cIt ) {
+            maxbranchlen = max( maxbranchlen, (*cIt)->size() );
+         }
+         if( maxbranchlen > 0 )  tree->SetEntries( maxbranchlen );
       }
    }
 

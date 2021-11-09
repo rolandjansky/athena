@@ -60,7 +60,6 @@ namespace LVL1 {
     /** Internal data */
   private:
     const unsigned int m_eFexStep = 25;
-    const unsigned int m_GeV = 1000;
 
     static bool etSort (uint32_t i,uint32_t j) { return (((i >> 0 ) & 0xfff)>((j >> 0 ) & 0xfff)); }
 

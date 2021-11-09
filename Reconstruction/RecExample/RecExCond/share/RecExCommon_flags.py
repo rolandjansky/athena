@@ -436,10 +436,6 @@ if not rec.doTrigger:
    if _AODFlagsAvailable:
       AODFlags.Trigger=False # obsolete
 
-   
-
-#obsolete
-readMuonDigit=False
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 if not rec.doTruth():

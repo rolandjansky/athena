@@ -27,7 +27,7 @@ namespace dqutils {
   //--------------------------------------------------------------------------------
   // main process
   //--------------------------------------------------------------------------------
-  void MonitoringFile::HLTTauPostProcess( std::string inFilename, bool /* isIncremental */ ){
+  void MonitoringFile::HLTTauPostProcess( const std::string & inFilename, bool /* isIncremental */ ){
     //std::cout << "--> HLTTauPostProcess: Begin HLT Tau post-processing" << std::endl;
   
     //open root file

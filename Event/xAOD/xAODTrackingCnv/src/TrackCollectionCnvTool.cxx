@@ -61,14 +61,14 @@ namespace xAODMaker {
   }
 
   StatusCode TrackCollectionCnvTool::convertAndAugment( const TrackCollection* aod,
-					      xAOD::TrackParticleContainer* xaod, const ObservedTracksMap* trk_map ) const {
+					      xAOD::TrackParticleContainer* xaod, const ObservedTrackMap* trk_map ) const {
         
     ATH_MSG_DEBUG( "convertAndAugment: Sizes of containers before conversion: aod, xaod: " << aod->size() << ", " << xaod->size() );
     ATH_MSG_DEBUG( "convertAndAugment: Size of track map: " << trk_map->size() );
     
     TrackCollection::const_iterator itr = aod->begin();
     TrackCollection::const_iterator end = aod->end();
-    ObservedTracksMap::const_iterator itrMap = trk_map->begin();
+    ObservedTrackMap::const_iterator itrMap = trk_map->begin();
 
     // Check size of track collection matches size of observed tracks map
     if(aod->size() != trk_map->size()){
@@ -90,35 +90,39 @@ namespace xAODMaker {
       }
       // Augment xAOD object with information from track map
 			particle->auxdecor<long int>("Id")                = (*itrMap).first;
-			particle->auxdecor<double>("score")               = std::get<1>((*itrMap).second);
-			particle->auxdecor<int>("rejectStep")             = std::get<2>((*itrMap).second);
-			particle->auxdecor<int>("rejectReason")           = std::get<3>((*itrMap).second);
-			particle->auxdecor<long int>("parentId")          = std::get<4>((*itrMap).second);
-			particle->auxdecor<int>("numPixelHoles")          = std::get<5>((*itrMap).second);
-			particle->auxdecor<int>("numSCTHoles")            = std::get<6>((*itrMap).second);
-			particle->auxdecor<int>("numSplitSharedPixel")    = std::get<7>((*itrMap).second);
-			particle->auxdecor<int>("numSplitSharedSCT")      = std::get<8>((*itrMap).second);
-			particle->auxdecor<int>("numSharedOrSplit")       = std::get<9>((*itrMap).second);
-			particle->auxdecor<int>("numSharedOrSplitPixels") = std::get<10>((*itrMap).second);
-			particle->auxdecor<int>("numShared")              = std::get<11>((*itrMap).second);
-			particle->auxdecor<int>("isPatternTrack")         = std::get<12>((*itrMap).second);
-			particle->auxdecor<int>("totalSiHits")            = std::get<13>((*itrMap).second);
-			particle->auxdecor<int>("inROI")                  = std::get<14>((*itrMap).second);
-			particle->auxdecor<int>("thishasblayer")          = std::get<15>((*itrMap).second);
-			particle->auxdecor<int>("hassharedblayer")        = std::get<16>((*itrMap).second);
-			particle->auxdecor<int>("hassharedpixel")         = std::get<17>((*itrMap).second);
-			particle->auxdecor<int>("firstisshared")          = std::get<18>((*itrMap).second);
-			particle->auxdecor<int>("numPixelDeadSensor")     = std::get<19>((*itrMap).second);
-			particle->auxdecor<int>("numSCTDeadSensor")       = std::get<20>((*itrMap).second);
-			particle->auxdecor<int>("numPixelHits")           = std::get<21>((*itrMap).second);
-			particle->auxdecor<int>("numSCTHits")             = std::get<22>((*itrMap).second);
-			particle->auxdecor<int>("numUnused")              = std::get<23>((*itrMap).second);
-			particle->auxdecor<int>("numTRT_Unused")          = std::get<24>((*itrMap).second);
-			particle->auxdecor<int>("numSCT_Unused")          = std::get<25>((*itrMap).second);
-			particle->auxdecor<int>("numPseudo")              = std::get<26>((*itrMap).second);
-			particle->auxdecor<float>("averageSplit1")        = std::get<27>((*itrMap).second);
-			particle->auxdecor<float>("averageSplit2")        = std::get<28>((*itrMap).second);
-			particle->auxdecor<int>("numWeightedShared")      = std::get<29>((*itrMap).second);
+			particle->auxdecor<double>("score")               = std::get<xAOD::ObserverToolIndex::score>((*itrMap).second);
+			particle->auxdecor<int>("rejectStep")             = std::get<xAOD::ObserverToolIndex::rejectStep>((*itrMap).second);
+			particle->auxdecor<int>("rejectReason")           = std::get<xAOD::ObserverToolIndex::rejectReason>((*itrMap).second);
+			particle->auxdecor<long int>("parentId")          = std::get<xAOD::ObserverToolIndex::parentId>((*itrMap).second);
+			particle->auxdecor<int>("numPixelHoles")          = std::get<xAOD::ObserverToolIndex::numPixelHoles>((*itrMap).second);
+			particle->auxdecor<int>("numSCTHoles")            = std::get<xAOD::ObserverToolIndex::numSCTHoles>((*itrMap).second);
+			particle->auxdecor<int>("numSplitSharedPixel")    = std::get<xAOD::ObserverToolIndex::numSplitSharedPixel>((*itrMap).second);
+			particle->auxdecor<int>("numSplitSharedSCT")      = std::get<xAOD::ObserverToolIndex::numSplitSharedSCT>((*itrMap).second);
+			particle->auxdecor<int>("numSharedOrSplit")       = std::get<xAOD::ObserverToolIndex::numSharedOrSplit>((*itrMap).second);
+			particle->auxdecor<int>("numSharedOrSplitPixels") = std::get<xAOD::ObserverToolIndex::numSharedOrSplitPixels>((*itrMap).second);
+			particle->auxdecor<int>("numShared")              = std::get<xAOD::ObserverToolIndex::numShared>((*itrMap).second);
+			particle->auxdecor<int>("isPatternTrack")         = std::get<xAOD::ObserverToolIndex::isPatternTrack>((*itrMap).second);
+			particle->auxdecor<int>("totalSiHits")            = std::get<xAOD::ObserverToolIndex::totalSiHits>((*itrMap).second);
+			particle->auxdecor<int>("inROI")                  = std::get<xAOD::ObserverToolIndex::inROI>((*itrMap).second);
+			particle->auxdecor<int>("thishasblayer")          = std::get<xAOD::ObserverToolIndex::hasIBLHit>((*itrMap).second);
+			particle->auxdecor<int>("hassharedblayer")        = std::get<xAOD::ObserverToolIndex::hasSharedIBLHit>((*itrMap).second);
+			particle->auxdecor<int>("hassharedpixel")         = std::get<xAOD::ObserverToolIndex::hasSharedPixel>((*itrMap).second);
+			particle->auxdecor<int>("firstisshared")          = std::get<xAOD::ObserverToolIndex::firstPixIsShared>((*itrMap).second);
+			particle->auxdecor<int>("numPixelDeadSensor")     = std::get<xAOD::ObserverToolIndex::numPixelDeadSensor>((*itrMap).second);
+			particle->auxdecor<int>("numSCTDeadSensor")       = std::get<xAOD::ObserverToolIndex::numSCTDeadSensor>((*itrMap).second);
+			particle->auxdecor<int>("numPixelHits")           = std::get<xAOD::ObserverToolIndex::numPixelHits>((*itrMap).second);
+			particle->auxdecor<int>("numSCTHits")             = std::get<xAOD::ObserverToolIndex::numSCTHits>((*itrMap).second);
+			particle->auxdecor<int>("numUnused")              = std::get<xAOD::ObserverToolIndex::numUnused>((*itrMap).second);
+			particle->auxdecor<int>("numTRT_Unused")          = std::get<xAOD::ObserverToolIndex::numTRT_Unused>((*itrMap).second);
+			particle->auxdecor<int>("numSCT_Unused")          = std::get<xAOD::ObserverToolIndex::numSCT_Unused>((*itrMap).second);
+			particle->auxdecor<int>("numPseudo")              = std::get<xAOD::ObserverToolIndex::numPseudo>((*itrMap).second);
+			particle->auxdecor<float>("averageSplit1")        = std::get<xAOD::ObserverToolIndex::averageSplit1>((*itrMap).second);
+			particle->auxdecor<float>("averageSplit2")        = std::get<xAOD::ObserverToolIndex::averageSplit2>((*itrMap).second);
+			particle->auxdecor<int>("numWeightedShared")      = std::get<xAOD::ObserverToolIndex::numWeightedShared>((*itrMap).second);
+      std::vector<int> v_rejectStep(std::get<xAOD::ObserverToolIndex::rejectStep_full>((*itrMap).second).begin(),std::get<xAOD::ObserverToolIndex::rejectStep_full>((*itrMap).second).end());
+      std::vector<int> v_rejectReason(std::get<xAOD::ObserverToolIndex::rejectReason_full>((*itrMap).second).begin(),std::get<xAOD::ObserverToolIndex::rejectReason_full>((*itrMap).second).end());
+      particle->auxdecor<std::vector<int>>("rejectStep_full") = v_rejectStep;
+      particle->auxdecor<std::vector<int>>("rejectReason_full") = v_rejectReason;
 			ATH_MSG_DEBUG("convertAndAugment: Augmenting TrackParticle with id "<<particle->auxdata<long int>("Id")<<" and rejectReason "<<particle->auxdata<int>("rejectReason")<<" (has chi2 = "<<particle->chiSquared()<<")");
       itrMap++;
     }

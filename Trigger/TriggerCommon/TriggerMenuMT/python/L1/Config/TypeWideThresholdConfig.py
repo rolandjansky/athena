@@ -46,6 +46,10 @@ def getTypeWideThresholdConfig(ttype):
         return getConfig_jJ()
     if ttype == ThrType.jLJ:
         return getConfig_jLJ()
+    if ttype == ThrType.gJ:
+        return getConfig_gJ()
+    if ttype == ThrType.gLJ:
+        return getConfig_gLJ()
     if ttype == ThrType.jXE:
         return getConfig_jXE()
     if ttype == ThrType.jTE:
@@ -323,6 +327,22 @@ def getConfig_jLJ():
     confObj["ptMinxTOB1"] = 15 # PLACEHOLDER
     confObj["ptMinxTOB2"] = 15 # PLACEHOLDER
     confObj["ptMinxTOB3"] = 15 # PLACEHOLDER
+    confObj["resolutionMeV"] = 200
+    return confObj
+
+def getConfig_gJ():
+    confObj = odict()
+    confObj["ptMinToTopoA"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopoB"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopoC"] = 15 # PLACEHOLDER
+    confObj["resolutionMeV"] = 200
+    return confObj
+
+def getConfig_gLJ():
+    confObj = odict()
+    confObj["ptMinToTopoA"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopoB"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopoC"] = 15 # PLACEHOLDER
     confObj["resolutionMeV"] = 200
     return confObj
 

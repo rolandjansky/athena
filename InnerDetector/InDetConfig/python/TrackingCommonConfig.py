@@ -1,13 +1,10 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-from IOVDbSvc.IOVDbSvcConfig                  import addFoldersSplitOnline
-from InDetConfig.InDetRecToolConfig           import makeName
-import AthenaCommon.SystemOfUnits               as   Units
+from AthenaConfiguration.ComponentFactory import CompFactory
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from InDetConfig.InDetRecToolConfig import makeName
+import AthenaCommon.SystemOfUnits as Units
 #######################################################################
-
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 def copyArgs(kwargs, copy_list):
     dict_copy={}
@@ -827,34 +824,33 @@ def InDetTrackFitterCfg(flags, name='InDetTrackFitter', **kwargs) :
             'GaussianSumFilter'       : GaussianSumFitterCfg
     }[flags.InDet.trackFitterType](flags, name=name, **kwargs)
 
-def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs) :
+
+def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     acc = ComponentAccumulator()
 
-    if 'TrackingGeometrySvc' not in kwargs :
-        if not use_tracking_geometry_cond_alg :
-            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-            acc.merge(TrackingGeometrySvcCfg(flags))
-            kwargs.setdefault("TrackingGeometrySvc", acc.getService('AtlasTrackingGeometrySvc') )
-
-    if 'TrackingGeometryReadKey' not in kwargs :
-        if use_tracking_geometry_cond_alg :
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            acc.merge( TrackingGeometryCondAlgCfg(flags) )
-            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-            kwargs.setdefault("TrackingGeometryReadKey", 'AtlasTrackingGeometry')
+    if 'TrackingGeometryReadKey' not in kwargs:
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+            TrackingGeometryCondAlgCfg)
+        cond_alg = TrackingGeometryCondAlgCfg(flags)
+        geom_cond_key = cond_alg.getPrimary().TrackingGeometryWriteKey
+        acc.merge(cond_alg)
+        kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg
+    from TrkConfig.AtlasExtrapolatorToolsConfig import (
+        AtlasNavigatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg)
 
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     InDetNavigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
     InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
     InDetUpdator = acc.getPrimaryAndMerge(InDetUpdatorCfg(flags))
 
-    InDetMultipleScatteringUpdator = acc.popToolsAndMerge(InDetMultipleScatteringUpdatorCfg())
+    InDetMultipleScatteringUpdator = acc.popToolsAndMerge(
+        InDetMultipleScatteringUpdatorCfg())
     acc.addPublicTool(InDetMultipleScatteringUpdator)
 
-    InDetMaterialEffectsUpdator = acc.getPrimaryAndMerge(InDetMaterialEffectsUpdatorCfg(flags))
+    InDetMaterialEffectsUpdator = acc.getPrimaryAndMerge(
+        InDetMaterialEffectsUpdatorCfg(flags))
 
     kwargs.setdefault("ExtrapolationTool", InDetExtrapolator)
     kwargs.setdefault("NavigatorTool", InDetNavigator)
@@ -871,7 +867,8 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs) :
     kwargs.setdefault("TRTTubeHitCut", 1.75)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives", flags.InDet.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.doBeamHalo)
+    kwargs.setdefault("RecalculateDerivatives",
+                      flags.InDet.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.doBeamHalo)
     kwargs.setdefault("TRTExtensionCuts", True)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 

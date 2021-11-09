@@ -21,12 +21,6 @@ TrigConf::L1TopoOutput::algName() const
 }
 
 unsigned int
-TrigConf::L1TopoOutput::algId() const
-{
-   return getAttribute<unsigned int>("algId");
-}
-
-unsigned int
 TrigConf::L1TopoOutput::clock() const
 {
    return getAttribute<unsigned int>("clock");

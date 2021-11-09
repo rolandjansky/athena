@@ -151,17 +151,17 @@ namespace NSWL1 {
       return StatusCode::SUCCESS;
     }
 
-    auto diamond = std::unique_ptr<MMT_Diamond>(new MMT_Diamond(m_detManager));
+    m_diamond = std::make_unique<MMT_Diamond>(m_detManager);
     if (do_MMDiamonds) {
-      diamond->setTrapezoidalShape(true);
-      diamond->setXthreshold(2);
-      diamond->setUV(true);
-      diamond->setUVthreshold(2);
-      diamond->setRoadSize(8);
-      diamond->setRoadSizeUpX(4);
-      diamond->setRoadSizeDownX(0);
-      diamond->setRoadSizeUpUV(4);
-      diamond->setRoadSizeDownUV(0);
+      m_diamond->setTrapezoidalShape(true);
+      m_diamond->setXthreshold(2);
+      m_diamond->setUV(true);
+      m_diamond->setUVthreshold(2);
+      m_diamond->setRoadSize(8);
+      m_diamond->setRoadSizeUpX(4);
+      m_diamond->setRoadSizeDownX(0);
+      m_diamond->setRoadSizeUpUV(4);
+      m_diamond->setRoadSizeDownUV(0);
     }
 
     for (unsigned int i=0; i<particles; i++) {
@@ -210,7 +210,7 @@ namespace NSWL1 {
              * Filling hits for each event: a new class, MMT_Hit, is called in
              * order to use both algorithms witghout interferences
              */
-            diamond->createRoads_fillHits(i-nskip, hitDatas, m_detManager, pars[station], stationPhi);
+            m_diamond->createRoads_fillHits(i-nskip, hitDatas, m_detManager, pars[station], stationPhi);
             double smallest_bc = 999999.;
             for(int ihds=0; ihds<(int)hitDatas.size(); ihds++) {
               if (hitDatas[ihds].BC_time < 0.) continue;
@@ -222,22 +222,22 @@ namespace NSWL1 {
               m_trigger_station->push_back(hitDatas[ihds].station_eta);
               m_trigger_strip->push_back(hitDatas[ihds].strip);
             }
-            diamond->printHits(i-nskip);
-            std::vector<double> slopes = diamond->getHitSlopes();
+            m_diamond->printHits(i-nskip);
+            std::vector<double> slopes = m_diamond->getHitSlopes();
             for (const auto &s : slopes) m_trigger_RZslopes->push_back(s);
-            diamond->resetSlopes();
+            m_diamond->resetSlopes();
             slopes.clear();
             /*
              * Here we create roads with all MMT_Hit collected before (if any), then we save the results
              */
-            if (diamond->getHitVector(i-nskip).size() >= (diamond->getXthreshold()+diamond->getUVthreshold())) {
-              diamond->findDiamonds(i-nskip, smallest_bc, event);
+            if (m_diamond->getHitVector(i-nskip).size() >= (m_diamond->getXthreshold()+m_diamond->getUVthreshold())) {
+              m_diamond->findDiamonds(i-nskip, smallest_bc, event);
 
-              if (!diamond->getSlopeVector(i-nskip).empty()) {
-                m_trigger_diamond_ntrig->push_back(diamond->getSlopeVector(i-nskip).size());
-                for (const auto &slope : diamond->getSlopeVector(i-nskip)) {
-                  m_trigger_diamond_stationPhi->push_back(diamond->getDiamond(i-nskip).phi);
-                  m_trigger_diamond_sector->push_back(diamond->getDiamond(i-nskip).sector);
+              if (!m_diamond->getSlopeVector(i-nskip).empty()) {
+                m_trigger_diamond_ntrig->push_back(m_diamond->getSlopeVector(i-nskip).size());
+                for (const auto &slope : m_diamond->getSlopeVector(i-nskip)) {
+                  m_trigger_diamond_sector->push_back(m_diamond->getDiamond(i-nskip).sector);
+                  m_trigger_diamond_stationPhi->push_back(m_diamond->getDiamond(i-nskip).stationPhi);
                   m_trigger_diamond_bc->push_back(slope.BC);
                   m_trigger_diamond_totalCount->push_back(slope.totalCount);
                   m_trigger_diamond_realCount->push_back(slope.realCount);
@@ -269,7 +269,7 @@ namespace NSWL1 {
             //////////////////////////////////////////////////////////////
 
             //Initialization of the finder: defines all the roads
-            auto find = std::unique_ptr<MMT_Finder>(new MMT_Finder(pars[station], 1));
+            auto find = std::make_unique<MMT_Finder>(pars[station], 1);
             ATH_MSG_DEBUG(  "Number of Roads Configured " <<  find->get_roads()  );
 
             std::map<pair<int,int>,finder_entry> hitBuffer;
@@ -420,8 +420,15 @@ namespace NSWL1 {
     entries.clear();
     Hits_Data_Set_Time.clear();
     Event_Info.clear();
-    if(do_MMDiamonds) diamond->clearEvent();
+    if(do_MMDiamonds) m_diamond->clearEvent();
 
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode MMTriggerTool::fillRDO(Muon::NSW_TrigRawDataContainer *rdo, const bool do_MMDiamonds) {
+    if(!do_MMDiamonds) return StatusCode::SUCCESS; // The old code won't be used for the moment
+
+    ATH_MSG_DEBUG("Filled MM RDO container now having size: " << rdo->size());
     return StatusCode::SUCCESS;
   }
 }//end namespace

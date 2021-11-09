@@ -26,7 +26,6 @@ TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
                                          ISvcLocator* svcLoc)
   : AthReentrantAlgorithm(name, svcLoc)
   , m_particleCreator("Trk::TrackParticleCreatorTool/TrackParticleCreatorTool")
-  , m_truthClassifier("MCTruthClassifier/MCTruthClassifier")
   , m_TrackCollectionCnvTool(
       "xAODMaker::TrackCollectionCnvTool/TrackCollectionCnvTool",
       this)
@@ -42,7 +41,6 @@ TrackParticleCnvAlg::TrackParticleCnvAlg(const std::string& name,
   , m_aodTruth("")
   , m_trackTruth("")
 {
-  declareProperty("MCTruthClassifier", m_truthClassifier);
   declareProperty("AODContainerName", m_aod);
   declareProperty("xAODContainerName", m_xaodTrackParticlesout);
   declareProperty("TrackParticleCreator", m_particleCreator);
@@ -114,7 +112,7 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
   const xAODTruthParticleLinkVector* truthLinks = nullptr;
   const TrackParticleTruthCollection* aodTruth = nullptr;
   const TrackTruthCollection* trackTruth = nullptr;
-  const ObservedTracksMap* tracksMap = nullptr;
+  const ObservedTrackMap* tracksMap = nullptr;
 
   // Retrieve the AOD particles:
   if (m_convertAODTrackParticles) {
@@ -177,14 +175,14 @@ TrackParticleCnvAlg::execute(const EventContext& ctx) const
 
     // Augment track particles with information from observer tool
     if (m_augmentObservedTracks){
-      SG::ReadHandle<ObservedTracksMap> rh_tracksMap(m_tracksMap, ctx);
+      SG::ReadHandle<ObservedTrackMap> rh_tracksMap(m_tracksMap, ctx);
       if (!rh_tracksMap.isValid()) {
         ATH_MSG_ERROR(m_tracksMap.key() << " not found");
         return StatusCode::FAILURE;
       }
       else {
         tracksMap = rh_tracksMap.cptr();
-        ATH_MSG_VERBOSE("Got ObservedTracksMap with key " << m_tracksMap.key()
+        ATH_MSG_VERBOSE("Got ObservedTrackMap with key " << m_tracksMap.key()
                                                         << " found.");
       }
 
@@ -266,7 +264,7 @@ TrackParticleCnvAlg::convert(
   CONVTOOL& conv_tool,
   SG::WriteHandle<xAOD::TrackParticleContainer>& xaod,
   const xAODTruthParticleLinkVector* truthLinkVec,
-  const ObservedTracksMap* obs_track_map /*=0*/) const
+  const ObservedTrackMap* obs_track_map /*=0*/) const
 {
   // Create the xAOD container and its auxiliary store:
 

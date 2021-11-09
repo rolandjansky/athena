@@ -107,12 +107,6 @@ class InDetSecVertexTruthMatchTool : public virtual IInDetSecVertexTruthMatchToo
   ITHistSvc* m_thistSvc{nullptr};
   TH1F* m_matchType;
   TH1F* m_truth_Ntrk;
-  TH1F* m_seedPosition_r;
-  TH1F* m_seedPosition_z;
-  TH1F* m_seedBadPosition_r;
-  TH1F* m_seedBadPosition_z;
-  TH1F* m_seedAllPosition_r;
-  TH1F* m_seedAllPosition_z;
   TH1F* m_positionRes_R;
   TH1F* m_positionRes_Z;
 

@@ -51,8 +51,10 @@ def MuonSegmentTagAlgCfg(flags, name="MuonSegmentTagAlg", **kwargs ):
     return result
   
 def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasRKPropagatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+
     #TODO: defaults in cxx
-    result = ComponentAccumulator()
     kwargs.setdefault("AssumeLocalErrors", True)
     kwargs.setdefault("PhiCut", 30.)
     kwargs.setdefault("GlobalPhiCut", 1.)
@@ -61,6 +63,11 @@ def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
     kwargs.setdefault("ThetaAngleCut", 5.)
     kwargs.setdefault("DoDistanceCut", True)
     kwargs.setdefault("CombinedPullCut", 3.0)
+
+    result = AtlasExtrapolatorCfg(flags)
+    kwargs.setdefault("IExtrapolator", result.getPrimary())
+
+    kwargs.setdefault("Propagator", result.getPrimaryAndMerge( AtlasRKPropagatorCfg(flags) ))
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
         TrackingGeometryCondAlgCfg)

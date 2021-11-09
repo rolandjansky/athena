@@ -43,9 +43,9 @@ def precisionTracking(RoIs, ion=False, variant=''):
     PTTracks = []
     PTTrackParticles = []
     
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
 
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois= RoIs )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois= RoIs )
     PTSeq = parOR("precisionTrackingInElectrons" + variant + tag, PTAlgs)
     #trackParticles = PTTrackParticles[-1]    
     trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName

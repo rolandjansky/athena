@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <stdint.h> 
-
+#include <array>
 class TileDigits;
 class TileHWID;
 
@@ -27,7 +27,7 @@ class TileDigits2Bytes {
    * Extract samples(digits) for 3 channels, stored in 9 words
    * @param data Pointer to ROD-data
    */
-  std::vector< std::vector<float>* >* getDigits(const uint32_t *data, int dataWordsPerChip) const;
+  std::array< std::vector<float>, 3 > getDigits(const uint32_t *data, int dataWordsPerChip) const;
   /**
    * Get BCID from Chip header, bit 0-11
    * @param data Pointer to first word
