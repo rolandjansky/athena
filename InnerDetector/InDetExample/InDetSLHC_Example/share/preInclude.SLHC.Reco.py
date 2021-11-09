@@ -36,7 +36,7 @@ if DetFlags.detdescr.Calo_on() and DetFlags.detdescr.SCT_on():
   InDetFlags.doROIConv = True   
 
 from BTagging.BTaggingFlags import BTaggingFlags
-BTaggingFlags.CalibrationTag="BTagCalibITk-50_50-02-00"
+BTaggingFlags.CalibrationTag="BTagCalibITk-23-00-03-v1"
 
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     InDetFlags.writeRDOs = True
