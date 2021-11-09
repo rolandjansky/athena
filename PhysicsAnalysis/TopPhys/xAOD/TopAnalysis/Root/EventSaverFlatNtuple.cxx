@@ -333,7 +333,7 @@ namespace top {
     if (m_config->useLargeRJets()) {
       for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers())
         m_boostedJetTaggersNames.push_back(taggerName.second);
-      for (const std::pair<std::string, std::string>& taggerSF : m_config->boostedTaggerSFnames())
+      for (const std::pair<const std::string, std::string>& taggerSF : m_config->boostedTaggerSFnames())
         m_boostedJetTaggersNamesCalibrated.push_back(taggerSF.first);
     }
 
@@ -2950,7 +2950,7 @@ namespace top {
 
         if (m_config->isMC()) {
           m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
-          for (const std::pair<std::string, std::string>& tagSF : m_config->boostedTaggerSFnames()) {
+          for (const std::pair<const std::string, std::string>& tagSF : m_config->boostedTaggerSFnames()) {
             const std::string& taggerName = tagSF.first;
 	    const std::string& sfNameNominal = tagSF.second;
 	    

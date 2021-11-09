@@ -883,7 +883,7 @@ namespace top {
   }
 
   void ConfigurationSettings::checkSettings() {
-    for (const std::pair<std::string, StringData>& entry : strings_) {
+    for (const std::pair<const std::string, StringData>& entry : strings_) {
       const StringData& data = entry.second;
       // if the config option restricts allowed values to some limited set,
       // check that the configured value is valid
