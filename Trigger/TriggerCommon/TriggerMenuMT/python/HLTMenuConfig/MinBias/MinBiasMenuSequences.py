@@ -11,6 +11,11 @@ from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 import AthenaCommon.SystemOfUnits as Units
 
 
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
+
 ########
 # to move into TrigMinBiasHypoConfigMT?
 
@@ -56,8 +61,7 @@ def MbtsHypoToolGen(chainDict):
     
 
 def TrigZVertexHypoToolGen(chainDict):
-    from TrigMinBias.TrigMinBiasConf import TrigZVertexHypoTool
-    hypo = TrigZVertexHypoTool(chainDict["chainName"])
+    hypo = CompFactory.TrigZVertexHypoTool(chainDict["chainName"])
     if "pusup" in chainDict["chainName"]:
         # TODO enable when we setup more chains and have the cuts available
         # at the moment we require a vertex to be found
@@ -67,11 +71,22 @@ def TrigZVertexHypoToolGen(chainDict):
         raise RuntimeError("Chain {} w/o pileup suppression required to configure z vertex hypo".format(chainDict["chainName"]))
     return hypo
 
+@AccumulatorCache
+def SPCounterRecoAlgCfg(flags):
+    acc = ComponentAccumulator()
+    from TrigMinBias.TrigMinBiasMonitoring import SpCountMonitoring
+    alg = CompFactory.TrigCountSpacePoints( SpacePointsKey = recordable("HLT_SpacePointCounts"), 
+                                            MonTool = SpCountMonitoring() ) 
+    acc.addEventAlgo(alg)
+    return acc
+    
+
+
 ### Now the sequences
 
 def MinBiasSPSequence():
     spAlgsList = []
-    from TrigMinBias.TrigMinBiasConf import TrigCountSpacePoints, SPCountHypoAlg
+    from TrigMinBias.TrigMinBiasConf import SPCountHypoAlg
 
     spInputMakerAlg = EventViewCreatorAlgorithm("IM_SPEventViewCreator")
     spInputMakerAlg.ViewFallThrough = True
@@ -101,12 +116,9 @@ def MinBiasSPSequence():
 #    spAlgsList = idAlgs[:-2]
     spAlgsList = idAlgs
 
-
-    spCount = TrigCountSpacePoints()
-    spCount.SpacePointsKey = recordable("HLT_SpacePointCounts")
-
-    from TrigMinBias.TrigMinBiasMonitoring import SpCountMonitoring
-    spCount.MonTool = SpCountMonitoring()
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags# this will disappear once the flags are transported down here
+    from ..Menu.MenuComponents import algorithmCAToGlobalWrapper # this will disappear once whole sequence would be configured at once
+    spCount = algorithmCAToGlobalWrapper(SPCounterRecoAlgCfg, flags)[0]
 
     spRecoSeq = parOR("spRecoSeq", spAlgsList + [spCount])
     spSequence = seqAND("spSequence", [spInputMakerAlg, spRecoSeq])
@@ -121,34 +133,21 @@ def MinBiasSPSequence():
                         Hypo        = spCountHypo,
                         HypoToolGen = SPCountHypoToolGen )
 
-def MinBiasZVertexFinderSequence():
-    import AthenaCommon.CfgMgr as CfgMgr
-    vdv = CfgMgr.AthViews__ViewDataVerifier( "VDVZFinderInputs" )
-    vdv.DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), ( 'PixelID' , 'DetectorStore+PixelID' ) ]
+@AccumulatorCache
+def MinBiasZVertexFinderSequenceCfg(flags):
+    from ..Menu.MenuComponents import InViewRecoCA, SelectionCA, MenuSequenceCA
+    recoAcc = InViewRecoCA(name="ZVertFinderReco", roisKey="InputRoI", RequireParentView=True)
+    vdv = CompFactory.AthViews.ViewDataVerifier( "VDVZFinderInputs",
+                                                  DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), 
+                                                                 ( 'PixelID' , 'DetectorStore+PixelID' ) ])
 
-    from IDScanZFinder.ZFinderAlgConfig import  MinBiasZFinderAlg
-    ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, MinBiasZFinderAlg ])
-    
-    #idTrigConfig = getInDetTrigConfig('InDetTrigFastTracking')
-    ZVertFindInputMakerAlg = EventViewCreatorAlgorithm("IM_ZVertFinder")
-    ZVertFindInputMakerAlg.ViewFallThrough = True
-    ZVertFindInputMakerAlg.RoITool = ViewCreatorInitialROITool()
-    ZVertFindInputMakerAlg.InViewRoIs = "InputRoI"
-    ZVertFindInputMakerAlg.Views = "ZVertFinderView"
-    ZVertFindInputMakerAlg.RequireParentView = True 
-    ZVertFindInputMakerAlg.ViewNodeName =  ZVertFindRecoSeq.name()
-    
-
-    ZVertFindSequence = seqAND("ZVertFindSequence", [ZVertFindInputMakerAlg, ZVertFindRecoSeq])
-    from TrigMinBias.TrigMinBiasConf import TrigZVertexHypoAlg
-
-    hypoAlg = TrigZVertexHypoAlg("TrigZVertexHypoAlg", ZVertexKey=recordable("HLT_vtx_z"))
-    
-    return MenuSequence(Sequence    = ZVertFindSequence,
-                        Maker       = ZVertFindInputMakerAlg,
-                        Hypo        = hypoAlg,
-                        HypoToolGen = TrigZVertexHypoToolGen)
-
+    recoAcc.addRecoAlgo(vdv)
+    from IDScanZFinder.ZFinderAlgConfig import  MinBiasZFinderCfg
+    recoAcc.mergeReco( MinBiasZFinderCfg(flags) )
+    selAcc = SelectionCA("ZVertexFinderSel")    
+    selAcc.mergeReco(recoAcc)
+    selAcc.addHypoAlgo( CompFactory.TrigZVertexHypoAlg("TrigZVertexHypoAlg", ZVertexKey=recordable("HLT_vtx_z")))
+    return MenuSequenceCA(selAcc, HypoToolGen = TrigZVertexHypoToolGen)
 
 
 def MinBiasTrkSequence():
@@ -206,3 +205,18 @@ def MinBiasMbtsSequence():
                         Maker       = MbtsInputMakerAlg,
                         Hypo        = hypo,
                         HypoToolGen = MbtsHypoToolGen)
+
+
+if __name__ == "__main__":
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    flags.lock()
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    ca = MinBiasZVertexFinderSequenceCfg(flags)    
+    ca.ca.printConfig(withDetails=True)
+
+    from ..Menu.MenuComponents import menuSequenceCAToGlobalWrapper
+    ms = menuSequenceCAToGlobalWrapper(MinBiasZVertexFinderSequenceCfg, flags)
+    spca = SPCounterRecoAlgCfg(flags)
+    spca.printConfig(withDetails=True)
+    spca.wasMerged()
