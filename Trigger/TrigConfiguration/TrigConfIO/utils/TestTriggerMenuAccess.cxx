@@ -126,6 +126,7 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.connectorNames().size() << " connectors configured" << endl;
    for( const string & connName : l1menu.connectorNames() ) {
       auto & conn = l1menu.connector(connName);
+      if(connName == "LegacyTopoMerged") continue;
       cout << "Connector " << connName << (conn.legacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
       if( connName == "MuCTPiOpt0" ) {
          for( auto & tl : conn.triggerLines() ) {
@@ -186,10 +187,10 @@ testL1Menu_Topo(const TrigConf::L1Menu & l1menu, bool printdetail)
       topoAlgInvmassLeg.print();
       cout << "Explicit access to 'NumResultBits' as unsigned int: " << topoAlgInvmassLeg.genericParameter<unsigned int>("NumResultBits") << endl;
       
-      auto & topoAlgEMJ = l1menu.algorithmFromOutput("0DR03-EM7ab-CJ15ab", "TOPO");
+      auto & topoAlgEMJ = l1menu.algorithmFromOutput("0DR03-eEM7ab-CjJ15ab", "TOPO");
       topoAlgEMJ.print();
 
-      auto & topoMultAlg = l1menu.algorithm("Mult_eEM22VHI","MULTTOPO");
+      auto & topoMultAlg = l1menu.algorithm("Mult_eEM22M","MULTTOPO");
       topoMultAlg.print();
       cout << "  threshold definition: " << topoMultAlg.getAttribute("threshold") << endl;
 

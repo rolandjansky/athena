@@ -17,9 +17,9 @@ def fastElectronSequence_LRT(ConfigFlags):
     
     IDTrigConfig = TrigEgammaKeys_LRT.IDTrigConfig_LRT   
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
     RoIs = "EMIDRoIs_LRT" # contract with the fastCalo
-    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
+    viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois = RoIs )
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies

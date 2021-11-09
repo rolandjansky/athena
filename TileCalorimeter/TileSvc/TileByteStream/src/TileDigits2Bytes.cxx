@@ -31,29 +31,20 @@ int TileDigits2Bytes::getBytes(const TileDigits* digi, const TileHWID* tileHWID,
 }
 
 
-std::vector< std::vector<float>*  > *
+std::array< std::vector<float>, 3 >
 TileDigits2Bytes::getDigits(const uint32_t* data, int dataWordsPerChip) const {
   // create new containers on the heap
-  std::vector< std::vector<float>*  > *digiVec = new std::vector< std::vector<float>* >;
-  digiVec->reserve(3);
-  
-  std::vector<float> *vec1 = new std::vector<float>;
-  vec1->reserve(dataWordsPerChip);
-  digiVec->push_back(vec1);
+  std::array< std::vector<float>, 3 > digiVec;
 
-  std::vector<float> *vec2 = new std::vector<float>;
-  vec2->reserve(dataWordsPerChip);
-  digiVec->push_back(vec2);
-
-  std::vector<float> *vec3 = new std::vector<float>;
-  vec3->reserve(dataWordsPerChip);
-  digiVec->push_back(vec3);
+  digiVec[0].reserve(dataWordsPerChip);
+  digiVec[1].reserve(dataWordsPerChip);
+  digiVec[2].reserve(dataWordsPerChip);
 
   for(int sampl=0;sampl<dataWordsPerChip;++sampl) {
     int word = (*data); ++data;
-    vec1->push_back((float)(word & 0x3ff));
-    vec2->push_back((float)((word>>10) & 0x3ff));
-    vec3->push_back((float)((word>>20) & 0x3ff));
+    digiVec[0].push_back((float)(word & 0x3ff));
+    digiVec[1].push_back((float)((word>>10) & 0x3ff));
+    digiVec[2].push_back((float)((word>>20) & 0x3ff));
   }
   return digiVec;
 }

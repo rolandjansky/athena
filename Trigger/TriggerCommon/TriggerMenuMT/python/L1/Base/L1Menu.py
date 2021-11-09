@@ -92,6 +92,8 @@ class L1Menu(object):
         allUsedThresholds = set()
         for item in self.items:
             for thrName in item.thresholdNames():
+                if 'SPARE' in thrName:
+                    raise RuntimeError("CTP input %s is used by %s but SPARE thresholds are not to be used!" %(thrName, item) )
                 if thrName not in allThresholds:
                     missing[thrName].append(item.name) 
                 else:

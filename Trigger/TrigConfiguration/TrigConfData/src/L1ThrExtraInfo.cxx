@@ -49,6 +49,12 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    if( thrTypeName == "jLJ" )
       return std::make_unique<L1ThrExtraInfo_jLJ>(thrTypeName, data);
 
+   if( thrTypeName == "gJ" )
+      return std::make_unique<L1ThrExtraInfo_gJ>(thrTypeName, data);
+
+   if( thrTypeName == "gLJ" )
+      return std::make_unique<L1ThrExtraInfo_gLJ>(thrTypeName, data);
+
    if( thrTypeName == "jXE" )
       return std::make_unique<L1ThrExtraInfo_jXE>(thrTypeName, data);
 
@@ -146,6 +152,16 @@ TrigConf::L1ThrExtraInfo::jJ() const {
 const TrigConf::L1ThrExtraInfo_jLJ &
 TrigConf::L1ThrExtraInfo::jLJ() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_jLJ&>( * m_thrExtraInfo.at("jLJ") );
+}
+
+const TrigConf::L1ThrExtraInfo_gJ &
+TrigConf::L1ThrExtraInfo::gJ() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_gJ&>( * m_thrExtraInfo.at("gJ") );
+}
+
+const TrigConf::L1ThrExtraInfo_gLJ &
+TrigConf::L1ThrExtraInfo::gLJ() const {
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_gLJ&>( * m_thrExtraInfo.at("gLJ") );
 }
 
 const TrigConf::L1ThrExtraInfo_jXE &
@@ -522,6 +538,40 @@ TrigConf::L1ThrExtraInfo_jLJ::load()
          m_ptMinxTOBMeV3 = 1000*x.second.getValue<unsigned int>();
       } 
    }
+}
+
+/*******
+ * gJ
+ *******/
+void
+TrigConf::L1ThrExtraInfo_gJ::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopoA" ) {
+         m_ptMinToTopoMeVA = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopoB" ){
+         m_ptMinToTopoMeVB = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopoC" ){
+         m_ptMinToTopoMeVC = 1000*x.second.getValue<unsigned int>();
+      } 
+   }
+}
+
+/*******
+ * gLJ
+ *******/
+void
+TrigConf::L1ThrExtraInfo_gLJ::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopoA" ) {
+         m_ptMinToTopoMeVA = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopoB" ){
+         m_ptMinToTopoMeVB = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopoC" ){
+         m_ptMinToTopoMeVC = 1000*x.second.getValue<unsigned int>();
+      }
+   }  
 }
 
 /*******

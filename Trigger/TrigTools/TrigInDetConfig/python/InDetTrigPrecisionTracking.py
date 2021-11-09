@@ -5,14 +5,14 @@
 from __future__ import print_function
 
 from AthenaCommon.Logging import logging 
-log = logging.getLogger("InDetPrecisionTracking")
+log = logging.getLogger("InDetTrigPrecisionTracking")
 
 
 
 
-def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', prefix="InDetTrigMT" ) :      
+def makeInDetTrigPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', prefix="InDetTrigMT" ) :      
     
-    log.info( "makeInDetPRecisionTracking:: {} {} doTRT: {} ".format(  config.input_name, config.name, config.doTRT ) )
+    log.info( "makeInDetTrigPrecisionTracking:: {} {} doTRT: {} ".format(  config.input_name, config.name, config.doTRT ) )
     
     ptAlgs = [] # List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
     
@@ -65,7 +65,7 @@ def makeInDetPrecisionTracking( config=None, verifier=False, rois='EMViewRoIs', 
     #  Track particle conversion algorithm
     #
     from .InDetTrigCommon import trackParticleCnv_builder
-    from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary, \
+    from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigParticleCreatorToolWithSummary, \
         InDetTrigParticleCreatorToolWithSummaryTRTPid
 
     creatorTool = InDetTrigParticleCreatorToolWithSummary
@@ -372,7 +372,7 @@ def trtRIOMaker_builder( signature, config, rois, prefix="InDetTrigMT" ):
     # trkExtensionType = 'XK'
     # if InDetTrigFlags.trtExtensionType() is 'DAF' :
     
-    from InDetTrigRecExample.InDetTrigCommonTools import  InDetTrigTRT_DriftCircleTool
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTRT_DriftCircleTool
     
     from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__TRT_RIO_Maker
     trtRIOMaker = InDet__TRT_RIO_Maker( name = "%sTRTDriftCircleMaker%s"%(prefix, signature),

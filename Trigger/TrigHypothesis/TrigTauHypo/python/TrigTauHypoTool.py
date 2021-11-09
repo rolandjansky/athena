@@ -87,31 +87,6 @@ thresholdsEF_singlepion = {
     ('singlepion', 25): SinglePionCuts(30.0*GeV, 25.0*GeV, 1, 0, 0.06, 0.4, 0.85)
 }
 
-def TrigPresTauMVHypoToolFromDict( chainDict ):
-
-    name = chainDict['chainName']
-
-    chainPart = chainDict['chainParts'][0]
-
-    criteria  = chainPart['selection']
-    threshold = chainPart['threshold']
-
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    currentHypo = CompFactory.TrigEFTauMVHypoTool(name)
-    currentHypo.MonTool       = ""
-
-    theThresh = thresholdsEF[(criteria, int(threshold))]
-    currentHypo.numTrackMax = theThresh.numTrackMax
-    currentHypo.EtCalibMin  = theThresh.EtCalibMin
-    currentHypo.level       = -1111
-    currentHypo.method      = 0
-
-    if 'idperf' in criteria:
-        currentHypo.AcceptAll = True
-
-    return currentHypo
-
-
 def TrigEFTauMVHypoToolFromDict( chainDict ):
 
     name = chainDict['chainName']

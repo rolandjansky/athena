@@ -507,8 +507,7 @@ def getTauVertexedClusterDecorator():
         return cached_instances[_name]
   
     myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
-                                                                SeedJet = "",
-                                                                VertexCorrection = doVertexCorrection)
+                                                                SeedJet = "")
     
     cached_instances[_name] = myTauVertexedClusterDecorator
     return myTauVertexedClusterDecorator

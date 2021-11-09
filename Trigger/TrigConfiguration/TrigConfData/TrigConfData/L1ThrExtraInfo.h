@@ -25,6 +25,8 @@ namespace TrigConf {
    class L1ThrExtraInfo_cTAU;
    class L1ThrExtraInfo_jJ;
    class L1ThrExtraInfo_jLJ;
+   class L1ThrExtraInfo_gJ;
+   class L1ThrExtraInfo_gLJ;
    class L1ThrExtraInfo_gXE;
    class L1ThrExtraInfo_jXE;
    class L1ThrExtraInfo_gTE;
@@ -47,6 +49,8 @@ namespace TrigConf {
       const L1ThrExtraInfo_jTAU & jTAU() const;
       const L1ThrExtraInfo_cTAU & cTAU() const;
       const L1ThrExtraInfo_jJ & jJ() const;
+      const L1ThrExtraInfo_gJ & gJ() const;
+      const L1ThrExtraInfo_gLJ & gLJ() const;
       const L1ThrExtraInfo_jLJ & jLJ() const;
       const L1ThrExtraInfo_gXE & gXE() const;
       const L1ThrExtraInfo_jXE & jXE() const;
@@ -429,6 +433,52 @@ namespace TrigConf {
       unsigned int m_ptMinxTOBMeV1{0};
       unsigned int m_ptMinxTOBMeV2{0};
       unsigned int m_ptMinxTOBMeV3{0};
+   };
+
+   class L1ThrExtraInfo_gJ final : public L1ThrExtraInfoBase {
+   public:
+      L1ThrExtraInfo_gJ(const std::string & thrTypeName, const ptree & data) :
+         L1ThrExtraInfoBase(thrTypeName, data) { load(); }
+      virtual ~L1ThrExtraInfo_gJ() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_gJ"; }
+      float ptMinToTopo(const std::string& fpga) const { return ptMinToTopoMeV(fpga)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const std::string& fpga) const { return energyInCounts(ptMinToTopoMeV(fpga), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const std::string& fpga) const {
+          if(fpga=="A") return m_ptMinToTopoMeVA;
+          if(fpga=="B") return m_ptMinToTopoMeVB;
+          if(fpga=="C") return m_ptMinToTopoMeVC;
+          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised");
+      }
+   private:
+      /** Update the internal members */
+      void load();
+      /** gJ specific data */
+      unsigned int m_ptMinToTopoMeVA{0};
+      unsigned int m_ptMinToTopoMeVB{0};
+      unsigned int m_ptMinToTopoMeVC{0};
+   };
+
+   class L1ThrExtraInfo_gLJ final : public L1ThrExtraInfoBase {
+   public:
+      L1ThrExtraInfo_gLJ(const std::string & thrTypeName, const ptree & data) :
+         L1ThrExtraInfoBase(thrTypeName, data) { load(); }
+      virtual ~L1ThrExtraInfo_gLJ() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_gLJ"; }
+      float ptMinToTopo(const std::string& fpga) const { return ptMinToTopoMeV(fpga)/ 1000.0; }
+      unsigned int ptMinToTopoCounts(const std::string& fpga) const { return energyInCounts(ptMinToTopoMeV(fpga), resolutionMeV()); }
+      unsigned int ptMinToTopoMeV(const std::string& fpga) const {
+          if(fpga=="A") return m_ptMinToTopoMeVA;
+          if(fpga=="B") return m_ptMinToTopoMeVB;
+          if(fpga=="C") return m_ptMinToTopoMeVC;
+          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised");
+      }
+   private:
+      /** Update the internal members */
+      void load();
+      /** gLJ specific data */
+      unsigned int m_ptMinToTopoMeVA{0};
+      unsigned int m_ptMinToTopoMeVB{0};
+      unsigned int m_ptMinToTopoMeVC{0};
    };
 
    class L1ThrExtraInfo_jXE final : public L1ThrExtraInfoBase {

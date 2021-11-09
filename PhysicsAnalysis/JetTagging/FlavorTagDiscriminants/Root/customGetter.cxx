@@ -20,7 +20,7 @@ namespace {
     const std::string& name)
   {
     if (name == "pt") {
-      return [](const xAOD::Jet& j) {return j.pt();};
+      return [](const xAOD::Jet& j) {return j.pt();};   
     }
     if (name == "log_pt") {
       return [](const xAOD::Jet& j) {return std::log(j.pt());};
@@ -30,6 +30,9 @@ namespace {
     }
     if (name == "eta") {
       return [](const xAOD::Jet& j) {return j.eta();};
+    }
+    if (name == "energy") {
+      return [](const xAOD::Jet& j) {return j.e();};
     }
     throw std::logic_error("no match for custom getter " + name);
   }
@@ -114,7 +117,6 @@ namespace {
       });
     }
     return std::nullopt;
-
   }
 
   std::optional<FlavorTagDiscriminants::SequenceFromTracks>
@@ -166,6 +168,27 @@ namespace {
       return [](const Jet&, const Tracks& t) {
         std::vector<double> tracks;
         for (auto* trk: t) tracks.push_back(trk->eta());
+        return tracks;
+      };
+    }
+    if (name == "phiUncertainty") {
+      return [](const Jet&, const Tracks& t) {
+        std::vector<double> tracks;
+        for (auto* trk: t) tracks.push_back(trk->definingParametersCovMatrixDiagVec().at(2));
+        return tracks;
+      };
+    }
+    if (name == "thetaUncertainty") {
+      return [](const Jet&, const Tracks& t) {
+        std::vector<double> tracks;
+        for (auto* trk: t) tracks.push_back(trk->definingParametersCovMatrixDiagVec().at(3));
+        return tracks;
+      };
+    }
+    if (name == "qOverpUncertainty") {
+      return [](const Jet&, const Tracks& t) {
+        std::vector<double> tracks;
+        for (auto* trk: t) tracks.push_back(trk->definingParametersCovMatrixDiagVec().at(4));
         return tracks;
       };
     }
@@ -240,3 +263,4 @@ namespace FlavorTagDiscriminants {
   }
 
 }
+

@@ -1133,7 +1133,8 @@ if rec.doWriteAOD():
             thinTRTStandaloneTrackAlg = ThinTRTStandaloneTrackAlg('ThinTRTStandaloneTrackAlg',
                                                                   doElectron = (rec.doEgamma() and AODFlags.Electron()),
                                                                   doPhoton = (rec.doEgamma() and AODFlags.Photon()),
-                                                                  doTau = rec.doTau())
+                                                                  doTau = rec.doTau(),
+                                                                  doMuon = rec.doMuonCombined())
             topSequence += thinTRTStandaloneTrackAlg
         
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):

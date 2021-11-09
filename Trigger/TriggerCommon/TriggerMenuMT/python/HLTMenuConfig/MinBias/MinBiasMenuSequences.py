@@ -81,8 +81,8 @@ def MinBiasSPSequence():
 
     idTrigConfig = getInDetTrigConfig('minBias')
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    idAlgs, verifier = makeInDetAlgs(config=idTrigConfig, 
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+    idAlgs, verifier = makeInDetTrigFastTracking(config=idTrigConfig, 
                                      rois=spInputMakerAlg.InViewRoIs, 
                                      viewVerifier='SPViewDataVerifier', 
                                      doFTF=False)
@@ -129,7 +129,7 @@ def MinBiasZVertexFinderSequence():
     from IDScanZFinder.ZFinderAlgConfig import  MinBiasZFinderAlg
     ZVertFindRecoSeq = seqAND("ZVertFindRecoSeq", [ vdv, MinBiasZFinderAlg ])
     
-    #idTrigConfig = getInDetTrigConfig('InDetSetup')
+    #idTrigConfig = getInDetTrigConfig('InDetTrigFastTracking')
     ZVertFindInputMakerAlg = EventViewCreatorAlgorithm("IM_ZVertFinder")
     ZVertFindInputMakerAlg.ViewFallThrough = True
     ZVertFindInputMakerAlg.RoITool = ViewCreatorInitialROITool()
