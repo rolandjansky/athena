@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ Helper functions for configuring MET chains
 """
@@ -18,12 +18,10 @@ from ..Menu.MenuComponents import (
 from copy import copy
 from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
 from AthenaCommon.Logging import logging
-from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
+from TrigEFMissingET.TrigEFMissingETConfig import getMETMonTool
 from abc import ABC, abstractmethod
 from string import ascii_uppercase
-from TrigMissingETHypo.TrigMissingETHypoConfig import (
-    TrigMETCellHypoToolFromDict,
-)
+from TrigMissingETHypo.TrigMissingETHypoConfig import TrigMETCellHypoToolFromDict
 
 
 def streamer_hypo_tool(chainDict):
