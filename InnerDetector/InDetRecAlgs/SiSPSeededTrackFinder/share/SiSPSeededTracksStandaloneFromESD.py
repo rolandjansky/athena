@@ -405,6 +405,10 @@ if doPixel:
                                                              NnCollectionWithTrackReadKey = "PixelClusterNNWithTrack")
     ToolSvc += NnClusterizationFactory
 
+# Set up tracking geometry
+from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+condSeq += ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+
 # Set up InDet__SiTrackerSpacePointFinder (alg)
 # Taken from InDetRecExample/share/InDetRecPreProcessingSilicon.py
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool

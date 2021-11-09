@@ -186,6 +186,8 @@ protected:
 
   bool m_doResMonitoring;
 
+  bool m_useBeamSpotForRoiZwidth;
+
   // Cuts and settings
   TrigCombinatorialSettings m_tcs;
 

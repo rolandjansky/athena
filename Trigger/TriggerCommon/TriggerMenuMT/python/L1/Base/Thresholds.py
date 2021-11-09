@@ -803,6 +803,41 @@ class jLJetThreshold( Threshold ):
             confObj["thrValues"].append( tvco )
         return confObj
 
+class gJetThreshold( Threshold ):
+
+    def __init__(self, name, ttype = 'gJ', mapping = -1):
+        super(gJetThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='gJ' else 2)
+        self.et = None
+
+    def setEt(self, et):
+        """Et value in GeV"""
+        self.et = et
+        return self
+
+    def json(self):
+        confObj = odict()
+        confObj["value"] = self.et
+        confObj["mapping"] = self.mapping
+        return confObj
+
+class gLJetThreshold( Threshold ):
+
+    def __init__(self, name, ttype = 'gLJ', mapping = -1):
+        super(gLJetThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='gLJ' else 2)
+        self.et = None
+
+    def setEt(self, et):
+        """Et value in GeV"""
+        self.et = et
+        return self
+
+    def json(self):
+        confObj = odict()
+        confObj["value"] = self.et
+        confObj["mapping"] = self.mapping
+        return confObj
+
+
 class XEThreshold( Threshold ):
 
     def __init__(self, name, ttype, mapping = -1):

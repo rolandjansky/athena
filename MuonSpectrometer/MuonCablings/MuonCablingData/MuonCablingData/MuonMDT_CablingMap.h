@@ -79,13 +79,13 @@ struct CablingData{
                 phi == other.phi &&
                 multilayer==other.multilayer &&
                 layer == other.layer &&
-               tube == other.tube &&
-               mrod == other.mrod &&
-               csm == other.csm &&
-              mezzanine_type == other.mezzanine_type &&
-              subdetectorId == other.subdetectorId &&
-              tdcId == other.tdcId &&
-              channelId == other.channelId; 
+                tube == other.tube &&
+                mrod == other.mrod &&
+                csm == other.csm &&
+                mezzanine_type == other.mezzanine_type &&
+                subdetectorId == other.subdetectorId &&
+                tdcId == other.tdcId &&
+                channelId == other.channelId; 
       }
       bool operator !=(const CablingData& other ) const{
           return ! ((*this) == other);
@@ -133,8 +133,8 @@ struct CablingData{
 
   /** return the online id given the offline id */
   bool getOnlineId(CablingData& cabling_data, MsgStream &log) const;
-  /** converts the cabling data into an identifier. Returns true whether the identifier is valid */
-  bool convert(const CablingData& cabling_data, Identifier& id )const;
+  /** converts the cabling data into an identifier. The check valid argument optionally enables the check that the returned identifier is actually well defined within the ranges but is also slow */
+  bool convert(const CablingData& cabling_data, Identifier& id, bool check_valid = true )const;
   /** converts the identifier into a cabling data object. Returns false if the Identifier is not Mdt */
   bool convert(const Identifier&id , CablingData& cabling_data) const;
   

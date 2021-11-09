@@ -389,7 +389,7 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
   for ( unsigned int i = 0; i != nPartsIn; ++i )
     {
-      createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], partToEndVtx, datapools );
+      createGenParticle( persEvt.m_genParticles[persVtx.m_particlesIn[i]], partToEndVtx, datapools, vtx, false );
     }
 
   // now handle the out-going particles
@@ -437,7 +437,7 @@ McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
 HepMC::GenParticlePtr
 McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
                                             ParticlesMap_t& partToEndVtx,
-                                            HepMC::DataPool& datapools, HepMC::GenVertexPtr parent ) const
+                                            HepMC::DataPool& datapools, HepMC::GenVertexPtr parent, bool add_to_output ) const
 {
   HepMC::GenParticlePtr p(0);
   if (m_isPileup)
@@ -448,7 +448,7 @@ McEventCollectionCnv_p4::createGenParticle( const GenParticle_p4& persPart,
     {
       p    = datapools.getGenParticle();
     }
-  if (parent) parent->add_particle_out(p);
+  if (parent) add_to_output?parent->add_particle_out(p):parent->add_particle_in(p);
 #ifdef HEPMC3
   p->set_pdg_id(              persPart.m_pdgId);
   p->set_status(              persPart.m_status);
@@ -570,11 +570,11 @@ void McEventCollectionCnv_p4::writeGenVertex( HepMC::ConstGenVertexPtr vtx,
                                                 A_barcode?(A_barcode->value()):vtx->id()
                                                 ) );
   GenVertex_p4& persVtx = persEvt.m_genVertices.back();
-  // we write only the orphans in-coming particles
+  // we write only the orphans in-coming particles and beams
   persVtx.m_particlesIn.reserve(vtx->particles_in().size());
   for ( auto p: vtx->particles_in())
     {
-      if ( !p->production_vertex() )
+      if ( !p->production_vertex() || p->production_vertex()->id() == 0 )
         {
           persVtx.m_particlesIn.push_back( writeGenParticle(p, persEvt ));
         }

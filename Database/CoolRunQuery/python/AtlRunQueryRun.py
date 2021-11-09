@@ -462,27 +462,25 @@ class Run:
                             first = False
                         s += '</th>'
                         
-                        a = sorted(matching_names[channelname])
-                        #horizontal
-                        #slices = [slice(x,len(a)+3,4) for x in range(4)]
-                        #zipped = zip(*map((a+4*['']).__getitem__,slices))
-                        #vertical
-                        n = 4*[len(a)/4]
-                        for x in range(len(a)-4*(len(a)/4)):
+                        allDefects = sorted(matching_names[channelname])
+                        n = 4*[len(allDefects)//4]
+                        for x in range(len(allDefects) % 4):
                             n[x]+=1
 
+                        # put the list of all defects into 4 columns
                         cx = 0
-                        slices = []
+                        columns = []
                         for x in n:
-                            slices += [slice(cx,cx+x)]
+                            columns.append( allDefects[slice(cx,cx+x)] )
                             cx+=x
-                        m = map(a.__getitem__,slices)
-                        for x in range(1,len(m)):
-                            m[x]+=['']
-                        zipped = zip(*m)
-                        
+
+                        for x in columns[1:]: # padding at the end of each column except the first to make zip include the last line
+                            x += ['']
+
+                        columnsTransposed = zip(*columns) # transpose
+
                         tts = ''
-                        for z in zipped:
+                        for z in columnsTransposed:
                             tts += '<tr>%s</tr>' % ''.join(["<td>%s</td>"% x for x in z])
                         content = '<table style="width:500px; font-size:80%%;">%s</table>' % tts
                         Run.addGlobalToolTip(tip,content)
@@ -1225,7 +1223,7 @@ def ashtml(run):
                     path = makeLBPlot( xvec, xvecStb, yvec, 'Luminosity block number', 'Online luminosity (10^{%s}cm^{-2}s^{-1})' % run.instlumiunittxt, '',
                                        'olclumi_vs_lb_run_%i' % (run.runNr),
                                        'Online lumi [%s] per LB for run %i' % (chanstr, run.runNr),
-                                       Run.Datapath, histoText )
+                                       QC.datapath, histoText )
 
                     # create window and tooltip
                     wincontent  = '<table class=&quot;outer&quot; style=&quot;padding: 5px&quot;><tr><td>'
@@ -1288,7 +1286,7 @@ def ashtml(run):
 
                     printMuInfoToFile = True
                     if printMuInfoToFile:
-                        mutextfilename = Run.Datapath + '/mu_vs_run_output.txt' 
+                        mutextfilename = QC.datapath + '/mu_vs_run_output.txt' 
                         muout          = open( mutextfilename, 'a' )
                         muout.write( '%10i   %f\n' % (run.runNr, mumax) )
                         muout.close()
@@ -1536,7 +1534,7 @@ def ashtml(run):
                                         xtitle = 'Luminosity block number', ytitle = '%s beamspot %s  (mm)' % (onloffltype, bstype),
                                         histname = '%s_vs_lb_run_%i' % (k.replace(':','_').replace('-','_'), run.runNr),
                                         histtitle = '%s beamspot %s per LB for run %i' % (onloffltype, bstype, run.runNr),
-                                        datapath = Run.Datapath, ymin = ymin, ymax = ymax, printText = histoText )
+                                        datapath = QC.datapath, ymin = ymin, ymax = ymax, printText = histoText )
 
 
                     # create window and tooltip
@@ -1662,11 +1660,11 @@ def ashtml(run):
                         pathN = makeLBPlot( xvec, xvecStb, yvecN,  'Luminosity block number', 'Number of events / LB', '',
                                             'nev_vs_lb_str_%s_run_%i' % (streamName, run.runNr),
                                             'N events per LB in stream "%s", run %i' % (streamName, run.runNr),
-                                            Run.Datapath, 'Total number of events: %i' % nevtot )
+                                            QC.datapath, 'Total number of events: %i' % nevtot )
                         pathR = makeLBPlot( xvec, xvecStb, yvecR, 'Luminosity block numer', 'Event rate [Hz] / LB', '',
                                             'rate_vs_lb_str_%s_run_%i' % (streamName, run.runNr),
                                             'Event rate per LB in stream "%s", run %i' % (streamName, run.runNr),
-                                            Run.Datapath )
+                                            QC.datapath )
                         wincontent += '<table style="padding: 0px">\n<tr><td>'
                         wincontent += '<img src="%s" width="350">' % pathN.split('/')[-1]
                         wincontent += '</td><td>'
@@ -1764,7 +1762,7 @@ def ashtml(run):
                         triggergroups,imgpaths,openwincmds = HU.createRatePopupWindow(v,run)
                         for idx,(trgroup,imgpath,openwincmd) in enumerate(zip(triggergroups,imgpaths,openwincmds)):
                             tooltipkey = "TrRate_Set%i_%i" % (idx,run.runNr)
-                            contentpage = "%s/popupContent_trRates_%i_%i.html" % (Run.Datapath, run.runNr, idx)
+                            contentpage = "%s/popupContent_trRates_%i_%i.html" % (QC.datapath, run.runNr, idx)
 
                             if idx!=0:
                                 tablecontent += '      <tr><td colspan="2"><hr color="gray"></td></tr>'
@@ -2045,10 +2043,10 @@ def ashtml(run):
                         fullprint += '</tr>'
 
                     # write to file (as text and TGraphs)
-                    bpmrootfilename = Run.Datapath + '/bpm_output_run%i.root' % run.runNr
+                    bpmrootfilename = QC.datapath + '/bpm_output_run%i.root' % run.runNr
                     SaveGraphsToFile( bpmrootfilename, keys, xvec, yvec, "TimeOffset", toffset )
 
-                    bpmtextfilename = Run.Datapath + '/bpm_output_run%i.txt' % run.runNr
+                    bpmtextfilename = QC.datapath + '/bpm_output_run%i.txt' % run.runNr
                     bpmout          = open( bpmtextfilename, 'w' )
 
                     bpmout.write( '# BPM Output for run %i\n' % run.runNr )
@@ -2076,7 +2074,7 @@ def ashtml(run):
                                              'Time of day (UTC)', 'Beam position (microns)', legend,
                                              'bp_vs_time_run_%i' % (run.runNr),
                                              'Beam position versus time of day for run %i' % (run.runNr),
-                                             Run.Datapath, '' )
+                                             QC.datapath, '' )
 
                     replacetxt = '<img src="%s" align="left" width="70px">' % path
                     fullprint = fullprint.replace('REPLACEME',replacetxt)
@@ -2177,7 +2175,7 @@ def ashtml(run):
                                            'Luminosity block number', 'Offline luminosity (10^{30}cm^{-2}s^{-1})', chanstr,
                                            'ofllumi%s_vs_lb_run_%i' % (chans[0],run.runNr),
                                            'Offline lumi per LB for run %i' % (run.runNr),
-                                           Run.Datapath, histoText )
+                                           QC.datapath, histoText )
 
                     # create window and tooltip
                     wincontent  = '<table class=&quot;outer&quot; style=&quot;padding: 5px&quot;><tr><td>'

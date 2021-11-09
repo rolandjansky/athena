@@ -206,7 +206,11 @@ def AddDecoratorCfg(flags,**kwargs):
 
     acc.merge(TrackDecoratorsCfg(flags))
   
-    if flags.Input.isMC and not flags.Detector.GeometryITk: #Temporarily disabled for ITk
+    if flags.Input.isMC:
+        if flags.Detector.GeometryITk:
+            from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+            acc.merge(BeamSpotCondAlgCfg(flags))
+
         acc.merge(InDetPhysValTruthDecoratorAlgCfg(flags))
 
     if flags.IDPVM.doValidateGSFTracks:

@@ -94,7 +94,7 @@ void ZDCTreeAnalysis::SetupBunchTrains()
   }
 }
 
-void ZDCTreeAnalysis::OpenOutputTree(std::string file)
+void ZDCTreeAnalysis::OpenOutputTree(const std::string & file)
 {
   TFile* outputFile = new TFile(file.c_str(), "recreate");
   if (!outputFile->IsOpen()) {
@@ -271,7 +271,7 @@ void ZDCTreeAnalysis::DoAnalysis()
 }
 
 
-void ZDCTreeAnalysis::PlotFits(std::string canvasSavePath)
+void ZDCTreeAnalysis::PlotFits(const std::string & canvasSavePath)
 {
   static bool first = true;
   static std::array<TCanvas*, 2> plotCanvases;

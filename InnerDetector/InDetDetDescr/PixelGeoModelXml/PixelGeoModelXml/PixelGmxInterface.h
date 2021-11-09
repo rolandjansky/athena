@@ -30,10 +30,10 @@ public:
                     WaferTree *moduleTree);
 
   virtual int sensorId(std::map<std::string, int> &index) const override final;
-  virtual void addSensorType(const std::string& clas,
-                             const std::string& typeName,
-                             const std::map<std::string, std::string>& parameters) override;
-  virtual void addSensor(const std::string& typeName,
+  virtual void addSensorType(std::string clas,
+                             std::string typeName,
+                             std::map<std::string, std::string> parameters) override;
+  virtual void addSensor(std::string typeName,
                          std::map<std::string, int> &index,
                          int sequentialId,
                          GeoVFullPhysVol *fpv) override final;

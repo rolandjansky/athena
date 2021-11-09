@@ -394,6 +394,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type=="cosmics":
           TrackMaker_FTF.CosmicTrack=True
 
+        #if remapped_type=="fullScan":         #TODO: To validate the dynamic RoI settings.
+        #  self.useBeamSpotForRoiZwidth=True
+        
         ToolSvc += TrackMaker_FTF
         self.initialTrackMaker = TrackMaker_FTF
 
@@ -440,12 +443,12 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
           TrackMaker_FTF.InputClusterContainerName = ""
           TrackMaker_FTF.InputHadClusterContainerName = ""
-
-          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+          
+          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
           if config.holeSearch_FTF :
-              from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
+              from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryToolWithHoleSearch
               self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
 
           self.doCloneRemoval = config.doCloneRemoval

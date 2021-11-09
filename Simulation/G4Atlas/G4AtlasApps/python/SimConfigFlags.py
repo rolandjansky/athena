@@ -97,6 +97,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
     scf.addFlag("Sim.ISF.ReSimulation", False) # Using ReSimulation workflow
+    scf.addFlag("Sim.ISF.UseTrackingGeometryCond", False) # Using Condition for tracking Geometry
 
     def decideHITSMerging(prevFlags):
         simstr = prevFlags.Sim.ISF.Simulator

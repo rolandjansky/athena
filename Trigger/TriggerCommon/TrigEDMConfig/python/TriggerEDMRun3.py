@@ -187,6 +187,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeContainer#HLT_EBWeight',            'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLT_EBWeightAux.EBWeight.EBUnbiased', 'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigConfKeys#TrigConfKeysOnline' ,               'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLT_RuntimeMetadata',     'CostMonDS BS ESD', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_RuntimeMetadataAux.hostname', 'CostMonDS BS ESD', 'Steer'),
 
     ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
@@ -512,7 +514,7 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_Roi_TauIso',             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_Roi_TauIsoBDT',             'BS ESD AODFULL AODSLIM',  'Steer'),
 
-    ('xAOD::JetContainer#HLT_jet_seed',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloViews,TAUCaloMVAViews'),
+    ('xAOD::JetContainer#HLT_jet_seed',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloMVAViews'),
     ('xAOD::JetAuxContainer#HLT_jet_seedAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     # Jet
@@ -723,7 +725,7 @@ TriggerHLTListRun3 = [
 
     # tau
     # will enable when needed
-    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnly',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloViews,TAUCaloMVAViews'),
+    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnly',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloMVAViews'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_CaloOnlyAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     #('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnlyMVA',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloMVAViews'),
@@ -739,11 +741,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_Precision',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFIdViews,TAUFTFTrackViews,TAUTrackTwoViews,TAUEFViews'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_PrecisionAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
-    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_Presel',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFTrackViews'),
-    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_PreselAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
-
     # tau calo clusters
-    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLC',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloViews'),
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLC',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloMVAViews'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersLCAux.nCells' ,'BS ESD AODFULL', 'Tau'),
 
     # tau tracks
@@ -753,8 +752,6 @@ TriggerHLTListRun3 = [
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_LLPAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
     ('xAOD::TauTrackContainer#HLT_tautrack_Precision',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFIdViews,TAUFTFTrackViews,TAUEFViews'),
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_PrecisionAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
-    ('xAOD::TauTrackContainer#HLT_tautrack_Presel',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFTrackViews'),
-    ('xAOD::TauTrackAuxContainer#HLT_tautrack_PreselAux.',                 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     # bjet RoI Descriptor used for EventView creation
     ('TrigRoiDescriptorCollection#HLT_Roi_Bjet',                   'BS ESD AODFULL', 'Bjet'),

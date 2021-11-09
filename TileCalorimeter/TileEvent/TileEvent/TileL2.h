@@ -80,7 +80,7 @@ class TileL2 {
         }
 
   /** Set sumE vector in TileL2 */
-  inline void setEt(const std::vector<float>& sumE) {m_sumE = sumE; }
+  inline void setEt(std::vector<float>&& sumE) {m_sumE = std::move(sumE); }
 
   /* Access methods */
 

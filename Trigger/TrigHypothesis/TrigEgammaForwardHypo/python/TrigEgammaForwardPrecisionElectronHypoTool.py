@@ -12,7 +12,7 @@ def same( val , tool):
 #
 def createTrigEgammaForwardPrecisionElectronHypoAlg(name, sequenceOut):
     # make the Hypo
-    #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaForwardPrecisionElectronLHSelectors
+    #from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaForwardPrecisionElectronLHSelectors
 
     from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardPrecisionElectronHypoAlg
     thePrecisionElectronHypo = TrigEgammaForwardPrecisionElectronHypoAlg(name)

@@ -17,8 +17,6 @@ from ISF_FatrasServices.ISF_FatrasJobProperties import ISF_FatrasFlags
 from ISF_FatrasServices.FatrasTuning import FatrasTuningFlags
 from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 
-# global to decide on if we go for TrackingGeometry or Service
-ISF_use_tracking_geometry_cond_alg = False
 
 #################################################################################
 # Material for the Geometry
@@ -174,7 +172,9 @@ def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
-    if (ISF_use_tracking_geometry_cond_alg
+    # Decide if we want to use the Tracking Geometry 
+    # from conditions or not 
+    if (ISF_Flags.UseTrackingGeometryCond 
             and 'TrackingGeometryKey' not in kwargs):
         if not hasattr(condSeq, 'AtlasTrackingGeometryCondAlg'):
             from InDetCondFolders import InDetAlignFolders_FATRAS  # noqa: F401

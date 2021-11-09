@@ -16,8 +16,8 @@ def FTFTrackSequence(ConfigFlags):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jet' )
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-    TrkInputNoViewAlg = makeInDetAlgsNoView( config=IDTrigConfig, rois=caloFSRoI )
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
+    TrkInputNoViewAlg = makeInDetTrigFastTrackingNoView( config=IDTrigConfig, rois=caloFSRoI )
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
     

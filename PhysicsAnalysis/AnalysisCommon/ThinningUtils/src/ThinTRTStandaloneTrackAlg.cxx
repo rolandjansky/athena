@@ -22,7 +22,9 @@ StatusCode ThinTRTStandaloneTrackAlg::initialize()
   if ( m_doTau ) {
     ATH_CHECK( m_InputTauJetContainerKey.initialize() );
   }
-
+  if (m_doMuon) {
+     ATH_CHECK(m_inputMuonContainerKey.initialize() );
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -127,6 +129,19 @@ StatusCode ThinTRTStandaloneTrackAlg::execute (const EventContext& ctx) const
       }
     }
   }
+   if (m_doMuon){
+     SG::ReadHandle<xAOD::MuonContainer> muons(m_inputMuonContainerKey, ctx);
+     if( !muons.isValid() ) {
+        ATH_MSG_FATAL("Failed to retrieve "<< m_inputMuonContainerKey.key());
+       return StatusCode::FAILURE;
+     }
+     for (const xAOD::Muon* muon : *muons){
+        const xAOD::TrackParticle* trk = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+        if (trk) keptInDetTrackParticles[trk->index()] = true;
+     }
+   
+   
+   }
 
   // Do the thinning
   indetTrackPC.keep (keptInDetTrackParticles);

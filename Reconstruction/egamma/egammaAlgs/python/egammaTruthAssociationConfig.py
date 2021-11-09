@@ -14,9 +14,8 @@ def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
     acc = ComponentAccumulator()
 
     if "MCTruthClassifier" not in kwargs:
-        mctruth = MCTruthClassifierCaloTruthMatchCfg(flags)
-        kwargs["MCTruthClassifier"] = mctruth.popPrivateTools()
-        acc.merge(mctruth)
+        kwargs["MCTruthClassifier"] = acc.popToolsAndMerge(
+            MCTruthClassifierCaloTruthMatchCfg(flags))
 
     kwargs.setdefault(
         "ClusterContainerName",

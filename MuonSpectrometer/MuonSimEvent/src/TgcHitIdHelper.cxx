@@ -52,12 +52,10 @@ void TgcHitIdHelper::SetStationName(std::string name, int& hid) const
 }
 std::string TgcHitIdHelper::GetStationName(const int& hid) const
 {
-  char v[4];
-  v[0]=v1[this->GetFieldValue("Station[1]",hid)];
-  v[1]=v2[this->GetFieldValue("Station[2]",hid)];
-  v[2]=v3[this->GetFieldValue("Station[3]",hid)];
-  v[3]='\0';
-  std::string temp=v;
+  std::string temp;
+  temp+=v1[this->GetFieldValue("Station[1]",hid)];
+  temp+=v2[this->GetFieldValue("Station[2]",hid)];
+  temp+=v3[this->GetFieldValue("Station[3]",hid)];
   return temp;
 }
 

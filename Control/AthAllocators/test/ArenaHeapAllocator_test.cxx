@@ -150,10 +150,10 @@ void test1()
   assert (aha.stats().blocks.total ==  (550 + elts_per_block-1) / elts_per_block);
   assert (aha.stats().blocks.free  ==  aha.stats().blocks.total - aha.stats().blocks.inuse);
 
-  aha.reserve (1000);
+  aha.reserve (2000);
   //printf ("%d %d %d\n", aha.stats().elts.inuse, aha.stats().elts.free, aha.stats().elts.total);
   assert (aha.stats().elts.inuse == 300);
-  assert (aha.stats().elts.total >= 1000);
+  assert (aha.stats().elts.total >= 2000);
   assert (aha.stats().elts.free == aha.stats().elts.total - 300);
   assert (aha.stats().blocks.inuse ==  (300 + elts_per_block-1) / elts_per_block);
   assert (aha.stats().blocks.total == (550 + elts_per_block-1) / elts_per_block + 1); 

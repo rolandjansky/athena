@@ -6,7 +6,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 def LArRampCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     #Calibration runs are taken in fixed gain. 
@@ -28,8 +28,9 @@ def LArRampCfg(flags):
 
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag, className="LArPedestalComplete"))
-    result.merge(addFolders(flags,flags.LArCalib.OFCCali.Folder,detDb=flags.LArCalib.Input.Database, tag=caliOFCTag))
+    result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag,  modifiers=chanSelStr(flags), 
+                            className="LArPedestalComplete"))
+    result.merge(addFolders(flags,flags.LArCalib.OFCCali.Folder,detDb=flags.LArCalib.Input.Database, tag=caliOFCTag, modifiers=chanSelStr(flags)))
     
 
     result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccCalibDigitKey=digKey,

@@ -91,10 +91,6 @@ namespace LVL1 {
 
   StatusCode jFEXSim::ExecuteForwardASide(int tmp_jTowersIDs_subset[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], jFEXOutputCollection* inputOutputCollection){
 
-
-  m_smallRJet_tobWords.clear();
-  m_largeRJet_tobWords.clear();
-
   const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
   const int ncols = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;
 
@@ -335,8 +331,6 @@ namespace LVL1 {
 }
 
   StatusCode jFEXSim::ExecuteForwardCSide(int tmp_jTowersIDs_subset[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width], jFEXOutputCollection* inputOutputCollection){
-    m_smallRJet_tobWords.clear();
-    m_largeRJet_tobWords.clear();
 
     const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
     const int ncols = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;
@@ -733,17 +727,17 @@ void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::j
   
 }
 
-std::vector<std::vector<uint32_t>> jFEXSim::getSmallRJetTOBs()
+std::vector<std::vector<std::vector<uint32_t>>> jFEXSim::getSmallRJetTOBs()
 { 
   return m_smallRJet_tobWords;
 }
 
-std::vector<std::vector<uint32_t>> jFEXSim::getLargeRJetTOBs()
+std::vector<std::vector<std::vector<uint32_t>>> jFEXSim::getLargeRJetTOBs()
 {
    return m_largeRJet_tobWords;
 }
 
-std::vector<std::vector<uint32_t>> jFEXSim::getTauTOBs()
+std::vector<std::vector<std::vector<uint32_t>>> jFEXSim::getTauTOBs()
 {
   return m_tau_tobWords;
 }

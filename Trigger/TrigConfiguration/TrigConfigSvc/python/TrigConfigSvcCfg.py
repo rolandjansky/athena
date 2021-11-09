@@ -14,7 +14,7 @@ log = logging.getLogger('TrigConfigSvcCfg')
 @lru_cache(maxsize=None)
 def getTrigConfFromCool(runNumber, lumiBlock):
     from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil 
-    db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP')
+    db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP200')
     runRange = [[runNumber,runNumber]]
     d = {key: value for key, value in TriggerCoolUtil.getHLTConfigKeys(db, runRange)[runNumber].items() if  key in ["SMK", "DB"]}
     d["DB"] = d["DB"].split(';')[0]
@@ -66,16 +66,12 @@ def createJsonMenuFiles(run, lb):
 # This interprets the Trigger.triggerConfig flag according to
 # https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerConfigFlag#triggerConfig_in_Run_3
 def getTrigConfigFromFlag( flags ):
-    tcflag = flags.Trigger.triggerConfig
-    log.info("Parsing trigger flag 'triggerConfig': %s", tcflag)
-    if tcflag is None: # the default is to configure from file
-        tcflag = "FILE"
-    source, dbconn, keys = (tcflag+":::").split(":")[:3]
+    # Pad the triggerConfig value and extract available fields:
+    source, dbconn, keys = (flags.Trigger.triggerConfig+":::").split(":")[:3]
     smk,l1psk,hltpsk,bgsk = (keys+",,,").split(",")[:4]
-    smk = int(smk) if smk != "" else None
-    l1psk = int(l1psk) if l1psk!="" else None
-    hltpsk = int(hltpsk) if hltpsk!="" else None
-    bgsk = int(bgsk) if bgsk!="" else None
+    # Convert to int or None:
+    smk, l1psk, hltpsk, bgsk = (int(k) if k!="" else None for k in (smk, l1psk, hltpsk, bgsk))
+
     if source == "DB" and (smk is None or l1psk is None or hltpsk is None or bgsk is None):
         runNumber = flags.Input.RunNumber[0]
         lbNumber = flags.Input.LumiBlockNumber[0]
@@ -180,28 +176,12 @@ def createL1PrescalesFileFromMenu( flags ):
 
 # L1 menu generation
 def generateL1Menu( flags ):
-    tcflag = flags.Trigger.triggerConfig
-    if tcflag is None:
-        tcflag = "FILE"
-    source = (tcflag+":::").split(":")[0]
-    if source=="FILE":
-        menuFileName = getL1MenuFileName(flags)
-        bgsFileName = getBunchGroupSetFileName(flags)
-        return _generateL1Menu(flags.Trigger.triggerMenuSetup, menuFileName, bgsFileName)
-    return None, None
-
-@lru_cache(maxsize=None)
-def _generateL1Menu(triggerMenuSetup, fileName, bgsFileName):
-    log.info("Generating L1 menu %s", triggerMenuSetup)
+    log.info("Generating L1 menu %s", flags.Trigger.triggerMenuSetup)
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
-    l1cfg = L1MenuConfig( menuName = triggerMenuSetup)
-    outfile, bgsOutFile = l1cfg.writeJSON(outputFile = fileName, bgsOutputFile = bgsFileName)
-    if outfile is not None:
-        log.info("Wrote L1 menu file %s", outfile)
-    if bgsOutFile is not None:
-        log.info("Wrote bunchgroup set file %s", bgsOutFile)
+    l1cfg = L1MenuConfig(menuName = flags.Trigger.triggerMenuSetup)
+    l1cfg.writeJSON(outputFile    = getL1MenuFileName(flags),
+                    bgsOutputFile = getBunchGroupSetFileName(flags))
 
-    return outfile, bgsOutFile
 
 # provide L1 config service in new JO
 @AccumulatorCache
@@ -219,14 +199,12 @@ def L1ConfigSvcCfg( flags ):
             # Save the menu in JSON format
             dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
-            l1ConfigSvc.JsonFileName = getL1MenuFileName(flags)
-            l1ConfigSvc.JsonFileNameBGS  = getBunchGroupSetFileName(flags)
             l1ConfigSvc.SMK = dbKeys['SMK']
             l1ConfigSvc.BGSK = dbKeys['BGSK']
-        else:
-            l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS = generateL1Menu( flags )
 
         l1ConfigSvc.InputType = "FILE"
+        l1ConfigSvc.JsonFileName = getL1MenuFileName(flags)
+        l1ConfigSvc.JsonFileNameBGS  = getBunchGroupSetFileName(flags)
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='FILE', JsonFileName=%s and JsonFileNameBGS=%s", l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS )
     elif cfg["SOURCE"] == "DB":
         l1ConfigSvc.InputType = "DB"

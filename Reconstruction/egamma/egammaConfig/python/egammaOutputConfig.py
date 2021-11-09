@@ -8,10 +8,10 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def egammaOutputCfg(flags, name="EGOutputList"):
 
-    acc = ComponentAccumulator()
-
     mlog = logging.getLogger(name)
+    mlog.info('Starting EGamma Output configuration')
 
+    acc = ComponentAccumulator()
     outFlags = flags.Egamma.Keys.Output
 
     toESD = []
@@ -132,4 +132,5 @@ def egammaOutputCfg(flags, name="EGOutputList"):
         acc.merge(addToAOD(flags, toAOD))
         mlog.info('egammaAODList: %s ', toAOD)
 
+    mlog.info("EGamma Output configured")
     return acc

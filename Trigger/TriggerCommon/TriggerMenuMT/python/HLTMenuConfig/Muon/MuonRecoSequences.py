@@ -458,8 +458,8 @@ def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, extraLoadsForl2mtmo
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
   IDTrigConfig = getInDetTrigConfig( "muon"+name ) 
 
-  from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
+  from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+  viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois = RoIs )
   viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   if extraLoads:
     viewVerify.DataObjects += extraLoads
@@ -482,8 +482,8 @@ def muonIDCosmicTrackingSequence( RoIs, name, extraLoads=None ):
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
   IDTrigConfig = getInDetTrigConfig( "cosmics" )
 
-  from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  dataPreparationAlgs, dataVerifier = makeInDetAlgs( config = IDTrigConfig, rois = RoIs, doFTF = False)
+  from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+  dataPreparationAlgs, dataVerifier = makeInDetTrigFastTracking( config = IDTrigConfig, rois = RoIs, doFTF = False)
    
   dataVerifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s'%RoIs )]
 
@@ -666,8 +666,8 @@ def muEFCBRecoSequence( RoIs, name ):
 
   if "FS" in name:
     #Need to run tracking for full scan chains
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs(config = IDTrigConfig, rois = RoIs) 
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+    viewAlgs, viewVerify = makeInDetTrigFastTracking(config = IDTrigConfig, rois = RoIs) 
 
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
@@ -700,17 +700,17 @@ def muEFCBRecoSequence( RoIs, name ):
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
 
-  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+  from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
   #When run in a different view than FTF some data dependencies needs to be loaded through verifier
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
   if 'FS' in name:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs, verifier = False)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois = RoIs, verifier = False)
     PTSeq = parOR("precisionTrackingInMuonsFS", PTAlgs  )
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
   elif 'LRT' in name:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
     PTSeq = parOR("precisionTrackingInMuonsLRT", PTAlgs  )
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
@@ -718,7 +718,7 @@ def muEFCBRecoSequence( RoIs, name ):
   elif isCosmic():
     trackParticles = getIDTracks() 
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
     PTSeq = parOR("precisionTrackingInMuons", PTAlgs  )
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
@@ -824,9 +824,9 @@ def muEFInsideOutRecoSequence(RoIs, name):
     PTTracks = [] #List of TrackCollectionKeys
     PTTrackParticles = [] #List of TrackParticleKeys
 
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=RoIs)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=RoIs)
     PTSeq = parOR("precisionTrackingInLateMuons", PTAlgs  )
 
     efmuInsideOutRecoSequence += PTSeq
@@ -910,8 +910,8 @@ def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
   IDTrigConfig = getInDetTrigConfig( 'muonIso'+name )
 
-  from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
+  from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+  viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois = RoIs )
   viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUEFIsoRoIs'+name ),
                              ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons'+name )]
 
@@ -930,8 +930,8 @@ def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
   
-  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=RoIs )
+  from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=RoIs )
 
   PTSeq = parOR("precisionTrackingInMuonsIso"+name, PTAlgs  )
   efmuisoRecoSequence += PTSeq

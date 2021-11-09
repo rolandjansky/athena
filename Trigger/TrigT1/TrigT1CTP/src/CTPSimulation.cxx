@@ -136,7 +136,7 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigne
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
-      { "jet", {"JET", "jJ", "jLJ", "gJ"} },
+      { "jet", {"JET", "jJ", "jLJ", "gJ", "gLJ"} },
       { "xe", {"XE", "gXE", "jXE"} },
       { "te", {"TE", "jTE", "gTE"} },
       { "xs", {"XS"} },
@@ -159,7 +159,7 @@ LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
-      { "jet", {"JET", "jJ", "jLJ", "gJ"} },
+      { "jet", {"JET", "jJ", "jLJ", "gJ", "gLJ"} },
       { "xe", {"XE", "gXE", "jXE"} },
       { "te", {"TE", "jTE", "gTE"} },
       { "xs", {"XS"} },
@@ -332,6 +332,9 @@ LVL1CTP::CTPSimulation::bookHists() const {
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gJetPt","Jet p_{T} - gJ", 40, 0, 80) ));
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gJetEta","Jet #eta - gJ", 64, -3.2, 3.2) ));
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gJetPhi","Jet #phi - gJ", 64, -3.2, 3.2) ));
+   ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gLJetPt","Jet p_{T} - gLJ", 40, 0, 80) ));
+   ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gLJetEta","Jet #eta - gLJ", 64, -3.2, 3.2) ));
+   ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("gLJetPhi","Jet #phi - gLJ", 64, -3.2, 3.2) ));
 
    // MET
    ATH_CHECK ( hbook( "/input/met/", std::make_unique<TH1I>("Pufit","Missing ET from algorithm pufit", 40, 0, 80) ));
@@ -359,6 +362,7 @@ LVL1CTP::CTPSimulation::bookHists() const {
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("jJets","Number of jets (jJ)", 40, 0, 40) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("jLJets","Number of jets (jLJ)", 40, 0, 40) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("gJets","Number of jets (gJ)", 40, 0, 40) ));
+   ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("gLJets","Number of jets (gLJ)", 40, 0, 40) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("muons","Number of muons", 10, 0, 10) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("emcluster","Number of EM clusters", 20, 0, 20) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("taus","Number of TAU candidates", 20, 0, 20) ));
@@ -918,6 +922,8 @@ LVL1CTP::CTPSimulation::calculateTopoOptMultiplicity( const TrigConf::L1Threshol
     subfolder = "jet";
   } else if (confThr.type().find("gJ") != std::string::npos) {
     subfolder = "jet";
+  } else if (confThr.type().find("gLJ") != std::string::npos) {
+    subfolder = "jet";
   }
   get2DHist( "/multi/" + subfolder + "/" + confThr.type() + "Mult" )->Fill(confThr.mapping(), multiplicity);
   ATH_MSG_DEBUG("TOPO OPT input MULT calculated mult for threshold " << confThr.name() << " : " << multiplicity << " received via connector: " << connector);
@@ -1108,7 +1114,7 @@ LVL1CTP::CTPSimulation::finalize() {
    {
       // run 3 thresholds
       auto hist = * get2DHist( "/multi/all/R3Mult" );
-      std::vector<std::string> thrHists = { "em/eEM", "em/jEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/jLJ", "jet/gJ", "xe/gXE", "xe/jXE", "te/jTE", "te/gTE" };
+      std::vector<std::string> thrHists = { "em/eEM", "em/jEM", "muon/MU", "tau/eTAU", "tau/jTAU", "tau/cTAU", "jet/jJ", "jet/jLJ", "jet/gJ", "jet/gLJ", "xe/gXE", "xe/jXE", "te/jTE", "te/gTE" };
       for(const std::string & histpath : thrHists) {
          auto h = * get2DHist( "/multi/" + histpath + "Mult" );
          auto xaxis = h->GetXaxis();
