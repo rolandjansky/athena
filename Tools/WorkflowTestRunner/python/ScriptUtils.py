@@ -73,6 +73,8 @@ def setup_parser() -> ArgumentParser:
                        help="Run overlay test using Overlay_tf.py")
     tests.add_argument("-p", "--pileup", action="store_true", dest="pileup", default=False,
                        help="Run MC reconstruction chain with pile-up")
+    tests.add_argument("-r", "--reco", action="store_true", dest="reco", default=False,
+                       help="Run MC reconstruction (in case the default execution also runs simulation)")                   
 
     return parser
 
@@ -162,6 +164,7 @@ def parse_test_string(setup: TestSetup, options: Namespace) -> None:
 
     # reco
     if test_string in ['r', 'reco', 'reconstruction', 'Reco_tf', 'Reco_tf.py']:
+        options.reco = True
         return
 
 
@@ -179,7 +182,7 @@ def run_tests(setup: TestSetup, tests: List[WorkflowTest]) -> None:
     if not setup.checks_only:
         threads = {}
         setup.logger.info("------------------ Run Athena workflow test jobs---------------")
-        if setup.parallel_execution:
+        if setup.parallel_execution and not setup.validation_only:
             for test in tests:
                 threads[f"{test.ID}_reference"]   = threading.Thread(target=lambda test=test: test.run_reference())
                 threads[f"{test.ID}_validation"] = threading.Thread(target=lambda test=test: test.run_validation())
@@ -192,9 +195,12 @@ def run_tests(setup: TestSetup, tests: List[WorkflowTest]) -> None:
             for test in tests:
                 threads[f"{test.ID}_validation"] = threading.Thread(target=lambda test=test: test.run_validation())
                 threads[f"{test.ID}_validation"].start()
+                if not setup.parallel_execution:
+                    threads[f"{test.ID}_validation"].join()
 
-            for thread in threads:
-                threads[thread].join()
+            if setup.parallel_execution:
+                for thread in threads:
+                    threads[thread].join()
         else:
             for test in tests:
                 threads[f"{test.ID}_reference"]   = threading.Thread(target=lambda test=test: test.run_reference())
