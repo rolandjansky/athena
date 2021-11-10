@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  TPhotonIsEMSelector.cxx
@@ -270,7 +270,7 @@ StatusCode Root::TPhotonIsEMSelector::initialize() {
   return sc;
 }
 
-asg::AcceptData Root::TPhotonIsEMSelector::fillAccept(unsigned int isEM) {
+asg::AcceptData Root::TPhotonIsEMSelector::fillAccept(unsigned int isEM) const {
   asg::AcceptData acceptData(&m_acceptInfo);
   for (int i = 0; i < 32; i++) {
     const unsigned int mask = (0x1 << i) & m_isEMMask;

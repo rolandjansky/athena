@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -306,7 +306,7 @@ namespace Root {
   private:
 
     // would ideally be protected: only to be used by ARASelector
-    asg::AcceptData fillAccept(unsigned int isEM);
+    asg::AcceptData fillAccept(unsigned int isEM) const;
 
     template<typename T>
     bool checkVar(const std::vector <T> &vec, int choice) const;
