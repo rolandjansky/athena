@@ -11,7 +11,6 @@ def set_SM_params(process_dir,FourFS=False):
     https://twiki.cern.ch/twiki/bin/view/AtlasProtected/McProductionCommonParametersMC15
     """
     param_card_settings = {
-    'loop' : { '1':"9.118760e+01" },
     'mass' : {
 '5':  "0.000000",
 '15': "1.777000e+00",
