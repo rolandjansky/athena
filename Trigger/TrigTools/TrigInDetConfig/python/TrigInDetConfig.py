@@ -451,9 +451,10 @@ def trtDataPrep(flags, roisKey, signature):
     acc.addPublicTool(InDetTRTRawDataProviderTool)
 
      # load the TRTRawDataProvider
+    from .InDetTrigCollectionKeys import TrigTRTKeys
     TRTRawDataProvider=CompFactory.TRTRawDataProvider
     InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider"+ signature,
-                                                 RDOKey       = "TRT_RDOs",
+                                                 RDOKey       = TrigTRTKeys.RDOs,
                                                  ProviderTool = InDetTRTRawDataProviderTool,
                                                  RegSelTool   = RegSelTool_TRT,
                                                  isRoI_Seeded = True,
@@ -501,6 +502,7 @@ def pixelClusterizationCfg(flags, roisKey, signature):
                                                         isRoI_Seeded             = True,
                                                         RoIs                     = roisKey,
                                                         ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey)
+
 
   acc.addEventAlgo(InDetPixelClusterization)
 
@@ -703,13 +705,21 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
                                                                     ('PixelRDO_Cache', 'PixRDOCache'),
                                                                     ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
                                                                     ('SCT_RDO_Cache', 'SctRDOCache'),
+                                                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
+                                                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
+                                                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                                                     ('SpacePointCache', 'PixelSpacePointCache'),
                                                                     ('SpacePointCache', 'SctSpacePointCache'),
-                                                                    ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
-                                                                    ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
                                                                     ('xAOD::EventInfo', 'EventInfo'),
                                                                     ('TrigRoiDescriptorCollection', roisKey),
                                                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
+    if flags.Input.isMC:
+        verifier.DataObjects += [( 'PixelRDO_Container' , 'StoreGateSvc+PixelRDOs' ),
+                                  ( 'SCT_RDO_Container' , 'StoreGateSvc+SCT_RDOs' ) ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        sgil_load = [( 'PixelRDO_Container' , 'StoreGateSvc+PixelRDOs' ),
+                     ( 'SCT_RDO_Container' , 'StoreGateSvc+SCT_RDOs' ) ]
+        acc.merge(SGInputLoaderCfg(flags, Load=sgil_load))
 
     acc.addEventAlgo(verifier)
   #Only add raw data decoders if we're running over raw data
@@ -763,10 +773,14 @@ def TRTDataProviderCfg(flags):
 def TRTRIOMakerCfg(flags):
   acc = ComponentAccumulator()
   from .InDetTrigCollectionKeys import TrigTRTKeys
+  TRT_RDO_Key = "TRT_RDOs"
+  if flags.Input.Format == 'BS':
+        TRT_RDO_Key = TrigTRTKeys.RDOs
+  
   from InDetConfig.TRTPreProcessing import TRT_DriftCircleToolCfg # TODO, offline config used here, threfore the names are different
   alg = CompFactory.InDet.TRT_RIO_Maker( f"{prefix}TRTDriftCircleMaker_{flags.InDet.Tracking.name}",
                                           TRTRIOLocation=TrigTRTKeys.DriftCircles, 
-                                          TRTRDOLocation = TrigTRTKeys.RDOs,
+                                          TRTRDOLocation = TRT_RDO_Key,
                                           isRoI_Seeded = True,
                                           RoIs = flags.InDet.Tracking.roi,
                                           TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, useTimeInfo=True, usePhase=False, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
@@ -1011,24 +1025,29 @@ def trigInDetPrecisionTrackingCfg( inflags, signatureName, in_view=True ):
   acc = ComponentAccumulator()
   flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
 
-  from .InDetTrigCollectionKeys import TrigPixelKeys
+  from .InDetTrigCollectionKeys import TrigPixelKeys,TrigTRTKeys
   if in_view:
     #TODO share setup with FTF
+    TRT_RDO_Key = "TRT_RDOs"
+    if flags.Input.Format == 'BS':
+          TRT_RDO_Key = TrigTRTKeys.RDOs
     verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDetPrecision'+flags.InDet.Tracking.suffix,
                                                       DataObjects= [('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
                                                                     ('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
                                                                     ('PixelRDO_Cache', 'PixRDOCache'),
-                                                                    ('IDCInDetBSErrContainer' , 'PixelByteStreamErrs'),
-                                                                    ('InDet::SCT_ClusterContainerCache', 'SCT_ClustersCache'),
                                                                     ('SCT_RDO_Cache', 'SctRDOCache'),
+                                                                    ( 'TRT_RDO_Container' , TRT_RDO_Key),
                                                                     ('SpacePointCache', 'PixelSpacePointCache'),
                                                                     ('SpacePointCache', 'SctSpacePointCache'),
-                                                                    ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
-                                                                    ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
                                                                     ('TrigRoiDescriptorCollection', flags.InDet.Tracking.roi),
                                                                     ( 'TagInfo', 'DetectorStore+ProcessingTags' ), 
                                                                     ( 'InDet::PixelGangedClusterAmbiguities' , TrigPixelKeys.PixelClusterAmbiguitiesMap),
                                                                     ( 'TrackCollection', flags.InDet.Tracking.trkTracks_FTF )] )
+
+    if flags.Input.Format == 'BS':
+        verifier.DataObjects += [ ('IDCInDetBSErrContainer' , 'PixelByteStreamErrs'),
+                                  ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
+                                  ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'), ]
     acc.addEventAlgo(verifier)
 
   acc.merge(ambiguitySolverAlgCfg(flags))
