@@ -5,8 +5,6 @@
 /***************************************************************************
 MuonCaloEnergyTool.h  -  Description
 -------------------
-begin   : Summer 2014
-authors : Niels van Eldik (CERN PH-ATC)
 ***************************************************************************/
 #ifndef MUONCALOENERGYTOOL_H
 #define MUONCALOENERGYTOOL_H
@@ -50,9 +48,9 @@ namespace Rec {
                                    std::vector<double>* E_exp_cell = 0) const override;
 
     private:
-        ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool {this, "ParticleCaloExtensionTool", "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool to make the step-wise extrapolation"};
-        ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool {this, "ParticleCaloCellAssociationTool", "Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", "Tool to make the cell association"}; 
-        ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator {this,"TrackParticleCreator",  "Trk::TrackParticleCreatorTool/MuonCaloParticleCreator", "The CB Particle Creator Tool"};
+        ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool {this, "ParticleCaloExtensionTool", "", "Tool to make the step-wise extrapolation"};
+        ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool {this, "ParticleCaloCellAssociationTool", "", "Tool to make the cell association"}; 
+        ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator {this,"TrackParticleCreator",  "", "The CB Particle Creator Tool"};
 
         SG::ReadCondHandleKey<CaloNoise> m_caloNoiseCDOKey{this, "CaloNoiseKey", "totalNoise", "SG Key of CaloNoise data object"};
 
