@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 logging.getLogger().info("Importing %s",__name__)
 import math
 import re
-from TrigConfHLTData.HLTUtils import string2hash
+from TrigConfHLTUtils.HLTUtils import string2hash
 
 topoLegIndices = "ABCDEF"
 

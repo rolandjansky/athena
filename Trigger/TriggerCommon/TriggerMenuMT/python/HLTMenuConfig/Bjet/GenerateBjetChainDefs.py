@@ -31,7 +31,7 @@ def generateChainConfigs( chainDict ):
         else:
             log.debug('input jet collection name is: %s\n', jet_name)
             Bjet = BjetChainConfiguration(subChainDict, jet_name).assembleChain() 
-            jet.steps = jet.steps + Bjet.steps
+            jet.append_bjet_steps(Bjet.steps)
             listOfChainDefs += [ jet ] 
 
     if len(listOfChainDefs)>1:

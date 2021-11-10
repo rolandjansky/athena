@@ -39,7 +39,7 @@ namespace dqutils {
   static const bool rno_debug = false;
 
   void
-  MonitoringFile::PixelPostProcess( std::string inFilename, bool /* isIncremental */ )
+  MonitoringFile::PixelPostProcess( const std::string & inFilename, bool /* isIncremental */ )
   {
     if (rno_debug) std::cout << "Start Pixel post-processing" <<std::endl;
 

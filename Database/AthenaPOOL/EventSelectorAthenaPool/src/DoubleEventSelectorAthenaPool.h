@@ -69,9 +69,6 @@ private:
   // Cache if secondary selector is ByteStream
   bool m_secondaryByteStream{};
 
-  // Caches for file transitions
-  mutable bool m_primaryFileTransition{}; // protected by a mutex, used in one place
-
   SG::SlotSpecificObj<SG::SourceID> m_sourceID1;
   SG::SlotSpecificObj<SG::SourceID> m_sourceID2;
 };

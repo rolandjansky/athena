@@ -16,35 +16,32 @@ class RpcIdHelper;
 
 namespace MuonGM {
 
-class MuonDetectorManager;
-class RpcReadoutElement;
+    class MuonDetectorManager;
+    class RpcReadoutElement;
 
-class RpcReadoutSet
-{
-public:
+    class RpcReadoutSet {
+    public:
+        RpcReadoutSet() = default;
+        RpcReadoutSet(const MuonDetectorManager* mgr, Identifier id);
+        // this is a detectorId
 
-   RpcReadoutSet();
-   RpcReadoutSet(const MuonDetectorManager* mgr, Identifier id);
-   // this is a detectorId
+        void setMgr(const MuonDetectorManager* mgr);
+        void setId(Identifier id);
+        const RpcReadoutElement* readoutElement(Identifier id) const;
+        // this is a channelId
 
-   void  setMgr(const MuonDetectorManager* mgr);
-   void  setId(Identifier id);
-   const RpcReadoutElement* readoutElement(Identifier id) const;
-   // this is a channelId
- 
-   const RpcReadoutElement* readoutElement(int dbz, int dbp) const;
-   unsigned int NreadoutElements() const;
-   unsigned int NdoubletZ() const;
-   unsigned int NsegmentedDoubletZ() const;
-   unsigned int NPhimodules(int dbz) const;  
-    
-private:
+        const RpcReadoutElement* readoutElement(int dbz, int dbp) const;
+        unsigned int NreadoutElements() const;
+        unsigned int NdoubletZ() const;
+        unsigned int NsegmentedDoubletZ() const;
+        unsigned int NPhimodules(int dbz) const;
 
-   Identifier m_id; // this is a detectorId
-   const RpcIdHelper*  m_helper;
-   const MuonDetectorManager* m_mgr;
-};
+    private:
+        Identifier m_id;  // this is a detectorId
+        const RpcIdHelper* m_helper{nullptr};
+        const MuonDetectorManager* m_mgr{nullptr};
+    };
 
-} // namespace MuonGM
+}  // namespace MuonGM
 
-#endif // MUONREADOUTGEOMETRY_RPCREADOUTSET_H
+#endif  // MUONREADOUTGEOMETRY_RPCREADOUTSET_H

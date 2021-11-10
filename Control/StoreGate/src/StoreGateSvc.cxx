@@ -19,8 +19,9 @@
 using namespace SG;
 using namespace std;
 
-thread_local HiveEventSlot* StoreGateSvc::s_pSlot = nullptr;
-
+namespace {
+    thread_local HiveEventSlot* currentHiveEventSlot = nullptr;
+}
 
 /// Standard Constructor
 StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) : 
@@ -59,15 +60,15 @@ StoreGateSvc::setDefaultStore(SGImplSvc* pStore) {
 
 void 
 StoreGateSvc::setSlot(SG::HiveEventSlot* pSlot) { 
-  s_pSlot=pSlot;
-  if ( 0 != s_pSlot) {
-    s_pSlot->pEvtStore->makeCurrent();
+  currentHiveEventSlot=pSlot;
+  if ( 0 != currentHiveEventSlot) {
+    currentHiveEventSlot->pEvtStore->makeCurrent();
   }
 }
 
 SG::HiveEventSlot*
 StoreGateSvc::currentSlot() { 
-  return s_pSlot; 
+  return currentHiveEventSlot; 
 }
 
 /////////////////////////////////////////////////////////////////
@@ -540,7 +541,7 @@ StoreGateSvc::createObj (IConverter* cvt,
 void StoreGateSvc::rememberBad (BadItemList& bad,
                                 CLID clid, const std::string& key) const
 {
-  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+  if (m_storeID == StoreID::EVENT_STORE && currentHiveEventSlot != nullptr) {
     lock_t lock (m_badMutex);
     std::string algo;
     if (m_algContextSvc.isValid()) {

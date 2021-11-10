@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_TAUVERTEXEDCLUSTERDECORATOR_H
@@ -33,9 +33,6 @@ private:
 
   /// Name of the seed jet
   std::string m_seedJet;  
-  
-  /// Switch of the tau vertex correction
-  bool m_doVertexCorrection;
   
   /// Calibration state of cluster
   xAOD::CaloCluster::State m_clusterState; //!

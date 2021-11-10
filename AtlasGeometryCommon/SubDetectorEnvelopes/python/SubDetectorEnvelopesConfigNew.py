@@ -8,8 +8,6 @@ Elmar Ritsch, 27/09/2013
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-DetDescrDBEnvelopeSvc=CompFactory.DetDescrDBEnvelopeSvc
-
 def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     result = ComponentAccumulator()
 
@@ -26,8 +24,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback BeamPipeEnvelope
     BeamPipe = Volume()
 
-    if ConfigFlags.Detector.GeometryHGTD:
-        BeamPipe.addRZ(   34.3,   3420.0 )
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         BeamPipe.addRZ(   34.3,   3545.0 )
         BeamPipe.addRZ(  120.0,   3545.0 )
     else:
@@ -53,7 +50,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback IDEnvelope
     InDet = Volume()
     # InDet should include HGTD when it's turned on
-    if ConfigFlags.Detector.GeometryHGTD:
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         InDet.addRZ( 1148.,  3545. )
         InDet.addRZ(  34.3,  3545. )
     else:
@@ -66,7 +63,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     # setup fallback CaloEnvelope
     Calo = Volume()
 
-    if ConfigFlags.Detector.GeometryHGTD:
+    if ConfigFlags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]:
         Calo.addRZ( 1148.0,  3545.0 )
         Calo.addRZ(  120.0,  3545.0 )
     else:
@@ -151,7 +148,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     kwargs.setdefault("GeoModelSvc", acc.getService("GeoModelSvc"))
     result.merge(acc)
 
-    result.addService(DetDescrDBEnvelopeSvc(name, **kwargs),primary=True)
+    result.addService(CompFactory.DetDescrDBEnvelopeSvc(name, **kwargs),primary=True)
     return result
 
 

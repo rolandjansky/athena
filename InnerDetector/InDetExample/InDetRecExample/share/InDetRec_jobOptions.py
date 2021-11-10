@@ -127,6 +127,7 @@ else:
     # ------------------------------------------------------------
     if DetFlags.detdescr.Calo_allOn() and (
          (InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem())
+      or InDetFlags.doCaloSeededAmbi()
       or (InDetNewTrackingCuts.RoISeededBackTracking() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTSeededTrackFinder())) :
       include ("InDetRecExample/InDetRecCaloSeededROISelection.py")
 
@@ -897,7 +898,7 @@ else:
 
         # --- the (1st) trajectory selector
         PRD_TruthTrajectorySelector = []
-        if not InDetFlags.doSplitReco() :
+        if not InDetFlags.doSplitReco() and not InDetFlags.doIdealPseudoTracking():
           from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySelectorID
           InDetTruthTrajectorySelector = InDet__PRD_TruthTrajectorySelectorID(name='InDetTruthTrajectorySelector')
           ToolSvc += InDetTruthTrajectorySelector

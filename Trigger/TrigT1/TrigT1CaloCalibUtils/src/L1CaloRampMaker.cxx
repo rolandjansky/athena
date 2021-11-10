@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloRampMaker.h"
@@ -59,8 +59,8 @@ L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocat
     m_fadcSaturationCut(963),
     m_tileSaturationCut(150.),
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-    m_xAODTTTools("LVL1::L1CaloxAODOfflineTriggerTowerTools/L1CaloxAODOfflineTriggerTowerTools"),
-    m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
+    m_xAODTTTools("LVL1::L1CaloxAODOfflineTriggerTowerTools/L1CaloxAODOfflineTriggerTowerTools", this),
+    m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools", this),
     m_condSvc("L1CaloCondSvc", name),
     m_nEvent(1),
     m_firstEvent(true),
@@ -152,6 +152,10 @@ StatusCode L1CaloRampMaker::execute()
 
     // init trigger tower to cell mapping
     CHECK(m_xAODTTTools->initCaloCells());
+
+    SG::ReadHandle<CaloCellContainer> caloCells (m_caloCellsKey);
+    m_jmTools->caloCells(caloCells.cptr());
+    
 
     // CHECK(m_condSvc->retrieve(m_pprLutContainer, m_pprLutContainerFolderMap));
     // CHECK(m_condSvc->retrieve(m_pprDisabledChannelContainer, m_pprDisabledChannelContainerFolderMap));

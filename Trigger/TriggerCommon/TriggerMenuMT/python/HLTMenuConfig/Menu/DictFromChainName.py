@@ -11,6 +11,7 @@ __author__  = 'Catrin Bernius'
 __version__=""
 __doc__="Decoding of chain name into a dictionary"
 
+from TrigConfHLTUtils.HLTUtils import string2hash
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
@@ -213,15 +214,14 @@ def analyseChainName(chainName, L1thresholds, L1item):
     
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',
-                     'trigType': sigToken, 'extra': ''}
+                     'trigType': sigToken,'tnpInfo': '','extra': ''}
         mdicts.append( groupdict )
 
-       
-    log.debug("chain parts: %s", cparts)
     for cpart in cparts:
 
         log.debug("Looping over chain part: %s", cpart)
         m = pattern.match(cpart)
+
         if m:
             log.debug("Pattern found in this string: %s", cpart)
             groupdict = m.groupdict()
@@ -248,9 +248,13 @@ def analyseChainName(chainName, L1thresholds, L1item):
                 sName = getSignatureNameFromToken(cpart)
             
             groupdict['signature'] = sName
-            groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
+            log.debug("groupdict['signature']: %s",groupdict['signature'])
             
-            log.debug('groupdictionary groupdict: %s', groupdict)
+            if "tnpInfo" in groupdict.keys() and groupdict['tnpInfo'] != "":
+                groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['tnpInfo'])
+            else:
+                groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
+       
             mdicts.append(groupdict)
 
         elif cpart =='noalg':
@@ -335,7 +339,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         chainProperties['multiplicity'] = multiplicity
         chainProperties['threshold']=mdicts[chainindex]['threshold']
         chainProperties['signature']=mdicts[chainindex]['signature']
-
+       
         # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
         # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
         # have to keep it in the name
@@ -360,9 +364,10 @@ def analyseChainName(chainName, L1thresholds, L1item):
         for t in genchainDict['topo']:
             if (t in AllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
-                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', chainProperties['extra'])
-
-
+                if "tnpInfo" in chainProperties.keys() and chainProperties['tnpInfo'] != "":
+                    chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['tnpInfo'])
+                else:
+                    chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['extra'])
 
         # ---- import the relevant dictionaries for each part of the chain ----
         from .SignatureDicts import getSignatureInformation
@@ -434,11 +439,15 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- set the alignment group here, once we have fully worked out the properties ----
         # ---- this is for the benefit of the probe leg in T&P chains ----
+    
         if 'larnoiseburst' in chainName:
             chainProperties['alignmentGroup'] = 'JetMET'
         else:
-            chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], chainProperties['extra'])
-
+            if 'tnpInfo' in chainProperties.keys() and chainProperties['tnpInfo'] != "":
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'],chainProperties['tnpInfo'])
+            else:
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'],chainProperties['extra'])
+                
         # ---- the info of the general and the specific chain parts dict ----
         allChainProperties.append(chainProperties)
 
@@ -448,12 +457,15 @@ def analyseChainName(chainName, L1thresholds, L1item):
     for cPart in allChainProperties:
         if cPart['signature'] == 'Jet' and cPart['bTag'] != '':
             cPart['signature'] = 'Bjet'
-            cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['extra'])
+            if 'tnpInfo' in cPart.keys() and cPart['tnpInfo'] != "":
+                cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['tnpInfo'])
+            else:
+                cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['extra'])
         genchainDict['signatures'] += [cPart['signature']]
         genchainDict['alignmentGroups'] += [cPart['alignmentGroup']]
 
     #genchainDict['signature'] = allChainProperties[0]['signature']
-
+   
     return genchainDict
 
 
@@ -478,7 +490,6 @@ def dictFromChainName(chainInfo):
     """
 
     # these if/elif/else statements are due to temporary development
-    from TrigConfHLTData.HLTUtils import string2hash
     if type(chainInfo) == str:
         chainName       = chainInfo
         l1Thresholds    = []

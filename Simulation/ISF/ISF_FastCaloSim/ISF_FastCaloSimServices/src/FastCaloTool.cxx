@@ -41,7 +41,6 @@ ISF::FastCaloTool::FastCaloTool(const std::string& type, const std::string& name
   declareProperty("OwnPolicy",                         m_ownPolicy) ;
   declareProperty("CaloCellsOutputName",               m_caloCellsOutputName) ;
   declareProperty("CaloCellHack",                      m_caloCellHack) ;
-  declareProperty("DoPunchThroughSimulation",          m_doPunchThrough) ;
   declareProperty("SimulateUndefinedBarcodeParticles",
                   m_simulateUndefinedBCs,
                   "Whether or not to simulate paritcles with undefined barcode" );
@@ -73,13 +72,6 @@ StatusCode ISF::FastCaloTool::commonInitialize()
   ATH_CHECK (m_caloCellMakerTools_setup.retrieve());
   ATH_CHECK (m_caloCellMakerTools_simulate.retrieve());
   ATH_CHECK (m_caloCellMakerTools_release.retrieve());
-
-  if (m_doPunchThrough) {
-    ATH_CHECK(m_punchThroughTool.retrieve());
-  }
-  else {
-    m_punchThroughTool.disable();
-  }
 
   ATH_CHECK(m_truthRecordSvc.retrieve());
 
@@ -145,7 +137,7 @@ StatusCode ISF::FastCaloTool::setupEventST()
   return this->commonSetup();
 }
 
-StatusCode ISF::FastCaloTool::setupEvent()
+StatusCode ISF::FastCaloTool::setupEvent(const EventContext&)
 {
   ATH_MSG_DEBUG ( "setupEvent");
 
@@ -202,36 +194,13 @@ StatusCode ISF::FastCaloTool::commonSetup()
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FastCaloTool::simulate(const ISFParticle& isp, ISFParticleContainer& secondaries, McEventCollection*) const
+StatusCode ISF::FastCaloTool::simulate(const ISFParticle& isp, ISFParticleContainer&, McEventCollection*) const
 {
 
   ATH_MSG_VERBOSE( "FastCaloTool " << name() << " simulate()" );
 
   // read the particle's barcode
   Barcode::ParticleBarcode bc = isp.barcode();
-  //lets do punch-through here
-  //----------------------------------------------------------
-
-  // punch-through simulation
-
-  if (m_doPunchThrough) {
-    Barcode::PhysicsProcessCode process = 201;
-    // call punch-through simulation
-    const ISF::ISFParticleVector *someSecondaries = m_punchThroughTool->computePunchThroughParticles(isp);
-    if (someSecondaries) {
-      //Record truth incident for created punch through particles
-      ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(isp),
-                                   *someSecondaries,
-                                   process,
-                                   isp.nextGeoID(),  // inherits from the parent
-                                   ISF::fKillsPrimary);
-      m_truthRecordSvc->registerTruthIncident( truth, true );
-      for (auto secondary : *someSecondaries) {
-        secondaries.push_back(secondary);
-      }
-      delete someSecondaries;
-    }
-  }
 
   // (a.) batch process mode, ignore the incoming particle for now
   if ( m_batchProcessMcTruth) {
@@ -386,7 +355,7 @@ std::vector<Trk::HitInfo>* ISF::FastCaloTool::caloHits(const ISF::ISFParticle& i
 }
 
 
-StatusCode ISF::FastCaloTool::releaseEvent() {
+StatusCode ISF::FastCaloTool::releaseEvent(const EventContext& ctx) {
 
   ATH_MSG_VERBOSE( "FastCaloTool " << name() << " releaseEvent() " );
 
@@ -396,7 +365,7 @@ StatusCode ISF::FastCaloTool::releaseEvent() {
   if ( m_theContainer ) {
 
     // Record with WriteHandle
-    SG::WriteHandle< CaloCellContainer > caloCellHandle( m_caloCellKey, Gaudi::Hive::currentContext() );
+    SG::WriteHandle< CaloCellContainer > caloCellHandle( m_caloCellKey, ctx );
     ATH_CHECK( caloCellHandle.record( std::make_unique< CaloCellContainer >( *m_theContainer ) ) );
     return StatusCode::SUCCESS;
   }

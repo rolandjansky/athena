@@ -14,7 +14,7 @@ log = logging.getLogger('TrigConfigSvcCfg')
 @lru_cache(maxsize=None)
 def getTrigConfFromCool(runNumber, lumiBlock):
     from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil 
-    db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP')
+    db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP200')
     runRange = [[runNumber,runNumber]]
     d = {key: value for key, value in TriggerCoolUtil.getHLTConfigKeys(db, runRange)[runNumber].items() if  key in ["SMK", "DB"]}
     d["DB"] = d["DB"].split(';')[0]
@@ -48,22 +48,13 @@ def getTrigConfFromCool(runNumber, lumiBlock):
 
 
 @lru_cache(maxsize=None)
-def createJsonMenuFiles(isMC, run, lb):
-    """Retrieve Run-2 trigger configuration from the DN and save as Run3 .JSON files.x"""
+def createJsonMenuFiles(run, lb):
+    """Retrieve Run-2 trigger configuration from the DB and save as Run3 .JSON files"""
     import subprocess
 
     log.info("Configuring Run-1&2 to Run-3 configuration metadata conversion")
-    triggerDBKeys = {}
-    if isMC:  # TODO: migrate to ConfigFlags
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        triggerDBKeys['DB'] = TriggerFlags.triggerDbConnection()
-        triggerDBKeys['SMK'] = TriggerFlags.triggerDbKeys()[0]
-        triggerDBKeys['L1PSK'] = TriggerFlags.triggerDbKeys()[1]
-        triggerDBKeys['HLTPSK'] = TriggerFlags.triggerDbKeys()[2]
-        triggerDBKeys['BGSK'] = TriggerFlags.triggerDbKeys()[3]
-    else:
-        triggerDBKeys = getTrigConfFromCool(run, lb)
-        triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
+    triggerDBKeys = getTrigConfFromCool(run, lb)
+    triggerDBKeys['DB'] = 'TRIGGERDB' if run > 230000 else 'TRIGGERDB_RUN1'
 
     cmd = "TrigConfReadWrite -i {DB} {SMK},{L1PSK},{HLTPSK},{BGSK} -o r3json > Run3ConfigFetchJSONFiles.log".format(**triggerDBKeys)
     log.info("Running command '%s'", cmd)
@@ -75,22 +66,18 @@ def createJsonMenuFiles(isMC, run, lb):
 # This interprets the Trigger.triggerConfig flag according to
 # https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerConfigFlag#triggerConfig_in_Run_3
 def getTrigConfigFromFlag( flags ):
-    tcflag = flags.Trigger.triggerConfig
-    log.info("Parsing trigger flag 'triggerConfig': %s", tcflag)
-    if tcflag is None: # the default is to configure from file
-        tcflag = "FILE"
-    source, dbconn, keys = (tcflag+":::").split(":")[:3]
+    # Pad the triggerConfig value and extract available fields:
+    source, dbconn, keys = (flags.Trigger.triggerConfig+":::").split(":")[:3]
     smk,l1psk,hltpsk,bgsk = (keys+",,,").split(",")[:4]
-    smk = int(smk) if smk != "" else None
-    l1psk = int(l1psk) if l1psk!="" else None
-    hltpsk = int(hltpsk) if hltpsk!="" else None
-    bgsk = int(bgsk) if bgsk!="" else None
+    # Convert to int or None:
+    smk, l1psk, hltpsk, bgsk = (int(k) if k!="" else None for k in (smk, l1psk, hltpsk, bgsk))
+
     if source == "DB" and (smk is None or l1psk is None or hltpsk is None or bgsk is None):
         runNumber = flags.Input.RunNumber[0]
         lbNumber = flags.Input.LumiBlockNumber[0]
         if dbconn == "":
             dbconn = getTrigConfFromCool(runNumber, lbNumber)["DB"]
-        if dbconn in ["TRIGGERDBR3","TRIGGERDBR2", "TRIGGERDB_RUN3", "TRIGGERDBDEV1_I8", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
+        if dbconn in ["TRIGGERDB_RUN3", "TRIGGERDBDEV1_I8", "TRIGGERDBDEV1", "TRIGGERDBDEV2"]:
             d = getTrigConfFromCool(runNumber, lbNumber)            
             if smk is None:
                 smk = d["SMK"]
@@ -121,8 +108,9 @@ def getHLTPrescaleFolderName():
 
 
 def _doMenuConversion(flags):
-    """Do JSON menu conversion for for Run-1&2 data"""
-    return '_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files and flags.Trigger.EDMVersion in [1,2]
+    """Do JSON menu conversion for Run-1&2 data"""
+    return ('_ATHENA_GENERIC_INPUTFILE_NAME_' not in flags.Input.Files and
+            flags.Trigger.EDMVersion in [1,2] and not flags.Input.isMC)
 
 def _getMenuFileName(flags):
     """Return base name for menu files"""
@@ -188,28 +176,12 @@ def createL1PrescalesFileFromMenu( flags ):
 
 # L1 menu generation
 def generateL1Menu( flags ):
-    tcflag = flags.Trigger.triggerConfig
-    if tcflag is None:
-        tcflag = "FILE"
-    source = (tcflag+":::").split(":")[0]
-    if source=="FILE":
-        menuFileName = getL1MenuFileName(flags)
-        bgsFileName = getBunchGroupSetFileName(flags)
-        return _generateL1Menu(flags.Trigger.triggerMenuSetup, menuFileName, bgsFileName)
-    return None, None
-
-@lru_cache(maxsize=None)
-def _generateL1Menu(triggerMenuSetup, fileName, bgsFileName):
-    log.info("Generating L1 menu %s", triggerMenuSetup)
+    log.info("Generating L1 menu %s", flags.Trigger.triggerMenuSetup)
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
-    l1cfg = L1MenuConfig( menuName = triggerMenuSetup)
-    outfile, bgsOutFile = l1cfg.writeJSON(outputFile = fileName, bgsOutputFile = bgsFileName)
-    if outfile is not None:
-        log.info("Wrote L1 menu file %s", outfile)
-    if bgsOutFile is not None:
-        log.info("Wrote bunchgroup set file %s", bgsOutFile)
+    l1cfg = L1MenuConfig(menuName = flags.Trigger.triggerMenuSetup)
+    l1cfg.writeJSON(outputFile    = getL1MenuFileName(flags),
+                    bgsOutputFile = getBunchGroupSetFileName(flags))
 
-    return outfile, bgsOutFile
 
 # provide L1 config service in new JO
 @AccumulatorCache
@@ -225,21 +197,16 @@ def L1ConfigSvcCfg( flags ):
     if cfg["SOURCE"] == "FILE":
         if _doMenuConversion(flags):
             # Save the menu in JSON format
-            dbKeys = createJsonMenuFiles(isMC = flags.Input.isMC,
-                                         run = flags.Input.RunNumber[0],
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
-            l1ConfigSvc.JsonFileName = getL1MenuFileName(flags)
-            l1ConfigSvc.JsonFileNameBGS  = getBunchGroupSetFileName(flags)
             l1ConfigSvc.SMK = dbKeys['SMK']
             l1ConfigSvc.BGSK = dbKeys['BGSK']
-        else:
-            l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS = generateL1Menu( flags )
 
-        l1ConfigSvc.ConfigSource = "none"
-        l1ConfigSvc.InputType = "file"
-        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='file', JsonFileName=%s and JsonFileNameBGS=%s", l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS )
+        l1ConfigSvc.InputType = "FILE"
+        l1ConfigSvc.JsonFileName = getL1MenuFileName(flags)
+        l1ConfigSvc.JsonFileNameBGS  = getBunchGroupSetFileName(flags)
+        log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='FILE', JsonFileName=%s and JsonFileNameBGS=%s", l1ConfigSvc.JsonFileName, l1ConfigSvc.JsonFileNameBGS )
     elif cfg["SOURCE"] == "DB":
-        l1ConfigSvc.ConfigSource = "none"
         l1ConfigSvc.InputType = "DB"
         l1ConfigSvc.JsonFileName = ""
         l1ConfigSvc.TriggerDB = cfg["DBCONN"]
@@ -262,17 +229,14 @@ def HLTConfigSvcCfg( flags ):
     if cfg["SOURCE"] == "FILE":
         if _doMenuConversion(flags):
             # Save the menu in JSON format
-            dbKeys = createJsonMenuFiles(isMC = flags.Input.isMC,
-                                         run = flags.Input.RunNumber[0],
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
             hltConfigSvc.SMK = dbKeys['SMK']
 
-        hltConfigSvc.ConfigSource = "none"
-        hltConfigSvc.InputType = "file"
+        hltConfigSvc.InputType = "FILE"
         hltConfigSvc.JsonFileName = getHLTMenuFileName( flags )
-        log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltConfigSvc.JsonFileName )
+        log.info( "Configured HLTConfigSvc with InputType='FILE' and JsonFileName=%s", hltConfigSvc.JsonFileName )
     elif cfg["SOURCE"] == "DB":
-        hltConfigSvc.ConfigSource = "none"
         hltConfigSvc.InputType = "DB"
         hltConfigSvc.JsonFileName = ""
         hltConfigSvc.TriggerDB = cfg["DBCONN"]
@@ -312,8 +276,7 @@ def L1PrescaleCondAlgCfg( flags ):
         l1PrescaleCondAlg.Filename = getL1PrescalesSetFileName( flags )
         if _doMenuConversion(flags):
             # Save the menu in JSON format
-            dbKeys = createJsonMenuFiles(isMC = flags.Input.isMC,
-                                         run = flags.Input.RunNumber[0],
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
             l1PrescaleCondAlg.L1Psk = dbKeys['L1PSK']
     else:
@@ -344,8 +307,7 @@ def HLTPrescaleCondAlgCfg( flags ):
         hltPrescaleCondAlg.Filename = getHLTPrescalesSetFileName( flags )
         if _doMenuConversion(flags):
             # Save the menu in JSON format
-            dbKeys = createJsonMenuFiles(isMC = flags.Input.isMC,
-                                         run = flags.Input.RunNumber[0],
+            dbKeys = createJsonMenuFiles(run = flags.Input.RunNumber[0],
                                          lb = flags.Input.LumiBlockNumber[0])
             hltPrescaleCondAlg.HLTPsk = dbKeys['HLTPSK']
     else:
@@ -379,7 +341,7 @@ if __name__ == "__main__":
             HLTPrescaleCondAlgCfg( ConfigFlags )
 
         def test_jsonConverter(self):
-            keys = createJsonMenuFiles(isMC=False, run=360026, lb=151)
+            keys = createJsonMenuFiles(run=360026, lb=151)
             for k,v in {"SMK" : 2749, "L1PSK" : 23557, "HLTPSK" : 17824, "BGSK" : 2181}.items():
                 assert  k in keys, "Missing key {}".format(k)
                 assert v == keys[k], "Wrong value {}".format(v)

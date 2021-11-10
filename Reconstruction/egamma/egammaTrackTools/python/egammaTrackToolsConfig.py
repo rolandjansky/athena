@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Tool configuration to instantiate all
  egammaCaloTools with default configuration"""
@@ -6,13 +6,25 @@ __doc__ = """Tool configuration to instantiate all
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import (
+    AtlasExtrapolatorCfg, egammaCaloExtrapolatorCfg)
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
-EMExtrapolationTools = CompFactory.EMExtrapolationTools
 
-# The extrapolator is not quite correct
-#  we need to able to set the particular
-#  egamma ones.
+
+def EMLastCaloExtensionToolCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMLastCaloExtensionTool")
+    kwargs.setdefault("ParticleType", "electron")
+    if "Extrapolator" not in kwargs:
+        acc = ComponentAccumulator()
+        extrapAcc = egammaCaloExtrapolatorCfg(flags)
+        kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
+    return ParticleCaloExtensionToolCfg(flags, **kwargs)
+
+
+def EMParticleCaloExtensionToolCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMParticleCaloExtensionTool")
+    kwargs.setdefault("StartFromPerigee", True)
+    return EMLastCaloExtensionToolCfg(flags, **kwargs)
 
 
 def EMExtrapolationToolsCfg(flags, **kwargs):
@@ -21,32 +33,21 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
+    EMExtrapolationTools = CompFactory.EMExtrapolationTools
 
+    # in the std config, it is egammaExtrapolator
+    # (called AtlasExtrapolator now). Should this be egammaCaloExtrapolator ?
     if "Extrapolator" not in kwargs:
         extrapAcc = AtlasExtrapolatorCfg(flags)
-        kwargs["Extrapolator"] = extrapAcc.popPrivateTools()
-        acc.merge(extrapAcc)
+        kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
 
     if "PerigeeCaloExtensionTool" not in kwargs:
-        perigeeCaloExtrapAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            name="EMParticleCaloExtensionTool",
-            Extrapolator=kwargs["Extrapolator"],
-            ParticleType="electron",
-            StartFromPerigee=True)
-        kwargs["PerigeeCaloExtensionTool"] = (
-            perigeeCaloExtrapAcc.popPrivateTools())
-        acc.merge(perigeeCaloExtrapAcc)
+        kwargs["PerigeeCaloExtensionTool"] = acc.popToolsAndMerge(
+            EMParticleCaloExtensionToolCfg(flags))
 
     if "LastCaloExtensionTool" not in kwargs:
-        lastCaloExtrapAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            name="EMLastCaloExtensionTool",
-            ParticleType="electron",
-            Extrapolator=kwargs["Extrapolator"])
-
-        kwargs["LastCaloExtensionTool"] = lastCaloExtrapAcc.popPrivateTools()
-        acc.merge(lastCaloExtrapAcc)
+        kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
+            EMLastCaloExtensionToolCfg(flags))
 
     emExtrapolationTools = EMExtrapolationTools(**kwargs)
     acc.setPrivateTools(emExtrapolationTools)
@@ -55,43 +56,49 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
 
 def EMExtrapolationToolsCacheCfg(flags, **kwargs):
     kwargs.setdefault("name", "EMExtrapolationToolsCache")
+    kwargs.setdefault("PerigeeCache", "GSFPerigeeCaloExtension")
+    kwargs.setdefault("LastCache", "GSFLastCaloExtension")
     kwargs.setdefault("useCaching", True)
     kwargs.setdefault("useLastCaching", True)
     return EMExtrapolationToolsCfg(flags, **kwargs)
 
-def GSFTrackSummaryToolCfg(flags, name="GSFBuildInDetTrackSummaryTool", **kwargs):
+
+def EMExtrapolationToolsCommonCacheCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMExtrapolationToolsCommonCache")
+    kwargs.setdefault("LastCache", "ParticleCaloExtension")
+    kwargs.setdefault("useCaching", False)
+    kwargs.setdefault("useLastCaching", True)
+    return EMExtrapolationToolsCfg(flags, **kwargs)
+
+
+def EMExtrapolationToolsLRTCacheCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMExtrapolationToolsLRTCache")
+    kwargs.setdefault("PerigeeCache", "LRTGSFPerigeeCaloExtension")
+    kwargs.setdefault("LastCache", "LRTGSFLastCaloExtension")
+    return EMExtrapolationToolsCacheCfg(flags, **kwargs)
+
+
+def EMExtrapolationToolsLRTCommonCacheCfg(flags, **kwargs):
+    kwargs.setdefault("name", "EMExtrapolationToolsLRTCommonCache")
+    kwargs.setdefault("LastCache", "ParticleCaloExtension_LRT")
+    kwargs.setdefault("useCaching", False)
+    kwargs.setdefault("useLastCaching", True)
+    return EMExtrapolationToolsCfg(flags, **kwargs)
+
+
+def egammaTrkRefitterToolCfg(flags,
+                             name='GSFRefitterTool',
+                             **kwargs):
     acc = ComponentAccumulator()
-
-    if "InDetSummaryHelperTool" not in kwargs:
-        from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
-        kwargs["InDetSummaryHelperTool"] = acc.getPrimaryAndMerge(InDetTrackSummaryHelperToolCfg(flags, name="GSFBuildTrackSummaryHelperTool"))
-
-    if "PixelToTPIDTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
-        kwargs["PixelToTPIDTool"] = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags, name="GSFBuildPixelToTPIDTool"))
-
-    if "TRT_ElectronPidTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import InDetTRT_ElectronPidToolCfg
-        kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(InDetTRT_ElectronPidToolCfg(flags, name="GSFBuildTRT_ElectronPidTool"))
-
-    summaryTool = CompFactory.Trk.TrackSummaryTool(name, **kwargs)
-    acc.setPrivateTools( summaryTool )
-    return acc
-
-
-# egammaTrkRefitterTool also needs a config, but depends on some
-# tracking that is not ready
-# CaloCluster_OnTrackBuilder is currently not used at all
-def egammaTrkRefitterToolCfg(flags, name='GSFRefitterTool', **kwargs):
-    acc = ComponentAccumulator()
+    if "FitterTool" not in kwargs:
+        from egammaTrackTools.GSFTrackFitterConfig import EMGSFTrackFitterCfg
+        kwargs["FitterTool"] = acc.popToolsAndMerge(
+            EMGSFTrackFitterCfg(flags, name="GSFTrackFitter"), **kwargs)
     kwargs.setdefault("useBeamSpot", False)
     kwargs.setdefault("ReintegrateOutliers", True)
     if "Extrapolator" not in kwargs:
-        from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-        kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="egammaExtrapolator"))
-    if "FitterTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import GaussianSumFitterCfg
-        kwargs["FitterTool"] =  acc.popToolsAndMerge( GaussianSumFitterCfg(flags, name="GSFTrackFitter") )
+        kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
+            AtlasExtrapolatorCfg(flags))
     tool = CompFactory.egammaTrkRefitterTool(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc
@@ -100,25 +107,33 @@ def egammaTrkRefitterToolCfg(flags, name='GSFRefitterTool', **kwargs):
 if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
+    from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-    log.setLevel(DEBUG)
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    Configurable.configurableRun3Behavior = True
 
-    ConfigFlags.Input.isMC = True
-    ConfigFlags.Input.Files = [
-        "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/myRDO.pool.root"]
+    ConfigFlags.Input.Files = defaultTestFiles.RDO
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
+    ConfigFlags.dump()
 
     cfg = ComponentAccumulator()
-    cfg.printConfig()
-    acc = EMExtrapolationToolsCfg(ConfigFlags)
-    acc.popPrivateTools()
-    cfg.merge(acc)
-    acc = EMExtrapolationToolsCacheCfg(ConfigFlags)
-    acc.popPrivateTools()
-    cfg.merge(acc)
+    mlog = logging.getLogger("egammaTrackToolsConfigTest")
+    mlog.info("Configuring EMExtrapolationTools : ")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        EMExtrapolationToolsCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
+    mlog.info("Configuring EMExtrapolationTools with cache : ")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        EMExtrapolationToolsCacheCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
+    mlog.info("Configuring egammaTrkRefitterToolCfg :")
+    printProperties(mlog, cfg.popToolsAndMerge(
+        egammaTrkRefitterToolCfg(ConfigFlags)),
+        nestLevel=1,
+        printDefaults=True)
 
     f = open("egtracktools.pkl", "wb")
     cfg.store(f)

@@ -9,15 +9,7 @@
 # Description: Find mapping of mask and function for ID quality
 # =============================================================================
 
-
-import ElectronPhotonSelectorTools.TrigElectronIsEMLooseSelectorCutDefs as TrigElectronIsEMLooseSelectorCutDefs
-import ElectronPhotonSelectorTools.TrigElectronIsEMTightSelectorCutDefs as TrigElectronIsEMTightSelectorCutDefs
-import ElectronPhotonSelectorTools.TrigElectronIsEMMediumSelectorCutDefs as TrigElectronIsEMMediumSelectorCutDefs
-import ElectronPhotonSelectorTools.ElectronIsEMTightSelectorCutDefs as ElectronIsEMTightSelectorCutDefs
-import ElectronPhotonSelectorTools.ElectronIsEMMediumSelectorCutDefs as ElectronIsEMMediumSelectorCutDefs
-import ElectronPhotonSelectorTools.ElectronIsEMLooseSelectorCutDefs as ElectronIsEMLooseSelectorCutDefs
-
-#
+import ElectronPhotonSelectorTools.ElectronIsEMMenuDefs as ElectronIsEMSelectorCutDefs
 from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
 
 
@@ -30,29 +22,29 @@ class electronPIDmenu:
 ElectronIsEMMapDC14 = {
     egammaPID.ElectronIDLoosePP: (
         egammaPID.ElectronLoosePP,
-        ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfigDC14),
+        ElectronIsEMSelectorCutDefs.ElectronIsEMLooseSelectorConfigDC14),
     egammaPID.ElectronIDMediumPP: (
         egammaPID.ElectronMediumPP,
-        ElectronIsEMMediumSelectorCutDefs.ElectronIsEMMediumSelectorConfigDC14),
+        ElectronIsEMSelectorCutDefs.ElectronIsEMMediumSelectorConfigDC14),
     egammaPID.ElectronIDTightPP: (
         egammaPID.ElectronTightPP,
-        ElectronIsEMTightSelectorCutDefs.ElectronIsEMTightSelectorConfigDC14),
+        ElectronIsEMSelectorCutDefs.ElectronIsEMTightSelectorConfigDC14),
     egammaPID.NoIDCut: (
         0,
-        ElectronIsEMLooseSelectorCutDefs.ElectronIsEMLooseSelectorConfigDC14)
+        ElectronIsEMSelectorCutDefs.ElectronIsEMLooseSelectorConfigDC14)
 }
 
 
 TrigElectronIsEMMapDC14 = {
     egammaPID.ElectronIDLooseHLT:
     (egammaPID.ElectronLooseHLT,
-     TrigElectronIsEMLooseSelectorCutDefs.TrigElectronIsEMLooseSelectorConfigDC14),
+     ElectronIsEMSelectorCutDefs.TrigElectronIsEMLooseSelectorConfigDC14),
     egammaPID.ElectronIDMediumHLT:
     (egammaPID.ElectronMediumHLT,
-     TrigElectronIsEMMediumSelectorCutDefs.TrigElectronIsEMMediumSelectorConfigDC14),
+     ElectronIsEMSelectorCutDefs.TrigElectronIsEMMediumSelectorConfigDC14),
     egammaPID.ElectronIDTightHLT:
     (egammaPID.ElectronTightHLT,
-     TrigElectronIsEMTightSelectorCutDefs.TrigElectronIsEMTightSelectorConfigDC14),
+     ElectronIsEMSelectorCutDefs.TrigElectronIsEMTightSelectorConfigDC14),
 }
 
 

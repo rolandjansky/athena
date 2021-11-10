@@ -174,7 +174,7 @@ from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 #Second True disables EventInfoTagBuilder
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True,True)
-include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
+include ("CaloRec/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
 include ("egammaRec/egammaOutputItemList_jobOptions.py")
 StreamESD.ItemList+=egammaESDList

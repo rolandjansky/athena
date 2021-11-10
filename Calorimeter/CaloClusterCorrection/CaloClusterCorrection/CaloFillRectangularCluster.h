@@ -195,13 +195,6 @@ private:
   SG::ReadHandleKey<CaloCellContainer> m_cellsName;
   
   
-  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
-    this,
-    "CaloDetDescrManager",
-    "CaloDetDescrManager",
-    "SG Key for CaloDetDescrManager in the Condition Store"
-  };
-
 };
 
 #endif // not CALOCLUSTERCORRECTION_CALOFILLRECTANGULARCLUSTER_H

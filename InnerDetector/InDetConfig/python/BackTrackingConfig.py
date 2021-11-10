@@ -158,7 +158,7 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
     InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
 
-    from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
 
     InDetTRT_SeededTrackTool = acc.popToolsAndMerge(TRT_SeededTrackFinder_ATLCfg(flags, 
@@ -372,8 +372,8 @@ if __name__ == "__main__":
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
     top_acc.merge(SCT_ReadoutGeometryCfg(flags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( flags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( flags ))
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
     top_acc.merge(MuonGeoModelCfg(flags))
@@ -405,7 +405,7 @@ if __name__ == "__main__":
     top_acc.merge(TC.PixelClusterNnCondAlgCfg(flags))
     top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(flags))
     ##
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     top_acc.merge(TRTActiveCondAlgCfg(flags))
     top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg(flags))
 

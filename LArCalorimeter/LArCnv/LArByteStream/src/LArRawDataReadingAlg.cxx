@@ -137,8 +137,8 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	     return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
         }
       } else {
-        if(rob.rod_source_id()& 0x1000 ){
-               ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rod_source_id());
+        if(rob.rob_source_id()& 0x1000 ){
+               ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rob_source_id());
                rodBlock=nullptr;
                continue;
         } else {  

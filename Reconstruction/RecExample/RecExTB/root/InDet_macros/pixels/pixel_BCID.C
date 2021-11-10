@@ -73,11 +73,12 @@ void pixel_BCID(int SaveOpt=0) {
       // calc module no. of current hit
       module = MODULES_IN_PHI * pixel_layer[hit] + pixel_phi[hit];
       if (module > 5) {
-	cout << "ERROR: Layer " << pixel_layer[hit] <<", Phi " << pixel_phi[hit] <<", Module " << module <<endl;
-	continue;
+	      cout << "ERROR: Layer " << pixel_layer[hit] <<", Phi " << pixel_phi[hit] <<", Module " << module <<endl;
+	      continue;
       }
-      if (hit > MAX_HITS) {
-	cout << "Hit number exceeds array " << hit << endl;
+      if (hit >= MAX_HITS) {
+	      cout << "Hit number exceeds array " << hit << endl;
+	      continue;
       } 
       histoBCID[module]->Fill(pixel_BCID[hit]);
     }

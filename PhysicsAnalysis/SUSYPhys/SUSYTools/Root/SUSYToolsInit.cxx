@@ -441,6 +441,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       toolName = "JetCleaningTool";
       m_jetCleaningTool.setTypeAndName("JetCleaningTool/"+toolName);
       ATH_CHECK( m_jetCleaningTool.setProperty("CutLevel", m_badJetCut) );
+      ATH_CHECK( m_jetCleaningTool.setProperty("JetContainer", m_defaultJets) );
       ATH_CHECK( m_jetCleaningTool.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_jetCleaningTool.retrieve() );
     } else if (m_jetCleaningTool.isUserConfigured()) ATH_CHECK( m_jetCleaningTool.retrieve() );
@@ -498,6 +499,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", (m_fJvtWP=="Tight")) );
       ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fJvtPtMax) ); // Max Pt to define fwdJets for JVT
       ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fJvtEtaMin) );   // Eta dividing central from forward jets
+      ATH_CHECK( m_jetFwdJvtTool.setProperty("RecalculateFjvt", m_fJvtRecalculate) ); // athena!47481
       ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_jetFwdJvtTool.retrieve() );
     } else ATH_CHECK( m_jetFwdJvtTool.retrieve() );
@@ -1312,7 +1314,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       toolName = "TauSelectionTool_" + m_tauId;
       m_tauSelTool.setTypeAndName("TauAnalysisTools::TauSelectionTool/"+toolName);
       ATH_CHECK( m_tauSelTool.setProperty("ConfigPath", inputfile) );
-  
       ATH_CHECK( m_tauSelTool.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_tauSelTool.retrieve() );
     } else  ATH_CHECK( m_tauSelTool.retrieve() );
@@ -1417,7 +1418,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (!m_tauSmearingTool.isUserConfigured()) {
       m_tauSmearingTool.setTypeAndName("TauAnalysisTools::TauSmearingTool/TauSmearingTool");
       ATH_MSG_INFO("'TauMVACalibration' is the default procedure in R21");
-      ATH_CHECK( m_tauSmearingTool.setProperty("ApplyMVATES", false) ); // Avoid EDM issue PhotonEfficiencyCorrection - athena!42562
       ATH_CHECK( m_tauSmearingTool.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_tauSmearingTool.retrieve() );
     } else ATH_CHECK( m_tauSmearingTool.retrieve() );

@@ -136,7 +136,8 @@ private:
   const Hid2RESrcID& getHid2RESrcID (const LArFebRodMapping& rodMapping) const;
 
   CxxUtils::CachedUniquePtr<Hid2RESrcID> m_hid2re;       //!< Contains the mapping from channel to ROD (writing only)
-  LArRodDecoder *m_decoder = nullptr;   //!< Pointer to RodDecoder class
+  PublicToolHandle<LArRodDecoder> m_decoder
+    { this, "LArRodDecoder", "LArRodDecoder", "LArRodDecoder" };
 
   /** Indicates which version of DSP code should be used for writing.
       This is equivalent to the DetectorEventType word in the ROD block header.

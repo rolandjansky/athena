@@ -60,6 +60,9 @@ class SiHitIdHelper : HitIdHelper {
   //
   // Initialize the helper, only called by the constructor
   void Initialize();
+  //
+  // ITk/HGTD flag
+  bool m_isITkHGTD{};
 };
 
 #endif // INDETSIMEVENT_SIHITIDHELPER

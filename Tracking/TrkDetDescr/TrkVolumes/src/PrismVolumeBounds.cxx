@@ -96,7 +96,7 @@ Trk::PrismVolumeBounds::operator=(const Trk::PrismVolumeBounds& trabo)
 
 const std::vector<const Trk::Surface*>*
   Trk::PrismVolumeBounds::decomposeToSurfaces
-  ATLAS_NOT_THREAD_SAFE(const Amg::Transform3D& transform) const
+  (const Amg::Transform3D& transform) 
 {
   std::vector<const Trk::Surface*>* retsf =
     new std::vector<const Trk::Surface*>;

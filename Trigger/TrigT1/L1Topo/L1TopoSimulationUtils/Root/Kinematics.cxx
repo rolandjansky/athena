@@ -131,6 +131,9 @@ unsigned int TSU::Kinematics::calcDeltaR2BW(const TCS::GenericTOB* tob1, const T
   if(dphiB>64)
     dphiB = 128 - dphiB;
 
+  // Use the same granularity for eta and phi (0.025) in dR calculation (need to multiply dphiB*2)
+  // Return (40*dR)^2
+  dphiB = 2*dphiB;
   unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
   return bit_dr2;
 }
@@ -199,7 +202,7 @@ float TSU::Kinematics::calcSin(unsigned phi){
 
 /*------------------------------------------ NON-BITWISE --------------------------------------------------*/
 
-unsigned int TSU::Kinematics::calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+unsigned int TSU::Kinematics::calcDeltaPhiLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
   double dphi = std::fabs( tob1->phiDouble() - tob2->phiDouble() );
   if(dphi>M_PI)
     dphi = 2*M_PI - dphi;
@@ -207,9 +210,31 @@ unsigned int TSU::Kinematics::calcDeltaPhi(const TCS::GenericTOB* tob1, const TC
   return round( 10 * dphi );
 }
 
+unsigned int TSU::Kinematics::calcDeltaEtaLegacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  double deta = std::fabs( tob1->etaDouble() - tob2->etaDouble() );
+  return round( 10 * deta );
+}
+
+unsigned int TSU::Kinematics::calcDeltaR2Legacy(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  double deta = ( tob1->etaDouble() - tob2->etaDouble() );
+  double dphi = std::fabs( tob1->phiDouble() - tob2->phiDouble() );
+  if(dphi>M_PI)
+    dphi = 2*M_PI - dphi;
+
+  return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
+}
+
+unsigned int TSU::Kinematics::calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+  double dphi = std::fabs( tob1->phiDouble() - tob2->phiDouble() );
+  if(dphi>M_PI)
+    dphi = 2*M_PI - dphi;
+
+  return round( 20 * dphi );
+}
+
 unsigned int TSU::Kinematics::calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-  double deta = std::fabs( tob1->eta() - tob2->eta() );
-  return deta;
+  double deta = std::fabs( tob1->etaDouble() - tob2->etaDouble() );
+  return round( 40 * deta );
 }
 
 unsigned int TSU::Kinematics::calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
@@ -240,6 +265,6 @@ unsigned int TSU::Kinematics::calcDeltaR2(const TCS::GenericTOB* tob1, const TCS
   if(dphi>M_PI)
     dphi = 2*M_PI - dphi;
 
-
-  return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
+  // Return (40*dR)^2 consistent with BW calculation
+  return round ( 40*40 * ((dphi)*(dphi) + (deta)*(deta) )) ;
 }

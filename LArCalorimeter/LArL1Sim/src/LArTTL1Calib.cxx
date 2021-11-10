@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // +======================================================================+
@@ -206,11 +206,9 @@ StatusCode LArTTL1Calib::execute()
     // ....... loop over ttl1s and get informations
     //
 
-    for(ttl1iter=ttl1_container->begin();
-	ttl1iter != ttl1_container->end();ttl1iter++)     {
-      //      ttOnlId = (*ttl1iter)->ttOnlineID();
-      ttOffId = (*ttl1iter)->ttOfflineID();
-      std::vector<float> sampleV = (*ttl1iter)->samples();
+    for (const LArTTL1* ttl1 : *ttl1_container) {
+      ttOffId = ttl1->ttOfflineID();
+      std::vector<float> sampleV = ttl1->samples();
       float e = sampleV[3] * 1e-3 ; // go to GeV 
       int reg = m_lvl1Helper->region(ttOffId);
       int eta = m_lvl1Helper->eta(ttOffId);

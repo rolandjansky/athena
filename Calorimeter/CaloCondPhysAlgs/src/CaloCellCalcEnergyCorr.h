@@ -57,14 +57,15 @@ private:
   SG::ReadCondHandleKeyArray<CondAttrListCollection>  m_DCSFolderKeys
     { this, "DCSFolderNames", {"/LAR/DCS/HV/BARREl/I16", "/LAR/DCS/HV/BARREL/I8"}, 
       "DCS folders with HV values"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey 
+  {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
   // Private members
-  const CaloDetDescrManager* m_calodetdescrmgr;
   const LArEM_ID* m_larem_id;
   const LArHEC_ID* m_larhec_id;
   const LArFCAL_ID* m_larfcal_id;
 
-  std::vector<int> GetHVLines(const HVData& hvdata, const Identifier& id) ;
+  std::vector<int> GetHVLines(const HVData& hvdata, const Identifier& id, const CaloDetDescrManager* caloMgr) ;
 }; 
 
 #endif //> !CALOCONDPHYSALGS_CALOCELLCALCENERGYCORR_H

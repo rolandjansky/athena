@@ -17,10 +17,9 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTruth/TruthVertex.h"
 namespace Trk {
-ParticleCaloExtensionTool::ParticleCaloExtensionTool(
-  const std::string& t,
-  const std::string& n,
-  const IInterface* p)
+ParticleCaloExtensionTool::ParticleCaloExtensionTool(const std::string& t,
+                                                     const std::string& n,
+                                                     const IInterface* p)
   : AthAlgTool(t, n, p)
   , m_detID(nullptr)
   , m_particleStrategy(muon)
@@ -35,6 +34,7 @@ ParticleCaloExtensionTool::initialize()
 {
   /* Retrieve track extrapolator from ToolService */
   ATH_CHECK(m_extrapolator.retrieve());
+  // Retrieve the calo surface builder
   /* Retrieve the Atlas detector ID */
   ATH_CHECK(detStore()->retrieve(m_detID, "AtlasID"));
   /* convert string to proper particle type enum*/
@@ -50,6 +50,11 @@ ParticleCaloExtensionTool::initialize()
     ATH_MSG_WARNING("Unsupported particle type, using strategy based on type "
                     << m_particleTypeName);
   }
+  if (m_particleStrategy == electron) {
+    ATH_CHECK(m_calosurf.retrieve());
+  } else {
+    m_calosurf.disable();
+  }
   ATH_MSG_INFO(" Using strategy based on particle type "
                << m_particleTypeName << " enum value " << m_particleStrategy);
   return StatusCode::SUCCESS;
@@ -62,9 +67,8 @@ ParticleCaloExtensionTool::finalize()
 }
 
 std::unique_ptr<Trk::CaloExtension>
-ParticleCaloExtensionTool::caloExtension(
-  const EventContext& ctx,
-  const xAOD::IParticle& particle) const
+ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
+                                         const xAOD::IParticle& particle) const
 {
   if (particle.type() == xAOD::Type::TrackParticle) {
     const xAOD::TrackParticle* trackParticle =
@@ -276,10 +280,9 @@ ParticleCaloExtensionTool::caloExtension(
     track.trackStateOnSurfaces()->begin();
   for (; itTSoS != track.trackStateOnSurfaces()->end(); ++itTSoS) {
     // select state with track parameters on a measurement
-    if (
-      !(**itTSoS).trackParameters() ||
-      !(**itTSoS).type(TrackStateOnSurface::Measurement) ||
-      (**itTSoS).type(TrackStateOnSurface::Outlier)) {
+    if (!(**itTSoS).trackParameters() ||
+        !(**itTSoS).type(TrackStateOnSurface::Measurement) ||
+        (**itTSoS).type(TrackStateOnSurface::Outlier)) {
       continue;
     }
 
@@ -310,16 +313,15 @@ ParticleCaloExtensionTool::caloExtension(
 }
 
 std::unique_ptr<Trk::CaloExtension>
-ParticleCaloExtensionTool::caloExtension(
-  const EventContext& ctx,
-  const TrackParameters& startPars,
-  PropDirection propDir,
-  ParticleHypothesis particleType) const
+ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
+                                         const TrackParameters& startPars,
+                                         PropDirection propDir,
+                                         ParticleHypothesis particleType) const
 {
-  ATH_MSG_DEBUG(
-    "looking up calo states: r " << startPars.position().perp() << " z "
-                                 << startPars.position().z() << " momentum "
-                                 << startPars.momentum().mag());
+  ATH_MSG_DEBUG("looking up calo states: r "
+                << startPars.position().perp() << " z "
+                << startPars.position().z() << " momentum "
+                << startPars.momentum().mag());
 
   // pointers to hold results and go
   std::vector<const TrackStateOnSurface*>* material = nullptr;
@@ -364,10 +366,9 @@ ParticleCaloExtensionTool::caloExtension(
   const TrackParameters* muonEntry = nullptr;
   std::vector<CurvilinearParameters> caloLayers;
   caloLayers.reserve(caloParameters->size() - 1);
-  ATH_MSG_DEBUG(
-    " Found calo parameters: " << caloParameters->size()
-                               << "  extrapolation exit ID="
-                               << m_extrapolDetectorID);
+  ATH_MSG_DEBUG(" Found calo parameters: " << caloParameters->size()
+                                           << "  extrapolation exit ID="
+                                           << m_extrapolDetectorID);
 
   for (const auto& p : *caloParameters) {
     if (!p.first) {
@@ -398,32 +399,29 @@ ParticleCaloExtensionTool::caloExtension(
        * covariance matrix
        */
       if (p.first->type() != Trk::Curvilinear) {
-        caloLayers.emplace_back(CurvilinearParameters(
-          p.first->position(),
-          p.first->momentum(),
-          p.first->charge(),
-          std::nullopt,
-          id));
+        caloLayers.emplace_back(CurvilinearParameters(p.first->position(),
+                                                      p.first->momentum(),
+                                                      p.first->charge(),
+                                                      std::nullopt,
+                                                      id));
         delete p.first;
       } else {
         std::optional<AmgSymMatrix(5)> covariance(std::nullopt);
         if (p.first->covariance()) {
           covariance = AmgSymMatrix(5)(*(p.first->covariance()));
         }
-        caloLayers.emplace_back(CurvilinearParameters(
-          p.first->position(),
-          p.first->momentum(),
-          p.first->charge(),
-          std::move(covariance),
-          id));
+        caloLayers.emplace_back(CurvilinearParameters(p.first->position(),
+                                                      p.first->momentum(),
+                                                      p.first->charge(),
+                                                      std::move(covariance),
+                                                      id));
         delete p.first;
       }
     }
   }
 
-  if (
-    !muonEntry && propDir == Trk::oppositeMomentum &&
-    fabs(startPars.position().perp() - 4255.) < 1.) {
+  if (!muonEntry && propDir == Trk::oppositeMomentum &&
+      fabs(startPars.position().perp() - 4255.) < 1.) {
     // muonEntry is right at the startPars position
     muonEntry = startPars.clone();
   }
@@ -431,6 +429,106 @@ ParticleCaloExtensionTool::caloExtension(
 
   return std::make_unique<Trk::CaloExtension>(
     caloEntry, muonEntry, std::move(caloLayers));
+}
+
+std::vector<std::pair<CaloSampling::CaloSample,
+                      std::unique_ptr<const Trk::TrackParameters>>>
+ParticleCaloExtensionTool::egammaCaloExtension(
+  const EventContext& ctx,
+  const TrackParameters& startPars,
+  const xAOD::CaloCluster& cluster,
+  ParticleHypothesis particleType) const
+{
+
+  std::vector<std::pair<CaloSampling::CaloSample,
+                        std::unique_ptr<const Trk::TrackParameters>>>
+    caloParameters{};
+
+  if (m_particleStrategy != electron) {
+    return caloParameters;
+  }
+
+  // figure which layer we need
+  // based on the where most of the energy of the cluster
+  // is we might want to do EM barrel, EM endCap
+  // or forward calo layers/samplings
+  constexpr std::array<CaloSampling::CaloSample, 4> barrelLayers = {
+    CaloSampling::PreSamplerB,
+    CaloSampling::EMB1,
+    CaloSampling::EMB2,
+    CaloSampling::EMB3
+  };
+  constexpr std::array<CaloSampling::CaloSample, 4> endcapLayers = {
+    CaloSampling::PreSamplerE,
+    CaloSampling::EME1,
+    CaloSampling::EME2,
+    CaloSampling::EME3
+  };
+  constexpr std::array<CaloSampling::CaloSample, 1> forwardLayers = {
+    CaloSampling::FCAL0,
+  };
+
+  // figure which layers we  want to shoot at
+  bool isBarrel = false;
+  if (cluster.inBarrel() && cluster.inEndcap()) {
+    isBarrel = cluster.eSample(CaloSampling::EMB2) >=
+               cluster.eSample(CaloSampling::EME2);
+  } else if (cluster.inBarrel()) {
+    isBarrel = true;
+  }
+
+  bool isEMEC = false;
+  if (!isBarrel && cluster.eSample(CaloSampling::EME2) >
+                     cluster.eSample(CaloSampling::FCAL0)) {
+    isEMEC = true;
+  }
+
+  std::vector<CaloSampling::CaloSample> clusterLayers;
+  clusterLayers.reserve(4);
+  if (isBarrel) {
+    for (const CaloSampling::CaloSample lay : barrelLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  } else if (isEMEC) {
+    for (const CaloSampling::CaloSample lay : endcapLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  } else {
+    for (const CaloSampling::CaloSample lay : forwardLayers) {
+      if (cluster.hasSampling(lay)) {
+        clusterLayers.emplace_back(lay);
+      }
+    }
+  }
+  //
+
+  // Create surfaces at them
+  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces;
+  caloSurfaces.reserve(4);
+  for (CaloSampling::CaloSample lay : clusterLayers) {
+    auto* surf = m_calosurf->CreateUserSurface(lay, 0., cluster.eta());
+    if (surf) {
+      caloSurfaces.emplace_back(surf);
+    }
+  }
+
+  const auto* lastImpact = &startPars;
+  // Go into steps from layer to layer
+  size_t numSteps = caloSurfaces.size();
+  for (size_t i = 0; i < numSteps; ++i) {
+    const auto* nextImpact = m_extrapolator->extrapolate(
+      ctx, *lastImpact, *(caloSurfaces[i]), alongMomentum, false, particleType);
+
+    if (nextImpact) {
+      caloParameters.emplace_back(clusterLayers[i], nextImpact);
+      lastImpact = nextImpact;
+    }
+  }
+  return caloParameters;
 }
 
 } // end of namespace Trk

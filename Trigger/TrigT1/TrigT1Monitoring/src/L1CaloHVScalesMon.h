@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,6 +19,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloMatchCell2Tower.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -40,7 +41,7 @@ namespace LVL1 {
 // ============================================================================
 // Forward declarations:
 // ============================================================================
-class IL1CaloCells2TriggerTowers;
+class IL1CaloMatchCell2Tower;
 class IL1CaloLArTowerEnergy;
 class IL1CaloTTIdTools;
 class IL1TriggerTowerTool;
@@ -100,7 +101,7 @@ class TrigT1CaloLWHistogramTool;
  *  <tr><td> @c LVL1::IL1TriggerTowerTool        </td><td> @copydoc m_ttTool        </td></tr>
  *  <tr><td> @c TrigT1CaloMonErrorTool           </td><td> @copydoc m_errorTool     </td></tr>
  *  <tr><td> @c TrigT1CaloLWHistogramTool        </td><td> @copydoc m_histTool      </td></tr>
- *  <tr><td> @c LVL1::IL1CaloCells2TriggerTowers </td><td> @copydoc m_cells2tt      </td></tr>
+ *  <tr><td> @c LVL1::IL1CaloMatchCell2Tower     </td><td> @copydoc m_cellMatch     </td></tr>
  *  <tr><td> @c LVL1::IL1CaloLArTowerEnergy      </td><td> @copydoc m_larEnergy     </td></tr>
  *  <tr><td> @c LVL1::IL1CaloTTIdTools           </td><td> @copydoc m_ttIdTools     </td></tr>
  *  <tr><td> @c L1CaloCondSvc                    </td><td> @copydoc m_l1CondSvc     </td></tr>
@@ -157,8 +158,9 @@ private:
   ToolHandle<ITrigT1CaloMonErrorTool>           m_errorTool;
   /// Histogram helper tool
   ToolHandle<TrigT1CaloLWHistogramTool>        m_histTool;
-  /// CaloCell to TriggerTower mapping tool
-  ToolHandle<LVL1::IL1CaloCells2TriggerTowers> m_cells2tt;
+  /// CaloCell to TriggerTower matching tool
+  ToolHandle<LVL1::IL1CaloMatchCell2Tower> m_cellMatch
+    { this, "L1CaloMatchCell2Tower",  "LVL1::L1CaloMatchCell2Tower",  "L1CaloMatchCell2Tower" };
   /// Tool for missing FEBs
   ToolHandle<LVL1::IL1CaloLArTowerEnergy>      m_larEnergy;
   /// Tool for Identifier to eta/phi mappings

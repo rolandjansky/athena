@@ -28,6 +28,14 @@ def make_hits_per_evt(inputs):
    VolumeMapECap.SetName("VolumeMapEncap")
    VolumeMapECap.SetTitle("Volume Map (#tubes*tubeVol in m^3) Endcap")
 
+
+   OccBCap_norm = i01[4].Clone() 
+   OccECap_norm = i01[5].Clone() 
+   OccBCap_norm.SetName("HitsPerEventInBarrelPerChamber_onSegm_ADCCut")
+   OccBCap_norm.SetTitle("Avg # hits-on-segm/evt/m^3 Barrel")
+   OccECap_norm.SetName("HitsPerEventInEndCapPerChamber_onSegm_ADCCut")
+   OccECap_norm.SetTitle("Avg # hits-on-segm/evt/m^3 Endcap")
+
    size = len(inputs)
    chamberHits_vec = [_[1][0].GetEntries() for _ in inputs]
 
@@ -91,12 +99,33 @@ def make_hits_per_evt(inputs):
          if (not hvOff):
             EvtOccECap.Fill(xAxis, yAxis2, nhits/(float(nTriggers)))
 
+
+   EvtTubeNormOccBCap = EvtOccBCap.Clone()
+   EvtTubeNormOccECap = EvtOccECap.Clone()
+   EvtTubeNormOccBCap.SetName("NormedHitsInBarrelPerChamber_ADCCut")
+   EvtTubeNormOccBCap.SetTitle("Avg # hits/evt/m^3 Barrel, ADCCut")
+   EvtTubeNormOccECap.SetName("NormedHitsInEndCapPerChamber_ADCCut")
+   EvtTubeNormOccECap.SetTitle("Avg # hits/evt/m^3 Endcap, ADCCut")
+
+   EvtTubeNormOccBCap.Divide(VolumeMapBCap)
+   EvtTubeNormOccECap.Divide(VolumeMapECap)
+
+   OccBCap_norm.Scale(1./nTriggers)
+   OccBCap_norm.Divide(VolumeMapBCap)
+   OccECap_norm.Scale(1./nTriggers)
+   OccECap_norm.Divide(VolumeMapECap)
+
    putBoxMdtGlobal(EvtOccBCap, "B")
    putBoxMdtGlobal(EvtOccECap, "E")
    putBoxMdtGlobal(VolumeMapBCap, "B")
    putBoxMdtGlobal(VolumeMapECap, "E")
+   putBoxMdtGlobal(EvtTubeNormOccBCap, "B")
+   putBoxMdtGlobal(EvtTubeNormOccECap, "E")
+   putBoxMdtGlobal(OccBCap_norm, "B")
+   putBoxMdtGlobal(OccECap_norm, "E")
+   
 
-   return [EvtOccBCap, EvtOccECap, VolumeMapBCap, VolumeMapECap]
+   return [EvtOccBCap, EvtOccECap, VolumeMapBCap, VolumeMapECap, EvtTubeNormOccBCap, EvtTubeNormOccECap, OccBCap_norm, OccECap_norm]
 
 
 def make_eff_histo(inputs, ec):
@@ -104,6 +133,7 @@ def make_eff_histo(inputs, ec):
    ecap_str= ecap[ec]
    ecap_fullStr_lower = "mdt"+ecap_str
    heff = TH1F(ecap_fullStr_lower+"_TUBE_eff",ecap_fullStr_lower+"_TUBE_eff",100,0,1)
+
 
    dencut = 10
 
@@ -116,6 +146,9 @@ def make_eff_histo(inputs, ec):
       for ibin in range(nbin):
          if( hi_den.At(ibin) > dencut ):
             heff.Fill( (hi_num.At(ibin))/(hi_den.At(ibin)) )
+
+
+
 
    return [heff]
 
@@ -149,6 +182,9 @@ def make_eff_histo_perML(inputs, ec):
    heff_extra.SetTitle("effsIn"+ecap_str+"ExtraPerMultiLayer, ADCCut")
    heff_extra_N = heff_extra.Clone()
 
+   ecap_fullStr_lower = "mdt"+ecap_str
+   heffML = TH1F(ecap_fullStr_lower+"_ML_eff",ecap_fullStr_lower+"_ML_eff",50,0,1)
+
    for itr in inputs:
       if itr is None:
          continue
@@ -160,6 +196,12 @@ def make_eff_histo_perML(inputs, ec):
       ch_name = name[0:7]
       stateta_c, statphi_c, statphi_c2 = MDT2DHWName(ch_name)
       cut=10
+
+      if( entriesML2 > cut ):
+         heffML.Fill(countsML2/entriesML2)
+      if( entriesML1 > cut ):
+         heffML.Fill(countsML1/entriesML1)
+
       if(ch_name[1:2]=="O"):
          if( entriesML1 > cut ):
             heff_outer.Fill(stateta_c, statphi_c, countsML1)
@@ -194,7 +236,7 @@ def make_eff_histo_perML(inputs, ec):
    heff_inner.Divide(heff_inner_N)
    heff_extra.Divide(heff_extra_N)
 
-   return [heff_outer, heff_middle, heff_inner, heff_extra]
+   return [heff_outer, heff_middle, heff_inner, heff_extra, heffML]
    
 def drift_time_monitoring(inputs, ec):
 

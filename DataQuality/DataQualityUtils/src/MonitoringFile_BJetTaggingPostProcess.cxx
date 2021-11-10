@@ -37,7 +37,7 @@ namespace dqutils
 {
 
 	void
-	MonitoringFile::BJetTaggingPostProcess(std::string inFilename, bool isIncremental) {
+	MonitoringFile::BJetTaggingPostProcess(const std::string & inFilename, bool isIncremental) {
 
 		if (isIncremental == true) {
 			return;

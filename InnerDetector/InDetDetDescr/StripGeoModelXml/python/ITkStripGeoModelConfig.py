@@ -6,7 +6,7 @@ def ITkStripGeoModelCfg(flags):
     geoModelSvc = acc.getPrimary()
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    ITkStripDetectorTool = CompFactory.StripDetectorTool()
+    ITkStripDetectorTool = CompFactory.ITk.StripDetectorTool()
     # ITkStripDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic #Will we need to do dynamic alignment for ITk?
     ITkStripDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkStripDetectorTool.DetectorName = "ITkStrip"
@@ -18,11 +18,11 @@ def ITkStripGeoModelCfg(flags):
 
 
 def ITkStripAlignmentCfg(flags):
-    if flags.GeoModel.Align.LegacyConditionsAccess:
+    if flags.GeoModel.Align.LegacyConditionsAccess:  # revert to old style CondHandle in case of simulation
         from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
         return addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align")
     else:
-        from SCT_ConditionsAlgorithms.SCT_AlignCondAlgConfig import ITkStripAlignCondAlgCfg
+        from SCT_ConditionsAlgorithms.ITkStripConditionsAlgorithmsConfig import ITkStripAlignCondAlgCfg
         return ITkStripAlignCondAlgCfg(flags)
 
 
@@ -37,6 +37,6 @@ def ITkStripReadoutGeometryCfg(flags):
     # main GeoModel config
     acc = ITkStripGeoModelCfg(flags)
     acc.merge(ITkStripAlignmentCfg(flags))
-    from SCT_ConditionsAlgorithms.SCT_DetectorElementCondAlgConfig import ITkStripDetectorElementCondAlgCfg
+    from SCT_ConditionsAlgorithms.ITkStripConditionsAlgorithmsConfig import ITkStripDetectorElementCondAlgCfg
     acc.merge(ITkStripDetectorElementCondAlgCfg(flags))
     return acc

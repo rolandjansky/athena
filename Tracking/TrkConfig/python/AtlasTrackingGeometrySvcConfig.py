@@ -2,8 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-Trk__TrackingGeometrySvc=CompFactory.Trk.TrackingGeometrySvc
-Trk__GeometryBuilder=CompFactory.Trk.GeometryBuilder
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg 
 
@@ -124,8 +122,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
     colors        += [ 4 ]
 
   if flags.Detector.GeometryTRT:     
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result.merge(TRT_GeometryCfg( flags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    result.merge(TRT_ReadoutGeometryCfg( flags ))
 
     InDet__TRT_LayerBuilder=CompFactory.InDet.TRT_LayerBuilder
     TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder')
@@ -412,7 +410,7 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
     """
     result = ComponentAccumulator()
     atlas_tracking_geometry_name = 'AtlasTrackingGeometry'
-    atlas_geometry_builder = Trk__GeometryBuilder(name = 'AtlasGeometryBuilder', WorldDimension=[], WorldMaterialProperties=[], 
+    atlas_geometry_builder = CompFactory.Trk.GeometryBuilder(name = 'AtlasGeometryBuilder', WorldDimension=[], WorldMaterialProperties=[], 
                                 TrackingVolumeArrayCreator=CompFactory.Trk.TrackingVolumeArrayCreator(name="TrackingVolumeArrayCreator"), 
                                 TrackingVolumeHelper = CompFactory.Trk.TrackingVolumeHelper(name="TrackingVolumeHelper") )
     
@@ -502,7 +500,7 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
       atlasLayerMaterialInspector = Trk__LayerMaterialInspector('AtlasLayerMaterialInspector')
       atlas_geometry_processors += [ atlasLayerMaterialInspector ]
 
-    svc = Trk__TrackingGeometrySvc( name, GeometryBuilder = atlas_geometry_builder,
+    svc = CompFactory.Trk.TrackingGeometrySvc( name, GeometryBuilder = atlas_geometry_builder,
                                     TrackingGeometryName = atlas_tracking_geometry_name,
                                     GeometryProcessors = PrivateToolHandleArray(atlas_geometry_processors), 
                                     BuildGeometryFromTagInfo = True)

@@ -20,3 +20,9 @@ vptr_check:holder
 #         T *begin = &(*vec->begin());
 #         buf.ReadFastArray(begin, nvalues);
 null:stl_iterator.h
+
+# Suppress warnings like
+#/cvmfs/sft.cern.ch/lcg/releases/gcc/8.3.0-cebb0/x86_64-centos7/include/c++/8.3.0/bits/shared_ptr_base.h:155:6: runtime error: member call on address 0x000002535540 which does not point to an object of type '_Sp_counted_base'
+#0x000002535540: note: object has invalid vptr
+vptr:shared_ptr_base.h
+

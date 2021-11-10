@@ -101,7 +101,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         if "Combined" in extendedSignatureToGenerate:
             log.info("Combined chains requested -- activate other necessary signatures")
             extendedSignatureToGenerate.remove("Combined")
-            extendedSignatureToGenerate.update(["Egamma","Muon","Tau","Jet",
+            extendedSignatureToGenerate.update(["MinBias","Egamma","Muon","Tau","Jet",
                                                 "Bjet","MET","UnconventionalTracking"])
 
         for sig in extendedSignatureToGenerate:
@@ -238,7 +238,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
               # start with electron! Only need to add post-steps for combined electron chains if the max length in a combined chain
               # is greater than the number of electron steps combined chain. Assume that the max length of an electron chain occurs 
               # in a combined chain.
-              
+
               alignmentGroups = chainDict['alignmentGroups']
             
               #parallel-merged single-signature chains or single signature chains. Anything that needs no splitting!
@@ -370,7 +370,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 log.error("Chain part has %s steps and %s alignment groups - these don't match!",nSteps,aGrps)
             else:
                 for a,b in zip(nSteps,aGrps):
-                    lengthOfChainConfigs.append((a,b))         
+                    lengthOfChainConfigs.append((a,b))
             
         ## if log.isEnabledFor(logging.DEBUG):
         ##     import pprint

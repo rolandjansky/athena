@@ -24,7 +24,7 @@ MuonAGDDTool::MuonAGDDTool(const std::string& type, const std::string& name, con
 #endif
 {}
 
-StatusCode MuonAGDDTool::initialize()
+StatusCode MuonAGDDTool::initialize ATLAS_NOT_THREAD_SAFE ()
 {
 	ATH_CHECK(AGDDToolBase::initialize());
     ATH_MSG_INFO("MuonAGDDTool::initialize");
@@ -50,7 +50,9 @@ StatusCode MuonAGDDTool::initialize()
 	return StatusCode::SUCCESS;
 }
 
-StatusCode MuonAGDDTool::construct() 
+// Base class method is also marked not thread-safe.
+// Uses unsafe function UseGeoModelDetector
+StatusCode MuonAGDDTool::construct  ATLAS_NOT_THREAD_SAFE  () 
 {
 	ATH_MSG_INFO(name()<<"::construct()");
 	MuonAGDDToolHelper theHelper;

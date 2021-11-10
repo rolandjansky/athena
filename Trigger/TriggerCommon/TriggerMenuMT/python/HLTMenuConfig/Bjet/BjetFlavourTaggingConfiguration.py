@@ -74,4 +74,4 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
         acc.merge(HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection=BTagName, TrackCollection=inputTracks, NNFile=jsonFile) )
 
 
-    return [acc,BTagName]
+    return acc

@@ -38,6 +38,7 @@ include("RecExCond/AllDet_detDescr.py")
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+ConfigFlags.lock() 
 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 
 svcMgr += CfgMgr.THistSvc()
@@ -62,8 +63,10 @@ StreamAOD.ItemList+=["xAOD::jFexMETRoIContainer#*"]
 StreamAOD.ItemList+=["xAOD::jFexMETRoIAuxContainer#*"]
 
 #Physics Objects
-StreamAOD.ItemList+=["xAOD::JetContainer#*"]
-StreamAOD.ItemList+=["xAOD::JetAuxContainer#*"]
+StreamAOD.ItemList+=["xAOD::JetContainer#Anti*"]
+StreamAOD.ItemList+=["xAOD::JetAuxContainer#Anti*"]
+StreamAOD.ItemList+=["xAOD::JetRoIContainer#*"]
+StreamAOD.ItemList+=["xAOD::JetRoIAuxContainer#*"]
 StreamAOD.ItemList+=["xAOD::ElectronContainer#Electrons"]
 StreamAOD.ItemList+=["xAOD::ElectronAuxContainer#ElectronsAux."]
 StreamAOD.ItemList+=["xAOD::TauJetContainer#TauJets"]
@@ -80,6 +83,6 @@ StreamAOD.ItemList+=["xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters."]
 log.info("==========================================================")
 log.info("Scheduling jFEXDriver")
 athAlgSeq += CfgMgr.LVL1__jFEXDriver('MyjFEXDriver')
-# athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
+athAlgSeq += CfgMgr.LVL1__jFEXNtupleWriter('MyjFEXNtupleWriter')
 log.info("==========================================================")
 #######################################################

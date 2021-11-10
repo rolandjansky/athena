@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_RawDataContainerCnv.h"
@@ -42,7 +42,8 @@ StatusCode MM_RawDataContainerCnv::initialize() {
     log << MSG::FATAL << "Could not get ID helper !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    m_TPConverter.initialize(idHelper); 
+    m_TPConverter_p1.initialize(idHelper); 
+    m_TPConverter_p2.initialize(idHelper); 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the ID helper and passed to the TP convertor." << endmsg;
   }
 
@@ -52,7 +53,7 @@ StatusCode MM_RawDataContainerCnv::initialize() {
 MM_RawDataContainer_PERS*    MM_RawDataContainerCnv::createPersistent (Muon::MM_RawDataContainer* transCont) {
     MsgStream log(msgSvc(), "MM_RawDataContainerCnv" );
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
-    return m_TPConverter.createPersistent( transCont, log );;
+    return m_TPConverter_p2.createPersistent( transCont, log );;
 }
 
 Muon::MM_RawDataContainer*
@@ -63,12 +64,24 @@ MM_RawDataContainerCnv::createTransient()
  
   MM_RawDataContainer *transCont = nullptr;
   static pool::Guid	p1_guid("5F202045-CE2C-4AD4-96BA-7DA18053B90F");
+  static pool::Guid	p2_guid("A49EBDAC-A190-4198-95DF-BF75FBBB487F");
 
   if( compareClassGuid(p1_guid) ) {
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<std::endl;
     std::unique_ptr< MM_RawDataContainer_p1 >  cont( this->poolReadObject<MM_RawDataContainer_p1>() );
     const MM_RawDataContainer_p1* constCont = cont.get();
-    transCont =  m_TPConverter.createTransient( constCont, log );    
-  } else {
+    transCont =  m_TPConverter_p1.createTransient( constCont, log );    
+  }
+  // ----------------------------------------------
+  // p2 has the relBCID included
+  else  if( compareClassGuid(p2_guid) ) {
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<std::endl;
+    std::unique_ptr< MM_RawDataContainer_p2 >  cont( this->poolReadObject<MM_RawDataContainer_p2>() );
+    const MM_RawDataContainer_p2* constCont = cont.get();
+    transCont =  m_TPConverter_p2.createTransient( constCont, log );    
+  } 
+  // ---------------------------------------------- 
+  else {
     throw std::runtime_error("Unsupported persistent version of MM Raw Data (RDO) container");
   }
   return transCont;

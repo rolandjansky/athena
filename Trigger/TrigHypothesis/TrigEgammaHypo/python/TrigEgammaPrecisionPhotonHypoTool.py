@@ -8,7 +8,7 @@ from AthenaCommon.SystemOfUnits import GeV
 #
 def createTrigEgammaPrecisionPhotonHypoAlg(name, sequenceOut):
 
-  from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaPrecisionPhotonSelectors
+  from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaPrecisionPhotonSelectors
   from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoAlg
   thePrecisionPhotonHypo = TrigEgammaPrecisionPhotonHypoAlg(name)
   thePrecisionPhotonHypo.IsEMNames = ['tight','medium','loose']
@@ -38,7 +38,7 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
                           'icalotight'  : 0.
                         }
 
-  def __init__(self, name, cpart, tool=None):
+  def __init__(self, name, monGroups, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaPrecisionPhotonHypoTool')
@@ -46,7 +46,8 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
     self.__threshold  = float(cpart['threshold']) 
     self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
     self.__isoinfo    = cpart['isoInfo']
-
+    self.__monGroups = monGroups
+    
     if not tool:
       from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionPhotonHypoTool    
       tool = TrigEgammaPrecisionPhotonHypoTool( name )
@@ -121,7 +122,12 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
       self.nominal()
 
     if hasattr(self.tool(), "MonTool"):
-      self.addMonitoring()
+      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
+      doOnlineMonAllChains = doOnlineMonForceCfg()
+      monGroups = self.__monGroups
+
+      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+        self.addMonitoring()
 
 
   #
@@ -148,8 +154,8 @@ class TrigEgammaPrecisionPhotonHypoToolConfig:
 
 
 
-def _IncTool( name, cpart, tool=None ):
-    config = TrigEgammaPrecisionPhotonHypoToolConfig(name, cpart, tool=tool)
+def _IncTool( name,monGroups, cpart, tool=None ):
+    config = TrigEgammaPrecisionPhotonHypoToolConfig(name, monGroups, cpart, tool=tool)
     config.compile()
     return config.tool()
 
@@ -158,7 +164,8 @@ def _IncTool( name, cpart, tool=None ):
 def TrigEgammaPrecisionPhotonHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))] 
-    name = d['chainName'] 
-    return _IncTool( name, cparts[0], tool=tool )
+    name = d['chainName']
+    monGroups = d['monGroups'] 
+    return _IncTool( name, monGroups, cparts[0], tool=tool )
                    
     

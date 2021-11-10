@@ -94,6 +94,12 @@ class InDetFlagsJobProperty(JobProperty):
 ##-----------------------------------------------------------------------------
 ## 1st step: define JobProperty classes
 
+class doBLS(InDetFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+
 class doDBMstandalone(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -1619,10 +1625,6 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsTRT  , True )
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
-        if not self.doTIDE_Ambi:
-           # Need to also set new config flag consistently.
-           from AthenaConfiguration.AllConfigFlags import ConfigFlags
-           ConfigFlags.InDet.doTIDE_Ambi = False
         self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     if rec.doExpressProcessing() :
@@ -2113,6 +2115,10 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doIBL() :
        print('*')
        print('* --------------------> Special reconstruction for IBL !')
+       print('*')
+    if self.doBLS() :
+       print('*')
+       print('* --------------------> Special reconstruction for BLS physics !')
        print('*')
     if self.doDBM() :
        print('*')
@@ -2734,6 +2740,7 @@ _list_InDetJobProperties = [Enabled,
                             keepAdditionalHitsOnTrackParticle,
                             doSCTModuleVeto,
                             doDBMstandalone,
+                            doBLS,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,

@@ -15,8 +15,8 @@
 #include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
 
 namespace CP
 {
@@ -53,7 +53,7 @@ namespace CP
 
     /// \brief the particle continer we run on
   private:
-    SysCopyHandle<xAOD::EgammaContainer> m_egammasHandle {
+    SysReadHandle<xAOD::EgammaContainer> m_egammasHandle {
       this, "egammas", "Electrons", "the egamma collection to run on"};
 
     /// \brief the decoration for the asg selection

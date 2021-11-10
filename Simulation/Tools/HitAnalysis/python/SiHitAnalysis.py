@@ -45,8 +45,8 @@ def ITkStripHitAnalysisCfg(flags):
 
 
 def HGTD_HitAnalysisCfg(flags):
-    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_GeometryCfg
-    acc = HGTD_GeometryCfg(flags)
+    from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_SimulationGeometryCfg
+    acc = HGTD_SimulationGeometryCfg(flags)
 
     alg = CompFactory.SiHitAnalysis('HGTD_HitAnalysis')
     alg.CollectionName = 'HGTD_Hits'

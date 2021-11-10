@@ -1,7 +1,13 @@
 <lcgdict>
+    <!-- HGTD_RawData -->
+    <class name="HGTD_RDO_p1" />
+    <class name="std::vector<HGTD_RDO_p1>" />
+    <class name="HGTD_RDOCollection_p1" />
+    <class name="HGTD_RDOContainer_p1" id="C25315CC-F0A2-43D6-8F42-012BE34B0107" />
+
     <!-- HGTD_PrepRawData -->
-    <class name="HGTD::HGTD_Cluster_p1" />
-    <class name="std::vector<HGTD::HGTD_Cluster_p1>" />
-    <class name="HGTD::HGTD_PRD_Collection_p1" />
-    <class name="HGTD::HGTD_ClusterContainer_p1" id="7B3D57D6-F590-4266-974D-A0807122DA5F" />
+    <class name="HGTD_Cluster_p1" />
+    <class name="std::vector<HGTD_Cluster_p1>" />
+    <class name="HGTD_PRD_Collection_p1" />
+    <class name="HGTD_ClusterContainer_p1" id="7B3D57D6-F590-4266-974D-A0807122DA5F" />
 </lcgdict>

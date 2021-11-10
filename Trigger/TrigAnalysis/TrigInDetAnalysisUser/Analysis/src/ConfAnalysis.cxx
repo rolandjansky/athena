@@ -1579,7 +1579,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       
       if ( dumpflag ) {
 	std::ostream& dumpstream = dumpfile; 
-	if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
+        if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
 	  dump = true;
 	  dumpstream << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
 	  //	    std::cout << "dz0r dz0t" << dz0r << "\t" << dz0t << std::endl;

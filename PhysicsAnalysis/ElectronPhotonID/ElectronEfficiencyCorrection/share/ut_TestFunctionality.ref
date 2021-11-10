@@ -1,0 +1,135 @@
+ ==== CHECK I:  CORRELATION MODELS ==== 
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334842 -c TOTAL -e -0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 0.984064 + 0.00284439 - 0.00284439 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334842 -c SIMPLIFIED -e -0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : SIMPLIFIED| electron : Pt = 41212.1 : eta = -0.94 : Bin index = 6 : SF = 0.984064 + 0.00284439 - 0.00284439 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334842 -c FULL -e -0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : FULL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = 110 : SF = 0.984064 + 0.00284439 - 0.00284439 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334842 -c TOTAL -e -0.94 -p 41212.10 -d Medium -l 0 | grep map  2>&1
+ElEffCorrectionTool.MapFilePath = 'ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt'
+ ==== CHECK II:  DEFAULT MAP ==== 
+    ---> map looks good! 
+ ==== CHECK III:  ID LVL ==== 
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334842 -c TOTAL -e -0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 0.984064 + 0.00284439 - 0.00284439 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334842 -c TOTAL -e -0.94 -p 41212.10 -d LooseBLayer | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 0.987575 + 0.00193269 - 0.00193269 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334842 -c TOTAL -e -0.94 -p 41212.10 -d Tight | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 0.974024 + 0.00385859 - 0.00385859 <===
+ ==== CHECK IV:  PT/ETA/RUN ==== 
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 270000 -c TOTAL -e -2.42 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = -2.42 : Bin index = -999 : SF = 0.90555 + 0.157252 - 0.157252 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 270000 -c TOTAL -e 0.94 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = 0.94 : Bin index = -999 : SF = 1.03006 + 0.185112 - 0.185112 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 270000 -c TOTAL -e -2.42 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -2.42 : Bin index = -999 : SF = 0.910015 + 0.0135222 - 0.0135222 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 270000 -c TOTAL -e 0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = 0.94 : Bin index = -999 : SF = 0.996348 + 0.00720074 - 0.00720074 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 270000 -c TOTAL -e -2.42 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = -2.42 : Bin index = -999 : SF = 0.975569 + 0.053018 - 0.053018 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 270000 -c TOTAL -e 0.94 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = 0.94 : Bin index = -999 : SF = 0.991392 + 0.0408823 - 0.0408823 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 300000 -c TOTAL -e -2.42 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = -2.42 : Bin index = -999 : SF = 1.16045 + 0.134485 - 0.134485 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 300000 -c TOTAL -e 0.94 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = 0.94 : Bin index = -999 : SF = 1.08539 + 0.0808663 - 0.0808663 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 300000 -c TOTAL -e -2.42 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -2.42 : Bin index = -999 : SF = 0.900329 + 0.0136364 - 0.0136364 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 300000 -c TOTAL -e 0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = 0.94 : Bin index = -999 : SF = 0.981683 + 0.00416207 - 0.00416207 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 300000 -c TOTAL -e -2.42 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = -2.42 : Bin index = -999 : SF = 1.04925 + 0.123755 - 0.123755 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 300000 -c TOTAL -e 0.94 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = 0.94 : Bin index = -999 : SF = 0.994151 + 0.0278098 - 0.0278098 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334320 -c TOTAL -e -2.42 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = -2.42 : Bin index = -999 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334320 -c TOTAL -e 0.94 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = 0.94 : Bin index = -999 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334320 -c TOTAL -e -2.42 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -2.42 : Bin index = -999 : SF = 0.902564 + 0.0118747 - 0.0118747 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334320 -c TOTAL -e 0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = 0.94 : Bin index = -999 : SF = 0.990069 + 0.00196339 - 0.00196339 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334320 -c TOTAL -e -2.42 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = -2.42 : Bin index = -999 : SF = 0.944457 + 0.0772897 - 0.0772897 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334320 -c TOTAL -e 0.94 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = 0.94 : Bin index = -999 : SF = 0.988499 + 0.0266654 - 0.0266654 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 352183 -c TOTAL -e -2.42 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = -2.42 : Bin index = -999 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+ we got a duplicate scale factor! are you sure it's supposed to be there? 
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 352183 -c TOTAL -e 0.94 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = 0.94 : Bin index = -999 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+ we got a duplicate scale factor! are you sure it's supposed to be there? 
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 352183 -c TOTAL -e -2.42 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -2.42 : Bin index = -999 : SF = 0.902564 + 0.0121026 - 0.0121026 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 352183 -c TOTAL -e 0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = 0.94 : Bin index = -999 : SF = 0.990069 + 0.00207617 - 0.00207617 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 352183 -c TOTAL -e -2.42 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = -2.42 : Bin index = -999 : SF = 0.944457 + 0.0773251 - 0.0773251 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 352183 -c TOTAL -e 0.94 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = 0.94 : Bin index = -999 : SF = 0.988499 + 0.0266739 - 0.0266739 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 270000 -c TOTAL -e -2.42 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = -2.42 : Bin index = -999 : SF = 0.957477 + 0.166269 - 0.166269 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 270000 -c TOTAL -e 0.94 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = 0.94 : Bin index = -999 : SF = 1.02433 + 0.184083 - 0.184083 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 270000 -c TOTAL -e -2.42 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -2.42 : Bin index = -999 : SF = 0.956039 + 0.0142061 - 0.0142061 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 270000 -c TOTAL -e 0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = 0.94 : Bin index = -999 : SF = 1.02328 + 0.00739535 - 0.00739535 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 270000 -c TOTAL -e -2.42 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = -2.42 : Bin index = -999 : SF = 0.912482 + 0.0495895 - 0.0495895 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 270000 -c TOTAL -e 0.94 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = 0.94 : Bin index = -999 : SF = 0.995438 + 0.0410492 - 0.0410492 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 300000 -c TOTAL -e -2.42 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = -2.42 : Bin index = -999 : SF = 1.15232 + 0.133543 - 0.133543 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 300000 -c TOTAL -e 0.94 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = 0.94 : Bin index = -999 : SF = 1.07118 + 0.0798077 - 0.0798077 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 300000 -c TOTAL -e -2.42 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -2.42 : Bin index = -999 : SF = 0.945863 + 0.014326 - 0.014326 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 300000 -c TOTAL -e 0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = 0.94 : Bin index = -999 : SF = 1.00821 + 0.00427455 - 0.00427455 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 300000 -c TOTAL -e -2.42 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = -2.42 : Bin index = -999 : SF = 0.981395 + 0.115752 - 0.115752 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 300000 -c TOTAL -e 0.94 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = 0.94 : Bin index = -999 : SF = 0.998208 + 0.0279233 - 0.0279233 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 334320 -c TOTAL -e -2.42 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = -2.42 : Bin index = -999 : SF = 0.975011 + 0.0557851 - 0.0557851 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 334320 -c TOTAL -e 0.94 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = 0.94 : Bin index = -999 : SF = 0.9376 + 0.0309695 - 0.0309695 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 334320 -c TOTAL -e -2.42 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -2.42 : Bin index = -999 : SF = 0.943973 + 0.0124195 - 0.0124195 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 334320 -c TOTAL -e 0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = 0.94 : Bin index = -999 : SF = 1.02255 + 0.0020278 - 0.0020278 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 334320 -c TOTAL -e -2.42 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = -2.42 : Bin index = -999 : SF = 1.06297 + 0.0869884 - 0.0869884 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 334320 -c TOTAL -e 0.94 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = 0.94 : Bin index = -999 : SF = 1.01444 + 0.0273652 - 0.0273652 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 352183 -c TOTAL -e -2.42 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = -2.42 : Bin index = -999 : SF = 0.975011 + 0.0557851 - 0.0557851 <===
+ we got a duplicate scale factor! are you sure it's supposed to be there? 
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 352183 -c TOTAL -e 0.94 -p 7421.40 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 7421.4 : eta = 0.94 : Bin index = -999 : SF = 0.9376 + 0.0309695 - 0.0309695 <===
+ we got a duplicate scale factor! are you sure it's supposed to be there? 
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 352183 -c TOTAL -e -2.42 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -2.42 : Bin index = -999 : SF = 0.943973 + 0.0126376 - 0.0126376 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 352183 -c TOTAL -e 0.94 -p 41212.10 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = 0.94 : Bin index = -999 : SF = 1.02255 + 0.00213718 - 0.00213718 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 352183 -c TOTAL -e -2.42 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = -2.42 : Bin index = -999 : SF = 1.06297 + 0.0870198 - 0.0870198 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t AtlFast2 -r 352183 -c TOTAL -e 0.94 -p 12128482.90 -d Medium | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 1.21285e+07 : eta = 0.94 : Bin index = -999 : SF = 1.01444 + 0.0273735 - 0.0273735 <===
+ ==== CHECK IV:  RECO+ISO+TRIGGER ==== 
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334842 -c TOTAL -e -0.94 -p 41212.10 -d Reconstruction | grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 0.99999 + 0.000291033 - 0.000291033 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 270000 -c TOTAL -e -0.94 -p 41212.10 -d Medium -i FixedCutTight| grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 1.00505 + 0.00148017 - 0.00148017 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 300000 -c TOTAL -e -0.94 -p 41212.10 -d Medium -i FixedCutTight| grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 1.0067 + 0.000694694 - 0.000694694 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334320 -c TOTAL -e -0.94 -p 41212.10 -d Medium -i FixedCutTight| grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 1.01347 + 0.000616928 - 0.000616928 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 270000 -c TOTAL -e -0.94 -p 41212.10 -d Medium -i FixedCutTight -g SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0| grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 0.97422 + 0.00330055 - 0.00330055 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 300000 -c TOTAL -e -0.94 -p 41212.10 -d Medium -i FixedCutTight -g SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0| grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 0.9285 + 0.00179237 - 0.00179237 <===
+EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile  -t FullSim -r 334320 -c TOTAL -e -0.94 -p 41212.10 -d Medium -i FixedCutTight -g SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0| grep SF  2>&1
+EgEfficiencyCorr_testE...INFO    ===> Model : TOTAL| electron : Pt = 41212.1 : eta = -0.94 : Bin index = -999 : SF = 0.95665 + 0.00254486 - 0.00254486 <===
+ ==== DONE ==== 

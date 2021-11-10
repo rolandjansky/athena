@@ -94,7 +94,8 @@ private:
   Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
   Gaudi::Property<std::vector<std::string>> m_buildSubdetectors{this, "BuildSubDetectors", {"Pixel", "SCT", "TRT", "Calo"}};
 
-  ToolHandle<IActsTrackingVolumeBuilder> m_caloVolumeBuilder{this, "CaloVolumeBuilder", "ActsCaloTrackingVolumeBuilder"};
+  ToolHandle<IActsTrackingVolumeBuilder> m_caloVolumeBuilder{this, 
+      "CaloVolumeBuilder", "", "CaloVolumeBuilder"};
 
 };
 

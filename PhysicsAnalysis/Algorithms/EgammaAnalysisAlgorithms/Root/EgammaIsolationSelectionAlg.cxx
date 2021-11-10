@@ -58,9 +58,9 @@ namespace CP
   {
     for (const auto& sys : m_systematicsList.systematicsVector())
     {
-      xAOD::EgammaContainer *egammas = nullptr;
-      ANA_CHECK (m_egammasHandle.getCopy (egammas, sys));
-      for (xAOD::Egamma *egamma : *egammas)
+      const xAOD::EgammaContainer *egammas = nullptr;
+      ANA_CHECK (m_egammasHandle.retrieve (egammas, sys));
+      for (const xAOD::Egamma *egamma : *egammas)
       {
         if (m_preselection.getBool (*egamma))
         {

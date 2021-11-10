@@ -32,6 +32,7 @@ namespace CP
     declareProperty ("etaGapLow", m_etaGapLow, "low end of the eta gap");
     declareProperty ("etaGapHigh", m_etaGapHigh, "high end of the eta gap (or 0 for no eta gap)");
     declareProperty ("useClusterEta", m_useClusterEta, "whether to use the cluster eta (for electrons only)");
+    declareProperty ("useDressedProperties", m_useDressedProperties, "whether to use the dressed kinematic properties (for truth particles only)");
     declareProperty ("printCastWarning", m_printCastWarning, "whether to print a warning/error when the cast fails");
     declareProperty ("printClusterWarning", m_printClusterWarning, "whether to print a warning/error when the cluster is missing");
   }
@@ -41,6 +42,11 @@ namespace CP
   StatusCode AsgPtEtaSelectionTool ::
   initialize ()
   {
+    if (m_useDressedProperties && m_useClusterEta)
+    {
+      ATH_MSG_ERROR ("both 'useClusterEta' and 'useDressedProperties' can not be used at the same time");
+      return StatusCode::FAILURE;
+    }
     if (m_minPt < 0 || !std::isfinite (m_minPt))
     {
       ATH_MSG_ERROR ("invalid value of minPt: " << m_minPt);
@@ -77,6 +83,12 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
+    if (m_useDressedProperties) {
+       ATH_MSG_DEBUG( "Performing pt and eta cuts on the dressed properties" );
+       m_dressedPropertiesIndex = m_accept.addCut ("dressedProperties", "has dressed properties");
+       m_dressedPtAccessor = std::make_unique<SG::AuxElement::ConstAccessor<float>> ("pt_dressed");
+       m_dressedEtaAccessor = std::make_unique<SG::AuxElement::ConstAccessor<float>> ("eta_dressed");
+    }
     if (m_minPt > 0) {
        ATH_MSG_DEBUG( "Performing pt >= " << m_minPt << " MeV selection" );
        m_minPtCutIndex = m_accept.addCut ("minPt", "minimum pt cut");
@@ -120,12 +132,29 @@ namespace CP
   {
     asg::AcceptData accept (&m_accept);
 
-    // Perform the tranverse momentum cuts.
-    if (m_minPtCutIndex >= 0) {
-       accept.setCutResult (m_minPtCutIndex, particle->pt() >= m_minPt);
+    // Check if dressed properties exist if needed
+    if (m_useDressedProperties) {
+       if (!m_dressedPtAccessor->isAvailable(*particle)) {
+         ANA_MSG_WARNING ("dressed decorations not available");
+         return accept;
+       }
+       accept.setCutResult (m_dressedPropertiesIndex, true);
     }
-    if (m_maxPtCutIndex >= 0) {
-       accept.setCutResult (m_maxPtCutIndex, particle->pt() < m_maxPt);
+
+    // Perform the tranverse momentum cuts.
+    if (m_minPtCutIndex >= 0 || m_maxPtCutIndex >= 0)
+    {
+      float pt = particle->pt();
+      if (m_useDressedProperties) {
+        pt = (*m_dressedPtAccessor) (*particle);
+      }
+
+      if (m_minPtCutIndex >= 0) {
+        accept.setCutResult (m_minPtCutIndex, pt >= m_minPt);
+      }
+      if (m_maxPtCutIndex >= 0) {
+        accept.setCutResult (m_maxPtCutIndex, pt < m_maxPt);
+      }
     }
 
     // Perform the eta cut(s).
@@ -155,6 +184,9 @@ namespace CP
         }
         accept.setCutResult (m_egammaClusterCutIndex, true);
         absEta = std::abs (caloCluster->etaBE(2));
+      } else if (m_useDressedProperties)
+      {
+        absEta = std::abs ((*m_dressedEtaAccessor) (*particle));
       } else
       {
         absEta = std::abs (particle->eta());

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -29,13 +29,8 @@ def RpcMonitoringConfig(inputFlags):
 
     rpcTrackAnaAlg = helper.addAlgorithm(CompFactory.RpcTrackAnaAlg, "RpcTrackAnaAlgAlg", TrackExtrapolator = extrapolator)
 
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg:
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-        result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
-    else:
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-        result.merge(TrackingGeometrySvcCfg(inputFlags))
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+    result.merge( TrackingGeometryCondAlgCfg(inputFlags ) )
 
     rpcTrackAnaAlg.plotMuonEff = True
     rpcTrackAnaAlg.plotPRD     = True
@@ -175,95 +170,95 @@ def RpcMonitoringConfig(inputFlags):
                             path=trackPath,
                             xbins=11,xmin=-0.5,   xmax=10.5)
 
-    myGroup_track.defineHistogram('clustMultiplicity_phi;ClusterSize_phiView', 
-                            type='TH1I', 
-                            title='Cluster size(#phi view);Cluster size;NCluster',
-                            path=trackPath,
-                            xbins=11,xmin=-0.5,   xmax=10.5)
+        myGroup_track.defineHistogram('clustMultiplicity_phi;ClusterSize_phiView', 
+                                type='TH1I', 
+                                title='Cluster size(#phi view);Cluster size;NCluster',
+                                path=trackPath,
+                                xbins=11,xmin=-0.5,   xmax=10.5)
 
-    myGroup_track.defineHistogram('clustMultiplicity,panelInd_clust;ClusterSize_Panels', 
-                            title='Cluste Multiplicity;Cluste Multiplicity;Panel Index;NCluster',
-                            type='TH2I', 
-                            path=trackPath,
-                            xbins=11, xmin=-0.5, xmax=10.5, ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('clustMultiplicity,panelInd_clust;ClusterSize_Panels', 
+                                title='Cluste Multiplicity;Cluste Multiplicity;Panel Index;NCluster',
+                                type='TH2I', 
+                                path=trackPath,
+                                xbins=11, xmin=-0.5, xmax=10.5, ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('muon_passExtrap,panelInd_hM;Panel_Efficiency', 
-                            title='Panels Detection Efficiency;Panel Index;Efficiency',
-                            type='TEfficiency',
-                            path=trackPath,
-                            xbins=8592, xmin=-0.5, xmax=8591.5)
+        myGroup_track.defineHistogram('muon_passExtrap,panelInd_hM;Panel_Efficiency', 
+                                title='Panels Detection Efficiency;Panel Index;Efficiency',
+                                type='TEfficiency',
+                                path=trackPath,
+                                xbins=8592, xmin=-0.5, xmax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_localY_allPanel,panelInd_detpar;DetPar_localY_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter localY;Local Y;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=270,xmin=-2700., xmax=+2700., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_localY_allPanel,panelInd_detpar;DetPar_localY_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter localY;Local Y;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=270,xmin=-2700., xmax=+2700., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_localZ_allPanel,panelInd_detpar;DetPar_localZ_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter localZ;Local Z;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=140,xmin=-700., xmax=700., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_localZ_allPanel,panelInd_detpar;DetPar_localZ_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter localZ;Local Z;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=140,xmin=-700., xmax=700., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_globalX_allPanel,panelInd_detpar;DetPar_globalX_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter globalX;Global X;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_globalX_allPanel,panelInd_detpar;DetPar_globalX_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter globalX;Global X;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_globalY_allPanel,panelInd_detpar;DetPar_globalY_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter globalY;Global Y;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_globalY_allPanel,panelInd_detpar;DetPar_globalY_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter globalY;Global Y;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_globalR_allPanel,panelInd_detpar;DetPar_globalR_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter globalR;Global R;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=220,xmin=-22000., xmax=22000., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_globalR_allPanel,panelInd_detpar;DetPar_globalR_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter globalR;Global R;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=220,xmin=-22000., xmax=22000., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('detPar_globalZ_allPanel,panelInd_detpar;DetPar_globalZ_allPanel', 
-                            type='TH2F', 
-                            title='Detector Parameter globalZ;Global Z;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('detPar_globalZ_allPanel,panelInd_detpar;DetPar_globalZ_allPanel', 
+                                type='TH2F', 
+                                title='Detector Parameter globalZ;Global Z;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=300,xmin=-15000., xmax=15000., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('dR_TrackGasGap_allPanel,panelInd_detpar;DR_TrackGasGap_allPanel', 
-                            type='TH2F', 
-                            title='DR between track and gasgap on panel;#Delta R_trackAndgasgap;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('dR_TrackGasGap_allPanel,panelInd_detpar;DR_TrackGasGap_allPanel', 
+                                type='TH2F', 
+                                title='DR between track and gasgap on panel;#Delta R_trackAndgasgap;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('dR_TrackRE_allPanel,panelInd_detpar;DR_TrackRE_allPanel', 
-                            type='TH2F',
-                            title='DR between track and center of ReadoutElement panel;#Delta R_trackAndRE;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
+        myGroup_track.defineHistogram('dR_TrackRE_allPanel,panelInd_detpar;DR_TrackRE_allPanel', 
+                                type='TH2F',
+                                title='DR between track and center of ReadoutElement panel;#Delta R_trackAndRE;panelID;N matched Gasgap',
+                                path=trackPath,
+                                xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
 
-    myGroup_track.defineHistogram('isOutTime_prd,panelInd_prd;OuttimeHitFraction_PRDHit', 
-                            title='Outtime Hit Fraction of PRD Hit;Panel Index;Outtime Hit Fraction',
-                            type='TEfficiency',
-                            path=trackPath,
-                            xbins=8592, xmin=-0.5, xmax=8591.5) 
+        myGroup_track.defineHistogram('isOutTime_prd,panelInd_prd;OuttimeHitFraction_PRDHit', 
+                                title='Outtime Hit Fraction of PRD Hit;Panel Index;Outtime Hit Fraction',
+                                type='TEfficiency',
+                                path=trackPath,
+                                xbins=8592, xmin=-0.5, xmax=8591.5) 
 
-    myGroup_track.defineHistogram('isOutTime_prd_onTrack,panelInd_prd_onTrack;OuttimeHitFraction_PRDHit_onTrack',
-                            title='Outtime Hit Fraction of PRD Hit on Muon Track;Panel Index;Outtime Hit Fraction',
-                            type='TEfficiency',
-                            path=trackPath,
-                            xbins=8592, xmin=-0.5, xmax=8591.5)
+        myGroup_track.defineHistogram('isOutTime_prd_onTrack,panelInd_prd_onTrack;OuttimeHitFraction_PRDHit_onTrack',
+                                title='Outtime Hit Fraction of PRD Hit on Muon Track;Panel Index;Outtime Hit Fraction',
+                                type='TEfficiency',
+                                path=trackPath,
+                                xbins=8592, xmin=-0.5, xmax=8591.5)
 
-    # myGroup_track.defineHistogram('prdHit_time;PrdHit_time', 
-    #                         title='PRD Hit Time;Hit Time;NHit',
-    #                         type='TH1F',
-    #                         path=trackPath,
-    #                         xbins=64, xmin=-100., xmax=100.)
+        # myGroup_track.defineHistogram('prdHit_time;PrdHit_time', 
+        #                         title='PRD Hit Time;Hit Time;NHit',
+        #                         type='TH1F',
+        #                         path=trackPath,
+        #                         xbins=64, xmin=-100., xmax=100.)
 
-    # myGroup_track.defineHistogram('prdHit_time,panelInd_prd;PrdHit_time_perPanel', 
-    #                         type='TH2F',
-    #                         title='PRD Hit Time;PRD Hit Time;panelID;NHit',
-    #                         path=trackPath,
-    #                         xbins=64, xmin=-100., xmax=100., ybins=8592, ymin=-0.5, ymax=8591.5)
+        # myGroup_track.defineHistogram('prdHit_time,panelInd_prd;PrdHit_time_perPanel', 
+        #                         type='TH2F',
+        #                         title='PRD Hit Time;PRD Hit Time;panelID;NHit',
+        #                         path=trackPath,
+        #                         xbins=64, xmin=-100., xmax=100., ybins=8592, ymin=-0.5, ymax=8591.5)
 
 
     ######################################################################################################
@@ -445,4 +440,4 @@ if __name__=="__main__":
 
     cfg.printConfig(withDetails=True, summariseProps = True)
 
-    cfg.run(10)
+    cfg.run()

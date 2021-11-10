@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGC_H
@@ -9,6 +9,7 @@
 
 #include <vector>
 namespace MuonGM {
+    class MYSQL;
 
     class TGC : public Technology {
       public:
@@ -32,11 +33,11 @@ namespace MuonGM {
         double pitchButton[2]; // pitch in y and z axies, GGLN/SP[2,3]BU
         double angleButton;    // tilt angle in trapezoid regions, GGLN/SP4BU
 
-        inline TGC(std::string s);
+        inline TGC(MYSQL& mysql, const std::string& s);
     };
 
-    TGC::TGC(std::string s)
-        : Technology(s), nlayers(0), frame_h(0.), frame_ab(0.), widthWireSupport(0.), widthGasChannel(0.), distanceWireSupport(0.), angleTilt(0.), radiusButton(0.),
+    TGC::TGC(MYSQL& mysql, const std::string& s)
+        : Technology(mysql, s), nlayers(0), frame_h(0.), frame_ab(0.), widthWireSupport(0.), widthGasChannel(0.), distanceWireSupport(0.), angleTilt(0.), radiusButton(0.),
           angleButton(0.) {}
 } // namespace MuonGM
 

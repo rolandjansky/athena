@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloCellPosition2Ntuple.h
@@ -13,13 +13,14 @@
 // Gaudi includes
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 #include "CxxUtils/checker_macros.h"
 
 class CaloIdManager;
-class CaloDetDescrManager;
 class CaloCell_ID;
 namespace CaloRec {
   class CaloCellPositionShift;
@@ -37,13 +38,13 @@ class CaloCellPosition2Ntuple : public AthAlgorithm {
       ATLAS_CTORDTOR_NOT_THREAD_SAFE; //DataHandle is not thread safe
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize ATLAS_NOT_THREAD_SAFE();
+    virtual StatusCode          initialize ATLAS_NOT_THREAD_SAFE() override;
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    virtual StatusCode          execute() override;
     /** standard Athena-Algorithm method */
-    StatusCode          finalize();
+    virtual StatusCode          finalize() override;
     /** standard Athena-Algorithm method */
-    StatusCode          stop ATLAS_NOT_THREAD_SAFE();
+    virtual StatusCode          stop ATLAS_NOT_THREAD_SAFE() override;
 
     
   private:
@@ -57,6 +58,10 @@ class CaloCellPosition2Ntuple : public AthAlgorithm {
 
   const DataHandle<CaloRec::CaloCellPositionShift> m_cellPos;//DataHandle is marked as not thread safe
   std::string m_key;
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
   int m_Hash;
   int m_OffId;

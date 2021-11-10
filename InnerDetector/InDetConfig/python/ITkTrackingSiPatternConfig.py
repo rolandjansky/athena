@@ -1,8 +1,9 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-import InDetConfig.ITkTrackingCommonConfig      as   TC
-import InDetConfig.ITkRecToolConfig             as   RT
+from AthenaConfiguration.ComponentFactory import CompFactory
+from InDetConfig.ITkRecToolConfig import ITkBoundaryCheckToolCfg, ITkPatternPropagatorCfg, ITkPatternUpdatorCfg
+import InDetConfig.ITkTrackingCommonConfig as TC
+
 
 def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
@@ -24,7 +25,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     #
     # --- Space points seeds maker, use different ones for cosmics and collisions
     #
-    SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_ITK
+    SiSpacePointsSeedMaker = CompFactory.ITk.SiSpacePointsSeedMaker
 
     kwargs.setdefault("pTmin", flags.ITk.Tracking.minPTSeed )
     kwargs.setdefault("maxdImpact", flags.ITk.Tracking.maxPrimaryImpactSeed )
@@ -89,7 +90,7 @@ def ITkSiDetElementsRoadMaker_xkCfg(flags, name="ITkSiRoadMaker", **kwargs) :
     #
     # --- SCT and Pixel detector elements road builder
     #
-    ITkPatternPropagator = acc.getPrimaryAndMerge(RT.ITkPatternPropagatorCfg(flags))
+    ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
 
     kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
     kwargs.setdefault("usePixel", flags.ITk.Tracking.useITkPixel )
@@ -110,10 +111,10 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     #
     # @TODO ensure that PRD association map is used if usePrdAssociationTool is set
     ITkRotCreatorDigital = acc.getPrimaryAndMerge(TC.ITkRotCreatorDigitalCfg(flags))
-    ITkPatternPropagator = acc.getPrimaryAndMerge(RT.ITkPatternPropagatorCfg(flags))
-    ITkPatternUpdator = acc.popToolsAndMerge(RT.ITkPatternUpdatorCfg(flags))
+    ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
+    ITkPatternUpdator = acc.popToolsAndMerge(ITkPatternUpdatorCfg(flags))
 
-    ITkBoundaryCheckTool = acc.popToolsAndMerge(RT.ITkBoundaryCheckToolCfg(flags))
+    ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
 
     kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
     kwargs.setdefault("UpdatorTool", ITkPatternUpdator)
@@ -130,7 +131,8 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     kwargs.setdefault("doFastTracking", flags.ITk.doFastTracking)
 
     if flags.Detector.EnableITkStrip:
-        ITkStripConditionsSummaryTool = acc.popToolsAndMerge(RT.ITkStripConditionsSummaryToolCfg(flags))
+        from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
+        ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
         kwargs.setdefault("SctSummaryTool", ITkStripConditionsSummaryTool)
     else:
         kwargs.setdefault("SctSummaryTool", None)
@@ -253,7 +255,8 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
 
     ITkSiTrackMaker = acc.popToolsAndMerge(ITkSiTrackMaker_xkCfg(flags,
                                                                  InputCollections = InputCollections ))
-    ITkPropagator = acc.getPrimaryAndMerge(RT.ITkPropagatorCfg(flags))
+    from TrkConfig.AtlasExtrapolatorToolsConfig import ITkPropagatorCfg
+    ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
     ITkTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(TC.ITkTrackSummaryToolNoHoleSearchCfg(flags))
     ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ITkSiSpacePointsSeedMakerCfg(flags,
                                                                                   InputCollections = InputCollections ))
@@ -448,7 +451,7 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
 
     fitter_args.setdefault("DoHoleSearch", True)
 
-    ITkBoundaryCheckTool = acc.popToolsAndMerge(RT.ITkBoundaryCheckToolCfg(flags))
+    ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
     fitter_args.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
 
     fitter_list=[]
@@ -480,8 +483,8 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
 
     ITkAmbiTrackSelectionTool = acc.getPrimaryAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
 
-    from InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-    ITkExtrapolator = acc.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
+    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+    Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
 
     kwargs.setdefault("Fitter", fitter_list)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
@@ -489,7 +492,7 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     kwargs.setdefault("TrackSummaryTool", ambi_track_summary_tool)
     kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
     kwargs.setdefault("SelectionTool", ITkAmbiTrackSelectionTool)
-    kwargs.setdefault("TrackExtrapolator", ITkExtrapolator)
+    kwargs.setdefault("TrackExtrapolator", Extrapolator)
     kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.extension)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.extension)
     kwargs.setdefault("SuppressHoleSearch", False)

@@ -17,24 +17,27 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addJetPt
 from DerivationFrameworkJetEtMiss import TriggerLists
 triggers = TriggerLists.jetTrig()
 
-#This expression is currently not working because of EventInfo.eventTypeBitmask (to be fixed)
-expression = '(EventInfo.eventTypeBitmask==1) || HLT_xe120_pufit_L1XE50'
+JETM1SkimmingTools = []
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-JETM1TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name                   = "JETM1TrigSkimmingTool1",
-                                                                  TriggerListOR          = triggers )
-ToolSvc += JETM1TrigSkimmingTool
+if not DerivationFrameworkIsMonteCarlo:
 
-# Will be uncommented once issue with eventTypeBitmask is resolved
-#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-#JETM1OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name       = "JETM1OfflineSkimmingTool1",
-#                                                                       expression = expression)
-#ToolSvc += JETM1OfflineSkimmingTool
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+    JETM1TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name                   = "JETM1TrigSkimmingTool1",
+                                                                      TriggerListOR          = triggers )
+    ToolSvc += JETM1TrigSkimmingTool
 
-# OR of the above two selections
-#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-#JETM1ORTool = DerivationFramework__FilterCombinationOR(name="JETM1ORTool", FilterList=[JETM1TrigSkimmingTool,JETM1OfflineSkimmingTool] )
-#ToolSvc+=JETM1ORTool
+    expression = 'HLT_xe120_pufit_L1XE50'
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    JETM1OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name       = "JETM1OfflineSkimmingTool1",
+                                                                           expression = expression)
+    ToolSvc += JETM1OfflineSkimmingTool
+
+    # OR of the above two selections
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+    JETM1ORTool = DerivationFramework__FilterCombinationOR(name="JETM1ORTool", FilterList=[JETM1TrigSkimmingTool,JETM1OfflineSkimmingTool] )
+    ToolSvc+=JETM1ORTool
+
+    JETM1SkimmingTools += [JETM1ORTool]
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -118,9 +121,8 @@ augmentationTools.append(JETM1TrackSelectionTool)
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
                                                          AugmentationTools = augmentationTools,
-                                                         #SkimmingTools = [JETM1ORTool], #to be fixed (bitmask issue)
+                                                         SkimmingTools = JETM1SkimmingTools,
                                                          ThinningTools = thinningTools)
-
 
 #=======================================
 # Add. small-R jet stuff in derivations
@@ -178,13 +180,15 @@ JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "Primar
 # Add QG tagger variables
 JETM1SlimmingHelper.ExtraVariables  = ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
+                                       "AntiKt4EMPFlowJets.GhostTower",
                                        "InDetTrackParticles.truthMatchProbability", 
                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg",
                                        "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack"]
 
 JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "EventInfo", "TruthVertices", "TruthParticles"
-                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"]
+                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape",
+                                     "CaloCalFwdTopoTowers"]
 
 # Trigger content
 JETM1SlimmingHelper.IncludeJetTriggerContent = True

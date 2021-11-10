@@ -65,7 +65,7 @@ namespace Muon {
         /** AlgTool finalize method */
         StatusCode finalize();
         /** TrackingGeometry Interface method */
-        std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry(
+        std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry(
             const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
 
         /** The unique signature */
@@ -108,10 +108,10 @@ namespace Muon {
             const std::vector<std::unique_ptr<const Trk::DetachedTrackingVolume> >* objs, double zTol, double phiTol,
             LocalVariablesContainer& aLVC) const;
         /** Private methods to define subvolumes and fill them with detached volumes */
-        const Trk::TrackingVolume* processVolume(const Trk::Volume*, int, int, const std::string&, LocalVariablesContainer& aLVC,
-                                                 bool hasStations) const;
-        const Trk::TrackingVolume* processVolume(const Trk::Volume*, int, const std::string&, LocalVariablesContainer& aLVC,
-                                                 bool hasStations) const;
+        Trk::TrackingVolume* processVolume(const Trk::Volume*, int, int, const std::string&, LocalVariablesContainer& aLVC,
+                                           bool hasStations) const;
+        Trk::TrackingVolume* processVolume(const Trk::Volume*, int, const std::string&, LocalVariablesContainer& aLVC,
+                                           bool hasStations) const;
         const Trk::TrackingVolume* processShield(const Trk::Volume*, int, const std::string&, LocalVariablesContainer& aLVC,
                                                  bool hasStations) const;
         /** Private method to check volume properties */

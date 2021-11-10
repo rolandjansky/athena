@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -66,7 +66,6 @@ recFlags.doJetMissingETTag                         = False
 recFlags.doEgamma                                  = False
 recFlags.doTau                                     = False
 recFlags.doTrigger                                 = False
-recFlags.oldFlagTopSteering                        = False
 recFlags.oldRecExCommissionConfig                  = False
 recFlags.doWriteCalibHits                          = False
 recFlags.doWriteESD                                = False

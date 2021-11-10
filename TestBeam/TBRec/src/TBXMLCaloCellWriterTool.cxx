@@ -67,6 +67,13 @@ TBXMLCaloCellWriterTool::TBXMLCaloCellWriterTool(const std::string& type,
 TBXMLCaloCellWriterTool::~TBXMLCaloCellWriterTool()
 { }
 
+StatusCode TBXMLCaloCellWriterTool::initialize()
+{
+  ATH_CHECK(TBXMLWriterToolBase::initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
+  return StatusCode::SUCCESS;
+}
+
 //////////////////
 // Event Writer //
 //////////////////
@@ -322,7 +329,8 @@ TBXMLCaloCellWriterTool::writeRunFiles(const std::string& fileDir,
   // Write Run Geometry //
   ////////////////////////
 
-  const CaloDetDescrManager* caloDetMgr = nullptr;
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};  
+  const CaloDetDescrManager* caloDetMgr = *caloMgrHandle;
   ATH_CHECK( detStore()->retrieve (caloDetMgr, "CaloMgr") );
 
   IdentifierHash firstIndex, lastIndex, safeIndex;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -58,9 +58,10 @@ StatusCode TRTAlignCondAlg::execute()
 {
   ATH_MSG_DEBUG("execute " << name());
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // ____________ Construct Write Cond Handles and check their validity ____________
-  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKeyAlignStore};
-  SG::WriteCondHandle<InDetDD::TRT_DetElementContainer> writeHandleDetElCont{m_writeKeyDetElCont};
+  SG::WriteCondHandle<GeoAlignmentStore> writeHandle{m_writeKeyAlignStore,ctx};
+  SG::WriteCondHandle<InDetDD::TRT_DetElementContainer> writeHandleDetElCont{m_writeKeyDetElCont,ctx};
 
   if (writeHandleDetElCont.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandleDetElCont.fullKey() << " is already valid."
@@ -95,7 +96,7 @@ StatusCode TRTAlignCondAlg::execute()
     // 1. Dynamic folders
 
     // ** Global
-    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicGlobal{m_readKeyDynamicGlobal};
+    SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicGlobal{m_readKeyDynamicGlobal,ctx};
     // Get CDO and store it into container
     const CondAttrListCollection* readCdoDynamicGlobal{*readHandleDynamicGlobal};
     if(readCdoDynamicGlobal==nullptr) {
@@ -111,7 +112,7 @@ StatusCode TRTAlignCondAlg::execute()
     }
 
     // ** Regular
-    SG::ReadCondHandle<AlignableTransformContainer> readHandleDynamicRegular{m_readKeyDynamicRegular};
+    SG::ReadCondHandle<AlignableTransformContainer> readHandleDynamicRegular{m_readKeyDynamicRegular,ctx};
     // Get CDO and store it into container
     const AlignableTransformContainer* readCdoDynamicRegular{*readHandleDynamicRegular};
     if(readCdoDynamicRegular==nullptr) {
@@ -131,7 +132,7 @@ StatusCode TRTAlignCondAlg::execute()
   }
   else {
     // 2. Regular folder
-    SG::ReadCondHandle<AlignableTransformContainer> readHandleRegular{m_readKeyRegular};
+    SG::ReadCondHandle<AlignableTransformContainer> readHandleRegular{m_readKeyRegular,ctx};
     // Get CDO and store it into container
     const AlignableTransformContainer* readCdoRegular{*readHandleRegular};
     if(readCdoRegular==nullptr) {

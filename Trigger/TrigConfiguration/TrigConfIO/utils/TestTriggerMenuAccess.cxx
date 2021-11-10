@@ -126,6 +126,7 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.connectorNames().size() << " connectors configured" << endl;
    for( const string & connName : l1menu.connectorNames() ) {
       auto & conn = l1menu.connector(connName);
+      if(connName == "LegacyTopoMerged") continue;
       cout << "Connector " << connName << (conn.legacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
       if( connName == "MuCTPiOpt0" ) {
          for( auto & tl : conn.triggerLines() ) {
@@ -186,10 +187,10 @@ testL1Menu_Topo(const TrigConf::L1Menu & l1menu, bool printdetail)
       topoAlgInvmassLeg.print();
       cout << "Explicit access to 'NumResultBits' as unsigned int: " << topoAlgInvmassLeg.genericParameter<unsigned int>("NumResultBits") << endl;
       
-      auto & topoAlgEMJ = l1menu.algorithmFromOutput("0DR03-EM7ab-CJ15ab", "TOPO");
+      auto & topoAlgEMJ = l1menu.algorithmFromOutput("0DR03-eEM7ab-CjJ15ab", "TOPO");
       topoAlgEMJ.print();
 
-      auto & topoMultAlg = l1menu.algorithm("Mult_eEM22VHI","MULTTOPO");
+      auto & topoMultAlg = l1menu.algorithm("Mult_eEM22M","MULTTOPO");
       topoMultAlg.print();
       cout << "  threshold definition: " << topoMultAlg.getAttribute("threshold") << endl;
 
@@ -234,6 +235,7 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
       if(tt != "internal") {
          for(auto thr : l1menu.thresholds(tt) ) {
+            if(thr->name().find("MULT-CMU") != std::string::npos){ continue; } // tmp hack!
             const std::string & connName = l1menu.connectorNameFromThreshold(thr->name());
             if(! l1menu.connector(connName).hasLine(thr->name())) {
                throw std::runtime_error("Threshold " + thr->name() + " does not exist as triggerline of connector " + connName);
@@ -244,6 +246,15 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
    
    const auto & thrEM = dynamic_cast<const TrigConf::L1Threshold_EM&>(l1menu.threshold("EM22VHI"));
    thrEM.print();
+
+   const auto & thrTAU = dynamic_cast<const TrigConf::L1Threshold_TAU&>(l1menu.threshold("HA12IM"));
+   if(thrTAU) {
+      cout << thrTAU.name() << ":" << endl;
+      for(int eta  : {0, 10, 20, -10,-20}) {
+         cout << "   value at eta = " << eta << ": " << thrTAU.thrValue(eta) << " GeV, "<< thrTAU.thrValueCounts(eta) <<" counts, iso " << thrTAU.isolationMask() << endl;
+      }
+   }
+
    cout << "XE30 cut: " << l1menu.threshold("XE30").thrValue() << endl;
    if(printdetail) {
       for ( const string & thrName : l1menu.thresholdNames() ) {
@@ -274,6 +285,14 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
 
    const auto & threEM = dynamic_cast<const TrigConf::L1Threshold_eEM&>(l1menu.threshold("eEM15M"));
    cout << "eEM15M isolation: rhad = " << (int)threEM.rhad() << ", reta = " << (int)threEM.reta() << ", wstot = " << (int)threEM.wstot() << endl;
+
+   const auto & threTAU = dynamic_cast<const TrigConf::L1Threshold_eTAU&>(l1menu.threshold("eTAU12"));
+   if(threTAU) {
+      cout << threTAU.name() << ":" << endl;
+      for(int eta  : {0, 10, 20, -10,-20}) {
+         cout << "   value at eta = " << eta << ": " << threTAU.thrValue(eta) << " GeV, " << threTAU.thrValueCounts(eta) << " counts, iso " << (int)threTAU.rCore() << endl;
+      }
+   }
 
    const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM18M"));
    cout << "jEM18M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
@@ -353,6 +372,9 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
    {
       auto & ex = l1menu.thrExtraInfo().eEM();
       cout << "  eEM" << endl;
+      cout << "    iso maxEt (GeV) " << ex.maxEt() << endl;
+      cout << "    iso maxEt (MeV) " << ex.maxEtMeV() << endl;
+      cout << "    iso maxEt (Counts) " << ex.maxEtCounts(ex.resolutionMeV()) << endl;
       cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
       cout << "    ptMinToTopo " << ex.ptMinToTopo() << endl;
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
@@ -377,6 +399,19 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       }
       //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,-20) << endl;
       cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::LOOSE,20) << endl;
+
+      for( int ieta : { -30, -20, -10, 0, 10, 20, 30 } ) {
+         auto iso_loose  = ex.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+         int reta_loose_fw = iso_loose.reta_fw();
+         int rhad_loose_fw = iso_loose.rhad_fw();
+         int wstot_loose_fw = iso_loose.wstot_fw();
+         int reta_loose_d = iso_loose.reta_d();
+         int rhad_loose_d = iso_loose.rhad_d();
+         int wstot_loose_d = iso_loose.wstot_d();
+         cout << "ieta=" << ieta << "  loose => reta_fw=" << reta_loose_fw << ", rhad_fw=" << rhad_loose_fw << ", wstot_fw=" << wstot_loose_fw << endl;
+         cout << "ieta=" << ieta << "  loose => reta_d=" << reta_loose_d << ", rhad_d=" << rhad_loose_d << ", wstot_d=" << wstot_loose_d << endl;
+      }
+     
    }
    {
       auto & ex = l1menu.thrExtraInfo().jEM();

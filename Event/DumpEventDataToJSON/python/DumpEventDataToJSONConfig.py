@@ -83,8 +83,8 @@ if __name__ == "__main__":
         cfg.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
 
     if ConfigFlags.Detector.GeometryTRT:
-        from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-        cfg.merge(TRT_GeometryCfg(ConfigFlags))
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        cfg.merge(TRT_ReadoutGeometryCfg(ConfigFlags))
 
     if ConfigFlags.Detector.GeometryITkPixel:
         from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg

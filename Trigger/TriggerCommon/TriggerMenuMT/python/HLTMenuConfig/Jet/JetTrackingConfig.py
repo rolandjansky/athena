@@ -7,7 +7,7 @@ from AthenaCommon.CFElements import parOR
 from JetRecTools import JetRecToolsConfig as jrtcfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
-from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -64,8 +64,8 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     trackcollmap = None
 
     if trkopt=="ftf":
-        from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-        viewAlgs = makeInDetAlgsNoView( config = IDTrigConfig, rois=RoIs)
+        from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
+        viewAlgs = makeInDetTrigFastTrackingNoView( config = IDTrigConfig, rois=RoIs)
         jetTrkSeq += viewAlgs
 
         # add the collections for the eflowRec reconstriction in the trigger
@@ -73,12 +73,12 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         from eflowRec.PFHLTSequence import trackvtxcontainers
         trackvtxcontainers["ftf"] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet ) 
 
-        vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, IDTrigConfig.adaptiveVertex_jet )
+        vtxAlgs = makeInDetTrigVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, IDTrigConfig.adaptiveVertex_jet )
         jetTrkSeq += vtxAlgs[-1]
 
         # now run he actual vertex finders and TTVA tools
         if IDTrigConfig.vertex_jet != IDTrigConfig.vertex:
-            vtxAlgs = makeVertices( "amvf", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex, IDTrigConfig, IDTrigConfig.adaptiveVertex )
+            vtxAlgs = makeInDetTrigVertices( "amvf", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex, IDTrigConfig, IDTrigConfig.adaptiveVertex )
             jetTrkSeq += vtxAlgs[-1]
 
         trackcollmap = jetTTVA( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex_jet,  adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )

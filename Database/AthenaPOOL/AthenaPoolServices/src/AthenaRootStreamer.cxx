@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaRootStreamer.cxx
@@ -30,20 +30,14 @@ AthenaRootStreamer::AthenaRootStreamer(const std::string& class_name, ::Service*
 
 AthenaRootStreamer::~AthenaRootStreamer()
 {
-   // delete the converter handles
-   for(ConverterMap::iterator i = m_converterMap.begin();
-       i != m_converterMap.end();  i++ ) {
-      delete i->second;
-   }
 }
 
 
-StatusCode AthenaRootStreamer::AddConverter(AthenaRootConverterHandle *converter) {
-   if (m_converterMap.find( converter->StreamerChecksum() ) != m_converterMap.end()) {
-      return(StatusCode::FAILURE);
-   }
-   m_converterMap[ converter->StreamerChecksum() ] = converter;
-   return(StatusCode::SUCCESS);
+StatusCode AthenaRootStreamer::AddConverter(std::unique_ptr<AthenaRootConverterHandle> converter) {
+  if (m_converterMap.try_emplace (converter->StreamerChecksum(), std::move(converter)).second) {
+    return(StatusCode::SUCCESS);
+  }
+  return(StatusCode::FAILURE);
 }
 
 
@@ -63,8 +57,9 @@ void AthenaRootStreamer::operator()(TBuffer& b, void* obj) {
       FindVersion(&b, &R__s, &R__c);
       // find converter for the object shape checksum
       // (checksum is read from the file in FindVersion)
-      if (m_converterMap.find(m_streamerChecksum) != m_converterMap.end()) {
-         m_converterMap[m_streamerChecksum]->ReadBuffer(b, obj, m_streamerVersion, R__s, R__c);
+      auto it = m_converterMap.find(m_streamerChecksum);
+      if (it != m_converterMap.end()) {
+         it->second->ReadBuffer(b, obj, m_streamerVersion, R__s, R__c);
       } else {
 	 if(m_service) {
 	    if( m_seenChecksums.find( m_streamerChecksum ) == m_seenChecksums.end() ) {

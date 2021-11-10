@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/SpacerBeam.h"
@@ -24,7 +24,8 @@
 
 namespace MuonGM {
 
-    SpacerBeam::SpacerBeam(Component *ss) : DetectorElement(ss->name), m_hole_pos1(0), m_hole_pos2(0), m_lb_height(0), m_lb_width(0), m_cross_excent(0) {
+    SpacerBeam::SpacerBeam(const MYSQL& mysql,
+                           Component *ss) : DetectorElement(ss->name), m_hole_pos1(0), m_hole_pos2(0), m_lb_height(0), m_lb_width(0), m_cross_excent(0) {
         StandardComponent *s = (StandardComponent *)ss;
         std::string_view componentType = std::string_view(s->name).substr(0, 3);
 
@@ -46,27 +47,26 @@ namespace MuonGM {
 
         lowerThickness = 0.;
 
-        MYSQL *mysql = MYSQL::GetPointer();
         if (componentType == "CHV") {
-            CHV *ch = (CHV *)mysql->GetTechnology(s->name);
+            const CHV *ch = dynamic_cast<const CHV*>(mysql.GetTechnology(s->name));
             thickness = ch->thickness;
             largeness = ch->largeness;
             height = ch->height - tol;
 
         } else if (componentType == "CRO") {
-            CRO *cr = (CRO *)mysql->GetTechnology(s->name);
+            const CRO *cr = dynamic_cast<const CRO*>(mysql.GetTechnology(s->name));
             thickness = cr->thickness;
             largeness = cr->largeness;
             height = cr->height - tol;
 
         } else if (componentType == "CMI") {
-            CMI *cn = (CMI *)mysql->GetTechnology(s->name);
+            const CMI *cn = dynamic_cast<const CMI*>(mysql.GetTechnology(s->name));
             thickness = cn->thickness;
             largeness = cn->largeness;
             height = cn->height - tol;
 
         } else if (componentType.substr(0, 2) == "LB") {
-            LBI *lb = (LBI *)mysql->GetTechnology(s->name);
+            const LBI *lb = dynamic_cast<const LBI*>(mysql.GetTechnology(s->name));
             thickness = lb->thickness;
             lowerThickness = lb->lowerThickness;
             largeness = thickness;
@@ -75,15 +75,17 @@ namespace MuonGM {
         }
     }
 
-    GeoVPhysVol *SpacerBeam::build(bool is_barrel) {
+    GeoVPhysVol *SpacerBeam::build(const StoredMaterialManager& matManager,
+                                   bool is_barrel) {
         int cutoutson = 0;
-        return build(cutoutson, is_barrel);
+        return build(matManager, cutoutson, is_barrel);
     }
 
-    GeoVPhysVol *SpacerBeam::build(int /*cutoutson*/, bool is_barrel) {
+    GeoVPhysVol *SpacerBeam::build(const StoredMaterialManager& matManager,
+                                   int /*cutoutson*/, bool is_barrel) {
         GeoPhysVol *pvol = 0;
         GeoLogVol *lvol = 0;
-        const GeoMaterial *mat = getMaterialManager()->getMaterial("std::Aluminium");
+        const GeoMaterial *mat = matManager.getMaterial("std::Aluminium");
         if (name.compare(0, 3, "CHV") == 0 || name.compare(0, 3, "CRO") == 0 || name.compare(0, 3, "CMI") == 0) {
             double sinexc = 0.;
             double cosexc = 1.;

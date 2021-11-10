@@ -16,6 +16,7 @@ from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 ConfigFlags.Input.Files = defaultTestFiles.HITS
+ConfigFlags.lock()
 # test
 sct_acc = SCT_SiPropertiesCfg(ConfigFlags, name="SCT_SiPropertiesConfigTest")
 sct_acc.popPrivateTools()

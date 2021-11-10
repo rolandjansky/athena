@@ -74,7 +74,9 @@ def _initializeGeometryParameters(geoTag):
     params = { 'Common' : CommonGeoDB.InitializeGeometryParameters(dbGeomCursor),
                'Pixel' : PixelGeoDB.InitializeGeometryParameters(dbGeomCursor),
                'LAr' : LArGeoDB.InitializeGeometryParameters(dbGeomCursor),
-               'Muon' : MuonGeoDB.InitializeGeometryParameters(dbGeomCursor) }
+               'Muon' : MuonGeoDB.InitializeGeometryParameters(dbGeomCursor),
+               'Luminosity' : CommonGeoDB.InitializeLuminosityDetectorParameters(dbGeomCursor),
+             }
 
     return params
 
@@ -104,6 +106,10 @@ def getDefaultDetectors(geoTag):
     if DetDescrInfo(geoTag)['Common']['Run'] == 'RUN4':
         detectors.add('ITkPixel')
         detectors.add('ITkStrip')
+        if DetDescrInfo(geoTag)['Luminosity']['BCMPrime']:
+            pass  # keep disabled for now
+        if DetDescrInfo(geoTag)['Luminosity']['PLR']:
+            detectors.add('PLR')
     else:
         detectors.add('Pixel')
         detectors.add('SCT')

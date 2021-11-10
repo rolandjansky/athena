@@ -1,13 +1,10 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-from IOVDbSvc.IOVDbSvcConfig                  import addFoldersSplitOnline
-from InDetConfig.InDetRecToolConfig           import makeName
-import AthenaCommon.SystemOfUnits               as   Units
+from AthenaConfiguration.ComponentFactory import CompFactory
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from InDetConfig.InDetRecToolConfig import makeName
+import AthenaCommon.SystemOfUnits as Units
 #######################################################################
-
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 def copyArgs(kwargs, copy_list):
     dict_copy={}
@@ -423,7 +420,7 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
         return None
 
     if 'Extrapolator' not in kwargs :
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     if 'PixelSummaryTool' not in kwargs :
@@ -462,112 +459,6 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
     acc.setPrivateTools(InDetSummaryHelper)
     return acc
 
-def InDetTRTStrawStatusSummaryToolCfg(flags, name = "InDetTRT_StrawStatusSummaryTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    kwargs.setdefault("isGEANT4", flags.Input.isMC)
-    InDetTRTStrawStatusSummaryTool = CompFactory.TRT_StrawStatusSummaryTool(name = the_name, **kwargs )
-    acc.setPrivateTools(InDetTRTStrawStatusSummaryTool)
-    return acc
-
-def InDetTRTCalDbToolCfg(name = "InDetTRT_CalDbTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    InDetTRTCalDbTool =  CompFactory.TRT_CalDbTool(name = the_name, **kwargs)
-    acc.setPrivateTools(InDetTRTCalDbTool)
-    return acc
-
-def InDetTRT_LocalOccupancyCfg(flags, name ="InDet_TRT_LocalOccupancy", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-    if 'TRTCalDbTool' not in kwargs :
-        InDetTRTCalDbTool = acc.popToolsAndMerge(InDetTRTCalDbToolCfg())
-        acc.addPublicTool(InDetTRTCalDbTool)
-        kwargs.setdefault( "TRTCalDbTool", InDetTRTCalDbTool )
-
-    if 'TRTStrawStatusSummaryTool' not in kwargs :
-        InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(InDetTRTStrawStatusSummaryToolCfg(flags))
-        acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-        kwargs.setdefault( "TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool )
-
-    kwargs.setdefault("isTrigger", False)
-
-    from InDetOverlay.TRT_ConditionsConfig import TRTStrawCondAlgCfg # this will be moved somewhere else so this import will need adjustment
-    acc.merge( TRTStrawCondAlgCfg(flags) )
-
-    InDetTRT_LocalOccupancy = CompFactory.InDet.TRT_LocalOccupancy(name=the_name, **kwargs )
-    acc.setPrivateTools(InDetTRT_LocalOccupancy)
-    return acc
-
-def TRTToTCondAlgCfg(flags, name = "TRTToTCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors", className='CondAttrListVec'))
-    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue", className='CondAttrListCollection'))
-
-    TRTToTCondAlg = CompFactory.TRTToTCondAlg(  name        = name,
-                                               ToTWriteKey = "Dedxcorrection",
-                                                **kwargs)
-    acc.addCondAlgo(TRTToTCondAlg)
-    return acc
-
-def InDetTRT_dEdxToolCfg(flags, name = "InDetTRT_dEdxTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-
-    if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
-            or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
-        return None
-
-    kwargs.setdefault("TRT_dEdx_isData", not flags.Input.isMC)
-
-    if 'TRT_LocalOccupancyTool' not in kwargs :
-        InDetTRT_LocalOccupancy = acc.popToolsAndMerge(InDetTRT_LocalOccupancyCfg(flags))
-        kwargs.setdefault( "TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
-
-    acc.merge(TRTToTCondAlgCfg(flags))
-    acc.setPrivateTools(CompFactory.TRT_ToT_dEdx(name = the_name, **kwargs))
-    return acc
-
-def TRTHTCondAlg(flags, name = "TRTHTCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector", className='CondAttrListVec'))
-    TRTHTCondAlg = CompFactory.TRTHTCondAlg(name = name, HTWriteKey = "HTcalculator", **kwargs)
-    acc.addCondAlgo(TRTHTCondAlg)
-    return acc
-    
-def InDetTRT_ElectronPidToolCfg(flags, name = "InDetTRT_ElectronPidTool", **kwargs):
-    acc = ComponentAccumulator()
-    the_name = makeName( name, kwargs)
-
-    if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
-            or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
-        return None
-
-    if 'TRTStrawSummaryTool' not in kwargs :
-        InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(InDetTRTStrawStatusSummaryToolCfg(flags))
-        acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-        kwargs.setdefault( "TRTStrawSummaryTool", InDetTRTStrawStatusSummaryTool)
-
-    if 'TRT_LocalOccupancyTool' not in kwargs :
-        InDetTRT_LocalOccupancy = acc.popToolsAndMerge(InDetTRT_LocalOccupancyCfg(flags))
-        acc.addPublicTool(InDetTRT_LocalOccupancy)
-        kwargs.setdefault( "TRT_LocalOccupancyTool", InDetTRT_LocalOccupancy)
-
-    if 'TRT_ToT_dEdx_Tool' not in kwargs :
-        dEdxAcc = InDetTRT_dEdxToolCfg(flags)
-        if dEdxAcc is not None:
-            InDetTRT_dEdxTool = acc.popToolsAndMerge(dEdxAcc)
-            acc.addPublicTool(InDetTRT_dEdxTool)
-        else:
-            InDetTRT_dEdxTool = None
-        kwargs.setdefault( "TRT_ToT_dEdx_Tool", InDetTRT_dEdxTool)
-
-    kwargs.setdefault( "CalculateNNPid", False) #TODO fixme once the flag is there flags.InDet.doTRTPIDNN)
-
-    acc.merge(TRTHTCondAlg(flags))
-    acc.setPrivateTools(CompFactory.InDet.TRT_ElectronPidToolRun2(name = the_name, **kwargs))
-    return acc
-
 
 def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedHits',**kwargs):
     acc = ComponentAccumulator()
@@ -584,13 +475,12 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
 
     if 'TRT_ElectronPidTool' not in kwargs:
-        PIDToolAcc = InDetTRT_ElectronPidToolCfg(flags)
-        if PIDToolAcc is not None:
-            InDetTRT_ElectronPidTool = acc.popToolsAndMerge(PIDToolAcc)
-            acc.addPublicTool(InDetTRT_ElectronPidTool)
+        if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
+            or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
+            kwargs.setdefault("TRT_ElectronPidTool", None)
         else:
-            InDetTRT_ElectronPidTool = None
-        kwargs.setdefault("TRT_ElectronPidTool", InDetTRT_ElectronPidTool)
+            from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
+            kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags)))
 
     if 'PixelToTPIDTool' not in kwargs :
         InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
@@ -661,7 +551,7 @@ def InDetKalmanTrackFitterBaseCfg(flags, name='InDetKalmanTrackFitterBase',**kwa
     if len(pix_cluster_on_track_args)>0 and len(nameSuffix)>0 :
         pix_cluster_on_track_args['nameSuffix']=nameSuffix
 
-    from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs.setdefault("ExtrapolatorHandle", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     if 'RIO_OnTrackCreatorHandle' not in kwargs :
@@ -803,7 +693,7 @@ def DistributedKalmanFilterCfg(flags, name="DistributedKalmanFilter", **kwargs) 
     pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
 
     if 'ExtrapolatorTool' not in kwargs :
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault('ExtrapolatorTool', acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     if 'ROTcreator' not in kwargs :
@@ -882,12 +772,12 @@ def InDetGsfExtrapolatorCfg(flags, name='GsfExtrapolator', **kwargs) :
     acc = ComponentAccumulator()
 
     if 'Propagators' not in kwargs :
-        from  InDetConfig.InDetRecToolConfig import InDetPropagatorCfg
+        from TrkConfig.AtlasExtrapolatorToolsConfig import InDetPropagatorCfg
         kwargs['Propagators'] = [ acc.getPrimaryAndMerge(InDetPropagatorCfg(flags)) ]
 
     if 'Navigator' not in kwargs :
-        from InDetConfig.InDetRecToolConfig  import InDetNavigatorCfg
-        kwargs['Navigator'] = acc.getPrimaryAndMerge(InDetNavigatorCfg(flags))
+        from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
+        kwargs['Navigator'] = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
 
     if 'GsfMaterialConvolution' not in kwargs :
         kwargs['GsfMaterialConvolution'] = acc.popToolsAndMerge(InDetGsfMaterialUpdatorCfg())
@@ -934,32 +824,33 @@ def InDetTrackFitterCfg(flags, name='InDetTrackFitter', **kwargs) :
             'GaussianSumFilter'       : GaussianSumFitterCfg
     }[flags.InDet.trackFitterType](flags, name=name, **kwargs)
 
-def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs) :
-    from InDetConfig.InDetRecToolConfig  import InDetNavigatorCfg, InDetPropagatorCfg, InDetExtrapolatorCfg, InDetMaterialEffectsUpdatorCfg
+
+def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     acc = ComponentAccumulator()
 
-    if 'TrackingGeometrySvc' not in kwargs :
-        if not use_tracking_geometry_cond_alg :
-            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-            acc.merge(TrackingGeometrySvcCfg(flags))
-            kwargs.setdefault("TrackingGeometrySvc", acc.getService('AtlasTrackingGeometrySvc') )
+    if 'TrackingGeometryReadKey' not in kwargs:
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+            TrackingGeometryCondAlgCfg)
+        cond_alg = TrackingGeometryCondAlgCfg(flags)
+        geom_cond_key = cond_alg.getPrimary().TrackingGeometryWriteKey
+        acc.merge(cond_alg)
+        kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
 
-    if 'TrackingGeometryReadKey' not in kwargs :
-        if use_tracking_geometry_cond_alg :
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            acc.merge( TrackingGeometryCondAlgCfg(flags) )
-            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-            kwargs.setdefault("TrackingGeometryReadKey", 'AtlasTrackingGeometry')
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorToolsConfig import (
+        AtlasNavigatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg)
 
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    InDetNavigator = acc.getPrimaryAndMerge(InDetNavigatorCfg(flags))
+    InDetNavigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
     InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
     InDetUpdator = acc.getPrimaryAndMerge(InDetUpdatorCfg(flags))
 
-    InDetMultipleScatteringUpdator = acc.popToolsAndMerge(InDetMultipleScatteringUpdatorCfg())
+    InDetMultipleScatteringUpdator = acc.popToolsAndMerge(
+        InDetMultipleScatteringUpdatorCfg())
     acc.addPublicTool(InDetMultipleScatteringUpdator)
 
-    InDetMaterialEffectsUpdator = acc.getPrimaryAndMerge(InDetMaterialEffectsUpdatorCfg(flags))
+    InDetMaterialEffectsUpdator = acc.getPrimaryAndMerge(
+        InDetMaterialEffectsUpdatorCfg(flags))
 
     kwargs.setdefault("ExtrapolationTool", InDetExtrapolator)
     kwargs.setdefault("NavigatorTool", InDetNavigator)
@@ -976,7 +867,8 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs) :
     kwargs.setdefault("TRTTubeHitCut", 1.75)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives", flags.InDet.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.doBeamHalo)
+    kwargs.setdefault("RecalculateDerivatives",
+                      flags.InDet.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.doBeamHalo)
     kwargs.setdefault("TRTExtensionCuts", True)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 
@@ -1127,13 +1019,13 @@ def InDetTRT_ExtensionToolCosmicsCfg(flags, name='InDetTRT_ExtensionToolCosmics'
     the_name = makeName( name, kwargs)
 
     if 'Propagator' not in kwargs :
-        from  InDetConfig.InDetRecToolConfig import InDetPropagatorCfg
+        from TrkConfig.AtlasExtrapolatorToolsConfig import InDetPropagatorCfg
         InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
         acc.addPublicTool(InDetPropagator)
         kwargs.setdefault("Propagator", InDetPropagator)
 
     if 'Extrapolator' not in kwargs :
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     if 'RIOonTrackToolYesDr' not in kwargs :
@@ -1196,7 +1088,7 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
         kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.minSecondaryPt)
 
     acc.merge(TRT_DetElementsRoadCondAlgCfg(flags))
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     acc.merge(TRTActiveCondAlgCfg(flags))
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_xk(the_name, **kwargs))
     return acc
@@ -1212,7 +1104,7 @@ def InDetCompetingTRT_DC_ToolCfg(flags, name='InDetCompetingTRT_DC_Tool', **kwar
     the_name = makeName( name, kwargs)
 
     if 'Extrapolator' not in kwargs :
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     if 'ToolForWeightCalculation' not in kwargs :
@@ -1296,18 +1188,18 @@ def InDetTrackSummaryToolNoHoleSearchCfg(flags, name='InDetTrackSummaryToolNoHol
     acc.setPrivateTools(InDetTrackSummaryTool)
     return acc
 
-def InDetROIInfoVecCondAlgCfg(name='InDetROIInfoVecCondAlg', **kwargs) :
+def ROIInfoVecAlgCfg(name='InDetROIInfoVecCondAlg', **kwargs) :
     acc = ComponentAccumulator()
     kwargs.setdefault("InputEmClusterContainerName", 'InDetCaloClusterROIs')
     kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
     kwargs.setdefault("minPtEM", 5000.0) #in MeV
-    acc.setPrivateTools(CompFactory.ROIInfoVecAlg(name = name,**kwargs))
+    acc.addEventAlgo(CompFactory.ROIInfoVecAlg(name = name,**kwargs), primary=True)
     return acc
 
 def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
     InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
@@ -1320,7 +1212,7 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     from AthenaCommon.DetFlags  import DetFlags
     have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg = acc.popToolsAndMerge(InDetROIInfoVecCondAlgCfg())
+        alg = acc.getPrimaryAndMerge(ROIInfoVecAlgCfg())
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
     kwargs.setdefault("useAmbigFcn", True )
@@ -1499,10 +1391,10 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     from AthenaCommon.DetFlags  import DetFlags
     have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg = acc.popToolsAndMerge(InDetROIInfoVecCondAlgCfg())
+        alg = acc.popToolsAndMerge(ROIInfoVecAlgCfg())
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
 
-    from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
 
     InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))

@@ -60,7 +60,7 @@ namespace Trk {
 
         
         /** TrackingGeometry Interface method - optionally a pointer to Bounds */
-        const TrackingGeometry* trackingGeometry
+        TrackingGeometry* trackingGeometry
         ATLAS_NOT_THREAD_SAFE(const TrackingVolume* tvol = 0) const;
 
         /** The unique signature */
@@ -69,7 +69,7 @@ namespace Trk {
       private:
 
         /** TrackingGeometry for ATLAS setup */
-        const TrackingGeometry* atlasTrackingGeometry
+        TrackingGeometry* atlasTrackingGeometry
         ATLAS_NOT_THREAD_SAFE() const;
 
 #ifdef TRKDETDESCR_MEMUSAGE         

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTSTRAWCONDALG_H
@@ -38,8 +38,7 @@ class TRTStrawCondAlg : public AthAlgorithm
   SG::WriteCondHandleKey<TRTCond::AliveStraws> m_strawWriteKey{this,"StrawWriteKey","AliveStraws","AliveStraws out-key"};
 
   ToolHandle<ITRT_StrawStatusSummaryTool> m_strawStatus;
-  const TRT_ID *m_trtId;
-  bool m_isGEANT4;
+  const TRT_ID *m_trtId{};
 
 };
 #endif

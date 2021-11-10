@@ -365,11 +365,16 @@ namespace InDet {
         
         // this builds the single pixel connection and breaks if the max number of elements is reached:        
         if( (deltaCol+deltaRow) == 1 or (m_addCorners and deltaCol == 1 and deltaRow == 1) ) {
-          try{
+          int NC1 = currentConnection.NC;
+          int NC2 = otherConnection.NC;
+          int maxPossible = currentConnection.CON.size() - 1; //both are the same
+          if ((NC1>maxPossible) or (NC2>maxPossible)){
+            std::string m="attempt to access connection array of dimension 8 at idx "+std::to_string(currentConnection.NC);
+            ATH_MSG_WARNING(m);
+            break;
+          } else {
             currentConnection.CON.at(currentConnection.NC++) = otherPixel;
             otherConnection.CON.at(otherConnection.NC++) = currentPixel ;
-          } catch (const std::out_of_range & ){
-            throw std::runtime_error("attempt to access connection array beyond its size in MergedPixelsTool::clusterize");
           }
           if(++NB==maxElements) {
             break;

@@ -107,7 +107,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
  
 		      if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-		      if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
+		      if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
 		   
 		      if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element(); 
 		      if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();

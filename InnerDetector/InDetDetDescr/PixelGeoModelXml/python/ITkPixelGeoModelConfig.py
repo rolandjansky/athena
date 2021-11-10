@@ -6,7 +6,7 @@ def ITkPixelGeoModelCfg(flags):
     geoModelSvc = acc.getPrimary()
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    ITkPixelDetectorTool = CompFactory.ITkPixelDetectorTool()
+    ITkPixelDetectorTool = CompFactory.ITk.PixelDetectorTool()
     # ITkPixelDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     ITkPixelDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkPixelDetectorTool.DetectorName = "ITkPixel"
@@ -14,13 +14,11 @@ def ITkPixelGeoModelCfg(flags):
         # Setting this filename triggers reading from local file rather than DB
         ITkPixelDetectorTool.GmxFilename = flags.ITk.pixelGeometryFilename
     geoModelSvc.DetectorTools += [ ITkPixelDetectorTool ]
-
     return acc
 
 
-
 def ITkPixelAlignmentCfg(flags):
-    if flags.GeoModel.Align.LegacyConditionsAccess:
+    if flags.GeoModel.Align.LegacyConditionsAccess:  # revert to old style CondHandle in case of simulation
         from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
         return addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align")
     else:

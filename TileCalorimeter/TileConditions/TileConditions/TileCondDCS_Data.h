@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,9 +30,9 @@ public:
   virtual StatusCode finalize();
 
   /// add defect
-  void fill( const CondAttrListCollection::ChanNum& chanNum , const std::string param);
+  void fill( const CondAttrListCollection::ChanNum& chanNum , const std::string& param);
   /// remove a defect
-  void remove( const CondAttrListCollection::ChanNum& chanNum , const std::string param);
+  void remove( const CondAttrListCollection::ChanNum& chanNum , const std::string& param);
   /// copy all defects to a users vector, the return value is the size
   int output( const CondAttrListCollection::ChanNum & chanNum,std::vector< std::string > & usersVector);
 

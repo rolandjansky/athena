@@ -64,7 +64,6 @@ namespace TrigConf {
       void setHashId(unsigned int hashid) { m_hashId = hashid; }
 
 
-
       /**@brief print method*/
       virtual void print(const std::string& indent="", unsigned int detail=1) const;
       virtual void writeXML(std::ofstream & xmlfile);
@@ -93,20 +92,6 @@ namespace TrigConf {
        * @returns @c true if ID has been found
        */
       static bool getLabel(unsigned int id, std::string & label);
-      
-      /**@brief find ID from name in the map m_IdToLabel
-       * @param label the trigger element name that has been found
-       * @param id reference to the trigger element ID that has been found
-       * @returns @c true if name has been found
-       */
-      static bool getId(const char * label, unsigned int & id);
-
-   private:
-
-      void CheckAndStoreHash() const;
-
-      // static map from TE hashID to TE name
-      static std::map<unsigned int, std::string> m_IdToLabel; ///< static map of TE (hash) ID's to name
    };
 
 }

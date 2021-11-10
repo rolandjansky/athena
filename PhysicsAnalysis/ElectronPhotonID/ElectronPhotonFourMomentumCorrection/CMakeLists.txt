@@ -65,6 +65,12 @@ if( XAOD_STANDALONE )
       xAODCaloEvent xAODCore PATInterfaces ElectronPhotonFourMomentumCorrectionLib )
 endif()
 
+# Test(s) in the package:
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_maintest SCRIPT test/ut_ElectronPhotonFourMomentumCorrection_maintest.py )
+endif()
+
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} ) 
 atlas_install_joboptions( share/*.py )

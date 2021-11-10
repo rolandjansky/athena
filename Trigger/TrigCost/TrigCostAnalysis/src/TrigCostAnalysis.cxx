@@ -39,6 +39,8 @@ StatusCode  TrigCostAnalysis::initialize() {
   ATH_CHECK( m_rosDataKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
 
+  ATH_CHECK( m_metadataDataKey.initialize( SG::AllowEmpty ) );
+
 
   if (!m_enhancedBiasTool.name().empty()) {
     ATH_CHECK( m_enhancedBiasTool.retrieve() );
@@ -196,6 +198,21 @@ StatusCode TrigCostAnalysis::execute() {
 
   SG::ReadHandle<xAOD::TrigCompositeContainer> rosDataHandle(m_rosDataKey, context);
   ATH_CHECK( rosDataHandle.isValid() );
+
+
+  if (!m_metadataDataKey.empty()){
+    SG::ReadHandle<xAOD::TrigCompositeContainer> metadataDataHandle(m_metadataDataKey, context);
+    ATH_CHECK( metadataDataHandle.isValid() );
+
+    for (const xAOD::TrigComposite* tc : *metadataDataHandle) {
+      try {
+        const std::string hostname = tc->getDetail<std::string>("hostname");
+      } catch ( const std::exception& ) {
+        ATH_MSG_WARNING("Missing HLT_TrigCostMetadataContainer EDM hostname for event " << context.eventID().event_number());
+      }
+
+    }
+  }
 
   // Save indexes of algorithm in costDataHandle
   std::map<std::string, std::set<size_t>> chainToAlgIdx;

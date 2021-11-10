@@ -209,7 +209,7 @@ def getTrackDecorators(**kwargs):
     '''
     # only valid kwarg : TrackParticleContainerName
     from RecExConfig.AutoConfiguration import IsInInputFile
-    if not IsInInputFile('Trk::TrackCollection', 'CombinedInDetTracks'):
+    if not IsInInputFile('TrackCollection', 'CombinedInDetTracks'):
         return [getParameterErrDecoratorAlg(**kwargs)]
     else:
         return [getInDetPhysHitDecoratorAlg(**kwargs),

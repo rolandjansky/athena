@@ -143,7 +143,9 @@ StatusCode HIEventShapeFillerTool::fillCollectionFromClusterContainer(const xAOD
       er2+=esamp*wr;
 
     }
-    float cm=er2/etot2;
+    float cm=0;
+    if (etot2!=0) cm=er2/etot2;
+    //float cm=er2/etot2;
     cm_vector->push_back(cm);
     cm_decorator(*cl)=cm;
 

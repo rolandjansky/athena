@@ -199,7 +199,7 @@ namespace xAOD {
     }
     
     
-    float jFexSRJetRoI_v1::unpackTTweightEta(){
+    float jFexSRJetRoI_v1::unpackTTweightEta() const{
         float weight = 0.0;
         if(jFexNumber() == 0 || jFexNumber() == 5) {
             
@@ -223,7 +223,7 @@ namespace xAOD {
         return  weight;     
     }
     
-    float jFexSRJetRoI_v1::unpackTTweightPhi(){
+    float jFexSRJetRoI_v1::unpackTTweightPhi() const{
         float weight = 0.0;
         if(jFexNumber() == 0 || jFexNumber() == 5) {
             

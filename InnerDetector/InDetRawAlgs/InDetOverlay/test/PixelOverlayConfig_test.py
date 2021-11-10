@@ -37,5 +37,9 @@ acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
 # Add Pixel overlay
 acc.merge(PixelOverlayCfg(ConfigFlags))
 
+# Dump the pickle
+with open("PixelOverlayCfg.pkl", "wb") as f:
+    acc.store(f)
+
 # Print and run
 sys.exit(printAndRun(acc, ConfigFlags, args))

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -115,7 +115,7 @@ namespace MuonGM {
 
     class DBReader {
       public:
-        virtual StatusCode ProcessDB() { return StatusCode::SUCCESS; };
+        virtual StatusCode ProcessDB(MYSQL& /*mysql*/) { return StatusCode::SUCCESS; };
         void setGeometryVersion(std::string s);
         const std::string& getGeometryVersion() const;
         void setManager(MuonDetectorManager *detmgr) { m_mgr = detmgr; };
@@ -137,27 +137,26 @@ namespace MuonGM {
         std::string m_version;
     }; // end of class DBReader
 
-    static std::atomic<int> nmdt ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> nrpc ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> ntgc ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> ncsc ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> nspa ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> nded ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> nsup ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> nchv ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> ncro ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> ncmi ATLAS_THREAD_SAFE = 0;
-    static std::atomic<int> nlbi ATLAS_THREAD_SAFE = 0;
+    static std::atomic<int> nmdt = 0;
+    static std::atomic<int> nrpc = 0;
+    static std::atomic<int> ntgc = 0;
+    static std::atomic<int> ncsc = 0;
+    static std::atomic<int> nspa = 0;
+    static std::atomic<int> nded = 0;
+    static std::atomic<int> nsup = 0;
+    static std::atomic<int> nchv = 0;
+    static std::atomic<int> ncro = 0;
+    static std::atomic<int> ncmi = 0;
+    static std::atomic<int> nlbi = 0;
 
     // here the template functions used by the specialised versions of ProcessFile
-    template <class TYPEdhwmdt, class TYPEwmdt> static void ProcessMDT(const TYPEdhwmdt dhwmdt, const TYPEwmdt *wmdt, std::string s) {
-        Technology *t = NULL;
-        MYSQL *mysql = MYSQL::GetPointer();
-        t = mysql->GetTechnology(s);
+    template <class TYPEdhwmdt, class TYPEwmdt>
+    static void ProcessMDT(MYSQL& mysql, const TYPEdhwmdt dhwmdt, const TYPEwmdt *wmdt, const std::string& s) {
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
-        MDT *mdt = new MDT(s);
+        MDT *mdt = new MDT(mysql, s);
         nmdt++;
 
         for (unsigned int i = 0; i < dhwmdt->size(); i++) {
@@ -183,16 +182,14 @@ namespace MuonGM {
     } // end of ProcessMDT
 
     template <class TYPEdhwrpc, class TYPEwrpc, class TYPEdhwrpcall, class TYPEwrpcall>
-    static void ProcessRPC(const TYPEdhwrpc dhwrpc, const TYPEwrpc *wrpc, const TYPEdhwrpcall /*dhwrpcall*/, const TYPEwrpcall *wrpcall, std::string s) {
+    static void ProcessRPC(MYSQL& mysql, const TYPEdhwrpc dhwrpc, const TYPEwrpc *wrpc, const TYPEdhwrpcall /*dhwrpcall*/, const TYPEwrpcall *wrpcall, const std::string& s) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcessRPC");
 
-        MYSQL *mysql = MYSQL::GetPointer();
-        Technology *t = NULL;
-        t = mysql->GetTechnology(s);
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
-        RPC *rpc = new RPC(s); // this will enter a new record in the MYSQL technology map
+        RPC *rpc = new RPC(mysql, s); // this will enter a new record in the MYSQL technology map
         nrpc++;
 
         rpc->centralSupPanelThickness = (wrpcall->tckfsp) * Gaudi::Units::cm;
@@ -315,13 +312,13 @@ namespace MuonGM {
     } // end of ProcessRPC
 
     template <class TYPEdhwtgc, class TYPEwtgc, class TYPEdhwtgcall, class TYPEwtgcall>
-    static void ProcessTGC(const TYPEdhwtgc dhwtgc, const TYPEwtgc *wtgc, const TYPEdhwtgcall dhwtgcall, const TYPEwtgcall *wtgcall, std::string s) {
-        Technology *tech = NULL;
-        tech = MYSQL::GetPointer()->GetTechnology(s);
+    static void ProcessTGC(MYSQL& mysql,
+                           const TYPEdhwtgc dhwtgc, const TYPEwtgc *wtgc, const TYPEdhwtgcall dhwtgcall, const TYPEwtgcall *wtgcall, const std::string& s) {
+        const Technology *tech = mysql.GetTechnology(s);
         if (tech != NULL)
             return;
 
-        TGC *tgc = new TGC(s);
+        TGC *tgc = new TGC(mysql, s);
         ntgc++;
         std::string v[] = {"muo::TGCGas", "std::G10", "muo::Honeycomb", "std::Copper"};
         int mat;
@@ -370,18 +367,16 @@ namespace MuonGM {
         }
     } // end of ProcessTGC
 
-    template <class TYPEdhwcsc, class TYPEwcsc> static void ProcessCSC(const TYPEdhwcsc dhwcsc, const TYPEwcsc *wcsc, std::string s) {
+    template <class TYPEdhwcsc, class TYPEwcsc>
+    static void ProcessCSC(MYSQL& mysql, const TYPEdhwcsc dhwcsc, const TYPEwcsc *wcsc, const std::string& s) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcessCSC");
         log << MSG::DEBUG << " Enter in ProcessCSC" << endmsg;
 
-        Technology *t = NULL;
-        t = MYSQL::GetPointer()->GetTechnology(s);
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
-        MYSQL *mysql = MYSQL::GetPointer();
-
-        CSC *csc = new CSC(s);
+        CSC *csc = new CSC(mysql, s);
         csc->numOfLayers = 0;
         ncsc++;
 
@@ -413,7 +408,7 @@ namespace MuonGM {
 
                     // std::cerr << " csc->phireadoutpitch = " << csc->phireadoutpitch << "  csc->cathreadoutpitch "<< csc->cathreadoutpitch << std::endl;
                     if (csc->phireadoutpitch == 0.) {
-                        log << MSG::WARNING << " csc->phireadoutpitch == 0 in layout " << mysql->getGeometryVersion() << endmsg;
+                        log << MSG::WARNING << " csc->phireadoutpitch == 0 in layout " << mysql.getGeometryVersion() << endmsg;
                     }
                     // number of strips / layer / view
 
@@ -445,14 +440,14 @@ namespace MuonGM {
                 // no entry has been found with the current technology sub-type
                 tname = "CSC" + MuonGM::buildString(MuonGM::strtoint(s, 4, 2) - 1, 2);
                 log << MSG::WARNING << " No DB entry found for the current technology sub-type " << s << "\n                using previous sub-type " << tname
-                    << " // Layout = " << mysql->getGeometryVersion() << endmsg;
+                    << " // Layout = " << mysql.getGeometryVersion() << endmsg;
             } else {
 
                 if (tname == s)
                     return;
                 // update by hand number not available in the DB
 
-                log << MSG::WARNING << " update by hand a few numbers for the current technology sub-type " << s << " // Layout = " << mysql->getGeometryVersion()
+                log << MSG::WARNING << " update by hand a few numbers for the current technology sub-type " << s << " // Layout = " << mysql.getGeometryVersion()
                     << " OK if layout is Q02, Q02_initial" << endmsg;
                 // precision (Radial) strip pitch
                 csc->cathreadoutpitch = 5.31 * Gaudi::Units::mm;
@@ -468,13 +463,14 @@ namespace MuonGM {
         }
     }
 
-    template <class TYPEdhwspa, class TYPEwspa> static void ProcessSPA(const TYPEdhwspa dhwspa, const TYPEwspa *wspa, std::string s) {
-        Technology *t = NULL;
-        t = MYSQL::GetPointer()->GetTechnology(s);
+    template <class TYPEdhwspa, class TYPEwspa>
+    static void ProcessSPA(MYSQL& mysql,
+                           const TYPEdhwspa dhwspa, const TYPEwspa *wspa, const std::string& s) {
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
-        SPA *spa = new SPA(s);
+        SPA *spa = new SPA(mysql, s);
         nspa++;
 
         for (unsigned int i = 0; i < dhwspa->size(); i++) {
@@ -484,13 +480,13 @@ namespace MuonGM {
         }
     } // end of ProcessSPA
 
-    template <class TYPEdhwsup, class TYPEwsup> static void ProcessSUP(const TYPEdhwsup dhwsup, const TYPEwsup *wsup, std::string s) {
-        Technology *t = NULL;
-        t = MYSQL::GetPointer()->GetTechnology(s);
+    template <class TYPEdhwsup, class TYPEwsup>
+    static void ProcessSUP(MYSQL& mysql, const TYPEdhwsup dhwsup, const TYPEwsup *wsup, const std::string& s) {
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
-        SUP *sup = new SUP(s);
+        SUP *sup = new SUP(mysql, s);
         nsup++;
 
         for (unsigned int i = 0; i < dhwsup->size(); i++) {
@@ -533,14 +529,13 @@ namespace MuonGM {
         }
     } // end of ProcessSUP
 
-    template <class TYPEdhwded, class TYPEwded> static void ProcessDED(const TYPEdhwded dhwded, const TYPEwded *wded, std::string s) {
-        Technology *t = NULL;
-        MYSQL *mysql = MYSQL::GetPointer();
-        t = mysql->GetTechnology(s);
+    template <class TYPEdhwded, class TYPEwded>
+    static void ProcessDED(MYSQL& mysql, const TYPEdhwded dhwded, const TYPEwded *wded, const std::string& s) {
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
-        DED *ded = new DED(s);
+        DED *ded = new DED(mysql, s);
         nded++;
 
         for (unsigned int i = 0; i < dhwded->size(); i++) {
@@ -554,14 +549,15 @@ namespace MuonGM {
         }
     } // end of ProcessDED
 
-    template <class TYPEdhwchv, class TYPEwchv> static void ProcessCHV(const TYPEdhwchv dhwchv, const TYPEwchv *wchv, std::string s) {
-        Technology *t = NULL;
-        t = MYSQL::GetPointer()->GetTechnology(s);
+    template <class TYPEdhwchv, class TYPEwchv>
+    static void ProcessCHV(MYSQL& mysql,
+                           const TYPEdhwchv dhwchv, const TYPEwchv *wchv, const std::string& s) {
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
         int nStruct = dhwchv->size();
-        CHV *chv = new CHV(s);
+        CHV *chv = new CHV(mysql, s);
         nchv++;
 
         for (int i = 0; i < nStruct; i++) {
@@ -573,14 +569,14 @@ namespace MuonGM {
         }
     } // end of ProcessCHV
 
-    template <class TYPEdhwcro, class TYPEwcro> static void ProcessCRO(const TYPEdhwcro dhwcro, const TYPEwcro *wcro, std::string s) {
-        Technology *t = NULL;
-        t = MYSQL::GetPointer()->GetTechnology(s);
+    template <class TYPEdhwcro, class TYPEwcro>
+    static void ProcessCRO(MYSQL& mysql, const TYPEdhwcro dhwcro, const TYPEwcro *wcro, const std::string& s) {
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
         int nStruct = dhwcro->size();
-        CRO *cro = new CRO(s);
+        CRO *cro = new CRO(mysql, s);
         ncro++;
 
         for (int i = 0; i < nStruct; i++) {
@@ -592,14 +588,15 @@ namespace MuonGM {
         }
     } // end of ProcessCRO
 
-    template <class TYPEdhwcmi, class TYPEwcmi> static void ProcessCMI(const TYPEdhwcmi dhwcmi, const TYPEwcmi *wcmi, std::string s) {
-        Technology *t = NULL;
-        t = MYSQL::GetPointer()->GetTechnology(s);
+    template <class TYPEdhwcmi, class TYPEwcmi>
+    static void ProcessCMI(MYSQL& mysql,
+                           const TYPEdhwcmi dhwcmi, const TYPEwcmi *wcmi, const std::string& s) {
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
         int nStruct = dhwcmi->size();
-        CMI *cmi = new CMI(s);
+        CMI *cmi = new CMI(mysql, s);
         ncmi++;
 
         for (int i = 0; i < nStruct; i++) {
@@ -611,14 +608,15 @@ namespace MuonGM {
         }
     } // end of ProcessCMI
 
-    template <class TYPEdhwlbi, class TYPEwlbi> static void ProcessLBI(const TYPEdhwlbi dhwlbi, const TYPEwlbi *wlbi, std::string s) {
-        Technology *t = NULL;
-        t = MYSQL::GetPointer()->GetTechnology(s);
+    template <class TYPEdhwlbi, class TYPEwlbi>
+    static void ProcessLBI(MYSQL& mysql,
+                           const TYPEdhwlbi dhwlbi, const TYPEwlbi *wlbi, const std::string& s) {
+        const Technology *t = mysql.GetTechnology(s);
         if (t != NULL)
             return;
 
         int nStruct = dhwlbi->size();
-        LBI *lbi = new LBI(s);
+        LBI *lbi = new LBI(mysql, s);
         nlbi++;
 
         for (int i = 0; i < nStruct; i++) {
@@ -631,11 +629,11 @@ namespace MuonGM {
         }
     } // end of ProcessLBI
 
-    template <class TYPEdnaptp, class TYPEaptp> static void ProcessPositions(const TYPEdnaptp dnaptp, const TYPEaptp *aptp) {
+    template <class TYPEdnaptp, class TYPEaptp>
+    static void ProcessPositions(MYSQL& mysql, const TYPEdnaptp dnaptp, const TYPEaptp *aptp) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcPosition");
-        MYSQL *mysql = MYSQL::GetPointer();
 
-        MDT *mdtobj = (MDT *)mysql->GetATechnology("MDT0");
+        const MDT *mdtobj = dynamic_cast<const MDT*>(mysql.GetATechnology("MDT0"));
         double default_halfpitch = 0.5 * (mdtobj->pitch);
         double halfpitch = default_halfpitch;
 
@@ -697,7 +695,7 @@ namespace MuonGM {
                 oldnamejtyp = namejtyp;
             }
 
-            Station *stat = mysql->GetStation(name);
+            Station *stat = mysql.GetStation(name);
             if (stat == NULL) {
                 log << MSG::ERROR << " station " << name << " not found; no " << name << " element will be located at iz " << aptp[ipos].iz << endmsg;
                 continue;
@@ -710,7 +708,7 @@ namespace MuonGM {
                     const Component *c = stat->GetComponent(icomp);
                     if (c->name.compare(0, 3,"MDT") != 0)
                         continue;
-                    MDT *mdtobj = (MDT *)mysql->GetATechnology(c->name);
+                    const MDT *mdtobj = dynamic_cast<const MDT*>(mysql.GetATechnology(c->name));
                     if (!mdtobj) {
                         log << MSG::ERROR << "Cannot find MDT definition for component " << c->name << endmsg;
                         continue;
@@ -756,16 +754,16 @@ namespace MuonGM {
                 np++;
                 stat->SetPosition(p);
 
-                mysql->addallocPos(name.substr(0, 3), p.phiindex, p.zindex, subType, iCut);
+                mysql.addallocPos(name.substr(0, 3), p.phiindex, p.zindex, subType, iCut);
             }
         }
         log << MSG::INFO << " *** N. of stations positioned in the setup " << nswithpos << endmsg;
-        log << MSG::INFO << " *** N. of stations described in mysql      " << mysql->NStations() << endmsg;
+        log << MSG::INFO << " *** N. of stations described in mysql      " << mysql.NStations() << endmsg;
         log << MSG::INFO << " *** N. of types  " << njtyp << " size of jtypvec " << jtypvec.size() << endmsg;
 
         int nstat = 0;
         int nnodes = 0;
-        for (StationIterator is = mysql->StationBegin(); is != mysql->StationEnd(); ++is) {
+        for (StationIterator is = mysql.StationBegin(); is != mysql.StationEnd(); ++is) {
             nstat++;
             Station *stat = (*is).second;
             std::string name = stat->GetName();
@@ -781,11 +779,11 @@ namespace MuonGM {
 
                 std::string skey = " ";
                 if (iz > 0 && phitype != 2) {
-                    skey = mysql->allocPosBuildKey(name.substr(0, 3), iphi, -iz);
+                    skey = mysql.allocPosBuildKey(name.substr(0, 3), iphi, -iz);
                     if (verbose_posmap) {
                         log << MSG::VERBOSE << " Looking for skey = " << skey << endmsg;
                     }
-                    if (mysql->allocPosFind(skey) == mysql->allocPosEnd()) {
+                    if (mysql.allocPosFind(skey) == mysql.allocPosEnd()) {
                         Position newp;
                         newp.isMirrored = true;
                         newp.phitype = ((*ip).second).phitype;
@@ -799,7 +797,7 @@ namespace MuonGM {
                         if (name[0] == 'B') {
                             newp.z = -((*ip).second).z - stat->GetLength();
                         } else {
-                            newp.z = -((*ip).second).z - stat->GetThickness();
+                            newp.z = -((*ip).second).z - stat->GetThickness(mysql);
                         }
 
                         newp.shift = ((*ip).second).shift;
@@ -813,10 +811,10 @@ namespace MuonGM {
                         if (verbose_posmap) {
                             log << MSG::VERBOSE << " symmetric pos. created at iz,iphi, z " << newp.zindex << " " << newp.phiindex << " " << newp.z << endmsg;
                         }
-                        mysql->addallocPos(name.substr(0, 3), newp.phiindex, newp.zindex, newp.subtype, newp.icut);
+                        mysql.addallocPos(name.substr(0, 3), newp.phiindex, newp.zindex, newp.subtype, newp.icut);
                     } else {
                         if (verbose_posmap) {
-                            log << MSG::VERBOSE << " position already allocated by subtype/cutout " << mysql->allocPosFindSubtype(skey) << "/" << mysql->allocPosFindCutout(skey)
+                            log << MSG::VERBOSE << " position already allocated by subtype/cutout " << mysql.allocPosFindSubtype(skey) << "/" << mysql.allocPosFindCutout(skey)
                                 << endmsg;
                         }
                     }
@@ -837,13 +835,13 @@ namespace MuonGM {
         return false;
     }
 
-    template <class TYPEdnaszt, class TYPEaszt> static void ProcessAlignements(const TYPEdnaszt dnaszt, const TYPEaszt *aszt) {
+    template <class TYPEdnaszt, class TYPEaszt>
+    static void ProcessAlignements(MYSQL& mysql, const TYPEdnaszt dnaszt, const TYPEaszt *aszt) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcessAlignements");
 
-        MYSQL *mysql = MYSQL::GetPointer();
-        int controlAlines = mysql->controlAlines();
+        int controlAlines = mysql.controlAlines();
         if (verbose_alimap) {
-            log << MSG::VERBOSE << " ProcessAlignements:: how many stations there are ? " << mysql->NStations() << endmsg;
+            log << MSG::VERBOSE << " ProcessAlignements:: how many stations there are ? " << mysql.NStations() << endmsg;
         }
         int fi = 0;
         int zi = 0;
@@ -855,9 +853,9 @@ namespace MuonGM {
             if (verbose_alimap) {
                 log << MSG::VERBOSE << " ProcessAlignements:: --- Alignment for " << name << endmsg;
             }
-            std::string key = mysql->allocPosBuildKey(name, fi, zi);
-            int subtype = mysql->allocPosFindSubtype(key);
-            int cutout = mysql->allocPosFindCutout(key);
+            std::string key = mysql.allocPosBuildKey(name, fi, zi);
+            int subtype = mysql.allocPosFindSubtype(key);
+            int cutout = mysql.allocPosFindCutout(key);
 
             if (subtype != 0) {
                 if (verbose_alimap) {
@@ -865,7 +863,7 @@ namespace MuonGM {
                 }
                 std::string stname = name + MuonGM::buildString(subtype, 1);
 
-                Station *stat = mysql->GetStation(stname);
+                Station *stat = mysql.GetStation(stname);
                 if (stat == NULL) {
                     if (verbose_alimap) {
                         log << MSG::VERBOSE << " Station named " << stname << " not found " << endmsg;
@@ -950,7 +948,7 @@ namespace MuonGM {
     } // end ProcessAlignements
 
     template <class TYPEdnalmn, class TYPEalmn, class TYPEdnatyp, class TYPEatyp, class TYPEdhwmdt, class TYPEwmdt>
-    static void ProcessStations(const TYPEdnalmn dnalmn, const TYPEalmn *almn, const TYPEdnatyp dnatyp, const TYPEatyp *atyp, const TYPEdhwmdt dhwmdt, const TYPEwmdt *wmdt) {
+    static void ProcessStations(MYSQL& mysql, const TYPEdnalmn dnalmn, const TYPEalmn *almn, const TYPEdnatyp dnatyp, const TYPEatyp *atyp, const TYPEdhwmdt dhwmdt, const TYPEwmdt *wmdt) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcStations");
         log << MSG::INFO << " Processing Stations and Components" << endmsg;
 
@@ -995,7 +993,7 @@ namespace MuonGM {
                     name = type_name + MuonGM::buildString(0, -1);
                 }
 
-                stat = new Station(name);
+                stat = new Station(mysql, name);
                 previous_stat = stat;
                 nstat++;
                 log << MSG::DEBUG << " a new station has been built with name " << name << " nstat = " << nstat << endmsg;
@@ -1130,11 +1128,10 @@ namespace MuonGM {
     } // end of ProcessStations
 
     template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin, class TYPEdnatyp, class TYPEatyp>
-    static void ProcessCutouts(const TYPEdnacut dnacut, const TYPEacut *acut, const TYPEdnalin dnalin, const TYPEalin *alin, const TYPEdnatyp dnatyp, const TYPEatyp *atyp) {
+    static void ProcessCutouts(MYSQL& mysql, const TYPEdnacut dnacut, const TYPEacut *acut, const TYPEdnalin dnalin, const TYPEalin *alin, const TYPEdnatyp dnatyp, const TYPEatyp *atyp) {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcCutouts");
-        MYSQL *mysql = MYSQL::GetPointer();
 
-        log << MSG::INFO << " Processing Cutouts for geometry layout " << mysql->getLayoutName() << endmsg;
+        log << MSG::INFO << " Processing Cutouts for geometry layout " << mysql.getLayoutName() << endmsg;
 
         std::string name = "XXX0", type_name = "XXX";
 
@@ -1183,7 +1180,7 @@ namespace MuonGM {
                     if (strcmp(atyp[type_ind].type, "!") != 0) {
                         type_name = std::string(atyp[type_ind].type, 0, 3);
                         name = type_name + MuonGM::buildString(alin[ialin].indx, -1);
-                        Station *stat = mysql->GetStation(name);
+                        Station *stat = mysql.GetStation(name);
                         if (stat == NULL) {
                             delete c;
                             c = NULL;

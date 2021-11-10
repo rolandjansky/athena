@@ -11,7 +11,7 @@
 // EDM includes
 #include "xAODJet/JetFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
-#include "xAODBTagging/BTaggingFwd.h"
+#include "AthContainers/AuxElement.h"
 
 #include <functional>
 #include <string>
@@ -54,7 +54,7 @@ namespace FlavorTagDiscriminants {
 
   // internal functions
   namespace internal {
-    std::function<std::pair<std::string, double>(const xAOD::BTagging&)>
+    std::function<std::pair<std::string, double>(const xAOD::Jet&)>
     customGetterAndName(const std::string&);
 
     std::pair<std::function<std::pair<std::string, std::vector<double>>(

@@ -12,7 +12,6 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.bcmPrimeGeometryFilename", "ITKLayouts/Pixel/BCMPrime.gmx")
   itkcf.addFlag("ITk.plrGeometryFilename", "ITKLayouts/PLR/PLR.gmx")
 
-  itkcf.addFlag("ITk.doPrintConfigurables",False) # if this is on all the print(ITkXYZ) lines are activated
   itkcf.addFlag("ITk.doSplitReco", False    	 ) # Turn running of the truth seeded pseudo tracking only for pileup on and off. Only makes sense to run on RDO file where SplitDigi was used!
   itkcf.addFlag("ITk.doPRDFormation", True) # Turn running of PRD formation on and off
   itkcf.addFlag("ITk.doPixelPRDFormation", True) # Turn running of pixel PRD formation on and off
@@ -40,7 +39,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doITkConversionFinding",True) # Turn running of doITkConversionFinding second pass on and off
   itkcf.addFlag("ITk.doITkLargeD0", False)
   itkcf.addFlag("ITk.storeSeparateLargeD0Container", False)
-  itkcf.addFlag("ITk.doBremRecovery", False) # Turn on running of Brem Recover in tracking
+  itkcf.addFlag("ITk.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   itkcf.addFlag("ITk.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   itkcf.addFlag("ITk.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   itkcf.addFlag("ITk.doCaloSeededAmbi", False) # Use Calo ROIs to seed specific cuts for the ambi
@@ -60,6 +59,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.pixelClusterBadClusterID", 3) # Select the mode to identify suspicous pixel clusteri 
   itkcf.addFlag("ITk.KeepFirstParameters", False) # Keep the first set of track parameters in addition to the defining ones for TrackParticles. False to drop them
   itkcf.addFlag("ITk.doVertexFinding", False) # Turn on the primary vertex reconstruction, temporarily disabled
+  itkcf.addFlag("ITk.truthMatchStrategy", 'TruthMatchRatio') # defines how truth matching is done. possible values TruthMatchRatio (old style) or TruthMatchTanimoto (new style)
   itkcf.addFlag("ITk.useBroadClusterErrors", False) # Use broad cluster errors for Pixel/Strip
   itkcf.addFlag("ITk.useBroadPixClusterErrors", False) # Use broad cluster errors for Pixel
   itkcf.addFlag("ITk.useBroadStripClusterErrors", False) # Use broad cluster errors for Strip

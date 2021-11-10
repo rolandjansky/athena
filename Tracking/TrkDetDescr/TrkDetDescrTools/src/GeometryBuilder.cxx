@@ -118,11 +118,11 @@ StatusCode Trk::GeometryBuilder::initialize()
 }
 
 
-const Trk::TrackingGeometry* Trk::GeometryBuilder::trackingGeometry(const Trk::TrackingVolume*) const
+Trk::TrackingGeometry* Trk::GeometryBuilder::trackingGeometry(const Trk::TrackingVolume*) const
 {
 
     // the geometry to be constructed
-    const Trk::TrackingGeometry* tGeometry = nullptr;
+    Trk::TrackingGeometry* tGeometry = nullptr;
     if ( m_inDetGeometryBuilder.empty() && m_caloGeometryBuilder.empty() && m_muonGeometryBuilder.empty() ) {
 
         ATH_MSG_VERBOSE( "Configured to only create world TrackingVolume." );
@@ -149,15 +149,15 @@ const Trk::TrackingGeometry* Trk::GeometryBuilder::trackingGeometry(const Trk::T
 }
 
 
-const Trk::TrackingGeometry* Trk::GeometryBuilder::atlasTrackingGeometry() const
+Trk::TrackingGeometry* Trk::GeometryBuilder::atlasTrackingGeometry() const
 {
     // the return geometry
-    const Trk::TrackingGeometry* atlasTrackingGeometry = nullptr;
+    Trk::TrackingGeometry* atlasTrackingGeometry = nullptr;
 
     // A ------------- INNER DETECTOR SECTION --------------------------------------------------------------------------------
     // get the Inner Detector and/or Calorimeter trackingGeometry
-    const Trk::TrackingGeometry* inDetTrackingGeometry  = nullptr;
-    const Trk::TrackingGeometry* caloTrackingGeometry   = nullptr;
+    Trk::TrackingGeometry* inDetTrackingGeometry  = nullptr;
+    Trk::TrackingGeometry* caloTrackingGeometry   = nullptr;
 
     // the volumes to be given to higher level tracking geometry builders
     const Trk::TrackingVolume* inDetVolume    = nullptr;

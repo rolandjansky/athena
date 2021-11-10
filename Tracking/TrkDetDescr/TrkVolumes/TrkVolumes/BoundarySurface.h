@@ -103,21 +103,15 @@ class BoundarySurface {
   /** getters/setters for inside/outside Volume*/
   Tvol const* insideVolume() const;
   void setInsideVolume(const Tvol*);
-  void setInsideVolume ATLAS_NOT_THREAD_SAFE(const Tvol*) const;
 
   Tvol const* outsideVolume() const;
   void setOutsideVolume(const Tvol*);
-  void setOutsideVolume ATLAS_NOT_THREAD_SAFE(const Tvol*) const;
 
   /** getters/setters for inside/outside Volume arrays */
   const SharedObject<VolumeArray>& insideVolumeArray() const;
   void setInsideVolumeArray(const SharedObject<VolumeArray>&);
-  void setInsideVolumeArray
-  ATLAS_NOT_THREAD_SAFE(const SharedObject<VolumeArray>&) const;
   const SharedObject<VolumeArray>& outsideVolumeArray() const;
   void setOutsideVolumeArray(const SharedObject<VolumeArray>&);
-  void setOutsideVolumeArray
-  ATLAS_NOT_THREAD_SAFE(const SharedObject<VolumeArray>&) const;
 
  protected:
   const Tvol* m_insideVolume;
@@ -134,11 +128,6 @@ template <class Tvol>
 void BoundarySurface<Tvol>::setInsideVolume(const Tvol* vol) {
   m_insideVolume = vol;
 }
-template <class Tvol>
-void BoundarySurface<Tvol>::setInsideVolume ATLAS_NOT_THREAD_SAFE(
-    const Tvol* vol) const {
-  (const_cast<BoundarySurface<Tvol>*>(this))->setInsideVolume(vol);
-}
 
 template <class Tvol>
 Tvol const* BoundarySurface<Tvol>::outsideVolume() const {
@@ -147,11 +136,6 @@ Tvol const* BoundarySurface<Tvol>::outsideVolume() const {
 template <class Tvol>
 void BoundarySurface<Tvol>::setOutsideVolume(const Tvol* vol) {
   m_outsideVolume = vol;
-}
-template <class Tvol>
-void BoundarySurface<Tvol>::setOutsideVolume ATLAS_NOT_THREAD_SAFE(
-    const Tvol* vol) const {
-  (const_cast<BoundarySurface<Tvol>*>(this))->setOutsideVolume(vol);
 }
 
 template <class Tvol>
@@ -164,11 +148,6 @@ void BoundarySurface<Tvol>::setInsideVolumeArray(
     const SharedObject<BinnedArray<Tvol>>& volArray) {
   m_insideVolumeArray = volArray;
 }
-template <class Tvol>
-void BoundarySurface<Tvol>::setInsideVolumeArray ATLAS_NOT_THREAD_SAFE(
-    const SharedObject<BinnedArray<Tvol>>& volArray) const {
-  (const_cast<BoundarySurface<Tvol>*>(this))->setInsideVolumeArray(volArray);
-}
 
 template <class Tvol>
 const SharedObject<BinnedArray<Tvol>>&
@@ -179,11 +158,6 @@ template <class Tvol>
 void BoundarySurface<Tvol>::setOutsideVolumeArray(
     const SharedObject<BinnedArray<Tvol>>& volArray) {
   m_outsideVolumeArray = volArray;
-}
-template <class Tvol>
-void BoundarySurface<Tvol>::setOutsideVolumeArray ATLAS_NOT_THREAD_SAFE(
-    const SharedObject<BinnedArray<Tvol>>& volArray) const {
-  (const_cast<BoundarySurface<Tvol>*>(this))->setOutsideVolumeArray(volArray);
 }
 
 template <class Tvol>

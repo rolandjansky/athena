@@ -39,5 +39,6 @@ TYPE1(kBool_t,     bool);               // 18
 TYPE1(kFloat16_t,  Float16_t);          // 19
 //TYPE(kVoid_t,     void);              // 20
 TYPE1(kDataTypeAliasUnsigned_t, unsigned int); // 21
+TYPE(kDataTypeAliasSignedChar_t, signed char, int); // 22
 
 #undef TYPE1

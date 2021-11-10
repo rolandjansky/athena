@@ -48,11 +48,9 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
 
     ATH_CHECK(m_offElectronKey.initialize());
     ATH_CHECK(m_jetKey.initialize());
-   
-
+    
     ATH_MSG_INFO("Now configuring chains for analysis: " << name() );
-    std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
-    for(const auto& trigName:m_trigInputList)
+    for(auto& trigName : m_trigInputList)
     {
       if(getTrigInfoMap().count(trigName) != 0){
         ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
@@ -61,7 +59,6 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
         setTrigInfo(trigName);
       }
     }
-   
     return StatusCode::SUCCESS;
 }
 
@@ -103,7 +100,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
         const TrigInfo info = getTrigInfo(probeTrigger);
         const std::string& trigName=probeTrigger;
 
-        ATH_MSG_DEBUG("Trigger " << probeTrigger << " pidword " << info.trigPidDecorator << " threshold " << info.trigThrHLT);
+        ATH_MSG_DEBUG("Trigger " << probeTrigger << " pidword " << info.pidname << " threshold " << info.etthr);
         matchObjects(trigName, probes, pairObjs);
 
 

@@ -12,7 +12,8 @@ using InDetDD::HGTD_DetectorElement;
 using InDetDD::SiCommonItems;
 
 HGTD_DetectorManager::HGTD_DetectorManager(StoreGateSvc* detStore)
-    : m_idHelper(0)
+    : AthMessaging(Athena::getMessageSvc(), "HGTD_DetectorManager"),
+      m_idHelper(0)
 {
     setName("HGTD");
 

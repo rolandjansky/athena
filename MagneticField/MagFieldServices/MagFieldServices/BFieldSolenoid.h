@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -16,10 +16,9 @@
 #include <iostream>
 #include "TFile.h"
 #include "MagFieldElements/BFieldZone.h"
-#include "CxxUtils/checker_macros.h"
 
 
-class ATLAS_NOT_THREAD_SAFE BFieldSolenoid {
+class BFieldSolenoid {
 public:
     // constructor
     BFieldSolenoid() : m_orig(nullptr), m_tilt(nullptr) {;}
@@ -39,8 +38,6 @@ private:
     // data members
     BFieldMesh<double> *m_orig; // original map as it was read from file
     BFieldMesh<double> *m_tilt; // tilted and moved map
-    // cache for speed
-    mutable BFieldCache m_cache;
 };
 
 #endif

@@ -6,11 +6,11 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 def LArRTMParamsCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     rs=FolderTagResolver()
     DetCellParamsTag=rs.getFolderTag(flags.LArCalib.DetCellParams.Folder)
     CaliPulseParamsTag=rs.getFolderTag(flags.LArCalib.CaliPulseParams.Folder)
@@ -19,7 +19,7 @@ def LArRTMParamsCfg(flags):
 
     #Retrieve CaliWave: 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(flags,flags.LArCalib.CaliWave.Folder,detDb=flags.LArCalib.Input.Database, tag=CaliWaveTag))
+    result.merge(addFolders(flags,flags.LArCalib.CaliWave.Folder,detDb=flags.LArCalib.Input.Database, tag=CaliWaveTag, modifiers=chanSelStr(flags)))
 
     if not flags.LArCalib.RTM.ExtractAll:
         #Get information from database:
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     ConfigFlags.LArCalib.BadChannelTag="-RUN2-UPD3-00"
     ConfigFlags.LArCalib.Output.ROOTFile="larparams.root"
     ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
-    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDDBR2"
+    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDBR2"
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
 

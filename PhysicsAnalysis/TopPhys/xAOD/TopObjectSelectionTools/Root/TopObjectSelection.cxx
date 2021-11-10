@@ -100,16 +100,16 @@ namespace top {
 
     // b-tagging stuff
     // for calo jets
-    std::vector<std::string> availableWPs = m_config->bTagWP_available();
-    for (auto& WP : availableWPs) {
+    for (const std::string& WP : m_config->bTagWP()) {
       m_btagSelTools[WP] = "BTaggingSelectionTool_" + WP + "_" + m_config->sgKeyJets();
       top::check(m_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool");
     }
     // for track jets
-    availableWPs = m_config->bTagWP_available_trkJet();
-    for (auto& WP : availableWPs) {
-      m_trkjet_btagSelTools[WP] = "BTaggingSelectionTool_" + WP + "_" + m_config->sgKeyTrackJets();
-      top::check(m_trkjet_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool");
+    if (m_config->useTrackJets()) {
+      for (const std::string& WP : m_config->bTagWP_trkJet()) {
+        m_trkjet_btagSelTools[WP] = "BTaggingSelectionTool_" + WP + "_" + m_config->sgKeyTrackJets();
+        top::check(m_trkjet_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool");
+      }
     }
 
     return StatusCode::SUCCESS;
@@ -427,22 +427,19 @@ namespace top {
           jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (passed ? (passedJVT_and_fJVT ? 2 : 1) : 0);
         }
         //decorate with b-tagging flags
-        std::vector<std::string> availableWPs = m_config->bTagWP_available();
-        for (auto& WP : availableWPs) {
-          if (WP.find("Continuous") == std::string::npos) {
+        for (const auto& btagSel : m_btagSelTools) {
+          if (btagSel.first.find("Continuous") == std::string::npos) {
             bool isTagged = false;
             if (std::fabs(jetPtr->eta()) <= 2.5) {
-              ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
-              isTagged = static_cast<bool>(btagsel->accept(*jetPtr));
+              isTagged = static_cast<bool>(btagSel.second->accept(*jetPtr));
             }
-            jetPtr->auxdecor<char>("isbtagged_" + WP) = isTagged;
+            jetPtr->auxdecor<char>("isbtagged_" + btagSel.first) = isTagged;
           } else {
             int tagWeightBin = -2; // AT default
             if (std::fabs(jetPtr->eta()) <= 2.5) {
-              ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
-              tagWeightBin = btagsel->getQuantile(*jetPtr);
+              tagWeightBin = btagSel.second->getQuantile(*jetPtr);
             }
-            jetPtr->auxdecor<int>("tagWeightBin_" + WP) = tagWeightBin;
+            jetPtr->auxdecor<int>("tagWeightBin_" + btagSel.first) = tagWeightBin;
           }
         }
       }
@@ -487,22 +484,19 @@ namespace top {
 	  jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);;
 
           //decorate with b-tagging flags
-          std::vector<std::string> availableWPs = m_config->bTagWP_available();
-          for (auto& WP : availableWPs) {
-            if (WP.find("Continuous") == std::string::npos) {
+          for (const auto& btagSel : m_btagSelTools) {
+            if (btagSel.first.find("Continuous") == std::string::npos) {
               bool isTagged = false;
               if (std::fabs(jetPtr->eta()) < 2.5) {
-                ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
-                isTagged = static_cast<bool>(btagsel->accept(*jetPtr));
+                isTagged = static_cast<bool>(btagSel.second->accept(*jetPtr));
               }
-              jetPtr->auxdecor<char>("isbtagged_" + WP) = isTagged;
+              jetPtr->auxdecor<char>("isbtagged_" + btagSel.first) = isTagged;
             } else {
               int tagWeightBin = -2; // AT default
               if (std::fabs(jetPtr->eta()) < 2.5) {
-                ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
-                tagWeightBin = btagsel->getQuantile(*jetPtr);
+                tagWeightBin = btagSel.second->getQuantile(*jetPtr);
               }
-              jetPtr->auxdecor<int>("tagWeightBin_" + WP) = tagWeightBin;
+              jetPtr->auxdecor<int>("tagWeightBin_" + btagSel.first) = tagWeightBin;
             }
           }
         }
@@ -569,22 +563,19 @@ namespace top {
         jetPtr->auxdecor<char>("passDRcut") = passDRcut;
       }
 
-      std::vector<std::string> availableWPs = m_config->bTagWP_available_trkJet();
-      for (auto& WP : availableWPs) {
-        if (WP.find("Continuous") == std::string::npos) {
+      for (const auto& btagSel : m_trkjet_btagSelTools) {
+        if (btagSel.first.find("Continuous") == std::string::npos) {
           bool isTagged = false;
           if (std::fabs(jetPtr->eta()) < 2.5) {
-            ToolHandle<IBTaggingSelectionTool>& btagsel = m_trkjet_btagSelTools[WP];
-            isTagged = static_cast<bool>(btagsel->accept(*jetPtr));
+            isTagged = static_cast<bool>(btagSel.second->accept(*jetPtr));
           }
-          jetPtr->auxdecor<char>("isbtagged_" + WP) = isTagged;
+          jetPtr->auxdecor<char>("isbtagged_" + btagSel.first) = isTagged;
         } else {
           int tagWeightBin = -2; // AT default
           if (std::fabs(jetPtr->eta()) < 2.5) {
-            ToolHandle<IBTaggingSelectionTool>& btagsel = m_trkjet_btagSelTools[WP];
-            tagWeightBin = btagsel->getQuantile(*jetPtr);
+            tagWeightBin = btagSel.second->getQuantile(*jetPtr);
           }
-          jetPtr->auxdecor<int>("tagWeightBin_" + WP) = tagWeightBin;
+          jetPtr->auxdecor<int>("tagWeightBin_" + btagSel.first) = tagWeightBin;
         }
       }
     }

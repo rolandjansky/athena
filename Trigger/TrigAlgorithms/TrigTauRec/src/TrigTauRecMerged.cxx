@@ -308,13 +308,6 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 	  ATH_MSG_DEBUG(" Negative energy cluster is rejected");
 	  continue;
         }
-   
-      if(m_SkipClusterOutsideROI){
-        float dEta = fabs(roiDescriptor->etaPlus() - roiDescriptor->eta());  
-        if( std::abs((*clusterIt)->eta() - roiDescriptor->eta() ) > dEta) {
-          continue;
-        }
-      }
  
       myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
       aJet->addConstituent(*clusterIt);
@@ -514,7 +507,12 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
     ptRatioEflowApprox = std::min(pre_ptRatioEflowApprox, 4.0f);
     
     pt_jetseed_log  = std::log10(p_tau->ptJetSeed());
-    ptDetectorAxis  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 100.0));
+
+    ptDetectorAxis  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 10000.0));
+    
+    if( p_tau->nTracks() > 0 ) {
+      ipSigLeadTrk = std::abs(p_tau->track(0)->d0SigTJVA());
+    }
 
     // track variables monitoring 
     for( auto track : p_tau->allTracks()){

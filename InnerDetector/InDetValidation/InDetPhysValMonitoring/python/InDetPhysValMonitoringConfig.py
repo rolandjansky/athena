@@ -29,15 +29,18 @@ def InDetRttTruthSelectionToolCfg(flags, name="InDetRttTruthSelectionTool", **kw
     kwargs.setdefault("requireCharged", True)
     kwargs.setdefault("maxBarcode", (200*1000 if kwargs.pop("OnlyDressPrimaryTracks", True) else 2**31-1))
     kwargs.setdefault("maxProdVertRadius", 300.)
-    kwargs.setdefault("maxEta", 2.5)
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("maxEta", 4.)
+    else:
+        kwargs.setdefault("maxEta", 2.5)
     kwargs.setdefault("minPt", 500.)
 
     Extrapolator = None
     if flags.Detector.GeometryITk:
-        from  InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
+        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
     else:
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs.setdefault("Extrapolator", Extrapolator)
 

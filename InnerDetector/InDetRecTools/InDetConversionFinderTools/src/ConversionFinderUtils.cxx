@@ -241,9 +241,10 @@ namespace InDet {
     if(!fq) return nullptr;
 
     // output datavector of TSOS
-    auto	 ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     if(!tsos) {return nullptr;}
+    auto	 ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+    ntsos->reserve (tsos->size());
     DataVector<const Trk::TrackStateOnSurface>::const_iterator its,itse = tsos->end();
     for(its=tsos->begin();its!=itse;++its) {
 

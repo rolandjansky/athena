@@ -14,6 +14,7 @@ atlas_install_runtime( scripts/*.py )
 
 atlas_install_data( share/*.ref )
 
+atlas_install_scripts( test/*.py )
 atlas_install_scripts( test/*.sh )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_RecoRAW )

@@ -150,10 +150,10 @@ def InDetPhysValTruthDecoratorAlgCfg(flags, **kwargs):
 
     Extrapolator = None
     if flags.Detector.GeometryITk:
-        from  InDetConfig.ITkRecToolConfig import ITkExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(ITkExtrapolatorCfg(flags))
+        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
     else:
-        from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs.setdefault("Extrapolator", Extrapolator)
 
@@ -206,7 +206,11 @@ def AddDecoratorCfg(flags,**kwargs):
 
     acc.merge(TrackDecoratorsCfg(flags))
   
-    if flags.Input.isMC and not flags.Detector.GeometryITk: #Temporarily disabled for ITk
+    if flags.Input.isMC:
+        if flags.Detector.GeometryITk:
+            from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+            acc.merge(BeamSpotCondAlgCfg(flags))
+
         acc.merge(InDetPhysValTruthDecoratorAlgCfg(flags))
 
     if flags.IDPVM.doValidateGSFTracks:

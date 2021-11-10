@@ -58,7 +58,12 @@ def TrigMETMonConfig(inputFlags):
       TrigMETMonChain1Alg.TriggerChain = 'HLT_xe65_cell_L1XE50'
     else:
       TrigMETMonChain1Alg.TriggerChain = 'HLT_xe110_pufit_xe65_L1XE50'
-    
+
+
+    ### monitorig group
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+    moniAccess=getHLTMonitoringAccess(inputFlags)
+    metChains=moniAccess.monitoredChains(signatures="metMon",monLevels=["val","shifter"])
 
     ### container name selection
     if mt_chains: # these are temporary, needs to be changed
@@ -136,8 +141,10 @@ def TrigMETMonConfig(inputFlags):
       HLTChains[9] = "HLT_xe110_pufit_xe65_L1XE50"
       HLTChains[10] = "HLT_xe110_pufit_xe65_L1XE60"
       HLTChains[11] = "HLT_xe110_pufit_xe70_L1XE50"
-      HLTChains[12] = "HLT_xe110_pufit_xe65_L1XE55"
-      HLTChains[13] = "HLT_xe110_pufit_xe70_L1XE55"
+      HLTChains[12] = "HLT_xe110_pfsum_cssk_L1XE50"
+      HLTChains[13] = "HLT_xe110_pfsum_vssk_L1XE50"
+    ## mon group test
+    HLTChains[13] = metChains[0]
     ### these are default chains ######
       #TrigMETMonAlg.L1Chain02 = 'L1_XE50'
       #TrigMETMonAlg.L1Chain02 = 'L1_jXENC50'
@@ -305,7 +312,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/{}'.format(alg),xbins=phi_bins,xmin=phi_min,xmax=phi_max)
 
     ## HLT 2d eta-phi histos
-    algsHLT2d = ["cell", "tcpufit"]
+    algsHLT2d = ["cell", "tcpufit", "pfopufit"]
     for alg in algsHLT2d:
       metGroup.defineHistogram('{0}_eta,{0}_phi;{0}_eta_phi'.format(alg), type='TH2F', title='{} #eta - #phi;#eta;#phi'.format(alg),
                              path='Shifter/{}'.format(alg),

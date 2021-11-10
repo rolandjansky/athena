@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODCALORINGS_VERSIONS_CALORINGS_V1_H
 #define XAODCALORINGS_VERSIONS_CALORINGS_V1_H
@@ -103,14 +103,6 @@ class CaloRings_v1 : public SG::AuxElement {
      * @brief returns const_iterator to the ending of RingSet EL Collection.
      **/
     RingSetLinks::const_iterator end() const;
-    /** 
-     * @brief Return ith RingSet
-     **/
-    RingSet *at(const unsigned index);
-    /** 
-     * @brief Return ith RingSet
-     **/
-    RingSet *operator [](const unsigned index);
     /** 
      * @brief Return ith RingSet
      **/

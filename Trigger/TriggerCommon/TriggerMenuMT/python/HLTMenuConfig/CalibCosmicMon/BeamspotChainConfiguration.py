@@ -32,7 +32,7 @@ def allTE_trkfast( signature="FS" ):
         inputMakerAlg.InViewRoIs = "beamspotViewRoI_"+signature
         inputMakerAlg.Views      = "beamspotViewRoI_"+signature
 
-        from TrigInDetConfig.InDetSetup import makeInDetAlgs
+        from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
         from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE
 
         #Load signature configuration (containing cut values, names of collections, etc)
@@ -42,7 +42,7 @@ def allTE_trkfast( signature="FS" ):
         if(signature == "FS"):
             IDTrigConfig = getInDetTrigConfig("beamSpotFS")
 
-        viewAlgs, viewVerify  = makeInDetAlgs( config = IDTrigConfig,  rois=inputMakerAlg.InViewRoIs)
+        viewAlgs, viewVerify  = makeInDetTrigFastTracking( config = IDTrigConfig,  rois=inputMakerAlg.InViewRoIs)
 
         vertexAlg = T2VertexBeamSpot_activeAllTE( "vertex_"+signature )
         vertexAlg.TrackCollection = IDTrigConfig.trkTracks_FTF()
