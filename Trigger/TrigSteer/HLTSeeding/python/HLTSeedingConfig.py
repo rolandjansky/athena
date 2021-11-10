@@ -20,6 +20,10 @@ _mapL1ThresholdToDecisionCollection = {
     "PROBEeTAU" : "HLTNav_L1PROBEeTAU",
     "PROBEjTAU" : "HLTNav_L1PROBEjTAU",
     "jJ" : "HLTNav_L1jJ",
+    "jLJ" : "HLTNav_L1jLJ",
+    "gJ" : "HLTNav_L1gJ",
+    "gLJ" : "HLTNav_L1gLJ",
+    "jEM" : "HLTNav_L1jEM",
     # Run-2 L1Calo
     "EM" : "HLTNav_L1EM",
     "J"  : "HLTNav_L1J",
@@ -44,6 +48,11 @@ _mapL1ThresholdToRoICollection = {
     "PROBEeEM" : "HLT_eEMRoIs",
     "PROBEeTAU": "HLT_eTAURoIs",
     "PROBEjTAU": "HLT_jTAURoIs",
+    "jJ": "HLT_jJRoIs",
+    "jLJ" : "HLTNav_jLJRoIs",
+    "gJ" : "HLTNav_gJRoIs",
+    "gLJ" : "HLTNav_gLJRoIs",
+    "jEM" : "HLTNav_jEMRoIs",
     # Run-2 L1Calo
     "EM" : "HLT_EMRoIs",
     "J"  : "HLT_JETRoI",
