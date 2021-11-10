@@ -35,6 +35,11 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname, doLCCalib=doLCCalib))
 
+    #Configure forward towers:
+    from CaloRec.CaloFwdTopoTowerConfig import CaloFwdTopoTowerCfg
+    result.merge(CaloFwdTopoTowerCfg(configFlags,CaloTopoClusterContainerKey="CaloTopoClusters"))
+
+
     return result
 
 
