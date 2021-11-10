@@ -1878,41 +1878,26 @@ namespace JetTagDQA{
     m_JetFitter_workingPoints.insert(std::make_pair("80", -3.3));
     }
       
-    if (m_sParticleType=="antiKt4EMPFlowJets"){ // these WP values were read from the CDI file 
-      // MV2c10   (PFlow 2018_10)
-      m_MV2c10_workingPoints.insert(std::make_pair("70", 0.826829));
-      if(m_detailLevel > 10){
-        m_MV2c10_workingPoints.insert(std::make_pair("60", 0.939187));
-        m_MV2c10_workingPoints.insert(std::make_pair("77", 0.629222));
-        m_MV2c10_workingPoints.insert(std::make_pair("85", 0.0722749));
-      }
-  
-      // DL1   (PFlow 2019_03)
-      m_DL1_fc = 0.018;
-      m_DL1_workingPoints.insert(std::make_pair("70", 3.095));
-      if(m_detailLevel > 10){
-        m_DL1_workingPoints.insert(std::make_pair("60", 4.415));
-        m_DL1_workingPoints.insert(std::make_pair("77", 2.015));
-        m_DL1_workingPoints.insert(std::make_pair("85", 0.365));
-      }
+    // DL1d   (WP cuts determined in Nov 2021)
+    m_DL1d_fc = 0.018;
+    m_DL1d_workingPoints.insert(std::make_pair("70", 3.494));
+    if(m_detailLevel > 10){
+      m_DL1d_workingPoints.insert(std::make_pair("60", 4.884));
+      m_DL1d_workingPoints.insert(std::make_pair("77", 2.443));
+      m_DL1d_workingPoints.insert(std::make_pair("85", 0.930));
+    }
 
-      // DL1r   (PFlow 2019_03)
-      m_DL1r_fc = 0.018;
-      m_DL1r_workingPoints.insert(std::make_pair("70", 3.245));
-      if(m_detailLevel > 10){
-        m_DL1r_workingPoints.insert(std::make_pair("60", 4.565));
-        m_DL1r_workingPoints.insert(std::make_pair("77", 2.195));
-        m_DL1r_workingPoints.insert(std::make_pair("85", 0.665));
-      }
-
-      // for DL1d just take the DL1r values
-      m_DL1d_fc = m_DL1r_fc;
-      for(auto wp : m_DL1r_workingPoints){
-        m_DL1d_workingPoints.insert(wp);
-      }
+    // DL1r   (PFlow 2019_03)
+    m_DL1r_fc = 0.018;
+    m_DL1r_workingPoints.insert(std::make_pair("70", 3.245));
+    if(m_detailLevel > 10){
+      m_DL1r_workingPoints.insert(std::make_pair("60", 4.565));
+      m_DL1r_workingPoints.insert(std::make_pair("77", 2.195));
+      m_DL1r_workingPoints.insert(std::make_pair("85", 0.665));
     }
       
-    else if (m_sParticleType=="antiKt4EMTopoJets"){ // these WP values were read from the CDI file 
+    // WP cut that depend on the jet collection
+    if (m_sParticleType=="antiKt4EMTopoJets"){ // these WP values were read from the CDI file 
       // MV2c10   (EMTopo 2018_10)
       m_MV2c10_workingPoints.insert(std::make_pair("70", 0.830283));
       if(m_detailLevel > 10){
@@ -1928,93 +1913,10 @@ namespace JetTagDQA{
         m_DL1_workingPoints.insert(std::make_pair("60", 2.73599));
         m_DL1_workingPoints.insert(std::make_pair("77", 1.44686));
         m_DL1_workingPoints.insert(std::make_pair("85", 0.463453));
-    }
-
-      // DL1r   (no WPs for EMTopo! use Pflow ones: PFlow 2019_03)
-      m_DL1r_fc = 0.018;
-      m_DL1r_workingPoints.insert(std::make_pair("70", 3.245));
-      if(m_detailLevel > 10){
-        m_DL1r_workingPoints.insert(std::make_pair("60", 4.565));
-        m_DL1r_workingPoints.insert(std::make_pair("77", 2.195));
-        m_DL1r_workingPoints.insert(std::make_pair("85", 0.665));
-      }
-
-      // for DL1d just take the DL1r values
-      m_DL1d_fc = m_DL1r_fc;
-      for(auto wp : m_DL1r_workingPoints){
-        m_DL1d_workingPoints.insert(wp);
       }
     }
 
-    else if (m_sParticleType=="antiKt2PV0TrackJets"){ //  these WP values were taken from this twiki in Dec 2020: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTaggingBenchmarksRelease21#DL1_tagger
-      // MV2c10
-      m_MV2c10_workingPoints.insert(std::make_pair("70", 0.66));
-      if(m_detailLevel > 10){
-      m_MV2c10_workingPoints.insert(std::make_pair("60", 0.86));
-      m_MV2c10_workingPoints.insert(std::make_pair("77", 0.38));
-      m_MV2c10_workingPoints.insert(std::make_pair("85", -0.15));
-      }
-  
-      // DL1
-      m_DL1_fc = 0.080;
-      m_DL1_workingPoints.insert(std::make_pair("70", 1.47));
-      if(m_detailLevel > 10){
-      m_DL1_workingPoints.insert(std::make_pair("60", 2.13));
-      m_DL1_workingPoints.insert(std::make_pair("77", 0.89));
-      m_DL1_workingPoints.insert(std::make_pair("85", 0.13));
-      }
-
-      // DL1r
-      m_DL1r_fc = 0.030;
-      m_DL1r_workingPoints.insert(std::make_pair("70", 2.17));
-      if(m_detailLevel > 10){
-      m_DL1r_workingPoints.insert(std::make_pair("60", 2.89));
-      m_DL1r_workingPoints.insert(std::make_pair("77", 1.79));
-      m_DL1r_workingPoints.insert(std::make_pair("85", 1.07));
-      }
-
-      // for DL1d just take the DL1r values
-      m_DL1d_fc = m_DL1r_fc;
-      for(auto wp : m_DL1r_workingPoints){
-        m_DL1d_workingPoints.insert(wp);
-      }
-    }
-
-    else if (m_sParticleType=="antiKtVR30Rmax4Rmin02TrackJets"){ //  these WP values were taken from this twiki in Dec 2020: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTaggingBenchmarksRelease21#DL1_tagger
-      // MV2c10
-      m_MV2c10_workingPoints.insert(std::make_pair("70", 0.79));
-      if(m_detailLevel > 10){
-      m_MV2c10_workingPoints.insert(std::make_pair("60", 0.92));
-      m_MV2c10_workingPoints.insert(std::make_pair("77", 0.58));
-      m_MV2c10_workingPoints.insert(std::make_pair("85", 0.05));
-      }
-  
-      // DL1
-      m_DL1_fc = 0.080;
-      m_DL1_workingPoints.insert(std::make_pair("70", 1.81));
-      if(m_detailLevel > 10){
-      m_DL1_workingPoints.insert(std::make_pair("60", 2.50));
-      m_DL1_workingPoints.insert(std::make_pair("77", 1.31));
-      m_DL1_workingPoints.insert(std::make_pair("85", 0.42));
-      }
-
-      // DL1r
-      m_DL1r_fc = 0.030;
-      m_DL1r_workingPoints.insert(std::make_pair("70", 2.71));
-      if(m_detailLevel > 10){
-      m_DL1r_workingPoints.insert(std::make_pair("60", 3.88));
-      m_DL1r_workingPoints.insert(std::make_pair("77", 2.06));
-      m_DL1r_workingPoints.insert(std::make_pair("85", 1.31));
-      }
-
-      // for DL1d just take the DL1r values
-      m_DL1d_fc = m_DL1r_fc;
-      for(auto wp : m_DL1r_workingPoints){
-        m_DL1d_workingPoints.insert(wp);
-      }
-    }
-
-    else { // no WPs defined for this jet collection ... -- use the PFlow WPs // these WP values were read from the CDI file 
+    else { // PFlow collection and other collections with no WPs defined -> use the PFlow WPs // these WP values were read from the CDI file 
       // MV2c10   (PFlow 2018_10)
       m_MV2c10_workingPoints.insert(std::make_pair("70", 0.826829));
       if(m_detailLevel > 10){
@@ -2030,21 +1932,6 @@ namespace JetTagDQA{
         m_DL1_workingPoints.insert(std::make_pair("60", 4.415));
         m_DL1_workingPoints.insert(std::make_pair("77", 2.015));
         m_DL1_workingPoints.insert(std::make_pair("85", 0.365));
-      }
-  
-      // DL1r   (PFlow 2019_03)
-      m_DL1r_fc = 0.018;
-      m_DL1r_workingPoints.insert(std::make_pair("70", 3.245));
-      if(m_detailLevel > 10){
-        m_DL1r_workingPoints.insert(std::make_pair("60", 4.565));
-        m_DL1r_workingPoints.insert(std::make_pair("77", 2.195));
-        m_DL1r_workingPoints.insert(std::make_pair("85", 0.665));
-      }
-
-      // for DL1d just take the DL1r values
-      m_DL1d_fc = m_DL1r_fc;
-      for(auto wp : m_DL1r_workingPoints){
-        m_DL1d_workingPoints.insert(wp);
       }
     }
   }
