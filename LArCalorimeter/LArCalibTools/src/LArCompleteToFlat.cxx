@@ -475,9 +475,24 @@ CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const
     for (unsigned hs=0;hs<m_hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
       std::vector<float> rampVec(input->ADC2DAC(chid,gain).asVector());
+      if(rampVec.size()>=2 && rampVec[1]>500) {
+         ATH_MSG_WARNING("Protection against crazy ramp values, set 500");
+         rampVec[1]=500.;
+      }
       if (rampVec.size()==0 && gain==2 && m_fakeEMBPSLowGain && cabling->isOnlineConnected(chid) ) { 
 	rampVec=input->ADC2DAC(chid,1).asVector();
-	rampVec[1]*=10.0;
+        if(rampVec.size()==0) {
+           ATH_MSG_WARNING("Filling EMBPS ramp with default values 0,10");
+           rampVec.resize(2);
+           rampVec[0]=0.;
+           rampVec[1]=10.;
+        } else {
+	   rampVec[1]*=10.0;
+           if(rampVec[1]>500) {
+              ATH_MSG_WARNING("Protection against crazy ramp values, set 500");
+              rampVec[1]=500.;
+           }
+        }
 	++nCopiedEMPS;
       }
       
