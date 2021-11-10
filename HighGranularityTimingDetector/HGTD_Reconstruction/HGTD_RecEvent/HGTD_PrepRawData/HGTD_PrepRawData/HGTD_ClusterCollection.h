@@ -16,7 +16,6 @@
 #include "TrkPrepRawData/PrepRawDataCollection.h"
 
 // Containers
-namespace HGTD {
 typedef Trk::PrepRawDataCollection<HGTD_Cluster> HGTD_ClusterCollection;
 
 /**Overload of << operator for MsgStream for debug output*/
@@ -24,8 +23,7 @@ MsgStream& operator<<(MsgStream& sl, const HGTD_ClusterCollection& coll);
 
 /**Overload of << operator for std::ostream for debug output*/
 std::ostream& operator<<(std::ostream& sl, const HGTD_ClusterCollection& coll);
-} // namespace HGTD
 
-CLASS_DEF(HGTD::HGTD_ClusterCollection, 1209066247, 1)
+CLASS_DEF(HGTD_ClusterCollection, 1309033586, 1)
 
 #endif // HGTD_PREPRAWDATA_HGTD_CLUSTERCOLLECTION_H

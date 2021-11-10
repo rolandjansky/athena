@@ -49,6 +49,7 @@ namespace{
 Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator): 
              GenModule(name,pSvcLocator), m_events(0), 
 	     m_starlight(0),
+	     m_randomGenerator(nullptr),
 	     m_event(0),
 	     m_configFileName(""),
 	     m_beam1Z(0),
@@ -89,8 +90,10 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
   
 }
 
-Starlight_i::~Starlight_i()
-{}
+Starlight_i::~Starlight_i(){
+  if (m_starlight) delete m_starlight;
+  if (m_event) delete m_event;
+}
 
 StatusCode Starlight_i::genInitialize()
 {
@@ -119,6 +122,9 @@ StatusCode Starlight_i::genInitialize()
 
     // create the starlight object
     m_starlight = new starlight();
+    // Set random generator to prevent crash in tests.
+    m_randomGenerator = std::make_shared<randomGenerator>();
+    m_starlight->setRandomGenerator(m_randomGenerator.get());
     // set input parameters
     m_starlight->setInputParameters(&m_inputParameters);
     // and initialize

@@ -104,7 +104,7 @@ elif METalgorithm == "mht":
 #################################################
 
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT
-from TrigEFMissingET.TrigEFMissingETMTConfig import getMETMonTool
+from TrigEFMissingET.TrigEFMissingETConfig import getMETMonTool
 
 metAlg = EFMissingETAlgMT( name="EFMET" )
 metAlg.METContainerKey="HLT_MET_{}".format(METalgorithm)

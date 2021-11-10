@@ -488,7 +488,7 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
     result.merge(HGTD_ReadoutGeometryCfg(flags))
 
     # layer builder for HGTD
-    HGTD_LayerBuilder = CompFactory.HGTDet.HGTD_LayerBuilderCond(
+    HGTD_LayerBuilder = CompFactory.HGTD_LayerBuilderCond(
         namePrefix+'HGTD_LayerBuilder'+nameSuffix)
     HGTD_LayerBuilder.Identification = 'HGTD'
     HGTD_LayerBuilder.SetLayerAssociation = setLayerAssociation
@@ -543,11 +543,11 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
                         (namePrefix, name, nameSuffix))
 
     # the hgtd tracking geometry builder
-    HGTDet__HGTD_TrackingGeometryBuilder = CompFactory.HGTDet.HGTD_TrackingGeometryBuilderCond
-    return HGTDet__HGTD_TrackingGeometryBuilder(namePrefix+name+nameSuffix,
-                                                LayerBuilder=HGTD_LayerBuilder,
-                                                EnvelopeDefinitionSvc=envelopeDefinitionSvc,
-                                                TrackingVolumeCreator=HGTD_CylinderVolumeCreator)
+    HGTD_TrackingGeometryBuilder = CompFactory.HGTD_TrackingGeometryBuilderCond
+    return HGTD_TrackingGeometryBuilder(namePrefix+name+nameSuffix,
+                                        LayerBuilder=HGTD_LayerBuilder,
+                                        EnvelopeDefinitionSvc=envelopeDefinitionSvc,
+                                        TrackingVolumeCreator=HGTD_CylinderVolumeCreator)
 
 # Originally this function would use was TrkDetFlags.MaterialSource()
 # and TrkDetFlags.MaterialValidation().

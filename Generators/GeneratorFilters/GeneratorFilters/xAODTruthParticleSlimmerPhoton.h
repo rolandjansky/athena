@@ -33,11 +33,6 @@ private:
     std::string m_xaodTruthParticleContainerNamePhoton;
     std::string m_xaodTruthParticleContainerName;
     std::string m_xaodTruthEventContainerName;
-
-    /// Selection values for keeping photons
-    double m_photon_pt_selection; //in GeV
-    double m_abseta_selection;
-
 }; // class xAODTruthParticleSlimmerPhoton
 
 #endif //GENERATORFILTERS_XAODTRUTHPARTICLESLIMMERPHOTON_H

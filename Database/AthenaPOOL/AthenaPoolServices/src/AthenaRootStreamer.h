@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLSERVICES_ATHENAROOTSTREAMER_H
@@ -18,6 +18,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <memory>
 
 class TFile;
 class Service;
@@ -43,7 +44,7 @@ public:
 
   /// Add a converter to this streamer
   /// @param converter [IN] - converter handle holding user defined converter object
-  StatusCode AddConverter(AthenaRootConverterHandle *converter);
+  StatusCode AddConverter(std::unique_ptr<AthenaRootConverterHandle> converter);
 
    /// Adopt (enable) this ROOT custom streamer
    StatusCode Adopt();
@@ -62,7 +63,7 @@ private:
   Version_t   m_streamerVersion;	// retrieved by FindVersion from the file
   TFile*      m_lastFile;
 
-  typedef std::map<UInt_t, AthenaRootConverterHandle*> ConverterMap;
+  typedef std::map<UInt_t, std::unique_ptr<AthenaRootConverterHandle> > ConverterMap;
   ConverterMap	m_converterMap;		// set of converters for this class
 
   typedef std::set<UInt_t>	ChecksumSet;
