@@ -30,18 +30,18 @@
 
 const HGTD_ID* g_hgtd_idhelper;
 
-void compare(const HGTD::HGTD_ClusterContainer& p1,
-             const HGTD::HGTD_ClusterContainer& p2) {
-  HGTD::HGTD_ClusterContainer::const_iterator it1 = p1.begin();
-  HGTD::HGTD_ClusterContainer::const_iterator it1e = p1.end();
-  HGTD::HGTD_ClusterContainer::const_iterator it2 = p2.begin();
-  HGTD::HGTD_ClusterContainer::const_iterator it2e = p2.end();
+void compare(const HGTD_ClusterContainer& p1,
+             const HGTD_ClusterContainer& p2) {
+  HGTD_ClusterContainer::const_iterator it1 = p1.begin();
+  HGTD_ClusterContainer::const_iterator it1e = p1.end();
+  HGTD_ClusterContainer::const_iterator it2 = p2.begin();
+  HGTD_ClusterContainer::const_iterator it2e = p2.end();
   while (it1 != it1e && it2 != it2e) {
     BOOST_CHECK(it1.hashId() == it2.hashId());
     BOOST_CHECK(it1->hasData() == it2->hasData());
     if (it1->hasData()) {
-      const HGTD::HGTD_ClusterCollection& coll1 = **it1;
-      const HGTD::HGTD_ClusterCollection& coll2 = **it2;
+      const HGTD_ClusterCollection& coll1 = **it1;
+      const HGTD_ClusterCollection& coll2 = **it2;
       BOOST_CHECK(coll1.size() == coll2.size());
       for (size_t j = 0; j < coll1.size(); j++) {
         HGTDtest::compare(*coll1.at(j), *coll2.at(j));
@@ -53,7 +53,7 @@ void compare(const HGTD::HGTD_ClusterContainer& p1,
   BOOST_CHECK(it1 == it1e && it2 == it2e);
 }
 
-std::unique_ptr<HGTD::HGTD_Cluster>
+std::unique_ptr<HGTD_Cluster>
 createCluster(int endcap, int layer, int phi_module, int eta_module, float locx,
               float locy, float colx, float coly, float phi, float rz,
               float toa, std::vector<int> tot) {
@@ -71,19 +71,19 @@ createCluster(int endcap, int layer, int phi_module, int eta_module, float locx,
   cov(0, 1) = 0;
   cov(1, 0) = 0;
 
-  return std::make_unique<HGTD::HGTD_Cluster>(
+  return std::make_unique<HGTD_Cluster>(
       Identifier(id), locpos, rdoList, width, nullptr, new Amg::MatrixX(cov),
       toa, 0.035, tot);
 }
 
-std::unique_ptr<const HGTD::HGTD_ClusterContainer> makeClusters() {
-  auto cont = std::make_unique<HGTD::HGTD_ClusterContainer>(5);
+std::unique_ptr<const HGTD_ClusterContainer> makeClusters() {
+  auto cont = std::make_unique<HGTD_ClusterContainer>(5);
 
   std::vector<int> n_coll_per_layer = {2, 1, 3};
 
   for (int hash = 2; hash <= 3; hash++) {
     auto coll =
-        std::make_unique<HGTD::HGTD_ClusterCollection>(IdentifierHash(hash));
+        std::make_unique<HGTD_ClusterCollection>(IdentifierHash(hash));
 
     for (int layer_i = 0; layer_i < 3; layer_i++) {
       for (int i_clus = 0; i_clus < n_coll_per_layer.at(layer_i); i_clus++) {
@@ -201,17 +201,17 @@ BOOST_AUTO_TEST_CASE(HGTD_ClusterContainerCnv_p1_test) {
   std::cout << "id2 " << id2.get_compact() << '\n';
   std::cout << "id2 " << g_hgtd_idhelper->wafer_hash(id2) << '\n';
 
-  std::unique_ptr<const HGTD::HGTD_ClusterContainer> trans1 = makeClusters();
+  std::unique_ptr<const HGTD_ClusterContainer> trans1 = makeClusters();
   BOOST_REQUIRE(trans1->size() > 0); // otherwise there is nothing to test
   //
   MsgStream log(0, "test");
-  HGTD::HGTD_ClusterContainerCnv_p1 cnv;
+  HGTD_ClusterContainerCnv_p1 cnv;
 
-  HGTD::HGTD_ClusterContainer_p1 pers;
+  HGTD_ClusterContainer_p1 pers;
 
   cnv.transToPers(trans1.get(), &pers, log);
 
-  std::unique_ptr<HGTD::HGTD_ClusterContainer> trans2(
+  std::unique_ptr<HGTD_ClusterContainer> trans2(
       cnv.createTransient(&pers, log));
 
   compare(*trans1, *trans2);

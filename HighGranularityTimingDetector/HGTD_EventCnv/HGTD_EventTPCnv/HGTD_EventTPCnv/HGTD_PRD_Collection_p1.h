@@ -14,8 +14,6 @@
 
 #include "Identifier/IdentifierHash.h"
 
-namespace HGTD {
-
 class HGTD_PRD_Collection_p1 {
 
 public:
@@ -33,7 +31,5 @@ private:
   //  Number of clusters in a given collection
   unsigned short m_size;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_PRD_COLLECTION_P1_H

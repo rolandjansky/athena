@@ -15,16 +15,16 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-HGTD::HGTD_RDO createRDO(int id, float time, int tot, int bcid, int lv1a,
-                         int lv1id) {
+HGTD_RDO createRDO(int id, float time, int tot, int bcid, int lv1a,
+                   int lv1id) {
   std::cout << "createRDO\n";
 
   Identifier identifier(id);
 
-  return HGTD::HGTD_RDO(identifier, time, tot, bcid, lv1a, lv1id);
+  return HGTD_RDO(identifier, time, tot, bcid, lv1a, lv1id);
 }
 
-void compare(const HGTD::HGTD_RDO& p1, const HGTD::HGTD_RDO& p2) {
+void compare(const HGTD_RDO& p1, const HGTD_RDO& p2) {
   std::cout << "compare HGTD_RDO\n";
   BOOST_CHECK(p1.identify() == p2.identify());
   BOOST_CHECK(p1.getTOA() == p2.getTOA());
@@ -35,28 +35,28 @@ void compare(const HGTD::HGTD_RDO& p1, const HGTD::HGTD_RDO& p2) {
   std::cout << "compare HGTD_RDO done\n";
 }
 
-void convertAndBack(const HGTD::HGTD_RDO& trans1) {
+void convertAndBack(const HGTD_RDO& trans1) {
 
   std::cout << "convertAndBack\n";
 
   MsgStream log(0, "test");
-  HGTD::HGTD_RDOCnv_p1 cnv;
-  HGTD::HGTD_RDO_p1 pers;
+  HGTD_RDOCnv_p1 cnv;
+  HGTD_RDO_p1 pers;
 
   cnv.transToPers(&trans1, &pers, log);
 
-  HGTD::HGTD_RDO trans2;
+  HGTD_RDO trans2;
   cnv.persToTrans(&pers, &trans2, log);
 
   compare(trans1, trans2);
   std::cout << "convertAndBack done\n";
 }
 
-BOOST_AUTO_TEST_CASE(HGTD_RDOCnv_p1) {
+BOOST_AUTO_TEST_CASE(HGTD_RDOCnv_p1_test) {
 
   std::cout << "start test\n";
 
-  HGTD::HGTD_RDO rdo = createRDO(1234, 14.8348, 266, 1, 2, 3);
+  HGTD_RDO rdo = createRDO(1234, 14.8348, 266, 1, 2, 3);
 
   convertAndBack(rdo);
 }

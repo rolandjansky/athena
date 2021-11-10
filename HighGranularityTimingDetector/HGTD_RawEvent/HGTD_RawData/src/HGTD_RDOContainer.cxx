@@ -10,13 +10,9 @@
 
 #include "HGTD_RawData/HGTD_RDOContainer.h"
 
-namespace HGTD {
+HGTD_RDOContainer::HGTD_RDOContainer(unsigned int hashmax)
+    : IdentifiableContainer<HGTD_RDOCollection>(hashmax) {}
 
-HGTD::HGTD_RDOContainer::HGTD_RDOContainer(unsigned int hashmax)
-    : IdentifiableContainer<HGTD::HGTD_RDOCollection>(hashmax) {}
-
-const CLID& HGTD::HGTD_RDOContainer::classID() {
-  return ClassID_traits<HGTD::HGTD_RDOContainer>::ID();
+const CLID& HGTD_RDOContainer::classID() {
+  return ClassID_traits<HGTD_RDOContainer>::ID();
 }
-
-} // namespace HGTD

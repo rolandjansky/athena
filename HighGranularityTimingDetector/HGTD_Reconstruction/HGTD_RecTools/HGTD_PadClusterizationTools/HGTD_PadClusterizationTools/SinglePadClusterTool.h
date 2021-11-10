@@ -36,8 +36,8 @@ public:
 
   virtual StatusCode initialize();
 
-  virtual std::unique_ptr<HGTD::HGTD_ClusterCollection>
-  clusterize(const HGTD::HGTD_RDOCollection& rdo_coll) const override;
+  virtual std::unique_ptr<HGTD_ClusterCollection>
+  clusterize(const HGTD_RDOCollection& rdo_coll) const override;
 
 private:
   ToolHandle<HGTD_ClusterMakerTool> m_cluster_maker;

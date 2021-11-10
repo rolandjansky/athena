@@ -1,8 +1,8 @@
 ##call clustermakertools before running extension when using RDO input
 
-from HGTD_PadClusterizationTools.HGTD_PadClusterizationToolsConf import HGTD__HGTD_ClusterMakerTool
+from HGTD_PadClusterizationTools.HGTD_PadClusterizationToolsConf import HGTD_ClusterMakerTool
 
-cluster_maker_tool = HGTD__HGTD_ClusterMakerTool(name="HGTD_ClusterMakerTool")
+cluster_maker_tool = HGTD_ClusterMakerTool(name="HGTD_ClusterMakerTool")
 cluster_maker_tool.OutputLevel = DEBUG
 ToolSvc += cluster_maker_tool
 
@@ -37,9 +37,9 @@ hgtd_tof_corr_tool.OutputLevel = DEBUG
 
 ToolSvc += hgtd_tof_corr_tool
 
-from HGTD_TrackTimeExtensionTools.HGTD_TrackTimeExtensionToolsConf import HGTD__HGTD_IterativeExtensionTool
+from HGTD_TrackTimeExtensionTools.HGTD_TrackTimeExtensionToolsConf import HGTD_IterativeExtensionTool
 
-htgd_ext_tool = HGTD__HGTD_IterativeExtensionTool(name="IterativeExtensionTool")
+htgd_ext_tool = HGTD_IterativeExtensionTool(name="IterativeExtensionTool")
 htgd_ext_tool.OutputLevel = DEBUG
 htgd_ext_tool.ExtrapolatorTool = extrapolator
 htgd_ext_tool.UpdatorTool = kalman_updator

@@ -24,7 +24,6 @@ namespace Trk {
 class LocalParameters;
 }
 
-namespace HGTD {
 class HGTD_ClusterOnTrack : public Trk::RIO_OnTrack {
 
 public:
@@ -133,7 +132,7 @@ private:
 
   float m_calibrated_time_resolution;
 
-  ElementLink<HGTD::HGTD_ClusterContainer> m_rio;
+  ElementLink<HGTD_ClusterContainer> m_rio;
 };
 
 inline IdentifierHash HGTD_ClusterOnTrack::idDE() const { return m_id_hash; }
@@ -159,7 +158,5 @@ inline float HGTD_ClusterOnTrack::time() const { return m_calibrated_time; }
 inline float HGTD_ClusterOnTrack::timeResolution() const {
   return m_calibrated_time_resolution;
 }
-
-} // namespace HGTD
 
 #endif // HGTD_CLUSTERONTRACK_H

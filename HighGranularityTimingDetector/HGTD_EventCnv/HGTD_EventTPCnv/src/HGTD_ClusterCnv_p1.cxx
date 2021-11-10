@@ -13,15 +13,15 @@
 #include <algorithm>
 #include <iostream>
 
-void HGTD::HGTD_ClusterCnv_p1::persToTrans(
-    const HGTD::HGTD_Cluster_p1* pers_obj, HGTD::HGTD_Cluster* trans_obj,
+void HGTD_ClusterCnv_p1::persToTrans(
+    const HGTD_Cluster_p1* pers_obj, HGTD_Cluster* trans_obj,
     MsgStream& log) {
   log << MSG::VERBOSE << "In HGTD_ClusterCnv_p1::persToTrans" << endreq;
   *trans_obj = createHGTDCluster(pers_obj, nullptr, log);
 }
 
-HGTD::HGTD_Cluster HGTD::HGTD_ClusterCnv_p1::createHGTDCluster(
-    const HGTD::HGTD_Cluster_p1* pers_obj,
+HGTD_Cluster HGTD_ClusterCnv_p1::createHGTDCluster(
+    const HGTD_Cluster_p1* pers_obj,
     const InDetDD::SolidStateDetectorElementBase* del_el, MsgStream& log) {
   log << MSG::VERBOSE << "In HGTD_ClusterCnv_p1::createHGTDCluster" << endreq;
   // set the cluster identifier
@@ -50,11 +50,11 @@ HGTD::HGTD_Cluster HGTD::HGTD_ClusterCnv_p1::createHGTDCluster(
   (*cmat)(0, 1) = static_cast<double>(pers_obj->m_mat_01);
   (*cmat)(1, 1) = static_cast<double>(pers_obj->m_mat_11);
 
-  HGTD::HGTD_Cluster cluster(cluster_id, local_pos, std::move(rdo_list),
-                             std::move(width), del_el, std::move(cmat),
-                             pers_obj->m_time,
-                             pers_obj->m_time_resolution,
-                             std::move(pers_obj->m_time_over_threshold));
+  HGTD_Cluster cluster(cluster_id, local_pos, std::move(rdo_list),
+                       std::move(width), del_el, std::move(cmat),
+                       pers_obj->m_time,
+                       pers_obj->m_time_resolution,
+                       std::move(pers_obj->m_time_over_threshold));
 
   return cluster;
 }
@@ -62,9 +62,9 @@ HGTD::HGTD_Cluster HGTD::HGTD_ClusterCnv_p1::createHGTDCluster(
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////s
 
-void HGTD::HGTD_ClusterCnv_p1::transToPers(const HGTD::HGTD_Cluster* trans_obj,
-                                           HGTD::HGTD_Cluster_p1* pers_obj,
-                                           MsgStream& log) {
+void HGTD_ClusterCnv_p1::transToPers(const HGTD_Cluster* trans_obj,
+                                     HGTD_Cluster_p1* pers_obj,
+                                     MsgStream& log) {
   log << MSG::VERBOSE << "In HGTD_ClusterCnv_p1::transToPers" << endreq;
   m_si_width_cnv.transToPers(&trans_obj->width(), &pers_obj->m_width, log);
 

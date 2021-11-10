@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_poolcnv_library( HGTD_EventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES HGTD_PrepRawData/HGTD_ClusterContainer.h HGTD_RawData/HGTD_RDOContainer.h
-                           TYPES_WITH_NAMESPACE HGTD::HGTD_ClusterContainer HGTD::HGTD_RDOContainer
                            LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib AtlasSealCLHEP GaudiKernel HGTD_PrepRawData HGTD_EventTPCnv HGTD_RawData)
 
 # Install files from the package:

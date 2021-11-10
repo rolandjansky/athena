@@ -22,16 +22,14 @@ class HGTD_ID;
 class StoreGateSvc;
 class HGTD_DetectorManager;
 
-namespace HGTD {
-
 class HGTD_ClusterContainerCnv_p1
-    : public T_AthenaPoolTPCnvBase<HGTD::HGTD_ClusterContainer,
-                                   HGTD::HGTD_ClusterContainer_p1> {
+    : public T_AthenaPoolTPCnvBase<HGTD_ClusterContainer,
+                                   HGTD_ClusterContainer_p1> {
 public:
   HGTD_ClusterContainerCnv_p1() : m_is_initialized(false) {}
 
-  typedef HGTD::HGTD_ClusterContainer_p1 Pers_t;
-  typedef HGTD::HGTD_ClusterContainer Trans_t;
+  typedef HGTD_ClusterContainer_p1 Pers_t;
+  typedef HGTD_ClusterContainer Trans_t;
 
   virtual void persToTrans(const Pers_t* persistent_container,
                            Trans_t* transient_container, MsgStream& log);
@@ -49,7 +47,5 @@ private:
 
   bool m_is_initialized;
 };
-
-} // namespace HGTD
 
 #endif

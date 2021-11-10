@@ -43,7 +43,7 @@
 #include <map>
 
 // constructor
-HGTDet::HGTD_LayerBuilder::HGTD_LayerBuilder(const std::string& t, const std::string& n, const IInterface* p) :
+HGTD_LayerBuilder::HGTD_LayerBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_hgtdMgr(0),
   m_hgtdHelper(0),
@@ -70,12 +70,12 @@ HGTDet::HGTD_LayerBuilder::HGTD_LayerBuilder(const std::string& t, const std::st
 }
 
 // destructor
-HGTDet::HGTD_LayerBuilder::~HGTD_LayerBuilder()
+HGTD_LayerBuilder::~HGTD_LayerBuilder()
 {}
 
 // Athena standard methods
 // initialize
-StatusCode HGTDet::HGTD_LayerBuilder::initialize()
+StatusCode HGTD_LayerBuilder::initialize()
 {
 
     ATH_MSG_DEBUG( "initialize()" );
@@ -87,7 +87,7 @@ StatusCode HGTDet::HGTD_LayerBuilder::initialize()
 }
 
 // finalize
-StatusCode HGTDet::HGTD_LayerBuilder::finalize()
+StatusCode HGTD_LayerBuilder::finalize()
 {
     ATH_MSG_DEBUG( "finalize() successful" );
     return StatusCode::SUCCESS;
@@ -95,9 +95,9 @@ StatusCode HGTDet::HGTD_LayerBuilder::finalize()
 
 
 /** LayerBuilder interface method - returning Endcap-like layers */
-const std::vector< const Trk::DiscLayer* >* HGTDet::HGTD_LayerBuilder::discLayers() const
+const std::vector< const Trk::DiscLayer* >* HGTD_LayerBuilder::discLayers() const
 {
-  ATH_MSG_DEBUG( "calling HGTDet::HGTD_LayerBuilder::discLayers()" );
+  ATH_MSG_DEBUG( "calling HGTD_LayerBuilder::discLayers()" );
   
   // get general layout
   InDetDD::HGTD_DetectorElementCollection::const_iterator hgtdDetIter = m_hgtdMgr->getDetectorElementBegin();
@@ -294,7 +294,7 @@ const std::vector< const Trk::DiscLayer* >* HGTDet::HGTD_LayerBuilder::discLayer
 }
 
 
-const Trk::LayerMaterialProperties* HGTDet::HGTD_LayerBuilder::discLayerMaterial(double rMin, double rMax) const
+const Trk::LayerMaterialProperties* HGTD_LayerBuilder::discLayerMaterial(double rMin, double rMax) const
 {
   Trk::BinUtility layerBinUtilityR(m_rBins, rMin, rMax, Trk::open, Trk::binR);
   Trk::BinUtility layerBinUtilityPhi(m_phiBins, -M_PI, M_PI, Trk::closed, Trk::binPhi);
@@ -304,7 +304,7 @@ const Trk::LayerMaterialProperties* HGTDet::HGTD_LayerBuilder::discLayerMaterial
   return layerMaterial;    
 }     
 
-void HGTDet::HGTD_LayerBuilder::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
+void HGTD_LayerBuilder::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
 {
    if (!m_setLayerAssociation) return;    
    // register the surfaces to the layer
@@ -317,9 +317,9 @@ void HGTDet::HGTD_LayerBuilder::registerSurfacesToLayer(const std::vector<const 
    return;
 }
 
-void HGTDet::HGTD_LayerBuilder::evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
-                                                    std::vector<float>& rBins, float& maxRadius,
-                                                    std::vector<std::vector<float>>& phiBins) const
+void HGTD_LayerBuilder::evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
+                                            std::vector<float>& rBins, float& maxRadius,
+                                            std::vector<std::vector<float>>& phiBins) const
 {
   // get all the centers (r,phi), as you want to play with them
   std::vector < std::pair< float, float> > centers = {};

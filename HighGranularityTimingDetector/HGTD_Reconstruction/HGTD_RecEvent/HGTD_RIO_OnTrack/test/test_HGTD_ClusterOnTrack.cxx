@@ -33,8 +33,8 @@ void compare(const Trk::PrepRawData* p1, const Trk::PrepRawData* p2) {
   BOOST_CHECK(p1->localCovariance() == p2->localCovariance());
   std::cout << "compare PrepRawData done\n";
 }
-void compare(const HGTD::HGTD_ClusterOnTrack& p1,
-             const HGTD::HGTD_ClusterOnTrack& p2) {
+void compare(const HGTD_ClusterOnTrack& p1,
+             const HGTD_ClusterOnTrack& p2) {
   std::cout << "compare HGTD_ClusterOnTrack\n";
   BOOST_CHECK(p1.idDE() == p2.idDE());
   compare(p1.prepRawData(), p2.prepRawData());
@@ -45,11 +45,11 @@ void compare(const HGTD::HGTD_ClusterOnTrack& p1,
 }
 
 void testDefaultCtor() {
-  HGTD::HGTD_ClusterOnTrack cluster;
+  HGTD_ClusterOnTrack cluster;
   BOOST_CHECK(cluster.detectorElement() == nullptr);
 }
 
-HGTD::HGTD_Cluster createCluster() {
+HGTD_Cluster createCluster() {
   std::cout << "createCluster\n";
 
   Amg::Vector2D locpos(1.5, 2.5);
@@ -62,16 +62,16 @@ HGTD::HGTD_Cluster createCluster() {
     for (int j = 0; j < 2; j++)
       cov(i, j) = 100 * (i + 1) * (j + 1);
 
-  HGTD::HGTD_Cluster cluster(Identifier(1234), locpos, rdoList, width, nullptr,
-                             new Amg::MatrixX(cov), dummy_toa, dummy_toa_res,
-                             dummy_tot);
+  HGTD_Cluster cluster(Identifier(1234), locpos, rdoList, width, nullptr,
+                       new Amg::MatrixX(cov), dummy_toa, dummy_toa_res,
+                       dummy_tot);
 
   std::cout << "createCluster done\n";
   return cluster;
 }
 
-HGTD::HGTD_ClusterOnTrack
-createClusterOnTrackWithCluster(const HGTD::HGTD_Cluster& cluster) {
+HGTD_ClusterOnTrack
+createClusterOnTrackWithCluster(const HGTD_Cluster& cluster) {
 
   Amg::Vector2D locpars(1.5, 2.5);
 
@@ -80,32 +80,32 @@ createClusterOnTrackWithCluster(const HGTD::HGTD_Cluster& cluster) {
     for (int j = 0; j < 2; j++)
       cov(i, j) = 100 * (i + 1) * (j + 1);
 
-  HGTD::HGTD_ClusterOnTrack cot(&cluster, locpars, cov, dummy_toa,
-                                dummy_toa_res, IdentifierHash(1234));
+  HGTD_ClusterOnTrack cot(&cluster, locpars, cov, dummy_toa,
+                          dummy_toa_res, IdentifierHash(1234));
 
   return cot;
 }
 
-void testCopyCtor(const HGTD::HGTD_ClusterOnTrack& cot) {
+void testCopyCtor(const HGTD_ClusterOnTrack& cot) {
   std::cout << "testCopyCtor\n";
-  HGTD::HGTD_ClusterOnTrack copied_cot(cot);
+  HGTD_ClusterOnTrack copied_cot(cot);
 
   compare(cot, copied_cot);
   std::cout << "testCopyCtor done\n";
 }
 
-void testAssignment(const HGTD::HGTD_ClusterOnTrack& cot) {
+void testAssignment(const HGTD_ClusterOnTrack& cot) {
   std::cout << "testAssignment\n";
-  HGTD::HGTD_ClusterOnTrack copied_cot;
+  HGTD_ClusterOnTrack copied_cot;
   copied_cot = cot;
 
   compare(cot, copied_cot);
   std::cout << "testAssignment done\n";
 }
 
-void testMoveCtor(HGTD::HGTD_ClusterOnTrack cot) {
+void testMoveCtor(HGTD_ClusterOnTrack cot) {
   std::cout << "testMoveCtor\n";
-  HGTD::HGTD_ClusterOnTrack copied_cot(std::move(cot));
+  HGTD_ClusterOnTrack copied_cot(std::move(cot));
 
   BOOST_CHECK(cot.time() == 0.0);
   std::cout << "copied_cluster.time() " << copied_cot.time() << '\n';
@@ -113,9 +113,9 @@ void testMoveCtor(HGTD::HGTD_ClusterOnTrack cot) {
   std::cout << "testMoveCtor done\n";
 }
 
-void testMoveAssignment(HGTD::HGTD_ClusterOnTrack cot) {
+void testMoveAssignment(HGTD_ClusterOnTrack cot) {
   std::cout << "testMoveAssignment\n";
-  HGTD::HGTD_ClusterOnTrack move_assign_cot;
+  HGTD_ClusterOnTrack move_assign_cot;
   move_assign_cot = std::move(cot);
 
   BOOST_CHECK(cot.time() == 0.0);
@@ -125,7 +125,7 @@ void testMoveAssignment(HGTD::HGTD_ClusterOnTrack cot) {
   std::cout << "testMoveAssignment done\n";
 }
 
-BOOST_AUTO_TEST_CASE(HGTD_ClusterOnTrack) {
+BOOST_AUTO_TEST_CASE(HGTD_ClusterOnTrack_test) {
 
   std::cout << "running test_HGTD_ClusterOnTrack\n";
 
@@ -133,10 +133,10 @@ BOOST_AUTO_TEST_CASE(HGTD_ClusterOnTrack) {
 
   std::cout << "testing with HGTD_Cluster\n";
 
-  HGTD::HGTD_Cluster cluster = createCluster();
+  HGTD_Cluster cluster = createCluster();
   // cluster needs to be on heap, otherwise ownership issues arrise when COT is
   // deleted
-  HGTD::HGTD_Cluster* cluster_ptr = new HGTD::HGTD_Cluster(cluster);
+  HGTD_Cluster* cluster_ptr = new HGTD_Cluster(cluster);
 
   std::cout << "HGTD_Cluster created\n";
 

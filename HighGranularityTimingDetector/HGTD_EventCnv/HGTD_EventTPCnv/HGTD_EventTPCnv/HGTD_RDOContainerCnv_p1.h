@@ -18,15 +18,13 @@
 class HGTD_ID;
 class StoreGateSvc;
 
-namespace HGTD {
-
 class HGTD_RDOContainerCnv_p1
-    : public T_AthenaPoolTPCnvBase<HGTD::HGTD_RDOContainer,
-                                   HGTD::HGTD_RDOContainer_p1> {
+    : public T_AthenaPoolTPCnvBase<HGTD_RDOContainer,
+                                   HGTD_RDOContainer_p1> {
 
 public:
-  typedef HGTD::HGTD_RDOContainer_p1 Pers_t;
-  typedef HGTD::HGTD_RDOContainer Trans_t;
+  typedef HGTD_RDOContainer_p1 Pers_t;
+  typedef HGTD_RDOContainer Trans_t;
 
   HGTD_RDOContainerCnv_p1() : m_is_initialized(false) {}
 
@@ -45,7 +43,5 @@ private:
 
   bool m_is_initialized;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_EVENTTPCNV_HGTD_RDOCONTAINERCNV_P1_H

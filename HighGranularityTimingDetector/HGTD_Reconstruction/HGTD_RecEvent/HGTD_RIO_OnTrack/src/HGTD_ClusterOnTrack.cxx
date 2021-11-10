@@ -13,8 +13,6 @@
 #include <ostream>
 #include <utility>
 
-namespace HGTD {
-
 // Default constructor:
 HGTD_ClusterOnTrack::HGTD_ClusterOnTrack()
     : RIO_OnTrack(),
@@ -166,5 +164,3 @@ void HGTD_ClusterOnTrack::setValues(const Trk::TrkDetElementBase* det_el,
   m_det_el =
       dynamic_cast<const InDetDD::SolidStateDetectorElementBase*>(det_el);
 }
-
-} // namespace HGTD

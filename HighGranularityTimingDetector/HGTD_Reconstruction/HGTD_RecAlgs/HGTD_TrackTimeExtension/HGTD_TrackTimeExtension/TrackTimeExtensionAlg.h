@@ -54,9 +54,9 @@ private:
                                    const HepMC::GenEvent* hs_event,
                                    bool skip_deco = false);
 
-  ToolHandle<HGTD::IHGTD_TrackTimeExtensionTool> m_extension_tool;
+  ToolHandle<IHGTD_TrackTimeExtensionTool> m_extension_tool;
 
-  SG::ReadHandleKey<HGTD::HGTD_ClusterContainer> m_clustercont_rh_key;
+  SG::ReadHandleKey<HGTD_ClusterContainer> m_clustercont_rh_key;
   SG::ReadHandleKey<InDetSimDataCollection> m_sdo_coll_rh_key;
   SG::ReadHandleKey<McEventCollection> m_mc_coll_rh_key;
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trk_ptkl_rh_key;
@@ -65,7 +65,7 @@ private:
 
   float m_eta_cut;
 
-  ToolHandle<HGTD::IHGTD_ClusterTruthTool> m_truth_tool;
+  ToolHandle<IHGTD_ClusterTruthTool> m_truth_tool;
 
   std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
       m_dec_layer_has_ext;

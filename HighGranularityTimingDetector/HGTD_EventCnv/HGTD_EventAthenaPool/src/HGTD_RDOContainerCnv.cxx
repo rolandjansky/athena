@@ -18,13 +18,13 @@ HGTD_RDOContainerCnv::HGTD_RDOContainerCnv(ISvcLocator* svcloc)
 
 HGTD_RDOContainerCnv::~HGTD_RDOContainerCnv() {}
 
-HGTD::HGTD_RDOContainer* HGTD_RDOContainerCnv::createTransient() {
+HGTD_RDOContainer* HGTD_RDOContainerCnv::createTransient() {
 
   static pool::Guid p1_guid(
       "C25315CC-F0A2-43D6-8F42-012BE34B0107"); // with HGTD_RDO_p1
   ATH_MSG_DEBUG("createTransient(): main converter");
 
-  HGTD::HGTD_RDOContainer* trans_cont(0);
+  HGTD_RDOContainer* trans_cont(0);
   if (compareClassGuid(p1_guid)) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
     std::auto_ptr<HGTD_RDOContainer_PERS_t> pers_cont(
@@ -40,7 +40,7 @@ HGTD::HGTD_RDOContainer* HGTD_RDOContainerCnv::createTransient() {
 }
 
 HGTD_RDOContainer_PERS_t*
-HGTD_RDOContainerCnv::createPersistent(HGTD::HGTD_RDOContainer* trans_cont) {
+HGTD_RDOContainerCnv::createPersistent(HGTD_RDOContainer* trans_cont) {
 
   HGTD_RDOContainer_PERS_t* pers_cont =
       m_converter.createPersistent(trans_cont, msg());

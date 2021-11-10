@@ -47,8 +47,8 @@ public:
    *
    * @return Struct combining the relevant truth information.
    */
-  virtual ClusterTruthInfo classifyCluster(
-      const HGTD::HGTD_Cluster* cluster, const xAOD::TruthParticle* tp,
+  virtual HGTD::ClusterTruthInfo classifyCluster(
+      const HGTD_Cluster* cluster, const xAOD::TruthParticle* tp,
       const InDetSimDataCollection* sim_data,
       const HepMC::GenEvent* hard_scatter_evnt = nullptr) const override;
 };

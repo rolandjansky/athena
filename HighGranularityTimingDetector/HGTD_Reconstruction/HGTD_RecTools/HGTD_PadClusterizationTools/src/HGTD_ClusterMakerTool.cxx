@@ -19,14 +19,14 @@ inline double square(const double x) { return x * x; }
 constexpr double g_one_over_twelve = 1. / 12.;
 } // namespace
 
-HGTD::HGTD_ClusterMakerTool::HGTD_ClusterMakerTool(const std::string& t,
-                                                   const std::string& n,
-                                                   const IInterface* p)
+HGTD_ClusterMakerTool::HGTD_ClusterMakerTool(const std::string& t,
+                                             const std::string& n,
+                                             const IInterface* p)
     : AthAlgTool(t, n, p) {}
 
-HGTD::HGTD_ClusterMakerTool::~HGTD_ClusterMakerTool() {}
+HGTD_ClusterMakerTool::~HGTD_ClusterMakerTool() {}
 
-std::unique_ptr<HGTD::HGTD_Cluster> HGTD::HGTD_ClusterMakerTool::createCluster(
+std::unique_ptr<HGTD_Cluster> HGTD_ClusterMakerTool::createCluster(
     const Identifier& rdo_id, const Amg::Vector2D& loc_pos,
     const std::vector<Identifier>& rdo_list, const InDet::SiWidth& width,
     const InDetDD::SolidStateDetectorElementBase* det_el,
@@ -48,7 +48,7 @@ std::unique_ptr<HGTD::HGTD_Cluster> HGTD::HGTD_ClusterMakerTool::createCluster(
       0.035; // 35 pico second resolution at start of operation, given in nano
              // seconds in ATHENA
 
-  return std::make_unique<HGTD::HGTD_Cluster>(
+  return std::make_unique<HGTD_Cluster>(
       rdo_id, loc_pos, rdo_list, width, det_el, loc_err_matx, time_of_arrival,
       time_of_arrival_err, time_over_threshold);
 }

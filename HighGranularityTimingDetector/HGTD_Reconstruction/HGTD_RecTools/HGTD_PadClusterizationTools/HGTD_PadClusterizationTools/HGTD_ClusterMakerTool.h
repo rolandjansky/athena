@@ -22,8 +22,6 @@
 #include "HGTD_PrepRawData/HGTD_Cluster.h"
 #include <memory>
 
-namespace HGTD {
-
 class HGTD_ClusterMakerTool : public AthAlgTool {
 
 public:
@@ -54,7 +52,5 @@ public:
                 const float time_of_arrival,
                 const std::vector<int>& time_over_threshold) const;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_CLUSTERMAKERTOOL_H

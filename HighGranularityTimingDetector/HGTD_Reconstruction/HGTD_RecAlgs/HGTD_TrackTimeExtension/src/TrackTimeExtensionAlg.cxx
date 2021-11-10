@@ -84,9 +84,9 @@ StatusCode TrackTimeExtensionAlg::execute() {
 
   ATH_MSG_DEBUG("Start event");
 
-  SG::ReadHandle<HGTD::HGTD_ClusterContainer> cluster_container_handle(
+  SG::ReadHandle<HGTD_ClusterContainer> cluster_container_handle(
       m_clustercont_rh_key);
-  const HGTD::HGTD_ClusterContainer* cluster_container =
+  const HGTD_ClusterContainer* cluster_container =
       cluster_container_handle.cptr();
   if (not cluster_container) {
     ATH_MSG_ERROR("[TrackTimeExtensionAlg] HGTD_ClusterContainer not found, "
@@ -203,14 +203,14 @@ StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
           trk_state->fitQualityOnSurface()->chiSquared() /
           trk_state->fitQualityOnSurface()->doubleNumberDoF());
 
-      const HGTD::HGTD_ClusterOnTrack* cot =
-          dynamic_cast<const HGTD::HGTD_ClusterOnTrack*>(
+      const HGTD_ClusterOnTrack* cot =
+          dynamic_cast<const HGTD_ClusterOnTrack*>(
               trk_state->measurementOnTrack());
 
       time_vec.emplace_back(cot->time());
 
       // get the cluster
-      const HGTD::HGTD_Cluster* cluster = cot->prepRawData();
+      const HGTD_Cluster* cluster = cot->prepRawData();
 
       raw_time_vec.emplace_back(cluster->time());
 
@@ -225,7 +225,7 @@ StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
         }
       }
 
-      HGTD::ClusterTruthOrigin truth_origin = ClusterTruthOrigin::UNIDENTIFIED;
+      ClusterTruthOrigin truth_origin = ClusterTruthOrigin::UNIDENTIFIED;
       bool is_shadowed = false;
       bool is_merged = false;
 

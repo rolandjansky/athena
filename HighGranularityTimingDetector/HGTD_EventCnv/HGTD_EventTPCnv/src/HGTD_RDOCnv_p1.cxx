@@ -9,8 +9,8 @@
 
 #include "HGTD_EventTPCnv/HGTD_RDOCnv_p1.h"
 
-void HGTD::HGTD_RDOCnv_p1::transToPers(const HGTD::HGTD_RDO* trans_obj,
-                                       HGTD::HGTD_RDO_p1* pers_obj,
+void HGTD_RDOCnv_p1::transToPers(const HGTD_RDO* trans_obj,
+                                       HGTD_RDO_p1* pers_obj,
                                        MsgStream& log) {
   log << MSG::VERBOSE << "calling HGTD_RDOCnv_p1::transToPers" << endreq;
 
@@ -22,11 +22,11 @@ void HGTD::HGTD_RDOCnv_p1::transToPers(const HGTD::HGTD_RDO* trans_obj,
   pers_obj->m_l1_a = trans_obj->getL1A();
 }
 
-void HGTD::HGTD_RDOCnv_p1::persToTrans(const HGTD::HGTD_RDO_p1* pers_obj,
-                                       HGTD::HGTD_RDO* trans_obj,
+void HGTD_RDOCnv_p1::persToTrans(const HGTD_RDO_p1* pers_obj,
+                                       HGTD_RDO* trans_obj,
                                        MsgStream& log) {
   log << MSG::VERBOSE << "calling HGTD_RDOCnv_p1::persToTrans" << endreq;
-  *trans_obj = HGTD::HGTD_RDO(Identifier(pers_obj->m_rdo_id), pers_obj->m_toa,
-                              pers_obj->m_tot, pers_obj->m_bcid,
-                              pers_obj->m_l1_id, pers_obj->m_l1_a);
+  *trans_obj = HGTD_RDO(Identifier(pers_obj->m_rdo_id), pers_obj->m_toa,
+                        pers_obj->m_tot, pers_obj->m_bcid,
+                        pers_obj->m_l1_id, pers_obj->m_l1_a);
 }

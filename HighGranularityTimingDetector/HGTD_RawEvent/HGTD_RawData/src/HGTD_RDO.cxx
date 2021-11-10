@@ -10,8 +10,6 @@
 
 #include "HGTD_RawData/HGTD_RDO.h"
 
-namespace HGTD {
-
 HGTD_RDO::HGTD_RDO(const Identifier rdo_id, const float toa,
                                  const int tot, const unsigned short bcid,
                                  const unsigned short l1_id,
@@ -23,5 +21,3 @@ HGTD_RDO::HGTD_RDO(const Identifier rdo_id, const float toa,
       m_bcid(bcid),
       m_l1_id(l1_id),
       m_l1_a(l1_a) {}
-
-} // namespace HGTD

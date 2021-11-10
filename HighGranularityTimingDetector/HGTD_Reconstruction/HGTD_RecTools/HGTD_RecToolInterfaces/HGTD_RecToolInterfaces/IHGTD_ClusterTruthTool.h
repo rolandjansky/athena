@@ -34,10 +34,9 @@ class TruthParticle_v1;
 typedef TruthParticle_v1 TruthParticle;
 } // namespace xAOD
 
-namespace HGTD {
-
 class HGTD_Cluster;
 
+namespace HGTD {
 enum ClusterTruthOrigin {
   UNIDENTIFIED = 0,
   TRUTH_PARTICLE = 1, // originates from the tested truth particle
@@ -60,9 +59,10 @@ struct ClusterTruthInfo {
    */
   bool is_merged;
 };
+} // namespace HGTD
 
 static const InterfaceID
-    IID_IHGTD_ClusterTruthTool("HGTD::IHGTD_ClusterTruthTool", 1, 0);
+    IID_IHGTD_ClusterTruthTool("IHGTD_ClusterTruthTool", 1, 0);
 
 class IHGTD_ClusterTruthTool : virtual public IAlgTool {
 
@@ -85,8 +85,8 @@ public:
    *
    * @return Struct combining the relevant truth information.
    */
-  virtual ClusterTruthInfo
-  classifyCluster(const HGTD::HGTD_Cluster* cluster,
+  virtual HGTD::ClusterTruthInfo
+  classifyCluster(const HGTD_Cluster* cluster,
                   const xAOD::TruthParticle* tp,
                   const InDetSimDataCollection* sim_data,
                   const HepMC::GenEvent* hard_scatter_evnt = nullptr) const = 0;
@@ -97,7 +97,5 @@ public:
 inline const InterfaceID& IHGTD_ClusterTruthTool::interfaceID() {
   return IID_IHGTD_ClusterTruthTool;
 }
-
-} // namespace HGTD
 
 #endif // IHGTD_CLUSTERTRUTHTOOL_H

@@ -178,7 +178,7 @@ StatusCode HGTD_DigitizationTool::prepareEvent(unsigned int /*index*/) {
   // Create the IdentifiableContainer to contain the digit collections Create
   // a new RDO container
   m_hgtd_rdo_container =
-      new HGTD::HGTD_RDOContainer(m_id_helper->wafer_hash_max());
+      new HGTD_RDOContainer(m_id_helper->wafer_hash_max());
 
   // register RDO container with storegate
   ATH_CHECK(evtStore()->record(m_hgtd_rdo_container, m_output_rdo_cont_name));
@@ -290,7 +290,7 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement() {
     // now that the charges have been built, apply all digitization tools
     applyProcessorTools(charged_diode_coll.get());
     // at this point, the RDOs and SDOs need to be created!!!
-    std::unique_ptr<HGTD::HGTD_RDOCollection> rdo_collection =
+    std::unique_ptr<HGTD_RDOCollection> rdo_collection =
         createRDOCollection(charged_diode_coll.get());
 
     ATH_CHECK(storeRDOCollection(std::move(rdo_collection)));
@@ -320,7 +320,7 @@ void HGTD_DigitizationTool::applyProcessorTools(
 }
 
 StatusCode HGTD_DigitizationTool::storeRDOCollection(
-    std::unique_ptr<HGTD::HGTD_RDOCollection> coll) {
+    std::unique_ptr<HGTD_RDOCollection> coll) {
   // Create the RDO collection
 
   if (m_hgtd_rdo_container
@@ -332,14 +332,14 @@ StatusCode HGTD_DigitizationTool::storeRDOCollection(
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<HGTD::HGTD_RDOCollection>
+std::unique_ptr<HGTD_RDOCollection>
 HGTD_DigitizationTool::createRDOCollection(
     SiChargedDiodeCollection* charged_diodes) {
 
   IdentifierHash idHash_de = charged_diodes->identifyHash();
 
-  std::unique_ptr<HGTD::HGTD_RDOCollection> rdo_collection =
-      std::make_unique<HGTD::HGTD_RDOCollection>(idHash_de);
+  std::unique_ptr<HGTD_RDOCollection> rdo_collection =
+      std::make_unique<HGTD_RDOCollection>(idHash_de);
 
   // need the DE identifier
   const Identifier id_de = charged_diodes->identify();
@@ -377,7 +377,7 @@ HGTD_DigitizationTool::createRDOCollection(
     int dummy_l1a = 0;
     int dummy_l1id = 0;
 
-    std::unique_ptr<HGTD::HGTD_RDO> p_rdo = std::make_unique<HGTD::HGTD_RDO>(
+    std::unique_ptr<HGTD_RDO> p_rdo = std::make_unique<HGTD_RDO>(
         id_readout, toa, dummy_tot, dummy_bcid, dummy_l1a, dummy_l1id);
 
     rdo_collection->push_back(p_rdo.release());

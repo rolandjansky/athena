@@ -13,8 +13,6 @@
 #include "HGTD_RawData/HGTD_RDO.h"
 #include "Identifier/Identifier.h"
 
-namespace HGTD {
-
 class HGTD_RDO_p1 {
 public:
   typedef Identifier::value_type IdType_t;
@@ -31,7 +29,5 @@ private:
   unsigned short m_l1_id;
   unsigned short m_l1_a;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_RDO_P1_H

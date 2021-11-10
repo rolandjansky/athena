@@ -38,8 +38,6 @@
 class HGTD_ID;
 class HGTD_DetectorManager;
 
-namespace HGTD {
-
 class HGTD_IterativeExtensionTool : virtual public IHGTD_TrackTimeExtensionTool,
                                     public AthAlgTool {
 
@@ -63,7 +61,7 @@ public:
    */
   virtual std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4>
   extendTrackToHGTD(const Trk::Track& track,
-                    const HGTD::HGTD_ClusterContainer* container) override;
+                    const HGTD_ClusterContainer* container) override;
 
   MsgStream& dump(MsgStream& out) const;
   std::ostream& dump(std::ostream& out) const;
@@ -134,14 +132,14 @@ private:
    */
   std::unique_ptr<const Trk::TrackStateOnSurface>
   updateState(const Trk::TrackParameters* param,
-              const HGTD::HGTD_Cluster* cluster);
+              const HGTD_Cluster* cluster);
 
   // extrapolation tool
   ToolHandle<Trk::IExtrapolator> m_extrapolator;
   // kalman updator tool
   ToolHandle<Trk::IUpdator> m_updator;
 
-  ToolHandle<HGTD::IHGTD_TOFcorrectionTool> m_tof_corr_tool;
+  ToolHandle<IHGTD_TOFcorrectionTool> m_tof_corr_tool;
 
   // keep a pointer to the currently used track, but does not own it!
   // FIXME: this is needed for the TOF correction. Maybe there is a smarter way
@@ -152,7 +150,7 @@ private:
   /**
    * @brief Keep pointer to current cluster container.
    */
-  const HGTD::HGTD_ClusterContainer* m_cluster_container;
+  const HGTD_ClusterContainer* m_cluster_container;
 
   const HGTD_DetectorManager* m_hgtd_det_mgr;
   const HGTD_ID* m_hgtd_id_helper;
@@ -168,6 +166,5 @@ private:
    */
   int m_particle_hypot;
 };
-} // namespace HGTD
 
 #endif // HGTD_ITERATIVEEXTENTSIONTOOL_H

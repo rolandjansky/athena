@@ -12,8 +12,6 @@
 
 #include "Identifier/IdentifierHash.h"
 
-namespace HGTD {
-
 class HGTD_RDOCollection_p1 {
 
 public:
@@ -31,7 +29,5 @@ private:
   //  Number of RDOs in a given collection
   unsigned short m_size;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_EVENTTPCNV_HGTD_RDOCOLLECTION_P1_H

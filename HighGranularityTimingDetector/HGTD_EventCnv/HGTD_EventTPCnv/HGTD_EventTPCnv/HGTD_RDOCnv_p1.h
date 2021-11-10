@@ -17,20 +17,16 @@
 
 class MsgStream;
 
-namespace HGTD {
-
 class HGTD_RDOCnv_p1
-    : public T_AthenaPoolTPCnvBase<HGTD::HGTD_RDO, HGTD::HGTD_RDO_p1> {
+    : public T_AthenaPoolTPCnvBase<HGTD_RDO, HGTD_RDO_p1> {
 public:
   HGTD_RDOCnv_p1() = default;
 
-  void persToTrans(const HGTD::HGTD_RDO_p1* pers_obj, HGTD::HGTD_RDO* trans_obj,
+  void persToTrans(const HGTD_RDO_p1* pers_obj, HGTD_RDO* trans_obj,
                    MsgStream& log);
 
-  void transToPers(const HGTD::HGTD_RDO* trans_obj, HGTD::HGTD_RDO_p1* pers_obj,
+  void transToPers(const HGTD_RDO* trans_obj, HGTD_RDO_p1* pers_obj,
                    MsgStream& log);
 };
-
-} // namespace HGTD
 
 #endif // HGTD_EVENTTPCNV_HGTD_RDOCNV_P1_H

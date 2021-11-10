@@ -17,8 +17,6 @@
 #include <string>
 #include <vector>
 
-namespace HGTD {
-
 class HGTD_ClusterContainer_p1 {
 public:
   /// Default constructor
@@ -26,11 +24,9 @@ public:
 
   // holds information to restore the individual collections from the flattened
   // list of persistified clusters
-  std::vector<HGTD::HGTD_PRD_Collection_p1> m_collection_separator;
+  std::vector<HGTD_PRD_Collection_p1> m_collection_separator;
 
-  std::vector<HGTD::HGTD_Cluster_p1> m_cluster_list;
+  std::vector<HGTD_Cluster_p1> m_cluster_list;
 };
-
-} // namespace HGTD
 
 #endif

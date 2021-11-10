@@ -21,7 +21,7 @@
 
 #include <memory>
 
-StatusCode HGTD::HGTD_RDOContainerCnv_p1::initialize(MsgStream& log) {
+StatusCode HGTD_RDOContainerCnv_p1::initialize(MsgStream& log) {
   // Do not initialize again:
   m_is_initialized = true;
 
@@ -50,7 +50,7 @@ StatusCode HGTD::HGTD_RDOContainerCnv_p1::initialize(MsgStream& log) {
   return StatusCode::SUCCESS;
 }
 
-void HGTD::HGTD_RDOContainerCnv_p1::transToPers(
+void HGTD_RDOContainerCnv_p1::transToPers(
     const Trans_t* transient_container, Pers_t* persistent_container,
     MsgStream& log) {
 
@@ -71,7 +71,7 @@ void HGTD::HGTD_RDOContainerCnv_p1::transToPers(
   size_t total_n_clusters = 0;
 
   for (size_t coll_i = 0; coll_i < n_collections; coll_i++, container_itr++) {
-    const HGTD::HGTD_RDOCollection& collection = (**container_itr);
+    const HGTD_RDOCollection& collection = (**container_itr);
 
     size_t collection_size = collection.size();
 
@@ -92,12 +92,12 @@ void HGTD::HGTD_RDOContainerCnv_p1::transToPers(
 
     for (size_t rdo_i = 0; rdo_i < collection_size; rdo_i++) {
       // get pointer to next position in the vector that will be persistified
-      HGTD::HGTD_RDO_p1* pers_rdo =
+      HGTD_RDO_p1* pers_rdo =
           &((persistent_container->m_rdo_list)
                 .at(rdo_i + collection_separator_index_begin));
 
-      const HGTD::HGTD_RDO* trans_rdo =
-          dynamic_cast<const HGTD::HGTD_RDO*>(collection.at(rdo_i));
+      const HGTD_RDO* trans_rdo =
+          dynamic_cast<const HGTD_RDO*>(collection.at(rdo_i));
 
       rdo_converter.transToPers(trans_rdo, pers_rdo, log);
     }
@@ -115,7 +115,7 @@ void HGTD::HGTD_RDOContainerCnv_p1::transToPers(
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void HGTD::HGTD_RDOContainerCnv_p1::persToTrans(
+void HGTD_RDOContainerCnv_p1::persToTrans(
     const Pers_t* persistent_container, Trans_t* transient_container,
     MsgStream& log) {
 
@@ -126,31 +126,31 @@ void HGTD::HGTD_RDOContainerCnv_p1::persToTrans(
     }
   }
 
-  std::unique_ptr<HGTD::HGTD_RDOCollection> collection = nullptr;
+  std::unique_ptr<HGTD_RDOCollection> collection = nullptr;
 
   HGTD_RDOCnv_p1 rdo_converter;
   size_t collection_separator_index_begin = 0;
 
   for (size_t coll_i = 0;
        coll_i < persistent_container->m_collection_separator.size(); ++coll_i) {
-    const HGTD::HGTD_RDOCollection_p1& rdo_coll =
+    const HGTD_RDOCollection_p1& rdo_coll =
         persistent_container->m_collection_separator.at(coll_i);
     // get the identifier for the collection
     IdentifierHash coll_idhash = IdentifierHash(rdo_coll.m_hash_id);
     Identifier coll_id = m_hgtd_idhelper->wafer_id(coll_idhash);
     
-    collection = std::make_unique<HGTD::HGTD_RDOCollection>(coll_idhash);
+    collection = std::make_unique<HGTD_RDOCollection>(coll_idhash);
     collection->setIdentifier(coll_id);
 
     unsigned short n_clusters = rdo_coll.m_size;
     collection->resize(n_clusters);
     for (unsigned short rdo_i = 0; rdo_i < n_clusters; ++rdo_i) {
-      const HGTD::HGTD_RDO_p1* pers_rdo =
+      const HGTD_RDO_p1* pers_rdo =
           &((persistent_container->m_rdo_list)
                 .at(rdo_i + collection_separator_index_begin));
 
       // NOTE I think I have to new it before calling the converter
-      HGTD::HGTD_RDO* trans_rdo = new HGTD::HGTD_RDO();
+      HGTD_RDO* trans_rdo = new HGTD_RDO();
       rdo_converter.persToTrans(pers_rdo, trans_rdo, log);
       (*collection).at(rdo_i) = trans_rdo;
     }
@@ -164,8 +164,8 @@ void HGTD::HGTD_RDOContainerCnv_p1::persToTrans(
   }
 }
 
-HGTD::HGTD_RDOContainerCnv_p1::Trans_t*
-HGTD::HGTD_RDOContainerCnv_p1::createTransient(
+HGTD_RDOContainerCnv_p1::Trans_t*
+HGTD_RDOContainerCnv_p1::createTransient(
     const Pers_t* persistent_container, MsgStream& log) {
 
   if (!m_is_initialized) {

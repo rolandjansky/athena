@@ -51,8 +51,6 @@
 
 #include <cstdint>
 
-namespace HGTD {
-
 class HGTD_RDO : public Identifiable {
 
 public:
@@ -128,7 +126,5 @@ inline unsigned short HGTD_RDO::getBCID() const { return m_bcid; }
 inline unsigned short HGTD_RDO::getL1ID() const { return m_l1_id; }
 
 inline unsigned short HGTD_RDO::getL1A() const { return m_l1_a; }
-
-} // namespace HGTD
 
 #endif // HGTD_RAWDATA_HGTD_RDORAWDATA_H

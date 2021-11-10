@@ -41,9 +41,9 @@ StatusCode PadClusterizationAlg::initialize() {
 
 StatusCode PadClusterizationAlg::execute() {
   // retrieve the RDOs
-  SG::ReadHandle<HGTD::HGTD_RDOContainer> rdo_container_handle(m_rdo_rh_key);
+  SG::ReadHandle<HGTD_RDOContainer> rdo_container_handle(m_rdo_rh_key);
 
-  const HGTD::HGTD_RDOContainer* rdo_container = rdo_container_handle.cptr();
+  const HGTD_RDOContainer* rdo_container = rdo_container_handle.cptr();
 
   if (not rdo_container) {
     //assume this is fast digi input and ignore
@@ -51,14 +51,14 @@ StatusCode PadClusterizationAlg::execute() {
   }
 
   // register the PRD container in storegate
-  SG::WriteHandle<HGTD::HGTD_ClusterContainer> prd_container_handle(
+  SG::WriteHandle<HGTD_ClusterContainer> prd_container_handle(
       m_prd_wh_key);
 
   ATH_CHECK(
-      prd_container_handle.record(std::make_unique<HGTD::HGTD_ClusterContainer>(
+      prd_container_handle.record(std::make_unique<HGTD_ClusterContainer>(
           m_hgtd_idhelper->wafer_hash_max())));
 
-  HGTD::HGTD_ClusterContainer* locp_prd_container = prd_container_handle.ptr();
+  HGTD_ClusterContainer* locp_prd_container = prd_container_handle.ptr();
 
   // Transform the RDOs collection by collection
   for (const auto& rdo_collection : *rdo_container) {
@@ -66,7 +66,7 @@ StatusCode PadClusterizationAlg::execute() {
       continue;
     }
 
-    std::unique_ptr<HGTD::HGTD_ClusterCollection> prd_collection =
+    std::unique_ptr<HGTD_ClusterCollection> prd_collection =
         m_clusterization_tool->clusterize(*rdo_collection);
 
     // can happen if some channels are masked, not really relevant currently

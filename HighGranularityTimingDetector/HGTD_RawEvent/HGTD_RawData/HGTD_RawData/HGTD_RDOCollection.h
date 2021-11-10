@@ -17,9 +17,7 @@
 #include "HGTD_RawData/HGTD_RDO.h"
 #include "Identifier/IdentifierHash.h"
 
-namespace HGTD {
-
-class HGTD_RDOCollection : public DataVector<HGTD::HGTD_RDO> {
+class HGTD_RDOCollection : public DataVector<HGTD_RDO> {
   // friend class HGTD_RDORawDataCollectionCnv_p1; //FIXME probably later
 
 public:
@@ -41,7 +39,5 @@ private:
 
   Identifier m_id;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_RAWDATA_HGTD_RDOCOLLECTION_H

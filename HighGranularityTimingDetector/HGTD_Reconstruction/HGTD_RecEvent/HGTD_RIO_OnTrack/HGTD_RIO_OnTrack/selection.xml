@@ -1,5 +1,5 @@
 <lcgdict>
-   <class name="HGTD::HGTD_ClusterOnTrack" >
+   <class name="HGTD_ClusterOnTrack" >
     <field name="m_rio" transient="true" />
     <field name="m_det_el" transient="true" />
     <field name="m_global_position" transient="true" />

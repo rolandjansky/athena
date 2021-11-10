@@ -26,12 +26,12 @@ HGTD::ClusterTruthTool::ClusterTruthTool(const std::string& t,
     : AthAlgTool(t, n, p) {}
 
 HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
-    const HGTD::HGTD_Cluster* cluster, const xAOD::TruthParticle* tp,
+    const HGTD_Cluster* cluster, const xAOD::TruthParticle* tp,
     const InDetSimDataCollection* sim_data,
     const HepMC::GenEvent* hard_scatter_evnt) const {
 
   if (not sim_data) {
-    return {ClusterTruthOrigin::UNIDENTIFIED, false, false};
+    return {HGTD::ClusterTruthOrigin::UNIDENTIFIED, false, false};
   }
 
   const std::vector<Identifier>& rdo_id_list = cluster->rdoList();
@@ -44,14 +44,14 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
     // the InDetSimData contains a std::pair<HepMcParticleLink, float>, where
     // the second entry in the pair holds the time of the SiChargedDiode
     if (pos == sim_data->end()) {
-      ATH_MSG_WARNING("[ClusterTruthTool::classifyCluster] ID not found in SDO "
+      ATH_MSG_WARNING("[HGTD::ClusterTruthTool::classifyCluster] ID not found in SDO "
                       "map, going to next ID");
       // FIXME I should probably continue here already? otherwise I get an
       // "empty" entry in shadowed_origins
       continue;
     }
     // collect deposits, sorted with first deposit at start of map bu default
-    std::map<float, ClusterTruthOrigin> sorted_deposits;
+    std::map<float, HGTD::ClusterTruthOrigin> sorted_deposits;
 
     //////////////////////////////
     // the following is taken from 20.20 as is
@@ -63,7 +63,7 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
       // 0 is also used for detector noise, delta rays and random energy
       // deposits
       if (barcode == 0 || barcode > 200000) {
-        sorted_deposits.emplace(deposit.second, ClusterTruthOrigin::SECONDARY);
+        sorted_deposits.emplace(deposit.second, HGTD::ClusterTruthOrigin::SECONDARY);
         // FIXME: shouldn't I "continue" here?
       }
       // check for identity with original particle
@@ -75,27 +75,27 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
         // deposit came from the tested truth particle
         if (barcode == tp->barcode() && tp->p4().DeltaR(l4) < 0.05) {
           sorted_deposits.emplace(deposit.second,
-                                  ClusterTruthOrigin::TRUTH_PARTICLE);
+                                  HGTD::ClusterTruthOrigin::TRUTH_PARTICLE);
           // if given, the parent event can be checked
         } else if (hard_scatter_evnt and
                    gen_part->parent_event() == hard_scatter_evnt) {
           sorted_deposits.emplace(deposit.second,
-                                  ClusterTruthOrigin::HARD_SCATTER);
+                                  HGTD::ClusterTruthOrigin::HARD_SCATTER);
           // otherwise, a particle that was generated but doesn't come from the
           // hard scatter is considered to be originating from a pileup
           // interaction
         } else {
-          sorted_deposits.emplace(deposit.second, ClusterTruthOrigin::PILEUP);
+          sorted_deposits.emplace(deposit.second, HGTD::ClusterTruthOrigin::PILEUP);
         }
       } else {
         // if there is no gen particle, we can guess based on the event index
         if (particle_link.eventIndex() == 0) {
           sorted_deposits.emplace(deposit.second,
-                                  ClusterTruthOrigin::HARD_SCATTER);
+                                  HGTD::ClusterTruthOrigin::HARD_SCATTER);
         } else {
           // If the gen was not kept, we assume it is cut away from truth record
           // and is pileup
-          sorted_deposits.emplace(deposit.second, ClusterTruthOrigin::PILEUP);
+          sorted_deposits.emplace(deposit.second, HGTD::ClusterTruthOrigin::PILEUP);
         }
       }
     } // END lOOP over the deposits
@@ -104,9 +104,9 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
     // particle, but it was not the first deposit and is thus not used for the
     // time measurement -> I will have an incorrect time
     bool is_shadowed = false;
-    ClusterTruthOrigin current_origin;
+    HGTD::ClusterTruthOrigin current_origin;
 
-    std::map<float, ClusterTruthOrigin>::iterator elem =
+    std::map<float, HGTD::ClusterTruthOrigin>::iterator elem =
         sorted_deposits.begin();
 
     for (; elem != sorted_deposits.end(); ++elem) {
@@ -116,8 +116,8 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
         // if one of the later deposits originates from the truth particle, then
         // the hit I want to find was shadowed by something else, and I will
         // reconstruct an incorrect time
-        if (current_origin != ClusterTruthOrigin::TRUTH_PARTICLE &&
-            elem->second == ClusterTruthOrigin::TRUTH_PARTICLE) {
+        if (current_origin != HGTD::ClusterTruthOrigin::TRUTH_PARTICLE &&
+            elem->second == HGTD::ClusterTruthOrigin::TRUTH_PARTICLE) {
           is_shadowed = true;
         }
       }
@@ -129,7 +129,7 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
 
   if (shadowed_origins.size() == 0) {
     ATH_MSG_WARNING("did not manage to understand any RDOs...");
-    result.origin = ClusterTruthOrigin::UNIDENTIFIED;
+    result.origin = HGTD::ClusterTruthOrigin::UNIDENTIFIED;
     result.is_shadowed = false;
     // A cluster is considered to be merged if more than one particle deposited
     // energy in a given pad.

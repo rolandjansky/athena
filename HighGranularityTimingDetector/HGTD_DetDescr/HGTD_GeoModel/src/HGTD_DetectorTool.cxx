@@ -77,7 +77,7 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
     // The * converts a ConstPVLink to a ref to a GeoVPhysVol, the & takes the address of the GeoVPhysVol
     GeoPhysVol *world = &*theExpt->getPhysVol();
 
-    HGTDGeo::HGTD_DetectorFactory theHGTDFactory( m_athenaComps, m_commonItems );
+    HGTD_DetectorFactory theHGTDFactory( m_athenaComps, m_commonItems );
     theHGTDFactory.setPrintIdentifierDict( m_printIDdict );
     theHGTDFactory.create(world);
 

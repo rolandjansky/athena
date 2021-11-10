@@ -23,17 +23,17 @@
 
 const HGTD_ID* g_hgtd_idhelper;
 
-std::unique_ptr<HGTD::HGTD_RDO> createRDO(int id, float time, int tot, int bcid,
-                                          int lv1a, int lv1id) {
+std::unique_ptr<HGTD_RDO> createRDO(int id, float time, int tot, int bcid,
+                                    int lv1a, int lv1id) {
   std::cout << "createRDO\n";
 
   Identifier identifier(id);
 
-  return std::make_unique<HGTD::HGTD_RDO>(identifier, time, tot, bcid, lv1a,
+  return std::make_unique<HGTD_RDO>(identifier, time, tot, bcid, lv1a,
                                           lv1id);
 }
 
-void compare(const HGTD::HGTD_RDO& p1, const HGTD::HGTD_RDO& p2) {
+void compare(const HGTD_RDO& p1, const HGTD_RDO& p2) {
   std::cout << "compare HGTD_RDO\n";
   BOOST_CHECK(p1.identify() == p2.identify());
   BOOST_CHECK(p1.getTOA() == p2.getTOA());
@@ -44,19 +44,19 @@ void compare(const HGTD::HGTD_RDO& p1, const HGTD::HGTD_RDO& p2) {
   std::cout << "compare HGTD_RDO done\n";
 }
 
-void compare(const HGTD::HGTD_RDOContainer& p1,
-             const HGTD::HGTD_RDOContainer& p2) {
+void compare(const HGTD_RDOContainer& p1,
+             const HGTD_RDOContainer& p2) {
   std::cout << "start HGTD_RDOContainer comparison\n";
-  HGTD::HGTD_RDOContainer::const_iterator it1 = p1.begin();
-  HGTD::HGTD_RDOContainer::const_iterator it1e = p1.end();
-  HGTD::HGTD_RDOContainer::const_iterator it2 = p2.begin();
-  HGTD::HGTD_RDOContainer::const_iterator it2e = p2.end();
+  HGTD_RDOContainer::const_iterator it1 = p1.begin();
+  HGTD_RDOContainer::const_iterator it1e = p1.end();
+  HGTD_RDOContainer::const_iterator it2 = p2.begin();
+  HGTD_RDOContainer::const_iterator it2e = p2.end();
   while (it1 != it1e && it2 != it2e) {
     BOOST_CHECK(it1.hashId() == it2.hashId());
     BOOST_CHECK(it1->hasData() == it2->hasData());
     if (it1->hasData()) {
-      const HGTD::HGTD_RDOCollection& coll1 = **it1;
-      const HGTD::HGTD_RDOCollection& coll2 = **it2;
+      const HGTD_RDOCollection& coll1 = **it1;
+      const HGTD_RDOCollection& coll2 = **it2;
       BOOST_CHECK(coll1.size() == coll2.size());
       for (size_t j = 0; j < coll1.size(); j++) {
         compare(*coll1.at(j), *coll2.at(j));
@@ -68,19 +68,19 @@ void compare(const HGTD::HGTD_RDOContainer& p1,
   BOOST_CHECK(it1 == it1e && it2 == it2e);
 }
 
-std::unique_ptr<const HGTD::HGTD_RDOContainer> makeRDOContainer() {
-  auto container = std::make_unique<HGTD::HGTD_RDOContainer>(5);
+std::unique_ptr<const HGTD_RDOContainer> makeRDOContainer() {
+  auto container = std::make_unique<HGTD_RDOContainer>(5);
 
   for (int hash = 2; hash <= 3; hash++) {
     // create a collection
     auto collection =
-        std::make_unique<HGTD::HGTD_RDOCollection>(IdentifierHash(hash));
+        std::make_unique<HGTD_RDOCollection>(IdentifierHash(hash));
     // fill it with RDOs
     for (int i = 1; i < 10; i++) {
 
       Identifier id = g_hgtd_idhelper->wafer_id(2, 1, hash, i);
 
-      std::unique_ptr<HGTD::HGTD_RDO> rdo =
+      std::unique_ptr<HGTD_RDO> rdo =
           createRDO(id.get_compact(), 14.8348, 266, 1, 2, 3);
       collection->push_back(std::move(rdo));
     }
@@ -156,22 +156,22 @@ BOOST_AUTO_TEST_CASE(HGTD_RDOContainerCnv_p1_test) {
 
   g_hgtd_idhelper->set_do_checks(true);
 
-  std::unique_ptr<const HGTD::HGTD_RDOContainer> trans_container =
+  std::unique_ptr<const HGTD_RDOContainer> trans_container =
       makeRDOContainer();
   std::cout << "HGTD_RDOContainer created\n";
   // otherwise there is nothing to test
   BOOST_REQUIRE(trans_container->size() > 0);
 
   MsgStream log(0, "test");
-  HGTD::HGTD_RDOContainerCnv_p1 cnv;
+  HGTD_RDOContainerCnv_p1 cnv;
 
-  HGTD::HGTD_RDOContainer_p1 pers;
+  HGTD_RDOContainer_p1 pers;
 
   std::cout << "HGTD_RDOContainer transToPers\n";
   cnv.transToPers(trans_container.get(), &pers, log);
   std::cout << "HGTD_RDOContainer transToPers done\n";
 
-  HGTD::HGTD_RDOContainer trans(g_hgtd_idhelper->wafer_hash_max());
+  HGTD_RDOContainer trans(g_hgtd_idhelper->wafer_hash_max());
 
   std::cout << "HGTD_RDOContainer persToTrans\n";
   cnv.persToTrans(&pers, &trans, log);

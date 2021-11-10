@@ -38,19 +38,19 @@ public:
   virtual StatusCode execute() override final;
 
 private:
-  ToolHandle<HGTD::IHGTD_PadClusterizationTool> m_clusterization_tool;
+  ToolHandle<IHGTD_PadClusterizationTool> m_clusterization_tool;
 
   // FIXME: should look like this in master
-  // SG::ReadHandleKey<HGTD::HGTD_RDOContainer> m_rdo_rh_key{
+  // SG::ReadHandleKey<HGTD_RDOContainer> m_rdo_rh_key{
   //     this, "RDOContainerName", "HGTD_RDOs", "Name of the HGTD_RDO
   //     container"};
   //
-  // SG::WriteHandleKey<HGTD::HGTD_ClusterContainer> m_prd_wh_key{
+  // SG::WriteHandleKey<HGTD_ClusterContainer> m_prd_wh_key{
   //     this, "PRDContainerName", "HGTD_Clusters",
   //     "Name of the HGTD_Cluster container"};
-  SG::ReadHandleKey<HGTD::HGTD_RDOContainer> m_rdo_rh_key;
+  SG::ReadHandleKey<HGTD_RDOContainer> m_rdo_rh_key;
 
-  SG::WriteHandleKey<HGTD::HGTD_ClusterContainer> m_prd_wh_key;
+  SG::WriteHandleKey<HGTD_ClusterContainer> m_prd_wh_key;
 
   const HGTD_ID* m_hgtd_idhelper;
 };
