@@ -15,8 +15,6 @@
 #include <string>
 #include <vector>
 
-namespace HGTD {
-
 class HGTD_RDOContainer_p1 {
 public:
   /// Default constructor
@@ -24,11 +22,9 @@ public:
 
   // holds information to restore the individual collections from the flattened
   // list of persistified clusters
-  std::vector<HGTD::HGTD_RDOCollection_p1> m_collection_separator;
+  std::vector<HGTD_RDOCollection_p1> m_collection_separator;
 
-  std::vector<HGTD::HGTD_RDO_p1> m_rdo_list;
+  std::vector<HGTD_RDO_p1> m_rdo_list;
 };
-
-} // namespace HGTD
 
 #endif

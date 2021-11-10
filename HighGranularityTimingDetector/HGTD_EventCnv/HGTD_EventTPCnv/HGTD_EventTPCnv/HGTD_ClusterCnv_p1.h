@@ -21,30 +21,26 @@
 
 class MsgStream;
 
-namespace HGTD {
-
 class HGTD_ClusterCnv_p1
-    : public T_AthenaPoolTPPolyCnvBase<Trk::PrepRawData, HGTD::HGTD_Cluster,
-                                       HGTD::HGTD_Cluster_p1> {
+    : public T_AthenaPoolTPPolyCnvBase<Trk::PrepRawData, HGTD_Cluster,
+                                       HGTD_Cluster_p1> {
 public:
   HGTD_ClusterCnv_p1() = default;
 
-  void persToTrans(const HGTD::HGTD_Cluster_p1*, HGTD::HGTD_Cluster*,
+  void persToTrans(const HGTD_Cluster_p1*, HGTD_Cluster*,
                    MsgStream&);
 
-  void transToPers(const HGTD::HGTD_Cluster*, HGTD::HGTD_Cluster_p1*,
+  void transToPers(const HGTD_Cluster*, HGTD_Cluster_p1*,
                    MsgStream&);
 
   // needs to be public since it is called in the container converter
-  HGTD::HGTD_Cluster
-  createHGTDCluster(const HGTD::HGTD_Cluster_p1* pers_obj,
+  HGTD_Cluster
+  createHGTDCluster(const HGTD_Cluster_p1* pers_obj,
                     const InDetDD::SolidStateDetectorElementBase* delEl,
                     MsgStream& log);
 
 protected:
   InDet::SiWidthCnv_p2 m_si_width_cnv;
 };
-
-} // namespace HGTD
 
 #endif // HGTD_EVENTTPCNV_HGTD_CLUSTER_CNV_P1_H

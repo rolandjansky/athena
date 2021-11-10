@@ -20,7 +20,7 @@
 
 namespace HGTD_EventTPCnvDict {
 struct tmp {
-  std::vector<HGTD::HGTD_Cluster_p1> m_v1;
+  std::vector<HGTD_Cluster_p1> m_v1;
 };
 } // namespace HGTD_EventTPCnvDict
 

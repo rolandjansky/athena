@@ -32,7 +32,7 @@ StatusCode HGTD::StraightLineTOFcorrectionTool::initialize() {
 
 std::pair<float, float>
 HGTD::StraightLineTOFcorrectionTool::correctTimeAndResolution(
-    const Trk::Track& track, const HGTD::HGTD_Cluster& cluster,
+    const Trk::Track& track, const HGTD_Cluster& cluster,
     const float time_of_arrival, const float time_of_arrival_err) const {
 
   ATH_MSG_DEBUG("Correcting input time: " << time_of_arrival);

@@ -42,7 +42,7 @@ public:
 
   virtual std::pair<float, float>
   correctTimeAndResolution(const Trk::Track& track,
-                           const HGTD::HGTD_Cluster& cluster,
+                           const HGTD_Cluster& cluster,
                            const float time_of_arrival,
                            const float time_of_arrival_err) const override;
 

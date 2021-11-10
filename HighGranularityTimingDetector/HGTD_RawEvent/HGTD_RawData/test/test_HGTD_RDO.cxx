@@ -15,18 +15,18 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-HGTD::HGTD_RDO createRDO() {
+HGTD_RDO createRDO() {
   std::cout << "createRDO\n";
 
   Identifier id(5678);
 
-  HGTD::HGTD_RDO rdo(id, 14.537, 212, 1, 2, 3);
+  HGTD_RDO rdo(id, 14.537, 212, 1, 2, 3);
 
   std::cout << "createRDO done\n";
   return rdo;
 }
 
-void compare(const HGTD::HGTD_RDO& p1, const HGTD::HGTD_RDO& p2) {
+void compare(const HGTD_RDO& p1, const HGTD_RDO& p2) {
   std::cout << "compare HGTD_RDO\n";
   BOOST_CHECK(p1.identify() == p2.identify());
   BOOST_CHECK(p1.getTOA() == p2.getTOA());
@@ -37,40 +37,40 @@ void compare(const HGTD::HGTD_RDO& p1, const HGTD::HGTD_RDO& p2) {
   std::cout << "compare HGTD_RDO done\n";
 }
 
-void testCopyCtor(const HGTD::HGTD_RDO& rdo) {
+void testCopyCtor(const HGTD_RDO& rdo) {
   std::cout << "testCopyCtor\n";
-  HGTD::HGTD_RDO copied_rdo(rdo);
+  HGTD_RDO copied_rdo(rdo);
 
   compare(rdo, copied_rdo);
   std::cout << "testCopyCtor done\n";
 }
 
-void testAssignment(const HGTD::HGTD_RDO& rdo) {
+void testAssignment(const HGTD_RDO& rdo) {
   std::cout << "testAssignment\n";
-  HGTD::HGTD_RDO assigned_rdo = rdo;
+  HGTD_RDO assigned_rdo = rdo;
 
   compare(rdo, assigned_rdo);
   std::cout << "testAssignment done\n";
 }
 
-void testMoveCtor(HGTD::HGTD_RDO rdo) {
+void testMoveCtor(HGTD_RDO rdo) {
   std::cout << "testMoveCtor\n";
-  HGTD::HGTD_RDO copied_rdo(std::move(rdo));
+  HGTD_RDO copied_rdo(std::move(rdo));
 
   compare(rdo, copied_rdo);
   std::cout << "testMoveCtor done\n";
 }
 
-void testMoveAssignment(HGTD::HGTD_RDO rdo) {
+void testMoveAssignment(HGTD_RDO rdo) {
   std::cout << "testMoveAssignment\n";
-  HGTD::HGTD_RDO move_assign_rdo = std::move(rdo);
+  HGTD_RDO move_assign_rdo = std::move(rdo);
 
   compare(rdo, move_assign_rdo);
 
   std::cout << "testMoveAssignment done\n";
 }
 
-BOOST_AUTO_TEST_CASE(HGTD_RDO, *boost::unit_test::tolerance(1e-10)) {
+BOOST_AUTO_TEST_CASE(HGTD_RDO_test, *boost::unit_test::tolerance(1e-10)) {
 
   std::cout << "running test_HGTD_RDO\n";
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(HGTD_RDO, *boost::unit_test::tolerance(1e-10)) {
 
   float toa = 14.8348;
 
-  HGTD::HGTD_RDO rdo(id, toa, 266, 1, 2, 3);
+  HGTD_RDO rdo(id, toa, 266, 1, 2, 3);
 
   BOOST_CHECK(rdo.identify() == id);
   BOOST_CHECK(rdo.getTOA() == toa);
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(HGTD_RDO, *boost::unit_test::tolerance(1e-10)) {
   BOOST_CHECK(rdo.getL1ID() == 2);
   BOOST_CHECK(rdo.getL1A() == 3);
 
-  HGTD::HGTD_RDO rdo2 = createRDO();
+  HGTD_RDO rdo2 = createRDO();
 
   testCopyCtor(rdo2);
 

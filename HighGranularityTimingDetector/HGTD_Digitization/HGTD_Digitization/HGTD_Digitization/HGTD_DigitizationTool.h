@@ -95,10 +95,10 @@ private:
    */
   void applyProcessorTools(SiChargedDiodeCollection*);
 
-  std::unique_ptr<HGTD::HGTD_RDOCollection>
+  std::unique_ptr<HGTD_RDOCollection>
   createRDOCollection(SiChargedDiodeCollection*);
 
-  StatusCode storeRDOCollection(std::unique_ptr<HGTD::HGTD_RDOCollection>);
+  StatusCode storeRDOCollection(std::unique_ptr<HGTD_RDOCollection>);
 
   // inserts the created SDO elements into the m_sdo_collection object.
   void createAndStoreSDO(SiChargedDiodeCollection* collection);
@@ -110,7 +110,7 @@ private:
   const HGTD_ID* m_id_helper;
   const HGTD_DetectorManager* m_det_mgr;
 
-  HGTD::HGTD_RDOContainer* m_hgtd_rdo_container;
+  HGTD_RDOContainer* m_hgtd_rdo_container;
   std::string m_output_rdo_cont_name;
 
   InDetSimDataCollection* m_sdo_collection;

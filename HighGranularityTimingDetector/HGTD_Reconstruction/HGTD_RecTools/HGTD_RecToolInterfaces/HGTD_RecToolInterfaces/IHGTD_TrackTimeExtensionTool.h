@@ -28,10 +28,8 @@
 
 class MsgStream;
 
-namespace HGTD {
-
 static const InterfaceID
-    IID_IHGTD_TrackExtensionTool("HGTD::IHGTD_TrackTimeExtensionTool", 1, 0);
+    IID_IHGTD_TrackExtensionTool("IHGTD_TrackTimeExtensionTool", 1, 0);
 
 class IHGTD_TrackTimeExtensionTool : virtual public IAlgTool {
 
@@ -49,7 +47,7 @@ public:
    */
   virtual std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4>
   extendTrackToHGTD(const Trk::Track& track,
-                    const HGTD::HGTD_ClusterContainer* container) = 0;
+                    const HGTD_ClusterContainer* container) = 0;
 };
 
 /** Inline methods **/
@@ -57,7 +55,5 @@ public:
 inline const InterfaceID& IHGTD_TrackTimeExtensionTool::interfaceID() {
   return IID_IHGTD_TrackExtensionTool;
 }
-
-} // namespace HGTD
 
 #endif // IHGTD_TRACKTIMEEXTENSIONTOOL_H

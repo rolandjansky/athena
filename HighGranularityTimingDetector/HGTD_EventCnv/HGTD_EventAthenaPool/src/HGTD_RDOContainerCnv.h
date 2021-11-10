@@ -19,11 +19,11 @@
 
 // the latest persistent representation type of the container holding
 // HGTD_RawData
-typedef HGTD::HGTD_RDOContainer_p1 HGTD_RDOContainer_PERS_t;
+typedef HGTD_RDOContainer_p1 HGTD_RDOContainer_PERS_t;
 
-typedef HGTD::HGTD_RDOContainerCnv_p1 HGTD_RDOContainerCNV_t;
+typedef HGTD_RDOContainerCnv_p1 HGTD_RDOContainerCNV_t;
 
-typedef T_AthenaPoolCustomCnv<HGTD::HGTD_RDOContainer, HGTD_RDOContainer_PERS_t>
+typedef T_AthenaPoolCustomCnv<HGTD_RDOContainer, HGTD_RDOContainer_PERS_t>
     HGTD_RDOContainerCnvBase_t;
 
 class HGTD_RDOContainerCnv : public HGTD_RDOContainerCnvBase_t {
@@ -36,9 +36,9 @@ protected:
   virtual ~HGTD_RDOContainerCnv() override;
 
   virtual HGTD_RDOContainer_PERS_t*
-  createPersistent(HGTD::HGTD_RDOContainer* trans) override;
+  createPersistent(HGTD_RDOContainer* trans) override;
 
-  virtual HGTD::HGTD_RDOContainer* createTransient() override;
+  virtual HGTD_RDOContainer* createTransient() override;
 
 private:
   HGTD_RDOContainerCNV_t m_converter;

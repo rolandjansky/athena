@@ -19,7 +19,7 @@ SinglePadClusterTool::SinglePadClusterTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_cluster_maker("HGTD::HGTD_ClusterMakerTool/HGTD_ClusterMakerTool"),
+      m_cluster_maker("HGTD_ClusterMakerTool/HGTD_ClusterMakerTool"),
       m_hgtd_det_mgr(nullptr) {
   declareProperty("ClusterMakerTool", m_cluster_maker);
 }
@@ -35,14 +35,14 @@ StatusCode SinglePadClusterTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<HGTD::HGTD_ClusterCollection>
+std::unique_ptr<HGTD_ClusterCollection>
 SinglePadClusterTool::clusterize(const HGTD_RDOCollection& rdo_coll) const {
 
   Identifier identifier = rdo_coll.identify();
   IdentifierHash id_hash = rdo_coll.identifierHash();
 
-  std::unique_ptr<HGTD::HGTD_ClusterCollection> cluster_collection =
-      std::make_unique<HGTD::HGTD_ClusterCollection>(id_hash);
+  std::unique_ptr<HGTD_ClusterCollection> cluster_collection =
+      std::make_unique<HGTD_ClusterCollection>(id_hash);
   cluster_collection->setIdentifier(identifier);
   cluster_collection->reserve(rdo_coll.size());
 
@@ -90,7 +90,7 @@ SinglePadClusterTool::clusterize(const HGTD_RDOCollection& rdo_coll) const {
     // gets transformed to cluster directly
     std::vector<int> time_over_threshold = {static_cast<int>(rdo->getTOT())};
 
-    std::unique_ptr<HGTD::HGTD_Cluster> cluster =
+    std::unique_ptr<HGTD_Cluster> cluster =
         m_cluster_maker->createCluster(rdo_id, loc_pos, rdo_list, si_width,
                                        element, time_of_arrival,
                                        time_over_threshold);

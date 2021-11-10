@@ -15,10 +15,8 @@
 #include "HGTD_RawData/HGTD_RDOCollection.h"
 #include "SGTools/CLASS_DEF.h"
 
-namespace HGTD {
-
 class HGTD_RDOContainer
-    : public IdentifiableContainer<HGTD::HGTD_RDOCollection> {
+    : public IdentifiableContainer<HGTD_RDOCollection> {
   // friend class HGTD_RDOCollectionCnv_p1; //FIXME probably later
 
 public:
@@ -35,8 +33,6 @@ public:
   virtual const CLID& clID() const { return classID(); }
 };
 
-} // namespace HGTD
-
-CLASS_DEF(HGTD::HGTD_RDOContainer, 1145604774, 1)
+CLASS_DEF(HGTD_RDOContainer, 1188397049, 1)
 
 #endif // HGTD_RAWDATA_HGTD_RDOCONTAINER_H

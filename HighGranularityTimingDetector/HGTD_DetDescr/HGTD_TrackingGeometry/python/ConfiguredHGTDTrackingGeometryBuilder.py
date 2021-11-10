@@ -12,17 +12,17 @@
 from AthenaCommon.Include import Include, IncludeError, include
 
 # import the Extrapolator configurable
-from HGTD_TrackingGeometry.HGTD_TrackingGeometryConf import HGTDet__HGTD_TrackingGeometryBuilder
+from HGTD_TrackingGeometry.HGTD_TrackingGeometryConf import HGTD_TrackingGeometryBuilder
 
 # define the class
-class ConfiguredHGTDTrackingGeometryBuilder( HGTDet__HGTD_TrackingGeometryBuilder ):
+class ConfiguredHGTDTrackingGeometryBuilder( HGTD_TrackingGeometryBuilder ):
     # constructor
     def __init__(self,name = 'HGTDTrackingGeometryBuilder'):
       from AthenaCommon.AppMgr import ToolSvc, ServiceMgr   
       from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags      
-      from HGTD_TrackingGeometry.HGTD_TrackingGeometryConf import HGTDet__HGTD_LayerBuilder
+      from HGTD_TrackingGeometry.HGTD_TrackingGeometryConf import HGTD_LayerBuilder
       # HGTD building
-      HGTD_LayerBuilder = HGTDet__HGTD_LayerBuilder(name='HGTD_LayerBuilder')
+      HGTD_LayerBuilder = HGTD_LayerBuilder(name='HGTD_LayerBuilder')
       HGTD_LayerBuilder.Identification      = 'HGTD'
       HGTD_LayerBuilder.SetLayerAssociation = True        
       # output level                       
@@ -32,7 +32,7 @@ class ConfiguredHGTDTrackingGeometryBuilder( HGTDet__HGTD_TrackingGeometryBuilde
       # HGTD -> ToolSvc                             
       ToolSvc += HGTD_LayerBuilder                       
       
-      HGTDet__HGTD_TrackingGeometryBuilder.__init__(self,name,
-                                                    LayerBuilder = HGTD_LayerBuilder,
-                                                    EnvelopeDefinitionSvc = ServiceMgr.AtlasEnvelopeSvcDefinitionSvc,
-                                                    TrackingVolumeCreator = ToolSvc.InDetCylinderVolumeCreator)
+      HGTD_TrackingGeometryBuilder.__init__(self,name,
+                                            LayerBuilder = HGTD_LayerBuilder,
+                                            EnvelopeDefinitionSvc = ServiceMgr.AtlasEnvelopeSvcDefinitionSvc,
+                                            TrackingVolumeCreator = ToolSvc.InDetCylinderVolumeCreator)

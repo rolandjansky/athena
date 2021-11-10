@@ -6,7 +6,7 @@
 // HGTD_TrackingGeometryBuilder.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-// HGTDet
+// HGTD
 #include "HGTD_TrackingGeometry/HGTD_TrackingGeometryBuilder.h"
 // Trk interfaces
 #include "TrkDetDescrInterfaces/ILayerBuilder.h"
@@ -37,7 +37,7 @@
 #include <algorithm>
 
 // constructor
-HGTDet::HGTD_TrackingGeometryBuilder::HGTD_TrackingGeometryBuilder(const std::string& t, const std::string& n, const IInterface* p) :
+HGTD_TrackingGeometryBuilder::HGTD_TrackingGeometryBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_enclosingEnvelopeSvc("AtlasGeometry_EnvelopeDefSvc", n),
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/CylinderVolumeCreator"),
@@ -62,13 +62,13 @@ HGTDet::HGTD_TrackingGeometryBuilder::HGTD_TrackingGeometryBuilder(const std::st
 }
 
 // destructor
-HGTDet::HGTD_TrackingGeometryBuilder::~HGTD_TrackingGeometryBuilder()
+HGTD_TrackingGeometryBuilder::~HGTD_TrackingGeometryBuilder()
 {
 }
 
 // Athena standard methods
 // initialize
-StatusCode HGTDet::HGTD_TrackingGeometryBuilder::initialize()
+StatusCode HGTD_TrackingGeometryBuilder::initialize()
 {
   // retrieve envelope definition service 
   ATH_CHECK(m_enclosingEnvelopeSvc.retrieve());
@@ -84,13 +84,13 @@ StatusCode HGTDet::HGTD_TrackingGeometryBuilder::initialize()
 }
 
 // finalize
-StatusCode HGTDet::HGTD_TrackingGeometryBuilder::finalize()
+StatusCode HGTD_TrackingGeometryBuilder::finalize()
 {
   ATH_MSG_INFO( "finalize() successful" );
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackingGeometry* HGTDet::HGTD_TrackingGeometryBuilder::trackingGeometry(const Trk::TrackingVolume* innerVol) const
+const Trk::TrackingGeometry* HGTD_TrackingGeometryBuilder::trackingGeometry(const Trk::TrackingVolume* innerVol) const
 {
 
   ATH_MSG_VERBOSE( "Starting to build HGTD_TrackingGeometry ..." );   

@@ -53,8 +53,6 @@
 
 using namespace std;
 
-namespace HGTDGeo {
-
 HGTD_DetectorFactory::HGTD_DetectorFactory( InDetDD::AthenaComps* athComps, InDetDD::SiCommonItems* commonItems ) :
   InDetDD::DetectorFactoryBase( athComps ),
   m_athComps( athComps ),
@@ -1143,5 +1141,3 @@ std::vector<ModulePosition> HGTD_DetectorFactory::prepareModulePositionsInRowTwo
 
     return modulePositions;
 }
-
-} // end HGTDGeo namespace

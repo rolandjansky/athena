@@ -22,7 +22,7 @@
 #include <iostream>
 #include <vector>
 
-HGTD::HGTD_IterativeExtensionTool::HGTD_IterativeExtensionTool(
+HGTD_IterativeExtensionTool::HGTD_IterativeExtensionTool(
     const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t, n, p),
       m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
@@ -42,7 +42,7 @@ HGTD::HGTD_IterativeExtensionTool::HGTD_IterativeExtensionTool(
   declareProperty("ParticleHypothesis", m_particle_hypot);
 }
 
-StatusCode HGTD::HGTD_IterativeExtensionTool::initialize() {
+StatusCode HGTD_IterativeExtensionTool::initialize() {
   StatusCode sc = AthAlgTool::initialize();
 
   ATH_CHECK(m_extrapolator.retrieve());
@@ -57,8 +57,8 @@ StatusCode HGTD::HGTD_IterativeExtensionTool::initialize() {
 }
 
 std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4>
-HGTD::HGTD_IterativeExtensionTool::extendTrackToHGTD(
-    const Trk::Track& track, const HGTD::HGTD_ClusterContainer* container) {
+HGTD_IterativeExtensionTool::extendTrackToHGTD(
+    const Trk::Track& track, const HGTD_ClusterContainer* container) {
 
   ATH_MSG_DEBUG("Start extending");
 
@@ -168,7 +168,7 @@ HGTD::HGTD_IterativeExtensionTool::extendTrackToHGTD(
 }
 
 const Trk::TrackStateOnSurface*
-HGTD::HGTD_IterativeExtensionTool::getLastHitOnTrack(const Trk::Track& track) {
+HGTD_IterativeExtensionTool::getLastHitOnTrack(const Trk::Track& track) {
 
   const DataVector<const Trk::TrackStateOnSurface>* tsos =
       track.trackStateOnSurfaces();
@@ -193,7 +193,7 @@ HGTD::HGTD_IterativeExtensionTool::getLastHitOnTrack(const Trk::Track& track) {
 }
 
 std::vector<const Trk::Surface*>
-HGTD::HGTD_IterativeExtensionTool::getCompatibleSurfaces(
+HGTD_IterativeExtensionTool::getCompatibleSurfaces(
     const Trk::TrackParameters& param, const Trk::Layer* layer) {
 
   std::vector<const Trk::Surface*> surfaces;
@@ -226,7 +226,7 @@ HGTD::HGTD_IterativeExtensionTool::getCompatibleSurfaces(
 }
 
 std::vector<std::unique_ptr<const Trk::TrackParameters>>
-HGTD::HGTD_IterativeExtensionTool::extrapolateToSurfaces(
+HGTD_IterativeExtensionTool::extrapolateToSurfaces(
     const Trk::TrackParameters& param,
     const std::vector<const Trk::Surface*>& surfaces) {
 
@@ -247,7 +247,7 @@ HGTD::HGTD_IterativeExtensionTool::extrapolateToSurfaces(
 }
 
 std::unique_ptr<const Trk::TrackStateOnSurface>
-HGTD::HGTD_IterativeExtensionTool::updateStateWithBestFittingCluster(
+HGTD_IterativeExtensionTool::updateStateWithBestFittingCluster(
     const std::vector<std::unique_ptr<const Trk::TrackParameters>>& params) {
   ATH_MSG_DEBUG("[updateStateWithBestFittingCluster] start updating");
 
@@ -280,7 +280,7 @@ HGTD::HGTD_IterativeExtensionTool::updateStateWithBestFittingCluster(
 }
 
 std::unique_ptr<const Trk::TrackStateOnSurface>
-HGTD::HGTD_IterativeExtensionTool::findBestCompatibleCluster(
+HGTD_IterativeExtensionTool::findBestCompatibleCluster(
     const Trk::TrackParameters* param) {
 
   ATH_MSG_DEBUG("[findBestCompatibleCluster] start");
@@ -331,8 +331,8 @@ HGTD::HGTD_IterativeExtensionTool::findBestCompatibleCluster(
 }
 
 std::unique_ptr<const Trk::TrackStateOnSurface>
-HGTD::HGTD_IterativeExtensionTool::updateState(
-    const Trk::TrackParameters* param, const HGTD::HGTD_Cluster* cluster) {
+HGTD_IterativeExtensionTool::updateState(
+    const Trk::TrackParameters* param, const HGTD_Cluster* cluster) {
   ATH_MSG_DEBUG("[updateState] calling the updator");
 
   // FIXME: the HGTD_Cluster should know its detector element here. needs
@@ -345,7 +345,7 @@ HGTD::HGTD_IterativeExtensionTool::updateState(
       m_tof_corr_tool->correctTimeAndResolution(
           *m_track, *cluster, cluster->time(), cluster->timeResolution());
 
-  HGTD::HGTD_ClusterOnTrack* cot = new HGTD::HGTD_ClusterOnTrack(
+  HGTD_ClusterOnTrack* cot = new HGTD_ClusterOnTrack(
       cluster, Trk::LocalParameters(cluster->localPosition()),
       cluster->localCovariance(), corr_time_and_res.first,
       corr_time_and_res.second, det_el->identifyHash());

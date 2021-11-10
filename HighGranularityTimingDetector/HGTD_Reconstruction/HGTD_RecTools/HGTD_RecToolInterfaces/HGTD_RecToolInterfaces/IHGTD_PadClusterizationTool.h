@@ -25,10 +25,8 @@
 
 class MsgStream;
 
-namespace HGTD {
-
 static const InterfaceID
-    IID_IHGTD_PadClusterizationTool("HGTD::IHGTD_PadClusterizationTool", 1, 0);
+    IID_IHGTD_PadClusterizationTool("IHGTD_PadClusterizationTool", 1, 0);
 
 class IHGTD_PadClusterizationTool : virtual public IAlgTool {
 
@@ -42,8 +40,8 @@ public:
    *
    * @return The collection of clusters built from the RDOs.
    */
-  virtual std::unique_ptr<HGTD::HGTD_ClusterCollection>
-  clusterize(const HGTD::HGTD_RDOCollection& rdo_collection) const = 0;
+  virtual std::unique_ptr<HGTD_ClusterCollection>
+  clusterize(const HGTD_RDOCollection& rdo_collection) const = 0;
 };
 
 /** Inline methods **/
@@ -51,7 +49,5 @@ public:
 inline const InterfaceID& IHGTD_PadClusterizationTool::interfaceID() {
   return IID_IHGTD_PadClusterizationTool;
 }
-
-} // namespace HGTD
 
 #endif // IHGTD_CLUSTERMAKERTOOL_H

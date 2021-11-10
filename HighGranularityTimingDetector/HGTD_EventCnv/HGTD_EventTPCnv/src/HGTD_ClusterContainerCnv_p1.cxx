@@ -23,7 +23,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include <memory>
 
-StatusCode HGTD::HGTD_ClusterContainerCnv_p1::initialize(MsgStream& log) {
+StatusCode HGTD_ClusterContainerCnv_p1::initialize(MsgStream& log) {
   // Do not initialize again:
   m_is_initialized = true;
 
@@ -59,7 +59,7 @@ StatusCode HGTD::HGTD_ClusterContainerCnv_p1::initialize(MsgStream& log) {
   return StatusCode::SUCCESS;
 }
 
-void HGTD::HGTD_ClusterContainerCnv_p1::transToPers(
+void HGTD_ClusterContainerCnv_p1::transToPers(
     const Trans_t* transient_container, Pers_t* persistent_container,
     MsgStream& log) {
 
@@ -95,7 +95,7 @@ void HGTD::HGTD_ClusterContainerCnv_p1::transToPers(
   size_t total_n_clusters = 0;
 
   for (size_t coll_i = 0; coll_i < n_collections; coll_i++, container_itr++) {
-    const HGTD::HGTD_ClusterCollection& collection = (**container_itr);
+    const HGTD_ClusterCollection& collection = (**container_itr);
 
     size_t collection_size = collection.size();
 
@@ -116,12 +116,12 @@ void HGTD::HGTD_ClusterContainerCnv_p1::transToPers(
 
     for (size_t clus_i = 0; clus_i < collection_size; clus_i++) {
       // get pointer to next position in the vector that will be persistified
-      HGTD::HGTD_Cluster_p1* pers_clus =
+      HGTD_Cluster_p1* pers_clus =
           &((persistent_container->m_cluster_list)
                 .at(clus_i + collection_separator_index_begin));
 
-      const HGTD::HGTD_Cluster* trans_clus =
-          dynamic_cast<const HGTD::HGTD_Cluster*>(collection.at(clus_i));
+      const HGTD_Cluster* trans_clus =
+          dynamic_cast<const HGTD_Cluster*>(collection.at(clus_i));
 
       cluster_converter.transToPers(trans_clus, pers_clus, log);
     }
@@ -139,11 +139,11 @@ void HGTD::HGTD_ClusterContainerCnv_p1::transToPers(
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void HGTD::HGTD_ClusterContainerCnv_p1::persToTrans(
+void HGTD_ClusterContainerCnv_p1::persToTrans(
     const Pers_t* persistent_container, Trans_t* transient_container,
     MsgStream& log) {
 
-  HGTD::HGTD_ClusterCollection* collection = nullptr;
+  HGTD_ClusterCollection* collection = nullptr;
 
   HGTD_ClusterCnv_p1 cluster_converter;
 
@@ -152,7 +152,7 @@ void HGTD::HGTD_ClusterContainerCnv_p1::persToTrans(
   for (size_t coll_i = 0;
        coll_i < persistent_container->m_collection_separator.size(); ++coll_i) {
 
-    const HGTD::HGTD_PRD_Collection_p1& prd_coll =
+    const HGTD_PRD_Collection_p1& prd_coll =
         persistent_container->m_collection_separator.at(coll_i);
 
     // get the identifier for the collection
@@ -162,19 +162,19 @@ void HGTD::HGTD_ClusterContainerCnv_p1::persToTrans(
     InDetDD::HGTD_DetectorElement* det_elem =
         m_hgtd_det_mgr->getDetectorElement(coll_idhash);
 
-    collection = new HGTD::HGTD_ClusterCollection(coll_idhash);
+    collection = new HGTD_ClusterCollection(coll_idhash);
     collection->setIdentifier(coll_id);
 
     unsigned short n_clusters = prd_coll.m_size;
     collection->resize(n_clusters);
 
     for (unsigned short clus_i = 0; clus_i < n_clusters; ++clus_i) {
-      const HGTD::HGTD_Cluster_p1* pers_cluster =
+      const HGTD_Cluster_p1* pers_cluster =
           &((persistent_container->m_cluster_list)
                 .at(clus_i + collection_separator_index_begin));
       // NOTE the cluster is created without setting the detector element!
       // NOTE if this is needed down the road, it has to be added here!
-      HGTD::HGTD_Cluster* trans_cluster = new HGTD::HGTD_Cluster(
+      HGTD_Cluster* trans_cluster = new HGTD_Cluster(
           cluster_converter.createHGTDCluster(pers_cluster, det_elem, log));
 
       trans_cluster->setHashAndIndex(coll_idhash, clus_i);
@@ -192,7 +192,7 @@ void HGTD::HGTD_ClusterContainerCnv_p1::persToTrans(
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-HGTD::HGTD_ClusterContainer* HGTD::HGTD_ClusterContainerCnv_p1::createTransient(
+HGTD_ClusterContainer* HGTD_ClusterContainerCnv_p1::createTransient(
     const Pers_t* persistent_container, MsgStream& log) {
 
   if (!m_is_initialized) {

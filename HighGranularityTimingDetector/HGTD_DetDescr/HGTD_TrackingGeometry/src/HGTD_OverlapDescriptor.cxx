@@ -18,10 +18,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
 
-HGTDet::HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array,
-                                                       std::vector < float > valuesR,
-                                                       std::vector < std::vector< float> > valuesPhi,
-                                                       int nStepsR, int nStepsPhi):
+HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array,
+                                               std::vector < float > valuesR,
+                                               std::vector < std::vector< float> > valuesPhi,
+                                               int nStepsR, int nStepsPhi):
   m_binnedArray(bin_array),
   m_valuesR(valuesR),
   m_valuesPhi(valuesPhi),
@@ -30,10 +30,10 @@ HGTDet::HGTD_OverlapDescriptor::HGTD_OverlapDescriptor(const Trk::BinnedArray<Tr
 {}
 
 /** get the compatible surfaces */
-bool HGTDet::HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
-                                                       const Trk::Surface& tsf,
-                                                       const Amg::Vector3D& pos,
-                                                       const Amg::Vector3D&) const
+bool HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
+                                               const Trk::Surface& tsf,
+                                               const Amg::Vector3D& pos,
+                                               const Amg::Vector3D&) const
   
 {
   surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
@@ -44,9 +44,9 @@ bool HGTDet::HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceI
   return getSurfaces(surfaces, tsf.center());
 }
 
-bool HGTDet::HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
-                                                       const Amg::Vector3D& pos,
-                                                       const Amg::Vector3D&) const
+bool HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
+                                               const Amg::Vector3D& pos,
+                                               const Amg::Vector3D&) const
   
 {
   // add the other targets if any starting from the position you have
@@ -54,8 +54,8 @@ bool HGTDet::HGTD_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceI
   return getSurfaces(surfaces, pos);
 }
 
-bool HGTDet::HGTD_OverlapDescriptor::getSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces,
-                                                 const Amg::Vector3D& pos) const 
+bool HGTD_OverlapDescriptor::getSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces,
+                                         const Amg::Vector3D& pos) const 
 {
   float centerR = pos.perp();
   float centerPhi = pos.phi();
@@ -99,7 +99,7 @@ bool HGTDet::HGTD_OverlapDescriptor::getSurfaces(std::vector<Trk::SurfaceInterse
 }
 
 
-void HGTDet::HGTD_OverlapDescriptor::dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const {
+void HGTD_OverlapDescriptor::dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const {
   
   // Get Storegate, ID helpers, and so on
   ISvcLocator* svcLocator = Gaudi::svcLocator();

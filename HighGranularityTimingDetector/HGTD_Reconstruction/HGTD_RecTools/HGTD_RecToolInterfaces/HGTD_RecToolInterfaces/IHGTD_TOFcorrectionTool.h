@@ -24,12 +24,10 @@ namespace Trk {
 class Track;
 }
 
-namespace HGTD {
-
 class HGTD_Cluster;
 
 static const InterfaceID
-    IID_IHGTD_TOFcorrectionTool("HGTD::IHGTD_TOFcorrectionTool", 1, 0);
+    IID_IHGTD_TOFcorrectionTool("IHGTD_TOFcorrectionTool", 1, 0);
 
 class IHGTD_TOFcorrectionTool : virtual public IAlgTool {
 
@@ -49,7 +47,7 @@ public:
    * @return Returns calibrated time of arrival and its resolution.
    */
   virtual std::pair<float, float> correctTimeAndResolution(
-      const Trk::Track& track, const HGTD::HGTD_Cluster& cluster,
+      const Trk::Track& track, const HGTD_Cluster& cluster,
       const float time_of_arrival, const float time_of_arrival_err) const = 0;
 };
 
@@ -58,7 +56,5 @@ public:
 inline const InterfaceID& IHGTD_TOFcorrectionTool::interfaceID() {
   return IID_IHGTD_TOFcorrectionTool;
 }
-
-} // namespace HGTD
 
 #endif // IHGTD_TOFCORRECTIONTOOL_H

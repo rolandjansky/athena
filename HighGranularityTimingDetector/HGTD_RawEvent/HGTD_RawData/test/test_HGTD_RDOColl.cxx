@@ -19,22 +19,22 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-std::unique_ptr<HGTD::HGTD_RDO> createRDO(int id, float time, int tot, int bcid,
-                                          int lv1a, int lv1id) {
+std::unique_ptr<HGTD_RDO> createRDO(int id, float time, int tot, int bcid,
+                                    int lv1a, int lv1id) {
   std::cout << "createRDO\n";
 
   Identifier identifier(id);
 
-  return std::make_unique<HGTD::HGTD_RDO>(identifier, time, tot, bcid, lv1a,
-                                          lv1id);
+  return std::make_unique<HGTD_RDO>(identifier, time, tot, bcid, lv1a,
+                                    lv1id);
 }
 
 BOOST_AUTO_TEST_CASE(HGTD_RDOColl) {
   // create a collection
-  auto coll = std::make_unique<HGTD::HGTD_RDOCollection>(IdentifierHash(2));
+  auto coll = std::make_unique<HGTD_RDOCollection>(IdentifierHash(2));
   // fill it with RDOs
   for (int id = 1234; id < 1244; id++) {
-    std::unique_ptr<HGTD::HGTD_RDO> rdo = createRDO(id, 14.8348, 266, 1, 2, 3);
+    std::unique_ptr<HGTD_RDO> rdo = createRDO(id, 14.8348, 266, 1, 2, 3);
     coll->push_back(std::move(rdo));
   }
 
