@@ -31,7 +31,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.EVNT_TRFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if flags.Output.HITSFileName.endswith('_000') or flags.Output.HITSFileName.startswith('tmp.') else 2
+        comp_alg = 1 if flags.Output.EVNT_TRFileName.endswith('_000') or flags.Output.EVNT_TRFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 1
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.EVNT_TRFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.EVNT_TRFileName, 1 ) ]
@@ -53,7 +53,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.RDOFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if flags.Output.HITSFileName.endswith('_000') or flags.Output.HITSFileName.startswith('tmp.') else 2
+        comp_alg = 1 if flags.Output.RDOFileName.endswith('_000') or flags.Output.RDOFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 10
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.RDOFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.RDOFileName, 1 ) ]
@@ -64,7 +64,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.ESDFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if flags.Output.HITSFileName.endswith('_000') or flags.Output.HITSFileName.startswith('tmp.') else 2
+        comp_alg = 1 if flags.Output.ESDFileName.endswith('_000') or flags.Output.ESDFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 10
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.ESDFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.ESDFileName, 1 ) ]
@@ -75,7 +75,7 @@ def PoolWriteCfg(flags, forceTreeAutoFlush=-1):
 
     if flags.Output.AODFileName:
         # Use LZMA w/ Level 1
-        comp_alg = 1 if flags.Output.HITSFileName.endswith('_000') or flags.Output.HITSFileName.startswith('tmp.') else 2
+        comp_alg = 1 if flags.Output.AODFileName.endswith('_000') or flags.Output.AODFileName.startswith('tmp.') else 2
         auto_flush = forceTreeAutoFlush if forceTreeAutoFlush != -1 else 100
         PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, comp_alg ) ]
         PoolAttributes += [ pah.setFileCompLvl( flags.Output.AODFileName, 1 ) ]
