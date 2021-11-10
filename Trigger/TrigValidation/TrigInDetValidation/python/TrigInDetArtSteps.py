@@ -40,8 +40,8 @@ class TrigInDetReco(ExecStep):
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
             'rec.doForwardDet=False',
-            'rec.doEgamma=False',
-            'rec.doMuonCombined=False',
+            'rec.doEgamma=True',
+            'rec.doMuonCombined=True',
             'rec.doJetMissingETTag=False',
             'rec.doTau=False'
         ])
