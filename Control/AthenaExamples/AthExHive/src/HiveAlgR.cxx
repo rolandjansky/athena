@@ -40,10 +40,8 @@ StatusCode HiveAlgR::execute(const EventContext& ctx) const {
                << " e: " << evt->eventNumber() );
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1,ctx);
-  ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
-                         ( HiveDataObj(10000 + 
-                                       evt->eventNumber()*100 )))
-             );
+  ATH_CHECK(wh1.record(std::make_unique<HiveDataObj>(10000 +evt->eventNumber()*100)));
+
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 
   return StatusCode::SUCCESS;

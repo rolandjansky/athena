@@ -45,7 +45,7 @@ StatusCode AlgB::execute() {
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
   ATH_CHECK( wh1.record( std::make_unique< HiveDataObj >
-                         ( HiveDataObj(3300 + rh1->val()) ) ) );
+                         ( 3300 + rh1->val() ) ) );
 
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
   ATH_CHECK(wh1.isValid());

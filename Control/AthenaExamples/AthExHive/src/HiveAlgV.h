@@ -49,7 +49,7 @@ private:
   StatusCode read() const;
 
   // do the actual writing of the ReadHandleArray
-  void write();
+  StatusCode write();
    
 };
 #endif

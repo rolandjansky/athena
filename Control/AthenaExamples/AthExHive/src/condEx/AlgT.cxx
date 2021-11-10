@@ -81,10 +81,8 @@ StatusCode AlgT::execute() {
 
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
-  ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
-                         ( HiveDataObj(10000 + 
-                                       evt->eventNumber()) ) )
-             );
+  ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> (10000 + evt->eventNumber())));
+
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 
 
