@@ -151,7 +151,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.writeBS', False)
 
     # Write transient BS before executing HLT algorithms (for running on MC RDO with clients which require BS inputs)
-    flags.addFlag('Trigger.doTransientByteStream', False)
+    flags.addFlag('Trigger.doTransientByteStream', lambda prevFlags: True if  prevFlags.Input.Format=='POOL' and prevFlags.Trigger.doCalo else False)
 
     # list of EDM objects to be written to AOD
     flags.addFlag('Trigger.AODEDMSet', lambda flags: 'AODSLIM' if flags.Input.isMC else 'AODFULL')

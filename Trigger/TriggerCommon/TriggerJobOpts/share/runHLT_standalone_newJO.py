@@ -62,9 +62,6 @@ flags.Concurrency.NumThreads = 1
 flags.InDet.useSctDCS = False
 flags.InDet.usePixelDCS = False
 
-# Calo is currently the only client of Transient BS
-flags.Trigger.doTransientByteStream = lambda f: f.Input.Format == 'POOL' and f.Trigger.doCalo
-
 # command line handling
 # options that are defined in: AthConfigFlags are handled here
 # they override values from above
