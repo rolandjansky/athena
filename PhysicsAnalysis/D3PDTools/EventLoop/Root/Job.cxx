@@ -61,6 +61,7 @@ namespace EL
   const std::string Job::optDisableMetrics = "nc_disable_metrics";
   const std::string Job::optResetShell = "nc_reset_shell";
   const std::string Job::optLocalNoUnsetup = "nc_local_no_unsetup";
+  const std::string Job::optNumParallelProcs = "nc_num_parallel_processes";
   const std::string Job::optBackgroundProcess = "nc_background_process";
   const std::string Job::optOutputSampleName = "nc_outputSampleName";
   const std::string Job::optGridDestSE = "nc_destSE";
