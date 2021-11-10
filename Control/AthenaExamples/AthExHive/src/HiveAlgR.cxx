@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-#ifdef REENTRANT_GAUDI
 
 #include "HiveAlgR.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -37,14 +35,14 @@ StatusCode HiveAlgR::execute(const EventContext& ctx) const {
 
   info() << "execute: " << index() << " on " << ctx << endmsg;
 
-  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt,ctx);
   ATH_MSG_INFO("   EventInfo:  r: " << evt->runNumber()
                << " e: " << evt->eventNumber() );
 
-  SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
+  SG::WriteHandle<HiveDataObj> wh1(m_wrh1,ctx);
   ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
                          ( HiveDataObj(10000 + 
-                                       evt->event_ID()->event_number()*100 )))
+                                       evt->eventNumber()*100 )))
              );
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 
@@ -52,4 +50,3 @@ StatusCode HiveAlgR::execute(const EventContext& ctx) const {
 
 }
 
-#endif // REENTRANT_GAUDI

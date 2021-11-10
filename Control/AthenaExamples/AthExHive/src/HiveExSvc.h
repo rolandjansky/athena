@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,8 +27,8 @@ public:
   HiveExSvc(const std::string& name, ISvcLocator* svc);
   virtual ~HiveExSvc();
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   
   void add(const std::string&, const unsigned int&);
 
