@@ -85,7 +85,7 @@ theLArCompleteToFlat.FakeEMBPSLowGain=True
 theLArCompleteToFlat.isSC = SuperCells
 
 outTypes = []
-for (fldr,tag,key) in inputFolders:
+for (fldr,tag,key,classtype) in inputFolders:
   if "Pedestal" in fldr:
     outTypes.append("Pedestal")
     theLArCompleteToFlat.PedestalInput=key
@@ -99,11 +99,12 @@ for (fldr,tag,key) in inputFolders:
     outTypes.append("MphysOverMcal")
     theLArCompleteToFlat.MphysOverMcalInput=key
   elif "Shape" in fldr:
+    outTypes.append("Shape")
     theLArCompleteToFlat.ShapeInput=key
   if len(tag):
-     conddb.addFolder("","<db>"+inputDB+"</db>"+fldr+"<tag>"+tag+"</tag>")
+     conddb.addFolder("","<db>"+inputDB+"</db>"+fldr+"<tag>"+tag+"</tag>",className=classtype)
   else:
-    conddb.addFolder("","<db>"+inputDB+"</db>"+fldr)
+    conddb.addFolder("","<db>"+inputDB+"</db>"+fldr,className=classtype)
   pass
 
 topSequence+=theLArCompleteToFlat
