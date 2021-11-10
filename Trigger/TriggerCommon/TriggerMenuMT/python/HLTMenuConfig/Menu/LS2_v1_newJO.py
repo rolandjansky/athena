@@ -102,6 +102,7 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.AccumulatorCache import AccumulatorDecorator
     from AthenaCommon.Logging import logging
     log = logging.getLogger(__name__)
 
@@ -125,6 +126,7 @@ if __name__ == "__main__":
     acc.merge(menu)
 
     acc.printConfig()
+    AccumulatorDecorator.printStats()
 
     # print all hypo algs and their hypo tools for debugging
     from AthenaCommon.CFElements import flatAlgorithmSequences
