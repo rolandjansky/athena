@@ -144,12 +144,13 @@ if ( True ) :
     #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
     #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
 
-    # "Electrons",
+    "Electrons",
 
-    # "Electrons_MediumCB",
-    # "Electrons_TightCB",
-    # "Electrons_MediumLH",
-    # "Electrons_TightLH",
+    "Electrons:MediumCB",
+    "Electrons:TightCB",
+    "Electrons:MediumLH",
+    "Electrons:TightLH",
+
     # "Taus",
 
     # "Taus_1Prong",
