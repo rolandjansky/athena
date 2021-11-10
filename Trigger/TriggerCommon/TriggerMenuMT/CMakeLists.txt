@@ -60,7 +60,7 @@ function( atlas_test_lvl1_trigger_menu menu )
    atlas_add_test( "L1_${menu}"
                    SCRIPT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/generateL1MenuRun3.py ${menu}
                    PRIVATE_WORKING_DIRECTORY
-                   POST_EXEC_SCRIPT nopost.sh )
+                   POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/unitTestRun_L1_${menu}/L1_${menu}.log" )
 endfunction()
 
 function( atlas_test_hlt_trigger_menu menu )
@@ -68,7 +68,7 @@ function( atlas_test_hlt_trigger_menu menu )
                    SCRIPT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_HLTmenu.sh ${menu}
                    PROPERTIES TIMEOUT 500
                    PRIVATE_WORKING_DIRECTORY
-                   POST_EXEC_SCRIPT "check_log.py --errors ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/unitTestRun_HLT_${menu}/HLT_${menu}.log" )
+                   POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/unitTestRun_HLT_${menu}/HLT_${menu}.log" )
 endfunction()
 
 # Test all L1 menus (as this is fast):
@@ -84,18 +84,6 @@ atlas_test_lvl1_trigger_menu( Dev_HI_run3_v1 )
 atlas_test_hlt_trigger_menu( LS2_v1 )
 atlas_test_hlt_trigger_menu( Cosmic_run3_v1 )
 atlas_test_hlt_trigger_menu( Dev_HI_run3_v1 )
-
-# Slice tests:
-function( atlas_test_slice_independence slice )
-   atlas_add_test( slice_independence_${slice}
-                  SCRIPT scripts/test_slice_independence.sh ${slice}
-                  PRIVATE_WORKING_DIRECTORY
-                  POST_EXEC_SCRIPT nopost.sh )
-endfunction()
-
-foreach( slice Egamma Muon Tau MET Jet Bjet Bphysics MinBias UnconventionalTracking Calib Beamspot Cosmic Monitor Streaming EnhancedBias)
-   atlas_test_slice_independence( ${slice} )
-endforeach()
 
 # New job options test:
 atlas_add_test( generateMenuMT_newJO

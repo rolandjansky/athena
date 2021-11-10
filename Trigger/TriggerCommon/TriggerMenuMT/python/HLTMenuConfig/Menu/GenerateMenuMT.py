@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import importlib
-import itertools
 import string
 
 from .TriggerConfigHLT  import TriggerConfigHLT
@@ -12,7 +11,6 @@ from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from .ChainMerging import mergeChainDefs
 from .MenuAlignmentTools import MenuAlignment
 from ..CommonSequences import EventBuildingSequences
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 
 from AthenaCommon.Logging import logging
@@ -212,11 +210,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         log.info("Will now generate the chain configuration for each chain")
         self.generateChains()
 
-        if ConfigFlags.Trigger.Test.doDummyChainConfig:
-            log.info("[GenerateMenuMT] Dummy chain configuration active, will not proceed with menu generation")
-            import sys
-            sys.exit(0)
-
         log.info("Will now calculate the alignment parameters")
         #dict of signature: set it belongs to
         #e.g. {'Electron': ['Electron','Muon','Photon']}        
@@ -381,10 +374,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
             else:
                 theChainConfig = listOfChainConfigs[0]
             
-            if not ConfigFlags.Trigger.Test.doDummyChainConfig:
-                for topoID in range(len(mainChainDict['extraComboHypos'])):
-                    thetopo = mainChainDict['extraComboHypos'][topoID].strip(string.digits).rstrip(topoLegIndices)
-                    theChainConfig.addTopo((comboConfigurator[thetopo],thetopo))
+            for topoID in range(len(mainChainDict['extraComboHypos'])):
+                thetopo = mainChainDict['extraComboHypos'][topoID].strip(string.digits).rstrip(topoLegIndices)
+                theChainConfig.addTopo((comboConfigurator[thetopo],thetopo))
 
             # Now we know where the topos should go, we can insert them in the right steps
             if len(theChainConfig.topoMap) > 0:
