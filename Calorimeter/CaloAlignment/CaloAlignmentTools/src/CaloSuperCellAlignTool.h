@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,12 +13,13 @@
  */
 
 
-#ifndef CALODETDESCR_CALOSUPERCELLALIGNTOOL_H
-#define CALODETDESCR_CALOSUPERCELLALIGNTOOL_H
+#ifndef CALOALIGNMENTTOOLS_CALOSUPERCELLALIGNTOOL_H
+#define CALOALIGNMENTTOOLS_CALOSUPERCELLALIGNTOOL_H
 
 
 #include "GeoModelInterfaces/IGeoAlignTool.h"
 #include "CaloDetDescr/ICaloSuperCellAlignTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CxxUtils/checker_macros.h"
@@ -26,8 +27,6 @@
 class CaloSuperCellDetDescrManager;
 class CaloDetDescrManager;
 class CaloDetDescriptor;
-class ICaloSuperCellIDTool;
-
 
 /**
  * @brief Propagate alignent changes to supercell geometry.
@@ -78,60 +77,6 @@ public:
 
 
 private:
-  /// Helper for finding region range limits.
-  struct MinMax {
-    MinMax() : min(99999), max(-999999) {}
-    void add (double x, double dx)
-    {
-      if (x - dx < min) min = x - dx;
-      if (x + dx > max) max = x + dx;
-    }
-    double min;
-    double max;
-  };
-
-
-  /// Helper for finding region range limits.
-  struct DescrMinMax {
-    MinMax eta;
-    MinMax phi;
-    MinMax r;
-    MinMax z;
-  };
-
-
-  /**
-   * @brief Update the supercell element geometry.
-   * @param mgr The supercell geometry manager.
-   * @param cellmgr The offline geometry manager.
-   *
-   * The geometry information of the supercell elements is updated
-   * based on the provided offline geometry.
-   */
-  StatusCode updateElements (CaloSuperCellDetDescrManager* mgr,
-                             const CaloDetDescrManager* cellmgr);
-
-
-  /**
-   * @brief Update the supercell descriptor geometry.
-   * @param mgr The supercell geometry manager.
-   * @param cellmgr The offline geometry manager.
-   *
-   * The geometry information of the supercell descriptors is updated
-   * based on the provided offline geometry.
-   */
-  StatusCode updateDescriptors (CaloSuperCellDetDescrManager* mgr,
-                                const CaloDetDescrManager* cellmgr);
-
-  /**
-   * @brief Update a single descriptor.
-   */
-  void
-  updateDescriptor (CaloDetDescriptor* desc,
-                    const DescrMinMax& mm,
-                    const CaloDetDescrManager* cellmgr);
-
-
   /// Property: The CaloAlignTool that triggers us.
   ToolHandle<IGeoAlignTool> m_caloAlignTool;
 
