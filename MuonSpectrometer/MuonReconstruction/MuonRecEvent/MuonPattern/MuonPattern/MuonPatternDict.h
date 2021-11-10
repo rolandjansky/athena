@@ -5,12 +5,12 @@
 #ifndef MUONPATTERN_MUONPATTERNDICT_H
 #define MUONPATTERN_MUONPATTERNDICT_H
 
-#include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
+#include "MuonPattern/MuonPatternCombinationCollection.h"
 
 class MuonPatternDummyDict {
-  MuonPatternCombinationCollection m_myPattCombColl;
-  Muon::MuonPatternCombination m_myTempPattComb;
+    MuonPatternCombinationCollection m_myPattCombColl;
+    Muon::MuonPatternCombination m_myTempPattComb;
 };
 
-#endif 
+#endif
