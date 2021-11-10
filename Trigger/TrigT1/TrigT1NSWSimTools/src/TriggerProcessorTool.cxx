@@ -26,7 +26,8 @@ namespace NSWL1 {
     for ( const Muon::NSW_PadTriggerData* padTriggerData : *padTriggerContainer ) {
       ATH_MSG_DEBUG("Pad Trigger data: " << *padTriggerData);
 
-      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(padTriggerData->sectorID(),padTriggerData->BCID());
+      char sectorSide = (padTriggerData->endcap() == Muon::NSW_PadTriggerData::Endcap::A) ? 'A' : 'C';
+      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(padTriggerData->sectorID(), sectorSide, padTriggerData->BCID());
       for ( const Muon::NSW_PadTriggerSegment* padTriggerSegment : *padTriggerData) {
         ATH_MSG_DEBUG("Pad Trigger segment: " << *padTriggerSegment);
 
