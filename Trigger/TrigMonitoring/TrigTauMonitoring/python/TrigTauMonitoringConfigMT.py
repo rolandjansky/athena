@@ -152,74 +152,79 @@ class TrigTauMonAlgBuilder:
 
 
   def setDefaultProperties(self):
-    
-    # This will be removed for future.
-    monitoring_tau = [
-    # tau0
-    'HLT_tau0_ptonly_L1TAU8',
-    'HLT_tau0_ptonly_L1TAU60',
-    # tau25
-    'HLT_tau25_ptonly_L1TAU12IM',
-    'HLT_tau25_idperf_tracktwo_L1TAU12IM',
-    'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',
-    'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_perf_tracktwo_L1TAU12IM',
-    'HLT_tau25_perf_tracktwoMVA_L1TAU12IM',
-    'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
-    'HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM',
-    'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
-    # tau35
-    'HLT_tau35_ptonly_L1TAU20IM',
-    'HLT_tau35_idperf_tracktwo_L1TAU20IM',
-    'HLT_tau35_idperf_tracktwoMVA_L1TAU20IM',
-    'HLT_tau35_idperf_tracktwoMVABDT_L1TAU20IM',
-    'HLT_tau35_perf_tracktwo_L1TAU20IM',
-    'HLT_tau35_perf_tracktwoMVA_L1TAU20IM',
-    'HLT_tau35_perf_tracktwoMVABDT_L1TAU20IM',
-    'HLT_tau35_looseRNN_tracktwoMVA_L1TAU20IM',
-    'HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU20IM',
-    'HLT_tau35_mediumRNN_tracktwoMVA_L1TAU20IM',
-    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
-    'HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM',
-    'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
-    # tau160
-    'HLT_tau160_ptonly_L1TAU100',
-    'HLT_tau160_idperf_tracktwo_L1TAU100',
-    'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
-    'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_perf_tracktwo_L1TAU100',
-    'HLT_tau160_perf_tracktwoMVA_L1TAU100',
-    'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
-    'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
-    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
-    # tau180
-    'HLT_tau180_mediumRNN_tracktwoLLP_L1TAU100',
-    'HLT_tau180_tightRNN_tracktwoLLP_L1TAU100',
-    # tau200
-    'HLT_tau200_ptonly_L1TAU100',
-    'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
-    'HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
-    'HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100',
-    'HLT_tau200_tightRNN_tracktwoLLP_L1TAU100',
-    # ditau
-    'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40',
-    'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I',
-    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
-    'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
-    'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
-    'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
-    'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
-     # Phase-I
-    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
-    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
-    'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
-    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
- 
-    ]
+
+    ### monitorig groups
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+    moniAccess=getHLTMonitoringAccess(self.helper.inputFlags)
+    monitoring_tau=moniAccess.monitoredChains(signatures="tauMon",monLevels=["shifter","t0","val"])
+  
+    # if mon groups not found fall back to hard-coded trigger monitoring list
+    if len(monitoring_tau) == 0:
+       monitoring_tau = [
+       # tau0
+       'HLT_tau0_ptonly_L1TAU8',
+       'HLT_tau0_ptonly_L1TAU60',
+       # tau25
+       'HLT_tau25_ptonly_L1TAU12IM',
+       'HLT_tau25_idperf_tracktwo_L1TAU12IM',
+       'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',
+       'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
+       'HLT_tau25_perf_tracktwo_L1TAU12IM',
+       'HLT_tau25_perf_tracktwoMVA_L1TAU12IM',
+       'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
+       'HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM',
+       'HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
+       'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+       'HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM',
+       'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
+       # tau35
+       'HLT_tau35_ptonly_L1TAU20IM',
+       'HLT_tau35_idperf_tracktwo_L1TAU20IM',
+       'HLT_tau35_idperf_tracktwoMVA_L1TAU20IM',
+       'HLT_tau35_idperf_tracktwoMVABDT_L1TAU20IM',
+       'HLT_tau35_perf_tracktwo_L1TAU20IM',
+       'HLT_tau35_perf_tracktwoMVA_L1TAU20IM',
+       'HLT_tau35_perf_tracktwoMVABDT_L1TAU20IM',
+       'HLT_tau35_looseRNN_tracktwoMVA_L1TAU20IM',
+       'HLT_tau35_looseRNN_tracktwoMVABDT_L1TAU20IM',
+       'HLT_tau35_mediumRNN_tracktwoMVA_L1TAU20IM',
+       'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
+       'HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM',
+       'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
+       # tau160
+       'HLT_tau160_ptonly_L1TAU100',
+       'HLT_tau160_idperf_tracktwo_L1TAU100',
+       'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
+       'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
+       'HLT_tau160_perf_tracktwo_L1TAU100',
+       'HLT_tau160_perf_tracktwoMVA_L1TAU100',
+       'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
+       'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
+       'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
+       # tau180
+       'HLT_tau180_mediumRNN_tracktwoLLP_L1TAU100',
+       'HLT_tau180_tightRNN_tracktwoLLP_L1TAU100',
+       # tau200
+       'HLT_tau200_ptonly_L1TAU100',
+       'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
+       'HLT_tau200_mediumRNN_tracktwoMVABDT_L1TAU100',
+       'HLT_tau200_mediumRNN_tracktwoLLP_L1TAU100',
+       'HLT_tau200_tightRNN_tracktwoLLP_L1TAU100',
+       # ditau
+       'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40',
+       'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I',
+       'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+       'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+       'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+       'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+       'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+       # Phase-I
+       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
+       'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
+       'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
+       'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
+       ]
 
     self.tauList = monitoring_tau
 
