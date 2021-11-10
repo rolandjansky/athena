@@ -162,7 +162,6 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         log.debug('electron chain part = %s', self.chainPart)
         key = "nominal"
 
-        
         if self.chainPart['addInfo']:
             if "etcut1step" in self.chainPart['addInfo']:
                 key = "etcut1step"
@@ -185,7 +184,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         
         for step in steps:
             log.debug('Adding electron trigger step %s', step)
-            is_probe_leg = self.chainPart['extra']=='probe'
+            is_probe_leg = self.chainPart['tnpInfo']=='probe'
             chainstep = getattr(self, step)(is_probe_leg=is_probe_leg)
             chainSteps+=[chainstep]
 
