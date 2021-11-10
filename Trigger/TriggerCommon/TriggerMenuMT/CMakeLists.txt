@@ -68,7 +68,7 @@ function( atlas_test_hlt_trigger_menu menu )
                    SCRIPT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_HLTmenu.sh ${menu}
                    PROPERTIES TIMEOUT 500
                    PRIVATE_WORKING_DIRECTORY
-                   POST_EXEC_SCRIPT nopost.sh )
+                   POST_EXEC_SCRIPT "check_log.py --errors ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/unitTestRun_HLT_${menu}/HLT_${menu}.log" )
 endfunction()
 
 # Test all L1 menus (as this is fast):
