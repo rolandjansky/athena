@@ -8,6 +8,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 
 #include "PathResolver/PathResolver.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TFile.h"
 #include "TMath.h"
@@ -229,7 +230,12 @@ float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus,
                 << ", etaVar = " << etaVar
                 << ", clus->e() = " << clus.e());
 
-  const int bin = m_hPoly->FindBin(etaVar, etVarGeV) - 1; // poly bins are shifted by one
+  // Normally, we'd just use FindFixBin here.  But TH2Poly overrides FindBin
+  // to handle its special bin defintions, but it doesn't also override
+  // FindFixBin.  But TH2Poly::FindBin (unlike TH1::FindBin) doesn't actually
+  // do anything non-const, so just suppress the warning here.
+  TH2Poly* hPoly ATLAS_THREAD_SAFE = m_hPoly.get();
+  const int bin = hPoly->FindBin(etaVar, etVarGeV) - 1; // poly bins are shifted by one
 
   ATH_MSG_DEBUG("Using bin: " << bin);
 
