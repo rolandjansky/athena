@@ -406,15 +406,10 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string& trigger, const
                                                     if (tau->detail(xAOD::TauJetParameters::dRmax, detail)){
                                                     } return detail;});
   
-   auto absipSigLeadTrk    = online ?   (Monitored::Collection("absipSigLeadTrk", tau_vec,  [] (const xAOD::TauJet* tau){
-                                                        float detail = -999;
-                                                        if (tau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, detail)){
-                                                            detail = TMath::Log10(std::max(detail, 0.1f));
-                                                        } return detail;})) : 
-                                        (Monitored::Collection("absipSigLeadTrk", tau_vec,  [] (const xAOD::TauJet* tau){
+  auto absipSigLeadTrk    = Monitored::Collection("absipSigLeadTrk", tau_vec,  [] (const xAOD::TauJet* tau){
                                                         float detail = (tau->nTracks()>0) ? std::abs(tau->track(0)->d0SigTJVA()) : 0.;
                                                         detail = std::min(TMath::Abs(detail), 30.0f);
-                                                        return detail;}));
+                                                        return detail;});
    
   auto sumPtTrkFrac       = Monitored::Collection("sumPtTrkFrac", tau_vec,  [] (const xAOD::TauJet* tau){
                                                     float detail = -999;
@@ -481,12 +476,13 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string& trigger, const std
         return lhs->pt() > rhs->pt();
       };
       std::sort(tracks.begin(), tracks.end(), cmp_pt);
-                                                                                                                                       
+                              
+      /*                                                                                                         
       unsigned int max_tracks = 10;
       if (tracks.size() > max_tracks) {
         tracks.resize(max_tracks);
       }
-
+      */
 
       auto track_pt_log = Monitored::Collection("track_pt_log", tracks, [](const xAOD::TauTrack *track){return TMath::Log10( track->pt()); }); 
   
@@ -579,11 +575,12 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string& trigger, const s
     };
     std::sort(clusters.begin(), clusters.end(), et_cmp);
 
+    /*
     unsigned int max_clusters = 6;
     if (clusters.size() > max_clusters) {
       clusters.resize(max_clusters);
     }
-
+    */
 
     auto cluster_et_log = Monitored::Collection("cluster_et_log",clusters, [](const xAOD::CaloCluster *cluster){return TMath::Log10( cluster->et()); }); 
     auto cluster_dEta = Monitored::Collection("cluster_dEta", clusters, [&tau](const xAOD::CaloCluster *cluster){auto ddeta=cluster->eta()- tau->eta();return ddeta; });
