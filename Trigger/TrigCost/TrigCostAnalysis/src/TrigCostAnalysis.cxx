@@ -327,17 +327,23 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   }
   if (m_doMonitorChain) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChain>("Chain_HLT", range)) );
-    ATH_MSG_INFO("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   if (m_doMonitorChainAlgorithm) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChainAlgorithm>("Chain_Algorithm_HLT", range)) );
-    ATH_MSG_INFO("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   if (m_doMonitorSequence) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorSequence>("Sequence_HLT", range)) );
-    ATH_MSG_INFO("Registering Sequence_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Sequence_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
+  
+  // Set the verbosity for the monitors
+  for (const std::unique_ptr<MonitorBase>& monitor : range->getMonitors()){
+    monitor->msg().setLevel(msg().level());
+  }
+
   return StatusCode::SUCCESS;
 }
 
