@@ -48,6 +48,8 @@ def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs)
     kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
+def getFixG4CreatorProcessTool(name="G4UA::FixG4CreatorProcessTool", **kwargs):
+    return CfgMgr.G4UA__FixG4CreatorProcessTool(name, **kwargs)
 
 def getHitWrapperTool(name="G4UA::HitWrapperTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
