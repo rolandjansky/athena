@@ -345,28 +345,29 @@ void
 FitParameters::printCovariance(MsgStream& log) const
 {
   double error00 = 0.;
-  if ((*m_finalCovariance)(0, 0) > 0.)
-    error00 = std::sqrt((*m_finalCovariance)(0, 0));
+  const Amg::MatrixX& cov = *m_finalCovariance;
+  if (cov(0, 0) > 0.)
+    error00 = std::sqrt(cov(0, 0));
   double error11 = 0.;
-  if ((*m_finalCovariance)(1, 1) > 0.)
-    error11 = std::sqrt((*m_finalCovariance)(1, 1));
+  if (cov(1, 1) > 0.)
+    error11 = std::sqrt(cov(1, 1));
   double error22 = 0.;
-  if ((*m_finalCovariance)(2, 2) > 0.)
-    error22 = std::sqrt((*m_finalCovariance)(2, 2));
+  if (cov(2, 2) > 0.)
+    error22 = std::sqrt(cov(2, 2));
   double error33 = 0.;
-  if ((*m_finalCovariance)(3, 3) > 0.)
-    error33 = std::sqrt((*m_finalCovariance)(3, 3));
+  if (cov(3, 3) > 0.)
+    error33 = std::sqrt(cov(3, 3));
   double error44 = 0.;
-  if ((*m_finalCovariance)(4, 4) > 0.)
-    error44 = std::sqrt((*m_finalCovariance)(4, 4));
+  if (cov(4, 4) > 0.)
+    error44 = std::sqrt(cov(4, 4));
   double correl02 = 0.;
-  double denom02 = (*m_finalCovariance)(0, 0) * (*m_finalCovariance)(2, 2);
+  double denom02 = cov(0, 0) * cov(2, 2);
   if (denom02 > 0.)
-    correl02 = (*m_finalCovariance)(0, 2) / std::sqrt(denom02);
+    correl02 = cov(0, 2) / std::sqrt(denom02);
   double correl13 = 0.;
-  double denom13 = (*m_finalCovariance)(1, 1) * (*m_finalCovariance)(3, 3);
+  double denom13 = cov(1, 1) * cov(3, 3);
   if (denom13 > 0.)
-    correl13 = (*m_finalCovariance)(1, 3) / std::sqrt(denom13);
+    correl13 = cov(1, 3) / std::sqrt(denom13);
   log << std::setiosflags(std::ios::fixed | std::ios::right) << std::setw(10)
       << std::setprecision(3) << error00 << std::setw(14)
       << std::setprecision(3) << error11 << std::setw(14)

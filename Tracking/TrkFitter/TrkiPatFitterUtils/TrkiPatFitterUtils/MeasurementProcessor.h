@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -33,7 +33,7 @@ class MeasurementProcessor
 public:
     MeasurementProcessor (bool					asymmetricCaloEnergy,
 			  Amg::MatrixX&				derivativeMatrix,
-			  ToolHandle<IIntersector>&		intersector,
+			  const ToolHandle<IIntersector>&	intersector,
 			  std::vector<FitMeasurement*>&		measurements,
 			  FitParameters*			parameters,
 			  ToolHandle<IIntersector>&    		rungeKuttaIntersector,
@@ -68,7 +68,7 @@ private:
     int 				m_firstScatteringParameter;
     //bool				m_havePhiPseudo;
     const TrackSurfaceIntersection*	m_intersectStartingValue;
-    ToolHandle<IIntersector>&		m_intersector;
+    const ToolHandle<IIntersector>&	m_intersector;
     double				m_largeDeltaD0;
     double				m_largeDeltaPhi0;
     std::vector<FitMeasurement*>&	m_measurements;
