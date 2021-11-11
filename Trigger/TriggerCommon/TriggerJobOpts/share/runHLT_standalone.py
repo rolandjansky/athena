@@ -344,9 +344,6 @@ if ConfigFlags.Trigger.doCalo:
     larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
     from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
     setMinimalCaloSetup()
-    # Enable transient BS if TrigCaloDataAccessSvc is used with pool data
-    if ConfigFlags.Input.Format == 'POOL':
-        ConfigFlags.Trigger.doTransientByteStream = True
 else:
     DetFlags.Calo_setOff()
 
@@ -417,9 +414,7 @@ from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
 if ConfigFlags.Trigger.doCalo:
-    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
-    setMinimalCaloSetup()
-    if ConfigFlags.Input.Format == 'POOL':
+    if ConfigFlags.Trigger.doTransientByteStream:
         from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
         CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
