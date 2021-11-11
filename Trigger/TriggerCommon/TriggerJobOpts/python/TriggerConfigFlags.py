@@ -273,9 +273,6 @@ def createTriggerFlags():
     # Switch on MC20 EOverP maps for the jet slice
     flags.addFlag("Trigger.Jet.doMC20_EOverP", True)
 
-    # Return dummy chain configurations for fast slice independence checks
-    flags.addFlag("Trigger.Test.doDummyChainConfig", False)
-
     return flags
 
     
