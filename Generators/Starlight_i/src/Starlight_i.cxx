@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ------------------------------------------------------------- 
@@ -124,6 +124,7 @@ StatusCode Starlight_i::genInitialize()
     m_starlight = new starlight();
     // Set random generator to prevent crash in tests.
     m_randomGenerator = std::make_shared<randomGenerator>();
+    m_randomGenerator->SetSeed(m_randomSeed);
     m_starlight->setRandomGenerator(m_randomGenerator.get());
     // set input parameters
     m_starlight->setInputParameters(&m_inputParameters);

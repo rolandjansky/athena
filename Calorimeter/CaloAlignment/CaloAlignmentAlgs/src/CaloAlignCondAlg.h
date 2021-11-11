@@ -29,7 +29,6 @@ class CaloAlignCondAlg final : public AthAlgorithm
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override {return StatusCode::SUCCESS;};
 
  private:
   SG::ReadCondHandleKey<GeoAlignmentStore>  m_readKeyGeoAlign {this

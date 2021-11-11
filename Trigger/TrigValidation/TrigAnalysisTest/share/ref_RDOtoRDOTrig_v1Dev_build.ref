@@ -9314,6 +9314,24 @@ HLT_mu26_ivarmedium_mu4_probe_L1MU14FCH:
     6: 5
     7: 5
     8: 3
+HLT_mu26_ivarmedium_mu6_msonly_probe_L1MU14FCH:
+  eventCount: 1
+  stepCounts:
+    0: 6
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+    5: 1
+    6: 1
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+    5: 5
+    6: 2
 HLT_mu26_ivarmedium_mu6_probe_L1MU14FCH:
   eventCount: 1
   stepCounts:
@@ -9336,6 +9354,24 @@ HLT_mu26_ivarmedium_mu6_probe_L1MU14FCH:
     6: 2
     7: 2
     8: 2
+HLT_mu26_ivarmedium_mu8_msonly_probe_L1MU14FCH:
+  eventCount: 1
+  stepCounts:
+    0: 6
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+    5: 1
+    6: 1
+  stepFeatures:
+    0: 7
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+    5: 5
+    6: 2
 HLT_mu26_ivarmedium_tau100_mediumRNN_tracktwoLLP_03dRAB_L1MU14FCH:
   eventCount: 1
   stepCounts:

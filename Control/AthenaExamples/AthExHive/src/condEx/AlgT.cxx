@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AlgT.h"
@@ -81,10 +81,8 @@ StatusCode AlgT::execute() {
 
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
-  ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
-                         ( HiveDataObj(10000 + 
-                                       evt->eventNumber()) ) )
-             );
+  ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> (10000 + evt->eventNumber())));
+
   ATH_MSG_INFO("  write: " << wh1.key() << " = " << wh1->val() );
 
 

@@ -3887,11 +3887,12 @@ StatusCode HLTTauMonTool::getTracks(const xAOD::TauJet *aEFTau, std::vector<cons
   };
   std::sort(tracks.begin(), tracks.end(), cmp_pt);
 
-  // Truncate tracks
+  /* Truncate tracks
   unsigned int max_tracks = 10;
   if (tracks.size() > max_tracks) {
     tracks.resize(max_tracks);
   }
+  */
 
   out = std::move(tracks);
   return StatusCode::SUCCESS;
@@ -3936,11 +3937,13 @@ StatusCode HLTTauMonTool::getClusters(const xAOD::TauJet *aEFTau, std::vector<co
   };
   std::sort(clusters.begin(), clusters.end(), et_cmp);
 
-  // Truncate clusters
+  /* Truncate clusters
   unsigned int max_clusters = 6;
   if (clusters.size() > max_clusters) {
     clusters.resize(max_clusters);
   }
+  */
+
   out = std::move(clusters);
 
   return StatusCode::SUCCESS;

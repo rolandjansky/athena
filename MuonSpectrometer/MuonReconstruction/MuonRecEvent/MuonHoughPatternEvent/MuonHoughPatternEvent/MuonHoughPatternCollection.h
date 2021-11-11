@@ -8,12 +8,12 @@
 #include "MuonHoughPatternEvent/MuonHoughPattern.h"
 
 /**
-This typedef represents a collection and container of MuonHoughPattern objects. 
+This typedef represents a collection and container of MuonHoughPattern objects.
 */
 typedef std::vector<MuonHoughPattern*> MuonHoughPatternCollection;
 
-typedef std::vector <MuonHoughPatternCollection> MuonHoughPatternContainer;
+typedef std::vector<MuonHoughPatternCollection> MuonHoughPatternContainer;
 
-typedef std::vector <MuonHoughPatternContainer> MuonHoughPatternContainerShip;
+typedef std::vector<MuonHoughPatternContainer> MuonHoughPatternContainerShip;
 
-#endif // MUONHOUGHPATTERNEVENT_MUONHOUGHPATTERNCOLLECTION_H
+#endif  // MUONHOUGHPATTERNEVENT_MUONHOUGHPATTERNCOLLECTION_H

@@ -3,6 +3,11 @@
 from AthenaCommon.CfgGetter import addTool, addAlgorithm
 
 # combined tools
+
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.ParticleCaloCellAssociationTool","MuonCaloCellAssociationTool")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonCaloEnergyTool","MuonCaloEnergyTool")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMaterialProviderTool","MuonTrkMaterialProviderTool")
+
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
 
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonInsideOutRecoTool","MuonInsideOutRecoTool")
@@ -27,7 +32,8 @@ addTool("MuonCombinedRecExample.MuonCaloTagTool.MuonCaloTagTool","MuonCaloTagToo
 addTool("Rec::MuonMomentumBalanceSignificanceTool","MuonMomentumBalanceSignificanceTool")
 addTool("Rec::MuonScatteringAngleSignificanceTool","MuonScatteringAngleSignificanceTool")
 addTool( "Muon::MuonSystemExtensionTool", "MuonSystemExtensionTool", ParticleCaloExtensionTool = "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
-addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMaterialProviderTool","MuonMaterialProviderTool")
+
+
 
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg")

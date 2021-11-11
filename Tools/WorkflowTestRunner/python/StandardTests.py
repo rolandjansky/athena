@@ -14,7 +14,7 @@ class QTest(WorkflowTest):
 
     def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = '') -> None:
         if "maxEvents" not in extra_args:
-            if type == WorkflowType.MCPileUpReco:
+            if type == WorkflowType.MCPileUpReco or run == WorkflowRun.Run4:
                 extra_args += " --maxEvents 5"
             else:
                 extra_args += " --maxEvents 20"

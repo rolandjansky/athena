@@ -104,7 +104,7 @@ def MuonPrintingTool(name="MuonPrintingTool",**kwargs ):
     return CfgMgr.Rec__MuonPrintingTool(name,**kwargs)
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
-    kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
+    kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonTrkMaterialProviderTool"))
     if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault('MakeTrackAtMSLink',True)
         kwargs.setdefault("FillTimingInformation",False)

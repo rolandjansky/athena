@@ -43,8 +43,8 @@ Input   = 'mc_cosmics'    # defined in TrigValTools/share/TrigValInputs.json
 Jobs = [ ( "Offline",     " TIDAdata-run3-offline-cosmic.dat      -r Offline -o data-hists-offline.root" ) ]
 
 
-Comp = [ ( "L2cosmic",       "L2cosmic",      "data-hists-offline.root",      " -c TIDAhisto-panel.dat  -d HLTL2-plots-cosmic " ),
-         ( "EFcosmic",       "EFcosmic",      "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-cosmic " ) ]
+Comp = [ ( "L2cosmic",       "L2cosmic",      "data-hists-offline.root",      " -c TIDAhisto-panel.dat  -d HLTL2-plots " ),
+         ( "EFcosmic",       "EFcosmic",      "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots " ) ]
    
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")

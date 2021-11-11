@@ -94,21 +94,23 @@ TgcL1RawData::TgcL1RawData(uint16_t bcTag,
 // New Sector logic
 // RoI
 TgcL1RawData::TgcL1RawData(uint16_t bcTag,
-                       uint16_t subDetectorId,
-                       uint16_t srodId,
-                       uint16_t l1Id,
-                       uint16_t bcId,
-                       bool forward,
-                       uint16_t sector,
-                       uint16_t coinflag,
-                       bool muplus,
-                       uint16_t threshold,
-                       uint16_t roi)
+                           uint16_t subDetectorId,
+                           uint16_t srodId,
+                           uint16_t l1Id,
+                           uint16_t bcId,
+                           bool forward,
+                           uint16_t sector,
+                           uint16_t innerflag,
+                           uint16_t coinflag,
+                           bool muplus,
+                           uint16_t threshold,
+                           uint16_t roi)
 {
     clear(bcTag, subDetectorId, srodId, l1Id, bcId);
     m_type = TYPE_NSL_ROI;
     m_forward = forward;
     m_sector = sector;
+    m_innerflag = innerflag;
     m_coinflag = coinflag;
     m_muplus = muplus;
     m_threshold = threshold;
@@ -159,7 +161,7 @@ TgcL1RawData::TgcL1RawData(uint16_t bcTag,
                            uint16_t rpcdphi)
 {
     clear(bcTag, subDetectorId, srodId, l1Id, bcId);
-    m_type = TYPE_NSL_NSW;
+    m_type = TYPE_NSL_RPC;
     m_forward = forward;
     m_sector = sector;
     m_rpceta   = rpceta;
@@ -182,7 +184,7 @@ TgcL1RawData::TgcL1RawData(uint16_t bcTag,
                            uint16_t cid)
 {
     clear(bcTag, subDetectorId, srodId, l1Id, bcId);
-    m_type = TYPE_NSL_NSW;
+    m_type = TYPE_NSL_EIFI;
     m_forward = forward;
     m_sector = sector;
     m_ei = ei;
@@ -202,7 +204,7 @@ TgcL1RawData::TgcL1RawData(uint16_t bcTag,
                            uint16_t bcid)
 {
     clear(bcTag, subDetectorId, srodId, l1Id, bcId);
-    m_type = TYPE_NSL_NSW;
+    m_type = TYPE_NSL_TMDB;
     m_forward = forward;
     m_sector = sector;
     m_tmdbmod = mod;
