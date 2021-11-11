@@ -11,6 +11,7 @@ def TLAMuonSequence (flags, muons):
     ## add the InputMaker (event context)    
     tlaMuonInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAMuons", RoIsLink="initialRoI")
     tlaMuonInputMakerAlg.mergeUsingFeature = True
+    tlaMuonInputMakerAlg.RoITool = CompFactory.ViewCreatorPreviousROITool()
     
     tlaMuonAthSequence = seqAND( "TLAMuonAthSequence", [tlaMuonInputMakerAlg] )
     sequenceOut = muons+"_TLA"
@@ -23,7 +24,9 @@ def TLAMuonMenuSequence( flags, muonsIn):
      #  add the hypo
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuonTLAHypoAlg
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
-    hypo = TrigMuonTLAHypoAlg("TrigMuonTLAHypoAlg")  #+muonsIn)    
+    hypo = TrigMuonTLAHypoAlg("TrigMuonTLAHypoAlg")  #+muonsIn)  
+
+    hypo.TLAOutputName = sequenceOut  
 
     return MenuSequence( Sequence  = tlaMuonAthSequence,
                          Maker       = tlaMuonInputMakerAlg,

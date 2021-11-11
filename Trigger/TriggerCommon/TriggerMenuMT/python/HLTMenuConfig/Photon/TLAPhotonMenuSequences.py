@@ -12,6 +12,7 @@ def TLAPhotonSequence (flags, photonsIn):
     
     ## add the InputMaker (event context)    
     tlaPhotonInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAPhotons", RoIsLink="initialRoI")
+    tlaPhotonInputMakerAlg.RoITool =  CompFactory.ViewCreatorPreviousROITool()
     tlaPhotonInputMakerAlg.mergeUsingFeature = True
     
     tlaPhotonAthSequence = seqAND( "TLAPhotonAthSequence", [tlaPhotonInputMakerAlg] )

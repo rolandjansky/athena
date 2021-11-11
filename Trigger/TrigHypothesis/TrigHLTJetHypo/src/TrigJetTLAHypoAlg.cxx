@@ -50,10 +50,7 @@ StatusCode TrigJetTLAHypoAlg::execute( const EventContext& context ) const {
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context);
   DecisionContainer* outputDecisions = outputHandle.ptr();
 
-  //information to pass to hypoTool: jet pointer and decision
-  std::vector<std::pair<const xAOD::Jet*,Decision*>> jetHypoInputs;
 
-  /// NEW
 
   int nDecision = 0;
     for (const auto previousDecision : *previousDecisionHandle)
@@ -87,7 +84,7 @@ StatusCode TrigJetTLAHypoAlg::execute( const EventContext& context ) const {
             // do we need to re-link the feature?
             newDecision->setObjectLink<xAOD::JetContainer>(featureString(), prevJetLink);
 
-            jetHypoInputs.push_back( std::make_pair(copiedJet, newDecision) );
+            
 
 
         }
@@ -96,13 +93,14 @@ StatusCode TrigJetTLAHypoAlg::execute( const EventContext& context ) const {
 
       nDecision++;
     }
+  
 
 
 
   for (const auto& tool: m_hypoTools) {
 
     ATH_MSG_DEBUG("Now computing decision for " << tool->name());
-    CHECK(tool->decide(jetHypoInputs));
+    CHECK(tool->decide(outputDecisions));
 
   }//end loop on hypoTools
 
