@@ -419,6 +419,7 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
                   unsigned int origin_l1Id    = originRoI.l1Id() ; 
                   unsigned int origin_roiWord = originRoI.roiWord(); 
                   internalRoI = TrigRoiDescriptor(origin_roiWord, origin_l1Id, origin_roiId, origin_eta, origin_etaMinus, origin_etaPlus, origin_phi, origin_phiMinus, origin_phiPlus, zVTX, new_zedMinus, new_zedPlus);
+                  if (originRoI.isFullscan()) internalRoI.setFullscan(true);
               }
               else internalRoI = **roiCollection->begin(); // we have a more narrow zed range in RoI, no need to update.
           }else{ //Not converged, set to the fullScan RoI
