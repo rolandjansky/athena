@@ -899,7 +899,7 @@ def setupMenu():
         ChainProp(name='HLT_2j175_mb_afprec_afpdijet_L1AFP_A_AND_C_TOF_jJ75', l1SeedThresholds=['FSNOSEED']*2, stream=[PhysicsStream],groups=MinBiasGroup+LowMuGroup+SupportPhIGroup),
 
         # Muon-in-jet
-        ChainProp(name='HLT_mu4_j20_0eta290_pf_ftf_boffperf_dRAB03_L1MU3V_jJ15', l1SeedThresholds=['MU3V','FSNOSEED'], groups=SingleBjetGroup),
+        ChainProp(name='HLT_mu4_j20_0eta290_pf_ftf_boffperf_dRAB03_L1MU3V_jJ15', l1SeedThresholds=['MU3V','FSNOSEED'], groups=SingleBjetGroup+SupportPhIGroup),
 
     ]
     chains['MinBias'] = [
