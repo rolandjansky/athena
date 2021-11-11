@@ -3886,8 +3886,6 @@ HLT_mu8_L1MU5VF:
     1: 2
     2: 2
     3: 1
-HLT_noalg_AlfaPEB_L1ALFA_ANY:
-  eventCount: 0
 HLT_noalg_CIS_TilePEB_L1CALREQ1:
   eventCount: 0
 HLT_noalg_CSCPEB_L1All:
@@ -4030,87 +4028,11 @@ HLT_noalg_L1LAR-ZEE:
   eventCount: 0
 HLT_noalg_L1LAR-ZEE-eEM:
   eventCount: 0
-HLT_noalg_L1MBTSA0:
-  eventCount: 0
-HLT_noalg_L1MBTSA1:
-  eventCount: 0
-HLT_noalg_L1MBTSA10:
-  eventCount: 0
-HLT_noalg_L1MBTSA11:
-  eventCount: 0
-HLT_noalg_L1MBTSA12:
-  eventCount: 0
-HLT_noalg_L1MBTSA13:
-  eventCount: 0
-HLT_noalg_L1MBTSA14:
-  eventCount: 0
-HLT_noalg_L1MBTSA15:
-  eventCount: 0
-HLT_noalg_L1MBTSA2:
-  eventCount: 0
-HLT_noalg_L1MBTSA3:
-  eventCount: 0
-HLT_noalg_L1MBTSA4:
-  eventCount: 0
-HLT_noalg_L1MBTSA5:
-  eventCount: 0
-HLT_noalg_L1MBTSA6:
-  eventCount: 0
-HLT_noalg_L1MBTSA7:
-  eventCount: 0
-HLT_noalg_L1MBTSA8:
-  eventCount: 0
-HLT_noalg_L1MBTSA9:
-  eventCount: 0
-HLT_noalg_L1MBTSC0:
-  eventCount: 0
-HLT_noalg_L1MBTSC1:
-  eventCount: 0
-HLT_noalg_L1MBTSC10:
-  eventCount: 0
-HLT_noalg_L1MBTSC11:
-  eventCount: 0
-HLT_noalg_L1MBTSC12:
-  eventCount: 0
-HLT_noalg_L1MBTSC13:
-  eventCount: 0
-HLT_noalg_L1MBTSC14:
-  eventCount: 0
-HLT_noalg_L1MBTSC15:
-  eventCount: 0
-HLT_noalg_L1MBTSC2:
-  eventCount: 0
-HLT_noalg_L1MBTSC3:
-  eventCount: 0
-HLT_noalg_L1MBTSC4:
-  eventCount: 0
-HLT_noalg_L1MBTSC5:
-  eventCount: 0
-HLT_noalg_L1MBTSC6:
-  eventCount: 0
-HLT_noalg_L1MBTSC7:
-  eventCount: 0
-HLT_noalg_L1MBTSC8:
-  eventCount: 0
-HLT_noalg_L1MBTSC9:
-  eventCount: 0
-HLT_noalg_L1MBTS_1:
-  eventCount: 0
-HLT_noalg_L1MBTS_1_1:
-  eventCount: 0
 HLT_noalg_L1MBTS_1_1_EMPTY:
-  eventCount: 0
-HLT_noalg_L1MBTS_1_1_UNPAIRED_ISO:
   eventCount: 0
 HLT_noalg_L1MBTS_1_EMPTY:
   eventCount: 0
-HLT_noalg_L1MBTS_1_UNPAIRED_ISO:
-  eventCount: 0
-HLT_noalg_L1MBTS_2:
-  eventCount: 0
 HLT_noalg_L1MBTS_2_EMPTY:
-  eventCount: 0
-HLT_noalg_L1MBTS_2_UNPAIRED_ISO:
   eventCount: 0
 HLT_noalg_L1MBTS_A:
   eventCount: 0
@@ -4200,6 +4122,8 @@ HLT_noalg_L1cTAU25M:
   eventCount: 0
 HLT_noalg_L1eEM10L:
   eventCount: 1
+HLT_noalg_L1eEM12:
+  eventCount: 13
 HLT_noalg_L1eEM15:
   eventCount: 11
 HLT_noalg_L1eEM15L:
@@ -4208,9 +4132,9 @@ HLT_noalg_L1eEM15M:
   eventCount: 0
 HLT_noalg_L1eEM18M:
   eventCount: 0
-HLT_noalg_L1eEM20:
-  eventCount: 7
 HLT_noalg_L1eEM20L:
+  eventCount: 0
+HLT_noalg_L1eEM20VM:
   eventCount: 0
 HLT_noalg_L1eEM22:
   eventCount: 7
@@ -4228,8 +4152,6 @@ HLT_noalg_L1eEM8:
   eventCount: 22
 HLT_noalg_L1eEM8L:
   eventCount: 1
-HLT_noalg_L1eEM8M:
-  eventCount: 0
 HLT_noalg_L1eTAU100:
   eventCount: 0
 HLT_noalg_L1eTAU12:
@@ -4269,8 +4191,6 @@ HLT_noalg_L1gXERHO50:
 HLT_noalg_L1jEM15:
   eventCount: 0
 HLT_noalg_L1jEM15M:
-  eventCount: 0
-HLT_noalg_L1jEM18M:
   eventCount: 0
 HLT_noalg_L1jJ100:
   eventCount: 4
@@ -4328,7 +4248,9 @@ HLT_noalg_L1jLJ80:
   eventCount: 0
 HLT_noalg_L1jTAU12:
   eventCount: 0
-HLT_noalg_L1jTAU12M:
+HLT_noalg_L1jTAU20:
+  eventCount: 0
+HLT_noalg_L1jTAU20M:
   eventCount: 0
 HLT_noalg_L1jTE100:
   eventCount: 0

@@ -25,7 +25,7 @@ class CTP(object):
     def addBunchGroup(self, name, internalNumber, bunches):
         self.bunchGroupSet.addBunchGroup(name, internalNumber, bunches)
 
-    def setupMonitoring(self, menuItems, menuThresholds, connectors):
+    def setupMonitoring(self, menuName, menuItems, menuThresholds, connectors):
         ##  # add the CTPIN counters
         ##  for counter in MonitorDef.ctpinCounters( menuThresholds ):
         ##      self.counters.addCounter( counter )
@@ -39,7 +39,7 @@ class CTP(object):
             self.counters.addCounter( counter )
 
         # mark the L1 Items that they should be monitored
-        MonitorDef.applyItemCounter( menuItems )
+        MonitorDef.applyItemCounter( menuName, menuItems )
         pass
 
     def checkConnectorAvailability(self, availableConnectors, menuToLoad):

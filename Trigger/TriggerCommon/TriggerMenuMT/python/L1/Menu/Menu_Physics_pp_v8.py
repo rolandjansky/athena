@@ -7,6 +7,8 @@ def defineMenu():
 
     mc_menu.defineMenu()
 
+    L1MenuFlags.ApplyCTPLimits = True
+
     L1MenuFlags.ThresholdMap = {
         # Do not use for L1Topo decision threshold!
         'jXEPerf50' :'',
