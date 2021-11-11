@@ -456,6 +456,8 @@ def MuidTrackCleanerCfg(flags, name='MuidTrackCleaner', **kwargs ):
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("Iterate", False)
         kwargs.setdefault("RecoverOutliers", False)
+        acc = iPatFitterCfg(flags, 'iPatFitterClean', MaxIterations=4)
+        kwargs.setdefault("Fitter", acc.getPrimary())
     return MuonTrackCleanerCfg(flags, name, **kwargs)
     
 def MuidCaloEnergyParam(flags, name='MuidCaloEnergyParam', **kwargs ):

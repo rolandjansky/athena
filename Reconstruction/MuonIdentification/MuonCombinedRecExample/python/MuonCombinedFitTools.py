@@ -299,7 +299,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
         kwargs.setdefault("Fitter"                        , getPublicToolClone("TrigiPatFitter_"+suffix, "iPatFitter", TrackSummaryTool=trackSummary) )
         kwargs.setdefault("SLFitter"                      , getPublicToolClone("TrigiPatSLFitter_"+suffix, "iPatSLFitter", TrackSummaryTool=trackSummary) )
         kwargs.setdefault("CscRotCreator"                 , "" )
-        kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix,"MuidTrackCleaner", Fitter=kwargs["Fitter"]) )
+        kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix,"MuidTrackCleaner", Fitter=getPublicToolClone("TrigiPatFitterClean_"+suffix, "iPatFitter", TrackSummaryTool=trackSummary, MaxIterations=4)))
 
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
@@ -377,7 +377,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
         kwargs.setdefault("SLFitter"                      , getPublicToolClone("TrigiPatSLFitter_"+suffix, "iPatSLFitter", TrackSummaryTool=trackSummary) )
         kwargs.setdefault("MuonErrorOptimizer", "")
         kwargs.setdefault("CscRotCreator"                 , "" )
-        kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix, "MuidTrackCleaner", Fitter=kwargs["Fitter"]) )
+        kwargs.setdefault("Cleaner"                       , getPrivateToolClone("TrigMuidTrackCleaner_"+suffix, "MuidTrackCleaner", Fitter=getPublicToolClone("TrigiPatFitterClean_"+suffix, "iPatFitter", TrackSummaryTool=trackSummary, MaxIterations=4)))
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         kwargs.setdefault("MuonHoleRecovery"              , getPublicTool("MuidSegmentRegionRecoveryTool") )
