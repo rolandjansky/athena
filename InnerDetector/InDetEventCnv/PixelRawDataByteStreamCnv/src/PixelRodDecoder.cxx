@@ -178,6 +178,14 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
          propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::MaskedROB, "resource was masked off");
          return StatusCode::RECOVERABLE;
       }
+      // in case the ROB fragment has a seemingly invalid size check the fragment and reject it if the check is not passed.
+      // Note: there are usable ROB fragments (i.e. ROB fragments which contribute pixel hits to tracks) which do not pass the check, so
+      // rejecting all fragments which do not pass the test would reject also seemingly "good" data.
+      if (robFrag->rod_ndata() > robFrag->payload_size_word() && !robFrag->check_rod_noex(robFrag->rod_version() >> 16)) {
+         propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::TruncatedROB,
+                                     " invalid ROD fragment, invalid payload size");
+         return StatusCode::RECOVERABLE;
+      }
     }
   }
   StatusCode sc = StatusCode::SUCCESS;
