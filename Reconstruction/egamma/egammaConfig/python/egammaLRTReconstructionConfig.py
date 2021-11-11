@@ -101,6 +101,7 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
             InputElectronRecCollectionName='LRT' +
             flags.Egamma.Keys.Internal.ElectronSuperRecs,
             ElectronOutputName='LRT'+flags.Egamma.Keys.Output.Electrons,
+            PhotonOutputName="LRT"+flags.Egamma.Keys.Output.Photons,
             EMClusterTool=LRTEMClusterTool,
             doPhotons=False)
         )
@@ -117,6 +118,13 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
             MatchPhotons=False,
             MatchForwardElectrons=False)
         )
+
+    # To use egamma CA within standard config
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
+        for el in acc._allSequences:
+            el.name = "TopAlg"
 
     mlog.info("EGamma LRT reconstruction configured")
 

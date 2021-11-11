@@ -4,9 +4,14 @@ from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from ParticleBuilderOptions.AODFlags import AODFlags
 from JetRec.JetRecFlags import jetFlags
+from AthenaCommon.DetFlags import DetFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
 def setRunEgammaOnlyRecoFlags():
+
+    DetFlags.Muon_setOff()
+    ConfigFlags.Detector.GeometryMuon = False
     rec.doTrigger.set_Value_and_Lock(False)
     rec.doTau.set_Value_and_Lock(False)
     rec.doMuon.set_Value_and_Lock(False)
