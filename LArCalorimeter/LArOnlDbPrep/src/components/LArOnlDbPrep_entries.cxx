@@ -1,5 +1,5 @@
-#include "LArOnlDbPrep/LArDSPThresholdFillInline.h"
-#include "LArOnlDbPrep/LArGeoWeightsFill.h"
+#include "../LArDSPThresholdFillInline.h"
+#include "../LArGeoWeightsFill.h"
 
 DECLARE_COMPONENT( LArDSPThresholdFillInline )
 DECLARE_COMPONENT( LArGeoWeightsFill )
