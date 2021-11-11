@@ -33,7 +33,7 @@ class RPCLv1AnaAlg : public AthMonitorAlgorithm
     SG::ReadHandleKey<RpcPadContainer> m_rpcPadContainerKey
       { this, "RpcPadContainerKey", "RPCPAD", "Key for Rpc Pad" };
     SG::ReadHandleKey<xAOD::MuonRoIContainer> m_l1RoiContainerKey
-      { this, "L1RoiContainerKey", "LVL1MuonRoIs", "Key for L1 ROIs" };
+      { this, "MuonRoIContainerName", "LVL1MuonRoIs", "Key for L1 ROIs" };
 
     //
     // Define configurable cuts

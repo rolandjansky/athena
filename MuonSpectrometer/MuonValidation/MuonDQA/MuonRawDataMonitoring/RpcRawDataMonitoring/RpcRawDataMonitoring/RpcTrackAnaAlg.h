@@ -105,7 +105,7 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     const MuonGM::MuonDetectorManager             *m_muonMgr;
 
     ToolHandle<Trk::IExtrapolator>                m_extrapolator{this,"TrackExtrapolator","Trk::Extrapolator/AtlasExtrapolator","Track extrapolator"};
-    SG::ReadHandleKey<xAOD::MuonRoIContainer>     m_MuonRoIContainerKey {this, "L1RoiContainerKey", "LVL1MuonRoIs", "Key for L1 ROIs" };
+    SG::ReadHandleKey<xAOD::MuonRoIContainer>     m_MuonRoIContainerKey {this, "MuonRoIContainerName", "LVL1MuonRoIs", "Key for L1 ROIs" };
     SG::ReadHandleKey<xAOD::MuonContainer>        m_MuonContainerKey { this, "MuonContainerKey", "Muons", "Key for Offline muon track Containers" };
     SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrdKey {this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
 
