@@ -176,8 +176,12 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
 {
   (void)extrapol; // avoid unused variable warning
 
+  ATH_MSG_INFO("Get inputs to network"); // Temporary
+
   // Get inputs to Neural Network
   std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001);
+
+  ATH_MSG_INFO("Get predicted extrapolation weights"); // Temporary
 
   // Get predicted extrapolation weights
   auto outputs            = m_nn->compute(inputVariables);
@@ -188,6 +192,7 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
     layers.push_back(14);
   }
   for(int ilayer : layers){ // loop over layers and decorate simulstate with corresponding predicted extrapolation weight
+    ATH_MSG_INFO("Extrapolation weight for layer "<<std::to_string(ilayer)<<" = "<<std::to_string(outputs["extrapWeight_"+std::to_string(ilayer)])); // Temporary
     simulstate.setAuxInfo<float>(ilayer,outputs["extrapWeight_"+std::to_string(ilayer)]);
   }
   return FCSSuccess;
@@ -204,9 +209,11 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate_hit(Hit& hit, TFCSSimulationSta
    float extrapWeight;
    if(simulstate.hasAuxInfo(cs)){
      extrapWeight = simulstate.getAuxInfo<float>(cs);
+     ATH_MSG_INFO("Extrapolation weight for layer "<<std::to_string(cs)<<" (from simulstate) = "<<std::to_string(extrapWeight)); // Temporary
    } else{ // missing AuxInfo
      simulate(simulstate, truth, extrapol); // decorate simulstate with extrapolation weights
      extrapWeight = simulstate.getAuxInfo<float>(cs); // retrieve corresponding extrapolation weight
+     ATH_MSG_INFO("Extrapolation weight for layer "<<std::to_string(cs)<<" (had to run simulate()) = "<<std::to_string(extrapWeight)); // Temporary
    }
 
    double r = (1.-extrapWeight)*extrapol->r(cs, SUBPOS_ENT) + extrapWeight*extrapol->r(cs, SUBPOS_EXT);
@@ -232,6 +239,8 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate_hit(Hit& hit, TFCSSimulationSta
    
    ATH_MSG_DEBUG("TFCSCenterPositionCalculation: center_r: " << hit.center_r() << " center_z: " << hit.center_z() << " center_phi: " << hit.center_phi() << " center_eta: " << hit.center_eta() << " weight: " << extrapWeight << " cs: " << cs);
    
+   ATH_MSG_INFO("TFCSPredictExtrapWeights: center_r: " << hit.center_r() << " center_z: " << hit.center_z() << " center_phi: " << hit.center_phi() << " center_eta: " << hit.center_eta() << " weight: " << extrapWeight << " cs: " << cs); // Temporary
+
    return FCSSuccess;
 }
 
@@ -251,15 +260,21 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
     return false;
   } else {
     ATH_MSG_INFO("For pid: " << pid <<" and etaBin" << etaBin <<", loading json file " << inputFileName );
-    if(m_input!=nullptr) {
+    std::ifstream input(inputFileName);
+    std::stringstream sin;
+    sin << input.rdbuf();
+    input.close();
+    auto config = lwt::parse_json(sin);
+    m_nn        = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
+    if(m_nn==nullptr){
+      ATH_MSG_ERROR("Could not create LightWeightNeuralNetwork from " << inputFileName );
+      return false;
+    }
+    if(m_input!=nullptr){
       delete m_input;
     }
-    m_input = new std::string(inputFileName.c_str());
-    std::ifstream inputModel(*m_input);
-    auto config = lwt::parse_json(inputModel);
-    m_nn        = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
+    m_input = new std::string(sin.str());
   }                
-    
   return true;
 }
 
@@ -274,10 +289,11 @@ void TFCSPredictExtrapWeights::Streamer(TBuffer &R__b)
         delete m_nn;
         m_nn=nullptr;
       }
-      if(m_input) {
-        std::ifstream inputModel(*m_input);
-	std::cout << "Will read JSON file = " << m_input->c_str() << std::endl;
-        auto config = lwt::parse_json(inputModel);
+      if(m_input && !m_input->empty()) {
+        std::stringstream sin;
+        sin.str(*m_input);
+        auto config = lwt::parse_json(sin);
+        // check when it runs and the content of sin FIXME Jona
         m_nn        = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
       }  
 #ifndef __FastCaloSimStandAlone__ 
@@ -404,3 +420,14 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
   return;
 }
 
+void TFCSPredictExtrapWeights::Print(Option_t* option) const
+{
+   TString opt(option);
+   bool shortprint=opt.Index("short")>=0;
+   bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
+   TString optprint=opt;optprint.ReplaceAll("short","");
+   TFCSLateralShapeParametrizationHitBase::Print(option);
+
+   if(longprint) ATH_MSG_INFO(optprint << "  m_input (TFCSPredictExtrapWeights): " << m_input);
+   if(longprint) ATH_MSG_INFO(optprint << "  Address of m_nn: " << (void *)m_nn);
+}

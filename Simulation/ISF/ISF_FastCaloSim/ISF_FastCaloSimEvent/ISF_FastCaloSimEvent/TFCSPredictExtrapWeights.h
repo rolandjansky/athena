@@ -49,6 +49,9 @@ public:
   // Prepare inputs to the Neural Network
   std::map<std::string,double> prepareInputs(TFCSSimulationState& simulstate, const float truthE) const;
 
+  // Print()
+  void Print(Option_t *option = "") const override;
+
 private:
   
   // Persistify configuration in string m_input. A custom Streamer(...) builds m_nn on the fly when reading from file.
