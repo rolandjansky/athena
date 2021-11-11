@@ -7,6 +7,14 @@ atlas_subdir( Epos_i )
 find_package( CLHEP )
 find_package( Crmc COMPONENTS Epos )
 
+if ("${CRMC_LCGVERSION}" MATCHES "^1")
+   message( INFO "VERSION 1.xx ${CRMC_LCGVERSION}" ) 
+   set( CRMC_TABS ${CRMC_LCGROOT}/tabs )
+else()
+   message( INFO "VERSION 2.xx ${CRMC_LCGVERSION}" )
+   set( CRMC_TABS ${CRMC_LCGROOT}/share/crmc )
+endif()
+
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
 
@@ -30,17 +38,16 @@ atlas_add_component( Epos_i
 # Install files from the package:
 atlas_install_joboptions( share/common/*.py )
 atlas_install_runtime( share/file/epos_crmc.param
-                       ${CRMC_LCGROOT}/tabs/dpmjet.dat
-                       ${CRMC_LCGROOT}/tabs/epos.initl
-                       ${CRMC_LCGROOT}/tabs/epos.iniev
-                       ${CRMC_LCGROOT}/tabs/epos.inirj
-                       ${CRMC_LCGROOT}/tabs/epos.inirj.lhc
-                       ${CRMC_LCGROOT}/tabs/epos.inics
-                       ${CRMC_LCGROOT}/tabs/epos.inics.lhc
-                       ${CRMC_LCGROOT}/tabs/epos.inidi )
+                       ${CRMC_TABS}/dpmjet.dat
+                       ${CRMC_TABS}/epos.initl
+                       ${CRMC_TABS}/epos.iniev
+                       ${CRMC_TABS}/epos.inirj
+                       ${CRMC_TABS}/epos.inirj.lhc
+                       ${CRMC_TABS}/epos.inics
+                       ${CRMC_TABS}/epos.inics.lhc
+                       ${CRMC_TABS}/epos.inidi )
 
 set( EposEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of EposEnvironment.cmake" )
 find_package( EposEnvironment )
-
 
