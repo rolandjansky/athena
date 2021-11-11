@@ -205,7 +205,10 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["LArTTL1Container#*"]
             from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
             if commonGeoFlags.Run()=="RUN3":
-                StreamRDO_ItemList+=["LArDigitContainer#LArDigitSCL2"]
+                if digitizationFlags.PileUpPresampling:
+                    StreamRDO_ItemList+=["LArDigitContainer#*LArDigitSCL2"]
+                else:
+                    StreamRDO_ItemList+=["CaloCellContainer#SCell"]
     if DetFlags.simulateLVL1.Tile_on():
         if DetFlags.writeRDOPool.Tile_on():
             StreamRDO_ItemList+=["TileTTL1Container#*"]

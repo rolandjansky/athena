@@ -61,6 +61,45 @@ def LArOFCCondAlgCfg (flags, name = 'LArOFCCondAlg', **kwargs):
     return acc
 
 
+def LArOFCSCCondAlgCfg (flags, name = 'LArOFCSCCondAlg', **kwargs):
+
+    mlog = logging.getLogger ('LArOFCSCCondAlgCfg')
+    mlog.info(" entering LArOFCSCCondAlgCfg")
+
+    kwargs.setdefault ('isMC', True)
+    kwargs.setdefault ('isSuperCell', True)
+    kwargs.setdefault ('firstSample', flags.LAr.ROD.FirstSample)
+    kwargs.setdefault ('useHighestGainAutoCorr', flags.LAr.ROD.UseHighestGainAutoCorr)
+
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingSCCfg
+    acc = LArOnOffIdMappingSCCfg(flags)
+    kwargs.setdefault("LArOnOffIdMappingObjKey", 'LArOnOffIdMapSC') # Provided by LArOnOffMappingAlgSC
+    requiredConditions=["ShapeSC","PedestalSC","NoiseSC"]
+    from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDBMCSCCfg
+    acc.merge(LArElecCalibDBMCSCCfg(flags,requiredConditions))
+    kwargs.setdefault("LArShapeObjKey", 'LArShapeSC') # Provided by LArFlatConditionsAlg<LArShapeSC>
+    kwargs.setdefault("LArNoiseObjKey", 'LArNoiseSC') # Provided by LArFlatConditionsAlg<LArNoiseSC>
+    kwargs.setdefault("LArPedestalObjKey", 'LArPedestalSC') # Provided by LArFlatConditionsAlg<LArPedestalSC>
+
+    acc.merge(LArAutoCorrTotalSCCondAlgCfg(flags))
+    kwargs.setdefault("LArAutoCorrTotalObjKey", 'LArAutoCorrTotalSC') # Provided by LArAutoCorrTotalSCCondAlg
+    kwargs.setdefault("LArOFCObjKey", 'LArOFCSC') # Output
+
+    if flags.LAr.ROD.DoOFCPileupOptimization:
+        if flags.LAr.ROD.NumberOfCollisions:
+            kwargs.setdefault('Nminbias',flags.LAr.ROD.NumberOfCollisions)
+            mlog.info("Setup LArOFCCOndAlg Nminbias %f ", flags.LAr.ROD.NumberOfCollisions)
+        else:
+            kwargs.setdefault('Nminbias',flags.Beam.NumberOfCollisions)
+            mlog.info("Setup LArOFCCOndAlg Nminbias %f ", flags.Beam.NumberOfCollisions)
+    else:
+         kwargs.setdefault('Nminbias',0.)
+         mlog.info(" no pileup optimization")
+
+    acc.addCondAlgo (CompFactory.LArOFCCondAlg (name, **kwargs))
+    return acc
+
+
 def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwargs):
     mlog = logging.getLogger ('LArAutoCorrTotalCondAlgCfg')
     mlog.info(" entering LArAutoCorrTotalCondAlgCfg")
@@ -90,6 +129,55 @@ def LArAutoCorrTotalCondAlgCfg (flags, name = 'LArAutoCorrTotalCondAlg', **kwarg
     acc = LArOnOffIdMappingCfg(flags)
     requiredConditons=["Shape","AutoCorr","Noise","Pedestal","fSampl","MinBias"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
+    LArAutoCorrTotalCondAlg=CompFactory.LArAutoCorrTotalCondAlg
+    acc.addCondAlgo (LArAutoCorrTotalCondAlg (name, **kwargs))
+    return acc
+
+
+def LArAutoCorrTotalSCCondAlgCfg (flags, name = 'LArAutoCorrTotalSCCondAlg', **kwargs):
+    mlog = logging.getLogger ('LArAutoCorrTotalSCCondAlgCfg')
+    mlog.info(" entering LArAutoCorrTotalSCCondAlgCfg")
+    from AthenaCommon.SystemOfUnits import ns
+
+    acc = LArOnOffIdMappingCfg(flags)
+    kwargs.setdefault("LArOnOffIdMappingObjKey", 'LArOnOffIdMapSC') # Provided by LArOnOffMappingAlgSC
+
+    from LArRecUtils.LArADC2MeVSCCondAlgConfig import LArADC2MeVSCCondAlgCfg
+    acc.merge(LArADC2MeVSCCondAlgCfg(flags))
+    kwargs.setdefault("LArADC2MeVObjKey", 'LArADC2MeVSC') # Provided by LArADC2MeVSCCondAlg
+
+    requiredConditons=["ShapeSC","AutoCorrSC","NoiseSC","PedestalSC","fSamplSC","MinBiasSC"]
+    from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDBMCSCCfg
+    acc.merge(LArElecCalibDBMCSCCfg(flags,requiredConditons))
+    kwargs.setdefault("LArShapeObjKey", 'LArShapeSC') # Provided by LArFlatConditionsAlg<LArShapeSC>
+    kwargs.setdefault("LArAutoCorrObjKey", 'LArAutoCorrSC')# Provided by LArFlatConditionsAlg<LArAutoCorrSC>
+    kwargs.setdefault("LArNoiseObjKey", 'LArNoiseSC') # Provided by LArFlatConditionsAlg<LArNoiseSC>
+    kwargs.setdefault("LArPedestalObjKey", 'LArPedestalSC') # Provided by LArFlatConditionsAlg<LArPedestalSC>
+    kwargs.setdefault("LArfSamplObjKey", 'LArfSamplSC') # Provided by LArFlatConditionsAlg<LArfSamplSC>
+    kwargs.setdefault("LArMinBiasObjKey", 'LArMinBiasSC') # Provided by LArFlatConditionsAlg<LArMinBiasSC>
+
+    kwargs.setdefault("LArAutoCorrTotalObjKey", 'LArAutoCorrTotalSC') # Output
+
+    kwargs.setdefault("isSuperCell", True)
+    kwargs.setdefault('Nsamples', flags.LAr.ROD.nSamples)
+    kwargs.setdefault('firstSample',flags.LAr.ROD.FirstSample)
+    mlog.info("Nsamples %d",flags.LAr.ROD.nSamples)
+    mlog.info("firstSample %d",flags.LAr.ROD.FirstSample)
+    deltaBunch = int(flags.Beam.BunchSpacing/( 25.*ns)+0.5)
+    mlog.info("DeltaBunch %d " , deltaBunch)
+    kwargs.setdefault('deltaBunch',deltaBunch)
+
+    if flags.LAr.ROD.DoOFCPileupOptimization:
+        if flags.LAr.ROD.NumberOfCollisions:
+            kwargs.setdefault("Nminbias", flags.LAr.ROD.NumberOfCollisions)
+            mlog.info(" NMminBias %f", flags.LAr.ROD.NumberOfCollisions)
+        else:
+            kwargs.setdefault("Nminbias", flags.Beam.NumberOfCollisions)
+            mlog.info(" NMminBias %f", flags.Beam.NumberOfCollisions)
+    else:
+        kwargs.setdefault('Nminbias',0.)
+        mlog.info(" no pileup noise in LArAutoCorrTotal ")
+
     LArAutoCorrTotalCondAlg=CompFactory.LArAutoCorrTotalCondAlg
     acc.addCondAlgo (LArAutoCorrTotalCondAlg (name, **kwargs))
     return acc
