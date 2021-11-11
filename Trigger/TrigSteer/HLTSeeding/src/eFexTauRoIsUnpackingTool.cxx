@@ -61,8 +61,8 @@ StatusCode eFexTauRoIsUnpackingTool::unpack(const EventContext& ctx,
   for (const xAOD::eFexTauRoI* roi : rois) {
     // Create new RoI descriptor
     roiDescriptors->push_back(std::make_unique<TrigRoiDescriptor>(
-      roi->eta(), roi->eta()-m_roiWidth, roi->eta()+m_roiWidth,
-      roi->phi(), roi->phi()-m_roiWidth, roi->phi()+m_roiWidth
+      roi->eta(), roi->eta()-m_roiWidthEta, roi->eta()+m_roiWidthEta,
+      roi->phi(), roi->phi()-m_roiWidthPhi, roi->phi()+m_roiWidthPhi
     ));
 
     // Create new decision and link the RoI objects
