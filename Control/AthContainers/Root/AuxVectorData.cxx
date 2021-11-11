@@ -380,8 +380,11 @@ void* AuxVectorData::getDecorationOol (SG::auxid_t auxid) const
   // Fetch the pointer from the store, or raise an exception if we don't
   // have a non-const store.
   void* ptr = 0;
-  if (m_store)
-    ptr = m_store->getDecoration (auxid, this->size_v(), this->capacity_v());
+  if (m_store) {
+    // Avoid warning about calling non-const function.  OK here.
+    IAuxStore* store ATLAS_THREAD_SAFE = m_store;
+    ptr = store->getDecoration (auxid, this->size_v(), this->capacity_v());
+  }
   else if (getConstStore()) {
     // The whole point of decorations is to allow adding information to
     // something that's otherwise const.  So we have the const_cast here.
@@ -562,7 +565,9 @@ bool AuxVectorData::clearDecorations() const
 {
   bool ret = false;
   if (m_store) {
-    ret = m_store->clearDecorations();
+    // Avoid warning about calling non-const function.  OK here.
+    IAuxStore* store ATLAS_THREAD_SAFE = m_store;
+    ret = store->clearDecorations();
     m_cache.clear();
     m_constCache.clear();
     m_decorCache.clear();
