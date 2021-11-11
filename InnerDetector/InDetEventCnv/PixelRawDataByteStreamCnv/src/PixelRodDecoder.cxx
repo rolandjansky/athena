@@ -168,13 +168,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         Definition of the status words in a ROB fragment header is found in
            https://twiki.cern.ch/twiki/bin/view/Atlas/ROBINFragmentErrors#Definition_of_the_first_status_e
       */
-      if (((*rob_status) >> 27) & 0x1) {
+      if ((*rob_status) & (0x1 << 27)) {
          propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::TruncatedROB, "data truncation");
          return StatusCode::RECOVERABLE;
       }
-      if (((*rob_status) >> 31) & 0x1) {
+      if ((*rob_status) & (0x1 << 31)) {
          propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::MaskedROB, "resource was masked off");
-        return StatusCode::RECOVERABLE;
+         return StatusCode::RECOVERABLE;
       }
     }
   }
