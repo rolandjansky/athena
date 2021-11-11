@@ -28,8 +28,12 @@ if DetFlags.detdescr.ID_on():
 # functionality : FTK reconstruction
 if DetFlags.detdescr.FTK_on() :
     protectedInclude( "FTK_RecExample/FTKRec_jobOptions.py")
-         
-        
+
+pdr.flag_domain('hgtd')
+if DetFlags.detdescr.HGTD_on() :
+    protectedInclude( "HGTD_TrackTimeExtension/HGTDRec_jobOptions.py")
+
+
 # functionality : Muon reconstruction
 pdr.flag_domain('muon')
 if DetFlags.detdescr.Muon_on() :
@@ -39,7 +43,7 @@ if DetFlags.detdescr.Muon_on() :
         from MuonRecExample.MuonRecFlags import muonRecFlags
         muonRecFlags.applyResilience = athenaCommonFlags.AllowIgnoreConfigError()
     except Exception:
-        treatException("Could not set muonRecFlags.applyResilience")        
+        treatException("Could not set muonRecFlags.applyResilience")
 
 
 # hack the merged jobo should test on rec.ScopingLevel=5 to run cosmic reco
@@ -47,7 +51,7 @@ if DetFlags.detdescr.Muon_on() :
 
 
 
-    try:    
+    try:
         include ("MuonRecExample/MuonRec_jobOptions.py")
     except Exception:
         treatException("Problem with MuonRecExample/MuonRec_jobOptions.py. Switching off Moore and Muonboy")
@@ -59,7 +63,7 @@ else:
     muonRecFlags.doStandalone=False
 AODFix_postMuonRec()
 
-    
+
 pdr.flag_domain('forward')
 
 if DetFlags.detdescr.Forward_on():
@@ -70,4 +74,3 @@ if DetFlags.detdescr.Forward_on():
         treatException("Problem including ForwardRec/ForwardRec_jobOptions.py !!")
 
 AODFix_postForwardRec()
-
