@@ -963,8 +963,8 @@ def setupMenu():
         
         ChainProp(name='HLT_larpsall_L1J15', l1SeedThresholds=['J15'], stream=['CosmicCalo'],groups=['RATE:Calibration','BW:Detector']),
 
-        # Phase I jet inputs ATR-24411
-        ChainProp(name='HLT_larpsall_L1jJ15', l1SeedThresholds=['jJ15'], stream=['CosmicCalo'],groups=['RATE:Calibration','BW:Detector']),
+        # Phase I jet inputs ATR-24411, seed needs to be checked
+        #ChainProp(name='HLT_larpsall_L1jJ15', l1SeedThresholds=['jJ15'], stream=['CosmicCalo'],groups=['RATE:Calibration','BW:Detector']),
 
     ]
 
