@@ -47,6 +47,11 @@ import six
 # threads when forking (see ATR-21890, ATDBOPS-115)
 os.environ["CORAL_ORA_NO_OCI_THREADED"] = "1"
 
+# Add possible paths for IS schema files to TDAQ_DB_PATH:
+for p in reversed(os.environ.get("DATAPATH","").split(os.pathsep)):
+   if p.rstrip('/').endswith('/share'):
+      os.environ["TDAQ_DB_PATH"] = os.path.join(p,'schema') + os.pathsep + os.environ["TDAQ_DB_PATH"]
+
 from TrigCommon import AthHLT
 from AthenaCommon.Logging import logging
 log = logging.getLogger('athenaHLT')
@@ -229,22 +234,24 @@ def HLTMPPy_cfgdict(args):
       'save_options': None,
       'solenoid_current': 7730,
       'toroid_current': 20400,
+      'schema_files': ['Larg.LArNoiseBurstCandidates.is.schema.xml'],
       'with_infrastructure': args.oh_monitoring
    }
 
-   cdict['monitoring'] = {
-      'module': 'monsvcis',
-      'library': 'MonSvcInfoService',
-      'ISInterval': 10,
-      'ISRegex': '.*',
-      'ISServer': '${TDAQ_IS_SERVER=DF}',
-      'ISSlots': 1,
-      'OHInterval': args.oh_interval,
-      'OHInclude': '.*',
-      'OHExclude': '',
-      'OHServerName': 'HLT-Histogramming',
-      'OHSlots': 5
-   }
+   if args.oh_monitoring:
+      cdict['monitoring'] = {
+         'module': 'monsvcis',
+         'library': 'MonSvcInfoService',
+         'ISInterval': 10,
+         'ISRegex': '.*',
+         'ISServer': '${TDAQ_IS_SERVER=DF}',
+         'ISSlots': 1,
+         'OHInterval': args.oh_interval,
+         'OHInclude': '.*',
+         'OHExclude': '',
+         'OHServerName': 'HLT-Histogramming',
+         'OHSlots': 5
+      }
 
    cdict['trigger'] = {
       'library': ['TrigPSC'],

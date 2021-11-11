@@ -3,11 +3,15 @@
 # Declare the package name:
 atlas_subdir( TrigExamples )
 
+# External dependencies:
+find_package( tdaq-common COMPONENTS hltinterface )
+
 # Component(s) in the package:
 atlas_add_component( TrigExamples
                      src/*.cxx
                      src/components/*.cxx
-                     PRIVATE_LINK_LIBRARIES GaudiKernel AthenaBaseComps
+                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps
                      AthenaKernel ByteStreamCnvSvcBaseLib DecisionHandlingLib TrigCompositeUtilsLib 
                      TrigPartialEventBuildingLib )
 
