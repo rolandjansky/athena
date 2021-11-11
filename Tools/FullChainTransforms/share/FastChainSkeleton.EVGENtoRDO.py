@@ -976,6 +976,8 @@ if hasattr(runArgs,"preDigiInclude"):
     for fragment in runArgs.preDigiInclude:
         include(fragment)
 
+# Sync again
+syncDetFlagsAndDigitizationJobProperties()
 #--------------------------------------------------------------
 # Go for it
 #--------------------------------------------------------------
