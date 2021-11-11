@@ -52,19 +52,13 @@ from InDetRecExample.InDetJobProperties import InDetFlags
  
 pdr.flag_domain('egamma')
 if rec.doEgamma() and rec.doESD():
-    try:
-        from egammaConfig.egammaReconstructionConfig import (
-            egammaReconstructionCfg)
-        CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
-    except Exception:
-        treatException("Could not set up egamma reconstruction")
+    from egammaConfig.egammaReconstructionConfig import (
+        egammaReconstructionCfg)
+    CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
     if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        try:
-            from egammaConfig.egammaLRTReconstructionConfig import (
-                egammaLRTReconstructionCfg)
-            CAtoGlobalWrapper(egammaLRTReconstructionCfg, ConfigFlags)
-        except Exception:
-            treatException("Could not set up egamma LRT reconstruction")
+        from egammaConfig.egammaLRTReconstructionConfig import (
+            egammaLRTReconstructionCfg)
+        CAtoGlobalWrapper(egammaLRTReconstructionCfg, ConfigFlags)
 AODFix_postEgammaRec()
 
 
