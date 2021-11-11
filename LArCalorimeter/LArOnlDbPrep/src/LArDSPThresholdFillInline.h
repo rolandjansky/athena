@@ -13,6 +13,7 @@
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "CaloConditions/CaloNoise.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class LArOnlineID;
 
@@ -26,6 +27,8 @@ class LArDSPThresholdFillInline:public AthAlgorithm {
 
  private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager","CaloDetDescrManager","SG Key for CaloDetDescrManager in the Condition Store" };
+
   const LArOnlineID* m_onlineID;
 
   std::string m_nameOfSet;
