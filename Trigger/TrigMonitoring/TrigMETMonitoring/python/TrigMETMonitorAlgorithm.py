@@ -65,6 +65,7 @@ def TrigMETMonConfig(inputFlags):
     moniAccess=getHLTMonitoringAccess(inputFlags)
     metChains=moniAccess.monitoredChains(signatures="metMon",monLevels=["val","shifter"])
 
+
     ### container name selection
     if mt_chains: # these are temporary, needs to be changed
       TrigMETMonAlg.hlt_electron_key = 'HLT_egamma_Electrons'
@@ -144,7 +145,9 @@ def TrigMETMonConfig(inputFlags):
       HLTChains[12] = "HLT_xe110_pfsum_cssk_L1XE50"
       HLTChains[13] = "HLT_xe110_pfsum_vssk_L1XE50"
     ## mon group test
-    HLTChains[13] = metChains[0]
+    size = len (metChains)
+    if size > 0:
+      HLTChains[13] = metChains[0]
     ### these are default chains ######
       #TrigMETMonAlg.L1Chain02 = 'L1_XE50'
       #TrigMETMonAlg.L1Chain02 = 'L1_jXENC50'
