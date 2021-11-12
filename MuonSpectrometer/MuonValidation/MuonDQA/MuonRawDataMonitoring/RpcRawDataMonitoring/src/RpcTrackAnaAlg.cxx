@@ -442,7 +442,7 @@ StatusCode RpcTrackAnaAlg::extrapolate2RPC(const xAOD::TrackParticle *track, con
   //
   // Iterate over RPC readout elements and compute intersections with each gas gap
   //
-  for(const std::shared_ptr<GasGapData> gap: m_gasGapData) {
+  for(const std::shared_ptr<GasGapData> &gap: m_gasGapData) {
     ExResult result(gap->gapid, direction);
 
     // Compute track distance to the center of ReadoutElement and to the gas gap surface
@@ -534,7 +534,7 @@ StatusCode RpcTrackAnaAlg::extrapolate2RPC(const xAOD::TrackParticle *track, con
 // StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(const EventContext& ctx, ExResult &                result,
 StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &                result,
                                                             const xAOD::TrackParticle* track_particle,
-                                                            const std::shared_ptr<GasGapData>         gap) const
+                                                            const std::shared_ptr<GasGapData>         &gap) const
 {
   /*
     This function:  

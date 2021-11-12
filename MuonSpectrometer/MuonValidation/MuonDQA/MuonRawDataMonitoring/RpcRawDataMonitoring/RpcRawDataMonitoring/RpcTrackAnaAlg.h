@@ -58,7 +58,7 @@ class RpcTrackAnaAlg : public AthMonitorAlgorithm
     StatusCode triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
 
     StatusCode extrapolate2RPC(const xAOD::TrackParticle *track, const Trk::PropDirection direction, std::vector<GasGapResult>& results) const;
-    StatusCode computeTrackIntersectionWithGasGap(ExResult &result, const xAOD::TrackParticle* track_particle, const std::shared_ptr<GasGapData> gap ) const;
+    StatusCode computeTrackIntersectionWithGasGap(ExResult &result, const xAOD::TrackParticle* track_particle, const std::shared_ptr<GasGapData> &gap ) const;
     StatusCode readHitsPerGasgap(const EventContext& ctx, std::vector<GasGapResult>& results) const;
     StatusCode fillClusterSize(std::vector<const Muon::RpcPrepData*> &view_hits, const int panel_index, int isPhi) const;
     bool       IsNearbyHit(const std::vector<const Muon::RpcPrepData*> &cluster_hits, const Muon::RpcPrepData* hit) const;
