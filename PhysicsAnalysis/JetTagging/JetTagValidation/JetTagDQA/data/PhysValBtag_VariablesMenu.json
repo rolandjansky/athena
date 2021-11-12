@@ -396,6 +396,21 @@
             "forData": "true"
         },
 
+        "DL1d": {
+            "_comment": "pb, pc, and pu",
+            "title": "DL1d",
+            "xtitle": "DL1d px",
+            "ytitle": "Jets",
+            "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
+            "xbins": 100,
+            "xmin": 0,
+            "xmax": 1,
+            "forEach": ["pb", "pc", "pu"],
+            "forEachTruthType": ["U", "B", "C", "DATA"],
+            "type": "TH1D",
+            "forData": "true"
+        },
+
         "DL1r": {
             "_comment": "pb, pc, and pu",
             "title": "DL1r",
