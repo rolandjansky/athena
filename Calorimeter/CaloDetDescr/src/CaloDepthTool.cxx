@@ -38,12 +38,10 @@ CaloDepthTool::CaloDepthTool(const std::string& type,
 			     const std::string& name, 
 			     const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_depth_choice(""),
   m_calo_id(nullptr),
   m_default(0)
 {
   declareInterface<CaloDepthTool>( this );
-  declareProperty("DepthChoice", m_depth_choice,"choice of depth paramaterisation" );
 }
 
 CaloDepthTool::~CaloDepthTool()
