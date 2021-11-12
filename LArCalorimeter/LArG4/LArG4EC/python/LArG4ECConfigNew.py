@@ -58,7 +58,9 @@ def EMECNegBackOuterBarretteCalibrationCalculatorCfg(ConfigFlags, name="EMECNegB
     return result
 
 def EMECPresamplerCalibrationCalculatorCfg(ConfigFlags, name="EMECPresamplerCalibrationCalculator", **kwargs):
-    return CompFactory.LArG4.EC.PresamplerCalibrationCalculator(name, **kwargs)
+    result = ComponentAccumulator()
+    result.addService(CompFactory.LArG4.EC.PresamplerCalibrationCalculator(name, **kwargs))
+    return result
 
 def EndcapCryostatCalibrationCalculatorCfg(ConfigFlags, name="EndcapCryostatCalibrationCalculator", **kwargs):
     result = ComponentAccumulator()

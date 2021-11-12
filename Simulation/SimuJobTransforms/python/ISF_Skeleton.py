@@ -76,15 +76,16 @@ def fromRunArgs(runArgs):
         ConfigFlags.Input.Files = runArgs.inputEVNTFile
     elif hasattr(runArgs, 'inputEVNT_TRFile'):
         ConfigFlags.Input.Files = runArgs.inputEVNT_TRFile
-        ConfigFlags.Sim.ReadTR = True
         # Three common cases here:
         # 2a) Cosmics simulation
         # 2b) Stopped particle simulation
         # 2c) Cavern background simulation
         if ConfigFlags.Beam.Type == 'cosmics':
+            ConfigFlags.Sim.ReadTR = True
             ConfigFlags.Sim.CosmicFilterVolumeNames = ['Muon']
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern with a cosmic TR file
         elif hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+            ConfigFlags.Sim.ReadTR = True
             log.error('Stopped Particle simulation is not supported yet')
         else:
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern
