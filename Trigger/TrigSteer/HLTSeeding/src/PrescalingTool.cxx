@@ -169,21 +169,23 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
          // this group is seeded
          std::vector<ChainAndPrescale> psValueSorted;
          for ( const HLT::Identifier& ch: chainIDs ) {
-            psValueSorted.emplace_back( ChainAndPrescale({ch, getPrescale(ch)}) );
+            auto ps = getPrescale(ch);
+            if ( ps.enabled ) // exclude prescaled out chains
+               psValueSorted.emplace_back( ChainAndPrescale({ch, ps}) );
          }
-
+         if ( psValueSorted.empty() ) { // sometimes all chains may be presscaled out/disabled
+            break;
+         }
          std::sort(psValueSorted.begin(), psValueSorted.end(), [](const ChainAndPrescale& a, const ChainAndPrescale& b){
-            if ( a.ps.enabled and b.ps.enabled ) {return a.ps.prescale < b.ps.prescale;}
-            if ( !a.ps.enabled and b.ps.enabled ) {return false;}
-            if ( a.ps.enabled and !b.ps.enabled ) {return true;}
-            // both not enabled - irrelevant but sorting needs consistent ordering
             return a.ps.prescale < b.ps.prescale;
          });
          // setup relative prescales
          // the first chain (with the lowest PS is relative w.r.t the all events)
          psValueSorted.front().relativePrescale = psValueSorted.front().ps.prescale;
-         for ( auto i = psValueSorted.begin()+1; i < psValueSorted.end(); ++i ) {
-            i->relativePrescale = i->ps.prescale / (i-1)->ps.prescale ;
+         if ( psValueSorted.size() > 1 ) {
+            for ( auto i = psValueSorted.begin()+1; i < psValueSorted.end(); ++i ) {
+               i->relativePrescale = i->ps.prescale / (i-1)->ps.prescale ;
+            }
          }
          if (msgLvl(MSG::DEBUG)) {
             ATH_MSG_DEBUG("Chains in CPS group '"<< groupName <<"' sorted by PS : ");
@@ -195,7 +197,6 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
          }
          // do actual prescaling
          for ( const ChainAndPrescale& ch: psValueSorted ) {
-            if ( not ch.ps.enabled ) {break;}
             const bool decision = decisionPerChain(ch.id, ch.relativePrescale);
             if ( not decision ) {break;}
             remainActive.push_back( ch.id );
