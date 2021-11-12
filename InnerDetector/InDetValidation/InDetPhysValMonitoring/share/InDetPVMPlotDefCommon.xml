@@ -1093,10 +1093,6 @@
   <x title="Number of Split PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_fake" type="TH1" title="Number of tracks for fake PU vertices">
-  <x title="Number of Fake PU Vertices" n="150" lo="0.0" hi="150"/>
-  <y title="Number of Tracks" />
-</h>
 <h id="vx_ntracks_HS_matched" type="TH1" title="Number of tracks for matched HS vertices">
   <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
@@ -1106,10 +1102,6 @@
   <y title="Number of Tracks" />
 </h>
 <h id="vx_ntracks_HS_split" type="TH1" title="Number of tracks for split HS vertices">
-  <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
-  <y title="Number of Tracks" />
-</h>
-<h id="vx_ntracks_HS_fake" type="TH1" title="Number of tracks for fake HS vertices">
   <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
@@ -1125,10 +1117,6 @@
   <x title="Number of Matched ALL Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_ALL_fake" type="TH1" title="Number of tracks for fake ALL vertices">
-  <x title="Number of Matched ALL Vertices" n="150" lo="0.0" hi="150"/>
-  <y title="Number of Tracks" />
-</h>
 <h id="vx_sumpT_matched" type="TH1" title="SumPt of tracks for matched vertices">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
@@ -1141,10 +1129,6 @@
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_fake" type="TH1" title="SumPt of tracks for fake vertices">
-  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
-  <y title="Entries" />
-</h>
 <h id="vx_sumpT_HS_matched" type="TH1" title="SumPt of tracks for HS matched vertices">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
@@ -1154,10 +1138,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_sumpT_HS_split" type="TH1" title="SumPt of tracks for HS split vertices">
-  <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
-  <y title="Entries" />
-</h>
-<h id="vx_sumpT_HS_fake" type="TH1" title="SumPt of tracks for HS fake vertices">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
 </h>
@@ -1174,10 +1154,6 @@
   <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumCharge_fake" type="TH1" title="Sum of charges of tracks for fake vertices">
-  <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
-  <y title="Entries" />
-</h>
 <h id="vx_sumCharge_HS_matched" type="TH1" title="Sum of charges of tracks for HS matched vertices">
   <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
   <y title="Entries" />
@@ -1190,10 +1166,6 @@
   <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumCharge_HS_fake" type="TH1" title="Sum of charges of tracks for HS fake vertices">
-  <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
-  <y title="Entries" />
-</h>
 <h id="vx_sumCharge_N_trk_HS_matched" type="TH1" title="Sum of charges of tracks/N_trk for HS matched vertices">
   <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.4" hi="0.4"/>
   <y title="Entries" />
@@ -1203,10 +1175,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_sumCharge_N_trk_HS_split" type="TH1" title="Sum of charges of tracks/N_trk for HS split vertices">
-  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.4" hi="0.4"/>
-  <y title="Entries" />
-</h>
-<h id="vx_sumCharge_N_trk_HS_fake" type="TH1" title="Sum of charges of tracks/N_trk for HS fake vertices">
   <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.4" hi="0.4"/>
   <y title="Entries" />
 </h>
@@ -1223,10 +1191,6 @@
   <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumCharge_N_trk_fake" type="TH1" title="Sum of charges of tracks/N_trk for PU fake vertices">
-  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.5" hi="0.5"/>
-  <y title="Entries" />
-</h>
 <h id="vx_z_asym_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for matched vertices">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
@@ -1236,10 +1200,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_z_asym_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for split vertices">
-  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
-  <y title="Entries" />
-</h>
-<h id="vx_z_asym_fake" type="TH1" title="asymmetry of track Z0 around vertex of tracks for fake vertices">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
@@ -1267,10 +1227,6 @@
   <x title="track weights for PU vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_fake" type="TH1" title="Weights of tracks for PU fake vertices">
-  <x title="track weights for PU vertex" n="100" lo="0" hi="1.10"/>
-  <y title="Entries" />
-</h>
 <h id="vx_normalised_track_weight_matched" type="TH1" title="Normalised weights of tracks for PU  matched vertices">
   <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
@@ -1280,10 +1236,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_split" type="TH1" title="Normalised weights of tracks for PU split vertices">
-  <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
-  <y title="Entries" />
-</h>
-<h id="vx_normalised_track_weight_fake" type="TH1" title="Normalised weights of tracks for PU fake vertices">
   <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
 </h>
@@ -1297,10 +1249,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_z_asym_HS_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS split vertices">
-  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
-  <y title="Entries" />
-</h>
-<h id="vx_z_asym_HS_fake" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS fake vertices">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
@@ -1328,10 +1276,6 @@
   <x title="track weights for HS vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_HS_fake" type="TH1" title="Weights of tracks for HS fake vertices">
-  <x title="track weights for HS vertex" n="100" lo="0" hi="1.10"/>
-  <y title="Entries" />
-</h>
 <h id="vx_normalised_track_weight_HS_matched" type="TH1" title="Normalised weights of tracks for HS  matched vertices">
   <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
@@ -1341,10 +1285,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_HS_split" type="TH1" title="Normalised weights of tracks for HS split vertices">
-  <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
-  <y title="Entries" />
-</h>
-<h id="vx_normalised_track_weight_HS_fake" type="TH1" title="Normalised weights of tracks for HS fake vertices">
   <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
@@ -1360,10 +1300,6 @@
   <x title="asymmetry of track d0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
-<h id="vx_d_asym_fake" type="TH1" title="asymmetry of track d0 around vertex of tracks for fake vertices">
-  <x title="asymmetry of track d0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
-  <y title="Entries" />
-</h>
 <h id="vx_d_asym_HS_matched" type="TH1" title="asymmetry of track d0 around vertex of tracks for HS matched vertices">
   <x title="asymmetry of track d0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
@@ -1373,10 +1309,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_d_asym_HS_split" type="TH1" title="asymmetry of track d0 around vertex of tracks for HS split vertices">
-  <x title="asymmetry of track d0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
-  <y title="Entries" />
-</h>
-<h id="vx_d_asym_HS_fake" type="TH1" title="asymmetry of track d0 around vertex of tracks for HS fake vertices">
   <x title="asymmetry of track d0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
@@ -1392,10 +1324,6 @@
   <x title="Chi squared/ndf for vertex fit for PU" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_fake" type="TH1" title="Chi squared/ndf of tracks for PU fake vertices">
-  <x title="Chi squared/ndf for vertex fit for PU" n="100" lo="0" hi="3"/>
-  <y title="Entries" />
-</h>
 <h id="vx_chi2Over_ndf_HS_matched" type="TH1" title="Chi squared/ndf of tracks for HS matched vertices">
   <x title="Chi squared/ndf for vertex fit for matched HS" n="100" lo="0" hi="3"/>
   <y title="Entries" />
@@ -1408,10 +1336,6 @@
   <x title="Chi squared/ndf for vertex fit for split HS" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_HS_fake" type="TH1" title="Chi squared/ndf of tracks for HS fake vertices">
-  <x title="Chi squared/ndf for vertex fit for fake HS" n="100" lo="0" hi="3"/>
-  <y title="Entries" />
-</h>
 <h id="vx_z0_skewness_HS_matched" type="TH1" title="Skewness of z0 of tracks z0 for HS matched vertices">
   <x title="Skewness for z0 for HS" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
@@ -1421,10 +1345,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_z0_skewness_HS_split" type="TH1" title="Skewness of z0 of tracks for HS split vertices">
-  <x title="Skewness for z0 for HS" n="100" lo="-5" hi="5"/>
-  <y title="Entries" />
-</h>
-<h id="vx_z0_skewness_HS_fake" type="TH1" title="Skewness of z0 of tracks for HS fake vertices">
   <x title="Skewness for z0 for HS" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
@@ -1440,10 +1360,6 @@
   <x title="Skewness for Z0 PU" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_fake" type="TH1" title="Skewness of z0 of tracks for PU fake vertices">
-  <x title="Skewness for Z0 PU" n="100" lo="-5" hi="5"/>
-  <y title="Entries" />
-</h>
 <h id="vx_z0_kurtosis_HS_matched" type="TH1" title="Kurtosis of z0 of tracks z0 for HS matched vertices">
   <x title="Kurtosis for Z0 HS" n="100" lo="0" hi="20"/>
   <y title="Entries" />
@@ -1453,10 +1369,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_z0_kurtosis_HS_split" type="TH1" title="Kurtosis of z0 of tracks for HS split vertices">
-  <x title="Kurtosis for Z0 HS" n="100" lo="0" hi="20"/>
-  <y title="Entries" />
-</h>
-<h id="vx_z0_kurtosis_HS_fake" type="TH1" title="Kurtosis of z0 of tracks for HS fake vertices">
   <x title="Kurtosis for Z0 HS" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
@@ -1472,10 +1384,6 @@
   <x title="Kurtosis for z0 PU" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_fake" type="TH1" title="Kurtosis of z0 of tracks for PU fake vertices">
-  <x title="Kurtosis for z0 PU" n="100" lo="0" hi="20"/>
-  <y title="Entries" />
-</h>
 <h id="vx_d0_skewness_HS_matched" type="TH1" title="Skewness of d0 of tracks for HS matched vertices">
   <x title="Skewness for d0 HS" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
@@ -1485,10 +1393,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_d0_skewness_HS_split" type="TH1" title="Skewness of d0 of tracks for HS split vertices">
-  <x title="Skewness for d0 HS" n="100" lo="-5" hi="5"/>
-  <y title="Entries" />
-</h>
-<h id="vx_d0_skewness_HS_fake" type="TH1" title="Skewness of d0 of tracks for HS fake vertices">
   <x title="Skewness for d0 HS" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
@@ -1504,10 +1408,6 @@
   <x title="Skewness for d0 PU" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_d0_skewness_fake" type="TH1" title="Skewness of d0 of tracks for PU fake vertices">
-  <x title="Skewness for d0 PU" n="100" lo="-5" hi="5"/>
-  <y title="Entries" />
-</h>
 <h id="vx_d0_kurtosis_HS_matched" type="TH1" title="Kurtosis of d0 of tracks for HS matched vertices">
   <x title="Kurtosis for d0 HS" n="100" lo="0" hi="20"/>
   <y title="Entries" />
@@ -1517,10 +1417,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_d0_kurtosis_HS_split" type="TH1" title="Kurtosis of d0 of tracks for HS split vertices">
-  <x title="Kurtosis for d0 HS" n="100" lo="0" hi="20"/>
-  <y title="Entries" />
-</h>
-<h id="vx_d0_kurtosis_HS_fake" type="TH1" title="Kurtosis of d0 of tracks for HS fake vertices">
   <x title="Kurtosis for d0 HS" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
@@ -1536,10 +1432,6 @@
   <x title="Kurtosis for d0 PU" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_d0_kurtosis_fake" type="TH1" title="Kurtosis of d0 of tracks for PU fake vertices">
-  <x title="Kurtosis for d0 PU" n="100" lo="0" hi="20"/>
-  <y title="Entries" />
-</h>
 <h id="vx_pt_skewness_HS_matched" type="TH1" title="Skewness of pt of tracks for HS matched vertices">
   <x title="Skewness for pt HS" n="100" lo="-10" hi="10"/>
   <y title="Entries" />
@@ -1549,10 +1441,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_pt_skewness_HS_split" type="TH1" title="Skewness of pt of tracks for HS split vertices">
-  <x title="Skewness for pt HS" n="100" lo="-10" hi="10"/>
-  <y title="Entries" />
-</h>
-<h id="vx_pt_skewness_HS_fake" type="TH1" title="Skewness of pt of tracks for HS fake vertices">
   <x title="Skewness for pt HS" n="100" lo="-10" hi="10"/>
   <y title="Entries" />
 </h>
@@ -1568,10 +1456,6 @@
   <x title="Skewness for pt PU" n="100" lo="-10" hi="10"/>
   <y title="Entries" />
 </h>
-<h id="vx_pt_skewness_fake" type="TH1" title="Skewness of pt of tracks for PU fake vertices">
-  <x title="Skewness for pt PU" n="100" lo="-10" hi="10"/>
-  <y title="Entries" />
-</h>
 <h id="vx_pt_kurtosis_HS_matched" type="TH1" title="Kurtosis of pt of tracks for HS matched vertices">
   <x title="Kurtosis for pt HS" n="100" lo="0" hi="50"/>
   <y title="Entries" />
@@ -1584,10 +1468,6 @@
   <x title="Kurtosis for pt HS" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
-<h id="vx_pt_kurtosis_HS_fake" type="TH1" title="Kurtosis of pt of tracks for HS fake vertices">
-  <x title="Kurtosis for pt HS" n="100" lo="0" hi="50"/>
-  <y title="Entries" />
-</h>
 <h id="vx_pt_kurtosis_matched" type="TH1" title="Kurtosis of pt of tracks for PU matched vertices">
   <x title="Kurtosis for pt PU" n="100" lo="0" hi="20"/>
   <y title="Entries" />
@@ -1597,10 +1477,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_pt_kurtosis_split" type="TH1" title="Kurtosis of pt of tracks for PU split vertices">
-  <x title="Kurtosis for pt PU" n="100" lo="0" hi="20"/>
-  <y title="Entries" />
-</h>
-<h id="vx_pt_kurtosis_fake" type="TH1" title="Kurtosis of pt of tracks for PU fake vertices">
   <x title="Kurtosis for pt PU" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
@@ -1617,10 +1493,6 @@
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_ALL_fake" type="TH1" title="SumPt of tracks for ALL fake vertices">
-  <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
-  <y title="Entries" />
-</h>
 <h id="vx_sumCharge_ALL_matched" type="TH1" title="Sum of charges of tracks for ALL matched vertices">
   <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
   <y title="Entries" />
@@ -1630,10 +1502,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_sumCharge_ALL_split" type="TH1" title="Sumof charges of tracks for ALL split vertices">
-  <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
-  <y title="Entries" />
-</h>
-<h id="vx_sumCharge_ALL_fake" type="TH1" title="Sum of charges of tracks for ALL fake vertices">
   <x title="sum of charges of tracks" n="51" lo="-25.0" hi="25"/>
   <y title="Entries" />
 </h>
@@ -1649,10 +1517,6 @@
   <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.4" hi="0.4"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumCharge_N_trk_ALL_fake" type="TH1" title="Sum of charges of tracks/N_trk for ALL fake vertices">
-  <x title="sum of charges of tracks/number of tracks" n="100" lo="-0.4" hi="0.4"/>
-  <y title="Entries" />
-</h>
 
 <h id="vx_z_asym_ALL_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL matched vertices">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
@@ -1663,10 +1527,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_z_asym_ALL_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL split vertices">
-  <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
-  <y title="Entries" />
-</h>
-<h id="vx_z_asym_ALL_fake" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL fake vertices">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
@@ -1694,10 +1554,6 @@
   <x title="track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_ALL_fake" type="TH1" title="Weights of tracks for ALL fake vertices">
-  <x title="track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
-  <y title="Entries" />
-</h>
 <h id="vx_normalised_track_weight_ALL_matched" type="TH1" title="Normalised weights of tracks for ALL  matched vertices">
   <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
@@ -1707,10 +1563,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_normalised_track_weight_ALL_split" type="TH1" title="Normalised weights of tracks for ALL split vertices">
-  <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
-  <y title="Entries" />
-</h>
-<h id="vx_normalised_track_weight_ALL_fake" type="TH1" title="Normalised weights of tracks for ALL fake vertices">
   <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
@@ -1726,10 +1578,6 @@
   <x title="asymmetry of track d0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_d_asym_ALL_fake" type="TH1" title="asymmetry of track d0 around vertex of tracks for ALL fake vertices">
-  <x title="asymmetry of track d0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
-  <y title="Entries" />
-</h>
 <h id="vx_chi2Over_ndf_ALL_matched" type="TH1" title="Chi squared/ndf of tracks for ALL matched vertices">
   <x title="Chi squared/ndf for vertex fit for matched ALL" n="100" lo="0" hi="3"/>
   <y title="Entries" />
@@ -1742,10 +1590,6 @@
   <x title="Chi squared/ndf for vertex fit for split ALL" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_ALL_fake" type="TH1" title="Chi squared/ndf of tracks for ALL fake vertices">
-  <x title="Chi squared/ndf for vertex fit for fake ALL" n="100" lo="0" hi="3"/>
-  <y title="Entries" />
-</h>
 <h id="vx_z0_skewness_ALL_matched" type="TH1" title="Skewness of z0 of tracks z0 for ALL matched vertices">
   <x title="Skewness for z0 for ALL" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
@@ -1755,10 +1599,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_z0_skewness_ALL_split" type="TH1" title="Skewness of z0 of tracks for ALL split vertices">
-  <x title="Skewness for z0 for ALL" n="100" lo="-5" hi="5"/>
-  <y title="Entries" />
-</h>
-<h id="vx_z0_skewness_ALL_fake" type="TH1" title="Skewness of z0 of tracks for ALL fake vertices">
   <x title="Skewness for z0 for ALL" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
@@ -1774,10 +1614,6 @@
   <x title="Kurtosis for Z0 ALL" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_ALL_fake" type="TH1" title="Kurtosis of z0 of tracks for ALL fake vertices">
-  <x title="Kurtosis for Z0 ALL" n="100" lo="0" hi="20"/>
-  <y title="Entries" />
-</h>
 <h id="vx_d0_skewness_ALL_matched" type="TH1" title="Skewness of d0 of tracks for ALL matched vertices">
   <x title="Skewness for d0 ALL" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
@@ -1787,10 +1623,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_d0_skewness_ALL_split" type="TH1" title="Skewness of d0 of tracks for ALL split vertices">
-  <x title="Skewness for d0 ALL" n="100" lo="-5" hi="5"/>
-  <y title="Entries" />
-</h>
-<h id="vx_d0_skewness_ALL_fake" type="TH1" title="Skewness of d0 of tracks for ALL fake vertices">
   <x title="Skewness for d0 ALL" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
@@ -1806,10 +1638,6 @@
   <x title="Kurtosis for d0 ALL" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_d0_kurtosis_ALL_fake" type="TH1" title="Kurtosis of d0 of tracks for ALL fake vertices">
-  <x title="Kurtosis for d0 ALL" n="100" lo="0" hi="20"/>
-  <y title="Entries" />
-</h>
 <h id="vx_pt_skewness_ALL_matched" type="TH1" title="Skewness of pt of tracks for ALL matched vertices">
   <x title="Skewness for pt ALL" n="100" lo="-10" hi="10"/>
   <y title="Entries" />
@@ -1822,10 +1650,6 @@
   <x title="Skewness for pt ALL" n="100" lo="-10" hi="10"/>
   <y title="Entries" />
 </h>
-<h id="vx_pt_skewness_ALL_fake" type="TH1" title="Skewness of pt of tracks for ALL fake vertices">
-  <x title="Skewness for pt ALL" n="100" lo="-10" hi="10"/>
-  <y title="Entries" />
-</h>
 <h id="vx_pt_kurtosis_ALL_matched" type="TH1" title="Kurtosis of pt of tracks for ALL matched vertices">
   <x title="Kurtosis for pt ALL" n="100" lo="0" hi="50"/>
   <y title="Entries" />
@@ -1835,10 +1659,6 @@
   <y title="Entries" />
 </h>
 <h id="vx_pt_kurtosis_ALL_split" type="TH1" title="Kurtosis of pt of tracks for ALL split vertices">
-  <x title="Kurtosis for pt ALL" n="100" lo="0" hi="50"/>
-  <y title="Entries" />
-</h>
-<h id="vx_pt_kurtosis_ALL_fake" type="TH1" title="Kurtosis of pt of tracks for ALL fake vertices">
   <x title="Kurtosis for pt ALL" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
