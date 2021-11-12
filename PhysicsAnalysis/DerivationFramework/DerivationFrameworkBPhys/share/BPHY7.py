@@ -2,6 +2,8 @@
 # BPHY7.py
 # 
 # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LfvBphy7 
+#
+# Last updated by Matt Sullivan: matthew.james.sullivan@cern.ch (08 November 2021)
 #====================================================================
 
 
@@ -18,8 +20,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
 isSimulation = DerivationFrameworkHasTruth
 
-
-from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 
 
@@ -97,6 +98,7 @@ triggersToMetadata= ["HLT_2mu10",
                      "HLT_mu11_mu6_bTau",
                      "HLT_mu11_mu6_bUpsimumu",
                      "HLT_mu11_mu6noL1_bPhi_L1MU11_2MU6",
+                     "HLT_mu11_2mu4noL1_bNocut_L1MU11_2MU6",
                      "HLT_mu10_mu6_bDimu",
                      "HLT_2mu6_bBmumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
                      "HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
@@ -150,6 +152,7 @@ triggersToMetadata= ["HLT_2mu10",
                      "HLT_3mu4_bPhi",
                      "HLT_mu11_mu6_bPhi",
                      "HLT_mu11_mu6noL1_bPhi_L1MU11_2MU6",
+                     "HLT_mu11_2mu4noL1_bNocut_L1MU11_2MU6",
                      "HLT_mu11_mu6_bPhi_L1LFV-MU11",
                      "HLT_2mu6_bPhi_L1LFV-MU6" ]
 
@@ -600,7 +603,7 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY7SlimmingHelper = SlimmingHelper("BPHY7SlimmingHelper")
 
 
-SmartCollections = ["Electrons", "Photons", "TauJets", "AntiKt4EMTopoJets_BTagging201810", "BTagging_AntiKt4EMTopo_201810", "PrimaryVertices", "Muons", "InDetTrackParticles", "MET_Reference_AntiKt4EMTopo"]
+SmartCollections = ["Electrons", "Photons", "TauJets", "AntiKt4EMPFlowJets", "AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903", "AntiKt4EMTopoJets", "AntiKt4EMTopoJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903", "BTagging_AntiKt4EMTopo_201810", "PrimaryVertices", "Muons", "InDetTrackParticles", "MET_Reference_AntiKt4EMTopo"]
 
 
 AllVariables = ["METAssoc_AntiKt4EMTopo",
@@ -629,6 +632,8 @@ ExtraVariables += ["Muons.etaLayer1Hits.etaLayer2Hits.etaLayer3Hits.etaLayer4Hit
                    "InDetTrackParticles.numberOfTRTHits.numberOfTRTHighThresholdHits.vx.vy.vz",
                    "PrimaryVertices.chiSquared.covariance"]
 
+# Necessary additions for jet corrections and cleaning
+ExtraVariables += ["AntiKt4EMTopoJets.pt.eta.phi.m.Jvt.JvtJvfcorr.JvtRpt.DetectorEta.DetectorEta.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt"]
 
 StaticContent =  ["xAOD::VertexContainer#BPHY7RefittedPrimaryVertices",
                   "xAOD::VertexAuxContainer#BPHY7RefittedPrimaryVerticesAux."]
