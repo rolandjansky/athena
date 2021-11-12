@@ -167,13 +167,17 @@ def analyseChainName(chainName, L1thresholds, L1item):
     hltChainNameShort = '_'.join(cparts)
 
     # ---- identify the topo algorithm and add to genchainDict -----
-    from .SignatureDicts import AllowedTopos, AllowedTopos_comb
+    from .SignatureDicts import AllowedTopos, AllowedTopos_comb, AllowedTopos_Bphysics_topoVariant, AllowedTopos_Bphysics_topoExtra
     topo = ''
     topos=[]
     extraComboHypos = []
+    bphys_topoVariant=[]
+    bphys_topoExtra = []
+    bphysTopos = False 
     toposIndexed={}
     topoindex = -5
     for cindex, cpart in enumerate(cparts):
+        #should make this if...elif...?
         if cpart in AllowedTopos:
             log.debug('" %s" is in this part of the name %s -> topo alg', AllowedTopos, cpart)
             topo = cpart
@@ -181,17 +185,34 @@ def analyseChainName(chainName, L1thresholds, L1item):
             toposIndexed.update({topo : topoindex})
             hltChainNameShort=hltChainNameShort.replace('_'+cpart, '')
             topos.append(topo)
+        elif cpart in AllowedTopos_Bphysics_topoVariant:
+            log.debug('[analyseChainName] chain part %s is a BLS topo variant, adding to bphys_topoVariant', cpart)
+            bphys_topoVariant.append(cpart)
+            toposIndexed.update({cpart : cindex})
+            bphysTopos = True
+        elif cpart in AllowedTopos_Bphysics_topoExtra:
+            log.debug('[analyseChainName] chain part %s is a BLS extra topo hypo, adding to bphys_topoExtra', cpart)            
+            bphys_topoExtra.append(cpart)
+            toposIndexed.update({cpart : cindex})
+            bphysTopos = True
+        else:
+            log.debug('[analyseChainName] chain part %s is not a general topo, BLS extra or variant topo hypo, checking comb topos next', cpart)            
         if cpart in AllowedTopos_comb:
              log.debug('[analyseChainName] chain part %s is a combined topo hypo, adding to extraComboHypo', cpart)
+             toposIndexed.update({cpart : cindex})
              extraComboHypos.append(cpart)
 
     genchainDict['topo'] = topos
     genchainDict['extraComboHypos'] = extraComboHypos
 
-    # replace these lines below with cparts = chainName.split("_")
+    if bphysTopos is True:
+        genchainDict['topoVariant'] = bphys_topoVariant
+        genchainDict['topoExtra'] = bphys_topoExtra
+        
+    # remove the parts that have been already identified
     for t, i in enumerate(toposIndexed):
         if (t in cparts):
-            log.debug('topo %s with index %s', t, i)
+            log.debug('topo %s with index %s is going to be deleted from chain parts', t, i)
             del cparts[i]
 
 
@@ -360,9 +381,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
 
         #---- Check if topo is a bphysics topo -> change signature ----
-        from .SignatureDicts import AllowedTopos_Bphysics
+        from .SignatureDicts import AllAllowedTopos_Bphysics
         for t in genchainDict['topo']:
-            if (t in AllowedTopos_Bphysics):
+            if (t in AllAllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
                 if "tnpInfo" in chainProperties.keys() and chainProperties['tnpInfo'] != "":
                     chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['tnpInfo'])
