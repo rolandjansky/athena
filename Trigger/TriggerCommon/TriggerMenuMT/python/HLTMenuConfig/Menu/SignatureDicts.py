@@ -381,10 +381,19 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'Lxy0','noos','nocut',
-    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose',
-    'b0dRAB12vtx20'
+    'bBmumux','b0dRAB12vtx20',
+    
+    ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
+    # topoVariants
+    'BsmumuPhi', 'BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose',
+    # topoExtras
+    'Lxy0', 'noos','nocut'
+    #########Remove until here############
+
 ]
+AllowedTopos_Bphysics_topoVariant=['BsmumuPhi', 'BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose']
+AllowedTopos_Bphysics_topoExtra=['Lxy0', 'noos','nocut']
+AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)

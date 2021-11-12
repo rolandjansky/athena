@@ -61,7 +61,7 @@ PrimaryPhIGroup = ['Primary:PhaseI']
 SupportGroup = ['Support']
 SupportLegGroup = ['Support:Legacy']
 SupportPhIGroup = ['Support:PhaseI']
-# For the chains with the TAgAndProbe labels, wewe flag the rate group as being that of the tag leg and NOT the full chain selection
+# For the chains with the TAgAndProbe labels, we flag the rate group as being that of the tag leg and NOT the full chain selection
 TagAndProbeGroup = ['Support:TagAndProbe']
 TagAndProbeLegGroup = ['Support:LegacyTagAndProbe']
 TagAndProbePhIGroup = ['Support:PhaseITagAndProbe']
