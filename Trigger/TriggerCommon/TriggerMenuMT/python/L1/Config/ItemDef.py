@@ -555,6 +555,7 @@ class ItemDef:
 
         MenuItem('L1_4jJ15'         ).setLogic( d.jJ15.x(4)    & physcond).setTriggerType(TT.calo)
         MenuItem('L1_4jJ15p0ETA25'  ).setLogic( d.jJ150ETA25.x(4) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_5jJ15p0ETA25'  ).setLogic( d.jJ150ETA25.x(5) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_4jJ20'         ).setLogic( d.jJ20.x(4)    & physcond).setTriggerType(TT.calo)
         MenuItem('L1_3jJ50'         ).setLogic( d.jJ50.x(3)    & physcond).setTriggerType(TT.calo)
         MenuItem('L1_3jJ35p0ETA23'  ).setLogic( d.jJ350ETA23.x(3)    & physcond).setTriggerType(TT.calo)

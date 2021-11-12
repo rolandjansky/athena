@@ -137,13 +137,13 @@ def defineMenu():
 
         # jJ 
         'L1_jJ12', 'L1_jJ12p0ETA25', 'L1_jJ15', 'L1_jJ15p0ETA25', 'L1_jJ20', 'L1_jJ25',  'L1_jJ25p0ETA23',
-        'L1_jJ30', 'L1_jJ35p0ETA23', 'L1_jJ40', 'L1_jJ40p0ETA25', 'L1_jJ45p0ETA21', 'L1_jJ50',
+        'L1_jJ30', 'L1_jJ30_EMPTY', 'L1_jJ30_FIRSTEMPTY', 'L1_jJ35p0ETA23', 'L1_jJ40', 'L1_jJ40p0ETA25', 'L1_jJ45p0ETA21', 'L1_jJ50',
         'L1_jJ75', 'L1_jJ85', 'L1_jJ100', 'L1_jJ120', 'L1_jJ400',
         'L1_jJ400_LAR',
 
         'L1_jJ15p31ETA49', 'L1_jJ20p31ETA49', 'L1_jJ30p31ETA49', 'L1_jJ50p31ETA49', 'L1_jJ75p31ETA49',
 
-        'L1_4jJ15', 'L1_3jJ50', 'L1_4jJ20', 'L1_4jJ15p0ETA25', 
+        'L1_4jJ15', 'L1_3jJ50', 'L1_4jJ20', 'L1_4jJ15p0ETA25', 'L1_5jJ15p0ETA25', 
         'L1_3jJ35p0ETA23', 'L1_jJ85_3jJ30', 
         'L1_jJ40p0ETA25_2jJ25_jJ20p31ETA49', 'L1_jJ25p0ETA23_2jJ15p31ETA49', 'L1_jJ45p0ETA21_3jJ15p0ETA25', 
         'L1_MU3V_jJ15', 
