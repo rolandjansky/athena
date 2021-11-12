@@ -26,7 +26,7 @@ rc=$?
 mv log.AtlasG4Tf log.G4AtlasAlg_AthenaCA
 echo  "art-result: $rc G4AtlasAlg_AthenaCA"
 rc2=-9999
-if [ $rc -eq 68 ]
+if [ $rc -eq 0 ]
 then
     AtlasG4_tf.py \
         --inputEVNT_TRFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/cavernbg-pythia8-7000.evgen.pool.root' \
