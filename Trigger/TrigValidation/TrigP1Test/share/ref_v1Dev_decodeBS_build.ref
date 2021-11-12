@@ -3519,19 +3519,7 @@ HLT_mu26_ivarmedium_mu6_msonly_probe_L1MU14FCH:
     0: 1
   stepFeatures:
     0: 1
-HLT_mu26_ivarmedium_mu6_msonly_probe_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
 HLT_mu26_ivarmedium_mu6_probe_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu26_ivarmedium_mu8_msonly_probe_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
@@ -4637,17 +4625,19 @@ HLT_tau25_tightRNN_tracktwoLLP_L1TAU12IM:
     3: 12
     4: 2
 HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM:
-  eventCount: 0
+  eventCount: 1
   stepCounts:
     0: 10
     1: 10
     2: 10
     3: 10
+    4: 1
   stepFeatures:
     0: 12
     1: 12
     2: 12
     3: 12
+    4: 1
 HLT_tau25_tightRNN_tracktwoMVA_L1TAU12IM:
   eventCount: 0
   stepCounts:
@@ -4807,17 +4797,19 @@ HLT_tau35_ptonly_L1TAU20IM:
   stepFeatures:
     0: 9
 HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM:
-  eventCount: 0
+  eventCount: 1
   stepCounts:
     0: 7
     1: 7
     2: 7
     3: 7
+    4: 1
   stepFeatures:
     0: 9
     1: 9
     2: 9
     3: 9
+    4: 1
 HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM:
   eventCount: 0
   stepCounts:

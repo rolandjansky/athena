@@ -25,8 +25,11 @@ private:
   SG::WriteHandleKey<DataVector<LVL1::RecEmTauRoI>> m_recRoIsKey{
     this, "OutputRecRoIs", "HLT_RecTAURoIs", "Name of the RoIs object produced by the unpacker"};
 
-  Gaudi::Property<float> m_roIWidth{
-    this, "RoIWidth", 0.4, "Size of RoI in eta/ phi"};
+  Gaudi::Property<float> m_roIWidthEta {
+    this, "RoIWidthEta", 0.4, "Size of RoI in eta"};
+
+  Gaudi::Property<float> m_roIWidthPhi {
+    this, "RoIWidthPhi", M_PI/8., "Size of RoI in phi"};
 }; 
 
 #endif //> !HLTSEEDING_TAUROISUNPACKINGTOOL_H

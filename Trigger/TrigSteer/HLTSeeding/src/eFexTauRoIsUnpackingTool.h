@@ -31,8 +31,12 @@ private:
     this, "eFexTauRoIThresholdPatternsKey", "L1_eTauRoI.thresholdPatterns",
     "Name of the eFexTauRoI container decoration for the threshold patterns"};
 
-  Gaudi::Property<float> m_roiWidth{
-    this, "RoIWidth", 0.4, "Size of RoI in eta/phi"};
+  Gaudi::Property<float> m_roiWidthEta {
+    this, "RoIWidthEta", 0.4, "Size of RoI in eta"};
+
+  Gaudi::Property<float> m_roiWidthPhi {
+    this, "RoIWidthPhi", M_PI/8., "Size of RoI in phi"};
+
 };
 
 #endif //> !HLTSEEDING_EFEXTAUROISUNPACKINGTOOL_H
