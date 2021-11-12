@@ -126,7 +126,7 @@ class L1MenuConfig(object):
         if algo.name in self._registeredTopoAlgos[self.currentAlgoDef]:
             raise RuntimeError('%s algo %s is already registered as such' % (self.currentAlgoDef.desc, algo.name))
         self._registeredTopoAlgos[self.currentAlgoDef][algo.name] = algo
-        log.debug("Added in the %s type the algo: %s ID:%s", self.currentAlgoDef.desc, algo.name)
+        log.debug("Added in the %s type the algo: %s", self.currentAlgoDef.desc, algo.name)
 
         return algo
 
