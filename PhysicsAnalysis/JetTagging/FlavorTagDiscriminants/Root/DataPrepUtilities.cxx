@@ -482,18 +482,16 @@ namespace FlavorTagDiscriminants {
 
   namespace dataprep {
 
-    //****************************//
-    // previously in DL2HighLevel //
-    //****************************//
-
-    void createGetterConfig( lwt::GraphConfig& config,
+    std::tuple<
+      std::vector<FTagInputConfig>,
+      std::vector<FTagTrackSequenceConfig>,
+      FTagOptions>
+    createGetterConfig( lwt::GraphConfig& config,
       FlipTagConfig flip_config,
       std::map<std::string, std::string> remap_scalar,
-      TrackLinkType track_link_type,
-      std::vector<FTagInputConfig>& input_config,
-      std::vector<FTagTrackSequenceConfig>& trk_config,
-      FTagOptions& options
+      TrackLinkType track_link_type
     ){
+
 
       // __________________________________________________________________
       // we rewrite the inputs if we're using flip taggers
@@ -557,6 +555,7 @@ namespace FlavorTagDiscriminants {
         {"softMuon_.*"_r, "softMuon_isDefaults"},
         {"((log_)?pt|abs_eta|eta|phi|energy)"_r, ""}}; // no default for custom cases
 
+      std::vector<FTagInputConfig> input_config;
       for (auto& node: config.inputs){
         // allow the user to remape some of the inputs
         remap_inputs(node.variables, remap_scalar,
@@ -567,8 +566,14 @@ namespace FlavorTagDiscriminants {
           input_names.push_back(var.name);
         }
 
+        // check to make sure the next line doesn't overwrite something
+        // TODO: figure out how to support multiple scalar input nodes
+        if (!input_config.empty()) {
+          throw std::logic_error(
+            "We don't currently support multiple scalar input nodes");
+        }
         input_config = get_input_config(
-        input_names, type_regexes, default_flag_regexes);        
+        input_names, type_regexes, default_flag_regexes);
       }
 
       // ___________________________________________________________________
@@ -578,7 +583,7 @@ namespace FlavorTagDiscriminants {
       for (const auto& node: config.input_sequences) {
         std::vector<std::string> names;
         for (const auto& var: node.variables) {
-        names.push_back(var.name);
+          names.push_back(var.name);
         }
         trk_names.emplace_back(node.name, names);
       }
@@ -611,10 +616,11 @@ namespace FlavorTagDiscriminants {
         {".*_loose202102NoIpCuts_.*"_r, TrackSelection::LOOSE_202102_NOIP},
       };
 
-      trk_config = get_track_input_config(
+      auto trk_config = get_track_input_config(
         trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
       // some additional options
+      FTagOptions options;
       if (auto h = remap_scalar.extract(options.track_prefix)) {
         options.track_prefix = h.mapped();
       }
@@ -624,19 +630,17 @@ namespace FlavorTagDiscriminants {
       options.flip = flip_config;
       options.remap_scalar = remap_scalar;
       options.track_link_type = track_link_type;
+      return std::make_tuple(input_config, trk_config, options);
     } // getGetterConfig
 
-
-    //*******************//
-    // previously in DL2 //
-    //*******************//
-
-    std::tuple<std::vector<internal::VarFromBTag>, 
-    std::vector<internal::VarFromJet>, std::set<std::string>> 
+    std::tuple<
+      std::vector<internal::VarFromBTag>,
+      std::vector<internal::VarFromJet>,
+      FTagDataDependencyNames>
     createBvarGetters(
       const std::vector<FTagInputConfig>& inputs)
     {
-      std::set<std::string> bTagInputs;
+      FTagDataDependencyNames deps;
       std::vector<internal::VarFromBTag> varsFromBTag;
       std::vector<internal::VarFromJet> varsFromJet;
 
@@ -644,27 +648,28 @@ namespace FlavorTagDiscriminants {
         if (input.type != EDMType::CUSTOM_GETTER) {
           auto filler = internal::get::varFromBTag(input.name, input.type,
                                          input.default_flag);
-          bTagInputs.insert(input.name);
+          deps.bTagInputs.insert(input.name);
           varsFromBTag.push_back(filler);
         } else {
           varsFromJet.push_back(internal::customGetterAndName(input.name));
         }
         if (input.default_flag.size() > 0) {
-          bTagInputs.insert(input.default_flag);
+          deps.bTagInputs.insert(input.default_flag);
         }
       }
 
-      return std::make_tuple(varsFromBTag, varsFromJet, bTagInputs);
+      return std::make_tuple(varsFromBTag, varsFromJet, deps);
     }
 
 
-    std::tuple<std::vector<internal::TrackSequenceBuilder>,std::set<std::string>, 
-    std::set<std::string>> createTrackGetters(
+    std::tuple<
+      std::vector<internal::TrackSequenceBuilder>,
+      FTagDataDependencyNames>
+    createTrackGetters(
       const std::vector<FTagTrackSequenceConfig>& track_sequences,
       const FTagOptions& options, const std::string& jetLinkName)
     {
-      std::set<std::string> trackInputs;
-      std::set<std::string> bTagInputs;
+      FTagDataDependencyNames deps;
       std::vector<internal::TrackSequenceBuilder> trackSequenceBuilders;
 
       for (const FTagTrackSequenceConfig& cfg: track_sequences) {
@@ -683,21 +688,23 @@ namespace FlavorTagDiscriminants {
           track_data_deps.merge(deps);
         }
         trackSequenceBuilders.push_back(track_getter);
-        trackInputs.merge(track_data_deps);
-        bTagInputs.insert(jetLinkName);
-        bTagInputs.insert(options.track_link_name);
+        deps.trackInputs.merge(track_data_deps);
+        deps.bTagInputs.insert(jetLinkName);
+        deps.bTagInputs.insert(options.track_link_name);
       }
 
-      return std::make_tuple(trackSequenceBuilders, bTagInputs, trackInputs);
+      return std::make_tuple(trackSequenceBuilders, deps);
     }
 
 
-    std::tuple<std::map<std::string, internal::OutNode>, std::set<std::string>> 
-    createDecorators( 
+    std::tuple<
+      std::map<std::string, internal::OutNode>,
+      FTagDataDependencyNames>
+    createDecorators(
       const lwt::GraphConfig& config,
       const FTagOptions& options)
     {
-      std::set<std::string> bTagOutputs;
+      FTagDataDependencyNames deps;
       std::map<std::string, internal::OutNode> decorators;
       std::map<std::string, std::string> remap = options.remap_scalar;
 
@@ -710,7 +717,7 @@ namespace FlavorTagDiscriminants {
 
           // let user rename the output
           if (auto h = remap.extract(name)) name = h.mapped();
-          bTagOutputs.insert(name);
+          deps.bTagOutputs.insert(name);
 
           SG::AuxElement::Decorator<float> f(name);
           node.emplace_back(element, f);
@@ -728,7 +735,7 @@ namespace FlavorTagDiscriminants {
         throw std::logic_error("found unused output remapping(s): " + outputs);
       }
 
-      return std::make_tuple(decorators, bTagOutputs);
+      return std::make_tuple(decorators, deps);
     }
   } // end of datapre namespace
 

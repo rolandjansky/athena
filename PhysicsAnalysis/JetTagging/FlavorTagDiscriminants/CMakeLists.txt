@@ -38,6 +38,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/HbbTagConfig.cxx
   Root/HbbGraphConfig.cxx
   Root/VRJetOverlapDecorator.cxx
+  Root/FTagDataDependencyNames.cxx
   PUBLIC_HEADERS FlavorTagDiscriminants
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
@@ -54,6 +55,7 @@ if (NOT XAOD_STANDALONE)
     src/BTagTrackLinkCopyAlg.cxx
     src/BTaggingBuilderAlg.cxx
     src/PoorMansIpAugmenterAlg.cxx
+    src/JetTagConditionalDecoratorAlg.cxx
     src/components/FlavorTagDiscriminants_entries.cxx
     LINK_LIBRARIES FlavorTagDiscriminants
     )

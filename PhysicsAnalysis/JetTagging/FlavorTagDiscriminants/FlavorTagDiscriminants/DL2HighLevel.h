@@ -32,6 +32,7 @@ namespace FlavorTagDiscriminants {
     ~DL2HighLevel();
     void decorate(const xAOD::BTagging& btag) const;
     void decorate(const xAOD::Jet& jet) const;
+    void decorateWithDefaults(const xAOD::Jet& jet) const;
     FTagDataDependencyNames getDataDependencyNames() const;
   private:
     std::unique_ptr<DL2> m_dl2;
