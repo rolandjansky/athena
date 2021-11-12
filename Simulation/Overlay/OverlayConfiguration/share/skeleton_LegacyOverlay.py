@@ -69,6 +69,7 @@ if hasattr(overlayArgs, 'maxEvents'):
     athenaCommonFlags.EvtMax.set_Value_and_Lock(overlayArgs.maxEvents)
 
 if hasattr(overlayArgs, 'inputHITSFile'):
+    if not overlayFlags.isDataOverlay(): athenaCommonFlags.FilesInput.set_Value_and_Lock(overlayArgs.inputHITSFile)
     athenaCommonFlags.PoolHitsInput.set_Value_and_Lock(overlayArgs.inputHITSFile)
 else:
     raise RuntimeError('No input HITS file defined')
