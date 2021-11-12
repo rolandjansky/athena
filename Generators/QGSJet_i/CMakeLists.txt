@@ -18,24 +18,33 @@ atlas_add_library( QGSJet_iLib
                    src/Rangen.F
                    PUBLIC_HEADERS QGSJet_i
                    INCLUDE_DIRS ${CRMC_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
+                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CRMC_LIBRARIES} GeneratorModulesLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AtlasHepMCfioLib AthenaKernel GaudiKernel TruthUtils )
 
 atlas_add_component( QGSJet_i
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CRMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+                     INCLUDE_DIRS ${CRMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CRMC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AtlasHepMCfioLib GeneratorModulesLib AthenaKernel GaudiKernel TruthUtils QGSJet_iLib )
 
 # Install files from the package:
-# atlas_install_joboptions( share/common/*.py )
 atlas_install_runtime( share/file/qgsjet_crmc.param )
 
-atlas_install_runtime( ${CRMC_LCGROOT}/tabs/sectnu-II-04
-   ${CRMC_LCGROOT}/tabs/qgsdat-II-04.lzma )
+# Install files from Crmc.
+foreach( _file "sectnu-II-04" "qgsdat-II-04.lzma" )
+   find_file( _datFile "${_file}"
+      PATHS "${CRMC_LCGROOT}"
+      PATH_SUFFIXES "tabs" "share/crmc"
+      NO_CACHE )
+   if( _datFile )
+      atlas_install_runtime( "${_datFile}" )
+   else()
+      message( WARNING "Could not find data file \"${_file}\"" )
+   endif()
+endforeach()
 
+# Set up the runtime environment for the package.
 set( QGSJetEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of QGSJetEnvironment.cmake" )
 find_package( QGSJetEnvironment )
-
