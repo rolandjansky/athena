@@ -100,7 +100,7 @@ StatusCode HLTMBTSMonitoringAlgMT::fillHistograms(const EventContext &context) c
           channelID = i;
           mbtsTime = mbtsHitTimes.at(i);
           mbtsEnergy = mbtsHitEnergies.at(i);
-
+          ATH_MSG_DEBUG( "MBTS module " << i << " time " <<  mbtsHitTimes.at(i) << " energies: " << mbtsHitEnergies.at(i));
           fill(trig + "_shifter", channelID, mbtsTime, mbtsEnergy);
 
           if (i < 16)
