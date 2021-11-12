@@ -96,9 +96,9 @@ int StripGmxInterface::splitSensorId(std::map<std::string, int> &index,
 }
 
 
-void StripGmxInterface::addSensorType(std::string clas,
-                                      std::string typeName,
-                                      std::map<std::string, std::string> parameters)
+void StripGmxInterface::addSensorType(const std::string& clas,
+                                      const std::string& typeName,
+                                      const std::map<std::string, std::string>& parameters)
 {
   ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
 
@@ -439,7 +439,7 @@ void StripGmxInterface::makeStereoAnnulus(const std::string &typeName,
   }
 }
 
-void StripGmxInterface::addSplitSensor(std::string typeName,
+void StripGmxInterface::addSplitSensor(const std::string& typeName,
                                        std::map<std::string, int> &index,
                                        std::pair<std::string, int> &extraIndex,
                                        int /* hitIdOfWafer */,
@@ -510,7 +510,7 @@ void StripGmxInterface::addSplitSensor(std::string typeName,
 }
 
 
-void StripGmxInterface::addSensor(std::string typeName,
+void StripGmxInterface::addSensor(const std::string& typeName,
                                   std::map<std::string, int> &index,
                                   int /* sensitiveId */,
                                   GeoVFullPhysVol *fpv)
