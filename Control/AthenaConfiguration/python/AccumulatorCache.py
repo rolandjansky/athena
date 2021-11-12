@@ -175,6 +175,7 @@ class AccumulatorDecorator:
                     return (deepcopy(res) if self._deepcopy else res, cacheHit)
 
                 else:
+                    _msg.debug('Hash not found in AccumulatorCache for function %s' , self._func)
                     if(len(self._cache) >= self._maxSize):
                         del self._cache[next(iter(self._cache))]
 
@@ -192,6 +193,7 @@ class AccumulatorDecorator:
 
                     return (deepcopy(res) if self._deepcopy else res, False)
             else:
+                _msg.debug('Could not calculate hash of arguments for function %s in AccumulatorCache.' , self._func)
                 return (self._func(*args , **kwargs), False)
         else:
             return (self._func(*args , **kwargs), None)
