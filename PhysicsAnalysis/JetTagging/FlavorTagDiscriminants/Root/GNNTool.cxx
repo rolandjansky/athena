@@ -62,21 +62,22 @@ namespace FlavorTagDiscriminants {
 
     m_config = lwt::parse_json_graph(gnn_config_stream);
 
-    dataprep::createGetterConfig(
-      m_config, flip_config, m_props.variableRemapping, trackLinkType, 
-      m_inputs, m_track_sequences, m_options);
+    std::tie(m_inputs, m_track_sequences, m_options) =
+      dataprep::createGetterConfig(
+        m_config, flip_config, m_props.variableRemapping, trackLinkType);
 
-    std::tie(m_varsFromBTag, m_varsFromJet, m_dataDependencyNames.bTagInputs) = 
+    std::tie(m_varsFromBTag, m_varsFromJet, m_dataDependencyNames) =
       dataprep::createBvarGetters(m_inputs);
 
-    std::set<std::string> bTagInputsTrackGetter;
-    std::tie(m_trackSequenceBuilders, bTagInputsTrackGetter, 
-      m_dataDependencyNames.trackInputs) = 
+    FTagDataDependencyNames bTagInputsTrackGetter;
+    std::tie(m_trackSequenceBuilders, bTagInputsTrackGetter) =
       dataprep::createTrackGetters(m_track_sequences, m_options, jetLinkName);
-    m_dataDependencyNames.bTagInputs.merge(bTagInputsTrackGetter);
+    m_dataDependencyNames += bTagInputsTrackGetter;
 
-    std::tie(m_decorators, m_dataDependencyNames.bTagOutputs) = 
+    FTagDataDependencyNames bTagOutputs;
+    std::tie(m_decorators, bTagOutputs) =
       dataprep::createDecorators(m_config, m_options);
+    m_dataDependencyNames += bTagOutputs;
 
     return StatusCode::SUCCESS;
   }

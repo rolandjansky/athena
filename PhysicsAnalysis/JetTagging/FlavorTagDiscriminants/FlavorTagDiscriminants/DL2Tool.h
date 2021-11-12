@@ -8,7 +8,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "FlavorTagDiscriminants/IBTagDecorator.h"
-#include "FlavorTagDiscriminants/IJetTagDecorator.h"
+#include "FlavorTagDiscriminants/IJetTagConditionalDecorator.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -23,9 +23,9 @@ namespace FlavorTagDiscriminants {
 
   class DL2Tool : public asg::AsgTool,
                   virtual public IBTagDecorator,
-                  virtual public IJetTagDecorator
+                  virtual public IJetTagConditionalDecorator
   {
-    ASG_TOOL_CLASS2(DL2Tool, IBTagDecorator, IJetTagDecorator )
+    ASG_TOOL_CLASS2(DL2Tool, IBTagDecorator, IJetTagConditionalDecorator )
   public:
     DL2Tool(const std::string& name);
     ~DL2Tool();
@@ -35,6 +35,7 @@ namespace FlavorTagDiscriminants {
     // returns 0 for success
     virtual void decorate(const xAOD::BTagging& btag) const override;
     virtual void decorate(const xAOD::Jet& jet) const override;
+    virtual void decorateWithDefaults(const xAOD::Jet& jet) const override;
 
     virtual std::set<std::string> getDecoratorKeys() const override;
     virtual std::set<std::string> getAuxInputKeys() const override;

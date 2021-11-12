@@ -50,6 +50,11 @@ namespace FlavorTagDiscriminants {
     m_dl2->decorate(jet);
     ATH_MSG_VERBOSE("Decorated jet");
   }
+  void DL2Tool::decorateWithDefaults(const xAOD::Jet& jet) const {
+    ATH_MSG_DEBUG("Decorating jet with defaults from: " + m_props.nnFile);
+    m_dl2->decorateWithDefaults(jet);
+    ATH_MSG_VERBOSE("Decorated jet with defaults");
+  }
 
   std::set<std::string> DL2Tool::getDecoratorKeys() const {
     return m_dl2->getDataDependencyNames().bTagOutputs;
