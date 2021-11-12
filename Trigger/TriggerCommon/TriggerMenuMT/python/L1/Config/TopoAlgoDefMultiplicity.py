@@ -18,11 +18,15 @@ class TopoAlgoDefMultiplicity(object):
             'eEM3', 'eEM5', 'eEM8', 'eEM8L', 
         ]
         emThresholds_2bits = [
-            'eEM8M', 'eEM10L',  'eEM15', 'eEM15L', 'eEM15M', 
-            'eEM18M', 'eEM20', 'eEM20L', 'eEM22', 'eEM22L', 'eEM22M', 'eEM22T',
-
+            'eEM10L', 'eEM12', 'eEM15',  'eEM15L', 'eEM15M', 'eEM18M',
+            'eEM20L', 
             # spares
-            'eEMSPARE1', 'eEMSPARE2', 'eEMSPARE3', 'eEMSPARE4', 'eEMSPARE5', 'eEMSPARE6', 'eEMSPARE7', 'eEMSPARE8',
+            'eEMSPARE1', 'eEMSPARE2', 'eEMSPARE3',
+        ]
+        emVarThresholds_2bits = [
+            'eEM20VM',  'eEM22',  'eEM22L', 'eEM22M', 'eEM22T',
+            # spares
+            'eEMSPARE4', 'eEMSPARE5', 'eEMSPARE6', 'eEMSPARE7', 'eEMSPARE8',
         ]
 
         for em in emThresholds_3bits:
@@ -37,14 +41,18 @@ class TopoAlgoDefMultiplicity(object):
                                       nbits = 2, classtype='eEmMultiplicity')
             tm.registerTopoAlgo(alg)
 
-        emThresholds_3bits = [ 'jEM15',]
-        emThresholds_2bits = [ 'jEM15M', 'jEM18M', ]
-        for em in emThresholds_3bits:
+        for em in emVarThresholds_2bits:
             alg = EMMultiplicityAlgo( name = em,
                                       threshold = em,
-                                      nbits = 3, classtype='jEmMultiplicity')
+                                      nbits = 2, classtype='eEmVarMultiplicity')
             tm.registerTopoAlgo(alg)
 
+        emThresholds_2bits = [ 
+            'jEM15', 'jEM15M', 
+  
+            #spares
+            'jEMSPARE1', 
+        ]
         for em in emThresholds_2bits:
             alg = EMMultiplicityAlgo( name = em,
                                       threshold = em, 
@@ -55,9 +63,11 @@ class TopoAlgoDefMultiplicity(object):
             'eTAU8', 'eTAU12',    
 
             # spares
-            'eTAUSPARE1', 'eTAUSPARE2',
+            'eTAUSPARE1', 
         ]
-        jtauThresholds_3bits = [ 'jTAU12', 'jTAU12M',]        
+        jtauThresholds_3bits = [ 
+            'jTAU12'
+        ]        
         ctauThresholds_3bits = [ 
             'cTAU12M', 
 
@@ -68,10 +78,10 @@ class TopoAlgoDefMultiplicity(object):
             'eTAU12L', 'eTAU12M', 'eTAU20', 'eTAU25', 'eTAU30HM', 'eTAU40', 'eTAU60', 'eTAU100', 
  
             #spares
-            'eTAUSPARE3', 'eTAUSPARE4', 'eTAUSPARE5', 'eTAUSPARE6', 'eTAUSPARE7', 'eTAUSPARE8', 'eTAUSPARE9', 'eTAUSPARE10',
+            'eTAUSPARE2', 'eTAUSPARE3', 'eTAUSPARE4', 'eTAUSPARE5', 'eTAUSPARE6', 'eTAUSPARE7',
         ]
         jtauThresholds_2bits = [ 
-            'jTAU20', 'jTAU25',
+            'jTAU20', 'jTAU20M',
 
             #spares
             'jTAUSPARE1',
@@ -126,12 +136,14 @@ class TopoAlgoDefMultiplicity(object):
             'jJSPARE1', 'jJSPARE2',
         ]
         jJThresholds_2bits = [ 
-            'jJ15p31ETA49', 'jJ20p31ETA49', 'jJ30p31ETA49', 'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA21',
-            'jJ50', 'jJ50p31ETA49', 'jJ75', 'jJ75p31ETA49',
+            'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA21',
+            'jJ50', 'jJ75',
             'jJ85', 'jJ100', 'jJ120', 'jJ400',
 
+            'jJ15p31ETA49', 'jJ20p31ETA49', 'jJ30p31ETA49', 'jJ50p31ETA49', 'jJ75p31ETA49',
+
             # spares
-            'jJSPARE3', 'jJSPARE4', 'jJSPARE5',
+            'jJSPARE3', 'jJSPARE4', 'jJSPARE5', 'jJSPARE6',
         ]
 
         for jJet in jJThresholds_3bits:
@@ -160,8 +172,7 @@ class TopoAlgoDefMultiplicity(object):
             tm.registerTopoAlgo(alg)
 
         gJThresholds_3bits = [ 'gJ15', 'gJ25', 'gJ35',]
-        gJThresholds_2bits = [ 'gJ50', 'gJ100',]
-        gJThresholds_1bits = [ 'gJ160',]
+        gJThresholds_2bits = [ 'gJ50', 'gJ100', 'gJ160']
 
         for gJet in gJThresholds_3bits:
             alg = JetMultiplicityAlgo( name = gJet,
@@ -173,12 +184,6 @@ class TopoAlgoDefMultiplicity(object):
             alg = JetMultiplicityAlgo( name = gJet,
                                        threshold = gJet, 
                                        nbits = 2, classtype='gJetMultiplicity')
-            tm.registerTopoAlgo(alg)
-
-        for gJet in gJThresholds_1bits:
-            alg = JetMultiplicityAlgo( name = gJet,
-                                       threshold = gJet, 
-                                       nbits = 1, classtype='gJetMultiplicity')
             tm.registerTopoAlgo(alg)
 
         gLJThresholds_2bits = [ 
@@ -209,10 +214,11 @@ class TopoAlgoDefMultiplicity(object):
             #spares (for any energy thresholds)
             'jXESPARE1', 'jXESPARE2', 'jXESPARE3', 'jXESPARE4',
             'jXESPARE5', 'jXESPARE6', 'jXESPARE7', 'jXESPARE8', 'jXESPARE9',
-            'jXESPARE10', 'jXESPARE11', 'jXESPARE12', 'jXESPARE13', 'jXESPARE14',
-            'jXESPARE15', 'jXESPARE16', 'jXESPARE17', 'jXESPARE18', 'jXESPARE19',
-            'jXESPARE20', 'jXESPARE21', 'jXESPARE22', 'jXESPARE23', 'jXESPARE24',
-            'jXESPARE25', 'jXESPARE26', 'jXESPARE27', 'jXESPARE28', 'jXESPARE29',
+            'jXESPARE10', 'jXESPARE11', 'jXESPARE12', 'jXESPARE13', 
+            #'jXESPARE14',
+            #'jXESPARE15', 'jXESPARE16', 'jXESPARE17', 'jXESPARE18', 'jXESPARE19',
+            #'jXESPARE20', 'jXESPARE21', 'jXESPARE22', 'jXESPARE23', 'jXESPARE24',
+            #'jXESPARE25', 'jXESPARE26', 'jXESPARE27', 'jXESPARE28', 'jXESPARE29',
 
         ]
 
@@ -233,24 +239,23 @@ class TopoAlgoDefMultiplicity(object):
         multLimits = namedtuple('ML', "thrtype, conn, nbit, startbit, endbit")
         multiplicities = [
            multLimits( thrtype='eEM',  conn='Topo1Opt0', nbit=3, startbit=0,  endbit=11),
-           multLimits( thrtype='eEM',  conn='Topo1Opt0', nbit=2, startbit=12, endbit=51),
-           multLimits( thrtype='eTAU', conn='Topo1Opt1', nbit=3, startbit=0,  endbit=11),
-           multLimits( thrtype='eTAU', conn='Topo1Opt1', nbit=2, startbit=12, endbit=43),
+           multLimits( thrtype='eEM',  conn='Topo1Opt0', nbit=2, startbit=24, endbit=43),
+           multLimits( thrtype='eEMV', conn='Topo1Opt0', nbit=2, startbit=44, endbit=63),
+           multLimits( thrtype='eTAU', conn='Topo1Opt1', nbit=3, startbit=0,  endbit=8 ),
+           multLimits( thrtype='eTAU', conn='Topo1Opt1', nbit=2, startbit=12, endbit=39),
            multLimits( thrtype='gLJ',  conn='Topo1Opt1', nbit=2, startbit=44, endbit=59),
-           multLimits( thrtype='gJ',   conn='Topo1Opt1', nbit=3, startbit=60, endbit=68),
-           multLimits( thrtype='gJ',   conn='Topo1Opt1', nbit=2, startbit=69, endbit=72),
-           multLimits( thrtype='gJ',   conn='Topo1Opt1', nbit=1, startbit=73, endbit=73),
+           multLimits( thrtype='gJ',   conn='Topo1Opt1', nbit=3, startbit=62, endbit=70),
+           multLimits( thrtype='gJ',   conn='Topo1Opt1', nbit=2, startbit=74, endbit=79),
 
            multLimits( thrtype='jJ',   conn='Topo1Opt2', nbit=3, startbit=0,  endbit=32),
-           multLimits( thrtype='jJ',   conn='Topo1Opt2', nbit=2, startbit=33, endbit=68),
-           multLimits( thrtype='jLJ',  conn='Topo1Opt2', nbit=2, startbit=69, endbit=84),
-           multLimits( thrtype='jTAU', conn='Topo1Opt3', nbit=3, startbit=0,  endbit=5 ),
+           multLimits( thrtype='jJ',   conn='Topo1Opt2', nbit=2, startbit=36, endbit=73),
+           multLimits( thrtype='jLJ',  conn='Topo1Opt2', nbit=2, startbit=78, endbit=93),
+           multLimits( thrtype='jTAU', conn='Topo1Opt3', nbit=3, startbit=0,  endbit=2 ),
            multLimits( thrtype='jTAU', conn='Topo1Opt3', nbit=2, startbit=6,  endbit=11),
-           multLimits( thrtype='cTAU', conn='Topo1Opt3', nbit=3, startbit=12, endbit=17),
-           multLimits( thrtype='cTAU', conn='Topo1Opt3', nbit=2, startbit=18, endbit=23),
-           multLimits( thrtype='jEM',  conn='Topo1Opt3', nbit=3, startbit=24, endbit=26),
-           multLimits( thrtype='jEM',  conn='Topo1Opt3', nbit=2, startbit=27, endbit=30),
-           multLimits( thrtype='EN',   conn='Topo1Opt3', nbit=1, startbit=31, endbit=78),
+           multLimits( thrtype='cTAU', conn='Topo1Opt3', nbit=3, startbit=14, endbit=19),
+           multLimits( thrtype='cTAU', conn='Topo1Opt3', nbit=2, startbit=23, endbit=28),
+           multLimits( thrtype='jEM',  conn='Topo1Opt3', nbit=2, startbit=31, endbit=36),
+           multLimits( thrtype='EN',   conn='Topo1Opt3', nbit=1, startbit=39, endbit=70),
         ]
 
         for conn in l1menu.connectors:
@@ -266,9 +271,11 @@ class TopoAlgoDefMultiplicity(object):
                     thrtype = algo.input
                     if 'XE' in algo.input or 'TE' in algo.input or 'MHT' in algo.input:
                         thrtype = 'EN'
+                    if 'eEmVar' in algo.classtype:
+                        thrtype = 'eEMV'
                     if conn.name==ml.conn and thrtype==ml.thrtype and algo.nbits==ml.nbit and tl.startbit>=ml.startbit and (tl.startbit+tl.nbits-1)<=ml.endbit:
                         goodAlgo = True
                 if not goodAlgo:
-                    raise RuntimeError("The multiplicity algoprithm %s does not fit with Topo1 and CTP FW. If this is intended, please correct the multiplicity constraints and communicate the new menu to the L1TOPO and CTP groups." % algo.name)
+                    raise RuntimeError("The multiplicity algoprithm %s with startbit %i does not fit with Topo1 and CTP FW. If this is intended, please correct the multiplicity constraints and communicate the new menu to the L1TOPO and CTP groups." % (algo.name, tl.startbit) )
 
 

@@ -154,3 +154,27 @@ def TgcDigitASDposCondAlgCfg(flags):
     result.addCondAlgo(CompFactory.TgcDigitASDposCondAlg())
     result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"] , detDb="TGC_OFL", className="CondAttrListCollection"))
     return result
+
+def NswCalibDbAlgCfg(flags, **kwargs):
+    result = ComponentAccumulator()
+    if flags.Common.isOnline:
+        return result ## avoid adding algo to the component accumulator
+    if flags.Input.isMC:
+        kwargs['isData'  ] = False
+        kwargs['isOnline'] = False
+    else:
+        kwargs['isData'  ] = True
+        kwargs['isOnline'] = True if flags.Common.isOnline else False
+    folders = ["/MDT/MM/TIME/SIDEA" , "/MDT/MM/CHARGE/SIDEA" , "/MDT/MM/VMM/SIDEA" , \
+               "/MDT/MM/TIME/SIDEC" , "/MDT/MM/CHARGE/SIDEC" , "/MDT/MM/VMM/SIDEC" ]
+    scheme  = "MDT_OFL"
+    result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
+    folders = ["/TGC/NSW/TIME/SIDEA", "/TGC/NSW/CHARGE/SIDEA", "/TGC/NSW/VMM/SIDEA", \
+               "/TGC/NSW/TIME/SIDEC", "/TGC/NSW/CHARGE/SIDEC", "/TGC/NSW/VMM/SIDEC"]
+    scheme  = "TGC_OFL"
+    result.merge( addFolders(flags, folders , detDb=scheme, className='CondAttrListCollection') )
+    alg     = CompFactory.NswCalibDbAlg(**kwargs)
+    result.addCondAlgo(alg)
+    return result
+
+

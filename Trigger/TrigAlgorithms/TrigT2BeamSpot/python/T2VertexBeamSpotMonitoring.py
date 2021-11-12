@@ -1,18 +1,25 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 
-class BaseMonitoringTool(GenericMonitoringTool):
+class BaseMonitoringTool:
     """Base class which defines few useful methods to cope with defineHistogram
     madness.
     """
+    def __init__(self, name):
+        self.name = name
+        self.histograms = []
+
+    def __call__(self):
+        """Creates the actual monitoring tool instance"""
+        return GenericMonitoringTool(self.name, Histograms = self.histograms)
 
     def makeHisto1D(self, name, type, xbins, xmin, xmax, title, path='EXPERT', opt=None, **kw):
-        self.defineHistogram(
+        self.histograms += [defineHistogram(
             name, path=path, type=type, title=title, opt=opt,
             xbins=xbins, xmin=xmin, xmax=xmax, **kw
-        )
+        )]
 
     def makeLBNHisto1D(self, name, type, xbins, xmin, xmax, title, path='EXPERT', opt="", **kw):
         opt = "kLBNHistoryDepth=1 " + opt if opt else "kLBNHistoryDepth=1"
@@ -23,12 +30,12 @@ class BaseMonitoringTool(GenericMonitoringTool):
     def makeHisto2D(self, nameX, nameY, type, xbins, xmin, xmax,
                     ybins, ymin, ymax, title, path='EXPERT', opt=None, **kw):
         name = ", ".join([nameX, nameY])
-        self.defineHistogram(
+        self.histograms += [defineHistogram(
             name, path=path, type=type, title=title, opt=opt,
             xbins=xbins, xmin=xmin, xmax=xmax,
             ybins=ybins, ymin=ymin, ymax=ymax,
             **kw
-        )
+        )]
 
     def makeLBNHisto2D(self, nameX, nameY, type, xbins, xmin, xmax,
                        ybins, ymin, ymax, title, path='EXPERT', opt="", **kw):
@@ -40,10 +47,10 @@ class BaseMonitoringTool(GenericMonitoringTool):
 
     def makeProfile(self, nameX, nameY, xbins, xmin, xmax, title, path='EXPERT', opt=None, **kw):
         name = ", ".join([nameX, nameY])
-        self.defineHistogram(
+        self.histograms += [defineHistogram(
             name, path=path, type="TProfile", title=title, opt=opt,
             xbins=xbins, xmin=xmin, xmax=xmax, **kw,
-        )
+        )]
 
     def makeLBNProfile(self, nameX, nameY, xbins, xmin, xmax, title, path='EXPERT', opt="", **kw):
         opt = "kLBNHistoryDepth=1 " + opt if opt else "kLBNHistoryDepth=1"

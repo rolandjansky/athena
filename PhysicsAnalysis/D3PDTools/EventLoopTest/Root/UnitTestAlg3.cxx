@@ -19,7 +19,12 @@ namespace EL {
 
       // Allocate the requested amount of memory.
       if( m_leakBytes > 0 ) {
-         char* lostPointer = new char[ m_leakBytes ];
+         // This needs to be `volatile` and zeroed out to ensure the memory
+         // really gets allocated by the operating system.  Without `volatile`
+         // the compiler is essentially allowed to optimize away the write,
+         // and the operating system isn't required to allocate it if it isn't
+         // written to.
+         volatile char* lostPointer = new volatile char[ m_leakBytes ];
          for( int i = 0; i < m_leakBytes; ++i ) {
             *lostPointer = 0;
             ++lostPointer;

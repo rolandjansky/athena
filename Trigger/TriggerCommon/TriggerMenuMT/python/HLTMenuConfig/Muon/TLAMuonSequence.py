@@ -10,24 +10,24 @@ def TLAMuonSequence (flags, muons):
     ## add the InputMaker (event context)    
     tlaMuonInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAMuons", RoIsLink="initialRoI")
     tlaMuonInputMakerAlg.mergeUsingFeature = True
+    tlaMuonInputMakerAlg.RoITool = CompFactory.ViewCreatorPreviousROITool()
     
     tlaMuonAthSequence = seqAND( "TLAMuonAthSequence", [tlaMuonInputMakerAlg] )
     sequenceOut = muons+"_TLA"
     return (tlaMuonAthSequence, tlaMuonInputMakerAlg, sequenceOut)
 
 
-def TLAMuonMenuSequence( flags, muonsIn, is_probe_leg):
+def TLAMuonMenuSequence( flags, muonsIn):
     # retrieve the sequence via RecoFragmentsPool
     (tlaMuonAthSequence, tlaMuonInputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAMuonSequence, flags, muons=muonsIn)    
      #  add the hypo
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuonTLAHypoAlg
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
     hypo = TrigMuonTLAHypoAlg("TrigMuonTLAHypoAlg")  #+muonsIn)    
-
+    hypo.TLAMuons=sequenceOut
     return MenuSequence( Sequence  = tlaMuonAthSequence,
                          Maker       = tlaMuonInputMakerAlg,
                          Hypo        = hypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict,
-                         IsProbe     = is_probe_leg 
+                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict
                          )
 

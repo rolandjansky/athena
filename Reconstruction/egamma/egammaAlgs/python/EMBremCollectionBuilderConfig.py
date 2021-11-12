@@ -18,7 +18,7 @@ def GSFTrackSummaryToolCfg(flags,
 
     # TODO what happens to
     # ClusterSplitProbabilityName=
-    # TrackingCommon.combinedClusterSplitProbName() ?
+    # TrackingCommon.combinedClusterSplitProbName() ? hard-coded for the time being, so do as std config
     if "InDetSummaryHelperTool" not in kwargs:
         from InDetConfig.TrackingCommonConfig import (
             InDetRecTestBLayerToolCfg)
@@ -36,7 +36,8 @@ def GSFTrackSummaryToolCfg(flags,
                 HoleSearch=None,
                 AssoTool=None,
                 PixelToTPIDTool=kwargs["PixelToTPIDTool"],
-                TestBLayerTool=testBLTool
+                TestBLayerTool=testBLTool,
+                ClusterSplitProbabilityName='InDetTRT_SeededAmbiguityProcessorSplitProb'
             ))
 
     if "TRT_ElectronPidTool" not in kwargs:
@@ -80,7 +81,7 @@ def EMBremCollectionBuilderCfg(flags,
             KeepParameters=True,
             TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
             UseTrackSummaryTool=False,
-            BadClusterID=flags.InDet.pixelClusterBadClusterID)
+            BadClusterID=0)
         kwargs["TrackParticleCreatorTool"] = gsfTrackParticleCreatorTool
 
     if "TrackSlimmingTool" not in kwargs:

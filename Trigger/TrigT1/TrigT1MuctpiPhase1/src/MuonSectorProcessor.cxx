@@ -385,6 +385,8 @@ namespace LVL1MUCTPIPHASE1 {
 	    int ptword = sectorData->pt(icand);
 	    if (ptword < 0) continue;
 
+	    // the following doesn't quite follow the correct nomenclature, should be (side, isub, isec, roiID) thus there was a typo chain in L399+ using isub instead of the correct isys
+	    // see: https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigT1/TrigT1MuctpiPhase1/src/L1TopoLUT.cxx#L161
 	    L1TopoCoordinates coord = m_l1topoLUT->getCoordinates(isub, isys, isec, roiID);
 
 	    //check for invalid decoding
@@ -396,13 +398,13 @@ namespace LVL1MUCTPIPHASE1 {
 	    }
 
 	    int ptValue = 0;
-	    auto enc = m_ptEncoding[isub].find(ptword);
-	    if (enc == m_ptEncoding[isub].end()) 
+	    auto enc = m_ptEncoding[isys].find(ptword);
+	    if (enc == m_ptEncoding[isys].end()) 
 	    {
-	      auto last_enc = m_ptEncoding[isub].rbegin();
-	      if (last_enc != m_ptEncoding[isub].rend() && ptword > last_enc->first)
+	      auto last_enc = m_ptEncoding[isys].rbegin();
+	      if (last_enc != m_ptEncoding[isys].rend() && ptword > last_enc->first)
 	      {
-		ptValue = m_ptEncoding[isub].rbegin()->second;
+		ptValue = m_ptEncoding[isys].rbegin()->second;
 	      }
 	      else
 	      {

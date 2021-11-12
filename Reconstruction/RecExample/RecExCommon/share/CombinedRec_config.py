@@ -51,10 +51,14 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   
 from InDetRecExample.InDetJobProperties import InDetFlags
  
 pdr.flag_domain('egamma')
-if rec.doEgamma():
-    protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
+if rec.doEgamma() and rec.doESD():
+    from egammaConfig.egammaReconstructionConfig import (
+        egammaReconstructionCfg)
+    CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
     if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        protectedInclude( "egammaRec/egammaLRTRec_jobOptions.py" )
+        from egammaConfig.egammaLRTReconstructionConfig import (
+            egammaLRTReconstructionCfg)
+        CAtoGlobalWrapper(egammaLRTReconstructionCfg, ConfigFlags)
 AODFix_postEgammaRec()
 
 

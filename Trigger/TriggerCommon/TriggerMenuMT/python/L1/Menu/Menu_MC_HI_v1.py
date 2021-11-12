@@ -42,7 +42,7 @@ def defineMenu():
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         # new calo
-        'L1_eEM3', 'L1_eEM8', 'L1_eEM15', 'L1_eEM20',
+        'L1_eEM3', 'L1_eEM8', 'L1_eEM15', 'L1_eEM12',
         'L1_eEM22', 'L1_eEM22M',
 
         ## 

@@ -75,8 +75,7 @@ StatusCode TrigMuonTLAHypoAlg::execute(const EventContext &ctx) const
         // now go on with the normal Hypo, linking new decision with previous one
         auto newDecision = newDecisionIn( outputDecisions, hypoAlgNodeName() );
         TrigCompositeUtils::linkToPrevious( newDecision, previousDecision, ctx );
-        // do we need to re-link the feature?
-        //newDecision->setObjectLink(featureString(), prevMuons);
+        newDecision->setObjectLink(featureString(), ElementLink<xAOD::MuonContainer>(*h_TLAMuons, h_TLAMuons->size()-1, ctx));
 
         HypoInputs.push_back( std::make_pair(newDecision, previousDecision) );
         nDecision++;

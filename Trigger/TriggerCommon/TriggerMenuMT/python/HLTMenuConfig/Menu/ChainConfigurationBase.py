@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 import abc
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 
 #----------------------------------------------------------------
@@ -96,13 +95,4 @@ class ChainConfigurationBase(metaclass=abc.ABCMeta):
         return
 
     def assembleChain(self):
-        if ConfigFlags.Trigger.Test.doDummyChainConfig:
-            if isinstance(self.chainPart,list):
-                # Jets have >1 chainSteps
-                agroups = list(set([cp['alignmentGroup'] for cp in self.chainPart]))
-            else:
-                agroups = [self.chainPart['alignmentGroup']]
-            dummyseq = RecoFragmentsPool.retrieve(lambda flags, the_name: EmptyMenuSequence(the_name), None, the_name="DummySeq_"+self.chainName)
-            dummystep = ChainStep("DummyChainStep_"+self.chainName, Sequences=[dummyseq], chainDicts=[self.dict])
-            return Chain(self.chainName, ChainSteps = [dummystep], L1Thresholds=[self.L1Threshold], nSteps=[0], alignmentGroups=agroups)
         return self.assembleChainImpl()

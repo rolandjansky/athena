@@ -685,7 +685,11 @@ class L1MenuConfig(object):
         self.l1menu.checkLegacyThresholds()   
 
         # check for the topo multiplicity algorithms and CTP inputs
+        # TOPO1
         TopoAlgoDefMultiplicity.checkMultAlgoFWconstraints(self.l1menu)
+
+        # check #number of CTP inputs and outputs <=512
+        self.l1menu.checkCountCTPInputsOutput()
 
         # check that performance thresholds are not used in the physics L1 menu
         self.l1menu.checkPerfThresholds()

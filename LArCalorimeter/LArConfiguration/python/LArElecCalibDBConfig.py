@@ -37,7 +37,9 @@ LArfSamplSCCondAlg     =  CompFactory.getComp("LArFlatConditionsAlg<LArfSamplSC>
 LArShapeSCCondAlg      =  CompFactory.getComp("LArFlatConditionsAlg<LArShapeSC>")
 LArPedestalSCCondAlg   =  CompFactory.getComp("LArFlatConditionsAlg<LArPedestalSC>")
 LArNoiseSCCondAlg       =  CompFactory.getComp("LArFlatConditionsAlg<LArNoiseSC>")
+LArMinBiasSCCondAlg       =  CompFactory.getComp("LArFlatConditionsAlg<LArMinBiasSC>")
 LArAutoCorrSCCondAlg      =  CompFactory.getComp("LArFlatConditionsAlg<LArAutoCorrSC>")
+LArPileupAverageSCCondAlg = CompFactory.getComp("LArFlatConditionsAlg<LArMinBiasAverageSC>")
 
 
 def LArElecCalibDbCfg(ConfigFlags,condObjs):
@@ -189,8 +191,10 @@ def LArElecCalibDBMCSCCfg(ConfigFlags,folders):
                            "uA2MeVSC":('CondAttrListCollection',"/LAR/ElecCalibMCSC/uA2MeV","LAruA2MeVSC",LAruA2MeVSCCondAlg),
                            "fSamplSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/fSampl',"LArfSamplSC",LArfSamplSCCondAlg),
                            "ShapeSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/Shape',"LArShapeSC",LArShapeSCCondAlg),
+                           "PileupAverageSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/LArPileupAverage',"LArPileupAverageSC",LArPileupAverageSCCondAlg),
                            "PedestalSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/Pedestal',"LArPedestalSC",LArPedestalSCCondAlg),
                            "NoiseSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/Noise',"LArNoiseSC",LArNoiseSCCondAlg),
+                           "MinBiasSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/MinBias',"LArMinBiasSC",LArMinBiasSCCondAlg),
                            "AutoCorrSC":('CondAttrListCollection','/LAR/ElecCalibMCSC/AutoCorr',"LArAutoCorrSC",LArAutoCorrSCCondAlg)
                        }
 

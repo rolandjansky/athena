@@ -40,9 +40,6 @@ namespace FlavorTagDiscriminants {
 
       std::vector<std::string> m_input_node_names;
       std::vector<std::string> m_output_node_names;
-
-      int m_num_outputscore;
-
   }; // Class OnnxUtil
 } // end of FlavorTagDiscriminants namespace
 

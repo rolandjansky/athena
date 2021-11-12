@@ -6,7 +6,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, Em
 from AthenaCommon.Logging import logging
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from TrigCompositeUtils.TrigCompositeUtils import legName
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from collections import OrderedDict
 from copy import deepcopy
@@ -192,7 +191,7 @@ def getCurrentAG(chainStep):
     filled_seq_ag = []
     for iseq,seq in enumerate(chainStep.sequences):
         # In the case of dummy configs, they are all empty
-        if type(seq).__name__ == 'EmptyMenuSequence' and not ConfigFlags.Trigger.Test.doDummyChainConfig:
+        if type(seq).__name__ == 'EmptyMenuSequence':
             continue
         else:
             # get the alignment group of the leg that is running a non-empty sequence
@@ -419,8 +418,6 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
     if not hasNonEmptyStep:
         for chain_index, step in enumerate(parallel_steps):
             # every step is empty but some might have empty sequences and some might not
-            if ConfigFlags.Trigger.Test.doDummyChainConfig and not step:
-                continue
             if len(step.sequences) == 0:
                 new_stepDicts = deepcopy(chainDefList[chain_index].steps[-1].stepDicts)
                 currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDicts[0]['chainParts'][0]['multiplicity']+new_stepDicts[0]['signature']

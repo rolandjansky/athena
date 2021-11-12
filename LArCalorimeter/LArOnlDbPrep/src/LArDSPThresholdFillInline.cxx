@@ -2,11 +2,10 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArOnlDbPrep/LArDSPThresholdFillInline.h"
+#include "LArDSPThresholdFillInline.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloConditions/CaloNoise.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -67,6 +66,7 @@ StatusCode LArDSPThresholdFillInline::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_onlineID,"LArOnlineID") );
   ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   ATH_CHECK(m_bcContKey.initialize(m_maskBadChannels));
   ATH_CHECK(m_bcMask.buildBitMask(m_problemsToMask,msg()));
@@ -151,11 +151,9 @@ StatusCode LArDSPThresholdFillInline::stop() {
 
     ATH_CHECK( detStore()->record(attr,m_key) );
 
-    const CaloDetDescrManager *theCaloDDM = CaloDetDescrManager::instance();
-    if(!theCaloDDM){
-      ATH_MSG_ERROR ( "Failed to return CaloDetDescrManager" );
-      return StatusCode::FAILURE;
-    }
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    ATH_CHECK(caloMgrHandle.isValid());
+    const CaloDetDescrManager *theCaloDDM = *caloMgrHandle;
     ATH_MSG_INFO ( "theCaloDDM retrieved" );
 
     SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl (m_cablingKey, ctx);

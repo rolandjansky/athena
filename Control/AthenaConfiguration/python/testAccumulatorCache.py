@@ -40,6 +40,8 @@ class TestCache(unittest.TestCase):
         self.assertEqual(returnSame.__name__ , "returnSame")
         self.assertEqual(returnSame.__doc__ , "returns the same number")
 
+        AccumulatorDecorator.printStats()
+
         @AccumulatorCache(verifyResult = AccumulatorDecorator.VERIFY_NOTHING , deepCopy = False)
         def fac(x):
             return hashwrapper(1 if x.x == 0 else x.x * fac(hashwrapper(x.x - 1)).x)
@@ -291,24 +293,6 @@ class TestCache(unittest.TestCase):
         self.assertEqual(info["misses"] , 3)
         self.assertEqual(info["cache_size"] , 0)
 
-    def runTest(self):
-        print("... basic tests, simple caching and introspection ...")
-        self.test_basic()
-        print("... testing cache limit ...")
-        self.test_cache_limit()
-        print("... testing if cached results were modified ...")
-        self.test_validation()
-        print("... testing suspend ...")
-        self.test_suspend()
-        print("... testing verify copy ...")
-        self.test_verify_copy()
-        print("... testing verify default ...")
-        self.test_verify_default()
 
-
-
-if(__name__ == '__main__'):
-    suite = unittest.TestSuite()
-    suite.addTest(TestCache())
-    runner = unittest.TextTestRunner(failfast = False)
-    runner.run(suite)
+if __name__ == '__main__':
+    unittest.main()

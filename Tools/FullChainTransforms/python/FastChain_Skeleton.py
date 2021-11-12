@@ -74,6 +74,9 @@ def fromRunArgs(runArgs):
     from SimuJobTransforms.ISF_Skeleton import defaultSimulationFlags
     defaultSimulationFlags(ConfigFlags, detectors)
 
+    # To get alignment conditions folder
+    ConfigFlags.GeoModel.Align.LegacyConditionsAccess = True
+
     # Setup digitization flags
     from Digitization.DigitizationConfigFlags import digitizationRunArgsToFlags
     digitizationRunArgsToFlags(runArgs, ConfigFlags)
