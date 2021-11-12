@@ -162,9 +162,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
     auto monGroup = getGroup( trigger + "_"+dirname+"_" + subgroup );
 
     
-    std::vector<float> et_vec, highet_vec, pt_vec, eta_vec, phi_vec, avgmu_vec, npvtx_vec;
+    std::vector<float> et_vec, highet_vec, pt_vec, eta_vec, phi_vec, avgmu_vec, npvtx_vec,et_slice0_vec,et_slice1_vec,et_slice2_vec,et_slice3_vec;
     std::vector<float> match_et_vec, match_highet_vec, match_pt_vec, match_eta_vec, match_phi_vec, match_avgmu_vec, match_npvtx_vec;
     std::vector<bool> et_passed_vec, highet_passed_vec, pt_passed_vec, eta_passed_vec, phi_passed_vec, avgmu_passed_vec, npvtx_passed_vec;
+    std::vector<bool> et_slice0_passed_vec,et_slice1_passed_vec,et_slice2_passed_vec,et_slice3_passed_vec;
 
     auto et_col     = Monitored::Collection( "et"     , et_vec );
     auto highet_col = Monitored::Collection( "highet" , highet_vec );
@@ -189,6 +190,17 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
     auto phi_passed_col    = Monitored::Collection( "phi_passed"    , phi_passed_vec );
     auto avgmu_passed_col  = Monitored::Collection( "avgmu_passed"  , avgmu_passed_vec );
     auto npvtx_passed_col  = Monitored::Collection( "npvtx_passed"  , npvtx_passed_vec );
+
+    // For ET efficiency analysis in eta slices
+    auto et_slice0_col     = Monitored::Collection( "et_slice0"     , et_slice0_vec );
+    auto et_slice1_col     = Monitored::Collection( "et_slice1"     , et_slice1_vec );
+    auto et_slice2_col     = Monitored::Collection( "et_slice2"     , et_slice2_vec );
+    auto et_slice3_col     = Monitored::Collection( "et_slice3"     , et_slice3_vec );
+
+    auto et_slice0_passed_col     = Monitored::Collection( "et_slice0_passed"     , et_slice0_passed_vec );
+    auto et_slice1_passed_col     = Monitored::Collection( "et_slice1_passed"     , et_slice1_passed_vec );
+    auto et_slice2_passed_col     = Monitored::Collection( "et_slice2_passed"     , et_slice2_passed_vec );
+    auto et_slice3_passed_col     = Monitored::Collection( "et_slice3_passed"     , et_slice3_passed_vec );
  
     unsigned iObj=0;
 
@@ -228,6 +240,16 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
                 npvtx_vec.push_back(npvtx);
             }
 
+            if(abs(eta)<=0.8){
+                    et_slice0_vec.push_back(et);
+            }else if( abs(eta) > 0.80 && abs(eta) <= 1.37 ){
+                    et_slice1_vec.push_back(et);
+            }else if( abs(eta) > 1.37 && abs(eta) <= 1.54 ){
+                    et_slice2_vec.push_back(et);
+            }else if( abs(eta) > 1.54 && abs(eta) <= 2.50 ){
+                    et_slice3_vec.push_back(et);
+            }
+
             if(isPassed) {
                 match_et_vec.push_back( et );
                 match_pt_vec.push_back( pt );
@@ -244,6 +266,16 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
                 pt_passed_vec.push_back( true ); 
                 highet_passed_vec.push_back( true ); 
 
+                if(abs(eta)<=0.8){
+                    et_slice0_passed_vec.push_back(true);
+                }else if( abs(eta) > 0.80 && abs(eta) <= 1.37 ){
+                    et_slice1_passed_vec.push_back(true);
+                }else if( abs(eta) > 1.37 && abs(eta) <= 1.54 ){
+                    et_slice2_passed_vec.push_back(true);
+                }else if( abs(eta) > 1.54 && abs(eta) <= 2.50 ){
+                    et_slice3_passed_vec.push_back(true);
+                }
+
                 if(et > etthr+1.0){
                     eta_passed_vec.push_back( true ); 
                     phi_passed_vec.push_back( true ); 
@@ -255,7 +287,17 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
 
                 et_passed_vec.push_back( false ); 
                 pt_passed_vec.push_back( false ); 
-                highet_passed_vec.push_back( false ); 
+                highet_passed_vec.push_back( false );
+
+                if(abs(eta)<=0.8){
+                    et_slice0_passed_vec.push_back(false);
+                }else if( abs(eta) > 0.80 && abs(eta) <= 1.37 ){
+                    et_slice1_passed_vec.push_back(false);
+                }else if( abs(eta) > 1.37 && abs(eta) <= 1.54 ){
+                    et_slice2_passed_vec.push_back(false);
+                }else if( abs(eta) > 1.54 && abs(eta) <= 2.50 ){
+                    et_slice3_passed_vec.push_back(false);
+                }
 
                 if(et > etthr+1.0){
                     eta_passed_vec.push_back( false ); 
@@ -273,7 +315,8 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subg
  
     fill( monGroup, et_col, highet_col, pt_col, eta_col, phi_col, avgmu_col, npvtx_col,
           match_et_col, match_highet_col, match_pt_col, match_eta_col, match_phi_col, match_avgmu_col, match_npvtx_col,
-          et_passed_col, highet_passed_col, pt_passed_col, eta_passed_col, phi_passed_col, avgmu_passed_col, npvtx_passed_col);
+          et_passed_col, highet_passed_col, pt_passed_col, eta_passed_col, phi_passed_col, avgmu_passed_col, npvtx_passed_col, 
+          et_slice0_col,et_slice1_col,et_slice2_col,et_slice3_col,et_slice0_passed_col,et_slice1_passed_col,et_slice2_passed_col,et_slice3_passed_col);
 
 }
 
@@ -550,13 +593,11 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &tri
     ATH_MSG_DEBUG("Fill SS distributions: " << trigger);
     auto monGroup = getGroup( trigger + ( online ? "_Distributions_HLT" : "_Distributions_Offline") );
     
-    std::vector<float> ethad_vec, ethad1_vec, Rhad_vec, Rhad1_vec, Reta_vec, Rphi_vec, weta1_vec, weta2_vec, 
+    std::vector<float> Rhad_vec, Rhad1_vec, Reta_vec, Rphi_vec, weta1_vec, weta2_vec, 
       f1_vec, f3_vec, eratio_vec, et_vec, highet_vec , eta_vec, phi_vec, topoetcone20_vec, topoetcone40_shift_vec, 
       topoetcone20_rel_vec, topoetcone40_shift_rel_vec;
  
 
-    auto ethad_col              = Monitored::Collection("ethad"    , ethad_vec );
-    auto ethad1_col             = Monitored::Collection("ethad1"   , ethad1_vec );
     auto Rhad_col               = Monitored::Collection("Rhad"     , Rhad_vec    );
     auto Rhad1_col              = Monitored::Collection("Rhad1"    , Rhad1_vec   );
     auto Reta_col               = Monitored::Collection("Reta"     , Reta_vec    );
@@ -579,8 +620,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &tri
 
         if(!eg) continue;
 
-        ethad_vec.push_back( getShowerShape_ethad(eg)/Gaudi::Units::GeV);
-        ethad1_vec.push_back( getShowerShape_ethad1(eg)/Gaudi::Units::GeV);
         Rhad_vec.push_back( getShowerShape_Rhad(eg));
         Rhad1_vec.push_back( getShowerShape_Rhad(eg));
         Reta_vec.push_back( getShowerShape_Reta(eg));
@@ -604,7 +643,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &tri
 
     }// Loop over egamma objects
 
-    fill( monGroup, ethad_col, ethad1_col, Rhad_col, Rhad1_col, Reta_col, Rphi_col, weta1_col, weta2_col, 
+    fill( monGroup, Rhad_col, Rhad1_col, Reta_col, Rphi_col, weta1_col, weta2_col, 
           f1_col, f3_col, eratio_col, et_col, highet_col , eta_col, phi_col, topoetcone20_col, topoetcone40_shift_col, 
           topoetcone20_rel_col, topoetcone40_shift_rel_col );
 
