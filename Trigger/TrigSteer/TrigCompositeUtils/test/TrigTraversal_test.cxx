@@ -540,7 +540,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
   // Check retrieval of a link which does NOT derive from IParticle
   END->setObjectLink<DecisionContainer>("notAnIParticle", end_link);
-  EXPECT_EXCEPTION (SG::ExcCLIDMismatch, END->objectLink<xAOD::IParticleContainer>("notAnIParticle"));
+  EXPECT_EXCEPTION (xAOD::ExcNotIParticleContainer, END->objectLink<xAOD::IParticleContainer>("notAnIParticle"));
 
   return 0;
   
