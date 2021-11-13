@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -35,7 +35,7 @@ TrigL2MuonSA::MuCalCircClient::~MuCalCircClient ()
     CircCloseCircConnection_t (m_port,  &*writable.begin() , m_cid);
 }
 
-bool TrigL2MuonSA::MuCalCircClient::dumpToCirc (LVL2_MUON_CALIBRATION::CalibEvent &event)
+bool TrigL2MuonSA::MuCalCircClient::dumpToCirc (LVL2_MUON_CALIBRATION::CalibEvent &event) const
 {
   char *ptr;
   bool success = false;
