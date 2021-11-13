@@ -387,6 +387,7 @@ if hasattr(runArgs,"DataRunNumber"):
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
         fast_chain_log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
+        simFlags.RunDict = { digitizationFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()[0] : digitizationFlags.RunAndLumiOverrideList.getEvtsMax() }
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         fast_chain_log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
 
@@ -1051,6 +1052,7 @@ import MagFieldServices.SetupField
 if digitizationFlags.RunAndLumiOverrideList.statusOn:
     if not(DetFlags.pileup.any_on()):
         AthError( "This job will try to override pile-up luminosity configuration, but no pile-up will be set up!" )
+    ServiceMgr.EventSelector.OverrideRunNumber=True
     include("Digitization/LumiBlockOverrides.py")
     if digitizationFlags.dataRunNumber.statusOn:
         fast_chain_log.warning('digitizationFlags.RunAndLumiOverrideList has been set! digitizationFlags.dataRunNumber (set to %s) will be ignored. ', digitizationFlags.dataRunNumber.get_Value() )
