@@ -108,7 +108,7 @@ class ThresholdDef:
         MuonThreshold( "MU3EOF"   ).setThrValue( thr=3, ba=4 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
 
         # eEM 
-        for thrV in [3, 5, 8, 12, 15, 22]:
+        for thrV in [3, 5, 7, 12, 15, 22]:
             eEMThreshold('eEM%i' % thrV, 'eEM').addThrValue(thrV)
 
         # eEM SPARES
@@ -120,7 +120,7 @@ class ThresholdDef:
             eEMThreshold('eEM%iL' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" )
 
         # M section (used to be VHI in Run2)
-        for thrV in [8,15,18,22]:
+        for thrV in [8,15,18,22,24]:
             eEMThreshold('eEM%iM' % thrV, 'eEM').addThrValue(thrV).setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" )
 
         # T section (used to be VHIM in Run2)

@@ -15,7 +15,7 @@ class TopoAlgoDefMultiplicity(object):
     def registerTopoAlgos(tm):
 
         emThresholds_3bits = [
-            'eEM3', 'eEM5', 'eEM8', 'eEM8L', 
+            'eEM3', 'eEM5', 'eEM7', 'eEM8L', 
         ]
         emThresholds_2bits = [
             'eEM10L', 'eEM12', 'eEM15',  'eEM15L', 'eEM15M', 'eEM18M',
@@ -24,9 +24,9 @@ class TopoAlgoDefMultiplicity(object):
             'eEMSPARE1', 'eEMSPARE2', 'eEMSPARE3',
         ]
         emVarThresholds_2bits = [
-            'eEM20VM',  'eEM22',  'eEM22L', 'eEM22M', 'eEM22T',
+            'eEM20VM',  'eEM22',  'eEM22L', 'eEM22M', 'eEM22T', 'eEM24M',
             # spares
-            'eEMSPARE4', 'eEMSPARE5', 'eEMSPARE6', 'eEMSPARE7', 'eEMSPARE8',
+            'eEMSPARE4', 'eEMSPARE5', 'eEMSPARE6', 'eEMSPARE7', 
         ]
 
         for em in emThresholds_3bits:

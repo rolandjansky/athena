@@ -169,42 +169,48 @@ class L1Menu(object):
 
 
     def checkCountCTPInputsOutput(self):
-        from collections import defaultdict as dd
-        ctpInputs = dd(list)
-        ctpInputBits = dict()
-        thrNames = []
-        thrBits = dict()
-        ctpOutputs = [] 
+        from collections import namedtuple
+        ctpInput = namedtuple('ctpInput',"name, conn, nbit")
+        ctpInputs = []
+        ctpOutputs = []
+        thrNames = [] 
+        ctpInputBitSets = dict()
+        ctpInputNameSets = dict()
         for item in self.items:
             ctpOutputs.append(item.name)
             for thrName in item.thresholdNames():
-                thrNames.append(thrName)
+                if thrName[:3]=='ZB_':
+                    thrName = thrName[3:]
+                if thrName not in thrNames:
+                    thrNames.append(thrName)
         for key,clist in self.ctp.counters.counters.items():
             if key == 'ctpin':
                 continue
             for c in clist:
                 thrName = c.name[1:]
-                thrNames.append(thrName)
+                if thrName[:3]=='ZB_':
+                    thrName = thrName[3:]
+                if thrName not in thrNames:
+                    thrNames.append(thrName)
         for thrName in thrNames:
             for conn in self.connectors:
                 if conn.ctype != CType.ELEC:
                     for tl in conn.triggerLines:
                         if thrName == tl.name:
-                            thrBits[thrName] = tl.nbits
+                            ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
                 else:
                      for fpga in conn.triggerLines:
                         for clock in conn.triggerLines[fpga]:
                             for tl in conn.triggerLines[fpga][clock]:
                                 if thrName == tl.name:
-                                    thrBits[thrName] = tl.nbits                             
+                                    ctpInputs.append(ctpInput(name=thrName,conn=conn.name,nbit=tl.nbits))
 
-        for thrName in thrNames:
+        if len(thrNames) != len(ctpInputs):
+            raise RuntimeError("Not all input thresholds found!")
+
+        for ctpIn in ctpInputs:
             thrset = None
-            if thrName not in thrBits:
-                raise RuntimeError("Did not find the number of bits of thresholds %s", thrName)
-
-            if thrName[:3]=='ZB_':
-                thrName = thrName[3:]
+            thrName = ctpIn.name
             if thrName[:2] in ['EM','HA','XE','TE','XS']:
                 thrset = 'legacyCalo'
             elif thrName[:1]=='J':
@@ -218,24 +224,28 @@ class L1Menu(object):
             elif thrName[:1] in ['e','j','c','g']:
                 thrset = 'topo1'
             elif thrName[:4]=='TOPO':
-                thrset = 'topo2/3'
+                if 'Topo2' in ctpIn.conn:
+                    thrset = 'topo2'
+                elif 'Topo3' in ctpIn.conn:
+                    thrset = 'topo3'
 
-            if thrset not in ctpInputBits:
-                ctpInputBits[thrset] = 0
-            if thrName not in ctpInputs[thrset]:
-                ctpInputs[thrset].append(thrName)
-                ctpInputBits[thrset] += thrBits[thrName]
+            if thrset not in ctpInputBitSets:
+                ctpInputBitSets[thrset] = 0
+                ctpInputNameSets[thrset] = []
+            if thrName not in ctpInputNameSets[thrset]:
+                ctpInputNameSets[thrset].append(thrName)
+                ctpInputBitSets[thrset] += ctpIn.nbit
 
         totalInputs = 0
         log.info("Check total number of CTP input and output bits:")
         log.info("Number of output bits: %i", len(ctpOutputs) )
-        for thrset in ctpInputs:
-            log.info("%s: %i threshlds and %i  bits", thrset, len(ctpInputs[thrset]), ctpInputBits[thrset]  )
+        for thrset in ctpInputBitSets:
+            log.info("%s: %i thresholds and %i  bits", thrset, len(ctpInputNameSets[thrset]), ctpInputBitSets[thrset]  )
             if thrset is not None:
-                log.debug(ctpInputs[thrset])
+                log.debug("Threshold set %s: %s", thrset, ",".join(ctpInputNameSets[thrset]) )
             else:
-                log.info("Unrecognised CTP input bits: %s", ",".join(ctpInputs[thrset]) )
-            totalInputs += ctpInputBits[thrset]
+                log.info("Unrecognised CTP input bits: %s", ",".join(ctpInputNameSets[thrset]) )
+            totalInputs += ctpInputBitSets[thrset]
         log.info("Number of inputs bits: %i" , totalInputs )
 
         # Fail menu generation for menus going to P1:
