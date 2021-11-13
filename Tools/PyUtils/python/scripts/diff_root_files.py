@@ -11,7 +11,7 @@ __author__ = "Sebastien Binet"
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
 import re
-from PyUtils.Decorators import memoize
+from functools import cache
 from math import isnan
 from numbers import Real
 from os import environ
@@ -330,7 +330,7 @@ def main(args):
             else:
                 return [int(s) for s in entry[2] if s.isdigit()]
 
-        @memoize
+        @cache
         def skip_leaf(name_from_dump, skip_leaves):
             """ Here decide if the current leaf should be skipped.
             Previously the matching was done based on the full or partial
