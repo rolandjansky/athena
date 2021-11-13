@@ -21,12 +21,15 @@
 #include "AthenaKernel/IIOVSvc.h"
 #include "StoreGate/CondHandleKey.h"
 #include "AthenaKernel/CondContMaker.h"
+#include "AthenaKernel/ITPCnvBase.h"
+#include "RootUtils/WithRootErrorHandler.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "ICondSvcSetupDone.h"
 
 #include "TClass.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 
 namespace
@@ -89,6 +92,7 @@ CondInputLoader::initialize()
   ATH_CHECK( m_clidSvc.retrieve() );
   ATH_CHECK( m_rcuSvc.retrieve() );
   ATH_CHECK( m_dictLoader.retrieve() );
+  ATH_CHECK( m_tpCnvSvc.retrieve() );
 
   // Trigger read of IOV database
   ServiceHandle<IIOVSvc> ivs("IOVSvc",name());
@@ -127,7 +131,22 @@ CondInputLoader::initialize()
         // Loading root dictionaries in a multithreaded environment
         // is unreliable.
         // So try to be sure all dictionaries are loaded now.
-        m_dictLoader->load_type (id.clid());
+        RootType rt = loadDict (id.clid());
+
+        // Special case for LArConditionsSubset classes.
+        if (rt.Class()) {
+          size_t nbases = rt.BaseSize();
+          std::string pat = "LArConditionsContainer<";
+          for (size_t ibase = 0;  ibase < nbases; ++ibase) {
+            std::string basename = rt.BaseAt(ibase).Name();
+            if (boost::starts_with (basename, pat)) {
+              std::string subset = "LArConditionsSubset<" + basename.substr (pat.size(), std::string::npos);
+              loadDict (subset);
+              loadDict ("LArConditionsSubset_p1");
+            }
+          }
+        }
+
 	break; //quit loop over m_load
       } // end if CondInputLoader deals with this folder
     }//end loop over m_load
@@ -162,7 +181,7 @@ CondInputLoader::initialize()
                                StoreID::storeName(StoreID::CONDITION_STORE));
           m_load.value().emplace(vhk.fullKey());
           // Again, make sure all needed dictionaries are loaded.
-          m_dictLoader->load_type (clid2);
+          m_dictLoader->load_type (clid2, true);
         }
       }
     }
@@ -371,4 +390,31 @@ void
 CondInputLoader::extraDeps_update_handler( Gaudi::Details::PropertyBase& /*ExtraDeps*/ ) 
 {  
   // do nothing
+}
+
+//-----------------------------------------------------------------------------
+
+RootType CondInputLoader::loadDict (const std::string& name)
+{
+  // First try to load the persistent class dictionary.
+  std::unique_ptr<ITPCnvBase> tpcnv = m_tpCnvSvc->t2p_cnv_unique (name);
+  if (tpcnv) {
+    RootType rtp = m_dictLoader->load_type (tpcnv->persistentTInfo());
+    if (rtp.Class()) {
+      return rtp;
+    }
+  }
+
+  // Otherwise try to load the dictionary for the class itself.
+  return m_dictLoader->load_type (name);
+}
+
+
+RootType CondInputLoader::loadDict (CLID clid)
+{
+  std::string name;
+  if (m_clidSvc->getTypeNameOfID (clid, name).isSuccess()) {
+    return loadDict (name);
+  }
+  return RootType();
 }
