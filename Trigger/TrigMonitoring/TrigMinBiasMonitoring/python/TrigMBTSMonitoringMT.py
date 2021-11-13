@@ -14,7 +14,7 @@ def TrigMBTS(configFlags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     alg = monConfig.addAlgorithm(
         CompFactory.HLTMBTSMonitoringAlgMT, 'HLTMBTSMonitoringAlgMT')
-    alg.triggerList = ["HLT_mb_mbts_L1MBTS_1_EMPTY"]
+    alg.triggerList = ["HLT_mb_mbts_L1MBTS_1", "HLT_mb_mbts_L1RD0_FILLED", "HLT_mb_mbts_L1MBTS_1_EMPTY"]
     alg.MBTS_channelID = [f'A{i:0>2d}' for i in range(16)]
     alg.MBTS_channelID += [f'C{i:0>2d}' for i in range(16)]
 
@@ -68,7 +68,6 @@ def TrigMBTS(configFlags):
 
     return monConfig.result()
 
-
 if __name__ == '__main__':
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
@@ -79,8 +78,8 @@ if __name__ == '__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.Input.Files = ['myAOD.pool.root']
     ConfigFlags.Output.HISTFileName = 'TestMBTSMonitorOutput.root'
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -97,4 +96,4 @@ if __name__ == '__main__':
 
     cfg.run()  # use cfg.run(20) to only run on first 20 events
     # to run:
-    # python -m TrigMinBiasMonitoring.TrigMBTSMonitoringMT
+    # python -m TrigMinBiasMonitoring.TrigMBTSMonitoringMT --filesInput=
