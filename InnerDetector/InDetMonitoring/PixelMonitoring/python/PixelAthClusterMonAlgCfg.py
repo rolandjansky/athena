@@ -34,8 +34,9 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
     title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
 
-    title = 'Modules Status Reset (0=Active+Good, 1=Active+Bad, 2=Inactive)'
-    define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D', zmin=0, zmax=2, opt='kLBNHistoryDepth=2', histname='MapOfModulesStatusMon')
+    if doOnline:
+        title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) reset every 2 LBs'
+        define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D', zmin=0, zmax=2, opt='kLBNHistoryDepth=2', histname='MapOfModulesStatusMon')
 
     if doFEPlots:
         histoGroupName = 'MapOfFEsStatus' 
@@ -173,11 +174,11 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
         if forceOnline: athenaCommonFlags.isOnline = False
 
         histoGroupName = 'HolesRatio5min' 
-        title = 'Holes per track reset every 5 min'
+        title = 'Holes per track reset every 5 LBs'
         define2DProfHist(helper, alg, 'HolesRatio', title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5', histname=histoGroupName)
 
         histoGroupName = 'MissHitsRatio5min' 
-        title = 'Hole+Outlier per track reset every 5 min'
+        title = 'Hole+Outlier per track reset every 5 LBs'
         define2DProfHist(helper, alg, 'MissHitsRatio', title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5', histname=histoGroupName)
 
     varName = 'trkdataread_err;ReadingTrackDataErr'
@@ -314,7 +315,7 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
         if doOnline:
             histoGroupName = addOnTrackTxt('ClusterMapMon', ontrack)
-            title = addOnTrackTxt('Cluster map for monitoring', ontrack, True)
+            title = addOnTrackTxt('Cluster map reset every 2 LBs', ontrack, True)
             define2DProfHist(helper, alg, histoGroupName, title, pathGroup, type='TH2D', zmin=0, zmax=1e4, opt='kLBNHistoryDepth=2') #FIXME zmax value w/ high stat
 
 ### 
@@ -332,8 +333,13 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
         define2DProfHist(helper, alg, histoGroupName, title, pathGroup, type='TH2D')
         if ontrack:
             histoGroupName = addOnTrackTxt('ClusterOccupancyPP0', ontrack)
-            title = addOnTrackTxt('Average per module(FE) cluster occupancy reset every 5 min', ontrack, True)
-            definePP0Histos(helper, alg, histoGroupName, title, pathGroup, opt='kLBNHistoryDepth=5')
+            if doOnline:
+                title = addOnTrackTxt('Average per module(FE) cluster occupancy per PP0 reset every 5 LBs', ontrack, True)
+                definePP0Histos(helper, alg, histoGroupName, title, pathGroup, opt='kLBNHistoryDepth=5')
+            else:
+                title = addOnTrackTxt('Average per module(FE) cluster occupancy per PP0', ontrack, True)
+                definePP0Histos(helper, alg, histoGroupName, title, pathGroup)
+
 
         if doFEPlots:
             histoGroupName = addOnTrackTxt('ClusterFEOccupancy', ontrack) 
