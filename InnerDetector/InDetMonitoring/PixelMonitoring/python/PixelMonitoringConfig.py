@@ -10,15 +10,18 @@ def PixelMonitoringConfig(flags):
     from InDetRecExample.InDetJobProperties import InDetFlags
     # run on RAW only
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
-        if forceOnline : flags.Common.isOnline = True
-        kwargsHitMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (GlobalMonitoring) running
-                            'doLumiBlock'     : not flags.Common.isOnline,  #Turn on/off histograms stored every 1(20) lumi block(s)
+        if forceOnline: 
+            isOnline = True
+        else:
+            isOnline = flags.Common.isOnline
+        kwargsHitMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (GlobalMonitoring) running
+                            'doLumiBlock'     : not isOnline,  #Turn on/off histograms stored every 1(20) lumi block(s)
                             'doFEPlots'       : True,                       #Turn on/off per FE-I3 histograms
                             'RDOName'         : InDetKeys.PixelRDOs()       #'PixelRDOs'
         }
 
-        kwargsClusMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (GlobalMonitoring) running
-                             'doLumiBlock'     : not flags.Common.isOnline,  #Turn on/off histograms stored every 1(20) lumi block(s)
+        kwargsClusMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (GlobalMonitoring) running
+                             'doLumiBlock'     : not isOnline,  #Turn on/off histograms stored every 1(20) lumi block(s)
                              'doLowOccupancy'  : InDetFlags.doCosmics(), #Setting up 1D histogram ranges and binnings, if False, high occupancy i.e. collisions settings will be used
                              'doHeavyIonMon'   : InDetFlags.doHeavyIon(),     #Setting up 1D histogram ranges and binnings for heavy ions
                              'doFEPlots'       : True,                       #Turn on/off per FE-I3 histograms
@@ -26,10 +29,9 @@ def PixelMonitoringConfig(flags):
                              'TrackName'       : InDetKeys.Tracks()          #'Tracks'
         }
 
-        kwargsErrMonAlg = { 'doOnline'        : flags.Common.isOnline,        #Histograms for online (GlobalMonitoring) running
-                            'doLumiBlock'     : not flags.Common.isOnline     #Turn on/off histograms stored every 1(20) lumi block(s)
+        kwargsErrMonAlg = { 'doOnline'        : isOnline,        #Histograms for online (GlobalMonitoring) running
+                            'doLumiBlock'     : not isOnline     #Turn on/off histograms stored every 1(20) lumi block(s)
         }
-        if forceOnline : flags.Common.isOnline = False
         from AthenaMonitoring import AthMonitorCfgHelper
         helper = AthMonitorCfgHelper(flags, "NewPixelMonitoring")
 
