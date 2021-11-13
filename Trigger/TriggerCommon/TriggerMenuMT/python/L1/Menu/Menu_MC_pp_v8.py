@@ -42,10 +42,11 @@ def defineMenu():
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         # new calo
-        'L1_eEM3', 'L1_eEM5', 'L1_eEM8', 'L1_eEM8L',
+        'L1_eEM3', 'L1_eEM5', 'L1_eEM7', 'L1_eEM8L',
         'L1_eEM10L', 'L1_eEM12', 'L1_eEM15',  'L1_eEM15L',  'L1_eEM15M', 
         'L1_eEM18M', 'L1_eEM20L', 'L1_eEM20VM',
-        'L1_eEM22', 'L1_eEM22L', 'L1_eEM22M', 'L1_eEM22T',
+        'L1_eEM7_EMPTY', 'L1_eEM7_UNPAIRED_ISO',
+        'L1_eEM22', 'L1_eEM22L', 'L1_eEM22M', 'L1_eEM22T', 'L1_eEM24M',
 
         ## 
         # MU
@@ -69,7 +70,8 @@ def defineMenu():
         'L1_2EM8VH_MU8F', 'L1_EM15VH_MU8F',  'L1_EM7_MU8F',
 
         # Combined lepton, new calo (for ATR-24182)
-        'L1_2eEM15M', 'L1_2eEM20L', 'L1_3eEM10L', 'L1_eEM20L_3eEM10L',
+        'L1_2eEM15L', 'L1_2eEM15M', 'L1_2eEM20L', 'L1_3eEM10L', 'L1_eEM20L_3eEM10L',
+        'L1_eEM15L_MU8F', 'L1_2eEM8L_MU8F',
 
         # single tau
         'L1_TAU8', 'L1_TAU12IM',   'L1_TAU20IM',  'L1_TAU40', 'L1_TAU60', 'L1_TAU100',
@@ -252,8 +254,10 @@ def defineMenu():
         #'L1_AFP_A_OR_C_J5','L1_AFP_A_AND_C_J5', # J5 not available in legacy menu. Need to update to jJ threshold for low-mu
         'L1_AFP_A_OR_C_J12','L1_AFP_A_AND_C_J12',
         'L1_MU5VF_AFP_A_OR_C','L1_MU5VF_AFP_A_AND_C','L1_EM7_AFP_A_OR_C','L1_EM7_AFP_A_AND_C',
+        'L1_eEM7_AFP_A_OR_C','L1_eEM7_AFP_A_AND_C',
         # med-priority (low mu)
         'L1_AFP_A_OR_C','L1_AFP_A_OR_C_MBTS_2', 'L1_AFP_A_AND_C_MBTS_2',
+          
 
         # MBTS
         'L1_MBTS_A', 'L1_MBTS_C',

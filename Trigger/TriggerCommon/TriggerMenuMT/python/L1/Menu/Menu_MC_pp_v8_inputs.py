@@ -84,7 +84,7 @@ def defineInputsMenu():
         "legacy" : False,
         "thresholds" : [  # Topo1A: eFex EM, eFex TAU, gJ, gLJ 
             # eEM thresholds for commissioning
-            ('eEM3',3), ('eEM5',3), ('eEM8',3), ('eEM8L',3), 
+            ('eEM3',3), ('eEM5',3), ('eEM7',3), ('eEM8L',3), 
 
             (None,3), (None,3), (None,3), (None,3), 
 
@@ -93,10 +93,10 @@ def defineInputsMenu():
             'eEMSPARE1', 'eEMSPARE2', 'eEMSPARE3',
 
             # variable eEM  thresholds
-            'eEM20VM', 'eEM22', 'eEM22L', 'eEM22M', 'eEM22T', 
+            'eEM20VM', 'eEM22', 'eEM22L', 'eEM22M', 'eEM22T', 'eEM24M', 
 
             # eEM thresholds for production      
-            'eEMSPARE4', 'eEMSPARE5', 'eEMSPARE6', 'eEMSPARE7', 'eEMSPARE8',
+            'eEMSPARE4', 'eEMSPARE5', 'eEMSPARE6', 'eEMSPARE7', 
         ]
     })
 
