@@ -45,7 +45,7 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   
         CaloExtensionBuilder(True)
 
 #
-# functionality : electron photon identification
+# functionality : electron photon Reconstruction
 #
 #
 from InDetRecExample.InDetJobProperties import InDetFlags

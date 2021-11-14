@@ -1,7 +1,13 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
+from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
+from egammaConfig.egammaReconstructionConfig import (
+    egammaReconstructionCfg)
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -104,8 +110,6 @@ DetFlags.detdescr.Muon_setOn()
 DetFlags.detdescr.ID_setOn()
 DetFlags.detdescr.Calo_setOn()
 if hasattr(DetFlags,'BField_on'): DetFlags.detdescr.BField_setOn()
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -158,15 +162,19 @@ try:
 except Exception:
    treatExeption("could not get handle to egammaTopoClusterCopier")
 
-include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
+include("McParticleAlgs/TruthParticleBuilder_jobOptions.py")
 
-from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
 #False tells it we don't want to extend Large Radius Tracks, only default InDetTrackParticles.
-CaloExtensionBuilder(False) 
+CaloExtensionBuilder(False)
 
-from egammaRec.egammaRecFlags import jobproperties
+#egamma new config
+ConfigFlags = getNewConfigFlags()
+ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
+ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
+ConfigFlags.lock()
+# Add egamma
+CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
 
-include( "egammaRec/egammaRec_jobOptions.py" )
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
