@@ -68,7 +68,6 @@ class ItemDef:
         unpaired_isocond    = d.BGRP0 & d.BGRP4 # unpaired isolated (satellite bunches)
         unpaired_nonisocond = d.BGRP0 & d.BGRP5 # unpaired non-isolated (parasitic bunches)
         firstempty          = d.BGRP0 & d.BGRP6
-        unpairedRcond       = d.BGRP0 & d.BGRP7 # unpaired beams 1 or beam 2
         bgrp7cond           = d.BGRP0 & d.BGRP7 # No unpaired anymore
         bgrp9cond           = d.BGRP0 & d.BGRP9
         bgrp11cond          = d.BGRP0 & d.BGRP11
@@ -602,7 +601,6 @@ class ItemDef:
         MenuItem('L1_J30p31ETA49_BGRP12').setLogic( d.J3031ETA49 & bgrp12cond ).setTriggerType(TT.calo)
 
         MenuItem('L1_J30_EMPTY'     ).setLogic( d.J30 & cosmiccond ).setTriggerType(TT.calo)
-        MenuItem('L1_J30_UNPAIRED'  ).setLogic( d.J30 & unpairedRcond ).setTriggerType(TT.calo)
         MenuItem('L1_J30_FIRSTEMPTY').setLogic( d.J30 & firstempty ).setTriggerType(TT.calo)
 
         MenuItem('L1_J10p31ETA49_EMPTY').setLogic( d.J1031ETA49 & cosmiccond ).setTriggerType(TT.calo)
