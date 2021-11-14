@@ -727,6 +727,12 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
   if(nInner==0 || nOuter==0) return;
 
+  /// NB: the EDM classes store variuables as floats, therefore the double to float conversion
+  ///     looses precision and as float(M_PI))>M_PI in the 7th decimal place we get problems 
+  ///     at the pi boundary
+  /// prefer std::fabs here for explicit double precision
+  bool fullPhi = ( roiDescriptor->isFullscan() || ( std::fabs( roiDescriptor->phiPlus() - roiDescriptor->phiMinus()  - 2*M_PI ) < 1e-6 ) ); 
+
   int nSP = nInner + nOuter;
 
   const double pS_r = pS->r();
@@ -879,7 +885,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
       //5. phi0 cut
 
-      if (!roiDescriptor->isFullscan()) {
+      if ( !fullPhi ) { 
         const double uc = 2*B*pS_r - A;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
@@ -919,6 +925,10 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 					       std::vector<TrigInDetTriplet>& output, const IRoiDescriptor* roiDescriptor) {
 
   if(nInner==0 || nOuter==0) return;
+
+  /// prefer std::fabs here for explicit double precision 
+  bool fullPhi = ( roiDescriptor->isFullscan() || ( std::fabs( roiDescriptor->phiPlus() - roiDescriptor->phiMinus()  - 2*M_PI ) < 1e-6 ) ); 
+
 
   int nSP = nInner + nOuter;
   output.reserve(m_settings.m_maxTripletBufferLength);
@@ -1137,8 +1147,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
       //5. phi0 cut
 
-      if (!roiDescriptor->isFullscan()) {
-
+      if ( !fullPhi ) {
         const double uc = 2*d0_partial;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
@@ -1202,6 +1211,10 @@ void TrigTrackSeedGenerator::createConfirmedTriplets(const TrigSiSpacePointBase*
 
   if(nInner==0 || nOuter==0) return;
   
+  /// prefer std::fabs here for explicit double precision
+  bool fullPhi = ( roiDescriptor->isFullscan() || ( std::fabs( roiDescriptor->phiPlus() - roiDescriptor->phiMinus()  - 2*M_PI ) < 1e-6 ) ); 
+
+
   int nSP = nInner + nOuter;
 
   const double pS_r = pS->r();
@@ -1348,7 +1361,7 @@ void TrigTrackSeedGenerator::createConfirmedTriplets(const TrigSiSpacePointBase*
       
       //5. phi0 cut
 
-      if (!roiDescriptor->isFullscan()) {
+      if ( !fullPhi ) {
         const double uc = 2*B*pS_r - A;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
