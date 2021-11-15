@@ -25,7 +25,7 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
             EMExtrapolationToolsLRTCommonCacheCfg(flags))
         acc.merge(egammaSelectedTrackCopyCfg(
             flags,
-            name="egammaSelectedLRTTrackCopy",
+            name="LRTegammaSelectedTrackCopy",
             TrackParticleContainerName="InDetLargeD0TrackParticles",
             OutputTrkPartContainerName="LRTegammaSelectedTrackParticles",
             ExtrapolationToolCommonCache=emextLRTCommonCache)
@@ -35,7 +35,7 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
             EMBremCollectionBuilderCfg)
         acc.merge(EMBremCollectionBuilderCfg(
             flags,
-            name='EMLRTBremCollectionBuilder',
+            name='LRTEMBremCollectionBuilder',
             TrackParticleContainerName='InDetLargeD0TrackParticles',
             SelectedTrackParticleContainerName='LRTegammaSelectedTrackParticles',
             OutputTrkPartContainerName='LRT'+flags.Egamma.Keys.Output.GSFTrackParticles,
@@ -46,7 +46,7 @@ def egammaLRTReconstructionCfg(flags, name="egammaLRTReconstruction"):
             EMGSFCaloExtensionBuilderCfg)
         acc.merge(EMGSFCaloExtensionBuilderCfg(
             flags,
-            name='EMGSFLRTCaloExtensionBuilder',
+            name='LRTEMGSFCaloExtensionBuilder',
             GSFPerigeeCache='LRTGSFPerigeeCaloExtension',
             GSFLastCache='LRTGSFLastCaloExtension',
             GFFTrkPartContainerName='LRT'+flags.Egamma.Keys.Output.GSFTrackParticles)
