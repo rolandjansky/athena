@@ -90,6 +90,11 @@ find_package( VDT )
 find_package( TIFF )
 find_package( heaptrack )
 
+# (Hopefully) Temporary global dependence on cuDNN, as described
+# in ATLASRECTS-6680.
+find_package( CUDAToolkit )
+find_package( cuDNN )
+
 # Set up the correct runtime environment for OpenBLAS.
 set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
    CACHE PATH "Directory holding OpenBlasEnvironmentConfig.cmake" )
