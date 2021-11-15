@@ -623,6 +623,10 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
 
+    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subjesIS_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
+
+
     # TLA Photons
     ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhysicsTLA ESD', 'Egamma'),
     ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                             'BS PhysicsTLA ESD', 'Egamma'),

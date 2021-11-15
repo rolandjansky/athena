@@ -20,7 +20,14 @@ def addTLAStep(chain, chainDict):
         
         log.debug("addTLAStep: processing signature: ", tlaSignature)
         # call the sequence from their respective signatures
-        tlaSequencesList.append( RecoFragmentsPool.retrieve(getTLASignatureSequence, ConfigFlags, tlaSignature=tlaSignature) )
+        
+        isPFlow = False
+        if tlaSignature == 'Jet':
+            if chainDict['constitType'] == 'pf':
+                print("Setting isPFLow = True")
+                isPFLow = True
+
+        tlaSequencesList.append( RecoFragmentsPool.retrieve(getTLASignatureSequence, ConfigFlags, tlaSignature=tlaSignature, isPFLow=isPFLow) )
         #tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, tlaSignature=tlaSignature)),
             
     log.debug("addTLAStep: About to add a step with: ", len(tlaSequencesList), "parallel sequences.")            
@@ -37,7 +44,7 @@ def addTLAStep(chain, chainDict):
     chain.steps.append(step)
 
 
-def getTLASignatureSequence(ConfigFlags, tlaSignature):
+def getTLASignatureSequence(ConfigFlags, tlaSignature, isPFlow=False):
     # Here we simply retrieve the TLA sequence from the existing signature code f
     
     if "Photon" in tlaSignature:
@@ -57,6 +64,7 @@ def getTLASignatureSequence(ConfigFlags, tlaSignature):
     elif "Jet" in tlaSignature:
         from ..Jet.JetTLASequences import TLAJetMenuSequence
         jetOutCollectionName = "HLT_AntiKt4EMTopoJets_subjesIS"
+        if isPFLow jetOutCollectionName = "HLT_AntiKt4EMPFlowJets_subjesIS"
         return RecoFragmentsPool.retrieve(TLAJetMenuSequence, ConfigFlags, jetsIn=jetOutCollectionName)
         #return sequence
        # return TLAJetMenuSequence(ConfigFlags, jetOutCollectionName)
