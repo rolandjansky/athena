@@ -8,10 +8,11 @@
 
 Reco_tf.py \
 --multithreaded='True' \
---AMI=q221 --conditionsTag 'all:OFLCOND-MC16-SDR-RUN2-08' \
+--AMI=q221 \
+--conditionsTag "default:OFLCOND-MC16-SDR-RUN2-09" "RDOtoRDOTrigger:OFLCOND-MC16-SDR-RUN2-08-02" \
 --steering "doRDO_TRIG" "doTRIGtoALL" \
 --triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2233,87,314" \
---asetup "RDOtoRDOTrigger:Athena,21.0.129" \
+--asetup "RDOtoRDOTrigger:Athena,21.0.131" \
 --imf="False" \
 --maxEvents 1000
 
