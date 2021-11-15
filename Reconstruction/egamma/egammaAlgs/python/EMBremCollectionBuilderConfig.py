@@ -13,22 +13,28 @@ def GSFTrackSummaryToolCfg(flags,
     acc = ComponentAccumulator()
 
     if "PixelToTPIDTool" not in kwargs:
-        kwargs["PixelToTPIDTool"] = CompFactory.InDet.PixelToTPIDTool(
-            name="GSFBuildPixelToTPIDTool")
+        if flags.Detector.EnablePixel:
+            kwargs["PixelToTPIDTool"] = CompFactory.InDet.PixelToTPIDTool(
+                name="GSFBuildPixelToTPIDTool")
+        else:
+            kwargs["PixelToTPIDTool"] = None
 
     # TODO what happens to
     # ClusterSplitProbabilityName=
     # TrackingCommon.combinedClusterSplitProbName() ?
     # It is "InDetTRT_SeededAmbiguityProcessorSplitProb" in run-2 config
     #         (because backTrk and TRTSA are run)
-    # It might be "AmbiguityProcessorSplitProb" in run-3 config (only one existing till now)
+    # It might be "AmbiguityProcessorSplitProb" in run-3 config
+    # (only one existing till now)
     if "InDetSummaryHelperTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import (
-            InDetRecTestBLayerToolCfg)
-        testBLTool = acc.popToolsAndMerge(
-            InDetRecTestBLayerToolCfg(
-                flags,
-                name="GSFBuildTestBLayerTool"))
+        testBLTool = None
+        if flags.Detector.EnablePixel:
+            from InDetConfig.TrackingCommonConfig import (
+                InDetRecTestBLayerToolCfg)
+            testBLTool = acc.popToolsAndMerge(
+                InDetRecTestBLayerToolCfg(
+                    flags,
+                    name="GSFBuildTestBLayerTool"))
 
         from InDetConfig.InDetRecToolConfig import (
             InDetTrackSummaryHelperToolCfg)
@@ -43,14 +49,17 @@ def GSFTrackSummaryToolCfg(flags,
             ))
 
     if "TRT_ElectronPidTool" not in kwargs:
-        from InDetConfig.TRT_ElectronPidToolsConfig import (
-            TRT_ElectronPidToolCfg)
-        kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
-            TRT_ElectronPidToolCfg(
-                flags,
-                name="GSFBuildTRT_ElectronPidTool",
-                CalculateNNPid=False,
-                MinimumTrackPtForNNPid=0.))
+        if flags.Detector.EnableTRT:
+            from InDetConfig.TRT_ElectronPidToolsConfig import (
+                TRT_ElectronPidToolCfg)
+            kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
+                TRT_ElectronPidToolCfg(
+                    flags,
+                    name="GSFBuildTRT_ElectronPidTool",
+                    CalculateNNPid=False,
+                    MinimumTrackPtForNNPid=0.))
+        else:
+            kwargs["TRT_ElectronPidTool"] = None
 
     kwargs.setdefault("doSharedHits", False)
     kwargs.setdefault("doHolesInDet", False)

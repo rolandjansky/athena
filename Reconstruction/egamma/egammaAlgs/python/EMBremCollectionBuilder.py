@@ -11,7 +11,8 @@ from AthenaCommon.Logging import logging
 from egammaAlgs import egammaAlgsConf
 from egammaRec import egammaKeys
 from egammaRec.Factories import AlgFactory
-from egammaTools.egammaExtrapolators import egammaExtrapolator, AtlasPublicExtrapolator
+from egammaTools.egammaExtrapolators import (
+    egammaExtrapolator, AtlasPublicExtrapolator)
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
