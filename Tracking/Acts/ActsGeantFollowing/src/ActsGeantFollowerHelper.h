@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkParameters/TrackParameters.h" //typedef, can't fwd declare
-#include "ActsGeometry/IActsGeantFollowerHelper.h"
+#include "IActsGeantFollowerHelper.h"
 #include "G4ThreeVector.hh" //typedef, can't fwd declare
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
@@ -27,7 +27,8 @@ class TTree;
 namespace Trk
 {
   class IExtrapolator;
-}
+  class IExtrapolationEngine;
+} // namespace Trk
 
 class IActsExtrapolationTool;
 
@@ -47,13 +48,14 @@ class ActsGeantFollowerHelper : public extends<AthAlgTool, IActsGeantFollowerHel
     // a) begin event - initialize follower process
     void beginEvent() const;
     // b) track the particle
-    void trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0) const;
+    void trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0, bool isSensitive) const;
     // c) end event - ntuple writing
     void endEvent() const;
 
   private:
 
-    ToolHandle<Trk::IExtrapolator>       m_extrapolator;
+    // ToolHandle<Trk::IExtrapolator>       m_extrapolator;
+    ToolHandle<Trk::IExtrapolationEngine>     m_extrapolationEngine;
     ToolHandle<IActsExtrapolationTool>   m_actsExtrapolator;
     bool                                 m_extrapolateDirectly;
     bool                                 m_extrapolateIncrementally;
@@ -65,7 +67,10 @@ class ActsGeantFollowerHelper : public extends<AthAlgTool, IActsGeantFollowerHel
     // Hypothesis to pdg converter
     Trk::PdgToParticleHypothesis m_pdgToParticleHypothesis;
     mutable float m_tX0Cache;
+    mutable float m_tX0NonSensitiveCache;
+    mutable float m_tNonSensitiveCache;
     mutable float m_tX0CacheActs;
+    mutable float m_tX0CacheATLAS;
 
     // put some validation code is
     std::string                    m_validationTreeName;        //!< validation tree name - to be acessed by this from root
@@ -111,6 +116,10 @@ class ActsGeantFollowerHelper : public extends<AthAlgTool, IActsGeantFollowerHel
         mutable float                  m_trk_z[MAXPROBES] {0};
         mutable float                  m_trk_lx[MAXPROBES] {0};
         mutable float                  m_trk_ly[MAXPROBES] {0};
+        mutable float                  m_trk_tX0[MAXPROBES] {0};
+        mutable float                  m_trk_accX0[MAXPROBES] {0};        
+        mutable float                  m_trk_t[MAXPROBES] {0};
+        mutable float                  m_trk_X0[MAXPROBES] {0};
         /** Ntuple variables : acts follow up parameters */
         mutable int                    m_acts_status[MAXPROBES] {0};
         mutable int                    m_acts_volumeID[MAXPROBES] {0};

@@ -9,7 +9,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "ActsGeometry/IActsGeantFollowerHelper.h"
+#include "IActsGeantFollowerHelper.h"
 #include <string>
 #include <vector>
 

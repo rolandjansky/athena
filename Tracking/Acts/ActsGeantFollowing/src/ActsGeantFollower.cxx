@@ -6,8 +6,8 @@
 // GeantFollower.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "ActsGeometry/ActsGeantFollower.h"
-#include "ActsGeometry/IActsGeantFollowerHelper.h"
+#include "ActsGeantFollower.h"
+#include "IActsGeantFollowerHelper.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 
 #include "G4Event.hh"
@@ -18,6 +18,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4DynamicParticle.hh"
 #include "G4Track.hh"
+#include "G4VSensitiveDetector.hh"
 
 ActsGeantFollower::ActsGeantFollower(){}
 
@@ -48,6 +49,15 @@ void ActsGeantFollower::UserSteppingAction(const G4Step* aStep)
   // kill secondaries and low momentum particles
   if (aStep->GetTrack()->GetParentID() || aStep->GetPreStepPoint()->GetMomentum().mag()<500 )
     {
+      std::cout << "low pt" << std::endl;
+      aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+      return;
+    }
+
+  // kill Particles outiside the tracking volume 
+  if (aStep->GetPreStepPoint()->GetPosition().z()>3000 || sqrt(aStep->GetPreStepPoint()->GetPosition().x()*aStep->GetPreStepPoint()->GetPosition().x()+aStep->GetPreStepPoint()->GetPosition().y()*aStep->GetPreStepPoint()->GetPosition().y())>1050 )
+    {
+      std::cout << "out" << std::endl;
       aStep->GetTrack()->SetTrackStatus(fStopAndKill);
       return;
     }
@@ -73,8 +83,11 @@ void ActsGeantFollower::UserSteppingAction(const G4Step* aStep)
           double steplength     = aStep->GetStepLength();
           // the position information
           double X0             = mat->GetRadlen();
-          // update the track follower
-          m_helper->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
+          // update the track follower when a sensor is encountered
+          // bool isSensitive = (lv->GetSensitiveDetector() != nullptr);
+          bool isSensitive = true;
+          m_helper->trackParticle(g4Position, g4Momentum, g4DynParticle->GetPDGcode(), g4DynParticle->GetCharge(), steplength, X0, isSensitive);
+          
         }
       else
          {

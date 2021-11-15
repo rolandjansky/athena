@@ -9,7 +9,7 @@
 #include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
-#include "ActsGeometry/ActsGeantFollower.h"
+#include "ActsGeantFollower.h"
 
 
 /// @class ActsGeantFollowerTool
