@@ -24,6 +24,7 @@ namespace FlavorTagDiscriminants {
         const FTagOptions& = FTagOptions());
     void decorate(const xAOD::BTagging& btag) const;
     void decorate(const xAOD::Jet& jet) const;
+    void decorateWithDefaults(const xAOD::Jet&) const;
     void decorate(const xAOD::Jet& jet, const SG::AuxElement& decorated) const;
 
     // functions to report data depdedencies

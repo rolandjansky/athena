@@ -72,16 +72,17 @@ public:
     // New Sector logic
     // RoI
     TgcL1RawData(uint16_t bcTag,
-               uint16_t subDetectorId,
-               uint16_t srodId,
-               uint16_t l1Id,
-               uint16_t bcId,
-               bool forward,
-               uint16_t sector,
-               uint16_t coinflag,
-               bool muplus,
-               uint16_t threshold,
-               uint16_t roi);
+                 uint16_t subDetectorId,
+                 uint16_t srodId,
+                 uint16_t l1Id,
+                 uint16_t bcId,
+                 bool forward,
+                 uint16_t sector,
+                 uint16_t innerflag,
+                 uint16_t coinflag,
+                 bool muplus,
+                 uint16_t threshold,
+                 uint16_t roi);
 
     // NSW
     TgcL1RawData(uint16_t bcTag,
@@ -343,6 +344,7 @@ private:
     bool m_overlap;
     bool m_veto;
     uint16_t m_roi;
+    uint16_t m_innerflag;
     uint16_t m_coinflag;
 
     // NSW

@@ -67,7 +67,7 @@ class TauChainConfiguration(ChainConfigurationBase):
         key = self.chainPart['preselection']
         steps=stepDictionary[key]
         for step in steps:
-            is_probe_leg = self.chainPart['extra']=='probe'
+            is_probe_leg = self.chainPart['tnpInfo']=='probe'
             if 'Empty' in step:
                 chainstep = getattr(self, step)()
             else:

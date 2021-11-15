@@ -505,7 +505,7 @@ public:
 
 
 CLASS_DEF( CaloSuperCellDetDescrManager , 241807251 , 1 )
-
+CONDCONT_DEF( CaloSuperCellDetDescrManager , 70344197 );
 
 inline  const CaloDetDescrElement*			
 CaloDetDescrManager_Base::get_element (IdentifierHash caloCellHash) const

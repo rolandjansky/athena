@@ -124,6 +124,8 @@ public:
 
   /// is this a full scan RoI?
   bool  isFullscan() const { return m_fullscan; }
+  virtual void setFullscan(bool b=true)  { m_fullscan=b; }  
+
  
   /// SuperRoI compatability methods
 

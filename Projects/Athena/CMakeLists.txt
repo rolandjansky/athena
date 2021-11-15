@@ -12,6 +12,11 @@ include( CheckLanguage )
 check_language( CUDA )
 if( CMAKE_CUDA_COMPILER )
    enable_language( CUDA )
+   # Force the compilation of CUDA code for only compute capability 5.2 for now.
+   # To get rid of warnings from 11.0 about not supporting older compute
+   # capabilities anymore.
+   set( CMAKE_CUDA_ARCHITECTURES "52" CACHE STRING
+      "CUDA architectures to build code for" )
 endif()
 
 # Set the versions of the TDAQ externals to pick up for the build:
@@ -84,6 +89,11 @@ find_package( PNG )
 find_package( VDT )
 find_package( TIFF )
 find_package( heaptrack )
+
+# (Hopefully) Temporary global dependence on cuDNN, as described
+# in ATLASRECTS-6680.
+find_package( CUDAToolkit )
+find_package( cuDNN )
 
 # Set up the correct runtime environment for OpenBLAS.
 set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"

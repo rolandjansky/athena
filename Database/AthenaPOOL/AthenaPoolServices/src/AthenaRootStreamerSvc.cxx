@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaRootStreamerSvc.cxx
@@ -75,10 +75,9 @@ StatusCode AthenaRootStreamerSvc::initialize()
 StatusCode AthenaRootStreamerSvc::finalize()
 {
    // Destroy converter Objects created by the service
-   for( ConverterVector_t::iterator i = m_createdConverters.begin();
-	i !=  m_createdConverters.end(); i++ )
+   for (auto& p : m_createdConverters)
    {
-     i->first.Destruct (i->second);
+     p.first.Destruct (p.second);
    }
    m_createdConverters.clear();
    
@@ -148,12 +147,13 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(const std::string& converter_class
 StatusCode AthenaRootStreamerSvc::AddStreamer(T_AthenaRootConverterBase *converter, bool adopt)
 {
    const std::string	&classname = converter->ClassName();
-   if (m_streamerMap.find(classname) == m_streamerMap.end()) {
+   AthenaRootStreamer* & streamer = m_streamerMap[classname];
+   if (!streamer) {
       // no streamer for this class yet
-      m_streamerMap[classname] = new AthenaRootStreamer(classname, this);
+      streamer = new AthenaRootStreamer(classname, this);
    }
-   AthenaRootConverterHandle *convH = new AthenaRootConverterHandle(converter);
-   if( m_streamerMap[classname]->AddConverter(convH).isFailure() ) {
+   auto convH = std::make_unique<AthenaRootConverterHandle>(converter);
+   if( streamer->AddConverter(std::move(convH)).isFailure() ) {
       ATH_MSG_ERROR ( "ROOT Streamer for "  << classname
                       << " already has a converter for checksum = "
                       << converter->StreamerChecksum() );
@@ -191,10 +191,9 @@ StatusCode AthenaRootStreamerSvc::AdoptStreamerForClass(const std::string& class
 StatusCode AthenaRootStreamerSvc::AdoptAllStreamers()
 {
    StatusCode	sc = StatusCode::SUCCESS;
-   for(StreamerMap::iterator i = m_streamerMap.begin();
-       i != m_streamerMap.end();  i++ ) {
-      if( i->second->Adopt().isFailure() ) {
-         ATH_MSG_INFO ( "Failed to adopt streamer for class " << i->first );
+   for (auto& p : m_streamerMap) {
+      if( p.second->Adopt().isFailure() ) {
+         ATH_MSG_INFO ( "Failed to adopt streamer for class " << p.first );
 	 sc = StatusCode::FAILURE;
       }
    }

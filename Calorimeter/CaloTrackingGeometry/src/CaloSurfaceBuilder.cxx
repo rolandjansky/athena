@@ -38,7 +38,6 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/ICaloCoordinateTool.h"
-#include "CaloDetDescr/CaloDepthTool.h"
 #include "CaloDetDescr/ICaloRecoMaterialTool.h"
 #include "CaloDetDescr/ICaloRecoSimpleGeomTool.h"
 
@@ -65,14 +64,11 @@ CaloSurfaceBuilder::CaloSurfaceBuilder(const std::string& type,
   m_calo_dd(nullptr),
   m_tile_dd(nullptr),
   m_lar_mat("LArRecoMaterialTool"),
-  m_lar_simplegeom("LArRecoSimpleGeomTool"),
-  m_calodepth("CaloDepthTool")
+  m_lar_simplegeom("LArRecoSimpleGeomTool")
 {
   declareInterface<ICaloSurfaceBuilder>( this );
   declareProperty ("LArRecoMaterialTool",       m_lar_mat);
   declareProperty ("LarRecoSimpleGeometryTool", m_lar_simplegeom);
-  declareProperty ("CaloDepthTool",             m_calodepth);
-
 }
 
 CaloSurfaceBuilder::~CaloSurfaceBuilder()

@@ -14,6 +14,9 @@ Gen_tf.py --ecmEnergy=13000. --maxEvents=1000 --firstEvent=-1 --randomSeed=12345
 
 echo "art-result:$? Gen_tf"
 
+asetup 22.6.1,AthGeneration
+source setupRivet
+
 python /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/rootconvert.py MyOutput.yoda.gz
 
 echo "art-result: $? Plot"
@@ -22,6 +25,6 @@ dcubeName="Herwig7"
 dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Herwig7_i/config_file/test_05_config.xml"
 dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Herwig7_i/master_branch/reference/test_05_output.root"
 
-bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName output_hists.root $dcubeXml $dcubeRef
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName MyOutput.root $dcubeXml $dcubeRef
 
 echo  "art-result: $? DCube"

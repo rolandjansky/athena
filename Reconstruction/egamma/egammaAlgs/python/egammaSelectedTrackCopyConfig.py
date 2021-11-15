@@ -19,6 +19,7 @@ def egammaSelectedTrackCopyCfg(
     if "egammaCaloClusterSelector" not in kwargs:
         egammaCaloClusterGSFSelector = CompFactory.egammaCaloClusterSelector(
             name='caloClusterGSFSelector',
+            egammaCheckEnergyDepositTool=CompFactory.egammaCheckEnergyDepositTool(),
             EMEtCut=2250.,
             EMEtSplittingFraction=0.7,
             EMFCut=0.5

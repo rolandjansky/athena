@@ -5,7 +5,7 @@
 # art-input: data18_13TeV:data18_13TeV.00357750.physics_Main.daq.RAW
 # art-input-nfiles: 300
 # art-input-nfilesperjob: 3
-# art-include: master/Athena/x86_64-centos7-gcc8-opt
+# art-include: master/Athena/x86_64-centos7-gcc11-opt
 # art-athena-mt: 8
 # art-runon: Saturday
 
@@ -20,7 +20,7 @@ timeout 43200 Reco_tf.py \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=10' \
   --autoConfiguration='everything' \
-  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-08' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
+  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
 echo "art-result: $? Reco_tf_data18_rucio_weekly_mt"

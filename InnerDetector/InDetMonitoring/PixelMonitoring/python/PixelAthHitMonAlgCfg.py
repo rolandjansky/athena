@@ -114,13 +114,20 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
                                    type='TProfile', path=pathGroup, title=title,
                                    xbins=bcidbinsx, xmin=-0.5, xmax=-0.5+bcidbinsx)
 
-    histoGroupName = 'HitOccupancyPP0'
-    title = 'Average per module(FE) hit occupancy reset every 5 min'
-    definePP0Histos(helper, alg, histoGroupName, title, path=pathGroup, opt='kLBNHistoryDepth=5')
-
-    histoGroupName ='OccupancyPerPixelEvent'
-    title = '#hits / pixel / event'
-    define2DProfHist(helper, alg, histoGroupName, title, path=pathGroup, type='TProfile2D', zmin=0, zmax=1.0, opt='kLBNHistoryDepth=2')
+    if doOnline:
+        histoGroupName = 'HitOccupancyPP0'
+        title = 'Average per module(FE) hit occupancy per PP0 reset every 5 LBs'
+        definePP0Histos(helper, alg, histoGroupName, title, path=pathGroup, opt='kLBNHistoryDepth=5')
+        histoGroupName ='OccupancyPerPixelEvent'
+        title = '#hits / pixel / event reset every 2 LBs'
+        define2DProfHist(helper, alg, histoGroupName, title, path=pathGroup, type='TProfile2D', zmin=0, zmax=1.0, opt='kLBNHistoryDepth=2')
+    else:
+        histoGroupName = 'HitOccupancyPP0'
+        title = 'Average per module(FE) hit occupancy per PP0'
+        definePP0Histos(helper, alg, histoGroupName, title, path=pathGroup)
+        histoGroupName ='OccupancyPerPixelEvent'
+        title = '#hits / pixel / event'
+        define2DProfHist(helper, alg, histoGroupName, title, path=pathGroup, type='TProfile2D', zmin=0, zmax=1.0)
 
 ###
 ### begin hit timing

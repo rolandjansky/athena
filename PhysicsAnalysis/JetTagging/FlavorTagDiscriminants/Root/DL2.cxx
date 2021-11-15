@@ -39,17 +39,20 @@ namespace FlavorTagDiscriminants {
                                  lwt::rep::all));
     }
 
-    std::tie(m_varsFromBTag, m_varsFromJet, m_dataDependencyNames.bTagInputs) = 
-      dataprep::createBvarGetters(inputs);
+    auto [vb, vj, ds] = dataprep::createBvarGetters(inputs);
+    m_varsFromBTag = vb;
+    m_varsFromJet = vj;
+    m_dataDependencyNames += ds;
 
-    std::set<std::string> bTagInputsTrackGetter;
-    std::tie(m_trackSequenceBuilders, bTagInputsTrackGetter, 
-      m_dataDependencyNames.trackInputs) = 
-      dataprep::createTrackGetters(track_sequences, options, jetLinkName);
-    m_dataDependencyNames.bTagInputs.merge(bTagInputsTrackGetter);
+    auto [tsb, td] = dataprep::createTrackGetters(
+      track_sequences, options, jetLinkName);
+    m_dataDependencyNames += td;
+    m_trackSequenceBuilders = tsb;
 
-    std::tie(m_decorators, m_dataDependencyNames.bTagOutputs) = 
-      dataprep::createDecorators(graph_config, options);
+    auto [decorators, dd] = dataprep::createDecorators(
+      graph_config, options);
+    m_dataDependencyNames += dd;
+    m_decorators = decorators;
   }
 
   void DL2::decorate(const xAOD::BTagging& btag) const {
@@ -62,6 +65,15 @@ namespace FlavorTagDiscriminants {
   }
   void DL2::decorate(const xAOD::Jet& jet) const {
     decorate(jet, jet);
+  }
+  void DL2::decorateWithDefaults(const xAOD::Jet& jet) const {
+    // save out things
+    for (const auto& dec: m_decorators) {
+      for (const auto& node: dec.second) {
+        // save something that is clearly wrong
+        node.second(jet) = NAN;
+      }
+    }
   }
 
   void DL2::decorate(const xAOD::Jet& jet, const SG::AuxElement& btag) const {

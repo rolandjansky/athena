@@ -2,7 +2,7 @@
 
 
 import xml.etree.cElementTree as ET
-from PyUtils.Decorators import memoize
+from functools import cache
 
 class TrigXMLElement:
     def __init__(self,element):
@@ -60,7 +60,7 @@ class MioctGeometryXMLReader(TrigXMLDocumentReader):
     def getMIOCTs(self):
         return self.MuCTPiGeometry.MIOCTs
 
-    @memoize
+    @cache
     def getMIOCT(self, id):
         for mioct in self.MuCTPiGeometry.MIOCTs:
             if int(mioct["id"]) == id:

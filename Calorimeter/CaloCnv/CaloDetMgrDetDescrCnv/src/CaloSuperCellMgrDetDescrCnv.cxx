@@ -22,6 +22,7 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloDetDescr/ICaloSuperCellAlignTool.h"
+#include "CaloDetDescrUtils/CaloSuperCellUtils.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "GeoModelInterfaces/IGeoAlignTool.h"
@@ -30,36 +31,6 @@
 #include "AthenaKernel/StorableConversions.h"
 #include "AthenaKernel/errorcheck.h"
 #include <cassert>
-
-
-namespace {
-
-
-const
-CaloDetDescriptor* get_descriptor (Identifier cell_id,
-                                   const CaloDetDescrManager_Base* mgr)
-{
-  const CaloCell_Base_ID* calo_helper = mgr->getCaloCell_ID();
-  Identifier reg_id = calo_helper->region_id (cell_id);
-  if (!calo_helper->is_tile (cell_id)) {
-    assert (reg_id.is_valid());
-    return mgr->get_descriptor (reg_id);
-  }
-
-  int clayer = calo_helper->sample (cell_id);
-  bool is_sc = calo_helper->is_supercell (cell_id);
-  for (const CaloDetDescriptor* d : mgr->tile_descriptors_range()) {
-    if (d->identify() != reg_id) continue;
-    int dlayer = d->layer();
-    if (clayer == dlayer) return d;
-    if (is_sc && dlayer == 0 && clayer != 2) return d;
-  }
-  return 0;
-}
-
-
-} // anonymous namespace
-
 
 
 /**
@@ -200,8 +171,8 @@ CaloSuperCellMgrDetDescrCnv::createManager(const std::string& /*mgrKey*/,
   pObj = SG::asStorable (mgr);
 
   // Create descriptors / elements (with null geometry).
-  CHECK( createDescriptors (mgr) );
-  CHECK( createElements (mgr) );
+  createDescriptors (mgr);
+  createElements (mgr);
 
   // Update the geometry from the offline manager.
   const CaloDetDescrManager* cellmgr = 0;
@@ -212,55 +183,4 @@ CaloSuperCellMgrDetDescrCnv::createManager(const std::string& /*mgrKey*/,
 
   return StatusCode::SUCCESS;
 }
-
-
-/**
- * @brief Create the descriptors for the supercell geometry.
- * @param mgr The supercell geometry manager.
- */
-StatusCode
-CaloSuperCellMgrDetDescrCnv::createDescriptors (CaloSuperCellDetDescrManager* mgr)
-{
-  const CaloCell_Base_ID* calo_helper = mgr->getCaloCell_ID();
-  for (Identifier reg_id : calo_helper->reg_range()) {
-    if (! calo_helper->is_tile (reg_id)) {
-      mgr->add (new CaloDetDescriptor (reg_id, 0, calo_helper));
-    }
-    else {
-      mgr->add_tile (new CaloDetDescriptor
-                     (reg_id, calo_helper->tile_idHelper(), calo_helper,
-                      (CaloCell_ID::CaloSample)calo_helper->calo_sample(reg_id), 0));
-      // NB. CaloDetDescrElement::getSampling adds the tile cell sampling
-      //     index to the descriptor's sampling, so don't add 2 here
-      //     to calo_sample.
-      mgr->add_tile (new CaloDetDescriptor
-                     (reg_id, calo_helper->tile_idHelper(), calo_helper,
-                      (CaloCell_ID::CaloSample)(calo_helper->calo_sample(reg_id)), 2));
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-
-/**
- * @brief Create the elements for the supercell geometry.
- * @param mgr The supercell geometry manager.
- */
-StatusCode
-CaloSuperCellMgrDetDescrCnv::createElements (CaloSuperCellDetDescrManager* mgr)
-{
-  const CaloCell_Base_ID* calo_helper = mgr->getCaloCell_ID();
-  for (Identifier cell_id : calo_helper->cell_range()) {
-    int subCalo = -1;
-    IdentifierHash subCaloHash =
-      calo_helper->subcalo_cell_hash (cell_id, subCalo);
-
-    const CaloDetDescriptor* desc = get_descriptor (cell_id, mgr);
-    assert (desc);
-    mgr->add (new CaloSuperCellDetectorElement (subCaloHash, desc));
-  }
-  return StatusCode::SUCCESS;
-}
-
 

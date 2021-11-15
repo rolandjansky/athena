@@ -318,7 +318,7 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         log.debug("Running exotic jets with ptf: " + str(ptf) + "\tdR: " + str(dr) + "\ttrackless: " + str(trackless) + "\thypo: " + exotdictstring)
 
-        stepName = "EJsStep_"+self.chainName
+        stepName = "EJsStep_"
         jetSeq = RecoFragmentsPool.retrieve( jetEJsMenuSequence, None, jetsin=jetCollectionName, name=thresh)
         #from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
         chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])#, comboHypoCfg=PassthroughComboHypoCfg)

@@ -414,7 +414,19 @@ GeVToMeV(evt);
     }
 
   HepMC::set_signal_process_id(evt,sig_id);
-   
+
+  double xsigtot, xsigine, xsigela, xsigdd, xsigsd, xsloela, xsigtotaa, xsigineaa, xsigelaaa;
+  xsigtot = xsigine = xsigela = xsigdd = xsigsd = xsloela = xsigtotaa = xsigineaa = xsigelaaa = 0.0;
+  crmc_xsection_f_(xsigtot, xsigine, xsigela, xsigdd, xsigsd, xsloela, xsigtotaa, xsigineaa, xsigelaaa);
+  xsigtot *= 1000000;         // [mb] to [nb] conversion
+#ifdef HEPMC3
+  std::shared_ptr<HepMC3::GenCrossSection> xsec = std::make_shared<HepMC3::GenCrossSection>();
+  xsec->set_cross_section(xsigine, 0.0);
+#else
+  HepMC::GenCrossSection xsec;
+  xsec.set_cross_section(xsigine, 0.0);
+#endif
+  evt->set_cross_section(xsec);
 
  return StatusCode::SUCCESS;
 }

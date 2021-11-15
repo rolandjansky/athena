@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 import eformat
 import argparse
 import operator
-
-from PyUtils.Decorators import memoize
+from functools import cache
 
 __doc__ = """\
 Dump content of the HLT result and HLT related details from the event header.
@@ -129,7 +127,7 @@ def CTP_Info(event, module_id=1):
       print("ROB 0x%0x, %s: %s" % (rob.source_id(), w, printL1Items(items,smk)))
 
 
-@memoize
+@cache
 def getL1Menu(smk):
   from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getL1Menu
   return getL1Menu(str(smk))

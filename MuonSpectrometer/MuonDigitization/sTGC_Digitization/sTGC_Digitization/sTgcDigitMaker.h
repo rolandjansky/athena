@@ -83,7 +83,6 @@ class sTgcDigitMaker : public AthMessaging {
     double lowEdge; // low side of the interval in ns
     double kParameter;
     double thetaParameter;
-    double mostProbableTime;
   };
 
   /**
@@ -144,6 +143,8 @@ class sTgcDigitMaker : public AthMessaging {
 
   /** Find the gamma pdf parameters of a given distance */
   GammaParameter getGammaParameter(double distance) const;
+  /** Get the most probable time of arrival */
+  double getMostProbableArrivalTime(double distance) const;
 
   /** Energy threshold value for each chamber */
   double m_energyThreshold[N_STATIONNAME][N_STATIONETA][N_STATIONPHI][N_MULTIPLET][N_GASGAP][N_CHANNELTYPE]{};
@@ -166,6 +167,8 @@ class sTgcDigitMaker : public AthMessaging {
 
   // Parameters of the gamma pdf required for determining digit time
   std::vector<GammaParameter> m_gammaParameter;
+  // 4th-order polymonial describing the most probable time as function of the distance of closest approach
+  std::vector<double> m_mostProbableArrivalTime;
 
   // Time offset to add to Strip timing
   std::vector<double> m_timeOffsetStrip;

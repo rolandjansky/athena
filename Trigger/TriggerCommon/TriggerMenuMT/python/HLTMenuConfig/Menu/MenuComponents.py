@@ -14,6 +14,9 @@ from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from GaudiKernel.DataHandle import DataHandle
 from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 from TrigCompositeUtils.TrigCompositeUtils import legName
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
+
 
 from inspect import signature
 from collections import MutableSequence
@@ -685,6 +688,11 @@ class Chain(object):
         self.setSeedsToSequences()
         log.debug("[Chain.__init__] Made Chain %s with seeds: %s ", name, self.L1decisions)
 
+    def append_bjet_steps(self,new_steps):
+        assert len(self.nSteps) == 1, "[Chain.append_bjet_steps] appending already-merged step lists - chain object will be broken. This should only be used to append Bjets to jets!"
+        self.steps = self.steps + new_steps
+        self.nSteps = [len(self.steps)]
+
     def numberAllSteps(self):
         if len(self.steps)==0:
             return
@@ -1057,8 +1065,6 @@ def createComboAlg(dummyFlags, name, comboHypoCfg):
     return ComboMaker(name, comboHypoCfg)
 
 
-# this is fragment for New JO
-
 
 class InEventRecoCA( ComponentAccumulator ):
     """ Class to handle in-event reco """
@@ -1092,7 +1098,7 @@ class InEventRecoCA( ComponentAccumulator ):
 
 class InViewRecoCA(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None):
+    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None): #TODO - make RequireParentView requireParentView for consistency
         super( InViewRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
@@ -1102,16 +1108,16 @@ class InViewRecoCA(ComponentAccumulator):
 
         if viewMaker:
             self.viewMakerAlg = viewMaker
-            assert RequireParentView is None, "Can not specify viewMaker and settings (RequreParentView) of default ViewMaker"
+            assert RequireParentView is None, "Can not specify viewMaker and settings (RequireParentView) of default ViewMaker"
             assert roisKey is None, "Can not specify viewMaker and settings (roisKey) of default ViewMaker"
         else:
-            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+name,
+            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM_"+name,
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI',
                                                           RoITool         = ViewCreatorInitialROITool(),
                                                           InViewRoIs      = roisKey if roisKey else name+'RoIs',
                                                           Views           = name+'Views',
-                                                          ViewNodeName    = name+"InView", 
+                                                          ViewNodeName    = name+"InViews", 
                                                           RequireParentView = RequireParentView if RequireParentView else False)
 
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name )
@@ -1133,7 +1139,9 @@ class SelectionCA(ComponentAccumulator):
     def __init__(self, name):
         self.name = name
         super( SelectionCA, self ).__init__()
-        self.stepRecoSequence, self.stepViewSequence = createStepView(name)
+
+        self.stepRecoSequence = parOR(CFNaming.stepRecoName(name))
+        self.stepViewSequence = seqAND(CFNaming.stepViewName(name), [self.stepRecoSequence])
         self.addSequence(self.stepViewSequence)
 
     def mergeReco(self, other):
@@ -1146,6 +1154,62 @@ class SelectionCA(ComponentAccumulator):
     def addHypoAlgo(self, algo):
         """To be used when the hypo alg configuration does not require auxiliary tools/services"""
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
+
+
+# mainline/rec-ex-common and CA based JO compatibility layer (basically converters)
+def algorithmCAToGlobalWrapper(gen, flags, *args, **kwargs):
+    """Merges CA with athena for all components except the algorithms. Those are converted to Run2 objects and returned.
+
+    If CA contains more than one algorithm, a list is returned, else a single algorithm is returned.
+    
+    """
+    with ConfigurableRun3Behavior():
+        ca = gen(flags, *args, **kwargs)
+        assert isinstance(ca, ComponentAccumulator), "Function provided does not generate ComponentAccumulator"
+    algs = ca.getEventAlgos()
+    ca._algorithms = {}
+    ca._allSequences = []
+    appendCAtoAthena(ca)
+    return [conf2toConfigurable(alg) for alg in algs]
+
+
+
+def menuSequenceCAToGlobalWrapper(gen, flags, *args, **kwargs):
+    """
+    Generates & converts MenuSequenceCA into the MenuSequence, in addition appending aux stuff to global configuration
+    """
+    with ConfigurableRun3Behavior():
+        msca = gen(flags, *args, **kwargs)
+        assert isinstance(msca, MenuSequenceCA), "Function provided to menuSequenceCAToGlobalWrapper does not generate MenuSequenceCA"
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    from AthenaCommon.CFElements import compName, isSequence
+    hypo = conf2toConfigurable(msca.hypo.Alg)
+    maker = conf2toConfigurable(msca.maker.Alg)
+
+    def _convertSeq(s):
+        sname = compName(s)
+        old = AthSequencer( sname )
+        if s.ModeOR: #this seems stupid way to do it but in fact this was we avoid setting this property if is == default, this streamlining comparisons
+            old.ModeOR = True
+        if s.Sequential:
+            old.Sequential = True
+        old.StopOverride =    s.StopOverride 
+        for member in s.Members:
+            if isSequence(member):
+                old += _convertSeq(member)
+            else:
+                old += conf2toConfigurable(member)
+        return old
+    sequence = _convertSeq(msca.sequence.Alg.Members[0]) 
+    msca.ca._algorithms = {}
+    msca.ca._sequence = None
+    msca.ca._allSequences = []
+    appendCAtoAthena(msca.ca)
+    return MenuSequence(Sequence   = sequence,
+                        Maker       = maker,
+                        Hypo        = hypo,
+                        HypoToolGen = msca._hypoToolConf.hypoToolGen)
 
 
 def lockConfigurable(conf):

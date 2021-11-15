@@ -6,10 +6,13 @@
 #include "MonitorBase.h"
 #include "CounterBase.h"
 
+#include "AthenaKernel/getMessageSvc.h"
+
 MonitorBase::MonitorBase(const std::string& name, const MonitoredRange* parent) : 
   m_msgStream(nullptr, name.c_str()),
   m_name(name), 
   m_parent(parent) {
+    m_msgStream.setMsgSvc(Athena::getMessageSvc());
 }
 
 
@@ -60,4 +63,12 @@ CounterBase* MonitorBase::getCounter(const std::string& name) {
 
 MsgStream& MonitorBase::msg() {
   return m_msgStream;
+}
+
+MsgStream& MonitorBase::msg(const MSG::Level lvl) {
+  return m_msgStream << lvl;
+}
+
+bool MonitorBase::msgLvl(const MSG::Level lvl){
+  return lvl >= m_msgStream.level();
 }

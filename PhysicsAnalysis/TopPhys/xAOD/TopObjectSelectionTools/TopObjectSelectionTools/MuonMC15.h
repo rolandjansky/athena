@@ -22,10 +22,22 @@ namespace top {
      *
      * @param ptcut The minimum pT cut for good muons.
      * @param isolation The isolation the user wants to apply.  Don't want any
-     * isolation to be applied?  Then leave this as a nullptr.
+     *        isolation to be applied?  Then leave this as a nullptr.
+     * @param d0SigCut The maximum d0 significance cut
+     * @param delta_z0 The maximum |delta z0 sin(theta)| cut
+     * @param applyTTVACut Whether to apply cuts on d0 and z0
      */
     MuonMC15(const double ptcut,
+             IsolationBase* isolation);
+
+    MuonMC15(const double ptcut,
              IsolationBase* isolation,
+             const bool applyTTVACut);
+
+    MuonMC15(const double ptcut,
+             IsolationBase* isolation,
+             const double d0SigCut,
+             const double delta_z0,
              const bool applyTTVACut = true);
 
     // Does nothing.
@@ -60,6 +72,10 @@ namespace top {
   protected:
     // Lower pT threshold to apply to object selection.
     double m_ptcut;
+
+    // TTVA cuts
+    double m_d0SigCut;
+    double m_delta_z0;
 
     // Proper tool to select muons.
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;

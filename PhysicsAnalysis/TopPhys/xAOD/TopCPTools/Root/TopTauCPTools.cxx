@@ -327,14 +327,16 @@ namespace top {
     }
     
     ///-- Truth matching --///
-    static const std::string tauTruthMatchingName = "TauAnalysisTools::TauTruthMatchingTool";
-    if (asg::ToolStore::contains<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName)) {
-      m_truthMatchingTool = asg::ToolStore::get<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName);
-    } else {
-      std::unique_ptr<TauAnalysisTools::TauTruthMatchingTool> tauMatchingTool = std::make_unique<TauAnalysisTools::TauTruthMatchingTool>(tauTruthMatchingName);
-      top::check(tauMatchingTool->setProperty("TruthJetContainerName", "AntiKt4TruthDressedWZJets"), "Failed to set truth collection for tau truth matching tool");
-      top::check(tauMatchingTool->initialize(), "Failed to initialize");
-      m_truthMatchingTool = tauMatchingTool.release();
+    if (m_config->isMC()) {
+      static const std::string tauTruthMatchingName = "TauAnalysisTools::TauTruthMatchingTool";
+      if (asg::ToolStore::contains<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName)) {
+        m_truthMatchingTool = asg::ToolStore::get<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName);
+      } else {
+        std::unique_ptr<TauAnalysisTools::TauTruthMatchingTool> tauMatchingTool = std::make_unique<TauAnalysisTools::TauTruthMatchingTool>(tauTruthMatchingName);
+        top::check(tauMatchingTool->setProperty("TruthJetContainerName", "AntiKt4TruthDressedWZJets"), "Failed to set truth collection for tau truth matching tool");
+        top::check(tauMatchingTool->initialize(), "Failed to initialize");
+        m_truthMatchingTool = tauMatchingTool.release();
+      }
     }
 
 

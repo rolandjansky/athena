@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgA.h"
@@ -53,19 +53,14 @@ StatusCode HiveAlgA::execute() {
   unsigned int i = Gaudi::Hive::currentContextEvt();
 
   SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
-  wrh1 = std::make_unique< HiveDataObj >
-    ( HiveDataObj(10000 + evt->eventNumber()*100 + i) );
+  ATH_CHECK(wrh1.record(std::make_unique< HiveDataObj >(10000 + evt->eventNumber()*100 + i)));
 
   SG::WriteHandle<HiveDataObj> wrh2( m_wrh2 );
-  wrh2 = std::make_unique< HiveDataObj >( HiveDataObj(10050+i) );
+  ATH_CHECK(wrh2.record(std::make_unique< HiveDataObj >(10050+i)));
   
   ATH_MSG_INFO("  write: " << wrh1.key() << " = " << wrh1->val() );
   ATH_MSG_INFO("  write: " << wrh2.key() << " = " << wrh2->val() );
   
-  ATH_CHECK(wrh1.isValid());
-  ATH_CHECK(wrh2.isValid());
-
   return StatusCode::SUCCESS;
-
 }
 

@@ -13,71 +13,60 @@
 #ifndef MUON_MUONPATTERNCOMBINATION_H
 #define MUON_MUONPATTERNCOMBINATION_H
 
-#include "MuonPattern/MuonPatternChamberIntersect.h"
-
-
-#include "TrkParameters/TrackParameters.h"
-
 #include <vector>
+
+#include "MuonPattern/MuonPatternChamberIntersect.h"
+#include "TrkParameters/TrackParameters.h"
 
 namespace Muon {
 
-  /**
-     @brief The MuonPatternCombination class provides the means to store the output of the initial 
-            global pattern recognition in the muon spectrometer. 
-     The parameters of the road (position, direction, momentum) are stored in form of a TrackParameter. 
-     The hits are stored sorted per chambers in form a MuonPatternChamberIntersect objects.
-  */
-  class MuonPatternCombination {
-  public:
-    /** constructor taking as argmuents:
-	@param parameter the road prediction (Trk::TrackParameter), ownership is transfered to the MuonPatternCombination, the user may pass a zero pointer 
-	@param pat a list of associated MuonPatternChamberIntersect objects */
-    MuonPatternCombination( const Trk::TrackParameters* parameter, 
-			    const std::vector< MuonPatternChamberIntersect >& chamberData );
-    
-    MuonPatternCombination( const MuonPatternCombination& pat );
+    /**
+       @brief The MuonPatternCombination class provides the means to store the output of the initial
+              global pattern recognition in the muon spectrometer.
+       The parameters of the road (position, direction, momentum) are stored in form of a TrackParameter.
+       The hits are stored sorted per chambers in form a MuonPatternChamberIntersect objects.
+    */
+    class MuonPatternCombination {
+    public:
+        /** constructor taking as argmuents:
+            @param parameter the road prediction (Trk::TrackParameter), ownership is transfered to the MuonPatternCombination, the user may
+           pass a zero pointer
+            @param pat a list of associated MuonPatternChamberIntersect objects */
+        MuonPatternCombination(const Trk::TrackParameters* parameter, const std::vector<MuonPatternChamberIntersect>& chamberData);
 
-    MuonPatternCombination&  operator=( const MuonPatternCombination& pat );
-    
-    ~MuonPatternCombination();
-  
+        MuonPatternCombination(const MuonPatternCombination& pat);
 
-   /** access to the global position, direction and if available momentum of the road, the pointer might be zero! */
-    const Trk::TrackParameters* trackParameter() const;
+        MuonPatternCombination& operator=(const MuonPatternCombination& pat);
 
-    /** access to the MuonPatternChamberIntersect associated with the MuonPatternCombination */
-    const std::vector< MuonPatternChamberIntersect >& chamberData() const;
+        ~MuonPatternCombination();
 
-  private:
-    /** Position and direction of the road
-	In addition the track parameter can provides a first estimate of the momentum */
-    const Trk::TrackParameters* m_parameter;
+        /** access to the global position, direction and if available momentum of the road, the pointer might be zero! */
+        const Trk::TrackParameters* trackParameter() const;
 
-    /** vector of hits per chamber */
-    std::vector< MuonPatternChamberIntersect > m_chamberData;
+        /** access to the MuonPatternChamberIntersect associated with the MuonPatternCombination */
+        const std::vector<MuonPatternChamberIntersect>& chamberData() const;
 
-    /** type of road **/
-    int m_roadType;
+    private:
+        /** Position and direction of the road
+            In addition the track parameter can provides a first estimate of the momentum */
+        const Trk::TrackParameters* m_parameter;
 
-  public:
-    int trackRoadType() const;
+        /** vector of hits per chamber */
+        std::vector<MuonPatternChamberIntersect> m_chamberData;
 
-  };
+        /** type of road **/
+        int m_roadType;
 
-  inline const Trk::TrackParameters* MuonPatternCombination::trackParameter() const{
-    return m_parameter;
-  }
+    public:
+        int trackRoadType() const;
+    };
 
-  inline const std::vector< MuonPatternChamberIntersect >& MuonPatternCombination::chamberData() const {
-    return m_chamberData;
-  }
+    inline const Trk::TrackParameters* MuonPatternCombination::trackParameter() const { return m_parameter; }
 
-  inline int MuonPatternCombination::trackRoadType() const {
-    return m_roadType;
-  }
+    inline const std::vector<MuonPatternChamberIntersect>& MuonPatternCombination::chamberData() const { return m_chamberData; }
 
-}
- 
+    inline int MuonPatternCombination::trackRoadType() const { return m_roadType; }
+
+}  // namespace Muon
 
 #endif

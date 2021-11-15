@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.RootUtils
 # @author Sebastien Binet
 # @purpose a few utils to ease the day-to-day work with ROOT
 # @date November 2009
-
-from __future__ import with_statement, print_function
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
 __author__ = "Sebastien Binet"
@@ -19,8 +17,7 @@ __all__ = [
 import os
 import re
 import six
-
-from .Decorators import memoize
+from functools import cache
 
 ### functions -----------------------------------------------------------------
 def import_root(batch=True):
@@ -120,7 +117,7 @@ def _root_compile (src, fname, batch):
         ROOT.gErrorIgnoreLevel = orig_root_lvl
     return
         
-@memoize
+@cache
 def _pythonize_tfile():
     import cppyy
     root = import_root()

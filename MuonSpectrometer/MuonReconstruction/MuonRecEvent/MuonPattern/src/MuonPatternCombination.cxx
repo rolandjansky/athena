@@ -11,45 +11,27 @@
  * Last Update  : 27 July 2005
  ***************************************************************************/
 
-
 #include "MuonPattern/MuonPatternCombination.h"
 
 namespace Muon {
 
+    MuonPatternCombination::MuonPatternCombination(const Trk::TrackParameters* parameter,
+                                                   const std::vector<MuonPatternChamberIntersect>& chamberData) :
+        m_parameter(parameter), m_chamberData(chamberData), m_roadType(0) {}
 
+    MuonPatternCombination::MuonPatternCombination(const MuonPatternCombination& pat) :
+        m_parameter(pat.m_parameter ? pat.m_parameter->clone() : nullptr), m_chamberData(pat.m_chamberData), m_roadType(0) {}
 
-  MuonPatternCombination::MuonPatternCombination( const Trk::TrackParameters* parameter, 
-						  const std::vector< MuonPatternChamberIntersect >& chamberData ) :
-    m_parameter( parameter ),
-    m_chamberData( chamberData ),
-    m_roadType(0)
-  {
-
-  }
-  
-  MuonPatternCombination::MuonPatternCombination( const MuonPatternCombination& pat ) :
-    m_parameter( pat.m_parameter ? pat.m_parameter->clone() : nullptr ),
-    m_chamberData( pat.m_chamberData ),
-    m_roadType(0)
-  {
-    
-  }
-
-  MuonPatternCombination&  MuonPatternCombination::operator=( const MuonPatternCombination& pat )
-  {
-    if (this!=&pat ){
-      // delete old MuonPatterns
-      delete m_parameter;
-      m_parameter = pat.m_parameter ? pat.m_parameter->clone() : nullptr;
-      m_chamberData = pat.m_chamberData;
+    MuonPatternCombination& MuonPatternCombination::operator=(const MuonPatternCombination& pat) {
+        if (this != &pat) {
+            // delete old MuonPatterns
+            delete m_parameter;
+            m_parameter = pat.m_parameter ? pat.m_parameter->clone() : nullptr;
+            m_chamberData = pat.m_chamberData;
+        }
+        return *this;
     }
-    return *this;
-  }
 
-  MuonPatternCombination::~MuonPatternCombination(){
-    delete m_parameter;
-  }
+    MuonPatternCombination::~MuonPatternCombination() { delete m_parameter; }
 
-
-
-}
+}  // namespace Muon

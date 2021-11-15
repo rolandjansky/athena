@@ -167,13 +167,17 @@ def analyseChainName(chainName, L1thresholds, L1item):
     hltChainNameShort = '_'.join(cparts)
 
     # ---- identify the topo algorithm and add to genchainDict -----
-    from .SignatureDicts import AllowedTopos, AllowedTopos_comb
+    from .SignatureDicts import AllowedTopos, AllowedTopos_comb, AllowedTopos_Bphysics_topoVariant, AllowedTopos_Bphysics_topoExtra
     topo = ''
     topos=[]
     extraComboHypos = []
+    bphys_topoVariant=[]
+    bphys_topoExtra = []
+    bphysTopos = False 
     toposIndexed={}
     topoindex = -5
     for cindex, cpart in enumerate(cparts):
+        #should make this if...elif...?
         if cpart in AllowedTopos:
             log.debug('" %s" is in this part of the name %s -> topo alg', AllowedTopos, cpart)
             topo = cpart
@@ -181,17 +185,34 @@ def analyseChainName(chainName, L1thresholds, L1item):
             toposIndexed.update({topo : topoindex})
             hltChainNameShort=hltChainNameShort.replace('_'+cpart, '')
             topos.append(topo)
+        elif cpart in AllowedTopos_Bphysics_topoVariant:
+            log.debug('[analyseChainName] chain part %s is a BLS topo variant, adding to bphys_topoVariant', cpart)
+            bphys_topoVariant.append(cpart)
+            toposIndexed.update({cpart : cindex})
+            bphysTopos = True
+        elif cpart in AllowedTopos_Bphysics_topoExtra:
+            log.debug('[analyseChainName] chain part %s is a BLS extra topo hypo, adding to bphys_topoExtra', cpart)            
+            bphys_topoExtra.append(cpart)
+            toposIndexed.update({cpart : cindex})
+            bphysTopos = True
+        else:
+            log.debug('[analyseChainName] chain part %s is not a general topo, BLS extra or variant topo hypo, checking comb topos next', cpart)            
         if cpart in AllowedTopos_comb:
              log.debug('[analyseChainName] chain part %s is a combined topo hypo, adding to extraComboHypo', cpart)
+             toposIndexed.update({cpart : cindex})
              extraComboHypos.append(cpart)
 
     genchainDict['topo'] = topos
     genchainDict['extraComboHypos'] = extraComboHypos
 
-    # replace these lines below with cparts = chainName.split("_")
+    if bphysTopos is True:
+        genchainDict['topoVariant'] = bphys_topoVariant
+        genchainDict['topoExtra'] = bphys_topoExtra
+        
+    # remove the parts that have been already identified
     for t, i in enumerate(toposIndexed):
         if (t in cparts):
-            log.debug('topo %s with index %s', t, i)
+            log.debug('topo %s with index %s is going to be deleted from chain parts', t, i)
             del cparts[i]
 
 
@@ -214,15 +235,14 @@ def analyseChainName(chainName, L1thresholds, L1item):
     
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',
-                     'trigType': sigToken, 'extra': ''}
+                     'trigType': sigToken,'tnpInfo': '','extra': ''}
         mdicts.append( groupdict )
 
-       
-    log.debug("chain parts: %s", cparts)
     for cpart in cparts:
 
         log.debug("Looping over chain part: %s", cpart)
         m = pattern.match(cpart)
+
         if m:
             log.debug("Pattern found in this string: %s", cpart)
             groupdict = m.groupdict()
@@ -249,9 +269,13 @@ def analyseChainName(chainName, L1thresholds, L1item):
                 sName = getSignatureNameFromToken(cpart)
             
             groupdict['signature'] = sName
-            groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
+            log.debug("groupdict['signature']: %s",groupdict['signature'])
             
-            log.debug('groupdictionary groupdict: %s', groupdict)
+            if "tnpInfo" in groupdict.keys() and groupdict['tnpInfo'] != "":
+                groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['tnpInfo'])
+            else:
+                groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
+       
             mdicts.append(groupdict)
 
         elif cpart =='noalg':
@@ -336,7 +360,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         chainProperties['multiplicity'] = multiplicity
         chainProperties['threshold']=mdicts[chainindex]['threshold']
         chainProperties['signature']=mdicts[chainindex]['signature']
-
+       
         # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
         # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
         # have to keep it in the name
@@ -357,13 +381,14 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
 
         #---- Check if topo is a bphysics topo -> change signature ----
-        from .SignatureDicts import AllowedTopos_Bphysics
+        from .SignatureDicts import AllAllowedTopos_Bphysics
         for t in genchainDict['topo']:
-            if (t in AllowedTopos_Bphysics):
+            if (t in AllAllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
-                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', chainProperties['extra'])
-
-
+                if "tnpInfo" in chainProperties.keys() and chainProperties['tnpInfo'] != "":
+                    chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['tnpInfo'])
+                else:
+                    chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics',chainProperties['extra'])
 
         # ---- import the relevant dictionaries for each part of the chain ----
         from .SignatureDicts import getSignatureInformation
@@ -435,11 +460,15 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- set the alignment group here, once we have fully worked out the properties ----
         # ---- this is for the benefit of the probe leg in T&P chains ----
+    
         if 'larnoiseburst' in chainName:
             chainProperties['alignmentGroup'] = 'JetMET'
         else:
-            chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], chainProperties['extra'])
-
+            if 'tnpInfo' in chainProperties.keys() and chainProperties['tnpInfo'] != "":
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'],chainProperties['tnpInfo'])
+            else:
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'],chainProperties['extra'])
+                
         # ---- the info of the general and the specific chain parts dict ----
         allChainProperties.append(chainProperties)
 
@@ -449,12 +478,15 @@ def analyseChainName(chainName, L1thresholds, L1item):
     for cPart in allChainProperties:
         if cPart['signature'] == 'Jet' and cPart['bTag'] != '':
             cPart['signature'] = 'Bjet'
-            cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['extra'])
+            if 'tnpInfo' in cPart.keys() and cPart['tnpInfo'] != "":
+                cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['tnpInfo'])
+            else:
+                cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['extra'])
         genchainDict['signatures'] += [cPart['signature']]
         genchainDict['alignmentGroups'] += [cPart['alignmentGroup']]
 
     #genchainDict['signature'] = allChainProperties[0]['signature']
-
+   
     return genchainDict
 
 

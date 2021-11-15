@@ -42,6 +42,9 @@ if DetFlags.simulateLVL1.LAr_on():
     if commonGeoFlags.Run()=="RUN3":
         from LArL1Sim.LArSCL1Getter import *
         theLArSCL1Getter = LArSCL1Getter()
+        if not digitizationFlags.PileUpPresampling:
+            from LArROD.LArSCellGetter import LArSCellGetter
+            theLArSCellGetter = LArSCellGetter()
 
 if DetFlags.simulateLVL1.Tile_on():
     protectedInclude( "TileSimAlgs/TileTTL1_jobOptions.py" )

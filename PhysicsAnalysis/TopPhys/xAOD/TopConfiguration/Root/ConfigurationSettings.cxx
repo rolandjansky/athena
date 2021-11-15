@@ -60,6 +60,8 @@ namespace top {
     registerParameter("ElectronIDLoose",
                       "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH", "MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
+    registerParameter("Electrond0Sig", "Electron d0 significance cut for object selection. Default 5", "5.");
+    registerParameter("Electrondeltaz0", "Electron delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("EgammaSystematicModel", "Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)",
                       "1NP_v1");
     registerParameter("ElectronEfficiencySystematicModel",
@@ -109,6 +111,8 @@ namespace top {
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5");
+    registerParameter("Muond0Sig", "Muon d0 significance cut for object selection. Default 3", "3.");
+    registerParameter("Muondeltaz0", "Muon delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("MuonQuality",
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");
@@ -519,19 +523,23 @@ namespace top {
     registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default");
 
     registerParameter("BTaggingTrackJetWP",
-                      "b-tagging WPs to use for track jet collection in the analysis, separated by commas."
+                      "b-tagging WPs to use for VR track jet collection in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
-                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
-                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
-                      " By default, no WP is used.",
+                      " The specified WPs must be calibrated, otherwise use the BTaggingTrackJetWPUncalib option.",
                       " ");
 
+    registerParameter("BTaggingTrackJetUncalibWP",
+                      "List of uncalibrated b-tagging WPs for track jets. See BTaggingTrackJetWP option description",
+	                    " ");
+
     registerParameter("BTaggingCaloJetWP",
-                      "b-tagging WPs to use for calorimeter jet collection (e.g. EMTopo, EMPFlow) in the analysis, separated by commas."
+                      "b-tagging WPs to use for calo jet collection in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
-                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
-                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
-                      " By default, no WP is used.",
+                      " The specified WPs must be calibrated, otherwise use the BTaggingCaloJetWPUncalib option.",
+                      " ");
+
+    registerParameter("BTaggingCaloJetUncalibWP",
+                      "List of uncalibrated b-tagging WPs for calo jets. See BTaggingCaloJetWP option description",
                       " ");
 
     registerParameter("BTaggingSystExcludedFromEV",
@@ -883,7 +891,7 @@ namespace top {
   }
 
   void ConfigurationSettings::checkSettings() {
-    for (const std::pair<std::string, StringData>& entry : strings_) {
+    for (const std::pair<const std::string, StringData>& entry : strings_) {
       const StringData& data = entry.second;
       // if the config option restricts allowed values to some limited set,
       // check that the configured value is valid

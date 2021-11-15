@@ -157,7 +157,7 @@ namespace FlavorTagDiscriminants {
           return {m_name, ret_value};
         }
     };
-    
+
     // The track getter is responsible for getting the tracks from the
     // jet applying a selection, and then sorting the tracks.
     class TracksFromJet{
@@ -278,26 +278,33 @@ namespace FlavorTagDiscriminants {
 
   namespace dataprep {
 
-    void createGetterConfig( lwt::GraphConfig& graph_config,
+    std::tuple<
+      std::vector<FTagInputConfig>,
+      std::vector<FTagTrackSequenceConfig>,
+      FTagOptions>
+    createGetterConfig( lwt::GraphConfig& graph_config,
       FlipTagConfig flip_config,
       std::map<std::string, std::string> remap_scalar,
-      TrackLinkType track_link_type,
-      std::vector<FTagInputConfig>& input_config,
-      std::vector<FTagTrackSequenceConfig>& trk_config,
-      FTagOptions& options);
+      TrackLinkType track_link_type);
 
-    std::tuple<std::vector<internal::VarFromBTag>, 
-    std::vector<internal::VarFromJet>, std::set<std::string>> 
+    std::tuple<
+      std::vector<internal::VarFromBTag>,
+      std::vector<internal::VarFromJet>,
+      FTagDataDependencyNames>
     createBvarGetters(
       const std::vector<FTagInputConfig>& inputs);
 
-    std::tuple<std::vector<internal::TrackSequenceBuilder>, std::set<std::string>, 
-    std::set<std::string>> createTrackGetters(
+    std::tuple<
+      std::vector<internal::TrackSequenceBuilder>,
+      FTagDataDependencyNames>
+    createTrackGetters(
       const std::vector<FTagTrackSequenceConfig>& track_sequences,
       const FTagOptions& options, const std::string& jetLinkName);
 
-    std::tuple<std::map<std::string, internal::OutNode>, std::set<std::string>> 
-    createDecorators( 
+    std::tuple<
+      std::map<std::string, internal::OutNode>,
+      FTagDataDependencyNames>
+    createDecorators(
       const lwt::GraphConfig& config,
       const FTagOptions& options);
   }

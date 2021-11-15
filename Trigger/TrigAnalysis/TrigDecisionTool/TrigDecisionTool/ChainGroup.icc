@@ -107,7 +107,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     // Obtain navigation routes for objects which fail
     if (condition == TrigDefs::includeFailedDecisions) {
       std::vector<const TrigCompositeUtils::Decision*> rejectedDecisionNodes = 
-        TrigCompositeUtils::getRejectedDecisionNodes(eventStore, thisChainIDs);
+        TrigCompositeUtils::getRejectedDecisionNodes(eventStore, HLTSummaryKeyIn.key(), thisChainIDs);
 
       ATH_MSG_DEBUG("Chain " << chainID << " has " << rejectedDecisionNodes.size() 
         << " dangling nodes in the graph from objects which were rejected.");

@@ -27,3 +27,7 @@ atlas_add_test( egammaxAODThinningConfigTest
 atlas_add_test( egammaSteeringConfigTest
 		SCRIPT python -m egammaConfig.egammaSteeringConfig
 		POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( egammaLRTReconstructionConfigTest
+		SCRIPT python -m egammaConfig.egammaLRTReconstructionConfig
+		POST_EXEC_SCRIPT nopost.sh )

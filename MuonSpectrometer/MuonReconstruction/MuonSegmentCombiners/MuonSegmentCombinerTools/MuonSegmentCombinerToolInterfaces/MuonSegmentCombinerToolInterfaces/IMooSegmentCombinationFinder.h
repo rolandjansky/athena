@@ -20,10 +20,10 @@ namespace Muon {
     class IMooSegmentCombinationFinder : virtual public IAlgTool {
     public:
         struct Output {
-            MuonPatternCombinationCollection* patternCombinations{nullptr};
+            std::unique_ptr<MuonPatternCombinationCollection> patternCombinations{nullptr};
+            std::unique_ptr<Muon::HoughDataPerSectorVec> houghDataPerSectorVec{nullptr};
             Trk::SegmentCollection* segmentCollection{nullptr};
-            std::unique_ptr<Muon::HoughDataPerSectorVec> houghDataPerSectorVec;
-
+            
             Output() = default;
         };
 

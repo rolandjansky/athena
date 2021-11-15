@@ -57,7 +57,7 @@ StatusCode FixHepMC::execute() {
       if (ip->production_vertex() && !ip->end_vertex() && ip->status() != 1 ) particle_to_fix = true;
       if (particle_to_fix) tofix.push_back(ip);
       int pdg_id = ip->pdg_id();
-      if (pdg_id == 43 || pdg_id == 44 || pdg_id == -43 || pdg_id == -44 ) bad_pdg_id_particles.push_back(ip);
+      if (pdg_id == 43 || pdg_id == 44 || pdg_id == -43 || pdg_id == -44 || pdg_id == 30353 || pdg_id == -30353 || pdg_id == 30343 || pdg_id == -30343) bad_pdg_id_particles.push_back(ip);
     }
 
     /// AV: In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
@@ -81,10 +81,22 @@ StatusCode FixHepMC::execute() {
     /// If some particle would have decay products with bad PDG ids, after the operation below
     /// the visible branching ratio of these decays would be zero.
     for (auto part: bad_pdg_id_particles) {
-        if (!part->production_vertex()) continue;
-        if (!part->end_vertex()) continue;
-        for (auto p: part->end_vertex()->particles_out()) part->production_vertex()->add_particle_out(p);
-        evt->remove_particle(part);
+       /// Check the bad particles have prod and end vertices
+      auto vend = part->end_vertex();
+      auto vprod = part->production_vertex();
+      if (!vend) continue;
+      if (!vprod) continue;
+      bool loop_in_decay = true;
+      /// Check that all particles coming into the decay vertex of bad particle cam from the same production vertex.
+      auto sisters = vend->particles_in();
+      for (auto sister: sisters) if (vprod != sister->production_vertex()) loop_in_decay = false;
+      if (!loop_in_decay) continue;
+      
+      auto daughters = vend->particles_out();
+      for (auto p: daughters) vprod->add_particle_out(p);
+      for (auto sister: sisters) { vprod->remove_particle_out(sister); vend->remove_particle_in(sister); evt->remove_particle(sister); }
+      evt->remove_vertex(vend);
+
     }
 
     // Event particle content cleaning -- remove "bad" structures
@@ -152,6 +164,66 @@ StatusCode FixHepMC::execute() {
         }
       }
     }
+
+
+    // Some heuristics
+    std::vector<HepMC::GenParticlePtr> tofix;
+    std::vector<HepMC::GenParticlePtr> bad_pdg_id_particles;
+    for (auto ip: *evt) {
+      // Skip this particle if (somehow) its pointer is null
+      if (!ip) continue;
+      bool particle_to_fix = false;
+      /// Two types of bad particles: those w/o prod.vertex and with status other than 4.
+      if ( (!ip->production_vertex() || ip->production_vertex()->id() == 0 ) &&  ip->end_vertex() && ip->status() != 4 ) particle_to_fix = true;
+      /// Those w/o end vertex, but with bad status
+      if (ip->production_vertex() && !ip->end_vertex() && ip->status() != 1 ) particle_to_fix = true;
+      if (particle_to_fix) tofix.push_back(ip);
+      int pdg_id = ip->pdg_id();
+      if (pdg_id == 43 || pdg_id == 44 || pdg_id == -43 || pdg_id == -44 || pdg_id == 30353 || pdg_id == -30353 || pdg_id == 30343 || pdg_id == -30343) bad_pdg_id_particles.push_back(ip);
+    }
+
+    /// AV: In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
+    if (tofix.size() == 3 || tofix.size() == 2) {
+      size_t no_endv = 0;
+      size_t no_prov = 0;
+      double vsum[4] = {0,0,0,0};
+      for (auto part: tofix) if (!part->production_vertex() ) { no_prov++; vsum[0] += part->momentum().px(); vsum[1] += part->momentum().py(); vsum[2] += part->momentum().pz(); vsum[3] += part->momentum().e();}  
+      for (auto part: tofix) if (!part->end_vertex()) { no_endv++;  vsum[0] -= part->momentum().px(); vsum[1] -= part->momentum().py(); vsum[2] -= part->momentum().pz(); vsum[3] -= part->momentum().e();}
+      HepMC::FourVector sum(vsum[0],vsum[1],vsum[2],vsum[3]);
+      ATH_MSG_INFO("Heuristics: found " << tofix.size() << " particles to fix. The momenta sum is " << vsum[0] << " " << vsum[1] << " " << vsum[2] << " " << vsum[3] );
+      /// The condition below will cover 1->1, 1->2 and 2->1 cases
+      if ( no_endv && no_prov  && ( no_endv + no_prov  == tofix.size() ) && std::abs(sum.px()) < 1e-2  && std::abs(sum.py()) < 1e-2  && std::abs(sum.pz()) < 1e-2 ) {
+          ATH_MSG_INFO("Try " << no_endv << "->" << no_prov << " splitting/merging.");
+          auto v = HepMC::newGenVertexPtr();
+          for (auto part: tofix) if (!part->production_vertex())  v->add_particle_out(part);  
+          for (auto part: tofix) if (!part->end_vertex()) v->add_particle_in(part);  
+          evt->add_vertex(v);
+      }
+    }
+    /// AV: Please note that this approach would distort some branching ratios.
+    /// If some particle would have decay products with bad PDG ids, after the operation below
+    /// the visible branching ratio of these decays would be zero.
+    for (auto part: bad_pdg_id_particles) {
+       /// Check the bad particles have prod and end vertices
+      auto vend = part->end_vertex();
+      auto vprod = part->production_vertex();
+      if (!vend) continue;
+      if (!vprod) continue;
+      bool loop_in_decay = true;
+      /// Check that all particles coming into the decay vertex of bad particle cam from the same production vertex.
+      std::vector<HepMC::GenParticlePtr> sisters;
+      for (auto p = vend->particles_begin(HepMC::parents); p!= vend->particles_end(HepMC::parents); ++p) sisters.push_back(*p);
+      for (auto sister: sisters) if (vprod != sister->production_vertex()) loop_in_decay = false;
+      if (!loop_in_decay) continue;
+      
+      std::vector<HepMC::GenParticlePtr> daughters;
+      for (auto p = vend->particles_begin(HepMC::children); p!= vend->particles_end(HepMC::children); ++p) daughters.push_back(*p);
+      for (auto p: daughters) vprod->add_particle_out(p);
+      for (auto sister: sisters) { vprod->remove_particle(sister); vend->remove_particle(sister);  }
+      evt->remove_vertex(vend);
+
+    }
+
 
     // Event particle content cleaning -- remove "bad" structures
     std::vector<HepMC::GenParticlePtr> toremove; toremove.reserve(10);

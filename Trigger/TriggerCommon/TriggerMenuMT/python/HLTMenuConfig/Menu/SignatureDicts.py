@@ -336,7 +336,8 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb','probe'],
+    'tnpInfo'        : ['probe'],
+    'extra'          : ['noL1', 'lateMu', "muoncalib" ,'noL2Comb'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarloose', 'ivarmedium', 'ivarperf','iloosems'],
     'l2AlgInfo'      : ['l2io','l2mt'],
@@ -359,6 +360,7 @@ MuonChainParts_Default = {
     'trigType'       : ['mu'],
     'etaRange'       : '0eta250',
     'threshold'      : '',
+    'tnpInfo'        : '',
     'extra'          : '',
     'IDinfo'         : '',
     'isoInfo'        : '',
@@ -379,10 +381,19 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'Lxy0','noos','nocut',
-    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose',
-    'b0dRAB12vtx20'
+    'bBmumux','b0dRAB12vtx20',
+    
+    ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
+    # topoVariants
+    'BsmumuPhi', 'BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose',
+    # topoExtras
+    'Lxy0', 'noos','nocut'
+    #########Remove until here############
+
 ]
+AllowedTopos_Bphysics_topoVariant=['BsmumuPhi', 'BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose']
+AllowedTopos_Bphysics_topoExtra=['Lxy0', 'noos','nocut']
+AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)
@@ -417,7 +428,8 @@ TauChainParts = {
     'multiplicity'  : '',
     'trigType'      : ['tau'],
     'trkInfo'       : '',
-    'extra'         : ['probe'],
+    'tnpInfo'       : ['probe'],
+    'extra'         : '',
     'recoAlg'       : '',
     'calib'         : '',
     'addInfo'       : ['IdTest'],
@@ -437,6 +449,7 @@ TauChainParts_Default = {
     'multiplicity'  :  '',
     'trigType'      : ['tau'],
     'trkInfo'       : [],
+    'tnpInfo'       : '',
     'extra'         : '',
     'recoAlg'       : '',
     'calib'         : '',
@@ -533,7 +546,8 @@ ElectronChainParts = {
     'alignmentGroup' : ['Electron','Egamma'],
     'chainPartName'  : '',
     'L1threshold'    : '',
-    'extra'          : ['probe','ion'],
+    'tnpInfo'        : ['probe'],
+    'extra'          : ['ion'],
     'multiplicity'   : '',
     'trigType'       : ['e'],
     'threshold'      : '',
@@ -562,6 +576,7 @@ ElectronChainParts_Default = {
     'trigType'       : '',
     'threshold'      : '',
     'etaRange'       : '0eta250',
+    'tnpInfo'        : '',
     'extra'          : '',
     'IDinfoType'     : '',
     'IDinfo'         : '',

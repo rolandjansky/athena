@@ -19,7 +19,7 @@ bsAlgMonitoring = T2VertexBeamSpotMonitoring()
 # track filter tool used by vertex tool
 trackFilterForVertex = PESA__T2BSTrackFilterTool(
     name = "TrackFilterVtx",
-    MonTool = filtermon,
+    MonTool = filtermon(),
     TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
     TrackMaxEta         = 2.5,      # Maximum absolute value of eta
     TrackMaxZ0          = 200.0,    # Maximum track Z0 to be considered for vertexing
@@ -42,7 +42,7 @@ trackFilterForVertex = PESA__T2BSTrackFilterTool(
 # track filter tool used by track tool
 trackFilterForTrack = PESA__T2BSTrackFilterTool(
     name = "TrackFilterTrk",
-    MonTool = filtermon,
+    MonTool = filtermon(),
     TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
     TrackMaxEta         = 2.5,      # Maximum absolute value of eta
     TrackMaxZ0          = 200.0,    # Maximum track Z0 to be considered for vertexing
@@ -65,7 +65,7 @@ trackFilterForTrack = PESA__T2BSTrackFilterTool(
 #TODO: create an instance which can be called and adjusted
 InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
     name = "T2VertexBeamSpotTool",
-    MonTool = bsToolMonitoring,
+    MonTool = bsToolMonitoring(),
     TrackFilter         = trackFilterForVertex,
     PrimaryVertexFitter = primaryVertexFitter,
 
@@ -93,7 +93,7 @@ InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
 InDetTrigMTTrackBeamSpotTool = PESA__T2TrackBeamSpotTool(
     name                = "T2TrackBeamSpotTool",
     TrackFilter         = trackFilterForTrack,
-    MonTool             = trackBSmon,
+    MonTool             = trackBSmon(),
     doLeastSquares      = True,
     doLogLikelihood     = True,
     beamSizeLS          = 0.01,      # Approximate beam size, mm
@@ -106,7 +106,7 @@ class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
         self.doTrackBeamSpot = True         # run track-based calibration tool
         self.TrackBeamSpotTool = InDetTrigMTTrackBeamSpotTool
         self.BeamSpotTool = InDetTrigMTBeamSpotTool
-        self.MonTool = bsAlgMonitoring
+        self.MonTool = bsAlgMonitoring()
         
 # Setup for relaxed cuts at 900 GeV LHC center-of-mass
 class T2VertexBeamSpot_loose ( T2VertexBeamSpot_Fex ) :

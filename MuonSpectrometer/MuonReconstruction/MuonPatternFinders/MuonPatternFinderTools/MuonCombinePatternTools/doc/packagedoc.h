@@ -8,7 +8,8 @@
 
 @section MuonCombinePatternTools_MuonCombinePatternToolsIntro Introduction
 
-This AlgTool will combine global eta and phi patterns from the HoughPatternTool into combined Patterns, using the track model used in the houghtransforms and a distance cut
+This AlgTool will combine global eta and phi patterns from the HoughPatternTool into combined Patterns, using the track model used in the
+houghtransforms and a distance cut
 
 @section MuonCombinePatternTools_MuonCombinePatternToolsOverview Class Overview
   The MuonCombinePatternTools package contains the following classes:

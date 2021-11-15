@@ -108,8 +108,10 @@ bool readBlobAsJson(const coral::Blob &blob, nlohmann::json& out){
 bool readBlobAsTTree(const coral::Blob &blob, TTree*& out){
 	std::string sb = reinterpret_cast<const char*>(blob.startingAddress());
 	std::vector<unsigned char> bdata = CxxUtils::base64_decode(sb);
-	TMemFile f("buffer", reinterpret_cast<char*>(bdata.data()), static_cast<uLongf>(blob.size())); 
-	TTree* t = (TTree*) f.Get("tmptree");
+	TMemFile f("buffer", reinterpret_cast<char*>(bdata.data()), static_cast<uLongf>(bdata.size())); 
+	TTree* t = (TTree*) f.Get("tree");
+	t->LoadBaskets();
+	t->SetDirectory(0);
 	f.Close();
 	out = t;
 	return true;

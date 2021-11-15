@@ -7,6 +7,7 @@
 #include "MuonCondAlg/RpcCondDbAlg.h"
 #include "MuonCondAlg/TgcCondDbAlg.h"
 #include "MuonCondAlg/TgcDigitASDposCondAlg.h"
+#include "MuonCondAlg/NswCalibDbAlg.h"
 
 DECLARE_COMPONENT(CscCondDbAlg)
 DECLARE_COMPONENT(MdtCondDbAlg)
@@ -17,3 +18,4 @@ DECLARE_COMPONENT(MuonAlignmentCondAlg)
 DECLARE_COMPONENT(MdtCalibDbAlg)
 DECLARE_COMPONENT(MdtCalibFormatAlgTest)
 DECLARE_COMPONENT(TgcDigitASDposCondAlg)
+DECLARE_COMPONENT(NswCalibDbAlg)

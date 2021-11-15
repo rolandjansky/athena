@@ -29,18 +29,23 @@ atlas_add_component( Epos_i
 
 # Install files from the package:
 atlas_install_joboptions( share/common/*.py )
-atlas_install_runtime( share/file/epos_crmc.param
-                       ${CRMC_LCGROOT}/tabs/dpmjet.dat
-                       ${CRMC_LCGROOT}/tabs/epos.initl
-                       ${CRMC_LCGROOT}/tabs/epos.iniev
-                       ${CRMC_LCGROOT}/tabs/epos.inirj
-                       ${CRMC_LCGROOT}/tabs/epos.inirj.lhc
-                       ${CRMC_LCGROOT}/tabs/epos.inics
-                       ${CRMC_LCGROOT}/tabs/epos.inics.lhc
-                       ${CRMC_LCGROOT}/tabs/epos.inidi )
+atlas_install_runtime( share/file/epos_crmc.param )
 
+# Install files from Crmc.
+foreach( _file "epos.initl" "epos.iniev" "epos.inirj" "epos.inirj.lhc"
+               "epos.inics" "epos.inics.lhc" "epos.inidi" )
+   find_file( _datFile "${_file}"
+      PATHS "${CRMC_LCGROOT}"
+      PATH_SUFFIXES "tabs" "share/crmc"
+      NO_CACHE )
+   if( _datFile )
+      atlas_install_runtime( "${_datFile}" )
+   else()
+      message( WARNING "Could not find data file \"${_file}\"" )
+   endif()
+endforeach()
+
+# Set up the runtime environment for the package.
 set( EposEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of EposEnvironment.cmake" )
 find_package( EposEnvironment )
-
-

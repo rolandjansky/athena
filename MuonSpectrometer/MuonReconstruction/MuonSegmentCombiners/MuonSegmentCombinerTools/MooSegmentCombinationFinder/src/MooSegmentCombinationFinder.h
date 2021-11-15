@@ -68,16 +68,13 @@ namespace Muon {
 
     private:
         /** helper functions to print summary output for the different stages */
-        void printStage(std::string stageTag) const;
-        void printSummary(std::string stageTag, const MuonSegmentCombinationCollection* col) const;
-        void printSummary(std::string stageTag, const MuonPatternCombinationCollection* col) const;
-        void printSummary(std::string stageTag, const Trk::SegmentCollection* col) const;
-
-        /** helper functions to write out intermediate results */
-        void postProcess(MuonSegmentCombinationCollection* col, MuonSegmentCombPatternCombAssociationMap& segmentPatternMap) const;
-
+        void printStage( const std::string& stageTag) const;
+        void printSummary(const std::string& stageTag, const MuonSegmentCombinationCollection& col) const;
+        void printSummary(const std::string& stageTag, const MuonPatternCombinationCollection& col) const;
+        void printSummary(const std::string& stageTag, const Trk::SegmentCollection& col) const;
+       
         /** extract a segment collection from a segment combination collection */
-        void extractSegmentCollection(const MuonSegmentCombinationCollection* combiCol, Trk::SegmentCollection& segments) const;
+        void extractSegmentCollection(MuonSegmentCombinationCollection& combiCol, Trk::SegmentCollection& segments) const;
 
         /** select segment on quality */
         bool goodSegment(const MuonSegment& segment) const;

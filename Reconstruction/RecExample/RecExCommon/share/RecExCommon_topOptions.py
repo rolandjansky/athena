@@ -444,6 +444,11 @@ if recAlgs.doEFlow():
     #Some settings for pflow have to toggle to a different setup for RecExCommon workflows.
     ConfigFlags.PF.useRecExCommon=True
 
+if rec.doEgamma():
+    # C.A uses Clusters RecExCommom Cluster (rm the "s")
+    ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
+    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
+
 # Lock the flags
 logRecExCommon_topOptions.info("Locking ConfigFlags")
 ConfigFlags.lock()

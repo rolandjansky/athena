@@ -134,6 +134,10 @@ def l1_seq_cfg(flags, options=default_options):
     l1_decoder_alg = acc.getEventAlgo('HLTSeeding')
     l1_decoder_alg.prescaler = CompFactory.PrescalingEmulationTool()
 
+    # Generate L1 menu
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+    generateL1Menu(flags)
+
     # Need to set HLT menu file name here to avoid conflict when merging with HLT sequence CA
     acc.getService("HLTConfigSvc").JsonFileName = _menu_file_name
 

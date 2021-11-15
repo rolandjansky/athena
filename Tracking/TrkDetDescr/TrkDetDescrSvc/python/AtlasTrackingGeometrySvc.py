@@ -42,19 +42,15 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         #################################################################################
         
         # the name to register the Geometry
-        from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-        # previously set to 'AtlasTrackingGeometry', now defaulted to empty string to
-        # trigger the use of the condAlg in place of this service
-        AtlasTrackingGeometryName = ''
-        if not use_tracking_geometry_cond_alg :
-          AtlasTrackingGeometryName = 'AtlasTrackingGeometry'
-        
+        AtlasTrackingGeometryName = 'AtlasTrackingGeometry'
+
         # the geometry builder alg tool
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilder
-        AtlasGeometryBuilder = Trk__GeometryBuilder(name = 'AtlasGeometryBuilder')
-        # switch the building outputlevel on 
+        AtlasGeometryBuilder = Trk__GeometryBuilder(
+            name='AtlasGeometryBuilder')
+        # switch the building outputlevel on
         AtlasGeometryBuilder.OutputLevel = TrkDetFlags.ConfigurationOutputLevel()
-        
+
         # the envelope definition service
         from AthenaCommon.CfgGetter import getService
         AtlasEnvelopeSvc = getService('AtlasGeometry_EnvelopeDefSvc')

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HiveAlgC.h"
@@ -47,10 +47,10 @@ StatusCode HiveAlgC::execute() {
   ATH_MSG_INFO("  read: " << rdh1.key() << " = " << rdh1->val() );
   
   SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
-  wrh1 = std::make_unique< HiveDataObj >( HiveDataObj(30000 + rdh1->val() ) );
+  ATH_CHECK(wrh1.record(std::make_unique< HiveDataObj >(30000 + rdh1->val() )));
 
   SG::WriteHandle<HiveDataObj> wrh2( m_wrh2 );
-  wrh2 = std::make_unique< HiveDataObj >( HiveDataObj(30001) );
+  ATH_CHECK(wrh2.record(std::make_unique< HiveDataObj >(30001)));
   
   ATH_MSG_INFO("  write: " << wrh1.key() << " = " << wrh1->val() );
   ATH_MSG_INFO("  write: " << wrh2.key() << " = " << wrh2->val() );

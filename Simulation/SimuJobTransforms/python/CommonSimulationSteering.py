@@ -58,7 +58,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         cfg = MainServicesCfg(ConfigFlags)
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
         cfg.merge(PoolReadCfg(ConfigFlags))
-        if ConfigFlags.Sim.ReadTR:
+        if ConfigFlags.Sim.ReadTR or ConfigFlags.Sim.CavernBG == "Read":
             # Cases 2a, 2b, 2c
             from TrackRecordGenerator.TrackRecordGeneratorConfigNew import Input_TrackRecordGeneratorCfg
             cfg.merge(Input_TrackRecordGeneratorCfg(ConfigFlags))

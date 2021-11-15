@@ -44,7 +44,7 @@
 #include <map>
 
 // constructor
-HGTDet::HGTD_LayerBuilderCond::HGTD_LayerBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
+HGTD_LayerBuilderCond::HGTD_LayerBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_hgtdMgr(nullptr),
   m_hgtdHelper(nullptr),
@@ -71,12 +71,12 @@ HGTDet::HGTD_LayerBuilderCond::HGTD_LayerBuilderCond(const std::string& t, const
 }
 
 // destructor
-HGTDet::HGTD_LayerBuilderCond::~HGTD_LayerBuilderCond()
+HGTD_LayerBuilderCond::~HGTD_LayerBuilderCond()
 {}
 
 // Athena standard methods
 // initialize
-StatusCode HGTDet::HGTD_LayerBuilderCond::initialize()
+StatusCode HGTD_LayerBuilderCond::initialize()
 {
 
     ATH_MSG_DEBUG( "initialize()" );
@@ -91,13 +91,13 @@ StatusCode HGTDet::HGTD_LayerBuilderCond::initialize()
 }
 
 // finalize
-StatusCode HGTDet::HGTD_LayerBuilderCond::finalize()
+StatusCode HGTD_LayerBuilderCond::finalize()
 {
     ATH_MSG_DEBUG( "finalize() successful" );
     return StatusCode::SUCCESS;
 }
 
-SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> HGTDet::HGTD_LayerBuilderCond::retrieveHGTDdetElements(const EventContext& ctx) const
+SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> HGTD_LayerBuilderCond::retrieveHGTDdetElements(const EventContext& ctx) const
 {
   auto readHandle = SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> (m_HGTD_ReadKey, ctx);
   if (*readHandle==nullptr) {
@@ -109,9 +109,9 @@ SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> HGTDet::HGTD_LayerBu
 
 /** LayerBuilder interface method - returning Endcap-like layers */
 std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
-HGTDet::HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
+HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
 {
-  ATH_MSG_DEBUG( "calling HGTDet::HGTD_LayerBuilderCond::discLayers()" );
+  ATH_MSG_DEBUG( "calling HGTD_LayerBuilderCond::discLayers()" );
   
   // sanity check for HGTD Helper
   if (!m_hgtdHelper){
@@ -330,7 +330,7 @@ HGTDet::HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
   return std::make_pair(range, discLayers);
 }
 
-const Trk::BinnedLayerMaterial HGTDet::HGTD_LayerBuilderCond::discLayerMaterial(double rMin, double rMax) const
+const Trk::BinnedLayerMaterial HGTD_LayerBuilderCond::discLayerMaterial(double rMin, double rMax) const
 {
   Trk::BinUtility layerBinUtilityR(m_rBins, rMin, rMax, Trk::open, Trk::binR);
   Trk::BinUtility layerBinUtilityPhi(m_phiBins, -M_PI, M_PI, Trk::closed, Trk::binPhi);
@@ -338,7 +338,7 @@ const Trk::BinnedLayerMaterial HGTDet::HGTD_LayerBuilderCond::discLayerMaterial(
   return Trk::BinnedLayerMaterial(layerBinUtilityR);  
 }     
 
-void HGTDet::HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
+void HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
 {
    if (!m_setLayerAssociation) return;    
    // register the surfaces to the layer
@@ -352,9 +352,9 @@ void HGTDet::HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<co
    return;
 }
 
-void HGTDet::HGTD_LayerBuilderCond::evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
-                                                    std::vector<float>& rBins, float& maxRadius,
-                                                    std::vector<std::vector<float>>& phiBins) 
+void HGTD_LayerBuilderCond::evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
+                                                std::vector<float>& rBins, float& maxRadius,
+                                                std::vector<std::vector<float>>& phiBins) 
 {
   // get all the centers (r,phi), as you want to play with them
   std::vector < std::pair< float, float> > centers = {};

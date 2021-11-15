@@ -112,4 +112,4 @@ theLArBadChannels2Ascii.WithMissing=False
 theLArBadChannels2Ascii.ExecutiveSummaryFile=ExecutiveSummaryFile
 topSequence+=theLArBadChannels2Ascii
 
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2018-06" 

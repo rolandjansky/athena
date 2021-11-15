@@ -100,6 +100,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 
 ConfigFlags.LAr.doAlign = False
+ConfigFlags.Detector.GeometryTile = False
 ConfigFlags.Input.Files = defaultTestFiles.AOD_MC
 
 ConfigFlags.lock()

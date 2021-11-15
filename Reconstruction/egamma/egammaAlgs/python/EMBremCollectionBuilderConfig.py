@@ -19,6 +19,9 @@ def GSFTrackSummaryToolCfg(flags,
     # TODO what happens to
     # ClusterSplitProbabilityName=
     # TrackingCommon.combinedClusterSplitProbName() ?
+    # It is "InDetTRT_SeededAmbiguityProcessorSplitProb" in run-2 config
+    #         (because backTrk and TRTSA are run)
+    # It might be "AmbiguityProcessorSplitProb" in run-3 config (only one existing till now)
     if "InDetSummaryHelperTool" not in kwargs:
         from InDetConfig.TrackingCommonConfig import (
             InDetRecTestBLayerToolCfg)
@@ -80,7 +83,7 @@ def EMBremCollectionBuilderCfg(flags,
             KeepParameters=True,
             TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
             UseTrackSummaryTool=False,
-            BadClusterID=flags.InDet.pixelClusterBadClusterID)
+            BadClusterID=0)
         kwargs["TrackParticleCreatorTool"] = gsfTrackParticleCreatorTool
 
     if "TrackSlimmingTool" not in kwargs:

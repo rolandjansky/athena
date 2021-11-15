@@ -40,8 +40,7 @@ def TileGeoG4SDCalcCfg(ConfigFlags, name="TileGeoG4SDCalc", **kwargs):
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.ReadTR:
         kwargs.setdefault("DeltaTHit", [1])
         kwargs.setdefault("DoTOFCorrection", False)
-    if ConfigFlags.Sim.ParticleID:
-        kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
+    kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
 
     result.addService( TileGeoG4SDCalc(name, **kwargs) )
     return result
@@ -51,8 +50,7 @@ def TileCTBGeoG4SDCalcCfg(ConfigFlags, name="TileCTBGeoG4SDCalc", **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("TileTB", True)
-    if ConfigFlags.Sim.ParticleID:
-        kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
+    kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
 
     result.addService( TileGeoG4SDCalc(name, **kwargs) )
     return result

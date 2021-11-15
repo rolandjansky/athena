@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_RdoToDigit.h"
@@ -78,6 +78,7 @@ StatusCode MM_RdoToDigit::decodeMM( const Muon::MM_RawDataCollection * rdoColl, 
       if (oldId != elementId) {
         MmDigitCollection * coll = nullptr;
         auto sc ATLAS_THREAD_SAFE  = mmContainer->naughtyRetrieve(coll_hash, coll);
+        ATH_CHECK( sc );
         if (nullptr ==  coll) {
           MmDigitCollection * newCollection =
             new MmDigitCollection(elementId,coll_hash);

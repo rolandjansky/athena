@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1RESULTBYTESTREAM_IL1TRIGGERBYTESTREAMTOOL_H
 #define TRIGT1RESULTBYTESTREAM_IL1TRIGGERBYTESTREAMTOOL_H
 
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "ByteStreamData/RawEvent.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
+#include "eformat/Status.h"
 
 /**
  * @class IL1TriggerByteStreamTool
@@ -33,6 +35,10 @@ public:
    * convert it to raw data, and fill the vrobf vector. The function is not const, as it needs to rely on
    * the internal cache to track data allocated for BS representation. The provided helpers clearCache,
    * newRodData, newRobFragment should be used to allocate memory for the BS representation.
+   *
+   * The caller should set LVL1 ID and TriggerType in all ROBs created by this function after it returns,
+   * because it already has a handle on the FullEventFragment (RawEvent). The LVL1 ID and TriggerType set
+   * for the ROBs inside this function should not matter.
    **/
   virtual StatusCode convertToBS(std::vector<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment*>& vrobf,
                                  const EventContext& eventContext) = 0;
@@ -49,18 +55,39 @@ public:
 protected:
   /// Helper to clear the ByteStream data cache for a given event slot
   inline void clearCache(const EventContext& eventContext) {
-    m_cache[eventContext.slot()].clear();
+    m_cache.get(eventContext)->clear();
   }
   /// Allocate new array of raw ROD words for output ByteStream data
   inline uint32_t* newRodData(const EventContext& eventContext, const size_t size) {
-    m_cache[eventContext.slot()].rodData.push_back(std::make_unique<uint32_t[]>(size));
-    return m_cache[eventContext.slot()].rodData.back().get();
+    Cache* cache = m_cache.get(eventContext);
+    cache->rodData.push_back(std::make_unique<uint32_t[]>(size));
+    return cache->rodData.back().get();
   }
   /// Allocate new ROBFragment for output ByteStream data
-  template<typename ...Ts> inline OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment* newRobFragment(const EventContext& eventContext, Ts... args) {
-    m_cache[eventContext.slot()].robFragments.push_back(std::make_unique<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment>(args...));
-    return m_cache[eventContext.slot()].robFragments.back().get();
+  inline OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment* newRobFragment(
+    const EventContext& eventContext,
+    uint32_t source_id,
+    uint32_t ndata,
+    const uint32_t* data,
+    uint32_t detev_type = 0,
+    uint32_t status_position = eformat::STATUS_BACK) {
+
+    Cache* cache = m_cache.get(eventContext);
+    const EventIDBase& eid = eventContext.eventID();
+    cache->robFragments.push_back(std::make_unique<OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment>(
+      source_id,
+      eid.run_number(),
+      0, // lvl1_id will be overwritten downstream from full event fragment
+      eid.bunch_crossing_id(),
+      0, // lvl1_type will be overwritten downstream from full event fragment
+      detev_type,
+      ndata,
+      data,
+      status_position
+    ));
+    return cache->robFragments.back().get();
   }
+
 private:
   /**
    * @brief Cache which tracks memory allocated for ByteStream data representation in the convertToBS method.
@@ -80,7 +107,7 @@ private:
       robFragments.clear();
     }
   };
-  std::unordered_map<EventContext::ContextID_t, Cache> m_cache; // one cache per event slot
+  SG::SlotSpecificObj<Cache> m_cache; // one cache per event slot
 };
 
 #endif // TRIGT1RESULTBYTESTREAM_IL1TRIGGERBYTESTREAMTOOL_H

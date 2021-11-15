@@ -12,6 +12,10 @@ atlas_add_library( AthCUDAKernelLib
 set_target_properties( AthCUDAKernelLib PROPERTIES
    POSITION_INDEPENDENT_CODE ON )
 
+# Disable faulty "declared but never used" warnings for the template code.
+target_compile_options( AthCUDAKernelLib PUBLIC
+   $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=177> )
+
 # Test(s) in the package.
 atlas_add_test( ArrayKernelTask
    SOURCES test/test_ArrayKernelTask.cu

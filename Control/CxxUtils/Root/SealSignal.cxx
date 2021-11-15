@@ -38,6 +38,10 @@ static const int SIGNAL_MESSAGE_BUFSIZE = 2048;
 #include <sys/stat.h>
 #include <unistd.h>                            // krasznaa
 
+#if defined(__aarch64__) && defined(__linux)
+# include "arm_helpers.h"
+#endif
+
 /* http://dmawww.epfl.ch/ebt-bin/nph-dweb/dynaweb/SGI_Developer/
      T_IRIX_Prog/@Generic__BookTextView/7525
 
@@ -1447,6 +1451,8 @@ Signal::dumpContext (IOFD fd, char *buf, unsigned int buf_size, const void *cont
 	MYWRITE (fd, buf, snprintf (buf, buf_size, "\n  vr%-2d %08lx:%08lx:%08lx:%08lx", i,
                                     (*mc)->vs.save_vr[i][0], (*mc)->vs.save_vr[i][1],
                                     (*mc)->vs.save_vr[i][2], (*mc)->vs.save_vr[i][3]));
+#elif defined __aarch64__ && defined __linux
+    CxxUtils::aarch64_dump_registers (fd, buf, buf_size, *mc);
 #elif __sun
     for (int i = 0; i < NGREG; i++)
 	MYWRITE (fd, buf, snprintf (buf, buf_size, "%s  %%r%02d = %08x",

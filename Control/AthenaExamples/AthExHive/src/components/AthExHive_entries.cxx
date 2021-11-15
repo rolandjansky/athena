@@ -6,6 +6,7 @@
 #include "../HiveAlgF.h"
 #include "../HiveAlgG.h"
 #include "../HiveAlgV.h"
+#include "../HiveAlgR.h"
 
 #include "../HiveExSvc.h"
 
@@ -14,10 +15,6 @@
 #include "../loopTest/HiveAlgL3.h"
 #include "../loopTest/HiveAlgM.h"
 #include "../loopTest/HiveTool.h"
-
-#ifdef REENTRANT_GAUDI
-  #include "../HiveAlgR.h"
-#endif
 
 #include "../condEx/AlgA.h"
 #include "../condEx/AlgB.h"
@@ -45,10 +42,7 @@ DECLARE_COMPONENT( HiveAlgL2 )
 DECLARE_COMPONENT( HiveAlgL3 )
 DECLARE_COMPONENT( HiveAlgM )
 DECLARE_COMPONENT( HiveAlgV )
-
-#ifdef REENTRANT_GAUDI
-  DECLARE_COMPONENT( HiveAlgR )
-#endif
+DECLARE_COMPONENT( HiveAlgR )
 
 DECLARE_COMPONENT( AlgA )
 DECLARE_COMPONENT( AlgB )
