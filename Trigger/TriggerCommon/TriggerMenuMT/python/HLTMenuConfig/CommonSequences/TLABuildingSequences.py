@@ -23,11 +23,12 @@ def addTLAStep(chain, chainDict):
         
         isPFlow = False
         if tlaSignature == 'Jet':
-            if chainDict['constitType'] == 'pf':
+            print(chainDict)
+            if chainDict['chainParts'][0]['constitType'] == 'pf':
                 print("Setting isPFLow = True")
-                isPFLow = True
+                isPFlow = True
 
-        tlaSequencesList.append( RecoFragmentsPool.retrieve(getTLASignatureSequence, ConfigFlags, tlaSignature=tlaSignature, isPFLow=isPFLow) )
+        tlaSequencesList.append( RecoFragmentsPool.retrieve(getTLASignatureSequence, ConfigFlags, tlaSignature=tlaSignature, isPFlow=isPFlow) )
         #tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, tlaSignature=tlaSignature)),
             
     log.debug("addTLAStep: About to add a step with: ", len(tlaSequencesList), "parallel sequences.")            
@@ -64,7 +65,7 @@ def getTLASignatureSequence(ConfigFlags, tlaSignature, isPFlow=False):
     elif "Jet" in tlaSignature:
         from ..Jet.JetTLASequences import TLAJetMenuSequence
         jetOutCollectionName = "HLT_AntiKt4EMTopoJets_subjesIS"
-        if isPFLow jetOutCollectionName = "HLT_AntiKt4EMPFlowJets_subjesIS"
+        if isPFlow: jetOutCollectionName = "HLT_AntiKt4EMPFlowJets_subjesIS"
         return RecoFragmentsPool.retrieve(TLAJetMenuSequence, ConfigFlags, jetsIn=jetOutCollectionName)
         #return sequence
        # return TLAJetMenuSequence(ConfigFlags, jetOutCollectionName)

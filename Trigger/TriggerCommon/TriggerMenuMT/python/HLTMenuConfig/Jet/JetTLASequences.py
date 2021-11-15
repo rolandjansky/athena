@@ -16,7 +16,7 @@ def TLAJetSequence (flags, jetsIn):
     tlaJetInputMakerAlg.mergeUsingFeature = True
     
     print("MARCO: inside TLAJetSequence")
-    tlaJetAthSequence = seqAND( "TLAJetAthSequence", [tlaJetInputMakerAlg] )
+    tlaJetAthSequence = seqAND( "TLAJetAthSequence_"+jetsIn, [tlaJetInputMakerAlg] )
     sequenceOut = jetsIn+"_TLA"
     return (tlaJetAthSequence, tlaJetInputMakerAlg, sequenceOut)
 
@@ -29,7 +29,7 @@ def TLAJetMenuSequence( flags, jetsIn ):
     from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetTLAHypoAlg
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetTLAHypoToolFromDict
 
-    hypo = TrigJetTLAHypoAlg("TrigJetTLAHypoAlg") 
+    hypo = TrigJetTLAHypoAlg("TrigJetTLAHypoAlg_"+jetsIn) 
 
     
     hypo.TLAOutputName = sequenceOut
