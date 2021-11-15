@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "Running GDB wrapper at '@ATLAS_IDE_PREFIX@gdb_wrapper'"
+echo
+
+"@ATLAS_IDE_PREFIX@gdb_wrapper" "$@"

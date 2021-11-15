@@ -1,0 +1,3 @@
+#!/bin/bash
+
+"@CMAKE_BINARY_DIR@@CMAKE_FILES_DIRECTORY@/atlas_build_run.sh" "@Python_EXECUTABLE@" -m flake8 "$@"

@@ -13,13 +13,14 @@
     "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
         "git.path": "/opt/rh/sclo-git25/root/usr/bin/git",
-        "python.envFile": "/workspaces/build/env.txt",
+        "python.envFile": "${workspaceFolder}/../build/env.txt",
         "python.linting.enabled": true,
         "python.linting.pylintEnabled": false,
         "python.linting.flake8Enabled": true,
         "python.linting.flake8Args": [
-            "--select=ATL,F,E7,E9,W6",
-            "--enable-extension=ATL902"
+            "--select=ATL,F,E101,E7,E9,W6",
+            "--ignore=ATL238,ATL9,E701,E702,E704,E741",
+            "--enable-extensions=ATL902"
         ]
     },
 
