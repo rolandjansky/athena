@@ -34,40 +34,30 @@ void MuonHoughHitContainer::removeHit(int hitno) {
 
 int MuonHoughHitContainer::getRPChitno() const {
     int rpchitno = 0;
-    for (unsigned int i = 0; i < m_hit.size(); i++) {
-        if (getDetectorId(i) == MuonHough::RPC) { rpchitno++; }
-    }
+    for (unsigned int i = 0; i < m_hit.size(); i++) { rpchitno += getDetectorId(i) == MuonHough::RPC; }
     return rpchitno;
 }
 
 int MuonHoughHitContainer::getMDThitno() const {
     int mdthitno = 0;
-    for (unsigned int i = 0; i < m_hit.size(); i++) {
-        if (getDetectorId(i) == MuonHough::MDT) { mdthitno++; }
-    }
+    for (unsigned int i = 0; i < m_hit.size(); i++) { mdthitno += getDetectorId(i) == MuonHough::MDT; }
     return mdthitno;
 }
 
 int MuonHoughHitContainer::getRPCetahitno() const {
     int rpchitno = 0;
-    for (unsigned int i = 0; i < m_hit.size(); i++) {
-        if (getDetectorId(i) == MuonHough::RPC && getMeasuresPhi(i) == 0) { rpchitno++; }
-    }
+    for (unsigned int i = 0; i < m_hit.size(); i++) { rpchitno += getDetectorId(i) == MuonHough::RPC && getMeasuresPhi(i); }
     return rpchitno;
 }
 
 int MuonHoughHitContainer::getCSChitno() const {
     int cschitno = 0;
-    for (unsigned int i = 0; i < m_hit.size(); i++) {
-        if (getDetectorId(i) == MuonHough::CSC) { cschitno++; }
-    }
+    for (unsigned int i = 0; i < m_hit.size(); i++) { cschitno += getDetectorId(i) == MuonHough::CSC; }
     return cschitno;
 }
 
 int MuonHoughHitContainer::getTGChitno() const {
     int tgchitno = 0;
-    for (unsigned int i = 0; i < m_hit.size(); i++) {
-        if (getDetectorId(i) == MuonHough::TGC) { tgchitno++; }
-    }
+    for (unsigned int i = 0; i < m_hit.size(); i++) { tgchitno += getDetectorId(i) == MuonHough::TGC; }
     return tgchitno;
 }

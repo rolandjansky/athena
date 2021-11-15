@@ -22,12 +22,18 @@ namespace {
     // Avoid FPEs occuring in clang 10 , e.g.,
     // FPEAuditor  2   1 WARNING FPE OVERFLOW in [Execute] of [MuGirlStauAlg] on event 257948896 0 0
     // by large number
-    float invtan(const float x) { return x == 0 || x == M_PI ? 1.e12 : 1. / std::tan(x); }
+    /// Use the relation cot(x) = tan(pi/2 -x )
+    float cot(const float x) {
+        const float arg = M_PI_2 - x;
+        // Tan becomes singular at -pi/2 and pi/2
+        if (std::abs(arg - M_PI_2) <= FLT_EPSILON || std::abs(arg + M_PI_2) <= FLT_EPSILON) return 1.e12;
+        return std::tan(arg);
+    }
 }  // namespace
 namespace MuonHough {
 
     MuonLayerHough::MuonLayerHough(const RegionDescriptor& descriptor) :
-        max(0), maxhist(-1), maxbin(-1), m_debug(false), m_descriptor(descriptor) {
+         m_descriptor(descriptor) {
         // calculate the number of bins
         m_nbins = (m_descriptor.yMaxRange - m_descriptor.yMinRange) / m_descriptor.yBinSize;  // the same for all the cycles
         m_binsize = (m_descriptor.yMaxRange - m_descriptor.yMinRange) / m_nbins;
@@ -52,9 +58,9 @@ namespace MuonHough {
             float dtheta = m_descriptor.thetaStep;
             float dthetaOffset = 2 * m_descriptor.thetaStep * (ci - (cycles - 1) / 2.);
             float theta = std::atan2(x, y);
-            float zref = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset) + y;
-            float z0 = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset + dtheta) + y;
-            float z1 = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset - dtheta) + y;
+            float zref = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset) + y;
+            float z0 = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset + dtheta) + y;
+            float z1 = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset - dtheta) + y;
 
             float zmin = z0 < z1 ? z0 : z1;
             float zmax = z0 < z1 ? z1 : z0;
@@ -394,9 +400,9 @@ namespace MuonHough {
             float dtheta = m_descriptor.thetaStep;
             float dthetaOffset = 2 * m_descriptor.thetaStep * (relbin);  // if bintheta = cycles, this is the same as dtheta * (cycles + 1 )
             float theta = std::atan2(x, y);
-            float z0 = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset + dtheta) +
+            float z0 = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset + dtheta) +
                        y;  // move the angle by a step, recalculate the new y value
-            float z1 = (m_descriptor.referencePosition - x) * invtan(theta - dthetaOffset - dtheta) + y;
+            float z1 = (m_descriptor.referencePosition - x) * cot(theta - dthetaOffset - dtheta) + y;
 
             float zmin = z0 < z1 ? z0 : z1;
             float zmax = z0 < z1 ? z1 : z0;
@@ -488,14 +494,14 @@ namespace MuonHough {
         float dthetaOffset = 2 * dtheta * (bintheta - (cycles - 1) / 2.);
 
         float theta1 = std::atan2(x, y1) - dthetaOffset;
-        float z01 = dx * invtan(theta1 + dtheta) + y1;
-        float z11 = dx * invtan(theta1 - dtheta) + y1;
+        float z01 = dx * cot(theta1 + dtheta) + y1;
+        float z11 = dx * cot(theta1 - dtheta) + y1;
         float zmin1 = std::min(z01, z11);
         float zmax1 = std::max(z01, z11);
 
         float theta2 = std::atan2(x, y2) - dthetaOffset;
-        float z02 = dx * invtan(theta2 + dtheta) + y2;
-        float z12 = dx * invtan(theta2 - dtheta) + y2;
+        float z02 = dx * cot(theta2 + dtheta) + y2;
+        float z12 = dx * cot(theta2 - dtheta) + y2;
         float zmin2 = std::min(z02, z12);
         float zmax2 = std::max(z02, z12);
 
@@ -523,7 +529,7 @@ namespace MuonHough {
             float expected = 0;
             float extrapolated_diff = 9999;
             float tan_theta_ref = std::tan(theta_ref);
-            float invtan_theta_ref = 1. * invtan(theta_ref);
+            float invtan_theta_ref = 1. * cot(theta_ref);
             float r_start = ref.hough->m_descriptor.chIndex % 2 > 0
                                 ? 4900.
                                 : 5200.;  // start of barrel B field; values could be further optimized; 5500.:6500.

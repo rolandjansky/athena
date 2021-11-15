@@ -11,7 +11,7 @@
 
 namespace MuonHough {
 
-    typedef std::pair<int, double> valPair;
+    using valPair = std::pair<int, float>;
 
     MuonLayerHoughSelector::MuonLayerHoughSelector(std::vector<std::pair<int, float>> cutValues) {
         m_cutValues = std::move(cutValues);

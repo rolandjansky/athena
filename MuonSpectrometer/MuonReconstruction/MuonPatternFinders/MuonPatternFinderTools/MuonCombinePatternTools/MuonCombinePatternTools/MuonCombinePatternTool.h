@@ -16,15 +16,15 @@
 class MuonCombinePatternTool : public AthAlgTool, virtual public Muon::IMuonCombinePatternTool {
 private:
     struct ChamberInfo {
-        ChamberInfo() : neta(0), nphi(0), ninside(0), noutside(0), ninsidePat(0), noutsidePat(0), phiMin(1e9), phiMax(-1e9) {}
-        int neta;
-        int nphi;
-        int ninside;
-        int noutside;
-        int ninsidePat;
-        int noutsidePat;
-        double phiMin;
-        double phiMax;
+        ChamberInfo() = default;
+        int neta{0};
+        int nphi{0};
+        int ninside{0};
+        int noutside{0};
+        int ninsidePat{0};
+        int noutsidePat{0};
+        double phiMin{FLT_MAX};
+        double phiMax{-FLT_MAX};
     };
     typedef std::map<Identifier, ChamberInfo> IdChMap;
     typedef IdChMap::iterator IdChIt;
@@ -106,7 +106,7 @@ private:
 
     /** calculate new track parameters of match (only for cosmics!) returns [r0,
      * phi, rz0, theta]*/
-    double* updateParametersForCosmics(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern) const;
+    std::array<double,4> updateParametersForCosmics(const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern) const;
 
     /** calculate phi and r0 for cosmic patterns, phi estimate needs to be given
      */
@@ -119,7 +119,7 @@ private:
     /** update patterns based on new track parameters (used only for cosmics)
      * builds 2 new prd patterns */
     static std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*> updatePatternsForCosmics(
-        const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, const double* new_pars);
+        const Muon::MuonPrdPattern* phipattern, const Muon::MuonPrdPattern* etapattern, const std::array<double,4>&  new_pars);
 
     /** calculates global position of prd */
     static const Amg::Vector3D& globalPrdPos(const Trk::PrepRawData* prd);
@@ -129,7 +129,7 @@ private:
     void addCandidate(
         const Muon::MuonPrdPattern* etapattern, const Muon::MuonPrdPattern* phipattern,
         std::vector<std::pair<const Muon::MuonPrdPattern*, const Muon::MuonPrdPattern*>>& candidates, bool add_asspattern,
-        std::vector<const Muon::MuonPrdPattern*>& patternsToDelete,
+        std::vector<std::unique_ptr<const Muon::MuonPrdPattern>>& patternsToDelete,
         const std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*, Muon::IdentifierPrdLess>>* phiEtaHitAssMap) const;
 
     /** clean candidates from subsets or duplicates */

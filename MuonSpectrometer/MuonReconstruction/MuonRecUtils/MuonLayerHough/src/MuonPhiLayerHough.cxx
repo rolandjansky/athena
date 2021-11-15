@@ -13,19 +13,18 @@
 namespace MuonHough {
 
     MuonPhiLayerHough::MuonPhiLayerHough(int nbins, float rangemin, float rangemax, Muon::MuonStationIndex::DetectorRegionIndex region) :
-        m_rangemin(rangemin), m_rangemax(rangemax), m_region(region), m_nbins(nbins), m_debug(false) {
+        m_rangemin(rangemin), m_rangemax(rangemax), m_region(region), m_nbins(nbins), m_histo{new unsigned int[m_nbins]} {
         // calculate the binsize
         m_binsize = (m_rangemax - m_rangemin) / m_nbins;
         m_invbinsize = 1. / m_binsize,
 
         // setup the histograms
-            m_histo = new unsigned int[m_nbins];
-        reset();
+            reset();
     }
 
-    MuonPhiLayerHough::~MuonPhiLayerHough() { delete[] m_histo; }
+    MuonPhiLayerHough::~MuonPhiLayerHough() = default;
 
-    void MuonPhiLayerHough::reset() const { memset(m_histo, 0, sizeof(unsigned int) * m_nbins); }
+    void MuonPhiLayerHough::reset() const { memset(m_histo.get(), 0, sizeof(unsigned int) * m_nbins); }
 
     void MuonPhiLayerHough::fillLayer2(const std::vector<PhiHit*>& hits, bool subtract) const {
         if (hits.empty()) return;
