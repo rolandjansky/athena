@@ -7,7 +7,6 @@ atlas_subdir( ActsGeometry )
 find_package( Acts COMPONENTS Core PluginJson )
 find_package( Boost )
 find_package( CLHEP )
-find_package( Geant4 )
 find_package( GeoModel COMPONENTS GeoModelKernel )
 find_package( ROOT COMPONENTS Core Tree RIO )
 find_package( TBB )
@@ -21,8 +20,8 @@ atlas_add_library( ActsGeometryLib
                    src/ActsTrackingGeometrySvc.cxx
                    src/util/*.cxx
                    PUBLIC_HEADERS ActsGeometry
-                   INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TBB_LIBRARIES}
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TBB_LIBRARIES}
                    ActsCore
                    ActsGeometryInterfacesLib
                    ActsInteropLib
@@ -68,9 +67,6 @@ atlas_add_component( ActsGeometry
                      src/ActsTrackingGeometryTool.cxx
                      src/ActsPropStepRootWriterSvc.cxx
                      src/ActsCaloTrackingVolumeBuilder.cxx
-                     src/ActsGeantFollower.cxx
-                     src/ActsGeantFollowerHelper.cxx
-                     src/ActsGeantFollowerTool.cxx
                      src/ActsATLASConverterTool.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}

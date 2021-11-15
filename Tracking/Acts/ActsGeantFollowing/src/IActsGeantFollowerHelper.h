@@ -26,7 +26,7 @@ class IActsGeantFollowerHelper : virtual public IAlgTool {
     // a) begin event - initialize follower process
     virtual void beginEvent() const = 0;
     // b) track the particle
-    virtual void trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0) const = 0;
+    virtual void trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0, bool isSensitive) const = 0;
     // c) end event - ntuple writing
     virtual void endEvent() const = 0;
 

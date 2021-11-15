@@ -17,10 +17,13 @@ class ConfiguredActsRefittingTrackingGeometry( ActsTrackingGeometryTool ) :
     subDetectors += ["SCT"]
     subDetectors += ["TRT"]
     subDetectors += ["Calo"]
-     
+
     from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
     ActsTrackingGeometrySvc = ActsTrackingGeometrySvc(name = "ActsTrackingGeometrySvc",
                                                       BuildSubDetectors=subDetectors)
+    
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    ActsTrackingGeometrySvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()                                                  
     ActsTrackingGeometrySvc.UseMaterialMap = True
     ActsTrackingGeometrySvc.MaterialMapInputFile = "/eos/project-a/acts/public/MaterialMaps/ATLAS-material-maps.json"
     from AthenaCommon.AppMgr import ServiceMgr

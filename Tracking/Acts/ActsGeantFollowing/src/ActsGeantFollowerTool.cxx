@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsGeometry/ActsGeantFollowerTool.h"
+#include "ActsGeantFollowerTool.h"
 
 ActsGeantFollowerTool::ActsGeantFollowerTool(const std::string& type,
                                              const std::string& name,

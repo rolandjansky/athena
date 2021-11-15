@@ -12,6 +12,8 @@
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 #topSeq.ContinueEventloopOnFPE = True
 from RecExConfig.RecFlags import rec as rec
 rec.doFloatingPointException.set_Value_and_Lock(True)
@@ -135,93 +137,10 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
-# PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
-
-TestEnergyLossUpdator  = []
-from TrkExTools.TrkExToolsConf import Trk__EnergyLossUpdator
-AtlasEnergyLossUpdator = Trk__EnergyLossUpdator(name="AtlasEnergyLossUpdator")
-ToolSvc  += AtlasEnergyLossUpdator
-ToolSvc.AtlasEnergyLossUpdator.DetailedEloss = True
-TestEnergyLossUpdator  += [AtlasEnergyLossUpdator]
-
-TestPropagators  = []
-
-from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
-TestPropagator = Propagator(name = 'TestPropagator')
-ToolSvc += TestPropagator
-
-TestPropagators += [ TestPropagator ]
-
-from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as STEP_Propagator
-TestSTEP_Propagator = STEP_Propagator(name = 'TestSTEP_Propagator')
-ToolSvc += TestSTEP_Propagator
-TestSTEP_Propagator.DetailedEloss = True
-
-TestPropagators += [TestSTEP_Propagator]
-
-# UPDATOR DEFAULTS -----------------------------------------------------------------------------------------
-
-TestUpdators    = []
-
-from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MaterialEffectsUpdator
-TestMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'TestMaterialEffectsUpdator')
-ToolSvc += TestMaterialEffectsUpdator
-if myPDG == 998 or myPDG == 999:
-    TestMaterialEffectsUpdator.EnergyLoss           = False
-    TestMaterialEffectsUpdator.MultipleScattering   = False
-
-TestUpdators    += [ TestMaterialEffectsUpdator ]
-
-TestMaterialEffectsUpdatorLandau = MaterialEffectsUpdator(name = 'TestMaterialEffectsUpdatorLandau')
-TestMaterialEffectsUpdatorLandau.LandauMode           = True
-ToolSvc += TestMaterialEffectsUpdatorLandau
-if myPDG == 998 or myPDG == 999 :
-    TestMaterialEffectsUpdatorLandau.EnergyLoss           = False
-    TestMaterialEffectsUpdatorLandau.MultipleScattering   = False
-
-##TestUpdators    += [ TestMaterialEffectsUpdatorLandau ]
-
-# the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
-from TrkExTools.TrkExToolsConf import Trk__Navigator
-TestNavigator = Trk__Navigator(name = 'TestNavigator')
-TestNavigator.TrackingGeometrySvc = "Trk::TrackingGeometrySvc/AtlasTrackingGeometrySvc"
-ToolSvc += TestNavigator
-
-# CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
-
-TestSubPropagators = []
-TestSubUpdators = []
-
-# -------------------- set it depending on the geometry ----------------------------------------------------
-# default for ID is (Rk,Mat)
-TestSubPropagators += [ TestPropagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-
-# default for Calo is (Rk,MatLandau)
-TestSubPropagators += [ TestPropagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-
-TestSubPropagators += [ TestPropagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-
-# default for MS is (STEP,Mat)
-TestSubPropagators += [ TestSTEP_Propagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-
-TestSubPropagators += [ TestSTEP_Propagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-
-TestSubPropagators += [ TestPropagator.name() ]
-TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-# ----------------------------------------------------------------------------------------------------------
-
-
 # SET UP ALIGNMENT CONDITIONS ALGORITHM
 from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc( OutputLevel=INFO )
+ServiceMgr += CondSvc( OutputLevel=INFO )
 from ActsGeometry import ActsGeometryConf
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
 
 condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
                                                      OutputLevel=INFO)
@@ -229,22 +148,9 @@ condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
 # We need the Magnetic fiels
 import MagFieldServices.SetupField
 
-# call the base class constructor
-from TrkExTools.TrkExToolsConf import Trk__Extrapolator
-TestExtrapolator = Trk__Extrapolator('TestExtrapolator',\
-                           Navigator = TestNavigator,\
-                           MaterialEffectsUpdators = TestUpdators,\
-                           Propagators = TestPropagators,\
-                           EnergyLossUpdators = TestEnergyLossUpdator,\
-                           STEP_Propagator = TestSTEP_Propagator.name(),\
-                           SubPropagators = TestSubPropagators,\
-                           SubMEUpdators = TestSubUpdators)
-ToolSvc += TestExtrapolator
-
-from AthenaCommon.AppMgr import ServiceMgr
 # set up and configure the acts geometry construction
 from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
-trkGeomSvc = ActsTrackingGeometrySvc()
+trkGeomSvc = ActsTrackingGeometrySvc("ActsTrackingGeometrySvc")
 # used for the proxies during material mapping
 trkGeomSvc.OutputLevel = INFO
 trkGeomSvc.BuildSubDetectors = [
@@ -253,8 +159,10 @@ trkGeomSvc.BuildSubDetectors = [
   "TRT",
   "Calo"
 ]
+from AthenaConfiguration.ComponentFactory import CompFactory
+trkGeomSvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()
 trkGeomSvc.UseMaterialMap = True
-trkGeomSvc.MaterialMapInputFile = "material-maps.json"
+trkGeomSvc.MaterialMapInputFile = "/eos/project-a/acts/public/MaterialMaps/ATLAS-material-maps.json"
 ServiceMgr += trkGeomSvc
 
 # sets up the extrapolation tool
@@ -277,13 +185,20 @@ if myPDG == 998 or myPDG == 999 :
 # For each event, the GAS for the IOV needs to be set from the algorithm.
 trkGeomTool = CfgMgr.ActsTrackingGeometryTool("ActsTrackingGeometryTool")
 trkGeomTool.OutputLevel = INFO
+ToolSvc += trkGeomTool
+
 ActsExtrapolator.TrackingGeometryTool = trkGeomTool
 ToolSvc += ActsExtrapolator
 
-from ActsGeometry.ActsGeometryConf import ActsGeantFollowerHelper
+
+from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
+ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas')
+ToolSvc += ExtrapolationEngine
+
+from ActsGeantFollowing.ActsGeantFollowingConf import ActsGeantFollowerHelper
 ActsGeantFollowerHelper = ActsGeantFollowerHelper(name="ActsGeantFollowerHelper")
-ActsGeantFollowerHelper.Extrapolator             = TestExtrapolator
 ActsGeantFollowerHelper.ActsExtrapolator         = ActsExtrapolator
+ActsGeantFollowerHelper.ExtrapolationEngine      = ExtrapolationEngine
 ActsGeantFollowerHelper.ExtrapolateDirectly      = False
 ActsGeantFollowerHelper.ExtrapolateIncrementally = False
 ActsGeantFollowerHelper.OutputLevel = INFO
@@ -294,9 +209,10 @@ simFlags.OptionalUserActionList.addAction('ActsGeantFollowerTool')
 ############### The output collection #######################
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-
-from GaudiSvc.GaudiSvcConf import THistSvc
-ServiceMgr += THistSvc()
+from AthenaCommon.AppMgr import ServiceMgr
+if not hasattr(ServiceMgr, 'THistSvc'):
+    from GaudiSvc.GaudiSvcConf import THistSvc
+    ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += [ "val DATAFILE='GeantFollowing.root' TYPE='ROOT' OPT='RECREATE'" ]
 
 ##############################################################
@@ -311,15 +227,16 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # Conditions sequence for Athena MT
+from AthenaCommon.AlgSequence import AthSequencer
 if not hasattr(condSeq, "BeamSpotCondAlg"):
    from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
    condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
-TestSTEP_Propagator.Straggling = False
+# TestSTEP_Propagator.Straggling = False
 
-if myPDG == 998 or myPDG == 999 :
-    TestSTEP_Propagator.MultipleScattering = False
-    TestSTEP_Propagator.EnergyLoss = False
+# if myPDG == 998 or myPDG == 999 :
+#     TestSTEP_Propagator.MultipleScattering = False
+#     TestSTEP_Propagator.EnergyLoss = False
 
 from AthenaCommon.ConfigurationShelve import saveToAscii
 saveToAscii("config.txt")

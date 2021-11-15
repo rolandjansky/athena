@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // StoreGate
-#include "ActsGeometry/ActsGeantFollowerHelper.h"
+#include "ActsGeantFollowerHelper.h"
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/EventContext.h"
@@ -22,6 +22,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 //other
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
+#include "TrkExInterfaces/IExtrapolationEngine.h"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Surfaces/PlaneSurface.hpp"
 
@@ -33,21 +34,24 @@
 // constructor
 ActsGeantFollowerHelper::ActsGeantFollowerHelper(const std::string& t, const std::string& n, const IInterface* p) :
   base_class(t,n,p),
-  m_extrapolator(""),
+  m_extrapolationEngine(""),
   m_actsExtrapolator(""),
   m_extrapolateDirectly(true),
   m_extrapolateIncrementally(true),
   m_parameterCache(nullptr),
   m_actsParameterCache(nullptr),
   m_tX0Cache(0.),
+  m_tX0NonSensitiveCache(0.),
+  m_tNonSensitiveCache(0.),
   m_tX0CacheActs(0.),
+  m_tX0CacheATLAS(0.),
   m_validationTreeName("G4Follower_"+n),
   m_validationTreeDescription("Output of the G4Follower_"),
   m_validationTreeFolder("/val/G4Follower_"+n),
   m_validationTree(nullptr)
 {
   // properties
-  declareProperty("Extrapolator",                   m_extrapolator);
+  declareProperty("ExtrapolationEngine",            m_extrapolationEngine);
   declareProperty("ActsExtrapolator",               m_actsExtrapolator);
   declareProperty("ExtrapolateDirectly",            m_extrapolateDirectly);
   declareProperty("ExtrapolateIncrementally",       m_extrapolateIncrementally);
@@ -63,11 +67,14 @@ StatusCode ActsGeantFollowerHelper::initialize()
 {
   m_treeData = std::make_unique<TreeData>();
   
-  if (m_extrapolator.retrieve().isFailure()){
-    ATH_MSG_ERROR("Could not retrieve Extrapolator " << m_extrapolator << " . Abort.");
+  // if (m_extrapolator.retrieve().isFailure()){
+  //   ATH_MSG_ERROR("Could not retrieve Extrapolator " << m_extrapolator << " . Abort.");
+  //   return StatusCode::FAILURE;
+  // }
+  if (m_extrapolationEngine.retrieve().isFailure()){
+    ATH_MSG_ERROR("Could not retrieve Extrapolator Engine " << m_extrapolationEngine << " . Abort.");
     return StatusCode::FAILURE;
   }
-
   
   if (m_actsExtrapolator.retrieve().isFailure()){
     ATH_MSG_ERROR("Could not retrieve ActsExtrapolator " << m_actsExtrapolator << " . Abort.");
@@ -110,6 +117,10 @@ StatusCode ActsGeantFollowerHelper::initialize()
   m_validationTree->Branch("TrkStepZ",     m_treeData->m_trk_z,      "trkstepZ[g4steps]/F");
   m_validationTree->Branch("TrkStepLocX",  m_treeData->m_trk_lx,     "trkstepLX[g4steps]/F");
   m_validationTree->Branch("TrkStepLocY",  m_treeData->m_trk_ly,     "trkstepLY[g4steps]/F");
+  m_validationTree->Branch("TrkStepTX0",   m_treeData->m_trk_tX0,     "trkstepTX0[g4steps]/F");
+  m_validationTree->Branch("TrkAccumX0",   m_treeData->m_trk_accX0,   "trkstepAccTX0[g4steps]/F");
+  m_validationTree->Branch("TrkStepT",     m_treeData->m_trk_t,       "trkstepTX[g4steps]/F");
+  m_validationTree->Branch("TrkStepX0",    m_treeData->m_trk_X0,      "trkstepX0[g4steps]/F");
 
   m_validationTree->Branch("ActsStepStatus",m_treeData->m_acts_status,  "actsstepStatus[g4steps]/I");
   m_validationTree->Branch("ActsVolumeId",  m_treeData->m_acts_volumeID,"actsvolumeid[g4steps]/I");
@@ -158,21 +169,25 @@ void ActsGeantFollowerHelper::beginEvent() const
   m_treeData->m_t_pdg      = 0;
   m_treeData->m_g4_steps   = 0;
   m_tX0Cache   = 0.;
+  m_tX0NonSensitiveCache = 0.;
+  m_tNonSensitiveCache = 0.;
   m_tX0CacheActs   = 0.;
+  m_tX0CacheATLAS   = 0.;
 }
 
 void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
                                              const G4ThreeVector& mom,
                                              int pdg, double charge,
-                                             float t, float X0) const
+                                             float t, float X0, bool isSensitive) const
 {
+  // const EventContext ctx;
   const EventContext &ctx = Gaudi::Hive::currentContext();
-  const ActsGeometryContext& gctx = m_actsExtrapolator->trackingGeometryTool()->getGeometryContext(ctx);
+  const ActsGeometryContext &gctx = m_actsExtrapolator->trackingGeometryTool()->getGeometryContext(ctx);
   auto trackingGeometry = m_actsExtrapolator->trackingGeometryTool()->trackingGeometry();
   // construct the initial parameters
   Amg::Vector3D npos(pos.x(),pos.y(),pos.z());
   Amg::Vector3D nmom(mom.x(),mom.y(),mom.z());
-  if (!m_treeData->m_g4_steps){
+  if(m_treeData->m_g4_steps == 0 && m_tNonSensitiveCache == 0){
     ATH_MSG_INFO("Initial step ... preparing event cache.");
     m_treeData->m_t_x        = pos.x();
     m_treeData->m_t_y        = pos.y();
@@ -196,6 +211,16 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
     Acts::Vector3 dir = nmom.normalized();
     m_actsParameterCache = std::make_unique<const Acts::BoundTrackParameters>(Acts::BoundTrackParameters::create(surface, gctx.context(), actsStart, dir, mom.mag()/1000, charge).value());
   }
+
+  // Store material in cache
+  float tX0 = X0 > 10e-5 ? t/X0 : 0.;
+  m_tX0NonSensitiveCache += tX0;
+  m_tNonSensitiveCache += t;
+  if (!isSensitive)
+  {
+    return;
+  }
+
   // jumping over inital step
   m_treeData->m_g4_steps = (m_treeData->m_g4_steps == -1) ? 0 : m_treeData->m_g4_steps;
 
@@ -208,7 +233,6 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
     ATH_MSG_WARNING("Maximum number of " << MAXPROBES << " reached, step is ignored.");
     return;
   }
-  
   // Use the G4 pdgId as the particle hypothesis
   Trk::ParticleHypothesis particleHypo = m_pdgToParticleHypothesis.convert(m_treeData->m_t_pdg, m_treeData->m_t_charge);
   // parameters of the G4 step point
@@ -216,9 +240,19 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   // destination surface
   const Trk::PlaneSurface& destinationSurface = g4Parameters->associatedSurface();
   // extrapolate to the destination surface
-  const Trk::TrackParameters* trkParameters = m_extrapolateDirectly ?
-    m_extrapolator->extrapolateDirectly(*m_parameterCache,destinationSurface,Trk::alongMomentum,false, particleHypo) :
-    m_extrapolator->extrapolate(*m_parameterCache,destinationSurface,Trk::alongMomentum,false, particleHypo);
+  Trk::ExtrapolationCell<Trk::TrackParameters> ecc(*m_parameterCache);
+  ecc.setParticleHypothesis((Trk::ParticleHypothesis) particleHypo);
+  ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);
+  ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectMaterial);
+  // call the extrapolation engine
+  auto eCodeSteps = m_extrapolationEngine->extrapolate(ecc, &destinationSurface);
+  const Trk::TrackParameters *trkParameters = ecc.endParameters;
+  float X0ATLAS = ecc.materialX0;
+
+  if(eCodeSteps.code != 2 ){
+    ATH_MSG_ERROR("Error in the Extrapolator Engine, skip the current step");  
+    return;
+  }
 
   // create a Acts::Surface that correspond to the Trk::Surface
   auto destinationSurfaceActs = Acts::Surface::makeShared<Acts::PlaneSurface>(destinationSurface.center(), destinationSurface.normal());
@@ -228,12 +262,18 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
                                                                                                    Acts::forward,
                                                                                                    std::numeric_limits<double>::max(),
                                                                                                    particleHypo);
-  double X0Acts = m_actsExtrapolator->propagationSteps(ctx,
+
+  float X0Acts = m_actsExtrapolator->propagationSteps(ctx,
                                                        *m_actsParameterCache, 
                                                        *destinationSurfaceActs,
                                                        Acts::forward,
                                                        std::numeric_limits<double>::max(),
                                                        particleHypo).second.materialInX0;
+                                                       
+  if(actsParameters == nullptr){
+    ATH_MSG_ERROR("Error in the Acts extrapolation, skip the current step");  
+    return;
+  }
   int volID = trackingGeometry->lowestTrackingVolume(gctx.context(), actsParameters->position(gctx.context()))->geometryId().volume();
 
   // fill the geant information and the trk information
@@ -244,12 +284,12 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   m_treeData->m_g4_x[m_treeData->m_g4_steps]       =  pos.x();
   m_treeData->m_g4_y[m_treeData->m_g4_steps]       =  pos.y();
   m_treeData->m_g4_z[m_treeData->m_g4_steps]       =  pos.z();
-  float tX0 = X0 > 10e-5 ? t/X0 : 0.;
-  m_tX0Cache              += tX0;
-  m_treeData->m_g4_tX0[m_treeData->m_g4_steps]     = tX0;
+  
+  m_tX0Cache                                       += m_tX0NonSensitiveCache;
+  m_treeData->m_g4_tX0[m_treeData->m_g4_steps]     = m_tX0NonSensitiveCache;
   m_treeData->m_g4_accX0[m_treeData->m_g4_steps]   = m_tX0Cache;
-  m_treeData->m_g4_t[m_treeData->m_g4_steps]       = t;
-  m_treeData->m_g4_X0[m_treeData->m_g4_steps]      = X0;
+  m_treeData->m_g4_t[m_treeData->m_g4_steps]       = m_tNonSensitiveCache;
+  m_treeData->m_g4_X0[m_treeData->m_g4_steps]      = m_tNonSensitiveCache/m_tX0NonSensitiveCache;
 
   m_treeData->m_trk_status[m_treeData->m_g4_steps] = trkParameters ? 1 : 0;
   m_treeData->m_trk_pt[m_treeData->m_g4_steps]      = trkParameters ? trkParameters->pT()      : 0.;
@@ -261,6 +301,26 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   m_treeData->m_trk_z[m_treeData->m_g4_steps]      = trkParameters ? trkParameters->position().z()        : 0.;
   m_treeData->m_trk_lx[m_treeData->m_g4_steps]     = trkParameters ? trkParameters->parameters()[Trk::locX] : 0.;
   m_treeData->m_trk_ly[m_treeData->m_g4_steps]     = trkParameters ? trkParameters->parameters()[Trk::locY] : 0.;
+  // Incremental extrapolation, the extrapolation correspond to one step
+  if(m_extrapolateIncrementally || m_treeData->m_g4_steps == 0){
+    float tATLAS = (trkParameters->position() - m_parameterCache->position()).norm();
+    m_tX0CacheATLAS                                  += X0ATLAS;
+    m_treeData->m_trk_tX0[m_treeData->m_g4_steps]     = X0ATLAS;
+    m_treeData->m_trk_accX0[m_treeData->m_g4_steps]   = m_tX0CacheATLAS;
+    m_treeData->m_trk_t[m_treeData->m_g4_steps]       = tATLAS;
+    m_treeData->m_trk_X0[m_treeData->m_g4_steps]      = tATLAS/X0ATLAS;
+  }
+  // Extrapolation perform from the start, step varaible need to be computed by comparing to the last extrapolation.
+  else{
+    Amg::Vector3D previousPos(m_treeData->m_trk_x[m_treeData->m_g4_steps-1],
+                              m_treeData->m_trk_y[m_treeData->m_g4_steps-1],
+                              m_treeData->m_trk_z[m_treeData->m_g4_steps-1]);
+    float tATLAS = (trkParameters->position() - previousPos).norm();
+    m_treeData->m_trk_tX0[m_treeData->m_g4_steps]     = X0ATLAS - m_treeData->m_trk_accX0[m_treeData->m_g4_steps-1]   ;
+    m_treeData->m_trk_accX0[m_treeData->m_g4_steps]   = X0ATLAS;
+    m_treeData->m_trk_t[m_treeData->m_g4_steps]       = tATLAS;
+    m_treeData->m_trk_X0[m_treeData->m_g4_steps]      = tATLAS/m_treeData->m_trk_tX0[m_treeData->m_g4_steps];
+  }
 
   m_treeData->m_acts_status[m_treeData->m_g4_steps] = actsParameters ? 1 : 0;
   m_treeData->m_acts_volumeID[m_treeData->m_g4_steps] = actsParameters ? volID : 0;
@@ -274,7 +334,7 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   // Incremental extrapolation, the extrapolation correspond to one step
   if(m_extrapolateIncrementally || m_treeData->m_g4_steps == 0){
     float tActs = (actsParameters->position(gctx.context()) - m_actsParameterCache->position(gctx.context())).norm();
-    m_tX0CacheActs              += X0Acts;
+    m_tX0CacheActs                                    += X0Acts;
     m_treeData->m_acts_tX0[m_treeData->m_g4_steps]     = X0Acts;
     m_treeData->m_acts_accX0[m_treeData->m_g4_steps]   = m_tX0CacheActs;
     m_treeData->m_acts_t[m_treeData->m_g4_steps]       = tActs;
@@ -282,9 +342,9 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   }
   // Extrapolation perform from the start, step varaible need to be computed by comparing to the last extrapolation.
   else{
-    Acts::Vector3 previousPos(m_treeData->m_trk_x[m_treeData->m_g4_steps-1],
-                               m_treeData->m_trk_y[m_treeData->m_g4_steps-1],
-                               m_treeData->m_trk_z[m_treeData->m_g4_steps-1]);
+    Acts::Vector3 previousPos(m_treeData->m_acts_x[m_treeData->m_g4_steps-1],
+                               m_treeData->m_acts_y[m_treeData->m_g4_steps-1],
+                               m_treeData->m_acts_z[m_treeData->m_g4_steps-1]);
     float tActs = (actsParameters->position(gctx.context()) - previousPos).norm();
     m_treeData->m_acts_tX0[m_treeData->m_g4_steps]     = X0Acts - m_treeData->m_acts_accX0[m_treeData->m_g4_steps-1]   ;
     m_treeData->m_acts_accX0[m_treeData->m_g4_steps]   = X0Acts;
@@ -302,13 +362,18 @@ void ActsGeantFollowerHelper::trackParticle(const G4ThreeVector& pos,
   // delete cache and increment
   delete g4Parameters;
   destinationSurfaceActs.reset();
+  m_tX0NonSensitiveCache = 0.;
+  m_tNonSensitiveCache = 0.;
   ++m_treeData->m_g4_steps;
 }
 
 void ActsGeantFollowerHelper::endEvent() const
 {
-  // fill the validation tree
-  m_validationTree->Fill();
-  delete m_parameterCache;
-  m_actsParameterCache.reset();
+  if (m_tX0Cache != 0)
+  {
+    // fill the validation tree
+    m_validationTree->Fill();
+    delete m_parameterCache;
+    m_actsParameterCache.reset();
+  }
 }
