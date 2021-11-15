@@ -1,7 +1,6 @@
 #!/bin/sh
 #
 # art-description: Run reco using mc20e (overlay+trigger+rco)
-# art-output: log.*
 # art-athena-mt: 8
 # art-type: grid
 # art-include: master/Athena
