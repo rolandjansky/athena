@@ -70,29 +70,6 @@ namespace JetTagDQA{
     return Book1D(histo_name, title, xbins, xmin, xmax);
   }
    
-  // implement the bookProfile function using the histogram definitions
-  TProfile* BTaggingValidationPlots::bookProfile(std::string histo_name, std::string var_name, std::string part, std::string prefix){
-    // check if the var is in the histogram definitions
-    if(m_HistogramDefinitions.find(var_name) == m_HistogramDefinitions.end()) {
-      throw std::invalid_argument("var_name " + var_name + " not in HistogramDefinitions.");
-    }
-    if(m_HistogramDefinitions.at(var_name)[histo_type] != "TProfile") {
-      throw std::invalid_argument("The variable " + var_name + " not defined as TProfile.");
-    }
-    // get the title
-    std::string title = ""; 
-    if(part != "") title += part + " - ";
-    if(prefix != "") title += prefix + " ";
-    title += m_HistogramDefinitions.at(var_name)[histo_title];
-    // get the bins
-    double xbins = std::stod(m_HistogramDefinitions.at(var_name)[histo_xbins]);
-    double xmin = std::stod(m_HistogramDefinitions.at(var_name)[histo_xmin]);
-    double xmax = std::stod(m_HistogramDefinitions.at(var_name)[histo_xmax]);
-    double ymin = std::stod(m_HistogramDefinitions.at(var_name)[histo_ymin]);
-    double ymax = std::stod(m_HistogramDefinitions.at(var_name)[histo_ymax]);
-    // book and return the histo
-    return PlotBase::BookTProfile(histo_name, title, xbins, xmin, xmax, ymin, ymax, false);
-  }
 
   // util function to get track values
   int BTaggingValidationPlots::getTrackHits(const xAOD::TrackParticle& part, xAOD::SummaryType info) {
@@ -164,11 +141,6 @@ namespace JetTagDQA{
       if(isOldTagger) var_name_Zprime += "_old_taggers";
       TH1* histo_matched_Zprime = bookHistogram(histo_name_matched_Zprime, var_name_Zprime, sParticleType, label_iter->first + "-jets" + ", for " + tagger_name + " llr > "+ std::to_string(working_points_iter->second) + ": " );    
       m_weight_histos.insert(std::make_pair(histo_name_matched_Zprime, histo_matched_Zprime));
-
-      // book eff vs pt profile
-      std::string profile_name_eff = tagger_name + "_" + label_iter->first + "_" + working_points_iter->first + "_eff_pt";
-      TProfile* profile_eff = bookProfile(profile_name_eff, "efficiency_vs_pT", sParticleType, label_iter->first + "-jets" + ", for " + tagger_name + " llr > "+ std::to_string(working_points_iter->second) + ": " );
-      m_eff_profiles.insert(std::make_pair(profile_name_eff, profile_eff));
 
       // book Lxy histogram
       std::string histo_name_matched_Lxy = tagger_name + "_" + label_iter->first + "_" + working_points_iter->first + "_matched_Lxy";
@@ -469,41 +441,6 @@ namespace JetTagDQA{
     m_JetFitter_purity_muon = bookHistogram("JetFitter_purity_muon", "JetFitter_purity", m_sParticleType, "jets with moun - ");
     
 
-    // SV1 related profiles
-    m_SV1_masssvx_vs_pT_incl = bookProfile("SV1_masssvx_vs_pT_incl", "SV1_masssvx_vs_pT", m_sParticleType);
-    m_SV1_N2Tpair_vs_pT_incl = bookProfile("SV1_N2Tpair_vs_pT_incl", "SV1_N2Tpair_vs_pT", m_sParticleType);
-    m_SV1_efracsvx_vs_pT_incl = bookProfile("SV1_efracsvx_vs_pT_incl", "SV1_efracsvx_vs_pT", m_sParticleType);
-    m_SV1_deltaR_vs_pT_incl = bookProfile("SV1_deltaR_vs_pT_incl", "SV1_deltaR_vs_pT", m_sParticleType);
-    m_SV1_masssvx_vs_pT_b = bookProfile("SV1_masssvx_vs_pT_b", "SV1_masssvx_vs_pT", m_sParticleType, "b-jets - ");
-    m_SV1_N2Tpair_vs_pT_b = bookProfile("SV1_N2Tpair_vs_pT_b", "SV1_N2Tpair_vs_pT", m_sParticleType, "b-jets - ");
-    m_SV1_efracsvx_vs_pT_b = bookProfile("SV1_efracsvx_vs_pT_b", "SV1_efracsvx_vs_pT", m_sParticleType, "b-jets - ");
-    m_SV1_deltaR_vs_pT_b = bookProfile("SV1_deltaR_vs_pT_b", "SV1_deltaR_vs_pT", m_sParticleType, "b-jets - ");
-    m_SV1_masssvx_vs_pT_c = bookProfile("SV1_masssvx_vs_pT_c", "SV1_masssvx_vs_pT", m_sParticleType, "c-jets - ");
-    m_SV1_N2Tpair_vs_pT_c = bookProfile("SV1_N2Tpair_vs_pT_c", "SV1_N2Tpair_vs_pT", m_sParticleType, "c-jets - ");
-    m_SV1_efracsvx_vs_pT_c = bookProfile("SV1_efracsvx_vs_pT_c", "SV1_efracsvx_vs_pT", m_sParticleType, "c-jets - ");
-    m_SV1_deltaR_vs_pT_c = bookProfile("SV1_deltaR_vs_pT_c", "SV1_deltaR_vs_pT", m_sParticleType, "c-jets - ");
-    m_SV1_masssvx_vs_pT_l = bookProfile("SV1_masssvx_vs_pT_l", "SV1_masssvx_vs_pT", m_sParticleType, "l-jets - ");
-    m_SV1_N2Tpair_vs_pT_l = bookProfile("SV1_N2Tpair_vs_pT_l", "SV1_N2Tpair_vs_pT", m_sParticleType, "l-jets - ");
-    m_SV1_efracsvx_vs_pT_l = bookProfile("SV1_efracsvx_vs_pT_l", "SV1_efracsvx_vs_pT", m_sParticleType, "l-jets - ");
-    m_SV1_deltaR_vs_pT_l = bookProfile("SV1_deltaR_vs_pT_l", "SV1_deltaR_vs_pT", m_sParticleType, "l-jets - ");
-
-    m_SV1_masssvx_vs_eta_incl = bookProfile("SV1_masssvx_vs_eta_incl", "SV1_masssvx_vs_eta", m_sParticleType);
-    m_SV1_N2Tpair_vs_eta_incl = bookProfile("SV1_N2Tpair_vs_eta_incl", "SV1_N2Tpair_vs_eta", m_sParticleType);
-    m_SV1_efracsvx_vs_eta_incl = bookProfile("SV1_efracsvx_vs_eta_incl", "SV1_efracsvx_vs_eta", m_sParticleType);
-    m_SV1_deltaR_vs_eta_incl = bookProfile("SV1_deltaR_vs_eta_incl", "SV1_deltaR_vs_eta", m_sParticleType);
-    m_SV1_masssvx_vs_eta_b = bookProfile("SV1_masssvx_vs_eta_b", "SV1_masssvx_vs_eta", m_sParticleType, "b-jets - ");
-    m_SV1_N2Tpair_vs_eta_b = bookProfile("SV1_N2Tpair_vs_eta_b", "SV1_N2Tpair_vs_eta", m_sParticleType, "b-jets - ");
-    m_SV1_efracsvx_vs_eta_b = bookProfile("SV1_efracsvx_vs_eta_b", "SV1_efracsvx_vs_eta", m_sParticleType, "b-jets - ");
-    m_SV1_deltaR_vs_eta_b = bookProfile("SV1_deltaR_vs_eta_b", "SV1_deltaR_vs_eta", m_sParticleType, "b-jets - ");
-    m_SV1_masssvx_vs_eta_c = bookProfile("SV1_masssvx_vs_eta_c", "SV1_masssvx_vs_eta", m_sParticleType, "c-jets - ");
-    m_SV1_N2Tpair_vs_eta_c = bookProfile("SV1_N2Tpair_vs_eta_c", "SV1_N2Tpair_vs_eta", m_sParticleType, "c-jets - ");
-    m_SV1_efracsvx_vs_eta_c = bookProfile("SV1_efracsvx_vs_eta_c", "SV1_efracsvx_vs_eta", m_sParticleType, "c-jets - ");
-    m_SV1_deltaR_vs_eta_c = bookProfile("SV1_deltaR_vs_eta_c", "SV1_deltaR_vs_eta", m_sParticleType, "c-jets - ");
-    m_SV1_masssvx_vs_eta_l = bookProfile("SV1_masssvx_vs_eta_l", "SV1_masssvx_vs_eta", m_sParticleType, "l-jets - ");
-    m_SV1_N2Tpair_vs_eta_l = bookProfile("SV1_N2Tpair_vs_eta_l", "SV1_N2Tpair_vs_eta", m_sParticleType, "l-jets - ");
-    m_SV1_efracsvx_vs_eta_l = bookProfile("SV1_efracsvx_vs_eta_l", "SV1_efracsvx_vs_eta", m_sParticleType, "l-jets - ");
-    m_SV1_deltaR_vs_eta_l = bookProfile("SV1_deltaR_vs_eta_l", "SV1_deltaR_vs_eta", m_sParticleType, "l-jets - ");
-
     // IPs and IP significances
     m_track_d0_incl = bookHistogram("d0_incl", "track_d0", m_sParticleType);
     m_track_z0_incl = bookHistogram("z0_incl", "track_z0", m_sParticleType); 
@@ -550,13 +487,6 @@ namespace JetTagDQA{
     m_numTracks_perJet_c = bookHistogram("numTracks_perJet_c", "numTracks_perJet", m_sParticleType, "c-jets -"); 
     m_numTracks_perJet_u = bookHistogram("numTracks_perJet_l", "numTracks_perJet", m_sParticleType, "l-jets -"); 
     m_numTracks_perJet_muon = bookHistogram("numTracks_perJet_muon", "numTracks_perJet", m_sParticleType, "jets with muon -"); 
-
-    // book TProfile for pT vs. numTracks_perJet
-    m_numTracks_perJet_vs_pT_incl = bookProfile("numTracks_perJet_vs_pT_incl", "numTracks_perJet_vs_pT", m_sParticleType);
-    m_numTracks_perJet_vs_pT_b = bookProfile("numTracks_perJet_vs_pT_b", "numTracks_perJet_vs_pT", m_sParticleType, "b-jets -");
-    m_numTracks_perJet_vs_pT_c = bookProfile("numTracks_perJet_vs_pT_c", "numTracks_perJet_vs_pT", m_sParticleType, "c-jets -");
-    m_numTracks_perJet_vs_pT_u = bookProfile("numTracks_perJet_vs_pT_l", "numTracks_perJet_vs_pT", m_sParticleType, "l-jets -");
-    m_numTracks_perJet_vs_pT_muon = bookProfile("numTracks_perJet_vs_pT_muon", "numTracks_perJet_vs_pT", m_sParticleType, "jets with muon -");
 
     // number of tracks from different origins
     m_numTracks_B_incl = bookHistogram("numTracks_B_incl", "numTracks_B", m_sParticleType); 
@@ -1050,20 +980,6 @@ namespace JetTagDQA{
       }
     }
 
-    m_numTracks_perJet_vs_pT_incl ->Fill(jet->pt()/GeV, numTracks_perJet, event->beamSpotWeight());
-    if(!m_isData && truth_label == 5) {
-      m_numTracks_perJet_vs_pT_b ->Fill(jet->pt()/GeV, numTracks_perJet, event->beamSpotWeight());
-    }
-    else if(!m_isData && truth_label == 4) {
-      m_numTracks_perJet_vs_pT_c ->Fill(jet->pt()/GeV, numTracks_perJet, event->beamSpotWeight());
-    }
-    else if(!m_isData && truth_label == 0) {
-      m_numTracks_perJet_vs_pT_u ->Fill(jet->pt()/GeV, numTracks_perJet, event->beamSpotWeight());
-    }
-    if(has_muon) {
-      m_numTracks_perJet_vs_pT_muon ->Fill(jet->pt()/GeV, numTracks_perJet, event->beamSpotWeight());
-    }
-
   }
 
 
@@ -1392,43 +1308,6 @@ namespace JetTagDQA{
       BTaggingValidationPlots::fillHistoWithTruthCases(JetFitter_purity, m_JetFitter_purity_incl, m_JetFitter_purity_b, m_JetFitter_purity_c, m_JetFitter_purity_l, m_JetFitter_purity_muon, truth_label, has_muon, event);
     }
 
-    // // fill the SV varaibles for the different jet labels
-    if(!m_isData && truth_label == 5) {
-      // vs pT and vs eta
-      m_SV1_masssvx_vs_pT_b->Fill(jet->pt()/GeV, SV1_masssvx/GeV), event->beamSpotWeight();
-      m_SV1_masssvx_vs_eta_b->Fill(jet->eta(), SV1_masssvx/GeV, event->beamSpotWeight());
-      m_SV1_N2Tpair_vs_pT_b->Fill(jet->pt()/GeV, SV1_N2Tpair, event->beamSpotWeight());
-      m_SV1_N2Tpair_vs_eta_b->Fill(jet->eta(), SV1_N2Tpair, event->beamSpotWeight());
-      m_SV1_efracsvx_vs_pT_b->Fill(jet->pt()/GeV, SV1_efracsvx, event->beamSpotWeight());
-      m_SV1_efracsvx_vs_eta_b->Fill(jet->eta(), SV1_efracsvx, event->beamSpotWeight());
-      m_SV1_deltaR_vs_pT_b->Fill(jet->pt()/GeV, SV1_deltaR, event->beamSpotWeight());
-      m_SV1_deltaR_vs_eta_b->Fill(jet->eta(), SV1_deltaR, event->beamSpotWeight());
-    }
-    else if(!m_isData && truth_label == 4) {
-      // vs pT and vs eta
-      m_SV1_masssvx_vs_pT_c->Fill(jet->pt()/GeV, SV1_masssvx/GeV, event->beamSpotWeight());
-      m_SV1_masssvx_vs_eta_c->Fill(jet->eta(), SV1_masssvx/GeV, event->beamSpotWeight());
-      m_SV1_N2Tpair_vs_pT_c->Fill(jet->pt()/GeV, SV1_N2Tpair, event->beamSpotWeight());
-      m_SV1_N2Tpair_vs_eta_c->Fill(jet->eta(), SV1_N2Tpair, event->beamSpotWeight());
-      m_SV1_efracsvx_vs_pT_c->Fill(jet->pt()/GeV, SV1_efracsvx, event->beamSpotWeight());
-      m_SV1_efracsvx_vs_eta_c->Fill(jet->eta(), SV1_efracsvx, event->beamSpotWeight());
-      m_SV1_deltaR_vs_pT_c->Fill(jet->pt()/GeV, SV1_deltaR, event->beamSpotWeight());
-      m_SV1_deltaR_vs_eta_c->Fill(jet->eta(), SV1_deltaR, event->beamSpotWeight());
-    }
-    else if(!m_isData && truth_label == 0) {
-      // vs pT and vs eta
-      m_SV1_masssvx_vs_pT_l->Fill(jet->pt()/GeV, SV1_masssvx/GeV, event->beamSpotWeight());
-      m_SV1_masssvx_vs_eta_l->Fill(jet->eta(), SV1_masssvx/GeV, event->beamSpotWeight());
-      m_SV1_N2Tpair_vs_pT_l->Fill(jet->pt()/GeV, SV1_N2Tpair, event->beamSpotWeight());
-      m_SV1_N2Tpair_vs_eta_l->Fill(jet->eta(), SV1_N2Tpair, event->beamSpotWeight());
-      m_SV1_efracsvx_vs_pT_l->Fill(jet->pt()/GeV, SV1_efracsvx, event->beamSpotWeight());
-      m_SV1_efracsvx_vs_eta_l->Fill(jet->eta(), SV1_efracsvx, event->beamSpotWeight());
-      m_SV1_deltaR_vs_pT_l->Fill(jet->pt()/GeV, SV1_deltaR, event->beamSpotWeight());
-      m_SV1_deltaR_vs_eta_l->Fill(jet->eta(), SV1_deltaR, event->beamSpotWeight());
-    }
-
-    
-
   }
 
 
@@ -1621,31 +1500,6 @@ namespace JetTagDQA{
 
 
   void BTaggingValidationPlots::finalizePlots(){
-
-    std::string tmp_name_matched = "";
-    std::string tmp_name_eff = "";
-    std::string tmp_name_rej = "";
-    
-    for(std::map<std::string, TH1*>::const_iterator hist_iter=m_weight_histos.begin(); hist_iter!=m_weight_histos.end(); ++hist_iter){
-
-      if((hist_iter->first).find("matched")< (hist_iter->first).length() && (hist_iter->first).find("trackCuts") > (hist_iter->first).length()){
-        std::size_t found_matched = (hist_iter->first).find("matched");        
-        tmp_name_matched = (hist_iter->first);
-        tmp_name_eff = tmp_name_matched.replace(found_matched, 7, "eff");
-        std::map<std::string, TProfile*>::const_iterator eff_profile_iter = m_eff_profiles.find(tmp_name_eff);
-
-        if(eff_profile_iter != m_eff_profiles.end() && (eff_profile_iter->first).find("_pt") < (eff_profile_iter->first).length()){
-          makeEfficiencyVsPtPlot(hist_iter->second, eff_profile_iter->second);
-          (eff_profile_iter->second)->SetOption("E");
-        }
-        else if(eff_profile_iter != m_eff_profiles.end() && (eff_profile_iter->first).find("_weight") < (eff_profile_iter->first).length()){
-          makeEfficiencyPlot(hist_iter->second, eff_profile_iter->second);
-          std::size_t found_weight = tmp_name_eff.find("weight");
-          tmp_name_rej = tmp_name_eff.replace(found_weight, 6, "rej");
-          makeEfficiencyRejectionPlot(eff_profile_iter->second, m_eff_profiles.find(tmp_name_rej)->second);  
-        }
-      }
-    }
   }
 
 
@@ -1752,58 +1606,6 @@ namespace JetTagDQA{
   }
 
 
-  void BTaggingValidationPlots::makeEfficiencyVsPtPlot(TH1* hReco, TProfile* pEff){
-    TH1* hTruth=NULL;
-    std::string recoName = hReco->GetName();
-    if(recoName.find("_b_") < recoName.length()) hTruth = (TH1 *) m_jet_pt_b->Clone();
-    else if(recoName.find("_c_") < recoName.length()) hTruth = (TH1 *) m_jet_pt_c->Clone();
-    else if(recoName.find("_u_") < recoName.length()) hTruth = (TH1 *) m_jet_pt_l->Clone();
-    if (!hTruth || hTruth->GetNbinsX() != hReco->GetNbinsX() || hTruth->Integral() == 0) return;
-    else{
-      for (int bin_i=1; bin_i<= hTruth->GetNbinsX(); ++bin_i){ 
-        if(hTruth->GetBinContent(bin_i) == 0) continue;
-        double eff = hReco->GetBinContent(bin_i)/hTruth->GetBinContent(bin_i);
-        //double eff_err = sqrt(hReco->GetBinContent(bin_i)*(1-eff))/hTruth->GetBinContent(bin_i);        
-        double pt = hTruth->GetBinCenter(bin_i);    
-        pEff->Fill(pt,eff);
-      }
-    }
-  }
-
-  void BTaggingValidationPlots::makeEfficiencyPlot(TH1* hReco, TProfile* pEff){
-    //double Ntrue = hReco->Integral();        
-    double Ntrue = hReco->Integral(0,hReco->GetNbinsX()+1);
-    std::string recoName =  hReco->GetName();
-    if(Ntrue == 0) return;
-    for (int bin_i=0; bin_i<= hReco->GetNbinsX()+1; ++bin_i){ 
-      double eff = hReco->Integral(bin_i, hReco->GetNbinsX())/Ntrue;
-      //double eff_err = sqrt(hReco->GetBinContent(bin_i)*(1-eff))/Ntrue;
-      double weight = hReco->GetBinCenter(bin_i);    
-      pEff->Fill(weight,eff);
-    }        
-  }
-
-  void BTaggingValidationPlots::makeEfficiencyRejectionPlot(TProfile* pLEff, TProfile* pEffRej){    
-    TProfile* pBEff=NULL;
-    //std::cout << "HIER NAME " << pEffRej->GetName() << std::endl;
-    std::string bEffName = pEffRej->GetName();
-    //std::cout << "name of rej vs eff histo " << pEffRej->GetName() << std::endl;
-    for(std::vector<std::string>::const_iterator tag_iter = m_taggers.begin(); tag_iter != m_taggers.end(); 
-          ++tag_iter){
-      if(bEffName.find(*tag_iter+"_") < 1) pBEff = (TProfile *) (m_eff_profiles.find(*tag_iter+"_b_eff_weight")->second)->Clone();
-        //std::cout << "name of used b-eff histo " << pBEff->GetName() << "\t name of used l-eff histo " << pLEff->GetName() << std::endl; }
-    }
-    if (!pBEff || pBEff->GetNbinsX() != pLEff->GetNbinsX()) return;
-    else{
-      for (int bin_i=1; bin_i<= pBEff->GetNbinsX(); ++bin_i){ 
-        double eff = pBEff->GetBinContent(bin_i);
-        double rej = 1/(pLEff->GetBinContent(bin_i));
-        //std::cout << "bin no.: " << bin_i << "\t b-bin: " << pBEff->GetBinCenter(bin_i) << "\t l-bin: " << pLEff->GetBinCenter(bin_i) << std::endl; 
-        //std::cout << "b-eff: " << eff << "\t l-eff: " << 1/rej << "\t rej: " << rej << std::endl;
-        pEffRej->Fill(eff,rej);
-      }        
-    }
-  }
 
 
   void BTaggingValidationPlots::setTaggerInfos(){
@@ -1960,19 +1762,8 @@ namespace JetTagDQA{
         TH1* histo_trackCuts = bookHistogram(histo_name_trackCuts, var_name_trackCuts, m_sParticleType, label_iter->first + "-jets" + ", " + *tag_iter);    
         m_weight_histos.insert(std::make_pair(histo_name_trackCuts, histo_trackCuts));
         
-        // book effieciency vs rejection profile
-        std::string profile_name_effRej = *tag_iter+"_"+label_iter->first+"_eff_rej";
-        TProfile* profile_effRej = bookProfile(profile_name_effRej, "efficiency_vs_rejection", m_sParticleType, "rejection of " + label_iter->first + "-jets" + " for " + *tag_iter);
-        m_eff_profiles.insert(std::make_pair(profile_name_effRej, profile_effRej));
-        
-        // book the eff vs llr profiles
-        std::string profile_name_effLlr = *tag_iter+"_"+label_iter->first+"_eff_weight";
-        std::string var_name_eff_vs_llr = "efficiency_vs_llr";
-        if((*tag_iter).find("MV") < 1) var_name_eff_vs_llr += "_MV";
-        TProfile* profile_effLlr = bookProfile(profile_name_effLlr, var_name_eff_vs_llr, m_sParticleType, label_iter->first + "-jets" + ", " + *tag_iter);
-        m_eff_profiles.insert(std::make_pair(profile_name_effLlr, profile_effLlr));
 
-        // book the vs pT profiles (the bool in the argument says if it is an old tagger (for sub-folder sorting later))
+        // book the vs pT histograms (the bool in the argument says if it is an old tagger (for sub-folder sorting later))
         // IP3D
         if(*tag_iter == "IP3D"){
           bookDiscriminantVsPTAndLxyHistograms("IP3D", m_IP3D_workingPoints, false, label_iter, m_sParticleType);

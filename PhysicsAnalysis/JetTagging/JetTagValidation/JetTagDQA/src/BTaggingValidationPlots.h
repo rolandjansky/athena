@@ -45,9 +45,6 @@ namespace JetTagDQA{
       void updateNJetsThatPassedWPCutsMap(std::map<std::string, int>& nJetsThatPassedWPCuts, const double& discr_IP3D, const double& discr_IP2D, const double& discr_RNNIP, const double& discr_SV1, const double& discr_IP3DSV1, const double& discr_JetFitter, const double& discr_MV2c10, const double& discr_DL1, const double& discr_DL1d, const double& discr_DL1r);
       void fillNJetsThatPassedWPCutsHistos(std::map<std::string, int>& nJetsThatPassedWPCuts, const xAOD::EventInfo* event);
 
-      void makeEfficiencyVsPtPlot(TH1* hReco, TProfile* pEff);
-      void makeEfficiencyPlot(TH1* hReco, TProfile* pEff);
-      void makeEfficiencyRejectionPlot(TProfile* pLEff, TProfile* pEffRej);
       void setTaggerInfos();    
       void bookEffHistos();
 
@@ -294,41 +291,6 @@ namespace JetTagDQA{
       TH1* m_JetFitter_significance3d_muon = nullptr;
       TH1* m_JetFitter_purity_muon = nullptr;
 
-      // SV1 related Profiles
-      TProfile* m_SV1_masssvx_vs_pT_incl = nullptr;
-      TProfile* m_SV1_N2Tpair_vs_pT_incl = nullptr;
-      TProfile* m_SV1_efracsvx_vs_pT_incl = nullptr;
-      TProfile* m_SV1_deltaR_vs_pT_incl = nullptr;
-      TProfile* m_SV1_masssvx_vs_pT_b = nullptr;
-      TProfile* m_SV1_N2Tpair_vs_pT_b = nullptr;
-      TProfile* m_SV1_efracsvx_vs_pT_b = nullptr;
-      TProfile* m_SV1_deltaR_vs_pT_b = nullptr;
-      TProfile* m_SV1_masssvx_vs_pT_c = nullptr;
-      TProfile* m_SV1_N2Tpair_vs_pT_c = nullptr;
-      TProfile* m_SV1_efracsvx_vs_pT_c = nullptr;
-      TProfile* m_SV1_deltaR_vs_pT_c = nullptr;
-      TProfile* m_SV1_masssvx_vs_pT_l = nullptr;
-      TProfile* m_SV1_N2Tpair_vs_pT_l = nullptr;
-      TProfile* m_SV1_efracsvx_vs_pT_l = nullptr;
-      TProfile* m_SV1_deltaR_vs_pT_l = nullptr;
-
-      TProfile* m_SV1_masssvx_vs_eta_incl = nullptr;
-      TProfile* m_SV1_N2Tpair_vs_eta_incl = nullptr;
-      TProfile* m_SV1_efracsvx_vs_eta_incl = nullptr;
-      TProfile* m_SV1_deltaR_vs_eta_incl = nullptr;
-      TProfile* m_SV1_masssvx_vs_eta_b = nullptr;
-      TProfile* m_SV1_N2Tpair_vs_eta_b = nullptr;
-      TProfile* m_SV1_efracsvx_vs_eta_b = nullptr;
-      TProfile* m_SV1_deltaR_vs_eta_b = nullptr;
-      TProfile* m_SV1_masssvx_vs_eta_c = nullptr;
-      TProfile* m_SV1_N2Tpair_vs_eta_c = nullptr;
-      TProfile* m_SV1_efracsvx_vs_eta_c = nullptr;
-      TProfile* m_SV1_deltaR_vs_eta_c = nullptr;
-      TProfile* m_SV1_masssvx_vs_eta_l = nullptr;
-      TProfile* m_SV1_N2Tpair_vs_eta_l = nullptr;
-      TProfile* m_SV1_efracsvx_vs_eta_l = nullptr;
-      TProfile* m_SV1_deltaR_vs_eta_l = nullptr;
-
       // IPs and IP significances
       TH1* m_track_d0_incl = nullptr;
       TH1* m_track_z0_incl = nullptr;
@@ -375,13 +337,6 @@ namespace JetTagDQA{
       TH1* m_numTracks_perJet_c = nullptr;
       TH1* m_numTracks_perJet_u = nullptr;
       TH1* m_numTracks_perJet_muon = nullptr;
-
-      // numTracks_perJet_vs_pT
-      TProfile* m_numTracks_perJet_vs_pT_incl = nullptr;
-      TProfile* m_numTracks_perJet_vs_pT_b = nullptr;
-      TProfile* m_numTracks_perJet_vs_pT_c = nullptr;
-      TProfile* m_numTracks_perJet_vs_pT_u = nullptr;
-      TProfile* m_numTracks_perJet_vs_pT_muon = nullptr;
 
       // number of tracks variables
       TH1* m_numTracks_B_incl = nullptr; 
@@ -617,7 +572,6 @@ namespace JetTagDQA{
       double m_DL1d_fc;
       double m_DL1r_fc;
       std::map<std::string, TH1*> m_weight_histos; 
-      std::map<std::string, TProfile*> m_eff_profiles; 
 
       std::map<std::string, TH1*> m_nJetsThatPassedWPCutsHistos; 
 
@@ -648,7 +602,6 @@ namespace JetTagDQA{
       bool m_isData;
       // some helper functions
       TH1* bookHistogram(std::string histo_name, std::string var_name, std::string part = "", std::string prefix = "");
-      TProfile* bookProfile(std::string histo_name, std::string var_name, std::string part = "", std::string prefix = "");
       int getTrackHits(const xAOD::TrackParticle& part, xAOD::SummaryType info);
       void fillDiscriminantHistograms(const std::string& tagger_name, const double& discriminant_value, const std::map<std::string, double>& working_points, const int& truth_label, std::map<std::string, TH1*>::const_iterator hist_iter, std::map<std::string, int>::const_iterator label_iter, const bool& pass_nTracksCut, const double& jet_pT, const double& jet_Lxy, const bool& onZprime, const xAOD::EventInfo* event);
       void bookDiscriminantVsPTAndLxyHistograms(const std::string& tagger_name, const std::map<std::string, double>& workingPoints, const bool& isOldTagger, std::map<std::string, int>::const_iterator label_iter, const std::string& m_sParticleType);
