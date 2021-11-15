@@ -113,6 +113,8 @@ three_output_taggers = [
     'dips20210517',
     'DL1d20210519r22',          # uses dipsLoose
     'DL1d20210528r22',          # uses IP3D track selection dips
+    'dipsLoose20210729',        # DIPS offline retraining in r22
+    'DL1dv00',                  # first 'official' offlline r22
 ]
 BTagOutput_highLevelTaggers = [
     'MV2c10_discriminant',
