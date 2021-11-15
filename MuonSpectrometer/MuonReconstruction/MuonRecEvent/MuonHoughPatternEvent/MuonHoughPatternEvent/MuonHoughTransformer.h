@@ -144,7 +144,7 @@ private:
 
     class maximaCompare {
     public:
-        bool operator()(std::pair<std::pair<int, int>, double> lhs, std::pair<std::pair<int, int>, double> rhs) const {
+        bool operator()(const std::pair<std::pair<int, int>, double>& lhs, const std::pair<std::pair<int, int>, double>& rhs) const {
             return lhs.second > rhs.second;
         }
     };

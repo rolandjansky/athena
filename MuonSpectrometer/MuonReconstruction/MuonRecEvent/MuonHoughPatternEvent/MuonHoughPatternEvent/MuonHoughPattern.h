@@ -6,9 +6,9 @@
 #define MUONHOUGHPATTERNEVENT_MUONHOUGHPATTERN_H
 
 #include "AthContainers/DataVector.h"
+#include "EventPrimitives/EventPrimitives.h"
 #include "MuonHoughPatternEvent/MuonHoughHitContainer.h"
 #include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
-
 namespace MuonHough {
     /** enum to identify the different houghtransformers */
     enum MuonHoughTransformers { hough_xy, hough_rzcosmics, hough_curved_at_a_cylinder, hough_rz, hough_rz_mdt, hough_rz_rpc, hough_yz };
@@ -80,38 +80,35 @@ public:
     void setWhichSegment(bool which_segment);
 
     /** calulates 3d point closest to ip */
-    std::vector<double> getEPos() const;
+    Amg::Vector3D getEPos() const;
     /** calculates direction at point closest to ip */
-    std::vector<double> getEDir() const;
+    Amg::Vector3D getEDir() const;
 
     /** update parameters in rphi plane based on weighted fit*/
     void updateParametersRPhi(bool cosmics = false);
 
-    typedef DataVector<MuonHoughPattern> MuonHoughPatternCollection;
+    using MuonHoughPatternCollection = DataVector<MuonHoughPattern>;
 
 private:
     /** id number of hough transform used to generate pattern */
-    int m_id_number;
+    int m_id_number{-1};
 
     /** which segment is pattern created in, not relevant if split search is off
      * 0 lower segment, 1 uppersegment */
-    bool m_whichsegment;
+    bool m_whichsegment{false};
 
     /** phi in rad */
-    double m_ephi;
+    double m_ephi{-M_PI_2};
     /** r0 in mm */
-    double m_erphi;
+    double m_erphi{0.};
     /** theta in rad */
-    double m_etheta;
+    double m_etheta{M_PI_2};
     /** z0 in mm */
-    double m_ertheta;
+    double m_ertheta{0.};
     /** curvature of pattern in rz plane in mm */
-    double m_ecurvature;
+    double m_ecurvature{1.};
     /** maximum of histogram */
-    double m_maximumhistogram;
-
-    /** object for use of mathematical formulas for trackmodels */
-    MuonHoughMathUtils m_muonhoughmathutils;
+    double m_maximumhistogram{0.};
 };
 
 inline int MuonHoughPattern::getIdNumber() const { return m_id_number; }

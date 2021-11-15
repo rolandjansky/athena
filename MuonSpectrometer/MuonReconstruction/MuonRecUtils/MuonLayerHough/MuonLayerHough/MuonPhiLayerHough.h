@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -18,20 +19,20 @@ namespace MuonHough {
 
     struct MuonPhiLayerHough {
         struct Maximum {
-            Maximum() : max(0.), pos(0.), binpos(-1), binposmin(-1), binposmax(-1), sector(-1), hough(nullptr) {}
+            Maximum() = default;
 
-            float max;
-            float pos;
+            float max{0.};
+            float pos{0.};
 
-            int binpos;
-            int binposmin;
-            int binposmax;
+            int binpos{-1};
+            int binposmin{-1};
+            int binposmax{-1};
 
-            int sector;
+            int sector{-1};
 
             std::vector<PhiHit*> hits;
 
-            const MuonPhiLayerHough* hough;
+            const MuonPhiLayerHough* hough{nullptr};
         };
 
         MuonPhiLayerHough(int nbins, float rangemin, float rangemax, Muon::MuonStationIndex::DetectorRegionIndex region_);
@@ -46,8 +47,6 @@ namespace MuonHough {
         std::pair<int, int> range(float /*r*/, float phi1, float phi2) const {
             float phimin = std::min(phi1, phi2);
             float phimax = std::max(phi1, phi2);
-            // if( phimin < m_rangemin ) phimin = m_rangemin;
-            // if( phimax > m_rangemax ) phimax = m_rangemax;
             int bphimin = (phimin - m_rangemin) * m_invbinsize;
             int bphimax = (phimax - m_rangemin) * m_invbinsize;
             // add neighbouring bin
@@ -81,15 +80,15 @@ namespace MuonHough {
 
         std::vector<TH1*> rootHistos(const std::string& prefix, const float* phimin = 0, const float* phimax = 0) const;
 
-        float m_binsize;
-        float m_invbinsize;
-        float m_rangemin;
-        float m_rangemax;
+        float m_binsize{0.};
+        float m_invbinsize{0.};
+        float m_rangemin{0.};
+        float m_rangemax{0.};
 
         Muon::MuonStationIndex::DetectorRegionIndex m_region;
         int m_nbins;
-        bool m_debug;
-        unsigned int* m_histo;
+        bool m_debug{false};
+        std::unique_ptr<unsigned int[]> m_histo;
 
     private:
         // fake copy constructor and assignment operator

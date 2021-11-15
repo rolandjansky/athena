@@ -15,7 +15,7 @@ atlas_add_library( MuonHoughPatternToolsLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS 
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MuonDetDescrUtils MuonHoughPatternEvent MuonPattern MuonPrepRawData MuonSegment MuonRecToolInterfaces MuonLayerHough TrkDriftCircleMath MuonIdHelpersLib MuonClusterizationLib MuonRecHelperToolsLib StoreGateLib
-                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib CxxUtils EventPrimitives xAODMuon xAODTruth MuonReadoutGeometry MuonRIO_OnTrack TrkSurfaces TrkTruthData )
+                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib CxxUtils EventPrimitives xAODMuon xAODTruth MuonReadoutGeometry MuonRIO_OnTrack TrkSurfaces TrkTruthData FourMomUtils)
 
 atlas_add_component( MuonHoughPatternTools
                      src/components/*.cxx

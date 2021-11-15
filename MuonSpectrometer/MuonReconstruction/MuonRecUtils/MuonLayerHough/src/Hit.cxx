@@ -8,52 +8,9 @@
 
 namespace MuonHough {
 
-    HitDebugInfo::HitDebugInfo() :
-        type(UNINITIALIZED),
-        sector(UNINITIALIZED),
-        region(Muon::MuonStationIndex::DetectorRegionUnknown),
-        layer(Muon::MuonStationIndex::LayerUnknown),
-        sublayer(UNINITIALIZED),
-        pdgId(UNINITIALIZED),
-        barcode(UNINITIALIZED),
-        muonIndex(UNINITIALIZED),
-        clusterSize(UNINITIALIZED),
-        clusterLayers(UNINITIALIZED),
-        isEtaPhi(UNINITIALIZED),
-        trigConfirm(UNINITIALIZED),
-        binpos(UNINITIALIZED),
-        bintheta(UNINITIALIZED),
-        time(UNINITIALIZED),
-        r(UNINITIALIZED),
-        ph(UNINITIALIZED),
-        phn(UNINITIALIZED),
-        ph1(UNINITIALIZED),
-        ph2(UNINITIALIZED),
-        rot(UNINITIALIZED) {}
-
     HitDebugInfo::HitDebugInfo(int type_, int sector_, Muon::MuonStationIndex::DetectorRegionIndex region_,
                                Muon::MuonStationIndex::LayerIndex layer_, int sublayer_) :
-        type(type_),
-        sector(sector_),
-        region(region_),
-        layer(layer_),
-        sublayer(sublayer_),
-        pdgId(UNINITIALIZED),
-        barcode(UNINITIALIZED),
-        muonIndex(UNINITIALIZED),
-        clusterSize(UNINITIALIZED),
-        clusterLayers(UNINITIALIZED),
-        isEtaPhi(UNINITIALIZED),
-        trigConfirm(UNINITIALIZED),
-        binpos(UNINITIALIZED),
-        bintheta(UNINITIALIZED),
-        time(UNINITIALIZED),
-        r(UNINITIALIZED),
-        ph(UNINITIALIZED),
-        phn(UNINITIALIZED),
-        ph1(UNINITIALIZED),
-        ph2(UNINITIALIZED),
-        rot(UNINITIALIZED) {}
+        type(type_), sector(sector_), region(region_), layer(layer_), sublayer(sublayer_) {}
 
     Hit::Hit(int layer_, float x_, float ymin_, float ymax_, float w_, HitDebugInfo* d_, const Trk::PrepRawData* prd_,
              const Muon::TgcClusterObj3D* tgc_) :

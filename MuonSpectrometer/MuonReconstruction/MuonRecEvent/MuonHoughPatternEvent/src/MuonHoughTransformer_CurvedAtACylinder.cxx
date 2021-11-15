@@ -182,15 +182,13 @@ MuonHoughPattern* MuonHoughTransformer_CurvedAtACylinder::hookAssociateHitsToMax
     }
 
     for (unsigned int i = 0; i < event->size(); i++) {
-        int sectorhit = sector(event->getHit(i));
+        MuonHoughHit* hit = event->getHit(i);
+        int sectorhit = sector(hit);
         if (sectorhit == sector_1 || sectorhit == sector_2 || sectorhit == sector_3) {
-            double hitx = event->getHitx(i);
-            double hity = event->getHity(i);
-            double hitz = event->getHitz(i);
             double z0 = 0.;  // offset from IP on z-axis
-            const double sdis = MuonHoughMathUtils::signedDistanceCurvedToHit(z0, theta, invcurvature, hitx, hity, hitz);
+            const double sdis = MuonHoughMathUtils::signedDistanceCurvedToHit(z0, theta, invcurvature, hit->getPosition());
 
-            double radius3d = std::sqrt(hitx * hitx + hity * hity + hitz * hitz);
+            double radius3d = hit->getAbs();
             if (radius3d < 5000.)
                 radius3d = 5000.;
             else if (radius3d > 15000.)
@@ -200,15 +198,14 @@ MuonHoughPattern* MuonHoughTransformer_CurvedAtACylinder::hookAssociateHitsToMax
             double residu_distance_mm = std::abs(sdis);
 
             if (printlevel >= 4 || log.level() <= MSG::VERBOSE) {
-                log << MSG::VERBOSE << "MuonHoughTransformer_CurvedAtACylinder::hitx: " << hitx << " hity: " << hity << " hitz: " << hitz
-                    << endmsg;
+                log << MSG::VERBOSE << "MuonHoughTransformer_CurvedAtACylinder:: " << hit->getPosition() << endmsg;
                 log << MSG::VERBOSE << "MuonHoughTransformer_CurvedAtACylinder::residu_distance: " << sdis
                     << " max_residu_mm*scale: " << max_residu_mm * scale << endmsg;
             }
 
             if (std::abs(residu_distance_mm) < max_residu_mm * scale)  // here no circular effect
             {
-                double phi = std::atan2(hity, hitx);
+                double phi = hit->getPhi();
                 CxxUtils::sincos scphi(phi);
                 sin_phi += scphi.sn;
                 cos_phi += scphi.cs;

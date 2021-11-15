@@ -41,7 +41,7 @@ StatusCode MuonLayerHoughAlg::execute(const EventContext& ctx) const {
     const Muon::sTgcPrepDataContainer* stgcPrds = m_keysTgc.empty() ? nullptr : GetObject(m_keysTgc, ctx);
     const Muon::MMPrepDataContainer* mmPrds = m_keyMM.empty() ? nullptr : GetObject(m_keyMM, ctx);
     ATH_MSG_VERBOSE("calling layer tool ");
-    auto [combis, houghDataPerSectorVec] = m_layerTool->analyse(mdtPrds, cscPrds, tgcPrds, rpcPrds, stgcPrds, mmPrds, ctx);
+    auto [combis, houghDataPerSectorVec] = m_layerTool->find(mdtPrds, cscPrds, tgcPrds, rpcPrds, stgcPrds, mmPrds, ctx);
     SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis, ctx);
     if (combis) {
         if (Handle.record(std::move(combis)).isFailure()) {
@@ -58,17 +58,12 @@ StatusCode MuonLayerHoughAlg::execute(const EventContext& ctx) const {
     }
 
     // write hough data to SG
-    SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle{m_houghDataPerSectorVecKey, ctx};
+    SG::WriteHandle<Muon::HoughDataPerSectorVec> handle{m_houghDataPerSectorVecKey, ctx};
     if (houghDataPerSectorVec) {
         ATH_CHECK(handle.record(std::move(houghDataPerSectorVec)));
     } else {
         ATH_MSG_VERBOSE("HoughDataPerSectorVec " << m_houghDataPerSectorVecKey << " is empty, recording");
-        ATH_CHECK(handle.record(std::make_unique<Muon::MuonLayerHoughTool::HoughDataPerSectorVec>()));
+        ATH_CHECK(handle.record(std::make_unique<Muon::HoughDataPerSectorVec>()));
     }
-
-    m_layerTool->reset();
-
     return StatusCode::SUCCESS;
 }  // execute
-
-StatusCode MuonLayerHoughAlg::finalize() { return StatusCode::SUCCESS; }
