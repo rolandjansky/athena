@@ -11,7 +11,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def TLAJetSequence (flags, jetsIn):
     
     ## add the InputMaker (event context)    
-    tlaJetInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAJets")#,RoIsLink="initialRoI")
+    tlaJetInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAJets_"+jetsIn)#,RoIsLink="initialRoI")
     tlaJetInputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool()
     tlaJetInputMakerAlg.mergeUsingFeature = True
     
