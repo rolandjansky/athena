@@ -26,13 +26,25 @@ namespace top {
      * definition
      * @param operatingPointLoose Likelihood operating point for the loose
      * objects (fakes estimates?)
-     * @param isolation The isolation tool the user wants to use.  If you don't
+     * @param isolation The isolation tool the user wants to use. If you don't
      * want any isolation cuts to be applied then leave this as a nullptr.
+     * @param d0SigCut The maximum d0 significance cut
+     * @param delta_z0 The maximum |delta z0 sin(theta)| cut
+     * @param applyTTVACut Whether to apply cuts on d0 and z0
+     * @param applyChargeIDCut Whether to apply charge identification selector tool
      */
     ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
                            const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut = true, const bool applyChargeIDCut = false);
-    // this constructor is kept for backward compatibility - isPrimaryxAOD is not needed anymore
+                           const bool applyChargeIDCut);
+
+    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                           const std::string& operatingPointLoose, StandardIsolation* isolation,
+                           const bool applyTTVACut, const bool applyChargeIDCut);
+
+    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                           const std::string& operatingPointLoose, StandardIsolation* isolation,
+                           const double d0SigCut, const double delta_z0, const bool applyTTVACut,
+                           const bool applyChargeIDCut);
 
     virtual ~ElectronLikelihoodMC15() {}
     /**
@@ -100,6 +112,10 @@ namespace top {
 
     ///Veto the crack region?
     bool m_vetoCrack;
+
+    /// TTVA cuts
+    double m_d0SigCut;
+    double m_delta_z0;
 
     std::string m_operatingPoint;
     std::string m_operatingPointLoose;

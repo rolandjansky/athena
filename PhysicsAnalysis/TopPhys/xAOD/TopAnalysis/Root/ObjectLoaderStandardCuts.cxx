@@ -8,7 +8,6 @@
 
 #include "TopObjectSelectionTools/TopObjectSelection.h"
 #include "TopObjectSelectionTools/ElectronLikelihoodMC15.h"
-#include "TopObjectSelectionTools/ElectronCutBasedMC15.h"
 //#include "TopObjectSelectionTools/FwdElectronMC15.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
 #include "TopObjectSelectionTools/MuonMC15.h"
@@ -49,18 +48,8 @@ namespace top {
 
     ///-- Electrons --///
     if (topConfig->useElectrons()) {
-      if (topConfig->electronID().find("LH") == std::string::npos &&
-          topConfig->electronIDLoose().find("LH") == std::string::npos) {
-        //both the tight and loose user settings do not contain LH -> cut based
-        objectSelection->electronSelection(new top::ElectronCutBasedMC15(topConfig->electronPtcut(),
-                                                                         topConfig->electronVetoLArCrack(),
-                                                                         topConfig->electronID(),
-                                                                         topConfig->electronIDLoose(),
-                                                                         new top::StandardIsolation(
-                                                                           topConfig->electronIsolation(),
-                                                                           topConfig->electronIsolationLoose())));
-      } else if (topConfig->electronID().find("LH") != std::string::npos &&
-                 topConfig->electronIDLoose().find("LH") != std::string::npos) {
+      if (topConfig->electronID().find("LH") != std::string::npos &&
+          topConfig->electronIDLoose().find("LH") != std::string::npos) {
         //user wants likelihood electrons
         objectSelection->electronSelection(new top::ElectronLikelihoodMC15(topConfig->electronPtcut(),
                                                                            topConfig->electronVetoLArCrack(),
@@ -69,15 +58,16 @@ namespace top {
                                                                            new top::StandardIsolation(
                                                                              topConfig->electronIsolation(),
                                                                              topConfig->electronIsolationLoose()),
+                                                                           topConfig->electrond0Sigcut(),
+                                                                           topConfig->electrondeltaz0cut(),
                                                                            topConfig->applyTTVACut(),
                                                                            topConfig->useElectronChargeIDSelection()
                                                                            ));
       } else {
-        ATH_MSG_ERROR("Not sure it makes sense to use a mix of LH and cut-based electrons for the tight/loose definitions\n"
-          << "Tight electron definition is " << topConfig->electronID() << "\n"
-          << "Loose electron definition is " << topConfig->electronIDLoose() << "\n"
-          << "If it does make sense, feel free to fix this");
-        throw std::runtime_error("Mixing LH and cut-based electron definitions for tight/loose");
+        ATH_MSG_ERROR("Only likelihood-based electron ID is currently supported. You have selected:\n"
+          << "Tight electron definition: " << topConfig->electronID() << "\n"
+          << "Loose electron definition: " << topConfig->electronIDLoose());
+        throw std::runtime_error("Unsupported electron ID option");
       }
     }
 
@@ -95,6 +85,8 @@ namespace top {
       else objectSelection->muonSelection(new top::MuonMC15(topConfig->muonPtcut(),
                                                             new top::StandardIsolation(topConfig->muonIsolation(),
                                                                                        topConfig->muonIsolationLoose()),
+                                                            topConfig->muond0Sigcut(),
+                                                            topConfig->muondeltaz0cut(),
                                                             topConfig->applyTTVACut()));
     }
 

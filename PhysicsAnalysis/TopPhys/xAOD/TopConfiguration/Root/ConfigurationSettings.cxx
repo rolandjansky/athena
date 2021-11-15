@@ -60,6 +60,8 @@ namespace top {
     registerParameter("ElectronIDLoose",
                       "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH", "MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
+    registerParameter("Electrond0Sig", "Electron d0 significance cut for object selection. Default 5", "5.");
+    registerParameter("Electrondeltaz0", "Electron delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("EgammaSystematicModel", "Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)",
                       "1NP_v1");
     registerParameter("ElectronEfficiencySystematicModel",
@@ -109,6 +111,8 @@ namespace top {
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5");
+    registerParameter("Muond0Sig", "Muon d0 significance cut for object selection. Default 3", "3.");
+    registerParameter("Muondeltaz0", "Muon delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("MuonQuality",
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");

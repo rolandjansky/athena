@@ -15,9 +15,12 @@ namespace top {
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
                                                  const std::string& operatingPoint,
                                                  const std::string& operatingPointLoose, StandardIsolation* isolation,
-                                                 const bool applyTTVACut, const bool applyChargeIDCut) :
+                                                 const double d0SigCut, const double delta_z0, const bool applyTTVACut,
+                                                 const bool applyChargeIDCut) :
     m_ptcut(ptcut),
     m_vetoCrack(vetoCrack),
+    m_d0SigCut(d0SigCut),
+    m_delta_z0(delta_z0),
     m_operatingPoint("SetMe"),
     m_operatingPointLoose("SetMe"),
     m_operatingPoint_DF("SetMe"),
@@ -73,6 +76,25 @@ namespace top {
     m_deadHVTool.setTypeAndName("AsgDeadHVCellRemovalTool/deadHVTool");
     top::check(m_deadHVTool.retrieve(), "Failed to setup Egamma DeadHVCellRemovalTool");
   }
+
+  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
+                                                 const std::string& operatingPoint,
+                                                 const std::string& operatingPointLoose,
+                                                 StandardIsolation* isolation,
+                                                 const bool applyChargeIDCut)
+    : ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
+                                                     operatingPointLoose, isolation, 5.0, 0.5, true,
+                                                     applyChargeIDCut) {}
+
+  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
+                                                 const std::string& operatingPoint,
+                                                 const std::string& operatingPointLoose,
+                                                 StandardIsolation* isolation,
+                                                 const bool applyTTVACut,
+                                                 const bool applyChargeIDCut)
+    : ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
+                                                     operatingPointLoose, isolation, 5.0, 0.5, applyTTVACut,
+                                                     applyChargeIDCut) {}
 
   bool ElectronLikelihoodMC15::passSelection(const xAOD::Electron& el) const {
     if (!passSelectionNoIsolation(el, m_operatingPoint_DF, m_operatingPoint)) return false;
@@ -143,7 +165,7 @@ namespace top {
     //Veto electrons suffering from the 2015+2016/mc16a crack+topocluster association bug
     //See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2017#EGamma_Crack_Electron_topocluste for details
     if (el.isAvailable<char>("DFCommonCrackVetoCleaning"))
-	if (!el.auxdataConst<char>("DFCommonCrackVetoCleaning")) return false;
+  if (!el.auxdataConst<char>("DFCommonCrackVetoCleaning")) return false;
 
     if (m_vetoCrack && std::fabs(el.caloCluster()->etaBE(2)) > 1.37 &&
         std::fabs(el.caloCluster()->etaBE(2)) < 1.52) return false;
