@@ -230,7 +230,7 @@ if __name__ == '__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    nightly = '/afs/cern.ch/work/n/nbelyaev/DQ/Datafiles/'
+    nightly = '/afs/cern.ch/work/n/nbelyaev/public/Datafiles/'
     file = 'data18_13TeV.00349944.physics_Main.daq.ESD._lb0244._f1138._0001.root'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
