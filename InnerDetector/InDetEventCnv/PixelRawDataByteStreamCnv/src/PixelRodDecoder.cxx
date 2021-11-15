@@ -538,6 +538,10 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             // computing the FE number on the silicon wafer for IBL ( mFE is = 0 for IBL 3D and the lower-eta FE on the planar sensor,
             // while is = 1 for the higher-eta FE on the planar sensor)
             mFE = getLocalFEI4(fe_IBLheader, onlineId);
+            if (m_pixelReadout->getModuleType(pixCabling->find_entry_onoff(onlineId))==InDetDD::PixelModuleType::IBL_3D) {
+              mFE = 0;
+            }
+
           } // end of the if (isIBLModule || isDBMModule)
           else { // Pixel Hit Case
 
