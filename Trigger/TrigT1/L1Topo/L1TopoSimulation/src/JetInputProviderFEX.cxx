@@ -118,16 +118,16 @@ JetInputProviderFEX::handle(const Incident& incident) {
    auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 40, 0, 200);
    hjTauPt->SetXTitle("p_{T}");
 
-   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 2000);
+   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 200);
    hjTauIsolation->SetXTitle("Isolation");
 
    auto hjTauEtaPhi = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 220, -110, 110, 128, 0, 128);
    hjTauEtaPhi->SetXTitle("#eta");
    hjTauEtaPhi->SetYTitle("#phi");
 
-   auto hjTauEtaIsolation = std::make_unique<TH2I>( "jTauTOBEtaIsolation", "jTau TOB Isolation vs eta", 220, -110, 110, 200, 0, 2000);
-   hjTauEtaPhi->SetXTitle("#eta");
-   hjTauEtaPhi->SetYTitle("Isolation");
+   auto hjTauEtaIsolation = std::make_unique<TH2I>( "jTauTOBEtaIsolation", "jTau TOB Isolation vs eta", 220, -110, 110, 200, 0, 200);
+   hjTauEtaIsolation->SetXTitle("#eta");
+   hjTauEtaIsolation->SetYTitle("Isolation");
 
    if (m_histSvc->regShared( histPath + "jTauTOBPt", std::move(hjTauPt), m_hjTauPt ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Pt histogram has been registered successfully from JetProviderFEX.");
@@ -196,7 +196,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << " globalEta: "
 		   << jFexRoI->globalEta() // returns global eta in units of 0.1
 		   << " isolation: "
-		   << jFexRoI->iso() // returns isolation value in units of 200 MeV
+		   << jFexRoI->tobIso() // returns isolation value in units of 200 MeV
 		   << " globalPhi: "
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
@@ -204,7 +204,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
     unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
     int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
-    unsigned int isolation = jFexRoI->iso();  // isolation value in units of 200 MeV
+    unsigned int isolation = jFexRoI->tobIso();  // isolation value in units of 200 MeV
    
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
@@ -217,8 +217,11 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     inputEvent.addjTau( jtau );
     inputEvent.addcTau( jtau );
 
+    std::cout<<"isolation "<< isolation<< std::endl;
+    std::cout<<"jtau.isolation() "<< jtau.isolation() <<std::endl; 
+
     m_hjTauPt->Fill(jtau.EtDouble());
-    m_hjTauPt->Fill(jtau.isolation());
+    m_hjTauIsolation->Fill(jtau.isolation());
     m_hjTauEtaPhi->Fill(jtau.eta(),jtau.phi()); 
     m_hjTauEtaIsolation->Fill(jtau.eta(),jtau.isolation()); 
   }
