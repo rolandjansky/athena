@@ -1017,6 +1017,7 @@ def setupMenu():
  
         # photon + multijets TLA
         ChainProp(name="HLT_g35_loose_3j25_PhysicsTLA_L1EM22VHI", stream=['TLA'], l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
+        ChainProp(name="HLT_g5_loose_2j10_pf_ftf_PhysicsTLA_L1EM3", stream=['TLA'], l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
         # easy one for testing
         ChainProp(name="HLT_g5_loose_2j10_PhysicsTLA_L1EM3", stream=['TLA'], l1SeedThresholds=['EM3','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
 

@@ -16,15 +16,17 @@ def addTLAStep(chain, chainDict):
     tlaSequencesList = []
     log.debug("addTLAStep: processing chain: ", chainDict['chainName'])
     print("addTLAStep: processing chain: ", chainDict['chainName'])
-    for tlaSignature in signatures:
+    print(chainDict)
+    
+    for cPart in chainDict['chainParts']:
         
+        tlaSignature = cPart['signature']
         log.debug("addTLAStep: processing signature: ", tlaSignature)
         # call the sequence from their respective signatures
         
         isPFlow = False
         if tlaSignature == 'Jet':
-            print(chainDict)
-            if chainDict['chainParts'][0]['constitType'] == 'pf':
+            if cPart['constitType'] == 'pf':
                 print("Setting isPFLow = True")
                 isPFlow = True
 
