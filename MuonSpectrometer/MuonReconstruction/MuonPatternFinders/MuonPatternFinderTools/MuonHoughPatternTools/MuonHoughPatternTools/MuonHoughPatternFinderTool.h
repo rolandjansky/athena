@@ -38,9 +38,9 @@ namespace Muon {
         virtual ~MuonHoughPatternFinderTool();
 
         /** initialize */
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
         /** finalize */
-        virtual StatusCode finalize();
+        virtual StatusCode finalize() override;
 
         /** find patterns for a give set of MuonPrepData collections + optionally CSC
          * segment combinations */
