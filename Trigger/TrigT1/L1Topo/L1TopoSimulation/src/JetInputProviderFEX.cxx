@@ -217,9 +217,6 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     inputEvent.addjTau( jtau );
     inputEvent.addcTau( jtau );
 
-    std::cout<<"isolation "<< isolation<< std::endl;
-    std::cout<<"jtau.isolation() "<< jtau.isolation() <<std::endl; 
-
     m_hjTauPt->Fill(jtau.EtDouble());
     m_hjTauIsolation->Fill(jtau.isolation());
     m_hjTauEtaPhi->Fill(jtau.eta(),jtau.phi()); 
