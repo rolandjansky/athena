@@ -28,6 +28,7 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "CxxUtils/checker_macros.h"
 #include "PersistentDataModel/DataHeader.h"
+#include "./extract_histogram_tag.h"
 
 #include <cstdlib>
 #include <csignal>
@@ -536,7 +537,8 @@ void ByteStreamEmonInputSvc::check_publish()
             TH1 *h = nullptr;
             if(m_histSvc->getHist(name, h)) {
                 // might throw...
-                m_provider->publish(*h, name);
+                auto name_tag = detail::extract_histogram_tag(name);
+                m_provider->publish(*h, name_tag.first, name_tag.second);
             };
         }
         for(const std::string& name : m_histSvc->getEfficiencies()) {
@@ -559,8 +561,9 @@ void ByteStreamEmonInputSvc::check_publish()
                         p = create2DProfile(h);
                     }
                     // might throw...
-                    m_provider->publish(*p, name);
-                    //m_provider->publish(*h, name);
+                    auto name_tag = detail::extract_histogram_tag(name);
+                    m_provider->publish(*p, name_tag.first, name_tag.second);
+                    //m_provider->publish(*h, name_tag.first, name_tag.second);
                 } // tdaq doesn't currently support publishing efficiencies, will change in the future
             };
         }
