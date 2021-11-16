@@ -150,7 +150,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     double GetSystVariation( int DetType, double var, InfoHelper& muonInfo, bool doDirectCB ) const;
     StatusCode SetInfoHelperCorConsts(InfoHelper& inMuonInfo) const;
     void CalcCBWeights( xAOD::Muon&, InfoHelper& muonInfo ) const;
-    double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVarID, const double scaleMS_scale, const double scaleMS_egLoss, InfoHelper& muonInfo ) const;
+    double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVarID, const double scaleMS_scale, const double scaleMS_egLoss, const double scaleCB_scale, const double scaleCB_egLoss, InfoHelper& muonInfo ) const;
     StatusCode FillValues();
     void Clean();
     double ScaleApply( const double pt, double S, const double S_EnLoss, InfoHelper& muonInfo ) const;
@@ -180,9 +180,12 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     struct ParameterSet {
       double SmearTypeID;
       double SmearTypeMS;
+      double SmearTypeCB;
       double ScaleID;
       double ScaleMS_scale;
       double ScaleMS_egLoss;
+      double ScaleCB_scale;
+      double ScaleCB_egLoss;
       double SagittaRho;
       double SagittaBias;
       double SagittaDataStat;
