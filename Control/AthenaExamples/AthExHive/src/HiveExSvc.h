@@ -30,7 +30,7 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
   
-  void add(const std::string&, const unsigned int&);
+  virtual void add(const std::string&, const unsigned int&) override;
 
 private:
 
