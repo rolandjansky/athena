@@ -61,6 +61,14 @@ def _getInDetTrackingGeometryBuilder(name, flags,
     binnings = []
     colors = []
 
+    # Material due to InDet services
+    if (flags.Detector.GeometryPixel
+        or flags.Detector.GeometrySCT
+            or flags.Detector.GeometryTRT):
+        from InDetServMatGeoModel.InDetServMatGeoModelConfig import (
+            InDetServiceMaterialCfg)
+        result.merge(InDetServiceMaterialCfg(flags))
+
     # Pixel
     if flags.Detector.GeometryPixel:
         # for Pixel DetectorElement conditions data :
@@ -98,7 +106,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,
         binnings += [PixelLayerBinning]
         colors += [3]
 
-        # add artifical dependencies to Pixel DetectorElement conditions algs to ensure that the IOV
+        # add artifical dependencies to Pixel DetectorElement
+        # conditions algs to ensure that the IOV
         # is identical to the IOV of the tracking geoemtry cond alg
         from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
         result.merge(PixelDetectorElementCondAlgCfg(
@@ -145,7 +154,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,
         binnings += [SCT_LayerBinning]
         colors += [4]
 
-        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_DetectorElementCondAlgCfg
+        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import (
+            SCT_DetectorElementCondAlgCfg)
         result.merge(SCT_DetectorElementCondAlgCfg(
             flags,
             MuonManagerKey=[
@@ -577,7 +587,7 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
 
     # Depending on the job configuration, setup the various detector builders, and add to atlas_geometry_builder
     if flags.Detector.GeometryID:
-        # TODO Not sure how to handle TrkDetFlags, specifically 
+        # TODO Not sure how to handle TrkDetFlags, specifically
         # ISF_FatrasCustomGeometry, XMLFastCustomGeometry
         # So, here we only setup the default InDet geometry builder!
         inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(
@@ -635,7 +645,7 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
         atlas_geometry_builder.CaloTrackingGeometryBuilder = caloTrackingGeometryBuilder
 
     if flags.Detector.GeometryMuon:
-        # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry 
+        # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry
         # import MuonTrackingGeometryBuilder
         # Add the muon geometry model to the CA
         from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
