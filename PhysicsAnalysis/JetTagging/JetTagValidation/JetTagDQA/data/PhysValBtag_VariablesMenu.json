@@ -530,8 +530,8 @@
             "ytitle": "Tracks",
             "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
             "xbins": 200,
-            "xmin": -0.5,
-            "xmax": 0.5,
+            "xmin": -2,
+            "xmax": 2,
             "forEachTruthType": ["U","B","C","DATA"],
             "type": "TH1D",
             "forData": "true"
@@ -544,8 +544,8 @@
             "ytitle": "Tracks",
             "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
             "xbins": 200,
-            "xmin": -5,
-            "xmax": 5,
+            "xmin": -50,
+            "xmax": 50,
             "forEachTruthType": ["U","B","C","DATA"],
             "type": "TH1D",
             "forData": "true"
@@ -558,8 +558,8 @@
             "ytitle": "Tracks",
             "path":  {"ART": "bTagging", "PHYSVAL": "tagger"},
             "xbins": 200,
-            "xmin": -5,
-            "xmax": 5,
+            "xmin": -50,
+            "xmax": 50,
             "forEachTruthType": ["U","B","C","DATA"],
             "type": "TH1D",
             "forData": "true"
