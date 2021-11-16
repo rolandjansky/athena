@@ -118,6 +118,8 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   }else if(trigItem.find("ptonly") != std::string::npos) 
      tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
 
+  auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigItem,TrigDefs::Physics , tauContainerName );
+
   for(const auto *const Tau : *offTaus ){
 
     const TrigCompositeUtils::Decision *dec=nullptr; 
@@ -125,7 +127,6 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
     // consider only offline taus which pass RNN medium WP
     if( !Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium)) continue;
 
-    auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigItem,TrigDefs::Physics , tauContainerName );
     for( auto &featLinkInfo : vec ){                                             
       if(! featLinkInfo.isValid() ) continue;
       const auto *feat = *(featLinkInfo.link);                   
