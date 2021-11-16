@@ -143,7 +143,18 @@ using Trk::distDepth;
 
     if (!dir.m_etaDirection) xEta = -xEta;
     if (!dir.m_phiDirection) xPhi = -xPhi;
-    return Amg::Vector2D(xPhi, xEta);
+    auto result = Amg::Vector2D(xPhi, xEta);
+
+    if (m_design->shape() == InDetDD::PolarAnnulus) { // Do conversion to polar co-ords as well
+      double x = result.x();
+      double y = result.y();
+
+      double r = std::hypot(x,y);
+      double phi = std::atan2(y,x);
+      result = Amg::Vector2D(phi,r);
+    }
+
+    return result;
   }
 
   HepGeom::Point3D<double>
