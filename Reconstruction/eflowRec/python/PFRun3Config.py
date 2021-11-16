@@ -145,7 +145,7 @@ def PFCfg(inputFlags,**kwargs):
     
     #Currently we do not have muon reco in the run 3 config and hence there are no muons if not running from ESD or AOD
     #So in new config only schedule from ESD/AOD, in old config always schedule it
-    if( (inputFlags.PF.useMuLinks and inputFlags.Input.Format == "POOL") or inputFlags.PF.useRecExCommon ):
+    if( (inputFlags.PF.useMuLinks and inputFlags.Input.Format == "POOL" and not ('StreamRDO' in inputFlags.Input.ProcessingTags or 'OutputStreamRDO' in inputFlags.Input.ProcessingTags)) or inputFlags.PF.useRecExCommon ):
         from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm
         result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
 
