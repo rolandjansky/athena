@@ -64,6 +64,7 @@ void LVL1::jFEXForwardJetsAlgo::setup(int inputTable[FEXAlgoSpaceDefs::jFEX_algo
     std::copy(&inputTable[0][0], &inputTable[0][0] + (FEXAlgoSpaceDefs::jFEX_algoSpace_height*FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width), &m_jFEXalgoTowerID[0][0]);
     m_jfex=jfex;
     m_fpga=fpga;
+    
 }
 
 //Gets geometric global centre Phi coord of the TT
@@ -194,16 +195,18 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJets
                         float TT_eta = globalEta(auxTTID);
                         float TT_phi = globalPhi(auxTTID);
                         
+                        if(auxTTID == myTTIDKey || auxTTID == 0) continue;
+                        
                         //This corrects the overlap of FPGA 0 with FPGA 3 and viceversa
                         if(m_fpga==0 || m_fpga==3) { 
                             if(m_fpga==0) {
                                 if(TT_phi>M_PI){
-                                   TT_phi = TT_phi-6.4; 
+                                   TT_phi = TT_phi-m_2PI; 
                                 }
                             }
                             else {
                                 if(TT_phi<M_PI){
-                                   TT_phi = TT_phi+6.4; 
+                                   TT_phi = TT_phi+m_2PI; 
                                 }
                             }
                         }
@@ -255,7 +258,7 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLo
     std::unordered_map<int, jFEXForwardJetsInfo> localMaximaCandidates = FcalJetsTowerIDLists();
     std::unordered_map<int, jFEXForwardJetsInfo> localMaximaList ;
 
-    size_t isLocalMaxima = 0;
+    uint isLocalMaxima = 0;
     
     for (std::pair<int, jFEXForwardJetsInfo> element : localMaximaCandidates){
         
@@ -269,7 +272,6 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLo
         int centre_energy = myFCALJetInfoClass.getSeedET();
 
         const std::vector<int> TTinSW = myFCALJetInfoClass.getTTinSearchWindow();
-        const std::vector<int> v = myFCALJetInfoClass.getTTinSeed();  
         
         for (const int iTTinSW : TTinSW) {
             if(iTTinSW == myTTKey) continue;
@@ -301,12 +303,12 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLo
                         if(m_fpga==0 || m_fpga==3) { 
                             if(m_fpga==0) {
                                 if(TT_phi>M_PI){
-                                   TT_phi = TT_phi-6.4; 
+                                   TT_phi = TT_phi-m_2PI; 
                                 }
                             }
                             else {
                                 if(TT_phi<M_PI){
-                                   TT_phi = TT_phi+6.4; 
+                                   TT_phi = TT_phi+m_2PI; 
                                 }
                             }
                         }
@@ -369,12 +371,12 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculat
                 if(m_fpga==0 || m_fpga==3) {
                     if(m_fpga==0) {
                         if(TT_phi>M_PI) {
-                            TT_phi = TT_phi-6.4;
+                            TT_phi = TT_phi-m_2PI;
                         }
                     }
                     else {
                         if(TT_phi<M_PI) {
-                            TT_phi = TT_phi+6.4;
+                            TT_phi = TT_phi+m_2PI;
                         }
                     }
                 }

@@ -337,7 +337,9 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
 
         for(std::unordered_map<int, jFEXForwardJetsInfo>::iterator it = m_FCALJets.begin(); it!=(m_FCALJets.end()); ++it) {
 
+            uint32_t TTID = it->first;
             jFEXForwardJetsInfo FCALJets = it->second;
+            
 
             int iphi = FCALJets.getCentreLocalTTPhi();
             int ieta = FCALJets.getCentreLocalTTEta();
@@ -350,12 +352,13 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             m_LRJetET = m_SRJetET + FCALJets.getSecondEnergyRingET();
             
             
+            
             uint32_t SRFCAL_Jet_tobword = formSmallRJetTOB(iphi, ieta);
-            std::vector<uint32_t> SRtob_aux{SRFCAL_Jet_tobword,(uint32_t) it->first};
+            std::vector<uint32_t> SRtob_aux{SRFCAL_Jet_tobword,TTID};
             if ( SRFCAL_Jet_tobword != 0 ) m_SRJet_tobwords.push_back(SRtob_aux);
             
             uint32_t LRFCAL_Jet_tobword = formLargeRJetTOB(iphi, ieta);
-            std::vector<uint32_t> LRtob_aux{LRFCAL_Jet_tobword,(uint32_t) it->first};
+            std::vector<uint32_t> LRtob_aux{LRFCAL_Jet_tobword,TTID};
             if ( LRFCAL_Jet_tobword != 0 ) m_LRJet_tobwords.push_back(LRtob_aux);
             
             
@@ -570,7 +573,7 @@ std::vector <std::vector <uint32_t>> jFEXFPGA::getSmallRJetTOBs()
         tobsSort.push_back(v);
     }
     tobsSort.resize(7);
-       
+
     return tobsSort;
 
 }
@@ -651,6 +654,7 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
     const TrigConf::L1ThrExtraInfo_jJ & thr_jJ = l1Menu->thrExtraInfo().jJ();
     std::string str_jfexname = m_jfex_string[m_jfexid];
     unsigned int minEtThreshold = thr_jJ.ptMinToTopoMeV(str_jfexname)/jFEXETResolution;
+    
     if (jFEXSmallRJetTOBEt < minEtThreshold) return 0;
     else return tobWord;
 }
