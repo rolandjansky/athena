@@ -4581,6 +4581,8 @@ HLT_noalg_L1RD0_FILLED:
   eventCount: 0
 HLT_noalg_L1RD0_FIRSTEMPTY:
   eventCount: 0
+HLT_noalg_L1RD0_UNPAIRED_ISO:
+  eventCount: 0
 HLT_noalg_L1RD1_EMPTY:
   eventCount: 0
 HLT_noalg_L1RD2_EMPTY:

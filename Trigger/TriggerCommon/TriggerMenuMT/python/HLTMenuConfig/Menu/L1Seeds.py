@@ -55,6 +55,8 @@ def getL1BackgroundSeed(menul1items, menu_name):
         'L1_BCM_Wide_CALIB',
         'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB',
         'L1_J12_EMPTY', 'L1_J12_BGRP12',
+        'L1_BCM_AC_UNPAIREDB1', 'L1_BCM_CA_UNPAIREDB2',
+        'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
         ]
     
     if menu_name == 'LS1_v1':
