@@ -201,6 +201,9 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     MuCalStreamerTool       = TrigL2MuonSA__MuCalStreamerTool()
     CscSegmentMaker         = TrigL2MuonSA__CscSegmentMaker()
 
+    if not MuonGeometryFlags.hasSTGC() and not MuonGeometryFlags.hasMM():
+        MuFastStationFitter.NswStationFitter=""
+
     # Set Reco alg of muFast step
     #from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
     MuFastSteering=CompFactory.MuFastSteering
