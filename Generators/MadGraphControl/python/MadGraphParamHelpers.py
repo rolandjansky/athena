@@ -11,7 +11,6 @@ def set_SM_params(process_dir,FourFS=False):
     https://twiki.cern.ch/twiki/bin/view/AtlasProtected/McProductionCommonParametersMC15
     """
     param_card_settings = {
-    'loop' : { '1':"9.118760e+01" },
     'mass' : {
 '5':  "0.000000",
 '15': "1.777000e+00",
@@ -167,7 +166,7 @@ def get_PMG_updates(process_dir):
                 newparamdict['mass'][pid] = mass
             # Width: Always set it, even if it wasn't in the dictionary
             if pid not in widths or widths[pid]!=width:
-                newparamdict['decay'][pid] = 'decay '+pid+' '+width
+                newparamdict['decay'][pid] = 'DECAY '+pid+' '+width
             # Yukawa: Set it only if it was in the dictionary
             # This is to protect against models that don't use Yukawa blocks as normal
             if pid in yukawas and yukawas[pid]!=mass:
