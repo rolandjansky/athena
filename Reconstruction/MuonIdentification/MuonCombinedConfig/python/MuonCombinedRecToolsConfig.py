@@ -118,7 +118,7 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**k
         kwargs.setdefault('TrackToVertex',result.popToolsAndMerge(MuonTrackToVertexCfg(flags)))
 
     kwargs.setdefault("KeepAllPerigee",True )
-    kwargs.setdefault("UseMuonSummaryTool",True )
+    kwargs.setdefault("MuonSummaryTool", CompFactory.Muon.MuonHitSummaryTool("MuonHitSummaryTool"))
     if flags.Beam.Type=="cosmics":
         kwargs.setdefault("PerigeeExpression","Origin")
     tool = CompFactory.Trk.TrackParticleCreatorTool(name,**kwargs)

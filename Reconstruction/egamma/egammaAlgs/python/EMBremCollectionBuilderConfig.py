@@ -86,13 +86,20 @@ def EMBremCollectionBuilderCfg(flags,
             egammaTrkRefitterToolCfg(flags))
 
     if "TrackParticleCreatorTool" not in kwargs:
-        from InDetConfig.TrackRecoConfig import TrackToVertexCfg
+        if flags.Detector.GeometryITk:
+            from InDetConfig.ITkTrackRecoConfig import ITkTrackToVertexCfg
+            ttv = acc.popToolsAndMerge(ITkTrackToVertexCfg(flags))
+        else:
+            from InDetConfig.TrackRecoConfig import TrackToVertexCfg
+            ttv = acc.popToolsAndMerge(TrackToVertexCfg(flags))
+
         gsfTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
-            UseTrackSummaryTool=False,
-            BadClusterID=0)
+            TrackToVertex=ttv,
+            TrackSummaryTool="",
+            BadClusterID=0,
+            IBLParameterSvc="IBLParameterSvc" if flags.Detector.GeometryID else "")
         kwargs["TrackParticleCreatorTool"] = gsfTrackParticleCreatorTool
 
     if "TrackSlimmingTool" not in kwargs:

@@ -74,6 +74,8 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
         kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
             EMLastCaloExtensionToolCfg(flags))
 
+    kwargs["EnableTRT"] = flags.Detector.GeometryTRT
+
     emExtrapolationTools = CompFactory.EMExtrapolationTools(**kwargs)
     acc.setPrivateTools(emExtrapolationTools)
     return acc

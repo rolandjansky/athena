@@ -148,6 +148,7 @@ private:
 
   // ID TRT helper
   const TRT_ID* m_trtId;
+  Gaudi::Property<bool> m_enableTRT{ this, "EnableTRT", true };
 
   // Cache collections for GSF Track Particle extrapolation Perigee
   SG::ReadHandleKey<CaloExtensionCollection> m_PerigeeCacheKey{

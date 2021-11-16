@@ -129,7 +129,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            UseTrackSummaryTool=False)
+            TrackSummaryTool="")
         #
         #  Track slimming (private not in ToolSvc)
         #

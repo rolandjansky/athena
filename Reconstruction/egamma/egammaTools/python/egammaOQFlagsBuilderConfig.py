@@ -12,7 +12,8 @@ def egammaOQFlagsBuilderCfg(flags, name='egammaOQFlagsBuilder', **kwargs):
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
 
-    acc = ComponentAccumulator()
+    from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+    acc = LArHVScaleCfg(flags)
 
     kwargs.setdefault("CellsName", flags.Egamma.Keys.Input.CaloCells)
     kwargs.setdefault("affectedTool", CompFactory.CaloAffectedTool())
