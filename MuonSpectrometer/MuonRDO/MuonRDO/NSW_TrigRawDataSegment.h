@@ -24,14 +24,14 @@ class NSW_TrigRawDataSegment
 
   ~NSW_TrigRawDataSegment() { };
 
-  uint8_t deltaTheta() {return m_deltaTheta;}
-  uint8_t phiIndex() {return m_phiIndex;}
-  uint8_t rIndex() {return m_rIndex;}
-  uint8_t spare() {return m_spare;}
+  uint8_t deltaTheta() const {return m_deltaTheta;}
+  uint8_t phiIndex() const {return m_phiIndex;}
+  uint8_t rIndex() const {return m_rIndex;}
+  uint8_t spare() const {return m_spare;}
 
-  bool lowRes()   {return m_lowRes;}
-  bool phiRes()   {return m_phiRes;}
-  bool monitor()  {return m_monitor;}
+  bool lowRes() const  {return m_lowRes;}
+  bool phiRes() const  {return m_phiRes;}
+  bool monitor() const  {return m_monitor;}
 
   void setDeltaTheta(uint8_t deltaTheta) { m_deltaTheta=deltaTheta; }
   void setPhiIndex(uint8_t phiIndex)     { m_phiIndex=phiIndex; }

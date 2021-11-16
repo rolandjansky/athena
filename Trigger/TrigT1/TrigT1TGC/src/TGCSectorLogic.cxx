@@ -554,16 +554,20 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
       int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
       bool validFI = (m_mapEIFI->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId) == 1) && m_region==ENDCAP;
 
-      if(tgcArgs()->USE_NSW() && m_nswSide){ //this function will be implemented.There is a NSW on A-side only in early Run3;
-	doTGCNSWCoincidence(coincidenceOut);
+      if(tgcArgs()->USE_NSW() && m_nswSide){
+	if(tgcArgs()->FORCE_NSW_COIN()){
+	  coincidenceOut->setInnerCoincidenceFlag(true);
+	}
+	else{
+	  doTGCNSWCoincidence(coincidenceOut);
+	}
       }
       else if(!m_nswSide && validFI){
 	if(m_useEIFI){
 	  coincidenceOut->setInnerCoincidenceFlag( doTGCFICoincidence(coincidenceOut) );
 	}
       }
-      else{coincidenceOut->setInnerCoincidenceFlag(true);}
-
+      else{coincidenceOut->setInnerCoincidenceFlag(true);} // ?
     }
 
 
@@ -576,7 +580,6 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
     int pt_EtaPhi=0,pt_EtaDtheta=0;
 
     //////// calculate pT //////
-
     std::shared_ptr<const NSWTrigOut> pNSWOut = m_nsw->getOutput(m_region,m_sideId,m_sectorId);
     pt_EtaPhi = m_mapNSW->TGCNSW_pTcalcu_EtaPhi(
 						pNSWOut.get(),
