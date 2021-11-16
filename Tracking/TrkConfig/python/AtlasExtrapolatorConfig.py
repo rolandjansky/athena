@@ -59,13 +59,15 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
 
     # call the base class constructor
     Extrapolator = CompFactory.Trk.Extrapolator(name,
-                                     Navigator=AtlasNavigator,
-                                     MaterialEffectsUpdators=AtlasUpdators,
-                                     Propagators=AtlasPropagators,
-                                     SubPropagators=AtlasSubPropagators,
-                                     SubMEUpdators=AtlasSubUpdators
-                                     )
+                                                Navigator=AtlasNavigator,
+                                                MaterialEffectsUpdators=AtlasUpdators,
+                                                Propagators=AtlasPropagators,
+                                                SubPropagators=AtlasSubPropagators,
+                                                SubMEUpdators=AtlasSubUpdators
+                                                )
 
+    # TODO: figure out if it should be public or private
+    result.addPublicTool(Extrapolator)
     result.setPrivateTools(Extrapolator)
 
     return result

@@ -23,3 +23,7 @@ atlas_add_test( SolenoidalIntersectorConfig_test
 atlas_add_test( AtlasExtrapolatorCfgTest    
                 SCRIPT python -m TrkConfig.AtlasExtrapolatorConfig
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( AtlasUpgradeExtrapolatorCfgTest    
+                SCRIPT python -m TrkConfig.AtlasUpgradeExtrapolatorConfig
+                POST_EXEC_SCRIPT nopost.sh )
