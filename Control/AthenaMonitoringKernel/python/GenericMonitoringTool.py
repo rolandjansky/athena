@@ -7,7 +7,6 @@ from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 import json
-import six
 
 from AthenaConfiguration.ComponentFactory import isRun3Cfg
 
@@ -117,7 +116,6 @@ class GenericMonitoringArray:
         if aliasBase is None:
             return
         if pattern is not None:
-            import six
             try:
                 iter(pattern)
             except TypeError:
@@ -126,7 +124,7 @@ class GenericMonitoringArray:
                 pattern = list(pattern)
             if len(pattern) == 0: # nothing to do
                 return
-            if isinstance(pattern[0], six.string_types + six.integer_types):
+            if isinstance(pattern[0], (str, int)):
                 # assume we have list of strings or ints; convert to list of 1-element tuples
                 pattern = [(_2,) for _2 in pattern]
         for postfix, tool in self.Tools.items():
@@ -378,11 +376,11 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Bin counts and ranges
     # Possible types allowed for bin counts
-    binTypes = six.integer_types + (list, tuple)
+    binTypes = (int, list, tuple)
 
     # X axis count and range
     assert isinstance(xbins, binTypes),'xbins argument must be int, list, or tuple'
-    if isinstance(xbins, six.integer_types): # equal x bin widths
+    if isinstance(xbins, int): # equal x bin widths
         settings['xbins'], settings['xarray'] = xbins, []
     else: # x bin edges are set explicitly
         settings['xbins'], settings['xarray'] = len(xbins)-1, xbins
@@ -392,7 +390,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     # Y axis count and range
     if ybins is not None:
         assert isinstance(ybins, binTypes),'ybins argument must be int, list, or tuple'
-        if isinstance(ybins, six.integer_types): # equal y bin widths
+        if isinstance(ybins, int): # equal y bin widths
             settings['ybins'], settings['yarray'] = ybins, []
         else: # y bin edges are set explicitly
             settings['ybins'], settings['yarray'] = len(ybins)-1, ybins
