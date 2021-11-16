@@ -10,6 +10,7 @@ def LArGMCfg(configFlags):
     result=GeoModelCfg(configFlags)
 
     doAlignment=configFlags.LAr.doAlign
+    activateCondAlgs = not configFlags.GeoModel.Align.LegacyConditionsAccess
 
     tool = CompFactory.LArDetectorToolNV(ApplyAlignments=doAlignment, EnableMBTS=configFlags.Detector.GeometryMBTS)
     if configFlags.Common.ProductionStep != ProductionStep.Simulation and configFlags.Common.ProductionStep != ProductionStep.FastChain:
@@ -32,17 +33,17 @@ def LArGMCfg(configFlags):
                 result.merge(addFolders(configFlags,"/LAR/Align","LAR_ONL",className="DetCondKeyTrans"))
                 result.merge(addFolders(configFlags,"/LAR/LArCellPositionShift","LAR_ONL",className="CaloRec::CaloCellPositionShift"))
 
-        if configFlags.Common.Project != 'AthSimulation':
+        if activateCondAlgs:
             result.addCondAlgo(CompFactory.LArAlignCondAlg())
             result.addCondAlgo(CompFactory.CaloAlignCondAlg())
-            if configFlags.Detector.GeometryTile:
+            if configFlags.GeoModel.Run == 'RUN3' and configFlags.Detector.GeometryTile:
                 #Calo super cell building works only if both LAr and Tile are present
                 result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
     else:
         # Build unalinged CaloDetDescrManager instance in the Condition Store
-        if configFlags.Common.Project != 'AthSimulation':
+        if activateCondAlgs:
             result.addCondAlgo(CompFactory.CaloAlignCondAlg(LArAlignmentStore="",CaloCellPositionShiftFolder=""))
-            if configFlags.Detector.GeometryTile:
+            if configFlags.GeoModel.Run == 'RUN3' and configFlags.Detector.GeometryTile:
                 result.addCondAlgo(CompFactory.CaloSuperCellAlignCondAlg())
             
     return result
