@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -348,8 +348,8 @@ void ThreadingTest::threadedTest()
   AuxVectorData_test b;
   b.setStore (&m_store);
 
-  int nthread = 10;
-  AthContainers_detail::thread threads[10];
+  constexpr int nthread = 10;
+  AthContainers_detail::thread threads[nthread];
   m_sm.lock();
   for (int i=0; i < nthread; i++)
     threads[i] = AthContainers_detail::thread (testThread (*this, b, i));
