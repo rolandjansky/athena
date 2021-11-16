@@ -1,4 +1,5 @@
 #build subtracted cells
+from AODFix.AODFix import AODFix_postEgammaRec
 from HIJetRec.SubtractedCellGetter import SubtractedCellGetter
 subtr_gett=SubtractedCellGetter()
 
@@ -20,14 +21,13 @@ jobproperties.CaloRecFlags.doCaloTopoCluster = True
 jobproperties.CaloRecFlags.doCaloEMTopoCluster = True
 jobproperties.CaloRecFlags.clusterCellGetterName='HIJetRec.SubtractedCellGetter.SubtractedCellGetter'
 
-rec.doEgamma=True
+rec.doEgamma = True
+
 from egammaRec.egammaRecFlags import jobproperties
-jobproperties.egammaRecFlags.Enabled=True
 jobproperties.egammaRecFlags.inputTopoClusterCollection='SubtractedCaloTopoCluster'
 jobproperties.egammaRecFlags.egammaTopoClusterCollection='SubtractedEgammaTopoCluster'
 jobproperties.egammaRecFlags.cellContainerName='SubtractedCells'
-jobproperties.egammaRecFlags.doEgammaCaloSeeded=True
-jobproperties.egammaRecFlags.doEgammaForwardSeeded=False
+
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -90,8 +90,12 @@ if DetFlags.haveRIO.Calo_on() :
 
 #Run egamma
 pdr.flag_domain('egamma')
-if rec.doEgamma() : protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
-from AODFix.AODFix import AODFix_postEgammaRec
+if rec.doEgamma():
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from egammaConfig.egammaReconstructionConfig import (
+        egammaReconstructionCfg)
+    CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
 AODFix_postEgammaRec()
 
 
