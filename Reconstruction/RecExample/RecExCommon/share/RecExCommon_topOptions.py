@@ -449,6 +449,15 @@ if rec.doEgamma():
     ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
     ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
 
+if rec.doHeavyIon():
+    # This is copy from the old style to the new
+    # We need to have HI flags to do it nicer
+    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'SubtractedCaloTopoCluster'
+    ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'SubtractedEgammaTopoCluster'
+    ConfigFlags.Egamma.Keys.Input.CaloCells = 'SubtractedCells'
+    ConfigFlags.Egamma.doCentral = True
+    ConfigFlags.Egamma.doForward = False
+
 # Lock the flags
 logRecExCommon_topOptions.info("Locking ConfigFlags")
 ConfigFlags.lock()
