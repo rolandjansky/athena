@@ -239,7 +239,8 @@ def regSelTool_TRT_Cfg(flags):
     # temporary
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
     return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg,
-                         readout_geometry=TRT_ReadoutGeometryCfg(flags), conditions=PixelCablingCondAlgCfg(flags))
+                         readout_geometry=TRT_ReadoutGeometryCfg(flags),
+                         conditions=PixelCablingCondAlgCfg(flags))  # FIXME: TRT should not depend on Pixel
 
 # ITk
 def regSelTool_ITkPixel_Cfg(flags):
@@ -272,18 +273,28 @@ def regSelTool_RPC_Cfg(flags):
                          conditions=RPCCablingConfigCfg(flags))
 
 def regSelTool_TGC_Cfg(flags):
-    from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg, TGCCablingConfigCfg
+
+    conditions = ComponentAccumulator()
+    conditions.merge(MDTCablingConfigCfg(flags))  # FIXME: should not depend on MDT
+    conditions.merge(TGCCablingConfigCfg(flags))
     return regSelToolCfg(flags, "TGC", CompFactory.TGC_RegSelCondAlg,
-                         conditions=TGCCablingConfigCfg(flags))
+                         conditions=conditions)
 
 def regSelTool_CSC_Cfg(flags):
-    return regSelToolCfg(flags, "CSC", CompFactory.CSC_RegSelCondAlg)
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    return regSelToolCfg(flags, "CSC", CompFactory.CSC_RegSelCondAlg,
+                         conditions=MDTCablingConfigCfg(flags))  # FIXME: CSC should not depend on MDT
 
 def regSelTool_STGC_Cfg(flags):
-    return regSelToolCfg(flags, "STGC", CompFactory.sTGC_RegSelCondAlg)
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    return regSelToolCfg(flags, "STGC", CompFactory.sTGC_RegSelCondAlg,
+                         conditions=MDTCablingConfigCfg(flags))  # FIXME: sTGC should not depend on MDT
 
 def regSelTool_MM_Cfg(flags):
-    return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg)
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg,
+                         conditions=MDTCablingConfigCfg(flags))  # FIXME: MM should not depend on MDT
 
 
 # calo 
