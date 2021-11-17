@@ -36,4 +36,4 @@ private:
   ToolHandle<IAFPSiDLocRecoTool> m_recoToolHandle; 
 };
 
-#endif	//AFP_TDLOCRECO_h
+#endif	//AFP_SIDLOCRECO_h

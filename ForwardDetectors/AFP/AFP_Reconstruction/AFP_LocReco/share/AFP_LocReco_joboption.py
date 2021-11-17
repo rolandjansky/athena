@@ -162,8 +162,32 @@ siDLocReco.recoTool = trackRecoTool
 
 #-- TiD part ------------------------------------------------------------
 
-from AFP_LocReco.AFP_LocRecoConf      import AFP_TDLocReco
-TopLocRecSeq += AFP_TDLocReco("AFP_TDLocReco")
+from AFP_LocReco.AFP_LocRecoConf      import AFP_TDLocReco, AFP_TDLocRecoTool, AFPTDBasicTool
+tofDLocReco = AFP_TDLocReco("AFP_TDLocReco")
+TopLocRecSeq += tofDLocReco
+
+# Prepare ToF reconstruction algorithm tools - one for each station
+
+basicTool1 = AFPTDBasicTool("AFPTDBasicTool1")
+basicTool1.stationID=0
+basicTool1.maxAllowedLength = 100
+basicTool1.TimeOffset = [0.0, 20., 40., 60.]
+basicTool1.BarWeight =	[1.0, 1.0, 1.0, 1.0] 
+ToolSvc += basicTool1
+
+basicTool2 = AFPTDBasicTool("AFPTDBasicTool2")
+basicTool2.stationID=3
+basicTool2.maxAllowedLength = 100
+basicTool2.TimeOffset =	[0.0, 20., 40., 60.]
+basicTool2.BarWeight =  [1.0, 1.0, 1.0, 1.0]
+ToolSvc += basicTool2
+
+ToFtrackRecoTool=AFP_TDLocRecoTool("AFP_TDLocRecoTool")
+ToolSvc += ToFtrackRecoTool
+
+ToFtrackRecoTool.recoTools = [basicTool1, basicTool2]
+
+tofDLocReco.recoTool = ToFtrackRecoTool
 
 # select between a real data or a simulation mode - Simulation = 0, RealData = 1
 if globalflags.DataSource()=='data':

@@ -70,13 +70,13 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 
 
   m_AFPSiHitsContainerName = "AFPSiHitContainer";
-  m_AFPHitsContainerNameToF = "AFPTofHitContainer";
+  m_AFPHitsContainerNameToF = "AFPToFHitContainer";
 
   m_mergedTDSimHitList = 0; // initialized to null pointer
   m_mergedSIDSimHitList = 0;  
   
   declareProperty( "AFPSiHitsContainerName", m_AFPSiHitsContainerName = "AFPSiHitContainer" );
-  declareProperty( "AFPHitsContainerNameToF", m_AFPHitsContainerNameToF = "AFPTofHitContainer" );
+  declareProperty( "AFPHitsContainerNameToF", m_AFPHitsContainerNameToF = "AFPToFHitContainer" );
 
   declareProperty("TDSimHitCollection" , m_TDSimHitCollectionName, "Name of the input Collection of the simulated TD Hits");
   declareProperty("TDDigiCollectionName", m_TDDigiCollectionName,    "Name of the Collection to hold the output from the AFP digitization, TD part");
