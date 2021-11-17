@@ -61,7 +61,7 @@ TCS::inputType(const std::string& input) {
    if ( input == "gJ" || input == "gJetTobArray" || input == "gJetTobs" )
       return TCS::GJET;
 
-   if ( input == "jLargeRJet" || input == "jLargeRJetTobArray" || input == "jLargeRJetTobs" )
+   if ( input == "jLargeRJet" || input == "jLargeRJetTobArray" || input == "jLargeRJetTobs" || input ==  "jLJet" || input == "jLJ")
       return TCS::JLARGERJET;
 
    if ( input == "gLargeRJet" || input == "gLargeRJetTobArray" || input == "gLargeRJetTobs" )
