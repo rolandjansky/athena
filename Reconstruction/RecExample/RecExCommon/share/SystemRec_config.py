@@ -23,11 +23,9 @@ AODFix_postCaloRec()
 
 #make the egammaTopoClusters containers, used for seeding
 if jobproperties.CaloRecFlags.doCaloTopoCluster():
-    from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
-    try:
-        egammaTopoClusterCopier()
-    except Exception:
-        treatExeption("could not get handle to egammaTopoClusterCopier")
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+    CAtoGlobalWrapper(egammaTopoClusterCopierCfg,ConfigFlags)
 
 #then run ID reco:
 

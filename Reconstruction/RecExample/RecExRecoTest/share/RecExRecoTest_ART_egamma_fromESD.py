@@ -156,22 +156,20 @@ jobproperties.CaloCellFlags.doLArDeadOTXCorr=False
 
 include( "CaloRec/CaloTopoCluster_jobOptions.py" )
 
-from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
-try:
-   egammaTopoClusterCopier()
-except Exception:
-   treatExeption("could not get handle to egammaTopoClusterCopier")
+#egamma new config
+ConfigFlags = getNewConfigFlags()
+ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
+ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
+ConfigFlags.lock()
+
+from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+CAtoGlobalWrapper(egammaTopoClusterCopierCfg,ConfigFlags)
 
 include("McParticleAlgs/TruthParticleBuilder_jobOptions.py")
 
 #False tells it we don't want to extend Large Radius Tracks, only default InDetTrackParticles.
 CaloExtensionBuilder(False)
 
-#egamma new config
-ConfigFlags = getNewConfigFlags()
-ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
-ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
-ConfigFlags.lock()
 # Add egamma
 CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
 

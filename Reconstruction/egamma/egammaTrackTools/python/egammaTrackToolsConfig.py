@@ -59,7 +59,6 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
-    EMExtrapolationTools = CompFactory.EMExtrapolationTools
 
     # in the std config, it is egammaExtrapolator
     # (called AtlasExtrapolator now). Should this be egammaCaloExtrapolator ?
@@ -75,7 +74,7 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
         kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
             EMLastCaloExtensionToolCfg(flags))
 
-    emExtrapolationTools = EMExtrapolationTools(**kwargs)
+    emExtrapolationTools = CompFactory.EMExtrapolationTools(**kwargs)
     acc.setPrivateTools(emExtrapolationTools)
     return acc
 
