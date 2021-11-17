@@ -40,6 +40,8 @@ private:
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_offlineTrkKey{this, "OfflineTrkKey", "InDetTrackParticles", "Name of Offline track counts info object produced by the HLT track counting FEX algorithm"};
 
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool{this, "TrackSelectionTool", "InDetTrackSelectionTool", "Tool for selecting tracks"};
+  Gaudi::Property<float> m_minPt{ this, "minPt", 200.0, "Consider offline tracks only if above this threshold (in MeV)"};
+  
 };
 
 #endif // TRIGMINBIASMONITORING_HLTEFFICIENCYMONITORINGALG_H
