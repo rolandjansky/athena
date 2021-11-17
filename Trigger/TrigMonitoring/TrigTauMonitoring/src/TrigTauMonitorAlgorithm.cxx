@@ -124,8 +124,11 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
 
     const TrigCompositeUtils::Decision *dec=nullptr; 
 
-    // consider only offline taus which pass RNN medium WP
+    // consider only offline taus which pass RNN medium WP 
     if( !Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium)) continue;
+
+    // consider only offline taus which pass thinning 
+    if( Tau->isAvailable<char>("passThinning") && !Tau->auxdata<char>("passThinning") ) continue;
 
     for( auto &featLinkInfo : vec ){                                             
       if(! featLinkInfo.isValid() ) continue;
