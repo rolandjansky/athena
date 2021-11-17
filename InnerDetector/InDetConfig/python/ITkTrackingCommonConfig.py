@@ -346,8 +346,7 @@ def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase',**kwargs)
         pix_cluster_on_track_args['nameSuffix']=nameSuffix
 
     from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    kwargs.setdefault("ExtrapolatorHandle", Extrapolator)
+    kwargs.setdefault("ExtrapolatorHandle", acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags)))
 
     if 'RIO_OnTrackCreatorHandle' not in kwargs :
         ITkRefitRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, 
@@ -542,12 +541,11 @@ def ITkDistributedKalmanFilterCfg(flags, name="ITkDistributedKalmanFilter", **kw
 
     pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
 
-    if 'ExtrapolatorTool' not in kwargs :
+    if 'ExtrapolatorTool' not in kwargs:
         from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-        kwargs.setdefault('ExtrapolatorTool', Extrapolator)
+        kwargs.setdefault('ExtrapolatorTool', acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags)))
 
-    if 'ROTcreator' not in kwargs :
+    if 'ROTcreator' not in kwargs:
         ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, **pix_cluster_on_track_args))
         kwargs.setdefault('ROTcreator', ITkRotCreator)
 

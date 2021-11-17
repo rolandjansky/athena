@@ -85,24 +85,21 @@ def ITkBoundaryCheckToolCfg(flags, name='ITkBoundaryCheckTool', **kwargs):
   return result
 
 
-def ITkTrackHoleSearchToolCfg(flags, name = 'ITkHoleSearchTool', **kwargs):
+def ITkTrackHoleSearchToolCfg(flags, name='ITkHoleSearchTool', **kwargs):
   result = ComponentAccumulator()
   if 'Extrapolator' not in kwargs:
     from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags)))
 
   if 'BoundaryCheckTool' not in kwargs:
-    ITkBoundaryCheckTool = result.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
-    kwargs.setdefault('BoundaryCheckTool', ITkBoundaryCheckTool)
+    kwargs.setdefault('BoundaryCheckTool', result.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags)))
 
-  if flags.Beam.Type == "cosmics" :
+  if flags.Beam.Type == "cosmics":
     kwargs.setdefault("Cosmics", True)
 
-  kwargs.setdefault( "CountDeadModulesAfterLastHit" , True)
+  kwargs.setdefault("CountDeadModulesAfterLastHit", True)
 
-  indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
-  result.addPublicTool(indet_hole_search_tool, primary=True)
+  result.addPublicTool(CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs), primary=True)
   return result
 
 def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):

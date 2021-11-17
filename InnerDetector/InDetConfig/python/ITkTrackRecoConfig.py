@@ -142,7 +142,7 @@ def ITkTrackToVertexCfg(flags, name="ITkTrackToVertex", **kwargs):
     result = ComponentAccumulator()
     if "Extrapolator" not in kwargs:
         from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+        Extrapolator = result.popToolsAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
         kwargs["Extrapolator"] = Extrapolator
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
 
