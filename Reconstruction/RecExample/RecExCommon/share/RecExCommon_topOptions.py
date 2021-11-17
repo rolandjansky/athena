@@ -1152,13 +1152,10 @@ if rec.doWriteAOD():
             topSequence += thinTRTStandaloneTrackAlg
         
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):
-            doEgammaPhoton = AODFlags.Photon
-            doEgammaElectron= AODFlags.Electron
-            from egammaRec.egammaAODGetter import egammaAODGetter
-            egammaAODGetter()
             if AODFlags.egammaTrackSlimmer:
-                from egammaRec.egammaTrackSlimmer import egammaTrackSlimmer
-                egammaTrackSlimmer()
+                from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+                from egammaAlgs.egammaTrackSlimmerConfig import egammaTrackSlimmerCfg
+                CAtoGlobalWrapper(egammaTrackSlimmerCfg,ConfigFlags,StreamName='StreamAOD')
 
         if rec.doTau() and AODFlags.ThinTaus:
             # tau-related thinning: taus, clusters, cells, cell links, PFOs, tracks, vertices
