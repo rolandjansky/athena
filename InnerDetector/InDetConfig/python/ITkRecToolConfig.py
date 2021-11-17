@@ -37,12 +37,12 @@ def ITkTrackSummaryHelperToolCfg(flags, name='ITkSummaryHelper', **kwargs):
   isHLT=kwargs.pop("isHLT",False)
 
   if 'AssoTool' not in kwargs :
+    assoTool = None
     if not isHLT:
-      ITkPrdAssociationTool_setup = result.getPrimaryAndMerge(ITkPrdAssociationTool_setupCfg(flags))
-      kwargs.setdefault("AssoTool", ITkPrdAssociationTool_setup)
+      assoTool = result.getPrimaryAndMerge(ITkPrdAssociationTool_setupCfg(flags))
     else:
-      ITkTrigPrdAssociationTool = result.getPrimaryAndMerge(ITkTrigPrdAssociationToolCfg(flags))
-      kwargs.setdefault("AssoTool", ITkTrigPrdAssociationTool)
+      assoTool = result.getPrimaryAndMerge(ITkTrigPrdAssociationToolCfg(flags))
+    kwargs.setdefault("AssoTool", assoTool)
 
   if "HoleSearch" not in kwargs:
     ITkTrackHoleSearchTool = result.getPrimaryAndMerge(ITkTrackHoleSearchToolCfg(flags))
@@ -74,7 +74,7 @@ def ITkBoundaryCheckToolCfg(flags, name='ITkBoundaryCheckTool', **kwargs):
       kwargs.setdefault("SctSummaryTool", None)
 
   if 'PixelLayerTool' not in kwargs :
-    kwargs.setdefault("PixelLayerTool", result.getPrimaryAndMerge(ITkTestPixelLayerToolCfg(flags)))
+    kwargs.setdefault("PixelLayerTool", result.popToolsAndMerge(ITkTestPixelLayerToolCfg(flags)))
 
   kwargs.setdefault("UsePixel", flags.Detector.EnableITkPixel)
   kwargs.setdefault("UseSCT", flags.Detector.EnableITkStrip)
@@ -119,7 +119,7 @@ def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
   kwargs.setdefault("CheckDisabledFEs", flags.ITk.checkDeadElementsOnTrack)
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool( name = the_name, **kwargs)
-  result.addPublicTool( tool, primary=True )
+  result.setPrivateTools( tool )
   return result
 
 def ITkPatternPropagatorCfg(flags, name='ITkPatternPropagator', **kwargs):

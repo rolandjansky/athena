@@ -227,7 +227,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
   acc.addPublicTool( tool, primary=True )
   return acc
 
-def TrackSummaryToolCfg(flags, name="InDetTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
+def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
   acc = ComponentAccumulator()
   if not summaryHelperTool:
     summaryHelperTool = acc.getPrimaryAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )

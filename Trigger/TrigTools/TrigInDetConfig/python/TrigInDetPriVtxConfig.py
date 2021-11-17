@@ -55,7 +55,7 @@ def iterativeVertexFinderCfg(flags, signature):
     acc = ComponentAccumulator()
     vtx_cuts = ConfiguredTrigVtxCuts()
     # TODO - should this have isHLT = True? This isn't set in the non-CA version
-    summary_tool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
+    summary_tool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
     extrapolator_acc = InDetExtrapolatorCfg(flags)
     extrapolator = extrapolator_acc.getPrimary()
     acc.merge(extrapolator_acc)
@@ -107,7 +107,7 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
 
     acc = ComponentAccumulator()
     # TODO - should this have isHLT = True? This isn't set in the non-CA version
-    summary_tool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
+    summary_tool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
     extrapolator_acc = InDetExtrapolatorCfg(flags)
     extrapolator = extrapolator_acc.getPrimary()
     acc.merge(extrapolator_acc)

@@ -13,9 +13,7 @@
 
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h"
 #include "TRT_TrackExtensionTool_xk/TRT_TrackExtensionTool_xk.h"
-#include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "TrkTrack/Track.h"
@@ -46,13 +44,7 @@ namespace{
 
 InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
 (const std::string& t,const std::string& n,const IInterface* p)
-  : AthAlgTool(t,n,p),
-    m_roadtool  ("InDet::TRT_DetElementsRoadMaker_xk"                                                ),
-    m_proptool    ("Trk::RungeKuttaPropagator"                                                       ),
-    m_updatortool ("Trk::KalmanUpdator_xk"                                                           ),
-    m_selectortool("InDet::InDetTrtDriftCircleCutTool"                                               ),
-    m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"                      ),
-    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
+  : AthAlgTool(t,n,p)
 {
   m_fieldmode       = "MapSolenoid"      ;
   m_trtmanager      = "TRT"              ;
@@ -68,12 +60,6 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
   m_parameterization= true               ;
   m_scale_error     = 2.                 ;
   declareInterface<ITRT_TrackExtensionTool>(this);
-  declareProperty("RoadTool"               ,m_roadtool        );
-  declareProperty("PropagatorTool"         ,m_proptool        );
-  declareProperty("UpdatorTool"            ,m_updatortool     );
-  declareProperty("DriftCircleCutTool"     ,m_selectortool    );
-  declareProperty("RIOonTrackToolYesDr"    ,m_riontrackD      );
-  declareProperty("RIOonTrackToolNoDr"     ,m_riontrackN      );
   declareProperty("TrtManagerLocation"     ,m_trtmanager      );
   declareProperty("RoadWidth"              ,m_roadwidth       );
   declareProperty("ZVertexHalfWidth"       ,m_zVertexWidth    );

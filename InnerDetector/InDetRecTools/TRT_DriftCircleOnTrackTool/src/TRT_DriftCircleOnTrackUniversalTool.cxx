@@ -21,13 +21,9 @@
 InDet::TRT_DriftCircleOnTrackUniversalTool::TRT_DriftCircleOnTrackUniversalTool
 (const std::string& ty,const std::string& na,const IInterface* pa)
   : AthAlgTool(ty,na,pa),
-    m_riontrackDrift("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"                      ),
-    m_riontrackTube("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
     m_scalefactor(2.)
 {
   declareInterface<IRIO_OnTrackCreator>(this);
-  declareProperty("RIOonTrackToolDrift"  ,m_riontrackDrift );
-  declareProperty("RIOonTrackToolTube"   ,m_riontrackTube  );
   declareProperty("ScaleHitUncertainty"  ,m_scalefactor    );    
 }
 

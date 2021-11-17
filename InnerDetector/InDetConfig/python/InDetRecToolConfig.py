@@ -79,7 +79,7 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
       kwargs.setdefault("SctSummaryTool", None)
 
   if 'PixelLayerTool' not in kwargs :
-    kwargs.setdefault("PixelLayerTool", result.getPrimaryAndMerge(InDetTestPixelLayerToolCfg(flags)))
+    kwargs.setdefault("PixelLayerTool", result.popToolsAndMerge(InDetTestPixelLayerToolCfg(flags)))
 
   kwargs.setdefault("UsePixel", flags.Detector.EnablePixel)
   kwargs.setdefault("UseSCT", flags.Detector.EnableSCT)
@@ -127,7 +127,7 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
   kwargs.setdefault("CheckDisabledFEs", flags.InDet.checkDeadElementsOnTrack)
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool( name = the_name, **kwargs)
-  result.addPublicTool( tool, primary=True )
+  result.setPrivateTools( tool )
   return result
 
 def splitDefaultPrefix(name) :
