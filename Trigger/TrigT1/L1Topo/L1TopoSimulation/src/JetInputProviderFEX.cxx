@@ -118,10 +118,16 @@ JetInputProviderFEX::handle(const Incident& incident) {
    auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 40, 0, 200);
    hjTauPt->SetXTitle("p_{T}");
 
+   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 200);
+   hjTauIsolation->SetXTitle("Isolation");
+
    auto hjTauEtaPhi = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 220, -110, 110, 128, 0, 128);
    hjTauEtaPhi->SetXTitle("#eta");
    hjTauEtaPhi->SetYTitle("#phi");
 
+   auto hjTauEtaIsolation = std::make_unique<TH2I>( "jTauTOBEtaIsolation", "jTau TOB Isolation vs eta", 220, -110, 110, 200, 0, 200);
+   hjTauEtaIsolation->SetXTitle("#eta");
+   hjTauEtaIsolation->SetYTitle("Isolation");
 
    if (m_histSvc->regShared( histPath + "jTauTOBPt", std::move(hjTauPt), m_hjTauPt ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Pt histogram has been registered successfully from JetProviderFEX.");
@@ -130,13 +136,24 @@ JetInputProviderFEX::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register jTauTOB Pt histogram from JetProviderFEX");
    }
 
+   if (m_histSvc->regShared( histPath + "jTauTOBIsolation", std::move(hjTauIsolation), m_hjTauIsolation ).isSuccess()){
+     ATH_MSG_DEBUG("jTauTOB Isolation histogram has been registered successfully from JetProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jTauTOB Isolation histogram from JetProviderFEX");
+   }
    if (m_histSvc->regShared( histPath + "jTauTOBPhiEta", std::move(hjTauEtaPhi), m_hjTauEtaPhi ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB PhiEta histogram has been registered successfully from JetProviderFEX.");
    }
    else{
      ATH_MSG_WARNING("Could not register jTauTOB PhiEta histogram from JetProviderFEX");
    }
-
+   if (m_histSvc->regShared( histPath + "jTauTOBEtaIsolation", std::move(hjTauEtaIsolation), m_hjTauEtaIsolation ).isSuccess()){
+     ATH_MSG_DEBUG("jTauTOB Eta/Isolation histogram has been registered successfully from JetProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jTauTOB Eta/Isolation histogram from JetProviderFEX");
+   }
 
 }
 
@@ -178,6 +195,8 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->tobEt() // returns the et value of the jet in units of 200 MeV
 		   << " globalEta: "
 		   << jFexRoI->globalEta() // returns global eta in units of 0.1
+		   << " isolation: "
+		   << jFexRoI->tobIso() // returns isolation value in units of 200 MeV
 		   << " globalPhi: "
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
@@ -185,11 +204,12 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
     unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
     int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
+    unsigned int isolation = jFexRoI->tobIso();  // isolation value in units of 200 MeV
    
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
-    TCS::jTauTOB jtau( EtTopo, 0, etaTopo, phiTopo );
+    TCS::jTauTOB jtau( EtTopo, isolation, etaTopo, phiTopo );
     jtau.setEtDouble( static_cast<double>(EtTopo/10.) );
     jtau.setEtaDouble( static_cast<double>(etaTopo/40.) );
     jtau.setPhiDouble( static_cast<double>(phiTopo/20.) );
@@ -198,14 +218,15 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     inputEvent.addcTau( jtau );
 
     m_hjTauPt->Fill(jtau.EtDouble());
+    m_hjTauIsolation->Fill(jtau.isolation());
     m_hjTauEtaPhi->Fill(jtau.eta(),jtau.phi()); 
+    m_hjTauEtaIsolation->Fill(jtau.eta(),jtau.isolation()); 
   }
   
   for(const auto it : * JContainer) {
     const xAOD::jFexLRJetRoI* jFexRoI = it;
     ATH_MSG_DEBUG( "EDM jFex jJet Number: " 
-		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number 
-		   << " et: " 
+		   << +jFexRoI->jFexNumber() // returns an 8 bit unsigned integer referring to the jFEX number		   << " et: " 
 		   << jFexRoI->et() // returns the et value of the jet in MeV unit
 	           << " tobEt: " 
 		   << jFexRoI->tobEt() // returns the et value of the jet in units of 200 MeV
