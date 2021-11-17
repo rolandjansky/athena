@@ -110,7 +110,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
   int countPassing = 0;
   for (const auto trk : *offlineTrkHandle)
   {
-    if (m_trackSelectionTool->accept(*trk)) 
+    if (m_trackSelectionTool->accept(*trk) and std::fabs(trk->pt()) > m_minPt )
       ++countPassing;
   }
   ATH_MSG_DEBUG("::monitorTrkCounts countPassing  = " << countPassing);
