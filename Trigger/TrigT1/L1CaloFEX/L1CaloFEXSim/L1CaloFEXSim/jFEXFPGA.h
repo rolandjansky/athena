@@ -24,6 +24,7 @@
 #include "L1CaloFEXToolInterfaces/IjFEXsumETAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXmetAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXForwardJetsAlgo.h"
+#include "L1CaloFEXToolInterfaces/IjFEXForwardElecAlgo.h"
 #include "L1CaloFEXToolInterfaces/IjFEXPileupAndNoise.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -135,8 +136,7 @@ namespace LVL1 {
     ToolHandle<IjFEXsumETAlgo> m_jFEXsumETAlgoTool         {this, "jFEXsumETAlgoTool"    , "LVL1::jFEXsumETAlgo"    , "Tool that runs the jFEX sumET algorithm"};
     ToolHandle<IjFEXmetAlgo> m_jFEXmetAlgoTool             {this, "jFEXmetAlgoTool"      , "LVL1::jFEXmetAlgo"      , "Tool that runs the jFEX met algorithm"};
     ToolHandle<IjFEXForwardJetsAlgo> m_jFEXForwardJetsAlgoTool {this, "jFEXForwardJetsAlgoTool"      , "LVL1::jFEXForwardJetsAlgo"      , "Tool that runs the jFEX FCAL Jets algorithm"};
-
-    //ToolHandle<IjFEXegAlgo> m_jFEXegAlgoTool {this, "jFEXegAlgoTool", "LVL1::jFEXegAlgo", "Tool that runs the jFEX e/gamma algorithm"};
+    ToolHandle<IjFEXForwardElecAlgo> m_jFEXForwardElecAlgoTool {this, "jFEXForwardElecAlgoTool"      , "LVL1::jFEXForwardElecAlgo"      , "Tool that runs the jFEX FCAL Electrons algorithm"};
     ToolHandle<IjFEXPileupAndNoise> m_jFEXPileupAndNoiseTool {this, "jFEXPileupAndNoiseTool", "LVL1::jFEXPileupAndNoise", "Tool that applies Pileup and Noise"};
     
     int getTTowerET_SG(unsigned int TTID);
