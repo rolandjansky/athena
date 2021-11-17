@@ -237,7 +237,8 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
 
 #ifdef HEPMC3
 // units correction
-      event->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
+      event->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
+  GeVToMeV(event);
 //uncomment to list HepMC3 events
 //    std::cout << " print::listing Sherpa " << std::endl;
 //    HepMC3::Print::listing(std::cout, *event);
