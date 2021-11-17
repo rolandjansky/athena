@@ -40,16 +40,16 @@ HepGeom::Transform3D AFP_Geometry::getStationTransform(const char* pszStationNam
     switch(eStation)
     {
     case EAS_AFP00:
-		ReqTransform=HepGeom::Translate3D(LHCXOFFSET,0.0*CLHEP::mm,m_CfgParams.vecStatNominalZPos[0]);
+		ReqTransform=HepGeom::Translate3D(LHCXOFFSET, 0.0*CLHEP::mm, m_CfgParams.vecStatNominalZPos[0]);
         break;
     case EAS_AFP01:
-		ReqTransform=HepGeom::Translate3D(LHCXOFFSET,0.0*CLHEP::mm,m_CfgParams.vecStatNominalZPos[1]);
+		ReqTransform=HepGeom::Translate3D(LHCXOFFSET, 0.0*CLHEP::mm, m_CfgParams.vecStatNominalZPos[1]);
         break;
     case EAS_AFP02:
-		ReqTransform=HepGeom::Translate3D(LHCXOFFSET,0.0*CLHEP::mm,m_CfgParams.vecStatNominalZPos[2]);
+		ReqTransform=HepGeom::Translate3D(LHCXOFFSET, 0.0*CLHEP::mm, m_CfgParams.vecStatNominalZPos[2]) * HepGeom::RotateX3D(180*CLHEP::deg);
         break;
     case EAS_AFP03:
-		ReqTransform=HepGeom::Translate3D(LHCXOFFSET,0.0*CLHEP::mm,m_CfgParams.vecStatNominalZPos[3]);
+		ReqTransform=HepGeom::Translate3D(LHCXOFFSET, 0.0*CLHEP::mm, m_CfgParams.vecStatNominalZPos[3]) * HepGeom::RotateX3D(180*CLHEP::deg);
         break;
     default:
         break;
@@ -99,9 +99,9 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
         if(eElement==ESE_RPOT)
             ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0);
 		else if(eElement==ESE_TOF)
-            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,-(tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot));
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot);
 		else if(eElement==ESE_SID)
-            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,sidcfg.fZDistanceInRPot);
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,-sidcfg.fZDistanceInRPot);
         break;
     default:
         break;
@@ -118,8 +118,7 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
     std::string Station=std::string(pszStationName);
 	eAFPStation eStation=parseStationName(pszStationName);
 	AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg[eStation];
-    const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
-	double falpha = signFactor * sidcfg.fSlope;
+	double falpha = sidcfg.fSlope;
 
 	HepGeom::Transform3D TotTransform;
 	HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
@@ -128,16 +127,16 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
 	//double fxm=DETXSIDE*(0.5*SID_MAINPLATEXDIM*cos(falpha)+SID_PLATETHICKNESS*sin(falpha)); double fzm=0.0;
 	double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*cos(falpha); double fzm=0.0;
 	double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
-    HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, signFactor*(fzm-fZCorrOffset));
+    HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, (fzm-fZCorrOffset));
 
 	//staggering of sensor shift in its plane - correction to cosinus needed fo x-staggering to transform to staggering in LHC CS
 	HepGeom::Transform3D TransStaggering=HepGeom::Translate3D(sidcfg.vecXStaggering[nPlateID]*cos(falpha),sidcfg.vecYStaggering[nPlateID], 0.0*CLHEP::mm);
 	TotTransform=TransInMotherVolume*TransStaggering*NominalPosInPocket;
 
-	HepGeom::Transform3D PlateTotTrans=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, signFactor *nPlateID*sidcfg.fLayerSpacing/cos(falpha))*HepGeom::RotateY3D(falpha);
+	HepGeom::Transform3D PlateTotTrans=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/cos(falpha))*HepGeom::RotateY3D(falpha);
 	HepGeom::Transform3D TransFEI4=PlateTotTrans*HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID],sidcfg.vecChipYPos[nPlateID],0.5*AfpConstants.SiT_Plate_Main_thickness+0.5*AfpConstants.SiT_Chip_thickness)*HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);;
-	HepGeom::Transform3D TransSID=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, signFactor *nPlateID*sidcfg.fLayerSpacing/cos(falpha))*
-	HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID]+sidcfg.vecSensorXPos[nPlateID], sidcfg.vecChipYPos[nPlateID]+sidcfg.vecSensorYPos[nPlateID], signFactor * (0.5*AfpConstants.SiT_Plate_Main_thickness+AfpConstants.SiT_Chip_thickness+0.5*AfpConstants.SiT_Pixel_thickness))*HepGeom::RotateY3D(falpha) * HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
+	HepGeom::Transform3D TransSID=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, nPlateID*sidcfg.fLayerSpacing/cos(falpha))*
+	HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID]+sidcfg.vecSensorXPos[nPlateID], sidcfg.vecChipYPos[nPlateID]+sidcfg.vecSensorYPos[nPlateID],  (0.5*AfpConstants.SiT_Plate_Main_thickness+AfpConstants.SiT_Chip_thickness+0.5*AfpConstants.SiT_Pixel_thickness))*HepGeom::RotateY3D(falpha) * HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
     HepGeom::Transform3D TotTransSIDInWorld=TransMotherInWorld*TransSID;
     
 	switch(eType)
@@ -250,13 +249,12 @@ void AFP_Geometry::getPixelLocalPosition(const eAFPStation eStation, const int n
 {
 	int i,j;
     AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
-    const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
 
 	i=getPixelRow(nPixelID)-1;
 	j=getPixelColumn(nPixelID)-1;
 
 	if(pfX1Pos) *pfX1Pos = -i * m_CfgParams.tdcfg[eStation].fPixelX1Dim;
-	if(pfX2Pos) *pfX2Pos = signFactor * j * m_CfgParams.tdcfg[eStation].fPixelX2Dim;
+	if(pfX2Pos) *pfX2Pos =  j * m_CfgParams.tdcfg[eStation].fPixelX2Dim;
 }
 
 void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
