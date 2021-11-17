@@ -46,6 +46,7 @@ StatusCode FixHepMC::execute() {
 
     // Some heuristics
     std::vector<HepMC::GenParticlePtr> tofix;
+    // Herwig7+EvtGen has problems with bad pdg id. 16.11.2021
     std::vector<HepMC::GenParticlePtr> bad_pdg_id_particles;
     for (auto ip: evt->particles()) {
       // Skip this particle if (somehow) its pointer is null
@@ -58,6 +59,15 @@ StatusCode FixHepMC::execute() {
       if (particle_to_fix) tofix.push_back(ip);
       int pdg_id = ip->pdg_id();
       if (pdg_id == 43 || pdg_id == 44 || pdg_id == -43 || pdg_id == -44 || pdg_id == 30353 || pdg_id == -30353 || pdg_id == 30343 || pdg_id == -30343) bad_pdg_id_particles.push_back(ip);
+    }
+
+    // SHERPA has problems with bad beam particles. 16.11.2021
+    auto beams_t = evt->beams();
+    if (beams_t.size() != 2) {
+      ATH_MSG_INFO("Invalid number of beam particles " <<  beams_t.size() << ". Will try to fix.");
+      std::vector<HepMC::GenParticlePtr> bparttoremove;
+      for (auto bpart: beams_t) if (bpart->id() == 0 && bpart->production_vertex()) bparttoremove.push_back(bpart); 
+      for (auto bpart: bparttoremove) bpart->production_vertex()->remove_particle_out(bpart); 
     }
 
     /// AV: In case we have 3 particles, we try to add a vertex that correspond to 1->2 and 1->1 splitting.
