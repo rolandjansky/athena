@@ -2,8 +2,8 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef JETMC15_H_
-#define JETMC15_H_
+#ifndef TOPOBJECTSELECTIONTOOLSJET_H_
+#define TOPOBJECTSELECTIONTOOLSJET_H_
 
 #include "TopObjectSelectionTools/JetSelectionBase.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
@@ -17,30 +17,30 @@ namespace top {
  * @brief A class that performs object cuts on Jets (of any size!).  At the
  * moment it includes a cut on pT, eta and JVT.
  */
-  class JetMC15: public JetSelectionBase {
+  class Jet: public JetSelectionBase {
   public:
     /**
-     * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
+     * @brief A tool to select some jets on the pT and eta cuts.
      *
      * @param ptcut The minimum pT to accept good jets.
      * @param etamax The maximum eta cut.
      * @param minmass The minimum mass to accept good jets.
      * @param doJVTCut To perform JVT cut - should be false for small-R jets
      */
-    JetMC15(const double ptcut, const double etamax, const double minmass, const bool doJVTCut);
+    Jet(const double ptcut, const double etamax, const double minmass, const bool doJVTCut);
 
     /**
-     * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
+     * @brief A tool to select some jets based on the pT and eta cuts.
      *
      * This version of the constructor always perform JVT cut
      *
      * @param ptcut The minimum pT to accept good jets.
      * @param etamax The maximum eta cut.
      */
-    JetMC15(const double ptcut, const double etamax);
+    Jet(const double ptcut, const double etamax);
 
     /**
-     * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
+     * @brief A tool to select some jets based on the pT and eta cuts.
      *
      * DEPRECIATED - Only kept for backwards compatibility, to stop external extensions from crashing, please use above forms
      *
@@ -48,10 +48,10 @@ namespace top {
      * @param etamax The maximum eta cut.
      * @param fwdJetSel Scenario for treating forward jets.
      */
-    JetMC15(const double ptcut, const double etamax, const std::string);
+    Jet(const double ptcut, const double etamax, const std::string);
 
     /**
-     * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
+     * @brief A tool to select some jets based on the pT and eta cuts.
      *
      * DEPRECATED - only kept for backward compatibility - no need to specify any jvt cut, please use the above function
      *instead.
@@ -60,10 +60,10 @@ namespace top {
      * @param etamax The maximum eta cut.
      * @param jvtmin The minimum cut on the jet vertex fraction (no longer used)
      */
-    JetMC15(const double ptcut, const double etamax, const double);
+    Jet(const double ptcut, const double etamax, const double);
 
     // Does nothing.
-    virtual ~JetMC15() {}
+    virtual ~Jet() {}
 
     /**
      * @brief Implements the logic to select jets based on pT and eta.

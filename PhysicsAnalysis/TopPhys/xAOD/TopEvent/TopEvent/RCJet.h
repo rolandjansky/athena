@@ -2,8 +2,8 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef RCJETMC15_H_
-#define RCJETMC15_H_
+#ifndef RCJET_H_
+#define RCJET_H_
 
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
@@ -52,18 +52,18 @@ namespace JetSubStructureUtils {
   class EnergyCorrelatorGeneralized;
 }
 
-class RCJetMC15 final: public asg::AsgTool {
+class RCJet final: public asg::AsgTool {
 public:
   //Default - so root can load based on a name
-  explicit RCJetMC15(const std::string& name);
+  explicit RCJet(const std::string& name);
 
   //Default - so we can clean up
-  ~RCJetMC15();
+  ~RCJet();
 
   // Delete Standard constructors
-  RCJetMC15(const RCJetMC15& rhs) = delete;
-  RCJetMC15(RCJetMC15&& rhs) = delete;
-  RCJetMC15& operator = (const RCJetMC15& rhs) = delete;
+  RCJet(const RCJet& rhs) = delete;
+  RCJet(RCJet&& rhs) = delete;
+  RCJet& operator = (const RCJet& rhs) = delete;
 
   //Run once at the start of the job
   StatusCode initialize();

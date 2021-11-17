@@ -2,8 +2,8 @@
    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef TOPOBJECTSELECTIONTOOLS_PHOTONMC16_H_
-#define TOPOBJECTSELECTIONTOOLS_PHOTONMC16_H_
+#ifndef TOPOBJECTSELECTIONTOOLS_PHOTON_H_
+#define TOPOBJECTSELECTIONTOOLS_PHOTON_H_
 
 #include <memory>
 #include <string>
@@ -20,7 +20,7 @@ namespace top {
  *        For Release 21 specific cleaning
  */
 
-  class PhotonMC16: public top::PhotonSelectionBase {
+  class Photon: public top::PhotonSelectionBase {
   public:
     /**
      * @brief Class to help select good photons.
@@ -30,7 +30,7 @@ namespace top {
      * @param isolation nullptr for un-isolated, or a new "isolation object" to
      * apply isolation cuts
      */
-    PhotonMC16(double ptcut, double etamax, IsolationBase* isolation);
+    Photon(double ptcut, double etamax, IsolationBase* isolation);
 
     /**
      * @brief Class to help select good photons.
@@ -42,10 +42,10 @@ namespace top {
      * @param isolation nullptr for un-isolated, or a new "isolation object" to
      * apply isolation cuts
      */
-    PhotonMC16(double ptcut, double etamax,
-               const std::string& tightID,
-               const std::string& looseID,
-               IsolationBase* isolation);
+    Photon(double ptcut, double etamax,
+           const std::string& tightID,
+           const std::string& looseID,
+           IsolationBase* isolation);
 
     /**
      * @brief The cuts to select good photons for your analysis should be
@@ -107,4 +107,4 @@ namespace top {
     asg::AnaToolHandle<IAsgDeadHVCellRemovalTool> m_deadHVTool;
   };
 }  // namespace top
-#endif  // TOPOBJECTSELECTIONTOOLS_PHOTONMC16_H_
+#endif  // TOPOBJECTSELECTIONTOOLS_PHOTON_H_

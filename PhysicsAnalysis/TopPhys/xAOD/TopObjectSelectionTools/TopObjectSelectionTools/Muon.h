@@ -2,8 +2,8 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef MUONMC15_H_
-#define MUONMC15_H_
+#ifndef TOPOBJECTSELECTIONTOOLSMUON_H_
+#define TOPOBJECTSELECTIONTOOLSMUON_H_
 
 #include "TopObjectSelectionTools/MuonSelectionBase.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
@@ -13,9 +13,9 @@
 
 namespace top {
 /**
- * @brief Select muons based on some early MC15 suggestions.
+ * @brief Select muons based on some early suggestions.
  */
-  class MuonMC15: public MuonSelectionBase {
+  class Muon: public MuonSelectionBase {
   public:
     /**
      * @brief Construct the tool to select good muons.
@@ -27,21 +27,21 @@ namespace top {
      * @param delta_z0 The maximum |delta z0 sin(theta)| cut
      * @param applyTTVACut Whether to apply cuts on d0 and z0
      */
-    MuonMC15(const double ptcut,
-             IsolationBase* isolation);
+    Muon(const double ptcut,
+         IsolationBase* isolation);
 
-    MuonMC15(const double ptcut,
-             IsolationBase* isolation,
-             const bool applyTTVACut);
+    Muon(const double ptcut,
+         IsolationBase* isolation,
+         const bool applyTTVACut);
 
-    MuonMC15(const double ptcut,
-             IsolationBase* isolation,
-             const double d0SigCut,
-             const double delta_z0,
-             const bool applyTTVACut = true);
+    Muon(const double ptcut,
+         IsolationBase* isolation,
+         const double d0SigCut,
+         const double delta_z0,
+         const bool applyTTVACut = true);
 
     // Does nothing.
-    virtual ~MuonMC15() {}
+    virtual ~Muon() {}
 
     /**
      * @brief Implements the logic to select good muons.
@@ -89,4 +89,4 @@ namespace top {
   };
 }  // namespace top
 
-#endif  // MUONMC15_H_
+#endif  // TOPOBJECTSELECTIONTOOLSMUON_H_

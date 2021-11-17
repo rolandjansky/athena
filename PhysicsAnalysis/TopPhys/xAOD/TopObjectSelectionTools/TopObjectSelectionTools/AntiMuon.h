@@ -2,8 +2,8 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef ANTIMUONMC15_H_
-#define ANTIMUONMC15_H_
+#ifndef ANTIMUON_H_
+#define ANTIMUON_H_
 
 #include "TopObjectSelectionTools/MuonSelectionBase.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
@@ -13,9 +13,9 @@
 
 namespace top {
 /**
- * @brief Select muons based on some early MC15 suggestions.
+ * @brief Select muons based on some early suggestions.
  */
-  class AntiMuonMC15: public MuonSelectionBase {
+  class AntiMuon: public MuonSelectionBase {
   public:
     /**
      * @brief Construct the tool to select good muons.
@@ -24,10 +24,10 @@ namespace top {
      * @param isolation The isolation the user wants to apply.  Don't want any
      * isolation to be applied?  Then leave this as a nullptr.
      */
-    AntiMuonMC15(const double ptcut, AntiMuonIsolation* isolation);
+    AntiMuon(const double ptcut, AntiMuonIsolation* isolation);
 
     ///Does nothing.
-    virtual ~AntiMuonMC15() {}
+    virtual ~AntiMuon() {}
 
     /**
      * @brief Implements the logic to select good muons.

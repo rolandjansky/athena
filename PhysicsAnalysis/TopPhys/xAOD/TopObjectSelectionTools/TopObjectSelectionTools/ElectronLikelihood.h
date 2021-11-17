@@ -2,8 +2,8 @@
    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef ELECTRONLIKELIHOODMC15_H_
-#define ELECTRONLIKELIHOODMC15_H_
+#ifndef TOPOBJECTSELECTIONTOOLSELECTRONLIKELIHOOD_H_
+#define TOPOBJECTSELECTIONTOOLSELECTRONLIKELIHOOD_H_
 
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
@@ -15,7 +15,7 @@ namespace top {
   /**
    * @brief To select electrons based on the "likelihood" definition.
    */
-  class ElectronLikelihoodMC15: public top::ElectronSelectionBase {
+  class ElectronLikelihood: public top::ElectronSelectionBase {
   public:
     /**
      * @brief Cut on likelihood electrons
@@ -33,20 +33,20 @@ namespace top {
      * @param applyTTVACut Whether to apply cuts on d0 and z0
      * @param applyChargeIDCut Whether to apply charge identification selector tool
      */
-    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyChargeIDCut);
+    ElectronLikelihood(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                       const std::string& operatingPointLoose, StandardIsolation* isolation,
+                       const bool applyChargeIDCut);
 
-    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const bool applyTTVACut, const bool applyChargeIDCut);
+    ElectronLikelihood(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                       const std::string& operatingPointLoose, StandardIsolation* isolation,
+                       const bool applyTTVACut, const bool applyChargeIDCut);
 
-    ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
-                           const std::string& operatingPointLoose, StandardIsolation* isolation,
-                           const double d0SigCut, const double delta_z0, const bool applyTTVACut,
-                           const bool applyChargeIDCut);
+    ElectronLikelihood(const double ptcut, const bool vetoCrack, const std::string& operatingPoint,
+                       const std::string& operatingPointLoose, StandardIsolation* isolation,
+                       const double d0SigCut, const double delta_z0, const bool applyTTVACut,
+                       const bool applyChargeIDCut);
 
-    virtual ~ElectronLikelihoodMC15() {}
+    virtual ~ElectronLikelihood() {}
     /**
      * @brief Selection for the main analysis (i.e. tight object definitions).
      *

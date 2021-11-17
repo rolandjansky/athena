@@ -2,7 +2,7 @@
    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TopObjectSelectionTools/ElectronLikelihoodMC15.h"
+#include "TopObjectSelectionTools/ElectronLikelihood.h"
 #include "TopEvent/EventTools.h"
 //#include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 #include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
@@ -12,11 +12,11 @@
 using namespace TopObjectSelectionTools;
 
 namespace top {
-  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
-                                                 const std::string& operatingPoint,
-                                                 const std::string& operatingPointLoose, StandardIsolation* isolation,
-                                                 const double d0SigCut, const double delta_z0, const bool applyTTVACut,
-                                                 const bool applyChargeIDCut) :
+  ElectronLikelihood::ElectronLikelihood(const double ptcut, const bool vetoCrack,
+                                         const std::string& operatingPoint,
+                                         const std::string& operatingPointLoose, StandardIsolation* isolation,
+                                         const double d0SigCut, const double delta_z0, const bool applyTTVACut,
+                                         const bool applyChargeIDCut) :
     m_ptcut(ptcut),
     m_vetoCrack(vetoCrack),
     m_d0SigCut(d0SigCut),
@@ -77,26 +77,26 @@ namespace top {
     top::check(m_deadHVTool.retrieve(), "Failed to setup Egamma DeadHVCellRemovalTool");
   }
 
-  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
+  ElectronLikelihood::ElectronLikelihood(const double ptcut, const bool vetoCrack,
                                                  const std::string& operatingPoint,
                                                  const std::string& operatingPointLoose,
                                                  StandardIsolation* isolation,
                                                  const bool applyChargeIDCut)
-    : ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
-                                                     operatingPointLoose, isolation, 5.0, 0.5, true,
-                                                     applyChargeIDCut) {}
+    : ElectronLikelihood::ElectronLikelihood(ptcut, vetoCrack, operatingPoint,
+                                             operatingPointLoose, isolation, 5.0, 0.5, true,
+                                             applyChargeIDCut) {}
 
-  ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
-                                                 const std::string& operatingPoint,
-                                                 const std::string& operatingPointLoose,
-                                                 StandardIsolation* isolation,
-                                                 const bool applyTTVACut,
-                                                 const bool applyChargeIDCut)
-    : ElectronLikelihoodMC15::ElectronLikelihoodMC15(ptcut, vetoCrack, operatingPoint,
+  ElectronLikelihood::ElectronLikelihood(const double ptcut, const bool vetoCrack,
+                                         const std::string& operatingPoint,
+                                         const std::string& operatingPointLoose,
+                                         StandardIsolation* isolation,
+                                         const bool applyTTVACut,
+                                         const bool applyChargeIDCut)
+    : ElectronLikelihood::ElectronLikelihood(ptcut, vetoCrack, operatingPoint,
                                                      operatingPointLoose, isolation, 5.0, 0.5, applyTTVACut,
                                                      applyChargeIDCut) {}
 
-  bool ElectronLikelihoodMC15::passSelection(const xAOD::Electron& el) const {
+  bool ElectronLikelihood::passSelection(const xAOD::Electron& el) const {
     if (!passSelectionNoIsolation(el, m_operatingPoint_DF, m_operatingPoint)) return false;
 
     if (m_isolation && !m_isolation->passSelection(el)) return false;
@@ -104,7 +104,7 @@ namespace top {
     return true;
   }
 
-  bool ElectronLikelihoodMC15::passSelectionLoose(const xAOD::Electron& el) const {
+  bool ElectronLikelihood::passSelectionLoose(const xAOD::Electron& el) const {
     if (!passSelectionNoIsolation(el, m_operatingPointLoose_DF, m_operatingPointLoose)) return false;
 
     if (m_isolation && !m_isolation->passSelectionLoose(el)) return false;
@@ -112,7 +112,7 @@ namespace top {
     return true;
   }
 
-  bool ElectronLikelihoodMC15::passSelectionNoIsolation(const xAOD::Electron& el, const std::string& operatingPoint_DF,
+  bool ElectronLikelihood::passSelectionNoIsolation(const xAOD::Electron& el, const std::string& operatingPoint_DF,
                                                         const std::string& operatingPoint) const {
     if (el.pt() < m_ptcut) return false;
 
@@ -188,13 +188,13 @@ namespace top {
     return true;
   }
 
-  bool ElectronLikelihoodMC15::passBLayerCuts(const xAOD::Electron& el) const {
+  bool ElectronLikelihood::passBLayerCuts(const xAOD::Electron& el) const {
 
     const xAOD::TrackParticle* t = el.trackParticle();
     return ElectronSelectorHelpers::passBLayerRequirement(t);
   }
 
-  bool ElectronLikelihoodMC15::passTTVACuts(const xAOD::Electron& el) const {
+  bool ElectronLikelihood::passTTVACuts(const xAOD::Electron& el) const {
     // TTVA:
     // see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPEOYE2015#Track_to_Vertex_Association
     if (!el.isAvailable<float>("d0sig")) {
@@ -216,16 +216,16 @@ namespace top {
     return true;
   }
 
-  bool ElectronLikelihoodMC15::passChargeIDCut(const xAOD::Electron& el) const {
+  bool ElectronLikelihood::passChargeIDCut(const xAOD::Electron& el) const {
     static const SG::AuxElement::ConstAccessor<char> acc_ECIDS("DFCommonElectronsECIDS");
 
     top::check(acc_ECIDS.isAvailable(
-                 el), "ElectronLikelihoodMC15::passChargeIDCut: DFCommonElectronsECIDS is not available");
+                 el), "ElectronLikelihood::passChargeIDCut: DFCommonElectronsECIDS is not available");
     return acc_ECIDS(el) ? true : false;
   }
 
-  void ElectronLikelihoodMC15::print(std::ostream& os) const {
-    os << "ElectronLikelihoodMC15\n";
+  void ElectronLikelihood::print(std::ostream& os) const {
+    os << "ElectronLikelihood\n";
     os << "    * pT > " << m_ptcut << "\n";
     os << "    * Currently disabled --- |cluster_eta| < 2.47 \n";
     os << "    * Veto 1.37 < |cluster_eta| < 1.52? " << std::boolalpha << m_vetoCrack << "\n";
