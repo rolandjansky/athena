@@ -47,7 +47,7 @@ public:
   static void unit_test(TFCSSimulationState* simulstate=nullptr,const TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);
 
   // Prepare inputs to the Neural Network
-  std::map<std::string,double> prepareInputs(TFCSSimulationState& simulstate, const float truthE) const;
+  std::map<std::string,double> prepareInputs(TFCSSimulationState& simulstate, const float truthE, const int pid) const;
 
   // Print()
   void Print(Option_t *option = "") const override;
