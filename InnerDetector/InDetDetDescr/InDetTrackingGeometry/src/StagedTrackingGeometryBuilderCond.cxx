@@ -50,7 +50,8 @@ InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(cons
   m_ringTolerance(10*Gaudi::Units::mm),
   m_namespace("InDet::"),
   m_exitVolume("InDet::Containers::InnerDetector"),
-  m_removeHGTD(false)
+  m_removeHGTD(false),
+  m_zMinHGTD(3420.0)
 {
   declareInterface<Trk::IGeometryBuilderCond>(this);  
   // layer builders and their configurations
@@ -79,6 +80,7 @@ InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(cons
   declareProperty("ExitVolumeName",                   m_exitVolume);
   // Remove HGTD volume from ID tracking geometry
   declareProperty("RemoveHGTD",                       m_removeHGTD);
+  declareProperty("ZminHGTD",                         m_zMinHGTD);
 }
 
 // destructor
@@ -153,17 +155,7 @@ InDet::StagedTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE
      // If running with the HGTD, we don't want to include its volume
      // as it will be included in another tracking geometry.
      // re-evaluating the ID envelope dimension
-     float envelopeVolumeHalfZatBp = envelopeVolumeHalfZ;
-     // now scan the beampipe envelopes, if there is something smalles, pick it.
-     const RZPairVector& envelopeBeamPipeDefs = m_enclosingEnvelopeSvc->getBeamPipeRZBoundary();
-     float beampipeR = envelopeDefs[0].first;
-     for (const auto & bounds : envelopeBeamPipeDefs) {
-       if (float(bounds.first) == beampipeR and std::abs(bounds.second)<envelopeVolumeHalfZatBp) {
-         envelopeVolumeHalfZatBp = std::abs(bounds.second);
-       }
-     }
-     if (envelopeVolumeHalfZatBp<envelopeVolumeHalfZ)
-       envelopeVolumeHalfZ = envelopeVolumeHalfZatBp; 
+     envelopeVolumeHalfZ = m_zMinHGTD; 
    }
    
    ATH_MSG_VERBOSE("       -> envelope R/Z defined as : " << envelopeVolumeRadius << " / " << envelopeVolumeHalfZ );

@@ -101,7 +101,7 @@ namespace G4UA
     // G4LogicalVolume
     G4LogicalVolume *lv= touchHist ? touchHist->GetVolume()->GetLogicalVolume() : nullptr;
     G4Material *mat    = lv ? lv->GetMaterial() : nullptr;
-
+    
     std::vector<unsigned char> elements;
     std::vector<unsigned char> fractions;
 
