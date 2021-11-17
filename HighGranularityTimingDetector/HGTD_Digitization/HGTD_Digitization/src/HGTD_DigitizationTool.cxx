@@ -26,22 +26,16 @@
 static constexpr unsigned int
     crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 
-HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string& type,
-                                             const std::string& name,
-                                             const IInterface* parent)
-    : PileUpToolBase(type, name, parent),
-      m_merge_svc("PileUpMergeSvc", name),
-      m_id_helper(nullptr),
-      m_det_mgr(nullptr),
-      m_hgtd_rdo_container(nullptr),
-      m_output_rdo_cont_name("HGTD_RDOs"),
-      m_sdo_collection(nullptr),
-      m_output_sdo_coll_name("HGTD_SDO_Map"),
-      m_input_collection_name("HGTD_Hits"),
-      m_timed_hit_coll(nullptr),
-      m_active_time_window(10000),
-      m_rndm_svc("AtRndmGenSvc", name),
-      m_rndm_engine(nullptr),
+HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string &type,
+                                             const std::string &name,
+                                             const IInterface *parent)
+    : PileUpToolBase(type, name, parent), m_merge_svc("PileUpMergeSvc", name),
+      m_id_helper(nullptr), m_det_mgr(nullptr), m_hgtd_rdo_container(nullptr),
+      m_output_rdo_cont_name("HGTD_RDOs"), m_sdo_collection(nullptr),
+      m_output_sdo_coll_name("HGTD_SDO_Map"), m_integrated_luminosity(0),
+      m_smear_meantime(true), m_input_collection_name("HGTD_Hits"),
+      m_timed_hit_coll(nullptr), m_active_time_window(10000),
+      m_rndm_svc("AtRndmGenSvc", name), m_rndm_engine(nullptr),
       m_hgtd_surf_charge_gen("HGTD_SurfaceChargesGenerator", this),
       m_hgtd_front_end_tool("HGTD_FrontEndTool", this) {
 
@@ -61,6 +55,9 @@ HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string& type,
                   "Tool for pulse shape simulation");
   declareProperty("OutputSDOName", m_output_sdo_coll_name = "HGTD_SDO_Map",
                   "Output SDO container name");
+  declareProperty("SmearMeanTime", m_smear_meantime);
+  declareProperty("IntegratedLuminosity", m_integrated_luminosity = 0,
+                  "Integraed Luminosity");
 }
 
 StatusCode HGTD_DigitizationTool::initialize() {
@@ -76,6 +73,9 @@ StatusCode HGTD_DigitizationTool::initialize() {
   m_rndm_engine = m_rndm_svc->GetEngine("HGTD_Digitization");
 
   ATH_CHECK(m_hgtd_surf_charge_gen.retrieve());
+  m_hgtd_surf_charge_gen->setIntegratedLuminosity(m_integrated_luminosity);
+  m_hgtd_surf_charge_gen->createTimingResolutionTool();
+  m_hgtd_surf_charge_gen->setSmearingTime(m_smear_meantime);
 
   ATH_CHECK(m_hgtd_front_end_tool.retrieve());
   m_hgtd_front_end_tool->setRandomEngine(m_rndm_engine);
@@ -118,7 +118,7 @@ HGTD_DigitizationTool::processBunchXing(int bunch_xing,
   SubEventIterator loc_sub_event_itr = sub_event_itr;
 
   for (; loc_sub_event_itr != sub_event_itr_end; loc_sub_event_itr++) {
-    StoreGateSvc& store_gate_svc = *loc_sub_event_itr->ptr()->evtStore();
+    StoreGateSvc &store_gate_svc = *loc_sub_event_itr->ptr()->evtStore();
     ATH_MSG_DEBUG("SubEvt StoreGate "
                   << store_gate_svc.name() << " :"
                   << " bunch crossing : " << bunch_xing << " time offset : "
@@ -126,7 +126,7 @@ HGTD_DigitizationTool::processBunchXing(int bunch_xing,
                   << loc_sub_event_itr->ptr()->eventNumber()
                   << " run number : " << loc_sub_event_itr->ptr()->runNumber());
 
-    const SiHitCollection* hit_coll(nullptr);
+    const SiHitCollection *hit_coll(nullptr);
 
     if (store_gate_svc.retrieve(hit_coll, m_input_collection_name)
             .isFailure()) {
@@ -141,7 +141,7 @@ HGTD_DigitizationTool::processBunchXing(int bunch_xing,
                                   pileupTypeMapper(loc_sub_event_itr->type()));
 
     // FIXME do I really need this?
-    SiHitCollection* hit_coll_cpy = new SiHitCollection(*hit_coll);
+    SiHitCollection *hit_coll_cpy = new SiHitCollection(*hit_coll);
 
     m_timed_hit_coll->insert(time_idx, hit_coll_cpy);
 
@@ -159,7 +159,7 @@ StatusCode HGTD_DigitizationTool::mergeEvent() {
   // FIXME: needs to be added once noise/selftriggering has to go in
   // ATH_CHECK(simulateNoisePerDetectorElement());
 
-  for (std::vector<SiHitCollection*>::iterator it = m_hit_coll_ptrs.begin();
+  for (std::vector<SiHitCollection *>::iterator it = m_hit_coll_ptrs.begin();
        it != m_hit_coll_ptrs.end(); it++) {
     (*it)->Clear();
     delete (*it);
@@ -228,7 +228,7 @@ StatusCode HGTD_DigitizationTool::retrieveHitCollection() {
     // FIXME removed m_HardScatterSplittingMode and
     // m_HardScatterSplittingSkipper until we have confirmed we need this
 
-    const SiHitCollection* collection(coll_itr->second);
+    const SiHitCollection *collection(coll_itr->second);
 
     m_timed_hit_coll->insert(coll_itr->first, collection);
 
@@ -253,14 +253,14 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement() {
   // loop
   while (m_timed_hit_coll->nextDetectorElement(coll_itr, coll_itr_end)) {
 
-    const TimedHitPtr<SiHit>& fist_hit = *coll_itr;
+    const TimedHitPtr<SiHit> &fist_hit = *coll_itr;
 
     Identifier id = m_id_helper->wafer_id(
         fist_hit->getBarrelEndcap(), fist_hit->getLayerDisk(),
         fist_hit->getPhiModule(), fist_hit->getEtaModule());
 
     // get the det element from the manager
-    HGTD_DetectorElement* det_elem = m_det_mgr->getDetectorElement(id);
+    HGTD_DetectorElement *det_elem = m_det_mgr->getDetectorElement(id);
     // FIXME check for null??
     // create a diode collection holding the digitized hits
     // FIXME (init once outside the while loop and use clear and set det elem??)
@@ -272,7 +272,7 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement() {
     // diodes
     for (; coll_itr != coll_itr_end; coll_itr++) {
 
-      const TimedHitPtr<SiHit>& current_hit = *coll_itr;
+      const TimedHitPtr<SiHit> &current_hit = *coll_itr;
 
       // skip hits that are far away in time
       if (std::abs(current_hit->meanTime()) >
@@ -304,11 +304,11 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement() {
 }
 
 void HGTD_DigitizationTool::applyProcessorTools(
-    SiChargedDiodeCollection* charged_diodes) {
+    SiChargedDiodeCollection *charged_diodes) {
   ATH_MSG_DEBUG("applyProcessorTools()");
   int processorNumber = 0;
 
-  std::list<ISiChargedDiodesProcessorTool*>::iterator provessor_itr =
+  std::list<ISiChargedDiodesProcessorTool *>::iterator provessor_itr =
       m_diode_processor_tools.begin();
   for (; provessor_itr != m_diode_processor_tools.end(); ++provessor_itr) {
     (*provessor_itr)->process(*charged_diodes);
@@ -334,7 +334,7 @@ StatusCode HGTD_DigitizationTool::storeRDOCollection(
 
 std::unique_ptr<HGTD_RDOCollection>
 HGTD_DigitizationTool::createRDOCollection(
-    SiChargedDiodeCollection* charged_diodes) {
+    SiChargedDiodeCollection *charged_diodes) {
 
   IdentifierHash idHash_de = charged_diodes->identifyHash();
 
@@ -361,11 +361,10 @@ HGTD_DigitizationTool::createRDOCollection(
     // FIXME the method takes ID, phi, eta
     // FIXME switching order here to fix upstream issue with orientations
     const Identifier id_readout =
-        m_id_helper->pixel_id(charged_diodes->identify(), phi_index,
-        eta_index);
+        m_id_helper->pixel_id(charged_diodes->identify(), phi_index, eta_index);
 
-    SiChargedDiode& diode = (*i_chargedDiode).second;
-    const SiTotalCharge& charge = diode.totalCharge();
+    SiChargedDiode &diode = (*i_chargedDiode).second;
+    const SiTotalCharge &charge = diode.totalCharge();
 
     // this is the time of the main charge. For now this might be OK as long as
     // the toal deposit just gets transformed into "one charge", but will need a
@@ -386,7 +385,7 @@ HGTD_DigitizationTool::createRDOCollection(
 }
 
 void HGTD_DigitizationTool::createAndStoreSDO(
-    SiChargedDiodeCollection* charged_diodes) {
+    SiChargedDiodeCollection *charged_diodes) {
   using list_t = SiTotalCharge::list_t;
   std::vector<InDetSimData::Deposit> deposits;
   deposits.reserve(5); // no idea what a reasonable number for this would be
@@ -398,7 +397,7 @@ void HGTD_DigitizationTool::createAndStoreSDO(
 
   for (; i_chargedDiode != i_chargedDiode_end; ++i_chargedDiode) {
     deposits.clear();
-    const list_t& charges =
+    const list_t &charges =
         (*i_chargedDiode).second.totalCharge().chargeComposition();
 
     bool real_particle_hit = false;
@@ -409,7 +408,7 @@ void HGTD_DigitizationTool::createAndStoreSDO(
 
     for (; charge_list_itr != charge_list_itr_end; ++charge_list_itr) {
 
-      const HepMcParticleLink& trkLink = charge_list_itr->particleLink();
+      const HepMcParticleLink &trkLink = charge_list_itr->particleLink();
       const int barcode = trkLink.barcode();
 
       if ((barcode == 0) or (barcode == crazyParticleBarcode)) {

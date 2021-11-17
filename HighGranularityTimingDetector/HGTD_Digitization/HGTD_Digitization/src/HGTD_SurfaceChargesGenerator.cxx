@@ -13,6 +13,7 @@
  */
 
 #include "HGTD_Digitization/HGTD_SurfaceChargesGenerator.h"
+#include "HGTD_Digitization/HGTD_TimingResolution.h"
 
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -25,11 +26,10 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 
 HGTD_SurfaceChargesGenerator::HGTD_SurfaceChargesGenerator(
-    const std::string& type, const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent),
-      m_small_step_length(1),
-      m_diffusion_constant(.007),
-      m_needs_mc_evt_coll_helper(false) {
+    const std::string &type, const std::string &name, const IInterface *parent)
+    : AthAlgTool(type, name, parent), m_small_step_length(1),
+      m_diffusion_constant(.007), m_smear_meantime(true),
+      m_integrated_luminosity(0), m_needs_mc_evt_coll_helper(false) {
   declareProperty("SmallStepLength", m_small_step_length = 1);
   declareProperty("DiffusionConstant", m_diffusion_constant);
   declareProperty("UseMcEventCollectionHelper",
@@ -44,13 +44,18 @@ StatusCode HGTD_SurfaceChargesGenerator::initialize() {
   return StatusCode::SUCCESS;
 }
 
-void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
-    const TimedHitPtr<SiHit>& timed_hit_ptr,
-    SiChargedDiodeCollection* diode_coll,
-    const InDetDD::SolidStateDetectorElementBase* element,
-    CLHEP::HepRandomEngine* rndm_engine) const {
+inline void HGTD_SurfaceChargesGenerator::createTimingResolutionTool() {
+  m_hgtd_timing_resolution_tool =
+      std::make_unique<HGTD_TimingResolution>(m_integrated_luminosity);
+}
 
-  const SiHit& hit = *timed_hit_ptr;
+void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
+    const TimedHitPtr<SiHit> &timed_hit_ptr,
+    SiChargedDiodeCollection *diode_coll,
+    const InDetDD::SolidStateDetectorElementBase *element,
+    CLHEP::HepRandomEngine *rndm_engine) const {
+
+  const SiHit &hit = *timed_hit_ptr;
 
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events
@@ -74,6 +79,13 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
   float pixel_size_xphi = element->design().phiPitch();
   float pixel_size_xeta = element->design().etaPitch();
 
+  Amg::Vector3D element_center = element->center();
+  ATH_MSG_DEBUG("x and y, z are: " << element_center.x() << ", "
+                                   << element_center.y() << ", "
+                                   << element_center.z());
+  float element_r = sqrt(element_center.x() * element_center.x() +
+                         element_center.y() * element_center.y());
+
   const CLHEP::Hep3Vector start_pos(hit.localStartPosition());
   const CLHEP::Hep3Vector end_pos(hit.localEndPosition());
 
@@ -94,7 +106,19 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
 
   // FIXME is this correct? does the eventTime include a "later" truth event and
   // the meanTime is just the TOF?
+  ATH_MSG_DEBUG(">>>>>>> before processing, event_t, t, E, r: "
+                << timed_hit_ptr.eventTime() << ", " << hit.meanTime() << ", "
+                << tot_eloss << ", " << element_r);
+
   float time_of_flight = timed_hit_ptr.eventTime() + hit.meanTime();
+  if (m_smear_meantime) {
+    // Smearing based on radius and luminosity, and substract the time shift due
+    // to pulse leading edge (0.4 ns)
+    time_of_flight = m_hgtd_timing_resolution_tool->calculateTime(
+                         time_of_flight, tot_eloss, element_r, rndm_engine) -
+                     0.4;
+  }
+  ATH_MSG_DEBUG(">>>>>>> after processing, t: " << time_of_flight);
 
   // FIXME needed to check for deposits in guardrings. This should be taken over
   // by the module design class and not hardcoded here!
