@@ -4,6 +4,7 @@ import sys
 
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
+from SimuJobTransforms.CommonSimulationSteering import specialConfigPreInclude, specialConfigPostInclude
 
 
 def fromRunArgs(runArgs):
@@ -52,6 +53,9 @@ def fromRunArgs(runArgs):
         from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
         setupDetectorsFromList(ConfigFlags, detectors)
 
+    # Special Configuration preInclude
+    specialConfigPreInclude(ConfigFlags)
+
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)
 
@@ -80,6 +84,9 @@ def fromRunArgs(runArgs):
     # Special message service configuration
     from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
     cfg.merge(DigitizationMessageSvcCfg(ConfigFlags))
+
+    # Special Configuration postInclude
+    specialConfigPostInclude(ConfigFlags, cfg)
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)
