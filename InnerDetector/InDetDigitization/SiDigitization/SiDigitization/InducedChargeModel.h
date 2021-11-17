@@ -13,7 +13,6 @@
 //-----------------------------------------------
 
 // Athena
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
