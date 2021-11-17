@@ -2,17 +2,17 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TopObjectSelectionTools/JetMC15.h"
+#include "TopObjectSelectionTools/Jet.h"
 
 #include <cmath>
 
 #include "TopEvent/EventTools.h"
 
 namespace top {
-  JetMC15::JetMC15(const double ptcut,
-                   const double etamax,
-                   const double minmass,
-                   const bool doJVTCut):
+  Jet::Jet(const double ptcut,
+           const double etamax,
+           const double minmass,
+           const bool doJVTCut):
     m_ptcut(ptcut),
     m_etamax(etamax),
     m_masscut(minmass),
@@ -24,20 +24,20 @@ namespace top {
   }
 
   // This version of the constructor always perform JVT cut 
-  JetMC15::JetMC15(const double ptcut,
-                   const double etamax) : JetMC15::JetMC15(ptcut, etamax, -1.0, true) {}
+  Jet::Jet(const double ptcut,
+           const double etamax) : Jet::Jet(ptcut, etamax, -1.0, true) {}
 
   // DEPRECIATED - fwdJetSel string now defunct, keeping blank string input for backwards compatibility
-  JetMC15::JetMC15(const double ptcut,
-                   const double etamax,
-                   const std::string) : JetMC15::JetMC15(ptcut, etamax, -1.0, true) {}
+  Jet::Jet(const double ptcut,
+           const double etamax,
+           const std::string) : Jet::Jet(ptcut, etamax, -1.0, true) {}
 
   // DEPRECATED - only kept for backward compatibility
-  JetMC15::JetMC15(const double ptcut,
-                   const double etamax,
-                   const double) : JetMC15::JetMC15(ptcut, etamax) {}
+  Jet::Jet(const double ptcut,
+           const double etamax,
+           const double) : Jet::Jet(ptcut, etamax) {}
 
-  bool JetMC15::passSelection(const xAOD::Jet& jet) {
+  bool Jet::passSelection(const xAOD::Jet& jet) {
     if (m_applyJVTCut) {
       jet.auxdecor<char>("passJVT") = (m_jvt_tool->passesJvtCut(jet) ? 1 : 0);
     }
@@ -57,8 +57,8 @@ namespace top {
     return true;
   }
 
-  void JetMC15::print(std::ostream& os) const {
-    os << "JetMC15\n"
+  void Jet::print(std::ostream& os) const {
+    os << "Jet\n"
        << "    * pT > " << m_ptcut << "\n"
        << "    * |eta| < " << m_etamax << "\n";
     if (m_appyMassCut)

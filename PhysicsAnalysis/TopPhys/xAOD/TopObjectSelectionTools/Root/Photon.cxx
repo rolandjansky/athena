@@ -2,7 +2,7 @@
    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TopObjectSelectionTools/PhotonMC16.h"
+#include "TopObjectSelectionTools/Photon.h"
 
 // Include what you use!
 #include <map>
@@ -14,7 +14,7 @@
 using namespace TopObjectSelectionTools;
 
 namespace top {
-  PhotonMC16::PhotonMC16(double ptcut, double etamax, IsolationBase* isolation) :
+  Photon::Photon(double ptcut, double etamax, IsolationBase* isolation) :
     m_ptcut(ptcut),
     m_etamax(etamax),
     m_photon_selection("DFCommonPhotonsIsEMTight"),
@@ -22,10 +22,10 @@ namespace top {
     m_isolation(isolation) {
   }
 
-  PhotonMC16::PhotonMC16(double ptcut, double etamax,
-                         const std::string& tightID,
-                         const std::string& looseID,
-                         IsolationBase* isolation) :
+  Photon::Photon(double ptcut, double etamax,
+                 const std::string& tightID,
+                 const std::string& looseID,
+                 IsolationBase* isolation) :
     m_ptcut(ptcut),
     m_etamax(etamax),
     m_photon_selection(tightID),
@@ -44,7 +44,7 @@ namespace top {
     top::check(m_deadHVTool.retrieve(), "Failed to setup Egamma DeadHVCellRemovalTool");
   }
 
-  bool PhotonMC16::passSelection(const xAOD::Photon& ph) const {
+  bool Photon::passSelection(const xAOD::Photon& ph) const {
     if (!passSelectionNoIsolation(ph, m_photon_selection)) return false;
 
     if (m_isolation && !m_isolation->passSelection(ph)) return false;
@@ -52,7 +52,7 @@ namespace top {
     return true;
   }
 
-  bool PhotonMC16::passSelectionLoose(const xAOD::Photon& ph) const {
+  bool Photon::passSelectionLoose(const xAOD::Photon& ph) const {
     if (!passSelectionNoIsolation(ph, m_loose_photon_selection)) return false;
 
     if (m_isolation && !m_isolation->passSelectionLoose(ph)) return false;
@@ -60,7 +60,7 @@ namespace top {
     return true;
   }
 
-  bool PhotonMC16::passSelectionNoIsolation(const xAOD::Photon& ph,
+  bool Photon::passSelectionNoIsolation(const xAOD::Photon& ph,
                                             const std::string& photon_selection) const {
     // Photon author : AuthorPhoton/AuthorAmbiguous.
     // Also, for special-case recovery of soft photons:
@@ -100,8 +100,8 @@ namespace top {
     return true;
   }
 
-  void PhotonMC16::print(std::ostream& os) const {
-    os << "PhotonMC16\n";
+  void Photon::print(std::ostream& os) const {
+    os << "Photon\n";
     os << "    * pT > " << m_ptcut << "\n";
     os << "    * |eta| < " << m_etamax << "\n";
     os << "    * Photon PID: " << m_photon_selection << "\n";

@@ -2,11 +2,11 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TopObjectSelectionTools/TauMC15.h"
+#include "TopObjectSelectionTools/Tau.h"
 #include "TopEvent/EventTools.h"
 
 namespace top {
-  TauMC15::TauMC15() : m_tauSelection("TauAnalysisTools::TauSelectionTool"),
+  Tau::Tau() : m_tauSelection("TauAnalysisTools::TauSelectionTool"),
     m_tauSelectionLoose
       ("TauAnalysisTools::TauSelectionToolLoose") {
     top::check(m_tauSelection.retrieve(),
@@ -15,7 +15,7 @@ namespace top {
                "Failed to retrieve loose tau selection tool");
   }
 
-  bool TauMC15::passSelection(const xAOD::TauJet& tau) const {
+  bool Tau::passSelection(const xAOD::TauJet& tau) const {
     // Get the WP related decisions from TauSelectionTool
 
     // HIGG8D1 derivations (and possibly others) skim away
@@ -31,7 +31,7 @@ namespace top {
     }
   }
 
-  bool TauMC15::passSelectionLoose(const xAOD::TauJet& tau) const {
+  bool Tau::passSelectionLoose(const xAOD::TauJet& tau) const {
     // get the WP related decisions from TauSelectionTool
     // For the reasoning behind try/catch see above...
     try {
@@ -41,8 +41,8 @@ namespace top {
     }
   }
 
-  void TauMC15::print(std::ostream& os) const {
-    os << "TauMC15\n";
+  void Tau::print(std::ostream& os) const {
+    os << "Tau\n";
     os << "    * Taus are now selected using the TauSelectionTool" << "\n";
     os << "    * Either you have supplied a tau configuration file (expert)\n";
     os << "      or set pT, JetIDWP and EleOLR options in your top-xaod\n";

@@ -2,8 +2,8 @@
    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef SOFTMUONMC15_H_
-#define SOFTMUONMC15_H_
+#ifndef TOPOBJECTSELECTIONTOOLS_SOFTMUON_H_
+#define TOPOBJECTSELECTIONTOOLS_SOFTMUON_H_
 
 #include "TopObjectSelectionTools/SoftMuonSelectionBase.h"
 #include "TopObjectSelectionTools/IsolationTools.h"
@@ -13,9 +13,9 @@
 
 namespace top {
 /**
- * @brief Select muons based on some early MC15 suggestions.
+ * @brief Select muons based on some early suggestions.
  */
-  class SoftMuonMC15: public SoftMuonSelectionBase {
+  class SoftMuon: public SoftMuonSelectionBase {
   public:
     /**
      * @brief Construct the tool to select good muons.
@@ -24,10 +24,10 @@ namespace top {
      * @param isolation The isolation the user wants to apply.  Don't want any
      * isolation to be applied?  Then leave this as a nullptr.
      */
-    SoftMuonMC15(const double ptcut);
+    SoftMuon(const double ptcut);
 
     // Does nothing.
-    virtual ~SoftMuonMC15() {}
+    virtual ~SoftMuon() {}
 
     /**
      * @brief Implements the logic to select good muons.
@@ -48,4 +48,4 @@ namespace top {
   };
 }  // namespace top
 
-#endif  // SOFTMUONMC15_H_
+#endif  // TOPOBJECTSELECTIONTOOLS_SOFTMUON_H_

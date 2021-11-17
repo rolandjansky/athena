@@ -2,7 +2,7 @@
    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TopObjectSelectionTools/MuonMC15.h"
+#include "TopObjectSelectionTools/Muon.h"
 
 #include "TopEvent/EventTools.h"
 
@@ -10,9 +10,9 @@
 using namespace TopObjectSelectionTools;
 
 namespace top {
-  MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation,
-                     const double d0SigCut, const double delta_z0_sintheta,
-                     const bool applyTTVACut) :
+  Muon::Muon(const double ptcut, IsolationBase* isolation,
+             const double d0SigCut, const double delta_z0_sintheta,
+             const bool applyTTVACut) :
     m_ptcut(ptcut),
     m_d0SigCut(d0SigCut),
     m_delta_z0(delta_z0_sintheta),
@@ -24,16 +24,15 @@ namespace top {
     top::check(m_muonSelectionToolLoose.retrieve(), "Failed to retrieve muonSelectionToolLoose");
   }
 
-  MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation, const bool applyTTVACut)
-    : MuonMC15::MuonMC15(ptcut, isolation, 3.0, 0.5, applyTTVACut) {}
+  Muon::Muon(const double ptcut, IsolationBase* isolation, const bool applyTTVACut)
+    : Muon::Muon(ptcut, isolation, 3.0, 0.5, applyTTVACut) {}
 
-  MuonMC15::MuonMC15(const double ptcut, IsolationBase* isolation)
-    : MuonMC15::MuonMC15(ptcut, isolation, 3.0, 0.5, true) {}
+  Muon::Muon(const double ptcut, IsolationBase* isolation)
+    : Muon::Muon(ptcut, isolation, 3.0, 0.5, true) {}
 
-  bool MuonMC15::passSelection(const xAOD::Muon& mu) const {
+  bool Muon::passSelection(const xAOD::Muon& mu) const {
     if (mu.pt() < m_ptcut) return false;
 
-    ///-- https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15 --///
     if (!m_muonSelectionTool->accept(mu)) return false;
 
     //isolation, if m_isolation != nullptr
@@ -47,10 +46,9 @@ namespace top {
     return true;
   }
 
-  bool MuonMC15::passSelectionLoose(const xAOD::Muon& mu) const {
+  bool Muon::passSelectionLoose(const xAOD::Muon& mu) const {
     if (mu.pt() < m_ptcut) return false;
 
-    ///-- https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15 --///
     if (!m_muonSelectionToolLoose->accept(mu)) return false;
 
     //isolation, if m_isolation != nullptr
@@ -64,7 +62,7 @@ namespace top {
     return true;
   }
 
-  bool MuonMC15::passTTVACuts(const xAOD::Muon& mu) const {
+  bool Muon::passTTVACuts(const xAOD::Muon& mu) const {
     // TTVA:
     // see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPEOYE2015#Track_to_Vertex_Association
     if (!mu.isAvailable<float>("d0sig")) {
@@ -88,8 +86,8 @@ namespace top {
     return true;
   }
 
-  void MuonMC15::print(std::ostream& os) const {
-    os << "MuonMC15\n"
+  void Muon::print(std::ostream& os) const {
+    os << "Muon\n"
        << "    * pT > " << m_ptcut << "\n"
        << "    * Everything else from muon tool - fill this in?\n";
 

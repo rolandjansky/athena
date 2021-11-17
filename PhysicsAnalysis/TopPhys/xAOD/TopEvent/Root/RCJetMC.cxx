@@ -14,7 +14,7 @@
    // File for initializing and making re-clustered jets.
    //
  ***************************************************************/
-#include "TopEvent/RCJetMC15.h"
+#include "TopEvent/RCJet.h"
 
 #include "TopConfiguration/TopConfig.h"
 #include "AsgTools/AsgTool.h"
@@ -35,7 +35,7 @@
 #include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h"
 #include "JetSubStructureUtils/EnergyCorrelator.h"
 
-RCJetMC15::RCJetMC15(const std::string& name) :
+RCJet::RCJet(const std::string& name) :
   asg::AsgTool(name),
   m_name(name),
   m_config(nullptr),
@@ -84,10 +84,10 @@ RCJetMC15::RCJetMC15(const std::string& name) :
   declareProperty("VarRCjets_mass_scale", m_VarRCjets_mass_scale = "");
 }
 
-RCJetMC15::~RCJetMC15() {}
+RCJet::~RCJet() {}
 
 
-StatusCode RCJetMC15::initialize() {
+StatusCode RCJet::initialize() {
   /* Initialize the re-clustered jets */
   ATH_MSG_INFO(" Initializing Re-clustered jets ");
 
@@ -264,7 +264,7 @@ StatusCode RCJetMC15::initialize() {
   return StatusCode::SUCCESS;
 } // end initialize()
 
-StatusCode RCJetMC15::execute(const top::Event& event) {
+StatusCode RCJet::execute(const top::Event& event) {
   /*
      Make the jet container (if necessary) and execute the re-clustering tool
       https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TopPhys/xAOD/TopEvent/trunk/Root/TopEventMaker.cxx#L31
@@ -335,7 +335,7 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
           // In case of AntiKt4EMPFlowJets the tracks could be removed by the pile-up cuts
           top::check(
             !clusters.empty(),
-            "RCJetMC15::execute(const top::Event& event): Failed to get vector of clusters! Unable to calculate RC jets substructure variables!\n Aborting!");
+            "RCJet::execute(const top::Event& event): Failed to get vector of clusters! Unable to calculate RC jets substructure variables!\n Aborting!");
         }
 
         if (clusters.size() != 0) {
@@ -463,13 +463,13 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
   return StatusCode::SUCCESS;
 } // end execute()
 
-StatusCode RCJetMC15::finalize() {
+StatusCode RCJet::finalize() {
   m_jetReclusteringTool.clear();
 
   return StatusCode::SUCCESS;
 }
 
-bool RCJetMC15::isUniqueSyst(const std::string syst_name) {
+bool RCJet::isUniqueSyst(const std::string syst_name) {
   /*
      Check if the given systematic (besides nominal) needs a unique container
      Keep this in one function so it easier to update than having multiple checks everywhere.
@@ -496,7 +496,7 @@ bool RCJetMC15::isUniqueSyst(const std::string syst_name) {
   return m_unique_syst;
 }
 
-std::string RCJetMC15::inputContainerName(std::size_t hash_value, bool isLooseEvent) {
+std::string RCJet::inputContainerName(std::size_t hash_value, bool isLooseEvent) {
   /* Return the name of the input container */
   std::string this_container_name("");
   if (isLooseEvent) hash_value *= m_loose_hashValue; // loose events have a slightly different hash value to keep track
@@ -510,7 +510,7 @@ std::string RCJetMC15::inputContainerName(std::size_t hash_value, bool isLooseEv
   return this_container_name;
 }
 
-std::string RCJetMC15::rcjetContainerName(std::size_t hash_value, bool isLooseEvent) {
+std::string RCJet::rcjetContainerName(std::size_t hash_value, bool isLooseEvent) {
   /* Return the name of the rcjet container for a given systematic */
   std::string this_container_name("");
   if (isLooseEvent) hash_value *= m_loose_hashValue; // loose events have a	slightly different hash	value
@@ -523,7 +523,7 @@ std::string RCJetMC15::rcjetContainerName(std::size_t hash_value, bool isLooseEv
   return this_container_name;
 }
 
-bool RCJetMC15::passSelection(const xAOD::Jet& jet) const {
+bool RCJet::passSelection(const xAOD::Jet& jet) const {
   /*
      Check if the re-clustered jet passes selection.
      Right now, this only does something for |eta| because
@@ -542,7 +542,7 @@ bool RCJetMC15::passSelection(const xAOD::Jet& jet) const {
   return true;
 }
 
-void RCJetMC15::getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet) {
+void RCJet::getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet) {
   clusters.clear();
 
   for (auto subjet : rcjet->getConstituents()) {
@@ -576,7 +576,7 @@ void RCJetMC15::getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters, con
   }
 }
 
-void RCJetMC15::getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet) {
+void RCJet::getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet) {
   //LCTOPO CLUSTERS
   clusters.clear();
 
@@ -604,7 +604,7 @@ void RCJetMC15::getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters, con
   }
 }
 
-void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet,
+void RCJet::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, const xAOD::Jet* rcjet,
                                     const top::Event& event) {
   // At the moment the proper constituent of the PFlows aren't available in TOPQ1 and there is no strategy to provide
   // uncertainty on that consequently
@@ -647,7 +647,7 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
       }
     } else {
       ATH_MSG_WARNING(
-        "RCJETMC15::No remaining tracks associated to the PFlow jet");
+        "RCJET::No remaining tracks associated to the PFlow jet");
           }
   }
 }

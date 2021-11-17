@@ -2,8 +2,8 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef TOPOBJECTSELECTIONTOOLS_TAUMC15_H_
-#define TOPOBJECTSELECTIONTOOLS_TAUMC15_H_
+#ifndef TOPOBJECTSELECTIONTOOLS_TAU_H_
+#define TOPOBJECTSELECTIONTOOLS_TAU_H_
 
 #include <memory>
 
@@ -16,11 +16,11 @@ namespace top {
 /**
  * @brief To select taus based on BoostedDecisionTree definition.
  */
-  class TauMC15: public top::TauSelectionBase {
+  class Tau: public top::TauSelectionBase {
   public:
-    TauMC15();
+    Tau();
 
-    virtual ~TauMC15() {}
+    virtual ~Tau() {}
     /**
      * @brief Selection for the main analysis (i.e. tight object definitions).
      *
@@ -53,4 +53,4 @@ namespace top {
   };
 }  // namespace top
 
-#endif  // TOPOBJECTSELECTIONTOOLS_TAUMC15_H_
+#endif  // TOPOBJECTSELECTIONTOOLS_TAU_H_
