@@ -52,7 +52,7 @@ namespace Analysis {
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-        virtual StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& ) const override;
+        virtual StatusCode performSearch(const EventContext& ctx, xAOD::VertexContainer&) const override;
 
         static double getInvariantMass(const xAOD::TrackParticle*, double, const xAOD::TrackParticle*, double);
         static double getInvariantMass(const std::vector<const xAOD::TrackParticle*> &trk, const std::vector<double>&);
