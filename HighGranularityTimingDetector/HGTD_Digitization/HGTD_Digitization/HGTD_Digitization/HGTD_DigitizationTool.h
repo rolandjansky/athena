@@ -116,6 +116,10 @@ private:
   InDetSimDataCollection* m_sdo_collection;
   std::string m_output_sdo_coll_name;
 
+  float m_integrated_luminosity;
+
+  bool m_smear_meantime;
+
   /** @brief In order to process all element rather than just those with hits we
    * create a vector to keep track of which elements have been processed.
    * This is useful for adding random noise (?!)

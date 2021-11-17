@@ -51,8 +51,15 @@ public:
                               const InDetDD::SolidStateDetectorElementBase* ele,
                               CLHEP::HepRandomEngine* rndmEngine) const = 0;
 
+  virtual void setIntegratedLuminosity(float integrated_luminosity) = 0;
+
+  virtual void setSmearingTime(bool smear_meantime) = 0;
+
+  virtual void createTimingResolutionTool() = 0;
+
   // Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(IHGTD_SurfaceChargesGenerator, 1, 0);
+
 };
 
 #endif // HGTD_DIGITZATION_IHGTD_SURFACECHARGESGENERATOR_H

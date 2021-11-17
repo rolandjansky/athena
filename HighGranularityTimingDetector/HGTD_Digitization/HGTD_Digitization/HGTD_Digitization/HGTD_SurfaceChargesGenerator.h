@@ -25,14 +25,16 @@
 
 #include <string>
 
+class HGTD_TimingResolution;
+
 class HGTD_SurfaceChargesGenerator
     : public AthAlgTool,
       public virtual IHGTD_SurfaceChargesGenerator {
 
 public:
   /**  constructor */
-  HGTD_SurfaceChargesGenerator(const std::string& type, const std::string& name,
-                               const IInterface* parent);
+  HGTD_SurfaceChargesGenerator(const std::string &type, const std::string &name,
+                               const IInterface *parent);
 
   /** Destructor */
   virtual ~HGTD_SurfaceChargesGenerator() = default;
@@ -41,15 +43,29 @@ public:
   StatusCode initialize() override;
 
   virtual void createSurfaceChargesFromHit(
-      const TimedHitPtr<SiHit>& timed_hit_ptr,
-      SiChargedDiodeCollection* diode_coll,
-      const InDetDD::SolidStateDetectorElementBase* element,
-      CLHEP::HepRandomEngine* rndm_engine) const override;
+      const TimedHitPtr<SiHit> &timed_hit_ptr,
+      SiChargedDiodeCollection *diode_coll,
+      const InDetDD::SolidStateDetectorElementBase *element,
+      CLHEP::HepRandomEngine *rndm_engine) const override;
+
+  inline void setIntegratedLuminosity(float integrated_luminosity) override {
+    m_integrated_luminosity = integrated_luminosity;
+  }
+
+  inline void setSmearingTime(bool smear_meantime=true) override {
+    m_smear_meantime = smear_meantime;
+  }
+
+  void createTimingResolutionTool() override;
+
 
 private:
   // TODO: where do we get this from?
   FloatProperty m_small_step_length; /*um*/
+  std::unique_ptr<HGTD_TimingResolution> m_hgtd_timing_resolution_tool;
   float m_diffusion_constant;
+  bool m_smear_meantime;
+  float m_integrated_luminosity;
   // TODO what does the BooleanProperty allow to do?
   BooleanProperty m_needs_mc_evt_coll_helper{false};
 };
