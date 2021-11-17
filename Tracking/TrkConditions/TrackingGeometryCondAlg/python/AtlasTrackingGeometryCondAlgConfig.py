@@ -452,7 +452,8 @@ def _getITkTrackingGeometryBuilder(name, flags, result,
         ReplaceAllJointBoundaries=True,
         BuildBoundaryLayers=True,
         ExitVolumeName='InDet::Containers::InnerDetector',
-        RemoveHGTD=flags.Detector.GeometryHGTD)
+        RemoveHGTD=(flags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]),
+        ZminHGTD=3420.)
 
 
 def _getCaloTrackingGeometryBuilder(name, flags, result,
@@ -551,7 +552,6 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
     if (namePrefix+name+nameSuffix).find('CondCond') >= 0:
         raise Exception('Invalid name composition %s + %s + %s ' %
                         (namePrefix, name, nameSuffix))
-
     # the hgtd tracking geometry builder
     HGTD_TrackingGeometryBuilder = CompFactory.HGTD_TrackingGeometryBuilderCond
     return HGTD_TrackingGeometryBuilder(namePrefix+name+nameSuffix,
@@ -611,18 +611,15 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
             nameSuffix=nameSuffix)
         atlas_geometry_builder.InDetTrackingGeometryBuilder = inDetTrackingGeometryBuilder
 
-    # Temporarily disabled
-    '''
     if flags.Detector.GeometryHGTD:
-      hgtdTrackingGeometryBuilder = _getHGTD_TrackingGeometryBuilder(name ='HGTD_TrackingGeometryBuilder',
+        hgtdTrackingGeometryBuilder = _getHGTD_TrackingGeometryBuilder(name ='HGTD_TrackingGeometryBuilder',
                                                                      flags=flags,
                                                                      result=result,
                                                                      envelopeDefinitionSvc=atlas_env_def_service,
                                                                      namePrefix=namePrefix,
                                                                      nameSuffix=nameSuffix)
-      atlas_geometry_builder.HGTD_TrackingGeometryBuilder = hgtdTrackingGeometryBuilder
-    '''
-
+        atlas_geometry_builder.HGTD_TrackingGeometryBuilder = hgtdTrackingGeometryBuilder
+    
     if flags.Detector.GeometryCalo:
         Trk__CylinderVolumeCreator = CompFactory.Trk.CylinderVolumeCreator
         caloVolumeCreator = Trk__CylinderVolumeCreator(
