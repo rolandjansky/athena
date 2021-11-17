@@ -523,12 +523,12 @@ SolidStateDetectorElementBase::hitLocalToLocal(double xEta, double xPhi) const  
 
 
     if (m_design->shape() == InDetDD::PolarAnnulus) { // Do conversion to polar co-ords as well
-        double x = result.x();
-        double y = result.y();
+        double y = result.x(); // gets xPhi which is y...
+        double x = result.y(); // gets xEta which is x...
 
         double r = std::hypot(x,y);
         double phi = std::atan2(y,x);
-        result = Amg::Vector2D(r,phi);
+        result = Amg::Vector2D(phi,r);
     }
 
     return result;
