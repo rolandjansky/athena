@@ -183,13 +183,13 @@ namespace met {
 
 	  if( !m_jetCalibTool.isUserConfigured() ){
 
-	    std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
+	    std::string config = "JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config";
 	    std::string calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
-	    std::string calibArea = "00-04-81";
+	    std::string calibArea = "00-04-82";
 	    if(m_JetCollection=="AntiKt4EMPFlow"){
-	      config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
+	      config = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config";
 	      calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
-	      calibArea = "00-04-81";
+	      calibArea = "00-04-82";
 	    }
 
 	    ANA_CHECK( ASG_MAKE_ANA_TOOL(m_jetCalibTool, JetCalibrationTool) );
@@ -203,15 +203,14 @@ namespace met {
 	}
 
 	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
-	//if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
-	  toolName = "MuonCalibrationAndSmearingTool";
-	  m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/METSigAutoConf_"+toolName);
-	  ATH_CHECK(m_muonCalibrationAndSmearingTool.retrieve());
-	//}
+	toolName = "MuonCalibrationAndSmearingTool";
+	m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/METSigAutoConf_"+toolName);
+	ATH_CHECK(m_muonCalibrationAndSmearingTool.retrieve());
+
 	ATH_MSG_DEBUG( "Initialising EgcalibTool " );
 	toolName = "EgammaCalibrationAndSmearingTool";
 	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/METSigAutoConf_" + toolName);
-	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2017_R21_v0"));
+	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2018_R21_v0"));
 	ATH_CHECK(m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1"));
 	if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 1));
 	else ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 0));
