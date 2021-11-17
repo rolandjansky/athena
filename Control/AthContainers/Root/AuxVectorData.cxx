@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/src/AuxVectorData.cxx
@@ -514,6 +514,9 @@ void AuxVectorData::Cache::store (SG::auxid_t auxid, void* ptr)
     std::copy (oldcache, oldcache + m_cache_len, newcache);
     std::fill (newcache + m_cache_len, newcache + newlen,
                static_cast<void*>(0));
+
+    // The above writes must be visible before we update the cache pointers.
+    AthContainers_detail::fence_seq_cst();
 
     // Store so that other threads can see it.
     // The stores to m_cache must happen before the store to m_cache_len;
