@@ -23,8 +23,7 @@ def primaryVertexFindingCfg(flags):
     acc.merge(actsGeoAcc)
 
     trackExtrapolator = acc.getPrimaryAndMerge(ActsExtrapolationToolCfg(flags))
-
-    trackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
+    trackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
 
     # TODO find out which of the settings below need to be picked from flags
     trackSelector = CompFactory.InDet.InDetTrackSelectionTool(

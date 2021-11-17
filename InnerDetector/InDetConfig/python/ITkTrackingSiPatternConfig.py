@@ -257,7 +257,7 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
                                                                  InputCollections = InputCollections ))
     from TrkConfig.AtlasExtrapolatorToolsConfig import ITkPropagatorCfg
     ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
-    ITkTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(TC.ITkTrackSummaryToolNoHoleSearchCfg(flags))
+    ITkTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolNoHoleSearchCfg(flags))
     ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ITkSiSpacePointsSeedMakerCfg(flags,
                                                                                   InputCollections = InputCollections ))
 
@@ -307,7 +307,6 @@ def ITkSiSPSeededTrackFinderROIConvCfg(flags, name="ITkSiSpTrackFinderROIConv", 
 
     from RegionSelector.RegSelToolConfig import regSelTool_ITkStrip_Cfg
     RegSelTool_ITkStrip   = acc.popToolsAndMerge(regSelTool_ITkStrip_Cfg(flags))
-    acc.addPublicTool(RegSelTool_ITkStrip)
 
     kwargs.setdefault("RegSelTool_Strip", RegSelTool_ITkStrip)
     kwargs.setdefault("useITkConvSeeded", True)
@@ -386,7 +385,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
         AmbiTrackSelectionTool = CompFactory.InDet.InDetAmbiTrackSelectionTool
 
     ITkAmbiTrackSelectionTool = AmbiTrackSelectionTool(name = name+flags.ITk.Tracking.extension, **kwargs)
-    acc.addPublicTool(ITkAmbiTrackSelectionTool, primary=True)
+    acc.setPrivateTools(ITkAmbiTrackSelectionTool)
     return acc
 
 def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbiguityScoreProcessor", ClusterSplitProbContainer='', **kwargs) :
@@ -395,12 +394,12 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
     # --- set up different Scoring Tool for collisions and cosmics
     #
     if flags.Beam.Type == 'cosmics':
-        ITkAmbiScoringTool = acc.getPrimaryAndMerge(TC.ITkCosmicsScoringToolCfg(flags))
+        ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkCosmicsScoringToolCfg(flags))
     else:
-        ITkAmbiScoringTool = acc.getPrimaryAndMerge(TC.ITkAmbiScoringToolCfg(flags))
+        ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkAmbiScoringToolCfg(flags))
 
     from InDetConfig.ITkSiliconPreProcessing import ITkNnPixelClusterSplitProbToolCfg
-    ITkNnPixelClusterSplitProbTool = acc.getPrimaryAndMerge(ITkNnPixelClusterSplitProbToolCfg(flags))
+    ITkNnPixelClusterSplitProbTool = acc.popToolsAndMerge(ITkNnPixelClusterSplitProbToolCfg(flags))
     ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
     ITkPRDtoTrackMapTool = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolCfg(flags))
 
@@ -440,9 +439,9 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     # --- set up different Scoring Tool for collisions and cosmics
     #
     if flags.Beam.Type == 'cosmics':
-        ITkAmbiScoringTool = acc.getPrimaryAndMerge(TC.ITkCosmicsScoringToolCfg(flags))
+        ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkCosmicsScoringToolCfg(flags))
     else:
-        ITkAmbiScoringTool = acc.getPrimaryAndMerge(TC.ITkAmbiScoringToolCfg(flags))
+        ITkAmbiScoringTool = acc.popToolsAndMerge(TC.ITkAmbiScoringToolCfg(flags))
 
     fitter_args = {}
     fitter_args.setdefault("nameSuffix", 'Ambi'+flags.ITk.Tracking.extension)
@@ -476,12 +475,12 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
 
     ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
 
-    ambi_track_summary_tool = acc.popToolsAndMerge(TC.ITkTrackSummaryToolCfg( flags,
-                                                                              namePrefix                  = 'ITkAmbiguityProcessorSplitProb',
-                                                                              nameSuffix                  = flags.ITk.Tracking.extension,
-                                                                              ClusterSplitProbabilityName = 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.extension))
+    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolCfg( flags,
+                                                                                namePrefix                  = 'ITkAmbiguityProcessorSplitProb',
+                                                                                nameSuffix                  = flags.ITk.Tracking.extension,
+                                                                                ClusterSplitProbabilityName = 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.extension))
 
-    ITkAmbiTrackSelectionTool = acc.getPrimaryAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
+    ITkAmbiTrackSelectionTool = acc.popToolsAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
 
     from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
     Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
@@ -523,12 +522,12 @@ def ITkSimpleAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityProcessor", Cl
     ITkTrackFitter = acc.popToolsAndMerge(TC.ITkTrackFitterCfg(flags))
     ITkPRDtoTrackMapToolGangedPixels = TC.ITkPRDtoTrackMapToolGangedPixelsCfg(flags)
 
-    ambi_track_summary_tool = acc.popToolsAndMerge(TC.ITkTrackSummaryToolCfg( flags,
-                                                                              namePrefix                  = 'ITkAmbiguityProcessorSplitProb',
-                                                                              nameSuffix                  = flags.ITk.Tracking.extension,
-                                                                              ClusterSplitProbabilityName = 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.extension))
+    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolCfg( flags,
+                                                                                namePrefix                  = 'ITkAmbiguityProcessorSplitProb',
+                                                                                nameSuffix                  = flags.ITk.Tracking.extension,
+                                                                                ClusterSplitProbabilityName = 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.extension))
 
-    ITkAmbiTrackSelectionTool = acc.getPrimaryAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
+    ITkAmbiTrackSelectionTool = acc.popToolsAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
 
     kwargs.setdefault("Fitter", ITkTrackFitter)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)

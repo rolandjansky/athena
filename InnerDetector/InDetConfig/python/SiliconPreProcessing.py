@@ -35,7 +35,6 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
     acc = SCT_ReadoutGeometryCfg(flags)
 
     InDetSiSpacePointMakerTool = acc.popToolsAndMerge(SiSpacePointMakerToolCfg(flags))
-    acc.addPublicTool(InDetSiSpacePointMakerTool) ## I decided to merge it
 
     kwargs.setdefault("SiSpacePointMakerTool", InDetSiSpacePointMakerTool)
     kwargs.setdefault("PixelsClustersName", 'PixelClusters') # InDetKeys.PixelClusters
@@ -187,46 +186,10 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
             from InDetConfig.TrackRecoConfig import BCM_ZeroSuppressionCfg
             acc.merge(BCM_ZeroSuppressionCfg(flags))
         
-        if flags.Detector.EnablePixel or flags.Detector.EnableSCT:
-            #
-            # --- SiLorentzAngleTool
-            #
-            from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-            PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
-            acc.addPublicTool(PixelLorentzAngleTool)
-
-            from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-            SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )    
-            acc.addPublicTool(SCTLorentzAngleTool)
-            #
-            # --- ClusterMakerTool (public), needed by Pixel and SCT Clusterization
-            #
-            from InDetConfig.TrackRecoConfig import ClusterMakerToolCfg
-            acc.merge(ClusterMakerToolCfg(flags, PixelLorentzAngleTool=PixelLorentzAngleTool, SCTLorentzAngleTool=SCTLorentzAngleTool))
         #
         # -- Pixel Clusterization
         #
         if (flags.Detector.EnablePixel and flags.InDet.doPixelPRDFormation) or redoPatternRecoAndTracking:
-            #
-            # --- do we use new splittig or not ?
-            #
-            if flags.InDet.doPixelClusterSplitting:
-                #
-                # --- Neutral Network version ?
-                #
-                if flags.InDet.pixelClusterSplittingType == 'NeuralNet':
-                    NnPixelClusterSplitProbTool = acc.popToolsAndMerge(NnPixelClusterSplitProbToolCfg(flags))
-                    acc.addPublicTool(NnPixelClusterSplitProbTool)
-                
-                    NnPixelClusterSplitter = acc.popToolsAndMerge(NnPixelClusterSplitterCfg(flags))
-                    acc.addPublicTool(NnPixelClusterSplitter)
-                #
-                # --- Neutral Network version ?
-                #
-                elif flags.InDet.pixelClusterSplittingType == 'AnalogClus':      
-                    # new splitter tool
-                    TotPixelClusterSplitter=CompFactory.InDet.TotPixelClusterSplitter (name="TotPixelClusterSplitter")
-                    acc.addPublicTool(TotPixelClusterSplitter)
             #
             # --- PixelClusterization algorithm
             #

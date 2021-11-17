@@ -98,8 +98,7 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
     InDetFixedWindowTrackTimeTool  = acc.popToolsAndMerge(InDetFixedWindowTrackTimeToolCfg(flags))
     acc.addPublicTool(InDetFixedWindowTrackTimeTool )
 
-    InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryTool)
+    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
     # CalDb tool
     from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_CalDbToolCfg

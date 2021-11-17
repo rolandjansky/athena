@@ -50,9 +50,8 @@ def PixelMonitoringConfig(flags):
         pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
         pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
 
-        # Run 3 configs - stolen from SCT
-        from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-        pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
         pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
         
         

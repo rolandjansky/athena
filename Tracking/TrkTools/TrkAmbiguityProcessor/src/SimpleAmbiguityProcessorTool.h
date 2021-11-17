@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIMPLEAMBIGUITYPROCESSORTOOL_H
@@ -113,11 +113,11 @@ namespace Trk {
   
       /** refitting tool - used to refit tracks once shared hits are removed. 
       Refitting tool used is configured via jobOptions.*/
-      ToolHandle<ITrackFitter> m_fitterTool;
+      ToolHandle<ITrackFitter> m_fitterTool{this, "Fitter", "Trk::KalmanFitter/InDetTrackFitter"};
       /** association tool **/
       ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool{this, "AssociationTool", "Trk::PRDtoTrackMapTool" };
       /** selection tool - here the decision which hits remain on a track and which are removed are made */
-      ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
+      ToolHandle<IAmbiTrackSelectionTool> m_selectionTool{this, "SelectionTool", "InDet::InDetAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"};
 
     };
 } //end ns

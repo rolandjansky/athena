@@ -112,7 +112,6 @@ def SiZvertexMaker_xkCfg(flags, name="InDetZvertexMaker", InputCollections = Non
     
     InDetSiSpacePointsSeedMaker = acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags, 
                                                                                  InputCollections = InputCollections ))
-    acc.addPublicTool(InDetSiSpacePointsSeedMaker)
 
     kwargs.setdefault("SeedMakerTool", InDetSiSpacePointsSeedMaker)
     if flags.InDet.doHeavyIon:
@@ -160,7 +159,6 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
 
     from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
     boundary_check_tool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
-    acc.addPublicTool(boundary_check_tool)
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
@@ -180,7 +178,6 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
 
     if flags.Detector.EnableSCT:
         InDetSCT_ConditionsSummaryTool = CompFactory.SCT_ConditionsSummaryTool(name = 'InDetSCT_ConditionsSummaryTool')
-        acc.addPublicTool(InDetSCT_ConditionsSummaryTool)
         kwargs.setdefault("SctSummaryTool", InDetSCT_ConditionsSummaryTool)
     else:
         kwargs.setdefault("SctSummaryTool", None)
@@ -193,7 +190,6 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     acc = ComponentAccumulator()
     useBremMode = flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "DBM"
     InDetSiDetElementsRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags))
-    acc.addPublicTool(InDetSiDetElementsRoadMaker)
 
     if flags.InDet.Tracking.usePixel:
         acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
@@ -207,7 +203,6 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
                                                                                 WriteKey = "SCT_DetElementBoundaryLinks_xk") )
 
     track_finder = acc.popToolsAndMerge(SiCombinatorialTrackFinder_xkCfg(flags))
-    acc.addPublicTool(track_finder)
 
     #
     # --- decide if use the association tool
@@ -282,7 +277,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     if flags.InDet.doStoreTrackSeeds:
         InDet_SeedToTrackConversion = CompFactory.InDet.SeedToTrackConversionTool(  name = "InDet_SeedToTrackConversion",
                                                                                     OutputName = 'SiSPSeedSegments' + flags.InDet.Tracking.extension)
-        acc.addPublicTool(InDet_SeedToTrackConversion)
+        acc.setPrivateTools(InDet_SeedToTrackConversion)
         kwargs.setdefault("SeedToTrackConversion", InDet_SeedToTrackConversion)
         kwargs.setdefault("SeedSegmentsWrite", True)
 
@@ -312,14 +307,11 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
 
     InDetSiTrackMaker = acc.popToolsAndMerge(SiTrackMaker_xkCfg(flags,
                                                                 InputCollections = InputCollections ))
-    acc.addPublicTool(InDetSiTrackMaker)
  
-    InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryToolNoHoleSearch)
+    InDetTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
     InDetSiSpacePointsSeedMaker = acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags, 
                                                                                  InputCollections = InputCollections ))
-    acc.addPublicTool(InDetSiSpacePointsSeedMaker)
 
     #
     # --- Z-coordinates primary vertices finder (only for collisions)
@@ -327,7 +319,6 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     if flags.InDet.useZvertexTool and flags.InDet.Tracking.extension != "DBM":
         InDetZvertexMaker = acc.popToolsAndMerge(SiZvertexMaker_xkCfg(flags,
                                                  InputCollections = InputCollections))
-        acc.addPublicTool(InDetZvertexMaker)
     else:
         InDetZvertexMaker = None
 
@@ -394,7 +385,6 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     kwargs.setdefault("AssociationTool" , InDetPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("minHits"         , flags.InDet.Tracking.minClusters)
@@ -454,17 +444,13 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguit
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
-    acc.addPublicTool(InDetAmbiScoringTool)
-
 
     from InDetConfig.SiliconPreProcessing import NnPixelClusterSplitProbToolCfg
     NnPixelClusterSplitProbTool = acc.popToolsAndMerge(NnPixelClusterSplitProbToolCfg(flags))
-    acc.addPublicTool(NnPixelClusterSplitProbTool)
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
-    PRDtoTrackMapTool = acc.getPrimaryAndMerge(TC.PRDtoTrackMapToolCfg())
+    PRDtoTrackMapTool = acc.popToolsAndMerge(TC.PRDtoTrackMapToolCfg())
 
     prob1 = flags.InDet.pixelClusterSplitProb1
     prob2 = flags.InDet.pixelClusterSplitProb2
@@ -513,7 +499,6 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
-    acc.addPublicTool(InDetAmbiScoringTool)
 
     use_low_pt_fitter =  True if flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or (flags.InDet.Tracking.extension == "Pixel" and flags.InDet.doMinBias) else False
     
@@ -526,17 +511,14 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
         fitter_args.setdefault("DoHoleSearch", True)
         from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
         InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
-        acc.addPublicTool(InDetBoundaryCheckTool)
         fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
 
     fitter_list=[]
     if not use_low_pt_fitter:
         InDetTrackFitterAmbi = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, name='InDetTrackFitter'+'Ambi'+flags.InDet.Tracking.extension, **fitter_args))
-        acc.addPublicTool(InDetTrackFitterAmbi)
         fitter_list.append(InDetTrackFitterAmbi)
     else:
         InDetTrackFitterLowPt = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, name='InDetTrackFitterLowPt'+flags.InDet.Tracking.extension, **fitter_args))
-        acc.addPublicTool(InDetTrackFitterLowPt)
         fitter_list.append(InDetTrackFitterLowPt)
 
     if flags.InDet.doRefitInvalidCov: 
@@ -544,32 +526,25 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
             fitter_args = {}
             fitter_args.setdefault("SplitClusterMapExtension", flags.InDet.Tracking.extension)
             KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags, name='KalmanFitter'+flags.InDet.Tracking.extension, **fitter_args))
-            acc.addPublicTool(KalmanFitter)
             fitter_list.append(KalmanFitter)
 
             ReferenceKalmanFitter = acc.popToolsAndMerge(TC.ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter'+flags.InDet.Tracking.extension, **fitter_args))
-            acc.addPublicTool(ReferenceKalmanFitter)
             fitter_list.append(ReferenceKalmanFitter)
         else:
             KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags))
-            acc.addPublicTool(KalmanFitter)
             fitter_list.append(KalmanFitter)
 
             ReferenceKalmanFitter = acc.popToolsAndMerge(TC.ReferenceKalmanFitterCfg(flags))
-            acc.addPublicTool(ReferenceKalmanFitter)
             fitter_list.append(ReferenceKalmanFitter)
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
-    ambi_track_summary_tool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg( flags,
-                                                                                namePrefix                  = 'InDetAmbiguityProcessorSplitProb',
-                                                                                nameSuffix                  = flags.InDet.Tracking.extension,
-                                                                                ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.extension))
-    acc.addPublicTool(ambi_track_summary_tool)
+    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg( flags,
+                                                                                  namePrefix                  = 'InDetAmbiguityProcessorSplitProb',
+                                                                                  nameSuffix                  = flags.InDet.Tracking.extension,
+                                                                                  ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.extension))
 
     InDetAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
-    acc.addPublicTool(InDetAmbiTrackSelectionTool)
 
     kwargs.setdefault("Fitter", fitter_list)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
@@ -606,22 +581,17 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
-    acc.addPublicTool(InDetAmbiScoringTool)
 
     InDetTrackFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags))
-    acc.addPublicTool(InDetTrackFitter)
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
-    ambi_track_summary_tool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg( flags,
+    ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg( flags,
                                                                                 namePrefix                  = 'InDetAmbiguityProcessorSplitProb',
                                                                                 nameSuffix                  = flags.InDet.Tracking.extension,
                                                                                 ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.extension))
-    acc.addPublicTool(ambi_track_summary_tool)
 
     InDetAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
-    acc.addPublicTool(InDetAmbiTrackSelectionTool)
 
     kwargs.setdefault("Fitter", InDetTrackFitter)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
@@ -646,7 +616,6 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
             pass
         else:
             InDetTrackFitterLowPt = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags))
-            acc.addPublicTool(InDetTrackFitterLowPt)
             kwargs.setdefault("Fitter", InDetTrackFitterLowPt)
 
     if flags.InDet.materialInteractions:
@@ -667,7 +636,6 @@ def TrkAmbiguityScoreCfg(flags, name="InDetAmbiguityScore", SiSPSeededTrackColle
 
     if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
         InDetAmbiguityScoreProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags))
-        acc.addPublicTool(InDetAmbiguityScoreProcessor)
     else:
         InDetAmbiguityScoreProcessor = None
 
@@ -690,11 +658,9 @@ def TrkAmbiguitySolverCfg(flags, name="InDetAmbiguitySolver", ResolvedTrackColle
     # DenseEnvironmentsAmbiguityProcessorTool
         InDetAmbiguityProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityProcessorToolCfg(  flags,
                                                                                                     ClusterSplitProbContainer=ClusterSplitProbContainer))
-        acc.addPublicTool(InDetAmbiguityProcessor)
     else:
         InDetAmbiguityProcessor = acc.popToolsAndMerge(SimpleAmbiguityProcessorToolCfg( flags,
                                                                                         ClusterSplitProbContainer=ClusterSplitProbContainer))
-        acc.addPublicTool(InDetAmbiguityProcessor)
     
     #
     # --- configure Ambiguity solver
