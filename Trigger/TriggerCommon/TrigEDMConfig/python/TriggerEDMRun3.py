@@ -509,6 +509,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Tau_IDTrigAux.',          'BS ESD AODFULL', 'Tau'),
 
     ('xAOD::VertexContainer#HLT_IDVertex_Tau',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIdViews,TAUPrecIsoViews'),
+
     ('xAOD::VertexAuxContainer#HLT_IDVertex_TauAux.',           'BS ESD AODFULL', 'Tau'),
 
     ('TrigRoiDescriptorCollection#HLT_Roi_Tau',              'BS ESD AODFULL AODSLIM',  'Steer'),
@@ -757,6 +758,18 @@ TriggerHLTListRun3 = [
 
     # bjet RoI Descriptor used for EventView creation
     ('TrigRoiDescriptorCollection#HLT_Roi_Bjet',                   'BS ESD AODFULL', 'Bjet'),
+
+
+    # jet superRoI Descriptor and associated track and vertex class used for EventView creation
+    # commented for the time being ...
+
+    #    ('TrigRoiDescriptorCollection#"HLT_Roi_JetSuper',                   'BS ESD AODFULL', 'Jet'),
+    #    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_JetSuper_FTF',        'BS ESD AODFULL', 'Jet'),
+    #    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_JetSuper_FTFAux',     'BS ESD AODFULL', 'Jet'),
+    #    ('xAOD::VertexContainer#HLT_IDVertex_JetSuper',                     'BS ESD AODFULL', 'Jet'),
+    #    ('xAOD::VertexContainer#HLT_IDVertex_JetSuperAux',                  'BS ESD AODFULL', 'Jet'),
+
+
 
     # bjet Second Stage Fast tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bjet_FTF',        'BS ESD AODFULL', 'Bjet', 'inViews:'+BTagViewsEMTopo+','+BTagViewsEMPFlow),

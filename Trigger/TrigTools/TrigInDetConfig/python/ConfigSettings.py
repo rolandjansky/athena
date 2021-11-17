@@ -124,6 +124,18 @@ class _ConfigSettings_bjet( _ConfigSettingsBase ):
       self._phiHalfWidth    = 0.4
 
 
+class _ConfigSettings_jetSuper( _ConfigSettingsBase ):
+   def __init__( self ):
+      _ConfigSettingsBase.__init__(self)
+      self._name     = "jetSuper"
+      self._suffix   = "JetSuper"
+      self._vertex   = "HLT_IDVertex_JetSuper"
+      self._adaptiveVertex = True
+      self._addSingleTrackVertices = True
+      self._roi      = "HLT_Roi_JetSuper"
+      self._doFullScan = True
+      self._pTmin      = 1*GeV
+
 
 class _ConfigSettings_minBias( _ConfigSettingsBase ):
    def __init__( self ):
@@ -438,6 +450,8 @@ _ConfigSettings = {
     #    "jet"         : _ConfigSettings_bjet(),
     "fullScan"    : _ConfigSettings_fullScan(),
     "FS"          : _ConfigSettings_fullScan(),
+
+    "jetSuper"    : _ConfigSettings_jetSuper(),
 
     "beamSpot"    : _ConfigSettings_beamSpot(),
     "BeamSpot"    : _ConfigSettings_beamSpot(),
