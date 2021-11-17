@@ -26,16 +26,25 @@
 static constexpr unsigned int
     crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 
-HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string &type,
-                                             const std::string &name,
-                                             const IInterface *parent)
-    : PileUpToolBase(type, name, parent), m_merge_svc("PileUpMergeSvc", name),
-      m_id_helper(nullptr), m_det_mgr(nullptr), m_hgtd_rdo_container(nullptr),
-      m_output_rdo_cont_name("HGTD_RDOs"), m_sdo_collection(nullptr),
-      m_output_sdo_coll_name("HGTD_SDO_Map"), m_integrated_luminosity(0),
-      m_smear_meantime(true), m_input_collection_name("HGTD_Hits"),
-      m_timed_hit_coll(nullptr), m_active_time_window(10000),
-      m_rndm_svc("AtRndmGenSvc", name), m_rndm_engine(nullptr),
+HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string& type,
+                                             const std::string& name,
+                                             const IInterface* parent)
+    : PileUpToolBase(type, name, parent),
+      m_merge_svc("PileUpMergeSvc", name),
+      m_id_helper(nullptr),
+      m_det_mgr(nullptr),
+      m_hgtd_rdo_container(nullptr),
+      m_output_rdo_cont_name("HGTD_RDOs"),
+      m_sdo_collection(nullptr),
+      m_output_sdo_coll_name("HGTD_SDO_Map"),
+      m_integrated_luminosity(0),
+      m_smear_meantime(true),
+      m_input_collection_name("HGTD_Hits"),
+      m_timed_hit_coll(nullptr),
+      m_active_time_window(10000),
+      m_charge_threshold(625.),
+      m_rndm_svc("AtRndmGenSvc", name),
+      m_rndm_engine(nullptr),
       m_hgtd_surf_charge_gen("HGTD_SurfaceChargesGenerator", this),
       m_hgtd_front_end_tool("HGTD_FrontEndTool", this) {
 
@@ -47,6 +56,8 @@ HGTD_DigitizationTool::HGTD_DigitizationTool(const std::string &type,
                   "Name of the retrieved RDO collection");
   declareProperty("ActiveTimeWindow", m_active_time_window = 10000,
                   "Hits within this time window are used for digitization");
+  declareProperty("ChargeThreshold", m_charge_threshold = 625.,
+                  "Minimum charge threshold in ASIC");
   declareProperty("RndmSvc", m_rndm_svc,
                   "Random Number Service used in HGTD & Pixel digitization");
   declareProperty("HGTD_SurfaceChargesGenerator", m_hgtd_surf_charge_gen,
@@ -177,8 +188,7 @@ StatusCode HGTD_DigitizationTool::prepareEvent(unsigned int /*index*/) {
   ATH_MSG_DEBUG("HGTD_DigitizationTool::prepareEvent()");
   // Create the IdentifiableContainer to contain the digit collections Create
   // a new RDO container
-  m_hgtd_rdo_container =
-      new HGTD_RDOContainer(m_id_helper->wafer_hash_max());
+  m_hgtd_rdo_container = new HGTD_RDOContainer(m_id_helper->wafer_hash_max());
 
   // register RDO container with storegate
   ATH_CHECK(evtStore()->record(m_hgtd_rdo_container, m_output_rdo_cont_name));
@@ -332,9 +342,8 @@ StatusCode HGTD_DigitizationTool::storeRDOCollection(
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<HGTD_RDOCollection>
-HGTD_DigitizationTool::createRDOCollection(
-    SiChargedDiodeCollection *charged_diodes) {
+std::unique_ptr<HGTD_RDOCollection> HGTD_DigitizationTool::createRDOCollection(
+    SiChargedDiodeCollection* charged_diodes) {
 
   IdentifierHash idHash_de = charged_diodes->identifyHash();
 
@@ -350,6 +359,18 @@ HGTD_DigitizationTool::createRDOCollection(
 
   for (; i_chargedDiode != i_chargedDiode_end; ++i_chargedDiode) {
 
+    // skip deposits below the charge threshold of ~2fC after amplif.
+    // the charge here is the purely deposited charge, so factor ~20 less
+    // FIXME: gain radiation dependent, compensated with higher bias voltage
+    // more precise modelling in the future
+    SiChargedDiode& diode = (*i_chargedDiode).second;
+    if (diode.totalCharge().charge() < m_charge_threshold) {
+      ATH_MSG_DEBUG("charge of " << diode.totalCharge().charge()
+                                 << " does not pass threshold of "
+                                 << m_charge_threshold);
+      continue;
+    }
+
     InDetDD::SiReadoutCellId readout_cell =
         (*i_chargedDiode).second.getReadoutCell();
     int eta_index = readout_cell.etaIndex();
@@ -363,8 +384,7 @@ HGTD_DigitizationTool::createRDOCollection(
     const Identifier id_readout =
         m_id_helper->pixel_id(charged_diodes->identify(), phi_index, eta_index);
 
-    SiChargedDiode &diode = (*i_chargedDiode).second;
-    const SiTotalCharge &charge = diode.totalCharge();
+    const SiTotalCharge& charge = diode.totalCharge();
 
     // this is the time of the main charge. For now this might be OK as long as
     // the toal deposit just gets transformed into "one charge", but will need a

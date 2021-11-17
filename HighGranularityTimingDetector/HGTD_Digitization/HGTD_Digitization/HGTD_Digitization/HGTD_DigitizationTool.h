@@ -141,6 +141,8 @@ private:
    * digitization procedure, the rest is discarded. Given in ns.*/
   float m_active_time_window;
 
+  float m_charge_threshold;
+
   ServiceHandle<IAtRndmGenSvc> m_rndm_svc;
 
   CLHEP::HepRandomEngine* m_rndm_engine;
