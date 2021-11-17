@@ -46,9 +46,9 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False, is_photon=False):
     precisionRecoSequence = parOR( ('photon' if is_photon else 'electron')+"RoITopoRecoSequence"+tag)
     precisionRecoSequence += caloRecoSequence
     precisionRecoSequence += algo
-    _trigEgammaRec = TrigEgammaRec(name = ('g' if is_photon else 'e') + 'TrigEgammaRec%s' % RoIs)
+    _trigEgammaRec = TrigEgammaRec(name = ('g' if is_photon else 'e') + 'TrigEgammaRec' + tag + RoIs)
     precisionRecoSequence += _trigEgammaRec
-    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name = ('g' if is_photon else 'e') + 'TrigEgammaSuperClusterBuilder%s' % RoIs)
+    _trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name = ('g' if is_photon else 'e') + 'TrigEgammaSuperClusterBuilder' + tag + RoIs)
     _trigEgammaSuperClusterBuilder.SuperClusterCollectionName = outputCaloClusters
     _trigEgammaSuperClusterBuilder.CalibrationType = 'photon' if is_photon else 'electron'
     precisionRecoSequence +=  _trigEgammaSuperClusterBuilder

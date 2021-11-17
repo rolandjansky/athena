@@ -124,6 +124,12 @@ TrigEMShowerBuilder = ToolFactory( egammaToolsConf.EMShowerBuilder,
          HadronicLeakageTool  = egammaIso,
          Print = False)
 
+TrigEMShowerBuilder_HI = ToolFactory( egammaToolsConf.EMShowerBuilder,
+         CellsName = 'CorrectedRoICaloCells',
+         CaloNums  = [SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.TILE],
+         ShowerShapeTool      = egammaShowerShape,
+         HadronicLeakageTool  = egammaIso,
+         Print = False)
 
 """Configure the ObjectQuality tool"""
 TrigEgammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
