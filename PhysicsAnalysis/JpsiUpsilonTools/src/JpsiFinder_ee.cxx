@@ -27,6 +27,7 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "EventKernel/PdtPdg.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 namespace Analysis {
     
     StatusCode JpsiFinder_ee::initialize() {
@@ -160,17 +161,14 @@ namespace Analysis {
     //-------------------------------------------------------------------------------------
  
   
-  StatusCode JpsiFinder_ee::performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) const
+  StatusCode JpsiFinder_ee::performSearch(const EventContext& ctx, xAOD::VertexContainer& vxContainer) const 
     {
         ATH_MSG_DEBUG( "JpsiFinder_ee::performSearch" );
-        vxContainer = new xAOD::VertexContainer;
-        vxAuxContainer = new xAOD::VertexAuxContainer;
-        vxContainer->setStore(vxAuxContainer);
         
         
         // Get the electrons from StoreGate
         const xAOD::ElectronContainer* importedElectronCollection=nullptr;
-        SG::ReadHandle<xAOD::ElectronContainer> ehandle(m_electronCollectionKey);
+        SG::ReadHandle<xAOD::ElectronContainer> ehandle(m_electronCollectionKey,ctx);
         if(!ehandle.isValid()){
             ATH_MSG_WARNING("No electron collection with key " << m_electronCollectionKey.key() << " found in StoreGate. JpsiEECandidates will be EMPTY!");
             return StatusCode::SUCCESS;;
@@ -181,7 +179,7 @@ namespace Analysis {
         ATH_MSG_DEBUG("Electron container size "<<importedElectronCollection->size());       
 
         // Get ID tracks
-        SG::ReadHandle<xAOD::TrackParticleContainer> thandle(m_TrkParticleCollection);
+        SG::ReadHandle<xAOD::TrackParticleContainer> thandle(m_TrkParticleCollection,ctx);
         const xAOD::TrackParticleContainer* importedTrackCollection(0);
         if(!thandle.isValid()){
             ATH_MSG_WARNING("No TrackParticle collection with name " << m_TrkParticleCollection << " found in StoreGate!");
@@ -297,9 +295,7 @@ namespace Analysis {
             for(jpsiItr=sortedJpsiEECandidates.begin(); jpsiItr!=sortedJpsiEECandidates.end();++jpsiItr,++index) {
                 double deltatheta = fabs( (*jpsiItr).trackParticle1->theta() - (*jpsiItr).trackParticle2->theta() );
                 // -3.14 < phi < +3.14 ==> correction
-                double deltaphi = (*jpsiItr).trackParticle1->phi0() - (*jpsiItr).trackParticle2->phi0();
-                while ( fabs(deltaphi) > M_PI ) deltaphi += ( deltaphi > 0. ) ? -2.*M_PI : 2.*M_PI;
-                deltaphi = fabs(deltaphi);
+                double deltaphi = std::abs(xAOD::P4Helpers::deltaPhi((*jpsiItr).trackParticle1->phi0() , (*jpsiItr).trackParticle2->phi0()));
                 // perform the angle cuts
                 if ((deltatheta > m_collAngleTheta) || (deltaphi > m_collAnglePhi)) listToDelete.push_back(index);
             }
@@ -340,14 +336,14 @@ namespace Analysis {
             theTracks.push_back((*jpsiItr).trackParticle1);
             theTracks.push_back((*jpsiItr).trackParticle2);
             ATH_MSG_DEBUG("theTracks size (should be two!) " << theTracks.size() << " being vertexed with tracks " << importedTrackCollection);
-            xAOD::Vertex* myVxCandidate = fit(theTracks,importedTrackCollection); // This line actually does the fitting and object making
+            std::unique_ptr<xAOD::Vertex> myVxCandidate{fit(theTracks,importedTrackCollection)}; // This line actually does the fitting and object making
             if (myVxCandidate != 0) {
                 // Chi2 cut if requested
                 double chi2 = myVxCandidate->chiSquared();
                 ATH_MSG_DEBUG("chi2 is: " << chi2);
                 if (m_Chi2Cut == 0.0 || chi2 <= m_Chi2Cut) {             
                 	// decorate the candidate with refitted tracks and muons via the BPhysHelper
-                	xAOD::BPhysHelper jpsiHelper(myVxCandidate);
+                	xAOD::BPhysHelper jpsiHelper(myVxCandidate.get());
                 	jpsiHelper.setRefTrks();
                 	if (m_elel || m_eltrk) {
                 	     std::vector<const xAOD::Electron*> theStoredElectrons;
@@ -356,9 +352,7 @@ namespace Analysis {
                 	     jpsiHelper.setElectrons(theStoredElectrons,importedElectronCollection);
                 	}
                 	// Retain the vertex
-                    vxContainer->push_back(myVxCandidate);       
-                } else { // chi2 cut failed
-                    delete myVxCandidate;
+                    vxContainer.push_back(std::move(myVxCandidate));       
                 }
             } else { // fit failed
                 ATH_MSG_DEBUG("Fitter failed!");
@@ -367,7 +361,7 @@ namespace Analysis {
                 //delete myVxCandidate;
             }
         }
-        ATH_MSG_DEBUG("vxContainer size " << vxContainer->size());
+        ATH_MSG_DEBUG("vxContainer size " << vxContainer.size());
         
         return StatusCode::SUCCESS;;
     }
