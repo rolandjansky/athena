@@ -167,8 +167,8 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
 			{
 				if(eStation==EAS_AFP00) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
 				else if(eStation==EAS_AFP01) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
-				else if(eStation==EAS_AFP02) ReqTransform=HepGeom::TranslateZ3D(AfpConstants.Stat_GlobalVacuumSensorZOffset);
-				else if(eStation==EAS_AFP03) ReqTransform=HepGeom::TranslateZ3D(AfpConstants.Stat_GlobalVacuumSensorZOffset);
+				else if(eStation==EAS_AFP02) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
+				else if(eStation==EAS_AFP03) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
 			}
 		}
 		break;
