@@ -48,26 +48,3 @@ EMExtrapolationTools = ToolFactory(
     useLastCaching=False
 )
 
-
-EMExtrapolationToolsCache = ToolFactory(
-    egammaTrackToolsConf.EMExtrapolationTools,
-    name="EMExtrapolationToolsCache",
-    LastCaloExtensionTool=EMLastCaloExtensionTool,
-    PerigeeCaloExtensionTool=EMParticleCaloExtensionTool,
-    Extrapolator=egammaExtrapolator,
-    PerigeeCache='GSFPerigeeCaloExtension',
-    LastCache='GSFLastCaloExtension',
-    useCaching=True,
-    useLastCaching=True
-)
-
-EMExtrapolationToolsCommonCache = ToolFactory(
-    egammaTrackToolsConf.EMExtrapolationTools,
-    name="EMExtrapolationToolsCommonCache",
-    LastCaloExtensionTool=EMLastCaloExtensionTool,
-    PerigeeCaloExtensionTool=EMParticleCaloExtensionTool,
-    Extrapolator=egammaExtrapolator,
-    LastCache='ParticleCaloExtension',
-    useCaching=False,
-    useLastCaching=True
-)
