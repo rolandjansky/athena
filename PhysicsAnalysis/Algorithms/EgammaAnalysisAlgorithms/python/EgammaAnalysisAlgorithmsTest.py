@@ -21,6 +21,7 @@ def makeSequence (dataType, likelihood=True) :
         userPileupConfigs=prwfiles,
         userLumicalcFiles=lumicalcfiles,
     )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
     # Include, and then set up the electron analysis sequence:

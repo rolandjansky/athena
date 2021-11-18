@@ -29,6 +29,7 @@ def makeOverlapSequence (dataType) :
         userPileupConfigs=prwfiles,
         userLumicalcFiles=lumicalcfiles,
     )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
     # Include, and then set up the electron analysis sequence:
@@ -194,6 +195,7 @@ def makeGeneratorAlgorithmsSequence (dataType) :
         userPileupConfigs=prwfiles,
         userLumicalcFiles=lumicalcfiles,
     )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
     # Include, and then set up the generator analysis sequence:
@@ -262,6 +264,7 @@ def makePileupSequence () :
         userPileupConfigs=prwfiles,
         userLumicalcFiles=lumicalcfiles,
     )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
 

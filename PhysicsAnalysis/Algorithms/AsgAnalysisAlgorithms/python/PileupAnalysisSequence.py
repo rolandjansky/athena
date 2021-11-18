@@ -51,7 +51,7 @@ def makePileupAnalysisSequence( dataType, userPileupConfigs=[], userLumicalcFile
         alg.pileupWeightDecoration = ""
     alg.pileupReweightingTool.LumiCalcFiles = muDataFiles
 
-    seq.append( alg, inputPropName = None )
+    seq.append( alg, inputPropName = {} )
 
     # Return the sequence:
     return seq
