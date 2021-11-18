@@ -105,8 +105,10 @@ bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::s
     m_normStdDevs = new std::vector<float>();
   }
   std::string inputFileName = FastCaloTXTInputFolderName;
-  if(pid == 22 || pid == 11){
-    inputFileName += "v22/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
+  if(pid == 22){
+    inputFileName += "v19/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
+  } else if(pid == 11){
+    inputFileName += "v20/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
   } else if(pid == 211){
     inputFileName += "v21/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
   } else {
@@ -151,8 +153,13 @@ bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::s
 std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulationState& simulstate, const float truthE, const int pid) const
 {
   std::map<std::string, double> inputVariables;
+  std::vector<int>              inputLayers = {0,1,2,3,12};
+  if(pid == 211){
+    inputLayers.push_back(13);
+    inputLayers.push_back(14);
+  }
   for(int ilayer=0;ilayer<CaloCell_ID_FCS::MaxSample;++ilayer) {
-    if(ilayer == 0 || ilayer == 1 || ilayer == 2 || ilayer == 3 || ilayer == 12){ // FIXME: support pions
+    if(std::find(inputLayers.begin(), inputLayers.end(), ilayer) != inputLayers.end()){
       std::string layer = std::to_string(ilayer);
       // Find index
       auto itr = std::find(m_normLayers->begin(), m_normLayers->end(), ilayer);
@@ -168,9 +175,9 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulat
   auto itr = std::find(m_normLayers->begin(), m_normLayers->end(), -1);
   int index = std::distance(m_normLayers->begin(), itr);
   inputVariables["etrue"] = ( truthE - (*m_normMeans).at(index) ) / (*m_normStdDevs).at(index);
-  if(pid == 22 || pid == 11){
+  /*if(pid == 22 || pid == 11){ // keeping it because I will need something similar for electrons + pions
     inputVariables["pdgId"] = pid;
-  }
+  }*/
 
   return inputVariables;
 }
@@ -249,8 +256,9 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
   ATH_MSG_INFO("Using FastCaloNNInputFolderName: " << FastCaloNNInputFolderName );
 
   std::string inputFileName = FastCaloNNInputFolderName;
-  if(pid == 22 || pid == 11){ inputFileName += "v22/NN_electronsANDphotons_v22_"+etaBin+".json";
-  } else if(pid == 211){      inputFileName += "v21/NN_pions_v21_"+etaBin+".json";}
+  if(pid == 22){         inputFileName += "v19/NN_photons_v19_"+etaBin+".json";
+  } else if(pid == 11){  inputFileName += "v20/NN_electrons_v20_"+etaBin+".json";
+  } else if(pid == 211){ inputFileName += "v21/NN_pions_v21_"+etaBin+".json";}
   ATH_MSG_DEBUG("Will read JSON file: " << inputFileName );
   if(inputFileName.empty()){
     ATH_MSG_ERROR("Could not find json file " << inputFileName );
