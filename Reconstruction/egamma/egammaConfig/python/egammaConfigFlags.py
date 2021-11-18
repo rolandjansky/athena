@@ -19,7 +19,7 @@ def createEgammaConfigFlags():
 
     # run the GSF refitting/egamma Tracking it is calo seeded
     egcf.addFlag("Egamma.doTracking",
-                 lambda prevFlags: prevFlags.Detector.EnableID
+                 lambda prevFlags: (prevFlags.Detector.EnableID or prevFlags.Detector.EnableITk)
                  and prevFlags.Detector.EnableCalo)
 
     # build photon conversion vertices

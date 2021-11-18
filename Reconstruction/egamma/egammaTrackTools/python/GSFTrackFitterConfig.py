@@ -53,9 +53,14 @@ def EMGSFTrackFitterCfg(flags, name='EMGSFTrackFitter', **kwargs):
 
     kwargs["ToolForROTCreation"] = None
     if not kwargs["RefitOnMeasurementBase"]:
-        from InDetConfig.TrackingCommonConfig import InDetRotCreatorCfg
-        kwargs["ToolForROTCreation"] = acc.popToolsAndMerge(
-            InDetRotCreatorCfg(flags))
+        if flags.Detector.EnableITk:
+            from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorCfg
+            kwargs["ToolForROTCreation"] = acc.popToolsAndMerge(
+                ITkRotCreatorCfg(flags))
+        else:
+            from InDetConfig.TrackingCommonConfig import InDetRotCreatorCfg
+            kwargs["ToolForROTCreation"] = acc.popToolsAndMerge(
+                InDetRotCreatorCfg(flags))
 
     if "ToolForExtrapolation" not in kwargs:
         gsfextrap = EMGSFExtrapolatorToolCfg(flags)

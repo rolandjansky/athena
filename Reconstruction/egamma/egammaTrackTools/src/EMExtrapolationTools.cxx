@@ -106,7 +106,7 @@ EMExtrapolationTools::initialize()
   ATH_CHECK(m_extrapolator.retrieve());
 
   // retrieve TRT-ID helper
-  if (detStore()->contains<TRT_ID>("TRT_ID")) {
+  if (m_enableTRT && detStore()->contains<TRT_ID>("TRT_ID")) {
     StatusCode sc = detStore()->retrieve(m_trtId, "TRT_ID");
     if (sc.isFailure() || !m_trtId->is_valid()) {
       // TRT is not present for sLHC

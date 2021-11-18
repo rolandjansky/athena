@@ -212,7 +212,7 @@ def TrkAmbiguityScoreCfg(flags, name='InDetTRT_SeededAmbiguityScore', **kwargs):
     acc.addEventAlgo(InDetAmbiguityScore)
     return acc
 
-def InDetAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
+def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
     acc = ComponentAccumulator()
 
     InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
@@ -259,7 +259,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
         acc.addPublicTool(InDetTRT_SeededScoringTool)
         InDetTRT_SeededSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
-    InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
+    InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetTRTAmbiTrackSelectionToolCfg(flags))
     acc.addPublicTool(InDetTRT_SeededAmbiTrackSelectionTool)
 
     kwargs.setdefault("Fitter", InDetTrackFitterBT)

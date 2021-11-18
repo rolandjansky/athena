@@ -113,15 +113,12 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
   : base_class(t, n, p)
   , m_detID(nullptr)
   , m_pixelID(nullptr)
-  , m_IBLParameterSvc("IBLParameterSvc", n)
   , m_copyExtraSummaryName{ "eProbabilityComb",  "eProbabilityHT", "eProbabilityNN",
                             "TRTTrackOccupancy", "TRTdEdx",        "TRTdEdxUsedHits" }
   , m_copyEProbabilities{}
   , m_decorateEProbabilities{}
   , m_decorateSummaryTypes{}
   , m_doIBL(false)
-  , m_useTrackSummaryTool(true)
-  , m_useMuonSummaryTool(false)
   , m_computeAdditionalInfo(false)
   , m_keepParameters(false)
   , m_keepFirstParameters(false)
@@ -130,8 +127,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
   , m_perigeeExpression("BeamLine")
 {
   declareProperty("ComputeAdditionalInfo", m_computeAdditionalInfo);
-  declareProperty("UseTrackSummaryTool", m_useTrackSummaryTool);
-  declareProperty("UseMuonSummaryTool", m_useMuonSummaryTool);
   declareProperty("KeepParameters", m_keepParameters);
   declareProperty("KeepFirstParameters", m_keepFirstParameters);
   declareProperty("KeepAllPerigee", m_keepAllPerigee);
@@ -144,7 +139,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
   // and size
   declareProperty("BadClusterID", m_badclusterID = 0);
   declareProperty("ExtraSummaryTypes", m_copyExtraSummaryName);
-  declareProperty("DoITk", m_doITk = false);
 }
 
 StatusCode
@@ -167,7 +161,7 @@ TrackParticleCreatorTool::initialize()
   }
 
   /* Retrieve track summary tool */
-  if (m_useTrackSummaryTool) {
+  if (!m_trackSummaryTool.empty()) {
     if (m_trackSummaryTool.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_trackSummaryTool);
       return StatusCode::FAILURE;
@@ -188,7 +182,7 @@ TrackParticleCreatorTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if (!m_doITk) {
+  if (!m_IBLParameterSvc.empty()) {
     if (m_IBLParameterSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Could not retrieve IBLParameterSvc");
       return StatusCode::FAILURE;
@@ -196,7 +190,7 @@ TrackParticleCreatorTool::initialize()
     ATH_MSG_INFO("Retrieved tool " << m_IBLParameterSvc);
   }
 
-  m_doIBL = !m_doITk && m_IBLParameterSvc->containsIBL();
+  m_doIBL = !m_IBLParameterSvc.empty() && m_IBLParameterSvc->containsIBL();
   ATH_MSG_INFO("doIBL set to " << m_doIBL);
 
   if (m_doIBL && !m_IBLParameterSvc->contains3D()) {
@@ -210,7 +204,7 @@ TrackParticleCreatorTool::initialize()
   }
   ATH_MSG_DEBUG("Retrieved tool " << m_trackToVertex);
 
-  if (m_useMuonSummaryTool) {
+  if (!m_hitSummaryTool.empty()) {
     /* Retrieve hit summary tool from ToolService */
     if (m_hitSummaryTool.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_hitSummaryTool);
@@ -930,7 +924,7 @@ TrackParticleCreatorTool::setTrackSummary(xAOD::TrackParticle& tp, const TrackSu
   tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(51));
 
   // muon hit info
-  if (m_useMuonSummaryTool) {
+  if (!m_hitSummaryTool.empty()) {
     ATH_MSG_DEBUG("now do muon hit info");
     Muon::IMuonHitSummaryTool::CompactSummary msSummary = m_hitSummaryTool->summary(summary);
     uint8_t numberOfPrecisionLayers = msSummary.nprecisionLayers;

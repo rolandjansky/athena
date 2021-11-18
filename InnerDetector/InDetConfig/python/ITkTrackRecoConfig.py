@@ -157,7 +157,7 @@ def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("KeepFirstParameters", flags.ITk.KeepFirstParameters)
     kwargs.setdefault("PerigeeExpression", p_expr if p_expr != "Vertex" else "BeamLine")
-    kwargs.setdefault("DoITk", True)
+    kwargs.setdefault("IBLParameterSvc", "")
     ITkTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs)
     result.addPublicTool(ITkTrackParticleCreatorTool, primary=True)
     return result
