@@ -37,7 +37,7 @@ TopoEDM::Read(bool isLegacy) const {
 
   ATH_MSG_DEBUG("----got container: " << cont.key());
 
-  for(const auto& it : * cont){
+  for(const xAOD::L1TopoSimResults* it : * cont){
     l1topo_dec = it;
     ATH_MSG_DEBUG( "Reading L1Topo EDM:: BoardName: " << l1topo_dec->boardName() << " Clock: " << l1topo_dec->clock() << " Word32: " << l1topo_dec->word32() << " Word64: " << l1topo_dec->word64() << " WordOpt: " << l1topo_dec->wordOptical() );
   }
