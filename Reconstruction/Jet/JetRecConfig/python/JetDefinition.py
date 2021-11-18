@@ -428,6 +428,7 @@ class JetInputType(IntEnum):
         _xaodTojetinputMap = {
             xAODType.CaloCluster   : JetInputType.LCTopo,
             xAODType.ParticleFlow  : JetInputType.EMPFlow,
+            xAODType.FlowElement   : JetInputType.EMPFlow,
             xAODType.TrackParticle : JetInputType.Track,
             xAODType.TruthParticle : JetInputType.Truth,    
         }
