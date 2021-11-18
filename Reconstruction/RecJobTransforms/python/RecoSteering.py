@@ -43,7 +43,6 @@ def RecoSteering(flags, tryConfiguringAll=False):
         elif flags.Detector.GeometryITk:
             from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
             acc.merge(ITkTrackRecoCfg(flags))
-            return acc  # stop here for now with ITk
         log.info("---------- Configured tracking")
 
     # muons
