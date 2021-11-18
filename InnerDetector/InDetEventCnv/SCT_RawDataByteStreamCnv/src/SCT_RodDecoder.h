@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETRAWDATABYTESTREAM_SCT_RODDECODER_H 
@@ -169,18 +169,20 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     }
     void setSaved(const bool isOld, const int code) {
       if (isOld) {
-        saved[oldSide*N_STRIPS_PER_SIDE + oldStrip] = code;
+        saved.at(oldSide*N_STRIPS_PER_SIDE + oldStrip) = code;
       }
       else {
-        saved[   side*N_STRIPS_PER_SIDE +    strip] = code;
+        saved.at(   side*N_STRIPS_PER_SIDE +    strip) = code;
       }
     }
     bool isSaved(const bool isOld) {
       if (isOld) {
-        return saved[oldSide*N_STRIPS_PER_SIDE + oldStrip];
+        unsigned int idx = static_cast<std::size_t>(oldSide*N_STRIPS_PER_SIDE + oldStrip);
+        return idx  < saved.size() ? saved[idx] : false;
       }
       else {
-        return saved[   side*N_STRIPS_PER_SIDE +    strip];
+        const unsigned int  idx = static_cast<unsigned int>(side*N_STRIPS_PER_SIDE +    strip);
+        return idx < saved.size() ? saved[idx] : false;
       }
     }
     void setCollection(const SCT_ID* sctID,

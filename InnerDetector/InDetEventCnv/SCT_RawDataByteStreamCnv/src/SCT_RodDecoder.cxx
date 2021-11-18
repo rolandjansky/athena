@@ -1006,7 +1006,7 @@ StatusCode SCT_RodDecoder::processExpandedHit(const uint16_t inData,
   }
   else { // Next hits cluster expanded
     if (inData & 0x80) { // Paired hits
-      if (data.strip >= N_STRIPS_PER_SIDE) {
+      if (data.strip+2 >= N_STRIPS_PER_SIDE) {
         ATH_CHECK(addSingleError(data.linkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs));
         hasError = true;
         ATH_MSG_DEBUG("Expanded mode - strip number out of range");
@@ -1046,10 +1046,10 @@ StatusCode SCT_RodDecoder::processExpandedHit(const uint16_t inData,
     }
     else { // Last hit of the cluster
       m_lastExpHitNumber++;
-      if (chip>=N_CHIPS_PER_SIDE) {
-        ATH_MSG_DEBUG("Expanded Hit: last hit xxx ERROR chip Nb = " << chip << " >= " << N_CHIPS_PER_SIDE);
-        m_chipNumberError++;
+      if (data.strip+1 >= N_STRIPS_PER_SIDE) {
         ATH_CHECK(addSingleError(data.linkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs));
+        hasError = true;
+        ATH_MSG_DEBUG("Expanded mode - strip number out of range");
         return sc;
       }
       data.strip++;
