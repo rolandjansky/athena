@@ -18,13 +18,8 @@
 
 //forward declarations
 class IIncidentSvc;
-class IAtRndmGenSvc;
 class sTgcDigit;
 class TTree;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -72,7 +67,6 @@ namespace NSWL1 {
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

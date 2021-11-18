@@ -15,7 +15,7 @@
 #include "PadTdsValidationTree.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonSimData/MuonSimDataCollection.h"
@@ -135,9 +135,8 @@ namespace NSWL1 {
         
         // needed Servives, Tools and Helpers
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-        ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
+	ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};     //!< Random number generator engine to use
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-        CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
 
         // hidden variables
