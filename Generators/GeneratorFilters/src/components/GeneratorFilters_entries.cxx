@@ -20,6 +20,8 @@
 #include "GeneratorFilters/xAODDecayTimeFilter.h"
 #include "GeneratorFilters/xAODDecaysFinalStateFilter.h"
 #include "GeneratorFilters/xAODChargedTracksFilter.h"
+#include "GeneratorFilters/xAODMultiElecMuTauFilter.h"
+
 
 
 // slimmers for 22.6
@@ -138,6 +140,7 @@ DECLARE_COMPONENT( xAODDiLeptonMassFilter )
 DECLARE_COMPONENT( xAODDecayTimeFilter )
 DECLARE_COMPONENT( xAODDecaysFinalStateFilter )
 DECLARE_COMPONENT( xAODChargedTracksFilter )
+DECLARE_COMPONENT( xAODMultiElecMuTauFilter )
 
 
 //slimmers accepted for 22.6
