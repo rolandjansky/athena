@@ -263,7 +263,9 @@ StatusCode SCTCalib::initialize() {
       m_calibEvtInfoTool->setTimeStamp(m_runStartTime, m_runEndTime);
       m_calibEvtInfoTool->setRunNumber(m_runNumber);
       m_calibEvtInfoTool->setEventNumber(m_eventNumber);
-      m_calibLbTool->read("./SCTLB.root");
+      if (m_doNoisyStrip) {
+         m_calibLbTool->read("./SCTLB.root");
+      }
       if (m_doBSErrors) {
          m_calibBsErrTool->read("./SCTBSErrors.root");
       }
