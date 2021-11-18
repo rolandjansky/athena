@@ -56,7 +56,7 @@ def getNewConfigFlags():
     geom_flag_map.update({ 'MM':'Micromegas', 'sTGC':'sTGC'})
 
     # Geometry - Forward
-    # TODO
+    geom_flag_map.update({'Lucid':'Lucid', 'ZDC':'ZDC', 'ALFA':'ALFA', 'AFP':'AFP'})
 
     # Now set Geometry i.e. do equivalent of : 
     # ConfigFlags.Detector.GeometryBpipe = DetFlags.geometry.bpipe_on()
