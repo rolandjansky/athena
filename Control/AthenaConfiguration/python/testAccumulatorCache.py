@@ -52,6 +52,19 @@ class TestCache(unittest.TestCase):
         info = fac.getInfo()
         self.assertEqual(info["hits"] , 1)
 
+    def test_exception(self):
+        """Test cache when function throws exception."""
+
+        class MyException(BaseException):
+            pass
+
+        @AccumulatorCache
+        def throw():
+            raise MyException()
+
+        # Make sure no other exception is thrown by decorator itself
+        self.assertRaises(MyException, throw)
+
     def test_cache_limit(self):
         """Test cache limits."""
 

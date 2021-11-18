@@ -110,6 +110,7 @@ class AccumulatorDecorator:
         return None
 
     def __call__(self , *args , **kwargs):
+        cacheHit = None
         try:
             t0 = time.perf_counter()
             res, cacheHit = self._callImpl(*args, **kwargs)
