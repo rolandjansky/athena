@@ -11,7 +11,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 ### Output Name ###
 muFastInfo = "MuonL2SAInfo"
 
-from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 # Get Rpc data decoder for MuFast data preparator 
 def RpcDataPreparatorCfg( flags, roisKey ):
@@ -140,21 +139,21 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     acc.merge( mdtAcc )
 
     # Get CSC decoder
-    if MuonGeometryFlags.hasCSC():
+    if flags.Detector.GeometryCSC:
         cscAcc, CscDataPreparator = CscDataPreparatorCfg( flags, roisKey )
         acc.merge( cscAcc )
     else:
         CscDataPreparator = ""
 
     # Get sTGC decoder
-    if MuonGeometryFlags.hasSTGC():
+    if flags.Detector.GeometrysTGC:
         stgcAcc, StgcDataPreparator = StgcDataPreparatorCfg( flags, roisKey )
         acc.merge( stgcAcc )
     else:
         StgcDataPreparator = ""
 
     # Get MM decoder
-    if MuonGeometryFlags.hasMM():
+    if flags.Detector.GeometryMM:
         mmAcc, MmDataPreparator = MmDataPreparatorCfg( flags, roisKey )
         acc.merge( mmAcc )
     else:
@@ -201,7 +200,7 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     MuCalStreamerTool       = TrigL2MuonSA__MuCalStreamerTool()
     CscSegmentMaker         = TrigL2MuonSA__CscSegmentMaker()
 
-    if not MuonGeometryFlags.hasSTGC() and not MuonGeometryFlags.hasMM():
+    if not flags.Detector.GeometrysTGC and not flags.Detector.GeometryMM:
         MuFastStationFitter.NswStationFitter=""
 
     # Set Reco alg of muFast step
@@ -286,6 +285,10 @@ def PtEndcapLUTSvcCfg( flags ):
     ptEndcapLUTSvc.FileName = "pt_endcap.lut"
     ptEndcapLUTSvc.EMeanLUT = "pt_comb_mean.lut"
     ptEndcapLUTSvc.ESigmaLUT = "pt_comb_sigma.lut"
+    if flags.Detector.GeometrysTGC or flags.Detector.GeometryMM:
+        ptEndcapLUTSvc.UseRun3LUT = True
+    else:
+        ptEndcapLUTSvc.UseRun3LUT = False
     acc.addService( ptEndcapLUTSvc )
 
     return acc, ptEndcapLUTSvc
@@ -297,6 +300,10 @@ def PtEndcapLUTSvcCfg_MC( flags ):
     ptEndcapLUTSvc_MC.FileName = "pt_endcap.mc10.lut"
     ptEndcapLUTSvc_MC.EMeanLUT = "pt_comb_mean.lut"
     ptEndcapLUTSvc_MC.ESigmaLUT = "pt_comb_sigma.lut"
+    if flags.Detector.GeometrysTGC or flags.Detector.GeometryMM:
+        ptEndcapLUTSvc_MC.UseRun3LUT = True
+    else:
+        ptEndcapLUTSvc_MC.UseRun3LUT = False
     acc.addService( ptEndcapLUTSvc_MC )
 
     return acc, ptEndcapLUTSvc_MC
