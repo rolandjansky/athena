@@ -30,6 +30,7 @@ convertedPhotonMVATool = ToolFactory(
 
 egammaMVASvc = ServiceFactory(
     egammaMVACalibConf.egammaMVASvc,
+    name="egammaMVASvc_LegacyConfig",
     ElectronTool=electronMVATool,
     UnconvertedPhotonTool=unconvPhotonMVATool,
     ConvertedPhotonTool=convertedPhotonMVATool)
