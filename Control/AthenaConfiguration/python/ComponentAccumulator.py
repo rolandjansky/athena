@@ -339,12 +339,13 @@ class ComponentAccumulator(object):
 
         return
 
-    def popPrivateTools(self):
+    def popPrivateTools(self, quiet=False):
         """Get the (list of) private AlgTools from this ComponentAccumulator.
-        The CA will not keep any reference to the AlgTool.
+        The CA will not keep any reference to the AlgTool. Throw an exception if
+        no tools are available unless quiet=True.
         """
         tool=self._privateTools
-        if tool is None:
+        if not quiet and tool is None:
             raise ConfigurationError("Private tool(s) requested, but none are present")
         self._privateTools=None
         return tool
