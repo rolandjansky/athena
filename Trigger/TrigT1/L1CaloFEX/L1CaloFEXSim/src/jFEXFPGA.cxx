@@ -25,6 +25,7 @@
 #include "L1CaloFEXSim/jFEXmetTOB.h"  
 #include "L1CaloFEXSim/jFEXForwardJetsAlgo.h"
 #include "L1CaloFEXSim/jFEXForwardJetsInfo.h"
+#include "L1CaloFEXSim/jFEXForwardElecAlgo.h"
 #include "L1CaloFEXSim/jFEXPileupAndNoise.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -85,6 +86,8 @@ void jFEXFPGA::reset() {
     m_sumET_tobwords.clear();
     m_Met_tobwords.clear();
     m_map_Etvalues_FPGA.clear();
+    m_map_EM_Etvalues_FPGA.clear();
+    m_map_HAD_Etvalues_FPGA.clear();
 
 }
 
@@ -324,10 +327,13 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
     inputOutputCollection->fill_smallRJet();
     inputOutputCollection->fill_largeRJet();
 
-    //**********Forward Jets***********************
+    
 
     //FCAL region algorithm
     if(m_jfexid ==0 || m_jfexid ==5) {
+        
+        
+        //**********Forward Jets***********************
         ATH_CHECK(m_jFEXForwardJetsAlgoTool->reset());
         ATH_CHECK(m_jFEXForwardJetsAlgoTool->safetyTest());
         m_jFEXForwardJetsAlgoTool->setFPGAEnergy(m_map_Etvalues_FPGA);
@@ -422,7 +428,20 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
 
         inputOutputCollection->fill_smallRJet();
         inputOutputCollection->fill_largeRJet();
-
+        
+        
+        
+        //********** Forward Electrons ***********************
+        ATH_CHECK(m_jFEXForwardElecAlgoTool->reset());
+        ATH_CHECK(m_jFEXForwardElecAlgoTool->safetyTest());
+        m_jFEXForwardElecAlgoTool->setFPGAEnergy(m_map_EM_Etvalues_FPGA,m_map_HAD_Etvalues_FPGA);
+        
+        /* This is a work in progress, PLEASE DO NOT REMOVE IT YET
+         * To enter in the algorithm, just uncomment the line below
+         * it should also enter when is a FWD FPGA so 8 times per eventloop
+        m_jFEXForwardElecAlgoTool->setup();        
+        */
+        
 
     } //end of if statement for checking if in central jfex modules
     //******************************** TAU **********************************************
