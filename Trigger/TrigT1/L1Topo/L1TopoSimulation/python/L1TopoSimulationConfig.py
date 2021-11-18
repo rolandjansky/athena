@@ -82,6 +82,8 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
         topoSimSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
         # Need further test from inputs.
         topoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
+        # Commenting this out until some fixes are implemented in L1Calo
+        #topoSimSeq.EnergyInputProvider = 'LVL1::EnergyInputProviderFEX/EnergyInputProviderFEX'
 
     # Muon inputs only for phase-1 Topo
     if isLegacy:
