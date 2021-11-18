@@ -110,6 +110,8 @@ namespace LVL1 {
     m_allSmallRJetTobs.clear();
     m_allLargeRJetTobs.clear();
     m_alltauTobs.clear();
+    m_allMetTobs.clear();
+    m_allsumEtTobs.clear();
     // We need to split the towers into 6 blocks in eta and 4 blocks in phi.
 
     // boundaries in eta: -2.5, -1.6, -0.8, 0.0, 0.8, 1.6, 2.5
@@ -964,7 +966,7 @@ namespace LVL1 {
     auto jMETContainer = std::make_unique<xAOD::jFexMETRoIContainer> ();
     std::unique_ptr< xAOD::jFexMETRoIAuxContainer > jMETAuxContainer = std::make_unique<xAOD::jFexMETRoIAuxContainer> ();
     jMETContainer->setStore(jMETAuxContainer.get());    
-    
+
     for( auto const& [jfex, MODULE_tobs] : m_allMetTobs ) {
         uint8_t fpgaNum =0;
         for(auto &FPGA_tob : MODULE_tobs) {
