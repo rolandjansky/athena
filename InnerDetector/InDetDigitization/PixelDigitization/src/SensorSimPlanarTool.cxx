@@ -35,7 +35,7 @@ SensorSimPlanarTool::SensorSimPlanarTool(const std::string& type, const std::str
 
   // This is a waste in some cases, but we need at most 3x3 elements
   // Reserving 9 removes the need to allocate new memory multipe time thus speeding up the code a bit
-  m_centrePixelNNEtaPhi.reserve(9);
+  m_centrePixelNNEtaPhi.resize(9);
 }
 
 SensorSimPlanarTool::~SensorSimPlanarTool() { }
@@ -259,7 +259,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   //*** Now diffuse charges to surface *** //
   //**************************************//
   // pre-make HepMcParticleLink
-  auto particleLink = HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx);
+  const auto particleLink = HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx);
   const double pHitTime = hitTime(phit);
 
   const double halfEtaPitch = 0.5*Module.etaPitch();
@@ -276,9 +276,15 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer(layer));
     }
 
+    const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : fluenceData->getDistanceMap_e(layer);
+    const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : fluenceData->getDistanceMap_h(layer);
+    const PixelHistoConverter& lorentzMap_e     = m_doInterpolateEfield ? m_lorentzMap_e[layer] : fluenceData->getLorentzMap_e(layer);
+    const PixelHistoConverter& lorentzMap_h     = m_doInterpolateEfield ? m_lorentzMap_h[layer] : fluenceData->getLorentzMap_h(layer);
+    const PixelHistoConverter& ramoPotentialMap = m_doInterpolateEfield ? m_ramoPotentialMap[layer] : fluenceData->getRamoPotentialMap(layer);
+
+    std::map<unsigned, std::pair<SiLocalPosition, double>> cachedChargeMap; 
     std::map<unsigned, SiCellId> diodeCellMap;
-    for (size_t i = 0; i < trfHitRecord.size(); i++) {
-      std::pair<double, double> const& iHitRecord = trfHitRecord[i];
+    for (const auto& iHitRecord : trfHitRecord) {
 
       double eta_i = eta_0;
       double phi_i = phi_0;
@@ -310,12 +316,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       int nnLoop_pixelPhiMin = std::max(-1, pixel_i.phiIndex() + 1 - phiCells);
 
       std::array<double, 3> sensorScales{};
-
-      const PixelHistoConverter& distanceMap_e    = m_doInterpolateEfield ? m_distanceMap_e[layer] : fluenceData->getDistanceMap_e(layer);
-      const PixelHistoConverter& distanceMap_h    = m_doInterpolateEfield ? m_distanceMap_h[layer] : fluenceData->getDistanceMap_h(layer);
-      const PixelHistoConverter& lorentzMap_e     = m_doInterpolateEfield ? m_lorentzMap_e[layer] : fluenceData->getLorentzMap_e(layer);
-      const PixelHistoConverter& lorentzMap_h     = m_doInterpolateEfield ? m_lorentzMap_h[layer] : fluenceData->getLorentzMap_h(layer);
-      const PixelHistoConverter& ramoPotentialMap = m_doInterpolateEfield ? m_ramoPotentialMap[layer] : fluenceData->getRamoPotentialMap(layer);
 
       const std::size_t distance_f_e_bin_x = distanceMap_e.getBinX(dist_electrode);
       const std::size_t distance_f_h_bin_x = distanceMap_h.getBinX(dist_electrode);
@@ -466,29 +466,33 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             // this variable ^ can be used to apply some cut to skip the loop
             const double induced_charge = potentialDiff * energy_per_step * eleholePairEnergy;
 
-            //Collect charge in centre of each pixel, since location within pixel doesn't matter for record
-            const SiLocalPosition& chargePos = Module.hitLocalToLocal(centrePixelNN.first, centrePixelNN.second);
-
-            //The following lines are adapted from SiDigitization's Inserter class
-            const SiSurfaceCharge scharge(
-              chargePos,
-              SiCharge(induced_charge, pHitTime, SiCharge::track, particleLink)
-              );
-
             unsigned key = (static_cast<unsigned>(pixel_eta-p) << 16) | static_cast<unsigned>(pixel_phi-q);
-            auto diodeIterator = diodeCellMap.find(key);
-            if(diodeIterator == diodeCellMap.end()) diodeIterator = diodeCellMap.insert(std::make_pair(key, Module.cellIdOfPosition(scharge.position()))).first;
-            const SiCellId& diode = diodeIterator->second;
-
-            if (diode.isValid()) {
-              const SiCharge& charge = scharge.charge();
-              chargedDiodes.add(diode, charge);
-            } //IF
-
+            auto cacheIterator = cachedChargeMap.find(key);
+            if(cacheIterator == cachedChargeMap.end()) {
+              cachedChargeMap.insert(std::make_pair(key, std::make_pair(Module.hitLocalToLocal(centrePixelNN.first, centrePixelNN.second), induced_charge)));
+            } else {
+              cacheIterator->second.second += induced_charge;
+            }
           } //For q
         } //for p
       }//end cycle for charge
     } //trfHitRecord.size()
+
+    std::for_each(cachedChargeMap.begin(), cachedChargeMap.end(), [&diodeCellMap, &Module, &chargedDiodes, &pHitTime, &particleLink](auto& pos_charge_pair){
+      auto& key = pos_charge_pair.first;
+      auto& chargePos = pos_charge_pair.second.first;
+      auto& charge_value = pos_charge_pair.second.second;
+
+      const SiSurfaceCharge scharge(chargePos, SiCharge(charge_value, pHitTime, SiCharge::track, particleLink));
+      auto diodeIterator = diodeCellMap.find(key);
+      if(diodeIterator == diodeCellMap.end()) diodeIterator = diodeCellMap.insert(std::make_pair(key, Module.cellIdOfPosition(scharge.position()))).first;
+      const SiCellId& thisDiode = diodeIterator->second;
+      if (thisDiode.isValid()) {
+        const SiCharge& charge = scharge.charge();
+        chargedDiodes.add(thisDiode, charge);
+      }
+    });
+
   } 
   else { //If no radDamage, run original
     for (size_t i = 0; i < trfHitRecord.size(); i++) {
