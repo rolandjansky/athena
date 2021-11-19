@@ -107,9 +107,9 @@ bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::s
   std::string inputFileName = FastCaloTXTInputFolderName;
   if(pid == 22){
     inputFileName += "v19/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
-  } else if(pid == 11){
+  } else if(pid == 11 || pid == -11){
     inputFileName += "v20/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
-  } else if(pid == 211){
+  } else if(pid == 211 || pid == -211){
     inputFileName += "v21/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
   } else {
     std:: cout << "ERROR: pid ("<<pid<<") not supported yet" << std::endl;
@@ -154,7 +154,7 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulat
 {
   std::map<std::string, double> inputVariables;
   std::vector<int>              inputLayers = {0,1,2,3,12};
-  if(pid == 211){
+  if(pid == 211 || pid == -211){
     inputLayers.push_back(13);
     inputLayers.push_back(14);
   }
@@ -188,7 +188,7 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
 {
   (void)extrapol; // avoid unused variable warning
 
-  const int pid           = truth->pdgid();
+  const int pid = truth->pdgid();
 
   // Get inputs to Neural Network
   std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001, pid);
@@ -196,7 +196,7 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
   // Get predicted extrapolation weights
   auto outputs            = m_nn->compute(inputVariables);
   std::vector<int> layers = {0,1,2,3,12};
-  if(pid == 211){ // charged pion
+  if(pid == 211 || pid == -211){ // charged pion
     layers.push_back(13);
     layers.push_back(14);
   }
@@ -257,8 +257,8 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
 
   std::string inputFileName = FastCaloNNInputFolderName;
   if(pid == 22){         inputFileName += "v19/NN_photons_v19_"+etaBin+".json";
-  } else if(pid == 11){  inputFileName += "v20/NN_electrons_v20_"+etaBin+".json";
-  } else if(pid == 211){ inputFileName += "v21/NN_pions_v21_"+etaBin+".json";}
+  } else if(pid == 11 || pid == -11){  inputFileName += "v20/NN_electrons_v20_"+etaBin+".json";
+  } else if(pid == 211 || pid == -211){ inputFileName += "v21/NN_pions_v21_"+etaBin+".json";}
   ATH_MSG_DEBUG("Will read JSON file: " << inputFileName );
   if(inputFileName.empty()){
     ATH_MSG_ERROR("Could not find json file " << inputFileName );
