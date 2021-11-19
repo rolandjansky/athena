@@ -143,6 +143,7 @@ namespace CP {
      bool m_useAllAuthors;
      bool m_use2stationMuonsHighPt;
      bool m_useMVALowPt;
+     bool m_useSegmentTaggedLowPt;
      bool m_doBadMuonVetoMimic;
 
      std::string m_eventInfoContName;
@@ -151,6 +152,10 @@ namespace CP {
      std::string m_MVAreaderFile_ODD_MuidCB;
      std::string m_MVAreaderFile_EVEN_MuGirl;
      std::string m_MVAreaderFile_ODD_MuGirl;
+
+     std::string m_MVAreaderFile_MuTagIMO_etaBin1;
+     std::string m_MVAreaderFile_MuTagIMO_etaBin2;
+     std::string m_MVAreaderFile_MuTagIMO_etaBin3;
 
      std::string m_BMVcutFile;
 
@@ -187,12 +192,20 @@ namespace CP {
      std::unique_ptr<TMVA::Reader> readerE_MUGIRL;
      std::unique_ptr<TMVA::Reader> readerO_MUGIRL;
 
+     std::unique_ptr<TMVA::Reader> reader_MUTAGIMO_etaBin1;
+     std::unique_ptr<TMVA::Reader> reader_MUTAGIMO_etaBin2;
+     std::unique_ptr<TMVA::Reader> reader_MUTAGIMO_etaBin3;
+
      //TMVA initialize function
      void PrepareReader(TMVA::Reader* reader);
+     void PrepareReader_MuTagIMO(TMVA::Reader* reader, bool useSeg2ChamberIndex);
 
      //variables for the TMVA readers
      Float_t *lowPTmva_middleHoles, *lowPTmva_muonSeg1ChamberIdx, *lowPTmva_muonSeg2ChamberIdx, *lowPTmva_momentumBalanceSig,
        *lowPTmva_scatteringCurvatureSig, *lowPTmva_scatteringNeighbourSig, *lowPTmva_energyLoss, *lowPTmva_muonSegmentDeltaEta;
+
+     //additional variables for the MuTagIMO BDT
+     Float_t *lowPTmva_muonSeg1NPrecisionHits, *lowPTmva_muonSeg1GlobalR, *lowPTmva_muonSeg1Chi2OverDoF;
 
    }; // class MuonSelectionTool
 
