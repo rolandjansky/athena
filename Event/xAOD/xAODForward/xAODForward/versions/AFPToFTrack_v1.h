@@ -64,7 +64,7 @@ namespace xAOD {
      * @brief Track local time.
      *
      */
-    float TrainTime() const;
+    float trainTime() const;
 
     /** 
      * @brief Set track time.
@@ -80,7 +80,7 @@ namespace xAOD {
      *
      * @copydetail xAOD::AFPToFTrack_v1::TrainID()
      */
-    int TrainID() const;
+    int trainID() const;
 
     /** 
      * @brief Set track train id(position).
@@ -96,7 +96,7 @@ namespace xAOD {
      *
      * @copydetails xAOD::AFPToFTrack_v1::TrainSize()
      */
-    int TrainSize() const;
+    int trainSize() const;
 
     /** 
      * @brief Set track train size.
@@ -111,7 +111,7 @@ namespace xAOD {
      * @brief number of saturated bars in the train
      * 
      */
-    int TrainNSat() const;
+    int trainNSat() const;
 
     /** 
      * @brief Set slope of the reconstructed track along X axis in local coordinate system.
@@ -155,7 +155,7 @@ namespace xAOD {
      * 
      * @param newHit link to the pixel used to reconstruct the track
      */
-    void addHit( const AFPToFHitLink_t& newHit);
+    void addBar( const AFPToFHitLink_t& newHit);
 
     /** 
      * @brief Identification number of the algorithm used to reconstruct the track.

@@ -26,11 +26,10 @@ public:
   AFPTDBasicToolTrack (int stationID, int TrainID , double Time, int Size, int Sat);
 
   int m_stationID;
-  int m_TrainID;
-  int m_Size;
-  int m_Sat;
-
-  double m_Time;
+  int m_trainID;
+  int m_trainSize;
+  int m_trainNSat;
+  double m_trainTime;
 
   /// @copydoc AFPTDBasicToolTrack::m_barsInTrain
   const std::list<const xAOD::AFPToFHit*>& barInTrain () const {return m_barInTrain;}

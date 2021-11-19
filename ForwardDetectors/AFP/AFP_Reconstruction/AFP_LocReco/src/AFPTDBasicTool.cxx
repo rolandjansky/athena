@@ -38,7 +38,7 @@ AFPTDBasicTool::AFPTDBasicTool( const std::string& type,
   declareProperty( "stationID", m_stationID = 0, "ID number of station for which tracks should be reconstructed");
   declareProperty( "maxAllowedLength", m_maxAllowedLength = 100, "Maximal length of the bar signal at which bar can be joined to the track");
   declareProperty( "minHitsNumber", m_minHitsNumber = 3, "Minimal number of bars in track. If there are less bars track is rejected"); 
-  declareProperty( "TimeOffset", m_TimeOffset, "Array of bar time offsets with respect to first bar");
+  declareProperty( "TimeOffset", m_TimeOffset, "Array of bar time offsets with respect t0=0 at vz=0");
   declareProperty( "BarWeight", m_BarWeight, "Array of bar weights used to calculate average time");
 
 }
@@ -99,13 +99,14 @@ StatusCode AFPTDBasicTool::reconstructTracks(xAOD::AFPToFTrackContainer* outputC
 	double TrTime = 0.;
         double weight = 0;
 	int TrSat = 0;
-	if ( TrSize>0 )
+	if ( TrSize >= m_minHitsNumber )
 		{
 		for (int l=0; l<TrSize; l++)
 		    {
                     if ( m_trainBars[k].at(l)->pulseLength() < m_maxAllowedLength) 
 		      {
-                      TrTime += (m_trainBars[k].at(l)->time()-m_TimeOffset[m_trainBars[k].at(l)->barInTrainID()])*
+                      TrTime += (m_trainBars[k].at(l)->time()-m_TimeOffset[m_trainBars[k].at(l)->barInTrainID()+
+                                                                           4*m_trainBars[k].at(l)->trainID()])*
                                 m_BarWeight[m_trainBars[k].at(l)->barInTrainID()];
                                 weight += m_BarWeight[m_trainBars[k].at(l)->barInTrainID()];
                       }
@@ -116,7 +117,6 @@ StatusCode AFPTDBasicTool::reconstructTracks(xAOD::AFPToFTrackContainer* outputC
 		    }
 		// time average
 		if( TrSize!=TrSat) TrTime /= weight;					
-					
       reconstructedTracks.emplace_back(m_stationID,k,TrTime, TrSize, TrSat);
       AFPTDBasicToolTrack& theTrack = reconstructedTracks.back();					
       for( int l=0; l<TrSize; l++) theTrack.addBar(m_trainBars[k].at(l));
@@ -136,27 +136,21 @@ void AFPTDBasicTool::saveToXAOD (const AFPTDBasicToolTrack& recoTrack, xAOD::AFP
   xAOD::AFPToFTrack* track = new xAOD::AFPToFTrack;
   containerToFill->push_back(track);
   
-//  const xAOD::AFPToFHit* firstHit = recoTrack.hitInTrack().front();
     track->setStationID(recoTrack.m_stationID);
-    track->setTrainID(recoTrack.m_TrainID);
-//  track->setXLocal(firstPoint[0]);
-//  track->setYLocal(firstPoint[2]);
-//  track->setZLocal(firstCluster->zLocal());
-//  track->setXSlope(firstPoint[1]);
-//  track->setYSlope(firstPoint[3]);
-//  track->setNClusters(recoTrack.clustersInTrack().size());
-//  track->setNHoles(recoTrack.holes());
-//  track->setChi2(recoTrack.trkChi2NDFSmooth());
+    track->setTrainID(recoTrack.m_trainID);
+    track->setTrainTime(recoTrack.m_trainTime);
+    track->setTrainSize(recoTrack.m_trainSize);
+    track->setTrainNSat(recoTrack.m_trainNSat);
+    track->setAlgID(0);
+// add links to bars
+ATH_MSG_DEBUG("Track time: (time="<<track->trainTime()<<", size="<<track->trainSize()<<", train id="<<track->trainID()<<")   station: (st="<<track->stationID()<<")");
+  for (const xAOD::AFPToFHit* theHit : recoTrack.barInTrain()) {
+    ElementLink< xAOD::AFPToFHitContainer >* barLink = new ElementLink< xAOD::AFPToFHitContainer >; // will be taken over by the xAODTrain and deleted
+    barLink->toContainedElement(*m_hitContainer, theHit);
+    track->addBar(*barLink);
 
-// add links to clusters
-//  ATH_MSG_DEBUG("Track position: (x="<<track->xLocal()<<", y="<<track->yLocal()<<", z="<<track->zLocal()<<")   slope: (dx="<<track->xSlope()<<", dy="<<track->ySlope()<<")   chi2="<<track->chi2());
-//  for (const xAOD::AFPSiHitsCluster* theCluster : recoTrack.clustersInTrack()) {
-//    ElementLink< xAOD::AFPSiHitsClusterContainer >* clusterLink = new ElementLink< xAOD::AFPSiHitsClusterContainer >; // will be taken over by the xAODCluster and deleted
-//    clusterLink->toContainedElement(*m_hitsClusterContainer, theCluster);
-//    track->addCluster(*clusterLink);
-//
-//    ATH_MSG_DEBUG("cluster position: (x="<<theCluster->xLocal()<<", y="<<theCluster->yLocal()<<", z="<<theCluster->zLocal()<<")");
-//  }
+    ATH_MSG_DEBUG("bar time="<<theHit->time()<<" bar in train ="<<theHit->barInTrainID()<<", trin id ="<<theHit->trainID()<<")");
+  }
 
 }
 

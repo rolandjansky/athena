@@ -19,6 +19,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "TVector3.h"
+
+#include "AFP_Geometry/AFP_Geometry.h"
+#include "AFP_Geometry/AFP_ConfigParams.h"
+
 #include "AFP_SiClusterTools/IAFPSiRowColToLocalCSTool.h"
 
 // using root transformations because CLHEP does not allow to directly set transformation matrix 
@@ -73,8 +78,18 @@ public:
    * param[out] xAODCluster xAOD object to be filled with provided information
    */
   void fillXAOD (const int stationID, const int layerID, const ROOT::Math::XYZPoint& position, const ROOT::Math::XYZPoint& positionError, xAOD::AFPSiHitsCluster* xAODCluster);
-  
+
+  virtual TVector3 localToGlobalCS(const double localX, const double localY, const double localZ, const int stationID, const int layerID) const;  
+
 private:
+
+  /// Object storing AFP geometry configuration. Used to initialise #m_geometry.
+  AFP_CONFIGURATION m_geoConfig;
+
+  /// object describing AFP geometry and doing local to global transformation.
+  AFP_Geometry* m_geometry;
+
+
   /// @brief Vector defining number of stations and number of layers in each station.
   ///
   /// The size of the vector sets number of stations. Each element

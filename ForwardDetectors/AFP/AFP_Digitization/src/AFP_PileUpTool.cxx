@@ -116,8 +116,8 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
           for( int k=0; k<2; k++) {
              Id3.Form("%d",k);
 //                m_Signal[i][j][k] = new TH1F("Signal_"+Id1+"_"+Id2+"_"+Id3,"",2000,707000,717000);
-                m_Signal[i][j][k] =  TH1F("Signal_"+Id1+"_"+Id2+"_"+Id3,"",2000,707000,717000);
-
+//                m_Signal[i][j][k] =  TH1F("Signal_"+Id1+"_"+Id2+"_"+Id3,"",2000,707000,717000);
+                m_Signal[i][j][k] =  TH1F("Signal_"+Id1+"_"+Id2+"_"+Id3,"",2000,105000,115000);
                                   }
                                }
                             }
@@ -196,13 +196,12 @@ void  AFP_PileUpTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, con
   siHitContainer->push_back(xAODSiHit);
  xAODSiHit->setStationID(it->m_nStationID);
  xAODSiHit->setPixelLayerID(it->m_nDetectorID);
- xAODSiHit->setPixelColIDChip(it->m_nPixelRow); // Chip is rotated by 90 degree Row-->Col
- xAODSiHit->setPixelRowIDChip(it->m_nPixelCol); // Chip	is rotated by 90 degree	Col-->Row 
+ xAODSiHit->setPixelColIDChip(80-it->m_nPixelRow); // Chip is rotated by 90 degree Row-->Col
+ xAODSiHit->setPixelRowIDChip(336-it->m_nPixelCol); // Chip	is rotated by 90 degree	Col-->Row 
  xAODSiHit->setTimeOverThreshold(it->m_fADC );
  xAODSiHit->setDepositedCharge(it->m_fADC );
   }
  ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPSiHit");
- std::cout <<  "AFP_PileUpTool:  Filled xAOD::AFPSiHit" << std::endl;
 
 }
 
@@ -266,7 +265,6 @@ void  AFP_PileUpTool::newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer, 
  xAODToFHit->setTime(it->m_fTDC);
   }
  ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPToFHit");
- std::cout <<  "AFP_PileUpTool:  Filled xAOD::AFPToFHit" << std::endl;
 
 }
 
@@ -606,40 +604,43 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
   ATH_MSG_DEBUG ( " iterating Pmt " << Station << "  " << Detector << "  " << SensitiveElement << " " << GlobalTime 
                                     << WaveLength ); 
 
-std::cout << "AFP TDDigi" << Station << "  " << Detector << "  " << SensitiveElement << " " << GlobalTime << " " 
-                                    << WaveLength << std::endl;
-
   int id =  (int(WaveLength)-100)/100;
   if (id > 6) id=6;
   if (id < 0) id=0;
 
- double prescale=1.;
+// double prescale=1.;
 
-#ifdef TDMAXQEFF
- prescale = TDMAXQEFF ; 
-#endif
+//#ifdef TDMAXQEFF
+// prescale = TDMAXQEFF ; 
+//#endif
  
   
-//  if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > m_QuantumEff_PMT[id]*m_CollectionEff/prescale) return;
-
+  if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > m_QuantumEff_PMT[id]*m_CollectionEff) return;
   double PheTime = CLHEP::RandGaussQ::shoot(rndEngine, GlobalTime + 5.* m_ConversionSpr, m_ConversionSpr);
   int NumberOfSecondaries =  CLHEP::RandPoissonQ::shoot(rndEngine, m_Gain);
+
+
 
   if ( Station >3 || Station < 0 || Detector >49 || Detector < 10 || (SensitiveElement-1)/2>1 || (SensitiveElement-1)/2<0) {      
     ATH_MSG_FATAL ( "Wrong station, detector or sensitive detector id" );
     return;
      }
+// at the moment just calculate average time of collected photoelectrons
+   
 
-  int iStart =  m_Signal[Station][Detector][(SensitiveElement-1)/2].FindBin(PheTime);
 
-  if (!(m_SignalVect.empty()))
-  {
-    for (unsigned long i = 0; i < (m_SignalVect.size()); i++) {
-        if( (int)i+iStart > m_Signal[Station][Detector][(SensitiveElement-1)/2].GetNbinsX()) break ;
-        m_Signal[Station][Detector][(SensitiveElement-1)/2].AddBinContent(i+iStart,m_SignalVect[i]*NumberOfSecondaries/m_Gain);     
-    }
-  }  
-  else ATH_MSG_DEBUG("m_SignalVector is empty"); 
+   m_Signal[Station][Detector][(SensitiveElement-1)/2].Fill(PheTime);
+
+//  int iStart =  m_Signal[Station][Detector][(SensitiveElement-1)/2].FindBin(PheTime);
+
+//  if (!(m_SignalVect.empty()))
+//  {
+//    for (unsigned long i = 0; i < (m_SignalVect.size()); i++) {
+//        if( (int)i+iStart > m_Signal[Station][Detector][(SensitiveElement-1)/2].GetNbinsX()) break ;
+//        m_Signal[Station][Detector][(SensitiveElement-1)/2].AddBinContent(i+iStart,m_SignalVect[i]*NumberOfSecondaries/m_Gain);     
+//    }
+//  }  
+//  else ATH_MSG_DEBUG("m_SignalVector is empty"); 
 
 
 return;
@@ -652,40 +653,38 @@ void AFP_PileUpTool::StoreTDDigi(void)
 
        TString Id1, Id2, Id3;
 
-//   TFile *fHistFile;
-//   fHistFile = new TFile("test.root","UPDATE");
-
     for( int i=0; i<4; i++) {
        for( int j=0; j<49; j++) {
           for( int k=0; k<2; k++) { 
-                               double ADC = m_Signal[i][j][k].GetMaximum();
-                               double TDC =m_Signal[i][j][k].GetBinCenter( m_Signal[i][j][k].FindFirstBinAbove(ADC*m_CfdThr));
+//                               double ADC = m_Signal[i][j][k].GetMaximum();
+//                               double TDC =m_Signal[i][j][k].GetBinCenter( m_Signal[i][j][k].FindFirstBinAbove(ADC*m_CfdThr));
+ double TDC = m_Signal[i][j][k].GetMean();
+ double ADC = m_Signal[i][j][k].GetEntries();
                                if( ADC>0) {
-// Saturation
-    double curr=0;
-    for( int l =0; l<m_Signal[i][j][k].GetNbinsX(); l++ ) {
-      curr = m_Signal[i][j][k].GetBinContent(l);
-      if( curr > 100) curr=50.*log10(curr);
-      m_Signal[i][j][k].SetBinContent(l,curr); 
-    }
-    ADC = m_Signal[i][j][k].GetMaximum();
-    TDC = m_Signal[i][j][k].GetBinCenter( m_Signal[i][j][k].FindFirstBinAbove(ADC*m_CfdThr));
-// Constant fraction discriminator
+//// Saturation
+//    double curr=0;
+//    for( int l =0; l<m_Signal[i][j][k].GetNbinsX(); l++ ) {
+//      curr = m_Signal[i][j][k].GetBinContent(l);
+//      if( curr > 100) curr=50.*log10(curr);
+//      m_Signal[i][j][k].SetBinContent(l,curr); 
+//    }
+//    ADC = m_Signal[i][j][k].GetMaximum();
+//    TDC = m_Signal[i][j][k].GetBinCenter( m_Signal[i][j][k].FindFirstBinAbove(ADC*m_CfdThr));
+//// Constant fraction discriminator
 
-    int delay = ((m_RiseTime/4)/5.);
-    for(int  l= m_Signal[i][j][k].GetNbinsX(); l>0; l-- ) {
-      curr = m_Signal[i][j][k].GetBinContent(l);
-      if ( l > delay) { curr = m_Signal[i][j][k].GetBinContent(l-delay) - curr;}
-      else { curr = -1.;}
-      m_Signal[i][j][k].SetBinContent(l,curr);
-    }
+//    int delay = ((m_RiseTime/4)/5.);
+//    for(int  l= m_Signal[i][j][k].GetNbinsX(); l>0; l-- ) {
+//      curr = m_Signal[i][j][k].GetBinContent(l);
+//      if ( l > delay) { curr = m_Signal[i][j][k].GetBinContent(l-delay) - curr;}
+//      else { curr = -1.;}
+//      m_Signal[i][j][k].SetBinContent(l,curr);
+//    }
+//
+// at the moment TDC is average time and ADC is number of pfotoelectrons. No CFD, saturation, ...
 
-// TDC =m_Signal[i][j][k].GetBinCenter( m_Signal[i][j][k].FindFirstBinAbove(0.));
 
-// correction two all delays and different position of sensitive elements
-
- if( k==0 ) TDC = TDC-2130.;
- if( k==1 ) TDC	= TDC-2797.;
+// if( k==0 ) TDC = TDC-2130.;
+// if( k==1 ) TDC = TDC-2797.;
 
  AFP_TDDigi* tddigi = new AFP_TDDigi ();
  tddigi->m_nStationID=i;

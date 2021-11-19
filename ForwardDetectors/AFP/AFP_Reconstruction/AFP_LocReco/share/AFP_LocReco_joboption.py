@@ -1,5 +1,5 @@
 #==============================================================
-# Job options file for the ALFA_LocRec package
+# Job options file for the AFP_LocRec package
 #==============================================================
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -171,14 +171,20 @@ TopLocRecSeq += tofDLocReco
 basicTool1 = AFPTDBasicTool("AFPTDBasicTool1")
 basicTool1.stationID=0
 basicTool1.maxAllowedLength = 100
-basicTool1.TimeOffset = [0.0, 20., 40., 60.]
+basicTool1.TimeOffset = [105707, 105670, 105675, 105638,
+                         105834, 105819, 105778, 105754,
+                         105900, 105892, 105870, 105820,
+                         105726, 105720, 105714, 105717]
 basicTool1.BarWeight =	[1.0, 1.0, 1.0, 1.0] 
 ToolSvc += basicTool1
 
 basicTool2 = AFPTDBasicTool("AFPTDBasicTool2")
 basicTool2.stationID=3
 basicTool2.maxAllowedLength = 100
-basicTool2.TimeOffset =	[0.0, 20., 40., 60.]
+basicTool2.TimeOffset = [105796, 105761, 105742, 105696,
+                         105890, 105871, 105839, 105816,
+                         105923, 105899, 105862, 105853,
+       	       	       	 105707, 105711, 105714, 105713]
 basicTool2.BarWeight =  [1.0, 1.0, 1.0, 1.0]
 ToolSvc += basicTool2
 

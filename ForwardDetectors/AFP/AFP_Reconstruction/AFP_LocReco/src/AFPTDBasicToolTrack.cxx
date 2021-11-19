@@ -19,9 +19,9 @@
 AFPTDBasicToolTrack::AFPTDBasicToolTrack (int stationID, int TrainID , double Time, int Size, int Sat)
 {
 m_stationID = stationID;
-m_TrainID = TrainID;
-m_Time = Time;
-m_Size = Size;
-m_Sat = Sat;
+m_trainID = TrainID;
+m_trainTime = Time;
+m_trainSize = Size;
+m_trainNSat = Sat;
 }
 
