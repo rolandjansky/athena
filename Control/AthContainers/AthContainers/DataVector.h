@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DataVector.h 800990 2017-03-19 23:15:21Z ssnyder $
@@ -3291,6 +3291,10 @@ public:
 #endif  
    /// Declare the automatically created variable transient
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_isMostDerived;
+
+   /// We do not want to save this.  The P->T converter should
+   /// decide the ownership mode.
+   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_ownPolicy;
 
 };
 

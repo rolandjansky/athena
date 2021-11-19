@@ -58,7 +58,7 @@ StatusCode EgammaMonitoring::initialize() {
   ATH_CHECK(cluster10GeV->initializePlots());
   ATH_CHECK(clusterPromptAll->initializePlots());
   ATH_CHECK(clusterPrompt10GeV->initializePlots());
-  ATH_CHECK(isolationAll->initializePlots());
+  ATH_CHECK(isolationAll->initializePlots(m_sampleType == "electron"));
 
   if ("electron" == m_sampleType) {
     truthElectronAll = std::make_unique<egammaMonitoring::TruthElectronHistograms>(

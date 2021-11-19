@@ -109,6 +109,7 @@ def configureFlagsMC12G4_IDCalo():
 
 def configureFlagsATLFASTII():
     from G4AtlasApps.SimFlags import simFlags
+    simFlags.CalibrationRun.set_Off() # Switch off DeadMaterial Hits
     simFlags.SimulationFlavour = "AtlfastII" # TODO: can we rename this to "ATLFASTII" ?
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
@@ -126,6 +127,7 @@ def configureFlagsATLFASTII_PileUp():
 
 def configureFlagsATLFAST3():
     from G4AtlasApps.SimFlags import simFlags
+    simFlags.CalibrationRun.set_Off() # Switch off DeadMaterial Hits
     simFlags.SimulationFlavour = "ATLFAST3" 
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
@@ -167,6 +169,7 @@ def configureFlagsATLFASTIIF():
     # been simulated (see ISF_Example/python/ISF_Output.py)
     DetFlags.geometry.BCM_setOff()
     from G4AtlasApps.SimFlags import simFlags
+    simFlags.CalibrationRun.set_Off() # Switch off DeadMaterial Hits
     simFlags.SimulationFlavour = "ATLFASTIIF"
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
     TrkDetFlags.MaterialVersion=21

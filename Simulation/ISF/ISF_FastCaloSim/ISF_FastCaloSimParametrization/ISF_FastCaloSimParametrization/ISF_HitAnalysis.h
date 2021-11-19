@@ -125,6 +125,13 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<int>*   m_truth_barcode;
    std::vector<int>*   m_truth_vtxbarcode; //production vertex barcode
 
+   std::vector<float>* m_cluster_energy;
+   std::vector<float>* m_cluster_eta;
+   std::vector<float>* m_cluster_phi;
+   std::vector<unsigned>* m_cluster_size;
+   std::vector<std::vector<Long64_t >>* m_cluster_cellID;
+      
+
    std::vector<Long64_t>* m_cell_identifier;
    std::vector<float>*       m_cell_energy;
    std::vector<int>*         m_cell_sampling;
@@ -274,6 +281,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double m_calomargin;
    bool m_saveAllBranches;
    bool m_doAllCells;
+   bool m_doClusterInfo;
    bool m_doLayers;
    bool m_doLayerSums;
    bool m_doG4Hits;

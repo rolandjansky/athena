@@ -26,6 +26,9 @@ def addFCS_NtupArgs(parser):
     parser.add_argument('--saveAllBranches',
                         type=argFactory(argBool),
                         help='Flag to turn on extra branches for Hits and G4hits', group='FCS_Ntup_tf')
+    parser.add_argument('--doClusterInfo',
+                        type=argFactory(argBool),
+                        help='Flag to turn on extra branches for clusters', group='FCS_Ntup_tf')
     parser.add_argument('--NTruthParticles',
                         type=argFactory(argInt),
                         help='Option to select number of truth particles copied to ntuples', group='FCS_Ntup_tf')
