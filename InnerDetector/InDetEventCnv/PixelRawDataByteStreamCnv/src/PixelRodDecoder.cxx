@@ -20,7 +20,7 @@
 //#define PIXEL_DEBUG ;
 namespace {
   constexpr unsigned long long operator"" _BIT(unsigned long long bitPosition){
-    return 1 << bitPosition;
+    return 1ull << bitPosition;
   }
 }
 
@@ -168,11 +168,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         Definition of the status words in a ROB fragment header is found in
            https://twiki.cern.ch/twiki/bin/view/Atlas/ROBINFragmentErrors#Definition_of_the_first_status_e
       */
-      if ((*rob_status) & (0x1 << 27)) {
+      if ((*rob_status) & (0x1u << 27)) {
          propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::TruncatedROB, "data truncation");
          return StatusCode::RECOVERABLE;
       }
-      if ((*rob_status) & (0x1 << 31)) {
+      if ((*rob_status) & (0x1u << 31)) {
          propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::MaskedROB, "resource was masked off");
          return StatusCode::RECOVERABLE;
       }
