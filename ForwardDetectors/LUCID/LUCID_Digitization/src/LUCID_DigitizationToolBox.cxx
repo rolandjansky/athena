@@ -171,7 +171,7 @@ StatusCode LUCID_DigitizationToolBox::fillDigitContainer(TimedHitCollection<LUCI
     TimedHitCollection<LUCID_SimHit>                 thpc = thpclucid;
     TimedHitCollection<LUCID_SimHit>::const_iterator i, e, hitIt;
     
-    while (thpc.nextDetectorElement(i, e)) for (hitIt = i; hitIt != e; hitIt++) {
+    while (thpc.nextDetectorElement(i, e)) for (hitIt = i; hitIt != e; ++hitIt) {
       
       if (m_tubeID != (*hitIt)->GetTubeID()) continue;
 
@@ -204,7 +204,7 @@ StatusCode LUCID_DigitizationToolBox::fillDigitContainer(LUCID_SimHitCollection*
     LUCID_SimHitCollection::const_iterator hitIt  = thpclucid->begin();
     LUCID_SimHitCollection::const_iterator hitItE = thpclucid->end();
 
-    for (; hitIt != hitItE; hitIt++) {
+    for (; hitIt != hitItE; ++hitIt) {
       
       if (m_tubeID != (*hitIt).GetTubeID()) continue;
       
