@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/EventHandler.h"
@@ -344,6 +344,7 @@ namespace MuonCalib {
         build_pars.theta = truth_part->momentum().theta();
         build_pars.author = std::abs(truth_part->PDGCode());
         build_pars.qOverP = (1. - 2. * (truth_part->PDGCode() < 0)) / (truth_part->momentum().mag());
+        build_pars.cov.setZero();
         std::shared_ptr<MuonCalibTrack_E> track_ptr = std::make_shared<MuonCalibTrack_E>(build_pars);
 
         std::map<int, std::set<TruthMdtPtr>>::const_iterator mdt_itr = mdt_hits.find(barcode);
