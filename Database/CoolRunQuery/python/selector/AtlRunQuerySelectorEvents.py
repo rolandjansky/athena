@@ -43,7 +43,7 @@ class EventSelector(RunLBBasedCondition):
         runnrlist = [r.runNr for r in runlist]
 
         from CoolRunQuery.AtlRunQuerySFO import GetSFO_NphysicseventsAll
-        with timer("GetSFO_NphysicseventsAll"):
+        with timer("GetSFO_NphysicseventsAll", disabled=True):
             events = GetSFO_NphysicseventsAll( cursor, runnrlist )  # { runnr: nPhysEvents }
 
         for run in runlist:
