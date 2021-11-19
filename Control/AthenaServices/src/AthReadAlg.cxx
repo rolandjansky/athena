@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthenaServices/src/AthReadAlg.cxx
@@ -47,7 +47,7 @@ StatusCode AthReadAlg::initialize()
 StatusCode AthReadAlg::execute (const EventContext& ctx) const
 {
   // Look up the proxy for the original object.
-  const SG::DataProxy* proxy = evtStore()->proxy_exact (m_sgkey);
+  SG::DataProxy* proxy = evtStore()->proxy_exact (m_sgkey);
   if (!proxy) {
     ATH_MSG_ERROR( "Cannot find proxy for original object: " <<
                    m_key.clid() << "/" << m_key.key() << "_DELETED [" <<
