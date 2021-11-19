@@ -17,7 +17,6 @@
 #include "MuonSimData/MuonSimData.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventContext.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -51,14 +50,11 @@ namespace NSWL1 {
     StripTdsOfflineTool::StripTdsOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_rndmSvc("AtRndmGenSvc",name),
-      m_rndmEngine(nullptr),
       m_detManager(nullptr),
       m_tree(nullptr)
 
     {
       declareInterface<NSWL1::IStripTdsTool>(this);
-      declareProperty("RndmEngineName", m_rndmEngineName = "StripTdsOfflineTool", "the name of the random engine");
       declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple");
     }
 
@@ -79,7 +75,6 @@ namespace NSWL1 {
     ATH_MSG_DEBUG( "initializing " << name() );
 
     ATH_MSG_DEBUG( name() << " configuration:");
-    ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
     ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
                        << std::setfill(' ') << std::setiosflags(std::ios::right) );
 
@@ -100,12 +95,6 @@ namespace NSWL1 {
       ATH_CHECK(this->book_branches());
       ATH_CHECK(m_incidentSvc.retrieve());
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-      ATH_CHECK(m_rndmSvc.retrieve());
-      m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-      if (m_rndmEngine==0) {
-        ATH_MSG_FATAL("Could not retrieve the random engine " << m_rndmEngineName);
-        return StatusCode::FAILURE;
-      }
       ATH_CHECK(detStore()->retrieve(m_detManager));
       ATH_CHECK(m_idHelperSvc.retrieve());
       return StatusCode::SUCCESS;
