@@ -401,11 +401,13 @@ class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
-    def __init__(self, the_name, mergeUsingFeature = False):
+    def __init__(self, the_name):
         self._name = the_name
         Maker = CompFactory.InputMakerForRoI("IM"+the_name)
-        Maker.RoITool = CompFactory.ViewCreatorInitialROITool()
-        Maker.mergeUsingFeature = mergeUsingFeature
+        # isEmptyStep causes the IM to try at runtime to merge by feature by default (i.e for empty steps appended after a leg has finised).
+        # But if this failes then it will merge by initial ROI instead (i.e. for empy steps prepended before a leg has started)
+        Maker.isEmptyStep = True 
+        Maker.RoIsLink = 'initialRoI' #(this is the default property, just making it explicit)
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
         self._sequence    = Node( Alg = seqAND(the_name, [Maker]))
