@@ -4,6 +4,7 @@
 
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
+from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import pileupConfigFiles
 
 def makeSequence (dataType) :
 
@@ -13,12 +14,17 @@ def makeSequence (dataType) :
     sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
     sysService.sigmaRecommended = 1
 
-
     # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles(dataType)
+
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
-    pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    pileupSequence = makePileupAnalysisSequence(
+        dataType,
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
 
     # Add the pileup sequence to the job:
     algSeq += pileupSequence

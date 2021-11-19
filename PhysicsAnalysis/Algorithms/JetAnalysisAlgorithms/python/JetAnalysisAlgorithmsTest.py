@@ -4,6 +4,7 @@
 
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
+from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import pileupConfigFiles
 
 def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
 
@@ -17,10 +18,16 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
     sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles(dataType)
+
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
-    pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    pileupSequence = makePileupAnalysisSequence(
+        dataType,
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     print( pileupSequence ) # For debugging
 
     # Include, and then set up the jet analysis algorithm sequence:
@@ -32,8 +39,7 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
     # Include, and then set up the jet analysis algorithm sequence:
     from JetAnalysisAlgorithms.JetJvtAnalysisSequence import makeJetJvtAnalysisSequence
     jvtSequence = makeJetJvtAnalysisSequence( dataType, jetContainer, enableCutflow=True )
-    jvtSequence.configure( inputName = { 'eventInfo' : 'EventInfo_%SYS%',
-                                         'jets'      : 'AnalysisJetsBase_%SYS%' },
+    jvtSequence.configure( inputName = { 'jets'      : 'AnalysisJetsBase_%SYS%' },
                            outputName = { 'jets'      : 'AnalysisJets_%SYS%' } )
     print( jvtSequence ) # For debugging
 

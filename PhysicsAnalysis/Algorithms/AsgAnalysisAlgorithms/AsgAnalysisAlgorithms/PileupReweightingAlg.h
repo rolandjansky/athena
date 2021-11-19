@@ -12,8 +12,9 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgAnalysisInterfaces/IPileupReweightingTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
-#include <SystematicsHandles/SysCopyHandle.h>
+#include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 
 namespace CP
 {
@@ -43,10 +44,19 @@ namespace CP
   private:
     SysListHandle m_systematicsList {this};
 
-    /// \brief the jet collection we run on
+    /// \brief the decoration for the pileup weight
   private:
-    SysCopyHandle<xAOD::EventInfo> m_eventInfoHandle {
-      this, "eventInfo", "EventInfo", "the event info object to run on"};
+    CP::SysWriteDecorHandle<float> m_weightDecorator{
+        this, "pileupWeightDecoration", "PileupWeight_%SYS%", "the decoration for the pileup weight"};
+
+    /// \brief the name of the event info object
+  private:
+    CP::SysReadHandle<xAOD::EventInfo> m_eventInfoHandle{
+        this, "eventInfo", "EventInfo", "the input EventInfo object"};
+
+    /// \brief the name of the original event info (this should usually be the same as eventiNfoHandle and EventInfo)
+  private:
+    std::string m_baseEventInfoName{"EventInfo"};
 
     /// \brief the decoration for the corrected and scaled average interactions per crossing
   private:
@@ -62,15 +72,15 @@ namespace CP
 
     /// \brief the accessor for \ref m_correctedScaledAverageMuDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_correctedScaledAverageMuAccessor;
+    std::unique_ptr<const SG::AuxElement::Decorator<float>> m_correctedScaledAverageMuDecorator;
 
     /// \brief the accessor for \ref m_correctedActualMuDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_correctedActualMuAccessor;
+    std::unique_ptr<const SG::AuxElement::Decorator<float>> m_correctedActualMuDecorator;
 
     /// \brief the accessor for \ref m_correctedScaledAverageMuDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_correctedScaledActualMuAccessor;
+    std::unique_ptr<const SG::AuxElement::Decorator<float>> m_correctedScaledActualMuDecorator;
 
     /// \brief the helper for OutOfValidity results
   private:
