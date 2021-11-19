@@ -16,7 +16,7 @@ class LHCSelector(Selector):
             self.condition.applySelection = False
 
     def __str__(self):
-        return "\n%s" % self.condition
+        return str(self.condition)
 
     def addShowSelector(self, addArg=''):
         self.showarg=addArg
@@ -25,6 +25,8 @@ class LHCSelector(Selector):
         self.condition.setShowOutput(self.showarg)
         
     def select(self, runlist):
+        print (self, end='')
+        sys.stdout.flush()
         runlist = self.condition.select(runlist)
         return runlist
 
@@ -64,8 +66,6 @@ class LHCCondition(TimeBasedCondition):
             else:
                 print ('ERROR: unknown condition format for LHC: "%s" -> need two arguments separated by blank' % lhcargs)
                 sys.exit(1)                                    
-
-
 
     def setShowOutput(self, addArg ):
         ck = ['lhc:fillnumber', 'lhc:stablebeams', 'lhc:beamenergy']

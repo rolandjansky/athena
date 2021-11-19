@@ -113,7 +113,7 @@ class ArgumentParser:
         # allowed 'show' arguments
 
         # init detector mask
-        (self.dName, self.NotInAll, self.vetoedbits) = InitDetectorMaskDecoder(run2=True) # needs to be fixed (made run-dependent) - move into Det Selector
+        (self.dName, self.NotInAll, self.vetoedbits) = InitDetectorMaskDecoder(lhcRun=3) # needs to be fixed (made run-dependent) - move into Det Selector
 
     def ParserUsage( self ):
         print (' ')

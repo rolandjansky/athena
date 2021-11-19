@@ -80,9 +80,6 @@ class ARQ_COMA:
         except ValueError:
             return []
         if run not in cls.__store:
-
-            print ("FRESH Access for run" ,run)
-
             output = ['PR.P_LEVEL', 'PR.P_PERIOD', 'PR.P_PROJECT' ]
             condition = [ "PR.RUN_INDEX = :run" ]
             bindvars = { "run": run }
