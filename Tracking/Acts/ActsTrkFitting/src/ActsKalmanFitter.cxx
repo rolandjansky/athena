@@ -71,6 +71,8 @@ ActsKalmanFitter::ActsKalmanFitter(const std::string& t,const std::string& n,
   // -- job options - 
   declareProperty("OutlierChi2Cut",m_option_outlierChi2Cut=12.5,
 		              "Chi2 cut used by the outlier finder");
+  declareProperty("ReverseFilteringPt",m_option_ReverseFilteringPt=1.0,
+		              "Pt cut used for the ReverseFiltering logic");
   declareProperty("MaxPropagationStep",m_option_maxPropagationStep=5000,
                   "Maximum number of steps for one propagate call");
   declareProperty("SeedCovarianceScale",m_option_seedCovarianceScale=100.,
@@ -138,9 +140,9 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   Acts::PropagatorPlainOptions propagationOption;
   propagationOption.maxSteps = m_option_maxPropagationStep;
   // Set the KalmanFitter options
-  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder>
+  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder, ReverseFilteringLogic>
       kfOptions(tgContext, mfContext, calContext,
-                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut},
+                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut}, ReverseFilteringLogic{m_option_ReverseFilteringPt},
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
   std::vector<ATLASSourceLink> trackSourceLinks = m_ATLASConverterTool->ATLASTrackToSourceLink(inputTrack);
@@ -201,9 +203,9 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   Acts::PropagatorPlainOptions propagationOption;
   propagationOption.maxSteps = m_option_maxPropagationStep;
   // Set the KalmanFitter options
-  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder>
+  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder, ReverseFilteringLogic>
       kfOptions(tgContext, mfContext, calContext,
-                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut},
+                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut}, ReverseFilteringLogic{m_option_ReverseFilteringPt},
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
 
@@ -287,9 +289,9 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   Acts::PropagatorPlainOptions propagationOption;
   propagationOption.maxSteps = m_option_maxPropagationStep;
   // Set the KalmanFitter options
-  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder>
+  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder, ReverseFilteringLogic>
       kfOptions(tgContext, mfContext, calContext,
-                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut},
+                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut}, ReverseFilteringLogic{m_option_ReverseFilteringPt},
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
 
@@ -373,9 +375,9 @@ ActsKalmanFitter::fit(const EventContext& ctx,
   Acts::PropagatorPlainOptions propagationOption;
   propagationOption.maxSteps = m_option_maxPropagationStep;
   // Set the KalmanFitter options
-  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder>
+  Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator, ATLASOutlierFinder, ReverseFilteringLogic>
       kfOptions(tgContext, mfContext, calContext,
-                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut},
+                ATLASSourceLinkCalibrator(), ATLASOutlierFinder{m_option_outlierChi2Cut}, ReverseFilteringLogic{m_option_ReverseFilteringPt},
                 Acts::LoggerWrapper{logger()}, propagationOption,
                 &(*pSurface));
 

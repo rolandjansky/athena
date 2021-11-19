@@ -12,6 +12,7 @@ ATLAS_BUILDTYPE="RelWithDebInfo"
 ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
                         -DLCG_VERSION_POSTFIX="_ATLAS_4"
                         -DATLAS_GAUDI_TAG="v36r2.000"
+                        -DATLAS_ACTS_TAG="v14.1.0"
                         -DATLAS_ONNXRUNTIME_USE_CUDA=FALSE
                         -DATLAS_GEOMODEL_TAG="c04bd9d5")
 ATLAS_EXTRA_MAKE_ARGS=()
