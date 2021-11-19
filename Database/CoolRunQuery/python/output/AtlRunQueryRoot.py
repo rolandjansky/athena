@@ -209,6 +209,20 @@ def MakePlots( tree, datapath ):
 
 def makeLBPlotSummaryForLHC( lbrange, xvecStb, yvec, runNr, datapath, printText = '' ):
 
+    plotDevelop = False
+    if plotDevelop:
+        # pickle input
+        import json
+        store = (list(lbrange), xvecStb, yvec, runNr, datapath)
+        pf = open( '%s/plotinput.json' % datapath, 'w' )
+        try:
+            json.dump(store, pf)
+        except Exception as ex:
+            print ('ERROR: could not store plotinput data')
+            print("Reason: %s" % ex)
+            sys.exit(1)
+        pf.close()
+
     # sanity check
     if not lbrange or len(yvec)==0 or not yvec[0]:
         return "None"
@@ -229,16 +243,16 @@ def makeLBPlotSummaryForLHC( lbrange, xvecStb, yvec, runNr, datapath, printText 
     x2 = lbrange[-1]
 
     h  = TH1F( name, title, x2 - x1 + 1, x1, x2 + 1 ) # for stable beams
-    hg = []
-    for iy in range(len(yvec)):
-        hg.append( TH1F( name + 'g%i' % iy, title, x2 - x1 + 1, x1, x2 + 1 ) )
     h.GetXaxis().SetTitle( 'Luminosity block number' )
     h.GetXaxis().SetTitleOffset( 1.3 )
     h.GetYaxis().SetTitle( 'Beam intensity (10^{11} protons)' )
     h.GetYaxis().SetTitleOffset( 1.0 )
     h.SetTitle( title )    
-    for lb in lbrange:
-        for iy,y in enumerate(yvec):
+
+    hg = []
+    for iy,y in enumerate(yvec):
+        hg.append( TH1F( name + 'g%i' % iy, title, x2 - x1 + 1, x1, x2 + 1 ) )
+        for lb in lbrange:
             hg[iy].SetBinContent( lb, y[lb] )
     
     # first draw histogram        
@@ -254,7 +268,7 @@ def makeLBPlotSummaryForLHC( lbrange, xvecStb, yvec, runNr, datapath, printText 
     # beam energy (rescale)
     ebcol = TColor.GetColor( "#306754" )
     heb = hg[2]
-    heb.Scale( 1./1000.0 ) # in TeV
+    heb.Scale( 1./1000.0, "nosw2" ) # in TeV
     if heb.GetMaximum()==0:
         heb.SetMaximum(1)
     ebmax = heb.GetMaximum()*1.3
@@ -266,9 +280,8 @@ def makeLBPlotSummaryForLHC( lbrange, xvecStb, yvec, runNr, datapath, printText 
     heb.SetLineColor( ebcol )
     heb.SetLineWidth( 1 )
     scale = h.GetMaximum()/ebmax
-    # heb.SetFillColor( TColor.GetColor("#CCFB5D") )
     heb.SetFillColor( TColor.GetColor("#C3FDB8") )
-    heb.Scale( scale )    
+    heb.Scale( scale, "nosw2" )
     heb.Draw("same")
 
     if xvecStb:
@@ -971,24 +984,10 @@ def makeRatePlot( v, lbduration, plottriggers, averrate, xtit, ytit, name, title
 # command line driver for convenience
 if __name__=='__main__':
 
-    import pickle
-    datapath = '/afs/cern.ch/user/s/stelzer/runsummary/data'
-    pf = open( '%s/rates.pickle' % datapath, 'r' )
-    try:
-        store = pickle.load(pf)
-    except pickle.UnpicklingError as err:
-        print ('ERROR: could not load rates (%s)' % err)
-        sys.exit(1)
-    pf.close()
-
-    (v, lbduration, plottriggers, averrate, xtit, ytit, name, title, datapath, printText) = store
-
-    datapath = '/afs/cern.ch/user/s/stelzer/runsummary/data'
-    makeRatePlot(v, lbduration, plottriggers, averrate, xtit, ytit, name, title, datapath, printText)
-
-    #froot = TFile.Open( 'atlrunquery.root', 'READ' )
-    #tree = gDirectory.Get( 'RunQuery' )
-    #
-    #hnames, fnames = MakePlots( tree )
-    #htmlstr = MakeHtml( hnames, fnames )
-    #print (htmlstr)
+    import json
+    datapath = "."
+    pf = open( '%s/plotinput.json' % datapath, 'r' )
+    (lbrange, xvecStb, yvec, runNr, datapath) = json.load(pf)
+    lbrange = range(len(lbrange))
+    datapath = "test"
+    makeLBPlotSummaryForLHC( lbrange, xvecStb, yvec, runNr, datapath, printText = '' )
