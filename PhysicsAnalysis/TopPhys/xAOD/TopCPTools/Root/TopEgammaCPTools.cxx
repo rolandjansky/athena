@@ -508,10 +508,10 @@ namespace top {
 
     // Charge ID cannot use maps at the moment so we default to the old method
     if (m_config->useElectronChargeIDSelection()
-	&& electronIsolation != "PLVTight"
-	&& electronIsolation != "PLVLoose"
-	&& electronIsolationLoose != "PLVTight"
-	&& electronIsolationLoose != "PLVLoose" ) { // We need to update the implementation according to new
+      && electronIsolation != "PLVTight"
+      && electronIsolation != "PLVLoose"
+      && electronIsolationLoose != "PLVTight"
+      && electronIsolationLoose != "PLVLoose" ) { // We need to update the implementation according to new
                                                     // recommendations
       ATH_MSG_INFO("Setting up Electrons ChargeID SF tool");
       // Charge ID file (no maps)
@@ -530,19 +530,22 @@ namespace top {
       m_electronEffSFChargeID = setupElectronSFTool(elSFPrefix + "ChargeID", inChargeID, dataType);
       m_electronEffSFChargeIDLoose = setupElectronSFTool(elSFPrefix + "ChargeIDLoose", inChargeIDLoose, dataType);
     }
-    // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
-    CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool(
-      "ElectronChargeEfficiencyCorrection");
-    CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrectionsLoose =
-      new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrectionLoose");
-    m_electronEffSFChargeMisIDFile = electronSFFilePath("ChargeMisID", electronID, electronIsolation);
-    m_electronEffSFChargeMisIDLooseFile = electronSFFilePath("ChargeMisID", electronIDLoose, electronIsolationLoose);
-    top::check(ChargeMisIDCorrections->setProperty("CorrectionFileName",
-                                                   m_electronEffSFChargeMisIDFile), "Failed to setProperty");
-    top::check(ChargeMisIDCorrections->initialize(), "Failed to setProperty");
-    top::check(ChargeMisIDCorrectionsLoose->setProperty("CorrectionFileName",
-                                                        m_electronEffSFChargeMisIDLooseFile), "Failed to setProperty");
-    top::check(ChargeMisIDCorrectionsLoose->initialize(), "Failed to setProperty");
+    if (electronIsolation != "PLVTight" && electronIsolation != "PLVLoose" &&
+        electronIsolationLoose != "PLVTight" && electronIsolationLoose != "PLVLoose") {
+      // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
+      CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool(
+        "ElectronChargeEfficiencyCorrection");
+      CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrectionsLoose =
+        new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrectionLoose");
+      m_electronEffSFChargeMisIDFile = electronSFFilePath("ChargeMisID", electronID, electronIsolation);
+      m_electronEffSFChargeMisIDLooseFile = electronSFFilePath("ChargeMisID", electronIDLoose, electronIsolationLoose);
+      top::check(ChargeMisIDCorrections->setProperty("CorrectionFileName",
+                                                     m_electronEffSFChargeMisIDFile), "Failed to setProperty");
+      top::check(ChargeMisIDCorrections->initialize(), "Failed to setProperty");
+      top::check(ChargeMisIDCorrectionsLoose->setProperty("CorrectionFileName",
+                                                          m_electronEffSFChargeMisIDLooseFile), "Failed to setProperty");
+      top::check(ChargeMisIDCorrectionsLoose->initialize(), "Failed to setProperty");
+    }
 
     return StatusCode::SUCCESS;
   }
