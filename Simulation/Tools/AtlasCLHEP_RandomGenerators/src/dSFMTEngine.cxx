@@ -131,7 +131,7 @@ void dSFMTEngine::setSeeds(const uint32_t *seeds, int) {
   if (*seeds) {
     int i = 0;
     const int numBuff=DSFMT_N;
-    while (seeds[i] && i < numBuff) {
+    while (i < numBuff && seeds[i]) {
       //cout<<"  seed "<<i<<" = "<<seeds[i]<<endl;
       ++i;
     }
@@ -147,7 +147,7 @@ void dSFMTEngine::setSeeds(const long *seeds, int) {
     int i = 0;
     const int numBuff=DSFMT_N;
     uint32_t buf[numBuff];
-    while (seeds[i] && i < numBuff) {
+    while (i < numBuff && seeds[i]) {
       buf[i]=seeds[i];
       //cout<<"  seed "<<i<<" = "<<buf[i]<<endl;
       ++i;
