@@ -65,7 +65,7 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
     
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
 	AFPTOF_LBARDIMENSIONS BarDims11=TofCfg.mapBarDims[11];
-	fXShift=-73.3*CLHEP::mm;
+	fXShift=-73.5*CLHEP::mm; //FIXME TODO
 	fYShift=(BarDims11.fRadLength+TofCfg.mapTrainInfo[BarDims11.nTrainID].fPerpShiftInPixel-0.5*(BarDims11.fLGuideWidth-TofCfg.mapTrainInfo[BarDims11.nTrainID].fTaperOffset)-0.5*BarDims11.fLBarThickness/tan(TofCfg.fAlpha))*sin(TofCfg.fAlpha);
 	fZShift=fabs(fYShift)/tan(TofCfg.fAlpha)+0.5*BarDims11.fLBarThickness/sin(TofCfg.fAlpha);
     
@@ -129,7 +129,7 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 		pSolVolume=new GeoShapeSubtraction(pSolVolume, pMoveCut);
 	}
 
-	sprintf(szlabel,"%s_Q%i_LGuide[%i]",pszStationName,nQuarticID,nBarID);
+	sprintf(szlabel,"%s_Q%i_LogLGuide[%i]",pszStationName,nQuarticID,nBarID);
 	GeoLogVol* pLogLGuide=new GeoLogVol(szlabel,pSolVolume,m_MapMaterials[std::string("Quartz")]);
 	GeoOpticalPhysVol* pPhysLGuide=new GeoOpticalPhysVol(pLogLGuide);
 	sprintf(szlabel,"%s_Q%i_LGuide[%i]",pszStationName,nQuarticID,nBarID);
