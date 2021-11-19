@@ -352,10 +352,8 @@ namespace top {
       id *= electronSF_ID(*elPtr, electronID, SFSyst, retrieveLoose);
       isol *= electronSF_Isol(*elPtr, electronIso, SFSyst, retrieveLoose);
       chargeid *= electronSF_ChargeID(*elPtr, electronID, electronIso, SFSyst, retrieveLoose);
-      // Charge MisID is not supported for PLVTight/Loose, we already printed a warning message in TopEgammaCPTools
-      if (electronIso != "PLVTight" && electronIso != "PLVLoose") {
-	chargemisid *= electronSF_ChargeMisID(*elPtr, electronID, electronIso, SFSyst, retrieveLoose);
-      }
+      // we can add charge misID SF since it defaults to 1. for the unsupported WPs
+      chargemisid *= electronSF_ChargeMisID(*elPtr, electronID, electronIso, SFSyst, retrieveLoose);
     }
 
     sf = reco * id * isol; // *chargeid*chargemisid; // let the charge id scale factors out until further tested by
