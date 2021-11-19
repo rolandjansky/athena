@@ -166,7 +166,8 @@ namespace met {
 
     toolName = "TauPerfTool";
     m_tauCombinedTES.setTypeAndName("TauCombinedTES/METSigAutoConf_" + toolName);
-    ATH_CHECK( m_tauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_Round2.5.root") );
+    ATH_CHECK( m_tauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_Round2.5_v2.root") );
+    ATH_CHECK( m_tauCombinedTES.setProperty("useMvaResolution", true) );
     ATH_CHECK( m_tauCombinedTES.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -566,7 +567,7 @@ namespace met {
     else{
       const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj));
       if (auto combp4 = dynamic_cast<TauCombinedTES*>(m_tauCombinedTES.get())) {
-        pt_reso = combp4->getCaloResolution(*tau);
+        pt_reso = combp4->getMvaEnergyResolution(*tau);
       }
       
       if(m_doPhiReso) phi_reso = tau->pt()*0.01;
