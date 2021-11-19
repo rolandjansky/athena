@@ -5397,15 +5397,15 @@ HLT_g45_loose_6j45_L14J15p0ETA25:
 HLT_g45_loose_6j45_L14jJ15p0ETA25:
   eventCount: 0
   stepCounts:
-    0: 10
+    0: 4
+    1: 3
+    2: 3
+    3: 2
+  stepFeatures:
+    0: 9
     1: 7
     2: 7
-    3: 6
-  stepFeatures:
-    0: 15
-    1: 10
-    2: 10
-    3: 6
+    3: 2
 HLT_g45_tight_icaloloose_2j55_pf_ftf_0eta200_ExoticPTF0p0dR0p4_L1EM22VHI:
   eventCount: 0
   stepCounts:
