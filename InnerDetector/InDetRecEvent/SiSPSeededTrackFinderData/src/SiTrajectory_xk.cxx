@@ -57,6 +57,7 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurface()
 {
 
   auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  dtsos->reserve (1 + m_lastElement - m_firstElement);
 
   bool multi = m_tools->multiTrack(); if (m_nclusters <= m_tools->clustersmin() || pTfirst() < m_tools->pTmin()) multi = false;
  
@@ -92,7 +93,9 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurface()
       m_itos[m_ntos++] = 0;
     }
   }
-  dtsos->elt_allocator().protect();
+  // This gets hit many times.
+  // Comment it out until we can make things more efficient.
+  //dtsos->elt_allocator().protect();
   return dtsos;
 }
 
@@ -105,6 +108,7 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurfaceWithNewDirection()
 {
 
   auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  dtsos->reserve (1 + m_lastElement - m_firstElement);
 
   bool multi = m_tools->multiTrack(); if (pTfirst() < m_tools->pTmin()) multi = false;
 
@@ -157,6 +161,7 @@ Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
 {
   auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  dtsos->reserve (2 + m_lastElement - m_firstElement);
 
   int i = m_firstElement;
 
@@ -210,6 +215,7 @@ Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceWithNewDirection()
 {
   auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  dtsos->reserve (1 + m_lastElement - m_firstElement);
 
   int i = m_lastElement;
 
@@ -260,6 +266,7 @@ Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger()
 {
   auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  dtsos->reserve (1 + m_lastElement - m_firstElement);
 
   int i = m_firstElement;
 
@@ -2173,18 +2180,22 @@ InDet::SiTrajectory_xk::convertToNextTrackStateOnSurface()
   }
 
   auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  dtsos->reserve (m_ntos);
 
   if (i==m_ntos) {
     dtsos->elt_allocator().protect();
     return dtsos;
   }
 
+  dtsos->reserve (m_ntos);
   for (i=0; i!=m_ntos; ++i) {
 
     auto tsos = m_elements[m_atos[i]].tsos(*dtsos, m_itos[i]);
     if (tsos) dtsos->push_back(std::move(tsos));
   }
-  dtsos->elt_allocator().protect();
+  // This gets hit many times.
+  // Comment it out until we can make things more efficient.
+  //dtsos->elt_allocator().protect();
   return dtsos;
 }
 

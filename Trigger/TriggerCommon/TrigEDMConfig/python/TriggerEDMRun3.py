@@ -113,6 +113,8 @@ three_output_taggers = [
     'dips20210517',
     'DL1d20210519r22',          # uses dipsLoose
     'DL1d20210528r22',          # uses IP3D track selection dips
+    'dipsLoose20210729',        # DIPS offline retraining in r22
+    'DL1dv00',                  # first 'official' offlline r22
 ]
 BTagOutput_highLevelTaggers = [
     'MV2c10_discriminant',
@@ -187,6 +189,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeContainer#HLT_EBWeight',            'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#HLT_EBWeightAux.EBWeight.EBUnbiased', 'ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigConfKeys#TrigConfKeysOnline' ,               'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLT_RuntimeMetadata',     'CostMonDS BS ESD', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_RuntimeMetadataAux.hostname', 'CostMonDS BS ESD', 'Steer'),
 
     ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_MURoIs',                   'BS ESD AODFULL AODSLIM',  'Steer'),
@@ -304,19 +308,19 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_GSFAux.',           'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionCalo step
-    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews'),
+    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloElectronViews,precisionCaloPhotonViews'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionHICalo step
-    ('xAOD::CaloClusterContainer#HLT_HICaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionHICaloViews'),
+    ('xAOD::CaloClusterContainer#HLT_HICaloEMClusters',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionHICaloElectronViews'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_HICaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionCalo_LRT step
-    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_LRT',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews_LRT'),
+    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_LRT',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloElectronViews_LRT'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClusters_LRTAux.',    'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionCalo forward step
-    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_FWD',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloViews_FWD'),
+    ('xAOD::CaloClusterContainer#HLT_CaloEMClusters_FWD',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionCaloElectronViews_FWD'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_CaloEMClusters_FWDAux.',    'BS ESD AODFULL', 'Egamma'),
 
 
@@ -339,14 +343,14 @@ TriggerHLTListRun3 = [
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersHIRoIAux.nCells',   'BS ESD AODFULL', 'Egamma'),
 
     # These are for precision photon and precision Electron Keeping same names as in Run2
-    ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews'),
+    ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews,precisionHIElectronViews'),
     ('xAOD::ElectronAuxContainer#HLT_egamma_ElectronsAux.'+ElVars,     'BS ESD AODFULL', 'Egamma'),
     ('xAOD::ElectronContainer#HLT_egamma_Electrons_GSF',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_GSF'),
     ('xAOD::ElectronAuxContainer#HLT_egamma_Electrons_GSFAux.'+ElVars,     'BS ESD AODFULL', 'Egamma'),
     ('xAOD::ElectronContainer#HLT_egamma_Electrons_LRT',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_LRT'),
     ('xAOD::ElectronAuxContainer#HLT_egamma_Electrons_LRTAux.'+ElVars,     'BS ESD AODFULL', 'Egamma'),
 
-    ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL', 'Egamma', 'inViews:precisionPhotonViews'),
+    ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL', 'Egamma', 'inViews:precisionPhotonViews,precisionHIPhotonViews'),
     ('xAOD::PhotonAuxContainer#HLT_egamma_PhotonsAux.'+PhVars,         'BS ESD AODFULL', 'Egamma'),
 
     ('TrigRoiDescriptorCollection#HLT_Roi_FastElectron',            'BS ESD AODFULL', 'Egamma'),
@@ -505,6 +509,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Tau_IDTrigAux.',          'BS ESD AODFULL', 'Tau'),
 
     ('xAOD::VertexContainer#HLT_IDVertex_Tau',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUFTFIdViews,TAUPrecIsoViews'),
+
     ('xAOD::VertexAuxContainer#HLT_IDVertex_TauAux.',           'BS ESD AODFULL', 'Tau'),
 
     ('TrigRoiDescriptorCollection#HLT_Roi_Tau',              'BS ESD AODFULL AODSLIM',  'Steer'),
@@ -512,7 +517,7 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_Roi_TauIso',             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_Roi_TauIsoBDT',             'BS ESD AODFULL AODSLIM',  'Steer'),
 
-    ('xAOD::JetContainer#HLT_jet_seed',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloViews,TAUCaloMVAViews,TAUCaloMVAClusViews'),
+    ('xAOD::JetContainer#HLT_jet_seed',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloMVAViews'),
     ('xAOD::JetAuxContainer#HLT_jet_seedAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     # Jet
@@ -623,7 +628,11 @@ TriggerHLTListRun3 = [
 
     # TLA Photons
     ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhysicsTLA ESD', 'Egamma', 'inViews:TLAPhotonsViews'),
-    ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                                      'BS PhysicsTLA ESD', 'Egamma'),
+    ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                             'BS PhysicsTLA ESD', 'Egamma'),
+
+    # TLA Muons
+    ('xAOD::MuonContainer#HLT_Muons_RoI_TLA',                                       'BS PhysicsTLA ESD', 'Muon'),
+    ('xAOD::MuonAuxContainer#HLT_Muons_RoI_TLAAux.',                                'BS PhysicsTLA ESD', 'Muon'),
 
 
     # FS tracks
@@ -719,13 +728,13 @@ TriggerHLTListRun3 = [
 
     # tau
     # will enable when needed
-    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnly',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloViews,TAUCaloMVAViews,TAUCaloMVAClusViews'),
+    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnly',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloMVAViews'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_CaloOnlyAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     #('xAOD::TauJetContainer#HLT_TrigTauRecMerged_CaloOnlyMVA',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloMVAViews'),
     #('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_CaloOnlyMVAAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
-    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_MVA',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUMVAViews,TAUMVAClusViews'),
+    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_MVA',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUMVAViews'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_LLP',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAULLPViews'),
@@ -735,25 +744,32 @@ TriggerHLTListRun3 = [
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_Precision',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFIdViews,TAUFTFTrackViews,TAUTrackTwoViews,TAUEFViews'),
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_PrecisionAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
-    ('xAOD::TauJetContainer#HLT_TrigTauRecMerged_Presel',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFTrackViews'),
-    ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_PreselAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
-
     # tau calo clusters
-    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLC',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloViews'),
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLC',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloMVAViews'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersLCAux.nCells' ,'BS ESD AODFULL', 'Tau'),
 
     # tau tracks
-    ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUMVAViews,TAUMVAClusViews'),
+    ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUMVAViews'),
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_MVAAux.'+TauTrackVars,       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
     ('xAOD::TauTrackContainer#HLT_tautrack_LLP',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAULLPViews'),
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_LLPAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
     ('xAOD::TauTrackContainer#HLT_tautrack_Precision',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFIdViews,TAUFTFTrackViews,TAUEFViews'),
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_PrecisionAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
-    ('xAOD::TauTrackContainer#HLT_tautrack_Presel',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUFTFTrackViews'),
-    ('xAOD::TauTrackAuxContainer#HLT_tautrack_PreselAux.',                 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     # bjet RoI Descriptor used for EventView creation
     ('TrigRoiDescriptorCollection#HLT_Roi_Bjet',                   'BS ESD AODFULL', 'Bjet'),
+
+
+    # jet superRoI Descriptor and associated track and vertex class used for EventView creation
+    # commented for the time being ...
+
+    #    ('TrigRoiDescriptorCollection#"HLT_Roi_JetSuper',                   'BS ESD AODFULL', 'Jet'),
+    #    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_JetSuper_FTF',        'BS ESD AODFULL', 'Jet'),
+    #    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_JetSuper_FTFAux',     'BS ESD AODFULL', 'Jet'),
+    #    ('xAOD::VertexContainer#HLT_IDVertex_JetSuper',                     'BS ESD AODFULL', 'Jet'),
+    #    ('xAOD::VertexContainer#HLT_IDVertex_JetSuperAux',                  'BS ESD AODFULL', 'Jet'),
+
+
 
     # bjet Second Stage Fast tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bjet_FTF',        'BS ESD AODFULL', 'Bjet', 'inViews:'+BTagViewsEMTopo+','+BTagViewsEMPFlow),

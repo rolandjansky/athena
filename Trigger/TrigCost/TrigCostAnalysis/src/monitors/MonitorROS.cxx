@@ -24,13 +24,17 @@ StatusCode MonitorROS::newEvent(const CostData& data, const float weight) {
     }
   }
 
+  if (data.rosCollection().empty()){
+    ATH_MSG_DEBUG("The ROS collection is empty!");
+  }
+
   for (const xAOD::TrigComposite* tc : data.rosCollection()) {
     auto robIds = tc->getDetail<std::vector<uint32_t>>("robs_id");
     // Create set of unique ROS for this request
     std::set<std::string> rosPerRequest;
     for (uint32_t robId : robIds) {
       if (!m_robToRos.count(robId)){
-        msg() << MSG::WARNING << "ROS for ROB 0x" << std::hex << robId << " is missing" << endmsg;
+        ATH_MSG_WARNING("ROS for ROB 0x" << std::hex << robId << " is missing");
         continue;
       }
       rosPerRequest.insert(m_robToRos.at(robId));

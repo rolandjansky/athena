@@ -2,7 +2,7 @@
 
 # import Hypo Algs/Tools
 from AthenaConfiguration.ComponentFactory import CompFactory # tools are imported from the factory, (NewJO)
-from TrigMuonHypo.TrigMuonHypoConf import (  # noqa: F401 (algs not used here)
+from TrigMuonHypo.TrigMuonHypoConf import (  # noqa: F401 (import all into this module)
     TrigMufastHypoAlg, TrigMufastHypoTool,
     TrigmuCombHypoAlg, TrigmuCombHypoTool,
     TrigMuonEFHypoAlg, TrigMuonEFHypoTool,
@@ -10,7 +10,6 @@ from TrigMuonHypo.TrigMuonHypoConf import (  # noqa: F401 (algs not used here)
     TrigMuonEFInvMassHypoTool,
     TrigMuonLateMuRoIHypoAlg, TrigMuonLateMuRoIHypoTool
 )
-
 
 # import monitoring
 from TrigMuonHypo.TrigMuonHypoMonitoring import (
@@ -229,16 +228,9 @@ trigMuonLrtd0Cut = {
 #Fomat is [lower bound, upper bound] in GeV
 # <0 for no cut
 trigMuonEFInvMassThresholds = {
-    '10invm70' : [10., 70.],
-    'invmJPsi' : [2.5, 4.3]
+    'invmJPsiOS' : [2.5, 4.3],
+    'invmDimu'   : [1.5, 14.]
 }
-
-def addMonitoring(tool, monClass, name, thresholdHLT ):
-    try:
-        tool.MonTool = monClass( "MonTool" )
-        tool.MonTool.HistPath = name + "/" + thresholdHLT
-    except AttributeError:
-        log.error('%s Monitoring Tool failed', name)
 
 
 def getThresholdsFromDict( chainDict ):
@@ -251,8 +243,7 @@ def TrigMufastHypoToolFromDict( chainDict ):
     thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    addMonitoring( tool, TrigMufastHypoMonitoring, 'TrigMufastHypoTool', chainDict['chainName'] )
+    tool.MonTool = TrigMufastHypoMonitoring('TrigMufastHypoTool/'+chainDict['chainName'])
 
     return tool
 
@@ -261,7 +252,7 @@ def TrigMufastHypoToolwORFromDict( chainDict ):
     thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
-    # Setup MonTool for monitored variables in AthenaMonitoring package
+    tool.MonTool = TrigL2MuonOverlapRemoverMonitoringMufast('TrigMufastHypoTool/'+chainDict['chainName'])
 
     # Overlap Removal
     tool.ApplyOR = True
@@ -279,7 +270,6 @@ def TrigMufastHypoToolwORFromDict( chainDict ):
     tool.EtaBinsEC       = [0, 1.9, 2.1, 9.9]
     tool.DRThresEC       = [0.06, 0.05, 0.05]
     tool.MassThresEC     = [0.20, 0.15, 0.10]
-    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMufast, 'TrigMufastHypoTool', chainDict['chainName'] )
 
     return tool
 
@@ -397,7 +387,8 @@ def TrigmuCombHypoToolFromDict( chainDict ):
     if chainDict['chainParts'][0]['signature'] == 'Bphysics':
         acceptAll = True
 
-    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
+    tool.MonTool = TrigmuCombHypoMonitoring("TrigmuCombHypoTool/"+chainDict['chainName'])
 
     d0cut=0.
     if 'd0loose' in chainDict['chainParts'][0]['lrtInfo']:
@@ -408,8 +399,6 @@ def TrigmuCombHypoToolFromDict( chainDict ):
         d0cut=trigMuonLrtd0Cut['d0tight']
     tool.MinimumD0=d0cut  
     
-    addMonitoring( tool, TrigmuCombHypoMonitoring, "TrigmuCombHypoTool", chainDict['chainName'] )
-
     return tool
 
 
@@ -426,7 +415,8 @@ def TrigmuCombHypoToolwORFromDict( chainDict ):
 
     acceptAll = False
 
-    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
+    tool.MonTool = TrigL2MuonOverlapRemoverMonitoringMucomb("TrigmuCombHypoTool/"+chainDict['chainName'])
 
     # Overlap Removal
     tool.ApplyOR = True
@@ -438,8 +428,6 @@ def TrigmuCombHypoToolwORFromDict( chainDict ):
     tool.DRThres         = [0.002, 0.001, 0.002, 0.002, 0.002]
     tool.MufastDRThres   = [0.4,   0.4,   0.4,   0.4,   0.4]
     tool.MassThres       = [0.004, 0.002, 0.006, 0.006, 0.006]
-
-    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMucomb, "TrigmuCombHypoTool", chainDict['chainName'] )
 
     return tool
 
@@ -467,8 +455,6 @@ def Trigl2IOHypoToolwORFromDict( chainDict ):
     tool.DRThres         = [0.002, 0.001, 0.002, 0.002, 0.002]
     tool.MufastDRThres   = [0]
     tool.MassThres       = [0.004, 0.002, 0.006, 0.006, 0.006]
-
-    # addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMucomb, "TrigmuCombHypoTool", chainDict['chainName'] )
 
     return tool
 
@@ -551,7 +537,7 @@ def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     if 'msonly' in chainDict['chainParts'][0]['msonlyInfo'] and 'noL1' not in chainDict['chainParts'][0]['extra']:
         doOverlap=True
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds, doOverlap )
-    addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
+    tool.MonTool = TrigMuonEFHypoMonitoring("TrigMuonEFMSonlyHypoTool/"+chainDict['chainName'])
     return tool
 
 def TrigMuonEFMSonlyHypoToolFromName(chainDict):
@@ -578,7 +564,7 @@ def TrigMuonEFMSonlyHypoToolFromName(chainDict):
                 thresholds.append(thr)
     config = TrigMuonEFMSonlyHypoConfig()
     tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, False)
-    addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
+    tool.MonTool = TrigMuonEFHypoMonitoring("TrigMuonEFMSonlyHypoTool/"+chainDict['chainName'])
     return tool
 
 class TrigMuonEFMSonlyHypoConfig(object):
@@ -645,6 +631,8 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
 
     config = TrigMuonEFCombinerHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds , muonquality, narrowscan, overlap)
+    tool.MonTool = TrigMuonEFHypoMonitoring("TrigMuonEFCombinerHypoTool/"+chainDict['chainName'])
+
     d0cut=0.
     if 'd0loose' in chainDict['chainParts'][0]['lrtInfo']:
         d0cut=trigMuonLrtd0Cut['d0loose']
@@ -653,7 +641,7 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
     elif 'd0tight' in chainDict['chainParts'][0]['lrtInfo']:
         d0cut=trigMuonLrtd0Cut['d0tight']
     tool.MinimumD0=d0cut  
-    addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
+
     return tool
 
 def TrigMuonEFCombinerHypoToolFromName(chainDict):
@@ -693,7 +681,7 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
     config = TrigMuonEFCombinerHypoConfig()
 
     tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, muonquality, narrowscan, False)
-    addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
+    tool.MonTool = TrigMuonEFHypoMonitoring("TrigMuonEFCombinerHypoTool/"+chainDict['chainName'])
     return tool
 
 class TrigMuonEFCombinerHypoConfig(object):
@@ -794,7 +782,7 @@ def TrigMuonEFInvMassHypoToolFromDict( chainDict ) :
         osCut = False
     config = TrigMuonEFInvMassHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds, osCut )
-    addMonitoring( tool, TrigMuonEFInvMassHypoMonitoring, "TrigMuonEFInvMassHypoTool", chainDict['chainName'] )
+    tool.MonTool = TrigMuonEFInvMassHypoMonitoring("TrigMuonEFInvMassHypoTool/"+chainDict['chainName'])
     return tool
 
 class TrigMuonEFInvMassHypoConfig(object) :
@@ -845,8 +833,6 @@ class TrigMuonLateMuRoIHypoConfig(object) :
 
 
 if __name__ == '__main__':
-    # normaly this tools are private and have no clash in naming, for the test we create them and never assign so they are like public,
-    # in Run3 config this is checked in a different way so having Run 3 JO behaviour solves test issue
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 

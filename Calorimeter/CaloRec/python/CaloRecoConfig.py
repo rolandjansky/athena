@@ -35,6 +35,18 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname, doLCCalib=doLCCalib))
 
+    #Configure forward towers:
+    from CaloRec.CaloFwdTopoTowerConfig import CaloFwdTopoTowerCfg
+    result.merge(CaloFwdTopoTowerCfg(configFlags,CaloTopoClusterContainerKey="CaloTopoClusters"))
+
+    #Configure NoisyROSummary
+    from LArCellRec.LArNoisyROSummaryConfig import LArNoisyROSummaryCfg
+    result.merge(LArNoisyROSummaryCfg(configFlags))
+
+    if not configFlags.Input.isMC:
+        from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+        result.merge(LArFebErrorSummaryMakerCfg(configFlags))
+
     return result
 
 

@@ -31,8 +31,6 @@ tzrecoPreExec = ' '.join([
  "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
  "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
  "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
- "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
- "TriggerFlags.configForStartup=\'HLToffline\';",
 ])
 
 tzreco = ExecStep.ExecStep('Tier0Reco')
@@ -57,7 +55,7 @@ tzmon.executable = 'Run3DQTestingDriver.py'
 tzmon.input = ''
 tzmon.args = '--threads=1'
 tzmon.args += ' --dqOffByDefault'
-tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
+tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\''
 
 #====================================================================================================
 # Merging NTUP_TRIGRATE/COST

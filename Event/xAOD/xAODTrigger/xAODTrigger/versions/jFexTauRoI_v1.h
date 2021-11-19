@@ -26,7 +26,7 @@ namespace xAOD {
       jFexTauRoI_v1();
 
       /// In future initialze the xTOB as well, word1
-      void initialize(uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord );
+      void initialize(uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi );
 
       /// The "raw" 32-bit word describing the object candidate
       uint32_t  tobWord()       const;

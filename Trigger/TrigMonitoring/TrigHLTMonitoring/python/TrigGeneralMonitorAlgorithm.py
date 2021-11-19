@@ -104,7 +104,7 @@ def TrigGeneralMonConfig(inputFlags):
 
     consistency_names=['SMK DB NULL','SMK BS NULL','SMK Inconsistent','HLT Prescale DB NULL','HLT Prescale BS NULL','HLT Prescale Inconsistent','No onlineKeys','No eventKeys']
     hltGroup.defineHistogram('ConfigConsistency_HLT', title='ConfigConsistency_HLT;;Events',
-                             path='',xbins=8,xmin=1,xmax=9,xlabels=consistency_names)
+                             path='',xbins=8,xmin=1,xmax=9,xlabels=consistency_names,opt='kAlwaysCreate')
 
  
     ############################################################

@@ -29,10 +29,20 @@ public:
   /** Whether to use calo pt, invoked by TauSmearing tool */
   bool getUseCaloPtFlag(const xAOD::TauJet& tau) const;
   
-  /** Get the resolution of Et at the calo TES, invoked by METSignificance */
-  double getCaloResolution(const xAOD::TauJet& tau) const;
+  /** Get MVA Et resolution, invoked by METSignificance */
+  double getMvaEnergyResolution(const xAOD::TauJet& tau) const;
 
 private:
+    
+  /// Switch for decorating the intermediate results, for combined TES tuning
+  bool m_addCalibrationResultVariables;
+  
+  /// Name of the calibration file 
+  std::string m_calFileName;
+
+  /// Use MVA TES resolution (for MET significance)
+  bool m_useMvaResolution;
+  
   struct Variables
   {
     double pt_constituent{0.0};
@@ -93,12 +103,6 @@ private:
   
   /** Get the allowed difference between calo TES and PanTau */ 
   double getNsigmaCompatibility(const double& caloEt, const int& decayModeIndex) const;
-
-  /// Switch of adding the intermediate results
-  bool m_addCalibrationResultVariables;
-  
-  /// Name of the calibration file 
-  std::string m_calFileName;
   
   /// Binning in the calibraction graph/hist
   enum Binning {DecayModeBinning = 5, EtaBinning = 5};
@@ -132,6 +136,12 @@ private:
   
   /// Maximum Et of m_panTauRes
   std::array<std::array<double, EtaBinning>, DecayModeBinning> m_panTauResMaxEt; //!
+
+  /// Calibration graph: MVA TES resolution as a function of MVA pt
+  std::array<std::array<std::unique_ptr<TGraph>, EtaBinning>, DecayModeBinning> m_mvaRes; //!
+  
+  /// Maximum Et of m_mvaRes
+  std::array<std::array<double, EtaBinning>, DecayModeBinning> m_mvaResMaxEt; //!
   
   /// Calibration histogram: correlation coefficient of calo TES and PanTau
   std::array<std::unique_ptr<TH1F>, DecayModeBinning> m_correlationHists; //!

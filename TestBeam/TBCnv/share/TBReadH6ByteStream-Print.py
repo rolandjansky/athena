@@ -12,9 +12,7 @@ include( "LArDetMgrDetDescrCnv/LArDetMgrDetDescrCnv_H6_joboptions.py" )
 #---- ByteStream-Files input --------------------
 #
 
-# Turn off printing for LArRoI_Map
 ToolSvc = Service( "ToolSvc" )
-ToolSvc.LArRoI_Map.Print=FALSE; 
 
 include( "TBCnv/TBReadH6BS_jobOptions.py" )
 ByteStreamInputSvc = Service( "ByteStreamInputSvc" )

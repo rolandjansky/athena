@@ -929,6 +929,7 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
   // Fill new track information
   //
   auto tsosn = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+  tsosn->reserve (2 + tsos->size() + m_lastTrajectory - m_firstTrajectory);
 
   tsosn->push_back(tsosn->allocate(nullptr,Tp.convert(true),nullptr,nullptr,(*s)->types()));
 

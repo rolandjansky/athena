@@ -912,8 +912,12 @@ namespace Trk {
        return handle.cptr();
     }
 
-    SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey
-       {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
+    SG::ReadCondHandleKey<TrackingGeometry> m_trackingGeometryReadKey{
+      this,
+      "TrackingGeometryReadKey",
+      "AtlasTrackingGeometry",
+      "Key of the TrackingGeometry conditions data."
+    };
 
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_field_cache_key{
       this,

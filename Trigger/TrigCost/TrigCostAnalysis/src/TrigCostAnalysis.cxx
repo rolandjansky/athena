@@ -39,6 +39,8 @@ StatusCode  TrigCostAnalysis::initialize() {
   ATH_CHECK( m_rosDataKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
 
+  ATH_CHECK( m_metadataDataKey.initialize( SG::AllowEmpty ) );
+
 
   if (!m_enhancedBiasTool.name().empty()) {
     ATH_CHECK( m_enhancedBiasTool.retrieve() );
@@ -197,6 +199,21 @@ StatusCode TrigCostAnalysis::execute() {
   SG::ReadHandle<xAOD::TrigCompositeContainer> rosDataHandle(m_rosDataKey, context);
   ATH_CHECK( rosDataHandle.isValid() );
 
+
+  if (!m_metadataDataKey.empty()){
+    SG::ReadHandle<xAOD::TrigCompositeContainer> metadataDataHandle(m_metadataDataKey, context);
+    ATH_CHECK( metadataDataHandle.isValid() );
+
+    for (const xAOD::TrigComposite* tc : *metadataDataHandle) {
+      try {
+        const std::string hostname = tc->getDetail<std::string>("hostname");
+      } catch ( const std::exception& ) {
+        ATH_MSG_WARNING("Missing HLT_TrigCostMetadataContainer EDM hostname for event " << context.eventID().event_number());
+      }
+
+    }
+  }
+
   // Save indexes of algorithm in costDataHandle
   std::map<std::string, std::set<size_t>> chainToAlgIdx;
   std::map<std::string, std::set<size_t>> chainToUniqAlgs; // List for unique algorithms for each chain
@@ -310,17 +327,23 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   }
   if (m_doMonitorChain) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChain>("Chain_HLT", range)) );
-    ATH_MSG_INFO("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Chain_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   if (m_doMonitorChainAlgorithm) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorChainAlgorithm>("Chain_Algorithm_HLT", range)) );
-    ATH_MSG_INFO("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Chain_Algorihtm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   if (m_doMonitorSequence) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorSequence>("Sequence_HLT", range)) );
-    ATH_MSG_INFO("Registering Sequence_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+    ATH_MSG_DEBUG("Registering Sequence_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
+  
+  // Set the verbosity for the monitors
+  for (const std::unique_ptr<MonitorBase>& monitor : range->getMonitors()){
+    monitor->msg().setLevel(msg().level());
+  }
+
   return StatusCode::SUCCESS;
 }
 

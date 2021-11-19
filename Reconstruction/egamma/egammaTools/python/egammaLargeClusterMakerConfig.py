@@ -7,7 +7,6 @@ __author__ = "Jovan Mitrevski"
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-egammaLargeClusterMaker = CompFactory.egammaLargeClusterMaker
 
 
 def egammaLargeClusterMakerCfg(flags, name="egammaLCMakerTool",  **kwargs):
@@ -17,8 +16,9 @@ def egammaLargeClusterMakerCfg(flags, name="egammaLCMakerTool",  **kwargs):
     kwargs.setdefault("CellsName", flags.Egamma.Keys.Input.CaloCells)
     kwargs.setdefault("InputClusterCollection",
                       flags.Egamma.Keys.Output.CaloClusters)
-
-    acc.setPrivateTools(egammaLargeClusterMaker(name, **kwargs))
+    kwargs.setdefault("InputClusterCollection",
+                      flags.Egamma.Keys.Output.CaloClusters)
+    acc.setPrivateTools(CompFactory.egammaLargeClusterMaker(name, **kwargs))
 
     return acc
 

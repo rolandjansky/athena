@@ -129,10 +129,32 @@ public:
     }
   };
 
+  /// Determine if the smoothing of a track should be done with or without reverse
+  /// filtering
+  struct ReverseFilteringLogic {
+    double momentumMax = std::numeric_limits<double>::max();
+
+    /// Determine if the smoothing of a track should be done with or without reverse
+    /// filtering
+    ///
+    /// @tparam track_state_t Type of the track state
+    /// @param trackState The trackState of the last measurement
+    /// @retval False if we don't use the reverse filtering for the smoothing of the track
+    /// @retval True if we use the reverse filtering for the smoothing of the track
+    template <typename track_state_t>
+    bool operator()(const track_state_t& trackState) const {
+      // can't determine an outlier w/o a measurement or predicted parameters
+      auto momentum = fabs(1 / trackState.filtered()[Acts::eBoundQOverP]);
+      return (momentum <= momentumMax);
+    }
+  };
+
   /// Track fitter function that takes input measurements, initial trackstate
   //  and fitter options and returns some track-fitter-specific result.
   using TrackFitterOptions = Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator,
-                                                       ATLASOutlierFinder>;
+                                                       ATLASOutlierFinder,
+                                                       ReverseFilteringLogic>;
+
   using TrackFitterResult =
       Acts::Result<Acts::KalmanFitterResult<ATLASSourceLink>>;
 
@@ -168,6 +190,7 @@ private:
 
     // the settable job options
     double m_option_outlierChi2Cut;
+    double m_option_ReverseFilteringPt;
     int    m_option_maxPropagationStep;
     double m_option_seedCovarianceScale;
 

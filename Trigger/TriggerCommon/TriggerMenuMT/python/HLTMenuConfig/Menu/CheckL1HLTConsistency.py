@@ -13,21 +13,27 @@ def checkL1HLTConsistency():
     lvl1thtypes = lvl1access.thresholdTypes()
     lvl1items   = lvl1access.items(includeKeys=["name"])
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+
+    allUsedItems = []
+    allUnusedItems = []
+
     for chain in TriggerConfigHLT.dictsList():
         log.debug('[checkL1HLTConsistency] Checking the l1thresholds in the chain %s', chain["chainName"])
-        #don't check the noalg chains (they don't do anything in the HLT anyway)
-        if 'HLT_noalg_' in chain["chainName"]:
-            continue
+#        #don't check the noalg chains (they don't do anything in the HLT anyway)
+#        if 'HLT_noalg_' in chain["chainName"]:
+#            continue
 
         #check that the L1item is listed in the L1Menu
         l1item_vec = chain['L1item'].split(',')
         for l1item in l1item_vec:
+            if l1item == "":
+                log.debug('[checkL1HLTConsistency] chain %s in L1Menu %s: L1item not set...', chain["chainName"], lvl1name)
+                continue
             if l1item not in lvl1items:
-                if l1item != "": 
-                    log.error('[checkL1HLTConsistency] chain %s: L1item: %s, not found in the items list of the L1Menu %s', chain["chainName"], chain["L1item"], lvl1name)
-                    raise Exception("Please fix the menu or the chain.")
-                else:
-                    log.info('[checkL1HLTConsistency] chain %s in L1Menu %s: L1item not set...', chain["chainName"], lvl1name)
+                log.error('[checkL1HLTConsistency] chain %s: L1item: %s, not found in the items list of the L1Menu %s', chain["chainName"], chain["L1item"], lvl1name)
+                raise Exception("Please fix the menu or the chain.")
+            else:
+                allUsedItems.append(l1item)
 
         # Find L1 Threshold information for current chain
         for p in chain['chainParts']:
@@ -51,4 +57,12 @@ def checkL1HLTConsistency():
             else:
                 log.error('[checkL1HLTConsistency] chain %s: L1Threshold %s not found in the L1thresholds of the L1Menu %s', chain["chainName"], th, lvl1name)
                 raise Exception("Please fix the menu or the chain.")
+
+    for item in lvl1items:
+        if item not in allUsedItems:
+            allUnusedItems.append(item)
+    if len(allUnusedItems)==0:
+        log.info('[checkL1HLTConsistency] All items in L1 menu are used')
+    else:
+        log.info('[checkL1HLTConsistency] %i items in L1 menu are not used: %s', len(allUnusedItems), ",".join(allUnusedItems))
     log.info('[checkL1HLTConsistency] checkL1HLTConsistency completed succesfully')

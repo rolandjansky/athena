@@ -5,8 +5,6 @@ __doc__ = "Configure e/gamma object quality"
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-egammaOQFlagsBuilder = CompFactory.egammaOQFlagsBuilder
-CaloAffectedTool = CompFactory.CaloAffectedTool
 
 
 def egammaOQFlagsBuilderCfg(flags, name='egammaOQFlagsBuilder', **kwargs):
@@ -14,12 +12,13 @@ def egammaOQFlagsBuilderCfg(flags, name='egammaOQFlagsBuilder', **kwargs):
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
 
-    acc = ComponentAccumulator()
+    from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+    acc = LArHVScaleCfg(flags)
 
     kwargs.setdefault("CellsName", flags.Egamma.Keys.Input.CaloCells)
-    kwargs.setdefault("affectedTool", CaloAffectedTool())
+    kwargs.setdefault("affectedTool", CompFactory.CaloAffectedTool())
 
-    tool = egammaOQFlagsBuilder(name, **kwargs)
+    tool = CompFactory.egammaOQFlagsBuilder(name, **kwargs)
     acc.setPrivateTools(tool)
     return acc
 

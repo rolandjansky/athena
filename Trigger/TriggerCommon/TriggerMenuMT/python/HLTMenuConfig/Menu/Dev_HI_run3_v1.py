@@ -11,7 +11,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import SingleMuonGroup,SinglePhotonGroup,MinBiasGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,PrimaryLegGroup,PrimaryL1MuGroup,SupportLegGroup,SupportGroup,SingleJetGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import SingleMuonGroup,MinBiasGroup,MultiMuonGroup,SinglePhotonGroup,SingleElectronGroup,MultiElectronGroup,PrimaryLegGroup,PrimaryL1MuGroup,SupportLegGroup,SupportGroup,SingleJetGroup
 
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_HI_run3_v1 as HIp1_menu
 
@@ -29,7 +29,9 @@ def setupMenu():
 
     chains['Muon'] += [
         #-- 1 mu
-        ChainProp(name='HLT_mu8_L1MU5VF', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu8_L1MU5VF',  stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu10_L1MU5VF', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
+        ChainProp(name='HLT_mu10_L1MU8F',  stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
             
         #-- 2 mu
         ChainProp(name='HLT_2mu4_L12MU3V', stream=[HardProbesStream], groups=MultiMuonGroup+PrimaryL1MuGroup),
@@ -60,10 +62,12 @@ def setupMenu():
         
         # PhotonChains----------
         #----------- g etcut
-        ChainProp(name='HLT_g18_etcut_L1EM12', stream=[HardProbesStream], groups=SinglePhotonGroup+SupportLegGroup),
+        ChainProp(name='HLT_g15_etcut_ion_L1EM12', stream=[HardProbesStream], groups=SinglePhotonGroup+SupportLegGroup),
+        ChainProp(name='HLT_g20_etcut_ion_L1EM12', stream=[HardProbesStream], groups=SinglePhotonGroup+SupportLegGroup),
         
         #----------- g isEM
-        ChainProp(name='HLT_g20_loose_L1EM12', stream=[HardProbesStream], groups=SinglePhotonGroup+SupportLegGroup),
+        ChainProp(name='HLT_g15_loose_ion_L1EM12', stream=[HardProbesStream], groups=SinglePhotonGroup+PrimaryLegGroup),
+        ChainProp(name='HLT_g20_loose_ion_L1EM12', stream=[HardProbesStream], groups=SinglePhotonGroup+PrimaryLegGroup),
     ]
 
     chains['Jet'] += [

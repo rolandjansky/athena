@@ -339,11 +339,14 @@ class ComponentAccumulator(object):
 
         return
 
-    def popPrivateTools(self):
+    def popPrivateTools(self, quiet=False):
         """Get the (list of) private AlgTools from this ComponentAccumulator.
-        The CA will not keep any reference to the AlgTool.
+        The CA will not keep any reference to the AlgTool. Throw an exception if
+        no tools are available unless quiet=True.
         """
         tool=self._privateTools
+        if not quiet and tool is None:
+            raise ConfigurationError("Private tool(s) requested, but none are present")
         self._privateTools=None
         return tool
 
@@ -441,6 +444,9 @@ class ComponentAccumulator(object):
         hits=[a for a in self._conditionsAlgs if a.name==name]
         if (len(hits)>1):
             raise ConfigurationError("More than one conditions algorithm with name {} found".format(name))
+        if (len(hits)==0):
+            raise ConfigurationError("No conditions algorithm with name {} found".format(name))
+
         return hits[0]
 
     def addService(self,newSvc,primary=False,create=False):
@@ -517,7 +523,8 @@ class ComponentAccumulator(object):
     def __getOne(self, allcomps, name=None, typename="???"):
         selcomps = allcomps if name is None else [ t for t in allcomps if t.name == name ]
         if len( selcomps ) == 0:
-            return None
+            raise ConfigurationError(f"Requested component of name {name} but is missing" )
+
         if len( selcomps ) == 1:
             return selcomps[0]
         raise ConfigurationError("Number of {} available {} which is != 1 expected by this API".format(typename, len(selcomps)) )

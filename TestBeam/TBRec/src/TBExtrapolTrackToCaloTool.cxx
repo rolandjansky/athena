@@ -12,7 +12,6 @@
 #include <vector>
 
 // Stuff needed for the extrapolation :
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkParameters/TrackParameters.h"
@@ -27,7 +26,6 @@
 #include "CLHEP/Vector/ThreeVector.h"
 
 // Calo specific stuff :
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/ICaloCoordinateTool.h"
 #include "CaloTrackingGeometry/ICaloSurfaceBuilder.h"
 #include "CaloDetDescr/CaloDepthTool.h"
@@ -42,17 +40,9 @@ TBExtrapolTrackToCaloTool::TBExtrapolTrackToCaloTool(const std::string& type,
 			     const std::string& name, 
 			     const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_calo_id(0),
-  m_calo_dd(0),
-  m_calo_tb_coord(0),
   m_calosurf("CaloSurfaceBuilder"),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
-
-
-  //  m_extrapolatorName("Trk::Extrapolator"),   
-  // m_extrapolatorInstanceName("Extrapolator")
 {
-  //declareInterface<IExtrapolateToCaloTool>( this );
 
  declareProperty ("CaloSurfaceBuilder",m_calosurf,"Extrapolation ToolHandle");
  declareProperty ("Extrapolator",m_extrapolator,"CaloSurfaceBuilder ToolHandle");
@@ -67,8 +57,8 @@ TBExtrapolTrackToCaloTool::initialize()
 {
 
   // at this point the joboption should have been read
-  m_calo_dd = CaloDetDescrManager::instance();
-  m_calo_id = m_calo_dd->getCaloCell_ID();
+  ATH_CHECK(m_caloMgrKey.initialize());
+  ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
   
   
     
@@ -326,7 +316,7 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
 
 
   CaloCell_ID::CaloSample sample;
-  m_calo_dd->build_sample ( subcalo, barrel ,sampling_or_module, sample);
+  CaloDetDescrManager::build_sample ( subcalo, barrel ,sampling_or_module, sample);
   return TrackSeenByCalo(trk,sample,offset,pt_ctb,pt_local);
 } 
 
@@ -340,7 +330,7 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::TrackParameters* parm,
                                           Amg::Vector3D* pt_local)
 {
   CaloCell_ID::CaloSample sample;
-  m_calo_dd->build_sample ( subcalo, barrel ,sampling_or_module, sample);
+  CaloDetDescrManager::build_sample ( subcalo, barrel ,sampling_or_module, sample);
   return TrackSeenByCalo(parm,sample,offset,pt_ctb,pt_local);
 } 
 
@@ -375,21 +365,20 @@ TBExtrapolTrackToCaloTool::TrackSeenByCalo (const Trk::Track* trk,
   
   // Take eta of the last measured hit as best guess and create surface :
   const DataVector <const Trk::TrackParameters>* paramvec = trk->trackParameters();
-  if (paramvec) { 
-    if(m_calo_dd -> lar_geometry() == "H8")
+  if (paramvec) {
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+    if((*caloMgrHandle)->lar_geometry() == "H8") {
       trketa = m_calo_tb_coord -> beam_local_eta();
-    else  {
+    }
+    else {
       for (const Trk::TrackParameters* params : *paramvec)
 	trketa = params->eta();
     }
     
-    //std::cout<< " In Extrapol... : "<<trketa<<std::endl;
-
     surf = m_calosurf->CreateUserSurface (sample,offset,trketa);
   } 
   if (!surf) return success;
   
-  //std::cout << " here we go : " << std::endl;
   const Trk::TrackParameters* param = extrapolate(trk,surf);
   
 

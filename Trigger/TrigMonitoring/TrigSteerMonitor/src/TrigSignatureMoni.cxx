@@ -21,6 +21,7 @@ StatusCode TrigSignatureMoni::initialize() {
   ATH_CHECK(m_finalDecisionKey.initialize());
   ATH_CHECK(m_HLTMenuKey.initialize());
   ATH_CHECK(m_L1MenuKey.initialize());
+  ATH_CHECK(m_L1BunchGroupKey.initialize());
   ATH_CHECK(m_decisionCollectorTools.retrieve());
   ATH_CHECK(m_featureCollectorTools.retrieve());
   ATH_CHECK(m_histSvc.retrieve());
@@ -33,6 +34,7 @@ StatusCode TrigSignatureMoni::initialize() {
 
 StatusCode TrigSignatureMoni::start() {
   SG::ReadHandle<TrigConf::L1Menu> l1MenuHandle = SG::makeHandle(m_L1MenuKey);
+  SG::ReadHandle<TrigConf::L1BunchGroupSet> l1BunchGroupHandle = SG::makeHandle(m_L1BunchGroupKey);
   SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle = SG::makeHandle(m_HLTMenuKey);
   ATH_CHECK(hltMenuHandle.isValid());
 
@@ -104,10 +106,10 @@ StatusCode TrigSignatureMoni::start() {
 
   // Initialize BunchGroupCount that will count bunchgroup per chain
   const int xb {nChains(hltMenuHandle)};
-  const int yb {nBunchGroups(l1MenuHandle)};
+  const int yb {nBunchGroups(l1BunchGroupHandle)};
   std::unique_ptr<TH2> hBG = std::make_unique<TH2I>("BunchGroupCount", "Bunch group count per chain;chain;bunchgroup", xb, 1, xb + 1, yb, 1, yb + 1);
   ATH_CHECK(m_histSvc->regShared( m_bookingPath + "/" + name() + "/BunchGroupCount", std::move(hBG), m_bunchHistogram));
-  ATH_CHECK(initBunchHist(m_bunchHistogram, hltMenuHandle, l1MenuHandle));
+  ATH_CHECK(initBunchHist(m_bunchHistogram, hltMenuHandle, l1BunchGroupHandle));
 
   // Initialize Rate histogram to save the rates of positive decisions in given interval 
   //  per chain/group/sequence per in, after ps, out steps
@@ -481,8 +483,8 @@ int TrigSignatureMoni::nBCIDchains() const {
   return m_BCIDchainIDToBinMap.size();
 }
 
-int TrigSignatureMoni::nBunchGroups(SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) const {
-  return l1MenuHandle.isValid() ? (l1MenuHandle->getObject("bunchGroups").getKeys().size() - 1) : 16;
+int TrigSignatureMoni::nBunchGroups(SG::ReadHandle<TrigConf::L1BunchGroupSet>& l1BunchGroupHandle) const {
+  return l1BunchGroupHandle.isValid() ? (l1BunchGroupHandle->getObject("bunchGroups").getKeys().size() - 1) : 16;
 }
 
 StatusCode TrigSignatureMoni::initHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, bool steps) {
@@ -560,9 +562,9 @@ StatusCode TrigSignatureMoni::initBCIDhist(LockedHandle<TH2>& hist, const std::v
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigSignatureMoni::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, SG::ReadHandle<TrigConf::L1Menu>& l1MenuHandle) {
+StatusCode TrigSignatureMoni::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHandle<TrigConf::HLTMenu>& hltMenuHandle, SG::ReadHandle<TrigConf::L1BunchGroupSet>& l1BunchGroupHandle) {
 
-  bool gotL1Menu = l1MenuHandle.isValid() && l1MenuHandle->isInitialized();
+  bool gotL1BunchGroup = l1BunchGroupHandle.isValid() && l1BunchGroupHandle->isInitialized();
 
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");
@@ -580,8 +582,8 @@ StatusCode TrigSignatureMoni::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHan
   }
 
   std::vector<std::string> sortedBunchGroups;
-  if (gotL1Menu) {
-    sortedBunchGroups = l1MenuHandle->getObject("bunchGroups").getKeys();
+  if (gotL1BunchGroup) {
+    sortedBunchGroups = l1BunchGroupHandle->getObject("bunchGroups").getKeys();
     std::sort(sortedBunchGroups.begin(), sortedBunchGroups.end());
     sortedBunchGroups.erase(std::remove(sortedBunchGroups.begin(), sortedBunchGroups.end(), "BGRP0"), sortedBunchGroups.end());
   } else {
@@ -593,7 +595,7 @@ StatusCode TrigSignatureMoni::initBunchHist(LockedHandle<TH2>& hist, SG::ReadHan
   bin = 1;
   TAxis* y = hist->GetYaxis();
   for (const std::string& group : sortedBunchGroups){
-    std::string bgname = gotL1Menu ? l1MenuHandle->getAttribute( "bunchGroups." + group + ".name", true) : group;
+    std::string bgname = gotL1BunchGroup ? l1BunchGroupHandle->getAttribute( "bunchGroups." + group + ".name", true) : group;
     y->SetBinLabel( bin, bgname.c_str() );
     m_nameToBinMap[group] = bin;
     ++bin;

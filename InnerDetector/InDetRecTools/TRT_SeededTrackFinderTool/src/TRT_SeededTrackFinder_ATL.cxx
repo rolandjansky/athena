@@ -1259,6 +1259,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
     ///Throw out any spurious pixel hits.Need to rebuild the vector of track states on surface from scratch, since it's const in EDM
     if(nPixHits==1 && (sctR-pixR)>200.){
       auto cltsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+      cltsos->reserve (newtsos->size() - nPixHits);
       const Trk::FitQuality* fq = track->fitQuality()->clone();
       // copy track Si states into track
       DataVector<const Trk::TrackStateOnSurface>::const_iterator p_tsos;

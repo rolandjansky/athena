@@ -21,8 +21,8 @@ namespace InDetDD
     std::string detectorName() const;
     void setAlignable(bool flag = true);
     void setAlignAtModuleLevel(bool flag = true);
-    void setGmxFilename(std::string filename);
-    void setDetectorName(std::string detectorname);
+    void setGmxFilename(const std::string & filename);
+    void setDetectorName(const std::string & detectorname);
 
   private:
     bool m_alignable;
@@ -65,11 +65,11 @@ namespace InDetDD
     m_alignModule = flag;
   }
 
-  inline void BCMPrimeOptions::setGmxFilename(std::string filename) {
+  inline void BCMPrimeOptions::setGmxFilename(const std::string & filename) {
     m_gmxFilename = filename;
   }
 
-  inline void BCMPrimeOptions::setDetectorName(std::string detectorname) {
+  inline void BCMPrimeOptions::setDetectorName(const std::string & detectorname) {
     m_detectorName = detectorname;
   }
 

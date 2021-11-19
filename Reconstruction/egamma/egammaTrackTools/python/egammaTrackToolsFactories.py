@@ -3,23 +3,38 @@
 __doc__ = """ToolFactories to instantiate all
 egammaCaloTools with default configuration"""
 __author__ = "Bruno Lenzi , Christos Anastopoulos"
-from egammaRec.Factories import ToolFactory
+from egammaRec.Factories import ToolFactory, PublicToolFactory
 from egammaTrackTools import egammaTrackToolsConf
 from egammaTools.egammaExtrapolators import (
     egammaCaloExtrapolator, egammaExtrapolator)
 import AthenaCommon.CfgMgr as CfgMgr
 
+
+egCaloDepthTool = PublicToolFactory(
+    CfgMgr.CaloDepthTool,
+    name="egCaloDepthTool",
+    DepthChoice="middle"
+)
+
+egCaloSurfaceBuilder = ToolFactory(
+    CfgMgr.CaloSurfaceBuilder,
+    name="egCaloSurfaceBuilder",
+    CaloDepthTool=egCaloDepthTool
+)
+
 EMLastCaloExtensionTool = ToolFactory(
     CfgMgr.Trk__ParticleCaloExtensionTool,
     name="EMLastCaloExtensionTool",
     Extrapolator=egammaCaloExtrapolator,
-    ParticleType="electron")
+    ParticleType="electron",
+    CaloSurfaceBuilder=egCaloSurfaceBuilder)
 
 EMParticleCaloExtensionTool = ToolFactory(
     CfgMgr.Trk__ParticleCaloExtensionTool,
     name="EMParticleCaloExtensionTool",
     Extrapolator=egammaCaloExtrapolator,
     ParticleType="electron",
+    CaloSurfaceBuilder=egCaloSurfaceBuilder,
     StartFromPerigee=True)
 
 
@@ -33,26 +48,3 @@ EMExtrapolationTools = ToolFactory(
     useLastCaching=False
 )
 
-
-EMExtrapolationToolsCache = ToolFactory(
-    egammaTrackToolsConf.EMExtrapolationTools,
-    name="EMExtrapolationToolsCache",
-    LastCaloExtensionTool=EMLastCaloExtensionTool,
-    PerigeeCaloExtensionTool=EMParticleCaloExtensionTool,
-    Extrapolator=egammaExtrapolator,
-    PerigeeCache='GSFPerigeeCaloExtension',
-    LastCache='GSFLastCaloExtension',
-    useCaching=True,
-    useLastCaching=True
-)
-
-EMExtrapolationToolsCommonCache = ToolFactory(
-    egammaTrackToolsConf.EMExtrapolationTools,
-    name="EMExtrapolationToolsCommonCache",
-    LastCaloExtensionTool=EMLastCaloExtensionTool,
-    PerigeeCaloExtensionTool=EMParticleCaloExtensionTool,
-    Extrapolator=egammaExtrapolator,
-    LastCache='ParticleCaloExtension',
-    useCaching=False,
-    useLastCaching=True
-)

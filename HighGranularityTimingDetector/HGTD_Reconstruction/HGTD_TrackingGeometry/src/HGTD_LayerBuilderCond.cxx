@@ -44,7 +44,7 @@
 #include <map>
 
 // constructor
-HGTDet::HGTD_LayerBuilderCond::HGTD_LayerBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
+HGTD_LayerBuilderCond::HGTD_LayerBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_hgtdMgr(nullptr),
   m_hgtdHelper(nullptr),
@@ -71,12 +71,12 @@ HGTDet::HGTD_LayerBuilderCond::HGTD_LayerBuilderCond(const std::string& t, const
 }
 
 // destructor
-HGTDet::HGTD_LayerBuilderCond::~HGTD_LayerBuilderCond()
+HGTD_LayerBuilderCond::~HGTD_LayerBuilderCond()
 {}
 
 // Athena standard methods
 // initialize
-StatusCode HGTDet::HGTD_LayerBuilderCond::initialize()
+StatusCode HGTD_LayerBuilderCond::initialize()
 {
 
     ATH_MSG_DEBUG( "initialize()" );
@@ -91,13 +91,13 @@ StatusCode HGTDet::HGTD_LayerBuilderCond::initialize()
 }
 
 // finalize
-StatusCode HGTDet::HGTD_LayerBuilderCond::finalize()
+StatusCode HGTD_LayerBuilderCond::finalize()
 {
     ATH_MSG_DEBUG( "finalize() successful" );
     return StatusCode::SUCCESS;
 }
 
-SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> HGTDet::HGTD_LayerBuilderCond::retrieveHGTDdetElements(const EventContext& ctx) const
+SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> HGTD_LayerBuilderCond::retrieveHGTDdetElements(const EventContext& ctx) const
 {
   auto readHandle = SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> (m_HGTD_ReadKey, ctx);
   if (*readHandle==nullptr) {
@@ -108,23 +108,24 @@ SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> HGTDet::HGTD_LayerBu
 
 
 /** LayerBuilder interface method - returning Endcap-like layers */
-std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
+std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>
+HGTD_LayerBuilderCond::discLayers(const EventContext& ctx) const
 {
-  ATH_MSG_DEBUG( "calling HGTDet::HGTD_LayerBuilderCond::discLayers()" );
+  ATH_MSG_DEBUG( "calling HGTD_LayerBuilderCond::discLayers()" );
   
   // sanity check for HGTD Helper
   if (!m_hgtdHelper){
     ATH_MSG_ERROR("HGTD Detector Manager or ID Helper could not be retrieved - giving up.");
     //create dummy infinite range
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*>(range,nullptr);
   } 
   
   // get general layout
   SG::ReadCondHandle<InDetDD::HGTD_DetectorElementCollection> readHandle = retrieveHGTDdetElements(ctx);
   if(*readHandle == nullptr){
     EventIDRange range = IOVInfiniteRange::infiniteMixed();
-    return std::pair<EventIDRange, std::vector<const Trk::DiscLayer*>*>(range,nullptr);
+    return std::pair<EventIDRange, std::vector<Trk::DiscLayer*>*>(range,nullptr);
   }
   const InDetDD::HGTD_DetectorElementCollection* readCdo{*readHandle};
   InDetDD::HGTD_DetectorElementCollection::const_iterator hgtdDetIter = readCdo->begin();
@@ -164,7 +165,10 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
      // get the identifier
      Identifier    currentId((*hgtdDetIter)->identify());
 
-     ATH_MSG_DEBUG("Element : " << m_hgtdHelper->endcap(currentId) << "/" << m_hgtdHelper->layer(currentId)  << "/" << m_hgtdHelper->eta_module(currentId) << "/" << m_hgtdHelper->phi_module(currentId));
+     ATH_MSG_DEBUG("Element : " << m_hgtdHelper->endcap(currentId) << "/"
+                                << m_hgtdHelper->layer(currentId) << "/"
+                                << m_hgtdHelper->eta_module(currentId) << "/"
+                                << m_hgtdHelper->phi_module(currentId));
 
      // increase the counter of HGTD modules
      hgtdModules++;
@@ -209,7 +213,7 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
   minRmin -= m_discEnvelopeR;  
   
   // construct the layers
-  std::vector< const Trk::DiscLayer* >* discLayers = new std::vector< const Trk::DiscLayer* >;
+  std::vector<Trk::DiscLayer*>* discLayers = new std::vector<Trk::DiscLayer* >;
   
   double thickness = m_discThickness;
   
@@ -260,17 +264,22 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
       const std::vector<const Trk::Surface*>& arraySurfaces = currentBinnedArray->arrayObjects();
       size_t dsumCheckSurfaces = 0;
       double lastPhi = 0.;
-      for (auto& asurfIter : arraySurfaces){
+      for (const auto & asurfIter : arraySurfaces){
         if ( asurfIter ) {
           ++dsumCheckSurfaces;
           usmIter = uniqueSurfaceMap.find(asurfIter);
           lastPhi = asurfIter->center().phi();
-          if ( usmIter != uniqueSurfaceMap.end() )
-            ATH_MSG_WARNING("Non-unique surface found with eta/phi = " << asurfIter->center().eta() << " / " << asurfIter->center().phi());
-          else uniqueSurfaceMap[asurfIter] = asurfIter->center();
-        } 
-        else {
-          ATH_MSG_WARNING("Zero-pointer in array detected in this ring, last valid phi value was = " << lastPhi << " --> discCounter: " << discCounter);            
+          if (usmIter != uniqueSurfaceMap.end()) {
+            ATH_MSG_WARNING("Non-unique surface found with eta/phi = "
+                            << asurfIter->center().eta() << " / "
+                            << asurfIter->center().phi());
+          } else {
+            uniqueSurfaceMap[asurfIter] = asurfIter->center();
+          }
+        } else {
+          ATH_MSG_WARNING("Zero-pointer in array detected in this ring, last "
+                          "valid phi value was = "
+                          << lastPhi << " --> discCounter: " << discCounter);
         }
       }
       sumCheckhgtdModules +=  dsumCheckSurfaces;   
@@ -321,8 +330,7 @@ std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  HGTDet::HGTD
   return std::make_pair(range, discLayers);
 }
 
-
-const Trk::BinnedLayerMaterial HGTDet::HGTD_LayerBuilderCond::discLayerMaterial(double rMin, double rMax) const
+const Trk::BinnedLayerMaterial HGTD_LayerBuilderCond::discLayerMaterial(double rMin, double rMax) const
 {
   Trk::BinUtility layerBinUtilityR(m_rBins, rMin, rMax, Trk::open, Trk::binR);
   Trk::BinUtility layerBinUtilityPhi(m_phiBins, -M_PI, M_PI, Trk::closed, Trk::binPhi);
@@ -330,11 +338,11 @@ const Trk::BinnedLayerMaterial HGTDet::HGTD_LayerBuilderCond::discLayerMaterial(
   return Trk::BinnedLayerMaterial(layerBinUtilityR);  
 }     
 
-void HGTDet::HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
+void HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<const Trk::Surface*>& layerSurfaces, const Trk::Layer& lay) const
 {
    if (!m_setLayerAssociation) return;    
    // register the surfaces to the layer
-   for (auto& surfaces : layerSurfaces) {
+   for (const auto & surfaces : layerSurfaces) {
      if (surfaces) { 
        // register the current surfaces --------------------------------------------------------
        // Needs care for Athena MT 
@@ -344,15 +352,15 @@ void HGTDet::HGTD_LayerBuilderCond::registerSurfacesToLayer(const std::vector<co
    return;
 }
 
-void HGTDet::HGTD_LayerBuilderCond::evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
-                                                    std::vector<float>& rBins, float& maxRadius,
-                                                    std::vector<std::vector<float>>& phiBins) const
+void HGTD_LayerBuilderCond::evaluateBestBinning(std::vector<Trk::SurfaceOrderPosition>& surfaces,
+                                                std::vector<float>& rBins, float& maxRadius,
+                                                std::vector<std::vector<float>>& phiBins) 
 {
   // get all the centers (r,phi), as you want to play with them
   std::vector < std::pair< float, float> > centers = {};
   centers.reserve(surfaces.size());
   for ( auto& orderedSurface : surfaces) {
-    centers.push_back(std::make_pair(orderedSurface.second.perp(), orderedSurface.second.phi()));
+    centers.emplace_back(orderedSurface.second.perp(), orderedSurface.second.phi());
   }
   
   // sorting the centers accordingly to r

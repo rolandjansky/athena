@@ -26,6 +26,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloDetDescr/CaloSubdetNames.h"
+#include "CaloDetDescr/CaloDepthTool.h"
 
 #include <mutex>
 #include <vector>
@@ -33,7 +34,6 @@
 class CaloDetDescrManager;
 class ICaloCoordinateTool;
 class IMessageSvc;
-class CaloDepthTool;
 class ICaloRecoMaterialTool;
 class ICaloRecoSimpleGeomTool;
 class ICaloSurfaceHelper;
@@ -162,9 +162,11 @@ private:
   ToolHandle<ICaloRecoMaterialTool>             m_lar_mat;
   ToolHandle<ICaloRecoSimpleGeomTool>           m_lar_simplegeom;
 
-  // Defines the depths for DD and User surfaces : 
-  ToolHandle<CaloDepthTool>                     m_calodepth;
- 
+  // Defines the depths for DD and User surfaces :
+  ToolHandle<CaloDepthTool> m_calodepth{ this,
+                                         "CaloDepthTool",
+                                         "CaloDepthTool/CaloDepthTool",
+                                         "CaloDepthTool to be used" };
 };
 
 inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::entrySurfaces() const

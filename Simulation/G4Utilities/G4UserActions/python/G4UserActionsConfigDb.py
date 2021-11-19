@@ -12,6 +12,7 @@ addTool("G4UserActions.G4UserActionsConf.G4UA__G4TrackCounterTool", "G4UA::G4Tra
 addTool("G4UserActions.G4UserActionsConf.G4UA__LengthIntegratorTool", "G4UA::LengthIntegratorTool")
 addTool("G4UserActions.G4UserActionsConf.G4UA__PhotonKillerTool", "G4UA::PhotonKillerTool")
 
+addTool("G4UserActions.G4UserActionsConfig.getFixG4CreatorProcessTool", "G4UA::FixG4CreatorProcessTool")
 addTool("G4UserActions.G4UserActionsConfig.getFastIDKillerTool", "G4UA::FastIDKillerTool")
 addTool("G4UserActions.G4UserActionsConfig.getFastMBKillerTool", "G4UA::FastMBKillerTool")
 addTool("G4UserActions.G4UserActionsConfig.getHitWrapperTool", "G4UA::HitWrapperTool")

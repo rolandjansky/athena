@@ -32,9 +32,11 @@
 struct ConvProxy {
   ConvProxy(const HLT::TriggerElement* te);
 
+  bool mergeAllowed(const ConvProxy* other) const;
   void merge(ConvProxy* other); // this will change the also the "other" so it knows it has been merged
-
   const HLT::TriggerElement* te = nullptr;
+  std::vector<HLT::te_id_type> teIDs; // post merging will contain IDs of all merged TEs
+
   std::vector<ConvProxy*> children;
   std::vector<ConvProxy*> parents;
   std::set<HLT::Identifier> runChains;
@@ -42,7 +44,7 @@ struct ConvProxy {
   static const uint64_t MissingFEA = 0;
   uint64_t feaHash = MissingFEA;
 
-  std::vector<TrigCompositeUtils::Decision*> imNodes; // for checks only
+  TrigCompositeUtils::Decision* imNode; // for checks only
   std::vector<TrigCompositeUtils::Decision*> hNodes;
   std::string description() const;
 };
@@ -81,7 +83,9 @@ private:
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigOutputNavKey{ this, "OutputNavKey", "HLTNav_Summary" };
 
-  StatusCode extractTECtoChainMapping(TEIdToChainsMap_t& allTES, TEIdToChainsMap_t& finalTEs) const;
+  StatusCode extractTECtoChainMapping(TEIdToChainsMap_t& allTEs, TEIdToChainsMap_t& finalTEs) const;
+  mutable std::mutex m_configUpdateMutex;
+  TEIdToChainsMap_t m_allTEIdsToChains, m_finalTEIdsToChains;
 
   StatusCode mirrorTEsStructure(ConvProxySet_t&, HLT::StandaloneNavigation& standaloneNav, const EventContext& context) const;
 
@@ -103,9 +107,9 @@ private:
 
   StatusCode fillRelevantFeatures(ConvProxySet_t&) const;
 
-  StatusCode createIMHNodes(ConvProxySet_t&, xAOD::TrigCompositeContainer&) const;
+  StatusCode createIMHNodes(ConvProxySet_t&, xAOD::TrigCompositeContainer&, const EventContext&) const;
 
-  StatusCode createFSNodes(const ConvProxySet_t&, xAOD::TrigCompositeContainer&, const TEIdToChainsMap_t& finalTEs) const;
+  StatusCode createFSNodes(const ConvProxySet_t&, xAOD::TrigCompositeContainer&, const TEIdToChainsMap_t& finalTEs,  const EventContext& context) const;
 
   StatusCode linkTopNode(xAOD::TrigCompositeContainer&) const;
 

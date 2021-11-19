@@ -14,9 +14,16 @@ def LArPedestalAutoCorrCfg(flags):
     digKey=gainStrMap[flags.LArCalib.Gain]
 
     result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccDigitKey=digKey,
-                                                              LArFebHeaderKey="LArFebHeader"))
-    
+                                                              LArFebHeaderKey="LArFebHeader",
+                                                              FailOnCorruption=False))
 
+    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+    result.merge(LArFebErrorSummaryMakerCfg(flags))
+    result.getEventAlgo("LArFebErrorSummaryMaker").CheckAllFEB=False
+    result.addEventAlgo(CompFactory.LArBadEventCatcher(CheckAccCalibDigitCont=True,
+                                                       CheckBSErrors=True,
+                                                       KeyList=[digKey,],
+                                                       StopOnError=False))
 
     LArPedACBuilder=CompFactory.LArPedestalAutoCorrBuilder()
     LArPedACBuilder.KeyList         = [digKey,]
@@ -50,6 +57,7 @@ def LArPedestalAutoCorrCfg(flags):
 
     #Get the current folder tag by interrogating the database:
     from LArCalibProcessing.utils import FolderTagResolver
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     tagResolver=FolderTagResolver()
     pedestalTag=tagResolver.getFolderTag(flags.LArCalib.Pedestal.Folder)
     autocorrTag=tagResolver.getFolderTag(flags.LArCalib.AutoCorr.Folder)
@@ -165,7 +173,7 @@ if __name__ == "__main__":
     
     ConfigFlags.LArCalib.Output.ROOTFile="ped.root"
 
-    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDDBR2"
+    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDBR2"
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-000-02"
 
     print ("Input files to be processed:")

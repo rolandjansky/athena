@@ -75,11 +75,18 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
 #              if hasattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName()):
 #                  InDetTrackingGeometryBuilder = getattr(ToolSvc, TrkDetFlags.InDetTrackingGeometryBuilderName())
 #          else:
+
           if not TrkDetFlags.InDetStagedGeometryBuilder():
-              from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilderCond import ConfiguredInDetTrackingGeometryBuilderCond as IDGeometryBuilder
+              from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilderCond import(
+                  ConfiguredInDetTrackingGeometryBuilderCond as IDGeometryBuilder)
           else:
-              from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilderCond import ConfiguredStagedTrackingGeometryBuilderCond as IDGeometryBuilder
-          InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder'+nameSuffix,nameSuffix=nameSuffix)
+              from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilderCond import (
+                  ConfiguredStagedTrackingGeometryBuilderCond as IDGeometryBuilder)
+          from AthenaCommon.BeamFlags import jobproperties
+          InDetTrackingGeometryBuilder = IDGeometryBuilder(
+              name='InDetTrackingGeometryBuilder'+nameSuffix,
+              nameSuffix=nameSuffix,
+              buildTrtStrawLayers=(jobproperties.Beam.beamType == "cosmics"))
 
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()

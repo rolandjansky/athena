@@ -429,8 +429,9 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
          (ii == 1 && (m_doOutOfClusterM || m_doDeadM || (m_doDeadEnergySharing && m_MatchDmType==kMatchDmMedium) ) ) || 
          (ii == 2 && (m_doOutOfClusterT || m_doDeadT || (m_doDeadEnergySharing && m_MatchDmType==kMatchDmTight)) ) ) {
       engCalibOut[ii].resize(theClusColl->size(),0);
-      iClus = 0;
+      iClus = -1;
       for (const xAOD::CaloCluster * theCluster : *theClusColl) {
+	++iClus;
         MyClusInfo& clusInfo = clusInfoVec[iClus];
 
         if ( clusInfo.engCalibIn.engTot > 0 ) {

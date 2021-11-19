@@ -12,24 +12,22 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/CaloGain.h"
-#include <string>
 #include "LArCafJobs/ILArShapeDumperTool.h"
 #include "LArCafJobs/DataStore.h"
 #include "LArSamplesMon/TreeShapeErrorGetter.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include <string>
 
 class MsgStream;
 class StoreGateSvc;
-class CaloDetDescrManager;
 class ILArShape;
 class HWIdentifier;
 class Identifier;
-class CaloDetDescrElement;
 class LArOnlineID;
 
 class LArShapeCompleteMaker : public AthAlgorithm
@@ -39,9 +37,9 @@ class LArShapeCompleteMaker : public AthAlgorithm
   ~LArShapeCompleteMaker();
 
   //standart algorithm methods
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
  private:
    
@@ -50,12 +48,14 @@ class LArShapeCompleteMaker : public AthAlgorithm
   LArSamples::DataStore* m_template;
 
   ToolHandle<ILArShapeDumperTool> m_dumperTool;
-  ToolHandle<LArCablingLegacyService> m_larCablingSvc;
   
   unsigned int m_nSamples, m_nPhases, m_iPhase;
   int m_minNPulses;
   std::string m_shapeErrorFileName, m_outputFileName, m_outputTemplateFileName, m_sgKey;
   std::string m_groupingType;
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_onOffMapKey
+    { this, "LArOnOffIdMappingKey", "LArOnOffIdMapping", "LArOnOffIdMapping key" };
 };
 
 #endif

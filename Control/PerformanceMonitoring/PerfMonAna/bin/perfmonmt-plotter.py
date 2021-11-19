@@ -193,6 +193,10 @@ def plotComponentLevel(componentLevelData, compCountPerPlot):
       if vmem < 0 or malloc < 0:
         continue
 
+      # Truncate unwieldy component names
+      if len(comp) > 50:
+        comp = f"{comp[:20]}[...]{comp[-20:]}"
+
       compNames.append(comp + " [" + str(count) + "]")
       vmemVals.append(vmem)
       cpuTimeVals.append(cpuTime)

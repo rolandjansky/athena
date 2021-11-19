@@ -99,8 +99,18 @@ def ITkPixelPhysicsRegionToolCfg(ConfigFlags, name='ITkPixelPhysicsRegionTool', 
 def ITkStripPhysicsRegionToolCfg(ConfigFlags, name='ITkStripPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'ITkStrip')
     volumeList = ['ITkStrip::BRLSensorSS', 'ITkStrip::BRLSensorMS',
-                   'ITkStrip::ECSensor0', 'ITkStrip::ECSensor1', 'ITkStrip::ECSensor2',
-                   'ITkStrip::ECSensor3', 'ITkStrip::ECSensor4', 'ITkStrip::ECSensor5']
+                  'ITkStrip::ECSensor0', 'ITkStrip::ECSensor1', 'ITkStrip::ECSensor2',
+                  'ITkStrip::ECSensor3', 'ITkStrip::ECSensor4', 'ITkStrip::ECSensor5']
+    kwargs.setdefault("VolumeList",  volumeList)
+    kwargs.setdefault("ElectronCut", 0.05)
+    kwargs.setdefault("PositronCut", 0.05)
+    kwargs.setdefault("GammaCut",    0.05)
+    return RegionCreator(name, **kwargs)
+
+def HGTDPhysicsRegionToolCfg(ConfigFlags, name='HGTDPhysicsRegionTool', **kwargs):
+    kwargs.setdefault("RegionName", 'HGTD')
+    volumeList = ['HGTD::HGTDSiSensor0', 'HGTD::HGTDSiSensor1',
+                  'HGTD::HGTDSiSensor2', 'HGTD::HGTDSiSensor3']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)

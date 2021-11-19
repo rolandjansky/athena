@@ -23,8 +23,7 @@ def primaryVertexFindingCfg(flags):
     acc.merge(actsGeoAcc)
 
     trackExtrapolator = acc.getPrimaryAndMerge(ActsExtrapolationToolCfg(flags))
-
-    trackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
+    trackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
 
     # TODO find out which of the settings below need to be picked from flags
     trackSelector = CompFactory.InDet.InDetTrackSelectionTool(
@@ -72,8 +71,6 @@ def primaryVertexFindingCfg(flags):
 
     return acc
 
-###################################################################
-# secondary vertex finding (for egamma)
 
 
 
@@ -95,6 +92,8 @@ def ConversionPostSelectorCfg(flags, name="ConversionPostSelector"):
 def SingleTrackConversionToolCfg(flags, name="SingleTrackConversionTool"):
     acc = ComponentAccumulator()
     kwargs ={}
+    # from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    # kwargs["Extrapolator"] = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["MaxBLayerHits"] = flags.InDet.SecVertex.SingleTrk.MaxBLayerHits
     kwargs["MinInitialHitRadius"] = flags.InDet.SecVertex.SingleTrk.MinInitialHitRadius
     kwargs["MinInitialHitRadius_noBlay"] = flags.InDet.SecVertex.SingleTrk.MinInitialHitRadius_noBlay
@@ -122,7 +121,7 @@ def TrackPairsSelectorCfg(flags, name="TrackPairsSelector"):
 def InDetConversionTrackSelectorToolCfg(flags, name="InDetConversionTrackSelectorTool"):
     acc = ComponentAccumulator()
     kwargs = {}
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
     kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["RatioCut1"] = flags.InDet.SecVertex.TrkSel.RatioCut1
     kwargs["RatioCut3"] = flags.InDet.SecVertex.TrkSel.RatioCut3
@@ -142,8 +141,8 @@ def InDetConversionTrackSelectorToolCfg(flags, name="InDetConversionTrackSelecto
 def TrkVKalVrtFitterCfg(flags, name="TrkVKalVrtFitter"):
     acc = ComponentAccumulator()
     kwargs= {}
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.popToolsAndMerge(InDetExtrapolatorCfg(flags))
+    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["FirstMeasuredPoint"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPoint
     kwargs["FirstMeasuredPointLimit"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPointLimit
     kwargs["InputParticleMasses"] = flags.InDet.SecVertex.Fitter.InputParticleMasses
@@ -171,7 +170,7 @@ def ConversionFinderCfg(flags, name="ConversionFinderTool"):
 
     acc = ComponentAccumulator()
     kwargs = {}
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
     kwargs["Extrapolator"] = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     kwargs["PostSelector"] = acc.getPrimaryAndMerge(ConversionPostSelectorCfg(flags))
     kwargs["SingleTrackConversionTool"] = acc.getPrimaryAndMerge(SingleTrackConversionToolCfg(flags))

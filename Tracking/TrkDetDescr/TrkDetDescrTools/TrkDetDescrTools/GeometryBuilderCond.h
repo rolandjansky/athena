@@ -61,7 +61,7 @@ namespace Trk {
          * TrackingGeometry Interface method - optionally a pointer to Bounds
          * Interface marked as not thread safe
          */
-        std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry
+        std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry
         ATLAS_NOT_THREAD_SAFE(
           const EventContext& ctx,
           std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
@@ -72,7 +72,7 @@ namespace Trk {
       private:
 
         /** TrackingGeometry for ATLAS setup */
-        std::pair<EventIDRange, const Trk::TrackingGeometry*>
+        std::pair<EventIDRange, Trk::TrackingGeometry*>
           atlasTrackingGeometry ATLAS_NOT_THREAD_SAFE (const EventContext& ctx) const;
 
 #ifdef TRKDETDESCR_MEMUSAGE         

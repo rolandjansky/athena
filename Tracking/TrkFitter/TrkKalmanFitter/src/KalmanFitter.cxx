@@ -27,12 +27,6 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "TrkValInterfaces/IValidationNtupleTool.h"
-#include "TrkDetDescrInterfaces/IAlignableSurfaceProvider.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IUpdator.h"
-#include "TrkFitterInterfaces/IMeasurementRecalibrator.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 #include "TrkEventUtils/MeasurementBaseComparisonFunction.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
@@ -52,19 +46,6 @@ Trk::KalmanFitter::KalmanFitter(const std::string& t,const std::string& n,
                                 const IInterface* p) :
   AthAlgTool (t,n,p),
   m_log(msgSvc(), n),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_updator("Trk::KalmanUpdator/KalmanUpdator"),
-  m_ROTcreator("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"),
-  m_dynamicNoiseAdjustor(""),
-  m_brempointAnalyser(""),
-  m_alignableSfProvider(""),
-  m_recalibrator(""),
-  m_internalDAF(), // or "Trk::KalmanPiecewiseAnnealingFilter/KalmanInternalDAF"
-  m_forwardFitter("Trk::ForwardKalmanFitter/FKF"),
-  m_smoother("Trk::KalmanSmoother/BKS"),
-  m_outlierLogic("Trk::KalmanOutlierLogic/KOL"),
-  m_outlierRecovery("Trk::KalmanOutlierRecovery_InDet/KOL_RecoveryID"),
-  m_FitterValidationTool(""),
   m_option_callValidationToolForFailedFitsOnly(false),
   m_option_sortingRefPoint{0.,0.,0.},
   m_callValidationTool(false),
@@ -84,32 +65,6 @@ Trk::KalmanFitter::KalmanFitter(const std::string& t,const std::string& n,
   declareInterface<ITrackFitter>( this );
 
   m_trajectory.reserve(100);
-
-  // --- tools used by KalmanFitter, passed as ToolHandles
-  declareProperty("ExtrapolatorHandle",m_extrapolator,
-                  "Extrapolation tool for transporting track pars and handling material effects");
-  declareProperty("RIO_OnTrackCreatorHandle",m_ROTcreator,
-                  "Tool to create RIO_OnTrack out of PrepRawData input");
-  declareProperty("MeasurementUpdatorHandle",m_updator,
-                  "Tool to perform measurement update and chi2 calculation");
-  declareProperty("DynamicNoiseAdjustorHandle",m_dynamicNoiseAdjustor,
-                  "Tool to handle brem as dynamically adjusted q/p noise");
-  declareProperty("BrempointAnalyserHandle",m_brempointAnalyser,
-                  "Tool to confirm if DNA activity is due to brem or not");
-  declareProperty("AlignableSurfaceProviderHandle",m_alignableSfProvider,
-                  "Tool to replace measurement surface by an alignable one");
-  declareProperty("RecalibratorHandle", m_recalibrator);
-  declareProperty("InternalDAFHandle", m_internalDAF);
-  declareProperty("ForwardKalmanFitterHandle",m_forwardFitter,
-                  "Tool for running the forward filter along the internal trajectory");
-  declareProperty("KalmanSmootherHandle",m_smoother,
-                  "Tool for performing the backward smoothing on the internal trajectory");
-  declareProperty("KalmanOutlierLogicHandle",m_outlierLogic,
-                  "Tool for fit quality analysis and outlier flagging");
-  declareProperty("KalmanOutlierRecoveryHandle",m_outlierRecovery,
-                  "Tool for fit quality analysis and outlier recovery");
-  declareProperty("FitterValidationToolHandle", m_FitterValidationTool,
-                  "Tool for fitter validation (writes intermediate results to ntuple)");
 
   // -- job options - do NOT modify defaults to achieve detector-specific tuning!
   declareProperty("DoDNAForElectronsOnly",m_doDNAForElectronsOnly,

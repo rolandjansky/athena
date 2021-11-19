@@ -72,7 +72,7 @@ def ITkFieldManagerToolCfg(ConfigFlags, name='ITkFieldManager', **kwargs):
     return BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
 def MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags, name='MuonsOnlyInCaloFieldManager', **kwargs):
-    kwargs.setdefault("LogicalVolumes", ['CALO::CALO'])
+    kwargs.setdefault("PhysicalVolumes", ['LArBarrel'])
     #kwargs.setdefault('DeltaChord',         0.00000002)
     kwargs.setdefault('DeltaIntersection',  0.00000002)
     kwargs.setdefault('DeltaOneStep',       0.000001)

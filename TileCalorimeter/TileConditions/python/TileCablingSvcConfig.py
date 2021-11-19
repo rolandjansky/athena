@@ -42,6 +42,9 @@ def TileCablingSvcCfg(flags):
         else:
             tileCablingSvc.CablingType = 4
             msg.info("Forcing RUN2 (2014-2017) cabling for run %s with geometry %s", runNumber, geometry)
+    elif run == 'RUN3':
+        tileCablingSvc.CablingType = 6
+        msg.info("Forcing RUN3 cabling for run %s with geometry %s", run, geometry)
 
     acc.addService(tileCablingSvc, primary = True)
 

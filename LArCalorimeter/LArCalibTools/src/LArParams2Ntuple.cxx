@@ -45,12 +45,10 @@ StatusCode LArParams2Ntuple::initialize() {
   m_ntTitle=m_ntName;
   m_ntpath=std::string("/NTUPLES/FILE1/")+m_ntName;
 
-  
   if ( m_classNames.size() != m_nClasses ) { // should never happen! but just to be sure...
     ATH_MSG_FATAL( "List of class names does not match foreseen number of classes, cannot go on!" ) ;
     return StatusCode::FAILURE ;
   }
- 
   for ( unsigned i=0 ; i<m_keylist.size() ; i++ ) {
     ATH_MSG_DEBUG("examinimg key " << m_keylist[i] << "...");
     unsigned idx = LArParamsProperties::getClassIndex(m_keylist[i]) ;
@@ -64,6 +62,7 @@ StatusCode LArParams2Ntuple::initialize() {
     }
   }
 
+  ATH_MSG_INFO("LArParams2Ntuple 3"); 
   if ( m_useAbstractInterface ) {
     ATH_MSG_INFO( "All parameters will be accessed through abstract interface" ) ;
     if ( ! m_allChannels2Ntuple ) {

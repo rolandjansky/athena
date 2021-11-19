@@ -9,7 +9,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTools.EMTrackMatchBuilderConfig import EMTrackMatchBuilderCfg
 from egammaTools.EMConversionBuilderConfig import EMConversionBuilderCfg
-egammaRecBuilder = CompFactory.egammaRecBuilder
 
 
 def egammaRecBuilderCfg(
@@ -17,10 +16,8 @@ def egammaRecBuilderCfg(
         name='egammaRecBuilder',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
     acc = ComponentAccumulator()
+
     if "TrackMatchBuilderTool" not in kwargs:
         emtrkmatch = EMTrackMatchBuilderCfg(flags)
         kwargs["TrackMatchBuilderTool"] = acc.popToolsAndMerge(emtrkmatch)
@@ -36,7 +33,7 @@ def egammaRecBuilderCfg(
         "InputClusterContainerName",
         flags.Egamma.Keys.Internal.EgammaTopoClusters)
 
-    egrecAlg = egammaRecBuilder(name, **kwargs)
+    egrecAlg = CompFactory.egammaRecBuilder(name, **kwargs)
 
     acc.addEventAlgo(egrecAlg)
     return acc
@@ -50,6 +47,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
+    flags.lock()
 
     acc = MainServicesCfg(flags)
     acc.merge(egammaRecBuilderCfg(flags))

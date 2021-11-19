@@ -131,17 +131,13 @@ namespace Analysis {
     //-------------------------------------------------------------------------------------
     // Find the candidates
     //-------------------------------------------------------------------------------------
-    StatusCode JpsiPlus1Track::performSearch(xAOD::VertexContainer*& bContainer, xAOD::VertexAuxContainer*& bAuxContainer) const
+    StatusCode JpsiPlus1Track::performSearch(const EventContext& ctx, xAOD::VertexContainer& bContainer) const
     {
         ATH_MSG_DEBUG( "JpsiPlus1Track::performSearch" );
-        bContainer = new xAOD::VertexContainer;
-        bAuxContainer = new xAOD::VertexAuxContainer;
-        bContainer->setStore(bAuxContainer);
-
         
         // Get the J/psis from StoreGate
         const xAOD::VertexContainer* importedJpsiCollection(0);
-        SG::ReadHandle<xAOD::VertexContainer> jpsiCollectionhandle(m_jpsiCollectionKey);
+        SG::ReadHandle<xAOD::VertexContainer> jpsiCollectionhandle(m_jpsiCollectionKey,ctx);
         if(!jpsiCollectionhandle.isValid()){
             ATH_MSG_ERROR("No VertexContainer with key " << m_jpsiCollectionKey.key() << " found in StoreGate. BCandidates will be EMPTY!");
             return StatusCode::FAILURE;
@@ -152,8 +148,8 @@ namespace Analysis {
         ATH_MSG_DEBUG("VxCandidate container size " << importedJpsiCollection->size());
         
         // Get tracks
-        const xAOD::TrackParticleContainer* importedTrackCollection(0);
-        SG::ReadHandle<xAOD::TrackParticleContainer> TrkParticleHandle(m_TrkParticleCollection);
+        const xAOD::TrackParticleContainer* importedTrackCollection{nullptr};
+        SG::ReadHandle<xAOD::TrackParticleContainer> TrkParticleHandle(m_TrkParticleCollection,ctx);
         if(!TrkParticleHandle.isValid()){
             ATH_MSG_ERROR("No track particle collection with name " << m_TrkParticleCollection << " found in StoreGate!");
             return StatusCode::FAILURE;
@@ -165,7 +161,7 @@ namespace Analysis {
 
         const xAOD::TrackParticleContainer* importedGSFTrackCollection(nullptr);
         if(m_useGSFTrack.any() && !m_TrkParticleGSFCollection.key().empty()){
-           SG::ReadHandle<xAOD::TrackParticleContainer> h(m_TrkParticleGSFCollection);
+           SG::ReadHandle<xAOD::TrackParticleContainer> h(m_TrkParticleGSFCollection,ctx);
            ATH_CHECK(h.isValid());
            importedGSFTrackCollection = h.cptr();
         }
@@ -174,7 +170,7 @@ namespace Analysis {
         // Get the muon collection used to build the J/psis
         const xAOD::MuonContainer* importedMuonCollection(0);
         if (!m_MuonsUsedInJpsi.key().empty()) {
-            SG::ReadHandle<xAOD::MuonContainer> h(m_MuonsUsedInJpsi);
+            SG::ReadHandle<xAOD::MuonContainer> h(m_MuonsUsedInJpsi,ctx);
             if (!h.isValid()){
                 ATH_MSG_ERROR("No muon collection with name " << m_MuonsUsedInJpsi.key() << " found in StoreGate!");
                 return StatusCode::FAILURE;
@@ -189,7 +185,7 @@ namespace Analysis {
         typedef std::vector<const xAOD::TrackParticle*> TrackBag;
         
         // Select the inner detector tracks
-        const xAOD::Vertex* vx = 0;
+        const xAOD::Vertex* vx = nullptr;
         TrackBag theIDTracksAfterSelection;
         for (auto trkPBItr=importedTrackCollection->cbegin(); trkPBItr!=importedTrackCollection->cend(); ++trkPBItr) {
             const xAOD::TrackParticle* tp (*trkPBItr);
@@ -243,7 +239,7 @@ namespace Analysis {
         std::vector<double> massCuts;
 
         TrackBag muonTracks;
-        if (importedMuonCollection != NULL && m_excludeJpsiMuonsOnly) {
+        if (importedMuonCollection && m_excludeJpsiMuonsOnly) {
           for(auto muon : *importedMuonCollection){
             if(!muon->inDetTrackParticleLink().isValid()) continue;
             auto track = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
@@ -339,7 +335,7 @@ namespace Analysis {
                         std::vector<const xAOD::Vertex*> theJpsiPreceding;
                         theJpsiPreceding.push_back(*jpsiItr);
                         bHelper.setPrecedingVertices(theJpsiPreceding, importedJpsiCollection);
-                        bContainer->push_back(bVertex.release());
+                        bContainer.push_back(bVertex.release());
                     } else {
                        ATH_MSG_DEBUG("Cuts failed!");
                     }
@@ -348,7 +344,7 @@ namespace Analysis {
             } // End of loop over tracks                        
             
         } // End of loop over J/psis
-        ATH_MSG_DEBUG("bContainer size " << bContainer->size());
+        ATH_MSG_DEBUG("bContainer size " << bContainer.size());
         return StatusCode::SUCCESS;
         
     }

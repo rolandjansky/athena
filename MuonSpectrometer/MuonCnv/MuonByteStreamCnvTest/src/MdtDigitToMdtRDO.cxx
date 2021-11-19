@@ -89,34 +89,29 @@ StatusCode MdtDigitToMdtRDO::execute(const EventContext& ctx) const {
   return StatusCode::SUCCESS;
 }
  std::unique_ptr<MdtCsm> MdtDigitToMdtRDO::make_csm(const MuonMDT_CablingMap* cabling_ptr, const Identifier module_id, IdentifierHash module_hash, bool need_second) const{
-      const int name    = m_idHelperSvc->mdtIdHelper().stationName(module_id);
-      const int eta     = m_idHelperSvc->mdtIdHelper().stationEta(module_id);
-      const int phi     = m_idHelperSvc->mdtIdHelper().stationPhi(module_id);
-      uint8_t subsystem{0}, mrod{0}, link{0}, tdc{0}, channel{0};
-       
-      int tube_to_use = 1;
-      if (m_BMEpresent && name == m_BME_station_name && need_second){
-          tube_to_use = BME_1st_tube_2nd_CSM;
-      }
-      
-      if(!cabling_ptr->getOnlineId(name, eta, phi, 1, 1, tube_to_use,
-                                  subsystem, mrod, link, tdc, channel, msgStream())){
-        if (name == m_BMG_station_name){
+    MuonMDT_CablingMap::CablingData cabling_data{};
+    if (!cabling_ptr->convert(module_id,cabling_data)){
+        ATH_MSG_ERROR("Failed to convert the module "<<m_idHelperSvc->toString(module_id));
+        return nullptr;
+    }
+    cabling_data.tube= 1;
+    if (m_BMEpresent && cabling_data.stationIndex == m_BME_station_name && need_second){
+          cabling_data.tube = BME_1st_tube_2nd_CSM;
+    }      
+    if(!cabling_ptr->getOnlineId(cabling_data, msgStream())){
+        if (cabling_data.stationIndex == m_BMG_station_name){
             if (!bmgWarningPrinted) {
                 ATH_MSG_WARNING("Apparently BMG chambers are disconnected to the cabling. "<<
                                "This has been checked to only appear in mc16a-like setups as the chambers were installed in the end-of-the-year shutdown 2016. "<<
                                "In any other case, be despaired in facing the villian and check what has gone wrong");
-                bmgWarningPrinted.store(true, std::memory_order_relaxed);                    
+                bmgWarningPrinted = true;                    
             }
             return nullptr;
         }
-        ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
-        ATH_MSG_ERROR( name << " "
-                            << eta << " " << phi << " "
-                            << "and dummy multilayer=1, layer=1, tube="<<tube_to_use<<" ."  );
+        ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "<<cabling_data);
         return nullptr;
     }
-    return std::make_unique<MdtCsm>(module_id, module_hash, subsystem, mrod, link);
+    return std::make_unique<MdtCsm>(module_id, module_hash, cabling_data.subdetectorId, cabling_data.mrod, cabling_data.csm);
 }
 
 StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
@@ -157,13 +152,13 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
       IdentifierHash moduleHash = mdtCollection->identifierHash();
       Identifier moduleId = mdtCollection->identify();
       
-      const int name    = m_idHelperSvc->mdtIdHelper().stationName(moduleId);
-      const int eta     = m_idHelperSvc->mdtIdHelper().stationEta(moduleId);
-      const int phi     = m_idHelperSvc->mdtIdHelper().stationPhi(moduleId);
- 
       // Get the online ID of the MDT module
       Identifier chid1, chid2;
       if ( m_BMEpresent ){
+          const int name    = m_idHelperSvc->mdtIdHelper().stationName(moduleId);
+          const int eta     = m_idHelperSvc->mdtIdHelper().stationEta(moduleId);
+          const int phi     = m_idHelperSvc->mdtIdHelper().stationPhi(moduleId);
+ 
             /// 1st ML channel get_id
             chid1 = m_idHelperSvc->mdtIdHelper().channelID(name,
                                                            eta,
@@ -182,61 +177,58 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
       /// Remove dead tubes from the container
       if (!condtionsPtr->isGood(chid1)) continue;
 
+      MuonMDT_CablingMap::CablingData cabling_data;
+      if (!cabling_ptr->convert(chid1,cabling_data)){
+        ATH_MSG_FATAL("Found a non mdt identifier "<<m_idHelperSvc->toString(chid1));
+        return StatusCode::FAILURE;
+      }
       std::unique_ptr<MdtCsm> mdtCsm {nullptr}, mdtCsm_2nd{nullptr};
       
       mdtCsm = make_csm(cabling_ptr, chid1, moduleHash, false);
-      if (name == m_BME_station_name) mdtCsm_2nd =  make_csm(cabling_ptr, chid2, hashF(chid2), true);
+      if (cabling_data.stationIndex == m_BME_station_name) mdtCsm_2nd =  make_csm(cabling_ptr, chid2, hashF(chid2), true);
       /// Iterate on the digits of the collection
       for (const MdtDigit* mdtDigit: *mdtCollection) {
         Identifier channelId = mdtDigit->identify();
 	    
-        if (!m_idHelperSvc->mdtIdHelper().valid(channelId)) {
+        if (!m_idHelperSvc->mdtIdHelper().valid(channelId) || !cabling_ptr->convert(channelId,cabling_data)) {
             ATH_MSG_DEBUG("Found invalid mdt identifier "<<channelId);
             continue;
         }
        
-   
-        const int multilayer = m_idHelperSvc->mdtIdHelper().multilayer(channelId);
-        const int layer      = m_idHelperSvc->mdtIdHelper().tubeLayer(channelId);
-        const int tube       = m_idHelperSvc->mdtIdHelper().tube(channelId);
-        uint8_t subsystem{0}, mrod{0},link{0},tdc{0}, channel{0};
                
         /// Get the online Id of the channel
-        bool cabling = cabling_ptr->getOnlineId(name, eta, phi, 
-                                               multilayer, layer, tube,
-                                               subsystem, mrod, link, 
-                                               tdc, channel, msg);
+        bool cabling = cabling_ptr->getOnlineId(cabling_data, msg);
 	            
        if (!cabling) {
-          if (name == m_BMG_station_name) {
-                if (!bmgWarningPrinted.load(std::memory_order_relaxed)){
+          if (cabling_data.stationIndex == m_BMG_station_name) {
+                if (!bmgWarningPrinted){
                     ATH_MSG_WARNING("Apparently BMG chambers are disconnected to the cabling. "<<
                                     "This has been checked to only appear in mc16a-like setups as the chambers were installed in the end-of-the-year shutdown 2016. "<<
                                     "In any other case, be despaired in facing the villian and check what has gone wrong");
-                    bmgWarningPrinted.store(true, std::memory_order_relaxed);                    
+                    bmgWarningPrinted = true;                    
                 }
                 continue;
           }
           // as long as there is no BIS sMDT cabling, to avoid a hard crash, replace the tubeNumber
           // of tubes not covered in the cabling by 1
           if (m_idHelperSvc->mdtIdHelper().stationName(channelId)== m_BIS_station_name && m_idHelperSvc->issMdt(channelId)) {
-                unsigned int theLayer = (layer==4) ? 3 : layer;
                  if (!bisWarningPrinted) {
-                    ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to "<<theLayer<<",1 until a proper cabling is implemented, cf. ATLASRECTS-5804");
-                    bisWarningPrinted.store(true, std::memory_order_relaxed);
+                    ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<cabling_data.layer<<" and tubeNumber="<<cabling_data.tube<<". Setting to "<<cabling_data.layer<<",1 until a proper cabling is implemented, cf. ATLASRECTS-5804");
+                    bisWarningPrinted = true;
                  }
-               cabling = cabling_ptr->getOnlineId(name, eta, phi, multilayer, theLayer, 1,subsystem, mrod, link, tdc, channel, msg);
+               cabling_data.layer =  std::min(cabling_data.layer, 3);
+               cabling_data.tube = 1;
+               cabling = cabling_ptr->getOnlineId(cabling_data, msg);
           }
           if (!cabling) {
-                ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
-                ATH_MSG_ERROR( name << " " << eta << " " << phi << " " << multilayer << " " << layer << " " << tube  );
+                ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "<<cabling_data );
                 return StatusCode::FAILURE;
           }
        } 
 
         bool masked = mdtDigit->is_masked();
         // Create the new AMT hit
-        std::unique_ptr<MdtAmtHit> amtHit = std::make_unique<MdtAmtHit>(tdc, channel, masked);
+        std::unique_ptr<MdtAmtHit> amtHit = std::make_unique<MdtAmtHit>(cabling_data.tdcId,cabling_data.channelId, masked);
 	            
 	    // Get coarse time and fine time
 	    int tdc_counts = mdtDigit->tdc();
@@ -247,23 +239,18 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 	            
 	    amtHit->setValues(coarse, fine, width);
 	            
-	    ATH_MSG_DEBUG( "Adding a new AmtHit"  );
-	    ATH_MSG_DEBUG( "Subdet : " << (int) subsystem 
-                             << " mrod : " << (int) mrod 
-                             << " link : " << (int) link  );
-	    ATH_MSG_DEBUG( " Tdc : " << (int) tdc
-                             << " Channel : " << (int) channel 
-                             << " Coarse time : " << coarse 
+	    ATH_MSG_DEBUG( "Adding a new AmtHit -- "<<cabling_data  );
+	    ATH_MSG_DEBUG( " Coarse time : " << coarse 
                              << " Fine time : " << fine 
                              << " Width : " << width  );
 
         if (!mdtCsm) mdtCsm = make_csm(cabling_ptr, chid1, moduleHash, false);
           
         // Add the digit to the CSM
-	    if( name != m_BME_station_name || link == mdtCsm->CsmId()) mdtCsm->push_back(amtHit.release());
-	    else if (name == m_BME_station_name){
+	    if( cabling_data.stationIndex != m_BME_station_name || cabling_data.csm == mdtCsm->CsmId()) mdtCsm->push_back(amtHit.release());
+	    else if (cabling_data.stationIndex == m_BME_station_name){
             if (!mdtCsm_2nd) mdtCsm_2nd = make_csm(cabling_ptr, chid2, hashF(chid2), true);
-            if (link == mdtCsm_2nd->CsmId()) mdtCsm_2nd->push_back(amtHit.release());
+            if (cabling_data.csm == mdtCsm_2nd->CsmId()) mdtCsm_2nd->push_back(amtHit.release());
             else {
                ATH_MSG_ERROR( "There's a BME digit that doesn't match a CSM"  );               
             }

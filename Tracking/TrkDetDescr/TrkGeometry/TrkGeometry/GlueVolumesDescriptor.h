@@ -17,7 +17,6 @@
 #include <map>
 #include <vector>
 
-#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
@@ -54,8 +53,6 @@ class GlueVolumesDescriptor {
   /** register the volumes */
   void registerGlueVolumes(BoundarySurfaceFace,
                            std::vector<const TrackingVolume*>&);
-  void registerGlueVolumes ATLAS_NOT_THREAD_SAFE(
-      BoundarySurfaceFace, std::vector<const TrackingVolume*>&) const;
 
   /** retrieve them again */
   const std::vector<const TrackingVolume*>& glueVolumes(
@@ -70,11 +67,6 @@ class GlueVolumesDescriptor {
   std::vector<BoundarySurfaceFace> m_glueFaces;
   static const std::vector<const TrackingVolume*> s_emptyVector;
 };
-
-inline void GlueVolumesDescriptor::registerGlueVolumes ATLAS_NOT_THREAD_SAFE(
-    BoundarySurfaceFace bSurf, std::vector<const TrackingVolume*>& vols) const {
-  const_cast<GlueVolumesDescriptor*>(this)->registerGlueVolumes(bSurf, vols);
-}
 
 inline const std::vector<BoundarySurfaceFace>&
 GlueVolumesDescriptor::glueFaces() const {

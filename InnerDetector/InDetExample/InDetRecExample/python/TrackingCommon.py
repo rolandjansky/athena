@@ -111,7 +111,9 @@ def makePublicTool(tool_creator) :
 def getInDetNewTrackingCuts() :
     from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
     from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.doDBMstandalone():
+    if InDetFlags.doBLS():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("BLS")
+    elif InDetFlags.doDBMstandalone():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
     elif InDetFlags.doVtxLumi():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxLumi")
@@ -1558,7 +1560,9 @@ def combinedClusterSplitProbName() :
   if InDetFlags.Enabled():
     from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
     if ('InDetNewTrackingCuts' not in dir()):
-      if InDetFlags.doDBMstandalone():
+      if InDetFlags.doBLS():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("BLS")
+      elif InDetFlags.doDBMstandalone():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
       elif InDetFlags.doVtxLumi():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxLumi")

@@ -46,6 +46,10 @@ def getTypeWideThresholdConfig(ttype):
         return getConfig_jJ()
     if ttype == ThrType.jLJ:
         return getConfig_jLJ()
+    if ttype == ThrType.gJ:
+        return getConfig_gJ()
+    if ttype == ThrType.gLJ:
+        return getConfig_gLJ()
     if ttype == ThrType.jXE:
         return getConfig_jXE()
     if ttype == ThrType.jTE:
@@ -106,7 +110,6 @@ def getConfig_eEM():
         odict([("reta_fw", reta_fw_loose), ("reta", eFEXfwToFloatConversion(reta_fw_loose,bitshift_reta)), 
                ("wstot_fw", wstot_fw_loose), ("wstot", eFEXfwToFloatConversion_wstot(wstot_fw_loose,bitshift_wstot)), 
                ("rhad_fw", rhad_fw_loose), ("rhad", eFEXfwToFloatConversion(rhad_fw_loose,bitshift_rhad)), 
-               ("maxEt", 60), # PLACEHOLDER
                ("etamin", -49), ("etamax", 49), ("priority", 1)]),
                # another item can be added with higher priority to set eta-dependent cuts
     ]
@@ -114,17 +117,16 @@ def getConfig_eEM():
         odict([("reta_fw", reta_fw_medium), ("reta", eFEXfwToFloatConversion(reta_fw_medium,bitshift_reta)), 
                ("wstot_fw", wstot_fw_medium), ("wstot", eFEXfwToFloatConversion_wstot(wstot_fw_medium,bitshift_wstot)), 
                ("rhad_fw", rhad_fw_medium), ("rhad", eFEXfwToFloatConversion(rhad_fw_medium,bitshift_rhad)), 
-               ("maxEt", 60), # PLACEHOLDER
                ("etamin", -49), ("etamax", 49), ("priority", 1)]),
     ]
     confObj["workingPoints"]["Tight"] = [
         odict([("reta_fw", reta_fw_tight), ("reta", eFEXfwToFloatConversion(reta_fw_tight,bitshift_reta)), 
                ("wstot_fw", wstot_fw_tight), ("wstot", eFEXfwToFloatConversion_wstot(wstot_fw_tight,bitshift_wstot)), 
                ("rhad_fw", rhad_fw_tight), ("rhad", eFEXfwToFloatConversion(rhad_fw_tight,bitshift_rhad)), 
-               ("maxEt", 60), # PLACEHOLDER
                ("etamin", -49), ("etamax", 49), ("priority", 1)]),
     ]
-    confObj["ptMinToTopo"] = 3 # PLACEHOLDER
+    confObj["ptMinToTopo"] = 3 
+    confObj["maxEt"] = 50
     confObj["resolutionMeV"] = 100
 
     # Check that FW values are integers
@@ -155,21 +157,18 @@ def getConfig_jEM():
         odict([("iso_fw", jFEXfloatToFWConversion(iso_loose_float)), ("iso", iso_loose_float),
                ("frac_fw", jFEXfloatToFWConversion(frac_loose_float)), ("frac", frac_loose_float), 
                ("frac2_fw", jFEXfloatToFWConversion(frac2_loose_float)), ("frac2", frac2_loose_float), 
-               ("maxEt", 60), # PLACEHOLDER
                ("etamin", -49), ("etamax", 49), ("priority", 0)]),
     ]
     confObj["workingPoints"]["Medium"] = [
         odict([("iso_fw", jFEXfloatToFWConversion(iso_medium_float)), ("iso", iso_medium_float), 
                ("frac_fw", jFEXfloatToFWConversion(frac_medium_float)), ("frac", frac_medium_float), 
                ("frac2_fw", jFEXfloatToFWConversion(frac2_medium_float)), ("frac2", frac2_medium_float), 
-               ("maxEt", 60), # PLACEHOLDER
                ("etamin", -49), ("etamax", 49), ("priority", 0)]),
     ]
     confObj["workingPoints"]["Tight"] = [
         odict([("iso_fw", jFEXfloatToFWConversion(iso_tight_float)), ("iso", iso_tight_float), 
                ("frac_fw", jFEXfloatToFWConversion(frac_tight_float)), ("frac", frac_tight_float), 
                ("frac2_fw", jFEXfloatToFWConversion(frac2_tight_float)), ("frac2", frac2_tight_float), 
-               ("maxEt", 60), # PLACEHOLDER
                ("etamin", -49), ("etamax", 49), ("priority", 0)]),
     ]
     confObj["ptMinToTopo1"] = 5 # PLACEHOLDER
@@ -178,6 +177,7 @@ def getConfig_jEM():
     confObj["ptMinxTOB1"] = 5 # PLACEHOLDER
     confObj["ptMinxTOB2"] = 5 # PLACEHOLDER
     confObj["ptMinxTOB3"] = 5 # PLACEHOLDER
+    confObj["maxEt"] = 50 # PLACEHOLDER
     confObj["resolutionMeV"] = 200
 
     # Check that FW values are integers
@@ -203,36 +203,37 @@ def getConfig_eTAU():
     confObj["workingPoints"] = odict()
     confObj["workingPoints"]["Loose"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_loose,bitshift_rCore)), ("rCore_fw", rCore_fw_loose), 
-               ("rHad", 1), ("rHad_fw", 1), 
-               ("maxEt", 60)]),
+               ("rHad", 1), ("rHad_fw", 1),
+              ]), 
     ]
     confObj["workingPoints"]["Medium"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_medium,bitshift_rCore)), ("rCore_fw", rCore_fw_medium), 
                ("rHad", 1), ("rHad_fw", 1), 
-               ("maxEt", 60)]),
+             ]),
     ]
     confObj["workingPoints"]["Tight"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_tight,bitshift_rCore)), ("rCore_fw", rCore_fw_tight), 
                ("rHad", 1), ("rHad_fw", 1), 
-               ("maxEt", 60)]),
+             ]),
     ]
     confObj["workingPoints"]["HadLoose"] = [
         odict([("rCore", 1), ("rCore_fw", 1), 
                ("rHad", eFEXfwToFloatConversion(rHad_fw_loose,bitshift_rHad)), ("rHad_fw", rHad_fw_loose), 
-               ("maxEt", 60)]),
+             ]),
     ]
     confObj["workingPoints"]["HadMedium"] = [
         odict([("rCore", 1), ("rCore_fw", 1),
                ("rHad", eFEXfwToFloatConversion(rHad_fw_medium,bitshift_rHad)), ("rHad_fw", rHad_fw_medium),
-               ("maxEt", 60)]),
+             ]),
     ]
     confObj["workingPoints"]["HadTight"] = [
         odict([("rCore", 1), ("rCore_fw", 1),
                ("rHad", eFEXfwToFloatConversion(rHad_fw_tight,bitshift_rHad)), ("rHad_fw", rHad_fw_tight),
-               ("maxEt", 60)]),
+             ]),
     ]
     confObj["ptMinToTopo"] = 5 # PLACEHOLDER
     confObj["resolutionMeV"] = 100
+    confObj["maxEt"] = 50 # PLACEHOLDER
 
     # Check that FW values are integers
     for wp in confObj["workingPoints"]:
@@ -279,17 +280,14 @@ def getConfig_jTAU():
     confObj["workingPoints"] = odict()
     confObj["workingPoints"]["Loose"] = [
         odict([("isolation", cTAUfwToFlowConversion(isolation_fw_loose)), ("isolation_fw", isolation_fw_loose), 
-               ("maxEt", 60) # PLACEHOLDER
               ]),
     ]
     confObj["workingPoints"]["Medium"] = [
         odict([("isolation", cTAUfwToFlowConversion(isolation_fw_medium)), ("isolation_fw", isolation_fw_medium), 
-               ("maxEt", 60) # PLACEHOLDER
               ]),
     ]
     confObj["workingPoints"]["Tight"] = [
         odict([("isolation", cTAUfwToFlowConversion(isolation_fw_tight)), ("isolation_fw", isolation_fw_tight), 
-               ("maxEt", 60) # PLACEHOLDER
               ]),
     ]
     confObj["ptMinToTopo1"] = 5 # PLACEHOLDER
@@ -299,6 +297,7 @@ def getConfig_jTAU():
     confObj["ptMinxTOB2"] = 5 # PLACEHOLDER
     confObj["ptMinxTOB3"] = 5 # PLACEHOLDER
     confObj["resolutionMeV"] = 200
+    confObj["maxEt"] = 50 # PLACEHOLDER
 
     # Check that FW values are integers
     for wp in confObj["workingPoints"]:
@@ -328,6 +327,22 @@ def getConfig_jLJ():
     confObj["ptMinxTOB1"] = 15 # PLACEHOLDER
     confObj["ptMinxTOB2"] = 15 # PLACEHOLDER
     confObj["ptMinxTOB3"] = 15 # PLACEHOLDER
+    confObj["resolutionMeV"] = 200
+    return confObj
+
+def getConfig_gJ():
+    confObj = odict()
+    confObj["ptMinToTopoA"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopoB"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopoC"] = 15 # PLACEHOLDER
+    confObj["resolutionMeV"] = 200
+    return confObj
+
+def getConfig_gLJ():
+    confObj = odict()
+    confObj["ptMinToTopoA"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopoB"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopoC"] = 15 # PLACEHOLDER
     confObj["resolutionMeV"] = 200
     return confObj
 

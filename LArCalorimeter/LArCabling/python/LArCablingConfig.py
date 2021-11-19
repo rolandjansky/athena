@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
 LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg,LArLATOMEMappingAlg=CompFactory.getComps("LArOnOffMappingAlg","LArFebRodMappingAlg","LArCalibLineMappingAlg","LArLATOMEMappingAlg")
 
-def _larCablingCfg(configFlags,algo,folder):
+def _larCablingCfg(configFlags,algo,folder,algName=None):
     result=ComponentAccumulator()
 
     result.merge(IOVDbSvcCfg(configFlags))
@@ -28,7 +28,10 @@ def _larCablingCfg(configFlags,algo,folder):
         db='LAR_ONL'
         folderwithtag=folder
 
-    result.addCondAlgo(algo(ReadKey=folder),primary=True)
+    if algName is None:
+        result.addCondAlgo(algo(ReadKey=folder),primary=True)
+    else:
+        result.addCondAlgo(algo(name=algName, ReadKey=folder),primary=True)
     result.merge(addFolders(configFlags,folderwithtag,className="AthenaAttributeList",detDb=db))
     return result
 
@@ -46,10 +49,16 @@ def LArOnOffIdMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/Identifier/OnOffIdMap")
 
 def LArOnOffIdMappingSCCfg(configFlags):
+    result = ComponentAccumulator()
     if configFlags.Input.isMC:
-       return _larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/IdentifierOfl/OnOffIdMap_SC")
+       result.merge(_larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/IdentifierOfl/OnOffIdMap_SC","LArOnOffMappingAlgSC"))
+       from IOVDbSvc.IOVDbSvcConfig import addOverride
+       result.merge(addOverride(configFlags, "/LAR/IdentifierOfl/OnOffIdMap_SC", "LARIdentifierOflOnOffIdMap_SC-000")) # FIXME temporary?
     else:
-       return _larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/Identifier/OnOffIdMap_SC")
+       result.merge(_larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/Identifier/OnOffIdMap_SC","LArOnOffMappingAlgSC"))
+    result.getCondAlgo("LArOnOffMappingAlgSC").WriteKey = "LArOnOffIdMapSC"
+    result.getCondAlgo("LArOnOffMappingAlgSC").isSuperCell = True
+    return result
 
 def LArFebRodMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArFebRodMappingAlg,"/LAR/Identifier/FebRodMap")

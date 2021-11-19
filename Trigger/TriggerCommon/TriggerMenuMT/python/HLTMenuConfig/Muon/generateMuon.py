@@ -53,9 +53,13 @@ def EFMuonCBViewDataVerifierCfg(flags, name):
     else:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
                                                  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+flags.Trigger.InDetTracking.Muon.tracks_FTF ),
-                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' ),
-                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' )]
+    if flags.Input.Format == 'BS':
+        EFMuonCBViewDataVerifier.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+    if flags.Input.isMC:
+        EFMuonCBViewDataVerifier.DataObjects += [( 'PixelRDO_Container' , 'StoreGateSvc+PixelRDOs' ),
+                                                 ( 'SCT_RDO_Container' , 'StoreGateSvc+SCT_RDOs' ) ]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonCBViewDataVerifier)
     return result
@@ -75,6 +79,18 @@ def EFMuonViewDataVerifierCfg(name='RoI'):
     result.addEventAlgo(EFMuonViewDataVerifier)
     return result
 
+def MuonInsideOutViewDataVerifierCfg(flags):
+    MuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVMuInsideOut")
+    MuonViewDataVerifier.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements'),
+                                        ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
+    if flags.Beam.Type != 'cosmics':
+        MuonViewDataVerifier.DataObjects +=[( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' )]
+
+
+    result = ComponentAccumulator()
+    result.addEventAlgo(MuonViewDataVerifier)
+    return result
 
 def MuFastViewDataVerifier():
     result = ComponentAccumulator()
@@ -259,13 +275,13 @@ def decodeCfg(flags, RoIs):
     return acc
 
 
-def efMuHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
+def efMuHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFHypoAlg
     efHypo = TrigMuonEFHypoAlg(name)
     efHypo.MuonDecisions = inputMuons
     return efHypo
 
-def efMuIsoHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
+def efMuIsoHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFTrackIsolationHypoAlg
     efHypo = TrigMuonEFHypoAlg(name)
     efHypo.EFMuonsName = inputMuons
@@ -382,7 +398,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
 
     selAccMS.mergeReco(recoMS)
 
-    efmuMSHypo = efMuHypoCfg( flags,
+    efmuMSHypo = efMuHypoConf( flags,
                               name = 'TrigMuonEFMSonlyHypo_'+name,
                               inputMuons = "Muons_"+name )
 
@@ -456,6 +472,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
         acc.merge(muonFilterCfg, sequenceName=seqFilter.name)
         seqIOreco = parOR("muonInsideOutRecoSeq")
         acc.addSequence(seqIOreco, parentName=seqFilter.name)
+        recoCB.mergeReco(MuonInsideOutViewDataVerifierCfg(flags))
         muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "IndetCandidates_"+name)
         acc.merge(muonInsideOutCfg, sequenceName=seqIOreco.name)
         insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="IndetCandidates_"+name,
@@ -472,7 +489,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
     
     selAccEFCB.mergeReco(recoCB)
 
-    efmuCBHypo = efMuHypoCfg( flags,
+    efmuCBHypo = efMuHypoConf( flags,
                               name = 'TrigMuonEFCBHypo_'+name,
                               inputMuons = finalMuons )
 
@@ -518,7 +535,7 @@ def _muEFIsoStepSeq(flags):
                                                     ptcone03Name="InViewIsoMuons.ptcone03"))
 
     selAccEFIso.mergeReco(recoIso)
-    efmuIsoHypo = efMuIsoHypoCfg( flags,
+    efmuIsoHypo = efMuIsoHypoConf( flags,
                                   name = 'TrigMuonIsoHypo',
                                   inputMuons = "MuonsIso" )
     selAccEFIso.addHypoAlgo(efmuIsoHypo)
@@ -551,17 +568,13 @@ def generateChains( flags, chainDict ):
         muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
         chain = Chain(name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[muEFSAStep(muonflags, chainDict, 'FS'), muEFCBStep(muonflagsCB, chainDict, 'FS')])
     else:
-        muFast = muFastStep(muonflags, chainDict)
-        muEFSA = muEFSAStep(muonflags, chainDict)
         if 'msonly' in chainDict['chainName']:
-            chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, _empty("EmptyNoL2MuComb"), muEFSA, _empty("EmptyNoEFCB") ] )
+            chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), _empty("EmptyNoL2MuComb"), muEFSAStep(muonflags, chainDict)] )
         else:
             muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon').cloneAndReplace('MuonCombined', 'Trigger.Offline.Combined.MuonCombined')
-            muComb = muCombStep(muonflagsCB, chainDict)
-            muEFCB = muEFCBStep(muonflagsCB, chainDict)
             if 'ivar' in chainDict['chainName']:
-                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB, muEFIsoStep(muonflagsCB, chainDict) ] )
+                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), muCombStep(muonflagsCB, chainDict), muEFSAStep(muonflags, chainDict), muEFCBStep(muonflagsCB, chainDict), muEFIsoStep(muonflagsCB, chainDict) ] )
             else:
-                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB ] )
+                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), muCombStep(muonflagsCB, chainDict), muEFSAStep(muonflags, chainDict), muEFCBStep(muonflagsCB, chainDict) ] )
     return chain
 

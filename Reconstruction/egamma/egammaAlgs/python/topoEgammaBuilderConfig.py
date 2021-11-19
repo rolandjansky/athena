@@ -8,16 +8,32 @@ __doc__ = """
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-xAODEgammaBuilder = CompFactory.xAODEgammaBuilder
-EGammaAmbiguityTool = CompFactory.EGammaAmbiguityTool
+
+from egammaTools.EMClusterToolConfig import EMClusterToolCfg
+from egammaTools.EMShowerBuilderConfig import EMShowerBuilderCfg
+from egammaTools.egammaOQFlagsBuilderConfig import egammaOQFlagsBuilderCfg
+from egammaTools.EMPIDBuilderConfig import (
+    EMPIDBuilderElectronCfg, EMPIDBuilderPhotonCfg)
 
 
 def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Starting configuration')
-
     acc = ComponentAccumulator()
+    if "EMClusterTool" not in kwargs:
+        emclustool = EMClusterToolCfg(flags)
+        kwargs["EMClusterTool"] = acc.popToolsAndMerge(emclustool)
+
+    if "EMShowerBuilder" not in kwargs:
+        emshowerbuilder = EMShowerBuilderCfg(flags)
+        kwargs["EMShowerTool"] = acc.popToolsAndMerge(emshowerbuilder)
+
+    if "ObjectQualityTool" not in kwargs:
+        oqtool = egammaOQFlagsBuilderCfg(flags)
+        kwargs["ObjectQualityTool"] = acc.popToolsAndMerge(oqtool)
+
+    egammaTools = [CompFactory.EMFourMomBuilder()]
+    eleTools = [acc.popToolsAndMerge(EMPIDBuilderElectronCfg(flags))]
+    phoTools = [acc.popToolsAndMerge(EMPIDBuilderPhotonCfg(flags))]
 
     kwargs.setdefault(
         "InputElectronRecCollectionName",
@@ -33,13 +49,22 @@ def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):
         flags.Egamma.Keys.Output.Photons)
     kwargs.setdefault(
         "AmbiguityTool",
-        EGammaAmbiguityTool())
+        CompFactory.EGammaAmbiguityTool())
+    kwargs.setdefault(
+        "egammaTools",
+        egammaTools)
+    kwargs.setdefault(
+        "ElectronTools",
+        eleTools)
+    kwargs.setdefault(
+        "PhotonTools",
+        phoTools)
     kwargs.setdefault(
         "isTruth",
         flags.Input.isMC
     )
 
-    topoegAlg = xAODEgammaBuilder(name, **kwargs)
+    topoegAlg = CompFactory.xAODEgammaBuilder(name, **kwargs)
 
     acc.addEventAlgo(topoegAlg)
     return acc
@@ -53,6 +78,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
+    flags.lock()
 
     acc = MainServicesCfg(flags)
     acc.merge(topoEgammaBuilderCfg(flags))

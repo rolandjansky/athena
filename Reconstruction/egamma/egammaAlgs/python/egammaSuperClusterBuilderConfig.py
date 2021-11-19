@@ -11,12 +11,11 @@ from egammaTools.EMTrackMatchBuilderConfig import EMTrackMatchBuilderCfg
 from egammaTools.EMConversionBuilderConfig import EMConversionBuilderCfg
 from egammaTools.egammaSwToolConfig import egammaSwToolCfg
 from egammaMVACalib.egammaMVACalibConfig import egammaMVASvcCfg
-from egammaCaloTools.egammaCaloToolsConf import egammaCheckEnergyDepositTool
 
 
-def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **kwargs):
-
-    electronSuperClusterBuilder = CompFactory.electronSuperClusterBuilder
+def electronSuperClusterBuilderCfg(flags,
+                                   name='electronSuperClusterBuilder',
+                                   **kwargs):
 
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
@@ -43,10 +42,9 @@ def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **
         flags.Egamma.Keys.Internal.ElectronSuperRecs)
     kwargs.setdefault(
         "egammaCheckEnergyDepositTool",
-        egammaCheckEnergyDepositTool())
+        CompFactory.egammaCheckEnergyDepositTool())
     kwargs.setdefault("EtThresholdCut", 1000)
-    print(kwargs)
-    elscAlg = electronSuperClusterBuilder(name, **kwargs)
+    elscAlg = CompFactory.electronSuperClusterBuilder(name, **kwargs)
 
     acc.addEventAlgo(elscAlg)
     return acc
@@ -57,12 +55,9 @@ def photonSuperClusterBuilderCfg(
         name='photonSuperClusterBuilder',
         **kwargs):
 
-    photonSuperClusterBuilder = CompFactory.photonSuperClusterBuilder
-
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
     acc = ComponentAccumulator()
+    photonSuperClusterBuilder = CompFactory.photonSuperClusterBuilder
+    egammaCheckEnergyDepositTool = CompFactory.egammaCheckEnergyDepositTool
 
     if "ConversionBuilderTool" not in kwargs:
         emcnv = EMConversionBuilderCfg(flags)
@@ -100,7 +95,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
-
+    flags.lock()
     acc = MainServicesCfg(flags)
     acc.merge(electronSuperClusterBuilderCfg(flags))
     mlog = logging.getLogger("egammaSuperClusterBuilderConfigTest")

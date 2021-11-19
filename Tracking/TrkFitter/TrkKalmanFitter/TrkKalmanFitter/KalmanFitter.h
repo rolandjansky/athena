@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -33,6 +33,13 @@
 #include "TrkFitterInterfaces/ITrackBreakpointAnalyser.h"
 #include "TrkFitterInterfaces/IKalmanPiecewiseAnnealingFilter.h"
 
+#include "TrkValInterfaces/IValidationNtupleTool.h"
+#include "TrkDetDescrInterfaces/IAlignableSurfaceProvider.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TrkToolInterfaces/IUpdator.h"
+#include "TrkFitterInterfaces/IMeasurementRecalibrator.h"
+
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <array>
 #include <memory>
@@ -46,14 +53,7 @@ namespace Trk {
   class PerigeeSurface;
   class FitQuality;
 
-  class IValidationNtupleTool;   // validation tool to write intermediate results to ntuple
-  class IAlignableSurfaceProvider; // tool to enable Kalman-alignment
-    
-  class IExtrapolator;           // Extrapolation Tool
-  class IUpdator;                // If class for Estimator updating
-  class IRIO_OnTrackCreator;     // Interface for creation of ROT
   class ProtoTrajectoryUtility;  // helper to analyse current trajectory
-  class IMeasurementRecalibrator;// steering if and which ROTs to re-do
   class TrackFitInputPreparator; // helper to fill internal trajectories
   typedef std::vector<Trk::ProtoTrackStateOnSurface> Trajectory;
   typedef DataVector<const TrackStateOnSurface>::const_iterator TS_iterator;
@@ -201,31 +201,44 @@ private:
     mutable MsgStream             m_log;         //!< msgstream as private member (-> speed)
 
     //! extrapolation tool: does propagation and applies material effects
-    ToolHandle< IExtrapolator >             m_extrapolator;
+    PublicToolHandle< IExtrapolator >             m_extrapolator
+      {this, "ExtrapolatorHandle", "Trk::Extrapolator/AtlasExtrapolator", "Extrapolation tool for transporting track pars and handling material effects"};
     //! measurement updator: implements the Kalman filtering formulae
-    ToolHandle< IUpdator >                  m_updator;
+    ToolHandle< IUpdator >                  m_updator
+      {this, "MeasurementUpdatorHandle", "Trk::KalmanUpdator/KalmanUpdator", "Tool to perform measurement update and chi2 calculation"};
     //! Trk::RIO_OnTrack creation: re-calibrates hits (special interface/option only)
-    ToolHandle< IRIO_OnTrackCreator >       m_ROTcreator;
+    ToolHandle< IRIO_OnTrackCreator >       m_ROTcreator
+      {this, "RIO_OnTrackCreatorHandle", "Trk::RIO_OnTrackCreator/RIO_OnTrackCreator", "Tool to create RIO_OnTrack out of PrepRawData input"};
     //! dynamic noise adjustment tool: adds momentum noise for electron brem
-    ToolHandle< IDynamicNoiseAdjustor >     m_dynamicNoiseAdjustor;
+    ToolHandle< IDynamicNoiseAdjustor >     m_dynamicNoiseAdjustor
+      {this, "DynamicNoiseAdjustorHandle", "", "Tool to handle brem as dynamically adjusted q/p noise"};
     //! dynamic noise adjustment tool: confirm brem breakpoint or not
-    ToolHandle< ITrackBreakpointAnalyser >  m_brempointAnalyser;
+    ToolHandle< ITrackBreakpointAnalyser >  m_brempointAnalyser
+      {this, "BrempointAnalyserHandle", "", "Tool to confirm if DNA activity is due to brem or not"};
     //! tool to extend KF to be Kalman-Alignment-Fitter
-    ToolHandle< IAlignableSurfaceProvider > m_alignableSfProvider;
+    ToolHandle< IAlignableSurfaceProvider > m_alignableSfProvider
+      {this, "AlignableSurfaceProviderHandle", "", "Tool to replace measurement surface by an alignable one"};
     //! tool to remake ROTs if configured
-    ToolHandle< IMeasurementRecalibrator >  m_recalibrator;
+    ToolHandle< IMeasurementRecalibrator >  m_recalibrator
+      {this, "RecalibratorHandle", ""};
     //! tool to do L/R driftcircle solving
-    ToolHandle< IKalmanPiecewiseAnnealingFilter > m_internalDAF;
+    ToolHandle< IKalmanPiecewiseAnnealingFilter > m_internalDAF
+      {this, "InternalDAFHandle", ""};
     //! forward filtering tool: code structuring
-    ToolHandle< IForwardKalmanFitter >      m_forwardFitter;
+    ToolHandle< IForwardKalmanFitter >      m_forwardFitter
+      {this, "ForwardKalmanFitterHandle", "Trk::ForwardKalmanFitter/FKF", "Tool for running the forward filter along the internal trajectory"};
     //! backward filtering and smoothing tool: code structuring
-    ToolHandle< IKalmanSmoother >           m_smoother;
+    ToolHandle< IKalmanSmoother >           m_smoother
+      {this, "KalmanSmootherHandle", "Trk::KalmanSmoother/BKS", "Tool for performing the backward smoothing on the internal trajectory"};
     //! outlier logic tool: track quality and cleaning
-    ToolHandle< IKalmanOutlierLogic >       m_outlierLogic;
+    ToolHandle< IKalmanOutlierLogic >       m_outlierLogic
+      {this, "KalmanOutlierLogicHandle", "Trk::KalmanOutlierLogic/KOL", "Tool for fit quality analysis and outlier flagging"};
     //! outlier logic tool: outlier recovery and tuning
-    ToolHandle< IKalmanOutlierLogic >       m_outlierRecovery;
+    ToolHandle< IKalmanOutlierLogic >       m_outlierRecovery
+      {this, "KalmanOutlierRecoveryHandle", "Trk::KalmanOutlierRecovery_InDet/KOL_RecoveryID", "Tool for fit quality analysis and outlier recovery"};
     //! performance/error validation tool
-    ToolHandle< IValidationNtupleTool >     m_FitterValidationTool;
+    ToolHandle< IValidationNtupleTool >     m_FitterValidationTool
+      {this, "FitterValidationToolHandle", "", "Tool for fitter validation (writes intermediate results to ntuple)"};
 
     // the settable job options
     bool                          m_option_enforceSorting;

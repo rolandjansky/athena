@@ -8,10 +8,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 import TrkConfig.AtlasExtrapolatorToolsConfig as TC
 
-# import the Extrapolator configurable
-Trk__Extrapolator = CompFactory.Trk.Extrapolator
-
-
 # define the class
 def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     result = ComponentAccumulator()
@@ -19,7 +15,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     acc = MagneticFieldSvcCfg(flags)
     result.merge(acc)
 
-    # PROPAGATOR DEFAULTS --------------------------------------------------------------------------------------
+    # PROPAGATOR DEFAULTS --------------------------------------------------
 
     AtlasRungeKuttaPropagator = result.getPrimaryAndMerge(
         TC.AtlasRKPropagatorCfg(flags))
@@ -30,7 +26,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     AtlasPropagators += [AtlasRungeKuttaPropagator]
     AtlasPropagators += [AtlasSTEP_Propagator]
 
-    # UPDATOR DEFAULTS -----------------------------------------------------------------------------------------
+    # UPDATOR DEFAULTS --------------------------------------------------
 
     AtlasMaterialEffectsUpdator = result.getPrimaryAndMerge(
         TC.AtlasMaterialEffectsUpdatorCfg(flags))
@@ -62,14 +58,16 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # Cavern
 
     # call the base class constructor
-    Extrapolator = Trk__Extrapolator(name,
-                                     Navigator=AtlasNavigator,
-                                     MaterialEffectsUpdators=AtlasUpdators,
-                                     Propagators=AtlasPropagators,
-                                     SubPropagators=AtlasSubPropagators,
-                                     SubMEUpdators=AtlasSubUpdators
-                                     )
+    Extrapolator = CompFactory.Trk.Extrapolator(name,
+                                                Navigator=AtlasNavigator,
+                                                MaterialEffectsUpdators=AtlasUpdators,
+                                                Propagators=AtlasPropagators,
+                                                SubPropagators=AtlasSubPropagators,
+                                                SubMEUpdators=AtlasSubUpdators
+                                                )
 
+    # TODO: figure out if it should be public or private
+    result.addPublicTool(Extrapolator)
     result.setPrivateTools(Extrapolator)
 
     return result
@@ -149,7 +147,7 @@ def MCTruthClassifierExtrapolatorCfg(flags, name='MCTruthClassifierExtrapolator'
 
     MCTruthSubUpdators = []
 
-    # -------------------- set it depending on the geometry ----------------------------------------------------
+    # -------------------- set it depending on the geometry ---------------------------
     MCTruthSubUpdators += [NoElossMaterialEffectsUpdator.name]  # Global
     MCTruthSubUpdators += [NoElossMaterialEffectsUpdator.name]  # ID
     MCTruthSubUpdators += [NoElossMaterialEffectsUpdator.name]  # beampipe
@@ -193,7 +191,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
     sub_propagators = []
     sub_updators = []
 
-    # -------------------- set it depending on the geometry ----------------------------------------------------
+    # -------------------- set it depending on the geometry --------------------------------
     # default for ID is (Rk,Mat)
     sub_propagators += [propagator]
     sub_updators += [material_updator]

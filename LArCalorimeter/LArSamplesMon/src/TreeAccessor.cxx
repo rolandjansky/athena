@@ -83,17 +83,16 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   std::map<int, int> runMap;
 
   cout << "Merging runs" << endl;
-  for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) {
-    if (!*accessor) {
+  for (const Accessor* accessor : accessors) {
+    if (!accessor) {
       cout << "Cannot merge: one of the inputs is null!" << endl;
       return nullptr;
     }
-    for (unsigned int i = 0; i < (*accessor)->nRuns(); i++) {
-      int run = (*accessor)->runData(i)->run();
+    for (unsigned int i = 0; i < accessor->nRuns(); i++) {
+      int run = accessor->runData(i)->run();
       if (runMap.find(run) != runMap.end()) continue;
       runMap[run] = runIndex;
-      RunData* newRun = new RunData(*(*accessor)->runData(i));
+      RunData* newRun = new RunData(*accessor->runData(i));
       newAcc->addRun(newRun);
       delete newRun;
       runIndex++;
@@ -102,20 +101,19 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   
   cout << "Merging events" << endl;
   unsigned int nEventsTotal = 0, iEvt = 0;
-    for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) nEventsTotal += (*accessor)->nEvents();  
-  for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) {
-    for (unsigned int i = 0; i < (*accessor)->nEvents(); i++) {
+  for (const Accessor* accessor : accessors)
+    nEventsTotal += accessor->nEvents();  
+  for (const Accessor* accessor : accessors) {
+    for (unsigned int i = 0; i < accessor->nEvents(); i++) {
       iEvt++;
       if (iEvt % 100000 == 0) cout << "Merging event " << iEvt << "/" << nEventsTotal << endl;
-      std::pair<int, int> evtId((*accessor)->eventData(i)->run(), (*accessor)->eventData(i)->event());
+      std::pair<int, int> evtId(accessor->eventData(i)->run(), accessor->eventData(i)->event());
       if (evtMap.find(evtId) != evtMap.end()) continue;
       evtMap[evtId] = evtIndex;
-      std::map<int, int>::const_iterator idx = runMap.find((*accessor)->eventData(i)->run());
+      std::map<int, int>::const_iterator idx = runMap.find(accessor->eventData(i)->run());
       int newRunIndex = (idx == runMap.end() ? -999 : idx->second);
-      //cout << "Storing eventData for run " << (*accessor)->eventData(i)->run() << " at index " << newRunIndex << " instead of " << (*accessor)->eventData(i)->runIndex() << endl;
-      EventData* newEvent = new EventData(*(*accessor)->eventData(i), newRunIndex);
+      //cout << "Storing eventData for run " << accessor->eventData(i)->run() << " at index " << newRunIndex << " instead of " << accessor->eventData(i)->runIndex() << endl;
+      EventData* newEvent = new EventData(*accessor->eventData(i), newRunIndex);
       newAcc->addEvent(newEvent);
       delete newEvent;
       evtIndex++;
@@ -128,9 +126,8 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
       //ClassCounts::printCountsTable();
     }
     HistoryContainer* historyContainer = nullptr;
-    for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
-	 accessor != accessors.end(); accessor++) {
-      const History* history = (*accessor)->cellHistory(i);
+  for (const Accessor* accessor : accessors) {
+      const History* history = accessor->cellHistory(i);
       if (!history || !history->isValid()) continue;
       if (!historyContainer) {
         info = new CellInfo(*history->cellInfo());
@@ -168,7 +165,7 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   // Alternative version with LB cleaning.
 
   bool kBadLB=false;
-  std::vector<unsigned int>* LBList = new std::vector<unsigned int>; 
+  std::vector<unsigned int> LBList;
   std::ifstream infile(LBFile.Data());
   std::string line;
   // assume single-line format with coma-separated LBs (from python)
@@ -183,10 +180,10 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   
   for(int k = 0; k < list->GetEntries(); k++){
     TObjString* tobs = (TObjString*)(list->At(k));
-    LBList->push_back((unsigned int)(tobs->String()).Atoi());
+    LBList.push_back((unsigned int)(tobs->String()).Atoi());
   }
   delete list;
-  printf("LB List: %d\n",(int)LBList->size());
+  printf("LB List: %d\n",(int)LBList.size());
   
 
   // from here it is similar to other functions of this class
@@ -199,17 +196,16 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   std::map<int, int> runMap;
 
   cout << "Merging runs" << endl;
-  for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) {
-    if (!*accessor) {
+  for (const Accessor* accessor : accessors) {
+    if (!accessor) {
       cout << "Cannot merge: one of the inputs is null!" << endl;
       return nullptr;
     }
-    for (unsigned int i = 0; i < (*accessor)->nRuns(); i++) {
-      int run = (*accessor)->runData(i)->run();
+    for (unsigned int i = 0; i < accessor->nRuns(); i++) {
+      int run = accessor->runData(i)->run();
       if (runMap.find(run) != runMap.end()) continue;
       runMap[run] = runIndex;
-      RunData* newRun = new RunData(*(*accessor)->runData(i));
+      RunData* newRun = new RunData(*accessor->runData(i));
       newAcc->addRun(newRun);
       delete newRun;
       runIndex++;
@@ -218,33 +214,32 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
   
   cout << "Merging events" << endl;
   unsigned int nEventsTotal = 0, iEvt = 0;
-    for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) nEventsTotal += (*accessor)->nEvents();  
-  for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
-       accessor != accessors.end(); accessor++) {
-    for (unsigned int i = 0; i < (*accessor)->nEvents(); i++) {
+  for (const Accessor* accessor : accessors)
+    nEventsTotal += accessor->nEvents();  
+  for (const Accessor* accessor : accessors) {
+    for (unsigned int i = 0; i < accessor->nEvents(); i++) {
       iEvt++;
       if (iEvt % 100000 == 0) cout << "Merging event " << iEvt << "/" << nEventsTotal << endl;
 
       // ----
       // skip LBs which are found in the list
       kBadLB=false;
-      for(unsigned int ilb = 0 ; ilb < LBList->size() ; ilb++){
-        if(LBList->at(ilb)==(*accessor)->eventData(i)->lumiBlock()){
+      for(unsigned int ilb = 0 ; ilb < LBList.size() ; ilb++){
+        if(LBList.at(ilb)==accessor->eventData(i)->lumiBlock()){
 	  kBadLB=true;
-	  //printf("  == Rejecting Event in LB %4d\n",(*accessor)->eventData(i)->lumiBlock());
+	  //printf("  == Rejecting Event in LB %4d\n",accessor->eventData(i)->lumiBlock());
 	  break;
 	}
       }
       if(kBadLB) continue;
       // ----
 
-      std::pair<int, int> evtId((*accessor)->eventData(i)->run(), (*accessor)->eventData(i)->event());
+      std::pair<int, int> evtId(accessor->eventData(i)->run(), accessor->eventData(i)->event());
       if (evtMap.find(evtId) != evtMap.end()) continue;
       evtMap[evtId] = evtIndex;
-      std::map<int, int>::const_iterator idx = runMap.find((*accessor)->eventData(i)->run());
+      std::map<int, int>::const_iterator idx = runMap.find(accessor->eventData(i)->run());
       int newRunIndex = (idx == runMap.end() ? -999 : idx->second);
-      EventData* newEvent = new EventData(*(*accessor)->eventData(i), newRunIndex);
+      EventData* newEvent = new EventData(*accessor->eventData(i), newRunIndex);
       newAcc->addEvent(newEvent);
       delete newEvent;
       evtIndex++;
@@ -257,9 +252,8 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
       //ClassCounts::printCountsTable();
     }
     HistoryContainer* historyContainer = nullptr;
-    for (std::vector<const Accessor*>::const_iterator accessor = accessors.begin();
-	 accessor != accessors.end(); accessor++) {
-      const History* history = (*accessor)->cellHistory(i);
+  for (const Accessor* accessor : accessors) {
+      const History* history = accessor->cellHistory(i);
       if (!history || !history->isValid()) continue;
       if (!historyContainer) {
         info = new CellInfo(*history->cellInfo());
@@ -288,9 +282,6 @@ TreeAccessor* TreeAccessor::merge(const std::vector<const Accessor*>& accessors,
     historyContainer=nullptr;
     //}
   }
-
-  LBList->clear();
-  delete LBList;
 
   cout << "Merging done, final size = " << size << endl;
   newAcc->save();
@@ -400,27 +391,23 @@ TreeAccessor::filter(const Accessor& accessor,
   for (unsigned int f = 0; f < filterList.size(); f++) {      
     cout << "Adding runs..." << endl;
     std::vector<unsigned int> runsToKeep_ordered(runsToKeep[f].size());
-    for (std::map<unsigned int, unsigned int>::const_iterator runIndex = runsToKeep[f].begin();
-        runIndex != runsToKeep[f].end(); runIndex++)
-      runsToKeep_ordered[runIndex->second] = runIndex->first;
-    
-    for (std::vector<unsigned int>::const_iterator runIndex = runsToKeep_ordered.begin();
-        runIndex != runsToKeep_ordered.end(); runIndex++) {
-      RunData* newRun = new RunData(*accessor.runData(*runIndex));
+    for (const auto& runIndex : runsToKeep[f]) 
+      runsToKeep_ordered[runIndex.second] = runIndex.first;
+
+    for (unsigned int runIndex : runsToKeep_ordered) {
+      RunData* newRun = new RunData(*accessor.runData(runIndex));
       newAccessors[f]->addRun(newRun);
       delete newRun;  
     }
     cout << "Adding events..." << endl;
     std::vector<unsigned int> eventsToKeep_ordered(eventsToKeep[f].size());
-    for (std::map<unsigned int, unsigned int>::const_iterator eventIndex = eventsToKeep[f].begin();
-        eventIndex != eventsToKeep[f].end(); eventIndex++)
-      eventsToKeep_ordered[eventIndex->second] = eventIndex->first;
-    
-    for (std::vector<unsigned int>::const_iterator eventIndex = eventsToKeep_ordered.begin();
-        eventIndex != eventsToKeep_ordered.end(); eventIndex++) {
-      std::map<unsigned int, unsigned int>::const_iterator idx = runsToKeep[f].find(accessor.eventData(*eventIndex)->runIndex());
+    for (const auto& eventIndex : eventsToKeep[f])
+      eventsToKeep_ordered[eventIndex.second] = eventIndex.first;
+
+    for (unsigned int eventIndex : eventsToKeep_ordered) {
+      std::map<unsigned int, unsigned int>::const_iterator idx = runsToKeep[f].find(accessor.eventData(eventIndex)->runIndex());
       int newRunIndex = (idx == runsToKeep[f].end() ? 0 : idx->second);
-      EventData* newEvent = tweaker.tweak(*accessor.eventData(*eventIndex), newRunIndex);
+      EventData* newEvent = tweaker.tweak(*accessor.eventData(eventIndex), newRunIndex);
       newAccessors[f]->addEvent(newEvent);
       delete newEvent;
     }

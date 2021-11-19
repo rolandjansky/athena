@@ -14,6 +14,9 @@ from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from GaudiKernel.DataHandle import DataHandle
 from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
 from TrigCompositeUtils.TrigCompositeUtils import legName
+from AthenaCommon.Configurable import ConfigurableRun3Behavior
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
+
 
 from inspect import signature
 from collections import MutableSequence
@@ -318,7 +321,7 @@ class ComboMaker(AlgNode):
         chainName = chainDict['chainName']
         chainMult = chainDict['chainMultiplicities']
         legsToInputCollections = self.mapRawInputsToInputsIndex()
-
+        
         if len(chainMult) != len(legsToInputCollections):
             log.error("ComboMaker for Alg:{} with addChain for:{} Chain multiplicity:{} Per leg input collection index:{}."
                 .format(compName(self.Alg), chainName, tuple(chainMult), tuple(legsToInputCollections)))
@@ -454,8 +457,7 @@ class MenuSequence(object):
     """ By construction it has one Hypo Only; behaviour changed to support muFastOvlpRmSequence() which has two, but this will change"""
 
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, IsProbe=False):
-        assert compName(Maker).startswith("IM"), "The input maker {} name needs to start with letter: IM".format(compName(Maker))
-
+        assert compName(Maker).startswith("IM"), "The input maker {} name needs to start with letter: IM".format(compName(Maker))        
         # For probe legs we need to substitute the inputmaker and hypo alg
         # so we will use temp variables for both
         if IsProbe:
@@ -463,7 +465,7 @@ class MenuSequence(object):
             # Clone hypo & input maker
             def getProbeHypo(dummyFlags,basehypo):
                 probehypo = basehypo.clone(basehypo.name()+"_probe")
-                for p,v in basehypo.getValuedProperties().items():
+                for p,v in basehypo.getValuedProperties().items():                    
                     setattr(probehypo,p,getattr(basehypo,p))
                 return probehypo
             _Hypo = RecoFragmentsPool.retrieve(getProbeHypo,None,basehypo=Hypo)
@@ -473,18 +475,22 @@ class MenuSequence(object):
 
             def getProbeInputMaker(dummyFlags,baseIM):
                 probeIM = baseIM.clone(baseIM.name()+"_probe")
-                for p,v in baseIM.getValuedProperties().items():
+                for p,v in baseIM.getValuedProperties().items():                    
                     setattr(probeIM,p,getattr(baseIM,p))
 
                 if isinstance(probeIM,CompFactory.EventViewCreatorAlgorithm):
                     assert(baseIM.Views)
                     probeIM.Views = baseIM.Views.Path + "_probe"
                     probeIM.RoITool = baseIM.RoITool
+                    probeIM.InputCachedViews = baseIM.InputMakerOutputDecisions
                     if hasattr(baseIM.RoITool,"RoisWriteHandleKey") and baseIM.RoITool.RoisWriteHandleKey.Path!="StoreGateSvc+":
                         probeIM.RoITool.RoisWriteHandleKey = baseIM.RoITool.RoisWriteHandleKey.Path + "_probe"
                 else:
                     raise TypeError(f"Probe leg input maker may not be of type '{baseIM.__class__}'.")
-                probeIM.InputCachedViews = baseIM.InputMakerOutputDecisions
+                
+                # Reset this initially to avoid interference
+                # with the original
+                probeIM.InputMakerInputDecisions = []
                 return probeIM
             _Maker = RecoFragmentsPool.retrieve(getProbeInputMaker,None,baseIM=Maker)
 
@@ -508,16 +514,14 @@ class MenuSequence(object):
             def getProbeSequence(dummyFlags,baseSeq,probeIM):
                 # Add IM and sequence contents to duplicated sequence
                 probeSeq = baseSeq.clone(baseSeq.name()+"_probe")
-                probeSeq += _Maker
-                ViewSeq = baseSeq.getChildren()[1] # There can only be one?
-                _ViewSeq = ViewSeq.clone(ViewSeq.name()+"_probe")
-                probeIM.ViewNodeName = _ViewSeq.name()
-                # Reset this initially to avoid interference
-                # with the original
-                probeIM.InputMakerInputDecisions = []
-                for viewalg in ViewSeq.getChildren():
-                    _ViewSeq += viewalg
-                probeSeq += _ViewSeq
+                probeSeq += probeIM                
+                if isinstance(probeIM,CompFactory.EventViewCreatorAlgorithm):
+                    ViewSeq = baseSeq.getChildren()[1] # There can only be one?
+                    _ViewSeq = ViewSeq.clone(ViewSeq.name()+"_probe")
+                    probeIM.ViewNodeName = _ViewSeq.name()                    
+                    for viewalg in ViewSeq.getChildren():
+                        _ViewSeq += viewalg
+                    probeSeq += _ViewSeq                
                 return probeSeq
                 # Make sure nothing was lost
             _Sequence = RecoFragmentsPool.retrieve(getProbeSequence,None,baseSeq=Sequence,probeIM=_Maker)
@@ -680,10 +684,14 @@ class Chain(object):
 
         # L1decisions are used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the HLTSeeding Decision output
-        log.debug("Chain.__init__ L1 thresholds %s",L1Thresholds)
         self.L1decisions = [ mapThresholdToL1DecisionCollection(stri) for stri in L1Thresholds]
         self.setSeedsToSequences()
-        log.debug("Made Chain %s with seeds: %s ", name, self.L1decisions)
+        log.debug("[Chain.__init__] Made Chain %s with seeds: %s ", name, self.L1decisions)
+
+    def append_bjet_steps(self,new_steps):
+        assert len(self.nSteps) == 1, "[Chain.append_bjet_steps] appending already-merged step lists - chain object will be broken. This should only be used to append Bjets to jets!"
+        self.steps = self.steps + new_steps
+        self.nSteps = [len(self.steps)]
 
     def numberAllSteps(self):
         if len(self.steps)==0:
@@ -693,6 +701,8 @@ class Chain(object):
                 step_name = step.name
                 if re.search('^Step[0-9]_',step_name):
                     step_name = step_name[6:]
+                elif re.search('^Step[0-9]{2}_', step_name):
+                    step_name = step_name[7:]   
                 step.name = 'Step%d_'%(stepID+1)+step_name
         return
 
@@ -719,6 +729,9 @@ class Chain(object):
             next_step_name = chain_steps_post_split[0].name
             if re.search('^Step[0-9]_',next_step_name):
                 next_step_name = next_step_name[6:]
+            elif re.search('^Step[0-9]{2}_', next_step_name):
+                next_step_name = next_step_name[7:]
+
             prev_step_name = 'empty_'+str(len(self.L1decisions))+'L1in'
             prev_chain_dict = chain_steps_post_split[0].stepDicts
         else:
@@ -886,8 +899,6 @@ class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[], isEmpty = False, createsGhostLegs = False):
 
-        log.debug("[ChainStep.__init__] initialising... with multiplicity %s",multiplicity)
-
         # include cases of empty steps with multiplicity = [] or multiplicity=[0,0,0///]
         if sum(multiplicity)==0:
             multiplicity=[]
@@ -918,7 +929,7 @@ class ChainStep(object):
                 self.onlyJets = True
             if len(sig_set) == 2 and ('Jet' in sig_set and 'Bjet' in sig_set):
                 self.onlyJets = True
-        log.debug("[ChainStep] onlyJets, sig_set: %s, %s",self.onlyJets, sig_set)
+
         self.multiplicity = multiplicity
         self.comboHypoCfg=comboHypoCfg
         self.comboToolConfs = list(comboToolConfs)
@@ -1054,8 +1065,6 @@ def createComboAlg(dummyFlags, name, comboHypoCfg):
     return ComboMaker(name, comboHypoCfg)
 
 
-# this is fragment for New JO
-
 
 class InEventRecoCA( ComponentAccumulator ):
     """ Class to handle in-event reco """
@@ -1089,7 +1098,7 @@ class InEventRecoCA( ComponentAccumulator ):
 
 class InViewRecoCA(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
-    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None):
+    def __init__(self, name, viewMaker=None, roisKey=None, RequireParentView=None): #TODO - make RequireParentView requireParentView for consistency
         super( InViewRecoCA, self ).__init__()
         self.name = name
         self.mainSeq = seqAND( name )
@@ -1099,16 +1108,16 @@ class InViewRecoCA(ComponentAccumulator):
 
         if viewMaker:
             self.viewMakerAlg = viewMaker
-            assert RequireParentView is None, "Can not specify viewMaker and settings (RequreParentView) of default ViewMaker"
+            assert RequireParentView is None, "Can not specify viewMaker and settings (RequireParentView) of default ViewMaker"
             assert roisKey is None, "Can not specify viewMaker and settings (roisKey) of default ViewMaker"
         else:
-            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+name,
+            self.viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM_"+name,
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI',
                                                           RoITool         = ViewCreatorInitialROITool(),
                                                           InViewRoIs      = roisKey if roisKey else name+'RoIs',
                                                           Views           = name+'Views',
-                                                          ViewNodeName    = name+"InView", 
+                                                          ViewNodeName    = name+"InViews", 
                                                           RequireParentView = RequireParentView if RequireParentView else False)
 
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name )
@@ -1130,7 +1139,9 @@ class SelectionCA(ComponentAccumulator):
     def __init__(self, name):
         self.name = name
         super( SelectionCA, self ).__init__()
-        self.stepRecoSequence, self.stepViewSequence = createStepView(name)
+
+        self.stepRecoSequence = parOR(CFNaming.stepRecoName(name))
+        self.stepViewSequence = seqAND(CFNaming.stepViewName(name), [self.stepRecoSequence])
         self.addSequence(self.stepViewSequence)
 
     def mergeReco(self, other):
@@ -1143,6 +1154,62 @@ class SelectionCA(ComponentAccumulator):
     def addHypoAlgo(self, algo):
         """To be used when the hypo alg configuration does not require auxiliary tools/services"""
         self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
+
+
+# mainline/rec-ex-common and CA based JO compatibility layer (basically converters)
+def algorithmCAToGlobalWrapper(gen, flags, *args, **kwargs):
+    """Merges CA with athena for all components except the algorithms. Those are converted to Run2 objects and returned.
+
+    If CA contains more than one algorithm, a list is returned, else a single algorithm is returned.
+    
+    """
+    with ConfigurableRun3Behavior():
+        ca = gen(flags, *args, **kwargs)
+        assert isinstance(ca, ComponentAccumulator), "Function provided does not generate ComponentAccumulator"
+    algs = ca.getEventAlgos()
+    ca._algorithms = {}
+    ca._allSequences = []
+    appendCAtoAthena(ca)
+    return [conf2toConfigurable(alg) for alg in algs]
+
+
+
+def menuSequenceCAToGlobalWrapper(gen, flags, *args, **kwargs):
+    """
+    Generates & converts MenuSequenceCA into the MenuSequence, in addition appending aux stuff to global configuration
+    """
+    with ConfigurableRun3Behavior():
+        msca = gen(flags, *args, **kwargs)
+        assert isinstance(msca, MenuSequenceCA), "Function provided to menuSequenceCAToGlobalWrapper does not generate MenuSequenceCA"
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    from AthenaCommon.CFElements import compName, isSequence
+    hypo = conf2toConfigurable(msca.hypo.Alg)
+    maker = conf2toConfigurable(msca.maker.Alg)
+
+    def _convertSeq(s):
+        sname = compName(s)
+        old = AthSequencer( sname )
+        if s.ModeOR: #this seems stupid way to do it but in fact this was we avoid setting this property if is == default, this streamlining comparisons
+            old.ModeOR = True
+        if s.Sequential:
+            old.Sequential = True
+        old.StopOverride =    s.StopOverride 
+        for member in s.Members:
+            if isSequence(member):
+                old += _convertSeq(member)
+            else:
+                old += conf2toConfigurable(member)
+        return old
+    sequence = _convertSeq(msca.sequence.Alg.Members[0]) 
+    msca.ca._algorithms = {}
+    msca.ca._sequence = None
+    msca.ca._allSequences = []
+    appendCAtoAthena(msca.ca)
+    return MenuSequence(Sequence   = sequence,
+                        Maker       = maker,
+                        Hypo        = hypo,
+                        HypoToolGen = msca._hypoToolConf.hypoToolGen)
 
 
 def lockConfigurable(conf):

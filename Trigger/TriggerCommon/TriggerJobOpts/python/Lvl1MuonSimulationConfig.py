@@ -6,7 +6,7 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def _TileMuonReceiverDecision(flags):
     acc = ComponentAccumulator()
-    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
     TileMuonReceiverDecision = CompFactory.TileMuonReceiverDecision('TileMuonReceiverDecision'
                                                                     , TileRawChannelContainer = "MuRcvRawChCnt" # input
@@ -162,10 +162,11 @@ def Lvl1MuonSimulationCfg(flags):
     return acc
 
 if __name__ == "__main__":
+    import sys
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-    from AthenaConfiguration.MainServicesConfig import  MainServicesCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     
     flags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1']
     flags.Common.isOnline=False
@@ -177,6 +178,7 @@ if __name__ == "__main__":
     flags.Scheduler.ShowDataFlow=True
     flags.Trigger.enableL1MuonPhase1=True
     flags.Trigger.triggerMenuSetup='LS2_v1'
+    flags.lock()
 
     acc = MainServicesCfg(flags)
 
@@ -184,10 +186,13 @@ if __name__ == "__main__":
     acc.merge(PoolReadCfg(flags))
     from AthenaCommon.CFElements import seqAND
 
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+    generateL1Menu(flags)
+
     acc.addSequence(seqAND("L1MuonSim"))
     acc.merge(Lvl1MuonSimulationCfg(flags), sequenceName="L1MuonSim")
     from AthenaCommon.Constants import DEBUG
     acc.foreach_component("*/L1MuonSim/*").OutputLevel = DEBUG   # noqa: ATL900
     acc.printConfig(withDetails=True, summariseProps=True)
 
-    acc.run()
+    sys.exit(acc.run().isFailure())

@@ -53,7 +53,9 @@ namespace Trk {
         
 
         /** TrackingGeometry Interface method - optionally a pointer to Bounds */
-        std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
+        std::pair<EventIDRange, Trk::TrackingGeometry*> trackingGeometry(
+          const EventContext& ctx,
+          std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const;
 
         /** The unique signature */
         GeometrySignature geometrySignature() const;

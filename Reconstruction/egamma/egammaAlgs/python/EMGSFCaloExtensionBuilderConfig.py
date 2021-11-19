@@ -3,13 +3,9 @@
 __doc__ = """ Instantiate the EMGSFCaloExtensionBuilder
 with default configuration """
 
-from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
-
-
-EMGSFCaloExtensionBuilder = CompFactory.EMGSFCaloExtensionBuilder
 
 
 def EMGSFCaloExtensionBuilderCfg(
@@ -17,33 +13,25 @@ def EMGSFCaloExtensionBuilderCfg(
         name='EMGSFCaloExtensionBuilder',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Starting configuration')
-
     acc = ComponentAccumulator()
 
+    from egammaTrackTools.egammaTrackToolsConfig import (
+        EMParticleCaloExtensionToolCfg, EMLastCaloExtensionToolCfg)
     if "PerigeeCaloExtensionTool" not in kwargs:
-        perigeeCaloExtrapAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            name="PerigeeCaloExtensionTool",
-            ParticleType="electron",
-            StartFromPerigee=True)
         kwargs["PerigeeCaloExtensionTool"] = acc.popToolsAndMerge(
-            perigeeCaloExtrapAcc)
+            EMParticleCaloExtensionToolCfg(flags))
 
     if "LastCaloExtensionTool" not in kwargs:
-        lastCaloExtrapAcc = ParticleCaloExtensionToolCfg(
-            flags,
-            name="LastCaloExtensionTool",
-            ParticleType="electron")
         kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
-            lastCaloExtrapAcc)
+            EMLastCaloExtensionToolCfg(flags))
 
     kwargs.setdefault(
         "GFFTrkPartContainerName",
         flags.Egamma.Keys.Output.GSFTrackParticles)
+    kwargs.setdefault("GSFPerigeeCache", "GSFPerigeeCaloExtension")
+    kwargs.setdefault("GSFLastCache", "GSFLastCaloExtension")
 
-    emgscaloextfAlg = EMGSFCaloExtensionBuilder(name, **kwargs)
+    emgscaloextfAlg = CompFactory.EMGSFCaloExtensionBuilder(name, **kwargs)
 
     acc.addEventAlgo(emgscaloextfAlg)
     return acc
@@ -57,7 +45,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
-
+    flags.lock()
     acc = MainServicesCfg(flags)
     acc.merge(EMGSFCaloExtensionBuilderCfg(flags))
     mlog = logging.getLogger("EMGSFCaloExtensionBuilderConfigTest")

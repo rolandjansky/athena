@@ -27,6 +27,14 @@ class isDataOverlay(JobProperty):
     allowedTypes=['bool']
     StoredValue = True
 
+class SkipSecondaryEvents(JobProperty):
+    """Number of secondary input events to skip when reading an input POOL file. This should
+    be given to the EventSelector service.
+    """
+    statusOn     = False
+    allowedTypes = ['int']
+    StoredValue  = -1
+
 class EventIDTextFile(JobProperty):
     """Name of the Event ID Text file"""
     statusOn=True

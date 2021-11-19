@@ -77,7 +77,8 @@ namespace top {
 
     std::string m_trackQuality;
 
-    std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
+    std::vector<std::string> m_chosen_btaggingWP_caloJet;
+    std::vector<std::string> m_chosen_btaggingWP_trkJet;
 
     std::map<std::size_t, std::string> m_systSgKeyMapPhotons;
     std::map<std::size_t, std::string> m_systSgKeyMapElectrons;

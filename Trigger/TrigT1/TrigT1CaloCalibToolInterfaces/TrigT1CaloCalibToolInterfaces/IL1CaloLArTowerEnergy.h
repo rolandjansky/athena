@@ -31,14 +31,11 @@ namespace LVL1{
     ASG_TOOL_INTERFACE( LVL1::IL1CaloLArTowerEnergy )
     
     public:
-      virtual bool initL1CaloLArTowerEnergy(const CaloCellContainer& cellContainer, const TriggerTowerCollection &triggerTowerCollection) = 0;
-      virtual float EtLArg(const Identifier& TTid) const = 0;
       virtual bool hasMissingFEB(const Identifier& TTid) const = 0;
       virtual bool hasMissingFEB(const LArOnOffIdMapping& cabling,
                                  const Identifier& TTid) const = 0;
 
     protected:
-      virtual void reset() = 0;
       virtual double IDeta(const Identifier& TTid) const = 0;
   };
 } // end of namespace

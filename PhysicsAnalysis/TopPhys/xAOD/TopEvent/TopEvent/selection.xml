@@ -21,7 +21,7 @@
           id="1B7C57E6-2031-11EB-B796-BB92DD1855E8" />
 
    <!-- Tool type(s). -->
-   <class name="RCJetMC15" />
+   <class name="RCJet" />
    <class name="top::TopEventMaker" />
 
 </lcgdict>

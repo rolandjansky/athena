@@ -41,6 +41,7 @@ sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper,
   m_mdManager               = mdManager;
   m_doEfficiencyCorrection  = doEfficiencyCorrection;
   m_doTimeCorrection        = true;
+  m_doTimeOffsetStrip       = false;
   //m_timeWindowPad          = 30.; // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
   //m_timeWindowStrip         = 30.; // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
   //m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
@@ -103,8 +104,10 @@ StatusCode sTgcDigitMaker::initialize(const int channelTypes)
   // Read share/sTGC_Digitization_timeArrivale.dat, containing the digit time of arrival
   ATH_CHECK(readFileOfTimeArrival());
   
-  // Read share/sTGC_Digitization_timeOffsetStrip.dat
-  ATH_CHECK(readFileOfTimeOffsetStrip());
+  // Read share/sTGC_Digitization_timeOffsetStrip.dat if the the strip time correction is enable
+  if (m_doTimeOffsetStrip) {
+    ATH_CHECK(readFileOfTimeOffsetStrip());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -228,33 +231,55 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   // Distance should be in the range [0, 0.9] mm, unless particle passes through 
   // the wire plane near the edges
   double wire_pitch = detEl->wirePitch();
-  if ((dist_wire > -9.) && (std::abs(dist_wire) > (wire_pitch / 2))) {
-    ATH_MSG_DEBUG("Distance to the nearest wire (" << std::abs(dist_wire) << ") is greater than expected.");
+  // Absolute value of the distance
+  double abs_dist_wire = std::abs(dist_wire);
+  if ((dist_wire > -9.) && (abs_dist_wire > (wire_pitch / 2))) {
+    ATH_MSG_DEBUG("Distance to the nearest wire (" << abs_dist_wire << ") is greater than expected.");
+  }
+
+  // Do not digitize hits that are too far from the nearest wire
+  if (abs_dist_wire > wire_pitch) {
+    return nullptr;
   }
 
   // Get the gamma pdf parameters associated with the distance of closest approach.
-  GammaParameter gamma_par = getGammaParameter(std::abs(dist_wire));
+  //GammaParameter gamma_par = getGammaParameter(abs_dist_wire);
+  double par_kappa = (getGammaParameter(abs_dist_wire)).kParameter; 
+  double par_theta = (getGammaParameter(abs_dist_wire)).thetaParameter; 
+  double most_prob_time = getMostProbableArrivalTime(abs_dist_wire);
   // Compute the most probable value of the gamma pdf
-  double gamma_mpv = (gamma_par.kParameter - 1) * gamma_par.thetaParameter;
-  // If the most probable value is near zero, then ensure it is zero
-  if ((gamma_par.mostProbableTime) < 0.1) {gamma_mpv = 0.;}
-  double t0_par = gamma_par.mostProbableTime - gamma_mpv;
+  double gamma_mpv = (par_kappa - 1) * par_theta;
+  // If the most probable value is less than zero, then set it to zero
+  if (gamma_mpv < 0.) {gamma_mpv = 0.;}
+  double t0_par = most_prob_time - gamma_mpv;
 
   // Digit time follows a gamma distribution, so a value val is 
-  // chosen using a gamma random generator then shifted by t0
+  // chosen using a gamma random generator then is shifted by t0
   // to account for drift time.
   // Note: CLHEP::RandGamma takes the parameters k and lambda, 
   // where lambda = 1 / theta.
-  double digit_time = t0_par + CLHEP::RandGamma::shoot(rndmEngine, gamma_par.kParameter, 1/gamma_par.thetaParameter);
-  if (digit_time < 0.0) {
-    // Ensure the digit time is positive
-    digit_time = -1.0 * digit_time;
+  double digit_time = t0_par + CLHEP::RandGamma::shoot(rndmEngine, par_kappa, 1/par_theta);
+
+  // Sometimes, digit_time is negative because t0_par can be negative. 
+  // In such case, discard the negative value and shoot RandGamma for another value.
+  // However, if that has already been done many times then set digit_time to zero 
+  // in order to avoid runaway loop.
+  const int shoot_limit = 4;
+  int shoot_counter = 0;
+  while (digit_time < 0.) {
+    if (shoot_counter > shoot_limit) {
+      digit_time = 0.;
+      break;
+    }
+    digit_time = t0_par + CLHEP::RandGamma::shoot(rndmEngine, par_kappa, 1/par_theta);
+    ++shoot_counter;
   }
+
   ATH_MSG_DEBUG("sTgcDigitMaker distance = " << dist_wire 
                 << ", time = " << digit_time
-                << ", k parameter = " << gamma_par.kParameter
-                << ", theta parameter = " << gamma_par.thetaParameter
-                << ", most probable time = " << gamma_par.mostProbableTime);
+                << ", k parameter = " << par_kappa
+                << ", theta parameter = " << par_theta
+                << ", most probable time = " << most_prob_time);
 
   //// HV efficiency correction
   if (m_doEfficiencyCorrection){
@@ -481,7 +506,12 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
         if (std::abs(stripnum - middleStrip[1]) < indexFromMiddleStrip) {
           indexFromMiddleStrip = std::abs(stripnum - middleStrip[1]);
         }
-        double strip_time = sDigitTimeStrip + getTimeOffsetStrip(indexFromMiddleStrip);
+        double strip_time = sDigitTimeStrip;
+        // Strip time response can be delayed due to the resistive layer. 
+        // A correction would be required if the actual VMM front-end doesn't re-align the strip timing.
+        if (m_doTimeOffsetStrip) {
+          strip_time += getTimeOffsetStrip(indexFromMiddleStrip);
+        }
       
         addDigit(digits.get(),newId, bctag, strip_time, charge, channelType);
 
@@ -1159,9 +1189,12 @@ StatusCode sTgcDigitMaker::readFileOfTimeArrival() {
     std::istringstream iss(line);
     iss >> key;
     if (key.compare("bin") == 0) {
-      iss >> param.lowEdge >> param.kParameter >> param.thetaParameter >> param.mostProbableTime;
+      iss >> param.lowEdge >> param.kParameter >> param.thetaParameter;
       m_gammaParameter.push_back(param);
-    } 
+    } else if (key.compare("mpv") == 0)  {
+      double mpt;
+      while (iss >> mpt) {m_mostProbableArrivalTime.push_back(mpt);}
+    }
   }
 
   // Close the file
@@ -1174,12 +1207,12 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
 
   double d = distance;
   if (d < 0.) {
-    ATH_MSG_WARNING("getGammaParameter: expecting a positive distance, but got negative value: " << d
-                     << ". Proceed to the calculation with the absolute value.");
+    ATH_MSG_WARNING("getGammaParameter: expecting a positive distance, but got a negative value: " << d
+                     << ". Proceed to the calculation using its absolute value.");
     d = -1.0 * d;
   }
 
-  // Find the parameters assuming the container is sorted
+  // Find the parameters assuming the container is sorted in ascending order of 'lowEdge'
   int index{-1};
   for (auto& par: m_gammaParameter) {
     if (distance < par.lowEdge) {
@@ -1190,6 +1223,25 @@ sTgcDigitMaker::GammaParameter sTgcDigitMaker::getGammaParameter(double distance
   return m_gammaParameter.at(index);
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++
+double sTgcDigitMaker::getMostProbableArrivalTime(double distance) const {
+
+  double d = distance;
+  if (d < 0.) {
+    ATH_MSG_WARNING("getMostProbableArrivalTime: expecting a positive distance, but got a negative value: " << d
+                     << ". Proceed to the calculation using its absolute value.");
+    d = -1.0 * d;
+  }
+
+  double mpt = m_mostProbableArrivalTime.at(0) 
+               + m_mostProbableArrivalTime.at(1) * d
+               + m_mostProbableArrivalTime.at(2) * d * d 
+               + m_mostProbableArrivalTime.at(3) * d * d * d
+               + m_mostProbableArrivalTime.at(4) * d * d * d * d;
+  return mpt;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++
 StatusCode sTgcDigitMaker::readFileOfTimeOffsetStrip() {
   // Verify the file sTGC_Digitization_timeOffsetStrip.dat exists
   const std::string file_name = "sTGC_Digitization_timeOffsetStrip.dat";
@@ -1234,6 +1286,7 @@ StatusCode sTgcDigitMaker::readFileOfTimeOffsetStrip() {
   return StatusCode::SUCCESS;
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++
 double sTgcDigitMaker::getTimeOffsetStrip(int neighbor_index) const {
   if ((!m_timeOffsetStrip.empty()) && (neighbor_index >= 0)) {
     // Return the last element if out of range

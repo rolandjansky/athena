@@ -416,8 +416,9 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
 	engCalibDead[ii].resize(theClusColl->size(),0);
 	eOut[ii] = 0;
 	eDead[ii] = 0;
-	iClus = 0;
+	iClus = -1;
         for (xAOD::CaloCluster * theCluster : *theClusColl) {
+	  ++iClus;
 	  if ( engCalibTot[iClus] > 0 ) {
 	    int iEtaSign = 1;
 	    if ( theCluster->eta() < 0 )

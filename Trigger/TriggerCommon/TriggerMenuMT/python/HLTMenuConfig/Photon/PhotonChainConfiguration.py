@@ -35,10 +35,16 @@ def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
     return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
 
 def precisionPhotonCaloSequenceCfg( flags ):
-    return precisionCaloMenuSequence('Photon')
+    return precisionCaloMenuSequence('Photon', is_photon=True)
+
+def precisionPhotonCaloSequenceCfg_ion( flags ):
+    return precisionCaloMenuSequence('Photon', is_photon=True, ion=True)
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
+
+def precisionPhotonSequenceCfg_ion( flags ):
+    return precisionPhotonMenuSequence('Photon', ion=True)
 
 def hipTRTMenuSequenceCfg( flags ):
     return hipTRTMenuSequence()
@@ -151,6 +157,10 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         return self.getStep(5, stepName, [TLAPhotonSequenceCfg],  HLT_threshold=HLT_threshold)
 
     def getPrecisionCaloPhoton(self):
+        if self.chainPart['extra'] == 'ion':
+            stepName = "PhotonPrecisionHICalo"
+            return self.getStep(3,stepName, [precisionPhotonCaloSequenceCfg_ion])
+
         stepName = "PhotonPrecisionCalo"
         return self.getStep(3,stepName,[ precisionPhotonCaloSequenceCfg])
     
@@ -168,6 +178,10 @@ class PhotonChainConfiguration(ChainConfigurationBase):
                 stepName = "precision_photon_dPhi15"
                 return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiHypoToolFromDict])
         else:
+            if self.chainPart['extra'] == 'ion':
+                stepName = "precision_photon_ion"
+                return self.getStep(4,stepName, [precisionPhotonSequenceCfg_ion])
+
             stepName = "precision_photon"
             return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])
     

@@ -12,6 +12,7 @@ def setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs):
             raise RuntimeError(f"Unknown perfmon type: {runArgs.perfmon}")
         ConfigFlags.PerfMon.OutputJSON = f"perfmonmt_{runArgs.trfSubstepName}.json"
 
+
 def getDetectorsFromRunArgs(ConfigFlags, runArgs):
     """Generate detector list based on runtime arguments."""
     if hasattr(runArgs, 'detectors'):
@@ -36,3 +37,31 @@ def getDetectorsFromRunArgs(ConfigFlags, runArgs):
     #     detectors = detectors+['Cavern']
 
     return detectors
+
+
+def enableFrozenShowersFCalOnly(ConfigFlags):
+    """Turns on GFlash shower parametrization for FCAL"""
+    ConfigFlags.Sim.LArParameterization = 3
+    ConfigFlags.Sim.CalibrationRun = 'Off'
+
+
+def enableBeamPipeKill(ConfigFlags):
+    ConfigFlags.Sim.BeamPipeCut = 0.
+    ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
+
+
+def enableTightMuonStepping(ConfigFlags):
+    ConfigFlags.Sim.TightMuonStepping = True
+
+
+def enableG4SignalCavern(ConfigFlags):
+    """Set ConfigFlags to take care of Neutron BG"""
+    ConfigFlags.Sim.CavernBG = 'Signal'
+
+def enableCalHits(ConfigFlags):
+    """Turns on calibration hits for LAr and Tile"""
+    ConfigFlags.Sim.CalibrationRun = 'LAr+Tile'
+
+def enableParticleID(ConfigFlags):
+    """Mods to have primary particle barcode signature on for calorimeter calibration hits."""
+    ConfigFlags.Sim.ParticleID=True

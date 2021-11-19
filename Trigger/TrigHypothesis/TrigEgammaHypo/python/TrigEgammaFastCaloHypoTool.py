@@ -14,7 +14,7 @@ def same( val , tool):
 def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
+  #from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
   from AthenaConfiguration.ComponentFactory import CompFactory
   theFastCaloHypo = CompFactory.TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
@@ -110,7 +110,7 @@ class TrigEgammaFastCaloHypoToolConfig:
                            ]
 
 
-  def __init__(self, name, cpart, tool=None):
+  def __init__(self, name, monGroups, cpart, tool=None):
 
     from AthenaCommon.Logging import logging
     self.__log = logging.getLogger('TrigEgammaFastCaloHypoTool')
@@ -122,6 +122,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__gsfinfo  = cpart['gsfInfo'] if cpart['trigType']=='e' and cpart['gsfInfo'] else ''
     self.__idperfinfo  = cpart['idperfInfo'] if cpart['trigType']=='e' and cpart['idperfInfo'] else ''
     self.__noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
+    self.__monGroups = monGroups
 
     if not tool:
       from AthenaConfiguration.ComponentFactory import CompFactory
@@ -250,7 +251,12 @@ class TrigEgammaFastCaloHypoToolConfig:
       self.nocut()
 
     if hasattr(self.tool(), "MonTool"):
-      self.addMonitoring()
+      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
+      doOnlineMonAllChains = doOnlineMonForceCfg()
+      monGroups = self.__monGroups
+
+      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+        self.addMonitoring()
 
 
   #
@@ -315,8 +321,8 @@ class TrigEgammaFastCaloHypoToolConfig:
 
 
 
-def _IncTool(name, cpart, tool=None):
-  config = TrigEgammaFastCaloHypoToolConfig(name, cpart, tool=tool )
+def _IncTool(name, monGroups, cpart, tool=None):
+  config = TrigEgammaFastCaloHypoToolConfig(name, monGroups, cpart, tool=tool )
   config.compile()
   return config.tool()
 
@@ -325,7 +331,8 @@ def TrigEgammaFastCaloHypoToolFromDict( d , tool=None):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
     name = d['chainName']
-    return _IncTool( name, cparts[0], tool=tool)
+    monGroups = d['monGroups']
+    return _IncTool( name, monGroups, cparts[0], tool=tool)
 
 
 def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):

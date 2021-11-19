@@ -14,7 +14,7 @@ from egammaTools.egammaExtrapolators import egammaExtrapolator
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
 from RecExConfig.RecFlags import rec
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys_GSF
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import TrigEgammaKeys_GSF
 
 log = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            UseTrackSummaryTool=False)
+            TrackSummaryTool="")
         #
         #  Track slimming (private not in ToolSvc)
         #

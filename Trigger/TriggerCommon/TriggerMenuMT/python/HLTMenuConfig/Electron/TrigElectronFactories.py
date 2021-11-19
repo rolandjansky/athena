@@ -13,7 +13,8 @@ Offline configurations are available here:
 """
 
 """ Importing all read/write "DataHandles" static classes """
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys  import getTrigEgammaKeys
+TrigEgammaKeys = getTrigEgammaKeys()
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMTrackMatchBuilder, TrigEMShowerBuilder, TrigEgammaDecorationTools
 
 """ Importing all the tool components """
@@ -42,7 +43,8 @@ TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperCluste
                                               MVACalibSvc=egammaMVASvc,
                                               EtThresholdCut=1000,
                                               TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
-                                              doAdd= False
+                                              doAdd= False,
+                                              LinkToConstituents = False,
                                              )
 
 

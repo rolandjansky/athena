@@ -26,7 +26,6 @@
 #include "TopEventSelectionTools/METSelector.h"
 #include "TopEventSelectionTools/MLLSelector.h"
 #include "TopEventSelectionTools/MLLWindowSelector.h"
-#include "TopEventSelectionTools/MV2c10Selector.h"
 #include "TopEventSelectionTools/MWTSelector.h"
 #include "TopEventSelectionTools/NElectronNMuonSelector.h"
 #include "TopEventSelectionTools/NElectronNMuonTightSelector.h"
@@ -91,7 +90,7 @@ namespace top {
       std::string name;
       getline(is, name, ' ');
       return new top::NVarRCJetSelector(name, param.substr(name.size() + 1));
-    } else if (toolname == "MV2C10_N") return new top::MV2c10Selector(param);
+    }
     else if (toolname == "EL_N_OR_MU_N") return new top::NElectronNMuonSelector(param);
     else if (toolname == "EL_N_OR_MU_N_TIGHT") return new top::NElectronNMuonTightSelector(param);
     else if (toolname == "EL_N") return new top::NElectronSelector(param);

@@ -12,19 +12,8 @@ def __generateJSON( chainDicts, chainConfigs, menuName, fileName):
     # Prescale dictionary that is used to create the JSON content
     prescaleDict = odict([ ("filetype", "hltprescale"), ("name", menuName), ("prescales", odict()) ])
 
-    from TriggerMenuMT.HLTMenuConfig.Menu import StreamInfo
-    for chain in chainDicts:
-        # Prepare information for stream list
-        chainStreamTags = []
-        for streamName in chain["stream"]:
-            streamTag = StreamInfo.getStreamTag(streamName)
-            # Stream needs to have been defined in StreamInfo.py otherwise is not added to JSON
-            if streamTag is None:
-                __log.error('Stream %s does not have StreamTags defined excluding from JSON', streamName)
-                continue
-            # Add stream to the chain
-            chainStreamTags.append(streamName)
-
+    # Sort chains by name not counter for easier post processing
+    for chain in sorted(chainDicts, key=lambda d: d['chainName']):
         # Enabled flag is what determines disabling (here is based on prescale list from MenuPrescaleConfig)
         chainEnabled = True
         if (int(chain["prescale"]) <= 0):
@@ -34,13 +23,14 @@ def __generateJSON( chainDicts, chainConfigs, menuName, fileName):
         chainName = chain["chainName"]
         prescaleDict["prescales"][chainName] = odict([
             ("name", chainName),
-            ("counter", chain["chainCounter"]),
             ("hash", chain["chainNameHash"]),
             ("prescale", chain["prescale"]),
             ("enabled", chainEnabled)
-            # stream information to be added with other changes (ATR-21324)
-            #("streams", chainStreamTags)
         ])
+        # Add express stream information
+        if "express" in chain["stream"]:
+            prescaleDict["prescales"][chainName]['prescale_express'] = chain["prescale"]
+            prescaleDict["prescales"][chainName]['enabled_express'] = chainEnabled
 
     # Prescale dictionary now completed, write to JSON
     __log.info( "Writing HLT Prescale JSON to %s", fileName )

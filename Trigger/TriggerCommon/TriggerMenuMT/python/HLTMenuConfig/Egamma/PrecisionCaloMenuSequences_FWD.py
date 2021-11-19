@@ -19,7 +19,7 @@ def precisionCaloSequence_FWD(ConfigFlags):
     """ Creates PrecisionCalo sequence """
     # EV creator
     InViewRoIs="PrecisionCaloRoIs_FWD"     
-    precisionCaloViewsMaker = EventViewCreatorAlgorithm( "IMprecisionCalo_FWD")
+    precisionCaloViewsMaker = EventViewCreatorAlgorithm( "IMprecisionCaloElectron_FWD")
     precisionCaloViewsMaker.ViewFallThrough = True
     precisionCaloViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
     roiTool = ViewCreatorPreviousROITool()
@@ -29,7 +29,7 @@ def precisionCaloSequence_FWD(ConfigFlags):
     #roiTool.RoISGKey = "HLT_Roi_FastElectron_FWD"
     precisionCaloViewsMaker.RoITool = roiTool
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs
-    precisionCaloViewsMaker.Views = "precisionCaloViews_FWD"
+    precisionCaloViewsMaker.Views = "precisionCaloElectronViews_FWD"
     precisionCaloViewsMaker.RequireParentView = True
 
     # reco sequence
@@ -39,7 +39,7 @@ def precisionCaloSequence_FWD(ConfigFlags):
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
 
     # connect EVC and reco
-    theSequence = seqAND("precisionCaloSequence_FWD", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
+    theSequence = seqAND("precisionCaloElectronSequence_FWD", [precisionCaloViewsMaker, precisionCaloInViewSequence] )
     return (theSequence, precisionCaloViewsMaker, sequenceOut)
 
 
@@ -51,7 +51,7 @@ def precisionCaloMenuSequence_FWD(name, is_probe_leg=False):
     from TrigEgammaForwardHypo.TrigEgammaForwardHypoConf import TrigEgammaForwardPrecisionCaloHypoAlg
     from TrigEgammaForwardHypo.TrigEgammaForwardPrecisionCaloHypoTool import TrigEgammaForwardPrecisionCaloHypoToolFromDict
 
-    thePrecisionCaloHypo = TrigEgammaForwardPrecisionCaloHypoAlg(name+"precisionCaloHypo_FWD")
+    thePrecisionCaloHypo = TrigEgammaForwardPrecisionCaloHypoAlg(name+"precisionCaloElectronHypo_FWD")
     thePrecisionCaloHypo.CaloClusters = sequenceOut
 
     return MenuSequence( Sequence    = sequence,

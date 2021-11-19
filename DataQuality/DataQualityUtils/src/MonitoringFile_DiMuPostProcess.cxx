@@ -27,13 +27,12 @@
 #include "RooCBShape.h"
 #include "RooFFTConvPdf.h"
 #include "RooGlobalFunc.h"
-#include "RooPlot.h"
 
 namespace dqutils {
 
 void 
 MonitoringFile::
-fitMergedFile_DiMuMonManager( std::string inFilename, bool isIncremental)
+fitMergedFile_DiMuMonManager( const std::string & inFilename, bool isIncremental)
 { //adapted from MonitoringFile_IDPerfPostProcess.cxx
 
   if (isIncremental==true) return;
@@ -115,7 +114,7 @@ fitMergedFile_DiMuMonManager( std::string inFilename, bool isIncremental)
   //  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "DiMuPostProcessing done!" <<endmsg;
 }
   
-void MonitoringFile::processModule( TFile* f, std::string run_dir, TKey* key_module, std::string moduleName){
+void MonitoringFile::processModule( TFile* f, const std::string & run_dir, TKey* key_module, const std::string & moduleName){
   TObject *obj_mod = key_module->ReadObj();
   TDirectory *tdir_mod = dynamic_cast<TDirectory*>(obj_mod);
   if ( tdir_mod !=0 ) {
@@ -132,8 +131,7 @@ void MonitoringFile::processModule( TFile* f, std::string run_dir, TKey* key_mod
 
 
 void
-MonitoringFile::
-fitMergedFile_DiMuMonAll( TFile* f, std::string run_dir, std::string resonName, std::string triggerName )
+MonitoringFile::fitMergedFile_DiMuMonAll( TFile* f, const std::string & run_dir, const std::string & resonName, const std::string & triggerName )
 { 
   //std::cout<<"fitMergedFile_DiMuMon has been called"<<endl;
   std::string path;
@@ -179,8 +177,8 @@ fitMergedFile_DiMuMonAll( TFile* f, std::string run_dir, std::string resonName, 
     h_chi2 = (TH1F*)(f->Get((path+"_detail/chi2").c_str())->Clone());
     std::vector<std::string> ::iterator ivar = vars.begin();
     std::vector<std::string> ::iterator ireg = regions.begin();
-    for (ireg=regions.begin(); ireg!=regions.end(); ireg++) {
-      for (ivar=vars.begin(); ivar!=vars.end(); ivar++) {
+    for (ireg=regions.begin(); ireg!=regions.end(); ++ireg) {
+      for (ivar=vars.begin(); ivar!=vars.end(); ++ivar) {
 	std::string hname2D = resonName + "_2DinvmassVS" + *ivar + "_" + *ireg;
 	if (CheckHistogram(f,(path+"/"+hname2D).c_str())) {
 	  h_2DinvmassVSx[*ireg][*ivar] = (TH2F*)(f->Get((path+"/"+hname2D).c_str())->Clone());
@@ -223,7 +221,7 @@ fitMergedFile_DiMuMonAll( TFile* f, std::string run_dir, std::string resonName, 
   f->Write();
 }
 
-void MonitoringFile::fitHistos (TH2F* hin, std::vector<TH1F*> hout, int mode, std::string triggerName, std::string resonName, TH1F* h_chi2){
+void MonitoringFile::fitHistos (TH2F* hin, std::vector<TH1F*> hout, int mode, const std::string & triggerName, const std::string & resonName, TH1F* h_chi2){
   bool saveHistos = false;
   // a canvas may be needed when implmenting this into the post-processing file 
   //std::cout<<"The fitHistos method is called"<<endl;

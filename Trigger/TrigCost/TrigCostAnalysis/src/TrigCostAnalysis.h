@@ -103,7 +103,7 @@ class TrigCostAnalysis: public ::AthAlgorithm {
     Gaudi::Property<bool> m_doMonitorGlobal { this, "DoMonitorGlobal", true,
       "Monitor global event properties" };
 
-    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", false,
+    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", true,
       "Monitor algorithm occupancy load of individual threads in an MT execution environment" };
 
     Gaudi::Property<bool> m_doMonitorROS { this, "DoMonitorROS", true,
@@ -138,6 +138,9 @@ class TrigCostAnalysis: public ::AthAlgorithm {
 
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_rosDataKey { this, "CostROSReadHandleKey", "HLT_TrigCostROSContainer",
       "Trigger ROS cost payload container for algorithms" };
+
+    SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_metadataDataKey { this, "CostMetadataWriteHandleKey", "",
+      "TrigComposite collections with additional cost metadata" };
 
     SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
       "HLT Menu"};

@@ -141,7 +141,7 @@ class DCSC_Variable(object):
         the same lumiblock.
         """
         IOVSet = iovs.empty
-        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.iteritems())]
+        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.items())]
         
         def quantizer (iovs):
             return min(i.good for i in iovs) if iovs else None
@@ -253,7 +253,7 @@ class DCSC_Global_Variable(DCSC_Variable):
         """
         Needs a different quantizer. (The default DQ quantizer will do)
         """
-        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.iteritems())]
+        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.items())]
         # Custom quantizer not needed        
         result = quantize_iovs_slow_mc(lbtime, iovs)
         return IOVSet(CodeIOV(*iov) 
@@ -281,7 +281,7 @@ class DCSC_Defect_Global_Variable(DCSC_Variable):
             #return (True, list(current_events)[0].comment)
         
     def quantize(self, lbtime, iovs):
-        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.iteritems())]
+        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.items())]
         result = quantize_iovs_slow_mc(lbtime, iovs,
                                        DCSC_Defect_Global_Variable.quantizing_function)
         return IOVSet(DefectIOV(*iov, comment='Automatically set') 

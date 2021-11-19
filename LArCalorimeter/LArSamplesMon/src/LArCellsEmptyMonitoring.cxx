@@ -62,11 +62,10 @@ using namespace LArSamples;
 }*/
 
 LArCellsEmptyMonitoring::LArCellsEmptyMonitoring()
+  : m_LarIdTranslator (std::make_unique<LArIdTranslatorHelper>("LarIdTree.root"))
 {
   // class constructor - set your class variables to default values here
 
-  // does nothing for now
-  m_LarIdTranslator = new LArIdTranslatorHelper("LarIdTree.root");
   m_nexpected = 195072; // entries expected from Calo container
 
   
@@ -92,10 +91,6 @@ LArCellsEmptyMonitoring::LArCellsEmptyMonitoring()
 
 LArCellsEmptyMonitoring::~LArCellsEmptyMonitoring()
 {
-  // class destructor - delete your created objects here
-
-  if(m_LarIdTranslator) delete m_LarIdTranslator;
-
 }
 //____________________________________________________________________________________________________
 void LArCellsEmptyMonitoring::TestRun(const TString& inputfile)
@@ -247,7 +242,7 @@ void LArCellsEmptyMonitoring::TestRun(const TString& inputfile)
  
   // Opening file:
   LArSamples::Interface* tuple = (LArSamples::Interface*)Interface::open(inputfile);
-  printf("Number of events: %d %d\n",tuple->nEvents(),tuple->nChannels()); 
+  printf("Number of events: %u %u\n",tuple->nEvents(),tuple->nChannels()); 
   unsigned int nchannels = tuple->nChannels();
 
   printf("Begin looping over cells...\n");
@@ -289,7 +284,7 @@ void LArCellsEmptyMonitoring::TestRun(const TString& inputfile)
       const LArSamples::Data* data = hist->data(idigit);
       double noise = data->noise()*GeV;
       const LArSamples::EventData* Evdata = data->eventData();
-      if(!Evdata){ continue; noEvdata++;}// avoid crash
+      if(!Evdata){ noEvdata++; continue; }// avoid crash
       int lumiBlock = Evdata->lumiBlock();
       double energy = data->energy()*GeV; 
 
@@ -687,7 +682,7 @@ printf("Set threshold at %4.3f counts per cell for LB range. \n",(MeanHits+(nsig
  
   // Opening file:
   LArSamples::Interface* tuple = (LArSamples::Interface*)Interface::open(inputfile);
-  printf("Number of events: %d %d\n",tuple->nEvents(),tuple->nChannels()); //tuple->ShowEvents("energy>0.");
+  printf("Number of events: %u %u\n",tuple->nEvents(),tuple->nChannels()); //tuple->ShowEvents("energy>0.");
   unsigned int nchannels = tuple->nChannels();
 
   fprintf(outputFile,"Onlid \t MeanCellHitBased \t EnergyThresholdBased \t OR \t AND\n");
@@ -749,7 +744,7 @@ printf("Set threshold at %4.3f counts per cell for LB range. \n",(MeanHits+(nsig
       const LArSamples::Data* data = hist->data(idigit);
       noise = data->noise()*GeV;
       const LArSamples::EventData* Evdata = data->eventData();
-      if(!Evdata){ continue; noEvdata++;}// avoid crash
+      if(!Evdata){ noEvdata++; continue; }// avoid crash
       int lumiBlock = Evdata->lumiBlock();
       double energy = data->energy()*GeV; 
 
@@ -1185,9 +1180,9 @@ std::vector<int, std::allocator<int> >  LArCellsEmptyMonitoring::GetBadLBList(co
   }
   printf("\n");
   printf("Number of Bad LBs found: %d\n",numberFlagged);
-  printf("Number of LBs to be removed: %ld", BadLB_tot.size());
+  printf("Number of LBs to be removed: %zu", BadLB_tot.size());
   printf("\n");
-    if(tuple) delete tuple;
+  delete tuple;
 
   return BadLB_tot;
 }
@@ -1492,7 +1487,7 @@ void LArCellsEmptyMonitoring::ScanOnlids(const TString& inputfile)
 
   // Opening file:
   LArSamples::Interface* tuple = (LArSamples::Interface*)Interface::open(inputfile);
-  printf("Number of events: %d %d\n",tuple->nEvents(),tuple->nChannels()); //tuple->ShowEvents("energy>0.");
+  printf("Number of events: %u %u\n",tuple->nEvents(),tuple->nChannels()); //tuple->ShowEvents("energy>0.");
   unsigned int nchannels = tuple->nChannels();
 
   // -------------------------------------------------------------------------
@@ -1512,7 +1507,7 @@ void LArCellsEmptyMonitoring::ScanOnlids(const TString& inputfile)
       onlid = m_LarIdTranslator->onlid;
     } else onlid = 0;
     */
-    if(onlid<=0) printf("%d: Bad Cell Onlid = 0x%x (%+.2f,%+.2f)\n",ichan,(unsigned int)onlid,cellInfo->eta(),cellInfo->phi());
+    if(onlid<=0) printf("%u: Bad Cell Onlid = 0x%x (%+.2f,%+.2f)\n",ichan,(unsigned int)onlid,cellInfo->eta(),cellInfo->phi());
 
     idmap_itr = idmap->find(onlid);
     
@@ -1570,7 +1565,7 @@ void LArCellsEmptyMonitoring::DoEtaPhiMonitoring(const char* inputfile,const cha
 
   // Opening file:
   LArSamples::Interface* tuple = (LArSamples::Interface*)Interface::open(inputfile);
-  printf("Number of events: %d %d\n",tuple->nEvents(),tuple->nChannels());
+  printf("Number of events: %u %u\n",tuple->nEvents(),tuple->nChannels());
   unsigned int nchannels = tuple->nChannels();
 
   // eta-phi maps
@@ -1607,7 +1602,7 @@ void LArCellsEmptyMonitoring::DoEtaPhiMonitoring(const char* inputfile,const cha
     index = m_LarIdTranslator->GetPartitionLayerIndex(cellInfo->calo(),cellInfo->layer());
     // onlid = m_LarIdTranslator->onlid;
     onlid = cellInfo->onlid();
-    if(onlid<=0) printf("%d: Bad Cell Onlid = 0x%x (%+.2f,%+.2f)\n",ichan,(unsigned int)onlid,cellInfo->eta(),cellInfo->phi());
+    if(onlid<=0) printf("%u: Bad Cell Onlid = 0x%x (%+.2f,%+.2f)\n",ichan,(unsigned int)onlid,cellInfo->eta(),cellInfo->phi());
 
     // loop on the events for each cells
     for(unsigned int idigit = 0; idigit < ndigits; idigit++){
@@ -1863,7 +1858,7 @@ void LArCellsEmptyMonitoring::TriggerEfficiency(const char* inputfile,float frac
   mfile->Close(); delete mfile;
   delete [] binE;
 
-  if(tuple) delete tuple;
+  delete tuple;
 
 }
 

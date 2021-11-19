@@ -86,14 +86,16 @@ StatusCode Trk::GenericGeometryBuilderCond::initialize()
     return StatusCode::SUCCESS;
 }
 
-
-std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GenericGeometryBuilderCond::trackingGeometry(const EventContext& /*ctx*/, std::pair< EventIDRange, const Trk::TrackingVolume*> innerVolPair) const
+std::pair<EventIDRange, Trk::TrackingGeometry*>
+Trk::GenericGeometryBuilderCond::trackingGeometry(
+  const EventContext& /*ctx*/,
+  std::pair<EventIDRange, const Trk::TrackingVolume*> innerVolPair) const
 {
 
     ATH_MSG_VERBOSE("Starting to build TrackingGeometry for GeometrySignature : " << m_geometrySignature );
 
     // the geometry to be constructed
-    const Trk::TrackingGeometry* tGeometry = nullptr;
+    Trk::TrackingGeometry* tGeometry = nullptr;
     
     double innerVolumeRadius             = 0.;
     double innerVolumeHalfZ              = 0.;
@@ -182,12 +184,16 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GenericGeometryBuilde
     }
 
     // now create the barrel-type volume wrapping around the  inner volume
-    const Trk::TrackingVolume* cSector = m_trackingVolumeCreator->createGapTrackingVolume(vacuum,
-                                                                                         innerVolumeRadius, enclosingVolumeRadius,
-                                                                                         -innerVolumeHalfZ, innerVolumeHalfZ,
-                                                                                         m_barrelLayers,
-                                                                                         true,
-                                                                                         m_geometryName+"::Generic::Barrel");
+    Trk::TrackingVolume* cSector =
+      m_trackingVolumeCreator->createGapTrackingVolume(vacuum,
+                                                       innerVolumeRadius,
+                                                       enclosingVolumeRadius,
+                                                       -innerVolumeHalfZ,
+                                                       innerVolumeHalfZ,
+                                                       m_barrelLayers,
+                                                       true,
+                                                       m_geometryName +
+                                                         "::Generic::Barrel");
     cSector->registerColorCode(m_geometryColorCode);
     // wrap the inner volume into a centralSector 
     if (cvb){ 
@@ -198,22 +204,30 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GenericGeometryBuilde
                                                                          m_geometryName+"::Containers::Central");
     }
     // create the two endcaps
-    const Trk::TrackingVolume* nSector = m_trackingVolumeCreator->createGapTrackingVolume(vacuum,
-                                                                                         0., enclosingVolumeRadius,
-                                                                                         -enclosingVolumeHalfZ, -innerVolumeHalfZ,
-                                                                                         m_endcapLayers,
-                                                                                         false,
-                                                                                         m_geometryName+"::Generic::NegativeEndcap");
+    Trk::TrackingVolume* nSector =
+      m_trackingVolumeCreator->createGapTrackingVolume(
+        vacuum,
+        0.,
+        enclosingVolumeRadius,
+        -enclosingVolumeHalfZ,
+        -innerVolumeHalfZ,
+        m_endcapLayers,
+        false,
+        m_geometryName + "::Generic::NegativeEndcap");
     nSector->registerColorCode(m_geometryColorCode);
     // create the two endcaps
-    const Trk::TrackingVolume* pSector = m_trackingVolumeCreator->createGapTrackingVolume(vacuum,
-                                                                                         0., enclosingVolumeRadius,
-                                                                                         innerVolumeHalfZ, enclosingVolumeHalfZ,
-                                                                                         m_endcapLayers,
-                                                                                         false,
-                                                                                         m_geometryName+"::Generic::PositiveEndcap");
+    Trk::TrackingVolume* pSector =
+      m_trackingVolumeCreator->createGapTrackingVolume(
+        vacuum,
+        0.,
+        enclosingVolumeRadius,
+        innerVolumeHalfZ,
+        enclosingVolumeHalfZ,
+        m_endcapLayers,
+        false,
+        m_geometryName + "::Generic::PositiveEndcap");
     pSector->registerColorCode(m_geometryColorCode);
-    
+
     auto allVolumes = std::vector<const Trk::TrackingVolume*>();
     // if extended barrel is to be built
     auto extendedVolumes = std::vector<const Trk::TrackingVolume*>();
@@ -224,39 +238,47 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GenericGeometryBuilde
           double minZ = !it ? -enclosingExtendedVolumeHalfZ : enclosingVolumeHalfZ;
           double maxZ = !it ? -enclosingVolumeHalfZ : enclosingExtendedVolumeHalfZ;  
           // create the extended volume (bottom part)
-          const Trk::TrackingVolume* exVolume = m_trackingVolumeCreator->createGapTrackingVolume(
-                                                                                vacuum,
-                                                                                0., enclosingExtendedVolumeRadius,
-                                                                                minZ, maxZ,
-                                                                                m_extendedEndcapLayers,
-                                                                                false,
-                                                                                m_geometryName+"::Generic::Extended"+names[it]);
+          Trk::TrackingVolume* exVolume =
+            m_trackingVolumeCreator->createGapTrackingVolume(
+              vacuum,
+              0.,
+              enclosingExtendedVolumeRadius,
+              minZ,
+              maxZ,
+              m_extendedEndcapLayers,
+              false,
+              m_geometryName + "::Generic::Extended" + names[it]);
           exVolume->registerColorCode(m_geometryColorCode);
           // create the extended volume (ring part)
-          const Trk::TrackingVolume* exrVolume = m_trackingVolumeCreator->createGapTrackingVolume(
-                                                                                vacuum,
-                                                                                enclosingExtendedVolumeRadius, enclosingVolumeRadius,
-                                                                                minZ, maxZ,
-                                                                                m_extendedEndcapLayers,
-                                                                                false,
-                                                                                m_geometryName+"::Generic::RingExtended"+names[it]);
-          // sign it with one higher volume id 
+          Trk::TrackingVolume* exrVolume =
+            m_trackingVolumeCreator->createGapTrackingVolume(
+              vacuum,
+              enclosingExtendedVolumeRadius,
+              enclosingVolumeRadius,
+              minZ,
+              maxZ,
+              m_extendedEndcapLayers,
+              false,
+              m_geometryName + "::Generic::RingExtended" + names[it]);
+          // sign it with one higher volume id
           exrVolume->sign( Trk::GeometrySignature(int(geometrySignature())+1) );
           // pack it into a container
           auto exVolumes = std::vector<const Trk::TrackingVolume*>{exVolume, exrVolume};
-          const Trk::TrackingVolume* exSector = m_trackingVolumeCreator->createContainerTrackingVolume(exVolumes,
-                                                                                                       vacuum,
-                                                                                                       m_geometryName+"::Generic::"+names[it]+"ExtendedEndcap");
-          // for the overall geometry                                                                     
+          Trk::TrackingVolume* exSector =
+            m_trackingVolumeCreator->createContainerTrackingVolume(
+              exVolumes,
+              vacuum,
+              m_geometryName + "::Generic::" + names[it] + "ExtendedEndcap");
+          // for the overall geometry
           extendedVolumes.push_back(exSector);                                                                    
        }
     }
     // and now create the triple
     allVolumes = !extendedVolumes.empty() ?  std::vector<const Trk::TrackingVolume*>{extendedVolumes[0],nSector,cSector,pSector,extendedVolumes[1]} : 
                                            std::vector<const Trk::TrackingVolume*>{nSector,cSector,pSector};
-    const Trk::TrackingVolume* tVolume = m_trackingVolumeCreator->createContainerTrackingVolume(allVolumes,
-                                                                                                vacuum,
-                                                                                                m_geometryName+"::Container");                                                                                      
+    Trk::TrackingVolume* tVolume = m_trackingVolumeCreator->createContainerTrackingVolume(allVolumes,
+                                                                                          vacuum,
+                                                                                          m_geometryName+"::Container");                                                                                      
     // now create the TrackingGeometry from the highest volume
     if (tVolume) {
       tGeometry = new Trk::TrackingGeometry(tVolume);

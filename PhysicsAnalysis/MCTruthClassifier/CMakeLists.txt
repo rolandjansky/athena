@@ -7,20 +7,23 @@ atlas_subdir( MCTruthClassifier )
 set( extra_libs )
 
 if( XAOD_STANDALONE )
-	set( extra_libs xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODRootAccess xAODTracking )
+	set( extra_libs xAODCaloEvent xAODEgamma xAODJet 
+		 xAODMuon xAODRootAccess xAODTracking )
 
 elseif( XAOD_ANALYSIS )
-	set( extra_libs GaudiKernel xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTracking )
+	set( extra_libs GaudiKernel xAODCaloEvent 
+		  xAODEgamma xAODJet xAODMuon xAODTracking )
 
 elseif(GENERATIONBASE)
 	set( extra_libs GaudiKernel GeneratorObjects
-       PRIVATE_LINK_LIBRARIES AthenaKernel )
+         PRIVATE_LINK_LIBRARIES AthenaKernel )
 
 else()
 	set( extra_libs
 	   GaudiKernel xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTracking
 	   RecoToolInterfaces GeneratorObjects ParticlesInConeToolsLib
-	   PRIVATE_LINK_LIBRARIES AthenaKernel TrkEventPrimitives TrkParametersIdentificationHelpers )
+	   PRIVATE_LINK_LIBRARIES AthenaKernel TrkEventPrimitives 
+	   TrkParametersIdentificationHelpers )
 
 endif()
 
@@ -69,3 +72,13 @@ endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+#Tests
+if( (NOT XAOD_STANDALONE)
+     AND (NOT XAOD_ANALYSIS)
+	 AND (NOT GENERATIONBASE))
+atlas_add_test(egammaTrackToolsConfigTest
+              SCRIPT python -m MCTruthClassifier.MCTruthClassifierConfig
+              POST_EXEC_SCRIPT nopost.sh)
+
+endif()

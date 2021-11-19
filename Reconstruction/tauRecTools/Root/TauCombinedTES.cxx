@@ -14,6 +14,7 @@ TauCombinedTES::TauCombinedTES(const std::string& name) :
   TauRecToolBase(name) {
   declareProperty("addCalibrationResultVariables", m_addCalibrationResultVariables = false);
   declareProperty("WeightFileName", m_calFileName = "");
+  declareProperty("useMvaResolution", m_useMvaResolution = false);
 }
 
 
@@ -109,6 +110,21 @@ StatusCode TauCombinedTES::initialize() {
         ATH_MSG_FATAL("Failed to get an object with name " << graphName);
        	return StatusCode::FAILURE;
       }
+
+      // MVA resolution, optional
+      if(m_useMvaResolution) {
+	graphName = "FinalCalib/Graph_from_ResolutionEt_FinalCalib_" + m_decayModeNames[decayModeIndex] + "_" + m_etaBinNames[etaIndex];
+	graph = dynamic_cast<TGraph*> (calFile->Get(graphName.c_str()));
+	if(graph){
+	  m_mvaResMaxEt[decayModeIndex][etaIndex] = TMath::MaxElement(graph->GetN(), graph->GetX());
+	  m_mvaRes[decayModeIndex][etaIndex] = std::unique_ptr<TGraph>(graph);
+	  ATH_MSG_DEBUG("Adding graph: " << graphName);
+	}
+	else {
+	  ATH_MSG_FATAL("Failed to get an object with name " << graphName);
+	  return StatusCode::FAILURE;
+	}
+      }
     }
   }
   calFile->Close();
@@ -167,7 +183,7 @@ StatusCode TauCombinedTES::execute(xAOD::TauJet& tau) const {
 
 
 bool TauCombinedTES::getUseCaloPtFlag(const xAOD::TauJet& tau) const {
-  if (! isValid(tau)) return true;
+  if (! isValid(tau)) return false;
 
   xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);
   int decayModeIndex = getDecayModeIndex(decayMode);
@@ -258,7 +274,7 @@ double TauCombinedTES::getCaloCalEt(const double& caloEt,
   // ratio stored in the calibration graph equals (caloEt-truthEt)/caloEt
   double ratio = 0.0;
 
-  // FIXME: If caloEt is larger then max et, could we use the ratio at
+  // FIXME: If caloEt is larger than max et, could we use the ratio at
   // max et, instead of setting it to zero
   if (caloEt <= m_caloRelBiasMaxEt[decayModeIndex][etaIndex]) {
     ratio = m_caloRelBias[decayModeIndex][etaIndex]->Eval(caloEt);
@@ -277,7 +293,7 @@ double TauCombinedTES::getPanTauCalEt(const double& panTauEt,
   // ratio stored in the calibration graph equals (panTauEt-truthEt)/panTauEt
   double ratio = 0.0;
 
-  // Substructure is bad determined at high pt, as track momentum is pooryly measured
+  // Substructure is badly determined at high pt, as track momentum is pooryly measured
   if (panTauEt <= m_panTauRelBiasMaxEt[decayModeIndex][etaIndex]) {
     ratio = m_panTauRelBias[decayModeIndex][etaIndex]->Eval(panTauEt);
   }
@@ -289,16 +305,20 @@ double TauCombinedTES::getPanTauCalEt(const double& panTauEt,
 
 
 
-double TauCombinedTES::getCaloResolution(const xAOD::TauJet& tau) const {
-  // Assume the resolution to be 100% when no calibraction is available
-  if (! isValid(tau)) return 1.0;
+double TauCombinedTES::getMvaEnergyResolution(const xAOD::TauJet& tau) const {
+  // Assume the resolution to be 100% when no parametrisation is available
+  // "validity" criteria might have to be revised if such "invalid taus" end up in analyses
+  if (!isValid(tau) || !m_useMvaResolution) return 1.0;
 
   xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);
   int decayModeIndex = getDecayModeIndex(decayMode);
 
-  int etaIndex = getEtaIndex(tau.etaTauEnergyScale());
+  int etaIndex = getEtaIndex(tau.etaFinalCalib());
 
-  return getCaloResolution(tau.ptTauEnergyScale(), etaIndex, decayModeIndex);
+  double pt = std::min(tau.ptFinalCalib(), m_mvaResMaxEt[decayModeIndex][etaIndex]);
+  double resolution = m_mvaRes[decayModeIndex][etaIndex]->Eval(pt);
+
+  return resolution;
 }
 
 

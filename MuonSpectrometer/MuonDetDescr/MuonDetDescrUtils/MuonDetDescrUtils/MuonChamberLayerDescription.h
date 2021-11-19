@@ -5,27 +5,29 @@
 #ifndef MUON_MUONCHAMBERLAYERDESCRIPTION_H
 #define MUON_MUONCHAMBERLAYERDESCRIPTION_H
 
-#include "MuonDetDescrUtils/MuonChamberLayerDescriptor.h"
 #include <vector>
+
+#include "MuonDetDescrUtils/MuonChamberLayerDescriptor.h"
 
 namespace Muon {
 
-  /** class managing geometry of the chamber layers */
-  class MuonChamberLayerDescription {
-  public:
-    /// constructor
-    MuonChamberLayerDescription();
+    /** class managing geometry of the chamber layers */
+    class MuonChamberLayerDescription {
+    public:
+        /// constructor
+        MuonChamberLayerDescription();
 
-    MuonChamberLayerDescriptor getDescriptor( int sector, Muon::MuonStationIndex::DetectorRegionIndex region, Muon::MuonStationIndex::LayerIndex layer ) const;
+        MuonChamberLayerDescriptor getDescriptor(int sector, Muon::MuonStationIndex::DetectorRegionIndex region,
+                                                 Muon::MuonStationIndex::LayerIndex layer) const;
 
-  private:
-    /// initialize default geometry
-    void initDefaultRegions();
+    private:
+        /// initialize default geometry
+        void initDefaultRegions();
 
-    /// cached geometry
-    typedef std::vector<MuonChamberLayerDescriptor> MuonChamberLayerDescriptorVec;
-    MuonChamberLayerDescriptorVec                   m_chamberLayerDescriptors; /// region descriptions
-  };
-}
+        /// cached geometry
+        typedef std::vector<MuonChamberLayerDescriptor> MuonChamberLayerDescriptorVec;
+        MuonChamberLayerDescriptorVec m_chamberLayerDescriptors;  /// region descriptions
+    };
+}  // namespace Muon
 
 #endif

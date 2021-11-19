@@ -806,7 +806,7 @@ StatusCode CaloFillRectangularCluster::initialize()
     CHECK( m_cellsName.initialize() );
   }
 
-  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -1078,7 +1078,7 @@ void CaloFillRectangularCluster::makeCorrection (const Context& myctx,
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
  
    // retrieve CaloDetDescr
-  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, myctx.ctx()};
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloMgrKey, myctx.ctx()};
   if(!caloDetDescrMgrHandle.isValid()){
     ATH_MSG_ERROR ("Failed to retrieve CaloDetDescrManager : CaloMgr");
   }

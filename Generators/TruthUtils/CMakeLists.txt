@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TruthUtils )
@@ -47,7 +47,14 @@ atlas_install_runtime( util/generator-weights.py )
 # Install files from the package:
 atlas_install_runtime( share/*.txt )
 
+if( NOT XAOD_STANDALONE )
+ set( TruthUtilsEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of TruthUtilsEnvironment.cmake" )
+ find_package( TruthUtilsEnvironment )
+endif()
+
 # Run tests:
 atlas_add_test( WeightHelpersTest
                 SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/testWeightHelpers.py
                 PROPERTIES TIMEOUT 300 )
+

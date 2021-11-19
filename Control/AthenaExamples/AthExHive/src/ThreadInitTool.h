@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXHIVE_THREADINITTOOL_H
@@ -33,10 +33,10 @@ public:
   ThreadInitTool( const std::string&, const std::string&, const IInterface* );
 
 
-  virtual void initThread();
-  virtual void terminateThread();
+  virtual void initThread() override;
+  virtual void terminateThread() override;
 
-  virtual unsigned int nInit() const { return m_nInitThreads; }
+  virtual unsigned int nInit() const override { return m_nInitThreads; }
 
 private:
   // Number of threads that have been initialized

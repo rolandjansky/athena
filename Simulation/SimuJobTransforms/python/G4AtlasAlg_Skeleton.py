@@ -66,15 +66,16 @@ def fromRunArgs(runArgs):
         ConfigFlags.Input.Files = runArgs.inputEVNTFile
     elif hasattr(runArgs, 'inputEVNT_TRFile'):
         ConfigFlags.Input.Files = runArgs.inputEVNT_TRFile
-        ConfigFlags.Sim.ReadTR = True
         # Three common cases here:
         # 2a) Cosmics simulation
         # 2b) Stopped particle simulation
         # 2c) Cavern background simulation
         if ConfigFlags.Beam.Type == 'cosmics':
+            ConfigFlags.Sim.ReadTR = True
             ConfigFlags.Sim.CosmicFilterVolumeNames = ['Muon']
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern with a cosmic TR file
         elif hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+            ConfigFlags.Sim.ReadTR = True
             log.error('Stopped Particle simulation is not supported yet')
         else:
             ConfigFlags.Detector.GeometryCavern = True # simulate the cavern
@@ -118,19 +119,8 @@ def fromRunArgs(runArgs):
     if not (hasattr(runArgs, 'outputHITSFile') or hasattr(runArgs, "outputEVNT_TRFile")):
         raise RuntimeError('No outputHITSFile or outputEVNT_TRFile defined')
 
-    if hasattr(runArgs, 'DataRunNumber'):
-        ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber]
-        ConfigFlags.Input.OverrideRunNumber = True
-        ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
-
-    if hasattr(runArgs, 'physicsList'):
-        ConfigFlags.Sim.PhysicsList = runArgs.physicsList
-
     if hasattr(runArgs, 'conditionsTag'):
         ConfigFlags.IOVDb.GlobalTag = runArgs.conditionsTag
-
-    if hasattr(runArgs, 'truthStrategy'):
-        ConfigFlags.Sim.TruthStrategy = runArgs.truthStrategy
 
     # Setup perfmon flags from runargs
     from SimuJobTransforms.SimulationHelpers import setPerfmonFlagsFromRunArgs
@@ -144,6 +134,10 @@ def fromRunArgs(runArgs):
 
     # Pre-exec
     processPreExec(runArgs, ConfigFlags)
+
+    # Common simulation runtime arguments
+    from G4AtlasApps.SimConfigFlags import simulationRunArgsToFlags
+    simulationRunArgsToFlags(runArgs, ConfigFlags)
 
     # Lock flags
     ConfigFlags.lock()

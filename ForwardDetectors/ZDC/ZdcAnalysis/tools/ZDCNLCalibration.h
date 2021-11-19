@@ -21,6 +21,7 @@
 #include <map>
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 #include <TVectorD.h>
 #include <TMatrixD.h>
@@ -124,18 +125,18 @@ class ZDCNLCalibration
   //  Map that keeps lumi block and event associations to optimize
   //    processing of lumi block ranges
   //
-  typedef multimap<unsigned int, std::pair<unsigned int, unsigned int> > LBEvtMap;
+  typedef std::multimap<unsigned int, std::pair<unsigned int, unsigned int> > LBEvtMap;
   LBEvtMap m_LumiBlockEvtMap;
 
 public:
 
   std::array<std::map<std::string, CalibData>, 2> m_calibrations;
 
-  bool m_haveTest;
-  TH1D* m_testCalibSNHist;
+  bool m_haveTest{};
+  TH1D* m_testCalibSNHist{};
   std::array<TH1D*, 4> m_testCalibHEFracHist;
   std::array<TH1D*, 4> m_testCalibEnergyHist;
-  TTree* m_testTree;
+  TTree* m_testTree{};
 
 
   ZDCNLCalibration(std::string file, int maxNLPower = 3, bool useGRL = true, int debugLevel = 0);
@@ -151,7 +152,7 @@ public:
     AddCalibration(side, "default", calib);
   }
 
-  void Calibrate(size_t side, std::string calibInput, std::string calibOutput, 
+  void Calibrate(size_t side, const std::string & calibInput, const std::string & calibOutput, 
 		 size_t LBLow, size_t LBHigh, std::array<int, 4> maxPowerModule,
 		 std::vector<std::pair<double, double> >  nNeutERange, 
 		 bool excludeHE, float heSumThresh, float HEDeweight);
@@ -264,7 +265,7 @@ ZDCNLCalibration::ZDCNLCalibration(std::string file, int maxNLPower,  bool useGR
     m_tree->SetBranchAddress("zdc_ModuleMask", (int*) &zdc_ZdcModuleMask, &b_zdc_ZdcModuleMask);
     m_tree->SetBranchAddress("zdc_OptAmp", zdc_ZdcModuleAmp, &b_zdc_ZdcModuleAmp);
   }
-  else throw;
+  else throw std::runtime_error("ZDCNLCalibration::ZDCNLCalibration valid branch not found");
 
   m_tree->SetBranchAddress("L1_ZDC_A", &L1_ZDC_A, &b_L1_ZDC_A);
   m_tree->SetBranchAddress("L1_ZDC_C", &L1_ZDC_C, &b_L1_ZDC_C);

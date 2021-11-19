@@ -38,7 +38,6 @@
 #include "TDirectory.h"
 
 #include "TPad.h"
-#include "TStyle.h"
 
 
 

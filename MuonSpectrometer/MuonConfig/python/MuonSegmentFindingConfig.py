@@ -18,8 +18,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Muon
 # Csc2dSegmentMaker, Csc4dSegmentMaker=CompFactory.getComps("Csc2dSegmentMaker","Csc4dSegmentMaker",)
-Muon__DCMathSegmentMaker, Muon__MdtMathSegmentFinder, Muon__MuonSegmentFittingTool, Muon__MuonClusterSegmentFinderTool=CompFactory.getComps("Muon::DCMathSegmentMaker","Muon::MdtMathSegmentFinder","Muon::MuonSegmentFittingTool","Muon::MuonClusterSegmentFinderTool",)
-Muon__MuonSegmentSelectionTool=CompFactory.getComp("Muon::MuonSegmentSelectionTool")
 Muon__MuonClusterSegmentFinder=CompFactory.getComp("Muon::MuonClusterSegmentFinder")
 
 #Local
@@ -95,7 +93,7 @@ def MdtMathSegmentFinderCfg(flags,name="MdtMathSegmentFinder", **kwargs):
 
     if flags.Muon.enableCurvedSegmentFinding:
         kwargs.setdefault("DoCurvedSegmentFinder",True)
-    result.setPrivateTools(Muon__MdtMathSegmentFinder(name=name,**kwargs))
+    result.setPrivateTools(CompFactory.Muon.MdtMathSegmentFinder(name=name,**kwargs))
     return result
 
 def MuonSegmentFittingToolCfg(flags, **kwargs):
@@ -129,7 +127,7 @@ def MuonSegmentFittingToolCfg(flags, **kwargs):
     acc.addPublicTool(cleaner)
     result.merge(acc)
     kwargs.setdefault("TrackCleaner", cleaner)
-    result.setPrivateTools(Muon__MuonSegmentFittingTool(**kwargs))    
+    result.setPrivateTools(CompFactory.Muon.MuonSegmentFittingTool(**kwargs))    
     return result
 
 def MdtSegmentT0FitterCfg(flags, name="MdtSegmentT0Fitter", **kwargs):
@@ -183,8 +181,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     if doSegmentT0Fit:
         mdt_dcot_CA = MdtDriftCircleOnTrackCreatorCfg(flags, name="MdtDriftCircleOnTrackCreatorAdjustableT0", TimingMode=3, \
                    DoTofCorrection=True, TimeWindowSetting=MdtCalibWindowNumber('Collision_data'))
-        result.merge(mdt_dcot_CA)
-        kwargs.setdefault("MdtCreatorT0", mdt_dcot_CA.getPrimary()) # TODO - is this correct? 
+        kwargs.setdefault("MdtCreatorT0", result.getPrimaryAndMerge(mdt_dcot_CA)) # TODO - is this correct? 
         mdt_math_segment_finder = result.popToolsAndMerge(MdtMathSegmentFinderCfg(flags, doSegmentT0Fit=True))
     else:
         mdt_math_segment_finder = result.popToolsAndMerge(MdtMathSegmentFinderCfg(flags))
@@ -208,9 +205,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     kwargs.setdefault("MuonStationIntersectSvc", muon_station_intersect_svc)
 
     acc=MdtDriftCircleOnTrackCreatorCfg(flags)
-    kwargs.setdefault("MdtCreator", acc.getPrimary())
-    result.merge(acc)
-
+    kwargs.setdefault("MdtCreator", result.getPrimaryAndMerge(acc))
     
     acc=MuonClusterOnTrackCreatorCfg(flags)
     muon_cluster_creator=acc.getPrimary()
@@ -233,7 +228,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     result.merge(acc)    
     kwargs.setdefault("SegmentFitter", segment_fitter)
     
-    segment_selector =  Muon__MuonSegmentSelectionTool()
+    segment_selector =  CompFactory.Muon.MuonSegmentSelectionTool()
     result.addPublicTool(segment_selector)
     kwargs.setdefault("SegmentSelector", segment_selector)
     
@@ -245,7 +240,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     if flags.Common.isOnline:
         kwargs.setdefault('MdtCondKey', '')
 
-    dc_segment_maker = Muon__DCMathSegmentMaker(**kwargs)
+    dc_segment_maker = CompFactory.Muon.DCMathSegmentMaker(**kwargs)
     result.setPrivateTools(dc_segment_maker)
     return result
 
@@ -272,8 +267,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
             # I think we need to configure a 'default' version of the MdtDriftCircleOnTrackCreator here
             acc=MdtDriftCircleOnTrackCreatorCfg(flags)
 
-        result.merge(acc)
-        kwargs.setdefault('MdtCreator', acc.getPrimary())
+        kwargs.setdefault('MdtCreator', result.getPrimaryAndMerge(acc))
     #else:
     # TODO work out what to do here
     
@@ -535,7 +529,7 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     kwargs.setdefault('TrackCleaner', result.popToolsAndMerge( MuonTrackCleanerCfg(flags) ) ) 
     kwargs.setdefault('TrackSummaryTool', result.popToolsAndMerge( MuonTrackSummaryToolCfg(flags) ) ) 
 
-    result.setPrivateTools(Muon__MuonClusterSegmentFinderTool(**kwargs))
+    result.setPrivateTools(CompFactory.Muon.MuonClusterSegmentFinderTool(**kwargs))
     return result
 
 def MuonPRDSelectionToolCfg( flags, name="MuonPRDSelectionTool", **kwargs):
@@ -575,7 +569,7 @@ def MuonClusterSegmentFinderCfg(flags, **kwargs):
     acc = MuonTrackToSegmentToolCfg(flags)
     kwargs.setdefault( "TrackToSegmentTool", result.popToolsAndMerge(acc))
 
-    result.addPublicTool(Muon__MuonClusterSegmentFinder(**kwargs),primary=True)
+    result.addPublicTool(CompFactory.Muon.MuonClusterSegmentFinder(**kwargs),primary=True)
     return result
 
 def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
@@ -622,27 +616,31 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
 
 def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     result = ComponentAccumulator()
-    
+
     # Configure NCB MooSegmentFinder
-    acc = CscSegmentUtilToolCfg(flags, name='CscSegmentUtilTool_NCB', TightenChi2 = False, IPconstraint=False)
-    csc_segment_util_tool = acc.getPrimary()
-    result.merge(acc)
-    
-    acc = Csc2dSegmentMakerCfg(flags, name='Csc2dSegmentMaker_NCB', segmentTool=csc_segment_util_tool)
-    csc_2d_segment_maker = acc.getPrimary() 
-    result.merge(acc)
-    
-    acc = Csc4dSegmentMakerCfg(flags, name='Csc4dSegmentMaker_NCB', segmentTool=csc_segment_util_tool)
-    csc_4d_segment_maker = acc.getPrimary()
-    result.merge(acc)
-    
+    if flags.Detector.GeometryCSC:
+        acc = CscSegmentUtilToolCfg(flags, name='CscSegmentUtilTool_NCB', TightenChi2 = False, IPconstraint=False)
+        csc_segment_util_tool = acc.getPrimary()
+        result.merge(acc)
+        
+        acc = Csc2dSegmentMakerCfg(flags, name='Csc2dSegmentMaker_NCB', segmentTool=csc_segment_util_tool)
+        csc_2d_segment_maker = acc.getPrimary() 
+        result.merge(acc)
+        
+        acc = Csc4dSegmentMakerCfg(flags, name='Csc4dSegmentMaker_NCB', segmentTool=csc_segment_util_tool)
+        csc_4d_segment_maker = acc.getPrimary()
+        result.merge(acc)
+    else:
+        csc_2d_segment_maker = ""
+        csc_4d_segment_maker = ""
+
     acc  = MooSegmentFinderCfg(flags, name='MooSegmentFinder_NCB', Csc2dSegmentMaker=csc_2d_segment_maker, 
                                Csc4dSegmentMaker=csc_4d_segment_maker, 
                                DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False)
     segment_finder_tool=(acc.popPrivateTools())
     result.addPublicTool(segment_finder_tool)
     result.merge(acc)
-    
+
     kwargs.setdefault('SegmentFinder', segment_finder_tool)
 
     # Now set other NCB properties
@@ -657,7 +655,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     kwargs.setdefault('UseTGCNextBC', False)
     kwargs.setdefault('doTGCClust', False)
     kwargs.setdefault('doRPCClust', False)
-        
+
     acc = MooSegmentFinderAlgCfg(flags, name=name, **kwargs)
     result.merge(acc)
     return result
@@ -677,9 +675,10 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     if flags.Input.Format == 'BS':
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         result.merge( MuonByteStreamDecodersCfg(flags) )
+
+    if flags.Input.Format == 'BS' or 'StreamRDO' in flags.Input.ProcessingTags or 'OutputStreamRDO' in flags.Input.ProcessingTags:
         from MuonConfig.MuonRdoDecodeConfig import MuonRDOtoPRDConvertorsCfg
         result.merge( MuonRDOtoPRDConvertorsCfg(flags) )
-
 
     # We need to add two algorithms - one for normal collisions, one for NCB
     result.merge( MooSegmentFinderAlgCfg(flags, Cardinality=cardinality) )

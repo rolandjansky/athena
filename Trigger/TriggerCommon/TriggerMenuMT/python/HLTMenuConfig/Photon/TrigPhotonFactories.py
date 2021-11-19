@@ -16,10 +16,11 @@ from egammaRec.Factories import AlgFactory,  FcnWrapper
 from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVASvc, EGammaAmbiguityTool
 
 # Tools and funtions from TrigEgammaFactories
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder ,TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder_HI, TrigEMShowerBuilder, TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+TrigEgammaKeys = getTrigEgammaKeys()
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
 
 
@@ -50,10 +51,27 @@ TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBui
         doConversions = False,
         AddClustrsMatchingVtxTracks = False,
         ConversionBuilderTool = None,
-        doAdd = False
+        doAdd = False,
+        LinkToConstituents = False,
         )
 
 #Factory for photons
+TrigTopoEgammaPhotons_HI = AlgFactory( egammaAlgsConf.xAODEgammaBuilder,
+        name = 'TrigTopoEgammaPhotons_HI',
+        InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
+        InputPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
+        ElectronOutputName = TrigEgammaKeys.outputElectronKey,
+        PhotonOutputName = TrigEgammaKeys.outputPhotonKey,
+        AmbiguityTool = EGammaAmbiguityTool,
+        EMClusterTool = TrigEMClusterTool,
+        EMShowerTool=TrigEMShowerBuilder_HI,
+        egammaTools = FcnWrapper(TrigEgammaDecorationTools),
+        PhotonTools = FcnWrapper(TrigPhotonDecorationTools),
+        doAdd = False,
+        doPhotons = True,
+        doElectrons = False,
+        )
+
 TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.xAODEgammaBuilder, 
         name = 'TrigTopoEgammaPhotons',
         InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,

@@ -37,7 +37,7 @@ def addLArCalibFlags(flags):
 
     flags.addFlag("LArCalib.doValidation",True)
 
-    flags.addFlag("LArCalib.CorrectBadChannels",True)
+    flags.addFlag("LArCalib.CorrectBadChannels",lambda prevFlags: not prevFlags.LArCalib.isSC)
 
     #Flags to find the input files/databases
     flags.addFlag("LArCalib.Input.Dir",".")
@@ -48,6 +48,7 @@ def addLArCalibFlags(flags):
     
     flags.addFlag("LArCalib.Input.Database","LAR_OFL") #In practice, a sqlite file
 
+    flags.addFlag("LArCalib.Input.ChannelSelection","") #Read only a subset of COOL channels. Format like '3,4,5:10' 
 
     flags.addFlag("LArCalib.Preselection.Side",[])
     flags.addFlag("LArCalib.Preselection.BEC",[])
@@ -66,8 +67,6 @@ def addLArCalibFlags(flags):
     flags.addFlag("LArCalib.OFC.Normalize",True)
     flags.addFlag("LArCalib.OFC.useDelta",False)
     flags.addFlag("LArCalib.OFC.Nsamples",4)
-
-    flags.addFlag("LArCalib.GlobalTag","LARCALIB-RUN2-00")
 
 
 def _getInputFiles(prevFlags):

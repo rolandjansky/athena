@@ -453,37 +453,34 @@ namespace Muon {
 
     std::vector<std::vector<const Muon::MuonClusterOnTrack*> > MuonClusterSegmentFinderTool::orderByLayer(
         std::vector<const Muon::MuonClusterOnTrack*>& clusters, bool useWires) const {
-        // loop on the input clusters and order by layer
+        //start by sorting input clusters by global z
+        std::stable_sort(clusters.begin(),clusters.end(),[](const Muon::MuonClusterOnTrack* c1,const Muon::MuonClusterOnTrack* c2){return std::abs(c1->prepRawData()->globalPosition().z())<std::abs(c2->prepRawData()->globalPosition().z());});
+        //now loop through clusters and add them to vectors, with all clusters with 0.1 in z getting their own vector
         std::vector<std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters;
-        unsigned int nOrdered(0);
-        double minz(0.), maxz(9999999.);
-        while (nOrdered < clusters.size()) {
-            std::vector<const Muon::MuonClusterOnTrack*> tmpclusters;
-            for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = clusters.begin(); cit != clusters.end(); ++cit) {
-                if (useWires && m_idHelperSvc->issTgc((*cit)->identify()) &&
-                    m_idHelperSvc->stgcIdHelper().channelType((*cit)->identify()) == 0) {
-                    if (minz < 1) nOrdered++;
-                    continue;
-                } else if (!useWires && m_idHelperSvc->issTgc((*cit)->identify()) &&
-                           m_idHelperSvc->stgcIdHelper().channelType((*cit)->identify()) == 2) {
-                    if (minz < 1) nOrdered++;
-                    continue;
-                }
-                if (std::abs((*cit)->prepRawData()->globalPosition().z()) <= minz) continue;
-                if (std::abs((*cit)->prepRawData()->globalPosition().z()) < maxz) {
-                    maxz = std::abs((*cit)->prepRawData()->globalPosition().z());
-                    tmpclusters.clear();
-                    tmpclusters.push_back(*cit);
-                } else if (std::abs(std::abs((*cit)->prepRawData()->globalPosition().z()) - maxz) < 0.1) {
-                    tmpclusters.push_back(*cit);
-                }
-            }
-            if (tmpclusters.size() == 0) break;
-            orderedClusters.push_back(tmpclusters);
-            nOrdered += tmpclusters.size();
-            minz = maxz + 0.1;
-            maxz = 9999999.;
-        }
+	std::vector<const Muon::MuonClusterOnTrack*> tmpclusters;
+	float currentz=0;
+        for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = clusters.begin(); cit != clusters.end(); ++cit) {
+	    //first, skip sTGC pads (if using wires) or wires (if using pads)
+	    if (useWires && m_idHelperSvc->issTgc((*cit)->identify()) &&
+		m_idHelperSvc->stgcIdHelper().channelType((*cit)->identify()) == 0) {
+	        continue;
+	    } 
+	    if (!useWires && m_idHelperSvc->issTgc((*cit)->identify()) &&
+		m_idHelperSvc->stgcIdHelper().channelType((*cit)->identify()) == 2) {
+	        continue;
+	    }
+	    if(std::abs(std::abs((*cit)->prepRawData()->globalPosition().z())-currentz)<0.1){
+	        tmpclusters.push_back(*cit);
+		continue;
+	    }
+	    if(!tmpclusters.empty()){
+	        orderedClusters.push_back(tmpclusters);
+		tmpclusters.clear();
+	    }
+	    tmpclusters.push_back(*cit);
+	    currentz=std::abs((*cit)->prepRawData()->globalPosition().z());
+	}
+	if(!tmpclusters.empty()) orderedClusters.push_back(tmpclusters);
         return orderedClusters;
     }
 

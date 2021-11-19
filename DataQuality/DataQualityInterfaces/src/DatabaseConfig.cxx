@@ -10,7 +10,6 @@
 #include "CoolKernel/IDatabaseSvc.h"
 #include "CoolKernel/IObject.h"
 #include "CoolKernel/IFolder.h"
-#include "CoolKernel/IObject.h"
 
 #include "DataQualityInterfaces/DatabaseConfig.h"
 #include <array>

@@ -56,6 +56,11 @@ namespace CP
     SelectionReadHandle m_preselection {
       this, "preselection", "", "the preselection to apply"};
 
+    /// \brief the decoration for reading systematically aware preselection
+  private:
+    SysReadDecorHandle<char> m_inputSelectionDecoration {
+      this, "inputSelectionDecoration", "", "the decoration for the input selection flag"};
+
     /// \brief the decoration for reading the scale factor
   private:
     SysReadDecorHandle<float> m_scaleFactorInputDecoration {

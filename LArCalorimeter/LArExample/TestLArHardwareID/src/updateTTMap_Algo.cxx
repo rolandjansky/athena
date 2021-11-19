@@ -2,9 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <fstream>
+
 #include "TestLArHardwareID/updateTTMap_Algo.h"
 
 #include "GaudiKernel/IService.h"
@@ -16,7 +14,9 @@
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCell_P.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
-
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
 /********************************************************/
 updateTTMap_Algo::updateTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
   AthAlgorithm( name , pSvcLocator) ,
@@ -84,7 +84,7 @@ StatusCode updateTTMap_Algo::execute(){
 
     if((t.det)==0 && (t.pn)==1 && (t.tregion)==0 && (t.tphi)<4){
 
-      it++;
+      ++it;
       nLineF++;
 
     } else {

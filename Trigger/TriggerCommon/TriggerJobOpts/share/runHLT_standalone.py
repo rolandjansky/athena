@@ -69,11 +69,8 @@ class opt:
     selectChains      = []
     disableChains     = []
 
-#
 ################################################################################
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -147,24 +144,20 @@ if len(athenaCommonFlags.FilesInput())>0:
             opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
         else:
             opt.setGlobalTag = 'OFLCOND-MC16-SDR-25-02'
-    TriggerJobOpts.Modifiers._run_number = af.fileinfos['run_number'][0]
+    TriggerJobOpts.Modifiers._run_number = ConfigFlags.Input.RunNumber[0]
+    TriggerJobOpts.Modifiers._lb_number = ConfigFlags.Input.LumiBlockNumber[0]
 
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
     ConfigFlags.Input.isMC = False
     ConfigFlags.Input.Collections = []
-    if '_run_number' not in dir():
-        import PyUtils.AthFile as athFile
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
-        _run_number = af.run_number[0]
-
-    TriggerJobOpts.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
-
-    from RecExConfig.RecFlags import rec
-    rec.RunNumber =_run_number
-    del _run_number
+    TriggerJobOpts.Modifiers._run_number = globals().get('_run_number')  # set by athenaHLT
+    TriggerJobOpts.Modifiers._lb_number = globals().get('_lb_number')  # set by athenaHLT
+    if '_run_number' in globals():
+        del _run_number  # noqa, set by athenaHLT
+    if '_lb_number' in globals():
+        del _lb_number  # noqa, set by athenaHLT
 
 ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
 
@@ -222,19 +215,23 @@ if 'enableL1MuonPhase1' not in globals():
     opt.enableL1MuonPhase1 = opt.doL1Sim
     log.info('Setting default enableL1MuonPhase1=%s because doL1Sim=%s', opt.enableL1MuonPhase1, opt.doL1Sim)
 
-# Translate opts to flags for LVL1
+if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
+    ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
+
+# Translate a few other flags
 ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
 ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 
-#-------------------------------------------------------------
-# Transfer flags into TriggerFlags
-#-------------------------------------------------------------
+ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
+ConfigFlags.Trigger.doID = opt.doID
+ConfigFlags.Trigger.doMuon = opt.doMuon
+ConfigFlags.Trigger.doCalo = opt.doCalo
 
-# Pass on the option enabling HLT selection algorithms
-ConfigFlags.Trigger.doHLT = TriggerFlags.doHLT = bool(opt.doHLT)
+if opt.setMenu:
+    ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
 
 # Setup list of modifiers
 # Common modifiers for MC and data
@@ -262,10 +259,6 @@ else:           # More data modifiers
                      'enableSchedulerMon'
     ]
 
-ConfigFlags.Trigger.doID = opt.doID
-ConfigFlags.Trigger.doMuon = opt.doMuon
-ConfigFlags.Trigger.doCalo = opt.doCalo
-
 #-------------------------------------------------------------
 # Modifiers
 #-------------------------------------------------------------
@@ -288,17 +281,27 @@ for mod in dir(TriggerJobOpts.Modifiers):
         setModifiers.remove(mod)
 
 if setModifiers:
-    log.error('Unknown modifier(s): '+str(setModifiers))
+    log.error('Unknown modifier(s): %s', setModifiers)
 
+#-------------------------------------------------------------
+# Output flags
+#-------------------------------------------------------------
+from RecExConfig.RecFlags import rec
+if opt.doWriteRDOTrigger:
+    if ConfigFlags.Trigger.Online.isPartition:
+        log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
+        theApp.exit(1)
+    rec.doWriteRDO = False  # RecExCommon flag
+    ConfigFlags.Output.doWriteRDO = True  # new JO flag
+    if not ConfigFlags.Output.RDOFileName:
+        ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
+if opt.doWriteBS:
+    rec.doWriteBS = True  # RecExCommon flag
+    ConfigFlags.Output.doWriteBS = True  # new JO flag
+    ConfigFlags.Trigger.writeBS = True  # new JO flag
 
-
-#--------------------------------------------------------------
-# Conditions setup.
-#--------------------------------------------------------------
 # never include this
 include.block("RecExCond/RecExCommon_flags.py")
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
-CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
 # ---------------------------------------------------------------
 # Create main sequences
@@ -326,11 +329,15 @@ if ConfigFlags.Trigger.doID:
     DetFlags.makeRIO.ID_setOn()
 else:
     DetFlags.ID_setOff()
+
 if ConfigFlags.Trigger.doMuon:
     DetFlags.detdescr.Muon_setOn()
     DetFlags.makeRIO.all_setOn()
+    # Setup muon reconstruction for trigger
+    ConfigFlags.Muon.MuonTrigger=True
 else:
     DetFlags.Muon_setOff()
+
 if ConfigFlags.Trigger.doCalo:
     DetFlags.detdescr.Calo_setOn()
     from LArConditionsCommon.LArCondFlags import larCondFlags
@@ -392,26 +399,39 @@ if ConfigFlags.Trigger.doID:
     InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     include("InDetRecExample/InDetRecConditionsAccess.py")
 
+#-------------------------------------------------------------
+# Lock flags !
+#
+# This is the earliest we can lock since InDetJobProperties.py
+# above still modifies the ConfigFlags.
+ConfigFlags.lock()
+
+# Only import this here to avoid we accidentally use CAs before locking
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+#-------------------------------------------------------------
+
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
+
 if ConfigFlags.Trigger.doCalo:
-    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
-    setMinimalCaloSetup()
-    if ConfigFlags.Input.Format == 'POOL':
-        # Enable transient BS if TrigCaloDataAccessSvc is used with pool data
-        ConfigFlags.Trigger.doTransientByteStream = True
+    if ConfigFlags.Trigger.doTransientByteStream:
         from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
         CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
 if ConfigFlags.Trigger.doMuon:
-    ConfigFlags.Muon.MuonTrigger=True
     import MuonCnvExample.MuonCablingConfig  # noqa: F401
     import MuonRecExample.MuonReadCalib      # noqa: F401
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
-    
+# restore logger after above includes
+log = logging.getLogger('runHLT_standalone.py')
+
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
+print("ConfigFlags.Input.Format", ConfigFlags.Input.Format)
+print("ConfigFlags.Trigger.Online.isPartition", ConfigFlags.Trigger.Online.isPartition)
 if ConfigFlags.Input.Format == 'POOL':
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
@@ -428,9 +448,6 @@ elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isParti
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-if opt.setMenu:
-    ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
-
 from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
 generateL1Menu(ConfigFlags)
 createL1PrescalesFileFromMenu(ConfigFlags)
@@ -464,13 +481,14 @@ LumiBlockMuWriterDefault(sequence=hltBeginSeq)
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+    #from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
+    #CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 # ---------------------------------------------------------------
 # Add HLTSeeding providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
-        ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
         from HLTSeeding.HLTSeedingConfig import HLTSeedingCfg
         CAtoGlobalWrapper(HLTSeedingCfg, ConfigFlags, seqName="HLTBeginSeq")
     else:
@@ -543,25 +561,8 @@ if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     print(svcMgr)
 
 #-------------------------------------------------------------
-# Output flags
-#-------------------------------------------------------------
-if opt.doWriteRDOTrigger:
-    if ConfigFlags.Trigger.Online.isPartition:
-        log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
-        theApp.exit(1)
-    rec.doWriteRDO = False  # RecExCommon flag
-    ConfigFlags.Output.doWriteRDO = True  # new JO flag
-    if not ConfigFlags.Output.RDOFileName:
-        ConfigFlags.Output.RDOFileName = 'RDO_TRIG.pool.root'  # new JO flag
-if opt.doWriteBS:
-    rec.doWriteBS = True  # RecExCommon flag
-    ConfigFlags.Output.doWriteBS = True  # new JO flag
-    ConfigFlags.Trigger.writeBS = True  # new JO flag
-
-#-------------------------------------------------------------
 # ID Cache Creators
 #-------------------------------------------------------------
-ConfigFlags.lock()
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg, ConfigFlags, seqName="HLTBeginSeq")
 

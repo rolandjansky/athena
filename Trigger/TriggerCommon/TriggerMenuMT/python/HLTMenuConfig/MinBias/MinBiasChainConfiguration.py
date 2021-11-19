@@ -6,7 +6,7 @@ log = logging.getLogger( __name__ )
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequence
+from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence, MinBiasZVertexFinderSequenceCfg
 from TriggerMenuMT.HLTMenuConfig.MinBias.ALFAMenuSequences import ALFAPerfSequence
 from TriggerMenuMT.HLTMenuConfig.MinBias.AFPMenuSequence import AFPTrkRecoSequence, AFPTrkRecoHypoSequence
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
@@ -73,7 +73,9 @@ def ALFAPerfSequenceCfg(flags):
     return ALFAPerfSequence()
 
 def MinBiasZVertexFinderCfg(flags):
-    return MinBiasZVertexFinderSequence()
+    #TODO we can do that inside of the getStep ... next interation
+    from ..Menu.MenuComponents import menuSequenceCAToGlobalWrapper
+    return menuSequenceCAToGlobalWrapper(MinBiasZVertexFinderSequenceCfg, flags)
 
 class MinBiasChainConfig(ChainConfigurationBase):
 

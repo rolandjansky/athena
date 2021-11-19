@@ -9,16 +9,17 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from ElectronPhotonSelectorTools.ForwardElectronIsEMSelectorMapping import (
     ForwardElectronIsEMMap, forwardelectronPIDmenu)
-# Import the needed stuff specific to the ElectronPhotonSelectorTools
-AsgForwardElectronIsEMSelector = CompFactory.AsgForwardElectronIsEMSelector
 
 
-def AsgForwardElectronIsEMSelectorCfg(flags, name, quality, menu=forwardelectronPIDmenu.menuMC15):
-
-    acc = ComponentAccumulator()
+def AsgForwardElectronIsEMSelectorCfg(flags,
+                                      name,
+                                      quality,
+                                      menu=forwardelectronPIDmenu.menuMC15):
 
     mlog = logging.getLogger('AsgForwardElectronIsEMSelector')
     mlog.debug('Start configuration')
+    acc = ComponentAccumulator()
+    AsgForwardElectronIsEMSelector = CompFactory.AsgForwardElectronIsEMSelector
 
     try:
         ntuple = ForwardElectronIsEMMap(quality, menu)

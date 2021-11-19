@@ -75,8 +75,6 @@ if rec.readESD and rec.doESD:
         objKeyStore['inputFile'].removeItem(["TileCosmicMuon:TileCosmicMuonMF"])
         objKeyStore['inputFile'].removeItem(["TileCosmicMuonContainer:TileCosmicMuonHT"])
 
-    if jobproperties.CaloRecFlags.doTileCellCorrection() :
-        include( "TileRecAlgs/TileCellCorrection_jobOptions.py" )
 
 if rec.readESD and not rec.doESD:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //  Morvaj, P.Strizenec - develop for Digital Trigger monitoring (2021)
 
@@ -63,7 +63,6 @@ private:
   //  std::string m_SuperCellContainer;
 
   Gaudi::Property<std::vector<std::string> > m_streams{this, "Streams", {}, "Which streams to monitor, if empty, only simple profile per partition (offline case)"};
-  Gaudi::Property<std::vector<std::string> > m_partitions {this, "PartitionNames", {} };
   Gaudi::Property<std::vector<std::string> > m_SubDetNames{this, "SubDetNames", {} };
 
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
@@ -90,8 +89,6 @@ private:
                                                        768, 768, 14272, 14272, 11712, 11712, 5120, 5120,
                                                        1008, 1008, 500, 500, 254, 254},
                                                        "Number of expected cells per layer"};
-
-  StringArrayProperty m_partitionNames{this, "PartitionNames", {"EMBA","EMBC","EMECA","EMECC","HECA","HECC","FCALA","FCALC"}};  
 
   BooleanProperty m_doDatabaseNoiseVsEtaPhi{this, "doDatabaseNoiseVsEtaPhi", true};
 
@@ -122,15 +119,6 @@ private:
     {CaloSampling::FCAL0,FCAL1NS}, {CaloSampling::FCAL1,FCAL2NS}, {CaloSampling::FCAL2,FCAL3NS}                                      //FCAL
   };
 
-  //Mapping of layers to the partition the layer belongs to
-  const std::array<PartitionEnum,MAXLAYER> m_layerEnumtoPartitionEnum{{
-      EMBA, EMBC,  EMBA,  EMBC,  EMBA,  EMBC,  EMBA,  EMBC,
-      HECA, HECC,  HECA,  HECC,  HECA,  HECC,  HECA,   HECC,
-      EMECA, EMECC, EMECA, EMECC, EMECA, EMECC, EMECA, EMECC,
-      FCALA, FCALC, FCALA, FCALC, FCALA, FCALC
-	}};
-  
-
   //Private methods: Initialization and job-option interpretation
   StatusCode initThresh();
 
@@ -148,7 +136,6 @@ private:
 
   // Identifer helpers and such
 
-  const LArOnlineID* m_LArOnlineIDHelper;
   const CaloCell_ID* m_calo_id;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};

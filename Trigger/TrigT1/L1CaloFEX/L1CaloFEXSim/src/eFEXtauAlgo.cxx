@@ -106,11 +106,6 @@ bool LVL1::eFEXtauAlgo::isCentralTowerSeed()
   // Get central tower ET
   unsigned int centralET = m_twrcells[1][1];
   
-  // Enforce minimum of 1 GeV in central tower = 40 in 25 MeV increments
-  if (centralET < 40){
-    out = false;
-  }
-  
   // Loop over all cells and check that the central tower is a local maximum
   for (unsigned int beta = 0; beta < 3; beta++)
   {

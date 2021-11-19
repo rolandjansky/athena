@@ -12,6 +12,10 @@ from RecExConfig.ObjKeyStore import objKeyStore
 
 from AthenaCommon.Resilience import treatException,protectedInclude
 
+#Import the new style config flags, for those domains using them.
+#Note they are locked at this stage and one cannot modify them.
+#Adjustments should be made before the locking in RecExCommon_topOptions.py
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # use to flag domain
 import PerfMonComps.DomainsRegistry as pdr
@@ -41,16 +45,20 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   
         CaloExtensionBuilder(True)
 
 #
-# functionality : electron photon identification
+# functionality : electron photon Reconstruction
 #
 #
 from InDetRecExample.InDetJobProperties import InDetFlags
  
 pdr.flag_domain('egamma')
-if rec.doEgamma():
-    protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
+if rec.doEgamma() and rec.doESD():
+    from egammaConfig.egammaReconstructionConfig import (
+        egammaReconstructionCfg)
+    CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
     if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
-        protectedInclude( "egammaRec/egammaLRTRec_jobOptions.py" )
+        from egammaConfig.egammaLRTReconstructionConfig import (
+            egammaLRTReconstructionCfg)
+        CAtoGlobalWrapper(egammaLRTReconstructionCfg, ConfigFlags)
 AODFix_postEgammaRec()
 
 
@@ -85,8 +93,10 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
 #
 pdr.flag_domain('eflow')
 if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuonCombined())):
-    try:
-        include( "eflowRec/eflowRec_jobOptions.py" )
+    try:        
+        from eflowRec.PFRun3Config import PFCfg
+        CAtoGlobalWrapper(PFCfg, ConfigFlags)
+        from eflowRec import ScheduleCHSPFlowMods
     except Exception:
         treatException("Could not set up EFlow. Switched off !")
         recAlgs.doEFlow=False
@@ -140,13 +150,7 @@ if rec.readESD():
 if (jetOK or rec.readESD()) and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     try:
         from AthenaCommon.Configurable import Configurable
-        Configurable.configurableRun3Behavior=1
-        from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-        # Translate all needed flags from old jobProperties to a new AthConfigFlag Container
-        ConfigFlags = getNewConfigFlags()
-        # Additional b-tagging related flags
-        ConfigFlags.BTagging.SaveSV1Probabilities = True
-        ConfigFlags.BTagging.RunJetFitterNN = True
+        Configurable.configurableRun3Behavior=1  # TODO: remove once ATLASRECTS-6635 is fixed
         # Configure BTagging algorithm
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         CAtoGlobalWrapper(BTagRecoSplitCfg, ConfigFlags)
@@ -170,7 +174,7 @@ if (jetOK or rec.readESD()) and DetFlags.ID_on() and rec.doWriteAOD() and BTaggi
 #
 pdr.flag_domain('tau')
 if jetOK and rec.doTau():
-    protectedInclude ("tauRec/tauRec_config.py")
+    protectedInclude ("tauRec/tauRec_config.py")    
 AODFix_posttauRec()
 
 #
@@ -179,7 +183,8 @@ AODFix_posttauRec()
 pdr.flag_domain('eflow')
 if recAlgs.doEFlow():
     try:
-        include( "eflowRec/tauFELinkConfig.py" )
+        from eflowRec.PFRun3Config import PFTauFlowElementLinkingCfg
+        CAtoGlobalWrapper(PFTauFlowElementLinkingCfg,ConfigFlags)        
     except Exception:
         treatException("Could not set up tau-FE links")
 

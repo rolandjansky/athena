@@ -46,7 +46,7 @@ def addEventBuildingSequence(chain, eventBuildType, chainDict):
     else:
         # standard PEB chain
         prevStep = chain.steps[-1]
-        step_name = 'Step{:d}_merged{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1,len(prevStep.legIds), eventBuildType)
+        step_name = 'Step{:d}_merged{:s}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1,prevStep.name, eventBuildType)
         step = ChainStep(name=step_name,
                          Sequences=[seq for leg in prevStep.legIds],
                          multiplicity=prevStep.multiplicity,
@@ -272,13 +272,13 @@ if __name__ == "__main__":
             log.error('No tool created for %s', eb_identifier)
             continue
 
-        if tool.__cpp_type__ not in ['StaticPEBInfoWriterTool', 'RoIPEBInfoWriterTool']:
+        if tool.getType() not in ['StaticPEBInfoWriterTool', 'RoIPEBInfoWriterTool']:
             failures += 1
-            log.error('Unexpected tool type for %s: %s', eb_identifier, tool.__cpp_type__)
+            log.error('Unexpected tool type for %s: %s', eb_identifier, tool.getType())
             continue
 
-        robs = tool.ROBList if tool.__cpp_type__ == 'StaticPEBInfoWriterTool' else tool.ExtraROBs
-        dets = tool.SubDetList if tool.__cpp_type__ == 'StaticPEBInfoWriterTool' else tool.ExtraSubDets
+        robs = tool.ROBList if tool.getType() == 'StaticPEBInfoWriterTool' else tool.ExtraROBs
+        dets = tool.SubDetList if tool.getType() == 'StaticPEBInfoWriterTool' else tool.ExtraSubDets
         robs_check_passed = True
         for rob_id in robs:
             rob_sid = SourceIdentifier(rob_id)

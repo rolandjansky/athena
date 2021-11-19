@@ -79,12 +79,12 @@ def _ofcAlg(flags,postfix,folderSuffix,nPhases,dPhases,nDelays,nColl):
 def LArOFCPhysCfg(flags):
 
     #Get basic services and cond-algos
-    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg
+    from LArCalibProcessing.LArCalibBaseConfig import LArCalibBaseCfg,chanSelStr
     result=LArCalibBaseCfg(flags)
 
     nColl=flags.LArCalib.OFC.Ncoll
     from LArCalibProcessing.utils import FolderTagResolver
-    FolderTagResolver._globalTag=flags.LArCalib.GlobalTag
+    FolderTagResolver._globalTag=flags.IOVDb.GlobalTag
     rs=FolderTagResolver()
     PhysWaveTag=rs.getFolderTag(flags.LArCalib.PhysWave.Folder)
     AutoCorrTag=rs.getFolderTag(flags.LArCalib.AutoCorr.Folder)
@@ -99,9 +99,9 @@ def LArOFCPhysCfg(flags):
     PhysCaliTdiffTag=rs.getFolderTag(flags.LArCalib.PhysCaliTdiff.Folder)
     del rs #Close database
 
-    result.merge(addFolders(flags,flags.LArCalib.PhysWave.Folder,detDb=flags.LArCalib.Input.Database, tag=PhysWaveTag))
-    result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=AutoCorrTag))
-    result.merge(addFolders(flags,flags.LArCalib.PhysAutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=PhysAutoCorrTag))
+    result.merge(addFolders(flags,flags.LArCalib.PhysWave.Folder,detDb=flags.LArCalib.Input.Database, tag=PhysWaveTag, modifiers=chanSelStr(flags)))
+    result.merge(addFolders(flags,flags.LArCalib.AutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=AutoCorrTag, modifiers=chanSelStr(flags)))
+    result.merge(addFolders(flags,flags.LArCalib.PhysAutoCorr.Folder,detDb=flags.LArCalib.Input.Database, tag=PhysAutoCorrTag,modifiers=chanSelStr(flags)))
 
     
     
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     ConfigFlags.LArCalib.BadChannelTag="-RUN2-UPD3-00"
     ConfigFlags.LArCalib.Output.ROOTFile="larofc.root"
     ConfigFlags.IOVDb.DatabaseInstance="CONDBR2"
-    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDDBR2"
+    ConfigFlags.IOVDb.DBConnection="sqlite://;schema=output.sqlite;dbname=CONDBR2"
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
 

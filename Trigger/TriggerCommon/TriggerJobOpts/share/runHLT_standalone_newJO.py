@@ -62,9 +62,6 @@ flags.Concurrency.NumThreads = 1
 flags.InDet.useSctDCS = False
 flags.InDet.usePixelDCS = False
 
-# Calo is currently the only client of Transient BS
-flags.Trigger.doTransientByteStream = lambda f: f.Input.Format == 'POOL' and f.Trigger.doCalo
-
 # command line handling
 # options that are defined in: AthConfigFlags are handled here
 # they override values from above
@@ -118,7 +115,8 @@ if flags.Trigger.doLVL1:
 acc.addEventAlgo(CompFactory.SGInputLoader(Load=loadFromSG), sequenceName="AthAlgSeq")
 
 # The L1 presacles do not get created in the menu setup
-from TrigConfigSvc.TrigConfigSvcCfg import createL1PrescalesFileFromMenu
+from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFileFromMenu
+generateL1Menu(flags)
 createL1PrescalesFileFromMenu(flags)
 
 

@@ -23,6 +23,7 @@ categories = ['jet',
               'tagger_SV1',
               'tagger_JetFitter',
               'tagger_DL1',
+              'tagger_DL1d',
               'tagger_DL1r',
               'old_taggers',
               #'tagger_IP2D',
@@ -43,7 +44,7 @@ sub_categories_type_1 = [ '_incl',
                    '_muon',
                  ]
 
-categories_with_subcategories_type_2 = ['tagger_IP3D', 'tagger_RNNIP', 'tagger_SV1', 'tagger_JetFitter', 'tagger_DL1', 'tagger_DL1r']
+categories_with_subcategories_type_2 = ['tagger_IP3D', 'tagger_RNNIP', 'tagger_SV1', 'tagger_JetFitter', 'tagger_DL1', 'tagger_DL1d', 'tagger_DL1r']
 
 sub_categories_type_2 = [ '_pt_ttbar',
                    '_pt_Zprime',
@@ -66,6 +67,7 @@ sub_categories_TProfiles = ['IP3D',
                    'SV1',
                    'JetFitter',
                    'DL1',
+                   'DL1d',
                    'DL1r',
                    'IP2D',
                    'IP3DSV1',

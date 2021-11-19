@@ -11,7 +11,7 @@ from AthenaCommon.SystemOfUnits import GeV
 def createTrigEgammaFastElectronHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #rom TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import createTrigEgammaFastCaloSelectors
+  #rom TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
   from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlg
   theFastElectronHypo = TrigEgammaFastElectronHypoAlg(name)
   theFastElectronHypo.Electrons = sequenceOut
@@ -154,7 +154,12 @@ class TrigEgammaFastElectronHypoToolConfig:
 
     # add mon tool
     if hasattr(self.tool(), "MonTool"):
-      self.addMonitoring()
+      from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import doOnlineMonForceCfg
+      doOnlineMonAllChains = doOnlineMonForceCfg()
+      monGroups = self.__monGroups
+
+      if (any('egammaMon:online' in group for group in monGroups) or doOnlineMonAllChains):
+        self.addMonitoring()
 
 
   #

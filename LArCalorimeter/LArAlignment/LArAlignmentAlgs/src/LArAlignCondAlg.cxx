@@ -28,15 +28,16 @@ StatusCode LArAlignCondAlg::initialize()
 
 StatusCode LArAlignCondAlg::execute()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // ____________ Construct Write Cond Handle and check its validity ____________
-  SG::WriteCondHandle<GeoAlignmentStore> writeGeoAlignHandle{m_writeGeoAlignKey};
+  SG::WriteCondHandle<GeoAlignmentStore> writeGeoAlignHandle{m_writeGeoAlignKey,ctx};
   if (writeGeoAlignHandle.isValid()) {
     ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }
   
   // ____________ Get Read Cond Object ____________
-  SG::ReadCondHandle<DetCondKeyTrans> readLArAlignHandle{m_readLArAlignKey};
+  SG::ReadCondHandle<DetCondKeyTrans> readLArAlignHandle{m_readLArAlignKey,ctx};
   ATH_CHECK(readLArAlignHandle.isValid());
   ATH_MSG_DEBUG("Retrieved DetCondKeyTrans object form the Condition Store");
   writeGeoAlignHandle.addDependency(readLArAlignHandle);

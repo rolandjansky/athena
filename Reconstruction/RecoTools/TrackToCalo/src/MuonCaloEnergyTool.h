@@ -5,8 +5,6 @@
 /***************************************************************************
 MuonCaloEnergyTool.h  -  Description
 -------------------
-begin   : Summer 2014
-authors : Niels van Eldik (CERN PH-ATC)
 ***************************************************************************/
 #ifndef MUONCALOENERGYTOOL_H
 #define MUONCALOENERGYTOOL_H
@@ -39,7 +37,7 @@ namespace Rec {
     public:
         MuonCaloEnergyTool(const std::string&, const std::string&, const IInterface*);
 
-        virtual ~MuonCaloEnergyTool();
+        virtual ~MuonCaloEnergyTool() = default;
 
         virtual StatusCode initialize() override;
      
@@ -50,19 +48,20 @@ namespace Rec {
                                    std::vector<double>* E_exp_cell = 0) const override;
 
     private:
-        ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool;              //!< Tool to make the step-wise extrapolation
-        ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool;  //!< Tool to make the step-wise extrapolation
-        ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator;                 /**< The CB Particle Creator Tool */
+        ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool {this, "ParticleCaloExtensionTool", "", "Tool to make the step-wise extrapolation"};
+        ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool {this, "ParticleCaloCellAssociationTool", "", "Tool to make the cell association"}; 
+        ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator {this,"TrackParticleCreator",  "", "The CB Particle Creator Tool"};
 
         SG::ReadCondHandleKey<CaloNoise> m_caloNoiseCDOKey{this, "CaloNoiseKey", "totalNoise", "SG Key of CaloNoise data object"};
 
         // DATA MEMBERS
-        double m_sigmasAboveNoise;  // 4.
-        double m_emEtCut;           // 2.5 GeV
-        double m_emF1Cut;           // 0.15
-        const double m_emipEM;      // 0.78
-        const double m_emipTile;    // 0.86
-        const double m_emipHEC;     // 0.94
+        Gaudi::Property<double>  m_sigmasAboveNoise {this, "SigmasAboveNoise", 4.0 }; 
+        Gaudi::Property<double>  m_emEtCut {this, "EmEtCut", 2.5* Gaudi::Units::GeV };
+        Gaudi::Property<double>  m_emF1Cut {this, "EmF1Cut", 0.15 }; 
+  
+        static constexpr double m_emipEM {0.42};      
+        static constexpr double m_emipTile {0.86};    
+        static constexpr double m_emipHEC {0.65};     
 
         SG::ReadHandleKey<xAOD::TrackParticleContainer> m_indetTrackParticleLocation{this, "TrackParticleLocation", "InDetTrackParticles",
                                                                                      "ID track particles"};

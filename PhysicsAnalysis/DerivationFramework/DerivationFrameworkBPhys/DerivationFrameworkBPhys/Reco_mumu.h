@@ -35,23 +35,26 @@ namespace DerivationFramework {
     private:
       /** tools
        */
-      ToolHandle<Trk::V0Tools>                    m_v0Tools;
-      ToolHandle<Analysis::ICandidateSearch>      m_jpsiFinder;
-      ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter;
+      ToolHandle<Trk::V0Tools>                    m_v0Tools{this, "V0Tools", "Trk::V0Tools"};
+      ToolHandle<Analysis::JpsiFinder>            m_jpsiFinder{this,"JpsiFinder", "Analysis::JpsiFinder"};
+      ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter{this, "PVRefitter", "Analysis::PrimaryVertexRefitter"};
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
       
-      /** job options
-       */
-      std::string m_outputVtxContainerName;
-      std::string m_pvContainerName;
-      std::string m_refPVContainerName;
-      bool        m_refitPV;
-      int         m_PV_max;
-      int         m_DoVertexType;
-      size_t      m_PV_minNTracks;
-      bool        m_do3d;
-      bool        m_checkCollections;
-      std::vector<std::string> m_CollectionsToCheck;
+      
+    // minimum number of tracks for PV to be considered for PV association
+   
+      Gaudi::Property<bool>         m_refitPV{this, "RefitPV", false};
+      Gaudi::Property<int>          m_PV_max{this, "MaxPVrefit", 1};
+      Gaudi::Property<int>          m_DoVertexType{this, "DoVertexType", 1};
+      Gaudi::Property<unsigned int> m_PV_minNTracks{this, "MinNTracksInPV", 0};
+      Gaudi::Property<bool>        m_do3d{this, "Do3d" , false};
+      Gaudi::Property<bool>        m_checkCollections{this, "CheckCollections", false};
+      
+      SG::ReadHandleKeyArray<xAOD::VertexContainer> m_CollectionsToCheck{this, "CheckVertexContainers", {}};
+      SG::ReadHandleKey<xAOD::VertexContainer> m_pvContainerKey{this,"PVContainerName", "PrimaryVertices"};
+     
+      SG::WriteHandleKey<xAOD::VertexContainer> m_refContainerKey{this, "RefPVContainerName","RefittedPrimaryVertices" };
+      SG::WriteHandleKey<xAOD::VertexContainer> m_outContainerKey{this, "OutputVtxContainerName", "OniaCandidates"};
   }; 
 }
 

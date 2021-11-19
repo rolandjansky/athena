@@ -142,13 +142,13 @@ G4bool HGTDSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     }
 
     HepGeom::Point3D<double> lP1,lP2;
-    lP1[SiHit::xEta] = localPosition1[2]*CLHEP::mm;
-    lP1[SiHit::xPhi] = localPosition1[1]*CLHEP::mm;
-    lP1[SiHit::xDep] = localPosition1[0]*CLHEP::mm;
-  
-    lP2[SiHit::xEta] = localPosition2[2]*CLHEP::mm;
-    lP2[SiHit::xPhi] = localPosition2[1]*CLHEP::mm;
-    lP2[SiHit::xDep] = localPosition2[0]*CLHEP::mm;
+    lP1[SiHit::xEta] = localPosition1[1]*CLHEP::mm; //long edge of the module
+    lP1[SiHit::xPhi] = localPosition1[0]*CLHEP::mm; //short edge of the module
+    lP1[SiHit::xDep] = localPosition1[2]*CLHEP::mm; //depth (z)
+
+    lP2[SiHit::xEta] = localPosition2[1]*CLHEP::mm;
+    lP2[SiHit::xPhi] = localPosition2[0]*CLHEP::mm;
+    lP2[SiHit::xDep] = localPosition2[2]*CLHEP::mm;
 
     std::string module_indices = myTouch->GetVolume(1)->GetLogicalVolume()->GetName();
     std::size_t found = module_indices.find_last_of("_");

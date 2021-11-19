@@ -77,7 +77,7 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
     ATH_MSG_INFO("gmxFilename not set; getting .gmx from Geometry database Blob");
     flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
     gmxInput = getBlob();
-    std::string dtdFile = '"' + PathResolver::find_file("geomodel.dtd", "DATAPATH") + '"';
+    std::string dtdFile = '"' + PathResolver::find_file("GeoModelXml/geomodel.dtd", "DATAPATH") + '"';
     ATH_MSG_INFO( "dtdFile = " << dtdFile );
     size_t index = gmxInput.find("\"geomodel.dtd\"");
     if (index != std::string::npos) {
@@ -90,7 +90,7 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
     gmxInput = PathResolver::find_file(m_options.gmxFilename(), "DATAPATH");
     if (gmxInput.empty()) { // File not found
       std::string errMessage("PixelDetectorFactory::create: Unable to find file " + m_options.gmxFilename() +
-                             " with PathResolver; check filename and DATAPATH environment variable");
+			     " with PathResolver; check filename and DATAPATH environment variable");
       throw std::runtime_error(errMessage);
     }
   }

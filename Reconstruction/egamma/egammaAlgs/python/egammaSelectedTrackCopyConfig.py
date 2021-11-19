@@ -2,12 +2,11 @@
 
 __doc__ = "Instantiate egammaSelectedTrackCopy with default configuration"
 
-from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
+from egammaTrackTools.egammaTrackToolsConfig import (
+    EMExtrapolationToolsCfg, EMExtrapolationToolsCommonCacheCfg)
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-egammaCaloClusterSelector = CompFactory.egammaCaloClusterSelector
-egammaSelectedTrackCopy = CompFactory.egammaSelectedTrackCopy
 
 
 def egammaSelectedTrackCopyCfg(
@@ -15,14 +14,12 @@ def egammaSelectedTrackCopyCfg(
         name='egammaSelectedTrackCopy',
         **kwargs):
 
-    mlog = logging.getLogger(name)
-    mlog.info('Starting configuration')
-
     acc = ComponentAccumulator()
 
     if "egammaCaloClusterSelector" not in kwargs:
-        egammaCaloClusterGSFSelector = egammaCaloClusterSelector(
+        egammaCaloClusterGSFSelector = CompFactory.egammaCaloClusterSelector(
             name='caloClusterGSFSelector',
+            egammaCheckEnergyDepositTool=CompFactory.egammaCheckEnergyDepositTool(),
             EMEtCut=2250.,
             EMEtSplittingFraction=0.7,
             EMFCut=0.5
@@ -35,10 +32,8 @@ def egammaSelectedTrackCopyCfg(
         kwargs["ExtrapolationTool"] = acc.popToolsAndMerge(extraptool)
 
     if "ExtrapolationToolCommonCache" not in kwargs:
-        from egammaTrackTools.egammaTrackToolsConfig import (
-            EMExtrapolationToolsCacheCfg)
         kwargs["ExtrapolationToolCommonCache"] = acc.popToolsAndMerge(
-            EMExtrapolationToolsCacheCfg(flags))
+            EMExtrapolationToolsCommonCacheCfg(flags))
 
     kwargs.setdefault(
         "ClusterContainerName",
@@ -47,7 +42,7 @@ def egammaSelectedTrackCopyCfg(
         "TrackParticleContainerName",
         flags.Egamma.Keys.Input.TrackParticles)
 
-    egseltrkcpAlg = egammaSelectedTrackCopy(name, **kwargs)
+    egseltrkcpAlg = CompFactory.egammaSelectedTrackCopy(name, **kwargs)
 
     acc.addEventAlgo(egseltrkcpAlg)
     return acc
@@ -61,6 +56,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.ComponentAccumulator import printProperties
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     flags.Input.Files = defaultTestFiles.RDO
+    flags.lock()
 
     acc = MainServicesCfg(flags)
     acc.merge(egammaSelectedTrackCopyCfg(flags))

@@ -1,13 +1,8 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # File taking care of pointing the downstream projects at the right
 # version of the externals.
 #
-
-# Set the versions of the TDAQ projects:
-set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" CACHE STRING
-   "The version of tdaq-common to use for the build" )
-set( TDAQ-COMMON_ATROOT "@TDAQ-COMMON_ATROOT@" CACHE PATH
-   "The directory to pick up tdaq-common from" )
 
 # This is a standalone project, so set the appropriate flags.
 add_definitions( -DXAOD_STANDALONE )

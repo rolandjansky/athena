@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -44,8 +44,7 @@ namespace TrigAnalysisTest {
   {
     m_histFile = new TFile("hist.root", "RECREATE");
     if (m_histFile == nullptr || !m_histFile->IsOpen()) {
-      cerr << "unable to open file for writing, exiting" << endl;
-      exit(1);
+      throw std::runtime_error("unable to open file for writing, exiting");
     }
 
     // bphys

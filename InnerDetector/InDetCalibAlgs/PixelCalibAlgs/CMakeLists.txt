@@ -12,7 +12,7 @@ atlas_add_library( PixelCalibAlgsLib
    PixelCalibAlgs/*.h src/*.cxx
    PUBLIC_HEADERS PixelCalibAlgs
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps CxxUtils GaudiKernel InDetConditionsSummaryService
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps CxxUtils GaudiKernel InDetConditionsSummaryService 
    InDetPrepRawData InDetReadoutGeometry PixelReadoutGeometryLib PixelConditionsData StoreGateLib
    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities EventInfo InDetIdentifier InDetRawData PixelGeoModelLib )
 
@@ -25,4 +25,4 @@ atlas_add_executable( makeInactiveModuleList
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PixelConditionsData PixelCalibAlgsLib )
 
-atlas_install_runtime ( share/HashVSdcsID.dat share/table_Run2.txt share/PixelMapping_Run2.dat )
+atlas_install_runtime ( share/HashVSdcsID.dat share/table_Run2.txt share/PixelMapping_Run2.dat share/PixelModuleFeMask_create_db.py)

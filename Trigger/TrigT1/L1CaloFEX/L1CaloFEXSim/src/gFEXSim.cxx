@@ -142,7 +142,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
       }
    }
    ATH_CHECK(m_gFEXFPGA_Tool->init(3));
-   m_gFEXFPGA_Tool->SetTowersAndCells_SG(tmp_gTowersIDs_subset_forwardFPGA);
+   m_gFEXFPGA_Tool->SetTowersAndCells_SG(tmp_gTowersIDs_subset_forwardFPGA_N);
    m_gFEXFPGA_Tool->GetEnergyMatrix(CNtwr);
    m_gFEXFPGA_Tool->reset();
    //FPGA C-N----------------------------------------------------------------------------------------------------------------------------------------------

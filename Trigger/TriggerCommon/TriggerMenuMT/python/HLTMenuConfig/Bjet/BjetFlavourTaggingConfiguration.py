@@ -69,9 +69,18 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
         'BTagging/20210519r22/dl1d/antikt4empflow/network.json',
         # DL1d, uses IP3D dips above
         'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
+
+        # The following were the best offline R22 taggers according to
+        #
+        # https://ftag-docs.docs.cern.ch/algorithms/available_taggers/
+        #
+        # R22 retraining for DIPS, provides dipsLoose20210729
+        'BTagging/20210729/dipsLoose/antikt4empflow/network.json',
+        # R22 retraining with the above DIPS, provides DL1dv00
+        'BTagging/20210824r22/dl1dLoose/antikt4empflow/network.json',
     ]
     for jsonFile in tagger_list:
         acc.merge(HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection=BTagName, TrackCollection=inputTracks, NNFile=jsonFile) )
 
 
-    return [acc,BTagName]
+    return acc

@@ -11,7 +11,6 @@
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 #include "TrigT1Interfaces/Lvl1MuSectorLogicConstantsPhase1.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
-#include "TrigConfMuctpi/MuctpiXMLHelper.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1Threshold.h"
 
@@ -69,6 +68,7 @@ namespace LVL1MUCTPIPHASE1 {
   class OverlapHelper
   {
   public:
+    MuctpiXMLHelper xmlHelper;
     std::map<int,std::set<std::string> > global_pairs;
     
     std::array<std::map<std::string,std::vector<std::string>>,2> lhs_index;
@@ -144,8 +144,8 @@ namespace LVL1MUCTPIPHASE1 {
 	
 	if (topElementName != "LUT") continue;
 
-	std::string SectorId1 = MuctpiXMLHelper::getAttribute(lut,"SectorId1");
-	std::string SectorId2 = MuctpiXMLHelper::getAttribute(lut,"SectorId2");
+	std::string SectorId1 = xmlHelper.getAttribute(lut,"SectorId1");
+	std::string SectorId2 = xmlHelper.getAttribute(lut,"SectorId2");
 
 	unsigned left_mod = 32;
 	unsigned right_mod = 32;
@@ -160,7 +160,7 @@ namespace LVL1MUCTPIPHASE1 {
 	std::string snum_right = std::string(1,SectorId2[1])+std::string(1,SectorId2[2]);
 	int sec_right = std::stoi(snum_right) % right_mod;
 	
-	std::string side = MuctpiXMLHelper::getAttribute(lut,"Side");
+	std::string side = xmlHelper.getAttribute(lut,"Side");
 	int active_side = (side == "C") ? 0 : 1;
 
 	std::string System1 = SectorId1.substr(0,1);
@@ -170,8 +170,8 @@ namespace LVL1MUCTPIPHASE1 {
 	  std::string menuElementName = z.first;
 	  if(menuElementName!="Element" && menuElementName!="BBElement")continue;
 	  ptree ele = z.second;
-	  auto roi1 = MuctpiXMLHelper::getIntAttribute(ele, "RoI1");
-	  auto roi2 = MuctpiXMLHelper::getIntAttribute(ele, "RoI2");
+	  auto roi1 = xmlHelper.getIntAttribute(ele, "RoI1");
+	  auto roi2 = xmlHelper.getIntAttribute(ele, "RoI2");
 	  auto lhs_key = make_key(System1,sec_left,roi1);
 	  auto rhs_key = make_key(System2,sec_right,roi2);
 	  auto region = make_pair(lhs_key,rhs_key);
@@ -385,6 +385,8 @@ namespace LVL1MUCTPIPHASE1 {
 	    int ptword = sectorData->pt(icand);
 	    if (ptword < 0) continue;
 
+	    // the following doesn't quite follow the correct nomenclature, should be (side, isub, isec, roiID) thus there was a typo chain in L399+ using isub instead of the correct isys
+	    // see: https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigT1/TrigT1MuctpiPhase1/src/L1TopoLUT.cxx#L161
 	    L1TopoCoordinates coord = m_l1topoLUT->getCoordinates(isub, isys, isec, roiID);
 
 	    //check for invalid decoding
@@ -396,13 +398,13 @@ namespace LVL1MUCTPIPHASE1 {
 	    }
 
 	    int ptValue = 0;
-	    auto enc = m_ptEncoding[isub].find(ptword);
-	    if (enc == m_ptEncoding[isub].end()) 
+	    auto enc = m_ptEncoding[isys].find(ptword);
+	    if (enc == m_ptEncoding[isys].end()) 
 	    {
-	      auto last_enc = m_ptEncoding[isub].rbegin();
-	      if (last_enc != m_ptEncoding[isub].rend() && ptword > last_enc->first)
+	      auto last_enc = m_ptEncoding[isys].rbegin();
+	      if (last_enc != m_ptEncoding[isys].rend() && ptword > last_enc->first)
 	      {
-		ptValue = m_ptEncoding[isub].rbegin()->second;
+		ptValue = m_ptEncoding[isys].rbegin()->second;
 	      }
 	      else
 	      {

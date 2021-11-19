@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+import re
 from TrigBjetHypo.TrigBjetMonitoringConfig import TrigBjetBtagHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
-
 log = logging.getLogger('TrigBjetBtagHypoTool')
 
 ####################################################################################################
@@ -44,14 +44,7 @@ monitoredChains = {
     }
 
 
-def addMonitoring(tool, monClass, name, thresholdHLT ):
-    try:
-        tool.MonTool = monClass( "MonTool" )
-        tool.MonTool.HistPath = name + "/" + thresholdHLT
-    except AttributeError:
-        log.error('%s Monitoring Tool failed', name)
-
-####################################################################################################  
+####################################################################################################
 def TrigBjetBtagHypoToolFromDict( chainDict ):
 
     chainPart = chainDict['chainParts'][0]
@@ -67,10 +60,9 @@ def TrigBjetBtagHypoToolFromDict( chainDict ):
     
     log.debug("name = %s, tagger = %s, threshold = %s ", name, tool.MethodTag, tool.BTaggingCut)
 
-    import re
     nolegname = re.sub("(^leg.*?_)", "", name)
     if nolegname in monitoredChains :
-        addMonitoring( tool, TrigBjetBtagHypoToolMonitoring,'TrigBjetOnlineMonitoring', nolegname )
+        tool.MonTool = TrigBjetBtagHypoToolMonitoring(f'TrigBjetOnlineMonitoring/{nolegname}')
 
     return tool
 
@@ -90,7 +82,6 @@ def decodeThreshold( threshold_btag ):
 
     log.debug("TrigBjetBtagHypoToolFromName: decoding threshold b%s", threshold_btag)
 
-    import re
     tagger = "offperf" if threshold_btag == "offperf" else re.findall("(.*)[0-9]{2}",threshold_btag)[0]
 
     allowedTaggers = ["offperf","hmv2c10","mv2c10","mv2c20","dl1r"]

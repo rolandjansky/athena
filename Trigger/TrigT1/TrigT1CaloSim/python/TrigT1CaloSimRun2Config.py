@@ -62,7 +62,7 @@ def Run2TriggerTowerMakerCfg(flags, name):
 
 
 
-def L1LegacyCaloSimCfg(flags):
+def L1CaloLegacySimCfg(flags):
     '''
     Configures Legacy 1 calo in new JO style
     '''
@@ -141,6 +141,7 @@ def L1LegacyCaloSimCfg(flags):
     return acc
 
 if __name__ == '__main__':
+    import sys
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
 
@@ -157,16 +158,16 @@ if __name__ == '__main__':
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(flags))
 
+    from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu
+    generateL1Menu(flags)
+
     from AthenaCommon.CFElements import seqAND
     acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='AthAlgSeq')
-    acc.merge(L1LegacyCaloSimCfg(flags), sequenceName='L1CaloLegacySimSeq')
+    acc.merge(L1CaloLegacySimCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
     acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
     with open("L1CaloSim.pkl", "wb") as p:
         acc.store(p)
         p.close()
 
-    status = acc.run()
-    if status.isFailure():
-        import sys
-        sys.exit(1)
+    sys.exit(acc.run().isFailure())

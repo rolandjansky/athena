@@ -71,8 +71,8 @@ StatusCode TAURoIsUnpackingTool::unpack(const EventContext& ctx,
 
       trigRoIs->push_back( std::make_unique<TrigRoiDescriptor>(
         roIWord, 0u ,0u,
-        recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
-        recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth) );
+        recRoI->eta(), recRoI->eta()-m_roIWidthEta, recRoI->eta()+m_roIWidthEta,
+        recRoI->phi(), recRoI->phi()-m_roIWidthPhi, recRoI->phi()+m_roIWidthPhi) );
 
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );
 

@@ -22,6 +22,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolIntegrator.h"
@@ -33,11 +34,11 @@
 #include "TileConditions/TileCondToolMuID.h"
 #include "TileConditions/TileCondToolAutoCr.h"
 #include "TileConditions/TileInfo.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class ITHistSvc;
 class TileHWID;
 class TileID;
-class CaloDetDescrManager;
 class TH2F;
 
 /**
@@ -123,7 +124,8 @@ class TileInfoDump: public AthAlgorithm {
 
     const TileHWID* m_tileHWID;
     const TileID* m_tileID;
-    const CaloDetDescrManager* m_caloMgr;
+    SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,
+	"CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 
     TH2F* m_h_badCellA;
     TH2F* m_h_badCellBC;

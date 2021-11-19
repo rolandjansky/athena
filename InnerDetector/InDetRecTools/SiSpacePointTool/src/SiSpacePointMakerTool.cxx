@@ -427,6 +427,7 @@ namespace InDet {
     const Amg::Transform3D& T2 = element2->transform();
     Amg::Vector3D           C  = element1->center() ;
     bool isAnnulus = (element1->design().shape() == InDetDD::Annulus);
+    // bool isPolar = (element1->design().shape() == InDetDD::PolarAnnulus);
 
     double x12 = T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0)+T1(2,0)*T2(2,0)                              ;
     double r   = isAnnulus ? std::sqrt(C[0]*C[0]+C[1]*C[1]) : std::sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3));

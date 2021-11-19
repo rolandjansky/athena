@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// PunchThroughTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header
 #include "PunchThroughTool.h"
@@ -21,9 +17,6 @@
 
 // Control
 #include "AthContainers/DataVector.h"
-
-// Gaudi & StoreGate
-#include "GaudiKernel/IPartPropSvc.h"
 
 // HepMC
 #include "AtlasHepMC/SimpleVector.h"
@@ -52,16 +45,7 @@
 #include "ISF_Event/ISFParticle.h"
 #include "PDFcreator.h"
 #include "PunchThroughParticle.h"
-#include "ISF_Interfaces/IGeoIDSvc.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionInt32Histogram.h"
-
-
-
-//Barcode
-#include "BarcodeInterfaces/IBarcodeSvc.h"
-
-//Geometry
-#include "SubDetectorEnvelopes/IEnvelopeDefSvc.h"
 
 //Amg
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
@@ -75,7 +59,6 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
                                          const std::string& name,
                                          const IInterface*  parent )
 : base_class(type, name, parent),
-  m_randomSvc("AtDSFMTGenSvc", name),
   m_pdgInitiators(),
   m_initiatorsMinEnergy(),
   m_initiatorsEtaRange(),
@@ -112,20 +95,10 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
   declareProperty( "MaxNumParticles",              m_maxNumParticles       );
   declareProperty( "NumParticlesFactor",           m_numParticlesFactor    );
   declareProperty( "EnergyFactor",                 m_energyFactor          );
-  declareProperty( "RandomNumberService",          m_randomSvc,            "Random number generator"         );
-  declareProperty( "RandomStreamName",             m_randomEngineName,     "Name of the random number stream");
   declareProperty( "BarcodeSvc",                   m_barcodeSvc            );
   declareProperty( "EnvelopeDefSvc",               m_envDefSvc             );
   declareProperty( "BeamPipeRadius",               m_beamPipe              );
 }
-
-/*=========================================================================
- *  DESCRIPTION OF FUNCTION:
- *  ==> see headerfile
- *=======================================================================*/
-
-ISF::PunchThroughTool::~PunchThroughTool()
-{}
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
@@ -138,57 +111,32 @@ StatusCode ISF::PunchThroughTool::initialize()
 
   // resolving lookuptable file
   std::string resolvedFileName = PathResolverFindCalibFile (m_filenameLookupTable);
-  if (resolvedFileName != "")
-    {
-      ATH_MSG_INFO( "[ punchthrough ] Parameterisation file found: " << resolvedFileName );
-    }
-  else
-    {
-      ATH_MSG_ERROR( "[ punchthrough ] Parameterisation file not found" );
-      return StatusCode::FAILURE;
-    }
+  if (resolvedFileName == "") {
+    ATH_MSG_ERROR( "[ punchthrough ] Parameterisation file not found" );
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO( "[ punchthrough ] Parameterisation file found: " << resolvedFileName );
 
   // open the LookupTable file
   m_fileLookupTable = new TFile( resolvedFileName.c_str(), "READ");
-  if (!m_fileLookupTable)
-    {
-      ATH_MSG_WARNING("[ punchthrough ] unable to open the lookup-tabel for the punch-through simulation (file does not exist)");
-      return StatusCode::FAILURE;
-    }
+  if (!m_fileLookupTable) {
+    ATH_MSG_WARNING("[ punchthrough ] unable to open the lookup-tabel for the punch-through simulation (file does not exist)");
+    return StatusCode::FAILURE;
+  }
 
-  if (!m_fileLookupTable->IsOpen())
-    {
-      ATH_MSG_WARNING("[ punchthrough ] unable to open the lookup-tabel for the punch-through simulation (wrong or empty file?)");
-      return StatusCode::FAILURE;
-    }
+  if (!m_fileLookupTable->IsOpen()) {
+    ATH_MSG_WARNING("[ punchthrough ] unable to open the lookup-tabel for the punch-through simulation (wrong or empty file?)");
+    return StatusCode::FAILURE;
+  }
 
   // retrieve the ParticleProperties handle
-  if ( m_particlePropSvc.retrieve().isFailure() )
-    {
-      ATH_MSG_FATAL( "[ punchthrough ] Can not retrieve " << m_particlePropSvc << " ! Abort. " );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( m_particlePropSvc.retrieve() );
 
   // and the particle data table
   m_particleDataTable = m_particlePropSvc->PDT();
-  if (m_particleDataTable==0)
+  if (!m_particleDataTable)
     {
       ATH_MSG_FATAL( " [ punchthrough ] Could not get ParticleDataTable! Cannot associate pdg code with charge! Abort. " );
-      return StatusCode::FAILURE;
-    }
-
-  // Random number service
-  if ( m_randomSvc.retrieve().isFailure() )
-    {
-      ATH_MSG_ERROR( "[ punchthrough ] Could not retrieve " << m_randomSvc );
-      return StatusCode::FAILURE;
-    }
-
-  // Get own engine with own seeds:
-  m_randomEngine = m_randomSvc->GetEngine(m_randomEngineName);
-  if (!m_randomEngine)
-    {
-      ATH_MSG_ERROR( "[ punchthrough ] Could not get random engine '" << m_randomEngineName << "'" );
       return StatusCode::FAILURE;
     }
 
@@ -346,7 +294,7 @@ StatusCode ISF::PunchThroughTool::finalize()
  *  ==> see headerfile
  *=======================================================================*/
 
-const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticles(const ISF::ISFParticle &isfp) const
+const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticles(const ISF::ISFParticle &isfp, CLHEP::HepRandomEngine* rndmEngine) const
 {
   ATH_MSG_DEBUG( "[ punchthrough ] starting punch-through simulation");
 
@@ -462,10 +410,10 @@ const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticle
           if ( pos == corrPdgNumDone.end() )
             {
               // -> roll a dice if we create this particle or its correlated one
-              if ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) doPdg = corrPdg;
+              if ( CLHEP::RandFlat::shoot(rndmEngine) > 0.5 ) doPdg = corrPdg;
               // now create the particles with the given pdg and note how many
               // particles of this pdg are created
-              corrPdgNumDone[doPdg] = getAllParticles(doPdg);
+              corrPdgNumDone[doPdg] = getAllParticles(rndmEngine, doPdg);
             }
 
           // one of the two correlated particle types was already simulated
@@ -480,7 +428,7 @@ const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticle
               if (donePdg == doPdg) doPdg = corrPdg;
 
               // now create the correlated particles
-              getCorrelatedParticles(doPdg, doneNumPart);
+              getCorrelatedParticles(doPdg, doneNumPart, rndmEngine);
               // note: no need to take note, that this particle type is now simulated,
               // since this is the second of two correlated particles, which is
               // simulated and we do not have correlations of more than two particles.
@@ -489,7 +437,7 @@ const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticle
           // if no correlation for this particle
           // -> directly create all particles with the current pdg
         }
-      else getAllParticles(doPdg);
+      else getAllParticles(rndmEngine, doPdg);
 
     } // for-loop over all particle pdgs
 
@@ -510,7 +458,7 @@ const ISF::ISFParticleVector* ISF::PunchThroughTool::computePunchThroughParticle
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
-int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
+int ISF::PunchThroughTool::getAllParticles(CLHEP::HepRandomEngine* rndmEngine, int pdg, int numParticles) const
 {
   // first check if the ISF particle vector already exists
   if (!m_isfpCont)    m_isfpCont = new ISFParticleVector();
@@ -534,7 +482,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
       // and ensure that we do not create too many particles
       do
         {
-          numParticles = lround( p->getNumParticlesPDF()->getRand(parameters) );
+          numParticles = lround( p->getNumParticlesPDF()->getRand(rndmEngine, parameters) );
 
           // scale the number of particles if requested
           numParticles = lround( numParticles *= p->getNumParticlesFactor() );
@@ -552,7 +500,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
   for ( numCreated = 0; (numCreated < numParticles) && (energyRest > minEnergy); numCreated++ )
     {
       // create one particle which fullfills the right energy distribution
-      ISF::ISFParticle *par = getOneParticle(pdg, energyRest);
+      ISF::ISFParticle *par = getOneParticle(pdg, energyRest, rndmEngine);
 
       // if something went wrong
       if (!par)
@@ -582,19 +530,19 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
  *  ==> see headerfile
  *=======================================================================*/
 
-int ISF::PunchThroughTool::getCorrelatedParticles(int pdg, int corrParticles) const
+int ISF::PunchThroughTool::getCorrelatedParticles(int pdg, int corrParticles, CLHEP::HepRandomEngine* rndmEngine) const
 {
   // get the PunchThroughParticle class
   PunchThroughParticle *p = m_particles[pdg];
 
   // (1.) decide if we do correlation or not
-  double rand = CLHEP::RandFlat::shoot(m_randomEngine)
+  double rand = CLHEP::RandFlat::shoot(rndmEngine)
     *(p->getFullCorrelationEnergy()-p->getMinCorrelationEnergy())
     + p->getMinCorrelationEnergy();
   if ( m_initEnergy < rand )
     {
       // here we do not do correlation
-      return getAllParticles(pdg);
+      return getAllParticles(rndmEngine, pdg);
     }
 
   // (2.) if this point is reached, we do correlation
@@ -611,7 +559,7 @@ int ISF::PunchThroughTool::getCorrelatedParticles(int pdg, int corrParticles) co
     }
   else
     {
-      double rand = CLHEP::RandFlat::shoot(m_randomEngine)*(histDomains[2]-histDomains[1])
+      double rand = CLHEP::RandFlat::shoot(rndmEngine)*(histDomains[2]-histDomains[1])
         + histDomains[1];
       hist2d = ( m_initEnergy < rand) ? p->getCorrelationLowEHist()
         : p->getCorrelationHighEHist();
@@ -628,7 +576,7 @@ int ISF::PunchThroughTool::getCorrelatedParticles(int pdg, int corrParticles) co
   // of 'pdg' particles
   do
     {
-      double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+      double rand = CLHEP::RandFlat::shoot(rndmEngine);
       double sum = 0.;
       for ( int ybin = 1; ybin <= hist2d->GetNbinsY(); ybin++ )
         {
@@ -646,7 +594,7 @@ int ISF::PunchThroughTool::getCorrelatedParticles(int pdg, int corrParticles) co
   while ( (maxParticles >= 0.) && (numParticles > maxParticles) );
 
   // finally create this exact number of particles
-  return getAllParticles(pdg, numParticles);
+  return getAllParticles(rndmEngine, pdg, numParticles);
 }
 
 /*=========================================================================
@@ -654,7 +602,7 @@ int ISF::PunchThroughTool::getCorrelatedParticles(int pdg, int corrParticles) co
  *  ==> see headerfile
  *=======================================================================*/
 
-ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnergy) const
+ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnergy, CLHEP::HepRandomEngine* rndmEngine) const
 {
   // get a local copy of the needed punch-through particle class
   PunchThroughParticle *p = m_particles[pdg];
@@ -664,7 +612,7 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   if ( p->getdoAnti() )
     {
       // get a random-value
-      double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+      double rand = CLHEP::RandFlat::shoot(rndmEngine);
       // 50/50 chance to be a particle or its anti-particle
       if (rand > 0.5) anti = -1;
     }
@@ -676,7 +624,7 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   parInitEnergyEta.push_back( std::fabs(m_initEta) );
 
   // (2.1) get the energy
-  double energy = p->getExitEnergyPDF()->getRand(
+  double energy = p->getExitEnergyPDF()->getRand( rndmEngine,
                                                  parInitEnergyEta, 0., p->getMinEnergy(), maxEnergy/p->getEnergyFactor() );
   energy *= p->getEnergyFactor(); // scale the energy if requested
 
@@ -686,10 +634,10 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   do
     {
       // get random value
-      double deltaTheta = p->getExitDeltaThetaPDF()->getRand(
+      double deltaTheta = p->getExitDeltaThetaPDF()->getRand( rndmEngine,
                                                              parInitEnergyEta, energy);
       // decide if delta positive/negative
-      deltaTheta *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
+      deltaTheta *=  ( CLHEP::RandFlat::shoot(rndmEngine) > 0.5 ) ? 1. : -1.;
       // calculate the exact theta value of the later created
       // punch-through particle
       theta = m_initTheta + deltaTheta*p->getPosAngleFactor();
@@ -698,9 +646,9 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   while ( (theta > M_PI) || (theta < 0.) );
   // (2.3) get the particle's delta phi relative to the incoming particle
 
-  double deltaPhi = p->getExitDeltaPhiPDF()->getRand(
+  double deltaPhi = p->getExitDeltaPhiPDF()->getRand( rndmEngine,
                                                      parInitEnergyEta, energy);
-  deltaPhi *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
+  deltaPhi *=  ( CLHEP::RandFlat::shoot(rndmEngine) > 0.5 ) ? 1. : -1.;
 
   // keep phi within range [-PI,PI]
   double phi = m_initPhi + deltaPhi*p->getPosAngleFactor();
@@ -716,10 +664,10 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   do
     {
       // get random value
-      double momDeltaTheta = p->getMomDeltaThetaPDF()->getRand(
+      double momDeltaTheta = p->getMomDeltaThetaPDF()->getRand( rndmEngine,
                                                                parInitEnergyEta, energy);
       // decide if delta positive/negative
-      momDeltaTheta *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
+      momDeltaTheta *=  ( CLHEP::RandFlat::shoot(rndmEngine) > 0.5 ) ? 1. : -1.;
       // calculate the exact momentum theta value of the later created
       // punch-through particle
       momTheta = theta + momDeltaTheta*p->getMomAngleFactor();
@@ -729,9 +677,9 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
 
   // (2.5) get the particle momentum delta phi, relative to its position
 
-  double momDeltaPhi = p->getMomDeltaPhiPDF()->getRand(
+  double momDeltaPhi = p->getMomDeltaPhiPDF()->getRand( rndmEngine,
                                                        parInitEnergyEta, energy);
-  momDeltaPhi *=  ( CLHEP::RandFlat::shoot(m_randomEngine) > 0.5 ) ? 1. : -1.;
+  momDeltaPhi *=  ( CLHEP::RandFlat::shoot(rndmEngine) > 0.5 ) ? 1. : -1.;
 
   double momPhi = phi + momDeltaPhi*p->getMomAngleFactor();
   // keep momPhi within range [-PI,PI]
@@ -897,8 +845,8 @@ std::unique_ptr<ISF::PDFcreator> ISF::PunchThroughTool::readLookuptablePDF(int p
   // will hold the PDFcreator class which will be returned at the end
   // this will store the distributions for the punch through particles
   // (as map of energy & eta of the incoming particle)
-  //PDFcreator *pdf = new PDFcreator(m_randomEngine);
-  std::unique_ptr<ISF::PDFcreator> pdf = std::make_unique<ISF::PDFcreator>(m_randomEngine);
+  
+  std::unique_ptr<ISF::PDFcreator> pdf = std::make_unique<ISF::PDFcreator>();
 
       //Get directory object
       std::stringstream dirName;

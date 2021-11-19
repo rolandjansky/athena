@@ -90,7 +90,8 @@ bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
                       isInMassRange(trigBphys->mass()) &&
                       passedChi2Cut(trigBphys->fitchi2()) &&
                       passedChargeCut(totalCharge(trigBphys)) &&
-                      trigBphys->lxy() > m_LxyCut && passesDRcut(trigBphys))) {
+                      trigBphys->lxy() > m_LxyCut &&
+                      passedDeltaRcut(trigBphys))) {
     mon_Lxy = trigBphys->lxy();
     mon_totalCharge = totalCharge(trigBphys);
     mon_chi2 = trigBphys->fitchi2();
@@ -195,18 +196,17 @@ bool TrigMultiTrkComboHypoTool::isInMassRange(double mass) const {
   return true;
 }
 
-bool TrigMultiTrkComboHypoTool::passesDRcut(const xAOD::TrigBphys* trigBphys) const {
-  if(m_deltaRMax == std::numeric_limits<float>::max() && m_deltaRMin == std::numeric_limits<float>::lowest()){
-    //Cut disabled
+bool TrigMultiTrkComboHypoTool::passedDeltaRcut(const xAOD::TrigBphys* trigBphys) const {
+  if (m_deltaRMax == std::numeric_limits<float>::max() && m_deltaRMin == std::numeric_limits<float>::lowest()) { // Cut disabled
     return true;
   }
   size_t N = trigBphys->nTrackParticles();
-  for(size_t i = 0 ; i<N;i++){
-    auto t1 = trigBphys->trackParticle(i)->genvecP4();
-    for(size_t j = i ; j<N;j++){
-       auto t2 = trigBphys->trackParticle(j)->genvecP4();
-       double dr = ROOT::Math::VectorUtil::DeltaR(t1, t2);
-       if(dr > m_deltaRMax || dr < m_deltaRMin) return false;
+  for (size_t i = 0 ; i < N; i++) {
+    auto p1 = trigBphys->trackParticle(i)->genvecP4();
+    for (size_t j = i + 1; j < N; j++) {
+      auto p2 = trigBphys->trackParticle(j)->genvecP4();
+      double deltaR = ROOT::Math::VectorUtil::DeltaR(p1, p2);
+      if (deltaR > m_deltaRMax || deltaR < m_deltaRMin) return false;
     }
   }
   return true;

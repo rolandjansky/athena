@@ -8,6 +8,7 @@
 #include "LArDetectorFactory.h"
 #include "LArDetectorFactoryLite.h"
 #include "LArGeoCode/VDetectorParameters.h"
+#include "LArGeoRAL/RAL.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -146,6 +147,9 @@ StatusCode LArDetectorToolNV::create()
     theLArFactoryLite.setBarrelSagging(m_barrelSaggingOn);
     theLArFactoryLite.create(world);
     m_manager = theLArFactoryLite.getDetectorManager();
+
+    std::unique_ptr<LArGeo::VDetectorParameters> params = std::make_unique<LArGeo::RAL>();
+    LArGeo::VDetectorParameters::SetInstance(std::move(params));
   }
   else {
     // Geometry is constructed from the Geometry DB

@@ -228,21 +228,24 @@ public:
 private:
    const CaloDetDescrManager* caloMgr() const;
 
-  std::string m_depth_choice;
+   Gaudi::Property<std::string> m_depth_choice{ this,
+                                                "DepthChoice",
+                                                "",
+                                                "depth choice" };
 
-  /** ID Helper
-   */
-  const CaloCell_ID* m_calo_id;
+   /** ID Helper
+    */
+   const CaloCell_ID* m_calo_id;
 
-  /** DD manager
-   */
-  CxxUtils::CachedPointer<CaloDetDescrManager> m_calo_dd;
+   /** DD manager
+    */
+   CxxUtils::CachedPointer<CaloDetDescrManager> m_calo_dd;
 
-  /** Phi range helper object
-   */
-  CaloPhiRange m_range;
+   /** Phi range helper object
+    */
+   CaloPhiRange m_range;
 
-  double m_default;
+   double m_default;
 };
 
  

@@ -1,46 +1,48 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-/////////////////////////////////////////////////////////////////
-// MuonJetDrTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // Finds the nearest jet and adds its info to the muon.
 #include "DerivationFrameworkMuons/MuonJetDrTool.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODJet/JetContainer.h"
+
 #include "FourMomUtils/xAODP4Helpers.h"
-
+#include "StoreGate/WriteDecorHandle.h"
 // Constructor
-DerivationFramework::MuonJetDrTool::MuonJetDrTool(const std::string& t,
-							    const std::string& n,
-							    const IInterface* p):
-  AthAlgTool(t, n, p)
-{
-  declareInterface<DerivationFramework::IAugmentationTool>(this);
-  declareProperty("ContainerKey", m_muonSGKey="Muons");
-  declareProperty("JetContainerKey", m_jetSGKey="AntiKt4EMTopoJets");
-  declareProperty("JetMinPt", m_jetMinPt=20e3);
+DerivationFramework::MuonJetDrTool::MuonJetDrTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p) {
+    declareInterface<DerivationFramework::IAugmentationTool>(this);
 }
-  
-StatusCode DerivationFramework::MuonJetDrTool::addBranches() const
-{
- 
-  // Retrieve main muonicle collection
-  const xAOD::IParticleContainer* muons = nullptr;
-  ATH_CHECK(evtStore()->retrieve(muons,m_muonSGKey));
-  const xAOD::JetContainer* jets = nullptr;
-  ATH_CHECK(evtStore()->retrieve(jets,m_jetSGKey));
+StatusCode DerivationFramework::MuonJetDrTool::initialize() {
+    ATH_CHECK(m_muonSGKey.initialize());
+    ATH_CHECK(m_jetSGKey.initialize());
+    m_jetDR_SGKey = m_muonSGKey.key() + "." + m_jetDR_SGKey.key();
+    ATH_CHECK(m_jetDR_SGKey.initialize());
+    return StatusCode::SUCCESS;
+}
+StatusCode DerivationFramework::MuonJetDrTool::addBranches() const {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  // Set up the decorator
-  SG::AuxElement::Decorator<float> decorator_jetdR("DFCommonJetDr"); 
-
-  for (auto muon : *muons) {
-    float new_jetdR = -1;
-    for (auto jet : *jets) {
-      if (jet->pt()>m_jetMinPt && (new_jetdR<0 || xAOD::P4Helpers::deltaR(jet,muon)<new_jetdR)) new_jetdR = xAOD::P4Helpers::deltaR(jet,muon);
+    // Retrieve main muonicle collection
+    SG::ReadHandle<xAOD::MuonContainer> muons{m_muonSGKey, ctx};
+    if (!muons.isValid()) {
+        ATH_MSG_FATAL("Failed to retrive container " << m_muonSGKey.fullKey());
+        return StatusCode::FAILURE;
     }
-    decorator_jetdR(*muon) = new_jetdR;
-  }
-  return StatusCode::SUCCESS;
+    SG::ReadHandle<xAOD::JetContainer> jets{m_jetSGKey, ctx};
+    if (!jets.isValid()) {
+        ATH_MSG_FATAL("Failed to retrieve " << m_jetSGKey.fullKey());
+        return StatusCode::FAILURE;
+    }
+    SG::WriteDecorHandle<xAOD::MuonContainer, float> decorator_jetdR{m_jetDR_SGKey, ctx};
+
+    for (auto muon : *muons) {
+        double new_jetdR = FLT_MAX;
+        bool found{false};
+        for (auto jet : *jets) {
+            if (jet->pt() <= m_jetMinPt) continue;
+            new_jetdR = std::min(xAOD::P4Helpers::deltaR(jet, muon), new_jetdR);
+            found = true;
+        }
+        decorator_jetdR(*muon) = found ? new_jetdR : -1;
+    }
+    return StatusCode::SUCCESS;
 }
