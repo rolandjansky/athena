@@ -707,6 +707,8 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
         GeometryProcessors=PrivateToolHandleArray(atlas_geometry_processors))
     result.addCondAlgo(condAlg, primary=True)
 
+     
+
     # Hack for Single Threaded Athena: manually move dependencies of SCT_DetectorElementCondAlg
     # and PixelDetectorElementCondAlg such that these are executed after their dependencies.
 
@@ -731,6 +733,24 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
         prependList.extend(appendList)
         condAlgs = prependList
         result._conditionsAlgs = condAlgs
+      
+    # Hack for running on  RecExCommon  via CAtoGlobalWrapper.
+    # We need to be sure
+    # we set "all" DetectorTools otherwise
+    # we get Py:conf2toConfigurable WARNINGs
+    # due to conflicts.
+    # "all" can include forward detectors
+    # when enabled (the module below check for this internally)
+    #
+    # Also we need this only when called via
+    # CAtoGlobalWrapper
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2:
+        functions = list(map(lambda x: x.function, stack))
+        if 'CAtoGlobalWrapper' in functions:
+            from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+            result.merge(ForDetGeometryCfg(flags))
 
     return result
 
