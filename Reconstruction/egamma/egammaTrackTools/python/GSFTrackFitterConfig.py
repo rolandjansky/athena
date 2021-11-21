@@ -10,9 +10,6 @@ from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
 
 def EMGSFExtrapolatorToolCfg(flags, **kwargs):
 
-    mlog = logging.getLogger('EMGSFExtrapolatorTool')
-    mlog.info('Start configuration')
-
     acc = ComponentAccumulator()
 
     if "Propagators" not in kwargs:
@@ -42,9 +39,6 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
 
 
 def EMGSFTrackFitterCfg(flags, name='EMGSFTrackFitter', **kwargs):
-
-    mlog = logging.getLogger(name)
-    mlog.info('Start configuration')
 
     acc = ComponentAccumulator()
 
