@@ -53,10 +53,6 @@ egammaSelectedTrackCopy::initialize()
   ATH_CHECK(m_trackParticleContainerKey.initialize());
   ATH_CHECK(m_OutputTrkPartContainerKey.initialize());
 
-  // needed to load conditions
-  ATH_CHECK(m_pixelDetEleCollKey.initialize());
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
-
   /* the extrapolation tool*/
   ATH_CHECK(m_extrapolationTool.retrieve());
   ATH_CHECK(m_extrapolationToolCommonCache.retrieve());

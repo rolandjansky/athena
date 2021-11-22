@@ -21,9 +21,6 @@ StatusCode PFTrackSelector::initialize(){
 
   ATH_CHECK(m_tracksReadHandleKey.initialize());
   ATH_CHECK(m_vertexKey.initialize());
-  ATH_CHECK(m_pixelDetEleCollKey.initialize());
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  ATH_CHECK(m_trtDetEleContKey.initialize());
 
   // Optional readhandlekeys for electrons and muons
   if(!m_electronsReadHandleKey.key().empty()) {

@@ -42,6 +42,18 @@ def egammaSelectedTrackCopyCfg(
         "TrackParticleContainerName",
         flags.Egamma.Keys.Input.TrackParticles)
 
+    # P->T conversion extra dependencies
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ])
+    else:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+        ])
+
     egseltrkcpAlg = CompFactory.egammaSelectedTrackCopy(name, **kwargs)
 
     acc.addEventAlgo(egseltrkcpAlg)
