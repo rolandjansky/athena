@@ -41,6 +41,15 @@ def RoIBResultToxAODCfg(flags):
         outputList += [
             (alg.xAODKeyMuon.Type,  alg.xAODKeyMuon.Path)
         ]
+        from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+        acc.merge(MuonGeoModelCfg(flags))
+        # RPC
+        from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
+        acc.merge( RPCCablingConfigCfg(flags) )
+        #TGC
+        from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
+        acc.merge( TGCCablingConfigCfg(flags) )
+
     if alg.DoCalo:
         outputList += [
             (alg.xAODKeyEmTau.Type, alg.xAODKeyEmTau.Path),
@@ -48,5 +57,32 @@ def RoIBResultToxAODCfg(flags):
             (alg.xAODKeyJetEt.Type, alg.xAODKeyJetEt.Path),
             (alg.xAODKeyJet.Type,   alg.xAODKeyJet.Path)
         ]
+        from  TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+        acc.merge(L1ConfigSvcCfg(flags))
+    
 
     return acc, outputList
+
+
+if __name__ == "__main__":
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaCommon import Configurable
+    Configurable.ConfigurableRun3Behavior = 1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+
+    flags.Input.Files = defaultTestFiles.RAW
+    flags.Exec.MaxEvents = 20
+    flags.lock()
+
+    topCA = MainServicesCfg(flags)
+    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+    topCA.merge(ByteStreamReadCfg(flags))
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
+    topCA.merge(L1TriggerByteStreamDecoderCfg(flags))
+    ca, output = RoIBResultToxAODCfg(flags)
+    topCA.merge(ca)
+    status = topCA.run()
+    if status.isFailure():
+        import sys
+        sys.exit(-1)
