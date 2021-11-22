@@ -91,8 +91,11 @@ class ItemDef:
 
         MenuItem('L1_EM3'       ).setLogic( d.EM3        & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM7'       ).setLogic( d.EM7        & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_EM10'      ).setLogic( d.EM10       & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM12'      ).setLogic( d.EM12       & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_EM14'      ).setLogic( d.EM14       & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM15'      ).setLogic( d.EM15       & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_EM16'      ).setLogic( d.EM16       & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM15_BGRP7').setLogic( d.EM15       & bgrp7cond).setTriggerType( TT.calo )
         MenuItem('L1_EM15I'     ).setLogic( d.EM15 & d.EM8I & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM15HI'    ).setLogic( d.EM15HI     & physcond).setTriggerType( TT.calo )
@@ -112,6 +115,7 @@ class ItemDef:
         MenuItem('L1_EM20C'     ).setLogic( d.EM20C      & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM15VHI'   ).setLogic( d.EM15VHI    & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM22VH'    ).setLogic( d.EM22VH     & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_EM22'    ).setLogic( d.EM22     & physcond).setTriggerType( TT.calo )
 
         # Phase-I
         MenuItem('L1_eEM3'      ).setLogic( d.eEM3       & physcond).setTriggerType( TT.calo )
@@ -137,6 +141,7 @@ class ItemDef:
         # 2xEM, 3xEM
         MenuItem('L1_2EM3'           ).setLogic( d.EM3.x(2)             & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2EM7'           ).setLogic( d.EM7.x(2)             & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_2EM10'          ).setLogic( d.EM10.x(2)            & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2EM10VH'        ).setLogic( d.EM10VH.x(2)          & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2EM8I'          ).setLogic( d.EM8I.x(2)            & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2EM13VH'        ).setLogic( d.EM13VH.x(2)          & physcond).setTriggerType( TT.calo )
@@ -145,6 +150,7 @@ class ItemDef:
         MenuItem('L1_2EM15'          ).setLogic( d.EM15.x(2)            & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2EM15VH'        ).setLogic( d.EM15VH.x(2)          & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2EM15VHI'       ).setLogic( d.EM15VHI.x(2)         & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_2EM16'          ).setLogic( d.EM16.x(2)            & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2EM20VH'        ).setLogic( d.EM20VH.x(2)          & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM7_2EM3'       ).setLogic( d.EM7 & d.EM3.x(2)       & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM12_2EM3'      ).setLogic( d.EM12 & d.EM3.x(2)      & physcond).setTriggerType( TT.calo )
@@ -1019,6 +1025,9 @@ class ItemDef:
         MenuItem('L1_VZDC_A_C_TE5_VTE200' ).setLogic( VZDC_A_C & d.TE5 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
         MenuItem('L1_VZDC_A_C_TE20_VTE200').setLogic( VZDC_A_C & d.TE20 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
         MenuItem('L1_VZDC_AORC_TE5_VTE200').setLogic( VZDC_AORC & d.TE5 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_VZDC_A_VZDC_C_TE5_VTE200').setLogic( Not(d.ZDC_A) & Not(d.ZDC_C) & d.TE5 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE20_ZDC_A_VZDC_C_VTE200').setLogic( d.ZDC_A & Not(d.ZDC_C) & d.TE20 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE20_ZDC_C_VZDC_A_VTE200').setLogic( d.ZDC_C & Not(d.ZDC_A) & d.TE20 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
 
         MenuItem('L1_ZDC_MBTS_1'        ).setLogic((d.ZDC_A | d.ZDC_C) & MBTS_1 & physcond).setTriggerType(TT.minb)
         MenuItem('L1_ZDC_MBTS_2'        ).setLogic((d.ZDC_A | d.ZDC_C) & MBTS_2 & physcond).setTriggerType(TT.minb)
