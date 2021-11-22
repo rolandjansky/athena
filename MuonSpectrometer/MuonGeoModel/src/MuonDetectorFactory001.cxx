@@ -73,8 +73,8 @@ using namespace GeoXF;
 namespace MuonGM {
 
     MuonDetectorFactory001::MuonDetectorFactory001(StoreGateSvc *pDetStore):
+        m_muon (std::make_unique< MuonSystemDescription>("MuonSystem")),
         m_pDetStore{pDetStore} {
-        m_muon = std::make_unique< MuonSystemDescription>("MuonSystem");
         m_muon->barrelInnerRadius = 4.30 * Gaudi::Units::m;
         m_muon->innerRadius = 0.07 * Gaudi::Units::m;
         m_muon->outerRadius = 13.00 * Gaudi::Units::m;
