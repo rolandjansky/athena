@@ -272,7 +272,7 @@ def ExtrapolateMuonToIPToolCfg(flags, name="ExtrapolateMuonToIPTool", **kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
  
     result = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", result.getPrimary() )
+    kwargs.setdefault("Extrapolator", result.popPrivateTools() )
     kwargs.setdefault("MuonExtrapolator", result.popToolsAndMerge( MuonExtrapolatorCfg(flags) ) )
 
     if flags.Muon.MuonTrigger:
@@ -388,7 +388,7 @@ def MuonCombinedStacoTagToolCfg(flags, name="MuonCombinedStacoTagTool",**kwargs)
     kwargs.setdefault("ParticleCaloExtensionTool", result.getPrimary() )  
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
     kwargs.setdefault("TagTool", result.popToolsAndMerge(CombinedMuonTagTestToolCfg(flags)))
-    kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(AtlasExtrapolatorCfg(flags)) )
+    kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)) )
 
     tool = CompFactory.MuonCombined.MuonCombinedStacoTagTool(name,**kwargs)
     result.setPrivateTools(tool)
@@ -401,7 +401,7 @@ def MuidMaterialAllocatorCfg(flags, name='MuidMaterialAllocator', **kwargs):
     kwargs.setdefault("AllowReordering",False)
 
     result = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", result.getPrimary() )
+    kwargs.setdefault("Extrapolator", result.popPrivateTools() )
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge( TrackingGeometryCondAlgCfg(flags) )
@@ -643,9 +643,7 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     else:
         kwargs.setdefault("CscRotCreator"                 , "")
 
-    acc = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", acc.getPrimary() )
-    result.merge(acc)
+    kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)) )
 
     acc = iPatFitterCfg(flags)
     ipatFitter = acc.popPrivateTools() # possibly used again below
@@ -776,7 +774,7 @@ def MuonMatchQualityCfg(flags, name='MuonMatchQuality', **kwargs ):
 
 def MuidMuonRecoveryCfg(flags, name='MuidMuonRecovery',**kwargs):
     result = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", result.getPrimary() )
+    kwargs.setdefault("Extrapolator", result.popPrivateTools() )
     acc = CombinedMuonTrackBuilderCfg(flags)
     kwargs.setdefault("TrackBuilder", acc.popPrivateTools() )
     result.merge(acc)
@@ -789,7 +787,7 @@ def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs )
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
 
     result = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("ExtrapolationTool", result.getPrimary() )
+    kwargs.setdefault("ExtrapolationTool", result.popPrivateTools() )
     
     acc = MuonNavigatorCfg(flags)
     kwargs.setdefault("NavigatorTool", acc.popPrivateTools())
@@ -833,7 +831,7 @@ def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs )
 
 def CombinedMuonTagTestToolCfg(flags, name='CombinedMuonTagTestTool', **kwargs ):
     result = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("ExtrapolatorTool",result.getPrimary() )
+    kwargs.setdefault("ExtrapolatorTool",result.popPrivateTools() )
     kwargs.setdefault("Chi2Cut",50000.)
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge( TrackingGeometryCondAlgCfg(flags) )
@@ -970,8 +968,7 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
 
 def MuonLayerSegmentMatchingToolCfg(flags, name="MuonLayerSegmentMatchingTool", **kwargs):
     result = AtlasExtrapolatorCfg(flags)
-    extrap = result.getPrimary()
-    kwargs.setdefault("Extrapolator", extrap)
+    kwargs.setdefault("Extrapolator", result.popPrivateTools())
     from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuTagMatchingToolCfg
     
     acc = MuTagMatchingToolCfg(flags)

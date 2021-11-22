@@ -88,8 +88,10 @@ def ITkBoundaryCheckToolCfg(flags, name='ITkBoundaryCheckTool', **kwargs):
 def ITkTrackHoleSearchToolCfg(flags, name='ITkHoleSearchTool', **kwargs):
   result = ComponentAccumulator()
   if 'Extrapolator' not in kwargs:
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags)))
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    result.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
   if 'BoundaryCheckTool' not in kwargs:
     kwargs.setdefault('BoundaryCheckTool', result.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags)))
@@ -110,9 +112,10 @@ def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
     kwargs.setdefault("PixelSummaryTool", result.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
 
   if 'Extrapolator' not in kwargs :
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    result.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
   kwargs.setdefault("CheckActiveAreas", flags.ITk.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDeadRegions", flags.ITk.checkDeadElementsOnTrack)

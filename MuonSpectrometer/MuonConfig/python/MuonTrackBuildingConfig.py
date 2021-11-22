@@ -209,12 +209,8 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
 
     # Won't explicitly configure MuonEDMHelperSvc
     kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
-    acc = AtlasExtrapolatorCfg(flags)
-    extrap = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("Extrapolator", extrap)
-    
     acc = MuonSegmentMatchingToolCfg(flags, doPhiMatching = doSegmentPhiMatching)
     muon_seg_matching = acc.getPrimary()
     result.merge(acc)

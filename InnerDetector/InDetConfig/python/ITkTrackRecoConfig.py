@@ -132,22 +132,11 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
     return acc
 
 
-def ITkTrackToVertexCfg(flags, name="ITkTrackToVertex", **kwargs):
-    result = ComponentAccumulator()
-    if "Extrapolator" not in kwargs:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = result.popToolsAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-        kwargs["Extrapolator"] = Extrapolator
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-
-    result.merge(BeamSpotCondAlgCfg(flags))
-    result.setPrivateTools(CompFactory.Reco.TrackToVertex(name, **kwargs))
-    return result
-
 def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **kwargs):
     result = ComponentAccumulator()
     if "TrackToVertex" not in kwargs:
-        kwargs["TrackToVertex"] = result.popToolsAndMerge(ITkTrackToVertexCfg(flags))
+        from InDetConfig.TrackRecoConfig import TrackToVertexCfg
+        kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
     if "TrackSummaryTool" not in kwargs:
         from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
         TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))

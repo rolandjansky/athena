@@ -223,8 +223,13 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSPSeededFinder')
 
     if flags.ITk.doStoreTrackSeeds:
-        ITkSeedToTrackConversion = CompFactory.InDet.SeedToTrackConversionTool(  name = "ITkSeedToTrackConversion",
-                                                                                 OutputName = 'SiSPSeedSegments' + flags.ITk.Tracking.extension)
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+        acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+
+        ITkSeedToTrackConversion = CompFactory.InDet.SeedToTrackConversionTool(name="ITkSeedToTrackConversion",
+                                                                               OutputName=f"SiSPSeedSegments{flags.ITk.Tracking.extension}",
+                                                                               Extrapolator=extrapolator)
         acc.setPrivateTools(ITkSeedToTrackConversion)
         kwargs.setdefault("SeedToTrackConversion", ITkSeedToTrackConversion)
         kwargs.setdefault("SeedSegmentsWrite", True)
@@ -482,8 +487,9 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
 
     ITkAmbiTrackSelectionTool = acc.popToolsAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
 
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
 
     kwargs.setdefault("Fitter", fitter_list)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
@@ -491,7 +497,7 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     kwargs.setdefault("TrackSummaryTool", ambi_track_summary_tool)
     kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
     kwargs.setdefault("SelectionTool", ITkAmbiTrackSelectionTool)
-    kwargs.setdefault("TrackExtrapolator", Extrapolator)
+    kwargs.setdefault("TrackExtrapolator", extrapolator)
     kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.extension)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
