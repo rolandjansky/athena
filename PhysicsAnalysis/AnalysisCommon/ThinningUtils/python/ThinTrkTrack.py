@@ -23,7 +23,12 @@ class ThinTrkTrack(Configured):
                 PhotonsKey="Photons",
                 CombinedMuonsTrackKey="CombinedMuonTracks",
                 GSFTrackKey="GSFTracks",
-                StreamName='StreamAOD')
+                StreamName='StreamAOD',
+                ExtraInputs = [  # For P->T conversion
+                    ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+                    ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+                    ("InDetDD::TRT_DetElementContainer", "ConditionStore+TRT_DetElementContainer"),
+                ])
             
             print (theTrkTrackThinner)
 
