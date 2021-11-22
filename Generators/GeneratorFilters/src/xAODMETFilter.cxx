@@ -2,11 +2,11 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GeneratorFilters/xAODMissingEtFilter.h"
+#include "GeneratorFilters/xAODMETFilter.h"
 #include "TruthUtils/PIDHelpers.h"
 
 
-xAODMissingEtFilter::xAODMissingEtFilter(const std::string& name, ISvcLocator* pSvcLocator)
+xAODMETFilter::xAODMETFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name,pSvcLocator)
 {
   declareProperty("METCut",m_METmin = 10000.);
@@ -15,7 +15,7 @@ xAODMissingEtFilter::xAODMissingEtFilter(const std::string& name, ISvcLocator* p
 }
 
 
-StatusCode xAODMissingEtFilter::filterEvent() {
+StatusCode xAODMETFilter::filterEvent() {
     
   // Retrieve TruthMET container from xAOD MET slimmer, contains (MC::isGenStable() && MC::isNonInteracting()) particles
   const xAOD::TruthParticleContainer* xTruthParticleContainer;
