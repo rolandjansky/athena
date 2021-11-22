@@ -88,10 +88,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey< xAOD::TauJetContainer> m_offlineTauJetKey { this, "offlineTauJetKey", "TauJets", "Offline taujet container key" };
   SG::ReadHandleKey< xAOD::EmTauRoIContainer > m_l1TauRoIKey    { this, "l1TauRoIKey","LVL1EmTauRoIs","Tau L1 RoI key"};
   SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetKey { this, "hltTauJetKey", "HLT_TrigTauRecMerged_MVA", "HLT taujet container key" };
-  SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetPrecisionKey { this, "hltTauJetPrecisionKey", "HLT_TrigTauRecMerged_Precision", "HLT taujet container key" };
-  SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetPreselKey { this, "hltTauJetPreselKey", "HLT_TrigTauRecMerged_Presel", "HLT taujet container key" };
-  SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetCaloOnlyMVAKey { this, "hltTauJetCaloOnlyMVAKey", "HLT_TrigTauRecMerged_CaloOnlyMVA", "HLT taujet container key" };
-  SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetCaloOnlyKey { this, "hltTauJetCaloOnlyKey", "HLT_TrigTauRecMerged_CaloOnly", "HLT taujet container key" };
+  SG::ReadHandleKey< xAOD::TauJetContainer> m_hltTauJetCaloMVAOnlyKey { this, "hltTauJetCaloMVAOnlyKey", "HLT_TrigTauRecMerged_CaloMVAOnly", "HLT taujet container key" };
   SG::ReadHandleKey< xAOD::JetContainer> m_hltSeedJetKey { this, "hltSeedJetKey", "HLT_jet_seed", "HLT jet seed container key" };
 
 };
