@@ -24,7 +24,7 @@ class TrigEgammaFastPhotonHypoToolConfig:
     self.__log = logging.getLogger('TrigEgammaFastPhotonHypoTool')
     self.__name       = name
     self.__threshold  = float(cpart['threshold']) 
-    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__sel        = 'ion' if 'ion' in cpart['extra'] else (cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'])
     self.__monGroups  = monGroups
 
     if not tool:
@@ -87,7 +87,7 @@ class TrigEgammaFastPhotonHypoToolConfig:
   # Compile the chain
   #
   def compile(self):
-    if 'etcut' == self.pidname() or 'ion' in self.pidname():       
+    if self.pidname() in ('etcut', 'ion'):
         self.etcut()
     elif 'noalg' == self.pidname():
         self.nocut()

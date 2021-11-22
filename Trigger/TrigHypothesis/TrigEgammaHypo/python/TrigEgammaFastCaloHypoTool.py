@@ -118,7 +118,7 @@ class TrigEgammaFastCaloHypoToolConfig:
     self.__name = name
     self.__cand = cpart['trigType']
     self.__threshold  = float(cpart['threshold'])
-    self.__sel        = cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+    self.__sel        = 'ion' if 'ion' in cpart['extra'] else (cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'])
     self.__gsfinfo  = cpart['gsfInfo'] if cpart['trigType']=='e' and cpart['gsfInfo'] else ''
     self.__idperfinfo  = cpart['idperfInfo'] if cpart['trigType']=='e' and cpart['idperfInfo'] else ''
     self.__noringerinfo = cpart['L2IDAlg'] if cpart['trigType']=='e' else ''
@@ -235,7 +235,7 @@ class TrigEgammaFastCaloHypoToolConfig:
   #
   def compile(self):
 
-    if 'etcut' == self.pidname() or 'ion' in self.pidname():
+    if self.pidname() in ('etcut', 'ion'):
       self.etcut()
 
     elif self.pidname() in self.__operation_points and 'noringer' in self.noringerinfo() and self.isElectron():
