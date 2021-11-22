@@ -117,6 +117,18 @@ def EMBremCollectionBuilderCfg(flags,
     kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
 
+    # P->T conversion extra dependencies
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ])
+    else:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+        ])
+
     alg = CompFactory.EMBremCollectionBuilder(name, **kwargs)
     acc.addEventAlgo(alg)
     return acc
