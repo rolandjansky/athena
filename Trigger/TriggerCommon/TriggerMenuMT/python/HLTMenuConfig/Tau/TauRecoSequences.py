@@ -58,7 +58,7 @@ def _algoTauCaloOnlyMVA(name, L1RoIs, inputRoIs, clusters):
     algo.Key_trackPartInputContainer   = ""
     algo.Key_trigTauJetInputContainer  = ""
     algo.Key_trigTauTrackInputContainer  = ""
-    algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloOnly")
+    algo.Key_trigTauJetOutputContainer = recordable("HLT_TrigTauRecMerged_CaloMVAOnly")
     algo.Key_trigTauTrackOutputContainer = "HLT_tautrack_dummy"
     return algo
 
@@ -88,7 +88,7 @@ def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
     algo.RoIOutputKey                  = "UpdatedTrackBDTRoI"
     algo.fastTracksKey                 = tracks
     algo.useBDT                        = True
-    algo.Key_trigTauJetInputContainer  = "HLT_TrigTauRecMerged_CaloOnly"
+    algo.Key_trigTauJetInputContainer  = "HLT_TrigTauRecMerged_CaloMVAOnly"
     return algo
 
 def _algoTauPrecision(name, inputRoIs, tracks):
@@ -96,11 +96,11 @@ def _algoTauPrecision(name, inputRoIs, tracks):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     if "MVA" in name:
-      algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionMVA", doMVATES=True, doTrackBDT=False, doRNN=True, doLLP=False) 
+      algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionMVA", doTrackBDT=False, doRNN=True, doLLP=False) 
       algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_MVA")
       algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_MVA")
     elif "LLP" in name:
-      algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionLLP", doMVATES=True, doTrackBDT=False, doRNN=False,doLLP=True)
+      algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionLLP", doTrackBDT=False, doRNN=False,doLLP=True)
       algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_LLP")
       algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_LLP")
     else:
@@ -108,7 +108,7 @@ def _algoTauPrecision(name, inputRoIs, tracks):
       return None
 
     algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
-    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
+    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloMVAOnly"
     algo.Key_trigJetSeedOutputKey        = recordable("HLT_jet_seed")
 
     algo.RoIInputKey                     = inputRoIs
@@ -169,7 +169,7 @@ def tauIdSequence( RoIs, name):
                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing'   ),
                                 ( 'xAOD::VertexContainer', 'StoreGateSvc+'+getInDetTrigConfig( "tauIso" ).vertex),
                                 ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
-                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly' ),
+                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloMVAOnly' ),
                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+IDTrigConfig.tracks_IDTrig() )]
 
     tauIdSequence+= ViewVerifyId
@@ -195,7 +195,7 @@ def precTrackSequence( RoIs , name):
                                  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                                  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI' ),
                                  ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
-                                 ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly' ),    
+                                 ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloMVAOnly' ),    
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+%s' % IDTrigConfig.tracks_FTF() )]
 
@@ -248,7 +248,7 @@ def tauFTFSequence( RoIs, name ):
     TrackCollection = IDTrigConfig.trkTracks_FTF()
 
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
-                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')] 
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloMVAOnly')] 
 
     if 'Core' in signatureName:
       tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
