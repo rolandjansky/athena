@@ -83,6 +83,12 @@ def MooSegmentFinderAlg( name="MuonSegmentMaker",**kwargs ):
         kwargs.setdefault("Key_MuonLayerHoughToolHoughDataPerSectorVec","")
     return CfgMgr.MooSegmentFinderAlg(name,**kwargs)
 
+#
+def MuonSegmentFilterAlg(name="MuonSegmentFilterAlg", **kwargs):
+    kwargs.setdefault("SegmentCollectionName", "TrackMuonSegments")
+    return CfgMgr.MuonSegmentFilterAlg(name, **kwargs)
+
+
 def MooSegmentFinderNCBAlg( name="MuonSegmentMaker_NCB",**kwargs ):
     reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
     kwargs.setdefault("SegmentFinder",getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
@@ -159,7 +165,7 @@ def MuonStandaloneTrackParticleCnvAlg( name="MuonStandaloneTrackParticleCnvAlg",
     kwargs.setdefault("ConvertTrackParticles", False)
     kwargs.setdefault("ConvertTracks", True)
 
-    return xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg",**kwargs)
+    return xAODMaker__TrackParticleCnvAlg(name,**kwargs)
 
 #
 # The top level configurator
@@ -213,7 +219,33 @@ class MuonStandalone(ConfiguredMuonRec):
                                                 TrackSteering=getPublicTool("MuonTrackSteering"), 
                                                 SpectrometerTrackOutputLocation="MuonSpectrometerTracks", 
                                                 MuonSegmentCollection="TrackMuonSegments")
+
         self.addAlg( TrackBuilder )
+        #### Add a segment collection only containing only EM and EO hits
+        if reco_cscs or reco_stgc:
+            self.addAlg(MuonSegmentFilterAlg(FilteredCollectionName="TrackMuonSegmentsEMEO"))
+  
+            chamberRecovery_EMEO = getPublicToolClone("MuonChamberRecovery_EMEO", "MuonChamberHoleRecoveryTool", 
+                                                               sTgcPrepDataContainer="",
+                                                               MMPrepDataContainer="")
+
+            MooTrackBuilder_EMEO = getPublicToolClone("MooMuonTrackBuilder_EMEO", 
+                                               "MooTrackBuilderTemplate",
+                                                ChamberHoleRecoveryTool = chamberRecovery_EMEO)
+            TrackSteeringTool_EMEO = getPublicToolClone("MuonTrackSteering_EMEO", "MuonTrackSteering", TrackBuilderTool = MooTrackBuilder_EMEO)
+            
+            
+            TrackBuilder_EMEO = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder_EMEO", 
+                                                TrackSteering=TrackSteeringTool_EMEO, 
+                                                SpectrometerTrackOutputLocation="EMEO_MuonSpectrometerTracks", 
+                                                MuonSegmentCollection="TrackMuonSegmentsEMEO")
+            self.addAlg(TrackBuilder_EMEO)
+            if muonStandaloneFlags.createTrackParticles():
+                xAODTrackParticleCnvAlg_EMEO = MuonStandaloneTrackParticleCnvAlg("MuonStandaloneTrackParticleCnvAlg_EMEO",
+                                                                           TrackContainerName = "EMEO_MuonSpectrometerTracks",
+                                                                           xAODTrackParticlesFromTracksContainerName="EMEO_MuonSpectrometerTrackParticles")
+                self.addAlg( xAODTrackParticleCnvAlg_EMEO )
+               
 
         if muonStandaloneFlags.createTrackParticles():
             xAODTrackParticleCnvAlg = MuonStandaloneTrackParticleCnvAlg("MuonStandaloneTrackParticleCnvAlg")
