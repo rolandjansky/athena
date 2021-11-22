@@ -27,6 +27,7 @@ def makeSequence (dataType, jetContainer="AntiKt4EMPFlowJets") :
         userPileupConfigs=prwfiles,
         userLumicalcFiles=lumicalcfiles,
     )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     print( pileupSequence ) # For debugging
 
     # Include, and then set up the jet analysis algorithm sequence:

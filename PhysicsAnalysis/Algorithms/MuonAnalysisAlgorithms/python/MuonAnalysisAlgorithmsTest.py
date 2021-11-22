@@ -24,6 +24,7 @@ def makeSequence (dataType) :
         userPileupConfigs=prwfiles,
         userLumicalcFiles=lumicalcfiles,
     )
+    pileupSequence.configure( inputName = {}, outputName = {} )
 
     # Add the pileup sequence to the job:
     algSeq += pileupSequence
