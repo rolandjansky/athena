@@ -215,6 +215,11 @@ StatusCode ByteStreamEmonInputSvc::initialize()
 
     signal(SIGTERM, handle_terminate);
 
+    // Read run parameters from the partition
+    if (m_readDetectorMask) {
+        get_runparams();
+    }
+
     ATH_MSG_INFO("initialized for: " << m_partition << " " << m_key << "/" << m_value);
 
     return StatusCode::SUCCESS;
@@ -616,10 +621,6 @@ void ByteStreamEmonInputSvc::get_runparams()
 // start of run
 StatusCode ByteStreamEmonInputSvc::start()
 {
-    if(m_readDetectorMask) {
-        get_runparams();
-    }
-
     if(m_clearHistograms) {
         ATH_MSG_INFO("Resetting histograms...");
         for(const std::string& name : m_histSvc->getHists()) {
