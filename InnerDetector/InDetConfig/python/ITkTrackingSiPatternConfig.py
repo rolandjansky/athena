@@ -38,7 +38,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     kwargs.setdefault("useOverlapSpCollection", flags.ITk.Tracking.useITkStrip and flags.ITk.Tracking.useITkStripSeeding )
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
     kwargs.setdefault("radMax", flags.ITk.Tracking.radMax)
-    kwargs.setdefault("RapidityCut",  flags.ITk.Tracking.maxEta )
+    kwargs.setdefault("etaMax", flags.ITk.Tracking.maxEta )
 
     if usePrdAssociationTool:
         # not all classes have that property !!!
