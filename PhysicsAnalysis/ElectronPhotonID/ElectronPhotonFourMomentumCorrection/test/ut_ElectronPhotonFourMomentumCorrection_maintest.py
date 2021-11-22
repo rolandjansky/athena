@@ -132,13 +132,16 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
 
         self.assertTrue(tool.initialize().isSuccess())
 
-        tool_MVA = ROOT.egammaMVATool('MVA_tool')
+        tool_MVA = ROOT.egammaMVACalibTool('MVA_tool')
+        tool_MVA.setProperty("ParticleType", ROOT.xAOD.EgammaParameters.electron).ignore()
         tool_MVA.setProperty("folder", "egammaMVACalib/offline/v7").ignore()
+        tool_MVA.setProperty['int']("use_layer_corrected", 0).ignore()
+
         tool_MVA.msg().setLevel(ROOT.MSG.WARNING)
         self.assertTrue(tool_MVA.initialize().isSuccess())
 
         ei = self.factory.create_eventinfo(True, 100000)   # simulation
-        for ph in self.generator_photon():
+        for ph in self.generator_electron():
             e2 = tool_MVA.getEnergy(ph.caloCluster(), ph)
             tool.applyCorrection(ph, ei)
             e1 = ph.e()
@@ -323,10 +326,12 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                                known_errors.get((esmodel, particle), 0))
 
     def test_MVA_all_data(self):
+        known_errors = {('es2015PRE', 'electron'): 2, ('es2015PRE', 'photon'): 3,
+                        ('es2015cPRE', 'electron'): 3, ('es2015cPRE', 'photon'): 2}
         for particle in 'electron', 'photon':
-            # for esmodel in 'es2015PRE', 'es2015cPRE':  # tons of problems, not sure why...
-            for esmodel in ('es2018_R21_v0',):
-                self._test_MVA(esmodel, particle, True)
+            for esmodel in 'es2015PRE', 'es2015cPRE', 'es2018_R21_v0':
+                self._test_MVA(esmodel, particle, True,
+                               known_errors.get((esmodel, particle), 0))
 
     def _test_MVA(self, esmodel, particle, isdata, tolerable_errors=0):
         # print("Testing MVA %s %s %s" %
