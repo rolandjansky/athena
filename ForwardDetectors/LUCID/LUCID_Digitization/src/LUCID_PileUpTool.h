@@ -72,27 +72,6 @@ private:
   ITHistSvc  *m_digitHistSvc{};
 
   LUCID_SimHitCollection* m_mergedhitList{};
-
-  int    m_numTubes;
-  double m_qdcChannelsPerPE;
-  double m_qdcPedestal;
-  double m_qdcFedNoiseFactor;
-  double m_tdcPmtNoiseFactor;
-  double m_tdcFedNoiseFactor;
-
-  double m_TotalPMTgain;
-  double m_AmpFactor;
-  double m_Q1bin;
-  int    m_NoiseCharge;
-  int    m_numDyinodes;
-  double m_dynodeGammaFactor;
-
-  std::vector<double> m_pmtSmearing;
-  std::vector<double> m_pmtScaling;
-  std::vector<double> m_gasScaling;
-  std::vector<double> m_npeThreshold;
-
-  bool   m_fillRootTree;
 };
 
 #endif
