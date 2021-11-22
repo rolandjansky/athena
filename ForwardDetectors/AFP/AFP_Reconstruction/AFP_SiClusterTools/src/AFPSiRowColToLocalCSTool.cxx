@@ -293,7 +293,7 @@ void AFPSiRowColToLocalCSTool::fillXAOD (const int stationID, const int layerID,
 xAOD::AFPSiHitsCluster* AFPSiRowColToLocalCSTool::newXAODLocal (const int stationID, const int layerID, const AFPSiClusterBasicObj& cluster, xAOD::AFPSiHitsClusterContainer* xAODContainer)
 {
   const int halfColumns = 168;
-  const int halfRows = 0; 
+//  const int halfRows = 0; 
 
   float flipAC = (stationID<2 ? -1. : +1.);
 

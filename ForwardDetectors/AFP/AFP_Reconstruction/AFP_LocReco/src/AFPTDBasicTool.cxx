@@ -99,7 +99,7 @@ StatusCode AFPTDBasicTool::reconstructTracks(xAOD::AFPToFTrackContainer* outputC
 	double TrTime = 0.;
         double weight = 0;
 	int TrSat = 0;
-	if ( TrSize >= m_minHitsNumber )
+	if ( TrSize >= ( int) m_minHitsNumber )
 		{
 		for (int l=0; l<TrSize; l++)
 		    {

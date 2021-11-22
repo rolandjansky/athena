@@ -45,11 +45,7 @@ public:
   /// positions slopes multiplied by the z distance i.e. secondPos - firstPos.
   /// @f[
   /// \left(
-  /// \begin{array}{cccc}
-  /// 1 & \Delta z & 0 & 0 \\       
-  /// 0 & 1 & 0 & 0 \\      
-  /// 0 & 0 & 1 & \Delta z \\     
-  /// 0 & 0 & 0 & 1
+  /// \begin{array}{cccc} 1 & \Delta z & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & \Delta z \\ 0 & 0 & 0 & 1
   /// \end{array}
   /// \right)
   /// @f]

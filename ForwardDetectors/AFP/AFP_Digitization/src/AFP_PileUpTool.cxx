@@ -617,7 +617,7 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
   
   if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > m_QuantumEff_PMT[id]*m_CollectionEff) return;
   double PheTime = CLHEP::RandGaussQ::shoot(rndEngine, GlobalTime + 5.* m_ConversionSpr, m_ConversionSpr);
-  int NumberOfSecondaries =  CLHEP::RandPoissonQ::shoot(rndEngine, m_Gain);
+//  int NumberOfSecondaries =  CLHEP::RandPoissonQ::shoot(rndEngine, m_Gain);
 
 
 

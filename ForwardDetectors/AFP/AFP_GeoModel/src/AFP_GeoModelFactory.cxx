@@ -243,9 +243,9 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     //AFP00 (SIDE A (+z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
     //Envelope
     TransEnvInWorld=m_pGeometry->getStationTransform("AFP00");
-    const GeoBox* pBoxLongOutEnv= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
-    const GeoLogVol* pLogLongOutEnv = new GeoLogVol("AFP00_LogStationOutEnv", pBoxLongOutEnv, m_MapMaterials[std::string("std::Vacuum")]);       
-    GeoPhysVol* pPhysLongOutEnv   = new GeoPhysVol(pLogLongOutEnv);
+//    const GeoBox* pBoxLongOutEnv= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
+//    const GeoLogVol* pLogLongOutEnv = new GeoLogVol("AFP00_LogStationOutEnv", pBoxLongOutEnv, m_MapMaterials[std::string("std::Vacuum")]);       
+//    GeoPhysVol* pPhysLongOutEnv   = new GeoPhysVol(pLogLongOutEnv);
     sprintf(szLabel,"AFP00_StationOutEnv");
 //    world->add(new GeoTransform(TransEnvInWorld));
 //    world->add(new GeoNameTag(szLabel));
@@ -325,9 +325,9 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     //AFP03 (SIDE C (-z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
     // Envelope
     TransEnvInWorld=m_pGeometry->getStationTransform("AFP03");
-    const GeoBox* pBoxLongOutEnv1= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
-    const GeoLogVol* pLogLongOutEnv1 = new GeoLogVol("AFP03_LogStationOutEnv", pBoxLongOutEnv1, m_MapMaterials[std::string("std::Vacuum")]);
-    GeoPhysVol* pPhysLongOutEnv1   = new GeoPhysVol(pLogLongOutEnv1);
+//    const GeoBox* pBoxLongOutEnv1= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
+//    const GeoLogVol* pLogLongOutEnv1 = new GeoLogVol("AFP03_LogStationOutEnv", pBoxLongOutEnv1, m_MapMaterials[std::string("std::Vacuum")]);
+//    GeoPhysVol* pPhysLongOutEnv1   = new GeoPhysVol(pLogLongOutEnv1);
     sprintf(szLabel,"AFP03_StationOutEnv");
 //    world->add(new GeoTransform(TransEnvInWorld));
 //    world->add(new GeoNameTag(szLabel));
