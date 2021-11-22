@@ -60,12 +60,12 @@ atlas_add_test( ThinningCacheTool_test
    LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps )
 
 atlas_add_test( AthTPCnvSvc
-   SCRIPT test/AthTPCnvSvc.sh
+   SCRIPT athena.py AthenaServices/AthTPCnvSvc_test.py
    LOG_IGNORE_PATTERN "^ApplicationMgr +INFO|ERROR Cannot set CLID.*AthenaServicesTestConverters"
    PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( AthDictLoaderSvc
-   SCRIPT test/AthDictLoaderSvc.sh
+   SCRIPT athena.py AthenaServices/AthDictLoaderSvc_test.py
    PROPERTIES TIMEOUT 300 )
 
 
@@ -91,8 +91,6 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/DelayedConditionsCleanerSvc_test.txt
    share/ThinningCacheTool_test.txt
    share/MTES_test.py )
-
-atlas_install_scripts( test/MTES_test.sh )
 
 # Need to make sure that python file installation happens before genconf
 # in order for our custom __init__.py to be installed correctly.
