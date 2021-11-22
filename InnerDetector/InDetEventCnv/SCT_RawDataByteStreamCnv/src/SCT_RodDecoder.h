@@ -147,11 +147,18 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     // For MissingLinkHeaderError
     bool foundMissingLinkHeaderError{false};
     std::unordered_set<IdentifierHash> foundHashes;
-
-    std::unordered_map<IdentifierHash, std::unique_ptr<SCT_RDO_Collection>> rdoCollMap; // If SCT_RDO_Collection* is nullptr, it means the collection is already present in the container.
-    std::unordered_map<IdentifierHash, SCT_RDO_Container::IDC_WriteHandle> writeHandleMap;
+    struct Hasher {
+         std::size_t operator()(const IdentifierHash &hash) const { return hash.value();}
+    };
+    std::unordered_map<IdentifierHash, std::unique_ptr<SCT_RDO_Collection>, Hasher> rdoCollMap; // If SCT_RDO_Collection* is nullptr, it means the collection is already present in the container.
+    std::unordered_map<IdentifierHash, SCT_RDO_Container::IDC_WriteHandle, Hasher> writeHandleMap;
 
     bool foundHeader{false};
+
+    SharedData() {
+      writeHandleMap.reserve( 72);
+      rdoCollMap.reserve( 72 );
+    }
 
     void reset() {
       strip = 0;
