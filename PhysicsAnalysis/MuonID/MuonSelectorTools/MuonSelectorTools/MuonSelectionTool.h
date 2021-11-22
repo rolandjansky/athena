@@ -119,8 +119,8 @@ namespace CP {
         /// This is necessary only when the resolution is very optimistic in the MC such that a large smearing is applied
         bool passedBMVmimicCut(const xAOD::Muon&) const;
 
-	///Returns a sorted vector of chamber indices
-	std::vector<int> getChamberIndicesSorted(const xAOD::Muon& mu) const;
+	///Returns a vector of the muon's segments, sorted according to chamber index
+	std::vector<const xAOD::MuonSegment*> getSegmentsSorted(const xAOD::Muon& mu) const;
 
         /// Maximum pseudorapidity for the selected muons
         double m_maxEta;
@@ -139,6 +139,7 @@ namespace CP {
         bool m_useAllAuthors;
         bool m_use2stationMuonsHighPt;
         bool m_useMVALowPt;
+	bool m_useSegmentTaggedLowPt;
         bool m_doBadMuonVetoMimic;
 
         SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
@@ -147,6 +148,10 @@ namespace CP {
         std::string m_MVAreaderFile_ODD_MuidCB;
         std::string m_MVAreaderFile_EVEN_MuGirl;
         std::string m_MVAreaderFile_ODD_MuGirl;
+
+	std::string m_MVAreaderFile_MuTagIMO_etaBin1;
+	std::string m_MVAreaderFile_MuTagIMO_etaBin2;
+	std::string m_MVAreaderFile_MuTagIMO_etaBin3;
 
         std::string m_BMVcutFile;
 
@@ -182,9 +187,10 @@ namespace CP {
         std::unique_ptr<TMVA::Reader> m_readerO_MUID;
         std::unique_ptr<TMVA::Reader> m_readerE_MUGIRL;
         std::unique_ptr<TMVA::Reader> m_readerO_MUGIRL;
-
-        // TMVA initialize function
-        void PrepareReader(TMVA::Reader* reader);
+	
+	std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin1;
+	std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin2;
+	std::unique_ptr<TMVA::Reader> m_reader_MUTAGIMO_etaBin3;
 
         // variables for the TMVA readers
         mutable std::mutex m_low_pt_mva_mutex;
