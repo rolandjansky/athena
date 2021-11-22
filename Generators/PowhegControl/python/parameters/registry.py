@@ -302,6 +302,7 @@ class Registry(object):
         self.add_default("mint_density_map", -1, description="keep track of the distribution of integrand values while doing the integration (for debugging).")
         self.add_default("mintupbratlim", -1, description="while computing btilde upper bound, disregard points with btilde/born ratio greater than mintupbratlim")
         self.add_default("mintupbxless", -1, description="mint upbx less")
+        self.add_default("mjjminsuppfact", -1, description="parameter for alternative born suppression factor for W+2jets, as in 1204.5433 [-1:disabled]")
         self.add_default("mll_gencut", -1, description="cut on the invariant dilepton mass in GeV (minimum 15). Needed to avoid singularities from virtual photon decays to two massless leptons")
         self.add_default("mllmax", 13000, description="minimum invariant mass in GeV of lepton pairs from decay.")
         self.add_default("mllmin", 4, description="minimum invariant mass in GeV of lepton pairs from decay.")

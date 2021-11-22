@@ -90,6 +90,7 @@ class Wjj(PowhegV2):
         self.add_keyword("minlo", 1)
         self.add_keyword("mintupbratlim")
         self.add_keyword("mintupbxless")
+        self.add_keyword("mjjminsuppfact")
         self.add_keyword("mllmin", 2.5)
         self.add_keyword("ncall1", 600000)
         self.add_keyword("ncall1rm")
