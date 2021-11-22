@@ -9,5 +9,6 @@
 #define F_TAG_ANALYSIS_ALGORITHMS__F_TAG_ANALYSIS_ALGORITHMS_DICT_H
 
 #include <FTagAnalysisAlgorithms/BTaggingEfficiencyAlg.h>
+#include <FTagAnalysisAlgorithms/BTaggingInformationDecoratorAlg.h>
 
 #endif
