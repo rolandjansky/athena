@@ -12,6 +12,7 @@ def checkL1HLTConsistency():
     lvl1access  = L1MenuAccess(lvl1name)
     lvl1thtypes = lvl1access.thresholdTypes()
     lvl1items   = lvl1access.items(includeKeys=["name"])
+    lvl1items_full   = lvl1access.items() 
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 
     allUsedItems = []
@@ -33,12 +34,15 @@ def checkL1HLTConsistency():
                 log.error('[checkL1HLTConsistency] chain %s: L1item: %s, not found in the items list of the L1Menu %s', chain["chainName"], chain["L1item"], lvl1name)
                 raise Exception("Please fix the menu or the chain.")
             else:
-                allUsedItems.append(l1item)
+                if l1item not in allUsedItems:
+                    allUsedItems.append(l1item)
 
         # Find L1 Threshold information for current chain
+        l1thr_vec = []
         for p in chain['chainParts']:
             #now check that the thresholds of the chain are listed in the L1Menu.thresholds field
             th = p['L1threshold'][5:] if p['L1threshold'].startswith("PROBE") else p['L1threshold']
+            l1thr_vec.append(th)
             if ('TAU' in th) and ('e' not in th) and ('j' not in th): 
                 th = th.replace('TAU','HA')
             thFoundInL1Menu = False
@@ -58,6 +62,34 @@ def checkL1HLTConsistency():
                 log.error('[checkL1HLTConsistency] chain %s: L1Threshold %s not found in the L1thresholds of the L1Menu %s', chain["chainName"], th, lvl1name)
                 raise Exception("Please fix the menu or the chain.")
 
+        # check that L1 seeds and L1 item are all either legacy or phase1
+        legacyItem = False
+        legacyItemNoCalo = True
+        foundPhase1CaloSeed = False
+        foundLegacyCaloSeed = False
+        for item in l1item_vec:
+            if item=='':
+                continue
+            if 'legacy' in lvl1items_full[item]:
+                if lvl1items_full[item]['legacy']:
+                    legacyItem = True
+            else:
+                items = item[2:].split('_')
+                for it in items:
+                    if it[:1] in ['e','c','j','c']:
+                       legacyItemNoCalo = False
+        for th in l1thr_vec:
+            if th=='FSNOSEED':
+                continue
+            if th[:1] in ['e','c','j','c']:
+                foundPhase1CaloSeed = True
+            if th[:1] in ['E','T','J','X']:
+                foundLegacyCaloSeed = True
+        if ( (not legacyItem) and (not legacyItemNoCalo) and foundLegacyCaloSeed) or (legacyItem and foundPhase1CaloSeed):
+            log.error('[checkL1HLTConsistency] chain %s contains a mix of legacy and phase1 calo thresholds! L1 items: [%s] (legacy item = %s; if yes, without calo inputs? %s ), L1 seeds: [%s] (foundPhase1CaloSeed = %s, foundLegacyCaloSeed = %s)', chain["chainName"], ",".join(l1item_vec), legacyItem, legacyItemNoCalo, ",".join(l1thr_vec), foundPhase1CaloSeed, foundLegacyCaloSeed )
+            raise Exception("Please fix the chain.")
+
+    # check for unused L1 items
     for item in lvl1items:
         if item not in allUsedItems:
             allUnusedItems.append(item)
