@@ -28,7 +28,6 @@ def getPhysicsTriggerVariablePlotsCfg():
     options = {}
     options['name'] = 'PhysicsTriggerVariablePlotsAlg'
     options['OutputLevel'] = INFO
-    options['TrigJetCollectionKey'] = 'HLT_bJets'
     options['TrigVertexCollectionKey'] = 'HLT_IDVertex_FS'
     options['TrigTrackParticleCollectionKey'] = 'HLT_IDTrack_Bjet_IDTrig'
     options['OfflineJetCollectionKey'] = 'AntiKt4EMPFlowJets'
