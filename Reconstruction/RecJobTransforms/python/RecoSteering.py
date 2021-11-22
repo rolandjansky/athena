@@ -21,6 +21,10 @@ def RecoSteering(flags, tryConfiguringAll=False):
     else:
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
         acc.merge(PoolReadCfg(flags))
+        # Check if running on legacy inputs
+        if "EventInfo" not in flags.Input.Collections:
+            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+            acc.merge(EventInfoCnvAlgCfg(flags))
         log.info("---------- Configured POOL reading")
 
     # AOD2xAOD Truth conversion
