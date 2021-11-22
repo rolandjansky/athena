@@ -196,7 +196,7 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticl
     result.addEventAlgo(CompFactory.xAODMaker.TrackParticleCnvAlg(name, **kwargs))
     return result
 
-def TrackRecoCfg(flags):
+def InDetTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
@@ -262,6 +262,16 @@ def TrackRecoCfg(flags):
     result.merge(addToESD(flags, toAOD+toESD))
     result.merge(addToAOD(flags, toAOD))
     return result
+
+### Common InDet/ITk config interfaces
+
+def TrackRecoCfg(flags):
+    if flags.Detector.GeometryID:
+        return InDetTrackRecoCfg(flags)
+    elif flags.Detector.GeometryITk:
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
+        return ITkTrackRecoCfg(flags)
+
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable

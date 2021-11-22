@@ -820,7 +820,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     InDetNavigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
     InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
-    InDetUpdator = acc.getPrimaryAndMerge(InDetUpdatorCfg(flags))
+    InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
 
     InDetMultipleScatteringUpdator = acc.popToolsAndMerge(
         InDetMultipleScatteringUpdatorCfg())
@@ -1399,3 +1399,30 @@ def InDetNNScoringToolSiCfg(flags, name='InDetNNScoringToolSi', **kwargs) :
 def InDetCosmicsScoringToolCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     return InDetCosmicsScoringToolBaseCfg(flags,
                                           name=name+flags.InDet.Tracking.extension)
+
+
+### Common InDet/ITk config interfaces
+
+def TrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
+    if flags.Detector.GeometryID:
+        return InDetTrackSummaryToolCfg(flags, name, **kwargs)
+    elif flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolCfg
+        return ITkTrackSummaryToolCfg(flags, name, **kwargs)
+
+def UpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
+    if flags.Detector.GeometryID:
+        return InDetUpdatorCfg(flags, name, **kwargs)
+    elif flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
+        return ITkUpdatorCfg(flags, name, **kwargs)
+
+def RotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
+    if flags.Detector.GeometryID:
+        return InDetRotCreatorCfg(flags, name, **kwargs)
+    elif flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorCfg
+        return ITkRotCreatorCfg(flags, name, **kwargs)

@@ -151,3 +151,30 @@ def makeNameGetPreAndSuffix( name, kwargs) :
     nameSuffix=kwargs.pop('nameSuffix','')
     return namePrefix + name + nameSuffix,namePrefix,nameSuffix
 
+
+
+### Common InDet/ITk config interfaces
+
+def PrdAssociationToolCfg(flags, name='InDetPrdAssociationTool',**kwargs):
+  if flags.Detector.GeometryID:
+    return InDetPrdAssociationToolCfg(name,**kwargs)
+  elif flags.Detector.GeometryITk:
+    name = name.replace("InDet", "ITk")
+    from InDetConfig.ITkRecToolConfig import ITkPrdAssociationToolCfg
+    return ITkPrdAssociationToolCfg(flags, name,**kwargs)
+
+def TrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
+  if flags.Detector.GeometryID:
+    return InDetTrackHoleSearchToolCfg(flags, name, **kwargs)
+  elif flags.Detector.GeometryITk:
+    name = name.replace("InDet", "ITk")
+    from InDetConfig.ITkRecToolConfig import ITkTrackHoleSearchToolCfg
+    return ITkTrackHoleSearchToolCfg(flags, name, **kwargs)
+
+def TrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
+  if flags.Detector.GeometryID:
+    return InDetTrackSummaryHelperToolCfg(flags, name, **kwargs)
+  elif flags.Detector.GeometryITk:
+    name = name.replace("InDet", "ITk")
+    from InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
+    return ITkTrackSummaryHelperToolCfg(flags, name, **kwargs)
