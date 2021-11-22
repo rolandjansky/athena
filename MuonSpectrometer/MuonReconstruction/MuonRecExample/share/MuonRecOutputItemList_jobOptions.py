@@ -16,7 +16,10 @@ if DetFlags.detdescr.Muon_on() and (rec.doWriteAOD() or rec.doWriteESD()):
 
    MuonAODList+=[ "xAOD::MuonSegmentContainer#NCB_MuonSegments" ]
    MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux." ]
-
+   if MuonGeometryFlags.hasMM() or MuonGeometryFlags.hasSTGC():
+      MuonAODList+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
+      MuonAODList+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
+      
    # TrackParticles 
    MuonAODList+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
    MuonAODList+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." ]
@@ -87,6 +90,9 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
 
    # Tracks
    MuonESDList+=["TrackCollection#MuonSpectrometerTracks"] 
+   if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+      MuonESDList+=["TrackCollection#EMEO_MuonSpectrometerTracks"] 
+      
 
    # Truth
    if rec.doTruth():
