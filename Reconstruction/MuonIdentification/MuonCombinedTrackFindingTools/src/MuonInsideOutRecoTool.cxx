@@ -65,7 +65,7 @@ namespace MuonCombined {
         // get intersections which precision layers in the muon system
         const Muon::MuonSystemExtension* muonSystemExtension = indetCandidate.getExtension();
         if (!muonSystemExtension) {
-            // ATH_MSG_DEBUG("No MuonSystemExtension, aborting ");
+            ATH_MSG_VERBOSE("No MuonSystemExtension, aborting ");
             return;
         }
         // fill validation content
@@ -140,10 +140,13 @@ namespace MuonCombined {
         std::vector<candidatePair> trackCandidateLookup;
         for ( Muon::MuonCandidate & candidate : resolvedCandidates) {
             std::unique_ptr<Trk::Track> track = m_candidateTrackBuilder->buildCombinedTrack(ctx, *indetTrackParticle.track(), candidate);
-            if (track) {
-                tracks.push_back(track.get());
-                trackCandidateLookup.emplace_back(std::move(track), std::make_unique<Muon::MuonCandidate>(std::move(candidate)));
-            }
+            /// Check if the fit succeeded and whether there are TSOS & a fitQuality
+            if (!track || !track->isValid()|| !track->fitQuality()->numberDoF()) continue;
+            
+
+            tracks.push_back(track.get());
+            trackCandidateLookup.emplace_back(std::move(track), std::make_unique<Muon::MuonCandidate>(std::move(candidate)));
+            
         }
 
         ATH_MSG_DEBUG("found " << tracks.size() << " combined tracks");
