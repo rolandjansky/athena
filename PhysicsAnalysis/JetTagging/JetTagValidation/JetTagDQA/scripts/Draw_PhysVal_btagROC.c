@@ -67,7 +67,7 @@
 
 using namespace std;
 
-const float EffMin=.55;
+float EffMin=.55;
 const float EffMax=1.;
 
 //Some global variables for plotting:
@@ -1294,6 +1294,9 @@ void Draw_PhysVal_btagROC(){
 
   ///////////////////
   //Plot ROC curves 
+  if (MC == "Zprime"){
+    EffMin=.1;
+  }
   bool drawRatio=true;
   bool drawErrRatio=false;
   plotGraphs(InputFilesNames,MC,sample,leg_entry,drawRatio,drawErrRatio);
