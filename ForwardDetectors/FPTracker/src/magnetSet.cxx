@@ -237,6 +237,10 @@ namespace FPTracker
 	  {
 	    mmagapertype              =2;
 	  } 
+	else if(aperture == "\"OCTAGON\"") 
+	  {
+	    mmagapertype              =3;
+	  } 
 	else 
 	  {
 	    std::stringstream sstr;

@@ -112,6 +112,45 @@ namespace ForwardTracker {
       
       return false;
     }
+    else if (m_aperType == "\"OCTAGON\"") {
+	
+      if ( m_A1 > 0. ) {
+	if( std::fabs(offCenter.x())>m_A1 ) {
+	
+	  std::ostringstream ost; ost << m_label << " isOutOfAperture ";
+
+	  ost << " |x|: " << std::fabs(offCenter.x()) << " > A1: " << m_A1;
+	  particle.addMsg(ost.str());
+	  return true;
+	}
+      }
+      if ( m_A2 > 0. ) {
+	if( std::fabs(offCenter.y())>m_A2) {
+	
+	  std::ostringstream ost; ost << m_label << " isOutOfAperture ";
+
+	  ost << " |y|: " << std::fabs(offCenter.y()) << " > A2: " << m_A2;
+	  particle.addMsg(ost.str());
+	  return true;
+	}
+      }
+      if ( m_A3 > 0. && m_A4 > 0. ) {
+	
+	float B3=std::tan(m_A3)*m_A1;
+	float B4=m_A2/std::tan(m_A4);
+	float d=(m_A1-std::fabs(offCenter.x()))/(m_A1-B4)+(m_A2-std::fabs(offCenter.y()))/(m_A2-B3);
+	    
+	if(d<1.) {
+	  std::ostringstream ost; ost << m_label << " isOutOfAperture ";
+	
+	  ost<<" x: "<<offCenter.x()<<" y: "<<offCenter.y()<<"  m_A1 "<<m_A1<<"  m_A2 "<<m_A2<<"  m_A3 "<<m_A3<<"  m_A4 "<<m_A4<<"  d: "<<d;
+	  particle.addMsg( ost.str() );
+	  return true;
+	}
+      }
+	 
+      return false; 
+    }
     else {
 
       std::stringstream sstr; sstr << " Unknown magnet aperture type " << m_aperType << "\n";
