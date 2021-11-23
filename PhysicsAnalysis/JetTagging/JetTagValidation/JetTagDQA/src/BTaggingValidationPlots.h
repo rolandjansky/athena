@@ -217,38 +217,6 @@ namespace JetTagDQA{
       TH1* m_SV1_fracTracks_OtherOrigin_u = nullptr; 
       TH1* m_SV1_fracTracks_OtherOrigin_muon = nullptr; 
 
-      // MSV related vars 
-      TH1* m_MSV_nvsec_incl = nullptr;
-      TH1* m_MSV_N2Tpair_incl = nullptr;
-      TH1* m_MSV_energyTrkInJet_incl = nullptr;
-      TH1* m_MSV_normdist_incl = nullptr;
-      TH1* m_MSV_purity_incl = nullptr;
-      TH1* m_MSV_vtx_mass_incl = nullptr;
-      TH1* m_MSV_nvsec_b = nullptr;
-      TH1* m_MSV_N2Tpair_b = nullptr;
-      TH1* m_MSV_energyTrkInJet_b = nullptr;
-      TH1* m_MSV_normdist_b = nullptr;
-      TH1* m_MSV_purity_b = nullptr;
-      TH1* m_MSV_vtx_mass_b = nullptr;
-      TH1* m_MSV_nvsec_c = nullptr;
-      TH1* m_MSV_N2Tpair_c = nullptr;
-      TH1* m_MSV_energyTrkInJet_c = nullptr;
-      TH1* m_MSV_normdist_c = nullptr;
-      TH1* m_MSV_purity_c = nullptr;
-      TH1* m_MSV_vtx_mass_c = nullptr;
-      TH1* m_MSV_nvsec_l = nullptr;
-      TH1* m_MSV_N2Tpair_l = nullptr;
-      TH1* m_MSV_energyTrkInJet_l = nullptr;
-      TH1* m_MSV_normdist_l = nullptr;
-      TH1* m_MSV_purity_l = nullptr;
-      TH1* m_MSV_vtx_mass_l = nullptr;
-      TH1* m_MSV_nvsec_muon = nullptr;
-      TH1* m_MSV_N2Tpair_muon = nullptr;
-      TH1* m_MSV_energyTrkInJet_muon = nullptr;
-      TH1* m_MSV_normdist_muon = nullptr;
-      TH1* m_MSV_purity_muon = nullptr;
-      TH1* m_MSV_vtx_mass_muon = nullptr;
-
       // JetFitter related vars
       TH1* m_JetFitter_N2Tpair_incl = nullptr;
       TH1* m_JetFitter_nVTX_incl = nullptr;

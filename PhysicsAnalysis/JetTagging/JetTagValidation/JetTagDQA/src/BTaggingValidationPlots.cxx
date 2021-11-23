@@ -358,42 +358,6 @@ namespace JetTagDQA{
       m_SV1_fracTracks_OtherOrigin_muon = bookHistogram("SV1_fracTracks_OtherOrigin_muon", "SV1_fracTracks_from_OtherOrigin", m_sParticleType, "jets with muon -"); 
     }
 
-    // MSV related vars
-    m_MSV_nvsec_incl = bookHistogram("MSV_nvsec_incl", "MSV_nvsec", m_sParticleType);
-    m_MSV_N2Tpair_incl = bookHistogram("MSV_N2Tpair_incl", "MSV_N2Tpair", m_sParticleType);
-    m_MSV_energyTrkInJet_incl = bookHistogram("MSV_energyTrkInJet_incl", "MSV_energyTrkInJet", m_sParticleType);
-    m_MSV_normdist_incl = bookHistogram("MSV_normdist_incl", "MSV_normdist", m_sParticleType);
-    m_MSV_purity_incl = bookHistogram("MSV_purity_incl", "MSV_purity", m_sParticleType);
-    m_MSV_vtx_mass_incl = bookHistogram("MSV_vtx_mass_incl", "MSV_vtx_mass", m_sParticleType);
-    
-    m_MSV_nvsec_b = bookHistogram("MSV_nvsec_b", "MSV_nvsec", m_sParticleType, "b-jets");
-    m_MSV_N2Tpair_b = bookHistogram("MSV_N2Tpair_b", "MSV_N2Tpair", m_sParticleType, "b-jets");
-    m_MSV_energyTrkInJet_b = bookHistogram("MSV_energyTrkInJet_b", "MSV_energyTrkInJet", m_sParticleType, "b-jets - ");
-    m_MSV_normdist_b = bookHistogram("MSV_normdist_b", "MSV_normdist", m_sParticleType, "b-jets - ");
-    m_MSV_purity_b = bookHistogram("MSV_purity_b", "MSV_purity", m_sParticleType, "b-jets - ");
-    m_MSV_vtx_mass_b = bookHistogram("MSV_vtx_mass_b", "MSV_vtx_mass", m_sParticleType, "b-jets - ");
-
-    m_MSV_nvsec_c = bookHistogram("MSV_nvsec_c", "MSV_nvsec", m_sParticleType, "c-jets - ");
-    m_MSV_N2Tpair_c = bookHistogram("MSV_N2Tpair_c", "MSV_N2Tpair", m_sParticleType, "c-jets - ");
-    m_MSV_energyTrkInJet_c = bookHistogram("MSV_energyTrkInJet_c", "MSV_energyTrkInJet", m_sParticleType, "c-jets - ");
-    m_MSV_normdist_c = bookHistogram("MSV_normdist_c", "MSV_normdist", m_sParticleType, "c-jets - ");
-    m_MSV_purity_c = bookHistogram("MSV_purity_c", "MSV_purity", m_sParticleType, "c-jets - ");
-    m_MSV_vtx_mass_c = bookHistogram("MSV_vtx_mass_c", "MSV_vtx_mass", m_sParticleType, "c-jets - ");
-
-    m_MSV_nvsec_l = bookHistogram("MSV_nvsec_l", "MSV_nvsec", m_sParticleType, "l-jets - ");
-    m_MSV_N2Tpair_l = bookHistogram("MSV_N2Tpair_l", "MSV_N2Tpair", m_sParticleType, "l-jets - ");
-    m_MSV_energyTrkInJet_l = bookHistogram("MSV_energyTrkInJet_l", "MSV_energyTrkInJet", m_sParticleType, "l-jets - ");
-    m_MSV_normdist_l = bookHistogram("MSV_normdist_l", "MSV_normdist", m_sParticleType, "l-jets - ");
-    m_MSV_purity_l = bookHistogram("MSV_purity_l", "MSV_purity", m_sParticleType, "l-jets - ");
-    m_MSV_vtx_mass_l = bookHistogram("MSV_vtx_mass_l", "MSV_vtx_mass", m_sParticleType, "tau-jets - ");
-    
-    m_MSV_nvsec_muon = bookHistogram("MSV_nvsec_muon", "MSV_nvsec", m_sParticleType, "jets with moun - ");
-    m_MSV_N2Tpair_muon = bookHistogram("MSV_N2Tpair_muon", "MSV_N2Tpair", m_sParticleType, "jets with moun - ");
-    m_MSV_energyTrkInJet_muon = bookHistogram("MSV_energyTrkInJet_muon", "MSV_energyTrkInJet", m_sParticleType, "jets with moun - ");
-    m_MSV_normdist_muon = bookHistogram("MSV_normdist_muon", "MSV_normdist", m_sParticleType, "jets with moun - ");
-    m_MSV_purity_muon = bookHistogram("MSV_purity_muon", "MSV_purity", m_sParticleType, "jets with moun - ");
-    m_MSV_vtx_mass_muon = bookHistogram("MSV_vtx_mass_muon", "MSV_vtx_mass", m_sParticleType, "jets with moun - ");
-
     // JetFitter related vars 
     m_JetFitter_N2Tpair_incl = bookHistogram("JetFitter_N2Tpair_incl", "JetFitter_N2Tpair", m_sParticleType);
     m_JetFitter_nVTX_incl = bookHistogram("JetFitter_nVTX_incl", "JetFitter_nVTX", m_sParticleType);
@@ -1122,82 +1086,6 @@ namespace JetTagDQA{
       }
     }
 
-    // MSV
-
-    // MSV number of SVs in jet
-    int MSV_nvsec;
-    try { MSV_nvsec = btag->auxdata<int>("MSV_nvsec");}
-    catch(std::exception& exception) { MSV_nvsec = -1; }
-
-    // MSV N2Tpair
-    int MSV_N2Tpair;
-    try { MSV_N2Tpair = btag->auxdata<int>("MSV_N2Tpair"); }
-    catch(std::exception& exception) { MSV_N2Tpair = -1; }
-
-    // MSV track energy fraction
-    float MSV_energyTrkInJet;
-    try { MSV_energyTrkInJet = btag->auxdata<float>("MSV_energyTrkInJet"); }
-    catch(std::exception& exception) { MSV_energyTrkInJet = -1; }
-
-    // MSV normdist
-    float MSV_normdist;
-    try { MSV_normdist = btag->auxdata<float>("MSV_normdist"); }
-    catch(std::exception& exception) { MSV_normdist = -1; }
-
-    // MSV vertices
-    std::vector< ElementLink< xAOD::VertexContainer > > MSV_vertices;
-    try { MSV_vertices = btag->auxdata<std::vector< ElementLink< xAOD::VertexContainer > > >("MSV_vertices"); }
-    catch(std::exception& exception) {  }
-
-    std::vector<double> MSV_purity_perVertex;
-    std::vector<double> MSV_p4_sum_tracks_mass_perVertex;
-
-    // loop over the MSV vertices
-    for (unsigned int i = 0; i < MSV_vertices.size(); i++) {
-      if (!MSV_vertices.at(i).isValid()) continue;
-      const xAOD::Vertex* vtx = *(MSV_vertices.at(i));
-
-      double MSV_numTracks = 0;
-      double MSV_numTracks_fromHF = 0;
-      TLorentzVector p4_sum_tracks(0., 0., 0., 0.);
-
-      // get the track links
-      std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > MSV_assocTracks = vtx->trackParticleLinks();
-
-      // loop over the tracks
-      for(unsigned int i = 0; i < MSV_assocTracks.size(); i++) {
-        if (!MSV_assocTracks.at(i).isValid()) continue;
-
-        // get the curent track
-        const xAOD::TrackParticle* track = *(MSV_assocTracks.at(i));  
-
-        // get the track origin
-        int track_origin = -1;
-        if(!m_isData){
-          track_origin = track_truth_associations.at(track);
-        }
-
-        // count the tracks from HF
-        if( (InDet::TrkOrigin::isFromB(track_origin)) || (InDet::TrkOrigin::isFromD(track_origin)) ) MSV_numTracks_fromHF++;
-        // and count all tracks
-        MSV_numTracks++;
-        // add the track to the 4-vector sum
-        p4_sum_tracks += track->p4();
-      }
-      
-      // fill the purity and the mass of the p4 sum of the tracks for the current vertex
-      MSV_purity_perVertex.push_back(MSV_numTracks_fromHF / MSV_numTracks);
-      MSV_p4_sum_tracks_mass_perVertex.push_back(p4_sum_tracks.M());
-    }
-
-    // get the average purity
-    double MSV_purity = -1.;
-    if(MSV_purity_perVertex.size() != 0) MSV_purity = std::accumulate(MSV_purity_perVertex.begin(), MSV_purity_perVertex.end(), 0.) / MSV_purity_perVertex.size();
-
-    // and the mass of the 4-vector sum
-    double MSV_p4_sum_tracks_mass = -1.;
-    if(MSV_p4_sum_tracks_mass_perVertex.size() != 0) MSV_p4_sum_tracks_mass = std::accumulate(MSV_p4_sum_tracks_mass_perVertex.begin(), MSV_p4_sum_tracks_mass_perVertex.end(), 0.) / MSV_p4_sum_tracks_mass_perVertex.size();
-
 
     // JetFitter
 
@@ -1289,14 +1177,6 @@ namespace JetTagDQA{
         BTaggingValidationPlots::fillHistoWithTruthCases(SV1_fracTracks_OtherOrigin, m_SV1_fracTracks_OtherOrigin_incl, m_SV1_fracTracks_OtherOrigin_b, m_SV1_fracTracks_OtherOrigin_c, m_SV1_fracTracks_OtherOrigin_u, m_SV1_fracTracks_OtherOrigin_muon, truth_label, has_muon, event); 
       }
     }
-    BTaggingValidationPlots::fillHistoWithTruthCases(MSV_nvsec, m_MSV_nvsec_incl, m_MSV_nvsec_b, m_MSV_nvsec_c, m_MSV_nvsec_l, m_MSV_nvsec_muon, truth_label, has_muon, event);
-    BTaggingValidationPlots::fillHistoWithTruthCases(MSV_N2Tpair, m_MSV_N2Tpair_incl, m_MSV_N2Tpair_b, m_MSV_N2Tpair_c, m_MSV_N2Tpair_l, m_MSV_N2Tpair_muon, truth_label, has_muon, event);
-    BTaggingValidationPlots::fillHistoWithTruthCases(MSV_energyTrkInJet/GeV, m_MSV_energyTrkInJet_incl, m_MSV_energyTrkInJet_b, m_MSV_energyTrkInJet_c, m_MSV_energyTrkInJet_l, m_MSV_energyTrkInJet_muon, truth_label, has_muon, event);
-    BTaggingValidationPlots::fillHistoWithTruthCases(MSV_normdist, m_MSV_normdist_incl, m_MSV_normdist_b, m_MSV_normdist_c, m_MSV_normdist_l, m_MSV_normdist_muon, truth_label, has_muon, event);
-    if(!m_isData){
-      BTaggingValidationPlots::fillHistoWithTruthCases(MSV_purity, m_MSV_purity_incl, m_MSV_purity_b, m_MSV_purity_c, m_MSV_purity_l, m_MSV_purity_muon, truth_label, has_muon, event);
-    }
-    BTaggingValidationPlots::fillHistoWithTruthCases(MSV_p4_sum_tracks_mass/GeV, m_MSV_vtx_mass_incl, m_MSV_vtx_mass_b, m_MSV_vtx_mass_c, m_MSV_vtx_mass_l, m_MSV_vtx_mass_muon, truth_label, has_muon, event);
     BTaggingValidationPlots::fillHistoWithTruthCases(JetFitter_N2Tpair, m_JetFitter_N2Tpair_incl, m_JetFitter_N2Tpair_b, m_JetFitter_N2Tpair_c, m_JetFitter_N2Tpair_l, m_JetFitter_N2Tpair_muon, truth_label, has_muon, event);
     BTaggingValidationPlots::fillHistoWithTruthCases(JetFitter_nVTX, m_JetFitter_nVTX_incl, m_JetFitter_nVTX_b, m_JetFitter_nVTX_c, m_JetFitter_nVTX_l, m_JetFitter_nVTX_muon, truth_label, has_muon, event);
     BTaggingValidationPlots::fillHistoWithTruthCases(JetFitter_nSingleTracks, m_JetFitter_nSingleTracks_incl, m_JetFitter_nSingleTracks_b, m_JetFitter_nSingleTracks_c, m_JetFitter_nSingleTracks_l, m_JetFitter_nSingleTracks_muon, truth_label, has_muon, event);
