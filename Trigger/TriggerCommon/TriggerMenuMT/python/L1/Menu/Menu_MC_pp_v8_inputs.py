@@ -218,8 +218,8 @@ def defineInputsMenu():
             ('jXE30',1), ('jXE40',1), ('jXE50',1), ('jXE55',1), ('jXE300',1),
             # gXE
             ('gXERHO30',1), ('gXERHO50',1),
-            ('gXEPUFIT30',1), ('gXEPUFIT50',1),
-            ('gXE30',1), ('gXE40',1), ('gXE50',1),
+            ('gXENC30',1), ('gXENC50',1),
+            ('gXEJWOJ30',1), ('gXEJWOJ40',1), ('gXEJWOJ50',1),
             # gTE
             ('gTE50',1),
 

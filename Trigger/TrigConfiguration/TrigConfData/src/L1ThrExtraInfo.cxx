@@ -547,13 +547,11 @@ void
 TrigConf::L1ThrExtraInfo_gJ::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopoA" ) {
-         m_ptMinToTopoMeVA = 1000*x.second.getValue<unsigned int>();
-      } else if( x.first == "ptMinToTopoB" ){
-         m_ptMinToTopoMeVB = 1000*x.second.getValue<unsigned int>();
-      } else if( x.first == "ptMinToTopoC" ){
-         m_ptMinToTopoMeVC = 1000*x.second.getValue<unsigned int>();
-      } 
+      if( x.first == "ptMinToTopo1" ) {
+         m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo2" ){
+         m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
+      }
    }
 }
 
@@ -564,12 +562,46 @@ void
 TrigConf::L1ThrExtraInfo_gLJ::load()
 {
    for( auto & x : m_extraInfo ) {
-      if( x.first == "ptMinToTopoA" ) {
-         m_ptMinToTopoMeVA = 1000*x.second.getValue<unsigned int>();
-      } else if( x.first == "ptMinToTopoB" ){
-         m_ptMinToTopoMeVB = 1000*x.second.getValue<unsigned int>();
-      } else if( x.first == "ptMinToTopoC" ){
-         m_ptMinToTopoMeVC = 1000*x.second.getValue<unsigned int>();
+      if( x.first == "ptMinToTopo1" ) {
+         m_ptMinToTopoMeV1 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "ptMinToTopo2" ){
+         m_ptMinToTopoMeV2 = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrA" ){
+         m_seedThrMeVA = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrB" ){
+         m_seedThrMeVB = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrC" ){
+         m_seedThrMeVC = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "rhoTowerMinA" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" ); 
+         m_rhoTowerMinMeVA = (int)rhoTower_tmp;        
+      } else if( x.first == "rhoTowerMinB" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );  
+         m_rhoTowerMinMeVB = (int)rhoTower_tmp; 
+      } else if( x.first == "rhoTowerMinC" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );  
+         m_rhoTowerMinMeVC = (int)rhoTower_tmp; 
+      } else if( x.first == "rhoTowerMaxA" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );  
+         m_rhoTowerMaxMeVA = (int)rhoTower_tmp; 
+      } else if( x.first == "rhoTowerMaxB" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );
+         m_rhoTowerMaxMeVB = (int)rhoTower_tmp;
+      } else if( x.first == "rhoTowerMaxC" ){
+         float rhoTower_tmp = 1000*x.second.getValue<float>();
+         if( (int)rhoTower_tmp != rhoTower_tmp)
+             throw std::runtime_error("gLJ: rhoTower param " + std::to_string(rhoTower_tmp/1000.) + " cannot be converted in MeV" );
+         m_rhoTowerMaxMeVC = (int)rhoTower_tmp;
       }
    }  
 }
@@ -611,6 +643,45 @@ TrigConf::L1ThrExtraInfo_jTE::load()
 void
 TrigConf::L1ThrExtraInfo_gXE::load()
 {
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "seedThrA" ){
+         m_seedThrMeVA = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrB" ){
+         m_seedThrMeVB = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "seedThrC" ){
+         m_seedThrMeVC = 1000*x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaPosA" ){
+         m_XERHO_sigmaPosA = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaPosB" ){
+         m_XERHO_sigmaPosB = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaPosC" ){
+         m_XERHO_sigmaPosC = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaNegA" ){
+         m_XERHO_sigmaNegA = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaNegB" ){
+         m_XERHO_sigmaNegB = x.second.getValue<unsigned int>();
+      } else if( x.first == "XERHO_sigmaNegC" ){
+         m_XERHO_sigmaNegC = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_a_A" ){
+         m_XEJWOJ_a_A = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_a_B" ){
+         m_XEJWOJ_a_B = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_a_C" ){
+         m_XEJWOJ_a_C = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_b_A" ){
+         m_XEJWOJ_b_A = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_b_B" ){
+         m_XEJWOJ_b_B = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_b_C" ){
+         m_XEJWOJ_b_C = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_c_A" ){
+         m_XEJWOJ_c_A = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_c_B" ){
+         m_XEJWOJ_c_B = x.second.getValue<unsigned int>();
+      } else if( x.first == "XEJWOJ_c_C" ){
+         m_XEJWOJ_c_C = x.second.getValue<unsigned int>();
+      }
+   }
 }
 
 /*******
