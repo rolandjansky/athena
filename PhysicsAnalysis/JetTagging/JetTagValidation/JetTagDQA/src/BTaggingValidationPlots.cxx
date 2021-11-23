@@ -818,13 +818,13 @@ namespace JetTagDQA{
 
     // check if there is a muon and store the relative muon pT
     bool has_muon = false;
-    //temporary fix to avoid the validation code to crash (SoftMu is turned off in FTAG code at the moment)
-    /*
+    
+    // get the muon link
     ElementLink<xAOD::MuonContainer> muonLink; 
-    // muon link doesn't work on the VR track jets atm (it will be structured differently in r22 anyways. Properly update it later for all collections.)
-    if(m_sParticleType != "antiKtVR30Rmax4Rmin02PV0TrackJets"){
-      muonLink = btag->auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link");
-    }
+    try{ muonLink = btag->auxdata< ElementLink<xAOD::MuonContainer> >("softMuon_link"); }
+    catch(std::exception& exception){  }
+
+    // fill bool and pT frac if there is a muon
     if ( muonLink.isValid() ) {
         const xAOD::Muon* muon=(*muonLink);
         if ( muon != 0 ) {
@@ -833,7 +833,7 @@ namespace JetTagDQA{
             m_muon_pT_frac->Fill(muon_pT_frac, event->beamSpotWeight());
         }
     }
-    */
+    
     // fill contains_muon for the caller of this function
     contains_muon = has_muon;
   }

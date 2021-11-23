@@ -12,6 +12,6 @@ atlas_add_component( JetTagDQA
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AthenaMonitoringLib xAODBTagging xAODBase xAODJet xAODTracking ParticleJetToolsLib TrkValHistUtils InDetTrackSystematicsToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AthenaMonitoringLib xAODBTagging xAODBase xAODJet xAODTracking ParticleJetToolsLib TrkValHistUtils InDetTrackSystematicsToolsLib FlavorTagDiscriminants )
 
 atlas_install_data( data/*.json )

@@ -43,7 +43,8 @@ namespace JetTagDQA {
     m_antiKt4EMTopoPlots                     (0, "BTag/AntiKt4EMTopoJets/"                , "antiKt4EMTopoJets"),
     m_antiKt4EMPFlowJetsPlots                (0, "BTag/AntiKt4EMPFlowJets/"               , "antiKt4EMPFlowJets"),
     m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots (0, "BTag/AntiKtVR30Rmax4Rmin02PV0TrackJets/", "antiKtVR30Rmax4Rmin02PV0TrackJets"),
-    m_nevents(0)
+    m_nevents(0),
+    m_muonAugmenter("Muons")
   {
 
     declareProperty( "isData", m_isData );
@@ -249,6 +250,9 @@ namespace JetTagDQA {
 
         // fill the jet, btag & vertex related plots
         if (btag){
+          // augment with muon information
+          m_muonAugmenter.augment(*btag);
+
           // fill other variables
           bool contains_muon;
           double jet_Lxy = -1;
