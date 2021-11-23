@@ -205,9 +205,11 @@ def Lvl1SimulationCfg(flags, seqName = None):
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1CaloLegacySimCfg
     acc.merge(L1CaloLegacySimCfg(flags), sequenceName='L1CaloLegacySimSeq')
 
-    #acc.addSequence(seqAND('L1CaloSimSeq'), parentName='L1SimSeq')
-    #from TrigT1CaloSim.TrigT1CaloSimRun2Config import L1CaloSimCfg
-    #acc.merge(L1CaloSimCfg(flags), sequenceName='L1CaloSimSeq')
+    acc.addSequence(seqAND('L1CaloSimSeq'), parentName='L1SimSeq')
+
+    if flags.Trigger.enableL1CaloPhase1:
+        from L1CaloFEXSim.L1CaloFEXSimCfg import L1CaloFEXSimCfg
+        acc.merge(L1CaloFEXSimCfg(flags), sequenceName = 'L1CaloSimSeq')
 
     acc.addSequence(seqAND('L1MuonSimSeq'), parentName='L1SimSeq')
     from TriggerJobOpts.Lvl1MuonSimulationConfig import Lvl1MuonSimulationCfg
