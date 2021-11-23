@@ -58,7 +58,6 @@ namespace NSWL1 {
     ATH_MSG_DEBUG( "initialize " << name() );
     ATH_CHECK( m_trigRdoContainer.initialize() );
     ATH_CHECK( m_xaodevtKey.initialize() );
-    ATH_CHECK( m_eventInfoKey.initialize() );
     // Create an register the ntuple if requested, add branch for event and run number
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
@@ -123,13 +122,7 @@ namespace NSWL1 {
     if (evt.isValid()) {
       m_current_run = evt->runNumber();
       m_current_evt = evt->eventNumber();
-    } else {
-      SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey);
-      if(eventInfo->event_ID()->event_number() == 0 && m_current_evt == 0) ATH_MSG_DEBUG("Start " << name());
-      else ++m_current_evt;
-      m_current_run = eventInfo->event_ID()->run_number();
     }
-
     std::vector<std::shared_ptr<PadData>> pads;
     std::vector<std::unique_ptr<PadTrigger>> padTriggers;
     std::vector<std::unique_ptr<StripData>> strips;
