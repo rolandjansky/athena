@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "UserSession.h"
@@ -78,8 +78,10 @@ std::vector< std::string >
 pool::PersistencySvc::UserSession::connectedDatabases() const
 {
   std::vector< std::string > result;
-  for ( pool::PersistencySvc::DatabaseRegistry::const_iterator iDb = m_registry->begin();
-        iDb != m_registry->end(); ++iDb ) {
+  // Make sure we call const methods.
+  const DatabaseRegistry* registry = m_registry;
+  for ( pool::PersistencySvc::DatabaseRegistry::const_iterator iDb = registry->begin();
+        iDb != registry->end(); ++iDb ) {
     result.push_back( (*iDb)->fid() );
   }
   return result;
@@ -122,7 +124,9 @@ pool::PersistencySvc::UserSession::setFileCatalog(pool::IFileCatalog& catalog)
 const pool::ITechnologySpecificAttributes&
 pool::PersistencySvc::UserSession::technologySpecificAttributes( long technology ) const
 {
-  return static_cast< const pool::ITechnologySpecificAttributes& >( m_technologyDispatcher->microSessionManager( technology ) );
+  // Make sure we call the const version of microSesssionManager().
+  const TechnologyDispatcher* disp = m_technologyDispatcher;
+  return static_cast< const pool::ITechnologySpecificAttributes& >( disp->microSessionManager( technology ) );
 }
 
 pool::ITechnologySpecificAttributes&

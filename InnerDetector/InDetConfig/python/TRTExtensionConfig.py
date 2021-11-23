@@ -89,8 +89,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     #
     # --- get configured track extension processor
     #
-    InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryTool)
+    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
     if flags.InDet.materialInteractions:
         kwargs.setdefault("matEffects", flags.InDet.materialInteractionsType)

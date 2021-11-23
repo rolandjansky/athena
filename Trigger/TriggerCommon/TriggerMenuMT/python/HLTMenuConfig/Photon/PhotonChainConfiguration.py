@@ -8,11 +8,10 @@ log = logging.getLogger(__name__)
 
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
-
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
 from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
-from ..Egamma.PrecisionCaloMenuSequences import precisionCaloMenuSequence
+from ..Photon.PrecisionCaloMenuSequences import precisionCaloMenuSequence
 from ..Egamma.HipTRTMenuSequences import hipTRTMenuSequence
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
@@ -30,10 +29,16 @@ def fastPhotonSequenceCfg( flags ):
     return fastPhotonMenuSequence( flags )
 
 def precisionPhotonCaloSequenceCfg( flags ):
-    return precisionCaloMenuSequence('Photon', is_photon=True)
+    return precisionCaloMenuSequence('Photon')
+
+def precisionPhotonCaloSequenceCfg_ion( flags ):
+    return precisionCaloMenuSequence('Photon', ion=True)
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
+
+def precisionPhotonSequenceCfg_ion( flags ):
+    return precisionPhotonMenuSequence('Photon', ion=True)
 
 def hipTRTMenuSequenceCfg( flags ):
     return hipTRTMenuSequence()
@@ -125,6 +130,10 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
 
     def getPrecisionCaloPhoton(self):
+        if self.chainPart['extra'] == 'ion':
+            stepName = "PhotonPrecisionHICalo"
+            return self.getStep(3,stepName, [precisionPhotonCaloSequenceCfg_ion])
+
         stepName = "PhotonPrecisionCalo"
         return self.getStep(3,stepName,[ precisionPhotonCaloSequenceCfg])
     
@@ -142,6 +151,10 @@ class PhotonChainConfiguration(ChainConfigurationBase):
                 stepName = "precision_photon_dPhi15"
                 return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiHypoToolFromDict])
         else:
+            if self.chainPart['extra'] == 'ion':
+                stepName = "precision_photon_ion"
+                return self.getStep(4,stepName, [precisionPhotonSequenceCfg_ion])
+
             stepName = "precision_photon"
             return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])
     

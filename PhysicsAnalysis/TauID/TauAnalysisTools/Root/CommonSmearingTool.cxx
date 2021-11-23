@@ -138,7 +138,7 @@ StatusCode CommonSmearingTool::initialize()
   if (m_bApplyMVATESQualityCheck) 
   {
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTauCombinedTES, TauCombinedTES));
-    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_Round2.5.root"));
+    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CombinedTES_R22_Round2.5_v2.root"));
     ATH_CHECK(m_tTauCombinedTES.initialize());
   }
 

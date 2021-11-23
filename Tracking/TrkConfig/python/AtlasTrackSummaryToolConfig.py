@@ -3,8 +3,9 @@
 # from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
-
+@AccumulatorCache
 def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
     # Based on AtlasTrackSummaryTool.py
     # FIXME - check all of this once the ID configuration is available, because probably we can simplify this a lot

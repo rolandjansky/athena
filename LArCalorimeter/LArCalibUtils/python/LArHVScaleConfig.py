@@ -7,7 +7,7 @@ def LArHVScaleCfg(configFlags):
     result=ComponentAccumulator()
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    #result.merge(IOVDbSvcCfg(configFlags))
+    LArHVCondAlg=CompFactory.LArHVCondAlg
 
     if configFlags.Input.isMC:
         result.merge(addFolders(configFlags,["/LAR/Identifier/HVLineToElectrodeMap<tag>LARHVLineToElectrodeMap-001</tag>"], "LAR_OFL", className="AthenaAttributeList"))
@@ -16,6 +16,7 @@ def LArHVScaleCfg(configFlags):
         hvmapalg = LArHVIdMappingAlg(ReadKey="/LAR/Identifier/HVLineToElectrodeMap",WriteKey="LArHVIdMap")
         result.addCondAlgo(hvmapalg)
 
+        result.addCondAlgo(LArHVCondAlg(doHV=False, doAffectedHV=False))
 
     elif not configFlags.Common.isOnline:
         result.merge(addFolders(configFlags,["/LAR/DCS/HV/BARREl/I16"], "DCS_OFL", className="CondAttrListCollection"))
@@ -42,7 +43,6 @@ def LArHVScaleCfg(configFlags):
         from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
         result.merge(LArElecCalibDbCfg(configFlags,["HVScaleCorr",]))
 
-        LArHVCondAlg=CompFactory.LArHVCondAlg
         if configFlags.GeoModel.Run != "RUN1":
            hvcond = LArHVCondAlg(HVPathologies="LArHVPathology")
         else:   

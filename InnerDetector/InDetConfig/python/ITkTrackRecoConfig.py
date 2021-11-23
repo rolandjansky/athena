@@ -14,8 +14,8 @@ def ITk_BCM_ZeroSuppressionCfg(flags, name="ITk_BCM_ZeroSuppression", **kwargs):
 ##------------------------------------------------------------------------------
 def ITkPixelClusterizationCfg(flags, name = "ITkPixelClusterization", **kwargs) :
     acc = ComponentAccumulator()
-    merged_pixels_tool = acc.getPrimaryAndMerge(ITkMergedPixelsToolCfg(flags, **kwargs))
-    ambi_finder = acc.getPrimaryAndMerge(ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs))
+    merged_pixels_tool = acc.popToolsAndMerge(ITkMergedPixelsToolCfg(flags, **kwargs))
+    ambi_finder = acc.popToolsAndMerge(ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs))
 
     kwargs.setdefault("clusteringTool", merged_pixels_tool)
     kwargs.setdefault("gangedAmbiguitiesFinder", ambi_finder)
@@ -46,7 +46,7 @@ def ITkStripClusterizationCfg(flags, name="ITkStripClusterization", **kwargs) :
     ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleCfg(flags) )
 
     #### Clustering tool ######
-    ITkClusterMakerTool = acc.getPrimaryAndMerge(ITkClusterMakerToolCfg(flags))
+    ITkClusterMakerTool = acc.popToolsAndMerge(ITkClusterMakerToolCfg(flags))
     ITkStripClusteringTool = CompFactory.InDet.SCT_ClusteringTool( name           = "ITkStripClusteringTool",
                                                                    globalPosAlg   = ITkClusterMakerTool,
                                                                    conditionsTool = ITkStripConditionsSummaryTool,
@@ -83,14 +83,14 @@ def ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs) :
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
 
     ITkPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "ITkPixelGangedAmbiguitiesFinder", **kwargs)
-    acc.addPublicTool( ITkPixelGangedAmbiguitiesFinder, primary=True )
+    acc.setPrivateTools( ITkPixelGangedAmbiguitiesFinder )
     return acc
 
 ##------------------------------------------------------------------------------
 def ITkMergedPixelsToolCfg(flags, **kwargs) :
       acc = ComponentAccumulator()
       # --- now load the framework for the clustering
-      kwargs.setdefault("globalPosAlg", acc.getPrimaryAndMerge(ITkClusterMakerToolCfg(flags)))
+      kwargs.setdefault("globalPosAlg", acc.popToolsAndMerge(ITkClusterMakerToolCfg(flags)))
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
       from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
@@ -100,27 +100,21 @@ def ITkMergedPixelsToolCfg(flags, **kwargs) :
       kwargs.setdefault("PixelDetEleCollKey","ITkPixelDetectorElementCollection")
 
       ITkMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name = "ITkMergedPixelsTool", **kwargs)
-      acc.addPublicTool(ITkMergedPixelsTool, primary=True)
+      acc.setPrivateTools(ITkMergedPixelsTool)
       return acc
 
 ##------------------------------------------------------------------------------
 def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
     acc = ComponentAccumulator()
 
-    from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (ITkPixelChargeCalibCondAlgCfg, ITkPixelConfigCondAlgCfg, ITkPixelDeadMapCondAlgCfg,
-                                                                 ITkPixelOfflineCalibCondAlgCfg)
+    from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelChargeCalibCondAlgCfg
     from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
     #ITkPixelCablingCondAlgCfg + ITkPixelReadoutSpeedAlgCfg needed?
 
     # This directly needs the following Conditions data:
     # PixelModuleData & PixelChargeCalibCondData
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
-    acc.merge(ITkPixelDeadMapCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
-    acc.merge(ITkPixelOfflineCalibCondAlgCfg(flags))
     acc.merge(ITkPixelReadoutManagerCfg(flags))
-    #acc.merge(PixelCablingCondAlgCfg(flags))
-    #acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
     from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
     ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
@@ -134,37 +128,25 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
     kwargs.setdefault("PixelOfflineCalibData", "")
 
     ITkClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = name, **kwargs)
-    acc.addPublicTool(ITkClusterMakerTool, primary=True)
+    acc.setPrivateTools(ITkClusterMakerTool)
     return acc
 
-
-def ITkTrackToVertexCfg(flags, name="ITkTrackToVertex", **kwargs):
-    result = ComponentAccumulator()
-    if "Extrapolator" not in kwargs:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-        kwargs["Extrapolator"] = Extrapolator
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-
-    result.merge(BeamSpotCondAlgCfg(flags))
-    result.setPrivateTools(CompFactory.Reco.TrackToVertex(name, **kwargs))
-    return result
 
 def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **kwargs):
     result = ComponentAccumulator()
     if "TrackToVertex" not in kwargs:
-        kwargs["TrackToVertex"] = result.popToolsAndMerge(ITkTrackToVertexCfg(flags))
+        from InDetConfig.TrackRecoConfig import TrackToVertexCfg
+        kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
     if "TrackSummaryTool" not in kwargs:
         from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
-        TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
-        result.addPublicTool(TrackSummaryTool)
+        TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
         kwargs["TrackSummaryTool"] = TrackSummaryTool
     p_expr = flags.ITk.perigeeExpression
     kwargs.setdefault("BadClusterID", flags.ITk.pixelClusterBadClusterID)
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("KeepFirstParameters", flags.ITk.KeepFirstParameters)
     kwargs.setdefault("PerigeeExpression", p_expr if p_expr != "Vertex" else "BeamLine")
-    kwargs.setdefault("DoITk", True)
+    kwargs.setdefault("IBLParameterSvc", "")
     ITkTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs)
     result.addPublicTool(ITkTrackParticleCreatorTool, primary=True)
     return result
@@ -190,7 +172,7 @@ def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", Input
     kwargs.setdefault("UpdateSharedHits", True)
     kwargs.setdefault("UpdateAdditionalInfo", True)
     from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
-    TrackSummaryTool = result.popToolsAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
+    TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
     result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
@@ -230,29 +212,6 @@ def ITkTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    result.merge(BeamPipeGeometryCfg(flags))
-
-    #TODO move these to a more appropriate place
-
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    result.merge(BeamSpotCondAlgCfg(flags))
-
-    from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (ITkPixelChargeCalibCondAlgCfg, ITkPixelOfflineCalibCondAlgCfg, ITkPixelDistortionAlgCfg)
-    result.merge(ITkPixelChargeCalibCondAlgCfg(flags))
-    result.merge(ITkPixelOfflineCalibCondAlgCfg(flags))
-    result.merge(ITkPixelDistortionAlgCfg(flags))
-
-    from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleTool, ITkPixelLorentzAngleCfg
-    result.addPublicTool(ITkPixelLorentzAngleTool(flags))
-    result.addPublicTool(result.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags)))
-
-    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-    result.addPublicTool(result.popToolsAndMerge(ITkStripLorentzAngleCfg(flags)))
-
-    #Needed for ITk?
-    #from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
-    #result.merge(PixelHitDiscCnfgAlgCfg(flags))
     if flags.Input.Format == "BS":
         from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
         result.merge(PixelRawDataProviderAlgCfg(flags))

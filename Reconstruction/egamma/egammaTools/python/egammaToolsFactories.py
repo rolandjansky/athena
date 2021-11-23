@@ -5,13 +5,9 @@ all egammaTools with default configuration"""
 __author__ = "Bruno Lenzi"
 
 
-from ElectronPhotonSelectorTools.EgammaPIDdefs import egammaPID
-from ElectronPhotonSelectorTools.ConfiguredAsgForwardElectronIsEMSelectors \
-    import ConfiguredAsgForwardElectronIsEMSelector
 from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
 from .EMPIDBuilderBase import EMPIDBuilderElectronBase
 from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 
 
@@ -27,25 +23,6 @@ _clusterTypes = dict(
     Gam35='gam35_unconv', Gam55='gam55_unconv', Gam37='gam37_unconv',
     Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
 )
-
-
-# Configure fixed-size (non-supercell) corrections
-def configureFixedSizeClusterCorrections(swTool):
-    """Add attributes ClusterCorrectionToolsXX to egammaSwTool
-       object for fixed-size cluster corrections."""
-    from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
-    from CaloRec.CaloRecMakers import _process_tools
-
-    for attrName, clName in _clusterTypes.items():
-        x = 'ClusterCorrectionTools' + attrName
-        if not hasattr(swTool, x) or getattr(swTool, x):
-            continue
-        y = make_CaloSwCorrections(
-            clName,
-            suffix='EG',
-            version=jobproperties.egammaRecFlags.clusterCorrectionVersion(),
-            cells_name=egammaKeys.caloCellKey())
-        setattr(swTool, x, _process_tools(swTool, y))
 
 
 # Configure corrections for superclusters.
@@ -69,12 +46,6 @@ def configureSuperClusterCorrections(swTool):
                 cells_name=egammaKeys.caloCellKey())))
 
 
-# At the end we could keep only one version of the tools
-# below
-egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
-                           postInit=[configureSuperClusterCorrections])
-
-
 egammaSwSuperClusterTool = ToolFactory(
     egammaToolsConf.egammaSwTool,
     postInit=[configureSuperClusterCorrections])
@@ -86,31 +57,10 @@ EMClusterTool = ToolFactory(
     MVACalibSvc=egammaMVASvc
 )
 
-
-EMConversionBuilder = ToolFactory(
-    egammaToolsConf.EMConversionBuilder,
-    ConversionContainerName=egammaKeys.outputConversionKey(),
-    ExtrapolationTool=EMExtrapolationTools)
-
 EGammaAmbiguityTool = ToolFactory(
     ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool)
 
 EMFourMomBuilder = ToolFactory(egammaToolsConf.EMFourMomBuilder)
-
-egammaLargeClusterMakerTool = ToolFactory(
-    egammaToolsConf.egammaLargeClusterMaker,
-    name="egammaLCMakerTool",
-    InputClusterCollection=egammaKeys.ClusterKey(),
-    CellsName=egammaKeys.caloCellKey()
-)
-
-egammaLargeFWDClusterMakerTool = ToolFactory(
-    egammaToolsConf.egammaLargeClusterMaker,
-    name="egammaLCFWDMakerTool",
-    InputClusterCollection=egammaKeys.FwdClusterKey(),
-    CellsName=egammaKeys.caloCellKey(),
-    doFWDelesurraundingWindows=True
-)
 
 # Electron Selectors
 ElectronPIDBuilder = ToolFactory(
@@ -122,24 +72,7 @@ PhotonPIDBuilder = ToolFactory(
     EMPIDBuilderPhotonBase,
     name="PhotonPIDBuilder")
 
-# ForwardElectron Selectors
-
-LooseForwardElectronSelector = ToolFactory(
-    ConfiguredAsgForwardElectronIsEMSelector,
-    name="LooseForwardElectronSelector",
-    quality=egammaPID.ForwardElectronIDLoose)
-MediumForwardElectronSelector = ToolFactory(
-    ConfiguredAsgForwardElectronIsEMSelector,
-    name="MediumForwardElectronSelector",
-    quality=egammaPID.ForwardElectronIDMedium)
-TightForwardElectronSelector = ToolFactory(
-    ConfiguredAsgForwardElectronIsEMSelector,
-    name="TightForwardElectronSelector",
-    quality=egammaPID.ForwardElectronIDTight)
-
 # -------------------------
 
 # Import the factories that are not defined here
-from .EMTrackMatchBuilder import EMTrackMatchBuilder    # noqa: F401
-from .egammaOQFlagsBuilder import egammaOQFlagsBuilder  # noqa: F401
 from .EMShowerBuilder import EMShowerBuilder            # noqa: F401

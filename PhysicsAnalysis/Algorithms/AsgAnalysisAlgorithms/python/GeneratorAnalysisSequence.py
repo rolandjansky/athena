@@ -39,7 +39,7 @@ def makeGeneratorAnalysisSequence( dataType,
     addPrivateTool( alg, 'truthWeightTool', 'PMGTools::PMGTruthWeightTool' )
     alg.decoration = 'generatorWeight_%SYS%'
 
-    seq.append( alg, inputPropName = 'eventInfo' )
+    seq.append( alg, inputPropName = None )
 
     # Return the sequence:
     return seq

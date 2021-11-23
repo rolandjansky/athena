@@ -626,7 +626,16 @@ def get_runs(start,end=None):
 
 
 def get_run_range2(start,end=None):
-    """start and end are given in the format '1.5.2010_14:23:10', '1.5.2010 14:23:10', or '1.5.2010'"""
+    """
+    find all runs between two timestamps
+    start and end are given in the format '1.5.2010_14:23:10', '1.5.2010 14:23:10', or '1.5.2010'
+    """
+
+    # first we find the last run before the specified start time
+    # second we check if it spans over the specified start time
+    #   - if it does then we use this run number
+    #   - if it does not we find the first run after the specified start time and use this run number
+    # if an end is given we search for the last run that starts before the specified end time
 
     co = coolDbConn.GetAtlasRunDBConnection()
     cu = co.cursor()
@@ -634,20 +643,41 @@ def get_run_range2(start,end=None):
     #available:
     # NAME,RUNNUMBER,STARTAT,DURATION,CREATEDBY,HOST,PARTITIONNAME,CONFIGSCHEMA,CONFIGDATA,COMMENTS
 
-    t = time.gmtime( timeStringToSecondsUTC(start) )
-    sstart = time.strftime("%Y%m%dT%H%M%S",t)
+    start_seconds_utc = timeStringToSecondsUTC(start)
+    start_gmtime = time.gmtime( start_seconds_utc )
+    start_fstring = time.strftime("%Y%m%dT%H%M%S", start_gmtime)
 
     # last run that started before the begin of the range
-    subq = "SELECT MAX(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER WHERE STARTAT<'%s'" % sstart
+    subq = "SELECT MAX(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER WHERE STARTAT<'%s' AND PARTITIONNAME='ATLAS'" % start_fstring
     q = "select RUNNUMBER,STARTAT,DURATION from ATLAS_RUN_NUMBER.RUNNUMBER where RUNNUMBER=(%s)" % subq
     cu.execute(q)
     try:
         run1,startat,duration = cu.fetchone()
+
+        startAtGmtime = time.strptime( startat, "%Y%m%dT%H%M%S" ) # parse the format from the RunNumber DB
+        startAtUtcSecond = calendar.timegm( startAtGmtime )
+        # startAtHuman = time.strftime("%Y%m%dT%H%M%S", startAtGmtime)
+
+        endAtUtcSecond = startAtUtcSecond + duration
+        # endAtGmtime = time.gmtime( endAtUtcSecond )
+        # endAtHuman = time.strftime("%Y%m%dT%H%M%S", endAtGmtime)
+
+        # print("start: ", start)
+        # print("Last run before start: ",run1)
+        # print("   starts at: ",startat)
+        # print("   lasts for: ", duration)
+        # print("start sec", startAtUtcSecond)
+        # print("start gmt", startAtGmtime)
+        # print("start hr ", startAtHuman)
+        # print("end sec", endAtUtcSecond)
+        # print("end gmt", endAtGmtime)
+        # print("end hr ", endAtHuman)
+
         # note that duration is not exact, but always a bit larger than the length of the run
     
-        #endat = calendar.timegm( time.strptime(startat,"%Y%m%dT%H%M%S") ) + duration
-        if end < timeStringToSecondsUTC(start):
-            q = "SELECT MIN(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER WHERE STARTAT>'%s'" % sstart
+        if endAtUtcSecond < start_seconds_utc:
+            print("Run started and ended before the specified start time, so need to take the first one that started of the specified start time")
+            q = "SELECT MIN(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER WHERE STARTAT>'%s' AND PARTITIONNAME='ATLAS'" % start_fstring
             cu.execute(q)
             try:
                 run1 = cu.fetchone()[0]
@@ -659,8 +689,8 @@ def get_run_range2(start,end=None):
     run2 = None
     if end is not None:
         # last run that started before the end of the range
-        t = time.gmtime( timeStringToSecondsUTC(end) )
-        endtime = time.strftime("%Y%m%dT%H%M%S",t)
+        start_gmtime = time.gmtime( timeStringToSecondsUTC(end) )
+        endtime = time.strftime("%Y%m%dT%H%M%S",start_gmtime)
         q = "SELECT MAX(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER WHERE STARTAT<'%s'" % endtime
         cu.execute(q)
         run2 = cu.fetchone()[0]
@@ -675,7 +705,7 @@ class XMLReader(object):
             self.element = element
             self.tag = element.tag
             self.attributes = dict(element.items())
-            self.children = element.getchildren()
+            self.children = list(element)
             self.readchildren()
 
         def items(self):

@@ -278,7 +278,8 @@ def MuonParticleCreatorTool(name="MuonParticleCreatorTool",**kwargs):
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
     kwargs.setdefault("KeepAllPerigee", True )
-    kwargs.setdefault("UseMuonSummaryTool", True)
+    from MuonTrackSummaryHelperTool.MuonTrackSummaryHelperToolConf import Muon__MuonHitSummaryTool
+    kwargs.setdefault("MuonSummaryTool", Muon__MuonHitSummaryTool("MuonHitSummaryTool"))
     kwargs.setdefault("PerigeeExpression", "Origin" )
     return Trk__TrackParticleCreatorTool(name, **kwargs)
 # end of class MuonParticleCreatorTool

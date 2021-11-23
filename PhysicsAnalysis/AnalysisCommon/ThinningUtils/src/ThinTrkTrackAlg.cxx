@@ -90,11 +90,7 @@ StatusCode ThinTrkTrackAlg::initialize(){
     }
     if (m_doMuons) {
       ATH_MSG_INFO("Will thin " << m_muonsKey << " Trk::Tracks with key " << m_CombinedMuonsTracksKey);
-    }     
-
-    ATH_CHECK(m_pixelDetEleCollKey.initialize());
-    ATH_CHECK(m_SCTDetEleCollKey.initialize());
-    ATH_CHECK(m_trtDetEleContKey.initialize()); 
+    }
 
     if (m_streamName.empty()) {
       ATH_MSG_ERROR( "StreamName property was not initialized" );

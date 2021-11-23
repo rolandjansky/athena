@@ -37,12 +37,12 @@ def ITkTrackSummaryHelperToolCfg(flags, name='ITkSummaryHelper', **kwargs):
   isHLT=kwargs.pop("isHLT",False)
 
   if 'AssoTool' not in kwargs :
+    assoTool = None
     if not isHLT:
-      ITkPrdAssociationTool_setup = result.getPrimaryAndMerge(ITkPrdAssociationTool_setupCfg(flags))
-      kwargs.setdefault("AssoTool", ITkPrdAssociationTool_setup)
+      assoTool = result.getPrimaryAndMerge(ITkPrdAssociationTool_setupCfg(flags))
     else:
-      ITkTrigPrdAssociationTool = result.getPrimaryAndMerge(ITkTrigPrdAssociationToolCfg(flags))
-      kwargs.setdefault("AssoTool", ITkTrigPrdAssociationTool)
+      assoTool = result.getPrimaryAndMerge(ITkTrigPrdAssociationToolCfg(flags))
+    kwargs.setdefault("AssoTool", assoTool)
 
   if "HoleSearch" not in kwargs:
     ITkTrackHoleSearchTool = result.getPrimaryAndMerge(ITkTrackHoleSearchToolCfg(flags))
@@ -74,7 +74,7 @@ def ITkBoundaryCheckToolCfg(flags, name='ITkBoundaryCheckTool', **kwargs):
       kwargs.setdefault("SctSummaryTool", None)
 
   if 'PixelLayerTool' not in kwargs :
-    kwargs.setdefault("PixelLayerTool", result.getPrimaryAndMerge(ITkTestPixelLayerToolCfg(flags)))
+    kwargs.setdefault("PixelLayerTool", result.popToolsAndMerge(ITkTestPixelLayerToolCfg(flags)))
 
   kwargs.setdefault("UsePixel", flags.Detector.EnableITkPixel)
   kwargs.setdefault("UseSCT", flags.Detector.EnableITkStrip)
@@ -85,24 +85,23 @@ def ITkBoundaryCheckToolCfg(flags, name='ITkBoundaryCheckTool', **kwargs):
   return result
 
 
-def ITkTrackHoleSearchToolCfg(flags, name = 'ITkHoleSearchTool', **kwargs):
+def ITkTrackHoleSearchToolCfg(flags, name='ITkHoleSearchTool', **kwargs):
   result = ComponentAccumulator()
   if 'Extrapolator' not in kwargs:
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    result.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
   if 'BoundaryCheckTool' not in kwargs:
-    ITkBoundaryCheckTool = result.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
-    kwargs.setdefault('BoundaryCheckTool', ITkBoundaryCheckTool)
+    kwargs.setdefault('BoundaryCheckTool', result.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags)))
 
-  if flags.Beam.Type == "cosmics" :
+  if flags.Beam.Type == "cosmics":
     kwargs.setdefault("Cosmics", True)
 
-  kwargs.setdefault( "CountDeadModulesAfterLastHit" , True)
+  kwargs.setdefault("CountDeadModulesAfterLastHit", True)
 
-  indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
-  result.addPublicTool(indet_hole_search_tool, primary=True)
+  result.addPublicTool(CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs), primary=True)
   return result
 
 def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
@@ -113,16 +112,17 @@ def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
     kwargs.setdefault("PixelSummaryTool", result.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
 
   if 'Extrapolator' not in kwargs :
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = result.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    result.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
   kwargs.setdefault("CheckActiveAreas", flags.ITk.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDeadRegions", flags.ITk.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDisabledFEs", flags.ITk.checkDeadElementsOnTrack)
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool( name = the_name, **kwargs)
-  result.addPublicTool( tool, primary=True )
+  result.setPrivateTools( tool )
   return result
 
 def ITkPatternPropagatorCfg(flags, name='ITkPatternPropagator', **kwargs):

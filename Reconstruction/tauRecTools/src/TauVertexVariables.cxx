@@ -73,6 +73,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   }
 
   // origTrackParameters should be empty in standard reconstruction, origTracks should be empty when re-running from xAOD
+  // cppcheck-suppress invalidLifetime
   if(!origTracks.empty() && !origTrackParameters.empty()) {
     ATH_MSG_ERROR("Inconsistent mix of Trk::Track and Trk::TrackParameter");
     return StatusCode::FAILURE;

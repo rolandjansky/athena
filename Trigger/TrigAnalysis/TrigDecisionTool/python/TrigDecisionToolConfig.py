@@ -28,7 +28,7 @@ possible_keys = [
 
 def getRun3NavigationContainerFromInput(ConfigFlags):
     # What to return if we cannot look in the file
-    default_key = "HLTNav_Summary_OnlineSlimmed"
+    default_key = "HLTNav_Summary_OnlineSlimmed" if ConfigFlags.Trigger.doOnlineNavigationCompactification else "HLTNav_Summary"
     to_return = default_key
 
     for key in possible_keys:

@@ -13,7 +13,6 @@
 //-----------------------------------------------
 
 // Athena
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
@@ -69,12 +68,12 @@ class InducedChargeModel {
                                const EFieldModel model,
                                const ToolHandle<ISiliconConditionsTool> siConditionsTool,
                                CLHEP::HepRandomEngine* rndmEngine,
-                               const EventContext& ctx) {
-      m_VD = vdepl; // full depletion voltage [Volt] negative for type-P
-      m_VB = vbias; // applied bias voltage [Volt]
-      m_element = element;
-      m_magneticField = magneticField;
-
+                               const EventContext& ctx) :
+      m_VD (vdepl), // full depletion voltage [Volt] negative for type-P
+      m_VB (vbias), // applied bias voltage [Volt]
+      m_element (element),
+      m_magneticField (magneticField)
+    {
       //------------ find delepletion deph for model=0 and 1 -------------
       m_depletion_depth = bulk_depth;
       // for type N (before type inversion)

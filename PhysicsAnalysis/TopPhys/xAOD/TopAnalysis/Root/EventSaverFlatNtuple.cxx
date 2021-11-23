@@ -110,6 +110,7 @@ namespace top {
     m_useVarRCAdditionalJSS(false),
     m_useElectronChargeIDSelection(false),
     m_met_met(0.),
+    m_met_sumet(0.),
     m_met_phi(0.),
     m_met_met_withLooseObjects(0.),
     m_met_phi_withLooseObjects(0.) {
@@ -1127,6 +1128,7 @@ namespace top {
 
       //met
       systematicTree->makeOutputVariable(m_met_met, "met_met");
+      systematicTree->makeOutputVariable(m_met_sumet, "met_sumet");
       systematicTree->makeOutputVariable(m_met_phi, "met_phi");
       //these are for specific studies on the met, turned off by default, and turned on with the WriteMETBuiltWithLooseObjects option
       if(m_config->writeMETBuiltWithLooseObjects())
@@ -3440,6 +3442,7 @@ namespace top {
 
     //met
     m_met_met = event.m_met->met();
+    m_met_sumet = event.m_met->sumet();
     m_met_phi = event.m_met->phi();
     
     if(m_config->writeMETBuiltWithLooseObjects())

@@ -83,7 +83,7 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("TrackToVertex", AtlasTrackToVertexTool())
     kwargs.setdefault("KeepAllPerigee",True )
-    kwargs.setdefault("UseMuonSummaryTool",True )
+    kwargs.setdefault("MuonSummaryTool", CfgMgr.Muon__MuonHitSummaryTool("MuonHitSummaryTool"))
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("PerigeeExpression","Origin")
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)

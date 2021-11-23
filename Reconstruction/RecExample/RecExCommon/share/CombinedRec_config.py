@@ -45,7 +45,7 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   
         CaloExtensionBuilder(True)
 
 #
-# functionality : electron photon identification
+# functionality : electron photon Reconstruction
 #
 #
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -181,7 +181,8 @@ AODFix_posttauRec()
 # functionality: Flow element tau links
 #
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow():
+from eflowRec.eflowRecFlags import jobproperties
+if recAlgs.doEFlow() and jobproperties.eflowRecFlags.usePFFlowElementAssoc:
     try:
         from eflowRec.PFRun3Config import PFTauFlowElementLinkingCfg
         CAtoGlobalWrapper(PFTauFlowElementLinkingCfg,ConfigFlags)        

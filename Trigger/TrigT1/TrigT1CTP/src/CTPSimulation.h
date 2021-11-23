@@ -135,7 +135,7 @@ namespace LVL1CTP {
       SG::ReadHandleKey< xAOD::JetRoIContainer >  m_iKeyJFexLJets{  this, "jFexLJetInput",  "jRoundLargeRJets", "Input list of jFEX large-R jets" };
       // gFEX
       SG::ReadHandleKey< xAOD::JetRoIContainer >  m_iKeyGFexJets    {  this, "gFexJetInput", "gL1Jets", "Input list of gFEX jets" };
-      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETPufit{  this, "gFexMETPufitInput", "gXEPUFIT_MET", "Input list of gFEX MET Pufit" };
+      SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETNC   {  this, "gFexMETNCInput", "gXENOISECUTPerf", "Input list of gFEX MET NC" };
       SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETRho  {  this, "gFexMETRhoInput", "gXERHOPerf", "Input list of gFEX MET Rho" };
       SG::ReadHandleKey< xAOD::EnergySumRoI >     m_iKeyGFexMETJwoJ {  this, "gFexMETJwoJInput", "gXEJWOJPerf", "Input list of gFEX MET JwoJ" };
       // eFEX

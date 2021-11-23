@@ -443,11 +443,24 @@ if rec.doMonitoring():
 if recAlgs.doEFlow():
     #Some settings for pflow have to toggle to a different setup for RecExCommon workflows.
     ConfigFlags.PF.useRecExCommon=True
+    from eflowRec.eflowRecFlags import jobproperties
+    if False == jobproperties.eflowRecFlags.usePFFlowElementAssoc:
+        ConfigFlags.PF.useElPhotLinks = False
+        ConfigFlags.PF.useMuLinks = False
 
 if rec.doEgamma():
     # C.A uses Clusters RecExCommom Cluster (rm the "s")
     ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
-    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
+    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoClusters'
+
+if rec.doHeavyIon():
+    # This is copy from the old style to the new
+    # We need to have HI flags to do it nicer
+    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'SubtractedCaloTopoCluster'
+    ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'SubtractedEgammaTopoCluster'
+    ConfigFlags.Egamma.Keys.Input.CaloCells = 'SubtractedCells'
+    ConfigFlags.Egamma.doCentral = True
+    ConfigFlags.Egamma.doForward = False
 
 # Lock the flags
 logRecExCommon_topOptions.info("Locking ConfigFlags")
@@ -1143,13 +1156,10 @@ if rec.doWriteAOD():
             topSequence += thinTRTStandaloneTrackAlg
         
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):
-            doEgammaPhoton = AODFlags.Photon
-            doEgammaElectron= AODFlags.Electron
-            from egammaRec.egammaAODGetter import egammaAODGetter
-            egammaAODGetter()
             if AODFlags.egammaTrackSlimmer:
-                from egammaRec.egammaTrackSlimmer import egammaTrackSlimmer
-                egammaTrackSlimmer()
+                from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+                from egammaAlgs.egammaTrackSlimmerConfig import egammaTrackSlimmerCfg
+                CAtoGlobalWrapper(egammaTrackSlimmerCfg,ConfigFlags,StreamName='StreamAOD')
 
         if rec.doTau() and AODFlags.ThinTaus:
             # tau-related thinning: taus, clusters, cells, cell links, PFOs, tracks, vertices

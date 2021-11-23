@@ -37,7 +37,7 @@
 #include <map>
 
 namespace {
- //cppcheck-ignore ctuOneDefinitionRuleViolation
+ // cppcheck-suppress ctuOneDefinitionRuleViolation
   template <class T>
   class PtrVectorWrapper
   {

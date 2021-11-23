@@ -20,7 +20,7 @@ namespace LArBadChanBlobUtils {
     blob.resize(nbytes);
     void* adr = blob.startingAddress();
     for ( std::vector<HWIdentifier>::const_iterator i=vec.begin();
-	  i != vec.end(); i++) {
+	  i != vec.end(); ++i) {
       Channel* ch = static_cast<Channel*>( adr);
       *ch = i->get_identifier32().get_compact(); // assign channel
       adr = static_cast<void*>(ch+1); //  points just after channel

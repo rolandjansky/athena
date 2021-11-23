@@ -52,10 +52,12 @@ class ByteStreamUnpackGetter(Configured):
         # Define the decoding sequence
         from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLTResultMTByteStreamDecoderAlg
         from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
+        from TrigDecisionTool.TrigDecisionToolConfig import getRun3NavigationContainerFromInput
         from AthenaCommon.CFElements import seqAND
         decoder = HLTResultMTByteStreamDecoderAlg()
         deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
-        deserialiser.ExtraOutputs += [('xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTNav_Summary_OnlineSlimmed')]
+        nav_collection = getRun3NavigationContainerFromInput(ConfigFlags)
+        deserialiser.ExtraOutputs += [('xAOD::TrigCompositeContainer' , 'StoreGateSvc+%s' % nav_collection)]  
         decodingSeq = seqAND("HLTDecodingSeq")
         decodingSeq += decoder  # BS -> HLTResultMT
         decodingSeq += deserialiser  # HLTResultMT -> xAOD

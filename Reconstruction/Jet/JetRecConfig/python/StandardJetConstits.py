@@ -82,7 +82,7 @@ _stdInputList = [
     JetInputExternal("CaloCalTopoClusters", xAODType.CaloCluster, algoBuilder= standardReco("CaloClusters") ),
 
     # *****************************
-    JetInputExternal("JetETMissParticleFlowObjects", xAODType.ParticleFlow, # no algobuilder available yet for PFlow
+    JetInputExternal("JetETMissParticleFlowObjects", xAODType.FlowElement, # no algobuilder available yet for PFlow
                      prereqs = ["input:InDetTrackParticles"],
                      ),
 

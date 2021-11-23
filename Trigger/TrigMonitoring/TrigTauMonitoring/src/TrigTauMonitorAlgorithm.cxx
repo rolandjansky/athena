@@ -22,10 +22,7 @@ StatusCode TrigTauMonitorAlgorithm::initialize() {
   ATH_CHECK( m_offlineTauJetKey.initialize() );
   ATH_CHECK( m_l1TauRoIKey.initialize() );
   ATH_CHECK( m_hltTauJetKey.initialize() );
-  ATH_CHECK( m_hltTauJetPrecisionKey.initialize() );
-  ATH_CHECK( m_hltTauJetPreselKey.initialize() );
-  ATH_CHECK( m_hltTauJetCaloOnlyMVAKey.initialize() );
-  ATH_CHECK( m_hltTauJetCaloOnlyKey.initialize() );
+  ATH_CHECK( m_hltTauJetCaloMVAOnlyKey.initialize() );
   ATH_CHECK( m_hltSeedJetKey.initialize());
   ATH_CHECK( m_trigDecTool.retrieve() );
 
@@ -116,16 +113,20 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   if(trigItem.find("LLP_") != std::string::npos){
      tauContainerName="HLT_TrigTauRecMerged_LLP";
   }else if(trigItem.find("ptonly") != std::string::npos) 
-     tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
+     tauContainerName="HLT_TrigTauRecMerged_CaloMVAOnly";
+
+  auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigItem,TrigDefs::Physics , tauContainerName );
 
   for(const auto *const Tau : *offTaus ){
 
     const TrigCompositeUtils::Decision *dec=nullptr; 
 
-    // consider only offline taus which pass RNN medium WP
+    // consider only offline taus which pass RNN medium WP 
     if( !Tau->isTau(xAOD::TauJetParameters::JetRNNSigMedium)) continue;
 
-    auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigItem,TrigDefs::Physics , tauContainerName );
+    // consider only offline taus which pass thinning 
+    if( Tau->isAvailable<char>("passThinning") && !Tau->auxdata<char>("passThinning") ) continue;
+
     for( auto &featLinkInfo : vec ){                                             
       if(! featLinkInfo.isValid() ) continue;
       const auto *feat = *(featLinkInfo.link);                   
@@ -196,7 +197,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   if(trigger.find("LLP_") != std::string::npos){
      tauContainerName="HLT_TrigTauRecMerged_LLP";
   }else if(trigger.find("ptonly") != std::string::npos) 
-     tauContainerName="HLT_TrigTauRecMerged_CaloOnly";
+     tauContainerName="HLT_TrigTauRecMerged_CaloMVAOnly";
 
   ATH_MSG_DEBUG("Tau ContainerName is: " << tauContainerName);
 

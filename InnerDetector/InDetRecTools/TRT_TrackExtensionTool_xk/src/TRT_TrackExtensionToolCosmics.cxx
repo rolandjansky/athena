@@ -14,8 +14,6 @@
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TRT_TrackExtensionTool_xk/TRT_TrackExtensionToolCosmics.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -32,9 +30,7 @@
 
 InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
 (const std::string& t,const std::string& n,const IInterface* p)
-  : AthAlgTool(t,n,p),
-    m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackToolUniversal"                      ),
-    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
+  : AthAlgTool(t,n,p)
 {
   m_trtmanager      = "TRT"             ;
   m_minNumberDCs    = 9                 ;
@@ -42,11 +38,6 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
   m_roadwidth_locz  = 10.               ;
 
   declareInterface<ITRT_TrackExtensionTool>(this);
-
-  declareProperty("RIOonTrackToolYesDr"  ,m_riontrackD     );
-  declareProperty("RIOonTrackToolNoDr"   ,m_riontrackN     );
-  declareProperty("Extrapolator"         ,m_extrapolator   );
-  declareProperty("Propagator"           ,m_propagator     );
 
   declareProperty("TrtManagerLocation"   ,m_trtmanager     );
   declareProperty("RoadWidth"            ,m_roadwidth      );

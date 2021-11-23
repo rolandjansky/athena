@@ -322,7 +322,7 @@ class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
          ccjo = cc.getJobOptName()
          for c in self.__children:
             if c.getJobOptName() == ccjo:
-               log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored', joname or self.name(), ccjo )
+               log.debug( 'attempt to add a duplicate (%s.%s) ... dupe ignored', joname or self.name(), ccjo )
                break
          else:
             if index is None:

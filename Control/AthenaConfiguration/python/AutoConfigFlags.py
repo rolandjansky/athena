@@ -159,7 +159,7 @@ def getInitialTimeStampsFromRunNumbers(runNumbers):
     return timeStamps
 
 
-def getSpecialConfigurationMetadata(inputFiles):
+def getSpecialConfigurationMetadata(inputFiles, secondaryInputFiles):
     """Read in special simulation job option fragments based on metadata
     passed by the evgen stage
     """
@@ -180,9 +180,15 @@ def getSpecialConfigurationMetadata(inputFiles):
                                        'SimulationJobOptions/preInclude.Qball.py' : 'Monopole.MonopoleConfigNew.QballPreInclude',
                                        'SimulationJobOptions/preInclude.RHadronsPythia8.py' : None, # FIXME
                                        'SimulationJobOptions/preInclude.fcp.py' : 'Monopole.MonopoleConfigNew.fcpPreInclude' }
+    specialConfigString = ''
+    from AthenaConfiguration.AutoConfigFlags import GetFileMD
     if len(inputFiles)>0:
-        from AthenaConfiguration.AutoConfigFlags import GetFileMD
         specialConfigString = GetFileMD(inputFiles).get('specialConfiguration', '')
+    if (not len(specialConfigString) or specialConfigString == 'NONE') and len(secondaryInputFiles)>0:
+        # If there is no specialConfiguration metadata in the primary
+        # input try the secondary inputs (MC Overlay case)
+        specialConfigString = GetFileMD(secondaryInputFiles).get('specialConfiguration', '')
+    if len(specialConfigString)>0:
         ## Parse the specialConfiguration string
         ## Format is 'key1=value1;key2=value2;...'. or just '
         spcitems = specialConfigString.split(";")

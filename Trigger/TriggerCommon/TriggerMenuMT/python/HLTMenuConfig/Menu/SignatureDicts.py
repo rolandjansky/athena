@@ -385,14 +385,14 @@ AllowedTopos_Bphysics = [
     
     ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
     # topoVariants
-    'BsmumuPhi', 'BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose',
+    'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
     # topoExtras
-    'Lxy0', 'noos','nocut'
+    'Lxy0','noos','nocut'
     #########Remove until here############
 
 ]
-AllowedTopos_Bphysics_topoVariant=['BsmumuPhi', 'BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm', 'BcmumuDsloose', 'BcmumuDploose']
-AllowedTopos_Bphysics_topoExtra=['Lxy0', 'noos','nocut']
+AllowedTopos_Bphysics_topoVariant=['BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose']
+AllowedTopos_Bphysics_topoExtra=['Lxy0','noos','nocut']
 AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----
@@ -611,7 +611,7 @@ PhotonChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['g'],
     'threshold'      : '',
-    'extra'          : ['hiptrt'],
+    'extra'          : ['hiptrt', 'ion'],
     'IDinfo'         : ['etcut','loose','medium','tight'],
     'isoInfo'        : ['icaloloose','icalomedium','icalotight'],
     'reccalibInfo'   : [],

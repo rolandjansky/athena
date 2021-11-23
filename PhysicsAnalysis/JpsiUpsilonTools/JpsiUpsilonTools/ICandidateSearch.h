@@ -7,13 +7,14 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "GaudiKernel/IAlgTool.h"
 namespace Analysis {
-static const InterfaceID IID_ICandidateSearch("ICandidateSearch", 1, 0);
 
 class ICandidateSearch : virtual public IAlgTool {
 public:
-   virtual StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& ) const = 0;
+   virtual StatusCode performSearch(const EventContext& ctx, xAOD::VertexContainer&) const = 0;
    /** AlgTool interface methods */
-   static const InterfaceID& interfaceID() { return IID_ICandidateSearch; }
+   static const InterfaceID& interfaceID() { 
+        static const InterfaceID IID_ICandidateSearch("ICandidateSearch", 1, 0);
+        return IID_ICandidateSearch; }
 };
 }
 #endif

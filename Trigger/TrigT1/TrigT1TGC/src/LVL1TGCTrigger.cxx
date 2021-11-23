@@ -96,6 +96,7 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() );
     m_tgcArgs.set_TILE_MU( m_TILEMU.value() );
     m_tgcArgs.set_USE_NSW( m_USENSW.value() );
+    m_tgcArgs.set_FORCE_NSW_COIN( m_FORCENSWCOIN.value() );
 
     m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
@@ -1363,7 +1364,6 @@ void LVL1TGCTrigger::recordRdoSL(TGCSector* sector)
 
     //The following part will be available when NSW Trigger Output is available.
 
-    /*
     SG::ReadHandle<Muon::NSW_TrigRawDataContainer> readNSW_TrigRawDataContainer(m_keyNSWTrigOut);
     if(!readNSW_TrigRawDataContainer.isValid()){
       ATH_MSG_ERROR("Cannot retrieve NSW TrigRawData Container.");
@@ -1372,15 +1372,15 @@ void LVL1TGCTrigger::recordRdoSL(TGCSector* sector)
     const Muon::NSW_TrigRawDataContainer* nsw_TrigRawDataContainer = readNSW_TrigRawDataContainer.cptr();
     for(const Muon::NSW_TrigRawData* nsw_sector : *nsw_TrigRawDataContainer){
       for(const Muon::NSW_TrigRawDataSegment* nsw_trk : *nsw_sector){
-	nsw->setOutput(nsw_sector->sideId(),        // side
-		       //nsw_sector->sectorId(), // Sector number in NSW
-		       //nsw_trk->rIndex(),      // R-index
-		       //nsw_trk->phiIndex(),    // Phi-index
-		       //nsw_trk->deltaTheta() // Delta theta index
+	int nsw_sideId = (nsw_sector->sectorSide()=='A')?0:1;
+	nsw->setOutput(nsw_sideId,        // side
+		       nsw_sector->sectorId(), // Sector number in NSW
+		       nsw_trk->rIndex(),      // R-index
+		       nsw_trk->phiIndex(),    // Phi-index
+		       nsw_trk->deltaTheta() // Delta theta index
 	              );
       }
     } 
-    */
   
 
     if(sc.isFailure()){

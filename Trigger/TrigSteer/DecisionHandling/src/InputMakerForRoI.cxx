@@ -21,6 +21,10 @@ StatusCode  InputMakerForRoI::initialize() {
   ATH_MSG_DEBUG("Will produce output RoI collections: " << m_RoIs);
   ATH_CHECK( m_RoIs.initialize( SG::AllowEmpty ) );
   if (not m_roiTool.empty()) ATH_CHECK( m_roiTool.retrieve() );
+  if (m_roiTool.empty() and not m_isEmptyStep) {
+    ATH_MSG_ERROR(name() << " was not supplied an ROI tool.");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -31,7 +35,7 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore( decisionOutputs(), context );
   ATH_CHECK(outputHandle.isValid());
   ATH_CHECK(decisionInputToOutput(context, outputHandle));
-  ATH_MSG_DEBUG("Merging complete");
+  
 
   if( outputHandle->size() == 0) {
     ATH_MSG_DEBUG( "Have no decisions in output handle "<< outputHandle.key() << ". Handle is valid but container is empty. "

@@ -616,27 +616,31 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
 
 def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     result = ComponentAccumulator()
-    
+
     # Configure NCB MooSegmentFinder
-    acc = CscSegmentUtilToolCfg(flags, name='CscSegmentUtilTool_NCB', TightenChi2 = False, IPconstraint=False)
-    csc_segment_util_tool = acc.getPrimary()
-    result.merge(acc)
-    
-    acc = Csc2dSegmentMakerCfg(flags, name='Csc2dSegmentMaker_NCB', segmentTool=csc_segment_util_tool)
-    csc_2d_segment_maker = acc.getPrimary() 
-    result.merge(acc)
-    
-    acc = Csc4dSegmentMakerCfg(flags, name='Csc4dSegmentMaker_NCB', segmentTool=csc_segment_util_tool)
-    csc_4d_segment_maker = acc.getPrimary()
-    result.merge(acc)
-    
+    if flags.Detector.GeometryCSC:
+        acc = CscSegmentUtilToolCfg(flags, name='CscSegmentUtilTool_NCB', TightenChi2 = False, IPconstraint=False)
+        csc_segment_util_tool = acc.getPrimary()
+        result.merge(acc)
+        
+        acc = Csc2dSegmentMakerCfg(flags, name='Csc2dSegmentMaker_NCB', segmentTool=csc_segment_util_tool)
+        csc_2d_segment_maker = acc.getPrimary() 
+        result.merge(acc)
+        
+        acc = Csc4dSegmentMakerCfg(flags, name='Csc4dSegmentMaker_NCB', segmentTool=csc_segment_util_tool)
+        csc_4d_segment_maker = acc.getPrimary()
+        result.merge(acc)
+    else:
+        csc_2d_segment_maker = ""
+        csc_4d_segment_maker = ""
+
     acc  = MooSegmentFinderCfg(flags, name='MooSegmentFinder_NCB', Csc2dSegmentMaker=csc_2d_segment_maker, 
                                Csc4dSegmentMaker=csc_4d_segment_maker, 
                                DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False)
     segment_finder_tool=(acc.popPrivateTools())
     result.addPublicTool(segment_finder_tool)
     result.merge(acc)
-    
+
     kwargs.setdefault('SegmentFinder', segment_finder_tool)
 
     # Now set other NCB properties
@@ -651,7 +655,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     kwargs.setdefault('UseTGCNextBC', False)
     kwargs.setdefault('doTGCClust', False)
     kwargs.setdefault('doRPCClust', False)
-        
+
     acc = MooSegmentFinderAlgCfg(flags, name=name, **kwargs)
     result.merge(acc)
     return result
@@ -672,7 +676,7 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         result.merge( MuonByteStreamDecodersCfg(flags) )
 
-    if flags.Input.Format == 'BS' or 'StreamRDO' in flags.Input.ProcessingTags:
+    if flags.Input.Format == 'BS' or 'StreamRDO' in flags.Input.ProcessingTags or 'OutputStreamRDO' in flags.Input.ProcessingTags:
         from MuonConfig.MuonRdoDecodeConfig import MuonRDOtoPRDConvertorsCfg
         result.merge( MuonRDOtoPRDConvertorsCfg(flags) )
 

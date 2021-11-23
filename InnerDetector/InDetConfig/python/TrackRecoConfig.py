@@ -14,8 +14,8 @@ def BCM_ZeroSuppressionCfg(flags, name="InDetBCM_ZeroSuppression", **kwargs):
 ##------------------------------------------------------------------------------
 def PixelClusterizationCfg(flags, name = "InDetPixelClusterization", **kwargs) :
     acc = ComponentAccumulator()
-    merged_pixels_tool = acc.getPrimaryAndMerge(MergedPixelsToolCfg(flags, **kwargs))
-    ambi_finder = acc.getPrimaryAndMerge(PixelGangedAmbiguitiesFinderCfg(flags))
+    merged_pixels_tool = acc.popToolsAndMerge(MergedPixelsToolCfg(flags, **kwargs))
+    ambi_finder = acc.popToolsAndMerge(PixelGangedAmbiguitiesFinderCfg(flags))
 
     # Region selector tools for Pixel
     from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
@@ -47,7 +47,7 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
     InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool=False))
 
     #### Clustering tool ######
-    InDetClusterMakerTool = acc.getPrimaryAndMerge(ClusterMakerToolCfg(flags))
+    InDetClusterMakerTool = acc.popToolsAndMerge(ClusterMakerToolCfg(flags))
     InDetSCT_ClusteringTool = CompFactory.InDet.SCT_ClusteringTool( name           = "InDetSCT_ClusteringTool",
                                                                     globalPosAlg   = InDetClusterMakerTool,
                                                                     conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -81,14 +81,14 @@ def PixelGangedAmbiguitiesFinderCfg(flags) :
     acc = PixelReadoutGeometryCfg(flags)
 
     InDetPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "InDetPixelGangedAmbiguitiesFinder")
-    acc.addPublicTool( InDetPixelGangedAmbiguitiesFinder, primary=True)
+    acc.setPrivateTools( InDetPixelGangedAmbiguitiesFinder )
     return acc
 
 ##------------------------------------------------------------------------------
 def MergedPixelsToolCfg(flags, **kwargs) :
       acc = ComponentAccumulator()
       # --- now load the framework for the clustering
-      kwargs.setdefault("globalPosAlg", acc.getPrimaryAndMerge(ClusterMakerToolCfg(flags)) )
+      kwargs.setdefault("globalPosAlg", acc.popToolsAndMerge(ClusterMakerToolCfg(flags)) )
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
       from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -100,30 +100,32 @@ def MergedPixelsToolCfg(flags, **kwargs) :
 
       InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name = "InDetMergedPixelsTool", **kwargs)
      
-      acc.addPublicTool(InDetMergedPixelsTool, primary=True)
+      acc.setPrivateTools(InDetMergedPixelsTool)
       return acc
 
 ##------------------------------------------------------------------------------
 def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, 
-                                                                 PixelOfflineCalibCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
-
     acc = ComponentAccumulator()
+
     # This directly needs the following Conditions data:
-    # PixelModuleData & PixelChargeCalibCondData
-    acc.merge( PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelDeadMapCondAlgCfg(flags))
-    acc.merge( PixelChargeCalibCondAlgCfg(flags))
+    # PixelChargeCalibCondData & PixelOfflineCalibData
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-    acc.merge(PixelCablingCondAlgCfg(flags))
-    acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
-    InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = name, **kwargs)
+    from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
+    acc.merge(PixelReadoutManagerCfg(flags))
 
+    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
+    PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
     SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )    
-    acc.addPublicTool(SCTLorentzAngleTool)
-    acc.addPublicTool(InDetClusterMakerTool, primary=True)
+
+    kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
+    kwargs.setdefault("SCTLorentzAngleTool", SCTLorentzAngleTool)
+
+    InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = name, **kwargs)
+    acc.setPrivateTools(InDetClusterMakerTool)
     return acc
 
 
@@ -144,8 +146,7 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
         kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
     if "TrackSummaryTool" not in kwargs:
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
-        TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
-        result.addPublicTool(TrackSummaryTool)
+        TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
         kwargs["TrackSummaryTool"] = TrackSummaryTool
     p_expr = flags.InDet.perigeeExpression
     kwargs.setdefault("BadClusterID", flags.InDet.pixelClusterBadClusterID)
@@ -199,37 +200,14 @@ def TrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
-    result.merge( PixelReadoutGeometryCfg(flags))
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
-    result.merge( SCT_ReadoutGeometryCfg(flags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
-    result.merge(TRT_ReadoutGeometryCfg(flags))
-
-    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    result.merge(BeamPipeGeometryCfg(flags))
-
-    #TODO move these to a more appropriate place
-
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    result.merge(BeamSpotCondAlgCfg(flags))
-
     from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg)
     result.merge(PixelChargeCalibCondAlgCfg(flags))
     result.merge(PixelOfflineCalibCondAlgCfg(flags))
     result.merge(PixelDistortionAlgCfg(flags))
+
     from InDetConfig.TrackingCommonConfig import PixelClusterNnCondAlgCfg, PixelClusterNnWithTrackCondAlgCfg
     result.merge(PixelClusterNnCondAlgCfg(flags))    
     result.merge(PixelClusterNnWithTrackCondAlgCfg(flags))
-
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
-    result.addPublicTool(PixelLorentzAngleTool(flags))
-    result.addPublicTool(result.popToolsAndMerge(PixelLorentzAngleCfg(flags)))
-
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    result.addPublicTool(result.popToolsAndMerge(SCT_LorentzAngleCfg(flags)))
 
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
     result.merge(PixelHitDiscCnfgAlgCfg(flags))
@@ -269,7 +247,7 @@ def TrackRecoCfg(flags):
 
     if flags.InDet.doTruth:
         from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
-        result.merge(InDetTrackTruthCfg(flags, Tracks = "ExtendTracks", DetailedTruth = "ExtendTracksDetailedTruth", TracksTruth = "ExtendTracksTruthCollection"))
+        result.merge(InDetTrackTruthCfg(flags, Tracks = "ExtendedTracks", DetailedTruth = "ExtendedTracksDetailedTruth", TracksTruth = "ExtendedTracksTruthCollection"))
 
     # TODO add followup algs
     result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ExtendedTracks"))
@@ -320,6 +298,9 @@ if __name__ == "__main__":
         from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
         top_acc.merge(EventInfoCnvAlgCfg(ConfigFlags))
 
+    if ConfigFlags.Input.isMC:
+        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        top_acc.merge(GEN_AOD2xAODCfg(ConfigFlags))
 
     top_acc.merge(TrackRecoCfg(ConfigFlags))
     from AthenaCommon.Constants import DEBUG

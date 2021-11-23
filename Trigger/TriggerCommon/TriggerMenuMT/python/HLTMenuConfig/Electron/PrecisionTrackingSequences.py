@@ -13,7 +13,8 @@ log = logging.getLogger(__name__)
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
 
 def precisionTracking(RoIs, ion=False, variant=''):
-## Taking Fast Track information computed in 2nd step ##
+
+    ## Taking Fast Track information computed in 2nd step ##
     TrigEgammaKeys = getTrigEgammaKeys(variant)
 
     IDTrigConfig = TrigEgammaKeys.IDTrigConfig
@@ -48,7 +49,7 @@ def precisionTracking(RoIs, ion=False, variant=''):
     PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois= RoIs )
     PTSeq = parOR("precisionTrackingInElectrons" + variant + tag, PTAlgs)
     #trackParticles = PTTrackParticles[-1]    
-    trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName
+    trackParticles = TrigEgammaKeys.precisionTrackingContainer
 
     electronPrecisionTrack = parOR("electronPrecisionTrack" + variant + tag)
     electronPrecisionTrack += ViewVerifyTrk
@@ -56,7 +57,8 @@ def precisionTracking(RoIs, ion=False, variant=''):
 
     return electronPrecisionTrack, trackParticles
 
+
 def precisionTracking_LRT(RoIs):
-## Taking Fast Track information computed in 2nd step ##
+    ## Taking Fast Track information computed in 2nd step ##
     return precisionTracking(RoIs, ion=False,  variant = '_LRT')
    

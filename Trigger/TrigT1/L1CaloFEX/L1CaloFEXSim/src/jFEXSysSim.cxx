@@ -110,6 +110,8 @@ namespace LVL1 {
     m_allSmallRJetTobs.clear();
     m_allLargeRJetTobs.clear();
     m_alltauTobs.clear();
+    m_allMetTobs.clear();
+    m_allsumEtTobs.clear();
     // We need to split the towers into 6 blocks in eta and 4 blocks in phi.
 
     // boundaries in eta: -2.5, -1.6, -0.8, 0.0, 0.8, 1.6, 2.5
@@ -866,11 +868,11 @@ namespace LVL1 {
         uint8_t fpgaNum =0;
         for(auto &FPGA_tob : MODULE_tobs) {
             for(auto &tob: FPGA_tob) {
-                float_t eta = 0;
-                float_t phi = 0;
+                float_t eta = -99;
+                float_t phi = -99;
                 if(tob.at(1) != 0){
                     eta = (this_jTowerContainer->findTower(tob.at(1)))->centreEta();
-                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrePhi();                   
+                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrephi_toPI();                   
                 }
                 
                 ATH_CHECK(fillSRJetEDM(jfex, fpgaNum,tob.at(0), eta, phi, jSRJetContainer));
@@ -894,11 +896,11 @@ namespace LVL1 {
         uint8_t fpgaNum =0;
         for(auto &FPGA_tob : MODULE_tobs) {
             for(auto&tob: FPGA_tob) {
-                float_t eta = 0;
-                float_t phi = 0;
+                float_t eta = -99;
+                float_t phi = -99;
                 if(tob.at(1) != 0){
                     eta = (this_jTowerContainer->findTower(tob.at(1)))->centreEta();
-                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrePhi();                   
+                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrephi_toPI();                   
                 }
 
                 ATH_CHECK(fillLRJetEDM(jfex,fpgaNum, tob.at(0), eta, phi, jLRJetContainer));
@@ -921,11 +923,11 @@ namespace LVL1 {
         uint8_t fpgaNum =0;
         for(auto &FPGA_tob : MODULE_tobs) {
             for(auto &tob : FPGA_tob) {
-                float_t eta = 0;
-                float_t phi = 0;
+                float_t eta = -99;
+                float_t phi = -99;
                 if(tob.at(1) != 0){
                     eta = (this_jTowerContainer->findTower(tob.at(1)))->centreEta();
-                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrePhi();                   
+                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrephi_toPI();                   
                 }
                 
                 ATH_CHECK(fillTauEDM(jfex,fpgaNum, tob.at(0), eta, phi, jTauContainer));
@@ -964,7 +966,7 @@ namespace LVL1 {
     auto jMETContainer = std::make_unique<xAOD::jFexMETRoIContainer> ();
     std::unique_ptr< xAOD::jFexMETRoIAuxContainer > jMETAuxContainer = std::make_unique<xAOD::jFexMETRoIAuxContainer> ();
     jMETContainer->setStore(jMETAuxContainer.get());    
-    
+
     for( auto const& [jfex, MODULE_tobs] : m_allMetTobs ) {
         uint8_t fpgaNum =0;
         for(auto &FPGA_tob : MODULE_tobs) {
@@ -997,9 +999,10 @@ namespace LVL1 {
     xAOD::jFexSRJetRoI* my_EDM = new xAOD::jFexSRJetRoI();
     jContainer->push_back( my_EDM );
 
-    my_EDM->initialize(jFexNum, fpgaNumber, tobWord);
+    my_EDM->initialize(jFexNum, fpgaNumber, tobWord, eta, phi);
 
     ATH_MSG_DEBUG(" setting SRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<" / "<< eta <<  " phi: " << my_EDM->phi()<<" / "<< phi  );
+
     return StatusCode::SUCCESS;
 
   }
@@ -1009,10 +1012,11 @@ namespace LVL1 {
 
     xAOD::jFexTauRoI* my_EDM = new xAOD::jFexTauRoI();
     jContainer->push_back( my_EDM );
-    
-    my_EDM->initialize(jFexNum , fpgaNumber, tobWord);
-    
+
+    my_EDM->initialize(jFexNum, fpgaNumber, tobWord, eta, phi);
+
     ATH_MSG_DEBUG(" setting tau jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<" / "<< eta <<  " phi: " << my_EDM->phi()<<" / "<< phi  );
+
     return StatusCode::SUCCESS;
 
   }
@@ -1023,9 +1027,10 @@ namespace LVL1 {
     xAOD::jFexLRJetRoI* my_EDM = new xAOD::jFexLRJetRoI();
     jContainer->push_back( my_EDM );
 
-    my_EDM->initialize(jFexNum ,fpgaNumber, tobWord);
+    my_EDM->initialize(jFexNum, fpgaNumber, tobWord, eta, phi);
     
     ATH_MSG_DEBUG(" setting LRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<" / "<< eta <<  " phi: " << my_EDM->phi()<<" / "<< phi  );
+
     return StatusCode::SUCCESS;
 
   }

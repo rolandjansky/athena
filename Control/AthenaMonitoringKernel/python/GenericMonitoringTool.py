@@ -144,7 +144,7 @@ class GenericMonitoringArray:
                     aliased = unAliased+';'+aliasBase+postfix
                 else:
                     # if format call changed the alias, use custom
-                    aliased = aliasBaseFormatted
+                    aliased = unAliased+';'+aliasBaseFormatted
                 if title is not None:
                     kwargs['title'] = title.format(*accessors)
                 if path is not None:

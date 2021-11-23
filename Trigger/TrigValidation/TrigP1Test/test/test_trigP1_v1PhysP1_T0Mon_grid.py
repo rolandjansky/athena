@@ -67,7 +67,7 @@ tzmon.executable = 'Run3DQTestingDriver.py'
 tzmon.input = ''
 tzmon.args = '--threads=4'
 tzmon.args += ' --dqOffByDefault'
-tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
+tzmon.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\''
 
 # The full test
 test = Test.Test()

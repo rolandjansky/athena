@@ -185,8 +185,8 @@ def defineMenu():
         'L1_XE55', 'L1_XE60', 'L1_XE30', 'L1_XE300',
         # new calo
         'L1_gXERHO30', 'L1_gXERHO50',
-        'L1_gXEPUFIT30', 'L1_gXEPUFIT50',
-        'L1_gXE30', 'L1_gXE40', 'L1_gXE50',
+        'L1_gXENC30', 'L1_gXENC50',
+        'L1_gXEJWOJ30', 'L1_gXEJWOJ40', 'L1_gXEJWOJ50',
         'L1_gTE50',
 
         'L1_jXE30', 'L1_jXE40', 'L1_jXE50', 'L1_jXE55', 'L1_jXE300', 
@@ -229,11 +229,13 @@ def defineMenu():
         #'L1_BPTX0_BGRP0','L1_BPTX1_BGRP0',
 
         # BCM
-        'L1_BCM_Wide_BGRP0', 'L1_BCM_AC_CA_BGRP0', 'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',
+        'L1_BCM_Wide_BGRP0', 'L1_BCM_AC_CA_BGRP0', 'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
         'L1_BCM_AC_UNPAIRED_ISO','L1_BCM_CA_UNPAIRED_ISO',
         'L1_BCM_AC_UNPAIRED_NONISO','L1_BCM_CA_UNPAIRED_NONISO',
         'L1_BCM_AC_ABORTGAPNOTCALIB', 'L1_BCM_CA_ABORTGAPNOTCALIB','L1_BCM_Wide_ABORTGAPNOTCALIB',
         'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB','L1_BCM_Wide_CALIB',
+        'L1_BCM_AC_UNPAIREDB1', 'L1_BCM_CA_UNPAIREDB2',
+        'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
 
         # AFP
         # high-priority (all mu)

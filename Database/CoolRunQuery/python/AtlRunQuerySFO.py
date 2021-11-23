@@ -281,10 +281,12 @@ def SetOKSLinks( runlist ):
     from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn
     conn = coolDbConn.GetAtlasRunDBConnection()
     cursor = conn.cursor()
-    query = "select ConfigSchema,ConfigData from ATLAS_RUN_NUMBER.RunNumber where RunNumber=:run"
-    cursor.prepare(query)
+    query = [
+        "select ConfigSchema,ConfigData from ATLAS_RUN_NUMBER.RunNumber where RunNumber=:run",  # Run 1+2
+        "select ConfigVersion,Release from ATLAS_RUN_NUMBER.RunNumber where RunNumber=:run"  # Run 3
+    ]
     for run in runlist:
-        cursor.execute(query, run=run.runNr)
+        cursor.execute(query[0 if run.lhcRun<3 else 1], run=run.runNr)
         re = cursor.fetchall()
         run.addResult('oks',re[0])
 
@@ -298,7 +300,8 @@ def main():
         #coolDbConn.get_auth('oracle://atlr/rn_r') # only in /afs/cern.ch/atlas/project/tdaq/databases/.coral/authentication.xml
         #print (coolDbConn.get_auth('oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TRIGGER'))
         from CoolRunQuery.AtlRunQuerySFO import SetOKSLinks
-        SetOKSLinks([Run(178211)])
+        SetOKSLinks([Run(178211)]) # Run 2
+        SetOKSLinks([Run(405396)]) # Run 3
 
     if test_sfo:
 

@@ -216,13 +216,13 @@ class ThresholdDef:
 
         # gXE
         for thrV in [30, 50]:
-            XEThreshold('gXEPUFIT%i' % thrV, 'gXE').setXE(thrV)
+            XEThreshold('gXENC%i' % thrV, 'gXE').setXE(thrV)
 
         for thrV in [30, 50]:
             XEThreshold('gXERHO%i' % thrV, 'gXE').setXE(thrV)
 
         for thrV in [30, 40, 50]:
-            XEThreshold('gXE%i' % thrV, 'gXE').setXE(thrV)
+            XEThreshold('gXEJWOJ%i' % thrV, 'gXE').setXE(thrV)
 
         # gTE
         for thrV in [50]:

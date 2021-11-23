@@ -22,6 +22,7 @@ class TGCArguments
     void set_USE_CONDDB(bool v);
     void set_useRun3Config(bool v);
     void set_USE_NSW(bool v);
+    void set_FORCE_NSW_COIN(bool v);
     void set_NSWSideInfo(std::string v);
 
     MSG::Level MSGLEVEL() const;
@@ -32,6 +33,7 @@ class TGCArguments
     bool USE_CONDDB() const;
     bool useRun3Config() const;
     bool USE_NSW() const;
+    bool FORCE_NSW_COIN() const;
     std::string NSWSideInfo() const;
 
   private:
@@ -43,6 +45,7 @@ class TGCArguments
     bool m_USE_CONDDB;
     bool m_useRun3Config;
     bool m_USE_NSW;
+    bool m_FORCE_NSW_COIN;
     std::string m_NSWSideInfo;
 
 

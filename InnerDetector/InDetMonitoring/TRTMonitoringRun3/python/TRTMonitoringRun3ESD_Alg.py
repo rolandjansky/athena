@@ -35,10 +35,8 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
     result.merge(addFoldersSplitOnline(inputFlags, "TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className="TRTCond::StrawT0MultChanContainer"))
 
-    ############################## WORKAROUND (START) ##########################
-    from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-    algTRTMonitoringRun3ESD.TrackSummaryTool = result.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
-    ############################## WORKAROUND (END) ############################
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+    algTRTMonitoringRun3ESD.TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolCfg(inputFlags))
 
 #     # To run job only with ID
 #    if hasattr(inputFlags, "Detector") and hasattr(inputFlags.Detector, "GeometryMuon") and hasattr(inputFlags.Detector, "GeometryID"):
@@ -230,7 +228,7 @@ if __name__ == '__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    nightly = '/afs/cern.ch/work/n/nbelyaev/DQ/Datafiles/'
+    nightly = '/afs/cern.ch/work/n/nbelyaev/public/Datafiles/'
     file = 'data18_13TeV.00349944.physics_Main.daq.ESD._lb0244._f1138._0001.root'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False

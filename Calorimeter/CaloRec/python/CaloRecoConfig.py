@@ -43,9 +43,9 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     from LArCellRec.LArNoisyROSummaryConfig import LArNoisyROSummaryCfg
     result.merge(LArNoisyROSummaryCfg(configFlags))
 
-    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
-    result.merge(LArFebErrorSummaryMakerCfg(configFlags))
-
+    if not configFlags.Input.isMC:
+        from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+        result.merge(LArFebErrorSummaryMakerCfg(configFlags))
 
     return result
 

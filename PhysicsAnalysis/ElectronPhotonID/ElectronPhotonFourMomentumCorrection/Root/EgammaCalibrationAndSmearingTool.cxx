@@ -9,6 +9,8 @@
 
 #include <boost/format.hpp>
 
+#include <AsgTools/AsgToolConfig.h>
+#include <AsgServices/AsgServiceConfig.h>
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
@@ -29,7 +31,6 @@
 // internal (old) tool
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 
-#include "egammaMVACalibAnalysis/egammaMVATool.h"
 #include "egammaLayerRecalibTool/egammaLayerRecalibTool.h"
 #include "ElectronPhotonFourMomentumCorrection/GainTool.h"
 
@@ -77,7 +78,7 @@ std::unique_ptr<egGain::GainTool> gainToolFactory(egEnergyCorr::ESModel model)
   }
 }
 
-std::unique_ptr<egammaMVATool> egammaMVAToolFactory(egEnergyCorr::ESModel model)
+std::string egammaMVAToolFolder(egEnergyCorr::ESModel model)
 {
     std::string folder;
     switch (model)
@@ -120,13 +121,7 @@ std::unique_ptr<egammaMVATool> egammaMVAToolFactory(egEnergyCorr::ESModel model)
         default: folder = "";
     }
 
-    if (not folder.empty()) {
-      auto tool = std::make_unique<egammaMVATool>("EgammaMVATool");
-      tool->setProperty("folder", folder).ignore();
-      return tool;
-    }
-
-    else { return nullptr; }
+    return folder;
 }
 
 std::unique_ptr<egammaLayerRecalibTool> egammaLayerRecalibToolFactory(egEnergyCorr::ESModel model)
@@ -307,7 +302,6 @@ EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool(const std::st
 
 EgammaCalibrationAndSmearingTool::~EgammaCalibrationAndSmearingTool() {
   ATH_MSG_DEBUG("destructor");
-  delete m_mva_tool;
   delete m_layer_recalibration_tool;
   delete m_gain_tool;
 }
@@ -453,21 +447,48 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   m_rootTool->initialize();
 
 
-  // configure MVA tool
+  // configure MVA calibration
   if (m_use_mva_calibration != 0)
   {
     ATH_MSG_DEBUG("creating MVA calibration tool (if needed)");
     if (m_MVAfolder.empty())  {  // automatically configure MVA tool
-      m_mva_tool = egammaMVAToolFactory(m_TESModel).release();
-      if (!m_mva_tool) { ATH_MSG_INFO("not using MVA calibration"); }
+      m_MVAfolder = egammaMVAToolFolder(m_TESModel);
+    }
+
+    if (not m_MVAfolder.empty()) {
+
+      // electron MVA tool
+      asg::AsgToolConfig config_mva_electron("egammaMVACalibTool/tool_mva_electron");
+      config_mva_electron.setPropertyFromString("folder", m_MVAfolder);
+      ATH_CHECK(config_mva_electron.setProperty("use_layer_corrected", true));;
+      ATH_CHECK(config_mva_electron.setProperty("ParticleType", xAOD::EgammaParameters::electron));
+
+      // unconverted photon MVA tool
+      asg::AsgToolConfig config_mva_unconverted("egammaMVACalibTool/tool_mva_unconverted");
+      config_mva_unconverted.setPropertyFromString("folder", m_MVAfolder);
+      ATH_CHECK(config_mva_unconverted.setProperty("use_layer_corrected", true));
+      ATH_CHECK(config_mva_unconverted.setProperty("ParticleType", xAOD::EgammaParameters::unconvertedPhoton));
+
+      // converted photon MVA tool
+      asg::AsgToolConfig config_mva_converted("egammaMVACalibTool/tool_mva_converted");
+      config_mva_converted.setPropertyFromString("folder", m_MVAfolder);
+      ATH_CHECK(config_mva_converted.setProperty("use_layer_corrected", true));
+      ATH_CHECK(config_mva_converted.setProperty("ParticleType", xAOD::EgammaParameters::convertedPhoton));
+
+      // initialize the ServiceHandler egammaMVASvc
+      // make the name unique
+      std::ostringstream mva_service_name;
+      mva_service_name << "egammaMVASvc/service_mva_egamma_id" << (void const *)this;
+      asg::AsgServiceConfig config_mva_service(mva_service_name.str());
+      ATH_CHECK(config_mva_service.addPrivateTool("ElectronTool", config_mva_electron));
+      ATH_CHECK(config_mva_service.addPrivateTool("UnconvertedPhotonTool", config_mva_unconverted));
+      ATH_CHECK(config_mva_service.addPrivateTool("ConvertedPhotonTool", config_mva_converted));
+      ATH_CHECK(config_mva_service.makeService(m_MVACalibSvc));
+
+      // m_MVACalibSvc->msg().setLevel(this->msg().level());
     }
     else {
-      m_mva_tool = new egammaMVATool("egammaMVATool");
-      ATH_CHECK(m_mva_tool->setProperty("folder", m_MVAfolder));
-    }
-    if (m_mva_tool) {
-      m_mva_tool->msg().setLevel(this->msg().level());
-      ATH_CHECK(m_mva_tool->initialize());
+      m_use_mva_calibration = false;
     }
   }
 
@@ -807,9 +828,9 @@ CP::CorrectionCode EgammaCalibrationAndSmearingTool::applyCorrection(xAOD::Egamm
 
   double energy = 0.;
   // apply MVA calibration
-  if (m_mva_tool) {
+  if (!m_MVACalibSvc.empty()) {
     if (input.author() != xAOD::EgammaParameters::AuthorFwdElectron) {    // do not apply MVA calibration to fwd electrons
-      energy = m_mva_tool->getEnergy(input.caloCluster(), &input);
+      m_MVACalibSvc->getEnergy(*input.caloCluster(), input, energy).ignore();  // TODO check StatusCode
     }
     else { energy = input.e(); }
     ATH_MSG_DEBUG("energy after MVA calibration = " << boost::format("%.2f") % energy);

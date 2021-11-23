@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DenseEnvironmentsAmbiguityProcessorTool_H
@@ -105,7 +105,8 @@ namespace Trk {
 
     /** selection tool - here the decision which hits remain on a track and
         which are removed are made */
-    ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
+    ToolHandle<IAmbiTrackSelectionTool> m_selectionTool
+      {this, "SelectionTool", "InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"};
 
     /**Observer tool      This tool is used to observe the tracks and their 'score' */
     PublicToolHandle<Trk::ITrkObserverTool> m_observerToolWriter{this, "TrackObserverToolWriter", "", "track observer writer within ambiguity solver"};

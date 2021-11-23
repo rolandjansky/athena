@@ -11,11 +11,37 @@ from TrkConfig.AtlasExtrapolatorConfig import (
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 
 
+def egCaloDepthCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("name", "egCaloDepthToolmiddle")
+    kwargs.setdefault("DepthChoice", "middle")
+    acc.setPrivateTools(
+        CompFactory.CaloDepthTool(**kwargs))
+    return acc
+
+
+def egCaloSurfaceBuilderCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault(
+        "CaloDepthTool",
+        acc.popToolsAndMerge(egCaloDepthCfg(flags)))
+
+    acc.setPrivateTools(
+        CompFactory.CaloSurfaceBuilder(**kwargs)
+    )
+    return acc
+
+
 def EMLastCaloExtensionToolCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
     kwargs.setdefault("name", "EMLastCaloExtensionTool")
     kwargs.setdefault("ParticleType", "electron")
+
+    if "CaloSurfaceBuilder" not in kwargs:
+        kwargs["CaloSurfaceBuilder"] = acc.popToolsAndMerge(
+            egCaloSurfaceBuilderCfg(flags))
+
     if "Extrapolator" not in kwargs:
-        acc = ComponentAccumulator()
         extrapAcc = egammaCaloExtrapolatorCfg(flags)
         kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
     return ParticleCaloExtensionToolCfg(flags, **kwargs)
@@ -33,7 +59,6 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
-    EMExtrapolationTools = CompFactory.EMExtrapolationTools
 
     # in the std config, it is egammaExtrapolator
     # (called AtlasExtrapolator now). Should this be egammaCaloExtrapolator ?
@@ -49,7 +74,9 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
         kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
             EMLastCaloExtensionToolCfg(flags))
 
-    emExtrapolationTools = EMExtrapolationTools(**kwargs)
+    kwargs["EnableTRT"] = flags.Detector.GeometryTRT
+
+    emExtrapolationTools = CompFactory.EMExtrapolationTools(**kwargs)
     acc.setPrivateTools(emExtrapolationTools)
     return acc
 

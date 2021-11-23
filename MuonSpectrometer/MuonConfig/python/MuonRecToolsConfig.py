@@ -406,19 +406,18 @@ def MuonPhiHitSelector(flags, name="MuonPhiHitSelector",**kwargs):
 
 
 def MuPatHitToolCfg(flags, name="MuPatHitTool",**kwargs):
-    Muon__MuPatHitTool=CompFactory.Muon.MuPatHitTool
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
-    
+    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
     mdt_creator=result.getPrimary()
     kwargs.setdefault("MdtRotCreator", mdt_creator)
-    
-    acc = CscClusterOnTrackCreatorCfg(flags)
-    csc_cluster_creator = acc.popPrivateTools()
-    result.merge(acc)
-    kwargs.setdefault("CscRotCreator", csc_cluster_creator)
-    
-    result.setPrivateTools(Muon__MuPatHitTool(name,**kwargs))
+
+    if flags.Detector.GeometryCSC:
+        from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg
+        kwargs.setdefault("CscRotCreator", result.popToolsAndMerge(CscClusterOnTrackCreatorCfg(flags)))
+    else:
+        kwargs.setdefault("CscRotCreator", "")
+
+    result.setPrivateTools(CompFactory.Muon.MuPatHitTool(name,**kwargs))
     return result
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -195,7 +195,16 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
   if (energy<fMAXINT2) energy=fMAXINT2;
   
   
+  // Suppress false positive seen wth gcc11.
+#if __GNUC__ == 11
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
   (this->*m_buildIt)((int)(floor(energy+0.5)),(int)floor(time+0.5),iquality,iprovenance,digit);
+#if __GNUC__ == 11
+# pragma GCC diagnostic pop
+#endif
+
   m_helper->incrementErrorCount(0);
   
   return true;

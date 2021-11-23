@@ -294,8 +294,8 @@ testL1Menu_Thresholds(const TrigConf::L1Menu & l1menu, bool printdetail)
       }
    }
 
-   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM18M"));
-   cout << "jEM18M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
+   const auto & thrjEM = dynamic_cast<const TrigConf::L1Threshold_jEM&>(l1menu.threshold("jEM15M"));
+   cout << "jEM15M isolation: iso = " << (int)thrjEM.iso() << ", frac = " << (int)thrjEM.frac() << ", frac2 = " << (int)thrjEM.frac2() << endl;
 
    const auto & thrjJET = dynamic_cast<const TrigConf::L1Threshold_jJ&>(l1menu.threshold("jJ12p0ETA25"));
    if(thrjJET) {
@@ -465,6 +465,32 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinxTOB " << ex.ptMinxTOB("1A") << endl;
       cout << "    ptMinxTOB (MeV) " << ex.ptMinxTOBMeV("1A") << endl;
       cout << "    ptMinxTOB (counts) " << ex.ptMinxTOBCounts("1A") << endl;
+   }
+   {  
+      auto & ex = l1menu.thrExtraInfo().gLJ();
+      cout << "  gLJ" << endl;
+      cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
+      cout << "    ptMinToTopo (eta range "<<std::to_string(1)<<") in GeV " << ex.ptMinToTopo(1) << endl; 
+      cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV(1) << endl; 
+      cout << "    ptMinToTopo (counts) " << ex.ptMinToTopoCounts(1) << endl;
+      cout << "    seedThr(A) " << ex.seedThr("A") << endl; 
+      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV("A") << endl; 
+      cout << "    rhoTowerMin(B) " << ex.rhoTowerMin("B") << endl;   
+      cout << "    rhoTowerMin(B) (MeV) " << ex.rhoTowerMinMeV("B") << endl;  
+      cout << "    rhoTowerMax(C) " << ex.rhoTowerMax("C") << endl;
+      cout << "    rhoTowerMax(C) (MeV) " << ex.rhoTowerMaxMeV("C") << endl;
+   }
+   {
+      auto & ex = l1menu.thrExtraInfo().gXE();
+      cout << "  gXE" << endl;
+      cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
+      cout << "    seedThr(A) " << ex.seedThr("A") << endl;
+      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV("A") << endl;
+      cout << "    XERHO_sigmaPosA " << ex.XERHO_param("A","pos") << endl;
+      cout << "    XERHO_sigmaNegB " << ex.XERHO_param("B","neg") << endl;
+      cout << "    XEJWOJ_a_C " << ex.JWOJ_param("C","a") << endl;
+      cout << "    XEJWOJ_b_B " << ex.JWOJ_param("B","b") << endl;
+      cout << "    XEJWOJ_c_A " << ex.JWOJ_param("A","c") << endl;
    }
    {
       auto & ex = l1menu.thrExtraInfo().eTAU();

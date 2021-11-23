@@ -143,8 +143,8 @@ def getEmptySeqName(stepName, chain_index, step_number, alignGroup):
     return seqName
 
 
-def getEmptyMenuSequence(flags, name, mergeUsingFeature = False):
-    return EmptyMenuSequence(name, mergeUsingFeature = mergeUsingFeature)
+def getEmptyMenuSequence(flags, name):
+    return EmptyMenuSequence(name)
 
 def getMultiplicityPerLeg(multiplicities):
     mult_per_leg = []
@@ -295,15 +295,13 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
                         log.debug("[serial_zip] step name for this leg: %s", seqStepName)
                         log.debug("[serial_zip] created empty sequence(s): %s", seqNames)
                         log.debug("[serial_zip] L1decisions %s ", chainDefList[stepPlacement2].L1decisions)
+                        
 
                     emptySequences = []
-                    for ileg in range(len(chainDefList[stepPlacement2].L1decisions)):
-                        if isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]) and noPrecedingStepsPreMerge(newsteps, stepPlacement2, ileg):
-                            log.debug("[serial_zip] adding FS empty sequence with mergeUsingFeature = False ")
-                            emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg]+"FS", mergeUsingFeature = False)]
-                        elif isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]):
-                            log.debug("[serial_zip] adding FS empty sequence with mergeUsingFeature = True ")
-                            emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg]+"FS", mergeUsingFeature = True)]
+                    for ileg in range(len(chainDefList[stepPlacement2].L1decisions)):                        
+                        if isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]):
+                            log.debug("[serial_zip] adding FS empty sequence")
+                            emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg]+"FS")]
                         else:
                             log.debug("[serial_zip] adding non-FS empty sequence")
                             emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg])]
@@ -478,10 +476,7 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
             seqName = getEmptySeqName(new_stepDict['signature'], chain_index, stepNumber, chainDefList[0].alignmentGroups[0])
 
             if isFullScanRoI(chainDefList[chain_index].L1decisions[0]):
-                if noPrecedingStepsPostMerge(currentChainSteps, chain_index):
-                    stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName+"FS", mergeUsingFeature = False))
-                else:
-                    stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName+'FS', mergeUsingFeature = True))
+                stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName+"FS"))
                 currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDict['chainParts'][0]['multiplicity']+new_stepDict['signature']+'FS'
             else:
                 stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName))

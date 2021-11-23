@@ -2,6 +2,11 @@
 
 from G4DebuggingTools.G4DebuggingToolsConfigNew import VolumeDebugger
 
+def VolumeDebuggerAtlas(configFlags, name="G4UA::ISFFullUserActionSvc", **kwargs):
+    kwargs.setdefault("TargetVolume","Atlas::Atlas")
+    result = VolumeDebugger(configFlags,name,**kwargs)
+    return result
+
 def VolumeDebuggerITk(configFlags, name="G4UA::ISFFullUserActionSvc", **kwargs):
     kwargs.setdefault("TargetVolume","ITK::ITK")
     result = VolumeDebugger(configFlags,name,**kwargs)

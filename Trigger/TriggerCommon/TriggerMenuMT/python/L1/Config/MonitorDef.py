@@ -129,9 +129,9 @@ class MonitorDef:
                 ]
         else:
             monItems[TBP|TAP|TAV] = [
-                "L1_EM3","L1_EM20VH","L1_EM22VHI", "L1_EM24VHI",
+                "L1_EM20VH", 
                 "L1_MU8F","L1_MU8VF","L1_MU14FCH", "L1_MU14FCHR",
-                "L1_J100", "L1_J75p31ETA49", "L1_4J15p0ETA25", "L1_J30p31ETA49",
+                "L1_J100", "L1_J75p31ETA49","L1_J30p31ETA49",
                 "L1_XE35", "L1_XE50",
                 #"L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1_A", "L1_MBTS_1_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
                 #"L1_ALFA_ANY", "L1_ALFA_B7L1U", "L1_ALFA_B7L1L", "L1_ALFA_A7L1U", "L1_ALFA_A7L1L", "L1_ALFA_A7R1U", "L1_ALFA_A7R1L", "L1_ALFA_B7R1U", "L1_ALFA_B7R1L",
@@ -139,9 +139,7 @@ class MonitorDef:
                 #"L1_BPTX0_BGRP0","L1_BPTX1_BGRP0",
                 "L1_CALREQ2",
                 "L1_TGC_BURST",
-                "L1_EM20VH_3J20", "L1_EM15VH_MU8F", 
-                "L1_MU8VF_2MU5VF", 
-                "L1_MU8F_2J15_J20", "L1_MU14FCH_XE30", "L1_J40_XE50", "L1_J25p0ETA23_2J15p31ETA49", "L1_J45p0ETA21_3J15p0ETA25", "L1_MU14FCH_J40",
+                "L1_MU8VF_2MU5VF",
                 ]
 
         monItemsHF[TBP|TAP|TAV] = [

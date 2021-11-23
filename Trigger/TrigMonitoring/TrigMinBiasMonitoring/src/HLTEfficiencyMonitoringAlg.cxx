@@ -43,8 +43,9 @@ StatusCode HLTEfficiencyMonitoringAlg::fillHistograms(const EventContext& contex
   auto leadingTrackPt = Scalar<double>("leadingTrackPt");
   for (const auto trk : *offlineTrkHandle)
   {
-    const double pt = std::fabs(trk->pt()) * 1e-3; // fabs used in case the charge is encoded in pt ( i.e. it is really q * pt)
-    if (m_trackSelectionTool->accept(*trk)) {
+    if (m_trackSelectionTool->accept(*trk) and std::fabs(trk->pt()) > m_minPt) {
+      const double pt = std::fabs(trk->pt()) * 1e-3; // fabs used in case the charge is encoded in pt ( i.e. it is really q * pt)
+
       ++countPassing;
       if (pt > 2.)
         ++countPassing_pt2;

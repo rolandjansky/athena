@@ -20,7 +20,7 @@
 //#define PIXEL_DEBUG ;
 namespace {
   constexpr unsigned long long operator"" _BIT(unsigned long long bitPosition){
-    return 1 << bitPosition;
+    return 1ull << bitPosition;
   }
 }
 
@@ -168,11 +168,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         Definition of the status words in a ROB fragment header is found in
            https://twiki.cern.ch/twiki/bin/view/Atlas/ROBINFragmentErrors#Definition_of_the_first_status_e
       */
-      if ((*rob_status) & (0x1 << 27)) {
+      if ((*rob_status) & (0x1u << 27)) {
          propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::TruncatedROB, "data truncation");
          return StatusCode::RECOVERABLE;
       }
-      if ((*rob_status) & (0x1 << 31)) {
+      if ((*rob_status) & (0x1u << 31)) {
          propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::MaskedROB, "resource was masked off");
          return StatusCode::RECOVERABLE;
       }
@@ -538,6 +538,10 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             // computing the FE number on the silicon wafer for IBL ( mFE is = 0 for IBL 3D and the lower-eta FE on the planar sensor,
             // while is = 1 for the higher-eta FE on the planar sensor)
             mFE = getLocalFEI4(fe_IBLheader, onlineId);
+            if (m_pixelReadout->getModuleType(pixCabling->find_entry_onoff(onlineId))==InDetDD::PixelModuleType::IBL_3D) {
+              mFE = 0;
+            }
+
           } // end of the if (isIBLModule || isDBMModule)
           else { // Pixel Hit Case
 

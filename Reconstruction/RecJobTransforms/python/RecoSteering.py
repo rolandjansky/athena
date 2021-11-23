@@ -21,6 +21,10 @@ def RecoSteering(flags, tryConfiguringAll=False):
     else:
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
         acc.merge(PoolReadCfg(flags))
+        # Check if running on legacy inputs
+        if "EventInfo" not in flags.Input.Collections:
+            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+            acc.merge(EventInfoCnvAlgCfg(flags))
         log.info("---------- Configured POOL reading")
 
     # AOD2xAOD Truth conversion
@@ -43,7 +47,6 @@ def RecoSteering(flags, tryConfiguringAll=False):
         elif flags.Detector.GeometryITk:
             from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
             acc.merge(ITkTrackRecoCfg(flags))
-            return acc  # stop here for now with ITk
         log.info("---------- Configured tracking")
 
     # muons
@@ -58,12 +61,8 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured combined muon reconstruction")
 
     # Caching of CaloExtension for downstream Combined Performance algorithms.
-    if flags.Detector.GeometryID:
-        from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
-        acc.merge(CaloExtensionBuilderAlgCfg(flags))
-    elif flags.Detector.GeometryITk:
-        from TrackToCalo.ITkCaloExtensionBuilderAlgCfg import ITkCaloExtensionBuilderAlgCfg
-        acc.merge(ITkCaloExtensionBuilderAlgCfg(flags))
+    from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
+    acc.merge(CaloExtensionBuilderAlgCfg(flags))
     log.info("---------- Configured track calorimeter extension builder")
 
     if flags.Reco.EnableEgamma:

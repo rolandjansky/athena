@@ -155,6 +155,7 @@ namespace LVL1TGCTrigger {
     BooleanProperty   m_FULLCW{this,"FULLCW",false};   // flag for using differne CW for each octant
     BooleanProperty   m_TILEMU{this,"TILEMU",true};    // flag for using TileMu
     BooleanProperty   m_USENSW{this,"USENSW",false};     // flag for using NSW
+    BooleanProperty   m_FORCENSWCOIN{this,"FORCENSWCOIN",true};     // flag to enable innerCoincidenceFlag at the TGC sectors expecting NSW hits even if there is no NSW hit
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
 
    StringProperty     m_NSWSideInfo{this,"NSWSideInfo",""};// Information about NSW geometry. It should be "" or "AC" or "A" or "C"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKTRUTHSIMILARITYSELECTOR_H
@@ -30,7 +30,8 @@ private:
   SG::WriteHandle<TrackTruthCollection> m_out; //std::string m_outputName;
 
   // Match quality tool
-  ToolHandle<Trk::IDetailedTrackTruthSimilarity> m_matchTool;
+  ToolHandle<Trk::IDetailedTrackTruthSimilarity> m_matchTool
+    {this, "TrackTruthSimilarityTool", "Trk::TruthMatchRatio", "Track-truth similarity tool"};
   
   void fillOutput(TrackTruthCollection *out, const DetailedTrackTruthCollection *in);
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DenseEnvironmentsAmbiguityProcessorTool.h"
@@ -39,12 +39,12 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack( const Trk::Track *trac
 
 //==================================================================================================
 Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcessorTool(const std::string& t, 
-                                const std::string& n,
-                                const IInterface*  p )
+										      const std::string& n,
+										      const IInterface*  p )
   :
   AmbiguityProcessorBase(t,n,p),
-  m_extrapolatorTool("Trk::Extrapolator/AtlasExtrapolator"),
-  m_selectionTool("InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"){
+  m_fitterTool(this),
+  m_extrapolatorTool("Trk::Extrapolator/AtlasExtrapolator"){
   // statitics stuff
 
   m_fitterTool.push_back("Trk::KalmanFitter/InDetTrackFitter");
@@ -52,8 +52,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareInterface<ITrackAmbiguityProcessorTool>(this);
   declareProperty("RefitPrds"            , m_refitPrds          = true); //  True to allow for updated NN information to be taken into account
   declareProperty("MatEffects"           , m_matEffects         = 3); // pion
-  declareProperty("ScoringTool"          , m_scoringTool);
-  declareProperty("SelectionTool"        , m_selectionTool);
   declareProperty("Fitter"               , m_fitterTool );
   declareProperty("TrackExtrapolator"    , m_extrapolatorTool);
   declareProperty("SuppressHoleSearch"   , m_suppressHoleSearch = false);

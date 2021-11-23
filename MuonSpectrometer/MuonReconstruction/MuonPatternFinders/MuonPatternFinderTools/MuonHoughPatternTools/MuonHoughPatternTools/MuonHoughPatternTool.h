@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGHPATTERNTOOLS_MUONHOUGHPATTERNTOOL_H
@@ -37,7 +37,7 @@ public:
     virtual std::unique_ptr<MuonPrdPatternCollection> getEtaMuonPatterns(MuonHoughPatternContainerShip& houghpatterns) const override;
 
     /** creates houghpatterns, called from FinderTool */
-    MuonHoughPatternContainerShip emptyHoughPattern() const;
+    virtual MuonHoughPatternContainerShip emptyHoughPattern() const override;
 
 private:
     /** method that builds the patterns */

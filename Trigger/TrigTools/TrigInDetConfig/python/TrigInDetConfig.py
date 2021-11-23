@@ -227,7 +227,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
   acc.addPublicTool( tool, primary=True )
   return acc
 
-def TrackSummaryToolCfg(flags, name="InDetTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
+def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
   acc = ComponentAccumulator()
   if not summaryHelperTool:
     summaryHelperTool = acc.getPrimaryAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
@@ -930,7 +930,12 @@ def FitterToolCfg(flags):
   from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
   from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-  cond_alg = None #TODO may need to pull AtlasTrackingGeometryCondAlg and use it later
+  from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+      TrackingGeometryCondAlgCfg)
+  cond_alg = TrackingGeometryCondAlgCfg(flags)
+  geom_cond_key = cond_alg.getPrimary().TrackingGeometryWriteKey
+  acc.merge(cond_alg)
+
   fitter = CompFactory.Trk.GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
                                                  ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
                                                  NavigatorTool         = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
@@ -952,7 +957,7 @@ def FitterToolCfg(flags):
                                                  Acceleration          = True,
                                                  #Momentum=1000.,
                                                  Momentum=0.,
-                                                 TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
+                                                 TrackingGeometryReadKey=geom_cond_key
                                                  )
   acc.addPublicTool(fitter, primary=True)
   #TODO come back to these settings                                                 

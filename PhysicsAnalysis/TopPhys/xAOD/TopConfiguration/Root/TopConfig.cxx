@@ -1727,14 +1727,6 @@ namespace top {
     //Switch off PRW for MC samples with data overlay
     if(m_isDataOverlay) m_pileup_reweighting.apply = false;
 
-    /************************************************************
-    *
-    * Muon trigger SF configuration
-    * see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15#How_to_retrieve_the_SF
-    * for the various trigger strings allowed
-    *
-    ************************************************************/
-
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
 
     if (settings->value("DemandPrimaryVertex") == "False")

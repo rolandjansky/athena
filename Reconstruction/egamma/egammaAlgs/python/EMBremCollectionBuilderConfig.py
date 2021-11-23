@@ -13,22 +13,28 @@ def GSFTrackSummaryToolCfg(flags,
     acc = ComponentAccumulator()
 
     if "PixelToTPIDTool" not in kwargs:
-        kwargs["PixelToTPIDTool"] = CompFactory.InDet.PixelToTPIDTool(
-            name="GSFBuildPixelToTPIDTool")
+        if flags.Detector.EnablePixel:
+            kwargs["PixelToTPIDTool"] = CompFactory.InDet.PixelToTPIDTool(
+                name="GSFBuildPixelToTPIDTool")
+        else:
+            kwargs["PixelToTPIDTool"] = None
 
     # TODO what happens to
     # ClusterSplitProbabilityName=
     # TrackingCommon.combinedClusterSplitProbName() ?
     # It is "InDetTRT_SeededAmbiguityProcessorSplitProb" in run-2 config
     #         (because backTrk and TRTSA are run)
-    # It might be "AmbiguityProcessorSplitProb" in run-3 config (only one existing till now)
+    # It might be "AmbiguityProcessorSplitProb" in run-3 config
+    # (only one existing till now)
     if "InDetSummaryHelperTool" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import (
-            InDetRecTestBLayerToolCfg)
-        testBLTool = acc.popToolsAndMerge(
-            InDetRecTestBLayerToolCfg(
-                flags,
-                name="GSFBuildTestBLayerTool"))
+        testBLTool = None
+        if flags.Detector.EnablePixel:
+            from InDetConfig.TrackingCommonConfig import (
+                InDetRecTestBLayerToolCfg)
+            testBLTool = acc.popToolsAndMerge(
+                InDetRecTestBLayerToolCfg(
+                    flags,
+                    name="GSFBuildTestBLayerTool"))
 
         from InDetConfig.InDetRecToolConfig import (
             InDetTrackSummaryHelperToolCfg)
@@ -43,14 +49,17 @@ def GSFTrackSummaryToolCfg(flags,
             ))
 
     if "TRT_ElectronPidTool" not in kwargs:
-        from InDetConfig.TRT_ElectronPidToolsConfig import (
-            TRT_ElectronPidToolCfg)
-        kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
-            TRT_ElectronPidToolCfg(
-                flags,
-                name="GSFBuildTRT_ElectronPidTool",
-                CalculateNNPid=False,
-                MinimumTrackPtForNNPid=0.))
+        if flags.Detector.EnableTRT:
+            from InDetConfig.TRT_ElectronPidToolsConfig import (
+                TRT_ElectronPidToolCfg)
+            kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
+                TRT_ElectronPidToolCfg(
+                    flags,
+                    name="GSFBuildTRT_ElectronPidTool",
+                    CalculateNNPid=False,
+                    MinimumTrackPtForNNPid=0.))
+        else:
+            kwargs["TRT_ElectronPidTool"] = None
 
     kwargs.setdefault("doSharedHits", False)
     kwargs.setdefault("doHolesInDet", False)
@@ -82,8 +91,9 @@ def EMBremCollectionBuilderCfg(flags,
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
             TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
-            UseTrackSummaryTool=False,
-            BadClusterID=0)
+            TrackSummaryTool="",
+            BadClusterID=0,
+            IBLParameterSvc="IBLParameterSvc" if flags.Detector.GeometryID else "")
         kwargs["TrackParticleCreatorTool"] = gsfTrackParticleCreatorTool
 
     if "TrackSlimmingTool" not in kwargs:
@@ -100,6 +110,18 @@ def EMBremCollectionBuilderCfg(flags,
     kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
     kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
+
+    # P->T conversion extra dependencies
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ])
+    else:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+        ])
 
     alg = CompFactory.EMBremCollectionBuilder(name, **kwargs)
     acc.addEventAlgo(alg)

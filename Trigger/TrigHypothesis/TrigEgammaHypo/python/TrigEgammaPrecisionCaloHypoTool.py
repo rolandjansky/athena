@@ -19,10 +19,7 @@ def _IncTool(name, monGroups, threshold, sel, tool=None):
             monTool = GenericMonitoringTool("MonTool_"+name)
             monTool.Histograms = [ defineHistogram('dEta', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
                                 defineHistogram('dPhi', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
-                                defineHistogram('Et_em', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo cluster E_{T}^{EM};E_{T}^{EM} [MeV]", xbins=50, xmin=-2000, xmax=100000),
-                                defineHistogram('Eta', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Eta;Eta", xbins=100, xmin=-2.5, xmax=2.5),
-                                defineHistogram('Phi', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2),
-                                defineHistogram('EtaBin', type='TH1I', path='EXPERT', title="PrecisionCalo Hypo entries per Eta bin;Eta bin no.", xbins=11, xmin=-0.5, xmax=10.5)]
+                                defineHistogram('Et_em', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo cluster E_{T}^{EM};E_{T}^{EM} [MeV]", xbins=50, xmin=-2000, xmax=100000),]
 
             cuts=['Input','#Delta #eta L2-L1', '#Delta #phi L2-L1','eta','E_{T}^{EM}']
 
@@ -48,11 +45,12 @@ def _IncTool(name, monGroups, threshold, sel, tool=None):
         tool.dETACLUSTERthr = 9999.
         tool.dPHICLUSTERthr = 9999.
 
-    elif sel == "etcut" or 'ion' in sel:
+    elif sel in ('etcut', 'ion'):
         tool.ETthr          = same( ( float( threshold ) -  3 )*GeV ) 
         # No other cuts applied
         tool.dETACLUSTERthr = 9999.
         tool.dPHICLUSTERthr = 9999.
+
  
     return tool
 
@@ -65,7 +63,7 @@ def TrigEgammaPrecisionCaloHypoToolFromDict( d, tool=None ):
         return cpart['threshold']
     
     def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'] + cpart['extra']
+        return 'ion' if 'ion' in cpart['extra'] else (cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'])
     
     name = d['chainName']
     monGroups = d['monGroups']    

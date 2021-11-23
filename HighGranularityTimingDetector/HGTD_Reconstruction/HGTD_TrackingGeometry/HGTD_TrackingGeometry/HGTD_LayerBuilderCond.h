@@ -26,13 +26,6 @@
 class HGTD_ID;
 class HGTD_DetectorManager;
 
-#ifndef TRKDETDESCR_TAKESMALLERBIGGER
-#define TRKDETDESCR_TAKESMALLERBIGGER
-#define takeSmaller(current,test) current = current < test ? current : test
-#define takeBigger(current,test)  current = current > test ? current : test
-#define takeSmallerBigger(cSmallest, cBiggest, test) takeSmaller(cSmallest, test); takeBigger(cBiggest, test)
-#endif
-
 namespace Trk {
   class Surface;
   class CylinderLayer;

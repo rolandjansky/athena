@@ -165,19 +165,6 @@ private:
     "Value of the narrow cut for delta phi Rescale Brem"
   };
 
-  // For P->T converters of ID tracks with Pixel
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection>
-    m_pixelDetEleCollKey{ this,
-                          "PixelDetEleCollKey",
-                          "PixelDetectorElementCollection",
-                          "Key of SiDetectorElementCollection for Pixel" };
-  // For P->T converters of ID tracks with SCT
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection>
-    m_SCTDetEleCollKey{ this,
-                        "SCTDetEleCollKey",
-                        "SCT_DetectorElementCollection",
-                        "Key of SiDetectorElementCollection for SCT" };
-
   mutable Gaudi::Accumulators::Counter<> m_AllClusters;
   mutable Gaudi::Accumulators::Counter<> m_SelectedClusters;
   mutable Gaudi::Accumulators::Counter<> m_AllTracks;

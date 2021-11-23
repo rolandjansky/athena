@@ -156,7 +156,7 @@ def ITkNnPixelClusterSplitProbToolCfg(flags, name="ITkNnPixelClusterSplitProbToo
 
     ITkNnPixelClusterSplitProbTool = CompFactory.InDet.TruthPixelClusterSplitProbTool(name=name,**kwargs) #Truth-based for ITk for now
 
-    acc.addPublicTool(ITkNnPixelClusterSplitProbTool, primary=True)
+    acc.setPrivateTools(ITkNnPixelClusterSplitProbTool)
     return acc
 
 def ITkNnPixelClusterSplitterCfg(flags, name="ITkNnPixelClusterSplitter", **kwargs):

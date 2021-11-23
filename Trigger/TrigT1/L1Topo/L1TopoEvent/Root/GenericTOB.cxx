@@ -48,6 +48,7 @@ TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
    , m_EtDouble(tau.EtDouble())
    , m_etaDouble(tau.etaDouble())
    , m_phiDouble(tau.phiDouble())
+   , m_jtauiso(tau.isolation())
    , m_tobType(JET)
 {}
 

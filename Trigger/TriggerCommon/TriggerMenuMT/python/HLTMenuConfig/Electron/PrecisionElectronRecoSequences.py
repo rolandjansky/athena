@@ -25,16 +25,13 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
     
     import AthenaCommon.CfgMgr as CfgMgr
     # First the data verifiers:
-    # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
-       
+    # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run       
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-
     TrigEgammaKeys = getTrigEgammaKeys(variant)
 
-    caloClusters = precisionCaloMenuDefs.caloClusters(ion)
-    trackParticles = TrigEgammaKeys.TrigElectronTracksCollectionName
+    caloClusters = TrigEgammaKeys.precisionHICaloClusterContainer if ion else TrigEgammaKeys.precisionCaloClusterContainer
+    trackParticles = TrigEgammaKeys.precisionTrackingContainer
 
     ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier" + tag)
 

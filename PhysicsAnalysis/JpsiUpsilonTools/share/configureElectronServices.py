@@ -64,6 +64,5 @@ print      InDetTrackSelectorToolEE
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
 InDetParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetParticleCreatorTool",
                                                          KeepParameters = True,
-                                                         TrackSummaryTool = InDetTrackSummaryTool,
-                                                         UseTrackSummaryTool = True)
+                                                         TrackSummaryTool = InDetTrackSummaryTool)
 ToolSvc += InDetParticleCreatorTool

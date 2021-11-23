@@ -14,7 +14,11 @@ from egammaTools.egammaExtrapolators import egammaExtrapolator
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
 from RecExConfig.RecFlags import rec
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import TrigEgammaKeys_GSF
+
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+TrigEgammaKeys = getTrigEgammaKeys('_GSF')
+
+
 
 log = logging.getLogger(__name__)
 
@@ -129,7 +133,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            UseTrackSummaryTool=False)
+            TrackSummaryTool="")
         #
         #  Track slimming (private not in ToolSvc)
         #
@@ -147,14 +151,16 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         self.TrackSlimmingTool = GSFBuildInDetTrkSlimmingTool
         self.TrackSummaryTool = GSFBuildInDetTrigTrackSummaryTool
 
+
+
 """ This is an instance of GSF fitter tool will be used on track particles """
 TrigEMBremCollectionBuilder = AlgFactory(TrigEgammaBremCollectionBuilder,
     doAdd = False,
     name='TrigEMBremCollectionBuilder',
-    TrackParticleContainerName="HLT_IDTrack_Electron_IDTrig",
-    SelectedTrackParticleContainerName="HLT_IDTrack_Electron_IDTrig",
-    OutputTrkPartContainerName = TrigEgammaKeys_GSF.outputTrackParticleKey_GSF,
-    OutputTrackContainerName=TrigEgammaKeys_GSF.outputTrackKey_GSF,
+    TrackParticleContainerName          = TrigEgammaKeys.precisionTrackingContainer,
+    SelectedTrackParticleContainerName  = TrigEgammaKeys.precisionTrackingContainer,
+    OutputTrkPartContainerName          = TrigEgammaKeys.precisionElectronTrackParticleContainerGSF,
+    OutputTrackContainerName            = TrigEgammaKeys.precisionElectronTrkCollectionGSF,
     DoTruth=rec.doTruth(),
     usePixel=DetFlags.haveRIO.pixel_on(),
     useSCT=DetFlags.haveRIO.SCT_on()

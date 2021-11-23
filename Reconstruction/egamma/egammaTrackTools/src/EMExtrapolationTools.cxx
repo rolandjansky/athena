@@ -106,7 +106,7 @@ EMExtrapolationTools::initialize()
   ATH_CHECK(m_extrapolator.retrieve());
 
   // retrieve TRT-ID helper
-  if (detStore()->contains<TRT_ID>("TRT_ID")) {
+  if (m_enableTRT && detStore()->contains<TRT_ID>("TRT_ID")) {
     StatusCode sc = detStore()->retrieve(m_trtId, "TRT_ID");
     if (sc.isFailure() || !m_trtId->is_valid()) {
       // TRT is not present for sLHC
@@ -139,7 +139,7 @@ StatusCode
 EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
                                      const xAOD::CaloCluster& cluster,
                                      const xAOD::TrackParticle& trkPB,
-                                     Trk::PropDirection direction,
+                                     Trk::PropDirection,
                                      std::array<double, 4>& eta,
                                      std::array<double, 4>& phi,
                                      std::array<double, 4>& deltaEta,
@@ -169,12 +169,13 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
      */
     case fromPerigeeRescaled: {
       Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
-      std::unique_ptr<Trk::CaloExtension> extension =
-        m_perigeeParticleCaloExtensionTool->caloExtension(
-          ctx, trkPar, direction, Trk::muon);
-      didExtension = extension != nullptr;
-      if (didExtension) {
-        intersections = getIntersections(*extension, cluster);
+      const auto extension =
+        m_perigeeParticleCaloExtensionTool->egammaCaloExtension(
+          ctx, trkPar, cluster);
+      didExtension = !extension.empty();
+      for (const auto& i : extension) {
+        intersections.emplace_back(
+          i.first, i.second->position().eta(), i.second->position().phi());
       }
     } break;
       /* For the other cases
@@ -354,7 +355,7 @@ EMExtrapolationTools::getEtaPhiAtCalo(const EventContext& ctx,
   if (!vertex) {
     return false;
   }
-  Amg::Vector3D momentum = getMomentumAtVertex(ctx,*vertex);
+  Amg::Vector3D momentum = getMomentumAtVertex(ctx, *vertex);
   if (momentum.mag() < 1e-5) {
     ATH_MSG_DEBUG("Intersection failed");
     return false;
@@ -366,7 +367,7 @@ EMExtrapolationTools::getEtaPhiAtCalo(const EventContext& ctx,
   Trk::PerigeeSurface surface(vertex->position());
   Trk::Perigee trkPar(
     vertex->position(), momentum.unit() * 1.e10, +1, surface, std::nullopt);
-  bool success = getEtaPhiAtCalo(ctx,&trkPar, etaAtCalo, phiAtCalo);
+  bool success = getEtaPhiAtCalo(ctx, &trkPar, etaAtCalo, phiAtCalo);
   return success;
 }
 /*  The actual calculation happens here*/
@@ -488,9 +489,9 @@ EMExtrapolationTools::getMomentumAtVertex(const EventContext& ctx,
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from auxdata");
     return Amg::Vector3D(accPx(vertex), accPy(vertex), accPz(vertex));
   }
-    for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i) {
-      momentum += getMomentumAtVertex(ctx, vertex, i);
-    }
+  for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i) {
+    momentum += getMomentumAtVertex(ctx, vertex, i);
+  }
 
   return momentum;
 }

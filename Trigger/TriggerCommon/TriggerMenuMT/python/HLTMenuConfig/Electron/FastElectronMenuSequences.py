@@ -10,14 +10,12 @@ from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
-TrigEgammaKeys = getTrigEgammaKeys()
-from TrigEDMConfig.TriggerEDMRun3 import recordable
-
 
 
 def fastElectronSequence(ConfigFlags, variant=''):
     """ second step:  tracking....."""
-    
+
+    TrigEgammaKeys = getTrigEgammaKeys(variant)
     IDTrigConfig = TrigEgammaKeys.IDTrigConfig
   
     from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
@@ -41,7 +39,7 @@ def fastElectronSequence(ConfigFlags, variant=''):
 
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
-    theElectronFex.ElectronsName=recordable("HLT_FastElectrons"+variant)
+    theElectronFex.ElectronsName=TrigEgammaKeys.fastElectronContainer
     theElectronFex.DummyElectronsName= "HLT_FastDummyElectrons"
  
     # EVCreator:
@@ -50,7 +48,7 @@ def fastElectronSequence(ConfigFlags, variant=''):
     # Spawn View on SuperRoI encompassing all clusters found within the L1 RoI
     roiTool = ViewCreatorCentredOnClusterROITool()
     roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
-    roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastElectron"+variant)
+    roiTool.RoisWriteHandleKey = TrigEgammaKeys.fastElectronRoIContainer
     roiTool.RoIEtaWidth = IDTrigConfig.etaHalfWidth
     roiTool.RoIPhiWidth = IDTrigConfig.phiHalfWidth
     l2ElectronViewsMaker.RoITool = roiTool
@@ -66,6 +64,7 @@ def fastElectronSequence(ConfigFlags, variant=''):
     electronAthSequence = seqAND("electronAthSequence"+variant, [l2ElectronViewsMaker, electronInViewAlgs ] )
     return (electronAthSequence, l2ElectronViewsMaker)
 
+
 def fastElectronSequence_LRT(ConfigFlags):
     # This is SAME as fastElectronSequence but for variant "_LRT"
     return fastElectronSequence(ConfigFlags,"_LRT")
@@ -76,19 +75,21 @@ def fastElectronMenuSequence(do_idperf,is_probe_leg=False, variant=''):
     """ Creates 2nd step Electron  MENU sequence"""
     # retrieve the reco sequence+IM
     theSequence = {
-            '' : fastElectronSequence,
-            '_LRT': fastElectronSequence_LRT
+            ''      : fastElectronSequence,
+            '_LRT'  : fastElectronSequence_LRT
             }
     (electronAthSequence, l2ElectronViewsMaker) = RecoFragmentsPool.retrieve(theSequence[variant], ConfigFlags)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlg
+    TrigEgammaKeys = getTrigEgammaKeys(variant)
+
     if do_idperf is True:
         theElectronHypo = TrigEgammaFastElectronHypoAlg("TrigEgammaFastElectronHypoAlg_idperf"+variant)
         theElectronHypo.Electrons = "HLT_FastDummyElectrons"
     else:
         theElectronHypo = TrigEgammaFastElectronHypoAlg("TrigEgammaFastElectronHypoAlg"+variant)
-        theElectronHypo.Electrons = "HLT_FastElectrons"+variant
+        theElectronHypo.Electrons = TrigEgammaKeys.fastElectronContainer
 
     theElectronHypo.RunInView=True
 

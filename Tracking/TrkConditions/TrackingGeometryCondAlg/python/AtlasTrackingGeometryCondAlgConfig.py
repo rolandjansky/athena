@@ -5,7 +5,7 @@ from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
 
@@ -61,6 +61,14 @@ def _getInDetTrackingGeometryBuilder(name, flags,
     binnings = []
     colors = []
 
+    # Material due to InDet services
+    if (flags.Detector.GeometryPixel
+        or flags.Detector.GeometrySCT
+            or flags.Detector.GeometryTRT):
+        from InDetServMatGeoModel.InDetServMatGeoModelConfig import (
+            InDetServiceMaterialCfg)
+        result.merge(InDetServiceMaterialCfg(flags))
+
     # Pixel
     if flags.Detector.GeometryPixel:
         # for Pixel DetectorElement conditions data :
@@ -98,7 +106,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,
         binnings += [PixelLayerBinning]
         colors += [3]
 
-        # add artifical dependencies to Pixel DetectorElement conditions algs to ensure that the IOV
+        # add artifical dependencies to Pixel DetectorElement
+        # conditions algs to ensure that the IOV
         # is identical to the IOV of the tracking geoemtry cond alg
         from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
         result.merge(PixelDetectorElementCondAlgCfg(
@@ -145,7 +154,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,
         binnings += [SCT_LayerBinning]
         colors += [4]
 
-        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_DetectorElementCondAlgCfg
+        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import (
+            SCT_DetectorElementCondAlgCfg)
         result.merge(SCT_DetectorElementCondAlgCfg(
             flags,
             MuonManagerKey=[
@@ -442,7 +452,8 @@ def _getITkTrackingGeometryBuilder(name, flags, result,
         ReplaceAllJointBoundaries=True,
         BuildBoundaryLayers=True,
         ExitVolumeName='InDet::Containers::InnerDetector',
-        RemoveHGTD=flags.Detector.GeometryHGTD)
+        RemoveHGTD=(flags.GeoModel.Run not in ["RUN1", "RUN2", "RUN3"]),
+        ZminHGTD=3420.)
 
 
 def _getCaloTrackingGeometryBuilder(name, flags, result,
@@ -541,7 +552,6 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
     if (namePrefix+name+nameSuffix).find('CondCond') >= 0:
         raise Exception('Invalid name composition %s + %s + %s ' %
                         (namePrefix, name, nameSuffix))
-
     # the hgtd tracking geometry builder
     HGTD_TrackingGeometryBuilder = CompFactory.HGTD_TrackingGeometryBuilderCond
     return HGTD_TrackingGeometryBuilder(namePrefix+name+nameSuffix,
@@ -553,7 +563,7 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
 # and TrkDetFlags.MaterialValidation().
 # For new configuration, (temporarily?) pass as parameters.
 
-
+@AccumulatorCache
 def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMaterialValidation=False):
     """
     Sets up the Tracking Geometry Conditions Algorithm
@@ -577,7 +587,7 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
 
     # Depending on the job configuration, setup the various detector builders, and add to atlas_geometry_builder
     if flags.Detector.GeometryID:
-        # TODO Not sure how to handle TrkDetFlags, specifically 
+        # TODO Not sure how to handle TrkDetFlags, specifically
         # ISF_FatrasCustomGeometry, XMLFastCustomGeometry
         # So, here we only setup the default InDet geometry builder!
         inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(
@@ -601,18 +611,15 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
             nameSuffix=nameSuffix)
         atlas_geometry_builder.InDetTrackingGeometryBuilder = inDetTrackingGeometryBuilder
 
-    # Temporarily disabled
-    '''
     if flags.Detector.GeometryHGTD:
-      hgtdTrackingGeometryBuilder = _getHGTD_TrackingGeometryBuilder(name ='HGTD_TrackingGeometryBuilder',
+        hgtdTrackingGeometryBuilder = _getHGTD_TrackingGeometryBuilder(name ='HGTD_TrackingGeometryBuilder',
                                                                      flags=flags,
                                                                      result=result,
                                                                      envelopeDefinitionSvc=atlas_env_def_service,
                                                                      namePrefix=namePrefix,
                                                                      nameSuffix=nameSuffix)
-      atlas_geometry_builder.HGTD_TrackingGeometryBuilder = hgtdTrackingGeometryBuilder
-    '''
-
+        atlas_geometry_builder.HGTD_TrackingGeometryBuilder = hgtdTrackingGeometryBuilder
+    
     if flags.Detector.GeometryCalo:
         Trk__CylinderVolumeCreator = CompFactory.Trk.CylinderVolumeCreator
         caloVolumeCreator = Trk__CylinderVolumeCreator(
@@ -635,7 +642,7 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
         atlas_geometry_builder.CaloTrackingGeometryBuilder = caloTrackingGeometryBuilder
 
     if flags.Detector.GeometryMuon:
-        # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry 
+        # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry
         # import MuonTrackingGeometryBuilder
         # Add the muon geometry model to the CA
         from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -700,6 +707,8 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
         GeometryProcessors=PrivateToolHandleArray(atlas_geometry_processors))
     result.addCondAlgo(condAlg, primary=True)
 
+     
+
     # Hack for Single Threaded Athena: manually move dependencies of SCT_DetectorElementCondAlg
     # and PixelDetectorElementCondAlg such that these are executed after their dependencies.
 
@@ -724,6 +733,24 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
         prependList.extend(appendList)
         condAlgs = prependList
         result._conditionsAlgs = condAlgs
+      
+    # Hack for running on  RecExCommon  via CAtoGlobalWrapper.
+    # We need to be sure
+    # we set "all" DetectorTools otherwise
+    # we get Py:conf2toConfigurable WARNINGs
+    # due to conflicts.
+    # "all" can include forward detectors
+    # when enabled (the module below check for this internally)
+    #
+    # Also we need this only when called via
+    # CAtoGlobalWrapper
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2:
+        functions = list(map(lambda x: x.function, stack))
+        if 'CAtoGlobalWrapper' in functions:
+            from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+            result.merge(ForDetGeometryCfg(flags))
 
     return result
 

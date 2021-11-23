@@ -35,14 +35,10 @@ def InDetRttTruthSelectionToolCfg(flags, name="InDetRttTruthSelectionTool", **kw
         kwargs.setdefault("maxEta", 2.5)
     kwargs.setdefault("minPt", 500.)
 
-    Extrapolator = None
-    if flags.Detector.GeometryITk:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    else:
-        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
     tool = CompFactory.AthTruthSelectionTool(name = name, **kwargs)
     acc.setPrivateTools(tool)

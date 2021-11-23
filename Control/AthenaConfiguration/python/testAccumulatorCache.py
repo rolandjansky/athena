@@ -52,6 +52,19 @@ class TestCache(unittest.TestCase):
         info = fac.getInfo()
         self.assertEqual(info["hits"] , 1)
 
+    def test_exception(self):
+        """Test cache when function throws exception."""
+
+        class MyException(BaseException):
+            pass
+
+        @AccumulatorCache
+        def throw():
+            raise MyException()
+
+        # Make sure no other exception is thrown by decorator itself
+        self.assertRaises(MyException, throw)
+
     def test_cache_limit(self):
         """Test cache limits."""
 
@@ -293,6 +306,38 @@ class TestCache(unittest.TestCase):
         self.assertEqual(info["misses"] , 3)
         self.assertEqual(info["cache_size"] , 0)
 
+
+class TestCA(unittest.TestCase):
+    """
+    ComponentAccumulator specific tests
+    """
+
+    def setUp(self):
+        """Add handler for ERROR messages"""
+        import io
+        from AthenaCommon.Logging import logging
+
+        self.errors = io.StringIO()
+        handler = logging.StreamHandler(self.errors)
+        handler.setLevel(logging.ERROR)
+        logging.getLogger().addHandler(handler)
+
+    def test_private_tools(self):
+        """Test caching of CAs with private tools."""
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        from AthenaConfiguration.ComponentFactory import CompFactory
+
+        @AccumulatorCache(deepCopy = True)
+        def cfg():
+            acc = ComponentAccumulator()
+            acc.setPrivateTools(CompFactory.AthenaOutputStreamTool())
+            return acc
+
+        acc = cfg()
+        acc.popPrivateTools()
+        del acc  # no ERROR here as we consumed the private tools
+        del cfg  # this produces an ERROR if private tools of cached CAs are not deleted
+        self.assertTrue(len(self.errors.getvalue())==0)
 
 if __name__ == '__main__':
     unittest.main()

@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Logging import logging
 _msg = logging.getLogger('AccumulatorCache')
 
@@ -110,6 +111,7 @@ class AccumulatorDecorator:
         return None
 
     def __call__(self , *args , **kwargs):
+        cacheHit = None
         try:
             t0 = time.perf_counter()
             res, cacheHit = self._callImpl(*args, **kwargs)
@@ -197,6 +199,12 @@ class AccumulatorDecorator:
                 return (self._func(*args , **kwargs), False)
         else:
             return (self._func(*args , **kwargs), None)
+
+    def __del__(self):
+        # Cleanup dangling private tools of cached CAs
+        for k, v in self._cache.items():
+            if isinstance(v, ComponentAccumulator):
+                v.popPrivateTools(quiet=True)
 
 
 def AccumulatorCache(func = None, maxSize = 128,

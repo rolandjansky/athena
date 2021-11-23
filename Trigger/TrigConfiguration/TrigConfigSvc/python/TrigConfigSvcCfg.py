@@ -6,12 +6,22 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 from collections import OrderedDict as odict
-from functools import lru_cache
+from functools import cache
 import json
 
 log = logging.getLogger('TrigConfigSvcCfg')
 
-@lru_cache(maxsize=None)
+# To avoid accidental overrwrite of the L1 JSON menu, only allow one L1 menu generation.
+# Either via JSON conversion from Run-1&2 or native Run-3 (see ATR-24531).
+def l1menu_generated():
+    try:
+        return l1menu_generated._hasRun
+    except AttributeError:
+        l1menu_generated._hasRun = True
+        return False
+
+
+@cache
 def getTrigConfFromCool(runNumber, lumiBlock):
     from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil 
     db = TriggerCoolUtil.GetConnection('CONDBR2' if runNumber > 230000 else 'COMP200')
@@ -47,10 +57,14 @@ def getTrigConfFromCool(runNumber, lumiBlock):
     return d
 
 
-@lru_cache(maxsize=None)
+@cache
 def createJsonMenuFiles(run, lb):
     """Retrieve Run-2 trigger configuration from the DB and save as Run3 .JSON files"""
     import subprocess
+
+    if l1menu_generated():
+        log.error("L1 menu has already been generated")
+        return None
 
     log.info("Configuring Run-1&2 to Run-3 configuration metadata conversion")
     triggerDBKeys = getTrigConfFromCool(run, lb)
@@ -176,6 +190,10 @@ def createL1PrescalesFileFromMenu( flags ):
 
 # L1 menu generation
 def generateL1Menu( flags ):
+    if l1menu_generated():
+        log.error("L1 menu has already been generated")
+        return
+
     log.info("Generating L1 menu %s", flags.Trigger.triggerMenuSetup)
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
     l1cfg = L1MenuConfig(menuName = flags.Trigger.triggerMenuSetup)
@@ -320,6 +338,10 @@ if __name__ == "__main__":
     import unittest
 
     class Tests(unittest.TestCase):
+
+        def setUp(self):
+            # Allow multiple L1 menu generations for these tests
+            l1menu_generated._hasRun = False
 
         def test_currentMenu(self):
             from AthenaConfiguration.AllConfigFlags import _createCfgFlags

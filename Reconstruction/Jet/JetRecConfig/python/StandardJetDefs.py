@@ -32,7 +32,7 @@ LCTopoCSSK.modifiers += ["CS","SK"]
 # EM-scale particle flow objects with charged hadron subtraction
 # For now we don't specify a scale, as only one works well, but
 # this could be incorporated into the naming scheme and config
-CHSPFlow = JetConstit(xAODType.ParticleFlow)
+CHSPFlow = JetConstit(xAODType.FlowElement)
 # Particle Flow Objects with Constituent Subtraction + SoftKiller
 CSSKPFlow = deepcopy(CHSPFlow)
 CSSKPFlow.modifiers += ["CS","SK"]

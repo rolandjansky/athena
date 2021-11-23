@@ -42,7 +42,7 @@ jalg4 = JetAlgorithm("jetalg4")
 j4 = JetRecTool("jetrectool4",OutputContainer="AntiKt4EMTopoJets")
 g4 = PseudoJetGetter(
   "emget4",
-  InputContainer = "CaloTopoCluster",
+  InputContainer = "CaloTopoClusters",
   Label = "EMTopo",
   OutputContainer = "PseudoJetEMTopo4",
   SkipNegativeEnergy = True,
@@ -78,7 +78,7 @@ for x in range(0, nJets):
   j = JetRecTool("jetrectool"+app,OutputContainer=out,OutputLevel=OutLevel)
   g = PseudoJetGetter(
     "emget"+app,
-    InputContainer = "CaloTopoCluster",
+    InputContainer = "CaloTopoClusters",
     Label = "EMTopo",
     OutputContainer = "PseudoJetEMTopo"+app,
     SkipNegativeEnergy = True,

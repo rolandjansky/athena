@@ -52,7 +52,7 @@ CaloTopoTowerFromClusterMaker::CaloTopoTowerFromClusterMaker(const std::string& 
 							     const std::string& name,
 							     const IInterface* pParent)
   : AthAlgTool(type,name,pParent)
-  , m_clusterContainerKey("CaloTopoCluster")
+  , m_clusterContainerKey("CaloTopoClusters")
   , m_cellContainerKey("AllCalo")
   , m_energyThreshold(m_energyThresholdDef-1.)
   , m_clusterRange(m_clusterRangeDef)

@@ -48,10 +48,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
         
-
-        # Run 3 configs - stolen from SCT
-        from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-        InDetTrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalTrackMonAlg.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
@@ -84,10 +82,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalLRTMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
         inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 5000
         
-
-        # Run 3 configs - stolen from SCT
-        from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-        InDetTrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalLRTMonAlg.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalLRTMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
         inDetGlobalLRTMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")

@@ -66,6 +66,7 @@ namespace LVL1 {
         int m_jfex;
         int m_fpga;
         static constexpr float m_TT_Size_phi = M_PI/32;
+        static constexpr float m_2PI = 2*M_PI;
         
         
         //This flag determines if the TT ID which are in the first and second energy rings are stored

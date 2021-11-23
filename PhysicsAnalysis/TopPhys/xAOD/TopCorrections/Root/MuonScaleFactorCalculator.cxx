@@ -178,7 +178,6 @@ namespace top {
       else ATH_MSG_WARNING("Event has not been decorated with RandomRunNumber");
 
       // Keep an eye here for trigger strings
-      // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15#Supported_triggers
       m_muonTriggerScaleFactors = m_muonTriggerScaleFactors_R21;
       m_muonTriggerScaleFactorsLoose = m_muonTriggerScaleFactorsLoose_R21;
       m_muon_trigger_sf_config = "";

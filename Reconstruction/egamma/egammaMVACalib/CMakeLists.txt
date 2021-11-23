@@ -33,5 +33,11 @@ atlas_add_component( egammaMVACalib
 	LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel egammaMVACalibLib)
 endif()
 
+if( NOT XAOD_ANALYSIS)
+atlas_add_test(egammaMVASvcConfigTest
+   SCRIPT python -m egammaMVACalib.egammaMVACalibConfig
+   POST_EXEC_SCRIPT nopost.sh)
+endif()
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

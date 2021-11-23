@@ -152,8 +152,7 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
     InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
     acc.addPublicTool(InDetTrackFitterBT)
 
-    InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryToolNoHoleSearch)
+    InDetTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
     InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
@@ -213,7 +212,7 @@ def TrkAmbiguityScoreCfg(flags, name='InDetTRT_SeededAmbiguityScore', **kwargs):
     acc.addEventAlgo(InDetAmbiguityScore)
     return acc
 
-def InDetAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
+def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
     acc = ComponentAccumulator()
 
     InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
@@ -258,10 +257,9 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     else:
         InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetTRT_SeededScoringToolCfg(flags))
         acc.addPublicTool(InDetTRT_SeededScoringTool)
-        InDetTRT_SeededSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededSummaryTool)
+        InDetTRT_SeededSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
-    InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
+    InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetTRTAmbiTrackSelectionToolCfg(flags))
     acc.addPublicTool(InDetTRT_SeededAmbiTrackSelectionTool)
 
     kwargs.setdefault("Fitter", InDetTrackFitterBT)

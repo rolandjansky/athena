@@ -29,7 +29,7 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
 
 StatusCode ConstituentSubtractorTool::initialize() {
 
-  if(m_inputType==xAOD::Type::ParticleFlow) {
+  if(m_inputType==xAOD::Type::ParticleFlow || m_inputType==xAOD::Type::FlowElement) {
     if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
       ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
 		    <<  "will set all cPFOs to zero");
@@ -132,9 +132,15 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     // For PFlow we would only want to apply the correction to neutral PFOs,
     // because charged hadron subtraction handles the charged PFOs.
     // However, we might still want to use the cPFOs for the min pt calculation
-    if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
-      xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
-      accept &= fabs(pfo->charge())<FLT_MIN;
+    if(m_ignoreChargedPFOs){
+      if(m_inputType==xAOD::Type::ParticleFlow){
+        xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
+        accept &= fabs(pfo->charge())<FLT_MIN;
+      }
+      else if(m_inputType==xAOD::Type::FlowElement){
+        xAOD::FlowElement* fe = static_cast<xAOD::FlowElement*>(part);
+        accept &= !(fe->isCharged());
+      }
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);

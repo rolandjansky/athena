@@ -43,7 +43,6 @@ def ITkTrackTruthSimilaritySelectorCfg(flags, DetailedTruth, TracksTruth, name='
     acc = ComponentAccumulator()
 
     ITkTruthMatchSimilarityTool = acc.popToolsAndMerge(ITkTruthMatchToolCfg(flags))
-    acc.addPublicTool(ITkTruthMatchSimilarityTool)
 
     kwargs.setdefault("DetailedTrackTruthName", DetailedTruth)
     kwargs.setdefault("OutputName", TracksTruth)

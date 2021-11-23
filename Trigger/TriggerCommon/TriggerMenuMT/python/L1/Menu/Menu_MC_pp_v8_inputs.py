@@ -218,8 +218,8 @@ def defineInputsMenu():
             ('jXE30',1), ('jXE40',1), ('jXE50',1), ('jXE55',1), ('jXE300',1),
             # gXE
             ('gXERHO30',1), ('gXERHO50',1),
-            ('gXEPUFIT30',1), ('gXEPUFIT50',1),
-            ('gXE30',1), ('gXE40',1), ('gXE50',1),
+            ('gXENC30',1), ('gXENC50',1),
+            ('gXEJWOJ30',1), ('gXEJWOJ40',1), ('gXEJWOJ50',1),
             # gTE
             ('gTE50',1),
 
@@ -232,10 +232,10 @@ def defineInputsMenu():
 
             # production
             ('jXESPARE10',1), ('jXESPARE11',1), ('jXESPARE12',1), ('jXESPARE13',1), 
-            #('jXESPARE14',1),
-            #('jXESPARE15',1), ('jXESPARE16',1), ('jXESPARE17',1), ('jXESPARE18',1), ('jXESPARE19',1),
-            #('jXESPARE20',1), ('jXESPARE21',1), ('jXESPARE22',1), ('jXESPARE23',1), ('jXESPARE24',1),
-            #('jXESPARE25',1), ('jXESPARE26',1), ('jXESPARE27',1), ('jXESPARE28',1), ('jXESPARE29',1), 
+            ('jXESPARE14',1),
+            ('jXESPARE15',1), ('jXESPARE16',1), ('jXESPARE17',1), ('jXESPARE18',1), ('jXESPARE19',1),
+            ('jXESPARE20',1), ('jXESPARE21',1), ('jXESPARE22',1), ('jXESPARE23',1), ('jXESPARE24',1),
+            ('jXESPARE25',1), ('jXESPARE26',1), ('jXESPARE27',1), ('jXESPARE28',1), ('jXESPARE29',1), 
 
             # Performance thresholds, should not go in physics menu!
             ('jXEPerf50',1),

@@ -29,6 +29,30 @@ class Singleton(type):
 # for now we make this a singleton because calling menu generation twice leads to problems
 class GenerateMenuMT(object, metaclass=Singleton):
 
+    # Applicable to all menu instances
+    calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib', 'EnhancedBias']
+    combinedSigs = ['MinBias','Electron','Photon','Muon','Tau','Jet', 'Bjet','MET','UnconventionalTracking']
+    defaultSigs = ['Streaming']  # for noalg chains
+
+    # Define which signatures (folders) are required for each slice
+    def getRequiredSignatures(theslice):
+        # All possible signatures
+        allSigs = [
+            'Test','Streaming','Monitor','Beamspot','Cosmic', 'Calib', 'EnhancedBias',
+            'Electron','Photon','Muon','Tau','Jet', 'Bjet','MET','Bphysics',
+            'MinBias','UnconventionalTracking'
+        ]
+        signatureDeps = {sig:[sig] for sig in allSigs}
+        # Special cases
+        signatureDeps.update({
+            # Bjet always requires jet
+            'Bjet': ['Bjet','Jet'],
+            # Egamma contains two signatures
+            'Egamma': ['Electron','Photon'],
+            'Combined': GenerateMenuMT.combinedSigs,
+        })
+        return set(signatureDeps[theslice]+['Streaming']) # always allow streamers
+
     def __init__(self):
         self.chainsInMenu = {}  # signature : [chains]
 
@@ -45,12 +69,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.chainFilter = None
         self.availableSignatures = []
         self.signaturesToGenerate = []
-        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib', 'EnhancedBias']
-        self.combinedSigs = ['MinBias','Egamma','Muon','Tau','Jet', 'Bjet','MET','UnconventionalTracking']
-        self.defaultSigs = ['Streaming']  # for noalg chains
 
         self.chainDefModule = {}   # Generate[SIG]ChainDefs module for each SIGnature
-
 
     def setChainFilter(self, f):
         """Set chain filter for menu generation. Function needs to take two
@@ -70,22 +90,16 @@ class GenerateMenuMT(object, metaclass=Singleton):
     def getChainDicts(self):
 
         def validSignature(currentSig, chainSig):
-            """Check if chain is asssigned to the correct signature"""
-
-            # Translate Egamma signatures
-            if 'Electron' in chainSig or 'Photon' in chainSig:
-                chainSig.discard('Electron')
-                chainSig.discard('Photon')
-                chainSig.add('Egamma')
-
-            if ( (currentSig in chainSig) or
-                 (currentSig=='Combined' and set(chainSig).issubset(self.combinedSigs)) or
-                 (chainSig==set(['Streaming'])) ):
-                 return True
-            else:
-                 return False
+            """Check if chain is assigned to the correct signature"""
+            reqd = GenerateMenuMT.getRequiredSignatures(currentSig)
+            isValid = chainSig.issubset( reqd )
+            log.info("Chain signatures: %s, required signatures: %s",chainSig,reqd)
+            if not isValid:
+                log.error("Chain signatures %s not a subset of required signatures %s",set(chainSig),reqd)
+            return isValid
 
         chainCounter = 0
+        invalid = False
         for sig, chains in self.chainsInMenu.items():
             for chain in chains:
                 log.debug("Now processing chain: %s ", chain)
@@ -97,9 +111,11 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 self.chainDicts.append(chainDict)
 
                 if not validSignature(sig, set(chainDict['signatures'])):
+                    invalid=True
                     log.error('Chain %s assigned to signature %s but creates %s',
                               chainDict['chainName'], sig, set(chainDict['signatures']))
-
+        if invalid:
+            raise RuntimeError('Incorrect assignment of chains to slices -- see preceding messages.')
 
     def importSignaturesToGenerate(self):
         """check if all the signature files can be imported and then import them"""
@@ -111,14 +127,21 @@ class GenerateMenuMT(object, metaclass=Singleton):
         log.info("Enabled signature(s): %s", self.signaturesToGenerate)
 
         # Extend the list to satisfy certain requirements
-        extendedSignatureToGenerate = set(self.signaturesToGenerate + self.defaultSigs)
+        extendedSignatureToGenerate = set(self.signaturesToGenerate + GenerateMenuMT.defaultSigs)
 
         # Combined chains themselves are created by merging
         # If we activate combined chains, we need all of the (legal) sub-signatures
         if "Combined" in extendedSignatureToGenerate:
             log.info("Combined chains requested -- activate other necessary signatures")
             extendedSignatureToGenerate.remove("Combined")
-            extendedSignatureToGenerate.update(self.combinedSigs)
+            extendedSignatureToGenerate.update(GenerateMenuMT.combinedSigs)
+
+        # Electron and Photon chains both have Egamma as the top-level folder
+        # but have separate chain configuration modules
+        if "Egamma" in extendedSignatureToGenerate:
+            log.info("Egamma chains requested -- activate other necessary signatures")
+            extendedSignatureToGenerate.remove("Egamma")
+            extendedSignatureToGenerate.update(["Electron","Photon"])
 
         for sig in extendedSignatureToGenerate:
             log.debug("[getSignaturesInMenu] sig: %s", sig)
@@ -127,10 +150,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 self.availableSignatures.append(sig)
 
             try:
-                if sig == 'Egamma':
-                    sigFolder = sig
-                    subSigs = ['Electron', 'Photon']
-                elif sig in self.calibCosmicMonSigs:
+                if sig in ['Electron', 'Photon']:
+                    sigFolder = 'Egamma'
+                    subSigs = [sig]
+                elif sig in GenerateMenuMT.calibCosmicMonSigs:
                     sigFolder = 'CalibCosmicMon'
                      #only import the CalibCosmicMon signatures that we need, not all of them!
                     subSigs = [sig]

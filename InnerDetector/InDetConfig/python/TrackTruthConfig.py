@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 # -------------------------------------------------------------------------
@@ -47,7 +47,6 @@ def TrackTruthSimilaritySelectorCfg(flags, DetailedTruth, TracksTruth, name='Sel
     acc = ComponentAccumulator()
 
     InDetTruthMatchSimilarityTool = acc.popToolsAndMerge(InDetTruthMatchToolCfg(flags))
-    acc.addPublicTool(InDetTruthMatchSimilarityTool)
 
     kwargs.setdefault("DetailedTrackTruthName", DetailedTruth)
     kwargs.setdefault("OutputName", TracksTruth)
@@ -100,28 +99,11 @@ if __name__ == "__main__":
 
     ####################### Aditional Configurations #########################
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
-    top_acc.merge( PixelReadoutGeometryCfg(ConfigFlags) )
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
-    top_acc.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
-    top_acc.merge(TRT_ReadoutGeometryCfg( ConfigFlags ))
-
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg, PixelHitDiscCnfgAlgCfg
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg
     top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
-    top_acc.merge(PixelHitDiscCnfgAlgCfg(ConfigFlags))
-
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
-    top_acc.addPublicTool(PixelLorentzAngleTool(ConfigFlags))
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(PixelLorentzAngleCfg(ConfigFlags)))
-
-    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
-    top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
 
     ################## SiliconPreProcessing Configurations ###################
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
