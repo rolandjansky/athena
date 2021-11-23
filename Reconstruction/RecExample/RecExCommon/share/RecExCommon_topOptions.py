@@ -443,6 +443,10 @@ if rec.doMonitoring():
 if recAlgs.doEFlow():
     #Some settings for pflow have to toggle to a different setup for RecExCommon workflows.
     ConfigFlags.PF.useRecExCommon=True
+    from eflowRec.eflowRecFlags import jobproperties
+    if False == jobproperties.eflowRecFlags.usePFFlowElementAssoc:
+        ConfigFlags.PF.useElPhotLinks = False
+        ConfigFlags.PF.useMuLinks = False
 
 if rec.doEgamma():
     # C.A uses Clusters RecExCommom Cluster (rm the "s")
