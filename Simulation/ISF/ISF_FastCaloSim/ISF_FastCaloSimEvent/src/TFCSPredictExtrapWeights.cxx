@@ -105,11 +105,11 @@ bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::s
     m_normStdDevs = new std::vector<float>();
   }
   std::string inputFileName = FastCaloTXTInputFolderName;
-  if(is_match_pdgid(22)){
+  if(pid == 22){
     inputFileName += "v19/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
-  } else if(is_match_pdgid(11) || is_match_pdgid(-11)){
+  } else if(pid == 11 || pid == -11){
     inputFileName += "v20/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
-  } else if(is_match_pdgid(211) || is_match_pdgid(-211)){
+  } else if(pid == 211 || pid == -211){
     inputFileName += "v21/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
   } else {
     std:: cout << "ERROR: pid ("<<pid<<") not supported yet" << std::endl;
