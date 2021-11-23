@@ -8,7 +8,6 @@ __author__ = "Bruno Lenzi"
 from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
 from .EMPIDBuilderBase import EMPIDBuilderElectronBase
 from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 
 
@@ -58,31 +57,10 @@ EMClusterTool = ToolFactory(
     MVACalibSvc=egammaMVASvc
 )
 
-
-EMConversionBuilder = ToolFactory(
-    egammaToolsConf.EMConversionBuilder,
-    ConversionContainerName=egammaKeys.outputConversionKey(),
-    ExtrapolationTool=EMExtrapolationTools)
-
 EGammaAmbiguityTool = ToolFactory(
     ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool)
 
 EMFourMomBuilder = ToolFactory(egammaToolsConf.EMFourMomBuilder)
-
-egammaLargeClusterMakerTool = ToolFactory(
-    egammaToolsConf.egammaLargeClusterMaker,
-    name="egammaLCMakerTool",
-    InputClusterCollection=egammaKeys.ClusterKey(),
-    CellsName=egammaKeys.caloCellKey()
-)
-
-egammaLargeFWDClusterMakerTool = ToolFactory(
-    egammaToolsConf.egammaLargeClusterMaker,
-    name="egammaLCFWDMakerTool",
-    InputClusterCollection=egammaKeys.FwdClusterKey(),
-    CellsName=egammaKeys.caloCellKey(),
-    doFWDelesurraundingWindows=True
-)
 
 # Electron Selectors
 ElectronPIDBuilder = ToolFactory(
