@@ -525,11 +525,10 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
     Trk__TrackingVolumeHelper = CompFactory.Trk.TrackingVolumeHelper
     HGTD_TrackingVolumeHelper = Trk__TrackingVolumeHelper(
         name='HGTD_TrackingVolumeHelper')
-    # TODO move these variables to HGTD configuration
-    HGTD_TrackingVolumeHelper.BarrelLayerBinsZ = flags.ITk.trackingGeometry.passiveBarrelMatZbins
-    HGTD_TrackingVolumeHelper.BarrelLayerBinsPhi = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
-    HGTD_TrackingVolumeHelper.EndcapLayerBinsR = flags.ITk.trackingGeometry.passiveEndcapMatRbins
-    HGTD_TrackingVolumeHelper.EndcapLayerBinsPhi = flags.ITk.trackingGeometry.passiveEndcapMatPhiBins
+    HGTD_TrackingVolumeHelper.BarrelLayerBinsZ = flags.HGTD.trackingGeometry.passiveBarrelMatZbins
+    HGTD_TrackingVolumeHelper.BarrelLayerBinsPhi = flags.HGTD.trackingGeometry.passiveBarrelMatPhiBins
+    HGTD_TrackingVolumeHelper.EndcapLayerBinsR = flags.HGTD.trackingGeometry.passiveEndcapMatRbins
+    HGTD_TrackingVolumeHelper.EndcapLayerBinsPhi = flags.HGTD.trackingGeometry.passiveEndcapMatPhiBins
 
     # the material bins - assume defaults
     # add to ToolSvc
@@ -543,9 +542,8 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
     HGTD_CylinderVolumeCreator.LayerArrayCreator = HGTD_LayerArrayCreator
     HGTD_CylinderVolumeCreator.TrackingVolumeArrayCreator = HGTD_TrackingVolumeArrayCreator
     HGTD_CylinderVolumeCreator.TrackingVolumeHelper = HGTD_TrackingVolumeHelper
-    # TODO move these variables to HGTD configuration
-    HGTD_CylinderVolumeCreator.PassiveLayerBinsRZ = flags.ITk.trackingGeometry.passiveBarrelMatZbins
-    HGTD_CylinderVolumeCreator.PassiveLayerBinsPhi = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
+    HGTD_CylinderVolumeCreator.PassiveLayerBinsRZ = flags.HGTD.trackingGeometry.passiveBarrelMatZbins
+    HGTD_CylinderVolumeCreator.PassiveLayerBinsPhi = flags.HGTD.trackingGeometry.passiveBarrelMatPhiBins
 
     result.addPublicTool(HGTD_CylinderVolumeCreator)
 

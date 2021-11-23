@@ -108,6 +108,20 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
     alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection' )
+    
+    if btagWP == 'Continuous':
+        alg = createAlgorithm( 'CP::BTaggingInformationDecoratorAlg', 'FTagInfoAlg' + btagger + btagWP + postfix )
+        addPrivateTool( alg, 'selectionTool', 'BTaggingSelectionTool' )
+        alg.selectionTool.TaggerName = btagger
+        alg.selectionTool.OperatingPoint = btagWP
+        alg.selectionTool.JetAuthor = jetCollection
+        alg.selectionTool.FlvTagCutDefinitionsFileName = bTagCalibFile
+        alg.selectionTool.MinPt = minPt
+        if preselection is not None:
+            alg.preselection = preselection
+        alg.quantileDecoration = 'ftag_quantile_' + btagger
+        seq.append( alg, inputPropName = 'jets',
+                    stageName = 'selection' )
 
     if not noEfficiency and dataType != 'data':
         # Set up the efficiency calculation algorithm:
