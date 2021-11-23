@@ -363,10 +363,13 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
             std::vector<uint32_t> SRtob_aux{SRFCAL_Jet_tobword,TTID};
             if ( SRFCAL_Jet_tobword != 0 ) m_SRJet_tobwords.push_back(SRtob_aux);
             
-            uint32_t LRFCAL_Jet_tobword = formLargeRJetTOB(iphi, ieta);
-            std::vector<uint32_t> LRtob_aux{LRFCAL_Jet_tobword,TTID};
-            if ( LRFCAL_Jet_tobword != 0 ) m_LRJet_tobwords.push_back(LRtob_aux);
-            
+            uint32_t LRFCAL_Jet_tobword = 0;
+            if(std::fabs(FCALJets.getCentreTTEta())<2.6){
+                LRFCAL_Jet_tobword = formLargeRJetTOB(iphi, ieta);
+                std::vector<uint32_t> LRtob_aux{LRFCAL_Jet_tobword,TTID};
+                if ( LRFCAL_Jet_tobword != 0 ) m_LRJet_tobwords.push_back(LRtob_aux);                
+            }
+           
             
             int SRFCAL_TOB_saturated = 0;
             if (m_SRJetET/200. > 0x7ff) SRFCAL_TOB_saturated = 1;
