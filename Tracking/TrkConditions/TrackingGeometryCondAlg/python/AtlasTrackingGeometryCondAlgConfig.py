@@ -5,7 +5,7 @@ from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
 
@@ -563,7 +563,7 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
 # and TrkDetFlags.MaterialValidation().
 # For new configuration, (temporarily?) pass as parameters.
 
-
+@AccumulatorCache
 def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMaterialValidation=False):
     """
     Sets up the Tracking Geometry Conditions Algorithm
