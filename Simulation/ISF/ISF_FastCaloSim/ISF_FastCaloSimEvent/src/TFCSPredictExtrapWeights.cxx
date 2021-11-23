@@ -262,9 +262,9 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
   ATH_MSG_INFO("Using FastCaloNNInputFolderName: " << FastCaloNNInputFolderName );
 
   std::string inputFileName = FastCaloNNInputFolderName;
-  if(is_match_pdgid(22)){                                 inputFileName += "v19/NN_photons_v19_"+etaBin+".json";
-  } else if(is_match_pdgid(11) || is_match_pdgid(-11)){   inputFileName += "v20/NN_electrons_v20_"+etaBin+".json";
-  } else if(is_match_pdgid(211) || is_match_pdgid(-211)){ inputFileName += "v21/NN_pions_v21_"+etaBin+".json";}
+  if(pid == 22){                        inputFileName += "v19/NN_photons_v19_"+etaBin+".json";
+  } else if(pid == 11 || pid == -11){   inputFileName += "v20/NN_electrons_v20_"+etaBin+".json";
+  } else if(pid == 211 || pid == -211){ inputFileName += "v21/NN_pions_v21_"+etaBin+".json";}
   ATH_MSG_DEBUG("Will read JSON file: " << inputFileName );
   if(inputFileName.empty()){
     ATH_MSG_ERROR("Could not find json file " << inputFileName );
