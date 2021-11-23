@@ -68,6 +68,8 @@ endif()
 # Test(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_test( ut_maintest SCRIPT test/ut_ElectronPhotonFourMomentumCorrection_maintest.py )
+   atlas_add_test( ut_factorytest SCRIPT test/ut_egamma_factorytest.py )
+   atlas_add_test( ut_resolutiontest SCRIPT test/ut_ElectronPhotonFourMomentumCorrection_resolutiontest.py )
 endif()
 
 
