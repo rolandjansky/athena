@@ -193,6 +193,14 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
   // Get inputs to Neural Network
   std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001, pid);
 
+  /* Temporary
+  ATH_MSG_INFO("Before m_nn->compute()");
+  ATH_MSG_INFO("truth eta = "<< truth->Eta());
+  ATH_MSG_INFO("inputVariables:");
+  for(auto const& x : inputVariables){
+    ATH_MSG_INFO("key:"<<x.first<<" value:"<<x.second);
+  }*/
+
   // Get predicted extrapolation weights
   auto outputs            = m_nn->compute(inputVariables);
   std::vector<int> layers = {0,1,2,3,12};
