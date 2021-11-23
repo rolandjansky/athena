@@ -6,28 +6,31 @@ def L1CaloFEXSimCfg(flags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     acc = ComponentAccumulator()
 
-    from TrigT1CaloFexPerf.L1PerfControlFlags import L1Phase1PerfFlags as simflags
     if flags.Input.isMC:
-      SCellType = "SCell"
+      sCellType = "SCell"
     else:
-      SCellType = simflags.Calo.SCellType()
+      sCellType = "EmulatedSCell"
+      from TrigT1CaloFexPerf.EmulationConfig import emulateSC_Cfg
+      acc.merge(emulateSC_Cfg(flags,SCOut=sCellType))
+
+
     eFEX = CompFactory.LVL1.eFEXDriver('eFEXDriver',
-        SCell=SCellType )
-    eFEX.eSuperCellTowerMapperTool.SCell=SCellType
-    eFEX.eFEXSysSimTool.SCell=SCellType
+        SCell=sCellType )
+    eFEX.eSuperCellTowerMapperTool = CompFactory.LVL1.eSuperCellTowerMapper('eSuperCellTowerMapper', SCell=sCellType)
+    eFEX.eFEXSysSimTool = CompFactory.LVL1.eFEXSysSim('eFEXSysSimTool', SCell=sCellType)
     acc.addEventAlgo(eFEX)
 
     # jFEX part
     jFEX = CompFactory.LVL1.jFEXDriver('jFEXDriver',
-        SCell=SCellType )
-    jFEX.jSuperCellTowerMapperTool.SCell=SCellType
-    jFEX.jFEXSysSimTool.SCell=SCellType
+        SCell=sCellType )
+    jFEX.jSuperCellTowerMapperTool = CompFactory.LVL1.jSuperCellTowerMapper('jSuperCellTowerMapper', SCell=sCellType)
+    jFEX.jFEXSysSimTool = CompFactory.LVL1.jFEXSysSim('jFEXSysSimTool', SCell=sCellType)
     acc.addEventAlgo(jFEX)
 
     gFEX = CompFactory.LVL1.gFEXDriver('gFEXDriver',
-        SCell=SCellType )
-    gFEX.gSuperCellTowerMapperTool.SCell=SCellType
-    gFEX.gFEXSysSimTool.SCell=SCellType
+        SCell=sCellType )
+    gFEX.gSuperCellTowerMapperTool = CompFactory.LVL1.gSuperCellTowerMapper('gSuperCellTowerMapper', SCell=sCellType)
+    gFEX.gFEXSysSimTool = CompFactory.LVL1.gFEXSysSim('gFEXSysSimTool', SCell=sCellType)
     acc.addEventAlgo(gFEX)
 
     return acc
