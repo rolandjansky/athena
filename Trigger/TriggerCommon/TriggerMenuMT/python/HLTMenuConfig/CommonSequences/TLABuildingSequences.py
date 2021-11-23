@@ -53,7 +53,7 @@ def getTLASignatureSequence(ConfigFlags, chainPart):
     
     #if "Photon" in tlaSignature:
     if chainPart['signature'] == 'Photon':    
-        from ..Photon.TLAPhotonMenuSequences import TLAPhotonMenuSequence
+        from ..Photon.PrecisionPhotonTLAMenuSequences import TLAPhotonMenuSequence
         photonOutCollectionName = "HLT_egamma_Photons"
         return RecoFragmentsPool.retrieve(TLAPhotonMenuSequence, ConfigFlags, photonsIn=photonOutCollectionName)
   
