@@ -115,8 +115,8 @@ namespace FTAGValidation {
 		     " eta=" << jet->eta() <<
 		     " phi=" << jet->phi() );
 
-      ATH_CHECK( fillHistogram( "jet_E"   , jet->e()   ) );
-      ATH_CHECK( fillHistogram( "jet_pT"  , jet->pt()  ) );
+      ATH_CHECK( fillHistogram( "jet_E"   , jet->e()  / Gaudi::Units::GeV ) );
+      ATH_CHECK( fillHistogram( "jet_pT"  , jet->pt() / Gaudi::Units::GeV ) );
       ATH_CHECK( fillHistogram( "jet_eta" , jet->eta() ) );
       ATH_CHECK( fillHistogram( "jet_phi" , jet->phi() ) );
       //nMuons and nSV1
