@@ -17,6 +17,10 @@ rec.doAODCaloCells.set_Value_and_Lock(False)
 #Turn off xAODRingSetConfWriter
 rec.doCaloRinger.set_Value_and_Lock(False)
 
+#Use a current conditions tag to avoid crash in pixel conditions algorithms
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC16-SDR-RUN2-08")
+
 #Disable VertexCnvAlg
 from InDetRecExample.InDetJobProperties import jobproperties
 jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
@@ -24,7 +28,7 @@ jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
 rec.doFileMetaData.set_Value_and_Lock(False)
 
 athenaCommonFlags.EvtMax=100
-UserAlgs = ["PFlowUtils/PFlowCalibHitDecorator_algorithms.py"]
+rec.UserAlgs = ["PFlowUtils/PFlowCalibHitDecorator_algorithms.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
 #Add decoration to output item list
 StreamAOD.ItemList+=['xAOD::FlowElementAuxContainer#JetETMissNeutralParticleFlowObjectsAux.+calfe_NLeadingTruthParticleBarcodeEnergyPairs']
