@@ -599,23 +599,8 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
       coincidenceOut->setInnerCoincidenceFlag(true);
     }
 
-
-    //////  select lowest pT   ///// will be replaced with pT merger
-    int nsw_pT;
-    if(pt_EtaPhi==0 || pt_EtaDtheta==0){
-      nsw_pT = pt_EtaPhi!=0 ? pt_EtaPhi :  pt_EtaDtheta;
-    }
-    else{
-      nsw_pT = pt_EtaPhi<pt_EtaDtheta ? pt_EtaPhi :  pt_EtaDtheta;
-    }
-
-    if(nsw_pT>coincidenceOut->getpT()){
-      return;
-    }
-    else{
-      coincidenceOut->setpT(nsw_pT);
-      return;
-    }
+    return;
+    // pT merger will be implemented later
 
   }
 
