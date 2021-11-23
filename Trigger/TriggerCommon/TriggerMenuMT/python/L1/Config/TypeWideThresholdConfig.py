@@ -332,18 +332,30 @@ def getConfig_jLJ():
 
 def getConfig_gJ():
     confObj = odict()
-    confObj["ptMinToTopoA"] = 15 # PLACEHOLDER
-    confObj["ptMinToTopoB"] = 15 # PLACEHOLDER
-    confObj["ptMinToTopoC"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopo1"] = 0 
+    confObj["ptMinToTopo2"] = 0 
     confObj["resolutionMeV"] = 200
     return confObj
 
 def getConfig_gLJ():
     confObj = odict()
-    confObj["ptMinToTopoA"] = 15 # PLACEHOLDER
-    confObj["ptMinToTopoB"] = 15 # PLACEHOLDER
-    confObj["ptMinToTopoC"] = 15 # PLACEHOLDER
+    confObj["ptMinToTopo1"] = 6 
+    confObj["ptMinToTopo2"] = 6 
+    confObj["seedThrA"] = 3 
+    confObj["seedThrB"] = 3 
+    confObj["seedThrC"] = 3 
+    confObj["rhoTowerMinA"] = 0.25 
+    confObj["rhoTowerMinB"] = 0.25 
+    confObj["rhoTowerMinC"] = 0.25 
+    confObj["rhoTowerMaxA"] = -9.6 
+    confObj["rhoTowerMaxB"] = -9.6 
+    confObj["rhoTowerMaxC"] = -9.6 
     confObj["resolutionMeV"] = 200
+
+    # Check that all values are integers in MeV
+    for param in confObj:
+        if int(confObj[param]*1000) != (confObj[param]*1000):
+            raise RuntimeError("Param %s in gLJ configuration is not an integer in MeV! %d", param, confObj[param])
     return confObj
 
 def getConfig_jXE():
@@ -382,6 +394,24 @@ def getConfig_jTE():
 
 def getConfig_gXE():
     confObj = odict()
+    confObj["seedThrA"] = 1 
+    confObj["seedThrB"] = 1 
+    confObj["seedThrC"] = 1 
+    confObj["XERHO_sigmaPosA"] = 3 
+    confObj["XERHO_sigmaPosB"] = 3 
+    confObj["XERHO_sigmaPosC"] = 3 
+    confObj["XERHO_sigmaNegA"] = 8 
+    confObj["XERHO_sigmaNegB"] = 8 
+    confObj["XERHO_sigmaNegC"] = 8 
+    confObj["XEJWOJ_a_A"] = 48 
+    confObj["XEJWOJ_a_B"] = 48 
+    confObj["XEJWOJ_a_C"] = 48 
+    confObj["XEJWOJ_b_A"] = 52 
+    confObj["XEJWOJ_b_B"] = 52 
+    confObj["XEJWOJ_b_C"] = 52 
+    confObj["XEJWOJ_c_A"] = 0 
+    confObj["XEJWOJ_c_B"] = 0 
+    confObj["XEJWOJ_c_C"] = 0 
     confObj["resolutionMeV"] = 200
     return confObj
 

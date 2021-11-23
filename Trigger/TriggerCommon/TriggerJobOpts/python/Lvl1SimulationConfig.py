@@ -167,7 +167,7 @@ def Lvl1SimulationSequence( ConfigFlags ):
         ctp.jFexJetInput = ""
         ctp.jFexLJetInput = ""
         ctp.gFexJetInput = ""
-        ctp.gFexMETPufitInput = ""
+        ctp.gFexMETNCInput = ""
         ctp.gFexMETRhoInput = ""
         ctp.gFexMETJwoJInput = ""
         ctp.eFexClusterInput = ""

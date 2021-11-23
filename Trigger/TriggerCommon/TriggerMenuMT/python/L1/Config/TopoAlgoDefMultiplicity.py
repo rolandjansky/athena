@@ -200,9 +200,9 @@ class TopoAlgoDefMultiplicity(object):
             tm.registerTopoAlgo(alg)
 
         XEThresholds = [ 
-            'gXE30', 'gXE40', 'gXE50',
+            'gXEJWOJ30', 'gXEJWOJ40', 'gXEJWOJ50',
             'gXERHO30', 'gXERHO50', 
-            'gXEPUFIT30', 'gXEPUFIT50',
+            'gXENC30', 'gXENC50',
 
             'jXE30', 'jXE40', 'jXE50', 'jXE55', 'jXE300',
 

@@ -80,7 +80,7 @@ LVL1CTP::CTPSimulation::initialize() {
    ATH_CHECK( m_iKeyJFexJets.initialize( ! m_iKeyJFexJets.empty() ) );
    ATH_CHECK( m_iKeyJFexLJets.initialize( ! m_iKeyJFexLJets.empty() ) );
    ATH_CHECK( m_iKeyGFexJets.initialize( ! m_iKeyGFexJets.empty() ) );
-   ATH_CHECK( m_iKeyGFexMETPufit.initialize( ! m_iKeyGFexMETPufit.empty() ) );
+   ATH_CHECK( m_iKeyGFexMETNC.initialize( ! m_iKeyGFexMETNC.empty() ) );
    ATH_CHECK( m_iKeyGFexMETRho.initialize( ! m_iKeyGFexMETRho.empty() ) );
    ATH_CHECK( m_iKeyGFexMETJwoJ.initialize( ! m_iKeyGFexMETJwoJ.empty() ) );
    ATH_CHECK( m_iKeyEFexCluster.initialize( ! m_iKeyEFexCluster.empty() ) );
@@ -467,13 +467,13 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
    }
 
    // MET
-   if( not m_iKeyGFexMETPufit.empty() ) {
-      auto gFexMETPufit  = SG::makeHandle( m_iKeyGFexMETPufit, context );
+   if( not m_iKeyGFexMETNC.empty() ) {
+      auto gFexMETPufit  = SG::makeHandle( m_iKeyGFexMETNC, context );
       if( gFexMETPufit.isValid() ) {
          get1DHist("/input/met/Pufit")->Fill(gFexMETPufit->energyT()/1000.);
          get1DHist("/input/met/PufitPhi")->Fill(atan2(gFexMETPufit->energyX(), gFexMETPufit->energyY()));
       } else {
-         ATH_MSG_DEBUG("No collection " << m_iKeyGFexMETPufit);
+         ATH_MSG_DEBUG("No collection " << m_iKeyGFexMETNC);
       }
    }
 
@@ -844,8 +844,8 @@ LVL1CTP::CTPSimulation::calculateMETMultiplicity( const TrigConf::L1Threshold & 
    } else {
       // new XE
       const SG::ReadHandleKey< xAOD::EnergySumRoI > * rhk { nullptr };
-      if ( confThr.name().find("gXEPUFIT")==0 ) {
-         rhk = & m_iKeyGFexMETPufit;
+      if ( confThr.name().find("gXENC")==0 ) {
+         rhk = & m_iKeyGFexMETNC;
          ATH_MSG_DEBUG("Using Pufit input for threshold " << confThr.name() );
       } else if ( confThr.name().find("gXERHO")==0 ) {
          rhk = & m_iKeyGFexMETRho;

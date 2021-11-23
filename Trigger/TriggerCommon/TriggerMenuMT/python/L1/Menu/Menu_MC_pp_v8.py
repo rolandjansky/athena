@@ -185,8 +185,8 @@ def defineMenu():
         'L1_XE55', 'L1_XE60', 'L1_XE30', 'L1_XE300',
         # new calo
         'L1_gXERHO30', 'L1_gXERHO50',
-        'L1_gXEPUFIT30', 'L1_gXEPUFIT50',
-        'L1_gXE30', 'L1_gXE40', 'L1_gXE50',
+        'L1_gXENC30', 'L1_gXENC50',
+        'L1_gXEJWOJ30', 'L1_gXEJWOJ40', 'L1_gXEJWOJ50',
         'L1_gTE50',
 
         'L1_jXE30', 'L1_jXE40', 'L1_jXE50', 'L1_jXE55', 'L1_jXE300', 
