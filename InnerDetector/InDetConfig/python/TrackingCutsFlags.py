@@ -377,6 +377,7 @@ def createITkTrackingFlags():
     icf.extension               = ""
 
     icf.useEtaDepCuts           = True
+    icf.maxEta                  = 4.0
     icf.etaBins                 = [-1.0, 2.0, 2.6, 4.0]
     icf.minPT                   = [0.9 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
 
