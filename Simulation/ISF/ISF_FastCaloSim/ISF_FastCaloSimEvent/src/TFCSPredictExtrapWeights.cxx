@@ -150,7 +150,7 @@ bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::s
 
 // prepareInputs()
 // Prepare input variables to the Neural Network
-std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulationState& simulstate, const float truthE, const int pid) const
+std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulationState& simulstate, const float truthE) const
 {
   std::map<std::string, double> inputVariables;
   std::vector<int>              inputLayers = {0,1,2,3,12};
@@ -188,10 +188,8 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
 {
   (void)extrapol; // avoid unused variable warning
 
-  const int pid = truth->pdgid();
-
   // Get inputs to Neural Network
-  std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001, pid);
+  std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001);
 
   /* Temporary
   ATH_MSG_INFO("Before m_nn->compute()");
@@ -400,7 +398,7 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
   // Get extrapWeights and save them as AuxInfo in simulstate
 
   // Get inputs to Neural Network
-  std::map<std::string,double> inputVariables = NN.prepareInputs(*simulstate, truth->E()*0.001, pid);
+  std::map<std::string,double> inputVariables = NN.prepareInputs(*simulstate, truth->E()*0.001);
 
   // Get predicted extrapolation weights
   auto outputs = NN.m_nn->compute(inputVariables);
