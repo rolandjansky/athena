@@ -24,6 +24,9 @@ def SCTErrMonAlgConfig(inputFlags):
     from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
     myMonAlg.SCT_ConditionsSummaryTool = result.popToolsAndMerge( SCT_ConditionsSummaryToolCfg(inputFlags) )
 
+    # Pass the InDet.useDCS flag to the algorithm
+    myMonAlg.UseDCS = inputFlags.InDet.useDCS
+
     ## The following does not work when running Reco_tf.py
     ## because it configures condition algorithms
     ## and they conflict with ones configured in the old framework.
