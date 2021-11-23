@@ -22,19 +22,18 @@ def precisionElectronRecoSequence_LRT(RoIs):
     log.debug('precisionElectronRecoSequence_LRT(RoIs = %s)',RoIs)
     
     import AthenaCommon.CfgMgr as CfgMgr
-    # First the data verifiers:
-    # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences_LRT import precisionCaloMenuDefs_LRT
-       
     # precision Tracking related data dependencies
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import TrigEgammaKeys_LRT
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
+    TrigEgammaKeys = getTrigEgammaKeys('_LRT')
 
+    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    trackParticles = TrigEgammaKeys.precisionTrackingContainer
 
     ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier_LRT")
 
     ViewVerifyTrk.DataObjects = [( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % precisionCaloMenuDefs_LRT.precisionCaloClusters ),
-                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % TrigEgammaKeys_LRT.TrigElectronTracksCollectionName_LRT)]
+                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % caloClusters ),
+                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % trackParticles)]
 
 
     """ Retrieve the factories now """
@@ -52,13 +51,13 @@ def precisionElectronRecoSequence_LRT(RoIs):
     
     ## TrigEMTrackMatchBuilder_LRT ##
     TrigEMTrackMatchBuilder = TrigEMTrackMatchBuilder("TrigEMTrackMatchBuilder_LRT")
-    TrigEMTrackMatchBuilder.TrackParticlesName =  TrigEgammaKeys_LRT.TrigElectronTracksCollectionName_LRT
+    TrigEMTrackMatchBuilder.TrackParticlesName =  trackParticles
 
     ## TrigEgammaRecElectron_LRT ##
     TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_LRT")
     thesequence += TrigEgammaRecAlgo
     TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
-    TrigEgammaRecAlgo.InputClusterContainerName = precisionCaloMenuDefs_LRT.precisionCaloClusters
+    TrigEgammaRecAlgo.InputClusterContainerName = caloClusters
 
     ## TrigElectronSuperClusterBuilder_LRT ##
     TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_LRT")
@@ -70,7 +69,7 @@ def precisionElectronRecoSequence_LRT(RoIs):
     TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_LRT")
     thesequence += TrigTopoEgammaAlgo
     TrigTopoEgammaAlgo.InputElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
-    TrigTopoEgammaAlgo.ElectronOutputName = TrigEgammaKeys_LRT.outputElectronKey_LRT
+    TrigTopoEgammaAlgo.ElectronOutputName = TrigEgammaKeys.precisionElectronContainer
     collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
     TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
     collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName

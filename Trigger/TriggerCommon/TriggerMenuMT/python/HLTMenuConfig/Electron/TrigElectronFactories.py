@@ -28,7 +28,7 @@ from egammaRec.Factories import AlgFactory, FcnWrapper
 TrigEgammaRecElectron = AlgFactory( egammaAlgsConf.egammaRecBuilder,
                             name = 'TrigEgammaRecElectron',
                             InputClusterContainerName= "precisionCaloCluster",
-                            egammaRecContainer= TrigEgammaKeys.EgammaRecKey,
+                            egammaRecContainer= TrigEgammaKeys.precisionEgammaRecCollection,
                             doConversions = False,
                             doAdd= False,
                             # Builder tools
@@ -37,8 +37,8 @@ TrigEgammaRecElectron = AlgFactory( egammaAlgsConf.egammaRecBuilder,
 """Configuring electronSuperClusterBuilder"""                                        
 TrigElectronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperClusterBuilder,
                                               name = 'TrigElectronSuperClusterBuilder',
-                                              InputEgammaRecContainerName = TrigEgammaKeys.EgammaRecKey,
-                                              SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
+                                              InputEgammaRecContainerName = TrigEgammaKeys.precisionEgammaRecCollection,
+                                              SuperElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterCollection,
                                               ClusterCorrectionTool=egammaSwSuperClusterTool,
                                               MVACalibSvc=egammaMVASvc,
                                               EtThresholdCut=1000,
@@ -54,10 +54,10 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
     mlog = logging.getLogger(__name__)
     mlog.info('Starting configuration')
     TrigTopoEgammaElectron = AlgFactory( egammaAlgsConf.xAODEgammaBuilder, name = name,
-            InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-            InputPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
-            ElectronOutputName = TrigEgammaKeys.outputElectronKey,
-            PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
+            InputElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterCollection,
+            InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterCollection,
+            ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
+            PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,  
             AmbiguityTool = EGammaAmbiguityTool,
             EMClusterTool = TrigEMClusterTool,
             EMShowerTool=TrigEMShowerBuilder,
@@ -77,7 +77,7 @@ def PrecisionElectronTopoMonitorCfg(name = 'PrecisionElectronTopoMonitoring'):
     PrecisionElectronTopoMonitor = AlgFactory( TrigEgammaMonitoringConf.egammaMonitorElectronAlgorithm,
             name = name,
             doAdd = False,
-            ElectronKey = TrigEgammaKeys.outputElectronKey,
+            ElectronKey = TrigEgammaKeys.precisionElectronContainer,
             MonTool = monTool
             )
 
@@ -92,7 +92,7 @@ def PrecisionElectronSuperClusterMonitorCfg(name = 'PrecisionElectronSuperCluste
     PrecisionElectronSuperClusterMonitor = AlgFactory( TrigEgammaMonitoringConf.egammaMonitorSuperClusterAlgorithm,
             name = name,
             doAdd = False,
-            InputEgammaRecContainerName = TrigEgammaKeys.EgammaRecKey,
+            InputEgammaRecContainerName = TrigEgammaKeys.precisionEgammaRecCollection,
             MonTool = monTool
             )
 

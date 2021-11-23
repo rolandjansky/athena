@@ -9,17 +9,12 @@ from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..CommonSequences.CaloSequences_FWD import fastCaloMenuSequence_FWD
 
-
-from ..Electron.FastElectronMenuSequences import fastElectronMenuSequence
-from ..Electron.FastElectronMenuSequences_LRT import fastElectronMenuSequence_LRT
-from ..Egamma.PrecisionCaloMenuSequences import precisionCaloMenuSequence
-from ..Egamma.PrecisionCaloMenuSequences_LRT import precisionCaloMenuSequence_LRT
-from ..Egamma.PrecisionCaloMenuSequences_FWD import precisionCaloMenuSequence_FWD
+from ..Electron.FastElectronMenuSequences import fastElectronMenuSequence, fastElectronMenuSequence_LRT
+from ..Electron.PrecisionCaloMenuSequences import precisionCaloMenuSequence, precisionCaloMenuSequence_LRT
 from ..Electron.PrecisionElectronMenuSequences import precisionElectronMenuSequence
 from ..Electron.PrecisionElectronMenuSequences_GSF import precisionElectronMenuSequence_GSF
 from ..Electron.PrecisionElectronMenuSequences_LRT import precisionElectronMenuSequence_LRT
-from ..Electron.PrecisionTrackingMenuSequences import precisionTrackingMenuSequence
-from ..Electron.PrecisionTrackingMenuSequences_LRT import precisionTrackingMenuSequence_LRT
+from ..Electron.PrecisionTrackingMenuSequences     import precisionTrackingMenuSequence, precisionTrackingMenuSequence_LRT
 
 from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerNoMuonDiElecFastComboHypoCfg, NoMuonDiElecPrecisionComboHypoCfg, StreamerDiElecFastComboHypoCfg, DiElecPrecisionComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
 
@@ -119,9 +114,6 @@ def diEgammaHegMassComboHypoToolFromDict(chainDict):
 def electronFastCaloCfg_fwd( flags, is_probe_leg=False ):
     return fastCaloMenuSequence_FWD("Electron", is_probe_leg=is_probe_leg)
 
-def precisionCaloSequenceCfg_fwd( flags, is_probe_leg=False ):
-    return precisionCaloMenuSequence_FWD('Electron', is_probe_leg=is_probe_leg)
-
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -156,7 +148,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'nominallrt'  : ['getFastCalo', 'getFastElectron_lrt', 'getPrecisionCaloElectron_lrt', 'getPrecisionTracking_lrt', 'getPrecisionElectron_lrt'],  
 
                 # fwd sequences
-                'etcutfwd' : ['getFastCalo_fwd', 'getPrecisionCaloElectron_fwd']
+                'etcutfwd' : ['getFastCalo_fwd']
                 }
 
         log.debug('electron chain part = %s', self.chainPart)
@@ -315,6 +307,3 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         stepName       = "FastCalo_FWD_electron"
         return self.getStep(1, stepName, [electronFastCaloCfg_fwd], is_probe_leg=is_probe_leg)
 
-    def getPrecisionCaloElectron_fwd(self,is_probe_leg=False):
-        stepName = "precisionCalo_FWD_electron"
-        return self.getStep(2,stepName,[ precisionCaloSequenceCfg_fwd], is_probe_leg=is_probe_leg)

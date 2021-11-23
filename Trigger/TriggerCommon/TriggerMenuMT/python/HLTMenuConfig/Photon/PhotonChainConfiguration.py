@@ -8,13 +8,12 @@ log = logging.getLogger(__name__)
 
 
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
-
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
 from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
-from ..Egamma.PrecisionCaloMenuSequences import precisionCaloMenuSequence
+from ..Photon.PrecisionCaloMenuSequences import precisionCaloMenuSequence
 from ..Egamma.HipTRTMenuSequences import hipTRTMenuSequence
-from ..Photon.TLAPhotonMenuSequences import TLAPhotonMenuSequence
+from ..Photon.PrecisionPhotonTLAMenuSequences import TLAPhotonMenuSequence
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
 
@@ -35,10 +34,10 @@ def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
     return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
 
 def precisionPhotonCaloSequenceCfg( flags ):
-    return precisionCaloMenuSequence('Photon', is_photon=True)
+    return precisionCaloMenuSequence('Photon')
 
 def precisionPhotonCaloSequenceCfg_ion( flags ):
-    return precisionCaloMenuSequence('Photon', is_photon=True, ion=True)
+    return precisionCaloMenuSequence('Photon', ion=True)
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
