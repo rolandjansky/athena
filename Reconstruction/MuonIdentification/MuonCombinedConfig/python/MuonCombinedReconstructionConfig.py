@@ -65,7 +65,7 @@ def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
     kwargs.setdefault("CombinedPullCut", 3.0)
 
     result = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("IExtrapolator", result.getPrimary())
+    kwargs.setdefault("IExtrapolator", result.popPrivateTools())
 
     kwargs.setdefault("Propagator", result.getPrimaryAndMerge( AtlasRKPropagatorCfg(flags) ))
 
@@ -183,11 +183,8 @@ def MuonCombinedInDetCandidateAlgCfg(flags, name="MuonCombinedInDetCandidateAlg"
         acc = MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, "MuonCombinedInDetDetailedForwardTrackSelectorTool", nHitSct=0)
         kwargs.setdefault("InDetForwardTrackSelector", acc.getPrimary() )
         result.merge(acc)
-    
-    acc = AtlasExtrapolatorCfg(flags)
-    extrapolator = acc.getPrimary()
-    result.merge(acc)
 
+    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     muon_particle_extension_tool = CompFactory.Trk.ParticleCaloExtensionTool(Extrapolator=extrapolator)
 
     muon_ext_tool = CompFactory.Muon.MuonSystemExtensionTool(ParticleCaloExtensionTool = muon_particle_extension_tool, Extrapolator = extrapolator)

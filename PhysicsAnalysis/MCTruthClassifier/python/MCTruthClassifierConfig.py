@@ -25,37 +25,18 @@ def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
 
     if "ParticleCaloExtensionTool" not in kwargs:
 
-        extAcc = None
-        if flags.Detector.GeometryITk:
-            from TrkConfig.AtlasUpgradeExtrapolatorConfig import (
-                MCTruthClassifierUpgradeExtrapolatorCfg)
-            extrapolator = acc.popToolsAndMerge(
-                MCTruthClassifierUpgradeExtrapolatorCfg(flags))
-            from TrackToCalo.ITkTrackToCaloConfig import (
-                ITkParticleCaloExtensionToolCfg)
-            extAcc = ITkParticleCaloExtensionToolCfg(
-                flags,
-                Extrapolator=extrapolator)
-        else:
-            from TrkConfig.AtlasExtrapolatorConfig import (
-                MCTruthClassifierExtrapolatorCfg)
-            extrapolator = acc.popToolsAndMerge(
-                MCTruthClassifierExtrapolatorCfg(flags))
-            from TrackToCalo.TrackToCaloConfig import (
-                ParticleCaloExtensionToolCfg)
-            extAcc = ParticleCaloExtensionToolCfg(
-                flags,
-                Extrapolator=extrapolator)
-
-        kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(extAcc)
+        from TrkConfig.AtlasExtrapolatorConfig import MCTruthClassifierExtrapolatorCfg
+        extrapolator = acc.popToolsAndMerge(MCTruthClassifierExtrapolatorCfg(flags))
+        from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
+        extension = ParticleCaloExtensionToolCfg(flags, Extrapolator=extrapolator)
+        kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(extension)
 
     kwargs.setdefault("barcodeG4Shift", flags.Sim.SimBarcodeOffset + 1)
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    MCTruthClassifier = CompFactory.MCTruthClassifier
-
-    acc.setPrivateTools(MCTruthClassifier(**kwargs))
+    acc.setPrivateTools(CompFactory.MCTruthClassifier(**kwargs))
     return acc
+
 
 ##########################################################
 # The function below are for the old style and should be

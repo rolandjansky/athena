@@ -57,12 +57,8 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured combined muon reconstruction")
 
     # Caching of CaloExtension for downstream Combined Performance algorithms.
-    if flags.Detector.GeometryID:
-        from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
-        acc.merge(CaloExtensionBuilderAlgCfg(flags))
-    elif flags.Detector.GeometryITk:
-        from TrackToCalo.ITkCaloExtensionBuilderAlgCfg import ITkCaloExtensionBuilderAlgCfg
-        acc.merge(ITkCaloExtensionBuilderAlgCfg(flags))
+    from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
+    acc.merge(CaloExtensionBuilderAlgCfg(flags))
     log.info("---------- Configured track calorimeter extension builder")
 
     if flags.Reco.EnableEgamma:

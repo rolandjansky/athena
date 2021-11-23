@@ -148,14 +148,10 @@ def InDetPhysValTruthDecoratorAlgCfg(flags, **kwargs):
     '''
     acc = ComponentAccumulator()
 
-    Extrapolator = None
-    if flags.Detector.GeometryITk:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    else:
-        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
     acc.merge(createExtendNameIfNotDefaultCfg(CompFactory.InDetPhysValTruthDecoratorAlg,
                                               'TruthParticleContainerName', 'TruthParticles',

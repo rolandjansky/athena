@@ -24,8 +24,7 @@ def BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection = 'InDetTrackParticles
     if 'TrackToVertexIPEstimator' not in  options :
         options.setdefault('TrackToVertexIPEstimator',acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(ConfigFlags, 'TrkToVxIPEstimator') ))
     if 'Extrapolator' not in options :
-        exrtrapolator_acc = AtlasExtrapolatorCfg(ConfigFlags)
-        options.setdefault('Extrapolator', acc.popToolsAndMerge(exrtrapolator_acc))
+        options.setdefault('Extrapolator', acc.popToolsAndMerge(AtlasExtrapolatorCfg(ConfigFlags)))
 
     # -- create the track augmenter algorithm
     acc.addEventAlgo(Analysis__BTagTrackAugmenterAlg(**options))
