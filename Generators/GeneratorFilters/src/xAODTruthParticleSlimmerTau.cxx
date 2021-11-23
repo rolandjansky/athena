@@ -20,11 +20,11 @@
 
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 
-#include "GeneratorFilters/TauTruthParticleSlimmer.h"
+#include "GeneratorFilters/xAODTruthParticleSlimmerTau.h"
 
 using namespace std;
 
-TauTruthParticleSlimmer::TauTruthParticleSlimmer(const string &name, ISvcLocator *svcLoc)
+xAODTruthParticleSlimmerTau::xAODTruthParticleSlimmerTau(const string &name, ISvcLocator *svcLoc)
     : AthAlgorithm(name, svcLoc), m_classifier("MCTruthClassifier/MCTruthClassifier")
 {
   declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerName = "TruthParticles");
@@ -34,7 +34,7 @@ TauTruthParticleSlimmer::TauTruthParticleSlimmer(const string &name, ISvcLocator
   declareProperty("abseta_selection", m_abseta_selection = 4.5);
 }
 
-StatusCode TauTruthParticleSlimmer::initialize()
+StatusCode xAODTruthParticleSlimmerTau::initialize()
 {
   ATH_CHECK(m_classifier.retrieve());
 
@@ -43,7 +43,7 @@ StatusCode TauTruthParticleSlimmer::initialize()
   return StatusCode::SUCCESS;
 }
 
-CLHEP::HepLorentzVector TauTruthParticleSlimmer::sumDaughterNeutrinos(const xAOD::TruthParticle *part)
+CLHEP::HepLorentzVector xAODTruthParticleSlimmerTau::sumDaughterNeutrinos(const xAOD::TruthParticle *part)
 {
   CLHEP::HepLorentzVector nu(0, 0, 0, 0);
   if (((std::abs(part->pdgId()) == 12) || (std::abs(part->pdgId()) == 14) || (std::abs(part->pdgId()) == 16)) && part->status() != 3)
@@ -62,7 +62,7 @@ CLHEP::HepLorentzVector TauTruthParticleSlimmer::sumDaughterNeutrinos(const xAOD
   return nu;
 }
 
-StatusCode TauTruthParticleSlimmer::execute()
+StatusCode xAODTruthParticleSlimmerTau::execute()
 {
 
   CLHEP::HepLorentzVector nutau;
