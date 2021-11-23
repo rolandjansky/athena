@@ -625,8 +625,9 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
     ATH_MSG_FATAL ( "Wrong station, detector or sensitive detector id" );
     return;
      }
+
 // at the moment just calculate average time of collected photoelectrons
-   
+// in the future real signal will be formed and time will be reconstructed by the code commented below   
 
 
    m_Signal[Station][Detector][(SensitiveElement-1)/2].Fill(PheTime);
@@ -681,10 +682,10 @@ void AFP_PileUpTool::StoreTDDigi(void)
 //    }
 //
 // at the moment TDC is average time and ADC is number of pfotoelectrons. No CFD, saturation, ...
+// in the future constant fraction disciminator and saturation effects will be added by the code
+// commented above
 
 
-// if( k==0 ) TDC = TDC-2130.;
-// if( k==1 ) TDC = TDC-2797.;
 
  AFP_TDDigi* tddigi = new AFP_TDDigi ();
  tddigi->m_nStationID=i;
@@ -693,19 +694,11 @@ void AFP_PileUpTool::StoreTDDigi(void)
  tddigi->m_fADC=ADC;
  tddigi->m_fTDC=TDC;
 
-       Id1.Form("%d",i);
-          Id2.Form("%d",j);
-             Id3.Form("%d",k);
-//        m_Signal[i][j][k].Write();
-
  m_digitCollection->Insert(*tddigi);                                              
                                           }
                                   }
                                }
                             }
-//   fHistFile->Write();
-//   fHistFile->Close();
-//   fHistFile->Delete();
 
 return;
 }

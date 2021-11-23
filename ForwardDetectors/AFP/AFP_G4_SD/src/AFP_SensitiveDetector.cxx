@@ -207,10 +207,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
     }
   */
 
-//  if ( (VolumeName.contains("Radiator")) && pParticleDefinition->GetPDGCharge() !=0 )
-//if ( (VolumeName.contains("Radiator")) || (VolumeName.contains("LGuide")) )
   if (  (VolumeName.contains("TDSensor")) )
-//if (  (VolumeName.contains("LGuide")) )
     {
       nQuarticID=szbuff[7]-0x30;
       if ( pStep->GetPostStepPoint()->GetProcessDefinedStep() == 0 ) return 1;
