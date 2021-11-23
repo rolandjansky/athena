@@ -94,7 +94,9 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
     kB_2mu1trk,    // B -> mu+ mu- trk1
     kB_2mu2trk,    // B -> mu+ mu- trk1 trk2
     kDs,           // D_s+ -> K+ K- pi+
-    kDplus         // D+ -> K- pi+ pi+
+    kDplus,        // D+ -> K- pi+ pi+
+    kD0,           // D0 -> K- pi+
+    kB_PsiPi       // psi + pion from D*+
   };
 
  private:
@@ -122,6 +124,7 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   bool passDimuonTrigger(const std::vector<const TrigCompositeUtils::DecisionIDContainer*>& previousDecisionIDs) const;
   bool isInMassRange(double mass, const std::pair<double, double>& range) const { return (mass > range.first && mass < range.second); }
   double Lxy(const Amg::Vector3D& productionVertex, const xAOD::Vertex& decayVertex) const;
+  xAOD::TrackParticle::GenVecFourMom_t momentum(const xAOD::Vertex& vertex, const std::vector<double>& trkMass) const;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackCollectionKey", "InDetTrackParticles", "input TrackParticle container name"};
@@ -254,6 +257,29 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
   Gaudi::Property<float> m_BcToDplusMuMu_chi2 {this,
     "BcToDplusMuMu_chi2", 60., "maximum chi2 of the fitted B_c+ vertex"};
 
+  // B_c+ -> J/psi(-> mu+ mu-) D*+(-> D0(-> K- pi+) pi+)
+  Gaudi::Property<bool> m_BcToDstarMuMu {this,
+    "BcToDstarMuMu", true, "switch on/off partial reconstruction of B_c+ -> J/psi(-> mu+ mu-) D0(-> K- pi+) X decay"};
+  Gaudi::Property<bool> m_BcToDstarMuMu_makeDstar {this,
+    "BcToDstarMuMu_makeDstar", true, "switch on/off full reconstruction of B_c+ -> J/psi(-> mu+ mu-) D*+(-> D0(-> K- pi+) pi+) decay"};
+  Gaudi::Property<double> m_BcToDstarMuMu_minD0KaonPt {this,
+    "BcToDstarMuMu_minD0KaonPt", 1000., "minimum pT of kaon track from D0"};
+  Gaudi::Property<double> m_BcToDstarMuMu_minD0PionPt {this,
+    "BcToDstarMuMu_minD0PionPt", 1000., "minimum pT of pion track from D0"};
+  Gaudi::Property<double> m_BcToDstarMuMu_minDstarPionPt {this,
+    "BcToDstarMuMu_minDstarPionPt", 500., "minimum pT of pion track from D*+"};
+  Gaudi::Property<double> m_BcToDstarMuMu_maxDstarPionZ0 {this,
+    "BcToDstarMuMu_maxDstarPionZ0", 5., "maximum z0 impact parameter of the pion track from D*+ wrt the fitted dimuon vertex; no preselection if negative"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDstarMuMu_massRange {this,
+    "BcToDstarMuMu_massRange", {5500., 7300.}, "B_c+ mass range"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDstarMuMu_dimuonMassRange {this,
+    "BcToDstarMuMu_dimuonMassRange", {2500., 4300.}, "dimuon mass range for B_c+ -> J/psi D+ decay"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDstarMuMu_D0MassRange {this,
+    "BcToDstarMuMu_D0MassRange", {1750., 2000.}, "D0 mass range"};
+  Gaudi::Property<std::pair<double, double>> m_BcToDstarMuMu_DstarMassRange {this,
+    "BcToDstarMuMu_DstarMassRange", {-1., 2110.}, "D*+ mass range"};
+  Gaudi::Property<float> m_BcToDstarMuMu_chi2 {this,
+    "BcToDstarMuMu_chi2", 60., "maximum chi2 of the fitted B_c+ vertex"};
 
   // external tools
   ToolHandle<InDet::VertexPointEstimator> m_vertexPointEstimator {this,

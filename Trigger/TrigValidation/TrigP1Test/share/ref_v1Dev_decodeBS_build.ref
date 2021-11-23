@@ -381,6 +381,12 @@ HLT_2mu4_bBmumu_L1BPH-2M9-0DR15-2MU3V:
   eventCount: 0
 HLT_2mu4_bBmumu_Lxy0_L1BPH-2M9-0DR15-2MU3V:
   eventCount: 0
+HLT_2mu4_bBmumux_BcmumuD0Xloose_L12MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
 HLT_2mu4_bBmumux_BcmumuDploose_L12MU3V:
   eventCount: 0
   stepCounts:
@@ -388,6 +394,12 @@ HLT_2mu4_bBmumux_BcmumuDploose_L12MU3V:
   stepFeatures:
     0: 2
 HLT_2mu4_bBmumux_BcmumuDsloose_L12MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
+HLT_2mu4_bBmumux_BcmumuDstarloose_L12MU3V:
   eventCount: 0
   stepCounts:
     0: 1
