@@ -10,8 +10,11 @@ def LArNoisyROSummaryCfg(configFlags):
 
    result=ComponentAccumulator()
 
-   result.merge(LArKnownBadFebCfg(configFlags))
-   result.merge(LArKnownMNBFebCfg(configFlags))
+   isMC=configFlags.Input.isMC
+
+   if not isMC:
+      result.merge(LArKnownBadFebCfg(configFlags))
+      result.merge(LArKnownMNBFebCfg(configFlags))
 
    # now configure the algorithm
    try:        
@@ -29,9 +32,8 @@ def LArNoisyROSummaryCfg(configFlags):
                                     MNBTight_PsVetoCut=larNoisyROFlags.MNBTight_PsVetoCut()
                                     )
 
-   result.setPrivateTools(theLArNoisyROTool)
-   theLArNoisyROAlg=LArNoisyROAlg()
-   theLArNoisyROAlg.Tool=result.popPrivateTools()
+   theLArNoisyROAlg=LArNoisyROAlg(isMC=isMC)
+   theLArNoisyROAlg.Tool=theLArNoisyROTool
    result.addEventAlgo(theLArNoisyROAlg)
 
    return result
