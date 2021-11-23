@@ -14,8 +14,8 @@ CaloTopoClusterMaker.ClusterCorrectionTools += [
 
 # use new name for calibrated clusters and old name for em-scale clusters
 
-CaloTopoClusterMaker.ClustersOutputName = "CaloCalTopoCluster"
-CaloTopoClusterMaker.KeepCorrectionToolAndContainerNames += ["CaloClusterLocalCalib/LocalCalib","CaloTopoCluster"]
+CaloTopoClusterMaker.ClustersOutputName = "CaloCalTopoClusters"
+CaloTopoClusterMaker.KeepCorrectionToolAndContainerNames += ["CaloClusterLocalCalib/LocalCalib","CaloTopoClusters"]
 CaloTopoClusterMaker.KeepCorrectionToolAndContainerNames += ["CaloClusterLocalCalib/OOCCalib","CaloWeightTopoCluster"]
 CaloTopoClusterMaker.TopoMoments.MomentsNames += [
   "FIRST_ETA",  

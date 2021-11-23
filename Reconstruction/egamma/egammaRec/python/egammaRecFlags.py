@@ -111,7 +111,7 @@ class inputTopoClusterCollection (JobProperty):
     """
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = 'CaloTopoCluster'
+    StoredValue = 'CaloTopoClusters'
 
 
 class egammaTopoClusterCollection (JobProperty):

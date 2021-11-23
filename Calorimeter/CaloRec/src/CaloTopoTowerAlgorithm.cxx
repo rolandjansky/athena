@@ -30,7 +30,7 @@ CaloTopoTowerAlgorithm::CaloTopoTowerAlgorithm(const std::string& name,
   , m_genericLink(true) 
   , m_ptools( this )
   , m_cellContainerKey("AllCalo")
-  , m_clusterKey("CaloTopoCluster")
+  , m_clusterKey("CaloTopoClusters")
   , m_cellToClusterMapKey("CaloCell2TopoCluster")
   , m_towerContainerKey("CmbTower")
   , m_newTowerContainerKey("TopoTower")
