@@ -469,27 +469,27 @@ namespace TrigConf {
           if(eta_range==2) return m_ptMinToTopoMeV2;
           throw std::runtime_error("L1ThrExtraInfo: Eta range " + std::to_string(eta_range) + " not valid for gLJ ptMinToTopo");
       }
-      float seedThr(const std::string& fpga) const { return seedThrMeV(fpga)/ 1000.0; }
-      unsigned int seedThrCounts(const std::string& fpga) const { return energyInCounts(seedThrMeV(fpga), resolutionMeV()); }
-      unsigned int seedThrMeV(const std::string& fpga) const {
-          if(fpga=="A") return m_seedThrMeVA;
-          if(fpga=="B") return m_seedThrMeVB;
-          if(fpga=="C") return m_seedThrMeVC;
-          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised for gLJ seedThr");
+      float seedThr(const char fpga) const { return seedThrMeV(fpga)/ 1000.0; }
+      unsigned int seedThrCounts(const char fpga) const { return energyInCounts(seedThrMeV(fpga), resolutionMeV()); }
+      unsigned int seedThrMeV(const char fpga) const {
+          if(fpga=='A') return m_seedThrMeVA;
+          if(fpga=='B') return m_seedThrMeVB;
+          if(fpga=='C') return m_seedThrMeVC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: FPGA ") + fpga + " not recongnised for gLJ seedThr");
       }
-      float rhoTowerMin(const std::string& fpga) const { return rhoTowerMinMeV(fpga)/ 1000.0; }
-      int rhoTowerMinMeV(const std::string& fpga) const {
-          if(fpga=="A") return m_rhoTowerMinMeVA;
-          if(fpga=="B") return m_rhoTowerMinMeVB;
-          if(fpga=="C") return m_rhoTowerMinMeVC;
-          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised for gLJ rhoTowerMin");
+      float rhoTowerMin(const char fpga) const { return rhoTowerMinMeV(fpga)/ 1000.0; }
+      int rhoTowerMinMeV(const char fpga) const {
+          if(fpga=='A') return m_rhoTowerMinMeVA;
+          if(fpga=='B') return m_rhoTowerMinMeVB;
+          if(fpga=='C') return m_rhoTowerMinMeVC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: FPGA ") + fpga + " not recongnised for gLJ rhoTowerMin");
       }
-      float rhoTowerMax(const std::string& fpga) const { return rhoTowerMaxMeV(fpga)/ 1000.0; }
-      int rhoTowerMaxMeV(const std::string& fpga) const {
-          if(fpga=="A") return m_rhoTowerMaxMeVA;
-          if(fpga=="B") return m_rhoTowerMaxMeVB;
-          if(fpga=="C") return m_rhoTowerMaxMeVC;
-          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised for gLJ rhoTowerMax");
+      float rhoTowerMax(const char fpga) const { return rhoTowerMaxMeV(fpga)/ 1000.0; }
+      int rhoTowerMaxMeV(const char fpga) const {
+          if(fpga=='A') return m_rhoTowerMaxMeVA;
+          if(fpga=='B') return m_rhoTowerMaxMeVB;
+          if(fpga=='C') return m_rhoTowerMaxMeVC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: FPGA ") + fpga + " not recongnised for gLJ rhoTowerMax");
       }
    private:
       /** Update the internal members */
@@ -556,34 +556,34 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_gXE() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_gXE"; }
-      float seedThr(const std::string& fpga) const { return seedThrMeV(fpga)/ 1000.0; }
-      unsigned int seedThrCounts(const std::string& fpga) const { return energyInCounts(seedThrMeV(fpga), resolutionMeV()); }
-      unsigned int seedThrMeV(const std::string& fpga) const {
-          if(fpga=="A") return m_seedThrMeVA;
-          if(fpga=="B") return m_seedThrMeVB;
-          if(fpga=="C") return m_seedThrMeVC;
-          throw std::runtime_error("L1ThrExtraInfo: FPGA " + fpga + " not recongnised for gXE seedThr");
+      float seedThr(const char fpga) const { return seedThrMeV(fpga)/ 1000.0; }
+      unsigned int seedThrCounts(const char fpga) const { return energyInCounts(seedThrMeV(fpga), resolutionMeV()); }
+      unsigned int seedThrMeV(const char fpga) const {
+          if(fpga=='A') return m_seedThrMeVA;
+          if(fpga=='B') return m_seedThrMeVB;
+          if(fpga=='C') return m_seedThrMeVC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: FPGA ") + fpga + " not recongnised for gXE seedThr");
       }
-      unsigned int XERHO_param(const std::string& fpga, const std::string& sigma) const {
-          if(fpga=="A" && sigma=="pos") return m_XERHO_sigmaPosA;
-          if(fpga=="B" && sigma=="pos") return m_XERHO_sigmaPosB;
-          if(fpga=="C" && sigma=="pos") return m_XERHO_sigmaPosC;
-          if(fpga=="A" && sigma=="neg") return m_XERHO_sigmaNegA;
-          if(fpga=="B" && sigma=="neg") return m_XERHO_sigmaNegB;
-          if(fpga=="C" && sigma=="neg") return m_XERHO_sigmaNegC;
-          throw std::runtime_error("L1ThrExtraInfo: " + fpga + " and " + sigma + " not recongnised for gXE XERHO_param");
+      unsigned int XERHO_param(const char fpga, const bool sigmapos) const {
+          if(fpga=='A' && sigmapos==true) return m_XERHO_sigmaPosA;
+          if(fpga=='B' && sigmapos==true) return m_XERHO_sigmaPosB;
+          if(fpga=='C' && sigmapos==true) return m_XERHO_sigmaPosC;
+          if(fpga=='A' && sigmapos==false) return m_XERHO_sigmaNegA;
+          if(fpga=='B' && sigmapos==false) return m_XERHO_sigmaNegB;
+          if(fpga=='C' && sigmapos==false) return m_XERHO_sigmaNegC;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: ") + fpga + " and " + (sigmapos ? "pos" : "neg") + " not recongnised for gXE XERHO_param");
       }
-      unsigned int JWOJ_param(const std::string& fpga, const std::string& param) const {
-          if(fpga=="A" && param=="a") return m_XEJWOJ_a_A;
-          if(fpga=="B" && param=="a") return m_XEJWOJ_a_B;
-          if(fpga=="C" && param=="a") return m_XEJWOJ_a_C;
-          if(fpga=="A" && param=="b") return m_XEJWOJ_b_A;
-          if(fpga=="B" && param=="b") return m_XEJWOJ_b_B;
-          if(fpga=="C" && param=="b") return m_XEJWOJ_b_C;
-          if(fpga=="A" && param=="c") return m_XEJWOJ_c_A;
-          if(fpga=="B" && param=="c") return m_XEJWOJ_c_B;
-          if(fpga=="C" && param=="c") return m_XEJWOJ_c_C;
-          throw std::runtime_error("L1ThrExtraInfo: " + fpga + " and " + param  + " not recongnised for gXE JWOJ_param");
+      unsigned int JWOJ_param(const char fpga, const char param) const {
+          if(fpga=='A' && param=='a') return m_XEJWOJ_a_A;
+          if(fpga=='B' && param=='a') return m_XEJWOJ_a_B;
+          if(fpga=='C' && param=='a') return m_XEJWOJ_a_C;
+          if(fpga=='A' && param=='b') return m_XEJWOJ_b_A;
+          if(fpga=='B' && param=='b') return m_XEJWOJ_b_B;
+          if(fpga=='C' && param=='b') return m_XEJWOJ_b_C;
+          if(fpga=='A' && param=='c') return m_XEJWOJ_c_A;
+          if(fpga=='B' && param=='c') return m_XEJWOJ_c_B;
+          if(fpga=='C' && param=='c') return m_XEJWOJ_c_C;
+          throw std::runtime_error(std::string("L1ThrExtraInfo: ") + fpga + " and " + param  + " not recongnised for gXE JWOJ_param");
       }
    private:
       /** Update the internal members */

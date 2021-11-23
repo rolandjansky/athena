@@ -577,31 +577,31 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
          auto & gljinfo = l1menu.thrExtraInfo().gLJ();
          jThrType["ptMinToTopo1"] = (int)gljinfo.ptMinToTopo(1);
          jThrType["ptMinToTopo2"] = (int)gljinfo.ptMinToTopo(2);
-         jThrType["seedThrA"] = (int)gljinfo.seedThr("A");
-         jThrType["seedThrB"] = (int)gljinfo.seedThr("B");
-         jThrType["seedThrC"] = (int)gljinfo.seedThr("C");
+         jThrType["seedThrA"] = (int)gljinfo.seedThr('A');
+         jThrType["seedThrB"] = (int)gljinfo.seedThr('B');
+         jThrType["seedThrC"] = (int)gljinfo.seedThr('C');
          std::stringstream stream;
-         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin("A");
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin('A');
          jThrType["rhoTowerMinA"] = std::stod(stream.str());
          stream.str("");
          stream.clear(); 
-         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin("B");
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin('B');
          jThrType["rhoTowerMinB"] = std::stod(stream.str());
          stream.str("");
          stream.clear();      
-         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin("C");
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMin('C');
          jThrType["rhoTowerMinC"] = std::stod(stream.str());
          stream.str("");
          stream.clear(); 
-         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax("A");
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax('A');
          jThrType["rhoTowerMaxA"] = std::stod(stream.str());
          stream.str("");
          stream.clear();      
-         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax("B");
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax('B');
          jThrType["rhoTowerMaxB"] = std::stod(stream.str());
          stream.str("");
          stream.clear();
-         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax("C");
+         stream << std::fixed << std::setprecision(3) << gljinfo.rhoTowerMax('C');
          jThrType["rhoTowerMaxC"] = std::stod(stream.str());
       }
 
@@ -621,24 +621,24 @@ TrigConf::JsonFileWriterL1::writeJsonFile(const std::string & filename, const L1
 
       if(thrType == "gXE") {
          auto & ei = l1menu.thrExtraInfo().gXE();
-         jThrType["seedThrA"] = (int)ei.seedThr("A");
-         jThrType["seedThrB"] = (int)ei.seedThr("B");
-         jThrType["seedThrC"] = (int)ei.seedThr("C");
-         jThrType["XERHO_sigmaPosA"] = ei.XERHO_param("A","pos");
-         jThrType["XERHO_sigmaPosB"] = ei.XERHO_param("B","pos");
-         jThrType["XERHO_sigmaPosC"] = ei.XERHO_param("C","pos");
-         jThrType["XERHO_sigmaNegA"] = ei.XERHO_param("A","neg");
-         jThrType["XERHO_sigmaNegB"] = ei.XERHO_param("B","neg");
-         jThrType["XERHO_sigmaNegC"] = ei.XERHO_param("C","neg");
-         jThrType["XEJWOJ_a_A"] = ei.JWOJ_param("A","a");
-         jThrType["XEJWOJ_a_B"] = ei.JWOJ_param("B","a");
-         jThrType["XEJWOJ_a_C"] = ei.JWOJ_param("C","a");
-         jThrType["XEJWOJ_b_A"] = ei.JWOJ_param("A","b");
-         jThrType["XEJWOJ_b_B"] = ei.JWOJ_param("B","b");
-         jThrType["XEJWOJ_b_C"] = ei.JWOJ_param("C","b");
-         jThrType["XEJWOJ_c_A"] = ei.JWOJ_param("A","c");
-         jThrType["XEJWOJ_c_B"] = ei.JWOJ_param("B","c");
-         jThrType["XEJWOJ_c_C"] = ei.JWOJ_param("C","c");
+         jThrType["seedThrA"] = (int)ei.seedThr('A');
+         jThrType["seedThrB"] = (int)ei.seedThr('B');
+         jThrType["seedThrC"] = (int)ei.seedThr('C');
+         jThrType["XERHO_sigmaPosA"] = ei.XERHO_param('A',true);
+         jThrType["XERHO_sigmaPosB"] = ei.XERHO_param('B',true);
+         jThrType["XERHO_sigmaPosC"] = ei.XERHO_param('C',true);
+         jThrType["XERHO_sigmaNegA"] = ei.XERHO_param('A',false);
+         jThrType["XERHO_sigmaNegB"] = ei.XERHO_param('B',false);
+         jThrType["XERHO_sigmaNegC"] = ei.XERHO_param('C',false);
+         jThrType["XEJWOJ_a_A"] = ei.JWOJ_param('A','a');
+         jThrType["XEJWOJ_a_B"] = ei.JWOJ_param('B','a');
+         jThrType["XEJWOJ_a_C"] = ei.JWOJ_param('C','a');
+         jThrType["XEJWOJ_b_A"] = ei.JWOJ_param('A','b');
+         jThrType["XEJWOJ_b_B"] = ei.JWOJ_param('B','b');
+         jThrType["XEJWOJ_b_C"] = ei.JWOJ_param('C','b');
+         jThrType["XEJWOJ_c_A"] = ei.JWOJ_param('A','c');
+         jThrType["XEJWOJ_c_B"] = ei.JWOJ_param('B','c');
+         jThrType["XEJWOJ_c_C"] = ei.JWOJ_param('C','c');
       }
 
       if(thrType == "gTE") {

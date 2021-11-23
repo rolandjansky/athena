@@ -473,24 +473,24 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinToTopo (eta range "<<std::to_string(1)<<") in GeV " << ex.ptMinToTopo(1) << endl; 
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV(1) << endl; 
       cout << "    ptMinToTopo (counts) " << ex.ptMinToTopoCounts(1) << endl;
-      cout << "    seedThr(A) " << ex.seedThr("A") << endl; 
-      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV("A") << endl; 
-      cout << "    rhoTowerMin(B) " << ex.rhoTowerMin("B") << endl;   
-      cout << "    rhoTowerMin(B) (MeV) " << ex.rhoTowerMinMeV("B") << endl;  
-      cout << "    rhoTowerMax(C) " << ex.rhoTowerMax("C") << endl;
-      cout << "    rhoTowerMax(C) (MeV) " << ex.rhoTowerMaxMeV("C") << endl;
+      cout << "    seedThr(A) " << ex.seedThr('A') << endl; 
+      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV('A') << endl; 
+      cout << "    rhoTowerMin(B) " << ex.rhoTowerMin('B') << endl;   
+      cout << "    rhoTowerMin(B) (MeV) " << ex.rhoTowerMinMeV('B') << endl;  
+      cout << "    rhoTowerMax(C) " << ex.rhoTowerMax('C') << endl;
+      cout << "    rhoTowerMax(C) (MeV) " << ex.rhoTowerMaxMeV('C') << endl;
    }
    {
       auto & ex = l1menu.thrExtraInfo().gXE();
       cout << "  gXE" << endl;
       cout << "    energy resolution (MeV) " << ex.resolutionMeV() << endl;
-      cout << "    seedThr(A) " << ex.seedThr("A") << endl;
-      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV("A") << endl;
-      cout << "    XERHO_sigmaPosA " << ex.XERHO_param("A","pos") << endl;
-      cout << "    XERHO_sigmaNegB " << ex.XERHO_param("B","neg") << endl;
-      cout << "    XEJWOJ_a_C " << ex.JWOJ_param("C","a") << endl;
-      cout << "    XEJWOJ_b_B " << ex.JWOJ_param("B","b") << endl;
-      cout << "    XEJWOJ_c_A " << ex.JWOJ_param("A","c") << endl;
+      cout << "    seedThr(A) " << ex.seedThr('A') << endl;
+      cout << "    seedThr(A) (MeV) " << ex.seedThrMeV('A') << endl;
+      cout << "    XERHO_sigmaPosA " << ex.XERHO_param('A',true) << endl;
+      cout << "    XERHO_sigmaNegB " << ex.XERHO_param('B',false) << endl;
+      cout << "    XEJWOJ_a_C " << ex.JWOJ_param('C','a') << endl;
+      cout << "    XEJWOJ_b_B " << ex.JWOJ_param('B','b') << endl;
+      cout << "    XEJWOJ_c_A " << ex.JWOJ_param('A','c') << endl;
    }
    {
       auto & ex = l1menu.thrExtraInfo().eTAU();
