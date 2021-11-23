@@ -23,6 +23,6 @@ GetLCO.OutputFileName = outFileNameLCO
 #    'log10(lambda_clus (mm))': ('log10(lambda_clus (mm))',0.0,4.0,20),
 #    'weight': ('weight',0.,5.,1)}
 #
-GetLCO.ClusterCollectionName = "CaloTopoCluster"
+GetLCO.ClusterCollectionName = "CaloTopoClusters"
 
 topSequence += GetLCO

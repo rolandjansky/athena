@@ -10,10 +10,7 @@ def getOfflinePFAlgorithm(inputFlags):
 
     from eflowRec.PFCfg import getPFClusterSelectorTool
 
-    #The name of the topoclusters is different in the new and old style configs.
     topoClustersName="CaloTopoClusters"
-    if inputFlags.PF.useRecExCommon:
-      topoClustersName="CaloTopoCluster"
 
     PFAlgorithm.PFClusterSelectorTool = getPFClusterSelectorTool(topoClustersName,"CaloCalTopoClusters","PFClusterSelectorTool")    
 

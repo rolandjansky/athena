@@ -40,7 +40,7 @@ CaloClusterKeys+=["EMTopoSW35"]
 #CaloClusterKeys+=["LArClusterEMSofte"]
 
 if rec.Commissioning():
-    # CaloClusterKeys += ["LArMuClusterCandidates","CaloTopoCluster","EMTopoCluster420","TileTopoCluster","MuonClusterCollection"]
+    # CaloClusterKeys += ["LArMuClusterCandidates","CaloTopoClusters","EMTopoCluster420","TileTopoCluster","MuonClusterCollection"]
     CaloClusterKeys += ["MuonClusterCollection"]    
 
 for theKey in CaloClusterKeys:

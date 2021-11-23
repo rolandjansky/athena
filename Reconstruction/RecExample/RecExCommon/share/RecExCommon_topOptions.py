@@ -447,7 +447,7 @@ if recAlgs.doEFlow():
 if rec.doEgamma():
     # C.A uses Clusters RecExCommom Cluster (rm the "s")
     ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
-    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
+    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoClusters'
 
 if rec.doHeavyIon():
     # This is copy from the old style to the new

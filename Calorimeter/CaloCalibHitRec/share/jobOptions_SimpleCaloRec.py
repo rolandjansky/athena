@@ -174,7 +174,7 @@ theCBNT_CaloClusterTopoW=CBNTAA_CaloCluster("CBNT_CaloClusterTopoW")
 CBNT_AthenaAware += CBNTAA_CaloCluster("CBNT_CaloClusterTopoOOC")
 theCBNT_CaloClusterTopoOOC=CBNTAA_CaloCluster("CBNT_CaloClusterTopoOOC")
 
-theCBNT_CaloClusterTopoEM.ClusterColl = "CaloTopoCluster"
+theCBNT_CaloClusterTopoEM.ClusterColl = "CaloTopoClusters"
 theCBNT_CaloClusterTopoEM.Suffix = "_topo_em"
 theCBNT_CaloClusterTopoEM.EMOnly = FALSE
 theCBNT_CaloClusterTopoEM.MaxCaloCluster = 600
