@@ -12,10 +12,13 @@ from AthenaCommon.GlobalFlags import globalflags
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 #from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TrigTRTHighTHitCounter.TrigTRTHTHCounterConfig import TrigTRTHTHCounterFex
 
 def TRTHitGeneratorSequence(ConfigFlags):
+
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
+    TrigEgammaKeys = getTrigEgammaKeys()
+
     """ hipTRT step ....."""
     InViewRoIs = "TRTHitGenerator"
     # EVCreator:
@@ -47,7 +50,7 @@ def TRTHitGeneratorSequence(ConfigFlags):
     trtHTHFex = TrigTRTHTHCounterFex("TrigTRTH_fex")
     trtHTHFex.RoIs = trtViewsMaker.InViewRoIs
     trtHTHFex.TRT_DC_ContainerName = "TRT_TrigDriftCircles" 
-    trtHTHFex.RNNOutputName = recordable("HLT_TrigTRTHTCounts")
+    trtHTHFex.RNNOutputName = TrigEgammaKeys.TrigTRTHTCountsContainer
     sequenceOut = trtHTHFex.RNNOutputName    
     
     trtInviewAlgs = parOR("trtInviewAlgs", trtInviewAlgs + [ViewVerify,trtHTHFex])

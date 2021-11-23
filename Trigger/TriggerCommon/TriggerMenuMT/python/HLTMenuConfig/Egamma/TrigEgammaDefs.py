@@ -14,9 +14,7 @@ if not Configurable.configurableRun3Behavior:
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
-from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-from TrigEDMConfig.TriggerEDMRun3 import recordable
-from .TrigEgammaKeys import getTrigEgammaKeys
+from .TrigEgammaSliceFlags import TrigEgammaSliceFlags
 from egammaRec.egammaRecFlags import jobproperties
 from egammaRec.Factories import ToolFactory, ServiceFactory
 from egammaMVACalib import egammaMVACalibConf
@@ -26,27 +24,14 @@ log = logging.getLogger(__name__)
 
 
 
-class TrigEgammaKeys_LRT(object):
-      """Static class to collect all string manipulation in Electron_LRT sequences """
-      outputElectronKey_LRT = recordable('HLT_egamma_Electrons_LRT')
-      IDTrigConfig_LRT = getInDetTrigConfig('electronLRT')
-      TrigElectronTracksCollectionName_LRT = IDTrigConfig_LRT.tracks_IDTrig()
-
-class TrigEgammaKeys_GSF(object):
-      """Static class to collect all string manipulation in Electron sequences """
-      outputElectronKey_GSF = recordable('HLT_egamma_Electrons_GSF')
-      outputTrackKey_GSF = 'HLT_IDTrkTrack_Electron_GSF'
-      outputTrackParticleKey_GSF = recordable('HLT_IDTrack_Electron_GSF')
-
 #
 # Electron DNN Selectors
 #
 def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronDNNSelector', ConfigFilePath=None):
     acc = ComponentAccumulator()
     # We should include the DNN here
-    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.dnnVersion
+      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaSliceFlags.dnnVersion()
   
     import collections
     SelectorNames = collections.OrderedDict({
@@ -77,10 +62,9 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
 
     # Configure the LH selectors
     acc = ComponentAccumulator()
-    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
-    #TrigEgammaKeys.pidVersion.set_On()
+    #TrigEgammaSliceFlags.pidVersion.set_On()
     if not ConfigFilePath:
-        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaSliceFlags.pidVersion()
 
     import collections
     SelectorNames = collections.OrderedDict({
@@ -121,7 +105,6 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
 
 def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCBSelector', ConfigFilePath=None):
     acc = ComponentAccumulator()
-    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import BitDefElectron
 
     ElectronLooseHI = (0
@@ -144,7 +127,7 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
     )
 
     if not ConfigFilePath:
-        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaSliceFlags.pidVersion()
 
     from collections import OrderedDict
     SelectorNames = OrderedDict({
@@ -179,10 +162,9 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
 #
 def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
     from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
-    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
 
     if not ConfigFilePath:
-      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+      ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaSliceFlags.pidVersion()
 
     import collections
     # Configure the IsEM selectors
@@ -225,11 +207,10 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
 def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 
     import collections
-    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
 
     # We should include the ringer here
     if not ConfigFilePath:
-      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
+      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaSliceFlags.ringerVersion()
 
   
     SelectorNames = collections.OrderedDict({
@@ -264,11 +245,9 @@ def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
 
     import collections
-    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
-
     # We should include the ringer here
     if not ConfigFilePath:
-      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
+      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaSliceFlags.ringerVersion()
   
 
     SelectorNames = collections.OrderedDict({
@@ -300,10 +279,9 @@ def createTrigEgammaFastElectronSelectors(ConfigFilePath=None):
 def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
 
     import collections
-    TrigEgammaKeys = getTrigEgammaKeys() # default configuration 
     # We should include the ringer here
     if not ConfigFilePath:
-      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaKeys.ringerVersion
+      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaSliceFlags.ringerVersion()
 
     SelectorNames = collections.OrderedDict( {
       'tight'  : 'AsgPhotonFastCaloRingerTightSelectorTool' ,

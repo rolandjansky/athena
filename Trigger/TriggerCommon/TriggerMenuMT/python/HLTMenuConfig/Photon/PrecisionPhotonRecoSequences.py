@@ -1,10 +1,14 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CFElements import parOR
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
 
 #logging
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
+
+TrigEgammaKeys = getTrigEgammaKeys()
+
 
 def precisionPhotonRecoSequence(RoIs, ion=False):
     """ With this function we will setup the sequence of offline EgammaAlgorithms so to make a photon for TrigEgamma 
@@ -24,10 +28,9 @@ def precisionPhotonRecoSequence(RoIs, ion=False):
 
     # First the data verifiers:
     # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
     import AthenaCommon.CfgMgr as CfgMgr
 
-    caloClusters = precisionCaloMenuDefs.caloClusters(ion)
+    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer if not ion else TrigEgammaKeys.precisionHICaloClusterContainer
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier" + tag)
     ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % caloClusters ),
