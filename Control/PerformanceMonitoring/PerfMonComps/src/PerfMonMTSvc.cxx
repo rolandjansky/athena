@@ -509,7 +509,7 @@ void PerfMonMTSvc::report2Log_EventLevel() {
     }
     m_eventLoopMsgCounter++;
     // Add to leak estimate
-    if (it.first >= 25) {
+    if (it.first >= m_memFitLowerLimit) {
       m_fit_vmem.addPoint(it.first, it.second.mem_stats.at("vmem"));
       m_fit_pss.addPoint(it.first, it.second.mem_stats.at("pss"));
     }
@@ -562,7 +562,7 @@ void PerfMonMTSvc::report2Log_Summary() {
     ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Leak estimate per event Pss: " % scaleMem(m_fit_pss.slope()));
     ATH_MSG_INFO("  >> Estimated using the last " << m_fit_vmem.nPoints()
                                                   << " measurements from the Event Level Monitoring");
-    ATH_MSG_INFO("  >> Events prior to the first 25 are omitted...");
+    ATH_MSG_INFO("  >> Events prior to the first " << m_memFitLowerLimit.toString() << " are omitted...");
   }
 
   ATH_MSG_INFO("=======================================================================================");
