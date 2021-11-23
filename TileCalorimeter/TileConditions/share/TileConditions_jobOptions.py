@@ -31,6 +31,13 @@ if (type(ss) != type(None)):
 if (not 'TileCablingType' in dir()):
     if rn is None:
         try:
+            from Digitization.DigitizationFlags import digitizationFlags
+            if digitizationFlags.dataRunNumber.statusOn:
+                rn = digitizationFlags.dataRunNumber()
+        except:
+            msg.info("No DigitizationFlags available - looks like HLT job")
+    if rn is None:
+        try:
             from G4AtlasApps.SimFlags import simFlags
             if simFlags.RunNumber.statusOn:
                 rn = simFlags.RunNumber()
