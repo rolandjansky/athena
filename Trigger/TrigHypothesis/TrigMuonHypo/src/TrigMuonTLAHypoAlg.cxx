@@ -57,11 +57,11 @@ StatusCode TrigMuonTLAHypoAlg::execute(const EventContext &ctx) const
         // get muons from the decision
         const xAOD::Muon *muonPrev = nullptr;
         auto prevMuons = TrigCompositeUtils::findLinks<xAOD::MuonContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
-        ATH_MSG_DEBUG("This decision has " << prevMuons.size() << " decisions");
+        ATH_MSG_WARNING("This decision has " << prevMuons.size() << " decisions");
 
         // verify that only one object is found per decision
         if (prevMuons.size() != 1) {
-            ATH_MSG_ERROR("Did not locate exactly one muon for this Decision Object, found " << prevMuons.size());
+            ATH_MSG_WARNING("Did not locate exactly one muon for this Decision Object, found " << prevMuons.size());
             return StatusCode::FAILURE;
         }
      

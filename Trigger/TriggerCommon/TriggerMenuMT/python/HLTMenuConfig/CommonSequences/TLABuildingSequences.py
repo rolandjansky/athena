@@ -17,7 +17,6 @@ def addTLAStep(chain, chainDict):
     log.debug("addTLAStep: processing chain: ", chainDict['chainName'])
     print("addTLAStep: processing chain: ", chainDict['chainName'])
     print(chainDict)
-    
     for cPart in chainDict['chainParts']:
         
         tlaSignature = cPart['signature']
@@ -29,9 +28,10 @@ def addTLAStep(chain, chainDict):
             if cPart['constitType'] == 'pf':
                 print("Setting isPFLow = True")
                 isPFlow = True
-
-        tlaSequencesList.append( RecoFragmentsPool.retrieve(getTLASignatureSequence, ConfigFlags, tlaSignature=tlaSignature, isPFlow=isPFlow) )
-        #tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, tlaSignature=tlaSignature)),
+        # I would love to pass cPart to this, but apparently a list is an unhashable type and cannot be passed via RecoFragmentsPool
+        
+        #tlaSequencesList.append( RecoFragmentsPool.retrieve(getTLASignatureSequence, ConfigFlags, tlaSignature=tlaSignature, isPFlow=isPFlow) )
+        tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, chainPart=cPart)),
             
     log.debug("addTLAStep: About to add a step with: ", len(tlaSequencesList), "parallel sequences.")            
     
@@ -47,27 +47,30 @@ def addTLAStep(chain, chainDict):
     chain.steps.append(step)
 
 
-def getTLASignatureSequence(ConfigFlags, tlaSignature, isPFlow=False):
+#def getTLASignatureSequence(ConfigFlags, tlaSignature, isPFlow=False):
+def getTLASignatureSequence(ConfigFlags, chainPart):
     # Here we simply retrieve the TLA sequence from the existing signature code f
     
-    if "Photon" in tlaSignature:
+    #if "Photon" in tlaSignature:
+    if chainPart['signature'] == 'Photon':    
         from ..Photon.TLAPhotonMenuSequences import TLAPhotonMenuSequence
         photonOutCollectionName = "HLT_egamma_Photons"
         return RecoFragmentsPool.retrieve(TLAPhotonMenuSequence, ConfigFlags, photonsIn=photonOutCollectionName)
-       # return TLAPhotonMenuSequence(ConfigFlags, photonOutCollectionName)
-        #return sequence
+  
     
-    elif "Muon" in tlaSignature:
+    #elif "Muon" in tlaSignature:
+    elif chainPart['signature'] == 'Muon':    
         from ..Muon.TLAMuonSequence import TLAMuonMenuSequence
-        muonOutCollectionName = "HLT_RoI_Muons"
+        muonOutCollectionName = "HLT_MuonsCB_RoI"
         return RecoFragmentsPool.retrieve(TLAMuonMenuSequence, ConfigFlags, muonsIn=muonOutCollectionName)
         #return sequence
         #return TLAMuonMenuSequence(ConfigFlags), muonOutCollectionName
     
-    elif "Jet" in tlaSignature:
+    #elif "Jet" in tlaSignature:
+    elif chainPart['signature']  == 'Jet':   
         from ..Jet.JetTLASequences import TLAJetMenuSequence
         jetOutCollectionName = "HLT_AntiKt4EMTopoJets_subjesIS"
-        if isPFlow: jetOutCollectionName = "HLT_AntiKt4EMPFlowJets_subjesIS"
+        if chainPart['constitType'] == 'pf': jetOutCollectionName = "HLT_AntiKt4EMPFlowJets_subjesIS"
         return RecoFragmentsPool.retrieve(TLAJetMenuSequence, ConfigFlags, jetsIn=jetOutCollectionName)
         #return sequence
        # return TLAJetMenuSequence(ConfigFlags, jetOutCollectionName)
