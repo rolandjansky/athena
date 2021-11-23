@@ -872,7 +872,7 @@ namespace LVL1 {
                 float_t phi = -99;
                 if(tob.at(1) != 0){
                     eta = (this_jTowerContainer->findTower(tob.at(1)))->centreEta();
-                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrePhi();                   
+                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrephi_toPI();                   
                 }
                 
                 ATH_CHECK(fillSRJetEDM(jfex, fpgaNum,tob.at(0), eta, phi, jSRJetContainer));
@@ -900,7 +900,7 @@ namespace LVL1 {
                 float_t phi = -99;
                 if(tob.at(1) != 0){
                     eta = (this_jTowerContainer->findTower(tob.at(1)))->centreEta();
-                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrePhi();                   
+                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrephi_toPI();                   
                 }
 
                 ATH_CHECK(fillLRJetEDM(jfex,fpgaNum, tob.at(0), eta, phi, jLRJetContainer));
@@ -927,7 +927,7 @@ namespace LVL1 {
                 float_t phi = -99;
                 if(tob.at(1) != 0){
                     eta = (this_jTowerContainer->findTower(tob.at(1)))->centreEta();
-                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrePhi();                   
+                    phi = (this_jTowerContainer->findTower(tob.at(1)))->centrephi_toPI();                   
                 }
                 
                 ATH_CHECK(fillTauEDM(jfex,fpgaNum, tob.at(0), eta, phi, jTauContainer));
