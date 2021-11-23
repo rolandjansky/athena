@@ -210,6 +210,11 @@ def _createCfgFlags():
         return createITkConfigFlags()
     _addFlagsCategory(acf, "ITk", __itk, 'InDetConfig' )
 
+    def __hgtd():
+        from HGTD_Config.HGTD_ConfigFlags import createHGTD_ConfigFlags
+        return createHGTD_ConfigFlags()
+    _addFlagsCategory(acf, "HGTD", __hgtd, 'HGTD_Config' )
+
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         return createMuonConfigFlags()
