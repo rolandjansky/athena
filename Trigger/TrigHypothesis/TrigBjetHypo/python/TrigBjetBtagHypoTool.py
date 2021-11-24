@@ -38,12 +38,6 @@ bTaggingWP = {
     'dl1r85' : 1.32,
     }
 
-monitoredChains = {
-    'HLT_j275_0eta290_020jvt_pf_ftf_bdl1r60_L1J100' : 'singleJet',
-    'HLT_e26_lhtight_ivarloose_2j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI' : 'eJet',
-    }
-
-
 ####################################################################################################
 def TrigBjetBtagHypoToolFromDict( chainDict ):
 
@@ -61,7 +55,7 @@ def TrigBjetBtagHypoToolFromDict( chainDict ):
     log.debug("name = %s, tagger = %s, threshold = %s ", name, tool.MethodTag, tool.BTaggingCut)
 
     nolegname = re.sub("(^leg.*?_)", "", name)
-    if nolegname in monitoredChains :
+    if 'bJetMon:online' in chainDict['monGroups']:
         tool.MonTool = TrigBjetBtagHypoToolMonitoring(f'TrigBjetOnlineMonitoring/{nolegname}')
 
     return tool

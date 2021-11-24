@@ -1084,6 +1084,8 @@ def setupMenu():
 
         #ATR-23156
         ChainProp(name='HLT_mu4_j20_0eta290_pf_ftf_boffperf_dRAB03_L1MU3V', l1SeedThresholds=['MU3V','FSNOSEED'], groups=SingleBjetGroup),
+        ChainProp(name='HLT_mu4_j35_0eta290_pf_ftf_boffperf_dRAB03_L1BTAG-MU3VjJ15', l1SeedThresholds=['MU3V','FSNOSEED'], groups=SingleBjetGroup),
+        ChainProp(name='HLT_mu6_j45_0eta290_pf_ftf_boffperf_dRAB03_L1BTAG-MU5VFjJ20', l1SeedThresholds=['MU5VF','FSNOSEED'], groups=SingleBjetGroup),
     
         #ATR-23394
         ChainProp(name='HLT_e14_lhtight_mu6_dRAB15_invmAB10_L1LFV-eEM12L-MU5VF', l1SeedThresholds=['eEM10L','MU5VF'], stream=[PhysicsStream], groups=BphysicsGroup), #TODO: eEM12L->eEM10L in HLT seeding to fix

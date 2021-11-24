@@ -509,7 +509,7 @@ def setupMenu():
         ChainProp(name="HLT_j300_0eta290_020jvt_pf_ftf_bdl1r70_preselj225_L1J100", l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleBjetGroup),
         ChainProp(name="HLT_j360_0eta290_020jvt_pf_ftf_bdl1r77_preselj225_L1J100", l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleBjetGroup),
         
-        ChainProp(name="HLT_j225_0eta290_pf_ftf_bdl1r70_preselj180_L1J100", l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup + PrimaryLegGroup),
+        ChainProp(name="HLT_j225_0eta290_pf_ftf_bdl1r70_preselj180_L1J100", l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup + PrimaryLegGroup, monGroups=['bJetMon:online']),
         ChainProp(name="HLT_j225_0eta290_pf_ftf_bdl1r77_preselj180_L1J100", l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_j275_0eta290_pf_ftf_bdl1r85_preselj225_L1J100', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup + PrimaryLegGroup),
         ChainProp(name='HLT_j300_0eta290_pf_ftf_bdl1r85_preselj225_L1J100', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup + PrimaryLegGroup),
@@ -855,10 +855,9 @@ def setupMenu():
         ChainProp(name='HLT_tau180_mediumRNN_tracktwoLLP_probe_xe65_cell_xe90_pfopufit_L1XE50', l1SeedThresholds=['PROBETAU100','FSNOSEED','FSNOSEED'],  groups=TagAndProbeLegGroup+TauMETGroup),
 
         # b-jet trigger calibration chains
-        ChainProp(name='HLT_e26_lhtight_ivarloose_2j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=TagAndProbeLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_mu26_ivarmedium_2j20_0eta290_020jvt_pf_ftf_boffperf_L1MU14FCH', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=TagAndProbeGroup+SingleMuonGroup),
-        ### Affected by ATR-23722
-        #ChainProp(name='HLT_e26_lhtight_ivarloose_mu22noL1_j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], groups=TagAndProbeLegGroup+EgammaBjetGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_2j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=TagAndProbeLegGroup+SingleElectronGroup, monGroups=['bJetMon:online']),
+        ChainProp(name='HLT_mu26_ivarmedium_2j20_0eta290_020jvt_pf_ftf_boffperf_L1MU14FCH', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=TagAndProbeGroup+SingleMuonGroup, monGroups=['bJetMon:online']),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_mu22noL1_j20_0eta290_020jvt_pf_ftf_boffperf_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], groups=TagAndProbeLegGroup+EgammaBjetGroup),
 
         #Isolated High pt Track Trigger
         #Primary

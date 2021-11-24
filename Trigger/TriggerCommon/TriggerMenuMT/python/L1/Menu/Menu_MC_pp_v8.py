@@ -119,7 +119,7 @@ def defineMenu():
         'L1_EM20VH_3J20',
 
         # combined mu - jet 
-        'L1_MU3V_J15', 'L1_BTAG-MU3VjJ15',
+        'L1_MU3V_J15', 'L1_BTAG-MU3VjJ15', 'L1_BTAG-MU5VFjJ20', 
 
         #ATR-13743 
         'L1_MU8F_2J20','L1_MU8F_3J20', 'L1_MU8F_2J15_J20',
