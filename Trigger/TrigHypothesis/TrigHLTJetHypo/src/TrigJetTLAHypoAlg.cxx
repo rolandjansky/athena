@@ -58,7 +58,7 @@ StatusCode TrigJetTLAHypoAlg::execute( const EventContext& context ) const {
       // get jets from the decision
         const xAOD::Jet *jetPrev = nullptr;
         auto prevJets = TrigCompositeUtils::findLinks<xAOD::JetContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
-        ATH_MSG_WARNING("This decision has " << prevJets.size() << " jets");
+        ATH_MSG_DEBUG("This decision has " << prevJets.size() << " jets");
 
          //copy all jets into the new TLA collection
         int nSavedJets = 0; 
@@ -75,7 +75,7 @@ StatusCode TrigJetTLAHypoAlg::execute( const EventContext& context ) const {
             *copiedJet = *jetPrev;
             nSavedJets++;
 
-            ATH_MSG_WARNING("Copied jet with pT: " << copiedJet->pt() << " from decision " << nDecision);
+            ATH_MSG_DEBUG("Copied jet with pT: " << copiedJet->pt() << " from decision " << nDecision);
 
             // now create new decision object
             // now go on with the normal Hypo, linking new decision with previous one

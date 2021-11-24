@@ -15,7 +15,6 @@ def TLAJetSequence (flags, jetsIn):
     tlaJetInputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool()
     tlaJetInputMakerAlg.mergeUsingFeature = True
     
-    print("MARCO: inside TLAJetSequence")
     tlaJetAthSequence = seqAND( "TLAJetAthSequence_"+jetsIn, [tlaJetInputMakerAlg] )
     sequenceOut = jetsIn+"_TLA"
     return (tlaJetAthSequence, tlaJetInputMakerAlg, sequenceOut)

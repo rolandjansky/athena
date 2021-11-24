@@ -11,7 +11,6 @@ from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from .ChainMerging import mergeChainDefs
 from .MenuAlignmentTools import MenuAlignment
 from ..CommonSequences import EventBuildingSequences, TLABuildingSequences
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 
 from AthenaCommon.Logging import logging

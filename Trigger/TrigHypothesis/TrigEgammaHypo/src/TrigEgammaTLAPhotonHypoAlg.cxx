@@ -71,7 +71,7 @@ for (const auto previousDecision : *previousDecisionHandle)
     // get photons from the decision
         const xAOD::Photon *photonPrev = nullptr;
         auto prevPhotons = TrigCompositeUtils::findLinks<xAOD::PhotonContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
-        ATH_MSG_WARNING("This decision has " << prevPhotons.size() << " photons");
+        ATH_MSG_DEBUG("This decision has " << prevPhotons.size() << " photons");
         
         
         if (prevPhotons.size() != 1) {
@@ -95,7 +95,7 @@ for (const auto previousDecision : *previousDecisionHandle)
         newDecision->setObjectLink(featureString(), ElementLink<xAOD::PhotonContainer>(*h_TLAPhotons, h_TLAPhotons->size() - 1, ctx)); 
         
 
-        ATH_MSG_WARNING("Copied photon with pT: " << copiedPhoton->pt() << " from decision " << nDecision);
+        ATH_MSG_DEBUG("Copied photon with pT: " << copiedPhoton->pt() << " from decision " << nDecision);
         
 
     }

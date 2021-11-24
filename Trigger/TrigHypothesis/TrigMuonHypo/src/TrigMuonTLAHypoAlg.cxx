@@ -57,11 +57,11 @@ StatusCode TrigMuonTLAHypoAlg::execute(const EventContext &ctx) const
         // get muons from the decision
         const xAOD::Muon *muonPrev = nullptr;
         auto prevMuons = TrigCompositeUtils::findLinks<xAOD::MuonContainer>(previousDecision, TrigCompositeUtils::featureString(), TrigDefs::lastFeatureOfType);
-        ATH_MSG_WARNING("This decision has " << prevMuons.size() << " decisions");
+        ATH_MSG_DEBUG("This decision has " << prevMuons.size() << " decisions");
 
         // verify that only one object is found per decision
         if (prevMuons.size() != 1) {
-            ATH_MSG_WARNING("Did not locate exactly one muon for this Decision Object, found " << prevMuons.size());
+            ATH_MSG_DEBUG("Did not locate exactly one muon for this Decision Object, found " << prevMuons.size());
             return StatusCode::FAILURE;
         }
      
@@ -94,12 +94,6 @@ StatusCode TrigMuonTLAHypoAlg::execute(const EventContext &ctx) const
         TrigCompositeUtils::insertDecisionIDs(hypoPair.second, hypoPair.first);
     }
     
-    /* for (const auto &tool : m_hypoTools)
-    {
-        ATH_MSG_DEBUG("Now computing decision for HypoTool: " << tool->name());
-        ATH_CHECK(tool->decide(muonHypoInputs));
-    }
- */
     ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
     return StatusCode::SUCCESS;
