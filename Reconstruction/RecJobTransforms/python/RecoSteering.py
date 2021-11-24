@@ -33,6 +33,12 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(GEN_AOD2xAODCfg(flags))
         log.info("---------- Configured xAODTruthCnvAlg")
 
+    # trigger
+    if flags.Reco.EnableTrigger:
+        from TriggerJobOpts.TriggerRecoConfig import TriggerRecoCfg
+        acc.merge(TriggerRecoCfg(flags))
+        log.info("---------- Configured trigger data decoding")
+
     # calorimeter
     if flags.Reco.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg

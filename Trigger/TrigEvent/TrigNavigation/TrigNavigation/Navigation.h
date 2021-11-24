@@ -166,7 +166,7 @@ namespace HLT {
     // private stuff of Navigation class
     ServiceHandle<IConversionSvc>          m_serializerServiceHandle;
     ServiceHandle<IClassIDSvc>             m_clidSvc;
-    std::vector<std::string>               m_dlls;
+    Gaudi::Property<std::vector<std::string>>               m_dlls{this, "Dlls", {}, "Libraries to load (with trigger EDM)", "OrderedSet<T>"};
     FullHolderFactory                      m_fullholderfactory;
     bool                                   m_readonly;
     StatusCode classKey2CLIDKey(const std::vector<std::string>& property, std::vector<CSPair>& decoded);
