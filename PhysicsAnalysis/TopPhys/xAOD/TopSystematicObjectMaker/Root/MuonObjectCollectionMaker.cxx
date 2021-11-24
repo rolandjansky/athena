@@ -342,8 +342,8 @@ namespace top {
         muon->auxdecor<char>("AnalysisTop_Isol_TightTrackOnly_FixedRad") = passIsol_TightTrackOnly_FixedRad;
         muon->auxdecor<char>("AnalysisTop_Isol_PLVTight") = passIsol_PLVTight;
         muon->auxdecor<char>("AnalysisTop_Isol_PLVLoose") = passIsol_PLVLoose;
-        muon->auxdecor<char>("AnalysisTop_PLImprovedTight") = passIsol_PLImprovedTight;
-        muon->auxdecor<char>("AnalysisTop_PLImprovedVeryTight") = passIsol_PLImprovedVeryTight;
+        muon->auxdecor<char>("AnalysisTop_Isol_PLImprovedTight") = passIsol_PLImprovedTight;
+        muon->auxdecor<char>("AnalysisTop_Isol_PLImprovedVeryTight") = passIsol_PLImprovedVeryTight;
         muon->auxdecor<char>("AnalysisTop_Isol_Tight_VarRad") = passIsol_Tight_VarRad;
         muon->auxdecor<char>("AnalysisTop_Isol_Tight_FixedRad") = passIsol_Tight_FixedRad;
         muon->auxdecor<char>("AnalysisTop_Isol_Loose_VarRad") = passIsol_Loose_VarRad;
