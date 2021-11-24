@@ -95,7 +95,7 @@ EMECSupportConstruction::EMECSupportConstruction(
     type_t type, bool pos_zside, bool is_module,
     std::string basename, double position
 ) : m_Type(type), m_pos_zside(pos_zside), m_isModule(is_module),
-    m_BaseName(basename), m_Position(position)
+    m_BaseName(std::move(basename)), m_Position(position)
 {
 //	std::cout << "Experimental EMECSupportConstruction" << std::endl;
 
@@ -215,8 +215,9 @@ static void printWarning(const std::ostringstream &message)
 }
 
 #include<map>
+#include <utility>
 typedef std::map<std::string, unsigned int> map_t;
-static map_t getMap(IRDBRecordset_ptr db, std::string s)
+static map_t getMap(const IRDBRecordset_ptr& db, const std::string& s)
 {
     map_t result;
     for(unsigned int i = 0; i < db->size(); ++ i){
@@ -226,7 +227,7 @@ static map_t getMap(IRDBRecordset_ptr db, std::string s)
     return result;
 }
 
-static map_t getNumbersMap(IRDBRecordset_ptr db, std::string s)
+static map_t getNumbersMap(const IRDBRecordset_ptr& db, const std::string& s)
 {
 	map_t result;
 	for(unsigned int i = 0; i < db->size(); ++ i){
@@ -241,7 +242,7 @@ static map_t getNumbersMap(IRDBRecordset_ptr db, std::string s)
 }
 
 static double getNumber(
-	IRDBRecordset_ptr db, const map_t &m, const std::string &idx,
+	const IRDBRecordset_ptr& db, const map_t &m, const std::string &idx,
 	const char *number, double defval = 0.
 )
 {
@@ -258,7 +259,7 @@ static double getNumber(
 }
 
 static double getNumber(
-	IRDBRecordset_ptr db, const std::string &s,
+	const IRDBRecordset_ptr& db, const std::string &s,
 	const std::string &parameter, double defval = 0.)
 {
 	for(unsigned int i = 0; i < db->size(); ++ i){
@@ -302,7 +303,7 @@ GeoPhysVol* EMECSupportConstruction::GetEnvelope(void) const
 	}
 }
 
-GeoPcon* EMECSupportConstruction::getPcon(std::string id) const
+GeoPcon* EMECSupportConstruction::getPcon(const std::string& id) const
 {
 	double phi_start = m_PhiStart;
 	double phi_size = m_PhiSize;

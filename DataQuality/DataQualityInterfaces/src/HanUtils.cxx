@@ -29,7 +29,7 @@ TSeqCollection* newTObjArray( const char *name, TObject *obj, Int_t size )
   return ret;
 }
 
-TKey* getObjKey( TDirectory* dir, const std::string path )
+TKey* getObjKey( TDirectory* dir, const std::string& path )
 {
   if( dir == 0 )
     return 0;
@@ -73,7 +73,7 @@ DisableMustClean::~DisableMustClean()
 }
 
 HanHistogramLink::
-HanHistogramLink(TDirectory* dir, const std::string path)
+HanHistogramLink(TDirectory* dir, const std::string& path)
   : m_dir(dir)
   , m_path(path)
 {}
