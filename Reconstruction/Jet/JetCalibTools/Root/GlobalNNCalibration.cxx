@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ***********************************************************************************\
@@ -165,7 +165,7 @@ void GlobalNNCalibration::loadSplineHists(const TString & fileName, const std::s
   }
 
   for(unsigned int i=0 ; i<m_closureEtaBins.size()-1; i++){
-    m_ptCorrFactors[i].reset(dynamic_cast<TH1D*>(ptCorr_l->At(i)));
+    m_ptCorrFactors[i].reset(dynamic_cast<TH1*>(ptCorr_l->At(i)));
     m_ptCorrFactors[i]->SetDirectory(nullptr);
   }
   tmpF->Close();
