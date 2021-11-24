@@ -12,7 +12,9 @@ MonitorSequence::MonitorSequence(const std::string& name, const MonitoredRange* 
 StatusCode MonitorSequence::newEvent(const CostData& data, const float weight) {
   for (const auto& sequencePair : data.sequencersMap()) {
     if (sequencePair.first.empty()) continue;
-    ATH_CHECK( getCounter(sequencePair.first)->newEvent(data, 0, weight) );
+    for (const auto& viewAlgsPair : sequencePair.second){
+      ATH_CHECK( getCounter(sequencePair.first)->newEvent(data, viewAlgsPair.first, weight) );
+    }
   }
 
   return StatusCode::SUCCESS;

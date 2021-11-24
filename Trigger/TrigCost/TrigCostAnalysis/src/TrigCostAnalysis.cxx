@@ -217,7 +217,7 @@ StatusCode TrigCostAnalysis::execute() {
   // Save indexes of algorithm in costDataHandle
   std::map<std::string, std::set<size_t>> chainToAlgIdx;
   std::map<std::string, std::set<size_t>> chainToUniqAlgs; // List for unique algorithms for each chain
-  std::map<std::string, std::set<size_t>> seqToAlgIdx;
+  std::map<std::string, std::map<int16_t, std::set<size_t>>> seqToAlgIdx; // Map of algorithms split in views
   std::map<std::string, std::vector<TrigConf::Chain>> algToChain;
   ATH_CHECK( m_algToChainTool->getChainsForAllAlgs(context, algToChain) );
 
@@ -241,7 +241,8 @@ StatusCode TrigCostAnalysis::execute() {
     }
 
     if (algToSeq.count(algName)){
-      seqToAlgIdx[algToSeq[algName]].insert(tc->index());
+      const int16_t view = tc->getDetail<int16_t>("view");
+      seqToAlgIdx[algToSeq[algName]][view].insert(tc->index());
     }
   }
 
