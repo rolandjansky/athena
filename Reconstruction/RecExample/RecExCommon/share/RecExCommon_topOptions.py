@@ -448,11 +448,7 @@ if recAlgs.doEFlow():
         ConfigFlags.PF.useElPhotLinks = False
         ConfigFlags.PF.useMuLinks = False
 
-if rec.doEgamma():
-    # C.A uses Clusters RecExCommom Cluster (rm the "s")
-    ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
-    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoClusters'
-
+HIDict = {}
 if rec.doHeavyIon():
     # This is copy from the old style to the new
     # We need to have HI flags to do it nicer
@@ -461,6 +457,13 @@ if rec.doHeavyIon():
     ConfigFlags.Egamma.Keys.Input.CaloCells = 'SubtractedCells'
     ConfigFlags.Egamma.doCentral = True
     ConfigFlags.Egamma.doForward = False
+    # This is a trick : in HeavyIon, egammaTopoClusterCopier is run two times
+    # one on the unsubtracted clusters (in SystemRec_config.py),
+    # the other on subtracted clusters (in HIegamma_jobO).
+    # Why is the first followed by InDetCaloClusterROISelector needed in Heavy Ion reco ?
+    HIDict['InputTopoCollection'] = 'CaloTopoClusters'
+    HIDict['OutputTopoCollection'] = 'egammaTopoClusters'
+    HIDict['OutputTopoCollectionShallow'] = 'tmp_egammaTopoClusters'
 
 # Lock the flags
 logRecExCommon_topOptions.info("Locking ConfigFlags")
