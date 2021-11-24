@@ -81,6 +81,10 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   // For AFII calibrations, EM3 correction should be applied up to |eta|=3.2
   m_EM3MaxEtaBin = m_config->GetValue("EM3MaxEtaBin", 35);
 
+  // In release 21 (precision), TileGap3 is used for PFlow jets for the precision recommendations
+  // The default is set to false to maintain backwards compatibility
+  m_TileGap3_4PFlow = m_config->GetValue("TileGap3_4PFlow", false);
+
   if ( !m_config ) { ATH_MSG_FATAL("Config file not specified. Aborting."); return StatusCode::FAILURE; }
   if ( m_jetAlgo.EqualTo("") ) { ATH_MSG_FATAL("No jet algorithm specified. Aborting."); return StatusCode::FAILURE; }
 
@@ -152,13 +156,19 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       else if ( depthString.Contains("ChargedFraction") ) m_depth = ApplyChargedFraction;
       else { ATH_MSG_FATAL("depthString flag not properly set, please check your config file."); return StatusCode::FAILURE; }
     } else {
-      if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH | ApplyPunchThrough;
-      else if ( depthString.Contains("trackWIDTH") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH;
-      else if ( depthString.Contains("nTrk") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplynTrk;
-      else if ( depthString.Contains("EM3") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3;
-      else if ( depthString.Contains("Tile0") ) m_depth = ApplyChargedFraction | ApplyTile0;
-      else if ( depthString.Contains("ChargedFraction") ) m_depth = ApplyChargedFraction;
-      else { ATH_MSG_FATAL("depthString flag not properly set, please check your config file."); return StatusCode::FAILURE; }
+      if( m_TileGap3_4PFlow ){
+	if (depthString.Contains("TileGap3") || depthString.Contains("Full")) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH | ApplyPunchThrough | ApplyTileGap3;
+	else { ATH_MSG_FATAL("depthString flag not properly set, please check your config file."); return StatusCode::FAILURE; }
+      }
+      else{
+	if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH | ApplyPunchThrough;
+	else if ( depthString.Contains("trackWIDTH") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH;
+	else if ( depthString.Contains("nTrk") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplynTrk;
+	else if ( depthString.Contains("EM3") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3;
+	else if ( depthString.Contains("Tile0") ) m_depth = ApplyChargedFraction | ApplyTile0;
+	else if ( depthString.Contains("ChargedFraction") ) m_depth = ApplyChargedFraction;
+	else { ATH_MSG_FATAL("depthString flag not properly set, please check your config file."); return StatusCode::FAILURE; }
+      }
     }
   }
 
@@ -265,6 +275,10 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     }
     else if ( (m_depth & ApplyPunchThrough) && m_respFactorsPunchThrough.size() < 2 ) {
       ATH_MSG_FATAL("Vector of PunchThrough histograms may be empty. Please check your GSCFactors file: " << GSCFile);
+      return StatusCode::FAILURE;
+    }
+    else if ( (m_depth & ApplyTileGap3) && m_respFactorsTileGap3.size() < 3 ) {
+      ATH_MSG_FATAL("Vector of TileGap3 histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
     else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName);
@@ -418,11 +432,19 @@ double GlobalSequentialCorrection::getGSCCorrection(xAOD::JetFourMom_t jetP4, do
     if (m_depth & ApplyEM3)                                 Corr*=1./getEM3Response(jetP4.pt()/m_GeV*Corr, etabin, EM3);
     if ( m_nTrkwTrk_4PFlow && (m_depth & ApplynTrk) )       Corr*=1./getNTrkResponse(jetP4.pt()/m_GeV*Corr, etabin, nTrk);
     if ( m_nTrkwTrk_4PFlow && (m_depth & ApplytrackWIDTH) ) Corr*=1./getTrackWIDTHResponse(jetP4.pt()/m_GeV*Corr,etabin,trackWIDTH);
-    if ( jetP4.pt() < m_punchThroughMinPt ) return Corr; //Applying punch through correction to low pT jets introduces a bias, default threshold is 50 GeV
+    if ( jetP4.pt() < m_punchThroughMinPt ) {
+      if (m_TileGap3_4PFlow && (m_depth & ApplyTileGap3) ) {
+	Corr*=1/getTileGap3Response(jetP4.pt()/m_GeV*Corr,etabin, TileGap3);
+      }
+      return Corr; //Applying punch through correction to low pT jets introduces a bias, default threshold is 50 GeV
+    }
     //eta binning for the punch through correction differs from the rest of the GSC, so the eta bin is determined in the GetPunchThroughResponse method
     else if (m_depth & ApplyPunchThrough) {
       jetP4*=Corr; //The punch through correction is binned in E instead of pT, so we determine E from the corrected jet here
       Corr*=1/getPunchThroughResponse(jetP4.e()/m_GeV,eta,Nsegments);
+    }
+    if (m_TileGap3_4PFlow && (m_depth & ApplyTileGap3) ) {
+      Corr*=1/getTileGap3Response(jetP4.pt()/m_GeV*Corr,etabin, TileGap3);
     }
   }
   return Corr;
@@ -540,6 +562,12 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
     }
   }
   
+  if(m_TileGap3_4PFlow){
+    if (m_depth & ApplyTileGap3) {
+      TG3 = (samplingFrac[17])/jetE_constitscale;
+    }
+  }
+
   xAOD::JetFourMom_t calibP4 = jetStartP4*getGSCCorrection( jetStartP4, fabs(detectorEta), trackWIDTHPV0, nTrkPV0, Tile0, EM3, Nsegments, ChargedFraction, caloWIDTH, N90Constituents, TG3);
 
   //Transfer calibrated jet properties to the Jet object

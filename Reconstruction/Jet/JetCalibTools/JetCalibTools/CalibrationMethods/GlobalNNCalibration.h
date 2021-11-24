@@ -13,7 +13,7 @@
 #include <map>
 #include <tuple>
 #include "TH1.h"
-
+#include "TList.h"
 
 //xAOD EDM classes
 #include "xAODEventInfo/EventInfo.h"
@@ -154,7 +154,7 @@ class GlobalNNCalibration :  public ::JetCalibrationToolBase {
 
 
   std::vector<std::unique_ptr<lwt::LightweightGraph> > m_lwnns;
-  std::vector<std::unique_ptr<TH1D> > m_ptCorrFactors;
+  std::vector<std::unique_ptr<TH1> > m_ptCorrFactors;
   std::vector<double> m_nnEtaBins;
   std::vector<double> m_closureEtaBins;
   std::vector<TString> m_NNInputs;

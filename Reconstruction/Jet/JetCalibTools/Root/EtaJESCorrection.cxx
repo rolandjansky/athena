@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
@@ -92,7 +92,7 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   for (uint ieta=0;ieta<etaBins.size()-1;++ieta) {
     if(!m_isSpline){
 
-    // Read in absolute JES calibration factors
+      // Read in absolute JES calibration factors
       TString key=Form("JES.%s_Bin%d",m_jetAlgo.Data(),ieta);
       std::vector<double> params = JetCalibUtils::VectorizeD(m_config->GetValue(key,""));
       m_nPar = params.size();
@@ -105,38 +105,41 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   	    //Used in the GetLowPtJES method when Pt < minPt
       	const double *factors = m_JESFactors[ieta];
       	double Ecutoff;
-	      if(!m_useSecondaryminPt_JES) Ecutoff = m_minPt_JES*cosh(etaBins[ieta]);
+	if(!m_useSecondaryminPt_JES) Ecutoff = m_minPt_JES*cosh(etaBins[ieta]);
       	else {
-	        if(fabs(etaBins[ieta]) < m_etaSecondaryminPt_JES) Ecutoff = m_minPt_JES*cosh(etaBins[ieta]);
-	        else{ Ecutoff = m_secondaryminPt_JES*cosh(etaBins[ieta]);}
-    	  }
-  	    const double Rcutoff = getLogPolN(factors,Ecutoff);
-      	const double Slope = getLogPolNSlope(factors,Ecutoff);
-	      if(Slope > Rcutoff/Ecutoff) ATH_MSG_FATAL("Slope of calibration curve at minimum ET is too steep for the JES factors of etabin " << ieta << ", eta = " << etaBins[ieta] );
+	  if(fabs(etaBins[ieta]) < m_etaSecondaryminPt_JES) Ecutoff = m_minPt_JES*cosh(etaBins[ieta]);
+	  else{ Ecutoff = m_secondaryminPt_JES*cosh(etaBins[ieta]);}
+	}
+	const double Rcutoff = getLogPolN(factors,Ecutoff);
+	const double Slope = getLogPolNSlope(factors,Ecutoff);
+	if(Slope > Rcutoff/Ecutoff) ATH_MSG_FATAL("Slope of calibration curve at minimum ET is too steep for the JES factors of etabin " << ieta << ", eta = " << etaBins[ieta] );
   
-      	m_JES_MinPt_E[ieta] = Ecutoff;
-	      m_JES_MinPt_R[ieta] = Rcutoff;
-      	m_JES_MinPt_Slopes[ieta] = Slope;
+	m_JES_MinPt_E[ieta] = Ecutoff;
+	m_JES_MinPt_R[ieta] = Rcutoff;
+	m_JES_MinPt_Slopes[ieta] = Slope;
         
-	      //Calculate the parameters for a 2nd order polynomial extension to the calibration curve below minimum ET
-    	  //Used in the GetLowPtJES method when Pt < minPt
-  	    if(m_lowPtExtrap == 2) {
-  	      const double h = m_lowPtMinR;
-      	  const double Param1 = (2/Ecutoff)*(Rcutoff-h)-Slope;
-	        const double Param2 = (0.5/Ecutoff)*(Slope-Param1);
-	        //Slope of the calibration curve should always be positive
-      	  if( Param1 < 0 || Param1 + 2*Param2*Ecutoff < 0) ATH_MSG_FATAL("Polynomial extension to calibration curve below minimum ET is not monotonically increasing for etabin " << ieta << ", eta = " << etaBins[ieta] );
-	        m_JES_MinPt_Param1[ieta] = Param1;
-	        m_JES_MinPt_Param2[ieta] = Param2;
-	      }
+	//Calculate the parameters for a 2nd order polynomial extension to the calibration curve below minimum ET
+	//Used in the GetLowPtJES method when Pt < minPt
+	if(m_lowPtExtrap == 2) {
+	  const double h = m_lowPtMinR;
+	  const double Param1 = (2/Ecutoff)*(Rcutoff-h)-Slope;
+	  const double Param2 = (0.5/Ecutoff)*(Slope-Param1);
+	  //Slope of the calibration curve should always be positive
+	  if( Param1 < 0 || Param1 + 2*Param2*Ecutoff < 0) ATH_MSG_FATAL("Polynomial extension to calibration curve below minimum ET is not monotonically increasing for etabin " << ieta << ", eta = " << etaBins[ieta] );
+	  m_JES_MinPt_Param1[ieta] = Param1;
+	  m_JES_MinPt_Param2[ieta] = Param2;
+	}
       }
     }
 
     // Read in jet eta calibration factors
     TString key=Form("EtaCorr.%s_Bin%d",m_jetAlgo.Data(),ieta);
     std::vector<double> params = JetCalibUtils::VectorizeD(m_config->GetValue(key,""));
-    m_nPar = params.size();
-    if (params.size()!=m_nPar) { ATH_MSG_FATAL( "Cannot read jet eta calib constants " << key ); return StatusCode::FAILURE; }
+    if (!m_isSpline && params.size()!=m_nPar) { ATH_MSG_FATAL( "Cannot read jet eta calib constants " << key ); return StatusCode::FAILURE; }
+    if (m_isSpline){
+      if(params.size() == 0) { ATH_MSG_FATAL( "Cannot read jet eta calib constants " << key ); return StatusCode::FAILURE; }
+      m_nPar = params.size();
+    }
     for (uint ipar=0;ipar<m_nPar;++ipar) m_etaCorrFactors[ieta][ipar] = params[ipar];
 
     if(m_freezeJESatHighE){ // Read starting energy values to freeze JES correction
@@ -202,7 +205,7 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
 void EtaJESCorrection::loadSplineHists(const TString & fileName, const std::string &etajes_name) 
 {
   std::unique_ptr<TFile> tmpF(TFile::Open( fileName ));
-  TList *etajes_l = static_cast<TList*>( tmpF->Get(etajes_name.c_str()));
+  TList *etajes_l = dynamic_cast<TList*>( tmpF->Get(etajes_name.c_str()));
 
   m_etajesFactors.resize( etajes_l->GetSize() );
   if(etajes_l->GetSize() != m_etaBinAxis->GetNbins()+1){
@@ -210,8 +213,7 @@ void EtaJESCorrection::loadSplineHists(const TString & fileName, const std::stri
   }
 
   for(int i=0 ; i<m_etaBinAxis->GetNbins(); i++){
-    //m_etajesFactors[i].reset((TH1D*)etajes_l->At(i));
-    m_etajesFactors[i].reset(static_cast<TH1D*>(etajes_l->At(i)));
+    m_etajesFactors[i].reset(dynamic_cast<TH1*>(etajes_l->At(i)));
     m_etajesFactors[i]->SetDirectory(nullptr);
   }
   tmpF->Close();

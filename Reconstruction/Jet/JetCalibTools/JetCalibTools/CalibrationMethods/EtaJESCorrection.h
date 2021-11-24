@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_ETAJESCORRECTION_H
@@ -16,6 +16,7 @@
 #include <TAxis.h>
 #include "TH1.h"
 #include "TString.h"
+#include "TList.h"
 
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
@@ -89,7 +90,7 @@ class EtaJESCorrection
 
   // When using p-splines, the calibrations are stored as a finely binned TH1 for simplicity.
   // This avoids importing new packages into Athena.
-  std::vector<std::unique_ptr<TH1D> > m_etajesFactors;
+  std::vector<std::unique_ptr<TH1> > m_etajesFactors;
 
 
 
