@@ -117,7 +117,7 @@ def PFCfg(inputFlags,**kwargs):
     from eflowRec.PFCfg import PFTrackSelectorAlgCfg
     useCaching = True
     #If reading ESD/AOD do not make use of caching of track extrapolations.
-    if (inputFlags.Input.Format == "POOL"):
+    if (inputFlags.Input.Format == "POOL" and not ('StreamRDO' in inputFlags.Input.ProcessingTags or 'OutputStreamRDO' in inputFlags.Input.ProcessingTags)):
         useCaching = False
     result.merge(PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector",useCaching))
 
