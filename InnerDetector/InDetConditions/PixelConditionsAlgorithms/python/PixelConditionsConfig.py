@@ -332,7 +332,8 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
 
 def PixelAlignCondAlgCfg(flags, name="PixelAlignCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelAlignCondAlg"""
-    acc = ComponentAccumulator()
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeoModelCfg
+    acc = PixelGeoModelCfg(flags)
 
     if flags.GeoModel.Align.Dynamic:
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
@@ -473,16 +474,26 @@ def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **
     
     kwargs.setdefault("PixelAlignmentStore", "PixelAlignmentStore")
     kwargs.setdefault("WriteKey", "PixelDetectorElementCollection")
-    def merge_lists(a, b):
-        a.extend([item for item in b if item not in a])
-        return a
 
-    alg=CompFactory.PixelDetectorElementCondAlg(name, **kwargs)
-    alg._descriptors['MuonManagerKey'].semantics.merge = merge_lists
-    alg._descriptors['TRT_DetEltContKey'].semantics.merge = merge_lists
-    alg._descriptors['SCTAlignmentStore'].semantics.merge = merge_lists
-    acc.addCondAlgo(alg)    
+    # FIXME
+    # add artifical dependencies to SCT, TRT and Muon
+    # conditions algs to ensure that the IOV
+    # is identical to the IOV of the tracking geometry
+    if flags.Detector.GeometryMuon and flags.Muon.enableAlignment:
+        from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
+        acc.merge(MuonDetectorCondAlgCfg(flags))
+        kwargs.setdefault("MuonManagerKey", "MuonDetectorManager")
+    if flags.Detector.GeometryTRT:
+        from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+        acc.merge(TRT_ReadoutGeometryCfg(flags))
+        kwargs.setdefault("TRT_DetEltContKey", "TRT_DetElementContainer")
+    if flags.Detector.GeometrySCT:
+        from SCT_GeoModel.SCT_GeoModelConfig import SCT_AlignmentCfg
+        acc.merge(SCT_AlignmentCfg(flags))
+        kwargs.setdefault("SCTAlignmentStore", "SCTAlignmentStore")
+    # end of hack
 
+    acc.addCondAlgo(CompFactory.PixelDetectorElementCondAlg(name, **kwargs))    
     return acc
 
 def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):

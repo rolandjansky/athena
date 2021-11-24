@@ -152,10 +152,10 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
               prependList.extend(appendList)
               cond_seq._Configurable__children = prependList
               
-          MuonManagerKey  = ['MuonDetectorManager']     if DetFlags.Muon_on()  else []
-          TRT_DetEltKey   = ["TRT_DetElementContainer"] if DetFlags.TRT_on()   else []
-          SCTAlignStore   = ["SCTAlignmentStore"]       if DetFlags.SCT_on()   else []
-          PixelAlignStore = ["PixelAlignmentStore"]     if DetFlags.pixel_on() else []
+          MuonManagerKey  = "MuonDetectorManager"     if DetFlags.Muon_on()  else ""
+          TRT_DetEltKey   = "TRT_DetElementContainer" if DetFlags.TRT_on()   else ""
+          SCTAlignStore   = "SCTAlignmentStore"       if DetFlags.SCT_on()   else ""
+          PixelAlignStore = "PixelAlignmentStore"     if DetFlags.pixel_on() else ""
 
           modifyCondAlg('SCT_DetectorElementCondAlg', MuonManagerKey      = MuonManagerKey,
                                                       TRT_DetEltContKey   = TRT_DetEltKey,

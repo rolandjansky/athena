@@ -44,12 +44,12 @@ class SCT_DetectorElementCondAlg : public AthReentrantAlgorithm
 
   // The DetElement Collection must have a life time <= the Tracking Geometry due to DetElt-> Surface -> Layer connection,
   // which is why we intersect with the IOV Ranges from the TG's dependencies.
-  SG::ReadCondHandleKeyArray<MuonGM::MuonDetectorManager> m_muonManagerKey
-     {this, "MuonManagerKey", {}, "MuonManager ReadKey for IOV Range intersection"};
-  SG::ReadCondHandleKeyArray<InDetDD::TRT_DetElementContainer> m_trtDetElContKey
-     {this, "TRT_DetEltContKey", {}, "TRT ReadKey for IOV Range intersection"};
-  SG::ReadCondHandleKeyArray<GeoAlignmentStore> m_pixelReadKey
-     {this, "PixelAlignmentStore", {}, "PixelAlignmentStore ReadKey for IOV Range intersection"};
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muonManagerKey
+    {this, "MuonManagerKey", "", "MuonManager ReadKey for IOV Range intersection"};
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetElContKey
+    {this, "TRT_DetEltContKey", "", "TRT ReadKey for IOV Range intersection"};
+  SG::ReadCondHandleKey<GeoAlignmentStore> m_pixelReadKey
+    {this, "PixelAlignmentStore", "", "PixelAlignmentStore ReadKey for IOV Range intersection"};
 
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   std::string m_detManagerName;
