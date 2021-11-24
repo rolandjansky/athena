@@ -20,14 +20,9 @@ def ActsSeedingAlgorithmCfg(ConfigFlags,
     # and make sure it is not a None
     seedTool = None
     if options.get("SeedTool", None) is None:
-        seedingToolOptions = options.get('SeedingToolOptions', {})
         seedTool = acc.popToolsAndMerge(ActsSeedingToolCfg(ConfigFlags, 
                                                            name = 'ActsSeedingTool', 
-                                                           inputCollection = inputCollection,
-                                                           **seedingToolOptions))
-
-    # Remove keys not required by the Algorithm
-    options.pop('SeedingToolOptions', None)
+                                                           inputCollection = inputCollection))
 
     options['name'] = f"{name}_{inputCollection}"
     options['InputSpacePoints'] = inputCollection
