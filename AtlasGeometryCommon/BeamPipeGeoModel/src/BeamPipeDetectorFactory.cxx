@@ -27,6 +27,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <iomanip>
+#include <utility>
 #include <vector>
 
 
@@ -313,14 +314,14 @@ const BeamPipeDetectorManager * BeamPipeDetectorFactory::getDetectorManager() co
 
 void BeamPipeDetectorFactory::setTagNode(std::string tag, std::string node, std::string mode)
 {
-  m_versionTag = tag;
-  m_versionNode = node;
-  m_mode = mode;
+  m_versionTag = std::move(tag);
+  m_versionNode = std::move(node);
+  m_mode = std::move(mode);
 }
 
 
 BeamPipeDetectorFactory::EnvelopeShapes
-BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
+BeamPipeDetectorFactory::makeEnvelope(const IRDBRecordset_ptr& bpipeEnvelope)
 {
   EnvelopeShapes envelopes;
 
@@ -411,7 +412,7 @@ BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
 
 
 BeamPipeDetectorFactory::EnvelopeShapes
-BeamPipeDetectorFactory::makeEnvelopeOld(IRDBRecordset_ptr atlasMother)
+BeamPipeDetectorFactory::makeEnvelopeOld(const IRDBRecordset_ptr& atlasMother)
 {
 
   double iir = (*atlasMother)[0]->getDouble("IDETIR")*Gaudi::Units::cm;

@@ -6,6 +6,8 @@
 // $Id: MiniConfigTreeNode.cxx,v 1.5 2008-12-04 16:40:16 ponyisi Exp $
 // **********************************************************************
 
+#include <utility>
+
 #include "DataQualityInterfaces/MiniConfigTreeNode.h"
 
 
@@ -23,7 +25,7 @@ namespace dqi {
 
 MiniConfigTreeNode::
 MiniConfigTreeNode( std::string name_, MiniConfigTreeNode* parent_ )
-  : m_name(name_)
+  : m_name(std::move(name_))
   , m_parent(parent_)
   , m_propagateDown(true)
 {
