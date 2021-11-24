@@ -44,21 +44,8 @@ AFP_GeoModelTool::AFP_GeoModelTool( const std::string& type, const std::string& 
 	std::fill_n(m_vecAFP03YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
 
     //Properties of SID
-	//declareProperty("SID_Slope",m_defsidcfg.fSlope=AfpConstants.SiT_Plate_rot_xz);
-	//declareProperty("SID_NumberOfLayers",m_defsidcfg.fLayerCount=AfpConstants.SiT_Plate_amount);
-	//declareProperty("SID_SpacingBetweenLayers",m_defsidcfg.fLayerSpacing=AfpConstants.SiT_Plate_zsep);
-	//declareProperty("SID_DistanceToFloor",m_defsidcfg.fXFloorDistance=SID_DISTANCETOFLOOR);
-	//declareProperty("SID_ZDistanceInRPot",m_defsidcfg.fZDistanceInRPot=SID_ZDISTANCEINRPOT);
 	declareProperty("SID_AddVacuumSensors",m_defsidcfg.bAddVacuumSensors=false);
 
-	//declareProperty("SID_AFP00XStaggering",m_vecAFP00XStaggering);
-	//declareProperty("SID_AFP00YStaggering",m_vecAFP00YStaggering);
-	//declareProperty("SID_AFP01XStaggering",m_vecAFP01XStaggering);
-	//declareProperty("SID_AFP01YStaggering",m_vecAFP01YStaggering);
-	//declareProperty("SID_AFP02XStaggering",m_vecAFP02XStaggering);
-	//declareProperty("SID_AFP02YStaggering",m_vecAFP02YStaggering);
-	//declareProperty("SID_AFP03XStaggering",m_vecAFP03XStaggering);
-	//declareProperty("SID_AFP03YStaggering",m_vecAFP03YStaggering);
 
     //Properties of TD
 

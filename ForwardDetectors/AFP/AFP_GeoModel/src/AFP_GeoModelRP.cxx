@@ -177,16 +177,6 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 //	pMoveCut=new GeoShapeShift(pSolCut3, TransCutTubus);
 //	GeoShapeSubtraction* pSolModTubus2=new GeoShapeSubtraction(pSolModTubus, pMoveCut);
 
-	//-------------- old stuff
-	//        GeoLogVol* pLogTubus=NULL; GeoFullPhysVol* pPhysTubus=NULL;
-	//        if(m_CfgParams.bVP1Mode) pLogTubus=new GeoLogVol(szLabel,pSolCut3,m_MapMaterials[std::string("Steel_AFP")]);
-	//        else  pLogTubus=new GeoLogVol(szLabel,pSolCut3,m_MapMaterials[std::string("Steel_AFP")]);
-	//        pPhysTubus=new GeoFullPhysVol(pLogTubus);
-	//        pPhysMotherVol->add(new GeoNameTag(szLabel));
-	//        pPhysMotherVol->add(new GeoTransform(TransRPot*HepGeom::RotateY3D(90*CLHEP::deg)*TransCutTubus));
-	//        pPhysMotherVol->add(pPhysTubus);
-	//--------------
-
 	//Floor tubus -------------------------------------------------------------------------------------------------
 	fLength=RPOT_FLOOR_THICKNESS;
 	fRMin=0.0*CLHEP::mm;

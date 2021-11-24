@@ -58,8 +58,6 @@ StatusCode AFP_TDLocRecoTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  //  ATH_MSG_INFO(m_recoToolsHandles);
-
 
   ATH_MSG_DEBUG("end AFP_TDLocRecoTool::initialize()");
   return StatusCode::SUCCESS;

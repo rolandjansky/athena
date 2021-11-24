@@ -156,9 +156,6 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
     m_transformations[0][3] = translationA3*m_transformationsErr[0][3];
 
 
-//    m_transformations[0][1] = ROOT::Math::Translation3D(0, 0, 0)*ROOT::Math::Translation3D(0, 0, layerSpacingZ)*m_transformationsErr[0][1];
-//    m_transformations[0][2] = ROOT::Math::Translation3D(12.5*CLHEP::micrometer, -45*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, 2.*layerSpacingZ)*m_transformationsErr[0][2];
-//    m_transformations[0][3] = ROOT::Math::Translation3D(0, 0, 0)*ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[0][3];
 
     // station 1
 
@@ -173,11 +170,6 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
     m_transformations[1][3] = translationA3*m_transformationsErr[1][3];
 
 
-
-//    m_transformations[1][1] = ROOT::Math::Translation3D(12.5*CLHEP::micrometer, -150*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, layerSpacingZ)*m_transformationsErr[1][1];
-//    m_transformations[1][2] = ROOT::Math::Translation3D(24*CLHEP::micrometer, 60*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, 2.*layerSpacingZ)*m_transformationsErr[1][2];
-//    m_transformations[1][3] = ROOT::Math::Translation3D(24*CLHEP::micrometer, 50*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[1][3];
-
     // station 2
 
     m_transformationsErr[2][0] = rotationC;
@@ -190,10 +182,6 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
     m_transformations[2][2] = translationC2*m_transformationsErr[2][2];
     m_transformations[2][3] = translationC3*m_transformationsErr[2][3];
 
-
-//    m_transformations[2][1] = ROOT::Math::Translation3D(-70*CLHEP::micrometer, -170*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, layerSpacingZ)*m_transformationsErr[2][1];
-//    m_transformations[2][2] = ROOT::Math::Translation3D(-115*CLHEP::micrometer, -125*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, 2.*layerSpacingZ)*m_transformationsErr[2][2];
-//    m_transformations[2][3] = ROOT::Math::Translation3D(-185*CLHEP::micrometer, -25*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[2][3];
 
     // station 3
 
@@ -208,10 +196,6 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
     m_transformations[3][2] = translationC2*m_transformationsErr[3][2];
     m_transformations[3][3] = translationC3*m_transformationsErr[3][3];
 
-
-//    m_transformations[3][1] = ROOT::Math::Translation3D(-45*CLHEP::micrometer, 175*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, layerSpacingZ)*m_transformationsErr[3][1];
-//    m_transformations[3][2] = ROOT::Math::Translation3D(-100*CLHEP::micrometer, 140*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, 2.*layerSpacingZ)*m_transformationsErr[3][2];
-//    m_transformations[3][3] = ROOT::Math::Translation3D(-140*CLHEP::micrometer, -15*CLHEP::micrometer, 0)*ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[3][3];
   }
 
   int stationCounter(0);
@@ -260,19 +244,6 @@ TVector3 AFPSiRowColToLocalCSTool::localToGlobalCS(const double localX, const do
 void AFPSiRowColToLocalCSTool::fillXAOD (const int stationID, const int layerID, const ROOT::Math::XYZPoint& position, const ROOT::Math::XYZPoint& positionError, xAOD::AFPSiHitsCluster* xAODCluster)
 {
 
-//  TVector3 glposition1 = localToGlobalCS(0.0, 0.0 ,0.0, stationID,layerID);
-//  TVector3 glposition2 = localToGlobalCS(-(62-168)*0.05, (72-40)*0.25 ,0.0, stationID,layerID);
-//  TVector3 glposition3 = localToGlobalCS((72-40)*0.25, -(62-168)*0.05 ,0.0, stationID,layerID);
-
-//  std::cout << glposition1.x() << " 1 " << glposition1.y() << " " << glposition1.z() << " " << stationID << " " << layerID << std::endl;
-
-//  TVector3 glposition = localToGlobalCS(position.y(), position.x() ,0.0, stationID,layerID);
-
-//  std::cout << glposition2.x() << " 2 " << glposition2.y() << " " << glposition2.z() << " " << stationID << " " << layerID << std::endl;
-//  std::cout << glposition3.x() << " 3 " << glposition3.y() << " " << glposition3.z() << " " << stationID << " " << layerID << std::endl;
-
-//    int sign = 1.0;
-//    if(stationID<2) sign=-1.0; 
 
     float correction_x = -2.485;
     float correction_y[4] = {10.38,10.38,-10.38,-10.38};
@@ -293,16 +264,12 @@ void AFPSiRowColToLocalCSTool::fillXAOD (const int stationID, const int layerID,
 xAOD::AFPSiHitsCluster* AFPSiRowColToLocalCSTool::newXAODLocal (const int stationID, const int layerID, const AFPSiClusterBasicObj& cluster, xAOD::AFPSiHitsClusterContainer* xAODContainer)
 {
   const int halfColumns = 168;
-//  const int halfRows = 0; 
 
   float flipAC = (stationID<2 ? -1. : +1.);
 
   ROOT::Math::XYZPoint horizVertID (-1.*(2*halfColumns-cluster.horizID())*m_pixelHorizSize, flipAC*cluster.vertID()*m_pixelVertSize, 0); // ATLAS coord.
   ROOT::Math::XYZPoint horizVertIDErr ( cluster.vertIDErr()*m_pixelVertSize, cluster.horizIDErr()*m_pixelHorizSize, 0); // for both
 
-
-//  ROOT::Math::XYZPoint horizVertID ((cluster.horizID()-halfColumns)*m_pixelHorizSize, (cluster.vertID() - halfRows)*m_pixelVertSize, 0);
-//  ROOT::Math::XYZPoint horizVertIDErr (cluster.horizIDErr()*m_pixelHorizSize, cluster.vertIDErr()*m_pixelVertSize, 0);
 
   try {  
     ROOT::Math::XYZPoint localCS = m_transformations.at(stationID).at(layerID)*horizVertID;
@@ -312,9 +279,7 @@ xAOD::AFPSiHitsCluster* AFPSiRowColToLocalCSTool::newXAODLocal (const int statio
 
     xAOD::AFPSiHitsCluster* xAODCluster = new xAOD::AFPSiHitsCluster;
     xAODContainer->push_back (xAODCluster);
-//     std::cout <<" test " << localCS.x() << " " << localCS.y() << " " << localCS.z() << std::endl;
     fillXAOD (stationID, layerID, localCS, localCSError, xAODCluster);
-//    fillXAOD (stationID, layerID, horizVertID, horizVertIDErr, xAODCluster);
     xAODCluster->setDepositedCharge(cluster.charge());
     xAODCluster->setNHits(cluster.hits().size());
 

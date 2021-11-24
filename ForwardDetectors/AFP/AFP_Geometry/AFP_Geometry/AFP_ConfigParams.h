@@ -21,7 +21,7 @@ enum eLBarType { ELBT_UNDEFINED=0, ELBT_REGULAR=1, ELBT_METALELBOW=2, ELBT_AIRGU
 enum eSkinReflectivityMode { ESRM_SINGLE=1, ESRM_SPECTRAL1=2 };
 enum eMaterial { EM_VACUUM=0, EM_QUARTZ=1 };
 
-//--------------------------------------------------------------------------------------------
+
 struct AFPTOF_TRAININFO {
 	AFPTOF_TRAININFO()
 	{

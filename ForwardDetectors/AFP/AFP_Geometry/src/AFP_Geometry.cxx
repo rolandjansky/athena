@@ -124,7 +124,6 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
 	HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
 	HepGeom::Transform3D TransMotherInWorld=getStationTransform(pszStationName);
 
-	//double fxm=DETXSIDE*(0.5*SID_MAINPLATEXDIM*cos(falpha)+SID_PLATETHICKNESS*sin(falpha)); double fzm=0.0;
 	double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*cos(falpha); double fzm=0.0;
 	double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
     HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, (fzm-fZCorrOffset));
@@ -288,8 +287,6 @@ void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
 	for(i=2;i<=TofCfg.nX1PixCnt;i++){
 		nTrainID=nTrainCnt-(i-1);
 		vecLGLengths[i-1]=vecLGLengths[i-2]+AfpConstants.ToF_LGuideTrainOffset+TofCfg.mapTrainInfo[nTrainID+1].fLGuideWidth-TofCfg.mapTrainInfo[nTrainID+1].fTaperOffset;
-		//if(TofCfg.mapTrainInfo[nTrainID+1].bUseTaper) vecLGLengths[i]=vecLGLengths[i-1]+RefBarDims.fRadYDim+LGUIDETRAINOFFSET-TofCfg.mapTrainInfo[nTrainID+1].fTaperOffset;
-		//else vecLGLengths[i]=vecLGLengths[i-1]+RefBarDims.fRadYDim+LGUIDETRAINOFFSET;
 	}
 
 	m_CfgParams.tdcfg[eStation].mapBarDims.clear();

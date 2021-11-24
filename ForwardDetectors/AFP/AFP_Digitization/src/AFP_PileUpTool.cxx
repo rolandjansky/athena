@@ -10,8 +10,6 @@
 #include "AFP_SimEv/AFP_TDSimHit.h"
 #include "AFP_SimEv/AFP_TDSimHitCollection.h"
 #include "AFP_DigiEv/AFP_TDDigiCollection.h"
-//#include "AFP_SimEv/AFP_SISimHit.h"
-//#include "AFP_SimEv/AFP_TDSimHitCollection.h"
 #include "AFP_DigiEv/AFP_SiDigiCollection.h"
 #include "xAODForward/AFPSiHit.h"
 #include "xAODForward/AFPSiHitContainer.h"
@@ -163,7 +161,6 @@ StatusCode AFP_PileUpTool::recoSiHits()
 
   // create output containers
   m_SiHitCollection = new xAOD::AFPSiHitContainer();
-//  xAOD::AFPSiHitContainer* siHitContainer = new xAOD::AFPSiHitContainer();
   ATH_CHECK( evtStore()->record(m_SiHitCollection, m_AFPSiHitsContainerName) );
   xAOD::AFPSiHitAuxContainer* siHitAuxContainer = new xAOD::AFPSiHitAuxContainer();
   ATH_CHECK( evtStore()->record(siHitAuxContainer, m_AFPSiHitsContainerName + "Aux.") );
@@ -211,7 +208,6 @@ StatusCode AFP_PileUpTool::recoToFHits()
 
   // create output containers
   m_TDHitCollection   = new xAOD::AFPToFHitContainer();
-//  xAOD::AFPToFHitContainer* tofHitContainer = new xAOD::AFPToFHitContainer();
   ATH_CHECK( evtStore()->record(m_TDHitCollection, m_AFPHitsContainerNameToF) );
   xAOD::AFPToFHitAuxContainer* tofHitAuxContainer = new xAOD::AFPToFHitAuxContainer();
   ATH_CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
@@ -595,7 +591,6 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
   
   if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > m_QuantumEff_PMT[id]*m_CollectionEff) return;
   double PheTime = CLHEP::RandGaussQ::shoot(rndEngine, GlobalTime + 5.* m_ConversionSpr, m_ConversionSpr);
-//  int NumberOfSecondaries =  CLHEP::RandPoissonQ::shoot(rndEngine, m_Gain);
 
 
 

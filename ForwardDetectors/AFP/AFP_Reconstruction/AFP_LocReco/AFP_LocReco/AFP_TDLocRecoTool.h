@@ -7,7 +7,6 @@
 
 #include "AFP_LocRecoInterfaces/IAFPTDLocRecoTrackAlgTool.h"
 #include "AFP_LocRecoInterfaces/IAFPTDLocRecoTool.h"
-//#include "AFP_SiClusterTools/IAFPSiClusterTool.h"
 
 #include "xAODForward/AFPToFTrackContainer.h"
 
@@ -51,8 +50,6 @@ private:
   /// Vector of tool handles to be used for tracks reconstruction
   ToolHandleArray<IAFPTDLocRecoTrackAlgTool> m_recoToolsHandles; 
 
-//  /// Tool handle to pixels clustering algorithm
-//  ToolHandle<IAFPSiClusterTool> m_recoClusters;
 
   /// Map of output track containers and names under which they are saved in storegate
   std::map<std::string, xAOD::AFPToFTrackContainer*> m_trackContainersWithNames;

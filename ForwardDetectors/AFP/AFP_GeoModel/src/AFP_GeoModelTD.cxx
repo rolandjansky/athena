@@ -65,7 +65,7 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
     
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
 	AFPTOF_LBARDIMENSIONS BarDims11=TofCfg.mapBarDims[11];
-	fXShift=-73.5*CLHEP::mm; //FIXME TODO
+	fXShift=-73.5*CLHEP::mm; 
 	fYShift=(BarDims11.fRadLength+TofCfg.mapTrainInfo[BarDims11.nTrainID].fPerpShiftInPixel-0.5*(BarDims11.fLGuideWidth-TofCfg.mapTrainInfo[BarDims11.nTrainID].fTaperOffset)-0.5*BarDims11.fLBarThickness/tan(TofCfg.fAlpha))*sin(TofCfg.fAlpha);
 	fZShift=fabs(fYShift)/tan(TofCfg.fAlpha)+0.5*BarDims11.fLBarThickness/sin(TofCfg.fAlpha);
     
@@ -222,60 +222,21 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 		for(j=0;j<TofCfg.nX2PixCnt;j++)
 		{
 			nPixelID=10*(i+1)+(j+1);
-// 			fX1Pos=-(0.0+i)*TofCfg.fPixelX1Dim;//-(0.5+i)*m_TofCfg.fPixelX1Dim
-// 			fX2Pos=(0.0+j)*TofCfg.fPixelX2Dim;//(0.5+j)*m_TofCfg.fPixelX2Dim;
             m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos,&fX2Pos);
 
 
-//			sprintf(szlabel,"%s_Q%i_LogTDSensor[%i][%02i]",pszStationName,nQuarticID,nPixelID,nPixelID);
                         sprintf(szlabel,"%s_Q%i_LogTDSensor[%i]",pszStationName,nQuarticID,nPixelID);
 			TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos,-0.5*m_AfpConstants.ToF_SensorThickness-fSensor2BarDistance,fX2Pos);
 			GeoLogVol* pLogSensor=new GeoLogVol(szlabel,pSolSensor,m_MapMaterials["SiliconPMT"]);
 			GeoOpticalPhysVol* pPhysSensor=new GeoOpticalPhysVol(pLogSensor);
-//			sprintf(szlabel,"%s_Q%i_TDSensor[%i][%02i]",pszStationName,nQuarticID,nPixelID,nPixelID);
                         sprintf(szlabel,"%s_Q%i_TDSensor[%i]",pszStationName,nQuarticID,nPixelID);
 			pPhysMotherVolume->add(new GeoNameTag(szlabel));
 			pPhysMotherVolume->add(new GeoTransform(TotTransform));
 			pPhysMotherVolume->add(pPhysSensor);
 			sprintf(szlabel,"%s_Q%i_SensorSurface[%i]",pszStationName,nQuarticID,nPixelID);
 			bsContainer->push_back(GeoBorderSurface(szlabel, pPhysSensor, pPhysMotherVolume, m_pOpticalSurface));
-			//m_mapTransToSensorCS[nPixelID]=TransInMotherVolume.inverse();
 
 			pPhysSensor=NULL;
 		}
 	}
-
-	/*
-    int i;
-    double fFirstSensorZPos;
-    HepGeom::Transform3D TotTransform;
-    char szLabel[64];
-
-    double fSensorLength=LQBarDims.fLBarZDim/LQBarDims.nNumOfSensors;
-    bool bIsOddSensorNumber=(LQBarDims.nNumOfSensors%2==0)? false:true;
-    GeoBox* pSolSensor=new GeoBox(0.5*TD_SENSORTHICKNESS,0.5*LQBarDims.fHorzBarYDim,0.5*fSensorLength);
-
-    fFirstSensorZPos=bIsOddSensorNumber? -((LQBarDims.nNumOfSensors-1)>>1)*fSensorLength:-((LQBarDims.nNumOfSensors>>1)-0.5)*fSensorLength;
-
-    for(i=0;i<LQBarDims.nNumOfSensors;i++)
-    {
-        TotTransform=TransInMotherVolume*HepGeom::TranslateZ3D(fFirstSensorZPos+i*fSensorLength);
-        sprintf(szLabel,"%s_Q%i_LogTDSensor[%i][%02i]",pszStationName,nQuarticID,nLQBarID,(m_CfgParams.tdcfg.nColsCnt>1)? nLQBarID:i);
-        GeoLogVol* pLogSensor=new GeoLogVol(szLabel,pSolSensor,m_MapMaterials["SiliconPMT"]);
-        GeoOpticalPhysVol* pPhysSensor=new GeoOpticalPhysVol(pLogSensor);
-        //sprintf(szLabel,"%s_Q%i_TDSensor[%i]",pszStationName,nQuarticID,nRowsCnt*i+j);
-        sprintf(szLabel,"%s_Q%i_TDSensor[%i][%02i]",pszStationName,nQuarticID,nLQBarID,(m_CfgParams.tdcfg.nColsCnt>1)? nLQBarID:i);
-        pPhysMotherVolume->add(new GeoNameTag(szLabel));
-        pPhysMotherVolume->add(new GeoTransform(TotTransform));
-        pPhysMotherVolume->add(pPhysSensor);
-        //TotTransform=TransInMotherVolume*HepGeom::TranslateZ3D(fFirstSensorZPos+i*fSensorLength);
-        //sprintf(szLabel,"%s_Q%i_LogSensor[%i][%02i]",pszStationName,nQuarticID,nLQBarID,(m_LBarDimensions.nNumOfLBars>1)? nLQBarID:i);
-        //G4LogicalVolume* pLogSensor=new G4LogicalVolume(pSolSensor,G4Material::GetMaterial("BoroGlass"),szbuff,NULL,0,0);
-        //sprintf(szbuff,"Sensor%02i",i);
-        //G4VPhysicalVolume* pPhysSensor=new G4PVPlacement(TotTransform,pLogSensor,szbuff,pLogMotherVolume,false,0);
-        //m_mapTransToSensorCS[i]=TransInMotherVolume.inverse();
-
-        pPhysSensor=NULL;
-    }
-*/
 }

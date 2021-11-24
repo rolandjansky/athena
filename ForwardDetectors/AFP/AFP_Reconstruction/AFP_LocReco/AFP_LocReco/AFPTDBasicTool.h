@@ -86,8 +86,6 @@ private:
   /// Maximal Amplitude at which bar can be joined to the track
 
   double m_maxAllowedLength;
-//  double m_TimeOffset[4];
-//  double m_BarWeight[4];
 
 std::vector<double> m_TimeOffset;
 std::vector<double> m_BarWeight;  

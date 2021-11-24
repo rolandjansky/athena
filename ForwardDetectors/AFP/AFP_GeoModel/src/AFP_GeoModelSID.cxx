@@ -113,7 +113,7 @@ GeoShape* AFP_GeoModelFactory::createSolidSIDPlate()
 {
 	MsgStream LogStream(Athena::getMessageSvc(), "AFP_GeoModelFactory::CreateSolidSIDPlate");
 
-	double fdelta=0.01*CLHEP::mm;//0.01*CLHEP::mm;
+	double fdelta=0.01*CLHEP::mm;
 	AFP_CONSTANTS AfpConstants;
 
 	GeoBox* pMainPlate=new GeoBox(0.5*AfpConstants.SiT_Plate_Main_length_x,0.5*AfpConstants.SiT_Plate_Main_length_y,0.5*AfpConstants.SiT_Plate_Main_thickness);
