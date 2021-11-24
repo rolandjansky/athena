@@ -235,8 +235,8 @@ namespace top {
      *
      * This sets up the isolation tool and configures it with the cuts.
      */
-    StandardIsolation(const std::string& tightLeptonIsolation = "Gradient",
-                      const std::string& looseLeptonIsolation = "None");
+    StandardIsolation(const std::string& tightLeptonIsolation,
+                      const std::string& looseLeptonIsolation);
 
     /**
      * @brief Does this particle pass the isolation cuts for the main analysis
