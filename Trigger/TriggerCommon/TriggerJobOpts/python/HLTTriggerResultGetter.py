@@ -3,7 +3,6 @@
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 
-from AthenaCommon.AppMgr import ServiceMgr
 from RecExConfig.Configured import Configured
 
 from RecExConfig.RecFlags import rec
@@ -72,81 +71,9 @@ class ByteStreamUnpackGetter(Configured):
 
 class ByteStreamUnpackGetterRun1or2(Configured):
     def configure(self):
-
-        log = logging.getLogger("ByteStreamUnpackGetterRun1or2")
-        from AthenaCommon.AlgSequence import AlgSequence 
-        topSequence = AlgSequence()
-        
-        # BS unpacking
-        from TrigBSExtraction.TrigBSExtractionConf import TrigBSExtraction
-        extr = TrigBSExtraction()
-
-        # Add fictional output to ensure data dependency in AthenaMT
-        # Keeping the run 2 workflow, we run this after we have put the full serialised navigation into xAOD
-        extr.ExtraInputs += [("xAOD::TrigNavigation", "StoreGateSvc+TrigNavigation")]
-        extr.ExtraOutputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
-        
-        if 'HLT' in ConfigFlags.Trigger.availableRecoMetadata:
-            from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
-            extr.NavigationForL2 = HLTNavigationOffline("NavigationForL2")
-            # Ignore the L2 TrigPassBits to avoid clash with EF (ATR-23411)
-            extr.NavigationForL2.ClassesFromPayloadIgnore = ["TrigPassBits#passbits"]
-
-            extr.Navigation = HLTNavigationOffline()
-
-            from TrigEDMConfig.TriggerEDM import getEDMLibraries
-            extr.Navigation.Dlls = getEDMLibraries()            
-
-            from TrigEDMConfig.TriggerEDM import getPreregistrationList
-            extr.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
-
-            from eformat import helper as efh
-            robIDMap = {}   # map of result keys and their ROB ID
-            if ConfigFlags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
-                robIDMap["HLTResult_L2"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_LVL2, 0).code()
-                robIDMap["HLTResult_EF"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_EVENT_FILTER, 0).code()
-                extr.L2ResultKey = "HLTResult_L2"
-                extr.HLTResultKey = "HLTResult_EF"
-            else:
-                robIDMap["HLTResult_HLT"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_HLT, 0).code()
-                extr.L2ResultKey = ""
-                extr.HLTResultKey = "HLTResult_HLT"
-
-            # Configure DataScouting
-            from PyUtils.MetaReaderPeeker import metadata
-            if 'stream' in metadata:
-                stream_local = metadata['stream']   # e.g. calibration_DataScouting_05_Jets
-                if stream_local.startswith('calibration_DataScouting_'):
-                    ds_tag = '_'.join(stream_local.split('_')[1:3])   # e.g. DataScouting_05
-                    ds_id = int(stream_local.split('_')[2])           # e.g. 05
-                    robIDMap[ds_tag] = efh.SourceIdentifier(efh.SubDetector.TDAQ_HLT, ds_id).code()
-                    extr.DSResultKeys += [ds_tag]
-
-        else:
-            log.info("Will not schedule HLT bytestream extraction")
-            # if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
-            # but the extraction algorithm must run
-            extr.L2ResultKey = ""
-            extr.HLTResultKey = ""
-            extr.DSResultKeys = []
-
-        topSequence += extr
-
-        # Add all HLTResult keys to AddressProvider
-        for k in robIDMap.keys():
-            ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ f"HLT::HLTResult/{k}" ]
-
-        # Create necessary public tools
-        from AthenaCommon.AppMgr import ToolSvc
-        from TrigSerializeTP.TrigSerializeTPConf import TrigSerTPTool
-        from TrigEDMConfig.TriggerEDM import getTPList
-        ToolSvc += TrigSerTPTool(TPMap = getTPList((ConfigFlags.Trigger.EDMVersion)))
-        
-        from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
-        ToolSvc += TrigSerializeConvHelper(doTP = True)
-
-        from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLT__HLTResultByteStreamTool
-        ToolSvc += HLT__HLTResultByteStreamTool(HLTResultRobIdMap = robIDMap)
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from TriggerJobOpts.TriggerRecoConfig import Run1Run2BSExtractionCfg
+        CAtoGlobalWrapper(Run1Run2BSExtractionCfg, ConfigFlags)
 
         return True
 
