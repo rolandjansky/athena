@@ -155,8 +155,11 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulat
   std::map<std::string, double> inputVariables;
   std::vector<int>              inputLayers = {0,1,2,3,12};
   if(is_match_pdgid(211) || is_match_pdgid(-211)){
+    ATH_MSG_INFO("Adding layers 13 and 14"); // Temporary
     inputLayers.push_back(13);
     inputLayers.push_back(14);
+  } else { // Temporary
+    ATH_MSG_INFO("Layers 13 and 14 will NOT be added for this particle");
   }
   for(int ilayer=0;ilayer<CaloCell_ID_FCS::MaxSample;++ilayer) {
     if(std::find(inputLayers.begin(), inputLayers.end(), ilayer) != inputLayers.end()){
@@ -191,13 +194,14 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
   // Get inputs to Neural Network
   std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001);
 
-  /* Temporary
+  // Temporary
   ATH_MSG_INFO("Before m_nn->compute()");
-  ATH_MSG_INFO("truth eta = "<< truth->Eta());
+  ATH_MSG_INFO("truth eta   = "<< truth->Eta());
+  ATH_MSG_INFO("truth pdgID = "<< truth->pdgid());
   ATH_MSG_INFO("inputVariables:");
   for(auto const& x : inputVariables){
     ATH_MSG_INFO("key:"<<x.first<<" value:"<<x.second);
-  }*/
+  }
 
   // Get predicted extrapolation weights
   auto outputs            = m_nn->compute(inputVariables);
