@@ -11,7 +11,6 @@
 #include "PixelByteStreamModuleMask.h"
 #include "ByteStreamData/RawEvent.h"
 #include "eformat/SourceIdentifier.h"
-#include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include <fstream>
@@ -111,6 +110,26 @@ StatusCode PixelRodDecoder::finalize() {
   return StatusCode::SUCCESS;
 }
 
+void PixelRodDecoder::propagateROBErrorsToModules(const PixelCablingCondData *pixCabling,
+                                                  uint32_t robId,
+                                                  std::array<uint64_t, PixelRodDecoder::ERROR_CONTAINER_MAX> &bsErrWord,
+                                                  IDCInDetBSErrContainer& decodingErrors,
+                                                  PixelByteStreamErrors::PixelErrorsEnum error_code,
+                                                  const char *error_description) const {
+   assert( pixCabling);
+   const std::deque<Identifier> offlineIdList = pixCabling->find_entry_offlineList(robId);
+   for (const Identifier& id: offlineIdList) {
+      IdentifierHash idHash = m_pixel_id->wafer_hash(id);
+      PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(idHash)],error_code);
+   }
+   ATH_MSG_DEBUG("ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates " << error_description << ".");
+   assert( bsErrWord.size() <= decodingErrors.maxSize() );
+   for (size_t i=0; i<static_cast<size_t>(bsErrWord.size()); i++) {
+      if (bsErrWord[i]>0) {
+         decodingErrors.setOrDrop(i,bsErrWord[i]);
+      }
+   }
+}
 
 //---------------------------------------------------------------------------------------------------- fillCixollection
 StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, IDCInDetBSErrContainer& decodingErrors, std::vector<IdentifierHash>* vecHash) const {
@@ -151,35 +170,21 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         Definition of the status words in a ROB fragment header is found in
            https://twiki.cern.ch/twiki/bin/view/Atlas/ROBINFragmentErrors#Definition_of_the_first_status_e
       */
-      if (((*rob_status) >> 27) & 0x1) {
-        const std::deque<Identifier> offlineIdList = pixCabling->find_entry_offlineList(robId);
-        for (const Identifier& id: offlineIdList) {
-          IdentifierHash idHash = m_pixel_id->wafer_hash(id);
-          PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(idHash)],PixelByteStreamErrors::TruncatedROB);
-        }
-        ATH_MSG_DEBUG("ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation.");
-        assert( bsErrWord.size() <= decodingErrors.maxSize() );
-        for (size_t i=0; i<static_cast<size_t>(bsErrWord.size()); i++) {
-          if (bsErrWord[i]>0) {
-            decodingErrors.setOrDrop(i,bsErrWord[i]);
-          }
-        }
-        return StatusCode::RECOVERABLE;
+      if ((*rob_status) & (0x1 << 27)) {
+         propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::TruncatedROB, "data truncation");
+         return StatusCode::RECOVERABLE;
       }
-      if (((*rob_status) >> 31) & 0x1) {
-        const std::deque<Identifier> offlineIdList = pixCabling->find_entry_offlineList(robId);
-        for (const Identifier& id: offlineIdList) {
-          IdentifierHash idHash = m_pixel_id->wafer_hash(id);
-          PixelByteStreamErrors::addError(bsErrWord[static_cast<int>(idHash)],PixelByteStreamErrors::MaskedROB);
-        }
-        ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off.");
-        assert( bsErrWord.size() <= decodingErrors.maxSize() );
-        for (size_t i=0; i<static_cast<size_t>(bsErrWord.size()); i++) {
-          if (bsErrWord[i]>0) {
-            decodingErrors.setOrDrop(i,bsErrWord[i]);
-          }
-        }
-        return StatusCode::RECOVERABLE;
+      if ((*rob_status) & (0x1 << 31)) {
+         propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::MaskedROB, "resource was masked off");
+         return StatusCode::RECOVERABLE;
+      }
+      // in case the ROB fragment has a seemingly invalid size check the fragment and reject it if the check is not passed.
+      // Note: there are usable ROB fragments (i.e. ROB fragments which contribute pixel hits to tracks) which do not pass the check, so
+      // rejecting all fragments which do not pass the test would reject also seemingly "good" data.
+      if (robFrag->rod_ndata() > robFrag->payload_size_word() && !robFrag->check_rod_noex(robFrag->rod_version() >> 16)) {
+         propagateROBErrorsToModules(pixCabling.cptr(),robId,bsErrWord,decodingErrors,PixelByteStreamErrors::TruncatedROB,
+                                     " invalid ROD fragment, invalid payload size");
+         return StatusCode::RECOVERABLE;
       }
     }
   }

@@ -14,6 +14,7 @@
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
+#include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class IPixelCablingSvc;
@@ -157,6 +158,14 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     
     //!< if the check duplicated RDO flag is true, check that this RDO is unique (returns true if unique)
     inline bool thisRdoIsUnique(const Identifier & pixelRdo, std::unordered_set<Identifier> & pixelRdosSeenSoFar) const;
+
+    //!< in case of invalid ROB fragments set corresponding error flags in all linked modules.
+    void propagateROBErrorsToModules(const PixelCablingCondData *pixCabling,
+                                     uint32_t robId,
+                                     std::array<uint64_t, PixelRodDecoder::ERROR_CONTAINER_MAX> &bsErrWord,
+                                     IDCInDetBSErrContainer& decodingErrors,
+                                     PixelByteStreamErrors::PixelErrorsEnum error_code,
+                                     const char *error_description) const;
 };
 
 bool 
