@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -115,8 +115,6 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
           Id2.Form("%d",j);
           for( int k=0; k<2; k++) {
              Id3.Form("%d",k);
-//                m_Signal[i][j][k] = new TH1F("Signal_"+Id1+"_"+Id2+"_"+Id3,"",2000,707000,717000);
-//                m_Signal[i][j][k] =  TH1F("Signal_"+Id1+"_"+Id2+"_"+Id3,"",2000,707000,717000);
                 m_Signal[i][j][k] =  TH1F("Signal_"+Id1+"_"+Id2+"_"+Id3,"",2000,105000,115000);
                                   }
                                }
@@ -229,21 +227,7 @@ StatusCode AFP_PileUpTool::recoToFHits()
   else
     ATH_MSG_DEBUG("AFP_PileUpTool: Simulated digi container retrieved");
 
-
-  // retrieve raw data
-//  const AFP_RawContainer *container = nullptr;
-//  if (evtStore()->retrieve(container, m_rawDataContainerName).isFailure()) {
-//    ATH_MSG_WARNING("AFP_Raw2DigiTool: Could not find raw data container");
-//    return StatusCode::SUCCESS;
-//  }
-//  else
-//    ATH_MSG_DEBUG("AFP_Raw2DigiTool: Raw data container retrieved");
-  
-//  for (const AFP_ToFRawCollection& collection: container->collectionsToF())
-//    for (const AFP_ToFRawData& data : collection.dataRecords())
-//      if (data.hitDiscConfig() == 3 && data.header() == 2) 
-
-	newXAODHitToF (m_TDHitCollection, container);
+  newXAODHitToF (m_TDHitCollection, container);
 
   return StatusCode::SUCCESS;
 }
@@ -608,12 +592,6 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
   if (id > 6) id=6;
   if (id < 0) id=0;
 
-// double prescale=1.;
-
-//#ifdef TDMAXQEFF
-// prescale = TDMAXQEFF ; 
-//#endif
- 
   
   if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > m_QuantumEff_PMT[id]*m_CollectionEff) return;
   double PheTime = CLHEP::RandGaussQ::shoot(rndEngine, GlobalTime + 5.* m_ConversionSpr, m_ConversionSpr);

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file   AFPToFTrackRecoAlgID.h
- * @author Leszek Adamczyk <grzegorz.gach@cern.ch>
- * @date   2021-11-1
+ * @author Leszek Adamczyk <leszek.adamczyk@agh.edu.pl>
+ * @date   2021-11-01
  * 
  * @brief  Definitions of identification numbers of track reconstruction algorithms
  * 

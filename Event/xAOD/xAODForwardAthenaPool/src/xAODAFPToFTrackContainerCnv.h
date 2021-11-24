@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
  * @file AFPToFTrackContainerCnv.h
  * @brief Generated header file which defines a typedef for templated converter class
- * @author RD Schaffer <R.D. Schaffer@cern.ch>
+ * @author Leszek Adamczyk <leszek.adamczyk@agh.edu.pl>
  */
 
 #ifndef AFPTOFTRACKCONTAINERCNV_H
