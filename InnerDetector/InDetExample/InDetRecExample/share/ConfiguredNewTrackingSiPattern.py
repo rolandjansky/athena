@@ -108,7 +108,7 @@ class  ConfiguredNewTrackingSiPattern:
 
            ServiceMgr.THistSvc.Output  = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"]
             
-         if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
+         if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
             
@@ -243,7 +243,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                              useSCT                = DetFlags.haveRIO.SCT_on() if not is_dbm else False,
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
                                                              SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
-         if NewTrackingCuts.mode() == "Offline": 
+         if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS": 
              track_finder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
          if is_dbm :
             track_finder.MagneticFieldMode     = "NoField"
@@ -256,7 +256,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          ToolSvc += track_finder
 
-         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "DBM"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS" or NewTrackingCuts.mode() == "DBM"
          from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
          InDetSiTrackMaker = SiTrackMaker(name                      = 'InDetSiTrackMaker'+NewTrackingCuts.extension(),
                                           useSCT                    = NewTrackingCuts.useSCT(),
@@ -375,7 +375,7 @@ class  ConfiguredNewTrackingSiPattern:
 
           if InDetFlags.doHeavyIon() :
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
-          if NewTrackingCuts.mode() == "Offline": 
+          if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS": 
              InDetSiSPSeededTrackFinder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
 
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
@@ -500,7 +500,7 @@ class  ConfiguredNewTrackingSiPattern:
          #
          # --- load Ambiguity Processor
          #
-         useBremMode = NewTrackingCuts.mode() == "Offline"
+         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS"
 
          # @TODO is the cluster split probability container needed here ?
          ambi_track_summary_tool = TrackingCommon.getInDetTrackSummaryTool(namePrefix                 = 'InDetAmbiguityProcessorSplitProb',
