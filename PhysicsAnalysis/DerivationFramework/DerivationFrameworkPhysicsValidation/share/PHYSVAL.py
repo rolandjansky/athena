@@ -25,6 +25,7 @@ from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
 from TriggerMenuMT.TriggerAPI.TriggerAPI import TriggerAPI
 from TriggerMenuMT.TriggerAPI.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+from DerivationFrameworkTrigger.TrigSlimmingHelper import addTrigEDMSetToOutput
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 #====================================================================
@@ -269,6 +270,8 @@ PHYSVALSlimmingHelper.IncludeEtMissTriggerContent = True
 PHYSVALSlimmingHelper.IncludeBJetTriggerContent = True
 PHYSVALSlimmingHelper.IncludeBPHYSVALTriggerContent = True
 PHYSVALSlimmingHelper.IncludeMinBiasTriggerContent = True
+addTrigEDMSetToOutput(PHYSVALSlimmingHelper, "AODFULL")
+
 
 # Add the jet containers to the stream (defined in JetCommon if import needed)
 #addJetOutputs(PHYSVALSlimmingHelper,["PHYSVAL"])
