@@ -5,7 +5,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from ActsTrkFinding.ActsSeedingAlgorithmConfig import ActsSeedingAlgorithmCfg
 from ActsTrkFinding.ActsSequenceConfiguration import acts_sequence_configuration
-from ActsInterop import UnitConstants
 
 @acts_sequence_configuration
 def ActsTrackingSequenceFromAthenaCfg(ConfigFlags, 
@@ -21,12 +20,6 @@ def ActsTrackingSequenceFromAthenaCfg(ConfigFlags,
             seedingOptions = { 'OutputSpacePoints' : f'ActsSpacePoint_{i_collection}',
                                'OutputSpacePointData' : f'ActsSpacePointData_{i_collection}' }
 
-            # Change a few properties of the seeding tool to let the code run on SCT
-            # These values are temporary and totally not tuned, while a proper configuration 
-            # for Pixel and SCT is being defined
-            if i_collection == "SCT_SpacePoints":
-                seedingOptions['SeedingToolOptions'] = { 'rMax' : 600 * UnitConstants.mm,
-                                                         'deltaRMax' : 400 * UnitConstants.mm }                
             acc.merge(ActsSeedingAlgorithmCfg(ConfigFlags,
                                               name = 'ActsSeedingFromAthenaAlgorithm',
                                               inputCollection = i_collection,
