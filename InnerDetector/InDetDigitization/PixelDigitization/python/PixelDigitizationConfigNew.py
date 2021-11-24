@@ -62,7 +62,7 @@ def EfieldInterpolatorCfg(flags, name="EfieldInterpolator", **kwargs):
 def EnergyDepositionToolCfg(flags, name="EnergyDepositionTool", **kwargs):
     """Return a configured EnergyDepositionTool"""
     acc = PixelDistortionAlgCfg(flags)
-    kwargs.setdefault("DeltaRayCut", 117.)
+    kwargs.setdefault("DeltaRayCut", 80.7687)
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
     kwargs.setdefault("doBichsel", True)

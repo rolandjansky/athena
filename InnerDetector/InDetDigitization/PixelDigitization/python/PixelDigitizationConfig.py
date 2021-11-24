@@ -40,7 +40,7 @@ def EfieldInterpolator(name="EfieldInterpolator", **kwargs):
     return CfgMgr.EfieldInterpolator(name, **kwargs)
 
 def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
-    kwargs.setdefault("DeltaRayCut", 117.)
+    kwargs.setdefault("DeltaRayCut", 80.7687)  
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
