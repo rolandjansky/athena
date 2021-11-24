@@ -1190,7 +1190,7 @@ void VP1TrackingGeometrySystem::processMsVolume(const Trk::TrackingVolume* tvol,
   if (detVols) {
     // identify separators
     std::vector<const Trk::DetachedTrackingVolume*>::const_iterator dIter = detVols->begin();
-    for ( ;dIter!=detVols->end(); dIter++) {
+    for ( ;dIter!=detVols->end(); ++dIter) {
       if ( (tvol->inside((*dIter)->trackingVolume()->center(),0.) || (*dIter)->trackingVolume()->center().perp()<0.001) ) {
 	std::string name = (*dIter)->name();
         if ( name.substr(0,2) == "BI" ) { sepHelper = m_d->sephelper_msBI; layHelper =  m_d->sephelper_msBIlay; }

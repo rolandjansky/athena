@@ -398,7 +398,7 @@ void VP1VertexCollection::Imp::findAssociatedTracks(const Trk::VxCandidate * vtx
     return;
 
   const std::vector<Trk::VxTrackAtVertex*> * tmpVxTAVtx = vtx->vxTrackAtVertex();
-  for ( std::vector<Trk::VxTrackAtVertex*>::const_iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++ ) {
+  for ( std::vector<Trk::VxTrackAtVertex*>::const_iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); ++itr) {
     Trk::ITrackLink * link = *itr ? (*itr)->trackOrParticleLink() : 0;
     if (!link) continue;
     
@@ -468,7 +468,7 @@ bool VP1VertexCollection::load()
     return false;
 
   int i(0);
-  for ( VxContainer::const_iterator vtxItr=vxContainer->begin(); vtxItr != vxContainer->end() ; vtxItr++ ) {
+  for ( VxContainer::const_iterator vtxItr=vxContainer->begin(); vtxItr != vxContainer->end() ; ++vtxItr ) {
     const Trk::VxCandidate* theVxCandidate = *vtxItr;
     if (!theVxCandidate)
       continue;
