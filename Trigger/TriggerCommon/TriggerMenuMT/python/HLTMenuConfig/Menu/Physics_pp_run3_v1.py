@@ -51,7 +51,6 @@ JetStreamersGroup = ['RATE:SeededStreamers', 'BW:Jet']
 JetPhaseIStreamersGroup = ['RATE:PhaseISeededStreamers', 'BW:Jet']
 METStreamersGroup = ['RATE:SeededStreamers', 'BW:MET']
 METPhaseIStreamersGroup = ['RATE:PhaseISeededStreamers', 'BW:MET']
-BCIDmonGroup = ['MON:BCID']
 # For chains seeded by L1 muon (no calo items)
 PrimaryL1MuGroup = ['Primary:L1Muon']
 # For chains containing a legacy L1 calo / topo item
@@ -318,7 +317,7 @@ def setupMenu():
         ChainProp(name='HLT_j300_320eta490_L1J75p31ETA49', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+PrimaryLegGroup),
 
         # ATR-20049
-        ChainProp(name='HLT_j420_L1J100', l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleJetGroup+BCIDmonGroup),
+        ChainProp(name='HLT_j420_L1J100', l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleJetGroup),
         ChainProp(name='HLT_j260_320eta490_L1J75p31ETA49', l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleJetGroup),
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1SC111-CJ15',         l1SeedThresholds=['FSNOSEED'], groups=PrimaryLegGroup+SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1J100', l1SeedThresholds=['FSNOSEED'],  groups=PrimaryLegGroup+SingleJetGroup),
@@ -440,7 +439,7 @@ def setupMenu():
         ChainProp(name='HLT_j300_320eta490_L1jJ75p31ETA49', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+PrimaryPhIGroup),
 
         # ATR-20049
-        ChainProp(name='HLT_j420_L1jJ100', l1SeedThresholds=['FSNOSEED'], groups=PrimaryPhIGroup+SingleJetGroup+BCIDmonGroup),
+        ChainProp(name='HLT_j420_L1jJ100', l1SeedThresholds=['FSNOSEED'], groups=PrimaryPhIGroup+SingleJetGroup),
         ChainProp(name='HLT_j260_320eta490_L1jJ75p31ETA49', l1SeedThresholds=['FSNOSEED'], groups=PrimaryPhIGroup+SingleJetGroup),
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1SC111-CjJ15',         l1SeedThresholds=['FSNOSEED'], groups=PrimaryPhIGroup+SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1jJ100', l1SeedThresholds=['FSNOSEED'],  groups=PrimaryPhIGroup+SingleJetGroup),
