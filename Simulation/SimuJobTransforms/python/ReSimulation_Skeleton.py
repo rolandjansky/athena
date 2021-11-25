@@ -25,7 +25,7 @@ def defaultReSimulationFlags(ConfigFlags, detectors):
     # ConfigFlags.Sim.LArParameterization = 2
 
     # Fatras does not support simulating the BCM, so have to switch that off
-    if ConfigFlags.Sim.ISF.Simulator in ('ATLFASTIIF', 'ATLFASTIIFMT', 'ATLFASTIIF_G4MS'):
+    if ConfigFlags.Sim.ISF.Simulator in ('ATLFASTIIF', 'ATLFASTIIFMT', 'ATLFASTIIF_G4MS', 'ATLFAST3F_G4MS'):
         try:
             detectors.remove('BCM')
         except ValueError:

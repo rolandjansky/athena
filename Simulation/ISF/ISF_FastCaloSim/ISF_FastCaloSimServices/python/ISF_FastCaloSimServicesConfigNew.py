@@ -373,7 +373,7 @@ def FastCaloSimV2SvcCfg(flags, name="ISF_FastCaloSimSvcV2", **kwargs):
     acc = ComponentAccumulator()
     tool = acc.popToolsAndMerge(FastCaloSimV2ToolCfg(flags))
     acc.addPublicTool(tool)
-    kwargs.setdefault("SimulatorTool", acc.getPublicTools(tool))
+    kwargs.setdefault("SimulatorTool", acc.getPublicTool(tool.name))
     kwargs.setdefault("Identifier", "FastCaloSim")
     acc.addService(CompFactory.ISF.LegacySimSvc(name, **kwargs), primary = True)
     return acc
