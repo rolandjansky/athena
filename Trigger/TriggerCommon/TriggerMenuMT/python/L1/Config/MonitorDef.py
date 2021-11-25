@@ -75,12 +75,15 @@ class MonitorDef:
         cThr = {}
         cThr[1] = [ 'AFP_NSA', 'AFP_NSC', 'AFP_FSA', 'AFP_FSC', 'AFP_FSA_TOF_T0', 'AFP_FSC_TOF_T0',
                     'AFP_FSA_TOF_T1', 'AFP_FSC_TOF_T1', 'AFP_FSA_TOF_T2', 'AFP_FSC_TOF_T2', 'AFP_FSA_TOF_T3', 'AFP_FSC_TOF_T3',
-                    'BPTX0', 'BPTX1', 'LUCID_C', 'J20', 'MU3V', 'TE50', 'XE35', 'XE50',
+                    'BPTX0', 'BPTX1', 
+                    'LUCID_A', 'LUCID_C', 
+                    'J20', 'MU3V', 'TE50', 'XE35', 'XE50',
+                    'ZDC_A', 'ZDC_C', 'ZDC_AND',
                     'MBTS_A', 'MBTS_C',
-                    #'MBTS_A0', 'MBTS_A1', 'MBTS_A2',  'MBTS_A3',  'MBTS_A4',  'MBTS_A5',  'MBTS_A6',  'MBTS_A7',
-                    #'MBTS_A8', 'MBTS_A9', 'MBTS_A10', 'MBTS_A11', 'MBTS_A12', 'MBTS_A13', 'MBTS_A14', 'MBTS_A15',
-                    #'MBTS_C0', 'MBTS_C1', 'MBTS_C2',  'MBTS_C3',  'MBTS_C4',  'MBTS_C5',  'MBTS_C6',  'MBTS_C7',
-                    #'MBTS_C8', 'MBTS_C9', 'MBTS_C10', 'MBTS_C11', 'MBTS_C12', 'MBTS_C13', 'MBTS_C14', 'MBTS_C15' 
+                    'MBTS_A0', 'MBTS_A1', 'MBTS_A2',  'MBTS_A3',  'MBTS_A4',  'MBTS_A5',  'MBTS_A6',  'MBTS_A7',
+                    'MBTS_A8', 'MBTS_A9', 'MBTS_A10', 'MBTS_A11', 'MBTS_A12', 'MBTS_A13', 'MBTS_A14', 'MBTS_A15',
+                    'MBTS_C0', 'MBTS_C1', 'MBTS_C2',  'MBTS_C3',  'MBTS_C4',  'MBTS_C5',  'MBTS_C6',  'MBTS_C7',
+                    'MBTS_C8', 'MBTS_C9', 'MBTS_C10', 'MBTS_C11', 'MBTS_C12', 'MBTS_C13', 'MBTS_C14', 'MBTS_C15' 
                    ]
 
         for mult in cThr:
@@ -112,7 +115,9 @@ class MonitorDef:
 
         if 'HI' not in menuName:
             monItems[TBP|TAP|TAV] = [
-                "L1_EM3","L1_EM20VH","L1_EM22VHI", "L1_EM24VHI",
+                "L1_EM3",
+                "L1_EM12", # keep for LUMI group
+                "L1_EM20VH","L1_EM22VHI", "L1_EM24VHI",
                 "L1_MU8F","L1_MU8VF","L1_MU14FCH", "L1_MU14FCHR",
                 "L1_TAU12IM", "L1_TAU20IM", "L1_TAU40", "L1_TAU100",
                 "L1_J100", "L1_J75p31ETA49", "L1_4J15p0ETA25", "L1_J30p31ETA49",
@@ -130,6 +135,7 @@ class MonitorDef:
         else:
             monItems[TBP|TAP|TAV] = [
                 "L1_EM20VH", 
+                "L1_EM12", # keep for LUMI group
                 "L1_MU8F","L1_MU8VF","L1_MU14FCH", "L1_MU14FCHR",
                 "L1_J100", "L1_J75p31ETA49","L1_J30p31ETA49",
                 "L1_XE35", "L1_XE50",
@@ -153,7 +159,7 @@ class MonitorDef:
 
 
 
-        check = False
+        check = True
         if check:
             counts_LF_items = { TBP : set(), TAP : set(), TAV : set() }
             counts_HF_items = { TBP : set(), TAP : set(), TAV : set() }
@@ -179,16 +185,18 @@ class MonitorDef:
             lutsHF = ( max(counts_HF.values())-1) / 8 + 1
 
             if lutsLF + lutsHF > 8:
-                log.warning("too many monitoring items are defined:")
-                log.warning("   low frequency  TBP: %i",counts_LF[TBP])
-                log.warning("                  TAP: %i",counts_LF[TAP])
-                log.warning("                  TAV: %i",counts_LF[TAV])
-                log.warning("   required LUTs: %i",lutsLF)
-                log.warning("   high frequency TBP: %i",counts_HF[TBP])
-                log.warning("                  TAP: %i",counts_HF[TAP])
-                log.warning("                  TAV: %i",counts_HF[TAV])
-                log.warning("   required LUTs: %i",lutsHF)
-                log.warning("   this menu requires %i monitoring LUTs while only 8 are available", (lutsLF + lutsHF))
+                log.error("too many monitoring items are defined:")
+                log.error("   low frequency  TBP: %i",counts_LF[TBP])
+                log.error("                  TAP: %i",counts_LF[TAP])
+                log.error("                  TAV: %i",counts_LF[TAV])
+                log.error("   required LUTs: %i",lutsLF)
+                log.error("   high frequency TBP: %i",counts_HF[TBP])
+                log.error("                  TAP: %i",counts_HF[TAP])
+                log.error("                  TAV: %i",counts_HF[TAV])
+                log.error("   required LUTs: %i",lutsHF)
+                log.error("   this menu requires %i monitoring LUTs while only 8 are available", (lutsLF + lutsHF))
+                raise RuntimeError("Reduce the number of monitored items") 
+
 
         MonitorDef.checkForNonExistingMonItems(items, monItems)
 
@@ -206,10 +214,6 @@ class MonitorDef:
 
                 if itemName in l:
                     item.addMonitor(k, MonitorDef.HIGH_FREQ)
-
-
-
-
 
 
     @staticmethod
