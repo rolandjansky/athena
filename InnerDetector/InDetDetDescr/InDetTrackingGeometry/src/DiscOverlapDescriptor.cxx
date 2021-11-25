@@ -18,6 +18,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/Identifier.h"
+#include <utility>
 
 InDet::DiscOverlapDescriptor::DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array, 
                                                     std::vector<Trk::BinUtility*>* singleBinUtils,
@@ -105,13 +106,13 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
         int etamod = m_pixelCase ? m_pixIdHelper.load()->eta_module((*(surf.at(offset))).associatedDetectorElementIdentifier()) : m_sctIdHelper.load()->eta_module((*(surf.at(offset))).associatedDetectorElementIdentifier());
         
         if (etamod == etaModule || etamod<(etaModule-1) || etamod>(etaModule+1)) {
-          offset += (m_singleBinUtils->at(bin))->bins();
+          offset += (std::as_const(*m_singleBinUtils).at(bin))->bins();
           continue;
         }
         
         double PrevDeltaPhi = 9999.;
         double NextDeltaPhi = -9999.;
-        for (unsigned int ss = offset; ss < (offset+(m_singleBinUtils->at(bin))->bins()); ss++ ) {
+        for (unsigned int ss = offset; ss < (offset+(std::as_const(*m_singleBinUtils).at(bin))->bins()); ss++ ) {
           if (etamod == (etaModule-1) ) {
             if( tsf.center().phi() == (*(surf.at(ss))).center().phi() )
               samePhi_PrevEta = surf.at(ss);
@@ -139,7 +140,7 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
             }
           }
         }
-        offset += (m_singleBinUtils->at(bin))->bins();
+        offset += (std::as_const(*m_singleBinUtils).at(bin))->bins();
       }
       
       if (samePhi_PrevEta) {
