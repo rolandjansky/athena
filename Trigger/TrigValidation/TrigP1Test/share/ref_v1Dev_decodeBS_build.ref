@@ -4671,11 +4671,11 @@ HLT_noalg_L1ZDC_AND:
 HLT_noalg_L1ZDC_C:
   eventCount: 0
 HLT_noalg_L1cTAU12M:
-  eventCount: 0
+  eventCount: 25
 HLT_noalg_L1cTAU20M:
-  eventCount: 0
+  eventCount: 14
 HLT_noalg_L1cTAU25M:
-  eventCount: 0
+  eventCount: 7
 HLT_noalg_L1eEM10L:
   eventCount: 1
 HLT_noalg_L1eEM12:
