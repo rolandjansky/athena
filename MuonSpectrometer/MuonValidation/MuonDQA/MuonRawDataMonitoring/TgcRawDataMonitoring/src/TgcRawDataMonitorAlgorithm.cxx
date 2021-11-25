@@ -701,9 +701,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 
       // standard quality cuts for muons
       if (muon->pt() < 1000.) continue;
-      if (muon->muonType() != xAOD::Muon::Combined) continue;
-      if (muon->author() != xAOD::Muon::MuidCo && muon->author() != xAOD::Muon::STACO) continue;
-      if (muon->quality() != xAOD::Muon::Tight && muon->quality() != xAOD::Muon::Medium) continue;
+      if (m_offlMuonCutOnMuonType.value() && muon->muonType() != xAOD::Muon::Combined) continue;
+      if (m_offlMuonCutOnAuthor.value() && muon->author() != xAOD::Muon::MuidCo && muon->author() != xAOD::Muon::STACO) continue;
+      if (m_offlMuonCutOnQuality.value() && muon->quality() != xAOD::Muon::Tight && muon->quality() != xAOD::Muon::Medium) continue;
 
       // initialize for muon-isolation check
       bool isolated = true;
@@ -738,9 +738,9 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
 	if(probeOK)continue;
 
 	//  standard quality cuts for muons
-	if( muon2->muonType()!=xAOD::Muon::Combined )continue;
-	if( muon2->author()!=xAOD::Muon::MuidCo && muon2->author()!=xAOD::Muon::STACO )continue;
-	if( muon2->quality()!=xAOD::Muon::Tight && muon2->quality()!=xAOD::Muon::Medium )continue;
+	if( m_offlMuonCutOnMuonType.value() && muon2->muonType()!=xAOD::Muon::Combined )continue;
+	if( m_offlMuonCutOnAuthor.value() && muon2->author()!=xAOD::Muon::MuidCo && muon2->author()!=xAOD::Muon::STACO )continue;
+	if( m_offlMuonCutOnQuality.value() && muon2->quality()!=xAOD::Muon::Tight && muon2->quality()!=xAOD::Muon::Medium )continue;
 
 	// loop over the single muon triggers if at least one of them matches this second muon
 	for (const auto &trigName : list_of_single_muon_triggers) {
@@ -868,6 +868,34 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     oflmuon_variables.push_back(oflmuon_pileup);
     auto oflmuon_lumiBlock = Monitored::Scalar<int>("oflmuon_lumiBlock", GetEventInfo(ctx)->lumiBlock());
     oflmuon_variables.push_back(oflmuon_lumiBlock);
+
+
+    auto oflmuon_num = Monitored::Scalar<int>("oflmuon_num", (*muons).size());
+    oflmuon_variables.push_back(oflmuon_num);
+    auto oflmuon_pt = Monitored::Collection("oflmuon_pt", *muons, [](const xAOD::Muon* m) {
+	return m->pt() / Gaudi::Units::GeV;
+      });
+    oflmuon_variables.push_back(oflmuon_pt);
+    auto oflmuon_eta = Monitored::Collection("oflmuon_eta", *muons, [](const xAOD::Muon* m) {
+	return m->eta();
+      });
+    oflmuon_variables.push_back(oflmuon_eta);
+    auto oflmuon_phi = Monitored::Collection("oflmuon_phi", *muons, [](const xAOD::Muon* m) {
+	return m->phi();
+      });
+    oflmuon_variables.push_back(oflmuon_phi);
+    auto oflmuon_muonType = Monitored::Collection("oflmuon_muonType", *muons, [](const xAOD::Muon* m) {
+	return m->muonType();
+      });
+    oflmuon_variables.push_back(oflmuon_muonType);
+    auto oflmuon_author = Monitored::Collection("oflmuon_author", *muons, [](const xAOD::Muon* m) {
+	return m->author();
+      });
+    oflmuon_variables.push_back(oflmuon_author);
+    auto oflmuon_quality = Monitored::Collection("oflmuon_quality", *muons, [](const xAOD::Muon* m) {
+	return m->quality();
+      });
+    oflmuon_variables.push_back(oflmuon_quality);
 
     auto muon_eta4gev = Monitored::Collection("muon_eta4gev",mymuons,[](const MyMuon& m){
 	return (m.muon->pt()>pt_4_cut)?m.muon->eta():-10;
