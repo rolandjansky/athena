@@ -686,10 +686,10 @@ def triggerIDCCacheCreatorsCfg(flags, seqName = None):
     """
     acc = ComponentAccumulator(seqName)
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
-    acc.merge( MuonCacheCfg(), sequenceName = seqName )
+    acc.merge( MuonCacheCfg(flags), sequenceName = seqName )
 
     from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheCfg
-    acc.merge( MuonPrdCacheCfg(), sequenceName = seqName )
+    acc.merge( MuonPrdCacheCfg(flags), sequenceName = seqName )
 
     from TrigInDetConfig.TrigInDetConfig import InDetIDCCacheCreatorCfg
     acc.merge( InDetIDCCacheCreatorCfg(), sequenceName = seqName )

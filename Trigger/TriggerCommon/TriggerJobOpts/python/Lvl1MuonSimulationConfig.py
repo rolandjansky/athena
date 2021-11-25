@@ -30,7 +30,7 @@ def _MuonBytestream2RdoSequence(flags):
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
     MuonCacheCreator=CompFactory.MuonCacheCreator
     cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
-                                    CscCacheKey    = MuonCacheNames.CscCache,
+                                    CscCacheKey    = MuonCacheNames.CscCache if flags.Detector.GeometryCSC else "",
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
     acc.addEventAlgo(cacheCreator)
@@ -61,15 +61,16 @@ def _MuonBytestream2RdoSequence(flags):
                                                               ProviderTool = MuonTgcRawDataProviderTool)
     acc.addEventAlgo(TgcRawDataProvider)
     # for CSC
-    CSCRodDecoder = CompFactory.Muon.CscROD_Decoder(name = "CscROD_Decoder" + postFix,
-                                                     IsCosmics = False,
-                                                     IsOldCosmics = False )
-    MuonCscRawDataProviderTool = CompFactory.Muon.CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
-                                                                             CscContainerCacheKey = MuonCacheNames.CscCache,
-                                                                             Decoder = CSCRodDecoder )
-    CscRawDataProvider = CompFactory.Muon.CscRawDataProvider(name = "CscRawDataProvider" + postFix,
-                                                              ProviderTool = MuonCscRawDataProviderTool)
-    acc.addEventAlgo(CscRawDataProvider)
+    if flags.Detector.GeometryCSC:
+        CSCRodDecoder = CompFactory.Muon.CscROD_Decoder(name = "CscROD_Decoder" + postFix,
+                                                        IsCosmics = False,
+                                                        IsOldCosmics = False )
+        MuonCscRawDataProviderTool = CompFactory.Muon.CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
+                                                                                CscContainerCacheKey = MuonCacheNames.CscCache,
+                                                                                Decoder = CSCRodDecoder )
+        CscRawDataProvider = CompFactory.Muon.CscRawDataProvider(name = "CscRawDataProvider" + postFix,
+                                                                 ProviderTool = MuonCscRawDataProviderTool)
+        acc.addEventAlgo(CscRawDataProvider)
     return acc
 
 def Lvl1MuonSimulationCfg(flags):

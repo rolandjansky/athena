@@ -100,7 +100,7 @@ def MuonBytestream2RdoSequence(flags):
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
     MuonCacheCreator=CompFactory.MuonCacheCreator
     cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
-                                    CscCacheKey    = MuonCacheNames.CscCache,
+                                    CscCacheKey    = MuonCacheNames.CscCache if flags.Detector.GeometryCSC else "",
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
     
@@ -127,21 +127,25 @@ def MuonBytestream2RdoSequence(flags):
                                                                              Decoder = TGCRodDecoder )
     TgcRawDataProvider = CompFactory.Muon__TgcRawDataProvider(name = "TgcRawDataProvider" + postFix,
                                                               ProviderTool = MuonTgcRawDataProviderTool)
+
+    bs2rdoSeq = [cacheCreator,
+                 RpcRawDataProvider,
+                 TgcRawDataProvider,
+                 MdtRawDataProvider]
     # for CSC
-    CSCRodDecoder = CompFactory.Muon__CscROD_Decoder(name = "CscROD_Decoder" + postFix,
-                                                     IsCosmics = False,
-                                                     IsOldCosmics = False )
-    MuonCscRawDataProviderTool = CompFactory.Muon__CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
-                                                                             CscContainerCacheKey = MuonCacheNames.CscCache,
-                                                                             Decoder = CSCRodDecoder )
-    CscRawDataProvider = CompFactory.Muon__CscRawDataProvider(name = "CscRawDataProvider" + postFix,
-                                                              ProviderTool = MuonCscRawDataProviderTool)
+    if flags.Detector.GeometryCSC:
+        CSCRodDecoder = CompFactory.Muon__CscROD_Decoder(name = "CscROD_Decoder" + postFix,
+                                                         IsCosmics = False,
+                                                         IsOldCosmics = False )
+        MuonCscRawDataProviderTool = CompFactory.Muon__CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
+                                                                                 CscContainerCacheKey = MuonCacheNames.CscCache,
+                                                                                 Decoder = CSCRodDecoder )
+        CscRawDataProvider = CompFactory.Muon__CscRawDataProvider(name = "CscRawDataProvider" + postFix,
+                                                                  ProviderTool = MuonCscRawDataProviderTool)
+        bs2rdoSeq+=CscRawDataProvider
+
     from AthenaCommon.CFElements import seqAND
-    muonBS2RDO = seqAND( "MuonBs2RdoSeqForL1Muon", [cacheCreator,
-                                                    RpcRawDataProvider,
-                                                    TgcRawDataProvider,
-                                                    MdtRawDataProvider,
-                                                    CscRawDataProvider] )
+    muonBS2RDO = seqAND( "MuonBs2RdoSeqForL1Muon", bs2rdoSeq )
     return muonBS2RDO
     
 def MuonRdo2PrdSequence(flags):
