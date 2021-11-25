@@ -10,6 +10,7 @@
 #from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+from .SignatureDicts import ChainStore
 
 import TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 as physics_menu 
 
@@ -35,12 +36,14 @@ def addP1Signatures(chains):
     from AthenaCommon.Logging import logging
     log = logging.getLogger( __name__ )
     log.info('[setupMenu] going to add the PhysicsP1 menu chains now')
+
+    chainsP1 = ChainStore()
     
-    chains['Muon'] += [
+    chainsP1['Muon'] = [
         ChainProp(name='HLT_mu50_RPCPEBSecondaryReadout_L1MU14FCH', stream=['RPCSecondaryReadout'], groups=['PS:Online']+SingleMuonGroup), # TODO: Move to Detector slice
      ]
 
-    chains['Egamma'] += [
+    chainsP1['Egamma'] = [
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
         ChainProp(name='HLT_g3_loose_LArPEBHLT_L1EM3', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
         ChainProp(name='HLT_g12_loose_LArPEBHLT_L1EM10VH', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
@@ -50,7 +53,7 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM22VHI', stream=['LArCells'], groups=['PS:Online']+SinglePhotonGroup),
     ]
 
-    chains['Jet'] += [
+    chainsP1['Jet'] = [
         ChainProp(name='HLT_j0_perf_L1J12_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['Main'], groups=['PS:Online']+SingleJetGroup),
 
         # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
@@ -62,13 +65,13 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_j165_LArPEBHLT_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online']+SingleJetGroup),
     ]
 
-    chains['Beamspot'] += [
+    chainsP1['Beamspot'] = [
           ChainProp(name='HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
           #ChainProp(name='HLT_beamspot_activeTE_trkfast_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
           #ChainProp(name='HLT_beamspot_trkFS_trkfast_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['RATE:BeamSpot',  'BW:BeamSpot']),
     ]
 
-    chains['Calib'] += [
+    chainsP1['Calib'] = [
         ChainProp(name='HLT_noalg_LArPEBCalib_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArPEB'], groups=['PS:Online','RATE:Calibration','BW:Detector']),
         ChainProp(name='HLT_noalg_LArPEBCalib_L1RD0_BGRP11', l1SeedThresholds=['FSNOSEED'], stream=['LArPEB'], groups=['PS:Online','RATE:Calibration','BW:Detector']),
 
@@ -114,13 +117,13 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_larpsall_L1J30p31ETA49_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']),
     ]
 
-    chains['Cosmic'] += [
+    chainsP1['Cosmic'] = [
         ChainProp(name='HLT_noalg_SCTPEB_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['SCTNoise'], groups=['PS:Online','RATE:SCTCalibration','BW:Detector']), # HLT_sct_noise
         ChainProp(name='HLT_noalg_laser_TilePEB_L1CALREQ2', l1SeedThresholds=['FSNOSEED'], stream=['Tile'], groups=['PS:Online','RATE:TileCalibration','BW:Detector']), # HLT_tilecalib_laser 
         ChainProp(name='HLT_noalg_CIS_TilePEB_L1CALREQ1', l1SeedThresholds=['FSNOSEED'], stream=['Tile'], groups=['PS:Online','RATE:TileCalibration','BW:Detector']), # HLT_tilecalib_CIS 
     ]
 
-    chains['Streaming'] += [
+    chainsP1['Streaming'] = [
         ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+MinBiasGroup),
         ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+MinBiasGroup),  
         ChainProp(name='HLT_noalg_L1RD0_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['Background'], groups=['PS:Online']),  
@@ -297,14 +300,24 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_noalg_L1ZDC_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
         ChainProp(name='HLT_noalg_L1ZDC_AND', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportLegGroup),
 
-        ChainProp(name='HLT_noalg_L1jJ400_LAR', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=PrimaryPhIGroup+JetStreamersGroup+['BW:Other']),
+        ChainProp(name='HLT_noalg_L1jJ400_LAR', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=PrimaryPhIGroup+JetStreamersGroup+['PS:Online','BW:Other']),
  
     ]
 
-    chains['Monitor'] += [
+    chainsP1['Monitor'] = [
         ChainProp(name='HLT_timeburner_L1All', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=['PS:Online','RATE:DISCARD','BW:DISCARD']),
     ]
 
+
+    # check all chains have the 'PS:Online' group, so that they are not simulated
+    for sig in chainsP1:
+        for chain in chainsP1[sig]:
+            if 'PS:Online' not in chain.groups:
+                log.error("chain %s in PhysicsP1 menu needs to the group 'PS:Online'", chain.name)
+                raise RuntimeError("Add the group 'PS:Online' to the chain %s",chain.name)                
+
+    for sig in chainsP1:
+        chains[sig] += chainsP1[sig]
 
 def setupMenu():
 
