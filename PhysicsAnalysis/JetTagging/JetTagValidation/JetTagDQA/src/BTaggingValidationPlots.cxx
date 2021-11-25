@@ -785,8 +785,9 @@ namespace JetTagDQA{
     
     // get the muon link
     ElementLink<xAOD::MuonContainer> muonLink; 
-    try{ muonLink = btag->auxdata< ElementLink<xAOD::MuonContainer> >("softMuon_link"); }
-    catch(std::exception& exception){  }
+    if(btag->isAvailable< ElementLink<xAOD::MuonContainer> >("softMuon_link")){
+      muonLink = btag->auxdata< ElementLink<xAOD::MuonContainer> >("softMuon_link"); 
+    }
 
     // fill bool and pT frac if there is a muon
     if ( muonLink.isValid() ) {
