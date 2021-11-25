@@ -61,12 +61,15 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
   auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );
   auto mon_lhval    = Monitored::Scalar("LikelihoodRatio",   -99.);
   auto mon_mu       = Monitored::Scalar("mu",   -1.);
+  auto mon_ptvarcone20 = Monitored::Scalar("ptvarcone20",   -99.);
+  auto mon_relptvarcone20 = Monitored::Scalar("ptvarcone20",   -99.);
   auto mon_ptcone20 = Monitored::Scalar("ptcone20",   -99.);
   auto mon_relptcone20 = Monitored::Scalar("ptcone20",   -99.);
   auto trk_d0       = Monitored::Scalar("trk_d0",   -1.);
   auto monitorIt    = Monitored::Group( m_monTool, dEta, dPhi, 
                                         etaBin, monEta,
                                         monPhi,PassedCuts,mon_lhval,mon_mu, 
+                                        mon_ptvarcone20, mon_relptvarcone20,
                                         mon_ptcone20, mon_relptcone20, trk_d0);
 
   // when leaving scope it will ship data to monTool
@@ -175,12 +178,12 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
         Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
 
-     float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
-        etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999);
+     float ptvarcone20(999), ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), 
+        etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999), relptcone20(999), relptvarcone20(999);
 
-     bool ispt20 = input.electron->isolationValue(ptcone20, xAOD::Iso::ptcone20);
+     bool ispt20 = input.electron->isolationValue(ptvarcone20, xAOD::Iso::ptvarcone20);
      if (!ispt20) {
-       ATH_MSG_WARNING("ptcone20 not available. Will not cut on isolation");
+       ATH_MSG_WARNING("ptvarcone20 not available. Will not cut on isolation");
      }
 
      // variables based on HCAL
@@ -249,6 +252,7 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      ATH_MSG_DEBUG( " trackPT "<<input.electron->trackParticle()->pt());
      ATH_MSG_DEBUG( " d0      "<<input.electron->trackParticle()->d0());
      ATH_MSG_DEBUG( " z0      "<<input.electron->trackParticle()->z0());
+     ATH_MSG_DEBUG( " ptvarcone20 " << ptvarcone20 ) ;
      ATH_MSG_DEBUG( " ptcone20 " << ptcone20 ) ;
      ATH_MSG_DEBUG( " ptcone30 " << ptcone30 ) ;
      ATH_MSG_DEBUG( " ptcone40 " << ptcone40 ) ;
@@ -263,6 +267,11 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
      relptcone20 = ptcone20/input.electron->pt();
      ATH_MSG_DEBUG("relptcone20 = " <<relptcone20  );
      mon_relptcone20 = relptcone20;
+   
+     mon_ptvarcone20 = ptvarcone20;
+     relptvarcone20 = ptvarcone20/input.electron->pt();
+     ATH_MSG_DEBUG("relptvarcone20 = " <<relptvarcone20  );
+     mon_relptvarcone20 = relptvarcone20;
      ATH_MSG_DEBUG("m_RelPtConeCut = " << m_RelPtConeCut );
    
      // Only for LH
@@ -293,7 +302,7 @@ bool TrigEgammaPrecisionElectronHypoTool::decide( const ITrigEgammaPrecisionElec
        return pass;
      }
      // Then, It will pass if relptcone20 is less than cut:
-     pass = (relptcone20 < m_RelPtConeCut);
+     pass = (relptvarcone20 < m_RelPtConeCut);
      //
 
   }  // end of if(!m_acceptAll) 
