@@ -57,15 +57,21 @@ namespace CP
   private:
     OutOfValidityHelper m_outOfValidity {this};
 
-      /// \brief the decoration for writing the weight
+    /// \brief the decoration for the b-tagging weight
   private:
-    SysWriteDecorHandle<float> m_taggerWeightDecoration {
-      this, "taggerWeightDecoration", "", "the decoration for the tagger weight"};
+    std::string m_taggerWeightDecoration {};
 
-    /// \brief the decoration for writing the quantiles
+    /// \brief the decorator for \ref m_taggerWeightDecoration
   private:
-    SysWriteDecorHandle<int> m_quantileDecoration {
-      this, "quantileDecoration", "", "the decoration for the continuous WP quantile"};
+    std::unique_ptr<const SG::AuxElement::Decorator<float> > m_taggerWeightDecorator {};
+
+    /// \brief the decoration for the b-tagging quantiles
+  private:
+    std::string m_quantileDecoration {};
+
+    /// \brief the decorator for \ref m_quantileDecoration
+  private:
+    std::unique_ptr<const SG::AuxElement::Decorator<int> > m_quantileDecorator {};
   };
 }
 
