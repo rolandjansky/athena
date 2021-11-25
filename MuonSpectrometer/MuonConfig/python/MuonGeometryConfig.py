@@ -44,7 +44,7 @@ def MuonDetectorToolCfg(flags):
             detTool.EnableMdtDeformations = 3
 
         # here define if I-lines (CSC internal alignment) are enabled
-        if flags.Muon.Align.UseILines:
+        if flags.Muon.Align.UseILines and flags.Detector.GeometryCSC:
             if 'HLT' in flags.IOVDb.GlobalTag:
                 #logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
                 detTool.UseIlinesFromGM = True

@@ -21,20 +21,19 @@ class MuonPrdCacheNames(object):
 #
 # The function returns a ComponentAccumulator which should be loaded first
 # If a configuration wants to use the cache, they need to use the same names as defined here
-def MuonPrdCacheCfg():
+def MuonPrdCacheCfg(flags):
     # Use MuonGeometryFlags to identify which configuration is being used
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
     acc = ComponentAccumulator()
 
     MuonPRDCacheCreator=CompFactory.MuonPRDCacheCreator
-    cacheCreator = MuonPRDCacheCreator(CscStripCacheKey  = (MuonPrdCacheNames.CscStripCache if MuonGeometryFlags.hasCSC() else ""),
+    cacheCreator = MuonPRDCacheCreator(CscStripCacheKey  = (MuonPrdCacheNames.CscStripCache if flags.Detector.GeometryCSC else ""),
                                        MdtCacheKey       = MuonPrdCacheNames.MdtCache,
-                                       CscCacheKey       = (MuonPrdCacheNames.CscCache if MuonGeometryFlags.hasCSC() else ""),
+                                       CscCacheKey       = (MuonPrdCacheNames.CscCache if flags.Detector.GeometryCSC else ""),
                                        RpcCacheKey       = MuonPrdCacheNames.RpcCache,
                                        TgcCacheKey       = MuonPrdCacheNames.TgcCache,
-                                       sTgcCacheKey      = (MuonPrdCacheNames.sTgcCache if MuonGeometryFlags.hasSTGC() else ""),
-                                       MmCacheKey        = (MuonPrdCacheNames.MmCache if MuonGeometryFlags.hasMM() else ""),
+                                       sTgcCacheKey      = (MuonPrdCacheNames.sTgcCache if flags.Detector.GeometrysTGC else ""),
+                                       MmCacheKey        = (MuonPrdCacheNames.MmCache if flags.Detector.GeometryMM else ""),
                                        TgcCoinCacheKey   = MuonPrdCacheNames.TgcCoinCache,
                                        RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
                                        )
@@ -294,7 +293,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     if forTrigger:
         # cache creators loaded independently
         from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
-        cfg.merge( MuonCacheCfg() )
+        cfg.merge( MuonCacheCfg(ConfigFlags) )
 
     if ConfigFlags.Input.Format == 'BS':
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
