@@ -5,7 +5,7 @@
 # art-include: master/Athena
 # art-output: run-*
 
-maxevent=1
+maxevent=25
 inputfile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1"
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
 LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/*"
@@ -15,6 +15,7 @@ mkdir run-wopostexec; cd run-wopostexec
 FastChain_tf.py \
     --simulator ATLFASTIIF_G4MS \
     --useISF True \
+    --digiSteeringConf "StandardSignalOnlyTruth" \
     --randomSeed 123 \
     --enableLooperKiller True \
     --physicsList 'FTFP_BERT_ATL' \
@@ -47,6 +48,7 @@ mkdir run-withpostexec; cd run-withpostexec
 FastChain_tf.py \
     --simulator ATLFASTIIF_G4MS \
     --useISF True \
+    --digiSteeringConf "StandardSignalOnlyTruth" \
     --randomSeed 123 \
     --enableLooperKiller True \
     --physicsList 'FTFP_BERT_ATL' \
@@ -78,6 +80,6 @@ echo  "art-result: ${rc2} "EVNTtoRDO-withpostExec""
 
 if [[ ${rc1} -eq 0 && ${rc2} -eq 0 ]]
 then
-  art.py compare ref run-wopostexec/RDO.pool.root run-withpostexec/RDO.pool.root --mode=summary
+  art.py compare ref run-wopostexec/RDO.pool.root run-withpostexec/RDO.pool.root --mode=summary --entries 10
   echo  "art-result: $? diff-root"
 fi
