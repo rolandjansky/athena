@@ -661,6 +661,7 @@ StatusCode SCT_RodDecoder::processHeader(const uint16_t inData,
   // This is the real calculation for the offline
   data.linkNumber = (((rodlinkNumber >>4)&0x7)*12+(rodlinkNumber &0xF));
   const uint32_t onlineID{(robID & 0xFFFFFF) | (data.linkNumber << 24)};
+  IdentifierHash hash;
   if ((onlineID ==0) or (data.linkNumber > 95)) {
     ATH_CHECK(addSingleError(data.linkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs));
     hasError = true;
@@ -670,7 +671,15 @@ StatusCode SCT_RodDecoder::processHeader(const uint16_t inData,
     return sc;
   }
   else {
-    data.setCollection(m_sctID, m_cabling->getHashFromOnlineId(onlineID, ctx), rdoIDCont, errs);
+    hash = m_cabling->getHashFromOnlineId(onlineID, ctx);
+    if (hash.is_valid()) {
+       data.setCollection(m_sctID, hash, rdoIDCont, errs);
+    }
+    else {
+       std::stringstream msg;
+       msg <<std::hex << onlineID;
+       ATH_MSG_ERROR("Rob fragment (rob=" << robID << ") with invalid onlineID  " << msg.str() << " -> " << hash  << ".");
+    }
   }
   // Look for masked off links - bit 7
   if ((inData >> 7) & 0x1) {
@@ -710,6 +719,12 @@ StatusCode SCT_RodDecoder::processHeader(const uint16_t inData,
     ATH_MSG_DEBUG("    Header: xxx Error in formatter " << data.linkIDHash);
     m_headErrorFormatter++;
     ATH_CHECK(addSingleError(data.linkIDHash, SCT_ByteStreamErrors::FormatterError, errs));
+    hasError = true;
+  }
+  if (!hasError and not hash.is_valid())  {
+    std::stringstream msg;
+    msg <<std::hex << onlineID;
+    ATH_MSG_ERROR("Rob fragment (rob=" << robID << ") with invalid onlineID  " << msg.str() << " -> " << hash  << ".");
     hasError = true;
   }
 
@@ -991,19 +1006,13 @@ StatusCode SCT_RodDecoder::processExpandedHit(const uint16_t inData,
   }
   else { // Next hits cluster expanded
     if (inData & 0x80) { // Paired hits
-      if (data.strip >= N_STRIPS_PER_SIDE) {
+      if (data.strip >= N_STRIPS_PER_SIDE-2) {
         ATH_CHECK(addSingleError(data.linkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs));
         hasError = true;
         ATH_MSG_DEBUG("Expanded mode - strip number out of range");
         return sc;
       }
       m_evenExpHitNumber++;
-      if (chip>=N_CHIPS_PER_SIDE) {
-        ATH_MSG_DEBUG("Expanded Hit: paired hits xxx ERROR chip Nb = " << chip << " >= " << N_CHIPS_PER_SIDE);
-        m_chipNumberError++;
-        ATH_CHECK(addSingleError(data.linkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs));
-        return sc;
-      }
       // First hit from the pair
       data.strip++;
       data.timeBin = (inData & 0x7);
@@ -1031,10 +1040,10 @@ StatusCode SCT_RodDecoder::processExpandedHit(const uint16_t inData,
     }
     else { // Last hit of the cluster
       m_lastExpHitNumber++;
-      if (chip>=N_CHIPS_PER_SIDE) {
-        ATH_MSG_DEBUG("Expanded Hit: last hit xxx ERROR chip Nb = " << chip << " >= " << N_CHIPS_PER_SIDE);
-        m_chipNumberError++;
+      if (data.strip >= N_STRIPS_PER_SIDE-1) {
         ATH_CHECK(addSingleError(data.linkIDHash, SCT_ByteStreamErrors::ByteStreamParseError, errs));
+        hasError = true;
+        ATH_MSG_DEBUG("Expanded mode - strip number out of range");
         return sc;
       }
       data.strip++;
