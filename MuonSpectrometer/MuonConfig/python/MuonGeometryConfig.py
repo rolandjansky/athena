@@ -99,7 +99,8 @@ def MuonDetectorToolCfg(flags):
 
 
 def MuonAlignmentCondAlgCfg(flags):
-    acc = MuonIdHelperSvcCfg(flags)
+    acc = MuonGeoModelToolCfg(flags)
+    acc.merge(MuonIdHelperSvcCfg(flags))
 
     # This is all migrated from MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignConfig.py
 
@@ -169,12 +170,17 @@ def MuonDetectorCondAlgCfg(flags):
     return acc
 
 
-def MuonGeoModelCfg(flags, forceDisableAlignment=False):
-    acc=GeoModelCfg(flags)
-    gms=acc.getPrimary()
+def MuonGeoModelToolCfg(flags):
+    acc = GeoModelCfg(flags)
+    gms = acc.getPrimary()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     detTool.FillCacheInitTime = 0 # We do not need to fill cache for the MuonGeoModel MuonDetectorTool, just for the condAlg
     gms.DetectorTools += [ detTool ]
+    return acc
+
+
+def MuonGeoModelCfg(flags, forceDisableAlignment=False):
+    acc = MuonGeoModelToolCfg(flags)
 
     if flags.Muon.enableAlignment and not forceDisableAlignment:
         acc.merge(MuonDetectorCondAlgCfg(flags))
