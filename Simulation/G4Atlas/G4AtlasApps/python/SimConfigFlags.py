@@ -75,6 +75,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.NRRWeight", False)
     scf.addFlag("Sim.PRRThreshold", False)
     scf.addFlag("Sim.PRRWeight", False)
+    scf.addFlag("Sim.OptionalUserActionList", [])
 
     # For G4FieldConfigNew
     scf.addFlag("Sim.G4Stepper", "AtlasRK4")

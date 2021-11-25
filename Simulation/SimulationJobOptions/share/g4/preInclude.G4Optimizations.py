@@ -63,6 +63,7 @@ from G4AtlasApps.SimFlags import simFlags
 if hasattr(simFlags, 'ApplyNRR') and \
    hasattr(simFlags, 'NRRThreshold') and \
    hasattr(simFlags, 'NRRWeight'):
+    simFlags.CalibrationRun.set_Off()
     simFlags.ApplyNRR = True
     simFlags.NRRThreshold = nrr_threshold
     simFlags.NRRWeight = nrr_weight
