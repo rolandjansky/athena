@@ -21,7 +21,6 @@ EventLoopMgr      WARNING Unable to locate service "EventSelector"
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-Warning : label hadronic not found
 test1
 ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 2218 CLIDRegistry entries for module ALL
