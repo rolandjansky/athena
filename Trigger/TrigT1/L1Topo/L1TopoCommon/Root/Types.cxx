@@ -49,7 +49,7 @@ TCS::inputType(const std::string& input) {
    if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
       return TCS::JTAU;
 
-   if ( input == "cTau" || input == "cTauTobArray" || input == "cTauTobs" )
+   if ( input == "cTau" || input == "cTauTobArray" || input == "cTauTobs" || input == "cTAU" )
       return TCS::CTAU;
 
    if ( input == "Jets" || input == "JetTobArray" )

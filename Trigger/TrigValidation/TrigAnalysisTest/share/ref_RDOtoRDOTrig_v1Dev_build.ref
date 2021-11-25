@@ -11696,11 +11696,11 @@ HLT_noalg_L1ZDC_AND:
 HLT_noalg_L1ZDC_C:
   eventCount: 0
 HLT_noalg_L1cTAU12M:
-  eventCount: 0
+  eventCount: 20
 HLT_noalg_L1cTAU20M:
-  eventCount: 0
+  eventCount: 18
 HLT_noalg_L1cTAU25M:
-  eventCount: 0
+  eventCount: 17
 HLT_noalg_L1eEM10L:
   eventCount: 10
 HLT_noalg_L1eEM12:
