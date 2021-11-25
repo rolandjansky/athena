@@ -26,7 +26,7 @@ namespace Trk
 
   ImpactPoint3dEstimator::ImpactPoint3dEstimator(const std::string& t, const std::string& n, const IInterface*  p) : 
     base_class(t,n,p),
-    m_extrapolator("Trk::Extrapolator"),
+    m_extrapolator(""),
     m_maxiterations(20),
     m_precision(1e-10)//DeltaPhi
   {   
@@ -39,7 +39,11 @@ namespace Trk
   
   StatusCode ImpactPoint3dEstimator::initialize() 
   { 
-    ATH_CHECK( m_extrapolator.retrieve() );
+    if (!m_extrapolator.empty())  {
+      ATH_CHECK( m_extrapolator.retrieve() );
+    } else {
+      m_extrapolator.disable();
+    }
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     ATH_MSG_DEBUG( "Initialize successful"  );
