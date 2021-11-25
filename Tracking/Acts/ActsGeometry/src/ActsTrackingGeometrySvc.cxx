@@ -160,6 +160,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
             auto cfg = makeLayerBuilderConfig(p_ITkPixelManager);
             cfg.mode = ActsLayerBuilder::Mode::ITkPixelInner;
             cfg.objDebugOutput = m_objDebugOutput;
+            cfg.doEndcapLayerMerging = true;
             auto lb = std::make_shared<ActsLayerBuilder>(
                 cfg, makeActsAthenaLogger(this, "ITkPxInLb", "ActsTGSvc"));
 
@@ -184,6 +185,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
             auto cfg = makeLayerBuilderConfig(p_ITkPixelManager);
             cfg.mode = ActsLayerBuilder::Mode::ITkPixelOuter;
             cfg.objDebugOutput = m_objDebugOutput;
+            cfg.doEndcapLayerMerging = false;
             auto lb = std::make_shared<ActsLayerBuilder>(
                 cfg, makeActsAthenaLogger(this, "ITkPxOtLb", "ActsTGSvc"));
 
@@ -195,6 +197,8 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
             cvbConfig.volumeName = "ITkPixelOuter";
             cvbConfig.layerBuilder = lb;
             cvbConfig.buildToRadiusZero = false;
+            cvbConfig.checkRingLayout = true;
+            cvbConfig.ringTolerance = 10_mm;
 
             Acts::CylinderVolumeBuilder cvb(
                 cvbConfig,

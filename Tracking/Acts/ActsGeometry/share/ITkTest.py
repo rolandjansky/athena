@@ -9,7 +9,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # Set up logging and new style config
 Configurable.configurableRun3Behavior = True
 
-ConfigFlags.GeoModel.useLocalGeometry = True
+ConfigFlags.GeoModel.useLocalGeometry = False
 
 detectors = [
     "ITkPixel",
