@@ -234,8 +234,8 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
     ATH_CHECK(fillRelevantRois(convProxies, run2NavigationPtr));
     ATH_MSG_DEBUG("Features to link found");
   }
-  ATH_CHECK(createL1Nodes(convProxies, *decisionOutput, context));
   ATH_CHECK(createFSNodes(convProxies, *decisionOutput, m_finalTEIdsToChains, context));
+  ATH_CHECK(createL1Nodes(convProxies, *decisionOutput, context));
   ATH_CHECK(linkFeaNode(convProxies, run2NavigationPtr, context));
   ATH_CHECK(linkRoiNode(convProxies, run2NavigationPtr));
   ATH_CHECK(linkTopNode(*decisionOutput));
@@ -563,18 +563,18 @@ StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantRois(ConvProxySet_t &convPr
 
   for (auto &proxy : convProxies)
   {
-    if (proxy->te != nullptr)
+    ATH_MSG_DEBUG("Creating RoI link");
+    //TODO need check & handling of case when there is more RoIs, now overwriting
+    if ( HLT::TrigNavStructure::getRoINodes(proxy->te).size() > 1 )
+      ATH_MSG_WARNING("Several RoIs pointing to a proxy, taking latest one for now");
+    for (const auto &rNode : HLT::TrigNavStructure::getRoINodes(proxy->te))
     {
-      ATH_MSG_DEBUG("DDD BEFORE rNodes loop");
-      for (const auto &rNodes : HLT::TrigNavStructure::getRoINodes(proxy->te))
-      {
-        if (HLT::TrigNavStructure::isRoINode(rNodes))
-        {
-          ATH_MSG_DEBUG("DDD INSIDE isRoINode condition");
-          proxy->rois = getTEROIfeatures(rNodes, run2Navigation);
-        }
-      }
+      proxy->rois = getTEROIfeatures(rNode, run2Navigation);
     }
+    if ( HLT::TrigNavStructure::isRoINode(proxy->te) ) {
+      proxy->rois = getTEROIfeatures(proxy->te, run2Navigation);
+    }
+    
   }
 
   return StatusCode::SUCCESS;
@@ -791,9 +791,9 @@ bool Run2ToRun3TrigNavConverterV2::feaToSave(const HLT::TriggerElement::FeatureA
 
 bool Run2ToRun3TrigNavConverterV2::roiToSave(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& roi) const { 
         auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, roi);
-        ATH_MSG_DEBUG("DDD ROI name to be found: " << sgName);
+        ATH_MSG_DEBUG("ROI name to be found: " << sgName);
         if (std::find(m_setRoiName.begin(), m_setRoiName.end(), sgName) != m_setRoiName.end()) {
-          ATH_MSG_DEBUG("DDD ROI name to be found CONFIRMED: " << sgName);
+          ATH_MSG_DEBUG("ROI name to be found CONFIRMED: " << sgName);
           return true;
         }
 
@@ -895,18 +895,18 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
   for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
   {
     auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, helper);
-    ATH_MSG_DEBUG("DDD getTEROIfeatures name " << sgName);
+    ATH_MSG_DEBUG("getTEROIfeatures name " << sgName);
     if (std::find(m_setRoiName.begin(), m_setRoiName.end(), sgName) == m_setRoiName.end()) {
       // do not filter continue;
       continue;
     }
-    ATH_MSG_DEBUG("DDD getTEROIfeatures name accepted " << sgName);
+    ATH_MSG_DEBUG("getTEROIfeatures name accepted " << sgName);
     mp[sgName] = helper;
   }
 
   for (const auto& p : mp) {
     auto [sgKey, sgCLID, sgName] = getSgKey(navigationDecoder, p.second);
-    ATH_MSG_DEBUG("DDD CHECK getTEROIfeatures name accepted " << sgName);
+    ATH_MSG_DEBUG("CHECK getTEROIfeatures name accepted " << sgName);
   }
 
   std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
