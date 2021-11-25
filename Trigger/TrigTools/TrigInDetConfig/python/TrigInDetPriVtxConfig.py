@@ -113,29 +113,41 @@ def adaptiveMultiVertexFinderCfg(flags, signature):
     acc.merge(extrapolator_acc)
     config = getInDetTrigConfig(signature)
 
+    # AdaptiveMultiVertexFitter (below) has all of its tools public
+    linearized_track_factory = CompFactory.Trk.FullLinearizedTrackFactory(
+                    f"FullLinearizedTrackFactory{signature}",
+                    Extrapolator=extrapolator,
+                )
+    acc.addPublicTool(linearized_track_factory)
+
+    impact_point3d_estimator = CompFactory.Trk.ImpactPoint3dEstimator(
+                    f"InDetTrigImpactPoint3dEstimator{signature}",
+                    Extrapolator=extrapolator,
+                )
+    acc.addPublicTool(impact_point3d_estimator)
+
+    annealing_maker = CompFactory.Trk.DetAnnealingMaker(
+                    f"InDetTrigAnnealingMaker{signature}",
+                    SetOfTemperatures=[1.0],
+                )
+    acc.addPublicTool(annealing_maker)
+
     acc.setPrivateTools(
         CompFactory.InDet.InDetAdaptiveMultiPriVxFinderTool(
+            # All ToolHandles of InDetAdaptiveMultiPriVxFinderTool are private
             f"InDetTrigAdaptiveMultiPriVxFinderTool{signature}",
             SeedFinder=CompFactory.Trk.TrackDensitySeedFinder(
                 f"TrigGaussianDensitySeed{signature}",
                 DensityEstimator=CompFactory.Trk.GaussianTrackDensity(
                     f"TrigGaussianDensity{signature}"
-            ),
-            ),
-            VertexFitterTool=CompFactory.Trk.AdaptiveMultiVertexFitter(
+                    ), # private tool
+                ),
+            VertexFitterTool=CompFactory.Trk.AdaptiveMultiVertexFitter( 
+                #All tools are PUBLIC - not sure if defaults are okay for the rest? FIXME
                 f"InDetTrigAdaptivemultiVertexFitterTool{signature}",
-                LinearizedTrackFactory=CompFactory.Trk.FullLinearizedTrackFactory(
-                    f"FullLinearizedTrackFactory{signature}",
-                    Extrapolator=extrapolator,
-                ),
-                ImpactPoint3dEstimator=CompFactory.Trk.ImpactPoint3dEstimator(
-                    f"InDetTrigImpactPoint3dEstimator{signature}",
-                    Extrapolator=extrapolator,
-            ),
-                AnnealingMaker=CompFactory.Trk.DetAnnealingMaker(
-                    f"InDetTrigAnnealingMaker{signature}",
-                    SetOfTemperatures=[1.0],
-                ),
+                LinearizedTrackFactory=linearized_track_factory,
+                ImpactPoint3dEstimator=impact_point3d_estimator,
+                AnnealingMaker=annealing_maker,
                 DoSmoothing=True,
             ),
             TrackSelector=acc.popToolsAndMerge(
