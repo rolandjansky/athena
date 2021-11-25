@@ -308,7 +308,6 @@ void TFCSPredictExtrapWeights::Streamer(TBuffer &R__b)
         std::stringstream sin;
         sin.str(*m_input);
         auto config = lwt::parse_json(sin);
-        // check when it runs and the content of sin FIXME Jona
         m_nn        = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
       }  
 #ifndef __FastCaloSimStandAlone__ 
