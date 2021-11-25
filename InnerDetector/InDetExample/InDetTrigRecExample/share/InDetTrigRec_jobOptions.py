@@ -20,6 +20,7 @@ InDetTrigFlags.cutLevel=12
 InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
 InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)
 InDetTrigFlags.doPixelClusterSplitting = False
+InDetTrigFlags.doTRTPIDNN = False
 InDetTrigFlags.doPrintConfigurables = False
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts  #noqa instantiate objects early on
 
