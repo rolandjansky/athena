@@ -100,6 +100,20 @@ Chains2Monitor['MT'] = {
   'HLT_j0_DIJET80j12ptXX0j12eta240XX700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
   'HLT_j0_DIJET80j12etXX0j12eta240XX700djmass_L1J20' : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS', 'RefChain' : 'NONE', 'OfflineColl' : 'NONE' },
 }
+# Phase1 : duplicate all relevant chains with jFex algos
+temp_Phase1_chains = dict()
+for chainName in Chains2Monitor['MT']:
+  if 'L1J' in chainName or 'L14J' in chainName: 
+    newChain = chainName.replace('L1J','L1jJ').replace('L14J','L14jJ')
+    temp_Phase1_chains[newChain] = Chains2Monitor['MT'][chainName] #uses same reference chain, not phase1 variation!
+  if 'L1SC111-CJ15' in chainName:
+    for largerSeed in ('L1SC111-CjJ15', 'L1jLJ100', 'L1jLJ140') :
+      newChain = chainName.replace('L1SC111-CJ15', largerSeed)
+      temp_Phase1_chains[newChain] = Chains2Monitor['MT'][chainName]      
+      pass
+    pass
+Chains2Monitor['MT'].update(temp_Phase1_chains)
+
 
 # Legacy
 JetCollections['Legacy'] = {
