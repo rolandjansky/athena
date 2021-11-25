@@ -58,9 +58,7 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOn
         elif not onlyComponentsOnly:
             propstr = str(propval)
         if propstr:
-            msg.info( " "*nestLevel +"    * %s: %s %s", propname,
-                                                        propstr,
-                                                        "set" if c.is_property_set(propname) else "default")
+            msg.info( " "*nestLevel +"    * %s: %s", propname, propstr)
     return
 
 
@@ -167,7 +165,7 @@ class ComponentAccumulator(object):
     def printCondAlgs(self, summariseProps=False, onlyComponents=[], printDefaults=False, printComponentsOnly=False):
         self._msg.info( "Condition Algorithms" )
         for (c, flag) in filterComponents (self._conditionsAlgs, onlyComponents):
-            self._msg.info( " \\__ %s (cond alg) %s", c.name, self._componentsContext.get(c.name,""))
+            self._msg.info( " \\__ %s (cond alg)%s", c.name, self._componentsContext.get(c.name,""))
             if summariseProps and flag:
                 printProperties(self._msg, c, 1, printDefaults, printComponentsOnly)
         return
