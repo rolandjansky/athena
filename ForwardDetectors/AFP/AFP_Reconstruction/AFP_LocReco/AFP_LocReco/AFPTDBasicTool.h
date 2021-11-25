@@ -7,14 +7,14 @@
 /// @date   2021-11-11
 /// 
 /// @brief  Header file for AFPTDBasicTool used in tracks reconstruction.
+
 #ifndef AFP_LOCRECO_AFPTDBASICKALMANTOOL_H
 #define AFP_LOCRECO_AFPTDBASICKALMANTOOL_H 1
 
-// STL includes
-#include <string>
-#include <list>
-#include <vector>
-
+// AFP_LocReco includes
+#include "AFP_LocRecoInterfaces/IAFPTDLocRecoTrackAlgTool.h"
+#include "AFP_LocReco/AFPLocRecoStationBasicObj.h"
+#include "AFP_LocReco/AFPTDBasicToolTrack.h"
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -26,11 +26,10 @@
 #include "xAODForward/AFPToFTrackContainer.h"
 #include "xAODForward/AFPToFTrackAuxContainer.h"
 
-// AFP_LocReco includes
-#include "AFP_LocRecoInterfaces/IAFPTDLocRecoTrackAlgTool.h"
-#include "AFP_LocReco/AFPLocRecoStationBasicObj.h"
-#include "AFP_LocReco/AFPTDBasicToolTrack.h"
-
+// STL includes
+#include <string>
+#include <list>
+#include <vector>
 
 /// Class reconstructing tracks using basic Kalman filter.
 ///

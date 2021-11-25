@@ -22,7 +22,7 @@
 
 // local includes
 #include "xAODForward/versions/AFPToFTrack_v1.h"
-
+#include "xAODCore/BaseInfo.h"
 
 namespace xAOD {
 
@@ -38,10 +38,10 @@ namespace xAOD {
   private:
     
     std::vector< int > stationID;
-    std::vector< int > TrainID;
-    std::vector< float > TrainTime;
-    std::vector< int > TrainSize;
-    std::vector< int > TrainNSat;
+    std::vector< int > trainID;
+    std::vector< float > trainTime;
+    std::vector< int > trainSize;
+    std::vector< int > trainNSat;
     std::vector< std::vector<AFPToFTrack_v1::AFPToFHitLink_t> > bars;
     std::vector< int > algID;
     
@@ -51,7 +51,6 @@ namespace xAOD {
 } // end xAOD namespace
 
 // StoreGate registration
-#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::AFPToFTrackAuxContainer_v1, xAOD::AuxContainerBase );
 
 

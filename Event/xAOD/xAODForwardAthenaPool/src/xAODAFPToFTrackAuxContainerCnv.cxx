@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// System include(s):
-#include <exception>
+// Local include(s):
+#include "xAODAFPToFTrackAuxContainerCnv.h"
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/IThinningSvc.h"
@@ -12,9 +12,8 @@
 // EDM include(s):
 #include "xAODForward/versions/AFPToFTrackAuxContainer_v1.h"
 
-
-// Local include(s):
-#include "xAODAFPToFTrackAuxContainerCnv.h"
+// System include(s):
+#include <exception>
 
 xAODAFPToFTrackAuxContainerCnv::xAODAFPToFTrackAuxContainerCnv( ISvcLocator* svcLoc )
   : xAODAFPToFTrackAuxContainerCnvBase( svcLoc ) {

@@ -67,7 +67,7 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
 	AFPTOF_LBARDIMENSIONS BarDims11=TofCfg.mapBarDims[11];
 	fXShift=-73.5*CLHEP::mm; 
 	fYShift=(BarDims11.fRadLength+TofCfg.mapTrainInfo[BarDims11.nTrainID].fPerpShiftInPixel-0.5*(BarDims11.fLGuideWidth-TofCfg.mapTrainInfo[BarDims11.nTrainID].fTaperOffset)-0.5*BarDims11.fLBarThickness/tan(TofCfg.fAlpha))*sin(TofCfg.fAlpha);
-	fZShift=fabs(fYShift)/tan(TofCfg.fAlpha)+0.5*BarDims11.fLBarThickness/sin(TofCfg.fAlpha);
+	fZShift=std::abs(fYShift)/tan(TofCfg.fAlpha)+0.5*BarDims11.fLBarThickness/sin(TofCfg.fAlpha);
     
 	HepGeom::Transform3D TofTransform=TransInMotherVolume*HepGeom::Translate3D(fXShift,fYShift,fZShift)*HepGeom::RotateX3D((90.0*CLHEP::deg-TofCfg.fAlpha))*HepGeom::RotateZ3D(-90.0*CLHEP::deg);
 

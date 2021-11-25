@@ -21,10 +21,10 @@ namespace xAOD {
     : AuxContainerBase() {
     
   AUX_VARIABLE( stationID );
-  AUX_VARIABLE( TrainID );
-  AUX_VARIABLE( TrainTime );
-  AUX_VARIABLE( TrainSize );
-  AUX_VARIABLE( TrainNSat );
+  AUX_VARIABLE( trainID );
+  AUX_VARIABLE( trainTime );
+  AUX_VARIABLE( trainSize );
+  AUX_VARIABLE( trainNSat );
   AUX_VARIABLE( algID );
   AUX_VARIABLE( bars );
 }

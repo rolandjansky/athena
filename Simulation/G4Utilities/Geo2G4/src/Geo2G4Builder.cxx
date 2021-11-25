@@ -87,7 +87,7 @@ G4LogicalVolume* Geo2G4Builder::BuildTree()
 {
   G4LogicalVolume* result = 0;
   
-OpticalVolumesMap* optical_volumes = 0;
+  OpticalVolumesMap* optical_volumes = 0;
   const GeoBorderSurfaceContainer* surface_container = 0;
 
   // Check whether we have to deal with optical surfaces

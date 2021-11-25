@@ -15,15 +15,18 @@
 #ifndef XAODFORWARD_VERSIONS_AFPTOFTRACK_V1_H
 #define XAODFORWARD_VERSIONS_AFPTOFTRACK_V1_H
 
-// general includes
-#include<vector>
-
 // EDM include(s):
+
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
 // needed for forward declaration
+
 #include "AthContainers/DataVector.h"
+
+// general includes
+
+#include<vector>
 
 namespace xAOD {
   // forward declaration

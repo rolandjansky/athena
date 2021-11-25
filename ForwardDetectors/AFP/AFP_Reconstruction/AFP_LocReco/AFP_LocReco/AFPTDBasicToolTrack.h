@@ -11,10 +11,9 @@
 #ifndef AFP_LOCRECO_AFPTDBASICKALMANTOOLTRACK_H
 #define AFP_LOCRECO_AFPTDBASICKALMANTOOLTRACK_H 1
 
-#include <list>
-
 #include "xAODForward/AFPToFHit.h"
 
+#include <list>
 
 /// Class representing a reconstructed basic ToF track.
 class AFPTDBasicToolTrack

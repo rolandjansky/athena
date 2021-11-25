@@ -11,13 +11,12 @@
  * 
  */
 
-
-// xAOD include(s):
-#include "xAODCore/AuxStoreAccessorMacros.h"
-
 // Local include(s):
 #include "xAODForward/versions/AFPToFHitContainer_v1.h"
 #include "xAODForward/versions/AFPToFTrack_v1.h"
+
+// xAOD include(s):
+#include "xAODCore/AuxStoreAccessorMacros.h"
 
 namespace xAOD
 {
@@ -39,10 +38,7 @@ namespace xAOD
   void AFPToFTrack_v1::toPersistent() {
     // Prepare the hits links for persistification:
     if( hitsAcc.isAvailableWritable( *this ) ) {
-      std::vector<AFPToFHitLink_t>::iterator end = hitsAcc( *this ).end();
-      for(std::vector<AFPToFHitLink_t>::iterator itr = hitsAcc( *this ).begin(); itr != end; ++itr )
-	itr->toPersistent();
-
+        for(AFPToFHitLink_t link : hitsAcc ( *this) ) link.toPersistent();
     }
     
   }

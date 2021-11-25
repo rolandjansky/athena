@@ -5,8 +5,8 @@
 #ifndef AFPTOFTRACKAUXCONTAINERCNV_H
 #define AFPTTOFRACKAUXCONTAINERCNV_H
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "xAODForward/AFPToFTrackAuxContainer.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 typedef T_AthenaPoolCustomCnv<xAOD::AFPToFTrackAuxContainer, xAOD::AFPToFTrackAuxContainer> xAODAFPToFTrackAuxContainerCnvBase;
 
@@ -14,10 +14,9 @@ typedef T_AthenaPoolCustomCnv<xAOD::AFPToFTrackAuxContainer, xAOD::AFPToFTrackAu
 class xAODAFPToFTrackAuxContainerCnv :
   public xAODAFPToFTrackAuxContainerCnvBase {
  
-  // Declare the factory as our friend:
-  friend class CnvFactory< xAODAFPToFTrackAuxContainerCnv >;
  
-protected:
+public:
+
   /// Converter constructor
   xAODAFPToFTrackAuxContainerCnv( ISvcLocator* svcLoc );
  

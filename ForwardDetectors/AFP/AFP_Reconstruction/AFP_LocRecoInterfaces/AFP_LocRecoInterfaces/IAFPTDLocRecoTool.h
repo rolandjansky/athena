@@ -12,8 +12,6 @@
 /// @brief  Header file for interface IAFPTDLocRecoTool
 
 
-// STL includes
-
 // FrameWork includes
 #include "GaudiKernel/IAlgTool.h"
 #include "AthContainers/DataVector.h"

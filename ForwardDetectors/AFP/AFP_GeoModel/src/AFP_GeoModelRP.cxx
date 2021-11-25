@@ -93,7 +93,7 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	sprintf(szLabel,"%s_LogRPMainTubusFloorPart",pszStationName);
 	pSolTubus=new GeoTube(fRMin, fRMax, 0.5*fLength);
 	sprintf(szLabel,"%s_LogRPMainTubusFloorPart",pszStationName);
-	pLogTubus=new GeoLogVol(szLabel,pSolTubus,m_MapMaterials[std::string("Steel_AFP")]); //XXX
+	pLogTubus=new GeoLogVol(szLabel,pSolTubus,m_MapMaterials[std::string("Steel_AFP")]);
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_RPMainTubusFloorPart",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));

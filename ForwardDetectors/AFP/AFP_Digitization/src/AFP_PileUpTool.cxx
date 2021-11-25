@@ -168,12 +168,14 @@ StatusCode AFP_PileUpTool::recoSiHits()
 
   // retrieve digi data
   const AFP_SiDigiCollection  *container = nullptr;
-  if (evtStore()->retrieve(container, m_SiDigiCollectionName).isFailure()) {
-    ATH_MSG_WARNING("AFP_PileUpTool: Could not find simulated digi container");
-    return StatusCode::SUCCESS;
-  }
-  else
-    ATH_MSG_DEBUG("AFP_PileUpTool: Simulated digi container retrieved");
+
+  ATH_CHECK( evtStore()->retrieve(container, m_SiDigiCollectionName) );
+//  if (evtStore()->retrieve(container, m_SiDigiCollectionName).isFailure()) {
+//    ATH_MSG_WARNING("AFP_PileUpTool: Could not find simulated digi container");
+//    return StatusCode::SUCCESS;
+//  }
+//  else
+   ATH_MSG_DEBUG("AFP_PileUpTool: Simulated digi container retrieved");
 
   newXAODHitSi (m_SiHitCollection, container);
 

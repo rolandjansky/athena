@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// System include(s):
-#include <exception>
+// Local include(s):
+#include "xAODAFPToFTrackContainerCnv.h"
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/IOpaqueAddress.h"
@@ -11,9 +11,8 @@
 // EDM include(s):
 #include "xAODForward/versions/AFPToFTrackContainer_v1.h"
 
-// Local include(s):
-#include "xAODAFPToFTrackContainerCnv.h"
-
+// System include(s):
+#include <exception>
 
 namespace {
 

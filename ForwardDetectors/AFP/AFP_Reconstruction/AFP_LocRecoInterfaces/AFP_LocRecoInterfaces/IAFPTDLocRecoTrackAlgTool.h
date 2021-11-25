@@ -12,9 +12,6 @@
 /// @brief  Header file for interface IAFPTDLocRecoTrackAlgTool
 
 
-// STL includes
-#include <string>
-
 // HepMC / CLHEP includes
 
 // FrameWork includes
@@ -22,6 +19,11 @@
 #include "AthContainers/DataVector.h"
 #include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPToFTrackContainer.h"
+
+// STL includes
+#include <string>
+
+
 
 static const InterfaceID IID_IAFPTDLocRecoTrackAlgTool("IAFPTDLocRecoTrackAlgTool", 1, 0);
 
