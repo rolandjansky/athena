@@ -4,10 +4,10 @@ Py:MetaReader        INFO Current mode used: peeker
 Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [['CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS']] set
+Py:ComponentAccumulator    INFO      * Load: [['CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS']]
 Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS set
-Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData set
+Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
+Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
 IOVDbSvc: ['<db>COOLONL_TDAQ/CONDBR2</db> /TDAQ/OLC/CALIBRATIONS']
 --- mc
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root
