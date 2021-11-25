@@ -74,19 +74,19 @@ namespace Muon {
 
         class Road {
         public:
-            Road(MuonHough::MuonLayerHough::Maximum& seed_) : seed(&seed_) { add(seed); }
+            Road(std::shared_ptr<MuonHough::MuonLayerHough::Maximum> seed_) : seed(seed_) { add(seed_); }
             Road() = default;
             MuonStationIndex::DetectorRegionIndex neighbouringRegion{MuonStationIndex::DetectorRegionUnknown};
             int neighbouringSector{-1};
-            MuonHough::MuonLayerHough::Maximum* seed{nullptr};
-            void add(MuonHough::MuonLayerHough::Maximum* max) {
-                maxima.push_back(max);
+            std::shared_ptr<MuonHough::MuonLayerHough::Maximum> seed{nullptr};
+            void add(std::shared_ptr<MuonHough::MuonLayerHough::Maximum> max) {
+                maxima.emplace_back(max);
                 maximumSet.insert(max);
             }
-            void add(MuonHough::MuonPhiLayerHough::Maximum* max) { phiMaxima.push_back(max); }
+            void add(std::shared_ptr<MuonHough::MuonPhiLayerHough::Maximum> max) { phiMaxima.emplace_back(max); }
             MaximumVec maxima;
             PhiMaximumVec phiMaxima;
-            std::set<MuonHough::MuonLayerHough::Maximum*> maximumSet;
+            std::set<std::shared_ptr<MuonHough::MuonLayerHough::Maximum>> maximumSet;
 
             std::vector<MuonHough::MuonPhiLayerHough::Maximum> mergedPhiMaxima;
         };

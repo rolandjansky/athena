@@ -97,7 +97,7 @@ namespace MuonHough {
         }
     }
 
-    void MuonLayerHough::fillLayer(const std::vector<Hit*>& hits, bool subtract) {
+    void MuonLayerHough::fillLayer(const HitVec& hits, bool subtract) {
         if (hits.empty()) return;
 
         // outer loop over cycles
@@ -110,8 +110,8 @@ namespace MuonHough {
             int prevbinmin = 10000;
             int prevbinmax = -1;
             // inner loop over hits
-            std::vector<Hit*>::const_iterator it = hits.begin();
-            std::vector<Hit*>::const_iterator it_end = hits.end();
+            HitVec::const_iterator it = hits.begin();
+            HitVec::const_iterator it_end = hits.end();
             for (; it != it_end; ++it) {
                 float x = (*it)->x;
                 float y1 = (*it)->ymin;
@@ -199,7 +199,7 @@ namespace MuonHough {
         }
     }
 
-    void MuonLayerHough::fillLayer2(const std::vector<Hit*>& hits, bool subtract) {
+    void MuonLayerHough::fillLayer2(const HitVec& hits, bool subtract) {
         if (hits.empty()) return;
 
         std::vector<int> layerCounts(m_nbins, 0);
@@ -211,8 +211,8 @@ namespace MuonHough {
             int prevlayer = hits.front()->layer;
 
             // inner loop over hits
-            std::vector<Hit*>::const_iterator it = hits.begin();
-            std::vector<Hit*>::const_iterator it_end = hits.end();
+            HitVec::const_iterator it = hits.begin();
+            HitVec::const_iterator it_end = hits.end();
             for (; it != it_end; ++it) {
                 // if we get to the next layer process the current one and fill the Hough space
                 if (prevlayer != (*it)->layer) {
@@ -366,11 +366,11 @@ namespace MuonHough {
         return true;
     }
 
-    void MuonLayerHough::associateHitsToMaximum(MuonLayerHough::Maximum& maximum, const std::vector<Hit*>& hits) const {
+    void MuonLayerHough::associateHitsToMaximum(MuonLayerHough::Maximum& maximum, const HitVec& hits) const {
         if (maximum.bintheta == -1 || maximum.binposmax == -1 || maximum.binposmin == -1) return;
         // loop over hits and find those that are compatible with the maximum
-        std::vector<Hit*>::const_iterator it = hits.begin();
-        std::vector<Hit*>::const_iterator it_end = hits.end();
+        HitVec::const_iterator it = hits.begin();
+        HitVec::const_iterator it_end = hits.end();
         for (; it != it_end; ++it) {
             // calculate the bins associated with the hit and check whether any of they are part of the maximum
             std::pair<int, int> minMax = range((*it)->x, (*it)->ymin, (*it)->ymax, maximum.bintheta);
