@@ -128,6 +128,10 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
         if result:
             self.logger.info("Passed!\n")
         else:
+            # print CI helper directly to avoid logger decorations
+            print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
+            print()
+
             self.logger.error(f"Your tag breaks the frozen tier0 policy in test {test.ID}. See {log_file} file for more information.\n")
 
         return result
