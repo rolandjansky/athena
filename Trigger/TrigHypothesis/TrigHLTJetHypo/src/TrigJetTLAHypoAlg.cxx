@@ -82,7 +82,8 @@ StatusCode TrigJetTLAHypoAlg::execute( const EventContext& context ) const {
             auto newDecision = newDecisionIn( outputDecisions, hypoAlgNodeName() );
             TrigCompositeUtils::linkToPrevious( newDecision, previousDecision, context );
             // do we need to re-link the feature?
-            newDecision->setObjectLink<xAOD::JetContainer>(featureString(), prevJetLink);
+            newDecision->setObjectLink(featureString(), ElementLink<xAOD::JetContainer>(*h_TLAJets, h_TLAJets->size() - 1, ctx)); 
+            
 
             
 
