@@ -126,7 +126,7 @@ def addP1Signatures(chains):
     chainsP1['Streaming'] = [
         ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+MinBiasGroup),
         ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+MinBiasGroup),  
-        ChainProp(name='HLT_noalg_L1RD0_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['Background'], groups=['PS:Online']),  
+        ChainProp(name='HLT_noalg_L1RD0_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['Background'], groups=['PS:Online','BW:Other']),  
         
         ChainProp(name='HLT_noalg_mb_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=['PS:Online']+MinBiasGroup),
         ChainProp(name='HLT_noalg_mb_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=['PS:Online']+MinBiasGroup),  
@@ -146,6 +146,10 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_noalg_L1MU3V', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup),
         ChainProp(name='HLT_noalg_L1MU3V_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['Background'], groups=['PS:Online']+SingleMuonGroup),
         ChainProp(name='HLT_noalg_L1MU8VF', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleMuonGroup),
+        ChainProp(name='HLT_noalg_cosmicmuons_L1MU3V_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicMuons','express'],groups=['PS:Online', 'RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_noalg_cosmicmuons_L1MU8VF_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicMuons','express'],groups=['PS:Online', 'RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_noalg_bkg_L1MU3V_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['Background'],groups=['PS:Online','BW:Other']),
+        ChainProp(name='HLT_noalg_bkg_L1MU8VF_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['Background'],groups=['PS:Online','BW:Other']),
 
         # L1 calo streamers
         ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+EgammaStreamersGroup),

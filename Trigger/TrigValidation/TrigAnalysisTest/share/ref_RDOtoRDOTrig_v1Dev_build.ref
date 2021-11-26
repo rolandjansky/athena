@@ -11866,6 +11866,14 @@ HLT_noalg_ZDCPEB_L1ZDC_AND:
   eventCount: 0
 HLT_noalg_ZDCPEB_L1ZDC_C:
   eventCount: 0
+HLT_noalg_bkg_L1MU3V_EMPTY:
+  eventCount: 0
+HLT_noalg_bkg_L1MU8VF_EMPTY:
+  eventCount: 0
+HLT_noalg_cosmicmuons_L1MU3V_EMPTY:
+  eventCount: 0
+HLT_noalg_cosmicmuons_L1MU8VF_EMPTY:
+  eventCount: 0
 HLT_noalg_idmon_L1RD0_EMPTY:
   eventCount: 0
 HLT_noalg_idmon_L1RD0_FILLED:
