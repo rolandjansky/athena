@@ -67,42 +67,44 @@ MuonInputProvider::handle(const Incident& incident) {
    std::replace( histPath.begin(), histPath.end(), '.', '/'); 
 
    auto hPt = std::make_unique<TH1I>("MuonTOBPt", "Muon TOB Pt", 40, 0, 40);
-   hPt->SetXTitle("p_{T}");
+   hPt->SetXTitle("p_{T} [GeV]");
+
+   auto hPtTGC = std::make_unique<TH1I>("MuonTOBPtTGC", "TGC Muon TOB Pt", 40, 0, 40);
+   hPtTGC->SetXTitle("p_{T} [GeV]");
+
+   auto hPtRPC = std::make_unique<TH1I>("MuonTOBPtRPC", "RPC Muon TOB Pt", 40, 0, 40);
+   hPtRPC->SetXTitle("p_{T} [GeV]");
 
    auto hPtEta = std::make_unique<TH2I>("MuonTOBPtEta", "Muon TOB Pt vs Eta", 200, -200, 200, 40, 0, 40);
-   hPtEta->SetXTitle("#eta");
-   hPtEta->SetYTitle("p_{T}");
+   hPtEta->SetXTitle("#eta#times40");
+   hPtEta->SetYTitle("p_{T} [GeV]");
 
-   auto hEtaPhiTopo = std::make_unique<TH2I>("MuonTOBPhiEtaTopo", "Muon TOB Location", 200, -200, 200, 64, 0, 128);
-   hEtaPhiTopo->SetXTitle("#eta");
-   hEtaPhiTopo->SetYTitle("#phi");
-
-   auto hEtaPhi = std::make_unique<TH2F>("MuonTOBPhiEta", "Muon TOB Location", 50, -5, 5, 32, -3.2, 3.2);
-   hEtaPhi->SetXTitle("#eta");
-   hEtaPhi->SetYTitle("#phi");
+   auto hPhiEta = std::make_unique<TH2I>("MuonTOBPhiEta", "Muon TOB Location", 50, -200, 200, 64, 0, 128);
+   hPhiEta->SetXTitle("#eta#times40");
+   hPhiEta->SetYTitle("#phi#times20");
 
    auto hBW2or3Eta = std::make_unique<TH2I>("MuonTOBBW2or3Eta", "Muon TOB BW2or3 vs Eta", 200, -200, 200, 3, -1, 2);
-   hBW2or3Eta->SetXTitle("#eta");
+   hBW2or3Eta->SetXTitle("#eta#times40");
    hBW2or3Eta->SetYTitle("TGC full-station coincidence");
 
    auto hInnerCoinEta = std::make_unique<TH2I>("MuonTOBInnerCoinEta", "Muon TOB InnerCoin vs Eta", 200, -200, 200, 3, -1, 2);
-   hInnerCoinEta->SetXTitle("#eta");
+   hInnerCoinEta->SetXTitle("#eta#times40");
    hInnerCoinEta->SetYTitle("TGC inner coincidence");
 
    auto hGoodMFEta = std::make_unique<TH2I>("MuonTOBGoodMFEta", "Muon TOB GoodMF vs Eta", 200, -200, 200, 3, -1, 2);
-   hGoodMFEta->SetXTitle("#eta");
+   hGoodMFEta->SetXTitle("#eta#times40");
    hGoodMFEta->SetYTitle("good magnetic field");
 
    auto hChargeEta = std::make_unique<TH2I>("MuonTOBChargeEta", "Muon TOB Charge vs Eta", 200, -200, 200, 3, -1, 2);
-   hChargeEta->SetXTitle("#eta");
+   hChargeEta->SetXTitle("#eta#times40");
    hChargeEta->SetYTitle("charge");
 
    auto hIs2candEta = std::make_unique<TH2I>("MuonTOBIs2candEta", "Muon TOB Is2cand vs Eta", 200, -200, 200, 3, -1, 2);
-   hIs2candEta->SetXTitle("#eta");
+   hIs2candEta->SetXTitle("#eta#times40");
    hIs2candEta->SetYTitle(">1 cand. in RPC pad");
 
    auto hIsTGCEta = std::make_unique<TH2I>("MuonTOBIsTGCEta", "Muon TOB IsTGC vs Eta", 200, -200, 200, 2, -0.5, 1.5);
-   hIsTGCEta->SetXTitle("#eta");
+   hIsTGCEta->SetXTitle("#eta#times40");
    hIsTGCEta->SetYTitle("Is a TGC muon");
 
 
@@ -112,19 +114,25 @@ MuonInputProvider::handle(const Incident& incident) {
    else{
       ATH_MSG_WARNING("Could not register TOBPt histogram for MuonProvider");
    }
+   if (m_histSvc->regShared( histPath + "TOBPtTGC", std::move(hPtTGC), m_hPtTGC ).isSuccess()){
+      ATH_MSG_DEBUG("TOBPtTGC histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+      ATH_MSG_WARNING("Could not register TOBPtTGC histogram for MuonProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TOBPtRPC", std::move(hPtRPC), m_hPtRPC ).isSuccess()){
+      ATH_MSG_DEBUG("TOBPtRPC histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+      ATH_MSG_WARNING("Could not register TOBPtRPC histogram for MuonProvider");
+   }
    if (m_histSvc->regShared( histPath + "TOBPtEta", std::move(hPtEta), m_hPtEta ).isSuccess()){
       ATH_MSG_DEBUG("TOBPtEta histogram has been registered successfully for MuonProvider.");
    }
    else{
       ATH_MSG_WARNING("Could not register TOBPtEta histogram for MuonProvider");
    }
-   if (m_histSvc->regShared( histPath + "TOBPhiEtaTopo", std::move(hEtaPhiTopo), m_hEtaPhiTopo ).isSuccess()){
-      ATH_MSG_DEBUG("TOBPhiEtaTopo histogram has been registered successfully for MuonProvider.");
-   }
-   else{
-      ATH_MSG_WARNING("Could not register TOBPhiEtaTopo histogram for MuonProvider");
-   }
-   if (m_histSvc->regShared( histPath + "TOBPhiEta", std::move(hEtaPhi), m_hEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "TOBPhiEta", std::move(hPhiEta), m_hPhiEta ).isSuccess()){
       ATH_MSG_DEBUG("TOBPhiEta histogram has been registered successfully for MuonProvider.");
    }
    else{
@@ -180,7 +188,7 @@ MuonInputProvider::createMuonTOB(uint32_t roiword, const TrigConf::L1Menu * l1me
    muon.setPhiDouble( roi.phi() );
 
    m_hPt->Fill(muon.Et());
-   m_hEtaPhi->Fill(muon.eta(),muon.phi());
+   m_hPhiEta->Fill(muon.eta(),muon.phi());
    
    return muon;
 }
@@ -197,16 +205,17 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    // L1Topo simulation uses positive phi (from 0 to 2pi) => transform phiTopo
    float fEta = roi.geteta();
    float fPhi = roi.getphi();
-   
+  
+   unsigned int EtTopo = roi.getptValue()*10;
    int etaTopo = topoIndex(fEta,40);
    int phiTopo = topoIndex(fPhi,20);
 
    if (phiTopo < 0){ phiTopo += 128; }
    
-   TCS::MuonTOB muon( roi.getptValue()*10, 0, etaTopo, static_cast<unsigned int>(phiTopo), roi.getRoiID() );
-   muon.setEtDouble(static_cast<double>(roi.getptValue()));
-   muon.setEtaDouble(static_cast<double>(etaTopo/40.0));
-   muon.setPhiDouble(static_cast<double>(phiTopo/20.0));
+   TCS::MuonTOB muon( EtTopo, 0, etaTopo, static_cast<unsigned int>(phiTopo), roi.getRoiID() );
+   muon.setEtDouble(static_cast<double>(EtTopo/10.));
+   muon.setEtaDouble(static_cast<double>(etaTopo/40.));
+   muon.setPhiDouble(static_cast<double>(phiTopo/20.));
 
    // Muon flags
    if ( roi.getSectorName().at(0) != 'B' ) { // TGC ( endcap (E) + forward (F) )
@@ -227,9 +236,10 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    }
 
    m_hPt->Fill( muon.EtDouble() );
+   if ( muon.isTGC() ) { m_hPtTGC->Fill( muon.EtDouble() ); }
+   else                { m_hPtRPC->Fill( muon.EtDouble() ); }
    m_hPtEta->Fill( muon.eta(), muon.EtDouble() );
-   m_hEtaPhiTopo->Fill( muon.eta(), muon.phi() );
-   m_hEtaPhi->Fill( muon.EtaDouble(), muon.PhiDouble() );
+   m_hPhiEta->Fill( muon.eta(), muon.phi() );
 
    m_hBW2or3Eta->Fill( muon.eta(), muon.bw2or3() );
    m_hInnerCoinEta->Fill( muon.eta(), muon.innerCoin() );
@@ -256,7 +266,7 @@ MuonInputProvider::createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    muon.setPhiDouble( phi );
 
    m_hPt->Fill(muon.Et());
-   m_hEtaPhi->Fill(muon.eta(),muon.phi());
+   m_hPhiEta->Fill(muon.eta(),muon.phi());
 
    ATH_MSG_DEBUG("LateMuon created");
    return muon;
