@@ -37,6 +37,7 @@ atlas_install_runtime( share/file/epos_crmc.param )
 # Install files from Crmc.
 foreach( _file "epos.initl" "epos.iniev" "epos.inirj" "epos.inirj.lhc"
                "epos.inics" "epos.inics.lhc" "epos.inidi" )
+   unset( _datFile )
    find_file( _datFile "${_file}"
       PATHS "${CRMC_LCGROOT}"
       PATH_SUFFIXES "tabs" "share/crmc"
