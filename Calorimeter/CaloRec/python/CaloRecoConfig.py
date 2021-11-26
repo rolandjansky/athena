@@ -47,6 +47,18 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
         from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
         result.merge(LArFebErrorSummaryMakerCfg(configFlags))
 
+    #Configure TileLookForMuAlg
+    from TileMuId.TileMuIdConfig import TileLookForMuAlgCfg
+    result.merge(TileLookForMuAlgCfg(configFlags))
+
+    #Configure MBTSTimeDiff 
+    #Clients are BackgroundWordFiller and (deprecated?) DQTBackgroundMonTool
+    #Consider moving to BackgroundWordFiller config
+    if configFlags.Detector.GeometryMBTS:
+        from TileRecAlgs.MBTSTimeDiffEventInfoAlgConfig import MBTSTimeDiffEventInfoAlgCfg
+        result.merge(MBTSTimeDiffEventInfoAlgCfg(configFlags))
+
+
     return result
 
 
