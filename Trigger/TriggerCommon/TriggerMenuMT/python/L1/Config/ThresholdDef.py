@@ -203,7 +203,7 @@ class ThresholdDef:
             jLJetThreshold('jLJSPARE%i' % thrV, 'jLJ').addThrValue(8191)
 
         # gJET (default range)
-        for thrV in [15, 25, 35, 50, 100, 160]:
+        for thrV in [20, 30, 40, 50, 100, 160]:
             gJetThreshold('gJ%i' % thrV, 'gJ').setEt(thrV)
 
         # gLJET (default range)
@@ -224,8 +224,12 @@ class ThresholdDef:
         for thrV in [30, 40, 50]:
             XEThreshold('gXEJWOJ%i' % thrV, 'gXE').setXE(thrV)
 
+        # gMHT
+        for thrV in [500]:
+            XEThreshold('gMHT%i' % thrV, 'gXE').setXE(thrV)
+        
         # gTE
-        for thrV in [50]:
+        for thrV in [200]:
             TEThreshold('gTE%i' % thrV, 'gTE').setTE(thrV)
 
         # jXE
@@ -244,10 +248,10 @@ class ThresholdDef:
             XEThreshold('jXEPerf%i' % thrV, 'jXE').setXE(thrV)
 
         # jTE
-        for thrV in [100,]:
+        for thrV in [200,]:
             TEThreshold('jTE%i' % thrV, 'jTE').setTE(thrV)
 
-        for thrV in [100,]:
+        for thrV in [200,]:
             TEThreshold('jTEC%i' % thrV, 'jTE').setTE(thrV)
 
         for thrV in [100,]:
