@@ -27,10 +27,12 @@ else()
 
    atlas_add_component( xAODTrackingCnv
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES xAODTracking TrkTrack AthenaBaseComps AthenaKernel
+      LINK_LIBRARIES xAODTracking TrkTrack AthenaBaseComps AthenaKernel AthenaMonitoringKernelLib
       EventPrimitives GaudiKernel GeneratorObjects MCTruthClassifierLib Particle
       ParticleTruth TrkLinks TrkParticleBase TrkTruthData VxVertex
       TrkToolInterfaces xAODCore xAODTrackingCnvLib TrkValInterfaces
       PRIVATE_LINK_LIBRARIES CxxUtils )
+
+    atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 endif()
