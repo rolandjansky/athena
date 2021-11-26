@@ -66,36 +66,37 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto hEMEt = std::make_unique<TH1I>( "eEMTOBEt", "eEm TOB Et", 400, 0, 400);
-   hEMEt->SetXTitle("E_{T}");
-   auto hEMEtaPhi = std::make_unique<TH2I>( "eEMTOBPhiEta", "eEm TOB Location", 400, -200, 200, 128, 0, 128);
-   hEMEtaPhi->SetXTitle("#eta");
-   hEMEtaPhi->SetYTitle("#phi");
-   auto hEMEtaPhi_local = std::make_unique<TH2I>( "eEMTOBEtEta_local", "eEm TOB local eta vs phi", 400, -200, 200, 128, 0, 128);
-   hEMEtaPhi_local->SetXTitle("#eta");
-   hEMEtaPhi_local->SetYTitle("#phi");
-   auto hEMEtEta = std::make_unique<TH2I>( "eEMTOBEtEta", "eEm TOB Et vs eta", 40, 0, 200, 256, -128, 128);
-   hEMEtEta->SetXTitle("E_{t}");
-   hEMEtEta->SetYTitle("#eta");
-   auto hEMEtPhi = std::make_unique<TH2I>( "eEMTOBEtPhi", "eEm TOB Et vs phi", 40, 0, 200, 128, 0, 128);
-   hEMEtPhi->SetXTitle("E_{t}");
-   hEMEtPhi->SetYTitle("#phi");
-   auto hTauEt = std::make_unique<TH1I>( "eTauTOBEt", "eTau TOB Et", 400, 0, 400);
-   hTauEt->SetXTitle("E_{T}");
-   auto hTauIsolation = std::make_unique<TH1I>( "eTauIsolation", "eTau TOB isolation", 20, 0, 20);
+   auto hEMEt = std::make_unique<TH1I>( "eEMTOBEt", "eEm TOB Et", 200, 0, 200);
+   hEMEt->SetXTitle("E_{T} [GeV]");
+   auto hEMPhiEta = std::make_unique<TH2I>( "eEMTOBPhiEta", "eEm TOB Location", 200, -200, 200, 64, 0, 128);
+   hEMPhiEta->SetXTitle("#eta#times40");
+   hEMPhiEta->SetYTitle("#phi#times20");
+   auto hEMPhiEta_local = std::make_unique<TH2I>( "eEMTOBPhiEta_local", "eEm TOB local phi vs eta", 200, -200, 200, 64, 0, 128);
+   hEMPhiEta_local->SetXTitle("#eta#times10");
+   hEMPhiEta_local->SetYTitle("#phi#times10");
+   auto hEMEtEta = std::make_unique<TH2I>( "eEMTOBEtEta", "eEm TOB Et vs eta", 200, -200, 200, 100, 0, 200);
+   hEMEtEta->SetXTitle("#eta#times40");
+   hEMEtEta->SetYTitle("E_{t} [GeV]");
+   auto hEMEtPhi = std::make_unique<TH2I>( "eEMTOBEtPhi", "eEm TOB Et vs phi", 64, 0, 128, 100, 0, 200);
+   hEMEtPhi->SetXTitle("#phi#times20");
+   hEMEtPhi->SetYTitle("E_{t} [GeV]");
+
+   auto hTauEt = std::make_unique<TH1I>( "eTauTOBEt", "eTau TOB Et", 200, 0, 200);
+   hTauEt->SetXTitle("E_{T} [GeV]");
+   auto hTauIsolation = std::make_unique<TH1I>( "eTauIsolation", "eTau TOB isolation", 3, 0, 3);
    hTauIsolation->SetXTitle("fCore isolation");
-   auto hTauEtaPhi = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 400, -200, 200, 128, 0, 128);
-   hTauEtaPhi->SetXTitle("#eta");
-   hTauEtaPhi->SetYTitle("#phi");
-   auto hTauEtEta = std::make_unique<TH2I>( "eTauTOBEtEta", "eTau TOB Et vs eta", 40, 0, 200, 256, -128, 128);
-   hTauEtEta->SetXTitle("E_{t}");
-   hTauEtEta->SetYTitle("#eta");
-   auto hTauEtPhi = std::make_unique<TH2I>( "eTauTOBEtPhi", "eTau TOB Et vs phi", 40, 0, 200, 128, 0, 128);
-   hTauEtPhi->SetXTitle("E_{t}");
-   hTauEtPhi->SetYTitle("#phi");
-   auto hTauEtIsolation = std::make_unique<TH2I>( "eTauTOBEtIsolation", "eTau TOB Et vs Isolation", 40, 0, 200, 20, 0, 20);
-   hTauEtIsolation->SetXTitle("E_{t}");
-   hTauEtIsolation->SetYTitle("fCore isolation");
+   auto hTauPhiEta = std::make_unique<TH2I>( "eTauTOBPhiEta", "eTau TOB Location", 400, -200, 200, 128, 0, 128);
+   hTauPhiEta->SetXTitle("#eta#times40");
+   hTauPhiEta->SetYTitle("#phi#times20");
+   auto hTauEtEta = std::make_unique<TH2I>( "eTauTOBEtEta", "eTau TOB Et vs eta", 200, -200, 200, 100, 0, 200);
+   hTauEtEta->SetXTitle("#eta#times40");
+   hTauEtEta->SetYTitle("E_{t} [GeV]");
+   auto hTauEtPhi = std::make_unique<TH2I>( "eTauTOBEtPhi", "eTau TOB Et vs phi", 64, 0, 128, 100, 0, 200);
+   hTauEtPhi->SetXTitle("#phi#times20");
+   hTauEtPhi->SetYTitle("E_{t} [GeV]");
+   auto hTauEtIsolation = std::make_unique<TH2I>( "eTauTOBEtIsolation", "eTau TOB Et vs Isolation", 3, 0, 3, 100, 0, 200);
+   hTauEtIsolation->SetXTitle("fCore isolation");
+   hTauEtIsolation->SetYTitle("E_{t} [GeV]");
 
    if (m_histSvc->regShared( histPath + "eEMTOBEt", std::move(hEMEt), m_hEMEt ).isSuccess()){
      ATH_MSG_DEBUG("eEMTOBEt histogram has been registered successfully for EMTauProviderFEX.");
@@ -103,13 +104,13 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register eEMTOBEt histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eEMTOBPhiEta", std::move(hEMEtaPhi), m_hEMEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "eEMTOBPhiEta", std::move(hEMPhiEta), m_hEMPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("eEMTOBPhiEta histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
      ATH_MSG_WARNING("Could not register eEMTOBPhiEta histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eEMTOBPhiEta_local", std::move(hEMEtaPhi_local), m_hEMEtaPhi_local ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "eEMTOBPhiEta_local", std::move(hEMPhiEta_local), m_hEMPhiEta_local ).isSuccess()){
      ATH_MSG_DEBUG("eEMTOBPhiEta (local coordinates) histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
@@ -139,7 +140,7 @@ EMTauInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register eTauIsolation histogram for EMTauProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "eTauTOBPhiEta", std::move(hTauEtaPhi), m_hTauEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "eTauTOBPhiEta", std::move(hTauPhiEta), m_hTauPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("eTauTOBPhiEta histogram has been registered successfully for EMTauProviderFEX.");
    }
    else{
@@ -197,11 +198,8 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << eFexRoI->RhadThresholds() // jet disc 2
 		   << " wstot: "
 		   << eFexRoI->WstotThresholds() // jet disc 3
-		   << " is TOB? "
-		   << +eFexRoI->isTOB() // returns 1 if true, returns 0 if xTOB)
 		  );
 
-    if (!eFexRoI->isTOB()) {continue;}
 
     unsigned int EtTopo = eFexRoI->etTOB();
     int etaTopo = eFexRoI->iEtaTopo();
@@ -222,10 +220,10 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
     inputEvent.addeEm( eem );
     
     m_hEMEt->Fill(eem.EtDouble());  // GeV
-    m_hEMEtaPhi->Fill(eem.eta(),eem.phi());
-    m_hEMEtaPhi_local->Fill(eFexRoI->iEta(),eFexRoI->iPhi());
-    m_hEMEtEta->Fill(eem.EtDouble(),eem.eta());
-    m_hEMEtPhi->Fill(eem.EtDouble(),eem.phi());
+    m_hEMPhiEta->Fill(eem.eta(),eem.phi());
+    m_hEMPhiEta_local->Fill(eFexRoI->iEta(),eFexRoI->iPhi());
+    m_hEMEtEta->Fill(eem.eta(),eem.EtDouble());
+    m_hEMEtPhi->Fill(eem.phi(),eem.EtDouble());
 
   }
 
@@ -251,10 +249,9 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 		   << " phi: "
 		   << eFexTauRoI->phi() // returns a floating point global phi
 		   << " fcore "
-		   << eFexTauRoI->fCoreThresholds() // returns 1 if true, returns 0 if xTOB)
+		   << eFexTauRoI->fCoreThresholds() // results of the 3 jet discriminant algorithms
 		  );
 
-    if (!eFexTauRoI->isTOB()) {continue;}
 
     unsigned int EtTopo = eFexTauRoI->etTOB(); // MeV units
     int etaTopo = eFexTauRoI->iEtaTopo();
@@ -273,10 +270,10 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
 
     m_hTauEt->Fill(etau.EtDouble());  // GeV
     m_hTauIsolation->Fill(etau.isolation());  
-    m_hTauEtaPhi->Fill(etau.eta(),etau.phi());
-    m_hTauEtEta->Fill(etau.EtDouble(),etau.eta());
-    m_hTauEtPhi->Fill(etau.EtDouble(),etau.phi());
-    m_hTauEtIsolation->Fill(etau.EtDouble(),etau.isolation());
+    m_hTauPhiEta->Fill(etau.eta(),etau.phi());
+    m_hTauEtEta->Fill(etau.eta(),etau.EtDouble());
+    m_hTauEtPhi->Fill(etau.phi(),etau.EtDouble());
+    m_hTauEtIsolation->Fill(etau.isolation(),etau.EtDouble());
   }
 
   return StatusCode::SUCCESS;

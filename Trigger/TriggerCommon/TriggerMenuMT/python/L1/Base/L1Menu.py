@@ -183,15 +183,6 @@ class L1Menu(object):
                     thrName = thrName[3:]
                 if thrName not in thrNames:
                     thrNames.append(thrName)
-        for key,clist in self.ctp.counters.counters.items():
-            if key == 'ctpin':
-                continue
-            for c in clist:
-                thrName = c.name[1:]
-                if thrName[:3]=='ZB_':
-                    thrName = thrName[3:]
-                if thrName not in thrNames:
-                    thrNames.append(thrName)
         for thrName in thrNames:
             for conn in self.connectors:
                 if conn.ctype != CType.ELEC:

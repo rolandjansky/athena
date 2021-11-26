@@ -79,6 +79,20 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     myGroup = helper.addGroup(tgcRawDataMonAlg,'TgcRawDataMonitor',mainDir)
 
+    oflmuonPath = 'OfflineMuons/'
+    myGroup.defineHistogram('oflmuon_num;OfflineMuon_num',title='OfflineMuon_num;OfflineMuon num per event;Number of events',
+                            path=oflmuonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
+    myGroup.defineHistogram('oflmuon_muonType;OfflineMuon_muonType',title='OfflineMuon_muonType;OfflineMuon muonType;Number of events',
+                            path=oflmuonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
+    myGroup.defineHistogram('oflmuon_author;OfflineMuon_author',title='OfflineMuon_author;OfflineMuon author;Number of events',
+                            path=oflmuonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
+    myGroup.defineHistogram('oflmuon_quality;OfflineMuon_quality',title='OfflineMuon_quality;OfflineMuon quality;Number of events',
+                            path=oflmuonPath,type='TH1F',xbins=21,xmin=-0.5,xmax=20.5)
+    myGroup.defineHistogram('oflmuon_pt;OfflineMuon_Pt',title='OfflineMuon_Pt;OfflineMuon pT [GeV];Number of events',
+                            path=oflmuonPath,type='TH1F',xbins=100,xmin=0,xmax=100)
+    myGroup.defineHistogram('oflmuon_eta,oflmuon_phi;OfflineMuon_EtaVsPhi',title='OfflineMuon_EtaVsPhi;OfflineMuon Eta;OfflineMuon Phi',
+                            path=oflmuonPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+
     trigThrPatternsPath = 'TrigPatterns/'
     for monTrig in tgcRawDataMonAlg.ThrPatternList.split(','):
         monTrigGroup = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor'+monTrig, mainDir)
@@ -678,7 +692,6 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     ConfigFlags.Input.isMC = True
-    ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"
 
     import glob
     import sys
@@ -690,6 +703,9 @@ if __name__=='__main__':
         inputs = glob.glob('/data01/data/user.masato.TrigTest.Zmumu.361107.e5112s3214d1633r12974.nightly.20210826v1_EXT0/*.root')
         ConfigFlags.Input.Files = inputs
         ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
+
+    ConfigFlags.Trigger.triggerConfig = "FILE"
+    ConfigFlags.Trigger.triggerMenuSetup = "LS2_v1"
 
     ConfigFlags.lock()
     ConfigFlags.dump()
@@ -707,6 +723,7 @@ if __name__=='__main__':
     cfg.getEventAlgo('TgcRawDataMonAlg').OutputLevel = INFO
     cfg.getEventAlgo('TgcRawDataMonAlg').MonitorTriggerMultiplicity = True
     cfg.getEventAlgo('TgcRawDataMonAlg').MonitorThresholdPatterns = True
+    cfg.getEventAlgo('TgcRawDataMonAlg').TagAndProbe = False
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
@@ -714,8 +731,9 @@ if __name__=='__main__':
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
-    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg,generateL1Menu
     cfg.merge(L1ConfigSvcCfg(ConfigFlags))
+    generateL1Menu(ConfigFlags)
 
     cfg.printConfig(withDetails=False, summariseProps = False)
 

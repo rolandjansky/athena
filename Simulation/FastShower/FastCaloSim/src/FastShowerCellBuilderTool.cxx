@@ -1479,7 +1479,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
         if(m_storeFastShowerInfo) delete fastshowerinfo;
 
         ATH_MSG_WARNING(" - skip particle...");
-        return StatusCode::FAILURE;
+        return StatusCode::SUCCESS; // See ATLASSIM-5434
       }
 
       /*

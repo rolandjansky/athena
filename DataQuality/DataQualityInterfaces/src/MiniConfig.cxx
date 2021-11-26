@@ -8,8 +8,9 @@
 
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <optional>
+#include <sstream>
+#include <utility>
 //#include <algorithm>
 
 #include "boost/algorithm/string/case_conv.hpp"
@@ -50,7 +51,7 @@ void
 MiniConfig::
 AddKeyword( std::string keyword_ )
 {
-  KeySet_t::value_type keyval( keyword_ );
+  const KeySet_t::value_type& keyval( std::move(keyword_) );
   m_keywords.insert( keyval );
 }
 
@@ -59,7 +60,7 @@ void
 MiniConfig::
 AddAttributeKeyword( std::string keyword_ )
 {
-  KeySet_t::value_type keyval( keyword_ );
+  const KeySet_t::value_type& keyval( std::move(keyword_) );
   m_attKeywords.insert( keyval );
 }
 
@@ -224,7 +225,7 @@ GetStringAttribute( std::string objName, std::string attName ) const
               << "\"" << objName << "\" does not exist\n";
     return std::string("");
   }
-  return node->GetAttribute( attName );
+  return node->GetAttribute( std::move(attName) );
 }
 
 

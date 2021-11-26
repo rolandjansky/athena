@@ -25,7 +25,7 @@ AODFix_postCaloRec()
 if jobproperties.CaloRecFlags.doCaloTopoCluster():
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
-    CAtoGlobalWrapper(egammaTopoClusterCopierCfg,ConfigFlags)
+    CAtoGlobalWrapper(egammaTopoClusterCopierCfg,ConfigFlags,**HIDict)
 
 #then run ID reco:
 

@@ -32,7 +32,7 @@ public:
 
   typedef std::map<std::string,TSeqCollection *> DQOutputMap_t;
 
-  HanOutput( std::string rootFileName, DQOutputMap_t* outputMap, TSeqCollection *outputList );
+  HanOutput( const std::string& rootFileName, DQOutputMap_t* outputMap, TSeqCollection *outputList );
   
   virtual ~HanOutput();
   

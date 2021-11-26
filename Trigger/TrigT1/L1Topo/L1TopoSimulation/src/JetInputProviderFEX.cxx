@@ -69,12 +69,12 @@ JetInputProviderFEX::handle(const Incident& incident) {
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
    //jJet
-   auto hjJetPt = std::make_unique<TH1I>( "jJetTOBPt", "jJet TOB Pt", 100, 0, 500);
-   hjJetPt->SetXTitle("p_{T}");
+   auto hjJetPt = std::make_unique<TH1I>( "jJetTOBPt", "jJet TOB Pt", 200, 0, 400);
+   hjJetPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjJetEtaPhi = std::make_unique<TH2I>( "jJetTOBPhiEta", "jJet TOB Location", 220, -110, 110, 128, 0, 128);
-   hjJetEtaPhi->SetXTitle("#eta");
-   hjJetEtaPhi->SetYTitle("#phi");
+   auto hjJetPhiEta = std::make_unique<TH2I>( "jJetTOBPhiEta", "jJet TOB Location", 240, -240, 240, 64, 0, 128);
+   hjJetPhiEta->SetXTitle("#eta#times40");
+   hjJetPhiEta->SetYTitle("#phi#times20");
 
 
    if (m_histSvc->regShared( histPath + "jJetTOBPt", std::move(hjJetPt), m_hjJetPt ).isSuccess()){
@@ -84,7 +84,7 @@ JetInputProviderFEX::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register jJetTOB Pt histogram from JetProviderFEX");
    }
 
-   if (m_histSvc->regShared( histPath + "jJetTOBPhiEta", std::move(hjJetEtaPhi), m_hjJetEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "jJetTOBPhiEta", std::move(hjJetPhiEta), m_hjJetPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("jJetTOB PhiEta histogram has been registered successfully from JetProviderFEX.");
    }
    else{
@@ -92,12 +92,12 @@ JetInputProviderFEX::handle(const Incident& incident) {
    }
 
    //jLargeRJet
-   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 100, 0, 2000);
-   hjLargeRJetPt->SetXTitle("p_{T}");
+   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 200, 0, 2000);
+   hjLargeRJetPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjLargeRJetEtaPhi = std::make_unique<TH2I>( "jLargeRJetTOBPhiEta", "jLargeRJet TOB Location", 220, -110, 110, 128, 0, 128);
-   hjLargeRJetEtaPhi->SetXTitle("#eta");
-   hjLargeRJetEtaPhi->SetYTitle("#phi");
+   auto hjLargeRJetPhiEta = std::make_unique<TH2I>( "jLargeRJetTOBPhiEta", "jLargeRJet TOB Location", 240, -240, 240, 64, 0, 128);
+   hjLargeRJetPhiEta->SetXTitle("#eta#times40");
+   hjLargeRJetPhiEta->SetYTitle("#phi#times20");
 
 
    if (m_histSvc->regShared( histPath + "jLargeRJetTOBPt", std::move(hjLargeRJetPt), m_hjLargeRJetPt ).isSuccess()){
@@ -107,7 +107,7 @@ JetInputProviderFEX::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register jLargeRJetTOB Pt histogram from JetProviderFEX");
    }
 
-   if (m_histSvc->regShared( histPath + "jLargeRJetTOBPhiEta", std::move(hjLargeRJetEtaPhi), m_hjLargeRJetEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "jLargeRJetTOBPhiEta", std::move(hjLargeRJetPhiEta), m_hjLargeRJetPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("jLargeRJetTOB PhiEta histogram has been registered successfully from JetProviderFEX.");
    }
    else{
@@ -115,19 +115,19 @@ JetInputProviderFEX::handle(const Incident& incident) {
    }
 
    //jTau
-   auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 40, 0, 200);
-   hjTauPt->SetXTitle("p_{T}");
+   auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 200, 0, 200);
+   hjTauPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 200);
-   hjTauIsolation->SetXTitle("Isolation");
+   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 2000);
+   hjTauIsolation->SetXTitle("Isolation [100 MeV]");
 
-   auto hjTauEtaPhi = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 220, -110, 110, 128, 0, 128);
-   hjTauEtaPhi->SetXTitle("#eta");
-   hjTauEtaPhi->SetYTitle("#phi");
+   auto hjTauPhiEta = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 240, -240, 240, 64, 0, 128);
+   hjTauPhiEta->SetXTitle("#eta#times40");
+   hjTauPhiEta->SetYTitle("#phi#times20");
 
-   auto hjTauEtaIsolation = std::make_unique<TH2I>( "jTauTOBEtaIsolation", "jTau TOB Isolation vs eta", 220, -110, 110, 200, 0, 200);
-   hjTauEtaIsolation->SetXTitle("#eta");
-   hjTauEtaIsolation->SetYTitle("Isolation");
+   auto hjTauIsolationEta = std::make_unique<TH2I>( "jTauTOBIsolationEta", "jTau TOB Isolation vs eta", 240, -240, 240, 200, 0, 2000);
+   hjTauIsolationEta->SetXTitle("#eta#times40");
+   hjTauIsolationEta->SetYTitle("Isolation [100 MeV]");
 
    if (m_histSvc->regShared( histPath + "jTauTOBPt", std::move(hjTauPt), m_hjTauPt ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Pt histogram has been registered successfully from JetProviderFEX.");
@@ -142,13 +142,13 @@ JetInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register jTauTOB Isolation histogram from JetProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "jTauTOBPhiEta", std::move(hjTauEtaPhi), m_hjTauEtaPhi ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "jTauTOBPhiEta", std::move(hjTauPhiEta), m_hjTauPhiEta ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB PhiEta histogram has been registered successfully from JetProviderFEX.");
    }
    else{
      ATH_MSG_WARNING("Could not register jTauTOB PhiEta histogram from JetProviderFEX");
    }
-   if (m_histSvc->regShared( histPath + "jTauTOBEtaIsolation", std::move(hjTauEtaIsolation), m_hjTauEtaIsolation ).isSuccess()){
+   if (m_histSvc->regShared( histPath + "jTauTOBIsolationEta", std::move(hjTauIsolationEta), m_hjTauIsolationEta ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Eta/Isolation histogram has been registered successfully from JetProviderFEX.");
    }
    else{
@@ -204,7 +204,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
     unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
     int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
-    unsigned int isolation = jFexRoI->tobIso();  // isolation value in units of 200 MeV
+    unsigned int isolation = jFexRoI->tobIso()*2;  // Convert isolation to 100 MeV unit
    
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
@@ -219,8 +219,8 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
     m_hjTauPt->Fill(jtau.EtDouble());
     m_hjTauIsolation->Fill(jtau.isolation());
-    m_hjTauEtaPhi->Fill(jtau.eta(),jtau.phi()); 
-    m_hjTauEtaIsolation->Fill(jtau.eta(),jtau.isolation()); 
+    m_hjTauPhiEta->Fill(jtau.eta(),jtau.phi()); 
+    m_hjTauIsolationEta->Fill(jtau.eta(),jtau.isolation()); 
   }
   
   for(const auto it : * JContainer) {
@@ -236,7 +236,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
     
-    unsigned int EtTopo = jFexRoI->tobEt()*2; //Convert Et to 100 MeV unit
+    unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
     unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
     int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
 
@@ -251,7 +251,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     inputEvent.addjLargeRJet( jet );
 
     m_hjLargeRJetPt->Fill(jet.EtDouble());
-    m_hjLargeRJetEtaPhi->Fill(jet.eta(),jet.phi());
+    m_hjLargeRJetPhiEta->Fill(jet.eta(),jet.phi());
   }
   
   for(const auto it : * jContainer){
@@ -268,7 +268,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
 
-    unsigned int EtTopo = jFexRoI->tobEt()*2; //Convert Et to 100 MeV unit
+    unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
     unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
     int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
 
@@ -283,7 +283,7 @@ JetInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     inputEvent.addjJet( jet );
 
     m_hjJetPt->Fill(jet.EtDouble());
-    m_hjJetEtaPhi->Fill(jet.eta(),jet.phi());
+    m_hjJetPhiEta->Fill(jet.eta(),jet.phi());
     
   }
   return StatusCode::SUCCESS;

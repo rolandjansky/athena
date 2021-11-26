@@ -33,6 +33,12 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(GEN_AOD2xAODCfg(flags))
         log.info("---------- Configured xAODTruthCnvAlg")
 
+    # trigger
+    if flags.Reco.EnableTrigger:
+        from TriggerJobOpts.TriggerRecoConfig import TriggerRecoCfg
+        acc.merge(TriggerRecoCfg(flags))
+        log.info("---------- Configured trigger data decoding")
+
     # calorimeter
     if flags.Reco.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
@@ -41,12 +47,8 @@ def RecoSteering(flags, tryConfiguringAll=False):
 
     # ID / ITk
     if flags.Reco.EnableTracking:
-        if flags.Detector.GeometryID:
-            from InDetConfig.TrackRecoConfig import TrackRecoCfg
-            acc.merge(TrackRecoCfg(flags))
-        elif flags.Detector.GeometryITk:
-            from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
-            acc.merge(ITkTrackRecoCfg(flags))
+        from InDetConfig.TrackRecoConfig import TrackRecoCfg
+        acc.merge(TrackRecoCfg(flags))
         log.info("---------- Configured tracking")
 
     # muons

@@ -155,7 +155,7 @@ void DumpEventDataToJsonAlg::prependTestEvent()
 template <class TYPE>
 StatusCode DumpEventDataToJsonAlg::getAndFillArrayOfContainers(nlohmann::json &event,
                                                                const SG::ReadHandleKeyArray<TYPE> &keys,
-                                                               const std::string jsonType)
+                                                               const std::string& jsonType)
 {
   for (SG::ReadHandle<TYPE> handle : keys.makeHandles())
   {
@@ -360,7 +360,7 @@ StatusCode DumpEventDataToJsonAlg::finalize()
 template <class TYPE>
 StatusCode DumpEventDataToJsonAlg::getAndFillContainer(nlohmann::json &event,
                                                        const SG::ReadHandleKey<TYPE> &key,
-                                                       const std::string jsonType)
+                                                       const std::string& jsonType)
 {
 SG::ReadHandle<TYPE> handle(key);
 

@@ -813,7 +813,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 	    for (unsigned int ielec=0;ielec<32;ielec++) { //use hvMod->getNumElectrodes when bug is corrected
 	      const EMBHVElectrode& electrode = hvMod.getElectrode(ielec);
 
-	      double hv[2];
+	      double hv[2]={0.,0.};
 	      for (unsigned int iGap=0;iGap<2;iGap++) { // EMB : 2, TRY TO FIND AUTOMATICALLY NB OF GAPS
 		unsigned int hvline = electrode.hvLineNo(iGap,hvCabling);
 		auto hvIt=voltage.find(hvline);

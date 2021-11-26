@@ -250,7 +250,7 @@ bool VP1TruthVertexCollection::load()
     return false;
 
   McEventCollection::const_iterator itEvent, itEventEnd(mcEventColl->end());
-  for (itEvent = mcEventColl->begin(); itEvent != itEventEnd; itEvent++ ) {
+  for (itEvent = mcEventColl->begin(); itEvent != itEventEnd; ++itEvent) {
     const HepMC::GenEvent* genEvent(*itEvent);
     if (!genEvent)
       continue;
@@ -259,7 +259,7 @@ bool VP1TruthVertexCollection::load()
      for (auto vtx:  genEvent->vertices()) {
 #else
     HepMC::GenEvent::vertex_const_iterator itVertex, itVertexEnd(genEvent->vertices_end());
-    for (itVertex = genEvent->vertices_begin(); itVertex != itVertexEnd; itVertex++ ) {
+    for (itVertex = genEvent->vertices_begin(); itVertex != itVertexEnd; ++itVertex ) {
       auto  vtx=*itVertex;
 #endif
       if (!vtx)

@@ -55,8 +55,8 @@ def MC21Simulation(flags):
     flags.Digitization.TRTRangeCut = 30.0
     flags.Sim.TightMuonStepping = True
 
-    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill, enableFrozenShowersFCalOnly
+    from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill #, enableFrozenShowersFCalOnly
     enableBeamPipeKill(flags)
-    enableFrozenShowersFCalOnly(flags)
+    # enableFrozenShowersFCalOnly(flags) # Not tuned yet for G4 10.6
     from SimuJobTransforms.G4Optimizations import enableG4Optimizations
     enableG4Optimizations(flags)

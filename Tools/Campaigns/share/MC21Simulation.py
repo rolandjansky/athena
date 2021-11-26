@@ -11,6 +11,6 @@ simFlags.TightMuonStepping = True
 
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude("SimulationJobOptions/preInclude.BeamPipeKill.py")
-protectedInclude("SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py")
+#protectedInclude("SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py") # Not tuned yet for G4 10.6
 # enable G4 optimisations
 protectedInclude("SimulationJobOptions/preInclude.G4Optimizations.py")

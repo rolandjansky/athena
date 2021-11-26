@@ -90,6 +90,8 @@ def defineMenu():
 
         # multi tau, new calo
         'L1_eTAU60_2eTAU40', 
+        'L1_cTAU20M_2cTAU12M_4jJ12p0ETA25',
+        'L1_cTAU25M_2cTAU20M_2jJ25_3jJ20',  
 
         # combined tau - lepton
         'L1_EM15VHI_2TAU12IM',
@@ -119,7 +121,7 @@ def defineMenu():
         'L1_EM20VH_3J20',
 
         # combined mu - jet 
-        'L1_MU3V_J15', 'L1_BTAG-MU3VjJ15',
+        'L1_MU3V_J15', 'L1_BTAG-MU3VjJ15', 'L1_BTAG-MU5VFjJ20', 
 
         #ATR-13743 
         'L1_MU8F_2J20','L1_MU8F_3J20', 'L1_MU8F_2J15_J20',
@@ -327,6 +329,12 @@ def defineMenu():
         'L1_SC111-CjJ15',  
         'L1_jJ50_DETA20-jJ50J', 
 
+        # tau 
+        'L1_DR-eTAU20eTAU12', 'L1_DR-eTAU20eTAU12-jJ25', 
+        'L1_DR-eTAU20MeTAU12M', 'L1_DR-eTAU20MeTAU12M-jJ25', 
+        'L1_cTAU20M_2cTAU12M_DR-eTAU20MeTAU12M', 'L1_cTAU20M_2cTAU12M_DR-eTAU20MeTAU12M-jJ25',
+        'L1_eTAU60_2cTAU12M_DR-eTAU20eTAU12', 
+
         #ATR-19510
         'L1_DY-BOX-2MU5VF', 'L1_DY-BOX-MU5VFMU3V', 'L1_DY-BOX-2MU3V',
 
@@ -376,7 +384,7 @@ def defineMenu():
         #'L1_ZAFB-25DPHI-eEM18M',
 
         'L1_DPHI-M70-2eEM10M', 'L1_DPHI-M70-2eEM12M', #ATR-19302
-        'L1_DPHI-M70-2eEM12', # ATR-21637 (no shower shape cuts)
+        'L1_DPHI-M70-2eEM7', 'L1_DPHI-M70-2eEM7L', # ATR-21637 (no or loose shower shape cuts)
                 
         #ATR-17320
         'L1_CEP-CjJ60',

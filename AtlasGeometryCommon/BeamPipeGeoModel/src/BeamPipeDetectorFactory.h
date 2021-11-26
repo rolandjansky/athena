@@ -59,8 +59,8 @@ class BeamPipeDetectorFactory final : public GeoVDetectorFactory
   };
 
 
-  EnvelopeShapes makeEnvelope(IRDBRecordset_ptr bpipeEnvelope);
-  EnvelopeShapes makeEnvelopeOld(IRDBRecordset_ptr atlasMother);
+  EnvelopeShapes makeEnvelope(const IRDBRecordset_ptr& bpipeEnvelope);
+  EnvelopeShapes makeEnvelopeOld(const IRDBRecordset_ptr& atlasMother);
 
 
   // Illegal operations:

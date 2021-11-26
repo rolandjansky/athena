@@ -23,12 +23,6 @@ jobproperties.CaloRecFlags.clusterCellGetterName='HIJetRec.SubtractedCellGetter.
 
 rec.doEgamma = True
 
-from egammaRec.egammaRecFlags import jobproperties
-jobproperties.egammaRecFlags.inputTopoClusterCollection='SubtractedCaloTopoCluster'
-jobproperties.egammaRecFlags.egammaTopoClusterCollection='SubtractedEgammaTopoCluster'
-jobproperties.egammaRecFlags.cellContainerName='SubtractedCells'
-
-
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -70,14 +64,12 @@ if DetFlags.haveRIO.Calo_on() :
             treatException("Problem with EMTopoCluster. Switched off")
             jobproperties.CaloRecFlags.doCaloEMTopoCluster=False
 
-
     #EgammaTopoCluster
-    try:
-        from HIJetRec.SubtractedEgammaTopoClusterCopier import SubtractedEgammaTopoClusterCopier
-        SubtractedEgammaTopoClusterCopier()
-    except Exception:
-        treatException("Problem with egammaTopoClusterCopier in HIJetRec")
-
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+    CAtoGlobalWrapper(egammaTopoClusterCopierCfg,ConfigFlags,
+                          name='SubtractedEgammaTopoClusterCopier')
 
     #Run CaloExtension
     if (rec.doESD()) and (rec.doEgamma()) :

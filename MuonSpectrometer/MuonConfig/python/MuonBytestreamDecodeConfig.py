@@ -16,15 +16,14 @@ class MuonCacheNames(object):
 #
 # The function returns a ComponentAccumulator which should be loaded first
 # If a configuration wants to use the cache, they need to use the same names as defined here
-def MuonCacheCfg():
+def MuonCacheCfg(flags):
 
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
     acc = ComponentAccumulator()
 
     MuonCacheCreator=CompFactory.MuonCacheCreator
     cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
-                                    CscCacheKey    = (MuonCacheNames.CscCache if MuonGeometryFlags.hasCSC() else ""),
+                                    CscCacheKey    = (MuonCacheNames.CscCache if flags.Detector.GeometryCSC else ""),
                                     RpcCacheKey    = MuonCacheNames.RpcCache,
                                     TgcCacheKey    = MuonCacheNames.TgcCache)
 
@@ -341,14 +340,13 @@ def MuonByteStreamDecodersCfg(flags):
     mdtdecodingAcc  = MdtBytestreamDecodeCfg( flags )
     cfg.merge( mdtdecodingAcc )
 
-    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-    if MuonGeometryFlags.hasCSC():
+    if flags.Detector.GeometryCSC:
         # Schedule Csc data decoding
         cscdecodingAcc = CscBytestreamDecodeCfg( flags ) 
         cfg.merge( cscdecodingAcc )
 
-    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+    if (flags.Detector.GeometrysTGC and flags.Detector.GeometryMM):
         # Schedule MM data decoding
         mmdecodingAcc  = MmBytestreamDecodeCfg( flags )
         cfg.merge( mmdecodingAcc )

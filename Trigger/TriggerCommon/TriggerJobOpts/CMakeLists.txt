@@ -36,3 +36,6 @@ atlas_add_test( Run3ConfigFetchKeysTest
    SCRIPT python -m TriggerJobOpts.TriggerConfigGetter
    POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( Run2TriggerRecoConfigTest
+   SCRIPT python -m TriggerJobOpts.TriggerRecoConfig
+   POST_EXEC_SCRIPT nopost.sh )

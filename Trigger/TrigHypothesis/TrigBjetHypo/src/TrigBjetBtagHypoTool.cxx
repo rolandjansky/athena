@@ -75,9 +75,6 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       ATH_MSG_DEBUG( "Vertex is not a valid primary vertex!" );
       ATH_MSG_DEBUG( "Trigger decision is FALSE" );
       pass = false;
-    } else if ( m_acceptAll == true ) {
-      ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
-      ATH_MSG_DEBUG( "Trigger decision is TRUE" );
     } else {
     
       const xAOD::BTagging *btagging = *(bTagInfo.btaggingEL);
@@ -87,7 +84,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
 	   m_methodTag == "MV2c10" or 
 	   m_methodTag == "MV2c20" ) {
 	btagging->MVx_discriminant( m_methodTag, btaggingWeight );
-      } else if ( m_methodTag == "DL1r" ) {
+      } else if ( m_methodTag == "DL1r" || m_acceptAll == true) {
 
 	double pu = -1;
 	double pb = -1;
@@ -97,17 +94,15 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
 	btagging->pb("DL1r",pb);
 	btagging->pc("DL1r",pc);
 	
-	btaggingWeight = log( pb/(pu*(1-m_cFrac) + m_cFrac*pc) );
-	
-	
-        auto monitor_btag_pu = Monitored::Scalar( "btag_pu", pu);
-        auto monitor_btag_pb = Monitored::Scalar( "btag_pb", pb);
-        auto monitor_btag_pc = Monitored::Scalar( "btag_pc", pc);
+	btaggingWeight = log( pb/(pu*(1-m_cFrac) + m_cFrac*pc) );	
+
+	auto monitor_btag_pu = Monitored::Scalar( "btag_pu", pu);
+	auto monitor_btag_pb = Monitored::Scalar( "btag_pb", pb);
+	auto monitor_btag_pc = Monitored::Scalar( "btag_pc", pc);
 	auto monitor_btag_weight = Monitored::Scalar( "btag_llr", btaggingWeight);
 	
 	auto monitor_group_for_btag_weights = Monitored::Group( m_monTool, monitor_btag_pu, monitor_btag_pb,
 								monitor_btag_pc, monitor_btag_weight);       
-	
 	
       } else {
 	
@@ -115,11 +110,15 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
 	return StatusCode::FAILURE;
       }
       
-      ATH_MSG_DEBUG( m_methodTag.value() << " = " << btaggingWeight );
-      ATH_MSG_DEBUG( "Cutting b-tagging weight at " << m_bTaggingCut.value() );
-      
-      if ( btaggingWeight < m_bTaggingCut ) 
-	pass = false;
+      if ( m_acceptAll == true ) {
+	ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
+	ATH_MSG_DEBUG( "Trigger decision is TRUE" );
+      } else {
+	ATH_MSG_DEBUG( m_methodTag.value() << " = " << btaggingWeight );
+	ATH_MSG_DEBUG( "Cutting b-tagging weight at " << m_bTaggingCut.value() );
+	if ( btaggingWeight < m_bTaggingCut ) 
+	  pass = false;
+      }
     }
     
     // -------------------------------------

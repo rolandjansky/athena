@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // dSFMTEngine.h
@@ -11,6 +11,7 @@
 #define dSFMTEngine_h
 
 #include <stdexcept>
+#include <atomic>
 #include "CLHEP/Random/defs.h"
 #include "CLHEP/Random/RandomEngine.h"
 
@@ -86,8 +87,8 @@ private:
   DSFMT_T* m_dsfmt;
   void init_dsfmt();
   
-  static int numEngines;
-  static int maxIndex;
+  static std::atomic<int> numEngines;
+  static constexpr int maxIndex = 215;
 }; // dSFMTEngine
 
 }  // namespace CLHEP

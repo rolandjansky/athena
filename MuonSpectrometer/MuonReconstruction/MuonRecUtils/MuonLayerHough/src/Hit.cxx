@@ -16,14 +16,12 @@ namespace MuonHough {
              const Muon::TgcClusterObj3D* tgc_) :
         layer(layer_), x(x_), ymin(ymin_), ymax(ymax_), w(w_), prd(prd_), tgc(tgc_), m_debug(d_) {}
 
-    Hit::~Hit() { delete m_debug; }
+    Hit::~Hit() = default;
 
     Hit::Hit(const Hit& h_) { copy(h_); }
 
     Hit& Hit::operator=(const Hit& h_) {
-        if (&h_ != this) {
-            delete m_debug;
-            m_debug = nullptr;
+        if (&h_ != this) {          
             copy(h_);
         }
         return *this;
@@ -36,9 +34,9 @@ namespace MuonHough {
         ymax = hit.ymax;
         w = hit.w;
         if (hit.m_debug)
-            m_debug = new HitDebugInfo(*hit.m_debug);
+            m_debug = std::make_unique< HitDebugInfo>(*hit.m_debug);
         else
-            m_debug = nullptr;
+            m_debug.reset();
         prd = hit.prd;
         tgc = hit.tgc;
     }
@@ -47,14 +45,12 @@ namespace MuonHough {
                    const Muon::TgcClusterObj3D* tgc_) :
         layer(layer_), r(r_), phimin(phimin_), phimax(phimax_), w(w_), prd(prd_), tgc(tgc_), m_debug(d_) {}
 
-    PhiHit::~PhiHit() { delete m_debug; }
+    PhiHit::~PhiHit() = default;
 
     PhiHit::PhiHit(const PhiHit& h_) { copy(h_); }
 
     PhiHit& PhiHit::operator=(const PhiHit& h_) {
         if (&h_ != this) {
-            delete m_debug;
-            m_debug = nullptr;
             copy(h_);
         }
         return *this;
@@ -67,9 +63,9 @@ namespace MuonHough {
         phimax = hit.phimax;
         w = hit.w;
         if (hit.m_debug)
-            m_debug = new HitDebugInfo(*hit.m_debug);
+            m_debug = std::make_unique< HitDebugInfo>(*hit.m_debug);
         else
-            m_debug = nullptr;
+            m_debug.reset();
         prd = hit.prd;
         tgc = hit.tgc;
     }

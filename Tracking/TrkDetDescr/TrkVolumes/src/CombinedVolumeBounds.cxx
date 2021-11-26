@@ -29,6 +29,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 Trk::CombinedVolumeBounds::CombinedVolumeBounds()
   : VolumeBounds()
@@ -350,8 +351,8 @@ Trk::CombinedVolumeBounds::dump(MsgStream& sl) const
   temp_sl << std::setprecision(7);
   temp_sl << "Trk::CombinedVolumeBounds: first,second ";
   sl << temp_sl.str();
-  m_first->volumeBounds().dump(sl);
-  m_second->volumeBounds().dump(sl);
+  std::as_const(*m_first).volumeBounds().dump(sl);
+  std::as_const(*m_second).volumeBounds().dump(sl);
   return sl;
 }
 
@@ -363,8 +364,8 @@ Trk::CombinedVolumeBounds::dump(std::ostream& sl) const
   temp_sl << std::setprecision(7);
   temp_sl << "Trk::CombinedVolumeBounds: first,second ";
   sl << temp_sl.str();
-  m_first->volumeBounds().dump(sl);
-  m_second->volumeBounds().dump(sl);
+  std::as_const(*m_first).volumeBounds().dump(sl);
+  std::as_const(*m_second).volumeBounds().dump(sl);
   return sl;
 }
 

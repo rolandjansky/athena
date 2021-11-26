@@ -29,8 +29,7 @@ StatusCode CSCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 	CscHitIdHelper* cschhelper = CscHitIdHelper::GetHelper();
 
 	if (!cscContainer->size()) ATH_MSG_DEBUG(m_ContainerName<<" container empty");
-	for (auto it : *cscContainer) {
-		const CSCSimHit hit = it;
+        for (const CSCSimHit& hit : *cscContainer) {
 
 		HitID hitid = hit.CSCid();
 

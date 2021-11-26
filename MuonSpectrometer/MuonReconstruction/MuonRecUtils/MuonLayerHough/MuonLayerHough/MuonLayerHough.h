@@ -18,6 +18,8 @@
 class TH1;
 
 namespace MuonHough {
+    using HitVec = std::vector<std::shared_ptr<MuonHough::Hit>>;
+    
 
     /** struct containing all information to build a Hough transform for a given chamber index */
     struct RegionDescriptor {
@@ -45,8 +47,10 @@ namespace MuonHough {
         float thetaStep{0};
         unsigned int nthetaSamples{1};
     };
-    typedef std::vector<RegionDescriptor> RegionDescriptionVec;
+    
+    using RegionDescriptionVec =  std::vector<RegionDescriptor>;
 
+    
     struct MuonLayerHough {
         /// struct representing the maximum in the hough space
         struct Maximum {
@@ -66,7 +70,7 @@ namespace MuonHough {
             float binsize{0.};        // size of bin
             int bintheta{-1};         // theta bin
             int triggerConfirmed{0};  // number of in time trigger hits associated with the maximum
-            std::vector<Hit*> hits;   // vector of associated hits
+            HitVec hits;   // vector of associated hits
 
             const MuonLayerHough* hough{nullptr};  // pointer to the corresponding hough
 
@@ -136,7 +140,7 @@ namespace MuonHough {
         bool findMaximum(Maximum& maximum, const MuonLayerHoughSelector& selector) const;
 
         /// associates the list of input hits to the provided maximum
-        void associateHitsToMaximum(Maximum& maximum, const std::vector<Hit*>& hits) const;
+        void associateHitsToMaximum(Maximum& maximum, const HitVec& hits) const;
 
         /// calculates the first and last bin the hit should be filled in for a given theta bin
         std::pair<int, int> range(const float x, const float y1, const float y2, const int bintheta) const;
@@ -151,10 +155,10 @@ namespace MuonHough {
         void fill(float x, float y, float weight);
 
         /// fill the hough space with a vector of hits using the layer mode
-        void fillLayer(const std::vector<Hit*>& hits, bool substract = false);
+        void fillLayer(const HitVec& hits, bool substract = false);
 
         //  fill the hough space with a vector of hits using the layer mode
-        void fillLayer2(const std::vector<Hit*>& hits, bool subtract = false);
+        void fillLayer2(const HitVec& hits, bool subtract = false);
 
         /// returns a vector with all the histograms of the hough as TH1*
         std::vector<TH1*> rootHistos(const std::string& prefix, const float* rmin = 0, const float* rmax = 0) const;
