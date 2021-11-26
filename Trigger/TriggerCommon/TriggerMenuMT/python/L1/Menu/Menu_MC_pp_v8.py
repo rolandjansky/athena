@@ -127,6 +127,7 @@ def defineMenu():
         'L1_MU14FCH_XE30',
 
         # single jet
+        # L1_J12 must be kept in the menu for online monitoring of BIB (can be disabled via PS is necessary)
         'L1_J12', 'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J400',
         'L1_J400_LAR',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
