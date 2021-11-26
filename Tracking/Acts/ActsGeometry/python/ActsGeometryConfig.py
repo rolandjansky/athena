@@ -40,6 +40,12 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
     subDetectors += ["ITkStrip"]
 
 
+  if configFlags.Detector.GeometryBpipe:
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    result.merge(BeamPipeGeometryCfg(configFlags))
+    kwargs.setdefault("BuildBeamPipe", True)
+
+
   idSub = [sd in subDetectors for sd in ("Pixel", "SCT", "TRT", "ITkPixel", "ITkStrip")]
   if any(idSub):
     # ANY of the ID subdetectors are on => we require GM sources
