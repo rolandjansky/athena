@@ -2,47 +2,31 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
+from AthenaCommon.Logging import logging
+
+from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GMT1
+from GaudiConfig2.Configurables import GenericMonitoringTool as _GMT2
 
 import json
-import six
-
-from AthenaConfiguration.ComponentFactory import isRun3Cfg
-
-if isRun3Cfg():
-    from GaudiConfig2.Configurables import GenericMonitoringTool as _GenericMonitoringTool
-else:
-    from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 
 log = logging.getLogger(__name__)
 
-class GenericMonitoringTool(_GenericMonitoringTool):
-    """Configurable of a GenericMonitoringTool"""
 
-    __slots__ = ['_convention', '_defaultDuration']
+def GenericMonitoringTool(name='GenericMonitoringTool', **kwargs):
+    '''Create GenericMonitoringTool'''
+    if isRun3Cfg():
+        return GenericMonitoringTool_v2(name, **kwargs)
+    else:
+        return GenericMonitoringTool_v1(name, **kwargs)
 
-    def __init__(self, name=None, *args, **kwargs):
+class GenericMonitoringToolMixin:
+    '''Mixin class for GenericMonitoringTool'''
+
+    def __init__(self, name='GenericMonitoringTool', **kwargs):
         self._convention = ''
         self._defaultDuration = kwargs.pop('defaultDuration', None)
-        super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
-
-    if not isRun3Cfg():
-        def __new__( cls, name=None, *args, **kwargs ):
-            if not Configurable.configurableRun3Behavior:
-                if name is None: name = cls.__name__
-
-            # GenericMonitoringTool is always private. To avoid the user having
-            # to ensure a unique instance name, always create a new instance.
-            b = Configurable.configurableRun3Behavior
-            Configurable.configurableRun3Behavior = 1
-            try:
-                conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
-            finally:
-                Configurable.configurableRun3Behavior = b
-
-            return conf
 
     @property
     def convention(self):
@@ -81,6 +65,20 @@ class GenericMonitoringTool(_GenericMonitoringTool):
     def defineTree(self, *args, **kwargs):
         self._coreDefine(defineTree, *args, **kwargs)
 
+class GenericMonitoringTool_v1(_GMT1, GenericMonitoringToolMixin):
+    '''Legacy Configurable'''
+    def __init__(self, name='GenericMonitoringTool', **kwargs):
+        # cannot use super() because configurable base classes don't use it either
+        _GMT1.__init__(self, name, **kwargs)
+        GenericMonitoringToolMixin.__init__(self, name, **kwargs)
+
+class GenericMonitoringTool_v2(_GMT2, GenericMonitoringToolMixin):
+    '''GaudiConfig2 Configurable'''
+    def __init__(self, name='GenericMonitoringTool', **kwargs):
+        _GMT2.__init__(self, name, **kwargs)
+        GenericMonitoringToolMixin.__init__(self, name, **kwargs)
+
+
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
     def __init__(self, name, dimensions, **kwargs):
@@ -117,7 +115,6 @@ class GenericMonitoringArray:
         if aliasBase is None:
             return
         if pattern is not None:
-            import six
             try:
                 iter(pattern)
             except TypeError:
@@ -126,7 +123,7 @@ class GenericMonitoringArray:
                 pattern = list(pattern)
             if len(pattern) == 0: # nothing to do
                 return
-            if isinstance(pattern[0], six.string_types + six.integer_types):
+            if isinstance(pattern[0], (str, int)):
                 # assume we have list of strings or ints; convert to list of 1-element tuples
                 pattern = [(_2,) for _2 in pattern]
         for postfix, tool in self.Tools.items():
@@ -378,11 +375,11 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Bin counts and ranges
     # Possible types allowed for bin counts
-    binTypes = six.integer_types + (list, tuple)
+    binTypes = (int, list, tuple)
 
     # X axis count and range
     assert isinstance(xbins, binTypes),'xbins argument must be int, list, or tuple'
-    if isinstance(xbins, six.integer_types): # equal x bin widths
+    if isinstance(xbins, int): # equal x bin widths
         settings['xbins'], settings['xarray'] = xbins, []
     else: # x bin edges are set explicitly
         settings['xbins'], settings['xarray'] = len(xbins)-1, xbins
@@ -392,7 +389,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     # Y axis count and range
     if ybins is not None:
         assert isinstance(ybins, binTypes),'ybins argument must be int, list, or tuple'
-        if isinstance(ybins, six.integer_types): # equal y bin widths
+        if isinstance(ybins, int): # equal y bin widths
             settings['ybins'], settings['yarray'] = ybins, []
         else: # y bin edges are set explicitly
             settings['ybins'], settings['yarray'] = len(ybins)-1, ybins
