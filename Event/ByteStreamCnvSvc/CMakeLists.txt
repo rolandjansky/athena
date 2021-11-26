@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ByteStreamCnvSvc )
@@ -47,7 +47,7 @@ atlas_add_test( BSEventSelector
    LOG_SELECT_PATTERN "ByteStream.*Svc" )
 
 atlas_add_test( AtlCopyBSEvent1
-   PRE_EXEC_SCRIPT "rm -f test.data"
+   PRE_EXEC_SCRIPT "rm -f test.data*"
    SCRIPT "AtlCopyBSEvent -e 186882810,187403142,187404922,187419528 -o test.data /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
    PROPERTIES DEPENDS "ByteStreamCnvSvc_BSEventSelector_ctest")
 
@@ -56,7 +56,7 @@ atlas_add_test( AtlFindBSEvent2
    PROPERTIES DEPENDS "ByteStreamCnvSvc_AtlCopyBSEvent1_ctest")
 
 atlas_add_test( AtlCopyBSEvent3
-   PRE_EXEC_SCRIPT "rm -f test_defl.data"
+   PRE_EXEC_SCRIPT "rm -f test_defl.data*"
    SCRIPT "AtlCopyBSEvent -d -e 186882810,187403142,187419528 -o test_defl.data test.data"
    PROPERTIES DEPENDS "ByteStreamCnvSvc_AtlCopyBSEvent1_ctest")
 
@@ -66,14 +66,14 @@ atlas_add_test( AtlFindBSEvent4
    PROPERTIES DEPENDS "ByteStreamCnvSvc_AtlCopyBSEvent3_ctest")
 
 atlas_add_test( AtlCopyBSEvent5
-   PRE_EXEC_SCRIPT "rm -f test_infl.data"
+   PRE_EXEC_SCRIPT "rm -f test_infl.data*"
    SCRIPT "AtlCopyBSEvent -e 186882810,187403142,187419528 -o test_infl.data test_defl.data"
    PROPERTIES DEPENDS "ByteStreamCnvSvc_AtlCopyBSEvent3_ctest")
 
 atlas_add_test( AtlCopyBSEvent6
-   PRE_EXEC_SCRIPT "rm -f empty*.data && python ${CMAKE_CURRENT_SOURCE_DIR}/test/create_empty_bsfile.py"
+   PRE_EXEC_SCRIPT "rm -f empty*.data* && python ${CMAKE_CURRENT_SOURCE_DIR}/test/create_empty_bsfile.py"
    SCRIPT "AtlCopyBSEvent -e all -o empty.data empty._0001.data"
-   PROPERTIES DEPENDS "ByteStreamCnvSvc_AtlCopyBSEvent5_ctest")
+   PROPERTIES DEPENDS "ByteStreamCnvSvc_AtlCopyBSEvent5_ctest" )
 
 atlas_add_test( ByteStreamConfigTest
    SCRIPT "python -m ByteStreamCnvSvc.ByteStreamConfig"
@@ -87,7 +87,8 @@ atlas_add_test( ByteStreamMetadataToolTest
     ByteStreamData
     GaudiKernel
     GoogleTestTools
-    TestTools )
+    TestTools
+  POST_EXEC_SCRIPT nopost.sh )
 
 
 # Install files from the package:
