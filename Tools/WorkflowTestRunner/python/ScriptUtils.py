@@ -60,6 +60,8 @@ def setup_parser() -> ArgumentParser:
                           help="""Specify the directory that contains the lists of variables that will be omitted
                                 while comparing the outputs. The default is ./ and the format of the files is
                                 ${q-test}_${format}_diff-exclusion-list.txt, e.g. q431_AOD_diff-exclusion-list.txt.""")
+    advanced.add_argument("--no-output-checks", action="store_true", dest="disable_output_checks", default=False,
+                          help="Disable output checks")
 
     tests = parser.add_argument_group("tests")
     tests.add_argument("-t", "--test", type=str, dest="test", default=None,
@@ -90,6 +92,7 @@ def get_test_setup(name: str, options: Namespace, log: logging.Logger) -> TestSe
         setup.checks_only = True
         setup.unique_ID = options.unique_ID
     setup.parallel_execution = options.fast_mode
+    setup.disable_output_checks = options.disable_output_checks
     # not in global setup:
     # options.extra_args
 
@@ -217,7 +220,7 @@ def run_checks(setup: TestSetup, tests: List[WorkflowTest], performance_checks: 
     main_check = FailedOrPassedCheck(setup)
     # run checks
     for test in tests:
-        all_passed = all_passed and test.run_checks(main_check, performance_checks)
+        all_passed = test.run_checks(main_check, performance_checks) and all_passed
     return all_passed
 
 
