@@ -1,26 +1,21 @@
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 --- run2
-Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/LAR/ElecCalibFlat/Ramp'), ('CondAttrListCollection', '/LAR/ElecCalibFlat/Pedestal')]
+Py:ComponentAccumulator    INFO      * Load: [['CondAttrListCollection', '/LAR/ElecCalibFlat/Ramp'], ['CondAttrListCollection', '/LAR/ElecCalibFlat/Pedestal']]
 Py:ComponentAccumulator    INFO  \__ LArFlatConditionsAlg<LArRampFlat> (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: /LAR/ElecCalibFlat/Ramp
 Py:ComponentAccumulator    INFO      * WriteKey: LArRamp
 Py:ComponentAccumulator    INFO  \__ LArFlatConditionsAlg<LArPedestalFlat> (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: /LAR/ElecCalibFlat/Pedestal
 Py:ComponentAccumulator    INFO      * WriteKey: LArPedestal
-IOVDbSvc: ['/LAR/ElecCalibFlat/Ramp<db>COOLONL_LAR/CONDBR2</db>', '/LAR/ElecCalibFlat/Pedestal<db>COOLONL_LAR/CONDBR2</db>']
 --- run1
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('LArRampComplete', '/LAR/ElecCalibOnl/Ramp'), ('LArPedestalComplete', '/LAR/ElecCalibOnl/Pedestal')]
-IOVDbSvc: ['/LAR/ElecCalibOnl/Ramp<db>COOLONL_LAR/COMP200</db>', '/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key><db>COOLONL_LAR/COMP200</db>']
+Py:ComponentAccumulator    INFO      * Load: [['LArRampComplete', '/LAR/ElecCalibOnl/Ramp'], ['LArPedestalComplete', '/LAR/ElecCalibOnl/Pedestal']]
 --- mc
-Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'), ('LArRampMC', '/LAR/ElecCalibMC/Ramp'), ('LArPedestalMC', '/LAR/ElecCalibMC/Pedestal')]
+Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/LAR/Identifier/OnOffIdMap'], ['LArRampMC', '/LAR/ElecCalibMC/Ramp'], ['LArPedestalMC', '/LAR/ElecCalibMC/Pedestal']]
 Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
 Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
@@ -28,4 +23,3 @@ Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
 Py:ComponentAccumulator    INFO  \__ LArSymConditionsAlg<LArRampMC, LArRampSym> (cond alg)
 Py:ComponentAccumulator    INFO      * ReadKey: LArRamp
 Py:ComponentAccumulator    INFO      * WriteKey: LArRampSym
-IOVDbSvc: ['/LAR/Identifier/OnOffIdMap<tag>LARIdentifierOnOffIdMap-012</tag><db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/Ramp<db>COOLOFL_LAR/OFLP200</db>', '/LAR/ElecCalibMC/Pedestal<db>COOLOFL_LAR/OFLP200</db>']
