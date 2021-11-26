@@ -28,7 +28,7 @@ def LArCellCorrectorCfg(configFlags):
     
     correctionTools=[]
 
-    if configFlags.LAr.RawChannelSource=="both":
+    if configFlags.LAr.RawChannelSource in ("both","input") and not configFlags.Input.isMC:
         theMerger=LArCellMerger(RawChannelsName="LArRawChannels_FromDigits")
         correctionTools.append(theMerger)
     
