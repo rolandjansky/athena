@@ -309,13 +309,13 @@ def MuonCombinedReconstructionCfg(flags):
     # Set up to read Tracks.
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
     result.merge (TrackCollectionReadCfg (flags, 'Tracks'))
-
-    result.merge( MuonCombinedInDetCandidateAlgCfg(flags) )
+    useSectors = False #FIXME, switch off the sector seeding for the moment
+    result.merge( MuonCombinedInDetCandidateAlgCfg(flags, UseOnlyHittedSectors=useSectors) )
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
 
     doLRT = False # FIXME, once this is in InDetFlags
     if (doLRT):
-        result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags) )
+        result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags, UseOnlyHittedSectors=useSectors) )
 
     if flags.MuonCombined.doStatisticalCombination or flags.MuonCombined.doCombinedFit:
         result.merge( MuonCombinedAlgCfg(flags) )
