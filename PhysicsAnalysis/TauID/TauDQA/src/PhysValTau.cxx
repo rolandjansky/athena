@@ -63,7 +63,7 @@ StatusCode PhysValTau::bookHistograms()
   m_oTauValidationPlots->initialize();
   std::vector<HistData> hists = m_oTauValidationPlots->retrieveBookedHistograms();
   ATH_MSG_INFO ("Filling n of hists " << hists.size() << " ");
-  for (auto hist : hists) {
+  for (const auto& hist : hists) {
     ATH_CHECK(regHist(hist.first,hist.second,all));
   }
    

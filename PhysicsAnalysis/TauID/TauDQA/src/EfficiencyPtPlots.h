@@ -13,7 +13,7 @@ namespace Tau{
 
 class EfficiencyPtPlots: public PlotBase {
   public:
-    EfficiencyPtPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
+    EfficiencyPtPlots(PlotBase *pParent, const std::string& sDir, std::string sTauJetContainerName);
     virtual ~EfficiencyPtPlots();
 
     void fill(const xAOD::TauJet& tau, float weight);
