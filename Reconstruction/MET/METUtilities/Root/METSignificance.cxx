@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METSignificance.cxx
@@ -218,7 +218,7 @@ namespace met {
 
 	toolName = "TauPerfTool";
 	m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/METSigAutoConf_" + toolName);
-	ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
+	ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "combinedTES_FinalCalib.root"));
 	ATH_CHECK( m_tCombinedP4FromRecoTaus.retrieve() );
 
         return StatusCode::SUCCESS;
@@ -666,9 +666,8 @@ namespace met {
       if(m_doPhiReso) phi_reso = obj->pt()*0.01;
     }else{
       const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj));
-      pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
-      //for taus, this is not a relative resolution. so we divide by pT
-      pt_reso /=tau->pt();
+      pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetMvaEnergyResolution(tau);
+
       if(m_doPhiReso) phi_reso = tau->pt()*0.01;
       ATH_MSG_VERBOSE("tau: " << pt_reso << " " << tau->pt() << " " << tau->p4().Eta() << " " << tau->p4().Phi() << " phi reso: " << phi_reso);
     }
