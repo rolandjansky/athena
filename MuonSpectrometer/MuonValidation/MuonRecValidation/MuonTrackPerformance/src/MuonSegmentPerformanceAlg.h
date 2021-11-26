@@ -26,9 +26,9 @@ public:
 
 private:
     bool retrieve(const SG::ReadHandleKey<xAOD::MuonSegmentContainer> &, const xAOD::MuonSegmentContainer *&ptr) const;
-    std::string printRatio(std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco,
-                           const std::vector<int> truth) const;
-    std::string printRatio(std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco) const;
+    std::string printRatio(const std::string& prefix, unsigned int begin, unsigned int end, const std::vector<int>& reco,
+                           const std::vector<int>& truth) const;
+    std::string printRatio(const std::string& prefix, unsigned int begin, unsigned int end, const std::vector<int>& reco) const;
 
     /** name of external file to write statistics */
     bool m_writeToFile;

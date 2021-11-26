@@ -233,8 +233,8 @@ private:
     /** print TrackData to a string */
     std::string print(const TrackData& trackData) const;
 
-    std::string print(const EventData& event, const std::vector<TrackData*>& tracks, std::string message) const;
-    std::string print(const EventData& event, const std::vector<const Trk::Track*>& tracks, std::string message) const;
+    std::string print(const EventData& event, const std::vector<TrackData*>& tracks, const std::string& message) const;
+    std::string print(const EventData& event, const std::vector<const Trk::Track*>& tracks, const std::string& message) const;
 
     /** print all the track counters to a string to provide a summary */
     std::string printTrackCounters(bool doSecondaries = true) const;

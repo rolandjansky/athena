@@ -766,7 +766,7 @@ std::string MuonTrackPerformanceAlg::print(const Muon::IMuonTrackTruthTool::Trut
 }
 
 std::string MuonTrackPerformanceAlg::print(const MuonTrackPerformanceAlg::EventData& event,
-                                           const std::vector<MuonTrackPerformanceAlg::TrackData*>& tracks, std::string message) const {
+                                           const std::vector<MuonTrackPerformanceAlg::TrackData*>& tracks, const std::string& message) const {
     std::ostringstream sout;
     if (!tracks.empty()) {
         sout << "  Event " << event.eventNumber << " position in file " << event.eventPosition << " has " << tracks.size() << " " << message
@@ -779,7 +779,7 @@ std::string MuonTrackPerformanceAlg::print(const MuonTrackPerformanceAlg::EventD
 }
 
 std::string MuonTrackPerformanceAlg::print(const MuonTrackPerformanceAlg::EventData& event, const std::vector<const Trk::Track*>& tracks,
-                                           std::string message) const {
+                                           const std::string& message) const {
     std::ostringstream sout;
     if (!tracks.empty()) {
         sout << "  Event " << event.eventNumber << " position in file " << event.eventPosition << " has " << tracks.size() << " " << message

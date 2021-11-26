@@ -2,18 +2,20 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "ParamPlots.h"
 
 namespace Tau{
 
-ParamPlots::ParamPlots(PlotBase* pParent, std::string sDir, std::string sParticleType)
+ParamPlots::ParamPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType)
    : PlotBase(pParent, sDir),
      eta(nullptr),
      phi(nullptr),
      pt(nullptr),
      eta_phi(nullptr),
      eta_pt(nullptr),
-     m_sParticleType(sParticleType)
+     m_sParticleType(std::move(sParticleType))
 {
 }
 
