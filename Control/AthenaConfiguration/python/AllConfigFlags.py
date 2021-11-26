@@ -250,6 +250,11 @@ def _createCfgFlags():
         return createBTaggingConfigFlags()
     _addFlagsCategory(acf,"BTagging",__btagging, 'BTagging')
 
+    def __hi():
+        from HIRecConfig.HIRecConfigFlags import createHIRecConfigFlags
+        return createHIRecConfigFlags()
+    _addFlagsCategory(acf, "HIRec", __hi, "HIRecConfig")
+
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags
         dqf = createDQConfigFlags()
