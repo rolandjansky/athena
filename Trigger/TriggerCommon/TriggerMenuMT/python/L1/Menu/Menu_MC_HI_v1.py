@@ -84,7 +84,7 @@ def defineMenu():
         'L1_TE20','L1_VTE20','L1_TE50','L1_TE600p0ETA49','L1_TE50_VTE600p0ETA49','L1_TE12000',
         
          # new calo
-        'L1_gTE50',
+        'L1_gTE200',
         #UPC - MU
         'L1_MU3V_VTE50',
         

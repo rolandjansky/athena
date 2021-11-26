@@ -189,10 +189,11 @@ def defineMenu():
         'L1_gXERHO30', 'L1_gXERHO50',
         'L1_gXENC30', 'L1_gXENC50',
         'L1_gXEJWOJ30', 'L1_gXEJWOJ40', 'L1_gXEJWOJ50',
-        'L1_gTE50',
+        'L1_gTE200',
+        'L1_gMHT500',
 
         'L1_jXE30', 'L1_jXE40', 'L1_jXE50', 'L1_jXE55', 'L1_jXE300', 
-        'L1_jXEC50', 'L1_jTE100', 'L1_jTEC100', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
+        'L1_jXEC50', 'L1_jTE200', 'L1_jTEC200', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
            
         # ATR-24037 
         'L1_jXEPerf50',

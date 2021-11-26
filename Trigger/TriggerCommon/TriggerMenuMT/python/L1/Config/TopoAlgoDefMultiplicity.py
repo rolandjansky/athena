@@ -171,7 +171,7 @@ class TopoAlgoDefMultiplicity(object):
                                        nbits = 2, classtype='jLJetMultiplicity')
             tm.registerTopoAlgo(alg)
 
-        gJThresholds_3bits = [ 'gJ15', 'gJ25', 'gJ35',]
+        gJThresholds_3bits = [ 'gJ20', 'gJ30', 'gJ40',]
         gJThresholds_2bits = [ 'gJ50', 'gJ100', 'gJ160']
 
         for gJet in gJThresholds_3bits:
@@ -206,8 +206,10 @@ class TopoAlgoDefMultiplicity(object):
 
             'jXE30', 'jXE40', 'jXE50', 'jXE55', 'jXE300',
 
-            'jXEC50', 'jTE100', 'jTEC100', 'jTEFWD100', 'jTEFWDA100', 'jTEFWDC100', 
-            'gTE50',
+            'jXEC50', 'jTE200', 'jTEC200', 'jTEFWD100', 'jTEFWDA100', 'jTEFWDC100', 
+            'gTE200',
+
+            'gMHT500',
 
             'jXEPerf50',
 

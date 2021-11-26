@@ -11712,7 +11712,9 @@ HLT_noalg_L1eTAU60:
   eventCount: 5
 HLT_noalg_L1eTAU8:
   eventCount: 20
-HLT_noalg_L1gTE50:
+HLT_noalg_L1gMHT500:
+  eventCount: 0
+HLT_noalg_L1gTE200:
   eventCount: 0
 HLT_noalg_L1gXEJWOJ30:
   eventCount: 0
@@ -11794,9 +11796,9 @@ HLT_noalg_L1jTAU20:
   eventCount: 0
 HLT_noalg_L1jTAU20M:
   eventCount: 0
-HLT_noalg_L1jTE100:
+HLT_noalg_L1jTE200:
   eventCount: 0
-HLT_noalg_L1jTEC100:
+HLT_noalg_L1jTEC200:
   eventCount: 0
 HLT_noalg_L1jTEFWD100:
   eventCount: 0
