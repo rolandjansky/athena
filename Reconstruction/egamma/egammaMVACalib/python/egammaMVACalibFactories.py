@@ -7,26 +7,26 @@ __author__ = "Jovan Mitrevski"
 from egammaRec.Factories import ToolFactory, ServiceFactory
 
 from egammaMVACalib import egammaMVACalibConf
-from egammaRec.egammaRecFlags import jobproperties
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from xAODEgamma.xAODEgammaParameters import xAOD
 
 electronMVATool = ToolFactory(
     egammaMVACalibConf.egammaMVACalibTool,
     name="electronMVATool",
     ParticleType=xAOD.EgammaParameters.electron,
-    folder=jobproperties.egammaRecFlags.calibMVAVersion())
+    folder=ConfigFlags.Egamma.Calib.MVAVersion)
 
 unconvPhotonMVATool = ToolFactory(
     egammaMVACalibConf.egammaMVACalibTool,
     name="unconvPhotonMVATool",
     ParticleType=xAOD.EgammaParameters.unconvertedPhoton,
-    folder=jobproperties.egammaRecFlags.calibMVAVersion())
+    folder=ConfigFlags.Egamma.Calib.MVAVersion)
 
 convertedPhotonMVATool = ToolFactory(
     egammaMVACalibConf.egammaMVACalibTool,
     name="convertePhotonMVATool",
     ParticleType=xAOD.EgammaParameters.convertedPhoton,
-    folder=jobproperties.egammaRecFlags.calibMVAVersion())
+    folder=ConfigFlags.Egamma.Calib.MVAVersion)
 
 egammaMVASvc = ServiceFactory(
     egammaMVACalibConf.egammaMVASvc,

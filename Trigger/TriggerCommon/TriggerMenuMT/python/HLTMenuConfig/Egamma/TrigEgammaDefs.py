@@ -15,7 +15,7 @@ if not Configurable.configurableRun3Behavior:
     ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
 from .TrigEgammaSliceFlags import TrigEgammaSliceFlags
-from egammaRec.egammaRecFlags import jobproperties
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from egammaRec.Factories import ToolFactory, ServiceFactory
 from egammaMVACalib import egammaMVACalibConf
 from xAODEgamma.xAODEgammaParameters import xAOD
@@ -308,7 +308,7 @@ def createTrigEgammaFastPhotonSelectors(ConfigFilePath=None):
 def createTrigEgammaMVASvc( ConfigFilePath=None ):
 
     if not ConfigFilePath:
-      ConfigFilePath = jobproperties.egammaRecFlags.calibMVAVersion()
+      ConfigFilePath = ConfigFlags.Egamma.Calib.MVAVersion
 
     trigElectronMVATool = ToolFactory(
         egammaMVACalibConf.egammaMVACalibTool,

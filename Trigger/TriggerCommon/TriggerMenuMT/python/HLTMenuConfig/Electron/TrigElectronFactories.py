@@ -18,7 +18,8 @@ TrigEgammaKeys = getTrigEgammaKeys()
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMTrackMatchBuilder, TrigEMShowerBuilder, TrigEgammaDecorationTools
 
 """ Importing all the tool components """
-from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVASvc, EGammaAmbiguityTool
+from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, EGammaAmbiguityTool
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory, FcnWrapper
     

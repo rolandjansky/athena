@@ -1100,8 +1100,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
         try:
             from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
 
-            from egammaRec.egammaRecFlags import jobproperties
-            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
+            if ( rec.readESD() or ConfigFlags.Reco.EnableEgamma ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
                 addClusterToCaloCellAOD(egammaKeys.outputFwdClusterKey())

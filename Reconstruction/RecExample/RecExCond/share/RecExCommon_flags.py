@@ -69,7 +69,6 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from tauRec.tauRecFlags import jobproperties
 from JetRec.JetRecFlags import jobproperties
-from egammaRec.egammaRecFlags import jobproperties
 
 # some special migration (temporary)
 if rec.doFloatingPointException() and not athenaCommonFlags.isOnline():
@@ -271,9 +270,6 @@ if not rec.doESD():
    from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
    jobproperties.MuonCombinedRec.Enabled=False
 
-   from egammaRec.egammaRecFlags import jobproperties
-   jobproperties.egammaRecFlags.Enabled=False
-
    from JetRec.JetRecFlags import jobproperties
    jobproperties.JetRecFlags.Enabled=False
 
@@ -404,10 +400,6 @@ if not rec.doJetMissingETTag:
       AODFlags.TruthParticleJet=False   
    
 if not rec.doEgamma:
-   try:
-      jobproperties.egammaRecFlags.Enabled=False
-   except Exception:
-      pass
 
    if _AODFlagsAvailable:
       AODFlags.egammaTrackSlimmer=False
