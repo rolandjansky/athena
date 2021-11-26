@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LUCID_G4_SD )
@@ -21,7 +21,8 @@ atlas_add_component( LUCID_G4_SD
 
 atlas_add_test( LUCID_SensitiveDetector_gtest
                 SOURCES test/LUCID_SensitiveDetector_gtest.cxx
-                LINK_LIBRARIES LUCID_G4_SDLib TestTools )
+                LINK_LIBRARIES LUCID_G4_SDLib TestTools
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AFP_G4_SD )
@@ -26,14 +26,17 @@ atlas_install_joboptions( share/optionForTest.txt )
 atlas_add_test( AFP_SensitiveDetector_gtest
                 SOURCES
                 test/AFP_SensitiveDetector_gtest.cxx
-                LINK_LIBRARIES AFP_G4_SDLib TestTools )
+                LINK_LIBRARIES AFP_G4_SDLib TestTools
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( AFP_SiDSensitiveDetector_gtest
                 SOURCES
                 test/AFP_SiDSensitiveDetector_gtest.cxx
-                LINK_LIBRARIES AFP_G4_SDLib TestTools )
+                LINK_LIBRARIES AFP_G4_SDLib TestTools
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( AFP_TDSensitiveDetector_gtest
                 SOURCES
                 test/AFP_TDSensitiveDetector_gtest.cxx
-                LINK_LIBRARIES AFP_G4_SDLib TestTools )
+                LINK_LIBRARIES AFP_G4_SDLib TestTools
+                POST_EXEC_SCRIPT nopost.sh )
