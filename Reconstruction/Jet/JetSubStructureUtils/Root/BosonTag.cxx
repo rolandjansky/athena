@@ -169,7 +169,17 @@ BosonTag::BosonTag( std::string working_point,
           std::istringstream ss(line);
           /* lineDetails is an array of the splits */
           std::vector<std::string> lineDetails{std::istream_iterator<std::string>{ss}, std::istream_iterator<std::string>{}};
-
+          /*
+          * line format
+          * medium   AK10LCTRIMF5R20                 83.1993  2.50437e-04 15.0  1.00068 -0.00038526 2.43073e-06 -2.11884e-09 6.23008e-13   RIGHT
+          * i.e. 11 parameters
+          */
+          const unsigned int expectedNumberOfParameters = 11;//change this if the line format changes
+          if (lineDetails.size() != expectedNumberOfParameters){ 
+            printf("<%s>: A line in the recommendations file contains the wrong number of elements\r\n\tLine: %s\r\n", APP_NAME, line.c_str());
+            m_bad_configuration |= true;
+            break;
+          }
           std::string l_working_point = lineDetails[0];
           std::string l_algorithm     = lineDetails[1];
 
