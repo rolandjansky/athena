@@ -93,7 +93,7 @@ private:
   TEIdToChainsMap_t m_allTEIdsToChains, m_finalTEIdsToChains;
   
 
-  StatusCode mirrorTEsStructure(ConvProxySet_t&, const HLT::TrigNavStructure* run2NavPtr) const;
+  StatusCode mirrorTEsStructure(ConvProxySet_t&, const HLT::TrigNavStructure& run2NavPtr) const;
 
   StatusCode associateChainsToProxies(ConvProxySet_t&, const TEIdToChainsMap_t&) const;
 
@@ -112,7 +112,7 @@ private:
 
 
   StatusCode fillRelevantFeatures(ConvProxySet_t& convProxies) const;
-  StatusCode fillRelevantRois(ConvProxySet_t& convProxies, const HLT::TrigNavStructure* run2NavPtr) const;
+  StatusCode fillRelevantRois(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2NavPtr) const;
 
   StatusCode createIMHNodes(ConvProxySet_t&, xAOD::TrigCompositeContainer&, const EventContext&) const;
 
@@ -121,8 +121,8 @@ private:
 
   StatusCode linkTopNode(xAOD::TrigCompositeContainer&) const;
 
-  StatusCode linkFeaNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure* run2NavPtr, const EventContext& context) const;
-  StatusCode linkRoiNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure* run2NavPtr) const;
+  StatusCode linkFeaNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& navigationDecoderrun2NavPtr, const EventContext& context) const;
+  StatusCode linkRoiNode(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2NavPtr) const;
 
   // helpers
   //!< both method skip TrigPassBits
@@ -146,7 +146,7 @@ private:
   StatusCode noUnconnectedHNodes(const xAOD::TrigCompositeContainer&) const;
 
   std::tuple<uint32_t, CLID, std::string> getSgKey(const HLT::TrigNavStructure& navigationDecoder, const HLT::TriggerElement::FeatureAccessHelper& helper) const;
-  const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure &navigationDecoder, bool filterOnCLID=true) const;
+  const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEfeatures(const HLT::TriggerElement *te_ptr, const HLT::TrigNavStructure& navigationDecoder, bool filterOnCLID=true) const;
   const std::vector<HLT::TriggerElement::FeatureAccessHelper> getTEROIfeatures(const HLT::TriggerElement* te_ptr, const HLT::TrigNavStructure& navigationDecoder) const;
 
   std::map<CLID, std::set<std::string>> m_collectionsToSaveDecoded;

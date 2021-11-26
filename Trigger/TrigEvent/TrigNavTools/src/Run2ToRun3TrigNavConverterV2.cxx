@@ -190,7 +190,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   }
 
   ConvProxySet_t convProxies;
-  HLT::StandaloneNavigation standaloneNav; // needed to keep TEs around
+  HLT::StandaloneNavigation standaloneNav; // needed to keep TEs around, so it is out of the scope where it is filled and referenced
   const HLT::TrigNavStructure* run2NavigationPtr = nullptr;
   if (!m_trigNavKey.key().empty()) {
     SG::ReadHandle navReadHandle(m_trigNavKey, context);
@@ -202,7 +202,8 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
     run2NavigationPtr = m_tdt->ExperimentalAndExpertMethods().getNavigation();
   }
 
-  ATH_CHECK(mirrorTEsStructure(convProxies, run2NavigationPtr));
+
+  ATH_CHECK(mirrorTEsStructure(convProxies, *run2NavigationPtr));
 
   if (m_doSelfValidation)
     ATH_CHECK(allProxiesConnected(convProxies));
@@ -231,13 +232,13 @@ StatusCode Run2ToRun3TrigNavConverterV2::execute(const EventContext& context) co
   }
   if (m_doLinkFeatures) {
     ATH_CHECK(fillRelevantFeatures(convProxies));
-    ATH_CHECK(fillRelevantRois(convProxies, run2NavigationPtr));
+    ATH_CHECK(fillRelevantRois(convProxies, *run2NavigationPtr));
     ATH_MSG_DEBUG("Features to link found");
   }
   ATH_CHECK(createFSNodes(convProxies, *decisionOutput, m_finalTEIdsToChains, context));
+  ATH_CHECK(linkFeaNode(convProxies, *run2NavigationPtr, context));
+  ATH_CHECK(linkRoiNode(convProxies, *run2NavigationPtr));
   ATH_CHECK(createL1Nodes(convProxies, *decisionOutput, context));
-  ATH_CHECK(linkFeaNode(convProxies, run2NavigationPtr, context));
-  ATH_CHECK(linkRoiNode(convProxies, run2NavigationPtr));
   ATH_CHECK(linkTopNode(*decisionOutput));
   ATH_MSG_DEBUG("Conversion done, from " << convProxies.size() << " elements to " << decisionOutput->size() << " elements");
 
@@ -282,9 +283,7 @@ StatusCode Run2ToRun3TrigNavConverterV2::extractTECtoChainMapping(TEIdToChainsMa
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& convProxies, const HLT::TrigNavStructure* run2NavPtr) const {
-
-  const HLT::TrigNavStructure& run2Navigation = *run2NavPtr;
+StatusCode Run2ToRun3TrigNavConverterV2::mirrorTEsStructure(ConvProxySet_t& convProxies, const HLT::TrigNavStructure& run2Navigation) const {
 
   // iterate over the TEs, for each make the ConvProxy and build connections
   std::map<const HLT::TriggerElement*, ConvProxy*> teToProxy;
@@ -557,9 +556,8 @@ StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantFeatures(ConvProxySet_t& co
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantRois(ConvProxySet_t &convProxies, const HLT::TrigNavStructure *run2NavPtr) const
+StatusCode Run2ToRun3TrigNavConverterV2::fillRelevantRois(ConvProxySet_t &convProxies, const HLT::TrigNavStructure& run2Navigation) const
 {
-  const HLT::TrigNavStructure &run2Navigation = *run2NavPtr;
 
   for (auto &proxy : convProxies)
   {
@@ -677,10 +675,8 @@ StatusCode Run2ToRun3TrigNavConverterV2::createL1Nodes(const ConvProxySet_t& con
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::linkFeaNode(ConvProxySet_t &convProxies, const HLT::TrigNavStructure *run2NavPtr, const EventContext &context) const
+StatusCode Run2ToRun3TrigNavConverterV2::linkFeaNode(ConvProxySet_t &convProxies, const HLT::TrigNavStructure& run2Navigation, const EventContext &context) const
 {
-
-  const HLT::TrigNavStructure &run2Navigation = *run2NavPtr;
 
   // from all FEAs of the associated TE pick those objects that are to be linked
   for (auto &proxy : convProxies)
@@ -713,10 +709,8 @@ StatusCode Run2ToRun3TrigNavConverterV2::linkFeaNode(ConvProxySet_t &convProxies
   return StatusCode::SUCCESS;
 }
 
-StatusCode Run2ToRun3TrigNavConverterV2::linkRoiNode(ConvProxySet_t &convProxies, const HLT::TrigNavStructure *run2NavPtr) const
+StatusCode Run2ToRun3TrigNavConverterV2::linkRoiNode(ConvProxySet_t &convProxies, const HLT::TrigNavStructure& run2Navigation) const
 {
-
-  const HLT::TrigNavStructure &run2Navigation = *run2NavPtr;
 
   // from all Rois of the associated TE pick those objects that are to be linked
   for (auto &proxy : convProxies)
