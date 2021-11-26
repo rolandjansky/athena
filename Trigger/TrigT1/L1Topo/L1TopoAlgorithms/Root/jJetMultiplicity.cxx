@@ -44,11 +44,13 @@ TCS::jJetMultiplicity::initialize() {
   m_threshold = getThreshold();
 
   // book histograms
-  std::string hname_accept = "hjJetMultiplicity_accept_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "eta vs pT", 150, -100, 100, 30, 0., 20.);
+  bool isMult = true;
+
+  std::string hname_accept = "hjJetMultiplicity_accept_EtaPt"+m_threshold->name();
+  bookHist(m_histAccept, hname_accept, "ETA vs PT", 150, -100, 100, 450, 0., 300., isMult);
 
   hname_accept = "hjJetMultiplicity_accept_counts_"+m_threshold->name();
-  bookHist(m_histAccept, hname_accept, "Counts", 15, 0., 10. );
+  bookHist(m_histAccept, hname_accept, "COUNTS", 15, 0., 10., isMult);
 
   return StatusCode::SUCCESS;
      
@@ -84,7 +86,7 @@ TCS::jJetMultiplicity::process( const TCS::InputTOBArray & input,
     const GenericTOB gtob(**jjet);
 
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = gtob.Et() >= jJThr.thrValueCounts(gtob.eta()/4);
+    bool passed = gtob.Et() >= jJThr.thrValue100MeV(gtob.eta()/4);
 
     if (passed) {
       counting++; 

@@ -58,8 +58,8 @@ EnergyInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   auto h_met_Pt = std::make_unique<TH1I>( "MET", "Missing ET TOB", 200, 0, 2000);
-   h_met_Pt->SetXTitle("p_{T}");
+   auto h_met_Pt = std::make_unique<TH1I>( "MET", "Missing ET TOB", 100, 0, 2000);
+   h_met_Pt->SetXTitle("p_{T} [GeV]");
 
    auto h_met_Phi = std::make_unique<TH1I>( "METPhi", "MET TOB Phi", 32, -3.2, 3.2);
    h_met_Phi->SetXTitle("#phi");
@@ -98,9 +98,9 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
 
   for(const auto it : *jMet_EDM){
     const xAOD::jFexMETRoI *jFEXMet = it;
-    //Get the MET components in 200 MeV units
-    int et_x = jFEXMet->getE_x();
-    int et_y = jFEXMet->getE_y();
+    // Get the MET components and convert to 100 MeV units
+    int et_x = jFEXMet->getE_x()*2;
+    int et_y = jFEXMet->getE_y()*2;
     int jFexNumber = jFEXMet->getjFexNumber();
     int fpgaNumber = jFEXMet->getfpgaNumber();  
 
@@ -117,7 +117,7 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
   unsigned int et =  std::sqrt( global_et_x*global_et_x + global_et_y*global_et_y );
   TCS::MetTOB met( -(global_et_x), -(global_et_y), et );
   inputEvent.setMET( met );
-  m_h_met_Pt->Fill(met.Et());
+  m_h_met_Pt->Fill(met.Et()/10.);
   m_h_met_Phi->Fill( atan2(met.Ey(),met.Ex()) );
     
   /* not checking overflow currently to be enabled in release 22. 
