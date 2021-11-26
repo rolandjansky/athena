@@ -12,7 +12,8 @@ Offline configurations are available here:
 """
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory,  FcnWrapper
-from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVASvc, EGammaAmbiguityTool
+from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, EGammaAmbiguityTool
 # Tools and funtions from TrigEgammaFactories
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder_HI, TrigEMShowerBuilder, TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values

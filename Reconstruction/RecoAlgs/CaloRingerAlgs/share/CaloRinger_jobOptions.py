@@ -5,7 +5,7 @@ from AthenaCommon.Logging import logging
 from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
 from CaloRingerAlgs.CaloRingerMetaDataBuilder import CaloRingerMetaDataBuilder
-from egammaRec.egammaRecFlags import jobproperties
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 mlog = logging.getLogger( 'CaloRinger_joboptions.py' )
 mlog.info('Entering')
@@ -16,7 +16,7 @@ ringerOutputLevel = caloRingerFlags.OutputLevel()
 # ringer:
 if caloRingerFlags.buildCaloRingsOn():
   # Check egamma related objects:
-  if not rec.doEgamma() or not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
+  if not ConfigFlags.Reco.EnableEgamma or not ConfigFlags.Egamma.doCentral:
     if caloRingerFlags.buildElectronCaloRings():
       caloRingerFlags.buildElectronCaloRings.set_Value( False )
       caloRingerFlags.doElectronIdentification.set_Value( False )

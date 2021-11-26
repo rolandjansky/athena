@@ -20,8 +20,9 @@ from CaloIdentifier import SUBCALO
 
 # Egamma imports
 from egammaRec.Factories import ToolFactory, AlgFactory
-from egammaTools.egammaToolsFactories import egammaToolsConf, egammaMVASvc,  EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder
-from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool
+from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
+from egammaTools.egammaToolsFactories import (
+    egammaToolsConf, EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder, egammaSwSuperClusterTool)
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
