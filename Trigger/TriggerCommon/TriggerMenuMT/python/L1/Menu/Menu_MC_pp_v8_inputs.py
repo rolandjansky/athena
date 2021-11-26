@@ -272,10 +272,12 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 1,
                 "algorithms" : [
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR25-eTAU20abi-eTAU12abi',   outputbits = 0 ),
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abi-eTAU12abi',   outputbits = 1 ),
-                    TopoMenuDef( '0DR25-eTAU20abi-eTAU12abi',                  outputbits = 2 ),
-                    TopoMenuDef( '0DR28-eTAU20abi-eTAU12abi',                  outputbits = 3 ), 
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR25-eTAU20ab-eTAU12ab',   outputbits = 0 ),
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20ab-eTAU12ab',   outputbits = 1 ),
+                    TopoMenuDef( '0DR25-eTAU20ab-eTAU12ab',                  outputbits = 2 ),
+                    TopoMenuDef( '0DR28-eTAU20ab-eTAU12ab',                  outputbits = 3 ), 
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abm-eTAU12abm',   outputbits = 4 ),
+                    TopoMenuDef( '0DR28-eTAU20abm-eTAU12abm',                  outputbits = 5 ), 
                 ]
             },
             
@@ -296,7 +298,8 @@ def defineInputsMenu():
                     TopoMenuDef( 'INVM_eEMs6',                     outputbits = (10,11), outputlines = [ '1INVM5-eEM7s1-eEMs6',
                                                                                                          '1INVM5-eEM12s1-eEMs6'] ),
                     TopoMenuDef( '27DPHI32-eEMs1-eEMs6',           outputbits = 12 ),
-                    TopoMenuDef( '0INVM70-27DPHI32-eEM12s1-eEM12s6',           outputbits = 13 ),
+                    TopoMenuDef( '0INVM70-27DPHI32-eEM7s1-eEM7s6',           outputbits = 13 ),
+                    TopoMenuDef( '0INVM70-27DPHI32-eEM7sl1-eEM7sl6',         outputbits = 14 ),
                 ]
             },
             
