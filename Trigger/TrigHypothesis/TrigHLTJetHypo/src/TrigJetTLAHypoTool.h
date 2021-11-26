@@ -43,11 +43,8 @@ class TrigJetTLAHypoTool: public AthAlgTool{
     StatusCode initialize();
     StatusCode finalize();
 
-    // typedef for passing jet - decision object assocation
-    using JetDecision = std::pair<const xAOD::Jet*,TrigCompositeUtils::Decision*>;
-
     StatusCode
-      decide(std::vector<JetDecision>& jetHypoInputs) const;
+      decide(TrigCompositeUtils::DecisionContainer* outputDecisions) const;
 
     const HLT::Identifier& getId() const; 
 

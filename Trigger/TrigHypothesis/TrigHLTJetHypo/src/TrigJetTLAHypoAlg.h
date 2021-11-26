@@ -40,8 +40,10 @@ class TrigJetTLAHypoAlg : public ::HypoBase {
   ToolHandleArray<TrigJetTLAHypoTool> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};
      
-  SG::ReadHandleKey< xAOD::JetContainer > m_TLAjetsKey {
-    this, "Jets", "Jets", "TLA jet container key"};  
+  SG::WriteHandleKey< xAOD::JetContainer > m_TLAjetsKey {
+    this, "TLAOutputName", "TLAOutputName", "TLA jet container key"};  
+
+  
   
 }; 
 

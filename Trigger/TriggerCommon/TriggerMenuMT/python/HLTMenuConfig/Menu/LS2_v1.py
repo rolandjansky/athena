@@ -93,6 +93,7 @@ def setupMenu():
         ChainProp(name='HLT_mu24_mu10noL1_L1MU14FCH', l1SeedThresholds=['MU14FCH','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name="HLT_mu10_L1MU8F", groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu4_L12MU3V',  groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L12MU3V',  stream=['TLA'], groups=MultiMuonGroup),
 
         # ATR-19452
         ChainProp(name='HLT_2mu4_muonqual_L12MU3V',  groups=MultiMuonGroup),
@@ -678,10 +679,11 @@ def setupMenu():
         ChainProp(name='HLT_2j100_L1CEP-CjJ60', l1SeedThresholds=['FSNOSEED'], groups=PrimaryPhIGroup+MultiJetGroup),
 
         # TLA test chains, ATR-20395
-        # Piggybacking on HH4b, exact thresholds for preselections to be determined later - this is for rate and cost
-        ChainProp(name='HLT_j60_j45_2j20_PhysicsTLA_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*3, stream=['TLA'], groups=PrimaryLegGroup+MultiJetGroup),
-
-    ]
+        ChainProp(name='HLT_j20_pf_ftf_preselj140_PhysicsTLA_L1J50', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+        ChainProp(name='HLT_j20_pf_ftf_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+        
+        ]
+        
 
     chains['Bjet'] += [
         # TO BE REMOVED
@@ -946,6 +948,13 @@ def setupMenu():
         ChainProp(name='HLT_mu26_ivarmedium_tau100_mediumRNN_tracktwoLLP_03dRAB_L1MU14FCH', l1SeedThresholds=['MU14FCH','TAU60'], stream=[PhysicsStream], groups=TagAndProbeLegGroup+SingleMuonGroup),
         ChainProp(name='HLT_e26_lhtight_ivarloose_tau100_mediumRNN_tracktwoLLP_03dRAB_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU60'], stream=[PhysicsStream], groups=TagAndProbeLegGroup+SingleElectronGroup),
  
+        # photon + multijets TLA
+        ChainProp(name="HLT_g35_loose_3j25_PhysicsTLA_L1EM22VHI", stream=['TLA'], l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
+        ChainProp(name="HLT_g35_loose_3j25_pf_ftf_PhysicsTLA_L1EM22VHI", stream=['TLA'], l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
+        ChainProp(name="HLT_g5_loose_2j10_pf_ftf_PhysicsTLA_L1EM3", stream=['TLA'], l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
+        # easy one for testing
+        ChainProp(name="HLT_g5_loose_2j10_PhysicsTLA_L1EM3", stream=['TLA'], l1SeedThresholds=['EM3','FSNOSEED'], groups=PrimaryLegGroup+EgammaJetGroup),
+
         # tau + jet and tau + photon tag and probe (ATR-24031)
         ChainProp(name='HLT_tau20_mediumRNN_tracktwoMVABDT_probe_j15_pf_ftf_03dRAB_L1RD0_FILLED', l1SeedThresholds=['PROBETAU8','FSNOSEED'], groups=TagAndProbeLegGroup+TauJetGroup),
         ChainProp(name='HLT_g140_loose_tau20_mediumRNN_tracktwoMVABDT_03dRAB_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBETAU8'], groups=TagAndProbeLegGroup+TauPhotonGroup),
