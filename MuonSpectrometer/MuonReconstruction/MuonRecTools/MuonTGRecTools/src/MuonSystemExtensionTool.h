@@ -33,7 +33,7 @@ namespace Muon {
         /** Default AlgTool functions */
         MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent);
         virtual ~MuonSystemExtensionTool(){};
-        StatusCode initialize();
+        StatusCode initialize() override;
 
         /** get muon system extension */
         bool muonSystemExtension(const EventContext& ctx, SystemExtensionCache& cache) const override;
