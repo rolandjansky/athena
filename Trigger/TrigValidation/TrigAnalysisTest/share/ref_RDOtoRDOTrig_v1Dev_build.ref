@@ -5204,26 +5204,6 @@ HLT_g35_loose_PhysicsTLA_L1eEM22M:
     3: 2
     4: 2
     5: 2
-HLT_g35_loose_mu15_mu2noL1_L1EM22VHI:
-  eventCount: 0
-  stepCounts:
-    0: 5
-    1: 5
-    2: 5
-    3: 4
-    4: 4
-    5: 2
-    6: 2
-    7: 1
-  stepFeatures:
-    0: 15
-    1: 8
-    2: 8
-    3: 4
-    4: 5
-    5: 2
-    6: 2
-    7: 1
 HLT_g35_loose_mu15_mu2noL1_L1EM24VHI:
   eventCount: 0
   stepCounts:
@@ -13024,16 +13004,16 @@ HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU25
 HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1cTAU25M_2cTAU20M_2jJ25_3jJ20:
   eventCount: 1
   stepCounts:
-    0: 12
-    1: 12
-    2: 12
-    3: 12
+    0: 11
+    1: 11
+    2: 11
+    3: 11
     4: 1
   stepFeatures:
-    0: 146
-    1: 139
-    2: 139
-    3: 139
+    0: 142
+    1: 135
+    2: 135
+    3: 135
     4: 38
 HLT_tau40_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1XE50:
   eventCount: 2

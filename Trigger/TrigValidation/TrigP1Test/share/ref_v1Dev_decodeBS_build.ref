@@ -5558,7 +5558,7 @@ HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1cTAU2
     2: 2
     3: 2
   stepFeatures:
-    0: 18
+    0: 16
     1: 16
     2: 16
     3: 16
