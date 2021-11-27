@@ -47,7 +47,7 @@ void RpcPadContainerCnv_p2::transToPers(const RpcPadContainer* transCont,  RpcPa
     int numColl = transCont->numberOfCollections();
     persCont->m_pads.resize(numColl);    log << MSG::DEBUG  << " Preparing " << persCont->m_pads.size() << "Collections" << endmsg;
 
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         RpcPad_p1* pcoll = &( persCont->m_pads[collIndex] );
         cnv.transToPers( &(**it_Coll), pcoll , log);
     }

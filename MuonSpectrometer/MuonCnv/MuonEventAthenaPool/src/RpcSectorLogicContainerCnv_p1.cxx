@@ -49,7 +49,7 @@ void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* t
   
   persCont->m_hasMoreThan2TriggerCand.reserve(tCsize);
   //unsigned int indexSL=0; 
-  for (; it_Coll != it_CollEnd; it_Coll++)  {
+  for (; it_Coll != it_CollEnd; ++it_Coll)  {
     //std::cout<<"Processing SL :"<<indexSL++<<", slVariableIndex="<<slVariableIndex<<std::endl;
 
     // Resize now, to allow stl::copy to work safely.
@@ -84,7 +84,7 @@ void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* t
     persCont->m_slVariables[slVariableIndex++]=(**it_Coll).size(); // Size of RpcSLTriggerHits
     DataVector<RpcSLTriggerHit>::const_iterator itSLTH=(**it_Coll).begin();
     DataVector<RpcSLTriggerHit>::const_iterator itSLTHEnd=(**it_Coll).end();
-    for (; itSLTH!=itSLTHEnd ; itSLTH++){
+    for (; itSLTH!=itSLTHEnd ; ++itSLTH){
       persCont->m_slVariables[slVariableIndex++]=(**itSLTH).rowinBcid();
       persCont->m_slVariables[slVariableIndex++]=(**itSLTH).padId();
       persCont->m_slVariables[slVariableIndex++]=(**itSLTH).ptId();
@@ -147,7 +147,7 @@ void  RpcSectorLogicContainerCnv_p1::persToTrans(const RpcSectorLogicContainer_p
       uint16_t numRpcSLTriggerHits = persCont->m_slVariables[index++];   
       //std::cout<<"numRpcSLTriggerHits: "<<numRpcSLTriggerHits<<std::endl; 
       rsl->resize(numRpcSLTriggerHits);  
-      for (unsigned int th=0; th<numRpcSLTriggerHits; th++){
+      for (unsigned int th=0; th<numRpcSLTriggerHits; ++th){
         //std::cout<<"begin th "<<th<<", index="<<index<<std::endl;
         (*rsl)[th]=new RpcSLTriggerHit(persCont->m_slVariables[index], //rowinBcid
                             persCont->m_slVariables[index+1], //padid
