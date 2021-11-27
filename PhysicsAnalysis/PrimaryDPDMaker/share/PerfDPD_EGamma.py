@@ -317,7 +317,7 @@ excludeList=[#'RpcPadContainer#RPCPAD',
    
 #dpdOutput.addAllItemsFromInputExceptExcludeList(streamName,excludeList)
 
-trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+trackParticleAuxExclusions="-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 
 from AthenaCommon.KeyStore import CfgKeyStore,CfgItemList
