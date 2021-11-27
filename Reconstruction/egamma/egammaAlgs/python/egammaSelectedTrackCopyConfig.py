@@ -3,7 +3,7 @@
 __doc__ = "Instantiate egammaSelectedTrackCopy with default configuration"
 
 from egammaTrackTools.egammaTrackToolsConfig import (
-    EMExtrapolationToolsCfg, EMExtrapolationToolsCommonCacheCfg)
+    EMExtrapolationToolsCfg)
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -30,10 +30,6 @@ def egammaSelectedTrackCopyCfg(
         extraptool = EMExtrapolationToolsCfg(
             flags, name="EMExtrapolationTools")
         kwargs["ExtrapolationTool"] = acc.popToolsAndMerge(extraptool)
-
-    if "ExtrapolationToolCommonCache" not in kwargs:
-        kwargs["ExtrapolationToolCommonCache"] = acc.popToolsAndMerge(
-            EMExtrapolationToolsCommonCacheCfg(flags))
 
     kwargs.setdefault(
         "ClusterContainerName",

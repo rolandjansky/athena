@@ -72,15 +72,6 @@ private:
                                                          "ExtrapolationTool",
                                                          "EMExtrapolationTools",
                                                          "Extrapolation tool" };
-
-  /** @brief Tool for extrapolation */
-  ToolHandle<IEMExtrapolationTools> m_extrapolationToolCommonCache{
-    this,
-    "ExtrapolationToolCommonCache",
-    "EMExtrapolationToolsCommonCache",
-    "Extrapolation tool using the ATLAS common cache"
-  };
-
   /** @brief Tool to filter the calo clusters */
   ToolHandle<IegammaCaloClusterSelector> m_egammaCaloClusterSelector{
     this,

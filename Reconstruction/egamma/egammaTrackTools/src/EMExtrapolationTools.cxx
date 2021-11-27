@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EMExtrapolationTools.h"
@@ -64,24 +64,6 @@ getRescaledPerigee(const xAOD::TrackParticle& trkPB,
     trkPB.charge() / cluster.e(),
     Trk::PerigeeSurface(Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())));
 }
-/*
- * Helper to get the Eta/Phi intersections per Layer
- */
-CaloExtensionHelpers::EtaPhiPerLayerVector
-getIntersections(const Trk::CaloExtension& extension,
-                 const xAOD::CaloCluster& cluster)
-{
-  // Layers to calculate intersections
-  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
-  if (xAOD::EgammaHelpers::isBarrel(&cluster)) {
-    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(
-      extension, intersections, &barrelLayers);
-  } else {
-    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(
-      extension, intersections, &endCapLayers);
-  }
-  return intersections;
-}
 } // end of anonymous namespace
 
 EMExtrapolationTools::EMExtrapolationTools(const std::string& type,
@@ -117,11 +99,6 @@ EMExtrapolationTools::initialize()
   } else {
     ATH_MSG_DEBUG("Could not get TRT_ID helper !");
   }
-
-  // Retrieve input where applicable
-  ATH_CHECK(m_PerigeeCacheKey.initialize(m_usePerigeeCaching));
-  ATH_CHECK(m_LastCacheKey.initialize(m_useLastCaching));
-
   return StatusCode::SUCCESS;
 }
 
@@ -145,7 +122,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
                                      std::array<double, 4>& deltaEta,
                                      std::array<double, 4>& deltaPhi,
                                      unsigned int extrapFrom,
-                                     Cache* cache) const
+                                     Cache*) const
 {
   /* Extrapolate track to calo and return
    * the extrapolated eta/phi and
@@ -178,73 +155,37 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
           i.first, i.second->position().eta(), i.second->position().phi());
       }
     } break;
-      /* For the other cases
-       * See if there is a collection cache
-       * else if there is an in algorithm cache passed to us
-       * else do it without a caching
-       */
+
     case fromPerigee: {
-      if (m_usePerigeeCaching) {
-        SG::ReadHandle<CaloExtensionCollection> PerigeeCache(m_PerigeeCacheKey,
-                                                             ctx);
-
-        if (!PerigeeCache.isValid()) {
-          ATH_MSG_ERROR("Could not retrieve Perigee Cache "
-                        << PerigeeCache.key());
-          return StatusCode::FAILURE;
-        }
-
-        const Trk::CaloExtension* extension =
-          m_perigeeParticleCaloExtensionTool->caloExtension(trkPB,
-                                                            *PerigeeCache);
-
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
-      } else if (cache) {
-        const Trk::CaloExtension* extension =
-          m_perigeeParticleCaloExtensionTool->caloExtension(ctx, trkPB, *cache);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
-      } else {
-        std::unique_ptr<Trk::CaloExtension> extension =
-          m_perigeeParticleCaloExtensionTool->caloExtension(ctx, trkPB);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
+      const auto extension =
+        m_perigeeParticleCaloExtensionTool->egammaCaloExtension(
+          ctx, trkPB.perigeeParameters(), cluster);
+      didExtension = !extension.empty();
+      for (const auto& i : extension) {
+        intersections.emplace_back(
+          i.first, i.second->position().eta(), i.second->position().phi());
       }
     } break;
 
     case fromLastMeasurement: {
-      if (m_useLastCaching) {
-        SG::ReadHandle<CaloExtensionCollection> LastCache(m_LastCacheKey, ctx);
-        if (!LastCache.isValid()) {
-          ATH_MSG_ERROR("Could not retrieve Last Cache " << LastCache.key());
-          return StatusCode::FAILURE;
-        }
-        const Trk::CaloExtension* extension =
-          m_lastParticleCaloExtensionTool->caloExtension(trkPB, *LastCache);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
-      } else if (cache) {
-        const Trk::CaloExtension* extension =
-          m_lastParticleCaloExtensionTool->caloExtension(ctx, trkPB, *cache);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
-        }
-      } else {
-        std::unique_ptr<Trk::CaloExtension> extension =
-          m_lastParticleCaloExtensionTool->caloExtension(ctx, trkPB);
-        didExtension = extension != nullptr;
-        if (didExtension) {
-          intersections = getIntersections(*extension, cluster);
+      unsigned int index(0);
+      if (trkPB.indexOfParameterAtPosition(index, xAOD::LastMeasurement)) {
+        const Trk::CurvilinearParameters& lastParams =
+          trkPB.curvilinearParameters(index);
+        const Amg::Vector3D& position = lastParams.position();
+        // Calo entry around z EME1 3750  and r  EMB1 1550
+        if (position.perp() > 1550. || std::abs(position.z()) > 3750.) {
+          ATH_MSG_WARNING("Probematic last parameters : " << lastParams);
+          didExtension = false;
+        } else {
+          const auto extension =
+            m_lastParticleCaloExtensionTool->egammaCaloExtension(
+              ctx, lastParams, cluster);
+          didExtension = !extension.empty();
+          for (const auto& i : extension) {
+            intersections.emplace_back(
+              i.first, i.second->position().eta(), i.second->position().phi());
+          }
         }
       }
     } break;

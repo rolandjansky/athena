@@ -34,10 +34,6 @@ atlas_add_test( egammaSuperClusterBuilderConfig_test
     SCRIPT python -m egammaAlgs.egammaSuperClusterBuilderConfig
     POST_EXEC_SCRIPT nopost.sh)
 
-atlas_add_test( EMGSFCaloExtensionBuilderConfig_test
-    SCRIPT python -m egammaAlgs.EMGSFCaloExtensionBuilderConfig
-    POST_EXEC_SCRIPT nopost.sh)
-
 atlas_add_test( egammaSelectedTrackCopyConfig_test
     SCRIPT python -m egammaAlgs.egammaSelectedTrackCopyConfig
     POST_EXEC_SCRIPT nopost.sh)
