@@ -13,9 +13,6 @@ namespace {
     constexpr unsigned int num_sectors = 16;
     using RegionIndex = Muon::MuonStationIndex::DetectorRegionIndex;
     using LayerIndex = Muon::MuonStationIndex::LayerIndex;
-    static const RegionIndex barrel = RegionIndex::Barrel;
-    static const RegionIndex endcapA = RegionIndex::EndcapA;
-    static const RegionIndex endcapC = RegionIndex::EndcapC;
 }  // namespace
 using namespace MuonCombined;
 
