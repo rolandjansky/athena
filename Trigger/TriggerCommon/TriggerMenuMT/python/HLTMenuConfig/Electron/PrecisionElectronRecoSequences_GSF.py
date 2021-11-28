@@ -20,7 +20,7 @@ def precisionElectronRecoSequence_GSF(RoIs):
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
 
-    TrigEgammaKeys = getTrigEgammaKeys('_GSF')
+    TrigEgammaKeys = getTrigEgammaKeys('_GSF', ion=False)
     caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
     trackParticles = TrigEgammaKeys.precisionTrackingContainer
 

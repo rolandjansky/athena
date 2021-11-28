@@ -19,7 +19,7 @@ def precisionCaloSequence(ConfigFlags, ion=False, variant=''):
     """ Creates PrecisionCalo sequence """
 
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-    TrigEgammaKeys = getTrigEgammaKeys(variant)
+    TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
 
     # EV creator
     InViewRoIs="PrecisionCaloRoIs" + variant

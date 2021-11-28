@@ -10,12 +10,13 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents        import RecoFragments
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys      import getTrigEgammaKeys
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEgammaRec, TrigEgammaSuperClusterBuilder 
 
-TrigEgammaKeys = getTrigEgammaKeys()
 
 log = logging.getLogger(__name__)
 
 
 def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
+
+    TrigEgammaKeys = getTrigEgammaKeys(ion=ion)
 
     log.debug('DummyFlag = %s',str(DummyFlag))
     log.debug('RoIs = %s',RoIs)
@@ -25,8 +26,7 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
     (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix='')
 
     tag = 'HI' if ion is True else '' 
-
-    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer if not ion else TrigEgammaKeys.precisionHICaloClusterContainer
+    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer
     log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,

@@ -20,14 +20,14 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False, variant=''):
     log.debug('RoIs = %s',RoIs)
 
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-    TrigEgammaKeys = getTrigEgammaKeys(variant)
+    TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence, HLTHIRoITopoRecoSequence
     topoRecoSequence = HLTHIRoITopoRecoSequence if ion is True else HLTRoITopoRecoSequence
     (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix=variant)
 
     tag = 'HI' if ion is True else '' 
-    outputCaloClusters = TrigEgammaKeys.precisionHICaloClusterContainer if ion else TrigEgammaKeys.precisionCaloClusterContainer
+    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer
     log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,

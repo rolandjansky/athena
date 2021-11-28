@@ -15,7 +15,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
 def precisionTracking(RoIs, ion=False, variant=''):
 
     ## Taking Fast Track information computed in 2nd step ##
-    TrigEgammaKeys = getTrigEgammaKeys(variant)
+    TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
 
     IDTrigConfig = TrigEgammaKeys.IDTrigConfig
 
@@ -57,8 +57,4 @@ def precisionTracking(RoIs, ion=False, variant=''):
 
     return electronPrecisionTrack, trackParticles
 
-
-def precisionTracking_LRT(RoIs):
-    ## Taking Fast Track information computed in 2nd step ##
-    return precisionTracking(RoIs, ion=False,  variant = '_LRT')
    
