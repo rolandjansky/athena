@@ -131,7 +131,7 @@ def defineInputsMenu():
             None, 
 
             # gJ thresholds for commissioning
-            ('gJ15',3), ('gJ25',3), ('gJ35',3), 
+            ('gJ20',3), ('gJ30',3), ('gJ40',3), 
 
             (None,3),
 
@@ -221,11 +221,14 @@ def defineInputsMenu():
             ('gXENC30',1), ('gXENC50',1),
             ('gXEJWOJ30',1), ('gXEJWOJ40',1), ('gXEJWOJ50',1),
             # gTE
-            ('gTE50',1),
+            ('gTE200',1),
+
+            # MHT
+            ('gMHT500',1),
 
             # test thresholds
             ('jXEC50',1),
-            ('jTE100',1), ('jTEC100',1), ('jTEFWD100',1), ('jTEFWDA100',1), ('jTEFWDC100',1),
+            ('jTE200',1), ('jTEC200',1), ('jTEFWD100',1), ('jTEFWDA100',1), ('jTEFWDC100',1),
 
             # spare energy thresholds for commissioning
             ('jXESPARE1',1), ('jXESPARE2',1), ('jXESPARE3',1), ('jXESPARE4',1), ('jXESPARE5',1), ('jXESPARE6',1), ('jXESPARE7',1), ('jXESPARE8',1), ('jXESPARE9',1),
@@ -235,7 +238,7 @@ def defineInputsMenu():
             ('jXESPARE14',1),
             ('jXESPARE15',1), ('jXESPARE16',1), ('jXESPARE17',1), ('jXESPARE18',1), ('jXESPARE19',1),
             ('jXESPARE20',1), ('jXESPARE21',1), ('jXESPARE22',1), ('jXESPARE23',1), ('jXESPARE24',1),
-            ('jXESPARE25',1), ('jXESPARE26',1), ('jXESPARE27',1), ('jXESPARE28',1), ('jXESPARE29',1), 
+            ('jXESPARE25',1), ('jXESPARE26',1), ('jXESPARE27',1), ('jXESPARE28',1),
 
             # Performance thresholds, should not go in physics menu!
             ('jXEPerf50',1),
@@ -272,10 +275,12 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 1,
                 "algorithms" : [
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR25-eTAU20abi-eTAU12abi',   outputbits = 0 ),
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abi-eTAU12abi',   outputbits = 1 ),
-                    TopoMenuDef( '0DR25-eTAU20abi-eTAU12abi',                  outputbits = 2 ),
-                    TopoMenuDef( '0DR28-eTAU20abi-eTAU12abi',                  outputbits = 3 ), 
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR25-eTAU20ab-eTAU12ab',   outputbits = 0 ),
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20ab-eTAU12ab',   outputbits = 1 ),
+                    TopoMenuDef( '0DR25-eTAU20ab-eTAU12ab',                  outputbits = 2 ),
+                    TopoMenuDef( '0DR28-eTAU20ab-eTAU12ab',                  outputbits = 3 ), 
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abm-eTAU12abm',   outputbits = 4 ),
+                    TopoMenuDef( '0DR28-eTAU20abm-eTAU12abm',                  outputbits = 5 ), 
                 ]
             },
             
@@ -296,7 +301,8 @@ def defineInputsMenu():
                     TopoMenuDef( 'INVM_eEMs6',                     outputbits = (10,11), outputlines = [ '1INVM5-eEM7s1-eEMs6',
                                                                                                          '1INVM5-eEM12s1-eEMs6'] ),
                     TopoMenuDef( '27DPHI32-eEMs1-eEMs6',           outputbits = 12 ),
-                    TopoMenuDef( '0INVM70-27DPHI32-eEM12s1-eEM12s6',           outputbits = 13 ),
+                    TopoMenuDef( '0INVM70-27DPHI32-eEM7s1-eEM7s6',           outputbits = 13 ),
+                    TopoMenuDef( '0INVM70-27DPHI32-eEM7sl1-eEM7sl6',         outputbits = 14 ),
                 ]
             },
             

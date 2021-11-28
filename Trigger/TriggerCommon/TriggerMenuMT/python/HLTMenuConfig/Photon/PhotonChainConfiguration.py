@@ -29,10 +29,6 @@ def fastPhotonCaloSequenceCfg( flags ):
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence( flags )
 
-def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
-    photonsIn = "HLT_egamma_Photons"
-    return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
-
 def precisionPhotonCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Photon')
 
@@ -119,16 +115,6 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
 
-
- 
-        if self.dict["eventBuildType"] == "PhysicsTLA" :
-            log.debug('Adding photon trigger step getTLAPhoton')
-            TLAStep = self.getTLAPhoton()
-            chainSteps+= [TLAStep]
-
-
-
-
         myChain = self.buildChain(chainSteps)
         return myChain
 
@@ -143,17 +129,6 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     def getFastPhoton(self):
         stepName = "FastPhoton"
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
-
-    def getTLAPhoton(self):
-        stepName = "TLAPhoton"
-        HLT_threshold = 0
-       
-        for cPart in self.dict['chainParts']:
-            if 'Photon' in cPart['signature']:
-                HLT_threshold = float(cPart['threshold'])
-            
-        #print("MARCOLOG ", HLT_threshold)    
-        return self.getStep(5, stepName, [TLAPhotonSequenceCfg],  HLT_threshold=HLT_threshold)
 
     def getPrecisionCaloPhoton(self):
         if self.chainPart['extra'] == 'ion':

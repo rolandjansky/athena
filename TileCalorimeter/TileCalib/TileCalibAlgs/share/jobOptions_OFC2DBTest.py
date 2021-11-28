@@ -154,5 +154,5 @@ theApp.EvtMax                          = 1
 #============================================================
 #=== print out job summary
 #============================================================
-print svcMgr
-print job
+print(svcMgr)
+print(job)

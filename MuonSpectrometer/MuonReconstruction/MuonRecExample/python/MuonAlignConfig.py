@@ -68,7 +68,8 @@ if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
         MuonDetectorTool.EnableMdtDeformations = 3
 
 # here define if I-lines (CSC internal alignment) are enabled
-if muonAlignFlags.UseIlines: 
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if muonAlignFlags.UseIlines and MuonGeometryFlags.hasCSC(): 
     if 'HLT' in globalflags.ConditionsTag() :
         logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
         MuonDetectorTool.UseIlinesFromGM = True

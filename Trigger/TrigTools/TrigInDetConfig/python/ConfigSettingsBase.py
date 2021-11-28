@@ -52,11 +52,13 @@ class _ConfigSettingsBase() :
       self._doRecord            = True
       self._vertex              = None
       self._adaptiveVertex      = False
+      self._actsVertex          = False
       self._addSingleTrackVertices = False
       self._TracksMaxZinterval  = 1 #mm
       self._minNSiHits_vtx      = None
       self._vertex_jet          = None
       self._adaptiveVertex_jet  = False
+      self._actsVertex_jet      = False
       self._dodEdxTrk           = False 
       self._doHitDV             = False 
       self._doDisappearingTrk   = False
@@ -293,6 +295,14 @@ class _ConfigSettingsBase() :
    @property
    def adaptiveVertex_jet(self):
        return self._adaptiveVertex_jet
+
+   @property
+   def actsVertex(self):
+       return self._actsVertex
+
+   @property
+   def actsVertex_jet(self):
+       return self._actsVertex_jet
 
    @property
    def addSingleTrackVertices(self):

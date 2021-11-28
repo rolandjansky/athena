@@ -91,12 +91,12 @@ class CostData {
     /**
      * @brief Getter of the sequence to alg idx map.
      */
-    const std::map<std::string, std::set<size_t>>& sequencersMap() const;
+    const std::map<std::string, std::map<int16_t, std::set<size_t>>>& sequencersMap() const;
 
     /**
      * @brief Set the sequence to alg idx map.
      */
-    void setSequencersMap( const std::map<std::string, std::set<size_t>>& seqToAlg );
+    void setSequencersMap( const std::map<std::string, std::map<int16_t, std::set<size_t>>>& seqToAlg );
 
     /**
      * @brief Getter of the seeded chains set.
@@ -194,7 +194,7 @@ class CostData {
     const std::map<std::string, std::vector<uint32_t>>* m_rosToRob; //!< Mapping of ROS corresponding to ROB requests
     const std::map<std::string, std::set<size_t>>* m_chainToAlgIdx; //!<Mapping of chain to algorithms idx
     const std::map<std::string, std::set<size_t>>* m_chainToUniqAlgIdx; //!<Mapping of chain name to its unique algorithms
-    const std::map<std::string, std::set<size_t>>* m_sequencers; //!<Mapping of sequence to algorithms
+    const std::map<std::string, std::map<int16_t, std::set<size_t>>>* m_sequencers; //!<Mapping of sequence to algorithms
     const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>* m_seededChains; //!<Set of seeded chains to monitor
 
 };

@@ -383,6 +383,7 @@ TrigTraversal        INFO [Final passing/failing feature] All chains features si
  ----------
  ----------
  ---------- Thinning out 'F' nodes.
+----------
 TrigTraversal        INFO HLT_mufast_chain goes from 10 nodes, 11 edges, to 8 nodes, 6 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)

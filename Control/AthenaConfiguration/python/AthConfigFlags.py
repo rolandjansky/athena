@@ -55,8 +55,8 @@ class FlagAddress(object):
             self._name  = f._name+"."+name
 
     def __getattr__(self, name):
-        # the logic it implemets is as follows:
-        # full flag name is formed from the path + name passsed as an argument
+        # the logic it implements is as follows:
+        # full flag name is formed from the path + name passed as an argument
         # first try if the flags is available (most frequent case)
         # if not see if the path+name is used in one of the flags of longer name (having more pieces)
         # if not try dynamic flags loading

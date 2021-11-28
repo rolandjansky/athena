@@ -87,6 +87,11 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(BTagRecoSplitCfg(flags))
         log.info("---------- Configured btagging")
 
+    if flags.Reco.EnableHI:
+        from HIRecoConfig.HIRecoConfig import HIRecCfg
+        acc.merge(HIRecCfg(flags))
+        log.info("---------- Configured Heavy Ion reconstruction")
+
     # setup output
     if any((flags.Output.doWriteESD, flags.Output.doWriteAOD, flags.Output.doWriteRDO)):
         from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg

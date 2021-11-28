@@ -591,10 +591,22 @@ if rec.doESD() and not rec.readESD() and (rec.doBeamBackgroundFiller() or rec.do
 # need to go here for ordering reasons...
 if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
     try:
-        protectedInclude ("RecBackgroundAlgs/RecBackground_jobOptions.py")
+        from AthenaCommon.Configurable import Configurable
+        Configurable.configurableRun3Behavior=1
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from RecBackgroundAlgs.BackgroundAlgsConfig import BackgroundAlgsCfg
+        ca=BackgroundAlgsCfg(ConfigFlags)
+    
+        for el in ca._allSequences:
+            el.name = "TopAlg"
+
+            appendCAtoAthena(ca)
+
     except Exception:
-        treatException("Problem including RecBackgroundAlgs/RecBackground_jobOptions.py !!")
-        pass
+        treatException("Could not translate BackgroundAlgsCfg to old cfg")
+    finally:
+         Configurable.configurableRun3Behavior=0
     pass
 
 
@@ -1088,8 +1100,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
         try:
             from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
 
-            from egammaRec.egammaRecFlags import jobproperties
-            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
+            if ( rec.readESD() or ConfigFlags.Reco.EnableEgamma ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
                 addClusterToCaloCellAOD(egammaKeys.outputFwdClusterKey())

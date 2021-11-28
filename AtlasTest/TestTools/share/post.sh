@@ -82,12 +82,8 @@ EOF
 # Patterns that cannot be ignored
 ERRORS="^ERROR | ERROR | FATAL "
 
-# ignore diff annotations
-PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
-
 # ignore hex addresses
-PP="$PP"'|0x\w{4,}'
-
+PP="0x\w{4,}"
 # ignore package names e.g. Package-00-00-00
 PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
 # ignore trunk package names e.g. Package-r123456
@@ -238,10 +234,6 @@ PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
 
 # Ignore sourceID message from EventSelector.
 PP="$PP"'|Disconnecting input sourceID'
-
-# Printouts from new-style job configuration.
-PP="$PP"'|Py:ComponentAccumulator +INFO '
-PP="$PP"'|^[a-zA-Z0-9.]+ +: [^ ]'
 
 # xAODMaker::EventInfoCnvAlg
 PP="$PP"'|^xAODMaker::Even.*(WARNING|INFO)'

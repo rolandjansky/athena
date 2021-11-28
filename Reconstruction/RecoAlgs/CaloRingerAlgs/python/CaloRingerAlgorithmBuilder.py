@@ -12,7 +12,7 @@ from RecExConfig.Configured import Configured
 from AthenaCommon import CfgMgr
 
 from RecExConfig.RecFlags import rec
-from egammaRec.egammaRecFlags import jobproperties
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from CaloRingerAlgs import CaloRingerKeys as ringer
 
 from CaloRingerTools.CaloRingerToolsConf import Ringer__CaloRingsBuilder, Ringer__CaloAsymRingsBuilder # noqa: F401
@@ -50,7 +50,7 @@ def checkBuildElectronCaloRings():
       caloRingerFlags.buildElectronCaloRings = False
       return False
     if not inputAvailable(ringer.inputElectronType(), ringer.inputElectronKey()):
-      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
+      if not ConfigFlags.Egamma.doCentral:
         mlog.warning(("Requested to build ElectronCaloRings but egamma"
           " calo seeded is off. Deactivating ElectronCaloRings and electron selection.")
           )
@@ -61,7 +61,7 @@ def checkBuildElectronCaloRings():
         mlog.verbose(("Input not available in the file, but it is requested"
           " to be reconstructed so it will be build during reconstruction."))
     else:
-      if jobproperties.egammaRecFlags.doEgammaCaloSeeded():
+      if ConfigFlags.Egamma.doCentral:
         mlog.verbose(("There already exists the egamma objects in file, but"
           " they will be updated during reconstruction to new ones."))
       else:
@@ -115,7 +115,7 @@ def checkBuildPhotonCaloRings():
     if not inputAvailable(ringer.inputPhotonType(), ringer.inputPhotonKey()):
 
       # Deadtivate photon calo rings if egamma calo seeded is off:
-      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
+      if not ConfigFlags.Egamma.doCentral:
         mlog.warning(("Requested to build PhotonCaloRings but egamma"
           " calo seeded is off. Deactivating buildPhotonCaloRings.")
             )
@@ -126,7 +126,7 @@ def checkBuildPhotonCaloRings():
         mlog.verbose(("Input not available in the file. No problem: it will "
           " be reconstructed"))
     else:
-      if jobproperties.egammaRecFlags.doEgammaCaloSeeded():
+      if ConfigFlags.Egamma.doCentral:
         mlog.verbose(("There already exists the egamma objects in file, but"
           " they will be updated during reconstruction to new ones."))
       else:

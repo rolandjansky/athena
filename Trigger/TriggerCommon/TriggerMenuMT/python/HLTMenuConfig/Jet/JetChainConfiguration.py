@@ -139,13 +139,6 @@ class JetChainConfiguration(ChainConfigurationBase):
             jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
 
-        if self.dict["eventBuildType"]=="PhysicsTLA":
-            # Select the TLA jets from the full jet container
-            # rather than the filtered one seen by the hypo
-            # (No diff in practice if the TLA cut is higher than the hypo filter)
-            TLAStep = self.getJetTLAChainStep(jetDef.fullname())
-            chainSteps+= [TLAStep]
-
         # Add exotic jets hypo
         if self.exotHypo != '' and ("Exotic" in self.exotHypo or "Trackless" in self.exotHypo):
             EJsStep = self.getJetEJsChainStep(jetCollectionName, self.chainName, self.exotHypo)
@@ -297,15 +290,6 @@ class JetChainConfiguration(ChainConfigurationBase):
                                                                   ConfigFlags, **preselRecoDict )
 
         return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
-
-    def getJetTLAChainStep(self, jetCollectionName):
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetTLASequences import jetTLAMenuSequence
-
-        stepName = "TLAStep_"+jetCollectionName
-        jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, None, jetsin=jetCollectionName )
-        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
-
-        return chainStep
 
 
     def getJetEJsChainStep(self, jetCollectionName, thresh, exotdictstring):

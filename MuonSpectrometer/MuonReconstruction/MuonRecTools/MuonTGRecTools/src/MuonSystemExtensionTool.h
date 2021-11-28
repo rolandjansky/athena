@@ -33,10 +33,10 @@ namespace Muon {
         /** Default AlgTool functions */
         MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent);
         virtual ~MuonSystemExtensionTool(){};
-        StatusCode initialize();
+        StatusCode initialize() override;
 
         /** get muon system extension */
-        bool muonSystemExtension(const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension*& muonSystemExtention) const;
+        bool muonSystemExtension(const EventContext& ctx, SystemExtensionCache& cache) const override;
 
     private:
         /** initialize geometry */
@@ -46,7 +46,7 @@ namespace Muon {
                                       const Amg::AngleAxis3D& sectorRotation);
 
         /** get surfaces to be intersected for a given start parameters */
-        SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars) const;
+        SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars, const SystemExtensionCache& cache) const;
 
         ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
             this,

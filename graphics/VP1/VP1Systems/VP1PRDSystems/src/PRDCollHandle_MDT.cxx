@@ -168,7 +168,7 @@ void PRDCollHandle_MDT::setMinNHitsPerStation(unsigned minnhits)
 }
 
 //____________________________________________________________________
-void PRDCollHandle_MDT::setAllowedADCValues(VP1Interval newinterval)
+void PRDCollHandle_MDT::setAllowedADCValues(const VP1Interval& newinterval)
 {
   if (m_d->allowedADCValues==newinterval)
     return;
@@ -198,7 +198,7 @@ void PRDCollHandle_MDT::setExcludeMaskedHits(bool b)
 }
 
 //____________________________________________________________________
-void PRDCollHandle_MDT::setStatus(QString b)
+void PRDCollHandle_MDT::setStatus(const QString& b)
 {
   // messageVerbose(QString("SetStatus: ")+b);
   if (m_d->status==b)

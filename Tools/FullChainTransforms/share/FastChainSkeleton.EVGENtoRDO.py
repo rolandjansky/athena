@@ -1056,6 +1056,12 @@ if digitizationFlags.RunAndLumiOverrideList.statusOn:
     include("Digitization/LumiBlockOverrides.py")
     if digitizationFlags.dataRunNumber.statusOn:
         fast_chain_log.warning('digitizationFlags.RunAndLumiOverrideList has been set! digitizationFlags.dataRunNumber (set to %s) will be ignored. ', digitizationFlags.dataRunNumber.get_Value() )
+    # Hack to set the three values of EventSelector
+    if simFlags.RunNumber.statusOn:
+        ServiceMgr.EventSelector.FirstLB = 1
+        from RunDependentSimComps.RunDMCFlags import runDMCFlags
+        ServiceMgr.EventSelector.InitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(simFlags.RunNumber())
+        ServiceMgr.EventSelector.RunNumber = simFlags.RunNumber()
 else:
     include("Digitization/RunNumberOverride.py")
 

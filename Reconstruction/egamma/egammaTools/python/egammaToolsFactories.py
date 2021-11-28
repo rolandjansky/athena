@@ -8,14 +8,12 @@ __author__ = "Bruno Lenzi"
 from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
 from .EMPIDBuilderBase import EMPIDBuilderElectronBase
 from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
-from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 
 
 from egammaTools import egammaToolsConf
 from egammaRec.Factories import ToolFactory
 from egammaRec import egammaKeys
-# to set jobproperties.egammaRecFlags
-from egammaRec.egammaRecFlags import jobproperties
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
 _clusterTypes = dict(
@@ -42,20 +40,13 @@ def configureSuperClusterCorrections(swTool):
             make_CaloSwCorrections(
                 clName,
                 suffix='EGSuperCluster',
-                version=jobproperties.egammaRecFlags.superClusterCorrectionVersion(),
+                version=ConfigFlags.Egamma.Calib.SuperClusterCorrectionVersion,
                 cells_name=egammaKeys.caloCellKey())))
 
 
 egammaSwSuperClusterTool = ToolFactory(
     egammaToolsConf.egammaSwTool,
     postInit=[configureSuperClusterCorrections])
-
-
-EMClusterTool = ToolFactory(
-    egammaToolsConf.EMClusterTool,
-    OutputClusterContainerName=egammaKeys.outputClusterKey(),
-    MVACalibSvc=egammaMVASvc
-)
 
 EGammaAmbiguityTool = ToolFactory(
     ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool)

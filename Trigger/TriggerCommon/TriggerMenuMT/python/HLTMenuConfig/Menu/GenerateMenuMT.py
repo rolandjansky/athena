@@ -10,7 +10,7 @@ from .ChainDictTools import splitInterSignatureChainDict
 from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from .ChainMerging import mergeChainDefs
 from .MenuAlignmentTools import MenuAlignment
-from ..CommonSequences import EventBuildingSequences
+from ..CommonSequences import EventBuildingSequences, TLABuildingSequences
 from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 
 from AthenaCommon.Logging import logging
@@ -285,10 +285,14 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 raise Exception("Please fix the menu or the chain.")
         
         
-        log.info("[generateAllChainConfigs] general alignment complete, will now align PEB chains")
+        
         # align event building sequences
+        log.info("[generateAllChainConfigs] general alignment complete, will now align TLA chains")
+        TLABuildingSequences.alignTLASteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())    
+        log.info("[generateAllChainConfigs] general and TLA alignment complete, will now align PEB chains")
         EventBuildingSequences.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
-
+        
+         
         log.info("[generateAllChainConfigs] all chain configurations have been generated.")
         return TriggerConfigHLT.configsList()
 
@@ -415,8 +419,14 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # Configure event building strategy
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:
+            if 'PhysicsTLA' in eventBuildType:
+                log.debug("Adding TLA Step for chain %s", mainChainDict['chainName'])
+                TLABuildingSequences.addTLAStep(theChainConfig, mainChainDict)
+            
             log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
             EventBuildingSequences.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
+
+        
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs

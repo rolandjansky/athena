@@ -146,10 +146,10 @@ class L1Menu(object):
         boardName = connDefName+fpgaName
 
         allowedInputs = odict()
-        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',               ] # TOPO1A, FPGA1
-        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',               ] # TOPO1A, FPGA2
-        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', ] # TOPO1B, FPGA1
-        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', ] # TOPO1B, FPGA2
+        allowedInputs['Topo1Opt0'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',                     ] # TOPO1A, FPGA1
+        allowedInputs['Topo1Opt1'] = ['MU', 'eEM', 'eTAU',              'gJ',  'gLJ',                     ] # TOPO1A, FPGA2
+        allowedInputs['Topo1Opt2'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', 'gMHT'] # TOPO1B, FPGA1
+        allowedInputs['Topo1Opt3'] = ['MU',        'eTAU', 'cTAU', 'j',               'gXE', 'gTE', 'gMHT'] # TOPO1B, FPGA2
         allowedInputs['Topo2El0']  = ['MU',        'eTAU',         'j',      ] # TOPO2, FPGA1
         allowedInputs['Topo2El1']  = [      'eEM',                 'j',      ] # TOPO2, FPGA2
         allowedInputs['Topo3El0']  = [      'eEM', 'eTAU',         'j',      ] # TOPO3, FPGA1
@@ -179,15 +179,6 @@ class L1Menu(object):
         for item in self.items:
             ctpOutputs.append(item.name)
             for thrName in item.thresholdNames():
-                if thrName[:3]=='ZB_':
-                    thrName = thrName[3:]
-                if thrName not in thrNames:
-                    thrNames.append(thrName)
-        for key,clist in self.ctp.counters.counters.items():
-            if key == 'ctpin':
-                continue
-            for c in clist:
-                thrName = c.name[1:]
                 if thrName[:3]=='ZB_':
                     thrName = thrName[3:]
                 if thrName not in thrNames:

@@ -46,7 +46,9 @@ atlas_add_library( ActsGeometryLib
                    TrkFitterUtils
                    TrkTrackSummary
                    TrkToolInterfaces
-                   TrkFitterInterfaces)
+                   TrkFitterInterfaces
+                   BeamPipeGeoModelLib
+                   )
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx

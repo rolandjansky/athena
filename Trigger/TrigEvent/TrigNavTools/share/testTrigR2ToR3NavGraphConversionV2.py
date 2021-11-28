@@ -30,7 +30,7 @@ if __name__=='__main__':
     # ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_mu4"])
     # ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu6_2mu4","HLT_mu22"])
     # ConfigFlags.addFlag("TestNavConversion.Chains",["HLT_e5_lhvloose_nod0","HLT_e9_etcut","HLT_e26_lhtight_nod0","HLT_e28_lhtight_nod0"])
-    ConfigFlags.Exec.MaxEvents = 1
+    ConfigFlags.Exec.MaxEvents = 10
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 

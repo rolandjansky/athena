@@ -11,7 +11,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Gaudi/Property.h"
 #include "StoreGate/DataHandle.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // monitoring from HLT
 #include "GaudiKernel/ITHistSvc.h"

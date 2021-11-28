@@ -29,7 +29,6 @@
 
 namespace Trk {
   class ITruthToTrack;
-  class IExtrapolator;
   //
   class DenseEnvironmentsAmbiguityProcessorTool : public AmbiguityProcessorBase{
   public:
@@ -92,9 +91,6 @@ namespace Trk {
     /** refitting tool - used to refit tracks once shared hits are removed. 
         Refitting tool used is configured via jobOptions.*/
     ToolHandleArray<ITrackFitter> m_fitterTool;
-    /** extrapolator tool - used to refit tracks once shared hits are removed. 
-        Extrapolator tool used is configured via jobOptions.*/
-    ToolHandle<IExtrapolator> m_extrapolatorTool;
 
     ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
        {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };

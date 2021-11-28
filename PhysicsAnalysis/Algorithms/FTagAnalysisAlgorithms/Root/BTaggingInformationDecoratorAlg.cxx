@@ -25,6 +25,8 @@ namespace CP
     , m_selectionTool ("", this)
   {
     declareProperty ("selectionTool", m_selectionTool, "the b-tagging selection tool");
+    declareProperty ("taggerWeightDecoration", m_taggerWeightDecoration, "the decoration for the tagger weight");
+    declareProperty ("quantileDecoration", m_quantileDecoration, "the decoration for the continuous WP quantile");
   }
 
 
@@ -38,10 +40,17 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
+    if (!m_taggerWeightDecoration.empty())
+    {
+      m_taggerWeightDecorator = std::make_unique<SG::AuxElement::Decorator<float> > (m_taggerWeightDecoration);
+    }
+    if (!m_quantileDecoration.empty())
+    {
+      m_quantileDecorator = std::make_unique<SG::AuxElement::Decorator<int> > (m_quantileDecoration);
+    }
+
     ANA_CHECK (m_selectionTool.retrieve());
     ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
-    ANA_CHECK (m_taggerWeightDecoration.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
-    ANA_CHECK (m_quantileDecoration.initialize (m_systematicsList, m_jetHandle, SG::AllowEmpty));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
@@ -62,27 +71,27 @@ namespace CP
       {
         if (m_preselection.getBool (*jet))
         {
-          if (m_taggerWeightDecoration)
+          if (m_taggerWeightDecorator != nullptr)
           {
             double weight{-1.};
             ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_selectionTool->getTaggerWeight (*jet, weight));
-            m_taggerWeightDecoration.set (*jet, weight, sys);
+            (*m_taggerWeightDecorator)(*jet) = weight;
           }
 
-          if (m_quantileDecoration)
+          if (m_quantileDecorator != nullptr)
           {
             const int quantile = m_selectionTool->getQuantile(*jet);
-            m_quantileDecoration.set (*jet, quantile, sys);
+            (*m_quantileDecorator)(*jet) = quantile;
           }
         } else {
-          if (m_taggerWeightDecoration)
+          if (m_taggerWeightDecorator != nullptr)
           {
-            m_taggerWeightDecoration.set (*jet, -100., sys);
+            (*m_taggerWeightDecorator)(*jet) = -100.;
           }
 
-          if (m_quantileDecoration)
+          if (m_quantileDecorator != nullptr)
           {
-            m_quantileDecoration.set (*jet, -1, sys);
+            (*m_quantileDecorator)(*jet) = -1;
           }
         }
       }

@@ -237,12 +237,36 @@ TriggerHLTListRun3 = [
     ('xAOD::MuonRoIContainer#LVL1MuonRoIsDAQ',                       'ESD AODFULL', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsDAQAux.',                'ESD AODFULL', 'L1'),
 
-    ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                              'BS ESD AODFULL', 'L1'),
-    ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',      'BS ESD AODFULL', 'L1'),
-    ('xAOD::eFexTauRoIContainer#L1_eTauRoI',                            'BS ESD AODFULL', 'L1'),
-    ('xAOD::eFexTauRoIAuxContainer#L1_eTauRoIAux.thresholdPatterns',    'BS ESD AODFULL', 'L1'),
-    ('xAOD::jFexTauRoIContainer#L1_jFexTauRoI',                         'BS ESD AODFULL', 'L1'),
-    ('xAOD::jFexTauRoIAuxContainer#L1_jFexTauRoIAux.thresholdPatterns', 'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexEMRoIContainer#L1_eEMRoI',                                          'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexEMRoIAuxContainer#L1_eEMRoIAux.thresholdPatterns',                  'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexTauRoIContainer#L1_eTauRoI',                                        'BS ESD AODFULL', 'L1'),
+    ('xAOD::eFexTauRoIAuxContainer#L1_eTauRoIAux.thresholdPatterns',                'BS ESD AODFULL', 'L1'),
+
+    ('xAOD::jFexTauRoIContainer#L1_jFexTauRoI',                                     'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexTauRoIAuxContainer#L1_jFexTauRoIAux.thresholdPatterns',             'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexSRJetRoIContainer#L1_jFexSRJetRoI',                                 'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexSRJetRoIAuxContainer#L1_jFexSRJetRoIAux.thresholdPatterns',         'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexLRJetRoIContainer#L1_jFexLRJetRoI',                                 'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexLRJetRoIAuxContainer#L1_jFexLRJetRoIAux.thresholdPatterns',         'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexMETRoIContainer#L1_jFexMETRoI',                                     'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexMETRoIAuxContainer#L1_jFexMETRoIAux.thresholdPatterns',             'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexSumETRoIContainer#L1_jFexSumETRoI',                                 'BS ESD AODFULL', 'L1'),
+    ('xAOD::jFexSumETRoIAuxContainer#L1_jFexSumETRoIAux.thresholdPatterns',         'BS ESD AODFULL', 'L1'),
+
+    ('xAOD::gFexJetRoIContainer#L1_gFexSRJetRoI',                                   'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIAuxContainer#L1_gFexSRJetRoIAux.thresholdPatterns',           'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIContainer#L1_gFexLRJetRoI',                                   'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIAuxContainer#L1_gFexLRJetRoIAux.thresholdPatterns',           'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIContainer#L1_gFexRhoRoI',                                     'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexJetRoIAuxContainer#L1_gFexRhoRoIAux.thresholdPatterns',             'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIContainer#L1_gScalarEJwoj',                                'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIAuxContainer#L1_gScalarEJwojAux.thresholdPatterns',        'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIContainer#L1_gMETComponentsJwoj',                          'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMETComponentsJwojAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIContainer#L1_gMHTComponentsJwoj',                          'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMHTComponentsJwojAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIContainer#L1_gMSTComponentsJwoj',                          'BS ESD AODFULL', 'L1'),
+    ('xAOD::gFexGlobalRoIAuxContainer#L1_gMSTComponentsJwojAux.thresholdPatterns',  'BS ESD AODFULL', 'L1'),
 
     ('xAOD::EnergySumRoI#jXENOISECUTPerf' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#jXENOISECUTPerfAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
@@ -626,13 +650,17 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
 
+    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subjesIS_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
+
+
     # TLA Photons
-    ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhysicsTLA ESD', 'Egamma', 'inViews:TLAPhotonsViews'),
+    ('xAOD::PhotonContainer#HLT_egamma_Photons_TLA',                                    'BS PhysicsTLA ESD', 'Egamma'),
     ('xAOD::PhotonAuxContainer#HLT_egamma_Photons_TLAAux.',                             'BS PhysicsTLA ESD', 'Egamma'),
 
     # TLA Muons
-    ('xAOD::MuonContainer#HLT_Muons_RoI_TLA',                                       'BS PhysicsTLA ESD', 'Muon'),
-    ('xAOD::MuonAuxContainer#HLT_Muons_RoI_TLAAux.',                                'BS PhysicsTLA ESD', 'Muon'),
+    ('xAOD::MuonContainer#HLT_MuonsCB_RoI_TLA',                                       'BS PhysicsTLA ESD', 'Muon'),
+    ('xAOD::MuonAuxContainer#HLT_MuonsCB_RoI_TLAAux.',                                'BS PhysicsTLA ESD', 'Muon'),
 
 
     # FS tracks

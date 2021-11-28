@@ -53,7 +53,8 @@ class WorkflowRun(Enum):
 class WorkflowType(Enum):
     FullSim = 'FullSim'
     AF3 = 'AF3'
-    Overlay = 'Overlay'
+    MCOverlay = 'MCOverlay'
+    DataOverlay = 'DataOverlay'
     MCReco = 'MCReco'
     MCPileUpReco = 'MCPileUpReco'
     DataReco = 'DataReco'
@@ -148,13 +149,13 @@ class WorkflowTest:
         # output checks
         if not self.setup.disable_output_checks:
             for check in self.output_checks:
-                result = result and check.run(self)
+                result = check.run(self) and result
 
         if self.setup.validation_only or self.skip_performance_checks:
             return result  # Performance checks against static references not possible
 
         # performance checks
         for check in performance_checks:
-            result = result and check.run(self)
+            result = check.run(self) and result
 
         return result
