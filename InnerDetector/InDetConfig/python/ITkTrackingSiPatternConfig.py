@@ -487,9 +487,6 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
 
     ITkAmbiTrackSelectionTool = acc.popToolsAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
 
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
-    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
 
     kwargs.setdefault("Fitter", fitter_list)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
@@ -497,7 +494,6 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     kwargs.setdefault("TrackSummaryTool", ambi_track_summary_tool)
     kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
     kwargs.setdefault("SelectionTool", ITkAmbiTrackSelectionTool)
-    kwargs.setdefault("TrackExtrapolator", extrapolator)
     kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.extension)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
