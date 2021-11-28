@@ -117,7 +117,7 @@ namespace Analysis {
         = h_TracksToTag(jetToTag);
 
       if(tracksInJet.size()==0){
-        ATH_MSG_INFO("#BTAG# No track in Jet");
+        ATH_MSG_DEBUG("#BTAG# No track in Jet");
         h_VxSecVertexInfoName->push_back(nullptr);
         continue;
       } 
