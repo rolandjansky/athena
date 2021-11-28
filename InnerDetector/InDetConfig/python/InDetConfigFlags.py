@@ -43,7 +43,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
-  icf.addFlag("InDet.doCaloSeededAmbi", False) # Use Calo ROIs to seed specific cuts for the ambi
+  icf.addFlag("InDet.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
   icf.addFlag("InDet.doCaloSeededRefit", False) # Use Calo ROIs to seed refif for the ambi processor
   icf.addFlag("InDet.doBeamGas", False) # Turn running of BeamGas second pass on and off
   icf.addFlag("InDet.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
@@ -67,21 +67,22 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.useBeamConstraint", True) # use beam spot service in new tracking 
   icf.addFlag("InDet.kalmanUpdator", 'smatrix') # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg") 
   icf.addFlag("InDet.magField", 'None') # control which field tool to use ("None"/"fast") 
+  icf.addFlag("InDet.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
   icf.addFlag("InDet.propagatorType", 'RungeKutta') # control which propagator to use ('RungeKutta'/'STEP') 
   icf.addFlag("InDet.trackFitterType", 'GlobalChi2Fitter') # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter' 
   icf.addFlag("InDet.doHolesOnTrack", True) # do holes search from now on in summry tool
   icf.addFlag("InDet.useHolesFromPattern", False) 
   icf.addFlag("InDet.useZvertexTool", False) # start with Zvertex finding 
   icf.addFlag("InDet.doSiSPSeededTrackFinder", False) # use track finding in silicon 
-  icf.addFlag("InDet.doTRTExtensionNew", True) # turn on / off TRT extensions 
+  icf.addFlag("InDet.doTRTExtension", True) # turn on / off TRT extensions 
   icf.addFlag("InDet.trtExtensionType", 'xk') # which extension type ("xk"/"DAF") 
   icf.addFlag("InDet.redoTRT_LR", True) # use smart TRT LR/tube hit creator and redo ROTs 
   icf.addFlag("InDet.doTrtSegments", True) # control to run TRT Segment finding (do it always after new tracking!) 
   icf.addFlag("InDet.doTRTPhaseCalculation", False) # control to run TRT phase calculation 
-  icf.addFlag("InDet.doTRTSeededTrackFinder", False) # control running the back tracking 
+  icf.addFlag("InDet.doTRTSeededTrackFinder", True) # control running the back tracking 
   icf.addFlag("InDet.loadTRTSeededSPFinder", True) # control which SP finder is used exclusive with loadSimpleTRTSeededSPFinder control which SP finder is used 
   icf.addFlag("InDet.loadSimpleTRTSeededSPFinder", True)
-  icf.addFlag("InDet.doResolveBackTracks", False) # control running the ambi on back tracking 
+  icf.addFlag("InDet.doResolveBackTracks", True) # control running the ambi on back tracking 
   icf.addFlag("InDet.doTRTStandalone", True) # control TRT Standalone 
   icf.addFlag("InDet.refitROT", True) # control if refit is done from PRD or ROT 
   icf.addFlag("InDet.doSlimming", True) # turn track slimming on/off 
@@ -169,7 +170,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doTrackSegmentsDisappearing", True) # Turn running of track segment creation in pixel after NewTracking, and with PRD association, on and off
   icf.addFlag("InDet.doTRTGlobalOccupancy", False) # Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation) 
   icf.addFlag("InDet.doNNToTCalibration", False ) # USe ToT calibration for NN clustering rather than Charge 
-  icf.addFlag("InDet.useNNTTrainedNetworks", True ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
+  icf.addFlag("InDet.useNNTTrainedNetworks", False ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
   icf.addFlag("InDet.keepAdditionalHitsOnTrackParticle", False) # Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!) 
   icf.addFlag("InDet.doSCTModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later 
   icf.addFlag("InDet.doParticleConversion", False) # In case anyone still wants to do Rec->xAOD TrackParticle Conversion 
@@ -180,7 +181,12 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
   icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
 
-  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, createLowPtTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createBeamGasTrackingFlags, createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
+  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, \
+    createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, \
+    createLowPtTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createBeamGasTrackingFlags, \
+    createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, \
+    createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, \
+    createTRTStandaloneTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
 
   icf.addFlagsCategory ("InDet.Tracking", createTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.IBLTracking", createIBLTrackingFlags, prefix=True)
@@ -201,6 +207,7 @@ def createInDetConfigFlags():
   icf.addFlagsCategory ("InDet.DisappearingTracking", createDisappearingTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.SCTTracking", createSCTTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.TRTTracking", createTRTTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.TRTStandaloneTracking", createTRTStandaloneTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingFlags, prefix=True)
 

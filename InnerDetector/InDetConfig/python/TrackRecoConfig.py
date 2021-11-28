@@ -52,10 +52,10 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
                                                                     globalPosAlg   = InDetClusterMakerTool,
                                                                     conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
     if flags.InDet.selectSCTIntimeHits :
-       if flags.InDet.InDet25nsec : 
-          InDetSCT_ClusteringTool.timeBins = "01X" 
-       else: 
-          InDetSCT_ClusteringTool.timeBins = "X1X" 
+       if flags.InDet.InDet25nsec :
+          InDetSCT_ClusteringTool.timeBins = "01X"
+       else:
+          InDetSCT_ClusteringTool.timeBins = "X1X"
 
     kwargs.setdefault("clusteringTool", InDetSCT_ClusteringTool)
     kwargs.setdefault("DataObjectName", 'SCT_RDOs') ##InDetKeys.SCT_RDOs()
@@ -92,14 +92,14 @@ def MergedPixelsToolCfg(flags, **kwargs) :
 
       # PixelClusteringToolBase uses PixelConditionsSummaryTool
       from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-      kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)) ) 
+      kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)) )
 
       # Enable duplcated RDO check for data15 because duplication mechanism was used.
       if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
           kwargs.setdefault("CheckDuplicatedRDO", True )
 
       InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name = "InDetMergedPixelsTool", **kwargs)
-     
+
       acc.setPrivateTools(InDetMergedPixelsTool)
       return acc
 
@@ -119,7 +119,7 @@ def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
     from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
     PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )    
+    SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )
 
     kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
     kwargs.setdefault("SCTLorentzAngleTool", SCTLorentzAngleTool)
@@ -135,7 +135,6 @@ def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
         kwargs["Extrapolator"] = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-
     result.merge(BeamSpotCondAlgCfg(flags))
     result.setPrivateTools(CompFactory.Reco.TrackToVertex(name, **kwargs))
     return result
@@ -168,10 +167,29 @@ def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticl
     ))
     return result
 
-def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
+def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger", InputCombinedTracks=None, **kwargs):
+    result = ComponentAccumulator()
+
+    kwargs.setdefault("TracksLocation", InputCombinedTracks)
+    kwargs.setdefault("OutputTracksLocation", "CombinedInDetTracks")
+    from InDetConfig.TrackingCommonConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
+    InDetPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
+    kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
+    kwargs.setdefault("AssociationMapName", "PRDtoTrackMapCombinedInDetTracks")
+    kwargs.setdefault("UpdateSharedHits", True)
+    kwargs.setdefault("UpdateAdditionalInfo", True)
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
+    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+    kwargs.setdefault("SummaryTool", TrackSummaryTool)
+
+    result.addEventAlgo(CompFactory.Trk.TrackCollectionMerger(name, **kwargs))
+    return result
+
+def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName="CombinedInDetTracks", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("ConvertTracks", True)
     kwargs.setdefault("ConvertTrackParticles", False)
+    kwargs.setdefault("TrackContainerName", TrackContainerName)
     kwargs.setdefault("xAODContainerName", OutputTrackParticleContainer)
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", OutputTrackParticleContainer)
     if "TrackParticleCreator" not in kwargs:
@@ -181,9 +199,9 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", OutputTrackParticl
             flags,
             TrackParticleCreator=kwargs["TrackParticleCreator"],
         ))
-    
+
     if flags.InDet.doTruth:
-        kwargs.setdefault("TrackTruthContainerName", "ExtendedTracksTruthCollection")
+        kwargs.setdefault("TrackTruthContainerName", f"{TrackContainerName}TruthCollection")
         kwargs.setdefault("AddTruthLink", True)
 
         if "MCTruthClassifier" not in kwargs:
@@ -200,17 +218,6 @@ def InDetTrackRecoCfg(flags):
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg)
-    result.merge(PixelChargeCalibCondAlgCfg(flags))
-    result.merge(PixelOfflineCalibCondAlgCfg(flags))
-    result.merge(PixelDistortionAlgCfg(flags))
-
-    from InDetConfig.TrackingCommonConfig import PixelClusterNnCondAlgCfg, PixelClusterNnWithTrackCondAlgCfg
-    result.merge(PixelClusterNnCondAlgCfg(flags))    
-    result.merge(PixelClusterNnWithTrackCondAlgCfg(flags))
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
-    result.merge(PixelHitDiscCnfgAlgCfg(flags))
     if flags.Input.Format == "BS":
         from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
         result.merge(PixelRawDataProviderAlgCfg(flags))
@@ -220,37 +227,81 @@ def InDetTrackRecoCfg(flags):
         from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConfig import TRTRawDataProviderCfg
         result.merge(TRTRawDataProviderCfg(flags))
 
-    # up to here
-    # needed for brem/seeding, TODO decided if needed here
-    if flags.Detector.GeometryLAr:
-        from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
-        result.merge(LArBadFebCfg(flags))
-        from CaloRec.CaloRecoConfig import CaloRecoCfg
-        result.merge(CaloRecoCfg(flags,doLCCalib=True))
-        from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
-        result.merge(egammaTopoClusterCopierCfg(flags))
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-        result.merge(CaloClusterROI_SelectorCfg(flags))
-
-
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
     result.merge(InDetRecPreProcessingSiliconCfg(flags))
+
     from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
     result.merge(TrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
 
-
     # TRT extension
-    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-    result.merge(TRTPreProcessingCfg(flags))
-    from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
-    result.merge(NewTrackingTRTExtensionCfg(flags, SiTrackCollection = "ResolvedTracks", ExtendedTrackCollection = "ExtendedTracks", ExtendedTracksMap = "ExtendedTracksMap", doPhase=False))
+    if flags.InDet.doTRTExtension:
+        from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
+        result.merge(NewTrackingTRTExtensionCfg(flags,
+                                                SiTrackCollection="ResolvedTracks",
+                                                ExtendedTrackCollection="ExtendedTracks",
+                                                ExtendedTracksMap="ExtendedTracksMap",
+                                                doPhase=False))
+        InputCombinedInDetTracks = ["ExtendedTracks"]
+
+        from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
+        result.merge(TRTSegmentFindingCfg(flags,
+                                          "",
+                                          InputCombinedInDetTracks,
+                                          "TRTSegments"))
+    else:
+        InputCombinedInDetTracks = ["ResolvedTracks"]
+
+    # BackTracking
+    if flags.InDet.doBackTracking:
+        from InDetConfig.BackTrackingConfig import BackTrackingCfg
+        result.merge(BackTrackingCfg(flags,
+                                     InputCombinedInDetTracks,
+                                     ClusterSplitProbContainer="InDetAmbiguityProcessorSplitProb"))
+        InputCombinedInDetTracks += ["ResolvedTRTSeededTracks"]
+
+    # LRT
+    if flags.InDet.doLargeD0 or flags.InDet.doR3LargeD0:
+        if flags.InDet.doR3LargeD0:
+            flagsLRT = flags.cloneAndReplace("InDet.Tracking", "InDet.R3LargeD0Tracking")
+        else:
+            flagsLRT = flags.cloneAndReplace("InDet.Tracking", "InDet.LargeD0Tracking")
+        result.merge(TrackingSiPatternCfg(flagsLRT, InputCombinedInDetTracks, "ResolvedLargeD0Tracks", "SiSpSeededLargeD0Tracks"))
+        LRTTrackContainer = "ResolvedLargeD0Tracks"
+        if flags.InDet.doTRTExtension:
+            result.merge(NewTrackingTRTExtensionCfg(flagsLRT,
+                                                    SiTrackCollection="ResolvedLargeD0Tracks",
+                                                    ExtendedTrackCollection="ExtendedLargeD0Tracks",
+                                                    ExtendedTracksMap="ExtendedLargeD0TracksMap",
+                                                    doPhase=False))
+            LRTTrackContainer = "ExtendedLargeD0Tracks"
+        if flags.InDet.storeSeparateLargeD0Container:
+            if flags.InDet.doTruth:
+                from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+                result.merge(InDetTrackTruthCfg(flagsLRT,
+                                                Tracks="ExtendedLargeD0Tracks",
+                                                DetailedTruth="ExtendedLargeD0TracksDetailedTruth",
+                                                TracksTruth="ExtendedLargeD0TracksTruthCollection"))
+            result.merge(TrackParticleCnvAlgCfg(flagsLRT,
+                                                name="LargeD0TrackParticleCnvAlg",
+                                                TrackContainerName=LRTTrackContainer,
+                                                OutputTrackParticleContainer="InDetLargeD0TrackParticles"))
+        else:
+            InputCombinedInDetTracks += [LRTTrackContainer]
+
+    if flags.InDet.doTRTStandalone:
+        flagsTRTStandalone = flags.cloneAndReplace("InDet.Tracking", "InDet.TRTStandaloneTracking")
+        from InDetConfig.TRTStandaloneConfig import TRTStandaloneCfg
+        result.merge(TRTStandaloneCfg(flagsTRTStandalone, "", InputCombinedInDetTracks, "TRTSegments"))
+        InputCombinedInDetTracks += ["TRTStandaloneTracks"]
+
+    result.merge(TrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedInDetTracks))
 
     if flags.InDet.doTruth:
         from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
-        result.merge(InDetTrackTruthCfg(flags, Tracks = "ExtendedTracks", DetailedTruth = "ExtendedTracksDetailedTruth", TracksTruth = "ExtendedTracksTruthCollection"))
+        result.merge(InDetTrackTruthCfg(flags))
 
     # TODO add followup algs
-    result.merge(TrackParticleCnvAlgCfg(flags, TrackContainerName="ExtendedTracks"))
+    result.merge(TrackParticleCnvAlgCfg(flags))
 
     if flags.InDet.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
@@ -263,8 +314,8 @@ def InDetTrackRecoCfg(flags):
     result.merge(addToAOD(flags, toAOD))
     return result
 
-### Common InDet/ITk config interfaces
 
+### Common InDet/ITk config interfaces
 def TrackRecoCfg(flags):
     if flags.Detector.GeometryID:
         return InDetTrackRecoCfg(flags)
@@ -275,27 +326,24 @@ def TrackRecoCfg(flags):
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
+    Configurable.configurableRun3Behavior = 1
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-    numThreads=1
-    ConfigFlags.Concurrency.NumThreads=numThreads
-    ConfigFlags.Concurrency.NumConcurrentEvents=numThreads
-
-    ConfigFlags.Detector.GeometryPixel   = True 
-    ConfigFlags.Detector.GeometrySCT   = True
     ConfigFlags.InDet.doPixelClusterSplitting = True
     ConfigFlags.InDet.doSiSPSeededTrackFinder = True
 
+    # Disable calo for this test
+    ConfigFlags.Detector.EnableCalo = False
+
     # TODO add these flags in future
-#    ConfigFlags.addFlag('InDet.doAmbiSolving', True)
-#    ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
-#    ConfigFlags.addFlag('InDet.holeSearchInGX2Fit', True)
+    # ConfigFlags.addFlag('InDet.doAmbiSolving', True)
+    # ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
+    # ConfigFlags.addFlag('InDet.holeSearchInGX2Fit', True)
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
     ConfigFlags.lock()
- 
+
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     top_acc = MainServicesCfg(ConfigFlags)
 
@@ -316,10 +364,10 @@ if __name__ == "__main__":
     from AthenaCommon.Constants import DEBUG
     top_acc.foreach_component("AthEventSeq/*").OutputLevel=DEBUG
     top_acc.printConfig(withDetails=True, summariseProps=True)
-    top_acc.store(open("TrackingSiPatternConfig.pkl", "wb"))
+    top_acc.store(open("TrackRecoConfig.pkl", "wb"))
+
     import sys
-    
     if "--norun" not in sys.argv:
-        sc = top_acc.run(5)
+        sc = top_acc.run(1)
         if sc.isFailure():
             sys.exit(-1)

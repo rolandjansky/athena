@@ -9,11 +9,9 @@ def OnlyTrackingPreInclude(flags):
     The purpose is to speed up overall execution by only running 
     tracking and nothing else
     """
-    flags.Reco.EnableCalo=False
     flags.Reco.EnableBTagging=False
     flags.Reco.EnableCombinedMuon=False
     flags.Reco.EnableEgamma=False
-    flags.Reco.EnableMuon=False
     flags.Reco.EnableJet=False
     flags.Reco.EnableTau=False
     flags.Reco.EnablePFlow=False
