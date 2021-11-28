@@ -387,8 +387,7 @@ elif InDetFlags.primaryVertexSetup() == 'DefaultFullFinding':
   #
   from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FullVertexFitter
   InDetVxFitterTool = Trk__FullVertexFitter(name                    = "InDetFullVertexFitterTool",
-                                            LinearizedTrackFactory  = InDetLinFactory,
-                                            Extrapolator            = InDetExtrapolator)
+                                            LinearizedTrackFactory  = InDetLinFactory)
 
 elif InDetFlags.primaryVertexSetup() == 'DefaultKalmanFinding':
   #

@@ -147,8 +147,7 @@ print     ( InDetFastVxFitterTool)
 
 from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FullVertexFitter
 InDetFullVxFitterTool = Trk__FullVertexFitter(name                   = "InDetFullVertexFitterTool",
-                                              LinearizedTrackFactory = InDetLinFactory,
-                                              Extrapolator           = InDetExtrapolator)
+                                              LinearizedTrackFactory = InDetLinFactory)
 ToolSvc += InDetFullVxFitterTool
 print      (InDetFullVxFitterTool)
 
