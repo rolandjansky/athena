@@ -34,7 +34,6 @@
 #include <sstream>
 #include "AthenaKernel/Units.h"
 
-#include "xAODBTagging/ftagfloat_t.h"
 
 using Athena::Units::GeV;
 
@@ -294,13 +293,13 @@ namespace Analysis
     }
     //...
     //compute BDT weight
-    ftagfloat_t msvW = -9.;
+    float msvW = -9.;
     if( nvtx2trk>1 ){
       msvW = GetClassResponse(bdt);
     }
 
     if(m_runModus=="analysis") {
-      BTag.setVariable<ftagfloat_t>(m_taggerNameBase, "discriminant", msvW);
+      BTag.setVariable<float>(m_taggerNameBase, "discriminant", msvW);
     }
     return StatusCode::SUCCESS;
   }

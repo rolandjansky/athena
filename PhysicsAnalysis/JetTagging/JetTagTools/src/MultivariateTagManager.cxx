@@ -281,9 +281,9 @@ namespace Analysis {
 
   void MultivariateTagManager::fill_ip2d(var_map& inputs, xAOD::BTagging& BTag) const {
     // default values
-    ftagfloat_t ip2d_pb = NAN;
-    ftagfloat_t ip2d_pc = NAN;
-    ftagfloat_t ip2d_pu = NAN;
+    float ip2d_pb = NAN;
+    float ip2d_pc = NAN;
+    float ip2d_pu = NAN;
 
     float ip2   = NAN;
     float ip2_c = NAN;
@@ -305,9 +305,9 @@ namespace Analysis {
 	ip2d_pu = BTag.IP2D_pu();
       }
       else {
-	BTag.variable<ftagfloat_t>(m_ip2d_infosource, "pb", ip2d_pb);
-	BTag.variable<ftagfloat_t>(m_ip2d_infosource, "pc", ip2d_pc);
-	BTag.variable<ftagfloat_t>(m_ip2d_infosource, "pu", ip2d_pu);
+	BTag.variable<float>(m_ip2d_infosource, "pb", ip2d_pb);
+	BTag.variable<float>(m_ip2d_infosource, "pc", ip2d_pc);
+	BTag.variable<float>(m_ip2d_infosource, "pu", ip2d_pu);
       }
      
       ip2    = BTag.calcLLR(ip2d_pb,ip2d_pu);
@@ -348,9 +348,9 @@ namespace Analysis {
 
   void MultivariateTagManager::fill_ip3d(var_map& inputs, xAOD::BTagging& BTag) const {
     // default values
-    ftagfloat_t ip3d_pb = NAN;
-    ftagfloat_t ip3d_pc = NAN;
-    ftagfloat_t ip3d_pu = NAN;
+    float ip3d_pb = NAN;
+    float ip3d_pc = NAN;
+    float ip3d_pu = NAN;
 
     float ip3   = NAN;
     float ip3_c = NAN;
@@ -370,9 +370,9 @@ namespace Analysis {
 	ip3d_pu = BTag.IP3D_pu();
       }
       else {
-	BTag.variable<ftagfloat_t>(m_ip3d_infosource, "pb", ip3d_pb);
-	BTag.variable<ftagfloat_t>(m_ip3d_infosource, "pc", ip3d_pc);
-	BTag.variable<ftagfloat_t>(m_ip3d_infosource, "pu", ip3d_pu);
+	BTag.variable<float>(m_ip3d_infosource, "pb", ip3d_pb);
+	BTag.variable<float>(m_ip3d_infosource, "pc", ip3d_pc);
+	BTag.variable<float>(m_ip3d_infosource, "pu", ip3d_pu);
       }
 
       ip3    = BTag.calcLLR(ip3d_pb,ip3d_pu);
@@ -421,8 +421,8 @@ namespace Analysis {
     float  sv0_efrc   = NAN;
     float  sv0_mass   = NAN;
     float  sv0_radius = NAN;
-    ftagfloat_t sv0_sig3d  = NAN;
-    ftagfloat_t sv0_pv_x = NAN, sv0_pv_y = NAN;
+    float sv0_sig3d  = NAN;
+    float sv0_pv_x = NAN, sv0_pv_y = NAN;
 
     // get vertex information
     bool sv0_ok(false);
@@ -447,9 +447,9 @@ namespace Analysis {
   BTag.variable<float>(m_sv0_infosource,  "efracsvx", sv0_efrc);
   BTag.variable<int>(m_sv0_infosource,    "N2Tpair", sv0_n2t);
   BTag.variable<int>(m_sv0_infosource,    "NGTinSvx", sv0_ntrkv);
-  //BTag.variable<ftagfloat_t>(m_sv0_infosource, "significance3D", sv0_sig3d);
+  //BTag.variable<float>(m_sv0_infosource, "significance3D", sv0_sig3d);
       }
-      BTag.variable<ftagfloat_t>(m_sv0_infosource, "significance3D", sv0_sig3d);
+      BTag.variable<float>(m_sv0_infosource, "significance3D", sv0_sig3d);
 
       sv0_pv_x=priVtx.x();
       sv0_pv_y=priVtx.y();
@@ -468,7 +468,7 @@ namespace Analysis {
 
   void MultivariateTagManager::fill_sv1(var_map& inputs, xAOD::BTagging& BTag) const {
     // default values
-    ftagfloat_t sv1_pb = NAN, sv1_pc = NAN, sv1_pu = NAN;
+    float sv1_pb = NAN, sv1_pc = NAN, sv1_pu = NAN;
     float     sv1 = NAN, sv1_c  = NAN, sv1_cu = NAN;
     float     sv1_nan = NAN, sv1_c_nan  = NAN, sv1_cu_nan = NAN;
 
@@ -504,9 +504,9 @@ namespace Analysis {
 	BTag.taggerInfo(sv1_sig3d, xAOD::BTagInfo::SV1_normdist);
       }
       else {
-	BTag.variable<ftagfloat_t>(m_sv1_infosource, "pu", sv1_pu);
-	BTag.variable<ftagfloat_t>(m_sv1_infosource, "pb", sv1_pb);
-	BTag.variable<ftagfloat_t>(m_sv1_infosource, "pc", sv1_pc);
+	BTag.variable<float>(m_sv1_infosource, "pu", sv1_pu);
+	BTag.variable<float>(m_sv1_infosource, "pb", sv1_pb);
+	BTag.variable<float>(m_sv1_infosource, "pc", sv1_pc);
 	
 	BTag.variable<float>(m_sv1_infosource, "masssvx",  sv1_mass);
 	BTag.variable<float>(m_sv1_infosource, "efracsvx", sv1_efrc);
@@ -572,20 +572,20 @@ namespace Analysis {
       if (m_aux_data_name_map.count(raw_key)) {
         key = m_aux_data_name_map.at(raw_key);
       }
-      // note: we should extend this to data types beyond ftagfloat_t at
+      // note: we should extend this to data types beyond float at
       // some point
       std::string valid_key = key + "IsValid";
-      if ( ! BTag.isAvailable<ftagfloat_t>(key) ) {
+      if ( ! BTag.isAvailable<float>(key) ) {
         ATH_MSG_WARNING("aux data '" + key + "' is missing,"
                         " tagger inputs may be incomplete");
       } else if (!BTag.isAvailable<char>(valid_key)) {
         ATH_MSG_WARNING("no key '" + valid_key + "' found, invalid inputs"
                         " may be interperated incorrectly");
-        inputs[key] = BTag.auxdata<ftagfloat_t>(key);
+        inputs[key] = BTag.auxdata<float>(key);
       } else if (!BTag.auxdata<char>(valid_key)) {
         inputs[key] = NAN;
       } else {
-        inputs[key] = BTag.auxdata<ftagfloat_t>(key);
+        inputs[key] = BTag.auxdata<float>(key);
       }
     }
 

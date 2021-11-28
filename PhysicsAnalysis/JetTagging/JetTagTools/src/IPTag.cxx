@@ -33,7 +33,6 @@
 #include <string>
 
 #include "TLorentzVector.h"
-#include "xAODBTagging/ftagfloat_t.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -749,9 +748,9 @@ namespace Analysis {
         << "pb= " << lkl[0] << " pu= " << lkl[1] << " pc= " << lkl[2] );
 
       /** fill likelihood information in xaod: */
-      BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pb", lkl[0]);
-      BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pu", lkl[1]);
-      if (m_useCHypo) BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pc", lkl[2]);
+      BTag.setVariable<float>(m_xAODBaseName, "pb", lkl[0]);
+      BTag.setVariable<float>(m_xAODBaseName, "pu", lkl[1]);
+      if (m_useCHypo) BTag.setVariable<float>(m_xAODBaseName, "pc", lkl[2]);
 
       /** fill trackParticle links and other track informations in xaod: */
       
