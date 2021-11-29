@@ -2,6 +2,7 @@
 #
 # art-description: Run MT and ST simulation outside ISF, reading ttbar events, writing HITS, using MC16 geometry and conditions
 
+# art-include: master/Athena
 # art-type: grid
 # art-athena-mt: 8
 # art-output: log.*
