@@ -19,6 +19,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "ExpressionEvaluation/ExpressionParserUser.h"
 
@@ -34,12 +35,13 @@ namespace DerivationFramework {
 
     private:
       mutable std::atomic<unsigned int> m_ntotTopo, m_npassTopo; //, m_ntotFrwd, m_npassFrwd;
-      std::string m_sgKey;
 
       StringProperty m_streamName
         { this, "StreamName", "", "Name of the stream being thinned" };
       SG::ThinningHandleKey<xAOD::CaloClusterContainer> m_TopoClSGKey
         { this, "TopoClCollectionSGKey", "CaloCalTopoCluster", "" };
+      SG::ReadHandleKey<xAOD::JetContainer> m_sgKey
+        { this, "SGKey", "", "SG key of jet container to thin"};
 
       std::string m_selectionString;
       float m_coneSize;

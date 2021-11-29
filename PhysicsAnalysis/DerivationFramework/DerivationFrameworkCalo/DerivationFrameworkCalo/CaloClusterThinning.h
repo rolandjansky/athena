@@ -18,6 +18,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "ExpressionEvaluation/ExpressionParserUser.h"
 
@@ -36,9 +37,11 @@ namespace DerivationFramework {
       bool m_run_calo, m_run_topo;
 
       StringProperty m_streamName
-       { this, "StreamName", "", "Name of the stream being thinned" };
+        { this, "StreamName", "", "Name of the stream being thinned" };
 
-      std::string m_sgKey;
+      SG::ReadHandleKey<xAOD::IParticleContainer> m_sgKey
+        { this, "SGKey", "", "SG key of particle container to thin"};
+
       SG::ThinningHandleKey<xAOD::CaloClusterContainer> m_CaloClSGKey
         { this, "CaloClCollectionSGKey", "", "" };
       SG::ThinningHandleKey<xAOD::CaloClusterContainer> m_TopoClSGKey
