@@ -106,11 +106,11 @@ bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::s
   }
   std::string inputFileName = FastCaloTXTInputFolderName;
   if(pid == 22){
-    inputFileName += "v19/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
+    inputFileName += "v23/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
   } else if(pid == 11 || pid == -11){
-    inputFileName += "v20/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
+    inputFileName += "v24/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
   } else if(pid == 211 || pid == -211){
-    inputFileName += "v21/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
+    inputFileName += "v25/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
   } else {
     std:: cout << "ERROR: pid ("<<pid<<") not supported yet" << std::endl;
     return false;
@@ -155,11 +155,8 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulat
   std::map<std::string, double> inputVariables;
   std::vector<int>              inputLayers = {0,1,2,3,12};
   if(is_match_pdgid(211) || is_match_pdgid(-211)){
-    ATH_MSG_INFO("Adding layers 13 and 14"); // Temporary
     inputLayers.push_back(13);
     inputLayers.push_back(14);
-  } else { // Temporary
-    ATH_MSG_INFO("Layers 13 and 14 will NOT be added for this particle");
   }
   for(int ilayer=0;ilayer<CaloCell_ID_FCS::MaxSample;++ilayer) {
     if(std::find(inputLayers.begin(), inputLayers.end(), ilayer) != inputLayers.end()){
@@ -193,15 +190,6 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
 
   // Get inputs to Neural Network
   std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001);
-
-  // Temporary
-  ATH_MSG_INFO("Before m_nn->compute()");
-  ATH_MSG_INFO("truth eta   = "<< truth->Eta());
-  ATH_MSG_INFO("truth pdgID = "<< truth->pdgid());
-  ATH_MSG_INFO("inputVariables:");
-  for(auto const& x : inputVariables){
-    ATH_MSG_INFO("key:"<<x.first<<" value:"<<x.second);
-  }
 
   // Get predicted extrapolation weights
   auto outputs            = m_nn->compute(inputVariables);
@@ -266,9 +254,9 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
   ATH_MSG_INFO("Using FastCaloNNInputFolderName: " << FastCaloNNInputFolderName );
 
   std::string inputFileName = FastCaloNNInputFolderName;
-  if(pid == 22){                        inputFileName += "v19/NN_photons_v19_"+etaBin+".json";
-  } else if(pid == 11 || pid == -11){   inputFileName += "v20/NN_electrons_v20_"+etaBin+".json";
-  } else if(pid == 211 || pid == -211){ inputFileName += "v21/NN_pions_v21_"+etaBin+".json";}
+  if(pid == 22){                        inputFileName += "v23/NN_photons_v23_"+etaBin+".json";
+  } else if(pid == 11 || pid == -11){   inputFileName += "v24/NN_electrons_v24_"+etaBin+".json";
+  } else if(pid == 211 || pid == -211){ inputFileName += "v25/NN_pions_v25_"+etaBin+".json";}
   ATH_MSG_DEBUG("Will read JSON file: " << inputFileName );
   if(inputFileName.empty()){
     ATH_MSG_ERROR("Could not find json file " << inputFileName );
@@ -395,8 +383,8 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
   TFCSPredictExtrapWeights NN("NN", "NN");
   NN.setLevel(MSG::VERBOSE);
   const int pid = truth->pdgid();
-  NN.initializeNetwork(pid, etaBin,"/eos/user/j/jbossios/FastCaloSim/lwtnn_inputs/json/");
-  NN.getNormInputs(pid, etaBin, "/eos/user/j/jbossios/FastCaloSim/lwtnn_inputs/txt/");
+  NN.initializeNetwork(pid, etaBin,"/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/json/");
+  NN.getNormInputs(pid, etaBin, "/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/txt/");
 
   // Get extrapWeights and save them as AuxInfo in simulstate
 
