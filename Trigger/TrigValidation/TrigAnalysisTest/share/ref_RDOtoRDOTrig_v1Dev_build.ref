@@ -8991,6 +8991,14 @@ HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_0eta290_pf_ftf_boffperf_L1J45p0ETA21_3J
     0: 48
     1: 215
     2: 95
+HLT_j80_roiftf_preselj20_L1J20:
+  eventCount: 12
+  stepCounts:
+    0: 20
+    1: 12
+  stepFeatures:
+    0: 20
+    1: 25
 HLT_j85_050momemfrac100XXmomhecfrac010_L1J20:
   eventCount: 9
   stepCounts:

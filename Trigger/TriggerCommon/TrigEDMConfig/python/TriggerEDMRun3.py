@@ -662,7 +662,6 @@ TriggerHLTListRun3 = [
     ('xAOD::MuonContainer#HLT_MuonsCB_RoI_TLA',                                       'BS PhysicsTLA ESD', 'Muon'),
     ('xAOD::MuonAuxContainer#HLT_MuonsCB_RoI_TLAAux.',                                'BS PhysicsTLA ESD', 'Muon'),
 
-
     # FS tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_FS_FTF',                 'BS ESD AODFULL', 'Jet'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_FS_FTFAux.passPFTrackPresel.muonCaloTag.muonScore.ptCone20.etConeCore.trackIso.RErr.EOverP.caloIso.trkPtFraction.tagFakeTrack.tagMuonTrack.tagIsoTrack',          'BS ESD AODFULL', 'Jet'),
@@ -780,13 +779,10 @@ TriggerHLTListRun3 = [
 
 
     # jet superRoI Descriptor and associated track and vertex class used for EventView creation
-    # commented for the time being ...
 
-    #    ('TrigRoiDescriptorCollection#"HLT_Roi_JetSuper',                   'BS ESD AODFULL', 'Jet'),
-    #    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_JetSuper_FTF',        'BS ESD AODFULL', 'Jet'),
-    #    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_JetSuper_FTFAux',     'BS ESD AODFULL', 'Jet'),
-    #    ('xAOD::VertexContainer#HLT_IDVertex_JetSuper',                     'BS ESD AODFULL', 'Jet'),
-    #    ('xAOD::VertexContainer#HLT_IDVertex_JetSuperAux',                  'BS ESD AODFULL', 'Jet'),
+    ('TrigRoiDescriptorCollection#HLT_Roi_JetSuper',                   'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_JetSuper_FTF',          'BS ESD AODFULL', 'Jet', 'inViews:JetSuperRoIViews'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_JetSuper_FTFAux.',   'BS ESD AODFULL', 'Jet'),
 
 
 
