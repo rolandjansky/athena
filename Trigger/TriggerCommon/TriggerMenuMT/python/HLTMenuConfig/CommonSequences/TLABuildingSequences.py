@@ -82,8 +82,6 @@ def alignTLASteps(chain_configs, chain_dicts):
 
     all_tla_chain_configs = dict(filter(is_tla_config, chain_configs.items()))
 
-    # for chainName, chainConfig in all_tla_chain_configs.items():
-    #     print("MARCO: Before alignment steps are: ", chainConfig.steps)
 
     maxTLAStepPosition = {} # {eventBuildType: N}
 
@@ -107,6 +105,4 @@ def alignTLASteps(chain_configs, chain_dicts):
             log.debug('Aligning TLA step for chain %s by adding %d empty steps', chainName, numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyTLAAlign', numStepsNeeded, tlaStepPosition-1)
 
-    #post alignment printout
-    # for chainName, chainConfig in all_tla_chain_configs.items():
-    #     print("MARCO: AFTER alignment steps are: ", chainConfig.steps)
+   
