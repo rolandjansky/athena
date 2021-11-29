@@ -40,10 +40,14 @@ def TriggerRecoCfg(flags):
         acc.addEventAlgo( tdm )
     elif flags.Trigger.EDMVersion == 2 or flags.Trigger.EDMVersion == 1:
         acc.merge( Run1Run2BSExtractionCfg(flags) )
+        if flags.Trigger.EDMVersion == 1: 
+            acc.merge(Run1xADOCOnversion(flags))
+
         # from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
         # xRoIBResultAcc, _ = RoIBResultToxAODCfg(flags) #TODO missing muon cabling etc. i.e. not self contained config, can not test locally
         # acc.merge( xRoIBResultAcc )
         # acc.merge (Run1Run2DecisionMakerCfg(flags) ) #TODO needs properly setup TDT
+
     else:
         raise RuntimeError("Invalid EDMVersion=%s " % flags.Trigger.EDMVersion)
     if flags.Trigger.EDMVersion == 1:
@@ -118,8 +122,44 @@ def Run1Run2BSExtractionCfg( flags ):
     acc.addPublicTool( CompFactory.HLT.HLTResultByteStreamTool(HLTResultRobIdMap = robIDMap))
 
     acc.addEventAlgo(extr)
+    
+    return acc
+
+
+def Run1xADOCOnversion(flags):
+    """Convert Run 1 EDM to xAOD classes"""
+    acc = ComponentAccumulator()
+
+    log.info("Will configure Run 1 trigger EDM to xAOD conversion")
+    from TrigEDMConfig.TriggerEDM import getPreregistrationList
+    from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
+
+    # define list of HLT xAOD containers to be written to the output root file
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+    edm = getTriggerEDMList(flags.Trigger.ESDEDMSet, 2 )
+
+
+    navTool = CompFactory.HLT.Navigation("Navigation", 
+                                         ClassesToPreregister = getPreregistrationList(flags.Trigger.EDMVersion) )
+
+    bstoxaodTool = CompFactory.TrigBStoxAODTool("BStoxAOD", 
+                                                ContainersToConvert = getL2Run1BSList() + getEFRun1BSList(), 
+                                                NewContainers = getL2Run2EquivalentList() + getEFRun2EquivalentList() )
+
+    xaodConverter = CompFactory.TrigHLTtoxAODConversion( ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")] if flags.Trigger.readBS else [],
+                                                         Navigation = navTool,
+                                                         BStoxAOD = bstoxaodTool,
+                                                         HLTResultKey="HLTResult_EF",
+                                                         xaodlist = edm )
+
+    acc.addEventAlgo(xaodConverter)
+
+    from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
+    acc.merge(addToESD(flags, edm))
+    acc.merge(addToAOD(flags, edm))
 
     return acc
+
 
 def Run3TriggerBSUnpackingCfg(flags):
     """Configures conversions BS -> HLTResultMT -> Collections """

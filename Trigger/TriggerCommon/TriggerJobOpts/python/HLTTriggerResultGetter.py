@@ -12,34 +12,9 @@ from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
 
 class xAODConversionGetter(Configured):
     def configure(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-
-        #schedule xAOD conversions here
-        from TrigBSExtraction.TrigBSExtractionConf import TrigHLTtoxAODConversion
-        xaodconverter = TrigHLTtoxAODConversion()
-        if ConfigFlags.Trigger.readBS:
-            xaodconverter.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")] # contract wiht BSExtraction alg (see below)
-        from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
-        xaodconverter.Navigation = HLTNavigationOffline()
-
-        from TrigEDMConfig.TriggerEDM import getPreregistrationList
-        from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
-        xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
-
-        # we want only containers from Run 1 with the BS tag
-        xaodconverter.BStoxAOD.ContainersToConvert = getL2Run1BSList() + getEFRun1BSList()
-        xaodconverter.BStoxAOD.NewContainers = getL2Run2EquivalentList() + getEFRun2EquivalentList()
-
-        xaodconverter.HLTResultKey="HLTResult_EF"
-        topSequence += xaodconverter
-
-        # define list of HLT xAOD containers to be written to the output root file
-        # (previously this was defined in HLTTriggerResultGetter def configure)
-        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-        self.xaodlist = {}
-        self.xaodlist.update( getTriggerEDMList(ConfigFlags.Trigger.ESDEDMSet, 2 ))
-
+        from TriggerJobOpts.TriggerRecoConfig import Run1xADOCOnversion
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        CAtoGlobalWrapper(Run1xADOCOnversion, ConfigFlags)
         return True
     
         
