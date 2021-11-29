@@ -48,7 +48,6 @@ class PowhegRES(PowhegBase):
             "mint*.top",
             "parameters.ol",
             "pwg*.top",
-            "pwg*stat.dat",
             "pwgboundviolations*.dat",
             "pwgcounters*.dat",
             "pwgseeds.dat",
@@ -67,6 +66,7 @@ class PowhegRES(PowhegBase):
             "pwgfullgrid*.dat",
             "pwggrid*.dat",
             "pwgubound*.dat"
+            "pwg*stat.dat",
         ]
 
     @property
