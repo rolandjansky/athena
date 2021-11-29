@@ -9,7 +9,7 @@
 # art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
-timeout 43200 Reco_tf.py \
+timeout 64800 Reco_tf.py \
   --inputBSFile=${ArtInFile} \
   --outputAODFile=myAOD.pool.root \
   --outputHISTFile=myHIST.root \

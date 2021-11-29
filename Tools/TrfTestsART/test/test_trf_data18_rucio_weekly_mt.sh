@@ -9,7 +9,7 @@
 # art-athena-mt: 8
 # art-runon: Saturday
 
-timeout 43200 Reco_tf.py \
+timeout 64800 Reco_tf.py \
   --inputBSFile=${ArtInFile} \
   --outputAODFile=myAOD.pool.root \
   --outputHISTFile=myHIST.root \
