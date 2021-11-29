@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ALFA_G4_SD )
@@ -25,4 +25,5 @@ atlas_install_joboptions( share/optionForTest.txt )
 # Test(s) in the package:
 atlas_add_test( ALFA_SensitiveDetector_gtest
                 SOURCES test/ALFA_SensitiveDetector_gtest.cxx
-                LINK_LIBRARIES ALFA_G4_SDLib TestTools )
+                LINK_LIBRARIES ALFA_G4_SDLib TestTools
+                POST_EXEC_SCRIPT nopost.sh )
