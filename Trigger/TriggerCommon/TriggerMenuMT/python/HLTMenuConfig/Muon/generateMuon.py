@@ -169,7 +169,9 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
 
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
     acc = MuonCombinedParticleCreatorCfg(flags)
-    kwargs.setdefault("TrackParticleCreator", acc.popPrivateTools())
+    particleCreator = acc.popPrivateTools()
+    result.addPublicTool(particleCreator) # Still public in TrackParticleCnvAlg
+    kwargs.setdefault("TrackParticleCreator", particleCreator)
     result.merge(acc)
 
     acc = MuonTrackCollectionCnvToolCfg(flags)

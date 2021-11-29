@@ -11,6 +11,7 @@
 
 // Gaudi/StoreGate
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // Event Context
@@ -141,7 +142,7 @@ VERBOSE : Method call sequence with values
 */
 
 class Extrapolator
-  : public AthAlgTool
+  : public AthCheckedComponent<AthAlgTool>
   , virtual public IExtrapolator
 {
 public:
