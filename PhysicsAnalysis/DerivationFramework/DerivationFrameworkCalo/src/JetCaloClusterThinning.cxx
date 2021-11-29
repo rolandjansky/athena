@@ -26,12 +26,10 @@ DerivationFramework::JetCaloClusterThinning::JetCaloClusterThinning(const std::s
 base_class(t,n,p),
 m_ntotTopo(0),
 m_npassTopo(0),
-m_sgKey(""),
 m_selectionString(""),
 m_coneSize(-1.0)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("SGKey", m_sgKey);
     declareProperty("SelectionString", m_selectionString);
     declareProperty("ConeSize", m_coneSize);
 }
@@ -50,7 +48,11 @@ StatusCode DerivationFramework::JetCaloClusterThinning::initialize()
     if (m_sgKey.empty()) {
         ATH_MSG_FATAL("No jet collection provided for thinning.");
         return StatusCode::FAILURE;
-    } else { ATH_MSG_INFO("Calo clusters associated with objects in " << m_sgKey << " will be retained in this format with the rest being thinned away");}
+    }
+    else {
+      ATH_MSG_INFO("Calo clusters associated with objects in " << m_sgKey.key() << " will be retained in this format with the rest being thinned away");
+      ATH_CHECK( m_sgKey.initialize() );
+    }
 
     // Set up the text-parsing machinery for selectiong the photon directly according to user cuts
     if (!m_selectionString.empty()) {
@@ -86,13 +88,15 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
     topomask.assign(nTopoClusters,false);
     m_ntotTopo += nTopoClusters;
     
-    // Retrieve e-gamma container
-    const xAOD::JetContainer* importedJet(nullptr);
-    if (evtStore()->retrieve(importedJet,m_sgKey).isFailure()) {
-        ATH_MSG_ERROR("No jet collection with name " << m_sgKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
+    // Retrieve jet container
+    const xAOD::JetContainer* importedJets(nullptr);
+    SG::ReadHandle<xAOD::JetContainer> importedJetsHandle{ m_sgKey, ctx };
+    importedJets = importedJetsHandle.ptr();
+    if (importedJets==nullptr) {
+      ATH_MSG_ERROR("No jet collection with name " << m_sgKey.key() << " found in StoreGate!");
+      return StatusCode::FAILURE;
     }
-    unsigned int nJets(importedJet->size());
+    unsigned int nJets(importedJets->size());
     if (nJets==0) return StatusCode::SUCCESS;
     std::vector<const xAOD::Jet*> jetToCheck; jetToCheck.clear();
     
@@ -106,13 +110,13 @@ StatusCode DerivationFramework::JetCaloClusterThinning::doThinning() const
             return StatusCode::FAILURE;
         } else {
         	// identify which e-gammas to keep for the thinning check
-        	for (unsigned int i=0; i<nJets; ++i) if (entries[i]==1) jetToCheck.push_back((*importedJet)[i]);
+        	for (unsigned int i=0; i<nJets; ++i) if (entries[i]==1) jetToCheck.push_back((*importedJets)[i]);
         }
     }
     
     // Set elements in the mask to true if there is a corresponding ElementLink from a reconstructed object
     if (m_selectionString.empty()) { // check all objects as user didn't provide a selection string
-        setJetClustersMask(topomask, importedJet, importedTopoCaloCluster.cptr());
+        setJetClustersMask(topomask, importedJets, importedTopoCaloCluster.cptr());
     } else {
         setJetClustersMask(topomask, jetToCheck, importedTopoCaloCluster.cptr());
     }
