@@ -140,14 +140,20 @@ namespace Muon {
     bool MuonSystemExtensionTool::muonSystemExtension(const EventContext& ctx, SystemExtensionCache& cache) const {
         // get calo extension
 
-        std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(ctx, cache.candidate->indetTrackParticle());
-
-        if (!caloExtension || !caloExtension->muonEntryLayerIntersection()) {
-            ATH_MSG_VERBOSE("Failed to get CaloExtension ");
-            return false;
+        if (!cache.candidate->getCaloExtension()) {
+            std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(ctx, cache.candidate->indetTrackParticle());
+            if (!caloExtension || !caloExtension->muonEntryLayerIntersection()) {
+                ATH_MSG_VERBOSE("Failed to get CaloExtension ");
+                return false;
+            }
+            cache.candidate->setExtension(std::move(caloExtension));
+        }
+       
+        if ( (cache.candidate->isSiliconAssociated() && !m_extendSAF) || (!cache.candidate->isSiliconAssociated() && !m_extendBulk) ) {           
+            return true;
         }
         // get entry parameters, use it as current parameter for the extrapolation
-        const Trk::TrackParameters* currentPars = caloExtension->muonEntryLayerIntersection();
+        const Trk::TrackParameters* currentPars = cache.candidate->getCaloExtension()->muonEntryLayerIntersection();
 
         // get reference surfaces
         ATH_MSG_VERBOSE(" getSurfacesForIntersection " << currentPars);
@@ -229,9 +235,7 @@ namespace Muon {
         ATH_MSG_DEBUG(" completed extrapolation: destinations " << surfaces.size() << " intersections " << intersections.size());
         
         cache.candidate->setExtension(
-            std::make_unique<MuonSystemExtension>(caloExtension->muonEntryLayerIntersection()->uniqueClone(), std::move(intersections)));
-        /// For the moment cache the calo extension
-        cache.candidate->setExtension(std::move(caloExtension));
+            std::make_unique<MuonSystemExtension>(cache.candidate->getCaloExtension()->muonEntryLayerIntersection(), std::move(intersections)));
         return true;
     }
 
