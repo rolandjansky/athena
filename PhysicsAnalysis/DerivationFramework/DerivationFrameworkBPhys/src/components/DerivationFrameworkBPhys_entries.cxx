@@ -38,7 +38,8 @@
 #include "DerivationFrameworkBPhys/ReVertex.h"
 #include "DerivationFrameworkBPhys/BPhysConversionFinder.h"
 #include "DerivationFrameworkBPhys/Cascade3Plus1.h"
-
+#include "DerivationFrameworkBPhys/MuPlusDsCascade.h"
+#include "DerivationFrameworkBPhys/MuPlusDpstCascade.h"
 using namespace DerivationFramework;
 
 DECLARE_TOOL_FACTORY( Reco_mumu )
@@ -80,6 +81,8 @@ DECLARE_TOOL_FACTORY( JpsiPlusDs1Cascade )
 DECLARE_TOOL_FACTORY( ReVertex )
 DECLARE_TOOL_FACTORY( BPhysConversionFinder )
 DECLARE_TOOL_FACTORY( Cascade3Plus1 )
+DECLARE_TOOL_FACTORY( MuPlusDsCascade )
+DECLARE_TOOL_FACTORY( MuPlusDpstCascade )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( Reco_mumu )
@@ -121,4 +124,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( ReVertex )
    DECLARE_TOOL( BPhysConversionFinder )
    DECLARE_TOOL( Cascade3Plus1 )
+   DECLARE_TOOL( MuPlusDsCascade )
+   DECLARE_TOOL( MuPlusDpstCascade )
 }
