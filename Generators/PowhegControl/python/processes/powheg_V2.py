@@ -48,7 +48,6 @@ class PowhegV2(PowhegBase):
             "mint_upb_btildeupb.top",
             "mint_upb_remnupb.top",
             "pwg*.top",
-            "pwg*stat.dat",
             "pwgboundviolations*.dat",
             "pwgcounters*.dat",
             "pwgseeds.dat",
@@ -69,6 +68,7 @@ class PowhegV2(PowhegBase):
             "pwggrid*.dat",
             "pwgfullgrid*.dat",
             "pwgubound*.dat",
+            "pwg*stat.dat",
         ]
 
     @property
