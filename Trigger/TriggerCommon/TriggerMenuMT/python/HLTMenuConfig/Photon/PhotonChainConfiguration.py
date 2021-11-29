@@ -12,7 +12,6 @@ from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
 from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
 from ..Photon.PrecisionCaloMenuSequences import precisionCaloMenuSequence
-from ..Photon.PrecisionPhotonTLAMenuSequences import TLAPhotonMenuSequence
 from ..Photon.HipTRTMenuSequences import hipTRTMenuSequence
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
