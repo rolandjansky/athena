@@ -680,8 +680,13 @@ def setupMenu():
 
         # TLA test chains, ATR-20395
         ChainProp(name='HLT_j20_pf_ftf_preselj140_PhysicsTLA_L1J50', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+        ChainProp(name='HLT_j20_pf_ftf_preselj140_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+        ChainProp(name='HLT_j20_pf_ftf_preselj180_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
         ChainProp(name='HLT_j20_pf_ftf_PhysicsTLA_L1J100', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
-        
+        ChainProp(name='HLT_j180_pf_ftf_j20_pf_ftf_SHARED_preselj180_PhysicsTLA_L1J00', l1SeedThresholds=['FSNOSEED']*3, stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+        ChainProp(name='HLT_j0_pf_ftf_DJMASS500j35_PhysicsTLA_L1J50', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+        ChainProp(name='HLT_j0_pf_ftf_DJMASS200j20_PhysicsTLA_L1J50', l1SeedThresholds=['FSNOSEED'], stream=['TLA'], groups=PrimaryLegGroup+SingleJetGroup),
+
         ]
         
 

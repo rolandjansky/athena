@@ -211,6 +211,7 @@ JetChainParts = {
                       'DIJET35j12etXX1000djmass',
                       'DIJET20j12etXX110djmass',  # very loose cuts for testing
                       # pt threshold cuts
+                      'DJMASS200j20', # alias, for TLA
                       'DJMASS500j35', # alias
                       'DJMASS700j35', # alias
                       'DJMASS1000j35', # alias
