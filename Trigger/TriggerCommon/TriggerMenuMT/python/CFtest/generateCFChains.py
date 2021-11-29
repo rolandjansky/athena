@@ -125,8 +125,8 @@ def generateCFChains(opt):
 
     def jetTrackingHypoMenuSequenceFromString(jet_def_str,clustersKey):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
-        return jetTrackingHypoMenuSequence(ConfigFlags, clustersKey=clustersKey, isPerf=False, **jetRecoDict)
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetFSTrackingHypoMenuSequence
+        return jetFSTrackingHypoMenuSequence(ConfigFlags, clustersKey=clustersKey, isPerf=False, **jetRecoDict)
 
     if opt.doJetSlice is True:
 

@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def FTFTrackSequence(ConfigFlags):
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
-    InputMakerAlg=getTrackingInputMaker()
+    InputMakerAlg=getTrackingInputMaker("ftf")
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jet' )

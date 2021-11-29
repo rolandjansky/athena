@@ -138,7 +138,7 @@ JetChainParts = {
     'ionopt'       : # Heavy ion configuration
       ['noion','ion'],
     'trkopt'       : # Tracking configuration
-      ['notrk','ftf'],
+      ['notrk','ftf','roiftf'],
     'trkpresel'    : # Tracking preselection
       ['nopresel',
        # Single jet
@@ -178,7 +178,7 @@ JetChainParts = {
        'preselc60XXc45XXc25XXc20', # L1J45p0ETA21_3J15p0ETA25
        'preselc60XXj45XXf40',
        'preselj60XXj45XXf40',
-       'presela60XXa40XX2a25'
+       'presela60XXa40XX2a25',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
