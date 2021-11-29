@@ -33,9 +33,11 @@ namespace xAOD {
 
       /// Object types
       enum ObjectType {
-         gBlock   = 0, ///< This object is a TOB (32 bit word)
-         gJet     = 1, ///< This object is a TOB (32 bit word)
-         gRho     = 2  ///< This object is a TOB (32 bit word)
+         gRho         = 0,
+         gBlockLead   = 1, ///< This object is a TOB (32 bit word)
+         gBlockSub    = 2, ///< This object is a TOB (32 bit word)
+         gJet         = 3, ///< This object is a TOB (32 bit word)
+           ///< This object is a TOB (32 bit word)
       };
 
       /// The "raw" 32-bit word describing the object candidate
@@ -78,14 +80,13 @@ namespace xAOD {
       void setgFexType ( int type) ;
       int unpackType( ) const;
       ///Identification of object type with flags
-      bool isgBlock() const;
-      //void setIsgBlock( char value);
+      bool isgBlockLead() const;
+      //void setIsgBlockLead( char value);
+      bool isgBlockSub() const;
+      //void setIsgBlockSub( char value);
       bool isgJet() const;
       //void setIsgJet( char value);
       bool isgRho() const;
-      //void setIsgRho( char value);
-      bool isLeadingJet() const;
-  
 
 
 

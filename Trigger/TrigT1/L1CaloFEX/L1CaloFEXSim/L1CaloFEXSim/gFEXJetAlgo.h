@@ -63,13 +63,13 @@ virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atw
 
     virtual void gBlockMax192(gTowersJetEngine gBlkSum, std::array<int, 3> & gBlockVp, std::array<int, 3> & gBlockEtap, std::array<int, 3> & gBlockPhip, int index);
 
-    virtual void addRemoteRin(gTowersCentral jets, gTowersPartialSums & partial);
+    virtual void addRemoteRin(gTowersCentral &jets, const gTowersPartialSums &partial);
 
-    virtual void addRemoteLin(gTowersCentral jets, gTowersPartialSums & partial);
+    virtual void addRemoteLin(gTowersCentral &jets, const gTowersPartialSums &partial);
 
-    virtual void pileUpCorrectionAB(gTowersCentral jets, int puc);
+    virtual void pileUpCorrectionAB(gTowersCentral &jets, int puc);
 
-    virtual void gBlockVetoAB(gTowersCentral twrs, gTowersCentral & blocks, int seed_threshold) ;
+    virtual void gBlockVetoAB(gTowersCentral &twrs, gTowersCentral blocks, int seed_threshold) ;
 
     virtual void jetOutAB(gTowersCentral jets, gTowersCentral blocks, int seedThreshold,
                            std::array<int, 32> &jetOutL, std::array<int, 32> &etaIndL,
@@ -83,7 +83,7 @@ virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atw
                              std::array<int, FEXAlgoSpaceDefs::gJetTOBfib> & gJetTOBphi );
 
     SG::ReadHandleKey<LVL1::gTowerContainer> m_gFEXJetAlgo_gTowerContainerKey {this, "MyGTowers", "gTowerContainer", "Input container for gTowers"};
-
+    
   };
 
 } // end of namespace

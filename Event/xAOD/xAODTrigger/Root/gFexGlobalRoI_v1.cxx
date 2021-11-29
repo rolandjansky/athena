@@ -16,7 +16,7 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexGlobalRoI_v1::s_tobEtScale = 3200.; ///3.2 GeV is the energy range size (step between two adjiacent bits)
+  const float gFexGlobalRoI_v1::s_tobEtScale = 200.; 
  
 
    gFexGlobalRoI_v1::gFexGlobalRoI_v1()
