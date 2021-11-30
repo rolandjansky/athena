@@ -212,7 +212,7 @@ namespace Analysis {
           return sc;
         }
       } else {
-	        ATH_MSG_WARNING("#BTAG# JetSecVertexingAlg VxSecVertexInfo pointer cannot be interpreted for " << m_VxSecVertexInfoName.key());
+	        ATH_MSG_DEBUG("#BTAG# JetSecVertexingAlg VxSecVertexInfo pointer cannot be interpreted for " << m_VxSecVertexInfoName.key());
       }
     }// for loop on jets
 
