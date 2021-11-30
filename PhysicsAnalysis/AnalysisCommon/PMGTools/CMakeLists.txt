@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PMGTools )
@@ -55,17 +55,20 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_PMGSherpa22VJetsWeightTool_test
       SOURCES test/ut_PMGSherpa22VJetsWeightTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib ${xaod_access_lib} )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib ${xaod_access_lib}
+      POST_EXEC_SCRIPT nopost.sh )
 
    atlas_add_test( ut_PMGSherpaVjetsSysTool_test
       SOURCES test/ut_PMGSherpaVjetsSysTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib ${xaod_access_lib} )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib ${xaod_access_lib}
+      POST_EXEC_SCRIPT nopost.sh )
 endif()
 # ... AthAnalysis/AnalysisBase
 if( XAOD_STANDALONE ) # temporarily disabled in Athena (ATEAM-681)
 atlas_add_test( ut_PMGTruthWeightTool_test
    SOURCES test/ut_PMGTruthWeightTool_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools PMGAnalysisInterfacesLib PMGToolsLib xAODTruth ${xaod_access_lib} )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools PMGAnalysisInterfacesLib PMGToolsLib xAODTruth ${xaod_access_lib}
+   POST_EXEC_SCRIPT nopost.sh )
 endif()
