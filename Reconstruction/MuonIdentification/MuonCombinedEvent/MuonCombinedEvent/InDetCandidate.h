@@ -45,12 +45,13 @@ namespace MuonCombined {
         // access MuonSystemExtension
         const Muon::MuonSystemExtension* getExtension() const;
         // access the CaloExtension
-        const Trk::CaloExtension* getCaloExtension() const;
+        std::shared_ptr<Trk::CaloExtension> getCaloExtension() const;
 
         // set MuonSystemExtension, taking ownership
         void setExtension(std::unique_ptr<Muon::MuonSystemExtension> extension);
         /// set CaloExtension
         void setExtension(std::unique_ptr<Trk::CaloExtension> extension);
+        void setExtension(std::shared_ptr<Trk::CaloExtension> extension);
 
         /** Returns true if this candidate was formed from a special far forward InDet track.*/
         bool isSiliconAssociated() const;
@@ -72,7 +73,7 @@ namespace MuonCombined {
         bool m_siAssociated{false};
 
         std::unique_ptr<Muon::MuonSystemExtension> m_extension;
-        std::unique_ptr<Trk::CaloExtension> m_calo_extension;
+        std::shared_ptr<Trk::CaloExtension> m_calo_extension;
     };
 
 }  // namespace MuonCombined
