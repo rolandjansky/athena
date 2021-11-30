@@ -30,26 +30,26 @@ atlas_add_component( G4AtlasTools
 #testing just the simulation parts, no forward detectors or region
 atlas_add_test( G4GeometryToolConfig_Simtest
                 SCRIPT test/G4GeometryToolConfig_Simtest.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 #full test
 if( NOT SIMULATIONBASE )
   atlas_add_test( G4GeometryToolConfig_test
                 SCRIPT test/G4GeometryToolConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 endif()
 
 atlas_add_test( G4PhysicsRegionConfig_test
                 SCRIPT test/G4PhysicsRegionConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( G4FieldConfig_test
                 SCRIPT test/G4FieldConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( G4AtlasToolsConfigNew_test
                 SCRIPT test/G4AtlasToolsConfigNew_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py
