@@ -58,7 +58,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.materialInteractionsType", 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
   itkcf.addFlag("ITk.pixelClusterBadClusterID", 3) # Select the mode to identify suspicous pixel clusteri 
   itkcf.addFlag("ITk.KeepFirstParameters", False) # Keep the first set of track parameters in addition to the defining ones for TrackParticles. False to drop them
-  itkcf.addFlag("ITk.doVertexFinding", False) # Turn on the primary vertex reconstruction, temporarily disabled
+  itkcf.addFlag("ITk.doVertexFinding", True) # Turn on the primary vertex reconstruction
   itkcf.addFlag("ITk.truthMatchStrategy", 'TruthMatchRatio') # defines how truth matching is done. possible values TruthMatchRatio (old style) or TruthMatchTanimoto (new style)
   itkcf.addFlag("ITk.useBroadClusterErrors", False) # Use broad cluster errors for Pixel/Strip
   itkcf.addFlag("ITk.useBroadPixClusterErrors", False) # Use broad cluster errors for Pixel
@@ -95,6 +95,9 @@ def createITkConfigFlags():
   itkcf.addFlagsCategory ("ITk.ConversionFindingTracking", createITkConversionFindingTrackingFlags, prefix=True)
   itkcf.addFlagsCategory ("ITk.FastTracking", createITkFastTrackingFlags, prefix=True)
   itkcf.addFlagsCategory ("ITk.LargeD0FastTracking", createITkLargeD0FastTrackingFlags, prefix=True)
+
+  from InDetConfig.VertexFindingFlags import createITkPriVertexingFlags
+  itkcf.addFlagsCategory("ITk.PriVertex", createITkPriVertexingFlags, prefix=True)
 
 
   return itkcf

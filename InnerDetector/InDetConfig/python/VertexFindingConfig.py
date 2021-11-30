@@ -3,7 +3,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def primaryVertexFindingCfg(flags):
+def primaryVertexFindingCfg(flags, **kwargs):
     acc = ComponentAccumulator()
     vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
         "InDetSumPtVertexWeightCalculator"
@@ -12,19 +12,40 @@ def primaryVertexFindingCfg(flags):
         "InDetVertexCollectionSortingTool", VertexWeightCalculator=vertexWeightTool
     )
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+    from InDetConfig.TrackingCommonConfig import TrackSummaryToolCfg
+    from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometryToolCfg, ActsExtrapolationToolCfg
 
-    from ActsGeometry.ActsGeometryConfig import (
-            ActsTrackingGeometryToolCfg,
-            ActsExtrapolationToolCfg,
-            ActsAlignmentCondAlgCfg)
-    #TODO the alignment conditions alg should be loaded with extrapolator (same for ActsGeoSvc)
-    acc.merge(ActsAlignmentCondAlgCfg(flags))
     actsGeoAcc, geometry = ActsTrackingGeometryToolCfg(flags)
     acc.merge(actsGeoAcc)
 
     trackExtrapolator = acc.getPrimaryAndMerge(ActsExtrapolationToolCfg(flags))
-    trackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
+    trackSummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags))
+
+    if flags.Detector.GeometryITk:
+        vtxFlags = flags.ITk.PriVertex
+    else:
+        vtxFlags = flags.InDet.PriVertex
+
+    for key in (
+        "maxAbsEta",
+        "maxD0",
+        "maxNPixelHoles",
+        "maxSigmaD0",
+        "maxSigmaZ0SinTheta",
+        "maxZ0",
+        "maxZ0SinTheta",
+        "minNInnermostLayerHits",
+        "minNPixelHits",
+        "minNSctHits",
+        "minNSiHits",
+        "minNTrtHits",
+        "minPt",
+        "maxZinterval"
+    ):
+        kwargs.setdefault(key, getattr(vtxFlags, key))
+
+
+    tracksMaxZinterval=kwargs.pop("maxZinterval")
 
     # TODO find out which of the settings below need to be picked from flags
     trackSelector = CompFactory.InDet.InDetTrackSelectionTool(
@@ -32,28 +53,15 @@ def primaryVertexFindingCfg(flags):
         CutLevel="TightPrimary",
         Extrapolator=trackExtrapolator,
         TrackSummaryTool=trackSummaryTool,
-        maxAbsEta=9999.0,
-        maxD0=4.0,
-        maxNPixelHoles=1,
-        maxSigmaD0=5.0,
-        maxSigmaZ0SinTheta=10.0,
-        maxZ0=1000.0,
-        maxZ0SinTheta=1000.0,
-        minNInnermostLayerHits=0,
-        minNPixelHits=1,
-        minNSctHits=4,
-        minNSiHits=6,
-        minNTrtHits=0,
-        minPt=500.0,
+        **kwargs
     )
-
 
     finderTool = CompFactory.ActsAdaptiveMultiPriVtxFinderTool(
         "ActsAdaptiveMultiPriVtxFinderTool",
         ExtrapolationTool=trackExtrapolator,
         TrackSelector=trackSelector,
         TrackingGeometryTool=geometry,
-        tracksMaxZinterval=3,
+        tracksMaxZinterval=tracksMaxZinterval,
     )
 
     InDetPriVxFinder = CompFactory.InDet.InDetPriVxFinder(
@@ -64,10 +72,14 @@ def primaryVertexFindingCfg(flags):
     )
     acc.addEventAlgo(InDetPriVxFinder)
 
-    #from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
-    #TODO debug why vertex container is crashing AOD writing
-    #verticesContainer = ["xAOD::VertexContainer#PrimaryVertices", "xAOD::VertexAuxContainer#PrimaryVerticesAux."]
-    #acc.merge(addToAOD(flags, verticesContainer))
-    #acc.merge(addToESD(flags, verticesContainer))
+    from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
+    excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+    verticesContainer = [
+         "xAOD::VertexContainer#PrimaryVertices",
+         "xAOD::VertexAuxContainer#PrimaryVerticesAux."+excludedVtxAuxData
+    ]
+
+    acc.merge(addToAOD(flags, verticesContainer))
+    acc.merge(addToESD(flags, verticesContainer))
 
     return acc
