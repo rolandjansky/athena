@@ -130,28 +130,28 @@ private:
   TIDDirectory* mdir;
 
   std::map<std::string, TH1F*> m_histos;
-  std::map<std::string, TH2F*> m_histos2D;  
+  std::map<std::string, TH2F*> m_histos2D;
 
-  Efficiency* eff_pt;
-  Efficiency* eff_ptp;
-  Efficiency* eff_ptm;
+  Efficiency* eff_pt = 0;
+  Efficiency* eff_ptp = 0;
+  Efficiency* eff_ptm = 0;
 
-  Efficiency* eff_eta;
-  Efficiency* eff_phi;
-  Efficiency* eff_z0;
-  Efficiency* eff_d0;
-  Efficiency* eff_a0;
+  Efficiency* eff_eta = 0;
+  Efficiency* eff_phi = 0;
+  Efficiency* eff_z0 = 0;
+  Efficiency* eff_d0 = 0;
+  Efficiency* eff_a0 = 0;
 
-  Efficiency* eff_roi_deta;
-  Efficiency* eff_roi_dphi;
-  Efficiency* eff_roi_dR;
+  Efficiency* eff_roi_deta = 0;
+  Efficiency* eff_roi_dphi = 0;
+  Efficiency* eff_roi_dR = 0;
 
-  Efficiency* purity_pt;
-  Efficiency* purity_eta;
-  Efficiency* purity_phi;
-  Efficiency* purity_z0;
-  Efficiency* purity_d0;
-  Efficiency* purity_a0;
+  Efficiency* purity_pt = 0;
+  Efficiency* purity_eta = 0;
+  Efficiency* purity_phi = 0;
+  Efficiency* purity_z0 = 0;
+  Efficiency* purity_d0 = 0;
+  Efficiency* purity_a0 = 0;
 
 #if 0
   TH2F* h2;
@@ -159,22 +159,20 @@ private:
   TH2F* h2r;
 #endif
 
+  Resplot* h2 = 0;
+  Resplot* h2m = 0;
+  Resplot* h2r = 0;
 
-  Resplot* h2;
-  Resplot* h2m;
-  Resplot* h2r;
+  Resplot* h2a0 = 0;
+  Resplot* h2a0r = 0;
 
-  Resplot* h2a0;
-  Resplot* h2a0r;
+  Resplot* rChi2prob = 0;
+  Resplot* rChi2 = 0;
+  Resplot* rChi2dof = 0;
 
-  Resplot* rChi2prob;
-  Resplot* rChi2;
-  Resplot* rChi2dof;
-
-
-  Resplot* rChi2prob_bad;
-  Resplot* rChi2_bad;
-  Resplot* rChi2dof_bad;
+  Resplot* rChi2prob_bad = 0;
+  Resplot* rChi2_bad = 0;
+  Resplot* rChi2dof_bad = 0;
 
   //  TH2F* hnpix_v_sct;
   //  TH2F* hnpix_v_sct_rec;
@@ -187,63 +185,61 @@ private:
   int Nref;
   int Nmatched;
 
-  
-  Resplot* rnpix_eta;
-  Resplot* rnsct_eta;
-  Resplot* rntrt_eta;
-  Resplot* rnsihit_eta;
-  Resplot* rnpix_lb;
+  Resplot* rnpix_eta = 0;
+  Resplot* rnsct_eta = 0;
+  Resplot* rntrt_eta = 0;
+  Resplot* rnsihit_eta = 0;
+  Resplot* rnpix_lb = 0;
 
+  Resplot* rnpix_phi = 0;
+  Resplot* rnsct_phi = 0;
+  Resplot* rntrt_phi = 0;
 
-  Resplot* rnpix_phi;
-  Resplot* rnsct_phi;
-  Resplot* rntrt_phi;
+  Resplot* rnpix_pt = 0;
+  Resplot* rnsct_pt = 0;
+  Resplot* rntrt_pt = 0;
 
-  Resplot* rnpix_pt;
-  Resplot* rnsct_pt;
-  Resplot* rntrt_pt;
+  Resplot* rnpix_d0 = 0; // new
+  Resplot* rnsct_d0 = 0; // new
+  Resplot* rntrt_d0 = 0; // new
 
-  Resplot* rnpix_d0; // new
-  Resplot* rnsct_d0; // new
-  Resplot* rntrt_d0; // new
+  Resplot* rnpixh_pt = 0;
+  Resplot* rnscth_pt = 0;
 
-  Resplot* rnpixh_pt;
-  Resplot* rnscth_pt;
+  Resplot* rnpixh_d0 = 0; // new
+  Resplot* rnscth_d0 = 0; // new
 
-  Resplot* rnpixh_d0; // new
-  Resplot* rnscth_d0; // new
+  Resplot* rnsi_pt = 0;  // new
+  Resplot* rnsih_pt = 0; // new
 
-  Resplot* rnsi_pt;  // new
-  Resplot* rnsih_pt; // new
+  Resplot* rnsi_eta = 0;  // new
+  Resplot* rnsih_eta = 0; // new
 
-  Resplot* rnsi_eta;  // new
-  Resplot* rnsih_eta; // new
+  Resplot* rnsi_d0 = 0;  // new
+  Resplot* rnsih_d0 = 0; // new
 
-  Resplot* rnsi_d0;  // new
-  Resplot* rnsih_d0; // new
+  Resplot* rnbl_d0 = 0;  // new
+  Resplot* rnblh_d0 = 0; // new
 
-  Resplot* rnbl_d0;  // new
-  Resplot* rnblh_d0; // new
+  Resplot* rnpix_pt_bad = 0;
+  Resplot* rnsct_pt_bad = 0;
+  Resplot* rntrt_pt_bad = 0;
 
-  Resplot* rnpix_pt_bad;
-  Resplot* rnsct_pt_bad;
-  Resplot* rntrt_pt_bad;
+  Resplot* rnpix_eta_rec = 0;
+  Resplot* rnsct_eta_rec = 0;
+  Resplot* rntrt_eta_rec = 0;
+  Resplot* rnsihit_eta_rec = 0;
 
-  Resplot* rnpix_eta_rec;
-  Resplot* rnsct_eta_rec;
-  Resplot* rntrt_eta_rec;
-  Resplot* rnsihit_eta_rec;
+  Resplot* rnpix_phi_rec = 0;
+  Resplot* rnsct_phi_rec = 0;
+  Resplot* rntrt_phi_rec = 0;
 
-  Resplot* rnpix_phi_rec;
-  Resplot* rnsct_phi_rec;
-  Resplot* rntrt_phi_rec;
+  Resplot* rnpix_pt_rec = 0;
+  Resplot* rnsct_pt_rec = 0;
+  Resplot* rntrt_pt_rec = 0;
 
-  Resplot* rnpix_pt_rec;
-  Resplot* rnsct_pt_rec;
-  Resplot* rntrt_pt_rec;
-
-  Resplot* rnpixh_pt_rec;
-  Resplot* rnscth_pt_rec;
+  Resplot* rnpixh_pt_rec = 0;
+  Resplot* rnscth_pt_rec = 0;
 
   std::vector<Resplot*> mres;
 
@@ -269,67 +265,61 @@ private:
   std::vector<Resplot*> riptresPull;
   std::vector<Resplot*> rptresPull;
   std::vector<Resplot*> rd0resPull;
-  
-  Resplot* mdeltaR_v_eta;
-  Resplot* mdeltaR_v_pt;
 
+  Resplot* mdeltaR_v_eta = 0;
+  Resplot* mdeltaR_v_pt = 0;
 
   TH1F*  hphivsDd0res[3];
   TH1F*  hphivsDa0res[3];
 
+  Efficiency* eff_vs_lb = 0;
 
-  Efficiency* eff_vs_lb;
-
-  Resplot*      z_vs_lb;
+  Resplot* z_vs_lb = 0;
 
   std::map<int, int> rmap;
 
   //TH1F* hchi2;
 
-  Efficiency* eff_vs_mult;
+  Efficiency* eff_vs_mult = 0;
 
-  TH1F*       n_vtx_tracks;
-  Efficiency* eff_vs_ntracks;
-  Efficiency* eff_vs_ntracks2;
+  TH1F* n_vtx_tracks = 0;
+  Efficiency* eff_vs_ntracks = 0;
+  Efficiency* eff_vs_ntracks2 = 0;
 
-  TH1F*       n_vtx;
-  Efficiency* eff_vs_nvtx;
-  TH1F*       mu;
-  Efficiency* eff_vs_mu;
+  TH1F* n_vtx = 0;
+  Efficiency* eff_vs_nvtx = 0;
+  TH1F* mu = 0;
+  Efficiency* eff_vs_mu = 0;
 
   /// beam spot dependent
 
-  Resplot* rd0_vs_phi;
-  Resplot* rd0_vs_phi_rec;
+  Resplot* rd0_vs_phi = 0;
+  Resplot* rd0_vs_phi_rec = 0;
 
-  /// Residuals 
-  
-  Resplot* rRoi_deta_vs_eta;
-  Resplot* rRoi_dphi_vs_eta;
-  Resplot* rRoi_dzed_vs_eta;
+  /// Residuals
+
+  Resplot* rRoi_deta_vs_eta = 0;
+  Resplot* rRoi_dphi_vs_eta = 0;
+  Resplot* rRoi_dzed_vs_eta = 0;
 
   /// electron specific ET/PT related stuff
-  TH1F*       m_etovpt_raw;
-  TH1F*       m_etovpt;
-  Efficiency* m_eff_vs_etovpt;
+  TH1F* m_etovpt_raw = 0;
+  TH1F* m_etovpt = 0;
+  Efficiency* m_eff_vs_etovpt = 0;
 
-  TH1F*       m_et;
-  Efficiency* m_eff_vs_et;
-
+  TH1F* m_et = 0;
+  Efficiency* m_eff_vs_et = 0;
 
   /// flag to print out the matched tracks etc
   bool m_print;
 
-  const TIDARoiDescriptor* m_roi;
+  const TIDARoiDescriptor* m_roi = 0;
 
   bool m_initialised;
   bool m_initialiseFirstEvent;
 
-
-  Resplot* m_rnsct_vs_npix;
-  Resplot* m_rnsct_vs_npix_rec;
-
-
+  Resplot* m_rnsct_vs_npix = 0;
+  Resplot* m_rnsct_vs_npix_rec = 0;
 };
 
 
