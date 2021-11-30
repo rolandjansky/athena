@@ -35,19 +35,34 @@ namespace xAOD {
     L1TopoSimResults_v1();
  
     // Get a human-readable name for the object
-    std::string boardName() const;
+    unsigned int connectionId() const;
     // Set a human-readable name for the object
-    void setName( const std::string name );
+    void setConnectionId( const unsigned int id );
 
-    // The "raw" 32/64-bit words describing the topological decision
-    uint32_t word32() const;
-    uint64_t word64() const;
-    std::bitset<128> wordOptical() const;
-    
-    // Set the "raw" 32/64-bit words describing the topological decision
-    void setWord32( const uint32_t value );
-    void setWord64( const uint64_t value );
-    void setWordOptical( const std::bitset<128> value );
+    // The "raw" words describing the topological decision or multiplicity bits
+    uint32_t topoWord() const;
+    // Set the "raw" words describing the topological decision or multiplicity bits
+    void setTopoWord( const uint32_t word );
+
+    // The "raw" words describing the topological decision or multiplicity bits
+    uint64_t topoWord64() const;
+    // Set the "raw" words describing the topological decision or multiplicity bits
+    void setTopoWord64( const uint64_t word );
+
+    // The "raw" words describing the topological overflow bits
+    uint32_t topoWordOverflow() const;
+    // Set the "raw" words describing the topological overflow bits
+    void setTopoWordOverflow( const uint32_t word );
+
+    // The "raw" words describing the topological overflow bits
+    uint64_t topoWord64Overflow() const;
+    // Set the "raw" words describing the topological overflow bits
+    void setTopoWord64Overflow( const uint64_t word );
+
+    // The binary length
+    unsigned int bitWidth() const; 
+    // Set the binary length
+    void setBitWidth( const unsigned int bit ); 
 
     // Get clock information
     unsigned int clock() const;
