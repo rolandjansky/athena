@@ -7,10 +7,8 @@ atlas_subdir( IOVDbSvc )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase RelationalAccess )
 find_package( ROOT COMPONENTS Core )
-find_package( tdaq-common )
 find_package( Boost COMPONENTS unit_test_framework regex )
 find_package( nlohmann_json )
-
 
 # Component(s) in the package:
 atlas_add_library( IOVDbSvcLib
@@ -19,7 +17,6 @@ atlas_add_library( IOVDbSvcLib
    PUBLIC_HEADERS IOVDbSvc
    INCLUDE_DIRS ${COOL_INCLUDE_DIRS}
    LINK_LIBRARIES ${COOL_LIBRARIES} GaudiKernel )
-
 
 atlas_add_component( IOVDbSvc
    src/*.h src/*.cxx src/components/*.cxx
