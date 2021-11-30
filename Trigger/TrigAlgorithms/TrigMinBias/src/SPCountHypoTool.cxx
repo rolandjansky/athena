@@ -26,6 +26,15 @@ bool SPCountHypoTool::applyCut(const Gaudi::Property<int> &threshold, const xAOD
 	return (composit->getDetail<int>(threshold.name()) > threshold);
 }
 
+bool SPCountHypoTool::applyInverseCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit) const
+{
+	if (threshold == -1)
+		return m_logicAnd; //If the logic is And, it should return true and otherwise it should return false.
+	ATH_MSG_DEBUG("count for = " << threshold.name() << "=" << (composit->getDetail<int>(threshold.name()) > threshold));
+	return (composit->getDetail<int>(threshold.name()) < threshold); // here is the difference
+}
+
+
 StatusCode SPCountHypoTool::decide(SPCountsInfo &spinfo) const
 {
 	if (spinfo.previousDecisionIDs.count(m_decisionId.numeric()) == 0)
@@ -34,6 +43,7 @@ StatusCode SPCountHypoTool::decide(SPCountsInfo &spinfo) const
 		return StatusCode::SUCCESS;
 	}
 	std::vector<bool> decisionCuts({applyCut(m_pixCL, spinfo.counts),
+									applyInverseCut(m_pixCLMax, spinfo.counts),
 									applyCut(m_pixCL_1, spinfo.counts),
 									applyCut(m_pixCL_2, spinfo.counts),
 									applyCut(m_pixCLmin3, spinfo.counts),
@@ -41,6 +51,7 @@ StatusCode SPCountHypoTool::decide(SPCountsInfo &spinfo) const
 									applyCut(m_pixCLEndcapA, spinfo.counts),
 									applyCut(m_pixCLEndcapC, spinfo.counts),
 									applyCut(m_sctSP, spinfo.counts),
+									applyInverseCut(m_sctSPMax, spinfo.counts),
 									applyCut(m_sctSPBarrel, spinfo.counts),
 									applyCut(m_sctSPEndcapA, spinfo.counts),
 									applyCut(m_sctSPEndcapC, spinfo.counts)});
