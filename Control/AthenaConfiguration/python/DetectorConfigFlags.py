@@ -120,7 +120,8 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnablePixel', lambda prevFlags : prevFlags.Detector.GeometryPixel)
     dcf.addFlag('Detector.EnableSCT',   lambda prevFlags : prevFlags.Detector.GeometrySCT)
     dcf.addFlag('Detector.EnableTRT',   lambda prevFlags : prevFlags.Detector.GeometryTRT)
-    dcf.addFlag('Detector.EnableID',    lambda prevFlags : (prevFlags.Detector.EnableBCM or prevFlags.Detector.EnableDBM
+    dcf.addFlag('Detector.EnableID',    lambda prevFlags : prevFlags.Detector.GeometryID and
+                                                           (prevFlags.Detector.EnableBCM or prevFlags.Detector.EnableDBM
                                                             or prevFlags.Detector.EnablePixel or prevFlags.Detector.EnableSCT
                                                             or prevFlags.Detector.EnableTRT))
 
@@ -129,7 +130,8 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnableBCMPrime', lambda prevFlags : prevFlags.Detector.GeometryBCMPrime)
     dcf.addFlag('Detector.EnableITkPixel', lambda prevFlags : prevFlags.Detector.GeometryITkPixel)
     dcf.addFlag('Detector.EnableITkStrip', lambda prevFlags : prevFlags.Detector.GeometryITkStrip)
-    dcf.addFlag('Detector.EnableITk',      lambda prevFlags : (prevFlags.Detector.EnableBCMPrime
+    dcf.addFlag('Detector.EnableITk',      lambda prevFlags : prevFlags.Detector.GeometryITk and
+                                                              (prevFlags.Detector.EnableBCMPrime
                                                                or prevFlags.Detector.EnableITkPixel
                                                                or prevFlags.Detector.EnableITkStrip
                                                                or prevFlags.Detector.EnablePLR))
@@ -141,7 +143,8 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnableTile',   lambda prevFlags : prevFlags.Detector.GeometryTile)
     dcf.addFlag('Detector.EnableMBTS',   lambda prevFlags : prevFlags.Detector.GeometryMBTS)
     dcf.addFlag('Detector.EnableL1Calo', lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
-    dcf.addFlag('Detector.EnableCalo',   lambda prevFlags : (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
+    dcf.addFlag('Detector.EnableCalo',   lambda prevFlags : prevFlags.Detector.GeometryCalo and
+                                                            (prevFlags.Detector.EnableLAr or prevFlags.Detector.EnableTile))
 
     # Muon Spectrometer
     dcf.addFlag('Detector.EnableCSC',  lambda prevFlags : prevFlags.Detector.GeometryCSC)
@@ -150,7 +153,8 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnableTGC',  lambda prevFlags : prevFlags.Detector.GeometryTGC)
     dcf.addFlag('Detector.EnablesTGC', lambda prevFlags : prevFlags.Detector.GeometrysTGC)
     dcf.addFlag('Detector.EnableMM',   lambda prevFlags : prevFlags.Detector.GeometryMM)
-    dcf.addFlag('Detector.EnableMuon', lambda prevFlags : (prevFlags.Detector.EnableCSC or prevFlags.Detector.EnableMDT
+    dcf.addFlag('Detector.EnableMuon', lambda prevFlags : prevFlags.Detector.GeometryMuon and
+                                                          (prevFlags.Detector.EnableCSC or prevFlags.Detector.EnableMDT
                                                            or prevFlags.Detector.EnableRPC or prevFlags.Detector.EnableTGC
                                                            or prevFlags.Detector.EnablesTGC or prevFlags.Detector.EnableMM))
 
@@ -160,7 +164,8 @@ def createDetectorConfigFlags():
     dcf.addFlag('Detector.EnableALFA',      False)
     dcf.addFlag('Detector.EnableAFP',       False)
     dcf.addFlag('Detector.EnableFwdRegion', False)
-    dcf.addFlag('Detector.EnableForward',   lambda prevFlags : (prevFlags.Detector.EnableLucid or prevFlags.Detector.EnableZDC
+    dcf.addFlag('Detector.EnableForward',   lambda prevFlags : prevFlags.Detector.GeometryForward and
+                                                               (prevFlags.Detector.EnableLucid or prevFlags.Detector.EnableZDC
                                                                 or prevFlags.Detector.EnableALFA or prevFlags.Detector.EnableAFP
                                                                 or prevFlags.Detector.EnableFwdRegion))
 

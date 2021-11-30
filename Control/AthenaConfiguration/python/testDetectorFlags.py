@@ -56,6 +56,12 @@ assert not flags.Detector.EnableMM
 assert not flags.Detector.EnablePixel
 print()
 
+print("Test: setup ['Geometry.Muon']")
+assert not setupDetectorsFromList(flags, ['Muon'])
+flags.Detector.GeometryMuon = False
+assert not flags.Detector.EnableMuon
+print()
+
 print("Test: setup ['ID'] (geometry included)")
 assert setupDetectorsFromList(flags, ['ID'], toggle_geometry=True)
 assert flags.Detector.EnablePixel
