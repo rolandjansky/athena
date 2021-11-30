@@ -1060,8 +1060,10 @@ StatusCode AthenaPoolCnvSvc::cleanUp(const std::string& connection) {
       cpos++;
    }
    if (bpos != std::string::npos) bpos = bpos - cpos;
+   const std::string conn = connection.substr(cpos, bpos);
+   ATH_MSG_VERBOSE("Cleanup for Connection='"<< conn <<"'");
    for (auto convertr : m_cnvs) {
-      if (!convertr->cleanUp(connection.substr(cpos, bpos)).isSuccess()) {
+      if (!convertr->cleanUp(conn).isSuccess()) {
          ATH_MSG_WARNING("AthenaPoolConverter cleanUp failed.");
          retError = true;
       }
