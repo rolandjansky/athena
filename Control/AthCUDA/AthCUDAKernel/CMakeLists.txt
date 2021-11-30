@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set the name of the package.
 atlas_subdir( AthCUDAKernel )
@@ -19,4 +19,5 @@ target_compile_options( AthCUDAKernelLib PUBLIC
 # Test(s) in the package.
 atlas_add_test( ArrayKernelTask
    SOURCES test/test_ArrayKernelTask.cu
-   LINK_LIBRARIES AthCUDAKernelLib )
+   LINK_LIBRARIES AthCUDAKernelLib
+   POST_EXEC_SCRIPT nopost.sh )
