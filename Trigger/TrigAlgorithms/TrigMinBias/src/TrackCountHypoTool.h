@@ -32,6 +32,8 @@ public:
     Gaudi::Property<float> m_maxZ0{this, "maxZ0",401, "Accept events with absolute value of vertex lower than this limit in mm"};
     Gaudi::Property<float> m_minNtrks{this, "minNtrks", 1, "Accept events with minimum (including that value) of this number of tracks, -1 means this cut is disabled"};
     Gaudi::Property<float> m_maxNtrks{this, "maxNtrks", -1, "Accept events with maximum (excluding that value) of this number of tracks, -1 means this cut is disabled"};
+    const int ExclusivityThreshold = 15;
+    Gaudi::Property<bool> m_exclusive{this, "exclusive", false, "Apply exclusivity selection (less than Exclusivity cut low pt tracks & tracks within the range)"};
     Gaudi::Property<bool> m_acceptAll{this, "acceptAll", false, "Accept all events"};
   };
 
