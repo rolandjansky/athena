@@ -20,4 +20,25 @@ timeout 64800 Reco_tf.py \
   --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
-echo "art-result: $? Reco_tf_data18_mt"
+rc1=$?
+echo "art-result: $rc1 Reco_tf_data18_mt"
+
+rc2=-9999
+if [ ${rc1} -eq 0 ]
+then
+  ArtPackage=$1
+  ArtJobName=$2
+  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
+  rc2=$?
+fi
+echo  "art-result: ${rc2} Comparison with the latest result"
+
+rc3=-9999
+if [ ${rc1} -eq 0 ]
+then
+# The comparison to fixed reference will be updated. Currently testing the machinery
+#  art-diff.py . /eos/atlas/atlascerngroupdisk/data-art/grid-output/21.0/Athena/x86_64-slc6-gcc62-opt/2018-03-06T2154/Tier0ChainTests --entries 50 --mode=semi-detailed --order-trees  --diff-type=diff-root
+  rc3=$?
+fi
+echo  "art-result: ${rc3} Comparison with fixed reference"
+
