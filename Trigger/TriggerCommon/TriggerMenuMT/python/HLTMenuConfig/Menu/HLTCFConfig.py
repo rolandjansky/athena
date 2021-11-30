@@ -79,14 +79,12 @@ def createStepFilterNode(name, seq_list, dump=False):
     log.debug("Create filter step %s with %d filters", name, len(seq_list))
     filter_list=[]
     for seq in seq_list:
-        filterAlg = seq.filter.Alg
+        filterAlg = seq.filter.Alg        
         log.debug("createStepFilterNode: Add  %s to filter node %s", filterAlg.name(), name)
         if filterAlg not in filter_list:
             filter_list.append(filterAlg)
 
-
     stepCF = parOR(name + CFNaming.FILTER_POSTFIX, subs=filter_list)
-
     if dump:
         dumpSequence (stepCF, indent=0)
     return stepCF
@@ -97,10 +95,10 @@ def createCFTree(CFseq):
 
     log.debug(" *** Create CF Tree for CFSequence %s", CFseq.step.name)
     filterAlg = CFseq.filter.Alg
-
-    #empty step:
-    if len(CFseq.step.sequences)==0:
-        seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg])
+    
+    #empty step: add the PassSequence, one instance only is appended to the tree
+    if len(CFseq.step.sequences)==0:  
+        seqAndWithFilter=filterAlg       
         return seqAndWithFilter
 
     stepReco = parOR(CFseq.step.name + CFNaming.RECO_POSTFIX)  # all reco algorithms from all the sequences in a parallel sequence
@@ -240,8 +238,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
         mon.OutputLevel = DEBUG # noqa: ATL900
         summaryAlg.OutputLevel = DEBUG # noqa: ATL900
 
-
-
     # switch on  DEBUG ouput in some algorithms
     #debugDecisions(hypos, summary, monAlg, summaryAlg)
 
@@ -355,6 +351,8 @@ def sequenceScanner( HLTNode ):
     final_step=_mapSequencesInSteps(HLTNode, 0, childInView=False)
 
     for alg, steps in _seqMapInStep.items():
+        if 'PassSequence' in alg: # do not count PassSequences, which is used many times
+            continue
         # Sequences in views can be in multiple steps
         nonViewSteps = sum([0 if isInViews else 1 for (stepIndex,isInViews) in steps])
         if nonViewSteps > 1:
