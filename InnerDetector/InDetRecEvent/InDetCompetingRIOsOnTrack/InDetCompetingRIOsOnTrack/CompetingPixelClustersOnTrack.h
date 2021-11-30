@@ -15,6 +15,7 @@
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // cannot forward declare
 #include <iosfwd>
 #include <memory>
+#include <utility>
 
 class MsgStream;
 
@@ -131,7 +132,7 @@ inline CompetingPixelClustersOnTrack* CompetingPixelClustersOnTrack::clone() con
 
 inline const Trk::Surface& CompetingPixelClustersOnTrack::associatedSurface() const {
     //if (m_containedChildRots)
-    return ((*(m_containedChildRots->begin()))->associatedSurface());
+    return ((*(std::as_const(*m_containedChildRots).begin()))->associatedSurface());
 }
 
 
@@ -140,7 +141,7 @@ inline const std::vector<const InDet::PixelClusterOnTrack*>& CompetingPixelClust
 }
 
 inline const InDet::PixelClusterOnTrack& CompetingPixelClustersOnTrack::rioOnTrack(unsigned int indx) const {
-        return * m_containedChildRots->operator[](indx);
+        return * std::as_const(*m_containedChildRots)[indx];
 }
 
 
