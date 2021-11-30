@@ -20,9 +20,10 @@ def ActsSeedingAlgorithmCfg(ConfigFlags,
     # and make sure it is not a None
     seedTool = None
     if options.get("SeedTool", None) is None:
+        configuration = 'Pixel' if 'Pixel' in inputCollection else 'Strip' 
         seedTool = acc.popToolsAndMerge(ActsSeedingToolCfg(ConfigFlags, 
                                                            name = 'ActsSeedingTool', 
-                                                           inputCollection = inputCollection))
+                                                           configuration = configuration))
 
     options['name'] = f"{name}_{inputCollection}"
     options['InputSpacePoints'] = inputCollection
