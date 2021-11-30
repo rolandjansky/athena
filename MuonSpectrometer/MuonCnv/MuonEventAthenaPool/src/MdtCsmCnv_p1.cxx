@@ -40,12 +40,6 @@ MdtCsmCnv_p1::transToPers(const MdtCsm* transColl, MdtCsm_p1* persColl, MsgStrea
     // Invoke vector converter from the base template
    MdtCsm_Cnvp1_base_t::transToPers( transColl, persColl, log );
 
-   // debug output
-//   for(MdtCsm::const_iterator it=transColl->begin(); it != transColl->end(); ++it)  {
-//      std::ostringstream ostr;
-//      ostr << **it;
-//      log <<  MSG::VERBOSE << "Wrote " << ostr.str() << endmsg;
-//   }  
 }
 
 
