@@ -36,7 +36,8 @@ atlas_add_test( CollectionMerger_test
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test(collection_merger_helpers_tests
-               SCRIPT python/test/test_collection_merger_helpers.py)
+               SCRIPT python/test/test_collection_merger_helpers.py
+               POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test( SimKernelMT_test
                 SOURCES
@@ -58,6 +59,7 @@ atlas_add_test( SimKernelMT_test
                 TrackRecordLib
                 ENVIRONMENT
                 "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
+                POST_EXEC_SCRIPT nopost.sh
                 )
 # Needed for the plugin service to see the test components
 # defined in the test binary.
