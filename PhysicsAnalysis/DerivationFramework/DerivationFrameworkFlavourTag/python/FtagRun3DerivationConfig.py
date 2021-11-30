@@ -68,7 +68,7 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
     acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, track_collection, "TracksForBTagging"))
     acc.merge(JetParticleAssociationAlgCfg(cfgFlags, jetcol_name_without_Jets, muon_collection, "MuonsForBTagging"))
 
-    SecVertexers = [ 'JetFitter' , 'SV1' ]
+    SecVertexers = [ 'JetFitter' , 'SV1' , 'JetFitterFlip' ]
 
     for sv in SecVertexers:
         acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, pvCol, sv, "TracksForBTagging"))

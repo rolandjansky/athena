@@ -73,7 +73,7 @@ namespace Analysis {
     ATH_CHECK( m_VxSecVertexInfoName.initialize() );
     ATH_CHECK( m_VertexCollectionName.initialize() );
     if ((m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV")) ATH_CHECK( m_BTagSVCollectionName.initialize() );
-    if (m_secVertexFinderBaseName == "JetFitter") ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
+    if ((m_secVertexFinderBaseName == "JetFitter") || (m_secVertexFinderBaseName == "JetFitterFlip")) ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
     ATH_CHECK( m_jetSVLinkName.initialize() );
 
     /* ----------------------------------------------------------------------------------- */
@@ -103,7 +103,7 @@ namespace Analysis {
 
     std::string basename =  m_secVertexFinderBaseName;
     /* Record the BTagging JF Vertex  output container */
-    if (basename == "JetFitter") {
+    if ((basename == "JetFitter") || (basename == "JetFitterFlip")) {
       ATH_MSG_DEBUG("#BTAG# Record the BTagging JF Vertex  output container");
       h_BTagJFVtxCollectionName = SG::WriteHandle<xAOD::BTagVertexContainer>(m_BTagJFVtxCollectionName);
       ATH_CHECK( h_BTagJFVtxCollectionName.record(std::make_unique<xAOD::BTagVertexContainer>(),

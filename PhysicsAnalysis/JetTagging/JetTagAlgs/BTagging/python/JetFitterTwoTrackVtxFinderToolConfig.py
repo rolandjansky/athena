@@ -26,7 +26,15 @@ def InDetJetFitterTwoTrackVtxFinderToolCfg(name, suffix="", useBTagFlagsDefaults
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
         jetFitterSequentialVertexFitter = acc.popToolsAndMerge(JetFitterSequentialVertexFitterCfg('JFSeqVxFitter'+suffix))
-        defaults = { 'ID_maxR' : 1150.,
+        if suffix == "FLIP_SIGN":
+            defaults = { 'ID_maxR' : 1150.,
+                     'ID_maxZ' : 2727.,
+                     'twoVertexProbabilityCut' : 0.034,
+                     'revertFromPositiveToNegativeTags' : True,
+#                     'CrossDistancesSeedFinder' : ,
+                     'SequentialVertexFitter' : jetFitterSequentialVertexFitter }
+        else: 
+            defaults = { 'ID_maxR' : 1150.,
                      'ID_maxZ' : 2727.,
                      'twoVertexProbabilityCut' : 0.034,
                      'revertFromPositiveToNegativeTags' : False,
