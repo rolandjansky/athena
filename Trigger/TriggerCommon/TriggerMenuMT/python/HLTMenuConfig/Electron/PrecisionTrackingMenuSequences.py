@@ -18,8 +18,8 @@ def precisionTrackingSequence(ConfigFlags, ion=False, variant=''):
     """ fourth step:  precision electron....."""
 
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
-    TrigEgammaKeys = getTrigEgammaKeys(variant)
-    caloClusters = TrigEgammaKeys.precisionHICaloClusterContainer if ion else TrigEgammaKeys.precisionCaloClusterContainer
+    TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
+    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
  
 
     InViewRoIs = "precisionTracking" + variant
@@ -33,7 +33,7 @@ def precisionTrackingSequence(ConfigFlags, ion=False, variant=''):
     precisionTrackingViewsMaker.RequireParentView = True
     
     # calling precision tracking
-    from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackingSequences import precisionTracking
+    from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionTrackingRecoSequences import precisionTracking
     precisionTrackInViewSequence, trackParticles = precisionTracking(InViewRoIs, ion, variant)
 
     precisionTrackingInViewAlgs = parOR(tag(ion) + "InViewAlgs" + variant, [precisionTrackInViewSequence])

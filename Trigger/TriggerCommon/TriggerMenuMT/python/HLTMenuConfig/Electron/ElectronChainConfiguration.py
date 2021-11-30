@@ -11,9 +11,8 @@ from ..CommonSequences.CaloSequences_FWD import fastCaloMenuSequence_FWD
 
 from ..Electron.FastElectronMenuSequences import fastElectronMenuSequence, fastElectronMenuSequence_LRT
 from ..Electron.PrecisionCaloMenuSequences import precisionCaloMenuSequence, precisionCaloMenuSequence_LRT
-from ..Electron.PrecisionElectronMenuSequences import precisionElectronMenuSequence
+from ..Electron.PrecisionElectronMenuSequences import precisionElectronMenuSequence, precisionElectronMenuSequence_LRT
 from ..Electron.PrecisionElectronMenuSequences_GSF import precisionElectronMenuSequence_GSF
-from ..Electron.PrecisionElectronMenuSequences_LRT import precisionElectronMenuSequence_LRT
 from ..Electron.PrecisionTrackingMenuSequences     import precisionTrackingMenuSequence, precisionTrackingMenuSequence_LRT
 
 from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerNoMuonDiElecFastComboHypoCfg, NoMuonDiElecPrecisionComboHypoCfg, StreamerDiElecFastComboHypoCfg, DiElecPrecisionComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
