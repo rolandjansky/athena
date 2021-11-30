@@ -21,16 +21,28 @@ namespace xAOD {
 
   
   // Name
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, std::string, boardName,
-					setName )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, unsigned int, connectionId,
+					setConnectionId )
 
   // Raw data words
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, uint32_t, word32,
-					setWord32 )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, uint64_t, word64,
-					setWord64 )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, std::bitset<128>, wordOptical,
-					setWordOptical )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, uint32_t, topoWord,
+					setTopoWord )
+  
+  // Raw overflow words
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, uint32_t, topoWordOverflow,
+					setTopoWordOverflow )
+
+  // Raw data words
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, uint64_t, topoWord64,
+					setTopoWord64 )
+  
+  // Raw overflow words
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, uint64_t, topoWord64Overflow,
+					setTopoWord64Overflow )
+  
+  // Bit-length
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, unsigned int, bitWidth,
+					setBitWidth )
 
   // Clock
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L1TopoSimResults_v1, unsigned int, clock,
