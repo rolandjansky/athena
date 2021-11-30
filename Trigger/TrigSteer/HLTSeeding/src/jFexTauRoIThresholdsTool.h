@@ -4,20 +4,14 @@
 #ifndef HLTSEEDING_JFEXTAUROITHRESHOLDSTOOL_H
 #define HLTSEEDING_JFEXTAUROITHRESHOLDSTOOL_H
 
+#include "HLTSeedingRoIToolDefs.h"
 #include "HLTSeeding/IRoIThresholdsTool.h"
 #include "xAODTrigger/jFexTauRoI.h"
-#include "xAODTrigger/jFexTauRoIContainer.h"
 
-namespace jFexTauRoIThresholdsToolParams {
-  extern const char ContainerName[];
-  extern const char ThresholdType[];
-  using BaseClass = RoIThresholdsTool<xAOD::jFexTauRoI, xAOD::jFexTauRoIContainer, ContainerName, ThresholdType>;
-}
-
-class jFexTauRoIThresholdsTool : public jFexTauRoIThresholdsToolParams::BaseClass {
+class jFexTauRoIThresholdsTool : public HLTSeedingRoIToolDefs::jFexTau::ThresholdBaseClass {
 public:
   jFexTauRoIThresholdsTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : jFexTauRoIThresholdsToolParams::BaseClass(type, name, parent) {}
+  : HLTSeedingRoIToolDefs::jFexTau::ThresholdBaseClass(type, name, parent) {}
 
   virtual uint64_t getPattern(const xAOD::jFexTauRoI& roi,
                               const ThrVec& menuThresholds,

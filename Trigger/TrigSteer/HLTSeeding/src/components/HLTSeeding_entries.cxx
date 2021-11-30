@@ -3,11 +3,8 @@
 #include "../CTPUnpackingToolBase.h"
 #include "../CTPUnpackingTool.h"
 #include "../CTPUnpackingEmulationTool.h"
-#include "../eFexEMRoIsUnpackingTool.h"
 #include "../eFexEMRoIThresholdsTool.h"
-#include "../eFexTauRoIsUnpackingTool.h"
 #include "../eFexTauRoIThresholdsTool.h"
-#include "../jFexTauRoIsUnpackingTool.h"
 #include "../jFexTauRoIThresholdsTool.h"
 #include "../EMRoIsUnpackingTool.h"
 #include "../METRoIsUnpackingTool.h"
@@ -15,6 +12,7 @@
 #include "../JRoIsUnpackingTool.h"
 #include "../TAURoIsUnpackingTool.h"
 #include "../RoIsUnpackingToolBase.h"
+#include "../RoIsUnpackingToolPhase1.h"
 #include "../RoIsUnpackingEmulationTool.h"
 #include "../MURoIsUnpackingTool.h"
 #include "../PrescalingTool.h"
@@ -36,7 +34,8 @@ DECLARE_COMPONENT( CTPUnpackingTool )
 DECLARE_COMPONENT( CTPUnpackingEmulationTool )
 
 // Seeding tools: Muon
-DECLARE_COMPONENT( MURoIsUnpackingTool )
+DECLARE_COMPONENT( MURoIsUnpackingTool ) // legacy
+DECLARE_COMPONENT( MuonRoIsUnpackingTool ) // phase-1
 
 // Seeding: tools L1Calo
 DECLARE_COMPONENT( eFexEMRoIsUnpackingTool )
