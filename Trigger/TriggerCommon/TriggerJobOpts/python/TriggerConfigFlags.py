@@ -39,6 +39,9 @@ def createTriggerFlags():
     # Enable emulation tool for NSW-TGC coincidence in C-side
     flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
 
+    # Enable the veto mode of the NSW-TGC coincidence
+    flags.addFlag('Trigger.L1MuonSim.NSWVetoMode', False)
+
     # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
     flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-04')
 
