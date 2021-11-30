@@ -237,7 +237,9 @@ void MuonTruthAssociationAlg::count_chamber_layers(const xAOD::IParticle* truthP
         if (m_idHelperSvc->isMdt(id)) {
             for (unsigned int i = 0; i < mdtTruth.size(); i++) {
                 if (id == mdtTruth[i]) {
-                    increment_unsigned(nprecHitsPerChamberLayer[chIndex]);
+                    if (chIndex >= 0) {
+                      increment_unsigned(nprecHitsPerChamberLayer.at(chIndex));
+                    }
                     break;
                 }
             }
@@ -246,9 +248,13 @@ void MuonTruthAssociationAlg::count_chamber_layers(const xAOD::IParticle* truthP
                 if (id != cscTruth[i]) continue;
                 if (measPhi) {
                     Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
-                    increment_unsigned(nphiHitsPerChamberLayer[index]);
+                    if (index >= 0) {
+                      increment_unsigned(nphiHitsPerChamberLayer.at(index));
+                    }
                 } else {
-                    increment_unsigned(nprecHitsPerChamberLayer[chIndex]);
+                  if (chIndex >= 0) {
+                    increment_unsigned(nprecHitsPerChamberLayer.at(chIndex));
+                  }
                 }
                 break;
             }
@@ -256,10 +262,12 @@ void MuonTruthAssociationAlg::count_chamber_layers(const xAOD::IParticle* truthP
             for (unsigned int i = 0; i < rpcTruth.size(); i++) {
                 if (id != rpcTruth[i]) { continue; }
                 int index = m_idHelperSvc->phiIndex(id);
-                if (measPhi) {
-                    increment_unsigned(nphiHitsPerChamberLayer[index]);
-                } else {
-                    increment_unsigned(ntrigEtaHitsPerChamberLayer[index]);
+                if (index >= 0) {
+                  if (measPhi) {
+                    increment_unsigned(nphiHitsPerChamberLayer.at(index));
+                  } else {
+                    increment_unsigned(ntrigEtaHitsPerChamberLayer.at(index));
+                  }
                 }
                 break;
             }
@@ -267,10 +275,12 @@ void MuonTruthAssociationAlg::count_chamber_layers(const xAOD::IParticle* truthP
             for (unsigned int i = 0; i < tgcTruth.size(); i++) {
                 if (id != tgcTruth[i]) { continue; }
                 int index = m_idHelperSvc->phiIndex(id);
-                if (measPhi) {
-                    increment_unsigned(nphiHitsPerChamberLayer[index]);
-                } else {
-                    increment_unsigned(ntrigEtaHitsPerChamberLayer[index]);
+                if (index >= 0) {
+                  if (measPhi) {
+                    increment_unsigned(nphiHitsPerChamberLayer.at(index));
+                  } else {
+                    increment_unsigned(ntrigEtaHitsPerChamberLayer.at(index));
+                  }
                 }
                 break;
             }
