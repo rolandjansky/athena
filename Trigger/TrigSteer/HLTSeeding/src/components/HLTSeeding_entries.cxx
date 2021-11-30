@@ -6,6 +6,10 @@
 #include "../eFexEMRoIThresholdsTool.h"
 #include "../eFexTauRoIThresholdsTool.h"
 #include "../jFexTauRoIThresholdsTool.h"
+#include "../jFexSRJetRoIThresholdsTool.h"
+#include "../jFexLRJetRoIThresholdsTool.h"
+#include "../gFexSRJetRoIThresholdsTool.h"
+#include "../gFexLRJetRoIThresholdsTool.h"
 #include "../EMRoIsUnpackingTool.h"
 #include "../METRoIsUnpackingTool.h"
 #include "../FSRoIsUnpackingTool.h"
@@ -44,6 +48,14 @@ DECLARE_COMPONENT( eFexTauRoIsUnpackingTool )
 DECLARE_COMPONENT( eFexTauRoIThresholdsTool )
 DECLARE_COMPONENT( jFexTauRoIsUnpackingTool )
 DECLARE_COMPONENT( jFexTauRoIThresholdsTool )
+DECLARE_COMPONENT( jFexSRJetRoIsUnpackingTool )
+DECLARE_COMPONENT( jFexSRJetRoIThresholdsTool )
+DECLARE_COMPONENT( jFexLRJetRoIsUnpackingTool )
+DECLARE_COMPONENT( jFexLRJetRoIThresholdsTool )
+DECLARE_COMPONENT( gFexSRJetRoIsUnpackingTool )
+DECLARE_COMPONENT( gFexSRJetRoIThresholdsTool )
+DECLARE_COMPONENT( gFexLRJetRoIsUnpackingTool )
+DECLARE_COMPONENT( gFexLRJetRoIThresholdsTool )
 
 // Seeding tools: Legacy L1Calo
 DECLARE_COMPONENT( EMRoIsUnpackingTool )

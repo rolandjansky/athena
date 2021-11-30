@@ -8,6 +8,9 @@
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexTauRoIContainer.h"
 #include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/gFexJetRoIContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 
 template<typename T_RoI, typename T_RoIContainer, const char* N_RoIContainer, const char* N_ThresholdType>
@@ -38,6 +41,30 @@ namespace HLTSeedingRoIToolDefs {
     extern const char ThresholdType[];
     using UnpackingBaseClass = RoIsUnpackingToolPhase1<xAOD::jFexTauRoI, xAOD::jFexTauRoIContainer, &xAOD::jFexTauRoI::tobWord, ContainerName, ThresholdType>;
     using ThresholdBaseClass = RoIThresholdsTool<xAOD::jFexTauRoI, xAOD::jFexTauRoIContainer, ContainerName, ThresholdType>;
+  }
+  namespace jFexSRJet {
+    extern const char ContainerName[];
+    extern const char ThresholdType[];
+    using UnpackingBaseClass = RoIsUnpackingToolPhase1<xAOD::jFexSRJetRoI, xAOD::jFexSRJetRoIContainer, &xAOD::jFexSRJetRoI::tobWord, ContainerName, ThresholdType>;
+    using ThresholdBaseClass = RoIThresholdsTool<xAOD::jFexSRJetRoI, xAOD::jFexSRJetRoIContainer, ContainerName, ThresholdType>;
+  }
+  namespace jFexLRJet {
+    extern const char ContainerName[];
+    extern const char ThresholdType[];
+    using UnpackingBaseClass = RoIsUnpackingToolPhase1<xAOD::jFexLRJetRoI, xAOD::jFexLRJetRoIContainer, &xAOD::jFexLRJetRoI::tobWord, ContainerName, ThresholdType>;
+    using ThresholdBaseClass = RoIThresholdsTool<xAOD::jFexLRJetRoI, xAOD::jFexLRJetRoIContainer, ContainerName, ThresholdType>;
+  }
+  namespace gFexSRJet {
+    extern const char ContainerName[];
+    extern const char ThresholdType[];
+    using UnpackingBaseClass = RoIsUnpackingToolPhase1<xAOD::gFexJetRoI, xAOD::gFexJetRoIContainer, &xAOD::gFexJetRoI::word, ContainerName, ThresholdType>;
+    using ThresholdBaseClass = RoIThresholdsTool<xAOD::gFexJetRoI, xAOD::gFexJetRoIContainer, ContainerName, ThresholdType>;
+  }
+  namespace gFexLRJet {
+    extern const char ContainerName[];
+    extern const char ThresholdType[];
+    using UnpackingBaseClass = RoIsUnpackingToolPhase1<xAOD::gFexJetRoI, xAOD::gFexJetRoIContainer, &xAOD::gFexJetRoI::word, ContainerName, ThresholdType>;
+    using ThresholdBaseClass = RoIThresholdsTool<xAOD::gFexJetRoI, xAOD::gFexJetRoIContainer, ContainerName, ThresholdType>;
   }
   namespace Muon {
     extern const char ContainerName[];
