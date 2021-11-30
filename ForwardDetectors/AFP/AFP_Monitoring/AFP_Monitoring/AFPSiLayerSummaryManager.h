@@ -49,7 +49,12 @@ public:
   /// 
   /// @return pointer to the base class of created object in order to avoid templates
   template<typename T>
-  AFPSiLayerSummaryProfileBase* createSummaryHits (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, T (xAOD::AFPSiHit::*value)() const);
+  AFPSiLayerSummaryProfileBase* createSummaryHits(
+    AFPHitsMonitorTool* parentTool,
+    const ManagedMonitorToolBase::MonGroup& monGrp,
+    const std::string& name,
+    const std::string& title,
+    T (xAOD::AFPSiHit::*value)() const);
 
   /// @brief Creates a new monitoring object of type AFPSiLayerSummaryProfileEventEnd adds to AFPSiLayerSummaryManager::m_bases and AFPSiLayerSummaryManager::m_eventEnds.
   ///
@@ -65,7 +70,12 @@ public:
   /// 
   /// @return pointer to the base class of created object in order to avoid templates
   template<typename T>
-  AFPSiLayerSummaryProfileBase* createSummaryEventEnd (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, T (IAFPSiLayerMonitor::*value)() const);
+  AFPSiLayerSummaryProfileBase* createSummaryEventEnd(
+    AFPHitsMonitorTool* parentTool,
+    const ManagedMonitorToolBase::MonGroup& monGrp,
+    const std::string& name,
+    const std::string& title,
+    T (IAFPSiLayerMonitor::*value)() const);
 
 private:
   /// Vector of all summary objects.
@@ -78,11 +88,17 @@ private:
   std::vector<IAFPSiLayerSummaryEventEnd*> m_eventEnds;
 };
 
-
 template<typename T>
-AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryHits (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, T (xAOD::AFPSiHit::*value)() const)
+AFPSiLayerSummaryProfileBase*
+AFPSiLayerSummaryManager::createSummaryHits(
+  AFPHitsMonitorTool* parentTool,
+  const ManagedMonitorToolBase::MonGroup& monGrp,
+  const std::string& name,
+  const std::string& title,
+  T (xAOD::AFPSiHit::*value)() const)
 {
-  AFPSiLayerSummaryProfileHit<T>* summary = new AFPSiLayerSummaryProfileHit<T>(parentTool, monGrp, name, title, value);
+  AFPSiLayerSummaryProfileHit<T>* summary =
+    new AFPSiLayerSummaryProfileHit<T>(parentTool, monGrp, name, title, value);
   m_bases.push_back(summary);
   m_hits.push_back(summary);
 
@@ -90,16 +106,40 @@ AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryHits (AFPHi
 }
 
 // prevent creation of separete definitions for the most common templates
-extern template AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryHits<int> (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, int (xAOD::AFPSiHit::*value)() const);
-extern template AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryHits<double> (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, double (xAOD::AFPSiHit::*value)() const);
-extern template AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryHits<float> (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, float (xAOD::AFPSiHit::*value)() const);
-
-
+extern template AFPSiLayerSummaryProfileBase*
+AFPSiLayerSummaryManager::createSummaryHits<int>(
+  AFPHitsMonitorTool* parentTool,
+  const ManagedMonitorToolBase::MonGroup& monGrp,
+  const std::string& name,
+  const std::string& title,
+  int (xAOD::AFPSiHit::*value)() const);
+extern template AFPSiLayerSummaryProfileBase*
+AFPSiLayerSummaryManager::createSummaryHits<double>(
+  AFPHitsMonitorTool* parentTool,
+  const ManagedMonitorToolBase::MonGroup& monGrp,
+  const std::string& name,
+  const std::string& title,
+  double (xAOD::AFPSiHit::*value)() const);
+extern template AFPSiLayerSummaryProfileBase*
+AFPSiLayerSummaryManager::createSummaryHits<float>(
+  AFPHitsMonitorTool* parentTool,
+  const ManagedMonitorToolBase::MonGroup& monGrp,
+  const std::string& name,
+  const std::string& title,
+  float (xAOD::AFPSiHit::*value)() const);
 
 template<typename T>
-AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryEventEnd (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, T (IAFPSiLayerMonitor::*value)() const)
+AFPSiLayerSummaryProfileBase*
+AFPSiLayerSummaryManager::createSummaryEventEnd(
+  AFPHitsMonitorTool* parentTool,
+  const ManagedMonitorToolBase::MonGroup& monGrp,
+  const std::string& name,
+  const std::string& title,
+  T (IAFPSiLayerMonitor::*value)() const)
 {
-  AFPSiLayerSummaryProfileEventEnd<T>* summary = new AFPSiLayerSummaryProfileEventEnd<T>(parentTool, monGrp, name, title, value);
+  AFPSiLayerSummaryProfileEventEnd<T>* summary =
+    new AFPSiLayerSummaryProfileEventEnd<T>(
+      parentTool, monGrp, name, title, value);
   m_bases.push_back(summary);
   m_eventEnds.push_back(summary);
 
@@ -107,9 +147,26 @@ AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryEventEnd (A
 }
 
 // prevent creation of separete definitions for the most common templates
-extern template AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryEventEnd<int> (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, int (IAFPSiLayerMonitor::*value)() const);
-extern template AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryEventEnd<float> (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, float (IAFPSiLayerMonitor::*value)() const);
-extern template AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryEventEnd<double> (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, double (IAFPSiLayerMonitor::*value)() const);
-
+extern template AFPSiLayerSummaryProfileBase*
+AFPSiLayerSummaryManager::createSummaryEventEnd<int>(
+  AFPHitsMonitorTool* parentTool,
+  const ManagedMonitorToolBase::MonGroup& monGrp,
+  const std::string& name,
+  const std::string& title,
+  int (IAFPSiLayerMonitor::*value)() const);
+extern template AFPSiLayerSummaryProfileBase*
+AFPSiLayerSummaryManager::createSummaryEventEnd<float>(
+  AFPHitsMonitorTool* parentTool,
+  const ManagedMonitorToolBase::MonGroup& monGrp,
+  const std::string& name,
+  const std::string& title,
+  float (IAFPSiLayerMonitor::*value)() const);
+extern template AFPSiLayerSummaryProfileBase*
+AFPSiLayerSummaryManager::createSummaryEventEnd<double>(
+  AFPHitsMonitorTool* parentTool,
+  const ManagedMonitorToolBase::MonGroup& monGrp,
+  const std::string& name,
+  const std::string& title,
+  double (IAFPSiLayerMonitor::*value)() const);
 
 #endif
