@@ -754,7 +754,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
      "TightTrackOnly_FixedRad", "TightTrackOnly_VarRad", "HighPtTrackOnly",                   // TrackOnly (new naming) recommended WPs
      "PLVLoose", "PLVTight",                                                                  // PLV recommended WPs 
      "Loose_VarRad", "Loose_FixedRad", "Tight_VarRad", "Tight_FixedRad",                      // Other WPs (new naming)
-//     "PLImprovedTight", "PLImprovedVeryTight"                                                 // New PLIV WPs, fallback support below b/o SFs
+     "PLImprovedTight", "PLImprovedVeryTight"                                                 // New PLIV WPs, fallback support below b/o SFs
   };
 
   // Construct electron fallback WPs for SFs
@@ -763,7 +763,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_el_iso_fallback["PLVLoose"] = "FCLoose";
   m_el_iso_fallback["PLImprovedTight"] = "FCTight";
   m_el_iso_fallback["PLImprovedVeryTight"] = "FCTight";
-  m_el_iso_fallback["HighPtCaloOnly"] = "FCTight";
+  m_el_iso_fallback["HighPtCaloOnly"] = "FCHighPtCaloOnly";
   m_el_iso_fallback["TightTrackOnly_VarRad"] = "FCTight";
   m_el_iso_fallback["TightTrackOnly_FixedRad"] = "FCTight";
   m_el_iso_fallback["Tight_VarRad"] = "FCTight";
@@ -1331,7 +1331,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_EG_corrFNList, "Ele.EffCorrFNList", rEnv, "None");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2018_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map0.txt");
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map1.txt");
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
