@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#!/usr/bin/env python
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 acf=AthConfigFlags()
 acf.addFlag("x.flag1",1)
