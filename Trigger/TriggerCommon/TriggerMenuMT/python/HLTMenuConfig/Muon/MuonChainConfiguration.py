@@ -211,7 +211,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     #---------------------
     def getmuEFIso(self,is_probe_leg=False):
-        return self.getStep(5,'muEFIso',[ muEFIsoSequenceCfg], is_probe_leg=is_probe_leg)
+        if any(x in self.dict['topo'] for x in ['b7invmAB9vtx20', 'b11invmAB60vtx20', 'b11invmAB24vtx20', 'b24invmAB60vtx20']):
+            from TrigBphysHypo.TrigMultiTrkComboHypoConfig import DrellYanComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
+            return self.getStep(5,'muEFIsoDY', [muEFIsoSequenceCfg], comboHypoCfg=DrellYanComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict], is_probe_leg=is_probe_leg)
+        else:
+            return self.getStep(5,'muEFIso', [muEFIsoSequenceCfg], is_probe_leg=is_probe_leg)
 
     #---------------------
     def getmuEFMSIso(self,is_probe_leg=False):

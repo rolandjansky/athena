@@ -66,6 +66,7 @@ TagAndProbeLegGroup = ['Support:LegacyTagAndProbe']
 TagAndProbePhIGroup = ['Support:PhaseITagAndProbe']
 # to identify all chains needed from low mu menu (to be removed once that menu is created and chains moved)
 LowMuGroup = ['Primary:LowMu']
+EOFL1MuGroup = ['EOF:L1Muon']
 EOFBPhysL1MuGroup = ['EOF:BPhysL1Muon']
 EOFBeeLegGroup = ['EOF:BeeLegacy']
 EOFTLALegGroup = ['EOF:TLALegacy']
