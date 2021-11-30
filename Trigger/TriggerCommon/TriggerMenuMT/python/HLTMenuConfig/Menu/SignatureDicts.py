@@ -324,7 +324,7 @@ bJetChainParts_Default = {
 #==========================================================
 # Muon
 #==========================================================
-AllowedTopos_mu = []
+AllowedTopos_mu = ['b7invmAB9vtx20', 'b11invmAB60vtx20', 'b11invmAB24vtx20', 'b24invmAB60vtx20']
 
 # ---- Muon Dictionary of all allowed Values ----
 MuonChainParts = {
@@ -1080,6 +1080,7 @@ AllowedTopos_comb = [
     '25dphiAA','invmAA80', # Low-mass diphoton
     '10invmAA70', # Low-mass dimuon
     'invmAB10', '10invmAB70',
+    '7invmAB9', '11invmAB60', '11invmAB24', '24invmAB60', '7invmAA9', '11invmAA60', '11invmAA24', '24invmAA60', # Low mass Drell-Yan
     ]
 
 # ---- Combined Dictionary of all allowed Values ----

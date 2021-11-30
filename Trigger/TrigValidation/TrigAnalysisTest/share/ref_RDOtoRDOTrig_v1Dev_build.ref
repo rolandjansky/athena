@@ -905,6 +905,29 @@ HLT_2mu15_L12MU8F:
     1: 2
     2: 2
     3: 2
+HLT_2mu4_11invmAA60_L1DY-BOX-2MU3V:
+  eventCount: 1
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+  stepFeatures:
+    0: 4
+    1: 4
+    2: 4
+    3: 2
+HLT_2mu4_7invmAA9_L1DY-BOX-2MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+  stepFeatures:
+    0: 4
+    1: 4
+    2: 4
+    3: 2
 HLT_2mu4_L12MU3V:
   eventCount: 2
   stepCounts:
@@ -1227,6 +1250,29 @@ HLT_2mu6_10invmAA70_L1MU5VF:
     1: 6
     2: 8
     3: 5
+HLT_2mu6_11invmAA24_L1DY-BOX-2MU5VF:
+  eventCount: 0
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+  stepFeatures:
+    0: 4
+    1: 4
+    2: 4
+    3: 2
+HLT_2mu6_24invmAA60_L1DY-BOX-2MU5VF:
+  eventCount: 1
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+  stepFeatures:
+    0: 4
+    1: 4
+    2: 4
+    3: 2
 HLT_2mu6_2j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF:
   eventCount: 0
 HLT_2mu6_2j50_0eta490_j0_DJMASS900j50_L1jMJJ-500-NFF:
@@ -11137,6 +11183,114 @@ HLT_mu28_ivarmedium_L1MU14FCH:
     4: 4
 HLT_mu4_bJpsimutrk_MuonTrkPEB_L1MU3V:
   eventCount: 0
+HLT_mu4_ivarloose_mu4_11invmAB60_L12MU3V:
+  eventCount: 1
+  stepCounts:
+    0: 4
+    1: 4
+    2: 4
+    3: 2
+    4: 1
+  stepFeatures:
+    0: 18
+    1: 18
+    2: 26
+    3: 16
+    4: 2
+HLT_mu4_ivarloose_mu4_11invmAB60_L1DY-BOX-2MU3V:
+  eventCount: 1
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+    4: 1
+  stepFeatures:
+    0: 8
+    1: 8
+    2: 8
+    3: 6
+    4: 1
+HLT_mu4_ivarloose_mu4_7invmAB9_L12MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 4
+    1: 4
+    2: 4
+    3: 2
+  stepFeatures:
+    0: 18
+    1: 18
+    2: 26
+    3: 16
+    4: 2
+HLT_mu4_ivarloose_mu4_7invmAB9_L1DY-BOX-2MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+  stepFeatures:
+    0: 8
+    1: 8
+    2: 8
+    3: 6
+    4: 1
+HLT_mu4_ivarloose_mu4_b11invmAB60vtx20_L12MU3V:
+  eventCount: 1
+  stepCounts:
+    0: 4
+    1: 4
+    2: 4
+    3: 2
+    4: 1
+  stepFeatures:
+    0: 18
+    1: 18
+    2: 26
+    3: 16
+    4: 2
+HLT_mu4_ivarloose_mu4_b11invmAB60vtx20_L1DY-BOX-2MU3V:
+  eventCount: 1
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+    4: 1
+  stepFeatures:
+    0: 8
+    1: 8
+    2: 8
+    3: 6
+    4: 1
+HLT_mu4_ivarloose_mu4_b7invmAB9vtx20_L12MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 4
+    1: 4
+    2: 4
+    3: 2
+  stepFeatures:
+    0: 18
+    1: 18
+    2: 26
+    3: 16
+    4: 2
+HLT_mu4_ivarloose_mu4_b7invmAB9vtx20_L1DY-BOX-2MU3V:
+  eventCount: 0
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+  stepFeatures:
+    0: 8
+    1: 8
+    2: 8
+    3: 6
+    4: 1
 HLT_mu4_j20_0eta290_pf_ftf_boffperf_dRAB03_L1MU3V:
   eventCount: 7
   stepCounts:
@@ -11344,6 +11498,114 @@ HLT_mu6_idperf_L1MU5VF:
     1: 14
     2: 16
     3: 16
+HLT_mu6_ivarloose_mu6_11invmAB24_L12MU5VF:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 3
+    2: 3
+    3: 2
+  stepFeatures:
+    0: 12
+    1: 12
+    2: 16
+    3: 12
+    4: 1
+HLT_mu6_ivarloose_mu6_11invmAB24_L1DY-BOX-2MU5VF:
+  eventCount: 0
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+  stepFeatures:
+    0: 8
+    1: 8
+    2: 8
+    3: 6
+    4: 1
+HLT_mu6_ivarloose_mu6_24invmAB60_L12MU5VF:
+  eventCount: 1
+  stepCounts:
+    0: 3
+    1: 3
+    2: 3
+    3: 2
+    4: 1
+  stepFeatures:
+    0: 12
+    1: 12
+    2: 16
+    3: 12
+    4: 1
+HLT_mu6_ivarloose_mu6_24invmAB60_L1DY-BOX-2MU5VF:
+  eventCount: 1
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+    4: 1
+  stepFeatures:
+    0: 8
+    1: 8
+    2: 8
+    3: 6
+    4: 1
+HLT_mu6_ivarloose_mu6_b11invmAB24vtx20_L12MU5VF:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 3
+    2: 3
+    3: 2
+  stepFeatures:
+    0: 12
+    1: 12
+    2: 16
+    3: 12
+    4: 1
+HLT_mu6_ivarloose_mu6_b11invmAB24vtx20_L1DY-BOX-2MU5VF:
+  eventCount: 0
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+  stepFeatures:
+    0: 8
+    1: 8
+    2: 8
+    3: 6
+    4: 1
+HLT_mu6_ivarloose_mu6_b24invmAB60vtx20_L12MU5VF:
+  eventCount: 1
+  stepCounts:
+    0: 3
+    1: 3
+    2: 3
+    3: 2
+    4: 1
+  stepFeatures:
+    0: 12
+    1: 12
+    2: 16
+    3: 12
+    4: 1
+HLT_mu6_ivarloose_mu6_b24invmAB60vtx20_L1DY-BOX-2MU5VF:
+  eventCount: 1
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 1
+    4: 1
+  stepFeatures:
+    0: 8
+    1: 8
+    2: 8
+    3: 6
+    4: 1
 HLT_mu6_ivarmedium_L1MU5VF:
   eventCount: 7
   stepCounts:
