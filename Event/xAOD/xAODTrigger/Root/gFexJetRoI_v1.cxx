@@ -16,7 +16,7 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexJetRoI_v1::s_tobEtScale = 3200.; ///3.2 GeV is the energy range size (step between two adjiacent bits)
+  const float gFexJetRoI_v1::s_tobEtScale = 200.; ///3.2 GeV is the energy range size (step between two adjiacent bits)
   const float gFexJetRoI_v1::s_centralPhiWidth = 0.2; ///Phi is 32-bit starting from 0 with steps of 0.2; gPhi = 0 is 0.0 < phi < 0.2 while gPhi = 31 is 6.2 < phi < 6.4 
   const float gFexJetRoI_v1::s_forwardPhiWidth = 0.4; ///Phi is 32-bit starting from 0 with steps of 0.4; gPhi = 0 is 0.0 < phi < 0.4 while gPhi = 15 is 6.2 < phi < 6.4 
   const std::vector<float> gFexJetRoI_v1::s_EtaPosition = { -4.9, -4.45, -4.0, -3.5, -3.2, -3.1, 
@@ -76,8 +76,11 @@ namespace xAOD {
      if (tobID == 0 ){
       return gRho;
      }  
-     else if (tobID == 1 || tobID == 2 || tobID == 3 || tobID == 4 ) {
-       return gBlock;
+     else if (tobID == 1 || tobID == 2) {
+       return gBlockLead;
+     } 
+     else if (tobID == 3 || tobID == 4 ) {
+       return gBlockSub;
      }      
      else if (tobID == 5 || tobID == 6) {
       return gJet;
@@ -85,8 +88,12 @@ namespace xAOD {
      else return -999;
    }
 
-   bool gFexJetRoI_v1::isgBlock() const {
-     return gFexType() == gBlock;
+   bool gFexJetRoI_v1::isgBlockLead() const {
+     return gFexType() == gBlockLead;
+   }
+
+   bool gFexJetRoI_v1::isgBlockSub() const {
+     return gFexType() == gBlockSub;
    }
 
    bool gFexJetRoI_v1::isgJet() const {
@@ -97,10 +104,6 @@ namespace xAOD {
      return gFexType() == gRho;
    }
 
-   bool gFexJetRoI_v1::isLeadingJet() const {
-     auto tobID = (word() >> s_tobIDBit) & s_tobIDMask;
-     return tobID == 1 || tobID == 2 || tobID == 5 || tobID == 6;
-   }
 
    unsigned int gFexJetRoI_v1::unpackStatus() const{
     return (word() >> s_statusBit) & s_statusMask;

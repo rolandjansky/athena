@@ -121,7 +121,7 @@ namespace xAOD {
    
    /// Iso on TOB scale
    unsigned int jFexTauRoI_v1::iso() const {
-    //return TOB Isolation in a 200 MeV scale
+    //return TOB Isolation in a 1 MeV scale
      return tobIso()*s_tobIsoScale;
    }
 

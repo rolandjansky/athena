@@ -99,10 +99,10 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
   for(const auto it : *jMet_EDM){
     const xAOD::jFexMETRoI *jFEXMet = it;
     // Get the MET components and convert to 100 MeV units
-    int et_x = jFEXMet->getE_x()*2;
-    int et_y = jFEXMet->getE_y()*2;
-    int jFexNumber = jFEXMet->getjFexNumber();
-    int fpgaNumber = jFEXMet->getfpgaNumber();  
+    int et_x = jFEXMet->tobEx()*2;
+    int et_y = jFEXMet->tobEy()*2;
+    int jFexNumber = jFEXMet->jFexNumber();
+    int fpgaNumber = jFEXMet->fpgaNumber();  
 
     if( fpgaNumber==0 || fpgaNumber==3)
       {

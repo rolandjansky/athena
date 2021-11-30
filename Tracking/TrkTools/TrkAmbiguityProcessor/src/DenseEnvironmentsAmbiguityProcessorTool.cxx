@@ -9,7 +9,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/TrackInfo.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include <cmath>
 #include <iterator>
@@ -38,14 +37,13 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack( const Trk::Track *trac
 
 
 //==================================================================================================
-Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcessorTool(const std::string& t, 
-										      const std::string& n,
-										      const IInterface*  p )
-  :
-  AmbiguityProcessorBase(t,n,p),
-  m_fitterTool(this),
-  m_extrapolatorTool("Trk::Extrapolator/AtlasExtrapolator"){
-  // statitics stuff
+Trk::DenseEnvironmentsAmbiguityProcessorTool::
+  DenseEnvironmentsAmbiguityProcessorTool(const std::string& t,
+                                          const std::string& n,
+                                          const IInterface* p)
+  : AmbiguityProcessorBase(t, n, p)
+  , m_fitterTool(this)
+{
 
   m_fitterTool.push_back("Trk::KalmanFitter/InDetTrackFitter");
 
@@ -53,7 +51,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("RefitPrds"            , m_refitPrds          = true); //  True to allow for updated NN information to be taken into account
   declareProperty("MatEffects"           , m_matEffects         = 3); // pion
   declareProperty("Fitter"               , m_fitterTool );
-  declareProperty("TrackExtrapolator"    , m_extrapolatorTool);
   declareProperty("SuppressHoleSearch"   , m_suppressHoleSearch = false);
   declareProperty("SuppressTrackFit"     , m_suppressTrackFit   = false);
   declareProperty("ForceRefit"           , m_forceRefit         = true);
@@ -62,7 +59,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("pTminBrem"            , m_pTminBrem          = 1000.);
   declareProperty("etaBounds"            , m_etaBounds,"eta intervals for internal monitoring");
   declareProperty("ObserverToolWriter"   , m_observerToolWriter, "track observer tool writer");
-
 }
 //==================================================================================================
 
@@ -85,7 +81,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize(){
     return sc;
    }
 
-  ATH_CHECK( m_extrapolatorTool.retrieve());
 
   if (initializeClusterSplitProbContainer().isFailure()) {
      sc=StatusCode::FAILURE;

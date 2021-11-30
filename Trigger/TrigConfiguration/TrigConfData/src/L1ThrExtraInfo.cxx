@@ -720,6 +720,36 @@ TrigConf::L1ThrExtraInfo_MU::tgcIdxForPt(unsigned int pt) const
    }
 }
 
+unsigned int
+TrigConf::L1ThrExtraInfo_MU::ptForRpcIdx(unsigned int idx) const
+{
+
+   for(auto & x : m_rpcPtMap){
+      if(x.second==idx) return x.first;
+   } 
+   throw std::runtime_error("index "+std::to_string(idx)+" not found for RPC roads"); 
+
+}
+
+unsigned int
+TrigConf::L1ThrExtraInfo_MU::ptForTgcIdx(unsigned int idx) const
+{
+
+   for(auto & x : m_tgcPtMap){
+      if(x.second==idx) return x.first;
+   }
+   throw std::runtime_error("index "+std::to_string(idx)+" not found for TGC roads");
+
+}
+
+unsigned int
+TrigConf::L1ThrExtraInfo_MU::tgcIdxForRpcIdx(unsigned int rpcIdx) const
+{
+
+   int ptValue = ptForRpcIdx(rpcIdx);
+   return tgcIdxForPt(ptValue);
+}
+
 std::vector<unsigned int>
 TrigConf::L1ThrExtraInfo_MU::knownRpcPtValues() const
 {

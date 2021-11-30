@@ -46,10 +46,10 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   StatusCode executeNavigation(const EventContext& ctx, const std::string& trigItem,
                                std::vector<std::pair<const xAOD::TauJet*, const TrigCompositeUtils::Decision*>> &) const;
 
-  void fillRNNInputVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec,const std::string nProng, bool online) const;
+  void fillRNNInputVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec,const std::string& nProng, bool online) const;
   void fillRNNTrack(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec, bool online) const;
   void fillRNNCluster(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec, bool online) const;
-  void fillbasicVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec, bool online) const;
+  void fillbasicVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec, const std::string& nProng, bool online) const;
   void fillL1(const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& L1rois, const std::string& nProng)  const;
   void fillDistributions(const EventContext& ctx, const std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >>& pairObjs, const std::string& trigger, float HLTthr) const;
   void fillL1Distributions(const EventContext& ctx, const std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >>& pairObjs, const std::string& trigger, const std::string& trigL1Item, float L1thr) const;

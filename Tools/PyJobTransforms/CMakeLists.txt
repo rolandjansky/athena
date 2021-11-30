@@ -23,7 +23,8 @@ function( _add_test test type timeout )
    atlas_add_test( ${test}
       SCRIPT test/test_${test}.${type}
       PROPERTIES WORKING_DIRECTORY ${_testdir}
-      PROPERTIES TIMEOUT ${timeout} )
+      PROPERTIES TIMEOUT ${timeout}
+      POST_EXEC_SCRIPT nopost.sh )
 endfunction( _add_test )
 
 # Tests in the package:

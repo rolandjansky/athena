@@ -158,8 +158,6 @@ include( "CaloRec/CaloTopoCluster_jobOptions.py" )
 
 #egamma new config
 ConfigFlags = getNewConfigFlags()
-ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
-ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
 ConfigFlags.lock()
 
 from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg

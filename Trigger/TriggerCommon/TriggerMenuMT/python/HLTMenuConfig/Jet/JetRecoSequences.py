@@ -55,7 +55,7 @@ def getTrkColls(jetRecoDict):
 # The top-level sequence, forwards arguments as appropriate to 
 # standard jet reco, grooming or reclustering sequences
 # If tracking is required, then the trkcolls dict (returned by the
-# JetTrackingSequence) must also be passed as kwargs
+# JetFSTrackingSequence) must also be passed as kwargs
 def jetRecoSequence( configFlags, clustersKey, **jetRecoDict ):
 
     jetalg, jetradius, extra = JetRecoConfiguration.interpretRecoAlg(jetRecoDict["recoAlg"])

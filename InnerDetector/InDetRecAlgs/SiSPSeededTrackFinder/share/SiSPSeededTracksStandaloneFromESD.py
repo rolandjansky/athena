@@ -165,6 +165,8 @@ do_runI = commonGeoFlags.Run() not in ["RUN2", "RUN3"]
 if do_runI:
     sys.exit("RUN1 is not supported. Bye.")
 
+from InDetRecExample import TrackingCommon as TrackingCommon
+
 # Set up cabling
 include("InDetRecExample/InDetRecCabling.py")
 
@@ -560,8 +562,14 @@ InDetRotCreator = Trk__RIO_OnTrackCreator(name             = "InDetRotCreator",
                                           Mode             = "indet")
 ToolSvc += InDetRotCreator
 
+# Set up Boundary check tool
+
+
 # Set up SiCombinatorialTrackFinder_xk (private)
 # Taken from InDetRecExample/share/InDetRecLoadTools.py
+# Need to make sure the InDetExtrapolator is configured
+InDetExtrap     = TrackingCommon.getInDetExtrapolator()
+
 from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
 InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = "InDetSiComTrackFinder",
                                                              PropagatorTool        = InDetPatternPropagator,
@@ -571,7 +579,8 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
-                                                             SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
+                                                             SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
+                                                             BoundaryCheckTool     = TrackingCommon.getInDetBoundaryCheckTool())
 
 # Set up SiTrackMaker_xk (private)
 # Taken from InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
@@ -615,7 +624,6 @@ if not doBeamSpot:
 
 # Set up SiSPSeededTrackFinder (alg)
 # InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
-from InDetRecExample import TrackingCommon as TrackingCommon
 from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDetSiSpTrackFinder"+NewTrackingCuts.extension(),
                                                           TrackTool      = InDetSiTrackMaker,

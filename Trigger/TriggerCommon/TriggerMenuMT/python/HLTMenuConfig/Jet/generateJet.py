@@ -33,8 +33,8 @@ def generateChains( flags, chainDict ):
         InEventReco.mergeReco(CaloClusterCfg(flags, doLCCalib=False))
 
         if jetRecoDict["trkopt"] != "notrk":
-            from .JetTrackingConfig import JetTrackingCfg
-            trk_acc, trkcolls = JetTrackingCfg(flags, jetRecoDict["trkopt"], trkFSRoI)
+            from .JetTrackingConfig import JetFSTrackingCfg
+            trk_acc, trkcolls = JetFSTrackingCfg(flags, jetRecoDict["trkopt"], trkFSRoI)
             InEventReco.mergeReco(trk_acc)
         else:
             trkcolls = None

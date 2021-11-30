@@ -20,7 +20,7 @@ namespace {
     const std::string& name)
   {
     if (name == "pt") {
-      return [](const xAOD::Jet& j) {return j.pt();};   
+      return [](const xAOD::Jet& j) {return j.pt();};
     }
     if (name == "log_pt") {
       return [](const xAOD::Jet& j) {return std::log(j.pt());};
@@ -185,7 +185,7 @@ namespace {
         return tracks;
       };
     }
-    if (name == "qOverpUncertainty") {
+    if (name == "qOverPUncertainty") {
       return [](const Jet&, const Tracks& t) {
         std::vector<double> tracks;
         for (auto* trk: t) tracks.push_back(trk->definingParametersCovMatrixDiagVec().at(4));

@@ -88,9 +88,9 @@ protected:
    /// Vector of item names
    StringArrayProperty      m_itemList{this,"ItemList",{},"List of items to write","OrderedSet<std::string>"};
    /// Vector of item names
-   StringArrayProperty      m_metadataItemList;
+   StringArrayProperty      m_metadataItemList{this,"MetadataItemList",{},"List of metadata tems to write","OrderedSet<std::string>"};
    /// Vector of item names
-   StringArrayProperty      m_excludeList;
+   StringArrayProperty      m_excludeList{this,"ExcludeList",{},"List of metadata tems to write","OrderedSet<std::string>"};
    /// Vector of item names
    StringArrayProperty      m_compressionListHigh;
    /// Vector of item names

@@ -36,11 +36,9 @@ DerivationFramework::CaloClusterThinning::CaloClusterThinning(const std::string&
   m_npassTopo(0),
   m_run_calo(false),
   m_run_topo(false),
-  m_sgKey(""),
   m_selectionString(""),
   m_coneSize(-1.0)
 {
-  declareProperty("SGKey", m_sgKey);
   declareProperty("SelectionString", m_selectionString);
   declareProperty("ConeSize", m_coneSize);
 }
@@ -73,8 +71,12 @@ StatusCode DerivationFramework::CaloClusterThinning::initialize()
   if (m_sgKey.empty()) {
     ATH_MSG_FATAL("No particle collection provided for thinning.");
     return StatusCode::FAILURE;
-  } else { ATH_MSG_INFO("Calo clusters associated with objects in " << m_sgKey << " will be retained in this format with the rest being thinned away");}
-
+  } 
+  else {
+    ATH_MSG_INFO("Calo clusters associated with objects in " << m_sgKey.key() << " will be retained in this format with the rest being thinned away");
+    ATH_CHECK( m_sgKey.initialize() );
+  }
+  
   // Set up the text-parsing machinery for selectiong the photon directly according to user cuts
   if (!m_selectionString.empty()) {
     ATH_CHECK( initializeParser(m_selectionString));
@@ -133,11 +135,8 @@ StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
   m_ntotTopo += nTopoClusters;
 
   // Retrieve particle container
-  const xAOD::IParticleContainer* importedParticles(nullptr);
-  if (evtStore()->retrieve(importedParticles,m_sgKey).isFailure()) {
-    ATH_MSG_ERROR("No collection with name " << m_sgKey << " found in StoreGate!");
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<xAOD::IParticleContainer> importedParticlesHandle{ m_sgKey, ctx };
+  const xAOD::IParticleContainer* importedParticles = importedParticlesHandle.ptr();
 
   //No particles in the input
   unsigned int nEgammas(importedParticles->size());
@@ -164,7 +163,7 @@ StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
   }
   
   if( !(is_egamma || is_muons || is_tau) ) {
-    ATH_MSG_ERROR("This tool only works with Egamma, Muons and Taus, " << m_sgKey << " is not a compatible collection");
+    ATH_MSG_ERROR("This tool only works with Egamma, Muons and Taus, " << m_sgKey.key() << " is not a compatible collection");
     return StatusCode::FAILURE;
   }
 

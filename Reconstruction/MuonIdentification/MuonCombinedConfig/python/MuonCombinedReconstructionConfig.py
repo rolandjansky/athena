@@ -210,18 +210,14 @@ def MuonCombinedInDetCandidateAlg_LRTCfg(flags, name="MuonCombinedInDetCandidate
     return result
 
 def MuonCombinedAlgCfg( flags, name="MuonCombinedAlg",**kwargs ):
-
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedToolCfg
-    result = MuonCombinedToolCfg(flags)
 
+    result = MuonCombinedToolCfg(flags)
     kwargs.setdefault("MuonCombinedTool",result.getPrimary())
     tagmaps = []
     # CombinedTagMaps must be in a 1-1 correspondence
     # with MuonCombinedTagTools.
     for h in kwargs['MuonCombinedTool'].MuonCombinedTagTools:
-    #     print (h)
-    # import sys
-    # sys.exit(1)
         if str(h).find('FitTagTool') >= 0:
             tagmaps.append ('muidcoTagMap')
         elif str(h).find('StacoTagTool') >= 0:
@@ -259,6 +255,10 @@ def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg
     result = MuonCreatorToolCfg(flags, FillTimingInformation=False)
     kwargs.setdefault("MuonCreatorTool",result.popPrivateTools())
+
+    # MuonSegmentConvertorTool not set up. But it currently only contains:
+    # MuonSegmentHitSummaryTool and MuonHitTimingTool, neither which appear to need explicit configuration
+
     # recordMuonCreatorAlgObjs (kwargs)
     # if muGirl is off, remove "muGirlTagMap" from "TagMaps"
     # but don't set this default in case the StauCreatorAlg is created (see below)

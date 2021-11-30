@@ -1,8 +1,8 @@
+#!/usr/bin/env python
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # self test of ComponentAccumulator
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -83,7 +83,7 @@ class TestComponentAccumulator( unittest.TestCase ):
         acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
         with open("testFile.pkl", "wb") as outf:
             acc.store(outf)
-        acc.printConfig(withDetails=True, summariseProps=True)
+        acc.printConfig(withDetails=True, summariseProps=True, prefix='CATest')
         self.acc = acc
 
     def test_conflict_in_public_tools(self):
@@ -385,7 +385,7 @@ class TestComponentAccumulatorAccessors( unittest.TestCase ):
         ca.addEventAlgo(TestAlgo("alg1"))
 
         self.assertEqual( len(ca.getEventAlgos()), 1 , "Found single alg")
-        from .ComponentAccumulator import ConfigurationError
+        from AthenaConfiguration.ComponentAccumulator import ConfigurationError
         self.assertRaises(ConfigurationError, lambda: ca.getEventAlgo("alg2"))
 
         ca.addEventAlgo(TestAlgo("alg2"))

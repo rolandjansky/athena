@@ -206,7 +206,7 @@ StatusCode BeamHaloGeneratorAlg::callGenerator() {
 
     double values[4];
     int pdgId;
-    for (const auto hepmc_part: m_evt) {
+    for (auto hepmc_part: m_evt) {
       auto prodVertex = hepmc_part->production_vertex();
       if(!prodVertex) continue;
       

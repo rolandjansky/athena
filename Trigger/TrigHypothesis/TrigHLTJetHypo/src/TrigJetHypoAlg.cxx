@@ -109,9 +109,24 @@ TrigJetHypoAlg::decide(const xAOD::JetContainer* jets,
     // We need to fill the jetHypoInputs vector, pairing each jet with
     // the same newDecision object, such that it is updated if the hypo
     // tool passes the jet.
+    // In the opposite direction, we link the jets from the object for
+    // retrieval subsequently.
+    // *Linked jets are not implied to be responsible for a passing decision*
+    //
+    bool first=true;
     for (const xAOD::Jet* jet : *jets) {
       jetHypoInputs.push_back( std::make_pair(jet, newDecision) );
+      if(first) {
+        // We receive a VIEW container with filtered jets, so need to retrieve the original
+        const xAOD::JetContainer* jetCont = static_cast<const xAOD::JetContainer*>(jet->container());
+        ATH_MSG_VERBOSE("Creating element link to presel jet " << jet->index() << " of " << jetCont->size());
+        newDecision->setObjectLink<xAOD::JetContainer>("LeadingPreselJet",ElementLink<xAOD::JetContainer>(*jetCont, jet->index()));
+      }
     }
+
+    ATH_MSG_DEBUG("Output decision object:");
+    ATH_MSG_DEBUG( *newDecision );
+
   } else {
     // When operating as a terminal hypo selection, we create one DecisionObject
     // per jet, which is later used to identify which jets contributed to an
@@ -123,6 +138,7 @@ TrigJetHypoAlg::decide(const xAOD::JetContainer* jets,
       // Link it to its parent Decision object and attach the jet as a "feature"
       newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context);
 
+      // We receive a VIEW container with filtered jets, so need to retrieve the original
       const xAOD::JetContainer* jetCont = static_cast<const xAOD::JetContainer*>(jet->container());
       ElementLink<xAOD::JetContainer> jetLink =
         ElementLink<xAOD::JetContainer>(*jetCont, jet->index());

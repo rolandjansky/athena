@@ -177,7 +177,6 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_helperTools(this)
 {
    assert(pSvcLocator);
-   declareProperty("MetadataItemList",       m_metadataItemList);
    declareProperty("TransientItems",         m_transientItems);
    declareProperty("OutputFile",             m_outputName="DidNotNameOutput.root");
    declareProperty("EvtConversionSvc",       m_persName="EventPersistencySvc");
@@ -190,7 +189,6 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("WriteOnFinalize",        m_writeOnFinalize=false);
    declareProperty("TakeItemsFromInput",     m_itemListFromTool=false);
    declareProperty("CheckNumberOfWrites",    m_checkNumberOfWrites=true);
-   declareProperty("ExcludeList",            m_excludeList);
    declareProperty("HelperTools",            m_helperTools);
    declareProperty("CompressionListHigh",    m_compressionListHigh);
    declareProperty("CompressionListLow",     m_compressionListLow);

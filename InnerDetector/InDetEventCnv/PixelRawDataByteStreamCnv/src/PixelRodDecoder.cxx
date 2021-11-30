@@ -259,6 +259,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         if (isIBLModule || isDBMModule) {   // get FE channel id for IBL
           linkNum_IBLheader = decodeModule_IBL(rawDataWord);
           chFE = (extractFefromLinkNum(linkNum_IBLheader) & 0x1);
+          if (m_pixelReadout->getModuleType(m_pixel_id->wafer_id(offlineIdHash))==InDetDD::PixelModuleType::IBL_3D) { chFE=0; }
         }
         else {                              // for PIXEL
           chFE = decodeFE(rawDataWord);

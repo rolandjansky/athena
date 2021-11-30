@@ -4,19 +4,20 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ActsInterop import UnitConstants
 
-
+# The first two entries (i.e. non ITk) will be removed in the future
+# InDetStrip = InDetSCT
 ActsSeedToolProperties = {
-    'PixelSpacePoints' : {
+    'InDetPixel' : {
     },
-    'SCT_SpacePoints' : {
+    'InDetStrip' : {
         'rMax' : 600 * UnitConstants.mm,
         'deltaRMax' : 400 * UnitConstants.mm
     },
-    'ITkPixelSpacePoints' : {
+    'ITkPixel' : {
         'rMax' : 320 * UnitConstants.mm,
         'deltaRMax' : 120 * UnitConstants.mm
     },
-    'ITkStripSpacePoints' : {
+    'ITkStrip' : {
         'rMax' : 1100 * UnitConstants.mm,
         'deltaRMax' : 500 * UnitConstants.mm
     }
@@ -25,17 +26,23 @@ ActsSeedToolProperties = {
 
 def ActsSeedingToolCfg(ConfigFlags,
                        name: str = 'ActsSeedingTool',
-                       inputCollection: str = ''):
+                       configuration: str = ''):
     assert isinstance(name, str)
-    assert isinstance(inputCollection, str)
+    assert isinstance(configuration, str)
+
+    # Get geometry and attach to configuration
+    if ConfigFlags.Detector.GeometryITk:
+        configuration = 'ITk' + configuration
+    elif ConfigFlags.Detector.GeometryID:
+        configuration = 'InDet' + configuration
 
     # Only get the properties that have to be modified w.r.t. the default values
-    options = ActsSeedToolProperties.get(inputCollection, None)
+    options = ActsSeedToolProperties.get(configuration, None)
     if options is None:
-        raise ValueError(f"Acts Seed Tool has no-known configuration for the `{inputCollection}` input collection")
+        raise ValueError(f"Requested not-known Acts Seed Tool configuration: `{configuration}'")
 
     return ActsSeedingToolBaseCfg(ConfigFlags, 
-                                  f'{name}_{inputCollection}', 
+                                  f'{name}_{configuration}', 
                                   **options)
 
 

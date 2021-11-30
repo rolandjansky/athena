@@ -78,8 +78,8 @@ simFlags.RunNumber = 284500 # MC16a run number used for all Run2 simulation
 simFlags.EventFilter.set_Off()
 
 
-myMinEta = -2.5
-myMaxEta =  2.5
+myMinEta = -3.0
+myMaxEta =  3.0
 
 myPDG    = 999   # 999 = Geantinos, 13 = Muons
 

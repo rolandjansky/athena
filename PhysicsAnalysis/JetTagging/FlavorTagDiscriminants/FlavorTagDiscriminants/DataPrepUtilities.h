@@ -10,7 +10,6 @@
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
 #include "FlavorTagDiscriminants/AssociationEnums.h"
 #include "FlavorTagDiscriminants/FTagDataDependencyNames.h"
-#include "xAODBTagging/ftagfloat_t.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"

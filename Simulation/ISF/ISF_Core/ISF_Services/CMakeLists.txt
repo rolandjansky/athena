@@ -47,6 +47,7 @@ atlas_add_test( InputConverter_test
                 ${GMOCK_LIBRARIES}
                 ENVIRONMENT
                 "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
+                POST_EXEC_SCRIPT nopost.sh
                 )
 # Needed for the plugin service to see the test components
 # defined in the test binary.
@@ -87,11 +88,13 @@ atlas_add_test( TruthSvc_test
                   TruthUtils
                 ENVIRONMENT
                   "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
+                POST_EXEC_SCRIPT nopost.sh
                 )
 
 #test ISF_ServicesConfigNew
 atlas_add_test( ISF_ServicesConfigNew_test
                 SCRIPT test/ISF_ServicesConfigNew_test.py
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 300 )
 
 # Needed for the plugin service to see the test components
