@@ -90,6 +90,8 @@ def ActsTrackingGeometryToolCfg(configFlags, name = "ActsTrackingGeometryTool" )
   
   acc = ActsTrackingGeometrySvcCfg(configFlags)
   result.merge(acc)
+
+  result.merge(ActsAlignmentCondAlgCfg(configFlags))
   
   Acts_ActsTrackingGeometryTool = CompFactory.ActsTrackingGeometryTool
   actsTrackingGeometryTool = Acts_ActsTrackingGeometryTool(name)
@@ -112,8 +114,25 @@ def NominalAlignmentCondAlgCfg(configFlags, name = "NominalAlignmentCondAlg", **
 def ActsAlignmentCondAlgCfg(configFlags, name = "ActsAlignmentCondAlg", **kwargs) :
   result = ComponentAccumulator()
   
-  acc = ActsTrackingGeometrySvcCfg(configFlags)
-  result.merge(acc)
+  if configFlags.Detector.GeometryITk:
+    from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelAlignCondAlgCfg
+    result.merge(ITkPixelAlignCondAlgCfg(configFlags))
+
+    from SCT_ConditionsAlgorithms.ITkStripConditionsAlgorithmsConfig import ITkStripAlignCondAlgCfg
+    result.merge(ITkStripAlignCondAlgCfg(configFlags))
+
+    kwargs.setdefault("PixelAlignStoreReadKey", "ITkPixelAlignmentStore")
+    kwargs.setdefault("SCTAlignStoreReadKey", "ITkStripAlignmentStore")
+  else:
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelAlignCondAlgCfg
+    result.merge(PixelAlignCondAlgCfg(configFlags))
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_AlignCondAlgCfg
+    result.merge(SCT_AlignCondAlgCfg(configFlags))
+
+    kwargs.setdefault("PixelAlignStoreReadKey", "PixelAlignmentStore")
+    kwargs.setdefault("SCTAlignStoreReadKey", "SCTAlignmentStore")
+
   
   Acts_ActsAlignmentCondAlg = CompFactory.ActsAlignmentCondAlg
   actsAlignmentCondAlg = Acts_ActsAlignmentCondAlg(name, **kwargs)

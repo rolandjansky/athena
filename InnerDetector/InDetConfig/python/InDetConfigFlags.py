@@ -204,7 +204,8 @@ def createInDetConfigFlags():
   icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingFlags, prefix=True)
 
-  from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags
+  from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags, createPriVertexingFlags
+  icf.addFlagsCategory("InDet.PriVertex", createPriVertexingFlags, prefix=True)
   icf.addFlagsCategory("InDet.SecVertex", createSecVertexingFlags, prefix=True)
   icf.addFlagsCategory("InDet.SecVertexEGammaPileUp", createEGammaPileUpSecVertexingFlags, prefix=True)
   return icf
