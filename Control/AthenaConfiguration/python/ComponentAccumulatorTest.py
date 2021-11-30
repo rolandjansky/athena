@@ -83,7 +83,7 @@ class TestComponentAccumulator( unittest.TestCase ):
         acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
         with open("testFile.pkl", "wb") as outf:
             acc.store(outf)
-        acc.printConfig(withDetails=True, summariseProps=True)
+        acc.printConfig(withDetails=True, summariseProps=True, prefix='CATest')
         self.acc = acc
 
     def test_conflict_in_public_tools(self):
