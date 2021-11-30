@@ -77,7 +77,7 @@ class egammaKeysDict:
         TrackParticle=[
             'xAOD::TrackParticleContainer',
             'GSFTrackParticles',
-            '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi', ''],
+            '', ''],
         Track=['TrackCollection',
                'GSFTracks',
                '',

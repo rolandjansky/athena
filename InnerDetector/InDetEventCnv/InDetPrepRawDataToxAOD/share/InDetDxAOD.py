@@ -739,7 +739,7 @@ IDTRKVALIDStream.AcceptAlgs([idtrkvalid_kernel.name()])
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 
-excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 # exclude b-tagging decoration
