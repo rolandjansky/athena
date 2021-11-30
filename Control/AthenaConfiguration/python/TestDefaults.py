@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # Files for use in configuration unit tests
 
-from __future__ import print_function
-
-class defaultTestFiles(object):
+class defaultTestFiles:
     import os
     d = os.environ.get ("ATLAS_REFERENCE_DATA",
                         "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art")
