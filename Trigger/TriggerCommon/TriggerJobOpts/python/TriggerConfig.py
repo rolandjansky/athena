@@ -263,6 +263,19 @@ def triggerMonitoringCfg(flags, hypos, filters, hltSeeding):
         mon.DecisionCollectorTools += [ dcEventTool ]
         mon.FeatureCollectorTools  += [ dcFeatureTool ]
 
+    # Configure additional chain error monitoring for athenaHLT/online:
+    if flags.Trigger.Online.isPartition:
+        from TrigServices.TrigServicesConfig import TrigServicesCfg
+        onlineServicesAcc = TrigServicesCfg(flags)
+        hltEventLoopMgr = onlineServicesAcc.getPrimary()
+
+        hltEventLoopMgr.TrigErrorMonTool.AlgToChainTool = CompFactory.TrigCompositeUtils.AlgToChainTool()
+        hltEventLoopMgr.TrigErrorMonTool.MonTool.defineHistogram(
+            'ErrorChainName,ErrorCode', path='EXPERT', type='TH2I',
+            title='Error StatusCodes per chain;Chain name;StatusCode',
+            xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
+
+        acc.merge(onlineServicesAcc)
 
     mon.L1Decisions  = getProp( hltSeeding, 'HLTSeedingSummaryKey' )
 
