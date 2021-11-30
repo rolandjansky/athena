@@ -386,7 +386,7 @@ protected:
       return false;
     }
 
-    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first)
+    m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first)
 			       << "\t:" << key << endmsg;
 
     return select( vertices, vtx_itrpair.first, vtx_itrpair.second );
@@ -681,7 +681,7 @@ protected:
 #                            endif
 			     )  {
 
-    m_provider->msg(MSG::INFO) << " Fetching offline electrons: " << containerName << endmsg;
+    m_provider->msg(MSG::DEBUG) << "Fetching offline electrons: " << containerName << endmsg;
 
     selectorRef.clear();
 
@@ -705,7 +705,7 @@ protected:
       return 0;
     }
 
-    m_provider->msg(MSG::INFO) << "Event with " <<  container->size() << " Electron object(s) " << endmsg;
+    m_provider->msg(MSG::DEBUG) << "Event with " <<  container->size() << " Electron object(s) " << endmsg;
 
     Container::const_iterator elec     = container->begin();
     Container::const_iterator elec_end = container->end();
