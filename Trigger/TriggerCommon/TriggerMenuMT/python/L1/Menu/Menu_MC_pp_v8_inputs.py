@@ -371,7 +371,10 @@ def defineInputsMenu():
                     TopoMenuDef( '0INVM70-27DPHI32-eEM12sm1-eEM12sm6',   outputbits = 3 ),
                     TopoMenuDef( 'ZEE-eEM20sm2',                         outputbits = 4 ), 
                     TopoMenuDef( '10DR99-2MU5VFab',                      outputbits = 5 ), #Msonly Narrow scan triggers
-                    TopoMenuDef( '0DR12C-2MU3Vab',                       outputbits = 6 ), #BLS
+                    TopoMenuDef( '0DR12C-2MU3Vab',                       outputbits = 6 ), # ATR-21566
+                    TopoMenuDef( '7INVM22-0DR20C-2MU3Vab',               outputbits = 7 ), # ATR-21566
+                    TopoMenuDef( '0DR12-2MU3Vab',                        outputbits = 8 ), # ATR-21566
+                    TopoMenuDef( '7INVM22-0DR20-2MU3Vab',                outputbits = 9 ), # ATR-21566
                 ]
             },
 

@@ -398,7 +398,13 @@ HLT_2mu4_PhysicsTLA_L12MU3V:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12-2MU3V:
+  eventCount: 0
 HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12C-2MU3V:
+  eventCount: 0
+HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-2MU3V:
+  eventCount: 0
+HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20C-2MU3V:
   eventCount: 0
 HLT_2mu4_bBmumu_L1BPH-2M9-0DR15-2MU3V:
   eventCount: 0
