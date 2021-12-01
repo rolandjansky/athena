@@ -150,33 +150,6 @@ private:
   const TRT_ID* m_trtId;
   Gaudi::Property<bool> m_enableTRT{ this, "EnableTRT", true };
 
-  // Cache collections for GSF Track Particle extrapolation Perigee
-  SG::ReadHandleKey<CaloExtensionCollection> m_PerigeeCacheKey{
-    this,
-    "PerigeeCache",
-    "PerigeeCaloExtension",
-    "Name of GSF Perigee extrapolation cache"
-  };
-  SG::ReadHandleKey<CaloExtensionCollection> m_LastCacheKey{
-    this,
-    "LastCache",
-    "LastCaloExtension",
-    "Name of Last measurement extrapolation cache"
-  };
-
-  // Use a cache for Track Particle extrapolation
-  Gaudi::Property<bool> m_usePerigeeCaching{
-    this,
-    "useCaching",
-    false,
-    "Use a CaloExtension Collection as cache from Perigee"
-  };
-  Gaudi::Property<bool> m_useLastCaching{
-    this,
-    "useLastCaching",
-    false,
-    "Use a CaloExtension Collection as cache"
-  };
 };
 
 #endif
