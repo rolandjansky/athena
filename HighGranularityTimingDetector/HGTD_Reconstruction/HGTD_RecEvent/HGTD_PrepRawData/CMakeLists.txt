@@ -19,4 +19,5 @@ atlas_add_dictionary( HGTD_PrepRawDataDict
 atlas_add_test(test_HGTD_Cluster
             SOURCES test/test_HGTD_Cluster.cxx
             INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-            LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_PrepRawData)
+            LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_PrepRawData
+            POST_EXEC_SCRIPT nopost.sh)
