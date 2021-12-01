@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonSelectorTools )
@@ -45,9 +45,11 @@ endif()
 
 # Test(s) in the package: 
 atlas_add_test( ut_MuonSelectorToolsTester_data
-   SCRIPT test/ut_MuonSelectorToolsTester_data.sh )
+   SCRIPT test/ut_MuonSelectorToolsTester_data.sh
+   POST_EXEC_SCRIPT nopost.sh )
 atlas_add_test( ut_MuonSelectorToolsTester_MC
-   SCRIPT test/ut_MuonSelectorToolsTester_MC.sh )
+   SCRIPT test/ut_MuonSelectorToolsTester_MC.sh
+   POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
