@@ -39,7 +39,7 @@ public:
 
   Imp();
 
-  const MuonGM::MdtReadoutElement* getGeometry( const Identifier &id ) {
+  const MuonGM::MdtReadoutElement* getGeometry( const Identifier &id ) const {
     assert( m_muonGeoManager );
     return m_muonGeoManager->getMdtReadoutElement( id );
   }
