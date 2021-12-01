@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SIDLOCRECOTOOL_H
@@ -66,4 +66,4 @@ private:
   std::vector<std::pair<ToolHandle<IAFPSiDLocRecoTrackAlgTool>*, xAOD::AFPTrackContainer**> > m_recoToolsAndContainers;
 };
 
-#endif	//AFP_TDLOCRECO_h
+#endif	//AFP_SIDLOCRECOTOOL_H

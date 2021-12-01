@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
@@ -20,61 +20,56 @@
 AFP_GeoModelTool::AFP_GeoModelTool( const std::string& type, const std::string& name, const IInterface* parent )
     : GeoModelTool( type, name, parent ), m_pAFPDetectorFactory(NULL), m_iovSvc( "IOVDbSvc", name )
 {
+	AFP_CONSTANTS AfpConstants;
     m_CfgParams.clear();
     m_pGeometry=NULL;
 
-    m_vecAFP00XStaggering.clear(); m_vecAFP00YStaggering.clear();
-    m_vecAFP01XStaggering.clear(); m_vecAFP01YStaggering.clear();
-    m_vecAFP02XStaggering.clear(); m_vecAFP02YStaggering.clear();
-    m_vecAFP03XStaggering.clear(); m_vecAFP03YStaggering.clear();
+	m_defsidcfg.clear();
 
-    //Properties of Hamburg Beam Pipes
-    declareProperty("HB_windowPlateThickness",m_CfgParams.hbpcfg.windowPlateThickness=0.3);
-    declareProperty("HB_windowPlateAngle",m_CfgParams.hbpcfg.windowPlateAngle=90);
-    declareProperty("HB_windowPlatesInsteadOfHB",m_CfgParams.hbpcfg.windowPlatesInsteadOfHB=false);
-    declareProperty("HB_setMaterialToBeryllium",m_CfgParams.hbpcfg.setMaterialToBeryllium=false);
+	m_vecAFP00XStaggering.resize(AfpConstants.SiT_Plate_amount);
+	m_vecAFP00YStaggering.resize(AfpConstants.SiT_Plate_amount);
+	std::fill_n(m_vecAFP00XStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_FarDistanceToFloor);
+	std::fill_n(m_vecAFP00YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
+	m_vecAFP01XStaggering.resize(AfpConstants.SiT_Plate_amount);
+	m_vecAFP01YStaggering.resize(AfpConstants.SiT_Plate_amount);
+	std::fill_n(m_vecAFP01XStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_NearDistanceToFloor);
+	std::fill_n(m_vecAFP01YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
+	m_vecAFP02XStaggering.resize(AfpConstants.SiT_Plate_amount);
+	m_vecAFP02YStaggering.resize(AfpConstants.SiT_Plate_amount);
+	std::fill_n(m_vecAFP02XStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_NearDistanceToFloor);
+	std::fill_n(m_vecAFP02YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
+	m_vecAFP03XStaggering.resize(AfpConstants.SiT_Plate_amount);
+	m_vecAFP03YStaggering.resize(AfpConstants.SiT_Plate_amount);
+	std::fill_n(m_vecAFP03XStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_FarDistanceToFloor);
+	std::fill_n(m_vecAFP03YStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
 
     //Properties of SID
-    declareProperty("SID_Slope",m_CfgParams.sidcfg.fSlope=SID_NOMINALSLOPE);
-    declareProperty("SID_NumberOfLayers",m_CfgParams.sidcfg.fLayerCount=SIDCNT);
-    declareProperty("SID_SpacingBetweenLayers",m_CfgParams.sidcfg.fLayerSpacing=SID_NOMINALSPACING);
-    declareProperty("SID_DistanceToFloor",m_CfgParams.sidcfg.fXFloorDistance=SID_DISTANCETOFLOOR);
-    declareProperty("SID_ZDistanceInRPot",m_CfgParams.sidcfg.fZDistanceInRPot=SID_ZDISTANCEINRPOT);
-    declareProperty("SID_AddVacuumSensors",m_CfgParams.sidcfg.bAddVacuumSensors=false);
-	declareProperty("SID_SupportThickness",m_CfgParams.sidcfg.fSupportThickness=SID_PLATETHICKNESS);
+	declareProperty("SID_AddVacuumSensors",m_defsidcfg.bAddVacuumSensors=false);
 
-    declareProperty("SID_AFP00XStaggering",m_vecAFP00XStaggering);
-    declareProperty("SID_AFP00YStaggering",m_vecAFP00YStaggering);
-    declareProperty("SID_AFP01XStaggering",m_vecAFP01XStaggering);
-    declareProperty("SID_AFP01YStaggering",m_vecAFP01YStaggering);
-    declareProperty("SID_AFP02XStaggering",m_vecAFP02XStaggering);
-    declareProperty("SID_AFP02YStaggering",m_vecAFP02YStaggering);
-    declareProperty("SID_AFP03XStaggering",m_vecAFP03XStaggering);
-    declareProperty("SID_AFP03YStaggering",m_vecAFP03YStaggering);
 
     //Properties of TD
-    declareProperty("TD_DistanceToFloor",m_CfgParams.tdcfg.fXFloorDistance=TD_DISTANCETOFLOOR);
-    declareProperty("TD_YPosInRPot",m_CfgParams.tdcfg.fYPosInRPot=0.0*CLHEP::mm);
-    declareProperty("TD_ZDistanceInRPot",m_CfgParams.tdcfg.fZPosInRPot=TD_ZDISTANCEINRPOT);
-    declareProperty("TD_VertArmXGap",m_CfgParams.tdcfg.fVertXGap=TD_VERTXGAP);
-    declareProperty("TD_VertArmZGaps",m_CfgParams.tdcfg.fVertZGap=TD_VERTZGAP);
-    declareProperty("TD_HorzArmYGaps",m_CfgParams.tdcfg.fHorzYGap=TD_HORZYGAP);
+
 
     //Properties of stations
-    declareProperty("AFP00_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[0]=RPFLOORDISTANCE);
-    declareProperty("AFP01_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[1]=RPFLOORDISTANCE);
-    declareProperty("AFP02_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[2]=RPFLOORDISTANCE);
-    declareProperty("AFP03_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[3]=RPFLOORDISTANCE);
+	declareProperty("AFP00_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[0]=AfpConstants.Stat_RPotFloorDistance);
+	declareProperty("AFP01_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[1]=AfpConstants.Stat_RPotFloorDistance);
+	declareProperty("AFP02_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[2]=AfpConstants.Stat_RPotFloorDistance);
+	declareProperty("AFP03_RPotFloorDistance",m_CfgParams.vecRPotFloorDistance[3]=AfpConstants.Stat_RPotFloorDistance);
 
-    declareProperty("AFP00_RPotYPos",m_CfgParams.vecRPotYPos[0]=STATIONSHIFTINYAXIS);
-    declareProperty("AFP01_RPotYPos",m_CfgParams.vecRPotYPos[1]=STATIONSHIFTINYAXIS);
-    declareProperty("AFP02_RPotYPos",m_CfgParams.vecRPotYPos[2]=STATIONSHIFTINYAXIS);
-    declareProperty("AFP03_RPotYPos",m_CfgParams.vecRPotYPos[3]=STATIONSHIFTINYAXIS);
+	declareProperty("AFP00_RPotYPos",m_CfgParams.vecRPotYPos[0]=AfpConstants.Stat_ShiftInYAxis);
+	declareProperty("AFP01_RPotYPos",m_CfgParams.vecRPotYPos[1]=AfpConstants.Stat_ShiftInYAxis);
+	declareProperty("AFP02_RPotYPos",m_CfgParams.vecRPotYPos[2]=AfpConstants.Stat_ShiftInYAxis);
+	declareProperty("AFP03_RPotYPos",m_CfgParams.vecRPotYPos[3]=AfpConstants.Stat_ShiftInYAxis);
 
-    declareProperty("AFP00_ZPos",m_CfgParams.vecStatNominalZPos[0]=OUTERSTATZDISTANCE);
-    declareProperty("AFP01_ZPos",m_CfgParams.vecStatNominalZPos[1]=INNERSTATZDISTANCE);
-    declareProperty("AFP02_ZPos",m_CfgParams.vecStatNominalZPos[2]=-INNERSTATZDISTANCE);
-    declareProperty("AFP03_ZPos",m_CfgParams.vecStatNominalZPos[3]=-OUTERSTATZDISTANCE);
+	declareProperty("AFP00_ZPos",m_CfgParams.vecStatNominalZPos[0]=AfpConstants.Stat_OuterZDistance);
+	declareProperty("AFP01_ZPos",m_CfgParams.vecStatNominalZPos[1]=AfpConstants.Stat_InnerZDistance);
+	declareProperty("AFP02_ZPos",m_CfgParams.vecStatNominalZPos[2]=-AfpConstants.Stat_InnerZDistance);
+	declareProperty("AFP03_ZPos",m_CfgParams.vecStatNominalZPos[3]=-AfpConstants.Stat_OuterZDistance);
+
+	m_CfgParams.sidcfg[EAS_AFP00]=m_defsidcfg;
+	m_CfgParams.sidcfg[EAS_AFP01]=m_defsidcfg;
+	m_CfgParams.sidcfg[EAS_AFP02]=m_defsidcfg;
+	m_CfgParams.sidcfg[EAS_AFP03]=m_defsidcfg;
 }
 
 /**
@@ -95,84 +90,84 @@ AFP_GeoModelTool::~AFP_GeoModelTool()
     }
 }
 
-StatusCode AFP_GeoModelTool::CheckPropertiesSettings()
+StatusCode AFP_GeoModelTool::checkPropertiesSettings()
 {
 	bool bRes=true;
 
 	MsgStream LogStream(Athena::getMessageSvc(), "AFP_GeoModelTool::CheckPropertiesSettings");
 
-        if(m_vecAFP00XStaggering.size()>0){
-                if(m_vecAFP00XStaggering.size()==m_CfgParams.sidcfg.fLayerCount){
-                        m_CfgParams.sidcfg.mapXStaggering["AFP00"]=m_vecAFP00XStaggering;
+	if(m_vecAFP00XStaggering.size()>0){
+		if(m_vecAFP00XStaggering.size()==m_CfgParams.sidcfg[EAS_AFP00].fLayerCount){
+			m_CfgParams.sidcfg[EAS_AFP00].vecXStaggering=m_vecAFP00XStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01XStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01XStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
-        if(m_vecAFP00YStaggering.size()>0){
-                if(m_vecAFP00YStaggering.size()==m_CfgParams.sidcfg.fLayerCount){
-                        m_CfgParams.sidcfg.mapYStaggering["AFP00"]=m_vecAFP00YStaggering;
+	if(m_vecAFP00YStaggering.size()>0){
+		if(m_vecAFP00YStaggering.size()==m_CfgParams.sidcfg[EAS_AFP00].fLayerCount){
+			m_CfgParams.sidcfg[EAS_AFP00].vecYStaggering=m_vecAFP00YStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP00YStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
-			bRes=false;
-		}
-	}
-
-        if(m_vecAFP01XStaggering.size()>0){
-                if(m_vecAFP01XStaggering.size()==m_CfgParams.sidcfg.fLayerCount){
-                        m_CfgParams.sidcfg.mapXStaggering["AFP01"]=m_vecAFP01XStaggering;
-		}
-		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01XStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
-			bRes=false;
-		}
-	}
-        if(m_vecAFP01YStaggering.size()>0){
-                if(m_vecAFP01YStaggering.size()==m_CfgParams.sidcfg.fLayerCount){
-                        m_CfgParams.sidcfg.mapYStaggering["AFP01"]=m_vecAFP01YStaggering;
-		}
-		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01YStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP00YStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
 
-        if(m_vecAFP02XStaggering.size()>0){
-                if(m_vecAFP02XStaggering.size()==m_CfgParams.sidcfg.fLayerCount){
-                        m_CfgParams.sidcfg.mapXStaggering["AFP02"]=m_vecAFP02XStaggering;
+	if(m_vecAFP01XStaggering.size()>0){
+		if(m_vecAFP01XStaggering.size()==m_CfgParams.sidcfg[EAS_AFP01].fLayerCount){
+			m_CfgParams.sidcfg[EAS_AFP01].vecXStaggering=m_vecAFP01XStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP02XStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01XStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
-        if(m_vecAFP02YStaggering.size()>0){
-                if(m_vecAFP02YStaggering.size()==m_CfgParams.sidcfg.fLayerCount){
-                        m_CfgParams.sidcfg.mapYStaggering["AFP02"]=m_vecAFP02YStaggering;
+	if(m_vecAFP01YStaggering.size()>0){
+		if(m_vecAFP01YStaggering.size()==m_CfgParams.sidcfg[EAS_AFP01].fLayerCount){
+			m_CfgParams.sidcfg[EAS_AFP01].vecYStaggering=m_vecAFP01YStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP02YStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP01YStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
 
-        if(m_vecAFP03XStaggering.size()>0){
-                if(m_vecAFP03XStaggering.size()==m_CfgParams.sidcfg.fLayerCount){
-                        m_CfgParams.sidcfg.mapXStaggering["AFP03"]=m_vecAFP03XStaggering;
+	if(m_vecAFP02XStaggering.size()>0){
+		if(m_vecAFP02XStaggering.size()==m_CfgParams.sidcfg[EAS_AFP02].fLayerCount){
+			m_CfgParams.sidcfg[EAS_AFP02].vecXStaggering=m_vecAFP02XStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP03XStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP02XStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
-        if(m_vecAFP03YStaggering.size()>0){
-                if(m_vecAFP03YStaggering.size()==m_CfgParams.sidcfg.fLayerCount){
-                        m_CfgParams.sidcfg.mapYStaggering["AFP03"]=m_vecAFP03YStaggering;
+	if(m_vecAFP02YStaggering.size()>0){
+		if(m_vecAFP02YStaggering.size()==m_CfgParams.sidcfg[EAS_AFP02].fLayerCount){
+			m_CfgParams.sidcfg[EAS_AFP02].vecYStaggering=m_vecAFP02YStaggering;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP03YStaggering and number of plates (SID_NumberOfLayers)"<<endreq;
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP02YStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
+			bRes=false;
+		}
+	}
+
+	if(m_vecAFP03XStaggering.size()>0){
+		if(m_vecAFP03XStaggering.size()==m_CfgParams.sidcfg[EAS_AFP03].fLayerCount){
+			m_CfgParams.sidcfg[EAS_AFP03].vecXStaggering=m_vecAFP03XStaggering;
+		}
+		else{
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP03XStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
+			bRes=false;
+		}
+	}
+	if(m_vecAFP03YStaggering.size()>0){
+		if(m_vecAFP03YStaggering.size()==m_CfgParams.sidcfg[EAS_AFP03].fLayerCount){
+			m_CfgParams.sidcfg[EAS_AFP03].vecYStaggering=m_vecAFP03YStaggering;
+		}
+		else{
+			LogStream<<MSG::ERROR<<"Mismatch between SID_AFP03YStaggering and number of plates (SID_NumberOfLayers)"<<endmsg;
 			bRes=false;
 		}
 	}
@@ -185,46 +180,39 @@ StatusCode AFP_GeoModelTool::create( StoreGateSvc* detStore )
     MsgStream log(msgSvc(), name());
     //CHECK(m_iovSvc.retrieve()); //-- REMOVE THIS WHEN IOVSVC IS TO BE USED
 
-    //
-    // Locate the top level experiment node
-    //
     DataHandle<GeoModelExperiment> theExpt;
     StatusCode sc = detStore->retrieve( theExpt, "ATLAS" );
     if (StatusCode::SUCCESS != sc)
     {
-        log << MSG::ERROR<< "Could not find GeoModelExperiment ATLAS"<< endreq;
+        log << MSG::ERROR<< "Could not find GeoModelExperiment ATLAS"<< endmsg;
         return (StatusCode::FAILURE);
     }
 
-    CHECK(CheckPropertiesSettings());
+	CHECK(checkPropertiesSettings());
 
     m_pGeometry=new AFP_Geometry(&m_CfgParams);
     m_pAFPDetectorFactory=new AFP_GeoModelFactory(detStore, m_pGeometry);
 
-    if ( 0 == m_detector ) {
-        // Create the DetectorNode instance
-        try {
-            //
-            // This strange way of casting is to avoid an
-            // utterly brain damaged compiler warning.
-            //
+	if (m_detector==NULL)
+	{
+		try
+		{
             GeoPhysVol *world=&*theExpt->getPhysVol();
-
-
             m_pAFPDetectorFactory->create(world);
-            //theFactory.create(world);
-        } catch (std::bad_alloc) {
-            log << MSG::FATAL << "Could not create new DetectorNode!" << endreq;
+		}
+		catch (std::bad_alloc)
+		{
+            log << MSG::FATAL << "Could not create new DetectorNode!" << endmsg;
             return StatusCode::FAILURE;
         }
 
         // Register the DetectorNode instance with the Transient Detector Store
         theExpt->addManager(m_pAFPDetectorFactory->getDetectorManager());
         sc = detStore->record(m_pAFPDetectorFactory->getDetectorManager(),m_pAFPDetectorFactory->getDetectorManager()->getName());
-        //theExpt->addManager(theFactory.getDetectorManager());
-        //sc = detStore->record(theFactory.getDetectorManager(),theFactory.getDetectorManager()->getName());
-        if (StatusCode::SUCCESS != sc) {
-            log << MSG::ERROR << "Could not register DetectorNode" << endreq;
+
+		if (StatusCode::SUCCESS != sc)
+		{
+            log << MSG::ERROR << "Could not register DetectorNode" << endmsg;
             return (StatusCode::FAILURE);
         }
 
@@ -244,10 +232,10 @@ StatusCode AFP_GeoModelTool::registerCallback(StoreGateSvc* )
 	const DataHandle<CondAttrListCollection> DataPtr;
 	sc=detStore->regFcn(&IGeoModelTool::align,dynamic_cast<IGeoModelTool*>(this), DataPtr, COOLFOLDER_BPM, true);
 	if(sc!=StatusCode::SUCCESS){
-		msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<< COOLFOLDER_BPM <<"'" << endreq;
+		msg(MSG::ERROR) << "Cannot register COOL callback for folder '"<< COOLFOLDER_BPM <<"'" << endmsg;
 	}
 	else{
-		msg(MSG::INFO) << "Call-back to ALFA_DetectorTool::align() against folder "<< COOLFOLDER_BPM <<" registered "<<endreq;
+		msg(MSG::INFO) << "Call-back to ALFA_DetectorTool::align() against folder "<< COOLFOLDER_BPM <<" registered "<<endmsg;
 	}
 
 	return sc;
@@ -282,7 +270,7 @@ StatusCode AFP_GeoModelTool::align(IOVSVC_CALLBACK_ARGS)
 		m_pAFPDetectorFactory->UpdatePositions(&BpmParams);
 	}
 	else{
-		msg(MSG::ERROR) << "Folder '"<<"/FWD/ALFA/position_calibration"<<"' not found" << endreq;
+		msg(MSG::ERROR) << "Folder '"<<"/FWD/ALFA/position_calibration"<<"' not found" << endmsg;
 		sc=StatusCode::FAILURE;
 	}
 

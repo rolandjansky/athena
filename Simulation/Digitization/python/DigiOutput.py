@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #from AthenaCommon import CfgMgr
 #from AthenaCommon.CfgGetter import getPrivateTool
@@ -105,6 +105,10 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.AFP_on():
             StreamRDO_ItemList+=["AFP_SiDigiCollection#*"]
             StreamRDO_ItemList+=["AFP_TDDigiCollection#*"]
+            StreamRDO_ItemList+=["xAOD::AFPSiHitContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPToFHitContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPSiHitAuxContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPToFHitAuxContainer#*"]
     # Inner Detector Output
     if DetFlags.digitize.BCM_on():
         if DetFlags.writeRDOPool.BCM_on():
