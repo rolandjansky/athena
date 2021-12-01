@@ -28,7 +28,7 @@ def InDetJetFitterTrackSelectorToolCfg(flags, name, suffix="", useBTagFlagsDefau
         jetFitterExtrapolator= acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags,'JFExtrapolator'+suffix))
         inDetJetFitterUtils = acc.popToolsAndMerge(InDetJetFitterUtilsCfg(flags,'InDetJFUtils'+suffix))
         inDetImprovedJetFitterTrackSelectorTool = acc.popToolsAndMerge(InDetImprovedJetFitterTrackSelectorToolCfg(flags, 'InDetImprovedJFTrackSelTool'+suffix))
-	#revert the signed track IP sign if the suffix is 'FLIP_SIGN'. Flipped/nominal tagger in separate blocks for better overview
+        #revert the signed track IP sign if the suffix is 'FLIP_SIGN'. Flipped/nominal tagger in separate blocks for better overview
         if suffix == 'FLIP_SIGN':
             defaults = { 'revertFromPositiveToNegativeTags' : True,
                      'cutCompPrimaryVertexForPosLifetimeTracks' : 0.1,
