@@ -1,3 +1,17 @@
+AFPSiHitContainer
+AFPSiHitContainerAux.
+AFPSiHitsClusterContainer
+AFPSiHitsClusterContainerAux.
+AFPToFHitContainer
+AFPToFHitContainerAux.
+AFPToFTrackContainer
+AFPToFTrackContainerAux.
+AFPToFTrackContainerAuxDyn.trainID
+AFPToFTrackContainerAuxDyn.trainNSat
+AFPToFTrackContainerAuxDyn.trainSize
+AFPToFTrackContainerAuxDyn.trainTime
+AFPTrackContainer
+AFPTrackContainerAux.
 AllCalo
 BunchId
 ByteStreamMetadata
