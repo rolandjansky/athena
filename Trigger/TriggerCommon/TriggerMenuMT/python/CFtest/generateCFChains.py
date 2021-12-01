@@ -179,9 +179,8 @@ def generateCFChains(opt):
         step3 = makeChainStep("Step3_bjet", [getBJetSequence(jc_name)])
         
         menu.chainsInMenu['Bjet']  = [
-            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] )
+            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
+            makeChain(name='HLT_j45_ftf_subjesgscIS_bdl1r70_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
             ]
 
    
