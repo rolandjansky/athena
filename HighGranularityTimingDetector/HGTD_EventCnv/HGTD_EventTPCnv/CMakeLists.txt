@@ -26,21 +26,25 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 atlas_add_test( HGTD_RDOCnv_p1_test
     SOURCES test/HGTD_RDOCnv_p1_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-    LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv IdDictParser)
+    LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv IdDictParser
+    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( HGTD_RDOContainerCnv_p1_test
     SOURCES test/HGTD_RDOContainerCnv_p1_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
     LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv IdDictParser TestTools SGTools GaudiKernel
-    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}")
+    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}"
+    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( HGTD_ClusterCnv_p1_test
     SOURCES test/HGTD_ClusterCnv_p1_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-    LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv IdDictParser)
+    LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv IdDictParser
+    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( HGTD_ClusterContainerCnv_p1_test
     SOURCES test/HGTD_ClusterContainerCnv_p1_test.cxx
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
     LINK_LIBRARIES ${Boost_LIBRARIES} HGTD_EventTPCnv TestTools IdDictParser SGTools GaudiKernel
-    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}")
+    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}"
+    POST_EXEC_SCRIPT nopost.sh )
