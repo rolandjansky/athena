@@ -55,12 +55,8 @@ private:
     "SG Key of LArOnOffIdMapping object"
   };
 
-  SG::ReadHandleKey<xAOD::EgammaContainer> m_SGKey_photons{
-    this,
-    "SGKey_photons",
-    "",
-    "SG key of photon container"
-  };
+  SG::ReadHandleKey<xAOD::EgammaContainer>
+    m_SGKey_photons{ this, "SGKey_photons", "", "SG key of photon container" };
 
   SG::ReadHandleKey<xAOD::EgammaContainer> m_SGKey_electrons{
     this,
