@@ -28,8 +28,7 @@ def TLAMuonSequence (flags, muons):
 
 
 def TLAMuonMenuSequence( flags, muChainPart):
-    muonsIn = getMuonCollections(muChainPart)
-    print ("FPPmuons=",muonsIn)
+    muonsIn = getMuonCollections(muChainPart)    
     # retrieve the sequence via RecoFragmentsPool
     (tlaMuonAthSequence, tlaMuonInputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAMuonSequence, flags, muons=muonsIn)    
      #  add the hypo
