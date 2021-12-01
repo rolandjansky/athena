@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import TrackD3PDMaker
 from D3PDMakerCoreComps.SimpleAssociation import SimpleAssociation
@@ -21,10 +21,10 @@ def perigeeLOD (expr, flags):
 def PerigeeAssociation (parent, associator, blockname, suffix='',
                         flags = TrackD3PDFlags,
                         fillMomName = 'False',
-                        levelName = None):
+                        levelName = None,
+                        **kw):
 
-    perigeeAssoc = SimpleAssociation \
-                   (parent, associator)
+    perigeeAssoc = SimpleAssociation (parent, associator, **kw)
 
     perigeeAssoc.defineBlock (perigeeLOD ('%s or %s>0' %(fillMomName,levelName),
                                           flags),
