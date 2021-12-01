@@ -121,6 +121,8 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
   // Retrieve the xAOD RoI container from L1TriggerResult
   if (!l1TriggerResult.hasObjectLink(m_muRoILinkName, ClassID_traits<xAOD::MuonRoIContainer>::ID())) {
     ATH_MSG_DEBUG("No muon RoIs in this event");
+    auto monRoIsCount = Monitored::Scalar("count", 0);
+    Monitored::Group(m_monTool, monRoIsCount);
     return StatusCode::SUCCESS;
   }
   ElementLink<xAOD::MuonRoIContainer> roisLink = l1TriggerResult.objectLink<xAOD::MuonRoIContainer>(m_muRoILinkName);
@@ -178,5 +180,14 @@ StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
 
     ++linkIndex;
   }
+
+  // Monitor the TrigRoiDescriptorCollection
+  {
+    auto monRoIsCount = Monitored::Scalar("count", roiDescriptors->size());
+    auto monRoIsEta = Monitored::Collection("eta", *roiDescriptors, &TrigRoiDescriptor::eta);
+    auto monRoIsPhi = Monitored::Collection("phi", *roiDescriptors, &TrigRoiDescriptor::phi);
+    Monitored::Group(m_monTool, monRoIsCount, monRoIsEta, monRoIsPhi);
+  }
+
   return StatusCode::SUCCESS;
 }
