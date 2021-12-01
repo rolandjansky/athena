@@ -18,6 +18,7 @@ from D3PDMakerCoreComps.resolveSGKey        import testSGKey
 from D3PDMakerCoreComps.resolveSGKey        import resolveSGKey # noqa: F401
 from D3PDMakerConfig.D3PDMakerFlags         import D3PDMakerFlags
 from RecExConfig.RecFlags                   import rec
+from InDetRecExample.TrackingCommon         import getTrackToVertexIPEstimator
 import egammaD3PDMaker
 import EventCommonD3PDMaker
 import TrackD3PDMaker
@@ -372,7 +373,8 @@ if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
                         prefix = 'jetcone_',
                         level = _jetAssocLevel,
                         DRCut=0.7,
-                        VertexContainerName = D3PDMakerFlags.VertexSGKey() )
+                        VertexContainerName = D3PDMakerFlags.VertexSGKey(),
+                        TrackToVertexIPEstimator = getTrackToVertexIPEstimator() )
     EgammaJetDRAssoc.defineBlock \
           (2,
            'EgammaJetSignedIPAndPTRelKin',
@@ -388,7 +390,8 @@ if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
                              prefix = 'jettrack_',
                              level = _jetAssocLevel,
                              DRCut=0.7,
-                             VertexContainerName = D3PDMakerFlags.VertexSGKey() )
+                             VertexContainerName = D3PDMakerFlags.VertexSGKey(),
+                             TrackToVertexIPEstimator = getTrackToVertexIPEstimator() )
     EgammaTrackJetDRAssoc.defineBlock \
           (2,
            'EgammaTrackJetSignedIPAndPTRelKin',
