@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_GeoModelManager_h
@@ -10,30 +10,24 @@
 
 class AFP_GeoModelManager : public GeoVDetectorManager  {
 
- public:
-  // Constructor
-  AFP_GeoModelManager();
+public:
+	AFP_GeoModelManager();
+	~AFP_GeoModelManager();
+private:
+	AFP_GeoModelManager(const AFP_GeoModelManager &right);
 
-  // Destructor
-  ~AFP_GeoModelManager();
+public:
+	// Access to raw geometry:
+	virtual unsigned int getNumTreeTops() const;
+	// Access to raw geometry:
+	virtual PVConstLink getTreeTop(unsigned int i) const;
+	// Add a Tree top:
+	void addTreeTop(PVLink);
 
-  // Access to raw geometry:
-  virtual unsigned int getNumTreeTops() const;
-  
-  // Access to raw geometry:
-  virtual PVConstLink getTreeTop(unsigned int i) const;
+private:
+	const AFP_GeoModelManager & operator=(const AFP_GeoModelManager &right);
 
-
-  // Add a Tree top:
-  void addTreeTop(PVLink);
-
-
-  private:  
-
-
-  const AFP_GeoModelManager & operator=(const AFP_GeoModelManager &right);
-  AFP_GeoModelManager(const AFP_GeoModelManager &right);
-  std::vector<PVLink> volume;
+	std::vector<PVLink> volume;
 };
 
 // Class AFP_GeoModelManager
@@ -43,8 +37,4 @@ class AFP_GeoModelManager : public GeoVDetectorManager  {
 CLASS_DEF(AFP_GeoModelManager, 156328970, 1)
 #endif
 
-
-
 #endif
-
-

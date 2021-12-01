@@ -1,117 +1,40 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-	#ifndef AFP_TDLOCRECO_h
-#define AFP_TDLOCRECO_h
+#ifndef AFP_TDLOCRECO_H
+#define AFP_TDLOCRECO_H
 
-#include <iostream>
-#include <string>
-#include <list>
-#include <map>
-#include <vector>
-#include <fstream>
+#include "AFP_LocRecoInterfaces/IAFPTDLocRecoTool.h"
 
-//#include "GaudiKernel/Algorithm.h"
+#include "AFP_LocReco/AFP_TDLocRecoTool.h"
+
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ObjectVector.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ToolHandle.h" 
 
-#include "AthenaKernel/getMessageSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include <string>
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
-//#include "AFP_RawEv/AFP_RawData.h"
-//#include "AFP_RawEv/AFP_RawDataContainer.h"
-//#include "AFP_RawEv/AFP_RawDataCollection.h"
-//#include "AFP_RawEv/AFP_SIDDigitCollection.h"
-//#include "AFP_RawEv/AFP_TDDigitCollection.h"
-//#include "AFP_Geometry/AFP_GeometryReader.h"
-//#include "AFP_Geometry/AFP_constants.h"
-#include "AFP_DigiEv/AFP_TDDigiCollection.h"
-#include "AFP_LocRecoEv/AFP_TDLocRecoEvCollection.h"
-
-//#include "AFP_LocRecoEv/AFP_SIDLocRecoEvCollection.h"
-
-#include "AFP_LocReco/AFP_UserObjects.h"
-#include "AFP_LocReco/AFP_TDZVertex.h"
-
-#include "TROOT.h"
-
-//for truth particles
-#include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
-
-
-
-using namespace std;
-
-#define NSIDE  3
-#define NTRACK 10
-#define NTRIG  4
-#define NBPM   4
-
-class StoreGateSvc;
-class ActiveStoreSvc;
-
+/// Algorithm reconstructing tracks from hits clusters
 class AFP_TDLocReco : public AthAlgorithm
 {
-	public:
-		AFP_TDLocReco(const string& name, ISvcLocator* pSvcLocator);
-		~AFP_TDLocReco();
+public:
+  AFP_TDLocReco(const std::string& name, ISvcLocator* pSvcLocator);
 
-	private:
-		//GEOMETRYCONFIGURATION m_Config;
-		//AFP_GeometryReader* m_pGeometryReader;
-		// a handle on Store Gate
-		StoreGateSvc* m_storeGate;
-		//StoreGateSvc* m_pDetStore;
+  /// Does nothing
+  ~AFP_TDLocReco() override {}
 
-		AFP_TDLocRecoEvCollection*	m_pTDLocRecoEvCollection;
-		AFP_TDLocRecoEvent*			m_pTDLocRecoEvent;
+  StatusCode initialize() override;
 
-	private:
+  /// Run pixel clustering tool and next run track reconstruction tools
+  StatusCode execute() override;
 
-		UInt_t m_eventNum;			//real event number
-		Int_t m_iRunNum;
-		Int_t m_iDataType;			//data type (simulation or real data) using in the local reconstruction
-		Int_t m_iEvent;				//event number from zero value
-		Float_t m_AmpThresh;			// TD signal amplitude threshold
+  /// Does nothing
+  StatusCode finalize() override;
 
-		string m_strKeyGeometryForReco;
-		vector<string> m_vecListAlgoTD;
-		string m_strAlgoTD;
-	
-		string m_strKeyTDLocRecoEvCollection;
-		string m_strTDCollectionName;
-
-	public:
-		StatusCode initialize();
-		StatusCode execute();
-		StatusCode finalize();
-		
-	private:
-		bool ReadGeometryDetCS();
-		bool StoreReconstructionGeometry(/*const char* szDataDestination*/);
-		void SaveGeometry();
-		void ClearGeometry();
-
-		StatusCode AFPCollectionReading(list<TDHIT> &ListTDHits);	
-
-		StatusCode RecordTDCollection();
-		StatusCode ExecuteRecoMethod(const string strAlgo, const list<TDHIT> &ListMDHits);
+private:
+  /// Tool that does the track reconstruction
+  ToolHandle<IAFPTDLocRecoTool> m_recoToolHandle; 
 };
 
 #endif	//AFP_TDLOCRECO_h
+

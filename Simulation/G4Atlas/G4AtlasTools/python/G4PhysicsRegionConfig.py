@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -32,7 +32,7 @@ def getBeampipeFwdCutPhysicsRegionTool(name='BeampipeFwdCutPhysicsRegionTool', *
 
 def getFWDBeamLinePhysicsRegionTool(name='FWDBeamLinePhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'FWDBeamLine')
-    volumeList = ['BeamPipe::SectionF46']
+    volumeList = ['BeamPipe::SectionF197']
     kwargs.setdefault("VolumeList",  volumeList)
     return CfgMgr.RegionCreator(name, **kwargs)
 
