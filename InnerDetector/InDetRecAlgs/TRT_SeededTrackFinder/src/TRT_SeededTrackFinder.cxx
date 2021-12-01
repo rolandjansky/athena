@@ -110,9 +110,9 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   ATH_CHECK(  m_SegmentsKey.initialize()) ;  /** TRT segments to use */
   ATH_CHECK( m_outTracksKey.initialize());
 
+  ATH_CHECK( m_caloKey.initialize(m_caloSeededRoI) );
   if(m_caloSeededRoI){
     ATH_CHECK( m_regionSelector.retrieve());
-    ATH_CHECK( m_caloKey.initialize(m_caloSeededRoI) );
   } else {
     m_regionSelector.disable();
   }

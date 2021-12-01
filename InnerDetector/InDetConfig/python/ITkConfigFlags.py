@@ -22,7 +22,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doRefitInvalidCov", False) # Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices.
   itkcf.addFlag("ITk.doSSSfilter", True) # Switch for running SSS filter
   itkcf.addFlag("ITk.doNNToTCalibration", False ) # USe ToT calibration for NN clustering rather than Charge 
-  itkcf.addFlag("ITk.useNNTTrainedNetworks", True ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
+  itkcf.addFlag("ITk.useNNTTrainedNetworks", False ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
   itkcf.addFlag("ITk.doStripModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   itkcf.addFlag("ITk.doStoreTrackSeeds", False) # Turn on to save the Track Seeds in a xAOD track collecting for development studies 
   itkcf.addFlag("ITk.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs   
@@ -36,13 +36,13 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
   itkcf.addFlag("ITk.doHeavyIon", False) # Turn running of HeavyIons on and off
   itkcf.addFlag("ITk.doFastTracking", False) # Turn running of ITk FastTracking on and off
-  itkcf.addFlag("ITk.doITkConversionFinding",True) # Turn running of doITkConversionFinding second pass on and off
-  itkcf.addFlag("ITk.doITkLargeD0", False)
+  itkcf.addFlag("ITk.doConversionFinding",True) # Turn running of ConversionFinding second pass on and off
+  itkcf.addFlag("ITk.doLargeD0", False)
   itkcf.addFlag("ITk.storeSeparateLargeD0Container", False)
   itkcf.addFlag("ITk.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   itkcf.addFlag("ITk.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   itkcf.addFlag("ITk.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
-  itkcf.addFlag("ITk.doCaloSeededAmbi", False) # Use Calo ROIs to seed specific cuts for the ambi
+  itkcf.addFlag("ITk.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
   itkcf.addFlag("ITk.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
   itkcf.addFlag("ITk.loadRotCreator", True) # Turn loading of ROT_Creator tool on and off
   itkcf.addFlag("ITk.useBeamConstraint", True) # use beam spot service in new tracking 

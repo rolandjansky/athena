@@ -55,7 +55,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
     kwargs.setdefault("RapidityCut",  flags.InDet.Tracking.maxEta )
 
 
-    if flags.InDet.Tracking.extension == "Offline" or flags.InDet.doHeavyIon or  flags.InDet.Tracking.extension == "ForwardTracks":
+    if flags.InDet.Tracking.extension == "" or flags.InDet.doHeavyIon or  flags.InDet.Tracking.extension == "ForwardTracks":
         kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.maxdImpactPPSSeeds)
         kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.maxdImpactSSSSeeds)
         if not flags.InDet.doHeavyIon:
@@ -169,7 +169,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     kwargs.setdefault("PixelClusterContainer", 'PixelClusters') # InDetKeys.PixelClusters()
     kwargs.setdefault("SCT_ClusterContainer", 'SCT_Clusters') # InDetKeys.SCT_Clusters()
 
-    if flags.InDet.Tracking.extension == "Offline": 
+    if flags.InDet.Tracking.extension == "": 
         kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
 
     if is_dbm :
@@ -188,19 +188,19 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
 
 def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
-    useBremMode = flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "DBM"
+    useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "DBM"
     InDetSiDetElementsRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags))
 
     if flags.InDet.Tracking.usePixel:
-        acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
-                                                                                ReadKey  = "PixelDetectorElementCollection",
-                                                                                WriteKey = "PixelDetElementBoundaryLinks_xk") )
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name="InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                              ReadKey="PixelDetectorElementCollection",
+                                                                              WriteKey="PixelDetElementBoundaryLinks_xk"))
     if flags.InDet.Tracking.useSCT:
-        acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name="InDet__SiDetElementsRoadCondAlg_xk"))
 
-        acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
-                                                                                ReadKey  = "SCT_DetectorElementCollection",
-                                                                                WriteKey = "SCT_DetElementBoundaryLinks_xk") )
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name="InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                              ReadKey="SCT_DetectorElementCollection",
+                                                                              WriteKey="SCT_DetElementBoundaryLinks_xk"))
 
     track_finder = acc.popToolsAndMerge(SiCombinatorialTrackFinder_xkCfg(flags))
 
@@ -230,9 +230,12 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("Xi2maxMultiTracks", flags.InDet.Tracking.Xi2max)
     kwargs.setdefault("useSSSseedsFilter", flags.InDet.doSSSfilter)
     kwargs.setdefault("doMultiTracksProd", True)
-    kwargs.setdefault("useBremModel", flags.InDet.doBremRecovery and useBremMode and flags.Detector.GeometryLAr) # only for NewTracking the brem is debugged !!!
-    kwargs.setdefault("doCaloSeededBrem", flags.InDet.doCaloSeededBrem and flags.Detector.GeometryLAr)
-    kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.doHadCaloSeededSSS and flags.Detector.GeometryTile)
+    kwargs.setdefault("useBremModel", flags.InDet.doBremRecovery and useBremMode and flags.Detector.EnableCalo) # only for NewTracking the brem is debugged !!!
+    kwargs.setdefault("doCaloSeededBrem", flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo)
+    if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        acc.merge(CaloClusterROI_SelectorCfg(flags))
+    kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.doHadCaloSeededSSS and flags.Detector.EnableCalo)
     kwargs.setdefault("phiWidth", flags.InDet.Tracking.phiWidthBrem)
     kwargs.setdefault("etaWidth", flags.InDet.Tracking.etaWidthBrem)
     kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer()
@@ -346,7 +349,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     if flags.InDet.doHeavyIon :
         kwargs.setdefault("FreeClustersCut",2) #Heavy Ion optimization from Igor
 
-    if flags.InDet.Tracking.extension == "Offline":
+    if flags.InDet.Tracking.extension == "":
         kwargs.setdefault("writeHolesFromPattern", True) # TODO fix it flags.InDet.useHolesFromPattern)
 
     InDetSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.InDet.Tracking.extension, **kwargs)
@@ -391,9 +394,8 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     kwargs.setdefault("minNotShared"    , flags.InDet.Tracking.minSiNotShared)
     kwargs.setdefault("maxShared"       , flags.InDet.Tracking.maxShared)
     kwargs.setdefault("minTRTHits"      , 0) # used for Si only tracking !!!
-    kwargs.setdefault("sharedProbCut"   , 0.10)
     kwargs.setdefault("UseParameterization" , False)
-    kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics')
+    kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.extension != "DBM")
     kwargs.setdefault("doPixelSplitting"    , flags.InDet.doPixelClusterSplitting and flags.InDet.Tracking.extension != "DBM")
     
     if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
@@ -402,24 +404,28 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         kwargs.setdefault("minSiHitsToAllowSplitting" , nhitsToAllowSplitting)
         kwargs.setdefault("minUniqueSCTHits"          , 4)
         kwargs.setdefault("minTrackChi2ForSharedHits" , 3)
-        kwargs.setdefault("InputHadClusterContainerName", "InDetHadCaloClusterROIs" + "Bjet" )
-        kwargs.setdefault("doHadCaloSeed"             , flags.InDet.doCaloSeededAmbi)   #Do special cuts in region of interest
         kwargs.setdefault("minPtSplit"                , flags.InDet.pixelClusterSplitMinPt)       #Only allow split clusters on track withe pt greater than this MeV
         kwargs.setdefault("maxSharedModulesInROI"     , 3)     #Maximum number of shared modules for tracks in ROI
         kwargs.setdefault("minNotSharedInROI"         , 2)     #Minimum number of unique modules for tracks in ROI
-        kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 7)  #Minimum number of Si hits to allow splittings for tracks in ROI
-        kwargs.setdefault("phiWidth"                  , 0.1)     #Split cluster ROI size
-        kwargs.setdefault("etaWidth"                  , 0.1)     #Split cluster ROI size
-        kwargs.setdefault("InputEmClusterContainerName" , 'InDetCaloClusterROIs')
-        kwargs.setdefault("doEmCaloSeed"              , flags.Detector.GeometryLAr)   #Only split in cluster in region of interest
+        kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 8)  #Minimum number of Si hits to allow splittings for tracks in ROI
+        kwargs.setdefault("phiWidth"                  , 0.05)     #Split cluster ROI size
+        kwargs.setdefault("etaWidth"                  , 0.05)     #Split cluster ROI size
+        kwargs.setdefault("doEmCaloSeed"              , flags.InDet.doCaloSeededAmbi)   #Only split in cluster in region of interest
+        kwargs.setdefault("InputEmClusterContainerName", 'InDetCaloClusterROIs')
+        if flags.InDet.doCaloSeededAmbi:
+            from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+            acc.merge(CaloClusterROI_SelectorCfg(flags))
+        kwargs.setdefault("doHadCaloSeed"             , flags.InDet.doCaloSeededAmbi)   #Do special cuts in region of interest
+        kwargs.setdefault("InputHadClusterContainerName", "InDetHadCaloClusterROIs" + "Bjet")
+        if flags.InDet.doCaloSeededAmbi:
+            from InDetConfig.InDetRecCaloSeededROISelectionConfig import HadCaloClusterROI_SelectorCfg
+            acc.merge(HadCaloClusterROI_SelectorCfg(flags))
         kwargs.setdefault("minPtConv"                 , 10000)   #Only allow split clusters on track withe pt greater than this MeV
+        kwargs.setdefault("minPtBjetROI"              , 10000)
         kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size
         kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size
     
-    if flags.InDet.Tracking.extension == "DBM":
-        kwargs.setdefault("Cosmics", False)
-        kwargs.setdefault("UseParameterization"   , False)
-        kwargs.setdefault("doPixelSplitting"      , False)
+    elif flags.InDet.Tracking.extension == "DBM":
         kwargs.setdefault("maxShared"             , 1000)
         kwargs.setdefault("maxTracksPerSharedPRD" , 2)
         kwargs.setdefault("minHits"               , 0)
@@ -427,6 +433,8 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         kwargs.setdefault("minScoreShareTracks"   , 0.0)
         kwargs.setdefault("minTRTHits"            , 0)
         kwargs.setdefault("sharedProbCut"         , 0.1)
+    else:
+        kwargs.setdefault("sharedProbCut", 0.10)
 
     InDetAmbiTrackSelectionTool = AmbiTrackSelectionTool(name = name+flags.InDet.Tracking.extension, **kwargs)
     acc.setPrivateTools(InDetAmbiTrackSelectionTool)
@@ -487,7 +495,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguit
 def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
 
-    useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "DBM"
+    useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "DBM"
     
     #
     # --- set up different Scoring Tool for collisions and cosmics
@@ -569,7 +577,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
 
 def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
-    useBremMode = flags.InDet.Tracking.extension == "Offline" or flags.InDet.Tracking.extension == "DBM"
+    useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "DBM"
     
     #
     # --- set up different Scoring Tool for collisions and cosmics
