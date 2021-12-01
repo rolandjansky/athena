@@ -1565,7 +1565,10 @@ class ItemDef:
             #ATR-19639
             MenuItem('L1_BPH-2M9-0DR15-C-MU5VFMU3V'   ).setLogic( d.TOPO_2INVM9_0DR15_C_MU5VFab_MU3Vab & physcond)        
             # ATR-21566
-            MenuItem('L1_BPH-0DR12C-2MU3V').setLogic( d.TOPO_0DR12C_2MU3Vab & physcond)
+            MenuItem('L1_BPH-0DR12-2MU3V'      ).setLogic( d.TOPO_0DR12_2MU3Vab & physcond)
+            MenuItem('L1_BPH-0DR12C-2MU3V'     ).setLogic( d.TOPO_0DR12C_2MU3Vab & physcond)             
+            MenuItem('L1_BPH-7M22-0DR20-2MU3V' ).setLogic( d.TOPO_7INVM22_0DR20_2MU3Vab & physcond)
+            MenuItem('L1_BPH-7M22-0DR20C-2MU3V').setLogic( d.TOPO_7INVM22_0DR20C_2MU3Vab & physcond)
             #ATR-22782
             MenuItem('L1_BPH-0M16-20DR99-2MU3V'       ).setLogic( d.TOPO_0INVM16_20DR99_2MU3Vab & physcond)
             MenuItem('L1_BPH-0M16-15DR99-2MU3V'       ).setLogic( d.TOPO_0INVM16_15DR99_2MU3Vab & physcond)
