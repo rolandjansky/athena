@@ -2457,15 +2457,15 @@ HLT_j20_PhysicsTLA_L1J50_DETA20-J50J:
 HLT_j20_PhysicsTLA_L1jJ100:
   eventCount: 0
 HLT_j20_PhysicsTLA_L1jJ50_DETA20-jJ50J:
-  eventCount: 2
+  eventCount: 3
   stepCounts:
-    0: 2
-    1: 2
-    2: 2
+    0: 3
+    1: 3
+    2: 3
   stepFeatures:
-    0: 9
-    1: 9
-    2: 2
+    0: 12
+    1: 12
+    2: 3
 HLT_j20_pf_ftf_PhysicsTLA_L1J100:
   eventCount: 0
 HLT_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21:
@@ -3770,9 +3770,9 @@ HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU10BOM:
   eventCount: 0
 HLT_mu10_l2mt_mu4_l2mt_bJpsimumu_L1MU12BOM:
   eventCount: 0
-HLT_mu10_lateMu_L1LATE-MU8F_J50:
+HLT_mu10_lateMu_L1LATE-MU8F_jJ50:
   eventCount: 0
-HLT_mu10_lateMu_L1LATE-MU8F_XE30:
+HLT_mu10_lateMu_L1LATE-MU8F_jXE30:
   eventCount: 0
 HLT_mu11_l2io_mu6_l2io_invmDimu_L1LFV-MU8VF:
   eventCount: 0

@@ -377,7 +377,7 @@ def defineMenu():
         'L1_jMJJ-400-NFF-0DPHI24',
         'L1_jMJJ-400-NFF-0DPHI26',
 
-        'L1_LATE-MU8F_XE30', 'L1_LATE-MU8F_J50',
+        'L1_LATE-MU8F_jXE30', 'L1_LATE-MU8F_jJ50',
 
         #ATR-18824
         'L1_ZAFB-04DPHI-eEM15M',
