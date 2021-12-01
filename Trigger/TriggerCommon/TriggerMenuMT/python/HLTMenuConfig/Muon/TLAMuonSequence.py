@@ -6,6 +6,15 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, M
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
+def getMuonCollections (chainPart):
+    from .MuonRecoSequences import muonNames
+    muNames = muonNames().getNames('RoI')
+    muonName = muNames.EFCBName
+    if 'msonly' in chainPart['msonlyInfo']:
+        muonName = muNames.EFSAName
+
+    return muonName
+
 def TLAMuonSequence (flags, muons):
     
     ## add the InputMaker (event context)    
@@ -18,13 +27,15 @@ def TLAMuonSequence (flags, muons):
     return (tlaMuonAthSequence, tlaMuonInputMakerAlg, sequenceOut)
 
 
-def TLAMuonMenuSequence( flags, muonsIn):
+def TLAMuonMenuSequence( flags, muChainPart):
+    muonsIn = getMuonCollections(muChainPart)
+    print ("FPPmuons=",muonsIn)
     # retrieve the sequence via RecoFragmentsPool
     (tlaMuonAthSequence, tlaMuonInputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(TLAMuonSequence, flags, muons=muonsIn)    
      #  add the hypo
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuonTLAHypoAlg
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
-    hypo = TrigMuonTLAHypoAlg("TrigMuonTLAHypoAlg")  #+muonsIn)  
+    hypo = TrigMuonTLAHypoAlg("TrigMuonTLAHypoAlg_"+muonsIn)  
 
     hypo.TLAOutputName = sequenceOut  
 

@@ -47,9 +47,8 @@ def getTLASignatureSequence(ConfigFlags, chainPart):
   
     
     elif chainPart['signature'] == 'Muon':    
-        from ..Muon.TLAMuonSequence import TLAMuonMenuSequence
-        muonOutCollectionName = "HLT_MuonsCB_RoI"
-        return RecoFragmentsPool.retrieve(TLAMuonMenuSequence, ConfigFlags, muonsIn=muonOutCollectionName)
+        from ..Muon.TLAMuonSequence import TLAMuonMenuSequence        
+        return TLAMuonMenuSequence (ConfigFlags, muChainPart=chainPart)       
     
     elif chainPart['signature']  == 'Jet':   
         from ..Jet.JetTLASequences import TLAJetMenuSequence
