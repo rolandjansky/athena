@@ -225,7 +225,7 @@ private:
    bool matchKey(const std::vector<std::string>& key, const SG::DataProxy* proxy) const;
 
    /// Write MetaData for this stream (by default) or for a substream outputFN (in ES mode)
-   void writeMetaData( const std::string outputFN="" );
+   void writeMetaData( const std::string& outputFN="" );
 
    /// Helper function for building the compression lists
    std::set<std::string> buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
