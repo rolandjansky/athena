@@ -40,6 +40,7 @@ def TileDigitsFilterOutputCfg(flags, streamName = 'ESD', **kwargs):
         digitsContainer = str(tileDigitsFilter._descriptors['OutputDigitsContainer'].default)
 
     if digitsContainer != '':
+        digitsContainer = digitsContainer.replace('StoreGateSvc+', '')
         outputItemList += ['TileDigitsContainer#' + digitsContainer]
 
     if 'OutputRawChannelContainer' in tileDigitsFilter._properties:
@@ -48,6 +49,7 @@ def TileDigitsFilterOutputCfg(flags, streamName = 'ESD', **kwargs):
         rawChannelContainer = str(tileDigitsFilter._descriptors['OutputRawChannelContainer'].default)
 
     if rawChannelContainer != '':
+        rawChannelContainer = rawChannelContainer.replace('StoreGateSvc+', '')
         outputItemList += ['TileRawChannelContainer#' + rawChannelContainer]
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

@@ -11,17 +11,18 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
         from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg
         result.merge(LArRawDataReadingCfg(configFlags))
 
-
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        result.merge( ByteStreamReadCfg(configFlags,type_names=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
+        result.merge(ByteStreamReadCfg(configFlags,type_names=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
 
+        if configFlags.Output.doWriteESD:
+            from TileRecAlgs.TileDigitsFilterConfig import TileDigitsFilterOutputCfg
+            result.merge(TileDigitsFilterOutputCfg(configFlags))
 
         from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
         result.merge(LArRawChannelBuilderAlgCfg(configFlags))
-
         
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
-        result.merge( TileRawChannelMakerCfg(configFlags) )
+        result.merge(TileRawChannelMakerCfg(configFlags))
 
         from LArCellRec.LArTimeVetoAlgConfig import LArTimeVetoAlgCfg
         result.merge(LArTimeVetoAlgCfg(configFlags))
