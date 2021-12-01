@@ -646,20 +646,21 @@ ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
 
 # LargeD0TrackParticles directly
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-IDTRKThinningToolLargeD0 = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningToolLargeD0",
-                                                                        StreamName              = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName,
-                                                                        SelectionString         = "InDetLargeD0TrackParticles.pt > 0.1*GeV",
-                                                                        InDetTrackParticlesKey  = "InDetLargeD0TrackParticles",
-                                                                        InDetTrackStatesPixKey       = prefixName+"PixelMSOSs"       if dumpPixInfo else "" ,
-                                                                        InDetTrackMeasurementsPixKey = "PixelClusters"    if dumpPixInfo else "",
-                                                                        InDetTrackStatesSctKey       = prefixName+"SCT_MSOSs"        if dumpSctInfo else "",
-                                                                        InDetTrackMeasurementsSctKey = "SCT_Clusters"     if dumpSctInfo else "",
-                                                                        InDetTrackStatesTrtKey       = prefixName+"TRT_MSOSs"        if dumpTrtInfo else "",
-                                                                        InDetTrackMeasurementsTrtKey = "TRT_DriftCircles" if dumpTrtInfo else "",
-                                                                        ThinHitsOnTrack = thinHitsOnTrack)
-ToolSvc += IDTRKThinningToolLargeD0
-thinningTools.append(IDTRKThinningToolLargeD0)
+if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+    IDTRKThinningToolLargeD0 = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningToolLargeD0",
+                                                                            StreamName              = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName,
+                                                                            SelectionString         = "InDetLargeD0TrackParticles.pt > 0.1*GeV",
+                                                                            InDetTrackParticlesKey  = "InDetLargeD0TrackParticles",
+                                                                            InDetTrackStatesPixKey       = prefixName+"PixelMSOSs"       if dumpPixInfo else "" ,
+                                                                            InDetTrackMeasurementsPixKey = "PixelClusters"    if dumpPixInfo else "",
+                                                                            InDetTrackStatesSctKey       = prefixName+"SCT_MSOSs"        if dumpSctInfo else "",
+                                                                            InDetTrackMeasurementsSctKey = "SCT_Clusters"     if dumpSctInfo else "",
+                                                                            InDetTrackStatesTrtKey       = prefixName+"TRT_MSOSs"        if dumpTrtInfo else "",
+                                                                            InDetTrackMeasurementsTrtKey = "TRT_DriftCircles" if dumpTrtInfo else "",
+                                                                            ThinHitsOnTrack = thinHitsOnTrack)
+    ToolSvc += IDTRKThinningToolLargeD0
+    thinningTools.append(IDTRKThinningToolLargeD0)
 
 if pixelClusterThinningExpression and dumpPixInfo:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
@@ -760,8 +761,9 @@ IDTRKVALIDStream.AddItem("xAOD::EventAuxInfo#*")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+excludedAuxData)
 
-IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetLargeD0TrackParticles")
-IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetLargeD0TrackParticlesAux."+excludedAuxData)
+if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetLargeD0TrackParticles")
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetLargeD0TrackParticlesAux."+excludedAuxData)
 
 if InDetFlags.doTrackSegmentsPixel():
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPixelTrackParticles")
