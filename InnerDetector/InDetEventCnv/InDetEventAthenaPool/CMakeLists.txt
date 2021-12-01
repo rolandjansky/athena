@@ -65,7 +65,7 @@ foreach( name
       LINK_LIBRARIES
       AtlasHepMCLib IdDict IdDictParser InDetEventAthenaPool TestTools
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
-      PROPERTIES TIMEOUT 300 )
+      POST_EXEC_SCRIPT nopost.sh )
    set_target_properties ( InDetEventAthenaPool_${name} PROPERTIES ENABLE_EXPORTS True )
 
 endforeach()
