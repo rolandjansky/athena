@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYKERNEL_PYREVERSEPROXY_H
@@ -53,9 +53,11 @@ struct PyReverseProxy
   /// factory method
   static PyReverseProxy * getProxy(const std::string & key)
   {
-    if (m_proxyMap.count(key) == 0)
-      m_proxyMap[key] = new PyReverseProxy(key);
-    return m_proxyMap[key];
+    PyReverseProxy* & prox = m_proxyMap[key];
+    if (!prox) {
+      prox = new PyReverseProxy(key);
+    }
+    return prox;
   }
 
 private:
