@@ -70,7 +70,7 @@ except Exception:
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():
-    TP_excludedAuxData='.-caloExtension'
+    TP_excludedAuxData=''
     if not rec.doPhysicsValidationAugmentation() :
         # when not doing PhysVal exclude decorations meant for extra outputs
         TP_excludedAuxData += '.-d0.-phi.-prodR.-prodZ.-qOverP.-theta.-z0.-z0st'

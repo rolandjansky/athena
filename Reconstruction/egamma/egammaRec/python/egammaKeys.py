@@ -84,7 +84,7 @@ class egammaKeysDict:
                ''],
         Truth=['xAOD::TruthParticleContainer',
                'egammaTruthParticles',
-               '-caloExtension',
+               '',
                '']
     )
     #
