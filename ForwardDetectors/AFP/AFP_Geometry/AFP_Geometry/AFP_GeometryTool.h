@@ -22,16 +22,13 @@
 
 class AFP_GeometryTool : public extends<AthAlgTool, IAFP_GeometryTool>, public AFP_Geometry {
 public:
-  	AFP_GeometryTool(const std::string& type, const std::string& name, const IInterface* parent);
-  	virtual ~AFP_GeometryTool() override;
+	AFP_GeometryTool(const std::string& type, const std::string& name, const IInterface* parent);
+	virtual ~AFP_GeometryTool() override;
 
-  	virtual StatusCode initialize() override;
-  	virtual StatusCode finalize() override;
+	virtual StatusCode initialize() override;
+	virtual StatusCode finalize() override;
 
-        virtual void SetCfgParams(PAFP_CONFIGURATION pCfgParams) override
-        {
-          m_CfgParams=*pCfgParams;
-        }
+	virtual void SetCfgParams(AFP_CONFIGURATION * pCfgParams) override;
 
 };
 

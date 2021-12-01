@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SICLUSTERTOOLS_AFPSICLUSTERBASICNEARESTNEIGHBOUR_H
@@ -28,31 +28,29 @@
 
 // Forward declaration
 class AFPSiClusterBasicNearestNeighbour
-  : virtual public ::IAFPSiClusterAlgTool,
-    public ::AthAlgTool
+  : public extends<AthAlgTool, IAFPSiClusterAlgTool>
 {
 public:
   AFPSiClusterBasicNearestNeighbour(const std::string& type,
                         const std::string& name,
                         const IInterface* parent);
 
-  // Athena algtool's Hooks
-  /// does nothing
-  virtual StatusCode initialize();
+  virtual ~AFPSiClusterBasicNearestNeighbour() override {}
 
   /// does nothing
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+
+  /// does nothing
+  virtual StatusCode finalize() override;
 
   /// Creates a cluster from the neighbouring pixels, joining only two pixels with charge above #m_chargeThreshold
-  virtual StatusCode doClustering (const std::list<const xAOD::AFPSiHit*>& hits, std::list<AFPSiClusterBasicObj>& outputClusters);
+  virtual StatusCode doClustering (const std::list<const xAOD::AFPSiHit*>& hits, std::list<AFPSiClusterBasicObj>& outputClusters) const override;
 
   /// @copydoc AFPSiClusterBasicNearestNeighbour::m_chargeThreshold
   float chargeThreshold () const {return m_chargeThreshold;}
 
-  void setChargeThreshold (const float threshold)  {m_chargeThreshold = threshold;}
-
 private:
-  float m_chargeThreshold;	///< charge above which hits are used for clustering
+  Gaudi::Property<float> m_chargeThreshold {this, "chargeThreshold", 1000., "charge above which hits are used for clustering"};
 };
 
 

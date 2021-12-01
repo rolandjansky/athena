@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_GeoModelFactory.h"
@@ -41,12 +41,12 @@ using namespace Genfun;
 using namespace CLHEP;
 
 AFP_GeoModelFactory::AFP_GeoModelFactory(StoreGateSvc *detStore, AFP_Geometry* pGeometry)
-    :m_detectorManager(NULL), m_detectorStore(detStore)
+    :m_pDetectorManager(NULL), m_pDetectorStore(detStore)
 {
-    pGeometry->GetCfgParams(&m_CfgParams);
+    pGeometry->getCfgParams(&m_CfgParams);
     m_pGeometry=pGeometry;
 
-    InitializeTDParameters();
+    initializeTDParameters();
 }
 
 
@@ -55,15 +55,16 @@ AFP_GeoModelFactory::~AFP_GeoModelFactory()
     m_CfgParams.clear();
 }
 
-void AFP_GeoModelFactory::DefineMaterials()
+void AFP_GeoModelFactory::defineMaterials()
 {
     int i;
     const double fWl2E=1239.85; //nm<->eV
     std::string matName;
     GeoMaterialPropertiesTable *pMPT=NULL;
 
-    const StoredMaterialManager* materialManager = nullptr;
-    if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
+    StoredMaterialManager * materialManager = nullptr;
+    if (StatusCode::SUCCESS != m_pDetectorStore->retrieve(materialManager, std::string("MATERIALS")))
+    {
         return;
     }
 
@@ -94,8 +95,7 @@ void AFP_GeoModelFactory::DefineMaterials()
     pMatOptVacuum->add(const_cast<GeoElement*> (H), 1);
     double PhotonEnergyOptVac[2] = {0.44*CLHEP::eV, 6.3*CLHEP::eV};
     double RefractiveIndexOptVac[2] = {1.0, 1.0};
-	//double AbsorptionOptVac[2] ={10E+8*CLHEP::m, 10E+8*CLHEP::m};
-	double AbsorptionOptVac[2] ={1E-5*CLHEP::m, 1E-5*CLHEP::m};
+    double AbsorptionOptVac[2] ={1E-5*CLHEP::m, 1E-5*CLHEP::m};
 
     pMPT= new GeoMaterialPropertiesTable();
     pMPT->AddProperty("RINDEX", PhotonEnergyOptVac, RefractiveIndexOptVac , 2);
@@ -105,8 +105,8 @@ void AFP_GeoModelFactory::DefineMaterials()
     m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,pMatOptVacuum));
 
     // Steel Grade 316L (Roman Pot)
-    matName="Steel";
-    GeoMaterial *steel=new GeoMaterial("Steel", 8*g/cm3);
+    matName="Steel_AFP";
+    GeoMaterial *steel=new GeoMaterial(matName, 8*g/cm3);
 
     aFe=62.045*Fe->getA()/(CLHEP::g/CLHEP::mole);
     aC =0.03*C ->getA()/(CLHEP::g/CLHEP::mole);
@@ -215,7 +215,7 @@ void AFP_GeoModelFactory::DefineMaterials()
     m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,pMatWater));
 
     // Beryllium
-    matName="Beryllium";
+    matName="Beryllium_AFP";
     GeoMaterial* pMaterialBe=new GeoMaterial(matName, 1.848*CLHEP::g/CLHEP::cm3);
 
     pMaterialBe->add(const_cast<GeoElement*> (Be), 1);
@@ -228,123 +228,127 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 {
     char szLabel[32];
     StatusCode SCode;
-    m_detectorManager=new AFP_GeoModelManager();
+    m_pDetectorManager=new AFP_GeoModelManager();
     HepGeom::Transform3D TransEnvInWorld;
     HepGeom::Transform3D PosElementInEnv;
 
     //define materials
-    DefineMaterials();
+    defineMaterials();
 
     // Initialization of Surface Container for TD Surface(s)
     GeoBorderSurfaceContainer* pBSContainer = new GeoBorderSurfaceContainer();
-    pBSContainer->reserve(TD_TRAINSCNT*TD_COLUMNSCNT);
+    pBSContainer->reserve(m_AfpConstants.ToF_TrainsCnt*m_AfpConstants.ToF_ColumnsCnt);
 
     //AFP00 (SIDE A (+z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
-    //add envelope -- long beampipe (station A)
-    TransEnvInWorld=m_pGeometry->GetStationTransform("AFP00"); //HepGeom::Translate3D(-97.0*CLHEP::mm,0.0*CLHEP::mm,m_CfgParams.fLongHBZPos);
+
+    //Optical Envelope
+    TransEnvInWorld=m_pGeometry->getStationTransform("AFP00");
     const GeoBox* pBoxLongEnv= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
-    const GeoLogVol* pLogLongEnv = new GeoLogVol("AFP00_LogLongHamburgPipeEnv", pBoxLongEnv, m_MapMaterials[std::string("OpticalVacuum")]);
+    const GeoLogVol* pLogLongEnv = new GeoLogVol("AFP00_LogStationEnv", pBoxLongEnv, m_MapMaterials[std::string("OpticalVacuum")]);
     GeoOpticalPhysVol* pPhysLongEnv   = new GeoOpticalPhysVol(pLogLongEnv);
-    sprintf(szLabel,"AFP00_LongHamburgPipeEnv");
+    sprintf(szLabel,"AFP00_StationEnv");
     world->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransEnvInWorld)));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysLongEnv);
-    m_detectorManager->addTreeTop(pPhysLongEnv);
+    m_pDetectorManager->addTreeTop(pPhysLongEnv);
 
-    //add Long Hamburg Pipe (station A)
-    PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP00",ESE_RPOT);
-    AddRomanPot(pPhysLongEnv,"AFP00",PosElementInEnv);
+    //Roman Pot
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP00",ESE_RPOT);
+    addRomanPot(pPhysLongEnv,"AFP00",PosElementInEnv);
 
-    //add Timing detector
-    //PosElementInEnv=HepGeom::Translate3D(m_CfgParams.tdcfg.fDistanceToFloor, m_CfgParams.fLongHBYPos+m_CfgParams.fQuarticYPosInTube[0], m_CfgParams.fQuarticZPosInTube[0]);
-    PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP00",ESE_TOF);
-    SCode=AddTimingDetector("AFP00",pPhysLongEnv,PosElementInEnv, pBSContainer);
+    //Timing detector
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP00",ESE_TOF);
+    SCode=addTimingDetector("AFP00",pPhysLongEnv,PosElementInEnv, pBSContainer);
 
-    //add Silicon detector
-    //PosElementInEnv=HepGeom::Translate3D(m_CfgParams.fLongHBFloorXPos,m_CfgParams.fLongHBYPos,-200.0*CLHEP::mm);
-    AddSiDetector(pPhysLongEnv,"AFP00");
+    //Silicon detector
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP00",ESE_SID);
+    addSiDetector(pPhysLongEnv,"AFP00",PosElementInEnv);
 
     //AFP01 (SIDE A (+z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
+    
     //add envelope -- short beampipe (station A)
-    TransEnvInWorld=m_pGeometry->GetStationTransform("AFP01"); //HepGeom::Translate3D(-97.0*CLHEP::mm, 0.0*CLHEP::mm, m_CfgParams.fShortHBZPos);
+    TransEnvInWorld=m_pGeometry->getStationTransform("AFP01");
     const GeoBox* pBoxShortEnv= new GeoBox(150*CLHEP::mm, 150*CLHEP::mm, 280*CLHEP::mm);
-    const GeoLogVol* pLogShortEnv = new GeoLogVol("AFP01_LogShortHamburgPipeEnv", pBoxShortEnv, m_MapMaterials[std::string("std::Vacuum")]);
+    const GeoLogVol* pLogShortEnv = new GeoLogVol("AFP01_LogStationEnv", pBoxShortEnv, m_MapMaterials[std::string("std::Vacuum")]);
     GeoPhysVol* pPhysShortEnv   = new GeoPhysVol(pLogShortEnv);
-    sprintf(szLabel,"AFP01_ShortHamburgPipeEnv");
+    sprintf(szLabel,"AFP01_StationEnv");
     world->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransEnvInWorld)));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysShortEnv);
-    m_detectorManager->addTreeTop(pPhysShortEnv);
+    m_pDetectorManager->addTreeTop(pPhysShortEnv);
 
-    //add Short Hamburg Pipe (station A)
-    PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP01",ESE_RPOT);
-    AddRomanPot(pPhysShortEnv,"AFP01",PosElementInEnv);
+    //Roman Pot
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP01",ESE_RPOT);
+    addRomanPot(pPhysShortEnv,"AFP01",PosElementInEnv);
 
-    //add Silicon detector
-    //PosElementInEnv=HepGeom::Translate3D(m_CfgParams.fShortHBFloorXPos,m_CfgParams.fShortHBYPos,0.0*CLHEP::mm);
-    AddSiDetector(pPhysShortEnv,"AFP01");
+    //Silicon detector
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP01",ESE_SID);
+    addSiDetector(pPhysShortEnv,"AFP01",PosElementInEnv);
 
     //AFP02 (SIDE C (-z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
-    //add envelope -- short beampipe (station C)
-    TransEnvInWorld=m_pGeometry->GetStationTransform("AFP02"); //HepGeom::Translate3D(-97.0*CLHEP::mm,0.0*CLHEP::mm,-m_CfgParams.fShortHBZPos);
+
+    //add  envelope -- short beampipe (station C)
+    TransEnvInWorld=m_pGeometry->getStationTransform("AFP02");
     const GeoBox* pBoxShortEnv1= new GeoBox(150*CLHEP::mm, 150*CLHEP::mm, 280*CLHEP::mm);
-    const GeoLogVol* pLogShortEnv1 = new GeoLogVol("AFP02_LogShortHamburgPipeEnv", pBoxShortEnv1, m_MapMaterials[std::string("std::Vacuum")]);
+    const GeoLogVol* pLogShortEnv1 = new GeoLogVol("AFP02_LogStationEnv", pBoxShortEnv1, m_MapMaterials[std::string("std::Vacuum")]);
     GeoPhysVol* pPhysShortEnv1   = new GeoPhysVol(pLogShortEnv1);
-    sprintf(szLabel,"AFP02_ShortHamburgPipeEnv");
+    sprintf(szLabel,"AFP02_StationEnv");
     world->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransEnvInWorld)));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysShortEnv1);
-    m_detectorManager->addTreeTop(pPhysShortEnv1);
+    m_pDetectorManager->addTreeTop(pPhysShortEnv1);
 
-    //add Short Hamburg Pipe (station C)
-    PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP02",ESE_RPOT);
-    AddRomanPot(pPhysShortEnv1,"AFP02",PosElementInEnv);
+    //Roman Pot
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP02",ESE_RPOT);
+    addRomanPot(pPhysShortEnv1,"AFP02",PosElementInEnv);
 
-    //add Silicon detector
-    //PosElementInEnv=HepGeom::Translate3D(m_CfgParams.fShortHBFloorXPos,m_CfgParams.fShortHBYPos,0.0*CLHEP::mm)*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
-    AddSiDetector(pPhysShortEnv1,"AFP02");
+    //Silicon detector
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP02",ESE_SID);
+    addSiDetector(pPhysShortEnv1,"AFP02",PosElementInEnv);
 
     //AFP03 (SIDE C (-z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
-    //add envelope -- long beampipe (station C)
-    TransEnvInWorld=m_pGeometry->GetStationTransform("AFP03"); //HepGeom::Translate3D(-97.0*CLHEP::mm,0.0*CLHEP::mm,-m_CfgParams.fLongHBZPos);
+
+    // Optical Envelope
+    TransEnvInWorld=m_pGeometry->getStationTransform("AFP03");
     const GeoBox* pBoxLongEnv1= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
-    const GeoLogVol* pLogLongEnv1 = new GeoLogVol("AFP03_LogLongHamburgPipeEnv", pBoxLongEnv1, m_MapMaterials[std::string("OpticalVacuum")]);
+    const GeoLogVol* pLogLongEnv1 = new GeoLogVol("AFP03_LogStationEnv", pBoxLongEnv1, m_MapMaterials[std::string("OpticalVacuum")]);
     GeoOpticalPhysVol* pPhysLongEnv1   = new GeoOpticalPhysVol(pLogLongEnv1);
-    sprintf(szLabel,"AFP03_LongHamburgPipeEnv");
+    sprintf(szLabel,"AFP03_StationEnv");
     world->add(new GeoTransform(Amg::CLHEPTransformToEigen(TransEnvInWorld)));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysLongEnv1);
-    m_detectorManager->addTreeTop(pPhysLongEnv1);
+    m_pDetectorManager->addTreeTop(pPhysLongEnv1);
 
-    //add Long Hamburg Pipe (station C)
-    PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP03",ESE_RPOT);
-	AddRomanPot( pPhysLongEnv1,"AFP03",PosElementInEnv);
+    //Roman Pot
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP03",ESE_RPOT);
+    addRomanPot( pPhysLongEnv1,"AFP03",PosElementInEnv);
 
-    //add Timing detector - Q1
-    //PosElementInEnv=HepGeom::Translate3D(m_CfgParams.fLongHBFloorXPos, m_CfgParams.fLongHBYPos+m_CfgParams.fQuarticYPosInTube[0], -m_CfgParams.fQuarticZPosInTube[0])*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
-    PosElementInEnv=m_pGeometry->GetStationElementTransform("AFP03",ESE_TOF);
-    SCode=AddTimingDetector("AFP03",pPhysLongEnv1,PosElementInEnv, pBSContainer);
+    //Timing detector
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP03",ESE_TOF);
+    SCode=addTimingDetector("AFP03",pPhysLongEnv1,PosElementInEnv, pBSContainer);
 
-    //add Silicon detector
-    //PosElementInEnv=HepGeom::Translate3D(m_CfgParams.fLongHBFloorXPos,m_CfgParams.fLongHBYPos,+200.0*CLHEP::mm)*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
-    AddSiDetector(pPhysLongEnv1,"AFP03");
+    //Silicon detector
+    PosElementInEnv=m_pGeometry->getStationElementTransform("AFP03",ESE_SID);
+    addSiDetector(pPhysLongEnv1,"AFP03",PosElementInEnv);
+
+
 
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // Register the Surface Container with the Detector Store
-    SCode=m_detectorStore->record(pBSContainer, "AFP_GeoModel");
+    SCode=m_pDetectorStore->record(pBSContainer, "AFP_GeoModel");
     if (SCode.isFailure()){
 
     }
 }
 
-const AFP_GeoModelManager * AFP_GeoModelFactory::getDetectorManager() const
+const AFP_GeoModelManager* AFP_GeoModelFactory::getDetectorManager() const
 {
-    return m_detectorManager;
+    return m_pDetectorManager;
 }
 
 
-void AFP_GeoModelFactory::UpdatePositions(PAFP_BPMCOOLPARAMS /*pBpmParams*/)
+void AFP_GeoModelFactory::updatePositions(AFP_BPMCOOLPARAMS* /*pBpmParams*/)
 {
 
 }
