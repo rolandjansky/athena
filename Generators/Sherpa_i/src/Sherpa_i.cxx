@@ -220,6 +220,24 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
 #endif
   p_sherpa->FillHepMCEvent(*event);
 
+
+#ifdef HEPMC3
+//Weight, MEWeight, WeightNormalisation, NTrials 
+  if (event->weights().size()>2) {
+    double nominal = event->weight("Weight");
+    for (auto name: event->weight_names()) {
+      if (name  == "WeightNormalisation") continue;
+      if (name  == "NTrials") continue;
+      if (name  == "Weight") continue;
+      if (name  == "NTrials") continue;
+      if (std::abs(event->weight(name)) > m_variation_weight_cap*std::abs(nominal)) {
+        ATH_MSG_INFO("Capping variation" << name << " = " << event->weight(name)/nominal << "*nominal");
+        event->weight(name) *= m_variation_weight_cap*std::abs(nominal)/std::abs(event->weight(name));
+      }
+      ATH_MSG_DEBUG("Sherpa WEIGHT " << name << " value="<< event->weight(name));
+    }
+  }
+#else
   if (event->weights().size()>2) {
     //double weight_normalisation = event->weights()[2];
     for (size_t i=0; i<event->weights().size(); ++i) {
@@ -234,6 +252,7 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
       ATH_MSG_DEBUG("Sherpa WEIGHT " << i << " value="<< event->weights()[i]);
     }
   }
+#endif
 
 #ifdef HEPMC3
 // units correction
