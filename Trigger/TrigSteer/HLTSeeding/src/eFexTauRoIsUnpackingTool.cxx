@@ -2,6 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "eFexTauRoIsUnpackingTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadDecorHandle.h"
 
 // =============================================================================
@@ -41,6 +42,8 @@ StatusCode eFexTauRoIsUnpackingTool::unpack(const EventContext& ctx,
   // Retrieve the xAOD RoI container from L1TriggerResult
   if (!l1TriggerResult.hasObjectLink(m_eFexTauRoILinkName, ClassID_traits<xAOD::eFexTauRoIContainer>::ID())) {
     ATH_MSG_DEBUG("No eFex Tau RoIs in this event");
+    auto monRoIsCount = Monitored::Scalar("count", 0);
+    Monitored::Group(m_monTool, monRoIsCount);
     return StatusCode::SUCCESS;
   }
   ElementLink<xAOD::eFexTauRoIContainer> roisLink = l1TriggerResult.objectLink<xAOD::eFexTauRoIContainer>(m_eFexTauRoILinkName);
@@ -91,6 +94,14 @@ StatusCode eFexTauRoIsUnpackingTool::unpack(const EventContext& ctx,
     }
 
     ++linkIndex;
+  }
+
+  // Monitor the TrigRoiDescriptorCollection
+  {
+    auto monRoIsCount = Monitored::Scalar("count", roiDescriptors->size());
+    auto monRoIsEta = Monitored::Collection("eta", *roiDescriptors, &TrigRoiDescriptor::eta);
+    auto monRoIsPhi = Monitored::Collection("phi", *roiDescriptors, &TrigRoiDescriptor::phi);
+    Monitored::Group(m_monTool, monRoIsCount, monRoIsEta, monRoIsPhi);
   }
 
   return StatusCode::SUCCESS;

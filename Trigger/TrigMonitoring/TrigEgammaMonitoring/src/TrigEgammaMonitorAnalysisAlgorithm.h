@@ -47,8 +47,8 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     void fillL1CaloResolution(const std::string &trigger, const std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >>& pairObjs ) const;
     void fillL1CaloAbsResolution(const std::string &trigger, const std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >>& pairObjs ) const;
     void fillL2CaloResolution(const std::string &trigger, const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs ) const;
-    void fillHLTElectronResolution(const std::string &trigger, const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs , bool) const;
-    void fillHLTPhotonResolution(const std::string &trigger, const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs , bool) const;
+    void fillHLTElectronResolution(const std::string &trigger, const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs , const TrigInfo& info) const;
+    void fillHLTPhotonResolution(const std::string &trigger, const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs , const TrigInfo& info) const;
 
 };
 

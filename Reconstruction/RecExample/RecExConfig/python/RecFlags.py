@@ -703,7 +703,7 @@ class doAFP(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
     def _undo_action(self):
         if not jobproperties.Rec.doLucid and not jobproperties.Rec.doZdc and not jobproperties.Rec.doAlfa and not jobproperties.Rec.doFwdRegion and jobproperties.Rec.doForwardDet  :
             jobproperties.Rec.doForwardDet=False

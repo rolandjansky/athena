@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package's name.
 atlas_subdir( AthExOnnxRuntime )
@@ -20,12 +20,9 @@ atlas_install_joboptions( share/*.py )
 
 # Set up tests for the package.
 atlas_add_test( AthExOnnxRuntimeJob_serial
-   SCRIPT athena.py AthExOnnxRuntime/AthExOnnxRuntime_jobOptions.py )
-
+   SCRIPT athena.py AthExOnnxRuntime/AthExOnnxRuntime_jobOptions.py
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( AthExOnnxRuntimeJob_mt
-   SCRIPT athena.py --threads=2
-          AthExOnnxRuntime/AthExOnnxRuntime_jobOptions.py )
-
-
-
+   SCRIPT athena.py --threads=2 AthExOnnxRuntime/AthExOnnxRuntime_jobOptions.py
+   POST_EXEC_SCRIPT nopost.sh )

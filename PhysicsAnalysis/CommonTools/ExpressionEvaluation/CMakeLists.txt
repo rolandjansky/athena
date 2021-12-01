@@ -26,6 +26,5 @@ atlas_add_test( ExpressionParser_test
                 SOURCES test/ExpressionParser_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES GaudiKernel TestTools CxxUtils ${ROOT_LIBRARIES} ExpressionEvaluationLib xAODTracking xAODMuon
-                LOG_IGNORE_PATTERN "^AtlasFieldSvc +INFO"
-                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

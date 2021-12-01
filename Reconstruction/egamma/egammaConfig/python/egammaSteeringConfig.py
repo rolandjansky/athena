@@ -13,8 +13,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 def EGammaSteeringCfg(flags,
-                      name="EGammaSteering",
-                      forceDisableLRT=True):
+                      name="EGammaSteering"):
 
     mlog = logging.getLogger(name)
     mlog.info('Starting EGamma steering')
@@ -43,10 +42,7 @@ def EGammaSteeringCfg(flags,
             egammaxAODThinningCfg)
         acc.merge(egammaxAODThinningCfg(flags))
 
-    if forceDisableLRT:
-        mlog.info('e/gamma LRT force disabled ')
-
-    if flags.InDet.doR3LargeD0 and not forceDisableLRT:
+    if flags.Detector.GeometryID and flags.InDet.doR3LargeD0:
         # LRT Reconstruction
         from egammaConfig.egammaLRTReconstructionConfig import (
             egammaLRTReconstructionCfg)
@@ -73,8 +69,7 @@ if __name__ == "__main__":
     flags.Output.doWriteAOD = True  # To test the AOD parts
     flags.lock()
     acc = MainServicesCfg(flags)
-    acc.merge(EGammaSteeringCfg(flags,
-                                forceDisableLRT=False))
+    acc.merge(EGammaSteeringCfg(flags))
     acc.printConfig(withDetails=True,
                     printDefaults=True)
 

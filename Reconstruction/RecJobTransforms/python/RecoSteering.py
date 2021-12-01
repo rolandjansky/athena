@@ -40,7 +40,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured trigger data decoding")
 
     # calorimeter
-    if flags.Reco.EnableCalo:
+    if flags.Detector.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
         acc.merge(CaloRecoCfg(flags, doLCCalib=True))
         log.info("---------- Configured calorimeter reconstruction")
@@ -52,7 +52,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured tracking")
 
     # muons
-    if flags.Reco.EnableMuon:
+    if flags.Detector.EnableMuon:
         from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
         acc.merge(MuonReconstructionCfg(flags))
         log.info("---------- Configured muon tracking")
@@ -63,9 +63,10 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured combined muon reconstruction")
 
     # Caching of CaloExtension for downstream Combined Performance algorithms.
-    from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
-    acc.merge(CaloExtensionBuilderAlgCfg(flags))
-    log.info("---------- Configured track calorimeter extension builder")
+    if flags.Detector.EnableCalo and flags.Reco.EnableTracking:
+        from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderCfg
+        acc.merge(CaloExtensionBuilderCfg(flags))
+        log.info("---------- Configured track calorimeter extension builder")
 
     if flags.Reco.EnableEgamma:
         from egammaConfig.egammaSteeringConfig import EGammaSteeringCfg
@@ -88,7 +89,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured btagging")
 
     if flags.Reco.EnableHI:
-        from HIRecoConfig.HIRecoConfig import HIRecCfg
+        from HIRecConfig.HIRecConfig import HIRecCfg
         acc.merge(HIRecCfg(flags))
         log.info("---------- Configured Heavy Ion reconstruction")
 

@@ -783,10 +783,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( const std::vector< std
   
   // Fill HLT electron for all onl objects found
   if ( info.signature=="Electron"){
-    fillHLTElectronResolution( trigger, pair_eg_vec, info.isolated ); 
+    fillHLTElectronResolution( trigger, pair_eg_vec, info ); 
   }  
   else if ( info.signature=="Photon"){
-    fillHLTPhotonResolution( trigger, pair_eg_vec, info.isolated );
+    fillHLTPhotonResolution( trigger, pair_eg_vec, info );
     }
 
 }
@@ -854,7 +854,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloAbsResolution(const std::stri
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::string &trigger,
                                                         const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs,
-                                                        bool filliso) const
+                                                        const TrigInfo& info) const
 {
 
     auto monGroup = getGroup( trigger + "_Resolutions_HLT" );
@@ -916,7 +916,9 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
     // Check for zero before filling
     ATH_MSG_DEBUG("Fill Resolution");
 
-
+    std::string key = match()->key("Electrons");
+    if(info.gsf) key = match()->key("Electrons_GSF");
+    if(info.lrt) key = match()->key("Electrons_LRT");
 
     for ( const auto & pairObj : pairObjs ){
 
@@ -926,7 +928,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
       { // Get the closest electron object from the trigger starting with deltaR = 0.15
         float maxDeltaR=0.05;
-        auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics ,match()->key("Electrons") );      
+        auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics ,key );      
         for(auto &featLinkInfo : vec ){                                             
           if(! featLinkInfo.isValid() ) continue;
           const auto *feat = *(featLinkInfo.link);                   
@@ -1139,7 +1141,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
 
       
-      if(filliso){
+      if(info.isolated){
 
         float val_off=getIsolation_ptcone20(off);
         if (val_off > 0.) {
@@ -1230,7 +1232,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::string &trigger,
                                                         const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs, 
-                                                        bool filliso) const
+                                                        const TrigInfo& info) const
 {
 
     auto monGroup = getGroup( trigger + "_Resolutions_HLT" );
@@ -1466,7 +1468,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
       }
    
 
-      if( filliso ){
+      if( info.isolated ){
         // topoetcone20 isolation
         float val_off=getIsolation_topoetcone20(off);
         float etonl=onl->pt();

@@ -107,24 +107,24 @@ def createLegacyCaloRoIUnpackers():
 def createCaloRoIUnpackers():
     from HLTSeeding.HLTSeedingMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
+    maxRoICount = 150  # used for histogram range, 144 is the hardware limit
     eFexEMUnpacker = CompFactory.eFexEMRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("eEM"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeEM"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eEM")),
-        MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=30))
+        MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=maxRoICount))
     eFexTauUnpacker = CompFactory.eFexTauRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("eTAU"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeTAU"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eTAU")),
-        MonTool = RoIsUnpackingMonitoring(prefix="eTAU", maxCount=30))
-    # TODO: Add jFexTauUnpacker once jTAU thresholds are implemented in L1 Menu
-    # jFexTauUnpacker = CompFactory.jFexTauRoIsUnpackingTool(
-    #     Decisions = mapThresholdToL1DecisionCollection("jTAU"),
-    #     DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEjTAU"),
-    #     OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jTAU")),
-    #     MonTool = RoIsUnpackingMonitoring(prefix="jTAU", maxCount=30))
+        MonTool = RoIsUnpackingMonitoring(prefix="eTAU", maxCount=maxRoICount))
+    jFexTauUnpacker = CompFactory.jFexTauRoIsUnpackingTool(
+        Decisions = mapThresholdToL1DecisionCollection("jTAU"),
+        DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEjTAU"),
+        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jTAU")),
+        MonTool = RoIsUnpackingMonitoring(prefix="jTAU", maxCount=maxRoICount))
 
-    return [eFexEMUnpacker, eFexTauUnpacker]
+    return [eFexEMUnpacker, eFexTauUnpacker, jFexTauUnpacker]
 
 def createMuonRoIUnpackers(flags):
     #from HLTSeeding.HLTSeedingConf import MURoIsUnpackingTool
@@ -180,7 +180,7 @@ def getL1TriggerResultMaker(flags):
         l1trMaker.ThresholdPatternTools += [
             CompFactory.eFexEMRoIThresholdsTool(),
             CompFactory.eFexTauRoIThresholdsTool(),
-            # CompFactory.jFexTauRoIThresholdsTool(),  # TODO: Add once jTAU thresholds are implemented in L1 Menu
+            CompFactory.jFexTauRoIThresholdsTool(),
         ]
     else:
        l1trMaker.eFexEMRoIKey = ""

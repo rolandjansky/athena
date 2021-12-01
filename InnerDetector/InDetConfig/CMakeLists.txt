@@ -16,17 +16,18 @@ atlas_add_test( TrackingCutsFlags_test
     POST_EXEC_SCRIPT nopost.sh)
  
 atlas_add_test( BackTrackingConfig_test
-    SCRIPT python -m InDetConfig.BackTrackingConfig  --norun
+    SCRIPT python -m InDetConfig.BackTrackingConfig --norun
     POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test( TRTSegmentFindingConfig_test
-    SCRIPT python -m InDetConfig.TRTSegmentFindingConfig  --norun
+    SCRIPT python -m InDetConfig.TRTSegmentFindingConfig
     POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test( TrackRecoConfig_test
-    SCRIPT python -m InDetConfig.TrackRecoConfig  --norun
+    SCRIPT python -m InDetConfig.TrackRecoConfig
+    PROPERTIES TIMEOUT 300
     POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test( ITkTrackRecoConfig_test
-    SCRIPT python -m InDetConfig.ITkTrackRecoConfig  --norun
+    SCRIPT python -m InDetConfig.ITkTrackRecoConfig --norun
     POST_EXEC_SCRIPT nopost.sh)

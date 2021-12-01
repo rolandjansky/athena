@@ -366,8 +366,10 @@ def defineMenu():
         #ATR-19638
         'L1_BPH-0M10C-3MU3V',
         #ATR-21566 
+        'L1_BPH-0DR12-2MU3V',
+        'L1_BPH-7M22-0DR20-2MU3V',
         'L1_BPH-0DR12C-2MU3V',
-
+        'L1_BPH-7M22-0DR20C-2MU3V',
         #ATR-22782
         'L1_BPH-0M16-20DR99-2MU3V', 'L1_BPH-0M16-15DR99-2MU3V',
         'L1_BPH-8M15-20DR99-C-2MU3V', 'L1_BPH-8M15-20DR99-2MU3V', 'L1_BPH-8M15-15DR99-2MU3V',          
@@ -377,7 +379,7 @@ def defineMenu():
         'L1_jMJJ-400-NFF-0DPHI24',
         'L1_jMJJ-400-NFF-0DPHI26',
 
-        'L1_LATE-MU8F_XE30', 'L1_LATE-MU8F_J50',
+        'L1_LATE-MU8F_jXE30', 'L1_LATE-MU8F_jJ50',
 
         #ATR-18824
         'L1_ZAFB-04DPHI-eEM15M',

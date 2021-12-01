@@ -1,4 +1,3 @@
-
 include.block ('ForwardRec/ForwardRec_jobOptions.py')
 
 from AthenaCommon.Resilience import treatException   
@@ -51,5 +50,6 @@ if rec.doAFP() and rec.doESD():
     
     topSequence+=AFP_Raw2Digi()
 
-    # tracks reconstruction
-    include("AFP_LocReco/AFP_LocReco_joboption.py")
+  # tracks reconstruction
+  include("AFP_LocReco/AFP_LocReco_joboption.py")
+

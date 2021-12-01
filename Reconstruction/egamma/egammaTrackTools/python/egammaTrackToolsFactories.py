@@ -44,7 +44,5 @@ EMExtrapolationTools = ToolFactory(
     LastCaloExtensionTool=EMLastCaloExtensionTool,
     PerigeeCaloExtensionTool=EMParticleCaloExtensionTool,
     Extrapolator=egammaExtrapolator,
-    useCaching=False,
-    useLastCaching=False
 )
 
