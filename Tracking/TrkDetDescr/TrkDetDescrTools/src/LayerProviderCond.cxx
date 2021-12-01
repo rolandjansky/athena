@@ -40,14 +40,6 @@ Trk::LayerProviderCond::initialize()
   return StatusCode::SUCCESS;
 }
 
-/** LayerBuilderCond interface method - returning the layers at negative side */
-std::pair<EventIDRange, const std::vector<Trk::Layer*>>
-Trk::LayerProviderCond::negativeLayers(const EventContext& ctx) const
-{
-  // this will fill the cache with positive layers
-  return discLayers(ctx, -1);
-}
-
 /** LayerBuilderCond interface method - returning the central layers */
 std::pair<EventIDRange, const std::vector<Trk::Layer*>>
 Trk::LayerProviderCond::centralLayers(const EventContext& ctx) const
@@ -70,44 +62,32 @@ Trk::LayerProviderCond::centralLayers(const EventContext& ctx) const
 }
 
 /** LayerBuilderCond interface method - returning the layers at negative side */
-std::pair<EventIDRange, const std::vector<Trk::Layer*>>
-Trk::LayerProviderCond::positiveLayers(const EventContext& ctx) const
-{
-  // this will fill the cache with negative layers
-  return discLayers(ctx, 1);
-}
-
-/** LayerBuilderCond interface method - returning the layers at negative side */
-std::pair<EventIDRange, const std::vector<Trk::Layer*>>
-Trk::LayerProviderCond::discLayers(const EventContext& ctx, int posneg) const
+std::tuple<EventIDRange, const std::vector<Trk::Layer*>, const std::vector<Trk::Layer*> > Trk::LayerProviderCond::endcapLayer(const EventContext& ctx) const
 {
   // get the disc layers
-  std::vector<Trk::Layer*> dLayers;
+  std::vector<Trk::Layer*> dLayers_pos;
+  std::vector<Trk::Layer*> dLayers_neg;
   // retrieving the cylinder layers from the layer builder
   std::pair<EventIDRange, const std::vector<Trk::DiscLayer*>*> discLayersPair =
     m_layerBuilder->discLayers(ctx);
-  const auto* discLayers = discLayersPair.second;
+
+    const auto* discLayers = discLayersPair.second;
   // loop and fill either cache or dLayers
   if (discLayers) {
     // loop over and push into the return/cache vector
     for (Trk::DiscLayer* dL : (*discLayers)) {
       // get the center posituion
       double zpos = dL->surfaceRepresentation().center().z();
-      if (posneg > 0) {
-        // configured to provide positive and cache negative
-        if (zpos > 0.)
-          dLayers.push_back(dL);
-      } else {
-        // configured to provide negative and cache positive
-        if (zpos < 0.)
-          dLayers.push_back(dL);
-      }
+      if (zpos > 0.)
+          dLayers_pos.push_back(dL);
+      else
+          dLayers_neg.push_back(dL);
     }
   }
   // memory cleanup
   delete discLayers;
   // and return
-  return std::make_pair(discLayersPair.first, dLayers);
+  return std::make_tuple(discLayersPair.first, dLayers_pos, dLayers_neg);
 }
 
 const std::string&
