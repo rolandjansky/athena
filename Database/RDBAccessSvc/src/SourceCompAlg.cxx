@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SourceCompAlg.h"
@@ -197,7 +197,7 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
   
     bool difFound{false};
     NodeToRecordsetMap::const_iterator it = map[0].begin();
-    for(; it!=map[0].end(); it++) {
+    for(; it!=map[0].end(); ++it) {
       if(map[1].find(it->first)==map[1].end()) {
 	if(!difFound) {
 	  difFound = true;
@@ -210,7 +210,7 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
   
     difFound = false;
     it = map[1].begin();
-    for(; it!=map[1].end(); it++) {
+    for(; it!=map[1].end(); ++it) {
       if(map[0].find(it->first)==map[0].end()) {
 	if(!difFound) {
           difFound = true;
@@ -223,7 +223,7 @@ void SourceCompAlg::compareGlobalTags(const std::vector<std::string>& globalTags
 
     difFound = false;
     it = map[0].begin();
-    for(; it!=map[0].end(); it++) {
+    for(; it!=map[0].end(); ++it) {
       NodeToRecordsetMap::const_iterator it1 = map[1].find(it->first);
       if(it1!=map[1].end()) {
 	IRDBRecordset_ptr recPtr0 = it->second;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -41,9 +41,9 @@ class RDBVersionAccessor
   /// @param parentNode [IN] parent node name
   /// @param parentTag [IN] parent tag name
   /// @param session [IN] active relational session  
-  RDBVersionAccessor(std::string childNode
-		     , std::string parentNode
-		     , std::string parentTag
+  RDBVersionAccessor(const std::string& childNode
+		     , const std::string& parentNode
+		     , const std::string& parentTag
 		     , coral::ISessionProxy* session
 		     , MsgStream& stream);
   

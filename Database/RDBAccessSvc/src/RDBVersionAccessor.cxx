@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,9 +31,9 @@
 #include <stdexcept>
 #include <sstream>
 
-RDBVersionAccessor::RDBVersionAccessor(std::string childNode
-				       , std::string parentNode
-				       , std::string parentTag
+RDBVersionAccessor::RDBVersionAccessor(const std::string& childNode
+				       , const std::string& parentNode
+				       , const std::string& parentTag
 				       , coral::ISessionProxy* session
 				       , MsgStream& msgStream)
   : m_session(session)
