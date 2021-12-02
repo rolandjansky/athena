@@ -139,7 +139,7 @@ def _precisionTracking(flags, chainDict):
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
-def _precisionElectronSeq(flags, doIDperf=False):
+def _precisionElectronSeq(flags):
     name='PrecionElectron'
     selAcc=SelectionCA(name)
     recoAcc = InViewRecoCA(name, RequireParentView=True)
@@ -266,7 +266,7 @@ def _precisionElectronSeq(flags, doIDperf=False):
 
     selAcc.mergeReco(recoAcc)
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict, TrigEgammaPrecisionElectronHypoAlgCfg
-    selAcc.mergeHypo( TrigEgammaPrecisionElectronHypoAlgCfg(flags, 'TrigEgammaHypoAlg_noGSF', TrigEgammaKeys.precisionElectronContainer, doIDperf=doIDperf ) )
+    selAcc.mergeHypo( TrigEgammaPrecisionElectronHypoAlgCfg(flags, 'TrigEgammaHypoAlg_noGSF', TrigEgammaKeys.precisionElectronContainer ) )
     menuSequence = MenuSequenceCA(selAcc,
                                    HypoToolGen=TrigEgammaPrecisionElectronHypoToolFromDict)
     return (selAcc, menuSequence)
