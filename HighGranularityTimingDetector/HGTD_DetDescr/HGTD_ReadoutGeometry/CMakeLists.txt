@@ -5,14 +5,15 @@ atlas_subdir( HGTD_ReadoutGeometry )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( Eigen )
-find_package( GeoModel COMPONENTS GeoModelKernel )
+find_package( GeoModel COMPONENTS GeoPrimitives GeoModelKernel )
 
 # Component(s) in the package:
 atlas_add_library( HGTD_ReadoutGeometry
-                   src/*.cxx
-                   PUBLIC_HEADERS HGTD_ReadoutGeometry
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel SGTools AtlasDetDescr GeoPrimitives Identifier ReadoutGeometryBase GaudiKernel HGTD_Identifier TrkSurfaces StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions IdDictDetDescr GeoModelUtilities)
+   HGTD_ReadoutGeometry/*.h src/*.cxx
+   PUBLIC_HEADERS HGTD_ReadoutGeometry
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+   DEFINITIONS ${CLHEP_DEFINITIONS}
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} Identifier
+   ReadoutGeometryBase TrkEventPrimitives HGTD_Identifier AthenaBaseComps
+   TrkSurfaces
+   PRIVATE_LINK_LIBRARIES AtlasDetDescr StoreGateLib GeoModelUtilities )
