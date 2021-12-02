@@ -418,6 +418,7 @@ if dumpPixInfo:
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo
     xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = InDetDxAODFlags.DumpPixelRdoInfo()
     xAOD_PixelPrepDataToxAOD.WriteNNinformation   = InDetDxAODFlags.DumpPixelNNInfo()
+    xAOD_PixelPrepDataToxAOD.StoreExtendedInfo    = InDetDxAODFlags.StoreExtendedHitDeco()
     #xAOD_PixelPrepDataToxAOD.WriteSDOs            = True
     #xAOD_PixelPrepDataToxAOD.WriteSiHits          = True # if available
 

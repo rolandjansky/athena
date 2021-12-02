@@ -174,4 +174,11 @@ class PixelClusterThinningExpression(JobProperty):
     StoredValue = ""
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(PixelClusterThinningExpression)
 
+class StoreExtendedHitDeco(JobProperty):
+   """Store extended hit decoration"""
+   statusOn     = True
+   allowedTypes = ['bool']
+   StoredValue  = False
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(StoreExtendedHitDeco)
+
 InDetDxAODFlags = jobproperties.InDetDxAODJobPropertyContainer

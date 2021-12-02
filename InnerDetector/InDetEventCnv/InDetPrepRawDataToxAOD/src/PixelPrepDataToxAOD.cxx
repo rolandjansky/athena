@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,6 +60,7 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   declareProperty("WriteSiHits", m_writeSiHits = true);
   declareProperty("WriteNNinformation", m_writeNNinformation = true);
   declareProperty("WriteRDOinformation", m_writeRDOinformation = true);
+  declareProperty("StoreExtendedInfo", m_storeExtendedInfo = false);
 
   // --- Configuration keys
   declareProperty("SiClusterContainer",  m_clustercontainer = "PixelClusters");
@@ -212,11 +213,33 @@ StatusCode PixelPrepDataToxAOD::execute()
 
       // Set vector of hit identifiers
       std::vector< uint64_t > rdoIdentifierList;
+      const InDetDD::SiDetectorElement* element = prd->detectorElement();
+      const InDetDD::PixelModuleDesign* design =
+           dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+      int rowmin=9999; int rowmax=-9999;
+      int colmin=9999; int colmax=-9999;
       for( const auto &hitIdentifier : prd->rdoList() ){
         rdoIdentifierList.push_back( hitIdentifier.get_compact() );
         //May want to addinformation about the individual hits here
+	int row = m_PixelHelper->phi_index(hitIdentifier);
+	int col = m_PixelHelper->eta_index(hitIdentifier);
+	if(rowmin > row) rowmin = row;
+	if(rowmax < row) rowmax = row;
+	if(colmin > col) colmin = col;
+	if(colmax < col) colmax = col;
       }
       xprd->setRdoIdentifierList(rdoIdentifierList);
+
+      InDetDD::SiLocalPosition pos1 =
+	design->positionFromColumnRow(colmin,rowmin);
+      InDetDD::SiLocalPosition pos2 =
+	design->positionFromColumnRow(colmax,rowmin);
+      InDetDD::SiLocalPosition pos3 =
+	design->positionFromColumnRow(colmin,rowmax);
+      InDetDD::SiLocalPosition pos4 =
+	design->positionFromColumnRow(colmax,rowmax);
+
+      InDetDD::SiLocalPosition centroid = 0.25*(pos1+pos2+pos3+pos4);
 
       //Add pixel cluster properties
       xprd->auxdata<int>("bec")          =   m_PixelHelper->barrel_ec(clusterId)   ;
@@ -228,11 +251,21 @@ StatusCode PixelPrepDataToxAOD::execute()
       //xprd->auxdata<int>("row")         =  m_PixelHelper->phi_index(clusterId);
       xprd->auxdata<int>("eta_pixel_index")         =  m_PixelHelper->eta_index(clusterId);
       xprd->auxdata<int>("phi_pixel_index")         =  m_PixelHelper->phi_index(clusterId);
-   
 
       const InDet::SiWidth cw = prd->width();
       xprd->auxdata<int>("sizePhi") = (int)cw.colRow()[0];
       xprd->auxdata<int>("sizeZ")   = (int)cw.colRow()[1];
+
+      if(m_storeExtendedInfo){
+        xprd->auxdata<int>("waferID")      =   m_PixelHelper->wafer_hash(element->identify());
+        xprd->auxdata<int>("isInclined")   =   int(prd->detectorElement()->isInclined())   ;
+        xprd->auxdata<float>("centroid_xphi") = centroid.xPhi();
+        xprd->auxdata<float>("centroid_xeta") = centroid.xEta();
+        xprd->auxdata<float>("LorentzCorrection") = prd->detectorElement()->getLorentzCorrection();
+        xprd->auxdata<float>("omegax") = prd->omegax();
+        xprd->auxdata<float>("omegay") = prd->omegay();
+      }
+
       xprd->auxdata<int>("nRDO")    = (int)prd->rdoList().size();
    
       xprd->auxdata<float>("charge")  =  prd->totalCharge(); 

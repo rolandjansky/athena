@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -103,6 +103,7 @@ private:
   bool  m_writeRDOinformation;
   bool  m_useSiHitsGeometryMatching;
   bool  m_decorateBrokenClusters;
+  bool  m_storeExtendedInfo;
   
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
   ServiceHandle<IPixelDCSSvc> m_pixelDCSSvc;
