@@ -650,30 +650,28 @@ if InDetTrigFlags.loadAssoTool():
 if InDetTrigFlags.loadSummaryTool():
 
   # Load Pixel Layer tool
+  # used as private tool only, don't add it to ToolSvc
   from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
   InDetTrigTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name             = "InDetTrigTestPixelLayerTool",
                                                                PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                Extrapolator     = InDetTrigExtrapolator,
                                                                CheckActiveAreas = True,
                                                                CheckDeadRegions = True)
-  ToolSvc += InDetTrigTestPixelLayerTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print ( InDetTrigTestPixelLayerTool)
 
   from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
-  InDetTrigBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
-    name="InDetTrigBoundaryCheckTool",
-    UsePixel=DetFlags.haveRIO.pixel_on(),
-    UseSCT=DetFlags.haveRIO.SCT_on(),
-    SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
-    PixelLayerTool=InDetTrigTestPixelLayerTool
-  )
-  ToolSvc += InDetTrigBoundaryCheckTool
+  # used as private tool only, don't add it to ToolSvc
+  InDetTrigBoundaryCheckTool = InDet__InDetBoundaryCheckTool(name="InDetTrigBoundaryCheckTool",
+                                                             UsePixel=DetFlags.haveRIO.pixel_on(),
+                                                             UseSCT=DetFlags.haveRIO.SCT_on(),
+                                                             SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
+                                                             PixelLayerTool = InDetTrigTestPixelLayerTool
+                                                             )
 
-
-   #
-   # Loading Configurable HoleSearchTool
-   #
+  #
+  # Loading Configurable HoleSearchTool
+  #
   from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 
   InDetTrigHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetTrigHoleSearchTool",
@@ -932,7 +930,8 @@ if InDetTrigFlags.doNewTracking():
                                                                  PixelClusterContainer = 'PixelTrigClusters',
                                                                  SCT_ClusterContainer = 'SCT_TrigClusters',
                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                                 SctSummaryTool = InDetTrigSCTConditionsSummaryTool
+                                                                 SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
+                                                                 BoundaryCheckTool = InDetTrigBoundaryCheckTool
                                                                  )															
   if DetFlags.haveRIO.pixel_on():
     # Condition algorithm for SiCombinatorialTrackFinder_xk
