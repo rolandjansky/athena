@@ -65,6 +65,7 @@ public:
 struct Payload
 {
   Payload (int x = 0) : m_x (x) {}
+  Payload (const Payload&) = default;
   Payload& operator= (const Payload&) = default;
   int m_x;
   bool operator== (const Payload& other)
