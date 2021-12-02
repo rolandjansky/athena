@@ -151,14 +151,12 @@ def ExtrapolatorCfg(flags):
 def InDetTestPixelLayerToolCfg(flags):
   acc = ComponentAccumulator()
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-  
 
-  tool = CompFactory.InDet.InDetTestPixelLayerTool("InDetTrigTestPixelLayerTool",
-                                                               PixelSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) ),
-                                                               Extrapolator     = acc.getPrimaryAndMerge(ExtrapolatorCfg( flags)),
-                                                               CheckActiveAreas = True,
-                                                               CheckDeadRegions = True)
-  acc.addPublicTool( tool )
+  tool = CompFactory.InDet.InDetTestPixelLayerTool(PixelSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) ),
+                                                   Extrapolator     = acc.getPrimaryAndMerge(ExtrapolatorCfg( flags)), 
+                                                   CheckActiveAreas = True,
+                                                   CheckDeadRegions = True)
+  acc.setPrivateTools( tool )
   return acc
 
 
