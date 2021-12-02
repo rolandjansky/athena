@@ -5,5 +5,5 @@ atlas_subdir( HIRecConfig )
 
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
-# TODO setup tests once some content is available
-# atlas_add_test()
+atlas_add_test( HIRec_test
+              SCRIPT python -m HIRecConfig.HIRecConfig)

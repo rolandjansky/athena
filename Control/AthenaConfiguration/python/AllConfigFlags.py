@@ -253,7 +253,7 @@ def _createCfgFlags():
     def __hi():
         from HIRecConfig.HIRecConfigFlags import createHIRecConfigFlags
         return createHIRecConfigFlags()
-    _addFlagsCategory(acf, "HIRec", __hi, "HIRecConfig")
+    _addFlagsCategory(acf, "HeavyIon", __hi, "HIRecConfig")
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags

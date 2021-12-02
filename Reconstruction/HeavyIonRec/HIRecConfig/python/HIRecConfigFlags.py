@@ -5,8 +5,11 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
 def createHIRecConfigFlags():
   flags=AthConfigFlags()
-  flags.addFlag("doGlobal", True)
-  flags.addFlag("doJet", True)
-  flags.addFlag("doEgamma", True)
+  flags.addFlag("HeavyIon.doGlobal", True)
+  flags.addFlag("HeavyIon.Global.doEventShapeSummary", True)
+
+  flags.addFlag("HeavyIon.doJet", True)
+
+  flags.addFlag("HeavyIon.doEgamma", True)
   # expand as needed
   return flags

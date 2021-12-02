@@ -44,7 +44,7 @@ StatusCode HIEventShapeMaker::initialize()
 
 StatusCode HIEventShapeMaker::execute()
 {
-  ATH_MSG_INFO("Inside HIEventShapeMaker::execute()");
+  ATH_MSG_DEBUG("Inside HIEventShapeMaker::execute()");
 
   const xAOD::HIEventShapeContainer* evtShape_const=nullptr;
   if( m_summaryOnly ){
@@ -57,14 +57,14 @@ StatusCode HIEventShapeMaker::execute()
   }
   else
   {
-    ATH_MSG_INFO("Making HIEventShapeContainer with key " << m_outputKey.key());
+    ATH_MSG_DEBUG("Making HIEventShapeContainer with key " << m_outputKey.key());
     SG::WriteHandle<xAOD::HIEventShapeContainer> writeHandleEvtShape ( m_outputKey );
     ATH_CHECK( writeHandleEvtShape.record ( std::make_unique<xAOD::HIEventShapeContainer>(),
                                             std::make_unique<xAOD::HIEventShapeAuxContainer>()));
     ATH_CHECK(m_HIEventShapeFillerTool->initializeCollection(writeHandleEvtShape.ptr()));
     evtShape_const=writeHandleEvtShape.cptr();
 
-    ATH_MSG_INFO("Calling filler tool with m_useCaloCell= " << m_useCaloCell);
+    ATH_MSG_DEBUG("Calling filler tool with m_useCaloCell= " << m_useCaloCell);
     if(m_useCaloCell) ATH_CHECK(m_HIEventShapeFillerTool->fillCollectionFromCells ( m_cellContainerKey ));
     else ATH_CHECK(m_HIEventShapeFillerTool->fillCollectionFromTowers( m_towerContainerKey, m_naviContainerKey ));
   }
