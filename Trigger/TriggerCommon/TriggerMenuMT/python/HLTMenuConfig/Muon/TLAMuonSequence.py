@@ -4,7 +4,7 @@
 from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaConfiguration.ComponentFactory import CompFactory
-
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def getMuonCollections (chainPart):
     from .MuonRecoSequences import muonNames
@@ -23,7 +23,7 @@ def TLAMuonSequence (flags, muons):
     tlaMuonInputMakerAlg.RoITool = CompFactory.ViewCreatorPreviousROITool()
     
     tlaMuonAthSequence = seqAND( "TLAMuonAthSequence", [tlaMuonInputMakerAlg] )
-    sequenceOut = muons+"_TLA"
+    sequenceOut = recordable(muons+"_TLA")
     return (tlaMuonAthSequence, tlaMuonInputMakerAlg, sequenceOut)
 
 
