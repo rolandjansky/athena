@@ -38,6 +38,7 @@ def LArCalibPedMonConfigCore_REN(helper,algoinstance,inputFlags,gain="",doAccDig
           larPedMonAlgTest.LArAccumulatedCalibDigitContainerKey=gain
        elif doCalibDigit:
           larPedMonAlgTest.LArCalibDigitContainerKey=gain
+          
 # this creates a "Group" called "PedMonGroup" which will put its histograms into the subdirectory "'/LAr/'+GroupName+'/'"
     GroupName="PedMonGroup"
 
@@ -76,7 +77,7 @@ def LArCalibPedMonConfigCore_REN(helper,algoinstance,inputFlags,gain="",doAccDig
                                   xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   ylabels=lArDQGlobals.Partitions)
-    Group.defineHistogram('febError,part;NbOfLArFEBMonErrors_dE', 
+    Group.defineHistogram('febError,part;NbOfFEBMonErrors_dE', 
                                   title='# of data corruption errors',
                                   type='TH2I',
                                   path=summary_hist_path,
@@ -93,7 +94,7 @@ def LArCalibPedMonConfigCore_REN(helper,algoinstance,inputFlags,gain="",doAccDig
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
-    Group.defineHistogram('LB0,LArEvSize;eventSizeVsLB', 
+    Group.defineHistogram('LB0,LArEvSize;LAreventSizeVsLB', 
                                   title='LAr event size (w/o ROS headers);LBs;Megabytes',
                                   type='TProfile',
                                   path=summary_hist_path,
@@ -142,9 +143,11 @@ if __name__=='__main__':
 
    from LArMonitoring.LArMonConfigFlags import createLArMonConfigFlags
    createLArMonConfigFlags()
+#/eos/atlas/atlastier0/rucio/data21_calib/calibration_LArElec-Pedestal-32s-High-All/00395761/data21_calib.00395761.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data21_calib.00395761.calibration_LArElec-Pedestal-32s-High-All.daq.RAW_lb0000._SFO-2._0001.data
 
-   run="00395761"
-   ConfigFlags.Input.Files = ["/eos/atlas/atlastier0/rucio/data21_calib/calibration_LArElec-Pedestal-32s-High-All/00395761/data21_calib.00395761.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data21_calib.00395761.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-3._0001.data"]
+#/eos/atlas/atlastier0/rucio/data20_calib/calibration_LArElec-Pedestal-32s-High-All/00384597/data20_calib.00384597.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data20_calib.00384597.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-2._0001.data
+   run="00404637"
+   ConfigFlags.Input.Files = ["/eos/atlas/atlastier0/rucio/data21_calib/calibration_LArElec-Pedestal-32s-High-All/00404637/data21_calib.00404637.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data21_calib.00404637.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-1._0001.data"]
    ConfigFlags.Output.HISTFileName = 'LArCalibPedMonOutput_'+run+'.root'
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.Input.isMC = False
@@ -170,7 +173,7 @@ if __name__=='__main__':
    
 # If you want to turn on more detailed messages ...
 # LArCalibPedMonConfig_REN.getEventAlgo('larPedMonAlgTest').OutputLevel = 2 # DEBUG
-   cfg.printConfig(withDetails=True) #set True for exhaustive info
+   cfg.printConfig(withDetails=False) #set True for exhaustive info
 
    ConfigFlags.dump()
    f=open("LArCalibPedMon_"+run+".pkl","wb")
