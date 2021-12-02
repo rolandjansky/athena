@@ -100,7 +100,7 @@ public:
   DataProxyHolder (const DataProxyHolder& other, FROM_STORABLE*, TO_STORABLE*);
 
 
-  // Try to avoid coverity warning.
+  DataProxyHolder (const DataProxyHolder&) = default;
   DataProxyHolder& operator= (const DataProxyHolder&) = default;
 
 

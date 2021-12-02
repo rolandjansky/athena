@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenericElementLinkBase.h 785879 2016-11-22 22:17:10Z ssnyder $
 /**
  * @file AthLinks/GenericElementLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -307,7 +306,7 @@ protected:
                           FROM_TRAITS*, TO_TRAITS*);
 
 
-  // Default assignment --- here just to keep coverity happy.
+  GenericElementLinkBase (const GenericElementLinkBase&) = default;
   GenericElementLinkBase& operator= (const GenericElementLinkBase&) = default;
 
 
