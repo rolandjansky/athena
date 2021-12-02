@@ -112,14 +112,7 @@ EMTrackMatchBuilder::trackExecute(
      */
     if (isCandidateMatch(cluster, (*trkIt), false)) {
       inBroadWindow(
-        ctx, trkMatches, *cluster, trackNumber, (**trkIt), Trk::alongMomentum);
-    } else if (m_isCosmics && isCandidateMatch(cluster, (*trkIt), true)) {
-      inBroadWindow(ctx,
-                    trkMatches,
-                    *cluster,
-                    trackNumber,
-                    (**trkIt),
-                    Trk::oppositeMomentum);
+        ctx, trkMatches, *cluster, trackNumber, (**trkIt));
     }
   }
 
@@ -158,8 +151,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
                                    std::vector<TrackMatch>& trackMatches,
                                    const xAOD::CaloCluster& cluster,
                                    int trackNumber,
-                                   const xAOD::TrackParticle& trkPB,
-                                   const Trk::PropDirection dir) const
+                                   const xAOD::TrackParticle& trkPB) const
 {
 
   IEMExtrapolationTools::TrkExtrapDef extrapFrom =
@@ -183,7 +175,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
    */
   if (m_extrapolationTool
         ->getMatchAtCalo(
-          ctx, cluster, trkPB, dir, eta, phi, deltaEta, deltaPhi, extrapFrom)
+          ctx, cluster, trkPB, eta, phi, deltaEta, deltaPhi, extrapFrom)
         .isFailure()) {
     return false;
   }
@@ -199,7 +191,6 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
         ->getMatchAtCalo(ctx,
                          cluster,
                          trkPB,
-                         dir,
                          etaRes,
                          phiRes,
                          deltaEtaRes,
@@ -255,7 +246,6 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
         ->getMatchAtCalo(ctx,
                          cluster,
                          trkPB,
-                         dir,
                          eta1,
                          phi1,
                          deltaEta1,

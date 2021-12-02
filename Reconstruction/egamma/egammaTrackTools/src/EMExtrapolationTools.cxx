@@ -116,13 +116,11 @@ StatusCode
 EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
                                      const xAOD::CaloCluster& cluster,
                                      const xAOD::TrackParticle& trkPB,
-                                     Trk::PropDirection,
                                      std::array<double, 4>& eta,
                                      std::array<double, 4>& phi,
                                      std::array<double, 4>& deltaEta,
                                      std::array<double, 4>& deltaPhi,
-                                     unsigned int extrapFrom,
-                                     Cache*) const
+                                     unsigned int extrapFrom) const
 {
   /* Extrapolate track to calo and return
    * the extrapolated eta/phi and

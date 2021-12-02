@@ -94,8 +94,7 @@ private:
                      std::vector<TrackMatch>& trackMatches,
                      const xAOD::CaloCluster& cluster,
                      int trackNumber,
-                     const xAOD::TrackParticle& trkPB,
-                     const Trk::PropDirection dir) const;
+                     const xAOD::TrackParticle& trkPB) const;
 
   /** @brief Loose track-cluster matching */
   bool isCandidateMatch(const xAOD::CaloCluster* cluster,
