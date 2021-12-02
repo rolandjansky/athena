@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBACKGROUNDCONVERTER_H
@@ -32,7 +32,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "GeneratorModules/GenModule.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
@@ -58,8 +58,6 @@ class MuonBackgroundConverter : public GenModule
     virtual StatusCode genFinalize();
     virtual StatusCode fillEvt( HepMC::GenEvent* evt );
 
-    ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-    CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
 
   private:
 
@@ -83,8 +81,8 @@ class MuonBackgroundConverter : public GenModule
     std::vector< HepMC::Polarization > m_polarization;
     std::vector<MuonBackgroundEventParser> m_evt;
 
-    ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
-    CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
+    ServiceHandle<IAthRNGSvc> m_rndmSvc;      // Random number service
+    ATHRNG::RNGWrapper *m_rndmEngine;    // Random number engine used - not init in SiDigitization
     std::string m_rndmEngineName;// name of random engine
 
 };
