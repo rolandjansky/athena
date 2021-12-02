@@ -52,6 +52,11 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     from TileMuId.TileMuIdConfig import TileLookForMuAlgCfg
     result.merge(TileLookForMuAlgCfg(configFlags))
 
+    if not configFlags.Input.isMC:
+        #Configure LArDigitsThinner:
+        from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
+        result.merge(LArDigitThinnerCfg(configFlags))
+    
     #Configure MBTSTimeDiff 
     #Clients are BackgroundWordFiller and (deprecated?) DQTBackgroundMonTool
     #Consider moving to BackgroundWordFiller config
