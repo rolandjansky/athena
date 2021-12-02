@@ -1,13 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: PDG.py,v 1.5 2009-01-26 03:05:43 ssnyder Exp $
 # File: PDG.py
 # Created: sss, Mar 2005
 # Purpose: Define PDG ID codes.
 #
-
-from __future__ import print_function
 
 """
 This module contains names for the various PDG particle ID codes.
@@ -604,7 +601,6 @@ W = W_plus                            !            !
 
 # Parse _pdgtable and fill in dictionaries.
 def _fill_dicts():
-    import string
     pdgid_names.clear()
     root_names.clear()
     global _pdgtable
@@ -616,7 +612,7 @@ def _fill_dicts():
         if len(ll) < 2:
             print ('bad line', line)
             continue
-        mname = string.strip(ll[0])
+        mname = ll[0].strip()
         ll = ll[1].split()
         if len(ll) < 1:
             print ('bad line', line)
