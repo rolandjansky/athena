@@ -1,0 +1,21 @@
+Py:UnitTest          INFO Event Inputs
+Py:UnitTest          INFO Event Algorithm Sequences
+Py:UnitTest          INFO Top sequence 0
+Py:UnitTest          INFO \__ AthAlgSeq (seq: PAR AND)
+Py:UnitTest          INFO Services
+Py:UnitTest          INFO ['xAODConfigSvc', 'MetaDataStore', 'InputMetaDataStore', 'MetaDataSvc', 'ProxyProviderSvc']
+Py:UnitTest          INFO Public Tools
+Py:UnitTest          INFO [
+Py:UnitTest          INFO   HLT::Navigation/Navigation,
+Py:UnitTest          INFO     * Dlls: ['TrigSteeringEvent', 'TrigMuonEvent', 'TrigBphysicsEvent', 'TrigCaloEvent', 'TrigInDetEvent', 'TrigParticle', 'TrigMissingEtEvent', 'TrigDecisionEvent', 'TrigMonitoringEvent', 'TrigTopoEvent', 'TrigCombinedEvent', 'xAODCaloEvent', 'xAODEgamma', 'xAODTracking', 'xAODMuon', 'xAODTau', 'xAODJet', 'xAODTrigBphys', 'xAODTrigMissingET', 'xAODTrigEgamma', 'xAODTrigMuon', 'xAODTrigCalo', 'xAODTrigMinBias', 'xAODBTagging', 'xAODTrigRinger', 'xAODHIEvent', 'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict', 'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict', 'xAODTrigMinBiasDict', 'xAODBTaggingDict', 'xAODHIEventDict']
+Py:UnitTest          INFO   Trig::TrigDecisionTool/TrigDecisionTool,
+Py:UnitTest          INFO     * HLTSummary: HLTNav_Summary_OnlineSlimmed
+Py:UnitTest          INFO     * Navigation: HLT::Navigation/Navigation
+Py:UnitTest          INFO        * Dlls: ['TrigSteeringEvent', 'TrigMuonEvent', 'TrigBphysicsEvent', 'TrigCaloEvent', 'TrigInDetEvent', 'TrigParticle', 'TrigMissingEtEvent', 'TrigDecisionEvent', 'TrigMonitoringEvent', 'TrigTopoEvent', 'TrigCombinedEvent', 'xAODCaloEvent', 'xAODEgamma', 'xAODTracking', 'xAODMuon', 'xAODTau', 'xAODJet', 'xAODTrigBphys', 'xAODTrigMissingET', 'xAODTrigEgamma', 'xAODTrigMuon', 'xAODTrigCalo', 'xAODTrigMinBias', 'xAODBTagging', 'xAODTrigRinger', 'xAODHIEvent', 'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict', 'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict', 'xAODTrigMinBiasDict', 'xAODBTaggingDict', 'xAODHIEventDict']
+Py:UnitTest          INFO     * NavigationFormat: TriggerElement
+Py:UnitTest          INFO     * TrigConfigSvc: TrigConf::xAODConfigSvc/xAODConfigSvc
+Py:UnitTest          INFO ]
+Py:UnitTest          INFO Private Tools
+Py:UnitTest          INFO [
+Py:UnitTest          INFO ]
+Py:UnitTest          INFO theApp properties
