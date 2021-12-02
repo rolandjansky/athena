@@ -56,13 +56,27 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   # So we need to plug our tools into a custom alg. 
 
 
+
+  from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__PrimaryVertexRefitter
+  
+  from InDetRecExample.TrackingCommon import  getTrackToVertexIPEstimator
+  TrackToVertexEstimator = getTrackToVertexIPEstimator()
+  ToolSvc += TrackToVertexEstimator
+  PrimaryVertexFitter = Analysis__PrimaryVertexRefitter("PrimaryVertexRefitter",
+                                              TrackToVertexIPEstimator = TrackToVertexEstimator)
+  
+  ToolSvc +=  PrimaryVertexFitter                                           
   from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
+  from InDetRecExample.TrackingCommon import getV0Tools
+  ToolSvc+=getV0Tools("V0Tools" )
   MuonTP_Reco_mumu = DerivationFramework__Reco_mumu(
   name                   = prefix+"MuonTP_Reco_mumu",
   JpsiFinder             = ExampleJpsiFinder,
   OutputVtxContainerName = prefix+"JpsiCandidates",
   PVContainerName        = "PrimaryVertices",
   RefPVContainerName     = prefix+"RefittedPrimaryVertices",
+  V0Tools                = ToolSvc.V0Tools,
+  PVRefitter             = PrimaryVertexFitter,
   RefitPV                = True,
   MaxPVrefit             = 100000,
   DoVertexType           = 7,
@@ -79,6 +93,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   name                  = prefix+"MuonTP_Select_Jpsi2mumu",
   HypothesisName        = "Jpsi",
   InputVtxContainerName = prefix+"JpsiCandidates",
+  V0Tools                = ToolSvc.V0Tools,  
   VtxMassHypo           = 3096.916,
   MassMin               = 2700.0,
   MassMax               = 3500.0,
