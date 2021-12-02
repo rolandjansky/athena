@@ -96,7 +96,11 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
   CLHEP::Hep3Vector direction = end_pos - start_pos;
   float deposit_length = direction.mag();
   int n_steps = deposit_length / m_small_step_length + 1;
-  direction.setMag(deposit_length / static_cast<float>(n_steps));
+  //the start and end pos can sit at the same position. Resizing the zero-length
+  //Hep3Vector would cause an error, so this we protect agains
+  if (deposit_length > 1.e-10) {
+    direction.setMag(deposit_length / static_cast<float>(n_steps));
+  }
 
   float tot_eloss = hit.energyLoss();
   // FIXME using the mean ionization energy in Silicon
