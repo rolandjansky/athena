@@ -32,10 +32,10 @@ namespace xAOD {
 
    private:
       std::vector< uint32_t > word;
-      std::vector< char >  saturated;
+      std::vector< uint8_t >  saturated;
       std::vector< int > globalType;
-      std::vector< char >  statusOne;
-      std::vector< char >  statusTwo;
+      std::vector< uint8_t >  statusOne;
+      std::vector< uint8_t >  statusTwo;
       std::vector< uint16_t >  quantityOne;
       std::vector< uint16_t >  quantityTwo;
 

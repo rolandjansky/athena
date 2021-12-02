@@ -30,11 +30,11 @@ namespace LVL1 {
     gFEXJetTOB();
     ~gFEXJetTOB() {};
 
-    inline unsigned  int getEta() const {return m_eta;}
-    inline unsigned  int getPhi() const {return m_phi;}
-    inline unsigned  int getET() const {return m_ET;}
-    inline unsigned  int getStatus() const {return m_st;}
-    inline unsigned  int getTobID() const {return m_tobID;}
+    inline unsigned int getEta() const {return m_eta;}
+    inline unsigned int getPhi() const {return m_phi;}
+    inline unsigned int getET() const {return m_ET;}
+    inline unsigned int getStatus() const {return m_st;}
+    inline unsigned int getTobID() const {return m_tobID;}
     inline uint32_t      getWord() const {return m_word;}
 
     void setEta(unsigned int);
