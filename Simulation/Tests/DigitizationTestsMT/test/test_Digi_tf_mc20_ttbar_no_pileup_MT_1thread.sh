@@ -3,6 +3,7 @@
 # art-description: Run digitization of an MC20 ttbar sample with 2018 geometry and conditions, without pile-up using AthenaMT with one thread
 # art-type: grid
 # art-athena-mt: 8
+# art-include: 22.0-mc20/Athena
 # art-include: master/Athena
 # the name below is needed because of the environment variable (marks storing in tar file).
 # art-output: mc20_nopileup_ttbar.RDO.pool.root
