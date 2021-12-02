@@ -2,6 +2,8 @@
 
 # art-description: MC+MC Overlay chain for MC20d, ttbar, full reco chain
 # art-type: grid
+# art-include: 22.0-mc20/Athena
+# art-include: master/Athena
 
 # art-output: *.root
 # art-output: log.*
