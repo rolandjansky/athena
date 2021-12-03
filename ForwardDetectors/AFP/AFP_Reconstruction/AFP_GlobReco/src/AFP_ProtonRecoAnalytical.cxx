@@ -206,7 +206,7 @@ void AFP_ProtonRecoAnalytical::linkTracksToProton
 double AFP_ProtonRecoAnalytical::bisection (double (AFP_ProtonRecoAnalytical::*fun)(double, const Measurement&, std::vector<double>&, std::vector<double>&) const, const Measurement& my_measAFP, std::vector<double>& my_slopeCalculated, std::vector<double>& my_positionCalculated) const {
 
   // Alias to minimized function
-  auto fn = [this, fun, my_measAFP, my_slopeCalculated, my_positionCalculated](double x, const Measurement& m, std::vector<double>& s, std::vector<double>& p) { return (this->*fun)(x,m,s,p); };
+  auto fn = [this, fun, my_slopeCalculated, my_positionCalculated](double x, const Measurement& m, std::vector<double>& s, std::vector<double>& p) { return (this->*fun)(x,m,s,p); };
 
   constexpr double tol = 1e-3; // 1 MeV
   double eMin = m_parametrizationEnergy - 2000.; // ~30% xi
