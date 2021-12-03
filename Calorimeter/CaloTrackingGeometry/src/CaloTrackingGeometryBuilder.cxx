@@ -451,9 +451,6 @@ Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry(const
    double lArPositiveOuterBoundary     = lArPositiveFcal->center().z();
           lArPositiveOuterBoundary    += lArPositiveFcalBounds->halflengthZ();
 
-   double lArNegativeOuterBoundary     = lArNegativeFcal->center().z();
-          lArNegativeOuterBoundary    -= lArNegativeFcalBounds->halflengthZ();
-
    Trk::Material* mAr = new Trk::Material(140.036, 856.32, 39.948, 18., 0.0014);
    Trk::Material* mAl = new Trk::Material(88.93, 388.62, 26.98, 13., 0.0027);
    //Trk::Material* mFe = new Trk::Material(17.58, 169.68, 55.85, 26., 0.0079);
