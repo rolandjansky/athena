@@ -622,15 +622,15 @@ TH2D* Resplot::combine(const TH2* h, double x, int N) {
     }
  
     for ( int i=0 ; i<=hy->GetNbinsX()+1 ; i++ ) ybins.push_back( hy->GetBinLowEdge(i+1) );
-   
-    std::cout << "x: " << xbins[0] << " - " << xbins.back() << std::endl;  
-    std::cout << "y: " << ybins[0] << " - " << ybins.back() << std::endl;  
-    
+
     if ( xbins.size()==0 || ybins.size()==0 ) { 
       std::cerr << "Resplot::combine() bad limits for histogram: N xbins: " << xbins.size() << "\tN ybins: " << ybins.size() << std::endl;
       return 0;
     }
 
+    std::cout << "x: " << xbins[0] << " - " << xbins.back() << std::endl;
+    std::cout << "y: " << ybins[0] << " - " << ybins.back() << std::endl;
+    
     TH2D* h2 = new TH2D("duff","duff", xbins.size()-1, &xbins[0],  ybins.size()-1, &ybins[0] ); 
     h2->SetDirectory(0); 
  
@@ -675,13 +675,13 @@ TH1D* Resplot::combine(const TH1* h, double x, int N) {
       if ( h->GetBinLowEdge(i+1)>x ) for ( int k=1 ; k<N ; k++, i++ );
     }
  
-    std::cout << "x: " << xbins[0] << " - " << xbins.back() << std::endl;  
-    
     if ( xbins.size()==0 ) { 
       std::cerr << "Resplot::combine() bad limits for histogram: N xbins: " << xbins.size() << std::endl;
       return 0;
     }
 
+    std::cout << "x: " << xbins[0] << " - " << xbins.back() << std::endl;
+    
     TH1D* h2 = new TH1D(  (std::string(h->GetName())+"-duff").c_str(),"duff", xbins.size()-1, &xbins[0] );
     h2->SetDirectory(0); 
  
@@ -771,15 +771,15 @@ TH2D* Resplot::combine(const TH2* h, double inveps2) {
     
     std::cout << "combine" << std::endl;
     std::cout << "x bins " << hx->GetNbinsX() << "\t y bins " << hy->GetNbinsX() << std::endl;
-    
-    std::cout << "x: " << xbins.size() << " " << xbins[0] << " - " << xbins.back() << std::endl;  
-    std::cout << "y: " << ybins.size() << " " << ybins[0] << " - " << ybins.back() << std::endl;  
-    
+
     if ( xbins.size()==0 || ybins.size()==0 ) { 
       std::cerr << "Resplot::combine() bad limits for histogram: N xbins: " << xbins.size() << "\tN ybins: " << ybins.size() << std::endl;
       return 0;
     }
 
+    std::cout << "x: " << xbins.size() << " " << xbins[0] << " - " << xbins.back() << std::endl;
+    std::cout << "y: " << ybins.size() << " " << ybins[0] << " - " << ybins.back() << std::endl;
+    
     TH2D* h2 = new TH2D( (std::string(h->GetName())+"-duff").c_str(), "duff", xbins.size()-1, &xbins[0],  ybins.size()-1, &ybins[0] ); 
     h2->SetDirectory(0); 
     

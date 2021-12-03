@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
+import math
 from AthenaCommon.Logging import logging
 log = logging.getLogger('HLTSeedingConfig')
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -107,46 +108,52 @@ def createLegacyCaloRoIUnpackers():
 def createCaloRoIUnpackers():
     from HLTSeeding.HLTSeedingMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
+    maxRoICount = 150  # used for histogram range, 144 is the hardware limit
     eFexEMUnpacker = CompFactory.eFexEMRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("eEM"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeEM"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eEM")),
-        MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=30))
+        RoIHalfWidthEta = 0.1,
+        RoIHalfWidthPhi = 0.1,
+        MonTool = RoIsUnpackingMonitoring(prefix="eEM", maxCount=maxRoICount))
     eFexTauUnpacker = CompFactory.eFexTauRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("eTAU"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEeTAU"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("eTAU")),
-        MonTool = RoIsUnpackingMonitoring(prefix="eTAU", maxCount=30))
-    # TODO: Add jFexTauUnpacker once jTAU thresholds are implemented in L1 Menu
-    # jFexTauUnpacker = CompFactory.jFexTauRoIsUnpackingTool(
-    #     Decisions = mapThresholdToL1DecisionCollection("jTAU"),
-    #     DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEjTAU"),
-    #     OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jTAU")),
-    #     MonTool = RoIsUnpackingMonitoring(prefix="jTAU", maxCount=30))
+        RoIHalfWidthEta = 0.4,
+        RoIHalfWidthPhi = math.pi/8,
+        MonTool = RoIsUnpackingMonitoring(prefix="eTAU", maxCount=maxRoICount))
+    jFexTauUnpacker = CompFactory.jFexTauRoIsUnpackingTool(
+        Decisions = mapThresholdToL1DecisionCollection("jTAU"),
+        DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEjTAU"),
+        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jTAU")),
+        RoIHalfWidthEta = 0.4,
+        RoIHalfWidthPhi = math.pi/8,
+        MonTool = RoIsUnpackingMonitoring(prefix="jTAU", maxCount=maxRoICount))
 
-    return [eFexEMUnpacker, eFexTauUnpacker]
+    return [eFexEMUnpacker, eFexTauUnpacker, jFexTauUnpacker]
 
-def createMuonRoIUnpackers(flags):
-    #from HLTSeeding.HLTSeedingConf import MURoIsUnpackingTool
+def createLegacyMuonRoIUnpackers(flags):
     from HLTSeeding.HLTSeedingMonitoring import RoIsUnpackingMonitoring
-
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     muUnpacker = CompFactory.MURoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("MU"),
         DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEMU"),
-        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("MU")))
+        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("MU")),
+        MonTool = RoIsUnpackingMonitoring(prefix="MU", maxCount=20))
 
-    # Reset unneeded dependencies and leave others as C++ defaults
-    if flags.Trigger.enableL1MuonPhase1:
-        # disable legacy dependencies
-        muUnpacker.OutputRecRoIs = ""
-    else:
-        # disable phase1 dependencies
-        muUnpacker.MuRoILinkName = ""
-        muUnpacker.MuRoIThresholdPatternsKey = ""
+    return [muUnpacker]
 
-    muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
-
+def createMuonRoIUnpackers(flags):
+    from HLTSeeding.HLTSeedingMonitoring import RoIsUnpackingMonitoring
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    muUnpacker = CompFactory.MuonRoIsUnpackingTool(
+        Decisions = mapThresholdToL1DecisionCollection("MU"),
+        DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEMU"),
+        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("MU")),
+        RoIHalfWidthEta = 0.1,
+        RoIHalfWidthPhi = 0.1,
+        MonTool = RoIsUnpackingMonitoring(prefix="MU", maxCount=20))
     return [muUnpacker]
 
 def createPrescalingTool():
@@ -180,7 +187,7 @@ def getL1TriggerResultMaker(flags):
         l1trMaker.ThresholdPatternTools += [
             CompFactory.eFexEMRoIThresholdsTool(),
             CompFactory.eFexTauRoIThresholdsTool(),
-            # CompFactory.jFexTauRoIThresholdsTool(),  # TODO: Add once jTAU thresholds are implemented in L1 Menu
+            CompFactory.jFexTauRoIThresholdsTool(),
         ]
     else:
        l1trMaker.eFexEMRoIKey = ""
@@ -219,11 +226,10 @@ class HLTSeeding(CompFactory.HLTSeeding) :
 
         # MU unpacker
         if flags.Trigger.doMuon:
-            unpackers = createMuonRoIUnpackers(flags)
             if flags.Trigger.enableL1MuonPhase1:
-                self.xAODRoIUnpackers += unpackers
+                self.xAODRoIUnpackers += createMuonRoIUnpackers(flags)
             else:
-                self.RoIBRoIUnpackers += unpackers
+                self.RoIBRoIUnpackers += createLegacyMuonRoIUnpackers(flags)
 
         self.prescaler = createPrescalingTool()
         self.KeyWriterTool = createKeyWriterTool()
@@ -270,11 +276,10 @@ def HLTSeedingCfg(flags, seqName = None):
             decoderAlg.RoIBRoIUnpackers += createLegacyCaloRoIUnpackers()
 
     if flags.Trigger.doMuon:
-        unpackers = createMuonRoIUnpackers(flags)
         if flags.Trigger.enableL1MuonPhase1:
-            decoderAlg.xAODRoIUnpackers += unpackers
+            decoderAlg.xAODRoIUnpackers += createMuonRoIUnpackers(flags)
         else:
-            decoderAlg.RoIBRoIUnpackers += unpackers
+            decoderAlg.RoIBRoIUnpackers += createLegacyMuonRoIUnpackers(flags)
         from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
         acc.merge( TGCCablingConfigCfg( flags ) )
         acc.merge( RPCCablingConfigCfg( flags ) )

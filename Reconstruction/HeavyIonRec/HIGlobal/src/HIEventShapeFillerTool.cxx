@@ -19,6 +19,7 @@ HIEventShapeFillerTool::HIEventShapeFillerTool(const std::string& myname)  : asg
 {
 }
 
+
 StatusCode  HIEventShapeFillerTool::setNumOrders(int Norders)
 {
    m_numOrders=Norders;
@@ -50,14 +51,12 @@ StatusCode HIEventShapeFillerTool::fillCollectionFromTowers(const SG::ReadHandle
   if(m_useClusters)
   {
 		SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleCaloClus ( tower_container_key.key() );
-    const xAOD::CaloClusterContainer* clusters=nullptr;
-		clusters = readHandleCaloClus.get();
-    return fillCollectionFromClusterContainer(clusters);
+    ATH_CHECK( readHandleCaloClus.isValid() );
+    return fillCollectionFromClusterContainer(readHandleCaloClus.cptr());
   }
 	SG::ReadHandle<INavigable4MomentumCollection>  readHandleINav ( navi_container_key.key() );
-  const INavigable4MomentumCollection* navInColl = 0;
-	navInColl = readHandleINav.get();
-  return fillCollectionFromTowerContainer(navInColl);
+  ATH_CHECK( readHandleINav.isValid() );
+  return fillCollectionFromTowerContainer(readHandleINav.cptr());
 }
 StatusCode HIEventShapeFillerTool::fillCollectionFromTowerContainer(const INavigable4MomentumCollection* navInColl)
 {

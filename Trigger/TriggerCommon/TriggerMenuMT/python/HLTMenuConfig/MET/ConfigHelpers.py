@@ -304,7 +304,7 @@ class AlgConfig(ABC):
             return self._inputMakers
         from ..Jet.JetMenuSequences import getInitialInputMaker, getTrackingInputMaker
 
-        self._inputMakers = [getInitialInputMaker(), getTrackingInputMaker()]
+        self._inputMakers = [getInitialInputMaker(), getTrackingInputMaker('ftf')]
         return self._inputMakers
 
     @classmethod

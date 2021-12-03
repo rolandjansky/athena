@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -43,6 +43,7 @@
 
 // For the Athena-based random numbers.
 #include "CLHEP/Random/RandFlat.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include <limits.h>
 
@@ -56,7 +57,7 @@ MuonBackgroundConverter::MuonBackgroundConverter( const std::string& name, ISvcL
     m_nEvents(0),
     //m_smearPhi(false),
     m_used(0),
-    m_rndmSvc("AtRndmGenSvc", name ),
+    m_rndmSvc("AthRNGSvc", name ),
     m_rndmEngine(0),
     m_rndmEngineName("SINGLE")
 {
@@ -119,7 +120,7 @@ StatusCode MuonBackgroundConverter::genInitialize()
   }      
     
   // getting our random numbers stream
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+  m_rndmEngine = m_rndmSvc->getEngine(this, m_rndmEngineName);
   if (m_rndmEngine==0) {
     ATH_MSG_FATAL("Could not find RndmEngine : " << m_rndmEngineName);
     return StatusCode::FAILURE;
@@ -136,6 +137,10 @@ StatusCode MuonBackgroundConverter::callGenerator()
 
   ++m_nEvents;
   //++m_used;
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  m_rndmEngine->setSeed (name(), ctx);
+  CLHEP::HepRandomEngine* engine = m_rndmEngine->getEngine (ctx);
 
   // Clear vectors with PDG id, vertex, kinematic variables
   m_pdgCode.clear();
@@ -212,7 +217,7 @@ StatusCode MuonBackgroundConverter::callGenerator()
              double newTime = m_evt.at(i).getVertex().t() * CLHEP::second;
              if ( pdgID == 2112  ||  pdgID == 22  ||  pdgID == 111  ||  pdgID == 130 )
              {
-                newTime = CLHEP::RandFlat::shoot( m_rndmEngine, 0, m_t0 );
+                newTime = CLHEP::RandFlat::shoot( engine, 0, m_t0 );
              }
              ATH_MSG_DEBUG("   PDG code = "              << pdgID 
                            << "   old time [ns] = "      << m_evt.at(i).getVertex().t() * CLHEP::second
@@ -232,8 +237,8 @@ StatusCode MuonBackgroundConverter::callGenerator()
              //{
              //double minPhi   = (sector-1)*CLHEP::twopi/phiSymmetry;
              //double maxPhi   = sector*CLHEP::twopi/phiSymmetry;
-             //double deltaPhi = CLHEP::RandFlat::shoot( m_rndmEngine, minPhi, maxPhi );
-             double deltaPhi  = m_used * ( CLHEP::twopi/phiSymmetry + CLHEP::RandFlat::shoot( m_rndmEngine, 0, CLHEP::twopi ) );
+             //double deltaPhi = CLHEP::RandFlat::shoot( engine, minPhi, maxPhi );
+             double deltaPhi  = m_used * ( CLHEP::twopi/phiSymmetry + CLHEP::RandFlat::shoot( engine, 0, CLHEP::twopi ) );
              double newPhi    = oldPhi + deltaPhi;
              if ( newPhi > CLHEP::twopi ) newPhi = newPhi-CLHEP::twopi;
              ATH_MSG_DEBUG("   old phi = "  << oldPhi 

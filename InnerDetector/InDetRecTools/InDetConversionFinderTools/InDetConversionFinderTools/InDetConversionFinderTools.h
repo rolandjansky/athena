@@ -21,7 +21,6 @@
 /* Tools*/
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "InDetConversionFinderTools/TrackPairsSelector.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "InDetConversionFinderTools/ConversionPostSelector.h"
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"
@@ -115,11 +114,6 @@ protected:
     "Tool for single track conversions"
   };
 
-  /** Track extrapolator tool. */
-  ToolHandle<Trk::IExtrapolator> m_extrapolator{ this,
-                                                 "Extrapolator",
-                                                 "",
-                                                 "Extrapolation Tool" };
   /** Track Selector Tool. */
   ToolHandle<Trk::ITrackSelectorTool> m_trkSelector{
     this,

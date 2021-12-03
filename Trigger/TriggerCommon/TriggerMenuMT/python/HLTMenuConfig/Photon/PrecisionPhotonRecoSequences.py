@@ -7,7 +7,6 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-TrigEgammaKeys = getTrigEgammaKeys()
 
 
 def precisionPhotonRecoSequence(RoIs, ion=False):
@@ -21,6 +20,7 @@ def precisionPhotonRecoSequence(RoIs, ion=False):
           https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/src/topoEgammaBuilder.cxx
     """
 
+    TrigEgammaKeys = getTrigEgammaKeys(ion=ion)
 
     log.debug('precisionPhotonRecoSequence(RoIs = %s)',RoIs)
 
@@ -30,7 +30,7 @@ def precisionPhotonRecoSequence(RoIs, ion=False):
     # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
     import AthenaCommon.CfgMgr as CfgMgr
 
-    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer if not ion else TrigEgammaKeys.precisionHICaloClusterContainer
+    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer 
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier" + tag)
     ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % caloClusters ),

@@ -32,7 +32,7 @@ namespace Muon {
 
         /** Default AlgTool functions */
         MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent);
-        virtual ~MuonSystemExtensionTool(){};
+        virtual ~MuonSystemExtensionTool() = default;
         StatusCode initialize() override;
 
         /** get muon system extension */
@@ -58,7 +58,9 @@ namespace Muon {
             "Extrapolator",
             "Trk::Extrapolator/AtlasExtrapolator",
         };
-
+        Gaudi::Property<bool> m_extendSAF{this, "extendSAF", false, "Flag deciding whether SAF tracks shall be equipped with the system extension"};
+        Gaudi::Property<bool> m_extendBulk{this, "extendBulk", true, "Flag deciding whether the ordinary tracks shall be equipped with the system extension"};
+        
         /** reference surfaces per region and sector */
         std::vector<std::vector<SurfaceVec> > m_referenceSurfaces;
 

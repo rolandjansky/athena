@@ -46,7 +46,6 @@ def precisionElectronMenuSequence(is_probe_leg=False, ion=False,  variant=''):
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlg
-
     with ConfigurableRun3Behavior():
        hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF"+ variant, sequenceOut)
     thePrecisionElectronHypo = conf2toConfigurable(hypo_tuple[0])
@@ -60,7 +59,6 @@ def precisionElectronMenuSequence(is_probe_leg=False, ion=False,  variant=''):
                           Hypo        = thePrecisionElectronHypo,
                           HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict,
                           IsProbe     = is_probe_leg)
-
 
 def precisionElectronMenuSequence_LRT(is_probe_leg=False ):
     return precisionElectronMenuSequence(is_probe_leg=is_probe_leg, ion=False, variant='_LRT')

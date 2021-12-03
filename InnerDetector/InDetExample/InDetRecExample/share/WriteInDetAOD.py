@@ -8,7 +8,7 @@ InDetAODList = []
 
 if InDetFlags.doxAOD():
 
-  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
+  excludedAuxData = "-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
 
   if not (InDetFlags.KeepFirstParameters() or InDetFlags.keepAdditionalHitsOnTrackParticle()):
     excludedAuxData += '.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
@@ -26,6 +26,9 @@ if InDetFlags.doxAOD():
   +'.-IDTIDE1_biased_z0.-IDTIDE1_biased_z0Sigma.-IDTIDE1_biased_z0SigmaSinTheta.-IDTIDE1_biased_z0SinTheta.-IDTIDE1_unbiased_PVd0Sigma.-IDTIDE1_unbiased_PVz0Sigma' \
   +'.-IDTIDE1_unbiased_PVz0SigmaSinTheta.-IDTIDE1_unbiased_d0.-IDTIDE1_unbiased_d0Sigma.-IDTIDE1_unbiased_z0.-IDTIDE1_unbiased_z0Sigma.-IDTIDE1_unbiased_z0SigmaSinTheta' \
   +'.-IDTIDE1_unbiased_z0SinTheta'
+
+  # exclude TTVA decorations 
+  excludedAuxData += '.-TTVA_AMVFVertices.-TTVA_AMVFWeights'
 
   # exclude IDTIDE/IDTRKVALID decorations
   excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z.-msosLink'

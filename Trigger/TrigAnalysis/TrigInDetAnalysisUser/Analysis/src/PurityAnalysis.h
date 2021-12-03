@@ -48,7 +48,7 @@ public:
     std::cout << "PurityAnalysis::~PurityAnalysis() " << name() << std::endl;
     std::map<std::string, TH1F*>::iterator hitr=m_histos.begin();
     std::map<std::string, TH1F*>::iterator hend=m_histos.end();
-    for ( ; hitr!=hend ; hitr++ ) delete hitr->second;     
+    for ( ; hitr!=hend ; ++hitr ) delete hitr->second;     
 
     Efficiency* heff[4]    = {    eff_pt,    eff_eta,    eff_phi,    eff_z0 };
     Efficiency* hpurity[4] = { purity_pt, purity_eta, purity_phi, purity_z0 };
@@ -86,40 +86,38 @@ private:
   }
 
 private:
-
-
-  TIDDirectory* mdir;
+  TIDDirectory* mdir = 0;
 
   std::map<std::string, TH1F*> m_histos;
- 
-  Efficiency* eff_pt;
-  Efficiency* eff_ptp;
-  Efficiency* eff_ptm;
 
-  Efficiency* eff_eta;
-  Efficiency* eff_phi;
-  Efficiency* eff_z0;
-  Efficiency* eff_d0;
-  Efficiency* eff_a0;
+  Efficiency* eff_pt = 0;
+  Efficiency* eff_ptp = 0;
+  Efficiency* eff_ptm = 0;
 
-  Efficiency* purity_pt;
-  Efficiency* purity_eta;
-  Efficiency* purity_phi;
-  Efficiency* purity_z0;
-  Efficiency* purity_d0;
-  Efficiency* purity_a0;
+  Efficiency* eff_eta = 0;
+  Efficiency* eff_phi = 0;
+  Efficiency* eff_z0 = 0;
+  Efficiency* eff_d0 = 0;
+  Efficiency* eff_a0 = 0;
+
+  Efficiency* purity_pt = 0;
+  Efficiency* purity_eta = 0;
+  Efficiency* purity_phi = 0;
+  Efficiency* purity_z0 = 0;
+  Efficiency* purity_d0 = 0;
+  Efficiency* purity_a0 = 0;
 
   //  Efficiency2D* eff_pteta; 
-  //  Efficiency2D* eff_etapt; 
+  //  Efficiency2D* eff_etapt;
 
-  TH1F* hDeltaR;
+  TH1F* hDeltaR = 0;
 
   /// number of reconstructed tracks 
   int Nreco;
   int Nref;
   int Nmatched;
-  
-  TH1F* hchi2;
+
+  TH1F* hchi2 = 0;
 
   /// flag to print out the matched tracks etc
   bool m_print;

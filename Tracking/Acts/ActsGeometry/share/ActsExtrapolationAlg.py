@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This job options file will run an example extrapolation using the
 Acts tracking geometry and the Acts extrapolation toolchain.
@@ -10,7 +11,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg, ActsPropStepRootWriterSvcCfg, ActsExtrapolationAlgCfg, ActsExtrapolationToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsPropStepRootWriterSvcCfg, ActsExtrapolationAlgCfg, ActsExtrapolationToolCfg
 
 if "__main__" == __name__:
   from AthenaCommon.Configurable import Configurable
@@ -45,11 +46,6 @@ if "__main__" == __name__:
 
   from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
   cfg.merge(BeamPipeGeometryCfg(ConfigFlags))
-
-  alignCondAlgCfg = ActsAlignmentCondAlgCfg(ConfigFlags)
-
-  cfg.merge(alignCondAlgCfg)
-
 
 
   alg = ActsExtrapolationAlgCfg(ConfigFlags,

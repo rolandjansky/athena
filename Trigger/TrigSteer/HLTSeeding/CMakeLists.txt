@@ -24,5 +24,7 @@ atlas_add_component( HLTSeeding
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Tests:
-atlas_add_test( HLTSeedingNJOTest SCRIPT python -m HLTSeeding.HLTSeedingConfig
+atlas_add_test( HLTSeedingNJOTest
+                SCRIPT python -m HLTSeeding.HLTSeedingConfig
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 300 )

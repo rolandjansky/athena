@@ -57,8 +57,8 @@ StatusCode RpcDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       bool stripPosition = 0;
       Amg::Vector3D gpos(0.,0.,0.);
       Amg::Vector2D lpos(0.,0.);
-      double localX;
-      double localY;
+      double localX{};
+      double localY{};
       
       if ( !rdoEl->stripPosition(Id,lpos) ) {
             ATH_MSG_WARNING("RPCDigitVariables: failed to associate a valid local position for strip n. " << strip

@@ -49,7 +49,6 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    }
    // Retrieve OutputStreamingTool (if configured)
    if (!m_outputStreamingTool.empty()) {
-      m_streamClientFiles = m_streamClientFilesProp.value();
       ATH_CHECK(m_outputStreamingTool.retrieve());
       if (m_makeStreamingToolClient.value() == -1) {
         // Initialize AthenaRootSharedWriter
@@ -307,9 +306,7 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
          ATH_MSG_DEBUG("connectOutput SKIPPED for expired server.");
          return(StatusCode::SUCCESS);
       }
-      auto it = std::find (m_streamClientFiles.begin(),
-                           m_streamClientFiles.end(),
-                           outputConnection);
+      auto it = std::find(m_streamClientFiles.begin(), m_streamClientFiles.end(), outputConnection);
       if (it == m_streamClientFiles.end()) {
          m_streamClientFiles.push_back(outputConnection);
       }
@@ -385,14 +382,12 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
    std::string outputConnection = outputConnectionSpec.substr(0, outputConnectionSpec.find('['));
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
 	   && (!m_parallelCompression || outputConnectionSpec.find("[PoolContainerPrefix=" + m_metadataContainerProp.value() + "]") != std::string::npos)) {
-      auto it = std::find (m_streamClientFiles.begin(),
-                           m_streamClientFiles.end(),
-                           outputConnection);
+      auto it = std::find(m_streamClientFiles.begin(), m_streamClientFiles.end(), outputConnection);
       size_t streamClient = it - m_streamClientFiles.begin();
       if (streamClient == m_streamClientFiles.size()) {
          m_streamClientFiles.push_back(outputConnection);
       }
-      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
+      if (streamClient >= m_outputStreamingTool.size()) {
          streamClient = 0;
       }
       StatusCode sc = m_outputStreamingTool[streamClient]->lockObject("release");
@@ -416,9 +411,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       return(StatusCode::SUCCESS);
    }
    if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && m_streamServer == m_outputStreamingTool.size()) {
-      auto it = std::find (m_streamClientFiles.begin(),
-                           m_streamClientFiles.end(),
-                           outputConnection);
+      auto it = std::find(m_streamClientFiles.begin(), m_streamClientFiles.end(), outputConnection);
       if (it == m_streamClientFiles.end()) {
          ATH_MSG_DEBUG("commitOutput SKIPPED for unconnected file: " << outputConnection << ".");
          return(StatusCode::SUCCESS);
@@ -724,14 +717,12 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()
 	   && (!m_parallelCompression || placement->containerName().compare(0, m_metadataContainerProp.value().size(), m_metadataContainerProp.value()) == 0)) {
       const std::string &fileName = placement->fileName();
-      auto it = std::find (m_streamClientFiles.begin(),
-                           m_streamClientFiles.end(),
-                           fileName);
+      auto it = std::find(m_streamClientFiles.begin(), m_streamClientFiles.end(), fileName);
       size_t streamClient = it - m_streamClientFiles.begin();
       if (streamClient == m_streamClientFiles.size()) {
          m_streamClientFiles.push_back(fileName);
       }
-      if (m_streamClientFiles.size() >= m_outputStreamingTool.size()) {
+      if (streamClient >= m_outputStreamingTool.size()) {
          streamClient = 0;
       }
       // Lock object
@@ -824,9 +815,7 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          token = tempToken; tempToken = nullptr;
       } else if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && m_streamServer == m_outputStreamingTool.size()) {
          const std::string &fileName = placement->fileName();
-         auto it = std::find (m_streamClientFiles.begin(),
-                              m_streamClientFiles.end(),
-                              fileName);
+         auto it = std::find(m_streamClientFiles.begin(), m_streamClientFiles.end(), fileName);
          if (it == m_streamClientFiles.end()) {
             ATH_MSG_DEBUG("registerForWrite SKIPPED for unconnected file: " << fileName << ".");
             Token* tempToken = new Token();
@@ -1060,8 +1049,10 @@ StatusCode AthenaPoolCnvSvc::cleanUp(const std::string& connection) {
       cpos++;
    }
    if (bpos != std::string::npos) bpos = bpos - cpos;
+   const std::string conn = connection.substr(cpos, bpos);
+   ATH_MSG_VERBOSE("Cleanup for Connection='"<< conn <<"'");
    for (auto convertr : m_cnvs) {
-      if (!convertr->cleanUp(connection.substr(cpos, bpos)).isSuccess()) {
+      if (!convertr->cleanUp(conn).isSuccess()) {
          ATH_MSG_WARNING("AthenaPoolConverter cleanUp failed.");
          retError = true;
       }

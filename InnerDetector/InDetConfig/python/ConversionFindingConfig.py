@@ -111,9 +111,6 @@ def ConversionFinderCfg(flags, name="ConversionFinderTool"):
 
     acc = ComponentAccumulator()
     kwargs = {}
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.popToolsAndMerge(
-        AtlasExtrapolatorCfg(flags))
     kwargs["PostSelector"] = acc.getPrimaryAndMerge(
         ConversionPostSelectorCfg(flags))
     kwargs["SingleTrackConversionTool"] = acc.getPrimaryAndMerge(

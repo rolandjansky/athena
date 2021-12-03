@@ -17,7 +17,7 @@ def FullScanLRTTriggerSequence(ConfigFlags):
     ft_reco_algs = makeInDetTrigFastTrackingNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
-    im_alg = getTrackingInputMaker()
+    im_alg = getTrackingInputMaker("ftf")
 
     from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
 

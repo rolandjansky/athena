@@ -73,7 +73,7 @@ def getStandardSignalOnlyTruthPileUpTools():
             PileUpToolsList += [ "MergeAntiKt6TruthJetsTool" ]
         if 'PileUpTruthParticles' in digitizationFlags.experimentalDigi():
             PileUpToolsList += [ "MergeTruthParticlesTool" ]
-        if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
+        if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
             PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
             PileUpToolsList += [ "MergeCalibHitsTool" ]

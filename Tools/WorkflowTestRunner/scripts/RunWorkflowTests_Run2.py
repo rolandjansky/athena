@@ -32,10 +32,11 @@ def main():
             exit(1)
         tests_to_run.append(PileUpTest("d1730", run, WorkflowType.PileUpPresampling, ["HITtoRDO"], setup, options.extra_args))
         tests_to_run.append(QTest("q444", run, WorkflowType.MCPileUpReco, ["RAWtoESD", "ESDtoAOD"], setup, options.extra_args))
-    elif options.reco and "--CA" in options.extra_args:
-        tests_to_run.append(QTest("q442", run, WorkflowType.DataReco, ["RAWtoALL"], setup, options.extra_args))
     else:
-        tests_to_run.append(QTest("q443", run, WorkflowType.MCReco, ["HITtoRDO", "RAWtoESD", "ESDtoAOD"], setup, options.extra_args))
+        if "--CA" in options.extra_args:
+            tests_to_run.append(QTest("q443", run, WorkflowType.MCReco, ["HITtoRDO", "RAWtoALL"], setup, options.extra_args + " --steering doRAWtoALL"))
+        else:
+            tests_to_run.append(QTest("q443", run, WorkflowType.MCReco, ["HITtoRDO", "RAWtoESD", "ESDtoAOD"], setup, options.extra_args))
         tests_to_run.append(QTest("q442", run, WorkflowType.DataReco, ["RAWtoALL"], setup, options.extra_args))
 
     # Define which perfomance checks to run

@@ -112,14 +112,6 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    if "AOD" in streamName:
       outputStream.WritingTool.SubLevelBranchName = "<key>"
 
-      AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc
-      poolcnvsvc = AthenaPoolCnvSvc()
-      result.addService(poolcnvsvc)
-      poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; COMPRESSION_LEVEL = '5'" ]
-      poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '-10000000'" ]
-      poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; ContainerName = 'TTree=CollectionTree'; CONTAINER_SPLITLEVEL = '1'" ]
-      poolcnvsvc.PoolAttributes += [ "DatabaseName = '" + fileName + "'; ContainerName = 'TTree=Aux.'; CONTAINER_SPLITLEVEL = '1'"]
-
    result.addEventAlgo(outputStream)
    return result
 

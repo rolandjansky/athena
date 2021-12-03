@@ -23,5 +23,6 @@ atlas_install_joboptions( share/*.py )
 
 # Tests in the package:
 atlas_add_test( ROBDataProviderSvcMT
-		SCRIPT test/test_ROBDataProviderSvcMT.sh
-		PROPERTIES TIMEOUT 1200 )
+                SCRIPT test/test_ROBDataProviderSvcMT.sh
+                POST_EXEC_SCRIPT nopost.sh
+		        PROPERTIES TIMEOUT 1200 )

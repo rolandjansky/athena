@@ -58,6 +58,9 @@ namespace LVL1 {
     /** Add to ET of a specified cell */
     void recordMD_ET(float et);
 
+    /** Get unique ID of tower */
+    int getID() const;
+    
     /** Get coordinates of tower */
     int iEta() const;
     int iPhi() const;
@@ -108,7 +111,7 @@ namespace LVL1 {
 
     int m_tower_id;
     int m_posneg = 0;
-    int m_noisecut = 0; //noisecut currently not used by gFEX, leave it here in case we need it
+    int m_noisecut = -100000; //noisecut currently not used by gFEX, leave it here in case we need it (default value is < of minimum negative energy received by gFEX)
 
   };
 

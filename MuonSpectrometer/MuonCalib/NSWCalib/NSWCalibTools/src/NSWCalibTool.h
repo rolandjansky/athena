@@ -55,14 +55,14 @@ namespace Muon {
 
     StatusCode initializeGasProperties();
 
-    TF1* m_lorentzAngleFunction;
+    TF1* m_lorentzAngleFunction = nullptr;
     
     float m_vDrift;
     float m_timeRes;
     float m_longDiff;
     float m_transDiff;
-    float m_interactionDensitySigma;
-    float m_interactionDensityMean;
+    float m_interactionDensitySigma = 0.0F;
+    float m_interactionDensityMean = 0.0F;
     float m_ionUncertainty;
     double m_peakTime;
 

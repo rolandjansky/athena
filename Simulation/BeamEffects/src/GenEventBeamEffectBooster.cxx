@@ -81,19 +81,18 @@ namespace Simulation
 
     // Prepare the random engine
     m_randomEngine->setSeed( name(), Gaudi::Hive::currentContext() );
+    CLHEP::HepRandomEngine* randomEngine(*m_randomEngine);
 
     // Create beam 1 and 2 momenta, including divergence and crossing-angle effects
-    CLHEP::RandGaussZiggurat gauss(*m_randomEngine);
-
-    const double px1 = m_pbeam1 * gauss.fire(m_xing_x_b2, m_sigma_px_b2);
-    const double py1 = m_pbeam1 * gauss.fire(m_xing_y_b2, m_sigma_py_b2);
-    const double pz1 = gauss.fire(sqrt(m_pbeam1*m_pbeam1 - px1*px1 - py1*py1), m_dE);
+    const double px1 = m_pbeam1 * CLHEP::RandGaussZiggurat::shoot(randomEngine, m_xing_x_b2, m_sigma_px_b2);
+    const double py1 = m_pbeam1 * CLHEP::RandGaussZiggurat::shoot(randomEngine, m_xing_y_b2, m_sigma_py_b2);
+    const double pz1 = CLHEP::RandGaussZiggurat::shoot(randomEngine, sqrt(m_pbeam1*m_pbeam1 - px1*px1 - py1*py1), m_dE);
     const double e1 = sqrt(px1*px1 + py1*py1 + pz1*pz1 + m_beam1ParticleMass*m_beam1ParticleMass);
     CLHEP::HepLorentzVector pp1(px1, py1, pz1, e1);
 
-    const double px2 = -m_pbeam2 * gauss.fire(m_xing_x_b1, m_sigma_px_b1); // crossing angle & divergence
-    const double py2 = -m_pbeam2 * gauss.fire(m_xing_y_b1, m_sigma_py_b1);
-    const double pz2 = gauss.fire(-sqrt(m_pbeam2*m_pbeam2 - px2*px2 - py2*py2), m_dE); // longitudinal component in + direction energy smeared
+    const double px2 = -m_pbeam2 * CLHEP::RandGaussZiggurat::shoot(randomEngine, m_xing_x_b1, m_sigma_px_b1); // crossing angle & divergence
+    const double py2 = -m_pbeam2 * CLHEP::RandGaussZiggurat::shoot(randomEngine, m_xing_y_b1, m_sigma_py_b1);
+    const double pz2 = CLHEP::RandGaussZiggurat::shoot(randomEngine, -sqrt(m_pbeam2*m_pbeam2 - px2*px2 - py2*py2), m_dE); // longitudinal component in + direction energy smeared
     const double e2 = sqrt(px2*px2 + py2*py2 + pz2*pz2 + m_beam2ParticleMass*m_beam2ParticleMass);
     CLHEP::HepLorentzVector pp2(px2, py2, pz2, e2);
 

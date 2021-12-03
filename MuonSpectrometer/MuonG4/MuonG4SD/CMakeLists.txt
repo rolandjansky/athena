@@ -23,60 +23,26 @@ atlas_add_component( MuonG4SD
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
 
-atlas_add_test( CSCSensitiveDetector_gtest
-                SOURCES test/CSCSensitiveDetector_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
+# Helper function setting up the tests in the package:
+function( _add_test name )
+   atlas_add_test( ${name}
+      SOURCES test/${name}.cxx
+      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth
+      POST_EXEC_SCRIPT nopost.sh )
+endfunction()
 
-atlas_add_test( CSCSensitiveDetectorCosmics_gtest
-                SOURCES test/CSCSensitiveDetectorCosmics_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( GenericMuonSensitiveDetector_gtest
-                SOURCES test/GenericMuonSensitiveDetector_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( MDTSensitiveDetector_gtest
-                SOURCES test/MDTSensitiveDetector_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( MDTSensitiveDetectorCosmics_gtest
-                SOURCES test/MDTSensitiveDetectorCosmics_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( MicromegasSensitiveDetector_gtest
-                SOURCES test/MicromegasSensitiveDetector_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( RPCSensitiveDetector_gtest
-                SOURCES test/RPCSensitiveDetector_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( RPCSensitiveDetectorCosmics_gtest
-                SOURCES test/RPCSensitiveDetectorCosmics_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( TGCSensitiveDetector_gtest
-                SOURCES test/TGCSensitiveDetector_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( TGCSensitiveDetectorCosmics_gtest
-                SOURCES test/TGCSensitiveDetectorCosmics_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
-
-atlas_add_test( sTGCSensitiveDetector_gtest
-                SOURCES test/sTGCSensitiveDetector_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${GTEST_LIBRARIES} TestTools MuonG4SDLib StoreGateLib GeoPrimitives GaudiKernel MuonSimEvent G4AtlasToolsLib MCTruth )
+_add_test( CSCSensitiveDetector_gtest )
+_add_test( CSCSensitiveDetectorCosmics_gtest )
+_add_test( GenericMuonSensitiveDetector_gtest )
+_add_test( MDTSensitiveDetector_gtest )
+_add_test( MDTSensitiveDetectorCosmics_gtest )
+_add_test( MicromegasSensitiveDetector_gtest )
+_add_test( RPCSensitiveDetector_gtest )
+_add_test( RPCSensitiveDetectorCosmics_gtest )
+_add_test( TGCSensitiveDetector_gtest )
+_add_test( TGCSensitiveDetectorCosmics_gtest )
+_add_test( sTGCSensitiveDetector_gtest )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

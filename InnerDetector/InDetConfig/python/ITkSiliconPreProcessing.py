@@ -50,8 +50,8 @@ def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder"
     kwargs.setdefault("SpacePointsSCTName", 'ITkStripSpacePoints')
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
     kwargs.setdefault("ProcessPixels", flags.Detector.EnableITkPixel)
-    kwargs.setdefault("ProcessSCTs", flags.Detector.EnableITkStrip and (not flags.ITk.doFastTracking or flags.ITk.doITkLargeD0))
-    kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableITkStrip and (not flags.ITk.doFastTracking or flags.ITk.doITkLargeD0))
+    kwargs.setdefault("ProcessSCTs", flags.Detector.EnableITkStrip and (not flags.ITk.doFastTracking or flags.ITk.doLargeD0))
+    kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableITkStrip and (not flags.ITk.doFastTracking or flags.ITk.doLargeD0))
 
     if flags.Beam.Type == "cosmics":
         kwargs.setdefault("ProcessOverlaps", False)

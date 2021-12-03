@@ -60,8 +60,6 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
 
     acc = ComponentAccumulator()
 
-    # in the std config, it is egammaExtrapolator
-    # (called AtlasExtrapolator now). Should this be egammaCaloExtrapolator ?
     if "Extrapolator" not in kwargs:
         extrapAcc = AtlasExtrapolatorCfg(flags)
         kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
@@ -79,38 +77,6 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
     emExtrapolationTools = CompFactory.EMExtrapolationTools(**kwargs)
     acc.setPrivateTools(emExtrapolationTools)
     return acc
-
-
-def EMExtrapolationToolsCacheCfg(flags, **kwargs):
-    kwargs.setdefault("name", "EMExtrapolationToolsCache")
-    kwargs.setdefault("PerigeeCache", "GSFPerigeeCaloExtension")
-    kwargs.setdefault("LastCache", "GSFLastCaloExtension")
-    kwargs.setdefault("useCaching", True)
-    kwargs.setdefault("useLastCaching", True)
-    return EMExtrapolationToolsCfg(flags, **kwargs)
-
-
-def EMExtrapolationToolsCommonCacheCfg(flags, **kwargs):
-    kwargs.setdefault("name", "EMExtrapolationToolsCommonCache")
-    kwargs.setdefault("LastCache", "ParticleCaloExtension")
-    kwargs.setdefault("useCaching", False)
-    kwargs.setdefault("useLastCaching", True)
-    return EMExtrapolationToolsCfg(flags, **kwargs)
-
-
-def EMExtrapolationToolsLRTCacheCfg(flags, **kwargs):
-    kwargs.setdefault("name", "EMExtrapolationToolsLRTCache")
-    kwargs.setdefault("PerigeeCache", "LRTGSFPerigeeCaloExtension")
-    kwargs.setdefault("LastCache", "LRTGSFLastCaloExtension")
-    return EMExtrapolationToolsCacheCfg(flags, **kwargs)
-
-
-def EMExtrapolationToolsLRTCommonCacheCfg(flags, **kwargs):
-    kwargs.setdefault("name", "EMExtrapolationToolsLRTCommonCache")
-    kwargs.setdefault("LastCache", "ParticleCaloExtension_LRT")
-    kwargs.setdefault("useCaching", False)
-    kwargs.setdefault("useLastCaching", True)
-    return EMExtrapolationToolsCfg(flags, **kwargs)
 
 
 def egammaTrkRefitterToolCfg(flags,
@@ -149,11 +115,6 @@ if __name__ == "__main__":
     mlog.info("Configuring EMExtrapolationTools : ")
     printProperties(mlog, cfg.popToolsAndMerge(
         EMExtrapolationToolsCfg(ConfigFlags)),
-        nestLevel=1,
-        printDefaults=True)
-    mlog.info("Configuring EMExtrapolationTools with cache : ")
-    printProperties(mlog, cfg.popToolsAndMerge(
-        EMExtrapolationToolsCacheCfg(ConfigFlags)),
         nestLevel=1,
         printDefaults=True)
     mlog.info("Configuring egammaTrkRefitterToolCfg :")

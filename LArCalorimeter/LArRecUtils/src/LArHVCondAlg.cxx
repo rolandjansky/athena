@@ -298,7 +298,7 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     for (unsigned i=0;i<MAX_LAR_CELLS;++i) {
       IdentifierHash hash(i);
       const CaloDetDescrElement* dde= calodetdescrmgr->get_element(hash); 
-      vScale[i]=m_scaleTool->getHVScale(dde,voltageVec[i]);
+      vScale[i]=m_scaleTool->getHVScale(dde,voltageVec[i],msg());
       if(onlHVCorr) { // undo the online one
 	const float hvonline = onlHVCorr->HVScaleCorr(cabling->createSignalChannelIDFromHash(hash));
 	if (hvonline>0. && hvonline<100.) vScale[i]=vScale[i]/hvonline;

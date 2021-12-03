@@ -225,7 +225,6 @@ private: // properties
    std::vector<std::vector<std::string> > m_inputAttrPerEvent;
 
    /// Output FileNames to be associated with Stream Clients
-   StringArrayProperty m_streamClientFilesProp{this,"OutputPoolFileAllocator",{}};
    std::vector<std::string>   m_streamClientFiles;
 
    /// MaxFileSizes, vector with maximum file sizes for Athena POOL output files
@@ -265,9 +264,8 @@ private: // properties
 
    /// Property for DataHeaderCnv input DHForm cache size
    IntegerProperty m_DHFormCacheSize { this, "maxDHFormCacheSize", 100 };
-
    /// Flag to control SG alias filtering when writing out DataHeader (see DataHeaderCnv_p6)
-   BooleanProperty m_DHFileterAliases { this, "doFilterDHAliases", true };
+   BooleanProperty m_DHFilterAliases { this, "doFilterDHAliases", true };
 
 };
 

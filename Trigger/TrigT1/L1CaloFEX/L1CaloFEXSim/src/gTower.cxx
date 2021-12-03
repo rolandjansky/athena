@@ -58,6 +58,7 @@ namespace LVL1 {
 
   }
 
+
   /** Add ET */
   void gTower::addET(float et, int layer)
   {
@@ -104,6 +105,11 @@ namespace LVL1 {
 
     return pass;
 
+  }
+
+  /** Return unique identifier */
+  int gTower::getID() const {
+    return m_tower_id;
   }
 
   // Return global eta index.

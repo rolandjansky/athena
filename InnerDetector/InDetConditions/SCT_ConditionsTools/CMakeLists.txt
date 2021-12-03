@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_ConditionsTools )
@@ -26,11 +26,12 @@ atlas_add_test( SCT_RODVetoTool_test
                 SOURCES test/SCT_RODVetoTool_test.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
                 LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AthenaKernel GaudiKernel InDetIdentifier SCT_ConditionsToolsLib StoreGateLib TestTools
-                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( SCT_ConditionsConfig_test
                 SCRIPT test/SCT_ConditionsConfig_test.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -4,6 +4,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-output: run_*
+# art-output: pkldiff.log
 
 maxevent=25
 inputfile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1"
@@ -39,7 +40,11 @@ FastChain_tf.py \
     --numberOfCavernBkg 0 \
     --athenaopts '"--config-only=ConfigCG.pkl"' \
     --imf False
-cgpkl=$?
+
+cgpkl=999
+if [ -f "ConfigCG.pkl" ]; then
+    cgpkl=0
+fi
 echo "art-result: $cgpkl EVNTtoRDO_CG_PKL"
 
 cd ..; mkdir ./run_cg; cd run_cg
@@ -107,6 +112,7 @@ echo  "art-result: $ca EVNTtoRDO_CA"
 cd ..
 
 diff=999
+pkldiff=999
 if [ $cg -eq 0 ] && [ $ca -eq 0 ]
 then
    confTool.py --diff --ignoreIrrelevant --shortenDefaultComponents --ignoreDefaults run_cg_pkl/ConfigCG.pkl run_ca/ConfigCA.pkl > pkldiff.log

@@ -132,7 +132,7 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   if (MHT_x != 0) outTOB[2] = outTOB[2] | 0x00000001 << 25;//Status bit for Quantity 1 (0 if quantity is null)
   outTOB[2] = outTOB[2] | (3  &  0x0000001F) << 26;//TOB ID is 3 for hard components (5 bits starting at 26)
 
-  // Fourth TOB is hard components (MHT_x, MHT_y)
+  // Fourth TOB is hard components (MST_x, MST_y)
   outTOB[3] = MST_y; //set the Quantity2 to the corresponding slot (LSB)
   outTOB[3] = outTOB[3] | (MST_x  &  0x00000FFF) << 12;//Quantity 1 (in bit number 12)
   if (MST_y != 0) outTOB[3] = outTOB[3] | 0x00000001 << 24;//Status bit for Quantity 2 (0 if quantity is null)

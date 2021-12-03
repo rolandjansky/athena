@@ -17,7 +17,7 @@ namespace xAOD {
       AUX_VARIABLE( tobEt);
       AUX_VARIABLE( iEta);
       AUX_VARIABLE( iPhi);
-      AUX_VARIABLE( status);
+      AUX_VARIABLE( gFexJetStatus);
       AUX_VARIABLE( saturated);
    }
 

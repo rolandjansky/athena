@@ -223,7 +223,7 @@ class SlimmingHelper:
                 mainEntries,auxEntries = self.theHandler.GetContent(masterItemList,allVariablesList)
 
                 # Add processed items to the stream
-                excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation" #  From https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetExample/InDetRecExample/trunk/share/WriteInDetAOD.py#L41
+                excludedAuxData = "-clusterAssociation"
                 excludedAuxEntries= [entry.strip("-") for entry in excludedAuxData.split(".")]
                 for item in mainEntries:
                         Stream.AddItem(item)

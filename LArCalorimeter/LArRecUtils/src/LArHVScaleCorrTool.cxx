@@ -17,14 +17,14 @@ LArHVScaleCorrTool::LArHVScaleCorrTool(const CaloCell_ID* calocell_id, MsgStream
   m_larem_id(calocell_id->em_idHelper()),
   m_larhec_id(calocell_id->hec_idHelper()),
   m_larfcal_id(calocell_id->fcal_idHelper()),
-  m_T0(90.371),
-  m_msg(msg) { 
-
-  buildFixHVList(fixHVStrings);
-  }
+  m_T0(90.371)
+{
+  buildFixHVList(fixHVStrings, msg);
+}
 
   
-float LArHVScaleCorrTool::getHVScale(const CaloDetDescrElement* calodde,  const voltageCell_t& hvlist) const {
+float LArHVScaleCorrTool::getHVScale(const CaloDetDescrElement* calodde,  const voltageCell_t& hvlist,
+                                     MsgStream& msg) const {
 
   double d=.2;  // nominal gap  in cm
   double nominal=2000.;  // nominal HV  in Volts
@@ -127,7 +127,7 @@ float LArHVScaleCorrTool::getHVScale(const CaloDetDescrElement* calodde,  const 
   }
 
   if (notfound) {
-    m_msg << MSG::WARNING << " At least one HV value not found in database for cell " << m_larem_id->show_to_string(offid) << endmsg;
+    msg << MSG::WARNING << " At least one HV value not found in database for cell " << m_larem_id->show_to_string(offid) << endmsg;
   }
 
   double mycorr=0.;
@@ -165,7 +165,7 @@ float LArHVScaleCorrTool::getHVScale(const CaloDetDescrElement* calodde,  const 
   
   // Add protection against correction factor > 10
   if (mycorr>10.) {
-    m_msg << MSG::DEBUG << "Correction factor > 10, ignore it... for cell " <<  m_larem_id->show_to_string(offid) << " " << mycorr << endmsg;;
+    msg << MSG::DEBUG << "Correction factor > 10, ignore it... for cell " <<  m_larem_id->show_to_string(offid) << " " << mycorr << endmsg;;
     mycorr=1.;
   }   
 
@@ -174,7 +174,7 @@ float LArHVScaleCorrTool::getHVScale(const CaloDetDescrElement* calodde,  const 
     if (subdet == m_HVfix[ii].subdet && layer >= m_HVfix[ii].layer_min && layer <= m_HVfix[ii].layer_max &&
 	eta_raw >= m_HVfix[ii].eta_min && eta_raw < m_HVfix[ii].eta_max &&
 	phi_raw >= m_HVfix[ii].phi_min && phi_raw < m_HVfix[ii].phi_max ) {
-      m_msg << MSG::DEBUG << "Overwrite correction for cell " <<  m_larem_id->show_to_string(offid) << " " << m_HVfix[ii].corr << endmsg;;
+      msg << MSG::DEBUG << "Overwrite correction for cell " <<  m_larem_id->show_to_string(offid) << " " << m_HVfix[ii].corr << endmsg;;
       mycorr = m_HVfix[ii].corr;
     }
   }
@@ -310,7 +310,8 @@ float LArHVScaleCorrTool::Scale_barrel(const float hv) const
 
 
 // *** Build list of correction to hardcode by jobOptions
-void LArHVScaleCorrTool::buildFixHVList(const std::vector<std::string>& fixHVStrings) {
+void LArHVScaleCorrTool::buildFixHVList(const std::vector<std::string>& fixHVStrings,
+                                        MsgStream& msg) {
 
   m_HVfix.clear();
   std::vector<std::string>::const_iterator itrStringID=fixHVStrings.begin();
@@ -335,7 +336,7 @@ void LArHVScaleCorrTool::buildFixHVList(const std::vector<std::string>& fixHVStr
     m_HVfix.push_back(myfix);
   }
 
-  m_msg << MSG::INFO << "  Number of regions with overwritten HV corrections from jobOptions " << m_HVfix.size() << endmsg;
+  msg << MSG::INFO << "  Number of regions with overwritten HV corrections from jobOptions " << m_HVfix.size() << endmsg;
 
   return;
 }

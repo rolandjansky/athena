@@ -23,7 +23,6 @@
 #include "xAODBTagging/BTagging.h"
 #include <string>
 
-#include "xAODBTagging/ftagfloat_t.h"
 
 namespace Analysis {
 
@@ -41,9 +40,9 @@ namespace Analysis {
 					    const std::string & jetauthor,
 					    const std::string& inputbasename,
 					    const std::string& outputbasename,
-					    ftagfloat_t jetpT,
-					    ftagfloat_t jeteta,
-					    ftagfloat_t IP3dlike=-5000) const = 0;
+					    float jetpT,
+					    float jeteta,
+					    float IP3dlike=-5000) const = 0;
   }; 
 }
 
