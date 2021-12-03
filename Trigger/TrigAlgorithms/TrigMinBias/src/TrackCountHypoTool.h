@@ -6,10 +6,11 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
-class TrackCountHypoTool : virtual public ::AthAlgTool
+class TrackCountHypoTool : virtual public AthCheckedComponent<::AthAlgTool>
 {
 public:
 
