@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef INDETPHYSVALMONITORING_InDetPhysHitDecoratorTool_H
 #define INDETPHYSVALMONITORING_InDetPhysHitDecoratorTool_H
@@ -59,6 +59,7 @@ private:
   bool m_isUnbiased;
   bool m_doUpgrade;
   bool m_useNewITkLayerNumbering;
+  bool m_storeExtendedInfo;
   // the following help identify a surface in the detector
   const AtlasDetectorID* m_idHelper;
   const PixelID* m_pixelID;
