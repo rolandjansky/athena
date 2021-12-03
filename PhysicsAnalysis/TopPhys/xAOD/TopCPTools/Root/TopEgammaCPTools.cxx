@@ -282,6 +282,22 @@ namespace top {
                                                                                        // hopefully remove the map soon!
     std::string electronIsolationLoose = mapWorkingPoints(m_config->electronIsolationSFLoose());
 
+    if(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight" || electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight"){
+      if(!(electronID == "TightLLH" || electronID == "MediumLLH")){
+	ATH_MSG_ERROR("Combination of electron PLIV WP and ID WP not available. Try MediumLH or TightLH.");
+	return StatusCode::FAILURE;
+      }
+      if(!(electronIDLoose == "TightLLH" || electronIDLoose == "MediumLLH")){
+	ATH_MSG_ERROR("Combination of loose electron PLIV WP and ID WP not available. Try MediumLH or TightLH.");
+	return StatusCode::FAILURE;
+      }
+      if(dataType == 3){
+	ATH_MSG_ERROR("electron PLIV WPs are only available for FullSim.");
+	return StatusCode::FAILURE;
+      }
+      ATH_MSG_WARNING("Trigger SFs for PLIV isolation unavailable. Proceeding without online Isolation.");
+    }
+    
     // Retrieve full path to maps for different types of tool
     m_electronEffSFRecoFile = electronSFMapFilePath("reco");
     // - Tight
@@ -342,18 +358,23 @@ namespace top {
                                                         electronIDLoose, "", "", dataType, "TOTAL", "", "");
     // Trigger SFs
     m_electronEffSFTrigger = setupElectronSFToolWithMap(elSFPrefix + "TriggerSF", m_electronEffSFTriggerFile, "",
-                                                        electronID, electronIsolation, trigger_string, dataType,
+                                                        electronID,
+							(!(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight")) ? electronIsolation : "",
+							trigger_string, dataType,
                                                         "TOTAL", "", "");
     m_electronEffSFTriggerLoose = setupElectronSFToolWithMap(elSFPrefix + "TriggerSFLoose",
                                                              m_electronEffSFTriggerLooseFile, "", electronIDLoose,
-                                                             electronIsolationLoose, trigger_string, dataType, "TOTAL",
+                                                             (!(electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight")) ? electronIsolationLoose : "",
+							     trigger_string, dataType, "TOTAL",
                                                              "", "");
     // Trigger Efficiencies
     m_electronEffTrigger = setupElectronSFToolWithMap(elSFPrefix + "Trigger", m_electronEffTriggerFile, "", electronID,
-                                                      electronIsolation, "Eff_" + trigger_string, dataType, "TOTAL", "",
+                                                      (!(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight")) ? electronIsolation : "",
+						      "Eff_" + trigger_string, dataType, "TOTAL", "",
                                                       "");
     m_electronEffTriggerLoose = setupElectronSFToolWithMap(elSFPrefix + "TriggerLoose", m_electronEffTriggerLooseFile,
-                                                           "", electronIDLoose, electronIsolationLoose,
+                                                           "", electronIDLoose,
+							   (!(electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight")) ? electronIsolationLoose : "",
                                                            "Eff_" + trigger_string, dataType, "TOTAL", "", "");
     // Isolation SFs
     if (electronIsolation == "PLVTight" ||
@@ -416,7 +437,8 @@ namespace top {
       // Trigger SFs
       m_electronEffSFTriggerCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "TriggerSF",
                                                                    m_electronEffSFTriggerFile, "", electronID,
-                                                                   electronIsolation, trigger_string, dataType,
+                                                                   (!(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight")) ? electronIsolation : "",
+								   trigger_string, dataType,
                     m_config->electronEfficiencySystematicModelNToys(),
                     m_config->electronEfficiencySystematicModelToySeed(),
                                                                    m_config->electronEfficiencySystematicModel(),
@@ -424,7 +446,8 @@ namespace top {
                                                                    m_config->electronEfficiencySystematicModelEtBinning());
       m_electronEffSFTriggerLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "TriggerSFLoose",
                                                                         m_electronEffSFTriggerLooseFile, "",
-                                                                        electronIDLoose, electronIsolationLoose,
+                                                                        electronIDLoose,
+									(!(electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight")) ? electronIsolationLoose : "",
                                                                         trigger_string, dataType,
                     m_config->electronEfficiencySystematicModelNToys(),
                     m_config->electronEfficiencySystematicModelToySeed(),
@@ -434,7 +457,8 @@ namespace top {
       // Trigger Efficiencies
       m_electronEffTriggerCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Trigger",
                                                                  m_electronEffTriggerFile, "", electronID,
-                                                                 electronIsolation, "Eff_" + trigger_string, dataType,
+                                                                 (!(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight")) ? electronIsolation : "",
+								 "Eff_" + trigger_string, dataType,
                     m_config->electronEfficiencySystematicModelNToys(),
                     m_config->electronEfficiencySystematicModelToySeed(),
                                                                  m_config->electronEfficiencySystematicModel(),
@@ -442,7 +466,8 @@ namespace top {
                                                                  m_config->electronEfficiencySystematicModelEtBinning());
       m_electronEffTriggerLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "TriggerLoose",
                                                                       m_electronEffTriggerLooseFile, "",
-                                                                      electronIDLoose, electronIsolationLoose,
+                                                                      electronIDLoose,
+								      (!(electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight")) ? electronIsolationLoose : "",
                                                                       "Eff_" + trigger_string, dataType,
                     m_config->electronEfficiencySystematicModelNToys(),
                     m_config->electronEfficiencySystematicModelToySeed(),
@@ -531,7 +556,9 @@ namespace top {
       m_electronEffSFChargeIDLoose = setupElectronSFTool(elSFPrefix + "ChargeIDLoose", inChargeIDLoose, dataType);
     }
     if (electronIsolation != "PLVTight" && electronIsolation != "PLVLoose" &&
-        electronIsolationLoose != "PLVTight" && electronIsolationLoose != "PLVLoose") {
+        electronIsolationLoose != "PLVTight" && electronIsolationLoose != "PLVLoose" &&
+	electronIsolation != "PLImprovedTight" && electronIsolation != "PLImprovedVeryTight" &&
+	electronIsolationLoose != "PLImprovedTight" && electronIsolation != "PLImprovedVeryTight") {
       // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
       CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool(
         "ElectronChargeEfficiencyCorrection");
@@ -755,7 +782,10 @@ IAsgElectronEfficiencyCorrectionTool*
 
   std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std::string& ID,
                                                 const std::string& ISO) {
-    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
+    bool isPliv = (ISO == "PLImprovedTight" || ISO == "PLImprovedVeryTight");
+    const std::string el_calib_path = (type == "ChargeID" && isPliv) ?
+        "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/"
+      : "ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/";
 
     std::string file_path;
 
@@ -771,12 +801,13 @@ IAsgElectronEfficiencyCorrectionTool*
       if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_ERROR(
           "The requested ID WP (" + ID +
         ") is not supported for electron ChargeID SFs! Try TightLH or MediumLH instead.");
-      if (ISO != "FCTight" && ISO != "Gradient") ATH_MSG_ERROR("The requested ISO WP (" + ISO + ") is not supported for electron ChargeID SFs! Try FCTight or Gradient instead.");
-      file_path += "additional/efficiencySF.ChargeID.";
+      if (ISO != "FCTight" && ISO != "Gradient" && ISO != "PLImprovedTight" && ISO != "PLImprovedVeryTight") ATH_MSG_ERROR("The requested ISO WP (" + ISO + ") is not supported for electron ChargeID SFs! Try FCTight, Gradient, or PLImproved(Very)Tight instead.");	
+      file_path += (isPliv) ? "isolation/efficiencySF.Isolation." : "additional/efficiencySF.ChargeID.";
       file_path += ID;
       file_path += "_d0z0_v13_";
+      if(isPliv) file_path += "isol";
       file_path += ISO;
-      file_path += "_ECIDSloose.root";
+      file_path += (isPliv) ? "ECIDS.root" : "_ECIDSloose.root";
       file_path = el_calib_path + file_path;
     } else if (type == "PLV") {
       if (ID != "MediumLLH" && ID != "TightLLH")
@@ -804,8 +835,8 @@ IAsgElectronEfficiencyCorrectionTool*
       file_path += "chargeEfficiencySF.";
       file_path += ID;
       file_path += "_d0z0_v13";
-      if (iso != "" && iso != "PLVTight" && iso != "PLVLoose") file_path += "_" + iso;
-      if (iso == "PLVTight" || iso == "PLVLoose") {
+      if (iso != "" && iso != "PLVTight" && iso != "PLVLoose" && iso != "PLImprovedTight" && iso != "PLImprovedVeryTight") file_path += "_" + iso;
+      if (iso == "PLVTight" || iso == "PLVLoose" || iso == "PLImprovedTight" || iso == "PLImprovedVeryTight") {
 	// not supported for now! -> set up a dummy tool and return 1 as SF
 	ATH_MSG_WARNING("The requested ISO WP (" + iso + ") is not supported for electron ChargeMisID SFs! Will set up a dummy tool and set the SFs to one.");
       }
@@ -871,7 +902,7 @@ IAsgElectronEfficiencyCorrectionTool*
       ATH_MSG_WARNING("You selected the TightTrackOnly_FixedRad isolation WP for at least one of your electron collections - BE WARNED THAT THESE ARE NOT YET READY TO BE RELEASED FOR USE IN PHYSICS ANALYSES AND OF COURSE DON'T HAVE ASSOCIATED SCALE FACTORS YET!!! Setting to \"Gradient\" SFs to allow the code to run");
       working_point = "Gradient";
     }
-    if (type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient" || type == "PLVTight" || type == "PLVLoose") working_point = type;
+    if (type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient" || type == "PLVTight" || type == "PLVLoose" || type == "PLImprovedTight" || type == "PLImprovedVeryTight") working_point = type;
 
     return working_point;
   }
