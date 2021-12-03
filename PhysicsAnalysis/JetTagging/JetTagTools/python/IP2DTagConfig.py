@@ -11,7 +11,7 @@ from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 # import the IPTag configurable
 Analysis__IPTag=CompFactory.Analysis.IPTag
 
-def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
+def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = True, FlipOption='STANDARD', **options ):
     """Sets up a IP2DTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -63,6 +63,51 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
+
+    # Define the settings for the IP2DNeg ("NEGATIVE_IP_ONLY") and IP2DFlip ("FLIP_SIGN") taggers. 
+    # Set as well a different name to distinguish from the "Standard" taggers    
+ 
+    if FlipOption=='NEGATIVE_IP_ONLY':
+        negtagoptions = {
+            'flipIPSign'                       : True,
+            'flipZIPSign'                      : True,
+            'usePosIP'                         : True,
+            'useNegIP'                         : False,
+
+        }
+        # make sure that the name includes 'Neg' if setup 'Neg' tagging option
+        nameNeg=''
+        if 'NegTag' in name:
+            nameNeg=name
+        elif 'Tag' in name:
+            nameNeg=name.replace("Tag","NegTag")
+        else:
+            nameNeg=name+"Neg"
+        options['name'] = nameNeg
+        options['xAODBaseName'] = 'IP2DNeg' 
+        for option in negtagoptions:
+            options.setdefault(option, negtagoptions[option])
+        
+    elif FlipOption=='FLIP_SIGN':
+        flipoptions = {
+                'flipIPSign'                   : True,
+                'flipZIPSign'                  : True, #would naively say 'True' but in Rel.21 (https://gitlab.cern.ch/atlas/athena/-/blob/21.2/PhysicsAnalysis/JetTagging/JetTagAlgs/BTagging/python/BTaggingConfiguration_IP3DFlipTag.py), the default from 'False' is not changed
+                'usePosIP'                     : True,
+                'useNegIP'                     : True	    
+        }
+        nameFlip=''
+        if 'FlipTag' in name:
+            nameFlip=name
+        elif 'Tag' in name:
+            nameFlip=name.replace("Tag","FlipTag")
+        else:
+            nameFlip=name+"Flip"
+        options['name'] = nameFlip
+        options['xAODBaseName'] = 'IP2DFlip' 
+        for option in flipoptions:
+            options.setdefault(option, flipoptions[option])    
+
+
 
     acc.setPrivateTools(Analysis__IPTag( **options))
 

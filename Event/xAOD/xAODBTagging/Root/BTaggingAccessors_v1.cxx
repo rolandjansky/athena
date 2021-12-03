@@ -116,6 +116,8 @@ namespace xAOD {
       DEFINE_ACCESSOR( std::vector<float>, IP2D_weightBofTracks );
       DEFINE_ACCESSOR( std::vector<float>, IP2D_weightUofTracks );
       DEFINE_ACCESSOR( std::vector<float>, IP2D_weightCofTracks );
+                
+      
     default:                  
       std::cerr << "xAOD::BTagging_v1 ERROR Unknown std::vector<float> TaggerInfo ("
                 << info << ") requested" << std::endl;
