@@ -317,12 +317,13 @@ namespace top {
     }
 
     // Define the trigger string for scale factors
-    const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
-                                       "OR_e60_lhmedium_"
-                                       "OR_e120_lhloose_"
-                                       "2016_2018_e26_lhtight_nod0_ivarloose_"
-                                       "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
-
+    const std::string trigger_string = (!m_config->useHItoolsConfiguration())
+      ? "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
+      "OR_e60_lhmedium_"
+      "OR_e120_lhloose_"
+      "2016_2018_e26_lhtight_nod0_ivarloose_"
+      "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"
+      : "2016_e15_lhloose_nod0";
 
 
     // Define the tool prefix name
@@ -829,6 +830,9 @@ IAsgElectronEfficiencyCorrectionTool*
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
     const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map0.txt";
 
+    if (m_config->useHItoolsConfiguration())
+      return PathResolverFindCalibFile("ElectronEfficiencyCorrection/2015_2018/rel21.2/HIData_Autumn2021_v1/map0.txt");
+    
     if (type == "FWDID") {
       return PathResolverFindCalibFile("ElectronEfficiencyCorrection/2015_2017/rel21.2/Consolidation_September2018_v1/map3.txt");
     }
