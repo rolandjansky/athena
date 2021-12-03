@@ -10,7 +10,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
-#include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
