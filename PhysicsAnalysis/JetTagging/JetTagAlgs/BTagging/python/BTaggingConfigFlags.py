@@ -25,5 +25,7 @@ def createBTaggingConfigFlags():
     #Comments in BTaggingConfiguration.py
     btagcf.addFlag("BTagging.OutputFiles.Prefix", "BTagging_")
     btagcf.addFlag("BTagging.GeneralToolSuffix",'') #Not sure it will stay like that later on. Was '', 'Trig, or 'AODFix'
+    # Run the flip taggers
+    btagcf.addFlag("BTagging.RunFlipTaggers", False)
 
     return btagcf
