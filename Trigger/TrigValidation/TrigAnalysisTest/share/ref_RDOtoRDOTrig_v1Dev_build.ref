@@ -9519,6 +9519,10 @@ HLT_mb_alfaperf_L1RD0_EMPTY:
   eventCount: 0
 HLT_mb_alfaperf_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_excl_1trk5_pt4_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_excl_2trk6_pt1_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_mbts_L1MBTS_1:
   eventCount: 0
 HLT_mb_mbts_L1MBTS_1_1:
@@ -9535,6 +9539,8 @@ HLT_mb_sp1000_pusup450_trk70_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp1000_trk70_hmt_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_sp1000_trk80_hmt_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_sp1100_pusup450_trk70_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp1200_pusup500_trk80_hmt_L1RD0_FILLED:
@@ -9547,6 +9553,8 @@ HLT_mb_sp1400_trk80_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp1400_trk90_hmt_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_sp1500_trk100_hmt_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_sp15_pusup0_trk5_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp1600_pusup600_trk100_hmt_L1RD0_FILLED:
@@ -9557,17 +9565,31 @@ HLT_mb_sp1800_pusup600_trk110_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp1800_trk110_hmt_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_sp2000_trk130_hmt_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_sp2100_pusup700_trk120_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp2300_pusup1000_trk130_hmt_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_sp3000_trk200_hmt_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_sp400_trk40_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp4100_trk260_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp5000_trk290_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp500_trk40_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp600_pusup300_trk40_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp600_trk45_hmt_L1RD0_FILLED:
   eventCount: 0
+HLT_mb_sp600_trk50_hmt_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_sp700_trk55_hmt_L1RD0_FILLED:
+  eventCount: 0
+HLT_mb_sp800_trk60_hmt_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sp900_pusup350_trk50_hmt_L1RD0_FILLED:
   eventCount: 0

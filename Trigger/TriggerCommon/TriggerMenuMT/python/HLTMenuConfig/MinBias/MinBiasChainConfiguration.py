@@ -96,10 +96,10 @@ class MinBiasChainConfig(ChainConfigurationBase):
         else:
             steps.append(self.getMinBiasEmptyMbtsStep())
 
-        if self.chainPart['recoAlg'][0] in ['sp', 'sptrk', 'hmt']:
+        if self.chainPart['recoAlg'][0] in ['sp', 'sptrk', 'hmt', 'excl']:
             steps.append(self.getMinBiasSpStep())
 
-        if self.chainPart['recoAlg'][0] in ['sptrk', 'hmt']:
+        if self.chainPart['recoAlg'][0] in ['sptrk', 'hmt', 'excl']:
             if self.chainPart['pileupInfo']:
                 steps.append(self.getMinBiasZFindStep())
             else:
