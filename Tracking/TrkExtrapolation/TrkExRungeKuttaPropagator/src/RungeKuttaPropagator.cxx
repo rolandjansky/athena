@@ -1955,21 +1955,13 @@ void Trk::RungeKuttaPropagator::propagateStep(const EventContext& ctx,
   Po[0] = M*P[3];  Po[1] = M*P[4];  Po[2] = M*P[5];
 }
 
-
-void Trk::RungeKuttaPropagator::getFieldCacheObject( Cache& cache,const EventContext& ctx) const
+void
+Trk::RungeKuttaPropagator::getFieldCacheObject(Cache& cache,
+                                               const EventContext& ctx) const
 {
-
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-    if (fieldCondObj == nullptr) {
-
-        // temporarily protect for when cache a cannot be retrieved in an IOV callback
-        ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key()
-                      << ". Skipping use of field cache!");
-
-        // ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-        // return;
-    }
-    fieldCondObj->getInitializedCache (cache.m_fieldCache);
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{ m_fieldCondObjInputKey,
+                                                         ctx };
+  const AtlasFieldCacheCondObj* fieldCondObj{ *readHandle };
+  fieldCondObj->getInitializedCache(cache.m_fieldCache);
 }
 
