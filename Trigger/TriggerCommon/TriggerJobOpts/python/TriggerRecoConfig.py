@@ -41,7 +41,7 @@ def TriggerRecoCfg(flags):
 
     elif flags.Trigger.EDMVersion == 2 or flags.Trigger.EDMVersion == 1:
         if flags.Trigger.EDMVersion == 1:
-            acc.merge(Run1xADOCOnversionCfg(flags))
+            acc.merge(Run1xAODConversionCfg(flags))
         acc.merge( Run1Run2BSExtractionCfg(flags) )
         from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
         xRoIBResultAcc, _ = RoIBResultToxAODCfg(flags)
@@ -125,7 +125,7 @@ def Run1Run2BSExtractionCfg( flags ):
 
     return acc
 
-def Run1xADOCOnversionCfg(flags):
+def Run1xAODConversionCfg(flags):
     """Convert Run 1 EDM collections to xAOD classes"""
     acc = ComponentAccumulator()
 
