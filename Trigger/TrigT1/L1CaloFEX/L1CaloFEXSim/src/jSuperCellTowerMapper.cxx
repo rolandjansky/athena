@@ -278,8 +278,13 @@ void jSuperCellTowerMapper::reset(){
         case CaloSampling::HEC1:
         case CaloSampling::HEC2:
         case CaloSampling::HEC3: {
+	  if(region == 0){
             eta_index += 15;
-            break;
+	  }
+	  else if (region == 1){ // to push these supercells to 2.5 and above
+	    eta_index += 25;
+	  }
+	  break;
         }
         default: {
             /*ATH_MSG_DEBUG("Not doing anything since sample = " << sample);*/ break;
