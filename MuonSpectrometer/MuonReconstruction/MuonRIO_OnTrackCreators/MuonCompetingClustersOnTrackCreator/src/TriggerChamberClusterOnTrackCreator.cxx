@@ -116,7 +116,7 @@ TriggerChamberClusterOnTrackCreator::applyClusterConsistency(
     int sizeMax		= 0;
     int sizeMin 	= 999;
     for (std::list<int>::iterator l = limitingChannels.begin();
-	 l != limitingChannels.end();
+	 l != limitingChannels.end() && l != std::prev(limitingChannels.end());
 	 ++l)
     {
 	int size = abs(*l - *(++l));
@@ -126,7 +126,7 @@ TriggerChamberClusterOnTrackCreator::applyClusterConsistency(
     
     std::list<int>::iterator discard	= limitingChannels.end();
     for (std::list<int>::iterator l = limitingChannels.begin();
-	 l != limitingChannels.end();
+	 l != limitingChannels.end() && l != std::prev(limitingChannels.end());
 	 ++l)
     {
 	std::list<int>::iterator first = l;
