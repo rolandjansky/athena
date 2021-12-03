@@ -56,5 +56,4 @@ endif()
 # Run tests:
 atlas_add_test( WeightHelpersTest
                 SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/testWeightHelpers.py
-                PROPERTIES TIMEOUT 300 )
-
+                POST_EXEC_SCRIPT nopost.sh )

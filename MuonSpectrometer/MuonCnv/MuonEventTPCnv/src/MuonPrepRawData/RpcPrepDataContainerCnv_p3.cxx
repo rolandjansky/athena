@@ -104,7 +104,7 @@ void Muon::RpcPrepDataContainerCnv_p3::transToPers(const Muon::RpcPrepDataContai
     if (log.level() <= MSG::DEBUG) 
         log << MSG::DEBUG<< "Preparing " << persCont->m_collections.size() << " Collections" <<endmsg;
   //  std::cout<<"Preparing " << persCont->m_collections.size() << "Collections" << std::endl;
-    for (pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, it_Coll++)  {
+    for (pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, ++it_Coll)  {
         // Add in new collection
       if (log.level() <= MSG::DEBUG) 
           log << MSG::DEBUG<<"New collection"<<endmsg;

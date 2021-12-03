@@ -37,9 +37,9 @@ def GSFTrackSummaryToolCfg(flags,
                     name="GSFBuildTestBLayerTool"))
 
         from InDetConfig.InDetRecToolConfig import (
-            InDetTrackSummaryHelperToolCfg)
+            TrackSummaryHelperToolCfg)
         kwargs["InDetSummaryHelperTool"] = acc.getPrimaryAndMerge(
-            InDetTrackSummaryHelperToolCfg(
+            TrackSummaryHelperToolCfg(
                 flags,
                 name="GSFBuildTrackSummaryHelperTool",
                 HoleSearch=None,
@@ -107,8 +107,8 @@ def EMBremCollectionBuilderCfg(flags,
         kwargs["TrackSummaryTool"] = acc.popToolsAndMerge(
             GSFTrackSummaryToolCfg(flags))
 
-    kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
-    kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
+    kwargs.setdefault("usePixel", flags.Detector.EnablePixel or flags.Detector.EnableITkPixel)
+    kwargs.setdefault("useSCT", flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
 
     # P->T conversion extra dependencies

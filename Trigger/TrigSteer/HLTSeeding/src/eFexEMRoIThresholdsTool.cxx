@@ -3,11 +3,6 @@
 */
 #include "eFexEMRoIThresholdsTool.h"
 
-namespace eFexEMRoIThresholdsToolParams {
-  const char ContainerName[] = "L1_eEMRoI";
-  const char ThresholdType[] = "eEM";
-}
-
 uint64_t eFexEMRoIThresholdsTool::getPattern(const xAOD::eFexEMRoI& roi,
                                              const RoIThresholdsTool::ThrVec& menuThresholds,
                                              const TrigConf::L1ThrExtraInfoBase& /*menuExtraInfo*/) const {

@@ -16,7 +16,7 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexGlobalRoI_v1::s_tobEtScale = 3200.; ///3.2 GeV is the energy range size (step between two adjiacent bits)
+  const float gFexGlobalRoI_v1::s_tobEtScale = 200.; 
  
 
    gFexGlobalRoI_v1::gFexGlobalRoI_v1()
@@ -40,11 +40,11 @@ namespace xAOD {
    /// Raw data words
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint32_t, word,
                                          setWord )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, char, statusOne,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, statusOne,
                                          setStatusOne )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, char, statusTwo,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, statusTwo,
                                          setStatusTwo )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, char, saturated,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, saturated,
                                          setSaturated )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int, globalType,
                                          setGlobalType )

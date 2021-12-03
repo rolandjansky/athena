@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // geomdb_ofl2onl utility for transferring *locked*
@@ -31,6 +31,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralKernel/Context.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include <algorithm>
 #include <cstdlib> 
@@ -175,7 +176,7 @@ void copyTable(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg, 
 
  */
 bool buildDataTables(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg, bool buildSchema,
-		     std::string nodeUpper, bool verbose, std::ofstream* logfile, int format_level)
+		     const std::string& nodeUpper, bool verbose, std::ofstream* logfile, int format_level)
 {
   bool result = true;
 
@@ -227,7 +228,7 @@ bool buildDataTables(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxy
     ColNameTypeVector::const_iterator it = extraColVecSrc.begin();
     if(buildSchema) {
       // Add missing columns to the target table
-      for(; it!=itVec; it++) {
+      for(; it!=itVec; ++it) {
 	std::string typeNameAndSize = it->second;
 	size_t delimiterPos = typeNameAndSize.find('_');
 	if(delimiterPos!=std::string::npos) {
@@ -243,7 +244,7 @@ bool buildDataTables(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxy
     } else {
       if(itVec!=extraColVecSrc.begin()) {
 	*logfile << "\t * " << dataTableName << " on the source side has columns, which don't exist on the target side! \n";
-	for(; it!=itVec; it++)
+	for(; it!=itVec; ++it)
 	  *logfile << "\t\t" << it->first << " : " << it->second << "\n";
 	result = false;
       }
@@ -281,7 +282,7 @@ bool buildDataTables(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxy
 }
 
 void copyLeafTag(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg, 
-		 std::string nodeUpper, long long tagID, 
+		 const std::string& nodeUpper, long long tagID, 
 		 bool modeInsertOnly)
 {
   //___________________________________________________________________________________
@@ -412,7 +413,7 @@ void copyLeafTag(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg
 
 }
 
-void transferTag(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg, bool verbose,std::string tag, 
+void transferTag(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg, bool verbose,const std::string& tag, 
 		 long long parentTag=-1, int format_level=0)
 {
   if(verbose) {
@@ -513,9 +514,9 @@ void transferTag(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg
   delete qNodeDetailsSrc;
 
   std::string upperNodeName = detNodeSrc["NODE_NAME"].data<std::string>();
-  std::string::iterator it = upperNodeName.begin();
-  for(; it!=upperNodeName.end(); it++) 
-    *it = toupper(*it);
+  for (char& ch : upperNodeName) {
+    ch = std::toupper (static_cast<unsigned int>(ch));
+  }
 
   //___________________________________________________________________________________
 
@@ -729,7 +730,7 @@ void transferTag(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg
   }
 }
 
-bool checkSchema(coral::ISessionProxy* proxySrc,coral::ISessionProxy* proxyTarg,bool verbose,std::string tag,bool buildSchema,std::ofstream* logfile,int format_level=0)
+bool checkSchema(coral::ISessionProxy* proxySrc,coral::ISessionProxy* proxyTarg,bool verbose,const std::string& tag,bool buildSchema,std::ofstream* logfile,int format_level=0)
 {
   // 'Recyclable' variables
   int nRows = 0;
@@ -802,9 +803,9 @@ bool checkSchema(coral::ISessionProxy* proxySrc,coral::ISessionProxy* proxyTarg,
   delete qNodeDetailsSrc;
 
   std::string upperNodeName = detNodeSrc["NODE_NAME"].data<std::string>();
-  std::string::iterator it = upperNodeName.begin();
-  for(; it!=upperNodeName.end(); it++) 
-    *it = toupper(*it);
+  for (char& ch : upperNodeName) {
+    ch = std::toupper (static_cast<unsigned int>(ch));
+  }
 
   //___________________________________________________________________________________
 
@@ -1038,7 +1039,7 @@ int main(int argc, char ** argv)
 	  transferTag(proxySrc,proxyTarg,verbose,currentTag);
 
 	  // If we are transferring new ATLAS tag, then add it to the tag cache
-	  if(currentTag.find("ATLAS-")==0) {
+	  if(boost::starts_with (currentTag, "ATLAS-")) {
 	    coral::AttributeList inputData4Caching;
 	    inputData4Caching.extend<std::string>( "ROOTTAG" );
 	    inputData4Caching[0].data<std::string>() = currentTag;

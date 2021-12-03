@@ -118,7 +118,7 @@ class AlgNode(Node):
         return outputs
 
     def addInput(self, name):
-        inputs = self.readInputList()
+        inputs = self.readInputList()        
         if name in inputs:
             log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
@@ -269,12 +269,15 @@ class RoRSequenceFilterNode(SequenceFilterNode):
     def getChainsPerInput(self):
         return self.getPar("ChainsPerInput")
 
+
+from AthenaCommon.AlgSequence import AthSequencer
 class PassFilterNode(SequenceFilterNode):
     """ PassFilter is a Filter node without inputs/outputs, so OutputProp=InputProp=empty"""
-    def __init__(self, name):
-        Alg= PassFilter(name)
+    def __init__(self, name):        
+        Alg=AthSequencer( "PassSequence" )
+        Alg.IgnoreFilterPassed=True   # always pass     
         SequenceFilterNode.__init__(self,  Alg, '', '')
-
+  
 
 class InputMakerNode(AlgNode):
     def __init__(self, Alg):
@@ -288,7 +291,6 @@ class ComboMaker(AlgNode):
     def __init__(self, name, comboHypoCfg):
         self.prop1="MultiplicitiesMap"
         self.prop2="LegToInputCollectionMap"
-        self.rawInputs = []
         self.comboHypoCfg = comboHypoCfg
         Alg = self.create( name )
         log.debug("ComboMaker init: Alg %s", name)
@@ -300,6 +302,7 @@ class ComboMaker(AlgNode):
 
     """
     AlgNode automatically de-duplicates input ReadHandles upon repeated calls to addInput.
+    Node instead stores all the inputs, even if repeated (self.inputs)
     This function maps from the raw number of times that addInput was called to the de-duplicated index of the handle.
     E.g. a step processing chains such as HLT_e5_mu6 would return [0,1]
     E.g. a step processing chains such as HLT_e5_e6 would return [0,0]
@@ -307,14 +310,14 @@ class ComboMaker(AlgNode):
     These data are needed to configure the step's ComboHypo
     """
     def mapRawInputsToInputsIndex(self):
-        mapping = []
-        theInputs = self.readInputList()
-        for rawInput in self.rawInputs:
+        mapping = []        
+        theInputs = self.readInputList() #only unique inputs    
+        for rawInput in self.inputs: # all inputs
             mapping.append( theInputs.index(rawInput) )
         return mapping
 
-    def addInput(self, name):
-        self.rawInputs.append(str(name) if isinstance(name, DataHandle) else name)
+    """ overwrite AlgNode::addInput with Node::addInput"""
+    def addInput(self, name):        
         return AlgNode.addInput(self, name)
 
     def addChain(self, chainDict):
@@ -870,15 +873,14 @@ class CFSequence(object):
         if self.step.combo is None:
             return
 
-        for seq in self.step.sequences:
-            if type(seq.getOutputList()) is list:
-               combo_input=seq.getOutputList()[-1] # last one?
-            else:
-               combo_input=seq.getOutputList()[0]
+        for seq in self.step.sequences:            
+            combo_input=seq.getOutputList()[0]
             self.step.combo.addInput(combo_input)
+            inputs = self.step.combo.readInputList()
+            legindex = inputs.index(combo_input)
             log.debug("CFSequence.connectCombo: adding input to  %s: %s",  self.step.combo.Alg.getName(), combo_input)
             # inputs are the output decisions of the hypos of the sequences
-            combo_output=CFNaming.comboHypoOutputName (self.step.combo.Alg.getName(), combo_input)
+            combo_output=CFNaming.comboHypoOutputName (self.step.combo.Alg.getName(), legindex)            
             self.step.combo.addOutput(combo_output)
             log.debug("CFSequence.connectCombo: adding output to  %s: %s",  self.step.combo.Alg.getName(), combo_output)
 
@@ -1064,6 +1066,11 @@ class ChainStep(object):
 
 
 def createComboAlg(dummyFlags, name, comboHypoCfg):
+    # remove StepXXX_ from the name
+    if re.search('^Step[0-9]_',name):
+        name = name[6:]
+    elif re.search('^Step[0-9]{2}_', name):
+        name = name[7:]
     return ComboMaker(name, comboHypoCfg)
 
 

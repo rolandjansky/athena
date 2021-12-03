@@ -52,22 +52,26 @@ _add_exec( checkPRWConfigFile )
 atlas_add_test( ut_PRWExample_test
    SOURCES test/ut_PRWExample_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( testPRW
    SOURCES test/testPRW.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( testPRWTool
    SOURCES test/testPRWTool.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib
+   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( ut_PRWDataWeightExample_test
    SOURCES test/ut_PRWDataWeightExample_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib
+   POST_EXEC_SCRIPT nopost.sh )
    
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

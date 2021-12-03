@@ -13,7 +13,6 @@
 
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkTrack/TrackCollection.h"
@@ -26,8 +25,6 @@
 
 InDetAlignMonBeamSpot::InDetAlignMonBeamSpot(const std::string& type, const std::string& name, const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
-  m_extrapolator("Trk::Extrapolator"),
-  m_hasExtrapolator(false),
   m_hasBeamCondSvc(false),
   m_hTrNPt(nullptr),
   m_hTrPt(nullptr),
@@ -55,7 +52,6 @@ InDetAlignMonBeamSpot::InDetAlignMonBeamSpot(const std::string& type, const std:
   m_hPvNTracks(nullptr),
   m_hPvTrackPt(nullptr),
   m_hPvTrackEta(nullptr) {
-  declareProperty("extrapolator", m_extrapolator);
   declareProperty("useBeamspot", m_useBeamspot = true);
   declareProperty("vxContainerWithBeamConstraint", m_vxContainerWithBeamConstraint = false);
   declareProperty("minTracksPerVtx", m_minTracksPerVtx = 10);
@@ -72,13 +68,6 @@ StatusCode InDetAlignMonBeamSpot::initialize() {
 
   sc = ManagedMonitorToolBase::initialize();
   if (!sc.isSuccess()) return sc;
-
-  if (m_extrapolator.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Failed to retrieve tool " + m_extrapolator.typeAndName());
-  } else {
-    m_hasExtrapolator = true;
-    ATH_MSG_INFO("Retrieved tool " + m_extrapolator.typeAndName());
-  }
 
   if (m_beamSpotKey.initialize().isFailure()) {
     ATH_MSG_WARNING("Failed to retrieve beamspot service - will use nominal beamspot at (0,0,0)");

@@ -45,7 +45,8 @@ namespace xAOD {
       /// Set the "raw" 32-bit words describing the object candidate
       void setTobWord( uint32_t tobWord );
       void setjFexNumber( uint8_t jFexNumber);
-      void setfpgaNumber(uint8_t fpgaNumber);      
+      void setfpgaNumber(uint8_t fpgaNumber);  
+          
       /// TOB ET (decoded from TOB, stored for convenience)
       unsigned int unpackEtTOB() const;
       void setTobEt( uint16_t value); 

@@ -30,24 +30,30 @@ atlas_install_scripts( share/*_eljob.py )
 if( XAOD_STANDALONE )
    atlas_add_test( testJobData
       SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
 elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
    atlas_add_test( testJobData
       SCRIPT athena.py
       FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type data
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT athena.py
       FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type mc
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT athena.py
       FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type afii
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
 endif()

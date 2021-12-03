@@ -1,11 +1,12 @@
 // this is -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COMPRESSED_TYPES_H
 #define COMPRESSED_TYPES_H
 
+#include "CompressionEnums.h"
 #include "H5Traits.h"
 
 #include "H5Cpp.h"
@@ -13,8 +14,6 @@
 #include <stdexcept>
 
 namespace H5Utils {
-
-  enum class Compression {STANDARD, HALF_PRECISION};
 
   namespace internal {
     template <typename T>

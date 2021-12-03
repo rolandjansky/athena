@@ -12,9 +12,9 @@ from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
 
 class xAODConversionGetter(Configured):
     def configure(self):
-        from TriggerJobOpts.TriggerRecoConfig import Run1xADOCOnversion
+        from TriggerJobOpts.TriggerRecoConfig import Run1xADOCOnversionCfg
         from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-        CAtoGlobalWrapper(Run1xADOCOnversion, ConfigFlags)
+        CAtoGlobalWrapper(Run1xADOCOnversionCfg, ConfigFlags)
         return True
     
         

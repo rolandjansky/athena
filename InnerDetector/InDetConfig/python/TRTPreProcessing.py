@@ -11,6 +11,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker", **kwargs):
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("PixelDetEleCollKey", "")
+    kwargs.setdefault("SCTDetEleCollKey", "")
     kwargs.setdefault("PixelClusterContainerName", "")
     kwargs.setdefault("SCTClusterContainerName", "")
     kwargs.setdefault("TRTDriftCircleContainerName", 'TRT_DriftCircles') ##read from InDetKeys.TRT_DriftCircles
@@ -27,6 +29,8 @@ def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker",
 def InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = "InDetTRT_PRD_MultiTruthMakerPU", **kwargs):
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("PixelDetEleCollKey", "")
+    kwargs.setdefault("SCTDetEleCollKey", "")
     kwargs.setdefault("PixelClusterContainerName", "")
     kwargs.setdefault("SCTClusterContainerName", "")
     kwargs.setdefault("TRTDriftCircleContainerName", 'TRT_PU_DriftCircles') ##read from InDetKeys.TRT_PU_DriftCircles

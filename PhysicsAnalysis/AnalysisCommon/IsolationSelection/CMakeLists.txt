@@ -50,7 +50,8 @@ endif()
 
 # Test(s) in the package:
 if( XAOD_STANDALONE OR XAOD_ANALYSIS )
-   atlas_add_test( ut_reflex SCRIPT test/ut_reflex.py )
+   atlas_add_test( ut_reflex SCRIPT test/ut_reflex.py
+      POST_EXEC_SCRIPT nopost.sh )
 endif()
 
 # Install files from the package:

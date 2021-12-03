@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SICLUSTERTOOLS_IAFPSIROWCOLTOLOCALCSTOOL_H
@@ -27,20 +27,13 @@
 
 #include "AFP_SiClusterTools/AFPSiClusterBasicObj.h"
 
-static const InterfaceID IID_IAFPSiRowColToLocalCSTool("IAFPSiRowColToLocalCSTool", 1, 0);
-
 /// Interface for tools that translate pixels columns and rows to local position in station and saves output in xAOD format.
 class IAFPSiRowColToLocalCSTool : virtual public ::IAlgTool
 { 
 
  public: 
-  /// Empty destructor
-  virtual ~IAFPSiRowColToLocalCSTool() {}
 
-  static const InterfaceID& interfaceID();
-
-  virtual StatusCode initialize() = 0;
-  virtual StatusCode finalize() = 0;
+  DeclareInterfaceID(IAFPSiRowColToLocalCSTool, 1, 0);
 
   /** 
    * @brief Make xAOD::AFPSiHitsCluster with local position.
@@ -52,27 +45,9 @@ class IAFPSiRowColToLocalCSTool : virtual public ::IAlgTool
    * 
    * @return xAOD cluster object with local coordinates which is added to the xAODContainer
    */
-  virtual xAOD::AFPSiHitsCluster* newXAODLocal (const int stationID, const int layerID, const AFPSiClusterBasicObj& cluster, xAOD::AFPSiHitsClusterContainer* xAODContainer) = 0;
+  virtual xAOD::AFPSiHitsCluster* newXAODLocal (const int stationID, const int layerID, const AFPSiClusterBasicObj& cluster, std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& xAODContainer) const = 0;
 
-  /** 
-   * @brief Fill xAOD::AFPSiHitsClusterContainer with clusters.
-   * 
-   * @param[in] stationID ID number of station where the layer is
-   * @param[in] layerID ID number of the layer with for which position is to be calculated
-   * @param[in] clusters clusters for which local position is to be calculated and are to be added to xAODContainer
-   * @param[out] xAODContainer container to be filled with new clusters
-   */
-  virtual void fillXAODContainer (const int stationID, const int layerID, const std::list<AFPSiClusterBasicObj>& clusters, xAOD::AFPSiHitsClusterContainer* xAODContainer) = 0;
-
-
-  //  virtual  std::vector< std::vector<HepGeom::Transform3D> >& transformations () = 0;
-  virtual  std::vector< std::vector<ROOT::Math::Transform3D> >& transformations () = 0;
 }; 
-
-inline const InterfaceID& IAFPSiRowColToLocalCSTool::interfaceID() 
-{ 
-   return IID_IAFPSiRowColToLocalCSTool; 
-}
 
 
 #endif //> !AFP_SICLUSTERTOOLS_IAFPSIROWCOLTOLOCALCSTOOL_H

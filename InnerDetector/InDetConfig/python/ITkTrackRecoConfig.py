@@ -194,7 +194,7 @@ def ITkTrackParticleCnvAlgCfg(flags, name="ITkTrackParticleCnvAlg", TrackContain
         ))
 
     if flags.ITk.doTruth:
-        kwargs.setdefault("TrackTruthContainerName", TrackContainerName+"TruthCollection")
+        kwargs.setdefault("TrackTruthContainerName", f"{TrackContainerName}TruthCollection")
         kwargs.setdefault("AddTruthLink", True)
 
         if "MCTruthClassifier" not in kwargs:
@@ -213,44 +213,30 @@ def ITkTrackRecoCfg(flags):
     result = ComponentAccumulator()
 
     if flags.Input.Format == "BS":
-        from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
-        result.merge(PixelRawDataProviderAlgCfg(flags))
-        from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig import SCTRawDataProviderCfg, SCTEventFlagWriterCfg
-        result.merge(SCTRawDataProviderCfg(flags))
-        result.merge(SCTEventFlagWriterCfg(flags))
-
-    # needed for brem/seeding, TODO decided if needed here
-    if flags.Detector.GeometryLAr:
-        from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
-        result.merge(LArBadFebCfg(flags))
-        from CaloRec.CaloRecoConfig import CaloRecoCfg
-        result.merge(CaloRecoCfg(flags,doLCCalib=True))
-        from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
-        result.merge(egammaTopoClusterCopierCfg(flags))
-        from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
-        result.merge(ITkCaloClusterROI_SelectorCfg(flags))
+        # TODO: ITk BS providers
+        raise RuntimeError("BS imputs not supported")
 
     from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     result.merge(ITkRecPreProcessingSiliconCfg(flags))
 
     if flags.ITk.doFastTracking:
-        flags = flags.cloneAndReplace("ITk.Tracking","ITk.FastTracking")
+        flags = flags.cloneAndReplace("ITk.Tracking", "ITk.FastTracking")
 
     from InDetConfig.ITkTrackingSiPatternConfig import ITkTrackingSiPatternCfg
     result.merge(ITkTrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
     InputCombinedITkTracks = ["ResolvedTracks"]
 
     # LRT
-    if flags.ITk.doITkLargeD0:
-        flagsLRT = flags.cloneAndReplace("ITk.Tracking","ITk.LargeD0Tracking")
+    if flags.ITk.doLargeD0:
+        flagsLRT = flags.cloneAndReplace("ITk.Tracking", "ITk.LargeD0Tracking")
         if flags.ITk.doFastTracking:
-            flagsLRT = flags.cloneAndReplace("ITk.Tracking","ITk.LargeD0FastTracking")
-        result.merge(ITkTrackingSiPatternCfg(flagsLRT, InputCombinedITkTracks, "ResolvedLargeD0Tracks", "SiSPSeededLargeD0Tracks"))
+            flagsLRT = flags.cloneAndReplace("ITk.Tracking", "ITk.LargeD0FastTracking")
+        result.merge(ITkTrackingSiPatternCfg(flagsLRT, InputCombinedITkTracks, "ResolvedLargeD0Tracks", "SiSpSeededLargeD0Tracks"))
         InputCombinedITkTracks += ["ResolvedLargeD0Tracks"]
 
     # Photon conversion tracking reco
-    if flags.Detector.GeometryLAr and flags.ITk.doITkConversionFinding:
-        flagsConv = flags.cloneAndReplace("ITk.Tracking","ITk.ConversionFindingTracking")
+    if flags.Detector.EnableCalo and flags.ITk.doConversionFinding:
+        flagsConv = flags.cloneAndReplace("ITk.Tracking", "ITk.ConversionFindingTracking")
         result.merge(ITkTrackingSiPatternCfg(flagsConv, InputCombinedITkTracks, "ResolvedROIConvTracks", "SiSpSeededROIConvTracks"))
         InputCombinedITkTracks += ["ResolvedROIConvTracks"]
 
@@ -273,24 +259,22 @@ def ITkTrackRecoCfg(flags):
     result.merge(addToAOD(flags, toAOD))
     return result
 
+
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
+    Configurable.configurableRun3Behavior = 1
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-    numThreads=1
-    ConfigFlags.Concurrency.NumThreads=numThreads
-    ConfigFlags.Concurrency.NumConcurrentEvents=numThreads
-
-    ConfigFlags.Detector.GeometryPixel   = True
-    ConfigFlags.Detector.GeometrySCT   = True
     ConfigFlags.ITk.doPixelClusterSplitting = True
     ConfigFlags.ITk.doSiSPSeededTrackFinder = True
 
+    # Disable calo for this test
+    ConfigFlags.Detector.EnableCalo = False
+
     # TODO add these flags in future
-#    ConfigFlags.addFlag('InDet.doAmbiSolving', True)
-#    ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
-#    ConfigFlags.addFlag('InDet.holeSearchInGX2Fit', True)
+    # ConfigFlags.addFlag('ITk.doAmbiSolving', True)
+    # ConfigFlags.addFlag('ITk.useHolesFromPattern', False)
+    # ConfigFlags.addFlag('ITk.holeSearchInGX2Fit', True)
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
@@ -302,20 +286,18 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    #######################################################################
-    #################### Additional Configuration  ########################
-    if "EventInfo" not in ConfigFlags.Input.Collections:
-        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
-        top_acc.merge(EventInfoCnvAlgCfg(ConfigFlags))
-
+    if ConfigFlags.Input.isMC:
+        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        top_acc.merge(GEN_AOD2xAODCfg(ConfigFlags))
 
     top_acc.merge(ITkTrackRecoCfg(ConfigFlags))
+
     from AthenaCommon.Constants import DEBUG
     top_acc.foreach_component("AthEventSeq/*").OutputLevel=DEBUG
     top_acc.printConfig(withDetails=True, summariseProps=True)
-    top_acc.store(open("ITkTrackingSiPatternConfig.pkl", "wb"))
-    import sys
+    top_acc.store(open("ITkTrackReco.pkl", "wb"))
 
+    import sys
     if "--norun" not in sys.argv:
         sc = top_acc.run(5)
         if sc.isFailure():

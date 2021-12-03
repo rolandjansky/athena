@@ -55,7 +55,7 @@ def TrackTruthSimilaritySelectorCfg(flags, DetailedTruth, TracksTruth, name='Sel
     acc.addEventAlgo(CompFactory.TrackTruthSimilaritySelector(name = TracksTruth+name, **kwargs))
     return acc
 
-def  InDetTrackTruthCfg(flags, Tracks = None, DetailedTruth = None, TracksTruth = None):
+def InDetTrackTruthCfg(flags, Tracks="CombinedInDetTracks", DetailedTruth="CombinedInDetTracksDetailedTruth", TracksTruth="CombinedInDetTracksTruthCollection"):
     acc = ComponentAccumulator()
     #
     # --- Enable the detailed track truth
@@ -96,14 +96,6 @@ if __name__ == "__main__":
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
-
-    ####################### Aditional Configurations #########################
-
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg
-    top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
 
     ################## SiliconPreProcessing Configurations ###################
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg

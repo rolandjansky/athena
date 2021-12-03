@@ -146,7 +146,7 @@ bool Trk::Extrapolator::Cache::s_reported{};
 
 // constructor
 Trk::Extrapolator::Extrapolator(const std::string& t, const std::string& n, const IInterface* p)
-  : AthAlgTool(t, n, p)
+  : AthCheckedComponent<AthAlgTool>(t, n, p)
   , m_subPropagators(Trk::NumberOfSignatures)
   , m_subupdaters(Trk::NumberOfSignatures)
   , m_propNames()

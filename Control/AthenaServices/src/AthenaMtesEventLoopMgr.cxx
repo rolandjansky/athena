@@ -37,6 +37,7 @@
 
 #include "tbb/tick_count.h"
 #include "yampl/SocketFactory.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include <cassert>
 #include <ios>
@@ -342,7 +343,7 @@ AthenaMtesEventLoopMgr::setupPreSelectTools(Gaudi::Details::PropertyBase&) {
     tool_iterator firstTool = m_tools.begin();
     tool_iterator lastTool  = m_tools.end();
     unsigned int toolCtr = 0;
-    for ( ; firstTool != lastTool; firstTool++ )
+    for ( ; firstTool != lastTool; ++firstTool )
       {
 	// reset statistics
 	m_toolInvoke[toolCtr] = 0;
@@ -403,7 +404,7 @@ StatusCode AthenaMtesEventLoopMgr::finalize()
     info() << "Summary of AthenaEvtLoopPreSelectTool invocation: (invoked/success/failure)" << endmsg;
     info() << "-----------------------------------------------------" << endmsg;
 
-    for ( ; firstTool != lastTool; firstTool++ ) {
+    for ( ; firstTool != lastTool; ++firstTool ) {
       info() << std::setw(2)     << std::setiosflags(std::ios_base::right)
              << toolCtr+1 << ".) " << std::resetiosflags(std::ios_base::right)
              << std::setw(48) << std::setfill('.')
@@ -584,8 +585,8 @@ StatusCode AthenaMtesEventLoopMgr::executeEvent( EventContext &&ctx )
         toolsPassed = (*theTool)->passEvent(ctx.eventID());
 	m_toolInvoke[toolCtr]++;
         {toolsPassed ? m_toolAccept[toolCtr]++ : m_toolReject[toolCtr]++;}
-        toolCtr++;
-        theTool++;
+        ++toolCtr;
+        ++theTool;
       }
   }
 
@@ -1376,8 +1377,8 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::get
   // _____________________ Decode range string _____________________________
   // Expected the following format: [{KEY:VALUE[,KEY:VALUE]}]
   // First get rid of the leading '[{' and the trailing '}]'
-  if(range.find("[{")==0) range=range.substr(2);
-  if(range.rfind("}]")==range.size()-2) range=range.substr(0,range.size()-2);
+  if(boost::starts_with (range, "[{")) range=range.substr(2);
+  if(boost::ends_with (range, "}]")) range=range.substr(0,range.size()-2);
 
   std::map<std::string,std::string> eventRangeMap;
   size_t startpos(0);
@@ -1499,13 +1500,13 @@ void AthenaMtesEventLoopMgr::trimRangeStrings(std::string& str)
   // or
   // "\"" and "\""
   // Get rid of them!
-  if(str.find("u\'")==0) {
+  if(boost::starts_with (str, "u\'")) {
     str = str.substr(2);
     if(str.rfind('\'')==str.size()-1) {
       str = str.substr(0,str.size()-1);
     }
   }
-  else if(str.find('\"')==0) {
+  else if(boost::starts_with (str, "\"")) {
     str = str.substr(1);
     if(str.rfind('\"')==str.size()-1) {
       str = str.substr(0,str.size()-1);

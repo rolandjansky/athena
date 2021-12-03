@@ -303,6 +303,7 @@ def _getITkTrackingGeometryBuilder(name, flags, result,
         PixelLayerBuilderOuter.SiDetManagerLocation = 'ITkPixel'
         PixelLayerBuilderOuter.PixelReadKey = 'ITkPixelDetectorElementCollection'
         PixelLayerBuilderOuter.SCT_ReadKey = 'ITkStripDetectorElementCollection'
+        PixelLayerBuilderOuter.EndcapEnvelope = 25.
         PixelLayerBuilderOuter.LayerIndicesBarrel = [2, 3, 4]
         PixelLayerBuilderOuter.LayerIndicesEndcap = [3, 4, 5, 6, 7, 8]
         PixelLayerBuilderOuter.UseRingLayout = True

@@ -37,7 +37,8 @@ public:
    // destructor 
   virtual ~LArHVScaleCorrTool() = default;
   
-  float getHVScale(const CaloDetDescrElement* calodde,  const voltageCell_t& hvlist) const;
+  float getHVScale(const CaloDetDescrElement* calodde,  const voltageCell_t& hvlist,
+                   MsgStream& msg) const;
 
  private:
 
@@ -45,7 +46,6 @@ public:
   const LArHEC_ID*      m_larhec_id;	
   const LArFCAL_ID*     m_larfcal_id;	
   const float           m_T0;
-  MsgStream&            m_msg;
 
 
   float Scale_barrel(const float hv) const;
@@ -57,7 +57,7 @@ public:
   float t_drift (float e, float e_nominal,float d, float tempe) const;  
   float EMEC_nominal(const float eta_r) const;    
   float EMEC_gap(const float eta_r, float Zeta) const;
-  void buildFixHVList(const std::vector<std::string>& fixHVStrings);
+  void buildFixHVList(const std::vector<std::string>& fixHVStrings, MsgStream& msg);
 
 
 

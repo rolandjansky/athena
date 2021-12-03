@@ -1,3 +1,11 @@
+AFPProtonContainer
+AFPProtonContainerAux.
+AFPSiHitsClusterContainer
+AFPSiHitsClusterContainerAux.
+AFPToFTrackContainer
+AFPToFTrackContainerAux.
+AFPTrackContainer
+AFPTrackContainerAux.
 AllCalo
 BunchId
 CaloCalFwdTopoTowers

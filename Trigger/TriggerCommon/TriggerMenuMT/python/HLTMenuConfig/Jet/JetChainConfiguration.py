@@ -131,10 +131,24 @@ class JetChainConfiguration(ChainConfigurationBase):
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
             else:
-                clustersKey, jetPreselStep = self.getJetCaloPreselChainStep()
+                clustersKey, preselJetDef, jetPreselStep = self.getJetCaloPreselChainStep()
                 chainSteps.append( jetPreselStep )
-            jetCollectionName, jetDef, jetTrackingHypoStep = self.getJetTrackingHypoChainStep(clustersKey)
-            chainSteps.append( jetTrackingHypoStep )
+            jetCollectionName, jetDef, jetFSTrackingHypoStep = self.getJetFSTrackingHypoChainStep(clustersKey)
+            chainSteps.append( jetFSTrackingHypoStep )
+        elif self.recoDict["trkopt"]=="roiftf":
+            # Can't work w/o presel jets to seed RoIs
+            if self.trkpresel=="nopresel":
+                raise RuntimeError("RoI FTF jet tracking requested with no jet preselection to provide RoIs")
+            # Set up preselection step first
+            clustersKey, preselJetDef, jetPreselStep = self.getJetCaloPreselChainStep()
+            chainSteps.append( jetPreselStep )
+            # Standard tracking step, configure the tracking instance differently
+            # Later we should convert this to a preselection-style hypo
+            jetRoITrackingHypoStep = self.getJetRoITrackingHypoChainStep(preselJetDef.fullname())
+            chainSteps.append( jetRoITrackingHypoStep )
+            # For later
+            # jetCollectionName, jetDef, jetFSTrackingHypoStep = self.getJetFSTrackingHypoChainStep(clustersKey)
+            # chainSteps.append( jetFSTrackingHypoStep )
         else:
             jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
@@ -174,15 +188,26 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
-    def getJetTrackingHypoChainStep(self, clustersKey):
+    def getJetRoITrackingHypoChainStep(self, jetsInKey):
+        jetDefStr = jetRecoDictToString(self.recoDict)
+
+        stepName = "RoIFTFStep_jet_"+jetDefStr
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
+        jetSeq = RecoFragmentsPool.retrieve( jetRoITrackingHypoMenuSequence,
+                                             ConfigFlags, jetsIn=jetsInKey, **self.recoDict )
+        return ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
+    def getJetFSTrackingHypoChainStep(self, clustersKey):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "MainStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
-        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetTrackingHypoMenuSequence,
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetFSTrackingHypoMenuSequence
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetFSTrackingHypoMenuSequence,
                                                      ConfigFlags, clustersKey=clustersKey,
-                                                     isPerf=self.isPerf, **self.recoDict )
+                                                     isPerf=self.isPerf,
+                                                     **self.recoDict )
         jetCollectionName = str(jetSeq.hypo.Alg.Jets)
         return jetCollectionName, jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
@@ -289,7 +314,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetSeq, jetDef, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
                                                                   ConfigFlags, **preselRecoDict )
 
-        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
+        return str(clustersKey), jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
 
 
     def getJetEJsChainStep(self, jetCollectionName, thresh, exotdictstring):

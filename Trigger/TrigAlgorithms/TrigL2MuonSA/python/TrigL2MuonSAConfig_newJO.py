@@ -205,6 +205,7 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
 
     # Set Reco alg of muFast step
     #from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     MuFastSteering=CompFactory.MuFastSteering
     muFastAlg = MuFastSteering( name                   = "MuFastSteering_Muon"+setup,
                                 DataPreparator         = MuFastDataPreparator,
@@ -212,6 +213,8 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                 PatternFinder          = MuFastPatternFinder,
                                 TrackFitter            = MuFastTrackFitter,
                                 TrackExtrapolator      = MuFastTrackExtrapolator,
+                                FtfRoadDefiner         = 
+                                    CompFactory.TrigL2MuonSA.FtfRoadDefiner( IOExtrapolator=acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))),
                                 CalibrationStreamer    = MuCalStreamerTool, 
                                 CscSegmentMaker        = CscSegmentMaker,
                                 R_WIDTH_TGC_FAILED     = 200,

@@ -12,7 +12,7 @@ namespace {
     static const SG::AuxElement::Accessor<ElementLink<xAOD::TruthParticleContainer>> acc_truth_link("truthParticleLink");
     constexpr unsigned int num_sectors = 16;
     using RegionIndex = Muon::MuonStationIndex::DetectorRegionIndex;
-    using LayerIndex = Muon::MuonStationIndex::LayerIndex;
+    using LayerIndex = Muon::MuonStationIndex::LayerIndex;   
 }  // namespace
 using namespace MuonCombined;
 
@@ -69,14 +69,10 @@ StatusCode MuonCombinedInDetCandidateAlg::execute(const EventContext& ctx) const
 
 StatusCode MuonCombinedInDetCandidateAlg::create(const EventContext& ctx, InDetCandidateCache& output_cache) const {
     ATH_MSG_DEBUG("Producing InDetCandidates for " << output_cache.inDetContainer->size());
-    unsigned int ntracks = 0;
-    int trackIndex = -1;
-
     for (const xAOD::TrackParticle* tp : *output_cache.inDetContainer) {
-        ++trackIndex;
         if (!isValidTrackParticle(output_cache.trackSelector, tp)) continue;
 
-        ElementLink<xAOD::TrackParticleContainer> link(*output_cache.inDetContainer, trackIndex);
+        ElementLink<xAOD::TrackParticleContainer> link(*output_cache.inDetContainer, tp->index());
         if (!link.isValid()) {
             ATH_MSG_WARNING("Bad element link ");
             continue;
@@ -103,10 +99,9 @@ StatusCode MuonCombinedInDetCandidateAlg::create(const EventContext& ctx, InDetC
         // MuGirl only operates on ID tracks with pt at least this high
         if (tp->pt() < m_extThreshold) { continue; }
         if (!m_muonSystemExtensionTool->muonSystemExtension(ctx, cache)) continue;
-        ++ntracks;
         output_cache.outputContainer->push_back(std::move(cache.candidate));
     }
-    ATH_MSG_DEBUG("InDetCandidates selected " << ntracks);
+    ATH_MSG_DEBUG("InDetCandidates selected " << output_cache.outputContainer->size());
     return StatusCode::SUCCESS;
 }
 
@@ -121,7 +116,6 @@ bool MuonCombinedInDetCandidateAlg::isValidTrackParticle(const Trk::ITrackSelect
         if (msgLvl(MSG::VERBOSE) && tp->pt() > 5000.) printTrackParticleInfo(tp, "Discarding");
         return false;
     }
-
     return true;
 }
 
@@ -132,7 +126,7 @@ void MuonCombinedInDetCandidateAlg::printTrackParticleInfo(const xAOD::TrackPart
 }
 
 int MuonCombinedInDetCandidateAlg::getCount(const xAOD::TrackParticle& tp, xAOD::SummaryType type) const {
-    uint8_t val;
+    uint8_t val{0};
     if (!tp.summaryValue(val, type)) return 0;
     return static_cast<int>(val);
 }

@@ -17,7 +17,7 @@ class CSCSimHitVariables : public ValAlgVariables
                      const MuonGM::MuonDetectorManager* detManager,
                      const MuonIdHelper* idhelper,
                      TTree* tree,
-                     std::string containername,
+                     const std::string & containername,
               MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_CscIdHelper(nullptr),
@@ -66,14 +66,14 @@ class CSCSimHitVariables : public ValAlgVariables
     m_CscIdHelper = dynamic_cast<const CscIdHelper*>(idhelper);
     if(!m_CscIdHelper) {
        ATH_MSG_ERROR("casting IdHelper to CscIdhelper failed");
-       throw;
+       throw std::runtime_error("Bad cast in CSCSimHitVariables::setHelper");
     }
   }
 
   void deleteVariables();
   StatusCode clearVariables();
 
-  const CscIdHelper* m_CscIdHelper;
+  const CscIdHelper* m_CscIdHelper{};
   
 	std::vector<std::string> m_CSC_Sim_stationName;
 	std::vector<int> m_CSC_stationName;
@@ -100,7 +100,7 @@ class CSCSimHitVariables : public ValAlgVariables
 	std::vector<double> m_CSC_depositEnergy;
 	std::vector<int> m_CSC_trackId;
 	std::vector<int> m_CSC_truthEl;
-  int m_CSC_nSimHits;
+  int m_CSC_nSimHits{};
 
 };
 

@@ -37,8 +37,9 @@ namespace MuonCombined {
 
     void InDetCandidate::setExtension(std::unique_ptr<Muon::MuonSystemExtension> extension) { m_extension = std::move(extension); }
     void InDetCandidate::setExtension(std::unique_ptr<Trk::CaloExtension> extension) { m_calo_extension = std::move(extension); }
+    void InDetCandidate::setExtension(std::shared_ptr<Trk::CaloExtension> extension) { m_calo_extension = std::move(extension); }
 
     const Muon::MuonSystemExtension* InDetCandidate::getExtension() const { return m_extension.get(); }
-    const Trk::CaloExtension* InDetCandidate::getCaloExtension() const { return m_calo_extension.get(); }
+    std::shared_ptr<Trk::CaloExtension> InDetCandidate::getCaloExtension() const { return m_calo_extension; }
 
 }  // namespace MuonCombined

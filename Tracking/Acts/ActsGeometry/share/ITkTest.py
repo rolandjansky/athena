@@ -34,9 +34,6 @@ acc = MainServicesCfg(ConfigFlags)
 
 from ActsGeometry.ActsGeometryConfig import ActsExtrapolationAlgCfg, ActsTrackingGeometrySvcCfg
 
-from ActsGeometry.ActsGeometryConfig import NominalAlignmentCondAlgCfg
-acc.merge(NominalAlignmentCondAlgCfg(ConfigFlags))
-
 from AthenaCommon.Constants import INFO, VERBOSE
 tgSvc = ActsTrackingGeometrySvcCfg(ConfigFlags, 
                                    OutputLevel=VERBOSE, 

@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 796990 2017-02-14 07:47:22Z dduschin $
 ################################################################################
 # Package: TauAnalysisTools
 ################################################################################
@@ -58,7 +57,8 @@ if( NOT XAOD_STANDALONE )
       SOURCES test/ut_TauAnalysisTools_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
-      GaudiKernel AsgTools xAODTau TauAnalysisToolsLib )
+      GaudiKernel AsgTools xAODTau TauAnalysisToolsLib
+      POST_EXEC_SCRIPT nopost.sh )
 endif()
 
 # Install files from the package:

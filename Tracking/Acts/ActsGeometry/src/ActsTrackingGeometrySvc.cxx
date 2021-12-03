@@ -166,7 +166,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
         auto lb = std::make_shared<ActsLayerBuilder>(
             cfg, makeActsAthenaLogger(this, "PixelGMSLayBldr", "ActsTGSvc"));
         Acts::CylinderVolumeBuilder::Config cvbConfig;
-        cvbConfig.layerEnvelopeR = {5_mm, 5_mm};
+        cvbConfig.layerEnvelopeR = {3_mm, 3_mm};
         cvbConfig.layerEnvelopeZ = 1_mm;
         cvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
         cvbConfig.volumeSignature = 0;

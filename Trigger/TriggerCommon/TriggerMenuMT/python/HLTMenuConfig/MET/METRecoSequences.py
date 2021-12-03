@@ -35,7 +35,10 @@ def jetRecoDictForMET(**recoDict):
         jrd["clusterCalib"] = "em"
     # Interpret jet calibration
     if jrd["jetCalib"] == "default":
-        jrd["jetCalib"] = interpretJetCalibDefault(jrd)
+        if recoDict["EFrecoAlg"] == "mhtpufit":
+            jrd["jetCalib"] = "subjesgscIS"
+        else:
+            jrd["jetCalib"] = interpretJetCalibDefault(jrd)
     return jrd
 
 
@@ -193,17 +196,17 @@ class TrackingInputConfig(AlgInputConfig):
         return []
 
     def create_sequence(self, inputs, RoIs, recoDict):
-        from ..Jet.JetTrackingConfig import JetTrackingSequence
+        from ..Jet.JetTrackingConfig import JetFSTrackingSequence
 
         trkSeq, trkColls = RecoFragmentsPool.retrieve(
-            JetTrackingSequence, flags=None, trkopt="ftf", RoIs=RoIs
+            JetFSTrackingSequence, flags=None, trkopt="ftf", RoIs=RoIs
         )
         return [trkSeq], trkColls
 
     def create_accumulator(self, flags, inputs, RoIs, recoDict):
-        from ..Jet.JetTrackingConfig import JetTrackingCfg
+        from ..Jet.JetTrackingConfig import JetFSTrackingCfg
 
-        return JetTrackingCfg(flags, "ftf", RoIs)
+        return JetFSTrackingCfg(flags, "ftf", RoIs)
 
 
 default_inputs.add_input(TrackingInputConfig())

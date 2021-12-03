@@ -92,6 +92,38 @@ ToolSvc += IDTIDE1TrackToVertexWrapper
 augmentationTools.append(IDTIDE1TrackToVertexWrapper)
 _info(IDTIDE1TrackToVertexWrapper)
 
+from InDetUsedInFitTrackDecoratorTool.InDetUsedInFitTrackDecoratorToolConf import InDet__InDetUsedInFitTrackDecoratorTool
+IDTIDE1UsedInFitDecoratorTool = InDet__InDetUsedInFitTrackDecoratorTool(name                 = "IDTIDE1UsedInFitDecoratorTool",
+                                                                          AMVFVerticesDecoName = "TTVA_AMVFVertices",
+                                                                          AMVFWeightsDecoName  = "TTVA_AMVFWeights",
+                                                                          TrackContainer       = "InDetTrackParticles",
+                                                                          VertexContainer      = "PrimaryVertices" )
+ToolSvc += IDTIDE1UsedInFitDecoratorTool
+
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UsedInVertexFitTrackDecorator
+IDTIDE1UsedInFitDecorator = DerivationFramework__UsedInVertexFitTrackDecorator(name                   = "IDTIDE1UsedInFitDecorator",
+                                                                                UsedInFitDecoratorTool = ToolSvc.IDTIDE1UsedInFitDecoratorTool )
+ToolSvc += IDTIDE1UsedInFitDecorator
+augmentationTools.append(IDTIDE1UsedInFitDecorator)
+
+# Turned off by defult for the LRT tracks as they are not used. Added this option to turn it on for future studies.
+if InDetDxAODFlags.DecoLRTTTVA() and InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+
+#====================================================================
+# DECORATE THE LRT TRACKS WITH USED-IN-FIT TTVA VARIABLES
+#====================================================================
+  IDTIDE1UsedInFitDecoratorToolLRT = InDet__InDetUsedInFitTrackDecoratorTool(name                 = "IDTIDE1UsedInFitDecoratorToolLRT",
+                                                                          AMVFVerticesDecoName = "TTVA_AMVFVertices",
+                                                                          AMVFWeightsDecoName  = "TTVA_AMVFWeights",
+                                                                          TrackContainer       = "InDetLargeD0TrackParticles",
+                                                                          VertexContainer      = "PrimaryVertices" )
+  ToolSvc += IDTIDE1UsedInFitDecoratorToolLRT
+
+  IDTIDE1UsedInFitDecoratorLRT = DerivationFramework__UsedInVertexFitTrackDecorator(name                   = "IDTIDE1UsedInFitDecoratorLRT",
+                                                                                UsedInFitDecoratorTool = ToolSvc.IDTIDE1UsedInFitDecoratorToolLRT )
+  ToolSvc += IDTIDE1UsedInFitDecoratorLRT
+  augmentationTools.append(IDTIDE1UsedInFitDecoratorLRT)
+
 # @TODO eventually computed for other extra outputs. Possible to come  up with a solution to use a common Z0AtPV if there is more than one client ?
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersAtPV
 DFCommonZ0AtPV = DerivationFramework__TrackParametersAtPV(name                       = "DFCommonZ0AtPV",
@@ -395,7 +427,7 @@ else :
   tp_items = '.IDTIDE1_biased_PVd0Sigma.IDTIDE1_biased_PVz0Sigma.IDTIDE1_biased_PVz0SigmaSinTheta.IDTIDE1_biased_d0.IDTIDE1_biased_d0Sigma.IDTIDE1_biased_z0.IDTIDE1_biased_z0Sigma' \
            + '.IDTIDE1_biased_z0SigmaSinTheta.IDTIDE1_biased_z0SinTheta.IDTIDE1_unbiased_PVd0Sigma.IDTIDE1_unbiased_PVz0Sigma.IDTIDE1_unbiased_PVz0SigmaSinTheta.IDTIDE1_unbiased_d0' \
            + '.IDTIDE1_unbiased_d0Sigma.IDTIDE1_unbiased_z0.IDTIDE1_unbiased_z0Sigma.IDTIDE1_unbiased_z0SigmaSinTheta.IDTIDE1_unbiased_z0SinTheta' \
-           + '.TRTTrackOccupancy.TRTdEdx.TRTdEdxUsedHits.TTVA_AMVFVertices_forReco.TTVA_AMVFWeights_forReco' \
+           + '.TRTTrackOccupancy.TRTdEdx.TRTdEdxUsedHits.TTVA_AMVFVertices.TTVA_AMVFWeights' \
            + '.TrkBLX.TrkBLY.TrkBLZ.TrkIBLX.TrkIBLY.TrkIBLZ.TrkL1X.TrkL1Y.TrkL1Z.TrkL2X.TrkL2Y.TrkL2Z' \
            + '.beamlineTiltX.beamlineTiltY.btagIp_d0.btagIp_d0Uncertainty.btagIp_trackDisplacement.btagIp_trackMomentum.btagIp_z0SinTheta.btagIp_z0SinThetaUncertainty' \
            + '.chiSquared.d0.definingParametersCovMatrixDiag.definingParametersCovMatrixOffDiag.eProbabilityComb.eProbabilityHT.eProbabilityNN' \

@@ -207,11 +207,12 @@ def TGCTriggerConfig(flags):
                                                      TileMuRcv_Input = tmdbInput )
 
     from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-    if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+    if (MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM()) and flags.Input.isMC:
         tgc.MaskFileName12 = "TrigT1TGCMaskedChannel.noFI._12.db"
         tgc.USENSW = True
         tgc.NSWSideInfo = "AC"
         tgc.NSWTrigger_Input = "NSWTRGRDO"
+        tgc.FORCENSWCOIN = not flags.Trigger.L1MuonSim.NSWVetoMode
     else:
         tgc.MaskFileName12 = "TrigT1TGCMaskedChannel._12.db"
 
@@ -251,7 +252,7 @@ def Lvl1EndcapMuonSequence(flags):
         l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,tgc,rdo2prd,recoSegment,tgcmod] )
     else:
         from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-        if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
+        if (MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM()) and flags.Input.isMC:
             nsw = NSWTriggerSequence(flags)
             l1MuEndcapSim = seqAND("L1MuonEndcapSim", [tmdb,nsw,tgc] )
         else:

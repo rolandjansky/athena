@@ -98,7 +98,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
         ATH_MSG_FATAL("Could not retrieve jk_jFEXFPGA_jTowerContainer " << m_jFEXFPGA_jTowerContainerKey.key() );
         return StatusCode::FAILURE;
     }
-    
+
     ATH_CHECK( m_jFEXPileupAndNoiseTool->reset());
     ATH_CHECK( m_jFEXPileupAndNoiseTool->safetyTest());
 
@@ -669,7 +669,7 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
         Sat = 1;
     }
     //create basic tobword with 32 bits
-    tobWord = tobWord + (eta<<27) + (phi << 23) + (jFEXSmallRJetTOBEt << 12) + (Res<<1) + (Sat);
+    tobWord = tobWord + (Res << 21) + (eta << 16) + (phi << 12) + (jFEXSmallRJetTOBEt << 1)  + (Sat);
     ATH_MSG_DEBUG("tobword smallRJet with et, phi, eta, res and sat : " << std::bitset<32>(tobWord) );
      //Retrieve the L1 menu configuration
     SG::ReadHandle<TrigConf::L1Menu> l1Menu (m_l1MenuKey/*, ctx*/);
@@ -734,7 +734,7 @@ uint32_t jFEXFPGA::formLargeRJetTOB(int &iphi, int &ieta) {
         Sat = 1;
     }
     //create basic tobword with 32 bits
-    tobWord = tobWord + (eta<<27) + (phi << 23) + (jFEXLargeRJetTOBEt << 10) + (Res<<1) + (Sat);
+    tobWord = tobWord + (Res << 23) + (eta << 18) + (phi << 14) + (jFEXLargeRJetTOBEt << 1) + (Sat);
     ATH_MSG_DEBUG("tobword largeRJet with et, phi, eta, sub and sat : " << std::bitset<32>(tobWord) );
 
     // Retrieve the L1 menu configuration
@@ -855,6 +855,7 @@ uint32_t jFEXFPGA::formMetTOB(int METX, int METY ) {
     int res = 0;
 
     int metX = METX/jFEXETResolution;
+    int metY = METY/jFEXETResolution;
 
     //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383) the MSB is the sign
     if (std::abs(metX) > 0x3fff) {
@@ -863,7 +864,7 @@ uint32_t jFEXFPGA::formMetTOB(int METX, int METY ) {
         sat=1;
     }
 
-    int metY = METY/jFEXETResolution;
+    
     if (std::abs(metY) > 0x3fff) { //0x7fff is 15 bits (decimal value 32767), however as MET is a signed value (can be negative) only 14 bits are allowed (16383)
         ATH_MSG_DEBUG("sumEthigh saturated: " << metY );
         metY = 0x7fff;
@@ -871,7 +872,7 @@ uint32_t jFEXFPGA::formMetTOB(int METX, int METY ) {
     }
 
     //create basic tobword with 32 bits
-    tobWord = tobWord + ((metX & 0x7fff) << 17) + (sat << 16) + ((metY & 0x7fff) << 1) + res ;
+    tobWord = tobWord + (res << 31) +((metX & 0x7fff) << 16) + (sat << 15) + (metY & 0x7fff)  ;
     ATH_MSG_DEBUG("tobword MET with MET_X, Sat, MET_Y and Res : " << std::bitset<32>(tobWord) );
 
     return tobWord;

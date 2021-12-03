@@ -55,12 +55,6 @@ CscRawDataCollectionCnv_p1::persToTrans(const CscRawDataCollection_p1* persColl,
    // Invoke vector converter from the base template
    CscRawDataCollection_Cnvp1_base_t::persToTrans( persColl, transColl, log );
 
-   // debug output
-   // for(CscRawDataCollection::const_iterator it=transColl->begin(); it != transColl->end(); ++it)  {
-   //    std::ostringstream ostr;
-   //    ostr << **it;
-   //    log <<  MSG::VERBOSE << "Retrieved " << ostr.str() << endmsg;
-   // }  
 }
 
 

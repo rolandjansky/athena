@@ -95,7 +95,7 @@ void Muon::RpcCoinDataContainerCnv_p1::transToPers(const RpcCoinDataContainerCnv
         int numColl = transCont->numberOfCollections();
         persCont->m_collections.resize(numColl);
         log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
-        for (pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, it_Coll++)  {
+        for (pcollIndex = 0; it_Coll != it_CollEnd; ++pcollIndex, ++it_Coll)  {
             // Add in new collection
             const Muon::MuonCoinDataCollection<RpcCoinData>& collection = (**it_Coll);
             Muon::MuonPRD_Collection_p2& pcollection = persCont->m_collections[pcollIndex];

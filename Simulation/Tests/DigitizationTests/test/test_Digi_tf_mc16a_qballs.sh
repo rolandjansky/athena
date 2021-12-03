@@ -30,21 +30,56 @@ Digi_tf.py \
 --preInclude 'all:Campaigns/MC16a.py' 'HITtoRDO:Campaigns/PileUpMC16a.py' \
 --skipEvents 0
 
+
 rc=$?
 status=$rc
 echo  "art-result: $rc Digi_tf.py"
-
 rc1=-9999
+rc2=-9999
+rc3=-9999
+rc4=-9999
+
+# get reference directory
+source DigitizationCheckReferenceLocation.sh
+echo "Reference set being used: " ${DigitizationTestsVersion}
+
+if [ $rc -eq 0 ]
+then
+    # Do reference comparisons
+    art.py compare ref --diff-pool $DigiOutFileName   /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
+    rc1=$?
+    status=$rc1
+fi
+echo  "art-result: $rc1 diff-pool"
+#
+#
+#
+if [ $rc -eq 0 ]
+then
+    art.py compare ref --mode=semi-detailed --diff-root $DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
+    rc2=$?
+    status=$rc2
+fi
+echo  "art-result: $rc2 diff-root"
+#
+if [ $rc -eq 0 ]
+then
+    checkFile ./$DigiOutFileName
+    rc3=$?
+    status=$rc3
+fi
+echo "art-result: $rc3 checkFile"
+#
+#
 if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
-
-    rc1=$?
-    status=$rc1
+    rc4=$?
+    status=$rc4
 fi
-echo  "art-result: $rc1 regression"
+echo  "art-result: $rc4 regression"
 
 exit $status
+

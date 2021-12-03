@@ -31,45 +31,57 @@ atlas_install_scripts( share/*_eljob.py )
 if( XAOD_STANDALONE )
    atlas_add_test( testJobData
       SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
     atlas_add_test( testJobDataDNN
        SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type data --dnn --unit-test
+       POST_EXEC_SCRIPT nopost.sh
        PROPERTIES TIMEOUT 600 )
     atlas_add_test( testJobFullSimDNN
        SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type mc --dnn --unit-test
+       POST_EXEC_SCRIPT nopost.sh
        PROPERTIES TIMEOUT 600 )
     atlas_add_test( testJobFastSimDNN
        SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type afii --dnn --unit-test
+       POST_EXEC_SCRIPT nopost.sh
        PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( testJobData
       SCRIPT athena.py
       EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type data
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFullSim
       SCRIPT athena.py
       EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type mc
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( testJobFastSim
       SCRIPT athena.py
       EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type afii
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
     atlas_add_test( testJobDataDNN
        SCRIPT athena.py
        EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type data --dnn
+       POST_EXEC_SCRIPT nopost.sh
        PROPERTIES TIMEOUT 600 )
     atlas_add_test( testJobFullSimDNN
        SCRIPT athena.py
        EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type mc --dnn
+       POST_EXEC_SCRIPT nopost.sh
        PROPERTIES TIMEOUT 600 )
     atlas_add_test( testJobFastSimDNN
        SCRIPT athena.py
        EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py - --data-type afii --dnn
+       POST_EXEC_SCRIPT nopost.sh
        PROPERTIES TIMEOUT 600 )
 endif()

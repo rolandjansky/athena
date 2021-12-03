@@ -2,6 +2,7 @@
 
 # art-description: MC+MC Overlay without reco for MC20e, ttbar
 # art-type: grid
+# art-include: 22.0-mc20/Athena
 # art-include: master/Athena
 
 # art-output: *.root

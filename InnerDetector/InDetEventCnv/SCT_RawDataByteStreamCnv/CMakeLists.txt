@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_RawDataByteStreamCnv )
@@ -22,20 +22,23 @@ atlas_add_component( SCT_RawDataByteStreamCnv
 # Run tests:
 atlas_add_test( TestSCTDecode
                 SCRIPT athena.py --threads=5 SCT_RawDataByteStreamCnv/testSCTDecode.py
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 atlas_add_test( TestSCTEncodeSerial
                 SCRIPT athena.py SCT_RawDataByteStreamCnv/testSCTEncode.py
-                PROPERTIES TIMEOUT 300 )
+                POST_EXEC_SCRIPT nopost.sh )
 atlas_add_test( TestSCTEncode
                 SCRIPT athena.py --threads=1 SCT_RawDataByteStreamCnv/testSCTEncode.py
-                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh
                 ENVIRONMENT THREADS=1 )
 atlas_add_test( TestSCTDecodeNewConf
                 SCRIPT python -m SCT_RawDataByteStreamCnv.testSCTDecodeNewConf
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestSCTEncodeNewConf
                 SCRIPT python -m SCT_RawDataByteStreamCnv.testSCTEncodeNewConf
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:

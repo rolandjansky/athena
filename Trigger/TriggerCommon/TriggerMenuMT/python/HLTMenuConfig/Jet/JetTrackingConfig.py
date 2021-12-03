@@ -54,40 +54,50 @@ def retrieveJetContext(trkopt):
         
     return jetContextDic[trkopt], jetContextDic["trackKeys"]
 
-def JetTrackingSequence(dummyFlags,trkopt,RoIs):
-
-    jetTrkSeq = parOR( "JetTrackingSeq_"+trkopt, [])
+def JetFSTrackingSequence(dummyFlags,trkopt,RoIs):
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    # We really want jet, but that does more stuff (Hit-based DV wants L1 JET RoIs) so try bjet for now
+    # Alternatively we could add the L1 JET RoIs to the ViewDataVerifier
     IDTrigConfig = getInDetTrigConfig( 'jet' )
 
     trackcollmap = None
 
-    if trkopt=="ftf":
-        from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
-        viewAlgs = makeInDetTrigFastTrackingNoView( config = IDTrigConfig, rois=RoIs)
-        jetTrkSeq += viewAlgs
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
+    viewAlgs = makeInDetTrigFastTrackingNoView( config = IDTrigConfig, rois=RoIs)
 
-        # add the collections for the eflowRec reconstriction in the trigger
+    # add the collections for the eflowRec reconstriction in the trigger
 
-        from eflowRec.PFHLTSequence import trackvtxcontainers
-        trackvtxcontainers["ftf"] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet ) 
+    from eflowRec.PFHLTSequence import trackvtxcontainers
+    trackvtxcontainers[trkopt] =  ( IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet ) 
 
-        vtxAlgs = makeInDetTrigVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, IDTrigConfig.adaptiveVertex_jet )
-        jetTrkSeq += vtxAlgs[-1]
+    vtxAlgs = makeInDetTrigVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, IDTrigConfig.adaptiveVertex_jet )
 
-        # now run he actual vertex finders and TTVA tools
-        if IDTrigConfig.vertex_jet != IDTrigConfig.vertex:
-            vtxAlgs = makeInDetTrigVertices( "amvf", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex, IDTrigConfig, IDTrigConfig.adaptiveVertex )
-            jetTrkSeq += vtxAlgs[-1]
+    # now run he actual vertex finders and TTVA tools
+    if IDTrigConfig.vertex_jet != IDTrigConfig.vertex:
+        vtxAlgs += makeInDetTrigVertices( "amvf", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex, IDTrigConfig, IDTrigConfig.adaptiveVertex )
 
-        trackcollmap = jetTTVA( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex_jet,  adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )
-            
+    jetTrkSeq = parOR( "JetFSTrackingSeq_"+trkopt, viewAlgs+vtxAlgs)
+    trackcollmap = jetTTVA( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex_jet,  adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )
+
     return jetTrkSeq, trackcollmap
+
+def JetRoITrackingSequence(dummyFlags,trkopt,RoIs):
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'jetSuper' )
+
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+    viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=RoIs)
+    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
+
+    jetTrkSeq = parOR( "JetRoITrackingSeq_"+trkopt, viewAlgs)
+
+    return jetTrkSeq
 
 
 @AccumulatorCache
-def JetTrackingCfg(flags, trkopt, RoIs):
+def JetFSTrackingCfg(flags, trkopt, RoIs):
     """ Create the tracking CA and return it as well as the output name dictionary """
     acc = ComponentAccumulator()
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig

@@ -17,7 +17,7 @@ class RPCSimHitVariables : public ValAlgVariables
                      const MuonGM::MuonDetectorManager* detManager,
                      const MuonIdHelper* idhelper,
                      TTree* tree,
-                     std::string containername,
+                     const std::string & containername,
               MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_RpcIdHelper(nullptr),
@@ -73,14 +73,14 @@ class RPCSimHitVariables : public ValAlgVariables
     m_RpcIdHelper = dynamic_cast<const RpcIdHelper*>(idhelper);
     if(!m_RpcIdHelper) {
        ATH_MSG_ERROR("casting IdHelper to RpcIdhelper failed");
-       throw;
+       throw std::runtime_error("Casting error in RPCSimHitVariables::setHelper");
     }
   }
 
   void deleteVariables();
   StatusCode clearVariables();
 
-  const RpcIdHelper* m_RpcIdHelper;
+  const RpcIdHelper* m_RpcIdHelper{};
 
   std::vector<std::string> m_RPC_Sim_stationName;
   std::vector<int>  m_RPC_stationName;
@@ -116,7 +116,7 @@ class RPCSimHitVariables : public ValAlgVariables
   std::vector<double> m_RPC_StepLength;
   std::vector<int> m_RPC_trackId;
   std::vector<int> m_RPC_truthEl;
-  int m_RPC_nSimHits;
+  int m_RPC_nSimHits{};
 
 };
 

@@ -74,10 +74,8 @@ void RDBQuery::execute()
   try {
     // ... Get the node name and change to to Upper Case
     std::string upperName = m_nodeName;
-    std::string::iterator it = upperName.begin();
-    while(it!=upperName.end()) {
-      *it = toupper(*it);
-      it++;
+    for (char& ch : upperName) {
+      ch = std::toupper (static_cast<unsigned int>(ch));
     }
 
     // ... Create query objects
