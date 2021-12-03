@@ -565,11 +565,6 @@ StatusCode HLTTauMonTool::proc()
             cloneHistogram2("hL1RoITauClusEMIso","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/L1RoI");
             ATH_MSG_DEBUG("Check16.2");
 
-	   // if(m_emulation){
-		//divide("hL1Emulation","hL1EmulationPassTDT","hL1Emulation","HLT/TauMon/Expert/Emulation");
-		//setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_trigger_names.at(i)+"/Emulation");
-	   // 	cloneProfile("hL1Emulation","HLT/TauMon/Expert/Emulation");
-	   // }
             if(lowest_trigger_names[i].find("tracktwoMVA")==string::npos && lowest_trigger_names[i].find("tracktwoEF")==string::npos && lowest_trigger_names[i].find("ptonly")==string::npos) {
             setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_trigger_names.at(i)+"/PreselectionTau");
             cloneHistogram("hEFEt","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/PreselectionTau");
@@ -710,7 +705,6 @@ StatusCode HLTTauMonTool::proc()
 	    setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_trigger_names.at(i)+"/OtherPlots");
 	    cloneHistogram("hL1Counts","HLT/TauMon/Expert");
 	    cloneHistogram("hHLTCounts","HLT/TauMon/Expert");
-	    if(m_emulation) cloneProfile("hL1Emulation","HLT/TauMon/Expert/Emulation");
             for(unsigned int j=0;j<m_topo_chains.size(); ++j){
 		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_trigger_names.at(i)+"/OtherPlots/"+m_topo_chains.at(j));
 		cloneProfile("TProfRecoL1_dREfficiency","HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(j));	

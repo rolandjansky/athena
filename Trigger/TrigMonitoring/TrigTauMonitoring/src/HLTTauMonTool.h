@@ -26,8 +26,6 @@
 #include "xAODTruth/TruthParticle.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "TrigTauEmulation/ILevel1EmulationTool.h"
-#include "TrigTauEmulation/IHltEmulationTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LumiBlockData/LuminosityCondData.h"
 
@@ -130,7 +128,6 @@ class HLTTauMonTool : public IHLTMonTool {
 
   bool TruthMatched( const xAOD::TauJet * tau);
 
-  StatusCode Emulation();
   std::string LowerChain(const std::string& hlt_item);
   /// Method for managing the histogram divisions
   static void divide(TH1 *num, TH1 *den, TH1 *quo);
@@ -157,7 +154,6 @@ class HLTTauMonTool : public IHLTMonTool {
   std::string m_turnOnCurvesDenom;
   bool m_truth;
   //bool m_doTestTracking;
-  bool m_emulation;
   bool m_RealZtautauEff;
   bool m_dijetFakeTausEff;
   bool m_doTrackCurves;
@@ -187,9 +183,6 @@ class HLTTauMonTool : public IHLTMonTool {
   std::string m_L1StringCondition; 
   std::string m_HLTStringCondition;
 
-  ToolHandle<TrigTauEmul::ILevel1EmulationTool> m_l1emulationTool;
-  ToolHandle<TrigTauEmul::IHltEmulationTool> m_hltemulationTool;
-
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
   float m_mu_offline;
@@ -211,8 +204,6 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_primary_tau;
   std::vector<std::string> m_monitoring_tau;
   std::vector<std::string> m_prescaled_tau;
-  std::vector<std::string> m_emulation_l1_tau;
-  std::vector<std::string> m_emulation_hlt_tau;
   std::vector<std::string> m_topo_chains;
   std::vector<std::string> m_topo_chains_mutau;
   std::vector<std::string> m_topo_chains_eltau;
