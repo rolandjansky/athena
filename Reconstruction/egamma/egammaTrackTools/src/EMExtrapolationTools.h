@@ -67,13 +67,11 @@ public:
     const EventContext& ctx,
     const xAOD::CaloCluster& cluster,
     const xAOD::TrackParticle& trkPB,
-    Trk::PropDirection direction,
     std::array<double, 4>& eta,
     std::array<double, 4>& phi,
     std::array<double, 4>& deltaEta,
     std::array<double, 4>& deltaPhi,
-    unsigned int extrapFrom = fromPerigee,
-    Cache* cache = nullptr) const override final;
+    unsigned int extrapFrom = fromPerigee) const override final;
 
   /** test for vertex-to-cluster match given also the positions
     at the calorimeter from the vertex extrapolation  **/

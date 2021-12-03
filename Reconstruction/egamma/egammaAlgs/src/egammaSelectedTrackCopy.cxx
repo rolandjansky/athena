@@ -138,7 +138,6 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
   }
 
   // Extrapolation Cache
-  IEMExtrapolationTools::Cache cache{};
   for (const xAOD::TrackParticle* track : *trackTES) {
 
     ++allTracks;
@@ -164,7 +163,7 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
          check if it the track is selected due to this cluster.
          If not continue to next cluster
          */
-      if (!selectTrack(ctx, cluster, track, cache, isTRT)) {
+      if (!selectTrack(ctx, cluster, track, isTRT)) {
         continue;
       }
       viewCopy->push_back(track);
@@ -192,7 +191,6 @@ bool
 egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
                                      const xAOD::CaloCluster* cluster,
                                      const xAOD::TrackParticle* track,
-                                     IEMExtrapolationTools::Cache& cache,
                                      bool trkTRT) const
 {
 
@@ -291,13 +289,11 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
         ->getMatchAtCalo(ctx,
                          *cluster,
                          *track,
-                         Trk::alongMomentum,
                          eta,
                          phi,
                          deltaEta,
                          deltaPhi,
-                         IEMExtrapolationTools::fromLastMeasurement,
-                         &cache)
+                         IEMExtrapolationTools::fromLastMeasurement)
         .isFailure()) {
     return false;
   }
@@ -326,7 +322,6 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
           ->getMatchAtCalo(ctx,
                            *cluster,
                            *track,
-                           Trk::alongMomentum,
                            etaRes,
                            phiRes,
                            deltaEtaRes,
