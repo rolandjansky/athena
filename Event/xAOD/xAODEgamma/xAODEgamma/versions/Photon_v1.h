@@ -61,7 +61,7 @@ namespace xAOD {
     /// @{
 
     /// @brief The type of the object as a simple enumeration
-    virtual Type::ObjectType type() const final; //Always a Photon .
+    virtual Type::ObjectType type() const override final; //Always a Photon .
     /// @}
 
     /// @name xAOD::vertex Pointers to  vertices
