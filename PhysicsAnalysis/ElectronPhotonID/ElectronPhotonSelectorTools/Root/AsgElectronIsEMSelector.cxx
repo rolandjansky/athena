@@ -85,7 +85,7 @@ AsgElectronIsEMSelector::initialize()
     sc = StatusCode::FAILURE;
     return sc;
   }
-  ATH_MSG_DEBUG("Configfile to use  " << m_configFile);
+  ATH_MSG_INFO("Configfile to use  " << m_configFile);
   TEnv env;
   env.ReadFile(filename.c_str(), kEnvLocal);
 
@@ -98,7 +98,6 @@ AsgElectronIsEMSelector::initialize()
     m_rootTool->m_isEMMask = static_cast<unsigned int>(mask);
   }
   //
-  ATH_MSG_DEBUG("Read in the TEnv config ");
   // From here on the conf ovverides all other properties
   bool useTRTOutliers(env.GetValue("useTRTOutliers", true));
   m_rootTool->m_useTRTOutliers = useTRTOutliers;
@@ -190,7 +189,6 @@ AsgElectronIsEMSelector::accept(const EventContext& ctx,
                                 const xAOD::IParticle* part) const
 {
 
-  ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   if (part->type() == xAOD::Type::Electron ||
       part->type() == xAOD::Type::Photon) {
     return accept(ctx, static_cast<const xAOD::Egamma*>(part));
@@ -206,7 +204,6 @@ AsgElectronIsEMSelector::accept(const EventContext& ctx,
                                 const xAOD::Egamma* eg) const
 {
 
-  ATH_MSG_DEBUG("Entering accept( const Egamma* part )");
   if (eg) {
     unsigned int isEM = ~0;
     StatusCode sc = execute(ctx, eg, isEM);
@@ -225,7 +222,6 @@ asg::AcceptData
 AsgElectronIsEMSelector::accept(const EventContext& ctx,
                                 const xAOD::Electron* el) const
 {
-  ATH_MSG_DEBUG("Entering accept( const Electron* part )");
   return accept(ctx, static_cast<const xAOD::Egamma*>(el));
 }
 
@@ -233,7 +229,6 @@ asg::AcceptData
 AsgElectronIsEMSelector::accept(const EventContext& ctx,
                                 const xAOD::Photon* ph) const
 {
-  ATH_MSG_DEBUG("Entering accept( const Photon* part )");
   return accept(ctx, static_cast<const xAOD::Egamma*>(ph));
 }
 
@@ -293,7 +288,6 @@ AsgElectronIsEMSelector::execute(const EventContext& ctx,
   // Particle identification for electrons based on cuts
   //
   (void)ctx;
-  ATH_MSG_DEBUG("entering execute(const Egamma* eg...)");
   // initialisation
   isEM = 0;
   // protection against null pointer
@@ -466,7 +460,6 @@ AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   // retrieve associated track
   const xAOD::TrackParticle* t = eg->trackParticle();
 
-  // ATH_MSG_DEBUG("CaloCutsOnly is false");
   // protection against bad pointers
   if (t == nullptr) {
     ATH_MSG_ERROR("Something is bad with the variables as passed");
@@ -544,4 +537,3 @@ AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
                               iflag);
 }
 
-//  LocalWords:  const el
