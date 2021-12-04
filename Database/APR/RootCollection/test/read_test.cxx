@@ -227,7 +227,7 @@ TestDriver::write ATLAS_NOT_THREAD_SAFE ()
    };
 
       
-   for( int i=0; i<10; i++ )   {
+   for( unsigned int i=0; i<10; i++ )   {
       rowBuffer.attributeList()[ "attr1" ].data<int>() = i ;
       char s[20];
       ::sprintf( s, "%s_%d", "testString", i );
