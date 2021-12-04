@@ -239,8 +239,8 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
               delete dhTransAddr; dhTransAddr = 0;
             }
          }
-         for (const DataHeaderElement& dhe : *dh) {
-            m_dataHeader->insertProvenance(dhe);
+         for(auto iter=dh->beginProvenance(), iEnd=dh->endProvenance(); iter != iEnd; ++iter) {
+            m_dataHeader->insertProvenance(*iter);
          }
       }
    }

@@ -41,11 +41,18 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
     precisionRecoSequence += caloRecoSequence
     precisionRecoSequence += algo
     trigEgammaRec = TrigEgammaRec(name = 'gTrigEgammaRec' + tag + RoIs)
+    trigEgammaRec.InputClusterContainerName = TrigEgammaKeys.precisionCaloTopoCollection # input
+    trigEgammaRec.egammaRecContainer        = TrigEgammaKeys.precisionCaloEgammaRecCollection # output
     precisionRecoSequence += trigEgammaRec
+
+
     trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name = 'gTrigEgammaSuperClusterBuilder' + tag + RoIs )
-    trigEgammaSuperClusterBuilder.SuperClusterCollectionName = outputCaloClusters
+    trigEgammaSuperClusterBuilder.InputEgammaRecContainerName  = TrigEgammaKeys.precisionCaloEgammaRecCollection # input
+    trigEgammaSuperClusterBuilder.SuperClusterCollectionName   = outputCaloClusters # output
+    trigEgammaSuperClusterBuilder.SuperegammaRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterCollection # output
     trigEgammaSuperClusterBuilder.CalibrationType = 'photon'
     precisionRecoSequence +=  trigEgammaSuperClusterBuilder
+
     sequenceOut = outputCaloClusters
 
     return (precisionRecoSequence, sequenceOut)

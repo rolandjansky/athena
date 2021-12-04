@@ -26,7 +26,6 @@ AFP_Geometry::AFP_Geometry(const AFP_CONFIGURATION* pCfgParams)
     setupLBarsDims(EAS_AFP00);
     setupLBarsDims(EAS_AFP03);
 
-    AFP_CONSTANTS AfpConstants;
     for(int nStationID=0; nStationID<=3; ++nStationID){
         eAFPStation eStation=(eAFPStation)nStationID;
         for(int nPlateID=0; nPlateID<getSIDPlatesCnt(eStation); ++nPlateID){

@@ -28,8 +28,8 @@ public:
   StatusCode decide(SPCountsInfo &decisions) const;
 
 private:
-  bool applyCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit) const;
-  bool applyInverseCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit) const;
+  bool applyCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit, const std::string_view name="" ) const;
+  bool applyInverseCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit, const std::string_view name="" ) const;
 
   HLT::Identifier m_decisionId;
 

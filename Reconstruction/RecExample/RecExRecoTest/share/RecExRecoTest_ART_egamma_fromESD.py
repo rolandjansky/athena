@@ -5,7 +5,6 @@
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
-from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
 from egammaConfig.egammaReconstructionConfig import (
     egammaReconstructionCfg)
 from AthenaCommon.AlgSequence import AlgSequence
@@ -165,12 +164,8 @@ CAtoGlobalWrapper(egammaTopoClusterCopierCfg,ConfigFlags)
 
 include("McParticleAlgs/TruthParticleBuilder_jobOptions.py")
 
-#False tells it we don't want to extend Large Radius Tracks, only default InDetTrackParticles.
-CaloExtensionBuilder(False)
-
 # Add egamma
 CAtoGlobalWrapper(egammaReconstructionCfg, ConfigFlags)
-
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )

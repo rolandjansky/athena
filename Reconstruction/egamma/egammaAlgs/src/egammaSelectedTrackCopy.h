@@ -64,7 +64,6 @@ private:
   bool selectTrack(const EventContext& ctx,
                    const xAOD::CaloCluster* cluster,
                    const xAOD::TrackParticle* track,
-                   IEMExtrapolationTools::Cache& cache,
                    bool trkTRT) const;
 
   /** @brief Tool for extrapolation */
