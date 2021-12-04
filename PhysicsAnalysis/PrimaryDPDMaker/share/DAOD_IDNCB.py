@@ -327,7 +327,7 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 
 
-excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedAuxData = "-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 excludedTRTData = "-T0.-TRTboard.-TRTchip.-bitPattern.-driftTimeToTCorrection.-driftTimeHTCorrection.-highThreshold.-strawnumber"
 excludedSCTData = "-detectorElementID.-hitsInThirdTimeBin.-rdo_groupsize"
 
