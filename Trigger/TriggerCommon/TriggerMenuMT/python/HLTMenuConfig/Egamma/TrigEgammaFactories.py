@@ -22,7 +22,7 @@ from CaloIdentifier import SUBCALO
 from egammaRec.Factories import ToolFactory, AlgFactory
 from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 from egammaTools.egammaToolsFactories import (
-    egammaToolsConf, EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder, egammaSwSuperClusterTool)
+    egammaToolsConf, EMFourMomBuilder, PhotonPIDBuilder, egammaSwSuperClusterTool)
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
@@ -247,11 +247,6 @@ def TrigEgammaDecorationTools():
 def TrigPhotonDecorationTools():
     #Return a list with the tools that decorate only photons
     return [ PhotonPIDBuilder() ]
-
-def TrigElectronDecorationTools():
-    #Return a list with the tools that decorate only photons
-    return [ ElectronPIDBuilder()]
-
 
 def egammaFSCaloRecoSequence():
     from AthenaCommon.CFElements import parOR
