@@ -32,10 +32,11 @@ def egCaloSurfaceBuilderCfg(flags, **kwargs):
     return acc
 
 
-def EMLastCaloExtensionToolCfg(flags, **kwargs):
+def EMParticleCaloExtensionToolCfg(flags, **kwargs):
     acc = ComponentAccumulator()
-    kwargs.setdefault("name", "EMLastCaloExtensionTool")
+    kwargs.setdefault("name", "EMParticleCaloExtensionTool")
     kwargs.setdefault("ParticleType", "electron")
+    kwargs.setdefault("StartFromPerigee", True)
 
     if "CaloSurfaceBuilder" not in kwargs:
         kwargs["CaloSurfaceBuilder"] = acc.popToolsAndMerge(
@@ -45,12 +46,6 @@ def EMLastCaloExtensionToolCfg(flags, **kwargs):
         extrapAcc = egammaCaloExtrapolatorCfg(flags)
         kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
     return ParticleCaloExtensionToolCfg(flags, **kwargs)
-
-
-def EMParticleCaloExtensionToolCfg(flags, **kwargs):
-    kwargs.setdefault("name", "EMParticleCaloExtensionTool")
-    kwargs.setdefault("StartFromPerigee", True)
-    return EMLastCaloExtensionToolCfg(flags, **kwargs)
 
 
 def EMExtrapolationToolsCfg(flags, **kwargs):
@@ -64,13 +59,9 @@ def EMExtrapolationToolsCfg(flags, **kwargs):
         extrapAcc = AtlasExtrapolatorCfg(flags)
         kwargs["Extrapolator"] = acc.popToolsAndMerge(extrapAcc)
 
-    if "PerigeeCaloExtensionTool" not in kwargs:
-        kwargs["PerigeeCaloExtensionTool"] = acc.popToolsAndMerge(
+    if "CaloExtensionTool" not in kwargs:
+        kwargs["CaloExtensionTool"] = acc.popToolsAndMerge(
             EMParticleCaloExtensionToolCfg(flags))
-
-    if "LastCaloExtensionTool" not in kwargs:
-        kwargs["LastCaloExtensionTool"] = acc.popToolsAndMerge(
-            EMLastCaloExtensionToolCfg(flags))
 
     kwargs["EnableTRT"] = flags.Detector.GeometryTRT
 
