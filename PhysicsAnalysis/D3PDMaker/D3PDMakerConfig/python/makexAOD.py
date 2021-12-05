@@ -99,10 +99,8 @@ def convert_vertices (seq, xaod_key, key, TPContainerName):
 
 def convert_electrons (seq, xaod_key, key, xAODContainerFrwdName,
                        forTrigger = False):
+
     from AthenaCommon.AppMgr          import ToolSvc
-
-    from egammaTools.egammaToolsFactories import ElectronPIDBuilder, EMClusterTool
-
     from xAODEgammaCnv.xAODEgammaCnvConf import xAODMaker__ElectronCnvTool
     kw = {}
     if forTrigger:
@@ -112,12 +110,9 @@ def convert_electrons (seq, xaod_key, key, xAODContainerFrwdName,
         kw['xAODCaloClusterSofteContainerName' ] = ''
         kw['xAODCaloClusterFrwdContainerName' ] = ''
         kw['xAODCaloClusterOtherContainerName' ] = ''
-        kw['RunPID' ] = False
 
         
     tool = xAODMaker__ElectronCnvTool (xaod_key + 'CnvTool',
-                                       PIDBuilder = ElectronPIDBuilder(),
-                                       EMClusterTool = EMClusterTool(),
                                        **kw)
     ToolSvc += tool
     
