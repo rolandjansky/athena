@@ -56,13 +56,13 @@ getRescaledPerigee(const xAOD::TrackParticle& trkPB,
    * Then replace the q/p with q/cluster->e()
    * e.g create a new Perigee with q/cluster->e() rather than track->p()
    */
-  return Trk::Perigee(
-    trkPB.d0(),
-    trkPB.z0(),
-    trkPB.phi0(),
-    trkPB.theta(),
-    trkPB.charge() / cluster.e(),
-    Trk::PerigeeSurface(Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())));
+  return { trkPB.d0(),
+           trkPB.z0(),
+           trkPB.phi0(),
+           trkPB.theta(),
+           trkPB.charge() / cluster.e(),
+           Trk::PerigeeSurface(
+             Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())) };
 }
 } // end of anonymous namespace
 
@@ -428,7 +428,7 @@ EMExtrapolationTools::getMomentumAtVertex(const EventContext& ctx,
       accPz.isAvailable(vertex)) {
     // Already decorated with parameters at vertex
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from auxdata");
-    return Amg::Vector3D(accPx(vertex), accPy(vertex), accPz(vertex));
+    return { accPx(vertex), accPy(vertex), accPz(vertex) };
   }
   for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i) {
     momentum += getMomentumAtVertex(ctx, vertex, i);
