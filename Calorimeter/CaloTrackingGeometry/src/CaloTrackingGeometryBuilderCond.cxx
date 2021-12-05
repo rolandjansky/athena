@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -464,9 +464,6 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
 
    double lArPositiveOuterBoundary     = lArPositiveFcal->center().z();
           lArPositiveOuterBoundary    += lArPositiveFcalBounds->halflengthZ();
-
-   double lArNegativeOuterBoundary     = lArNegativeFcal->center().z();
-          lArNegativeOuterBoundary    -= lArNegativeFcalBounds->halflengthZ();
 
    Trk::Material* mAr = new Trk::Material(140.036, 856.32, 39.948, 18., 0.0014);
    Trk::Material* mAl = new Trk::Material(88.93, 388.62, 26.98, 13., 0.0027);
