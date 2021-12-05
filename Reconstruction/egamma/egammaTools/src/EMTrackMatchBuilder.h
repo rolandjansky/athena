@@ -17,11 +17,12 @@
   */
 
 // INCLUDE HEADER FILES:
+#include "egammaInterfaces/IEMExtrapolationTools.h"
+#include "egammaInterfaces/IEMTrackMatchBuilder.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "egammaInterfaces/IEMExtrapolationTools.h"
-#include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
@@ -33,7 +34,7 @@ namespace Reco {
 class ITrackToVertex;
 }
 
-class EMTrackMatchBuilder
+class EMTrackMatchBuilder final
   : public AthAlgTool
   , virtual public IEMTrackMatchBuilder
 {
