@@ -222,9 +222,6 @@ addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=10000, algseq=
 if (DerivationFrameworkHasTruth):
    addJetTruthLabel(jetalg="AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
-# q/g discrimination
-addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
-
 # fJVT
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSLITE, algname='PHYSLITEJetForwardPFlowJvtToolAlg')
 
@@ -472,7 +469,7 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType.qOverP.theta.phi",
   "MuonSpectrometerTrackParticles.phi.d0.z0.vz.definingParametersCovMatrix.vertexLink.theta.qOverP.truthParticleLink",
   "AnalysisTauJets.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.electronLink.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
-  "AnalysisJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PSFrac.EMFrac.Width",
+  "AnalysisJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt.PSFrac.EMFrac.Width",
   "AnalysisLargeRJets.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.ECF1.ECF2.ECF3.Tau1_wta.Tau2_wta.Tau3_wta.Split12.Split23.Qw.PlanarFlow.FoxWolfram2.FoxWolfram0.Angularity.Aplanarity.KtDR.ZCut12.Parent.DetectorEta.DetectorY.GhostCHadronsFinalCount.GhostBHadronsFinalCount.R10TruthLabel_R21Consolidated",
   "AntiKt10UFOCSSKJets.NumTrkPt500.GhostVR30Rmax4Rmin02TrackJet_BTagging201903",
   "AntiKt10TruthSoftDropBeta100Zcut10Jets.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau2_wta.Tau3_wta.Qw.GhostCHadronsFinalCount.GhostBHadronsFinalCount",
