@@ -289,6 +289,7 @@ StatusCode FixHepMC::execute() {
 
     // Clean!
     int signal_vertex_bc = evt->signal_process_vertex() ? evt->signal_process_vertex()->barcode() : 0;
+    //This is the only place where reduce is used.
     MC::reduce(evt , toremove);
     if (evt->barcode_to_vertex (signal_vertex_bc) == nullptr) {
       evt->set_signal_process_vertex (nullptr);
