@@ -83,8 +83,7 @@ EMExtrapolationTools::initialize()
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
   // Retrieve tools
-  ATH_CHECK(m_lastParticleCaloExtensionTool.retrieve());
-  ATH_CHECK(m_perigeeParticleCaloExtensionTool.retrieve());
+  ATH_CHECK(m_ParticleCaloExtensionTool.retrieve());
   ATH_CHECK(m_extrapolator.retrieve());
 
   // retrieve TRT-ID helper
@@ -127,7 +126,9 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
    * the deta/dphi between cluster and track
    * We allow different ways to extrapolate:
    * 1) from the last measurement  track parameters (this is always the case for
-   * TRT standalone) 2) from the perigee track parameters 3) from the perigee
+   * TRT standalone)
+   * 2) from the perigee track parameters
+   * 3) from the perigee
    * with the track momentum rescaled by the cluster energy
    */
   if (cluster.e() < 10 && trkPB.pt() < 10) { // This is 10 MeV
@@ -139,14 +140,10 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
   bool didExtension = false;
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
   switch (extrapFrom) {
-    /*
-     * Rescaled Perigee does not have a cache
-     */
     case fromPerigeeRescaled: {
       Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
       const auto extension =
-        m_perigeeParticleCaloExtensionTool->egammaCaloExtension(
-          ctx, trkPar, cluster);
+        m_ParticleCaloExtensionTool->egammaCaloExtension(ctx, trkPar, cluster);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
@@ -155,9 +152,8 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
     } break;
 
     case fromPerigee: {
-      const auto extension =
-        m_perigeeParticleCaloExtensionTool->egammaCaloExtension(
-          ctx, trkPB.perigeeParameters(), cluster);
+      const auto extension = m_ParticleCaloExtensionTool->egammaCaloExtension(
+        ctx, trkPB.perigeeParameters(), cluster);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
@@ -177,7 +173,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
           didExtension = false;
         } else {
           const auto extension =
-            m_lastParticleCaloExtensionTool->egammaCaloExtension(
+            m_ParticleCaloExtensionTool->egammaCaloExtension(
               ctx, lastParams, cluster);
           didExtension = !extension.empty();
           for (const auto& i : extension) {
@@ -328,7 +324,7 @@ EMExtrapolationTools::getEtaPhiAtCalo(const EventContext& ctx,
   }
 
   std::unique_ptr<Trk::CaloExtension> extension = nullptr;
-  extension = m_perigeeParticleCaloExtensionTool->caloExtension(
+  extension = m_ParticleCaloExtensionTool->caloExtension(
     ctx, *trkPar, Trk::alongMomentum, Trk::muon);
   if (!extension) {
     ATH_MSG_WARNING("Could not create an extension from geEtaPhiAtCalo ");

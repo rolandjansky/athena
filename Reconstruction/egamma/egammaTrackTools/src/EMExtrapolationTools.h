@@ -111,18 +111,11 @@ private:
    * (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
 
-  ToolHandle<Trk::IParticleCaloExtensionTool> m_lastParticleCaloExtensionTool{
+  ToolHandle<Trk::IParticleCaloExtensionTool> m_ParticleCaloExtensionTool{
     this,
-    "LastCaloExtensionTool",
-    "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"
+    "CaloExtensionTool",
+    "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
   };
-
-  ToolHandle<Trk::IParticleCaloExtensionTool>
-    m_perigeeParticleCaloExtensionTool{
-      this,
-      "PerigeeCaloExtensionTool",
-      "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
-    };
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator{
     this,
@@ -147,7 +140,6 @@ private:
   // ID TRT helper
   const TRT_ID* m_trtId;
   Gaudi::Property<bool> m_enableTRT{ this, "EnableTRT", true };
-
 };
 
 #endif
