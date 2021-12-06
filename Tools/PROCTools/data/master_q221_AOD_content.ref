@@ -170,6 +170,16 @@ EventInfo
 EventInfoAux.
 EventInfoAuxDyn.actualInteractionsPerCrossing
 EventInfoAuxDyn.averageInteractionsPerCrossing
+EventInfoAuxDyn.beamPosSigmaX
+EventInfoAuxDyn.beamPosSigmaXY
+EventInfoAuxDyn.beamPosSigmaY
+EventInfoAuxDyn.beamPosSigmaZ
+EventInfoAuxDyn.beamPosX
+EventInfoAuxDyn.beamPosY
+EventInfoAuxDyn.beamPosZ
+EventInfoAuxDyn.beamStatus
+EventInfoAuxDyn.beamTiltXZ
+EventInfoAuxDyn.beamTiltYZ
 EventInfoAuxDyn.mcChannelNumber
 EventInfoAuxDyn.mcEventNumber
 EventInfoAuxDyn.mcEventWeights
