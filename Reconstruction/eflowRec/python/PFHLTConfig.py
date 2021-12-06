@@ -8,9 +8,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 def TrackingGeoCfg(inputFlags):
     result = ComponentAccumulator()
 
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    result.merge(TrackingGeometrySvcCfg(inputFlags))
-
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
 
