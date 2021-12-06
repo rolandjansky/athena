@@ -71,7 +71,7 @@ private:
     m_trackMatchedEgammaRecs{
       this,
       "trackMatchedEgammaRecs",
-      "trackMatchedEgammaRecs"
+      "trackMatchedEgammaRecs",
       "View container of the track matched egammaRecs"
     };
   /** @brief Tool to perform track matching*/
