@@ -14,6 +14,9 @@
 #include "TrigT1TGC/TGCNSW.h"
 #include "TrigT1TGC/NSWTrigOut.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
+#include "TrigT1TGC/TGCBIS78.h"
+#include "TrigT1TGC/BIS78TrigOut.h"
+#include "TrigT1TGC/TGCBIS78CoincidenceMap.h"
 #include "TrigT1TGC/TGCGoodMF.h"
 #include "TrigT1TGC/Run2TileMuCoincidenceMap.h"
 
@@ -78,6 +81,7 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
 
   m_mapGoodMF = db->getGoodMFMap();
   m_mapNSW = db->getNSWCoincidenceMap(m_sideId, m_octantId, m_moduleId);
+  if(tgcArgs()->USE_BIS78()) m_mapBIS78 = db->getBIS78CoincidenceMap();
 
   m_selectorOut.reset(new TGCSLSelectorOut);
   m_trackSelectorOut.reset(new TGCTrackSelectorOut());//for Run3
@@ -95,6 +99,7 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
   if(m_mapEIFI == 0) m_useEIFI = false;
   m_useGoodMF = (m_mapGoodMF != nullptr);
   if(m_mapNSW == 0) tgcArgs()->set_USE_NSW(false);
+  if(m_mapBIS78 == 0) tgcArgs()->set_USE_BIS78(false);
 }
 
 TGCSectorLogic::~TGCSectorLogic()
@@ -110,6 +115,12 @@ void TGCSectorLogic::setNSW(std::shared_ptr<const TGCNSW> nsw)
 {
   m_nsw = nsw;
   if(m_nsw == 0) tgcArgs()->set_USE_NSW(false);
+}
+
+void TGCSectorLogic::setBIS78(std::shared_ptr<const TGCBIS78> bis78)
+{
+  m_bis78 = bis78;
+  if(m_bis78 == 0) tgcArgs()->set_USE_BIS78(false);
 }
 
 void TGCSectorLogic::setWireHighPtBoard(int port, TGCHighPtBoard* highPtBoard)
@@ -539,15 +550,17 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
       bool validEI = (m_mapEIFI->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId) == 1);
       // check if TileMu is used for the roi 
       bool validTileMu = (m_tileMuLUT->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId, m_sideId) == 1);
-
+      bool validBIS78 = false;
+      if(tgcArgs()->USE_BIS78() && m_sideId==0) validBIS78=(m_mapBIS78->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId, m_sideId) == 1); // A-side only
 
       bool isEI=false;
       bool isTILE=false;
+      bool isBIS78=false;
       if(m_useEIFI && validEI){isEI=doTGCEICoincidence(coincidenceOut);}
       if(m_useTileMu && validTileMu){isTILE=doTILECoincidence(coincidenceOut); }
-      //if(m_useBIS && validBIS){isBIS=doTGCBISCoincidence(coincidenceOut); }
+      if(validBIS78){isBIS78=doTGCBIS78Coincidence(coincidenceOut); }
 
-      coincidenceOut->setInnerCoincidenceFlag(isEI || isTILE || (!m_useEIFI && !validEI && !m_useTileMu && !validTileMu));
+      coincidenceOut->setInnerCoincidenceFlag(isEI || isTILE || isBIS78 || (!m_useEIFI && !validEI && !m_useTileMu && !validTileMu && !tgcArgs()->USE_BIS78() && !validBIS78));
     }
     else{//  NSW or FI are used to inner coincidnece in SSC#5~18 in Endcap and Forward region 
 
@@ -586,7 +599,17 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
     // will implement NSW pT calculation later
   }
 
+  bool TGCSectorLogic::doTGCBIS78Coincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+    std::shared_ptr<const BIS78TrigOut> pBIS78Out = m_bis78->getOutput(m_region,m_sectorId);
+    if ( pBIS78Out.get() == 0 ) return false;
+    int pt=0;
+    pBIS78Out->print(); // just for test
+    
+    pt = m_mapBIS78->TGCBIS78_pt(pBIS78Out.get(), 	
+				 coincidenceOut->getRoI());
 
+    return (pt>0);
+  }
 
 bool TGCSectorLogic::doTILECoincidence(TGCRPhiCoincidenceOut* coincidenceOut)
 {

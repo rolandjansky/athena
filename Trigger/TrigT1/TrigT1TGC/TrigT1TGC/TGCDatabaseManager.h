@@ -34,6 +34,7 @@ class TGCConnectionPPToSL;
 class TGCRPhiCoincidenceMap;
 class TGCEIFICoincidenceMap;
 class TGCNSWCoincidenceMap;
+class TGCBIS78CoincidenceMap;
 class TGCGoodMF;
 
 class TGCDatabaseManager : public AthMessaging
@@ -57,6 +58,7 @@ class TGCDatabaseManager : public AthMessaging
   const TGCEIFICoincidenceMap* getEIFICoincidenceMap(int sideId) const;
   std::shared_ptr<LVL1TGC::TGCTileMuCoincidenceLUT> getTileMuCoincidenceLUT() const;
   std::shared_ptr<TGCNSWCoincidenceMap> getNSWCoincidenceMap(int sideId, int octantId, int moduleId) const;
+  std::shared_ptr<TGCBIS78CoincidenceMap> getBIS78CoincidenceMap() const;
   std::shared_ptr<TGCGoodMF> getGoodMFMap() const;
 
   // only Run-2
@@ -81,6 +83,7 @@ class TGCDatabaseManager : public AthMessaging
   TGCEIFICoincidenceMap* m_mapEIFI[NumberOfSide];
   std::shared_ptr<LVL1TGC::TGCTileMuCoincidenceLUT> m_tileMuLUT;
   std::array<std::array<std::array<std::shared_ptr<TGCNSWCoincidenceMap>, NumberOfModuleInBW>, NumberOfOctant>, NumberOfSide> m_mapNSW;
+  std::shared_ptr<TGCBIS78CoincidenceMap> m_mapBIS78; // temporal
   TGCConnectionPPToSL* m_PPToSL[NumberOfRegionType];
   TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][TGCSector::NumberOfPatchPanelType][TotalNumForwardBackwardType];
   std::shared_ptr<TGCGoodMF> m_mapGoodMF;
@@ -111,6 +114,11 @@ inline std::shared_ptr<LVL1TGC::TGCTileMuCoincidenceLUT> TGCDatabaseManager::get
 inline std::shared_ptr<TGCNSWCoincidenceMap> TGCDatabaseManager::getNSWCoincidenceMap(int sideId, int octantId, int moduleId) const
 {
   return m_mapNSW[sideId][octantId][moduleId];
+}
+
+inline std::shared_ptr<TGCBIS78CoincidenceMap> TGCDatabaseManager::getBIS78CoincidenceMap() const
+{
+  return m_mapBIS78;
 }
 
 inline std::shared_ptr<TGCGoodMF> TGCDatabaseManager::getGoodMFMap() const {
