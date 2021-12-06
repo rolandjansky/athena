@@ -14,8 +14,8 @@ class BPHYV0FinderTools:
         from AthenaCommon.AppMgr import ToolSvc
 
         # set up extrapolator
-        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        self.InDetExtrapolator = AtlasExtrapolator(name             = derivation+"_AtlasExtrapolator")
+        from InDetRecExample import TrackingCommon
+        self.InDetExtrapolator = TrackingCommon.getInDetExtrapolator()
         ToolSvc += self.InDetExtrapolator
         print(self.InDetExtrapolator)
 
@@ -49,8 +49,10 @@ class BPHYV0FinderTools:
         from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
         self.V0HoleSearchTool = InDet__InDetTrackHoleSearchTool(name = derivation+"_V0HoleSearchTool",
                                                           Extrapolator = self.InDetExtrapolator,
-                                                          usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                          useSCT        = DetFlags.haveRIO.SCT_on(),
+                                                          #Disabled for rel22
+                                                          #usePixel      = DetFlags.haveRIO.pixel_on(),
+                                                          #useSCT        = DetFlags.haveRIO.SCT_on(),
+                                                          #-------
                                                           #Commissioning = rec.Commissioning())
                                                       CountDeadModulesAfterLastHit = CountDeadModulesAfterLastHit)
         ToolSvc += self.V0HoleSearchTool
@@ -67,19 +69,11 @@ class BPHYV0FinderTools:
         ToolSvc += self.V0TrackSummaryHelperTool
         print(self.V0TrackSummaryHelperTool)
 
-        from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-        self.V0TrackSummaryTool = Trk__TrackSummaryTool(name = derivation+"_V0TrackSummaryTool",
-                                                  InDetSummaryHelperTool = self.V0TrackSummaryHelperTool,
-                                                  doSharedHits           = False,
-                                                  InDetHoleSearchTool    = self.V0HoleSearchTool)
-        ToolSvc += self.V0TrackSummaryTool
-        print(self.V0TrackSummaryTool)
-
 
 
         from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
         self.InDetV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = derivation+"InDetV0VxTrackSelector",
-                                                                              TrackSummaryTool    = self.V0TrackSummaryTool,
+
                                                                               Extrapolator        = self.InDetExtrapolator,
              #                                                                 Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                                                               maxTrtD0            = 50.,
@@ -168,6 +162,8 @@ class BPHYV0FinderTools:
                                                      TrackParticleCollection = InDetKeys.xAODTrackParticleContainer(),
                                                      #TrackParticleCollection = "InDetTrackParticles",
                                                      useV0Fitter             = True,
+                                                     V0Tools = TrackingCommon.getV0Tools(),
+                                                     TrackToVertexTool = TrackingCommon.getInDetTrackToVertexTool(),
                                                      VertexFitterTool        = self.BPhysV0Fitter,
                                                      VKVertexFitterTool      = self.BPhysVKVertexFitter,
                                                      KshortFitterTool        = self.BPhysKshortFitter,

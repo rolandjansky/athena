@@ -9,7 +9,7 @@ if globalflags.DataSource()=='geant4':
     isSimulation = True
 
 print(isSimulation)
-
+from InDetRecExample import TrackingCommon
 #====================================================================
 # AUGMENTATION TOOLS 
 #====================================================================
@@ -23,6 +23,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY4FourMuonTool = DerivationFramework__FourMuonTool(
   name                        = "BPHY4FourMuonTool",
   OutputLevel                 = INFO,
+  V0Tools                     = TrackingCommon.getV0Tools(),
   ptCut                       = 2500.0,
   etaCut                      = 2.5,
   muonCollectionKey           = "Muons",
@@ -44,6 +45,8 @@ BPHY4_Reco_4mu = DerivationFramework__Reco_4mu(
   name                    = "BPHY4_Reco_4mu",
   OutputLevel             = INFO,
   FourMuonTool            = BPHY4FourMuonTool,
+  V0Tools                 = TrackingCommon.getV0Tools(),
+  PVRefitter              = BPHY4_VertexTools.PrimaryVertexRefitter,
   PairContainerName       = "BPHY4Pairs",
   QuadrupletContainerName = "BPHY4Quads",
   PVContainerName         = "PrimaryVertices",
