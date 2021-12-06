@@ -1,14 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
-from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+from MCTruthClassifier.MCTruthClassifierConf import (
+    MCTruthClassifier as classifierTool)
 from MCTruthClassifier.MCTruthClassifierConfig import firstSimCreatedBarcode
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.Logging import logging
 
-
 mlog = logging.getLogger('MCTruthClassifierBase.py::configure:')
-mlog.info('entering')
 
 
 def getMCTruthClassifierExtrapolator():
@@ -47,9 +46,14 @@ ClassifierParticleCaloExtensionTool = Trk__ParticleCaloExtensionTool(
     name="ClassifierParticleCaloExtensionTool",
     Extrapolator=getMCTruthClassifierExtrapolator())
 
-MCTruthClassifier = MCTruthClassifier(
+MCTruthClassifier = classifierTool(
     name='MCTruthClassifier',
     barcodeG4Shift=firstSimCreatedBarcode(),
-    ParticleCaloExtensionTool=ClassifierParticleCaloExtensionTool)
+    ParticleCaloExtensionTool='')
 
 ToolSvc += MCTruthClassifier
+
+MCTruthClassifierCalo = classifierTool(
+    name='MCTruthClassifierCalo',
+    barcodeG4Shift=firstSimCreatedBarcode(),
+    ParticleCaloExtensionTool=ClassifierParticleCaloExtensionTool)

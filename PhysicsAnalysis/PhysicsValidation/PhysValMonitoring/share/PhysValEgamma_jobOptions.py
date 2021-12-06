@@ -10,8 +10,8 @@ tool1.ElectronContainerFrwdName = "ForwardElectrons"
 tool1.TruthParticleContainerName = "TruthParticles"
 
 tool1.isMC = rec.doTruth()
-from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
-tool1.MCTruthClassifier = MCTruthClassifier
+from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifierCalo
+tool1.MCTruthClassifier = MCTruthClassifierCalo
 
 monMan = CfgMgr.AthenaMonManager("PhysValMonManager")
 monMan.AthenaMonTools += [ tool1 ]
