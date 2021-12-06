@@ -6,6 +6,7 @@
 #include "../eFexEMRoIThresholdsTool.h"
 #include "../eFexTauRoIThresholdsTool.h"
 #include "../jFexTauRoIThresholdsTool.h"
+#include "../cTauRoIThresholdsTool.h"
 #include "../jFexSRJetRoIThresholdsTool.h"
 #include "../jFexLRJetRoIThresholdsTool.h"
 #include "../gFexSRJetRoIThresholdsTool.h"
@@ -48,6 +49,8 @@ DECLARE_COMPONENT( eFexTauRoIsUnpackingTool )
 DECLARE_COMPONENT( eFexTauRoIThresholdsTool )
 DECLARE_COMPONENT( jFexTauRoIsUnpackingTool )
 DECLARE_COMPONENT( jFexTauRoIThresholdsTool )
+DECLARE_COMPONENT( cTauRoIsUnpackingTool )
+DECLARE_COMPONENT( cTauRoIThresholdsTool )
 DECLARE_COMPONENT( jFexSRJetRoIsUnpackingTool )
 DECLARE_COMPONENT( jFexSRJetRoIThresholdsTool )
 DECLARE_COMPONENT( jFexLRJetRoIsUnpackingTool )
