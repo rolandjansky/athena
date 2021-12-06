@@ -237,7 +237,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     acc = MdtCondDbAlgCfg(flags)
     result.merge(acc)
     
-    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     if flags.Common.isOnline:
         kwargs.setdefault('MdtCondKey', '')
 
@@ -604,7 +604,7 @@ def MooSegmentFinderAlgCfg(flags, name = "MuonSegmentMaker",  **kwargs):
     kwargs.setdefault('doRPCClust', flags.Muon.doRPCClusterSegmentFinding)
     # When reading ESDs, where prior/next BC TGCs are merged, just retrieve that.
     # FIXME - this really shouldn't be set here! 
-    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
         
     kwargs.setdefault('MuonSegmentOutputLocation', "ThirdChainSegments" if flags.Muon.segmentOrigin=="TruthTracking" else "TrackMuonSegments")
     if flags.Beam.Type != 'collisions':
@@ -677,6 +677,7 @@ def MuonLayerHoughAlgCfg(flags, name = "MuonLayerHoughAlg", **kwargs):
     
     kwargs.setdefault("CscPrepDataContainer", "CSC_Clusters" if flags.Muon.doCSCs else "")
     kwargs.setdefault("sTgcPrepDataContainer", "STGC_Measurements" if flags.Muon.dosTGCs else "")
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     kwargs.setdefault("MMPrepDataContainer", "MM_Measurements" if flags.Muon.doMicromegas else "")
     kwargs.setdefault("PrintSummary", flags.Muon.printSummary)
     acc = MuonLayerHoughToolCfg(flags,name = "MuonLayerHoughTool")
