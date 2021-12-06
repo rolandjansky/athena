@@ -11,7 +11,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 using namespace TrigCompositeUtils;
 
 TrackCountHypoTool::TrackCountHypoTool(const std::string &type, const std::string &name, const IInterface *parent)
-	: AthAlgTool(type, name, parent),
+	: AthCheckedComponent<AthAlgTool>(type, name, parent),
 	  m_decisionId(HLT::Identifier::fromToolName(name)) {}
 
 

@@ -6,10 +6,11 @@ Copyright! (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
-class SPCountHypoTool : virtual public ::AthAlgTool
+class SPCountHypoTool : virtual public AthCheckedComponent<::AthAlgTool>
 {
 public:
   SPCountHypoTool(const std::string &type,
