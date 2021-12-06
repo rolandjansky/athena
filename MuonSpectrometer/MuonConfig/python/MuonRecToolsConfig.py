@@ -5,9 +5,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-# Tracking
-from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-
 def MuonEDMPrinterTool(flags, name="MuonEDMPrinterTool", **kwargs):
     kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     return CompFactory.Muon.MuonEDMPrinterTool(name, **kwargs)
@@ -94,17 +91,11 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     return result
     
 def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kwargs):
-
-    result = ComponentAccumulator()
-    acc  = TrackingGeometrySvcCfg(flags)
-    
-    result.merge(acc)
-    
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    acc = AtlasExtrapolatorCfg(flags)
-    extrap = acc.getPrimary()
-    acc.addPublicTool(extrap)
-    result.merge(acc)
+    
+    result = AtlasExtrapolatorCfg(flags)
+    extrap = result.getPrimary()
+    result.addPublicTool(extrap)
     kwargs.setdefault("Extrapolator", extrap)
 
     kwargs.setdefault("CalculateCloseHits", True)
