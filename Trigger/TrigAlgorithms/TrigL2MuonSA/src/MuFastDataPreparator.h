@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "xAODTrigger/MuonRoI.h"
@@ -49,17 +48,6 @@ class MuFastDataPreparator: public AthAlgTool {
 
  public:
 
-  StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
-			 const TrigRoiDescriptor*    p_roids,
-			 const bool                  insideOut,
-			 TrigL2MuonSA::RpcHits&      rpcHits,
-			 TrigL2MuonSA::MuonRoad&     muonRoad,
-			 TrigL2MuonSA::MdtRegion&    mdtRegion,
-			 TrigL2MuonSA::RpcFitResult& rpcFitResult,
-			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
-			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
-			 const bool                  dynamicDeltaRpc) const;
-
   StatusCode prepareData(const xAOD::MuonRoI*        p_roi,
 			 const TrigRoiDescriptor*    p_roids,
 			 const bool                  insideOut,
@@ -70,19 +58,6 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
 			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
 			 const bool                  dynamicDeltaRpc) const;
-
-  StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
-			 const TrigRoiDescriptor*    p_roids,
-			 const bool                  insideOut,
-			 TrigL2MuonSA::TgcHits&      tgcHits,
-			 TrigL2MuonSA::MuonRoad&     muonRoad,
-			 TrigL2MuonSA::MdtRegion&    mdtRegion,
-			 TrigL2MuonSA::TgcFitResult& tgcFitResult,
-			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
-			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
-			 TrigL2MuonSA::CscHits&      cscHits,
-			 TrigL2MuonSA::StgcHits&     stgcHits,
-			 TrigL2MuonSA::MmHits&       mmHits) const;
 
   StatusCode prepareData(const xAOD::MuonRoI*        p_roi,
 			 const TrigRoiDescriptor*    p_roids,
@@ -98,15 +73,6 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::MmHits&       mmHits) const;
 
   //for multi-track mode
-  StatusCode prepareData(const LVL1::RecMuonRoI*              p_roi,
-			 const TrigRoiDescriptor*             p_roids,
-                         std::vector<TrigL2MuonSA::MuonRoad>& clusterRoad,
-                         std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
-                         TrigL2MuonSA::MdtHits&               mdtHits_normal,
-                         TrigL2MuonSA::MdtHits&               mdtHits_overlap,
-                         std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal,
-                         const bool                           dynamicDeltaRpc) const;
-
   StatusCode prepareData(const xAOD::MuonRoI*                 p_roi,
 			 const TrigRoiDescriptor*             p_roids,
                          std::vector<TrigL2MuonSA::MuonRoad>& clusterRoad,

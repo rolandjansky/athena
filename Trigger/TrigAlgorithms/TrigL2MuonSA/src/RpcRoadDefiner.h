@@ -15,7 +15,6 @@
 #include "MuonRoad.h"
 #include "RpcFitResult.h"
 #include "BarrelRoadData.h"
-#include "TrigT1Interfaces/RecMuonRoI.h"
 #include "xAODTrigger/MuonRoI.h"
 #include "IRegionSelector/IRegSelTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -38,18 +37,6 @@ class RpcRoadDefiner: public AthAlgTool
   virtual StatusCode initialize() override;
 
  public:
-  StatusCode defineRoad(const LVL1::RecMuonRoI*             p_roi,
-			const bool                          insideOut,
-			TrigL2MuonSA::MuonRoad&             muonRoad,
-			TrigL2MuonSA::RpcHits&              rpcHits,
-                        const TrigL2MuonSA::RpcLayerHits&   rpcLayerHits,
-			const ToolHandle<RpcPatFinder>*     rpcPatFinder,
-			TrigL2MuonSA::RpcFitResult&         rpcFitResult,
-			double                              roiEtaMinLow,
-			double                              roiEtaMaxLow,
-			double                              roiEtaMinHigh,
-			double                              roiEtaMaxHigh) const;
-
   StatusCode defineRoad(const xAOD::MuonRoI*                p_roi,
 			const bool                          insideOut,
 			TrigL2MuonSA::MuonRoad&             muonRoad,
