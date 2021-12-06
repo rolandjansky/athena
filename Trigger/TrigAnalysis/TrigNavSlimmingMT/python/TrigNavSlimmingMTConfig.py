@@ -20,8 +20,8 @@ def getTrigNavSlimmingMTConfig(ConfigFlags):
 
   log = logging.getLogger("getTrigNavSlimmingMTConfig.py")
 
-  from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool, getRun3NavigationContainerFromInput, possible_keys
-  ca = getTrigDecisionTool(ConfigFlags)
+  from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg, getRun3NavigationContainerFromInput, possible_keys
+  ca = TrigDecisionToolCfg(ConfigFlags)
   tdt = ca.getPrimary()
 
   # TODO remove when deprecated

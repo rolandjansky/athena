@@ -52,8 +52,8 @@ if __name__=='__main__':
   cfg = MainServicesCfg(ConfigFlags)
   cfg.merge(PoolReadCfg(ConfigFlags))
 
-  from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-  tdt_ca = getTrigDecisionTool(ConfigFlags)
+  from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+  tdt_ca = TrigDecisionToolCfg(ConfigFlags)
   tdt = tdt_ca.getPrimary()
   tdt.OutputLevel = args.loglevel
   cfg.merge(tdt_ca)

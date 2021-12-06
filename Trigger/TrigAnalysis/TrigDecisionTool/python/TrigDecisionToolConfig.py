@@ -8,6 +8,12 @@
 from AthenaCommon.Logging import logging
 
 def getTrigDecisionTool(flags):
+    msg = logging.getLogger('getTrigDecisionTool')
+    msg.warning("This function is becoming obsolete. Use: TrigDecisionToolCfg(flags) - imported from the same package")
+    return TrigDecisionToolCfg(flags)
+
+
+def TrigDecisionToolCfg(flags):
     '''
     @brief Configures and returns the TrigDecisionTool (TDT) for use in Athena-MT. 
     The TDT uses a Tool interface such that it can be used in either Athena or AnalysisBase releases.
@@ -23,7 +29,7 @@ def getTrigDecisionTool(flags):
     When running in AnalysisBase, the tdt.TrigConfigTool='TrigConf::xAODConfigTool' should be used 
     in place of the TrigConf::xAODConfigSvc
     '''
-    msg = logging.getLogger('getTrigDecisionToolCfg')
+    msg = logging.getLogger('TrigDecisionToolCfg')
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -95,7 +101,7 @@ if __name__ == '__main__':
         #TODO expand the test scope Run3 AODs and RAWs
 
     flags.lock()
-    acc = getTrigDecisionTool(flags)
+    acc = TrigDecisionToolCfg(flags)
     acc.printConfig(withDetails=True, summariseProps=True, prefix='UnitTest')
     acc.wasMerged()
     # TODO possibly add EDM printing alg using the TDT
