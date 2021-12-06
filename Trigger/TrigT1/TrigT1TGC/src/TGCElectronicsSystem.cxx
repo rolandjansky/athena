@@ -37,6 +37,7 @@ TGCElectronicsSystem::TGCElectronicsSystem()
  : m_DB(0),
    m_tmdb(0),
    m_nsw(0),
+   m_bis78(0),
    m_tgcArgs(nullptr)
 {
   for(int side=0; side < NumberOfSide; side++){
@@ -54,6 +55,7 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs,
  : m_DB(database),
    m_tmdb(0),
    m_nsw(0),
+   m_bis78(0),
    m_tgcArgs(tgcargs)
 {
   // TileMu
@@ -62,6 +64,11 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs,
   // NSW
   if(tgcargs->USE_NSW() && tgcargs->useRun3Config()){
     m_nsw.reset(new TGCNSW());
+  }
+
+  // RPC BIS78
+  if(tgcargs->USE_BIS78() && tgcargs->useRun3Config()){
+    m_bis78.reset(new TGCBIS78());
   }
 
   int SectorId;
@@ -77,7 +84,8 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs,
 						 forwardBackward, 
 						 m_DB,
 						 m_tmdb,
-						 m_nsw
+						 m_nsw,
+						 m_bis78
 						 );
       } // loop module
     } // loop octant
