@@ -17,6 +17,22 @@ namespace HLTSeedingRoIToolDefs {
     const char ContainerName[] = "L1_jFexTauRoI";
     const char ThresholdType[] = "jTAU";
   }
+  namespace jFexSRJet {
+    const char ContainerName[] = "L1_jFexSRJetRoI";
+    const char ThresholdType[] = "jJ";
+  }
+  namespace jFexLRJet {
+    const char ContainerName[] = "L1_jFexLRJetRoI";
+    const char ThresholdType[] = "jLJ";
+  }
+  namespace gFexSRJet {
+    const char ContainerName[] = "L1_gFexSRJetRoI";
+    const char ThresholdType[] = "gJ";
+  }
+  namespace gFexLRJet {
+    const char ContainerName[] = "L1_gFexLRJetRoI";
+    const char ThresholdType[] = "gLJ";
+  }
   namespace Muon {
     const char ContainerName[] = "LVL1MuonRoIs";
     const char ThresholdType[] = "MU";

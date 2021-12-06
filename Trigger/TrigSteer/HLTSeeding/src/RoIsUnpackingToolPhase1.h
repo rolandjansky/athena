@@ -62,11 +62,13 @@ public:
                             const xAOD::TrigComposite& l1TriggerResult,
                             const HLT::IDSet& activeChains) const override {
     using namespace TrigCompositeUtils;
+    const bool doProbe = !m_decisionsKeyProbe.empty();
 
     // Create and record RoI descriptor and decision containers
     SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx);
     SG::WriteHandle<DecisionContainer> decisionsMain = createAndStore(m_decisionsKey, ctx);
-    SG::WriteHandle<DecisionContainer> decisionsProbe = createAndStore(m_decisionsKeyProbe, ctx);
+    SG::WriteHandle<DecisionContainer> decisionsProbe;
+    if (doProbe) decisionsProbe = createAndStore(m_decisionsKeyProbe, ctx);
 
     // Retrieve the xAOD RoI container from L1TriggerResult
     if (!l1TriggerResult.hasObjectLink(m_l1RoILinkName, ClassID_traits<T_RoIContainer>::ID())) {
@@ -105,22 +107,25 @@ public:
       decisionMain->setObjectLink(initialRecRoIString(),
                                   ElementLink<T_RoIContainer>(m_l1RoILinkName, linkIndex, ctx));
 
-      Decision* decisionProbe = TrigCompositeUtils::newDecisionIn(decisionsProbe.ptr(), hltSeedingNodeName());
-      decisionProbe->setObjectLink(initialRoIString(),
-                                  ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
-      decisionProbe->setObjectLink(initialRecRoIString(),
-                                  ElementLink<T_RoIContainer>(m_l1RoILinkName, linkIndex, ctx));
+      Decision* decisionProbe{nullptr};
+      if (doProbe) {
+        decisionProbe = TrigCompositeUtils::newDecisionIn(decisionsProbe.ptr(), hltSeedingNodeName());
+        decisionProbe->setObjectLink(initialRoIString(),
+                                    ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
+        decisionProbe->setObjectLink(initialRecRoIString(),
+                                    ElementLink<T_RoIContainer>(m_l1RoILinkName, linkIndex, ctx));
+      }
 
       // Add positive decisions for chains to be activated by this RoI object
       uint64_t thresholdPattern = thrPatternAcc(*roi);
       ATH_MSG_DEBUG("RoI #" << linkIndex << " threshold pattern: " << thresholdPattern);
       for (const std::shared_ptr<TrigConf::L1Threshold>& thr : thresholds.value().get()) {
         if ((thresholdPattern & (1 << thr->mapping())) == 0u) {continue;}
-        const std::string thresholdProbeName = getProbeThresholdName(thr->name());
         ATH_MSG_DEBUG("RoI #" << linkIndex << " passed threshold number " << thr->mapping()
-                      << " names " << thr->name() << " and " << thresholdProbeName);
+                      << " name" << (doProbe ? "s " : " ") << thr->name()
+                      << (doProbe ? " and "+getProbeThresholdName(thr->name()) : ""));
         addChainsToDecision(HLT::Identifier(thr->name()), decisionMain, activeChains);
-        addChainsToDecision(HLT::Identifier(thresholdProbeName), decisionProbe, activeChains);
+        if (doProbe) addChainsToDecision(HLT::Identifier(getProbeThresholdName(thr->name())), decisionProbe, activeChains);
       }
 
       ++linkIndex;
@@ -160,6 +165,30 @@ class jFexTauRoIsUnpackingTool : public HLTSeedingRoIToolDefs::jFexTau::Unpackin
 public:
   jFexTauRoIsUnpackingTool(const std::string& type, const std::string& name, const IInterface* parent)
   : HLTSeedingRoIToolDefs::jFexTau::UnpackingBaseClass(type, name, parent) {}
+};
+
+class jFexSRJetRoIsUnpackingTool : public HLTSeedingRoIToolDefs::jFexSRJet::UnpackingBaseClass {
+public:
+  jFexSRJetRoIsUnpackingTool(const std::string& type, const std::string& name, const IInterface* parent)
+  : HLTSeedingRoIToolDefs::jFexSRJet::UnpackingBaseClass(type, name, parent) {}
+};
+
+class jFexLRJetRoIsUnpackingTool : public HLTSeedingRoIToolDefs::jFexLRJet::UnpackingBaseClass {
+public:
+  jFexLRJetRoIsUnpackingTool(const std::string& type, const std::string& name, const IInterface* parent)
+  : HLTSeedingRoIToolDefs::jFexLRJet::UnpackingBaseClass(type, name, parent) {}
+};
+
+class gFexSRJetRoIsUnpackingTool : public HLTSeedingRoIToolDefs::gFexSRJet::UnpackingBaseClass {
+public:
+  gFexSRJetRoIsUnpackingTool(const std::string& type, const std::string& name, const IInterface* parent)
+  : HLTSeedingRoIToolDefs::gFexSRJet::UnpackingBaseClass(type, name, parent) {}
+};
+
+class gFexLRJetRoIsUnpackingTool : public HLTSeedingRoIToolDefs::gFexLRJet::UnpackingBaseClass {
+public:
+  gFexLRJetRoIsUnpackingTool(const std::string& type, const std::string& name, const IInterface* parent)
+  : HLTSeedingRoIToolDefs::gFexLRJet::UnpackingBaseClass(type, name, parent) {}
 };
 
 class MuonRoIsUnpackingTool : public HLTSeedingRoIToolDefs::Muon::UnpackingBaseClass {

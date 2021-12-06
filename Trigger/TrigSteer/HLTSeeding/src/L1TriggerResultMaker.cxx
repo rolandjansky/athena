@@ -34,6 +34,10 @@ StatusCode L1TriggerResultMaker::initialize() {
   ATH_CHECK(m_eFexEMRoIKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_eFexTauRoIKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_jFexTauRoIKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_jFexSRJetRoIKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_jFexLRJetRoIKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_gFexSRJetRoIKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_gFexLRJetRoIKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_thresholdPatternTools.retrieve());
   return StatusCode::SUCCESS;
 }
@@ -73,6 +77,10 @@ StatusCode L1TriggerResultMaker::execute(const EventContext& eventContext) const
   ATH_CHECK(retrieveAndLink(m_eFexEMRoIKey));
   ATH_CHECK(retrieveAndLink(m_eFexTauRoIKey));
   ATH_CHECK(retrieveAndLink(m_jFexTauRoIKey));
+  ATH_CHECK(retrieveAndLink(m_jFexSRJetRoIKey));
+  ATH_CHECK(retrieveAndLink(m_jFexLRJetRoIKey));
+  ATH_CHECK(retrieveAndLink(m_gFexSRJetRoIKey));
+  ATH_CHECK(retrieveAndLink(m_gFexLRJetRoIKey));
 
   for (const auto& tool: m_thresholdPatternTools) {
     ATH_CHECK(tool->decorateThresholds(eventContext));
