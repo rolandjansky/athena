@@ -14,7 +14,7 @@ svcMgr.ItemListSvc.OutputLevel = DEBUG
 #====================================================================
 # FLAGS TO PERSONALIZE THE DERIVATION
 #====================================================================
-
+from InDetRecExample import TrackingCommon
 onlyAugmentations = False  # Set to True to deactivate thinning and skimming, and only keep augmentations (to generate a sample with full xAOD plus all the extra)
 thinTruth = True
 addMuExtrapolationForTrigger = True
@@ -369,6 +369,8 @@ BPHY20JpsiSelectAndWrite = DerivationFramework__Reco_Vertex(
     VertexSearchTool             = BPHY20JpsiFinder,
     OutputVtxContainerName = "BPHY20JpsiCandidates",
     PVContainerName        = "PrimaryVertices",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY20_VertexTools.PrimaryVertexRefitter,
     RefPVContainerName     = "SHOULDNOTBEUSED",
     DoVertexType           = 1)
 
@@ -382,6 +384,7 @@ BPHY20_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY20_Select_Jpsi2mumu",
     HypothesisName        = "Jpsi",
     InputVtxContainerName = "BPHY20JpsiCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     VtxMassHypo           = 3096.900,
     MassMin               = 2000.0,
     MassMax               = 4500.0,
@@ -442,6 +445,8 @@ BPHY20BcJpsiMuSelectAndWrite = DerivationFramework__Reco_Vertex(
     VertexSearchTool     = BPHY20BcJpsiMu,
     OutputVtxContainerName = "BPHY20BcJpsiMuCandidates",
     PVContainerName        = "PrimaryVertices",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY20_VertexTools.PrimaryVertexRefitter,
     RefPVContainerName     = "BPHY20RefittedPrimaryVertices",
     RefitPV                = True,
     MaxPVrefit           = 1000)
@@ -455,6 +460,7 @@ BPHY20_Select_Bc2JpsiMu = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY20_Select_Bc2JpsiMu",
     HypothesisName        = "Bc",
     InputVtxContainerName = "BPHY20BcJpsiMuCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     TrkMasses             = [105.658, 105.658, 105.658],
     VtxMassHypo           = 6274.9,
     MassMin               = 2000.0,

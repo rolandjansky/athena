@@ -3,8 +3,8 @@
 #
 # set up extrapolator
 #
-from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-InDetExtrapolator = AtlasExtrapolator()
+from InDetRecExample import TrackingCommon
+InDetExtrapolator = TrackingCommon.getInDetExtrapolator()
 ToolSvc += InDetExtrapolator
 print      (InDetExtrapolator)
 
