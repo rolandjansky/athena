@@ -274,12 +274,8 @@ class ComponentAccumulator(object):
             return io
 
         ret = []
-        import itertools
-        for c in itertools.chain(self._publicTools,
-                                self._privateTools if self._privateTools else [],
-                                self._algorithms.values(),
-                                self._conditionsAlgs):
-            ret.extend(__getHandles(c))
+        for comp in self._allComponents():
+            ret.extend(__getHandles(comp))
         return ret
 
 
@@ -707,9 +703,26 @@ class ComponentAccumulator(object):
         """
         self._wasMerged=True
 
+    def _allComponents(self):
+        """ returns iterable over all components """
+        import itertools
+        return itertools.chain(self._publicTools,
+                               self._privateTools if self._privateTools else [],
+                               self._algorithms.values(),
+                               self._conditionsAlgs)
 
-    def store(self,outfile):
+
+    def store(self,outfile, withDefaultHandles=False):
+        """
+        Saves CA in pickle form
+
+        when withDefaultHandles is True, also the handles that are not set are saved
+        """
         self.wasMerged()
+        if withDefaultHandles:
+            from AthenaConfiguration.Utils import loadDefaultComps, exposeHandles
+            loadDefaultComps(self._allComponents())
+            exposeHandles(self._allComponents())
         import pickle
         pickle.dump(self,outfile)
         return
