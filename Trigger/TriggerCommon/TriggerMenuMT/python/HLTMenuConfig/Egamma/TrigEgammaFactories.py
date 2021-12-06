@@ -37,7 +37,7 @@ from egammaAlgs import egammaAlgsConf
 
 
 TrigEgammaKeys = getTrigEgammaKeys()
-TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT')
+TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT') 
 
 """ Configuring trigger precision MVA Svc """
 TrigEgammaMVASvc = createTrigEgammaMVASvc( TrigEgammaSliceFlags.calibMVAVersion() )

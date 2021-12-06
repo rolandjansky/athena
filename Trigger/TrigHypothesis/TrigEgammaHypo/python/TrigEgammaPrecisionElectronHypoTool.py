@@ -13,7 +13,7 @@ def same( val , tool):
 #
 # Create the hypo alg with all selectors
 #
-def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
+def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut):
     acc = ComponentAccumulator()
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     MonTool = GenericMonitoringTool("MonTool_"+name)
@@ -33,7 +33,6 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
   
     thePrecisionElectronHypo = CompFactory.TrigEgammaPrecisionElectronHypoAlg(name)
     thePrecisionElectronHypo.Electrons = str(sequenceOut)
-    thePrecisionElectronHypo.Do_idperf = do_idperf
     thePrecisionElectronHypo.RunInView = True
     thePrecisionElectronHypo.ElectronCBSelectorTools = acc_ElectronCBSelectorTools.getPublicTools()
     thePrecisionElectronHypo.ElectronLHSelectorTools = acc_ElectronLHSelectorTools.getPublicTools()
@@ -52,10 +51,10 @@ def createTrigEgammaPrecisionElectronHypoAlg(name, sequenceOut, do_idperf):
     #acc.addEventAlgo(thePrecisionElectronHypo)
     return thePrecisionElectronHypo, acc
 
-def TrigEgammaPrecisionElectronHypoAlgCfg(flags, name, inputElectronCollection, doIDperf ):
+def TrigEgammaPrecisionElectronHypoAlgCfg(flags, name, inputElectronCollection ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg( name, inputElectronCollection, do_idperf=doIDperf )
+    hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg( name, inputElectronCollection )
     hypo_alg = hypo_tuple[0]
     hypo_acc = hypo_tuple[1]
     acc.addEventAlgo( hypo_alg )
@@ -116,7 +115,6 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     self.__iso = cpart['isoInfo']
     self.__d0  = cpart['lrtInfo']
     self.__gsfInfo = cpart['gsfInfo']
-    self.__idperfInfo = cpart['idperfInfo']
     self.__lhInfo = cpart['lhInfo']
     self.__monGroups = monGroups
     
@@ -164,9 +162,6 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
 
   def gsfInfo(self):
     return self.__gsfInfo
-
-  def idperfInfo(self):
-    return self.__idperfInfo
 
   def tool(self):
     return self.__tool
@@ -217,10 +212,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
   #
   def compile(self):
 
-    if 'idperf' in self.idperfInfo():
-      self.acceptAll()
-
-    elif 'nocut' == self.pidname():
+    if 'nocut' == self.pidname():
       self.nocut()
 
     else: # nominal chain using pid selection
@@ -230,7 +222,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
     # secundary cut configurations
     if self.isoInfo() and self.isoInfo()!="":
       self.addIsoCut()
-    if self.d0Info() and self.d0Info()!="" and 'idperf' not in self.idperfInfo():
+    if self.d0Info() and self.d0Info()!="":
       self.addLRTCut()
     
 
