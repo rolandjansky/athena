@@ -245,10 +245,10 @@ private:
   ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
     this,
     "ParticleCaloExtensionTool",
-    "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
+    ""
   };
   ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool{
-this,
+    this,
     "TruthInConeTool",
     "xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool"
   };
