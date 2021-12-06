@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,7 +10,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "AthContainers/DataVector.h"
 
 namespace Trk
@@ -50,9 +49,9 @@ namespace Trk
 	The parthyp argument is relevant for the extrapolation steps in the hole search.
 	Attention: This is a factory, ownership of the return vector is passed to the calling method.
     */
-    virtual Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
-    getHolesOnTrack(const Trk::Track& track, 
-                    const Trk::ParticleHypothesis partHyp = Trk::pion) const = 0;
+    virtual const DataVector<const Trk::TrackStateOnSurface>* getHolesOnTrack(
+									      const Trk::Track& track, 
+									      const Trk::ParticleHypothesis partHyp = Trk::pion) const = 0;
 
     /** Input : track, parthyp
 	Return: A pointer to a new Trk::Track which containes the information of the input track plus the tsos of the identified holes
