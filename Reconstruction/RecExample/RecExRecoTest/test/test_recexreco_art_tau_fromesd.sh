@@ -4,10 +4,8 @@
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
-# art-output: serial
-# art-output: threadOne
-# art-output: threadEight
 
 export ATHENA_CORE_NUMBER=8
 
-test_compare_SerialAndThreadedAthenas.sh tauRec/tau_standalone_LCTopo_ESDtoAOD.py
+athena --threads=8 tauRec/tau_standalone_LCTopo_ESDtoAOD.py | tee athenaEightThreads.log
+test_postProcessing_Errors.sh athenaEightThreads.log | tee errorsEightThreads.log
