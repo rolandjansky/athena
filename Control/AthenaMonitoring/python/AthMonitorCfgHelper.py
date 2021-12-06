@@ -33,8 +33,8 @@ class AthMonitorCfgHelper(object):
         self.monSeq.StopOverride=True
         self.resobj = ComponentAccumulator()
         self.resobj.addSequence(self.monSeq)
-        from .TriggerInterface import getTrigDecisionTool
-        self.resobj.merge(getTrigDecisionTool(inputFlags))
+        from .TriggerInterface import TrigDecisionToolCfg
+        self.resobj.merge(TrigDecisionToolCfg(inputFlags))
 
     def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
         '''

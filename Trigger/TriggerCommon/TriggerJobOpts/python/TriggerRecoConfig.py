@@ -202,8 +202,8 @@ def Run1Run2DecisionMakerCfg(flags):
     acc.addEventAlgo(decMaker)
 
 
-    from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-    acc.merge(getTrigDecisionTool(flags))
+    from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+    acc.merge(TrigDecisionToolCfg(flags))
 
     from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
     cnvTool = CompFactory.xAODMaker.TrigDecisionCnvTool(TrigConfigSvc = acc.getPrimaryAndMerge( getxAODConfigSvc( flags )) )

@@ -45,8 +45,8 @@ def LArShapeDumperCfg(flags):
     result.getService("PoolSvc").ReadCatalog += ["apcfile:poolcond/PoolCat_comcond_castor.xml"]
 
     if flags.LArShapeDump.doTrigger:
-        from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-        result.merge(getTrigDecisionTool(flags))
+        from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+        result.merge(TrigDecisionToolCfg(flags))
 
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
         result.merge(L1TriggerByteStreamDecoderCfg(flags))
