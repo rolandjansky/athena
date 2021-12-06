@@ -497,6 +497,12 @@ def flattenChainGroups(A):
         else: rt.append(i)
     return rt
 
+def checkChainStream(myStream):
+    if len(myStream) == 1:
+        if myStream[0] == 'express':
+            return False
+    return True
+
 def dictFromChainName(chainInfo):
     """
     Transforms ChainProp into the ChainDict
@@ -536,6 +542,10 @@ def dictFromChainName(chainInfo):
 
     else:
         raise RuntimeError("Format of chainInfo passed to genChainDict not known")
+
+    #check here the content of the stream
+    if not checkChainStream(stream):
+        raise RuntimeError("Chain {}, format of chainInfo:stream {} is not valid".format(chainName, stream))
 
     L1item = getL1item(chainName)
 
