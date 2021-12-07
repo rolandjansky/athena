@@ -39,7 +39,7 @@ def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme 
     if useBTagFlagsDefaults:
         trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
         svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
-        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
+        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg(flags, 'IP3DDetailedTrackGradeFactory'))
         trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
         likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D', scheme))
         inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))

@@ -38,7 +38,7 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
     if useBTagFlagsDefaults:
         trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
         svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
-        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP2DDetailedTrackGradeFactory'))
+        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg(flags, 'IP2DDetailedTrackGradeFactory'))
         trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP2DTrackSelector'))
         likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP2DNewLikelihoodTool', 'IP2D', scheme))
 
