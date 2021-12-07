@@ -8,6 +8,7 @@
 #define LEGACY_TRKGEOM
 #include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
 
@@ -156,7 +157,7 @@ namespace Trk {
   class TrackingVolume;
   class Volume;
 
-  class GlobalChi2Fitter: public extends<AthAlgTool, IGlobalTrackFitter> {
+  class GlobalChi2Fitter: public extends<AthCheckedComponent<AthAlgTool>, IGlobalTrackFitter> {
     struct PropagationResult {
       std::unique_ptr<const TrackParameters> m_parameters;
       std::unique_ptr<TransportJacobian> m_jacobian;
