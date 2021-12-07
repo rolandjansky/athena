@@ -51,6 +51,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidate
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg_LRT","MuonCombinedInDetCandidateAlg_LRT",UseOnlyHittedSectors=useOnlyHitSectors)
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg","MuonCombinedAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg_LRT", "MuonCombinedAlg_LRT")
 
@@ -129,3 +130,9 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidSegmentRegionRecoveryTo
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidErrorOptimisationTool","MuidErrorOptimisationTool")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilder","CombinedMuonTrackBuilder")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilderFit","CombinedMuonTrackBuilderFit")
+
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedTrackBuilderFit_EMEO","CombinedTrackBuilderFit_EMEO")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonSegmentRegionRecoveryTool_EMEO","MuonSegmentRegionRecoveryTool_EMEO")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilder_EMEO","CombinedMuonTrackBuilder_EMEO")
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool_EMEO", "MuonCandidateTool_EMEO")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg_EMEO","MuonCombinedMuonCandidateAlg_EMEO")
