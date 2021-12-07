@@ -34,44 +34,24 @@ using std::abs;
 
 namespace {
 
-bool
-EtaPhiCaloHelper(const Trk::CaloExtension* caloExtension,
-                 const CaloSampling::CaloSample sample,
-                 double& etaCalo,
-                 double& phiCalo)
+std::unique_ptr<Trk::CurvilinearParameters>
+extractParamFromTruth(const xAOD::TruthParticle& particle)
 {
-  bool isOK = ((caloExtension != nullptr) &&
-               (!caloExtension->caloLayerIntersections().empty()));
-
-  if (isOK) {
-    etaCalo = -99;
-    phiCalo = -99;
-    Trk::TrackParametersIdHelper parsIdHelper;
-
-    // loop over calo layers
-    for (const auto& cur : caloExtension->caloLayerIntersections()) {
-
-      // only use entry layer
-      if (!parsIdHelper.isEntryToVolume(cur.cIdentifier())) {
-        continue;
-      }
-
-      CaloSampling::CaloSample sampleEx =
-        parsIdHelper.caloSample(cur.cIdentifier());
-      if (sampleEx != CaloSampling::EMB2 && sampleEx != CaloSampling::EME2 &&
-          sampleEx != CaloSampling::FCAL2) {
-        continue;
-      }
-
-      if (sampleEx == sample || etaCalo == -99) {
-        etaCalo = cur.position().eta();
-        phiCalo = cur.position().phi();
-        if (sampleEx == sample)
-          break;
-      }
-    }
+  // get start parameters
+  const xAOD::TruthVertex* pvtx = particle.prodVtx();
+  if (pvtx == nullptr) {
+    return nullptr;
   }
-  return isOK;
+  double charge = particle.charge();
+  Amg::Vector3D pos(pvtx->x(), pvtx->y(), pvtx->z());
+  Amg::Vector3D mom(particle.px(), particle.py(), particle.pz());
+  // Aproximate neutral particles as charged with infinite momentum
+  if (particle.isNeutral()) {
+    charge = 1.;
+    mom.normalize();
+    mom *= 1e10;
+  }
+  return std::make_unique<Trk::CurvilinearParameters>(pos, mom, charge);
 }
 
 }
@@ -88,8 +68,6 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   ATH_MSG_DEBUG("Executing egammaClusMatch ");
 
   const xAOD::TruthParticle* theMatchPart = nullptr;
-  Trk::IParticleCaloExtensionTool::Cache* cache =
-    info ? info->extrapolationCache : nullptr;
   const EventContext& ctx =
     info ? info->eventContext : Gaudi::Hive::currentContext();
 
@@ -189,8 +167,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     double dR(-999.);
     bool isNCone = false;
 
-    bool isExt =
-      genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone, cache);
+    bool isExt = genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone);
     if (!isExt) {
       continue;
     }
@@ -309,8 +286,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
 
     double dR(-999.);
     bool isNCone = false;
-    bool isExt =
-      genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone, cache);
+    bool isExt = genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone);
     if (!isExt) {
       continue;
     }
@@ -384,55 +360,12 @@ MCTruthClassifier::genPartToCalo(const EventContext& ctx,
                                  const xAOD::TruthParticle* thePart,
                                  bool isFwrdEle,
                                  double& dRmatch,
-                                 bool& isNarrowCone,
-                                 Cache* cache) const
+                                 bool& isNarrowCone) const
 {
   dRmatch = -999.;
   isNarrowCone = false;
 
-  if (thePart == nullptr)
-    return false;
-
-  // define calo sample
-  CaloSampling::CaloSample sample = CaloSampling::EMB2;
-  if ((clus->inBarrel() && !clus->inEndcap()) ||
-      (clus->inBarrel() && clus->inEndcap() &&
-       clus->eSample(CaloSampling::EMB2) >=
-         clus->eSample(CaloSampling::EME2))) {
-    // Barrel
-    sample = CaloSampling::EMB2;
-
-  } else if ((!clus->inBarrel() && clus->inEndcap() && !isFwrdEle) ||
-             (clus->inBarrel() && clus->inEndcap() &&
-              clus->eSample(CaloSampling::EME2) >
-                clus->eSample(CaloSampling::EMB2))) {
-    // End-cap
-    sample = CaloSampling::EME2;
-  } else if (isFwrdEle && clus->inEndcap()) {
-    // FCAL
-    sample = CaloSampling::FCAL2;
-
-  } else {
-    return false;
-  }
-
-  double etaCalo = -99;
-  double phiCalo = -99;
-  bool extensionOK = false;
-  if (cache) {
-    const Trk::CaloExtension* caloExtension =
-      m_caloExtensionTool->caloExtension(ctx, *thePart, *cache);
-    extensionOK = EtaPhiCaloHelper(caloExtension, sample, etaCalo, phiCalo);
-  } else {
-    std::unique_ptr<Trk::CaloExtension> caloExtension =
-      m_caloExtensionTool->caloExtension(ctx, *thePart);
-    extensionOK =
-      EtaPhiCaloHelper(caloExtension.get(), sample, etaCalo, phiCalo);
-  }
-  if (!extensionOK) {
-    ATH_MSG_WARNING("extrapolation of Truth Particle with eta  "
-                    << thePart->eta() << " , charge " << thePart->charge()
-                    << " , Pt " << thePart->pt() << " to calo failed");
+  if (thePart == nullptr) {
     return false;
   }
 
@@ -450,6 +383,51 @@ MCTruthClassifier::genPartToCalo(const EventContext& ctx,
     phiClus = clus->phi();
     etaClus = clus->eta();
   }
+
+  // define calo sample
+  CaloSampling::CaloSample sample = CaloSampling::EMB2;
+  if ((clus->inBarrel() && !clus->inEndcap()) ||
+      (clus->inBarrel() && clus->inEndcap() &&
+       clus->eSample(CaloSampling::EMB2) >=
+         clus->eSample(CaloSampling::EME2))) {
+    // Barrel
+    sample = CaloSampling::EMB2;
+  } else if ((!clus->inBarrel() && clus->inEndcap() && !isFwrdEle) ||
+             (clus->inBarrel() && clus->inEndcap() &&
+              clus->eSample(CaloSampling::EME2) >
+                clus->eSample(CaloSampling::EMB2))) {
+    // End-cap
+    sample = CaloSampling::EME2;
+  } else if (isFwrdEle && clus->inEndcap()) {
+    // FCAL
+    sample = CaloSampling::FCAL2;
+  } else {
+    return false;
+  }
+  std::unique_ptr<Trk::CurvilinearParameters> params =
+    extractParamFromTruth(*thePart);
+  if (!params) {
+    return false;
+  }
+
+  // create extension to sample
+  std::vector<CaloSampling::CaloSample> samples = { sample };
+  std::vector<std::pair<CaloSampling::CaloSample,
+                        std::unique_ptr<const Trk::TrackParameters>>>
+    extension = m_caloExtensionTool->layersCaloExtension(
+      ctx, *params, samples, etaClus, Trk::nonInteracting);
+  double etaCalo = -99;
+  double phiCalo = -99;
+  bool extensionOK = (!extension.empty());
+  if (!extensionOK) {
+    ATH_MSG_WARNING("extrapolation of Truth Particle with eta  "
+                    << thePart->eta() << " , charge " << thePart->charge()
+                    << " , Pt " << thePart->pt() << " to calo failed");
+    return false;
+  }
+  etaCalo = extension[0].second->position().eta();
+  phiCalo = extension[0].second->position().phi();
+
   double dPhi = detPhi(phiCalo, phiClus);
   double dEta = detEta(etaCalo, etaClus);
   dRmatch = rCone(dPhi, dEta);

@@ -203,8 +203,7 @@ private:
                      const xAOD::TruthParticle*,
                      bool,
                      double&,
-                     bool&,
-                     Cache* cache) const;
+                     bool&) const;
   const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*,
                                              bool,
                                              Info* info) const;

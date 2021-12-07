@@ -54,7 +54,7 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 #Tests
 if( ( NOT XAOD_ANALYSIS ) AND ( NOT GENERATIONBASE ) )
-   atlas_add_test( egammaTrackToolsConfigTest
+   atlas_add_test( MCTruthClassifierConfigTest
       SCRIPT python -m MCTruthClassifier.MCTruthClassifierConfig
       POST_EXEC_SCRIPT nopost.sh )
 endif()
