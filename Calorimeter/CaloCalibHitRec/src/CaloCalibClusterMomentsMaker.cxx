@@ -361,7 +361,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
     std::vector<double> engCalibTot(theClusColl->size(),0);
     std::vector<double> engCalibOut[3];
     std::vector<double> engCalibDead[3];
-    double eTot(0),eOut[3],eDead[3];
+    double eOut[3],eDead[3];
 
     // calibration energy in samplings [iClus][CaloSample]
     std::vector<std::vector<double> > engCalibTotSmp;
@@ -398,7 +398,6 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
 	  ClusWeight * theList = cellVector[otherSubDet][(unsigned int)myHashId];
 	  while ( theList ) {
 	    engCalibTot[theList->iClus] += theList->weight * hit->energyTotal();
-	    eTot += theList->weight * hit->energyTotal();
             if( nsmp < CaloSampling::Unknown ) {
               engCalibTotSmp[theList->iClus][nsmp] += theList->weight * hit->energyTotal();
             }
