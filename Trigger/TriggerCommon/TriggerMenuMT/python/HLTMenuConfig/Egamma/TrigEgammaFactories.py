@@ -13,34 +13,66 @@ Offline configurations are available here:
 # athena imports
 from AthenaCommon.BeamFlags import jobproperties
 
+# slice flags
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+
 # Calo tools imports
 from CaloTools.CaloToolsConf import CaloAffectedTool
 from egammaCaloTools.egammaCaloToolsFactories import egammaShowerShape, egammaIso
 from CaloIdentifier import SUBCALO 
 
+
 # Egamma imports
-from egammaRec.Factories import ToolFactory, AlgFactory
+from egammaRec.Factories import ToolFactory, AlgFactory, ServiceFactory
 from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 from egammaTools.egammaToolsFactories import (
     egammaToolsConf, EMFourMomBuilder, PhotonPIDBuilder, egammaSwSuperClusterTool)
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-
-# Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaMVASvc
-from .TrigEgammaSliceFlags import TrigEgammaSliceFlags
 
 from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__TrackParticlesInConeTool
 from AthenaCommon import CfgMgr
 from egammaAlgs import egammaAlgsConf
 
+# calib svc
+from egammaMVACalib import egammaMVACalibConf
+from xAODEgamma.xAODEgammaParameters import xAOD
 
 TrigEgammaKeys = getTrigEgammaKeys()
 TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT') 
 
+
+
+
+
+def TrigEgammaMVASvcCfg( ConfigFilePath ):
+
+    trigElectronMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigElectronMVATool",
+        ParticleType=xAOD.EgammaParameters.electron,
+        folder=ConfigFilePath )
+    trigUnconvPhotonMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigUnconvPhotonMVATool",
+        ParticleType=xAOD.EgammaParameters.unconvertedPhoton,
+        folder=ConfigFilePath )
+    trigConvertedPhotonMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigConvertePhotonMVATool",
+        ParticleType=xAOD.EgammaParameters.convertedPhoton,
+        folder=ConfigFilePath)
+    trigEgammaMVASvc = ServiceFactory(
+        egammaMVACalibConf.egammaMVASvc,
+        name = "TrigEgammaMVASvc",
+        ElectronTool=trigElectronMVATool,
+        ConvertedPhotonTool=trigConvertedPhotonMVATool,
+        UnconvertedPhotonTool=trigUnconvPhotonMVATool)
+    return trigEgammaMVASvc
+
 """ Configuring trigger precision MVA Svc """
-TrigEgammaMVASvc = createTrigEgammaMVASvc( TrigEgammaSliceFlags.calibMVAVersion() )
+TrigEgammaMVASvc = TrigEgammaMVASvcCfg( TrigEgammaSliceFlags.calibMVAVersion() )
 
 
 """Configuring egammaRecBuilder """
