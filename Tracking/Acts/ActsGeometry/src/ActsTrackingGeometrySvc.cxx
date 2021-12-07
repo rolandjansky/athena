@@ -121,6 +121,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
   if (m_useMaterialMap) {
     std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
     std::string matFile = m_materialMapInputFile;
+    ATH_MSG_INFO("Configured to use material input: " << matFile);
     if (matFile.find(".json") != std::string::npos) {
       // Set up the converter first
       Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;

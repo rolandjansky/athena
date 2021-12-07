@@ -61,12 +61,12 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
                                                          **kwargs)
 
 
-  if configFlags.TrackingGeometry.MaterialSource == "Input":
+  if configFlags.Acts.TrackingGeometry.MaterialSource == "Input":
     actsTrackingGeometrySvc.UseMaterialMap = True
     actsTrackingGeometrySvc.MaterialMapInputFile = "material-maps.json"
-  if configFlags.TrackingGeometry.MaterialSource.find(".json") != -1:  
+  if configFlags.Acts.TrackingGeometry.MaterialSource.find(".json") != -1:  
     actsTrackingGeometrySvc.UseMaterialMap = True
-    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.TrackingGeometry.MaterialSource
+    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.Acts.TrackingGeometry.MaterialSource
   result.addService(actsTrackingGeometrySvc)
   return result
 
