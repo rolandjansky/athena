@@ -126,6 +126,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
   m_SF_OS.clear();
   TList* keyListfolder = rootFile->GetListOfKeys();
   std::vector<std::string> names;
+  std::set<std::string> m_set_systematics;
   
   for ( int j=0; j<keyListfolder->GetEntries(); j++ ){
     names.push_back(( keyListfolder->At(j)->GetName() ));
@@ -229,7 +230,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 
         std::string sysname = histid;
         sysname.erase(sysname.find("_"),sysname.size());
-        m_systematics.push_back(sysname);
+	m_set_systematics.insert(sysname);
 
         histid.erase(0,histid.find("_")+1);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using syst histid: " << histid);
@@ -266,6 +267,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
     return CP::CorrectionCode::Error;
   }
 
+  m_systematics.insert(m_systematics.end(), m_set_systematics.begin(), m_set_systematics.end());
 
   std::sort(m_RunNumbers.begin(),m_RunNumbers.end());
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
