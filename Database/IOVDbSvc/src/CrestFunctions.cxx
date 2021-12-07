@@ -43,7 +43,7 @@ namespace IOVDbNamespace{
     if (not testing){
       //...CrestApi returns Iovs as a json object
       auto myCrestClient = Crest::CrestClient(urlBase());
-      reply = myCrestClient.findAllIovs(tag);
+      reply = static_cast<std::string>(myCrestClient.findAllIovs(tag));
     }
     return extractHashFromJson(reply);
   }
