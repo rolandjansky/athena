@@ -358,9 +358,9 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
   }
 
   ERRCOUNTER allEC;  
-  unsigned allErr_E=0;
-  unsigned allErr_T=0;
-  unsigned allErr_Q=0;
+  //unsigned allErr_E=0;
+  //unsigned allErr_T=0;
+  //unsigned allErr_Q=0;
 
   for (unsigned g=0;g<3;++g) {
     for (unsigned p=0;p<N_PARTITIONS;++p) {
@@ -368,9 +368,9 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
       allEC.errors_T[g]+=errcounters[p].errors_T[g];
       allEC.errors_Q[g]+=errcounters[p].errors_Q[g];
     }
-    allErr_E+=allEC.errors_E[g];
-    allErr_T+=allEC.errors_T[g];
-    allErr_Q+=allEC.errors_Q[g];
+    //allErr_E+=allEC.errors_E[g];
+    //allErr_T+=allEC.errors_T[g];
+    //allErr_Q+=allEC.errors_Q[g];
   }
 
 
