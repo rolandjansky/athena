@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERAWUTILS_TILERAWROISELECTOR_H
@@ -56,8 +56,6 @@ class TileRawRoISelector
         friend class TileRawRoISelector ; 
 	public:
 	const_iterator() ; 
-
-        const_iterator& operator = ( const const_iterator & it ) = default;
 
 	const_iterator& operator ++ () ; 
 
