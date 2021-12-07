@@ -25,10 +25,14 @@ def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
 
     if "ParticleCaloExtensionTool" not in kwargs:
 
-        from TrkConfig.AtlasExtrapolatorConfig import MCTruthClassifierExtrapolatorCfg
-        extrapolator = acc.popToolsAndMerge(MCTruthClassifierExtrapolatorCfg(flags))
-        from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
-        extension = ParticleCaloExtensionToolCfg(flags, Extrapolator=extrapolator)
+        from TrkConfig.AtlasExtrapolatorConfig import (
+            MCTruthClassifierExtrapolatorCfg)
+        extrapolator = acc.popToolsAndMerge(
+            MCTruthClassifierExtrapolatorCfg(flags))
+        from egammaTrackTools.egammaTrackToolsConfig import (
+            EMParticleCaloExtensionToolCfg)
+        extension = EMParticleCaloExtensionToolCfg(
+            flags, Extrapolator=extrapolator)
         kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(extension)
 
     kwargs.setdefault("barcodeG4Shift", flags.Sim.SimBarcodeOffset + 1)
