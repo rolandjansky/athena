@@ -26,6 +26,7 @@
 
 //forward decl
 class TBuffer;
+class TList;
 class MsgStream;
 
 #include "DataModelRoot/RootType.h"
@@ -94,6 +95,9 @@ private:
      "Suppress warining about missing dictionaries", "OrderedSet<std::string>" };
   /// static copy of the IgnoreMissingDicts property for the static error handler
   static std::vector<std::string>    s_dictsToIgnore;
+
+  /// Remember streamer info list for cleaning up later
+  TList* m_streamersList;
 };
 
 #undef REFLEX_NS
