@@ -375,7 +375,7 @@ HLTNavDetails::IHolder* NavigationCore::prepareOneHolder(CLID clid, const std::s
 
 void NavigationCore::prepare() {
   if ( msgLvl(MSG::VERBOSE) ) {
-    for ( const auto [clid, holder] : HLT::TypeMaps::holders() ) {
+    for ( const auto& [clid, holder] : HLT::TypeMaps::holders() ) {
       ATH_MSG_VERBOSE("NavigationCore::prepare Compile time known types : " << *holder);
     }
   }

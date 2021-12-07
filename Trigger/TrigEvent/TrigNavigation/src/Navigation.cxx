@@ -88,7 +88,7 @@ StatusCode Navigation::initialize() {
 
   // print out registered holders
   if ( msgLvl(MSG::VERBOSE) ) {
-    for (const auto [clid, holder] : HLT::TypeMaps::holders()) {
+    for (const auto& [clid, holder] : HLT::TypeMaps::holders()) {
       if (holder==nullptr)
         ATH_MSG_ERROR("static type information not intialized. Holder is null pointer");
       else
