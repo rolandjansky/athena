@@ -159,7 +159,7 @@ if (makeDataDAODs or makeMCDAODs):
          if formatName in ["EXOT23","SUSY15","SUSY6","EXOT15","EXOT29"]:
             generateText(formatName,dataLabel+"RPVLL",dataFileRPVLL,False,False,"-1")
             if formatName == "SUSY6": generateText(formatName,dataLabel,dataFile,False,False,"-1") 
-         elif formatName in ["BPHY3", "BPHY22"]:
+         elif formatName == "BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
          elif formatName in ['BPHY7']:
             generateText(formatName,dataLabel,dataFile,False,False,"-1")
@@ -169,7 +169,7 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,dataLabel,dataFile,False,False,"-1")
             generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
             generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"1000") 
-         elif formatName in ['BPHY13', 'BPHY18','BPHY21']:
+         elif formatName in ['BPHY13', 'BPHY18','BPHY21','BPHY22']:
             generateText(formatName,dataLabel,dataFile,False,False,"-1")
             generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"1000") 
          elif formatName in ['BPHY10','BPHY19']:
