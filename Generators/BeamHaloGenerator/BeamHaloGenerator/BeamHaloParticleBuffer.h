@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMHALOPARTICLEBUFFER_H
@@ -17,7 +17,7 @@ namespace CLHEP {
 class BinnedInterval {
  public:
   BinnedInterval(double upperBinEdge,
-		 std::vector<double> intervalUpperBinEdges);
+		 const std::vector<double>& intervalUpperBinEdges);
   BinnedInterval(const BinnedInterval& binnedInterval);
   ~BinnedInterval();
  
@@ -44,7 +44,7 @@ class BinnedInterval {
 
 class BeamHaloParticleBuffer {
  public:
-  BeamHaloParticleBuffer(std::string fileName, 
+  BeamHaloParticleBuffer(const std::string& fileName, 
 			 CLHEP::HepRandomEngine *engine);
   ~BeamHaloParticleBuffer();
   int openForWriting();

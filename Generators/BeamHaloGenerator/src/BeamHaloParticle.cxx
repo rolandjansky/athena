@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/BeamHaloParticle.h"
@@ -40,16 +40,6 @@ BeamHaloParticle::BeamHaloParticle(long pdgId,
                                                                          m_positionAtScoringPlane(positionAtScoringPlane),
                                                                          m_weight(weight),
                                                                          m_positionAtPrimary(positionAtPrimary) {
-}
-
-//---------------------------------------------------------------------
-
-BeamHaloParticle::BeamHaloParticle(const BeamHaloParticle& beamHaloParticle) {
-  m_pdgId = beamHaloParticle.m_pdgId;
-  m_fourVector = beamHaloParticle.m_fourVector;
-  m_positionAtScoringPlane = beamHaloParticle.m_positionAtScoringPlane; 
-  m_weight = beamHaloParticle.m_weight;
-  m_positionAtPrimary = beamHaloParticle.m_positionAtPrimary;
 }
 
 //---------------------------------------------------------------------
