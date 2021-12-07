@@ -129,6 +129,14 @@ def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs 
     kwargs.setdefault("MuonCandidateTool",getPublicTool("MuonCandidateTool"))
     return CfgMgr.MuonCombinedMuonCandidateAlg(name,**kwargs)
 
+def MuonCombinedMuonCandidateAlg_EMEO(name = "MuonCombinedMuonCandidateAlg_EMEO"):
+    return MuonCombinedMuonCandidateAlg(name = name, 
+                                        MuonCandidateTool = getPublicTool("MuonCandidateTool_EMEO"),
+                                        MuonSpectrometerTrackParticleLocation = "EMEO_MuonSpectrometerTrackParticles",
+                                        MuonCandidateLocation = "MuonCandidates_EMEO",
+                                        MSOnlyExtrapolatedTrackLocation= "EMEO_MSOnlyExtrapolatedTracks"
+                                        )
+
 def MuonCombinedAlg( name="MuonCombinedAlg",**kwargs ):
     kwargs.setdefault("MuonCombinedTool",getPublicTool("MuonCombinedTool"))
     tagmaps = []
@@ -178,12 +186,25 @@ def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
     recordMuonCreatorAlgObjs (kwargs)
     # if muGirl is off, remove "muGirlTagMap" from "TagMaps"
     # but don't set this default in case the StauCreatorAlg is created (see below)
-    if not muonCombinedRecFlags.doMuGirl() and not name=="StauCreatorAlg":
-        kwargs.setdefault("TagMaps",["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"])
+    
+    combined_maps = ["muidcoTagMap","stacoTagMap","caloTagMap","segmentTagMap"]
+    muon_maps = ["MuonCandidates"]
+    if muonCombinedRecFlags.doMuGirl(): combined_maps+=["muGirlTagMap"]
+
+    ##### Comissioing stream 
+    reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    
     if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MakeClusters", False)
         kwargs.setdefault("ClusterContainerName", "")
         kwargs.setdefault("CopySegments", False)
+    elif reco_mm or reco_stgcs:
+        muon_maps += ["MuonCandidates_EMEO"]        
+    #MuonCandidates
+    if not name=="StauCreatorAlg":
+        kwargs.setdefault("TagMaps", combined_maps)
+        kwargs.setdefault("MuonCandidateLocation", muon_maps)
     return CfgMgr.MuonCreatorAlg(name,**kwargs)
 
 
@@ -212,7 +233,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("CombinedLocation","CombinedStau")
     kwargs.setdefault("ExtrapolatedLocation","ExtrapolatedStau")
     kwargs.setdefault("MSOnlyExtrapolatedLocation","MSOnlyExtrapolatedStau")
-    kwargs.setdefault("MuonCandidateLocation","")
+    kwargs.setdefault("MuonCandidateLocation",[])
     kwargs.setdefault("SegmentContainerName","StauSegments")
     kwargs.setdefault("TrackSegmentContainerName","TrkStauSegments")
     kwargs.setdefault("BuildSlowMuon",1)
@@ -238,7 +259,13 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
             # creates input collections for ID and MS candidates
         topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg")
         topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg")
-             
+        ##### Prepare the MuonCombinedMuonCandidateAlg for EMEO tracks only
+        reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+        reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
+       
+        if reco_mircomegas or reco_stgc:
+            topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg_EMEO")
+                     
         if InDetFlags.doR3LargeD0(): topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg_LRT")
 
         # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)

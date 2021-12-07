@@ -253,7 +253,7 @@ def recordMuonCreatorAlgObjs (kw):
 
 def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg
-    result = MuonCreatorToolCfg(flags, FillTimingInformation=False)
+    result = MuonCreatorToolCfg(flags)
     kwargs.setdefault("MuonCreatorTool",result.popPrivateTools())
 
     # MuonSegmentConvertorTool not set up. But it currently only contains:

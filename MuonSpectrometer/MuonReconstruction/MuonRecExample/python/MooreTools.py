@@ -384,19 +384,6 @@ def MuonTrackCleaner(name,extraFlags=None,**kwargs):
   
   return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
 
-# class MuonTrackCleaner(CfgMgr.Muon__MuonTrackCleaner,ConfiguredBase):
-#     __slots__ = ()
-#
-#     def __init__(self,name="MuonTrackCleaner",**kwargs):
-#         self.applyUserDefaults(kwargs,name)
-#         super(MuonTrackCleaner,self).__init__(name,**kwargs)
-#
-#         getPublicTool("ResidualPullCalculator")
-#
-# MuonTrackCleaner.setDefaultProperties( Chi2Cut = muonStandaloneFlags.Chi2NDofCut(),
-#                                        MaxAvePullSumPerChamber = 6 )
-# end of class MuonTrackCleaner
-
 
 def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=None,**kwargs):
     doSegmentT0Fit = getattr(extraFlags,"doSegmentT0Fit", muonRecFlags.doSegmentT0Fit())
@@ -469,6 +456,9 @@ class MuonSegmentRegionRecoveryTool(CfgMgr.Muon__MuonSegmentRegionRecoveryTool,C
       else:
           kwargs.setdefault("MMRegionSelector", "")
 
+      kwargs.setdefault("Builder", getPublicTool("CombinedMuonTrackBuilderFit"))
+      kwargs.setdefault("ChamberHoleRecoveryTool", getPublicTool("MuonChamberHoleRecoveryTool"))
+   
       self.applyUserDefaults(kwargs,name)
       super(MuonSegmentRegionRecoveryTool,self).__init__(name,**kwargs)
 

@@ -13,7 +13,8 @@ if DetFlags.detdescr.Muon_on():
     MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.ExtrapolatedMSTracks()]
     MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.CombinedFitTracks()]
     MuonCombinedESDList+=["TrackCollection#"+MuonCbKeys.ExtrapolatedMSOnlyTracks()]
-
+    MuonCombinedESDList+=["TrackCollection#EMEO_"+MuonCbKeys.ExtrapolatedMSOnlyTracks()]
+  
   # muon track in muon spectrometer
   if rec.doTruth():
     #Combined Tracks
