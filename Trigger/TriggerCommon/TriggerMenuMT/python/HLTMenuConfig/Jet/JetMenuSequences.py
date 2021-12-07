@@ -251,8 +251,16 @@ def jetRoITrackingHypoMenuSequence(configFlags, jetsIn, **jetRecoDict):
     InputMakerAlg.ViewNodeName = jetTrkSeq.name()
 
     jetDefString = jetRecoDictToString(jetRecoDict)
+
+    jetDecAlg = conf2toConfigurable(CompFactory.JetDecorationAlg(
+                                    f'JetDec_{jetDefString}', 
+                                    JetContainer='HLT_AntiKt4EMTopoJets_subjesIS',
+                                    Decorators=[],
+                                    )
+        )
+
     log.debug("Generating jet tracking hypo menu sequence for reco %s",jetDefString)
-    jetAthSeq = seqAND("jetSeqTrkHypo_"+jetDefString,[InputMakerAlg]+[jetTrkSeq])
+    jetAthSeq = seqAND("jetSeqTrkHypo_"+jetDefString,[InputMakerAlg]+[jetTrkSeq]+[jetDecAlg])
 
     # Needs track-to-jet association here, maybe with dR decorator
     hypoType = JetHypoAlgType.STANDARD
