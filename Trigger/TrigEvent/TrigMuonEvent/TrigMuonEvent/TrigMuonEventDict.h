@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -80,19 +80,19 @@ void dummy_function_for_TrigMuonEvent_which_forces_dictionaries_generation ( Dat
   DataVector<TileMuFeatureContainer> atilemufc = tilemufc;
   DataVector<TileTrackMuFeature> atiletrackmuf = tiletrackmuf;
   DataVector<TileTrackMuFeatureContainer> atiletrackmufc = tiletrackmufc;
-
-  std::vector<const MuonFeature*> muonFeature; muonFeature.size();
-  std::vector<const CombinedMuonFeature*> cmuonFeature; cmuonFeature.size();
-  std::vector<const IsoMuonFeature*> imuonFeature; imuonFeature.size();
-  std::vector<const TrigMuonClusterFeature*> mcFeature; mcFeature.size();
-  std::vector<const TrigMuonEF*> muonEF; muonEF.size();
-  std::vector<const TrigMuonEFTrack*> muonEFT; muonEFT.size();
-  std::vector<const TrigMuonEFCbTrack*> muonEFCbT; muonEFCbT.size();
-  std::vector<const TrigMuonEFInfoTrack*> muonEFIT; muonEFIT.size();
-  std::vector<const TrigMuonEFIsolation*> muonEFIso; muonEFIso.size();
-  std::vector<const TileMuFeature*> muFeature; muFeature.size();
-  std::vector<const TileTrackMuFeature*> trackmuFeature; trackmuFeature.size();
-
 }
+
+template class std::vector<const MuonFeature*>;
+template class std::vector<const CombinedMuonFeature*>;
+template class std::vector<const IsoMuonFeature*>;
+template class std::vector<const TrigMuonClusterFeature*>;
+template class std::vector<const TrigMuonEF*>;
+template class std::vector<const TrigMuonEFTrack*>;
+template class std::vector<const TrigMuonEFCbTrack*>;
+template class std::vector<const TrigMuonEFInfoTrack*>;
+template class std::vector<const TrigMuonEFIsolation*>;
+template class std::vector<const TileMuFeature*>;
+template class std::vector<const TileTrackMuFeature*>;
+
 
 #endif // TRIGMUONEVENT_TRIGMUONEVENTDICT_H
