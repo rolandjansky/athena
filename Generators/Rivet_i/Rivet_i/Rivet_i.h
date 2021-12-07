@@ -117,9 +117,6 @@ private:
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;
 
-  /// Flag to assume MC sample correspond to single-particle gun
-  bool m_isSPG;
-  
   /// Flag to insert beam protons when they are unavailable in the event
   bool m_patchBeams;
 

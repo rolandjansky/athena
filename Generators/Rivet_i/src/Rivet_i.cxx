@@ -63,7 +63,6 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("MatchWeights", m_matchWeights="");
   declareProperty("UnmatchWeights", m_unmatchWeights="");
   declareProperty("WeightCap", m_weightcap=-1.0);
-  declareProperty("AssumeSingleParticleGun", m_isSPG=false);
   declareProperty("AddMissingBeamParticles",m_patchBeams=false);
   // Service handles
   //declareProperty("THistSvc", m_histSvc);
@@ -414,31 +413,26 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent& event) {
     }
     // end of weight-name cleaning
   }
-  if (!modEvent->valid_beam_particles()) {
-    if (m_isSPG) {
-      // a single particle gun only has one particle without
-      // a production vertex. In this kludge, we add a 
-      // dummy vertex with an exact copy of the particle 
-      // (but using a documentary HepMC status code) and 
-      // set pretend beam particles to trick Rivet_i and 
-      // Rivet into accepting these types of events.
-      HepMC::GenParticle* old = *modEvent->particles_begin();
-      HepMC::GenParticle* ghost = new HepMC::GenParticle(old->momentum(), old->pdg_id(), 3);
-      HepMC::GenVertex* dummy_vertex = new HepMC::GenVertex();
-      dummy_vertex->add_particle_out(ghost);
-      modEvent->add_vertex(dummy_vertex);
-      beams.push_back(old);
-      beams.push_back(ghost);
-    }
 
+  #ifdef HEPMC_HAS_UNITS
+  modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
+  #endif
+
+  // work-around for SPGs
+  if (modEvent->particles_size() == 1) {
+    HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin();
+    modEvent->set_beam_particles(*p, *p);
+    return modEvent;
+  }
+  if (!modEvent->valid_beam_particles()) {
     double etotal = 0;
     //need to find CME of this collision...only needs to be done for AOD files as some events don't appear to have the initial beam particles
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
-	beams.push_back(*p);
+        beams.push_back(*p);
       }
       if( (*p)->status() == 1){
-	etotal += (*p)->momentum().e();
+        etotal += (*p)->momentum().e();
       }
     }
     if (beams.size() > 2) std::sort(beams.begin(), beams.end(), cmpGenParticleByEDesc);
@@ -448,17 +442,18 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent& event) {
       bool passBeam = (beams[0] && std::abs(beams[0]->momentum().e() - ebeam) < 1e-5);
       passBeam &= (beams[1] && std::abs(beams[1]->momentum().e() - ebeam) < 1e-5);
       if(!passBeam){
-	HepMC::GenParticle* b1 = new HepMC::GenParticle(HepMC::FourVector(0,0,ebeam,ebeam),2212,4);
-	HepMC::GenParticle* b2 = new HepMC::GenParticle(HepMC::FourVector(0,0,-1*ebeam,ebeam),2212,4);
-	HepMC::GenVertex* dummy_v = new HepMC::GenVertex();
-	dummy_v->add_particle_in(b1);
+        HepMC::GenParticle* b1 = new HepMC::GenParticle(HepMC::FourVector(0,0,ebeam,ebeam),2212,4);
+        HepMC::GenParticle* b2 = new HepMC::GenParticle(HepMC::FourVector(0,0,-1*ebeam,ebeam),2212,4);
+        HepMC::GenVertex* dummy_v = new HepMC::GenVertex();
+        dummy_v->add_particle_in(b1);
         dummy_v->add_particle_in(b2);
-	beams[0]=b1;
-	beams[1]=b2;
-	modEvent->add_vertex(dummy_v);
+        beams[0]=b1;
+        beams[1]=b2;
+        modEvent->add_vertex(dummy_v);
       }
     }
-  } else {
+  } 
+  else {
     beams.resize(2);
     beams[0] = modEvent->beam_particles().first;
     beams[1] = modEvent->beam_particles().second;
@@ -466,13 +461,11 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent& event) {
 
   double scalefactor = 1.0;
 
-  #ifdef HEPMC_HAS_UNITS
-  modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
-  #endif
   if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
   if (scalefactor == 1.0 && modEvent->valid_beam_particles()) {
     return modEvent;
-  } else {
+  } 
+  else {
     if (scalefactor != 1.0) {
       for (HepMC::GenEvent::particle_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
         const HepMC::FourVector pGeV((*p)->momentum().px() * scalefactor,
