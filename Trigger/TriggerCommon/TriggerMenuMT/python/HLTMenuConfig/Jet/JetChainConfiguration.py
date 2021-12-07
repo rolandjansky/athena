@@ -52,7 +52,7 @@ class JetChainConfiguration(ChainConfigurationBase):
 
             # Check if there is exactly one exotic hypothesis defined
             if len(p['exotHypo']) > 1:
-                raise RuntimeError(f'Exotic chains currently not configurable with more than one exotic selection!')
+                raise RuntimeError(f'emerging chains currently not configurable with more than one emerging selection!')
             if p['exotHypo']:
                 self.exotHypo = p['exotHypo'][0]
 
@@ -154,7 +154,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             chainSteps.append( jetCaloHypoStep )
 
         # Add exotic jets hypo
-        if self.exotHypo != '' and ("Exotic" in self.exotHypo or "Trackless" in self.exotHypo):
+        if self.exotHypo != '' and ("emerging" in self.exotHypo or "trackless" in self.exotHypo):
             EJsStep = self.getJetEJsChainStep(jetCollectionName, self.chainName, self.exotHypo)
             chainSteps+= [EJsStep]
         
@@ -320,25 +320,25 @@ class JetChainConfiguration(ChainConfigurationBase):
     def getJetEJsChainStep(self, jetCollectionName, thresh, exotdictstring):
         from TriggerMenuMT.HLTMenuConfig.Jet.ExoticJetSequences import jetEJsMenuSequence
 
-        # Must be configured similar to : ExoticPTF0p0dR1p2 or TracklessdR1p2
-        if 'Exotic' in exotdictstring and ('dR' not in exotdictstring \
+        # Must be configured similar to : emergingPTF0p0dR1p2 or tracklessdR1p2
+        if 'emerging' in exotdictstring and ('dR' not in exotdictstring \
            or 'PTF' not in exotdictstring):
             log.error('Misconfiguration of exotic jet chain - need dR and PTF options')
             exit(1)
-        if 'Trackless' in exotdictstring and 'dR' not in exotdictstring:
+        if 'trackless' in exotdictstring and 'dR' not in exotdictstring:
             log.error('Misconfiguration of trackless exotic jet chain - need dR option')
             exit(1)
 
         trackless = int(0)
-        if 'Exotic' in exotdictstring:
+        if 'emerging' in exotdictstring:
             ptf = float(exotdictstring.split('PTF')[1].split('dR')[0].replace('p', '.'))
             dr  = float(exotdictstring.split('dR')[1].split('_')[0].replace('p', '.'))
-        elif 'Trackless' in exotdictstring:
+        elif 'trackless' in exotdictstring:
             trackless = int(1)
             ptf = 0.0
             dr = float(exotdictstring.split('dR')[1].split('_')[0].replace('p', '.'))
         else:
-            log.error('Misconfiguration of trackless exotic jet chain - need Exotic or Trackless selection')
+            log.error('Misconfiguration of trackless exotic jet chain - need emerging or trackless selection')
             exit(1)
 
         log.debug("Running exotic jets with ptf: " + str(ptf) + "\tdR: " + str(dr) + "\ttrackless: " + str(trackless) + "\thypo: " + exotdictstring)
