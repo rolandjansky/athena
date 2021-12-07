@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __all__ = ['metadata', 'convert_itemList', 'convert_metadata_items']
 
@@ -15,10 +15,18 @@ def _setup():
     global metadata
 
     # get input file name
-    from RecExConfig.RecoFunctions import InputFileNames
-        
+    # Start by checking ConfigFlags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    inFiles = ConfigFlags.Input.Files
+    if inFiles == ['_ATHENA_GENERIC_INPUTFILE_NAME_']:
+        # Input files have not been set in ConfigFlags
+        # Fall back to the legacy configuration mechanisms
+        msg.warning("Input files not set ConfigFlags.Input.Files. Falling back to the legacy way of obtaining input file names")
+        from RecExConfig.RecoFunctions import InputFileNames
+        inFiles = InputFileNames()
+
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline() and (not InputFileNames() or all([f.strip() == '' for f in InputFileNames()])):
+    if athenaCommonFlags.isOnline() and (not inFiles or all([f.strip() == '' for f in inFiles])):
         # set minimal items of inputFileSummary
         metadata = {
           'file_type':'BS',
@@ -26,7 +34,6 @@ def _setup():
           'TagStreamsRef':''
         }
     else:
-        inFiles = InputFileNames()
         if len(inFiles) < 1:
             msg.warning("No input files specified yet! Cannot do anything.")
             return
