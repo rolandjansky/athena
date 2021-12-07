@@ -127,6 +127,7 @@ thinningTools.append(PHYSDiTauLowPtTPThinningTool)
 SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
                                                         ThinningTools = thinningTools)
 
+
 #====================================================================
 # CONTENTS   
 #====================================================================
@@ -143,6 +144,7 @@ PHYSSlimmingHelper.SmartCollections = ["EventInfo",
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track", 
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track_201903_expert",
                                        "MET_Baseline_AntiKt4EMTopo",
                                        "MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",

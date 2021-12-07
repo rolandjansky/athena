@@ -93,6 +93,9 @@ private:
   AE::Decorator<float> m_max_trk_flightDirRelEta;
   AE::Decorator<float> m_avg_trk_flightDirRelEta;
 
+  // Add new variable
+  AE::Decorator<float> m_secondaryVtx_DmesonMass;
+
   AE::ConstAccessor<char> m_rnnip_pbIsValid;
   AE::Decorator<char> m_rnnip_isDefaults;
 
