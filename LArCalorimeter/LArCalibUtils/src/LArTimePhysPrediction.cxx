@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTimePhysPrediction.h"
@@ -207,7 +207,6 @@ StatusCode LArTimePhysPrediction::stop()
       
       //counters for channels and waves
       int nchannels = 0;
-      unsigned nwaves    = 0;
       
       for ( ; cell_it != cell_it_e; ++cell_it) { // Channels
 	
@@ -303,7 +302,6 @@ StatusCode LArTimePhysPrediction::stop()
 	  if(layer==3) {radius=5816.;LSignalFCAL=m_vLSignal_FCAL[2];}
 	}
 	
-	nwaves += cell_it->size();
 	for ( ; wave_it != wave_it_e; ++wave_it) { // DACs <==> iterator = the caliwave
 	  
 	  //initialize tphys
