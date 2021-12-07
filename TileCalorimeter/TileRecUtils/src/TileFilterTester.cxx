@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **************************************************************************************************
@@ -106,17 +106,13 @@ void TileFilterTester::genEvents(int nEvent) {
   }
   double Dsum = 0.;
   double D2sum = 0.;
-  double Esum = 0.;
   double E2sum = 0.;
   int Nrecg = 0;
   double Dsumg = 0.;
   double D2sumg = 0.;
-  double Esumg = 0.;
   double E2sumg = 0.;
   int Nrecb = 0;
-  double Dsumb = 0.;
   double D2sumb = 0.;
-  double Esumb = 0.;
   double E2sumb = 0.;
   int Nover = 0;
   int Nunder = 0;
@@ -284,7 +280,6 @@ void TileFilterTester::genEvents(int nEvent) {
     if (icode >= 0) ncode[icode] += 1;
     Dsum += diff_ch;
     D2sum += diff_ch * diff_ch;
-    Esum += err;
     E2sum += err * err;
 
     if (lconfigOK) {
@@ -292,7 +287,6 @@ void TileFilterTester::genEvents(int nEvent) {
       if (icode >= 0) ncodeg[icode] += 1;
       Dsumg += diff_ch;
       D2sumg += diff_ch * diff_ch;
-      Esumg += err;
       E2sumg += err * err;
     } else {
       Nrecb += 1;
@@ -300,9 +294,7 @@ void TileFilterTester::genEvents(int nEvent) {
       if (ncrrec < ncrgen) Nunder += 1;
       if (ncrrec == ncrgen) Nmixed += 1;
       if (icode >= 0) ncodeb[icode] += 1;
-      Dsumb += diff_ch;
       D2sumb += diff_ch * diff_ch;
-      Esumb += err;
       E2sumb += err * err;
     } // end of ievent loop.
 
@@ -323,7 +315,6 @@ void TileFilterTester::genEvents(int nEvent) {
 
   int den = Nrec ? Nrec : 1;
   double rm = Dsum / den;
-  //double errm = Esum/den;
   double errsig = pow(E2sum / den, 0.5);
   double rsig = pow(D2sum / den, 0.5);
 
@@ -332,7 +323,6 @@ void TileFilterTester::genEvents(int nEvent) {
 
   if (Nrecg) {
     double rmg = Dsumg / Nrecg;
-    //double errmg = Esumg/Nrecg;
     double errsigg = pow(E2sumg / Nrecg, 0.5);
     double rsigg = pow(D2sumg / Nrecg, 0.5);
 
@@ -342,7 +332,6 @@ void TileFilterTester::genEvents(int nEvent) {
 
   if (Nrecb) {
     double rmb = Dsumg / Nrecb;
-    //double errmb = Esumb/Nrecb;
     double errsigb = pow(E2sumb / Nrecb, 0.5);
     double rsigb = pow(D2sumb / Nrecb, 0.5);
 
