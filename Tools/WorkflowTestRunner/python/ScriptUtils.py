@@ -7,9 +7,9 @@ from pathlib import Path
 from sys import exit
 from typing import List
 
-from .Checks import FailedOrPassedCheck, SimpleCheck, WarningsCheck
+from .Checks import FailedOrPassedCheck, FPECheck, SimpleCheck, WarningsComparisonCheck
 from .Inputs import references_CVMFS_path
-from .Test import TestSetup, WorkflowCheck, WorkflowTest
+from .Test import TestSetup, WorkflowCheck, WorkflowTest, WorkflowType
 
 
 def setup_logger(name: str) -> logging.Logger:
@@ -65,9 +65,11 @@ def setup_parser() -> ArgumentParser:
 
     tests = parser.add_argument_group("tests")
     tests.add_argument("-t", "--test", type=str, dest="test", default=None,
-                       help="Specify a test to run. Supported options are: ")
+                       help="Specify a test to run. Supported options are: sim, overlay, pileup, reco")
     tests.add_argument("-a", "--tag", type=str, dest="ami_tag", default=None,
                        help="Override the AMI tag of the test.")
+    tests.add_argument("-w", "--workflow", type=WorkflowType, dest="workflow", choices=list(WorkflowType), default=None,
+                       help="Specify the workflow that is being run (required for AMI tags or if you want to run only one workflow)")
     # shortcuts
     tests.add_argument("-s", "--sim", action="store_true", dest="simulation", default=False,
                        help="Run simulation test using Sim_tf.py")
@@ -124,12 +126,12 @@ def get_test_setup(name: str, options: Namespace, log: logging.Logger) -> TestSe
         exit(1)
 
     # Is an ATLAS release setup?
-    if 'AtlasPatchVersion' not in environ and 'AtlasArea' not in environ and 'AtlasBaseDir' not in environ and 'AtlasVersion' not in environ:
+    if "AtlasPatchVersion" not in environ and "AtlasArea" not in environ and "AtlasBaseDir" not in environ and "AtlasVersion" not in environ:
         log.error("Exit. Please setup the an ATLAS release")
         exit(3)
 
 
-    if 'AtlasPatchVersion' not in environ and 'AtlasArea' not in environ and 'AtlasBaseDir' in environ and 'AtlasVersion' not in environ:
+    if "AtlasPatchVersion" not in environ and "AtlasArea" not in environ and "AtlasBaseDir" in environ and "AtlasVersion" not in environ:
         log.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
 
     # setup reference path
@@ -151,22 +153,22 @@ def parse_test_string(setup: TestSetup, options: Namespace) -> None:
     test_string = options.test.lower()
 
     # simulation
-    if test_string in ['s', 'sim', 'simulation', 'Sim_tf', 'Sim_tf.py']:
+    if test_string in ["s", "sim", "simulation"]:
         options.simulation = True
         return
 
     # overlay
-    if test_string in ['o', 'overlay', 'Overlay_tf', 'Overlay_tf.py']:
+    if test_string in ["o", "overlay"]:
         options.overlay = True
         return
 
     # pile-up
-    if test_string in ['p', 'pileup', 'pile-up']:
+    if test_string in ["p", "pileup", "pile-up"]:
         options.pileup = True
         return
 
     # reco
-    if test_string in ['r', 'reco', 'reconstruction', 'Reco_tf', 'Reco_tf.py']:
+    if test_string in ["r", "reco", "reconstruction"]:
         options.reco = True
         return
 
@@ -177,7 +179,7 @@ def get_standard_performance_checks(setup: TestSetup) -> List[WorkflowCheck]:
         SimpleCheck(setup, "Physical Memory", "VmRSS",            "kBytes",       4, 0.2),
         SimpleCheck(setup, "Virtual Memory" , "VmSize",           "kBytes",       4, 0.2),
         SimpleCheck(setup, "Memory Leak"    , "leakperevt_evt11", "kBytes/event", 7, 0.05),
-        WarningsCheck(setup),
+        WarningsComparisonCheck(setup),
     ]
 
 
@@ -218,9 +220,10 @@ def run_checks(setup: TestSetup, tests: List[WorkflowTest], performance_checks: 
     all_passed = True
     # define common checks
     main_check = FailedOrPassedCheck(setup)
+    fpe_check = FPECheck(setup)
     # run checks
     for test in tests:
-        all_passed = test.run_checks(main_check, performance_checks) and all_passed
+        all_passed = test.run_checks(main_check, fpe_check, performance_checks) and all_passed
     return all_passed
 
 

@@ -75,7 +75,6 @@ def warnings_count(file_name: Path) -> List[str]:
     warnings = []
     with file_name.open() as file:
         for line in file:
-            if "WARNING" in line:
-                if "| WARNING |" not in line:
-                    warnings.append(line)
+            if "WARNING" in line and "| WARNING |" not in line:
+                warnings.append(line)
     return warnings
