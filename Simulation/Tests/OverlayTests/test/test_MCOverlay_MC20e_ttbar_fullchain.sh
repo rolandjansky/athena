@@ -26,7 +26,7 @@ Reco_tf.py \
 --postInclude "default:PyJobTransforms/UseFrontier.py" \
 --runNumber 410470 \
 --steering "doOverlay" "doRDO_TRIG" \
---triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2233,87,314" --asetup "RDOtoRDOTrigger:Athena,21.0.131" \
+--triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2233,87,314" --asetup "RDOtoRDOTrigger:Athena,21.0,latest" \
 --outputRDOFile MC_plus_MC.RDO.pool.root \
 --outputAODFile MC_plus_MC.AOD.pool.root \
 --imf False
