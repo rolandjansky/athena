@@ -951,12 +951,11 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 									      it_digit->isDead(), 
 									      it_digit->isPileup());	  
 
-	  digitCollection->push_back(std::move(finalDigit));
 	  ATH_MSG_VERBOSE("Final Digit") ;
 	  ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
 	  ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
 	  ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
-
+    digitCollection->push_back(std::move(finalDigit));	  
   }
 
       } // end of loop for all the digit object of the same ReadoutElementID
@@ -986,14 +985,14 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 /*******************************************************************************/
 void sTgcDigitizationTool::readDeadtimeConfig()
 {
-  const char* const fileName = "sTGC_Digitization_deadtime.config";
+  static const std::string fileName = "sTGC_Digitization_deadtime.config";
   std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
 
   ATH_MSG_INFO("Reading deadtime config file");
 
   std::ifstream ifs;
   if (!fileWithPath.empty()) {
-    ifs.open(fileWithPath.c_str(), std::ios::in);
+    ifs.open(fileWithPath, std::ios::in);
   }
   else {
     ATH_MSG_FATAL("readDeadtimeConfig(): Could not find file " << fileName );
