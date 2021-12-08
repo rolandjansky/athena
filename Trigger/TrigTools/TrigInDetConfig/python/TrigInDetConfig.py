@@ -925,7 +925,6 @@ def KalmanUpdatorCfg(flags):
 
 def FitterToolCfg(flags):
   acc = ComponentAccumulator()
-  from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
   from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
@@ -941,7 +940,6 @@ def FitterToolCfg(flags):
                                                  RotCreatorTool        = acc.getPrimaryAndMerge(RIO_OnTrackCreatorCfg(flags, "InDetTrigRefitRotCreator")),
                                                  BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it
                                                  MeasurementUpdateTool = acc.popToolsAndMerge(KalmanUpdatorCfg( flags )),
-                                                 TrackingGeometrySvc   = acc.getPrimaryAndMerge(TrackingGeometrySvcCfg(flags)),
                                                  MaterialUpdateTool    = CompFactory.Trk.MaterialEffectsUpdator(name = "InDetTrigMaterialEffectsUpdator"),
                                                  StraightLine          = not flags.BField.solenoidOn,
                                                  OutlierCut            = 4,

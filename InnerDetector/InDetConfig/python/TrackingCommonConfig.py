@@ -870,7 +870,6 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
         kwargs.setdefault("RotCreatorTool", InDetRefitRotCreator)
 
     kwargs.setdefault("MaterialUpdateTool", '')
-    kwargs.setdefault("TrackingGeometrySvc", '')
     kwargs.setdefault("SignedDriftRadius", True)
     kwargs.setdefault("RecalibrateSilicon", False)
     kwargs.setdefault("RecalibrateTRT", False)
