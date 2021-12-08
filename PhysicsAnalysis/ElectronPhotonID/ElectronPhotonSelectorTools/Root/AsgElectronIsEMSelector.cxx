@@ -36,6 +36,7 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(const std::string& myname)
   : AsgTool(myname)
   , m_configFile("")
   , m_rootTool(nullptr)
+  , m_useF3core(false)
 {
 
   m_rootTool = new Root::TElectronIsEMSelector(myname.c_str());
@@ -51,6 +52,8 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(const std::string& myname)
     m_rootTool->m_isEMMask =
       egammaPID::EgPidUndefined, // All pass by default, if not specified
     "The mask to use");
+
+  declareProperty("useF3core", m_useF3core = false, "Cut on f3 or f3core?");
 
   // for the trigger needs:
   declareProperty("caloOnly",
