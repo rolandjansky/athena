@@ -534,6 +534,14 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
          m_catalog->registerPFN(connection.substr(4), "ROOT_All", fid);
       }
    }
+   // For multithreaded processing (with multiple events in flight),
+   // increase virtual tree size to accomodate back reads
+   if (m_useROOTIMT && Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1) {
+      if (!this->setAttribute("TREE_MAX_VIRTUAL_SIZE", "-1", pool::ROOT_StorageType.type(), connection.substr(4), "CollectionTree", IPoolSvc::kInputStream).isSuccess()) {
+         ATH_MSG_WARNING("Failed to increase maximum virtual TTree size.");
+      }
+   }
+
    return(collPtr);
 }
 //__________________________________________________________________________
