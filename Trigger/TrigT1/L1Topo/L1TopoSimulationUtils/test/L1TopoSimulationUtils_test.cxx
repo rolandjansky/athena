@@ -109,7 +109,7 @@ int floorSqrt(unsigned int x)
     if (x == 0 || x == 1)
         return x;
     // Do Binary Search for floor(sqrt(x))
-    unsigned long int start = 1, end = x, ans;
+    unsigned long int start = 1, end = x, ans = 0;
     unsigned long int ux = x;
     while (start <= end) {
         unsigned long int mid = (start + end) / 2;
