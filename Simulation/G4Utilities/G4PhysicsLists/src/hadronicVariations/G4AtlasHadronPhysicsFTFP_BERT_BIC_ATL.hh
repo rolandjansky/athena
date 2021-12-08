@@ -29,44 +29,49 @@
 // Author: Alberto Ribon
 // Date:   October 2017
 //
-// Hadron physics for the new physics list FTFP_BERT_ATL_HP.
-// This is a modified version of the FTFP_BERT_HP hadron physics for ATLAS.
-// The hadron physics of FTFP_BERT_ATL_HP has the transition between Bertini
-// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model in the
-// energy region [9, 12] GeV (instead of [4, 5] GeV as in FTFP_BERT).
+// Hadron physics for the new physics list FTFP_BERT_BIC_ATL.
+// This is a modified version of the FTFP_BERT_ATL physics list for ATLAS,
+// which uses Binary Cascade (BIC) for proton and neutron below 5 GeV
+// and pions below 1.3 GeV.
 //----------------------------------------------------------------------------
 //
-#ifndef G4HadronPhysicsFTFP_BERT_ATL_HP_h
-#define G4HadronPhysicsFTFP_BERT_ATL_HP_h 1
+#ifndef G4AtlasHadronPhysicsFTFP_BERT_BIC_ATL_h
+#define G4AtlasHadronPhysicsFTFP_BERT_BIC_ATL_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
 
 #include "G4VPhysicsConstructor.hh"
 
-#include "G4PiKBuilder.hh"
-#include "G4BertiniPiKBuilder.hh"
-#include "G4FTFPPiKBuilder.hh"
+#include "G4PionBuilder.hh"
+#include "G4BertiniPionBuilder.hh"
+#include "G4FTFPPionBuilder.hh"
+#include "G4BinaryPionBuilder.hh"
+
+#include "G4KaonBuilder.hh"
+#include "G4BertiniKaonBuilder.hh"
+#include "G4FTFPKaonBuilder.hh"
 
 #include "G4ProtonBuilder.hh"
 #include "G4BertiniProtonBuilder.hh"
 #include "G4FTFPProtonBuilder.hh"
+#include "G4BinaryProtonBuilder.hh"
 
 #include "G4NeutronBuilder.hh"
 #include "G4BertiniNeutronBuilder.hh"
 #include "G4FTFPNeutronBuilder.hh"
-#include "G4NeutronHPBuilder.hh"
+#include "G4BinaryNeutronBuilder.hh"
 
 #include "G4HyperonFTFPBuilder.hh"
 #include "G4AntiBarionBuilder.hh"
 #include "G4FTFPAntiBarionBuilder.hh"
 
-class G4HadronPhysicsFTFP_BERT_ATL_HP : public G4VPhysicsConstructor
+class G4AtlasHadronPhysicsFTFP_BERT_BIC_ATL : public G4VPhysicsConstructor
 {
   public: 
-    G4HadronPhysicsFTFP_BERT_ATL_HP(G4int verbose =1);
-    G4HadronPhysicsFTFP_BERT_ATL_HP(const G4String& name, G4bool quasiElastic=false);
-    virtual ~G4HadronPhysicsFTFP_BERT_ATL_HP();
+    G4AtlasHadronPhysicsFTFP_BERT_BIC_ATL(G4int verbose =1);
+    G4AtlasHadronPhysicsFTFP_BERT_BIC_ATL(const G4String& name, G4bool quasiElastic=false);
+    virtual ~G4AtlasHadronPhysicsFTFP_BERT_BIC_ATL();
 
   public: 
     virtual void ConstructParticle();
@@ -81,15 +86,21 @@ class G4HadronPhysicsFTFP_BERT_ATL_HP : public G4VPhysicsConstructor
       G4NeutronBuilder * theNeutrons;
       G4BertiniNeutronBuilder * theBertiniNeutron;
       G4FTFPNeutronBuilder * theFTFPNeutron;
-      G4NeutronHPBuilder * theHPNeutron;
- 
-      G4PiKBuilder * thePiK;
-      G4BertiniPiKBuilder * theBertiniPiK;
-      G4FTFPPiKBuilder * theFTFPPiK;
-    
+      G4BinaryNeutronBuilder * theBinaryNeutron;
+
+      G4PionBuilder * thePion;
+      G4BertiniPionBuilder * theBertiniPion;
+      G4FTFPPionBuilder * theFTFPPion;
+      G4BinaryPionBuilder * theBinaryPion;
+
+      G4KaonBuilder * theKaon;
+      G4BertiniKaonBuilder * theBertiniKaon;
+      G4FTFPKaonBuilder * theFTFPKaon;
+
       G4ProtonBuilder * thePro;
       G4BertiniProtonBuilder * theBertiniPro;
       G4FTFPProtonBuilder * theFTFPPro;    
+      G4BinaryProtonBuilder * theBinaryPro;
     
       G4HyperonFTFPBuilder * theHyperon;
     

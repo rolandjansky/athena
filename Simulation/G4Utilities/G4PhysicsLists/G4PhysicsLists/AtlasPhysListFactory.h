@@ -14,7 +14,7 @@ public:
 
   AtlasPhysListFactory();
 
-  ~AtlasPhysListFactory();
+  ~AtlasPhysListFactory()=default;
 
   G4VModularPhysicsList* GetReferencePhysList(const G4String&);
   // instantiate PhysList by name

@@ -29,15 +29,15 @@
 // Author: Alberto Ribon
 // Date:   October 2017
 //
-// Hadron physics for the new physics list FTFP_BERT_ATL.
-// This is a modified version of the FTFP_BERT hadron physics for ATLAS.
-// The hadron physics of FTFP_BERT_ATL has the transition between Bertini
+// Hadron physics for the new physics list FTFP_BERT_ATL_HP.
+// This is a modified version of the FTFP_BERT_HP hadron physics for ATLAS.
+// The hadron physics of FTFP_BERT_ATL_HP has the transition between Bertini
 // (BERT) intra-nuclear cascade model and Fritiof (FTF) string model in the
 // energy region [9, 12] GeV (instead of [4, 5] GeV as in FTFP_BERT).
 //----------------------------------------------------------------------------
 //
-#ifndef G4HadronPhysicsFTFP_BERT_ATL_h
-#define G4HadronPhysicsFTFP_BERT_ATL_h 1
+#ifndef G4AtlasHadronPhysicsFTFP_BERT_ATL_HP_h
+#define G4AtlasHadronPhysicsFTFP_BERT_ATL_HP_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -55,17 +55,18 @@
 #include "G4NeutronBuilder.hh"
 #include "G4BertiniNeutronBuilder.hh"
 #include "G4FTFPNeutronBuilder.hh"
+#include "G4NeutronHPBuilder.hh"
 
 #include "G4HyperonFTFPBuilder.hh"
 #include "G4AntiBarionBuilder.hh"
 #include "G4FTFPAntiBarionBuilder.hh"
 
-class G4HadronPhysicsFTFP_BERT_ATL : public G4VPhysicsConstructor
+class G4AtlasHadronPhysicsFTFP_BERT_ATL_HP : public G4VPhysicsConstructor
 {
   public: 
-    G4HadronPhysicsFTFP_BERT_ATL(G4int verbose =1);
-    G4HadronPhysicsFTFP_BERT_ATL(const G4String& name, G4bool quasiElastic=false);
-    virtual ~G4HadronPhysicsFTFP_BERT_ATL();
+    G4AtlasHadronPhysicsFTFP_BERT_ATL_HP(G4int verbose =1);
+    G4AtlasHadronPhysicsFTFP_BERT_ATL_HP(const G4String& name, G4bool quasiElastic=false);
+    virtual ~G4AtlasHadronPhysicsFTFP_BERT_ATL_HP();
 
   public: 
     virtual void ConstructParticle();
@@ -80,6 +81,7 @@ class G4HadronPhysicsFTFP_BERT_ATL : public G4VPhysicsConstructor
       G4NeutronBuilder * theNeutrons;
       G4BertiniNeutronBuilder * theBertiniNeutron;
       G4FTFPNeutronBuilder * theFTFPNeutron;
+      G4NeutronHPBuilder * theHPNeutron;
  
       G4PiKBuilder * thePiK;
       G4BertiniPiKBuilder * theBertiniPiK;
