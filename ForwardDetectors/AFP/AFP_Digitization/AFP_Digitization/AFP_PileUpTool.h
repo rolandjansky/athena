@@ -101,6 +101,23 @@ class AFP_PileUpTool: public PileUpToolBase {
   void createSiDigi(int Station, int Detector, int PixelRow, int PixelCol, float PreStepX, float PreStepY, float PreStepZ, float PostStepX, float PostStepY, float PostStepZ, float DepEnergy);
   void StoreSiDigi(void); 
   
+  /// @brief Function that transforms time-over-threshold to charge
+  ///
+  /// Solution has been adopted from AFP_Raw2DigiTool. The best solution would be to have
+  /// a single tool providing this method, which would be used in AFP_PileUpTool and AFP_Raw2DigiTool.
+  TF1 m_totToChargeTransformation;
+
+  /// @brief Function that provides random noise (in charge units)
+  double generateSiNoise() const;
+  
+  /// @brief Function that provides charge collection efficiency
+  double generateSiCCE() const;
+  
+  /// @brief Function that converts quasi-continous charge to discrete time-over-threshold
+  int charge2tot(int) const;
+  
+  /// @brief Function that converts discrete time-over-threshold to discrete charge
+  int tot2charge(int) const;
 
   double SignalFun(double Time, double RiseTime, double FallTime);
 //  double SiSignalFun(double Time, double RiseTime, double FallTime);
@@ -123,7 +140,13 @@ class AFP_PileUpTool: public PileUpToolBase {
   double m_Gain;
   double m_RiseTime;
   double m_FallTime;
-  double m_CfdThr; 
+  double m_CfdThr;
+  double m_SiT_ChargeCollEff;
+  double m_SiT_ChargeCollEffSigma;
+  double m_SiT_NoiseMu;
+  double m_SiT_NoiseSigma;
+  double m_SiT_Energy2ChargeFactor;
+  double m_SiT_ChargeThresholdForHit;
 
   AFP_TDSimHitCollection *m_mergedTDSimHitList;
   AFP_TDDigiCollection *m_digitCollection;
@@ -139,6 +162,7 @@ class AFP_PileUpTool: public PileUpToolBase {
 
      
   double m_QuantumEff_PMT[7];
+  int m_ChargeVsTot_LUT[16]; // look-up table for charge2tot conversion, 16 = n. of bits
 
   TH1F  m_Signal[4][49][2];
   

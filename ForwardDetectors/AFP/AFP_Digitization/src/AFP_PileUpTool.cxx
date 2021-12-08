@@ -30,6 +30,7 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent) :
   PileUpToolBase(type, name, parent),
+  m_totToChargeTransformation ("totToChargeTransformation", "1909 + x*363 + x*x*141"),
   m_mergeSvc    ("PileUpMergeSvc", name), 
   m_atRndmGenSvc("AtRndmGenSvc", name),
   m_rndEngine(0),
@@ -38,7 +39,13 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
   m_Gain(50000.),             // Gain  
   m_RiseTime(400.),           // Pulse rise time in ps
   m_FallTime(1200.),          // Pulse fall time in ps 
-  m_CfdThr(0.5)              // Constant fraction threshold
+  m_CfdThr(0.5),              // Constant fraction threshold
+  m_SiT_ChargeCollEff(0.7),      // CCE, adjusted to describe data
+  m_SiT_ChargeCollEffSigma(0.2), // sigma(CCE), adjusted to describe data
+  m_SiT_NoiseMu(160),         // unit = number of eh pairs
+  m_SiT_NoiseSigma(10),        // unit = number of eh pairs
+  m_SiT_Energy2ChargeFactor(1000000./3.6), // number of eh pairs per MeV
+  m_SiT_ChargeThresholdForHit(2000.)
 {
   declareInterface<AFP_PileUpTool>(this); //Temporary for back-compatibility with 17.3.X.Y
   //declareInterface<IPileUpTool>(this); //Temporary for back-compatibility with 17.3.X.Y
@@ -55,6 +62,9 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
   m_QuantumEff_PMT[5] = 0.01; 
   m_QuantumEff_PMT[6] = 0.00; 
 
+  for(int i=0; i<16; ++i)
+      m_ChargeVsTot_LUT[i] = m_totToChargeTransformation.Eval(i);
+  
   m_digitCollection = 0; // initializing to null pointer
   m_SiDigiCollection = 0;
 
@@ -93,6 +103,12 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
   declareProperty("RiseTime", m_RiseTime);
   declareProperty("CfdThr", m_CfdThr);
   declareProperty("Gain", m_Gain);
+  declareProperty("SiT_ChargeCollEff", m_SiT_ChargeCollEff);
+  declareProperty("SiT_ChargeCollEffSigma", m_SiT_ChargeCollEffSigma);
+  declareProperty("SiT_NoiseMu", m_SiT_NoiseMu);
+  declareProperty("SiT_NoiseSigma", m_SiT_NoiseSigma);
+  declareProperty("SiT_Energy2ChargeFactor", m_SiT_Energy2ChargeFactor);
+  declareProperty("SiT_ChargeThresholdForHit", m_SiT_ChargeThresholdForHit);
 
   m_SignalVect.resize( int((m_RiseTime+5*m_FallTime)/5.));
 
@@ -183,23 +199,40 @@ StatusCode AFP_PileUpTool::recoSiHits()
 }
 
 
+
+int AFP_PileUpTool::charge2tot(int ch) const{
+    int i = 0;
+    do{
+        if( ch < m_ChargeVsTot_LUT[i] ) break;
+        else ++i;
+    } while( i<16 );
+    return i;
+}
+
+inline int AFP_PileUpTool::tot2charge(int tot) const{
+    return tot>0 ? static_cast<int>( m_totToChargeTransformation.Eval(tot) ) : 0;
+}
+
+
 void  AFP_PileUpTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, const AFP_SiDigiCollection* container) const
 {
-  AFP_SiDigiConstIter it    = container->begin();
-  AFP_SiDigiConstIter itend = container->end();
-
-  for (; it != itend; it++) {
-  xAOD::AFPSiHit* xAODSiHit = new xAOD::AFPSiHit();
-  siHitContainer->push_back(xAODSiHit);
- xAODSiHit->setStationID(it->m_nStationID);
- xAODSiHit->setPixelLayerID(it->m_nDetectorID);
- xAODSiHit->setPixelColIDChip(80-it->m_nPixelRow); // Chip is rotated by 90 degree Row-->Col
- xAODSiHit->setPixelRowIDChip(336-it->m_nPixelCol); // Chip	is rotated by 90 degree	Col-->Row 
- xAODSiHit->setTimeOverThreshold(it->m_fADC );
- xAODSiHit->setDepositedCharge(it->m_fADC );
-  }
- ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPSiHit");
-
+    AFP_SiDigiConstIter it    = container->begin();
+    AFP_SiDigiConstIter itend = container->end();
+    
+    for (; it != itend; it++) {
+        xAOD::AFPSiHit* xAODSiHit = new xAOD::AFPSiHit();
+        siHitContainer->push_back(xAODSiHit);
+        xAODSiHit->setStationID(it->m_nStationID);
+        xAODSiHit->setPixelLayerID(it->m_nDetectorID);
+        xAODSiHit->setPixelColIDChip(80-it->m_nPixelRow); // Chip is rotated by 90 degree Row-->Col
+        xAODSiHit->setPixelRowIDChip(336-it->m_nPixelCol); // Chip	is rotated by 90 degree	Col-->Row
+        int tot = charge2tot( it->m_fADC );
+        xAODSiHit->setTimeOverThreshold( tot );
+        int chDiscrete = tot2charge( tot );
+        xAODSiHit->setDepositedCharge( chDiscrete );
+    }
+    ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPSiHit");
+    
 }
 
 
@@ -618,9 +651,6 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
 //  }  
 //  else ATH_MSG_DEBUG("m_SignalVector is empty"); 
 
-
-return;
-
 }
 
 void AFP_PileUpTool::StoreTDDigi(void)
@@ -674,113 +704,97 @@ void AFP_PileUpTool::StoreTDDigi(void)
                                   }
                                }
                             }
+}
 
-return;
+
+double AFP_PileUpTool::generateSiCCE() const{
+    double eff = CLHEP::RandGaussQ::shoot(m_rndEngine, m_SiT_ChargeCollEff, m_SiT_ChargeCollEffSigma);
+    eff = eff>1?1:eff;
+    eff = eff<0?0:eff;
+    return eff;
 }
 
 
 void AFP_PileUpTool::createSiDigi(int Station, int Detector, int PixelRow, int PixelCol, float PreStepX, float PreStepY, float PreStepZ, float PostStepX, float PostStepY, float PostStepZ, float DepEnergy)
 {
-  ATH_MSG_DEBUG ( " iterating Pmt, station " << Station << ", detector " << Detector << ", pixel_col " << PixelCol << ", pixel_row " << PixelRow << ", dep_energy" << DepEnergy << " (x,y,z)_pre (" << PreStepX <<"," << PreStepY <<"," << PreStepZ <<"), (x,y,z)_post (" << PostStepX <<"," << PostStepY <<"," << PostStepZ <<")" ); 
-
-  float distance; // in mm
-  distance = sqrt(pow(PostStepX-PreStepX,2)+pow(PostStepY-PreStepY,2)+pow(PostStepZ-PreStepZ,2));
-  
-  ATH_MSG_DEBUG ( "actual distance in pixel: " << distance); 
-  
-  distance = 1000.0* distance; // in mu 
-  
-  // we do not consider energy dependende
-  // 1mu corresponds to ~ 110 e-hole pairs
-  // this we should slighlty modify to some distribution
-  
-    ATH_MSG_DEBUG ( "deposted charge for given hit " << distance*110.0 ); 
-  
-  //m_deposited_charge[Station][Detector][PixelCol][PixelRow] += distance * 110.0; 
-  //array[station_max=4][layers=6_max][PixelCol_max=336][PxelRow=80]
-  
-  if ((PixelCol>=336) || (PixelRow >= 80) || (Station >= 4) || (Detector >= 6 ) )
-  {
-     if (Detector == 11) 
-     {
-        ATH_MSG_DEBUG ( "Hit in the vacuum layer in front of the station " << Station );
-	  
-     }
-     else
-     {
-        ATH_MSG_WARNING ( "WRONG NUMBER of PIXEL coordinates or station or detector !!!:" );
-        ATH_MSG_WARNING ( "station [max 4] " << Station << ", detector [max 6]" << Detector << ", pixel_col [max 336] " << PixelCol << ", pixel_row [max 80] " << PixelRow );
-     }
-     return;
-  }   
-  
-  m_deposited_charge[6*336*80*Station + 80*336*Detector + 80*PixelCol + PixelRow] += distance * 110.0;
-  m_deposited_energy[6*336*80*Station + 80*336*Detector + 80*PixelCol + PixelRow] += DepEnergy;
-
-return;
-
+    ATH_MSG_DEBUG ( " iterating Pmt, station " << Station << ", detector " << Detector << ", pixel_col " << PixelCol << ", pixel_row " << PixelRow << ", dep_energy" << DepEnergy << " (x,y,z)_pre (" << PreStepX <<"," << PreStepY <<"," << PreStepZ <<"), (x,y,z)_post (" << PostStepX <<"," << PostStepY <<"," << PostStepZ <<")" ); 
+    
+    double cce = generateSiCCE();
+    double depositedCharge = DepEnergy * cce * m_SiT_Energy2ChargeFactor;
+    
+    ATH_MSG_DEBUG ( "deposted charge for given hit " << depositedCharge );
+    
+    //m_deposited_charge[Station][Detector][PixelCol][PixelRow] += distance * 110.0; 
+    //array[station_max=4][layers=6_max][PixelCol_max=336][PxelRow=80]
+    
+    if ((PixelCol>=336) || (PixelRow >= 80) || (Station >= 4) || (Detector >= 6 ) )
+    {
+        if (Detector == 11) 
+        {
+            ATH_MSG_DEBUG ( "Hit in the vacuum layer in front of the station " << Station );
+            
+        }
+        else
+        {
+            ATH_MSG_WARNING ( "WRONG NUMBER of PIXEL coordinates or station or detector !!!:" );
+            ATH_MSG_WARNING ( "station [max 4] " << Station << ", detector [max 6]" << Detector << ", pixel_col [max 336] " << PixelCol << ", pixel_row [max 80] " << PixelRow );
+        }
+        return;
+    }   
+    
+    m_deposited_charge[6*336*80*Station + 80*336*Detector + 80*PixelCol + PixelRow] += depositedCharge;
+    m_deposited_energy[6*336*80*Station + 80*336*Detector + 80*PixelCol + PixelRow] += DepEnergy;
 }
+
+
+inline double AFP_PileUpTool::generateSiNoise() const{
+    return CLHEP::RandGaussQ::shoot(m_rndEngine, m_SiT_NoiseMu, m_SiT_NoiseSigma);
+}
+
 
 void AFP_PileUpTool::StoreSiDigi(void)
 {
-//ATH_MSG_DEBUG ( "bum 3" );
+    long index = 0;
+    //  const long indexend = (long)width * (long)height * (long)depth;
+    while ( index != 645120 ) // here just 6 layers per detector are considered
+    {
+        // adding random noise
+        m_deposited_charge[index] += generateSiNoise();
+        
+        if (m_deposited_charge[index] > m_SiT_ChargeThresholdForHit )
+        {
+            
+            ATH_MSG_DEBUG ( " total # of pairs from dep_energy (with all effects included) " << m_deposited_charge[index]);
+            ATH_MSG_DEBUG ( " total # of pairs from dep_energy (true value)" << m_SiT_Energy2ChargeFactor*m_deposited_energy[index]);
+            
+            int station  = (int)(index/(80*336*6)); 
+            int detector = (int)((index-station*80*336*6)/(80*336)); 
+            int column   = (int)((index-station*80*336*6-detector*80*336)/80);
+            int row      = (int)(index-station*80*336*6-detector*80*336-column*80);
+            
+            ATH_MSG_DEBUG ( " reversed mapping, station " << station << ", detector " << detector << ", pixel_col " << column << ", pixel_row " << row ); 
+            
+            
+            AFP_SiDigi* sidigi = new AFP_SiDigi();	
+            
+            sidigi->m_nStationID = station;
+            sidigi->m_nDetectorID = detector;
+            sidigi->m_nPixelCol = column;
+            sidigi->m_nPixelRow = row;
+            
+            sidigi->m_fADC = m_deposited_charge[index];
+            sidigi->m_fTDC = 0.;
+            
+            
+            ATH_MSG_DEBUG ( " size: " << m_SiDigiCollection->size());
+            
+            m_SiDigiCollection->Insert(*sidigi); 
+            //m_SiDigiCollection->push_back(sidigi); 
 
-
-  long index = 0;
-//  const long indexend = (long)width * (long)height * (long)depth;
-  while ( index != 645120 ) // here just 6 layers per detector are considered
-  {
-          // here should  come noise
-  
-          if (m_deposited_charge[index] > 1000.)
-	    {
-	    
-	    	  ATH_MSG_DEBUG ( " total # of pairs from length " << m_deposited_charge[index]);
-	        ATH_MSG_DEBUG ( " total # of pairs from dep_energy " << 1000000.*m_deposited_energy[index]/3.6);
-	    
-	        int station  = (int)(index/(80*336*6)); 
-		  int detector = (int)((index-station*80*336*6)/(80*336)); 
-		  int column   = (int)((index-station*80*336*6-detector*80*336)/80);
-		  int row      = (int)(index-station*80*336*6-detector*80*336-column*80);
-		  
-		  ATH_MSG_DEBUG ( " reversed mapping, station " << station << ", detector " << detector << ", pixel_col " << column << ", pixel_row " << row ); 
-
-	    
-		  AFP_SiDigi* sidigi = new AFP_SiDigi();	
-		  
-		  //ATH_MSG_DEBUG ( "bum 3a" );	  
-              
-		  sidigi->m_nStationID = station;
-              sidigi->m_nDetectorID = detector;
-              sidigi->m_nPixelCol = column;
-		  sidigi->m_nPixelRow = row;
-		  
-		  //ATH_MSG_DEBUG ( "bum 3b" );
-              sidigi->m_fADC = 1000000.*m_deposited_energy[index]/3.6;
-              sidigi->m_fTDC = 0.;
-
-              //ATH_MSG_DEBUG ( "bum 3c" );
-
-              
-
-		  
-		  ATH_MSG_DEBUG ( " size: " << m_SiDigiCollection->size());
-		  
-		  //ATH_MSG_DEBUG ( "bum 3d" );
-		  
-		  m_SiDigiCollection->Insert(*sidigi); 
-		  //m_SiDigiCollection->push_back(sidigi); 
-		  
-		  
-		  
-		  //ATH_MSG_DEBUG ( "bum 3e" );
-		
-          }
-	    
-          index++;	    
-  } 
-
-return;
+        }
+        
+        index++;	    
+    }
 }
 
 
