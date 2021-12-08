@@ -11,7 +11,6 @@
 namespace NSWL1 {
 
     const double c_inverse = 3.33564095198e-3;  // unit here is  [ns/mm]
-    const float PI=3.14159265;
     const int STGC_LAYER_1=1, STGC_LAYER_2=2, STGC_LAYER_3=3, STGC_LAYER_4=4;
     const int SMALL_PIVOT=0, SMALL_CONFIRM=1, LARGE_PIVOT=2, LARGE_CONFIRM=3;
     const int MAXLAYERSHIT=4;
