@@ -4,6 +4,7 @@
 
 #include "PFlowUtils/IWeightPFOTool.h"
 #include "JetMomentTools/JetClusterMomentsTool.h"
+#include "JetMomentTools/DipsFTTool.h"
 #include "JetMomentTools/JetConstitFourMomTool.h"
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "JetMomentTools/JetForwardJvtTool.h"
@@ -26,6 +27,7 @@
 #pragma link off all functions;
 #pragma link C++ nestedclass;
 
+#pragma link C++ class DipsFTTool+ ;
 #pragma link C++ class JetClusterMomentsTool+;
 #pragma link C++ class JetConstitFourMomTool+;
 #pragma link C++ class JetECPSFractionTool+;

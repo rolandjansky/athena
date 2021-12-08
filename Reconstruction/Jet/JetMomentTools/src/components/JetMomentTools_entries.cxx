@@ -1,4 +1,5 @@
 #include "PFlowUtils/IWeightPFOTool.h"
+#include "JetMomentTools/DipsFTTool.h"
 #include "JetMomentTools/JetCaloEnergies.h"
 #include "JetMomentTools/JetCaloQualityTool.h"
 #include "JetMomentTools/JetWidthTool.h"
@@ -25,6 +26,7 @@
 #include "../JetCaloCellQualityTool.h"
 #endif
 
+DECLARE_COMPONENT( DipsFTTool )
 DECLARE_COMPONENT( JetCaloEnergies )
 DECLARE_COMPONENT( JetCaloQualityTool )
 DECLARE_COMPONENT( JetWidthTool )
