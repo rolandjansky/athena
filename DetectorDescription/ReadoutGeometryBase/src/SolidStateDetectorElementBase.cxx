@@ -330,7 +330,10 @@ using Trk::distDepth;
          //applied when constructing the DetectorElements from the GeoPhysVols
          //(At the moment, only used for ITkStrip barrel when creating a DetElement per row)
          geotrf = (*ptrXf) * m_design->moduleShift();
-        }
+      }
+      else {
+        geotrf.setIdentity();
+      }
     }
     else{
       cache.m_transformHit  = getMaterialGeom()->getAbsoluteTransform();
