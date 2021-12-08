@@ -54,6 +54,13 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+
 ## Write out runArgs configuration
 atlasG4log.info( '**** Transformation run arguments' )
 atlasG4log.info( str(runArgs) )
@@ -75,11 +82,6 @@ if hasattr(runArgs, "preInclude"):
 
 ## Include common skeleton after the preExec/preInclude
 include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
-
-if hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 try:
     from ISF_Config import FlagSetters
