@@ -1,0 +1,87 @@
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v36r2)
+                                          running on Legolas on Wed Dec  1 08:37:00 2021
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr
+PyComponentMgr       INFO Initializing PyComponentMgr...
+dumper               INFO Initializing dumper...
+ClassIDSvc           INFO getRegistryEntries: read 13987 CLIDRegistry entries for module ALL
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /data/hdd-4tb/projects/ATLASRECTS-6707/build/x86_64-centos7-gcc11-opt/share/dbreplica.config
+DBReplicaSvc         INFO No specific match for domain found - use default fallback
+DBReplicaSvc         INFO Total of 2 servers found for host Legolas [ATLF atlas_dd ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+EventSelector        INFO EventSelection with query 
+PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 4B998CF5-1F45-7D29-794B-AD4B43DC5F16
+Domain[ROOT_All]     INFO                           /atlas_data/aod/AOD-22.0.48/AOD-22.0.48-full.pool.root
+RootDatabase.open    INFO /atlas_data/aod/AOD-22.0.48/AOD-22.0.48-full.pool.root File version:62406
+/atlas_data/aod...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 4B998CF5-1F45-7D29-794B-AD4B43DC5F16
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr       INFO Application Manager Started successfully
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 65CC23E8-62CA-A44A-857A-9ACFFD8F33A4
+Domain[ROOT_All]     INFO                           /atlas_data/aod/AOD-22.0.48/AOD-22.0.48-full.pool.root
+RootDatabase.open    INFO /atlas_data/aod/AOD-22.0.48/AOD-22.0.48-full.pool.root File version:62406
+ClassIDSvc           INFO getRegistryEntries: read 6511 CLIDRegistry entries for module ALL
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+ClassIDSvc           INFO getRegistryEntries: read 2 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 20 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO getRegistryEntries: read 1 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO   ===>>>  start of run 222525    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22003, run #222525 0 events processed so far  <<<===
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO getRegistryEntries: read 26 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22003, run #222525 1 events processed so far  <<<===
+ClassIDSvc           INFO getRegistryEntries: read 9 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22015, run #222525 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22015, run #222525 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22023, run #222525 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22023, run #222525 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22028, run #222525 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22028, run #222525 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22037, run #222525 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22037, run #222525 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22043, run #222525 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22043, run #222525 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22054, run #222525 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22054, run #222525 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22061, run #222525 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22061, run #222525 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22069, run #222525 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22069, run #222525 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #22075, run #222525 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #22075, run #222525 10 events processed so far  <<<===
+/atlas_data/aod...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 65CC23E8-62CA-A44A-857A-9ACFFD8F33A4
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+ApplicationMgr       INFO Application Manager Stopped successfully
+dumper               INFO Finalizing dumper...
+AthDictLoaderSvc     INFO in finalize...
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.323(+-    1.77)/       0/      10 [ms] #= 31
+cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=       1(+-       3)/       0/      10 [ms] #= 20
+ChronoStatSvc        INFO Time User   : Tot= 1.87  [s]  #=  1
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+PyComponentMgr       INFO Finalizing PyComponentMgr...
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
