@@ -77,7 +77,7 @@ echo  "art-result: $rc3 OLDvsCA"
 rc4=-9999
 if [ $rc2 -eq 0 ]
 then
-    art.py compare --entries 10 --mode=semi-detailed test.EVNT_TR.pool.root
+    art.py compare grid --entries 2 --mode=semi-detailed test.EVNT_TR.pool.root
     rc4=$?
 fi
 echo  "art-result: $rc4 regression"
