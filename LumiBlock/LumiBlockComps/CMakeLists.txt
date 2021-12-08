@@ -12,7 +12,7 @@ find_package( ROOT COMPONENTS Core Tree RIO )
 set( extra_libs )
 set( extra_srcs )
 if( NOT XAOD_ANALYSIS )
-   set( extra_libs LumiBlockCoolQuery CoolLumiUtilitiesLib )
+   set( extra_libs LumiBlockCoolQuery CoolLumiUtilitiesLib TrigConfInterfaces TrigConfL1Data )
    set( extra_srcs src/*.cxx )
 endif()
 atlas_add_library( LumiBlockCompsLib
