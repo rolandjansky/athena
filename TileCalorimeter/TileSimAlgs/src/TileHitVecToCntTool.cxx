@@ -403,6 +403,11 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
       m_tileID->get_hash(hit_id, hit_idhash, &pmt_context);
     }
 
+    if (hit_idhash >= m_allHits.size()) {
+      // Seems to be E4pr or MBTS hit in minimum bias while geometry is used without them => skipping
+      continue;
+    }
+
     double ener = cinp->energy();
     double time = cinp->time() + SubEvtTimOffset;
 
