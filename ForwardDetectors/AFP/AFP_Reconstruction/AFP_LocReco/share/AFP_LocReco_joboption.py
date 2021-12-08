@@ -20,6 +20,8 @@ afpGeometryTool = CompFactory.getComp("AFP_GeometryTool")("AFP_Geometry_tool")
 # prepare clustering tool
 from AthenaConfiguration.ComponentFactory import CompFactory
 clusterNeighbour = CompFactory.getComp("AFPSiClusterBasicNearestNeighbour")("AFPSiClusterBasicNearestNeighbour")
+# it's also possible to get the same clustering tool as in AFPAnalysisToolbox
+# clusterNeighbour = CompFactory.getComp("AFPSiClusterAllNeighbours")("AFPSiClusterAllNeighbours", neighbourhoodType="X")
 
 rowColToLocal = CompFactory.getComp("AFPSiRowColToLocalCSTool")("AFPSiRowColToLocalCSTool", AFP_Geometry=afpGeometryTool)
 
