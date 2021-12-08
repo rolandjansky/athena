@@ -5259,6 +5259,8 @@ HLT_tau25_mediumRNN_tracktwoMVABDT_probe_xe65_cell_xe90_pfopufit_L1XE50:
 : eventCount: 0
   stepFeatures:
     0: 2
+? HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1jMJJ-500-NFF
+: eventCount: 0
 HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM:
   eventCount: 3
   stepCounts:
