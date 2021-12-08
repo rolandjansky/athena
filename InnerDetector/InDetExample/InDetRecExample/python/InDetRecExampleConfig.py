@@ -212,7 +212,6 @@ def DistributedKalmanFilter(name="DistributedKalmanFilter", **kwargs) :
 
 def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs):
 
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
     from InDetRecExample.TrackingCommon import setDefaults
     from AthenaCommon.AppMgr import ToolSvc
     from InDetRecExample.InDetJobProperties import InDetFlags
@@ -230,7 +229,6 @@ def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs):
                          PropagatorTool=TrackingCommon.getInDetPropagator(),
                          MultipleScatteringTool=TrackingCommon.getInDetMultipleScatteringUpdator(),
                          MeasurementUpdateTool=ToolSvc.InDetUpdator,
-                         TrackingGeometrySvc=AtlasTrackingGeometrySvc,
                          MaterialUpdateTool=TrackingCommon.getInDetMaterialEffectsUpdator(),
                          StraightLine=not InDetFlags.solenoidOn(),
                          OutlierCut=4,
