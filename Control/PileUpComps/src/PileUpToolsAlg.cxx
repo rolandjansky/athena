@@ -72,6 +72,7 @@ StatusCode PileUpToolsAlg::execute()
       // the current bunch crossing
       for(auto& puToolHandle : m_puTools)
         {
+          ATH_MSG_VERBOSE(__FILE__<<":"<<__LINE__<<" --- Call toProcess on "<<puToolHandle->name());
           if (puToolHandle->toProcess(fEvt->time()))
             {
               eventsToProcessByTool[&(*puToolHandle)] += nEventsInXing;
@@ -98,6 +99,8 @@ StatusCode PileUpToolsAlg::execute()
       ATH_MSG_DEBUG("Processing bunch-crossing at " << bunchXing << " ns.");
       for(auto& puToolHandle : m_puTools)
         {
+          
+          ATH_MSG_VERBOSE(__FILE__<<":"<<__LINE__<<" --- call toProcess on "<<puToolHandle->name());
           if(puToolHandle->toProcess(bunchXing))
             {
               ATH_CHECK(puToolHandle->processBunchXing(bunchXing, fEvt, lEvt));
@@ -114,6 +117,7 @@ StatusCode PileUpToolsAlg::execute()
   // call mergeEvent for all PileUpTools
   for(auto& puToolHandle : m_puTools)
     {
+      ATH_MSG_VERBOSE(__FILE__<<":"<<__LINE__<<" --- Call to mergeEvent on "<<puToolHandle->name());
       ATH_CHECK(puToolHandle->mergeEvent(Gaudi::Hive::currentContext()));
       // Check if the event was filtered out by the current PileUpTool.
       if (!puToolHandle->filterPassed())
