@@ -32,28 +32,24 @@ public:
   ~HIEventShapeMaker() {};
 
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 private:
-  SG::ReadHandleKey<xAOD::CaloClusterContainer>      m_towerContainerKey { this, "InputTowerKey"     , "CombinedTower"   , "InputTowerKey"}; //TowerContainer key
-  SG::ReadHandleKey<INavigable4MomentumCollection>   m_naviContainerKey  { this, "NaviTowerKey"     ,  "CombinedTower"   , "InputTowerKey for Navigable Momentum collection"};
-  SG::ReadHandleKey<CaloCellContainer>            m_cellContainerKey  { this, "InputCellKey"      , "AllCalo"         , "InputCellKey" }; //CaloCellContainer key
-  SG::ReadHandleKey<xAOD::HIEventShapeContainer>  m_readExistingKey   { this, "ReadExistingKey", "HIEventShapeContainer", "Read key to retrieve the shape if m_summary_only is true"};
-  SG::WriteHandleKey<xAOD::HIEventShapeContainer> m_outputKey         { this, "OutputContainerKey"    , "HIEventShapeContainer", "Output Container Key"}; //Name of output container key
-  SG::WriteHandleKey<xAOD::HIEventShapeContainer>  m_summaryKey       { this, "SummaryContainerKey"   , "", "SummaryContainerKey" };
+  SG::ReadHandleKey<xAOD::CaloClusterContainer>    m_towerContainerKey{ this, "InputTowerKey"     , "CombinedTower"   , "InputTowerKey" }; //TowerContainer key
+  SG::ReadHandleKey<INavigable4MomentumCollection> m_naviContainerKey{ this, "NaviTowerKey"     ,  "CombinedTower"   , "InputTowerKey for Navigable Momentum collection" };
+  SG::ReadHandleKey<CaloCellContainer>             m_cellContainerKey{ this, "InputCellKey"      , ""         , "InputCellKey" }; //CaloCellContainer key
+  SG::ReadHandleKey<xAOD::HIEventShapeContainer>   m_readExistingKey{ this, "ReadExistingKey", "HIEventShapeContainer", "Read key to retrieve the shape im_summary_only is true" };
+  SG::WriteHandleKey<xAOD::HIEventShapeContainer>  m_outputKey{ this, "OutputContainerKey"    , "HIEventShapeContainer", "Output Container Key" }; //Name of output container key
+  SG::WriteHandleKey<xAOD::HIEventShapeContainer>  m_summaryKey{ this, "SummaryContainerKey"   , "", "SummaryContainerKey" };
 
-  //use cells instead of towers to fill the EventShape
-  Gaudi::Property< bool > m_useCaloCell { this, "UseCaloCell", false, "Use cells instead of towers to fill the EventShape" }  ;
-  //The number of Orders of harmonic flow to store in the EventShape
-  Gaudi::Property< int > m_numOrders { this, "OrderOfFlowHarmonics", 7, "The number of Orders of harmonic flow to store in the EventShape" }  ;
-  Gaudi::Property< bool > m_summaryOnly { this, "SummaryOnly", false, "Summary Only boolean switch" }  ;
+  Gaudi::Property< bool > m_summaryOnly{ this, "SummaryOnly", false, "Summary Only boolean switch" };
 
-  ToolHandle<IHIEventShapeFiller> m_HIEventShapeFillerTool { this, "HIEventShapeFillerTool", "HIEventShapeFillerTool", "HIEventShapeFillerTool" };
-  ToolHandle<IHIEventShapeSummaryTool> m_summaryTool      { this, "SummaryTool", "HIEventShapeSummaryTool", "Handle to IHIEventShapeSummaryTool" };
+  ToolHandle<IHIEventShapeFiller> m_HIEventShapeFillerTool{ this, "HIEventShapeFillerTool", "HIEventShapeFillerTool", "HIEventShapeFillerTool" };
+  ToolHandle<IHIEventShapeSummaryTool> m_summaryTool{ this, "SummaryTool", "HIEventShapeSummaryTool", "Handle to IHIEventShapeSummaryTool" };
 
-  void PrintHIEventShapeContainer(const xAOD::HIEventShapeContainer *Container);
+  void PrintHIEventShapeContainer(const xAOD::HIEventShapeContainer* Container);
 };
 
 #endif
