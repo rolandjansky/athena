@@ -53,7 +53,8 @@ then
                --skipEvents '0' --conditionsTag 'default:OFLCOND-MC16-SDR-16' \
                --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
                --outputAODFile ${aodFile} \
-               --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)'\
+               --steering 'doRDO_TRIG' \
+               --athenaopts "all:--threads=1" \
                --imf False
      rc1_1=$?
      if [ ${rc1_1} -eq 0 ]
@@ -70,3 +71,11 @@ then
 fi
 echo "art-result: ${rc1_1} RDOtoAOD"
 echo "art-result: ${rc1_2} AODtoNTUP"
+
+rc2=999
+if [ ${rc1_1} -eq 0 ]
+then
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
+echo "art-result: ${rc2} regression"
