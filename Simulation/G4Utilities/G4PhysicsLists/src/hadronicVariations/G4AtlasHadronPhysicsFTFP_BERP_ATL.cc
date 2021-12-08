@@ -23,23 +23,21 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4HadronPhysicsFTFP_BERT_ATL_noDiffraction.cc 83699 2014-09-10 07:18:25Z gcosmo $
+// $Id: G4AtlasHadronPhysicsFTFP_BERP_ATL.cc 83699 2014-09-10 07:18:25Z gcosmo $
 //
 //---------------------------------------------------------------------------
 // Author: Alberto Ribon
 // Date:   October 2017
 //
-// Hadron physics for the new physics list FTFP_BERT_ATL_noDiffraction.
+// Hadron physics for the new physics list FTFP_BERP_ATL.
 // This is a modified version of the FTFP_BERT_ATL hadron physics for ATLAS,
-// which has the target diffraction for hadron-nucleus interactions
-// switched off (note that FTFP_BERT_ATL has already the projectile
-// diffraction for hadron-nucleus switched off, but the target diffraction
-// is switched on).
+// in which the Bertini model uses Precompound/de-excitation models
+// (instead of the default internal, cascade de-excitation models).
 //----------------------------------------------------------------------------
 //
 #include <iomanip>   
 
-#include "G4HadronPhysicsFTFP_BERT_ATL_noDiffraction.hh"
+#include "G4AtlasHadronPhysicsFTFP_BERP_ATL.hh"
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -73,10 +71,10 @@
 // factory
 #include "G4PhysicsConstructorFactory.hh"
 //
-G4_DECLARE_PHYSCONSTR_FACTORY(G4HadronPhysicsFTFP_BERT_ATL_noDiffraction);
+G4_DECLARE_PHYSCONSTR_FACTORY(G4AtlasHadronPhysicsFTFP_BERP_ATL);
 
-G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::G4HadronPhysicsFTFP_BERT_ATL_noDiffraction(G4int)
-    :  G4VPhysicsConstructor("hInelastic FTFP_BERT_ATL_noDiffraction")
+G4AtlasHadronPhysicsFTFP_BERP_ATL::G4AtlasHadronPhysicsFTFP_BERP_ATL(G4int)
+    :  G4VPhysicsConstructor("hInelastic FTFP_BERP_ATL")
     , theNeutronCaptureModel(0)
     , thePreEquilib(0)
     , theCascade(0)
@@ -126,7 +124,7 @@ G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::G4HadronPhysicsFTFP_BERT_ATL_noDiffr
     , theNeutronCaptureXS(0)
 {}
 
-G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::G4HadronPhysicsFTFP_BERT_ATL_noDiffraction(const G4String& name, G4bool /*quasiElastic*/)
+G4AtlasHadronPhysicsFTFP_BERP_ATL::G4AtlasHadronPhysicsFTFP_BERP_ATL(const G4String& name, G4bool /*quasiElastic*/)
     :  G4VPhysicsConstructor(name) 
     , theNeutronCaptureModel(0)
     , thePreEquilib(0)
@@ -177,20 +175,17 @@ G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::G4HadronPhysicsFTFP_BERT_ATL_noDiffr
     , theNeutronCaptureXS(0)
 {}
 
-void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::CreateModels()
+void G4AtlasHadronPhysicsFTFP_BERP_ATL::CreateModels()
 {
 
   G4double minFTFP =  9.0 * GeV;
   G4double maxBERT = 12.0 * GeV;
-  G4cout << " FTFP_BERT_ATL_noDiffraction : similar to FTFP_BERT_ATL but with" << G4endl
-         << " target diffraction for hadron-nucleus interaction switched off." << G4endl;
+  G4cout << " FTFP_BERP_ATL : similar to FTFP_BERT_ATL but with" << G4endl
+         << " Bertini model that uses the Precompound/de-excitation models" << G4endl
+         << " (instead of the default internal, cascade de-excitation models)." 
+         <<  G4endl;
 
-  theStringModel = new G4FTFModel2;
-
-  //***********************************
-  theStringModel->TurnOffDiffraction();  // Switch off projectile and target diffraction
-  //***********************************
-
+  theStringModel = new G4FTFModel;
   theStringDecay = new G4ExcitedStringDecay( theLund = new G4LundStringFragmentation );
   theStringModel->SetFragmentationModel( theStringDecay );
   thePreEquilib = new G4PreCompoundModel( theHandler = new G4ExcitationHandler );
@@ -207,6 +202,7 @@ void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::CreateModels()
   theBertini1 = new G4CascadeInterface;
   theBertini1->SetMinEnergy( 0.0*GeV );
   theBertini1->SetMaxEnergy( maxBERT );
+  theBertini1->usePreCompoundDeexcitation();  //<---LOOKHERE
 
   // FTF for hyperons
   theModel2 = new G4TheoFSGenerator( "FTFP" );
@@ -219,6 +215,7 @@ void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::CreateModels()
   theBertini2 = new G4CascadeInterface;
   theBertini2->SetMinEnergy( 0.0*GeV );
   theBertini2->SetMaxEnergy( 6.0*GeV );
+  theBertini2->usePreCompoundDeexcitation();  //<---LOOKHERE
 
   // FTF for Antibaryons  
   theModel3 = new G4TheoFSGenerator( "FTFP" );
@@ -243,7 +240,7 @@ void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::CreateModels()
   theNeutronCaptureXS        = G4CrossSectionDataSetRegistry::Instance()->GetCrossSectionDataSet( G4NeutronCaptureXS::Default_Name() );
 }
 
-G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::~G4HadronPhysicsFTFP_BERT_ATL_noDiffraction()
+G4AtlasHadronPhysicsFTFP_BERP_ATL::~G4AtlasHadronPhysicsFTFP_BERP_ATL()
 {
   delete theStringDecay;
   delete theStringModel;
@@ -252,7 +249,7 @@ G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::~G4HadronPhysicsFTFP_BERT_ATL_noDiff
   delete theLund;
 }
 
-void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::ConstructParticle()
+void G4AtlasHadronPhysicsFTFP_BERP_ATL::ConstructParticle()
 {
   G4MesonConstructor pMesonConstructor;
   pMesonConstructor.ConstructParticle();
@@ -264,7 +261,7 @@ void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::ConstructParticle()
   pShortLivedConstructor.ConstructParticle();  
 }
 
-void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::ConstructProcess()
+void G4AtlasHadronPhysicsFTFP_BERP_ATL::ConstructProcess()
 {
   CreateModels();
 

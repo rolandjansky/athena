@@ -35,8 +35,8 @@
 // (instead of the default internal, cascade de-excitation models).
 //----------------------------------------------------------------------------
 //
-#ifndef G4HadronPhysicsFTFP_BERP_ATL_h
-#define G4HadronPhysicsFTFP_BERP_ATL_h 1
+#ifndef G4AtlasHadronPhysicsFTFP_BERP_ATL_h
+#define G4AtlasHadronPhysicsFTFP_BERP_ATL_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -90,12 +90,12 @@
 #include "G4ChipsHyperonInelasticXS.hh"
 
 
-class G4HadronPhysicsFTFP_BERP_ATL : public G4VPhysicsConstructor
+class G4AtlasHadronPhysicsFTFP_BERP_ATL : public G4VPhysicsConstructor
 {
   public: 
-    G4HadronPhysicsFTFP_BERP_ATL(G4int verbose =1);
-    G4HadronPhysicsFTFP_BERP_ATL(const G4String& name, G4bool quasiElastic=false);
-    virtual ~G4HadronPhysicsFTFP_BERP_ATL();
+    G4AtlasHadronPhysicsFTFP_BERP_ATL(G4int verbose =1);
+    G4AtlasHadronPhysicsFTFP_BERP_ATL(const G4String& name, G4bool quasiElastic=false);
+    virtual ~G4AtlasHadronPhysicsFTFP_BERP_ATL();
 
   public: 
     virtual void ConstructParticle();

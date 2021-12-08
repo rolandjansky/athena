@@ -37,8 +37,8 @@
 // is switched on).
 //----------------------------------------------------------------------------
 //
-#ifndef G4HadronPhysicsFTFP_BERT_ATL_noDiffraction_h
-#define G4HadronPhysicsFTFP_BERT_ATL_noDiffraction_h 1
+#ifndef G4AtlasHadronPhysicsFTFP_BERT_ATL_noDiffraction_h
+#define G4AtlasHadronPhysicsFTFP_BERT_ATL_noDiffraction_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -92,12 +92,12 @@
 #include "G4ChipsHyperonInelasticXS.hh"
 
 
-class G4HadronPhysicsFTFP_BERT_ATL_noDiffraction : public G4VPhysicsConstructor
+class G4AtlasHadronPhysicsFTFP_BERT_ATL_noDiffraction : public G4VPhysicsConstructor
 {
   public: 
-    G4HadronPhysicsFTFP_BERT_ATL_noDiffraction(G4int verbose =1);
-    G4HadronPhysicsFTFP_BERT_ATL_noDiffraction(const G4String& name, G4bool quasiElastic=false);
-    virtual ~G4HadronPhysicsFTFP_BERT_ATL_noDiffraction();
+    G4AtlasHadronPhysicsFTFP_BERT_ATL_noDiffraction(G4int verbose =1);
+    G4AtlasHadronPhysicsFTFP_BERT_ATL_noDiffraction(const G4String& name, G4bool quasiElastic=false);
+    virtual ~G4AtlasHadronPhysicsFTFP_BERT_ATL_noDiffraction();
 
   public: 
     virtual void ConstructParticle();
