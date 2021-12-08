@@ -11,7 +11,7 @@ __author__ = "Sebastien Binet"
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
 import re
-from functools import cache
+from functools import cache, reduce
 from math import isnan
 from numbers import Real
 from os import environ
@@ -165,34 +165,39 @@ def main(args):
         dict_in = {}
         nevts = tree.GetEntriesFast()
 
+        eiDict = {'eventNumber':['EventInfoAux.',
+                                 'Bkg_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v3_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v2_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v1_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v3_Bkg_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v2_Bkg_EventInfoAux.',
+                                 'xAOD::EventAuxInfo_v1_Bkg_EventInfoAux.'],
+                  'm_event_ID.m_event_number':['McEventInfo',
+                                               'ByteStreamEventInfo',
+                                               'EventInfo_p4_McEventInfo',
+                                               'EventInfo_p4_ByteStreamEventInfo']}
+
+        @cache
+        def find_attrs():
+            """Find the relevant attributes for reading the event number"""
+            for ii, jj in eiDict.items():
+                for kk in jj:
+                    if hasattr(tree, kk):
+                        return kk, ii
+            else:
+                return None, None
+
         for idx in range(0, nevts):
             if idx % 100 == 0:
                 msg.debug('Read {} events from the input so far'.format(idx))
             tree.GetEntry(idx)
-            if hasattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.'):
-                event_info = getattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.')
-                event_number = event_info.eventNumber
-            elif hasattr(tree,'xAOD::EventAuxInfo_v2_Bkg_EventInfoAux.'):
-                event_info = getattr(tree,'xAOD::EventAuxInfo_v2_Bkg_EventInfoAux.')
-                event_number = event_info.eventNumber
-            elif hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
-                event_info = getattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.')
-                event_number = event_info.eventNumber
-            elif hasattr(tree,'EventInfoAux.'):
-                event_info = getattr(tree,'EventInfoAux.')
-                event_number = event_info.eventNumber
-            elif hasattr(tree,'EventInfo_p4_McEventInfo'):
-                event_info = getattr(tree,'EventInfo_p4_McEventInfo')
-                event_number = event_info.m_event_ID.m_event_number
-            elif hasattr(tree,'EventInfo_p4_ByteStreamEventInfo'):
-                event_info = getattr(tree,'EventInfo_p4_ByteStreamEventInfo')
-                event_number = event_info.m_event_ID.m_event_number
-            elif hasattr(tree,'ByteStreamEventInfo'):
-                event_info = getattr(tree,'ByteStreamEventInfo')
-                event_number = event_info.m_event_ID.m_event_number
-            else:
+            attr1, attr2 = find_attrs()
+            if attr1 is None or attr2 is None:
                 msg.error('Cannot read event info, will bail out.')
+                msg.error(f"Tried attributes {attr1} and {attr2}")
                 break
+            event_number = reduce(getattr, [attr1] + attr2.split('.'), tree)
             msg.debug('Idx : EvtNum {:10d} : {}'.format(idx,event_number))
             dict_in[idx] = event_number
 
