@@ -94,6 +94,8 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
       entry.ev_hits.push_back(myhit);
     }
   }
+  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() < 0; })) ? 'C' : '-';
+  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() > 0; })) ? 'A' : '-';
 
   std::vector<std::shared_ptr<MMT_Road> > temp_roads;
   for (int i = 0; i < nroad; i++) {
@@ -267,10 +269,11 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
         slope.theta = (slope.xavg > 0.) ? theta : TMath::Pi() - theta;
         slope.eta = -1.*TMath::Log(TMath::Tan(slope.theta/2.));
         slope.dtheta = (slope.mxl - slope.xavg)/(1. + slope.mxl*slope.xavg);
-        char side = (slope.xavg > 0.) ? 'A' : 'C';
-        double phi = TMath::ATan(slope.mx/slope.xavg), phiShifted = this->phiShift(this->getDiamond(iterator).stationPhi, phi, side);
+        slope.side = (slope.xavg > 0.) ? 'A' : 'C';
+        double phi = TMath::ATan(slope.mx/slope.xavg), phiShifted = this->phiShift(this->getDiamond(iterator).stationPhi, phi, slope.side);
         slope.phi = phi;
         slope.phiShf = phiShifted;
+        slope.lowRes = road->evaluateLowRes();
 
         m_diamonds[iterator].slopes.push_back(slope);
       }
@@ -292,7 +295,8 @@ void MMT_Diamond::resetSlopes() {
   if (!m_hitslopes.empty()) m_hitslopes.clear();
 }
 
-slope_t::slope_t(int ev, int bc, unsigned int tC, unsigned int rC, int iX, int iU, int iV, unsigned int uvb, unsigned int xb, unsigned int uvm, unsigned int xm, 
-                 int age, double mxl, double xavg, double uavg, double vavg, double mx, double th, double eta, double dth, double phi, double phiS) : 
+slope_t::slope_t(int ev, int bc, unsigned int tC, unsigned int rC, int iX, int iU, int iV, unsigned int uvb, unsigned int xb, unsigned int uvm, unsigned int xm,
+                 int age, double mxl, double xavg, double uavg, double vavg, double mx, double th, double eta, double dth, char side, double phi, double phiS,
+                 bool lowRes) :
   event(ev), BC(bc), totalCount(tC), realCount(rC), iRoad(iX), iRoadu(iU), iRoadv(iV), uvbkg(uvb), xbkg(xb), uvmuon(uvm), xmuon(xm),
-  age(age), mxl(mxl), xavg(xavg), uavg(uavg), vavg(vavg), mx(mx), theta(th), eta(eta), dtheta(dth), phi(phi), phiShf(phiS) {}
+  age(age), mxl(mxl), xavg(xavg), uavg(uavg), vavg(vavg), mx(mx), theta(th), eta(eta), dtheta(dth), side(side), phi(phi), phiShf(phiS), lowRes(lowRes) {}

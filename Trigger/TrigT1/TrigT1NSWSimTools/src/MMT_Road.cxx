@@ -164,6 +164,15 @@ unsigned int MMT_Road::countXHits(bool flag) {
   return nx;
 }
 
+bool MMT_Road::evaluateLowRes() {
+  unsigned int nhits1 = 0, nhits2 = 0;
+  for (const auto &hit : m_road_hits) {
+    if (hit.getPlane() < 4 && !hit.isNoise()) nhits1++;
+    else if (hit.getPlane() > 3 && !hit.isNoise()) nhits2++;
+  }
+  return (nhits1 < 4 || nhits2 < 4) ? true : false;
+}
+
 bool MMT_Road::horizontalCheck() {
   int nx1 = 0, nx2 = 0;
   for (const auto &hit : m_road_hits) {

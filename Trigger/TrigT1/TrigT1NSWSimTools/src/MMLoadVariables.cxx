@@ -171,8 +171,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
             int gas_gap          = m_MmIdHelper->gasGap(id);
             int channel          = m_MmIdHelper->channel(id);
 
-            if (stName.substr(0,2) != "MM") continue;
-            int isSmall = (stName[2] == 'S');
+            if (!m_MmIdHelper->is_mm(id)) continue;
+            bool isSmall = (m_MmIdHelper->isSmall(id));
             const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
             std::vector<float>  time          = digit->stripTimeForTrigger();
