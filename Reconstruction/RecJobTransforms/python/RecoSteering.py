@@ -85,6 +85,12 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(PFCfg(flags))
         log.info("---------- Configured particle flow")
 
+    # EGamma and CombinedMuon isolation
+    if flags.Reco.EnableCombinedMuon or flags.Reco.EnableEgamma:
+        from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
+        acc.merge(IsolationSteeringCfg(flags, doIsoMuon = tryConfiguringAll))
+        log.info("---------- Configured isolation")
+
     # jets
 
     # btagging
