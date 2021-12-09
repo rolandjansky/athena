@@ -16,7 +16,6 @@ def _run(input):
     #TODO these flags should be defaulted in the divier function above, 
     #TODO    but then we ought to have option to set them from command line should the parser be passed there too?
 
-    flags.Calo.TopoCluster.doTopoClusterLocalCalib=False
     flags.Output.ESDFileName="myESD.pool.root"
     flags.Output.AODFileName="myAOD.pool.root"
     parser = flags.getArgumentParser()

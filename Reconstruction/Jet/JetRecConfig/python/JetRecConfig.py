@@ -89,7 +89,10 @@ def JetInputCfg(configFlags,jetOrConstitdef , context="default"):
     algs = getInputAlgs(jetOrConstitdef, configFlags, context)
 
     for a in algs:
-        components.addEventAlgo( a )
+        if isinstance(a, ComponentAccumulator):
+            components.merge(a)
+        else:
+            components.addEventAlgo(a)
     
     return components
 
