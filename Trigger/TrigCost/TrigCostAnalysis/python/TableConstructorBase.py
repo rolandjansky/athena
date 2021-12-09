@@ -65,7 +65,7 @@ class TableConstructorBase:
         all the tables like caching histograms or saving table to file. 
     '''
 
-    def __init__(self, tableObj):
+    def __init__(self, tableObj, underflowThreshold, overflowThreshold):
         '''ROOT table directory object, storing subdirs with histograms'''
         self.tableObj = tableObj
 
@@ -78,11 +78,26 @@ class TableConstructorBase:
         '''List with expected histograms'''
         self.expectedHistograms = []
 
+        '''Number of underflow bins after which warning will be saved to metadata tree'''
+        self.underflowThreshold = underflowThreshold
+
+        '''Number of overflow bins after which warning will be saved to metadata tree'''
+        self.overflowThreshold = overflowThreshold
+
+        '''Overflow log'''
+        self.warningMsg = []
+
+
+    def getWarningMsgs(self):
+        ''' @brief Raturn warning messages concerning histogram under/over flows '''
+        return self.warningMsg
+
 
     def getHistogram(self, name):
         ''' @brief Return cached histogram with given name'''
         if name not in self.histograms:
             log.error("Histogram %s not found!", name)
+            return None
         return self.histograms[name]
 
 
@@ -105,15 +120,26 @@ class TableConstructorBase:
             fullHistName = prefix + dirName + '_' + histName
             hist = dirObj.Get(fullHistName)
 
-            # Check for overflows
-            if hist.GetBinContent(hist.GetNbinsX() + 1) > 0:
-                log.warning("Histogram {0} contains overflow of {1}".format(fullHistName, hist.GetBinContent(hist.GetNbinsX() + 1)))
-
             if not hist:
                 log.debug("Full name %s", fullHistName)
                 log.debug("Directory: %s", dirObj.ls())
                 log.error("Expected histogram %s not found", histName)
             else:
+                # Check for under and overflows
+                # Under/overflow bin stores weighted value - we cannot base on entries
+                histIntegral = hist.Integral(0, hist.GetNbinsX() + 1) # Integral including overflows
+                overflowThreshold = self.overflowThreshold * histIntegral
+                overflow = hist.GetBinContent(hist.GetNbinsX() + 1)
+                if overflow > overflowThreshold:
+                    log.warning("Histogram {0} contains overflow of {1}".format(fullHistName, overflow))
+                    self.warningMsg.append("Overflow of {0} ({1} histogram integral) in {2}".format(overflow, histIntegral, fullHistName))
+
+                underflowThreshold = self.underflowThreshold * histIntegral
+                underflow = hist.GetBinContent(0)
+                if underflow > underflowThreshold:
+                    log.warning("Histogram {0} contains underflow of {1}".format(fullHistName, underflow))
+                    self.warningMsg.append("Underflow of {0} ({1} histogram integral) in {2}".format(underflow, histIntegral, fullHistName))
+
                 self.histograms[histName] = hist
 
 
@@ -127,9 +153,11 @@ class TableConstructorBase:
         '''
 
         hist = self.getHistogram(histName)
+        if not hist:
+            return 0
 
         total = 0
-        for i in range(1, hist.GetXaxis().GetNbins()):
+        for i in range(1, hist.GetXaxis().GetNbins()+1):
             if isLog:
                 total += hist.GetBinContent(i) * hist.GetXaxis().GetBinCenterLog(i)
             else:
