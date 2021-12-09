@@ -2626,7 +2626,7 @@ HLT_j450_pf_ftf_preselj225_L1J100:
   eventCount: 0
 HLT_j450_pf_ftf_preselj225_L1jJ100:
   eventCount: 0
-HLT_j45_0eta290_020jvt_020jvt_pf_ftf_bdl1r70_L1J20:
+HLT_j45_0eta290_020jvt_pf_ftf_bdl1r70_L1J20:
   eventCount: 2
   stepCounts:
     0: 16

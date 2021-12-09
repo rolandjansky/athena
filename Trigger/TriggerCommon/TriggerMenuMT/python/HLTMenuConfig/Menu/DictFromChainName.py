@@ -3,8 +3,7 @@
 """
 Class to obtain the chain configuration dictionary from the short or long name
 
-Author: Catrin Bernius
-Original code from TriggerMenu with CB, Joerg Stelzer, Moritz Backes
+Authors of original code in TriggerMenu: Joerg Stelzer, Moritz Backes, Catrin Bernius
 
 """
 __author__  = 'Catrin Bernius'
@@ -13,6 +12,9 @@ __doc__="Decoding of chain name into a dictionary"
 
 from TrigConfHLTUtils.HLTUtils import string2hash
 from AthenaCommon.Logging import logging
+
+import collections
+
 log = logging.getLogger( __name__ )
 
 def getOverallL1item(chainName):
@@ -152,6 +154,11 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
     # ---- remove the L1 item from the name ----
     hltChainName = chainName[:chainName.index("_L1")]
+
+    # ---- check for HLT_HLT in name ---
+    if 'HLT_HLT' in hltChainName:
+        log.error("%s is incorrect, please fix the HLT_HLT part", hltChainName)
+        raise RuntimeError("[analyseChainName] chain name contains HLT_HLT, please fix in corresponding menu where this chain is included")
 
     # ---- specific chain part information ----
     allChainProperties=[]
@@ -315,6 +322,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     # build the chainProperties dictionary for each part of the chain
     # add it to a allChainProperties
     multichainparts.reverse()
+    log.debug('multichainparts after reverse: %s', multichainparts)
 
     # verify if the L1 setup is consistent with the chain
     # sizes of seeds matter
@@ -348,12 +356,20 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         chainpartsNoL1 = chainparts
         parts=chainpartsNoL1.split('_')
+        log.debug("[analyseChainName] chain parts w/o L1 are %s", parts)
         if None in parts:
             log.error("[analyseChainName] chainpartsNoL1 -> parts: %s -> %s", chainpartsNoL1, parts)
             raise Exception("[analyseChainName] parts contains None, please identify how this is happening")
         parts=list(filter(None,parts))
         log.debug("[analyseChainName] chainpartsNoL1 %s, parts %s", chainpartsNoL1, parts)
-        
+
+        # --- check for duplicate strings in chain part name ---
+        duplicateParts = ([item for item, count in collections.Counter(parts).items() if count > 1])
+        log.debug("[analyseChainName] chainpartsNoL1 %s contains duplicate strins %s", chainpartsNoL1, duplicateParts)
+        if duplicateParts:
+            log.error("[analyseChainName] chain %s has duplicate strings %s, please fix!!", chainName, duplicateParts)
+            raise RuntimeError("[analyseChainName] Check the chain name, there are duplicate configurations: %s", duplicateParts)
+
         chainProperties['trigType']=mdicts[chainindex]['trigType']
         chainProperties['extra']=mdicts[chainindex]['extra']
         multiplicity = mdicts[chainindex]['multiplicity'] if not mdicts[chainindex]['multiplicity'] == '' else '1'
@@ -371,7 +387,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         if len(multichainparts) > 1 and L1item.count("_") > 1 :
             chainProperties['chainPartName'] = chainpartsNoL1
 
-        log.debug('Chainparts: %s', chainparts)
+        log.debug('[analyseChainname] Chainparts: %s', chainparts)
         if (chainProperties['signature'] != 'Cosmic') \
                 & (chainProperties['signature'] != 'Calib')\
                 & (chainProperties['signature'] != 'Streaming') \
@@ -394,16 +410,26 @@ def analyseChainName(chainName, L1thresholds, L1item):
         from .SignatureDicts import getSignatureInformation
         SignatureDefaultValues, allowedSignaturePropertiesAndValues = getSignatureInformation(chainProperties['signature'])
         log.debug('SignatureDefaultValues: %s', SignatureDefaultValues)
+        allDefaults = list(SignatureDefaultValues.values())
+        log.debug('All default values in a list')
 
         # ---- update chain properties with default properties ----
         result = deepcopy(SignatureDefaultValues)
         result.update(chainProperties)
         chainProperties = result
 
+        # ---- check that all parts to be matched are not specified as defaults already ----
+        overlaps = [x for x in parts if x in allDefaults]
+        log.debug("parts that are also in defaults: %s ", overlaps)
+        if overlaps:
+            #log.error("[analyseChainName] The following string(s) is/are already defined as defaults, please remove: %s", overlaps)
+            #raise RuntimeError("[analyseChainname] Default config appearing in chain name, please remove: %s", overlaps)
+            log.warning("[analyseChainName] The following string(s) is/are already defined as defaults, please remove: %s", overlaps)
+
         # ---- check remaining parts for complete matches in allowedPropertiesAndValues Dict ----
         # ---- unmatched = list of tokens that are not found in the allowed values as a whole ----
-
         matchedparts = []
+        log.debug("[analyseChainname] parts to match are %s", parts)
         for pindex, part in enumerate(parts):
             for prop, allowedValues in allowedSignaturePropertiesAndValues.items():
                 if part in allowedValues:
@@ -430,6 +456,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                     log.debug('Changing %s from %s to %s', prop, str(chainProperties[prop]), str(bJetDefaultValues[prop]))
                     chainProperties[prop] = bJetDefaultValues[prop]
 
+        # ---- checking the parts that haven't been matched yet ----
         log.debug("matched parts %s", matchedparts)
         leftoverparts = set(parts)-set(matchedparts)
         log.debug('leftoverparts %s', leftoverparts)

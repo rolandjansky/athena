@@ -67,6 +67,7 @@ def setupMenu():
     log.info('[setupMenu] going to add the Dev menu chains now')
 
     chains['Muon'] += [
+
         #test chains
         ChainProp(name="HLT_noalg_L1MU5VF",   l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+LowMuGroup),
 
@@ -398,7 +399,6 @@ def setupMenu():
 
 
     chains['Jet'] += [
-
         ### PURE TEST CHAINS
 
         # Low-pt jet chains -- keep any?
@@ -699,7 +699,7 @@ def setupMenu():
 
         # for monitoring
         ### IS THIS SUPPORT?
-        ChainProp(name='HLT_j45_0eta290_020jvt_020jvt_pf_ftf_bdl1r70_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
+        ChainProp(name='HLT_j45_0eta290_020jvt_pf_ftf_bdl1r70_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
 
         #### TESTING CHAINS
 
@@ -805,7 +805,6 @@ def setupMenu():
         ChainProp(name='HLT_j20_pf_ftf_boffperf_L1HT190-J15s5pETA21', l1SeedThresholds=['FSNOSEED'], groups=MultiBjetGroup+DevGroup),
         ChainProp(name='HLT_j20_pf_ftf_boffperf_L1J100', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup+DevGroup),
         ChainProp(name='HLT_j20_pf_ftf_boffperf_L1J50_DETA20-J50J', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup+DevGroup),
-
 
     ]
 
