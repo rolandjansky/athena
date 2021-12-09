@@ -66,9 +66,9 @@ public:
   void setCLID(const uint32_t *guid);
 
 private:
-  void do_persistify(const std::string nameOfClass, void* instance);
-  void do_persistify_obj(const std::string nameOfClass, void* instance);
-  void do_follow_ptr(const std::string nameOfClass, void* instance);
+  void do_persistify(const std::string& nameOfClass, void* instance);
+  void do_persistify_obj(const std::string& nameOfClass, void* instance);
+  void do_follow_ptr(const std::string& nameOfClass, void* instance);
   void add_previous_streamerinfos();
   
   static bool streamerErrorHandler(Int_t level, Bool_t abort_bool,
