@@ -410,7 +410,7 @@ namespace Analysis {
               (*btagIter)->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
               (*btagIter)->setDynVxELName(basename, "vertices");
 	          }
-	          else if("JetFitter" == basename) {
+	          else if("JetFitter" == basename || "JetFitterFlip" == basename) {
               std::vector< ElementLink< xAOD::TrackParticleContainer > > tracksAtPVlinks;
               (*btagIter)->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);
               (*btagIter)->setDynTPELName(basename, "tracksAtPVlinks");
@@ -431,7 +431,7 @@ namespace Analysis {
 	            ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo for " << basename);
 	            return sc;
 	          }
-          } else if (basename == "JetFitter") {
+          } else if (basename == "JetFitter" || basename == "JetFitterFlip") {
             const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo);
             ATH_MSG_DEBUG("#BTAG# Found valid VxJetFitterVertexInfo information: " << infoCont.key());
             StatusCode sc = fillJFVariables(jetToTag, *btagIter, myVertexInfoJetFitter, theTrackParticleContainer, basename);
