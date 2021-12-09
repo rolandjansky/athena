@@ -475,10 +475,9 @@ float CombinedP4FromRecoTaus::GetNsigma_Compatibility(float et_TauRec){
   return nsigma;
 }
 
-// Deprecated, should not be used
+// Should not be used for MET significance calculation, superseded by GetMvaEnergyResolution
 //_____________________________________________________________________________
 double CombinedP4FromRecoTaus::GetCaloResolution(const xAOD::TauJet* tau){
-  ATH_MSG_WARNING("GetCaloResolution is deprecated, please use GetMvaEnergyResolution");
 
   TLorentzVector tauRecP4;
   tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());

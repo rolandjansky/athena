@@ -63,14 +63,15 @@ class CombinedP4FromRecoTaus
   // Get relative MVA energy resolution
   double GetMvaEnergyResolution(const xAOD::TauJet* tau);
 
-  // Get calo-only absolute energy resolution: deprecated, should not be used
-  double GetCaloResolution(const xAOD::TauJet* tau);
-
   bool GetUseCaloPtFlag(const xAOD::TauJet* tau);
 
   StatusCode execute(xAOD::TauJet& xTau); 
 
  private:
+
+  // Get calo-only absolute energy resolution
+  double GetCaloResolution(const xAOD::TauJet* tau);
+
   std::vector< std::vector<TGraph*> >  m_resTGraph_tauRec;
   std::vector< std::vector<TGraph*> >  m_resTGraph_CellBased2PanTau;
   std::vector< std::vector<TGraph*> >  m_resTGraph_FinalCalib;
