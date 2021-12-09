@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,56 +16,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
-/** Constructor **/
-MagField::AtlasFieldMap::AtlasFieldMap() = default;
 
-MagField::AtlasFieldMap::~AtlasFieldMap()
-{
-  delete m_meshZR;
-}
-
-const BFieldZone*
-MagField::AtlasFieldMap::findBFieldZone(double z, double r, double phi) const
-{
-
-  // make sure it's inside the largest zone
-  // NB: the sign of the logic is chosen in order to return 0 on NaN inputs
-  if (z >= m_zmin && z <= m_zmax && r <= m_rmax) {
-    // find the edges of the zone
-    // z
-    const std::vector<double>& edgez(m_edge[0]);
-    int iz = int(m_invq[0] * (z - m_zmin)); // index to LUT
-    iz = m_edgeLUT[0][iz];                  // tentative index from LUT
-    if (z > edgez[iz + 1]) {
-      iz++;
-    }
-    // r
-    const std::vector<double>& edger(m_edge[1]);
-    int ir = int(m_invq[1] * r); // index to LUT - note minimum r is always 0
-    ir = m_edgeLUT[1][ir];       // tentative index from LUT
-    if (r > edger[ir + 1]) {
-      ir++;
-    }
-    // phi
-    const std::vector<double>& edgephi(m_edge[2]);
-    int iphi =
-      int(m_invq[2] * (phi + M_PI)); // index to LUT - minimum phi is -pi
-    iphi = m_edgeLUT[2][iphi];       // tentative index from LUT
-    if (phi > edgephi[iphi + 1]) {
-      iphi++;
-    }
-    // use LUT to get the zone
-    return m_zoneLUT[(iz * m_nr + ir) * m_nphi + iphi];
-  }
-  return nullptr;
-}
-
-// fast 2d map (made of one zone)
-const BFieldMeshZR*
-MagField::AtlasFieldMap::getBFieldMesh() const
-{
-  return m_meshZR;
-}
 
 //
 // read the map from a ROOT file.
