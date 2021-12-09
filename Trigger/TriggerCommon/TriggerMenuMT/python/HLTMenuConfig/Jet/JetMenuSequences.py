@@ -250,7 +250,7 @@ def getPreselFTagDecorators(flags,jet_name):
     primaryVertexContainer = ''  # IDTrigConfig.vertex_jet
     simpleTrackIpPrefix = 'simpleIp_'
     
-    CompFactory.FlavorTagDiscriminants.PoorMansIpAugmenterAlg(
+    CompFactory.FlavorTagDiscriminants__PoorMansIpAugmenterAlg(
             'SimpleTrackAugmenter',
             trackContainer=trackContainer,
             primaryVertexContainer=primaryVertexContainer,
