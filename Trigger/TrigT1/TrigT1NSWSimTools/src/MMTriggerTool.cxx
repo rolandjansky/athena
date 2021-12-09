@@ -113,8 +113,8 @@ namespace NSWL1 {
     m_par_small = std::make_shared<MMT_Parameters>(xxuvuvxx,'S', m_detManager);
 
     // Variables for RDO encoding
-    this->setPhiMin(-16.*TMath::DegToRad());
-    this->setPhiMax(16.*TMath::DegToRad());
+    this->setPhiMin(-16.*M_PI/180.0);
+    this->setPhiMax(16.*M_PI/180.0);
     this->setPhiBits(6);
     this->setRMin(900); // mm
     this->setRMax(5000);
@@ -386,7 +386,7 @@ namespace NSWL1 {
 	        else if(n == 8) fitPhi = (fitPhi + (fitPhi >= 0 ? -1 : 1)*shift);
 	        else if(n > 8)  fitPhi = (fitPhi - shift);
 
-	        double fitEta = -1. * TMath::Log(TMath::Tan(fitTheta/2.)); //VALE: trueta was filled!!!!
+	        double fitEta = -1. * std::log(std::tan(fitTheta/2.)); //VALE: trueta was filled!!!!
 
                 ATH_MSG_DEBUG( "Truth " << tpos     << " " << ppos   << " " << dt );
                 ATH_MSG_DEBUG( "FIT!! " << fitTheta << " " << fitPhi << " " << fitDeltaTheta );
@@ -452,10 +452,10 @@ namespace NSWL1 {
 
             // Phi-id
             uint8_t phi_id = 0;
-            if (slope.phiShf*TMath::DegToRad() > this->getPhiMax() || slope.phiShf*TMath::DegToRad() < this->getPhiMin()) trigRawDataSegment->setPhiIndex(phi_id);
+            if (slope.phiShf*M_PI/180.0 > this->getPhiMax() || slope.phiShf*M_PI/180.0 < this->getPhiMin()) trigRawDataSegment->setPhiIndex(phi_id);
             unsigned int nPhi = (1<<this->getPhiBits()) -2; // To accomodate the new phi-id encoding prescription around 0
             float phiSteps = (this->getPhiMax()-this->getPhiMin())/nPhi;
-            phi_id = std::abs( (slope.phiShf*TMath::DegToRad())/phiSteps );
+            phi_id = std::abs( (slope.phiShf*M_PI/180.0)/phiSteps );
             trigRawDataSegment->setPhiIndex(phi_id);
 
             // R-id
@@ -469,10 +469,10 @@ namespace NSWL1 {
 
             // DeltaTheta-id
             uint8_t dTheta_id = 0;
-            if (slope.dtheta*TMath::DegToRad() > this->getdThetaMax() || slope.dtheta*TMath::DegToRad() < this->getdThetaMin()) trigRawDataSegment->setDeltaTheta(dTheta_id);
+            if (slope.dtheta*M_PI/180.0 > this->getdThetaMax() || slope.dtheta*M_PI/180.0 < this->getdThetaMin()) trigRawDataSegment->setDeltaTheta(dTheta_id);
             unsigned int ndTheta = (1<<this->getdThetaBits()) -1;
             float dThetaSteps = (this->getdThetaMax()-this->getdThetaMin())/ndTheta;
-            dTheta_id = std::abs( (slope.dtheta*TMath::DegToRad())/dThetaSteps );
+            dTheta_id = std::abs( (slope.dtheta*M_PI/180.0)/dThetaSteps );
             trigRawDataSegment->setDeltaTheta(dTheta_id);
 
             // Low R-resolution bit
