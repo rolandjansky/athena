@@ -88,7 +88,7 @@ int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, doubl
     double tmpWgt[15],out[3];
     double vBx,vBy,vBz; 
     VKTrack  * trk;
-    int vEstimDone=0, nTrkTot=0;
+    int vEstimDone=0;
 
     for(iv=0; iv<NV; iv++){ 
       auto VRT = std::make_unique< VKVertex >(FitCONTROL); 
@@ -96,12 +96,12 @@ int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, doubl
       VRT->setRefIterV(xyz);                           //iteration ref. point
       VRT->setIniV(xyz); VRT->setCnstV(xyz);           // initial guess. 0 of course.
       auto arr = std::make_unique<double[]>(vertexDefinition[iv].size()*5);
-      int NTv=vertexDefinition[iv].size(); nTrkTot += NTv;
+      int NTv=vertexDefinition[iv].size();
       for (it=0; it<NTv ; it++) {
         tk=vertexDefinition[iv][it];
         if( tk >= NTRK ) {
           return -1;
-	} 
+        } 
         VRT->TrackList.emplace_back(new VKTrack(tk, &inp_Trk5[tk*5], &inp_CovTrk5[tk*15] , VRT.get(), wm[tk]));
         VRT->tmpArr.emplace_back(new TWRK());
         trk = VRT->TrackList[it].get();
@@ -109,9 +109,9 @@ int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, doubl
         trk->iniP[0]=trk->cnstP[0]=trk->fitP[0]=inp_Trk5[tk*5+2];   //initial guess
         trk->iniP[1]=trk->cnstP[1]=trk->fitP[1]=inp_Trk5[tk*5+3];
         trk->iniP[2]=trk->cnstP[2]=trk->fitP[2]=inp_Trk5[tk*5+4];
-	IERR=cfInv5(&inp_CovTrk5[tk*15], tmpWgt);  
-	if (IERR) IERR=cfdinv(&inp_CovTrk5[tk*15], tmpWgt, 5); 
-	if (IERR) { return  -1; }
+        IERR=cfInv5(&inp_CovTrk5[tk*15], tmpWgt);  
+        if (IERR) IERR=cfdinv(&inp_CovTrk5[tk*15], tmpWgt, 5); 
+        if (IERR) { return  -1; }
         trk->setCurrent(&inp_Trk5[tk*5],tmpWgt);
         arr[it*5]=inp_Trk5[tk*5];arr[it*5+1]=inp_Trk5[tk*5+1];arr[it*5+2]=inp_Trk5[tk*5+2];
         arr[it*5+3]=inp_Trk5[tk*5+3];arr[it*5+4]=inp_Trk5[tk*5+4];
@@ -177,10 +177,6 @@ int initCascadeEngine(CascadeEvent & cascadeEvent_)
 
   VKVertex * VRT;
   long int IERR=0, iv, i;
-  int countTrk=0;  // Number of tracks in cascade
-  for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     countTrk += cascadeEvent_.cascadeVertexList[iv]->TrackList.size();
-  }
 //---------------------Some check-----------
 //  VKMassConstraint * tmpc0=0; VKMassConstraint * tmpc1=0;
 //  if(cascadeEvent_.cascadeVertexList[0]->ConstraintList.size()>0){

@@ -141,10 +141,6 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
 
   VKVertex * vk=nullptr;
   long int Iter, IERR, iv;
-  int countTrk=0;  // Number of tracks in cascade
-  for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     countTrk += cascadeEvent_.cascadeVertexList[iv]->TrackList.size();
-  }
   cascadeEvent_.setSCALE(1.);                    // Safety
 //============================================================================================
 //

@@ -40,7 +40,7 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEve
       int posCombTrk=0;                             /* Conbined track position in global matrix */
       VKVertex* vk = cascadeEvent_.cascadeVertexList[iv].get();
       if(vk->nextCascadeVrt){                           //next vertex exists
-	ivnext=-1;                                      //index of next vertex in common structure
+        ivnext=-1;                                      //index of next vertex in common structure
         for(int ivt=0;ivt<cascadeEvent_.cascadeNV;ivt++)if(vk->nextCascadeVrt==cascadeEvent_.cascadeVertexList[ivt].get())ivnext=ivt; 
         if(ivnext<0){return -1;};  //error in cascade
 //
@@ -62,27 +62,25 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEve
         DerivT[posCombTrk+0]=-1.;
         DerivP[posCombTrk+1]=-1.;
         std::array<double, 4> ppsum = getIniParticleMom( vk->nextCascadeVrt->TrackList[indCombTrk].get(), vMagFld[ivnext] ); // INI for pseudo
-	double csum=vk->nextCascadeVrt->TrackList[indCombTrk]->iniP[2];                                              // INI for pseudo
+        double csum=vk->nextCascadeVrt->TrackList[indCombTrk]->iniP[2];                                              // INI for pseudo
         double ptsum=sqrt(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1]);
         double sinth2sum=(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1])/(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1] + ppsum[2]*ppsum[2]);
         
 //
 // Momenta+Derivatives of tracks in vertex itself
-	double tpx,tpy; tpx=tpy=0;
-        for(it=0; it<(int)vk->TrackList.size(); it++){
-          std::array<double, 4> pp =    getIniParticleMom( vk->TrackList[it].get(), vMagFld[iv]);
+  for(it=0; it<(int)vk->TrackList.size(); it++){
+    std::array<double, 4> pp =    getIniParticleMom( vk->TrackList[it].get(), vMagFld[iv]);
 	  double curv=vk->TrackList[it]->iniP[2];
-          double pt=sqrt(pp[0]*pp[0] + pp[1]*pp[1]);
-          double cth=pp[2]/pt;
-          double sinth2=(pp[0]*pp[0] + pp[1]*pp[1])/(pp[0]*pp[0] + pp[1]*pp[1] + pp[2]*pp[2]);
-          DerivC[iniPosTrk+it*3+1] =  csum/ptsum/ptsum*(ppsum[0]*pp[1]-ppsum[1]*pp[0]);         //  dC/dPhi_i 
-          DerivC[iniPosTrk+it*3+2] =  csum/ptsum/ptsum*(ppsum[0]*pp[0]+ppsum[1]*pp[1])/curv;    //  dC/dC_i      
-          DerivP[iniPosTrk+it*3+1] =  (ppsum[0]*pp[0]+ppsum[1]*pp[1])/ptsum/ptsum;           //  dPhi/dPhi_i 
-          DerivP[iniPosTrk+it*3+2] =  (ppsum[1]*pp[0]-ppsum[0]*pp[1])/ptsum/ptsum/curv;      //  dPhi/dC_i      
-          DerivT[iniPosTrk+it*3+0] =  (sinth2sum*pt)/(sinth2*ptsum);                   //  dTheta/dTheta_i 
-          DerivT[iniPosTrk+it*3+2] =  (sinth2sum*pt*cth)/(curv*ptsum);                 //  dTheta/dC_i      
-	  tpx+=pp[0]; tpy+=pp[1];
-        }
+    double pt=sqrt(pp[0]*pp[0] + pp[1]*pp[1]);
+    double cth=pp[2]/pt;
+    double sinth2=(pp[0]*pp[0] + pp[1]*pp[1])/(pp[0]*pp[0] + pp[1]*pp[1] + pp[2]*pp[2]);
+    DerivC[iniPosTrk+it*3+1] =  csum/ptsum/ptsum*(ppsum[0]*pp[1]-ppsum[1]*pp[0]);         //  dC/dPhi_i 
+    DerivC[iniPosTrk+it*3+2] =  csum/ptsum/ptsum*(ppsum[0]*pp[0]+ppsum[1]*pp[1])/curv;    //  dC/dC_i      
+    DerivP[iniPosTrk+it*3+1] =  (ppsum[0]*pp[0]+ppsum[1]*pp[1])/ptsum/ptsum;           //  dPhi/dPhi_i 
+    DerivP[iniPosTrk+it*3+2] =  (ppsum[1]*pp[0]-ppsum[0]*pp[1])/ptsum/ptsum/curv;      //  dPhi/dC_i      
+    DerivT[iniPosTrk+it*3+0] =  (sinth2sum*pt)/(sinth2*ptsum);                   //  dTheta/dTheta_i 
+    DerivT[iniPosTrk+it*3+2] =  (sinth2sum*pt*cth)/(curv*ptsum);                 //  dTheta/dC_i      
+  }
 //        double iniV0Curv=myMagFld.getCnvCst()*vMagFld[iv]/sqrt(tpx*tpx+tpy*tpy);    //initial PseudoTrack Curvature
 //        if(csum<0)iniV0Curv *= -1.;
 //        iniV0Curv *= vMagFld[ivnext]/vMagFld[iv];  //magnetic field correction
@@ -157,7 +155,6 @@ void setFittedParameters(double * result, std::vector<int> & matrixPnt, CascadeE
 {
    extern double cfchi2(double *, double *, VKTrack *);
    int iv,it,Pnt;
-   double Chi2=0.;
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
      VKVertex *vk = cascadeEvent_.cascadeVertexList[iv].get();
      Pnt=matrixPnt[iv];    // start of vertex parameters
@@ -167,8 +164,7 @@ void setFittedParameters(double * result, std::vector<int> & matrixPnt, CascadeE
         trk->fitP[0]=trk->iniP[0]+result[Pnt+3+it*3 + 0];
         trk->fitP[1]=trk->iniP[1]+result[Pnt+3+it*3 + 1];
         trk->fitP[2]=trk->iniP[2]+result[Pnt+3+it*3 + 2];
-	trk->Chi2 = cfchi2(vk->fitV, trk->fitP, trk );
-        Chi2+=trk->Chi2;
+        trk->Chi2 = cfchi2(vk->fitV, trk->fitP, trk );
      }
    }
 }
