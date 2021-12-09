@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,6 @@ StatusCode JetFitterVariablesFactory::finalize() {
     //const double s_massks=497.648;
     const double s_pion=139.57018;//hard coded pion mass ;-)
     
-    int ntrackPrimaryVtx=myJetCandidate.getPrimaryVertex()->getTracksAtVertex().size();
     double energyFromPrimary=0.;
     double energyFromSecondary=0.;
 
@@ -142,7 +141,6 @@ StatusCode JetFitterVariablesFactory::finalize() {
           myPrimaryLinksIter!=myPrimaryLinksEnd;
           ++myPrimaryLinksIter)
       {
-        ntrackPrimaryVtx+=1;
         const Trk::TrackParameters* myParameters=(*myPrimaryLinksIter)->parameters();
         if (myParameters)
         {
@@ -270,7 +268,6 @@ StatusCode JetFitterVariablesFactory::finalize() {
       if ((vertexPosition[ntrack]<0 && (!m_revertFromPositiveToNegativeTags))||(vertexPosition[ntrack]>=0 && m_revertFromPositiveToNegativeTags)) {      
         if (m_addNegativeTracksToPrimaryVertex) 
         {
-          ntrackPrimaryVtx+=vertexSize;
           for (std::vector<Trk::VxTrackAtVertex*>::const_iterator clustersOfTrackIter=clustersOfTrackBegin;
                clustersOfTrackIter!=clustersOfTrackEnd;++clustersOfTrackIter) {
             
