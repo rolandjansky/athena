@@ -3,7 +3,7 @@
 # art-description: Run simulation outside ISF, reading min bias events, write cavern background track records, using 2015 geometry and conditions
 # art-type: grid
 # art-include: master/Athena
-# art-output: test.*.EVNT_TR.pool.root
+# art-output: *.EVNT_TR.pool.root
 # art-output: log.*
 # art-output: Config*.pkl
 
@@ -69,7 +69,7 @@ rm discard.HITS.pool.root
 rc3=-9999
 if [ $rc -eq 0 ] && [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root test.EVNT_TR.pool.root test.CA.EVNT_TR.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_AtlasG4Tf_timings index_ref
+    acmd.py diff-root test.EVNT_TR.pool.root test.CA.EVNT_TR.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc3=$?
 fi
 echo  "art-result: $rc3 OLDvsCA"
@@ -77,7 +77,9 @@ echo  "art-result: $rc3 OLDvsCA"
 rc4=-9999
 if [ $rc2 -eq 0 ]
 then
-    art.py compare grid --entries 2 --mode=semi-detailed test.EVNT_TR.pool.root
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 2 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file=test.EVNT_TR.pool.root
     rc4=$?
 fi
 echo  "art-result: $rc4 regression"
