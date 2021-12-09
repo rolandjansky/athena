@@ -123,7 +123,7 @@ if hasattr(runArgs, 'physicsList'):
 if hasattr(runArgs, "randomSeed"):
     simFlags.RandomSeedOffset = int(runArgs.randomSeed)
 else:
-    atlasG4log.warning('randomSeed not set')
+    atlasG4log.info('randomSeed not set')
 
 if hasattr(runArgs,"Eta") and ( hasattr(runArgs,"Theta") or hasattr(runArgs,"Z") ):
     raise RuntimeError("Eta cannot be specified at the same time as Theta and Z.")
