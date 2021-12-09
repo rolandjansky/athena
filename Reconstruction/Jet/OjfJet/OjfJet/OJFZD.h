@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: OJFZD.h,v 1.3 2008-02-15 14:31:34 seuster Exp $
@@ -34,7 +34,6 @@
 
 // for ATLAS random engine
 #include "CLHEP/Random/RandFlat.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 namespace OptimalJetFinder {
 
