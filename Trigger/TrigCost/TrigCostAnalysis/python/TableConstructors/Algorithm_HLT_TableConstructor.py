@@ -17,8 +17,8 @@ log = logging.getLogger('Algorithm_HLT')
 class Algorithm_HLT_TableConstructor(TableConstructorBase):
     ''' @brief Class representing Algorithm_HLT table
     '''
-    def __init__(self, tableObj):
-        super(). __init__(tableObj) 
+    def __init__(self, tableObj, underflowThreshold, overflowThreshold):
+        super(). __init__(tableObj, underflowThreshold, overflowThreshold) 
         # Dump summary of mean time execution for all the algorithms to the log
         self.dumpSummary = False
         self.expectedHistograms = ["Time_perCall", 
