@@ -172,7 +172,7 @@ StatusCode Rivet_i::execute() {
   /// @todo Actually use back(), for the most recent event, or throw an exception if more than one event found?
   /// @todo Replace with new GenBase const_event() functionality
   const HepMC::GenEvent* event = eventCollection->front();
-  if (event == NULL) {
+  if (event == nullptr) {
     ATH_MSG_ERROR("Rivet_i received a null HepMC event");
     return StatusCode::FAILURE;
   }
@@ -336,18 +336,11 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
 
 #ifdef HEPMC3
   modEvent->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
+  if (modEvent->particles().size() == 1) modEvent->set_beam_particles(modEvent->particles().front(), modEvent->particles().front());
 #else
   modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
+  if (modEvent->particles_size() == 1)  modEvent->set_beam_particles(*modEvent->particles_begin(), *modEvent->particles_begin());
 #endif
-
-  if (modEvent->particles_size() == 1) {
-#ifdef HEPMC3
-    HepMC3::GenEvent::particle_const_iterator p = modEvent->particles_begin();
-#else
-    HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin();
-#endif
-    modEvent->set_beam_particles(*p, *p);
-  }
 
   return modEvent;
 }
