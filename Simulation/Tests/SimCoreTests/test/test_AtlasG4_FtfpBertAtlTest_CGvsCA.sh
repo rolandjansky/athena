@@ -4,7 +4,7 @@
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
-# art-output: test.*.HITS.pool.root
+# art-output: *.HITS.pool.root
 # art-output: log.*
 # art-output: Config*.pkl
 
@@ -65,7 +65,7 @@ echo  "art-result: $rc2 simOLD"
 rc4=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root test.HITS.pool.root test.CA.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_AtlasG4Tf_timings index_ref
+    acmd.py diff-root test.HITS.pool.root test.CA.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc4=$?
 fi
 echo  "art-result: $rc4 FullG4MT_OLDvsCA"
