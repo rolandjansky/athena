@@ -23,6 +23,7 @@
 #include "../PrescalingTool.h"
 #include "../PrescalingEmulationTool.h"
 #include "../L1TriggerResultMaker.h"
+#include "../L1DataConsistencyChecker.h"
 
 // Algorithms
 DECLARE_COMPONENT( HLTSeeding )
@@ -70,3 +71,4 @@ DECLARE_COMPONENT( METRoIsUnpackingTool )
 DECLARE_COMPONENT( RoIsUnpackingToolBase )
 DECLARE_COMPONENT( RoIsUnpackingEmulationTool )
 DECLARE_COMPONENT( FSRoIsUnpackingTool )
+DECLARE_COMPONENT( L1DataConsistencyChecker )

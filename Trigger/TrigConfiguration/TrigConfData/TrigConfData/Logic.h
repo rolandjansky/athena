@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_LOGIC_H
@@ -45,6 +45,9 @@ namespace TrigConf {
       virtual bool evaluate(const std::map<std::string,bool> & elementsState) const = 0;
       virtual bool evaluate(const std::map<std::string, unsigned int> & elementsCount) const = 0;
 
+      virtual std::map<std::string, bool> elements() const = 0;
+      virtual std::map<std::string, unsigned int> elementsCount() const = 0;
+
       void print(std::ostream & = std::cout) const;
 
       virtual void print(std::ostream &, size_t indSize, size_t indLevel) const = 0;
@@ -68,6 +71,9 @@ namespace TrigConf {
 
       bool evaluate(const std::map<std::string,bool> & elements) const override;
       bool evaluate(const std::map<std::string, unsigned int> & elementsCount) const override;
+
+      std::map<std::string, bool> elements() const override;
+      std::map<std::string, unsigned int> elementsCount() const override;
 
    private:
       virtual void print(std::ostream &, size_t indSize, size_t indLevel) const override;
@@ -96,6 +102,8 @@ namespace TrigConf {
       LogicAND(std::unique_ptr<Logic>&& left);
       bool evaluate(const std::map<std::string, bool> & elementsState) const override;
       bool evaluate(const std::map<std::string, unsigned int> & elementsCount) const override;
+      std::map<std::string, bool> elements() const override;
+      std::map<std::string, unsigned int> elementsCount() const override;
    };
 
 
@@ -105,6 +113,8 @@ namespace TrigConf {
       LogicOR(std::unique_ptr<Logic>&& left);
       bool evaluate(const std::map<std::string,bool> & elementsState) const override;
       bool evaluate(const std::map<std::string,unsigned int> & elementsCount) const override;
+      std::map<std::string, bool> elements() const override;
+      std::map<std::string, unsigned int> elementsCount() const override;
    };
 
 }

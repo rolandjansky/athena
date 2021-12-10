@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 import math
@@ -312,13 +312,22 @@ def HLTSeedingCfg(flags, seqName = None):
         acc = ComponentAccumulator(sequence=parOR(seqName)) # TODO - once rec-ex-common JO are phased out this can also be dropped
     else:
         acc = ComponentAccumulator()
-    from HLTSeeding.HLTSeedingMonitoring import CTPUnpackingMonitoring
+    from HLTSeeding.HLTSeedingMonitoring import CTPUnpackingMonitoring, L1DataConsistencyMonitoring
     decoderAlg = CompFactory.HLTSeeding()
     decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1 else ""
     decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1 else ""
     decoderAlg.HLTSeedingSummaryKey = "HLTSeedingSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.HLTSeeding.forceEnableAllChains,
                                                            MonTool = CTPUnpackingMonitoring(512, 200) )
+
+    def checkConsistency(thrName):
+        '''Filter out threshold types for which HLT doesn't read TOBs from L1 readout'''
+        return thrName not in ['FSNOSEED','TE','XE','XS'] and not thrName.startswith('PROBE')
+
+    decoderAlg.L1DataConsistencyChecker = CompFactory.L1DataConsistencyChecker(
+        ThresholdToDecisionMap = dict([(k,v) for k,v in _mapL1ThresholdToDecisionCollection.items() if checkConsistency(k)]),
+        MonTool = L1DataConsistencyMonitoring(flags) )
+
     #Transient bytestream
     if flags.Input.Format == "POOL":
         transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
