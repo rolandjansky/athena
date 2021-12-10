@@ -39,7 +39,7 @@ StatusCode
 EMTrackMatchBuilder::initialize()
 {
   ATH_CHECK(m_TrackParticlesKey.initialize());
-
+  ATH_CHECK(m_caloDetDescrMgrKey.initialize());
   // the extrapolation tool
   ATH_CHECK(m_extrapolationTool.retrieve());
 
@@ -64,6 +64,13 @@ EMTrackMatchBuilder::executeRec(const EventContext& ctx,
   SG::ReadHandle<xAOD::TrackParticleContainer> trackPC(m_TrackParticlesKey,
                                                        ctx);
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{
+    m_caloDetDescrMgrKey, ctx
+  };
+  ATH_CHECK(caloDetDescrMgrHandle.isValid());
+
+  const CaloDetDescrManager* caloDD = *caloDetDescrMgrHandle;
+
   // check is only used for serial running; remove when MT scheduler used
   if (!trackPC.isValid()) {
     ATH_MSG_ERROR("Couldn't retrieve TrackParticle container with key: "
@@ -73,16 +80,16 @@ EMTrackMatchBuilder::executeRec(const EventContext& ctx,
   // Loop over calling the trackExecute method
   for (egammaRec* eg : *egammas) {
     // retrieve the cluster
-    ATH_CHECK(trackExecute(ctx, eg, trackPC.cptr()));
+    ATH_CHECK(trackExecute(ctx, eg, trackPC.cptr(), caloDD));
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode
-EMTrackMatchBuilder::trackExecute(
-  const EventContext& ctx,
-  egammaRec* eg,
-  const xAOD::TrackParticleContainer* trackPC) const
+EMTrackMatchBuilder::trackExecute(const EventContext& ctx,
+                                  egammaRec* eg,
+                                  const xAOD::TrackParticleContainer* trackPC,
+                                  const CaloDetDescrManager* caloDD) const
 {
   if (!eg || !trackPC) {
     ATH_MSG_WARNING(
@@ -111,8 +118,7 @@ EMTrackMatchBuilder::trackExecute(
      * For cosmics allow a retry with inverted direction.
      */
     if (isCandidateMatch(cluster, (*trkIt), false)) {
-      inBroadWindow(
-        ctx, trkMatches, *cluster, trackNumber, (**trkIt));
+      inBroadWindow(ctx, trkMatches, *cluster, trackNumber, (**trkIt), caloDD);
     }
   }
 
@@ -151,7 +157,8 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
                                    std::vector<TrackMatch>& trackMatches,
                                    const xAOD::CaloCluster& cluster,
                                    int trackNumber,
-                                   const xAOD::TrackParticle& trkPB) const
+                                   const xAOD::TrackParticle& trkPB,
+                                   const CaloDetDescrManager* caloDD) const
 {
 
   IEMExtrapolationTools::TrkExtrapDef extrapFrom =
@@ -175,7 +182,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
    */
   if (m_extrapolationTool
         ->getMatchAtCalo(
-          ctx, cluster, trkPB, eta, phi, deltaEta, deltaPhi, extrapFrom)
+          ctx, cluster, trkPB, eta, phi, deltaEta, deltaPhi, caloDD, extrapFrom)
         .isFailure()) {
     return false;
   }
@@ -195,6 +202,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
                          phiRes,
                          deltaEtaRes,
                          deltaPhiRes,
+                         caloDD,
                          extrapFromRes)
         .isFailure()) {
     return false;
@@ -250,6 +258,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
                          phi1,
                          deltaEta1,
                          deltaPhi1,
+                         caloDD,
                          extrapFrom1)
         .isFailure()) {
     ATH_MSG_DEBUG("Extrapolation from last measurement failed");

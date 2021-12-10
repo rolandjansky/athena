@@ -126,14 +126,6 @@ public:
                                 std::vector<double>& rmin,
                                 std::vector<double>& rmax) const = 0;
 
-  virtual std::vector<const Trk::Surface*> allSampleSurfaces() const = 0;
-  virtual std::vector<const Trk::Surface*> allTileBarSurfaces() const = 0;
-  virtual std::vector<const Trk::Surface*> allTileExtSurfaces() const = 0;
-  virtual std::vector<const Trk::Surface*> allTileGapSurfaces() const = 0;
-  virtual std::vector<const Trk::Surface*> allEMBSurfaces() const = 0;
-  virtual std::vector<const Trk::Surface*> allEMESurfaces() const = 0;
-  virtual std::vector<const Trk::Surface*> allHECSurfaces() const = 0;
-
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
   entrySurfaces() const = 0;
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>

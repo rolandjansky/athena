@@ -145,21 +145,6 @@ public:
                                 std::vector<double>& rmin,
                                 std::vector<double>& rmax) const override final;
 
-  virtual std::vector<const Trk::Surface*> allSampleSurfaces()
-    const override final;
-  virtual std::vector<const Trk::Surface*> allTileBarSurfaces()
-    const override final;
-  virtual std::vector<const Trk::Surface*> allTileExtSurfaces()
-    const override final;
-  virtual std::vector<const Trk::Surface*> allTileGapSurfaces()
-    const override final;
-  virtual std::vector<const Trk::Surface*> allEMBSurfaces()
-    const override final;
-  virtual std::vector<const Trk::Surface*> allEMESurfaces()
-    const override final;
-  virtual std::vector<const Trk::Surface*> allHECSurfaces()
-    const override final;
-
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
   entrySurfaces() const override final;
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>

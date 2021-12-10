@@ -288,7 +288,7 @@ StatusCode LArTimePhysPrediction::stop()
 	//WARNING: use the CaloDepthTool's convention radius=r(barrel), radius=z(end-cap)
 	//for HEC and FCAL: lengths could be moved in the job options
 	if(emId->is_lar_em(id) && m_CaloDepthTool){
-	  radius = m_CaloDepthTool->cscopt2_parametrized(sample,real_eta,real_phi);
+	  radius = m_CaloDepthTool->cscopt2_parametrized(sample,real_eta,real_phi,caloDDM);
 	}
 	else if(hecId->is_lar_hec(id)){//assumption: "arrival point" = middle of the compartment 
 	  if(layer==0) radius=4398.;
