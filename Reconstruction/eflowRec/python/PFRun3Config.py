@@ -64,8 +64,7 @@ def PFFullCfg(inputFlags,**kwargs):
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(inputFlags,
-                                    doLCCalib=True))
+    result.merge(CaloTopoClusterCfg(inputFlags))
 
 
     #from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
