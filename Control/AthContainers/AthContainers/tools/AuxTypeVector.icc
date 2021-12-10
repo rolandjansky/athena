@@ -387,7 +387,7 @@ void AuxTypeVectorHolder<T, CONT>::insertMove1
 {
   // std::vector doesn't provide a way to insert a range via move.
   // So first make space, then move.
-  typename CONT::iterator pos2= m_vecPtr->insert (pos, end-beg, element_type());
+  typename CONT::iterator pos2= m_vecPtr->insert (pos, end-beg, SG::Zero<element_type>::zero());
   std::move (beg, end, pos2);
 }
 
@@ -579,7 +579,7 @@ template <class T, class CONT>
 inline
 void AuxTypeVectorHolder<T, CONT>::clear (void* dst, size_t dst_index)
 {
-  (reinterpret_cast<vector_value_type*>(dst))[dst_index] = vector_value_type();
+  (reinterpret_cast<vector_value_type*>(dst))[dst_index] = SG::Zero<vector_value_type>::zero();
 }    
 
 
