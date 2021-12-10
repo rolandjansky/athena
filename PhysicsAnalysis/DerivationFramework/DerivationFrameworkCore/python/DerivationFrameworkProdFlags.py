@@ -766,6 +766,19 @@ class WriteDAOD_HDBS2Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HDBS2Stream)
 listAODtoDPD.append(WriteDAOD_HDBS2Stream.StreamName)
 
+class WriteDAOD_HDBS3Stream(JobProperty):
+    """HDBS3: Meson Gamma"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_HDBS3'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkHDBS/HDBS3.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HDBS3Stream)
+listAODtoDPD.append(WriteDAOD_HDBS3Stream.StreamName)
+
 #################################
 # Defined by the STDM group
 #################################
