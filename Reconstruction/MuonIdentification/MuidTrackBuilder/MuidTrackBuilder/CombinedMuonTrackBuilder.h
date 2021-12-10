@@ -311,8 +311,6 @@ namespace Rec {
         std::unique_ptr<Trk::RecVertex> m_beamAxis;
         std::unique_ptr<Trk::PerigeeSurface> m_perigeeSurface;
 
-        /// sigma of phi sector for pseudo-measurement constraint
-        static constexpr double m_sigmaPhiSector{std::tan(0.125 * M_PI / std::sqrt(12.))};
         std::unique_ptr<Trk::RecVertex> m_vertex;
 
         // counters
