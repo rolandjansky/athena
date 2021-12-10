@@ -1022,9 +1022,6 @@ void TileROD_Decoder::fillCollection(const ROBData * rob,
 
   } else {
 
-    // remember all fragment types found in this ROD
-    int createdFrom = 0;
-
     pDigiVec pDigits;
     pRwChVec pChannel;
     pChannel.reserve(48);
@@ -1058,8 +1055,6 @@ void TileROD_Decoder::fillCollection(const ROBData * rob,
 
       ATH_MSG_VERBOSE( "Unpacking frag: 0x" << MSG::hex << (idAndType & 0xFFFF)
                       << " type " << type << MSG::dec );
-
-      createdFrom |= (1 << type);
 
       switch (type) {
         case 0:
