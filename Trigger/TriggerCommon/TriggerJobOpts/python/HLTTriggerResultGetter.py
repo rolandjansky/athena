@@ -243,11 +243,11 @@ class HLTTriggerResultGetter(Configured):
 
             # Run 3 slimming
             if ConfigFlags.Trigger.doNavigationSlimming: 
-                from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTConfig
+                from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import TrigNavSlimmingMTCfg
                 from AthenaCommon.Configurable import Configurable
                 Configurable.configurableRun3Behavior += 1
                 from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-                appendCAtoAthena( getTrigNavSlimmingMTConfig(ConfigFlags) )
+                appendCAtoAthena( TrigNavSlimmingMTCfg(ConfigFlags) )
                 Configurable.configurableRun3Behavior -= 1
             else:
                 log.info("doNavigationSlimming is False, won't schedule run 3 navigation slimming")
