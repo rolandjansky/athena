@@ -119,6 +119,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
                                      std::array<double, 4>& phi,
                                      std::array<double, 4>& deltaEta,
                                      std::array<double, 4>& deltaPhi,
+                                     const CaloDetDescrManager* caloDD,
                                      unsigned int extrapFrom) const
 {
   /* Extrapolate track to calo and return
@@ -142,8 +143,8 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
   switch (extrapFrom) {
     case fromPerigeeRescaled: {
       Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
-      const auto extension =
-        m_ParticleCaloExtensionTool->egammaCaloExtension(ctx, trkPar, cluster);
+      const auto extension = m_ParticleCaloExtensionTool->egammaCaloExtension(
+        ctx, trkPar, cluster, caloDD);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
@@ -153,7 +154,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
 
     case fromPerigee: {
       const auto extension = m_ParticleCaloExtensionTool->egammaCaloExtension(
-        ctx, trkPB.perigeeParameters(), cluster);
+        ctx, trkPB.perigeeParameters(), cluster, caloDD);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
@@ -174,7 +175,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
         } else {
           const auto extension =
             m_ParticleCaloExtensionTool->egammaCaloExtension(
-              ctx, lastParams, cluster);
+              ctx, lastParams, cluster, caloDD);
           didExtension = !extension.empty();
           for (const auto& i : extension) {
             intersections.emplace_back(

@@ -19,6 +19,7 @@
 #include <memory>
 #include <unordered_map>
 
+class CaloDetDescrManager;
 static const InterfaceID IID_IEMExtrapolationTools("IEMExtrapolationTools",
                                                    1,
                                                    0);
@@ -64,6 +65,7 @@ public:
     std::array<double, 4>& phi,
     std::array<double, 4>& deltaEta,
     std::array<double, 4>& deltaPhi,
+    const CaloDetDescrManager* caloDD = nullptr,
     unsigned int extrapFrom = fromPerigee) const = 0;
 
   /** test for vertex-to-cluster match given also the positions
