@@ -79,7 +79,7 @@ public:
                 const bool barrel,
                 const double eta,
                 const double phi,
-                const CaloDetDescrManager* caloDD = nullptr) const;
+                const CaloDetDescrManager* caloDD) const;
   /** @brief get radius
 
       Generic method to be used in client code :
@@ -91,7 +91,7 @@ public:
   double radius(const CaloCell_ID::CaloSample sample,
                 const double eta,
                 const double phi,
-                const CaloDetDescrManager* caloDD = nullptr) const;
+                const CaloDetDescrManager* caloDD) const;
 
   /** @brief How far are you (in eta) from a given sample or - if you are in -
      how far are you from the edge ?
@@ -101,11 +101,11 @@ public:
       If you are inside the sample volume, the distance will be multiplied by -1
      : i.e.always a negative number.
   */
-  double deta(const CaloCell_ID::SUBCALO subcalo,
+  static double deta(const CaloCell_ID::SUBCALO subcalo,
               const int sampling_or_module,
               const bool barrel,
               const double eta,
-              const CaloDetDescrManager* caloDD = nullptr) const;
+              const CaloDetDescrManager* caloDD) ;
   /** @brief How far are you (in eta) from a given sample or - if you are in -
      how far are you from the edge ?
 
@@ -114,201 +114,201 @@ public:
       If you are inside the sample volume, the distance will be multiplied by -1
      : i.e.always a negative number.
   */
-  double deta(const CaloCell_ID::CaloSample sample,
+  static double deta(const CaloCell_ID::CaloSample sample,
               const double eta,
-              const CaloDetDescrManager* caloDD = nullptr) const;
+              const CaloDetDescrManager* caloDD) ;
 
   /** @brief For a given direction, return the entrance of the given
      CaloCell_ID::CaloSample. If the direction does not cross any CaloCell, the
      returned bool will be set to False.
    */
-  double entrance(const CaloCell_ID::SUBCALO subcalo,
+  static double entrance(const CaloCell_ID::SUBCALO subcalo,
                   const int sampling_or_module,
                   const bool barrel,
                   const double eta,
                   const double phi,
-                  const CaloDetDescrManager* caloDD = nullptr) const;
+                  const CaloDetDescrManager* caloDD ) ;
   /** @brief For a given direction, return the entrance of the given
      CaloCell_ID::CaloSample. If the direction does not cross any CaloCell, the
      returned bool will be set to False.
    */
-  double entrance(const CaloCell_ID::CaloSample sample,
+  static double entrance(const CaloCell_ID::CaloSample sample,
                   const double eta,
                   const double phi,
-                  const CaloDetDescrManager* caloDD = nullptr) const;
+                  const CaloDetDescrManager* caloDD) ;
 
   /** @brief For a given direction, return the middle of the given
      CaloCell_ID::CaloSample. If the direction does not cross any CaloCell, the
      returned bool will be set to False.
    */
-  double middle(const CaloCell_ID::SUBCALO subcalo,
+  static double middle(const CaloCell_ID::SUBCALO subcalo,
                 const int sampling_or_module,
                 const bool barrel,
                 const double eta,
                 const double phi,
-                const CaloDetDescrManager* caloDD = nullptr) const;
+                const CaloDetDescrManager* caloDD) ;
   /** @brief For a given direction, return the middle of the given
      CaloCell_ID::CaloSample. If the direction does not cross any CaloCell, the
      returned bool will be set to False.
    */
-  double middle(const CaloCell_ID::CaloSample sample,
+  static double middle(const CaloCell_ID::CaloSample sample,
                 const double eta,
                 const double phi,
-                const CaloDetDescrManager* caloDD = nullptr) const;
+                const CaloDetDescrManager* caloDD ) ;
 
   /** @brief For a given direction, return the exit of the given
      CaloCell_ID::CaloSample. If the direction does not cross any CaloCell, the
      returned bool will be set to False.
    */
-  double exit(const CaloCell_ID::SUBCALO subcalo,
+  static double exit(const CaloCell_ID::SUBCALO subcalo,
               const int sampling_or_module,
               const bool barrel,
               const double eta,
               const double phi,
-              const CaloDetDescrManager* caloDD = nullptr) const;
+              const CaloDetDescrManager* caloDD) ;
   /** @brief For a given direction, return the exit of the given
      CaloCell_ID::CaloSample. If the direction does not cross any CaloCell, the
      returned bool will be set to False.
    */
-  double exit(const CaloCell_ID::CaloSample sample,
+  static double exit(const CaloCell_ID::CaloSample sample,
               const double eta,
               const double phi,
-              const CaloDetDescrManager* caloDD = nullptr) const;
+              const CaloDetDescrManager* caloDD) ;
 
   /**
       @brief If the direction is not specified, returns a "flat" aproximation
      (truely valid for strips only).
    */
-  double flat(const CaloCell_ID::SUBCALO subcalo,
+  static double flat(const CaloCell_ID::SUBCALO subcalo,
               const int sampling_or_module,
               const bool barrel,
               const int side,
-              const CaloDetDescrManager* caloDD = nullptr) const;
+              const CaloDetDescrManager* caloDD) ;
   /**
       @brief If the direction is not specified, returns a "flat" aproximation
      (truely valid for strips only).
    */
-  double flat(const CaloCell_ID::CaloSample sample,
+  static double flat(const CaloCell_ID::CaloSample sample,
               const int side,
-              const CaloDetDescrManager* caloDD = nullptr) const;
+              const CaloDetDescrManager* caloDD) ;
 
   /**
       @brief If the direction is not specified, returns a "flat" aproximation
      (truely valid for strips only).
     */
-  double depth(const CaloCell_ID::SUBCALO subcalo,
+  static double depth(const CaloCell_ID::SUBCALO subcalo,
                const int sampling_or_module,
                const bool barrel,
                const int side,
-               const CaloDetDescrManager* caloDD = nullptr) const;
+               const CaloDetDescrManager* caloDD) ;
   /**
       @brief If the direction is not specified, returns a "flat" aproximation
      (truely valid for strips only).
     */
-  double depth(const CaloCell_ID::CaloSample sample,
+  static double depth(const CaloCell_ID::CaloSample sample,
                const int side,
-               const CaloDetDescrManager* caloDD = nullptr) const;
+               const CaloDetDescrManager* caloDD ) ;
 
   /**
       @brief will look for the corresponding CaloDetDescrElement and return its
      entrance radius
     */
-  double get_entrance_radius(CaloCell_ID::CaloSample sample,
+  static double get_entrance_radius(CaloCell_ID::CaloSample sample,
                              double eta,
                              double phi,
-                             const CaloDetDescrManager* caloDD = nullptr) const;
+                             const CaloDetDescrManager* caloDD) ;
 
   /** @brief will look for the corresponding CaloDetDescrElement and return its
    * entrance z
    */
-  double get_entrance_z(CaloCell_ID::CaloSample sample,
+  static double get_entrance_z(CaloCell_ID::CaloSample sample,
                         double eta,
                         double phi,
-                        const CaloDetDescrManager* caloDD = nullptr) const;
+                        const CaloDetDescrManager* caloDD ) ;
 
   /** @brief Same as cscopt with the outermost EMB2 point excluded.
    This improves the fit.
    From CSC12 E=100 GeV photons.
    */
-  double cscopt2_parametrized(const CaloCell_ID::CaloSample sample,
+  static double cscopt2_parametrized(const CaloCell_ID::CaloSample sample,
                               const double eta,
                               const double phi,
-                              const CaloDetDescrManager* caloDD) const;
+                              const CaloDetDescrManager* caloDD) ;
 
 private:
   /** @brief Methods taken from the old egammaqdepth class :
       return the parametrised depth used in DC1 and DC2. Only LAREM is foreseen
    */
-  double egparametrized(const CaloCell_ID::SUBCALO subcalo,
+  static double egparametrized(const CaloCell_ID::SUBCALO subcalo,
                         const int sampling_or_module,
                         const bool barrel,
                         const double eta,
                         const double phi,
-                        const CaloDetDescrManager* caloDD) const;
+                        const CaloDetDescrManager* caloDD) ;
   /** @brief Methods taken from the old egammaqdepth class :
       return the parametrised depth used in DC1 and DC2. Only LAREM is foreseen
    */
-  double egparametrized(const CaloCell_ID::CaloSample sample,
+  static double egparametrized(const CaloCell_ID::CaloSample sample,
                         const double eta,
                         const double phi,
-                        const CaloDetDescrManager* caloDD) const;
+                        const CaloDetDescrManager* caloDD) ;
 
   /** @brief Parametrisation taken from the old egammaqdepth class, but adapted
      for TestBeam. Only LAREM is foreseen
    */
-  double TBparametrized(const CaloCell_ID::SUBCALO subcalo,
+  static double TBparametrized(const CaloCell_ID::SUBCALO subcalo,
                         const int sampling_or_module,
                         const bool barrel,
                         const double eta,
                         const double phi,
-                        const CaloDetDescrManager* caloDD) const;
+                        const CaloDetDescrManager* caloDD) ;
   /** @brief Parametrisation taken from the old egammaqdepth class, but adapted
      for TestBeam. Only LAREM is foreseen
    */
-  double TBparametrized(const CaloCell_ID::CaloSample sample,
+  static double TBparametrized(const CaloCell_ID::CaloSample sample,
                         const double eta,
                         const double phi,
-                        const CaloDetDescrManager* caloDD) const;
+                        const CaloDetDescrManager* caloDD) ;
 
   /** @brief Layers 1 and 2 depths set to give the best eta resolution.
    From CSC12 E=100 GeV photons.
    */
-  double cscopt_parametrized(const CaloCell_ID::CaloSample sample,
+  static double cscopt_parametrized(const CaloCell_ID::CaloSample sample,
                              const double eta,
                              const double phi,
-                             const CaloDetDescrManager* caloDD) const;
+                             const CaloDetDescrManager* caloDD) ;
 
   /** @brief will look for the corresponding CaloDetDescrElement and return its
    * middle radius
    */
-  double get_middle_radius(CaloCell_ID::CaloSample sample,
+  static double get_middle_radius(CaloCell_ID::CaloSample sample,
                            double eta,
                            double phi,
-                           const CaloDetDescrManager* caloDD) const;
+                           const CaloDetDescrManager* caloDD) ;
 
   /** @brief will look for the corresponding CaloDetDescrElement and return its
    * middle z
    */
-  double get_middle_z(CaloCell_ID::CaloSample sample,
+  static double get_middle_z(CaloCell_ID::CaloSample sample,
                       double eta,
                       double phi,
-                      const CaloDetDescrManager* caloDD) const;
+                      const CaloDetDescrManager* caloDD) ;
 
   /** @brief will look for the corresponding CaloDetDescrElement and return its
    * middle radius
    */
-  double get_exit_radius(CaloCell_ID::CaloSample sample,
+  static double get_exit_radius(CaloCell_ID::CaloSample sample,
                          double eta,
                          double phi,
-                         const CaloDetDescrManager* caloDD) const;
+                         const CaloDetDescrManager* caloDD) ;
 
   /** @brief will look for the corresponding CaloDetDescrElement and return its
    * middle z
    */
-  double get_exit_z(CaloCell_ID::CaloSample sample,
+  static double get_exit_z(CaloCell_ID::CaloSample sample,
                     double eta,
                     double phi,
-                    const CaloDetDescrManager* caloDD) const;
+                    const CaloDetDescrManager* caloDD) ;
 
 protected:
   CaloDepthTool();                                //> not implemented
@@ -316,17 +316,10 @@ protected:
   CaloDepthTool& operator=(const CaloDepthTool&); //> not implemented
 
 private:
-  const CaloDetDescrManager* caloMgr() const;
-
   Gaudi::Property<std::string> m_depth_choice{ this, "DepthChoice", "", "depth choice" };
   /** ID Helper
    */
   const CaloCell_ID* m_calo_id;
-
-  /** DD manager
-   */
-  CxxUtils::CachedPointer<CaloDetDescrManager> m_calo_dd;
-
   /** Phi range helper object
    */
   CaloPhiRange m_range;
