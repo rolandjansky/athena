@@ -94,4 +94,4 @@ namespace Pythia8{
 }
 
 Pythia8_UserHooks::UserHooksFactory::Creator<Pythia8::SettableMBColourReconnection> settableMBColourReconnectionCreator("MBReconUserHooks_Unvalidated");
-Pythia8_UserHooks::UserHooksFactory::Creator<Pythia8::SettableTopColourReconnection> settableTopColourReconnectionCreator("TopReconUserHooks_Unvalidated");
+Pythia8_UserHooks::UserHooksFactory::Creator<Pythia8::SettableTopColourReconnection> settableTopColourReconnectionCreator("TopReconUserHooks");
