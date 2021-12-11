@@ -5,8 +5,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LArOFCAlgorithm_H
-#define LArOFCAlgorithm_H
+#ifndef LARCALIBUTILS_LAROFCALGORITHM_H
+#define LARCALIBUTILS_LAROFCALGORITHM_H
  
 #include <vector>
 #include <string>
@@ -26,6 +26,7 @@
 #include "LArCOOLConditions/LArDSPConfig.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -52,6 +53,16 @@ private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
+
+  SG::ReadCondHandleKey<CaloSuperCellDetDescrManager> m_caloSuperCellMgrKey { this
+      , "CaloSuperCellDetDescrManager"
+      , "CaloSuperCellDetDescrManager"
+      , "SG Key for CaloSuperCellDetDescrManager in the Condition Store" };
 
   struct perChannelData_t {
     //Input:
