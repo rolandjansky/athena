@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTowerxAODAlgoBase.h"
@@ -29,8 +29,8 @@ CaloTowerxAODAlgoBase::~CaloTowerxAODAlgoBase()
 
 StatusCode CaloTowerxAODAlgoBase::initBase() {
   ATH_CHECK( m_caloTowerContainerKey.initialize() );
-  
-  return fillIndexCache();
+  ATH_CHECK( m_caloMgrKey.initialize() );  
+  return StatusCode::SUCCESS;
 }
 
 
@@ -60,8 +60,18 @@ CaloTowerxAODAlgoBase::makeContainer (const EventContext& ctx) const
 }
 
 
-StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
+const CaloTowerxAODAlgoBase::CellToTowerVec& CaloTowerxAODAlgoBase::getIndexCache(const EventContext& ctx) const
+{
+  if(!m_cellToTower.isValid()) {
+    CellToTowerVec cellToTower;
+    if(fillIndexCache(ctx,cellToTower).isFailure()) cellToTower.clear();
+    m_cellToTower.set(std::move(cellToTower));
+  }
+  return *m_cellToTower.ptr();
+}
 
+StatusCode CaloTowerxAODAlgoBase::fillIndexCache(const EventContext& ctx, CellToTowerVec& cellToTower) const
+{
   ATH_MSG_INFO("Filling cell -> tower index map");
 
   //Some basic sanity checks:
@@ -70,15 +80,10 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
     return StatusCode::FAILURE;
   }
   
-  const CaloDetDescrManager* theManager;
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* theManager = *caloMgrHandle;
  
-  ATH_CHECK(detStore()->retrieve(theManager));
-
-  if ( ! theManager->isInitialized() ){
-    ATH_MSG_ERROR( "CaloDetDescrManager is not yet initialized!"  );
-    return StatusCode::FAILURE;
-  }
-
   //Build a dummy CaloTowerContainer
   std::unique_ptr<xAOD::CaloTowerContainer> dummy(new xAOD::CaloTowerContainer());
 
@@ -94,8 +99,8 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
   ATH_MSG_INFO("Working on tower container with dEta=" << dummy->deltaEta() << ", dPhi=" 
 	       << dummy->deltaPhi() << ", nTowers=" << nTowers);
 
-  m_cellToTower.clear();
-  m_cellToTower.resize(theManager->element_size()); //fixme, get calo-hash-max
+  cellToTower.clear();
+  cellToTower.resize(theManager->element_size()); //fixme, get calo-hash-max
 
   //FCAL cells are not pointing. We slice them in smaller chunks to see in which tower they go 
   const std::array<double,3> ndxFCal={{4.,4.,6.}};
@@ -137,7 +142,7 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
 	    return StatusCode::FAILURE;
 	  }
 	  //m_cellToTower[dde->calo_hash()].push_back(cellToTower_t(towerIdx,theWeight));
-	  m_cellToTower[dde->calo_hash()].emplace_back(towerIdx,theWeight);
+	  cellToTower[dde->calo_hash()].emplace_back(towerIdx,theWeight);
 	  ATH_MSG_VERBOSE("cell hash " << dde->calo_hash() << ", goes into tower " << towerIdx << " with weight " << theWeight);
 	} //end y loop
       } //end x loop
@@ -180,7 +185,7 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
 	    ATH_MSG_ERROR("Found invalid tower index " << towerIdx << " for cell eta/phi " << cellEta << "/" << cellPhi << " coming from " <<  dde->calo_hash() << "/" << ie << "/" << ip);
 	    return StatusCode::FAILURE;
 	  }
-	  m_cellToTower[dde->calo_hash()].push_back(cellToTower_t(towerIdx,theWeight));
+	  cellToTower[dde->calo_hash()].push_back(cellToTower_t(towerIdx,theWeight));
 	  ATH_MSG_VERBOSE("cell hash " << dde->calo_hash() << ", goes into tower " << towerIdx << "with weight" << theWeight);
 	}//end loop over fragments (phi)
       }// end loop over fragments (eta)
@@ -191,20 +196,19 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
   if (m_doxCheck) {
     const CaloCell_ID* caloCellId;
     ATH_CHECK(detStore()->retrieve(caloCellId));
-    for (size_t i=0;i<m_cellToTower.size(); ++i) {
-      const auto& towerinfo=m_cellToTower[i];
-      if (!towerinfo.empty()) 
+    for (size_t i=0;i<cellToTower.size(); ++i) {
+      const auto& towerinfo=cellToTower[i];
+      if (!towerinfo.empty()) {
 	ATH_MSG_DEBUG("Cell with index " << i << " contributes to " << towerinfo.size() << " Towers.");
+      }
       else {
 	const Identifier id=caloCellId->cell_id(i);
 	ATH_MSG_ERROR("Cell with index " << i << ", id=0x" 
 		      << std::hex << id.get_identifier32().get_compact() << std::dec 
-		      << "does not contribute to any tower!");
-
-}
+		      << "does not contribute to any tower!");	
+      }
       double sumWeight=0;
-      for (const  cellToTower_t& ct : towerinfo) 
-	sumWeight+=ct.m_weight;
+      for (const  cellToTower_t& ct : towerinfo) sumWeight+=ct.m_weight;
       if (fabs(sumWeight-1)>0.001) {
 	const Identifier id=caloCellId->cell_id(i);
 	ATH_MSG_ERROR( "Cell with index " << i << ", id=0x" 
@@ -213,8 +217,8 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
       }
     }//end loop over cells
   }//end if doxCheck
-
-  ATH_MSG_DEBUG("Built CelltoTower index table. nCells=" << m_cellToTower.size() << ", nTowers=" << nTowers);
+  
+  ATH_MSG_DEBUG("Built CelltoTower index table. nCells=" << cellToTower.size() << ", nTowers=" << nTowers);
 
   return StatusCode::SUCCESS;
 }
