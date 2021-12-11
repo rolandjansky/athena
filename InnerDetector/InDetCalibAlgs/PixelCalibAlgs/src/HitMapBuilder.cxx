@@ -392,7 +392,7 @@ StatusCode HitMapBuilder::execute() {
     return StatusCode::FAILURE;
   } ATH_MSG_DEBUG( "Pixel RDO container retrieved" );
   // loop in RDO container
-  for (const auto & pPixelRDOCollection: *pixelRDOs) {
+  for (const auto pPixelRDOCollection: *pixelRDOs) {
     if (pPixelRDOCollection) {
       Identifier moduleID = pPixelRDOCollection->identify();
       IdentifierHash modHash = m_pixelID->wafer_hash(moduleID);
