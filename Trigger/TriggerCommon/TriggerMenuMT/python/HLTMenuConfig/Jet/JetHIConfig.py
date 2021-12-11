@@ -54,7 +54,6 @@ def jetHIEventShapeSequence(configFlags, clustersKey, towerKey):
     
     ESAlg_W=HIEventShapeMaker("ESAlg_W")
     ESAlg_W.OutputContainerKey=EventShapeKey
-    ESAlg_W.UseCaloCell=False
     ESAlg_W.InputTowerKey=clustersKey
     ESAlg_W.NaviTowerKey=towerKey
     

@@ -178,9 +178,29 @@ HLT_mu10_L1MU5VF:
 HLT_mu10_L1MU8F:
   eventCount: 0
 HLT_mu4_L1MU3V:
-  eventCount: 0
+  eventCount: 1
+  stepCounts:
+    0: 1
+    1: 1
+    2: 1
+    3: 1
+  stepFeatures:
+    0: 1
+    1: 1
+    2: 1
+    3: 1
 HLT_mu4_mu4noL1_L1MU3V:
   eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+    2: 1
+    3: 1
+  stepFeatures:
+    0: 1
+    1: 1
+    2: 1
+    3: 1
 HLT_mu8_L1MU5VF:
   eventCount: 0
 HLT_noalg_CostMonDS_L1All:
