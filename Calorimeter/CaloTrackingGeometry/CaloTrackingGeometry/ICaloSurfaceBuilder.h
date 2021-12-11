@@ -127,9 +127,9 @@ public:
                                 std::vector<double>& rmax) const = 0;
 
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
-  entrySurfaces() const = 0;
+  entrySurfaces(const CaloDetDescrManager* calo_dd = nullptr) const = 0;
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
-  exitSurfaces() const = 0;
+  exitSurfaces(const CaloDetDescrManager* calo_dd = nullptr) const = 0;
 };
 
 #endif // CALOTRACKINGGEOMETRY_ICALOSURFACEBUILDER_H
