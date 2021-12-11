@@ -232,6 +232,12 @@ ParametersT<DIM, T, S>::operator==(const ParametersBase<DIM, T>& rhs) const
   // return compatibility of base class parts
   return ParametersBase<DIM, T>::operator==(rhs);
 }
+template<int DIM, class T, class S>
+bool
+ParametersT<DIM, T, S>::operator==(const ParametersT& rhs) const
+{
+  return *this == static_cast<const ParametersBase<DIM, T> &>(rhs);
+}
 /** clone */
 template<int DIM, class T, class S>
 ParametersT<DIM, T, S>*
