@@ -38,7 +38,6 @@ class IMagneticFieldTool;
 }
 
 class IEnvelopeDefSvc;
-class ICaloSurfaceHelper;
 
 namespace Calo {
 

@@ -38,7 +38,6 @@ namespace Trk {
 }
 
 class IEnvelopeDefSvc;
-class ICaloSurfaceHelper;
 
 namespace Calo {
 
