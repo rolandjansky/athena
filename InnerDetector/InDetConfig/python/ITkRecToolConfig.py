@@ -58,7 +58,7 @@ def ITkTrackSummaryHelperToolCfg(flags, name='ITkSummaryHelper', **kwargs):
   kwargs.setdefault("useSCT", flags.Detector.EnableITkStrip)
   kwargs.setdefault("useTRT", False)
 
-  result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs), primary=True)
+  result.setPrivateTools(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs))
   return result
 
 def ITkBoundaryCheckToolCfg(flags, name='ITkBoundaryCheckTool', **kwargs):

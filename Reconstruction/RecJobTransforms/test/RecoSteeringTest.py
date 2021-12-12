@@ -19,7 +19,6 @@ def _run(input):
     flags.Output.ESDFileName="myESD.pool.root"
     flags.Output.AODFileName="myAOD.pool.root"
     parser = flags.getArgumentParser()
-    parser.add_argument('--tryConfiguringAll', action="store_true")
     args = flags.fillFromArgs(parser=parser)
 
     # test inputs
@@ -38,7 +37,7 @@ def _run(input):
     flags.dump()
 
     from RecJobTransforms.RecoSteering import RecoSteering
-    acc = RecoSteering(flags, tryConfiguringAll=args.tryConfiguringAll)
+    acc = RecoSteering(flags)
     confStamp = datetime.datetime.now()
     log.info("configured in %d seconds", (confStamp-startStamp).seconds )
     acc.printConfig(withDetails=True)

@@ -390,9 +390,9 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
             from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
-            InDetSummaryHelperTool = acc.getPrimaryAndMerge(InDetTrackSummaryHelperToolCfg(flags, **id_helper_args))
+            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, **id_helper_args))
         else:
-            InDetSummaryHelperTool = acc.getPrimaryAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
+            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
 
     #
@@ -462,7 +462,7 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
         kwargs.setdefault("DoSharedHitsTRT", flags.InDet.doSharedHits)
 
     from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg    
-    InDetSummaryHelper = acc.getPrimaryAndMerge(InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs))
+    InDetSummaryHelper = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs))
 
     acc.setPrivateTools(InDetSummaryHelper)
     return acc
@@ -487,7 +487,7 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
             kwargs.setdefault("TRT_ElectronPidTool", None)
         else:
             from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
-            kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags)))
+            kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags, name="InDetTRT_ElectronPidTool")))
 
     if 'PixelToTPIDTool' not in kwargs :
         InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
@@ -839,7 +839,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
         AtlasNavigatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg)
 
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    InDetNavigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
+    InDetNavigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags, name="InDetNavigator"))
     InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
     InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
 
@@ -1149,13 +1149,13 @@ def TRT_DetElementsRoadCondAlgCfg(flags, **kwargs):
 
 def InDetTRT_ExtensionToolCfg(flags, **kwargs):
     # @TODO set all names to InDetTRT_ExtensionTool ?
-    if (flags.InDet.trtExtensionType == 'xk') or (not flags.InDet.doNewTracking) :
-        if (flags.Beam.Type == "cosmics"):
+    if flags.InDet.trtExtensionType == 'xk':
+        if flags.Beam.Type == "cosmics":
             return InDetTRT_ExtensionToolCosmicsCfg(flags, **kwargs)
         else:
             return InDetTRT_TrackExtensionTool_xkCfg(flags, **kwargs)
-    elif flags.InDet.trtExtensionType == 'DAF' :
-        return InDetTRT_TrackExtensionTool_DAFCfg(flags, name = 'InDetTRT_ExtensionTool',**kwargs)
+    if flags.InDet.trtExtensionType == 'DAF':
+        return InDetTRT_TrackExtensionTool_DAFCfg(flags, name='InDetTRT_ExtensionTool', **kwargs)
 
 #############################################################################################
 # BackTracking
@@ -1291,8 +1291,8 @@ def InDetCosmicScoringTool_TRTCfg(flags, name='InDetCosmicExtenScoringTool',**kw
 def InDetTRT_SeededScoringToolCfg(flags, name='InDetTRT_SeededScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("useAmbigFcn",  not flags.InDet.doNewTracking) # full search => use NewT
-    kwargs.setdefault("useTRT_AmbigFcn",  flags.InDet.doNewTracking) # full search => use NewT
+    kwargs.setdefault("useAmbigFcn", False)
+    kwargs.setdefault("useTRT_AmbigFcn", True)
     kwargs.setdefault("minTRTonTrk",  flags.InDet.Tracking.minSecondaryTRTonTrk)
     kwargs.setdefault("minTRTPrecisionFraction",  flags.InDet.Tracking.minSecondaryTRTPrecFrac)
     kwargs.setdefault("minPt",  flags.InDet.Tracking.minSecondaryPt)

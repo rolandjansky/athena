@@ -49,7 +49,6 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
 
     if usePrdAssociationTool:
         asso_tool = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-        acc.addPublicTool(asso_tool)
     else:
         asso_tool = None
 

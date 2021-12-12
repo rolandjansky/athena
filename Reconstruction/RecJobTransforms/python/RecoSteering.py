@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-def RecoSteering(flags, tryConfiguringAll=False):
+def RecoSteering(flags):
     """
     Generates configuration of the reconstructions
 
@@ -73,7 +73,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured track calorimeter extension builder")
 
     # Muon Combined
-    if flags.Reco.EnableCombinedMuon and tryConfiguringAll:
+    if flags.Reco.EnableCombinedMuon:
         from MuonCombinedConfig.MuonCombinedReconstructionConfig import (
             MuonCombinedReconstructionCfg)
         acc.merge(MuonCombinedReconstructionCfg(flags))
@@ -88,13 +88,17 @@ def RecoSteering(flags, tryConfiguringAll=False):
     # EGamma and CombinedMuon isolation
     if flags.Reco.EnableCombinedMuon or flags.Reco.EnableEgamma:
         from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
-        acc.merge(IsolationSteeringCfg(flags, doIsoMuon=tryConfiguringAll))
+        acc.merge(IsolationSteeringCfg(flags))
         log.info("---------- Configured isolation")
 
     # jets
+    if flags.Reco.EnableJet:
+        from JetRecConfig.JetRecoSteering import JetRecoSteeringCfg
+        acc.merge(JetRecoSteeringCfg(flags))
+        log.info("---------- Configured jets")
 
     # btagging
-    if flags.Reco.EnableBTagging and tryConfiguringAll:
+    if flags.Reco.EnableBTagging:
         # hack to prevent btagging fragments to rename top sequence
         from AthenaCommon.ConcurrencyFlags import jobproperties
         jobproperties.ConcurrencyFlags.NumThreads = flags.Concurrency.NumThreads

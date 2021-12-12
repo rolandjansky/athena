@@ -30,14 +30,14 @@ def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
     # FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
     # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
     from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
-    indet_track_summary_helper_tool = result.getPrimaryAndMerge(InDetTrackSummaryHelperToolCfg(flags,
-                                                                                          name="AtlasTrackSummaryHelperTool",
-                                                                                          AssoTool=atlasPrdAssociationTool,
-                                                                                          DoSharedHits=False,
-                                                                                          HoleSearch=atlasHoleSearchTool))
+    indet_track_summary_helper_tool = result.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags,
+                                                                                             name="AtlasTrackSummaryHelperTool",
+                                                                                             AssoTool=atlasPrdAssociationTool,
+                                                                                             DoSharedHits=False,
+                                                                                             HoleSearch=atlasHoleSearchTool))
 
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
-    muon_track_summary_helper_tool = result.getPrimaryAndMerge(MuonTrackSummaryHelperToolCfg(flags))
+    muon_track_summary_helper_tool = result.popToolsAndMerge(MuonTrackSummaryHelperToolCfg(flags))
 
     track_summary_tool = CompFactory.Trk.TrackSummaryTool(name=name,
                                                           doSharedHits=False,

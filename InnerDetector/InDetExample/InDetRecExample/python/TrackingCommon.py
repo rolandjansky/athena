@@ -1386,7 +1386,7 @@ def getInDetAmbiScoringTool(NewTrackingCuts, name='InDetAmbiScoringTool', **kwar
 
 def getInDetAmbiScoringToolSi(NewTrackingCuts, name='InDetAmbiScoringToolSi', **kwargs) :
     return getInDetAmbiScoringTool(NewTrackingCuts,
-                                   name+NewTrackingCuts.extension(),
+                                   name,
                                    **setDefaults( kwargs,
                                                   DriftCircleCutTool      =  ''))
 
