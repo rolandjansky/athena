@@ -212,19 +212,19 @@ StatusCode Trk::RiddersAlgorithm::initialize()
       delete m_validationTree; m_validationTree = nullptr;
    }
 
-  if (!m_localVariations.size()){
+  if (m_localVariations.empty()){
        m_localVariations.push_back(0.01);
        m_localVariations.push_back(0.001);
        m_localVariations.push_back(0.0001);
   }
 
-  if (!m_angularVariations.size()){
+  if (m_angularVariations.empty()){
        m_angularVariations.push_back(0.01);
        m_angularVariations.push_back(0.001);
        m_angularVariations.push_back(0.0001);
   }
 
-  if (!m_qOpVariations.size()){
+  if (m_qOpVariations.empty()){
        m_qOpVariations.push_back(0.0001);
        m_qOpVariations.push_back(0.00001);
        m_qOpVariations.push_back(0.000001);

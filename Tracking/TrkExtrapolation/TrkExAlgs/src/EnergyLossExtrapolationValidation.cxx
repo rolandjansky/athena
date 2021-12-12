@@ -362,7 +362,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
                                                            (Trk::ParticleHypothesis)m_particleType);
 
         // get the last one and clone it
-        if (collectedMaterial && collectedMaterial->size()) {
+        if (collectedMaterial && !collectedMaterial->empty()) {
             // get the last track state on surface & clone the destination parameters
             const Trk::TrackStateOnSurface* destinationState = collectedMaterial->back();
             lastParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : nullptr;
@@ -414,7 +414,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
                                                                (Trk::ParticleHypothesis)m_particleType);
 
             // get the last one and clone it
-            if (collectedMaterial && collectedMaterial->size()){
+            if (collectedMaterial && !collectedMaterial->empty()){
                 // get the last track state on surface & clone the destination parameters
                 const Trk::TrackStateOnSurface* destinationState = collectedMaterial->back();
                 newParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : nullptr;
@@ -455,7 +455,7 @@ StatusCode Trk::EnergyLossExtrapolationValidation::execute()
                                                                    (Trk::ParticleHypothesis)m_particleType);
 
                 // get the last one and clone it
-                if (collectedMaterial && collectedMaterial->size()){
+                if (collectedMaterial && !collectedMaterial->empty()){
                     // get the last track state on surface & clone the destination parameters
                     const Trk::TrackStateOnSurface* destinationState = collectedMaterial->back();
                     newParameters = destinationState->trackParameters() ? destinationState->trackParameters()->clone() : nullptr;

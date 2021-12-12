@@ -218,7 +218,7 @@ NNVertexWeightCalculator::mEstimateSignalCompatibility(
 
 double
 NNVertexWeightCalculator::sphericityFunc(
-  std::vector<std::vector<double>> v_allPs) const
+  std::vector<std::vector<double>> v_allPs) 
 {
   TMatrixD a_P(2, 2);
 
@@ -252,7 +252,7 @@ NNVertexWeightCalculator::sphericityFunc(
 }
 
 double
-NNVertexWeightCalculator::LogFunc(double value) const
+NNVertexWeightCalculator::LogFunc(double value) 
 {
   double x0 = 0.05e-3;
   double a = 20000.;   // f1_strich->Eval(x0);

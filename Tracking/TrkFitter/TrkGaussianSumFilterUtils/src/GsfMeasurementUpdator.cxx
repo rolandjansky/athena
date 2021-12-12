@@ -157,7 +157,7 @@ Trk::GsfMeasurementUpdator::fitQuality(
       degreesOfFreedom = componentFitQuality.numberDoF();
     }
   }
-  return FitQualityOnSurface(chi2, degreesOfFreedom);
+  return {chi2, degreesOfFreedom};
 }
 
 Trk::MultiComponentState

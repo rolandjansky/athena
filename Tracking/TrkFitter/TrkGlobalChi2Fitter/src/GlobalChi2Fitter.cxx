@@ -7757,7 +7757,7 @@ __attribute__ ((flatten))
     int nperpars = trajectory.numberOfPerigeeParameters(); 
     int nfitpars = trajectory.numberOfFitParameters();
 
-    typedef Eigen::Matrix<double, 5, 5> Matrix55;
+    using Matrix55 = Eigen::Matrix<double, 5, 5>;
 
     Matrix55 initialjac;
     initialjac.setZero();

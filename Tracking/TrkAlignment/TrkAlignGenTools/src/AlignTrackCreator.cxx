@@ -104,7 +104,7 @@ namespace Trk {
       }
       
       // if no events, output dummy run and event number so file isn't empty
-      if (m_goodEventList.size()<1) output<<"0  0"<<std::endl;
+      if (m_goodEventList.empty()) output<<"0  0"<<std::endl;
       output.close();
     }
     
