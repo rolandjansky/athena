@@ -393,7 +393,10 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   else:
     ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-  ViewVerify.DataObjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
+  if ConfigFlags.Trigger.enableL1MuonPhase1:
+    ViewVerify.DataObjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
+  else:
+    ViewVerify.DataObjects += [( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
 
   #For L2 multi-track SA mode
   if extraLoads:
@@ -412,6 +415,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
   muFastAlg = TrigL2MuonSAConfig("Muon"+postFix)
 
+  muFastAlg.Run2RecMuonRoI = "HLT_RecMURoIs"
   muFastAlg.RecMuonRoI = "LVL1MuonRoIs"
   muFastAlg.MuRoIs = RoIs
   muFastAlg.MuonL2SAInfo = muNames.L2SAName+postFix
@@ -429,6 +433,11 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   if l2mtmode:
     muFastAlg.multitrackMode = True
     muFastAlg.doEndcapForl2mt = False
+
+  if ConfigFlags.Trigger.enableL1MuonPhase1:
+    muFastAlg.UseRun3Config = True
+  else:
+    muFastAlg.UseRun3Config = False
 
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
