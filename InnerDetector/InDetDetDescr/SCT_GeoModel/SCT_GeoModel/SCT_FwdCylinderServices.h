@@ -43,19 +43,19 @@ private:
   std::vector<double> m_nPipeLocAngle;
   std::vector<double> m_railLocAngle;
 
-  double  m_coolingDeltaR;
-  double  m_lmtDeltaR;
-  double  m_lmtCoolingDeltaR;
-  double  m_fibreDeltaR;
-  double  m_nPipeDeltaR;
-  double  m_railDeltaR;
+  double  m_coolingDeltaR = 0.0;
+  double  m_lmtDeltaR = 0.0;
+  double  m_lmtCoolingDeltaR = 0.0;
+  double  m_fibreDeltaR = 0.0;
+  double  m_nPipeDeltaR = 0.0;
+  double  m_railDeltaR = 0.0;
 
-  double  m_coolingRPhi;
-  double  m_lmtRPhi;
-  double  m_lmtCoolingRPhi;
-  double  m_fibreRPhi;
-  double  m_nPipeRPhi;
-  double  m_railRPhi;
+  double  m_coolingRPhi = 0.0;
+  double  m_lmtRPhi = 0.0;
+  double  m_lmtCoolingRPhi = 0.0;
+  double  m_fibreRPhi = 0.0;
+  double  m_nPipeRPhi = 0.0;
+  double  m_railRPhi = 0.0;
 
   std::string m_coolingMaterialName;
   std::string m_lmtMaterialName;
@@ -64,7 +64,7 @@ private:
   std::string m_nPipeMaterialName;
   std::string m_railMaterialName;
 
-  double  m_lmtCoolingZOffset;
+  double  m_lmtCoolingZOffset = 0.0;
 
 };
 

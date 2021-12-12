@@ -124,7 +124,7 @@ ReadFromXmlDom::initialize() {
 
 bool
 ReadFromXmlDom::sourceExists() const {
-  struct stat buffer;
+  struct stat buffer{};
 
   return(stat(m_source.c_str(), &buffer) == 0);
 }

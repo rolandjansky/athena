@@ -30,50 +30,50 @@ private:
   void DefineParameters();
   void PrintParameters(MsgStream& msg, double*, double*) const;
   
-  double m_baseOfShellTrd1C;
-  double m_heightOfShellTrd1C;
+  double m_baseOfShellTrd1C = 0.0;
+  double m_heightOfShellTrd1C = 0.0;
   
-  double m_baseOfShellTrd2C;
-  double m_heightOfShellTrd2C;
+  double m_baseOfShellTrd2C = 0.0;
+  double m_heightOfShellTrd2C = 0.0;
   
-  double m_xOfShellTrd2C;
-  double m_zOfShellTrd2C;
-  double m_phiOfShellTrd2C;
+  double m_xOfShellTrd2C = 0.0;
+  double m_zOfShellTrd2C = 0.0;
+  double m_phiOfShellTrd2C = 0.0;
   
-  double m_x0OfShellC;
-  double m_y0OfShellC;
-  double m_phi0OfShellC;
+  double m_x0OfShellC = 0.0;
+  double m_y0OfShellC = 0.0;
+  double m_phi0OfShellC = 0.0;
   
-  int m_numberOfModulesC;
-  double m_lengthOfModuleC;
+  int m_numberOfModulesC = 0;
+  double m_lengthOfModuleC = 0.0;
   
-  double m_baseOfRadiatorTrd1C;
-  double m_heightOfRadiatorTrd1C;
+  double m_baseOfRadiatorTrd1C = 0.0;
+  double m_heightOfRadiatorTrd1C = 0.0;
   
-  double m_baseOfRadiatorTrd2C;
-  double m_heightOfRadiatorTrd2C;
+  double m_baseOfRadiatorTrd2C = 0.0;
+  double m_heightOfRadiatorTrd2C = 0.0;
   
-  double m_xOfRadiatorTrd2C;
-  double m_zOfRadiatorTrd2C;
-  double m_phiOfRadiatorTrd2C;
+  double m_xOfRadiatorTrd2C = 0.0;
+  double m_zOfRadiatorTrd2C = 0.0;
+  double m_phiOfRadiatorTrd2C = 0.0;
   
-  double m_xOfRadiatorC;
-  double m_zOfRadiatorC;
+  double m_xOfRadiatorC = 0.0;
+  double m_zOfRadiatorC = 0.0;
   
-  int m_numberOfHolesC;
+  int m_numberOfHolesC = 0;
   
-  double* m_xLocalOfHolesC;
-  double* m_zLocalOfHolesC;
+  double* m_xLocalOfHolesC = nullptr;
+  double* m_zLocalOfHolesC = nullptr;
   
-  int m_numberOfCoolingTubesC;
+  int m_numberOfCoolingTubesC = 0;
   
-  double* m_xOfCoolingTubesC;
-  double* m_zOfCoolingTubesC;
+  double* m_xOfCoolingTubesC = nullptr;
+  double* m_zOfCoolingTubesC = nullptr;
   
-  double m_radiusOfHoleForCoolingTubeC;
+  double m_radiusOfHoleForCoolingTubeC = 0.0;
 
-  double* m_xOfHolesForCoolingTubesC;
-  double* m_zOfHolesForCoolingTubesC;
+  double* m_xOfHolesForCoolingTubesC = nullptr;
+  double* m_zOfHolesForCoolingTubesC = nullptr;
   
   const TRTParameters* m_pParameters;
 

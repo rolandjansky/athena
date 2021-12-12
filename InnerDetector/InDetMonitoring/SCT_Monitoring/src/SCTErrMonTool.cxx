@@ -319,7 +319,7 @@ SCTErrMonTool::fillHistograms() {
   ATH_CHECK(fillByteStreamErrors());
 
   // Check wafers with many fired strips (event dependent) using SCT_FlaggedConditionTool.
-  std::array<int, N_REGIONS_INC_GENERAL> nFlaggedWafers;
+  std::array<int, N_REGIONS_INC_GENERAL> nFlaggedWafers{};
   nFlaggedWafers.fill(0);
   const unsigned int wafer_hash_max{static_cast<unsigned int>(m_pSCTHelper->wafer_hash_max())};
   for (unsigned int iHash{0}; iHash<wafer_hash_max; iHash++) {

@@ -84,10 +84,10 @@ private:
   void getParameters();
   virtual const GeoLogVol * preBuild();
   
-  double m_radialSep;
-  int    m_firstStagger;
-  int    m_modulesPerSki;
-  double m_safety;
+  double m_radialSep = 0.0;
+  int    m_firstStagger = 0;
+  int    m_modulesPerSki = 0;
+  double m_safety = 0.0;
 
   std::vector<double> m_zPos;
   std::vector<int>    m_id;
@@ -96,45 +96,45 @@ private:
   double m_tilt;
 
   double m_length;
-  double m_width;
-  double m_thickness;
+  double m_width = 0.0;
+  double m_thickness = 0.0;
   
 
   // These are currently all set to zero.
-  double m_doglegPhiOffset;
-  double m_doglegRadialOffset;
-  double m_coolingBlockPhiOffset;
-  double m_coolingBlockRadialOffset;
-  double m_coolingPipeRadialOffset;
-  double m_coolingPipePhiOffset;
+  double m_doglegPhiOffset = 0.0;
+  double m_doglegRadialOffset = 0.0;
+  double m_coolingBlockPhiOffset = 0.0;
+  double m_coolingBlockRadialOffset = 0.0;
+  double m_coolingPipeRadialOffset = 0.0;
+  double m_coolingPipePhiOffset = 0.0;
 
   // There are cooling block & cooling pipe offset parameters.
-  double m_coolingBlockOffsetX;
-  double m_coolingBlockOffsetY;
-  double m_coolingBlockOffsetZ;
-  double m_coolingPipeOffsetX;
-  double m_coolingPipeOffsetY;
+  double m_coolingBlockOffsetX = 0.0;
+  double m_coolingBlockOffsetY = 0.0;
+  double m_coolingBlockOffsetZ = 0.0;
+  double m_coolingPipeOffsetX = 0.0;
+  double m_coolingPipeOffsetY = 0.0;
 
-  double m_doglegOffsetX;
-  double m_doglegOffsetY;
+  double m_doglegOffsetX = 0.0;
+  double m_doglegOffsetY = 0.0;
 
   SCT_Module* m_module;
   std::unique_ptr<SCT_Dogleg> m_dogleg;
   std::unique_ptr<SCT_CoolingBlock> m_coolingBlock;
   std::unique_ptr<SCT_CoolingPipe> m_coolingPipe;
 
-  GeoTransform * m_refPointTransform;
-  GeoTransform * m_coolingPipePos;
+  GeoTransform * m_refPointTransform = nullptr;
+  GeoTransform * m_coolingPipePos = nullptr;
 
   //! For calculations of envelopes of SCT_DetailLayer.
   std::unique_ptr<GeoTrf::Vector3D> m_env1RefPointVector;
   //! For calculations of envelopes of SCT_DetailLayer.
   std::unique_ptr<GeoTrf::Vector3D> m_env2RefPointVector;
 
-  double m_env1Thickness;
-  double m_env1Width;
-  double m_env2Thickness;
-  double m_env2Width;
+  double m_env1Thickness = 0.0;
+  double m_env1Width = 0.0;
+  double m_env2Thickness = 0.0;
+  double m_env2Width = 0.0;
 
   std::vector<GeoNameTag *> m_nameTag;
   std::vector<GeoTrf::Transform3D> m_modulePos;
