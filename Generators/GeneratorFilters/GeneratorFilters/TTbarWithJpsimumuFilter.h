@@ -14,9 +14,6 @@
 
 #include "GeneratorModules/GenFilter.h"
 
-namespace HepMC{
-  class GenParticle;
-}
 
 class TTbarWithJpsimumuFilter: public GenFilter {
  public:
@@ -36,10 +33,10 @@ class TTbarWithJpsimumuFilter: public GenFilter {
   double m_JpsiEtaMaxCut;
 
   // method to check if Jpsi decays into pair of leptons
-  bool isLeptonDecay(const HepMC::GenParticle* part, int type) const;  
+  bool isLeptonDecay(HepMC::ConstGenParticlePtr part, int type) const;  
 
   // method to check if Jpsi pass some selection criteria
-  bool passJpsiSelection(const HepMC::GenParticle* part) const;
+  bool passJpsiSelection(HepMC::ConstGenParticlePtr part) const;
 
 };
 
