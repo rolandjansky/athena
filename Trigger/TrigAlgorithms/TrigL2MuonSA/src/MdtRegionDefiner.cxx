@@ -86,7 +86,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const TrigRoiDescriptor
       ty2 = -1;
       int sign = 1;
       
-      for(int sta_iter=0; sta_iter< (int)muonRoad.stationList.size(); sta_iter++){
+      for(unsigned int sta_iter=0; sta_iter< muonRoad.stationList.size(); sta_iter++){
 	
 	Identifier id = muonRoad.stationList[sta_iter];
 	int stationPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
@@ -252,7 +252,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const TrigRoiDescriptor
       ty1 = -1;
       ty2 = -1;
       
-      for(int sta_iter=0; sta_iter<(int)muonRoad.stationList.size(); sta_iter++){
+      for(unsigned int sta_iter=0; sta_iter<muonRoad.stationList.size(); sta_iter++){
 	Identifier id = muonRoad.stationList[sta_iter];
 	int stationPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
 	std::string name = m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id));
