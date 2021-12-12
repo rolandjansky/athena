@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file PoolCollectionConverter.cxx
@@ -24,6 +24,7 @@
 // Gaudi
 #include "GaudiKernel/StatusCode.h"
 
+#include "boost/algorithm/string/predicate.hpp"
 #include <assert.h>
 #include <exception>
 
@@ -77,9 +78,9 @@ StatusCode PoolCollectionConverter::initialize() {
    }
    if (collectionTypeString == "ImplicitCollection") {
       // Check if already prefixed
-      if (m_inputCollection.find("PFN:") == 0
-	      || m_inputCollection.find("LFN:") == 0
-	      || m_inputCollection.find("FID:") == 0) {
+      if (boost::starts_with (m_inputCollection, "PFN:")
+	      || boost::starts_with (m_inputCollection, "LFN:")
+	      || boost::starts_with (m_inputCollection, "FID:")) {
          // Aready prefixed
          m_connection = m_inputCollection;
       } else {
