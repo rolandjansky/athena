@@ -45,8 +45,12 @@
 #include "TrkiPatFitterUtils/MessageHelper.h"
 #include "VxVertex/RecVertex.h"
 #include "muonEvent/CaloEnergy.h"
+namespace {
+    /// sigma of phi sector for pseudo-measurement constraint
+    const double s_sigmaPhiSector = std::tan(0.125 * M_PI / std::sqrt(12.));
+    
+}
 namespace Rec {
-
     CombinedMuonTrackBuilder::~CombinedMuonTrackBuilder() {}
     CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, const std::string& name, const IInterface* parent) :
         AthAlgTool(type, name, parent),
@@ -964,7 +968,7 @@ namespace Rec {
 
                 if (msgLvl(MSG::DEBUG)) {
                     unsigned numberPseudo = m_trackQuery->numberPseudoMeasurements(spectrometerTrack);
-                    if (errorPhi > m_sigmaPhiSector) { ++numberPseudo; }
+                    if (errorPhi > s_sigmaPhiSector) { ++numberPseudo; }
 
                     if (badlyDeterminedCurvature) {
                         ATH_MSG_DEBUG(" prefit with vertex: " << std::setiosflags(std::ios::fixed) << " momentum " << std::setprecision(1)
@@ -2871,7 +2875,7 @@ namespace Rec {
         auto parameters = m_trackQuery->spectrometerParameters(track, ctx);
         Amg::MatrixX covarianceMatrix(1, 1);
         covarianceMatrix.setZero();
-        covarianceMatrix(0, 0) = m_sigmaPhiSector * m_sigmaPhiSector * parameters->position().perp2();
+        covarianceMatrix(0, 0) = s_sigmaPhiSector * s_sigmaPhiSector * parameters->position().perp2();
 
         auto pseudo = std::make_unique<const Trk::PseudoMeasurementOnTrack>(Trk::LocalParameters(Trk::DefinedParameter(0., Trk::locY)),
                                                                             covarianceMatrix, parameters->associatedSurface());
@@ -2905,7 +2909,7 @@ namespace Rec {
 
         // start with a 'phi sector constraint' pseudomeasurement when necessary
         unsigned numberPseudo = m_trackQuery->numberPseudoMeasurements(spectrometerTrack);
-        if (errorPhi > m_sigmaPhiSector) { ++numberPseudo; }
+        if (errorPhi > s_sigmaPhiSector) { ++numberPseudo; }
 
         if (numberPseudo > 1 && !m_trackQuery->isSectorOverlap(spectrometerTrack)) {
             ATH_MSG_VERBOSE("standaloneFit: add pseudo to constrain phi sector");
