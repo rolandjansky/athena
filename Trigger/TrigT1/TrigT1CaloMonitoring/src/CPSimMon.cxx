@@ -1927,7 +1927,7 @@ void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
   // CpmTowerMap::const_iterator iter  = towers->begin();
   // CpmTowerMap::iterator iterE = towers->end();
   // for (; iter != iterE; ++iter) {
-  for (const auto iter : *towers) {
+  for (const auto& iter : *towers) {
     CpmTowerMap::mapped_type tt = ttCheck(iter.second, tempColl);
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
     const int crate = converter.cpCrate(coord);
@@ -1938,7 +1938,7 @@ void CPSimMon::simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
   // If overlap data not present take from core data
   // iter  = (m_overlapPresent) ? towersOv.begin() : towers->begin();
   // iterE = (m_overlapPresent) ? towersOv.end()   : towers->end();
-  for (const auto iter : ((m_overlapPresent) ? *towersOv : *towers)) {
+  for (const auto& iter : ((m_overlapPresent) ? *towersOv : *towers)) {
     //for (; iter != iterE; ++iter) {
     CpmTowerMap::mapped_type tt = ttCheck(iter.second, tempColl);
     const LVL1::Coordinate coord(tt->phi(), tt->eta());
