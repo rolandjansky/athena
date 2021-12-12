@@ -137,8 +137,8 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
             'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
         ],
         'AntiKtVR30Rmax4Rmin02Track': [
-            'BTagging/201903/rnnip/antikt4empflow/network.json',
-            'BTagging/201903/dl1r/antikt4empflow/network.json',
+            'BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json', 
+            'BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
             'BTagging/20210517/dipsLoose/antikt4empflow/network.json', #first r22 trainings
             'BTagging/20210517/dips/antikt4empflow/network.json',
             'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
