@@ -157,6 +157,8 @@ include( "CaloRec/CaloTopoCluster_jobOptions.py" )
 
 #egamma new config
 ConfigFlags = getNewConfigFlags()
+ConfigFlags.Detector.GeometryMuon = False
+ConfigFlags.Detector.GeometryID = False
 ConfigFlags.lock()
 
 from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
