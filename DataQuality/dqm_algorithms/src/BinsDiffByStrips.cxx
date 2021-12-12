@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinsDiffByStrips.cxx calculates average bin value for a strip of bins and finds bins that are outliers from that strip. DQ decision based on worst bin only, not number of bad bins.
@@ -412,7 +412,6 @@ AllBinInOneStrip.push_back(binContent_tmp);
       double S2 = 0;
       double sumSquaredDiffFromAvg = 0;
       double sumCompensator = 0; 
-      double err2DiffSum = 0;
       double err2Diff2Sum = 0;
       double min = 0;
       double max = 0;
@@ -439,7 +438,6 @@ AllBinInOneStrip.push_back(binContent_tmp);
 	  
 	  double inputErr2 = pow(it->error,2.);
 	  err2Sum += inputErr2;
-	  err2DiffSum += inputErr2 * diffFromAvg;
 	  err2Diff2Sum += inputErr2 * pow( diffFromAvg, 2);
 	}
       }  
