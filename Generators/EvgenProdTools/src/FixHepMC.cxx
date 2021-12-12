@@ -237,12 +237,10 @@ StatusCode FixHepMC::execute() {
 
     // Event particle content cleaning -- remove "bad" structures
     std::vector<HepMC::GenParticlePtr> toremove; toremove.reserve(10);
-    long seenThisEvent = 0;
     for (HepMC::GenEvent::particle_const_iterator ip = evt->particles_begin(); ip != evt->particles_end(); ++ip) {
       // Skip this particle if (somehow) its pointer is null
       if (*ip == NULL) continue;
       m_totalSeen += 1;
-      seenThisEvent += 1;
 
       // Flag to declare if a particle should be removed
       bool bad_particle = false;
