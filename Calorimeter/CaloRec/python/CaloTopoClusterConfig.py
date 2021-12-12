@@ -298,18 +298,17 @@ def CaloTopoClusterSplitterToolCfg(configFlags):
     result.setPrivateTools(TopoSplitter)
     return result
 
-def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname=None,doLCCalib=None):
+def CaloTopoClusterCfg(configFlags, cellsname="AllCalo", clustersname=None):
     """
     Configures topo clustering
 
     If output writing is enabled (ESD,AOD) the topo clusters are added to them
     """
 
-    if doLCCalib is None:
-        doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
+    doLCCalib = configFlags.Calo.TopoCluster.doTopoClusterLocalCalib
         
     if clustersname is None:
-        clustersname="CaloCalTopoClusters" if doLCCalib else "CaloTopoClusters"
+        clustersname = "CaloCalTopoClusters" if doLCCalib else "CaloTopoClusters"
 
 
     if clustersname=="CaloTopoClusters" and doLCCalib is True: 

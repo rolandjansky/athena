@@ -42,7 +42,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
     # calorimeter
     if flags.Detector.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
-        acc.merge(CaloRecoCfg(flags, doLCCalib=True))
+        acc.merge(CaloRecoCfg(flags))
         log.info("---------- Configured calorimeter reconstruction")
 
     # ID / ITk
