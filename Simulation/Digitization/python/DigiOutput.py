@@ -140,6 +140,7 @@ def getStreamRDO_ItemList(log):
             if fastPixelDigiOutputExpected():
                 StreamRDO_ItemList+=["InDet::SiClusterContainer#*"]
                 StreamRDO_ItemList+=["InDet::PixelGangedClusterAmbiguities#*"]
+                StreamRDO_ItemList+=["InDet::PixelClusterContainer#*"]
             if standardPixelDigiOutputExpected():
                 StreamRDO_ItemList+=["PixelRDO_Container#*"]
     if DetFlags.digitize.SCT_on():

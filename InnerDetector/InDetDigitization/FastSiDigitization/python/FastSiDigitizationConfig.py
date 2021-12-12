@@ -31,7 +31,7 @@ def FastSCT_LastXing():
 def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
-
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     #################################
     # Config pixel conditions setup #
     #################################
@@ -44,7 +44,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     #################
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
         # ITk:
         if geoFlags.isSLHC():
@@ -144,7 +143,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
 
         if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
             from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-            ToolSvc += PixelLorentzAngleToolSetup()
+            PixelLorentzAngleToolSetup()
 
         if not hasattr(condSeq, 'PixelDistortionAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
@@ -155,11 +154,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             condSeq += PixeldEdxAlg(name="PixeldEdxAlg")
             PixeldEdxAlg.ReadFromCOOL = True
 
-        if not hasattr(ToolSvc, "PixelRecoDbTool"):
-            from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
-            ToolSvc += PixelRecoDbTool()
-        ToolSvc.PixelRecoDbTool.InputSource = 1
-
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)
 
@@ -169,6 +163,7 @@ def commonPixelFastDigitizationConfig(name,**kwargs):
 
     # Import Digitization job properties
     from Digitization.DigitizationFlags import digitizationFlags
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     # set the random service, stream name
     streamName = kwargs.setdefault("RndmEngine", "FastPixelDigitization")
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
@@ -179,12 +174,52 @@ def commonPixelFastDigitizationConfig(name,**kwargs):
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", FastPixel_FirstXing())
         kwargs.setdefault("LastXing",  FastPixel_LastXing() )
-
+    
+    #################################
+    # Config pixel conditions setup #
+    #################################
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    #################
+    # Module status #
+    #################
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
+        # ITk:
+        if geoFlags.isSLHC():
+            IdMappingDat = "ITk_Atlas_IdMapping.dat"
+            if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
+                IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
+            elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
+                IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
+            elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
+                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
+            elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
+                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
+        elif (geoFlags.isIBL() is False):
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
+        else:
+            # Planar IBL
+            if (geoFlags.IBLLayout() == "planar"):
+                if (geoFlags.isDBM() is True):
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
+                else:
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
+            # Hybrid IBL plus DBM
+            elif (geoFlags.IBLLayout() == "3D"):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+        
+        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                      ReadDeadMapKey = "",
+                                      CablingMapFileName=IdMappingDat)
+        
     # SiLorentzAngleTool for PixelFastDigitizationTool
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-        ToolSvc += PixelLorentzAngleToolSetup()
+        PixelLorentzAngleToolSetup()
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
 
     from AthenaCommon import CfgMgr
