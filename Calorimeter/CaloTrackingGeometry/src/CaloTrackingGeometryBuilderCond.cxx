@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 // Calo
 #include "CaloTrackingGeometry/CaloTrackingGeometryBuilderCond.h"
-#include "CaloTrackingGeometry/ICaloSurfaceHelper.h"
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeBuilder.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
@@ -64,7 +63,6 @@ Calo::CaloTrackingGeometryBuilderCond::CaloTrackingGeometryBuilderCond(const std
   m_exitVolume("Calo::Container"),
   m_mbtsNegLayers(nullptr),
   m_mbtsPosLayers(nullptr)
-  //m_caloSurfaceHelper("CaloSurfaceHelper/CaloSurfaceHelper")
 {
   declareInterface<Trk::IGeometryBuilderCond>(this);
   // declare the properties via Python

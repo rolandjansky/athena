@@ -26,7 +26,6 @@ class IMessageSvc;
 class CaloDepthTool;
 class ICaloRecoMaterialTool;
 class ICaloRecoSimpleGeomTool;
-class ICaloSurfaceHelper;
 
 namespace Trk {
 class Surface;
@@ -44,7 +43,6 @@ static const InterfaceID IID_ICaloSurfaceBuilder("ICaloSurfaceBuilder", 1, 0);
 class ICaloSurfaceBuilder : virtual public IAlgTool
 {
 
-  friend ICaloSurfaceHelper;
 
 public:
   /**Virtual destructor*/
