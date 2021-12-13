@@ -111,7 +111,7 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
                   return StatusCode::FAILURE;
                 }
 
-                std::array<float,16> chrgs;
+                std::array<float,16> chrgs{};
                 for (int k=0; k<16; k++) {
                   chrgs[k]=std::atof(calibString[k+4].c_str());
                 }

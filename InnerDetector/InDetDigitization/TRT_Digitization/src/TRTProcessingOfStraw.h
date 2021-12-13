@@ -128,22 +128,22 @@ private:
   ITRT_SimDriftTimeTool* m_pSimDriftTimeTool;
 
   /** Time to be corrected for flight and wire propagation delays false when beamType='cosmics' */
-  bool m_timeCorrection;
+  bool m_timeCorrection = false;
 
-  double m_signalPropagationSpeed;
-  double m_attenuationLength;
+  double m_signalPropagationSpeed = 0.0;
+  double m_attenuationLength = 0.0;
 
-  bool m_useAttenuation;
-  bool m_useMagneticFieldMap;
+  bool m_useAttenuation = false;
+  bool m_useMagneticFieldMap = false;
 
-  double m_maxCrossingTime;
-  double m_minCrossingTime;
-  double m_shiftOfZeroPoint;
+  double m_maxCrossingTime = 0.0;
+  double m_minCrossingTime = 0.0;
+  double m_shiftOfZeroPoint = 0.0;
 
-  double m_innerRadiusOfStraw;
-  double m_outerRadiusOfWire;
+  double m_innerRadiusOfStraw = 0.0;
+  double m_outerRadiusOfWire = 0.0;
 
-  double m_solenoidFieldStrength;
+  double m_solenoidFieldStrength = 0.0;
 
 
   TRTTimeCorrection*        m_pTimeCorrection;
@@ -229,7 +229,7 @@ private:
 
   std::vector<double> m_drifttimes;     // electron drift times
   std::vector<double> m_expattenuation; // tabulation of exp()
-  unsigned int  m_maxelectrons;         // maximum number of them (minmum is 100 for the Gaussian approx to be ok);
+  unsigned int  m_maxelectrons = 0U;         // maximum number of them (minmum is 100 for the Gaussian approx to be ok);
 
   bool m_alreadywarnedagainstpdg0;
 

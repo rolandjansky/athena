@@ -37,16 +37,16 @@ private:
 
   // Basic and Derived parameters  
   double m_length;
-  double m_width;
-  double m_thickness;
-  double m_powerTapeThickness;
+  double m_width = 0.0;
+  double m_thickness = 0.0;
+  double m_powerTapeThickness = 0.0;
 
   // Child detector elements
   const SCT_Ski * m_ski;
 
   // 15th Aug 2005 S.Mima modified.
   // Power Tape Z Offset from Bracket 
-  double m_powerTapeStartPointOffset;   
+  double m_powerTapeStartPointOffset = 0.0;   
 };
 
 #endif // SCT_GEOMODEL_SCT_SKIPOWERTAPE_H

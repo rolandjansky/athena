@@ -117,7 +117,7 @@ class ZmumuEvent : public EventAnalysis
   unsigned int m_uTrackMatch;
   bool m_bLooseMatch;
   double m_etaCut;
-  double m_DiMuonPairInvMass;
+  double m_DiMuonPairInvMass = 0.0;
 
   double m_LeadingMuonPtCut;
   double m_SecondMuonPtCut;
@@ -146,17 +146,17 @@ class ZmumuEvent : public EventAnalysis
   unsigned int     m_eventselectioncount_dimuoncharge{};
 
 
-  const            xAOD::Muon*      m_pxRecMuon[NUM_MUONS];
-  const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS];  // Pointer to muon spectro ( corr. )
-  const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS];      // Pointer to muon spectro
-  const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS];       // Pointer to ID track
+  const            xAOD::Muon*      m_pxRecMuon[NUM_MUONS]{};
+  const            xAOD::TrackParticle*  m_pxMETrack[NUM_MUONS]{};  // Pointer to muon spectro ( corr. )
+  const            xAOD::TrackParticle*  m_pxMSTrack[NUM_MUONS]{};      // Pointer to muon spectro
+  const            xAOD::TrackParticle*  m_pxIDTrack[NUM_MUONS]{};       // Pointer to ID track
 
   // Keep kinematic information on the Z
-  float m_fZPt[NUM_TYPES];
-  float m_fZEtaDir[NUM_TYPES];
-  float m_fZPhiDir[NUM_TYPES];
-  float m_fInvariantMass[NUM_TYPES];
-  float m_fMuonDispersion[NUM_TYPES];
+  float m_fZPt[NUM_TYPES]{};
+  float m_fZEtaDir[NUM_TYPES]{};
+  float m_fZPhiDir[NUM_TYPES]{};
+  float m_fInvariantMass[NUM_TYPES]{};
+  float m_fMuonDispersion[NUM_TYPES]{};
 
   // Graphs
   enum HISTOS_1D
@@ -170,8 +170,8 @@ class ZmumuEvent : public EventAnalysis
   bool m_SelectMuonByIP;
 
   // selected muon identifiers
-  int m_muon1;
-  int m_muon2;
+  int m_muon1 = 0;
+  int m_muon2 = 0;
 };
 //==============================================================================
 #endif

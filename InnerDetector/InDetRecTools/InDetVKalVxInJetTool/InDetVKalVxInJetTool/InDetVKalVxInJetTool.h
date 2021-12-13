@@ -223,7 +223,7 @@ namespace InDet {
  
       ToolHandle < IInDetTrkInJetType >       m_trackClassificator;
 
-      bool m_useEtaDependentCuts;
+      bool m_useEtaDependentCuts = false;
       /** service to get cut values depending on different variable */
       ServiceHandle<InDet::IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
 

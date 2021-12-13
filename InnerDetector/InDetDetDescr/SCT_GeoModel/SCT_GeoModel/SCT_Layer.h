@@ -74,35 +74,35 @@ private:
   // Layer number
   int    m_iLayer;
 
-  int    m_skisPerLayer;
-  double m_tilt;
-  int    m_stereoSign;
-  double m_radius;
-  double m_safety;
+  int    m_skisPerLayer = 0;
+  double m_tilt = 0.0;
+  int    m_stereoSign = 0;
+  double m_radius = 0.0;
+  double m_safety = 0.0;
   
-  double m_innerRadius;
-  double m_outerRadius;
-  double m_cylinderLength;
-  double m_activeLength;
+  double m_innerRadius = 0.0;
+  double m_outerRadius = 0.0;
+  double m_cylinderLength = 0.0;
+  double m_activeLength = 0.0;
 
-  double m_innerRadiusActive;
-  double m_outerRadiusActive;
+  double m_innerRadiusActive = 0.0;
+  double m_outerRadiusActive = 0.0;
 
-  double m_outerRadiusOfSupport;
+  double m_outerRadiusOfSupport = 0.0;
 
-  double m_skiPhiStart;
-  double m_skiAuxPhiStart;
+  double m_skiPhiStart = 0.0;
+  double m_skiAuxPhiStart = 0.0;
   
-  double m_bracketPhiOffset;
-  double m_phiRefModule;
+  double m_bracketPhiOffset = 0.0;
+  double m_phiRefModule = 0.0;
 
-  bool   m_includeFSI;
-  int    m_nRepeatEndJewel;
-  double m_phiEndJewel;
-  double m_zEndJewel;
-  int    m_nRepeatScorpion;
-  double m_phiScorpion;
-  double m_zScorpion;
+  bool   m_includeFSI = false;
+  int    m_nRepeatEndJewel = 0;
+  double m_phiEndJewel = 0.0;
+  double m_zEndJewel = 0.0;
+  int    m_nRepeatScorpion = 0;
+  double m_phiScorpion = 0.0;
+  double m_zScorpion = 0.0;
 
   SCT_Module* m_module;
   std::unique_ptr<SCT_Ski> m_ski;
