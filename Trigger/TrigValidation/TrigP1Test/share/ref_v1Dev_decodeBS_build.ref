@@ -276,6 +276,8 @@ HLT_2j55_0eta290_020jvt_pf_ftf_bdl1r60_2j55_pf_ftf_0eta320_presel4j25_L14jJ15p0E
     0: 13
   stepFeatures:
     0: 26
+HLT_2mu10_PhysicsTLA_L12MU8F:
+  eventCount: 0
 HLT_2mu10_bJpsimumu_L12MU8F:
   eventCount: 0
 HLT_2mu10_bUpsimumu_L12MU8F:
@@ -287,8 +289,6 @@ HLT_2mu10_l2mt_L1MU10BOM:
 HLT_2mu10_l2mt_L1MU12BOM:
   eventCount: 0
 HLT_2mu14_L12MU8F:
-  eventCount: 0
-HLT_2mu14_PhysicsTLA_L12MU8F:
   eventCount: 0
 HLT_2mu14_l2io_L12MU8F:
   eventCount: 0
