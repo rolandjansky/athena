@@ -32,13 +32,27 @@ rec.doFileMetaData.set_Value_and_Lock(False)
 
 athenaCommonFlags.EvtMax=10
 
-# Run TauVertexFinder with TJVA on 
+# enable standalone tau reconstruction
+rec.doTau.set_Value_and_Lock(True)
 from tauRec.tauRecFlags import tauFlags
 tauFlags.isStandalone.set_Value_and_Lock(True)
+# override RecExCommon_flags behaviour
+tauFlags.Enabled.set_Value_and_Lock(True)
 
-UserAlgs = ["tauRec/tauRec_jobOptions.py"]
+# ditau reconstruction setup
+from DiTauRec.DiTauRecFlags import diTauFlags
+diTauFlags.doVtxFinding.set_Value_and_Lock(True)
 
 include ("RecExCommon/RecExCommon_topOptions.py")
+
+# FlowElements are not rebuilt in standalone tau reconstruction from ESD
+# the FE->tau links from the ESD will be messed up by tau thinning if we write out FE containers to AOD
+# therefore, we must remove FE containers
+import re
+StreamAOD.ItemList = [x for x in StreamAOD.ItemList if not re.search("JetETMiss.*ParticleFlowObjects",x)]
+# the other option is to deactivate tau thinning, but this wouldn't give a realistic tau AOD content
+#from ParticleBuilderOptions.AODFlags import AODFlags
+#AODFlags.ThinTaus.set_Value_and_Lock(False)
 
 condSeq = AthSequencer("AthCondSeq")
 if not hasattr( condSeq, "LumiBlockMuWriter" ):
