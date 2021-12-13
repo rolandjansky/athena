@@ -15,7 +15,6 @@
  *
  */
 
-#include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 #include "egammaInterfaces/IEMClusterTool.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
@@ -27,6 +26,7 @@
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaInterfaces/IegammaOQFlagsBuilder.h"
 #ifndef XAOD_ANALYSIS
+#   include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
 #   include "egammaInterfaces/IEMExtrapolationTools.h"
 #   include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #   include "egammaInterfaces/IegammaTrkRefitterTool.h"
