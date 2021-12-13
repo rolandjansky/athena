@@ -216,7 +216,7 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
   if (pSCetContainer && pSCetContainer->size()>0){
     LArRawSCContainer::const_iterator itSC = hSCetContainer->begin();
     LArRawSCContainer::const_iterator itSC_e = hSCetContainer->end();
-    const LArRawSC* rawSC;
+    const LArRawSC* rawSC = 0;
     
     /** Loop over SCs*/
     for ( ; itSC!=itSC_e;++itSC) {
@@ -243,7 +243,7 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 	ATH_MSG_DEBUG("    |______ --------- rawSC->SourceId() = "<< rawSC->SourceId());
       }
     }//end loop over SCs
-    if (rawSC->energies().size() != 1 || rawSC->satur().size() !=1 )
+    if (rawSC && (rawSC->energies().size() != 1 || rawSC->satur().size() !=1 ))
       ATH_MSG_WARNING("GAH rawSC->energies().size() = " <<rawSC->energies().size() <<" ,  why didn't I get only 1 SC with 1 energy? or is the saturation? ");
     
   } // if (pSCetContainer){
