@@ -35,6 +35,7 @@
 #include "ElectronPhotonFourMomentumCorrection/GainTool.h"
 
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
+#include <cmath>
 
 
 namespace CP {
@@ -1346,7 +1347,7 @@ double EgammaCalibrationAndSmearingTool::intermodule_correction(double Ecl,  dou
 
   double Ecl_corr = 0.;
   int DivInt = 0;
-  double pi = 3.1415926535897932384626433832795 ;
+  double pi = M_PI ;
 
   if ( m_TESModel == egEnergyCorr::es2017_summer_improved || m_TESModel == egEnergyCorr::es2017_summer_final || m_TESModel == egEnergyCorr::es2017_R21_v0 || m_TESModel == egEnergyCorr::es2017_R21_v1 || m_TESModel == egEnergyCorr::es2017_R21_ofc0_v1 || m_TESModel == egEnergyCorr::es2018_R21_v0 || m_TESModel == egEnergyCorr::es2018_R21_v1) {
 
@@ -1446,7 +1447,7 @@ double EgammaCalibrationAndSmearingTool::intermodule_correction(double Ecl,  dou
 
 double EgammaCalibrationAndSmearingTool::correction_phi_unif(double eta, double phi) const
 {
-  const double PI = 3.141592653589793;  // TODO: move to M_PI from cmath with #define _USE_MATH_DEFINES
+  constexpr double PI = M_PI;
   double Fcorr = 1.0;
 
   if (m_use_mapping_correction) {

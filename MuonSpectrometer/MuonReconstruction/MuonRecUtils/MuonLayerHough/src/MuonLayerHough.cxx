@@ -26,7 +26,7 @@ namespace {
     float cot(const float x) {
         const float arg = M_PI_2 - x;
         // Tan becomes singular at -pi/2 and pi/2
-        if (std::abs(arg - M_PI_2) <= FLT_EPSILON || std::abs(arg + M_PI_2) <= FLT_EPSILON) return 1.e12;
+        if (std::abs(arg - M_PI_2) <= FLT_EPSILON || std::abs(arg + M_PI_2) <= FLT_EPSILON) return 1.e8;
         return std::tan(arg);
     }
 }  // namespace

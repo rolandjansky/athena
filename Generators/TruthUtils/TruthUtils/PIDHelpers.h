@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-#pragma once
-
+#ifndef TRUTHUTILS_PIDHELPERS_H
+#define TRUTHUTILS_PIDHELPERS_H
 /// @file
 ///
 /// PID-only functions with no HepMC dependence, both from MCUtils and ATLAS-specific.
@@ -22,7 +21,6 @@ namespace MC {
     return !(PID::isStrongInteracting(pid) || PID::isEMInteracting(pid));
   }
 
-
   /// @brief Identify if the particle with given PDG ID would produce ID tracks but not shower in the detector if stable
   inline bool isChargedNonShowering(int pid) {
     if (PID::isMuon(pid)) return true;
@@ -31,3 +29,4 @@ namespace MC {
    }
 
 }
+#endif

@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <utility>
 // xAOD includes
 #include "xAODEgamma/Electron.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -837,24 +838,24 @@ AsgElectronEfficiencyCorrectionTool::currentSimplifiedUncorrSystRegion(
   const double cluster_eta,
   const double et) const
 {
-  int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;
-  if (ptbin < 0 || ptbin >= m_UncorrRegions->GetXaxis()->GetNbins()) {
+  int ptbin = std::as_const(*m_UncorrRegions).GetXaxis()->FindBin(et) - 1;
+  if (ptbin < 0 || ptbin >= std::as_const(*m_UncorrRegions).GetXaxis()->GetNbins()) {
     ATH_MSG_WARNING(" Found electron with Et = "
                     << et / 1000. << " GeV, where you specified boundaries of ["
-                    << m_UncorrRegions->GetXaxis()->GetBinLowEdge(1) << ","
-                    << m_UncorrRegions->GetXaxis()->GetBinUpEdge(
-                         m_UncorrRegions->GetXaxis()->GetNbins())
+                    << std::as_const(*m_UncorrRegions).GetXaxis()->GetBinLowEdge(1) << ","
+                    << std::as_const(*m_UncorrRegions).GetXaxis()->GetBinUpEdge(
+                         std::as_const(*m_UncorrRegions).GetXaxis()->GetNbins())
                     << "] for the SIMPLIFIED correlation model ");
     return -1;
   }
-  int etabin = m_UncorrRegions->GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
-  if (etabin < 0 || etabin >= m_UncorrRegions->GetYaxis()->GetNbins()) {
+  int etabin = std::as_const(*m_UncorrRegions).GetYaxis()->FindBin(fabs(cluster_eta)) - 1;
+  if (etabin < 0 || etabin >= std::as_const(*m_UncorrRegions).GetYaxis()->GetNbins()) {
     ATH_MSG_WARNING(" Found electron with |eta| = "
                     << fabs(cluster_eta)
                     << ", where you specified boundaries of ["
-                    << m_UncorrRegions->GetYaxis()->GetBinLowEdge(1) << ","
-                    << m_UncorrRegions->GetYaxis()->GetBinUpEdge(
-                         m_UncorrRegions->GetYaxis()->GetNbins())
+                    << std::as_const(*m_UncorrRegions).GetYaxis()->GetBinLowEdge(1) << ","
+                    << std::as_const(*m_UncorrRegions).GetYaxis()->GetBinUpEdge(
+                         std::as_const(*m_UncorrRegions).GetYaxis()->GetNbins())
                     << "] for the SIMPLIFIED correlation model ");
     return -1;
   }

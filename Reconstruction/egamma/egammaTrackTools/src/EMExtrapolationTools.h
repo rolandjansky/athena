@@ -67,13 +67,12 @@ public:
     const EventContext& ctx,
     const xAOD::CaloCluster& cluster,
     const xAOD::TrackParticle& trkPB,
-    Trk::PropDirection direction,
     std::array<double, 4>& eta,
     std::array<double, 4>& phi,
     std::array<double, 4>& deltaEta,
     std::array<double, 4>& deltaPhi,
-    unsigned int extrapFrom = fromPerigee,
-    Cache* cache = nullptr) const override final;
+    const CaloDetDescrManager* caloDD,
+    unsigned int extrapFrom = fromPerigee) const override final;
 
   /** test for vertex-to-cluster match given also the positions
     at the calorimeter from the vertex extrapolation  **/
@@ -113,18 +112,11 @@ private:
    * (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
 
-  ToolHandle<Trk::IParticleCaloExtensionTool> m_lastParticleCaloExtensionTool{
+  ToolHandle<Trk::IParticleCaloExtensionTool> m_ParticleCaloExtensionTool{
     this,
-    "LastCaloExtensionTool",
-    "Trk::ParticleCaloExtensionTool/EMLastCaloExtensionTool"
+    "CaloExtensionTool",
+    "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
   };
-
-  ToolHandle<Trk::IParticleCaloExtensionTool>
-    m_perigeeParticleCaloExtensionTool{
-      this,
-      "PerigeeCaloExtensionTool",
-      "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
-    };
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator{
     this,
@@ -149,7 +141,6 @@ private:
   // ID TRT helper
   const TRT_ID* m_trtId;
   Gaudi::Property<bool> m_enableTRT{ this, "EnableTRT", true };
-
 };
 
 #endif

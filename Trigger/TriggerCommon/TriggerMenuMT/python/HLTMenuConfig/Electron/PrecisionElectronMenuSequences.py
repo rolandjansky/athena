@@ -40,20 +40,14 @@ def precisionElectronSequence(ConfigFlags, ion=False, variant=''):
     return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut, sequenceOut_dummy)
 
 
-def precisionElectronMenuSequence(is_probe_leg=False, ion=False, do_idperf=False , variant=''):
+def precisionElectronMenuSequence(is_probe_leg=False, ion=False,  variant=''):
     # retrieve the reco seuqence+EVC
     (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut, sequenceOut_dummy) = RecoFragmentsPool.retrieve(precisionElectronSequence, ConfigFlags, ion=ion, variant=variant)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlg
-
-    if do_idperf:
-        with ConfigurableRun3Behavior():
-           hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF_idperf" + variant, sequenceOut_dummy, do_idperf)
-    else:
-        with ConfigurableRun3Behavior():
-           hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF" + variant, sequenceOut, do_idperf)
-
+    with ConfigurableRun3Behavior():
+       hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgamma" + tag(ion) + "HypoAlg_noGSF"+ variant, sequenceOut)
     thePrecisionElectronHypo = conf2toConfigurable(hypo_tuple[0])
     hypo_acc = hypo_tuple[1]
     appendCAtoAthena( hypo_acc )
@@ -66,6 +60,5 @@ def precisionElectronMenuSequence(is_probe_leg=False, ion=False, do_idperf=False
                           HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict,
                           IsProbe     = is_probe_leg)
 
-
-def precisionElectronMenuSequence_LRT(is_probe_leg=False, do_idperf=False ):
-    return precisionElectronMenuSequence(is_probe_leg=is_probe_leg, ion=False, do_idperf=do_idperf , variant='_LRT')
+def precisionElectronMenuSequence_LRT(is_probe_leg=False ):
+    return precisionElectronMenuSequence(is_probe_leg=is_probe_leg, ion=False, variant='_LRT')

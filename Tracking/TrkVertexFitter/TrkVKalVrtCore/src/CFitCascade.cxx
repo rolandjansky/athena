@@ -255,17 +255,13 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //
 // Iteration over complete cascade  
 //
- int processCascade(CascadeEvent & cascadeEvent_ )
+int processCascade(CascadeEvent & cascadeEvent_ )
 { 
   int translateToFittedPos(CascadeEvent &, double Step=1.);
   int restorePreviousPos(CascadeEvent &,  std::vector<VKVertex> & );
 
   VKVertex * vk;
   long int Iter, IERR, iv, i;
-  int countTrk=0;  // Number of tracks in cascade
-  for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     countTrk += cascadeEvent_.cascadeVertexList[iv]->TrackList.size();
-  }
 //============================================================================================
 //
 // First without pointing to get initial estimations and resolve mass constraints

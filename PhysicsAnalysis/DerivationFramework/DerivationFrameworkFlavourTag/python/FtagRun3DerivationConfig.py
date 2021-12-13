@@ -28,6 +28,14 @@ def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
 
     taggerlist = ['IP2D', 'IP3D', 'SV1', 'JetFitterNN']
 
+    #Add the Flipped taggers
+    if cfgFlags.BTagging.RunFlipTaggers is True:
+        fliptaggerlist = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip']
+        for ele in fliptaggerlist:
+            taggerlist.append(ele)
+
+
+    
     setupCondDb(cfgFlags, taggerlist)
 
     acc = ComponentAccumulator()
@@ -129,8 +137,8 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
             'BTagging/20210824r22/dl1r/antikt4empflow/network.json',
         ],
         'AntiKtVR30Rmax4Rmin02Track': [
-            'BTagging/201903/rnnip/antikt4empflow/network.json',
-            'BTagging/201903/dl1r/antikt4empflow/network.json',
+            'BTagging/201903/rnnip/antiktvr30rmax4rmin02track/network.json', 
+            'BTagging/201903/dl1r/antiktvr30rmax4rmin02track/network.json',
             'BTagging/20210517/dipsLoose/antikt4empflow/network.json', #first r22 trainings
             'BTagging/20210517/dips/antikt4empflow/network.json',
             'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
@@ -152,9 +160,14 @@ def getFtagComponent(cfgFlags, jetcol, taggerlist, pvCol='PrimaryVertices', Outp
         TrackCollection=track_collection,
         Associator='BTagTrackToJetAssociator',
     ))
-
+    
     for jsonfile in postTagDL2JetToTrainingMap[jetcol_name_without_Jets]:
         acc.merge(HighLevelBTagAlgCfg(cfgFlags, BTaggingCollection=BTaggingCollection, TrackCollection=track_collection, NNFile=jsonfile) )
+        # Schedule NN-based IP 'flip' taggers (rnnipflip and dipsflip) - this should for the moment only run on the low-level taggers and not on 'dl1x'
+        # FlipConfig is "STANDARD" by default - for flip tagger set up with option "NEGATIVE_IP_ONLY" (flip sign of d0 and use only (flipped) positive d0 values)
+        if 'dips' in jsonfile or 'rnnip' in jsonfile:
+            if cfgFlags.BTagging.RunFlipTaggers is True and 'dl1' not in jsonfile:
+                acc.merge(HighLevelBTagAlgCfg(cfgFlags, BTaggingCollection=BTaggingCollection, TrackCollection=track_collection, NNFile=jsonfile,FlipConfig="NEGATIVE_IP_ONLY") )
 
     return acc
 

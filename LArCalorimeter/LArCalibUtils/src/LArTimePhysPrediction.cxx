@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArTimePhysPrediction.h"
@@ -65,6 +65,7 @@ StatusCode LArTimePhysPrediction::initialize()
   
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_calibMapKey.initialize() );
+  ATH_CHECK( m_caloMgrKey.initialize() );
 
   //Initialize ntuples
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
@@ -154,38 +155,26 @@ StatusCode LArTimePhysPrediction::stop()
   ATH_MSG_INFO ( "CaloDepthTool retrieved with name " << m_CaloDepth );
   
   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
-  const LArCalibLineMapping *clCont {*clHdl};
-  if(!clCont) {
-     ATH_MSG_ERROR( "Do not have calib line mapping from key " << m_calibMapKey.key() );
-     return StatusCode::FAILURE;
-  }
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling{*cablingHdl};
-  if(!cabling) {
-     ATH_MSG_ERROR( "Do not have calib line mapping from key " << m_cablingKey.key() );
-     return StatusCode::FAILURE;
-  }
+  ATH_CHECK(clHdl.isValid());
+  const LArCalibLineMapping *clCont{*clHdl};
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  ATH_CHECK(cablingHdl.isValid());
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* caloDDM{*caloMgrHandle};
   
   //Define helpers
   LArWaveHelper larWaveHelper;
   
   const LArOnlineID* onlineHelper = nullptr;
-  ATH_CHECK(  detStore()->retrieve(onlineHelper, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
   
-  //Calo DDM gives "detector description"
-  //including real positions of cells
-  const CaloDetDescrManager* caloDDM = nullptr;
-  ATH_CHECK( detStore()->retrieve (caloDDM, "CaloMgr") );
-  if ( ! caloDDM->isInitialized() )
-    {
-      ATH_MSG_ERROR
-        ( "CaloDetDescrManager is not initialized, module unusable!" );
-      return StatusCode::FAILURE;
-    }
-    
-  const CaloCell_ID* caloCID = caloDDM->getCaloCell_ID();
-  
+  const CaloCell_ID* caloCID = nullptr;
+  ATH_CHECK( detStore()->retrieve(caloCID, "CaloCell_ID") );
+
   //Get identifiers
   const LArEM_ID* emId = caloCID->em_idHelper();
   const LArHEC_ID* hecId = caloCID->hec_idHelper();
@@ -207,7 +196,6 @@ StatusCode LArTimePhysPrediction::stop()
       
       //counters for channels and waves
       int nchannels = 0;
-      unsigned nwaves    = 0;
       
       for ( ; cell_it != cell_it_e; ++cell_it) { // Channels
 	
@@ -226,10 +214,6 @@ StatusCode LArTimePhysPrediction::stop()
 	HWIdentifier chid = cell_it.channelId();
 
 	Identifier id;
-	// Calo DDM gives "detector description"
-	// including real positions of cells
-	caloDDM = CaloDetDescrManager::instance() ;
-	const CaloCell_ID* caloCID = caloDDM->getCaloCell_ID();
 	
 	try {
 	  id = cabling->cnvToIdentifier(chid);   
@@ -289,7 +273,7 @@ StatusCode LArTimePhysPrediction::stop()
 	//WARNING: use the CaloDepthTool's convention radius=r(barrel), radius=z(end-cap)
 	//for HEC and FCAL: lengths could be moved in the job options
 	if(emId->is_lar_em(id) && m_CaloDepthTool){
-	  radius = m_CaloDepthTool->cscopt2_parametrized(sample,real_eta,real_phi);
+	  radius = m_CaloDepthTool->cscopt2_parametrized(sample,real_eta,real_phi,caloDDM);
 	}
 	else if(hecId->is_lar_hec(id)){//assumption: "arrival point" = middle of the compartment 
 	  if(layer==0) radius=4398.;
@@ -303,7 +287,6 @@ StatusCode LArTimePhysPrediction::stop()
 	  if(layer==3) {radius=5816.;LSignalFCAL=m_vLSignal_FCAL[2];}
 	}
 	
-	nwaves += cell_it->size();
 	for ( ; wave_it != wave_it_e; ++wave_it) { // DACs <==> iterator = the caliwave
 	  
 	  //initialize tphys

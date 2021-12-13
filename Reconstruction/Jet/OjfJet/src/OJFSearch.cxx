@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: OJFSearch.cxx,v 1.1.1.1 2007-05-10 09:02:22 seuster Exp $
@@ -208,7 +208,7 @@ namespace OptimalJetFinder {
 		while( a ) {
 		  (*vi)->Copy( a->GetPosition() );
 		  a = a->GetNext();
-		  vi++;
+		  ++vi;
 		}
 
 	    } //else if( ! zaj_copy_created )
@@ -234,7 +234,7 @@ namespace OptimalJetFinder {
 	a->GetPosition()->Copy( *vi );
 	delete *vi;
 	a = a->GetNext();
-	vi++;
+	++vi;
       }
     } //if ( zaj_copy_created )
 

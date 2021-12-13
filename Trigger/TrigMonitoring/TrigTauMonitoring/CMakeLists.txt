@@ -11,7 +11,7 @@ atlas_add_component( TrigTauMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AnalysisUtilsLib AthenaKernel AthenaMonitoringLib EventInfo GaudiKernel LumiBlockCompsLib LumiBlockData StoreGateLib TrigConfL1Data TrigDecisionInterface TrigDecisionToolLib TrigHLTMonitoringLib TrigSteeringEvent TrigTauEmulationLib VxVertex tauEvent xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTrigger xAODTruth )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AnalysisUtilsLib AthenaKernel AthenaMonitoringLib EventInfo GaudiKernel LumiBlockCompsLib LumiBlockData StoreGateLib TrigConfL1Data TrigDecisionInterface TrigDecisionToolLib TrigHLTMonitoringLib TrigSteeringEvent VxVertex tauEvent xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTrigger xAODTruth )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

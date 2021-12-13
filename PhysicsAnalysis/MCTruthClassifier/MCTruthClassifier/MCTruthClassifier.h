@@ -203,8 +203,7 @@ private:
                      const xAOD::TruthParticle*,
                      bool,
                      double&,
-                     bool&,
-                     Cache* cache) const;
+                     bool&) const;
   const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*,
                                              bool,
                                              Info* info) const;
@@ -245,10 +244,10 @@ private:
   ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
     this,
     "ParticleCaloExtensionTool",
-    "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
+    ""
   };
   ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool{
-this,
+    this,
     "TruthInConeTool",
     "xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool"
   };

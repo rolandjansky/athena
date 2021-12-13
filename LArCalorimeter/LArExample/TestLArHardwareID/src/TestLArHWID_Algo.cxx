@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -1061,7 +1061,6 @@ StatusCode TestLArHWID_Algo::execute(){
 	int nHEC3r1= 0;
 
 	int nelFCAL = 0;
-	int nelHEC  = 0;
 	int nelHEC0  = 0;
 	int nelHEC0r0= 0;
 	int nelHEC0r1= 0;
@@ -1737,7 +1736,6 @@ StatusCode TestLArHWID_Algo::execute(){
 		    std::vector<HWIdentifier> IdVec;
 		    hvmap->getElectrodeInCell( offId, IdVec );
 		    std::vector<HWIdentifier> electrodeIdVec = IdVec;
-		    nelHEC+= electrodeIdVec.size();
 		  }
 
 		}
@@ -2003,7 +2001,6 @@ StatusCode TestLArHWID_Algo::execute(){
 	int nHEC3r0= 0;
 	int nHEC3r1= 0;
 
-	int nelHEC  = 0;
 	int nelHEC0  = 0;
 	int nelHEC0r0= 0;
 	int nelHEC0r1= 0;
@@ -2732,7 +2729,6 @@ StatusCode TestLArHWID_Algo::execute(){
 		    std::vector<HWIdentifier> IdVec;
 		    hvmap->getHVLineInCell( offId, IdVec );
 		    std::vector<HWIdentifier> hvlineIdVec = IdVec;
-		    nelHEC+= hvlineIdVec.size();
 		  }
 
 		}

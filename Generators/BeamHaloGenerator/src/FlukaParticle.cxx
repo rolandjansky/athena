@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/FlukaParticle.h"
@@ -18,39 +18,6 @@ FlukaParticle::FlukaParticle(int type): m_type(type),
                                         m_weight(1.),
                                         m_totalEnergy(0.),
                                         m_positionAtPrimary() {
-}
-
-//---------------------------------------------------------------------------
-
-FlukaParticle::FlukaParticle(const FlukaParticle& flukaParticle) {
-  m_type = flukaParticle.m_type;
-  m_eventId = flukaParticle.m_eventId;
-  m_flukaId = flukaParticle.m_flukaId;
-  m_partGenNum = flukaParticle.m_partGenNum;
-  m_kineticEnergy = flukaParticle.m_kineticEnergy;
-  m_positionAtScoringPlane = flukaParticle.m_positionAtScoringPlane;
-  m_directionalCosines = flukaParticle.m_directionalCosines;
-  m_weight = flukaParticle.m_weight;
-  m_totalEnergy = flukaParticle.m_totalEnergy;
-  m_positionAtPrimary = flukaParticle.m_positionAtPrimary;
-}
-
-//---------------------------------------------------------------------------
-
-FlukaParticle& FlukaParticle::operator=(const FlukaParticle& flukaParticle) {
-  if(&flukaParticle != this){
-    m_type = flukaParticle.m_type;
-    m_eventId = flukaParticle.m_eventId;
-    m_flukaId = flukaParticle.m_flukaId;
-    m_partGenNum = flukaParticle.m_partGenNum;
-    m_kineticEnergy = flukaParticle.m_kineticEnergy;
-    m_positionAtScoringPlane = flukaParticle.m_positionAtScoringPlane;
-    m_directionalCosines = flukaParticle.m_directionalCosines;
-    m_weight = flukaParticle.m_weight;
-    m_totalEnergy = flukaParticle.m_totalEnergy;
-    m_positionAtPrimary = flukaParticle.m_positionAtPrimary;
-  }
-  return *this;
 }
 
 //---------------------------------------------------------------------------

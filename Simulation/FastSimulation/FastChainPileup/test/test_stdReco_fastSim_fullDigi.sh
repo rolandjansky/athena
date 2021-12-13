@@ -58,7 +58,8 @@ then
     Reco_tf.py --inputRDOFile ${rdoFile} --maxEvents '-1' \
                --autoConfiguration=everything \
                --outputAODFile ${aodFile} \
-               --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)' \
+               --steering 'doRDO_TRIG' \
+               --athenaopts "all:--threads=1" \
                --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
                --imf False
      rc2=$?

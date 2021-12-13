@@ -2,6 +2,8 @@
 
 # art-description: MC+MC Overlay chain for MC20a, ttbar, full reco chain
 # art-type: grid
+# art-include: 22.0-mc20/Athena
+# art-include: master/Athena
 
 # art-output: *.root
 # art-output: log.*
@@ -24,7 +26,7 @@ Reco_tf.py \
 --postInclude "default:PyJobTransforms/UseFrontier.py" \
 --runNumber 410470 \
 --steering "doOverlay" "doRDO_TRIG" \
---triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2283,35,327" --asetup "RDOtoRDOTrigger:Athena,21.0.20.12" \
+--triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2283,35,327" --asetup "RDOtoRDOTrigger:Athena,21.0-mc16a,latest" \
 --outputRDOFile MC_plus_MC.RDO.pool.root \
 --outputAODFile MC_plus_MC.AOD.pool.root \
 --imf False

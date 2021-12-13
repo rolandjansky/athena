@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -371,9 +371,6 @@ bool HFOR_Truth::findHFQuarks(const std::map <int,
 
   bool hasAncestor = false ;
   bool hasProton   = false ;
-  bool hasW        = false ;
-  bool hasTop      = false ;
-  bool hasHF       = false ;
 
   bool isME        = false ;
 
@@ -444,9 +441,6 @@ bool HFOR_Truth::findHFQuarks(const std::map <int,
 
         hasAncestor = true ;
         hasProton   = false ;
-        hasW        = false ;
-        hasTop      = false ;
-        hasHF       = false ;
 
         while (hasAncestor) {
           // Check if the ancestor :
@@ -475,9 +469,6 @@ bool HFOR_Truth::findHFQuarks(const std::map <int,
             }
             else {
               hasProton |= tipo["proton"] ;
-              hasW      |= tipo["W"] ;
-              hasTop    |= tipo["top"] ;
-              hasHF     |= (tipo["cFromb"] | tipo ["bFromb"]) ;
             }
           }
         }

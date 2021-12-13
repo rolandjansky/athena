@@ -13,9 +13,9 @@ from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 cfg = MainServicesCfg(ConfigFlags)
 cfg.merge(PoolReadCfg(ConfigFlags))
 
-from  AthenaMonitoring.TriggerInterface import getTrigDecisionTool
+from  AthenaMonitoring.TriggerInterface import TrigDecisionToolCfg
 
-cfg.merge(getTrigDecisionTool(ConfigFlags))
+cfg.merge(TrigDecisionToolCfg(ConfigFlags))
 checker = CompFactory.TrigDecisionChecker()
 checker.WriteEventDecision = True
 checker.WriteOutFilename = "trigger.counts.log"

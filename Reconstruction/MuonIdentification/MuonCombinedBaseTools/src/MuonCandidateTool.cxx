@@ -36,7 +36,7 @@ namespace MuonCombined {
         ATH_CHECK(m_beamSpotKey.initialize());
         return StatusCode::SUCCESS;
     }
-     void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
+    void MuonCandidateTool::create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
                                    TrackCollection& outputTracks, const EventContext& ctx) const {
         ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size());
         unsigned int ntracks = 0;
@@ -125,7 +125,8 @@ namespace MuonCombined {
                 } else
                     msMuonTrackSummary = msTrack.trackSummary()->muonTrackSummary();
                 for (const auto& chs : msMuonTrackSummary->chamberHitSummary()) {
-		    if ((chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId()) != Muon::MuonStationIndex::EM) || m_idHelperSvc->isCsc(chs.chamberId())) {
+                    if ((chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId()) != Muon::MuonStationIndex::EM) ||
+                        m_idHelperSvc->isCsc(chs.chamberId())) {
                         skipTrack = false;
                         break;
                     }
@@ -155,17 +156,21 @@ namespace MuonCombined {
                 continue;
             }
 
+            std::unique_ptr<MuonCandidate> muon_candidate;
+
             if (tLink->extp_succeed) {
-                outputTracks.push_back(tLink->track.release());
+                outputTracks.push_back(std::move(tLink->track));
                 ElementLink<TrackCollection> saLink(outputTracks, outputTracks.size() - 1);
-                outputCollection.push_back(
-                    new MuonCandidate(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index), saLink));
+                muon_candidate =
+                    std::make_unique<MuonCandidate>(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index), saLink);
                 // remove track from set so it is not deleted
             } else {
                 // in this case the extrapolation failed
-                outputCollection.push_back(new MuonCandidate(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index),
-                                                             ElementLink<TrackCollection>()));
+                muon_candidate = std::make_unique<MuonCandidate>(ElementLink<xAOD::TrackParticleContainer>(tracks, tLink->container_index),
+                                                                 ElementLink<TrackCollection>());
             }
+            muon_candidate->setComissioning(m_comissioning);
+            outputCollection.push_back(std::move(muon_candidate));
         }
     }
 

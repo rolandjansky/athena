@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArIdentifier/LArOnline_SuperCellID.h"
@@ -302,21 +302,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
             }
         }
 
-        // If there is more than a single range found for this
-        // feedthrough, or if the slot values are enumerated, then we
-        // need to save all slot values in the HashCalculator.
-        unsigned int nrangesFound = 0;
-        //bool foundEnumerated = false;
-        // first check the ranges
-        for (unsigned int i = 0; i < m_full_feb_range.size(); ++i) {
-            if (m_full_feb_range[i].match(ftExpId)) {
-                nrangesFound += 1;
-                //const Range::field& slotField = m_full_feb_range[i][m_slot_index];
-                //if (slotField.get_mode() == Range::field::enumerated) foundEnumerated = true;
-            }
-        }
-
-        // Now repeat loop and save values if we either have an
+        // Now and save values if we either have an
         // enumerated set of slots, or more than one FT
         for (unsigned int i = 0; i < m_full_feb_range.size(); ++i) {
             if (m_full_feb_range[i].match(ftExpId)) {

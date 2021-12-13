@@ -22,10 +22,10 @@ MODIFIED :
 #include "egammaInterfaces/IegammaBaseTool.h"
 
 // Forward declarations
-#include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleContainerFwd.h" 
-#include "egammaRecEvent/egammaRecContainer.h"
 #include "GaudiKernel/EventContext.h"
+#include "egammaRecEvent/egammaRecContainer.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
 
 class egammaRec;
 static const InterfaceID IID_IEMTrackMatchBuilder("IEMTrackMatchBuilder", 1, 0);
@@ -33,36 +33,24 @@ static const InterfaceID IID_IEMTrackMatchBuilder("IEMTrackMatchBuilder", 1, 0);
 class IEMTrackMatchBuilder : virtual public IAlgTool
 {
 
- public:
-
+public:
   /** @brief Virtual destructor*/
-  virtual ~IEMTrackMatchBuilder() {};
-	
+  virtual ~IEMTrackMatchBuilder(){};
+
   /** @brief AlgTool interface methods */
-  static const InterfaceID& interfaceID();  
+  static const InterfaceID& interfaceID();
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  virtual StatusCode executeRec(const EventContext& ctx, 
+  virtual StatusCode executeRec(const EventContext& ctx,
                                 EgammaRecContainer* egammas) const = 0;
-  /** @brief execute method*/
-  virtual StatusCode trackExecute(const EventContext& ctx, 
-                                  egammaRec* eg,  
-                                  const xAOD::TrackParticleContainer * trackPC) const = 0;
 };
 
-inline const InterfaceID& IEMTrackMatchBuilder::interfaceID()
+inline const InterfaceID&
+IEMTrackMatchBuilder::interfaceID()
 {
   return IID_IEMTrackMatchBuilder;
 }
 
 #endif
-
-
-
-
-
-
-
-
 

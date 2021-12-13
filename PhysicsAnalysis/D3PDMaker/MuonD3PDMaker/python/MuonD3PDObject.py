@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 import MuonD3PDMaker
@@ -8,6 +8,7 @@ import TrackD3PDMaker
 from D3PDMakerCoreComps.D3PDObject        import make_SGDataVector_D3PDObject
 from D3PDMakerCoreComps.SimpleAssociation import SimpleAssociation
 from D3PDMakerConfig.D3PDMakerFlags       import D3PDMakerFlags
+from InDetRecExample.TrackingCommon       import getInDetTrackToVertexTool
 import TruthD3PDMaker
 
 from RecExConfig.RecFlags import rec
@@ -169,7 +170,8 @@ MuonPVPerigeeAssoc = SimpleAssociation (
     MuonTPAssoc,
     TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool,
     suffix = '_exPV',
-    blockname = 'MuonPVPerigeeAssoc')
+    blockname = 'MuonPVPerigeeAssoc',
+    TrackToVertexTool = getInDetTrackToVertexTool())
 MuonPVPerigeeAssoc.defineBlock (
     1, 'ParametersAtPV',
     TrackD3PDMaker.PerigeeFillerTool)
@@ -199,7 +201,8 @@ MuonCBPVPerigeeAssoc = SimpleAssociation (
     MuonCBTPAssoc,
     TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool,
     suffix = '_exPV',
-    blockname = 'MuonCBPVPerigeeAssoc')
+    blockname = 'MuonCBPVPerigeeAssoc',
+    TrackToVertexTool = getInDetTrackToVertexTool())
 MuonCBPVPerigeeAssoc.defineBlock (
     1, 'CBParametersAtPV',
     TrackD3PDMaker.PerigeeFillerTool)
@@ -221,7 +224,8 @@ MuonIDPVPerigeeAssoc = SimpleAssociation (
     MuonIDTPAssoc,
     TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool,
     suffix = '_exPV',
-    blockname = 'MuonIDPVPerigeeAssoc')
+    blockname = 'MuonIDPVPerigeeAssoc',
+    TrackToVertexTool = getInDetTrackToVertexTool())
 MuonIDPVPerigeeAssoc.defineBlock (
     1, 'IDParametersAtPV',
     TrackD3PDMaker.PerigeeFillerTool)
@@ -259,7 +263,8 @@ MuonMEPVPerigeeAssoc = SimpleAssociation (
     MuonMETPAssoc,
     TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool,
     suffix = '_exPV',
-    blockname = 'MuonMEPVPerigeeAssoc')
+    blockname = 'MuonMEPVPerigeeAssoc',
+    TrackToVertexTool = getInDetTrackToVertexTool())
 MuonMEPVPerigeeAssoc.defineBlock (
     1, 'MEParametersAtPV',
     TrackD3PDMaker.PerigeeFillerTool)

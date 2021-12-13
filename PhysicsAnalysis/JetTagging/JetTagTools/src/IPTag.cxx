@@ -588,14 +588,14 @@ namespace Analysis {
       double szIP        = signOfZIP*fabs(z0wrtPriVtx);
       double z0Sig       = signOfZIP*fabs(z0wrtPriVtx/z0ErrwrtPriVtx);
 
-      msg(MSG::VERBOSE) << "#BTAG# IPTAG: Trk: grade= " << trkItr->grade.gradeString()
+      ATH_MSG_VERBOSE("#BTAG# IPTAG: Trk: grade= " << trkItr->grade.gradeString()
 			<< " Eta= " << trk->eta() << " Phi= " << trk->phi() << " pT= " << trk->pt()
 			<< " d0= " << sIP
 			<< "+-" << d0ErrwrtPriVtx
 			<< " sigd0= " << significance
 			<< " z0= " << szIP
 			<< "+-" << z0ErrwrtPriVtx
-			<< " sigz0= " << z0Sig << endmsg;
+			<< " sigz0= " << z0Sig);
       
       // VD: I know that this is ugly but I want to minimise the changes as much as I can
       myIPxDinfo tmpObj;

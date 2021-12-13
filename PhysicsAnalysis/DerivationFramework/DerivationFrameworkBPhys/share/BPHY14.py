@@ -16,6 +16,7 @@ if globalflags.DataSource()=='geant4':
 
 print(isSimulation)
 
+from InDetRecExample import TrackingCommon
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -73,6 +74,8 @@ BPHY14_Reco_mumu = DerivationFramework__Reco_Vertex(
                                                   PVContainerName        = "PrimaryVertices",
                                                   RefPVContainerName     = "BPHY14RefittedPrimaryVertices",
                                                   RefitPV                = True,
+                                                  V0Tools                = TrackingCommon.getV0Tools(),
+                                                  PVRefitter             = BPHY14_VertexTools.PrimaryVertexRefitter,
                                                   MaxPVrefit             = 100000,
                                                   DoVertexType           = 7)
 
@@ -96,6 +99,7 @@ BPHY14_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
                                                                 name                  = "BPHY14_Select_Jpsi2mumu",
                                                                 HypothesisName        = "Jpsi",
                                                                 InputVtxContainerName = "BPHY14OniaCandidates",
+                                                                V0Tools               = TrackingCommon.getV0Tools(),
                                                                 VtxMassHypo           = 3096.916,
                                                                 MassMin               = 2000.0,
                                                                 MassMax               = 3600.0,
@@ -110,6 +114,7 @@ BPHY14_Select_Psi2mumu = DerivationFramework__Select_onia2mumu(
                                                                name                  = "BPHY14_Select_Psi2mumu",
                                                                HypothesisName        = "Psi",
                                                                InputVtxContainerName = "BPHY14OniaCandidates",
+                                                               V0Tools               = TrackingCommon.getV0Tools(),
                                                                VtxMassHypo           = 3686.09,
                                                                MassMin               = 3300.0,
                                                                MassMax               = 4500.0,
@@ -125,6 +130,7 @@ BPHY14_Select_Upsi2mumu = DerivationFramework__Select_onia2mumu(
                                                                 name                  = "BPHY14_Select_Upsi2mumu",
                                                                 HypothesisName        = "Upsi",
                                                                 InputVtxContainerName = "BPHY14OniaCandidates",
+                                                                V0Tools               = TrackingCommon.getV0Tools(),
                                                                 VtxMassHypo           = 9460.30,
                                                                 MassMin               = 7000.0,
                                                                 MassMax               = 12500.0,
@@ -248,12 +254,6 @@ streamName = derivationFlags.WriteDAOD_BPHY14Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_BPHY14Stream )
 BPHY14Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY14Stream.AcceptAlgs(["BPHY14Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="BPHY14ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================

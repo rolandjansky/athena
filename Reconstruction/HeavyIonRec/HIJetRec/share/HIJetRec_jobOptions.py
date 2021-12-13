@@ -71,7 +71,7 @@ if not HIJetFlags.DoCellBasedSubtraction():
 
     ESAlg_W=HIEventShapeMaker("ESAlg_W")
     ESAlg_W.OutputContainerKey=EventShapeKey
-    ESAlg_W.UseCaloCell=False
+#    ESAlg_W.UseCaloCell=False # commented while we migrate to new JO
     ESAlg_W.InputTowerKey="HIClusters"
 
     #Hack needed because ES algorithm requires a summary tool, this disables it

@@ -9,6 +9,7 @@
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 #include "TrigT1TGC/TGCTileMuCoincidenceLUT.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
+#include "TrigT1TGC/TGCBIS78CoincidenceMap.h"
 #include "TrigT1TGC/TGCGoodMF.h"
 #include "TrigT1TGC/TGCConnectionASDToPP.h"
 #include "TrigT1TGC/TGCConnectionInPP.h"
@@ -130,6 +131,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   std::string ver_EIFI = "06";
   std::string ver_TILE = "01";
   std::string ver_NSW  = "01";
+  std::string ver_BIS78  = "01"; // OK?
   std::string ver_HotRoI = "1";
 
   std::vector<std::string> vers = TGCDatabaseManager::splitCW(version, '_');
@@ -139,6 +141,7 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
     ver_TILE = "v" + vers[2];
     ver_NSW  = "v" + vers[1];
     ver_HotRoI = "v" + vers[0];
+    //ver_BIS78  = "v" + vers[5]; // OK?
   }
 
   // EIFI Coincidence Map
@@ -165,8 +168,13 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 	}
       }
     }
+    
+    // BIS78 coincidence Map
+    if(tgcArgs()->USE_BIS78()){
+      m_mapBIS78.reset(new TGCBIS78CoincidenceMap(tgcArgs(),ver_BIS78));
+    }
 
-    //Hot RoI LUT
+   //Hot RoI LUT
     m_mapGoodMF.reset(new TGCGoodMF(tgcArgs(),ver_HotRoI));
 
   } else {   // for Run-2

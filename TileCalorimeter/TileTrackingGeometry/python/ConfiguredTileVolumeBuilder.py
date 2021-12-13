@@ -27,9 +27,9 @@ class ConfiguredTileVolumeBuilder( Tile__TileVolumeBuilder ):
        
         # The volume helper for the Tile
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
-        TileTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper'+nameSuffix)
+        TileTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper')
         ToolSvc += TileTrackingVolumeHelper 
-              
+        
         Tile__TileVolumeBuilder.__init__(self,name+nameSuffix,
                                          UseCaloSurfBuilder = TrkDetFlags.TileUseCaloSurfBuilder(),
                                          TrackingVolumeHelper = TileTrackingVolumeHelper,                                         

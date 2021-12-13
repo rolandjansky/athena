@@ -35,7 +35,10 @@ def jetRecoDictForMET(**recoDict):
         jrd["clusterCalib"] = "em"
     # Interpret jet calibration
     if jrd["jetCalib"] == "default":
-        jrd["jetCalib"] = interpretJetCalibDefault(jrd)
+        if recoDict["EFrecoAlg"] == "mhtpufit":
+            jrd["jetCalib"] = "subjesgscIS"
+        else:
+            jrd["jetCalib"] = interpretJetCalibDefault(jrd)
     return jrd
 
 

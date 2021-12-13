@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -36,8 +36,10 @@ std::ostream& operator << ( std::ostream& os, const MuonBackgroundEventParser& e
   return evt.write( os );
 }
 
-MuonBackgroundEventParser::MuonBackgroundEventParser ( void ) {
-  m_eventNumber = 0; m_pdgId=0; m_string="";
+MuonBackgroundEventParser::MuonBackgroundEventParser ( void )
+  : m_eventNumber (0),
+    m_pdgId (0)
+{
   for( int i=0 ;i< 50 ; i++)
     m_pdgIdTable[i] =  0 ;
   m_pdgIdTable[1]  =    22;  // photon 

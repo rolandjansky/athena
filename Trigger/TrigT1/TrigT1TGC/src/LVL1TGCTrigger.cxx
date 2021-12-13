@@ -39,9 +39,10 @@
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigit.h"
 
-
 #include "MuonRDO/NSW_TrigRawData.h"
 #include "MuonRDO/NSW_TrigRawDataContainer.h"
+#include "MuonRDO/RpcBis78_TrigRawData.h"
+#include "MuonRDO/RpcBis78_TrigRawDataContainer.h"
 
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
@@ -96,6 +97,7 @@ namespace LVL1TGCTrigger {
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() );
     m_tgcArgs.set_TILE_MU( m_TILEMU.value() );
     m_tgcArgs.set_USE_NSW( m_USENSW.value() );
+    m_tgcArgs.set_USE_BIS78( m_USEBIS78.value() );
     m_tgcArgs.set_FORCE_NSW_COIN( m_FORCENSWCOIN.value() );
 
     m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
@@ -123,6 +125,7 @@ namespace LVL1TGCTrigger {
     ATH_CHECK(m_keyTgcDigit.initialize());
     ATH_CHECK(m_keyTileMu.initialize());
     ATH_CHECK(m_keyNSWTrigOut.initialize(tgcArgs()->USE_NSW())); // to be updated once the Run 3 CondDb becomes available (should be automatically configured by db info)
+    ATH_CHECK(m_keyBIS78TrigOut.initialize(tgcArgs()->USE_BIS78())); // to be updated as well
     ATH_CHECK(m_muctpiPhase1Key.initialize(tgcArgs()->useRun3Config()));
     ATH_CHECK(m_muctpiKey.initialize(!tgcArgs()->useRun3Config()));
 
@@ -178,7 +181,9 @@ namespace LVL1TGCTrigger {
     // NSW data
     bool doNSW = m_tgcArgs.USE_NSW();
 
-    
+    // BIS78 data
+    bool doBIS78 = m_tgcArgs.USE_BIS78();
+
     // TgcRdo
     m_tgcrdo.clear();
     SG::ReadHandle<TgcRdoContainer> rdoCont(m_keyTgcRdo);
@@ -234,6 +239,10 @@ namespace LVL1TGCTrigger {
 	ATH_CHECK(fillNSW());
       }
 
+      // Use RPC BIS78 trigger output
+      if(doBIS78 && bc==m_CurrentBunchTag){
+	ATH_CHECK(fillBIS78());
+      }
 
       if (m_ProcessAllBunches || bc==m_CurrentBunchTag){
         m_bctagInProcess =bc;
@@ -1385,6 +1394,44 @@ void LVL1TGCTrigger::recordRdoSL(TGCSector* sector)
 
     if(sc.isFailure()){
       ATH_MSG_WARNING("Couldn't retrieve NSW trigger output");
+    }
+    return sc; 
+  }
+
+
+  //----------------------------------- 
+  //RPC BIS78 input
+  //----------------------------------
+  StatusCode LVL1TGCTrigger::fillBIS78(){
+    ATH_MSG_DEBUG("fillBIS78");
+    StatusCode sc = StatusCode::SUCCESS;
+    std::shared_ptr<TGCBIS78> bis78 = m_system->getBIS78();
+    bis78->eraseOutput();
+
+    //The following part will be available when RPC BIS78 Trigger Output is available.
+    SG::ReadHandle<Muon::RpcBis78_TrigRawDataContainer> readBIS78_TrigRawDataContainer(m_keyBIS78TrigOut);
+    if(!readBIS78_TrigRawDataContainer.isValid()){
+      ATH_MSG_ERROR("Cannot retrieve RPC BIS78 TrigRawData Container.");
+      return StatusCode::FAILURE;
+    }
+    const Muon::RpcBis78_TrigRawDataContainer* bis78_TrigRawDataContainer = readBIS78_TrigRawDataContainer.cptr();
+    for(const Muon::RpcBis78_TrigRawData* bis78_sector : *bis78_TrigRawDataContainer){
+      if ( bis78_sector->sideId() != 0 ) continue; // BIS78 is only in A side!
+      for(const Muon::RpcBis78_TrigRawDataSegment* bis78_hit : *bis78_sector){
+	  bis78->setOutput(bis78_sector->sectorId(),
+			   bis78_hit->etaIndex(),      // Eta-index
+			   bis78_hit->phiIndex(),    // Phi-index
+			   bis78_hit->deltaEta(), // Delta eta
+			   bis78_hit->deltaPhi(), // Delta phi
+			   bis78_hit->flag3over3Eta(), // 
+			   bis78_hit->flag3over3Phi() // 
+	  );
+      }
+    }
+    bis78->print();    // just for test
+
+    if(sc.isFailure()){
+      ATH_MSG_WARNING("Couldn't retrieve RPC BIS78 trigger output");
     }
     return sc; 
   }

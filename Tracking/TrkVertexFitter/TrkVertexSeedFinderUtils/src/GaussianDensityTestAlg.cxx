@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // GaussianDensityTestAlg.cxx 
@@ -107,7 +107,7 @@ StatusCode GaussianDensityTestAlg::execute()
   }
   ATH_MSG_VERBOSE("Analyzing MC truth");
   std::vector<Amg::Vector3D> truth;
-  ATH_CHECK( findTruth(mode, trackVector, truth) );
+  ATH_CHECK( findTruth(mode, trackVector, truth, m_h_truthDensity, m_h_modeCheck) );
   if (m_firstEvent)
   {
     ATH_MSG_VERBOSE("Filling truth vertex histogram");
@@ -176,7 +176,9 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
 StatusCode
 GaussianDensityTestAlg::findTruth(double mode,
                                   const std::vector<Trk::ITrackLink*>& trackVector,
-                                  std::vector<Amg::Vector3D>& truth) const
+                                  std::vector<Amg::Vector3D>& truth,
+                                  TH1* h_truthDensity,
+                                  TH1* h_modeCheck) const
 {
     double modeClosestDistance = std::numeric_limits<double>::max();
 
@@ -218,7 +220,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 			      if (perigee == nullptr) ATH_MSG_ERROR("Invalid Perigee");
 			      if (m_firstEvent) 
 			      {
-				m_h_truthDensity->Fill(vLink->z());
+				h_truthDensity->Fill(vLink->z());
 				ATH_MSG_VERBOSE("Filled truth density histogram");
 			      }
 			    }
@@ -281,7 +283,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 			      if (perigee == nullptr) ATH_MSG_ERROR("Invalid Perigee");
 			      if (m_firstEvent)
 			      {
-				m_h_truthDensity->Fill(vLink->z());
+				h_truthDensity->Fill(vLink->z());
 				ATH_MSG_VERBOSE("Filled truth density histogram");
 			      }
 			    }
@@ -308,7 +310,7 @@ GaussianDensityTestAlg::findTruth(double mode,
       ATH_MSG_WARNING("No TruthPileupEventContainer found");
     }
 
-    m_h_modeCheck->Fill( modeClosestDistance );
+    h_modeCheck->Fill( modeClosestDistance );
     return StatusCode::SUCCESS;
   }
 

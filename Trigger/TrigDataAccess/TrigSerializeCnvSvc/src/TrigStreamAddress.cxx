@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -12,9 +12,9 @@
 /// Standard Constructor
 TrigStreamAddress::TrigStreamAddress(const CLID& clid, 
                                      const std::string& fname, const std::string& cname, int p1, int p2)
-  : GenericAddress(storageType(), clid, fname, cname, p1, p2 )
+  : GenericAddress(storageType(), clid, fname, cname, p1, p2 ),
+    m_key (fname)
 {
-  m_key = fname;
 }
 
 TrigStreamAddress::TrigStreamAddress(const CLID& clid) 

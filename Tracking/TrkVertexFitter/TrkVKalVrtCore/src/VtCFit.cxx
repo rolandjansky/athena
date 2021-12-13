@@ -155,7 +155,6 @@ namespace Trk {
 	}
     }
 
-    double chi2i = 0.;
     for ( kt = 0; kt < NTRK; ++kt) {
        VKTrack* trk = vk->TrackList[kt].get();
        double theta_ini =trk->iniP[0];
@@ -182,22 +181,15 @@ namespace Trk {
 /*   contribution of this track to chi2 with initial values */
 
 	deps[kt] = trk->a0()    - eps;
-	 dzp[kt] = trk->z()     - xyz[2];      // Precision
-	 dzp[kt]-= zp;
+  dzp[kt] = trk->z()     - xyz[2];      // Precision
+  dzp[kt]-= zp;
 	dtet[kt] = trk->theta() - theta_ini;
 	dphi[kt] = trk->phi()   - phi_ini;     // Precision
 	dphi[kt]-= phip;
 	drho[kt] = trk->invR()  - invR_ini;
-        //zp   += xyz[2];   //To recover standard zp   definition in case of further use. Not needed
-	//phip += phi_ini;  //To recover standard phip definition in case of further use. Not needed
         while(dphi[kt] >  M_PI)dphi[kt]-=2.*M_PI;
         while(dphi[kt] < -M_PI)dphi[kt]+=2.*M_PI;
-//std::cout.precision(11);
-//std::cout<<" newpar="<<deps[kt]<<", "<<dzp[kt]<<", "<<dtet[kt]<<", "<<dphi[kt]<<", "<<drho[kt]<<", "<<trk->Id<<'\n';
 
-	chi2i +=     trk->WgtM[0] * deps[kt]*deps[kt] 
-	        + 2.*trk->WgtM[1] * deps[kt]* dzp[kt] 
-		+    trk->WgtM[2] *  dzp[kt]* dzp[kt];
 
 /*   derivatives (deriv1) of perigee param. w.r.t. X,Y,Z (vertex) uu=Q, vv=R */
 	double d11 =  sinf             - (                 uu*cosf   *invR_ini);

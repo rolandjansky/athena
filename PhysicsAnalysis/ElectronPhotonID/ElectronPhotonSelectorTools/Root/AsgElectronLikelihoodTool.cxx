@@ -45,14 +45,13 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname)
   // a failure
   declareProperty("WorkingPoint", m_WorkingPoint = "", "The Working Point");
   declareProperty("ConfigFile", m_configFile = "", "The config file to use");
- 
+
   // pdf file name. If specified it overrides the one in the config file
   declareProperty("inputPDFFileName",
                   m_pdfFileName = "",
                   "The input ROOT file name that holds the PDFs");
 
-
-  //Addtional properties that are not part of the config files
+  // Addtional properties that are not part of the config files
   declareProperty(
     "usePVContainer", m_usePVCont = true, "Whether to use the PV container");
   declareProperty(
@@ -75,11 +74,7 @@ AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 StatusCode
 AsgElectronLikelihoodTool::initialize()
 {
-
-  ATH_MSG_INFO("initialize : WP " << m_WorkingPoint.size() << " "
-                                  << m_configFile.size());
-
-  std::string configFile,PDFfilename, resolvedPDF; // Default
+  std::string configFile, PDFfilename, resolvedPDF; // Default
 
   if (!m_WorkingPoint.empty()) {
     m_configFile = AsgConfigHelper::findConfigFile(
@@ -94,7 +89,7 @@ AsgElectronLikelihoodTool::initialize()
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_DEBUG("Configfile to use  " << m_configFile);
+    ATH_MSG_INFO("Configfile to use  " << m_configFile);
 
     TEnv env;
     if (env.ReadFile(configFile.c_str(), kEnvLocal)) {
@@ -106,10 +101,8 @@ AsgElectronLikelihoodTool::initialize()
     // We need to see if the user had provided
     // an override, if not needs to be in the input
     // config file
-    ATH_MSG_DEBUG("Get the input PDFs in the tool ");
-
-    if (!m_pdfFileName
-           .empty()) { // If the property was set by the user, take that.
+    if (!m_pdfFileName.empty()) {
+      // If the property was set by the user, take that.
       ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
       PDFfilename = m_pdfFileName;
     } else {
@@ -128,7 +121,6 @@ AsgElectronLikelihoodTool::initialize()
       if (m_configFile.find("dev/") != std::string::npos) {
         PDFfilename.insert(0, "dev/");
       }
-      ATH_MSG_DEBUG("Getting the input PDFs from: " << PDFfilename);
     }
 
     resolvedPDF = PathResolverFindCalibFile(PDFfilename);
@@ -140,7 +132,7 @@ AsgElectronLikelihoodTool::initialize()
       return StatusCode::FAILURE;
     }
 
-    ///-----------Begin of  text config---------------------------- 
+    ///-----------Begin of  text config----------------------------
     // The following are all taken from the config
     // file
     m_rootTool->m_variableNames = env.GetValue("VariableNames", "");
@@ -231,10 +223,6 @@ AsgElectronLikelihoodTool::initialize()
   ATH_CHECK(
     m_HIESContKey.initialize(doCentralityTransform && m_useCaloSumsCont));
 
-  // Get the name of the current operating point, and massage the other strings
-  // accordingly
-  ATH_MSG_VERBOSE(
-    "Going to massage the labels based on the provided operating point...");
   // Get the message level and set the underlying ROOT tool message level
   // accordingly
   m_rootTool->msg().setLevel(this->msg().level());
@@ -389,25 +377,6 @@ AsgElectronLikelihoodTool::accept(const EventContext& ctx,
   // for now don't cache.
   double likelihood = calculate(ctx, el, ip);
 
-  ATH_MSG_VERBOSE(Form(
-    "PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, "
-    "nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, ambiguityBit=%i, "
-    "d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, "
-    "ip=%8.5f",
-    likelihood,
-    eta,
-    et,
-    nSiHitsPlusDeadSensors,
-    nPixHitsPlusDeadSensors,
-    passBLayerRequirement,
-    ambiguityBit,
-    d0,
-    deltaEta,
-    deltaPhiRescaled2,
-    wstot,
-    EoverP,
-    ip));
-
   if (!allFound) {
     ATH_MSG_ERROR(
       "Skipping LH rectangular cuts! The following variables are missing: "
@@ -512,20 +481,6 @@ AsgElectronLikelihoodTool::accept(const EventContext& ctx,
     allFound = false;
     notFoundList += "wtots1 ";
   }
-
-  ATH_MSG_VERBOSE(
-    Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, "
-         "nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, "
-         "passBLayerRequirement=%i, ambiguityBit=%i, ip=%8.5f, wstot=%8.5f",
-         likelihood,
-         eta,
-         et,
-         nSiHitsPlusDeadSensors,
-         nPixHitsPlusDeadSensors,
-         passBLayerRequirement,
-         ambiguityBit,
-         ip,
-         wstot));
 
   if (!allFound) {
     ATH_MSG_ERROR(
@@ -740,30 +695,6 @@ AsgElectronLikelihoodTool::calculate(const EventContext& ctx,
     ip = mu;
   }
 
-  ATH_MSG_VERBOSE(Form(
-    "Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, "
-    "Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, "
-    "d0sigma=%8.5f, Rphi=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, "
-    "TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
-    eta,
-    et,
-    f3,
-    Rhad,
-    Rhad1,
-    Reta,
-    w2,
-    f1,
-    Eratio,
-    deltaEta,
-    d0,
-    d0sigma,
-    Rphi,
-    dpOverp,
-    deltaPhiRescaled2,
-    TRT_PID,
-    trans_TRT_PID,
-    ip));
-
   if (!allFound) {
     ATH_MSG_ERROR(
       "Skipping LH calculation! The following variables are missing: "
@@ -913,29 +844,6 @@ AsgElectronLikelihoodTool::calculate(const EventContext& ctx,
   } else {
     ip = mu;
   }
-
-  ATH_MSG_VERBOSE(
-    Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, "
-         "Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, "
-         "d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, dpOverp=%8.5f, "
-         "deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
-         eta,
-         et,
-         f3,
-         Rhad,
-         Rhad1,
-         Reta,
-         w2,
-         f1,
-         Eratio,
-         deltaEta,
-         d0,
-         d0sigma,
-         Rphi,
-         dpOverp,
-         deltaPhiRescaled2,
-         TRT_PID,
-         ip));
 
   if (!allFound) {
     ATH_MSG_ERROR(

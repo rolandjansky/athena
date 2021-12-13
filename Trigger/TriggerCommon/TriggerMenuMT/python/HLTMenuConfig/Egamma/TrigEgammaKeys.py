@@ -34,11 +34,13 @@ class TrigEgammaKeysBase(object):
         self.precisionEMClusterContainer                = recordable('HLT_TrigEMClusters')
 
         """Static class to collect all string manipulation in precision photon sequences """
-        self.precisionPhotonSuperClusterCollection      = 'HLT_PhotonSuperRecCollection'
+        self.precisionPhotonSuperClusterRecCollection      = 'HLT_PhotonSuperRecCollection'
+        self.precisionPhotonSuperClusterCollection      = 'HLT_PhotonSuperClusters'
         self.precisionPhotonContainer                   = recordable('HLT_egamma_Photons')
 
         """Static class to collect all string manipulation in precision electron sequences """
-        self.precisionElectronSuperClusterCollection    = 'HLT_ElectronSuperRecCollection'
+        self.precisionElectronSuperClusterRecCollection    = 'HLT_ElectronSuperRecCollection'
+        self.precisionElectronSuperClusterCollection    = 'HLT_ElectronSuperClusters'
         self.precisionElectronContainer                 = recordable('HLT_egamma_Electrons')
 
         #

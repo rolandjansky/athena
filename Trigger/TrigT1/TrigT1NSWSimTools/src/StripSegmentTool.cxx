@@ -277,8 +277,8 @@ namespace NSWL1 {
          float avg_z=(z1+z2)/2.;
          float inf_slope=(avg_r/avg_z);
          //float dR=slope-inf_slope;
-         float theta_inf=atan(inf_slope);
-         float theta=atan(slope);
+         float theta_inf=std::atan(inf_slope);
+         float theta=std::atan(slope);
          float dtheta=(theta_inf-theta)*1000;//In Milliradian
          if(avg_z>0){
             eta_inf=-log(tan(theta_inf/2));
@@ -295,17 +295,17 @@ namespace NSWL1 {
          
          //S.I instead of doing all these stuff like below, which is quite error prone  why dont we use TVectors?
          if(glx>=0 && gly>=0){
-             phi=atan(gly/glx);
+	   phi=std::atan(gly/glx);
          }
          
          else if(glx<0 && gly>0){
-            phi=PI-atan(abs(gly/glx));
+	   phi=M_PI-std::atan(std::abs(gly/glx));
          }
          else if(glx<0 && gly<0){
-            phi=-1*PI+atan(gly/glx);
+	   phi=-1*M_PI+std::atan(gly/glx);
          }
          else if(glx>0 && gly<0){
-            phi=-atan(abs(gly/glx));
+	   phi=-std::atan(std::abs(gly/glx));
          }
          else{
             ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");//S.I does this even necessary ? then what ?

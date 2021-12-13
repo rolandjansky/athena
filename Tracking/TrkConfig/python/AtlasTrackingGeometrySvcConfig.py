@@ -382,14 +382,14 @@ def _getCaloTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, t
   from LArGeoAlgsNV.LArGMConfig import LArGMCfg
   result.merge(LArGMCfg(flags))
   LAr__LArVolumeBuilder=CompFactory.LAr.LArVolumeBuilder
-  lArVolumeBuilder = LAr__LArVolumeBuilder(name="LArVolumeBuilder", TrackingVolumeHelper = trackingVolumeHelper,)
+  lArVolumeBuilder = LAr__LArVolumeBuilder(name="LArVolumeBuilderCond", TrackingVolumeHelper = trackingVolumeHelper,)
   result.addPublicTool(lArVolumeBuilder)
   
   # The following replaces TileCalorimeter/TileTrackingGeometry/python/ConfiguredTileVolumeBuilder.py
   from TileGeoModel.TileGMConfig import TileGMCfg
   result.merge(TileGMCfg(flags))
   Tile__TileVolumeBuilder=CompFactory.Tile.TileVolumeBuilder
-  tileVolumeBuilder = Tile__TileVolumeBuilder(name="TileVolumeBuilder", TrackingVolumeHelper = trackingVolumeHelper,  )
+  tileVolumeBuilder = Tile__TileVolumeBuilder(name="TileVolumeBuilderCond", TrackingVolumeHelper = trackingVolumeHelper,  )
   result.addPublicTool(tileVolumeBuilder)
   
   Calo__CaloTrackingGeometryBuilder=CompFactory.Calo.CaloTrackingGeometryBuilder

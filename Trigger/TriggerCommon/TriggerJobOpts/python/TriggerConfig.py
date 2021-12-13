@@ -442,12 +442,12 @@ def triggerPOOLOutputCfg(flags):
 
     # Produce trigger bits
     bitsmaker = CompFactory.TriggerBitsMakerTool()
-    decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT", BitsMakerTool = bitsmaker)
+    decmaker = CompFactory.TrigDec.TrigDecisionMakerMT("TrigDecMakerMT", BitsMakerTool = bitsmaker)
     acc.addEventAlgo( decmaker )
 
     # Produce trigger metadata
-    menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
-    menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')
+    menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
+    menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
 
     # Schedule the insertion of L1 prescales into the conditions store

@@ -37,7 +37,7 @@ namespace LVL1 {
 
     virtual void setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
                                  unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                 int gblockThreshold) override;
+                                 int gXE_seedThrA, int gXE_seedThrB) override;
 
     virtual std::vector<std::unique_ptr<gFEXJwoJTOB>> jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
                                                                std::array<uint32_t, 4> & outTOB) override;
@@ -50,12 +50,13 @@ namespace LVL1 {
     unsigned int m_bFPGA_A;
     unsigned int m_aFPGA_B;
     unsigned int m_bFPGA_B;
-    int m_gBlockthreshold;
+    int m_gBlockthresholdA;
+    int m_gBlockthresholdB;
 
 
     virtual void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
 
-    virtual void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum,
+    virtual void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
                            unsigned int & MHT_x, unsigned int & MHT_y,
                            unsigned int & MST_x, unsigned int & MST_y,
                            unsigned int & MET_x, unsigned int & MET_y);

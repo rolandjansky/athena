@@ -11,6 +11,7 @@ if globalflags.DataSource()=='geant4':
     isSimulation = True
 
 print(isSimulation)
+from InDetRecExample import TrackingCommon
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -62,8 +63,10 @@ BPHY16_Reco_mumu = DerivationFramework__Reco_Vertex(
   VertexSearchTool             = BPHY16JpsiFinder,
   OutputVtxContainerName = "BPHY16OniaCandidates",
   PVContainerName        = "PrimaryVertices",
-  RefPVContainerName     = "BPHY16RefittedPrimaryVertices",
+  RefPVContainerName     = "BPHY16RefittedPrimaryVertices1",
   RefitPV                = True,
+  V0Tools                = TrackingCommon.getV0Tools(),
+  PVRefitter             = BPHY16_VertexTools.PrimaryVertexRefitter,
   MaxPVrefit             = 100000,
   DoVertexType           = 7)
   
@@ -78,6 +81,7 @@ BPHY16_Select_Upsi = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY16_Select_Upsi",
   HypothesisName        = "Upsilon",
   InputVtxContainerName = "BPHY16OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 9460.30,
   MassMin               = 8000.,
   MassMax               = 12000.,
@@ -131,11 +135,13 @@ print(BPHY16Plus2Tracks)
 ## 6/ setup the combined augmentation/skimming tool for the Bpm
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex	
 BPHY16FourTrackSelectAndWrite = DerivationFramework__Reco_Vertex(name           = "BPHY16FourTrackSelectAndWrite",
-                                                           Jpsi2PlusTrackName       = BPHY16Plus2Tracks,
+                                                           VertexSearchTool       = BPHY16Plus2Tracks,
                                                            OutputVtxContainerName   = "BPHY16FourTrack",
                                                            PVContainerName          = "PrimaryVertices",
-                                                           RefPVContainerName       = "BPHY16RefittedPrimaryVertices",
+                                                           RefPVContainerName       = "BPHY16RefittedPrimaryVertices2",
                                                            RefitPV                  = True,
+                                                            V0Tools                 = TrackingCommon.getV0Tools(),
+                                                            PVRefitter              = BPHY16_VertexTools.PrimaryVertexRefitter,
                                                            MaxPVrefit               = 10000, DoVertexType = 7)
 ToolSvc += BPHY16FourTrackSelectAndWrite 
 print(BPHY16FourTrackSelectAndWrite)
@@ -145,6 +151,7 @@ BPHY16_Select_FourTrack      = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY16_Select_FourTracks",
   HypothesisName             = "FourTracks",
   InputVtxContainerName      = "BPHY16FourTrack",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658, 105.658, 105.658],
   VtxMassHypo                = 18100.0,
   MassMin                    = 0,
@@ -158,6 +165,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY16_Revertex      = DerivationFramework__ReVertex(
   name                       = "BPHY16_ReVertex",
   InputVtxContainerName      = "BPHY16FourTrack",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrackIndices               = [ 2, 3 ],
   TrkVertexFitterTool		    = BPHY16VertexFit,
   OutputVtxContainerName     = "BPHY16TwoTrack"
@@ -170,6 +178,7 @@ BPHY16_Select_TwoTrack      = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY16_Select_TwoTracks",
   HypothesisName             = "TwoTracks",
   InputVtxContainerName      = "BPHY16TwoTrack",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658],
   VtxMassHypo                = 18100.0,
   MassMin                    = 1,
@@ -223,12 +232,6 @@ streamName = derivationFlags.WriteDAOD_BPHY16Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_BPHY16Stream )
 BPHY16Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY16Stream.AcceptAlgs(["BPHY16Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="BPHY16ThinningSvc", outStreams=[evtStream] )
 
 
 #====================================================================
@@ -246,8 +249,10 @@ BPHY16SlimmingHelper.IncludeBPhysTriggerContent = True
 
 ## primary vertices
 AllVariables += ["PrimaryVertices"]
-StaticContent += ["xAOD::VertexContainer#BPHY16RefittedPrimaryVertices"]
-StaticContent += ["xAOD::VertexAuxContainer#BPHY16RefittedPrimaryVerticesAux."]
+StaticContent += ["xAOD::VertexContainer#BPHY16RefittedPrimaryVertices1"]
+StaticContent += ["xAOD::VertexAuxContainer#BPHY16RefittedPrimaryVertices1Aux."]
+StaticContent += ["xAOD::VertexContainer#BPHY16RefittedPrimaryVertices2"]
+StaticContent += ["xAOD::VertexAuxContainer#BPHY16RefittedPrimaryVertices2Aux."]
 
 ## ID track particles
 AllVariables += ["InDetTrackParticles"]

@@ -6,10 +6,11 @@ Copyright! (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
-class SPCountHypoTool : virtual public ::AthAlgTool
+class SPCountHypoTool : virtual public AthCheckedComponent<::AthAlgTool>
 {
 public:
   SPCountHypoTool(const std::string &type,
@@ -28,8 +29,8 @@ public:
   StatusCode decide(SPCountsInfo &decisions) const;
 
 private:
-  bool applyCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit) const;
-  bool applyInverseCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit) const;
+  bool applyCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit, const std::string_view name="" ) const;
+  bool applyInverseCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit, const std::string_view name="" ) const;
 
   HLT::Identifier m_decisionId;
 

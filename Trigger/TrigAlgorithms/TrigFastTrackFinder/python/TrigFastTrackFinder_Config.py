@@ -342,16 +342,15 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
 
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
-        InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
+        
         if conditionsTool is None:
           from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
           from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
           sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
           sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
-          InDetTrigSiComTrackFinder_FTF.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+          InDetTrigSiComTrackFinder.SctSummaryTool = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
         else:
-          InDetTrigSiComTrackFinder_FTF.SctSummaryTool = conditionsTool
-        ToolSvc += InDetTrigSiComTrackFinder_FTF
+          InDetTrigSiComTrackFinder.SctSummaryTool = conditionsTool
 
 
         from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
@@ -372,7 +371,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+slice_name,
                                               RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
-                                              CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
+                                              CombinatorialTrackFinder = InDetTrigSiComTrackFinder,
                                               pTmin          = config.pTmin,
                                               nClustersMin   = nClustersMin,
                                               nHolesMax      = TrackingCuts.nHolesMax(),

@@ -101,7 +101,7 @@ void Photospp_i::setupPhotos(){
   Photos::forceMassFrom4Vector(true);
   Photos::forceMassFromEventRecord(13);
   Photos::forceMassFromEventRecord(15);
-  Photos::forceMass(11, 0.510998910);
+  Photos::forceMass(11, 0.510998910); // The assumption that unots are MEV will be checked later
   Photos::forceMassFromEventRecord(211);
   Photos::setTopProcessRadiation(false);
   Photos::createHistoryEntries(m_createHistory, 3);
@@ -156,7 +156,20 @@ StatusCode Photospp_i::execute(){
     ATH_MSG_ERROR("Photospp_i received a null HepMC event");
     return StatusCode::FAILURE;
   }
-
+	switch(event->momentum_unit()) {
+		case HepMC::Units::GEV:
+			Photos::setMomentumUnit(Photos::GEV);
+      Photos::forceMass(11, 0.000510998910);
+			break;
+		case HepMC::Units::MEV:
+			Photos::setMomentumUnit(Photos::MEV);
+			Photos::forceMass(11, 0.510998910);
+      break;
+		default:
+	    ATH_MSG_ERROR("Photospp_i received a event with unknown units.");
+			Photos::setMomentumUnit(Photos::DEFAULT_MOMENTUM);
+			break;
+	};
   PhotosHepMCEvent photosEvent(event);
   photosEvent.process();
 

@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
+def CaloRecoCfg(configFlags, clustersname=None):
     
     result=ComponentAccumulator()
     if not configFlags.Input.isMC:
@@ -34,7 +34,7 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     
     #Configure topo-cluster builder
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname, doLCCalib=doLCCalib))
+    result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname))
 
     #Configure forward towers:
     from CaloRec.CaloFwdTopoTowerConfig import CaloFwdTopoTowerCfg
@@ -52,6 +52,11 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     from TileMuId.TileMuIdConfig import TileLookForMuAlgCfg
     result.merge(TileLookForMuAlgCfg(configFlags))
 
+    if not configFlags.Input.isMC:
+        #Configure LArDigitsThinner:
+        from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
+        result.merge(LArDigitThinnerCfg(configFlags))
+    
     #Configure MBTSTimeDiff 
     #Clients are BackgroundWordFiller and (deprecated?) DQTBackgroundMonTool
     #Consider moving to BackgroundWordFiller config

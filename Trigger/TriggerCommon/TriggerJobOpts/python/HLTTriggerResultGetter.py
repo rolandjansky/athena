@@ -8,38 +8,13 @@ from RecExConfig.Configured import Configured
 from RecExConfig.RecFlags import rec
 
 from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
 
 class xAODConversionGetter(Configured):
     def configure(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-
-        #schedule xAOD conversions here
-        from TrigBSExtraction.TrigBSExtractionConf import TrigHLTtoxAODConversion
-        xaodconverter = TrigHLTtoxAODConversion()
-        if ConfigFlags.Trigger.readBS:
-            xaodconverter.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")] # contract wiht BSExtraction alg (see below)
-        from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
-        xaodconverter.Navigation = HLTNavigationOffline()
-
-        from TrigEDMConfig.TriggerEDM import getPreregistrationList
-        from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
-        xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
-
-        # we want only containers from Run 1 with the BS tag
-        xaodconverter.BStoxAOD.ContainersToConvert = getL2Run1BSList() + getEFRun1BSList()
-        xaodconverter.BStoxAOD.NewContainers = getL2Run2EquivalentList() + getEFRun2EquivalentList()
-
-        xaodconverter.HLTResultKey="HLTResult_EF"
-        topSequence += xaodconverter
-
-        # define list of HLT xAOD containers to be written to the output root file
-        # (previously this was defined in HLTTriggerResultGetter def configure)
-        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-        self.xaodlist = {}
-        self.xaodlist.update( getTriggerEDMList(ConfigFlags.Trigger.ESDEDMSet, 2 ))
-
+        from TriggerJobOpts.TriggerRecoConfig import Run1xAODConversionCfg
+        CAtoGlobalWrapper(Run1xAODConversionCfg, ConfigFlags)
         return True
     
         
@@ -81,19 +56,8 @@ class ByteStreamUnpackGetterRun1or2(Configured):
 class TrigDecisionGetter(Configured):
     def configure(self):
         log = logging.getLogger("TrigDecisionGetter")
-
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-
-        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        tdm = TrigDecisionMakerMT('TrigDecMakerMT')
-
-        if not ConfigFlags.Trigger.readBS:
-            # Construct trigger bits from HLTNav_summary instead of reading from BS
-            from TrigOutputHandling.TrigOutputHandlingConf import TriggerBitsMakerTool
-            tdm.BitsMakerTool = TriggerBitsMakerTool()
-
-        topSequence += tdm
+        from TriggerJobOpts.TriggerRecoConfig import Run3DecisionMakerCfg
+        CAtoGlobalWrapper( Run3DecisionMakerCfg, ConfigFlags)
         log.info('xTrigDecision writing enabled')
 
         return True
@@ -101,59 +65,12 @@ class TrigDecisionGetter(Configured):
 class TrigDecisionGetterRun1or2(Configured):
     #class to setup the writing or just making of TrigDecisionObject
     def configure(self):
-        
-        log = logging.getLogger("TrigDecisionGetterRun1or2")
-
-        from AthenaCommon.AlgSequence import AlgSequence 
-        topSequence = AlgSequence()
-        
-        #if hasOnlyLVL1:
-        #from RecExConfig.ObjKeyStore import objKeyStore
-        #objKeyStore.addStreamESD('TrigDec::TrigDecision','TrigDecision')
-        #objKeyStore.addStreamAOD('TrigDec::TrigDecision','TrigDecision')
-        
-        from RecExConfig.RecFlags import rec
         if ( rec.doWriteESD() or rec.doWriteAOD() or rec.doESD() or rec.doAOD() ) and \
                ( not ( rec.readAOD() or rec.readESD() or rec.doWriteBS()) ):
-            log.info("Will write TrigDecision object to storegate")
-            
-            from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-            trigDecWriter = WriteTrigDecision()  # noqa: F841
-            if (ConfigFlags.Trigger.EDMVersion == 1 or ConfigFlags.Trigger.EDMVersion == 2) and ConfigFlags.Trigger.doEDMVersionConversion:
-                from TrigNavTools.NavConverterConfig import createNavConverterAlg
-                navCnvAlg = createNavConverterAlg()
-                navCnvAlg.TrigConfigSvc = "HLTConfigSvcRun3"
-                navCnvAlg.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
-                topSequence += navCnvAlg
-
-#           WritexAODTrigDecision() is called within WriteTrigDecision()
-
-            # inform TD maker that some parts may be missing
-            if 'HLT' not in ConfigFlags.Trigger.availableRecoMetadata:
-                topSequence.TrigDecMaker.doL2=False
-                topSequence.TrigDecMaker.doEF=False
-                topSequence.TrigDecMaker.doHLT=False
-                topSequence.TrigNavigationCnvAlg.doL2 = False
-                topSequence.TrigNavigationCnvAlg.doEF = False
-                topSequence.TrigNavigationCnvAlg.doHLT = False
-            if 'L1' not in ConfigFlags.Trigger.availableRecoMetadata:
-                from AthenaCommon.AlgSequence import AlgSequence
-                topSequence.TrigDecMaker.doL1=False
-
-            if ConfigFlags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
-                topSequence.TrigDecMaker.doHLT = False
-                topSequence.TrigNavigationCnvAlg.doL2 = False
-                topSequence.TrigNavigationCnvAlg.doHLT = False
-            else:
-                topSequence.TrigDecMaker.doL2 = False
-                topSequence.TrigDecMaker.doEF = False
-                topSequence.TrigNavigationCnvAlg.doL2 = False
-                topSequence.TrigNavigationCnvAlg.doEF = False
-                pass
-                
-        else:
-            log.info("Will not write TrigDecision object to storegate")
-    
+            log = logging.getLogger("TrigDecisionGetterRun1or2")
+            from TriggerJobOpts.TriggerRecoConfig import Run1Run2DecisionMakerCfg
+            CAtoGlobalWrapper(Run1Run2DecisionMakerCfg, ConfigFlags)
+            log.info('xTrigDecision writing enabled')
         return True
     
     

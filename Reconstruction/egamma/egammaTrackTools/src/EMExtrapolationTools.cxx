@@ -56,13 +56,13 @@ getRescaledPerigee(const xAOD::TrackParticle& trkPB,
    * Then replace the q/p with q/cluster->e()
    * e.g create a new Perigee with q/cluster->e() rather than track->p()
    */
-  return Trk::Perigee(
-    trkPB.d0(),
-    trkPB.z0(),
-    trkPB.phi0(),
-    trkPB.theta(),
-    trkPB.charge() / cluster.e(),
-    Trk::PerigeeSurface(Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())));
+  return { trkPB.d0(),
+           trkPB.z0(),
+           trkPB.phi0(),
+           trkPB.theta(),
+           trkPB.charge() / cluster.e(),
+           Trk::PerigeeSurface(
+             Amg::Vector3D(trkPB.vx(), trkPB.vy(), trkPB.vz())) };
 }
 } // end of anonymous namespace
 
@@ -83,8 +83,7 @@ EMExtrapolationTools::initialize()
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
   // Retrieve tools
-  ATH_CHECK(m_lastParticleCaloExtensionTool.retrieve());
-  ATH_CHECK(m_perigeeParticleCaloExtensionTool.retrieve());
+  ATH_CHECK(m_ParticleCaloExtensionTool.retrieve());
   ATH_CHECK(m_extrapolator.retrieve());
 
   // retrieve TRT-ID helper
@@ -116,20 +115,21 @@ StatusCode
 EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
                                      const xAOD::CaloCluster& cluster,
                                      const xAOD::TrackParticle& trkPB,
-                                     Trk::PropDirection,
                                      std::array<double, 4>& eta,
                                      std::array<double, 4>& phi,
                                      std::array<double, 4>& deltaEta,
                                      std::array<double, 4>& deltaPhi,
-                                     unsigned int extrapFrom,
-                                     Cache*) const
+                                     const CaloDetDescrManager* caloDD,
+                                     unsigned int extrapFrom) const
 {
   /* Extrapolate track to calo and return
    * the extrapolated eta/phi and
    * the deta/dphi between cluster and track
    * We allow different ways to extrapolate:
    * 1) from the last measurement  track parameters (this is always the case for
-   * TRT standalone) 2) from the perigee track parameters 3) from the perigee
+   * TRT standalone)
+   * 2) from the perigee track parameters
+   * 3) from the perigee
    * with the track momentum rescaled by the cluster energy
    */
   if (cluster.e() < 10 && trkPB.pt() < 10) { // This is 10 MeV
@@ -141,14 +141,10 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
   bool didExtension = false;
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
   switch (extrapFrom) {
-    /*
-     * Rescaled Perigee does not have a cache
-     */
     case fromPerigeeRescaled: {
       Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
-      const auto extension =
-        m_perigeeParticleCaloExtensionTool->egammaCaloExtension(
-          ctx, trkPar, cluster);
+      const auto extension = m_ParticleCaloExtensionTool->egammaCaloExtension(
+        ctx, trkPar, cluster, caloDD);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
@@ -157,9 +153,8 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
     } break;
 
     case fromPerigee: {
-      const auto extension =
-        m_perigeeParticleCaloExtensionTool->egammaCaloExtension(
-          ctx, trkPB.perigeeParameters(), cluster);
+      const auto extension = m_ParticleCaloExtensionTool->egammaCaloExtension(
+        ctx, trkPB.perigeeParameters(), cluster, caloDD);
       didExtension = !extension.empty();
       for (const auto& i : extension) {
         intersections.emplace_back(
@@ -179,8 +174,8 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
           didExtension = false;
         } else {
           const auto extension =
-            m_lastParticleCaloExtensionTool->egammaCaloExtension(
-              ctx, lastParams, cluster);
+            m_ParticleCaloExtensionTool->egammaCaloExtension(
+              ctx, lastParams, cluster, caloDD);
           didExtension = !extension.empty();
           for (const auto& i : extension) {
             intersections.emplace_back(
@@ -330,7 +325,7 @@ EMExtrapolationTools::getEtaPhiAtCalo(const EventContext& ctx,
   }
 
   std::unique_ptr<Trk::CaloExtension> extension = nullptr;
-  extension = m_perigeeParticleCaloExtensionTool->caloExtension(
+  extension = m_ParticleCaloExtensionTool->caloExtension(
     ctx, *trkPar, Trk::alongMomentum, Trk::muon);
   if (!extension) {
     ATH_MSG_WARNING("Could not create an extension from geEtaPhiAtCalo ");
@@ -428,7 +423,7 @@ EMExtrapolationTools::getMomentumAtVertex(const EventContext& ctx,
       accPz.isAvailable(vertex)) {
     // Already decorated with parameters at vertex
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from auxdata");
-    return Amg::Vector3D(accPx(vertex), accPy(vertex), accPz(vertex));
+    return { accPx(vertex), accPy(vertex), accPz(vertex) };
   }
   for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i) {
     momentum += getMomentumAtVertex(ctx, vertex, i);

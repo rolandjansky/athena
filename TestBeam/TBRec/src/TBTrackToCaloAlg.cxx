@@ -67,7 +67,7 @@ StatusCode TBTrackToCaloAlg::initialize()
   ATH_MSG_DEBUG ( "TBTrackToCaloAlg::initialize()" );
 
   ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
-  m_phiRange.print();
+  CaloPhiRange::print();
 
   // General access to Tools :
   IToolSvc* p_toolSvc = 0;
@@ -203,6 +203,9 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
   Amg::Vector3D* pt_calo_ctb = new Amg::Vector3D; 
   Amg::Vector3D* pt_calo_local = new Amg::Vector3D; 
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
   double trketa = 0.;
   // take the last measured point to find out if I am in barrel or endcap :
   const DataVector <const Trk::TrackParameters>* paramvec = track->trackParameters();
@@ -265,8 +268,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
   if (paramvec) { 
     
     // PS :
-    distbar = m_calodepth->deta(CaloCell_ID::PreSamplerB,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::PreSamplerE,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::PreSamplerB,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::PreSamplerE,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...PS : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -295,8 +298,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     }
     
     // strip :
-    distbar = m_calodepth->deta(CaloCell_ID::EMB1,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::EME1,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::EMB1,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::EME1,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...Strip : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -326,8 +329,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     
     
     // middle :
-    distbar = m_calodepth->deta(CaloCell_ID::EMB2,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::EME2,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::EMB2,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::EME2,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...Middle : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -364,8 +367,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     // will use the backup solution (egparametrisation right now, rel 10.0.2).
     //
     
-    distbar = m_calodepth->deta(CaloCell_ID::EMB3,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::EME3,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::EMB3,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::EME3,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...Back : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -394,8 +397,8 @@ ImpactInCalo* TBTrackToCaloAlg::GetImpactsInCalo(const Trk::Track* track, bool& 
     }
     
     // Tile or HEC0 :
-    distbar = m_calodepth->deta(CaloCell_ID::TileBar0,trketa);
-    distec = m_calodepth->deta(CaloCell_ID::HEC0,trketa);
+    distbar = CaloDepthTool::deta(CaloCell_ID::TileBar0,trketa,caloDDMgr);
+    distec = CaloDepthTool::deta(CaloCell_ID::HEC0,trketa,caloDDMgr);
     
     ATH_MSG_DEBUG ( " TrackTo ...Tile : for eta= " << trketa << " dist to Barrel =" << distbar 
                     << " to endcap =" << distec );
@@ -608,7 +611,7 @@ TBTrackToCaloAlg::CellsCrossedByTrack(const Trk::Track* trk,
   CaloCell_ID::SUBCALO subcalo;
   bool barrel;
   int sampling_or_module;
-  caloDDMgr->decode_sample (subcalo, barrel, sampling_or_module, sam);
+  CaloDetDescrManager::decode_sample (subcalo, barrel, sampling_or_module, sam);
 
   // Get the corresponding grannularities : needs to know where you are 
   //                  the easiest is to look for the CaloDetDescrElement

@@ -16,7 +16,7 @@ if globalflags.DataSource()=='geant4':
     isSimulation = True
 
 print(isSimulation)
-
+from InDetRecExample import TrackingCommon
 #--------------------------------------------------------------------
 # Setup the JpsiFinder vertex fitter tools
 #--------------------------------------------------------------------
@@ -61,6 +61,8 @@ BPHY19_Reco_mumu = DerivationFramework__Reco_Vertex(
   VertexSearchTool             = BPHY19JpsiFinder,
   OutputVtxContainerName = "BPHY19OniaCandidates",
   PVContainerName        = "PrimaryVertices",
+  V0Tools                = TrackingCommon.getV0Tools(),
+  PVRefitter             = BPHY19_VertexTools.PrimaryVertexRefitter,
   RefPVContainerName     = "BPHY19RefittedPrimaryVertices",
   RefitPV                = True,
   MaxPVrefit             = 100000,
@@ -80,6 +82,7 @@ BPHY19_Select_Psi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY19_Select_Psi2mumu",
   HypothesisName        = "Psi",
   InputVtxContainerName = "BPHY19OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3096.916,
   MassMin               = 2000.0,
   MassMax               = 4500.0,
@@ -94,6 +97,7 @@ BPHY19_Select_Upsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY19_Select_Upsi2mumu",
   HypothesisName        = "Upsi",
   InputVtxContainerName = "BPHY19OniaCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 9460.30,
   MassMin               = 8000.0,
   MassMax               = 12000.0,
@@ -126,6 +130,7 @@ BPHY19_ConvTools = BPHYConversionFinderTools("BPHY19")
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BPhysConversionFinder
 BPHY19_ConversionFinder   = DerivationFramework__BPhysConversionFinder(
     name = "BPHY19_ConversionFinder",
+    V0Tools = TrackingCommon.getV0Tools(),
     VertexFitterTool = BPHY19_ConvTools.InDetSecVxFitterTool,
     VertexEstimator = BPHY19_ConvTools.InDetSecVtxPointEstimator,
     DistanceTool = BPHY19_ConvTools.InDetSecVxTrkDistanceFinder,
@@ -261,12 +266,6 @@ streamName = derivationFlags.WriteDAOD_BPHY19Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_BPHY19Stream )
 BPHY19Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY19Stream.AcceptAlgs(["BPHY19Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="BPHY19ThinningSvc", outStreams=[evtStream] )
 
 #--------------------------------------------------------------------
 # Generic Collection Slimming

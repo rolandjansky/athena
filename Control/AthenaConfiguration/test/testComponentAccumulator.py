@@ -82,7 +82,7 @@ class TestComponentAccumulator( unittest.TestCase ):
         acc.merge(accNA1[0])
         acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
         with open("testFile.pkl", "wb") as outf:
-            acc.store(outf)
+            acc.store(outf, withDefaultHandles=True)
         acc.printConfig(withDetails=True, summariseProps=True, prefix='CATest')
         self.acc = acc
 

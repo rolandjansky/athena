@@ -64,6 +64,8 @@ BPHY17BsDsPi            = DerivationFramework__Cascade3Plus1(
     TrkVertexFitterTool     = BPHY17_VertexTools.TrkVKalVrtFitter,
     PVContainerName          = "PrimaryVertices",
     RefitPV                 = True,
+    V0Tools                 = TrackingCommon.getV0Tools(),
+    VertexEstimator         = BPHY17_VertexTools.VtxPointEstimator,
     #OutputLevel             = DEBUG,
     RefPVContainerName      = "BPHY17RefittedPrimaryVertices",
     CascadeVertexCollections= ["BPHY17CascadeVtx1", "BPHY17CascadeVtx2"],
@@ -98,6 +100,8 @@ BPHY17BsDsPiMuons            = DerivationFramework__Cascade3Plus1(
     TrkVertexFitterTool     = BPHY17_VertexTools.TrkVKalVrtFitter,
     PVContainerName          = "PrimaryVertices",
     RefitPV                 = True,
+    V0Tools                 = TrackingCommon.getV0Tools(),
+    VertexEstimator         = BPHY17_VertexTools.VtxPointEstimator,
     #OutputLevel             = DEBUG,
     RefPVContainerName      = "BPHY17RefittedPrimaryVerticesMuons",
     CascadeVertexCollections= ["BPHY17CascadeMuonVtx1", "BPHY17CascadeMuonVtx2"],
@@ -131,6 +135,8 @@ BPHY17BsDsMuSemiLepMuons            = DerivationFramework__Cascade3Plus1(
     Track3Name              = "Ds",
     TrackSelectorTool       = InDetTrackSelectorTool,
     TrkVertexFitterTool     = BPHY17_VertexTools.TrkVKalVrtFitter,
+    V0Tools                 = TrackingCommon.getV0Tools(),
+    VertexEstimator          = BPHY17_VertexTools.VtxPointEstimator,
     PVContainerName          = "PrimaryVertices",
     RefitPV                 = True,
     #OutputLevel             = DEBUG,
@@ -162,6 +168,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY17_Select_DsPhiKK = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY17_Select_DsPhiKK",
   HypothesisName             = "DsPhiKK",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   InputVtxContainerName      = BPHY17BsDsPi.ThreeVertexOutputContainer,
   TrkMasses                  = [493.677, 493.677, 139.57018],
   VtxMassHypo                = 1968.47,
@@ -175,6 +182,7 @@ print(BPHY17_Select_DsPhiKK)
 BPHY17_Select_DsPhiMM = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY17_Select_DsPhiMM",
   HypothesisName             = "DsPhiMM",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   InputVtxContainerName      = BPHY17BsDsPiMuons.ThreeVertexOutputContainer,
   TrkMasses                  = [105.658374, 105.658374, 139.57018],
   VtxMassHypo                = 1968.47,
@@ -189,6 +197,7 @@ print(BPHY17_Select_DsPhiMM)
 BPHY17_Select_DsPhiMMSemi = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY17_Select_DsPhiMMSemi",
   HypothesisName             = "DsPhiMMSemiLep",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   InputVtxContainerName      = BPHY17BsDsMuSemiLepMuons.ThreeVertexOutputContainer,
   TrkMasses                  = [105.658374, 105.658374, 139.57018],
   VtxMassHypo                = 1968.47,
@@ -275,13 +284,6 @@ streamName = derivationFlags.WriteDAOD_BPHY17Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_BPHY17Stream )
 BPHY17Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY17Stream.AcceptAlgs(["BPHY17Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="BPHY17ThinningSvc", outStreams=[evtStream] )
-
 
 #====================================================================
 # Slimming
