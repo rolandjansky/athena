@@ -15,6 +15,7 @@ def BunchCrossingCondAlgCfg(configFlags):
 
     if (configFlags.Input.isMC):
         folder = "/Digitization/Parameters"
+        Mode = 1
         from AthenaConfiguration.Enums import ProductionStep
         if configFlags.Common.ProductionStep not in [ProductionStep.Digitization, ProductionStep.PileUpPresampling]:
             result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList",tag='HEAD'))
@@ -25,13 +26,14 @@ def BunchCrossingCondAlgCfg(configFlags):
             pass
     else: #data case
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
+        Mode = 0
         result.merge(addFolders(configFlags,folder,'TDAQ',className = 'AthenaAttributeList',tag='HEAD'))
 
 
     alg = BunchCrossingCondAlg('BunchCrossingCondAlgDefault',
                                Run1=run1,
-                               isMC=configFlags.Input.isMC,
-                               FillParamsFolderKey =folder )
+                               FillParamsFolderKey =folder,
+                               Mode=Mode )
 
     result.addCondAlgo(alg)
 

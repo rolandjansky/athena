@@ -63,7 +63,7 @@ StatusCode FixHepMC::execute() {
 
     // SHERPA has problems with bad beam particles. 16.11.2021
     auto beams_t = evt->beams();
-    if (beams_t.size() != 2) {
+    if (beams_t.size() > 2) {
       ATH_MSG_INFO("Invalid number of beam particles " <<  beams_t.size() << ". Will try to fix.");
       std::vector<HepMC::GenParticlePtr> bparttoremove;
       for (auto bpart: beams_t) if (bpart->id() == 0 && bpart->production_vertex()) bparttoremove.push_back(bpart);
@@ -237,12 +237,10 @@ StatusCode FixHepMC::execute() {
 
     // Event particle content cleaning -- remove "bad" structures
     std::vector<HepMC::GenParticlePtr> toremove; toremove.reserve(10);
-    long seenThisEvent = 0;
     for (HepMC::GenEvent::particle_const_iterator ip = evt->particles_begin(); ip != evt->particles_end(); ++ip) {
       // Skip this particle if (somehow) its pointer is null
       if (*ip == NULL) continue;
       m_totalSeen += 1;
-      seenThisEvent += 1;
 
       // Flag to declare if a particle should be removed
       bool bad_particle = false;

@@ -253,10 +253,11 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
 #endif
 
 #ifdef HEPMC3
-// units correction
-  event->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
+  event->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
+#else
+  GeVToMeV(event); //unit check
 #endif
-  GeVToMeV(event);
+
 
   return StatusCode::SUCCESS;
 }

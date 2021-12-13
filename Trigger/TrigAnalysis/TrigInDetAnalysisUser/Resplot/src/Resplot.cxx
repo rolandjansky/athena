@@ -1226,11 +1226,7 @@ TF1* Resplot::FitATan(TH1D* s, double , double ) {
   char name[8];
   sprintf(name,"atan_%02d", counter); counter++;
   
-  //  static TF1* f1 = new TF1("atan", "(100-sqrt([2]*[2]))*(0.5*3.14159-atan([1]*pow((x-[0]),[4])))/3.14159+sqrt([2]*
-  // [2])", -100, 100);
-  //  static TF1* f1 = new TF1("atan", "   100*pow(0.01*([3]-sqrt([2]*[2]))*(0.5*3.14159-atan( [1]*(x-[0]) ))/3.14159+
-  //						   sqrt([2]*[2]),[4])   ", -100, 100);
-  
+  // Cannot use "M_PI" here as root does not replace M_PI in the string expressions for function  in TF1 definition
   TF1* f1 = new TF1(name, "100*pow( (0.01*[3]-sqrt(0.0001*[2]*[2]))*(0.5-(1/3.14159)*atan( [1]*(x-[0]) ) )+sqrt(0.0001*[2]*[2]) , [4] )   ", -100, 100);
   
   f1->SetParName(0, "Mean");

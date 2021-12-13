@@ -384,7 +384,7 @@ if __name__=="__main__":
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True))
+    cfg.merge(CaloTopoClusterCfg(ConfigFlags))
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     

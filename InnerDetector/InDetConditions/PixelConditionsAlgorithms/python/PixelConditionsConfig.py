@@ -281,7 +281,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC:
         # ITk:
-        if flags.GeoModel.Run == "RUN4":
+        if flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3']: # RUN4 and beyond
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
             if flags.GeoModel.Type == "BrlIncl4.0_ref":
                 IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"

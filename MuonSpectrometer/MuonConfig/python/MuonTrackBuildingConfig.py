@@ -381,7 +381,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
     
-    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
     if flags.Common.isOnline:
         kwargs.setdefault("MdtCondKey","")
 

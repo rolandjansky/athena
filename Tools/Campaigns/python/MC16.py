@@ -76,4 +76,5 @@ def MC16Simulation(flags):
 
     from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill, enableFrozenShowersFCalOnly
     enableBeamPipeKill(flags)
-    enableFrozenShowersFCalOnly(flags)
+    if 'FullG4' in flags.Sim.ISF.Simulator:
+        enableFrozenShowersFCalOnly(flags)

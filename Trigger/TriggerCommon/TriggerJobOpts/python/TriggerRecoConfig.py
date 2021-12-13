@@ -36,8 +36,7 @@ def TriggerRecoCfg(flags):
     if flags.Trigger.EDMVersion == 3:
         acc.merge(Run3TriggerBSUnpackingCfg(flags))
         acc.merge(triggerPOOLOutputCfg(flags))
-        tdm = CompFactory.TrigDec.TrigDecisionMakerMT()
-        acc.addEventAlgo( tdm )
+        acc.merge(Run3DecisionMakerCfg(flags))
 
     elif flags.Trigger.EDMVersion == 2 or flags.Trigger.EDMVersion == 1:
         if flags.Trigger.EDMVersion == 1:
@@ -194,7 +193,7 @@ def Run1Run2DecisionMakerCfg(flags):
         doL2 = False
         doEF = False
 
-    decMaker = CompFactory.TrigDec.TrigDecisionMaker( "TrigDecMaker", 
+    decMaker = CompFactory.TrigDec.TrigDecisionMaker( 'TrigDecMaker', 
                                                       doL1 = doL1,
                                                       doL2 = doL2,
                                                       doEF = doEF,
@@ -206,10 +205,10 @@ def Run1Run2DecisionMakerCfg(flags):
     acc.merge(TrigDecisionToolCfg(flags))
 
     from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
-    cnvTool = CompFactory.xAODMaker.TrigDecisionCnvTool(TrigConfigSvc = acc.getPrimaryAndMerge( getxAODConfigSvc( flags )) )
+    cnvTool = CompFactory.xAODMaker.TrigDecisionCnvTool('TrigDecisionCnvTool', 
+                                                        TrigConfigSvc = acc.getPrimaryAndMerge( getxAODConfigSvc( flags )) )
 
-    decCnv = CompFactory.xAODMaker.TrigDecisionCnvAlg( xAODKey = "xAODTrigDecision",
-                                                         CnvTool = cnvTool)    
+    decCnv = CompFactory.xAODMaker.TrigDecisionCnvAlg(CnvTool = cnvTool)    
 
     acc.addEventAlgo(decCnv)
 
@@ -219,8 +218,17 @@ def Run1Run2DecisionMakerCfg(flags):
                                                                  doHLT = doHLT))
     return acc
 
+def Run3DecisionMakerCfg(flags):
+    acc = ComponentAccumulator()
+    tdm = CompFactory.TrigDec.TrigDecisionMakerMT()
+    if not flags.Trigger.readBS:
+        # Construct trigger bits from HLTNav_summary instead of reading from BS
+        tdm.BitsMakerTool = CompFactory.TriggerBitsMakerTool()
+    acc.addEventAlgo( tdm )
+    return acc
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -228,7 +236,7 @@ if __name__ == "__main__":
 
     flags.fillFromArgs()
 
-    log.info("Checking setup for EDMVersion %d", flags.Trigger.EDMVersion)
+    log.info('Checking setup for EDMVersion %d', flags.Trigger.EDMVersion)
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     flags.Input.Files = defaultTestFiles.RAW # need to update this depending on EDMversion
     flags.Exec.MaxEvents=5

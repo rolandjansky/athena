@@ -442,15 +442,16 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
           if ( jeta >= -m_n_eta_out && jeta < m_n_eta_out ) {
             if ( jphi < -m_n_phi_out ) jphi +=  2*m_n_phi_out;
             if ( jphi >=  m_n_phi_out ) jphi -=  2*m_n_phi_out;
-            unsigned int iBin;
             unsigned int iEtaBin(jeta);
             if ( jeta < 0 ) iEtaBin = abs(jeta)-1;
-            for (iBin=0;iBin<m_i_phi_eta[ii][iEtaBin].size();iBin++) {
-              int jp = m_i_phi_eta[ii][iEtaBin][iBin].iPhi+jphi;
+            const std::vector<CalibHitIPhiIEtaRange>& bins
+              = m_i_phi_eta[ii][iEtaBin];
+            for (const CalibHitIPhiIEtaRange& range : bins) {
+              int jp = range.iPhi+jphi;
               if ( jp < -m_n_phi_out )  jp +=  2*m_n_phi_out;
               if ( jp >=  m_n_phi_out )  jp -=  2*m_n_phi_out;
-              int jEtaMin = iEtaSign<0?-m_i_phi_eta[ii][iEtaBin][iBin].iEtaMax-1:m_i_phi_eta[ii][iEtaBin][iBin].iEtaMin;
-              int jEtaMax = iEtaSign<0?-m_i_phi_eta[ii][iEtaBin][iBin].iEtaMin-1:m_i_phi_eta[ii][iEtaBin][iBin].iEtaMax;
+              int jEtaMin = iEtaSign<0?-range.iEtaMax-1:range.iEtaMin;
+              int jEtaMax = iEtaSign<0?-range.iEtaMin-1:range.iEtaMax;
               for( int je = jEtaMin;je<=jEtaMax;je++ ) {
               if(ii == 0 ) clusListL[(jp+m_n_phi_out)*(2*m_n_eta_out+1)+je+m_n_eta_out].push_back(iClus);
               else if(ii == 1 ) clusListM[(jp+m_n_phi_out)*(2*m_n_eta_out+1)+je+m_n_eta_out].push_back(iClus);

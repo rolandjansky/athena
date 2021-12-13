@@ -18,6 +18,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 
 namespace Rec {
   class TrackParticle;
@@ -25,7 +26,6 @@ namespace Rec {
 
 namespace Trk {
   class Track;
-  class IExtrapolator;
   class StraightLineSurface;
 }
 
@@ -40,8 +40,7 @@ namespace Trk {
     
 namespace Reco {
                         
-  class TrackToVertex : virtual public ITrackToVertex,
-        public AthAlgTool
+  class TrackToVertex : public extends <AthAlgTool, ITrackToVertex>
   {
     public:
            
@@ -49,7 +48,7 @@ namespace Reco {
       TrackToVertex(const std::string&,const std::string&,const IInterface*);
 
       /**Virtual destructor*/
-      virtual ~TrackToVertex();
+      virtual ~TrackToVertex() = default;
 
       /** AlgTool initailize method.*/
       virtual StatusCode initialize() override final;
@@ -142,15 +141,15 @@ namespace Reco {
 
     private:
       ToolHandle<Trk::IExtrapolator>
-        m_extrapolator; //!< ToolHandle for Extrapolator
-
+        m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"}; //!< ToolHandle for Extrapolator
+      
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{
         this,
         "BeamSpotKey",
         "BeamSpotData",
         "SG key for beam spot"
       };
-      bool m_ForceBeamSpotZero = false;
+      Gaudi::Property<bool> m_ForceBeamSpotZero {  "ForceBeamSpotZero", false};
       const static Amg::Vector3D s_origin; //!< static origin
   };
 

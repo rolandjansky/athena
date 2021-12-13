@@ -244,8 +244,6 @@ if InDetTrigFlags.loadUpdator():
 #
 if InDetTrigFlags.loadExtrapolator():
 
-  # set up geometry
-  from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
   
   #
   # get propagator
@@ -441,9 +439,7 @@ if InDetTrigFlags.loadFitter():
    
   elif InDetTrigFlags.trackFitterType() == 'GlobalChi2Fitter' :
     from InDetRecExample import TrackingCommon
-    cond_alg=None
-    if TrackingCommon.use_tracking_geometry_cond_alg :
-        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
 
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     InDetTrigTrackFitter = Trk__GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
@@ -453,7 +449,6 @@ if InDetTrigFlags.loadFitter():
                                                  RotCreatorTool        = InDetTrigRefitRotCreator,
                                                  BroadRotCreatorTool   = InDetTrigBroadInDetRotCreator,
                                                  MeasurementUpdateTool = InDetTrigUpdator,
-                                                 TrackingGeometrySvc   = AtlasTrackingGeometrySvc,
                                                  MaterialUpdateTool    = InDetTrigMaterialUpdator,
                                                  StraightLine          = not InDetTrigFlags.solenoidOn(),
                                                  OutlierCut            = 4,
@@ -467,7 +462,7 @@ if InDetTrigFlags.loadFitter():
                                                  Acceleration          = True,
                                                  #Momentum=1000.,
                                                  Momentum=0.,
-                                                 TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '')
+                                                 TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
     if InDetTrigFlags.useBroadClusterErrors():
       InDetTrigTrackFitter.RecalibrateSilicon = False
 
@@ -501,8 +496,7 @@ if InDetTrigFlags.loadFitter():
                                                       TRTExtensionCuts      = True, 
                                                       MaxIterations         = 40,
                                                       Momentum=0.,
-                                                      TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '',
-                                                      TrackingGeometrySvc    = AtlasTrackingGeometrySvc)
+                                                      TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
     ToolSvc += InDetTrigTrackFitterLowPt
 
 
@@ -527,8 +521,7 @@ if InDetTrigFlags.loadFitter():
                               MaxOutliers           = 99,
                               RecalculateDerivatives = True,
                               Momentum=1000,
-                              TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '',
-                              TrackingGeometrySvc   = AtlasTrackingGeometrySvc)
+                              TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
     InDetTrigTrackFitterCosmics.Acceleration       = False
     ToolSvc += InDetTrigTrackFitterCosmics
 
@@ -546,8 +539,7 @@ if InDetTrigFlags.loadFitter():
                                                     RecalculateDerivatives= True,
                                                     TrackChi2PerNDFCut    = 999999,
                                                     Momentum=0.,
-                                                    TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '',
-                                                    TrackingGeometrySvc   = AtlasTrackingGeometrySvc)
+                                                    TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
     if InDetTrigFlags.doRobustReco():
       InDetTrigTrackFitterTRT.MaxOutliers=99
             

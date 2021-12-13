@@ -304,16 +304,14 @@ namespace Rec {
         bool m_redoRots{false};
 
         // constants
-        std::unique_ptr<const Trk::Volume> m_calorimeterVolume{nullptr};
-        std::unique_ptr<const Trk::Volume> m_indetVolume{nullptr};
+        std::unique_ptr<const Trk::Volume> m_calorimeterVolume;
+        std::unique_ptr<const Trk::Volume> m_indetVolume;
 
         // vertex region and phi modularity for pseudo-measurement constraints
-        std::unique_ptr<Trk::RecVertex> m_beamAxis{nullptr};
-        std::unique_ptr<Trk::PerigeeSurface> m_perigeeSurface{nullptr};
+        std::unique_ptr<Trk::RecVertex> m_beamAxis;
+        std::unique_ptr<Trk::PerigeeSurface> m_perigeeSurface;
 
-        /// sigma of phi sector for pseudo-measurement constraint
-        static constexpr double m_sigmaPhiSector{std::tan(0.125 * M_PI / std::sqrt(12.))};
-        std::unique_ptr<Trk::RecVertex> m_vertex{nullptr};
+        std::unique_ptr<Trk::RecVertex> m_vertex;
 
         // counters
         mutable std::atomic_uint m_countAcceptedStandaloneFit{0};
@@ -325,7 +323,7 @@ namespace Rec {
         mutable std::atomic_uint m_countVertexRegion{0};
 
         // count warnings
-        std::unique_ptr<MessageHelper> m_messageHelper{nullptr};
+        std::unique_ptr<MessageHelper> m_messageHelper;
 
         Gaudi::Property<bool> m_updateWithCaloTG{this, "UpdateWithCaloTG", false};
         Gaudi::Property<bool> m_useCaloTG{this, "UseCaloTG", false};

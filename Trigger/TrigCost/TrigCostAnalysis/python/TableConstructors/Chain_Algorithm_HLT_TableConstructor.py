@@ -15,8 +15,8 @@ from .Algorithm_HLT_TableConstructor import Algorithm_HLT_TableConstructor
 class Chain_Algorithm_HLT_TableConstructor(Algorithm_HLT_TableConstructor):
     ''' @brief Class representing Chain_Algorithm_HLT table
     '''
-    def __init__(self, tableObj):
-        super(). __init__(tableObj) 
+    def __init__(self, tableObj, underflowThreshold, overflowThreshold):
+        super(). __init__(tableObj, underflowThreshold, overflowThreshold) 
         self.totalTime = 0 # Total time of algoirthms execution
 
     def postProcessing(self):

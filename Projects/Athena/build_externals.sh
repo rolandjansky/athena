@@ -14,7 +14,7 @@ ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
                         -DATLAS_GAUDI_TAG="v36r2.000"
                         -DATLAS_ACTS_TAG="v14.1.0"
                         -DATLAS_ONNXRUNTIME_USE_CUDA=FALSE
-                        -DATLAS_GEOMODEL_TAG="3ce7f324"
+                        -DATLAS_GEOMODEL_TAG="ad59da70"
                         -DATLAS_BUILD_CORAL=TRUE
                         -DATLAS_CORAL_TAG="9d9d9725")
 ATLAS_EXTRA_MAKE_ARGS=()

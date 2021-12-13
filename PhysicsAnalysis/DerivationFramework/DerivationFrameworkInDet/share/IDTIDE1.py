@@ -29,6 +29,8 @@ idDxAOD_doSct=True
 idDxAOD_doTrt=False
 
 select_aux_items=True
+# should be true in production 
+skimEvents=True
 
 from AthenaCommon.JobProperties import jobproperties
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
@@ -175,7 +177,7 @@ if IsMonteCarlo:
 # SKIMMING TOOLS 
 #====================================================================
 skimmingTools = []
-if not IsMonteCarlo:
+if not IsMonteCarlo and skimEvents:
   sel_jet600 = 'AntiKt4EMTopoJets.JetConstitScaleMomentum_pt >= 600.*GeV'
   sel_jet800 = 'AntiKt4EMTopoJets.JetConstitScaleMomentum_pt >= 800.*GeV'
   sel_jet1000 = 'AntiKt4EMTopoJets.JetConstitScaleMomentum_pt >= 1000.*GeV'
@@ -421,8 +423,10 @@ IDTIDE1Stream.AddItem("xAOD::TrigDecisionAuxInfo#*")
 #IDTIDE1Stream.AddItem("xAOD::TrigNavigation#*")
 #IDTIDE1Stream.AddItem("xAOD::TrigNavigationAuxInfo#*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
+IDTIDE1Stream.AddItem("xAOD::TrackParticleContainer#InDetLargeD0TrackParticles")
 if not select_aux_items :
   IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition")
+  IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetLargeD0TrackParticlesAux.-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition")
 else :
   tp_items = '.IDTIDE1_biased_PVd0Sigma.IDTIDE1_biased_PVz0Sigma.IDTIDE1_biased_PVz0SigmaSinTheta.IDTIDE1_biased_d0.IDTIDE1_biased_d0Sigma.IDTIDE1_biased_z0.IDTIDE1_biased_z0Sigma' \
            + '.IDTIDE1_biased_z0SigmaSinTheta.IDTIDE1_biased_z0SinTheta.IDTIDE1_unbiased_PVd0Sigma.IDTIDE1_unbiased_PVz0Sigma.IDTIDE1_unbiased_PVz0SigmaSinTheta.IDTIDE1_unbiased_d0' \
@@ -445,9 +449,17 @@ else :
   if IsMonteCarlo :
     tp_items +=  '.truthMatchProbability.truthParticleLink.truthOrigin.truthType'
   IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux" + tp_items)
+  IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetLargeD0TrackParticlesAux" + tp_items)
 
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationContainer#InDetTrackParticlesClusterAssociations*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationAuxContainer#InDetTrackParticlesClusterAssociations*")
+IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationContainer#InDetLargeD0TrackParticlesClusterAssociations*")
+IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationAuxContainer#InDetLargeD0TrackParticlesClusterAssociations*")
+# to build jets
+IDTIDE1Stream.AddItem("xAOD::FlowElementContainer#JetETMissNeutralParticleFlowObjects")
+IDTIDE1Stream.AddItem("xAOD::FlowElementAuxContainer#JetETMissNeutralParticleFlowObjectsAux.")
+IDTIDE1Stream.AddItem("xAOD::FlowElementContainer#JetETMissChargedParticleFlowObjects")
+IDTIDE1Stream.AddItem("xAOD::FlowElementAuxContainer#JetETMissChargedParticleFlowObjectsAux.")
 
 keys = ['PixelMSOSs'] if idDxAOD_doPix else []
 keys+= ['SCT_MSOSs']  if idDxAOD_doSct else []
@@ -489,6 +501,8 @@ IDTIDE1Stream.AddItem("xAOD::TauJetContainer#TauJets")
 IDTIDE1Stream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters.")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
 IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4EMPFlowJets")
+IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt2PV0TrackJets")
 IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.")
 #IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt3PV0TrackJets")
@@ -497,6 +511,8 @@ IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.")
 #IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.")
 IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.")
+IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMPFlow")
+IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMPFlowAux.")
 IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt2Track")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt2TrackAux.")
 #IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt3Track")

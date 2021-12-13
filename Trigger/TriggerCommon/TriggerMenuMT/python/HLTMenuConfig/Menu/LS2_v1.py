@@ -67,6 +67,7 @@ def setupMenu():
     log.info('[setupMenu] going to add the Dev menu chains now')
 
     chains['Muon'] += [
+
         #test chains
         ChainProp(name="HLT_noalg_L1MU5VF",   l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup+LowMuGroup),
 
@@ -200,12 +201,7 @@ def setupMenu():
     chains['Egamma'] += [
         # ElectronChains----------
         # Phase1 eEM chains
-        ChainProp(name='HLT_e5_etcut_L1eEM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarloose_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarloose_L1eEM22T', groups=PrimaryPhIGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e60_lhmedium_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e140_lhloose_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e300_etcut_L1eEM22M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e5_etcut_L1eEM3', groups=SingleElectronGroup),        
         # More PhaseI eEM chains (ATR-24182)
         ChainProp(name='HLT_2e17_lhvloose_L12eEM15M', groups=PrimaryPhIGroup+MultiElectronGroup),
         ChainProp(name='HLT_2e24_lhvloose_L12eEM20L', groups=PrimaryPhIGroup+MultiElectronGroup),
@@ -279,9 +275,6 @@ def setupMenu():
         ChainProp(name='HLT_g0_hiptrt_L1EM22VHI', groups=SinglePhotonGroup), 
 
         #------------ GSF triggers
-        ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=MultiElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e60_lhmedium_gsf_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_2e17_lhvloose_gsf_L12EM15VHI', groups=MultiElectronGroup),
 
         #------------ idperf triggers
@@ -305,16 +298,10 @@ def setupMenu():
         ChainProp(name='HLT_e5_dnnmedium_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_dnntight_L1EM3', groups=SingleElectronGroup),
 
-        ChainProp(name='HLT_e26_dnnloose_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_dnnmedium_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_dnntight_L1EM22VHI', groups=SingleElectronGroup),
-
-        ChainProp(name='HLT_e60_dnnmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_dnnloose_L1EM22VHI', groups=SingleElectronGroup),
 
         #------------ support chains
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
 
         
@@ -328,10 +315,6 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH',l1SeedThresholds=['PROBEEM22VHI','EM20VH'],groups=SupportLegGroup+SingleElectronGroup),
         
         #----------- egamma Tag&Probe
-        ChainProp(name='HLT_e26_lhtight_ivarloose_e12_lhvloose_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM10VH'], groups=TagAndProbeLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarloose_e17_lhvloose_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM15VHI'], groups=TagAndProbeLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarloose_e24_lhvloose_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM20VHI'], groups=TagAndProbeLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarloose_e26_lhtight_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM22VHI'], groups=TagAndProbeLegGroup+SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarloose_e20_lhtight_ivarloose_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM15VHI'], groups=TagAndProbeLegGroup+SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarloose_e15_etcut_idperf_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM7'], groups=TagAndProbeLegGroup+SingleElectronGroup),
 
@@ -343,7 +326,6 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhtight_ivarloose_e9_etcut_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM3'], groups=TagAndProbeLegGroup+SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarloose_e5_lhtight_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM3'], groups=TagAndProbeLegGroup+SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarloose_e5_lhtight_noringer_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM3'], groups=TagAndProbeLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e26_lhtight_ivarloose_e4_etcut_probe_L1EM22VHI', l1SeedThresholds=['EM22VHI','PROBEEM3'], groups=TagAndProbeLegGroup+SingleElectronGroup),
 
 
         # Alternative formulation of T&P chains with generic mass cut combohypotool
@@ -352,9 +334,7 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhtight_e14_etcut_probe_50invmAB130_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=PrimaryLegGroup+MultiElectronGroup), 
         ChainProp(name='HLT_e26_lhtight_e14_etcut_50invmAB130_L1EM22VHI', l1SeedThresholds=['EM22VHI','EM7'], groups=PrimaryLegGroup+MultiElectronGroup), 
         # Jpsiee
-        ChainProp(name='HLT_e9_lhtight_e4_etcut_probe_1invmAB5_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=SupportLegGroup+MultiElectronGroup),
         ChainProp(name='HLT_e5_lhtight_e9_etcut_probe_1invmAB5_L1JPSI-1M5-EM7', l1SeedThresholds=['EM3','EM7'], groups=SupportLegGroup+MultiElectronGroup),
-        ChainProp(name='HLT_e14_lhtight_e4_etcut_probe_1invmAB5_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=SupportLegGroup+MultiElectronGroup),
         ChainProp(name='HLT_e5_lhtight_e14_etcut_probe_1invmAB5_L1JPSI-1M5-EM12', l1SeedThresholds=['EM3','EM12'], groups=SupportLegGroup+MultiElectronGroup),
         ChainProp(name='HLT_e14_lhtight_noringer_e4_etcut_1invmAB5_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','EM3'], groups=MultiElectronGroup+SupportGroup),
         ChainProp(name='HLT_e9_lhtight_noringer_e4_etcut_probe_1invmAB5_L1JPSI-1M5-EM7', l1SeedThresholds=['EM7','EM3'], groups=SupportLegGroup+MultiElectronGroup),
@@ -398,7 +378,6 @@ def setupMenu():
 
 
     chains['Jet'] += [
-
         ### PURE TEST CHAINS
 
         # Low-pt jet chains -- keep any?
@@ -699,7 +678,7 @@ def setupMenu():
 
         # for monitoring
         ### IS THIS SUPPORT?
-        ChainProp(name='HLT_j45_0eta290_020jvt_020jvt_pf_ftf_bdl1r70_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
+        ChainProp(name='HLT_j45_0eta290_020jvt_pf_ftf_bdl1r70_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup),
 
         #### TESTING CHAINS
 
@@ -806,7 +785,6 @@ def setupMenu():
         ChainProp(name='HLT_j20_pf_ftf_boffperf_L1J100', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup+DevGroup),
         ChainProp(name='HLT_j20_pf_ftf_boffperf_L1J50_DETA20-J50J', l1SeedThresholds=['FSNOSEED'], groups=SingleBjetGroup+DevGroup),
 
-
     ]
 
     chains['Tau'] += [
@@ -889,7 +867,6 @@ def setupMenu():
 
         # tau+X chains (ATR-21609) 
         ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVA_tau20_mediumRNN_tracktwoMVA_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF',l1SeedThresholds=['TAU8','TAU8','FSNOSEED','FSNOSEED','FSNOSEED'],stream=['VBFDelayed'], groups=SupportLegGroup+TauJetGroup),
-        ChainProp(name='HLT_tau25_mediumRNN_tracktwoMVABDT_tau20_mediumRNN_tracktwoMVABDT_03dRAB_j70_0eta320_j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF',l1SeedThresholds=['TAU8','TAU8','FSNOSEED','FSNOSEED','FSNOSEED'],stream=['VBFDelayed'], groups=PrimaryLegGroup+TauJetGroup),
         # mu-tag & tau-probe triggers for LLP (ATR-23150)
         ChainProp(name='HLT_mu26_ivarmedium_tau100_mediumRNN_tracktwoLLP_03dRAB_L1MU14FCH', l1SeedThresholds=['MU14FCH','TAU60'], stream=[PhysicsStream], groups=TagAndProbeLegGroup+SingleMuonGroup),
         ChainProp(name='HLT_e26_lhtight_ivarloose_tau100_mediumRNN_tracktwoLLP_03dRAB_L1EM22VHI', l1SeedThresholds=['EM22VHI','TAU60'], stream=[PhysicsStream], groups=TagAndProbeLegGroup+SingleElectronGroup),

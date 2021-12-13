@@ -29,14 +29,14 @@
 // Author: Alberto Ribon
 // Date:   October 2017
 //
-// Hadron physics for the new physics list FTFP_BERT_ATL_chipsXS.
-// This is a modified version of the FTFP_BERT_ATL hadron physics for ATLAS,
-// in which Chips inelastic cross sections for proton-nucleus, neutron-nucleus
-// and pion-nucleus are used instead of Barashenkov-Glauber-Gribov ones.
+// Hadron physics for the new physics list QGSP_FTFP_BERT_ATL.
+// This is a modified version of FTFP_BERT_ATL for ATLAS.
+// QGSP_FTFP_BERT_ATL uses QGSP above 25 GeV, with transition between
+// FTFP and QGSP between 12 - 25 GeV.
 //----------------------------------------------------------------------------
 //
-#ifndef G4HadronPhysicsFTFP_BERT_ATL_chipsXS_h
-#define G4HadronPhysicsFTFP_BERT_ATL_chipsXS_h 1
+#ifndef G4AtlasHadronPhysicsQGSP_FTFP_BERT_ATL_h
+#define G4AtlasHadronPhysicsQGSP_FTFP_BERT_ATL_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -46,25 +46,28 @@
 #include "G4PiKBuilder.hh"
 #include "G4BertiniPiKBuilder.hh"
 #include "G4FTFPPiKBuilder.hh"
+#include "G4QGSPPiKBuilder.hh"
 
 #include "G4ProtonBuilder.hh"
 #include "G4BertiniProtonBuilder.hh"
 #include "G4FTFPProtonBuilder.hh"
+#include "G4QGSPProtonBuilder.hh"
 
 #include "G4NeutronBuilder.hh"
 #include "G4BertiniNeutronBuilder.hh"
 #include "G4FTFPNeutronBuilder.hh"
+#include "G4QGSPNeutronBuilder.hh"
 
 #include "G4HyperonFTFPBuilder.hh"
 #include "G4AntiBarionBuilder.hh"
 #include "G4FTFPAntiBarionBuilder.hh"
 
-class G4HadronPhysicsFTFP_BERT_ATL_chipsXS : public G4VPhysicsConstructor
+class G4AtlasHadronPhysicsQGSP_FTFP_BERT_ATL : public G4VPhysicsConstructor
 {
   public: 
-    G4HadronPhysicsFTFP_BERT_ATL_chipsXS(G4int verbose =1);
-    G4HadronPhysicsFTFP_BERT_ATL_chipsXS(const G4String& name, G4bool quasiElastic=false);
-    virtual ~G4HadronPhysicsFTFP_BERT_ATL_chipsXS();
+    G4AtlasHadronPhysicsQGSP_FTFP_BERT_ATL(G4int verbose =1);
+    G4AtlasHadronPhysicsQGSP_FTFP_BERT_ATL(const G4String& name, G4bool quasiElastic=false);
+    virtual ~G4AtlasHadronPhysicsQGSP_FTFP_BERT_ATL();
 
   public: 
     virtual void ConstructParticle();
@@ -72,35 +75,33 @@ class G4HadronPhysicsFTFP_BERT_ATL_chipsXS : public G4VPhysicsConstructor
 
   private:
     void CreateModels();
-    G4bool QuasiElastic;
 
     // Simplify handling of TLS data, encapsulate everyhing in a structure
     struct ThreadPrivate { 
       G4NeutronBuilder * theNeutrons;
       G4BertiniNeutronBuilder * theBertiniNeutron;
       G4FTFPNeutronBuilder * theFTFPNeutron;
- 
+      G4QGSPNeutronBuilder * theQGSPNeutron;
+
       G4PiKBuilder * thePiK;
       G4BertiniPiKBuilder * theBertiniPiK;
       G4FTFPPiKBuilder * theFTFPPiK;
-    
+      G4QGSPPiKBuilder * theQGSPPiK;
+
       G4ProtonBuilder * thePro;
       G4BertiniProtonBuilder * theBertiniPro;
       G4FTFPProtonBuilder * theFTFPPro;    
-    
+      G4QGSPProtonBuilder * theQGSPPro;
+
       G4HyperonFTFPBuilder * theHyperon;
     
       G4AntiBarionBuilder * theAntiBaryon;
       G4FTFPAntiBarionBuilder * theFTFPAntiBaryon;
 
-      G4VCrossSectionDataSet * ChipsNeutronXS;
-      G4VCrossSectionDataSet * ChipsPionMinusXS;
-      G4VCrossSectionDataSet * ChipsPionPlusXS;
       G4VCrossSectionDataSet * ChipsKaonMinus;
       G4VCrossSectionDataSet * ChipsKaonPlus;
       G4VCrossSectionDataSet * ChipsKaonZero;
-      G4VCrossSectionDataSet * ChipsProtonXS;
-
+      G4VCrossSectionDataSet * xsNeutronInelasticXS;
       G4VCrossSectionDataSet * xsNeutronCaptureXS;
     };
     static G4ThreadLocal ThreadPrivate* tpdata;

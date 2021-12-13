@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "TrigT1Interfaces/RecMuonRoI.h"
 #include "xAODTrigger/MuonRoI.h"
 #include "TgcDataPreparatorOptions.h"
 #include "TgcData.h"
@@ -44,6 +45,9 @@ class TgcDataPreparator: public AthAlgTool
     
       virtual StatusCode initialize() override;
     
+      StatusCode prepareData(const LVL1::RecMuonRoI*  p_roi,
+			     TrigL2MuonSA::TgcHits&   tgcHits) const;
+
       StatusCode prepareData(const xAOD::MuonRoI*     p_roi,
 			     TrigL2MuonSA::TgcHits&   tgcHits) const;
 

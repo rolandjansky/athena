@@ -37,7 +37,7 @@ class OverlapDescriptor;
  @author Andreas.Salzburger@cern.ch
 */
 
-class CylinderLayer : public CylinderSurface, public Layer {
+class CylinderLayer final : public CylinderSurface, public Layer {
  public:
   /**Default Constructor*/
   CylinderLayer() {}
@@ -116,7 +116,7 @@ class CylinderLayer : public CylinderSurface, public Layer {
   virtual ~CylinderLayer() = default;
 
   /** Transforms the layer into a Surface representation for extrapolation */
-  virtual const CylinderSurface& surfaceRepresentation() const override;
+  virtual const CylinderSurface& surfaceRepresentation() const override final;
 
   /** getting the MaterialProperties back - for pre-update*/
   virtual double preUpdateMaterialFactor(

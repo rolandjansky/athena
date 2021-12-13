@@ -125,10 +125,12 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
 
   /** Struct to hold data shared in methods used in fillCollection method */
   struct SharedData {
+    static constexpr int INVALID_STRIP = N_STRIPS_PER_SIDE;
+
     bool condensedMode{true}; // Condensed mode or Expanded mode for each link if superCondensedMode is false
 
     // Variables necessary for makeRDO
-    int strip{0};
+    int strip {INVALID_STRIP};
     int groupSize{0};
     int timeBin{0};
     IdentifierHash linkIDHash; // Determined from header and changed for links using Rx redundancy (waferHash)
@@ -137,9 +139,9 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     CacheHelper cache; // For the trigger
     std::vector<int> errorHit;
 
-    int side{0};
-    int oldSide{-1};
-    int oldStrip{-1};
+    int side {-1};
+    int oldSide  {-1};
+    int oldStrip {INVALID_STRIP};
     int linkNumber{0}; // Determined from header and may be changed for links using Rx redundancy
 
     std::array<bool, N_STRIPS_PER_SIDE*N_SIDES> saved;
@@ -161,8 +163,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     }
 
     void reset() {
-      strip = 0;
-      oldStrip = -1;
+      strip = INVALID_STRIP;
+      oldStrip = INVALID_STRIP;
       oldSide = -1;
       groupSize = 0;
       errors = 0;
@@ -185,12 +187,21 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     bool isSaved(const bool isOld) {
       if (isOld) {
         unsigned int idx = static_cast<std::size_t>(oldSide*N_STRIPS_PER_SIDE + oldStrip);
-        return idx  < saved.size() ? saved[idx] : false;
+        return idx  < saved.size() ? saved[idx] : true;
       }
       else {
         const unsigned int  idx = static_cast<unsigned int>(side*N_STRIPS_PER_SIDE +    strip);
-        return idx < saved.size() ? saved[idx] : false;
+        return idx < saved.size() ? saved[idx] : true;
       }
+    }
+    bool isStripValid() const {
+       return static_cast<unsigned int>(strip) < N_STRIPS_PER_SIDE;
+    }
+    bool isOldStripValid() const {
+       return static_cast<unsigned int>(oldStrip) < N_STRIPS_PER_SIDE;
+    }
+    void setStripInvalid()  {
+       strip = INVALID_STRIP;
     }
     void setCollection(const SCT_ID* sctID,
                        const IdentifierHash& waferHash,

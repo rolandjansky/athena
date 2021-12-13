@@ -415,7 +415,7 @@ MCTruthClassifier::genPartToCalo(const EventContext& ctx,
   std::vector<std::pair<CaloSampling::CaloSample,
                         std::unique_ptr<const Trk::TrackParameters>>>
     extension = m_caloExtensionTool->layersCaloExtension(
-      ctx, *params, samples, etaClus, Trk::nonInteracting);
+      ctx, *params, samples, etaClus);
   double etaCalo = -99;
   double phiCalo = -99;
   bool extensionOK = (!extension.empty());

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Pre-config script to propagate variables to downstream projects
 #
@@ -8,12 +9,15 @@ set( ATLAS_FLAKE8 @ATLAS_FLAKE8@
 set( ATLAS_PYTHON_CHECKER @ATLAS_PYTHON_CHECKER@
    CACHE STRING "Python checker command to run during Python module compilation" )
 
-# Due to the way CMake handles propagation of targets to dependees,
-# any "external" that is used through imported targets in the build need
-# to be imported explicitly here.
+# Figure out whether to use QUIET in the find_package call(s).
 set( _quietFlag )
-if( AthSimulation_FIND_QUIETLY )
+if( @CMAKE_PROJECT_NAME@_FIND_QUIETLY )
   set( _quietFlag QUIET )
 endif()
+
+# Imported target(s) used by the project.
 find_package( nlohmann_json ${_quietFlag} )
+find_package( GTest ${_quietFlag} )
+
+# Clean up.
 unset( _quietFlag )

@@ -150,6 +150,88 @@ void TrigL2MuonSA::MuFastDataPreparator::setExtrapolatorTool(ToolHandle<ITrigMuo
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*     p_roi,
+                                                           const TrigRoiDescriptor*    p_roids,
+                                                           const bool                  insideOut,
+                                                           TrigL2MuonSA::RpcHits&      rpcHits,
+                                                           TrigL2MuonSA::MuonRoad&     muonRoad,
+                                                           TrigL2MuonSA::MdtRegion&    mdtRegion,
+                                                           TrigL2MuonSA::RpcFitResult& rpcFitResult,
+                                                           TrigL2MuonSA::MdtHits&      mdtHits_normal,
+                                                           TrigL2MuonSA::MdtHits&      mdtHits_overlap,
+                                                           const bool                  dynamicDeltaRpc) const
+{
+
+  ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
+
+  StatusCode sc = StatusCode::SUCCESS;
+
+  //Storing rpc hits by each layers and eta/phi strip for creating road
+  //RpcLayerHits class is defined in RpcPatFinder.h
+  TrigL2MuonSA::RpcLayerHits rpcLayerHits;
+  rpcLayerHits.clear();
+
+  if(m_use_rpc && !insideOut) {
+
+    sc = m_rpcDataPreparator->prepareData(p_roids,
+                                          rpcHits,
+                                          rpcLayerHits,
+                                          &m_rpcPatFinder,
+                                          dynamicDeltaRpc);
+
+    if (!sc.isSuccess()) {
+      ATH_MSG_DEBUG("Error in RPC data prepapration. Continue using RoI");
+    }
+  } else {
+    ATH_MSG_DEBUG("Skip RpcDataPreparator");
+  }
+
+  auto data = m_recRPCRoiTool->roiData(p_roi->roiWord());
+  double roiEtaMinLow = 0.;
+  double roiEtaMaxLow = 0.;
+  double roiEtaMinHigh = 0.;
+  double roiEtaMaxHigh = 0.;
+  m_recRPCRoiTool->etaDimLow(data, roiEtaMinLow, roiEtaMaxLow);
+  m_recRPCRoiTool->etaDimHigh(data, roiEtaMinHigh, roiEtaMaxHigh);
+
+  ATH_MSG_DEBUG("nr of RPC hits=" << rpcHits.size());
+
+  sc = m_rpcRoadDefiner->defineRoad(p_roi,
+                                    insideOut,
+                                    muonRoad,
+                                    rpcHits,
+                                    rpcLayerHits,
+                                    &m_rpcPatFinder,
+                                    rpcFitResult,
+                                    roiEtaMinLow,
+                                    roiEtaMaxLow,
+                                    roiEtaMinHigh,
+                                    roiEtaMaxHigh);
+  if (!sc.isSuccess()) {
+    ATH_MSG_WARNING("Error in road definition.");
+    return sc;
+  }
+
+  sc = m_mdtDataPreparator->prepareData(p_roids,
+                                        rpcFitResult,
+                                        muonRoad,
+                                        mdtRegion,
+                                        mdtHits_normal);
+
+
+  if (!sc.isSuccess()) {
+    ATH_MSG_WARNING("Error in MDT data preparation.");
+    return sc;
+  }
+  ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
+  ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
+
+  return StatusCode::SUCCESS;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI*        p_roi,
                                                            const TrigRoiDescriptor*    p_roids,
                                                            const bool                  insideOut,
@@ -234,6 +316,123 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*              p_roi,
+                                                           const TrigRoiDescriptor*             p_roids,
+                                                           std::vector<TrigL2MuonSA::MuonRoad>& clusterRoad,
+                                                           std::vector<TrigL2MuonSA::RpcFitResult>&  clusterFitResults,
+                                                           TrigL2MuonSA::MdtHits&               mdtHits_normal,
+                                                           TrigL2MuonSA::MdtHits&               mdtHits_overlap,
+                                                           std::vector<TrigL2MuonSA::MdtHits>&  mdtHits_cluster_normal,
+                                                           const bool                           dynamicDeltaRpc) const
+{
+
+  ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
+  //RpcLayerClusters class is defined in ClusterPatFinder.h
+  TrigL2MuonSA::RpcLayerClusters rpcLayerClusters;
+  rpcLayerClusters.clear();
+
+  // for MdtDataPreparator's input
+  TrigL2MuonSA::MdtRegion             mdtRegion;
+  mdtRegion.Clear();
+
+  StatusCode sc = StatusCode::SUCCESS;
+
+  if(!m_use_rpc){
+
+  } else {
+
+    sc = m_rpcDataPreparator->prepareData(p_roids,
+                                          rpcLayerClusters,
+                                          &m_clusterPatFinder,
+                                          dynamicDeltaRpc);
+
+    if (!sc.isSuccess()) {
+      ATH_MSG_DEBUG("Error in RPC data prepapration and clustering. Continue using RoI");
+      return sc;
+    }
+  }
+
+  auto data = m_recRPCRoiTool->roiData(p_roi->roiWord());
+  double roiEtaMinLow = 0.;
+  double roiEtaMaxLow = 0.;
+  double roiEtaMinHigh = 0.;
+  double roiEtaMaxHigh = 0.;
+  m_recRPCRoiTool->etaDimLow(data, roiEtaMinLow, roiEtaMaxLow);
+  m_recRPCRoiTool->etaDimHigh(data, roiEtaMinHigh, roiEtaMaxHigh);
+
+  sc = m_clusterRoadDefiner->defineRoad(p_roi,
+                                        clusterRoad,
+                                        rpcLayerClusters,
+                                        &m_clusterPatFinder,
+                                        clusterFitResults,
+                                        roiEtaMinLow,
+                                        roiEtaMaxLow,
+                                        roiEtaMinHigh,
+                                        roiEtaMaxHigh);
+  if (!sc.isSuccess()) {
+    ATH_MSG_WARNING("Error in clusterRoad definition.");
+    return sc;
+
+  }
+  if(!clusterRoad.empty()){
+    sc = m_mdtDataPreparator->prepareData(p_roids,
+                                          clusterFitResults.back(),
+                                          clusterRoad.back(),
+                                          mdtRegion,
+                                          mdtHits_normal);
+
+    if (!sc.isSuccess()) {
+      ATH_MSG_WARNING("Error in MDT data preparation.");
+      return sc;
+    }
+
+    ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
+    ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
+
+    for(unsigned int i_road = 0; i_road < clusterRoad.size(); i_road++){
+      TrigL2MuonSA::MdtHits mdt_normal;
+      for(unsigned int i_hit = 0; i_hit < mdtHits_normal.size(); i_hit++){
+        unsigned int chamber = mdtHits_normal[i_hit].Chamber;
+
+        if (chamber >= xAOD::L2MuonParameters::MaxChamber) continue;
+        double Z = mdtHits_normal[i_hit].Z;
+        double R = mdtHits_normal[i_hit].R;
+        double residual = 999999;
+        unsigned int clusterRoadID = 9999;
+        for(unsigned int j_road = 0; j_road < clusterRoad.size(); j_road++){
+          double aw = clusterRoad.at(j_road).aw[chamber][0];
+          double bw = clusterRoad.at(j_road).bw[chamber][0];
+          double tmp_residual;
+          const double ZERO_LIMIT = 1e-4;
+          if( std::abs(aw) < ZERO_LIMIT ){
+            tmp_residual = R-bw;
+          } else {
+            double ia  = 1/aw;
+            double iaq = ia*ia;
+            double dz  = Z - (R-bw)*ia;
+            tmp_residual = dz/std::sqrt(1.+iaq);
+          }
+          if(std::abs(residual) > std::abs(tmp_residual)){
+            residual = tmp_residual;
+            clusterRoadID = j_road;
+          }
+        }
+        if(clusterRoadID == i_road){
+          mdt_normal.push_back(mdtHits_normal[i_hit]);
+        }
+      }
+      mdtHits_cluster_normal.push_back(mdt_normal);
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//for multi-track SA mode
+//do Rpc clustering and create multi muon candidate
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI*                 p_roi,
                                                            const TrigRoiDescriptor*             p_roids,
                                                            std::vector<TrigL2MuonSA::MuonRoad>& clusterRoad,
@@ -307,17 +506,17 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
     ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
     ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
 
-    for(int i_road = 0; i_road < (int)clusterRoad.size(); i_road++){
+    for(unsigned int i_road = 0; i_road < clusterRoad.size(); i_road++){
       TrigL2MuonSA::MdtHits mdt_normal;
-      for(int i_hit = 0; i_hit < (int)mdtHits_normal.size(); i_hit++){
+      for(unsigned int i_hit = 0; i_hit < mdtHits_normal.size(); i_hit++){
         unsigned int chamber = mdtHits_normal[i_hit].Chamber;
 
         if (chamber >= xAOD::L2MuonParameters::MaxChamber) continue;
         double Z = mdtHits_normal[i_hit].Z;
         double R = mdtHits_normal[i_hit].R;
         double residual = 999999;
-        int clusterRoadID = 9999;
-        for(int j_road = 0; j_road < (int)clusterRoad.size(); j_road++){
+        unsigned int clusterRoadID = 9999;
+        for(unsigned int j_road = 0; j_road < clusterRoad.size(); j_road++){
           double aw = clusterRoad.at(j_road).aw[chamber][0];
           double bw = clusterRoad.at(j_road).bw[chamber][0];
           double tmp_residual;
@@ -341,6 +540,93 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const xAOD::MuonRoI* 
       }
       mdtHits_cluster_normal.push_back(mdt_normal);
     }
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*     p_roi,
+                                                           const TrigRoiDescriptor*    p_roids,
+                                                           const bool                  insideOut,
+                                                           TrigL2MuonSA::TgcHits&      tgcHits,
+                                                           TrigL2MuonSA::MuonRoad&     muonRoad,
+                                                           TrigL2MuonSA::MdtRegion&    mdtRegion,
+                                                           TrigL2MuonSA::TgcFitResult& tgcFitResult,
+                                                           TrigL2MuonSA::MdtHits&      mdtHits_normal,
+                                                           TrigL2MuonSA::MdtHits&      mdtHits_overlap,
+                                                           TrigL2MuonSA::CscHits&      cscHits,
+							   TrigL2MuonSA::StgcHits&     stgcHits,
+							   TrigL2MuonSA::MmHits&       mmHits) const
+{
+  StatusCode sc = StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
+
+  if(!insideOut) {
+    sc = m_tgcDataPreparator->prepareData(p_roi,
+                                          tgcHits);
+  } else {
+    ATH_MSG_DEBUG("Skip TgcDataPreparator");
+  }
+
+  if (!sc.isSuccess()) {
+    ATH_MSG_DEBUG("Error in TGC data preparation. Continue using RoI");
+  }
+  ATH_MSG_DEBUG("nr of TGC hits=" << tgcHits.size());
+
+  sc = m_tgcRoadDefiner->defineRoad(p_roids,
+                                    insideOut,
+                                    tgcHits,
+                                    muonRoad,
+                                    tgcFitResult);
+  if (!sc.isSuccess()) {
+    ATH_MSG_WARNING("Error in road definition.");
+    return sc;
+  }
+
+  sc = m_mdtDataPreparator->prepareData(p_roids,
+                                        tgcFitResult,
+                                        muonRoad,
+                                        mdtRegion,
+                                        mdtHits_normal);
+
+  if (!sc.isSuccess()) {
+    ATH_MSG_WARNING("Error in MDT data preparation.");
+    return sc;
+  }
+  ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
+  ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
+
+  if(!m_cscDataPreparator.empty()) {
+    sc = m_cscDataPreparator->prepareData(muonRoad,
+					  cscHits);
+    if (!sc.isSuccess()) {
+      ATH_MSG_WARNING("Error in CSC data preparation.");
+      return sc;
+    }
+    ATH_MSG_DEBUG("nr of CSC hits=" << cscHits.size());
+  }
+
+  if(!m_stgcDataPreparator.empty()){
+    sc = m_stgcDataPreparator->prepareData(p_roids,
+					   stgcHits);
+    if (!sc.isSuccess()) {
+      ATH_MSG_WARNING("Error in sTGC data preparation.");
+      return sc;
+    }
+    ATH_MSG_DEBUG("nr of sTGC hits=" << stgcHits.size());
+  }
+
+  if(!m_mmDataPreparator.empty()){
+    sc = m_mmDataPreparator->prepareData(p_roids,
+					 mmHits);
+    if (!sc.isSuccess()) {
+      ATH_MSG_WARNING("Error in MM data preparation.");
+      return sc;
+    }
+    ATH_MSG_DEBUG("nr of MM hits=" << mmHits.size());
   }
 
   return StatusCode::SUCCESS;

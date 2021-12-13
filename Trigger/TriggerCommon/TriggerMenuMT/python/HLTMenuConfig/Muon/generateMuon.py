@@ -102,7 +102,11 @@ def MuFastViewDataVerifier():
                    ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
                    ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' ),
                    ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L2MuFastRecoRoIs' )]
-    dataobjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    if ConfigFlags.Trigger.enableL1MuonPhase1:
+        dataobjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
+    else:
+        dataobjects += [( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
     alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuFast",
                                                  DataObjects = dataobjects )
     result.addEventAlgo(alg)

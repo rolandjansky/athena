@@ -42,7 +42,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
     # calorimeter
     if flags.Detector.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
-        acc.merge(CaloRecoCfg(flags, doLCCalib=True))
+        acc.merge(CaloRecoCfg(flags))
         log.info("---------- Configured calorimeter reconstruction")
 
     # ID / ITk
@@ -84,6 +84,12 @@ def RecoSteering(flags, tryConfiguringAll=False):
         from eflowRec.PFRun3Config import PFCfg
         acc.merge(PFCfg(flags))
         log.info("---------- Configured particle flow")
+
+    # EGamma and CombinedMuon isolation
+    if flags.Reco.EnableCombinedMuon or flags.Reco.EnableEgamma:
+        from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
+        acc.merge(IsolationSteeringCfg(flags, doIsoMuon = tryConfiguringAll))
+        log.info("---------- Configured isolation")
 
     # jets
 

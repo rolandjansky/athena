@@ -28,6 +28,7 @@ find_package( Acts ${_quietFlag} COMPONENTS Core )
 find_package( nlohmann_json ${_quietFlag} )
 find_package( Qt5 ${_quietFlag} COMPONENTS Core OpenGL Gui PrintSupport Widgets
    Sql Network )
+find_package( GTest ${_quietFlag} )
 
 # Set the versions of the TDAQ projects:
 set( TDAQ_PROJECT_NAME "@TDAQ_PROJECT_NAME@" CACHE STRING

@@ -524,7 +524,8 @@ def getPseudoJetAlg(inputType):
             "LCTopoOrigin" : jtm.lcoriginget,
             "EMTopoOrigin" : jtm.emoriginget,
             "EMPFlow": jtm.empflowget,
-            "EMPFlowPUSB": jtm.empflowpusbget}[inputType]
+            "EMPFlowPUSB": jtm.empflowpusbget,
+            "EMPFlowNeut": jtm.empflowneutget}[inputType]
 
 def addEventCleanFlags(sequence, workingPoints = ['Loose', 'Tight', 'LooseLLP']):
     

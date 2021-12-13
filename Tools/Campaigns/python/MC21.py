@@ -57,6 +57,9 @@ def MC21Simulation(flags):
 
     from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill #, enableFrozenShowersFCalOnly
     enableBeamPipeKill(flags)
-    # enableFrozenShowersFCalOnly(flags) # Not tuned yet for G4 10.6
+    if 'FullG4' in flags.Sim.ISF.Simulator:
+        # Not tuned yet for G4 10.6
+        # enableFrozenShowersFCalOnly(flags)
+        pass
     from SimuJobTransforms.G4Optimizations import enableG4Optimizations
     enableG4Optimizations(flags)

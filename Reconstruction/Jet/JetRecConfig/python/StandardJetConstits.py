@@ -181,7 +181,10 @@ _stdSeqList = [
     # see JetDefinition.py for details.
 
     # *****************************
-    # Cluster constituents 
+    # Cluster constituents : the first one is a relic used for isolation, and might disappear soon
+    JetInputConstitSeq("EMTopo", xAODType.CaloCluster, ["EM"],
+                       "CaloCalTopoClusters", "EMTopoClusters", jetinputtype="EMTopo",
+                       ),
     JetInputConstitSeq("EMTopoOrigin", xAODType.CaloCluster, ["EM","Origin"],
                        "CaloCalTopoClusters", "EMOriginTopoClusters", jetinputtype="EMTopo",
                        ),

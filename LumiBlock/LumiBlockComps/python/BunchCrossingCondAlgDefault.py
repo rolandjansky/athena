@@ -22,6 +22,7 @@ def BunchCrossingCondAlgDefault():
 
     if (isMC):
         folder = "/Digitization/Parameters"
+        Mode = 1
         from AthenaCommon.DetFlags import DetFlags
         if not DetFlags.digitize.any_on():
             if not conddb.folderRequested(folder):
@@ -37,14 +38,15 @@ def BunchCrossingCondAlgDefault():
             mlog.info("Folder %s will be created during the job.", folder)
     else:
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
+        Mode = 0
         # Mistakenly created as multi-version folder, must specify HEAD 
         conddb.addFolderWithTag('TDAQ', folder, 'HEAD',
                                 className = 'AthenaAttributeList')
         
     alg = BunchCrossingCondAlg(name,
-                               isMC=isMC,
                                Run1=run1,
-                               FillParamsFolderKey =folder )
+                               FillParamsFolderKey =folder,
+                               Mode=Mode )
 
     condSeq += alg
 

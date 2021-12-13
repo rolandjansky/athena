@@ -54,7 +54,6 @@ def _setup():
 
     # add specialized contains method
     def contains( self, klass_or_clid, key ):
-        print ("---- StoreGateSvc.contains() ",  klass_or_clid, key)
         from builtins import int
         if isinstance(klass_or_clid, str):
             try:

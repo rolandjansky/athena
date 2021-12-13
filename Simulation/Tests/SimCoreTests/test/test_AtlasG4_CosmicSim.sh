@@ -3,8 +3,8 @@
 # art-description: Run cosmics simulation outside ISF, generating events on-the-fly, using 2015 geometry and conditions
 # art-include: master/Athena
 # art-type: grid
-# art-output: test.*.HITS.pool.root
-# art-output: test.*.TR.pool.root
+# art-output: *.HITS.pool.root
+# art-output: *.TR.pool.root
 # art-output: log.*
 # art-output: Config*.pkl
 
@@ -73,7 +73,7 @@ echo  "art-result: $rc2 simOLD"
 rc3=-9999
 if [ $rc -eq 0 ] && [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root test.TR.pool.root test.CA.TR.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_AtlasG4Tf_timings index_ref
+    acmd.py diff-root test.TR.pool.root test.CA.TR.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc3=$?
 fi
 echo  "art-result: $rc3 TR_OLDvsCA"
@@ -81,7 +81,7 @@ echo  "art-result: $rc3 TR_OLDvsCA"
 rc4=-9999
 if [ $rc -eq 0 ] && [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root test.HITS.pool.root test.CA.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_AtlasG4Tf_timings index_ref
+    acmd.py diff-root test.HITS.pool.root test.CA.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc4=$?
 fi
 echo  "art-result: $rc4 HITS_OLDvsCA"
@@ -89,7 +89,9 @@ echo  "art-result: $rc4 HITS_OLDvsCA"
 rc5=-9999
 if [ $rc2 -eq 0 ]
 then
-    art.py compare --entries 10 --mode=semi-detailed test.HITS.pool.root test.TR.pool.root
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file=test.HITS.pool.root test.TR.pool.root
     rc5=$?
 fi
 echo  "art-result: $rc5 regression"

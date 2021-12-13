@@ -44,6 +44,8 @@ namespace InDet {
       double  getMinPtAtEta           (const double eta) const override final;
       double  getMaxZImpactAtEta      (const double eta) const override final;
       double  getMaxPrimaryImpactAtEta(const double eta) const override final;
+      double  getMaxChi2AtEta         (const double eta) const override final;
+
       int     getMinSiHitsAtEta       (const double eta) const override final;
       int     getMinSiNotSharedAtEta  (const double eta) const override final;
       int     getMaxSharedAtEta       (const double eta) const override final;
@@ -52,7 +54,9 @@ namespace InDet {
       int     getMaxPixelHolesAtEta   (const double eta) const override final;
       int     getMaxSctHolesAtEta     (const double eta) const override final;
       int     getMaxDoubleHolesAtEta  (const double eta) const override final;
-      
+      int     getMinInnermostPixelHitsAtEta  (const double eta) const override final;
+      int     getMinStripHitsAtEta    (const double eta) const override final;
+
       
     /////////////////////////////////////////////////////////////////// 
     // Private data: 
@@ -86,7 +90,11 @@ namespace InDet {
       IntegerArrayProperty  m_maxHolesPattern      {this, "maxHolesPattern"     , {2}       , "max holes in pattern"                     };
       IntegerArrayProperty  m_maxHolesGapPattern   {this, "maxHolesGapPattern"  , {2}       , "max holes gap in pattern"                 };
       IntegerArrayProperty  m_nWeightedClustersMin {this, "nWeightedClustersMin", {6}       , "min number of weigthed clusters"          };
+      IntegerArrayProperty  m_minInPixelHits       {this, "minInnermostPixelHits",{0}       , "min number of pixel hits in innermost layer"          };
+      IntegerArrayProperty  m_minStripHits         {this, "minStripHits",         {0}       , "min number of strip hits"          };
       
+      std::unordered_map< InDet::CutName, std::vector<double> > m_mapDoubleCuts; // double min/max stored in a single object
+      std::unordered_map< InDet::CutName, std::vector<int> >    m_mapIntCuts; // int min/max stored in a single object
       
     }; 
 

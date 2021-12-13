@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from typing import List
 
-from .Checks import FrozenTier0PolicyCheck
-from .Inputs import input_EVNT, input_HITS, \
+from .Checks import AODContentCheck, AODDigestCheck, FrozenTier0PolicyCheck
+from .Inputs import input_EVNT, input_EVNT_AF3, input_HITS, \
     input_HITS_MC_overlay, input_RDO_BKG, \
     input_HITS_data_overlay, input_BS_SKIM, \
     input_HITS_minbias_low, input_HITS_minbias_high, input_HITS_neutrino
@@ -12,7 +12,7 @@ from .Test import TestSetup, WorkflowRun, WorkflowTest, WorkflowType
 class QTest(WorkflowTest):
     """General workflow q-test."""
 
-    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = '') -> None:
+    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = "") -> None:
         if "maxEvents" not in extra_args:
             if type == WorkflowType.MCPileUpReco or run == WorkflowRun.Run4:
                 extra_args += " --maxEvents 5"
@@ -33,19 +33,28 @@ class QTest(WorkflowTest):
         self.output_checks.append(FrozenTier0PolicyCheck(setup, "ESD", 10))
         self.output_checks.append(FrozenTier0PolicyCheck(setup, "AOD", 20))
 
+        self.digest_checks = []
+        self.digest_checks.append(AODContentCheck(setup))
+        self.digest_checks.append(AODDigestCheck(setup))
+
         super().__init__(ID, run, type, steps, setup)
 
 
 class SimulationTest(WorkflowTest):
     """Simulation workflow test."""
 
-    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = '') -> None:
+    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = "") -> None:
         if "maxEvents" not in extra_args:
             extra_args += " --maxEvents 20"
 
+        if type == WorkflowType.AF3:
+            input_file = input_EVNT_AF3[run]
+        else:
+            input_file = input_EVNT[run]
+
         self.command = \
             (f"Sim_tf.py --AMIConfig {ID}"
-             f" --inputEVNTFile {input_EVNT[run]} --outputHITSFile myHITS.pool.root"
+             f" --inputEVNTFile {input_file} --outputHITSFile myHITS.pool.root"
              f" --imf False {extra_args}")
 
         self.output_checks = [
@@ -58,7 +67,7 @@ class SimulationTest(WorkflowTest):
 class OverlayTest(WorkflowTest):
     """MC overlay workflow test."""
 
-    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = '') -> None:
+    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = "") -> None:
         if "maxEvents" not in extra_args:
             extra_args += " --maxEvents 10"
 
@@ -80,7 +89,7 @@ class OverlayTest(WorkflowTest):
 class DataOverlayTest(WorkflowTest):
     """Data overlay workflow test."""
 
-    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = '') -> None:
+    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = "") -> None:
         if "maxEvents" not in extra_args:
             extra_args += " --maxEvents 10"
 
@@ -99,7 +108,7 @@ class DataOverlayTest(WorkflowTest):
 class PileUpTest(WorkflowTest):
     """Digitization with pile-up workflow test."""
 
-    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = '') -> None:
+    def __init__(self, ID: str, run: WorkflowRun, type: WorkflowType, steps: List[str], setup: TestSetup, extra_args: str = "") -> None:
         if "maxEvents" not in extra_args:
             extra_args += " --maxEvents 5"
 

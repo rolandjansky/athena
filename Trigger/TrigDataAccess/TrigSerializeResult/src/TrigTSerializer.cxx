@@ -668,11 +668,11 @@ void TrigTSerializerUnimplError() {
    abort();
 }
 
-void TrigTSerializer::do_persistify(const std::string , void* ) { TrigTSerializerUnimplError(); }
-void TrigTSerializer::do_persistify_obj(const std::string , void*) { TrigTSerializerUnimplError(); }
+void TrigTSerializer::do_persistify(const std::string& , void* ) { TrigTSerializerUnimplError(); }
+void TrigTSerializer::do_persistify_obj(const std::string& , void*) { TrigTSerializerUnimplError(); }
 
 
-void TrigTSerializer::do_follow_ptr(const std::string name, void *ptr){
+void TrigTSerializer::do_follow_ptr(const std::string& name, void *ptr){
 
   ATH_MSG_VERBOSE("Entering do_follow_ptr for "  << name << " at " << ptr  );
   

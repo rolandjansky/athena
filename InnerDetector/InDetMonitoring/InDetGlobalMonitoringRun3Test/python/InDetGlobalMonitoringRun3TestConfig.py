@@ -78,9 +78,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
 
         inDetGlobalLRTMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalLRTMonAlg_TrackSelectionTool')
         inDetGlobalLRTMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-        inDetGlobalLRTMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalLRTMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 5000
+        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 1000
         
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
         InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))

@@ -87,6 +87,7 @@
 #include <unordered_map>
 #include <vector>
 
+class CaloDetDescrManager;
 namespace Trk {
 static const InterfaceID
   IID_IParticleCaloExtensionTool("Trk::IParticleCaloExtensionTool", 1, 0);
@@ -202,7 +203,8 @@ public:
     const TrackParameters& startPars,
     const std::vector<CaloSampling::CaloSample>& clusterLayers,
     double eta,
-    ParticleHypothesis particleType) const = 0;
+    const CaloDetDescrManager* caloDD = nullptr,
+    ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
 
   /**
    * Method returning a vector of the Track Parameters at the
@@ -219,6 +221,7 @@ public:
     const EventContext& ctx,
     const TrackParameters& startPars,
     const xAOD::CaloCluster& cluster,
+    const CaloDetDescrManager* caloDD = nullptr,
     ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
 
   static const InterfaceID& interfaceID();

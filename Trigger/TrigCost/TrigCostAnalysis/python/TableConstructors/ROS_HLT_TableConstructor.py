@@ -16,8 +16,8 @@ class ROS_HLT_TableConstructor(TableConstructorBase):
     ''' @brief Class representing ROS_HLT table
     '''
 
-    def __init__(self, tableObj):
-        super(). __init__(tableObj) 
+    def __init__(self, tableObj, underflowThreshold, overflowThreshold):
+        super(). __init__(tableObj, underflowThreshold, overflowThreshold) 
         self.expectedHistograms = ["Request_perEvent", 
                                    "NetworkRequest_perEvent", 
                                    "CachedROBSize_perEvent",

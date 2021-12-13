@@ -16,12 +16,7 @@ addInputRename ('xAOD::ElectronContainer','ForwardElectrons', 'old_ForwardElectr
 addInputRename ('xAOD::ElectronAuxContainer','ForwardElectronsAux.', 'old_ForwardElectronsAux.')
 addInputRename ('xAOD::TruthParticleContainer','egammaTruthParticles', 'old_egammaTruthParticles')
 addInputRename ('xAOD::TruthParticleAuxContainer','egammaTruthParticlesAux.', 'old_egammaTruthParticlesAux.')
-addInputRename ('xAOD::TrackParticleContainer','GSFTrackParticles', 'old_GSFTrackParticles')
-addInputRename ('xAOD::VertexContainer','GSFConversionVertices', 'old_GSFConversionVertices')
-addInputRename ('xAOD::TrackParticleAuxContainer','GSFTrackParticlesAux.', 'old_GSFTrackParticlesAux.')
-addInputRename ('xAOD::VertexAuxContainer','GSFConversionVerticesAux.', 'old_GSFConversionVerticesAux.')
 
-addInputRename ('TrackCollection','GSFTracks', 'old_GSFTracks')
 addInputRename ('CaloClusterCellLinkContainer','ForwardElectronClusters_links', 'old_ForwardElectronClusters_links')
 addInputRename ('CaloClusterCellLinkContainer','egammaClusters_links', 'old_egammaClusters_links')
 
