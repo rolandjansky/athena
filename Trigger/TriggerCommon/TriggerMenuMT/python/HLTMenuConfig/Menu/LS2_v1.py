@@ -162,10 +162,7 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-0DR12C-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup+PrimaryL1MuGroup),
         ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup+PrimaryL1MuGroup),
         ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20C-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup+PrimaryL1MuGroup),
-
-        #ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup+PrimaryL1MuGroup),
-        #ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-C-2MU3V', l1SeedThresholds=['MU3V'],stream=["TLA"], groups=MultiMuonGroup+PrimaryL1MuGroup),
-
+        
         # ATR-22782
         ChainProp(name='HLT_2mu4_L1BPH-0M16-20DR99-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),
         ChainProp(name='HLT_2mu4_L1BPH-0M16-15DR99-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup),

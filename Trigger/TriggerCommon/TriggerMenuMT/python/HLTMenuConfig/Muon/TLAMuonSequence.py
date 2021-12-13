@@ -18,11 +18,11 @@ def getMuonCollections (chainPart):
 def TLAMuonSequence (flags, muons):
     
     ## add the InputMaker (event context)    
-    tlaMuonInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAMuons", RoIsLink="initialRoI")
+    tlaMuonInputMakerAlg = CompFactory.InputMakerForRoI("IMTLAMuons"+muons)
     tlaMuonInputMakerAlg.mergeUsingFeature = True
     tlaMuonInputMakerAlg.RoITool = CompFactory.ViewCreatorPreviousROITool()
     
-    tlaMuonAthSequence = seqAND( "TLAMuonAthSequence", [tlaMuonInputMakerAlg] )
+    tlaMuonAthSequence = seqAND( "TLAMuonAthSequence"+ muons, [tlaMuonInputMakerAlg] )
     sequenceOut = recordable(muons+"_TLA")
     return (tlaMuonAthSequence, tlaMuonInputMakerAlg, sequenceOut)
 
