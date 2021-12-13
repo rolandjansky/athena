@@ -64,6 +64,7 @@ class _ConfigSettings_muonIso( _ConfigSettingsBase ):
       self._roi       = "HLT_Roi_MuonIso"
       self._etaHalfWidth        = 0.35
       self._phiHalfWidth        = 0.35
+      self._zedHalfWidth        = 10.0
 
 
 class _ConfigSettings_tau( _ConfigSettingsBase ):
@@ -123,6 +124,18 @@ class _ConfigSettings_bjet( _ConfigSettingsBase ):
       self._phiHalfWidth    = 0.4
 
 
+class _ConfigSettings_jetSuper( _ConfigSettingsBase ):
+   def __init__( self ):
+      _ConfigSettingsBase.__init__(self)
+      self._name     = "jetSuper"
+      self._suffix   = "JetSuper"
+      self._vertex   = "HLT_IDVertex_JetSuper"
+      self._adaptiveVertex = True
+      self._addSingleTrackVertices = True
+      self._roi      = "HLT_Roi_JetSuper"
+      self._doFullScan = True
+      self._pTmin      = 1*GeV
+
 
 class _ConfigSettings_minBias( _ConfigSettingsBase ):
    def __init__( self ):
@@ -164,6 +177,8 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_FS"
       self._vertex              = "HLT_IDVertex_FS"
       self._adaptiveVertex      = True
+      # not just yet, still hoping to validate
+      # self._actsVertex          = True
       # these are being evaluated and may be added
       # self._addSingleTrackVertices = True
       # self._TracksMaxZinterval = 3
@@ -266,6 +281,18 @@ class _ConfigSettings_electronLRT( _ConfigSettingsBase ):
       self._doSeedRedundancyCheck = True
       self._nClustersMin        = 8
       self._isLRT               = True
+      #pt config
+      self._newConfig           = True
+      self._maxZImpactPT        = 500.
+      self._maxRPhiImpactPT     = 300.
+      self._maxEtaPT            = 2.7
+      self._maxDoubleHolesPT    = 0
+      self._maxSiHolesPT        = 2
+      self._maxPixelHolesPT     = 1
+      self._maxSCTHolesPT       = 1
+      self._minSiClustersPT     = 8
+      self._doEmCaloSeedPT      = False
+      self._minTRTonTrkPT       = 0
 
 
 class _ConfigSettings_muonLRT( _ConfigSettingsBase ):
@@ -285,6 +312,18 @@ class _ConfigSettings_muonLRT( _ConfigSettingsBase ):
       self._isLRT               = True
       self._doResMon            = True
       self._DoPhiFiltering      = False
+      #pt config
+      self._newConfig           = True
+      self._maxZImpactPT        = 500.
+      self._maxRPhiImpactPT     = 300.
+      self._maxEtaPT            = 2.7
+      self._maxDoubleHolesPT    = 0
+      self._maxSiHolesPT        = 2
+      self._maxPixelHolesPT     = 1
+      self._maxSCTHolesPT       = 1
+      self._minSiClustersPT     = 8
+      self._doEmCaloSeedPT      = False
+      self._minTRTonTrkPT       = 0
 
 
 class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
@@ -303,6 +342,18 @@ class _ConfigSettings_tauLRT( _ConfigSettingsBase ):
       self._TrackZ0Max          = 500.
       self._nClustersMin        = 8
       self._isLRT               = True
+      #pt config
+      self._newConfig           = True
+      self._maxZImpactPT        = 500.
+      self._maxRPhiImpactPT     = 300.
+      self._maxEtaPT            = 2.7
+      self._maxDoubleHolesPT    = 0
+      self._maxSiHolesPT        = 2
+      self._maxPixelHolesPT     = 1
+      self._maxSCTHolesPT       = 1
+      self._minSiClustersPT     = 8
+      self._doEmCaloSeedPT      = False
+      self._minTRTonTrkPT       = 0
 
 
 class _ConfigSettings_bjetLRT( _ConfigSettingsBase ):
@@ -319,6 +370,18 @@ class _ConfigSettings_bjetLRT( _ConfigSettingsBase ):
       self._TrackZ0Max          = 500.
       self._nClustersMin        = 8
       self._isLRT               = True
+      #pt config
+      self._newConfig           = True
+      self._maxZImpactPT        = 500.
+      self._maxRPhiImpactPT     = 300.
+      self._maxEtaPT            = 2.7
+      self._maxDoubleHolesPT    = 0
+      self._maxSiHolesPT        = 2
+      self._maxPixelHolesPT     = 1
+      self._maxSCTHolesPT       = 1
+      self._minSiClustersPT     = 8
+      self._doEmCaloSeedPT      = False
+      self._minTRTonTrkPT       = 0
 
 
 class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
@@ -342,6 +405,18 @@ class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
       self._isLRT                 = True
       self._LRTD0Min              = 2.0
       self._LRTHardPtMin          = 1.0*GeV
+      #pt config
+      self._newConfig           = True
+      self._maxZImpactPT        = 500.
+      self._maxRPhiImpactPT     = 300.
+      self._maxEtaPT            = 2.7
+      self._maxDoubleHolesPT    = 0
+      self._maxSiHolesPT        = 2
+      self._maxPixelHolesPT     = 1
+      self._maxSCTHolesPT       = 1
+      self._minSiClustersPT     = 8
+      self._doEmCaloSeedPT      = False
+      self._minTRTonTrkPT       = 0
 
 
 
@@ -377,6 +452,8 @@ _ConfigSettings = {
     #    "jet"         : _ConfigSettings_bjet(),
     "fullScan"    : _ConfigSettings_fullScan(),
     "FS"          : _ConfigSettings_fullScan(),
+
+    "jetSuper"    : _ConfigSettings_jetSuper(),
 
     "beamSpot"    : _ConfigSettings_beamSpot(),
     "BeamSpot"    : _ConfigSettings_beamSpot(),

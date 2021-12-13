@@ -404,86 +404,16 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   
   muFastRecoSequence += ViewVerify
 
-  if MuonGeometryFlags.hasCSC():
-    # Configure the L2 CSC data preparator - we can turn off the data decoding here
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-    L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator")
-    ToolSvc += L2CscDataPreparator
- 
-  # Configure the L2 MDT data preparator - we can turn off the data decoding here
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
-  L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(name = "L2MuonSAMdtDataPreparator")
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
-  L2MdtDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
-
   from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool
   trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1MuonPhase1)
-
-  ### RPC RDO data - turn off the data decoding here ###
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
-  L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(name = "L2MuonSARpcDataPreparator",
-                                                        RpcPrepDataContainer = "RPC_Measurements",
-                                                        TrigT1RPCRecRoiTool  = trigRpcRoiTool)
-  ToolSvc += L2RpcDataPreparator
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
-  L2RpcDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
-
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcClusterPreparator
   L2RpcClusterPreparator = TrigL2MuonSA__RpcClusterPreparator(name = "L2RpcClusterPreparator",
                                                               TrigT1RPCRecRoiTool = trigRpcRoiTool)
   ToolSvc += L2RpcClusterPreparator
 
-  ### TGC data preparation - turn off the data decoding here ###
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
-  L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(name = "L2MuonSATgcDataPreparator")
-
-
-  ### sTGC RDO data - turn off the data decoding here ###
-  if MuonGeometryFlags.hasSTGC():
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__StgcDataPreparator
-    L2StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator(name = "L2MuonSAStgcDataPreparator",
-                                                            StgcPrepDataContainer = "STGC_Measurements")
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
-    L2StgcDataPreparator.RegSel_STGC = makeRegSelTool_sTGC()
-    ToolSvc += L2StgcDataPreparator
-
-
-  ### MM RDO data - turn off the data decoding here ###
-  if MuonGeometryFlags.hasMM():
-    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MmDataPreparator
-    L2MmDataPreparator = TrigL2MuonSA__MmDataPreparator(name = "L2MuonSAMmDataPreparator",
-                                                        MmPrepDataContainer = "MM_Measurements")
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
-    L2MmDataPreparator.RegSel_MM = makeRegSelTool_MM()
-    ToolSvc += L2MmDataPreparator
-
   ### set up MuFastSteering ###
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
   muFastAlg = TrigL2MuonSAConfig("Muon"+postFix)
-
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
-  MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)
-  if MuonGeometryFlags.hasCSC():
-    MuFastDataPreparator.CSCDataPreparator  = L2CscDataPreparator
-  else:
-    MuFastDataPreparator.CSCDataPreparator  = ""
-  MuFastDataPreparator.MDTDataPreparator  = L2MdtDataPreparator
-  MuFastDataPreparator.RPCDataPreparator  = L2RpcDataPreparator
-  MuFastDataPreparator.TGCDataPreparator  = L2TgcDataPreparator
-  if MuonGeometryFlags.hasSTGC():
-    MuFastDataPreparator.STGCDataPreparator = L2StgcDataPreparator
-  else:
-    MuFastDataPreparator.STGCDataPreparator = ""
-  if MuonGeometryFlags.hasMM():
-    MuFastDataPreparator.MMDataPreparator   = L2MmDataPreparator
-  else:
-    MuFastDataPreparator.MMDataPreparator   = ""
-
-  MuFastDataPreparator.RpcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
-  MuFastDataPreparator.TgcRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
-  MuFastDataPreparator.ClusterRoadDefiner.RegionSelectionTool = makeRegSelTool_MDT()
-  
-  muFastAlg.DataPreparator = MuFastDataPreparator
 
   muFastAlg.Run2RecMuonRoI = "HLT_RecMURoIs"
   muFastAlg.RecMuonRoI = "LVL1MuonRoIs"
@@ -528,8 +458,8 @@ def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, extraLoadsForl2mtmo
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
   IDTrigConfig = getInDetTrigConfig( "muon"+name ) 
 
-  from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
+  from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+  viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois = RoIs )
   viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   if extraLoads:
     viewVerify.DataObjects += extraLoads
@@ -552,8 +482,8 @@ def muonIDCosmicTrackingSequence( RoIs, name, extraLoads=None ):
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
   IDTrigConfig = getInDetTrigConfig( "cosmics" )
 
-  from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  dataPreparationAlgs, dataVerifier = makeInDetAlgs( config = IDTrigConfig, rois = RoIs, doFTF = False)
+  from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+  dataPreparationAlgs, dataVerifier = makeInDetTrigFastTracking( config = IDTrigConfig, rois = RoIs, doFTF = False)
    
   dataVerifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s'%RoIs )]
 
@@ -736,8 +666,8 @@ def muEFCBRecoSequence( RoIs, name ):
 
   if "FS" in name:
     #Need to run tracking for full scan chains
-    from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs(config = IDTrigConfig, rois = RoIs) 
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+    viewAlgs, viewVerify = makeInDetTrigFastTracking(config = IDTrigConfig, rois = RoIs) 
 
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
@@ -770,17 +700,17 @@ def muEFCBRecoSequence( RoIs, name ):
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
 
-  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+  from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
   #When run in a different view than FTF some data dependencies needs to be loaded through verifier
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
   if 'FS' in name:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs, verifier = False)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois = RoIs, verifier = False)
     PTSeq = parOR("precisionTrackingInMuonsFS", PTAlgs  )
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
   elif 'LRT' in name:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
     PTSeq = parOR("precisionTrackingInMuonsLRT", PTAlgs  )
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
@@ -788,7 +718,7 @@ def muEFCBRecoSequence( RoIs, name ):
   elif isCosmic():
     trackParticles = getIDTracks() 
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois = RoIs,  verifier = ViewVerifyTrk )
     PTSeq = parOR("precisionTrackingInMuons", PTAlgs  )
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
@@ -825,7 +755,7 @@ def muEFCBRecoSequence( RoIs, name ):
   elif 'LRT' in name:
     cbMuonName = muNamesLRT.EFCBName
 
-  themuoncbcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=candidatesName, TagMaps=["muidcoTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
+  themuoncbcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=[candidatesName], TagMaps=["muidcoTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
                                        MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments", ExtrapolatedLocation = "CBExtrapolatedMuons",
                                        MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name,
                                        MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgCB_"+name))
@@ -894,9 +824,9 @@ def muEFInsideOutRecoSequence(RoIs, name):
     PTTracks = [] #List of TrackCollectionKeys
     PTTrackParticles = [] #List of TrackParticleKeys
 
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=RoIs)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=RoIs)
     PTSeq = parOR("precisionTrackingInLateMuons", PTAlgs  )
 
     efmuInsideOutRecoSequence += PTSeq
@@ -980,8 +910,8 @@ def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
   IDTrigConfig = getInDetTrigConfig( 'muonIso'+name )
 
-  from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
+  from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
+  viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois = RoIs )
   viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUEFIsoRoIs'+name ),
                              ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons'+name )]
 
@@ -1000,8 +930,8 @@ def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
   
-  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=RoIs )
+  from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=RoIs )
 
   PTSeq = parOR("precisionTrackingInMuonsIso"+name, PTAlgs  )
   efmuisoRecoSequence += PTSeq

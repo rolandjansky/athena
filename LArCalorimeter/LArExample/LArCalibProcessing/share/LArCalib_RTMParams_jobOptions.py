@@ -280,7 +280,10 @@ if not 'CheckBadEvents' in dir():
 ###########################################################################
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
+   if SuperCells:
+      GroupingType = "SuperCells"
+   else:
+      GroupingType = "ExtendedSubDetector"
    
 if not 'WriteNtuple' in dir():
    WriteNtuple = LArCalib_Flags.WriteNtuple

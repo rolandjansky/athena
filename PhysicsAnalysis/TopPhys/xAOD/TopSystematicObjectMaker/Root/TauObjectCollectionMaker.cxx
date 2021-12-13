@@ -33,7 +33,8 @@ namespace top {
     ATH_MSG_INFO(" top::TauObjectCollectionMaker initialize");
 
     top::check(m_calibrationTool.retrieve(), "Failed to retrieve tau calibration tool");
-    top::check(m_truthMatchingTool.retrieve(), "Failed to retrieve tau truth matching tool");
+    if (m_config->isMC())
+      top::check(m_truthMatchingTool.retrieve(), "Failed to retrieve tau truth matching tool");
 
     ///-- Set Systematics Information --///
     const std:: string& syststr = m_config->systematics();
@@ -81,7 +82,8 @@ namespace top {
       ///-- Loop over the xAOD Container and apply corrections--///
       for (auto tau : *(shallow_xaod_copy.first)) {
         ///-- add the necessary decoration
-        m_truthMatchingTool->getTruth(*tau);
+        if (m_config->isMC())
+          m_truthMatchingTool->getTruth(*tau);
 
         ///-- Apply momentum correction --///
         top::check(m_calibrationTool->applyCorrection(*tau), "Failed to applyCorrection");

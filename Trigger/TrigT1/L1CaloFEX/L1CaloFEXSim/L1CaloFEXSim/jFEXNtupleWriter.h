@@ -87,9 +87,14 @@ private:
   std::vector<int> m_pileup_rho_HAD2;
   std::vector<int> m_pileup_rho_HAD3;
   std::vector<int> m_pileup_rho_FCAL;
+  std::vector<std::vector<int>> m_pileup_map_ID;
+  std::vector<std::vector<int>> m_pileup_map_Et_values_HAD_jet;
+  std::vector<std::vector<int>> m_pileup_map_Et_values_EM_jet;
+  std::vector<std::vector<int>> m_pileup_map_Et_values_Total_jet;
+  std::vector<std::vector<int>> m_pileup_map_Et_values_HAD_met;
+  std::vector<std::vector<int>> m_pileup_map_Et_values_EM_met;
+  std::vector<std::vector<int>> m_pileup_map_Et_values_Total_met;
 
-
-//std::string m_jet_container_name = "AntiKt10TruthJets";
 
   TTree *m_myTree;
  
@@ -97,6 +102,8 @@ private:
   StatusCode loadlargeRJetAlgoVariables(SG::ReadHandle<LVL1::jFEXOutputCollection>);
   StatusCode loadtauAlgoVariables(SG::ReadHandle<LVL1::jFEXOutputCollection>);
   StatusCode loadPileupVariables(SG::ReadHandle<LVL1::jFEXOutputCollection>);
+  StatusCode loadPileupEt(SG::ReadHandle<LVL1::jFEXOutputCollection>);
+  
 };
 }
 #endif

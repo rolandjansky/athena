@@ -12,36 +12,18 @@ def ITkMaterialMappingCfg(flags, name="ITkMaterialMapping", **kwargs):
   result=ComponentAccumulator()
   LayerMaterialName = 'LayerMaterialITK'    
   LayerMaterialDirectory = '/GLOBAL/TrackingGeo/'
-  
-  from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-  itkPixel = ITkPixelGeometryCfg(flags)
-  result.merge(itkPixel)
-   
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  itkStrip = ITkStripGeometryCfg(flags)
-  result.merge(itkStrip)
-    
-  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-  result.merge(BeamPipeGeometryCfg(flags))
-      
+
   # get the correct TrackingGeometry setup
-  geom_svc=None
-  geom_cond_key=''
-  from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-  if not use_tracking_geometry_cond_alg :
-     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-     acc = TrackingGeometrySvcCfg(flags)
-     geom_svc = acc.getPrimary()
-     result.merge(acc)      
-     kwargs.setdefault("TrackingGeometrySvc", geom_svc)
-  else :
-     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-     result.merge( TrackingGeometryCondAlgCfg(flags) )
-     geom_cond_key = 'AtlasTrackingGeometry'
-     kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)    
+  from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+  result.merge( TrackingGeometryCondAlgCfg(flags) )
+  geom_cond_key = 'AtlasTrackingGeometry'
+  kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)    
     
   if 'MappingVolumeName' not in kwargs :
-      kwargs.setdefault("MappingVolumeName", 'InDet::Containers::InnerDetector')
+      if flags.Detector.GeometryHGTD:
+        kwargs.setdefault("MappingVolumeName", 'HGTD::Detectors::HGTD')
+      else: 
+        kwargs.setdefault("MappingVolumeName", 'InDet::Containers::InnerDetector')        
   
   if 'ExtrapolationEngine' not in kwargs :
       from TrkConfig.AtlasExtrapolationEngineConfig import AtlasExtrapolationEngineCfg
@@ -88,38 +70,15 @@ def ITkMaterialMappingCfg(flags, name="ITkMaterialMapping", **kwargs):
   return result
   
   
-def ITkMaterialValidationCfg(flags, name="MaterialValidation", **kwargs):
+def MaterialValidationCfg(flags, name="MaterialValidation", **kwargs):
   """Return configured ComponentAccumulator and tool for MaterialMapping"""
-  
   result=ComponentAccumulator()
   
-  from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
-  itkPixel = ITkPixelGeometryCfg(flags)
-  result.merge(itkPixel)
-   
-  from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-  itkStrip = ITkStripGeometryCfg(flags)
-  result.merge(itkStrip)
-    
-  from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-  result.merge(BeamPipeGeometryCfg(flags))
-  
   # get the correct TrackingGeometry setup
-  geom_svc=None
-  geom_cond_key=''
-  from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-  if not use_tracking_geometry_cond_alg :
-     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-     acc = TrackingGeometrySvcCfg(flags)
-     geom_svc = acc.getPrimary()
-     result.merge(acc)      
-     kwargs.setdefault("TrackingGeometrySvc", geom_svc)
-  else :
-     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-     result.merge( TrackingGeometryCondAlgCfg(flags) )
-     geom_cond_key = 'AtlasTrackingGeometry'
-     kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)    
-    
+  from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+  result.merge( TrackingGeometryCondAlgCfg(flags) )
+  geom_cond_key = 'AtlasTrackingGeometry'
+  kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)    
   
   if 'MaterialMapper' not in kwargs :
       MaterialMapper = CompFactory.Trk.MaterialMapper("MaterialMapper")

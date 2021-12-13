@@ -10,7 +10,8 @@
 
 micromegasHandler::micromegasHandler(const std::string& s,
                                      AGDDController& c)
-  : XMLHandler(s, c)
+  : XMLHandler(s, c),
+    m_mmCurrent (nullptr)
 {
 }
 
@@ -35,6 +36,7 @@ void micromegasHandler::ElementHandle(AGDDController& c,
                                              c.GetDetectorStore(),
                                              c.GetVolumeStore(),
                                              c.GetSectionStore());
+        m_mmCurrent = b;
 	b->SetXYZ(vvv);
 	b->subType(sType);
 	b->tech=technology;
@@ -50,3 +52,10 @@ void micromegasHandler::ElementHandle(AGDDController& c,
 //	if (ret)
 //		b->SetColor(col);
 }
+
+
+MMDetectorDescription* micromegasHandler::GetMMCurrent()
+{
+  return m_mmCurrent;
+}
+

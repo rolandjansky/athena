@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DenseEnvironmentsAmbiguityProcessorTool_H
@@ -29,7 +29,6 @@
 
 namespace Trk {
   class ITruthToTrack;
-  class IExtrapolator;
   //
   class DenseEnvironmentsAmbiguityProcessorTool : public AmbiguityProcessorBase{
   public:
@@ -92,9 +91,6 @@ namespace Trk {
     /** refitting tool - used to refit tracks once shared hits are removed. 
         Refitting tool used is configured via jobOptions.*/
     ToolHandleArray<ITrackFitter> m_fitterTool;
-    /** extrapolator tool - used to refit tracks once shared hits are removed. 
-        Extrapolator tool used is configured via jobOptions.*/
-    ToolHandle<IExtrapolator> m_extrapolatorTool;
 
     ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
        {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
@@ -105,10 +101,10 @@ namespace Trk {
 
     /** selection tool - here the decision which hits remain on a track and
         which are removed are made */
-    ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
+    ToolHandle<IAmbiTrackSelectionTool> m_selectionTool
+      {this, "SelectionTool", "InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"};
 
     /**Observer tool      This tool is used to observe the tracks and their 'score' */
-    PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};
     PublicToolHandle<Trk::ITrkObserverTool> m_observerToolWriter{this, "TrackObserverToolWriter", "", "track observer writer within ambiguity solver"};
 
     bool m_rejectInvalidTracks{};

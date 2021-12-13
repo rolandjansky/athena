@@ -47,7 +47,6 @@ std::vector<std::vector<T>> ToVectorVector(const TrigConf::DataStructure& ds, co
 bool
 TrigConf::JsonFileWriterHLT::writeJsonFile(const std::string & filename, const HLTMenu & menu) const
 {
-   using ptree = boost::property_tree::ptree;
    json chains({});
    for ( const auto & chain : menu ) {
       json jChain({});

@@ -5,7 +5,6 @@
 #include "AGDDHandlers/posXYZHandler.h"
 #include "AGDDControl/AGDDController.h"
 #include "AGDDKernel/AGDDPositioner.h"
-#include "AGDDHandlers/globals.h"
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -37,13 +36,6 @@ void posXYZHandler::ElementHandle(AGDDController& c,
 	if (posRet) cvec =GeoTrf::Vector3D(X_Y_Z[0],X_Y_Z[1],X_Y_Z[2]);
 	std::vector<double> rot=getAttributeAsVector(c, t, "rot",rotRet);
 	if (rotRet) crot = crot*GeoTrf::RotateZ3D(rot[2]*GeoModelKernelUnits::degree)*GeoTrf::RotateY3D(rot[1]*GeoModelKernelUnits::degree)*GeoTrf::RotateX3D(rot[0]*GeoModelKernelUnits::degree);
-	if (s_printFlag) {
-		MsgStream log(Athena::getMessageSvc(),"posXYZHandler");
-        log<<MSG::INFO<<"ElementHandle() - posXYV "<<volume<<endmsg;
-		if (posRet) log<<MSG::INFO<<" pos= ("<<X_Y_Z[0]<<";"<<X_Y_Z[1]<<";"<<X_Y_Z[2]<<")"<<endmsg;
-		if (rotRet) log<<MSG::INFO<<" rot= ("<<rot[0]<<";"<<rot[1]<<";"<<rot[2]<<")"<<endmsg;
-	}
-	globals::currentPositioner = 
 	new AGDDPositioner(c.GetPositionerStore(),
                            c.GetVolumeStore(),volume,GeoTrf::Translation3D(cvec)*crot);
 }

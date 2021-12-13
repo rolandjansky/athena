@@ -37,12 +37,12 @@ namespace
     operator < (const VertexAndSignalComp& other) const
     {return second > other.second;}
   };
-  } //anonymous namespace
+} //anonymous namespace
 
-  ActsAdaptiveMultiPriVtxFinderTool::ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
-    const IInterface* parent)
+ActsAdaptiveMultiPriVtxFinderTool::ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
+								     const IInterface* parent)
   : base_class(type, name, parent)
-  {}
+{}
 
 StatusCode
 ActsAdaptiveMultiPriVtxFinderTool::initialize()
@@ -165,6 +165,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const Tra
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
 ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const xAOD::TrackParticleContainer* trackParticles) const
 {
+
   std::vector<std::unique_ptr<Trk::ITrackLink>> selectedTracks;
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
   xAOD::Vertex beamposition;
@@ -206,8 +207,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const xAO
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
 ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vector<std::unique_ptr<Trk::ITrackLink>> trackVector) const
 {
-    using namespace Acts::UnitLiterals;
-
+    using namespace Acts::UnitLiterals; // !!!
+    
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
     const Acts::Vector3& beamSpotPos = beamSpotHandle->beamVtx().position();
     Acts::Vertex<TrackWrapper> beamSpotConstraintVtx(beamSpotPos);
@@ -216,8 +217,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     // Get the magnetic field context
     Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
-    const auto& geoContext
-    = m_trackingGeometryTool->getGeometryContext(ctx).context();
+    const auto& geoContext = m_trackingGeometryTool->getGeometryContext(ctx).context();
 
     // The output vertex containers
     xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
@@ -250,6 +250,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
       if(trkParams->covariance() == nullptr){
           continue;
       }
+
       auto cov = *(trkParams->covariance());
       
       // TODO: check if the following works as well:
@@ -268,13 +269,12 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
 
     std::vector<const TrackWrapper*> allTrackPtrs;
     allTrackPtrs.reserve(allTracks.size());
-
-for(const auto& trk : allTracks){
+    
+    for(const auto& trk : allTracks){
       allTrackPtrs.push_back(&trk);
     }
 
-    Acts::VertexingOptions<TrackWrapper> vertexingOptions(geoContext,
-       magFieldContext);
+    Acts::VertexingOptions<TrackWrapper> vertexingOptions( geoContext, magFieldContext );
 
     if(!m_useBeamConstraint){
       beamSpotConstraintVtx.setPosition(Acts::Vector3::Zero());
@@ -293,17 +293,17 @@ for(const auto& trk : allTracks){
       dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
       dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
       dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
-
       return std::make_pair(theVertexContainer, theVertexAuxContainer);
-  }
+    }
 
-  std::vector<Acts::Vertex<TrackWrapper>> allVertices = *findResult;
+    std::vector<Acts::Vertex<TrackWrapper>> allVertices = *findResult;
 
-  std::vector<VertexAndSignalComp> vtxList;
+    std::vector<VertexAndSignalComp> vtxList;
+    
     // Reserve memory for all vertices
-  vtxList.reserve(allVertices.size());
+    vtxList.reserve(allVertices.size());
 
-  for(const auto& vtx : allVertices){
+    for(const auto& vtx : allVertices){
       xAOD::Vertex* xAODVtx = new xAOD::Vertex;
       xAODVtx->makePrivateStore();
       xAODVtx->setPosition(vtx.position());
@@ -342,37 +342,37 @@ for(const auto& trk : allTracks){
       VertexAndSignalComp vertexAndSig(xAODVtx, sigComp);
       auto it = std::lower_bound( vtxList.begin(), vtxList.end(), vertexAndSig );
       vtxList.insert( it, vertexAndSig );
-  }
+    }
+  
+    for(unsigned int i = 0; i < vtxList.size(); i++){
+      auto vtx = vtxList[i].first;
+      theVertexContainer->push_back(vtx);
+      if(i == 0){
+	vtx->setVertexType(xAOD::VxType::PriVtx);
+      }
+      else{
+	vtx->setVertexType(xAOD::VxType::PileUp);
+      }
+    }
 
-for(unsigned int i = 0; i < vtxList.size(); i++){
-    auto vtx = vtxList[i].first;
-    theVertexContainer->push_back(vtx);
-    if(i == 0){
-      vtx->setVertexType(xAOD::VxType::PriVtx);
-  }
-  else{
-      vtx->setVertexType(xAOD::VxType::PileUp);
-  }
-}
+    // Add dummy vertex to collection
+    xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
+    theVertexContainer->push_back(dummyxAODVertex);
 
-// Add dummy vertex to collection
-xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
-theVertexContainer->push_back(dummyxAODVertex);
-
-if(!vtxList.empty()){
+    if(!vtxList.empty()){
       // If HS vertex exists, create dummy with same position/covariance
-    xAOD::Vertex* primaryVtx = theVertexContainer->front();
-    dummyxAODVertex->setPosition(primaryVtx->position());
-    dummyxAODVertex->setCovariancePosition(primaryVtx->covariancePosition());
-    dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
-}
-else{
-    dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
-    dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
-    dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
-}
+      xAOD::Vertex* primaryVtx = theVertexContainer->front();
+      dummyxAODVertex->setPosition(primaryVtx->position());
+      dummyxAODVertex->setCovariancePosition(primaryVtx->covariancePosition());
+      dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
+    }
+    else{
+      dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+      dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+      dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
+    }
 
-return std::make_pair(theVertexContainer, theVertexAuxContainer);
+    return std::make_pair(theVertexContainer, theVertexAuxContainer);
 }
 
 

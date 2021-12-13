@@ -52,7 +52,7 @@ CaloTopoTowerFromClusterMaker::CaloTopoTowerFromClusterMaker(const std::string& 
 							     const std::string& name,
 							     const IInterface* pParent)
   : AthAlgTool(type,name,pParent)
-  , m_clusterContainerKey("CaloTopoCluster")
+  , m_clusterContainerKey("CaloTopoClusters")
   , m_cellContainerKey("AllCalo")
   , m_energyThreshold(m_energyThresholdDef-1.)
   , m_clusterRange(m_clusterRangeDef)
@@ -89,6 +89,7 @@ StatusCode CaloTopoTowerFromClusterMaker::initialize()
   //---------------------//
 
   ATH_CHECK(m_towerGeoKey.initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   // tower builder configurations
   if ( m_useCellsFromClusters ) {
@@ -198,12 +199,16 @@ StatusCode CaloTopoTowerFromClusterMaker::execute(const EventContext& ctx,
   SG::ReadCondHandle<CaloTowerGeometry> towerGeoHandle{m_towerGeoKey,ctx};
   const CaloTowerGeometry* towerGeo=*towerGeoHandle;
 
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
+
   if ( msgLvl(MSG::DEBUG) && towerGeo->totalNumberCells() != pCellCont->size() ) { 
     ATH_MSG_DEBUG( CaloRec::Helpers::fmtMsg("[mismatch] number of cells in CaloCellContainer %6zu, total number of cell descriptors %6zu",
 					      pCellCont->size(),towerGeo->totalNumberCells()) );
   }
 
-  if ( m_doCellIndexCheck ) { this->checkCellIndices(towerGeo,pCellCont.cptr()); }
+  if ( m_doCellIndexCheck ) { this->checkCellIndices(towerGeo,caloDDMgr, pCellCont.cptr()); }
 
   /////////////////////////
   // Set up ProtoCluster //
@@ -517,7 +522,8 @@ int CaloTopoTowerFromClusterMaker::cleanupCells(const CaloTowerGeometry* towerGe
 bool CaloTopoTowerFromClusterMaker::filterProtoCluster(const CaloClusterCellLink& clnk) 
 { return clnk.size() > 0; }
 
-bool CaloTopoTowerFromClusterMaker::checkCellIndices(const CaloTowerGeometry* towerGeo, const CaloCellContainer* pCellCont) const
+bool CaloTopoTowerFromClusterMaker::checkCellIndices(const CaloTowerGeometry* towerGeo, const CaloDetDescrManager* caloDDMgr,
+                                                     const CaloCellContainer* pCellCont) const
 {
   ////////////////////////////
   // input and setup checks //
@@ -563,7 +569,7 @@ bool CaloTopoTowerFromClusterMaker::checkCellIndices(const CaloTowerGeometry* to
       if ( chash != i ) {
 	std::string cni("UKNOWN");
 	double etai(0.); double phii(0.);
-	const CaloDetDescrElement* iel = i < CaloDetDescrManager::instance()->element_size() ? CaloDetDescrManager::instance()->get_element(i) : nullptr;
+	const CaloDetDescrElement* iel = i < caloDDMgr->element_size() ? caloDDMgr->get_element(i) : nullptr;
 	if ( iel != nullptr ) {
 	  cni  = CaloRec::Lookup::getSamplingName(iel->getSampling());
 	  etai = iel->eta_raw();
@@ -571,7 +577,7 @@ bool CaloTopoTowerFromClusterMaker::checkCellIndices(const CaloTowerGeometry* to
 	}
 	std::string cnc("UNKNOWN");
 	double etac(0.); double phic(0.);
-	const CaloDetDescrElement* cel = chash < CaloDetDescrManager::instance()->element_size() ? CaloDetDescrManager::instance()->get_element(chash) : nullptr;
+	const CaloDetDescrElement* cel = chash < caloDDMgr->element_size() ? caloDDMgr->get_element(chash) : nullptr;
 	if ( cel != nullptr ) { 
 	  cnc  = CaloRec::Lookup::getSamplingName(cel->getSampling());
 	  etac = cel->eta_raw();

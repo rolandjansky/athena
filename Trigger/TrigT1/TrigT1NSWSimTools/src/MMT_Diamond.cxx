@@ -2,6 +2,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
+#include <cmath>
 
 MMT_Diamond::MMT_Diamond(const MuonGM::MuonDetectorManager* detManager): AthMessaging(Athena::getMessageSvc(), "MMT_Diamond") {
   m_detManager = detManager;
@@ -24,7 +25,7 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
   diamond_t entry;
   entry.wedgeCounter = iterator;
   entry.sector = par->getSector();
-  entry.phi = phi;
+  entry.stationPhi = (par->getSector() == 'S') ? phi*2-1 : phi*2-2;
 
   micromegas_t micromegas;
   MMDetectorHelper aHelper;
@@ -82,7 +83,7 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
   }
 
   int nroad = 8192/this->getRoadSize();
-  double B = (1./TMath::Tan(1.5/180.*TMath::Pi()));
+  double B = (1./std::tan(1.5/180.*M_PI));
   int uvfactor = std::round( mm2->lWidth() / (B * 0.4 * 2.)/this->getRoadSize() ); // mm2 pointer is used because the full wedge has to be considered, i.e. S(L/M)2
   this->setUVfactor(uvfactor);
 
@@ -94,6 +95,8 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
       entry.ev_hits.push_back(myhit);
     }
   }
+  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() < 0; })) ? 'C' : '-';
+  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() > 0; })) ? 'A' : '-';
 
   std::vector<std::shared_ptr<MMT_Road> > temp_roads;
   for (int i = 0; i < nroad; i++) {
@@ -262,17 +265,16 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
         slope.xavg = road->avgSofX(); // defined as my in ATL-COM-UPGRADE-2015-033
         slope.uavg = road->avgSofUV(2,4);
         slope.vavg = road->avgSofUV(3,5);
-        double mx = (slope.uavg-slope.vavg)/(2.*TMath::Tan(0.02618)); // The stereo angle is fixed and can be hardcoded
-        double theta = TMath::ATan(TMath::Sqrt(TMath::Power(mx,2) + TMath::Power(slope.xavg,2)));
-        slope.theta = (slope.xavg > 0.) ? theta : TMath::Pi() - theta;
-        slope.eta = -1.*TMath::Log(TMath::Tan(slope.theta/2.));
+        slope.mx = (slope.uavg-slope.vavg)/(2.*std::tan(0.02618)); // The stereo angle is fixed and can be hardcoded
+        double theta = std::atan(std::sqrt(std::pow(slope.mx,2) + std::pow(slope.xavg,2)));
+        slope.theta = (slope.xavg > 0.) ? theta : M_PI - theta;
+        slope.eta = -1.*std::log(std::tan(slope.theta/2.));
         slope.dtheta = (slope.mxl - slope.xavg)/(1. + slope.mxl*slope.xavg);
-        int wedge = (this->getDiamond(iterator).sector == 'L') ? 0 : 1;
-        int n = 2*(this->getDiamond(iterator).phi -1) + wedge;
-        char side = (slope.xavg > 0.) ? 'A' : 'C';
-        double phi = TMath::ATan(mx/slope.xavg), phiShifted = this->phiShift(n, phi, side);
+        slope.side = (slope.xavg > 0.) ? 'A' : 'C';
+        double phi = std::atan(slope.mx/slope.xavg), phiShifted = this->phiShift(this->getDiamond(iterator).stationPhi, phi, slope.side);
         slope.phi = phi;
         slope.phiShf = phiShifted;
+        slope.lowRes = road->evaluateLowRes();
 
         m_diamonds[iterator].slopes.push_back(slope);
       }
@@ -282,9 +284,9 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
   ATH_MSG_DEBUG("Processing roads took " << std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count() << " ms");
 }
 
-double MMT_Diamond::phiShift(const int &n, const double &phi, const char &side) {
+double MMT_Diamond::phiShift(const int n, const double &phi, const char &side) {
   double Phi = (side == 'A') ? phi : -phi;
-  float shift = (n > 8) ? (16-n)*TMath::Pi()/8. : n*TMath::Pi()/8.;
+  float shift = (n > 8) ? (16-n)*M_PI/8. : n*M_PI/8.;
   if (n < 8)       return (Phi + shift);
   else if (n == 8) return (Phi + ((Phi > 0.) ? -1. : 1.)*shift);
   else             return (Phi - shift);
@@ -294,7 +296,8 @@ void MMT_Diamond::resetSlopes() {
   if (!m_hitslopes.empty()) m_hitslopes.clear();
 }
 
-slope_t::slope_t(int ev, int bc, unsigned int tC, unsigned int rC, int iX, int iU, int iV, unsigned int uvb, unsigned int xb, unsigned int uvm, unsigned int xm, 
-                 int age, double mxl, double xavg, double uavg, double vavg, double th, double eta, double dth, double phi, double phiS) : 
+slope_t::slope_t(int ev, int bc, unsigned int tC, unsigned int rC, int iX, int iU, int iV, unsigned int uvb, unsigned int xb, unsigned int uvm, unsigned int xm,
+                 int age, double mxl, double xavg, double uavg, double vavg, double mx, double th, double eta, double dth, char side, double phi, double phiS,
+                 bool lowRes) :
   event(ev), BC(bc), totalCount(tC), realCount(rC), iRoad(iX), iRoadu(iU), iRoadv(iV), uvbkg(uvb), xbkg(xb), uvmuon(uvm), xmuon(xm),
-  age(age), mxl(mxl), xavg(xavg), uavg(uavg), vavg(vavg), theta(th), eta(eta), dtheta(dth), phi(phi), phiShf(phiS) {}
+  age(age), mxl(mxl), xavg(xavg), uavg(uavg), vavg(vavg), mx(mx), theta(th), eta(eta), dtheta(dth), side(side), phi(phi), phiShf(phiS), lowRes(lowRes) {}

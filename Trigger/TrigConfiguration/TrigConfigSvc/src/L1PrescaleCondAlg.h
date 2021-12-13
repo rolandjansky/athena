@@ -38,6 +38,9 @@ namespace TrigConf {
       virtual StatusCode initialize() override;
       virtual StatusCode execute(const EventContext& ctx) const override;
 
+      // avoids running CondAlg multiple times for the same input (ATEAM-617)
+      virtual bool isReEntrant() const override final { return false; }
+
    private:
       
       // helper function to load a L1 prescales set from a file

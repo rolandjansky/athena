@@ -25,7 +25,11 @@ public:
     enum DataType
     {
         TYPE_HIPT,
-        TYPE_NSL,
+        TYPE_NSL_ROI,
+        TYPE_NSL_NSW,
+        TYPE_NSL_RPC,
+        TYPE_NSL_EIFI,
+        TYPE_NSL_TMDB,
         TYPE_UNKNOWN
     };
 
@@ -65,28 +69,80 @@ public:
                int16_t delta,
                uint16_t inner);
 
-    // Sector logic
+    // New Sector logic
+    // RoI
     TgcL1RawData(uint16_t bcTag,
-               uint16_t subDetectorId,
-               uint16_t srodId,
-               uint16_t l1Id,
-               uint16_t bcId,
-               bool cand3plus,
-               bool forward,
-               uint16_t sector,
-               uint16_t index,
-               bool muplus,
-               uint16_t threshold,
-               bool overlap,
-               bool veto,
-               uint16_t roi);
+                 uint16_t subDetectorId,
+                 uint16_t srodId,
+                 uint16_t l1Id,
+                 uint16_t bcId,
+                 bool forward,
+                 uint16_t sector,
+                 uint16_t innerflag,
+                 uint16_t coinflag,
+                 bool muplus,
+                 uint16_t threshold,
+                 uint16_t roi);
+
+    // NSW
+    TgcL1RawData(uint16_t bcTag,
+                 uint16_t subDetectorId,
+                 uint16_t srodId,
+                 uint16_t l1Id,
+                 uint16_t bcId,
+                 bool forward,
+                 uint16_t sector,
+                 uint16_t nsweta,
+                 uint16_t nswphi,
+                 uint16_t nswcand,
+                 uint16_t nswdtheta,
+                 uint16_t nswphires,
+                 uint16_t nswlowres,
+                 uint16_t nswid);
+
+// RPC BIS78
+    TgcL1RawData(uint16_t bcTag,
+                 uint16_t subDetectorId,
+                 uint16_t srodId,
+                 uint16_t l1Id,
+                 uint16_t bcId,
+                 bool forward,
+                 uint16_t sector,
+                 uint16_t rpceta,
+                 uint16_t rpcphi,
+                 uint16_t rpcflag,
+                 uint16_t rpcdeta,
+                 uint16_t rpcdphi);
+
+// EIFI
+      TgcL1RawData(uint16_t bcTag,
+                   uint16_t subDetectorId,
+                   uint16_t srodId,
+                   uint16_t l1Id,
+                   uint16_t bcId,
+                   bool forward,
+                   uint16_t sector,
+                   uint16_t ei,
+                   uint16_t fi,
+                   uint16_t cid); // chamber ID
+
+// TMDB
+      TgcL1RawData(uint16_t bcTag,
+                   uint16_t subDetectorId,
+                   uint16_t srodId,
+                   uint16_t l1Id,
+                   uint16_t bcId,
+                   bool forward,
+                   uint16_t sector,
+                   uint16_t mod,
+                   uint16_t bcid);
 
     // Destructor
     virtual ~TgcL1RawData() = default;
     // return Information Type Hit:Coincidence
     bool isCoincidence() const
     {
-        return m_type == TYPE_HIPT || m_type == TYPE_NSL;
+        return m_type == TYPE_HIPT || m_type == TYPE_NSL_ROI;
     }
 
     /*********** common accessors
@@ -280,14 +336,43 @@ private:
     bool m_strip;
     uint16_t m_inner;
 
-    // Sector Logic
+    // New Sector Logic
+    // RoI
     bool m_cand3plus;
     bool m_muplus;
     uint16_t m_threshold;
     bool m_overlap;
     bool m_veto;
     uint16_t m_roi;
+    uint16_t m_innerflag;
+    uint16_t m_coinflag;
 
+    // NSW
+    uint16_t m_nsweta;
+    uint16_t m_nswphi;
+    uint16_t m_nswsl;
+    uint16_t m_nswcand;
+    uint16_t m_nswdtheta;
+    uint16_t m_nswphires;
+    uint16_t m_nswlowres;
+    uint16_t m_nswid;
+    
+    // RPC BIS78
+    uint16_t m_rpceta;
+    uint16_t m_rpcphi;
+    uint16_t m_rpcflag;
+    uint16_t m_rpcdeta;
+    uint16_t m_rpcdphi;
+    
+    // EIFI
+    uint16_t m_ei;
+    uint16_t m_fi;
+    uint16_t m_cid;
+
+    // TMDB
+    uint16_t m_tmdbmod;
+    uint16_t m_tmdbbcid;
+    
 };
 
 /**Overload of << operator for MsgStream for debug output*/

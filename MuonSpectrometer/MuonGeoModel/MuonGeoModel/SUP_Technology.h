@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SUP_H
@@ -9,6 +9,7 @@
 
 #include <string>
 namespace MuonGM {
+    class MYSQL;
 
     class SUP : public Technology {
       public:
@@ -47,7 +48,7 @@ namespace MuonGM {
         double sup3Square, sup3VerticalThickness, sup3CentralLength, sup3OuterLength; // only for SUP3
 
         //    double thickness() const;
-        SUP(std::string s);
+        SUP(MYSQL& mysql, std::string s);
     };
 } // namespace MuonGM
 

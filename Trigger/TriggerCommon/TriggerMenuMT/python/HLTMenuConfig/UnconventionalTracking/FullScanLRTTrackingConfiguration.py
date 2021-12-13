@@ -13,15 +13,15 @@ def FullScanLRTTriggerSequence(ConfigFlags):
     fscfg = getInDetTrigConfig("jet")
     lrtcfg = getInDetTrigConfig( 'fullScanLRT' )
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-    ft_reco_algs = makeInDetAlgsNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
+    ft_reco_algs = makeInDetTrigFastTrackingNoView( config = fscfg, rois=trkFSRoI, secondStageConfig = lrtcfg)
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
-    im_alg = getTrackingInputMaker()
+    im_alg = getTrackingInputMaker("ftf")
 
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+    from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
 
-    tracks_name, track_particles_names, pt_reco_algs = makeInDetPrecisionTracking(config = lrtcfg, rois = trkFSRoI)
+    tracks_name, track_particles_names, pt_reco_algs = makeInDetTrigPrecisionTracking(config = lrtcfg, rois = trkFSRoI)
 
 
     TrkSeq = parOR("UncTrkrecoSeqFSLRT", [im_alg, ft_reco_algs, pt_reco_algs])

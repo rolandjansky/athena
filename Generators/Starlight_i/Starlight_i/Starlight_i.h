@@ -49,7 +49,7 @@ protected:
 
     starlight*       m_starlight;         // pointer to starlight instance
     inputParameters  m_inputParameters;   // parameter instance
-
+    std::shared_ptr<randomGenerator> m_randomGenerator;
     upcEvent *m_event;
 
     std::string  m_configFileName;

@@ -7,8 +7,8 @@ def LArCalibBaseCfg(flags):
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     result.merge(ByteStreamReadCfg(flags))
 
-    from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
-    result.merge(DetDescrCnvSvcCfg(flags))
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    result.merge(LArGMCfg(flags))
 
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg, LArCalibIdMappingCfg, LArOnOffIdMappingSCCfg#, LArCalibIdMappingSCCfg
     if flags.LArCalib.isSC:
@@ -25,3 +25,14 @@ def LArCalibBaseCfg(flags):
 
     result.merge(LArCalibBadChannelCfg(flags))
     return result
+
+
+
+
+#Helper method to maipulate channel selection string
+def chanSelStr(flags):
+    inp=flags.LArCalib.Input.ChannelSelection
+    if inp=="": return ""
+    if inp.startswith("<channelSelection>"): return inp
+    
+    return "<channelSelection>"+inp+"</channelSelection>"

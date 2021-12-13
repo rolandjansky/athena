@@ -38,6 +38,8 @@ class TGCHighPtChipOut;
 class TGCTMDB;
 class TGCNSW;
 class TGCNSWCoincidenceMap;
+class TGCBIS78;
+class TGCBIS78CoincidenceMap;
 class TGCGoodMF;
 class TGCEIFICoincidenceMap;
 
@@ -78,6 +80,7 @@ class TGCSectorLogic
 
   void setTMDB(const TGCTMDB* tmdb);
   void setNSW(std::shared_ptr<const TGCNSW> nsw);
+  void setBIS78(std::shared_ptr<const TGCBIS78> bis78);
   void showResult();
  
   int getNumberOfSubSectorCluster() const; 
@@ -102,6 +105,7 @@ protected:
   void doInnerCoincidenceRun3(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
 
   void doTGCNSWCoincidence(TGCRPhiCoincidenceOut* coincidenceOut); 
+  bool doTGCBIS78Coincidence(TGCRPhiCoincidenceOut* coincidenceOut); 
   bool doTILECoincidence(TGCRPhiCoincidenceOut* coincidenceOut); 
   bool doTGCEICoincidence(TGCRPhiCoincidenceOut* coincidenceOut);
   bool doTGCFICoincidence(TGCRPhiCoincidenceOut* coincidenceOut);
@@ -134,6 +138,8 @@ private:
   const TGCTMDB*            m_pTMDB;
   std::shared_ptr<const TGCNSW>               m_nsw;
   std::shared_ptr<const TGCNSWCoincidenceMap> m_mapNSW;
+  std::shared_ptr<const TGCBIS78>               m_bis78;
+  std::shared_ptr<const TGCBIS78CoincidenceMap> m_mapBIS78;
   std::shared_ptr<const TGCGoodMF>            m_mapGoodMF;
 
   // Run-2 Coincidence Maps

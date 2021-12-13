@@ -64,17 +64,6 @@ void VP1VertexSystem::buildEventSceneGraph ( StoreGateSvc*, SoSeparator *root )
     if (vertColl) vertColl->recheckAllCuts(); //bit of a hack - the idea is to force the emission of the signal about track from vertices
   }
   
-//  QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > tmpList; // fill and emit
-//  
-//  std::map<const VP1StdCollection*,QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > >::const_iterator 
-//  it=m_d->tracksFromVertices.begin(), itEnd=m_d->tracksFromVertices.end();
-//  
-//  for ( ;it!=itEnd; it++){
-//    tmpList+=it->second;
-//  }
-//  messageVerbose(" emitting tracksFromVerticesChanged "+QString::number(tmpList.size())+" vertices.");
-//  
-//  emit tracksFromVertexChanged(tmpList);
   
 }
 
@@ -155,7 +144,7 @@ void VP1VertexSystem::updateVertexToTracks(QList< std::pair<const SoMaterial*, Q
   std::map<const VP1StdCollection*,QList< std::pair<const SoMaterial*, QList< const Trk::Track*> > > >::const_iterator 
     it=m_d->tracksFromVertices.begin(), itEnd=m_d->tracksFromVertices.end();
   
-  for ( ;it!=itEnd; it++){
+  for ( ;it!=itEnd; ++it){
     tmpList+=it->second;
   }
   messageVerbose(" emitting tracksFromVerticesChanged "+QString::number(tmpList.size())+" collections.");

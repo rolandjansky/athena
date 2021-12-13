@@ -71,7 +71,7 @@ StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK(m_hvMappingKey.initialize (m_doHV || m_doAffectedHV));
   ATH_CHECK(m_hvRKey.initialize(m_doR && (m_doHV || m_doAffectedHV)));
   ATH_CHECK(m_onlineHVScaleCorrKey.initialize(m_undoOnlineHVCorr));
-
+  ATH_CHECK(m_caloMgrKey.initialize());
   // Write Handles
 
   ATH_CHECK(m_outputHVScaleCorrKey.initialize());
@@ -288,15 +288,17 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     
     ATH_CHECK(fillPathAndCellHV(voltageVec, hvCabling, voltagePerLine, pathologyContainer, hasPathologyEM, hasPathologyHEC, hasPathologyFCAL, rValues));
   
-    const CaloDetDescrManager* calodetdescrmgr = nullptr;
-    ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
-    
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+    const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
+    writeHandle.addDependency(caloMgrHandle);
+    writeAffectedHandle.addDependency(caloMgrHandle);
+
     std::vector<float> vScale;
     vScale.resize(MAX_LAR_CELLS,(float)1.0);
     for (unsigned i=0;i<MAX_LAR_CELLS;++i) {
       IdentifierHash hash(i);
       const CaloDetDescrElement* dde= calodetdescrmgr->get_element(hash); 
-      vScale[i]=m_scaleTool->getHVScale(dde,voltageVec[i]);
+      vScale[i]=m_scaleTool->getHVScale(dde,voltageVec[i],msg());
       if(onlHVCorr) { // undo the online one
 	const float hvonline = onlHVCorr->HVScaleCorr(cabling->createSignalChannelIDFromHash(hash));
 	if (hvonline>0. && hvonline<100.) vScale[i]=vScale[i]/hvonline;
@@ -811,7 +813,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffe
 	    for (unsigned int ielec=0;ielec<32;ielec++) { //use hvMod->getNumElectrodes when bug is corrected
 	      const EMBHVElectrode& electrode = hvMod.getElectrode(ielec);
 
-	      double hv[2];
+	      double hv[2]={0.,0.};
 	      for (unsigned int iGap=0;iGap<2;iGap++) { // EMB : 2, TRY TO FIND AUTOMATICALLY NB OF GAPS
 		unsigned int hvline = electrode.hvLineNo(iGap,hvCabling);
 		auto hvIt=voltage.find(hvline);

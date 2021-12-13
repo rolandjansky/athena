@@ -15,6 +15,7 @@
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
+#include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include <atomic>
 class PixelID;
@@ -161,6 +162,14 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     //!< get local FEI4
     unsigned int getLocalFEI4(const uint32_t fe, const uint64_t onlineId) const;
+
+    //!< in case of invalid ROB fragments set corresponding error flags in all linked modules.
+    void propagateROBErrorsToModules(const PixelCablingCondData *pixCabling,
+                                     uint32_t robId,
+                                     std::array<uint64_t, PixelRodDecoder::ERROR_CONTAINER_MAX> &bsErrWord,
+                                     IDCInDetBSErrContainer& decodingErrors,
+                                     PixelByteStreamErrors::PixelErrorsEnum error_code,
+                                     const char *error_description) const;
 };
 
 bool 

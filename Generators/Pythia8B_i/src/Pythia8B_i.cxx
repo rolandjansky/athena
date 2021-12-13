@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ======================================================================
@@ -71,8 +71,11 @@ Pythia8B_i::Pythia8B_i
     for (std::vector<int>::iterator iit=m_bcodes.begin(); iit!=m_bcodes.end(); ++iit) {
         m_speciesCount[*iit] = 0;
     }
-    
-    
+#ifdef HEPMC3
+    m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+    std::vector<std::string> names = {"Default"};
+    m_runinfo->set_weight_names(names);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -387,15 +390,21 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
         HepMC::set_random_states(evt,m_seeds);
     
     // set the event weight
-    evt->weights().push_back(m_pythia->info.weight());
 #ifdef HEPMC3
-    GeVToMeV(evt);
-#else
-    // Units correction
-    if(Pythia8_i::pythiaVersion() < 8.170 ){
-        GeVToMeV(evt);
-    }
+    if (!evt->run_info()) evt->set_run_info(m_runinfo);
+    evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
 #endif
+    evt->weights().push_back(m_pythia->info.weight());
+
+//uncomment to list HepMC events
+//#ifdef HEPMC3
+//    std::cout << " print::listing Pythia8B " << std::endl;
+//    HepMC3::Print::listing(std::cout, *evt);
+//#else
+//    std::cout << " print::printing Pythia8B " << std::endl;
+//    evt->print();
+//#endif
+
     // Remove event/number from buffer
     m_BEventBuffer.erase(m_BEventBuffer.begin());
     m_internalEventNumbers.erase(m_internalEventNumbers.begin());

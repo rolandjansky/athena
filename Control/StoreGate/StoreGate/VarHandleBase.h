@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file StoreGate/VarHandleBase.h
@@ -480,7 +480,7 @@ namespace SG {
      * If newKey matches the existing key, then make a symlink.
      * If neither match, it's an error.
      */
-    StatusCode symLink_impl (CLID newClid, const std::string& newKey) const;
+    StatusCode symLink_impl (CLID newClid, const std::string& newKey);
 
 
     /**

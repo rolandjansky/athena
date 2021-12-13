@@ -65,7 +65,7 @@ void AGDDMaterialStore::PrintElementNames()
 			std::endl<<"-----> ";
 	AGDDElementMap::const_iterator it;
 	int i=0;
-	for (it=m_theElements.begin();it!=m_theElements.end();it++)
+	for (it=m_theElements.begin();it!=m_theElements.end();++it)
 	{
 		i++;
 		if (!(i%5)) std::cout<<std::endl<<"-----> ";
@@ -79,7 +79,7 @@ void AGDDMaterialStore::PrintMaterialNames()
 			std::endl<<"-----> ";
 	AGDDMaterialMap::const_iterator it;
 	int i=0;
-	for (it=m_theMaterials.begin();it!=m_theMaterials.end();it++)
+	for (it=m_theMaterials.begin();it!=m_theMaterials.end();++it)
 	{
 		i++;
 		if (!(i%5)) std::cout<<std::endl<<"-----> ";

@@ -12,58 +12,49 @@
 // Trk
 #include "TrkDetDescrInterfaces/ILayerProviderCond.h"
 // Gaudi & Athena
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/ToolHandle.h"
 
 namespace Trk {
 
-    class Layer;
-    class ILayerBuilderCond;
+class Layer;
+class ILayerBuilderCond;
 
+/** @class LayerProviderCond
 
-    /** @class LayerProviderCond
+  Wrapper around an ILayerBuilderCond to feed into the StagedGeometryBuilder
 
-      Wrapper around an ILayerBuilderCond to feed into the StagedGeometryBuilder
+  @author Andreas.Salzburger@cern.ch
+ */
+class LayerProviderCond final
+  : public AthAlgTool
+  , virtual public ILayerProviderCond
+{
 
-      @author Andreas.Salzburger@cern.ch
-     */
-    class ATLAS_NOT_THREAD_SAFE LayerProviderCond // mutable cache
-      : public AthAlgTool
-      , virtual public ILayerProviderCond
-    {
- 
-      public:
-        /** Constructor */
-        LayerProviderCond(const std::string&,const std::string&,const IInterface*);
+public:
+  /** Constructor */
+  LayerProviderCond(const std::string&, const std::string&, const IInterface*);
 
-        /** Destructor */
-        virtual ~LayerProviderCond();
-        
-        /** initialize */
-        StatusCode initialize();
+  /** Destructor */
+  virtual ~LayerProviderCond();
 
-        /** LayerBuilder interface method - returning the layers at negative side */
-        std::pair<EventIDRange, const std::vector< const Layer* > > negativeLayers(const EventContext& ctx) const; 
-      
-        /** LayerBuilder interface method - returning the central layers */
-        std::pair<EventIDRange, const std::vector< const Layer* > > centralLayers(const EventContext& ctx) const; 
-      
-        /** LayerBuilder interface method - returning the layers at negative side */
-        std::pair<EventIDRange, const std::vector< const Layer* > > positiveLayers(const EventContext& ctx) const; 
+  /** initialize */
+  virtual StatusCode initialize() override final;
 
-        /** Name identification */
-        const std::string& identification() const;
+  /** LayerBuilder interface method - returning the layers in the endcaps */
+  virtual std::tuple<EventIDRange, const std::vector<Layer*>, const std::vector<Layer*> > endcapLayer(const EventContext& ctx) const override final;
 
-      private:
-        /** LayerBuilder interface method - returning the layers at negative side */
-        std::pair<EventIDRange, const std::vector< const Layer* > > discLayers(const EventContext& ctx, int posneg) const;   
-      
-        ToolHandle<ILayerBuilderCond>           m_layerBuilder;
-        mutable std::vector<const Trk::Layer*>  m_layerCache;
-        
-    };
+  /** LayerBuilder interface method - returning the central layers */
+  virtual std::pair<EventIDRange, const std::vector<Layer*>> centralLayers(
+    const EventContext& ctx) const override final;
 
+  /** Name identification */
+  virtual const std::string& identification() const override final;
+
+private:
+  ToolHandle<ILayerBuilderCond> m_layerBuilder;
+};
 
 } // end of namespace
 

@@ -7,6 +7,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkSurfaces/Surface.h"
+#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 
 ///Needed for the track refitter
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -186,26 +187,25 @@ namespace InDet {
     }
 
     // --- create new track state on surface vector
-    auto ntsos = DataVector<const Trk::TrackStateOnSurface>();
+    auto ntsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
+    ntsos->reserve (1 + tS.numberOfMeasurementBases());
 
     //
     // if no refit, make it a perigee
     //
     if (!m_doRefit) {
 
-      const Trk::TrackStateOnSurface* par_tsos = nullptr;
-
       // --- create surface at perigee
       Amg::Vector3D perigeePosition(0., 0., 0.);
       Trk::PerigeeSurface perigeeSurface(perigeePosition);
-      // --- turn parameters into perifgee...
-      const Trk::Perigee* perParm = dynamic_cast<const Trk::Perigee*>(
-        m_extrapolator->extrapolate(*segPar, perigeeSurface));
+      // --- turn parameters into perigee...
+      auto perParm = std::unique_ptr<const Trk::Perigee>(dynamic_cast<const Trk::Perigee*>(
+       m_extrapolator->extrapolate(*segPar, perigeeSurface)));
       if (perParm) {
         ATH_MSG_VERBOSE("Perigee version of Parameters : " << (*segPar));
       } else {
         ATH_MSG_DEBUG("Failed to build perigee parameters.Discard...");
-        ntsos.clear();
+        ntsos->clear();
         delete segPar;
         segPar = nullptr;
         delete fq;
@@ -217,10 +217,10 @@ namespace InDet {
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
         typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      par_tsos = new Trk::TrackStateOnSurface(
-        nullptr, perParm, nullptr, nullptr, typePattern);
+      auto par_tsos = ntsos->allocate(
+        nullptr, std::move(perParm), nullptr, nullptr, typePattern);
       // push new TSOS into the list
-      ntsos.push_back(par_tsos);
+      ntsos->push_back(std::move(par_tsos));
     }
 
     //
@@ -246,7 +246,7 @@ namespace InDet {
     for (int it = 0; it < int(tS.numberOfMeasurementBases()); it++) {
 
       // the track state on service we like to constuct ...
-      const Trk::TrackStateOnSurface* seg_tsos = nullptr;
+      Trk::TrackStateOnSurfaceProtContainer::Ptr seg_tsos;
 
       // is this ROT a psuedo-measurement ?
       if (dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(
@@ -265,8 +265,7 @@ namespace InDet {
 
         if (m_doRefit) {
           // refit means we can simply copy the state, otherwise we skip it
-          seg_tsos =
-            new Trk::TrackStateOnSurface(tS.measurement(it)->uniqueClone(), nullptr);
+          seg_tsos = ntsos->allocate(tS.measurement(it)->uniqueClone(), nullptr);
         }
 
       } else {
@@ -274,8 +273,7 @@ namespace InDet {
         // normal measurement, not a pseudo measurement
         //
         // copy measurement
-        seg_tsos =
-          new Trk::TrackStateOnSurface(tS.measurement(it)->uniqueClone(), nullptr);
+        seg_tsos = ntsos->allocate (tS.measurement(it)->uniqueClone(), nullptr);
 
         //
         // --- following is for the hack below
@@ -326,16 +324,16 @@ namespace InDet {
       }
 
       // push new TSOS into the list
-      if (seg_tsos)
-        ntsos.push_back(seg_tsos);
+       if (seg_tsos)
+        ntsos->push_back(std::move(seg_tsos));
     }
 
     // Construct the new track
     Trk::TrackInfo info;
     info.setPatternRecognitionInfo(Trk::TrackInfo::TRTStandalone);
 
-    // create new track candidate
     if (!m_doRefit) {
+      ntsos->elt_allocator().protect();
       return new Trk::Track(info, std::move(ntsos), fq);
     } else {
       //
@@ -476,20 +474,20 @@ namespace InDet {
 
           // ME: wow this is hacking the vector ...
           const Trk::MeasurementBase* firstmeas =
-            (**ntsos.begin()).measurementOnTrack();
+            (**ntsos->begin()).measurementOnTrack();
           Amg::MatrixX newcov(2, 2);
           newcov.setZero();
           newcov(0, 0) = (firstmeas->localCovariance())(0, 0);
           newcov(1, 1) = (myqoverp != 0) ? .0001 * myqoverp * myqoverp : 1.e-8;
           Trk::LocalParameters newpar(std::make_pair(0, Trk::locZ),
                                       std::make_pair(myqoverp, Trk::qOverP));
-          Trk::PseudoMeasurementOnTrack* newpseudo =
-            new Trk::PseudoMeasurementOnTrack(
+          auto newpseudo =
+            std::make_unique<Trk::PseudoMeasurementOnTrack>(
               newpar, newcov, firstmeas->associatedSurface());
           // hack replace first measurement with pseudomeasurement
-          ntsos.erase(ntsos.begin());
-          ntsos.insert(ntsos.begin(),
-                        new Trk::TrackStateOnSurface(newpseudo, nullptr));
+          ntsos->erase(ntsos->begin());
+          ntsos->insert(ntsos->begin(),
+                        ntsos->allocate(std::move(newpseudo), nullptr));
         }
 
         Amg::Vector3D field1;
@@ -584,14 +582,15 @@ namespace InDet {
       double P[5] = { myd0, myz0, myphi, mytheta, myqoverp };
 
       // create perigee TSOS and add as first (!) TSOS
-      Trk::Perigee* per =
-        new Trk::Perigee(P[0], P[1], P[2], P[3], P[4], Trk::PerigeeSurface());
+      
+      auto per =
+        std::make_unique<Trk::Perigee>(P[0], P[1], P[2], P[3], P[4], Trk::PerigeeSurface());
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
         typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(
-        nullptr, per, nullptr, nullptr, typePattern);
-      ntsos.insert(ntsos.begin(), seg_tsos);
+      auto seg_tsos = ntsos->allocate(
+        nullptr, std::move(per), nullptr, nullptr, typePattern);
+      ntsos->insert(ntsos->begin(), std::move(seg_tsos));
 
       ATH_MSG_VERBOSE("Constructed perigee at input to fit : " << (*per));
 
@@ -600,6 +599,7 @@ namespace InDet {
       // track
       //
 
+      ntsos->elt_allocator().protect();
       Trk::Track newTrack (info, std::move(ntsos), fq);
       Trk::Track* fitTrack =
         m_fitterTool->fit(newTrack, true, Trk::nonInteracting);

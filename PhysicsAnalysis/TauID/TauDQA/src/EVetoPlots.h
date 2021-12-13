@@ -12,7 +12,7 @@ namespace Tau{
 
 class EVetoPlots: public PlotBase {
   public:
-    EVetoPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
+    EVetoPlots(PlotBase *pParent, const std::string& sDir, std::string sTauJetContainerName);
     virtual ~EVetoPlots();
     void fill(const xAOD::TauJet& tau, float weight);
 

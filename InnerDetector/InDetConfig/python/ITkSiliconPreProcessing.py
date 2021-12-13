@@ -4,11 +4,9 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def ITkSiElementPropertiesTableCondAlgCfg(flags, name="ITkSiElementPropertiesTableCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-
     # For strip DetectorElementCollection used
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    acc.merge(ITkStripGeometryCfg(flags))
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc = ITkStripReadoutGeometryCfg(flags)
     
     kwargs.setdefault("ReadKey", "ITkStripDetectorElementCollection")
     kwargs.setdefault("WriteKey", "ITkStripElementPropertiesTable")
@@ -33,14 +31,13 @@ def ITkSiSpacePointMakerToolCfg(flags, name="ITkSiSpacePointMakerTool", **kwargs
     return acc
 
 def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder", **kwargs):
-    acc = ComponentAccumulator()
     #
     # SiTrackerSpacePointFinder algorithm
     #
 
     # For strip DetectorElementCollection used
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-    acc.merge(ITkStripGeometryCfg(flags))
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc = ITkStripReadoutGeometryCfg(flags)
 
     ITkSiSpacePointMakerTool = acc.popToolsAndMerge(ITkSiSpacePointMakerToolCfg(flags))
 
@@ -53,8 +50,8 @@ def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder"
     kwargs.setdefault("SpacePointsSCTName", 'ITkStripSpacePoints')
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
     kwargs.setdefault("ProcessPixels", flags.Detector.EnableITkPixel)
-    kwargs.setdefault("ProcessSCTs", flags.Detector.EnableITkStrip and (not flags.ITk.doFastTracking or flags.ITk.doITkLargeD0))
-    kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableITkStrip and (not flags.ITk.doFastTracking or flags.ITk.doITkLargeD0))
+    kwargs.setdefault("ProcessSCTs", flags.Detector.EnableITkStrip and (not flags.ITk.doFastTracking or flags.ITk.doLargeD0))
+    kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableITkStrip and (not flags.ITk.doFastTracking or flags.ITk.doLargeD0))
 
     if flags.Beam.Type == "cosmics":
         kwargs.setdefault("ProcessOverlaps", False)
@@ -71,8 +68,13 @@ def ITkPRD_MultiTruthMakerSiCfg(flags, name="ITkPRD_MultiTruthMakerSi", **kwargs
     acc = ComponentAccumulator()
 
     # For pixel + strip DetectorElementCollection used
-    from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
-    acc.merge(ITkGeometryCfg(flags))
+    if flags.Detector.GeometryITkPixel:
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+        acc.merge(ITkPixelReadoutGeometryCfg(flags))
+
+    if flags.Detector.GeometryITkStrip:
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+        acc.merge(ITkStripReadoutGeometryCfg(flags))
 
     if flags.ITk.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'ITkPixelClusters')
@@ -105,8 +107,13 @@ def ITkPRD_MultiTruthMakerSiPUCfg(flags, name="ITkPRD_MultiTruthMakerSiPU", **kw
     acc = ComponentAccumulator()
 
     # For pixel + strip DetectorElementCollection used
-    from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
-    acc.merge(ITkGeometryCfg(flags))
+    if flags.Detector.GeometryITkPixel:
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+        acc.merge(ITkPixelReadoutGeometryCfg(flags))
+
+    if flags.Detector.GeometryITkStrip:
+        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+        acc.merge(ITkStripReadoutGeometryCfg(flags))
 
     if flags.ITk.doTruth:
         kwargs.setdefault("PixelClusterContainerName", 'ITkPixelPUClusters')
@@ -149,7 +156,7 @@ def ITkNnPixelClusterSplitProbToolCfg(flags, name="ITkNnPixelClusterSplitProbToo
 
     ITkNnPixelClusterSplitProbTool = CompFactory.InDet.TruthPixelClusterSplitProbTool(name=name,**kwargs) #Truth-based for ITk for now
 
-    acc.addPublicTool(ITkNnPixelClusterSplitProbTool, primary=True)
+    acc.setPrivateTools(ITkNnPixelClusterSplitProbTool)
     return acc
 
 def ITkNnPixelClusterSplitterCfg(flags, name="ITkNnPixelClusterSplitter", **kwargs):

@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "xAODTruth/TruthEvent.h"
+#include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthMetaDataContainer.h"
 
 /// @brief Algorithm to skim the xAOD truth particle container for xAOD photons filter
@@ -31,11 +32,7 @@ private:
     /// The key for the output xAOD truth containers
     std::string m_xaodTruthParticleContainerNamePhoton;
     std::string m_xaodTruthParticleContainerName;
-
-    /// Selection values for keeping photons
-    double m_photon_pt_selection; //in GeV
-    double m_abseta_selection;
-
+    std::string m_xaodTruthEventContainerName;
 }; // class xAODTruthParticleSlimmerPhoton
 
 #endif //GENERATORFILTERS_XAODTRUTHPARTICLESLIMMERPHOTON_H

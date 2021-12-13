@@ -94,8 +94,8 @@ if data_type == 'bytestream':
             theApp.EvtMax=runArgs.maxEvents
     #-- get Trigger Configuration ------------------------------------------------------------------------------
 
-    from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-    gettrigger = T0TriggerGetter()
+    from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
+    gettrigger = TriggerRecoGetter()
     
     from TriggerJobOpts.HLTTriggerResultGetter import ByteStreamUnpackGetter
     bsu=ByteStreamUnpackGetter()
@@ -120,23 +120,15 @@ if data_type == 'pool':
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg =  TriggerConfigGetter()
     
-    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-    from TrigEDMConfig.TriggerEDM import EDMLibraries
-    ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    if ConfigFlags.Trigger.EDMVersion == 3:
-        ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite"
-    
-    if hasattr(runArgs,"useDB") and runArgs.useDB:
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
-    else:
-        log.info("Configure TrigConfigSvc by default")
-        if not hasattr(svcMgr, 'xAODConfigSvc'):
-          from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
-          svcMgr += TrigConf__xAODConfigSvc('xAODConfigSvc')
-        ToolSvc.TrigDecisionTool.TrigConfigSvc = svcMgr.xAODConfigSvc
+    if not hasattr(ToolSvc, 'TrigDecisionTool'):
+        from AthenaCommon.Configurable import Configurable
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        Configurable.configurableRun3Behavior += 1
+        from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+        acc = TrigDecisionToolCfg(ConfigFlags)
+        appendCAtoAthena( acc )
+        Configurable.configurableRun3Behavior -= 1
     
     # enable slices for monitoring 
     # otherwise enable slices via monFlags 

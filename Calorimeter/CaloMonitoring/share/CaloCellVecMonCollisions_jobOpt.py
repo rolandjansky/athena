@@ -31,7 +31,7 @@ LArCellMon = LArCellMonTool(
     #DoSaveTempHists=True,
     #OutputLevel=DEBUG,
 
-    name = "LArCellMon",
+    name = "LArCellMonOld",
     CaloCellContainer = "AllCalo",
 
     BadLBTool = GetLArBadLBFilterTool(),

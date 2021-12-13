@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Rpc_H
@@ -10,6 +10,9 @@
 #include "MuonGeoModel/RpcComponent.h"
 
 class GeoVFullPhysVol;
+namespace MuonGM {
+  class MYSQL;
+}
 
 namespace MuonGM {
 
@@ -27,11 +30,16 @@ namespace MuonGM {
         float y_translation;
         float z_translation;
 
-        Rpc(Component *s);
+        Rpc(const MYSQL& mysql, Component *s);
         GeoVFullPhysVol *build();
-        GeoFullPhysVol *build(int minimalgeo);
-        GeoFullPhysVol *build(int minimalgeo, int cutoutson, std::vector<Cutout *>);
-        void print();
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql,
+                              int minimalgeo);
+        GeoFullPhysVol *build(const StoredMaterialManager& matManager,
+                              const MYSQL& mysql,
+                              int minimalgeo, int cutoutson,
+                              const std::vector<Cutout *>&);
+        virtual void print() override;
         unsigned int nGasGaps() const;
 
       private:

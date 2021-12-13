@@ -51,17 +51,33 @@ def MuonSegmentTagAlgCfg(flags, name="MuonSegmentTagAlg", **kwargs ):
     return result
   
 def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasRKPropagatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+
     #TODO: defaults in cxx
-    kwargs.setdefault("AssumeLocalErrors", True )
-    kwargs.setdefault("PhiCut", 30. )
+    kwargs.setdefault("AssumeLocalErrors", True)
+    kwargs.setdefault("PhiCut", 30.)
     kwargs.setdefault("GlobalPhiCut", 1.)
-    kwargs.setdefault("ThetaCut", 5. )
-    kwargs.setdefault("GlobalThetaCut", 0.5 )
-    kwargs.setdefault("ThetaAngleCut", 5. )
-    kwargs.setdefault("DoDistanceCut", True )
-    kwargs.setdefault("CombinedPullCut", 3.0 )
+    kwargs.setdefault("ThetaCut", 5.)
+    kwargs.setdefault("GlobalThetaCut", 0.5)
+    kwargs.setdefault("ThetaAngleCut", 5.)
+    kwargs.setdefault("DoDistanceCut", True)
+    kwargs.setdefault("CombinedPullCut", 3.0)
+
+    result = AtlasExtrapolatorCfg(flags)
+    kwargs.setdefault("IExtrapolator", result.popPrivateTools())
+
+    kwargs.setdefault("Propagator", result.getPrimaryAndMerge( AtlasRKPropagatorCfg(flags) ))
+
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+        TrackingGeometryCondAlgCfg)
+    acc = TrackingGeometryCondAlgCfg(flags)
+    geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+    result.merge(acc)
+    kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
+
     tool = CompFactory.MuTagMatchingTool(name,**kwargs)
-    result = ComponentAccumulator()
+    
     result.addPublicTool(tool, primary=True)
     return result
 
@@ -167,11 +183,8 @@ def MuonCombinedInDetCandidateAlgCfg(flags, name="MuonCombinedInDetCandidateAlg"
         acc = MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, "MuonCombinedInDetDetailedForwardTrackSelectorTool", nHitSct=0)
         kwargs.setdefault("InDetForwardTrackSelector", acc.getPrimary() )
         result.merge(acc)
-    
-    acc = AtlasExtrapolatorCfg(flags)
-    extrapolator = acc.getPrimary()
-    result.merge(acc)
 
+    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     muon_particle_extension_tool = CompFactory.Trk.ParticleCaloExtensionTool(Extrapolator=extrapolator)
 
     muon_ext_tool = CompFactory.Muon.MuonSystemExtensionTool(ParticleCaloExtensionTool = muon_particle_extension_tool, Extrapolator = extrapolator)
@@ -197,18 +210,14 @@ def MuonCombinedInDetCandidateAlg_LRTCfg(flags, name="MuonCombinedInDetCandidate
     return result
 
 def MuonCombinedAlgCfg( flags, name="MuonCombinedAlg",**kwargs ):
-
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedToolCfg
-    result = MuonCombinedToolCfg(flags)
 
+    result = MuonCombinedToolCfg(flags)
     kwargs.setdefault("MuonCombinedTool",result.getPrimary())
     tagmaps = []
     # CombinedTagMaps must be in a 1-1 correspondence
     # with MuonCombinedTagTools.
     for h in kwargs['MuonCombinedTool'].MuonCombinedTagTools:
-    #     print (h)
-    # import sys
-    # sys.exit(1)
         if str(h).find('FitTagTool') >= 0:
             tagmaps.append ('muidcoTagMap')
         elif str(h).find('StacoTagTool') >= 0:
@@ -244,8 +253,12 @@ def recordMuonCreatorAlgObjs (kw):
 
 def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg
-    result = MuonCreatorToolCfg(flags, FillTimingInformation=False)
+    result = MuonCreatorToolCfg(flags)
     kwargs.setdefault("MuonCreatorTool",result.popPrivateTools())
+
+    # MuonSegmentConvertorTool not set up. But it currently only contains:
+    # MuonSegmentHitSummaryTool and MuonHitTimingTool, neither which appear to need explicit configuration
+
     # recordMuonCreatorAlgObjs (kwargs)
     # if muGirl is off, remove "muGirlTagMap" from "TagMaps"
     # but don't set this default in case the StauCreatorAlg is created (see below)
@@ -287,53 +300,22 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
 def MuonCombinedReconstructionCfg(flags):
     result = ComponentAccumulator()
 
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    result.merge( GeoModelCfg(flags) )
-
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
-    result.merge( MuonGeoModelCfg(flags) )
-
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    result.merge( LArGMCfg(flags) )
-
-    from TileGeoModel.TileGMConfig import TileGMCfg
-    result.merge( TileGMCfg(flags) )
-
-    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    result.merge( BeamPipeGeometryCfg(flags) ) 
-
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    result.merge(PixelGeometryCfg(flags))
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    result.merge(SCT_GeometryCfg(flags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    result.merge(TRT_GeometryCfg(flags))
-
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-    from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
-    if use_tracking_geometry_cond_alg :
-        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-        result.merge( TrackingGeometryCondAlgCfg(flags) )
-    else :
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-        result.merge( TrackingGeometrySvcCfg(flags) )
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+    result.merge( TrackingGeometryCondAlgCfg(flags) )
 
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
 
-
     # Set up to read Tracks.
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
     result.merge (TrackCollectionReadCfg (flags, 'Tracks'))
-
-    result.merge( MuonCombinedInDetCandidateAlgCfg(flags) )
+    useSectors = False #FIXME, switch off the sector seeding for the moment
+    result.merge( MuonCombinedInDetCandidateAlgCfg(flags, UseOnlyHittedSectors=useSectors) )
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
 
     doLRT = False # FIXME, once this is in InDetFlags
     if (doLRT):
-        result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags) )
+        result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags, UseOnlyHittedSectors=useSectors) )
 
     if flags.MuonCombined.doStatisticalCombination or flags.MuonCombined.doCombinedFit:
         result.merge( MuonCombinedAlgCfg(flags) )
@@ -402,7 +384,7 @@ if __name__=="__main__":
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True))
+    cfg.merge(CaloTopoClusterCfg(ConfigFlags))
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     

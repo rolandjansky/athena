@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMHALOPARTICLE_H
@@ -36,20 +36,10 @@ class BeamHaloParticle {
                    HepMC::FourVector positionAtPrimary);
 
 
-  BeamHaloParticle(const BeamHaloParticle& beamHaloParticle);
+  BeamHaloParticle(const BeamHaloParticle& beamHaloParticle) = default;
 
   /** Assignment operator */
-  BeamHaloParticle & operator=(const BeamHaloParticle &rhs) { 
-    if ( this != &rhs ) // Fix Coverity SELF_ASSIGN
-    {
-      m_pdgId = rhs.m_pdgId;
-      m_fourVector = rhs.m_fourVector;
-      m_positionAtScoringPlane = rhs.m_positionAtScoringPlane; 
-      m_weight = rhs.m_weight;
-      m_positionAtPrimary = rhs.m_positionAtPrimary;
-    }
-    return *this; 
-  }
+  BeamHaloParticle & operator=(const BeamHaloParticle &rhs) = default;
 
   /** A function to fill the data members from an input MarsParticle
       object. */

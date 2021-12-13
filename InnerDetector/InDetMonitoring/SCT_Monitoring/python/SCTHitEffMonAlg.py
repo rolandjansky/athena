@@ -64,7 +64,7 @@ def SCTHitEffMonAlgConfig(inputFlags):
     # standard one that is included with AthMonitorAlgorithm.
 
     # set up geometry / conditions
-    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    from InDetConfig.InDetGeometryConfig import InDetGeometryCfg
     result.merge(InDetGeometryCfg(inputFlags))
 
     # Add a generic monitoring tool (a "group" in old language). The returned 
@@ -251,10 +251,6 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    geoCfg=AtlasGeometryCfg(ConfigFlags)
-    cfg.merge(geoCfg)
 
     sctHitEffMonAcc = SCTHitEffMonAlgConfig(ConfigFlags)
     cfg.merge(sctHitEffMonAcc)

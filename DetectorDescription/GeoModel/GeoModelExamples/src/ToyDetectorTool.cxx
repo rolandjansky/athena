@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BUILDVP1LIGHT
@@ -60,9 +60,8 @@ StatusCode ToyDetectorTool::create()
   return StatusCode::FAILURE;
 }
 
-void ToyDetectorTool::printVolume(GeoPVConstLink volume)
+void ToyDetectorTool::printVolume(GeoPVConstLink volume, int level /*= 0*/)
 {
-  static int level{0};
   GeoVolumeCursor cursor(volume);
   while(!cursor.atEnd()) {
     GeoPVConstLink physChild = cursor.getVolume();
@@ -76,9 +75,7 @@ void ToyDetectorTool::printVolume(GeoPVConstLink volume)
       }
       std::cout << "\n";
     }
-    level++;
-    printVolume(physChild);
-    level--;
+    printVolume(physChild, level+1);
     cursor.next();
   }
 }

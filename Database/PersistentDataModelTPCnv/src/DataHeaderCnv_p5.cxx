@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv_p5.cxx
@@ -10,6 +10,7 @@
 
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p5.h"
+#include "boost/algorithm/string.hpp"
 
 DataHeaderElementCnv_p5::DataHeaderElementCnv_p5() {}
 DataHeaderElementCnv_p5::~DataHeaderElementCnv_p5() {}
@@ -134,7 +135,7 @@ void DataHeaderElementCnv_p5::transToPers(const DataHeaderElement* trans,
          pers->m_token = pers->m_token.substr(delim + 1);
 // Get TypeName
 // Check whether Key only is used for placement
-         if (pers->m_token.find(trans->m_key) != 0) {
+         if (!boost::starts_with (pers->m_token, trans->m_key)) {
             std::string::size_type delim = pers->m_token.find_first_of("/()");
             if (delim != std::string::npos) {
                const std::string persComp2 = pers->m_token.substr(0, delim + 1);

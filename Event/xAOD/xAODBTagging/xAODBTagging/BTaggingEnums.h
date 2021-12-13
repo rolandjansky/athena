@@ -96,6 +96,7 @@ namespace xAOD
       IP3D_weightUofTracks = 510,
       /// @brief IP3D : track contribution to C likelihood
       IP3D_weightCofTracks = 511
+      
 
     }; //enum BTagInfo
   ///@}

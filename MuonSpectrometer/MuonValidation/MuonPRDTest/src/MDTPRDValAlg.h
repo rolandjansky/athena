@@ -15,9 +15,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include <sstream>   
+  
 #include <string>
-#include <vector>
+
 #include <map>
 
 class MDTSimHit; 
@@ -39,12 +39,12 @@ class MDTPRDValAlg: public AthAlgorithm {
     }
     Amg::Vector3D momentum;
     Amg::Vector3D   position;
-    double      charge;
-    const Trk::TrackParameters* pars;
+    double      charge{};
+    const Trk::TrackParameters* pars{};
 
-    private:
-    ParticleParameters& operator=( const ParticleParameters& ) { return *this; }
-    ParticleParameters( const ParticleParameters& ) {}
+    ParticleParameters& operator=( const ParticleParameters& ) = delete;
+    ParticleParameters( const ParticleParameters& ) = delete;
+    
   };
 
   struct TruthInfo {
@@ -54,15 +54,14 @@ class MDTPRDValAlg: public AthAlgorithm {
       delete muonEntry;
       delete muonExit;
     }
-    ParticleParameters* vertex;
-    ParticleParameters* muonEntry;
-    ParticleParameters* muonExit;
-    int         pdg;
-    int         barcode;
+    ParticleParameters* vertex{};
+    ParticleParameters* muonEntry{};
+    ParticleParameters* muonExit{};
+    int         pdg{};
+    int         barcode{};
+    TruthInfo( const TruthInfo& ) = default;
+    TruthInfo& operator=( const TruthInfo& ) = delete;
     
-    private:
-    TruthInfo( const TruthInfo& ) {}
-    TruthInfo& operator=( const TruthInfo& ) { return *this; }
   };
 
   typedef std::map<int,TruthInfo*> TruthMap;
@@ -70,10 +69,10 @@ class MDTPRDValAlg: public AthAlgorithm {
 
   struct MdtHitData {
     MdtHitData() : barcode(-1),simHit(0),sdo(0),prd(0) {}
-    int   barcode;
-    const MDTSimHit*         simHit;
-    const MuonSimData*       sdo;
-    const Muon::MdtPrepData* prd;
+    int   barcode{};
+    const MDTSimHit*         simHit{};
+    const MuonSimData*       sdo{};
+    const Muon::MdtPrepData* prd{};
   };
   
   typedef std::map<Identifier,MdtHitData*> MdtHitMap;
@@ -92,17 +91,17 @@ class MDTPRDValAlg: public AthAlgorithm {
  private:
  
 
-  TTree* m_mdttree; /** Pointer to the NTuple tree
+  TTree* m_mdttree{}; /** Pointer to the NTuple tree
 		      The tree that will contain our "AANtuple" with one entry per hit*/
 
   /**Simple method for accessing root histo service for booking*/
   ITHistSvc*     ToolRootHistSvc();
 
   
-  int m_event_counter;
-  bool m_DoMDTTest;		  
+  int m_event_counter{};
+  bool m_DoMDTTest{};		  
  
-  bool m_writeNtuple;                 /**jobOption: write data to AANtuple*/
+  bool m_writeNtuple{};                 /**jobOption: write data to AANtuple*/
 
   std::string m_ntupleTreeName;       /** jobOption: Ntuple tree name*/
   std::string m_ntupleFileName;       /** jobOption: Ntuple file name*/    
@@ -113,13 +112,13 @@ class MDTPRDValAlg: public AthAlgorithm {
   std::string m_key; 
   
   /**MDT barrel eta cut, applicable to the MDT 2D cross section plot */
-  double m_BarrelEtaCut;
+  double m_BarrelEtaCut{};
 
   std::string m_chamberName;
   std::string m_StationSize;
-  int m_StationEta;
-  int m_StationPhi;
-  int m_LastEvent;
+  int m_StationEta{};
+  int m_StationPhi{};
+  int m_LastEvent{};
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
@@ -138,75 +137,75 @@ class MDTPRDValAlg: public AthAlgorithm {
   void cleanUp( TruthMap& truthMap ) const;
 
   /**Athena-Aware Ntuple variable declaration, explanation in MDTPRDValAlg.cxx*/
-  int m_counter_ValHitNumber ;
-  int m_Validation_MDT_Type;
-  int m_Validation_MDT_NumberOfHits;
-  int m_Validation_MDT_EventNumber;
-  int m_Validation_MDT_RunNumber;
-  int m_Validation_MDT_pdg;
-  double m_Validation_MDT_phi;
-  double m_Validation_MDT_theta;
-  double m_Validation_MDT_eta;
-  double m_Validation_MDT_qp;
-  double m_Validation_MDT_MEX;
-  double m_Validation_MDT_MEY;
-  double m_Validation_MDT_MEZ;
-  double m_Validation_MDT_Exit_qp;
-  double m_Validation_MDT_ExitX;
-  double m_Validation_MDT_ExitY;
-  double m_Validation_MDT_ExitZ;
-  double m_Validation_MDT_HitX;
-  double m_Validation_MDT_HitY;
-  double m_Validation_MDT_HitZ;
-  double m_Validation_MDT_HitR;
-  double m_Validation_MDT_ExX;
-  double m_Validation_MDT_ExY;
-  double m_Validation_MDT_ExZ;
-  double m_Validation_MDT_ExR;
-  char m_Validation_MDT_StationName[4]; // string in as char array
-  int m_Validation_MDT_StationEta;
-  int m_Validation_MDT_StationPhi;
-  int m_Validation_MDT_IDTube;
-  int m_Validation_MDT_IDMultiLayer;
-  int m_Validation_MDT_IDLayer;
-  int m_Validation_MDT_GeoSign;
-  int m_Validation_MDT_BESL;
+  int m_counter_ValHitNumber {};
+  int m_Validation_MDT_Type{};
+  int m_Validation_MDT_NumberOfHits{};
+  int m_Validation_MDT_EventNumber{};
+  int m_Validation_MDT_RunNumber{};
+  int m_Validation_MDT_pdg{};
+  double m_Validation_MDT_phi{};
+  double m_Validation_MDT_theta{};
+  double m_Validation_MDT_eta{};
+  double m_Validation_MDT_qp{};
+  double m_Validation_MDT_MEX{};
+  double m_Validation_MDT_MEY{};
+  double m_Validation_MDT_MEZ{};
+  double m_Validation_MDT_Exit_qp{};
+  double m_Validation_MDT_ExitX{};
+  double m_Validation_MDT_ExitY{};
+  double m_Validation_MDT_ExitZ{};
+  double m_Validation_MDT_HitX{};
+  double m_Validation_MDT_HitY{};
+  double m_Validation_MDT_HitZ{};
+  double m_Validation_MDT_HitR{};
+  double m_Validation_MDT_ExX{};
+  double m_Validation_MDT_ExY{};
+  double m_Validation_MDT_ExZ{};
+  double m_Validation_MDT_ExR{};
+  char m_Validation_MDT_StationName[4]{}; // string in as char array
+  int m_Validation_MDT_StationEta{};
+  int m_Validation_MDT_StationPhi{};
+  int m_Validation_MDT_IDTube{};
+  int m_Validation_MDT_IDMultiLayer{};
+  int m_Validation_MDT_IDLayer{};
+  int m_Validation_MDT_GeoSign{};
+  int m_Validation_MDT_BESL{};
 
-  double m_Validation_MDT_LocalX;
-  double m_Validation_MDT_LocalY;
-  double m_Validation_MDT_LocalZ;
-  double m_Validation_MDT_LocalR;
-  double m_Validation_MDT_Res_LocalX;
-  double m_Validation_MDT_Res_LocalY;
-  double m_Validation_MDT_ResEloss_LocalX;
-  double m_Validation_MDT_ResEloss_LocalY;
-  double m_Validation_MDT_dtheta_dLocX;
-  double m_Validation_MDT_dtheta_dLocY;
-  double m_Validation_MDT_dphi_dLocX;
-  double m_Validation_MDT_dphi_dLocY;
-  double m_Validation_MDT_dtheta;
-  double m_Validation_MDT_3DdistME;
-  double m_Validation_MDT_ploss;
-  double m_Validation_MDT_3DdistExit;
-  int m_Validation_MDT_last;
+  double m_Validation_MDT_LocalX{};
+  double m_Validation_MDT_LocalY{};
+  double m_Validation_MDT_LocalZ{};
+  double m_Validation_MDT_LocalR{};
+  double m_Validation_MDT_Res_LocalX{};
+  double m_Validation_MDT_Res_LocalY{};
+  double m_Validation_MDT_ResEloss_LocalX{};
+  double m_Validation_MDT_ResEloss_LocalY{};
+  double m_Validation_MDT_dtheta_dLocX{};
+  double m_Validation_MDT_dtheta_dLocY{};
+  double m_Validation_MDT_dphi_dLocX{};
+  double m_Validation_MDT_dphi_dLocY{};
+  double m_Validation_MDT_dtheta{};
+  double m_Validation_MDT_3DdistME{};
+  double m_Validation_MDT_ploss{};
+  double m_Validation_MDT_3DdistExit{};
+  int m_Validation_MDT_last{};
 
-  double m_Validation_MDT_ExNomWireR;
-  double m_Validation_MDT_ExNomWireZ;
-  double m_Validation_MDT_ExSagWireR;
-  double m_Validation_MDT_ExSagWireZ;
-  double m_Validation_MDT_ExSagRotR;
-  double m_Validation_MDT_ExSagRotZ;
-  double m_Validation_MDT_SimRadius;
-  double m_Validation_MDT_SdoRadius;
-  double m_Validation_MDT_RotRadius;
-  double m_Validation_MDT_WireLen;
+  double m_Validation_MDT_ExNomWireR{};
+  double m_Validation_MDT_ExNomWireZ{};
+  double m_Validation_MDT_ExSagWireR{};
+  double m_Validation_MDT_ExSagWireZ{};
+  double m_Validation_MDT_ExSagRotR{};
+  double m_Validation_MDT_ExSagRotZ{};
+  double m_Validation_MDT_SimRadius{};
+  double m_Validation_MDT_SdoRadius{};
+  double m_Validation_MDT_RotRadius{};
+  double m_Validation_MDT_WireLen{};
 
 
-  bool m_useEntryLayer;
+  bool m_useEntryLayer{};
 
  protected:
 
-  ITHistSvc*     m_rootsvc;
+  ITHistSvc*     m_rootsvc{};
 
   ToolHandle<Trk::IExtrapolator>    m_extrapolator;
   ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>    m_rotCreator;

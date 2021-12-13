@@ -58,7 +58,7 @@ class AbstractVolume : public Volume {
 
   /**Constructor with Amg::Transform3D*, VolumeBounds*, passing ownership */
   AbstractVolume(Amg::Transform3D* htrans,
-                 VolumeBounds* volbounds) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+                 VolumeBounds* volbounds);
 
   /**Virtual Destructor*/
   virtual ~AbstractVolume();
@@ -75,7 +75,7 @@ class AbstractVolume : public Volume {
 
  private:
   /**Private method to create BoundarySurfaces */
-  void createBoundarySurfaces ATLAS_NOT_THREAD_SAFE();
+  void createBoundarySurfaces();
 
   std::vector<SharedObject<const BoundarySurface<AbstractVolume> > >*
       m_boundarySurfaces;  //!< boundary Surfaces

@@ -183,7 +183,7 @@ void SetMassInfo(int iBin, TH1* InputHist, TH1* OutMean, TH1* OutSigma, TString 
 namespace dqutils {
   
   //main function
-  void MonitoringFile::MuonTrackPostProcess( std::string inFilename, bool isIncremental){
+  void MonitoringFile::MuonTrackPostProcess( const std::string & inFilename, bool isIncremental){
     if (isIncremental) {return;}
     MonitoringFile::MuonTrack_Main( inFilename , "");
     MonitoringFile::MuonTrack_Main( inFilename,  "NoTrig/");
@@ -191,7 +191,7 @@ namespace dqutils {
   }
   
   //subfunctions
-  void MonitoringFile::MuonTrack_Main(std::string inFilename, TString dirname){
+  void MonitoringFile::MuonTrack_Main(const std::string & inFilename, TString dirname){
     TString plotdirname = dirname;//set the plottting dir anme
     plotdirname.ReplaceAll("/", "_");//name clean
     dirname = "MuonPhysics/" + dirname;//give it the full path

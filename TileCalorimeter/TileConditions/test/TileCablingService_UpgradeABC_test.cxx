@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -17,12 +17,7 @@ void test1() {
   std::cout << "test1\n";
 
 
-  IdDictParser parser;
-  TileCablingSvcMock::init_idhelpers (parser,
-                                      "IdDictTileCalorimeter-upgradeABC.xml",
-                                      TileCablingService::UpgradeABC);
-
-  TileCablingService* cabling = TileCablingService::getInstance();
+  const TileCablingService* cabling = TileCablingService::getInstance();
 
   const TileHWID* tileHWID = cabling->getTileHWID();
   const TileID* tileID = cabling->getTileID();
@@ -189,11 +184,16 @@ void test1() {
 }
 
 
-int main(int /*argc*/, char** argv) {
+int main ATLAS_NOT_THREAD_SAFE (int /*argc*/, char** argv) {
 
   Athena_test::setupStoreGate (argv[0]);
 
   std::cout << "TileCablingService_UpgradeABC_test\n";
+
+  IdDictParser parser;
+  TileCablingSvcMock::init_idhelpers (parser,
+                                      "IdDictTileCalorimeter-upgradeABC.xml",
+                                      TileCablingService::UpgradeABC);
   test1();
 
   return 0;

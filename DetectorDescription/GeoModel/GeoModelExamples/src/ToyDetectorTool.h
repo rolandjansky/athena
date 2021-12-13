@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELEXAMPLES_TOYDETECTORTOOL_H
@@ -18,7 +18,7 @@ class ToyDetectorTool final : public GeoModelTool
   
   virtual StatusCode create() override final;
  private:
-  void printVolume(GeoPVConstLink volime);
+  void printVolume(GeoPVConstLink volime, int level = 0);
 };
 
 #endif // BUILDVP1LIGHT

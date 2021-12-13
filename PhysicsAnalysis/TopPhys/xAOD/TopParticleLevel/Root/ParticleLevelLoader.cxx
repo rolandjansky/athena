@@ -202,14 +202,14 @@ namespace top {
                                                                                                            m_config));
             top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty("VarRCjets",
                                                                               true),
-                       "Failed to set VarRCjets property of VarRCJetMC15");
+                       "Failed to set VarRCjets property of VarRCJet");
             top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty("VarRCjets_rho",
                                                                               rho),
-                       "Failed to set VarRCjets rho property of VarRCJetMC15");
+                       "Failed to set VarRCjets rho property of VarRCJet");
             top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty("VarRCjets_mass_scale",
                                                                               mass_scale),
-                       "Failed to set VarRCjets mass scale property of VarRCJetMC15");
-            top::check(m_particleLevelVarRCJetObjectLoader[name]->initialize(), "Failed to initialize VarRCJetMC15");
+                       "Failed to set VarRCjets mass scale property of VarRCJet");
+            top::check(m_particleLevelVarRCJetObjectLoader[name]->initialize(), "Failed to initialize VarRCJet");
           } // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
         } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
       }
@@ -763,7 +763,7 @@ namespace top {
           std::replace(rho.begin(), rho.end(), '.', '_');
           std::string name = rho + mass_scale;
           top::check(m_particleLevelVarRCJetObjectLoader[name]->execute(
-                       plEvent), "Failed to execute RCJetMC15 container");
+                       plEvent), "Failed to execute RCJet container");
 
           // Get the name of the container of re-clustered jets in TStore
           std::string varRCJetContainerName = m_particleLevelVarRCJetObjectLoader[name]->rcjetContainerName();

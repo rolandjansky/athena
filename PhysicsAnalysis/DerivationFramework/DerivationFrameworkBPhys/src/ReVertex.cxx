@@ -100,7 +100,7 @@ StatusCode ReVertex::initialize() {
     ATH_CHECK(m_trackContainer.initialize());
     ATH_CHECK(m_pvContainerName.initialize());
     ATH_CHECK(m_refPVContainerName.initialize());
-
+    ATH_CHECK(m_beamSpotKey.initialize());
     return StatusCode::SUCCESS;
 }
 

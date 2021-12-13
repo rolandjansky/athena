@@ -100,7 +100,7 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
 
   // First loop to get size of digits
   unsigned int numOfDigits=0;
-  for (; it_Coll != it_CollEnd; it_Coll++)  {
+  for (; it_Coll != it_CollEnd; ++it_Coll)  {
     numOfDigits+=(*it_Coll)->size();
   }
   persCont->m_digits.resize(numOfDigits);
@@ -109,7 +109,7 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
   if (log.level() <= MSG::DEBUG) 
     log << MSG::DEBUG<< " Preparing " << persCont->m_collectionId.size() << "collections and "<<numOfDigits<<" digits in total." <<endmsg;
   // std::cout<<"Preparing " << persCont->m_collections.size() << " collections" << std::endl;
-  for (it_Coll = transCont->begin(); it_Coll != it_CollEnd; ++pcollIndex, it_Coll++)  {  
+  for (it_Coll = transCont->begin(); it_Coll != it_CollEnd; ++pcollIndex, ++it_Coll)  {  
     const sTgcDigitCollection& collection = (**it_Coll);
     if (log.level() <= MSG::DEBUG) 
       log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifierHash()<<endmsg;

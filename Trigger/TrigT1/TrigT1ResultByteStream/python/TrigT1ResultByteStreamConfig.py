@@ -125,6 +125,12 @@ def L1TriggerByteStreamDecoderCfg(flags):
         # L1Topo may be missing in some runs of Run 2 when it was under commissioning
         for module_id in roibResultTool.L1TopoModuleIds:
           maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_TOPO_PROC, module_id)))
+      if flags.Trigger.EDMVersion == 2 and not flags.Trigger.doHLT:
+        # L1Calo occasional readout errors weren't caught by HLT in 2015 - ignore these in offline reco, see ATR-24493
+        for module_id in roibResultTool.JetModuleIds:
+          maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_JET_PROC_ROI, module_id)))
+        for module_id in roibResultTool.EMModuleIds:
+          maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, module_id)))
 
   # Run-3 L1Muon decoding
   if flags.Trigger.enableL1MuonPhase1:
@@ -144,18 +150,11 @@ def L1TriggerByteStreamDecoderCfg(flags):
   acc.addEventAlgo(decoderAlg, primary=True)
 
   # The decoderAlg needs to load ByteStreamMetadata for the detector mask
-  #
-  # FIXME: BS metadata is unavailable in start() in offline athenaMT,
-  # but it works in athenaHLT (online) and in offline serial athena
-  # - keep the detector mask check only for online until an offline solution is found
-  if flags.Trigger.Online.isPartition:
-    from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
-    readBSAcc = ByteStreamReadCfg(flags)
-    readBSAcc.getEventAlgo('SGInputLoader').Load += [
-      ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
-    acc.merge(readBSAcc)
-  else:
-    decoderAlg.ByteStreamMetadataRHKey = ""
+  from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+  readBSAcc = ByteStreamReadCfg(flags)
+  readBSAcc.getEventAlgo('SGInputLoader').Load += [
+    ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
+  acc.merge(readBSAcc)
 
   Configurable.configurableRun3Behavior = cb
   return acc

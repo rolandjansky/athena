@@ -11,12 +11,15 @@ import logging
 import json
 import yaml
 import ROOT
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 total_events_key = 'TotalEventsProcessed'
 column_width = 10  # width of the count columns for print out
 name_width = 50  # width of the item name column for print out
 
+# Store defaultdict as dict in yaml files
+from yaml.representer import Representer
+yaml.add_representer(defaultdict, Representer.represent_dict)
 
 def get_parser():
     parser = argparse.ArgumentParser(usage='%(prog)s [options]',
@@ -83,7 +86,7 @@ def get_parser():
                         nargs='+',
                         default=[
                             'TrigSteer_HLT/NInitialRoIsPerEvent',
-                            'HLTFramework/HLTSeeding/RoIsEM/count'],
+                            'HLTFramework/HLTSeeding/RoIs_EM/count'],
                         help='Histograms to use for total events. First existing '
                              'histogram from the list is used, default = %(default)s')
     parser.add_argument('--histDict',
@@ -326,39 +329,30 @@ def write_txt_output(json_dict, diff_only=False):
 
 
 def make_light_dict(full_dict, includeL1Counts):
-    light_dict = dict()
-    for chain in full_dict['HLTChain']['counts'].items():
-        chain_name = chain[0]
+    # 3 nested dictionaries of int
+    light_dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
-        # Leave only chain counts and skip total / groups / streams
-        skip = [True for s in ['All', 'grp_', 'str_'] if chain_name.startswith(s)]
-        if skip:
-            continue
+    def extract_steps(in_name, out_name):
+        for name,c in full_dict[in_name]['counts'].items():
+            if c['count']==0:
+                continue
+            chain_name, chain_step = name.split('_Step')
+            light_dict[chain_name][out_name][int(chain_step)] = c['count']
+        
+        # Change step dictionary to consecutive list of steps
+        for chain_name in light_dict.keys():
+            steps = light_dict[chain_name][out_name]
+            light_dict[chain_name][out_name] = {i:steps[k] for i,k in enumerate(sorted(steps.keys()))}
 
-        light_dict[chain_name] = dict()
-        chain_tot_count = chain[1]['count']
-        light_dict[chain_name]['eventCount'] = chain_tot_count
+    extract_steps('HLTStep', 'stepCounts')
+    extract_steps('HLTDecision', 'stepFeatures')
 
-        def extract_steps(in_name, out_name):
-            step_counts = [o for o in full_dict[in_name]['counts'].items() if o[0].startswith(chain_name)]
-            step_dict = dict()
-            for step in step_counts:
-                step_count = step[1]['count']
-                if step_count == 0:
-                    continue
-                step_name = step[0]
-                step_number = int(step_name[step_name.find("_Step")+5:])
-                step_dict[step_number] = step_count
-            if len(step_dict) == 0:
-                return
-            if out_name not in light_dict[chain_name]:
-                light_dict[chain_name][out_name] = dict()
-            # Change step numbers to enumeration
-            for step_index, step_info in enumerate(sorted(step_dict.items())):
-                light_dict[chain_name][out_name][step_index] = step_info[1]
-
-        extract_steps('HLTStep', 'stepCounts')
-        extract_steps('HLTDecision', 'stepFeatures')
+    # Add total chain count and skip total / groups / streams
+    for chain_name,c in full_dict['HLTChain']['counts'].items():
+        light_dict[chain_name]['eventCount'] = c['count']
+        
+        if any(chain_name.startswith(s) for s in ['All', 'grp_', 'str_']):
+            del light_dict[chain_name]
 
     if includeL1Counts and 'L1AV' in full_dict:
         light_dict.update(

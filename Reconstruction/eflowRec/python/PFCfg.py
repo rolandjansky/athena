@@ -26,6 +26,19 @@ def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
 
     PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
+    # P->T conversion extra dependencies
+    if inputFlags.Detector.GeometryITk:
+        PFTrackSelector.ExtraInputs = [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ]
+    else:
+        PFTrackSelector.ExtraInputs = [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+            ("InDetDD::TRT_DetElementContainer", "ConditionStore+TRT_DetElementContainer"),
+        ]
+
     result.addEventAlgo (PFTrackSelector, primary=True)
 
     return result
@@ -174,8 +187,18 @@ def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputNam
     if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
 
-
     return FlowElementNeutralCreatorAlgorithm
+
+def getLCNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName):
+    LCFlowElementNeutralCreatorAlgorithmFactory = CompFactory.PFLCNeutralFlowElementCreatorAlgorithm
+    LCFlowElementNeutralCreatorAlgorithm = LCFlowElementNeutralCreatorAlgorithmFactory("PFLCNeutralFlowElementCreatorAlgorithm")
+    if neutralFlowElementOutputName:
+      LCFlowElementNeutralCreatorAlgorithm.FELCOutputName==neutralFlowElementOutputName
+    if(inputFlags.PF.EOverPMode):
+      LCFlowElementNeutralCreatorAlgorithm.EInputContainerName="EOverPNeutralParticleFlowObjects"
+      LCFlowElementNeutralCreatorAlgorithm.FELCOutputName="EOverPLCNeutralParticleFlowObjects"
+    
+    return LCFlowElementNeutralCreatorAlgorithm 
 
 def getEGamFlowElementAssocAlgorithm(inputFlags,neutral_FE_cont_name="",charged_FE_cont_name="",AODTest=False,doTCC=False):
 

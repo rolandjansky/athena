@@ -6,7 +6,7 @@ from TriggerMenu.l1topo.TopoAlgos import SortingAlgo, DecisionAlgo
 
 def instantiateExample():
 
-    alg = AlgConf.DeltaPhiIncl1(name = 'JetSize1DeltaPhiIncl_12', inputs = ['SortedJetsSize1'], outputs = ['JetDeltaPhiNarrow','JetDeltaPhiWide'], algoId = 1)
+    alg = AlgConf.DeltaPhiIncl1(name = 'JetSize1DeltaPhiIncl_12', inputs = ['SortedJetsSize1'], outputs = ['JetDeltaPhiNarrow','JetDeltaPhiWide'])
     alg.addgeneric('NumberLeading1', 4)
     alg.addgeneric('NumberLeading2', 4)
     alg.addvariable('MinET', 5)

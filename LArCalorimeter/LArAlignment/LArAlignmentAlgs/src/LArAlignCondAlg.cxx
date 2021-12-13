@@ -26,8 +26,9 @@ StatusCode LArAlignCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArAlignCondAlg::execute(const EventContext& ctx) const
+StatusCode LArAlignCondAlg::execute()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // ____________ Construct Write Cond Handle and check its validity ____________
   SG::WriteCondHandle<GeoAlignmentStore> writeGeoAlignHandle{m_writeGeoAlignKey,ctx};
   if (writeGeoAlignHandle.isValid()) {

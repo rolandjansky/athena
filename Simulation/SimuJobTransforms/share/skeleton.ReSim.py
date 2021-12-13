@@ -5,7 +5,7 @@ atlasG4log = logging.getLogger('ReSim')
 atlasG4log.info('****************** STARTING ISF ******************')
 
 ## Include common skeleton
-include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
@@ -54,6 +54,13 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+
 ## Write out runArgs configuration
 atlasG4log.info( '**** Transformation run arguments' )
 atlasG4log.info( str(runArgs) )
@@ -73,10 +80,8 @@ if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-if hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+## Include common skeleton after the preExec/preInclude
+include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
 try:
     from ISF_Config import FlagSetters
@@ -151,7 +156,7 @@ if hasattr(runArgs, 'physicsList'):
 if hasattr(runArgs, "randomSeed"):
     simFlags.RandomSeedOffset = int(runArgs.randomSeed)
 else:
-    atlasG4log.warning('randomSeed not set')
+    atlasG4log.info('randomSeed not set')
 ## Don't use the SeedsG4 override
 simFlags.SeedsG4.set_Off()
 
@@ -166,6 +171,8 @@ elif hasattr(runArgs,'jobNumber'):
         atlasG4log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         atlasG4log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
+else:
+    atlasG4log.info( 'Using run number: %s ', simFlags.RunNumber )
 
 ## The looper killer is on by default. Disable it if this is requested.
 if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:

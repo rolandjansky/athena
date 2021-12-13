@@ -109,24 +109,15 @@ protected:
   bool m_bIsConfigured;
   bool m_bSkipTruthMatchCheck;
   bool m_bApplyFading;
-  bool m_bApplyMVATES;
-  bool m_bApplyCombinedTES;
   bool m_bApplyMVATESQualityCheck;
   bool m_bApplyInsituCorrection;
 
-  asg::AnaToolHandle<ITauToolBase> m_tMvaTESVariableDecorator;
-  asg::AnaToolHandle<ITauToolBase> m_tMvaTESEvaluator;
   asg::AnaToolHandle<ITauToolBase> m_tTauCombinedTES;
 
   e_TruthMatchedParticleType m_eCheckTruth;
   bool m_bNoMultiprong;
   CP::SystematicSet m_sAffectingSystematics;
   CP::SystematicSet m_sRecommendedSystematics;
-
-  bool m_bPtFinalCalibIsAvailable;
-  bool m_bPtFinalCalibIsAvailableIsChecked;
-  bool m_bPtTauEtaCalibIsAvailable;
-  bool m_bPtTauEtaCalibIsAvailableIsChecked;
   
 private:
 

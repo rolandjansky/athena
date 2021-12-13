@@ -54,13 +54,6 @@ public:
   StringProperty m_streamName
   { this, "StreamName", "", "Name of the stream being thinned" };
 
-  // For P->T converters of ID tracks with Pixel
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
-  // For P->T converters of ID tracks with SCT
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-  // For P->T converters of ID tracks with TRT  
-  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"}; 
-  
   /// Should the thinning run?
   bool m_doElectrons;
   bool m_doPhotons;

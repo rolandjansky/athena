@@ -8,6 +8,7 @@
 #include <string>
 #include "AGDDControl/ExpressionEvaluator.h"
 #include "AGDDControl/IAGDDParser.h"
+class XMLHandlerStore;
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
@@ -16,8 +17,8 @@ class AGDDController;
 
 class XercesParser: public IAGDDParser {
 public:
-    XercesParser();
-    XercesParser(const std::string&);
+    XercesParser(XMLHandlerStore& xs);
+    XercesParser(XMLHandlerStore& xs, const std::string&);
     virtual ~XercesParser();
     virtual bool ParseFile(const std::string&) override;
     virtual bool ParseFileAndNavigate(AGDDController& c,
@@ -27,15 +28,15 @@ public:
                                         const std::string&) override;
     virtual bool WriteToFile(const std::string&) override;
     virtual void navigateTree(AGDDController& c) override;
-    static void elementLoop();
-    static void elementLoop(AGDDController& c, xercesc::DOMNode*);
-    static ExpressionEvaluator& Evaluator();
+    virtual void elementLoop() override;
+    virtual void elementLoop(AGDDController& c, xercesc::DOMNode*) override;
     bool Initialize();
     bool Finalize();
 private:
     xercesc::DOMDocument *m_doc;
     xercesc::XercesDOMParser *m_parser;
     bool m_initialized;
+    XMLHandlerStore& m_xs;
 };
 
 #endif

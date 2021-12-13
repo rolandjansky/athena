@@ -264,7 +264,7 @@ StatusCode TgcDigitizationTool::getNextEvent(const EventContext& ctx)
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
+StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   rngWrapper->setSeed( name(), ctx );
@@ -337,7 +337,9 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
   
 	// record the digit container in StoreGate
 	bool duplicate = false;
-	auto coll = digitContainer->indexFindPtr(coll_hash);
+  	TgcDigitCollection *coll = nullptr;
+	auto sc ATLAS_THREAD_SAFE  = digitContainer->naughtyRetrieve(coll_hash,coll);
+	if(sc.isFailure()) return StatusCode::FAILURE;
 	if(nullptr ==  coll) {
 	  digitCollection = new TgcDigitCollection(elemId, coll_hash);
 	  ATH_MSG_DEBUG("Digit Id(1st) = " << m_idHelper->show_to_string(newDigiId)
@@ -350,7 +352,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
 	    ATH_MSG_DEBUG("New TgcHitCollection with key=" << coll_hash << " recorded in StoreGate."); 
 	  }
 	} else {
-	  digitCollection = const_cast<TgcDigitCollection*>(coll);
+	  digitCollection = coll;
 
 	  // to avoid to store digits with identical id
 	  TgcDigitCollection::const_iterator it_tgcDigit;

@@ -109,7 +109,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
 
     SG::ReadHandle<xAOD::EnergySumRoI> l1_roi_cont(m_lvl1_roi_key, ctx);
-    if (! l1_roi_cont.isValid() ) {     
+    if (! l1_roi_cont.isValid() ) {
       ATH_MSG_DEBUG("Container "<< m_lvl1_roi_key << " does not exist or is empty");
     }
 
@@ -167,7 +167,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     if (! hlt_tcpufit_met_cont.isValid() || hlt_tcpufit_met_cont->size()==0 ) {
 	ATH_MSG_DEBUG("Container "<< m_hlt_tcpufit_met_key << " does not exist or is empty");
     }
- 
+
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_trkmht_met_cont(m_hlt_trkmht_met_key, ctx);
     if (! hlt_trkmht_met_cont.isValid() || hlt_trkmht_met_cont->size()==0 ) {
         ATH_MSG_DEBUG("Container "<< m_hlt_trkmht_met_key << " does not exist or is empty");
@@ -207,7 +207,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     if (! hlt_mhtpufit_em_met_cont.isValid() || hlt_mhtpufit_em_met_cont->size()==0 ) {
 	ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_em_met_key << " does not exist or is empty");
     }
-   
+
 
     // define offline MissingET object
     const xAOD::MissingET *offline_met = 0;
@@ -372,6 +372,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto pfopufit_Et_log = Monitored::Scalar<float>("pfopufit_Et_log",0.0);
     auto pfopufit_sumEt_log = Monitored::Scalar<float>("pfopufit_sumEt_log",0.0);
     auto pfopufit_phi = Monitored::Scalar<float>("pfopufit_phi",0.0);
+    auto pfopufit_eta = Monitored::Scalar<float>("pfopufit_eta",0.0);
     auto cvfpufit_Ex = Monitored::Scalar<float>("cvfpufit_Ex",0.0);
     auto cvfpufit_Ey = Monitored::Scalar<float>("cvfpufit_Ey",0.0);
     auto cvfpufit_Et = Monitored::Scalar<float>("cvfpufit_Et",0.0);
@@ -399,6 +400,22 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto mhtpufit_em_Et_log = Monitored::Scalar<float>("mhtpufit_em_Et_log",0.0);
     auto mhtpufit_em_sumEt_log = Monitored::Scalar<float>("mhtpufit_em_sumEt_log",0.0);
     auto mhtpufit_em_phi = Monitored::Scalar<float>("mhtpufit_em_phi",0.0);
+
+    //< -- Preselection histogram quantities -- > //
+    auto cell_presel_Et = Monitored::Scalar<float>("cell_presel_Et",0.0);
+    auto tcpufit_presel_Et = Monitored::Scalar<float>("tcpufit_presel_Et",0.0);
+    auto trkmht_presel_Et = Monitored::Scalar<float>("trkmht_presel_Et",0.0);
+    auto mht_presel_Et = Monitored::Scalar<float>("mht_presel_Et",0.0);
+    auto tc_em_presel_Et = Monitored::Scalar<float>("tc_em_presel_Et",0.0);
+    auto pfsum_presel_Et = Monitored::Scalar<float>("pfsum_presel_Et",0.0);
+    auto pfsum_cssk_presel_Et = Monitored::Scalar<float>("pfsum_cssk_presel_Et",0.0);
+    auto pfsum_vssk_presel_Et = Monitored::Scalar<float>("pfsum_vssk_presel_Et",0.0);
+    auto pfopufit_presel_Et = Monitored::Scalar<float>("pfopufit_presel_Et",0.0);
+    auto cvfpufit_presel_Et = Monitored::Scalar<float>("cvfpufit_presel_Et",0.0);
+    auto mhtpufit_pf_presel_Et = Monitored::Scalar<float>("mhtpufit_pf_presel_Et",0.0);
+    auto mhtpufit_em_presel_Et = Monitored::Scalar<float>("mhtpufit_em_presel_Et",0.0);
+    //< -------------------------------------------------------------------------------------------------- > //
+
     auto pass_L101 = Monitored::Scalar<float>("pass_L101",0.0);
     auto pass_L102 = Monitored::Scalar<float>("pass_L102",0.0);
     auto pass_L103 = Monitored::Scalar<float>("pass_L103",0.0);
@@ -467,7 +484,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // access L1 roi MET values
     if ( l1_roi_cont.isValid() ) {
-      if ((l1_roi_cont->energyX())>-9e12 && (l1_roi_cont->energyX())<9e12 && (l1_roi_cont->energyY())>-9e12 && (l1_roi_cont->energyY())<9e12) { 
+      if ((l1_roi_cont->energyX())>-9e12 && (l1_roi_cont->energyX())<9e12 && (l1_roi_cont->energyY())>-9e12 && (l1_roi_cont->energyY())<9e12) {
 	L1_roi_Ex = - (l1_roi_cont->energyX())/1000.;
 	L1_roi_Ey = - (l1_roi_cont->energyY())/1000.;
         L1_roi_Et = std::sqrt(L1_roi_Ex*L1_roi_Ex + L1_roi_Ey*L1_roi_Ey);
@@ -571,6 +588,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       cell_Ey = (hlt_met->ey())/1000.;
       float cell_Ez = (hlt_met->ez())/1000.;
       cell_Et = std::sqrt(cell_Ex*cell_Ex + cell_Ey*cell_Ey);
+      cell_presel_Et = std::sqrt(cell_Ex*cell_Ex + cell_Ey*cell_Ey);
       cell_sumEt = (hlt_met->sumEt())/1000.;
       cell_Ex_log = signed_log(cell_Ex, epsilon);
       cell_Ey_log = signed_log(cell_Ey, epsilon);
@@ -626,7 +644,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
              "GlobBigMEtSEtRatio", // bit 29
              "ObjInCrack",         // bit 30
              "GlobError"           // bit 31
-      };  
+      };
 
      for (int j=0; j<32; ++j) { //status loop
        unsigned mask = (1u<<j);
@@ -672,6 +690,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       mht_Ey = (hlt_met->ey())/1000.;
       float mht_Ez = (hlt_met->ez())/1000.;
       mht_Et = std::sqrt(mht_Ex*mht_Ex + mht_Ey*mht_Ey);
+      mht_presel_Et = std::sqrt(mht_Ex*mht_Ex + mht_Ey*mht_Ey);
       mht_sumEt = (hlt_met->sumEt())/1000.;
       mht_Ex_log = signed_log(mht_Ex, epsilon);
       mht_Ey_log = signed_log(mht_Ey, epsilon);
@@ -691,6 +710,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tc_em_Ey = (hlt_met->ey())/1000.;
       float tc_em_Ez = (hlt_met->ez())/1000.;
       tc_em_Et = std::sqrt(tc_em_Ex*tc_em_Ex + tc_em_Ey*tc_em_Ey);
+      tc_em_presel_Et = std::sqrt(tc_em_Ex*tc_em_Ex + tc_em_Ey*tc_em_Ey);
       tc_em_sumEt = (hlt_met->sumEt())/1000.;
       tc_em_Ex_log = signed_log(tc_em_Ex, epsilon);
       tc_em_Ey_log = signed_log(tc_em_Ey, epsilon);
@@ -719,12 +739,13 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       trkmht_Ey = (hlt_met->ey())/1000.;
       float trkmht_Ez = (hlt_met->ez())/1000.;
       trkmht_Et = std::sqrt(trkmht_Ex*trkmht_Ex + trkmht_Ey*trkmht_Ey);
+      trkmht_presel_Et = std::sqrt(trkmht_Ex*trkmht_Ex + trkmht_Ey*trkmht_Ey);
       trkmht_sumEt = (hlt_met->sumEt())/1000.;
       trkmht_Ex_log = signed_log(trkmht_Ex, epsilon);
       trkmht_Ey_log = signed_log(trkmht_Ey, epsilon);
       trkmht_Et_log = signed_log(trkmht_Et, epsilon);
       trkmht_sumEt_log = signed_log(trkmht_sumEt, epsilon);
-    
+
       TVector3 v(trkmht_Ex, trkmht_Ey, trkmht_Ez);
       trkmht_phi = v.Phi();
     }
@@ -737,6 +758,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tcpufit_Ey = (hlt_met->ey())/1000.;
       tcpufit_Ez = (hlt_met->ez())/1000.;
       tcpufit_Et = std::sqrt(tcpufit_Ex*tcpufit_Ex + tcpufit_Ey*tcpufit_Ey);
+      tcpufit_presel_Et = std::sqrt(tcpufit_Ex*tcpufit_Ex + tcpufit_Ey*tcpufit_Ey);
       tcpufit_sumEt = (hlt_met->sumEt())/1000.;
       tcpufit_sumE = (hlt_met->sumE())/1000.;
       tcpufit_Ex_log = signed_log(tcpufit_Ex, epsilon);
@@ -759,6 +781,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       pfsum_Ey = (hlt_met->ey())/1000.;
       float pfsum_Ez = (hlt_met->ez())/1000.;
       pfsum_Et = std::sqrt(pfsum_Ex*pfsum_Ex + pfsum_Ey*pfsum_Ey);
+      pfsum_presel_Et = std::sqrt(pfsum_Ex*pfsum_Ex + pfsum_Ey*pfsum_Ey);
       pfsum_sumEt = (hlt_met->sumEt())/1000.;
       pfsum_Ex_log = signed_log(pfsum_Ex, epsilon);
       pfsum_Ey_log = signed_log(pfsum_Ey, epsilon);
@@ -777,6 +800,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       pfsum_cssk_Ey = (hlt_met->ey())/1000.;
       float pfsum_cssk_Ez = (hlt_met->ez())/1000.;
       pfsum_cssk_Et = std::sqrt(pfsum_cssk_Ex*pfsum_cssk_Ex + pfsum_cssk_Ey*pfsum_cssk_Ey);
+      pfsum_cssk_presel_Et = std::sqrt(pfsum_cssk_Ex*pfsum_cssk_Ex + pfsum_cssk_Ey*pfsum_cssk_Ey);
       pfsum_cssk_sumEt = (hlt_met->sumEt())/1000.;
       pfsum_cssk_Ex_log = signed_log(pfsum_cssk_Ex, epsilon);
       pfsum_cssk_Ey_log = signed_log(pfsum_cssk_Ey, epsilon);
@@ -795,6 +819,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       pfsum_vssk_Ey = (hlt_met->ey())/1000.;
       float pfsum_vssk_Ez = (hlt_met->ez())/1000.;
       pfsum_vssk_Et = std::sqrt(pfsum_vssk_Ex*pfsum_vssk_Ex + pfsum_vssk_Ey*pfsum_vssk_Ey);
+      pfsum_vssk_presel_Et = std::sqrt(pfsum_vssk_Ex*pfsum_vssk_Ex + pfsum_vssk_Ey*pfsum_vssk_Ey);
       pfsum_vssk_sumEt = (hlt_met->sumEt())/1000.;
       pfsum_vssk_Ex_log = signed_log(pfsum_vssk_Ex, epsilon);
       pfsum_vssk_Ey_log = signed_log(pfsum_vssk_Ey, epsilon);
@@ -813,14 +838,16 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       pfopufit_Ey = (hlt_met->ey())/1000.;
       float pfopufit_Ez = (hlt_met->ez())/1000.;
       pfopufit_Et = std::sqrt(pfopufit_Ex*pfopufit_Ex + pfopufit_Ey*pfopufit_Ey);
+      pfopufit_presel_Et = std::sqrt(pfopufit_Ex*pfopufit_Ex + pfopufit_Ey*pfopufit_Ey);
       pfopufit_sumEt = (hlt_met->sumEt())/1000.;
       pfopufit_Ex_log = signed_log(pfopufit_Ex, epsilon);
       pfopufit_Ey_log = signed_log(pfopufit_Ey, epsilon);
       pfopufit_Et_log = signed_log(pfopufit_Et, epsilon);
       pfopufit_sumEt_log = signed_log(pfopufit_sumEt, epsilon);
-    
+
       TVector3 v(pfopufit_Ex, pfopufit_Ey, pfopufit_Ez);
       pfopufit_phi = v.Phi();
+      pfopufit_eta = v.Eta();
     }
     ATH_MSG_DEBUG("pfopufit_Et = " << pfopufit_Et);
 
@@ -831,6 +858,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       cvfpufit_Ey = (hlt_met->ey())/1000.;
       float cvfpufit_Ez = (hlt_met->ez())/1000.;
       cvfpufit_Et = std::sqrt(cvfpufit_Ex*cvfpufit_Ex + cvfpufit_Ey*cvfpufit_Ey);
+      cvfpufit_presel_Et = std::sqrt(cvfpufit_Ex*cvfpufit_Ex + cvfpufit_Ey*cvfpufit_Ey);
       cvfpufit_sumEt = (hlt_met->sumEt())/1000.;
       cvfpufit_Ex_log = signed_log(cvfpufit_Ex, epsilon);
       cvfpufit_Ey_log = signed_log(cvfpufit_Ey, epsilon);
@@ -849,6 +877,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       mhtpufit_pf_Ey = (hlt_met->ey())/1000.;
       float mhtpufit_pf_Ez = (hlt_met->ez())/1000.;
       mhtpufit_pf_Et = std::sqrt(mhtpufit_pf_Ex*mhtpufit_pf_Ex + mhtpufit_pf_Ey*mhtpufit_pf_Ey);
+      mhtpufit_pf_presel_Et = std::sqrt(mhtpufit_pf_Ex*mhtpufit_pf_Ex + mhtpufit_pf_Ey*mhtpufit_pf_Ey);
       mhtpufit_pf_sumEt = (hlt_met->sumEt())/1000.;
       mhtpufit_pf_Ex_log = signed_log(mhtpufit_pf_Ex, epsilon);
       mhtpufit_pf_Ey_log = signed_log(mhtpufit_pf_Ey, epsilon);
@@ -867,6 +896,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       mhtpufit_em_Ey = (hlt_met->ey())/1000.;
       float mhtpufit_em_Ez = (hlt_met->ez())/1000.;
       mhtpufit_em_Et = std::sqrt(mhtpufit_em_Ex*mhtpufit_em_Ex + mhtpufit_em_Ey*mhtpufit_em_Ey);
+      mhtpufit_em_presel_Et = std::sqrt(mhtpufit_em_Ex*mhtpufit_em_Ex + mhtpufit_em_Ey*mhtpufit_em_Ey);
       mhtpufit_em_sumEt = (hlt_met->sumEt())/1000.;
       mhtpufit_em_Ex_log = signed_log(mhtpufit_em_Ex, epsilon);
       mhtpufit_em_Ey_log = signed_log(mhtpufit_em_Ey, epsilon);
@@ -905,7 +935,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     ATH_MSG_DEBUG("pass " << m_HLTChain02 << " = " << pass_HLT02);
 
 
-    // Fill. First argument is the tool (GMT) name as defined in the py file, 
+    // Fill. First argument is the tool (GMT) name as defined in the py file,
     // all others are the variables to be saved.
     //fill("TrigMETMonitor",L1_Ex,L1_Ey,L1_Et,pass_HLT1);
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
@@ -960,7 +990,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
          pfsum_vssk_phi,
          pfopufit_Ex,pfopufit_Ey,pfopufit_Et,pfopufit_sumEt,
          pfopufit_Ex_log,pfopufit_Ey_log,pfopufit_Et_log,pfopufit_sumEt_log,
-         pfopufit_phi,
+         pfopufit_phi,pfopufit_eta,
          cvfpufit_Ex,cvfpufit_Ey,cvfpufit_Et,cvfpufit_sumEt,
          cvfpufit_Ex_log,cvfpufit_Ey_log,cvfpufit_Et_log,cvfpufit_sumEt_log,
          cvfpufit_phi,
@@ -973,6 +1003,22 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
          tcpufit_Ex,tcpufit_Ey,tcpufit_Ez,tcpufit_Et,tcpufit_sumEt,tcpufit_sumE,
          tcpufit_Ex_log,tcpufit_Ey_log,tcpufit_Ez_log,tcpufit_Et_log,tcpufit_sumEt_log,tcpufit_sumE_log,
          tcpufit_eta,tcpufit_phi);
+    }
+
+    if(L1_roi_Et > 50.){
+      fill(tool,
+      cell_presel_Et,
+      tcpufit_presel_Et,
+      trkmht_presel_Et,
+      mht_presel_Et,
+      tc_em_presel_Et,
+      pfsum_presel_Et,
+      pfsum_cssk_presel_Et,
+      pfsum_vssk_presel_Et,
+      pfopufit_presel_Et,
+      cvfpufit_presel_Et,
+      mhtpufit_pf_presel_Et,
+      mhtpufit_em_presel_Et);
     }
 
     return StatusCode::SUCCESS;
@@ -990,4 +1036,3 @@ double TrigMETMonitorAlgorithm::signed_log(double e, double epsilon) const {
 
   return e_log;
 }
-

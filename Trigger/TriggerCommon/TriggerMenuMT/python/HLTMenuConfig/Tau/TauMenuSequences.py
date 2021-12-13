@@ -7,27 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauTrackTwoSequence, tauMVASequence, tauLLPSequence, tauPreSelTTSequence, tauPrecIsoTrackSequence
-
-# ===============================================================================================
-#      Calo step
-# ===============================================================================================
-
-def tauCaloMenuSeq(name, is_probe_leg=False):
-    (sequence, tauCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauCaloSequence,ConfigFlags)
-
-    # hypo
-    from TrigTauHypo.TrigTauHypoConf import TrigTauCaloHypoAlg
-    theTauCaloHypo = TrigTauCaloHypoAlg(name+"L2CaloHypo")
-    theTauCaloHypo.taujets     = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigL2TauHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = tauCaloViewsMaker,
-                          Hypo        = theTauCaloHypo,
-                          HypoToolGen = TrigL2TauHypoToolFromDict,
-                          IsProbe     = is_probe_leg )
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIsoBDTSequence, tauMVASequence, tauLLPSequence, tauPrecIsoTrackSequence
 
 # ===============================================================================================
 #      Calo MVA step
@@ -50,7 +30,7 @@ def tauCaloMVAMenuSeq(name, is_probe_leg=False):
                           IsProbe     = is_probe_leg )
 
 # ===============================================================================================                                
-#    Fast track finder (core) + TrackRoI Updater + RejectEmpty Hypo step (tracktwo, tracktwoMVA)                                             
+#    Fast track finder (core) + TrackRoI Updater + RejectEmpty Hypo step (tracktwoMVA)                                             
 # ===============================================================================================                                                   
 
 def tauFTFTauCoreSeq(is_probe_leg=False):
@@ -69,7 +49,7 @@ def tauFTFTauCoreSeq(is_probe_leg=False):
                           IsProbe     = is_probe_leg )
 
 # ===============================================================================================                                                           
-#   Fast track finder (iso) + Dummy Hypo step (tracktwo, tracktwoMVA)                                                     
+#   Fast track finder (iso) + Dummy Hypo step (tracktwoMVA)                                                     
 # ===============================================================================================                                                            
 
 def tauFTFTauIsoSeq(is_probe_leg=False):
@@ -107,25 +87,6 @@ def tauFTFTauIsoBDTSeq(is_probe_leg=False):
                           HypoToolGen = TrigTauTrackHypoToolFromDict,
                           IsProbe     = is_probe_leg )
 
-# ===============================================================================================                                            
-#     Tau Precision Alg + EFMVHypo step   (tracktwo)
-# ===============================================================================================                                              
-
-def tauTrackTwoPrecSeq(is_probe_leg=False):
-    (sequence, trackTwoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauTrackTwoSequence,ConfigFlags )
-
-    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
-    precisionHypo = TrigEFTauMVHypoAlg("EFTauMVHypoTrackTwo")
-    precisionHypo.taujetcontainer = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = trackTwoViewsMaker,
-                          Hypo        = precisionHypo,
-                          HypoToolGen = TrigEFTauMVHypoToolFromDict,
-                          IsProbe     = is_probe_leg )
-
 # ===============================================================================================
 #     Tau Precision MVA Alg + EFMVHypo step   (tracktwoMVA)
 # ===============================================================================================
@@ -135,25 +96,6 @@ def tauTrackTwoMVASeq(is_probe_leg=False):
 
     from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
     precisionHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgMVA")
-    precisionHypo.taujetcontainer = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = mvaViewsMaker,
-                          Hypo        = precisionHypo,
-                          HypoToolGen = TrigEFTauMVHypoToolFromDict,
-                          IsProbe     = is_probe_leg )
-
-# ===============================================================================================                                                                                                                                     
-#     Tau Precision MVA Alg + EFMVHypo test step   (tracktwoMVATest)                                                                                                                                                                  
-# ===============================================================================================                                                                                                                                     
-
-def tauTrackTwoMVATestSeq(is_probe_leg=False):
-    (sequence, mvaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauMVASequence,ConfigFlags )
-
-    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
-    precisionHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgMVATest")
     precisionHypo.taujetcontainer = sequenceOut
 
     from TrigTauHypo.TrigTauHypoTool import TrigEFTauMVHypoToolFromDict
@@ -184,26 +126,7 @@ def tauTrackTwoLLPSeq(is_probe_leg=False):
                           IsProbe     = is_probe_leg )
 
 # ===============================================================================================                                                            
-#     Tau Preselection + EFMVHypo step   (tracktwo)                                                                                                   
-# ===============================================================================================                                                            
-
-def tauPreSelTTSeq(is_probe_leg=False):
-    (sequence, preSelViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauPreSelTTSequence,ConfigFlags )
-
-    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlg
-    preSelHypo = TrigEFTauMVHypoAlg("EFTauMVHypoAlgPreSelTT")
-    preSelHypo.taujetcontainer = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigPresTauMVHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = preSelViewsMaker,
-                          Hypo        = preSelHypo,
-                          HypoToolGen = TrigPresTauMVHypoToolFromDict,
-                          IsProbe     = is_probe_leg)
-
-# ===============================================================================================                                                            
-#     Precision Tracking + TrkPrecHypo step   (tracktwo, tracktwoEF, tracktwoMVA, tracktwoMVABDT)                                                                                               
+#     Precision Tracking + TrkPrecHypo step   (tracktwoEF, tracktwoMVA, tracktwoMVABDT)                                                                                               
 # ===============================================================================================                                                           
 
 def tauPrecTrackIsoSeq(is_probe_leg=False):

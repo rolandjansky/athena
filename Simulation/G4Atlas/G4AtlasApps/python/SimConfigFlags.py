@@ -58,6 +58,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.NeutronTimeCut", 150.) # Sets the value for the neutron out of time cut in G4
     scf.addFlag("Sim.NeutronEnergyCut", -1.) # Sets the value for the neutron energy cut in G4
     scf.addFlag("Sim.ApplyEMCuts", False) # Turns on the G4 option to apply cuts for EM physics
+    scf.addFlag("Sim.MuonFieldOnlyInCalo", False) # Only muons see the B-field in the calo
 
     #For G4AtlasToolsConfig
     scf.addFlag("Sim.RecordStepInfo",False)
@@ -74,6 +75,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.NRRWeight", False)
     scf.addFlag("Sim.PRRThreshold", False)
     scf.addFlag("Sim.PRRWeight", False)
+    scf.addFlag("Sim.OptionalUserActionList", [])
 
     # For G4FieldConfigNew
     scf.addFlag("Sim.G4Stepper", "AtlasRK4")
@@ -96,6 +98,7 @@ def createSimConfigFlags():
     scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
     scf.addFlag("Sim.ISF.ReSimulation", False) # Using ReSimulation workflow
+    scf.addFlag("Sim.ISF.UseTrackingGeometryCond", False) # Using Condition for tracking Geometry
 
     def decideHITSMerging(prevFlags):
         simstr = prevFlags.Sim.ISF.Simulator
@@ -124,7 +127,7 @@ def createSimConfigFlags():
 
     scf.addFlag("Sim.ISF.HITSMergingRequired", decideHITSMerging)
 
-    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_v011.root") # filename of the input parametrizations file
+    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_run2_reprocessing.root") # filename of the input parametrizations file
     scf.addFlag("Sim.FastCalo.CaloCellsName", "AllCalo") # StoreGate collection name for FastCaloSim hits
     
     scf.addFlag("Sim.FastShower.InputCollection", "TruthEvent") # StoreGate collection name of modified TruthEvent for legayc FastCaloSim use
@@ -152,3 +155,23 @@ def createSimConfigFlags():
     scf.addFlag("Sim.TightMuonStepping", False)
 
     return scf
+
+
+def simulationRunArgsToFlags(runArgs, flags):
+    """Fill simulation configuration flags from run arguments."""
+    if hasattr(runArgs, "DataRunNumber"):
+        flags.Input.RunNumber = [runArgs.DataRunNumber]
+        flags.Input.OverrideRunNumber = True
+        flags.Input.LumiBlockNumber = [1] # dummy value
+
+    if hasattr(runArgs, "physicsList"):
+        flags.Sim.PhysicsList = runArgs.physicsList
+
+    if hasattr(runArgs, "truthStrategy"):
+        flags.Sim.TruthStrategy = runArgs.truthStrategy
+
+    # Not used as deprecated
+    # '--enableLooperKiller'
+    # '--perfmon'
+    # '--randomSeed'
+    # '--useISF'

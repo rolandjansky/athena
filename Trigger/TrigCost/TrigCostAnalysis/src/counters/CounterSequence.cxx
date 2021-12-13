@@ -13,7 +13,7 @@ CounterSequence::CounterSequence(const std::string& name, const MonitorBase* par
 {
   regHistogram("Sequence_perEvent", "Sequnece calls/Event;Sequence call;Events", VariableType::kPerEvent, kLinear, -0.5, 49.5);
   regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 499.5, 100);
-  //regHistogram("Time_perCall", "CPU Time/Call;Time [ms];Calls", VariableType::kPerCall);
+  regHistogram("Time_perCall", "CPU Time/Call;Time [ms];Calls", VariableType::kPerCall);
   regHistogram("Time_perEvent", "CPU Time/Event;Time [ms];Events", VariableType::kPerEvent);
   regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 299.5, 300);
   regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 149.5, 150);
@@ -23,12 +23,13 @@ CounterSequence::CounterSequence(const std::string& name, const MonitorBase* par
 }
 
 
-StatusCode CounterSequence::newEvent(const CostData& data, size_t /*index*/, const float weight) {
+StatusCode CounterSequence::newEvent(const CostData& data, size_t index, const float weight) {
 
   ATH_CHECK( increment("Sequence_perEvent", weight) );
-
+  float viewTime = 0;
   // Monitor algorithms associated with sequence name
-  for (const size_t algIndex :  data.sequencersMap().at(getName())){
+  for (const size_t algIndex :  data.sequencersMap().at(getName()).at(index)){
+    
     const xAOD::TrigComposite* alg = data.costCollection().at(algIndex);
     const uint32_t slot = alg->getDetail<uint32_t>("slot");
     if (slot != data.onlineSlot()) {
@@ -37,15 +38,11 @@ StatusCode CounterSequence::newEvent(const CostData& data, size_t /*index*/, con
 
     ATH_CHECK( increment("AlgCalls_perEvent", weight) );
 
-
-    const uint32_t nameHash = alg->getDetail<TrigConf::HLTHash>("alg");
-    const std::string name = TrigConf::HLTUtils::hash2string(nameHash, "ALG");
-
     const uint64_t start = alg->getDetail<uint64_t>("start"); // in mus
     const uint64_t stop  = alg->getDetail<uint64_t>("stop"); // in mus
     const float cpuTime = timeToMilliSec(start, stop);
     ATH_CHECK( fill("Time_perEvent", cpuTime, weight) );
-    //ATH_CHECK( fill("Time_perCall", cpuTime, weight) );
+    viewTime += cpuTime;
 
     // Monitor data requests
     if (!data.algToRequestMap().count(algIndex)) continue;
@@ -79,6 +76,8 @@ StatusCode CounterSequence::newEvent(const CostData& data, size_t /*index*/, con
       ATH_CHECK( fill("RequestTime_perEvent", rosTime, weight) );
     }
   }
+
+  ATH_CHECK( fill("Time_perCall", viewTime, weight) );
 
   return StatusCode::SUCCESS;
 }

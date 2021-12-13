@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DenseEnvironmentsAmbiguityScoreProcessorTool_H
@@ -21,6 +21,7 @@
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
 #include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 #include "AmbiCounter.icc"
 #include <map>
@@ -28,7 +29,6 @@
 #include <vector>
 
 namespace InDet{
-  class IPixelClusterSplitProbTool;
   class PixelCluster;
   class SCT_Cluster;
 }
@@ -92,7 +92,8 @@ namespace Trk {
       /**Scoring tool
          This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
          @todo The actual tool that is used should be configured through job options*/
-      ToolHandle<ITrackScoringTool> m_scoringTool;
+      ToolHandle<ITrackScoringTool> m_scoringTool
+	 {this, "ScoringTool", "Trk::TrackScoringTool/TrackScoringTool" };
       
       ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
          {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
@@ -101,7 +102,8 @@ namespace Trk {
          {this, "AssociationToolNotGanged", "Trk::PRDtoTrackMapTool" };  // @TODO why are ganged pixels ignored ?
        
       /** recalculate split prob tool **/
-      ToolHandle<InDet::IPixelClusterSplitProbTool> m_splitProbTool; 
+      ToolHandle<InDet::IPixelClusterSplitProbTool> m_splitProbTool
+	 {this, "SplitProbTool", "InDet::NnPixelClusterSplitProbTool/NnPixelClusterSplitProbTool" };
 
       /**Observer tool      This tool is used to observe the tracks and their 'score' */
       PublicToolHandle<Trk::ITrkObserverTool> m_observerTool{this, "TrackObserverTool", "", "track observer within ambiguity solver"};

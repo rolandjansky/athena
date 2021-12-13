@@ -52,6 +52,9 @@ namespace CLHEP
   class HepRandomEngine;
 }
 
+namespace ITk
+{
+
 class StripDigitizationTool : public extends<PileUpToolBase, IPileUpTool>
 {
 public:
@@ -158,5 +161,7 @@ static const InterfaceID IID_IStripDigitizationTool("StripDigitizationTool", 1, 
 inline const InterfaceID& StripDigitizationTool::interfaceID() {
   return IID_IStripDigitizationTool;
 }
+
+} // namespace ITk
 
 #endif // not STRIPDIGITIZATION_STRIPDIGITIZATIONTOOL_H

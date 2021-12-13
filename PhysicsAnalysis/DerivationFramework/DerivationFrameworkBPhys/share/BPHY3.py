@@ -55,13 +55,15 @@ BPHY3JpsiFinder = Analysis__JpsiFinder(
   
 ToolSvc += BPHY3JpsiFinder
 print(BPHY3JpsiFinder)
-
+from InDetRecExample import TrackingCommon
 #--------------------------------------------------------------------
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex
 BPHY3_Reco_diTrk = DerivationFramework__Reco_Vertex(
   name                   = "BPHY3_Reco_diTrk",
   VertexSearchTool             = BPHY3JpsiFinder,
   OutputVtxContainerName = "BPHY3VertexCandidates",
+  V0Tools                = TrackingCommon.getV0Tools(),
+  PVRefitter             = BPHY3_VertexTools.PrimaryVertexRefitter,
   PVContainerName        = "PrimaryVertices",
   RefPVContainerName     = "BPHY3RefittedPrimaryVertices")
   
@@ -78,6 +80,7 @@ BPHY3_Select_PiPi = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY3_Select_PiPi",
   HypothesisName        = "PiPi",
   InputVtxContainerName = "BPHY3VertexCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   TrkMasses             = [139.57,139.57],
   VtxMassHypo           = 497.614,
   MassMin               = 300.0,
@@ -94,6 +97,7 @@ BPHY3_Select_PiK = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY3_Select_PiK",
   HypothesisName        = "PiK",
   InputVtxContainerName = "BPHY3VertexCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   TrkMasses             = [139.57,493.677],
   VtxMassHypo           = 892.,
   MassMin               = 0.0,
@@ -110,6 +114,7 @@ BPHY3_Select_KPi = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY3_Select_KPi",
   HypothesisName        = "KPi",
   InputVtxContainerName = "BPHY3VertexCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   TrkMasses             = [493.677,139.57],
   VtxMassHypo           = 892.,
   MassMin               = 0.0,
@@ -127,6 +132,7 @@ BPHY3_Select_KK = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY3_Select_KK",
   HypothesisName        = "KK",
   InputVtxContainerName = "BPHY3VertexCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   TrkMasses             = [493.677,493.677],
   VtxMassHypo           = 1019.461,
   MassMin               = 0.0,
@@ -143,6 +149,7 @@ BPHY3_Select_PP = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY3_Select_PP",
   HypothesisName        = "PP",
   InputVtxContainerName = "BPHY3VertexCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   TrkMasses             = [938.272,938.272],
   VtxMassHypo           = 3096.916,
   MassMin               = 2800.0,

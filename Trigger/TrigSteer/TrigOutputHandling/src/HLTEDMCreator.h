@@ -114,6 +114,8 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   Gaudi::Property<bool> m_dumpSGBefore{ this, "dumpSGBefore", false, "Dump SG content before the merging"}; // for debugging 
   Gaudi::Property<bool> m_dumpSGAfter { this, "dumpSGAfter", false, "Dump SG content after the merging"};
 
+  Gaudi::Property<std::vector<std::string>> m_keysToSkip { this, "LateEDMKeys", {"HLTNav_Summary_OnlineSlimmed", "HLT_RuntimeMetadata"}, "Which navigation containers are created after the HLTEDMCreator as it reads remapped navigation data"};
+
 #define DEF_VIEWS(__TYPE) \
   SG::ReadHandleKeyArray< ViewContainer > m_##__TYPE##Views{ this, #__TYPE"Views", {}, "Name  views from where the "#__TYPE" will be read"}
 

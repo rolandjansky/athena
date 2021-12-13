@@ -45,9 +45,8 @@ def LArShapeDumperCfg(flags):
     result.getService("PoolSvc").ReadCatalog += ["apcfile:poolcond/PoolCat_comcond_castor.xml"]
 
     if flags.LArShapeDump.doTrigger:
-        from AthenaMonitoring.TriggerInterface import getTrigDecisionTool
-        result.merge(getTrigDecisionTool(flags))
-        result.getPublicTool("TrigDecisionTool").TrigConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+        from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+        result.merge(TrigDecisionToolCfg(flags))
 
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
         result.merge(L1TriggerByteStreamDecoderCfg(flags))
@@ -57,6 +56,8 @@ def LArShapeDumperCfg(flags):
     result.getService("IOVDbSvc").overrideTags+=['<prefix>/LAR/ElecCalibOfl/Shape/RTM/5samples1phase</prefix><tag>LARElecCalibOflShapeRTM5samples1phase-RUN2-UPD1-04</tag>']
 
     
+    print("Dumping flags: ")
+    flags.dump()
     dumperAlg=CompFactory.LArShapeDumper("LArShapeDumper")
     dumperAlg.CaloType = flags.LArShapeDump.caloType
     dumperAlg.Prescale = flags.LArShapeDump.prescale
@@ -72,6 +73,9 @@ def LArShapeDumperCfg(flags):
     dumperAlg.LArShapeDumperTool=CompFactory.LArShapeDumperTool(DoShape=True)
     dumperAlg.FileName=flags.LArShapeDump.outputNtup
     dumperAlg.TriggerNames = flags.LArShapeDump.triggerNames
+    if flags.LAr.RawChannelSource == "calculated":
+       dumperAlg.ChannelsKey = "LArRawChannels_FromDigits"
+
     result.addEventAlgo(dumperAlg)
 
     if (flags.LArShapeDump.HECNoiseNtup!=""):
@@ -86,7 +90,9 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from LArShapeDumperFlags import addShapeDumpFlags
     addShapeDumpFlags(ConfigFlags)
-    ConfigFlags.Input.Files=['/scratch/wlampl/data18_13TeV/data18_13TeV.00357750.physics_Main.daq.RAW._lb0102._SFO-2._0003.data']
+
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files=defaultTestFiles.RAW
     ConfigFlags.LAr.ROD.forceIter=True
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg

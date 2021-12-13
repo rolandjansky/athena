@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleAmbiguityProcessorTool.h"
@@ -21,9 +21,7 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
                 const std::string& n,
                 const IInterface*  p )
   :
-  AmbiguityProcessorBase(t,n,p),
-  m_fitterTool ("Trk::KalmanFitter/InDetTrackFitter"), 
-  m_selectionTool("InDet::InDetAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"){
+  AmbiguityProcessorBase(t,n,p){
   // statistics stuff
 
   declareInterface<ITrackAmbiguityProcessorTool>(this);
@@ -31,9 +29,6 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
   declareProperty("ForceRefit"           , m_forceRefit         = true);
   declareProperty("RefitPrds"            , m_refitPrds          = false);
   declareProperty("MatEffects"           , m_matEffects         = 3); // pion
-  declareProperty("ScoringTool"          , m_scoringTool);
-  declareProperty("SelectionTool"        , m_selectionTool);
-  declareProperty("Fitter"               , m_fitterTool );
   declareProperty("SuppressHoleSearch"   , m_suppressHoleSearch = false);
   declareProperty("SuppressTrackFit"     , m_suppressTrackFit   = false);
   declareProperty("tryBremFit"           , m_tryBremFit         = false);

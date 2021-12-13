@@ -194,5 +194,5 @@ unsigned int CurvedLine::numberOfTrackHits() const { return m_numTrkHits; }
 
 double CurvedLine::chi2PerDegreesOfFreedom() const { return m_chi2 / (m_numTrkHits > 2 ? m_numTrkHits - 3 : 0.01); }
 
-void CurvedLine::setUsedHits(const std::vector<const MdtCalibHitBase*>& hits) { m_used_hits = hits; }
-const std::vector<const MdtCalibHitBase*>& CurvedLine::trackHits() const { return m_used_hits; }
+void CurvedLine::setUsedHits(const MdtHitVec& hits) { m_used_hits = hits; }
+const CurvedLine::MdtHitVec& CurvedLine::trackHits() const { return m_used_hits; }

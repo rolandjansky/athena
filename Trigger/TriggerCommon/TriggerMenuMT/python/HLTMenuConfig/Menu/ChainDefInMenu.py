@@ -26,8 +26,10 @@ class ChainProp:
             actual_type = typing.get_origin(f.type) or f.type
             value = getattr(self, f.name)
             if actual_type == list:
-                if value and not isinstance(value[0], typing.get_args(f.type)):
-                    return f
+                if value:
+                    for el in value:
+                        if not isinstance(el, typing.get_args(f.type)):
+                            return f
             elif not isinstance(value, actual_type):
                 return f
         return None

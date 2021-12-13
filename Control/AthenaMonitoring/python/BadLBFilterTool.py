@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from PyUtils.Decorators import memoize
-from functools import reduce
+from functools import reduce, cache
 
 def _resolve_db_tag(origDbTag):
     from AthenaCommon.GlobalFlags  import globalflags
@@ -32,7 +31,7 @@ def _InstanceFromProjectName():
 
 # Set up the bad lb filter conditions algorithm
 # Cache instance once already created
-@memoize
+@cache
 def GetBadLBFilterAlg(name, defects, writekey, ignoreRecoverable=False, origDbTag=None):
     """
     Configure an instance of the bad LB filter conditions algorithm. Not intended to be called directly by users.
@@ -119,7 +118,7 @@ def GetBadLBFilterTool(name, defects, alwaysReturnTrue=False, ignoreRecoverable=
 
     return monFilterTool
 
-@memoize
+@cache
 def LArBadDefectList(origDbTag=None):
     """
     Get the defects to configure for LAr - cache results to avoid lots of DB lookups

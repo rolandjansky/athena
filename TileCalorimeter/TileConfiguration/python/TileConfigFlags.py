@@ -39,6 +39,13 @@ def createTileConfigFlags():
 
 
 def _doOpt2ByDefault(prevFlags):
+      #For online operation don't check run number
+     if prevFlags.Common.isOnline:
+          if 'collisions' in prevFlags.Beam.Type:
+               return False  # Use OF without iterations for collisions
+          else:
+               return True
+
      runNumber = prevFlags.Input.RunNumber[0]
      # Run Optimal Filter with iterations (Opt2) by default,
      # both for cosmics and collisions data before 2011

@@ -89,7 +89,10 @@ def JetInputCfg(configFlags,jetOrConstitdef , context="default"):
     algs = getInputAlgs(jetOrConstitdef, configFlags, context)
 
     for a in algs:
-        components.addEventAlgo( a )
+        if isinstance(a, ComponentAccumulator):
+            components.merge(a)
+        else:
+            components.addEventAlgo(a)
     
     return components
 
@@ -503,7 +506,7 @@ def getConstitModAlg(parentjetdef, constitSeq, monTool=None):
         
         tool =  toolclass(modInstance.name,**modInstance.properties)
         
-        if inputtype == xAODType.ParticleFlow and modInstance.tooltype not in ["CorrectPFOTool","ChargedHadronSubtractionTool"]:
+        if (inputtype == xAODType.FlowElement or inputtype == xAODType.ParticleFlow) and modInstance.tooltype not in ["CorrectPFOTool","ChargedHadronSubtractionTool"]:
             tool.IgnoreChargedPFO=True
             tool.ApplyToChargedPFO=False
         tool.InputType = inputtype
@@ -513,7 +516,7 @@ def getConstitModAlg(parentjetdef, constitSeq, monTool=None):
     seqname = "ConstitMod{0}_{1}".format(sequenceshort,constitSeq.name)
     inputcontainer = str(constitSeq.inputname)
     outputcontainer = str(constitSeq.containername)
-    if inputtype==xAODType.ParticleFlow:
+    if (inputtype == xAODType.FlowElement or inputtype == xAODType.ParticleFlow):
         # Tweak PF names because ConstModSequence needs to work with
         # up to 4 containers
         def chopPFO(thestring):

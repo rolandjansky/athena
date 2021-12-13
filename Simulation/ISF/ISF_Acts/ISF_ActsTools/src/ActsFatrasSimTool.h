@@ -2,10 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// ActsFatrasSimTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef ISF_ACTSTOOLS_ACTSFATRASSIMTOOL_H
 #define ISF_ACTSTOOLS_ACTSFATRASSIMTOOL_H
 
@@ -110,8 +106,8 @@ class ActsFatrasSimTool : public BaseSimulatorTool {
   virtual StatusCode initialize() override;
   virtual StatusCode simulate(const ISFParticle& isp, ISFParticleContainer&,
                               McEventCollection*) const override;
-  virtual StatusCode setupEvent() override { return StatusCode::SUCCESS; };
-  virtual StatusCode releaseEvent() override { return StatusCode::SUCCESS; };
+  virtual StatusCode setupEvent(const EventContext&) override { return StatusCode::SUCCESS; };
+  virtual StatusCode releaseEvent(const EventContext&) override { return StatusCode::SUCCESS; };
   virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Fatras; };
 
   virtual ISF::ISFParticle* process(const ISFParticle& isp) const;

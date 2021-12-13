@@ -17,7 +17,7 @@ class CSCPRDVariables : public ValAlgVariables
                        const MuonGM::MuonDetectorManager* detManager,
                        const MuonIdHelper* idhelper,
                        TTree* tree,
-						  	  std::string containername,
+						  	  const std::string & containername,
 						 	  MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl)
   {
@@ -41,9 +41,9 @@ class CSCPRDVariables : public ValAlgVariables
   void deleteVariables(){};
   StatusCode clearVariables();
 
-  const CscIdHelper* m_CscIdHelper;
+  const CscIdHelper* m_CscIdHelper{};
 
-  int m_CSC_PRD_nPRDs;
+  int m_CSC_PRD_nPRDs{};
   std::vector<std::string> m_CSC_PRD_stationName;
   std::vector<int> m_CSC_PRD_stationEta;
   std::vector<int> m_CSC_PRD_stationPhi;

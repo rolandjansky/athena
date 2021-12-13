@@ -15,7 +15,6 @@
 
 #include "LArConditionsTest/LArConditionsTestAlg.h"
 
-#include "LArRawUtils/LArRoI_Map.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
@@ -139,18 +138,6 @@ StatusCode LArConditionsTestAlg::execute()
    }
 */
 
-
-//      IToolSvc* toolSvc;
-//      if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-//  	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endmsg;     
-//  	return StatusCode::FAILURE; 
-//      }
-
-//      LArRoI_Map* roiMap;
-//      if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArRoI_Map",roiMap )) {
-//  	log << MSG::ERROR << " Can't get LArRoI_Map " << endmsg;
-//  	return StatusCode::FAILURE;
-//      }
 
     return StatusCode::SUCCESS;
 }

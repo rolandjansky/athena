@@ -327,22 +327,6 @@ def TrigBjetMonConfig(inputFlags):
                 BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D_pb/IP3D_pu probability ratio distribution;LogLH IP3D_pb/IP3D_pu;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
-            HistName = 'wSV1_Rbu_tr_' + chain[2:]
-            if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='LogLH SV1_pb/SV1_pu probability ratio distribution;LogLH SV1_pb/SV1_pu;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
-            if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='LogLH SV1_pb/SV1_pu probability ratio distribution;LogLH SV1_pb/SV1_pu;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
-
-            HistName = 'wCOMB_Rbu_tr_' + chain[2:]
-            if chain[0:1] == "E" :
-                BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D+SV1 probability ratio distribution;LogLH IP3D+SV1 probability ratio;Events',
-                                             path='Expert/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
-            if chain[0:1] == "S" :
-                BjetMonGroup.defineHistogram(HistName, title='LogLH IP3D+SV1 probability ratio distribution;LogLH IP3D+SV1 probability ratio;Events',
-                                             path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
-
             HistName = 'wMV2c10_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of MV2c10 discriminant;MV2c10;Events',
@@ -373,6 +357,31 @@ def TrigBjetMonConfig(inputFlags):
                                              path='Expert/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of number of 2-track SV1;Number of 2-track SV1;Events',
+                                             path='Shifter/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+
+
+            HistName = 'JFxMVtx_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='JF mass distribution;JF mass;Events',
+                                             path='Expert/'+chain[2:],xbins=50,xmin=0.0,xmax=10.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='JF mass distribution;JF mass;Events',
+                                             path='Shifter/'+chain[2:],xbins=50,xmin=0.0,xmax=10.0)
+
+            HistName = 'JFxEVtx_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='JF E-fraction distribution;JF E-fraction;Events',
+                                             path='Expert/'+chain[2:],xbins=50,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='JF E-fraction distribution;JF E-fraction;Events',
+                                             path='Shifter/'+chain[2:],xbins=50,xmin=0.0,xmax=1.0)
+
+            HistName = 'JFxNVtx_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of number of 2-track JFVtx;Number of 2-track JFVtx;Events',
+                                             path='Expert/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of number of 2-track JFVtx;Number of 2-track JFVtx;Events',
                                              path='Shifter/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
 
 
@@ -466,6 +475,14 @@ def TrigBjetMonConfig(inputFlags):
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_mv LLR;DL1r_mv;Events',
                                              path='Shifter/'+chain[2:],xbins=200,xmin=-50.,xmax=50.)
 
+            HistName = 'DIPSL_pb_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DIPS b probability;dipsLoose20210517_pb;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DIPS b probability;dipsLoose20210517_pb;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
 
             continue
 
@@ -510,7 +527,7 @@ if __name__=='__main__':
     #ConfigFlags.Input.isMC = False
 
     # AOD file to be run w/ MT access
-    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest230621.AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest251021.AOD.pool.root'
 
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
@@ -539,4 +556,5 @@ if __name__=='__main__':
     Nevents = 25
     #cfg.run(Nevents)
     cfg.run() #use cfg.run(20) to only run on first 20 events
+
 

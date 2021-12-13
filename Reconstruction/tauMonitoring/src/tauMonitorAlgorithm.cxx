@@ -49,10 +49,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto tauEtEt15RNNLoose = Monitored::Scalar<float>("tauEtEt15RNNLoose",0.0);
   auto panModeEt15RNNLoose = Monitored::Scalar<float>("panModeEt15RNNLoose",0.0);
   auto panModeSubstructure = Monitored::Scalar<float>("panModeSubstructure",0.0);
-  auto coreTrk = Monitored::Scalar<float>("coreTrk",0.0);
-  auto PtTESMVA = Monitored::Scalar<float>("PtTESMVA",0.0);
-  auto PtCombined = Monitored::Scalar<float>("PtCombined",0.0);
-  auto lumiPerBCID = Monitored::Scalar<float>("lumiPerBCID",0.0);
+
 
   auto tauPhiEt15 = Monitored::Scalar<float>("tauPhiEt15",0.0);
   auto tauEtaEt15 = Monitored::Scalar<float>("tauEtaEt15",0.0);
@@ -103,10 +100,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto tauRNNMedium = Monitored::Scalar<float>("tauRNNMedium",0.0);
   auto tauRNNTight = Monitored::Scalar<float>("tauRNNight",0.0);
 
-  auto hadLeakFracFixed = Monitored::Scalar<float>("hadLeakFracFixed",0.0);
   auto PSSFrac = Monitored::Scalar<float>("PSSFrac",0.0);
   auto EMFrac = Monitored::Scalar<float>("EMFrac",0.0);
-  auto etHotShotWinOverPtLeadTrk = Monitored::Scalar<float>("etHotShotWinOverPtLeadTrk",0.0);
 
   auto EMFracTrk = Monitored::Scalar<float>("EMFracTrk",0.0);
   auto EfracL2EffCluster = Monitored::Scalar<float>("EfracL2EffCluster",0.0);
@@ -118,10 +113,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
   auto BDTScoreAsP0 = Monitored::Scalar<float>("BDTScoreAsP0",0.0);
   auto dRmax = Monitored::Scalar<float>("dRmax",0.0);
-  auto EMPOverTrkSysP = Monitored::Scalar<float>("EMPOverTrkSysP",0.0);
-  auto SumPtTrkFracCorrected = Monitored::Scalar<float>("SumPtTrkFracCorrected",0.0);
-  auto mEflowApprox = Monitored::Scalar<float>("mEflowApprox",0.0);
-  auto ptIntermediateAxis = Monitored::Scalar<float>("ptIntermediateAxis",0.0);
 
   auto ipSigLeadTrk = Monitored::Scalar<float>("ipSigLeadTrk",0.0);
   auto massTrkSys = Monitored::Scalar<float>("massTrkSys",0.0);
@@ -135,11 +126,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto panPt  = Monitored::Scalar<float>("panPt",0.0);
   auto d0  = Monitored::Scalar<float>("d0",0.0);
   auto eProbabilityHT = Monitored::Scalar<float>("eProbabilityHT",0.0);
-  auto leadTrackDeltaEta = Monitored::Scalar<float>("leadTrackDeltaEta",0.0);
-  auto leadTrackDeltaPhi = Monitored::Scalar<float>("leadTrackDeltaPhi",0.0);
   auto dRJetSeedAxis = Monitored::Scalar<float>("dRJetSeedAxis",0.0);
-  auto z0TJVA  = Monitored::Scalar<float>("z0TJVA",0.0);
-  auto z0PriVtx  = Monitored::Scalar<float>("z0PriVtx",0.0);
   auto z0  = Monitored::Scalar<float>("z0",0.0);
 
   auto etaTrack  = Monitored::Scalar<float>("etaTrack",0.0);
@@ -154,7 +141,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto trkWidth2  = Monitored::Scalar<float>("trkWidth2",0.0);
   auto ipZ0SinThetaSigLeadTrk  = Monitored::Scalar<float>("ipZ0SinThetaSigLeadTrk",0.0);
   auto numberOfPixelHits  = Monitored::Scalar<float>("numberOfPixelHits",0.0);
-  auto numberOfInnermostPixelLayerHits  = Monitored::Scalar<float>("numberOfInnermostPixelLayerHits",0.0);
   auto numberOfPixelSharedHits  = Monitored::Scalar<float>("numberOfPixelSharedHits",0.0);
   auto numberOfSCTHits  = Monitored::Scalar<float>("numberOfSCTHits",0.0);
   auto numberOfSCTSharedHits  = Monitored::Scalar<float>("numberOfSCTSharedHits",0.0);
@@ -189,10 +175,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto trackIdScoreConv  = Monitored::Scalar<float>("track",0.0);
   auto trackIdScoreFake  = Monitored::Scalar<float>("track",0.0);
 
-
-
-
-
   auto clusterLogEt  = Monitored::Scalar<float>("clusterLogEt",0.0);
   auto clusterEta  = Monitored::Scalar<float>("clusterEta",0.0);
   auto clusterPhi  = Monitored::Scalar<float>("clusterPhi",0.0);
@@ -208,11 +190,28 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto clustersMeanPresamplerFrac  = Monitored::Scalar<float>("clustersMeanPresamplerFrac",0.0);
   auto clustersPFOEngRelDiff  = Monitored::Scalar<float>("clustersPFOEngRelDiff",0.0);
 
+  const bool passedMonGroup =
+    (m_kinGroupName != "tauMonKinGroupTauTrig1" &&
+     m_kinGroupName != "tauMonKinGroupTauTrig2" &&
+     m_kinGroupName != "tauMonKinGroupTauTrig3" &&
+     m_kinGroupName != "tauMonKinGroupTauTrig4" &&
+     m_kinGroupName != "tauMonKinGroupTauTrig5" &&
+     m_kinGroupName != "tauMonKinGroupTauTrig6" &&
+     m_kinGroupName != "tauMonKinGroupTauTrig7" &&
+     m_kinGroupName != "tauMonKinGroupEleTrig"  &&
+     m_kinGroupName != "tauMonKinGroupJetTrig");
 
-
-
-
-
+  const auto& trigDecTool = getTrigDecisionTool();
+  const bool passedTrigger = !trigDecTool.empty() &&
+    ((m_kinGroupName == "tauMonKinGroupTauTrig1" && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM.*")) ||
+     (m_kinGroupName == "tauMonKinGroupTauTrig2" && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25.*")) ||
+     (m_kinGroupName == "tauMonKinGroupTauTrig3" && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25.*")) ||
+     (m_kinGroupName == "tauMonKinGroupTauTrig4" && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25.*")) ||
+     (m_kinGroupName == "tauMonKinGroupTauTrig5" && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25.*")) ||
+     (m_kinGroupName == "tauMonKinGroupTauTrig6" && trigDecTool->isPassed("HLT_tau160_medium1_tracktwoEF_L1TAU100.*")) ||
+     (m_kinGroupName == "tauMonKinGroupTauTrig7" && trigDecTool->isPassed("HLT_tau200_medium1_tracktwoEF_L1TAU100.*")) ||
+     (m_kinGroupName == "tauMonKinGroupEleTrig"  && trigDecTool->isPassed("HLT_e[2-9][0-9]_.*")) ||
+     (m_kinGroupName == "tauMonKinGroupJetTrig"  && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*")));
 
   nTauCandidates = 0;
    
@@ -230,10 +229,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     NumTracks = tau->nTracks();
     nClusters = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
     LB = GetEventInfo(ctx)->lumiBlock();
-    lumiPerBCID = lbAverageInteractionsPerCrossing(ctx);
-    coreTrk = tau->nTracks( xAOD::TauJetParameters::coreTrack ) ;
-    PtTESMVA = tau->ptFinalCalib() /GeV; 
-    PtCombined = tau->auxdata<float>( "ptCombined" )/GeV; 
 
     //calo
     EMRadius =  tau->detail<float>(xAOD::TauJetParameters::EMRadius);
@@ -248,7 +243,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     jetSeedEta = tau->etaJetSeed(); 
     jetSeedPhi = tau->phiJetSeed(); 
     jetSeedPt = tau->ptJetSeed()/GeV; 
-    ptIntermediateAxis     =    tau->ptIntermediateAxis()/GeV;
 
     //identification
     RNNJetScore =  tau->discriminant(xAOD::TauJetParameters::TauID::RNNJetScore);
@@ -260,9 +254,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     tauRNNTight  =       tau->isTau(xAOD::TauJetParameters::JetRNNSigTight);
 
     dRmax           =    tau->detail<float>(xAOD::TauJetParameters::dRmax);
-    EMPOverTrkSysP  =    tau->detail<float>(xAOD::TauJetParameters::EMPOverTrkSysP);
-    SumPtTrkFracCorrected =    tau->detail<float>(xAOD::TauJetParameters::SumPtTrkFracCorrected);
-    mEflowApprox           =    tau->detail<float>(xAOD::TauJetParameters::mEflowApprox)/GeV;
     ptRatioEflowApprox = tau->detail<float>( xAOD::TauJetParameters::ptRatioEflowApprox );
     trkAvgDist = tau->detail<float>(xAOD::TauJetParameters::trkAvgDist);
 
@@ -274,14 +265,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     PSSFrac = tau->detail<float>(xAOD::TauJetParameters::PSSFraction ) ;
     EMFrac = tau->auxdata<float>( "EMFracFixed" );
 
-    if ( tau->isAvailable<float>("hadLeakFracFixed")){
-      hadLeakFracFixed = tau->auxdata<float>( "hadLeakFracFixed" ); 
-    }
 
 
-    if ( tau->isAvailable<float>( "etHotShotWinOverPtLeadTrk" ) ){
-      etHotShotWinOverPtLeadTrk = tau->auxdata<float>( "etHotShotWinOverPtLeadTrk" );
-    }
 
     //TauB/SubStructure
     EMFracTrk = tau->detail<float>( xAOD::TauJetParameters::ChPiEMEOverCaloEME ) ;
@@ -294,33 +279,9 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     int panModeDummy = -1 ;
     int panModeSubstructureDummy = -1 ;
 
-    const auto* trigDecTool = (getTrigDecisionTool().empty() ?
-			       nullptr : getTrigDecisionTool().operator->());
-
     if (m_etaMin < std::abs(tauEta) && std::abs(tauEta) < m_etaMax){
-      if (m_kinGroupName != "tauMonKinGroupHighPt"&& m_kinGroupName!="tauMonKinGroupHighPtRNNLoose"){
 
-	if (
-	    (
-	     m_kinGroupName != "tauMonKinGroupTauTrig1"  &&
-	     m_kinGroupName != "tauMonKinGroupTauTrig2"  &&
-	     m_kinGroupName != "tauMonKinGroupTauTrig3"  &&
-	     m_kinGroupName != "tauMonKinGroupTauTrig4"  &&
-	     m_kinGroupName != "tauMonKinGroupTauTrig5"  &&
-	     m_kinGroupName != "tauMonKinGroupTauTrig6"  &&
-	     m_kinGroupName != "tauMonKinGroupTauTrig7"  &&
-	     m_kinGroupName != "tauMonKinGroupEleTrig"  &&
-	     m_kinGroupName != "tauMonKinGroupJetTrig") || 
-			(m_kinGroupName == "tauMonKinGroupTauTrig1" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM.*")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig2" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25.*")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig3" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25.*")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig4" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25.*")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig5" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25.*")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig6" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau160_medium1_tracktwoEF_L1TAU100.*")) ||
-	    (m_kinGroupName == "tauMonKinGroupTauTrig7" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau200_medium1_tracktwoEF_L1TAU100.*")) ||
-	    (m_kinGroupName == "tauMonKinGroupEleTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_e[2-9][0-9]_.*")) ||
-	    (m_kinGroupName == "tauMonKinGroupJetTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*"))
-	    ){
+	if (passedMonGroup || passedTrigger){
 
       nTauCandidates +=1;
 
@@ -416,11 +377,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	      if (track->summaryValue(dummy, xAOD::numberOfPixelSharedHits)){
 		    numberOfPixelSharedHits = dummy;
 		    fill(tool,numberOfPixelSharedHits);
-	      }
-                            
-	      if (track->summaryValue(dummy, xAOD::numberOfInnermostPixelLayerHits)){
-		    numberOfInnermostPixelLayerHits = dummy;
-		    fill(tool,numberOfInnermostPixelLayerHits);
 	      }
                            
 	      if (track->summaryValue(dummy, xAOD::numberOfPixelHits)){
@@ -712,15 +668,20 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	      fill(tool,BDTScoreAsP0);
 	    }
 
+
+
+    if (tauEt > lowerEtThreshold){
+				tauPhiEt15 = tau->phi();
+				tauEtaEt15 = tau->eta();
+			fill(tool,tauPhiEt15,tauEtaEt15);
+		}
+
 	  fill(tool
 	       ,tauPhi
 	       ,tauEta
 	       ,LB,tauEt
 	       ,centFrac
 	       ,isolFrac
-	       ,coreTrk
-	       ,PtTESMVA
-	       ,PtCombined
 	       ,EMRadius
 	       ,hadRadius
 	       ,stripWidth2
@@ -735,8 +696,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	       ,tauRNNMedium
 	       ,tauRNNTight
 	       ,PSSFrac
-	       ,hadLeakFracFixed
-	       ,etHotShotWinOverPtLeadTrk
 	       ,EMFrac
 	       ,EMFracTrk
 	       ,EfracL2EffCluster
@@ -750,13 +709,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	       ,jetSeedPhi
 	       ,jetSeedPt
 	       ,dRmax
-	       ,EMPOverTrkSysP
-	       ,SumPtTrkFracCorrected
-	       ,mEflowApprox
-	       ,ptIntermediateAxis
 	       ,ptRatioEflowApprox
-	       ,trkAvgDist
-	       ,lumiPerBCID);
+	       ,trkAvgDist);
 
 	  tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panModeSubstructureDummy); 
 	  panModeSubstructure = panModeSubstructureDummy;
@@ -769,29 +723,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		 ,panPt);
 	  }
 	}
-      }
 
-      if ((m_kinGroupName == "tauMonKinGroupHighPt") && tauEt > lowerEtThreshold){
-	tauPhiEt15 = tau->phi();
-	tauEtaEt15 = tau->eta();
-	fill(tool,LB,tauPhiEt15,tauEtaEt15);
-      }
-
-      if ((m_kinGroupName == "tauMonKinGroupHighPtRNNLoose") && tauEt > lowerEtThreshold &&tauRNNLoose){
-	tauPhiEt15RNNLoose = tau->phi();
-	tauEtaEt15RNNLoose = tau->eta();
-	tauEtEt15RNNLoose = tau->pt()/GeV; //GeV
-
-	nClustersEt15RNNLoose = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
-	NumTracksEt15RNNLoose = tau->nTracks();
-	fill(tool
-	     ,LB
-	     ,tauPhiEt15RNNLoose
-	     ,tauEtaEt15RNNLoose
-	     ,nClustersEt15RNNLoose
-	     ,NumTracksEt15RNNLoose
-	     ,tauEtEt15RNNLoose);
-      }
     }
   }
 

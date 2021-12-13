@@ -82,7 +82,7 @@ _stdInputList = [
     JetInputExternal("CaloCalTopoClusters", xAODType.CaloCluster, algoBuilder= standardReco("CaloClusters") ),
 
     # *****************************
-    JetInputExternal("JetETMissParticleFlowObjects", xAODType.ParticleFlow, # no algobuilder available yet for PFlow
+    JetInputExternal("JetETMissParticleFlowObjects", xAODType.FlowElement, # no algobuilder available yet for PFlow
                      prereqs = ["input:InDetTrackParticles"],
                      ),
 
@@ -181,7 +181,10 @@ _stdSeqList = [
     # see JetDefinition.py for details.
 
     # *****************************
-    # Cluster constituents 
+    # Cluster constituents : the first one is a relic used for isolation, and might disappear soon
+    JetInputConstitSeq("EMTopo", xAODType.CaloCluster, ["EM"],
+                       "CaloCalTopoClusters", "EMTopoClusters", jetinputtype="EMTopo",
+                       ),
     JetInputConstitSeq("EMTopoOrigin", xAODType.CaloCluster, ["EM","Origin"],
                        "CaloCalTopoClusters", "EMOriginTopoClusters", jetinputtype="EMTopo",
                        ),
@@ -277,7 +280,7 @@ _stdModList = [
     
     # Pileup suppression
     JetConstitModifier("Vor",    "VoronoiWeightTool", properties=dict(doSpread=False, nSigma=0) ),
-    JetConstitModifier("CS",     "ConstituentSubtractorTool", properties=dict(MaxEta=5. ) ),
+    JetConstitModifier("CS",     "ConstituentSubtractorTool", properties=dict(MaxEta=4.5 ) ),
     JetConstitModifier("SK",     "SoftKillerWeightTool",),
                            
 ]

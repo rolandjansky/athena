@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthLinks/tools/DataProxyHolder.h
  * @author scott snyder <snyder@bnl.gov>
@@ -102,7 +100,7 @@ public:
   DataProxyHolder (const DataProxyHolder& other, FROM_STORABLE*, TO_STORABLE*);
 
 
-  // Try to avoid coverity warning.
+  DataProxyHolder (const DataProxyHolder&) = default;
   DataProxyHolder& operator= (const DataProxyHolder&) = default;
 
 
@@ -432,7 +430,7 @@ private:
    * If we're holding a pointer directly, rather than a proxy,
    * then return 0 rather than raising an exception.
    */
-  IProxyDict* source1() const;
+  IProxyDict* source1();
 
 
   /**

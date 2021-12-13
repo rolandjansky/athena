@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -18,6 +18,29 @@ from ISF_Services.ISF_ServicesConfigNew import (
 from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolCfg, EntryLayerToolMTCfg
 from G4CosmicFilter.G4CosmicFilterConfigNew import CosmicFilterToolCfg
 
+def OptionalUserActionCfg(flags):
+    """ flags.Sim.OptionalUserActionList = ['G4UserActions.G4UserActionsConfigNew.FixG4CreatorProcessToolCfg']"""
+    result = ComponentAccumulator()
+    optionalUserActions = []
+    for userActionString in flags.Sim.OptionalUserActionList:
+        optionalUserActions += [result.popToolsAndMerge(getOptionalUACfg(flags, userActionString))]
+    result.setPrivateTools(optionalUserActions)
+    return result
+
+
+def getOptionalUACfg(flags, userActionString):
+    """Execute a function to configure and optional UserAction"""
+    parts = userActionString.split('.')
+    if len(parts) < 2:
+        raise ValueError('OptionalUserAction strings should be of the form Package.Module.Function or Package.Function if defined in __init__.py')
+    function = parts[-1]
+    module = '.'.join(parts[:-1])
+    from importlib import import_module
+    loaded_module = import_module(module)
+    function_def = getattr(loaded_module, function)
+    return function_def(flags)
+
+
 # Pulled in from ISF G4 to avoid circular dependence
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
@@ -31,6 +54,7 @@ def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserA
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     if flags.Detector.GeometryCavern:
         kwargs.setdefault("TruthVolumeLevel", 2)
+    kwargs.setdefault("IsITkGeometry", flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'])
     result.setPrivateTools(CompFactory.G4UA.iGeant4.TrackProcessorUserActionFullG4Tool(name, **kwargs))
     return result
 
@@ -62,6 +86,8 @@ def TrackProcessorUserActionToolCfg(flags, name="ISFG4TrackProcessorUserActionTo
 
 
 def PassBackG4TrackProcessorUserActionToolCfg(flags, name="PassBackG4TrackProcessorUserActionTool", **kwargs):
+    if flags.Sim.ISF.Simulator in ["PassBackG4MT"]:
+        kwargs.setdefault("ParticleBroker", "")
     return TrackProcessorUserActionToolCfg(flags, name, **kwargs)
 
 
@@ -69,7 +95,7 @@ def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUse
     result = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ["PassBackG4MT", "ATLFASTIIMT", "ATLFAST3MT", "ATLFAST3MT_QS"]:
         kwargs.setdefault("ParticleBroker", "")
-    if flags.Sim.ISF.Simulator in ["ATLFASTII","ATLFASTIIF_G4MS"]:
+    if flags.Sim.ISF.Simulator in ["ATLFASTIIF_G4MS"]:
         result.merge(AFIIParticleBrokerSvcCfg(flags))
         kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
     result.merge(AFIIGeoIDSvcCfg(flags))
@@ -174,15 +200,10 @@ def ISFUserActionSvcCfg(ConfigFlags, name="G4UA::ISFUserActionSvc", **kwargs):
     MCTruthUserAction = kwargs.pop("MCTruthUserAction",
                                    [result.popToolsAndMerge(MCTruthUserActionToolCfg(ConfigFlags))])
 
-    # FIXME migrate an alternative to this
-    #from G4AtlasApps.SimFlags import simFlags
-    #optActions = simFlags.OptionalUserActionList.get_Value()
-
-    generalActions = (
-        TrackProcessorUserAction + MCTruthUserAction +
-        result.popToolsAndMerge(getDefaultActions(ConfigFlags)) +
-        PhysicsValidationUserAction
-    )
+    generalActions = ( TrackProcessorUserAction + MCTruthUserAction +
+                       result.popToolsAndMerge(getDefaultActions(ConfigFlags)) +
+                       result.popToolsAndMerge(OptionalUserActionCfg(ConfigFlags)) +
+                       PhysicsValidationUserAction )
 
     # New user action tools
     kwargs.setdefault("UserActionTools", generalActions)

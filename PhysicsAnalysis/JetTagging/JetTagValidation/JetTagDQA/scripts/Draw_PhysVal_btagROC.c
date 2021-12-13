@@ -67,12 +67,12 @@
 
 using namespace std;
 
-const float EffMin=.55;
+float EffMin=.55;
 const float EffMax=1.;
 
 //Some global variables for plotting:
 // taggers with 'old_taggers' in their name are assumed to be in the folder called 'old_taggers' in the merged root file
-const vector<TString> taggers = {"IP2D","IP3D","RNNIP","SV1","IP3DSV1","MV2c10","JetFitter","DL1","DL1r"};
+const vector<TString> taggers = {"IP2D","IP3D","RNNIP","SV1","IP3DSV1","MV2c10","JetFitter","DL1","DL1d","DL1r"};
 //const vector<TString> taggers = {"IP2D"};
 //const vector<TString> taggers = {"IP3D"};
 //const vector<TString> taggers = {"RNNIP"};
@@ -132,6 +132,7 @@ void fill_WP_values(){
     WP_values.insert(make_pair<TString, vector<TString>>("SV1", {"40", "50", "60"}));
     WP_values.insert(make_pair<TString, vector<TString>>("JetFitter", {"50", "70", "80"}));
     WP_values.insert(make_pair<TString, vector<TString>>("DL1", {"60", "70", "77", "85"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("DL1d", {"60", "70", "77", "85"}));
     WP_values.insert(make_pair<TString, vector<TString>>("DL1r", {"60", "70", "77", "85"}));
     WP_values.insert(make_pair<TString, vector<TString>>("IP2D", {"50", "70", "80"}));
     WP_values.insert(make_pair<TString, vector<TString>>("IP3DSV1", {"50", "70", "80"}));
@@ -143,6 +144,7 @@ void fill_WP_values(){
     WP_values.insert(make_pair<TString, vector<TString>>("SV1", {"60"}));
     WP_values.insert(make_pair<TString, vector<TString>>("JetFitter", {"70"}));
     WP_values.insert(make_pair<TString, vector<TString>>("DL1", {"70"}));
+    WP_values.insert(make_pair<TString, vector<TString>>("DL1d", {"70"}));
     WP_values.insert(make_pair<TString, vector<TString>>("DL1r", {"70"}));
     WP_values.insert(make_pair<TString, vector<TString>>("IP2D", {"70"}));
     WP_values.insert(make_pair<TString, vector<TString>>("IP3DSV1", {"70"}));
@@ -1292,6 +1294,9 @@ void Draw_PhysVal_btagROC(){
 
   ///////////////////
   //Plot ROC curves 
+  if (MC == "Zprime"){
+    EffMin=.1;
+  }
   bool drawRatio=true;
   bool drawErrRatio=false;
   plotGraphs(InputFilesNames,MC,sample,leg_entry,drawRatio,drawErrRatio);

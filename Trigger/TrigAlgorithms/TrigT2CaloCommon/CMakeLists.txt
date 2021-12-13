@@ -32,6 +32,7 @@ function( _add_test name script )
    file( MAKE_DIRECTORY ${rundir} )
    atlas_add_test( ${name}
       SCRIPT ${script}
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 1200
       PROPERTIES WORKING_DIRECTORY ${rundir} )
 endfunction( _add_test )

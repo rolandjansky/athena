@@ -139,18 +139,18 @@ def _precisionTracking(flags, chainDict):
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
-def _precisionElectronSeq(flags, doIDperf=False):
+def _precisionElectronSeq(flags):
     name='PrecionElectron'
     selAcc=SelectionCA(name)
     recoAcc = InViewRecoCA(name, RequireParentView=True)
     #TODO this should likely go elsewhere (egamma experts to decide)
-    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+    TrigEgammaKeys = getTrigEgammaKeys()
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
     recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
                                                               DataObjects=[( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                                                                           ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % precisionCaloMenuDefs.caloClusters(ion=False) ),
-                                                                           ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % TrigEgammaKeys.TrigElectronTracksCollectionName)] ) )
+                                                                           ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % TrigEgammaKeys.precisionCaloClusterContainer),
+                                                                           ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % TrigEgammaKeys.precisionTrackingContainer)] ) )
 
 
     def TrigEMTrackMatchBuilderToolCfg(flags, name='TrigEMTrackMatchBuilder_noGSF'):
@@ -159,7 +159,7 @@ def _precisionElectronSeq(flags, doIDperf=False):
         from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
         emExtrapolatorTools = recoAcc.popToolsAndMerge(EMExtrapolationToolsCfg(flags))
         builderTool = CompFactory.EMTrackMatchBuilder(  name, #TODO, this is provate tool, it does not need to be specifically named
-                                                        TrackParticlesName = TrigEgammaKeys.TrigElectronTracksCollectionName,
+                                                        TrackParticlesName = TrigEgammaKeys.precisionTrackingContainer,
                                                         ExtrapolationTool  = emExtrapolatorTools,
                                                         broadDeltaEta      = 0.1, #candidate match is done in 2 times this  so +- 0.2
                                                         broadDeltaPhi      = 0.15,  #candidate match is done in 2 times this  so +- 0.3
@@ -175,7 +175,7 @@ def _precisionElectronSeq(flags, doIDperf=False):
         acc = ComponentAccumulator()
         electronRec = CompFactory.egammaRecBuilder( name,
                                                     InputClusterContainerName= 'HLT_CaloEMClusters',
-                                                    egammaRecContainer= TrigEgammaKeys.EgammaRecKey,
+                                                    egammaRecContainer= TrigEgammaKeys.precisionCaloEgammaRecCollection,
                                                     doConversions = False,
                                                     TrackMatchBuilderTool = recoAcc.popToolsAndMerge(TrigEMTrackMatchBuilderToolCfg(flags)) )
         acc.addEventAlgo(electronRec)
@@ -189,8 +189,8 @@ def _precisionElectronSeq(flags, doIDperf=False):
         from egammaTools.egammaSwToolConfig import egammaSwToolCfg
         from egammaMVACalib.egammaMVACalibConfig import egammaMVASvcCfg
         superClusterBuilder = CompFactory.electronSuperClusterBuilder( 'TrigElectronSuperClusterBuilder_noGSF',
-                                                                        InputEgammaRecContainerName = TrigEgammaKeys.EgammaRecKey,
-                                                                        SuperElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
+                                                                        InputEgammaRecContainerName = TrigEgammaKeys.precisionCaloEgammaRecCollection,
+                                                                        SuperElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterCollection,
                                                                         ClusterCorrectionTool = recoAcc.popToolsAndMerge(egammaSwToolCfg(flags)),
                                                                         MVACalibSvc = recoAcc.getPrimaryAndMerge(egammaMVASvcCfg(flags)),
                                                                         EtThresholdCut = 1000,
@@ -204,7 +204,7 @@ def _precisionElectronSeq(flags, doIDperf=False):
         acc = ComponentAccumulator()
         from egammaMVACalib.egammaMVACalibConfig import egammaMVASvcCfg
         tool = CompFactory.EMClusterTool('TrigEMClusterTool',
-                                            OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer,
+                                            OutputClusterContainerName = TrigEgammaKeys.precisionEMClusterContainer,
                                             MVACalibSvc = acc.getPrimaryAndMerge(egammaMVASvcCfg(flags))
         )        
         acc.setPrivateTools(tool)
@@ -214,10 +214,10 @@ def _precisionElectronSeq(flags, doIDperf=False):
         acc = ComponentAccumulator()
         from egammaTools.EMShowerBuilderConfig import EMShowerBuilderCfg
         builder = CompFactory.xAODEgammaBuilder(name,
-                                                InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-                                                InputPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
-                                                ElectronOutputName = TrigEgammaKeys.outputElectronKey,
-                                                PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
+                                                InputElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterCollection,
+                                                InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterCollection,
+                                                ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
+                                                PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,  
                                                 AmbiguityTool = CompFactory.EGammaAmbiguityTool(),
                                                 EMClusterTool = acc.popToolsAndMerge(TrigEMClusterToolCfg(flags)),
                                                 EMShowerTool = acc.popToolsAndMerge(EMShowerBuilderCfg(flags, CellsName="CaloCells")),
@@ -232,10 +232,10 @@ def _precisionElectronSeq(flags, doIDperf=False):
     def TrigTrackIsolationToolCfg(flags, name='TrigTrackIsolationTool'):
         acc = ComponentAccumulator()
 
-        tpicTool = CompFactory.xAOD.TrackParticlesInConeTool(TrackParticleLocation = TrigEgammaKeys.TrigElectronTracksCollectionName)
+        tpicTool = CompFactory.xAOD.TrackParticlesInConeTool(TrackParticleLocation = TrigEgammaKeys.precisionTrackingContainer)
 
         tiTool = CompFactory.xAOD.TrackIsolationTool(name,
-                                                    TrackParticleLocation = TrigEgammaKeys.TrigElectronTracksCollectionName,
+                                                    TrackParticleLocation = TrigEgammaKeys.precisionTrackingContainer,
                                                     VertexLocation = '',
                                                     TracksInConeTool  = tpicTool)
         # configure default TrackSelectionTool
@@ -266,7 +266,7 @@ def _precisionElectronSeq(flags, doIDperf=False):
 
     selAcc.mergeReco(recoAcc)
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict, TrigEgammaPrecisionElectronHypoAlgCfg
-    selAcc.mergeHypo( TrigEgammaPrecisionElectronHypoAlgCfg(flags, 'TrigEgammaHypoAlg_noGSF', TrigEgammaKeys.outputElectronKey, doIDperf=doIDperf ) )
+    selAcc.mergeHypo( TrigEgammaPrecisionElectronHypoAlgCfg(flags, 'TrigEgammaHypoAlg_noGSF', TrigEgammaKeys.precisionElectronContainer ) )
     menuSequence = MenuSequenceCA(selAcc,
                                    HypoToolGen=TrigEgammaPrecisionElectronHypoToolFromDict)
     return (selAcc, menuSequence)

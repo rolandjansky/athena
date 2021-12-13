@@ -166,7 +166,6 @@ namespace Trk
 
     /** Data members to store the results */
 
-    ToolHandle<Trk::IExtrapolator> m_extrapolator;
     ToolHandle<Trk::IVertexLinearizedTrackFactory> m_linFactory;
   };
   }

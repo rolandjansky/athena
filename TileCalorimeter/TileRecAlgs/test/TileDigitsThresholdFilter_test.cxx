@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -22,6 +22,7 @@
 #include "StoreGate/setupStoreGate.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 //#include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -45,7 +46,7 @@ static const std::vector<std::vector<float> > TESTDIGITS = {
 
 class TileCablingSvc {
  public:
-   static void init_idhelpers(IdDictParser& parser) {
+   static void init_idhelpers ATLAS_NOT_THREAD_SAFE (IdDictParser& parser) {
 
      TileHWID* tileHWID = new TileHWID();
      TileID* tileID = new TileID();
@@ -65,7 +66,7 @@ class TileCablingSvc {
      assert( (detStore->record(tileTBID, "TileTBID")).isSuccess() );
      assert( (detStore->record(tileID, "TileID")).isSuccess() );
 
-     TileCablingService* svc = TileCablingService::getInstance();
+     TileCablingService* svc = TileCablingService::getInstance_nc();
      svc->setTileHWID(tileHWID);
      svc->setTileTBID(tileTBID);
      svc->setTileID(tileID);
@@ -107,9 +108,6 @@ void test1() {
   std::cout << "test1\n";
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-
-  IdDictParser parser;
-  TileCablingSvc::init_idhelpers(parser);
 
   ServiceHandle<StoreGateSvc> evtStore("StoreGateSvc", "");
   ServiceHandle<StoreGateSvc> detStore("DetectorStore", "");
@@ -194,9 +192,12 @@ void test1() {
 }
 
 
-int main(int /*argc*/, char** argv) {
+int main ATLAS_NOT_THREAD_SAFE (int /*argc*/, char** argv) {
 
   Athena_test::setupStoreGate (argv[0]);
+
+  IdDictParser parser;
+  TileCablingSvc::init_idhelpers(parser);
 
   test1();
 

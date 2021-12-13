@@ -536,8 +536,9 @@ ClusterMakerTool::sctCluster(const Identifier& clusterID,
 	  break;
 	}
 
+    auto designShape = element->design().shape();
 	// rotation for endcap SCT
-	if(element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus) {
+	if(designShape == InDetDD::Trapezoid || designShape == InDetDD::Annulus) {
           double sn      = element->sinStereoLocal(localPos); 
           double sn2     = sn*sn;
           double cs2     = 1.-sn2;
@@ -547,7 +548,7 @@ ClusterMakerTool::sctCluster(const Identifier& clusterID,
           errorMatrix.fillSymmetric(0,0,cs2*v0+sn2*v1);
           errorMatrix.fillSymmetric(0,1,sn*sqrt(cs2)*(v0-v1));
           errorMatrix.fillSymmetric(1,1,sn2*v0+cs2*v1);
-	}
+	} //else if (designShape == InDetDD::PolarAnnulus) {// Polar rotation for endcap}
 
         SCT_Cluster* newCluster = new SCT_Cluster(
           clusterID, locpos, rdoList, width, element, std::move(errorMatrix));

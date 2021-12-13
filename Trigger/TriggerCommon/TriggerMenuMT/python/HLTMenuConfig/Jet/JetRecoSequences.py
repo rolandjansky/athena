@@ -18,8 +18,12 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
+
 ###############################################################################################
 # Sequences for input information
+
+# prefix used in naming HLT collections
+jetNamePrefix = JetRecoConfiguration.getHLTPrefix() # "HLT_"
 
 # Calo cell unpacking and topocluster reconstruction
 def jetClusterSequence(configFlags, RoIs, clusterCalib):
@@ -41,7 +45,6 @@ def jetClusterSequence(configFlags, RoIs, clusterCalib):
 
 ###############################################################################################
 # Sequences that set up the concrete jet finding job
-jetNamePrefix = "HLT_"
 
 # Need to do this hacky extraction to get around the inability
 # to hash dicts as input to RecoFragmentsPool.retrieve
@@ -52,7 +55,7 @@ def getTrkColls(jetRecoDict):
 # The top-level sequence, forwards arguments as appropriate to 
 # standard jet reco, grooming or reclustering sequences
 # If tracking is required, then the trkcolls dict (returned by the
-# JetTrackingSequence) must also be passed as kwargs
+# JetFSTrackingSequence) must also be passed as kwargs
 def jetRecoSequence( configFlags, clustersKey, **jetRecoDict ):
 
     jetalg, jetradius, extra = JetRecoConfiguration.interpretRecoAlg(jetRecoDict["recoAlg"])

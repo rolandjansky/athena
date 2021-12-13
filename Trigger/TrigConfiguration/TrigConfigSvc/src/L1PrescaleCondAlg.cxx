@@ -165,7 +165,8 @@ TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
 
          bool isRun3 = range.start().run_number()>350000;
 
-         pss = m_pssMap[l1Psk] = createFromDB( l1Psk, isRun3 );
+         const auto p = m_pssMap.insert(std::make_pair( l1Psk, createFromDB(l1Psk, isRun3) ));
+         pss = p.first->second;
 
       } else {
       

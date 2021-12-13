@@ -96,7 +96,6 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
   ServiceHandle<IIncidentSvc> m_incidentSvc{ this, "IncidentSvc", "IncidentSvc", "Incident service"};
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
   Gaudi::Property<std::string> m_bookingPath{ this, "HistPath", "/EXPERT/HLTFramework", "Booking path for the histogram"};
-  Gaudi::Property<unsigned int> m_bcidNumber{ this, "BCIDNumber", 500, "Number of BCIDs in BCIDperChain histogram"};
 
   // Necessary for asynchronous calling callback function
   Gaudi::Property<unsigned int> m_duration {this, "RateIntegrationDuration", 10, "Integration time for the rate histogram in seconds"};
@@ -108,13 +107,10 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
   // Histograms
   mutable LockedHandle<TH2> m_passHistogram ATLAS_THREAD_SAFE;
   mutable LockedHandle<TH2> m_countHistogram ATLAS_THREAD_SAFE;
-  mutable LockedHandle<TH2> m_bunchHistogram ATLAS_THREAD_SAFE;
   RateHistogram m_rateHistogram;
-  RateHistogram m_bcidHistogram;
   RateHistogram m_sequenceHistogram;
 
   std::map<unsigned int, int> m_chainIDToBinMap; //!< Chain id to histogram bin map
-  std::map<unsigned int, int> m_BCIDchainIDToBinMap; //!< Chain id to bin map for DecisionsPerBCID histogram
   std::map<std::string, int> m_nameToBinMap; //!< Sequence/group/bunchgroup name to bin map
   std::map<std::string, int> m_sequenceToBinMap; //!< Sequence to bin map for sequence histogram
   std::map<unsigned int, std::set<std::string>> m_chainIDToBunchMap; //!< Chain ID to bunchgroup name map
@@ -143,16 +139,9 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
   // Returns number of base steps: in, after ps, out steps
   int nBaseSteps() const;
 
-  // Returns number of bunchgroups from l1 menu
-  int nBunchGroups(SG::ReadHandle<TrigConf::L1Menu>& ) const;
-
-  // Returns number of BCID chains to monitor
-  int nBCIDchains() const;
 
   // Init different types of histograms
   StatusCode initHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, bool = true);
-  StatusCode initBunchHist(LockedHandle<TH2>&, SG::ReadHandle<TrigConf::HLTMenu>&, SG::ReadHandle<TrigConf::L1Menu>&);
-  StatusCode initBCIDhist(LockedHandle<TH2>&, const std::vector<std::string>&);
   StatusCode initSeqHist(LockedHandle<TH2>&, std::set<std::string>&);
   
   // Fill different types of histograms
@@ -160,8 +149,6 @@ class TrigSignatureMoni : public extends<AthReentrantAlgorithm, IIncidentListene
   StatusCode fillPassEvents(const TrigCompositeUtils::DecisionIDContainer&, int) const;
   StatusCode fillRate(const TrigCompositeUtils::DecisionIDContainer&, int) const;
   StatusCode fillHistogram(const TrigCompositeUtils::DecisionIDContainer&, int, LockedHandle<TH2>&) const;
-  StatusCode fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer&) const;
-  StatusCode fillBCID(const TrigCompositeUtils::DecisionIDContainer&, int) const;
   StatusCode fillSequences(const std::set<std::string>&) const;
   StatusCode fillStreamsAndGroups(const std::map<std::string, TrigCompositeUtils::DecisionIDContainer>&, const TrigCompositeUtils::DecisionIDContainer&) const;
 };

@@ -79,9 +79,10 @@ namespace DerivationFramework {
   StatusCode Reco_Vertex::addBranches() const
   {
     bool callTool = true;
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     if(m_checkCollections) {
       for(const auto &str : m_CollectionsToCheck){
-         SG::ReadHandle<xAOD::VertexContainer> handle(str);
+         SG::ReadHandle<xAOD::VertexContainer> handle(str,ctx);
          ATH_CHECK(handle.isValid());
          if(handle->size() == 0) {
             callTool = false;
@@ -92,24 +93,23 @@ namespace DerivationFramework {
     }
 
     // Vertex container and its auxilliary store
-    xAOD::VertexContainer*    pVtxContainer = nullptr;
-    xAOD::VertexAuxContainer* pVtxAuxContainer = nullptr;
-    
+    std::unique_ptr<xAOD::VertexContainer>    vtxContainer = std::make_unique<xAOD::VertexContainer>();
+    std::unique_ptr<xAOD::VertexAuxContainer> vtxAuxContainer = std::make_unique<xAOD::VertexAuxContainer>();
+    vtxContainer->setStore(vtxAuxContainer.get());
+   
     if(callTool) {
     //----------------------------------------------------
     // call Tool
     //----------------------------------------------------
-    if( !m_SearchTool->performSearch(pVtxContainer, pVtxAuxContainer).isSuccess() ) {
+    if( !m_SearchTool->performSearch(ctx,*vtxContainer).isSuccess() ) {
       ATH_MSG_FATAL("Tool (" << m_SearchTool << ") failed.");
       return StatusCode::FAILURE;
     }
-    std::unique_ptr<xAOD::VertexContainer>    vtxContainer   (pVtxContainer);
-    std::unique_ptr<xAOD::VertexAuxContainer> vtxAuxContainer(pVtxAuxContainer);
-
+ 
     //----------------------------------------------------
     // retrieve primary vertices
     //----------------------------------------------------
-    SG::ReadHandle<xAOD::VertexContainer> pvContainer(m_pvContainerName);
+    SG::ReadHandle<xAOD::VertexContainer> pvContainer(m_pvContainerName,ctx);
 
     //----------------------------------------------------
     // Try to retrieve refitted primary vertices
@@ -124,7 +124,7 @@ namespace DerivationFramework {
     }
     
     // Give the helper class the ptr to v0tools and beamSpotsSvc to use
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
     if(not beamSpotHandle.isValid()) ATH_MSG_ERROR("Cannot Retrieve " << m_beamSpotKey.key() );
     BPhysPVTools helper(&(*m_v0Tools), beamSpotHandle.cptr());
     helper.SetMinNTracksInPV(m_PV_minNTracks);

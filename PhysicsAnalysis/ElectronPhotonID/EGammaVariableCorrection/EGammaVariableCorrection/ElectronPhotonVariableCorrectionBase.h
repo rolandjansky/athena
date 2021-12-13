@@ -8,7 +8,7 @@
 /** @class ElectronPhotonVariableCorrectionBase
  * @brief Class to correct electron and photon MC variables.
  * @details For a detailed documentation, please refer to the [gitlab readme](https://gitlab.cern.ch/atlas/athena/-/blob/21.2/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool/README.md)
- * 
+ *
  * @author Nils Gillwald (DESY) nils.gillwald@desy.de
  * @date   February 2020
 */
@@ -23,6 +23,7 @@
 
 //Root includes
 #include "TF1.h"
+#include "TRandom.h"
 
 // forward declarations
 class TObject;
@@ -40,7 +41,7 @@ class ElectronPhotonVariableCorrectionBase : public asg::AsgTool
 public:
     /** @brief Standard constructor
      * @param myname Internal name of the class instance, so they can be distinguished
-     */ 
+     */
     ElectronPhotonVariableCorrectionBase(const std::string& myname);
     //! @brief Standard destructor
     ~ElectronPhotonVariableCorrectionBase() {};
@@ -138,6 +139,10 @@ private:
     std::string m_configFile;
     //! @brief The name of the variable to correct
     std::string m_correctionVariable;
+    //! @brief Whether to apply normal correction or smearing correction
+    bool m_doGaussianSmearing = false;
+    //! @brief TRandom3 for setting seed of random smearing correction
+    mutable TRandom m_random;
     //! @brief Values of discontinuities in the variable which should not be corrected
     std::vector<float> m_uncorrectedDiscontinuities;
     //! @brief Function to use for the variable correction, TF1 style
@@ -319,6 +324,13 @@ private:
      * @param properties The vector containing the correction TF1 parameters so the correction TF1 can be set for the respective e/y object
      */
     const StatusCode correct(float& return_corrected_variable, const float original_variable, std::vector<float>& properties) const;
+
+    /** @brief Set the seed of the TRandom object m_random
+     * @param pt The pT value of the Egamma object
+     * @param eta The eta value of the Egamma object
+     * @param phi The phi value of the Egamma object
+     */
+    StatusCode setRandomSeed(const float pt, const float eta, const float phi) const;
 
 }; //end class ElectronPhotonVariableCorrectionBase
 

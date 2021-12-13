@@ -5,7 +5,7 @@
 #ifndef CALOALIGNMENTALGS_CALOALIGNCONDALG_H
 #define CALOALIGNMENTALGS_CALOALIGNCONDALG_H
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -21,15 +21,14 @@
  *
  **/
 
-class CaloAlignCondAlg final : public AthReentrantAlgorithm
+class CaloAlignCondAlg final : public AthAlgorithm
 {
  public:
-  using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  using AthAlgorithm::AthAlgorithm;
   virtual ~CaloAlignCondAlg() = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& ctx) const override;
-  virtual StatusCode finalize() override {return StatusCode::SUCCESS;};
+  virtual StatusCode execute() override;
 
  private:
   SG::ReadCondHandleKey<GeoAlignmentStore>  m_readKeyGeoAlign {this

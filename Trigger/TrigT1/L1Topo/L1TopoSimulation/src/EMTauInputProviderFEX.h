@@ -41,14 +41,16 @@ namespace LVL1 {
       ServiceHandle<ITHistSvc> m_histSvc;
 
       mutable LockedHandle<TH1> m_hEMEt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEMEtaPhi ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEMEtaPhi_local ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMPhiEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMPhiEta_local ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEMEtEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEMEtPhi ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hTauEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hTauIsolation ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauEtIsolation ATLAS_THREAD_SAFE;
 
      SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEM_EDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEXEM EDM"};
      SG::ReadHandleKey<xAOD::eFexTauRoIContainer> m_eTau_EDMKey {this, "L1_eTauRoI", "L1_eTauRoI", "eFEXTau EDM"};

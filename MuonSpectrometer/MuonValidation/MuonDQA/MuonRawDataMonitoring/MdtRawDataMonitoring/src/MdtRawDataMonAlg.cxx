@@ -112,6 +112,7 @@ struct MDTSummaryHistogramStruct {
   std::vector<float>  tdc_mon_tgc;
   std::vector<int>  biny_vslb;
   std::vector<int>  biny_vslb_bycrate;
+  std::vector<int>  biny_vslb_bycrate_bis_bee;
   std::vector<int>  biny_vslb_bycrate_ontrack;
 
 };
@@ -130,7 +131,6 @@ struct MDTSegmentHistogramStruct {
 MdtRawDataMonAlg::MdtRawDataMonAlg( const std::string& name, ISvcLocator* pSvcLocator )
  :AthMonitorAlgorithm(name,pSvcLocator),
  m_masked_tubes(NULL),
- m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
  m_atlas_ready(0),
  m_hist_hash_list(0),
  m_BMGpresent(false),
@@ -199,8 +199,6 @@ StatusCode MdtRawDataMonAlg::initialize()
 
   ATH_CHECK(m_idHelperSvc.retrieve());
   
-  ATH_CHECK(m_muonSelectionTool.retrieve());
-
   if(m_maskNoisyTubes) m_masked_tubes = new MDTNoisyTubes();
   else m_masked_tubes = new MDTNoisyTubes(false);
   mdtchamberId();
@@ -211,6 +209,7 @@ StatusCode MdtRawDataMonAlg::initialize()
   ATH_CHECK(m_key_mdt.initialize());
   ATH_CHECK(m_key_rpc.initialize());
   ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_muon_type.initialize());
 
   m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
   //  m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;
@@ -411,41 +410,54 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   {
     //DEV this shouls be done in some other way, in AthenaMonManager there is
     // Gaudi::Property<std::string> m_environmentStr {this,"Environment","user"}; ///< Environment string pulled from the job option and converted to enum
-    //per il momento commento...
+    //commented out for the time being
     //    if(m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online) {
     if (true)
     { //DEV to be updated
 
-      SG::ReadHandle<xAOD::MuonContainer> muons(m_muonKey, ctx);
-      if (!muons.isValid())
+      SG::ReadHandle<xAOD::TrackParticleContainer> muons(m_muon_type, ctx);
+      /* if (!muons->isValid())
       {
         ATH_MSG_ERROR("evtStore() does not contain muon Collection with name " << m_muonKey);
         return StatusCode::FAILURE;
-      }
+	}*/
       for (const auto mu : *muons)
       {
-
-        if (!(mu->muonType() == xAOD::Muon::Combined))
-          continue;
-        xAOD::Muon::Quality quality = m_muonSelectionTool->getQuality(*mu);
-        if (!(quality <= xAOD::Muon::Medium))
-          continue;
-        const xAOD::TrackParticle *tp = mu->primaryTrackParticle();
-        if (tp)
+	//add quality selection here 
+        if (mu)
         {
-          const Trk::Track *trk = tp->track();
+          const Trk::Track *trk = mu->track();
           //this work only if tp are available
-          if (!trk)
-            continue;
-          //
+          if (!trk) continue;
+
           uint8_t ntri_eta = 0;
           uint8_t n_phi = 0;
-          tp->summaryValue(ntri_eta, xAOD::numberOfTriggerEtaLayers);
-          tp->summaryValue(n_phi, xAOD::numberOfPhiLayers);
-          if (ntri_eta + n_phi == 0)
-            continue;
+          mu->summaryValue(ntri_eta, xAOD::numberOfTriggerEtaLayers);
+          mu->summaryValue(n_phi, xAOD::numberOfPhiLayers);
+          if (ntri_eta + n_phi == 0)            continue;
+
+
+	  for (const Trk::MeasurementBase* hit : *trk->measurementsOnTrack()) {
+            const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(hit);
+            if(!rot_from_track) continue;
+            Identifier rotId = rot_from_track->identify();
+            if(!m_idHelperSvc->isMdt(rotId)) continue;
+            IdentifierHash mdt_idHash;
+	    MDTChamber* mdt_chamber = 0;
+            m_idHelperSvc->mdtIdHelper().get_module_hash( rotId, mdt_idHash );
+	    ATH_CHECK(getChamber(mdt_idHash, mdt_chamber));
+	    std::string mdt_chambername = mdt_chamber->getName();
+            chambers_from_tracks.insert(mdt_chambername);
+          }
+
+
         }
       }
+
+
+      
+
+
 
       MDTOverviewHistogramStruct overviewPlots;
       auto summaryPlots = std::make_unique<std::array<MDTSummaryHistogramStruct,4096> >();
@@ -504,8 +516,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
           }
 
         } // for loop over hits mdtcollection
-        if (isHit_above_ADCCut)
-          nColl_ADCCut++;
+	nColl_ADCCut+=isHit_above_ADCCut;
       } //loop in MdtPrepDataContainer
       if (m_do_mdtchamberstatphislice)
       {
@@ -711,6 +722,7 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCo
   int thisStationEta=chamber->GetStationEta();
 
   int crate_region = iregion;
+  //correct readout crate info for BEE,BIS7/8
   if(chambername.substr(0,3)=="BEE" || (chambername.substr(0,3) == "BIS" && (thisStationEta == 7 || thisStationEta == 8) )){
     if(iregion==0) crate_region=2;
     if(iregion==1) crate_region=3;
@@ -815,37 +827,15 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCo
     //DEV to DO
     // Fill occupancy vs. Lumiblock
     thisVects.biny_vslb.push_back(get_bin_for_LB_hist(iregion,ilayer,stationPhi,thisStationEta,isBIM));
-    //    int biny_vslb = get_bin_for_LB_hist(iregion,ilayer,stationPhi,thisStationEta,isBIM);
-    //    auto biny_name = "y_mon_bin_"+region[iregion]+"_"+layer[ilayer];
-    //    if(layer[ilayer]=="Extra") biny_name = "y_mon_bin_"+region[iregion]+"_"+layer[ilayer]+"PlusExtra";
-    //    auto biny_var = Monitored::Scalar<int>(biny_name, biny_vslb);
-    //    if(ilayer != 3) m_mdtoccvslb[iregion][ilayer]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM));
-    //    else m_mdtoccvslb[iregion][2]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM)); // Put extras in with outer
-    //correct readout crate info for BEE,BIS7/8
-
-    thisVects.biny_vslb_bycrate.push_back(get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,thisStationEta,chambername));
+    
+    if(chambername.substr(0,3)=="BEE" || (chambername.substr(0,3) == "BIS" && (thisStationEta == 7 || thisStationEta == 8) )){
+      thisVects.biny_vslb_bycrate_bis_bee.push_back(get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,thisStationEta,chambername));
+    }       else{
+      thisVects.biny_vslb_bycrate.push_back(get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,thisStationEta,chambername));
+    }
     if (is_on_track) {
       thisVects.biny_vslb_bycrate_ontrack.push_back(get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,thisStationEta,chambername));
     }
-
-    //    int biny_vslb_bycrate = get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,thisStationEta,chambername);
-    /*
-    auto biny_name_bycrate = "y_mon_bin_bycrate_"+region[crate_region]+"_"+crate[icrate-1];
-    auto biny_var_bycrate = Monitored::Scalar<int>(biny_name_bycrate, biny_vslb_bycrate);
-    fill(MDT_regionGroup, lb_mon, biny_var, biny_var_bycrate); //y-axis of these histograms not yet defined
-    if (is_on_track) {
-      auto biny_name_bycrate_ontrack = "y_mon_bin_bycrate_ontrack_"+region[crate_region]+"_"+crate[icrate-1];
-      auto biny_var_bycrate_ontrack = Monitored::Scalar<int>(biny_name_bycrate_ontrack, biny_vslb_bycrate);
-      fill(MDT_regionGroup, biny_var_bycrate_ontrack); //y-axis of these histograms not yet defined
-    }
-    */
-    //DEV to do
-    //use stationPhi+1 because that's the actual phi, not phi indexed from zero.
-    //    m_mdtoccvslb_by_crate[crate_region][icrate-1]->Fill(m_lumiblock,get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,stationEta,chambername));
-
-    //    if (is_on_track)    {
-    //      m_mdtoccvslb_ontrack_by_crate[crate_region][icrate-1]->Fill(m_lumiblock,get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,stationEta,chambername));
-    //    }
 
   }
   
@@ -930,18 +920,28 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms(std::array<MDTSummaryHisto
             auto tdc_mon_tgc =  Monitored::Collection("tdc_mon_tgc", thisVects.tdc_mon_tgc);
 
             auto biny_name = "y_mon_bin_"+region[iregion]+"_"+layer[ilayer];
-            if(layer[ilayer]=="Extra") biny_name = "y_mon_bin_"+region[iregion]+"_"+layer[ilayer]+"PlusExtra";
-            auto biny_var =  Monitored::Collection(biny_name, thisVects.biny_vslb);//y-axis of these histograms not yet defined
+	    if(layer[ilayer]=="Extra" || layer[ilayer]=="Outer") biny_name = "y_mon_bin_"+region[iregion]+"_OuterPlusExtra";
 
-            auto biny_name_bycrate = "y_mon_bin_bycrate_"+region[crate_region]+"_"+crate[icrate];
-            auto biny_var_bycrate = Monitored::Collection(biny_name_bycrate, thisVects.biny_vslb_bycrate); //y-axis of these histograms not yet defined
+            auto biny_var =  Monitored::Collection(biny_name, thisVects.biny_vslb);
 
-            auto biny_name_bycrate_ontrack = "y_mon_bin_bycrate_ontrack_"+region[crate_region]+"_"+crate[icrate]; //y-axis of these histograms not yet defined
-            auto biny_var_bycrate_ontrack = Monitored::Collection(biny_name_bycrate_ontrack, thisVects.biny_vslb_bycrate_ontrack);
+	    std::vector<int> sum_biny_vslb_bycrate;
+	    sum_biny_vslb_bycrate.reserve( thisVects.biny_vslb_bycrate.size() + thisVects.biny_vslb_bycrate_bis_bee.size() );
+	    sum_biny_vslb_bycrate.insert(sum_biny_vslb_bycrate.end(), thisVects.biny_vslb_bycrate_bis_bee.begin(), thisVects.biny_vslb_bycrate_bis_bee.end());
+	    sum_biny_vslb_bycrate.insert(sum_biny_vslb_bycrate.end(), thisVects.biny_vslb_bycrate.begin(), thisVects.biny_vslb_bycrate.end());
 
+	    auto biny_name_bycrate = "y_mon_bin_bycrate_"+region[crate_region]+"_"+crate[icrate];
+	    //            auto biny_var_bycrate = Monitored::Collection(biny_name_bycrate, thisVects.biny_vslb_bycrate); 
+            auto biny_var_bycrate = Monitored::Collection(biny_name_bycrate, sum_biny_vslb_bycrate); 
+	    
+	    auto biny_name_bycrate_ontrack = "y_mon_bin_bycrate_ontrack_"+region[crate_region]+"_"+crate[icrate]; 
+	    auto biny_var_bycrate_ontrack = Monitored::Collection(biny_name_bycrate_ontrack, thisVects.biny_vslb_bycrate_ontrack);
+	    
             fill(MDT_regionGroup, adc_mon, tdc_mon, tdc_mon_nb2, adc_mon_nb2, tdc_mon_adccut, adc_mon_adccut, tdc_mon_adccut, adc_mon_adccut,
 		 tdc_mon_nb3, x_bin_perML, y_bin_perML, tdc_mon_rpc,tdc_mon_tgc,biny_var,lb_mon,
-		 biny_var, biny_var_bycrate, biny_var_bycrate_ontrack);
+		 biny_var,biny_var_bycrate, biny_var_bycrate_ontrack
+		 //, 
+		 //		 biny_var_bycrate_bis_bee
+		 );
 	    //DEV to DO
 	    // Fill occupancy vs. Lumiblock
 	    //    if(ilayer != 3) m_mdtoccvslb[iregion][ilayer]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM));

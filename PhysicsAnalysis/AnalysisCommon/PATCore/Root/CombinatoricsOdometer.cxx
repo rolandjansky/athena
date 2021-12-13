@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -53,11 +53,9 @@ FlexDigits::FlexDigits( std::vector<std::string>& labels, std::map<std::string, 
 {
   m_started=false; 
   this->reserve(labels.size());
-  for( std::vector<std::string>::const_iterator label_itr=labels.begin();
-       label_itr !=  labels.end();
-       label_itr++ )
+  for (const std::string& label : labels)
     {
-      FlexDigit* temp = new FlexDigit(digitMax[*label_itr]);
+      FlexDigit* temp = new FlexDigit(digitMax[label]);
       this->push_back(temp);
     }
 }
@@ -112,11 +110,9 @@ bool FlexDigits::increment()
 void FlexDigits::print()
 {
   std::cout<<"current State of digits: ";
-  for( FlexDigits::iterator digit_itr=this->begin();
-       digit_itr!= this->end();
-       digit_itr++ )
+  for (const FlexDigit* digit : *this)
     {
-      std::cout<<"|"<<(*digit_itr)->digit()<<"|";
+      std::cout<<"|"<<digit->digit()<<"|";
     }
   std::cout<<std::endl;
 }
@@ -126,11 +122,9 @@ void FlexDigits::print()
 bool FlexDigits::isZero()
 {
   bool isZero=true;
-  for( FlexDigits::iterator digit_itr=this->begin();
-       digit_itr != this->end();
-       digit_itr++ )
+  for (const FlexDigit* digit : *this)
     {
-      isZero = isZero && !(*digit_itr)->digit();
+      isZero = isZero && !digit->digit();
     } 
   return isZero;
 }
@@ -200,18 +194,14 @@ bool OdoMeter::isUnique( bool doCheck )
     {
       return true;
     }
-  for( std::set<std::string>::const_iterator label_itr = m_labels.begin();
-       label_itr != m_labels.end();
-       label_itr++ )
+  for (const std::string& label : m_labels)
     {
       int leftDigit = -1;
-      for( std::set<int>::const_iterator digit_itr = m_digitAssoc[*label_itr].begin();
-           digit_itr!=m_digitAssoc[*label_itr].end();
-           digit_itr++ ) 
+      for (int digit : m_digitAssoc[label])
         {
-          if(leftDigit <= (*this)[*digit_itr]->digit())
+          if(leftDigit <= (*this)[digit]->digit())
             {
-              leftDigit=(*this)[*digit_itr]->digit();  
+              leftDigit=(*this)[digit]->digit();  
             }
           else
             {
@@ -231,18 +221,14 @@ bool OdoMeter::hasOnlySingleEntry( bool doCheck )
     {
       return true;
     }
-  for( std::set<std::string>::const_iterator label_itr = m_labels.begin();
-       label_itr != m_labels.end();
-       label_itr++ )
+  for (const std::string& label : m_labels)
     {
       std::set<int> digitsForLabel;
-      for( std::set<int>::const_iterator digit_itr = m_digitAssoc[*label_itr].begin();
-           digit_itr!=m_digitAssoc[*label_itr].end();
-           digit_itr++ )
+      for (int digit : m_digitAssoc[label])
         {
-          digitsForLabel.insert((*this)[*digit_itr]->digit()); 
+          digitsForLabel.insert((*this)[digit]->digit()); 
         }
-      if (digitsForLabel.size()!=m_digitAssoc[*label_itr].size())
+      if (digitsForLabel.size()!=m_digitAssoc[label].size())
         {
           return false;
         }
@@ -290,11 +276,9 @@ bool OdoMeter::increment()
 std::vector<int> OdoMeter::getVector()
 {
   std::vector<int> digitsVector;
-  for( OdoMeter::const_iterator fdigit_itr = (*this).begin();
-       fdigit_itr != (*this).end();
-       fdigit_itr++)
+  for (const FlexDigit* digit : *this)
     {
-      digitsVector.push_back((*fdigit_itr)->digit());
+      digitsVector.push_back(digit->digit());
     }
   return digitsVector;
 }

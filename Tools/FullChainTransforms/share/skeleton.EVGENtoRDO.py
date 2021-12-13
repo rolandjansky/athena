@@ -9,7 +9,7 @@
 ### Start of Sim
 
 ## Include common skeleton
-include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
+include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
@@ -84,6 +84,15 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
+elif hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+
 #==============================================================
 # Job Configuration parameters:
 #==============================================================
@@ -98,6 +107,9 @@ if hasattr(runArgs, "preSimExec"):
 if hasattr(runArgs, "preSimInclude"):
     for fragment in runArgs.preSimInclude:
         include(fragment)
+
+## Include common skeleton after the preExec/preInclude
+include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
 if hasattr(runArgs, "inputEVNT_TRFile"):
     if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
@@ -117,14 +129,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
     import AthenaMP.EventService
-
-from ISF_Config.ISF_jobProperties import ISF_Flags
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
-elif hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 # temporary fix to ensure TRT will record hits if using FATRAS
 # this should eventually be removed when it is configured properly in ISF
@@ -188,6 +192,8 @@ elif hasattr(runArgs,'jobNumber'):
         fast_chain_log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         fast_chain_log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
+else:
+    fast_chain_log.info( 'Using run number: %s ', simFlags.RunNumber )
 
 ## removed code block for handling cosmics track record
 
@@ -203,12 +209,6 @@ try:
     topSeq+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
 except:
     fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
-
-from ISF_Config.ISF_jobProperties import ISF_Flags
-if hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator = runArgs.simulator
-else:
-    ISF_Flags.Simulator = 'FullG4'
 
 #### *********** import ISF_Example code here **************** ####
 
@@ -247,8 +247,6 @@ if hasattr(runArgs, "postSimExec"):
 
 
 ### Start of Digi
-
-include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 
 if hasattr(runArgs, "jobNumber"):
     if runArgs.jobNumber < 1:

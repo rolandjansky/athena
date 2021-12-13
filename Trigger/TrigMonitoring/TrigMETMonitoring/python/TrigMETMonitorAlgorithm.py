@@ -10,7 +10,6 @@
 
 '''
 
-
 def TrigMETMonConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
@@ -19,27 +18,26 @@ def TrigMETMonConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TrigMETAthMonitorCfg')
 
-
     ### STEP 2 ###
-    # Adding an algorithm to the helper. Here, we will use the example 
-    # algorithm in the AthenaMonitoring package. Just pass the type to the 
-    # helper. Then, the helper will instantiate an instance and set up the 
-    # base class configuration following the inputFlags. The returned object 
+    # Adding an algorithm to the helper. Here, we will use the example
+    # algorithm in the AthenaMonitoring package. Just pass the type to the
+    # helper. Then, the helper will instantiate an instance and set up the
+    # base class configuration following the inputFlags. The returned object
     # is the algorithm.
-    #The added algorithm must exist as a .h file 
+    #The added algorithm must exist as a .h file
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     TrigMETMonAlg = helper.addAlgorithm(CompFactory.TrigMETMonitorAlgorithm,'TrigMETMonAlg')
 
-    # You can actually make multiple instances of the same algorithm and give 
+    # You can actually make multiple instances of the same algorithm and give
     # them different configurations
     TrigMETMonChain1Alg = helper.addAlgorithm(CompFactory.TrigMETMonitorAlgorithm,'TrigMETMonChain1Alg')
 
     # # If for some really obscure reason you need to instantiate an algorithm
-    # # yourself, the AddAlgorithm method will still configure the base 
+    # # yourself, the AddAlgorithm method will still configure the base
     # # properties and add the algorithm to the monitoring sequence.
     # helper.AddAlgorithm(myExistingAlg)
-    
+
 
     ### check Run2 or Run3 MT
     mt_chains = True
@@ -58,7 +56,13 @@ def TrigMETMonConfig(inputFlags):
       TrigMETMonChain1Alg.TriggerChain = 'HLT_xe65_cell_L1XE50'
     else:
       TrigMETMonChain1Alg.TriggerChain = 'HLT_xe110_pufit_xe65_L1XE50'
-    
+
+
+    ### monitorig group
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+    moniAccess=getHLTMonitoringAccess(inputFlags)
+    metChains=moniAccess.monitoredChains(signatures="metMon",monLevels=["val","shifter"])
+
 
     ### container name selection
     if mt_chains: # these are temporary, needs to be changed
@@ -136,8 +140,12 @@ def TrigMETMonConfig(inputFlags):
       HLTChains[9] = "HLT_xe110_pufit_xe65_L1XE50"
       HLTChains[10] = "HLT_xe110_pufit_xe65_L1XE60"
       HLTChains[11] = "HLT_xe110_pufit_xe70_L1XE50"
-      HLTChains[12] = "HLT_xe110_pufit_xe65_L1XE55"
-      HLTChains[13] = "HLT_xe110_pufit_xe70_L1XE55"
+      HLTChains[12] = "HLT_xe110_pfsum_cssk_L1XE50"
+      HLTChains[13] = "HLT_xe110_pfsum_vssk_L1XE50"
+    ## mon group test
+    size = len (metChains)
+    if size > 0:
+      HLTChains[13] = metChains[0]
     ### these are default chains ######
       #TrigMETMonAlg.L1Chain02 = 'L1_XE50'
       #TrigMETMonAlg.L1Chain02 = 'L1_jXENC50'
@@ -192,7 +200,7 @@ def TrigMETMonConfig(inputFlags):
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # expertTrigMETMonAlg.MyDomainTool = MyDomainTool()
 
-    # Add a generic monitoring tool (a "group" in old language). The returned 
+    # Add a generic monitoring tool (a "group" in old language). The returned
     # object here is the standard GenericMonitoringTool.
     metGroup = helper.addGroup(TrigMETMonAlg,'TrigMETMonitor','HLT/METMon/')
 
@@ -247,7 +255,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Expert/Offline',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('offline_Ey',title='Offline Missing E_{y};E_{y} [GeV];Events',
                              path='Expert/Offline',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
-    metGroup.defineHistogram('offline_Et',title='Offline Missing E_{T};E_{T} [GeV];Events',                            
+    metGroup.defineHistogram('offline_Et',title='Offline Missing E_{T};E_{T} [GeV];Events',
                              path='Expert/Offline',xbins=et_bins,xmin=et_min,xmax=et_max)
     metGroup.defineHistogram('offline_sumEt',title='Offline sumE_{T};sumE_{T} [GeV];Events',
                              path='Expert/Offline',xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
@@ -303,9 +311,11 @@ def TrigMETMonConfig(inputFlags):
       metGroup.defineHistogram('{0}_phi;{0}_phi_etweight'.format(alg), title='{} #phi (etweighted);#phi;Et weighted events'.format(alg),
                              weight='{}_Et'.format(alg),
                              path='Shifter/{}'.format(alg),xbins=phi_bins,xmin=phi_min,xmax=phi_max)
+      metGroup.defineHistogram('{}_presel_Et'.format(alg),title='{} Missing E_{{T}};E_{{T}} [GeV];Events'.format(alg),
+                             path='Shifter/preSel'.format(alg),xbins=et_bins,xmin=et_min,xmax=et_max)
 
     ## HLT 2d eta-phi histos
-    algsHLT2d = ["cell", "tcpufit"]
+    algsHLT2d = ["cell", "tcpufit", "pfopufit"]
     for alg in algsHLT2d:
       metGroup.defineHistogram('{0}_eta,{0}_phi;{0}_eta_phi'.format(alg), type='TH2F', title='{} #eta - #phi;#eta;#phi'.format(alg),
                              path='Shifter/{}'.format(alg),
@@ -382,7 +392,7 @@ def TrigMETMonConfig(inputFlags):
     metGroup.defineHistogram('component,component_status;compN_HLT_MET_status', type='TH2F', title='HLT MET Status VS component;;',
                              weight='component_status_weight',
                              path='Shifter/Component',
-                             xbins=25,xmin=-0.5,xmax=24.5,ybins=32,ymin=-0.5,ymax=31.5, 
+                             xbins=25,xmin=-0.5,xmax=24.5,ybins=32,ymin=-0.5,ymax=31.5,
                              xlabels=comp_names, ylabels=bit_names)
     ## HLT tc (Expert)
     metGroup.defineHistogram('tc_Ex',title='tc Missing E_{x};E_{x} [GeV];Events',
@@ -413,14 +423,14 @@ def TrigMETMonConfig(inputFlags):
     metChain1Group.defineHistogram('cell_phi;cell_phi_etweight', title='cell #phi (etweighted);#phi;E_{T} weighted events',
                              weight='cell_Et',
                              path='cell',xbins=phi_bins,xmin=phi_min,xmax=phi_max)
-    
+
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     # and the sequence containing the created algorithms. If we haven't called
-    # any configuration other than the AthMonitorCfgHelper here, then we can 
+    # any configuration other than the AthMonitorCfgHelper here, then we can
     # just return directly (and not create "result" above)
     return helper.result()
-    
+
 if __name__=='__main__':
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
@@ -438,11 +448,11 @@ if __name__=='__main__':
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigMETMonitorOutput.root'
-    
+
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
@@ -455,4 +465,3 @@ if __name__=='__main__':
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
     cfg.run() #use cfg.run(20) to only run on first 20 events
-

@@ -11,6 +11,7 @@
 
 // Gaudi/StoreGate
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // Event Context
@@ -141,7 +142,7 @@ VERBOSE : Method call sequence with values
 */
 
 class Extrapolator
-  : public AthAlgTool
+  : public AthCheckedComponent<AthAlgTool>
   , virtual public IExtrapolator
 {
 public:
@@ -362,7 +363,7 @@ private:
     //!< return helper for parameters and boundary
     ParametersNextVolume m_parametersAtBoundary;
     //!< Caches per MaterialUpdator
-    std::vector<std::unique_ptr<Trk::IMaterialEffectsUpdator::ICache>> m_MaterialUpCache;
+    std::vector<Trk::IMaterialEffectsUpdator::ICache> m_MaterialUpCache;
     //!<  internal switch for resolved configuration
     bool m_dense = false;
     //!< Flag the recall solution

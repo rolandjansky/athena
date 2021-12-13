@@ -1,9 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GeoDBUtils_h_
 #define GeoDBUtils_h_
+
+/// Ensure that the extensions for the Vector3D are properly loaded
+#include "GeoPrimitives/GeoPrimitives.h"
+
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"

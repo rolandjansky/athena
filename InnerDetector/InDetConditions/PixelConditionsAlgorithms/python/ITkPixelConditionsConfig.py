@@ -4,7 +4,6 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 
 def ITkPixelConfigCondAlgCfg(flags, name="ITkPixelConfigCondAlg", **kwargs):
@@ -21,10 +20,7 @@ def ITkPixelAlignCondAlgCfg(flags, name="ITkPixelAlignCondAlg", **kwargs):
     if flags.GeoModel.Align.Dynamic:
         raise RuntimeError("Dynamic alignment not supported for ITk yet")
     else:
-        if flags.Common.Project != "AthSimulation" and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay):
-            acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align", className="AlignableTransformContainer"))
-        else:
-            acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align"))
+        acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Align", "/Indet/Align", className="AlignableTransformContainer"))
 
     kwargs.setdefault("DetManagerName", "ITkPixel")
     kwargs.setdefault("UseDynamicAlignFolders", flags.GeoModel.Align.Dynamic)
@@ -43,6 +39,8 @@ def ITkPixelChargeCalibCondAlgCfg(flags, name="ITkPixelChargeCalibCondAlg", **kw
     acc = ComponentAccumulator()
     acc.merge(ITkPixelConfigCondAlgCfg(flags))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    acc.merge(ITkPixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("ReadKey", "")  # TODO: enable when ready
@@ -162,5 +160,5 @@ def ITkPixelOfflineCalibCondAlgCfg(flags, name="ITkPixelOfflineCalibCondAlg", **
     kwargs.setdefault("ReadKey", "/PIXEL/ITkClusterError")
     kwargs.setdefault("WriteKey", "ITkPixelOfflineCalibData")
     kwargs.setdefault("InputSource", 2)
-    acc.addCondAlgo(CompFactory.ITkPixelOfflineCalibCondAlg(name, **kwargs))
+    acc.addCondAlgo(CompFactory.ITk.PixelOfflineCalibCondAlg(name, **kwargs))
     return acc

@@ -215,6 +215,9 @@ DataVectorWithAlloc<DV, ALLOC>::DataVectorWithAlloc
  * @param rhs The container from which to move.
  *
  * Any auxiliary data will be moved along with the container contents.
+ *
+ * The existing allocator is moved.  @c rhs will be left with a new,
+ * default-initialized, allocator.
  */
 template <class DV, class ALLOC>
 DataVectorWithAlloc<DV, ALLOC>::DataVectorWithAlloc
@@ -222,7 +225,6 @@ DataVectorWithAlloc<DV, ALLOC>::DataVectorWithAlloc
   : DV (std::move (rhs)),
     m_heap (rhs.m_heap)
 {
-  // xxxx?
   auto del = std::make_unique<HeapDeleter> (elt_allocator_type());
   rhs.m_heap = &del->heap();
   static_cast<DV&>(rhs).clear (std::move (del));
@@ -234,13 +236,15 @@ DataVectorWithAlloc<DV, ALLOC>::DataVectorWithAlloc
  * @param rhs The container from which to move.
  *
  * Any auxiliary data will be moved along with the container contents.
+ *
+ * The existing allocator is moved.  @c rhs will be left with a new,
+ * default-initialized, allocator.
  */
 template <class DV, class ALLOC>
 DataVectorWithAlloc<DV, ALLOC>&
 DataVectorWithAlloc<DV, ALLOC>::operator= (DataVectorWithAlloc&& rhs)
 {
   if (this != &rhs) {
-    // xxx
     DV::operator= (std::move (rhs));
     m_heap = rhs.m_heap;
     auto del = std::make_unique<HeapDeleter> (elt_allocator_type());

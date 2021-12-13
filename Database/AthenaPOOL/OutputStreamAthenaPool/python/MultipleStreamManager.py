@@ -566,15 +566,19 @@ class MultipleStreamManager:
         # Use ZSTD w/ Level 5 for DAODs
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( FileName, "5" ) ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( FileName, "5" ) ]
-        # By default use 20 MB AutoFlush for event data except for DAOD_PHYS which uses 1k events
+        # By default use a maximum basket buffer size of 128k and minimum buffer entries of 10
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setMaxBufferSize( FileName, "131072" ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setMinBufferEntries( FileName, "10" ) ]
+        # By default use 20 MB AutoFlush for event data except for DAOD_PHYS and DAOD_PHYSLITE
         TREE_AUTO_FLUSH = -20000000
-        if StreamName in ["StreamDAOD_PHYS"]:
-            TREE_AUTO_FLUSH = 1000
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( FileName, "CollectionTree", str(TREE_AUTO_FLUSH) ) ]
         # By default use split-level 0 except for DAOD_PHYSLITE which is maximally split
         CONTAINER_SPLITLEVEL = 0
+        if StreamName in ["StreamDAOD_PHYS"]:
+            TREE_AUTO_FLUSH = 500
         if StreamName in ["StreamDAOD_PHYSLITE"]:
+            TREE_AUTO_FLUSH = 1000
             CONTAINER_SPLITLEVEL = 99
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( FileName, "CollectionTree", str(TREE_AUTO_FLUSH) ) ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setContainerSplitLevel( FileName, "CollectionTree", str(CONTAINER_SPLITLEVEL) ) ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setContainerSplitLevel( FileName, "Aux.", str(CONTAINER_SPLITLEVEL) ) ]
         return theStream

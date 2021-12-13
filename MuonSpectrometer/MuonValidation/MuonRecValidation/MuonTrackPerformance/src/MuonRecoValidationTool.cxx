@@ -405,8 +405,8 @@ namespace Muon {
         // get truth from hits
         std::set<Identifier> ids;
 
-        std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
-        std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
+        MuonHough::HitVec::const_iterator hit = maximum.hits.begin();
+        MuonHough::HitVec::const_iterator hit_end = maximum.hits.end();
         for (; hit != hit_end; ++hit) {
             // treat the case that the hit is a composite TGC hit
             if ((*hit)->tgc) {

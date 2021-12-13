@@ -507,8 +507,7 @@ def getTauVertexedClusterDecorator():
         return cached_instances[_name]
   
     myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
-                                                                SeedJet = "",
-                                                                VertexCorrection = doVertexCorrection)
+                                                                SeedJet = "")
     
     cached_instances[_name] = myTauVertexedClusterDecorator
     return myTauVertexedClusterDecorator
@@ -575,33 +574,13 @@ def getTauIDVarCalculator():
     return TauIDVarCalculator
 
 ########################################################################
-# TauJetBDTEvaluator
-def getTauJetBDTEvaluator(suffix="TauJetBDT", weightsFile="", calibFolder="", minNTracks=0, maxNTracks=10000):
-
-    _name = sPrefix + suffix
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
-    TauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
-                                            weightsFile=weightsFile,
-                                            calibFolder=calibFolder,
-                                            minNTracks=minNTracks,
-                                            maxNTracks=maxNTracks)
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += TauJetBDTEvaluator
-    cached_instances[_name] = TauJetBDTEvaluator
-    return TauJetBDTEvaluator
-
-
-########################################################################
 # TauJetRNNEvaluator
 def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
                           MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, TrackClassification=False,
                           InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", 
-                          OutputLayer="rnnid_output", OutputNode="sig_prob"):
+                          OutputLayer="rnnid_output", OutputNode="sig_prob", suffix=""):
 
-    _name = sPrefix + 'TauJetRNNEvaluator'
+    _name = sPrefix + 'TauJetRNNEvaluator' + suffix
 
     if _name in cached_instances:
         return cached_instances[_name]
@@ -627,40 +606,6 @@ def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", 
     ToolSvc += TauJetRNNEvaluator
     cached_instances[_name] = TauJetRNNEvaluator
     return TauJetRNNEvaluator
-
-
-########################################################################
-# TauWPDecoratorJetBDT
-def getTauWPDecoratorJetBDT():
-
-    _name = sPrefix + 'TauWPDecoratorJetBDT'
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict')
-
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import TauWPDecorator
-    TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile1Prong = "FlatJetBDT1P_trigger_v1.root", 
-                                     flatteningFile3Prong = "FlatJetBDT3P_trigger_v1.root", 
-                                     CutEnumVals=[
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigVeryLoose, 
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigLoose,
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigMedium, 
-                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigTight],
-                                     SigEff1P = [0.995, 0.99, 0.97, 0.90],
-                                     SigEff3P = [0.995, 0.94, 0.88, 0.78],
-                                     ScoreName = "BDTJetScore",
-                                     NewScoreName = "BDTJetScoreSigTrans",
-                                     DefineWPs = True)
-
-    ToolSvc += TauWPDecorator
-    cached_instances[_name] = TauWPDecorator
-    return TauWPDecorator
 
 ########################################################################
 # TauWPDecoratorJetRNN

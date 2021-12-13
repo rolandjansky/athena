@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
 __doc__ = """ToolFactories to instantiate all
@@ -9,7 +9,6 @@ from egammaRec.Factories import ToolFactory
 from egammaCaloTools import egammaCaloToolsConf
 from egammaRec import egammaKeys
 
-# ---------------------------------------
 
 egammaShowerShape = ToolFactory(
     egammaCaloToolsConf.egammaShowerShape,
@@ -35,6 +34,3 @@ egammaIso = ToolFactory(
 
 egammaCheckEnergyDepositTool = ToolFactory(
     egammaCaloToolsConf.egammaCheckEnergyDepositTool)
-
-
-# ---------------------------------------

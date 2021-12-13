@@ -250,7 +250,7 @@ class DataStore;
      *
      * Returns a null pointer on failure.
      */
-    std::unique_ptr<DataObject> readData() const;
+    std::unique_ptr<DataObject> readData();
 
 
   private:
@@ -368,7 +368,7 @@ class DataStore;
      * This will fail if the proxy does not refer to an object read from an
      * input file.
      */
-    std::unique_ptr<DataObject> readData (objLock_t& objLock, ErrNo* errNo) const;
+    std::unique_ptr<DataObject> readData (objLock_t& objLock, ErrNo* errNo);
 
 
     /// set DataObject

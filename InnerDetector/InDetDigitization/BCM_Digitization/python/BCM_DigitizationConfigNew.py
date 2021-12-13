@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from RngComps.RandomServices import RNG
-from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -103,7 +103,7 @@ def BCM_OutputCfg(flags):
 
 def BCM_DigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for BCM digitization"""
-    acc = PixelGeometryCfg(flags)
+    acc = PixelReadoutGeometryCfg(flags)
     rangetool = acc.popToolsAndMerge(BCM_RangeCfg(flags))
     acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if "PileUpTools" not in kwargs:
@@ -115,7 +115,7 @@ def BCM_DigitizationBasicCfg(flags, **kwargs):
 
 def BCM_OverlayDigitizationBasicCfg(flags, name="BCM_OverlayDigitization", **kwargs):
     """Return ComponentAccumulator with BCM Overlay digitization"""
-    acc = PixelGeometryCfg(flags)
+    acc = PixelReadoutGeometryCfg(flags)
 
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(BCM_OverlayDigitizationToolCfg(flags))

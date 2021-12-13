@@ -67,6 +67,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_doZFinder(false),
   m_doZFinderOnly(false),
   m_storeZFinderVertices(false),
+  m_useBeamSpotForRoiZwidth(false),
   m_nfreeCut(5),
   m_countTotalRoI(0),
   m_countRoIwithEnoughHits(0),
@@ -87,48 +88,60 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_doDisappearingTrk(false)
 {
 
+  /** Initial cut */
+  declareProperty( "MinHits",               m_minHits = 5,"Minimum number of hits needed to perform tracking"  );
+
+  //** Zfinder mode 
+  declareProperty( "doZFinder",            m_doZFinder = true,"Use fast ZFinder to find z of primary vertices");
+  declareProperty( "doZFinderOnly",        m_doZFinderOnly = false,"stop processing after ZFinder - no tracking performed");    
+  declareProperty( "VertexSeededMode",     m_vertexSeededMode = false); //** NOT USED Obsolete? ATR-24242
+  declareProperty( "doFastZVertexSeeding", m_doFastZVseeding = true,"Use ZFinder vertex information to filter seeds");
+  declareProperty( "zVertexResolution",    m_tcs.m_zvError = 10.0," Half-width (mm) in z of z region used to filter seeds when doFastZVertexSeeding enabled" );
+  declareProperty( "StoreZFinderVertices", m_storeZFinderVertices = false ); //** NOT USED - to be implemented ATR-24242
+
+  /** SeedMaker */
+  declareProperty("useNewLayerNumberScheme", m_useNewLayerNumberScheme = false,"Use LayerNumberTool for layer numbers");
+
   /** Doublet finding properties. */
-  declareProperty("Doublet_FilterRZ",          m_tcs.m_doubletFilterRZ = true);
-  declareProperty("DoubletDR_Max",             m_tcs.m_doublet_dR_Max = 270.0);
-  declareProperty("DoubletDR_Max_Confirm",     m_tcs.m_doublet_dR_Max_Confirm = 150.0);
+  declareProperty("Doublet_FilterRZ",          m_tcs.m_doubletFilterRZ = true,"Enable check that doublet is consistent with the RoI in the RZ plane");
+  declareProperty("DoubletDR_Max",             m_tcs.m_doublet_dR_Max = 270.0,"Maximum Radial distance between spacepoints forming Doublets");
   declareProperty("SeedRadBinWidth",           m_tcs.m_seedRadBinWidth = 2.0);
 
   /** Triplet finding properties. */
-
-  declareProperty("Triplet_D0Max",            m_tcs.m_tripletD0Max      = 4.0);
-  declareProperty("Triplet_D0_PPS_Max",       m_tcs.m_tripletD0_PPS_Max = 1.7);
-  declareProperty("Triplet_nMaxPhiSlice",     m_tcs.m_nMaxPhiSlice = 53);
-  declareProperty("Triplet_MaxBufferLength",     m_tcs.m_maxTripletBufferLength = 3);
-  declareProperty("TripletDoPSS",            m_tcs.m_tripletDoPSS = false);
-  declareProperty("TripletDoPPS",            m_tcs.m_tripletDoPPS = true);
-  declareProperty("TripletDoConfirm",        m_tcs.m_tripletDoConfirm = false);
-  declareProperty("TripletMaxCurvatureDiff",    m_tcs.m_curv_delta = 0.001);//for the triplet confirmation
+  declareProperty("Triplet_D0Max",            m_tcs.m_tripletD0Max      = 4.0,"Maximum d0 for triplet");
+  declareProperty("Triplet_D0_PPS_Max",       m_tcs.m_tripletD0_PPS_Max = 1.7,"Maximin d0 for PPS doublets");
+  declareProperty("Triplet_nMaxPhiSlice",     m_tcs.m_nMaxPhiSlice = 53,"Number of phi-slices used for seeding");
+  declareProperty("Triplet_MaxBufferLength",     m_tcs.m_maxTripletBufferLength = 3,"Maximum number of triplets sharing a common middle spacepoint");
+  declareProperty("TripletDoPSS",            m_tcs.m_tripletDoPSS = false,"Allow PSS Triplet seeds");
+  declareProperty("TripletDoPPS",            m_tcs.m_tripletDoPPS = true,"Allow PPS triplet seeds");
+  declareProperty("TripletDoConfirm",        m_tcs.m_tripletDoConfirm = false,"Enable triplet confirmation");
+  declareProperty("DoubletDR_Max_Confirm",     m_tcs.m_doublet_dR_Max_Confirm = 150.0,"doublet max DR when TripletDoConfirm enabled");
+  declareProperty("TripletMaxCurvatureDiff",    m_tcs.m_curv_delta = 0.001,"Maximum curvature difference allowed in seed confirmation");//for the triplet confirmation
   declareProperty("Triplet_DtCut",            m_tcs.m_tripletDtCut      = 10.0);//i.e. 10*sigma_MS
+  declareProperty("pTmin",                    m_pTmin = 1000.0,"Triplet pT threshold is pTmin*Triplet_MinPtFrac" );
+  declareProperty("Triplet_MinPtFrac",        m_tripletMinPtFrac = 0.3,"Triplet pT threshold is pTmin*Triplet_MinPtFrac");
+  declareProperty("doSeedRedundancyCheck",    m_checkSeedRedundancy = false,"skip Triplets already used in a track");
 
   /** settings for the ML-enhanced track seeding */
-
-  declareProperty("UseTrigSeedML",              m_tcs.m_useTrigSeedML = 0);
-  declareProperty("TrigSeedML_LUT",             m_trigseedML_LUT = "trigseed_ml_pixel_barrel_kde.lut");
-  declareProperty("maxEC_Pixel_cluster_length", m_tcs.m_maxEC_len = 1.5);
-
-  declareProperty( "VertexSeededMode",    m_vertexSeededMode = false);
-  declareProperty( "doZFinder",           m_doZFinder = true);
-  declareProperty( "doZFinderOnly",       m_doZFinderOnly = false);
-
-  declareProperty( "doFastZVertexSeeding",        m_doFastZVseeding = true);
-  declareProperty( "zVertexResolution",           m_tcs.m_zvError = 10.0);
-  declareProperty( "StoreZFinderVertices",        m_storeZFinderVertices = false );
+  declareProperty("UseTrigSeedML",              m_tcs.m_useTrigSeedML = 0,"set ML-based seed selection mode (0 disables)" );
+  declareProperty("TrigSeedML_LUT",             m_trigseedML_LUT = "trigseed_ml_pixel_barrel_kde.lut","LUT used by ML-based seed selection");
+  declareProperty("maxEC_Pixel_cluster_length", m_tcs.m_maxEC_len = 1.5,"Maximum Endcap Pixel cluster length for ML-based seed selection" );
 
 
-  declareProperty("Triplet_MinPtFrac",        m_tripletMinPtFrac = 0.3);
-  declareProperty("pTmin",                    m_pTmin = 1000.0);
-  declareProperty("TrackInitialD0Max",            m_initialD0Max      = 10.0);
-  declareProperty("TrackZ0Max",                   m_Z0Max      = 300.0);
+  //* Clone removal (removal of tracks sharing too many hits */
+  declareProperty("doCloneRemoval", m_doCloneRemoval = true,"Remove tracks sharing too many hits");
+  declareProperty( "FreeClustersCut"   ,m_nfreeCut,"Minimum number of unshared clusters");
 
-  declareProperty("doSeedRedundancyCheck",            m_checkSeedRedundancy = false);
+  //** Cuts applied to final tracks after Fit 
+  declareProperty("TrackInitialD0Max",            m_initialD0Max      = 10.0,"Maximum d0 of track");
+  declareProperty("TrackZ0Max",                   m_Z0Max      = 300.0,"Maximum z0 of track");
 
-  declareProperty( "MinHits",               m_minHits = 5 );
 
+  /* Monitoring */
+  declareProperty( "doResMon",       m_doResMonitoring = true,"enable unbiased residual monitoring");
+  declareProperty( "UseBeamSpot",           m_useBeamSpot = true,"Monitor d0 with respect to beamspot");
+
+  //* Collection Names */
   declareProperty("TracksName",
                   m_outputTracksKey = std::string("TrigFastTrackFinder_Tracks"),
                   "TrackCollection name");
@@ -139,28 +152,22 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
 
-  declareProperty( "UseBeamSpot",           m_useBeamSpot = true);
-  declareProperty( "FreeClustersCut"   ,m_nfreeCut      );
+  //* Tools */
   declareProperty( "SpacePointProviderTool", m_spacePointTool  );
   declareProperty( "LayerNumberTool", m_numberingTool  );
-
   declareProperty( "initialTrackMaker", m_trackMaker);
   declareProperty( "trigInDetTrackFitter",   m_trigInDetTrackFitter );
   declareProperty( "trigZFinder",   m_trigZFinder );
-
   declareProperty("TrackSummaryTool", m_trackSummaryTool);
-  declareProperty( "doResMon",       m_doResMonitoring = true);
 
-  declareProperty("doCloneRemoval", m_doCloneRemoval = true);
+  // Accleration
+  declareProperty("useGPU", m_useGPU = false,"Use GPU acceleration");
+  declareProperty("useBeamSpotForRoiZwidth", m_useBeamSpotForRoiZwidth = false);
 
-
-  declareProperty("useNewLayerNumberScheme", m_useNewLayerNumberScheme = false);
-
-  declareProperty("useGPU", m_useGPU = false);
-
-  declareProperty("LRT_Mode", m_LRTmode);
-  declareProperty("LRT_D0Min", m_LRTD0Min=0.0);
-  declareProperty("LRT_HardMinPt", m_LRTHardMinPt=0.0);
+  // Large Radius Tracking
+  declareProperty("LRT_Mode", m_LRTmode,"Enable Large Radius Tracking mode" );
+  declareProperty("LRT_D0Min", m_LRTD0Min=0.0,"Minimum d0 for tracks to be saved in LRT Mode" );
+  declareProperty("LRT_HardMinPt", m_LRTHardMinPt=0.0,"Minimum pT for tracks to be saved in LRT Mode");
 
   // UTT
   declareProperty("doHitDV",           m_doHitDV           = false);
@@ -376,7 +383,51 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
   TrigRoiDescriptor internalRoI;
 
   if ( roiCollection->size()>1 ) ATH_MSG_WARNING( "More than one Roi in the collection: " << m_roiCollectionKey << ", this is not supported - use a composite Roi" );
-  if ( roiCollection->size()>0 ) internalRoI = **roiCollection->begin();
+  
+  if ( roiCollection->size()>0) {
+      if ( !m_useBeamSpotForRoiZwidth) {
+          internalRoI = **roiCollection->begin();
+      }else{
+          SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+          
+          int beamSpotBitMap = beamSpotHandle->beamStatus();
+          bool isOnlineBeamspot = ((beamSpotBitMap & 0x4) == 0x4); 
+          
+          if ((isOnlineBeamspot && (beamSpotBitMap & 0x3) == 0x3) || !isOnlineBeamspot){ //converged or MC event, if the original RoI has a zed > 3 sig + 10 then set it to 3 sig + 10.
+              TrigRoiDescriptor originRoI = **roiCollection->begin();
+              double beamSpot_zsig = beamSpotHandle->beamSigma(2);
+              Amg::Vector3D vertex = beamSpotHandle->beamPos();
+              double zVTX = vertex.z();
+              double origin_zedPlus  = originRoI.zedPlus() ;  //!< z at the most forward end of the RoI
+              double origin_zedMinus = originRoI.zedMinus();  //!< z at the most backward end of the RoI
+             
+              double new_zedMargin = 10.;
+              double new_zedRange  = 3.;
+ 
+              double new_zedPlus  = zVTX + beamSpot_zsig * new_zedRange + new_zedMargin;
+              double new_zedMinus = zVTX - beamSpot_zsig * new_zedRange - new_zedMargin;
+
+              if (origin_zedPlus > new_zedPlus && origin_zedMinus < new_zedMinus){ 
+                  ATH_MSG_DEBUG("Updated RoI with zed = "<<new_zedRange<<" * sig + "<<new_zedMargin);  
+                  double origin_etaPlus  = originRoI.etaPlus() ;    //!< gets eta at zedPlus
+                  double origin_etaMinus = originRoI.etaMinus();    //!< gets eta at zMinus
+                  double origin_phiPlus  = originRoI.phiPlus() ;     //!< gets phiPlus
+                  double origin_phiMinus = originRoI.phiMinus();    //!< gets phiMinus
+                  double origin_eta      = originRoI.eta();    //!< gets eta at zMinus
+                  double origin_phi      = originRoI.phi() ;     //!< gets phiPlus
+                  unsigned int origin_roiId   = originRoI.roiId() ; 
+                  unsigned int origin_l1Id    = originRoI.l1Id() ; 
+                  unsigned int origin_roiWord = originRoI.roiWord(); 
+                  internalRoI = TrigRoiDescriptor(origin_roiWord, origin_l1Id, origin_roiId, origin_eta, origin_etaMinus, origin_etaPlus, origin_phi, origin_phiMinus, origin_phiPlus, zVTX, new_zedMinus, new_zedPlus);
+                  if (originRoI.isFullscan()) internalRoI.setFullscan(true);
+              }
+              else internalRoI = **roiCollection->begin(); // we have a more narrow zed range in RoI, no need to update.
+          }else{ //Not converged, set to the fullScan RoI
+                internalRoI = **roiCollection->begin();
+          }
+      }
+  }
+
 
   //  internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_countTotalRoI++;
@@ -959,7 +1010,7 @@ StatusCode TrigFastTrackFinder::finalize()
   ATH_MSG_INFO("TrigFastTrackFinder::finalize() - TrigFastTrackFinder Statistics: ");
   ATH_MSG_INFO("RoI processed: " <<  m_countTotalRoI);
   ATH_MSG_INFO("RoI with enough SPs : " <<  m_countRoIwithEnoughHits);
-  ATH_MSG_INFO("RoI with Track(s)  Total/goodZvertex/badZvertex: " << m_countRoIwithTracks);
+  ATH_MSG_INFO("RoI with Track(s)   : " << m_countRoIwithTracks);
   ATH_MSG_INFO("=========================================================");
 
   return StatusCode::SUCCESS;

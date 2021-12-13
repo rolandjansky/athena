@@ -33,11 +33,12 @@ import urllib.request
 _fW = {'Run' : 12, 'NLB': 5, 'Time': 50, '#Events': 10, 'Stream': 10}
 
 class DataEntry:
-    def __init__(self, iov, value, reject=False):
+    def __init__(self, iov, value, reject=False, valueForStorage=None):
         self.iov = iov
         self.lbrange = (self.iov.startTime.lb, self.iov.endTime.lb) # note that the end lb is not part of the iov
         self.value = value
         self.rejected = reject
+        self.valueForStorage = valueForStorage
 
     def __str__(self):
         return "[%i-%i) %s %r" % (self.lbrange[0], self.lbrange[1], "r" if self.rejected else "a", self.value)
@@ -63,6 +64,9 @@ class DataEntry:
     def lastlb(self):
         return ((0x100000000 + self.endlb)-1) & 0xFFFFFFFF
 
+    def __getitem__(self,k):
+        return self.valueForStorage[k]
+
     def contains(self, lb):
         return self.lbrange[0]<=lb and lb<self.lbrange[1]
 
@@ -73,6 +77,15 @@ class DataEntry:
     def pickled(self):
         v = self.value.pickled() if hasattr(self.value,'pickled') else self.value
         return { 'firstlb' : self.startlb, 'lastlb' : self.lastlb, 'value' : v, 'accepted' : not self.rejected }
+
+    def json(self):
+        retDict = { 'lbrange' : [self.startlb, self.lastlb] }
+        if self.valueForStorage is None:
+            v = self.value.pickled() if hasattr(self.value,'pickled') else self.value
+            retDict["value"] = v
+        else:
+            retDict.update(self.valueForStorage)
+        return retDict
 
 
 class DataEntryList(list):
@@ -100,6 +113,9 @@ class DataEntryList(list):
     def pickled(self):
         return [e.pickled() for e in self]
             
+    def json(self):
+        return [e.json() for e in self]
+
 
 class RunData:
 
@@ -267,10 +283,10 @@ class RunData:
             stops.update(entrylist.stops())
         return sorted(list(stops))
 
-    def addResult(self, iov, k, value, reject):
+    def addResult(self, iov, k, value, reject, valueForStorage = None):
         if not iov:
             iov = IOVRange(runStart=self.run, lbStart=1, runEnd=self.run+1, lbEnd=0)
-        self[k].append(DataEntry(iov=iov, value=value, reject=reject))
+        self[k].append(DataEntry(iov=iov, value=value, reject=reject, valueForStorage=valueForStorage))
 
     def astxt(self):
         s = ""
@@ -295,8 +311,6 @@ class RunData:
                 v = ""
             s += "%*s  " % (w,v)
         return s
-
-
 
 
 @total_ordering
@@ -333,6 +347,7 @@ class Run:
     
     def __init__(self, runNr=0):
         self.runNr = runNr
+        self.lhcRun = 0
         self.sor = 0
         self.eor = 0
         self.lastlb = 0
@@ -353,6 +368,17 @@ class Run:
         self.lumiunittxt = 'nb'
         self.instlumiunittxt = '30'
         self.givepeakmuinfo = True
+        if self.runNr > 378000:
+            # last Run-2 run with SMK 2787 and release AthenaP1,21.1.56 is 376153
+            # first Run-3 with SMK 59 and release 22.0.13 is 379453
+            self.lhcRun = 3
+        elif self.runNr > 249000: 
+            # last Run-1 run with SMK 1670 and release AtlasP1HLT,19.3.0.4 is 248373  
+            # first Run-2 run with SMK 2002 and release AtlasP1HLT,20.1.0.1 is 249785  
+            self.lhcRun = 2
+        else:
+            self.lhcRun = 1
+
         if self.runNr > 168206 and self.runNr <= 170482:
             self.lumiunit = 1.0e6 # unit is mbarn for heavy ions
             self.lumiunittxt = 'mb'
@@ -462,27 +488,25 @@ class Run:
                             first = False
                         s += '</th>'
                         
-                        a = sorted(matching_names[channelname])
-                        #horizontal
-                        #slices = [slice(x,len(a)+3,4) for x in range(4)]
-                        #zipped = zip(*map((a+4*['']).__getitem__,slices))
-                        #vertical
-                        n = 4*[len(a)/4]
-                        for x in range(len(a)-4*(len(a)/4)):
+                        allDefects = sorted(matching_names[channelname])
+                        n = 4*[len(allDefects)//4]
+                        for x in range(len(allDefects) % 4):
                             n[x]+=1
 
+                        # put the list of all defects into 4 columns
                         cx = 0
-                        slices = []
+                        columns = []
                         for x in n:
-                            slices += [slice(cx,cx+x)]
+                            columns.append( allDefects[slice(cx,cx+x)] )
                             cx+=x
-                        m = map(a.__getitem__,slices)
-                        for x in range(1,len(m)):
-                            m[x]+=['']
-                        zipped = zip(*m)
-                        
+
+                        for x in columns[1:]: # padding at the end of each column except the first to make zip include the last line
+                            x += ['']
+
+                        columnsTransposed = zip(*columns) # transpose
+
                         tts = ''
-                        for z in zipped:
+                        for z in columnsTransposed:
                             tts += '<tr>%s</tr>' % ''.join(["<td>%s</td>"% x for x in z])
                         content = '<table style="width:500px; font-size:80%%;">%s</table>' % tts
                         Run.addGlobalToolTip(tip,content)
@@ -715,17 +739,16 @@ class Run:
                     s+='\n'
         return s
 
-    def addResult(self, resDictKey, value, iov=None, reject=False):
+    def addResult(self, resDictKey, value, iov=None, reject=False, valueForStorage=None):
         if resDictKey=='DQ' and value=='n.a.':
             return
-        #print ("Run.addResult:",resDictKey, value, iov,"reject=",reject)
         if resDictKey not in self.result:
             self.result[resDictKey] = value
         if iov:
             if iov.startTime.lb>self.lastlb:
                 return # sometimes there are IOVs completely outside the run e.g. run 165821 DQ SHIFTOFL
             iov.endTime = min(iov.endTime, IOVTime(self.runNr,self.lastlb+1) ) 
-        self.data.addResult(iov, resDictKey, value, reject)
+        self.data.addResult(iov, resDictKey, value, reject, valueForStorage=valueForStorage)
 
     def runlinks(self):
         s = ''
@@ -750,10 +773,14 @@ class Run:
         s += '<a href="http://atlas-dcs.cern.ch/navigation.php?date2=%s" target="_blank" title="DCS status at end of run %i"><font size="-3">EoR</font></a>,&nbsp;\n  ' % (tend, self.runNr)
         #s += '    <a href="https://atlas-dcs.cern.ch/navigation.php?date2=2008-09-29-19-01-42">DCS:SoR</font></a>/' % (tbeg, self.runNr)
         #s += '<a href="https://atlas-dcs.cern.ch/navigation.php?date2=2008-09-30-08-17"><font size="-3">EoR</font></a>,&nbsp;\n  ' % (tend, self.runNr)
+
         # OKS
-        # protect against missing OKS information
         if self.data['oks']:
-             s += '    <a href="http://cern.ch/atlas-project-tdaq-cc/cgi/getdata.sh?tdaq-05-05-00&oracle://atlas_oks/r&atlas_oks_archive&%i&%i&ATLAS" target="_blank" title="Download online configuration for run %i"><font size="-3">OKS</font></a>\n' % ( self.data['oks'][0].value + (self.runNr,) )
+            if self.lhcRun<3:
+                s += '    <a href="http://cern.ch/atlas-project-tdaq-cc/cgi/getdata.sh?tdaq-05-05-00&oracle://atlas_oks/r&atlas_oks_archive&%i&%i&ATLAS" target="_blank" title="Download online configuration for run %i"><font size="-3">OKS</font></a>\n' % ( self.data['oks'][0].value + (self.runNr,) )
+            else:
+                (hash, release) = self.data["oks"][0].value
+                s+= f'    <a href="https://gitlab.cern.ch/atlas-tdaq-oks/p1/{release}/-/tree/{hash[5:]}" target="_blank" title="Browse online configuration for run {self.runNr}"><font size="-3">OKS</font></a>\n'
         # lumi summary
         # typical address: https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/RunSummary/run142308_summary.html
         # OLD: fname = 'https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/RunSummary/run%i_summary.html' % (self.runNr)
@@ -1023,7 +1050,7 @@ def ashtml(run):
             k = data_key.ResultKey
             v = run.result[k]
 
-            with timer("keybuild %s" % k):
+            with timer("keybuild %s" % k, disabled=True):
                 if any(['olc:beam2intensity' in k,
                         'olc:beam1intensity' in k,
                         'lhc:beamenergy' in k,
@@ -1033,8 +1060,6 @@ def ashtml(run):
                         'L1 PSK' == k,
                         ]):
                     continue
-
-
                 
                 s += '\n  '
 
@@ -1139,7 +1164,7 @@ def ashtml(run):
                 if "detector systems" in k.lower():
                     if v!='n.a.':
                         mask = '0x'+v if Selector.condDB()=='CONDBR2' else v # run2 the format is a hex string, in run 1 it is an int (represented as string)
-                        v = DecodeDetectorMask( mask, Selector.condDB()=='CONDBR2',True)
+                        v = DecodeDetectorMask( mask=mask, lhcRun=run.lhcRun, smart=True)
                     s += '  <td style="min-width:%ipx"><font size="-2">%s<hr color="#aaaaaa" size=1>[<a href="http://sroe.home.cern.ch/sroe/cgi-bin/avgmodule.py?run=%i" target=_blank>SCT HV setting</a>]</font></td>' % (1.1*len(v),v,run.runNr)
                     continue
 
@@ -1225,7 +1250,7 @@ def ashtml(run):
                     path = makeLBPlot( xvec, xvecStb, yvec, 'Luminosity block number', 'Online luminosity (10^{%s}cm^{-2}s^{-1})' % run.instlumiunittxt, '',
                                        'olclumi_vs_lb_run_%i' % (run.runNr),
                                        'Online lumi [%s] per LB for run %i' % (chanstr, run.runNr),
-                                       Run.Datapath, histoText )
+                                       QC.datapath, histoText )
 
                     # create window and tooltip
                     wincontent  = '<table class=&quot;outer&quot; style=&quot;padding: 5px&quot;><tr><td>'
@@ -1288,7 +1313,7 @@ def ashtml(run):
 
                     printMuInfoToFile = True
                     if printMuInfoToFile:
-                        mutextfilename = Run.Datapath + '/mu_vs_run_output.txt' 
+                        mutextfilename = QC.datapath + '/mu_vs_run_output.txt' 
                         muout          = open( mutextfilename, 'a' )
                         muout.write( '%10i   %f\n' % (run.runNr, mumax) )
                         muout.close()
@@ -1536,7 +1561,7 @@ def ashtml(run):
                                         xtitle = 'Luminosity block number', ytitle = '%s beamspot %s  (mm)' % (onloffltype, bstype),
                                         histname = '%s_vs_lb_run_%i' % (k.replace(':','_').replace('-','_'), run.runNr),
                                         histtitle = '%s beamspot %s per LB for run %i' % (onloffltype, bstype, run.runNr),
-                                        datapath = Run.Datapath, ymin = ymin, ymax = ymax, printText = histoText )
+                                        datapath = QC.datapath, ymin = ymin, ymax = ymax, printText = histoText )
 
 
                     # create window and tooltip
@@ -1590,6 +1615,8 @@ def ashtml(run):
                     # put into html page
                     s += '<td class="showTip OFLBS stream" style="text-decoration:none; text-align: right">%s%s</a></td>' % (openwincmd, fullprint)  
                     continue
+
+                # -----------------------------------------------------------------------------------------------------------------------
 
                 if "STR:" == k[0:4]:
                     streamName = k[4:]
@@ -1662,11 +1689,11 @@ def ashtml(run):
                         pathN = makeLBPlot( xvec, xvecStb, yvecN,  'Luminosity block number', 'Number of events / LB', '',
                                             'nev_vs_lb_str_%s_run_%i' % (streamName, run.runNr),
                                             'N events per LB in stream "%s", run %i' % (streamName, run.runNr),
-                                            Run.Datapath, 'Total number of events: %i' % nevtot )
+                                            QC.datapath, 'Total number of events: %i' % nevtot )
                         pathR = makeLBPlot( xvec, xvecStb, yvecR, 'Luminosity block numer', 'Event rate [Hz] / LB', '',
                                             'rate_vs_lb_str_%s_run_%i' % (streamName, run.runNr),
                                             'Event rate per LB in stream "%s", run %i' % (streamName, run.runNr),
-                                            Run.Datapath )
+                                            QC.datapath )
                         wincontent += '<table style="padding: 0px">\n<tr><td>'
                         wincontent += '<img src="%s" width="350">' % pathN.split('/')[-1]
                         wincontent += '</td><td>'
@@ -1742,7 +1769,7 @@ def ashtml(run):
                           
                     continue
 
-
+                # -----------------------------------------------------------------------------------------------------------------------
 
                 if k=="TriggerMenu":
                     chains = run.splitTriggerChains(v)
@@ -1756,6 +1783,8 @@ def ashtml(run):
                         s += '<td style="min-width:300px"><font size="-2">%s<hr color="gray" size=1>%s<hr color="gray" size=1>%s</font></td>' % ( chains )
                     continue
 
+                # -----------------------------------------------------------------------------------------------------------------------
+
                 if k=="TriggerRates":
                     if type(v)==str:
                         s += '<td>%s</td>'%v
@@ -1764,7 +1793,7 @@ def ashtml(run):
                         triggergroups,imgpaths,openwincmds = HU.createRatePopupWindow(v,run)
                         for idx,(trgroup,imgpath,openwincmd) in enumerate(zip(triggergroups,imgpaths,openwincmds)):
                             tooltipkey = "TrRate_Set%i_%i" % (idx,run.runNr)
-                            contentpage = "%s/popupContent_trRates_%i_%i.html" % (Run.Datapath, run.runNr, idx)
+                            contentpage = "%s/popupContent_trRates_%i_%i.html" % (QC.datapath, run.runNr, idx)
 
                             if idx!=0:
                                 tablecontent += '      <tr><td colspan="2"><hr color="gray"></td></tr>'
@@ -1775,6 +1804,8 @@ def ashtml(run):
                                 tablecontent += '      <tr><td>%s</td><td>: %3.1f Hz</td></tr>' % (tr,avr)
                         s+="<td><table class='ratestable'>\n%s\n  </table></td>" % tablecontent
                     continue
+
+                # -----------------------------------------------------------------------------------------------------------------------
 
                 if "Datasets" == k:
                     # separate datasets into stream types
@@ -1898,10 +1929,27 @@ def ashtml(run):
 
                     continue
 
+                # -----------------------------------------------------------------------------------------------------------------------
+
                 if 'HLT PSK' == k:
                     # add another column with links to trigger menu for all SMK and PSKs combinations
                     linklist = run.stats['PSK']['blocks']
-
+                    linkRun12 = (
+                        '<a href="https://atlas-trigconf.cern.ch/run/smkey/{smk}/l1key/{l1psk}/hltkey/{hltpsk}/" target="_blank" '
+                        'title="L1: \'{l1name}\', HLT \'{hltname}\'. '
+                        'You can obtain the full trigger menu corresponding to SMK={smk} and prescale keys L1={l1psk}, HLT={hltpsk} in an independent window"'
+                        '>{l1psk}&nbsp;|&nbsp;{hltpsk}</a>'
+                    )
+                    linkRun3L1 = (
+                        '<a href="https://atlas-triggertool.web.cern.ch/db/{db}/smk/{smk}/l1psk/{l1psk}/" target="_blank" '
+                        'title="L1: \'{l1name}\'. You can obtain the full trigger menu corresponding to SMK={smk} and L1 prescale key {l1psk} in an independent window"'
+                        '>{l1psk}</a>'
+                    )
+                    linkRun3HLT = (
+                        '<a href="https://atlas-triggertool.web.cern.ch/db/{db}/smk/{smk}/hltpsk/{hltpsk}/" target="_blank" '
+                        'title="HLT: \'{hltname}\'. You can obtain the full trigger menu corresponding to SMK={smk} and HLT prescale key {l1psk} in an independent window"'
+                        '>{hltpsk}</a>'
+                    )
                     if linklist:
                         if len(linklist)<=15:
                             ncol = 1
@@ -1928,10 +1976,17 @@ def ashtml(run):
                                 entry = row + col*nrow
                                 if entry>=len(linklist):
                                     continue
-                                link = linklist[entry]
-                                s += '<td style="padding-left: 0.8em">%s</td><td>&minus;</td><td>%s:&nbsp;</td>' % (str(link[0]),str(link[1]))
-                                lll = '<a href="https://atlas-trigconf.cern.ch/run/smkey/%s/l1key/%s/hltkey/%s/" target="_blank" title="L1 \'%s\', HLT \'%s\'. Obtain full trigger menu corresponding to SMK=%s and prescale keys L1=%s, HLT=%s, in independent window">' % (run.result['SMK'],link[2],link[3],link[4],link[5],run.result['SMK'],link[2],link[3])
-                                s += '<td style="border-right: 1px solid gray; padding-right: 0.8em">%s%s&nbsp;|&nbsp;%s</a></td>' % (lll, link[2],link[3])
+                                link = dict(zip( ("startlb", "endlb", "l1psk", "hltpsk", "l1name", "hltname"),linklist[entry]))
+                                link.update({
+                                    "smk" : run.result["SMK"],
+                                    "db" : "dev1_i8" if int(run.result["SMK"]) < 3000 else "run3"
+                                })
+                                s += f'<td style="padding-left: 0.8em">{link["startlb"]}</td><td>&minus;</td><td>{link["endlb"]}:&nbsp;</td>'
+                                if run.lhcRun < 3:
+                                    cellContent = linkRun12.format(**link)
+                                else:
+                                    cellContent = linkRun3L1.format(**link) + "&nbsp;|&nbsp;" + linkRun3HLT.format(**link)
+                                s += f'<td style="border-right: 1px solid gray; padding-right: 0.8em">{cellContent}</td>'
                             s += '</tr>'
                         s += '</table>'
                         s += '<hr style="width:100%; background-color: #AAAABB; height:1px; margin-left:0; border:0"/>'
@@ -1941,14 +1996,23 @@ def ashtml(run):
                         s += '<td style="text-align:center">n.a.</td>'
                     continue
 
+                # -----------------------------------------------------------------------------------------------------------------------
+
                 if 'BGS Key' == k:
                     if v!='n.a.':
+                        smk = int(run.result["SMK"])
+                        bgskOffset = 10000 if (smk<3000 and run.lhcRun==3) else 0
+
                         if len(run.stats['BGS Key' ]['blocks'])>0:
                             s += '<td align="center"><table class="triggerlinktable" align="center"><tr><td style="text-align:left;font-weight:bold" colspan="3">LB&nbsp;range</td><td style="text-align:right;font-weight:bold">BGS</td></tr>'
                             for bgskey, lbbeg, lbend in run.stats['BGS Key' ]['blocks']:
                                 s += '<tr><td style="text-align:right">%i</td><td style="text-align:right">&minus;</td><td style="text-align:right">%i:&nbsp;</td>' % (lbbeg, lbend-1)
-                                lll = '&nbsp;<a href="https://atlas-trigconf.cern.ch/bunchgroups?key=%s" target="_blank" title="Obtain bunch group description for BGS Key=%s in independent window">' % (bgskey,bgskey)
-                                s += '<td>%s%s</a></td></tr>' % (lll, bgskey)
+                                cellContent = (
+                                    f'&nbsp;<a href="https://atlas-trigconf.cern.ch/bunchgroups?key={bgskey+bgskOffset}" target="_blank" '
+                                    f'title="Obtain bunch group description for BGS Key={bgskey} in independent window"'
+                                    f'>{bgskey}</a>'
+                                )
+                                s += f'<td>{cellContent}</td></tr>'
                             s += '</table>'
                             s+='</td>'
                         else:
@@ -1957,6 +2021,8 @@ def ashtml(run):
                         s += '<td class="tdna">n.a.</td>'
                     continue
 
+                # -----------------------------------------------------------------------------------------------------------------------
+
                 if "SMK" == k:
                     if v=='n.a.':
                         s += '<td class="tdna">n.a.</td>'
@@ -1964,6 +2030,8 @@ def ashtml(run):
                         namecomment = '<div style="font-size:80%%;color:#488AC7"><b>%s</b> (v.%i)</div><div style="width:200px;font-size:60%%;color:#777777;text-align:left">%s</div>' % run.stats['SMK']['info']
                         s += '<td style="text-align: center;">%s<br>%s</td>' % (v,namecomment)
                     continue
+
+                # -----------------------------------------------------------------------------------------------------------------------
 
                 if 'lar:runtype' in k or 'lar:format' in k:
                     info = LArConfig(k.replace('lar:',''))
@@ -1975,6 +2043,8 @@ def ashtml(run):
                         else:
                             s += '<td style="text-align: right">%s</td>' % v
                     continue
+
+                # -----------------------------------------------------------------------------------------------------------------------
 
                 if 'BPM' == k:
 
@@ -2045,10 +2115,10 @@ def ashtml(run):
                         fullprint += '</tr>'
 
                     # write to file (as text and TGraphs)
-                    bpmrootfilename = Run.Datapath + '/bpm_output_run%i.root' % run.runNr
+                    bpmrootfilename = QC.datapath + '/bpm_output_run%i.root' % run.runNr
                     SaveGraphsToFile( bpmrootfilename, keys, xvec, yvec, "TimeOffset", toffset )
 
-                    bpmtextfilename = Run.Datapath + '/bpm_output_run%i.txt' % run.runNr
+                    bpmtextfilename = QC.datapath + '/bpm_output_run%i.txt' % run.runNr
                     bpmout          = open( bpmtextfilename, 'w' )
 
                     bpmout.write( '# BPM Output for run %i\n' % run.runNr )
@@ -2076,7 +2146,7 @@ def ashtml(run):
                                              'Time of day (UTC)', 'Beam position (microns)', legend,
                                              'bp_vs_time_run_%i' % (run.runNr),
                                              'Beam position versus time of day for run %i' % (run.runNr),
-                                             Run.Datapath, '' )
+                                             QC.datapath, '' )
 
                     replacetxt = '<img src="%s" align="left" width="70px">' % path
                     fullprint = fullprint.replace('REPLACEME',replacetxt)
@@ -2096,6 +2166,8 @@ def ashtml(run):
                     # put into html page
                     s += '<td style="text-decoration:none">%s<div class="showTip BPM stream" style="display:inline;cursor:pointer">%s</div></a></td>' % (tooltipkey, fullprint)
                     continue
+
+                # -----------------------------------------------------------------------------------------------------------------------
 
                 if 'ofllumi:' in k:
 
@@ -2177,7 +2249,7 @@ def ashtml(run):
                                            'Luminosity block number', 'Offline luminosity (10^{30}cm^{-2}s^{-1})', chanstr,
                                            'ofllumi%s_vs_lb_run_%i' % (chans[0],run.runNr),
                                            'Offline lumi per LB for run %i' % (run.runNr),
-                                           Run.Datapath, histoText )
+                                           QC.datapath, histoText )
 
                     # create window and tooltip
                     wincontent  = '<table class=&quot;outer&quot; style=&quot;padding: 5px&quot;><tr><td>'
@@ -2230,6 +2302,8 @@ def ashtml(run):
                     # put into html page
                     s += '<td class="showTip OFLLumi stream" style="text-decoration:none; text-align: right">%s%s</a></td>' % (openwincmd, fullprint)  
                     continue
+
+                # -----------------------------------------------------------------------------------------------------------------------
 
                 if any( [ ('lhc:' in k and 'beamenergy' not in k),
                           ('TorCurrent' in k),
@@ -2325,6 +2399,8 @@ def ashtml(run):
                         s += '<td class="showTip LHCSummary stream" style="text-decoration:none; text-align: left">%s %s </a></td>' % (openwincmd, fullprint)  
 
                     continue
+
+                # -----------------------------------------------------------------------------------------------------------------------
 
                 # all others
                 if v=='n.a.':

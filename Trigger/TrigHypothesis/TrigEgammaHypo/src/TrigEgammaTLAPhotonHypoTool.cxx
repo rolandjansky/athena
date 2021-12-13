@@ -31,22 +31,22 @@ StatusCode TrigEgammaTLAPhotonHypoTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaTLAPhotonHypoTool::decide(std::vector<PhotonDecision>& photonHypoInputs) const
+StatusCode TrigEgammaTLAPhotonHypoTool::decide(TrigCompositeUtils::DecisionContainer* outputDecisions) const
 {
 
-    for (auto& hypoPair: photonHypoInputs )
+    for (auto decision : *outputDecisions )
     {
       // creates container of Decision identifiers that will be filled with the previous decisions attached to the object
       DecisionIDContainer previousDecisionIDs;
       // not sure whtat this does
-      const auto previousDecisionEL = TrigCompositeUtils::getLinkToPrevious(hypoPair.second).at(0);
+      const auto previousDecisionEL = TrigCompositeUtils::getLinkToPrevious(decision).at(0);
       decisionIDs(*previousDecisionEL, previousDecisionIDs);
       // if we are sure that there is only one decision added by the parent HypoAlg (it should be), then checking that count > 0
       // is equivalent to checking if the previous decision was positive-NO
       // checks that the decision corresponding to the chain name is positive? uff
       if (previousDecisionIDs.count( m_decisionId.numeric()) > 0)
       {
-        TrigCompositeUtils::addDecisionID(getId().numeric(), hypoPair.second);
+        TrigCompositeUtils::addDecisionID(getId().numeric(), decision );
       }
     }
   return StatusCode::SUCCESS;

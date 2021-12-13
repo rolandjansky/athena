@@ -406,7 +406,6 @@ StatusCode TrigCostSvc::endEvent(const EventContext& context, SG::WriteHandle<xA
     }
   }
 
-  
   return StatusCode::SUCCESS;
 }
 

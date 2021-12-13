@@ -31,8 +31,6 @@
 #include <memory>
 #include <numeric>
 
-namespace HGTD {
-
 class HGTD_Cluster : public Trk::PrepRawData {
 
 public:
@@ -128,7 +126,5 @@ inline float HGTD_Cluster::timeResolution() const { return m_time_resolution; }
 inline const std::vector<int>& HGTD_Cluster::totList() const {
   return m_time_over_threshold;
 }
-
-} // namespace HGTD
 
 #endif // HGTD_PREPRAWDATA_HGTD_CLUSTER_H

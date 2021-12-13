@@ -2,6 +2,7 @@
 
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createService
+from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import pileupConfigFiles
 
 def makeSequence (dataType, likelihood=True) :
     algSeq = AlgSequence()
@@ -10,11 +11,17 @@ def makeSequence (dataType, likelihood=True) :
     sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
     sysService.sigmaRecommended = 1
 
+    prwfiles, lumicalcfiles = pileupConfigFiles(dataType)
+
     # Include, and then set up the pileup analysis sequence:
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
-    pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    pileupSequence = makePileupAnalysisSequence(
+        dataType,
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
     algSeq += pileupSequence
 
     # Include, and then set up the electron analysis sequence:
@@ -34,7 +41,7 @@ def makeSequence (dataType, likelihood=True) :
     from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
         makePhotonAnalysisSequence
     photonSequence = makePhotonAnalysisSequence( dataType, 'Tight.FixedCutTight', postfix = 'tight',
-                                                 recomputeIsEM=True, enableCutflow=True, enableKinematicHistograms=True )
+                                                 recomputeIsEM=False, enableCutflow=True, enableKinematicHistograms=True )
     photonSequence.configure( inputName = 'Photons',
                               outputName = 'AnalysisPhotons_%SYS%' )
     algSeq += photonSequence

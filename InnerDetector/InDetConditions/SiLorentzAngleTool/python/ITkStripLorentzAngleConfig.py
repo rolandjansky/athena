@@ -3,15 +3,13 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
-SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
-StripSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
-from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripSiliconConditionsCfg
+from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+
 
 def ITkStripLorentzAngleCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
-                        forceUseGeoModel=False, **kwargs):
+                            forceUseGeoModel=False, **kwargs):
     """Return configured ComponentAccumulator and tool for SCT_LorentzAngle
 
     SiConditionsTool and/or DCSConditionsTool may be provided in kwargs
@@ -21,7 +19,7 @@ def ITkStripLorentzAngleCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
     acc = MagneticFieldSvcCfg(flags)
     # For SCT_ID and SCT_DetectorElementCollection used
     # in SCTSiLorentzAngleCondAlg and SiLorentzAngleTool
-    acc.merge(ITkStripGeometryCfg(flags))
+    acc.merge(ITkStripReadoutGeometryCfg(flags))
     # set up SCTSiLorentzAngleCondAlg
     algkwargs = {}
     algkwargs["UseMagFieldCache"] = kwargs.get("UseMagFieldCache", True)
@@ -36,10 +34,10 @@ def ITkStripLorentzAngleCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
             if kwargs.get("DCSConditionsTool"):
                 sikwargs["DCSConditionsTool"] = kwargs.get("DCSConditionsTool")
             sikwargs["ForceUseGeoModel"] = forceUseGeoModel
-            algkwargs["SiConditionsTool"] = acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags, **sikwargs))
+            algkwargs["SiConditionsTool"] = acc.popToolsAndMerge(ITkStripSiliconConditionsCfg(flags, **sikwargs))
     #Specify correct DetElCollection for ITkStrip
     algkwargs["SCTDetEleCollKey"] = "ITkStripDetectorElementCollection"
-    acc.addCondAlgo(StripSiLorentzAngleCondAlg(name, **algkwargs))
+    acc.addCondAlgo(CompFactory.SCTSiLorentzAngleCondAlg(name, **algkwargs))
 
     # Condition tool
     toolkwargs = {}
@@ -47,5 +45,5 @@ def ITkStripLorentzAngleCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
     toolkwargs["DetectorName"] = "SCT"
     toolkwargs["DetEleCollKey"] = "ITkStripDetectorElementCollection"
     toolkwargs["SiLorentzAngleCondData"] = "SCTSiLorentzAngleCondData"
-    acc.setPrivateTools(SiLorentzAngleTool(name="ITkStripLorentzAngleTool", **toolkwargs))
+    acc.setPrivateTools(CompFactory.SiLorentzAngleTool(name="ITkStripLorentzAngleTool", **toolkwargs))
     return acc

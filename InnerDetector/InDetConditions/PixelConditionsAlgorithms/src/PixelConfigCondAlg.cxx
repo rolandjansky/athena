@@ -20,18 +20,6 @@ PixelConfigCondAlg::PixelConfigCondAlg(const std::string& name, ISvcLocator* pSv
 StatusCode PixelConfigCondAlg::initialize() {
   ATH_MSG_DEBUG("PixelConfigCondAlg::initialize()");
 
-  ATH_CHECK(m_ComTimeKey.initialize(m_UseComTime));
-  if (m_UseComTime) {
-    SG::ReadHandle<ComTime> comTime(m_ComTimeKey);
-    if (comTime.isValid()) {
-      m_ComTime = comTime->getTime();
-      ATH_MSG_DEBUG("Found tool for cosmic/commissioning timing: ComTime");
-    } 
-    else {
-      ATH_MSG_WARNING("Did not find tool needed for cosmic/commissioning timing: ComTime");
-    }
-  }
-
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_readDeadMapKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_writeKey.initialize());
@@ -116,8 +104,6 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
 
   // Digitization parameters
   writeCdo -> setBunchSpace(m_bunchSpace);
-  writeCdo -> setUseComTime(m_UseComTime);
-  writeCdo -> setComTime(m_ComTime);
   writeCdo -> setBarrelNumberOfBCID(m_BarrelNumberOfBCID);
   writeCdo -> setEndcapNumberOfBCID(m_EndcapNumberOfBCID);
   writeCdo -> setDBMNumberOfBCID(m_DBMNumberOfBCID);
@@ -437,7 +423,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
   }
-  else {  // RUN2 2018 (mc16e)
+  else if (currentRunNumber<330000) {  // RUN2 2018 (mc16e)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2018);
     writeCdo -> setFEI3BarrelLatency(m_FEI3BarrelLatency2018);
     writeCdo -> setFEI3BarrelHitDuplication(m_FEI3BarrelHitDuplication2018);
@@ -491,6 +477,62 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setFluenceLayer3D(m_3DFluence2018);
     for (size_t i=0; i<m_3DFluenceMap2018.size(); i++) {
       mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMap2018[i]));
+    }
+  }
+  else {  // RUN3 2022
+    writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2022);
+    writeCdo -> setFEI3BarrelLatency(m_FEI3BarrelLatency2022);
+    writeCdo -> setFEI3BarrelHitDuplication(m_FEI3BarrelHitDuplication2022);
+    writeCdo -> setFEI3BarrelSmallHitToT(m_FEI3BarrelSmallHitToT2022);
+    writeCdo -> setFEI3BarrelTimingSimTune(m_FEI3BarrelTimingSimTune2022);
+    writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2022);
+    writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2022);
+    writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2022);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2022);
+    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2022);
+
+    writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2022);
+    writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2022);
+    writeCdo -> setFEI3EndcapHitDuplication(m_FEI3EndcapHitDuplication2022);
+    writeCdo -> setFEI3EndcapSmallHitToT(m_FEI3EndcapSmallHitToT2022);
+    writeCdo -> setFEI3EndcapTimingSimTune(m_FEI3EndcapTimingSimTune2022);
+    writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2022);
+    writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2022);
+    writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2022);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2022);
+    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2022);
+
+    writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2022);
+    writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2022);
+    writeCdo -> setDBMNoiseOccupancy(m_DBMNoiseOccupancy2022);
+    writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2022);
+    writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2022);
+
+    // This is ad-hoc solution.
+    for (size_t i=0; i<m_IBLNoiseShape2022.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2022[i]); }
+    for (size_t i=0; i<m_BLayerNoiseShape2022.size(); i++) { writeCdo->setBarrelNoiseShape(1,m_BLayerNoiseShape2022[i]); }
+    for (size_t i=0; i<m_PixelNoiseShape2022.size(); i++)  {
+      for (size_t layer:{2,3}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShape2022[i]); }
+    }
+
+    for (size_t i=0; i<m_PixelNoiseShape2022.size(); i++)  {
+      for (size_t layer:{0,1,2}) { writeCdo->setEndcapNoiseShape(layer,m_PixelNoiseShape2022[i]); }
+    }
+
+    for (size_t i=0; i<m_IBLNoiseShape2022.size(); i++)    {
+      for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2022[i]); }
+    }
+
+    // Radiation damage simulation
+    writeCdo -> setFluenceLayer(m_BarrelFluence2022);
+    for (size_t i=0; i<m_BarrelFluenceMap2022.size(); i++) {
+      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2022[i]));
+    }
+
+    // Radiation damage simulation for 3D sensor
+    writeCdo -> setFluenceLayer3D(m_3DFluence2022);
+    for (size_t i=0; i<m_3DFluenceMap2022.size(); i++) {
+      mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMap2022[i]));
     }
 
   }

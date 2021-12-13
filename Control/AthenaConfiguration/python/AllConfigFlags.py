@@ -43,7 +43,7 @@ def _createCfgFlags():
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
     acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
     acf.addFlag('Input.ProcessingTags', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("processingTags","") ) # list of names of streams written to this file
-    acf.addFlag('Input.SpecialConfiguration', lambda prevFlags : getSpecialConfigurationMetadata(prevFlags.Input.Files))  # special Configuration options read from input file metadata
+    acf.addFlag('Input.SpecialConfiguration', lambda prevFlags : getSpecialConfigurationMetadata(prevFlags.Input.Files, prevFlags.Input.SecondaryFiles))  # special Configuration options read from input file metadata
 
     def _inputCollections(inputFile):
         if not inputFile:
@@ -116,7 +116,6 @@ def _createCfgFlags():
     acf.addFlag('Output.doWriteRDO', lambda prevFlags: bool(prevFlags.Output.RDOFileName)) # write out RDO file
     acf.addFlag('Output.doWriteRDO_SGNL', lambda prevFlags: bool(prevFlags.Output.RDO_SGNLFileName)) # write out RDO_SGNL file
     acf.addFlag('Output.doWriteESD', lambda prevFlags: bool(prevFlags.Output.ESDFileName)) # write out ESD file
-    acf.addFlag('Output.doESD',      lambda prevFlags: prevFlags.Output.doWriteESD) # produce ESD containers
     acf.addFlag('Output.doWriteAOD', lambda prevFlags: bool(prevFlags.Output.AODFileName)) # write out AOD file
     acf.addFlag('Output.doWriteBS',  False) # write out RDO ByteStream file
 
@@ -125,6 +124,7 @@ def _createCfgFlags():
     # (many, e.g. those that set properties of one tool are not needed)
     acf.addFlag('TrackingGeometry.MagneticFileMode', 6)
     acf.addFlag('TrackingGeometry.MaterialSource', 'COOL') # Can be COOL, Input or None
+    acf.addFlag('Acts.TrackingGeometry.MaterialSource', 'None') # Input, a path to a JSON file or None
 
 #Detector Flags:
     def __detector():
@@ -155,6 +155,12 @@ def _createCfgFlags():
         from AthenaConfiguration.GeoModelConfigFlags import createGeoModelConfigFlags
         return createGeoModelConfigFlags()
     acf.addFlagsCategory( "GeoModel", __geomodel )
+
+#Reco Flags:
+    def __reco():
+        from RecJobTransforms.RecoConfigFlags import createRecoConfigFlags
+        return createRecoConfigFlags()
+    _addFlagsCategory(acf, "Reco", __reco, 'RecJobTransforms')
 
 #IOVDbSvc Flags:
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-2017-05")
@@ -205,6 +211,11 @@ def _createCfgFlags():
         return createITkConfigFlags()
     _addFlagsCategory(acf, "ITk", __itk, 'InDetConfig' )
 
+    def __hgtd():
+        from HGTD_Config.HGTD_ConfigFlags import createHGTD_ConfigFlags
+        return createHGTD_ConfigFlags()
+    _addFlagsCategory(acf, "HGTD", __hgtd, 'HGTD_Config' )
+
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         return createMuonConfigFlags()
@@ -240,6 +251,11 @@ def _createCfgFlags():
         return createBTaggingConfigFlags()
     _addFlagsCategory(acf,"BTagging",__btagging, 'BTagging')
 
+    def __hi():
+        from HIRecConfig.HIRecConfigFlags import createHIRecConfigFlags
+        return createHIRecConfigFlags()
+    _addFlagsCategory(acf, "HeavyIon", __hi, "HIRecConfig")
+
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags
         dqf = createDQConfigFlags()
@@ -255,8 +271,6 @@ def _createCfgFlags():
 
 
 ConfigFlags=_createCfgFlags()
-
-del _createCfgFlags
 
 if __name__=="__main__":
     import sys

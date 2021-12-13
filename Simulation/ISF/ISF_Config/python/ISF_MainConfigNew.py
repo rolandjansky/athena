@@ -4,7 +4,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
+from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import (
     InputConverterCfg, TruthServiceCfg,
     LongLivedInputConverterCfg, AFIIParticleBrokerSvcCfg
@@ -190,6 +190,11 @@ def Kernel_PassBackG4MTCfg(flags, name="ISF_Kernel_PassBackG4MT", **kwargs):
 
 def Kernel_ATLFASTIIMTCfg(flags, name="ISF_Kernel_ATLFASTIIMT", **kwargs):
     acc = ComponentAccumulator()
+    acc.merge(AFIIGeoIDSvcCfg(flags))
+    kwargs.setdefault("GeoIDSvc", acc.getService("ISF_AFIIGeoIDSvc"))
+    eltool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
+    acc.addPublicTool(eltool)
+    kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(eltool.name)) # public ToolHandle
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)) # Workaround
 
     tool = acc.popToolsAndMerge(DefaultAFIIGeant4SelectorCfg(flags))
@@ -224,10 +229,6 @@ def Kernel_ATLFASTIIMTCfg(flags, name="ISF_Kernel_ATLFASTIIMT", **kwargs):
 
     kwargs.setdefault("ParticleOrderingTool", acc.popToolsAndMerge(EnergyParticleOrderingToolCfg(flags)))
 
-    eltool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
-    acc.addPublicTool(eltool)
-    kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(eltool.name)) # public ToolHandle
-
     # not migrated simFlags.SimulationFlavour = "ATLFASTII"
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
     return acc
@@ -250,6 +251,11 @@ def Kernel_ATLFASTIIFMTCfg(flags, name="ISF_Kernel_ATLFASTIIFMT", **kwargs):
 
 def Kernel_ATLFAST3MTCfg(flags, name="ISF_Kernel_ATLFAST3MT", **kwargs):
     acc = ComponentAccumulator()
+    kwargs.setdefault("ParticleOrderingTool"       ,   acc.popToolsAndMerge(ParticleOrderingToolCfg(flags)))
+
+    eltool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
+    acc.addPublicTool(eltool)
+    kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(eltool.name)) # public ToolHandle
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)) # Workaround
 
     # BeamPipe, ID, MS Simulation Selectors
@@ -284,11 +290,6 @@ def Kernel_ATLFAST3MTCfg(flags, name="ISF_Kernel_ATLFAST3MT", **kwargs):
     kwargs.setdefault("SimulationTools"            , [ acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
                                                        acc.popToolsAndMerge(FastCaloSimV2ToolCfg(flags)),
                                                        acc.popToolsAndMerge(AFIIGeant4ToolCfg(flags)) ])
-    kwargs.setdefault("ParticleOrderingTool"       ,   acc.popToolsAndMerge(ParticleOrderingToolCfg(flags)))
-
-    tool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
-    acc.addPublicTool(tool)
-    kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(tool.name)) # public ToolHandle
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
     return acc
 

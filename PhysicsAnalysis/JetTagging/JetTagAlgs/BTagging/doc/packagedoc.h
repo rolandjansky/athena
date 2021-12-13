@@ -99,8 +99,6 @@ The following flags can be used before the include line of the BTagging_jobOptio
 @section BTagging_jobOptionsBTagging The jobOptions files
 There are several jobOptions files in this package:
 - BTagging_jobOptions.py      ... the main jobOptions file
-- BTagJetFinder_jobOptions.py ... in case jetfinding wants to be done on TrackParticles
-- CBNT_BTagJetFinder_jobOptions.py ... jobOptions fragment for the JetTag CBNT
 - BTagging_SecVtxTagTD.py     
 - BTagging_SecVtxTagBU.py
 - BTagging_LifetimeTag1D.py

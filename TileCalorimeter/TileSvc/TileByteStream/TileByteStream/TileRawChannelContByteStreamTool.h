@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILERAWCHANNELCONTRAWEVENTTOOL_H
@@ -71,9 +71,6 @@ class TileRawChannelContByteStreamTool: public AthAlgTool {
     /** Handle to Tile bad channel tool */
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
-
-    /** internal array for all TileRawChannels */
-    TileFastRawChannel* m_channels;
 
     /** maximum number of channels in a drawer */
     int m_maxChannels;

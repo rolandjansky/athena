@@ -10,26 +10,30 @@
 #include <InDetGeoModelUtils/WaferTree.h>
 
 #include <map>
-#include <memory>
 #include <sstream>
 #include <string>
 
-namespace InDetDD {class SiDetectorDesign; class PixelDetectorManager; class PixelDiodeMatrix; class SiCommonItems;}
+namespace InDetDD {
+
+class PixelDetectorManager;
+class PixelDiodeMatrix;
+class SiCommonItems;
+class SiDetectorDesign;
 
 namespace ITk
 {
 class PixelGmxInterface : public GmxInterface, public AthMessaging
 {
 public:
-  PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager,
-                    InDetDD::SiCommonItems *commonItems,
+  PixelGmxInterface(PixelDetectorManager *detectorManager,
+                    SiCommonItems *commonItems,
                     WaferTree *moduleTree);
 
   virtual int sensorId(std::map<std::string, int> &index) const override final;
-  virtual void addSensorType(std::string clas,
-                             std::string typeName,
-                             std::map<std::string, std::string> parameters) override final;
-  virtual void addSensor(std::string typeName,
+  virtual void addSensorType(const std::string& clas,
+                             const std::string& typeName,
+                             const std::map<std::string, std::string>& parameters) override;
+  virtual void addSensor(const std::string& typeName,
                          std::map<std::string, int> &index,
                          int sequentialId,
                          GeoVFullPhysVol *fpv) override final;
@@ -38,25 +42,27 @@ public:
   //                           GeoVFullPhysVol *fpv,
   //                           GeoAlignableTransform *transform) override final;
 
+  std::shared_ptr<const PixelDiodeMatrix> buildMatrix(double phiPitch, double etaPitch,
+						      double phiPitchLong, double phiPitchEnd,
+						      double etaPitchLong, double etaPitchEnd,
+						      int nPhiLong, int nPhiEnd,
+						      int nEtaLong, int nEtaEnd,
+						      int circuitsPhi, int circuitsEta,
+						      int diodeColPerCirc, int diodeRowPerCirc) const;
+
+protected:
+  std::map<std::string, int> m_geometryMap;
 
 private:
   void makePixelModule(const std::string& typeName,
                        const std::map<std::string, std::string> &parameters);
 
-  std::shared_ptr<const InDetDD::PixelDiodeMatrix> buildMatrix(double phiPitch, double etaPitch,
-                                                               double etaPitchLong, double etaPitchEnd,
-                                                               double phiPitchLong, double phiPitchEnd,
-                                                               int nEtaLong, int nEtaEnd,
-                                                               int nPhiLong, int nPhiEnd,
-                                                               int circuitsPhi, int circuitsEta,
-                                                               int diodeColPerCirc, int diodeRowPerCirc) const;
-
-  std::map<std::string, int> m_geometryMap;
-  InDetDD::PixelDetectorManager *m_detectorManager{};
-  InDetDD::SiCommonItems *m_commonItems{};
+  PixelDetectorManager *m_detectorManager{};
+  SiCommonItems *m_commonItems{};
   WaferTree *m_moduleTree{};
 };
 
 } // namespace ITk
+} // namespace InDetDD
 
 #endif // PIXELGEOMODELXML_PIXELGMXINTERFACE_H

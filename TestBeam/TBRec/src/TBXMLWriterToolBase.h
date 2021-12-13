@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBXMLWRITERTOOLBASE_H
@@ -32,7 +32,7 @@ class TBXMLWriterToolBase : public AthAlgTool
     { } 
 
   // initialize
-  virtual StatusCode initialize()
+  virtual StatusCode initialize() override
     {
       return StatusCode::SUCCESS;
     }
@@ -48,7 +48,7 @@ class TBXMLWriterToolBase : public AthAlgTool
       return this->writeEvent(outStream,entryTag);
     }
 
-  virtual StatusCode finalize() 
+  virtual StatusCode finalize() override
     { 
       return StatusCode::SUCCESS;
     }

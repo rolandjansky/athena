@@ -41,8 +41,6 @@ namespace FTAGValidation {
     int m_nTotal_qualityOnlineJets;
 
   private:
-    SG::ReadHandleKey< xAOD::JetContainer >  m_trigJetKey  { this, "TrigJetCollectionKey", "",   
-	"Input Jet collection name" };
     SG::ReadHandleKey< xAOD::VertexContainer > m_trigVertexKey { this, "TrigVertexCollectionKey", "",
 	"Input Vertex collection name" };
     SG::ReadHandleKey< xAOD::TrackParticleContainer > m_trigTrackKey { this, "TrigTrackParticleCollectionKey", "",

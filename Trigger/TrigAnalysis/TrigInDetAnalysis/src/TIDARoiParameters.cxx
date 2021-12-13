@@ -14,12 +14,13 @@
 ClassImp( TIDARoiParameters )
 
 
+/// Define M_PI ONLY if it is not already defined in <cmath>
 #ifndef M_PI
 #define M_PI  3.141592653589793238462643383279502884197
 #endif
 
 #ifndef M_2PI
-#define M_2PI 6.283185307179586476925286766559005768394
+static const float  M_2PI = 2*M_PI;
 #endif
 
 #ifndef M_PIF

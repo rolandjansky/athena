@@ -46,8 +46,8 @@ if hasattr(runArgs,"RunNumber"): rec.RunNumber=runArgs.RunNumber
 if hasattr(runArgs,"projectName"): rec.projectName=runArgs.projectName
 if hasattr(runArgs,"trigStream"): rec.triggerStream=runArgs.trigStream
 if hasattr(runArgs,"triggerConfig"):
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-    tf.triggerConfig=runArgs.triggerConfig
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Trigger.triggerConfig=runArgs.triggerConfig
 
 ## autoConfiguration keywords triggering pre-defined functions
 if hasattr(runArgs,"autoConfiguration"):

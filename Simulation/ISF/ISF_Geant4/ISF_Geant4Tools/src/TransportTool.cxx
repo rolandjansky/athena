@@ -227,10 +227,11 @@ StatusCode iGeant4::G4TransportTool::finalize()
 
   if (m_doTiming) {
     m_runTimer->Stop();
-    float runTime=m_runTimer->GetUserElapsed()+m_runTimer->GetSystemElapsed();
-    float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(m_nrOfEntries-1.) : runTime;
-    float sigma=( m_nrOfEntries>2) ? std::sqrt((m_accumulatedEventTimeSq/float(m_nrOfEntries-1)-
-                                                avgTimePerEvent*avgTimePerEvent)/float(m_nrOfEntries-2)) : 0;
+    const float numEntriesFloat(m_nrOfEntries);
+    const float runTime=m_runTimer->GetUserElapsed()+m_runTimer->GetSystemElapsed();
+    const float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(numEntriesFloat-1.f) : runTime;
+    const float avgTimeSqPerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTimeSq/(numEntriesFloat-1.f) : runTime*runTime;
+    const float sigma=(m_nrOfEntries>2) ? std::sqrt(std::abs(avgTimeSqPerEvent - avgTimePerEvent*avgTimePerEvent)/(numEntriesFloat-2.f)) : 0;
     ATH_MSG_INFO("*****************************************"<<endmsg<<
                  "**                                     **"<<endmsg<<
                  "    End of run - time spent is "<<std::setprecision(4) <<
@@ -356,7 +357,7 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::setupEvent()
+StatusCode iGeant4::G4TransportTool::setupEvent(const EventContext& ctx)
 {
   ATH_MSG_DEBUG ( "setup Event" );
 
@@ -377,8 +378,8 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
   // Set the RNG to use for this event. We need to reset it for MT jobs
   // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
-  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
-  G4Random::setTheEngine(*rngWrapper);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
+  G4Random::setTheEngine(rngWrapper->getEngine(ctx));
 
   ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
@@ -392,7 +393,7 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::releaseEvent()
+StatusCode iGeant4::G4TransportTool::releaseEvent(const EventContext&)
 {
   ATH_MSG_DEBUG ( "release Event" );
   /** @todo : strip hits of the tracks ... */
@@ -416,15 +417,16 @@ StatusCode iGeant4::G4TransportTool::releaseEvent()
   if (m_doTiming) {
     m_eventTimer->Stop();
 
-    double eventTime=m_eventTimer->GetUserElapsed()+m_eventTimer->GetSystemElapsed();
+    const double eventTime=m_eventTimer->GetUserElapsed()+m_eventTimer->GetSystemElapsed();
     if (m_nrOfEntries>1) {
       m_accumulatedEventTime  +=eventTime;
       m_accumulatedEventTimeSq+=eventTime*eventTime;
     }
 
-    float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(m_nrOfEntries-1.) : eventTime;
-    float sigma=(m_nrOfEntries>2) ? std::sqrt((m_accumulatedEventTimeSq/float(m_nrOfEntries-1)-
-                                               avgTimePerEvent*avgTimePerEvent)/float(m_nrOfEntries-2)) : 0.;
+    const float numEntriesFloat(m_nrOfEntries);
+    const float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(numEntriesFloat-1.f) : eventTime;
+    const float avgTimeSqPerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTimeSq/(numEntriesFloat-1.f) : eventTime*eventTime;
+    const float sigma=(m_nrOfEntries>2) ? std::sqrt(std::abs(avgTimeSqPerEvent - avgTimePerEvent*avgTimePerEvent)/(numEntriesFloat-2.f)) : 0;
 
     ATH_MSG_INFO("\t Event nr. "<<m_nrOfEntries<<" took " << std::setprecision(4) <<
                  eventTime << " s. New average " << std::setprecision(4) <<

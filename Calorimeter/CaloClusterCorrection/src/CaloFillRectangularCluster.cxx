@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloFillRectangularCluster.cxx,v 1.20 2009-04-25 17:57:01 ssnyder Exp $
 /**
  * @file  CaloFillRectangularCluster.h
  * @author scott snyder <snyder@bnl.gov>, D. Lelas, H. Ma, S. Rajagopalan
@@ -23,6 +21,7 @@
 #include "CaloUtils/CaloCellList.h"
 #include "AthenaKernel/errorcheck.h"
 #include <algorithm>
+#include <utility>
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -754,7 +753,8 @@ SamplingHelper_Cluster::calculate
 /// Return the cell with the maximum energy.
 const CaloCell* SamplingHelper_Cluster::max_et_cell() const
 {
-  return *std::max_element(m_cluster->cell_begin(), m_cluster->cell_end(),
+  return *std::max_element(std::as_const(*m_cluster).cell_begin(),
+                           std::as_const(*m_cluster).cell_end(),
                            et_compare_larem_only());
 }
 
@@ -802,9 +802,11 @@ StatusCode CaloFillRectangularCluster::initialize()
 {
   // The method from the base class.
   CHECK( CaloClusterCorrection::initialize() );
-  if (!m_cellsName.key().empty())
+  if (!m_cellsName.key().empty()){
     CHECK( m_cellsName.initialize() );
+  }
 
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -1074,12 +1076,14 @@ void CaloFillRectangularCluster::makeCorrection (const Context& myctx,
                                                  CaloCluster* cluster) const
 {
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
-  
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  if(detStore()->retrieve(calodetdescrmgr,"CaloMgr").isFailure()){
+ 
+   // retrieve CaloDetDescr
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloMgrKey, myctx.ctx()};
+  if(!caloDetDescrMgrHandle.isValid()){
     ATH_MSG_ERROR ("Failed to retrieve CaloDetDescrManager : CaloMgr");
   }
 
+  const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
   CaloClusterCorr::Segmentation seg (calodetdescrmgr);
   if (seg.m_detas2 == 0) {

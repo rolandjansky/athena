@@ -23,7 +23,7 @@ namespace xAOD {
    jFexTauRoI_v1::jFexTauRoI_v1()
      : SG::AuxElement() {
    }
-   void jFexTauRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord) {
+   void jFexTauRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi) {
  
      setTobWord( tobWord );
      setjFexNumber( jFexNumber );
@@ -35,8 +35,8 @@ namespace xAOD {
      setTobSat(unpackSaturationIndex());
      setGlobalEta(unpackGlobalEta());
      setGlobalPhi(unpackGlobalPhi());
-     setEta( (unpackGlobalEta()+0.5)/10 );
-     setPhi( (unpackGlobalPhi()+0.5)/10 ); 
+     setEta( eta );
+     setPhi( phi ); 
    //include in future when xTOB in jFEX has been implemented.
 
    // If the object is a TOB then the isTOB should be true.
@@ -121,7 +121,7 @@ namespace xAOD {
    
    /// Iso on TOB scale
    unsigned int jFexTauRoI_v1::iso() const {
-    //return TOB Isolation in a 200 MeV scale
+    //return TOB Isolation in a 1 MeV scale
      return tobIso()*s_tobIsoScale;
    }
 

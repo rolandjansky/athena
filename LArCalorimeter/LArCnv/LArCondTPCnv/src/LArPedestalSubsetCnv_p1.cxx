@@ -18,7 +18,7 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
     unsigned int nPedestalRMSs    = persObj->m_vPedestalRMSSize;
     unsigned int pedestalIndex    = 0;
     unsigned int pedestalrmsIndex = 0;
-    
+    const unsigned int nChannelsPerFeb  = persObj->m_subset.subsetSize();    
     // Loop over febs
     unsigned int ifebWithData = 0; // counter for febs with data
 
@@ -40,7 +40,7 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
         }
             
         // Loop over channels in feb - only some channels are filled
-        for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
+        for (unsigned int j = 0; j < nChannelsPerFeb; ++j){
 
             bool copyChannel = true;
             if (hasSparseData) {
@@ -48,7 +48,7 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
                     // Channel is missing data - skip
                     copyChannel = false;
                 }
-                if (j%32 == 31 && j < 126) {
+                if (j%32 == 31 && j < nChannelsPerFeb-2) {
                     chansSet     = persObj->m_subset.m_febsWithSparseData[ifebWithData];
                     chansOffset += 32;
                     ifebWithData++;

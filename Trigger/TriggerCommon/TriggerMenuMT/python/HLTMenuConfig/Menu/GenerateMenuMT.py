@@ -1,13 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import importlib
-import itertools
 import string
-
-# Configure the scheduler
-from AthenaCommon.AlgScheduler import AlgScheduler
-AlgScheduler.ShowControlFlow( True )
-AlgScheduler.ShowDataFlow( True )
 
 from .TriggerConfigHLT  import TriggerConfigHLT
 from .HLTCFConfig import makeHLTTree
@@ -16,8 +10,7 @@ from .ChainDictTools import splitInterSignatureChainDict
 from .MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from .ChainMerging import mergeChainDefs
 from .MenuAlignmentTools import MenuAlignment
-from ..CommonSequences import EventBuildingSequences
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from ..CommonSequences import EventBuildingSequences, TLABuildingSequences
 from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 
 from AthenaCommon.Logging import logging
@@ -35,6 +28,30 @@ class Singleton(type):
 # for now we make this a singleton because calling menu generation twice leads to problems
 class GenerateMenuMT(object, metaclass=Singleton):
 
+    # Applicable to all menu instances
+    calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib', 'EnhancedBias']
+    combinedSigs = ['MinBias','Electron','Photon','Muon','Tau','Jet', 'Bjet','MET','UnconventionalTracking']
+    defaultSigs = ['Streaming']  # for noalg chains
+
+    # Define which signatures (folders) are required for each slice
+    def getRequiredSignatures(theslice):
+        # All possible signatures
+        allSigs = [
+            'Test','Streaming','Monitor','Beamspot','Cosmic', 'Calib', 'EnhancedBias',
+            'Electron','Photon','Muon','Tau','Jet', 'Bjet','MET','Bphysics',
+            'MinBias','UnconventionalTracking'
+        ]
+        signatureDeps = {sig:[sig] for sig in allSigs}
+        # Special cases
+        signatureDeps.update({
+            # Bjet always requires jet
+            'Bjet': ['Bjet','Jet'],
+            # Egamma contains two signatures
+            'Egamma': ['Electron','Photon'],
+            'Combined': GenerateMenuMT.combinedSigs,
+        })
+        return set(signatureDeps[theslice]+['Streaming']) # always allow streamers
+
     def __init__(self):
         self.chainsInMenu = {}  # signature : [chains]
 
@@ -51,10 +68,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
         self.chainFilter = None
         self.availableSignatures = []
         self.signaturesToGenerate = []
-        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib', 'EnhancedBias']
 
         self.chainDefModule = {}   # Generate[SIG]ChainDefs module for each SIGnature
-
 
     def setChainFilter(self, f):
         """Set chain filter for menu generation. Function needs to take two
@@ -72,37 +87,60 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
 
     def getChainDicts(self):
-        all_chain_dicts = []
-        all_chains = itertools.chain.from_iterable(self.chainsInMenu.values())
-        for chainCounter, chain in enumerate(all_chains, start=1):
-            log.debug("Now processing chain: %s ", chain)
-            chainDict = dictFromChainName(chain)
-            chainDict['chainCounter'] = chainCounter
 
-            #set default chain prescale
-            chainDict['prescale'] = 1
-            all_chain_dicts += [chainDict]
-        self.chainDicts = all_chain_dicts
-        
-        return 
+        def validSignature(currentSig, chainSig):
+            """Check if chain is assigned to the correct signature"""
+            reqd = GenerateMenuMT.getRequiredSignatures(currentSig)
+            isValid = chainSig.issubset( reqd )
+            log.info("Chain signatures: %s, required signatures: %s",chainSig,reqd)
+            if not isValid:
+                log.error("Chain signatures %s not a subset of required signatures %s",set(chainSig),reqd)
+            return isValid
+
+        chainCounter = 0
+        invalid = False
+        for sig, chains in self.chainsInMenu.items():
+            for chain in chains:
+                log.debug("Now processing chain: %s ", chain)
+                chainCounter += 1
+                chainDict = dictFromChainName(chain)
+                chainDict['chainCounter'] = chainCounter
+                chainDict['prescale'] = 1  # set default chain prescale
+
+                self.chainDicts.append(chainDict)
+
+                if not validSignature(sig, set(chainDict['signatures'])):
+                    invalid=True
+                    log.error('Chain %s assigned to signature %s but creates %s',
+                              chainDict['chainName'], sig, set(chainDict['signatures']))
+        if invalid:
+            raise RuntimeError('Incorrect assignment of chains to slices -- see preceding messages.')
 
     def importSignaturesToGenerate(self):
         """check if all the signature files can be imported and then import them"""
 
-        log.debug("signaturesToGenerate: %s", self.signaturesToGenerate)
+        # List of all non-empty signatures
+        self.signaturesToGenerate = [s for s,chains in self.chainsInMenu.items()
+                                     if len(chains)>0]
+
+        log.info("Enabled signature(s): %s", self.signaturesToGenerate)
 
         # Extend the list to satisfy certain requirements
-        extendedSignatureToGenerate = set(self.signaturesToGenerate)
-        # always import the Streaming sig because noalg chains are moved to StreamingSlice
-        extendedSignatureToGenerate.add('Streaming')
+        extendedSignatureToGenerate = set(self.signaturesToGenerate + GenerateMenuMT.defaultSigs)
 
         # Combined chains themselves are created by merging
         # If we activate combined chains, we need all of the (legal) sub-signatures
         if "Combined" in extendedSignatureToGenerate:
             log.info("Combined chains requested -- activate other necessary signatures")
             extendedSignatureToGenerate.remove("Combined")
-            extendedSignatureToGenerate.update(["Egamma","Muon","Tau","Jet",
-                                                "Bjet","MET","UnconventionalTracking"])
+            extendedSignatureToGenerate.update(GenerateMenuMT.combinedSigs)
+
+        # Electron and Photon chains both have Egamma as the top-level folder
+        # but have separate chain configuration modules
+        if "Egamma" in extendedSignatureToGenerate:
+            log.info("Egamma chains requested -- activate other necessary signatures")
+            extendedSignatureToGenerate.remove("Egamma")
+            extendedSignatureToGenerate.update(["Electron","Photon"])
 
         for sig in extendedSignatureToGenerate:
             log.debug("[getSignaturesInMenu] sig: %s", sig)
@@ -111,10 +149,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 self.availableSignatures.append(sig)
 
             try:
-                if sig == 'Egamma':
-                    sigFolder = sig
-                    subSigs = ['Electron', 'Photon']
-                elif sig in self.calibCosmicMonSigs:
+                if sig in ['Electron', 'Photon']:
+                    sigFolder = 'Egamma'
+                    subSigs = [sig]
+                elif sig in GenerateMenuMT.calibCosmicMonSigs:
                     sigFolder = 'CalibCosmicMon'
                      #only import the CalibCosmicMon signatures that we need, not all of them!
                     subSigs = [sig]
@@ -144,19 +182,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
         alignmentGroups_to_align = set()
         length_of_configs = {}
         
-        previous_sig = ''
         for chainDict in self.chainDicts:
-            if len(set(chainDict['signatures'])) == 1:
-                current_sig = chainDict['signatures'][0]
-                if current_sig != previous_sig:
-                    previous_sig = current_sig
-                    log.info("Now starting generation of signature %s",current_sig)
-            elif len(set(chainDict['signatures'])) > 1 and set(chainDict['signatures'])!= set(['Bjet','Jet']):
-                current_sig = 'Combined'
-                if current_sig != previous_sig:
-                    previous_sig = current_sig
-                    log.info("Now starting generation of signature %s",current_sig)
-            log.debug("Next: getting chain configuration for chain %s ", chainDict['chainName']) 
+            log.debug("Next: getting chain configuration for chain %s ", chainDict['chainName'])
             chainConfig,lengthOfChainConfigs = self.__generateChainConfig(chainDict)
 
             all_chains += [(chainDict,chainConfig,lengthOfChainConfigs)]
@@ -206,11 +233,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         log.info("Will now generate the chain configuration for each chain")
         self.generateChains()
 
-        if ConfigFlags.Trigger.Test.doDummyChainConfig:
-            log.info("[GenerateMenuMT] Dummy chain configuration active, will not proceed with menu generation")
-            import sys
-            sys.exit(0)
-
         log.info("Will now calculate the alignment parameters")
         #dict of signature: set it belongs to
         #e.g. {'Electron': ['Electron','Muon','Photon']}        
@@ -238,7 +260,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
               # start with electron! Only need to add post-steps for combined electron chains if the max length in a combined chain
               # is greater than the number of electron steps combined chain. Assume that the max length of an electron chain occurs 
               # in a combined chain.
-              
+
               alignmentGroups = chainDict['alignmentGroups']
             
               #parallel-merged single-signature chains or single signature chains. Anything that needs no splitting!
@@ -263,10 +285,14 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 raise Exception("Please fix the menu or the chain.")
         
         
-        log.info("[generateAllChainConfigs] general alignment complete, will now align PEB chains")
+        
         # align event building sequences
+        log.info("[generateAllChainConfigs] general alignment complete, will now align TLA chains")
+        TLABuildingSequences.alignTLASteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())    
+        log.info("[generateAllChainConfigs] general and TLA alignment complete, will now align PEB chains")
         EventBuildingSequences.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
-
+        
+         
         log.info("[generateAllChainConfigs] all chain configurations have been generated.")
         return TriggerConfigHLT.configsList()
 
@@ -294,15 +320,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 self.chainsInMenu[signame] = [c for c in self.chainsInMenu[signame]
                                               if self.chainFilter(signame, c.name)]
 
-        # List of all non-empty signatures
-        self.signaturesToGenerate = [s for s,chains in self.chainsInMenu.items()
-                                     if len(chains)>0]
-
-        log.info("Enabled signature(s): %s", self.signaturesToGenerate)
-
         if not self.chainsInMenu:
             log.warning("There seem to be no chains in the menu - please check")
-        else:
+        elif log.isEnabledFor(logging.DEBUG):
             import pprint
             log.debug("The following chains were found in the menu:")
             pprint.pprint(self.chainsInMenu)
@@ -335,17 +355,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
             chainName = chainPartDict['chainName']
             log.debug('Checking chainDict for chain %s in signature %s, alignment group %s' , chainName, currentSig, currentAlignGroup)
 
-            sigFolder = ''
-            if currentSig == 'Electron' or currentSig == 'Photon':
-                sigFolder = 'Egamma'
-            elif currentSig in self.calibCosmicMonSigs:
-                sigFolder = 'CalibCosmicMon'
-            else:
-                sigFolder = currentSig
-
             if currentSig in self.availableSignatures:
                 try:
-                    log.debug("[__generateChainConfigs] Trying to get chain config for %s in folder %s", currentSig, sigFolder)
+                    log.debug("[__generateChainConfigs] Trying to get chain config for %s", currentSig)
                     chainPartConfig = self.chainDefModule[currentSig].generateChainConfigs(chainPartDict)
                 except Exception:
                     log.error('[__generateChainConfigs] Problems creating ChainDef for chain %s ', chainName)
@@ -370,7 +382,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 log.error("Chain part has %s steps and %s alignment groups - these don't match!",nSteps,aGrps)
             else:
                 for a,b in zip(nSteps,aGrps):
-                    lengthOfChainConfigs.append((a,b))         
+                    lengthOfChainConfigs.append((a,b))
             
         ## if log.isEnabledFor(logging.DEBUG):
         ##     import pprint
@@ -389,10 +401,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
             else:
                 theChainConfig = listOfChainConfigs[0]
             
-            if not ConfigFlags.Trigger.Test.doDummyChainConfig:
-                for topoID in range(len(mainChainDict['extraComboHypos'])):
-                    thetopo = mainChainDict['extraComboHypos'][topoID].strip(string.digits).rstrip(topoLegIndices)
-                    theChainConfig.addTopo((comboConfigurator[thetopo],thetopo))
+            for topoID in range(len(mainChainDict['extraComboHypos'])):
+                thetopo = mainChainDict['extraComboHypos'][topoID].strip(string.digits).rstrip(topoLegIndices)
+                theChainConfig.addTopo((comboConfigurator[thetopo],thetopo))
 
             # Now we know where the topos should go, we can insert them in the right steps
             if len(theChainConfig.topoMap) > 0:
@@ -408,8 +419,14 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # Configure event building strategy
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:
+            if 'PhysicsTLA' in eventBuildType:
+                log.debug("Adding TLA Step for chain %s", mainChainDict['chainName'])
+                TLABuildingSequences.addTLAStep(theChainConfig, mainChainDict)
+            
             log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
             EventBuildingSequences.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
+
+        
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs

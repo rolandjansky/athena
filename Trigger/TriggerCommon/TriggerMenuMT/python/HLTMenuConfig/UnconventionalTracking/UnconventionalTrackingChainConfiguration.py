@@ -51,15 +51,6 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
 
     def getStepDictionary(self):
 
-
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration
-        # each value is a list [ L2, EF ] where L2 = [list of L2 steps] and EF = [ EF steps]
-        # this way, Bphys (or others) can insert steps at the end of L2 and end of EF after
-        # the muon steps are defined
-        # note that bphys chains are by default noL2Comb, even though this is not in the name
-        # --------------------
-
         stepDictionary = {
             "isohpttrack" : [['getIsoHPtTrackEmtpy'],['getFTFTrackReco'],['getIsoHPtTrackTrigger']],
             "fslrt": [['getFSLRTEmpty'], ['getFSLRTTrigger']],
@@ -130,8 +121,8 @@ def HitDVTriggerCfg(flags):
     return HitDVHypoSequence()
 
 def JetRecoOnlyCfg(flags):
-    from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.HitDVConfiguration import JetRecoSequence
-    return JetRecoSequence()
+    from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.HitDVConfiguration import UTTJetRecoSequence
+    return UTTJetRecoSequence()
 
 def DisTrkTriggerCfg(flags):
     from TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.DisTrkTriggerConfiguration import DisTrkTriggerHypoSequence

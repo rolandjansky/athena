@@ -41,7 +41,8 @@ private:
 
   Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList",{}, "Add triggers to this to be monitored"};
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool {this, "TrackSelectionTool", "InDetTrackSelectionTool", "Tool for selecting tracks"};
-
+  Gaudi::Property<float> m_minPt{ this, "minPt", 200.0, "Consider offline tracks only if above this threshold (in MeV)"};
+  
   StatusCode monitorPurities(const EventContext& context) const;
   StatusCode monitorSPCounts(const EventContext& context) const;
   StatusCode monitorTrkCounts(const EventContext& context) const;

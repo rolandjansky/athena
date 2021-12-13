@@ -22,7 +22,7 @@ NSWAGDDTool::NSWAGDDTool(const std::string& type, const std::string& name, const
     m_outPREsqlName("") {
 }
 
-StatusCode NSWAGDDTool::initialize()
+StatusCode NSWAGDDTool::initialize ATLAS_NOT_THREAD_SAFE ()
 {
 	ATH_CHECK(AGDDToolBase::initialize());
 	ATH_MSG_INFO("NSWAGDDTool::initialize");
@@ -40,22 +40,22 @@ StatusCode NSWAGDDTool::initialize()
 	if (m_DBFileName.empty()) {
 		m_DBFileName = "Generated_" + m_outFileType + "_pool.txt";
 	}
-	
-	static int iEntries=0;
-	
-	if (!iEntries) 
-	{
-		iEntries=1;
-		MuonAGDDToolHelper theHelper;
-		theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
-		theHelper.SetNSWComponents();
-	}
+
+        static std::once_flag init;
+        std::call_once (init, [&]()
+          {
+            MuonAGDDToolHelper theHelper;
+            theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
+            theHelper.SetNSWComponents();
+          });
 
         ATH_CHECK(construct());
 	return StatusCode::SUCCESS;
 }
 
-StatusCode NSWAGDDTool::construct() 
+// Base class method is also marked not thread-safe.
+// Uses unsafe function UseGeoModelDetector
+StatusCode NSWAGDDTool::construct ATLAS_NOT_THREAD_SAFE () 
 {
 	ATH_MSG_INFO(name()<<"::construct()");
 	

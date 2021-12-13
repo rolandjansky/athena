@@ -16,7 +16,7 @@ namespace LVL1TGCTrigger {
 
 
 ///////////////////////////////////////////////////////////////
-NSWTrigOut::NSWTrigOut(int side, std::vector<int> NSWTP, std::vector<int> NSWeta, std::vector<int> NSWphi, std::vector<int> NSWDtheta, TGCArguments* tgcargs)
+NSWTrigOut::NSWTrigOut(int side, std::vector<int> NSWTP, std::vector<uint8_t> NSWeta, std::vector<uint8_t> NSWphi, std::vector<uint8_t> NSWDtheta, TGCArguments* tgcargs)
   : m_sideID(side), m_NSWTriggerProcessor(NSWTP), m_NSWeta_8bit(NSWeta), m_NSWphi_6bit(NSWphi), m_NSWDtheta_5bit(NSWDtheta), m_tgcArgs(tgcargs)
 ///////////////////////////////////////////////////////////////
 {

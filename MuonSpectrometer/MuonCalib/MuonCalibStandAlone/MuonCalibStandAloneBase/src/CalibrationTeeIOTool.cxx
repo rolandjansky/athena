@@ -7,7 +7,7 @@
 namespace MuonCalib {
 
     CalibrationTeeIOTool::CalibrationTeeIOTool(const std::string &t, const std::string &n, const IInterface *p) : AthAlgTool(t, n, p) {
-        declareInterface<CalibrationIOTool>(this);
+        declareInterface<ICalibrationIOTool>(this);
     }
 
     StatusCode CalibrationTeeIOTool::initialize() {

@@ -115,31 +115,31 @@ namespace InDet{
       Trk::TrackParameters* firstTrackParameters();
       void getClusters(std::list<const InDet::SiCluster*>&);
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToTrackStateOnSurface();
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToTrackStateOnSurface(int);
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToTrackStateOnSurfaceWithNewDirection();
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToNextTrackStateOnSurface();
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToSimpleTrackStateOnSurface();
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToSimpleTrackStateOnSurface(int);
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToSimpleTrackStateOnSurfaceWithNewDirection();
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToSimpleTrackStateOnSurfaceForDisTrackTrigger();
 
-      DataVector<const Trk::TrackStateOnSurface>
+      Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
       convertToSimpleTrackStateOnSurfaceForDisTrackTrigger(int);
 
       Trk::FitQuality* convertToFitQuality();

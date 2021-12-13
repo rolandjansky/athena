@@ -7,7 +7,6 @@
 #include "CaloUtils/CaloLCDeadMaterialTool.h"
 #include "CaloUtils/CaloLCCoeffHelper.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "xAODCaloEvent/CaloCluster.h"

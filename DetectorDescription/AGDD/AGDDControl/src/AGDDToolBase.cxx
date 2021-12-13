@@ -12,7 +12,7 @@ AGDDToolBase::AGDDToolBase(const std::string& type, const std::string& name,
   ATH_MSG_DEBUG(" trying to get the controller");
 }
 
-StatusCode AGDDToolBase::initialize()
+StatusCode AGDDToolBase::initialize ATLAS_NOT_THREAD_SAFE ()
 {
   ATH_CHECK( m_svc.retrieve() );
   InitializeAGDD();

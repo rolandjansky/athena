@@ -9,7 +9,6 @@ acf.FilesInput = fileList  # noqa: F821 - from dir()
 ConfigFlags.Input.Files = acf.FilesInput() or acf.PoolAODInput()
 
 rec.doTrigger=False
-recAlgs.doTrigger=False
 
 rec.readAOD=True
 rec.doWriteAOD=False
@@ -32,8 +31,8 @@ TrigDecChecker.MonitoredChains=[]
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior+=1
-from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool 
-tdtAcc = getTrigDecisionTool(ConfigFlags)
+from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg 
+tdtAcc = TrigDecisionToolCfg(ConfigFlags)
 Configurable.configurableRun3Behavior-=1
 
 theTDT = tdtAcc.getPrimary()

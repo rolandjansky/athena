@@ -29,3 +29,10 @@ if activateCondAlgs:
     condSeq += LArAlignCondAlg("LArAlignCondAlg")
     from CaloAlignmentAlgs.CaloAlignmentAlgsConf import CaloAlignCondAlg
     condSeq += CaloAlignCondAlg("CaloAlignCondAlg")
+    # Configure Super Cell Alignment condition algorithm
+    # Calo super cell building works only if both LAr and Tile are present
+    # And we need to make sure this is a Run3 geometry layout
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    if commonGeoFlags.Run() == "RUN3" and DetFlags.detdescr.Tile_on():
+      from CaloAlignmentAlgs.CaloAlignmentAlgsConf import CaloSuperCellAlignCondAlg
+      condSeq += CaloSuperCellAlignCondAlg("CaloSuperCellAlignCondAlg")

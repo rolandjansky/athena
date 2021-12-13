@@ -145,9 +145,12 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   auto ptRatioEflowApprox = Monitored::Scalar<float>("ptRatioEflowApprox", -99.9);
   auto pt_jetseed_log     = Monitored::Scalar<float>("pt_jetseed_log",-99.9);
   auto ptDetectorAxis     = Monitored::Scalar<float>("ptDetectorAxis",-99.9);
+  auto ptDetectorAxis_log  = Monitored::Scalar<float>("ptDetectorAxis_log",-99.9);
   auto RNN_tracknumber    = Monitored::Scalar<int>("RNN_tracknumber",0);
   auto RNN_clusternumber  = Monitored::Scalar<int>("RNN_clusternumber",0); 
- 
+  auto RNNJetScore         = Monitored::Scalar<float>("RNNJetScore",0);
+  auto RNNJetScoreSigTrans = Monitored::Scalar<float>("RNNJetScoreSigTrans",0);  
+
   auto EF_vertex_x      = Monitored::Scalar<float>("vertex_x", -999.9);
   auto EF_vertex_y      = Monitored::Scalar<float>("vertex_y", -999.9); 
   auto EF_vertex_z      = Monitored::Scalar<float>("vertex_z", -999.9);
@@ -174,7 +177,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
                    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
-                   innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
+				     innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, ptDetectorAxis_log, RNN_clusternumber, RNNJetScore, RNNJetScoreSigTrans, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
                    Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, EF_vertex_x, EF_vertex_y, EF_vertex_z, EF_calo_errors, EF_track_errors, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
                    Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
 
@@ -306,7 +309,7 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 	  ATH_MSG_DEBUG(" Negative energy cluster is rejected");
 	  continue;
         }
-    
+ 
       myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
       aJet->addConstituent(*clusterIt);
 
@@ -505,7 +508,13 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
     ptRatioEflowApprox = std::min(pre_ptRatioEflowApprox, 4.0f);
     
     pt_jetseed_log  = std::log10(p_tau->ptJetSeed());
-    ptDetectorAxis  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 100.0));
+
+    ptDetectorAxis  =  std::min(p_tau->ptDetectorAxis() / 1000.0, 10000.0);
+    ptDetectorAxis_log  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 10000.0));
+    
+    if( p_tau->nTracks() > 0 ) {
+      ipSigLeadTrk = std::abs(p_tau->track(0)->d0SigTJVA());
+    }
 
     // track variables monitoring 
     for( auto track : p_tau->allTracks()){
@@ -580,6 +589,15 @@ StatusCode TrigTauRecMerged::execute(const EventContext& ctx) const
 		  << " wrt L1 dEta "<< dEta<<" dPhi "<<dPhi
 		  << " Tau Et (GeV): "<< EtFinal);
 	  
+    // monitor RNN score
+    if(p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore)){
+        RNNJetScore = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+    }
+   
+    if(p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans)){
+           RNNJetScoreSigTrans = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+    }
+   
     ++Ncand;
   }
 

@@ -12,7 +12,6 @@ from ISF_Services.ISF_ServicesConfigNew import (
 )
 from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import G4RunManagerHelperCfg
 from RngComps.RandomServices import dSFMT
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 ################################################################################
 # HIT CREATION SECTION
@@ -323,19 +322,20 @@ def fatrasNavigatorCfg(flags, name="ISF_FatrasNavigator", **kwargs):
     mlog.debug('Start configuration')
 
     result = ComponentAccumulator()
-
-    if 'TrackingGeometrySvc' not in kwargs:
-        if not use_tracking_geometry_cond_alg:
+    if not flags.Sim.ISF.UseTrackingGeometryCond:
+        if 'TrackingGeometrySvc' not in kwargs:
             from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
             acc = TrackingGeometrySvcCfg(flags)
             kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+            kwargs.setdefault("TrackingGeometryKey", '')
             result.merge(acc)
-    if 'TrackingGeometryKey' not in kwargs:
-        if use_tracking_geometry_cond_alg:
+    else:
+        if 'TrackingGeometryKey' not in kwargs:
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            result.merge(TrackingGeometryCondAlgCfg(flags))
-            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-            kwargs.setdefault("TrackingGeometryKey", 'AtlasTrackingGeometry')
+            acc = TrackingGeometryCondAlgCfg(flags)
+            geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+            result.merge(acc)
+            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
 
     Trk__Navigator = CompFactory.Trk.Navigator
     navigator = Trk__Navigator(name=name, **kwargs)
@@ -401,12 +401,13 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
         result.merge(acc)
 
     # @TODO retire once migration to TrackingGeometry conditions data is complete
-    if 'TrackingGeometryReadKey' not in kwargs:
-        if use_tracking_geometry_cond_alg:
+    if flags.Sim.ISF.UseTrackingGeometryCond:
+        if 'TrackingGeometryReadKey' not in kwargs:
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            result.merge(TrackingGeometryCondAlgCfg(flags))
-            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-            kwargs.setdefault("TrackingGeometryReadKey", 'AtlasTrackingGeometry')
+            acc = TrackingGeometryCondAlgCfg(flags)
+            geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+            result.merge(acc)
+            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
 
     # hadronic interactions
     kwargs.setdefault("HadronicInteraction", True)

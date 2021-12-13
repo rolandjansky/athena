@@ -1,20 +1,12 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from past.builtins import basestring
 import GaudiConfig2.semantics
 from GaudiKernel.GaudiHandles import PrivateToolHandleArray, PublicToolHandle, ServiceHandle
 import re
-import collections
 import copy
 
-# collections.Sequence is deprecated as of python 3.3.
-# As of 3.9, need to get it from collections.abc.
-# But that doesn't exist in py2.
-try:
-    from collections import abc
-    Sequence = abc.Sequence
-except ImportError:
-    Sequence = collections.Sequence
+from collections import abc
+Sequence = abc.Sequence
 
 class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
     '''
@@ -146,8 +138,8 @@ class PublicHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
             elif isinstance(v,(PublicToolHandle,ServiceHandle)):
                 newValue.append("{}/{}".format(v.getType(),v.getName()))
 
-            elif isinstance(v,basestring):
-                #Check if componet is known ...
+            elif isinstance(v,str):
+                #Check if component is known ...
                 newValue.append(v)
                 pass
             else:

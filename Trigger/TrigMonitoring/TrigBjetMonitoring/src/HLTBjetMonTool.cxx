@@ -120,7 +120,6 @@ StatusCode HLTBjetMonTool::init() {
   ATH_CHECK( m_offlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineTrackContainerKey.initialize() );
-  ATH_CHECK( m_onlineBTaggingContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -1064,7 +1063,7 @@ StatusCode HLTBjetMonTool::book(){
 	if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(iPV);
 
 	// Jets and PV and tracks through jet link
-	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, m_onlineBjetContainerKey); // TM 240320
+	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics); // TM 2021-10-30
 	int ijet = 0;
 	int itrack = 0;
 	for(const auto& jetLinkInfo : onlinejets) {
@@ -1087,9 +1086,7 @@ StatusCode HLTBjetMonTool::book(){
 
 	    // Fetch and plot BTagging information
 
-	    std::string btagname = m_onlineBTaggingContainerKey.key();
-	    if ( btagname.compare(0, 4, "HLT_")==0 ) btagname.erase(0,4);
-	    auto btaggingLinkInfo = TrigCompositeUtils::findLink<xAOD::BTaggingContainer>(jetLinkInfo.source, btagname );
+	    auto btaggingLinkInfo = TrigCompositeUtils::findLink<xAOD::BTaggingContainer>(jetLinkInfo.source, m_btaggingLinkName); // TM 2021-10-30
 	    ATH_CHECK( btaggingLinkInfo.isValid() ) ;
 	    const xAOD::BTagging* btag = *(btaggingLinkInfo.link);
 

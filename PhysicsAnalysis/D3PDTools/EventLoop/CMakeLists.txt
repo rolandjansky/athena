@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( EventLoop )
@@ -41,12 +41,14 @@ endforeach (source ${util_sources})
 atlas_add_test (EventLoop_gt_OutputStreamData
       SOURCES test/gt_OutputStreamData.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop AsgTestingLib
+      POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test (EventLoop_gt_SubmitDirManager
       SOURCES test/gt_SubmitDirManager.cxx
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
+      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} EventLoop AsgTestingLib
+      POST_EXEC_SCRIPT nopost.sh)
 
 # Install files from the package:
 atlas_install_scripts( scripts/el_retrieve scripts/el_resubmit scripts/el_wait scripts/el_build_docker )

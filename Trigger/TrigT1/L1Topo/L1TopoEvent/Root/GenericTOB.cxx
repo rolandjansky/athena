@@ -39,7 +39,7 @@ TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
    , m_tobType(JET)
 {}
 
-// constructor from small R jet
+// constructor from jtau
 TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
    BaseTOB(tau.roiWord(), tau.tobName())
    , m_Et(tau.Et())
@@ -48,6 +48,19 @@ TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
    , m_EtDouble(tau.EtDouble())
    , m_etaDouble(tau.etaDouble())
    , m_phiDouble(tau.phiDouble())
+   , m_jtauiso(tau.isolation())
+   , m_tobType(JET)
+{}
+
+// constructor from jEm
+TCS::GenericTOB::GenericTOB(const jEmTOB & jem) :
+   BaseTOB(jem.roiWord(), jem.tobName())
+   , m_Et(jem.Et())
+   , m_eta(jem.eta())
+   , m_phi(static_cast<int>(jem.phi()))
+   , m_EtDouble(jem.EtDouble())
+   , m_etaDouble(jem.etaDouble())
+   , m_phiDouble(jem.phiDouble())
    , m_tobType(JET)
 {}
 
@@ -63,8 +76,32 @@ TCS::GenericTOB::GenericTOB(const jLargeRJetTOB & jet) :
    , m_tobType(JET)
 {}
 
-// constructor from small R jet
+// constructor from large R gjet
+TCS::GenericTOB::GenericTOB(const gLargeRJetTOB & jet) :
+   BaseTOB(jet.roiWord(), jet.tobName())
+   , m_Et(jet.Et())
+   , m_eta(jet.eta())
+   , m_phi(static_cast<int>(jet.phi()))
+   , m_EtDouble(jet.EtDouble())
+   , m_etaDouble(jet.etaDouble())
+   , m_phiDouble(jet.phiDouble())
+   , m_tobType(JET)
+{}
+
+// constructor from small R jjet
 TCS::GenericTOB::GenericTOB(const jJetTOB & jet) :
+   BaseTOB(jet.roiWord(), jet.tobName())
+   , m_Et(jet.Et())
+   , m_eta(jet.eta())
+   , m_phi(static_cast<int>(jet.phi()))
+   , m_EtDouble(jet.EtDouble())
+   , m_etaDouble(jet.etaDouble())
+   , m_phiDouble(jet.phiDouble())
+   , m_tobType(JET)
+{}
+
+// constructor from small R gjet
+TCS::GenericTOB::GenericTOB(const gJetTOB & jet) :
    BaseTOB(jet.roiWord(), jet.tobName())
    , m_Et(jet.Et())
    , m_eta(jet.eta())
@@ -111,9 +148,7 @@ TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    , m_EtDouble(etau.EtDouble())
    , m_etaDouble(etau.etaDouble())
    , m_phiDouble(etau.phiDouble())
-   , m_reta(etau.Reta())
-   , m_rhad(etau.Rhad())
-   , m_wstot(etau.Wstot())
+   , m_fcore(etau.isolation())
    , m_tobType(etau.tobType())
 {}
 
@@ -137,7 +172,7 @@ TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
    BaseTOB(muon.roiWord(), muon.tobName())
    , m_Et(muon.Et())
    , m_eta(muon.eta())
-   , m_phi(muon.phi())
+   , m_phi(static_cast<int>(muon.phi()))
    , m_bw2or3(muon.bw2or3())
    , m_innerCoin(muon.innerCoin())
    , m_goodMF(muon.goodMF())
@@ -172,8 +207,6 @@ TCS::GenericTOB::GenericTOB(const MuonNextBCTOB & muonNextBC) :
    , m_phiDouble(((double)muonNextBC.phi())/10.)
    , m_tobType(MUONNEXTBC) 
 {}
-
-
 
 // constr from met
 TCS::GenericTOB::GenericTOB(const MetTOB & met) :

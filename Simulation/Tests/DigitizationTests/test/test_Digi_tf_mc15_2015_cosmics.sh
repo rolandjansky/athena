@@ -20,6 +20,7 @@ Digi_tf.py \
 --geometryVersion ATLAS-R2-2015-03-01-00_VALIDATION  \
 --conditionsTag default:OFLCOND-RUN12-SDR-25  \
 --DataRunNumber 222500  \
+--preExec "HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.TRTRangeCut.set_Value_and_Lock(0.05);" \
 --preInclude default:LArConfiguration/LArConfigRun2Old_NoPileup.py \
 --postInclude 'default:PyJobTransforms/UseFrontier.py'
 

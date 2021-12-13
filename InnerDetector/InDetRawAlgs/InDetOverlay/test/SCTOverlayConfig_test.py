@@ -37,5 +37,9 @@ acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
 # Add SCT overlay
 acc.merge(SCTOverlayCfg(ConfigFlags))
 
+# Dump the pickle
+with open("SCTOverlayCfg.pkl", "wb") as f:
+    acc.store(f)
+
 # Print and run
 sys.exit(printAndRun(acc, ConfigFlags, args))

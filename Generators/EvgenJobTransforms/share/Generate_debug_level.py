@@ -9,7 +9,7 @@ elif 'Pythia8B' in evgenConfig.generators:
 elif 'Herwig7' in evgenConfig.generators:
     genSeq.Herwig7.OutputLevel = DEBUG 
 elif 'Sherpa' in evgenConfig.generators:
-    genSeq.Sherpa.OutputLevel = DEBUG 
+    genSeq.Sherpa_i.OutputLevel = DEBUG 
 elif 'Epos' in evgenConfig.generators:
     genSeq.Epos.OutputLevel = DEBUG
 elif 'QGSJet' in evgenConfig.generators:  
@@ -28,7 +28,7 @@ elif 'Hijing' in evgenConfig.generators:
     genSeq.Hijing.OutputLevel = DEBUG
 
 if 'EvtGen' in evgenConfig.generators:
-    genSeq.EvtGen.OutputLevel = DEBUG     
+    genSeq.EvtInclusiveDecay.OutputLevel = DEBUG     
 if 'Tauolapp' in evgenConfig.generators:
     genSeq.TauolaPP.OutputLevel = DEBUG   
 if 'Photospp' in evgenConfig.generators:

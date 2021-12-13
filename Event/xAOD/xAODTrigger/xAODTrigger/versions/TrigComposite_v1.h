@@ -30,6 +30,13 @@ namespace TrigCompositeUtils{
 
 namespace xAOD {
 
+   class ExcNotIParticleContainer
+     : public std::runtime_error
+   {
+   public:
+     ExcNotIParticleContainer (const std::string& msg);
+   };
+
    /// Class used to describe composite objects in the HLT
    ///
    /// This is a generic class for describing the output of high-level

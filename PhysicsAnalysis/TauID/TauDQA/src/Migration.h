@@ -32,7 +32,7 @@ namespace Tau{
     };
     class Migration: public PlotBase {
     public:
-	Migration(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
+	Migration(PlotBase *pParent, const std::string& sDir, std::string sTauJetContainerName);
 	virtual ~Migration();
 
 	/* void fill(const xAOD::TauJet& tau,int nProng, int nNeu); */

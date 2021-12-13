@@ -55,7 +55,7 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults
     options['name'] = name
 
     acc = AtlasExtrapolatorCfg(flags)
-    options.setdefault("Extrapolator", acc.getPrimary() )
+    options.setdefault("Extrapolator", acc.popPrivateTools() )
 
     # This presumably should be added, but causes config merge conflicts
     # FIXME! 

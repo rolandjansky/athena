@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPISOLATIONCPTOOLS_H_
@@ -17,7 +17,6 @@
 
 // Isolation include(s):
 #include "IsolationSelection/IIsolationSelectionTool.h"
-//#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 
 namespace top {
@@ -36,9 +35,18 @@ namespace top {
 
     ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr;
     ToolHandleArray<CP::IIsolationSelectionTool> m_isolationTools;
-//    ToolHandleArray<CP::IIsolationLowPtPLVTool> m_isolationToolsLowPtPLV;
 
     StatusCode setupIsolation();
+
+    /**
+     * @brief Setup IsolationSelectonTools for all WPs specified for one object type (electron, muon, photon)
+     *
+     * @param WPs std::set of the WP names
+     * @param objectWPtype what object WPs are these: ElectronWP, MuonWP or PhotonWP
+     *
+     * @return return
+    */
+    StatusCode setupPerObjectWPs(const std::vector<std::string>& WPs, const std::string& objectWPtype);
   };
 }  // namespace top
 

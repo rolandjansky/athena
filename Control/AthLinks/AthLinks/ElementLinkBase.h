@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthLinks/ElementLinkBase.h
@@ -84,7 +84,7 @@ public:
   typedef void* castfn_t (SG::DataProxy*);
 
 
-  // Try to avoid coverity warning.
+  ElementLinkBase (const ElementLinkBase&) = default;
   ElementLinkBase& operator= (const ElementLinkBase&) = default;
 
 

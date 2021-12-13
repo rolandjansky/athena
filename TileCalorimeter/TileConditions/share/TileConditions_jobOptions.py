@@ -31,6 +31,13 @@ if (type(ss) != type(None)):
 if (not 'TileCablingType' in dir()):
     if rn is None:
         try:
+            from Digitization.DigitizationFlags import digitizationFlags
+            if digitizationFlags.dataRunNumber.statusOn:
+                rn = digitizationFlags.dataRunNumber()
+        except:
+            msg.info("No DigitizationFlags available - looks like HLT job")
+    if rn is None:
+        try:
             from G4AtlasApps.SimFlags import simFlags
             if simFlags.RunNumber.statusOn:
                 rn = simFlags.RunNumber()
@@ -55,6 +62,9 @@ if (not 'TileCablingType' in dir()):
         else:
             TileCablingType = 4
             msg.info("Forcing RUN2 (2014-2017) cabling for run %s with geometry %s" % (rn,gbltg) )
+    elif geoFlags.Run()=="RUN3":
+        TileCablingType = 6
+        msg.info("Forcing RUN3 cabling for run %s with geometry %s" % (rn,gbltg) )
 
 if 'TileCablingType' in dir():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr

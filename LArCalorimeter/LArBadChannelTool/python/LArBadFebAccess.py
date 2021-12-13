@@ -13,7 +13,7 @@ def LArBadFebAccess(algname="LArBadFebCondAlg", dbString=None):
     from IOVDbSvc.CondDB import conddb
 
     if dbString is not None:
-        #foldername=conddb.extractFolder(dbString)
+        foldername=conddb.extractFolder(dbString)
         conddb.addFolder("",dbString,className='AthenaAttributeList')
     #else:
     #    if conddb.isOnline or conddb.isMC:
@@ -29,6 +29,6 @@ def LArBadFebAccess(algname="LArBadFebCondAlg", dbString=None):
 
     from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
     theLArBadFebCondAlg=LArBadFebCondAlg(algname)
-    theLArBadFebCondAlg.ReadKey="/LAR/BadChannels/MissingFEBs"
+    theLArBadFebCondAlg.ReadKey=foldername
     condSeq+=theLArBadFebCondAlg
     return

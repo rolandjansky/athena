@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstring>
@@ -13,7 +13,7 @@
 // the implementation is almost exact copy of the one in the TrigSerializeResult
 
 namespace {
-  const char* delimiter = "\n";
+  const char* const delimiter = "\n";
 
   unsigned int getPadding(unsigned int sizeToReserve) {
     return (sizeof(uint32_t) - sizeToReserve%sizeof(uint32_t)) % sizeof(uint32_t);

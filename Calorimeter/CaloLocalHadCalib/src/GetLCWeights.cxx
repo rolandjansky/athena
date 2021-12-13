@@ -46,7 +46,7 @@ GetLCWeights::GetLCWeights(const std::string& name,
 			   ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
     m_outputFile(nullptr),
-    m_clusterCollName("CaloTopoCluster"),
+    m_clusterCollName("CaloTopoClusters"),
     m_useInversionMethod(true),
     m_NormalizationType("Lin"),
     m_NormalizationTypeNumber(0),
@@ -625,7 +625,7 @@ void GetLCWeights::mapparse() {
   int nsamp(-1);
 
   for (const std::pair<const std::string, Gaudi::Histo1DDef>& p : m_dimensionsmap) {
-    std::string dimname = p.first.substr(0,p.first.find(":"));
+    std::string_view dimname = std::string_view(p.first).substr(0,p.first.find(':'));
     int theSampling(CaloSampling::Unknown);
     for (unsigned int jsamp = 0;jsamp< CaloSampling::Unknown; jsamp++) {
       if ( dimname == CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)jsamp)) {

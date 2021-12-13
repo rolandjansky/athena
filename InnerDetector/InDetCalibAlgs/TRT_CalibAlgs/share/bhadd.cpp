@@ -138,7 +138,7 @@ public:
   CompBHist & operator=(const CompBHist &) = delete;
 
   int Print();
-  int Write(ofstream*);
+  void Write(ofstream*);
   int GetStat(int);
   int* hist{};
   int id{};
@@ -180,7 +180,7 @@ int CompBHist::Print(){
   return 0;
 }
 
-int CompBHist::Write(ofstream* file){
+void CompBHist::Write(ofstream* file){
   file->write((char*)hist,(npop*2+2)*sizeof(int));
 }
 

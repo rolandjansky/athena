@@ -11,8 +11,8 @@
 
 struct slope_t {
   slope_t(int ev=-1, int bc=-1, unsigned int tC=999, unsigned int rC=999, int iX=-1, int iU=-1, int iV=-1, unsigned int uvb=999, unsigned int xb=999, 
-          unsigned int uvm=999, unsigned int xm=999, int age=-1, double mxl=999., double xavg=999., double uavg=999., double vavg=999., 
-          double th=999., double eta=999., double dth=999., double phi=999., double phiS=999.);
+          unsigned int uvm=999, unsigned int xm=999, int age=-1, double mxl=999., double xavg=999., double uavg=999., double vavg=999., double mx=999., 
+          double th=999., double eta=999., double dth=999., char side='-', double phi=999., double phiS=999., bool lowRes=false);
   unsigned int event;
   int BC;
   unsigned int totalCount;
@@ -29,17 +29,21 @@ struct slope_t {
   double xavg;
   double uavg;
   double vavg;
+  double mx;
   double theta;
   double eta;
   double dtheta;
+  char side;
   double phi;
   double phiShf;
+  bool lowRes;
 };
 
 struct diamond_t {
   unsigned int wedgeCounter;
   char sector;
-  int phi;
+  char side;
+  int stationPhi;
   std::vector<std::shared_ptr<MMT_Road> > ev_roads;
   std::vector<slope_t> slopes;
   std::vector<std::shared_ptr<MMT_Hit> > ev_hits;
@@ -52,7 +56,7 @@ class MMT_Diamond : public AthMessaging {
     void clearEvent();
     void createRoads_fillHits(const unsigned int iterator, std::vector<hitData_entry> &hitDatas, const MuonGM::MuonDetectorManager* detManager, std::shared_ptr<MMT_Parameters> par, const int phi);
     void findDiamonds(const unsigned int iterator, const double &sm_bc, const int &event);
-    double phiShift(const int &n, const double &phi, const char &side);
+    double phiShift(const int n, const double &phi, const char &side);
     std::vector<diamond_t> getDiamondVector() const { return m_diamonds; }
     diamond_t getDiamond(const unsigned int iterator) const { return m_diamonds.at(iterator); }
     std::vector<double> getHitSlopes() const { return m_hitslopes; }

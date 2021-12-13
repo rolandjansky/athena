@@ -18,6 +18,9 @@ class GeoFullPhysVol;
 #include "AGDDModel/AGDDColorStore.h"
 #include "AGDDModel/AGDDMaterialStore.h"
 #include "AGDDModel/AGDDParameterStore.h"
+#include "AGDDControl/XMLHandlerStore.h"
+#include "AGDDControl/ExpressionEvaluator.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -43,6 +46,7 @@ public:
 	void BuildAll();
 	void Clean();
 	
+        XMLHandlerStore& GetHandlerStore();
         AGDDVolumeStore& GetVolumeStore();
         AGDDSectionStore& GetSectionStore();
         AGDDColorStore& GetColorStore();
@@ -51,10 +55,11 @@ public:
         AGDDMaterialStore& GetMaterialStore();
         AGDDParameterStore& GetParameterStore();
         AliasStore& GetAliasStore();
+        ExpressionEvaluator& Evaluator();
 
         //static void PrintVolumeHierarchy(const std::string&, int);
 	
-	void UseGeoModelDetector(const std::string&);
+	void UseGeoModelDetector ATLAS_NOT_THREAD_SAFE (const std::string&);
 	
 	void Locked(bool b) {m_locked=b;}
 	bool Locked() const {return m_locked;}
@@ -85,7 +90,9 @@ private:
         AGDDPositionerStore m_ps;
         AGDDMaterialStore m_ms;
         AGDDParameterStore m_prs;
+        XMLHandlerStore m_xs;
         AliasStore m_as;
+        ExpressionEvaluator m_eval;
 };
 
 #endif

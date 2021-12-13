@@ -210,38 +210,42 @@ def DistributedKalmanFilter(name="DistributedKalmanFilter", **kwargs) :
     return Trk__DistributedKalmanFilter(name = name, **kwargs)
 
 
-def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs) :
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-    from InDetRecExample.TrackingCommon          import setDefaults
-    from AthenaCommon.AppMgr                     import ToolSvc
-    from InDetRecExample.InDetJobProperties      import InDetFlags
+def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs):
+
+    from InDetRecExample.TrackingCommon import setDefaults
+    from AthenaCommon.AppMgr import ToolSvc
+    from InDetRecExample.InDetJobProperties import InDetFlags
     import InDetRecExample.TrackingCommon as TrackingCommon
 
-    cond_alg = None
-    if TrackingCommon.use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
-        cond_alg = createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+    if 'TrackingGeometryReadKey' not in kwargs:
+        cond_alg = createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg,
+                                       "AtlasTrackingGeometryCondAlg",
+                                       name="AtlasTrackingGeometryCondAlg")
+        kwargs['TrackingGeometryReadKey'] = cond_alg.TrackingGeometryWriteKey
 
-    kwargs=setDefaults(kwargs,
-                       ExtrapolationTool      = TrackingCommon.getInDetExtrapolator(),
-                       NavigatorTool          = TrackingCommon.getInDetNavigator(),
-                       PropagatorTool         = TrackingCommon.getInDetPropagator(),
-                       MultipleScatteringTool = TrackingCommon.getInDetMultipleScatteringUpdator(),
-                       MeasurementUpdateTool  = ToolSvc.InDetUpdator,
-                       TrackingGeometrySvc    = AtlasTrackingGeometrySvc,
-                       MaterialUpdateTool     = TrackingCommon.getInDetMaterialEffectsUpdator(),
-                       StraightLine           = not InDetFlags.solenoidOn(),
-                       OutlierCut             = 4,
-                       SignedDriftRadius      = True,
-                       ReintegrateOutliers    = True,
-                       RecalibrateSilicon     = True,
-                       RecalibrateTRT         = True,
-                       TRTTubeHitCut          = 1.75, # use tighter hit classification, old: TrackingCommon.default_ScaleHitUncertainty
-                       MaxIterations          = 40,
-                       Acceleration           = True,
-                       RecalculateDerivatives = InDetFlags.doMinBias() or InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
-                       TRTExtensionCuts       = True,
-                       TrackChi2PerNDFCut     = 7,
-                       TrackingGeometryReadKey= cond_alg.TrackingGeometryWriteKey if cond_alg is not None else '')
+    kwargs = setDefaults(kwargs,
+                         ExtrapolationTool=TrackingCommon.getInDetExtrapolator(),
+                         NavigatorTool=TrackingCommon.getInDetNavigator(),
+                         PropagatorTool=TrackingCommon.getInDetPropagator(),
+                         MultipleScatteringTool=TrackingCommon.getInDetMultipleScatteringUpdator(),
+                         MeasurementUpdateTool=ToolSvc.InDetUpdator,
+                         MaterialUpdateTool=TrackingCommon.getInDetMaterialEffectsUpdator(),
+                         StraightLine=not InDetFlags.solenoidOn(),
+                         OutlierCut=4,
+                         SignedDriftRadius=True,
+                         ReintegrateOutliers=True,
+                         RecalibrateSilicon=True,
+                         RecalibrateTRT=True,
+                         # use tighter hit classification, old: 
+                         # TrackingCommon.default_ScaleHitUncertainty
+                         TRTTubeHitCut=1.75,
+                         MaxIterations=40,
+                         Acceleration=True,
+                         RecalculateDerivatives=InDetFlags.doMinBias(
+                         ) or InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
+                         TRTExtensionCuts=True,
+                         TrackChi2PerNDFCut=7)
+
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     return Trk__GlobalChi2Fitter(name, **kwargs)
 

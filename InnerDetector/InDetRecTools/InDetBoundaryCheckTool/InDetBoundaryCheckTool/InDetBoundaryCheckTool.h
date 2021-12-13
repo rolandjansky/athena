@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef ATHENA_INNERDETECTOR_TOOLS_BOUNDARYCHECKTOOL
@@ -61,7 +61,13 @@ namespace InDet {
                 "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool",
                 "Tool to retrieve SCT Conditions summary"
             };
-            ToolHandle<IInDetTestPixelLayerTool> m_pixelLayerTool;
+
+            ToolHandle<IInDetTestPixelLayerTool> m_pixelLayerTool{
+                this,
+                "PixelLayerTool",
+		"InDet::InDetTestPixelLayerTool",
+		"Tool to retrieve pixel conditions summary"
+	    };
 
             const AtlasDetectorID *m_atlasId;
 

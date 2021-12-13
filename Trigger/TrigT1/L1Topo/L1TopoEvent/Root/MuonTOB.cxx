@@ -8,22 +8,13 @@ TCS::MuonTOB::MuonTOB(uint32_t roiWord, const std::string& tobName) :
   BaseTOB( roiWord,tobName )
 {}
 
-// constructor with initial values (int phi, legacy)
-TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord, const std::string& tobName) :
-  BaseTOB( roiWord,tobName )
-   , m_Et( sizeCheck(et, nBitsEt()) )
-   , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
-   , m_eta( sizeCheck(eta, nBitsEta()) )
-   , m_phi( sizeCheck(phi, nBitsPhi()) )
-{}
-
-// constructor with initial values (unsigned int phi, phase-1)
+// constructor with initial values
 TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, uint32_t roiWord, const std::string& tobName) :
   BaseTOB( roiWord,tobName )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
    , m_eta( sizeCheck(eta, nBitsEta()) )
-   , m_phi( static_cast<int>(sizeCheck(phi, nBitsPhi())) )
+   , m_phi( sizeCheck(phi, nBitsPhi()) )
 {}
 
 // copy constructor

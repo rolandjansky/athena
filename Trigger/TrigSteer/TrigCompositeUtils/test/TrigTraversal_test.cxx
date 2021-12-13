@@ -56,7 +56,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   const EventContext& ctx1 = Gaudi::Hive::currentContext();
   log << "Current context: " << ctx1 << endmsg;
 
-  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("HLTNav_DC");
+  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("HLTNav_Summary_OnlineSlimmed"); // We have a single collection, so we use the same name as the online compactified collection
   SG::WriteHandleKey<xAOD::ElectronContainer> electronContainerKey("MyElectronContainer");
   SG::WriteHandleKey<xAOD::MuonContainer> muonContainerKey("MyMuonContainer");
 
@@ -382,11 +382,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
   std::cout << " ---------- Now Include Failing Features " << std::endl;
 
-  std::vector<const Decision*> extraStart_HLT_mufast_chain = getRejectedDecisionNodes(pSG, {HLT_mufast_chain});
-  std::vector<const Decision*> extraStart_HLT_mu_chain = getRejectedDecisionNodes(pSG, {HLT_mu_chain});
-  std::vector<const Decision*> extraStart_HLT_mu_em_chain = getRejectedDecisionNodes(pSG, {HLT_mu_em_chain});
-  std::vector<const Decision*> extraStart_HLT_em_chain = getRejectedDecisionNodes(pSG, {HLT_em_chain});
-  std::vector<const Decision*> extraStart_HLT_all = getRejectedDecisionNodes(pSG, {});
+  std::vector<const Decision*> extraStart_HLT_mufast_chain = getRejectedDecisionNodes(pSG, decisionContainerKey.key(), {HLT_mufast_chain});
+  std::vector<const Decision*> extraStart_HLT_mu_chain = getRejectedDecisionNodes(pSG, decisionContainerKey.key(), {HLT_mu_chain});
+  std::vector<const Decision*> extraStart_HLT_mu_em_chain = getRejectedDecisionNodes(pSG, decisionContainerKey.key(), {HLT_mu_em_chain});
+  std::vector<const Decision*> extraStart_HLT_em_chain = getRejectedDecisionNodes(pSG, decisionContainerKey.key(), {HLT_em_chain});
+  std::vector<const Decision*> extraStart_HLT_all = getRejectedDecisionNodes(pSG, decisionContainerKey.key(), {});
 
   for (const Decision* d : extraStart_HLT_mufast_chain) {
     recursiveGetDecisions(d, graph_HLT_mufast_chain, {HLT_mufast_chain}, false);
@@ -540,7 +540,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
   // Check retrieval of a link which does NOT derive from IParticle
   END->setObjectLink<DecisionContainer>("notAnIParticle", end_link);
-  EXPECT_EXCEPTION (SG::ExcCLIDMismatch, END->objectLink<xAOD::IParticleContainer>("notAnIParticle"));
+  EXPECT_EXCEPTION (xAOD::ExcNotIParticleContainer, END->objectLink<xAOD::IParticleContainer>("notAnIParticle"));
 
   return 0;
   

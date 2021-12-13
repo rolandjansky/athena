@@ -62,10 +62,9 @@ MuonAGDDToolHelper::MuonAGDDToolHelper() :
     }
 }
 
-std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
+std::vector<std::string> MuonAGDDToolHelper::ReadAGDDFlags()
 {
-	static std::vector<std::string> structuresFromFlags;
-	structuresFromFlags.clear();
+   std::vector<std::string> structuresFromFlags;
    std::string agdd2geoVersion = p_RDBAccessSvc->getChildTag("AGDD2GeoSwitches",p_GeoModelSvc->muonVersion(),"MuonSpectrometer");
 
    if(!agdd2geoVersion.empty()) 

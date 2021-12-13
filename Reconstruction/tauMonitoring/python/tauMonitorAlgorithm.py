@@ -40,12 +40,8 @@ def tauMonitoringConfig(inputFlags):
     tauMonAlgTauTrig5 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig5')
     tauMonAlgTauTrig6 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig6')
     tauMonAlgTauTrig7 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig7')
-
-
     tauMonAlgEleTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEleTrig')
     tauMonAlgJetTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgJetTrig')
-    tauMonAlgHighPt = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgHighPt')
-    tauMonAlgHighPtRNNLoose = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgHighPtRNNLoose')
 
 
 
@@ -84,10 +80,6 @@ def tauMonitoringConfig(inputFlags):
     tauMonAlgEleTrig.etaMax = 100
     tauMonAlgJetTrig.etaMin = -100
     tauMonAlgJetTrig.etaMax = 100
-    tauMonAlgHighPt.etaMin = -100
-    tauMonAlgHighPt.etaMax = 100
-    tauMonAlgHighPtRNNLoose.etaMin = -100
-    tauMonAlgHighPtRNNLoose.etaMax = 100
 
     tauMonAlgBA.kinGroupName = 'tauMonKinGroupBA'
     tauMonAlgCR.kinGroupName = 'tauMonKinGroupCR'
@@ -103,8 +95,6 @@ def tauMonitoringConfig(inputFlags):
 
     tauMonAlgEleTrig.kinGroupName = 'tauMonKinGroupEleTrig'
     tauMonAlgJetTrig.kinGroupName = 'tauMonKinGroupJetTrig'
-    tauMonAlgHighPt.kinGroupName = 'tauMonKinGroupHighPt'
-    tauMonAlgHighPtRNNLoose.kinGroupName = 'tauMonKinGroupHighPtRNNLoose'
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -126,17 +116,12 @@ def tauMonitoringConfig(inputFlags):
     myKinGroupEleTrig = cfgHelper.addGroup(alg=tauMonAlgEleTrig, name='tauMonKinGroupEleTrig', topPath='Tau/Trigger/EleTrig/' )
     myKinGroupJetTrig = cfgHelper.addGroup(alg=tauMonAlgJetTrig, name='tauMonKinGroupJetTrig', topPath='Tau/Trigger/JetTrig/' )
 
-    myKinGroupHighPt = cfgHelper.addGroup(alg=tauMonAlgHighPt, name='tauMonKinGroupHighPt', topPath='Tau/' )
-    myKinGroupHighPtRNNLoose = cfgHelper.addGroup(alg=tauMonAlgHighPtRNNLoose, name='tauMonKinGroupHighPtRNNLoose', topPath='Tau/' )
-
 
     naming= {
             'BA': "Tau_TauB_",
             'CR': "Tau_TauCR_",
             'EC': "Tau_TauE_",
             'Global': "",
-            'HighPt': "",
-            'HighPtRNNLoose': "",
             'EleTrig': "emTriggered_",
             'JetTrig': "jetTriggered_",
             'TauTrig1': "tauTriggered1_",
@@ -169,8 +154,6 @@ def tauMonitoringConfig(inputFlags):
                  (myKinGroupCR,'CR'),
                  (myKinGroupEC,'EC'),
                  (myKinGroupGlobal,'Global'),
-                 (myKinGroupHighPt,'HighPt'),
-                 (myKinGroupHighPtRNNLoose,'HighPtRNNLoose'),
                  (myKinGroupEleTrig,'EleTrig'),
                  (myKinGroupJetTrig,'JetTrig'),
                  (myKinGroupTauTrig1, 'TauTrig1'),
@@ -189,6 +172,11 @@ def tauMonitoringConfig(inputFlags):
         folder = ""
 
         if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix == "Global" or postfix.startswith('TauTrig') or postfix=="EleTrig" or postfix =="JetTrig"):
+
+
+            #potentialHigh Pt replacement
+            igroup.defineHistogram(namer('tauEtaEt15,tauPhiEt15','tauPhiVsEta_et15','',postfix), type='TH2F', title='EtaVsEtTitle;Eta;Phi', 
+               xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
 
             igroup.defineHistogram(namer('nTauCandidates', 'nTauCandidates',"",postfix), title='Number of tau candidates;Number of Taus per Event', 
                                    xbins=30, xmin=-0.5, xmax=30.5,path=folder)
@@ -272,6 +260,10 @@ def tauMonitoringConfig(inputFlags):
 
             igroup.defineHistogram(namer('panModeEt15RNNLoose','panMode','Identification_RNNLoose15GeV',postfix), title='tau decay mode from panTau upon JetRNNSigMedium;mode',
                                    xbins=5, xmin=0., xmax=5., path=folder+"Identification/RNNLoose15GeV", xlabels=["1p0n","1p1n","1pXn","3p0n","3pXn"])
+
+            igroup.defineHistogram(namer('tauEtaEt15RNNLoose,tauPhiEt15RNNLoose','tauPhiVsEta_et15_RNNLoose','',postfix), type='TH2F', title='Phi vs Eta (Et>15, RNNLoose) ;Eta;Phi', 
+               xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
+
 
             igroup.defineHistogram(namer('jetSeedEta','jetSeedEta','Calo',postfix), title='Calorimeter eta of tau candidates;Eta;Numbers of Candidates',path=folder+"Calo",
             xbins=50, xmin=-2.5, xmax=2.5 )
@@ -582,15 +574,6 @@ def tauMonitoringConfig(inputFlags):
                 igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
                           xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/W")
 
-        if postfix == 'HighPt':
-            igroup.defineHistogram(namer('tauEtaEt15,tauPhiEt15','tauPhiVsEta_et15','',postfix), type='TH2F', title='EtaVsEtTitle;Eta;Phi', 
-               xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
-
-        if postfix == 'HighPtRNNLoose':
-
-            igroup.defineHistogram(namer('tauEtaEt15RNNLoose,tauPhiEt15RNNLoose','tauPhiVsEta_et15_RNNLoose','',postfix), type='TH2F', title='Phi vs Eta (Et>15, RNNLoose) ;Eta;Phi', 
-               xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
-
 
 
     ### STEP 6 ###
@@ -652,8 +635,6 @@ if __name__=='__main__':
     exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig7').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgEleTrig').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgJetTrig').OutputLevel = 2 # DEBUG
-    exampleMonitorAcc.getEventAlgo('tauMonAlgHighPt').OutputLevel = 2 # DEBUG
-    exampleMonitorAcc.getEventAlgo('tauMonAlgHighPtRNNLoose').OutputLevel = 2 # DEBUG
 
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 

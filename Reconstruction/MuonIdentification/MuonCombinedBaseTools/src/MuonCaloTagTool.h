@@ -64,7 +64,7 @@ namespace MuonCombined {
         void showTrackInfo(const Trk::TrackParameters* par) const;
 
         // --- StoreGate keys ---
-        SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClusterCont{this, "CaloClusters", "CaloTopoCluster", "calo cluster container"};
+        SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClusterCont{this, "CaloClusters", "CaloTopoClusters", "calo cluster container"};
         SG::ReadHandleKey<CaloCellContainer> m_caloCellCont{this, "CaloCells", "AllCalo", "calo cell container"};
 
         // --- Internal cache ---

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETCOLLECTION_H
@@ -78,7 +78,9 @@ class JetCollection : public DataVector<Jet>
   template <class InputIterator>
   void insert(iterator position, InputIterator first, InputIterator last);
 
+  // cppcheck-suppress duplInheritedMember
   void clear();
+  // cppcheck-suppress duplInheritedMember
   void clear(SG::OwnershipPolicy ownPolicy);
 
 

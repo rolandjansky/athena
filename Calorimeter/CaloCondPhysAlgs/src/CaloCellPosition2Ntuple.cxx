@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellPosition2Ntuple.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloConditions/CaloCellPositionShift.h"
@@ -47,6 +46,7 @@ StatusCode CaloCellPosition2Ntuple::initialize()
   ATH_CHECK( detStore()->retrieve( mgr ) );
   m_calo_id      = mgr->getCaloCell_ID();
 
+  ATH_CHECK( m_caloMgrKey.initialize() );
   ATH_CHECK( detStore()->regHandle(m_cellPos,m_key) );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
@@ -84,8 +84,9 @@ StatusCode CaloCellPosition2Ntuple::stop()
 
   int nread = (int)(m_cellPos->size());
 
-  const CaloDetDescrManager* calodetdescrmgr = nullptr;
-  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey};
+  ATH_CHECK(caloMgrHandle.isValid());
+  const CaloDetDescrManager* calodetdescrmgr = *caloMgrHandle;
 
   if (nread > ncell) {
     ATH_MSG_WARNING ( " CaloCellPosition size different from max lar hash " << m_cellPos->size() << " " << ncell );

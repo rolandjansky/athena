@@ -22,7 +22,7 @@ StatusCode sTGCSDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
   const MuonSimDataCollection* nsw_sTgcSdoContainer = nullptr;
   ATH_CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, m_ContainerName.c_str()) );
 
-  for ( auto coll : *nsw_sTgcSdoContainer ) {
+  for ( const auto& coll : *nsw_sTgcSdoContainer ) {
 
     Identifier Id = coll.first;
     const MuonSimData mm_sdo = coll.second;

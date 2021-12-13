@@ -11,7 +11,7 @@
 # art-runon: weekdays
 # art-runon: Sunday
 
-timeout 43200 Reco_tf.py \
+timeout 64800 Reco_tf.py \
   --inputBSFile=${ArtInFile} \
   --outputAODFile=myAOD.pool.root \
   --outputHISTFile=myHIST.root \
@@ -22,7 +22,7 @@ timeout 43200 Reco_tf.py \
   --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
   --postExec 'FPEAuditor.NStacktracesOnFPE=10' \
   --autoConfiguration='everything' \
-  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-08' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
+  --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
 echo "art-result: $? Reco_tf_data18_rucio_mt"

@@ -13,6 +13,7 @@
 
 #include <stdexcept>
 #include <utility>
+#include <cmath>
 
 using std::vector;
 using std::string;
@@ -396,8 +397,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   // MM_firststrip_positions returns the position for phi sector 1.
   // => for the small sectors, rotate this by -1/16 of a rotation to make our lives easier.
   // in this coordinate basis, x is up/down the wedge (radial), and y is left/right (phi).
-  float cos_rotation = std::cos(-2*TMath::Pi() / 16.0);
-  float sin_rotation = std::sin(-2*TMath::Pi() / 16.0);
+  float cos_rotation = std::cos(-2*M_PI / 16.0);
+  float sin_rotation = std::sin(-2*M_PI / 16.0);
   float x_rotated = 0.0;
   float y_rotated = 0.0;
 
@@ -420,13 +421,13 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
         y_rotated = pos.y();
       }
 
-      if      (is_u(layer)) st_angle = -1*abs(stereo_degree);
-      else if (is_v(layer)) st_angle =    abs(stereo_degree);
+      if      (is_u(layer)) st_angle = -1*std::abs(stereo_degree);
+      else if (is_v(layer)) st_angle =    std::abs(stereo_degree);
       else                  st_angle = 0;
 
       // walk from the center of the strip to the position of the strip at the center of the wedge.
       // NB: for X-planes, this is simply the center of the strip: tan(0) = 0.
-      radial_pos = abs(x_rotated - y_rotated*std::tan(st_angle * TMath::Pi()/180.0));
+      radial_pos = std::abs(x_rotated - y_rotated*std::tan(st_angle * M_PI/180.0));
 
       if (is_x(layer) && eta==1) radial_pos_xx_1 = radial_pos;
       if (is_x(layer) && eta==2) radial_pos_xx_2 = radial_pos;
@@ -490,8 +491,8 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //BLC had some interesting bounds...let's do the ones that make sense to me
   minimum_large_theta = std::atan(H/z_nominal.back()) + tol;
   maximum_large_theta = std::atan(std::sqrt(std::pow( (Hnom+h1),2) + 0.25*std::pow(w1,2))/z_nominal.back()) - tol;
-  minimum_large_phi = -TMath::DegToRad()*0.5*wedge_opening_angle + tol;
-  maximum_large_phi = TMath::DegToRad()*(0.5*wedge_opening_angle) - tol;
+  minimum_large_phi = -M_PI/180.0*0.5*wedge_opening_angle + tol;
+  maximum_large_phi = M_PI/180.0*(0.5*wedge_opening_angle) - tol;
   ///////////////////////////////////////////////////
 
   double phiseg= ((maximum_large_phi-minimum_large_phi)/n_phibins);
@@ -611,13 +612,13 @@ par_par MMT_Parameters::param_par() const{
 double MMT_Parameters::y_from_eta_wedge(double eta,int plane)const{
   //assumes wedge geometry--average x^2, is 1/3 y^2*tan^2(stereo_degree), for eta/y correspondence
   double z=z_nominal[plane]; 
-  double zeta=TMath::DegToRad()*(0.5*stereo_degree);
+  double zeta=M_PI/180.0*(0.5*stereo_degree);
   return z*std::tan(2*std::atan(std::exp(-1.*eta)))/std::sqrt(1+std::tan(zeta)*std::tan(zeta)/3.);
 }
 
 double MMT_Parameters::eta_wedge_from_y(double y,int plane)const{
   double z=z_nominal[plane];
-  double zeta=TMath::DegToRad()*(0.5*stereo_degree);
+  double zeta=M_PI/180.0*(0.5*stereo_degree);
   return -1.*std::log(std::tan(0.5*std::atan(y/z*std::sqrt(1+std::tan(zeta)*std::tan(zeta)/3.))));
 }
 
@@ -1091,9 +1092,9 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,std::shared_ptr<MMT_
   char schar=par->setup[plane];
   bool horizontal=(schar=='x'||schar=='X');
   double swidth=par->strip_width;
-  int eta = TMath::Abs(station_eta) -1;
+  int eta = std::abs(station_eta) -1;
   double base=par->ybases[plane][eta];
-  if(!horizontal) swidth/=std::cos(TMath::DegToRad()*(par->stereo_degree));
+  if(!horizontal) swidth/=std::cos(M_PI/180.0*(par->stereo_degree));
   //Next, we initialize some constants--y will eventually be calculated as y=base+scale*(width*strip+delta_y(misalignment,correction)).
   //The correction portion of delta_y is done in in the calculations on the ybases object in par
   //yup, or "y up" is the portion of y above the base of the plane (i.e. in the detector)
@@ -1148,7 +1149,7 @@ double hitData_info::mis_dy(int plane,std::shared_ptr<MMT_Parameters> par,double
   char schar=par->setup[plane];
   if(!(schar=='x'||schar=='X')){
     //if we're in a stereo plane, calculate different coefficients.
-    double omega=TMath::DegToRad()*(par->stereo_degree);
+    double omega=M_PI/180.0*(par->stereo_degree);
     double pm=(schar=='u'||schar=='U'?1.:-1.);
     yhat_x=pm*std::cos(alpha)*std::cos(beta)*std::sin(omega)-std::sin(alpha)*std::cos(beta)*std::cos(omega);
     yhat_y=pm*std::sin(omega)*(std::sin(alpha)*std::cos(gamma)+std::cos(alpha)*std::sin(beta)*std::sin(gamma))+std::cos(omega)*(std::cos(alpha)*std::cos(gamma)-std::sin(alpha)*std::sin(beta)*std::sin(gamma));

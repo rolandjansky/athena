@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
-LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg=CompFactory.getComps("LArOnOffMappingAlg","LArFebRodMappingAlg","LArCalibLineMappingAlg",)
+LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg,LArLATOMEMappingAlg=CompFactory.getComps("LArOnOffMappingAlg","LArFebRodMappingAlg","LArCalibLineMappingAlg","LArLATOMEMappingAlg")
 
-def _larCablingCfg(configFlags,algo,folder):
+def _larCablingCfg(configFlags,algo,folder,algName=None):
     result=ComponentAccumulator()
 
     result.merge(IOVDbSvcCfg(configFlags))
@@ -15,7 +14,9 @@ def _larCablingCfg(configFlags,algo,folder):
     tagsperFolder={"/LAR/Identifier/OnOffIdMap":"LARIdentifierOnOffIdMap-012",
                    "/LAR/Identifier/FebRodMap":"LARIdentifierFebRodMap-005",
                    "/LAR/Identifier/CalibIdMap":"LARIdentifierCalibIdMap-012",
-                   "/LAR/IdentifierOfl/OnOffIdMap_SC":"LARIdentifierOflOnOffIdMap_SC-000"
+                   "/LAR/IdentifierOfl/OnOffIdMap_SC":"LARIdentifierOflOnOffIdMap_SC-000",
+                   "/LAR/Identifier/OnOffIdMap_SC":"",
+                   "/LAR/Identifier/CalibIdMap_SC":"",
                    }
 
     if configFlags.Input.isMC:
@@ -27,9 +28,20 @@ def _larCablingCfg(configFlags,algo,folder):
         db='LAR_ONL'
         folderwithtag=folder
 
-    result.addCondAlgo(algo(ReadKey=folder),primary=True)
+    if algName is None:
+        result.addCondAlgo(algo(ReadKey=folder),primary=True)
+    else:
+        result.addCondAlgo(algo(name=algName, ReadKey=folder),primary=True)
     result.merge(addFolders(configFlags,folderwithtag,className="AthenaAttributeList",detDb=db))
-    #print (result)
+    return result
+
+def _larLatomeCfg(configFlags,algo,folder,outkey):
+    result=ComponentAccumulator()
+
+    result.merge(IOVDbSvcCfg(configFlags))
+
+    result.addCondAlgo(algo(ReadKey=folder,WriteKey=outkey),primary=True)
+    result.merge(addFolders(configFlags,folder,className="CondAttrListCollection",detDb="LAR_ONL"))
     return result
 
 
@@ -37,13 +49,30 @@ def LArOnOffIdMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/Identifier/OnOffIdMap")
 
 def LArOnOffIdMappingSCCfg(configFlags):
-    return _larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/IdentifierOfl/OnOffIdMap_SC")
+    result = ComponentAccumulator()
+    if configFlags.Input.isMC:
+       result.merge(_larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/IdentifierOfl/OnOffIdMap_SC","LArOnOffMappingAlgSC"))
+       from IOVDbSvc.IOVDbSvcConfig import addOverride
+       result.merge(addOverride(configFlags, "/LAR/IdentifierOfl/OnOffIdMap_SC", "LARIdentifierOflOnOffIdMap_SC-000")) # FIXME temporary?
+    else:
+       result.merge(_larCablingCfg(configFlags,LArOnOffMappingAlg,"/LAR/Identifier/OnOffIdMap_SC","LArOnOffMappingAlgSC"))
+    result.getCondAlgo("LArOnOffMappingAlgSC").WriteKey = "LArOnOffIdMapSC"
+    result.getCondAlgo("LArOnOffMappingAlgSC").isSuperCell = True
+    return result
 
 def LArFebRodMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArFebRodMappingAlg,"/LAR/Identifier/FebRodMap")
 
 def LArCalibIdMappingCfg(configFlags):
     return _larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/Identifier/CalibIdMap")
+
+def LArCalibIdMappingSCCfg(configFlags):
+    if not configFlags.Input.isMC:
+       return _larCablingCfg(configFlags,LArCalibLineMappingAlg,"/LAR/IdentifierOfl/CalibIdMap_SC")
+
+def LArLATOMEMappingCfg(configFlags):
+    if not configFlags.Input.isMC:
+       return _larLatomeCfg(configFlags,LArLATOMEMappingAlg,"/LAR/Identifier/LatomeMapping","LArLATOMEMap")
 
 def LArIdMapCfg(configFlags):
     """Return ComponentAccumulator configured with Identifier Map in POOL/COOL"""

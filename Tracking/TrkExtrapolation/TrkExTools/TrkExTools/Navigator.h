@@ -140,7 +140,7 @@ namespace Trk {
       SG::ReadCondHandleKey<TrackingGeometry> m_trackingGeometryReadKey{
         this,
         "TrackingGeometryKey",
-        "",
+        "AtlasTrackingGeometry",
         "Key of output of TrackingGeometry for ID"
       };
 

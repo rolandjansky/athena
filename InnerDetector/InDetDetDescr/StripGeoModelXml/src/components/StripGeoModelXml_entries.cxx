@@ -1,4 +1,3 @@
-#include "StripGeoModelXml/StripDetectorTool.h"
+#include "src/StripDetectorTool.h"
 
-DECLARE_COMPONENT( StripDetectorTool )
-
+DECLARE_COMPONENT( ITk::StripDetectorTool )

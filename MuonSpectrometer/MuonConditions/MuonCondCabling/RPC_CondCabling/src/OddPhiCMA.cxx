@@ -8,6 +8,7 @@
 #include "RPC_CondCabling/OddPhiCMA.h"
 #include "RPC_CondCabling/CMAprogram.h"
 #include "RPC_CondCabling/SectorLogicSetup.h"
+#include <stdexcept>
 
 #include <fstream>
 
@@ -65,7 +66,10 @@ bool OddPhiCMA::cable_CMA_channels(void) {
     if (pivot_station())  // Check and connect strips with Pivot matrix channels
     {
         WORlink::iterator found = m_pivot_WORs.find(pivot_start_ch());
-        WiredOR* wor = (*found).second;
+        if (found == m_pivot_WORs.end()){
+          throw std::runtime_error("Channel not found in OddPhiCMA::cable_CMA_channels");
+        }
+        WiredOR* wor = found->second;
 
         m_pivot_rpc_read = wor->RPCacquired();
         create_pivot_map(m_pivot_rpc_read);
@@ -86,7 +90,7 @@ bool OddPhiCMA::cable_CMA_channels(void) {
             int local_strip = max_st - (max_st - start);
             int final_strip = max_st - (max_st - stop);
 
-            int chs = (id().Ixx_index() == 0) ? pivot_channels - abs(stop - start) - 1 : 0;
+            int chs = (id().Ixx_index() == 0) ? pivot_channels - std::abs(stop - start) - 1 : 0;
             if (chs >= pivot_channels) {
                 REPORT_MESSAGE_WITH_CONTEXT(MSG::ERROR, "OddPhiCMA") << noMoreChannels("Pivot");
                 return false;
@@ -148,6 +152,9 @@ bool OddPhiCMA::cable_CMA_channels(void) {
     if (lowPt_station() && lowPt_start_ch() != -1) {  // Check and connect strips with Low Pt matrix channels
         for (int i = lowPt_start_ch(); i <= lowPt_stop_ch(); ++i) {
             WORlink::iterator found = m_lowPt_WORs.find(i);
+            if (found == m_lowPt_WORs.end()){
+              throw std::runtime_error("Channel not found in OddPhiCMA::cable_CMA_channels");
+            }
             m_lowPt_rpc_read += (*found).second->RPCacquired();
         }
 
@@ -164,9 +171,11 @@ bool OddPhiCMA::cable_CMA_channels(void) {
 
         for (int w = lowPt_start_ch(); w <= lowPt_stop_ch(); ++w) {
             WORlink::iterator found = m_lowPt_WORs.find(w);
+            if (found == m_lowPt_WORs.end()){
+              throw std::runtime_error("Channel not found in OddPhiCMA::cable_CMA_channels");
+            }
             WiredOR* wor = (*found).second;
-            std::vector<int> multiplicity(wor->give_max_phi_strips());
-            multiplicity.clear();
+            std::vector<int> multiplicity(wor->give_max_phi_strips(), 0);
 
             for (int i = 0; i < wor->RPCacquired(); ++i) {
                 const RPCchamber* rpc = wor->connected_rpc(i);
@@ -246,6 +255,9 @@ bool OddPhiCMA::cable_CMA_channels(void) {
     if (highPt_station() && highPt_start_ch() != -1) {  // Check and connect strips with High Pt matrix channels
         for (int i = highPt_start_ch(); i <= highPt_stop_ch(); ++i) {
             WORlink::iterator found = m_highPt_WORs.find(i);
+            if (found == m_highPt_WORs.end()){
+              throw std::runtime_error("Channel not found in OddPhiCMA::cable_CMA_channels");
+            }
             m_highPt_rpc_read += (*found).second->RPCacquired();
         }
 
@@ -262,10 +274,12 @@ bool OddPhiCMA::cable_CMA_channels(void) {
 
         for (int w = highPt_start_ch(); w <= highPt_stop_ch(); ++w) {
             WORlink::iterator found = m_highPt_WORs.find(w);
-            WiredOR* wor = (*found).second;
-            std::vector<int> multiplicity(wor->give_max_phi_strips());
-            multiplicity.clear();
-
+            if (found == m_highPt_WORs.end()){
+              throw std::runtime_error("Channel not found in OddPhiCMA::cable_CMA_channels");
+            }
+            WiredOR* wor = found->second;
+            std::vector<int> multiplicity(wor->give_max_phi_strips(), 0);
+            
             for (int i = 0; i < wor->RPCacquired(); ++i) {
                 const RPCchamber* rpc = wor->connected_rpc(i);
 

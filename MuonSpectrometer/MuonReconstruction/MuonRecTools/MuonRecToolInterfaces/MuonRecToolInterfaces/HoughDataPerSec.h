@@ -18,12 +18,14 @@
 
 namespace Muon {
     struct HoughDataPerSec {
-        typedef std::vector<MuonHough::Hit*> HitVec;
+        using HitVec =  MuonHough::HitVec;
+        using PhiHitVec = MuonHough::PhiHitVec;
+        
+        using MaximumVec = std::vector<std::shared_ptr<MuonHough::MuonLayerHough::Maximum>>;
+        using PhiMaximumVec =  std::vector<std::shared_ptr<MuonHough::MuonPhiLayerHough::Maximum>>;
+        
         typedef std::vector<HitVec> RegionHitVec;
-        typedef std::vector<MuonHough::PhiHit*> PhiHitVec;
         typedef std::vector<PhiHitVec> RegionPhiHitVec;
-        typedef std::vector<MuonHough::MuonLayerHough::Maximum*> MaximumVec;
-        typedef std::vector<MuonHough::MuonPhiLayerHough::Maximum*> PhiMaximumVec;
         typedef std::map<MuonHough::MuonLayerHough::Maximum*, MaximumVec> MaximumAssociationMap;
         typedef std::vector<MaximumVec> RegionMaximumVec;
         typedef std::vector<PhiMaximumVec> RegionPhiMaximumVec;
@@ -40,25 +42,8 @@ namespace Muon {
             nphimaxHitsInRegion.resize(MuonStationIndex::DetectorRegionIndexMax);
         }
 
-        ~HoughDataPerSec() { cleanUp(); }
-
-        void cleanUp() {
-            for (RegionHitVec::iterator it = hitVec.begin(); it != hitVec.end(); ++it)
-                for (HitVec::iterator it2 = it->begin(); it2 != it->end(); ++it2) delete *it2;
-            hitVec.clear();
-
-            for (RegionPhiHitVec::iterator it = phiHitVec.begin(); it != phiHitVec.end(); ++it)
-                for (PhiHitVec::iterator it2 = it->begin(); it2 != it->end(); ++it2) delete *it2;
-            phiHitVec.clear();
-
-            for (RegionMaximumVec::iterator it = maxVec.begin(); it != maxVec.end(); ++it)
-                for (MaximumVec::iterator it2 = it->begin(); it2 != it->end(); ++it2) delete *it2;
-            maxVec.clear();
-
-            for (RegionPhiMaximumVec::iterator it = phiMaxVec.begin(); it != phiMaxVec.end(); ++it)
-                for (PhiMaximumVec::iterator it2 = it->begin(); it2 != it->end(); ++it2) delete *it2;
-            phiMaxVec.clear();
-        }
+        ~HoughDataPerSec() = default;
+        
 
         int sector;
         RegionHitVec hitVec;            // Owns the contained objects

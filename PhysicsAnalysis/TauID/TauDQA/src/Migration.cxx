@@ -2,16 +2,18 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "Migration.h"
 
 namespace Tau{
 
-  Migration::Migration(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+  Migration::Migration(PlotBase* pParent, const std::string& sDir, std::string sTauJetContainerName):
     PlotBase(pParent, sDir),
     m_migration_panTau(nullptr),
     m_migration_panTauProto(nullptr),
     m_migration_cellBased(nullptr),
-    m_sTauJetContainerName(sTauJetContainerName)
+    m_sTauJetContainerName(std::move(sTauJetContainerName))
   {
   }
 
@@ -58,7 +60,7 @@ namespace Tau{
     // Get number of neutral pions
     int nPi0_tau = 0;
     const std::vector<ElementLink<xAOD::PFOContainer>>& cellBased_neutralPFO = thisTau.protoNeutralPFOLinks();
-    for(auto link : cellBased_neutralPFO) {
+    for(const auto& link : cellBased_neutralPFO) {
       const xAOD::PFO* PFO = *link;
       int myNPi0Proto = 0;
       if ( PFO->attribute(xAOD::PFODetails::nPi0Proto, myNPi0Proto) ) {

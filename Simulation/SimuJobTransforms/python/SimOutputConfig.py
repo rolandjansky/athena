@@ -30,8 +30,12 @@ def getStreamHITS_ItemList(ConfigFlags):
     ItemList += ["xAOD::TruthParticleContainer#TruthPileupParticles",
                  "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
 
+    if 'Hijing_event_params' in ConfigFlags.Input.Collections:
+        ItemList += ["HijingEventParams#Hijing_event_params"]
+
     if ConfigFlags.Detector.EnablePixel or  ConfigFlags.Detector.EnableSCT or \
-       ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip:
+       ConfigFlags.Detector.EnableITkPixel or  ConfigFlags.Detector.EnableITkStrip or ConfigFlags.Detector.EnablePLR or \
+       ConfigFlags.Detector.EnableHGTD:
         ItemList += ["SiHitCollection#*"]
 
     if ConfigFlags.Detector.EnableTRT:

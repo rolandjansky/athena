@@ -11,8 +11,6 @@
 #include "MdtCalibT0/MTT0PatternRecognition.h"
 #include "MdtCalibT0/MTTmaxPatternRecognition.h"
 #include "TDirectory.h"
-#include "TF1.h"
-#include "TH1.h"
 #include "TLine.h"
 #include "TRandom.h"
 #include "list"
@@ -61,7 +59,7 @@ namespace MuonCalib {
 #ifndef NDEBUG
         if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "directory=" << gDirectory->GetName() << endmsg;
 #endif
-        m_time = new TH1F(buf, "", settings->NBinsTime(), settings->TimeMin(), settings->TimeMax());
+        m_time = std::make_unique<TH1F>(buf, "", settings->NBinsTime(), settings->TimeMin(), settings->TimeMax());
         m_id = id;
         if (settings->DrawDebugGraphs()) {
 #ifndef NDEBUG
@@ -85,9 +83,9 @@ namespace MuonCalib {
         m_settings = settings;
         TDirectory *cwd = gDirectory;
         if (copy_spec)
-            m_time = new TH1F(*spec);
+            m_time = std::make_unique<TH1F>(*spec);
         else
-            m_time = spec;
+            m_time.reset(spec);
         m_id = id;
         if (settings->DrawDebugGraphs()) {
             char buffer[100];
@@ -131,7 +129,7 @@ namespace MuonCalib {
     bool T0MTHistos::FitTmax() {
         TDirectory *cwd = gDirectory;
         if (m_dir != nullptr) m_dir->cd();
-        if (m_time == nullptr) {
+        if (!m_time) {
             MsgStream log(Athena::getMessageSvc(), "T0MTHistos");
             log << MSG::WARNING << "T0MTHistos::FitTmax: Class is not initialized!" << endmsg;
             m_tmax_ok = false;
@@ -149,7 +147,7 @@ namespace MuonCalib {
         // Create pattern Recognition Class
         MTTmaxPatternRecognition rec;
         // perform pattern recognition
-        if (!rec.Initialize(m_time, m_t0_fermi->GetParameter(T0_PAR_NR_T0), m_settings)) {
+        if (!rec.Initialize(m_time.get(), m_t0_fermi->GetParameter(T0_PAR_NR_T0), m_settings)) {
             MsgStream log(Athena::getMessageSvc(), "T0MTHistos");
             log << MSG::WARNING << "T0MTHistos::FitTmax for tube " << m_id << ": Pattern recognition failed!" << endmsg;
             m_tmax_ok = false;
@@ -160,7 +158,7 @@ namespace MuonCalib {
         char buffer[100];
         snprintf(buffer, 100, "mt_tmax_fermi");
         if (!m_tmax_fermi) {
-            m_tmax_fermi = new TF1(buffer, mt_tmax_fermi, rec.GetFitRangeMin(), rec.GetFitRangeMax(), N_TMAX_FIT_PAR);
+            m_tmax_fermi = std::make_unique<TF1>(buffer, mt_tmax_fermi, rec.GetFitRangeMin(), rec.GetFitRangeMax(), N_TMAX_FIT_PAR);
             // set parameter names
             m_tmax_fermi->SetParName(TMAX_PAR_NR_TMAX, "t_{max}");
             m_tmax_fermi->SetParName(TMAX_PAR_NR_T, "T");
@@ -189,7 +187,7 @@ namespace MuonCalib {
         } else {
             fitopt += "0";
         }
-        m_time->Fit(m_tmax_fermi, fitopt.c_str());
+        m_time->Fit(m_tmax_fermi.get(), fitopt.c_str());
         m_tmax_ok = true;
         cwd->cd();
         return true;
@@ -204,9 +202,9 @@ namespace MuonCalib {
         if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "T0MTHistos::FitT0(): called" << endmsg;
 #endif
         TDirectory *cwd = gDirectory;
-        if (m_dir != nullptr) m_dir->cd();
+        if (m_dir) m_dir->cd();
         // check if class is initialized
-        if (m_time == nullptr) {
+        if (!m_time) {
 #ifdef NDEBUG
             MsgStream log(Athena::getMessageSvc(), "T0MTHistos");
 #endif
@@ -219,7 +217,7 @@ namespace MuonCalib {
         // create pattern recognition class
         MTT0PatternRecognition rec;
         // perform pattern recognition
-        if (!rec.Initialize(m_time, m_settings)) {
+        if (!rec.Initialize(m_time.get(), m_settings)) {
             m_t0_ok = false;
 #ifdef NDEBUG
             MsgStream log(Athena::getMessageSvc(), "T0MTHistos");
@@ -234,7 +232,7 @@ namespace MuonCalib {
         char buffer[100];
         //	sprintf(buffer,"mt_t0_fermi_%d", m_id);
         snprintf(buffer, 100, "mt_t0_fermi");
-        m_t0_fermi = new TF1(buffer, mt_t0_fermi, rec.GetFitRangeMin(), rec.GetFitRangeMax(), N_T0_FIT_PAR);
+        m_t0_fermi = std::make_unique<TF1>(buffer, mt_t0_fermi, rec.GetFitRangeMin(), rec.GetFitRangeMax(), N_T0_FIT_PAR);
         // set parameter names
         m_t0_fermi->SetParName(T0_PAR_NR_T0, "t_{0}");
         m_t0_fermi->SetParName(T0_PAR_NR_T, "T");
@@ -249,9 +247,9 @@ namespace MuonCalib {
         m_t0_fermi->SetParameter(T0_PAR_NR_T, 3.0);
         // perform fit - NOTE: The return value of the Fit function is not documented!
         if (m_dir != nullptr) {
-            TLine *ln = new TLine(rec.GetFitRangeMin(), 0, rec.GetFitRangeMin(), m_time->GetMaximum());
+            std::unique_ptr<TLine> ln = std::make_unique<TLine>(rec.GetFitRangeMin(), 0, rec.GetFitRangeMin(), m_time->GetMaximum());
             ln->Write("t0_range_min");
-            ln = new TLine(rec.GetFitRangeMax(), 0, rec.GetFitRangeMax(), m_time->GetMaximum());
+            ln = std::make_unique<TLine>(rec.GetFitRangeMax(), 0, rec.GetFitRangeMax(), m_time->GetMaximum());
             ln->Write("t0_range_max");
             m_t0_fermi->SetLineColor(3);
             m_t0_fermi->Write();
@@ -264,7 +262,7 @@ namespace MuonCalib {
         } else {
             fitopt += "0";
         }
-        m_time->Fit(m_t0_fermi, fitopt.c_str(), "", rec.GetFitRangeMin(), rec.GetFitRangeMax());
+        m_time->Fit(m_t0_fermi.get(), fitopt.c_str(), "", rec.GetFitRangeMin(), rec.GetFitRangeMax());
         if (m_settings->T0Settings()->UseTopChi2())
             TopChi2();
         else
@@ -293,18 +291,18 @@ namespace MuonCalib {
         // create scrambled histogram
         char scramhistname[100];
         snprintf(scramhistname, 100, "%s_scram", m_time->GetName());
-        TH1F *scramhist = new TH1F(scramhistname, "scrambled histogram", m_time->GetSize() - 2, m_time->GetXaxis()->GetXmin(),
-                                   m_time->GetXaxis()->GetXmax());
+        std::unique_ptr<TH1F> scramhist = std::make_unique<TH1F>(scramhistname, "scrambled histogram", m_time->GetSize() - 2,
+                                                                 m_time->GetXaxis()->GetXmin(), m_time->GetXaxis()->GetXmax());
         for (int binnr = 0; binnr < m_time->GetSize(); binnr++) {
             scramhist->SetBinContent(binnr, m_time->GetBinContent(binnr) + gRandom->Gaus(0, m_time->GetBinError(binnr)));
             scramhist->SetBinError(binnr, m_time->GetBinError(binnr) * 1.41421356);
             if (scramhist->GetBinContent(binnr) < 0) scramhist->SetBinContent(binnr, 0);
         }
         TDirectory *cwd = gDirectory;
-        if (m_dir != nullptr) m_dir->cd();
+        if (m_dir) m_dir->cd();
         MTT0PatternRecognition scramrec;
         // perform pattern recognition
-        if (!scramrec.Initialize(scramhist, m_settings)) {
+        if (!scramrec.Initialize(scramhist.get(), m_settings)) {
 #ifdef NDEBUG
             MsgStream log(Athena::getMessageSvc(), "T0MTHistos");
 #endif
@@ -314,7 +312,7 @@ namespace MuonCalib {
         }
         char scrambuffer[100];
         snprintf(scrambuffer, 100, "scrammt_t0_fermi");
-        TF1 *scramm_t0_fermi = new TF1();
+        std::unique_ptr<TF1> scramm_t0_fermi = std::make_unique<TF1>();
         m_t0_fermi->Copy(*scramm_t0_fermi);
         scramm_t0_fermi->SetName(scrambuffer);
         scramm_t0_fermi->SetRange(scramrec.GetFitRangeMin(), scramrec.GetFitRangeMax());

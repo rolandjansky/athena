@@ -42,8 +42,23 @@ try:
         EmScaleA = 35.9
 
     tileInfoConfigurator.EmScaleA = EmScaleA;  # 1/s.f. value for all normal cells
-    msg.info("Using 1/s.f. = %s for %s physics list and G4version %s (%s)" % (EmScaleA,physicsList,G4V,G4Ver) )
-    #tileInfoConfigurator.EmScaleE = 75.0; # keep the same EmScale for gap scintillators for the moment
+    msg.info("Using 1/s.f. = %s for %s physics list and G4version %s (%s)" , EmScaleA, physicsList, G4V, G4Ver )
+
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+    # new sampling fraction for gap/crack scintillators in RUN3
+    # see https://indico.cern.ch/event/1084901/contributions/4616550/attachments/2349654/4007529/TileGap3_SamplingFraction.pdf
+    # RUN2 values:         125 107 97 75
+    # RUN3 EM scale:       109  89 74 61
+    # RUN3 EM+nonEM scale: 123  85 69 62
+    run = geoFlags.Run()
+    if run in ['RUN3', 'RUN4'] and G4V >= 10.05:
+        tileInfoConfigurator.EmScaleE1 = 109.0
+        tileInfoConfigurator.EmScaleE2 = 89.0
+        tileInfoConfigurator.EmScaleE3 = 74.0
+        tileInfoConfigurator.EmScaleE4 = 61.0
+        msg.info("Using 1/s.f. = %s %s %s %s for E-cells in %s",
+                 tileInfoConfigurator.EmScaleE1, tileInfoConfigurator.EmScaleE2,
+                 tileInfoConfigurator.EmScaleE3, tileInfoConfigurator.EmScaleE4, run )
 
     tileInfoConfigurator.TileNoise = jobproperties.Digitization.doCaloNoise()
     if tileInfoConfigurator.TileNoise:

@@ -15,7 +15,7 @@ void MuonSimDataCollectionCnv_p2::persToTrans(const Muon::MuonSimDataCollection_
    std::vector<std::pair<Identifier32::value_type, Muon::MuonSimData_p2 > >::const_iterator it_CollEnd = persCol->m_muonsimdata.end();
    log << MSG::DEBUG << " Preparing " << persCol->m_muonsimdata.size() << " Collections" << endmsg;
 
-   for(int collIdx=0 ; it_Coll != it_CollEnd; it_Coll++, collIdx++)  {
+   for(int collIdx=0 ; it_Coll != it_CollEnd; ++it_Coll, ++collIdx)  {
       const Muon::MuonSimData_p2& perssimData = persCol->m_muonsimdata[collIdx].second;
       MuonSimData transsimData;
       m_muonsimdataCnv.persToTrans(&perssimData,&transsimData,log);
@@ -35,7 +35,7 @@ void MuonSimDataCollectionCnv_p2::transToPers(const MuonSimDataCollection* trans
   persCol->m_muonsimdata.resize(transCol->size());
   log << MSG::DEBUG << " Preparing " << persCol->m_muonsimdata.size() << " Collections" << endmsg;
 
-  for(int collIdx=0; it_Coll != it_CollEnd; it_Coll++, collIdx++){
+  for(int collIdx=0; it_Coll != it_CollEnd; ++it_Coll, ++collIdx){
     (persCol->m_muonsimdata[collIdx]).first = (*it_Coll).first.get_identifier32().get_compact();
     const MuonSimData &transsimData = (*it_Coll).second;
     Muon::MuonSimData_p2 &perssimData = persCol->m_muonsimdata[collIdx].second;

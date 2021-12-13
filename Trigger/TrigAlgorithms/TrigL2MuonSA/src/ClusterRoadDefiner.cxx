@@ -56,7 +56,7 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const LVL1::RecMuonRoI* 
     bw.assign(N_STATION, clearRoad);
     ATH_MSG_DEBUG("start searching eta pattern");
     if ( (*clusterPatFinder)->findPatternEta(aw, bw, rpcLayerClusters) ) {
-      for(int iClus = 0; iClus < (int)aw[1].size(); iClus++){
+      for(unsigned int iClus = 0; iClus < aw[1].size(); iClus++){
         TrigL2MuonSA::RpcFitResult clusFitResult;
         clusFitResult.Clear();
         clusFitResult.isSuccess = true;
@@ -100,20 +100,20 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const LVL1::RecMuonRoI* 
         double phi_middle_center = phi_middle_tot/npatternPhi;
         double phi_outer_center = phi_outer_tot/npatternPhi;
         ATH_MSG_DEBUG("center of phi middle/outer = " << phi_middle_center << "/" << phi_outer_center);
-        for(int iClus_fit = 0; iClus_fit < (int)clusterFitResults.size(); iClus_fit++){
+        for(unsigned int iClus_fit = 0; iClus_fit < clusterFitResults.size(); iClus_fit++){
           clusterFitResults.at(iClus_fit).phi = phi_middle_center;
           clusterFitResults.at(iClus_fit).phi_middle = phi_middle_center;
           clusterFitResults.at(iClus_fit).phi_outer = phi_outer_center;
         }
       } else {
-        for(int iClus_fit = 0; iClus_fit < (int)clusterFitResults.size(); iClus_fit++){
+        for(unsigned int iClus_fit = 0; iClus_fit < clusterFitResults.size(); iClus_fit++){
           clusterFitResults.at(iClus_fit).phi = p_roi->phi();
           clusterFitResults.at(iClus_fit).phi_middle = p_roi->phi();
           clusterFitResults.at(iClus_fit).phi_outer = p_roi->phi();
         }
       }
     } else {
-      for(int iClus_fit = 0; iClus_fit < (int)clusterFitResults.size(); iClus_fit++){
+      for(unsigned int iClus_fit = 0; iClus_fit < clusterFitResults.size(); iClus_fit++){
         clusterFitResults.at(iClus_fit).phi = p_roi->phi();
       }
     }
@@ -127,7 +127,7 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const LVL1::RecMuonRoI* 
   }
 
   ATH_MSG_DEBUG("stored cluster eta/phi pattern to clusterRoad");
-  for(int iClus_fit = 0; iClus_fit < (int)clusterFitResults.size(); iClus_fit++){
+  for(unsigned int iClus_fit = 0; iClus_fit < clusterFitResults.size(); iClus_fit++){
     TrigL2MuonSA::MuonRoad muonRoad;
     muonRoad.Clear();
     // RPC data is not available -> use RoI
@@ -295,7 +295,7 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const xAOD::MuonRoI*    
     bw.assign(N_STATION, clearRoad);
     ATH_MSG_DEBUG("start searching eta pattern");
     if ( (*clusterPatFinder)->findPatternEta(aw, bw, rpcLayerClusters) ) {
-      for(int iClus = 0; iClus < (int)aw[1].size(); iClus++){
+      for(unsigned int iClus = 0; iClus < aw[1].size(); iClus++){
         TrigL2MuonSA::RpcFitResult clusFitResult;
         clusFitResult.Clear();
         clusFitResult.isSuccess = true;
@@ -339,20 +339,20 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const xAOD::MuonRoI*    
         double phi_middle_center = phi_middle_tot/npatternPhi;
         double phi_outer_center = phi_outer_tot/npatternPhi;
         ATH_MSG_DEBUG("center of phi middle/outer = " << phi_middle_center << "/" << phi_outer_center);
-        for(int iClus_fit = 0; iClus_fit < (int)clusterFitResults.size(); iClus_fit++){
+        for(unsigned int iClus_fit = 0; iClus_fit < clusterFitResults.size(); iClus_fit++){
           clusterFitResults.at(iClus_fit).phi = phi_middle_center;
           clusterFitResults.at(iClus_fit).phi_middle = phi_middle_center;
           clusterFitResults.at(iClus_fit).phi_outer = phi_outer_center;
         }
       } else {
-        for(int iClus_fit = 0; iClus_fit < (int)clusterFitResults.size(); iClus_fit++){
+        for(unsigned int iClus_fit = 0; iClus_fit < clusterFitResults.size(); iClus_fit++){
           clusterFitResults.at(iClus_fit).phi = p_roi->phi();
           clusterFitResults.at(iClus_fit).phi_middle = p_roi->phi();
           clusterFitResults.at(iClus_fit).phi_outer = p_roi->phi();
         }
       }
     } else {
-      for(int iClus_fit = 0; iClus_fit < (int)clusterFitResults.size(); iClus_fit++){
+      for(unsigned int iClus_fit = 0; iClus_fit < clusterFitResults.size(); iClus_fit++){
         clusterFitResults.at(iClus_fit).phi = p_roi->phi();
       }
     }
@@ -366,7 +366,7 @@ StatusCode TrigL2MuonSA::ClusterRoadDefiner::defineRoad(const xAOD::MuonRoI*    
   }
 
   ATH_MSG_DEBUG("stored cluster eta/phi pattern to clusterRoad");
-  for(int iClus_fit = 0; iClus_fit < (int)clusterFitResults.size(); iClus_fit++){
+  for(unsigned int iClus_fit = 0; iClus_fit < clusterFitResults.size(); iClus_fit++){
     TrigL2MuonSA::MuonRoad muonRoad;
     muonRoad.Clear();
     // RPC data is not available -> use RoI

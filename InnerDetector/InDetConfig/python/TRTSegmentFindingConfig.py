@@ -83,7 +83,8 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
     return acc
 
 def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', extension = '', BarrelSegments = None, InputCollections =None, doPhase = False, **kwargs):
-    acc = ComponentAccumulator()
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    acc = MagneticFieldSvcCfg(flags)
 
     # ---------------------------------------------------------------
     #
@@ -105,7 +106,9 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
                                                                                                               TRT_ClustersContainer = 'TRT_DriftCircles')) # InDetKeys.TRT_DriftCircles
             acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
 
-            if flags.InDet.doCaloSeededTRTSegments or flags.InDet.Tracking.RoISeededBackTracking:
+            if flags.Detector.EnableCalo and (flags.InDet.doCaloSeededTRTSegments or flags.InDet.Tracking.RoISeededBackTracking):
+                from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+                acc.merge(CaloClusterROI_SelectorCfg(flags))
                 kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
                 kwargs.setdefault("SegmentsLocation", BarrelSegments)
                 kwargs.setdefault("useCaloSeeds", True)
@@ -156,18 +159,6 @@ def SegmentDriftCircleAssValidationCfg(flags, name="InDetSegmentDriftCircleAssVa
 
     InDetSegmentDriftCircleAssValidation = CompFactory.InDet.SegmentDriftCircleAssValidation(name = name, **kwargs)
     acc.addEventAlgo(InDetSegmentDriftCircleAssValidation)
-    return acc
-
-def TRTActiveCondAlgCfg(flags, name="TRTActiveCondAlg", **kwargs):
-    acc = ComponentAccumulator()
-
-    InDetTRTStrawStatusSummaryTool = acc.popToolsAndMerge(TC.InDetTRTStrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
-
-    kwargs.setdefault("TRTStrawStatusSummaryTool", InDetTRTStrawStatusSummaryTool)
-
-    TRTActiveCondAlg = CompFactory.TRTActiveCondAlg(name = name, **kwargs)
-    acc.addCondAlgo(TRTActiveCondAlg)
     return acc
 
 def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelSegments = None, doPhase = False):
@@ -230,23 +221,8 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(flags))
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    top_acc.merge(MagneticFieldSvcCfg(flags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( flags ))
-
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge( PixelGeometryCfg(flags) )
-    top_acc.merge( SCT_GeometryCfg(flags) )
-
     # NewTracking collection keys
     InputCombinedInDetTracks = []
-
-    #############################################################################
-    top_acc.merge(TRTActiveCondAlgCfg(flags))
-    top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg(flags))
 
     from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
     if not flags.InDet.doDBMstandalone:
@@ -265,5 +241,5 @@ if __name__ == "__main__":
 
     import sys
     if "--norun" not in sys.argv:
-        sc = top_acc.run(25)
+        sc = top_acc.run(5)
         sys.exit(not sc.isSuccess())

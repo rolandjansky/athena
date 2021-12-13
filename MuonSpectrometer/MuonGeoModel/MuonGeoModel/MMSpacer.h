@@ -16,6 +16,7 @@ namespace MuonGM {
     class Cutout;
     class Component;
     class MMSpacerComponent;
+    class MYSQL;
 
     class MMSpacer : public DetectorElement {
 
@@ -26,10 +27,15 @@ namespace MuonGM {
         double longWidth; // for trapezoidal layers
         int index;
 
-        MMSpacer(Component *s);
-        GeoPhysVol *build(int minimalgeo);
-        GeoPhysVol *build(int minimalgeo, int cutoutson, const std::vector<Cutout *>&);
-        void print();
+        MMSpacer(const MYSQL& mysql, Component *s);
+        GeoPhysVol *build(const StoredMaterialManager& matManager,
+                          const MYSQL& mysql,
+                          int minimalgeo);
+        GeoPhysVol *build(const StoredMaterialManager& matManager,
+                          const MYSQL& mysql,
+                          int minimalgeo, int cutoutson,
+                          const std::vector<Cutout *>&);
+        virtual void print() override;
 
       private:
         MMSpacerComponent *m_component;

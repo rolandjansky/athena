@@ -13,6 +13,7 @@
 #include "TROOT.h"
 #include "TH1.h"
 #include "TH1F.h"
+#include "TH1I.h"
 #include "TPad.h"
 #include "TCanvas.h"
 #include "L1CaloFEXSim/jSuperCellTowerMapper.h"
@@ -277,8 +278,13 @@ void jSuperCellTowerMapper::reset(){
         case CaloSampling::HEC1:
         case CaloSampling::HEC2:
         case CaloSampling::HEC3: {
+	  if(region == 0){
             eta_index += 15;
-            break;
+	  }
+	  else if (region == 1){ // to push these supercells to 2.5 and above
+	    eta_index += 25;
+	  }
+	  break;
         }
         default: {
             /*ATH_MSG_DEBUG("Not doing anything since sample = " << sample);*/ break;
@@ -1092,6 +1098,10 @@ int jSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<jTowerContainer> 
 
 }
 
+
+
+
+
 int jSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi)
 {
 
@@ -1171,6 +1181,47 @@ int jSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi)
 
   return;
 }
+
+
+StatusCode jSuperCellTowerMapper::AssignPileupAndNoiseValues(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,TH1F *jTowerArea_hist, TH1I *Firmware2BitwiseID,TH1I *BinLayer,TH1F *EtaCoords,TH1F *PhiCoords){
+    
+    // Including the jTowerArea for Pileup subtraction
+
+    for(int i=1; i<jTowerArea_hist->GetNbinsX()+1; i++) {
+        float TTowerArea = jTowerArea_hist->GetBinContent(i);
+        int TTid = Firmware2BitwiseID->GetBinContent(i);
+        int layer = BinLayer->GetBinContent(i);
+        float eta = EtaCoords->GetBinContent(i);
+        float phi = PhiCoords->GetBinContent(i);
+        int noise = TTowerArea*100; // the noise cut depends on the TT Area weight, allows to increase the threshold for bigger TT
+        //int noise = 3000; // This noise cut value was used in Run2, keep to remember for now, will be changed when COOL database is built
+        
+        if(TTid == 0) continue; //avoid repeated TTID in jTowerArea_hist, which are set to 0 in Firmware2BitwiseID
+
+        LVL1::jTower * targetTower = my_jTowerContainerRaw->findTower(TTid);
+        int CalorimeterLayer = 1; // it is = 1 for Hadronic calorimeters Tile=1, FCAL1=3 and FCAL2=4
+        
+        if(layer == 0 || layer==2){
+            CalorimeterLayer = 0;  // it is = 0 for EM calorimeters LAr=0 and FCAL0=2
+        }
+        targetTower->setTTowerArea(TTowerArea,CalorimeterLayer);
+
+        targetTower->setNoiseForMet(noise,CalorimeterLayer);
+        targetTower->setNoiseForJet(noise,CalorimeterLayer);
+        
+        
+        //This step is to correct the FCAL coordinates since there is non-homogeneous granularity
+        if(layer>1){
+            targetTower->setCentreEta(eta);
+            targetTower->setCentrePhi(phi);
+        }
+        
+    }
+    return StatusCode::SUCCESS;    
+    
+    
+}
+
 
 
 } // end of LVL1 namespace

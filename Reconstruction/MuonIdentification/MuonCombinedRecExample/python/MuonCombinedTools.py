@@ -5,6 +5,8 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon.BeamFlags import jobproperties
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 beamFlags = jobproperties.Beam
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -83,7 +85,7 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("TrackToVertex", AtlasTrackToVertexTool())
     kwargs.setdefault("KeepAllPerigee",True )
-    kwargs.setdefault("UseMuonSummaryTool",True )
+    kwargs.setdefault("MuonSummaryTool", CfgMgr.Muon__MuonHitSummaryTool("MuonHitSummaryTool"))
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("PerigeeExpression","Origin")
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
@@ -104,17 +106,21 @@ def MuonPrintingTool(name="MuonPrintingTool",**kwargs ):
     return CfgMgr.Rec__MuonPrintingTool(name,**kwargs)
 
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
-    kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
+    kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonTrkMaterialProviderTool"))
+    kwargs.setdefault("AmbiguityProcessor", getPublicTool("MuonAmbiProcessor"))
+    
     if ConfigFlags.Muon.MuonTrigger:
-        kwargs.setdefault('MakeTrackAtMSLink',True)
-        kwargs.setdefault("FillTimingInformation",False)
         kwargs.setdefault("MuonSelectionTool", "")
         kwargs.setdefault("UseCaloCells", False)
         kwargs.setdefault("TrackSegmentAssociationTool", "")
     else:
-        getPublicTool("MuonMomentumBalanceSignificanceTool")
-        getPublicTool("MuonScatteringAngleSignificanceTool")
-        getPublicTool("MuonCaloParticleCreator")
+        kwargs.setdefault("MomentumBalanceTool", getPublicTool("MuonMomentumBalanceSignificanceTool"))
+        kwargs.setdefault("ScatteringAngleTool", getPublicTool("MuonScatteringAngleSignificanceTool"))
+       
+        reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+        reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
+        kwargs.setdefault("RunComissioning", reco_stgcs or reco_mm)
+         
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
@@ -146,7 +152,15 @@ def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
         trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
                                               TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))
         kwargs.setdefault("TrackBuilder", trigTrackBuilder)
+    else:
+        kwargs.setdefault("TrackBuilder", getPublicTool("CombinedMuonTrackBuilder"))
+  
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
+
+def MuonCandidateTool_EMEO(name="MuonCandidateTool_EMEO" ):
+    return MuonCandidateTool(name = name,
+                             TrackBuilder= getPublicTool("CombinedMuonTrackBuilder_EMEO"),
+                             Comissioning = True)
 
 def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     tools = []
@@ -155,6 +169,10 @@ def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
     if muonCombinedRecFlags.doStatisticalCombination() and beamFlags.beamType() != 'cosmics':
         tools.append(getPublicTool("MuonCombinedStacoTagTool"))
     kwargs.setdefault("MuonCombinedTagTools", tools )
+    ### Retune the angular selection for the muons
+    kwargs.setdefault("AlignmentUncertTool", getPublicTool("MuonAlignmentUncertToolTheta"))
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)    
     return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
 
 def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):

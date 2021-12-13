@@ -35,8 +35,8 @@ TrigJetHypoTool::TrigJetHypoTool(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_decisionID(HLT::Identifier::fromToolName(name)),
-  m_eventSN(std::make_unique<EventSN>()){
+  m_decisionID(HLT::Identifier::fromToolName(name))
+{
 }
 
 
@@ -107,10 +107,10 @@ TrigJetHypoTool::decide(const xAOD::JetContainer* jets,
   std::unique_ptr<ITrigJetHypoInfoCollector> infocollector(nullptr);
   std::unique_ptr<ITrigJetHypoInfoCollector> jetdumper(nullptr);
   if(m_visitDebug){
-    auto collectorName = name() + "_" + std::to_string(m_eventSN->getSN());
+    auto collectorName = name() + "_" + std::to_string(m_id++);
     infocollector.reset(new  DebugInfoCollector(collectorName));
     auto jetdumperName =
-      name()+"_passingjets_" + std::to_string(m_eventSN->getSN());
+      name()+"_passingjets_" + std::to_string(m_id++);
     jetdumper.reset(new  DebugInfoCollector(jetdumperName));
   }
   
@@ -199,7 +199,7 @@ TrigJetHypoTool::checkPassingJets(const xAODJetCollector& jetCollector,
   
   if (jetCollector.empty()) {
     ATH_MSG_ERROR("HypoTool passed the event for " <<
-      m_chainName << " ev " << m_eventSN->m_id <<
+      m_chainName << " ev " << m_id <<
       ", but did not specify which jets participated");
     return StatusCode::FAILURE;
   }

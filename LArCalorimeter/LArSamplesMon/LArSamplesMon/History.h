@@ -12,6 +12,7 @@
 
 #include "LArCafJobs/Definitions.h"
 #include "LArCafJobs/HistoryContainer.h"
+#include "LArCafJobs/CellInfo.h"
 #include "LArSamplesMon/Chi2Calc.h"
 #include "LArSamplesMon/FilterParams.h"
 #include "LArCafJobs/EventData.h"
@@ -44,7 +45,7 @@ namespace LArSamples {
       History(const HistoryContainer& container, 
               const std::vector<const EventData*>& eventData, unsigned int hash, 
               const AbsShapeErrorGetter* shapeErrorGetter = 0);
-              
+
       History(const std::vector<const Data*>& data, const CellInfo& info, const std::vector<const EventData*>& eventData, 
               unsigned int hash, const AbsShapeErrorGetter* shapeErrorGetter = 0);
       
@@ -57,7 +58,7 @@ namespace LArSamples {
       const Data* data_for_event(int event, int run = -1) const;
       const Data* data_for_event(const EventData& eventData) const;
 
-      const CellInfo* cellInfo() const { return m_cellInfo; }
+      const CellInfo* cellInfo() const { return &m_cellInfo; }
     
       const std::vector<const EventData*>& eventData() const { return m_eventData; }
       
@@ -113,7 +114,7 @@ namespace LArSamples {
     private:
       
      std::vector<const Data*> m_data;
-     const CellInfo* const m_cellInfo;
+     CellInfo m_cellInfo;
      std::vector<const EventData*> m_eventData;
      unsigned int m_hash;
      mutable const AbsShapeErrorGetter* m_shapeErrorGetter;

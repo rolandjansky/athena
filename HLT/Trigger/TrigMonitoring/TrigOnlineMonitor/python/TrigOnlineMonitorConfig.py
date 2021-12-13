@@ -9,13 +9,13 @@ class TrigOpMonitor(_TrigOpMonitor):
    def __init__(self, name='TrigOpMonitor', **kwargs):
       super(TrigOpMonitor, self).__init__(name, **kwargs)
 
-      # Only monitor lumi if available
-      self.LuminosityCondDataKey = ''
+      # Only monitor lumi and field if available
       condSeq = AthSequencer('AthCondSeq')
       for a in condSeq:
          if a.getType()=='LuminosityCondAlg':
             self.LuminosityCondDataKey = a.LuminosityOutputKey
-            break
+         elif a.getType()=='MagField::AtlasFieldMapCondAlg':
+            self.AtlasFieldMapCondDataKey = a.AtlasFieldMapCondObj
 
 
 def TrigALFAROBMonitor():

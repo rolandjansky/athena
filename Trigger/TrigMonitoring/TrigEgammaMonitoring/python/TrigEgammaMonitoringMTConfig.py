@@ -29,7 +29,10 @@ def treat_list_of_chains_by_name( list_of_chains, part_name=None):
     else:
         return list_of_chains
 
-
+#Force generation of all online monitoring histograms on HypoAlgs side 
+def doOnlineMonForceCfg():
+    doOnlineMonForce = True
+    return doOnlineMonForce
 
 class TrigEgammaMonAlgBuilder:
   
@@ -44,6 +47,7 @@ class TrigEgammaMonAlgBuilder:
   activate_zee = False
   activate_jpsiee = False
   activate_topo = False
+  activate_onlineMonHypos = False
   tagItems = []
   jpsitagItems = []
   electronList = []
@@ -71,14 +75,17 @@ class TrigEgammaMonAlgBuilder:
     self.derivation = derivation
     self.emulator = emulator
     self.basePath = basePath
-    self.detailedHistograms = detailedHistograms
+    self.detailedHistograms = detailedHistograms 
     self.configureMode()
-
+    self.doOnlineMonForceCfg()
+    
 
 
   def configureMode(self):
 
     self.__logger.info("TrigEgammaMonToolBuilder.configureMode()")
+    self.activate_onlineMonHypos = True
+
     if not self.get_monitoring_mode():
       self.__logger.warning("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
     else:
@@ -115,6 +122,10 @@ class TrigEgammaMonAlgBuilder:
     self.configureMonitor()
     self.configureHistograms()
 
+
+  def doOnlineMonForceCfg(self):
+    doOnlineMonForce = self.activate_onlineMonHypos
+    return doOnlineMonForce
 
 
   def get_monitoring_mode(self):
@@ -167,13 +178,13 @@ class TrigEgammaMonAlgBuilder:
 
   def setDefaultProperties(self):
    
-    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron, monitoring_topo, validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee, validation_Zee
+    from TrigEgammaMonitoring.TrigEgammaMonitCategoryMT import monitoring_photon, monitoring_electron, monitoringTP_electron, monitoring_topo, validation_photon , validation_electron, validationTP_electron, validation_jpsi, validationTP_jpsiee, validation_Zee, monitoring_tags 
     
     if self.pp_mode:
         self.electronList = monitoring_electron
         self.photonList   = monitoring_photon
         self.tpList       = monitoringTP_electron
-        self.tagItems     = [] # monitoring_tags
+        self.tagItems     = monitoring_tags 
         self.topoList     = monitoring_topo
     elif self.mc_mode:
         self.electronList = validation_electron + validation_Zee
@@ -181,7 +192,7 @@ class TrigEgammaMonAlgBuilder:
         self.tpList       = validationTP_electron
         self.jpsiList     = validation_jpsi
         self.jpsitagItems = validationTP_jpsiee
-        self.tagItems     = [] #monitoring_tags    
+        self.tagItems     = monitoring_tags
         self.topoList     = monitoring_topo
 
 
@@ -308,6 +319,7 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.TriggerList=tpList
       self.zeeMonAlg.DetailedHistograms=self.detailedHistograms
       self.zeeMonAlg.DoEmulation = False
+      self.zeeMonAlg.ApplyJetNearProbeSelection = False
 
 
       # Separated TaP tool configuration
@@ -336,6 +348,7 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg_dnn.TriggerList=tpList 
       self.zeeMonAlg_dnn.DetailedHistograms=self.detailedHistograms
       self.zeeMonAlg_dnn.DoEmulation = False
+      self.zeeMonAlg_dnn.ApplyJetNearProbeSelection = False
 
       if self.emulator: # turn on emulator
         self.emulator.TriggerList += self.tpList
@@ -361,7 +374,7 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.DNNResultNames=self.dnnnames
       self.jpsieeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector,VeryLooseLHSelector]
-      self.jpsieeMonAlg.ElectronDNNSelectorTool =[LooseDNNElectronSelector,MediumDNNElectronSelector,TightDNNElectronSelector]
+      self.jpsieeMonAlg.ElectronDNNSelectorTool =[TightDNNElectronSelector,MediumDNNElectronSelector,LooseDNNElectronSelector]
       self.jpsieeMonAlg.ZeeLowerMass=2
       self.jpsieeMonAlg.ZeeUpperMass=5
       self.jpsieeMonAlg.OfflineTagMinEt=5
@@ -373,7 +386,7 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.TriggerList=self.jpsiList
       self.jpsieeMonAlg.DetailedHistograms=self.detailedHistograms
       self.jpsieeMonAlg.DoEmulation = False
-
+      self.jpsieeMonAlg.ApplyJetNearProbeSelection = False
 
     if self.activate_electron:
 
@@ -655,8 +668,6 @@ class TrigEgammaMonAlgBuilder:
                               self.basePath+'/'+trigger+'/Distributions/' + (level if online else "Offline") )
     
 
-    self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -1, 1))
-    self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ethad1 ; Count", 20, -1, 1))
     self.addHistogram(monGroup, TH1F("Rhad", "Rhad; Rhad ; Count", 35, -0.3, 0.3))
     self.addHistogram(monGroup, TH1F("Rhad1", "Rhad1; Rhad1 ; Count", 30, -0.3, 0.3))
     self.addHistogram(monGroup, TH1F("Reta", "Reta; Reta ; Count", 15, 0.4, 1.2))
@@ -667,7 +678,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("f3", "f3; f3 ; Count", 21, -0.05, 0.1))
     self.addHistogram(monGroup, TH1F("eratio","eratio; eratio; Count",20, 0, 2))
     self.addHistogram(monGroup, TH1F("et", "ET; ET [GeV] ; Count", 100, 0., 100.))
-    self.addHistogram(monGroup, TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.))
+    self.addHistogram(monGroup, TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 500.))
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
     self.addHistogram(monGroup, TH1F("topoetcone20", "topoetcone20; topoetcone20 [GeV] ; Count", 100, -10.0, 10.0))
@@ -703,6 +714,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("charge","charge; charge; Count", 4,-2,2))
     self.addHistogram(monGroup, TH1F("ptcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0))
     self.addHistogram(monGroup, TH1F("ptvarcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0))
+    self.addHistogram(monGroup, TH1F("z0", "z0; z0 ; Count", 40, -1, 1))
     self.addHistogram(monGroup, TH1F("d0", "d0; d0 ; Count", 40, -1, 1))
     self.addHistogram(monGroup, TH1F("d0sig", "d0sig; d0sig ; Count", 40, -10, 10))
     self.addHistogram(monGroup, TH1F("pt", "p_{T}; p_{T} [GeV] ; Count", 100,0.,100.))
@@ -726,7 +738,7 @@ class TrigEgammaMonAlgBuilder:
     # Numerator
     self.addHistogram(monGroup, TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", self._nEtbins, self._etbins))
     self.addHistogram(monGroup, TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", self._nEtbins, self._etbins))
-    self.addHistogram(monGroup, TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 40, 0., 1000.))
+    self.addHistogram(monGroup, TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 40, 0., 500.))
     self.addHistogram(monGroup, TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2))
     self.addHistogram(monGroup, TH1F("match_avgmu", "Trigger Matched <#mu>; <#mu> ; Count", 16, 0, 80))
@@ -735,7 +747,7 @@ class TrigEgammaMonAlgBuilder:
     # Denominator
     self.addHistogram(monGroup, TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count", self._nEtbins, self._etbins))
     self.addHistogram(monGroup, TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", self._nEtbins, self._etbins))
-    self.addHistogram(monGroup, TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 40, 0., 1000.))
+    self.addHistogram(monGroup, TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 40, 0., 500.))
     self.addHistogram(monGroup, TH1F("eta", "Offline #eta; #eta ; Count", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2))
     self.addHistogram(monGroup, TH1F("avgmu", "<#mu>; <#mu> ; Count", 16, 0, 80))
@@ -744,12 +756,18 @@ class TrigEgammaMonAlgBuilder:
     # Efficiency
     self.addHistogram(monGroup, TProfile("pt,pt_passed", "#epsilon(p_T); p_{T} ; Efficiency", self._nEtbins, self._etbins))
     self.addHistogram(monGroup, TProfile("et,et_passed", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", self._nEtbins, self._etbins))
-    self.addHistogram(monGroup, TProfile("highet,highet_passed", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", 40, 0., 1000.))
+    self.addHistogram(monGroup, TProfile("highet,highet_passed", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", 40, 0., 500.))
     self.addHistogram(monGroup, TProfile("eta,eta_passed", "#epsilon(#eta); #eta ; Efficiency", self._nEtabins, self._etabins))
     self.addHistogram(monGroup, TProfile("phi,phi_passed", "#epsilon(#phi); #phi ; Efficiency", 20, -3.2, 3.2))
     self.addHistogram(monGroup, TProfile("avgmu,avgmu_passed", "#epsilon(<#mu>); <#mu> ; Efficiency", 16, 0, 80))
     self.addHistogram(monGroup, TProfile("npvtx,npvtx_passed", "#epsilon(npvtx); npvtx ; Efficiency", 16, 0, 80))
 
+    # Efficiency ET in eta slices
+    
+    self.addHistogram(monGroup, TProfile("et_slice0,et_slice0_passed", "#epsilon(E_T) in [|#eta| <= 0.8]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
+    self.addHistogram(monGroup, TProfile("et_slice1,et_slice1_passed", "#epsilon(E_T) in [0.8 < |#eta| <= 1.37]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
+    self.addHistogram(monGroup, TProfile("et_slice2,et_slice2_passed", "#epsilon(E_T) in [1.37 < |#eta| <= 1.54]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
+    self.addHistogram(monGroup, TProfile("et_slice3,et_slice3_passed", "#epsilon(E_T) in [1.54 < |#eta| <= 2.50]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
 
 
   def bookL1CaloResolutions(self, monAlg, trigger):
@@ -917,6 +935,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("res_deta2", "deta2; deta2 ; (deta2(on)-deta2(off))/deta2(off)", 100, -1., 1.))
     self.addHistogram(monGroup, TH1F("res_dphi2", "dphi2; dphi2 ; (dphi2(on)-dphi2(off))/dphi2(off)", 100, -1., 1.))
     self.addHistogram(monGroup, TH1F("res_dphiresc", "dphiresc; (dphires(on)-dphires(off))/dphires(off) ; Count", 100, -1., 1.))
+    self.addHistogram(monGroup, TH1F("res_z0", "resolution z0; (z0(on)-z0(off)) ; Count", 100, -0.5, 0.5))
     self.addHistogram(monGroup, TH1F("res_d0", "resolution d0; (d0(on)-d0(off)) ; Count", 100, -0.5, 0.5))
     self.addHistogram(monGroup, TH1F("res_d0sig", "resolution d0sig; (d0sig(on)-d0sig(off)) ; Count", 50, -10, 10))
     self.addHistogram(monGroup, TH1F("res_eprobht","resolution eProbHT; (eProbHT(on)-eProbHT(off)); Count",50, -1, 1))

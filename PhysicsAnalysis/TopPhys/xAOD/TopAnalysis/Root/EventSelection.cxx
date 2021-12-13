@@ -40,16 +40,10 @@ namespace top {
     m_cutflowMCWeights_Loose(nullptr),
     m_cutflowPUWeights(nullptr),
     m_cutflowPUWeights_Loose(nullptr),
-    m_cutflowZVtxWeights(nullptr),
-    m_cutflowZVtxWeights_Loose(nullptr),
     m_cutflowMCPUWeights(nullptr),
     m_cutflowMCPUWeights_Loose(nullptr),
-    m_cutflowMCPUZVtxWeights(nullptr),
-    m_cutflowMCPUZVtxWeights_Loose(nullptr),
     m_cutflowScaleFactors(nullptr),
     m_cutflowScaleFactors_Loose(nullptr),
-    m_cutflowBScaleFactors(nullptr),
-    m_cutflowBScaleFactors_Loose(nullptr),
     m_cutflowParticleLevel(nullptr),
     m_cutflowParticleLevelMCWeights(nullptr),
     m_name(name),
@@ -86,18 +80,10 @@ namespace top {
                                     cutNames.size(), -0.5, cutNames.size() - 0.5);
       m_cutflowPUWeights = new TH1D("cutflow_pu", (name + " cutflow PU weights").c_str(),
                                     cutNames.size(), -0.5, cutNames.size() - 0.5);
-      m_cutflowZVtxWeights = new TH1D("cutflow_zvtx", (name + " cutflow ZVtx weights").c_str(),
-                                      cutNames.size(), -0.5, cutNames.size() - 0.5);
       m_cutflowMCPUWeights = new TH1D("cutflow_mc_pu", (name + " cutflow MC*PU weights").c_str(),
                                       cutNames.size(), -0.5, cutNames.size() - 0.5);
-      m_cutflowMCPUZVtxWeights = new TH1D("cutflow_mc_pu_zvtx",
-                                          (name + " cutflow MC*PU*ZVtx weights").c_str(),
-                                          cutNames.size(), -0.5, cutNames.size() - 0.5);
       m_cutflowScaleFactors = new TH1D("cutflow_scale_factors", (name + " cutflow ScaleFactors").c_str(),
                                        cutNames.size(), -0.5, cutNames.size() - 0.5);
-      m_cutflowBScaleFactors = new TH1D("cutflow_btag_scale_factors",
-                                        (name + " cutflow b-tag ScaleFactors").c_str(),
-                                        cutNames.size(), -0.5, cutNames.size() - 0.5);
     }
     if (config->doLooseEvents()) {
       m_cutflow_Loose = new TH1D("cutflow_Loose", (name + " cutflow_Loose").c_str(),
@@ -108,21 +94,12 @@ namespace top {
       m_cutflowPUWeights_Loose = new TH1D("cutflow_pu_Loose",
                                           (name + " cutflow_Loose PU weights").c_str(),
                                           cutNames.size(), -0.5, cutNames.size() - 0.5);
-      m_cutflowZVtxWeights_Loose = new TH1D("cutflow_zvtx_Loose",
-                                            (name + " cutflow_Loose ZVtx weights").c_str(),
-                                            cutNames.size(), -0.5, cutNames.size() - 0.5);
       m_cutflowMCPUWeights_Loose = new TH1D("cutflow_mc_pu_Loose",
                                             (name + " cutflow_Loose MC*PU weights").c_str(),
                                             cutNames.size(), -0.5, cutNames.size() - 0.5);
-      m_cutflowMCPUZVtxWeights_Loose = new TH1D("cutflow_mc_pu_zvtx_Loose",
-                                                (name + " cutflow_Loose MC*PU*ZVtx weights").c_str(),
-                                                cutNames.size(), -0.5, cutNames.size() - 0.5);
       m_cutflowScaleFactors_Loose = new TH1D("cutflow_scale_factors_Loose",
                                              (name + " cutflow_Loose ScaleFactors").c_str(),
                                              cutNames.size(), -0.5, cutNames.size() - 0.5);
-      m_cutflowBScaleFactors_Loose =
-        new TH1D("cutflow_btag_scale_factors_Loose", (name + " cutflow_Loose b-tag ScaleFactors").c_str(),
-                 cutNames.size(), -0.5, cutNames.size() - 0.5);
     }
 
     if (config->doTopParticleLevel()) {
@@ -175,21 +152,15 @@ namespace top {
         m_cutflow->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         m_cutflowMCWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         m_cutflowPUWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
-        m_cutflowZVtxWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         m_cutflowMCPUWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
-        m_cutflowMCPUZVtxWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         m_cutflowScaleFactors->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
-        m_cutflowBScaleFactors->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
       }
       if (config->doLooseEvents()) {
         m_cutflow_Loose->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         m_cutflowMCWeights_Loose->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         m_cutflowPUWeights_Loose->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
-        m_cutflowZVtxWeights_Loose->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         m_cutflowMCPUWeights_Loose->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
-        m_cutflowMCPUZVtxWeights_Loose->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         m_cutflowScaleFactors_Loose->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
-        m_cutflowBScaleFactors_Loose->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
       }
 
       if (m_cutflowParticleLevel) {
@@ -221,16 +192,10 @@ namespace top {
     m_cutflowMCWeights_Loose(std::move(other.m_cutflowMCWeights_Loose)),
     m_cutflowPUWeights(std::move(other.m_cutflowPUWeights)),
     m_cutflowPUWeights_Loose(std::move(other.m_cutflowPUWeights_Loose)),
-    m_cutflowZVtxWeights(std::move(other.m_cutflowZVtxWeights)),
-    m_cutflowZVtxWeights_Loose(std::move(other.m_cutflowZVtxWeights_Loose)),
     m_cutflowMCPUWeights(std::move(other.m_cutflowMCPUWeights)),
     m_cutflowMCPUWeights_Loose(std::move(other.m_cutflowMCPUWeights_Loose)),
-    m_cutflowMCPUZVtxWeights(std::move(other.m_cutflowMCPUZVtxWeights)),
-    m_cutflowMCPUZVtxWeights_Loose(std::move(other.m_cutflowMCPUZVtxWeights_Loose)),
     m_cutflowScaleFactors(std::move(other.m_cutflowScaleFactors)),
     m_cutflowScaleFactors_Loose(std::move(other.m_cutflowScaleFactors_Loose)),
-    m_cutflowBScaleFactors(std::move(other.m_cutflowBScaleFactors)),
-    m_cutflowBScaleFactors_Loose(std::move(other.m_cutflowBScaleFactors_Loose)),
     m_cutflowParticleLevel(std::move(other.m_cutflowParticleLevel)),
     m_cutflowParticleLevelMCWeights(std::move(other.m_cutflowParticleLevelMCWeights)),
     m_name(std::move(other.m_name)),
@@ -265,88 +230,70 @@ namespace top {
     }
   }
 
-  void EventSelection::countInitial(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const {
+  void EventSelection::countInitial(const float mcEventWeight, const float pileupWeight) const {
     if (m_containsInitial) {
       if (m_config->doTightEvents()) {
         m_cutflow->Fill(m_positionInitial);
         m_cutflowMCWeights->Fill(m_positionInitial, mcEventWeight);
         m_cutflowPUWeights->Fill(m_positionInitial, pileupWeight);
-        m_cutflowZVtxWeights->Fill(m_positionInitial, zvtxWeight);
         m_cutflowMCPUWeights->Fill(m_positionInitial, mcEventWeight * pileupWeight);
-        m_cutflowMCPUZVtxWeights->Fill(m_positionInitial, mcEventWeight * pileupWeight * zvtxWeight);
       }
       if (m_config->doLooseEvents()) {
         m_cutflow_Loose->Fill(m_positionInitial);
         m_cutflowMCWeights_Loose->Fill(m_positionInitial, mcEventWeight);
         m_cutflowPUWeights_Loose->Fill(m_positionInitial, pileupWeight);
-        m_cutflowZVtxWeights_Loose->Fill(m_positionInitial, zvtxWeight);
         m_cutflowMCPUWeights_Loose->Fill(m_positionInitial, mcEventWeight * pileupWeight);
-        m_cutflowMCPUZVtxWeights_Loose->Fill(m_positionInitial, mcEventWeight * pileupWeight * zvtxWeight);
       }
     }
   }
 
-  void EventSelection::countGRL(const float mcEventWeight, const float pileupWeight, const float zvtxWeight) const {
+  void EventSelection::countGRL(const float mcEventWeight, const float pileupWeight) const {
     if (m_containsGRL) {
       if (m_config->doTightEvents()) {
         m_cutflow->Fill(m_positionGRL);
         m_cutflowMCWeights->Fill(m_positionGRL, mcEventWeight);
         m_cutflowPUWeights->Fill(m_positionGRL, pileupWeight);
-        m_cutflowZVtxWeights->Fill(m_positionGRL, zvtxWeight);
         m_cutflowMCPUWeights->Fill(m_positionGRL, mcEventWeight * pileupWeight);
-        m_cutflowMCPUZVtxWeights->Fill(m_positionGRL, mcEventWeight * pileupWeight * zvtxWeight);
       }
       if (m_config->doLooseEvents()) {
         m_cutflow_Loose->Fill(m_positionGRL);
         m_cutflowMCWeights_Loose->Fill(m_positionGRL, mcEventWeight);
         m_cutflowPUWeights_Loose->Fill(m_positionGRL, pileupWeight);
-        m_cutflowZVtxWeights_Loose->Fill(m_positionGRL, zvtxWeight);
         m_cutflowMCPUWeights_Loose->Fill(m_positionGRL, mcEventWeight * pileupWeight);
-        m_cutflowMCPUZVtxWeights_Loose->Fill(m_positionGRL, mcEventWeight * pileupWeight * zvtxWeight);
       }
     }
   }
 
-  void EventSelection::countGoodCalo(const float mcEventWeight, const float pileupWeight,
-                                     const float zvtxWeight) const {
+  void EventSelection::countGoodCalo(const float mcEventWeight, const float pileupWeight) const {
     if (m_containsGoodCalo) {
       if (m_config->doTightEvents()) {
         m_cutflow->Fill(m_positionGoodCalo);
         m_cutflowMCWeights->Fill(m_positionGoodCalo, mcEventWeight);
         m_cutflowPUWeights->Fill(m_positionGoodCalo, pileupWeight);
-        m_cutflowZVtxWeights->Fill(m_positionGoodCalo, zvtxWeight);
         m_cutflowMCPUWeights->Fill(m_positionGoodCalo, mcEventWeight * pileupWeight);
-        m_cutflowMCPUZVtxWeights->Fill(m_positionGoodCalo, mcEventWeight * pileupWeight * zvtxWeight);
       }
       if (m_config->doLooseEvents()) {
         m_cutflow_Loose->Fill(m_positionGoodCalo);
         m_cutflowMCWeights_Loose->Fill(m_positionGoodCalo, mcEventWeight);
         m_cutflowPUWeights_Loose->Fill(m_positionGoodCalo, pileupWeight);
-        m_cutflowZVtxWeights_Loose->Fill(m_positionGoodCalo, zvtxWeight);
         m_cutflowMCPUWeights_Loose->Fill(m_positionGoodCalo, mcEventWeight * pileupWeight);
-        m_cutflowMCPUZVtxWeights_Loose->Fill(m_positionGoodCalo, mcEventWeight * pileupWeight * zvtxWeight);
       }
     }
   }
 
-  void EventSelection::countPrimaryVertex(const float mcEventWeight, const float pileupWeight,
-                                          const float zvtxWeight) const {
+  void EventSelection::countPrimaryVertex(const float mcEventWeight, const float pileupWeight) const {
     if (m_containsPrimaryVertex) {
       if (m_config->doTightEvents()) {
         m_cutflow->Fill(m_positionPrimaryVertex);
         m_cutflowMCWeights->Fill(m_positionPrimaryVertex, mcEventWeight);
         m_cutflowPUWeights->Fill(m_positionPrimaryVertex, pileupWeight);
-        m_cutflowZVtxWeights->Fill(m_positionPrimaryVertex, zvtxWeight);
         m_cutflowMCPUWeights->Fill(m_positionPrimaryVertex, mcEventWeight * pileupWeight);
-        m_cutflowMCPUZVtxWeights->Fill(m_positionPrimaryVertex, mcEventWeight * pileupWeight * zvtxWeight);
       }
       if (m_config->doLooseEvents()) {
         m_cutflow_Loose->Fill(m_positionPrimaryVertex);
         m_cutflowMCWeights_Loose->Fill(m_positionPrimaryVertex, mcEventWeight);
         m_cutflowPUWeights_Loose->Fill(m_positionPrimaryVertex, pileupWeight);
-        m_cutflowZVtxWeights_Loose->Fill(m_positionPrimaryVertex, zvtxWeight);
         m_cutflowMCPUWeights_Loose->Fill(m_positionPrimaryVertex, mcEventWeight * pileupWeight);
-        m_cutflowMCPUZVtxWeights_Loose->Fill(m_positionPrimaryVertex, mcEventWeight * pileupWeight * zvtxWeight);
       }
     }
   }
@@ -355,28 +302,6 @@ namespace top {
     unsigned int i(0);
     bool passEvent(false);
 
-    std::string btag_string = "";
-    std::string nBtagCutName = "JET_N_BTAG";
-    std::string nBtagCutName_tjet = "TJET_N_BTAG";
-
-    // Find if this cutflow uses JET_N_BTAG or TJET_N_BTAG to identify appropriate b-tagging WP SF (if available)
-    // Implicitly assumes you only apply one n-btag condition (and is only for cutflow use)
-    auto foundBtagSelection = std::find_if(m_allCuts.begin(), m_allCuts.end(),
-                                           [&nBtagCutName](const auto& thisCut) {
-      return(thisCut->name() == nBtagCutName);
-    });
-    auto foundBtagSelection_tjet = std::find_if(m_allCuts.begin(), m_allCuts.end(),
-                                                [&nBtagCutName_tjet](const auto& thisCut) {
-      return(thisCut->name() == nBtagCutName_tjet);
-    });
-    if (foundBtagSelection_tjet != m_allCuts.end()) {
-      NJetBtagSelector* nJetBtagSelection = dynamic_cast<NJetBtagSelector*>((*foundBtagSelection_tjet).get());
-      btag_string = nJetBtagSelection->getFullCutName();
-    } else if (foundBtagSelection != m_allCuts.end()) {
-      NJetBtagSelector* nJetBtagSelection = dynamic_cast<NJetBtagSelector*>((*foundBtagSelection).get());
-      btag_string = nJetBtagSelection->getFullCutName();
-    }
-
     for (const auto& currentCut : m_allCuts) {
       const bool passed = currentCut->apply(event);
 
@@ -384,27 +309,14 @@ namespace top {
 
       double mcweight = 1.;
       double puweight = 1.;
-      double zvtxweight = 1.;
       double leptonSF = 1.;
-      double btagSF = 1.;
 
       if (m_isMC) {
-        mcweight = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
+          mcweight = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
-        if (top::ScaleFactorRetriever::hasPileupSF(event)) puweight = top::ScaleFactorRetriever::pileupSF(event);
+          if (top::ScaleFactorRetriever::hasPileupSF(event)) puweight = top::ScaleFactorRetriever::pileupSF(event);
 
-        leptonSF = m_sfRetriever->leptonSF(event, top::topSFSyst::nominal);
-
-        // Need to be careful with b-tagging. Can now load multiple taggers/calibrated or not.
-        // Can only retrieve SF for cutflow if its calibrated
-        if ((m_config->useTrackJets() &&
-             std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(),
-                       btag_string) != m_config->bTagWP_calibrated_trkJet().end()) ||
-            (!m_config->useTrackJets() &&
-             std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(),
-                       btag_string) != m_config->bTagWP_calibrated().end())) {
-          btagSF = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, btag_string, m_config->useTrackJets());
-        }
+          leptonSF = m_sfRetriever->leptonSF(event, top::topSFSyst::nominal);
       }
 
       //add cutflow information for the nominal (not systematic) selection
@@ -429,21 +341,15 @@ namespace top {
             m_cutflow->Fill(i);
             m_cutflowMCWeights->Fill(i, mcweight);
             m_cutflowPUWeights->Fill(i, puweight);
-            m_cutflowZVtxWeights->Fill(i, zvtxweight);
             m_cutflowMCPUWeights->Fill(i, mcweight * puweight);
-            m_cutflowMCPUZVtxWeights->Fill(i, mcweight * puweight * zvtxweight);
             m_cutflowScaleFactors->Fill(i, leptonSF);
-            m_cutflowBScaleFactors->Fill(i, btagSF);
           }
           if (m_config->doLooseEvents() && event.m_isLoose) {
             m_cutflow_Loose->Fill(i);
             m_cutflowMCWeights_Loose->Fill(i, mcweight);
             m_cutflowPUWeights_Loose->Fill(i, puweight);
-            m_cutflowZVtxWeights_Loose->Fill(i, zvtxweight);
             m_cutflowMCPUWeights_Loose->Fill(i, mcweight * puweight);
-            m_cutflowMCPUZVtxWeights_Loose->Fill(i, mcweight * puweight * zvtxweight);
             m_cutflowScaleFactors_Loose->Fill(i, leptonSF);
-            m_cutflowBScaleFactors_Loose->Fill(i, btagSF);
           }
         }
       }
@@ -533,8 +439,7 @@ namespace top {
         if (m_isMC)
           msgInfo << std::setw(15) << m_cutflowMCWeights->GetBinContent(i)
             << std::setw(15) << m_cutflowMCPUWeights->GetBinContent(i)
-            << std::setw(15) << m_cutflowScaleFactors->GetBinContent(i)
-            << std::setw(15) << m_cutflowBScaleFactors->GetBinContent(i);
+            << std::setw(15) << m_cutflowScaleFactors->GetBinContent(i);
 
         if (m_cutflowParticleLevel) {
           msgInfo << std::setw(15) << m_cutflowParticleLevel->GetBinContent(i);
@@ -581,8 +486,7 @@ namespace top {
         if (m_isMC)
           msgInfo << std::setw(15) << m_cutflowMCWeights_Loose->GetBinContent(i)
             << std::setw(15) << m_cutflowMCPUWeights_Loose->GetBinContent(i)
-            << std::setw(15) << m_cutflowScaleFactors_Loose->GetBinContent(i)
-            << std::setw(15) << m_cutflowBScaleFactors_Loose->GetBinContent(i);
+            << std::setw(15) << m_cutflowScaleFactors_Loose->GetBinContent(i);
 
         if (m_cutflowParticleLevel) {
           msgInfo << std::setw(15) << m_cutflowParticleLevel->GetBinContent(i);

@@ -11,17 +11,17 @@ log = logging.getLogger(__name__)
 def FTFTrackSequence(ConfigFlags):
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
-    InputMakerAlg=getTrackingInputMaker()
+    InputMakerAlg=getTrackingInputMaker("ftf")
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jet' )
 
-    from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-    TrkInputNoViewAlg = makeInDetAlgsNoView( config=IDTrigConfig, rois=caloFSRoI )
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
+    TrkInputNoViewAlg = makeInDetTrigFastTrackingNoView( config=IDTrigConfig, rois=caloFSRoI )
 
-    from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
+    from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
     
-    vtxAlgs = makeVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, adaptiveVertex=IDTrigConfig.adaptiveVertex_jet)
+    vtxAlgs = makeInDetTrigVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, adaptiveVertex=IDTrigConfig.adaptiveVertex_jet)
     prmVtx = vtxAlgs[-1]
 
     TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]

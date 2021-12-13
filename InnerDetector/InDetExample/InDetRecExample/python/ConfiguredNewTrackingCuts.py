@@ -776,6 +776,13 @@ class ConfiguredNewTrackingCuts :
 #        self.__maxPrimaryImpact        = 50.0 * Units.mm # low lumi
 #        self.__maxZImpact              = 500.0 * Units.mm
 
+
+    # using d0<10mm instead of d0<5mm. This is desired for B-physics
+    if mode == "BLS":
+      self.__maxPrimaryImpact   = 10.0 * Units.mm 
+      self.__maxdImpactSSSSeeds = 10.0 * Units.mm
+
+
 # ----------------------------------------------------------------------------
 # --- private method
   def __set_indetflags(self):

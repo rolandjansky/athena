@@ -196,8 +196,8 @@ namespace pool {
 
         bool fileCatalogRequired()const;
         std::string retrievePFN()const;
-        std::string retrieveFID()const;
-        std::string retrieveUniquePFN(const FileCatalog::FileID& fid)const;
+        std::string retrieveFID();
+        std::string retrieveUniquePFN(const FileCatalog::FileID& fid);
         std::string retrieveBestPFN(const FileCatalog::FileID& fid)const;  
         void retrieveFileCatalog()const;
 

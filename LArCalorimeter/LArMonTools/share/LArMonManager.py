@@ -1,4 +1,4 @@
-print "Welcome in LArMonManager.py"
+print("Welcome in LArMonManager.py")
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 topSequence += AthenaMonManager( "LArMon" )

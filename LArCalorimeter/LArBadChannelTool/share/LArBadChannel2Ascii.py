@@ -87,9 +87,10 @@ condSeq = AthSequencer("AthCondSeq")
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 condSeq+=xAODMaker__EventInfoCnvAlg()
 
-from IOVSvc.IOVSvcConf import CondInputLoader
-theCLI=CondInputLoader( "CondInputLoader")
-condSeq += theCLI 
+if not hasattr (condSeq, "CondInputLoader"):
+   from IOVSvc.IOVSvcConf import CondInputLoader
+   theCLI=CondInputLoader( "CondInputLoader")
+   condSeq += theCLI 
 
 import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
@@ -98,7 +99,7 @@ from LArCabling.LArCablingAccess import LArOnOffIdMapping
 LArOnOffIdMapping()
 
 from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
-LArBadChannelAccess(dbString="/LAR/BadChannelsOfl/BadChannels"+dbStr+tagStr)
+LArBadChannelAccess(dbString=folderStr+dbStr+tagStr)
 
 if len(ExecutiveSummaryFile):
     from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
@@ -111,4 +112,4 @@ theLArBadChannels2Ascii.WithMissing=False
 theLArBadChannels2Ascii.ExecutiveSummaryFile=ExecutiveSummaryFile
 topSequence+=theLArBadChannels2Ascii
 
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2018-06" 

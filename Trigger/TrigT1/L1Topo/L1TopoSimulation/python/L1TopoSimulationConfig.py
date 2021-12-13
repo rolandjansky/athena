@@ -25,29 +25,19 @@ def L1LegacyTopoSimulationCfg(flags):
     
     acc = ComponentAccumulator()
     
-    #Grab the MUCTPI tool
-    from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import MUCTPI_AthToolCfg
-    muctpiTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
-    acc.addPublicTool(muctpiTool, primary=True)
-
-    #Configure the MuonInputProvider
-    muProvider = CompFactory.LVL1.MuonInputProvider("MuonInputProvider",
-                                                    ROIBResultLocation = "", #disable input from RoIBResult
-                                                    MuonROILocation = "",
-                                                    MuonEncoding = 1)
-
-    #Configure the MuonRoiTools for the MIP
-    from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
-    muProvider.RecRpcRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config = True)
-    muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = True)
-
     emtauProvider = CompFactory.LVL1.EMTauInputProvider("EMTauInputProvider")
 
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1LegacyTopoSimulation",
-                                                    MuonInputProvider = muProvider,
                                                     EMTAUInputProvider = emtauProvider,
                                                     IsLegacyTopo = True,
                                                     MonHistBaseDir = "L1/L1LegacyTopoAlgorithms")
+
+    # No muon inputs to legacy Topo
+    topoSimAlg.MuonInputProvider.ROIBResultLocation = ""
+    topoSimAlg.MuonInputProvider.MuonROILocation = ""
+    topoSimAlg.MuonInputProvider.locationMuCTPItoL1Topo = ""
+    topoSimAlg.MuonInputProvider.ROIBResultLocation = ""
+
     acc.addEventAlgo(topoSimAlg)
     return acc
 
@@ -92,15 +82,23 @@ def L1TopoSimulationOldStyleCfg(flags, isLegacy):
         topoSimSeq.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
         # Need further test from inputs.
         topoSimSeq.JetInputProvider = 'LVL1::JetInputProviderFEX/JetInputProviderFEX'
+        # Need further test from inputs. Reverting back to Run 2 MET 
+        #topoSimSeq.EnergyInputProvider = 'LVL1::EnergyInputProviderFEX/EnergyInputProviderFEX'
 
-    if flags.Trigger.doLVL1:
-        # TODO: the legacy simulation should not need to deal with muon inputs
-        topoSimSeq.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
+    # Muon inputs only for phase-1 Topo
+    if isLegacy:
+        topoSimSeq.MuonInputProvider.ROIBResultLocation = ""
+        topoSimSeq.MuonInputProvider.MuonROILocation = ""
+        topoSimSeq.MuonInputProvider.locationMuCTPItoL1Topo = ""
+        topoSimSeq.MuonInputProvider.ROIBResultLocation = ""
+    else:
+        if flags.Trigger.doLVL1:
+            topoSimSeq.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
 
-    from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
-    topoSimSeq.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
-    topoSimSeq.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
-    topoSimSeq.MuonInputProvider.MuonROILocation = ""
-    topoSimSeq.MuonInputProvider.MuonEncoding = 1
+        from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool, getRun3TGCRecRoiTool
+        topoSimSeq.MuonInputProvider.RecRpcRoiTool = getRun3RPCRecRoiTool(useRun3Config=True)
+        topoSimSeq.MuonInputProvider.RecTgcRoiTool = getRun3TGCRecRoiTool(useRun3Config=True)
+        topoSimSeq.MuonInputProvider.MuonROILocation = ""
+        topoSimSeq.MuonInputProvider.MuonEncoding = 1
 
     return topoSimSeq

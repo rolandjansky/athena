@@ -13,7 +13,7 @@ if globalflags.DataSource()=='geant4':
     isSimulation = True
 
 print(isSimulation)
-
+from InDetRecExample import TrackingCommon
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -72,6 +72,8 @@ BPHY2JpsiSelectAndWrite = DerivationFramework__Reco_Vertex(name                 
                                                        OutputVtxContainerName = "BPHY2JpsiCandidates",
                                                        PVContainerName        = "PrimaryVertices",
                                                        RefPVContainerName     = "SHOULDNOTBEUSED",
+                                                       V0Tools                = TrackingCommon.getV0Tools(),
+                                                       PVRefitter             = BPHY2_VertexTools.PrimaryVertexRefitter,
                                                        DoVertexType           =1)
 ToolSvc += BPHY2JpsiSelectAndWrite
 print(BPHY2JpsiSelectAndWrite)
@@ -130,6 +132,8 @@ BPHY2BsKKSelectAndWrite = DerivationFramework__Reco_Vertex(name                 
                                                            PVContainerName          = "PrimaryVertices",
                                                            RefPVContainerName       = "BPHY2RefittedPrimaryVertices",
                                                            RefitPV                  = True,
+                                                           V0Tools                  = TrackingCommon.getV0Tools(),
+                                                           PVRefitter               = BPHY2_VertexTools.PrimaryVertexRefitter,
                                                            MaxPVrefit               = 10000, DoVertexType = 7)
 ToolSvc += BPHY2BsKKSelectAndWrite
 print(BPHY2BsKKSelectAndWrite)
@@ -140,6 +144,7 @@ BPHY2_Select_Psi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY2_Select_Psi2mumu",
   HypothesisName        = "Psi",
   InputVtxContainerName = "BPHY2JpsiCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3686.09,
   MassMin               = 3300.0,
   MassMax               = 4500.0,
@@ -155,6 +160,7 @@ BPHY2_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY2_Select_Jpsi2mumu",
   HypothesisName        = "Jpsi",
   InputVtxContainerName = "BPHY2JpsiCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3096.916,
   MassMin               = 2000.0,
   MassMax               = 3600.0,
@@ -169,6 +175,7 @@ BPHY2_Select_Bs2JpsiKK = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY2_Select_Bs2JpsiKK",
   HypothesisName             = "Bs",
   InputVtxContainerName      = "BPHY2BsJpsiKKCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658, 493.677, 493.677],
   VtxMassHypo                = 5366.3,
   MassMin                    = 5000.0,
@@ -196,10 +203,17 @@ BPHY2_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "BPHY2_thinningTool_Tracks",
   TrackParticleContainerName = "InDetTrackParticles",
   StreamName = streamName,
-  VertexContainerNames       = ["BPHY2BsJpsiKKCandidates", "BPHY2JpsiCandidates"],
-  PassFlags                  = ["passed_Bs", "passed_Psi", "passed_Jpsi"] )
-
+  VertexContainerNames       = ["BPHY2BsJpsiKKCandidates"],
+  PassFlags                  = ["passed_Bs"] )
 ToolSvc += BPHY2_thinningTool_Tracks
+
+BPHY2_thinningTool_TracksPsi = DerivationFramework__Thin_vtxTrk(
+  name                       = "BPHY2_thinningTool_Tracks",
+  TrackParticleContainerName = "InDetTrackParticles",
+  StreamName = streamName,
+  VertexContainerNames       = ["BPHY2JpsiCandidates"],
+  PassFlags                  = ["passed_Psi", "passed_Jpsi"] )
+ToolSvc += BPHY2_thinningTool_TracksPsi
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BPhysPVThinningTool
 BPHY2_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
@@ -246,7 +260,7 @@ ToolSvc += BPHY2MuonTPThinningTool
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
 
-thiningCollection = [BPHY2_thinningTool_Tracks, BPHY2_thinningTool_PV, BPHY2MuonTPThinningTool]
+thiningCollection = [BPHY2_thinningTool_Tracks, BPHY2_thinningTool_TracksPsi, BPHY2_thinningTool_PV, BPHY2MuonTPThinningTool]
 print(thiningCollection)
 
 BPHY2Seq = CfgMgr.AthSequencer("BPHY2Sequence")

@@ -54,6 +54,8 @@ class LArAutoCorrAlgToDB : public AthAlgorithm
   
   // number of gains
   unsigned int m_nGains = 0U; 
+
+  float m_nMinbias=20.0;
   
 };
 

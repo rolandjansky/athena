@@ -55,29 +55,29 @@ def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=Fal
     EventCnvSuperTool = None
     if useGeoModelSvc:
         if ConfigFlags.Detector.GeometryPixel:
-            from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-            acc.merge(PixelGeometryCfg(ConfigFlags))
-            useGeoModelSvc = True
+            from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+            acc.merge(PixelReadoutGeometryCfg(ConfigFlags))
         if ConfigFlags.Detector.GeometrySCT:
-            from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-            acc.merge(SCT_GeometryCfg(ConfigFlags))
-            useGeoModelSvc = True
+            from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+            acc.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
         if ConfigFlags.Detector.GeometryTRT:
-            from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-            acc.merge(TRT_GeometryCfg(ConfigFlags))
-            useGeoModelSvc = True
+            from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+            acc.merge(TRT_ReadoutGeometryCfg(ConfigFlags))
+        if ConfigFlags.Detector.GeometryITkPixel:
+            from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+            acc.merge(ITkPixelReadoutGeometryCfg(ConfigFlags))
+        if ConfigFlags.Detector.GeometryITkStrip:
+            from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+            acc.merge(ITkStripReadoutGeometryCfg(ConfigFlags))
         if ConfigFlags.Detector.GeometryLAr:
             from LArGeoAlgsNV.LArGMConfig import LArGMCfg
             acc.merge(LArGMCfg(ConfigFlags))
-            useGeoModelSvc = True
         if ConfigFlags.Detector.GeometryTile:
             from TileGeoModel.TileGMConfig import TileGMCfg
             acc.merge(TileGMCfg(ConfigFlags))
-            useGeoModelSvc = True
         if ConfigFlags.Detector.GeometryMuon:
             from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
             acc.merge(MuonGeoModelCfg(ConfigFlags))
-            useGeoModelSvc = True
         #acc.merge(ForDetGeometryCfg(ConfigFlags))
         from AtlasGeoModel.GeoModelConfig import GeoModelCfg
         acc.merge(GeoModelCfg(ConfigFlags))

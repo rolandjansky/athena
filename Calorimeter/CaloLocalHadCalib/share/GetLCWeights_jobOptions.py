@@ -32,7 +32,7 @@ GetLCW.UseInversionMethod = True
 # 'EMB2:log10(rho_cell (MeV/mm^3))': ('log10(rho_cell (MeV/mm^3))',-7.0,1.0,20),
 # 'EMB2:weight': ('weight',-2.0,3.0,1)}
 #
-GetLCW.ClusterCollectionName = "CaloTopoCluster"
+GetLCW.ClusterCollectionName = "CaloTopoClusters"
 GetLCW.CalibrationHitContainerNames = ["LArCalibrationHitInactive"
                                        ,"LArCalibrationHitActive"
                                        ,"TileCalibHitInactiveCell"

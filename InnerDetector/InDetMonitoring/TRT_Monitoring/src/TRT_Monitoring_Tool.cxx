@@ -113,8 +113,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_ResidualScale_E_Ar(),
 	m_ResidualScale_E_Ar_20GeV(),
 	m_TimeResidualScale_E_Ar(),
-	//m_propagator(0),
-	//m_extrapolator(0),
 	m_DEBUG(false),
 	m_longToTCut(9.375),
 	m_EventBurstCut(200),

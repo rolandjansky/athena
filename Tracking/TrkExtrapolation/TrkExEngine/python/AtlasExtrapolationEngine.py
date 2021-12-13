@@ -75,7 +75,6 @@ class AtlasExtrapolationEngine( ExEngine ):
         StaticNavigator.PropagationEngine        = StaticPropagator
         StaticNavigator.MaterialEffectsEngine    = MaterialEffectsEngine
         # Geometry name
-        StaticNavigator.TrackingGeometrySvc         = ''      if AtlasTrackingGeometryCondAlg is not None else AtlasTrackingGeometrySvc
         StaticNavigator.TrackingGeometryReadKey     = AtlasTrackingGeometryCondAlg.TrackingGeometryWriteKey  if AtlasTrackingGeometryCondAlg is not None else ''
         # configure output formatting               
         StaticNavigator.OutputPrefix             = '[SN] - '

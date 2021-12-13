@@ -4,10 +4,10 @@ Py:MetaReader        INFO Current mode used: peeker
 Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/TDAQ/OLC/LHC/FILLPARAMS']] set
+Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/TDAQ/OLC/LHC/FILLPARAMS']]
 Py:ComponentAccumulator    INFO  \__ FillParamsCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * FillParamsFolderInputKey: /TDAQ/OLC/LHC/FILLPARAMS set
-Py:ComponentAccumulator    INFO      * FillParamsOutputKey: FillParamsCondData set
+Py:ComponentAccumulator    INFO      * FillParamsFolderInputKey: /TDAQ/OLC/LHC/FILLPARAMS
+Py:ComponentAccumulator    INFO      * FillParamsOutputKey: FillParamsCondData
 IOVDbSvc: ['<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag>']
 --- default
 Py:ComponentAccumulator    INFO Condition Algorithms

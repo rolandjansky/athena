@@ -9,11 +9,8 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     #
     # --- set up special Scoring Tool for standalone TRT tracks
     #
-    InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryTool)
-
-    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags)
-    acc.addPublicTool(InDetTRTDriftCircleCut)
+    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
+    InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
 
     #
     # Cut values and output key for the TRT segments standalone TRT track finder
@@ -35,13 +32,17 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     kwargs.setdefault("UseParameterization", flags.InDet.Tracking.useTRTonlyParamCuts)
     kwargs.setdefault("OldTransitionLogic", flags.InDet.Tracking.useTRTonlyOldLogic)
     kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.minSecondaryTRTPrecFrac)
+    kwargs.setdefault("TRTTrksEtaBins", flags.InDet.Tracking.TrkSel.TRTTrksEtaBins)
+    kwargs.setdefault("TRTTrksMinTRTHitsThresholds", flags.InDet.Tracking.TrkSel.TRTTrksMinTRTHitsThresholds)
+    kwargs.setdefault("TRTTrksMinTRTHitsMuDependencies", flags.InDet.Tracking.TrkSel.TRTTrksMinTRTHitsMuDependencies)
 
-    InDetTRT_StandaloneScoringTool = CompFactory.InDet.InDetTrtTrackScoringTool(name = name, **kwargs)
-    acc.setPrivateTools(InDetTRT_StandaloneScoringTool)
+    acc.setPrivateTools(CompFactory.InDet.InDetTrtTrackScoringTool(name, **kwargs))
     return acc
 
 def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extension = "", usePrdAssociationTool = True, **kwargs):
-    acc = ComponentAccumulator()
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    acc = MagneticFieldSvcCfg(flags)
+
     #
     # set up TRT_SegmentToTrackTool
     #
@@ -55,10 +56,9 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
     InDetTrackFitterTRT = acc.popToolsAndMerge(TC.InDetTrackFitterTRTCfg(flags))
     acc.addPublicTool(InDetTrackFitterTRT)
 
-    InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryTool)
+    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
-    from InDetConfig.InDetRecToolConfig  import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
 
     
@@ -81,6 +81,10 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
 
 def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', extension = "", BarrelSegments = None, prd_to_track_map = '', **kwargs):
     acc = ComponentAccumulator()
+    if not flags.Input.isMC:
+        # TODO: certainly not the right dependency but at least it makes this algorithm run
+        from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+        acc.merge(LumiBlockMuWriterCfg(flags))
 
     usePrdAssociationTool = True
     #usePrdAssociationTool = True if len(InputCollections) > 0 else False
@@ -223,14 +227,14 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( ConfigFlags ))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    top_acc.merge( PixelGeometryCfg(ConfigFlags) )
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    top_acc.merge( PixelReadoutGeometryCfg(ConfigFlags) )
 
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge(SCT_GeometryCfg(ConfigFlags))
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    top_acc.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
     top_acc.merge(MuonGeoModelCfg(ConfigFlags))
@@ -243,33 +247,17 @@ if __name__ == "__main__":
     top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(ConfigFlags))
     ###
     ###
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector", className='CondAttrListVec'))
-    # HT probability algorithm
-    TRTHTCondAlg = CompFactory.TRTHTCondAlg(name = "TRTHTCondAlg", HTWriteKey = "HTcalculator")
-    top_acc.addCondAlgo(TRTHTCondAlg)
-    ###
-    ###
     top_acc.merge(addFoldersSplitOnline(ConfigFlags, "PIXEL", "/PIXEL/PixdEdx", "/PIXEL/PixdEdx", className='AthenaAttributeList'))
 
     PixeldEdxAlg = CompFactory.PixeldEdxAlg(name="PixeldEdxAlg", ReadFromCOOL = True)
     top_acc.addCondAlgo(PixeldEdxAlg)
     ###
-    InDetTRTStrawStatusSummaryTool = top_acc.popToolsAndMerge(TC.InDetTRTStrawStatusSummaryToolCfg(ConfigFlags))
-    top_acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
 
-    TRTStrawCondAlg = CompFactory.TRTStrawCondAlg(  name="TRTStrawCondAlg", 
-                                                    TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
-                                                    StrawWriteKey  = "AliveStraws",
-                                                    isGEANT4 = ConfigFlags.Input.isMC)
-    top_acc.addCondAlgo(TRTStrawCondAlg)
-    ###
-    ###
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors", className='CondAttrListVec'))
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue", className='CondAttrListCollection'))
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg, TRTToTCondAlg, TRTHTCondAlgCfg
+    top_acc.merge(TRTStrawCondAlgCfg(ConfigFlags))
+    top_acc.merge(TRTToTCondAlg(ConfigFlags))
+    top_acc.merge(TRTHTCondAlgCfg(ConfigFlags))
 
-    TRTToTCondAlg = CompFactory.TRTToTCondAlg(  name        = "TRTToTCondAlg",
-                                                ToTWriteKey = "Dedxcorrection")
-    top_acc.addCondAlgo(TRTToTCondAlg)
     ###
     ###
     from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
@@ -285,8 +273,7 @@ if __name__ == "__main__":
     top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
     ###
     ###
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg, TRTSegmentFindingCfg
-
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
     top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
     ############################# TRTPreProcessing configuration ############################
@@ -297,6 +284,7 @@ if __name__ == "__main__":
     # NewTracking collection keys
     InputCombinedInDetTracks = []
 
+    from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
     top_acc.merge(TRTSegmentFindingCfg( ConfigFlags,
                                         "",
                                         InputCombinedInDetTracks,

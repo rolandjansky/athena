@@ -147,11 +147,12 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
   ATH_CHECK(m_outputSDO_CollectionKey.initialize());
   
-  // initialize class to execute digitization 
+  // initialize sTgcDigitMaker class to digitize hits
   m_digitizer = std::make_unique<sTgcDigitMaker>(m_hitIdHelper, m_mdManager, m_doEfficiencyCorrection);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
+  m_digitizer->setLevel(static_cast<MSG::Level>(msgLevel()));
+  ATH_CHECK(m_digitizer->initialize(m_doChannelTypes));
+
   ATH_CHECK(m_rndmSvc.retrieve());
-    
   // getting our random numbers stream
   ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
 
@@ -332,8 +333,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, ctx);
 
-  ATH_CHECK(m_digitizer->initialize(rndmEngine, m_doChannelTypes));
-
   // create and record the Digit container in StoreGate
   SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max())));
@@ -481,7 +480,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       float tof = temp_hit.globalPosition().mag()/CLHEP::c_light;
       float bunchTime = globalHitTime - tof;
 
-      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
+      // Create all the digits for this particular Sim Hit
+      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime, rndmEngine);
       if (digiHits == nullptr) {
         continue;
       }
@@ -951,12 +951,11 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 									      it_digit->isDead(), 
 									      it_digit->isPileup());	  
 
-	  digitCollection->push_back(std::move(finalDigit));
 	  ATH_MSG_VERBOSE("Final Digit") ;
 	  ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
 	  ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
 	  ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
-
+    digitCollection->push_back(std::move(finalDigit));	  
   }
 
       } // end of loop for all the digit object of the same ReadoutElementID
@@ -986,14 +985,14 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 /*******************************************************************************/
 void sTgcDigitizationTool::readDeadtimeConfig()
 {
-  const char* const fileName = "sTGC_Digitization_deadtime.config";
+  static const std::string fileName = "sTGC_Digitization_deadtime.config";
   std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
 
   ATH_MSG_INFO("Reading deadtime config file");
 
   std::ifstream ifs;
   if (!fileWithPath.empty()) {
-    ifs.open(fileWithPath.c_str(), std::ios::in);
+    ifs.open(fileWithPath, std::ios::in);
   }
   else {
     ATH_MSG_FATAL("readDeadtimeConfig(): Could not find file " << fileName );

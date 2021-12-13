@@ -823,7 +823,6 @@ public:
 
 
 private:
-  static thread_local SG::HiveEventSlot* s_pSlot;
 
   SGImplSvc* m_defaultStore;
   ServiceHandle<IProxyProviderSvc> m_pPPSHandle; ///< property

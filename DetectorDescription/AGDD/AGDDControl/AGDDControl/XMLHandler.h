@@ -9,8 +9,6 @@
 #include <vector>
 #include <xercesc/dom/DOM.hpp>
 
-#include "AGDDControl/ExpressionEvaluator.h"
-
 class XMLHandlerStore;
 class AGDDController;
 
@@ -18,7 +16,7 @@ class XMLHandler {
 public:
 	XMLHandler(const std::string& n, AGDDController& c);
   	virtual ~XMLHandler() {}
-	std::string GetName() {return m_name;}
+	std::string GetName() const {return m_name;}
         virtual void ElementHandle(AGDDController& c,
                                    xercesc::DOMNode *t)=0;
         virtual void Handle(AGDDController& c,
@@ -27,7 +25,7 @@ public:
 		ElementHandle(c, t);
 	}
 	void StopLoop(bool);
-	bool IsLoopToBeStopped();
+	bool IsLoopToBeStopped() const;
 protected:
 	std::string m_name;
 	bool m_stopLoop;
@@ -52,7 +50,7 @@ protected:
 	std::vector<int> getAttributeAsIntVector(AGDDController& c,
                                                  const xercesc::DOMNode* t,
                                                  const std::string&) const;
-	std::string getAttributeAsString(AGDDController& c,
+        std::string getAttributeAsString(AGDDController& c,
                                          const xercesc::DOMNode* t,
                                          const std::string&, bool&) const;
 	double getAttributeAsDouble(AGDDController& c,
@@ -82,13 +80,7 @@ protected:
         std::vector<int> getAttributeAsIntVector(AGDDController& c,
                                                  const xercesc::DOMNode* t,
                                                  const std::string&, const std::vector<int>&) const;
-	static bool s_printFlag;
 	
-	ExpressionEvaluator& Evaluator() const
-	{
-		static ExpressionEvaluator eval;
-		return eval;	
-	}
 private:
 	void RegisterToStore(AGDDController& c);
 };

@@ -180,6 +180,7 @@ def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticl
                                                               config                   = config )
 
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+  from xAODTrackingCnv.xAODTrackingCnvMonitoring import xAODTrackingCnvMonTool
   return  xAODMaker__TrackParticleCnvAlg(  name                                      = name,
                                            # Properties below are used for:  TrackCollection -> xAOD::TrackParticle
                                            ConvertTracks                             = True,  #Turn on  retrieve of TrackCollection, false by default
@@ -189,7 +190,8 @@ def trackParticleCnv_builder(name, config, inTrackCollectionKey, outTrackParticl
                                            TrackParticleCreator                      = trackParticleCreatorTool,
                                            #Add track monitoring
                                            DoMonitoring                              = True,
-                                           TrackMonTool                              = trackMonitoringTool_builder( config.input_name + getTrackingSuffix(name) ),
+                                           MonTool                                   = xAODTrackingCnvMonTool(),
+                                           TrkMonTool                                = trackMonitoringTool_builder( config.input_name + getTrackingSuffix(name) ),
                                            # Properties below are used for obsolete: Rec:TrackParticle, aod -> xAOD::TrackParticle (Turn off)
                                            ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm
                                            xAODContainerName                         = '',

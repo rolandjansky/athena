@@ -98,6 +98,6 @@ def dimuEFSequence():
 
 def getNoL2CombChainNames():
     from ..Menu.GenerateMenuMT import GenerateMenuMT
-    menu = GenerateMenuMT()  # get menu singleton
-    chains = [chain.name for chain in menu.chainsInMenu['Bphysics'] if "noL2Comb" in chain.name]
+    menu = GenerateMenuMT()
+    chains = [chain.name for chain in menu.chainsInMenu['Bphysics'] if 'noL2Comb' in chain.name]
     return chains

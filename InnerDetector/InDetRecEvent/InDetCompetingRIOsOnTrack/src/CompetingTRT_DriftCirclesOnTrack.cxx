@@ -209,15 +209,15 @@ InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() const
   Amg::Vector3D globalPos(0., 0., 0.);
   if (assgnProbSum > 0.) {
     std::vector<const InDet::TRT_DriftCircleOnTrack*>::const_iterator rotIter =
-      m_containedChildRots->begin();
+      std::as_const(*m_containedChildRots).begin();
     assgnProbIter = m_assignProb->begin();
-    for (; rotIter != m_containedChildRots->end(); ++rotIter, ++assgnProbIter) {
+    for (; rotIter != std::as_const(*m_containedChildRots).end(); ++rotIter, ++assgnProbIter) {
       globalPos +=
         (((*assgnProbIter) / assgnProbSum) * ((*rotIter)->globalPosition()));
     }
 
   } else {
-    globalPos = (*m_containedChildRots->begin())->globalPosition();
+    globalPos = std::as_const(*m_containedChildRots)[0]->globalPosition();
   }
   m_globalPosition.set(std::make_unique<const Amg::Vector3D>(globalPos));
   return *m_globalPosition;

@@ -12,6 +12,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 namespace {
     constexpr int MAXPLANES = 100;
     /// Shortcut to square a number
@@ -270,13 +271,7 @@ namespace Muon {
             int ntracks(0);
             for (int jcl = 0; jcl < ncluster; ++jcl) {
                 float dEta = trkClu[icl].eta - trkClu0[jcl].eta;
-                float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-                while (std::abs(dPhi) > M_PI) {
-                    if (dPhi < 0)
-                        dPhi += 2 * M_PI;
-                    else
-                        dPhi -= 2 * M_PI;
-                }
+                float dPhi = xAOD::P4Helpers::deltaPhi(trkClu[icl].phi , trkClu0[jcl].phi);
                 if (std::abs(dEta) < 0.7 && std::abs(dPhi) < M_PI / 3.) {
                     ntracks++;
                     trkClu[icl].eta = trkClu[icl].eta - dEta / ntracks;
@@ -304,15 +299,7 @@ namespace Muon {
 
                 for (int jcl = 0; jcl < ncluster; ++jcl) {
                     float dEta = std::abs(trkClu[icl].eta - trkClu0[jcl].eta);
-                    float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-
-                    while (std::abs(dPhi) > M_PI) {
-                        if (dPhi < 0)
-                            dPhi += 2 * M_PI;
-                        else
-                            dPhi -= 2 * M_PI;
-                    }
-
+                    float dPhi = xAOD::P4Helpers::deltaPhi(trkClu[icl].phi , trkClu0[jcl].phi);
                     if (dEta < 0.7 && std::abs(dPhi) < M_PI / 3.) {
                         eta_avg += trkClu0[jcl].eta;
                         cosPhi_avg += std::cos(trkClu0[jcl].phi);
@@ -356,13 +343,7 @@ namespace Muon {
         std::vector<Tracklet> unusedTracks;
         for (std::vector<Tracklet>::iterator trkItr = tracks.begin(); trkItr != tracks.end(); ++trkItr) {
             float dEta = std::abs(BestCluster.eta - trkItr->globalPosition().eta());
-            float dPhi = BestCluster.phi - trkItr->globalPosition().phi();
-            while (std::abs(dPhi) > M_PI) {
-                if (dPhi < 0)
-                    dPhi += 2 * M_PI;
-                else
-                    dPhi -= 2 * M_PI;
-            }
+            float dPhi = xAOD::P4Helpers::deltaPhi(BestCluster.phi , trkItr->globalPosition().phi());
             if (dEta < 0.7 && std::abs(dPhi) < M_PI / 3.)
                 BestCluster.tracks.push_back((*trkItr));
             else

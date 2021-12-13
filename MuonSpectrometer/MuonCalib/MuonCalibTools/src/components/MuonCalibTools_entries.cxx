@@ -1,7 +1,6 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 #include "MuonCalibTools/IdToFixedIdTool.h"
-#include "MuonCalibTools/PatternNtupleMaker.h"
-
 using namespace MuonCalib;
-
-DECLARE_COMPONENT(PatternNtupleMaker)
 DECLARE_COMPONENT(IdToFixedIdTool)

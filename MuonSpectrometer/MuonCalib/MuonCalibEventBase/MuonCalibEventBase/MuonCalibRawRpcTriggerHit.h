@@ -4,8 +4,6 @@
 
 //*********************************************************//
 // Class to store raw Rpc TRIGGER hits                     //
-// Author: Giuseppe Salamanna                              //
-// Date  : 18th february 2009                              //
 //*********************************************************//
 
 #ifndef MUONCALIBRAWRPCTRIGGERHIT_H
@@ -24,47 +22,48 @@ namespace MuonCalib {
 
     class MuonCalibRawRpcTriggerHit {
     public:
-        MuonCalibRawRpcTriggerHit(){};  //!< default constructor
-        MuonCalibRawRpcTriggerHit(int sector, int padId, int status, int errorCode, int cmaId, int fel1Id, int febcId, int crc, int bcId,
-                                  int time, int ijk, int channel, int overlap,
-                                  int threshold);                         //!< constructor setting all attributes
-        MuonCalibRawRpcTriggerHit(const MuonCalibRawRpcTriggerHit& hit);  //!< copy constructor
-        ~MuonCalibRawRpcTriggerHit(){};                                   //!< destructor
+        struct defineParams {
+            int sector{0};
+            int padId{0};
+            int status{0};
+            int errorCode{0};
+            int cmaId{0};
+            int fel1Id{0};
+            int febcId{0};
+            int crc{0};
+            int bcId{0};
+            int time{0};
+            int ijk{0};
+            int channel{0};
+            int overlap{0};
+            int threshold{0};
+        };
+        MuonCalibRawRpcTriggerHit() = default;                                                 //!< default constructor
+        MuonCalibRawRpcTriggerHit(const MuonCalibRawRpcTriggerHit& hit) = default;             //!< copy constructor
+        MuonCalibRawRpcTriggerHit& operator=(const MuonCalibRawRpcTriggerHit& rhs) = default;  //!< assignment operator
+        ~MuonCalibRawRpcTriggerHit() = default;                                                //!< destructor
 
-        MuonCalibRawRpcTriggerHit& operator=(const MuonCalibRawRpcTriggerHit& rhs);  //!< assignment operator
+        MuonCalibRawRpcTriggerHit(const defineParams& pars);  //!< constructor setting all attributes
 
         std::ostream& dump(std::ostream& stream) const;  //!< dump to be used for operator<<() to dump the MuonCalibRawRpcTriggerHit
 
-        int sector() const { return m_sector; };        // pad sector Id
-        int padId() const { return m_padId; };          // pad Id
-        int status() const { return m_status; };        // status
-        int errorCode() const { return m_errorCode; };  // error code
-        int cmaId() const { return m_cmaId; };          // CMA Id
-        int fel1Id() const { return m_fel1Id; };        // fel1Id
-        int febcId() const { return m_febcId; };        // febcId
-        int crc() const { return m_crc; };              // crc
-        int bcId() const { return m_bcId; };            // bc Id
-        int time() const { return m_time; };            // time
-        int ijk() const { return m_ijk; };              // ijk code
-        int channel() const { return m_channel; };      // fired channel
-        int overlap() const { return m_overlap; };      // overlap
-        int threshold() const { return m_threshold; };
+        int sector() const;     // pad sector Id
+        int padId() const;      // pad Id
+        int status() const;     // status
+        int errorCode() const;  // error code
+        int cmaId() const;      // CMA Id
+        int fel1Id() const;     // fel1Id
+        int febcId() const;     // febcId
+        int crc() const;        // crc
+        int bcId() const;       // bc Id
+        int time() const;       // time
+        int ijk() const;        // ijk code
+        int channel() const;    // fired channel
+        int overlap() const;    // overlap
+        int threshold() const;
 
     private:
-        int m_sector;
-        int m_padId;
-        int m_status;
-        int m_errorCode;
-        int m_cmaId;
-        int m_fel1Id;
-        int m_febcId;
-        int m_crc;
-        int m_bcId;
-        int m_time;
-        int m_ijk;
-        int m_channel;
-        int m_overlap;
-        int m_threshold;
+        defineParams m_pars{};
     };
 
 }  // namespace MuonCalib

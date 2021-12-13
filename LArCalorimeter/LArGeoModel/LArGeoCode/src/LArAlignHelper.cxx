@@ -81,7 +81,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	gat->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
       }
       else {
-	gat->clearDelta();
+	gat->clearDelta(alignmentStore);
       }
     }
     else if (alignName=="HEC_POS") {
@@ -90,7 +90,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	  hec1GatPos->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
 	}
 	else {
-	  hec1GatPos->clearDelta();
+	  hec1GatPos->clearDelta(alignmentStore);
 	}
       }
       if (hec2GatPos) {
@@ -98,7 +98,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	  hec2GatPos->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
 	}
 	else {
-	  hec2GatPos->clearDelta();
+	  hec2GatPos->clearDelta(alignmentStore);
 	}
       }
     }
@@ -108,7 +108,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	  hec1GatNeg->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
 	}
 	else {
-	  hec1GatNeg->clearDelta();
+	  hec1GatNeg->clearDelta(alignmentStore);
 	}
       }
       if (hec2GatNeg) {
@@ -116,7 +116,7 @@ StatusCode LArAlignHelper::applyAlignments(const ServiceHandle<StoreGateSvc>& de
 	  hec2GatNeg->setDelta(Amg::CLHEPTransformToEigen(newDelta),alignmentStore);
 	}
 	else {
-	  hec2GatNeg->clearDelta();
+	  hec2GatNeg->clearDelta(alignmentStore);
 	}
       }
     }

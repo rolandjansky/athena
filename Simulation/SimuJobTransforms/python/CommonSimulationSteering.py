@@ -37,6 +37,11 @@ def CommonSimulationCfg(ConfigFlags, log):
         # Cases 3a, 3b
         from AthenaConfiguration.MainServicesConfig import MainEvgenServicesCfg
         cfg = MainEvgenServicesCfg(ConfigFlags)
+        # For Simulation we need to override the RunNumber to pick up
+        # the right conditions. These next two lines are required for
+        # this to work.
+        cfg.getService("EventSelector").FirstLB = ConfigFlags.Input.LumiBlockNumber[0]
+        cfg.getService("EventSelector").OverrideRunNumber = True
         from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
         cfg.merge(EvtIdModifierSvcCfg(ConfigFlags))
         if ConfigFlags.Beam.Type == 'cosmics':
@@ -53,7 +58,7 @@ def CommonSimulationCfg(ConfigFlags, log):
         cfg = MainServicesCfg(ConfigFlags)
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
         cfg.merge(PoolReadCfg(ConfigFlags))
-        if ConfigFlags.Sim.ReadTR:
+        if ConfigFlags.Sim.ReadTR or ConfigFlags.Sim.CavernBG == "Read":
             # Cases 2a, 2b, 2c
             from TrackRecordGenerator.TrackRecordGeneratorConfigNew import Input_TrackRecordGeneratorCfg
             cfg.merge(Input_TrackRecordGeneratorCfg(ConfigFlags))
@@ -106,5 +111,10 @@ def CommonSimulationCfg(ConfigFlags, log):
         from SimuJobTransforms.SimOutputConfig import getStreamEVNT_TR_ItemList
         cfg.merge( OutputStreamCfg(ConfigFlags,"EVNT_TR", ItemList=getStreamEVNT_TR_ItemList(ConfigFlags), disableEventTag=True) )
         cfg.getEventAlgo("OutputStreamEVNT_TR").AcceptAlgs=AcceptAlgNames
+
+    # Add MT-safe PerfMon
+    if ConfigFlags.PerfMon.doFastMonMT or ConfigFlags.PerfMon.doFullMonMT:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
 
     return cfg

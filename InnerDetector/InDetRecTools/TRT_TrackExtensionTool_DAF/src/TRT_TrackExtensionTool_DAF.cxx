@@ -14,12 +14,6 @@
 
 #include "TrkParameters/TrackParameters.h"
 
-// tools:
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkExInterfaces/IPropagator.h"
-#include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h"
-#include "InDetCompetingRIOsOnTrackTool/ICompetingTRT_DriftCirclesOnTrackCreator.h"
-
 #include "TrkTrack/Track.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
@@ -56,10 +50,7 @@ InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
             m_jo_simpleExtension(true),
             m_jo_maxGroupDistance(5.),
             m_jo_minGroupDistance(1.),
-            m_compROTcreator("InDet::CompetingTRT_DriftCirclesOnTrackTool/CompetingTRT_DriftCirclesOnTrackTool"),
             m_jo_annealingFactor(81.),
-            m_roadtool("InDet::TRT_DetElementsRoadMaker_xk/TRT_DetElementsRoadMaker"),
-            m_propagator("Trk::RungeKuttaPropagator/Propagator"),
             m_fieldmode("MapSolenoid"),
             m_trtID(nullptr)
 {
@@ -67,9 +58,6 @@ InDet::TRT_TrackExtensionTool_DAF::TRT_TrackExtensionTool_DAF
     declareInterface<ITRT_TrackExtensionTool>(this);
 
     declareProperty("MagneticFieldMode",        m_fieldmode,          "field mode of the field tool");
-    declareProperty("PropagatorTool",           m_propagator,           "Propagator tool");
-    declareProperty("CompetingDriftCircleTool", m_compROTcreator,       "Tool for the creation of CompetingTRT_DriftCirclesOnTrack");
-    declareProperty("RoadTool",                 m_roadtool,             "TRT Road Tool for the search of Detector Elements");
     declareProperty("TRT_DriftCircleContainer", m_jo_trtcontainername,   "Name of the container of TRT measurements (TRT_DriftCircles)");
     declareProperty("InitialAnnealingFactor",   m_jo_annealingFactor,    "Annealing factor (temperature) used to calculate the initial assignment probabilities of a group of competing TRT measurements. Should be choosen identical to the first entry of the annealing schedule of the Deterministic Annealing Filter");
     declareProperty("SimpleElementWiseExtension", m_jo_simpleExtension,  "Do simple element wise extension or do sophisticated grouping of measurements?");

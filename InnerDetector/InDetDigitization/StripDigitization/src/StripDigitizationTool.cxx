@@ -37,6 +37,9 @@
 
 using InDetDD::SiCellId;
 
+namespace ITk
+{
+
 StripDigitizationTool::StripDigitizationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
@@ -939,3 +942,5 @@ void StripDigitizationTool::addSDO(SiChargedDiodeCollection* collection, SG::Wri
     }
   }
 }
+
+} // namespace ITk

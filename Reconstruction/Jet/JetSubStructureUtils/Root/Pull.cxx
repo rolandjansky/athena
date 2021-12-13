@@ -32,7 +32,7 @@ map<string, double> Pull::result(const fastjet::PseudoJet &jet) const
   TVector2 r_pull;//pull (times jet pt)
   double jeta = m_useEtaInsteadOfY ? jet.eta() : jet.rapidity();
 
-  for(vector<fastjet::PseudoJet>::iterator cit = constit_pseudojets.begin(); cit != constit_pseudojets.end(); cit++) {
+  for(vector<fastjet::PseudoJet>::iterator cit = constit_pseudojets.begin(); cit != constit_pseudojets.end(); ++cit) {
     const fastjet::PseudoJet &constit = *cit;
 
     double dphi = jet.delta_phi_to(constit); 

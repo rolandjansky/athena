@@ -14,5 +14,6 @@ def createPFConfigFlags():
     pfConfigFlags.addFlag("PF.useElPhotLinks",True)
     pfConfigFlags.addFlag("PF.useMuLinks",True)
     pfConfigFlags.addFlag("PF.useOldPFO",False)
+    pfConfigFlags.addFlag("PF.useRecExCommon",False) #Toggle whether we are in the RecExCommon config or not.
     
     return pfConfigFlags

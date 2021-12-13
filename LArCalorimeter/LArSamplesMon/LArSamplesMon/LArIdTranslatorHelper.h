@@ -60,17 +60,15 @@ class LArIdTranslatorHelper
     TTree* m_tree;
     TFile* m_file;
     Int_t m_ntotal,m_extrabins;
-    Int_t m_map_ft,m_map_sl,m_map_ch,m_map_onlid,m_map_entry;
 
     Int_t m_canvas_counts,m_clonemap_counts;
     Char_t m_namebuf[128]{};
 
     Int_t m_nPartitionLayers; // number of partition layers (nominally 30, from CaloCell monitoring)
-    Char_t** m_PartitionLayers;
+    std::vector<std::string> m_PartitionLayers;
     Int_t m_nHistCategories; // categories used for mapping performances
-    Char_t** m_HistCategories;
-    TH2I*** m_HistCellmaps; // mapping histograms loaded from input rootfile
-
+    std::vector<std::string> m_HistCategories;
+    std::vector<std::vector<std::unique_ptr<TH2I> > > m_HistCellmaps;  // mapping histograms loaded from input rootfile
 };
 
 #endif

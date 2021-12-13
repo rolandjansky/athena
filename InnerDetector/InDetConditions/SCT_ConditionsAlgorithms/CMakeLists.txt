@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_ConditionsAlgorithms )
@@ -13,115 +13,62 @@ atlas_add_component( SCT_ConditionsAlgorithms
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps StoreGateLib Identifier DetDescrConditions GeoModelUtilities GeoPrimitives GaudiKernel SCT_ConditionsData SCT_CablingLib AthenaPoolUtilities InDetConditionsSummaryService InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TrkGeometry TrkSurfaces SCT_ConditionsToolsLib MuonReadoutGeometry TRT_ReadoutGeometry)
 
-atlas_add_test( TestCalibChipRead
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testCalibChipRead.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestCalibRead
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testCalibRead.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestConfig
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testConfig.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestDCSConditions
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testDCSConditions.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
+# Helper functions for test definitions:
+function( _add_athena_test name )
+   atlas_add_test( ${name}
+      SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/${name}.py
+      POST_EXEC_SCRIPT nopost.sh
+      PROPERTIES TIMEOUT 600
+      ENVIRONMENT THREADS=5 )
+endfunction()
+
+function( _add_test name )
+   atlas_add_test( ${name}
+      SCRIPT python -m SCT_ConditionsAlgorithms.${name}
+      POST_EXEC_SCRIPT nopost.sh
+      PROPERTIES TIMEOUT 600 )
+endfunction()
+
+_add_athena_test( testCalibChipRead )
+_add_athena_test( testCalibRead )
+_add_athena_test( testConfig )
+_add_athena_test( testDCSConditions )
+_add_athena_test( testMajority )
+_add_athena_test( testModuleVeto )
+_add_athena_test( testMonRead )
+_add_athena_test( testParameters )
+_add_athena_test( testReadout )
+_add_athena_test( testRodVeto )
+_add_athena_test( testSensors )
+_add_athena_test( testSilicon )
+_add_athena_test( testStripVeto )
+_add_athena_test( testSummary )
+_add_athena_test( testTdaqEnabled )
+
+_add_test( SCT_ReadCalibChipDataTestAlgConfig )
+_add_test( SCT_ReadCalibDataTestAlgConfig )
+_add_test( SCT_ConfigurationConditionsTestAlgConfig )
+_add_test( SCT_DCSConditionsTestAlgConfig )
+_add_test( SCT_MajorityConditionsTestAlgConfig )
+_add_test( SCT_ModuleVetoTestAlgConfig )
+_add_test( SCT_MonitorConditionsTestAlgConfig )
+_add_test( SCT_ConditionsParameterTestAlgConfig )
+_add_test( SCT_ReadoutTestAlgConfig )
+_add_test( SCT_RODVetoTestAlgConfig )
+_add_test( SCT_SensorsTestAlgConfig )
+_add_test( SCT_StripVetoTestAlgConfig )
+_add_test( SCT_ConditionsSummaryTestAlgConfig )
+_add_test( SCT_TdaqEnabledTestAlgConfig )
+
 atlas_add_test( TestLinkMasking
                 SCRIPT share/TestLinkMasking.sh
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestMajority
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testMajority.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestModuleVeto
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testModuleVeto.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestMonRead
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testMonRead.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestParameters
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testParameters.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestReadout
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testReadout.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestRodVeto
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testRodVeto.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestSensors
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testSensors.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestSilicon
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testSilicon.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestStripVeto
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testStripVeto.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestSummary
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testSummary.py
-                PROPERTIES TIMEOUT 600
-                ENVIRONMENT THREADS=5 )
-atlas_add_test( TestTdaqEnabled
-                SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testTdaqEnabled.py
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
 
-atlas_add_test( TestCalibChipReadNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ReadCalibChipDataTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestCalibReadNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ReadCalibDataTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestConfigNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConfigurationConditionsTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestDCSConditionsNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_DCSConditionsTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestLinkMaskingNewConf
                 SCRIPT share/TestLinkMaskingNewConf.sh
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestMajorityNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_MajorityConditionsTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestModuleVetoNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ModuleVetoTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestMonReadNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_MonitorConditionsTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestParametersNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConditionsParameterTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestReadoutNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ReadoutTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestRodVetoNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_RODVetoTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestSensorsNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_SensorsTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestStripVetoNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_StripVetoTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestSummaryNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConditionsSummaryTestAlgConfig
-                PROPERTIES TIMEOUT 600 )
-atlas_add_test( TestTdaqEnabledNewConf
-                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_TdaqEnabledTestAlgConfig
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:

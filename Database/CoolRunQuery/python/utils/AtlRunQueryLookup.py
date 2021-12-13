@@ -140,34 +140,38 @@ def isDQ(name):
     return name in DQChannelDict
 
 
-OLCAlgorithms = { 0:     'ATLAS_PREFERRED',
-                  1:     'LHC',
-                  101:	 'LUCID_ZEROS_OR',
-                  102:	 'LUCID_ZEROS_AND',
-                  103:	 'LUCID_HITS_OR',
-                  104:	 'LUCID_HITS_AND',
-                  151:	 'LUCID_AND',
-                  201:	 'BCM_H_ZEROS_AND',
-                  202:	 'BCM_H_EVENTS_AND',
-                  203:	 'BCM_H_EVENTS_XORA',
-                  204:	 'BCM_H_EVENTS_XORC',
-                  205:	 'BCM_V_ZEROS_AND',
-                  206:	 'BCM_V_EVENTS_AND',
-                  207:	 'BCM_V_EVENTS_XORA',
-                  208:	 'BCM_V_EVENTS_XORC',
-                  301:	 'MBTS_ZEROS_AND',
-                  302:	 'MBTS_ZEROS_OR',
-                  303:	 'MBTS_HITS_AND',
-                  304:	 'MBTS_HITS_OR',
-                  401:	 'ZDC',
-                  501:	 'FCAL',
-                  601:	 'HLT',
-                  901:	 'OffLumi_LArTime_Events',
-                  998:	 'OflLumi_Fake0',
-                  999:	 'OflLumi_Fake1' }
+OLCAlgorithms = {
+    0:   'ATLAS_PREFERRED',
+    1:   'LHC',
+    101: 'LUCID_ZEROS_OR',
+    102: 'LUCID_ZEROS_AND',
+    103: 'LUCID_HITS_OR',
+    104: 'LUCID_HITS_AND',
+    151: 'LUCID_AND',
+    201: 'BCM_H_ZEROS_AND',
+    202: 'BCM_H_EVENTS_AND',
+    203: 'BCM_H_EVENTS_XORA',
+    204: 'BCM_H_EVENTS_XORC',
+    205: 'BCM_V_ZEROS_AND',
+    206: 'BCM_V_EVENTS_AND',
+    207: 'BCM_V_EVENTS_XORA',
+    208: 'BCM_V_EVENTS_XORC',
+    301: 'MBTS_ZEROS_AND',
+    302: 'MBTS_ZEROS_OR',
+    303: 'MBTS_HITS_AND',
+    304: 'MBTS_HITS_OR',
+    401: 'ZDC',
+    501: 'FCAL',
+    601: 'HLT',
+    901: 'OffLumi_LArTime_Events',
+    998: 'OflLumi_Fake0',
+    999: 'OflLumi_Fake1'
+    }
 
-def InitDetectorMaskDecoder( run2 ):
-    if run2:
+def InitDetectorMaskDecoder( lhcRun ):
+    if lhcRun==3:
+        return InitDetectorMaskDecoderRun3()
+    elif lhcRun==2:
         return InitDetectorMaskDecoderRun2()
     else:
         return InitDetectorMaskDecoderRun1()
@@ -181,7 +185,7 @@ def InitDetectorMaskDecoderRun1():
     #   https://svnweb.cern.ch/trac/atlastdaq/browser/DAQ/online/RCUtils/trunk/src/get_detectormask.cc
     #   http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/DAQ/online/RunControl/src/get_detectormask.cc?root=atlastdaq&view=markup
 
-    dName = ['unknown']*64
+    dName = ['unknown']*54
     dName[0]  = "Pix Barrel"
     dName[1]  = "Pix Disks"
     dName[2]  = "Pix B-Layer"
@@ -241,15 +245,15 @@ def InitDetectorMaskDecoderRun1():
     notInAll = ['CSC', 'L2SV', 'SFI', 'SFO', 'LVL2', 'EF', 'Lucid', 'ZDC', 'Alfa',
                 'TRT_ANCILLARY_CRATE','TILECAL_LASER_CRATE','MUON_ANCILLARY_CRATE','TDAQ_BEAM_CRATE'  ]
 
-    NotInAll = ['']*64
+    notPartOfAllRequirement = ['']*54
     for i in range(0,len(dName)): 
         for n in notInAll:
             if dName[i] == n:
-                NotInAll[i] = ' NotInAll'
+                notPartOfAllRequirement[i] = ' NotInAll'
 
-    vetoedbits = [3, 50, 51, 52, 53] + list(range(54,64))
+    vetoedbits = [3, 50, 51, 52, 53] #+ list(range(54,64))
 
-    return (dName, NotInAll, vetoedbits)
+    return (dName, notPartOfAllRequirement, vetoedbits)
 
 
 def InitDetectorMaskDecoderRun2():
@@ -261,7 +265,7 @@ def InitDetectorMaskDecoderRun2():
     #   https://svnweb.cern.ch/trac/atlastdaq/browser/DAQ/online/RCUtils/trunk/src/get_detectormask.cc
     #   http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/DAQ/online/RunControl/src/get_detectormask.cc?root=atlastdaq&view=markup
 
-    dName = ['unknown']*128
+    dName = ['unknown']*64
     dName[0]  = "Pix Barrel"
     dName[1]  = "Pix Disks"
     dName[2]  = "Pix B-Layer"
@@ -311,7 +315,7 @@ def InitDetectorMaskDecoderRun2():
     dName[46] = "BCM"
     dName[47] = "Lucid"
     dName[48] = "ZDC"
-    dName[49] = "Alfa"
+    dName[49] = "ALFA"
     dName[50] = "TRT_ANCILLARY_CRATE"
     dName[51] = "TILECAL_LASER_CRATE"
     dName[52] = "MUON_ANCILLARY_CRATE"
@@ -331,23 +335,50 @@ def InitDetectorMaskDecoderRun2():
     notInAll = ['L2SV', 'SFI', 'SFO', 'LVL2', 'Lucid', 'ZDC', 'Alfa',
                 'TRT_ANCILLARY_CRATE','TILECAL_LASER_CRATE','MUON_ANCILLARY_CRATE','TDAQ_BEAM_CRATE'  ]
 
-    NotInAll = map(lambda x: ' NotInAll' if x in notInAll else '', dName)
+    notPartOfAllRequirement = map(lambda x: ' NotInAll' if x in notInAll else '', dName)
 
-    vetoedbits = [3, 41, 42, 44, 50, 51, 52, 53, 55, 57, 58, 59] + list(range(64,128)) #+ range(64,128)
+    # these bits are ignored
+    vetoedbits = [3, 41, 42, 44, 50, 51, 52, 53, 55, 57, 58, 59] #+ list(range(64,128))
 
-    return (dName, NotInAll, vetoedbits)
+    return (dName, notPartOfAllRequirement, vetoedbits)
+
+
+def InitDetectorMaskDecoderRun3():
+    # https://gitlab.cern.ch/atlas-tdaq-software/eformat/-/blob/eformat-05-08-03/src/DetectorMask.cxx
+
+    (dName, _, vetoedbits) = InitDetectorMaskDecoderRun2()
+
+    dName += [
+        "AFP",         # 65
+        "LAr EMBAECA", # 66
+        "LAr EMBAECC",
+        "LAr EMHAECA",
+        "LAr EMHAECC",
+        "STGC A",      # 70
+        "STGC C"
+    ]
+
+    notInAll = ['L2SV', 'SFI', 'SFO', 'LVL2', 'Lucid', 'ZDC', 'Alfa',
+                'TRT_ANCILLARY_CRATE','TILECAL_LASER_CRATE','MUON_ANCILLARY_CRATE','TDAQ_BEAM_CRATE'  ]
+    notInAll += [ "CSC EA", "CSC EC", "FTK", "Pix DBM" ]
+
+    notPartOfAllRequirement = map(lambda x: ' NotInAll' if x in notInAll else '', dName)
+    
+    # these bits are ignored
+    vetoedbits = [3, 32, 33, 41, 42, 44, 50, 51, 52, 53, 54, 55, 57, 58, 59, 63]
+
+    return (dName, notPartOfAllRequirement, vetoedbits)
 
 
 
-
-def DecodeDetectorMaskToString( detmask, isRun2, smart ):
+def DecodeDetectorMaskToString( detmask, lhcRun, smart ):
     """
     takes (int) detmask
     returns ( (string) listOfDetectors, (bool) inclusion )
     if smart is set to True, then the listOfDetectors might be inversed and excluded ones are shown
     """
 
-    dName, NotInAll, vetoedbits = InitDetectorMaskDecoder(isRun2)
+    dName, _, vetoedbits = InitDetectorMaskDecoder(lhcRun=lhcRun)
 
     ic = 0
     res = ""
@@ -386,7 +417,7 @@ def splitAt(line, splitstring=',', splitsize=80):
     return res
 
 
-def DecodeDetectorMask( mask, isRun2, smart=False ):
+def DecodeDetectorMask( mask, lhcRun=3, smart=False ):
     """
     takes an decimal or hex string (hex string must start with 0x) and returns an HTML element
     """
@@ -398,8 +429,7 @@ def DecodeDetectorMask( mask, isRun2, smart=False ):
     else:
         mask = int(mask)
         
-    detectors, inclusion = DecodeDetectorMaskToString(mask, isRun2, smart)
-    #detectors = ",<BR>".join( splitAt(detectors,", ") )
+    detectors, inclusion = DecodeDetectorMaskToString(mask, lhcRun=lhcRun, smart=smart)
 
     col = '#106734' if smart else '#000000'
     if inclusion:
@@ -421,10 +451,19 @@ def LArConfig(type):
     else:
         print ('ERROR in LArconfig: unknown type %s' % type)
         sys.exit()
-             
+
 
 
 if __name__=="__main__":
 
-    InitDetectorMaskDecoder(run2=True)
+    # Run 1
+    mask = "0x1fffffffffff7" # all but ALFA
+    print(DecodeDetectorMask(mask, lhcRun=1, smart=True))
 
+    # Run 2
+    mask = "0x1e5103697c0ffffff7" # all but RPC BA, RPC BC, TGC EA, TGC EC, CSC EA, CSC EC, MUCTPI, Lucid, FTK, MMEGA EC, Pix DBM
+    print(DecodeDetectorMask(mask, lhcRun=2, smart=True))
+
+    # Run 3
+    mask = "0x1e5103697c0ffffff7" # all but RPC BA, RPC BC, TGC EA, TGC EC, CSC EA, CSC EC, MUCTPI, Lucid, FTK, MMEGA EC, Pix DBM
+    print(DecodeDetectorMask(mask, lhcRun=3, smart=True))

@@ -64,19 +64,7 @@ namespace Monitored {
           m_currentHistogram = m_factory->create(*m_histDef);
         } else {
           // The histogram exists and needs to be rolled
-          if (m_histDef->type!="TEfficiency") {
-            // Store the data and deregister the old histogram.
-            TH1* hClone = (TH1*) m_currentHistogram->Clone();
-            m_factory->remove(*m_histDef);
-            // Update the bin ranges and register the new histogram.
-            updateHistDef();
-            TH1* hNew = (TH1*) m_factory->create(*m_histDef);
-            // Fill it with the old histogram's data and update pointer.
-            copyDataToNewHistogram(hClone, hNew);
-            m_currentHistogram = hNew;
-            // Free the memory used by the clone
-            delete hClone;
-          } else {
+          if (m_histDef->type=="TEfficiency") {
             // Roll a TEfficiency (same process as the codeblock immediately above)
             TH1* totalClone = ((TEfficiency*) m_currentHistogram)->GetCopyTotalHisto();
             TH1* passedClone = ((TEfficiency*) m_currentHistogram)->GetCopyPassedHisto();
@@ -94,6 +82,30 @@ namespace Monitored {
             delete totalNew;
             delete passedClone;
             delete passedNew;
+	  } else if (m_histDef->type=="TProfile") {
+	    // Store the data and deregister the old histogram.
+            TProfile* hClone = (TProfile*) m_currentHistogram->Clone();
+            m_factory->remove(*m_histDef);
+            // Update the bin ranges and register the new histogram.
+            updateHistDef();
+            TProfile* hNew = (TProfile*) m_factory->create(*m_histDef);
+            // Fill it with the old histogram's data and update pointer.
+            copyDataToNewHistogram(hClone, hNew);
+            m_currentHistogram = hNew;
+            // Free the memory used by the clone
+            delete hClone;
+          } else {
+            // Store the data and deregister the old histogram.
+            TH1* hClone = (TH1*) m_currentHistogram->Clone();
+            m_factory->remove(*m_histDef);
+            // Update the bin ranges and register the new histogram.
+            updateHistDef();
+            TH1* hNew = (TH1*) m_factory->create(*m_histDef);
+            // Fill it with the old histogram's data and update pointer.
+            copyDataToNewHistogram(hClone, hNew);
+            m_currentHistogram = hNew;
+            // Free the memory used by the clone
+            delete hClone;
           }
         }
       }
@@ -110,36 +122,73 @@ namespace Monitored {
     }
 
     /**
-     * @brief Copies bin contents from an old to a new histogram (similar to LabelsInflate).
+     * @brief Copies bin contents from an old to a new histogram.
      */
     void copyDataToNewHistogram(TH1* hOld, TH1* hNew) {
+      int offset = hNew->GetXaxis()->GetXmax() - hOld->GetXaxis()->GetXmax();
+      int nNewEntries(0);
+      bool sumw2Filled = (hOld->GetSumw2N()>0);
+
       // Loop through the old histogram bins
       for (int oldBin=0; oldBin < hOld->GetNcells(); oldBin++) {
         // Convert global bin number into x-y-z bin number
         int oldBinX, oldBinY, oldBinZ;
         hOld->GetBinXYZ(oldBin, oldBinX, oldBinY, oldBinZ);
-        if (hOld->IsBinUnderflow(oldBin, 1) || hOld->IsBinOverflow(oldBin, 1)) {
+        if ((oldBinX-offset < 1) || hOld->IsBinUnderflow(oldBin, 1) || hOld->IsBinOverflow(oldBin, 1)) {
           // Overflow bins are ignored since their meaning has changed.
           continue;
         } else {
           // Get the global bin coordinate of this (x, y, z) bin coordinates.
-          int newBin = hNew->GetBin(oldBinX, oldBinY, oldBinZ);
-          hNew->AddBinContent(newBin, hOld->GetBinContent(oldBin));
-          if (hOld->GetSumw2N()) {
-            hNew->SetBinError(newBin, hOld->GetBinError(oldBin) + hNew->GetBinError(newBin));
-          }
+          int newBin = hNew->GetBin(oldBinX-offset, oldBinY, oldBinZ);
+	  if (hOld->GetBinContent(oldBin)) hNew->SetBinContent(newBin, hOld->GetBinContent(oldBin));
+	  if (sumw2Filled) {
+	    hNew->SetBinError(newBin, hOld->GetBinError(oldBin));
+	    nNewEntries+=(*hOld->GetSumw2())[oldBin]; // works correctly only for weight=1
+	  }
         }
       }
       // Update the total number of entries member.
-      hNew->SetEntries(hOld->GetEntries());
-    }
+      if (sumw2Filled) hNew->SetEntries(nNewEntries);
+      else hNew->SetEntries(hOld->GetEntries()); // a choice since there is no way to get it right.
+    }  
+
+    void copyDataToNewHistogram(TProfile* hOld, TProfile* hNew) {
+      int offset = hNew->GetXaxis()->GetXmax() - hOld->GetXaxis()->GetXmax();
+      int nNewEntries(0);
+      bool sumw2Filled = (hOld->GetSumw2N()>0);
+      
+      // Loop through the old histogram bins
+      for (int oldBin=0; oldBin < hOld->GetNcells(); oldBin++) {
+	// Convert global bin number into x-y-z bin number
+	int oldBinX, oldBinY, oldBinZ;
+	hOld->GetBinXYZ(oldBin, oldBinX, oldBinY, oldBinZ);
+	if ((oldBinX-offset < 1) || hOld->IsBinUnderflow(oldBin, 1) || hOld->IsBinOverflow(oldBin, 1)) {
+	  // Overflow bins are ignored since their meaning has changed.
+	  continue;
+	} else {
+	  // Get the global bin coordinate of this (x, y, z) bin coordinates.
+	  int newBin = hNew->GetBin(oldBinX-offset, oldBinY, oldBinZ);
+	  int oldBinEntries = hOld->GetBinEntries(oldBin);
+	  if (oldBinEntries>0) {
+	    nNewEntries += oldBinEntries;
+	    hNew->SetBinEntries(newBin, oldBinEntries);
+	    (*hNew)[newBin] = (*hOld)[oldBin];
+	    (*hNew->GetSumw2())[newBin] = (*hOld->GetSumw2())[oldBin];
+	  }
+	}
+      }
+      // Update the total number of entries member.
+      if (sumw2Filled) hNew->SetEntries(nNewEntries);
+      else hNew->SetEntries(hOld->GetEntries()); // a choice since there is no way to get it right.
+    } 
+
   private:
     GenericMonitoringTool* const m_gmTool;
     std::shared_ptr<HistogramFactory> m_factory;
     std::shared_ptr<HistogramDef> m_histDef;
     TNamed *m_currentHistogram = nullptr;
     int m_currentLumiBlock = 0;
-  };
+  };  
 }
 
 #endif /* AthenaMonitoringKernel_HistogramFiller_LiveHistogramProvider_h */

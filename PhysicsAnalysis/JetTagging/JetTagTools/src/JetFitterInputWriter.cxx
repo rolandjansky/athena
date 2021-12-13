@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,9 +51,9 @@ namespace Analysis {
     const std::string & jetauthor,
     const std::string& inputbasename,
     const std::string& /*outputbasename*/,
-    ftagfloat_t /*jetpT*/,
-    ftagfloat_t /*jeteta*/,
-    ftagfloat_t /*IP3dlike*/) const
+    float /*jetpT*/,
+    float /*jeteta*/,
+    float /*IP3dlike*/) const
   {
     if (jetauthor=="") {
       ATH_MSG_WARNING(" Hypothesis or jetauthor is empty. No likelihood value given back. ");
@@ -61,34 +61,33 @@ namespace Analysis {
 
     int nVTX, nTracksAtVtx, nSingleTracks;
     float energyFraction, mass, significance3d;
-    bool status = true;
 
     if("JetFitter" == inputbasename){
-      status &= BTag->taggerInfo(nVTX, xAOD::BTagInfo::JetFitter_nVTX);
-      status &= BTag->taggerInfo(nTracksAtVtx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
-      status &= BTag->taggerInfo(nSingleTracks, xAOD::BTagInfo::JetFitter_nSingleTracks);
-      status &= BTag->taggerInfo(energyFraction, xAOD::BTagInfo::JetFitter_energyFraction);
+      BTag->taggerInfo(nVTX, xAOD::BTagInfo::JetFitter_nVTX);
+      BTag->taggerInfo(nTracksAtVtx, xAOD::BTagInfo::JetFitter_nTracksAtVtx);
+      BTag->taggerInfo(nSingleTracks, xAOD::BTagInfo::JetFitter_nSingleTracks);
+      BTag->taggerInfo(energyFraction, xAOD::BTagInfo::JetFitter_energyFraction);
 
       if(m_usePtCorrectedMass){
-        status &= BTag->taggerInfo(mass, xAOD::BTagInfo::JetFitter_mass);
+        BTag->taggerInfo(mass, xAOD::BTagInfo::JetFitter_mass);
       }
       else{
-        status &= BTag->variable<float>(inputbasename, "massUncorr",mass );
+        BTag->variable<float>(inputbasename, "massUncorr",mass );
       }
-      status &= BTag->taggerInfo(significance3d, xAOD::BTagInfo::JetFitter_significance3d);
+      BTag->taggerInfo(significance3d, xAOD::BTagInfo::JetFitter_significance3d);
     }
     else{
       if(m_usePtCorrectedMass){
-        status &= BTag->variable<float>(inputbasename, "mass",mass );
+        BTag->variable<float>(inputbasename, "mass",mass );
       }
       else{
-        status &= BTag->variable<float>(inputbasename, "massUncorr",mass );
+        BTag->variable<float>(inputbasename, "massUncorr",mass );
       }
-      status &= BTag->variable<float>(inputbasename, "significance3d", significance3d);
-      status &= BTag->variable<float>(inputbasename, "energyFraction", energyFraction);
-      status &= BTag->variable<int>(inputbasename, "nVTX", nVTX);
-      status &= BTag->variable<int>(inputbasename, "nTracksAtVtx", nTracksAtVtx);
-      status &= BTag->variable<int>(inputbasename, "nSingleTracks", nSingleTracks);
+      BTag->variable<float>(inputbasename, "significance3d", significance3d);
+      BTag->variable<float>(inputbasename, "energyFraction", energyFraction);
+      BTag->variable<int>(inputbasename, "nVTX", nVTX);
+      BTag->variable<int>(inputbasename, "nTracksAtVtx", nTracksAtVtx);
+      BTag->variable<int>(inputbasename, "nSingleTracks", nSingleTracks);
     }
 
     return StatusCode::SUCCESS;

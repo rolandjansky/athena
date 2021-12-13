@@ -6,41 +6,32 @@ def PixelMonitoringConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     forceOnline = False # for testing of online monitoring and 100LB histograms
+    from InDetRecExample.InDetKeys          import InDetKeys
+    from InDetRecExample.InDetJobProperties import InDetFlags
     # run on RAW only
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
-        if forceOnline : flags.Common.isOnline = True
-        kwargsHitMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (athenaPT) running
-                            'doLumiBlock'     : not flags.Common.isOnline,       #Turn on/off histograms stored for each lumi block
-                            'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
-                            'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
-                            #'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
-                            #'RDOName'         : InDetKeys.PixelRDOs()
-                            'doHeavyIonMon'   : False,      #Until new config ready
-                            'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
-                            'RDOName'         : 'PixelRDOs',#Until new config ready
+        if forceOnline: 
+            isOnline = True
+        else:
+            isOnline = flags.Common.isOnline
+        kwargsHitMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (GlobalMonitoring) running
+                            'doLumiBlock'     : not isOnline,  #Turn on/off histograms stored every 1(20) lumi block(s)
+                            'doFEPlots'       : True,                       #Turn on/off per FE-I3 histograms
+                            'RDOName'         : InDetKeys.PixelRDOs()       #'PixelRDOs'
         }
 
-        kwargsClusMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (athenaPT) running
-                             'doLumiBlock'     : not flags.Common.isOnline,       #Turn on/off histograms stored for each lumi block
-                             'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam
-                             'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
-                             #'doHeavyIonMon'   : InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
-                             'doHeavyIonMon'   : False,   #Until new config ready
-                             'doFEPlots'       : True,       #Turn on/off histograms with FE Status information
-                             #'ClusterName'     : InDetKeys.PixelClusters(),
-                             'ClusterName'     : 'PixelClusters', #Until new config ready
-                             #'TrackName'       : InDetKeys.Tracks()
-                             'TrackName'       : 'Tracks', #Until new config ready
+        kwargsClusMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (GlobalMonitoring) running
+                             'doLumiBlock'     : not isOnline,  #Turn on/off histograms stored every 1(20) lumi block(s)
+                             'doLowOccupancy'  : InDetFlags.doCosmics(), #Setting up 1D histogram ranges and binnings, if False, high occupancy i.e. collisions settings will be used
+                             'doHeavyIonMon'   : InDetFlags.doHeavyIon(),     #Setting up 1D histogram ranges and binnings for heavy ions
+                             'doFEPlots'       : True,                       #Turn on/off per FE-I3 histograms
+                             'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
+                             'TrackName'       : InDetKeys.Tracks()          #'Tracks'
         }
 
-        kwargsErrMonAlg = { 'doOnline'        : flags.Common.isOnline,      #Histograms for online (athenaPT) running
-                            'doLumiBlock'     : not flags.Common.isOnline,       #Turn on/off histograms stored for each lumi block
-                            'doLowOccupancy'  : False,      #Turn on/off histograms with binning for cosmics/single beam                    
-                            'doHighOccupancy' : True,       #Turn on/off histograms with binning for collisions
-                            #'doHeavyIonMon'   : InDetFlags.doHeavyIon()
-                            'doHeavyIonMon'   : False, #Until new config is ready
+        kwargsErrMonAlg = { 'doOnline'        : isOnline,        #Histograms for online (GlobalMonitoring) running
+                            'doLumiBlock'     : not isOnline     #Turn on/off histograms stored every 1(20) lumi block(s)
         }
-        if forceOnline : flags.Common.isOnline = False
         from AthenaMonitoring import AthMonitorCfgHelper
         helper = AthMonitorCfgHelper(flags, "NewPixelMonitoring")
 
@@ -61,9 +52,8 @@ def PixelMonitoringConfig(flags):
         pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
         pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
 
-        # Run 3 configs - stolen from SCT
-        from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
-        pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.popToolsAndMerge(TrackSummaryToolWorkaround(flags))
+        from InDetConfig.TrackingCommonConfig import TrackSummaryToolCfg
+        pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags))
         pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
         
         

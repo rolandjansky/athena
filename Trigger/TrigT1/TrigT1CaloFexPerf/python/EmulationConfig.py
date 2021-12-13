@@ -56,3 +56,32 @@ def emulateSC(sCell_sequence, CellsIn="SeedLessFS", SCOut="EmulatedSCell"):
     if(perfFlags.Calo.ApplyEmulatedPedestal()):
         #Apply the pedestal correction. There may be cases we do not want this. 
         sCell_sequence+=larscbea
+
+def emulateSC_Cfg(flags, CellsIn="SeedLessFS", SCOut="EmulatedSCell"):
+
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    acc = ComponentAccumulator()
+    if flags.Input.isMC: 
+        from LArCabling.LArCablingConfig import LArFebRodMappingCfg
+        acc.merge(LArFebRodMappingCfg(flags))
+
+    from TrigCaloRec.TrigCaloRecConfig import hltCaloCellSeedlessMakerCfg
+    acc.merge(hltCaloCellSeedlessMakerCfg(flags, roisKey = ""))
+
+
+    #Use SCEmulation tool that randomly samples time histograms to estimate time for low energy and negative cells forming a supercell 
+    acc.addEventAlgo(CompFactory.LVL1.SCEmulation(InputCells=CellsIn, OutputSuperCells = "EmulatedSCellNoBCID"))
+    
+    from LArROD.LArSCSimpleMakerConfig import LArSuperCellBCIDEmAlgCfg
+
+    larSCargs = {}
+    larSCargs["SCellContainerIn"] = "EmulatedSCellNoBCID"
+    larSCargs["SCellContainerOut"] = SCOut
+
+    if(perfFlags.Calo.ApplyEmulatedPedestal()):
+        #Apply the pedestal correction. There may be cases we do not want this. 
+    #The default input to LARSuperCellBCIDEmAlg (which applies the BCID correction) is the same: SCellContainer
+        acc.merge(LArSuperCellBCIDEmAlgCfg(flags, **larSCargs))
+
+    return acc

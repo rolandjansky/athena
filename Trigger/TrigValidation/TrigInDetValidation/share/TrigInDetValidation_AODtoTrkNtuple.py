@@ -33,9 +33,9 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSeque
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
 Configurable.configurableRun3Behavior+=1
-tdtAcc = getTrigDecisionTool(ConfigFlags)
+tdtAcc = TrigDecisionToolCfg(ConfigFlags)
 Configurable.configurableRun3Behavior-=1
 appendCAtoAthena( tdtAcc )
 
@@ -144,12 +144,13 @@ if ( True ) :
     #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
     #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
 
-    # "Electrons",
+    "Electrons",
 
-    # "Electrons_MediumCB",
-    # "Electrons_TightCB",
-    # "Electrons_MediumLH",
-    # "Electrons_TightLH",
+    "Electrons:MediumCB",
+    "Electrons:TightCB",
+    "Electrons:MediumLH",
+    "Electrons:TightLH",
+
     # "Taus",
 
     # "Taus_1Prong",
@@ -241,9 +242,9 @@ if ( True ) :
     # should work for a two stage tau ??
     # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
 
-    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_FTF",
-    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_IDTrig",
-    "HLT_mu4_cosmic_L1MU4:HLT_IDTrack_Cosmic_EFID",
+    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_FTF",
+    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_IDTrig",
+    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_EFID",
 
     #"HLT_mb.*:HLT_IDTrack_Cosmic_EFID",
     #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here

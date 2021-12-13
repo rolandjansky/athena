@@ -13,7 +13,7 @@ onlyAugmentations = False  # Set to True to deactivate thinning and skimming, an
 thinTruth = True
 addMuExtrapolationForTrigger = True
 
-
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 isSimulation = False
 if globalflags.DataSource()=='geant4':
@@ -291,6 +291,8 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY7DiMuon_SelectAndWrite = DerivationFramework__Reco_Vertex(name              = "BPHY7DiMuon_SelectAndWrite",
                                                             VertexSearchTool    	      = BPHY7DiMuon_Finder,
                                                             OutputVtxContainerName = "BPHY7TwoMuCandidates",
+                                                            V0Tools                = TrackingCommon.getV0Tools(),
+                                                            PVRefitter             = BPHY7_VertexTools.PrimaryVertexRefitter,
                                                             PVContainerName        = "PrimaryVertices",
                                                             RefPVContainerName     = "SHOULDNOTBEUSED_DiMuonRefittedPV")
 ToolSvc += BPHY7DiMuon_SelectAndWrite
@@ -301,6 +303,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY7DiMuon_Decorator = DerivationFramework__Select_onia2mumu(name                  = "BPHY7DiMuon_Decorator",
                                                               HypothesisName        = "Jpsi",
                                                               InputVtxContainerName = "BPHY7TwoMuCandidates",
+                                                              V0Tools               = TrackingCommon.getV0Tools(),
                                                               VtxMassHypo           = 1230,   # used to determine time-of-flight and thus lifetime (deviations and sigmas are also added to the vertex)
                                                               MassMin               = 0.0,
                                                               MassMax               = 2900.0,
@@ -349,6 +352,8 @@ BPHY7ThreeMuon_SelectAndWrite = DerivationFramework__Reco_Vertex(name           
                                                                   VertexSearchTool       = BPHY7ThreeMuon_Finder,
                                                                   OutputVtxContainerName   = "BPHY7Tau3MuCandidates",
                                                                   PVContainerName          = "PrimaryVertices",
+                                                                  V0Tools                  = TrackingCommon.getV0Tools(),
+                                                                  PVRefitter               = BPHY7_VertexTools.PrimaryVertexRefitter,
                                                                   RefPVContainerName       = "BPHY7RefittedPrimaryVertices",
                                                                   RefitPV                  = True,
                                                                   MaxPVrefit = 1000)
@@ -360,6 +365,7 @@ BPHY7ThreeMuon_Decorator = DerivationFramework__Select_onia2mumu(
   OutputLevel                = INFO,
   HypothesisName             = "Tau3MuLoose",
   InputVtxContainerName      = "BPHY7Tau3MuCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658, 105.658],
   VtxMassHypo                = 1777.,
   MassMin                    = 0.0,
@@ -374,6 +380,7 @@ BPHY7ThreeMuon_Decorator2 = DerivationFramework__Select_onia2mumu(
   OutputLevel                = INFO,
   HypothesisName             = "Ds2MuPi",
   InputVtxContainerName      = "BPHY7Tau3MuCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658, 139.57],
   VtxMassHypo                = 1968.3,
   MassMin                    = 0.0,

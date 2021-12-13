@@ -55,6 +55,9 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     lb = GetEventInfo(ctx)->lumiBlock();
     run = GetEventInfo(ctx)->runNumber();
     testweight = 2.0;
+
+    // Event number as string
+    auto mon_evtstr = Monitored::Scalar<std::string>("evtstr", std::to_string(ctx.eventID().event_number()));
     
     TRandom3 r(ctx.eventID().event_number());
     // Example of using flags
@@ -74,7 +77,7 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto mon_pT_vec = Monitored::Collection("pT_vec", pT_vec);
 
     // Fill. First argument is the tool name, all others are the variables to be saved.
-    fill("ExampleMonitor",lumiPerBCID,lb,random,pT,pT_passed,mon_pT_vec,testweight,mon_str,mon_strvec);
+    fill("ExampleMonitor",lumiPerBCID,lb,random,pT,pT_passed,mon_pT_vec,testweight,mon_str,mon_strvec,mon_evtstr);
 
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
     auto tool = getGroup("ExampleMonitor");

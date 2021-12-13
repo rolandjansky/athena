@@ -21,6 +21,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
+#include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
+#include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h"
 #include "TrkEventUtils/EventDataBase.h"
 #include "TRT_TrackExtensionTool_xk/TRT_Trajectory_xk.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
@@ -36,9 +38,6 @@ class MsgStream;
 class TRT_ID;
 
 namespace InDet{
-
-  class ITrtDriftCircleCutTool;
-  class ITRT_DetElementsRoadMaker;
 
   /**
   @class TRT_TrackExtensionTool_xk
@@ -119,12 +118,18 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       const TRT_ID                          *m_trtid{};
-      ToolHandle<ITRT_DetElementsRoadMaker>         m_roadtool   ; // TRT road maker tool
-      ToolHandle<Trk::IPatternParametersPropagator> m_proptool   ; //
-      ToolHandle<Trk::IPatternParametersUpdator>    m_updatortool; //
-      ToolHandle<ITrtDriftCircleCutTool>            m_selectortool;// Segment selector tool
-      ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackD ; //
-      ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackN ; //
+      ToolHandle<ITRT_DetElementsRoadMaker>         m_roadtool
+	{this, "RoadTool", "InDet::TRT_DetElementsRoadMaker_xk"}; // TRT road maker tool
+      PublicToolHandle<Trk::IPatternParametersPropagator> m_proptool
+	{this, "PropagatorTool", "Trk::RungeKuttaPropagator"};
+      PublicToolHandle<Trk::IPatternParametersUpdator>    m_updatortool
+	{this, "UpdatorTool", "Trk::KalmanUpdator_xk"};
+      PublicToolHandle<ITrtDriftCircleCutTool>            m_selectortool
+	{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};// Segment selector tool
+      ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackD
+	{this, "RIOonTrackToolYesDr", "InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"};
+      ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackN
+	{this, "RIOonTrackToolNoDr", "InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"};
 
       SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 

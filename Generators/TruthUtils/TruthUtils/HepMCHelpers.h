@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-#pragma once
-
+#ifndef TRUTHUTILS_HEPMCHELPERS_H
+#define TRUTHUTILS_HEPMCHELPERS_H
 /// @file
 ///
 /// Provides the HepMC tools from the external MCUtils header package,
@@ -11,7 +10,6 @@
 
 #include "TruthUtils/PIDHelpers.h"
 #include "TruthUtils/TruthParticleHelpers.h"
-#include "MCUtils/PIDUtils.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
@@ -20,35 +18,14 @@ namespace MC
 {
 using namespace MCUtils::PID;
 #ifdef HEPMC3
-inline bool hasNoChildren(HepMC::ConstGenVertexPtr v) {return v->particles_out().size()==0; }
-inline bool hasNoParents(HepMC::ConstGenVertexPtr v) {return v->particles_in().size()==0; }
-inline bool isDisconnected(HepMC::ConstGenVertexPtr v) {return (v->particles_in().size()==0)&&(v->particles_out().size()==0); }
+inline bool hasNoChildren(HepMC::ConstGenVertexPtr v) {return v->particles_out().size() == 0; }
+inline bool hasNoParents(HepMC::ConstGenVertexPtr v) {return v->particles_in().size() == 0; }
+inline bool isDisconnected(HepMC::ConstGenVertexPtr v) {return (v->particles_in().size() == 0) && (v->particles_out().size() == 0); }
 #else
-inline bool hasNoChildren(HepMC::ConstGenVertexPtr v) {return v->particles_out_size()==0; }
-inline bool hasNoParents(HepMC::ConstGenVertexPtr v) {return v->particles_in_size()==0; }
-inline bool isDisconnected(HepMC::ConstGenVertexPtr v) {return (v->particles_in_size()==0)&&(v->particles_out_size()==0); }
-#endif
+inline bool hasNoChildren(HepMC::ConstGenVertexPtr v) {return v->particles_out_size() == 0; }
+inline bool hasNoParents(HepMC::ConstGenVertexPtr v) {return v->particles_in_size() == 0; }
+inline bool isDisconnected(HepMC::ConstGenVertexPtr v) {return (v->particles_in_size() == 0) && (v->particles_out_size() == 0); }
 
-inline std::vector<HepMC::ConstGenVertexPtr>   const_vertices_match(const HepMC::GenEvent* e, std::function<bool(HepMC::ConstGenVertexPtr)>  cl)
-{
-      std::vector<HepMC::ConstGenVertexPtr> ret;
-#ifdef HEPMC3
-      for (auto v: e->vertices()) if (cl(v)) ret.push_back(v);
-
-#else
-      for (auto v=e->vertices_begin();v!=e->vertices_end();++v) if (cl(*v)) ret.push_back(*v);
-#endif
-      return ret;
-}
-
-
-
-
-#ifdef HEPMC3
-
-inline void reduce(HepMC::GenEvent* ge, HepMC::GenParticlePtr gp) { ge->remove_particle(gp);}
-
-#else
 //---->//This is copied from MCUtils
   /// @name Event reduction functions
   //@{
@@ -100,7 +77,6 @@ inline void reduce(HepMC::GenEvent* ge, HepMC::GenParticlePtr gp) { ge->remove_p
     }
     for (HepMC::GenVertex* gv : orphaned_vtxs) delete gv;
   }
-#endif
 
   /// Remove unwanted particles from the event, collapsing the graph structure consistently
   inline void reduce(HepMC::GenEvent* ge, std::vector<HepMC::GenParticlePtr> toremove) {
@@ -110,28 +86,28 @@ inline void reduce(HepMC::GenEvent* ge, HepMC::GenParticlePtr gp) { ge->remove_p
       reduce(ge, gp);
     }
   }
-
 //<----//This is copied from MCUtils
+#endif
 
 template <class T> inline bool isDecayed(T p)  { return p->status() == 2;}
 template <class T> inline bool isStable(T p)   { return p->status() == 1;}
 template <class T> inline bool isPhysical(T p) { return isStable<T>(p) || isDecayed<T>(p); }
 template <class T> inline bool isPhysicalHadron(T p) { return PID::isHadron(p->pdg_id()) && isPhysical<T>(p);}
-template <class T> inline bool fromDecay(T p)  { 
-      if (!p) return false;  
+template <class T> inline bool fromDecay(T p)  {
+      if (!p) return false;
       auto v=p->production_vertex();
-      if (!v) return false;                                           
+      if (!v) return false;
 #ifdef HEPMC3
-      for ( auto anc: v->particles_in()) 
+      for ( auto anc: v->particles_in())
       if (isDecayed(anc) && (PID::isTau(anc->pdg_id()) || PID::isHadron(anc->pdg_id()))) return true;
-      for ( auto anc: v->particles_in()) 
+      for ( auto anc: v->particles_in())
       if (fromDecay<T>(anc)) return true;
 #else
-      for (auto  anc=v->particles_in_const_begin(); anc != v->particles_in_const_end(); ++anc) 
+      for (auto  anc=v->particles_in_const_begin(); anc != v->particles_in_const_end(); ++anc)
       if (isDecayed((*anc)) && (PID::isTau((*anc)->pdg_id()) || PID::isHadron((*anc)->pdg_id()))) return true;
       for (auto  anc=v->particles_in_const_begin(); anc != v->particles_in_const_end(); ++anc)
-      if (fromDecay<T>(*anc)) return true; 
-#endif     
+      if (fromDecay<T>(*anc)) return true;
+#endif
       return false;
       }
 template <class T>  std::vector<T> findChildren(T p)
@@ -188,7 +164,6 @@ namespace MC {
     return isSimStable(p);
   }
 
-
   /// @brief Identify if the particle would not interact with the detector, i.e. not a neutrino or WIMP
   inline bool isNonInteracting(HepMC::ConstGenParticlePtr p) {
     return MC::isNonInteracting(p->pdg_id()); //< From TruthUtils/PIDHelpers.h
@@ -208,5 +183,5 @@ namespace MC {
 
   //@}
 
-
 }
+#endif

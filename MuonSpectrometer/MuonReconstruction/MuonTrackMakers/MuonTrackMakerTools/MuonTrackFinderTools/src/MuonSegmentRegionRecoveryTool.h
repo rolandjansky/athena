@@ -146,10 +146,11 @@ namespace Muon {
                                                                    "Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"};
         ToolHandle<IMuonTrackSegmentMatchingTool> m_trackSegmentMatchingTool{this, "TrackSegmentMatchingTool",
                                                                              "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};
+       
         ToolHandle<MuonChamberHoleRecoveryTool> m_chamberHoleRecoveryTool{
-            this, "ChamberHoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool", "hit-based hole search"};
+            this, "ChamberHoleRecoveryTool", "", "hit-based hole search"};
         ToolHandle<Trk::IExtrapolator> m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};
-        ToolHandle<Rec::ICombinedMuonTrackBuilder> m_builder{this, "Builder", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};
+        ToolHandle<Rec::ICombinedMuonTrackBuilder> m_builder{this, "Builder", ""};
         ToolHandle<Trk::ITrackFitter> m_fitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBSLFitter"};
         ToolHandle<IMuonHitSummaryTool> m_hitSummaryTool{this, "HitSummaryTool", "Muon::MuonHitSummaryTool/MuonHitSummaryTool"};
         ToolHandle<IRegSelTool> m_regsel_mdt{this, "MDTRegionSelector", "RegSelTool/RegSelTool_MDT"};
@@ -168,6 +169,10 @@ namespace Muon {
         Gaudi::Property<bool> m_excludeEES{this, "ExcludeEES", true};
         Gaudi::Property<bool> m_onlyEO{this, "OnlyEO", false};
         Gaudi::Property<bool> m_useFitterOutlierLogic{this, "UseFitterOutlierLogic", true};
+
+        Gaudi::Property<bool> m_recoverMM{this, "RecoverMM", true, "Pick up dropped micromega chambers"};
+        Gaudi::Property<bool> m_recoverSTGC{this, "RecoverSTGC", true, "Pick up dropped sTGC chambers" };
+
     };
 }  // namespace Muon
 

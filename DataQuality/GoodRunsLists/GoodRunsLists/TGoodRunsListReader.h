@@ -22,8 +22,6 @@
 #include "GoodRunsLists/TMsgLogger.h"
 #include "GoodRunsLists/TGRLCollection.h"
 
-#include <vector>
-
 class TXMLNode;
 
 namespace Root {

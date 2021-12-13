@@ -16,13 +16,7 @@ from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg, regSelTool_TGC_C
 from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg, TgcBytestreamDecodeCfg, MdtBytestreamDecodeCfg, CscBytestreamDecodeCfg
 from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg, TgcRDODecodeCfg, MdtRDODecodeCfg, CscRDODecodeCfg, CscClusterBuildCfg
 
-from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
 from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
 from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg, MuonInsideOutRecoAlgCfg
@@ -59,9 +53,13 @@ def EFMuonCBViewDataVerifierCfg(flags, name):
     else:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
                                                  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+flags.Trigger.InDetTracking.Muon.tracks_FTF ),
-                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' ),
-                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' )]
+    if flags.Input.Format == 'BS':
+        EFMuonCBViewDataVerifier.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+    if flags.Input.isMC:
+        EFMuonCBViewDataVerifier.DataObjects += [( 'PixelRDO_Container' , 'StoreGateSvc+PixelRDOs' ),
+                                                 ( 'SCT_RDO_Container' , 'StoreGateSvc+SCT_RDOs' ) ]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonCBViewDataVerifier)
     return result
@@ -81,6 +79,18 @@ def EFMuonViewDataVerifierCfg(name='RoI'):
     result.addEventAlgo(EFMuonViewDataVerifier)
     return result
 
+def MuonInsideOutViewDataVerifierCfg(flags):
+    MuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVMuInsideOut")
+    MuonViewDataVerifier.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements'),
+                                        ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
+    if flags.Beam.Type != 'cosmics':
+        MuonViewDataVerifier.DataObjects +=[( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec' )]
+
+
+    result = ComponentAccumulator()
+    result.addEventAlgo(MuonViewDataVerifier)
+    return result
 
 def MuFastViewDataVerifier():
     result = ComponentAccumulator()
@@ -159,7 +169,9 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
 
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
     acc = MuonCombinedParticleCreatorCfg(flags)
-    kwargs.setdefault("TrackParticleCreator", acc.popPrivateTools())
+    particleCreator = acc.popPrivateTools()
+    result.addPublicTool(particleCreator) # Still public in TrackParticleCnvAlg
+    kwargs.setdefault("TrackParticleCreator", particleCreator)
     result.merge(acc)
 
     acc = MuonTrackCollectionCnvToolCfg(flags)
@@ -265,13 +277,13 @@ def decodeCfg(flags, RoIs):
     return acc
 
 
-def efMuHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
+def efMuHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFHypoAlg
     efHypo = TrigMuonEFHypoAlg(name)
     efHypo.MuonDecisions = inputMuons
     return efHypo
 
-def efMuIsoHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
+def efMuIsoHypoConf(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFTrackIsolationHypoAlg
     efHypo = TrigMuonEFHypoAlg(name)
     efHypo.EFMuonsName = inputMuons
@@ -370,14 +382,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
                                                          ViewNodeName    = viewName+"InView")
     recoMS = InViewRecoCA(name=viewName, viewMaker=viewMakerAlg)
     
-    #Probably this block will eventually need to move somewhere more central
-    recoMS.merge( BeamPipeGeometryCfg(flags) )
-    recoMS.merge(PixelGeometryCfg(flags))
-    recoMS.merge(SCT_GeometryCfg(flags))
-    recoMS.merge(TRT_GeometryCfg(flags))
     recoMS.merge(TrackingGeometrySvcCfg(flags))
-    recoMS.merge(LArGMCfg(flags))
-    recoMS.merge(TileGMCfg(flags))
     ###################
 
     recoMS.mergeReco(EFMuonViewDataVerifierCfg(name))
@@ -395,12 +400,12 @@ def _muEFSAStepSeq(flags, name='RoI'):
 
     selAccMS.mergeReco(recoMS)
 
-    efmuMSHypo = efMuHypoCfg( flags,
+    efmuMSHypo = efMuHypoConf( flags,
                               name = 'TrigMuonEFMSonlyHypo_'+name,
                               inputMuons = "Muons_"+name )
 
     selAccMS.addHypoAlgo(efmuMSHypo)
-
+    
     efmuMSSequence = MenuSequenceCA(selAccMS,
                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
@@ -452,7 +457,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
                                      InDetCandidateLocation="IndetCandidates_"+name)
     recoCB.mergeReco(muonCombCfg)
 
-    muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=muonCandName, TagMaps=["muidcoTagMap"], 
+    muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=[muonCandName], TagMaps=["muidcoTagMap"], 
                                          InDetCandidateLocation="IndetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
                                          ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name)
     recoCB.mergeReco(muonCreatorCBCfg)
@@ -469,6 +474,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
         acc.merge(muonFilterCfg, sequenceName=seqFilter.name)
         seqIOreco = parOR("muonInsideOutRecoSeq")
         acc.addSequence(seqIOreco, parentName=seqFilter.name)
+        recoCB.mergeReco(MuonInsideOutViewDataVerifierCfg(flags))
         muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "IndetCandidates_"+name)
         acc.merge(muonInsideOutCfg, sequenceName=seqIOreco.name)
         insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="IndetCandidates_"+name,
@@ -485,7 +491,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
     
     selAccEFCB.mergeReco(recoCB)
 
-    efmuCBHypo = efMuHypoCfg( flags,
+    efmuCBHypo = efMuHypoConf( flags,
                               name = 'TrigMuonEFCBHypo_'+name,
                               inputMuons = finalMuons )
 
@@ -531,7 +537,7 @@ def _muEFIsoStepSeq(flags):
                                                     ptcone03Name="InViewIsoMuons.ptcone03"))
 
     selAccEFIso.mergeReco(recoIso)
-    efmuIsoHypo = efMuIsoHypoCfg( flags,
+    efmuIsoHypo = efMuIsoHypoConf( flags,
                                   name = 'TrigMuonIsoHypo',
                                   inputMuons = "MuonsIso" )
     selAccEFIso.addHypoAlgo(efmuIsoHypo)
@@ -564,17 +570,13 @@ def generateChains( flags, chainDict ):
         muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
         chain = Chain(name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[muEFSAStep(muonflags, chainDict, 'FS'), muEFCBStep(muonflagsCB, chainDict, 'FS')])
     else:
-        muFast = muFastStep(muonflags, chainDict)
-        muEFSA = muEFSAStep(muonflags, chainDict)
         if 'msonly' in chainDict['chainName']:
-            chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, _empty("EmptyNoL2MuComb"), muEFSA, _empty("EmptyNoEFCB") ] )
+            chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), _empty("EmptyNoL2MuComb"), muEFSAStep(muonflags, chainDict)] )
         else:
             muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon').cloneAndReplace('MuonCombined', 'Trigger.Offline.Combined.MuonCombined')
-            muComb = muCombStep(muonflagsCB, chainDict)
-            muEFCB = muEFCBStep(muonflagsCB, chainDict)
             if 'ivar' in chainDict['chainName']:
-                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB, muEFIsoStep(muonflagsCB, chainDict) ] )
+                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), muCombStep(muonflagsCB, chainDict), muEFSAStep(muonflags, chainDict), muEFCBStep(muonflagsCB, chainDict), muEFIsoStep(muonflagsCB, chainDict) ] )
             else:
-                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB ] )
+                chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), muCombStep(muonflagsCB, chainDict), muEFSAStep(muonflags, chainDict), muEFCBStep(muonflagsCB, chainDict) ] )
     return chain
 

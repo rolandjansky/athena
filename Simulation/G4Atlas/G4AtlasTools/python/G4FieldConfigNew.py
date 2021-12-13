@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # ComponentAccumulator based configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -62,8 +62,17 @@ def InDetFieldManagerToolCfg(ConfigFlags, name='InDetFieldManager', **kwargs):
     kwargs.setdefault('MinimumEpsilonStep', 0.00001)
     return BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
 
+def ITkFieldManagerToolCfg(ConfigFlags, name='ITkFieldManager', **kwargs):
+    kwargs.setdefault("LogicalVolumes", ['ITK::ITK'])
+    #kwargs.setdefault('DeltaChord',         0.00001)
+    kwargs.setdefault('DeltaIntersection',  0.00001)
+    kwargs.setdefault('DeltaOneStep',       0.0001)
+    kwargs.setdefault('MaximumEpsilonStep', 0.001)
+    kwargs.setdefault('MinimumEpsilonStep', 0.00001)
+    return BasicDetectorFieldManagerToolCfg(ConfigFlags, name, **kwargs)
+
 def MuonsOnlyInCaloFieldManagerToolCfg(ConfigFlags, name='MuonsOnlyInCaloFieldManager', **kwargs):
-    kwargs.setdefault("LogicalVolumes", ['CALO::CALO'])
+    kwargs.setdefault("PhysicalVolumes", ['LArBarrel'])
     #kwargs.setdefault('DeltaChord',         0.00000002)
     kwargs.setdefault('DeltaIntersection',  0.00000002)
     kwargs.setdefault('DeltaOneStep',       0.000001)

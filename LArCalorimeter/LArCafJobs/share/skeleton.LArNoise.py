@@ -52,7 +52,6 @@ rec.doHist.set_Value_and_Lock(False)
 rec.doCBNT.set_Value_and_Lock(False)
 rec.doAOD.set_Value_and_Lock(False)
 rec.doTrigger.set_Value_and_Lock(True)
-recAlgs.doTrigger.set_Value_and_Lock(False)
 
 rec.doPerfMon.set_Value_and_Lock(False)
 rec.doDPD.set_Value_and_Lock(False)
@@ -134,8 +133,8 @@ ConfigFlags = getNewConfigFlags()
 ConfigFlags.Trigger.readBS = False
 ConfigFlags.Trigger.doID = False
 
-from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-triggerGetter = T0TriggerGetter()
+from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
+triggerGetter = TriggerRecoGetter()
 
 #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 #cfg =  TriggerConfigGetter("ReadPool")

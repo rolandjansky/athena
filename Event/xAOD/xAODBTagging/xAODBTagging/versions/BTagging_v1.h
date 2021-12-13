@@ -18,7 +18,6 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
-#include "xAODBTagging/ftagfloat_t.h"
 
 // STL include(s):
 #include <map>
@@ -59,9 +58,9 @@ namespace xAOD {
     /// @{
 
     /// @brief SV0 3D significance
-    ftagfloat_t SV0_significance3D() const;
+    float SV0_significance3D() const;
     /// @brief set SV0 3D significance
-    void setSV0_significance3D(ftagfloat_t value);
+    void setSV0_significance3D(float value);
     /// @brief get vector of SV0 TrackParticle ElementLinks
     const TPELVec_t& SV0_TrackParticleLinks() const;
     /// @brief set vector of SV0 TrackParticle ElementLinks
@@ -81,17 +80,17 @@ namespace xAOD {
     /// @{
 
     /// @brief SV1 b probability
-    ftagfloat_t SV1_pb() const;
+    float SV1_pb() const;
     /// @brief set SV1 b probability
-    void setSV1_pb(ftagfloat_t value);
+    void setSV1_pb(float value);
     /// @brief SV1 c probability
-    ftagfloat_t SV1_pc() const;
+    float SV1_pc() const;
     /// @brief set SV1 c probability
-    void setSV1_pc(ftagfloat_t value);
+    void setSV1_pc(float value);
     /// @brief SV1 light probability
-    ftagfloat_t SV1_pu() const;
+    float SV1_pu() const;
     /// @brief set SV1 light probability
-    void setSV1_pu(ftagfloat_t value);
+    void setSV1_pu(float value);
     /// @brief get SV1 log likelihood ratio
     double SV1_loglikelihoodratio() const { return this->calcLLR(SV1_pb(),SV1_pu()); }
     /// @brief get vector of SV1 TrackParticle ElementLinks
@@ -113,19 +112,19 @@ namespace xAOD {
     /// @{
 
     /// @brief IP2D b probability
-    ftagfloat_t IP2D_pb() const;
+    float IP2D_pb() const;
     /// @brief set IP2D b probability
-    void setIP2D_pb(ftagfloat_t value);
+    void setIP2D_pb(float value);
     /// @brief IP2D c probability
-    ftagfloat_t IP2D_pc() const;
+    float IP2D_pc() const;
     /// @brief set IP2D c probability
-    void setIP2D_pc(ftagfloat_t value);
+    void setIP2D_pc(float value);
     /// @brief IP2D light probability
-    ftagfloat_t IP2D_pu() const;
+    float IP2D_pu() const;
     /// @brief set IP2D light probability
-    void setIP2D_pu(ftagfloat_t value);
+    void setIP2D_pu(float value);
     /// @brief get IP2D log likelihood ratio
-    ftagfloat_t IP2D_loglikelihoodratio() const { return this->calcLLR(IP2D_pb(),IP2D_pu()); }
+    float IP2D_loglikelihoodratio() const { return this->calcLLR(IP2D_pb(),IP2D_pu()); }
     /// @brief get vector of IP2D TrackParticle ElementLinks
     const TPELVec_t& IP2D_TrackParticleLinks() const;
     /// @brief set vector of IP2D TrackParticle ElementLinks
@@ -145,19 +144,19 @@ namespace xAOD {
     /// @{
 
     /// @brief IP3D b probability
-    ftagfloat_t IP3D_pb() const;
+    float IP3D_pb() const;
     /// @brief set IP3D b probability
-    void setIP3D_pb(ftagfloat_t value);
+    void setIP3D_pb(float value);
     /// @brief IP3D c probability
-    ftagfloat_t IP3D_pc() const;
+    float IP3D_pc() const;
     /// @brief set IP3D c probability
-    void setIP3D_pc(ftagfloat_t value);
+    void setIP3D_pc(float value);
     /// @brief IP3D light probability
-    ftagfloat_t IP3D_pu() const;
+    float IP3D_pu() const;
     /// @brief set IP3D light probability
-    void setIP3D_pu(ftagfloat_t value);
+    void setIP3D_pu(float value);
     /// @brief get IP3D log likelihood ratio
-    ftagfloat_t IP3D_loglikelihoodratio() const { return ( (IP3D_pb()==1.&&IP3D_pu()==1.e9) ? 0. : 
+    float IP3D_loglikelihoodratio() const { return ( (IP3D_pb()==1.&&IP3D_pu()==1.e9) ? 0. : 
                                                       this->calcLLR(IP3D_pb(),IP3D_pu()) ); }
     /// @brief get vector of IP3D TrackParticle ElementLinks
     const TPELVec_t& IP3D_TrackParticleLinks() const;
@@ -177,7 +176,7 @@ namespace xAOD {
     /// @name Dedicated SV1+IP3D accessor functions
     /// @{
 
-    ftagfloat_t SV1plusIP3D_discriminant() const {
+    float SV1plusIP3D_discriminant() const {
       return SV1_loglikelihoodratio() + IP3D_loglikelihoodratio();
     }
 
@@ -187,19 +186,19 @@ namespace xAOD {
     /// @{
 
     /// @brief JetFitter b probability
-    ftagfloat_t JetFitter_pb() const;
+    float JetFitter_pb() const;
     /// @brief set JetFitter b probability
-    void setJetFitter_pb(ftagfloat_t value);
+    void setJetFitter_pb(float value);
     /// @brief JetFitter c probability
-    ftagfloat_t JetFitter_pc() const;
+    float JetFitter_pc() const;
     /// @brief set JetFitter c probability
-    void setJetFitter_pc(ftagfloat_t value);
+    void setJetFitter_pc(float value);
     /// @brief JetFitter light probability
-    ftagfloat_t JetFitter_pu() const;
+    float JetFitter_pu() const;
     /// @brief set JetFitter light probability
-    void setJetFitter_pu(ftagfloat_t value);
+    void setJetFitter_pu(float value);
     /// @brief get JetFitter log likelihood ratio
-    ftagfloat_t JetFitter_loglikelihoodratio() const { return this->calcLLR(JetFitter_pb(),JetFitter_pu()); }
+    float JetFitter_loglikelihoodratio() const { return this->calcLLR(JetFitter_pb(),JetFitter_pu()); }
 
 
     /// @}
@@ -208,9 +207,9 @@ namespace xAOD {
     /// @{
 
     /// @brief MV1 discriminant
-    ftagfloat_t MV1_discriminant() const;
+    float MV1_discriminant() const;
     /// @brief set MV1 discriminant
-    void setMV1_discriminant(ftagfloat_t value);
+    void setMV1_discriminant(float value);
 
     /// @}
 
@@ -223,7 +222,7 @@ namespace xAOD {
     bool pu(const std::string& taggername, double &value) const;
     bool pb(const std::string& taggername, double &value) const;
     bool pc(const std::string& taggername, double &value) const;
-    ftagfloat_t calcLLR(double num, double den) const;
+    float calcLLR(double num, double den) const;
 
 
     /// @}

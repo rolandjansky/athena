@@ -25,7 +25,7 @@
 #include <string>
 
 RDBRecord::RDBRecord(const coral::AttributeList& attList
-		     , std::string tableName)
+		     , const std::string& tableName)
   : m_values(0)
   , m_tableName(tableName)
 {

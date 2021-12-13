@@ -60,9 +60,9 @@ namespace CP
   {
     for (const auto& sys : m_systematicsList.systematicsVector())
     {
-      xAOD::MuonContainer *muons = nullptr;
-      ANA_CHECK (m_muonHandle.getCopy (muons, sys));
-      for (xAOD::Muon *muon : *muons)
+      const xAOD::MuonContainer *muons = nullptr;
+      ANA_CHECK (m_muonHandle.retrieve (muons, sys));
+      for (const xAOD::Muon *muon : *muons)
       {
         if (m_preselection.getBool (*muon))
         {

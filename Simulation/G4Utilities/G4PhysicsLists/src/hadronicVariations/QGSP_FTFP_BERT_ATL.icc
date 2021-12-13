@@ -55,7 +55,7 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
-#include "G4HadronPhysicsQGSP_FTFP_BERT_ATL.hh"
+#include "G4AtlasHadronPhysicsQGSP_FTFP_BERT_ATL.hh"
 
 #include "G4WarnPLStatus.hh"
 
@@ -85,7 +85,7 @@ template<class T> TQGSP_FTFP_BERT_ATL<T>::TQGSP_FTFP_BERT_ATL(G4int ver):  T()
   this->RegisterPhysics( new G4HadronElasticPhysics(ver) );
 
    // Hadron Physics
-  this->RegisterPhysics( new G4HadronPhysicsQGSP_FTFP_BERT_ATL(ver) );
+  this->RegisterPhysics( new G4AtlasHadronPhysicsQGSP_FTFP_BERT_ATL(ver) );
 
   // Stopping Physics
   this->RegisterPhysics( new G4StoppingPhysics(ver) );

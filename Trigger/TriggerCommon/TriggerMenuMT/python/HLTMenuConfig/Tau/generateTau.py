@@ -33,7 +33,7 @@ def generateChains( flags, chainDict ):
         selAcc = SelectionCA("CaloTau")
         selAcc.mergeReco(recoAcc)
         hypoAlg = CompFactory.TrigTauCaloHypoAlg("HL2CaloTauHypo",
-                                                    taujets = "HLT_TrigTauRecMerged_CaloOnly" )
+                                                    taujets = "HLT_TrigTauRecMerged_CaloMVAOnly" )
         selAcc.addHypoAlgo(hypoAlg)
         from TrigTauHypo.TrigTauHypoTool import TrigL2TauHypoToolFromDict
         menuCA = MenuSequenceCA(selAcc, HypoToolGen=TrigL2TauHypoToolFromDict)
@@ -66,7 +66,7 @@ def generateChains( flags, chainDict ):
         fastInDetReco.mergeReco(idTracking)
         fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVFastTau',
                                 DataObjects=[( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % evtViewMaker.InViewRoIs ),
-                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]) )
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloMVAOnly')]) )
         selAcc.mergeReco(fastInDetReco)
         hypoAlg = CompFactory.TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_PassByTau",
                                                     trackcollection = flags.Trigger.InDetTracking.Tau.trkTracks_FTF, RoIForIDReadHandleKey="" )
@@ -101,7 +101,7 @@ def generateChains( flags, chainDict ):
         fastInDetReco.mergeReco(idTracking)                                                                                         
         fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVFastTauCore',                                                 
                                 DataObjects=[( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % evtViewMaker.InViewRoIs ),                                                        
-                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]) )                                                                         
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloMVAOnly')]) )                                                                         
 
         fastInDetReco.addRecoAlgo(CompFactory.TrigTauTrackRoiUpdater('TrackRoiUpdater',                                                                                                       
                                                                RoIInputKey                  = evtViewMaker.InViewRoIs,                                                               
@@ -113,7 +113,7 @@ def generateChains( flags, chainDict ):
                                                                RoIOutputKey                 = "UpdatedTrackBDTRoI",                                                              
                                                                fastTracksKey                = flags.Trigger.InDetTracking.TauCore.trkTracks_FTF,                                                            
                                                                useBDT                       = True,                                                                                  
-                                                               Key_trigTauJetInputContainer = "HLT_TrigTauRecMerged_CaloOnly" ))                                                   
+                                                               Key_trigTauJetInputContainer = "HLT_TrigTauRecMerged_CaloMVAOnly" ))                                                   
         selAcc.mergeReco(fastInDetReco)                                                                                                                     
         hypoAlg = CompFactory.TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_RejectEmpty",                                                                                             
                                                     trackcollection = flags.Trigger.InDetTracking.TauCore.trkTracks_FTF )                                                            
@@ -148,7 +148,7 @@ def generateChains( flags, chainDict ):
         fastInDetReco.mergeReco(idTracking)
         fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVFastTauIso',
                                 DataObjects=[( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % evtViewMaker.InViewRoIs ),
-                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]) )
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloMVAOnly')]) )
 
         selAcc.mergeReco(fastInDetReco)
         hypoAlg = CompFactory.TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_PassByIso",
@@ -190,7 +190,7 @@ def generateChains( flags, chainDict ):
         fastInDetReco.mergeReco(idTracking)
         fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVFastTauIsoBDT',
                                 DataObjects=[( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % evtViewMaker.InViewRoIs ),
-                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')]) )
+                               ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloMVAOnly')]) )
 
         selAcc.mergeReco(fastInDetReco)
         hypoAlg = CompFactory.TrigTrackPreSelHypoAlg("TrackPreSelHypoAlg_PassByIsoBDT",

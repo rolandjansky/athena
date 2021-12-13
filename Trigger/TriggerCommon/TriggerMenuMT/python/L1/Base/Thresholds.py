@@ -233,8 +233,17 @@ class LegacyThreshold( Threshold ):
                     ("priority", thrV.priority)
                 ]) )
         elif self.ttype == ThrType.TAU:
-            confObj["value"] = self.thresholdValues[0].value
             confObj["isobits"] = self.thresholdValues[0].isobits
+            confObj["thrValues"] = []
+            for thrV in self.thresholdValues:
+                confObj["thrValues"].append( odict([
+                    ("value", thrV.value),
+                    ("etamin", thrV.etamin),
+                    ("etamax", thrV.etamax),
+                    ("phimin", thrV.phimin),
+                    ("phimax", thrV.phimax),
+                    ("priority", thrV.priority)
+                ]) )
         elif self.ttype == ThrType.JET:
             confObj["thrValues"] = []
             for thrV in self.thresholdValues:
@@ -327,8 +336,77 @@ class eEMThreshold (Threshold):
         thrv = ThresholdValue(self.ttype, value,
                               etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
                               priority = p['priority'], name = self.name+'full')
-
+        if len(self.thresholdValues):
+            raise RuntimeError("Threshold %s of type %s cannot have multiple Et cuts" % ( self.name, self.ttype ) )
         self.thresholdValues.append(thrv)            
+        return self
+
+    def json(self):
+        confObj = odict()
+        confObj["mapping"] = self.mapping
+        confObj["rhad"] = self.rhad
+        confObj["reta"] = self.reta
+        confObj["wstot"] = self.wstot
+        confObj["thrValues"] = []
+        for thrV in self.thresholdValues:
+            tvco = odict()
+            tvco["value"] = thrV.value
+            tvco["etamin"] = thrV.etamin
+            tvco["etamax"] = thrV.etamax
+            tvco["priority"] = thrV.priority
+            confObj["thrValues"].append( tvco )
+        return confObj
+
+class eEMVarThreshold (Threshold):
+
+    def __init__(self, name, ttype = 'eEM', mapping = -1):
+        super(eEMVarThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='eEM' else 2)
+        mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHILMT]*)",name).groupdict()
+        self.suffix = mres["suffix"]
+        self.rhad = "None"
+        self.reta = "None"
+        self.wstot = "None"
+
+    def isV(self):
+        return 'V' in self.suffix
+
+    def isI(self):
+        return 'I' in self.suffix
+
+    def isL(self):
+        return 'L' in self.suffix
+
+    def isM(self):
+        return 'M' in self.suffix
+
+    def setIsolation(self, rhad = "None", reta = "None", wstot = "None"):
+        allowed = [ "None", "Loose", "Medium", "Tight" ]
+        if rhad not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for rhad, must be one of %s", self.name, self.ttype, rhad, ', '.join(allowed) )
+        if reta not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for reta, must be one of %s", self.name, self.ttype, reta, ', '.join(allowed) )
+        if wstot not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for wstot, must be one of %s", self.name, self.ttype, wstot, ', '.join(allowed) )
+        self.rhad = rhad
+        self.reta = reta
+        self.wstot = wstot
+        return self
+
+    def addThrValue(self, value, *args, **kwargs):
+        # supporting both EM and TAU
+        defargs = ThresholdValue.getDefaults(self.ttype.name)
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
+
+        # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
+        p = deepcopy(defargs)
+        p.update(posargs)
+        p.update(kwargs)
+
+        thrv = ThresholdValue(self.ttype, value,
+                              etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
+                              priority = p['priority'], name = self.name+'full')
+
+        self.thresholdValues.append(thrv)
         return self
 
     def json(self):
@@ -396,7 +474,8 @@ class jEMThreshold (Threshold):
         thrv = ThresholdValue(self.ttype, value,
                               etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
                               priority = p['priority'], name = self.name+'full')
-
+        if len(self.thresholdValues):
+            raise RuntimeError("Threshold %s of type %s cannot have multiple Et cuts" % ( self.name, self.ttype ) )
         self.thresholdValues.append(thrv)
         return self
 
@@ -551,6 +630,25 @@ class eTauThreshold( Threshold ):
 
     def setEt(self, et):
         self.et = et
+        self.addThrValue(et)
+        return self
+
+    def addThrValue(self, value, *args, **kwargs):
+        # supporting both EM and TAU
+        defargs = ThresholdValue.getDefaults(self.ttype.name)
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
+
+        # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
+        p = deepcopy(defargs)
+        p.update(posargs)
+        p.update(kwargs)
+
+        thrv = ThresholdValue(self.ttype, value,
+                              etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
+                              priority = p['priority'], name = self.name+'full')
+        if len(self.thresholdValues):
+            raise RuntimeError("Threshold %s of type %s cannot have multiple Et cuts" % ( self.name, self.ttype ) )
+        self.thresholdValues.append(thrv)
         return self
 
     def setIsolation(self, rCore = "None", rHad = "None"):
@@ -567,9 +665,18 @@ class eTauThreshold( Threshold ):
     def json(self):
         confObj = odict()
         confObj["mapping"] = self.mapping
-        confObj["value"] = self.et
         confObj["rCore"] = self.rCore
         confObj["rHad"] = self.rHad
+        confObj["thrValues"] = []
+        for thrV in self.thresholdValues:
+            confObj["thrValues"].append( odict([
+                ("value", thrV.value),
+                ("etamin", thrV.etamin),
+                ("etamax", thrV.etamax),
+                ("phimin", thrV.phimin),
+                ("phimax", thrV.phimax),
+                ("priority", thrV.priority)
+            ]) )
         return confObj
 
 class jTauThreshold( Threshold ):
@@ -592,6 +699,25 @@ class jTauThreshold( Threshold ):
 
     def setEt(self, et):
         self.et = et
+        self.addThrValue(et)
+        return self
+
+    def addThrValue(self, value, *args, **kwargs):
+        # supporting both EM and TAU
+        defargs = ThresholdValue.getDefaults(self.ttype.name)
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
+
+        # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
+        p = deepcopy(defargs)
+        p.update(posargs)
+        p.update(kwargs)
+
+        thrv = ThresholdValue(self.ttype, value,
+                              etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
+                              priority = p['priority'], name = self.name+'full')
+        if len(self.thresholdValues):
+            raise RuntimeError("Threshold %s of type %s cannot have multiple Et cuts" % ( self.name, self.ttype ) )
+        self.thresholdValues.append(thrv)
         return self
 
     def setIsolation(self, isolation = "None"):
@@ -604,8 +730,17 @@ class jTauThreshold( Threshold ):
     def json(self):
         confObj = odict()
         confObj["mapping"] = self.mapping
-        confObj["value"] = self.et
         confObj["isolation"] = self.isolation
+        confObj["thrValues"] = []
+        for thrV in self.thresholdValues:
+            confObj["thrValues"].append( odict([
+                ("value", thrV.value),
+                ("etamin", thrV.etamin),
+                ("etamax", thrV.etamax),
+                ("phimin", thrV.phimin),
+                ("phimax", thrV.phimax),
+                ("priority", thrV.priority)
+            ]) )
         return confObj
 
 class cTauThreshold( Threshold ):
@@ -628,6 +763,25 @@ class cTauThreshold( Threshold ):
 
     def setEt(self, et):
         self.et = et
+        self.addThrValue(et)
+        return self
+
+    def addThrValue(self, value, *args, **kwargs):
+        # supporting both EM and TAU
+        defargs = ThresholdValue.getDefaults(self.ttype.name)
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'priority'], args))
+
+        # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
+        p = deepcopy(defargs)
+        p.update(posargs)
+        p.update(kwargs)
+
+        thrv = ThresholdValue(self.ttype, value,
+                              etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
+                              priority = p['priority'], name = self.name+'full')
+        if len(self.thresholdValues):
+            raise RuntimeError("Threshold %s of type %s cannot have multiple Et cuts" % ( self.name, self.ttype ) )
+        self.thresholdValues.append(thrv)
         return self
 
     def setIsolation(self, isolation = "None"):
@@ -640,8 +794,17 @@ class cTauThreshold( Threshold ):
     def json(self):
         confObj = odict()
         confObj["mapping"] = self.mapping
-        confObj["value"] = self.et
         confObj["isolation"] = self.isolation
+        confObj["thrValues"] = []
+        for thrV in self.thresholdValues:
+            confObj["thrValues"].append( odict([
+                ("value", thrV.value),
+                ("etamin", thrV.etamin),
+                ("etamax", thrV.etamax),
+                ("phimin", thrV.phimin),
+                ("phimax", thrV.phimax),
+                ("priority", thrV.priority)
+            ]) )
         return confObj
 
 class jJetThreshold( Threshold ):
@@ -713,10 +876,45 @@ class jLJetThreshold( Threshold ):
             confObj["thrValues"].append( tvco )
         return confObj
 
+class gJetThreshold( Threshold ):
+
+    def __init__(self, name, ttype = 'gJ', mapping = -1):
+        super(gJetThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='gJ' else 2)
+        self.et = None
+
+    def setEt(self, et):
+        """Et value in GeV"""
+        self.et = et
+        return self
+
+    def json(self):
+        confObj = odict()
+        confObj["value"] = self.et
+        confObj["mapping"] = self.mapping
+        return confObj
+
+class gLJetThreshold( Threshold ):
+
+    def __init__(self, name, ttype = 'gLJ', mapping = -1):
+        super(gLJetThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='gLJ' else 2)
+        self.et = None
+
+    def setEt(self, et):
+        """Et value in GeV"""
+        self.et = et
+        return self
+
+    def json(self):
+        confObj = odict()
+        confObj["value"] = self.et
+        confObj["mapping"] = self.mapping
+        return confObj
+
+
 class XEThreshold( Threshold ):
 
     def __init__(self, name, ttype, mapping = -1):
-        super(XEThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype.startswith('gXE') or ttype.startswith('jXE') else 2)
+        super(XEThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype.startswith('gXE') or ttype.startswith('gMHT') or ttype.startswith('jXE') else 2)
         self.xe = None
 
     def setXE(self, xe):

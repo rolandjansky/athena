@@ -24,5 +24,14 @@ find_package( LCG ${LCG_VERSION_NUMBER} REQUIRED EXACT ${_quietFlag} )
 # Set up the Threads::Threads imported target.
 find_package( Threads ${_quietFlag} )
 
+# Set the versions/locations of the TDAQ projects:
+set( TDAQ-COMMON_VERSION "@TDAQ-COMMON_VERSION@" CACHE STRING
+   "The version of tdaq-common to use for the build" )
+set( TDAQ-COMMON_ATROOT "@TDAQ-COMMON_ATROOT@" CACHE PATH
+   "The directory to pick up tdaq-common from" )
+
+# Find tdaq-common, mainly to have packages find COOL/CORAL.
+find_package( tdaq-common ${_quietFlag} )
+
 # Clean up.
 unset( _quietFlag )

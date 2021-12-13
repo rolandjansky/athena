@@ -21,29 +21,10 @@
 namespace Rec {
 
     MuonCaloEnergyTool::MuonCaloEnergyTool(const std::string& t, const std::string& n, const IInterface* p) :
-        AthAlgTool(t, n, p),
-        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-        m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this),
-        m_particleCreator("Trk::TrackParticleCreatorTool/MuonCaloParticleCreator"),
-        m_sigmasAboveNoise(4.),
-        m_emEtCut(2.5 * Gaudi::Units::GeV),
-        m_emF1Cut(0.15),
-        m_emipEM(0.42),    // 0.42
-        m_emipTile(0.86),  // 0.86
-        m_emipHEC(0.65)    // 0.65
+        AthAlgTool(t, n, p)
     {
         declareInterface<IMuonCaloEnergyTool>(this);
-        declareProperty("ParticleCaloExtensionTool", m_caloExtensionTool);
-        declareProperty("ParticleCaloCellAssociationTool", m_caloCellAssociationTool);
-        declareProperty("TrackParticleCreator", m_particleCreator);
-
-        // coneSize for including calo cells around track
-        declareProperty("SigmasAboveNoise", m_sigmasAboveNoise = 4.);
-        declareProperty("EmEtCut", m_emEtCut = 2.5 * 1000.);  // in MeV
-        declareProperty("EmF1Cut", m_emF1Cut = 0.15);
     }
-
-    MuonCaloEnergyTool::~MuonCaloEnergyTool() {}
 
     StatusCode MuonCaloEnergyTool::initialize() {
         // RETRIEVE TOOLS
@@ -536,7 +517,7 @@ namespace Rec {
 
     }  // calculateMuonEnergies
 
-    double MuonCaloEnergyTool::etaCorr(double eta) const {
+    double MuonCaloEnergyTool::etaCorr(double eta) {
         // measured energy* = measured energy + etaCorr(eta) * expected
 
         int eta_index = int(std::abs(eta) * (60. / 3.));

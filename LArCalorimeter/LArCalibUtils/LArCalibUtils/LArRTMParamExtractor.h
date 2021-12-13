@@ -51,7 +51,10 @@ class LArRTMParamExtractor : public AthAlgorithm
  private:
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"ScCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
+
   ToolHandle<LArWFParamTool> m_larWFParamTool{this,"LArWFParamTool","LArWFParamTool"};
+
   std::vector<std::string> m_keylist;
   bool m_isSC;
   bool m_testmode, m_dumpOmegaScan, m_dumpResOscill;

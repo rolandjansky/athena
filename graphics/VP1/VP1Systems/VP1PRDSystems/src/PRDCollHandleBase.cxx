@@ -306,7 +306,7 @@ bool PRDCollHandleBase::Imp::actualLoad()
 
   } else {
 
-    for ( const DataHandle<typename T::base_value_type> elementD(firstElementD); elementD!=lastElementD; ++elementD ) {
+    for ( const DataHandle<typename T::base_value_type>& elementD(firstElementD); elementD!=lastElementD; ++elementD ) {
       prd = (*elementD).begin(), prdLast = (*elementD).end();
       for ( ; prd!=prdLast ; ++prd) {
         ++iprds;

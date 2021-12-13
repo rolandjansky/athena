@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 # -------------------------------------------------------------------------
@@ -47,7 +47,6 @@ def TrackTruthSimilaritySelectorCfg(flags, DetailedTruth, TracksTruth, name='Sel
     acc = ComponentAccumulator()
 
     InDetTruthMatchSimilarityTool = acc.popToolsAndMerge(InDetTruthMatchToolCfg(flags))
-    acc.addPublicTool(InDetTruthMatchSimilarityTool)
 
     kwargs.setdefault("DetailedTrackTruthName", DetailedTruth)
     kwargs.setdefault("OutputName", TracksTruth)
@@ -56,7 +55,7 @@ def TrackTruthSimilaritySelectorCfg(flags, DetailedTruth, TracksTruth, name='Sel
     acc.addEventAlgo(CompFactory.TrackTruthSimilaritySelector(name = TracksTruth+name, **kwargs))
     return acc
 
-def  InDetTrackTruthCfg(flags, Tracks = None, DetailedTruth = None, TracksTruth = None):
+def InDetTrackTruthCfg(flags, Tracks="CombinedInDetTracks", DetailedTruth="CombinedInDetTracksDetailedTruth", TracksTruth="CombinedInDetTracksTruthCollection"):
     acc = ComponentAccumulator()
     #
     # --- Enable the detailed track truth
@@ -85,8 +84,7 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryTRT   = True
 
     ConfigFlags.InDet.doPixelClusterSplitting = True
-
-    ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
+    ConfigFlags.InDet.useHolesFromPattern =  False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
@@ -98,31 +96,6 @@ if __name__ == "__main__":
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
-
-    ####################### Aditional Configurations #########################
-
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    top_acc.merge( PixelGeometryCfg(ConfigFlags) )
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge(SCT_GeometryCfg(ConfigFlags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
-
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg, PixelHitDiscCnfgAlgCfg
-    top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
-    top_acc.merge(PixelHitDiscCnfgAlgCfg(ConfigFlags))
-
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
-    top_acc.addPublicTool(PixelLorentzAngleTool(ConfigFlags))
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(PixelLorentzAngleCfg(ConfigFlags)))
-
-    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
-    top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
 
     ################## SiliconPreProcessing Configurations ###################
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
@@ -138,7 +111,7 @@ if __name__ == "__main__":
 
     SiSPSeededTrackCollectionKey = 'SiSPSeededPixelTracks'
     ResolvedTrackCollectionKey = 'ResolvedPixelTracks'
-    from InDetConfig.TRTExtensionConfig import SiSPSeededTrackFinderCfg
+    from InDetConfig.TrackingSiPatternConfig import SiSPSeededTrackFinderCfg
     top_acc.merge(SiSPSeededTrackFinderCfg( ConfigFlags,
                                             InputCollections = InputCollections, 
                                             SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))

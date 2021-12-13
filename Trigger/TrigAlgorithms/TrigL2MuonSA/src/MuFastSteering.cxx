@@ -44,6 +44,8 @@ StatusCode MuFastSteering::initialize()
     }
   }
 
+
+
   // Locate DataPreparator
   ATH_CHECK(m_dataPreparator.retrieve());
 
@@ -114,8 +116,50 @@ StatusCode MuFastSteering::initialize()
     ATH_MSG_INFO("will fill " << m_muIdContainerKey.key() << " in Full Scan mode. Please check if it's correct.");
   }
 
+
+  //
+  // Initialize the calibration streamer  
+  // 
+
+  if (m_doCalStream) {
+    // retrieve the calibration streamer
+    ATH_CHECK(m_calStreamer.retrieve());
+    // set properties
+    m_calStreamer->setBufferName(m_calBufferName);
+    m_calStreamer->setInstanceName( "0");
+    ATH_MSG_DEBUG("Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName 
+		  << ", buffer size: " << m_calBufferSize 
+		  << " doDataScouting: "  << m_calDataScouting);
+
+    //open the stream
+    StatusCode sc = StatusCode::SUCCESS;
+    sc = m_calStreamer->openStream(m_calBufferSize);
+    if ( sc != StatusCode::SUCCESS ) {  
+      ATH_MSG_ERROR("Failed to open the connection to the circular buffer");       }
+    else {
+      ATH_MSG_INFO("Opened the connection to the circular buffer");
+    }
+  }
+    
+
   return StatusCode::SUCCESS;
 }
+
+StatusCode MuFastSteering::finalize()
+{
+  // close the calibration stream
+  if ( m_doCalStream ) {
+    StatusCode sc = m_calStreamer->closeStream();
+      if  ( sc != StatusCode::SUCCESS ) {
+	ATH_MSG_ERROR("Failed to close the calibration stream");}
+      else {
+	ATH_MSG_INFO("Calibration stream closed");
+      }
+  } 
+
+  return StatusCode::SUCCESS;
+}
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -579,8 +623,8 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();
       trackFitterTimer.start();
       sc = m_trackFitter->findTracks(*p_roids,
-                                      rpcFitResult,
-                                      trackPatterns);
+				     rpcFitResult, 
+				     trackPatterns);
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Track fitter failed");
@@ -746,6 +790,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
     	                rpcFitResult, tgcFitResult, mdtHits_normal, cscHits,
 			stgcHits, mmHits,
                         trackPatterns, outputTracks, outputID, outputMS, ctx);
+
 
     p_roids++;
     if (p_roids==roids.end()) break;
@@ -1074,6 +1119,28 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
 			stgcHits, mmHits,
                         trackPatterns, outputTracks, outputID, outputMS, ctx);
 
+
+    //-----------------------
+    // call the calibration streamer
+    //--------------------------- 
+    if (m_doCalStream && trackPatterns.size()>0 ) { 
+      TrigL2MuonSA::TrackPattern tp = trackPatterns[0];
+      bool updateTriggerElement = false;
+      //int calBS = m_calBufferSize;
+      bool calDS = m_calDataScouting;
+      sc = m_calStreamer->createRoiFragment(*p_roi,tp,mdtHits_normal,
+       					    rpcHits,
+       					    tgcHits,
+       					    //calBS,
+       					    calDS,
+       					    updateTriggerElement,ctx); 
+      if (sc != StatusCode::SUCCESS ) {  
+	ATH_MSG_WARNING("Calibration streamer: create Roi Fragment failed");
+      }
+    }
+    
+    
+    
     p_roids++;
     if (p_roids==roids.end()) break;
   }
@@ -1870,7 +1937,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
       prepTimer.stop();
 
-      for(int i_road = 0; i_road < (int)clusterRoad.size(); i_road++){
+      for(unsigned int i_road = 0; i_road < clusterRoad.size(); i_road++){
         // Pattern finding
         std::vector<TrigL2MuonSA::TrackPattern> tmp_trkPats; tmp_trkPats.clear();
 
@@ -2225,7 +2292,7 @@ StatusCode MuFastSteering::findMultiTrackSignature(const std::vector<const TrigR
       if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
       prepTimer.stop();
 
-      for(int i_road = 0; i_road < (int)clusterRoad.size(); i_road++){
+      for(unsigned int i_road = 0; i_road < clusterRoad.size(); i_road++){
         // Pattern finding
         std::vector<TrigL2MuonSA::TrackPattern> tmp_trkPats; tmp_trkPats.clear();
 
@@ -3929,3 +3996,6 @@ StatusCode MuFastSteering::updateMonitor(const xAOD::MuonRoI*                   
 
   return StatusCode::SUCCESS;
 }
+
+
+

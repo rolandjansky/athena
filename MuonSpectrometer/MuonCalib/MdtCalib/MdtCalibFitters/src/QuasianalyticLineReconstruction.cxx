@@ -343,35 +343,35 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment& r_segment, HitSelect
 
     time_t start, end;  // start and end time (needed for time-out)
     time(&start);
-    double diff;                                        // difference of start and end time (needed for time-out)
-    unsigned int nb_selected_hits(0);                   // number of selected hits
-    std::vector<const MdtCalibHitBase*> selected_hits;  // vector of pointers to the
-                                                        // selected hits
+    double diff;                       // difference of start and end time (needed for time-out)
+    unsigned int nb_selected_hits(0);  // number of selected hits
+    MdtHitVec selected_hits;           // vector of pointers to the
+                                       // selected hits
     std::vector<unsigned> selected_hits_index(r_selection.size());
     // vector containing the indices
     // of the selected hits (needed
     // a requested refit)
-    std::vector<Amg::Vector3D> w;               // wire coordinates
-    std::vector<double> r;                      // drift CLHEP::radii of the selected hits
-    std::vector<double> sigma2;                 // sigma(r)^2 (spatial resolution in r)
-    unsigned int counter1, counter2, counter3;  // auxiliary counters
-    unsigned int max_cand_hits;                 // the maximum number of hits on a track candidate
-                                                // found so far
-    int max_cand_HOTs;                          // the maximum number of hit tubes on a track
-                                                // candidate found so far
-    int nb_candidates;                          // number of candidate tracks
-    std::vector<int> k_cand, l_cand;            // candidate track index
-    std::vector<int> cand_case;                 // tangent case for the candidate
-    std::vector<int> nb_HOTs;                   // number of hits on a candidate
-    int candidate;                              // index of the candidate which becomes the track
-    IndexSet aux_set;                           // auxiliary index set
-    std::vector<IndexSet> index_set;            // index set for the storage of the hits
-                                                // forming a track
-    std::vector<double> intercept;              // intercepts of track candidates
-    MTStraightLine tangents[4];                 // the four tangents to the drift circles of a
-                                                // hit pair
-    MTStraightLine aux_track;                   // auxiliary track
-    double aux_chi2;                            // auxiliary chi^2 variable
+    std::vector<Amg::Vector3D> w;                        // wire coordinates
+    std::vector<double> r;                               // drift CLHEP::radii of the selected hits
+    std::vector<double> sigma2;                          // sigma(r)^2 (spatial resolution in r)
+    unsigned int counter1{0}, counter2{0}, counter3{0};  // auxiliary counters
+    unsigned int max_cand_hits{0};                       // the maximum number of hits on a track candidate
+                                                         // found so far
+    int max_cand_HOTs{0};                                // the maximum number of hit tubes on a track
+                                                         // candidate found so far
+    int nb_candidates;                                   // number of candidate tracks
+    std::vector<int> k_cand, l_cand;                     // candidate track index
+    std::vector<int> cand_case;                          // tangent case for the candidate
+    std::vector<int> nb_HOTs;                            // number of hits on a candidate
+    int candidate{0};                                    // index of the candidate which becomes the track
+    IndexSet aux_set;                                    // auxiliary index set
+    std::vector<IndexSet> index_set;                     // index set for the storage of the hits
+                                                         // forming a track
+    std::vector<double> intercept;                       // intercepts of track candidates
+    MTStraightLine tangents[4];                          // the four tangents to the drift circles of a
+                                                         // hit pair
+    MTStraightLine aux_track;                            // auxiliary track
+    double aux_chi2;                                     // auxiliary chi^2 variable
     Amg::Vector3D null(0.0, 0.0, 0.0);
     Amg::Vector3D xhat(1.0, 0.0, 0.0);
     MTStraightLine initial_track(r_segment.position(), r_segment.direction(), null, null);
@@ -429,7 +429,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment& r_segment, HitSelect
     counter2 = 0;
     for (unsigned int k = 0; k < r_segment.mdtHitsOnTrack(); k++) {
         // skip the hit, if it has not been selected //
-        const MdtCalibHitBase* hit = (r_segment.mdtHOT())[k];
+        const MuonCalibSegment::MdtHitPtr hit = (r_segment.mdtHOT())[k];
         if (r_selection[k] == 1 || hit->sigmaDriftRadius() > 100.0) { continue; }
 
         // copy the hit information into local vectors //
@@ -532,7 +532,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment& r_segment, HitSelect
         }
     }
 
-    std::vector<const MdtCalibHitBase*> final_track_hits(max_cand_hits);
+    MdtHitVec final_track_hits(max_cand_hits);
     for (unsigned int k = 0; k < max_cand_hits; k++) { final_track_hits[k] = selected_hits[index_set[candidate][k]]; }
 
     // make the segment in rphi as the initial segment //
@@ -579,9 +579,8 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment& r_segment, HitSelect
     }
 
     // finish the update (necessary, if no refit has been performed) //
-    MuonCalibSegment::MdtHitIt it = r_segment.mdtHOTBegin();
-    while (it != r_segment.mdtHOTEnd()) {
-        MdtCalibHitBase& hit = const_cast<MdtCalibHitBase&>(**it);
+    for (MdtHitPtr& mdt_hit : r_segment.mdtHOT()) {
+        MdtCalibHitBase& hit = *mdt_hit;
 
         Amg::Vector3D pos(0.0, (hit.localPosition()).y(), (hit.localPosition()).z());
         // wire position
@@ -590,8 +589,6 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment& r_segment, HitSelect
         double dist_err(std::hypot(pos.z() * final_track.a_x2_error(), final_track.b_x2_error()));
         // approximate error of the track distance
         hit.setDistanceToTrack(dist, dist_err);
-
-        ++it;
     }
     final_track.setUsedHits(final_track_hits);
     final_track.setChi2(chi2);

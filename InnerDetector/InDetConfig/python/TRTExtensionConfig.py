@@ -35,11 +35,11 @@ def DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF', **kwargs):
     InDetCompetingRotCreator = acc.popToolsAndMerge(CompetingRIOsOnTrackToolCfg(flags))
     acc.addPublicTool(InDetCompetingRotCreator)
 
-    from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
 
     from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
-    InDetUpdator = acc.getPrimaryAndMerge(InDetUpdatorCfg(flags))
+    InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
 
     kwargs.setdefault("ToolForExtrapolation", InDetExtrapolator)
     kwargs.setdefault("ToolForCompetingROTsCreation", InDetCompetingRotCreator)
@@ -89,8 +89,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     #
     # --- get configured track extension processor
     #
-    InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
-    acc.addPublicTool(InDetTrackSummaryTool)
+    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
     if flags.InDet.materialInteractions:
         kwargs.setdefault("matEffects", flags.InDet.materialInteractionsType)
@@ -127,30 +126,27 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
 #
 # ------------------------------------------------------------
 def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCollection = None, ExtendedTracksMap = None, doPhase = True):
-    acc = ComponentAccumulator()
+    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+    acc = TRTPreProcessingCfg(flags)
     #
-    # ---------- TRT_TrackExtension
+    # Track extension to TRT algorithm
     #
-    if flags.InDet.doTRTExtensionNew:
-        #
-        # Track extension to TRT algorithm
-        #
-        if doPhase:
-            acc.merge(TRT_TrackExtensionAlgCfg( flags,
-                                                name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.extension,
-                                                SiTrackCollection=SiTrackCollection,
-                                                ExtendedTracksMap = ExtendedTracksMap))
-        else:
-            acc.merge(TRT_TrackExtensionAlgCfg( flags,  
-                                                name = 'InDetTRT_Extension' + flags.InDet.Tracking.extension,
-                                                SiTrackCollection=SiTrackCollection,
-                                                ExtendedTracksMap = ExtendedTracksMap,
-                                                TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
-        acc.merge(InDetExtensionProcessorCfg(flags,
-                                             SiTrackCollection = SiTrackCollection,
-                                             ExtendedTrackCollection = ExtendedTrackCollection,
-                                             ExtendedTracksMap = ExtendedTracksMap,
-                                             doPhase = doPhase))
+    if doPhase:
+        acc.merge(TRT_TrackExtensionAlgCfg( flags,
+                                            name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.extension,
+                                            SiTrackCollection=SiTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap))
+    else:
+        acc.merge(TRT_TrackExtensionAlgCfg( flags,  
+                                            name = 'InDetTRT_Extension' + flags.InDet.Tracking.extension,
+                                            SiTrackCollection=SiTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap,
+                                            TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
+    acc.merge(InDetExtensionProcessorCfg(flags,
+                                            SiTrackCollection = SiTrackCollection,
+                                            ExtendedTrackCollection = ExtendedTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap,
+                                            doPhase = doPhase))
     return acc
 ##########################################################################################################################
 
@@ -187,26 +183,22 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    top_acc.merge(PixelGeometryCfg(ConfigFlags))
-    top_acc.merge(SCT_GeometryCfg(ConfigFlags))
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    top_acc.merge(PixelReadoutGeometryCfg(ConfigFlags))
+    top_acc.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
 
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    top_acc.merge(TRT_ReadoutGeometryCfg( ConfigFlags ))
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
     top_acc.merge(MuonGeoModelCfg(ConfigFlags))
     top_acc.merge(MuonIdHelperSvcCfg(ConfigFlags))
 
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
-
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg
     top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
 
-    from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
-
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
     top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
 

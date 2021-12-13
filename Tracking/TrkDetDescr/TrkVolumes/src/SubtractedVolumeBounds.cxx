@@ -28,6 +28,7 @@
 // STD
 #include <cmath>
 #include <iostream>
+#include <utility>
 
 Trk::SubtractedVolumeBounds::SubtractedVolumeBounds()
   : VolumeBounds()
@@ -82,7 +83,7 @@ Trk::SubtractedVolumeBounds::operator=(const Trk::SubtractedVolumeBounds& bobo)
 
 const std::vector<const Trk::Surface*>*
   Trk::SubtractedVolumeBounds::decomposeToSurfaces
-  ATLAS_NOT_THREAD_SAFE(const Amg::Transform3D& transf) const
+  (const Amg::Transform3D& transf)
 {
   // double tol=0.001;
   // get surfaces for outer boundaries
@@ -308,8 +309,8 @@ Trk::SubtractedVolumeBounds::dump(MsgStream& sl) const
   temp_sl << std::setprecision(7);
   temp_sl << "Trk::SubtractedVolumeBounds: outer,inner ";
   sl << temp_sl.str();
-  m_outer->volumeBounds().dump(sl);
-  m_inner->volumeBounds().dump(sl);
+  std::as_const(*m_outer).volumeBounds().dump(sl);
+  std::as_const(*m_inner).volumeBounds().dump(sl);
   return sl;
 }
 
@@ -321,8 +322,8 @@ Trk::SubtractedVolumeBounds::dump(std::ostream& sl) const
   temp_sl << std::setprecision(7);
   temp_sl << "Trk::SubtractedVolumeBounds: outer,inner ";
   sl << temp_sl.str();
-  m_outer->volumeBounds().dump(sl);
-  m_inner->volumeBounds().dump(sl);
+  std::as_const(*m_outer).volumeBounds().dump(sl);
+  std::as_const(*m_inner).volumeBounds().dump(sl);
   return sl;
 }
 

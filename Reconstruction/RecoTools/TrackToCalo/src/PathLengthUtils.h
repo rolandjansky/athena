@@ -31,22 +31,22 @@ public:
     ~PathLengthUtils();
 
     double pathInsideCell(const CaloCell& cell, const CaloExtensionHelpers::EntryExitLayerMap& entryExitLayerMap) const;
-    double get3DPathLength(const CaloCell& cell, const Amg::Vector3D& entry, const Amg::Vector3D& exit, double drFix, double dzFix) const;
+    static double get3DPathLength(const CaloCell& cell, const Amg::Vector3D& entry, const Amg::Vector3D& exit, double drFix, double dzFix) ;
 
-    double getPathLengthInTile(const CaloCell& cell, const Amg::Vector3D& entry, const Amg::Vector3D& exit) const;
+    static double getPathLengthInTile(const CaloCell& cell, const Amg::Vector3D& entry, const Amg::Vector3D& exit) ;
     // double path(xAOD::TrackParticle& trackParticle, const CaloCell* cell);
     // double path(xAOD::TrackParticle& trackParticle, const CaloCell_ID::CaloSample sample);
 
 private:
-    CaloSampling::CaloSample tileEntrance(CaloSampling::CaloSample sample) const;
-    CaloSampling::CaloSample tileExit(CaloSampling::CaloSample sample) const;
+    static CaloSampling::CaloSample tileEntrance(CaloSampling::CaloSample sample) ;
+    static CaloSampling::CaloSample tileExit(CaloSampling::CaloSample sample) ;
 
     double phiMean(double a, double b) const;
     bool crossedPhi(const CaloCell& cell, double phi_entrance, double phi_exit) const;
     double getPathLengthInEta(const CaloCell& cell, double eta_entrance, double eta_exit) const;
     double getPathLengthInZ(double zMin, double zMax, double z_entrance, double z_exit) const;
     double getPathLengthInZ(const CaloCell& cell, double z_entrance, double z_exit) const;
-    bool crossingMatrix(const Amg::MatrixX& Matrix, const Amg::Vector3D& entry, Amg::Vector3D& path) const;
+    static bool crossingMatrix(const Amg::MatrixX& Matrix, const Amg::Vector3D& entry, Amg::Vector3D& path) ;
 };
 
 inline double PathLengthUtils::phiMean(double a, double b) const { return 0.5 * (a + b) + (a * b < 0) * M_PI; }

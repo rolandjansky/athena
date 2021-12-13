@@ -205,8 +205,8 @@ namespace top {
                    "Failed to set tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWP),
                    "Failed to set tau JetIDWP");
-        //top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWP),
-        //           "Failed to set tau EleBDTWP");
+        top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWP),
+                  "Failed to set tau EleBDTWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLR()),
                    "Failed to set tau MuonOLR");
       }
@@ -278,8 +278,8 @@ namespace top {
                    "Failed to set loose tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWPLoose),
                    "Failed to set loose tau JetIDWP");
-        //top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWPLoose),
-        //           "Failed to set loose tau EleBDTWP");
+        top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWPLoose),
+                  "Failed to set loose tau EleBDTWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLRLoose()),
                    "Failed to set tau MuonOLR");
       }
@@ -322,21 +322,21 @@ namespace top {
       std::unique_ptr<TauAnalysisTools::TauSmearingTool> tauSmearingTool = std::make_unique<TauAnalysisTools::TauSmearingTool>(tauSmearName);
       top::check(asg::setProperty(tauSmearingTool, "isAFII", m_config->isAFII()),
                  "Failed to set TauSmearingTools isAFII property");
-      top::check(asg::setProperty(tauSmearingTool, "ApplyMVATES", false),
-                 "Failed to set TauSmearingTools ApplyMVATES property");
       top::check(tauSmearingTool->initialize(), "Failed to initialize");
       m_tauSmearingTool = tauSmearingTool.release();
     }
     
     ///-- Truth matching --///
-    static const std::string tauTruthMatchingName = "TauAnalysisTools::TauTruthMatchingTool";
-    if (asg::ToolStore::contains<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName)) {
-      m_truthMatchingTool = asg::ToolStore::get<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName);
-    } else {
-      std::unique_ptr<TauAnalysisTools::TauTruthMatchingTool> tauMatchingTool = std::make_unique<TauAnalysisTools::TauTruthMatchingTool>(tauTruthMatchingName);
-      top::check(tauMatchingTool->setProperty("TruthJetContainerName", "AntiKt4TruthDressedWZJets"), "Failed to set truth collection for tau truth matching tool");
-      top::check(tauMatchingTool->initialize(), "Failed to initialize");
-      m_truthMatchingTool = tauMatchingTool.release();
+    if (m_config->isMC()) {
+      static const std::string tauTruthMatchingName = "TauAnalysisTools::TauTruthMatchingTool";
+      if (asg::ToolStore::contains<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName)) {
+        m_truthMatchingTool = asg::ToolStore::get<TauAnalysisTools::ITauTruthMatchingTool>(tauTruthMatchingName);
+      } else {
+        std::unique_ptr<TauAnalysisTools::TauTruthMatchingTool> tauMatchingTool = std::make_unique<TauAnalysisTools::TauTruthMatchingTool>(tauTruthMatchingName);
+        top::check(tauMatchingTool->setProperty("TruthJetContainerName", "AntiKt4TruthDressedWZJets"), "Failed to set truth collection for tau truth matching tool");
+        top::check(tauMatchingTool->initialize(), "Failed to initialize");
+        m_truthMatchingTool = tauMatchingTool.release();
+      }
     }
 
 

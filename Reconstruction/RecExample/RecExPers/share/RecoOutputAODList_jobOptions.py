@@ -70,15 +70,15 @@ except Exception:
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():
-    TP_excludedAuxData='.-caloExtension'
+    TP_excludedAuxData=''
     if not rec.doPhysicsValidationAugmentation() :
         # when not doing PhysVal exclude decorations meant for extra outputs
-        TP_excludedAuxData += '.-d0.-phi.-prodR.-prodZ.-qOverP.-theta.-z0.-z0st'
+        TP_excludedAuxData += '-d0.-phi.-prodR.-prodZ.-qOverP.-theta.-z0.-z0st'
 
     McTruthAODList=["xAOD::TruthEventContainer#TruthEvents",
                     "xAOD::TruthEventAuxContainer#TruthEventsAux.",
                     "xAOD::TruthParticleContainer#TruthParticles",
-                    "xAOD::TruthParticleAuxContainer#TruthParticlesAux"+TP_excludedAuxData,
+                    "xAOD::TruthParticleAuxContainer#TruthParticlesAux."+TP_excludedAuxData,
                     "xAOD::TruthParticleContainer#TruthPileupParticles",
                     "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux.",
                     "xAOD::TruthVertexContainer#TruthVertices", 
@@ -117,10 +117,10 @@ if DetFlags.detdescr.FTK_on():
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
     try:
-       include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py") 
+       include ("CaloRec/CaloRecOutputItemList_jobOptions.py") 
        fullAODList += CfgItemList( "CaloAod", items = CaloAODList )
     except Exception:
-       treatException("Could not include CaloRecEx/CaloRecOutputItemList_jobOptions.py" )
+       treatException("Could not include CaloRec/CaloRecOutputItemList_jobOptions.py" )
 
 # Muon Spectrometer
 if DetFlags.detdescr.Muon_on():

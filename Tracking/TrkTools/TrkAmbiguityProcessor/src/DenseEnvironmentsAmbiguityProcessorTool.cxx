@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DenseEnvironmentsAmbiguityProcessorTool.h"
@@ -9,7 +9,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/TrackInfo.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include <cmath>
 #include <iterator>
@@ -38,24 +37,20 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::checkTrack( const Trk::Track *trac
 
 
 //==================================================================================================
-Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcessorTool(const std::string& t, 
-                                const std::string& n,
-                                const IInterface*  p )
-  :
-  AmbiguityProcessorBase(t,n,p),
-  m_extrapolatorTool("Trk::Extrapolator/AtlasExtrapolator"),
-  m_selectionTool("InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"){
-  // statitics stuff
+Trk::DenseEnvironmentsAmbiguityProcessorTool::
+  DenseEnvironmentsAmbiguityProcessorTool(const std::string& t,
+                                          const std::string& n,
+                                          const IInterface* p)
+  : AmbiguityProcessorBase(t, n, p)
+  , m_fitterTool(this)
+{
 
   m_fitterTool.push_back("Trk::KalmanFitter/InDetTrackFitter");
 
   declareInterface<ITrackAmbiguityProcessorTool>(this);
   declareProperty("RefitPrds"            , m_refitPrds          = true); //  True to allow for updated NN information to be taken into account
   declareProperty("MatEffects"           , m_matEffects         = 3); // pion
-  declareProperty("ScoringTool"          , m_scoringTool);
-  declareProperty("SelectionTool"        , m_selectionTool);
   declareProperty("Fitter"               , m_fitterTool );
-  declareProperty("TrackExtrapolator"    , m_extrapolatorTool);
   declareProperty("SuppressHoleSearch"   , m_suppressHoleSearch = false);
   declareProperty("SuppressTrackFit"     , m_suppressTrackFit   = false);
   declareProperty("ForceRefit"           , m_forceRefit         = true);
@@ -63,9 +58,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("caloSeededBrem"       , m_caloSeededBrem     = false);
   declareProperty("pTminBrem"            , m_pTminBrem          = 1000.);
   declareProperty("etaBounds"            , m_etaBounds,"eta intervals for internal monitoring");
-  declareProperty("ObserverTool"         , m_observerTool, "track observer tool");
   declareProperty("ObserverToolWriter"   , m_observerToolWriter, "track observer tool writer");
-
 }
 //==================================================================================================
 
@@ -88,7 +81,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize(){
     return sc;
    }
 
-  ATH_CHECK( m_extrapolatorTool.retrieve());
 
   if (initializeClusterSplitProbContainer().isFailure()) {
      sc=StatusCode::FAILURE;
@@ -97,7 +89,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize(){
   Trk::ParticleSwitcher particleSwitch;
   m_particleHypothesis = particleSwitch.particle[m_matEffects];
 
-  ATH_CHECK(m_observerTool.retrieve(DisableTool{m_observerTool.empty()}));
+  ATH_CHECK(AmbiguityProcessorBase::m_observerTool.retrieve(DisableTool{AmbiguityProcessorBase::m_observerTool.empty()}));
   ATH_CHECK(m_observerToolWriter.retrieve(DisableTool{m_observerToolWriter.empty()}));
 
   // brem fitting enabled ?
@@ -166,10 +158,10 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const TracksScores *trackS
      }
   }
 
-  if (m_observerTool.isEnabled() && m_observerToolWriter.isEnabled()){
+  if (AmbiguityProcessorBase::m_observerTool.isEnabled() && m_observerToolWriter.isEnabled()){
     // Sanity check
     ATH_MSG_DEBUG("Saving observed tracks to store");
-    unsigned int nFinalTracks = m_observerToolWriter->saveTracksToStore(ctx, m_observerTool->getTrackMap(ctx));
+    unsigned int nFinalTracks = m_observerToolWriter->saveTracksToStore(ctx, AmbiguityProcessorBase::m_observerTool->getTrackMap(ctx));
     if (finalTracks){
       if (nFinalTracks != finalTracks->size()){
         ATH_MSG_ERROR("Track observer recorded different number of final tracks: "<<nFinalTracks<<" vs. "<<finalTracks->size());
@@ -193,13 +185,13 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScores &tr
                                                                Counter &stat) const{
   TrackScoreMap scoreTrackFitflagMap;
   for(const std::pair< const Trk::Track *, float> &scoreTrack: trackScoreTrackMap){
-     if (m_observerTool.isEnabled()){
+     if (AmbiguityProcessorBase::m_observerTool.isEnabled()){
        int input_track_uid = AmbiguityProcessor::getUid();
-       m_observerTool->addInputTrack(input_track_uid, *scoreTrack.first);
-       m_observerTool->updateTrackMap(input_track_uid, static_cast<double>(scoreTrack.second), xAOD::RejectionStep::solveTracks, xAOD::RejectionReason::stillBeingProcessed);
+       AmbiguityProcessorBase::m_observerTool->addInputTrack(input_track_uid, *scoreTrack.first);
+       AmbiguityProcessorBase::m_observerTool->updateTrackMap(input_track_uid, static_cast<double>(scoreTrack.second), xAOD::RejectionStep::solveTracks, xAOD::RejectionReason::stillBeingProcessed);
        int map_track_uid = AmbiguityProcessor::getUid();
        scoreTrackFitflagMap.emplace(scoreTrack.second, TrackPtr(scoreTrack.first, map_track_uid) );
-       m_observerTool->addSubTrack(map_track_uid, input_track_uid, *scoreTrack.first);
+       AmbiguityProcessorBase::m_observerTool->addSubTrack(map_track_uid, input_track_uid, *scoreTrack.first);
      }
      else{
        scoreTrackFitflagMap.emplace(scoreTrack.second, TrackPtr(scoreTrack.first) );

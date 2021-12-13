@@ -22,22 +22,31 @@ def BunchCrossingCondAlgDefault():
 
     if (isMC):
         folder = "/Digitization/Parameters"
-        if not conddb.folderRequested(folder):
-            mlog.info("Adding folder %s", folder)
-            conddb.addFolderWithTag('', folder, 'HEAD',
-                                    className = 'AthenaAttributeList')
+        Mode = 1
+        from AthenaCommon.DetFlags import DetFlags
+        if not DetFlags.digitize.any_on():
+            if not conddb.folderRequested(folder):
+                mlog.info("Adding folder %s", folder)
+                conddb.addFolderWithTag('', folder, 'HEAD',
+                                        className = 'AthenaAttributeList')
+            else:
+                mlog.info("Folder %s already requested", folder)
         else:
-            mlog.info("Folder %s already requested", folder)
+            # Here we are in a digitization job, so the
+            # /Digitization/Parameters metadata is not present in the
+            # input file and will be created during the job
+            mlog.info("Folder %s will be created during the job.", folder)
     else:
         folder = '/TDAQ/OLC/LHC/FILLPARAMS'
+        Mode = 0
         # Mistakenly created as multi-version folder, must specify HEAD 
         conddb.addFolderWithTag('TDAQ', folder, 'HEAD',
                                 className = 'AthenaAttributeList')
         
     alg = BunchCrossingCondAlg(name,
-                               isMC=isMC,
                                Run1=run1,
-                               FillParamsFolderKey =folder )
+                               FillParamsFolderKey =folder,
+                               Mode=Mode )
 
     condSeq += alg
 

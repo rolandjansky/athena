@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ItemListSvc.cxx 
@@ -57,8 +57,8 @@ StatusCode ItemListSvc::finalize()
         if (olist.size()>0) { 
           ATH_MSG_DEBUG(" --> Overlap with " << it2->first << " (" << olist.size() << ") items"); 
           if (float(olist.size()) * inv_size > m_verboseThresh) {
-            for (std::set<std::string>::iterator olit = olist.begin(); olit != olist.end(); olit++) {
-              ATH_MSG_DEBUG(" ----> item: " << *olit);
+            for (const std::string& ol : olist) {
+              ATH_MSG_DEBUG(" ----> item: " << ol);
             }
           } 
         }

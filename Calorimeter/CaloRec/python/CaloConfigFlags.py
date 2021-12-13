@@ -77,4 +77,10 @@ def createCaloConfigFlags():
     # name of a local sqlite file to force reading COOL information from there.
     ccf.addFlag ('Calo.ClusterCorrection.dbSubdetName', {None : 'CALO'})
 
+    # Flags from Forward Towers:
+    ccf.addFlag('Calo.FwdTower.prepareLCW',True)
+    ccf.addFlag('Calo.FwdTower.clusterRange',2.5)
+
+    
+    
     return ccf

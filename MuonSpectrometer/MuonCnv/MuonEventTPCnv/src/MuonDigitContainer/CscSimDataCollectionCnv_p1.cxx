@@ -15,7 +15,7 @@ void CscSimDataCollectionCnv_p1::persToTrans(const Muon::CscSimDataCollection_p1
    std::vector<std::pair<Identifier32::value_type, Muon::CscSimData_p1 > >::const_iterator it_CollEnd = persCol->m_cscsimdata.end();
    log << MSG::DEBUG << " Preparing " << persCol->m_cscsimdata.size() << " Collections" << endmsg;
 
-   for(int collIdx=0 ; it_Coll != it_CollEnd; it_Coll++, collIdx++)  {
+   for(int collIdx=0 ; it_Coll != it_CollEnd; ++it_Coll, ++collIdx)  {
       const Muon::CscSimData_p1& perssimData = persCol->m_cscsimdata[collIdx].second;
       CscSimData transsimData;
       m_cscsimdataCnv.persToTrans(&perssimData,&transsimData,log);
@@ -35,7 +35,7 @@ void CscSimDataCollectionCnv_p1::transToPers(const CscSimDataCollection* transCo
    persCol->m_cscsimdata.resize(transCol->size());
    log << MSG::DEBUG << " Preparing " << persCol->m_cscsimdata.size() << " Collections" << endmsg;
 
-   for(int collIdx=0; it_Coll != it_CollEnd; it_Coll++, collIdx++){
+   for(int collIdx=0; it_Coll != it_CollEnd; ++it_Coll, ++collIdx){
       (persCol->m_cscsimdata[collIdx]).first = (*it_Coll).first.get_identifier32().get_compact();
       const CscSimData &transsimData = (*it_Coll).second;
       Muon::CscSimData_p1 &perssimData = persCol->m_cscsimdata[collIdx].second;

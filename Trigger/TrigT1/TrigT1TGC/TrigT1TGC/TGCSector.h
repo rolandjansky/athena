@@ -11,6 +11,7 @@
 
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCNSW.h"
+#include "TrigT1TGC/TGCBIS78.h"
 
 namespace LVL1TGCTrigger {
 
@@ -45,7 +46,8 @@ class TGCSector
 	    TGCForwardBackwardType forwardBackward, 
 	    const TGCDatabaseManager* db,
 	    const TGCTMDB*            tmdb,
-	    std::shared_ptr<const TGCNSW>             nsw
+	    std::shared_ptr<const TGCNSW>             nsw,
+            std::shared_ptr<const TGCBIS78>           bis78
 	    );
 
   TGCSector();
@@ -85,7 +87,8 @@ public:
 private:
   const TGCTMDB* getTMDB() const { return m_TMDB; }
   std::shared_ptr<const TGCNSW>   getNSW() const{ return m_NSW; }
-  
+  std::shared_ptr<const TGCBIS78>   getBIS78() const{ return m_BIS78; }
+ 
   int getPatchPanelType(TGCSignalType signal, int layer) const;
 
 
@@ -124,6 +127,7 @@ private:
   TGCSectorLogic* m_SL;
   const TGCTMDB* m_TMDB;
   std::shared_ptr<const TGCNSW>  m_NSW;
+  std::shared_ptr<const TGCBIS78>  m_BIS78;
 
   TGCArguments* m_tgcArgs;
   const TGCDatabaseManager* m_dbMgr;

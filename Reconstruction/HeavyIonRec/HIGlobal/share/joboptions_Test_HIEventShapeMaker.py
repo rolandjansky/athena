@@ -19,7 +19,7 @@ theApp.Dlls += [ "CaloTools", "TileRecAlgs", "LArClusterRec" ]
 
 
 #The HIEventShapeFillerTool
-HIEventShapeFillerTool_instance=CfgMgr.HIEventShapeFillerTool("HIEventShapeFillerTool")
+HIEventShapeFillerTool_instance=CfgMgr.HIEventShapeFillerTool("HIEventShapeFillerTool", OrderOfFlowHarmonics=7)
 HIEventShapeFillerTool_instance.OutputLevel=VERBOSE
 ToolSvc += HIEventShapeFillerTool_instance
 
@@ -32,10 +32,8 @@ algSeq = CfgMgr.AthSequencer("AthAlgSeq")
 HIEventShapeMakerAlg=CfgMgr.HIEventShapeMaker()
 HIEventShapeMakerAlg.OutputLevel           =VERBOSE
 HIEventShapeMakerAlg.InputTowerKey         ="CombinedTower"
-HIEventShapeMakerAlg.InputCellKey          ="AllCalo"
-HIEventShapeMakerAlg.UseCaloCell           =False
+HIEventShapeMakerAlg.InputCellKey          =""
 HIEventShapeMakerAlg.OutputContainerKey    ="HIEventShapeContainer"
-HIEventShapeMakerAlg.OrderOfFlowHarmonics  =7
 HIEventShapeMakerAlg.HIEventShapeFillerTool=HIEventShapeFillerTool_instance
 algSeq += HIEventShapeMakerAlg
 

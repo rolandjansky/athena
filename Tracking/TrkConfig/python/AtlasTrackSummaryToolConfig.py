@@ -3,12 +3,12 @@
 # from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
-
+@AccumulatorCache
 def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
     # Based on AtlasTrackSummaryTool.py
     # FIXME - check all of this once the ID configuration is available, because probably we can simplify this a lot
-    from InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg, InDetTrackSummaryHelperToolCfg
 
     # Setup Atlas Extrapolator
     result = AtlasExtrapolatorCfg(flags)
@@ -16,45 +16,29 @@ def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
     result.addPublicTool(extrapolator)
 
     # Setup Association Tool
-    # FIXME - use InDetConfig when it works...
-    # acc = InDetPrdAssociationToolCfg(flags,
-    #                                  name='AtlasPrdAssociationTool',
-    #                                  PixelClusterAmbiguitiesMapName="PixelClusterAmbiguitiesMap")
-    # atlasPrdAssociationTool = acc.getPrimary()
-    atlasPrdAssociationTool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name='AtlasPrdAssociationTool',  
-                                                            PixelClusterAmbiguitiesMapName = "PixelClusterAmbiguitiesMap")
-    # result.merge(acc)
-
-    # Setup Boundary Check Tool
-    acc = InDetBoundaryCheckToolCfg(flags,
-                                    name="AtlasBoundaryCheckTool",
-                                    UsePixel=flags.Detector.EnablePixel,
-                                    UseSCT=flags.Detector.EnableSCT)
-    atlasBoundaryCheckTool = acc.getPrimary()
-    result.merge(acc)
+    from InDetConfig.InDetRecToolConfig import PrdAssociationToolCfg
+    atlasPrdAssociationTool = result.getPrimaryAndMerge(PrdAssociationToolCfg(flags,
+                                                                              name='AtlasPrdAssociationTool'))
+    atlasPrdAssociationTool.addTRToutliers = False
 
     # Loading Configurable HoleSearchTool
-    from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
-    acc = InDetTrackHoleSearchToolCfg(flags,
-                                      name="AtlasHoleSearchTool",
-                                      Extrapolator=extrapolator,
-                                      BoundaryCheckTool=atlasBoundaryCheckTool)
-    atlasHoleSearchTool = acc.getPrimary()
-    result.merge(acc)
+    from InDetConfig.InDetRecToolConfig import TrackHoleSearchToolCfg
+    atlasHoleSearchTool = result.getPrimaryAndMerge(TrackHoleSearchToolCfg(flags,
+                                                                           name="AtlasHoleSearchTool",
+                                                                           Extrapolator=extrapolator))
 
     # FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
     # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-    acc = InDetTrackSummaryHelperToolCfg(flags,
-                                         name="AtlasTrackSummaryHelperTool",
-                                         AssoTool=atlasPrdAssociationTool,
-                                         DoSharedHits=False,
-                                         HoleSearch=atlasHoleSearchTool)
-    indet_track_summary_helper_tool = acc.getPrimary()
-    result.merge(acc)
+    from InDetConfig.InDetRecToolConfig import TrackSummaryHelperToolCfg
+    indet_track_summary_helper_tool = result.getPrimaryAndMerge(TrackSummaryHelperToolCfg(flags,
+                                                                                          name="AtlasTrackSummaryHelperTool",
+                                                                                          AssoTool=atlasPrdAssociationTool,
+                                                                                          DoSharedHits=False,
+                                                                                          HoleSearch=atlasHoleSearchTool))
 
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
-    acc = MuonTrackSummaryHelperToolCfg(flags)
-    muon_track_summary_helper_tool = acc.getPrimary()
+    muon_track_summary_helper_tool = result.getPrimaryAndMerge(MuonTrackSummaryHelperToolCfg(flags))
+
     track_summary_tool = CompFactory.Trk.TrackSummaryTool(name="CombinedMuonTrackSummary",
                                                           doSharedHits=False,
                                                           doHolesInDet=True,
@@ -66,6 +50,5 @@ def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
                                                           PixelToTPIDTool=None,
                                                           MuonSummaryHelperTool=muon_track_summary_helper_tool,
                                                           PixelExists=True)
-    result.merge(acc)
     result.setPrivateTools(track_summary_tool)
     return result

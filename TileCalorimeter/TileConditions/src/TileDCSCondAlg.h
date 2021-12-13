@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEDCSCONDALG_H
@@ -64,14 +64,14 @@ class TileDCSCondAlg: public AthReentrantAlgorithm {
     * @param[out] rosDrawer vector of Tile ROS and drawer pairs indexed by COOL channel
     * @return 0 in the case of success
     */
-    int readConfig(const std::string fileName, const std::string subStr, std::vector<std::pair<int, int>>& rosDrawer);
+    int readConfig(const std::string& fileName, const std::string& subStr, std::vector<std::pair<int, int>>& rosDrawer);
 
    /**
     * @brief Read special deltas for few unstable PMTs
     * @param fileName name of file with special deltas for few unstable PMTs
     * @return 0 in the case of success
     */
-    int readBadHV(const std::string fileName);
+    int readBadHV(const std::string& fileName);
 
    /**
     * @brief Store reference HV from Tile CES or Laser DB folder in TileDCSState

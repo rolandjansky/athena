@@ -18,5 +18,5 @@ void arrayHandler::ElementHandle(AGDDController& c,
 {
 	std::string name=getAttributeAsString(c, t, "name");
 	std::vector<double> value=getAttributeAsVector(c, t, "values");
-	Evaluator().RegisterArray(name,value);
+	c.Evaluator().RegisterArray(name,value);
 }

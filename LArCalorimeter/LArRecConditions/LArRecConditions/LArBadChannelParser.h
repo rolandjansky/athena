@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArBadChannelParser_H
@@ -49,7 +49,7 @@ private:
 	// Can not construct a parser without giving filename or MsgStream.
 	LArBadChannelParser();
 
-	std::vector<int> getIdFields(const std::vector<std::string>& words) const;
+	std::vector<int> getIdFields(const std::vector<std::string>& words);
 	std::vector<std::string> parseLine(std::string& line) const;
 
 	template<typename T> 

@@ -25,23 +25,37 @@ def TileCablingSvcCfg(flags):
     tileCablingSvc = CompFactory.TileCablingSvc()
 
     geometry = flags.GeoModel.AtlasVersion
-    runNumber = flags.Input.RunNumber[0]
     run = flags.GeoModel.Run
-    if run == 'RUN1':
-        if runNumber > 219651: 
-            # Choose RUN2 cabling for old geometry tags starting from 26-MAR-2013
-            tileCablingSvc.CablingType = 4
-            msg.warning("Forcing RUN2 cabling for run %s with geometry %s", runNumber, geometry)
 
-    elif run == 'RUN2':
-        if (flags.Input.isMC and runNumber >= 310000) or runNumber >= 343000 or runNumber < 1:
-            # Choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
-            tileCablingSvc.CablingType = 5
-            msg.info("Forcing RUN2a (2018) cabling for run %s with geometry %s", runNumber, geometry)
+    if not flags.Common.isOnline:
+      runNumber = flags.Input.RunNumber[0]
+      if run == 'RUN1':
+          if runNumber > 219651:
+              # Choose RUN2 cabling for old geometry tags starting from 26-MAR-2013
+              tileCablingSvc.CablingType = 4
+              msg.warning("Forcing RUN2 cabling for run %s with geometry %s", runNumber, geometry)
 
-        else:
-            tileCablingSvc.CablingType = 4
-            msg.info("Forcing RUN2 (2014-2017) cabling for run %s with geometry %s", runNumber, geometry)
+      elif run == 'RUN2':
+          if (flags.Input.isMC and runNumber >= 310000) or runNumber >= 343000 or runNumber < 1:
+              # Choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
+              tileCablingSvc.CablingType = 5
+              msg.info("Forcing RUN2a (2018) cabling for run %s with geometry %s", runNumber, geometry)
+
+          else:
+              tileCablingSvc.CablingType = 4
+              msg.info("Forcing RUN2 (2014-2017) cabling for run %s with geometry %s", runNumber, geometry)
+      elif run == 'RUN3':
+          tileCablingSvc.CablingType = 6
+          msg.info("Forcing RUN3 cabling for run %s with geometry %s", run, geometry)
+    else: #Running online or simulating running online: either way, do not access run number
+      if run == 'RUN2':
+          tileCablingSvc.CablingType = 5
+          msg.info("Forcing RUN2a (2018) cabling for online run with geometry %s", geometry)
+      elif run == 'RUN3':
+          tileCablingSvc.CablingType = 6
+          msg.info("Forcing RUN3 cabling for online run with geometry %s", geometry)
+      else:
+          log.error("CablingType only defined for Run 2 and Run 3 geometries")
 
     acc.addService(tileCablingSvc, primary = True)
 

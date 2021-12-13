@@ -48,7 +48,9 @@ StatusCode LArReadCells::initialize() {
   ServiceHandle<ITHistSvc> histSvc("THistSvc",name()); 
   CHECK( histSvc.retrieve() );
   m_tree = new TTree("myTree","myTree");
-  CHECK( histSvc->regTree("/SPLASH/myTree",m_tree) );
+  std::string out("/"+m_outStream+"/myTree");
+  CHECK( histSvc->regTree(out.c_str(),m_tree) );
+  ATH_MSG_INFO("Registered tree: " << out);
   m_tree->Branch("RunNumber",&m_runNumber,"RunNumber/I");
   m_tree->Branch("LBNumber",&m_lbNumber,"LBNumber/I");
   m_tree->Branch("EventNumber",&m_eventNumber,"EventNumber/I");

@@ -8,6 +8,26 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <dlfcn.h>
+
+
+namespace {
+void syminfo (void* addr)
+{
+  Dl_info info;
+  std::cerr << "   " << addr;
+  if (dladdr (addr, &info) != 0) {
+    if (info.dli_fname) {
+      std::cerr << " " << info.dli_fname << " " << info.dli_fbase;
+    }
+    if (info.dli_sname) {
+      std::cerr << " " << info.dli_sname << " " << info.dli_saddr;
+    }
+  }
+  std::cerr << "\n";
+}
+}
+
 
 namespace Trk {
 TrackStateOnSurface::TrackStateOnSurface() {}
@@ -155,7 +175,9 @@ TrackStateOnSurface::~TrackStateOnSurface()
   const char* p = reinterpret_cast<const char*>(m_alignmentEffectsOnTrack.get());
   if (p && reinterpret_cast<uintptr_t>(p) < 0x1000) {
     std::cerr << "ERROR: ~TrackStateOnSurface bad AEOT pointer\n";
-    CxxUtils::safeHexdump (std::cerr, ((const char*)this)-32, sizeof(TrackStateOnSurface)+32);
+    CxxUtils::safeHexdump (std::cerr, ((const char*)this)-80, sizeof(TrackStateOnSurface)+80+24);
+    syminfo (((void**)this)[0]);
+    syminfo (((void**)this)[-4]);
   }
 }
 
