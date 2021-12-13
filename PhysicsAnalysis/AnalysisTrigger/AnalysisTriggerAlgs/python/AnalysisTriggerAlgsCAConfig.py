@@ -29,8 +29,6 @@ def RoIBResultToxAODCfg(flags):
         _log.debug('Not adding RoIBResultToxAOD because both DoMuon and DoCalo properties are False')
         return ComponentAccumulator()
 
-    acc.addEventAlgo(alg)
-
     if flags.Input.Format == 'BS':
         from TrigT1CaloByteStream.LVL1CaloRun2ByteStreamConfig import LVL1CaloRun2ReadBSCfg
         acc.merge(LVL1CaloRun2ReadBSCfg(flags, forRoIBResultToxAOD=True))
@@ -45,10 +43,10 @@ def RoIBResultToxAODCfg(flags):
         acc.merge(MuonGeoModelCfg(flags))
         # RPC
         from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
-        acc.merge( RPCCablingConfigCfg(flags) )
+        acc.merge(RPCCablingConfigCfg(flags))
         #TGC
         from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
-        acc.merge( TGCCablingConfigCfg(flags) )
+        acc.merge(TGCCablingConfigCfg(flags))
 
     if alg.DoCalo:
         outputList += [
@@ -59,7 +57,8 @@ def RoIBResultToxAODCfg(flags):
         ]
         from  TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
         acc.merge(L1ConfigSvcCfg(flags))
-    
+
+    acc.addEventAlgo(alg)
 
     return acc, outputList
 
