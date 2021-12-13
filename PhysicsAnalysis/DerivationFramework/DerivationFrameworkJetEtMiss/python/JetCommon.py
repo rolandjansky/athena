@@ -30,8 +30,6 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
     from JetRec.JetRecStandard import jtm
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
 
     # map a getter to the input argument
     inputgetter = { "LCTopo" : jtm.lcget,
@@ -43,9 +41,6 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
                     "EMPFlowNeut": jtm.empflowneutget,
                     "PFlowCustomVtx": jtm.pflowcustomvtxget
                     }[inputtype]
-
-    if not hasattr(topSequence, inputgetter.name()):
-        topSequence += inputgetter
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype,
                              inputgetter.Label,
