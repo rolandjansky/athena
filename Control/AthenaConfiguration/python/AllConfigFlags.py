@@ -124,7 +124,6 @@ def _createCfgFlags():
     # (many, e.g. those that set properties of one tool are not needed)
     acf.addFlag('TrackingGeometry.MagneticFileMode', 6)
     acf.addFlag('TrackingGeometry.MaterialSource', 'COOL') # Can be COOL, Input or None
-    acf.addFlag('Acts.TrackingGeometry.MaterialSource', 'None') # Input, a path to a JSON file or None
 
 #Detector Flags:
     def __detector():
@@ -210,6 +209,11 @@ def _createCfgFlags():
         from InDetConfig.ITkConfigFlags import createITkConfigFlags
         return createITkConfigFlags()
     _addFlagsCategory(acf, "ITk", __itk, 'InDetConfig' )
+
+    def __acts():
+        from ActsInterop.ActsConfigFlags import createActsConfigFlags
+        return createActsConfigFlags()
+    _addFlagsCategory(acf, "Acts", __acts, 'ActsInterop')
 
     def __hgtd():
         from HGTD_Config.HGTD_ConfigFlags import createHGTD_ConfigFlags
