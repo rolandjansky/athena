@@ -6,6 +6,8 @@
 # art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
+# Updated on 7.12.2021 based on the tag r13100 which is currently used for Run2 Reprocessing
+
 timeout 64800 Reco_tf.py \
   --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data \
   --outputAODFile=myAOD.pool.root \
@@ -14,8 +16,7 @@ timeout 64800 Reco_tf.py \
   --outputDRAW_ZMUMUFile=myDRAW_ZMUMU.data \
   --outputDAOD_IDTIDEFile=myIDTIDE.pool.root \
   --multithreaded='True' \
-  --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False' \
-  --postExec 'FPEAuditor.NStacktracesOnFPE=10' \
+  --preExec 'all:from AthenaCommon.AthenaCommonFlags import athenaCommonFlags; from InDetRecExample.InDetJobProperties import InDetFlags;  from RecExConfig.RecFlags import rec; InDetFlags.useMuForTRTErrorScaling.set_Value_and_Lock(True if not rec.doRDOTrigger else False); from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doHLTMon=False;' \
   --autoConfiguration='everything' \
   --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' --geometryVersion='default:ATLAS-R2-2016-01-00-01' \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
@@ -33,11 +34,11 @@ then
 fi
 echo  "art-result: ${rc2} Comparison with the latest result"
 
+
 rc3=-9999
 if [ ${rc1} -eq 0 ]
 then
-# The comparison to fixed reference will be updated. Currently testing the machinery
-#  art-diff.py . /eos/atlas/atlascerngroupdisk/data-art/grid-output/21.0/Athena/x86_64-slc6-gcc62-opt/2018-03-06T2154/Tier0ChainTests --entries 50 --mode=semi-detailed --order-trees  --diff-type=diff-root
+  art.py compare ref . /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TrfTestsART_22.0-mc20/test_trf_data17_mt_2021-12-04T2101 --entries 30 --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
   rc3=$?
 fi
 echo  "art-result: ${rc3} Comparison with fixed reference"
