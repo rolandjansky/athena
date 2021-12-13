@@ -14,7 +14,6 @@ class BigWheelCoincidenceLUT;
 
 namespace LVL1TGCTrigger {
 
-class TGCRPhiCoincidenceMap;
 class TGCSectorLogic;
 class TGCRPhiCoincidenceOut;
 
@@ -23,7 +22,6 @@ class TGCRPhiCoincidenceMatrix {
   void setSSCId(int SSCIdIn){ m_SSCId=SSCIdIn;};
   void setSideId(int sideIdIn){ m_sideId=sideIdIn;};
   void setCoincidenceLUT(std::shared_ptr<const LVL1TGC::BigWheelCoincidenceLUT> lut);
-  void setRPhiMap(std::shared_ptr<const TGCRPhiCoincidenceMap> map);
   void inputR(int rIn, int dRIn, int ptRIn);
   void inputPhi(int phiIn, int dPhiIn, int ptPhiIn);
   void clear();
@@ -44,7 +42,6 @@ class TGCRPhiCoincidenceMatrix {
 
   TGCRPhiCoincidenceOut* m_matrixOut;
   std::shared_ptr<const LVL1TGC::BigWheelCoincidenceLUT> m_lut;
-  std::shared_ptr<const TGCRPhiCoincidenceMap> m_map;
 
   int m_nPhiHit;
   int m_SSCId;
