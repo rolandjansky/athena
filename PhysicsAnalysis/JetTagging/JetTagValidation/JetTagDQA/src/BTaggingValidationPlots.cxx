@@ -949,7 +949,7 @@ namespace JetTagDQA{
 
 
   // a fill method for SV related vars
-  void BTaggingValidationPlots::fillSVVariables(const xAOD::Jet* jet, const xAOD::BTagging* btag, std::map<const xAOD::TrackParticle*, int> track_truth_associations, const bool& has_muon, const int& truth_label, const int& num_HF_tracks_in_jet, bool& contains_SV, const xAOD::EventInfo* event){
+  void BTaggingValidationPlots::fillSVVariables(const xAOD::BTagging* btag, std::map<const xAOD::TrackParticle*, int> track_truth_associations, const bool& has_muon, const int& truth_label, const int& num_HF_tracks_in_jet, bool& contains_SV, const xAOD::EventInfo* event){
     // SV1
 
     // SV1 mass of the SV

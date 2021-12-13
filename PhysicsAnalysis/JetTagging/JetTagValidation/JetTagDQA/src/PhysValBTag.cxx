@@ -222,6 +222,15 @@ namespace JetTagDQA {
       std::map<std::string, int> nJetsThatPassedWPCuts;
       (plot_i->second).initializeNJetsThatPassedWPCutsMap(nJetsThatPassedWPCuts);
 
+      // check if the muon info is available on the first jet (since isAvailable gives the same result on all jets)
+      bool muon_info_available = false;
+      if(jets->size() > 0){
+        const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *(jets->at(0)) );
+        if(btag && btag->isAvailable< ElementLink<xAOD::MuonContainer> >("softMuon_link") ){
+          muon_info_available = true;
+        }
+      }
+
       // loop over the jets
       for (auto jet : *jets) {
 
@@ -251,7 +260,9 @@ namespace JetTagDQA {
         // fill the jet, btag & vertex related plots
         if (btag){
           // augment with muon information
-          m_muonAugmenter.augment(*btag);
+          if(! muon_info_available){
+            m_muonAugmenter.augment(*btag);
+          }
 
           // fill other variables
           bool contains_muon;
@@ -267,7 +278,7 @@ namespace JetTagDQA {
           (plot_i->second).fillTrackVariables(jet, btag, myVertex, track_truth_associations, contains_muon, truth_label, num_HF_tracks_in_jet, event);
           // fill SV related vars
           bool contains_SV;
-          (plot_i->second).fillSVVariables(jet, btag, track_truth_associations, contains_muon, truth_label, num_HF_tracks_in_jet, contains_SV, event);
+          (plot_i->second).fillSVVariables(btag, track_truth_associations, contains_muon, truth_label, num_HF_tracks_in_jet, contains_SV, event);
           if(contains_SV) nJets_containing_SV++;
           // fill discriminant related vars
           (plot_i->second).fillDiscriminantVariables(btag, jet, jet_Lxy, truth_label, contains_muon, m_onZprime, nJetsThatPassedWPCuts, event);
