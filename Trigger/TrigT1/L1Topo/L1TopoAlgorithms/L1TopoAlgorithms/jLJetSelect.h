@@ -1,11 +1,11 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-//  jLargeRJetSelect.h
+//  jLJetSelect.h
 //  TopoCore
 
-#ifndef __TopoCore__jLargeRJetSelect__
-#define __TopoCore__jLargeRJetSelect__
+#ifndef __TopoCore__jLJetSelect__
+#define __TopoCore__jLJetSelect__
 
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
@@ -15,14 +15,14 @@
 
 namespace TCS {
    
-   class jLargeRJetSelect : public SortingAlg {
+   class jLJetSelect : public SortingAlg {
    public:
       
       // constructor
-      jLargeRJetSelect(const std::string & name);
+      jLJetSelect(const std::string & name);
 
       // destructor
-      virtual ~jLargeRJetSelect();
+      virtual ~jLJetSelect();
       virtual TCS::StatusCode initialize();
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);    
     
