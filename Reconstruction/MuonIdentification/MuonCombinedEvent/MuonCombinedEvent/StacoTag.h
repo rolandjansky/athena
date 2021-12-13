@@ -36,7 +36,7 @@ namespace MuonCombined {
     const Trk::Perigee& combinedParameters() const;
 
     /** release combined parameters, user gets ownership */
-    const Trk::Perigee* releaseCombinedParameters();
+    std::unique_ptr<const Trk::Perigee> releaseCombinedParameters();
 
     /** access to MuonCandidate */
     const MuonCandidate& muonCandidate() const;
@@ -45,43 +45,31 @@ namespace MuonCombined {
     double matchChi2() const;
 
     /** name string */
-    std::string name() const { return "StacoTag"; }
+    std::string name() const override;
 
     /** print content to string */
-    std::string toString() const;
+    std::string toString() const override;
 
     /** access to primary muon system track, zero if non available */
-    const Trk::Track* primaryTrack() const;
-    
+    const Trk::Track* primaryTrack() const override;
+
+    /** Returns whether the muon belongs to the comissioning chain **/
+    bool isComissioning() const override;
+
+       
   private:
     /** block copy and assignment */
     StacoTag(const StacoTag&) = delete;
     StacoTag& operator=(const StacoTag&) = delete;
 
     /** data content */
-    const MuonCandidate* m_muonCandidate;  /// MuonCandidate 
-    std::unique_ptr<const Trk::Perigee>  m_combinedParameters;  /// combined parameters 
-    double m_chi2;
+    const MuonCandidate* m_muonCandidate{nullptr};  /// MuonCandidate 
+    std::unique_ptr<const Trk::Perigee>  m_combinedParameters{nullptr};  /// combined parameters 
+    double m_chi2{0.};
     
-  };
+  };  
 
-  inline bool operator<( const StacoTag& t1,  const StacoTag& t2 ){
-    return t1.matchChi2() < t2.matchChi2();
-  }
-
-
-  inline const Trk::Perigee& StacoTag::combinedParameters() const { return *m_combinedParameters.get(); }
-
-  inline const Trk::Perigee* StacoTag::releaseCombinedParameters() { return m_combinedParameters.release(); }
-
-  inline const MuonCandidate& StacoTag::muonCandidate() const { return *m_muonCandidate; }
-
-  inline double StacoTag::matchChi2() const { return m_chi2; }
-
-  inline const Trk::Track* StacoTag::primaryTrack() const {
-    if( muonCandidate().extrapolatedTrack() ) return muonCandidate().extrapolatedTrack();
-    return &muonCandidate().muonSpectrometerTrack();
-  }
+  bool operator<( const StacoTag& t1,  const StacoTag& t2 );
     
 }
 

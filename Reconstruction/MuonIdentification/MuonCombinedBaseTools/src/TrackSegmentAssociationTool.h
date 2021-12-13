@@ -10,36 +10,34 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "TrkSegment/SegmentCollection.h"
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonSegment.h"
-#include "xAODMuon/MuonSegmentContainer.h"
-
+#include "MuonCombinedToolInterfaces/IMuonTrackToSegmentAssociationTool.h"
 /** @class TrackSegmentAssociationTool
 
     TrackSegmentAssociationTool matches muon segments to a track
 
 */
 
-static const InterfaceID IID_TrackSegmentAssociationTool("Muon::TrackSegmentAssociationTool", 1, 0);
 
-namespace Muon {
+namespace MuonCombined {
 
-    class TrackSegmentAssociationTool : public AthAlgTool {
+    class TrackSegmentAssociationTool : public AthAlgTool, virtual public IMuonTrackToSegmentAssociationTool {
     public:
         TrackSegmentAssociationTool(const std::string&, const std::string&, const IInterface*);
 
         ~TrackSegmentAssociationTool() = default;
 
-        StatusCode initialize();
+        StatusCode initialize() override;
 
         /** Returns a list of segments that match with the input Muon. */
-        bool associatedSegments(const xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments,
-                                std::vector<ElementLink<xAOD::MuonSegmentContainer> >& associatedSegments) const;
+         bool associatedSegments(const Trk::Track& track, const xAOD::MuonSegmentContainer* segments,
+                                std::vector<ElementLink<xAOD::MuonSegmentContainer> >& assocSegmentVec) const override;
 
-        /** @brief access to tool interface */
-        static const InterfaceID& interfaceID() { return IID_TrackSegmentAssociationTool; }
+        
+        bool associatedSegments(const xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments,
+                                std::vector<ElementLink<xAOD::MuonSegmentContainer> >& assocSegmentVec) const override;
+
+      
 
     private:
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",

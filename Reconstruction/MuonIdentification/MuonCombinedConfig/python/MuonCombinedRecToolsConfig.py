@@ -223,11 +223,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     acc = ParticleCaloExtensionToolCfg(flags,StartFromPerigee=True)
     kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary() )
     result.merge(acc)
-
-    acc = ParticleCaloExtensionToolCfg(flags)
-    kwargs.setdefault("ParticleCaloExtensionToolID", acc.getPrimary() )
-    result.merge(acc)
-
+    
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
     acc = MuonAmbiProcessorCfg(flags)
     kwargs.setdefault("AmbiguityProcessor", acc.popPrivateTools())
@@ -378,9 +374,8 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
     return result 
                  
 def MuonCombinedStacoTagToolCfg(flags, name="MuonCombinedStacoTagTool",**kwargs):
-    from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
-    result = ParticleCaloExtensionToolCfg(flags)
-    kwargs.setdefault("ParticleCaloExtensionTool", result.getPrimary() )  
+    
+    result = ComponentAccumulator()
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
     kwargs.setdefault("TagTool", result.popToolsAndMerge(CombinedMuonTagTestToolCfg(flags)))
     kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)) )
@@ -1118,4 +1113,19 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs ):
 
     kwargs.setdefault("CalibrationDbTool", result.popToolsAndMerge( MdtCalibrationDbToolCfg(flags)))
 
+    return result
+
+def MuonSystemExtensionToolCfg(flags, **kwargs):
+    result = ComponentAccumulator()
+    
+    from TrackToCalo.TrackToCaloConfig import  ParticleCaloExtensionToolCfg
+    particle_calo_extension_tool = result.getPrimaryAndMerge(ParticleCaloExtensionToolCfg(flags))
+
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    atlas_extrapolator = result.getPrimaryAndMerge(AtlasExtrapolatorCfg(flags))
+
+    muon_ext_tool = CompFactory.Muon.MuonSystemExtensionTool("MuonSystemExtensionTool", 
+                                                             ParticleCaloExtensionTool = particle_calo_extension_tool, 
+                                                             Extrapolator = atlas_extrapolator)
+    result.setPrivateTools(muon_ext_tool)
     return result
