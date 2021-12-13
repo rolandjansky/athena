@@ -182,7 +182,7 @@ Trk::PRD_AssociationTool::getPrdsOnTrack(const Maps& maps,
 
   if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING ("Track has no RoTs");
-    return PRDs_t();
+    return {};
   }
 
   PRDs_t vec;

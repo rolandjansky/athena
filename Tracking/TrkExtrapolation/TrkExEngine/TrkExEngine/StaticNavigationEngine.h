@@ -118,7 +118,7 @@ namespace Trk {
         ToolHandle<IPropagationEngine>     m_propagationEngine{this, "PropagationEngine", "Trk::PropagationEngine/AtlasStaticPropagation"};        //!< the used propagation engine
         ToolHandle<IMaterialEffectsEngine> m_materialEffectsEngine{this, "MaterialEffectsEngine", "Trk::MaterialEffectsEngine/AtlasStaticNavigationMaterialEffects"};    //!< the material effects updated
 
-        mutable const TrackingGeometry*                      m_trackingGeometry;          //!< the tracking geometry owned by the navigator
+        mutable const TrackingGeometry*                      m_trackingGeometry = nullptr;          //!< the tracking geometry owned by the navigator
         std::string                                          m_trackingGeometryName;      //!< Name of the TrackingGeometry as given in Detector Store
             
     };

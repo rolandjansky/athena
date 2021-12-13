@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_SUITE(TrackSummaryUpdaterTest)
   }
   
   BOOST_AUTO_TEST_CASE(execute){
-    auto pAlg = new PutTrackCollectionsInSG("PutCollectionsInSG",pSvcLoc);
+    auto *pAlg = new PutTrackCollectionsInSG("PutCollectionsInSG",pSvcLoc);
     pAlg->addRef();
     BOOST_TEST(pAlg->execute().isSuccess());
     std::string collectionKey1("StoreGateSvc+TrackCollectionKey1");
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_SUITE(TrackSummaryUpdaterTest)
     //interface (inheriting from IExtendedTrackSummaryTool)
     BOOST_TEST(pToolSvc->retrieveTool("SummaryToolStub", toolInterface).isSuccess());
     //Create TrackSummary in the output collection
-    auto pUpdateAlg = new Trk::TrackSummaryUpdater("Updater1",pSvcLoc);
+    auto *pUpdateAlg = new Trk::TrackSummaryUpdater("Updater1",pSvcLoc);
     pUpdateAlg->addRef();
     BOOST_TEST_MESSAGE("Testing Summary Creation on the track");
     BOOST_TEST(pUpdateAlg->setProperty("InputTracksKey","TrackCollectionKey1").isSuccess());
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_SUITE(TrackSummaryUpdaterTest)
     //as an example of a value to update. The update values are hard coded in the 
     //SummaryToolStub code in this package, which is a mock SummaryTool
     BOOST_TEST_MESSAGE("Testing Summary UpdateAdditionalInfo on the track");
-    auto pUpdateAlg2 = new Trk::TrackSummaryUpdater("Updater2",pSvcLoc);
+    auto *pUpdateAlg2 = new Trk::TrackSummaryUpdater("Updater2",pSvcLoc);
     pUpdateAlg2->addRef();
     pUpdateAlg2->setProperty("InputTracksKey","SummaryCreation").ignore();
     pUpdateAlg2->setProperty("OutputTracksKey","AdditionalInfoUpdated").ignore();
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_SUITE(TrackSummaryUpdaterTest)
     }
     //Update Shared Hits on an existing track summary
     BOOST_TEST_MESSAGE("Testing Summary UpdateSharedHits on the track");
-    auto pUpdateAlg3 = new Trk::TrackSummaryUpdater("Updater3",pSvcLoc);
+    auto *pUpdateAlg3 = new Trk::TrackSummaryUpdater("Updater3",pSvcLoc);
     pUpdateAlg3->addRef();
     pUpdateAlg3->setProperty("InputTracksKey","SummaryCreation").ignore();
     pUpdateAlg3->setProperty("OutputTracksKey","SharedInfoUpdated").ignore();

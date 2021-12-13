@@ -8,7 +8,7 @@
 
 namespace TrkDriftCircleMath {
 
-    TangentToCircles::LineVec TangentToCircles::tangentLines(const DriftCircle& dc1, const DriftCircle& dc2) const {
+    TangentToCircles::LineVec TangentToCircles::tangentLines(const DriftCircle& dc1, const DriftCircle& dc2) {
         LineVec lines;
         lines.reserve(4);
 

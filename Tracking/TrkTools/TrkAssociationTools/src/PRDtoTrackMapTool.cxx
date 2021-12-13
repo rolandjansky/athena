@@ -123,7 +123,7 @@ Trk::PRDtoTrackMapTool::getPrdsOnTrack(Trk::PRDtoTrackMap &virt_prd_to_track_map
 
   if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING ("Track has no RoTs");
-    return PRDs_t();
+    return {};
   }
 
   // FIXME can I do this without copying the vector?

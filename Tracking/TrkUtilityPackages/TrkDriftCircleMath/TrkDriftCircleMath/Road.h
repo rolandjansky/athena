@@ -23,7 +23,7 @@ namespace TrkDriftCircleMath {
         Road(const LocVec2D& roadPos, double roadAngle, double chamberAngle, double roadAngularWidth);
 
         /** destructor */
-        ~Road();
+        ~Road() = default;
 
         /** returns the position of the road in local coordinates */
         const LocVec2D& pos() const { return m_pos; }

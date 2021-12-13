@@ -323,8 +323,7 @@ namespace Trk {
       m_previousQOverP     = m_qOverP;
     }
 
-    return;
-  }
+     }
 
   //________________________________________________________________________
   const TrackStateOnSurface*

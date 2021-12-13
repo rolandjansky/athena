@@ -89,7 +89,7 @@ class StraightLineSurface;
         const IExtrapolator     *m_extrapolator;       //!< Pointer to Extrapolator AlgTool
         TrkVKalVrtFitter            *m_vkalFitSvc;        //!< Pointer to TrkVKalVrtFitter
 
-        double Protection(double *, const IVKalState& istate) const;
+        double Protection(const double *, const IVKalState& istate) const;
 
 
    };

@@ -2134,7 +2134,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
   emptyGarbageBin(cache,&parm);
 
   if (!aliTV) {
-    return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+    return {nullptr, nullptr, nullptr};
   }
 
   // TODO if volume entry go to entry of misaligned volume
@@ -2268,7 +2268,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
   if (cache.m_trStaticBounds.empty()) {
     ATH_MSG_WARNING("exit from alignable volume " << aliTV->volumeName() << " not resolved, aborting");
-    return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+    return {nullptr, nullptr, nullptr};
   } if (cache.m_trStaticBounds.size() > 1) {  // hit edge ?
     Amg::Vector3D gp = currPar->position() + (cache.m_trStaticBounds[0].distance + 1.) * dir *
                        currPar->momentum().normalized();
@@ -2352,16 +2352,16 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
         if (nextPar && process == 121) {
           ATH_MSG_DEBUG(" [!] WARNING: failed hadronic interaction, killing the input particle anyway");
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         if (!nextPar) {
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         // return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
       } else {  // kill particle without trace ?
-        return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+        return {nullptr, nullptr, nullptr};
       }
     }  // end decay or material interaction during the step
 
@@ -2425,7 +2425,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
   cache.m_parametersAtBoundary.boundaryInformation(nextVol, nextPar, nextPar);
 
-  return Trk::BoundaryTrackParameters(nextPar, nextVol, cache.m_currentStatic);
+  return {nextPar, nextVol, cache.m_currentStatic};
 }
 
 Trk::BoundaryTrackParameters
@@ -2479,7 +2479,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
 
   if (!staticVol) {
     ATH_MSG_DEBUG("  [!] failing in retrieval of AlignableTV, return 0");
-    return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+    return {nullptr, nullptr, nullptr};
   }
 
   // TODO if volume entry go to entry of misaligned volume
@@ -2562,19 +2562,19 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
         }
 
         if (!iPar) {
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         throwIntoGarbageBin(cache,iPar);
 
         if (iPar && cache.m_path.process == 121) {
           ATH_MSG_DEBUG(" [!] WARNING: failed hadronic interaction, killing the input particle anyway");
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         // return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
       } else {  // kill particle without trace ?
-        return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+        return {nullptr, nullptr, nullptr};
       }
     }
 
@@ -2586,14 +2586,14 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
         const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
                                                                    nextPar->momentum(), particle, timeLim.process);
         if (!iPar) {
-          return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+          return {nullptr, nullptr, nullptr};
         }
 
         throwIntoGarbageBin(cache,iPar);
         ATH_MSG_WARNING("particle decay survival?" << particle << "," << timeLim.process);
-        return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+        return {nullptr, nullptr, nullptr};
       }    // kill the particle without trace ( some validation info can be included here eventually )
-        return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+        return {nullptr, nullptr, nullptr};
 
     }
 
@@ -2647,7 +2647,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
             ATH_MSG_DEBUG("  [+] Crossing position is         - at " << positionOutput(nextPar->position()));
           }
 
-          return Trk::BoundaryTrackParameters(nextPar, nextVol, cache.m_currentStatic);
+          return {nextPar, nextVol, cache.m_currentStatic};
         }
       }
     }
@@ -2655,5 +2655,5 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
     currPar = nextPar;
   }
 
-  return Trk::BoundaryTrackParameters(nullptr, nullptr, nullptr);
+  return {nullptr, nullptr, nullptr};
 }

@@ -66,8 +66,8 @@ private:
   double mEstimateSignalCompatibility(
     const std::vector<const Trk::TrackParameters*>& tpList) const;
 
-  double sphericityFunc(std::vector<std::vector<double>> v_P) const;
-  double LogFunc(double value) const;
+  static double sphericityFunc(std::vector<std::vector<double>> v_P) ;
+  static double LogFunc(double value) ;
 
   ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool;
   std::unique_ptr<TTrainedNetwork> m_NN;

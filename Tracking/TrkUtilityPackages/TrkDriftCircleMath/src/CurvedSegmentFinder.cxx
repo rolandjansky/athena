@@ -7,7 +7,7 @@
 
 namespace TrkDriftCircleMath {
 
-    void CurvedSegmentFinder::curvedSegments(const ChamberGeometry& mdtGeo, SegVec& segs) {
+    void CurvedSegmentFinder::curvedSegments(const ChamberGeometry& mdtGeo, SegVec& segs) const {
         int nCurved = 0;
         // collect all the ML1 and ML2 only segments
         SegVec ml1segs, ml2segs;
@@ -22,7 +22,7 @@ namespace TrkDriftCircleMath {
             }
         }
         // check that both ML have segments
-        if (ml1segs.size() == 0 || ml2segs.size() == 0) return;
+        if (ml1segs.empty() || ml2segs.empty()) return;
         // Chamber information needed to calculate Delta b
         const LocVec2D& ml1LocVec2D = mdtGeo.tubePosition(0, mdtGeo.nlay(), 0);
         const LocVec2D& ml2LocVec2D = mdtGeo.tubePosition(1, 1, 0);
@@ -97,8 +97,6 @@ namespace TrkDriftCircleMath {
             }  // end loop on ml2
         }      // end loop on ml1
         if (m_debugLevel >= 5) std::cout << "Finished CurvedSegments Finding, and found " << nCurved << " CurvedSegments" << std::endl;
-
-        return;
-    }
+   }
 
 }  // end namespace TrkDriftCircleMath

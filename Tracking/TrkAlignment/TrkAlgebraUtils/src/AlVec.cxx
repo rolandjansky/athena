@@ -538,8 +538,7 @@ StatusCode AlVec::CheckVecVersion(const std::string& filename, bool &StdUnits){
   float version=0.0;
   invec.read((char*)&version, sizeof (version));
 
-  if (version>=2.0) StdUnits = true;
-  else StdUnits = false;
+  StdUnits = version>=2.0;
 
   invec.close();
 

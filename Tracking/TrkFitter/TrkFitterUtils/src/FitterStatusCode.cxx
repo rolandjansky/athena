@@ -31,7 +31,7 @@ Trk::FitterStatusCode::operator unsigned long() const  {
 }
 
 Trk::FitterStatusCode::operator StatusCode() const  {
-    return StatusCode( (m_code>1)?StatusCode::SUCCESS : StatusCode::FAILURE );
+    return { (m_code>1)?StatusCode::SUCCESS : StatusCode::FAILURE };
 }
 
 unsigned long Trk::FitterStatusCode::getCode() const {
