@@ -73,18 +73,11 @@ StatusCode MuonCreatorAlg::initialize() {
 }
 
 StatusCode MuonCreatorAlg::execute(const EventContext& ctx) const {
-    const InDetCandidateCollection* indetCandidateCollection = nullptr;
+    
     std::vector<const MuonCombined::InDetCandidateToTagMap*> tagMaps;
+    tagMaps.reserve(m_tagMaps.size());
     if (!m_doSA) {
-        SG::ReadHandle<InDetCandidateCollection> indetRH(m_indetCandidateCollectionName, ctx);
-        if (!indetRH.isValid()) {
-            ATH_MSG_ERROR("Could not read " << m_indetCandidateCollectionName);
-            return StatusCode::FAILURE;
-        } else {
-            indetCandidateCollection = indetRH.cptr();
-        }
-        std::vector<SG::ReadHandle<MuonCombined::InDetCandidateToTagMap> > mapHandles = m_tagMaps.makeHandles(ctx);
-        for (auto& h : mapHandles) tagMaps.push_back(h.cptr());
+        for (SG::ReadHandle<MuonCombined::InDetCandidateToTagMap>& h : m_tagMaps.makeHandles(ctx)) tagMaps.push_back(h.cptr());
     }
 
     // Create the xAOD container and its auxiliary store:
@@ -178,7 +171,7 @@ StatusCode MuonCreatorAlg::execute(const EventContext& ctx) const {
             muon_candidates.insert(muon_candidates.end(), muonCandidateRH->begin(), muonCandidateRH->end());
         }
     }
-    m_muonCreatorTool->create(ctx, muon_candidates.asDataVector(), indetCandidateCollection, tagMaps, output);
+    m_muonCreatorTool->create(ctx, muon_candidates.asDataVector(), tagMaps, output);
 
     if (m_makeClusters) {
         SG::WriteHandle<CaloClusterCellLinkContainer> wh_clusterslink{m_clusterContainerLinkName, ctx};
@@ -218,6 +211,8 @@ StatusCode MuonCreatorAlg::execute(const EventContext& ctx) const {
         auto cbtrks_phi = Monitored::Collection("cbtrks_phi", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::phi);
 
         if (!m_doSA) {
+            SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection{m_indetCandidateCollectionName, ctx};
+
             auto idtrks_n = Monitored::Scalar<int>("idtrks_n", indetCandidateCollection->size());
             auto idtrks_pt = Monitored::Collection("idtrks_pt", *indetCandidateCollection,
                                                    [](auto const& idtrk) { return idtrk->indetTrackParticle().pt() * MeVtoGeV; });

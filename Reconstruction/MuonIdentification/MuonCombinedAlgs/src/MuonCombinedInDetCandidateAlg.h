@@ -11,8 +11,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonRecToolInterfaces/HoughDataPerSec.h"
 #include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -31,13 +29,15 @@ public:
 private:
     SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation{
         this, "TrackParticleLocation", {"InDetTrackParticles"}};
+    SG::ReadHandleKeyArray<CaloExtensionCollection> m_caloExtensionLocation{
+        this, "CaloExtensionLocation", {},
+    };
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_indetForwardTrackParticleLocation{this, "ForwardParticleLocation",
                                                                                         "InDetForwardTrackParticles"};
 
+    SG::ReadHandleKey<CaloExtensionCollection> m_caloFwdExtensionLocation{this, "CaloFwdExtensionLocation", ""};
+    
     SG::WriteHandleKey<InDetCandidateCollection> m_candidateCollectionName{this, "InDetCandidateLocation", "InDetCandidates"};
-
-    SG::ReadHandleKey<Muon::HoughDataPerSectorVec> m_houghDataPerSectorVecKey{this, "Key_MuonLayerHoughToolHoughDataPerSectorVec",
-                                                                              "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
 
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelector{
         this, "TrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool", "Track selector tool"};
@@ -45,19 +45,19 @@ private:
         this, "InDetForwardTrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedForwardTrackSelectorTool",
         "Forward track selector tool"};
     ToolHandle<Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool{
-        this, "MuonSystemExtensionTool", "Muon::MuonSystemExtensionTool/MuonSystemExtensionTool", "Muon system extension tool"};
+        this, "MuonSystemExtensionTool", "", "Muon system extension tool"};
 
     struct InDetCandidateCache {
         /// Track particle container
         const xAOD::TrackParticleContainer* inDetContainer{nullptr};
+        /// Cache of the CaloExtensions
+        const CaloExtensionCollection* extensionContainer{nullptr};
         /// Flag the candidates as sillicion forward associated
         bool flagAsSAF{false};
         /// Output container for the StoreGate
         std::unique_ptr<InDetCandidateCollection> outputContainer = std::make_unique<InDetCandidateCollection>(SG::OWN_ELEMENTS);
-
+        /// Corresponding track selector
         const Trk::ITrackSelectorTool* trackSelector{nullptr};
-
-        std::map<Muon::MuonStationIndex::DetectorRegionIndex, std::set<int>> hitted_sectors;
     };
 
     StatusCode create(const EventContext& ctx, InDetCandidateCache& output_cache) const;
@@ -68,13 +68,14 @@ private:
     int getCount(const xAOD::TrackParticle& tp, xAOD::SummaryType type) const;
 
     Gaudi::Property<bool> m_doSiliconForwardMuons{this, "DoSiliconAssocForwardMuons", false};
-
+    /// Minimum pt threshold of the IdCandidate to be extrapolated through the spectrometer
     Gaudi::Property<float> m_extThreshold{this, "ExtensionPtThreshold", 2500};
-
-    Gaudi::Property<bool> m_restrictExtension{this, "UseOnlyHittedSectors", false};
-
-    StatusCode findHittedSectors(const EventContext& ctx, const SG::ReadHandleKey<Muon::HoughDataPerSectorVec>& key,
-                                 InDetCandidateCache& output_cache) const;
+    /// Shall SAF tracks  be equiped with a muon system extension used by MuGirl later
+    Gaudi::Property<bool> m_extendSAF{this, "ExtendSAF", false};
+    /// Shall ordinary ID tracks  be equiped with a muon system extension used by MuGirl later
+    Gaudi::Property<bool> m_extendBulk{this, "ExtendBulk", true};
+    /// Reject muon candidates without a muon system extension -- only effective if the candidate shall actually be extended
+    Gaudi::Property<bool> m_requireExtension{this,"RequireExtension", true};
 };
 
 #endif

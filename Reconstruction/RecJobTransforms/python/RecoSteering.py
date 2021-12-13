@@ -71,7 +71,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured combined muon reconstruction")
 
     # Caching of CaloExtension for downstream Combined Performance algorithms.
-    if ((flags.Reco.EnablePFlow or flags.Reco.EnableTau)
+    if ((flags.Reco.EnablePFlow or flags.Reco.EnableTau or flags.Reco.EnableCombinedMuon)
         and flags.Detector.EnableCalo
             and flags.Reco.EnableTracking):
         from TrackToCalo.CaloExtensionBuilderAlgCfg import (

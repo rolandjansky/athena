@@ -11,6 +11,7 @@
 #include "AthLinks/ElementLink.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODMuon/MuonSegmentContainer.h"
 
 namespace Trk {
     class Track;
@@ -73,10 +74,16 @@ namespace MuonCombined {
 
         /** print candidate to string */
         std::string toString() const;
+       
         /** Sets ths comissioning flag */
         void setComissioning(bool b);
         /** Returns whether the muon belongs to the comissioning chain **/
         bool isComissioning() const;
+
+        /** set the vector of associated segments to the candidate **/
+        void setSegments(std::vector<ElementLink<xAOD::MuonSegmentContainer>>&& segments);
+        /** returns the vector of associated muon segments **/
+        const std::vector<ElementLink<xAOD::MuonSegmentContainer>>& getSegments() const;
 
     private:
         /** element link to spectrometer track */
@@ -93,6 +100,9 @@ namespace MuonCombined {
 
         /** flag whether the track belongs to the comissioning stream **/
         bool m_isComissioning{false};
+
+        /** Segments associated with the candidate **/
+        std::vector<ElementLink<xAOD::MuonSegmentContainer>> m_assoc_segments;
     };
 
 }  // namespace MuonCombined
