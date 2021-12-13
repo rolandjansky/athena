@@ -3,12 +3,14 @@
 from .CTP import CTP
 from .Items import MenuItemsCollection
 from .Thresholds import MenuThresholdsCollection
-from .TopoAlgorithms import MenuTopoAlgorithmsCollection
+from .TopoAlgorithms import MenuTopoAlgorithmsCollection, AlgType, AlgCategory
 from .Boards import MenuBoardsCollection
 from .Connectors import MenuConnectorsCollection, CType
 from .MenuUtils import get_smk_psk_Name
 from .Limits import Limits
 from .L1MenuFlags import L1MenuFlags
+from .ThresholdType import ThrType
+from ..Config.TypeWideThresholdConfig import getTypeWideThresholdConfig
 
 from collections import OrderedDict as odict
 from AthenaCommon.Logging import logging
@@ -243,4 +245,78 @@ class L1Menu(object):
         if ( totalInputs > 512 or len(ctpOutputs) > 512 ):
             if L1MenuFlags.ApplyCTPLimits():
                 raise RuntimeError("Both the numbers of inputs and outputs need to be not greater than 512 in a physics menu!")
+
+    def checkPtMinToTopo(self):
+        # check that the ptMinToTopo for all types of thresholds is lower than the minimum Et cuts applied in multiplicity and decision algorithms
+
+        # collect the ptMinToTopo values
+        ptMin = {}
+        for thrtype in ThrType.Run3Types():
+            ttconfig = getTypeWideThresholdConfig(thrtype)
+            inputtype = thrtype.name
+            if inputtype == 'cTAU':
+                inputtype = 'eTAU'
+            for key, value in ttconfig.items():
+                if "ptMinToTopo" in key:
+                    if inputtype in ptMin:
+                        if ptMin[inputtype] > value:
+                             ptMin[inputtype] = value
+                    else: 
+                        ptMin[inputtype] = value
+
+        # loop over multiplicity algorithms and get the min et values
+        thresholdMin = {}
+        for algo in self.topoAlgos.topoAlgos[AlgCategory.MULTI][AlgType.MULT]:
+             alg = self.topoAlgos.topoAlgos[AlgCategory.MULTI][AlgType.MULT][algo]
+             threshold = alg.threshold
+             inputtype = alg.input
+             if 'cTAU' in inputtype:
+                 inputtype = 'eTAU'
+             elif any(substring in inputtype for substring in ['XE','TE','MHT']):
+                 continue
+             thr = self.thresholds.thresholds[threshold]
+             minEt = 99999 
+             if hasattr(thr, 'thresholdValues'):
+                 etvalues = thr.thresholdValues
+                 for etvalue in etvalues:
+                     et = etvalue.value
+                     if et < minEt:
+                         minEt = et
+             if hasattr(thr, 'et'):
+                 if thr.et < minEt:
+                     minEt = thr.et
+             if inputtype in thresholdMin:
+                 if minEt < thresholdMin[inputtype]:
+                     thresholdMin[inputtype] = minEt
+             else:
+                 thresholdMin[inputtype] = minEt
+
+        # loop over sorting algorithms and get the min et values
+        for algo in self.topoAlgos.topoAlgos[AlgCategory.TOPO][AlgType.SORT]:
+             alg = self.topoAlgos.topoAlgos[AlgCategory.TOPO][AlgType.SORT][algo]
+             if alg.inputvalue == 'MuonTobs':
+                 continue
+             for (pos, variable) in enumerate(alg.variables): 
+                 if variable.name == "MinET":
+                     value = variable.value/10 # convert energies from 100MeV to GeV units
+                     inputtype = ''
+                     if alg.inputvalue == 'eEmTobs':
+                         inputtype = 'eEM'
+                     elif alg.inputvalue == 'eTauTobs':
+                         inputtype = 'eTAU'
+                     elif alg.inputvalue == 'jJetTobs':
+                         inputtype = 'jJ'
+                     else:
+                         raise RuntimeError("checkPtMinToTopo: input type %s in sorting algo not recognised" % alg.inputvalue)
+                     if inputtype in thresholdMin:
+                         if value < thresholdMin[inputtype]:
+                              thresholdMin[inputtype] = value
+                     else:
+                         thresholdMin[inputtype] = value      
+        for thr in thresholdMin:
+            if thr in ptMin:
+                 if thresholdMin[thr] < ptMin[thr]:
+                     raise RuntimeError("checkPtMinToTopo: for threshold type %s the minimum threshold %i is less than ptMinToTopo %i" % (thr, thresholdMin[thr], ptMin[thr]))
+            else:
+                 raise RuntimeError("checkPtMinToTopo: for threshold type %s the minimum threshold is %i and no ptMinToTopo value is found" % (thr, thresholdMin[thr]))  
 
