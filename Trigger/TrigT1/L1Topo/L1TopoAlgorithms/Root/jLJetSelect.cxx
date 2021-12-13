@@ -1,21 +1,21 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-//  jLargeRJetSelect.cxx
+//  jLJetSelect.cxx
 //  TopoCore
 //  algorithm to create abbreviated jLargeRJet lists
 //
-#include "L1TopoAlgorithms/jLargeRJetSelect.h"
+#include "L1TopoAlgorithms/jLJetSelect.h"
 #include "L1TopoEvent/TOBArray.h"
 #include "L1TopoEvent/jLargeRJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
-REGISTER_ALG_TCS(jLargeRJetSelect)
+REGISTER_ALG_TCS(jLJetSelect)
 
 
 // constructor
-TCS::jLargeRJetSelect::jLargeRJetSelect(const std::string & name) :
+TCS::jLJetSelect::jLJetSelect(const std::string & name) :
    SortingAlg(name)
 {
    defineParameter( "InputWidth", 64 ); // for FW
@@ -28,11 +28,11 @@ TCS::jLargeRJetSelect::jLargeRJetSelect(const std::string & name) :
 }
 
 
-TCS::jLargeRJetSelect::~jLargeRJetSelect()
+TCS::jLJetSelect::~jLJetSelect()
 {}
 
 TCS::StatusCode
-TCS::jLargeRJetSelect::initialize() {
+TCS::jLJetSelect::initialize() {
    m_numberOfJets = parameter("OutputWidth").value();
    m_et = parameter("MinET").value();
    m_minEta = parameter("MinEta").value();
@@ -45,7 +45,7 @@ TCS::jLargeRJetSelect::initialize() {
 
 
 TCS::StatusCode
-TCS::jLargeRJetSelect::sort(const InputTOBArray & input, TOBArray & output) {
+TCS::jLJetSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
   const jLargeRJetTOBArray & jets = dynamic_cast<const jLargeRJetTOBArray&>(input);
 

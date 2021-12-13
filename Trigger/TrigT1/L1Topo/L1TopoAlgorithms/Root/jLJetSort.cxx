@@ -1,17 +1,17 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-//  jLargeRJetSort.cxx
+//  jLJetSort.cxx
 //  TopoCore
 //  algorithm to make sorted jLargeRJets lists
 //
-#include "L1TopoAlgorithms/jLargeRJetSort.h"
+#include "L1TopoAlgorithms/jLJetSort.h"
 #include "L1TopoEvent/TOBArray.h"
 #include "L1TopoEvent/jLargeRJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
-REGISTER_ALG_TCS(jLargeRJetSort)
+REGISTER_ALG_TCS(jLJetSort)
 
 bool SortByEtLargestjLargeRJet(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
 {
@@ -19,7 +19,7 @@ bool SortByEtLargestjLargeRJet(TCS::GenericTOB* tob1, TCS::GenericTOB* tob2)
 }
 
 // constructor
-TCS::jLargeRJetSort::jLargeRJetSort(const std::string & name) :
+TCS::jLJetSort::jLJetSort(const std::string & name) :
    SortingAlg(name)
 {
    defineParameter( "InputWidth", 64 ); // for FW
@@ -31,13 +31,13 @@ TCS::jLargeRJetSort::jLargeRJetSort(const std::string & name) :
 }
 
 
-TCS::jLargeRJetSort::~jLargeRJetSort()
+TCS::jLJetSort::~jLJetSort()
 {}
 
 
 
 TCS::StatusCode
-TCS::jLargeRJetSort::initialize() {
+TCS::jLJetSort::initialize() {
    m_numberOfJets = parameter("OutputWidth").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
@@ -47,7 +47,7 @@ TCS::jLargeRJetSort::initialize() {
 
 
 TCS::StatusCode
-TCS::jLargeRJetSort::sort(const InputTOBArray & input, TOBArray & output) {
+TCS::jLJetSort::sort(const InputTOBArray & input, TOBArray & output) {
   
   const jLargeRJetTOBArray & jets = dynamic_cast<const jLargeRJetTOBArray&>(input);
    
