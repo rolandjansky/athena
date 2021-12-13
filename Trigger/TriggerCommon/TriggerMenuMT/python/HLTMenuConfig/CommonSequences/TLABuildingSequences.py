@@ -13,16 +13,16 @@ def addTLAStep(chain, chainDict):
     '''
 
     tlaSequencesList = []
-    log.debug("addTLAStep: processing chain: ", chainDict['chainName'])
+    log.debug("addTLAStep: processing chain: %s", chainDict['chainName'])
     
 
     for cPart in chainDict['chainParts']:
         
-        log.debug("addTLAStep: processing signature: ", cPart['signature'])
+        log.debug("addTLAStep: processing signature: %s", cPart['signature'] )
         # call the sequence from their respective signatures
         tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, chainPart=cPart)),
             
-    log.debug("addTLAStep: About to add a step with: ", len(tlaSequencesList), "parallel sequences.")            
+    log.debug("addTLAStep: About to add a step with: %d, parallel sequences.", len(tlaSequencesList))            
     
     # we add one step per TLA chain, with sequences matching the list of signatures
     # and multiplicities matching those of the previous step of the chain (already merged if combined)
