@@ -20,8 +20,6 @@
 //
 #include "FourMomUtils/P4Helpers.h"
 #include "GaudiKernel/EventContext.h"
-#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
-#include "TrkParametersIdentificationHelpers/TrackParametersIdentificationHelper.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 //
