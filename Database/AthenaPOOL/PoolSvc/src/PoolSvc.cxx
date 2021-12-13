@@ -320,7 +320,7 @@ void PoolSvc::setObjPtr(void*& obj, const Token* token) {
          contextId = IPoolSvc::kInputStream;
       }
    }
-   ATH_MSG_VERBOSE("setObjPtr: token=" << token->toString() << ", auxString=" << auxString << ", contextID="<< contextId);
+   ATH_MSG_VERBOSE("setObjPtr: token=" << token->toString() << ", auxString=" << auxString << ", contextID=" << contextId);
    // Get Context ID/label from Token
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    obj = m_persistencySvcVec[contextId]->readObject(*token, obj);
@@ -361,7 +361,7 @@ unsigned int PoolSvc::getOutputContext(const std::string& label) {
    return(id);
 }
 //__________________________________________________________________________
-unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int maxFile) {
+unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int maxFile, const std::string& fileID) {
    std::lock_guard<CallMutex> lock(m_pool_mut);
    if (!label.empty()) {
       std::map<std::string, unsigned int>::const_iterator contextIter = m_contextLabel.find(label);
@@ -383,6 +383,11 @@ unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int max
       m_contextLabel.insert(std::pair<std::string, unsigned int>(label, id));
    }
    m_contextMaxFile.insert(std::pair<unsigned int, int>(id, maxFile));
+   if (!fileID.empty()) {
+      if (!this->setAttribute("TREE_CACHE", "0", pool::ROOT_StorageType.type(), fileID, "CollectionTree", id).isSuccess()) {
+         ATH_MSG_WARNING("Failed to switch off TTreeCache.");
+      }
+   }
    return(id);
 }
 //__________________________________________________________________________

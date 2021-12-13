@@ -69,7 +69,7 @@ public: // Non-static members
    /// @return an Id for an input context (POOL persistency service) and create it if needed.
    /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
    /// @param maxFile [IN] maximum number of open input files.
-   unsigned int getInputContext(const std::string& label, unsigned int maxFile = 0);
+   unsigned int getInputContext(const std::string& label, unsigned int maxFile = 0, const std::string& fileID = "");
 
    /// @return the context.
    const coral::Context* context() const;
