@@ -187,7 +187,7 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
       TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
       if (tokAddr != nullptr && tokAddr->getToken() != nullptr) {
          char text[32];
-         ::sprintf(text, "[CTXT=%08X]", m_poolSvc->getInputContext(tokAddr->getToken()->classID().toString(), 0, "FID:" + tokAddr->getToken()->dbID().toString()));
+         ::sprintf(text, "[CTXT=%08X]", m_poolSvc->getInputContext(tokAddr->getToken()->classID().toString(), 1, "FID:" + tokAddr->getToken()->dbID().toString()));
          tokAddr->getToken()->setAuxString(text);
       }
    }
