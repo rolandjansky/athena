@@ -660,8 +660,8 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
     ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
 
-    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subjesIS_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
 
 
     # TLA Photons
@@ -842,6 +842,10 @@ TriggerHLTListRun3 = [
 
     ('xAOD::BTaggingContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTagging',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:'+BTagViewsEMPFlow),
     ('xAOD::BTaggingAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingAux.'+BTagVars,          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+
+    # TLA bjet b-tagging
+    ('xAOD::BTaggingContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLA_BTagging',                      'BS PhysicsTLA ESD', 'Bjet'),
+    ('xAOD::BTaggingAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLA_BTaggingAux.'+BTagVars,       'BS PhysicsTLA ESD', 'Bjet'),
 
     # MinBias
 
