@@ -140,6 +140,8 @@ def createPriVertexingFlags():
     flags.addFlag("minNTrtHits", 0)
     flags.addFlag("minPt", 500.0 * Units.MeV)
     flags.addFlag("maxZinterval", 3)
+    flags.addFlag("doMaxTracksCut", True)
+    flags.addFlag("MaxTracks", 3000)
 
 
     return flags
