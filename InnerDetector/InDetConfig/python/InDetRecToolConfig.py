@@ -63,7 +63,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
   kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
   kwargs.setdefault("useTRT", flags.Detector.EnableTRT)
 
-  result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs), primary=True)
+  result.setPrivateTools(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs))
   return result
 
 def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
