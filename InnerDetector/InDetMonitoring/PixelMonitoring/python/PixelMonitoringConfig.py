@@ -52,8 +52,8 @@ def PixelMonitoringConfig(flags):
         pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
         pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
 
-        from InDetConfig.TrackingCommonConfig import TrackSummaryToolCfg
-        pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags))
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
         pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
         
         

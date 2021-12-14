@@ -48,8 +48,8 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
 
     # @TODO really run the TRT hole search ? Hole search still seems to use a condition service
     if isRun3Cfg():
-        from InDetConfig.TrackingCommonConfig import TrackSummaryToolCfg
-        algTRTMonitoringRun3RAW.TrackSummaryTool = rv.getPrimaryAndMerge(TrackSummaryToolCfg(inputFlags))
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        algTRTMonitoringRun3RAW.TrackSummaryTool = rv.getPrimaryAndMerge(InDetTrackSummaryToolCfg(inputFlags))
         algTRTMonitoringRun3RAW.trt_hole_search= rv.popToolsAndMerge( TRTHoleSearchCfg(inputFlags) )
     else :
         algTRTMonitoringRun3RAW.trt_hole_search=TRTHoleSearch()

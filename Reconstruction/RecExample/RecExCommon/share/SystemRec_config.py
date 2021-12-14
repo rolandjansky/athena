@@ -34,8 +34,8 @@ if DetFlags.detdescr.ID_on():
     if jobproperties.InDetJobProperties.useNewConfig():
         print('Wrapping InDet new configuration')
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        from InDetConfig.TrackRecoConfig import TrackRecoCfg
-        CAtoGlobalWrapper(TrackRecoCfg,ConfigFlags)
+        from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+        CAtoGlobalWrapper(InDetTrackRecoCfg,ConfigFlags)
     else:
         protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
         AODFix_postInDetRec()

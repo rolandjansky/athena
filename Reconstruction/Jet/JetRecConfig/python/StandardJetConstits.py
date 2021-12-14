@@ -60,8 +60,8 @@ def standardReco(input):
             return CaloRecoCfg(jetdef._cflags)
     elif input=='Tracks':
         def f(jetdef,spec):
-            from InDetConfig.TrackRecoConfig import TrackRecoCfg
-            return TrackRecoCfg(jetdef._cflags)
+            from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+            return InDetTrackRecoCfg(jetdef._cflags)
     elif input=="Muons":
         def f(jetdef,spec):
             from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg

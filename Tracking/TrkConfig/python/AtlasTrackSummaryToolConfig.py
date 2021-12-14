@@ -16,21 +16,21 @@ def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
     result.addPublicTool(extrapolator)
 
     # Setup Association Tool
-    from InDetConfig.InDetRecToolConfig import PrdAssociationToolCfg
-    atlasPrdAssociationTool = result.getPrimaryAndMerge(PrdAssociationToolCfg(flags,
+    from InDetConfig.InDetRecToolConfig import InDetPrdAssociationToolCfg
+    atlasPrdAssociationTool = result.getPrimaryAndMerge(InDetPrdAssociationToolCfg(flags,
                                                                               name='AtlasPrdAssociationTool'))
     atlasPrdAssociationTool.addTRToutliers = False
 
     # Loading Configurable HoleSearchTool
-    from InDetConfig.InDetRecToolConfig import TrackHoleSearchToolCfg
-    atlasHoleSearchTool = result.getPrimaryAndMerge(TrackHoleSearchToolCfg(flags,
+    from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
+    atlasHoleSearchTool = result.getPrimaryAndMerge(InDetTrackHoleSearchToolCfg(flags,
                                                                            name="AtlasHoleSearchTool",
                                                                            Extrapolator=extrapolator))
 
     # FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
     # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-    from InDetConfig.InDetRecToolConfig import TrackSummaryHelperToolCfg
-    indet_track_summary_helper_tool = result.getPrimaryAndMerge(TrackSummaryHelperToolCfg(flags,
+    from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+    indet_track_summary_helper_tool = result.getPrimaryAndMerge(InDetTrackSummaryHelperToolCfg(flags,
                                                                                           name="AtlasTrackSummaryHelperTool",
                                                                                           AssoTool=atlasPrdAssociationTool,
                                                                                           DoSharedHits=False,

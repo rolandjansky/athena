@@ -37,9 +37,9 @@ def GSFTrackSummaryToolCfg(flags,
                     name="GSFBuildTestBLayerTool"))
 
         from InDetConfig.InDetRecToolConfig import (
-            TrackSummaryHelperToolCfg)
+            InDetTrackSummaryHelperToolCfg)
         kwargs["InDetSummaryHelperTool"] = acc.getPrimaryAndMerge(
-            TrackSummaryHelperToolCfg(
+            InDetTrackSummaryHelperToolCfg(
                 flags,
                 name="GSFBuildTrackSummaryHelperTool",
                 HoleSearch=None,
