@@ -366,10 +366,6 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed* 
   double                      sum_EtxDR2                  = 0;
   double                      sum_EtxDRprime              = 0;
   double                      sum_EtxAngle                = 0;
-  double                      sum_ExDR                    = 0;
-  double                      sum_ExDR2                   = 0;
-  double                      sum_ExDRprime               = 0;
-  double                      sum_ExAngle                 = 0;
   // ===> Isolation rings
   double                      sum_EtInRing00To01          = 0;
   double                      sum_EtInRing01To02          = 0;
@@ -430,10 +426,6 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed* 
     sum_EtxDR2                  += hlp_Et * hlp_DeltaR2;
     sum_EtxDRprime              += hlp_Et * hlp_DeltaRprime;
     sum_EtxAngle                += hlp_Et * hlp_Angle;
-    sum_ExDR                    += hlp_E  * hlp_DeltaR;
-    sum_ExDR2                   += hlp_E  * hlp_DeltaR2;
-    sum_ExDRprime               += hlp_E  * hlp_DeltaRprime;
-    sum_ExAngle                 += hlp_E  * hlp_Angle;
     // update Isolation rings
     if(hlp_DeltaR >= 0.0 && hlp_DeltaR < 0.1) sum_EtInRing00To01 += hlp_Et;
     if(hlp_DeltaR >= 0.1 && hlp_DeltaR < 0.2) sum_EtInRing01To02 += hlp_Et;
