@@ -53,8 +53,6 @@ bool ClusterFilterTool::rejectCluster(const xAOD::CaloCluster& cluster) const {
   
   bool matchedPV0 = false;
   bool matchedPVX  = false;
-  double pt_PV0 = 0.;
-  double pt_PVX = 0.;
       
   for (const auto track : *allTracks) {
     // check compatibility with PVX where X>0
@@ -81,9 +79,7 @@ bool ClusterFilterTool::rejectCluster(const xAOD::CaloCluster& cluster) const {
 	if (m_loosetrackvertexassoTool->isCompatible(*track, *(allVertices->at(0)))) {
 	  ATH_MSG_DEBUG ("PV0 is matched");
 	  matchedPV0 = true;
-	  pt_PV0 +=track->pt();
 	} else matchedPVX = true;
-	pt_PVX+=track->pt();
       } else {
 	ATH_MSG_WARNING ("Vertex container " << m_vertexCollectionName << " is empty! Can't perform TVA! --> No rejection applied... returning");
 	return false;
