@@ -127,7 +127,6 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
-    kwargs.setdefault("ParticleCaloExtensionToolID", getPublicTool("MuonParticleCaloExtensionTool") )
     kwargs.setdefault("MuonPrinter", getPublicTool("MuonPrintingTool") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
@@ -190,9 +189,7 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
 
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
-    kwargs.setdefault("ParticleCaloExtensionTool",  getPublicTool("MuonParticleCaloExtensionTool") )
     from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTagTestTool
     kwargs.setdefault("TagTool", CombinedMuonTagTestTool())
-
     return CfgMgr.MuonCombined__MuonCombinedStacoTagTool(name,**kwargs)
 

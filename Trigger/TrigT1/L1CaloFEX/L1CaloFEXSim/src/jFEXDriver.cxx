@@ -81,6 +81,34 @@ StatusCode jFEXDriver::initialize()
   ATH_CHECK( m_jFexLRJetEDMKey.initialize() );
   ATH_CHECK( m_jFexTauEDMKey.initialize() );
   ATH_CHECK( m_jFEXOutputCollectionSGKey.initialize() );
+  
+    std::unique_ptr<TFile> jTowerFile(TFile::Open(PathResolver::find_calib_file(m_PileupWeigthFile).c_str()));
+    std::unique_ptr<TFile> jTowerMapFile(TFile::Open(PathResolver::find_calib_file(m_PileupHelperFile).c_str()));
+    if (!jTowerFile || jTowerFile->IsZombie()) {
+        ATH_MSG_ERROR("Failed to open cell timing file " << m_PileupWeigthFile);
+        return StatusCode::FAILURE;
+    }
+    if (!jTowerMapFile || jTowerMapFile->IsZombie()) {
+        ATH_MSG_ERROR("Failed to open cell timing file " << m_PileupHelperFile);
+        return StatusCode::FAILURE;
+    }    
+    
+    m_jTowerArea_hist    = (TH1F*) jTowerFile->Get("jTowerArea_final_hist");
+    m_Firmware2BitwiseID = (TH1I*) jTowerMapFile->Get("Firmware2BitwiseID");
+    m_BinLayer           = (TH1I*) jTowerMapFile->Get("BinLayer");
+    m_EtaCoords          = (TH1F*) jTowerMapFile->Get("EtaCoords");
+    m_PhiCoords          = (TH1F*) jTowerMapFile->Get("PhiCoords");
+    
+    //detach the Histograms from the TFiles
+    m_jTowerArea_hist->SetDirectory(0);
+    m_Firmware2BitwiseID->SetDirectory(0);
+    m_BinLayer->SetDirectory(0);
+    m_EtaCoords->SetDirectory(0);
+    m_PhiCoords->SetDirectory(0);
+    
+    jTowerFile->Close();
+    jTowerMapFile->Close();  
+  
 
   return StatusCode::SUCCESS;
 
@@ -95,7 +123,6 @@ StatusCode jFEXDriver::finalize()
 
 
 StatusCode jFEXDriver::execute() {
-    
     ATH_MSG_DEBUG("Executing " << name() << ", processing event number " << m_numberOfEvents );
 
     // OLD DIMA STUFF---------------------- Maybe useful in the future again
@@ -109,32 +136,7 @@ StatusCode jFEXDriver::execute() {
 
     // STEP 0 - Make a fresh local jTowerContainer
     std::unique_ptr<jTowerContainer> local_jTowerContainerRaw = std::make_unique<jTowerContainer>();
-    std::unique_ptr<TFile> jTowerFile(TFile::Open(PathResolver::find_calib_file(m_PileupWeigthFile).c_str()));
-    std::unique_ptr<TFile> jTowerMapFile(TFile::Open(PathResolver::find_calib_file(m_PileupHelperFile).c_str()));
-    if (!jTowerFile || jTowerFile->IsZombie()) {
-        ATH_MSG_ERROR("Failed to open cell timing file " << m_PileupWeigthFile);
-        return StatusCode::FAILURE;
-    }
-    if (!jTowerMapFile || jTowerMapFile->IsZombie()) {
-        ATH_MSG_ERROR("Failed to open cell timing file " << m_PileupHelperFile);
-        return StatusCode::FAILURE;
-    }    
-    
-    TH1F* jTowerArea_hist    = (TH1F*) jTowerFile->Get("jTowerArea_final_hist");
-    TH1I* Firmware2BitwiseID = (TH1I*) jTowerMapFile->Get("Firmware2BitwiseID");
-    TH1I* BinLayer           = (TH1I*) jTowerMapFile->Get("BinLayer");
-    TH1F* EtaCoords          = (TH1F*) jTowerMapFile->Get("EtaCoords");
-    TH1F* PhiCoords          = (TH1F*) jTowerMapFile->Get("PhiCoords");
-    
-    //detach the Histograms from the TFiles
-    jTowerArea_hist->SetDirectory(0);
-    Firmware2BitwiseID->SetDirectory(0);
-    BinLayer->SetDirectory(0);
-    EtaCoords->SetDirectory(0);
-    PhiCoords->SetDirectory(0);
-    
-    jTowerFile->Close();
-    jTowerMapFile->Close();
+
 
 
     // STEP 1 TO BE REPLACED IN THE NEAR FUTURE - KEPT HERE FOR REFERENCE
@@ -150,7 +152,7 @@ StatusCode jFEXDriver::execute() {
     // STEP 3 - Do the supercell-tower mapping - put this information into the jTowerContainer
     ATH_CHECK(m_jSuperCellTowerMapperTool->AssignSuperCellsToTowers(local_jTowerContainerRaw));
     ATH_CHECK(m_jSuperCellTowerMapperTool->AssignTriggerTowerMapper(local_jTowerContainerRaw));
-    ATH_CHECK(m_jSuperCellTowerMapperTool->AssignPileupAndNoiseValues(local_jTowerContainerRaw,jTowerArea_hist,Firmware2BitwiseID,BinLayer,EtaCoords,PhiCoords));
+    ATH_CHECK(m_jSuperCellTowerMapperTool->AssignPileupAndNoiseValues(local_jTowerContainerRaw,m_jTowerArea_hist,m_Firmware2BitwiseID,m_BinLayer,m_EtaCoords,m_PhiCoords));
 
     // STEP 4 - Write the completed jTowerContainer into StoreGate (move the local copy in memory)
     SG::WriteHandle<LVL1::jTowerContainer> jTowerContainerSG(m_jTowerContainerSGKey/*, ctx*/);

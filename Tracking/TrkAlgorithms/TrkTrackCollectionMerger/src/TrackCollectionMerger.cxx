@@ -132,11 +132,11 @@ StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCo
                                                   TrackCollection* outputCol)
 {
   // loop over tracks, accept them and add them into association tool
-  if(trackCol && trackCol->size()) {
+  if(trackCol && !trackCol->empty()) {
     ATH_MSG_DEBUG("Size of track collection " << trackCol->size());
     if (not pPrdToTrackMap) ATH_MSG_WARNING("No valid PRD to Track Map; was the association tool name missing?");
     // loop over tracks
-    for(const auto rf: *trackCol){
+    for(const auto *const rf: *trackCol){
       // add track into output
       // FIXME: const_cast
       // These objects are modified in the `Update summaries' section

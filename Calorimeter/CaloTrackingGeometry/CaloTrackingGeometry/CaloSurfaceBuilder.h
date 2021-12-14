@@ -146,13 +146,13 @@ public:
                                 std::vector<double>& rmax) const override final;
 
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
-  entrySurfaces() const override final;
+  entrySurfaces(const CaloDetDescrManager* calo_dd) const override final;
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
-  exitSurfaces() const override final;
+  exitSurfaces(const CaloDetDescrManager* calo_dd) const override final;
 
 private:
   // fill cashed surfaces
-  void fill_tg_surfaces() const;
+  void fill_tg_surfaces(const CaloDetDescrManager* calo_dd) const;
 
   const TileDetDescrManager* m_tile_dd;
 
@@ -176,16 +176,16 @@ private:
 };
 
 inline std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
-CaloSurfaceBuilder::entrySurfaces() const
+CaloSurfaceBuilder::entrySurfaces(const CaloDetDescrManager* calo_dd) const
 {
-  std::call_once(m_fillOnce, [this]() { fill_tg_surfaces(); });
+  std::call_once(m_fillOnce, [this, calo_dd]() { fill_tg_surfaces(calo_dd); });
   return m_layerEntries;
 }
 
 inline std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
-CaloSurfaceBuilder::exitSurfaces() const
+CaloSurfaceBuilder::exitSurfaces(const CaloDetDescrManager* calo_dd) const
 {
-  std::call_once(m_fillOnce, [this]() { fill_tg_surfaces(); });
+  std::call_once(m_fillOnce, [this, calo_dd]() { fill_tg_surfaces(calo_dd); });
   return m_layerExits;
 }
 

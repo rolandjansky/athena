@@ -90,7 +90,6 @@ void AlSpaMat::copy(const AlSpaMat& m)
   m_ptr_map.clear();
   m_nele=m.m_nele;
   m_ptr_map = m.m_ptr_map;
-  return;
 }
 
 //______________________________________________________________________________
@@ -110,8 +109,7 @@ void AlSpaMat::copy(const AlSymMat& m)
         m_nele++;
       }
 
-  return;
-}
+  }
 
 //______________________________________________________________________________
 void AlSpaMat::copy(const AlMat& m)
@@ -132,8 +130,7 @@ void AlSpaMat::copy(const AlMat& m)
         m_nele++;
       }
 
-  return;
-}
+  }
 
 //______________________________________________________________________________
 double& AlSpaMat::elemr(long int i,long int j)
@@ -420,7 +417,7 @@ int AlSpaMat::SolveWithEigen(AlVec& RHS){
 
   Eigen::SparseMatrix<double> eigenBigMatrix( m_size, m_size );
   
-  typedef Eigen::Triplet<double> Triplet;
+  using Triplet = Eigen::Triplet<double>;
   std::vector<Triplet> tripletList;
   tripletList.reserve(m_nele);
   long int      i, j;
@@ -626,7 +623,6 @@ void AlSpaMat::RemoveModule(int index)
   const int ind=shift*index;
 
   RemoveDoF(ind, shift);
-  return;
 }
 
 //______________________________________________________________________________
@@ -648,7 +644,6 @@ void AlSpaMat::reSize(long int n)
   }
 
   m_nele = m_ptr_map.size();
-  return;
 }
 
 //______________________________________________________________________________
@@ -732,10 +727,7 @@ StatusCode AlSpaMat::CheckMatVersion(const std::string filename, bool &StdUnits)
   float version=0.0;
   inmat.read((char*)&version, sizeof (version));
 
-  if (version>=2.0)
-    StdUnits = true;
-  else
-    StdUnits = false;
+  StdUnits = version>=2.0;
 
   inmat.close();
 

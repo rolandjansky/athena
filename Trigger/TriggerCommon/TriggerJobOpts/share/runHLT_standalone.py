@@ -472,8 +472,9 @@ else:
 # ---------------------------------------------------------------
 # Add LumiBlockMuWriter creating xAOD::EventInfo decorations for pileup values
 # ---------------------------------------------------------------
-from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
-LumiBlockMuWriterDefault(sequence=hltBeginSeq)
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+CAtoGlobalWrapper(LumiBlockMuWriterCfg, ConfigFlags, seqName="HLTBeginSeq")
+
 
 # ---------------------------------------------------------------
 # Level 1 simulation

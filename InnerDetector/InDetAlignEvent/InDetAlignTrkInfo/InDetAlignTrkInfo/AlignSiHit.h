@@ -93,15 +93,15 @@ private:
   float m_z;
   float m_delzr;
   float m_sinlocal;
-  float m_locang[2];  // local angles: theta,phi
-  float m_locdel[2];  // local scatterings: theta, phi
-  float m_locedel[2]; // error on local scatterings: theta, phi
-  float m_globang[2];  // global angles: cot_theta,phi
-  float m_globdel[2];  // global scatterings: cot_theta, phi
-  float m_globedel[2]; // error on global scatterings: cot_theta, phi
+  float m_locang[2]{};  // local angles: theta,phi
+  float m_locdel[2]{};  // local scatterings: theta, phi
+  float m_locedel[2]{}; // error on local scatterings: theta, phi
+  float m_globang[2]{};  // global angles: cot_theta,phi
+  float m_globdel[2]{};  // global scatterings: cot_theta, phi
+  float m_globedel[2]{}; // error on global scatterings: cot_theta, phi
   float m_trklen;    // track length since last scatterer
-  float m_dtpar1[5]; // rphi trackpar derivatives
-  float m_dtpar2[5]; // rz trackpar derivatives
+  float m_dtpar1[5]{}; // rphi trackpar derivatives
+  float m_dtpar2[5]{}; // rz trackpar derivatives
 };
 
 

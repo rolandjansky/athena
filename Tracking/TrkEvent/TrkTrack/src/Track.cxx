@@ -135,7 +135,7 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
     assert(*itTSoS != nullptr); // check that is defined.
     // clone and store
     const TrackStateOnSurface* otsos = *itTSoS;
-    auto tsos = otsos->clone();
+    auto *tsos = otsos->clone();
     // Check if this a perigee so we can already cache it
     if (tsos != nullptr && tsos->type(TrackStateOnSurface::Perigee)) {
       const Trk::Perigee* perigee = nullptr;
@@ -148,7 +148,7 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
         m_perigeeParameters.store(perigee); // Now they will be valid
       }
     }
-    tsvec->push_back(std::move(tsos));
+    tsvec->push_back(tsos);
   }
 
   m_trackStateVectorPtr = std::move(tsvec);

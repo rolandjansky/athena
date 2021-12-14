@@ -19,23 +19,23 @@ monitoring_photon = [
 
 monitoring_electron = [
     'HLT_e5_etcut_L1EM3',
-    'HLT_e5_lhtight_L1EM3',
+    'HLT_e60_lhmedium_gsf_L1EM22VHI',
+    'HLT_e60_lhmedium_L1EM22VHI',
+    'HLT_e300_etcut_L1EM22VHI'
+    
         ]
 
 monitoringTP_electron = [
 
     'HLT_e24_lhvloose_L1EM20VH',
-    'HLT_e26_lhtight_ivarloose_L1EM22VHI',
-    'HLT_e60_lhmedium_L1EM22VHI',
+    'HLT_e26_lhtight_ivarloose_L1EM22VHI',    
     'HLT_e26_dnnloose_L1EM22VHI',
     'HLT_e26_dnnmedium_L1EM22VHI',
     'HLT_e26_dnntight_L1EM22VHI',
     'HLT_e26_lhtight_L1EM22VHI',
     'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
     'HLT_e26_lhtight_gsf_L1EM22VHI',
-    'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',
-    'HLT_e60_lhmedium_gsf_L1EM22VHI',
-    'HLT_e300_etcut_L1EM22VHI'
+    'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI'
 
         ]
 

@@ -33,12 +33,11 @@ namespace MuonCalib{
 
       char delimiter = ':';
       const auto tokens = MdtStringUtils::tokenize(line, delimiter);
+      if (!tokens.size()) continue; // skip empty lines
 
       const auto &type = tokens[0];
 
-      if(type[0] == '#' ){
-        continue;
-      }
+      if(type[0] == '#') continue;  // skip comments
 
       if(boost::algorithm::starts_with(type, "Header")){
         char delimiter = '|';

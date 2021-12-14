@@ -62,12 +62,12 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs,
   m_tmdb = new TGCTMDB();
 
   // NSW
-  if(tgcargs->USE_NSW() && tgcargs->useRun3Config()){
+  if(tgcargs->USE_NSW()){
     m_nsw.reset(new TGCNSW());
   }
 
   // RPC BIS78
-  if(tgcargs->USE_BIS78() && tgcargs->useRun3Config()){
+  if(tgcargs->USE_BIS78()){
     m_bis78.reset(new TGCBIS78());
   }
 

@@ -250,13 +250,13 @@ Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const 
   const double A = dir.dot(N); // ignore sign
   if (A == 0.) {               // direction parallel to surface
     if (std::abs(d) < tol) {
-      return Trk::DistanceSolution(1, 0., true, 0.);
+      return {1, 0., true, 0.};
     }
-      return Trk::DistanceSolution(0, d, true, 0.);
+      return {0, d, true, 0.};
 
   }
 
-  return Trk::DistanceSolution(1, d, true, -d / A);
+  return {1, d, true, -d / A};
 }
 
 Trk::DistanceSolution
@@ -283,7 +283,7 @@ Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const 
   }
   double dist = std::abs(z);
   if (!bound)
-    return Trk::DistanceSolution(ns, std::abs(z), true, s);
+    return {ns, std::abs(z), true, s};
 
   // Min distance to surface
   //
@@ -296,5 +296,5 @@ Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const 
   if (d > 0.)
     dist = std::sqrt(dist * dist + d * d);
 
-  return Trk::DistanceSolution(ns, dist, true, s);
+  return {ns, dist, true, s};
 }

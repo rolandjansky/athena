@@ -71,28 +71,28 @@ private:
   void getParameters();
   virtual const GeoLogVol * preBuild();
   
-  double m_thickness;
-  double m_width;
-  double m_length;
+  double m_thickness = 0.0;
+  double m_width = 0.0;
+  double m_length = 0.0;
 
-  double m_env1Thickness;
-  double m_env1Width;
-  double m_env1Length;
-  double m_env2Thickness;
-  double m_env2Width;
-  double m_env2Length;
+  double m_env1Thickness = 0.0;
+  double m_env1Width = 0.0;
+  double m_env1Length = 0.0;
+  double m_env2Thickness = 0.0;
+  double m_env2Width = 0.0;
+  double m_env2Length = 0.0;
 
-  double m_activeWidth;
+  double m_activeWidth = 0.0;
 
-  double m_baseBoardOffsetY;
-  double m_baseBoardOffsetZ;
+  double m_baseBoardOffsetY = 0.0;
+  double m_baseBoardOffsetZ = 0.0;
 
-  double m_sensorGap;
-  double m_stereoInner;
-  double m_stereoOuter;
-  double m_stereoAngle;
-  int    m_upperSide;
-  double m_safety;
+  double m_sensorGap = 0.0;
+  double m_stereoInner = 0.0;
+  double m_stereoOuter = 0.0;
+  double m_stereoAngle = 0.0;
+  int    m_upperSide = 0;
+  double m_safety = 0.0;
 
   std::unique_ptr<SCT_InnerSide> m_innerSide;
   std::unique_ptr<SCT_OuterSide> m_outerSide;

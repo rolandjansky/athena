@@ -448,14 +448,14 @@ namespace Trk{
 //-----------------------------------------------------------------
 //  Cascade related stuff
 //
-      void makeSimpleCascade(std::vector< std::vector<int> > &, std::vector< std::vector<int> > &,
-                             CascadeState& cstate) const;
-      void printSimpleCascade(std::vector< std::vector<int> > &, std::vector< std::vector<int> > &,
-                              const CascadeState& cstate) const;
-      int findPositions(const std::vector<int> &,const std::vector<int> &, std::vector<int> &) const;
-      int getSimpleVIndex( const VertexID &, const CascadeState& cstate) const;
-      int indexInV( const VertexID &, const CascadeState& cstate) const;
-      int getCascadeNDoF (const CascadeState& cstate) const;
+      static void makeSimpleCascade(std::vector< std::vector<int> > &, std::vector< std::vector<int> > &,
+                             CascadeState& cstate) ;
+      static void printSimpleCascade(std::vector< std::vector<int> > &, std::vector< std::vector<int> > &,
+                              const CascadeState& cstate) ;
+      static int findPositions(const std::vector<int> &,const std::vector<int> &, std::vector<int> &) ;
+      static int getSimpleVIndex( const VertexID &, const CascadeState& cstate) ;
+      static int indexInV( const VertexID &, const CascadeState& cstate) ;
+      static int getCascadeNDoF (const CascadeState& cstate) ;
 //----------------------
 //  Control variables
 //
@@ -484,9 +484,9 @@ namespace Trk{
 
 //
 //
-        void FillMatrixP(AmgSymMatrix(5)& , std::vector<double>& ) const;
-        void FillMatrixP(int iTrk, AmgSymMatrix(5)& , std::vector<double>& ) const;
-        Amg::MatrixX * GiveFullMatrix(int NTrk, std::vector<double>&) const;
+        static void FillMatrixP(AmgSymMatrix(5)& , std::vector<double>& ) ;
+        static void FillMatrixP(int iTrk, AmgSymMatrix(5)& , std::vector<double>& ) ;
+        static Amg::MatrixX * GiveFullMatrix(int NTrk, std::vector<double>&) ;
         bool convertAmg5SymMtx(const AmgSymMatrix(5)*, double[] ) const;
 
         void VKalTransform(double MAG,
@@ -495,7 +495,7 @@ namespace Trk{
                            double PhiV,
                            double ThetaV,
                            double PInv,
-                           double[],
+                           const double[],
                            long int& Charge,
                            double[],
                            double[]) const;
@@ -562,9 +562,9 @@ namespace Trk{
 
         //
         //
-        const Perigee* GetPerigee(const TrackParameters* i_ntrk) const;
+        static const Perigee* GetPerigee(const TrackParameters* i_ntrk) ;
 
-        int VKalGetNDOF(const State& state) const;
+        static int VKalGetNDOF(const State& state) ;
    };
 
 } //end of namespace

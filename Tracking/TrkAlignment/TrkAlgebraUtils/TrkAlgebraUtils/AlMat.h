@@ -92,8 +92,8 @@ class AlMat {
   // arguments are filename, flag for binary (true) or text file (false), text printout precision
   StatusCode Write(const std::string&, bool, unsigned int precision=6);
 
-  virtual double& elemr(long int, long int);
-  virtual double  elemc(long int, long int) const;
+  double& elemr(long int, long int);
+  double  elemc(long int, long int) const;
 
   inline double* ptrData() const;
 

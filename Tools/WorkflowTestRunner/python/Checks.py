@@ -6,7 +6,7 @@ import subprocess
 from .Helpers import warnings_count
 from .Inputs import references_CVMFS_path, references_EOS_path
 from .References import references_map
-from .Test import TestSetup, WorkflowCheck, WorkflowTest
+from .Test import TestSetup, WorkflowCheck, WorkflowTest, WorkflowType
 
 
 class FailedOrPassedCheck(WorkflowCheck):
@@ -212,9 +212,14 @@ class AODContentCheck(WorkflowCheck):
 
         # Compute the diff
         with reference_output.open() as f:
-            reference_lines = f.readlines()
+            reference_lines = sorted(f.readlines())
         with validation_output.open() as f:
-            validation_lines = f.readlines()
+            validation_lines = sorted(f.readlines())
+
+        # Remove HLT containers in some cases
+        if test.type == WorkflowType.MCReco or test.type == WorkflowType.MCPileUpReco:
+            reference_lines = [line for line in reference_lines if not (line.startswith('HLT') or line.startswith('L1') or line.startswith('LVL1'))]
+            validation_lines = [line for line in validation_lines if not (line.startswith('HLT') or line.startswith('L1') or line.startswith('LVL1'))]
 
         result = list(unified_diff(reference_lines, validation_lines, fromfile="reference", tofile="validation"))
         if not result:

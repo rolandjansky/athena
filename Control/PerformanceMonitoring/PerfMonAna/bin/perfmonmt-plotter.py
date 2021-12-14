@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @author: Hasan Ozturk <haozturk@cern.ch>
 
@@ -16,13 +16,14 @@ import numpy as np
 
 import operator
 import argparse
+import tarfile
 
 colors = { "dCPU" : "tab:blue", "dWall" : "tab:orange",
            "dVmem" : "tab:blue", "dPss" : "tab:green",
            "dRss" : "tab:orange", "dSwap" : "tab:red",
-           "cpuTime" : "tab:blue", "malloc" : "tab:orange",
-           "vmem" : "tab:blue", "pss" : "tab:green",
-           "rss" : "tab:orange", "swap" : "tab:red" }
+           "cpuTime" : "tab:blue", "wallTime" : "tab:orange",
+           "malloc" : "tab:orange", "vmem" : "tab:blue",
+           "pss" : "tab:green", "rss" : "tab:orange", "swap" : "tab:red" }
 
 def plotBarChart(params):
 
@@ -55,6 +56,7 @@ def plotLineChart(params):
   ax.set_xlabel(params['xlabel'])
   ax.set_ylabel(params['ylabel'])
 
+  ax.set_xticks(params['xVals'])
   ax.set_xticklabels(params['xVals'], rotation='vertical')
   ax.tick_params(axis='both', which='major', labelsize=10)
   ax.set_title(params['title'])
@@ -181,11 +183,12 @@ def plotComponentLevel(componentLevelData, compCountPerPlot):
 
   for idx, step in enumerate(componentLevelData):
 
-    compNames, vmemVals, cpuTimeVals, mallocVals, countVals = [],[],[],[],[]
+    compNames, vmemVals, cpuTimeVals, wallTimeVals, mallocVals, countVals = [],[],[],[],[],[]
     for comp, meas in componentLevelData[step].items():
 
       count = meas["count"]
       cpuTime = meas["cpuTime"] * 0.001 # seconds
+      wallTime = meas["wallTime"] * 0.001 # seconds
       malloc = meas["malloc"] * 0.001 # MB
       vmem = meas["vmem"] * 0.001 # MB
 
@@ -200,11 +203,13 @@ def plotComponentLevel(componentLevelData, compCountPerPlot):
       compNames.append(comp + " [" + str(count) + "]")
       vmemVals.append(vmem)
       cpuTimeVals.append(cpuTime)
+      wallTimeVals.append(wallTime)
       mallocVals.append(malloc)
       countVals.append(count)
 
     timeMonVals = {
-      "cpuTime": cpuTimeVals
+      "cpuTime": cpuTimeVals,
+      "wallTime": wallTimeVals
     }
 
     memMonVals = {
@@ -263,7 +268,7 @@ def plotEventLevel(eventLevelData):
 
   sortedEventLevelData = sorted(eventLevelData.items(), key=lambda i: int(i[0]))
 
-  eventVals, cpuTimeVals, vmemVals, rssVals, pssVals, swapVals = [], [], [], [], [], []
+  eventVals, cpuTimeVals, wallTimeVals, vmemVals, rssVals, pssVals, swapVals = [], [], [], [], [], [], []
 
   timeMonFig, timeMonAx = plt.subplots()
   memMonFig, memMonAx = plt.subplots()
@@ -276,6 +281,7 @@ def plotEventLevel(eventLevelData):
     # Time metrics in seconds, Memory metrics in megabytes
     eventVals.append(event)
     cpuTimeVals.append(meas['cpuTime'] * 0.001)
+    wallTimeVals.append(meas['wallTime'] * 0.001)
     vmemVals.append(meas['vmem'] * 0.001)
     rssVals.append(meas['rss'] * 0.001)
     pssVals.append(meas['pss'] * 0.001)
@@ -283,7 +289,8 @@ def plotEventLevel(eventLevelData):
 
 
   timeMonVals = {
-    "cpuTime": cpuTimeVals
+    "cpuTime": cpuTimeVals,
+    "wallTime": wallTimeVals
   }
 
   memMonVals = {
@@ -321,12 +328,25 @@ def plotEventLevel(eventLevelData):
   memMonFig.set_tight_layout(True)
   memMonFig.savefig("Event_Level_Memory")
 
+def process(data, ncomps):
+    if "snapshotLevel" in data["summary"]:
+      snapshotData = data["summary"]["snapshotLevel"]
+      plotSnapshotLevel(snapshotData, 'snapshotLevel.pdf')
+
+    if "componentLevel" in data:
+      componentLevelData = data["componentLevel"]
+      plotComponentLevel(componentLevelData, ncomps)
+
+    if "eventLevel" in data:
+      eventLevelData = data["eventLevel"]
+      plotEventLevel(eventLevelData)
+
 def main():
     ''' Main function for producing plots from PerfMonMT JSON file.'''
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-i", "--inFile", dest = "inFile",
+    parser.add_argument("-i", "--input", dest = "input",
                         default = 'PerfMonMTSvc_result.json',
                         help = 'The input JSON file')
     parser.add_argument("-n", "--numberOfCompsPerPlot",
@@ -335,26 +355,18 @@ def main():
 
     args = parser.parse_args()
 
-    inFile = args.inFile
-    numberOfCompsPerPlot = args.numberOfCompsPerPlot
-
-    with open( inFile ) as jsonFile:
-
-      data = json.load(jsonFile)
-
-      if "snapshotLevel" in data["summary"]:
-        snapshotData = data["summary"]["snapshotLevel"]
-        plotSnapshotLevel(snapshotData, 'snapshotLevel.pdf')
-
-      if "componentLevel" in data:
-        componentLevelData = data["componentLevel"]
-        plotComponentLevel(componentLevelData, int(numberOfCompsPerPlot))
-
-      if "eventLevel" in data:
-        eventLevelData = data["eventLevel"]
-        plotEventLevel(eventLevelData)
+    if tarfile.is_tarfile(args.input):
+        tar = tarfile.open(args.input)
+        for member in tar.getmembers():
+            f = tar.extractfile(member)
+            data = json.load(f)
+            process(data, int(args.numberOfCompsPerPlot))
+        tar.close()
+    else:
+        with open(args.input) as jsonFile:
+          data = json.load(jsonFile)
+          process(data, int(args.numberOfCompsPerPlot))
 
 
 if __name__ == "__main__":
     main()
-

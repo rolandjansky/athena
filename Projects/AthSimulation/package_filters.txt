@@ -360,6 +360,7 @@
 + Tools/PyJobTransforms
 + Tools/PyUtils
 + Tools/Scripts
++ Tools/WorkflowTestRunner
 + Tools/XMLCoreParser
 + Tracking/TrkDetDescr/TrkDetDescrUtils
 + Tracking/TrkDetDescr/TrkDetElementBase

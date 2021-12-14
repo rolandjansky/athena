@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDEVENT_INDETCANDIDATETOTAGMAP_H
@@ -7,26 +7,30 @@
 
 #include "MuonCombinedEvent/TagBase.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
-
 #include <map>
 
 namespace MuonCombined{
 
   class InDetCandidateToTagMap{
   public:
+    using tagMap = std::map<const InDetCandidate*,std::unique_ptr<TagBase> >;
     
-    InDetCandidateToTagMap();
-    InDetCandidateToTagMap(InDetCandidateToTagMap& oldMap);
-    ~InDetCandidateToTagMap();
+    InDetCandidateToTagMap() = default;
+    InDetCandidateToTagMap(InDetCandidateToTagMap&& oldMap) = default;
+    ~InDetCandidateToTagMap() = default;
     
     void addEntry(const InDetCandidate* idcand, TagBase* tag);
     const TagBase* getTag(const InDetCandidate* idcand) const;
     unsigned int size() const;
-    std::map<const InDetCandidate*,std::unique_ptr<TagBase> >::iterator mapBegin() {return m_tagMap.begin();}
-    std::map<const InDetCandidate*,std::unique_ptr<TagBase> >::iterator mapEnd() {return m_tagMap.end();}
+    bool empty() const;
+    
+    tagMap::iterator begin();
+    tagMap::iterator end();
+    tagMap::const_iterator begin() const;
+    tagMap::const_iterator end() const;
 
   private:
-    std::map<const InDetCandidate*,std::unique_ptr<TagBase> > m_tagMap;
+    tagMap m_tagMap;
 
   };
 }

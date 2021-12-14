@@ -332,7 +332,7 @@ namespace Trk
     ATH_MSG_VERBOSE( "Original perigee was: " << *(vtxTrack.initialPerigee())  );
     ATH_MSG_VERBOSE( "The resulting surface is: " << *theSurfaceAtIP  );
 #endif
-   auto pTrackPar = m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP);
+   const auto *pTrackPar = m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP);
    if (const Trk::AtaPlane* res = dynamic_cast<const Trk::AtaPlane *>(pTrackPar); res){
      return res;
    }

@@ -52,7 +52,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured tracking")
 
     # Muon
-    if flags.Detector.EnableMuon:
+    if flags.Detector.EnableMuon and flags.GeoModel.AtlasVersion != 'ATLAS-P2-ITK-24-00-00': # Temporarily disable Muons for Phase-II
         from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
         acc.merge(MuonReconstructionCfg(flags))
         log.info("---------- Configured muon tracking")
@@ -71,7 +71,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
         log.info("---------- Configured combined muon reconstruction")
 
     # Caching of CaloExtension for downstream Combined Performance algorithms.
-    if ((flags.Reco.EnablePFlow or flags.Reco.EnableTau)
+    if ((flags.Reco.EnablePFlow or flags.Reco.EnableTau or flags.Reco.EnableCombinedMuon)
         and flags.Detector.EnableCalo
             and flags.Reco.EnableTracking):
         from TrackToCalo.CaloExtensionBuilderAlgCfg import (

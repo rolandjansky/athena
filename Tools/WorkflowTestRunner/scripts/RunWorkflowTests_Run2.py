@@ -42,9 +42,12 @@ def main():
             if "--CA" in options.extra_args:
                 tests_to_run.append(QTest("q443", run, WorkflowType.MCReco, ["HITtoRDO", "RAWtoALL"], setup, options.extra_args + " --steering doRAWtoALL"))
             else:
-                tests_to_run.append(QTest("q443", run, WorkflowType.MCReco, ["HITtoRDO", "RAWtoESD", "ESDtoAOD"], setup, options.extra_args))
+                tests_to_run.append(QTest("q221", run, WorkflowType.MCReco, ["HITtoRDO", "RDOtoRDOTrigger", "RAWtoESD", "ESDtoAOD"], setup, options.extra_args + " --athenaopts RDOtoRDOTrigger:--threads=1"))
         if not options.workflow or options.workflow is WorkflowType.DataReco:
-            tests_to_run.append(QTest("q442", run, WorkflowType.DataReco, ["RAWtoALL"], setup, options.extra_args))
+            if "--CA" in options.extra_args:
+                tests_to_run.append(QTest("q442", run, WorkflowType.DataReco, ["RAWtoALL"], setup, options.extra_args))
+            else:
+                tests_to_run.append(QTest("q431", run, WorkflowType.DataReco, ["RAWtoALL"], setup, options.extra_args + " --steering doRAWtoALL --preExec 'all:from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doMonitoring=True; DQMonFlags.doNewMonitoring=True; DQMonFlags.doHLTMon=False'"))
 
     # Define which perfomance checks to run
     performance_checks = get_standard_performance_checks(setup)

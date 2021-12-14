@@ -30,16 +30,8 @@ CaloCluster_OnTrackBuilder::~CaloCluster_OnTrackBuilder() {}
 StatusCode
 CaloCluster_OnTrackBuilder::initialize()
 {
-
-  ATH_MSG_INFO("Initializing CaloCluster_OnTrackBuilder");
-
-  // Retrieve the updator CaloSurfaceBuilder
-  if (m_calosurf.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Unable to retrieve the instance " << m_calosurf.name()
-                                                     << "... Exiting!");
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_calosurf.retrieve());
+  ATH_CHECK(m_caloMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -51,6 +43,7 @@ CaloCluster_OnTrackBuilder::finalize()
 
 Trk::CaloCluster_OnTrack*
 CaloCluster_OnTrackBuilder::buildClusterOnTrack(
+  const EventContext& ctx,
   const xAOD::CaloCluster* cluster,
   int charge) const
 {
@@ -62,33 +55,25 @@ CaloCluster_OnTrackBuilder::buildClusterOnTrack(
     return nullptr;
   }
 
-  if (!cluster)
-    return nullptr;
-
-  const Trk::Surface* surface = getCaloSurface(cluster);
-
-  if (!surface)
-    return nullptr;
-
-  const Trk::LocalParameters* lp =
-    getClusterLocalParameters(cluster, surface, charge);
-  if (!lp) {
-    delete surface;
+  if (!cluster) {
     return nullptr;
   }
 
-  const Amg::MatrixX* em = getClusterErrorMatrix(cluster, surface, charge);
-  if (!em) {
-    delete surface;
-    delete lp;
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey, ctx };
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+  std::unique_ptr<Trk::Surface> surface = getCaloSurface(cluster, caloDDMgr);
+
+  if (!surface) {
     return nullptr;
   }
+
+  Trk::LocalParameters lp =
+    getClusterLocalParameters(cluster, surface.get(), charge);
+
+  const Amg::MatrixX em = getClusterErrorMatrix(cluster, *surface, charge);
 
   Trk::CaloCluster_OnTrack* ccot =
-    new Trk::CaloCluster_OnTrack(*lp, *em, *surface);
-  delete surface;
-  delete lp;
-  delete em;
+    new Trk::CaloCluster_OnTrack(lp, em, *surface);
 
   if (ccot) {
     ATH_MSG_DEBUG("Successful build of Trk::CaloCluster_OnTrack");
@@ -97,27 +82,28 @@ CaloCluster_OnTrackBuilder::buildClusterOnTrack(
   return ccot;
 }
 
-const Trk::Surface*
+std::unique_ptr<Trk::Surface>
 CaloCluster_OnTrackBuilder::getCaloSurface(
-  const xAOD::CaloCluster* cluster) const
+  const xAOD::CaloCluster* cluster,
+  const CaloDetDescrManager* caloDDMgr) const
 {
 
-  const Trk::Surface* destinationSurface = nullptr;
+  std::unique_ptr<Trk::Surface> destinationSurface = nullptr;
 
   // Determine if we want to extrapolate to the barrel or endcap.  If in the
   // crack choose the detector with largest amount of energy in the second
   // sampling layer
   if (xAOD::EgammaHelpers::isBarrel(cluster)) {
-    destinationSurface =
-      m_calosurf->CreateUserSurface(CaloCell_ID::EMB2, 0., cluster->eta());
+    destinationSurface.reset(m_calosurf->CreateUserSurface(
+      CaloCell_ID::EMB2, 0., cluster->eta(), caloDDMgr));
   } else {
-    destinationSurface =
-      m_calosurf->CreateUserSurface(CaloCell_ID::EME2, 0., cluster->eta());
+    destinationSurface.reset(m_calosurf->CreateUserSurface(
+      CaloCell_ID::EME2, 0., cluster->eta(), caloDDMgr));
   }
   return destinationSurface;
 }
 
-const Trk::LocalParameters*
+Trk::LocalParameters
 CaloCluster_OnTrackBuilder::getClusterLocalParameters(
   const xAOD::CaloCluster* cluster,
   const Trk::Surface* surf,
@@ -133,8 +119,6 @@ CaloCluster_OnTrackBuilder::getClusterLocalParameters(
 
   double clusterQoverE =
     cluster->calE() != 0 ? (double)charge / cluster->calE() : 0;
-
-  Trk::LocalParameters* newLocalParameters(nullptr);
 
   if (xAOD::EgammaHelpers::isBarrel(cluster)) {
     // Two corindate in a cyclinder are
@@ -152,34 +136,31 @@ CaloCluster_OnTrackBuilder::getClusterLocalParameters(
       defPar.push_back(locZ);
     if (m_useClusterEnergy)
       defPar.push_back(qOverP);
-    newLocalParameters = new Trk::LocalParameters(defPar);
-  } else {
-    // Local paramters of a disk are
-    // Trk::locR   = 0
-    // Trk::locPhi = 1
-    double z = surfRefPoint.z();
-    double r = z * tantheta;
-    Trk::DefinedParameter locR(r, Trk::locR);
-    Trk::DefinedParameter locPhi(phi, Trk::locPhi);
-    Trk::DefinedParameter qOverP(clusterQoverE, Trk::qOverP);
-    std::vector<Trk::DefinedParameter> defPar;
-    if (m_useClusterEta)
-      defPar.push_back(locR);
-    if (m_useClusterPhi)
-      defPar.push_back(locPhi);
-    if (m_useClusterEnergy)
-      defPar.push_back(qOverP);
-
-    newLocalParameters = new Trk::LocalParameters(defPar);
+    return Trk::LocalParameters(defPar);
   }
+  // Local paramters of a disk are
+  // Trk::locR   = 0
+  // Trk::locPhi = 1
+  double z = surfRefPoint.z();
+  double r = z * tantheta;
+  Trk::DefinedParameter locR(r, Trk::locR);
+  Trk::DefinedParameter locPhi(phi, Trk::locPhi);
+  Trk::DefinedParameter qOverP(clusterQoverE, Trk::qOverP);
+  std::vector<Trk::DefinedParameter> defPar;
+  if (m_useClusterEta)
+    defPar.push_back(locR);
+  if (m_useClusterPhi)
+    defPar.push_back(locPhi);
+  if (m_useClusterEnergy)
+    defPar.push_back(qOverP);
 
-  return newLocalParameters;
+  return Trk::LocalParameters(defPar);
 }
 
-const Amg::MatrixX*
+Amg::MatrixX
 CaloCluster_OnTrackBuilder::getClusterErrorMatrix(
   const xAOD::CaloCluster* cluster,
-  const Trk::Surface* surf,
+  const Trk::Surface& surf,
   int) const
 {
 
@@ -199,7 +180,7 @@ CaloCluster_OnTrackBuilder::getClusterErrorMatrix(
     // Two corindate in a cyclinder are
     // Trk::locRPhi = 0 (ie phi)
     // Trk::locZ    = 1(ie z)
-    Amg::Vector3D surfRefPoint = surf->globalReferencePoint();
+    Amg::Vector3D surfRefPoint = surf.globalReferencePoint();
     double r2 = pow(surfRefPoint[0], 2);
 
     int indexCount(0);
@@ -237,8 +218,6 @@ CaloCluster_OnTrackBuilder::getClusterErrorMatrix(
     }
   }
 
-  const Amg::MatrixX* result = new Amg::MatrixX(covMatrix);
-
-  return result;
+  return Amg::MatrixX(covMatrix);
 }
 

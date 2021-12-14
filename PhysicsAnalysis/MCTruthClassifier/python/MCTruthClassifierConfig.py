@@ -11,6 +11,7 @@ def MCTruthClassifierCfg(flags, **kwargs):
     By default, it does not do calo truth matching.
     """
     kwargs.setdefault("ParticleCaloExtensionTool", "")
+    kwargs.setdefault("CaloDetDescrManager", "")
     return MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs)
 
 
@@ -35,6 +36,7 @@ def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
             flags, Extrapolator=extrapolator)
         kwargs["ParticleCaloExtensionTool"] = acc.popToolsAndMerge(extension)
 
+    kwargs.setdefault("CaloDetDescrManager", "CaloDetDescrManager")
     kwargs.setdefault("barcodeG4Shift", flags.Sim.SimBarcodeOffset + 1)
 
     from AthenaConfiguration.ComponentFactory import CompFactory

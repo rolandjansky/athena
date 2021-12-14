@@ -301,13 +301,13 @@ Trk::DiscSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
   double A = b * dir.dot(N);
   if (A == 0.) { // direction parallel to surface
     if (fabs(d) < tol) {
-      return Trk::DistanceSolution(1, 0., true, 0.);
+      return {1, 0., true, 0.};
     }
-    return Trk::DistanceSolution(0, d, true, 0.);
+    return {0, d, true, 0.};
   }
 
   double D = b * (S - (pos.dot(N))) / A;
-  return Trk::DistanceSolution(1, d, true, D);
+  return {1, d, true, D};
 }
 
 Trk::DistanceSolution
@@ -336,7 +336,7 @@ Trk::DiscSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
   }
   double dist = std::abs(z);
   if (!bound) {
-    return Trk::DistanceSolution(ns, dist, true, s);
+    return {ns, dist, true, s};
   }
 
   // Min distance to surface
@@ -351,5 +351,5 @@ Trk::DiscSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
     dist = std::sqrt(dist * dist + d * d);
   }
 
-  return Trk::DistanceSolution(ns, dist, true, s);
+  return {ns, dist, true, s};
 }

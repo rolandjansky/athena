@@ -112,15 +112,15 @@ Trk::SlidingDiscSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, 
 
   if (A == 0.) { // direction parallel to surface
     if (std::abs(d) < tol) {
-      return Trk::DistanceSolution(1, 0., true, 0.);
+      return {1, 0., true, 0.};
     }
-      return Trk::DistanceSolution(0, d, true, 0.);
+      return {0, d, true, 0.};
 
   }
 
   double D = b * (S - (pos.dot(N))) / A;
 
-  return Trk::DistanceSolution(1, d, true, D);
+  return {1, d, true, D};
 }
 
 Trk::DistanceSolution

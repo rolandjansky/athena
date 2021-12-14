@@ -264,13 +264,13 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
   Amg::Vector3D dPos = pos - Cntr; // pos w.r.t. cone tip
   double posLength = sqrt(dPos.dot(dPos));
   if (posLength < tol) // at origin of cone => on cone (avoid div by zero)
-    return Trk::DistanceSolution(1, 0., true, 0.);
+    return {1, 0., true, 0.};
   double posProj = dPos.dot(N);
   double posProjAngle = acos(posProj / posLength);
   double currDist = posLength * sin(posProjAngle - atan(bounds().tanAlpha()));
   // solution on the surface
   if (std::abs(currDist) < tol)
-    return Trk::DistanceSolution(1, currDist, true, 0.);
+    return {1, currDist, true, 0.};
 
   // transform to a frame with the cone along z, with the tip a 0
   Amg::Vector3D locFramePos = transform().inverse() * pos;
@@ -309,19 +309,19 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
 
   switch (solns.solutions) {
   case Trk::none:{
-    return Trk::DistanceSolution(0, totDist, true, 0., 0.);
+    return {0, totDist, true, 0., 0.};
   }
   case Trk::one:{
-    return Trk::DistanceSolution(1, totDist, true, solns.first);
+    return {1, totDist, true, solns.first};
   }
   case Trk::two:{
     if (std::abs(solns.first) < std::abs(solns.second)){
-      return Trk::DistanceSolution(2, totDist, true, solns.first, solns.second);
+      return {2, totDist, true, solns.first, solns.second};
     }
-    return Trk::DistanceSolution(2, totDist, true, solns.second, solns.first);
+    return {2, totDist, true, solns.second, solns.first};
   }
   default:{
-    return Trk::DistanceSolution(0, totDist, true, 0., 0.);
+    return {0, totDist, true, 0., 0.};
   }
   };
 }

@@ -90,11 +90,15 @@ class JetChainConfiguration(ChainConfigurationBase):
         from ..Menu.ChainDictTools import splitChainDict
         from .JetRecoSequences import JetRecoConfiguration
         from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
-        try:
-            subChainDict = splitChainDict(self.dict)[0]
-        except IndexError:
-            raise ValueError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
-        jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
+        subJetChainDict = {}
+        for subChainDict in splitChainDict(self.dict):
+            for part in subChainDict["chainParts"]:
+                if part['signature'] in ["Jet", "Bjet"]:
+                    subJetChainDict = subChainDict
+                    break
+        if not subJetChainDict:
+            raise ValueError("sub Jet Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
+        jetRecoDict = JetRecoConfiguration.extractRecoDict(subJetChainDict["chainParts"])
         clustersKey = JetRecoConfiguration.getClustersKey(jetRecoDict)
         prefix = JetRecoConfiguration.getHLTPrefix()
         suffix = "_"+jetRecoDict["jetCalib"]

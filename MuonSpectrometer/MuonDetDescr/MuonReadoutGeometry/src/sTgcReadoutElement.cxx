@@ -27,7 +27,6 @@
 #include "EventPrimitives/AmgMatrixBasePlugin.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
@@ -382,6 +381,11 @@ namespace MuonGM {
     }
 
     void sTgcReadoutElement::fillCache() {
+    
+        if (m_sTGC_type < 1 || m_sTGC_type > 3) // should never happen
+            std::runtime_error(
+                Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Geometry not Created!", __FILE__, __LINE__, m_sTGC_type));
+
         if (!m_surfaceData)
             m_surfaceData = std::make_unique<SurfaceData>();
         else {
@@ -390,18 +394,23 @@ namespace MuonGM {
             return;
         }
 
-        for (int layer = 0; layer < m_nlayers; ++layer) {
-            /* Here we define the geometry for the strips followed by pad/wire plane
-            / If QL3, a cutoff trapezoid, we use diamondBounds. Otherwise, Trapezoid */
-            // For pad and wires Active geometry, we add 4mm to the values of A and B to account for fuzziness of +-2mm included in
-            // PadDesign
+        for (int layer{0}; layer < m_nlayers; ++layer) {
+        
+            // Define the geometry for the strips, pads and wires of this readout element. 
+            // For QL3 (cutoff trapezoid), diamondBounds are used, while trapezoid bounds are used for the rest. 
+            // The assigned coordinate along the layer normal (x-axis in the chamber frame) is at the center of 
+            // the gas gap; wires are considered at x=0, while strips and pads are shifted by +10/-10 microns.
+
+            //-------------------
+            // Layer boundaries
+            //-------------------
+
             if (m_sTGC_type == 3) {
                 m_surfaceData->m_surfBounds.push_back(std::make_unique<Trk::RotatedDiamondBounds>(
-                    m_minHalfY[layer], m_maxHalfY[layer], m_maxHalfY[layer], m_halfX[layer] - m_etaDesign[layer].yCutout / 2,
-                    m_etaDesign[layer].yCutout / 2));  // strips
+                    m_minHalfY[layer], m_maxHalfY[layer], m_maxHalfY[layer], m_halfX[layer] - m_etaDesign[layer].yCutout / 2, m_etaDesign[layer].yCutout / 2));  // strips
                 m_surfaceData->m_surfBounds.push_back(std::make_unique<Trk::DiamondBounds>(
-                    m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer] - m_padDesign[layer].yCutout / 2,
-                    m_padDesign[layer].yCutout / 2));  // pad and wires
+                    m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer] - m_padDesign[layer].yCutout / 2, m_padDesign[layer].yCutout / 2));  // pad and wires
+                    
             } else {
                 m_surfaceData->m_surfBounds.push_back(
                     std::make_unique<Trk::RotatedTrapezoidBounds>(m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
@@ -409,80 +418,76 @@ namespace MuonGM {
                     std::make_unique<Trk::TrapezoidBounds>(m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));
             }
 
+            //-------------------
+            // Wires
+            //-------------------
+
             // identifier of the first channel - wire plane - locX along phi, locY max->min R
             Identifier id = manager()->stgcIdHelper()->channelID(getStationName(), getStationEta(), getStationPhi(), m_ml, layer + 1, 2, 1);
 
-            // need to operate switch x<->z because of GeoTrd definition
             m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
-            if (m_sTGC_type == 1 || m_sTGC_type == 2)
-                m_surfaceData->m_layerTransforms.push_back(absTransform() * m_Xlg[layer] * Amg::Translation3D(0, 0., -m_offset) *
-                                                           Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.)) *
-                                                           Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.)));
-            else if (m_sTGC_type == 3)  // if QL3, diamond. have to shift geometry to account for origin not being in center
-                m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_Xlg[layer] * Amg::Translation3D(0, 0., -m_offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout) *
-                    Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.)) *
-                    Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.)));
-            else
-                throw std::runtime_error(
-                    Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Wire Geometry not Created!",
-                         __FILE__, __LINE__, m_sTGC_type));
 
-            // is this cache really needed ?
+            if (m_sTGC_type == 3)  // if QL3 (diamond shape), we have to shift geometry to account for origin not being in center
+                m_surfaceData->m_layerTransforms.push_back(
+                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(0, 0., -m_offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for wires
+                                                  
+            else
+                m_surfaceData->m_layerTransforms.push_back(
+                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(0, 0., -m_offset)
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for wires
+
             m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
             m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() * Amg::Vector3D(0., 0., -1.));
 
-            // strip plane moved along normal, pad plane in the opposite direction
-            // We no longer want the readout elements to be seperated by the gas gas volume
-            // We place all 3 readouts at the center of the gas gap in z, with a 10 micron offset to seperate them
-            // Alexandre Laurier 2018-02-28
+            //-------------------
+            // Strips
+            //-------------------
+
             double shift = 0.01;
             if (layer % 2) shift = -shift;  // In layers indexed 1 and 3, order is reversed
 
             // identifier of the first channel - strip plane
             id = manager()->stgcIdHelper()->channelID(getStationName(), getStationEta(), getStationPhi(), m_ml, layer + 1, 1, 1);
 
-            // need to operate switch x<->z because of GeoTrd definition
             m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
 
-            if (m_sTGC_type == 1 || m_sTGC_type == 2)
-                m_surfaceData->m_layerTransforms.push_back(absTransform() * m_Xlg[layer] * Amg::Translation3D(shift, 0., -m_offset) *
-                                                           Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.)));
-
-            else if (m_sTGC_type == 3)  // if QL3, diamond. have to shift geometry to account for origin not being in center
+            if (m_sTGC_type == 3)  // if QL3 (diamond shape) we have to shift geometry to account for origin not being in center
                 m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_Xlg[layer] * Amg::Translation3D(shift, 0., -m_offset + m_halfX[layer] - m_etaDesign[layer].yCutout) *
-                    Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.)));
+                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(shift, 0., -m_offset + m_halfX[layer] - m_etaDesign[layer].yCutout) 
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))); // x<->z because of GeoTrd definition
+                    
             else
-                std::runtime_error(
-                    Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Strip Geometry not Created!",
-                         __FILE__, __LINE__, m_sTGC_type));
+                m_surfaceData->m_layerTransforms.push_back(
+                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(shift, 0., -m_offset) 
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))); // x<->z because of GeoTrd definition
 
-            // is this cache really needed ?
             m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
             m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() * Amg::Vector3D(0., 0., -1.));
 
+            //-------------------
+            // Trigger Pads
+            //-------------------
+            
             // identifier of the first channel - pad plane
             id = manager()->stgcIdHelper()->channelID(getStationName(), getStationEta(), getStationPhi(), m_ml, layer + 1, 0, 1);
 
-            // need to operate switch x<->z because of GeoTrd definition
             m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
-            if (m_sTGC_type == 1 || m_sTGC_type == 2)
-                m_surfaceData->m_layerTransforms.push_back(absTransform() * m_Xlg[layer] * Amg::Translation3D(-shift, 0., -m_offset) *
-                                                           Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.)) *
-                                                           Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.)));
-            else if (m_sTGC_type == 3)  // if QL3, diamond. have to shift geometry to account for origin not being in center
-                m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_Xlg[layer] *
-                    Amg::Translation3D(-shift, 0., -m_offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout) *
-                    Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.)) *
-                    Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.)));
-            else
-                std::runtime_error(
-                    Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Pad Geometry not Created!",
-                         __FILE__, __LINE__, m_sTGC_type));
 
-            // is this cache really needed ?
+            if (m_sTGC_type == 3)  // if QL3 (diamond shape) we have to shift geometry to account for origin not being in center
+                m_surfaceData->m_layerTransforms.push_back(
+                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(-shift, 0., -m_offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout) 
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for pads
+ 
+            else
+                m_surfaceData->m_layerTransforms.push_back(
+                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(-shift, 0., -m_offset) 
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
+                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for pads
+
             m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
             m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() * Amg::Vector3D(0., 0., -1.));
 
@@ -550,19 +555,21 @@ namespace MuonGM {
     }
 
     void sTgcReadoutElement::setDelta(double tras, double traz, double trat, double rots, double rotz, double rott) {
-        m_rots = rots;
-        m_rotz = rotz;
-        m_rott = rott;
-
-        HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
-        if (std::abs(tras) + std::abs(traz) + std::abs(trat) + (std::abs(rots) + std::abs(rotz) + std::abs(rott)) * 1000. > 0.01) {
-            // compute the delta transform
-            delta = HepGeom::TranslateX3D(tras) * HepGeom::TranslateY3D(traz) * HepGeom::TranslateZ3D(trat) * HepGeom::RotateX3D(rots) *
-                    HepGeom::RotateY3D(rotz) * HepGeom::RotateZ3D(rott);
+        m_rots  = rots;
+        m_rotz  = rotz;
+        m_rott  = rott;
+        if (std::abs(tras) + std::abs(traz) + std::abs(trat) + (std::abs(rots) + std::abs(rotz) + std::abs(rott)) > 1e-5) {
+            m_delta = Amg::Translation3D(0., tras, 0.) // translations (applied after rotations)
+                    * Amg::Translation3D(0., 0., traz)  
+                    * Amg::Translation3D(trat, 0., 0.) 
+                    * Amg::AngleAxis3D(rots, Amg::Vector3D(0., 1., 0.))  // rotation about Y (applied 3rd)
+                    * Amg::AngleAxis3D(rotz, Amg::Vector3D(0., 0., 1.))  // rotation about Z (applied 2nd)
+                    * Amg::AngleAxis3D(rott, Amg::Vector3D(1., 0., 0.)); // rotation about X (applied 1st)
             m_hasALines = true;
+        } else {
+            m_delta = Amg::Transform3D::Identity();
         }
-        Amg::Transform3D deltaToAmg = Amg::CLHEPTransformToEigen(delta);
-        m_delta = deltaToAmg;
+        refreshCache();
     }
 
     void sTgcReadoutElement::setDelta(MuonDetectorManager* mgr) {

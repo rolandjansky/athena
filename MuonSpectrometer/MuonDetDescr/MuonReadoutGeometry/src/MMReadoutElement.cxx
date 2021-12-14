@@ -27,7 +27,6 @@
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoTrd.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
@@ -274,7 +273,7 @@ namespace MuonGM {
             // keep the tracking surface at the center of the gap
             // need to operate switch x<->z because of GeoTrd definition
             m_surfaceData->m_layerSurfaces.emplace_back(std::make_unique<Trk::PlaneSurface>(*this, id));
-            m_surfaceData->m_layerTransforms.push_back(absTransform() * m_Xlg[layer] * Amg::Translation3D(0., 0., m_offset) *
+            m_surfaceData->m_layerTransforms.push_back(absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(0., 0., m_offset) *
                                                        Amg::AngleAxis3D(-90. * CLHEP::deg, Amg::Vector3D(0., 1., 0.)));
 
             // surface info (center, normal)
@@ -321,19 +320,21 @@ namespace MuonGM {
     }
 
     void MMReadoutElement::setDelta(double tras, double traz, double trat, double rots, double rotz, double rott) {
-        m_rots = rots;
-        m_rotz = rotz;
-        m_rott = rott;
-
-        HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
-        if (std::abs(tras) + std::abs(traz) + std::abs(trat) + (std::abs(rots) + std::abs(rotz) + std::abs(rott)) * 1000. > 0.01) {
-            // compute the delta transform
-            delta = HepGeom::TranslateX3D(tras) * HepGeom::TranslateY3D(traz) * HepGeom::TranslateZ3D(trat) * HepGeom::RotateX3D(rots) *
-                    HepGeom::RotateY3D(rotz) * HepGeom::RotateZ3D(rott);
+        m_rots  = rots;
+        m_rotz  = rotz;
+        m_rott  = rott;
+        if (std::abs(tras) + std::abs(traz) + std::abs(trat) + std::abs(rots) + std::abs(rotz) + std::abs(rott) > 1e-5) {
+            m_delta = Amg::Translation3D(0., tras, 0.) // translations (applied after rotations)
+                    * Amg::Translation3D(0., 0., traz)  
+                    * Amg::Translation3D(trat, 0., 0.) 
+                    * Amg::AngleAxis3D(rots, Amg::Vector3D(0., 1., 0.))  // rotation about Y (applied 3rd)
+                    * Amg::AngleAxis3D(rotz, Amg::Vector3D(0., 0., 1.))  // rotation about Z (applied 2nd)
+                    * Amg::AngleAxis3D(rott, Amg::Vector3D(1., 0., 0.)); // rotation about X (applied 1st)
             m_hasALines = true;
+        } else {
+            m_delta = Amg::Transform3D::Identity();
         }
-        Amg::Transform3D deltaToAmg = Amg::CLHEPTransformToEigen(delta);
-        m_delta = deltaToAmg;
+        refreshCache();
     }
 
     void MMReadoutElement::setDelta(MuonDetectorManager* mgr) {

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCSSCController.h"
 #include "TrigT1TGC/TGCSSCControllerOut.h"
 #include "TrigT1TGC/TGCSectorLogic.h"
-//#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 #include "TrigT1TGC/TGCHighPtBoardOut.h"
 #include <iostream>
 

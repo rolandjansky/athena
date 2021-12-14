@@ -133,22 +133,22 @@ private:
 
   TRTElectronicsNoise * m_pElectronicsNoise;
 
-  double m_timeInterval;       /**< Time interval covered by digit [75 ns] */
+  double m_timeInterval = 0.0;       /**< Time interval covered by digit [75 ns] */
 
-  int m_totalNumberOfBins;     /**< Total no. internal bins             */
-  int m_numberOfPreZeroBins;   /**< No. internal bins before main event */
-  int m_numberOfPostZeroBins;  /**< No. internal bins after main event  */
+  int m_totalNumberOfBins = 0;     /**< Total no. internal bins             */
+  int m_numberOfPreZeroBins = 0;   /**< No. internal bins before main event */
+  int m_numberOfPostZeroBins = 0;  /**< No. internal bins after main event  */
 
-  double m_binWidth;   /**< Time interval corresponding to each internal bin*/
+  double m_binWidth = 0.0;   /**< Time interval corresponding to each internal bin*/
 
-  int m_minDiscriminatorWidthInBinWidths; /**< Min. discriminator width [internal bins]*/
-  int m_discriminatorSettlingTimeInBinWidths; /**< Discriminator settling time [bins]  */
-  int m_discriminatorDeadTimeInBinWidths;     /**< Discriminator dead time [int. bins] */
-  int m_minWidthMinusSettlingTimeInBinWidths; /**< Min. discriminator time minus settling * time [internal bins] */
+  int m_minDiscriminatorWidthInBinWidths = 0; /**< Min. discriminator width [internal bins]*/
+  int m_discriminatorSettlingTimeInBinWidths = 0; /**< Discriminator settling time [bins]  */
+  int m_discriminatorDeadTimeInBinWidths = 0;     /**< Discriminator dead time [int. bins] */
+  int m_minWidthMinusSettlingTimeInBinWidths = 0; /**< Min. discriminator time minus settling * time [internal bins] */
 
   // 0:Xe,1:Kr,2:Ar
-  double m_lowThresholdBar[3];
-  double m_lowThresholdEC[3];
+  double m_lowThresholdBar[3]{};
+  double m_lowThresholdEC[3]{};
   std::vector<double> m_lowThresholdSignalShape[3];
   std::vector<double> m_highThresholdSignalShape[3];
 
@@ -158,15 +158,15 @@ private:
   // unsigned int m_maskHT;  /**< mask - ever used? */
 
   // Deposit energy in timed bins before shaping.
-  double* m_energyDistribution;
+  double* m_energyDistribution = nullptr;
 
   // LT and HT signals after shaping
   std::vector<double> m_lowThresholdSignal;
   std::vector<double> m_highThresholdSignal;
 
   // LT and HT discriminated signals (bits).
-  int* m_lowThresholdDiscriminator;  /**< Signal after discrimination */
-  int* m_highThresholdDiscriminator; /**< Signal after discrimination */
+  int* m_lowThresholdDiscriminator = nullptr;  /**< Signal after discrimination */
+  int* m_highThresholdDiscriminator = nullptr; /**< Signal after discrimination */
 
   mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 

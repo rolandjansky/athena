@@ -101,8 +101,8 @@ Trk::TrackSlimmingTool::slim(const Trk::Track& track) const
     return nullptr;
   }
 
-  auto prot = Trk::TrackStateOnSurfaceProtContainer::fromDataVector (oldTrackStates);
-  auto prot_nc = const_cast<Trk::TrackStateOnSurfaceProtContainer*> (prot);
+  const auto *prot = Trk::TrackStateOnSurfaceProtContainer::fromDataVector (oldTrackStates);
+  auto *prot_nc = const_cast<Trk::TrackStateOnSurfaceProtContainer*> (prot);
   if (prot_nc) {
     for (const TrackStateOnSurface* tsos : *prot_nc) {
       const char* p = reinterpret_cast<const char*>(tsos->alignmentEffectsOnTrack());

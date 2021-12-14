@@ -159,7 +159,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
             double sigmaP = 0.;
             double kazl   = 0.;
             /** dE/dl ionization energy loss per path unit */
-            double dEdl = sign*dir*m_interactionFormulae.dEdl_ionization(p, &material, eCell.pHypothesis, sigmaP, kazl);
+            double dEdl = sign*dir*Trk::MaterialInteraction::dEdl_ionization(p, &material, eCell.pHypothesis, sigmaP, kazl);
             double dE   = thickness*pathCorrection*dEdl;
             sigmaP *= thickness*pathCorrection;
             // calcuate the new momentum
@@ -174,7 +174,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
         // (B) - update the covariance if needed
         if (uCovariance && m_mscCorrection){
 	        /** multiple scattering as function of dInX0 */
-	        double sigmaMS = m_interactionFormulae.sigmaMS(thicknessInX0*pathCorrection, p, beta);
+	        double sigmaMS = Trk::MaterialInteraction::sigmaMS(thicknessInX0*pathCorrection, p, beta);
 	        double sinTheta = sin(parameters.parameters()[Trk::theta]);
 	        double sigmaDeltaPhiSq = sigmaMS*sigmaMS/(sinTheta*sinTheta);
 	        double sigmaDeltaThetaSq = sigmaMS*sigmaMS;

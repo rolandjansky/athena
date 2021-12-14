@@ -4,7 +4,7 @@ __author__ = "Mark Sutton, Matous Vozak"
 __doc__    = "ConfigSettings"
 __all__    = [ "getInDetTrigConfig" ]
 
-
+import math 
 from TrigInDetConfig.ConfigSettingsBase import _ConfigSettingsBase
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.SystemOfUnits import GeV
@@ -146,7 +146,7 @@ class _ConfigSettings_minBias( _ConfigSettingsBase ):
       self._doFullScan      = True
       self._pTmin           = 0.2*GeV # TODO: double check
       self._etaHalfWidth    = 3
-      self._phiHalfWidth    = 3.14159
+      self._phiHalfWidth    = math.pi
       self._doZFinder       = True
       self._doZFinderOnly   = True
 
@@ -163,7 +163,7 @@ class _ConfigSettings_beamSpot( _ConfigSettingsBase ):
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
       self._etaHalfWidth    = 3
-      self._phiHalfWidth    = 3.14159
+      self._phiHalfWidth    = math.pi
       self._doTRT           = False
       self._doSeedRedundancyCheck = True
       self._doRecord        = False
@@ -186,7 +186,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._adaptiveVertex_jet  = True
       self._doFullScan      = True
       self._etaHalfWidth    = 3.
-      self._phiHalfWidth    = 3.14159
+      self._phiHalfWidth    = math.pi
       self._doTRT           = False
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
@@ -207,7 +207,7 @@ class _ConfigSettings_beamSpotFS( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_FS"
       self._doFullScan      = True
       self._etaHalfWidth    = 3.
-      self._phiHalfWidth    = 3.14159
+      self._phiHalfWidth    = math.pi
       self._doTRT           = False
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
@@ -226,7 +226,7 @@ class _ConfigSettings_fullScanUTT( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_FS"
       self._doFullScan      = True
       self._etaHalfWidth    = 3.
-      self._phiHalfWidth    = 3.14159
+      self._phiHalfWidth    = math.pi
       self._doTRT           = False
       self._DoubletDR_Max   = 200
       self._SeedRadBinWidth = 10
@@ -249,7 +249,7 @@ class _ConfigSettings_cosmics( _ConfigSettingsBase ):
       self._TrackZ0Max          = 1000.
       self._doFullScan      = True
       self._etaHalfWidth    = 3
-      self._phiHalfWidth    = 3.14159
+      self._phiHalfWidth    = math.pi
 
 
 class _ConfigSettings_bmumux( _ConfigSettingsBase ):
@@ -392,7 +392,7 @@ class _ConfigSettings_fullScanLRT( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_FS"
       self._doFullScan      = True
       self._etaHalfWidth    = 3.
-      self._phiHalfWidth    = 3.14159
+      self._phiHalfWidth    = math.pi
       self._doTRT           = False
       self._doSeedRedundancyCheck = True
       self._UsePixelSpacePoints   = False

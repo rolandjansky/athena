@@ -59,7 +59,7 @@ class MuonSelector : public EventAnalysis
   typedef EventAnalysis PARENT;
 
   //static unsigned int s_uNumInstances;
-  unsigned int m_uNumInstances;
+  unsigned int m_uNumInstances = 0U;
 
   bool passQualCuts ();
   bool passPtCuts   ();

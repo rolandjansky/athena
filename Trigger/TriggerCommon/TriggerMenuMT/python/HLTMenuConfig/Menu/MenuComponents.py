@@ -1208,9 +1208,10 @@ def menuSequenceCAToGlobalWrapper(gen, flags, *args, **kwargs):
             if isSequence(member):
                 old += _convertSeq(member)
             else:
-                old += conf2toConfigurable(member)
+                if member != msca.hypo.Alg: # removed hypo, as MenuSequence assembles it later
+                    old += conf2toConfigurable(member)
         return old
-    sequence = _convertSeq(msca.sequence.Alg.Members[0]) 
+    sequence = _convertSeq(msca.sequence.Alg.Members[0])
     msca.ca._algorithms = {}
     msca.ca._sequence = None
     msca.ca._allSequences = []

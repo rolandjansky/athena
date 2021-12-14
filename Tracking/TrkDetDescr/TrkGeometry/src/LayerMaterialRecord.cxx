@@ -63,7 +63,7 @@ Trk::LayerMaterialRecord::LayerMaterialRecord(
   const auto zeroedVectorDbl = std::vector<double>(m_bins0, 0.);
   const auto zeroedVectorUInt = std::vector<unsigned int>(m_bins0, 0);
   const auto zeroedVectorVector3D = std::vector<Amg::Vector3D>(m_bins0, m_pos);
-  typedef std::map<unsigned int, double> Element_t;
+  using Element_t = std::map<unsigned int, double>;
   const auto zeroedVectorElements =
       std::vector<Element_t>(m_bins0, Element_t());
   for (int ibin = 0; ibin < m_bins1; ++ibin) {
@@ -167,7 +167,6 @@ void Trk::LayerMaterialRecord::associateGeantinoHit(const Amg::Vector3D& pos,
   m_a += mat.A * s * mat.rho;
   m_z += mat.Z * s * mat.rho;
 
-  double totFraction = 0.;
   // record the composition - since this is mainly for hadronic interactions :
   // weight by s/L0
   MaterialComposition* mComposition = mat.composition;
@@ -176,7 +175,6 @@ void Trk::LayerMaterialRecord::associateGeantinoHit(const Amg::Vector3D& pos,
       // element identification
       unsigned int Z = uchar2uint(it.first);
       double fraction = uchar2dfrac(it.second);
-      totFraction += fraction;
       // record the elements, let's weight the fractions in s/mat.L0
       auto eIter = m_elements.find(Z);
       if (eIter == m_elements.end())

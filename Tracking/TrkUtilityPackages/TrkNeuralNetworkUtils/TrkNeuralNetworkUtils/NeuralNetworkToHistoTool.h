@@ -44,15 +44,15 @@ public:
   ~NeuralNetworkToHistoTool();
 
   // old style wrappers
-  std::vector<TH1*> fromTrainedNetworkToHisto(TTrainedNetwork*) const;
-  TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<TH1*> &) const;
-  TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<const TH1*> &) const;
+  static std::vector<TH1*> fromTrainedNetworkToHisto(TTrainedNetwork*) ;
+  static TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<TH1*> &) ;
+  static TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<const TH1*> &) ;
 
   // wrappers for new NN converter tool
   // note that root's internal hist names are mangled as a workarond for 
   // root's global variable problems. 
-  std::map<std::string,TH1*> histsFromNetwork(TTrainedNetwork*) const;
-  TTrainedNetwork* networkFromHists(const std::map<std::string,const TH1*> &) const;
+  static std::map<std::string,TH1*> histsFromNetwork(TTrainedNetwork*) ;
+  static TTrainedNetwork* networkFromHists(const std::map<std::string,const TH1*> &) ;
 
 
 private:

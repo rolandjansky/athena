@@ -344,7 +344,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     double V[3], P[3], M[3][3], D[4], Jm[7][7],
            J1[5][7], gB[3], gBi[3], gBf[3], dBds[3], Buf[5][7], DVx, DVy, DVz;
     int nStep, nStepMax;
-    double sl, ds, path = 0.0;
+    double sl, ds = 0.0;
 
     //numericalJacobian(pTS,pSB,pSE,J, fieldCache);
     double sint, cost, sinf, cosf;
@@ -456,7 +456,6 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
       gB[i] = gBi[i];
     }
     nStep = nStepMax;
-    path = 0.0;
     while (nStep > 0) {
       c = D[0] * gP[0] + D[1] * gP[1] + D[2] * gP[2] + D[3];
       b = D[0] * gV[0] + D[1] * gV[1] + D[2] * gV[2];
@@ -481,7 +480,6 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
       }
 
       ds = sl / nStep;
-      path += ds;
       Av = ds * CQ;
       Ac = 0.5 * ds * Av;
       DVx = gV[1] * gB[2] - gV[2] * gB[1];
