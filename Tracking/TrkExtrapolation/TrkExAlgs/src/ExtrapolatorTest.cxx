@@ -202,7 +202,7 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
 
        const Trk::Surface* destinationSurface = (*surfaceTripleIter)[refSurface];
        
-       auto destParameters = m_useExtrapolator ?
+       const auto *destParameters = m_useExtrapolator ?
 	 m_extrapolator->extrapolate(initialPerigee,
 				     *destinationSurface, 
 				     propagationDirection,

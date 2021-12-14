@@ -63,19 +63,13 @@ namespace MuonCombined {
         ToolHandle<IMuTagMatchingTool> m_MuTagMatchingTool{this, "MuTagMatchingTool", "MuTagMatchingTool/MuTagMatchingTool"};
         ToolHandle<IMuTagAmbiguitySolverTool> m_MuTagAmbiguitySolverTool{this, "MuTagAmbiguitySolverTool",
                                                                          "MuTagAmbiguitySolverTool/MuTagAmbiguitySolverTool"};
-        ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool",
-                                                                        "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",
-                                                                        "Tool to make the step-wise extrapolation"};
+   
         ToolHandle<Muon::IMuonSegmentSelectionTool> m_segmentSelector{this, "MuonSegmentSelectionTool",
                                                                       "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"};
         ToolHandle<Muon::IMuonSegmentHitSummaryTool> m_hitSummaryTool{this, "MuonSegmentHitSummaryTool",
                                                                       "Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"};
 
-        Gaudi::Property<float> m_CutTheta{this, "CutTheta", 3};
-        Gaudi::Property<float> m_CutPhi{this, "CutPhi", 3};
-        Gaudi::Property<float> m_HitInfoFor2ndCoord{this, "HitInfoFor2ndCoord", 1,
-                                                    "Option for determination of segment 2nd coordinate measurement"};
-
+      
         Gaudi::Property<bool> m_doSegmentsFilter{this, "DoSegmentsFilter", true, "flag to switch segment filtering on/off (for trigger)"};
         Gaudi::Property<bool> m_doTable{this, "DoOverviewTable", false};
         Gaudi::Property<bool> m_doBidirectional{this, "DoBidirectionalExtrapolation", false,

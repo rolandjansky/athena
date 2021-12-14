@@ -267,7 +267,7 @@ namespace Trk
   }
 
 
-  void JetFitterInitializationHelper::updateTrackNumbering(VxJetCandidate* myJetCandidate) const {
+  void JetFitterInitializationHelper::updateTrackNumbering(VxJetCandidate* myJetCandidate) {
     
     const std::vector<VxVertexOnJetAxis*> & associatedVertices=myJetCandidate->getVerticesOnJetAxis();
 

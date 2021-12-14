@@ -76,6 +76,6 @@ Trk::CaloClusterROI::globalPosition() const
   if (m_associatedSurface) {
     return m_associatedSurface->center();
   }
-  return Amg::Vector3D();
+  return {};
 }
 

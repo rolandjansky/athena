@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDEVENT_SEGMENTTAG_H
@@ -28,13 +28,13 @@ namespace MuonCombined {
     const std::vector< MuonSegmentInfo >& segmentsInfo() const;
 
     /** access to associated segments, empty vector if non available */
-    std::vector<const Muon::MuonSegment*> associatedSegments() const;
+    std::vector<const Muon::MuonSegment*> associatedSegments() const override;
 
     /** name string */
-    std::string name() const { return "SegmentTag"; }
+    std::string name() const override { return "SegmentTag"; }
 
     /** print content to string */
-    std::string toString() const { return name(); }
+    std::string toString() const override { return name(); }
 
   private:
     /** block copy and assignment */
@@ -46,12 +46,7 @@ namespace MuonCombined {
     
 
   };
-  // inline bool operator<( const SegmentTag& t1,  const SegmentTag& t2 ){
-  //  return t1.matchChi2() < t2.matchChi2();
-  // }
-
-  // inline double SegmentTag::matchChi2() const { return m_chi2; }
-  inline const std::vector<  MuonCombined::MuonSegmentInfo >& SegmentTag::segmentsInfo() const { return m_segmentsInfo; }
+  
 }
 
 

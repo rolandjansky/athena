@@ -21,40 +21,36 @@ TGCRPhiCoincidenceOut::TGCRPhiCoincidenceOut():
   m_coincidenceTypeFlag(false),
   m_goodMFFlag(false),
   m_innerCoincidenceFlag(false)
-{
-  for( int i=1; i <= NumberOfPtLevel; i+=1) m_hit[i]=false;
-}
-
-bool TGCRPhiCoincidenceOut::hasHit() const
-{
-  for(int i=1; i<=NumberOfPtLevel; i+=1)
-    if(m_hit[i]) return true;
-  return false;
-}
+{}
 
 void TGCRPhiCoincidenceOut::clear()
 {
   m_idSSC = -1;
   m_phi = -1;
   m_r = -1;
-  for( int i=1; i <= NumberOfPtLevel; i+=1) m_hit[i]=false;
   m_innerVeto = false;
 }
 
 bool TGCRPhiCoincidenceOut::isSuperior(const TGCRPhiCoincidenceOut* right) const {
-  //selection rule  1. large pT   2. small eta  3. small m_phi
-  for(int pt=NumberOfPtLevel; pt>=1; pt--){
-    if(this->getHit(pt)&&!right->getHit(pt)) return true;
-    else if(!this->getHit(pt)&&right->getHit(pt)) return false;
-    else if(this->getHit(pt)&&right->getHit(pt)) {
-      if(this->getR()<right->getR()) return true;
-      else if(this->getR()>right->getR()) return false;
-      else {
-        if(this->getPhi()<=right->getPhi()) return true;
-        else return false;
+  // selection rule  1. higher pT   2. smaller eta  3. smaller m_phi
+  if (this->getpT() > right->getpT()) {
+    return true;
+  } else if (this->getpT() < right->getpT()) {
+    return false;
+  } else {
+    if (this->getR() < right->getR()) {
+      return true;
+    } else if (this->getR() > right->getR()) {
+      return false;
+    } else {
+      if (this->getPhi() <= right->getPhi()) {
+        return true;
+      } else {
+        return false;
       }
     }
   }
+
   return true;
 }
 
@@ -63,13 +59,7 @@ void TGCRPhiCoincidenceOut::print() const
 #ifdef TGCCOUT
   std::cout <<"TGCRPhiCoincidenceOut::print()" << std::endl;
   std::cout <<" phi= " << m_phi << " r= " << m_r << std::endl;
-  std::cout <<" Pt= ";
-
-  int i;
-  for( i=1; i<=NumberOfPtLevel; i+=1){
-    if(m_hit[i]) std::cout<<" "<<i;
-  }
-  std::cout<<std::endl;
+  std::cout <<" Pt= " << m_pT << std::endl;
 
   std::cout <<" Veto= ";
   if (m_innerVeto) std::cout<<" 1";

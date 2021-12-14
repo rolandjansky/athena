@@ -6,11 +6,13 @@
 
 # Set the environment variable(s):
 
+set( ATLAS_POWHEGVER "05-02" CACHE STRING
+   "Version of the Powheg configuration files" )
+set( ATLAS_POWHEGPATH "/cvmfs/atlas.cern.ch/repo/sw/Generators/powheg/ATLASOTF-${ATLAS_POWHEGVER}"
+   CACHE PATH "Path to the Powheg configuration files" )
 set( POWHEGENVIRONMENT_ENVIRONMENT
-    FORCESET POWHEGVER "05-02"
-    FORCESET POWHEGPATH "/cvmfs/atlas.cern.ch/repo/sw/Generators/powheg/ATLASOTF-${POWHEGVER}" 
-     )
-
+    SET POWHEGVER "${ATLAS_POWHEGVER}"
+    SET POWHEGPATH "${ATLAS_POWHEGPATH}" )
 
 # Silently declare the module found.
 set( POWHEGENVIRONMENT_FOUND TRUE )

@@ -556,12 +556,12 @@ FitParameters::scatteringAngles(const FitMeasurement& fitMeasurement,
     scattererSigmaTheta /
     fitMeasurement.intersection(FittedTrajectory).direction().perp();
   if (scatterer < 0) {
-    return ScatteringAngles(0., 0., scattererSigmaPhi, scattererSigmaTheta);
+    return {0., 0., scattererSigmaPhi, scattererSigmaTheta};
   } else {
-    return ScatteringAngles(m_scattererPhi[scatterer],
+    return {m_scattererPhi[scatterer],
                             m_scattererTheta[scatterer],
                             scattererSigmaPhi,
-                            scattererSigmaTheta);
+                            scattererSigmaTheta};
   }
 }
 

@@ -15,11 +15,12 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
 
 /**
  * @File TriggerEDMCLIDs.h
  * @brief Declaration of additional types which can be serialised.
- * This is primarily here for the benifit of non-trivial Dynamic Aux variabless
+ * This is primarily here for the benefit of non-trivial Dynamic Aux variables
  **/
 
 CLASS_DEF( std::vector<ElementLink<TrigRoiDescriptorCollection> >, 78044011, 1 )
@@ -29,5 +30,6 @@ CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::MuonContainer> > >, 1196568
 CLASS_DEF( std::vector<ElementLink<xAOD::JetContainer>>, 1210667800, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::VertexContainer>>>, 1164463855, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::BTagVertexContainer>>>, 1289535397, 1 )
+CLASS_DEF( std::vector<ElementLink<xAOD::jFexTauRoIContainer>>, 1334654121, 1 )
 
 #endif //> !TRIGOUTPUTHANDLING_TRIGGEREDMCLIDS_H

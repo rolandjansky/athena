@@ -201,64 +201,64 @@ class IDPerfMonEoverP : public AthAlgorithm
   int                     m_nelectrons;
   int                     m_electronCounter;           //!< counter for electrons
 
-  float                   m_electronTheta[3][NOS_ELECTRONS];     //!< Track theta on Surface
-  float                   m_electronPhi[3][NOS_ELECTRONS];       //!< Track Phi on electron
-  float                   m_electronQoverP[3][NOS_ELECTRONS];    //!< Track q over p on electron
-  float                   m_electrond0[3][NOS_ELECTRONS];       //!< Track Phi on electron
-  float                   m_electronz0[3][NOS_ELECTRONS];    //!< Track q over p on electron
+  float                   m_electronTheta[3][NOS_ELECTRONS]{};     //!< Track theta on Surface
+  float                   m_electronPhi[3][NOS_ELECTRONS]{};       //!< Track Phi on electron
+  float                   m_electronQoverP[3][NOS_ELECTRONS]{};    //!< Track q over p on electron
+  float                   m_electrond0[3][NOS_ELECTRONS]{};       //!< Track Phi on electron
+  float                   m_electronz0[3][NOS_ELECTRONS]{};    //!< Track q over p on electron
 
-  float                   m_electronLMQoverP[3][NOS_ELECTRONS];    //!< Track q over p on electron
+  float                   m_electronLMQoverP[3][NOS_ELECTRONS]{};    //!< Track q over p on electron
 
-  float                   m_electronErrTheta[3][NOS_ELECTRONS];  //!< Track theta error on electron
-  float                   m_electronErrPhi[3][NOS_ELECTRONS];    //!< Track phi error on electron
-  float                   m_electronErrQoverP[3][NOS_ELECTRONS];
-  float                   m_electronErrd0[3][NOS_ELECTRONS];
-  float                   m_electronErrz0[3][NOS_ELECTRONS];
-
-
-  int                     m_nTRT[NOS_ELECTRONS];
-  int                     m_nSCT[NOS_ELECTRONS];
-  int                     m_nBLayer[NOS_ELECTRONS];
-  int                     m_nPIX[NOS_ELECTRONS];
-  int                     m_nTRTout[NOS_ELECTRONS];
-  int                     m_nSCTout[NOS_ELECTRONS];
-  int                     m_nPIXout[NOS_ELECTRONS];
-  int                     m_nTRTHT[NOS_ELECTRONS];
-  int                     m_nTRTHTout[NOS_ELECTRONS];
+  float                   m_electronErrTheta[3][NOS_ELECTRONS]{};  //!< Track theta error on electron
+  float                   m_electronErrPhi[3][NOS_ELECTRONS]{};    //!< Track phi error on electron
+  float                   m_electronErrQoverP[3][NOS_ELECTRONS]{};
+  float                   m_electronErrd0[3][NOS_ELECTRONS]{};
+  float                   m_electronErrz0[3][NOS_ELECTRONS]{};
 
 
-  int                     m_author[NOS_ELECTRONS];
+  int                     m_nTRT[NOS_ELECTRONS]{};
+  int                     m_nSCT[NOS_ELECTRONS]{};
+  int                     m_nBLayer[NOS_ELECTRONS]{};
+  int                     m_nPIX[NOS_ELECTRONS]{};
+  int                     m_nTRTout[NOS_ELECTRONS]{};
+  int                     m_nSCTout[NOS_ELECTRONS]{};
+  int                     m_nPIXout[NOS_ELECTRONS]{};
+  int                     m_nTRTHT[NOS_ELECTRONS]{};
+  int                     m_nTRTHTout[NOS_ELECTRONS]{};
 
-  float                   m_ClusterEnergy[NOS_ELECTRONS];
-  float                   m_ClusterEta[NOS_ELECTRONS];
-  float                   m_ClusterPhi[NOS_ELECTRONS];
 
-  bool                    m_IsEMLoose[NOS_ELECTRONS];
-  bool                    m_IsEMMedium[NOS_ELECTRONS];
-  bool                    m_IsEMTight[NOS_ELECTRONS];
-  bool                    m_IsEMTightTRT[NOS_ELECTRONS];
-  bool                    m_isGoodOQ[NOS_ELECTRONS];
+  int                     m_author[NOS_ELECTRONS]{};
+
+  float                   m_ClusterEnergy[NOS_ELECTRONS]{};
+  float                   m_ClusterEta[NOS_ELECTRONS]{};
+  float                   m_ClusterPhi[NOS_ELECTRONS]{};
+
+  bool                    m_IsEMLoose[NOS_ELECTRONS]{};
+  bool                    m_IsEMMedium[NOS_ELECTRONS]{};
+  bool                    m_IsEMTight[NOS_ELECTRONS]{};
+  bool                    m_IsEMTightTRT[NOS_ELECTRONS]{};
+  bool                    m_isGoodOQ[NOS_ELECTRONS]{};
 
 
 
   //Vertex Resolution Information
-  int   m_associatedToVtx[NOS_ELECTRONS];
+  int   m_associatedToVtx[NOS_ELECTRONS]{};
   VxPos m_vxpos[NOS_ELECTRONS];
 
   //Vertex information
   int   m_nbpv;
-  int   m_pvtype[NO_PV];
-  int   m_pvnbtk[NO_PV];
-  float m_pvsumpt[NO_PV];
-  float m_pvx[NO_PV];
-  float m_pvy[NO_PV];
-  float m_pvz[NO_PV];
-  float m_errpvx[NO_PV];
-  float m_errpvy[NO_PV];
-  float m_errpvz[NO_PV];
-  float m_covpvxpvy[NO_PV];
-  float m_covpvypvz[NO_PV];
-  float m_covpvzpvx[NO_PV];
+  int   m_pvtype[NO_PV]{};
+  int   m_pvnbtk[NO_PV]{};
+  float m_pvsumpt[NO_PV]{};
+  float m_pvx[NO_PV]{};
+  float m_pvy[NO_PV]{};
+  float m_pvz[NO_PV]{};
+  float m_errpvx[NO_PV]{};
+  float m_errpvy[NO_PV]{};
+  float m_errpvz[NO_PV]{};
+  float m_covpvxpvy[NO_PV]{};
+  float m_covpvypvz[NO_PV]{};
+  float m_covpvzpvx[NO_PV]{};
 
   //MET
   bool  m_METgoodness;
@@ -268,10 +268,10 @@ class IDPerfMonEoverP : public AthAlgorithm
   float m_missingEty;
 
 
-  float m_ePID_ShowerType[50][NOS_ELECTRONS];
-  float m_ePID_IsolationType[50][NOS_ELECTRONS];
-  float m_ePID_TrackCaloMatchType[50][NOS_ELECTRONS];
-  float m_ePID_SummaryType[50][NOS_ELECTRONS];
+  float m_ePID_ShowerType[50][NOS_ELECTRONS]{};
+  float m_ePID_IsolationType[50][NOS_ELECTRONS]{};
+  float m_ePID_TrackCaloMatchType[50][NOS_ELECTRONS]{};
+  float m_ePID_SummaryType[50][NOS_ELECTRONS]{};
   //  std::vector< std::pair <xAOD::EgammaParameters::ShowerShapeType, std::string >  > m_PIDNames;
   std::vector< std::pair <xAOD::EgammaParameters::ShowerShapeType, std::string >  > m_PID_ShowerType_Names;
   std::vector< std::pair <xAOD::Iso::IsolationType, std::string >  > m_PID_IsolationType_Names;
@@ -280,7 +280,7 @@ class IDPerfMonEoverP : public AthAlgorithm
 
 
 
-  bool m_trigger[50];
+  bool m_trigger[50]{};
   std::vector<std::string> m_triggerNames;
 
 

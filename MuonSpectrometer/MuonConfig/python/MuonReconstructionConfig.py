@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Local
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFindingCfg
-from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
+from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg, MuonStandaloneTrackParticleCnvAlgCfg
 
 
 def MuonReconstructionCfg(flags):
@@ -14,7 +14,7 @@ def MuonReconstructionCfg(flags):
     result=ComponentAccumulator()
     result.merge( MuonSegmentFindingCfg(flags))
     result.merge( MuonTrackBuildingCfg(flags))
-
+    result.merge( MuonStandaloneTrackParticleCnvAlgCfg(flags) )
     return result
     
 if __name__=="__main__":

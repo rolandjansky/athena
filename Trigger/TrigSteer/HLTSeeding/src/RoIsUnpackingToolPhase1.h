@@ -167,6 +167,12 @@ public:
   : HLTSeedingRoIToolDefs::jFexTau::UnpackingBaseClass(type, name, parent) {}
 };
 
+class cTauRoIsUnpackingTool : public HLTSeedingRoIToolDefs::cTau::UnpackingBaseClass {
+public:
+  cTauRoIsUnpackingTool(const std::string& type, const std::string& name, const IInterface* parent)
+  : HLTSeedingRoIToolDefs::cTau::UnpackingBaseClass(type, name, parent) {}
+};
+
 class jFexSRJetRoIsUnpackingTool : public HLTSeedingRoIToolDefs::jFexSRJet::UnpackingBaseClass {
 public:
   jFexSRJetRoIsUnpackingTool(const std::string& type, const std::string& name, const IInterface* parent)

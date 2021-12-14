@@ -301,8 +301,8 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
           '\t' << '\t' << (nextVolume ? nextVolume->volumeName() : "None"));
       }
 
-      return Trk::NavigationCell(
-        nextVolume, std::move(trackPar), Trk::BoundarySurfaceFace(surface_id));
+      return {
+        nextVolume, std::move(trackPar), Trk::BoundarySurfaceFace(surface_id)};
     }
 
     // ---------------------------------------------------
@@ -326,7 +326,7 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
     // ---------------------------------------------------
   }
   // return what you have : no idea
-  return Trk::NavigationCell(nullptr, nullptr);
+  return {nullptr, nullptr};
 }
 
 

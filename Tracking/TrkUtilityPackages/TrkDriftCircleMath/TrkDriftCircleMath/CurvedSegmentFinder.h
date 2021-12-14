@@ -27,7 +27,7 @@ namespace TrkDriftCircleMath {
             m_maxDeltaAlpha = maxDeltaAlpha;
             m_maxDeltab = maxDeltab;
         }
-        void curvedSegments(const ChamberGeometry& mdtGeo, SegVec& Segs);
+        void curvedSegments(const ChamberGeometry& mdtGeo, SegVec& Segs) const;
 
     private:
         int m_debugLevel{0};

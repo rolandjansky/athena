@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_SUITE(SimpleTrackCollectionMergerTest)
   }
   
   BOOST_AUTO_TEST_CASE(Execute){
-    auto pAlg = new PutTrackCollectionsInSG("PutCollectionsInSG",pSvcLoc);
+    auto *pAlg = new PutTrackCollectionsInSG("PutCollectionsInSG",pSvcLoc);
     pAlg->addRef();
     BOOST_TEST(pAlg->execute().isSuccess());
     std::string collectionKey1("StoreGateSvc+TrackCollectionKey1");
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_SUITE(SimpleTrackCollectionMergerTest)
     std::string collectionKey2("StoreGateSvc+TrackCollectionKey2");
     SG::ReadHandle<TrackCollection> thisTrackCollection2 (collectionKey2);
     BOOST_TEST(thisTrackCollection2->size() == 1);
-    auto pMergeAlg = new Trk::SimpleTrackCollectionMerger("SimpleTrackCollectionMerger",pSvcLoc);
+    auto *pMergeAlg = new Trk::SimpleTrackCollectionMerger("SimpleTrackCollectionMerger",pSvcLoc);
     pMergeAlg->addRef();
     BOOST_TEST(pMergeAlg->setProperty("TracksLocation","['TrackCollectionKey1','TrackCollectionKey2']").isSuccess());
     //initialize() is necessary here

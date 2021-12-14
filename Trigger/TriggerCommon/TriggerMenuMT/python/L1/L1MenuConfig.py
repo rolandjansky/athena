@@ -694,6 +694,8 @@ class L1MenuConfig(object):
         # check that performance thresholds are not used in the physics L1 menu
         self.l1menu.checkPerfThresholds()
 
+        # check that the minimum thresholds of the TOBs sent to TOPO are below the min thresholds used in menu (ATR-15450)
+        self.l1menu.checkPtMinToTopo()
 
     def mapThresholds(self):
         """

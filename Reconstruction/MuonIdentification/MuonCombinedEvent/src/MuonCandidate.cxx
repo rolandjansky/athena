@@ -62,4 +62,7 @@ namespace MuonCombined {
     void MuonCandidate::setComissioning(bool b) { m_isComissioning = b; }
     bool MuonCandidate::isComissioning() const { return m_isComissioning; }
 
+    void MuonCandidate::setSegments(std::vector<ElementLink<xAOD::MuonSegmentContainer>>&& segments) { m_assoc_segments = std::move(segments);}
+    const std::vector<ElementLink<xAOD::MuonSegmentContainer>>& MuonCandidate::getSegments() const { return m_assoc_segments; }
+
 }  // namespace MuonCombined

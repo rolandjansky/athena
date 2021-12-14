@@ -81,13 +81,20 @@ namespace MuonCombined {
         const Trk::TrackScore& trackScore() const;
 
         /** name string */
-        std::string name() const;
+        std::string name() const override;
 
         /** print content to string */
-        std::string toString() const;
+        std::string toString() const override;
 
         /** access to primary muon system track, zero if non available */
-        const Trk::Track* primaryTrack() const;
+        const Trk::Track* primaryTrack() const override;
+
+        /** access to associated segments, empty vector if non available */
+        std::vector<const Muon::MuonSegment*> associatedSegments() const override;
+        
+         /** Returns whether the muon belongs to the comissioning chain **/
+        bool isComissioning() const override;
+
 
     private:
         /** block copy and assignment */

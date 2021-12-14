@@ -80,7 +80,7 @@ StatusCode AlignTrackCollSplitter::execute()
   if(m_maxRetrievalErrors>=0)
     m_maxRetrievalErrors=-1;
 
-  if(originalTracks->size()==0)
+  if(originalTracks->empty())
     return StatusCode::SUCCESS;
 
   // increment number of processed tracks
@@ -129,7 +129,7 @@ for(int i=0;i<AlignTrack::NTrackTypes+1;i++)
   // only record collection to storegate if it's not empty
   for(int icol=0;icol<AlignTrack::NTrackTypes+1;++icol) {
     ATH_MSG_DEBUG(icol<<": recording "<<m_outColNames[icol]<<"  size "<<alignTracks[icol]->size());
-    if(alignTracks[icol]->size()>0) {
+    if(!alignTracks[icol]->empty()) {
       if(evtStore()->record(alignTracks[icol],m_outColNames[icol],false).isFailure()) {
         ATH_MSG_ERROR("Unable to record "<<m_outColNames[icol]<<" in the StoreGate");
         delete alignTracks[icol];

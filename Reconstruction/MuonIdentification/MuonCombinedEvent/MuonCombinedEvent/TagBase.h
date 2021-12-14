@@ -30,7 +30,7 @@ namespace MuonCombined {
         if (a == xAOD::Muon::CaloLikelihood) return 6;
         if (a == xAOD::Muon::MuidSA) return 7;
         if (a == xAOD::Muon::STACO) return 8;
-        return 8;
+        return xAOD::Muon::NumberOfMuonAuthors;
     }
 
     inline int typeRank(const xAOD::Muon::MuonType& a) {
@@ -72,6 +72,9 @@ namespace MuonCombined {
         /** access to associated segments, empty vector if non available */
         virtual std::vector<const Muon::MuonSegment*> associatedSegments() const;
 
+        /** Returns whether the muon belongs to the comissioning chain **/
+        virtual bool isComissioning() const;
+
     protected:
         /** protected base class to be called by concrete implementations */
         TagBase(Author author, Type type) : m_author(author), m_type(type) {}
@@ -80,11 +83,13 @@ namespace MuonCombined {
         /** author and type info */
         Author m_author;  /// author
         Type m_type;      /// type
+ 
     };
 
-    inline const Trk::Track* TagBase::primaryTrack() const { return 0; }
+    inline bool TagBase::isComissioning() const { return false; }
+    inline const Trk::Track* TagBase::primaryTrack() const { return nullptr; }
 
-    inline std::vector<const Muon::MuonSegment*> TagBase::associatedSegments() const { return std::vector<const Muon::MuonSegment*>(); }
+    inline std::vector<const Muon::MuonSegment*> TagBase::associatedSegments() const { return {}; }
 
     inline bool operator<(const TagBase& t1, const TagBase& t2) {
         int r1 = typeRank(t1.type());

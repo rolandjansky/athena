@@ -1410,7 +1410,6 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
   double deltaPhi = 0.;
   double deltaTheta = 0.;
 
-  double depth_tot = 0.;
   int n_tot = 0;
 
   double w_tot = 0.;
@@ -1475,7 +1474,6 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       deltaE_rad_tot       += std::abs(scaleEloss*energyLoss->meanRad());
       sigmaDeltaE_rad_tot  += std::abs(scaleEloss*energyLoss->sigmaRad());
 
-      depth_tot += depth;
       n_tot++;
 
       Amg::Vector3D dir = m->trackParameters()->momentum().unit();

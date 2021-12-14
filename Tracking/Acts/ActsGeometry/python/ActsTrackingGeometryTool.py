@@ -9,6 +9,9 @@
 
 from __future__ import print_function
 
+# import the Config Flags for the setting
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 # import the DetFlags for the setting
 from AthenaCommon.DetFlags import DetFlags
 
@@ -22,7 +25,19 @@ class ConfiguredActsTrackingGeometry( ActsTrackingGeometryTool ) :
     subDetectors = []
     if DetFlags.pixel_on():
       subDetectors += ["Pixel"]
-        
+    if DetFlags.SCT_on() and ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
+      subDetectors += ["SCT"]
+    if DetFlags.TRT_on() and ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
+      # Commented out because TRT is not production ready yet and we don't 
+      # want to turn it on even if the global flag is set
+      #  subDetectors += ["TRT"]
+      pass
+    if DetFlags.Calo_on() and ConfigFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
+      # Commented out because Calo is not production ready yet and we don't 
+      # want to turn it on even if the global flag is set
+      #  subDetectors += ["Calo"]
+      pass
+
     from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
     actsTrackingGeometrySvc = ActsTrackingGeometrySvc(name = "ActsTrackingGeometrySvc",
                                                       BuildSubDetectors = subDetectors)

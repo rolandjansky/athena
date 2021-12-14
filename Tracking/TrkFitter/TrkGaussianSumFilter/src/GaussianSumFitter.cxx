@@ -1047,7 +1047,7 @@ Trk::GaussianSumFitter::fit(
   for (; trackStateOnSurface != forwardTrajectory.rend();
        ++trackStateOnSurface) {
     if (!(*trackStateOnSurface)->type(TrackStateOnSurface::Measurement)) {
-      auto* m = dynamic_cast<const Trk::MultiComponentStateOnSurface*> (*trackStateOnSurface);
+      const auto* m = dynamic_cast<const Trk::MultiComponentStateOnSurface*> (*trackStateOnSurface);
       if (!m) std::abort();
       smoothedTrajectory->push_back(smoothedTrajectory->allocate(*m));
     } else {

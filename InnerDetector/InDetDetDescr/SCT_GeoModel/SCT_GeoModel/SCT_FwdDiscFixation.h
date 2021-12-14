@@ -31,9 +31,9 @@ private:
   virtual GeoVPhysVol * build();
 
   // Basic parameters
-  double m_radius;
-  double m_thickness;
-  const GeoMaterial * m_material;
+  double m_radius = 0.0;
+  double m_thickness = 0.0;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
 
 };

@@ -10,16 +10,10 @@
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
 #include "TrigT1TGC/TGCRPhiCoincidenceMatrix.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
 #include "TrigT1TGC/TGCSSCController.h"
 #include "TrigT1TGC/TGCSSCControllerOut.h"
-#include "TrigT1TGC/TGCSLPreSelectorOut.h"
-#include "TrigT1TGC/TGCSLPreSelector.h"
-#include "TrigT1TGC/TGCSLSelector.h"
-#include "TrigT1TGC/TGCSLSelectorOut.h"
 #include "TrigT1TGC/TGCInnerTrackletSlotHolder.h"
 
-//for Run3
 #include "TrigT1TGC/TGCTrackSelector.h"
 
 #include "StoreGate/ReadCondHandle.h"
@@ -27,7 +21,6 @@
 
 namespace LVL1TGC {
 class TGCTileMuCoincidenceLUT;
-class Run2TileMuCoincidenceMap;
 }
 
 namespace LVL1TGCTrigger {
@@ -42,8 +35,7 @@ class TGCBIS78;
 class TGCBIS78CoincidenceMap;
 class TGCGoodMF;
 class TGCEIFICoincidenceMap;
-
-//for Run3
+class TGCRPhiCoincidenceOut;
 class TGCTrackSelectorOut;
 
 
@@ -56,7 +48,6 @@ class TGCSectorLogic
 
   TGCSectorLogic(const TGCSectorLogic& right);
 
-  const TGCSLSelectorOut* getSelectorOutput() const { return m_selectorOut.get(); }
   void getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut) const;
 
   int  getTileMuonWord() const;
@@ -102,7 +93,7 @@ protected:
   void doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
                           int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
 
-  void doInnerCoincidenceRun3(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
+  void doInnerCoincidence(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
 
   void doTGCNSWCoincidence(TGCRPhiCoincidenceOut* coincidenceOut); 
   bool doTGCBIS78Coincidence(TGCRPhiCoincidenceOut* coincidenceOut); 
@@ -142,15 +133,6 @@ private:
   std::shared_ptr<const TGCBIS78CoincidenceMap> m_mapBIS78;
   std::shared_ptr<const TGCGoodMF>            m_mapGoodMF;
 
-  // Run-2 Coincidence Maps
-  std::shared_ptr<const LVL1TGC::Run2TileMuCoincidenceMap> m_mapRun2TileMu;
-
-  // for Run2
-  TGCSLPreSelector m_preSelector; 
-  TGCSLSelector m_selector;
-  std::shared_ptr<TGCSLSelectorOut> m_selectorOut;
-  
-  // for Run3
   TGCTrackSelector m_trackSelector;
   std::shared_ptr<TGCTrackSelectorOut> m_trackSelectorOut;
  

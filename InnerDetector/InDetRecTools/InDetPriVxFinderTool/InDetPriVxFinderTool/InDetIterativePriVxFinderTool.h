@@ -42,7 +42,7 @@
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkTrack/TrackCollection.h"                    // type def ...
+#include "TrkTrack/TrackCollection.h" // type def ...
 /**
  * Forward declarations
  */
@@ -52,22 +52,20 @@
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/VertexFwd.h"
 
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
+#include "TrkVertexFitterInterfaces/IVertexFitter.h"
+#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
+#include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
+
 namespace Trk {
-class IVertexFitter;
 class Track;
 class ITrackLink;
-class IVertexSeedFinder;
-class IImpactPoint3dEstimator;
-// class IVertexTrackCompatibilityEstimator;
-// class ImpactPoint3dAtaPlaneFactory;
-class IVertexLinearizedTrackFactory;
-//  class ITrkDistanceFinder;
 
 class IVxCandidateXAODVertex;
 }
 
 namespace InDet {
-class IInDetTrackSelectionTool;
 
 class InDetIterativePriVxFinderTool
   : public AthAlgTool
@@ -127,11 +125,29 @@ private:
                          double& ndf,
                          int& ntracks) const;
 
-  ToolHandle<Trk::IVertexFitter> m_iVertexFitter;
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter;
-  ToolHandle<Trk::IVertexSeedFinder> m_SeedFinder;
-  ToolHandle<Trk::IImpactPoint3dEstimator> m_ImpactPoint3dEstimator;
-  ToolHandle<Trk::IVertexLinearizedTrackFactory> m_LinearizedTrackFactory;
+  ToolHandle<Trk::IVertexFitter> m_iVertexFitter{ this,
+                                                  "VertexFitterTool",
+                                                  "Trk::AdaptiveVertexFitter" };
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{
+    this,
+    "TrackSelector",
+    "InDet::InDetTrackSelection"
+  };
+
+  ToolHandle<Trk::IVertexSeedFinder> m_SeedFinder{ this,
+                                                   "SeedFinder",
+                                                   "Trk::ZScanSeedFinder" };
+  ToolHandle<Trk::IImpactPoint3dEstimator> m_ImpactPoint3dEstimator{
+    this,
+    "ImpactPoint3dEstimator",
+    "Trk::ImpactPoint3dEstimator"
+  };
+
+  ToolHandle<Trk::IVertexLinearizedTrackFactory> m_LinearizedTrackFactory{
+    this,
+    "LinearizedTrackFactory",
+    "Trk::FullLinearizedTrackFactory"
+  };
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{
     this,

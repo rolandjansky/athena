@@ -108,7 +108,7 @@ private:
   unsigned int m_word_error_count;
   unsigned int m_event_count;
   unsigned int m_onlineId;
-  float m_errorCondensedHit[20];
+  float m_errorCondensedHit[20]{};
 
 };
 
