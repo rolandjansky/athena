@@ -153,6 +153,16 @@ StatusCode Photospp_i::execute() {
         return StatusCode::FAILURE;
     }
     switch(event->momentum_unit()) {
+#ifdef HEPMC3
+    case HepMC3::Units::MomentumUnit::GEV:
+        Photos::setMomentumUnit(Photos::GEV);
+        Photos::forceMass(11, 0.000510998910);
+        break;
+    case HepMC3::Units::MomentumUnit::MEV:
+        Photos::setMomentumUnit(Photos::MEV);
+        Photos::forceMass(11, 0.510998910);
+        break;
+#else
     case HepMC::Units::GEV:
         Photos::setMomentumUnit(Photos::GEV);
         Photos::forceMass(11, 0.000510998910);
@@ -161,6 +171,7 @@ StatusCode Photospp_i::execute() {
         Photos::setMomentumUnit(Photos::MEV);
         Photos::forceMass(11, 0.510998910);
         break;
+#endif
     default:
         ATH_MSG_ERROR("Photospp_i received a event with unknown units.");
         Photos::setMomentumUnit(Photos::DEFAULT_MOMENTUM);
