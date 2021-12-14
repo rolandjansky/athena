@@ -59,10 +59,14 @@ def L1TopoSimulationCfg(flags):
     muProvider.RecTgcRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config = True)
 
     emtauProvider = CompFactory.LVL1.EMTauInputProviderFEX("EMTauInputProviderFEX")
+    jetProvider = CompFactory.LVL1.JetInputProviderFEX("JetInputProviderFEX")
+    #energyProvider = CompFactory.LVL1.EnergyInputProviderFEX("EnergyInputProviderFEX")
 
     topoSimAlg = CompFactory.LVL1.L1TopoSimulation("L1TopoSimulation",
                                                     MuonInputProvider = muProvider,
                                                     EMTAUInputProvider = emtauProvider,
+                                                    JetInputProvider = jetProvider,
+                                                    #EnergyInputProvider = energyProvider,
                                                     IsLegacyTopo = False)
     acc.addEventAlgo(topoSimAlg)
     return acc
