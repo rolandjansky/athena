@@ -9,15 +9,9 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # Set up logging and new style config
 Configurable.configurableRun3Behavior = True
 
-ConfigFlags.GeoModel.useLocalGeometry = True
+ConfigFlags.GeoModel.useLocalGeometry = False
 
-detectors = [
-    "ITkPixel",
-    "ITkStrip"
-]
 
-from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
-setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
 from AthenaConfiguration.Enums import ProductionStep
 ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
@@ -25,6 +19,10 @@ ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-ITK-24-00-00"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-14"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1']
+
+ConfigFlags.Detector.GeometryITkPixel = True
+ConfigFlags.Detector.GeometryITkStrip = True
+ConfigFlags.Detector.GeometryBpipe = True
 
 ConfigFlags.Concurrency.NumThreads = 64
 ConfigFlags.Concurrency.NumConcurrentEvents = 64
@@ -35,9 +33,6 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 acc = MainServicesCfg(ConfigFlags)
 
 from ActsGeometry.ActsGeometryConfig import ActsExtrapolationAlgCfg, ActsTrackingGeometrySvcCfg
-
-from ActsGeometry.ActsGeometryConfig import NominalAlignmentCondAlgCfg
-acc.merge(NominalAlignmentCondAlgCfg(ConfigFlags))
 
 from AthenaCommon.Constants import INFO, VERBOSE
 tgSvc = ActsTrackingGeometrySvcCfg(ConfigFlags, 

@@ -2,8 +2,9 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaCommon.CFElements import seqAND
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaConfiguration.ComponentFactory import CompFactory
+
 
 def TLAMuonSequence (flags, muons):
     
@@ -23,8 +24,10 @@ def TLAMuonMenuSequence( flags, muonsIn):
      #  add the hypo
     from TrigMuonHypo.TrigMuonHypoConf import TrigMuonTLAHypoAlg
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromDict
-    hypo = TrigMuonTLAHypoAlg("TrigMuonTLAHypoAlg")  #+muonsIn)    
-    hypo.TLAMuons=sequenceOut
+    hypo = TrigMuonTLAHypoAlg("TrigMuonTLAHypoAlg")  #+muonsIn)  
+
+    hypo.TLAOutputName = sequenceOut  
+
     return MenuSequence( Sequence  = tlaMuonAthSequence,
                          Maker       = tlaMuonInputMakerAlg,
                          Hypo        = hypo,

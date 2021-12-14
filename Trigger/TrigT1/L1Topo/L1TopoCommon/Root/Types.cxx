@@ -49,7 +49,7 @@ TCS::inputType(const std::string& input) {
    if ( input == "jTau" || input == "jTauTobArray" || input == "jTauTobs" )
       return TCS::JTAU;
 
-   if ( input == "cTau" || input == "cTauTobArray" || input == "cTauTobs" )
+   if ( input == "cTau" || input == "cTauTobArray" || input == "cTauTobs" || input == "cTAU" )
       return TCS::CTAU;
 
    if ( input == "Jets" || input == "JetTobArray" )
@@ -92,4 +92,29 @@ TCS::inputType(const std::string& input) {
    TCS_EXCEPTION("L1TopoCommon: unknown input type " + input);
    
    return TCS::NONE;
+}
+
+TCS::outputTopoType_t
+TCS::outputType(const std::string& output) {
+  if (output == "LegacyTopo0")
+    {return TCS::LEGACYTOPO0;}
+  else if (output == "LegacyTopo1")
+    {return TCS::LEGACYTOPO1;}
+  else if (output == "Topo2El")
+    {return TCS::TOPO2EL;}
+  else if (output == "Topo3El")
+    {return TCS::TOPO3EL;}
+  else if (output == "Topo1Opt0")
+    {return TCS::TOPO1OPT0;}
+  else if (output == "Topo1Opt1")
+    {return TCS::TOPO1OPT1;}
+  else if (output == "Topo1Opt2")
+    {return TCS::TOPO1OPT2;}
+  else if (output == "Topo1Opt3")
+    {return TCS::TOPO1OPT3;}
+  else
+    {
+      TCS_EXCEPTION("L1TopoCommon: unknown output type " + output);
+      return TCS::UNDEF;
+    }
 }

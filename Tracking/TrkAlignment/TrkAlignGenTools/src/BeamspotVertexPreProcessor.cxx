@@ -320,10 +320,7 @@ bool BeamspotVertexPreProcessor::isAssociatedToVertex(const Trk::Track * track, 
 
   std::vector<VxTrackAtVertex>::const_iterator findResult = std::find_if(iVxTrackBegin, iVxTrackEnd, thisCompare);
 
-  if(findResult != iVxTrackEnd)
-     return true;
-
-  return false;
+  return findResult != iVxTrackEnd;
 }
 
 
@@ -627,8 +624,6 @@ void BeamspotVertexPreProcessor::provideVtxBeamspot(const AlignVertex* b, AmgSym
 
   ATH_MSG_DEBUG("VTX constraint point (x,y,z) = ( "<< (*v)[0] <<" , "<< (*v)[1] <<" , "<< (*v)[2] <<" )");
   ATH_MSG_DEBUG("VTX constraint size  (x,y,z) = ( "<< beamSigmaX <<" , "<< beamSigmaY <<" , "<< beamSigmaZ <<" )");
-
-  return;
 }
 
 
@@ -874,7 +869,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
 {
   ATH_MSG_DEBUG("BeamspotVertexPreProcessor::processTrackCollection()");
 
-  if( !tracks || (tracks->size()==0) )
+  if( !tracks || (tracks->empty()) )
     return nullptr;
 
   // Clear the AlignVertex container (will destruct the objects it owns as well!)
@@ -935,7 +930,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
 
   ATH_MSG_INFO( "Processing of input track collection completed (size: " << tracks->size() << "). Size of the alignTrack collection: " << newTrks->size() ); 
   // delete the collection if it's empty
-  if (newTrks->size()==0) {
+  if (newTrks->empty()) {
     delete newTrks;
     return nullptr;
   }
@@ -1125,9 +1120,6 @@ void BeamspotVertexPreProcessor::accumulateVTX(const AlignTrack* alignTrack) {
 
   delete    WF;
   delete    derivX;
-  //    delete [] VTXDerivatives;
-
-  return;
 }
 
 

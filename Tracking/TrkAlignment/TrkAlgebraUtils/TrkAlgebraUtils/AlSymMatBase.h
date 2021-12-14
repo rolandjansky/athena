@@ -97,12 +97,11 @@ class AlSymMatBase  {
   AlSymMatBase(const AlSymMatBase&);
   AlSymMatBase& operator=(const AlSymMatBase&);
 
-  int      m_matrix_type;
-  datamap  m_ptr_map;
+  int m_matrix_type = 0;
+  datamap m_ptr_map;
 
-  long int m_size;
-  long int m_nele;
-
+  long int m_size = 0;
+  long int m_nele = 0;
 };
 
 // inline operators

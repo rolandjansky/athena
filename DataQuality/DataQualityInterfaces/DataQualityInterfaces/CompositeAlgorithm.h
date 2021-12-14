@@ -34,7 +34,7 @@ protected:
   std::string m_name;
   AlgVec_t m_subAlgs;
 
-  HanAlgorithmConfig* ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, std::string subalg);
+  HanAlgorithmConfig* ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, const std::string& subalg);
   
 };
 

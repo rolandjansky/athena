@@ -111,9 +111,9 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    getService("AtlasTrackingGeometrySvc")
    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
-   from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+   from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
    from AthenaCommon import CfgGetter
-   topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool(MCTruthClassifier(name="MCTruthClassifier",ParticleCaloExtensionTool=""))
+   topSequence.MuonTruthDecorationAlg.MCTruthClassifier = MCTruthClassifier
    topSequence.MuonTruthDecorationAlg.SDOs=["RPC_SDO","TGC_SDO","MDT_SDO"]
    PRD_TruthMaps = ["RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"]
    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):

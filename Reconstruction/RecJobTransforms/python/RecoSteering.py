@@ -5,7 +5,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
     Generates configuration of the reconstructions
 
     This driver configures all reconstruction steps unconditionally.
-    The selftest available below can be used for simple jobs, 
+    The selftest available below can be used for simple jobs,
     yet full functionality is achieved with transforms that set many flags.
     """
     from AthenaCommon.Logging import logging
@@ -21,6 +21,10 @@ def RecoSteering(flags, tryConfiguringAll=False):
     else:
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
         acc.merge(PoolReadCfg(flags))
+        # Check if running on legacy inputs
+        if "EventInfo" not in flags.Input.Collections:
+            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+            acc.merge(EventInfoCnvAlgCfg(flags))
         log.info("---------- Configured POOL reading")
 
     # AOD2xAOD Truth conversion
@@ -29,53 +33,66 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(GEN_AOD2xAODCfg(flags))
         log.info("---------- Configured xAODTruthCnvAlg")
 
+    # trigger
+    if flags.Reco.EnableTrigger:
+        from TriggerJobOpts.TriggerRecoConfig import TriggerRecoCfg
+        acc.merge(TriggerRecoCfg(flags))
+        log.info("---------- Configured trigger data decoding")
+
     # calorimeter
-    if flags.Reco.EnableCalo:
+    if flags.Detector.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
-        acc.merge(CaloRecoCfg(flags, doLCCalib=True))
+        acc.merge(CaloRecoCfg(flags))
         log.info("---------- Configured calorimeter reconstruction")
 
     # ID / ITk
     if flags.Reco.EnableTracking:
-        if flags.Detector.GeometryID:
-            from InDetConfig.TrackRecoConfig import TrackRecoCfg
-            acc.merge(TrackRecoCfg(flags))
-        elif flags.Detector.GeometryITk:
-            from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
-            acc.merge(ITkTrackRecoCfg(flags))
+        from InDetConfig.TrackRecoConfig import TrackRecoCfg
+        acc.merge(TrackRecoCfg(flags))
         log.info("---------- Configured tracking")
 
-    # muons
-    if flags.Reco.EnableMuon:
+    # Muon
+    if flags.Detector.EnableMuon:
         from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
         acc.merge(MuonReconstructionCfg(flags))
         log.info("---------- Configured muon tracking")
 
-    if flags.Reco.EnableCombinedMuon and tryConfiguringAll:
-        from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedReconstructionCfg
-        acc.merge(MuonCombinedReconstructionCfg(flags))
-        log.info("---------- Configured combined muon reconstruction")
-
-    # Caching of CaloExtension for downstream Combined Performance algorithms.
-    if flags.Detector.GeometryID:
-        from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderAlgCfg
-        acc.merge(CaloExtensionBuilderAlgCfg(flags))
-    elif flags.Detector.GeometryITk:
-        from TrackToCalo.ITkCaloExtensionBuilderAlgCfg import ITkCaloExtensionBuilderAlgCfg
-        acc.merge(ITkCaloExtensionBuilderAlgCfg(flags))
-    log.info("---------- Configured track calorimeter extension builder")
-
+    # EGamma
     if flags.Reco.EnableEgamma:
         from egammaConfig.egammaSteeringConfig import EGammaSteeringCfg
         acc.merge(EGammaSteeringCfg(flags))
         log.info("---------- Configured egamma")
 
+    # Muon Combined
+    if flags.Reco.EnableCombinedMuon and tryConfiguringAll:
+        from MuonCombinedConfig.MuonCombinedReconstructionConfig import (
+            MuonCombinedReconstructionCfg)
+        acc.merge(MuonCombinedReconstructionCfg(flags))
+        log.info("---------- Configured combined muon reconstruction")
+
+    # Caching of CaloExtension for downstream Combined Performance algorithms.
+    if ((flags.Reco.EnablePFlow or flags.Reco.EnableTau or flags.Reco.EnableCombinedMuon)
+        and flags.Detector.EnableCalo
+            and flags.Reco.EnableTracking):
+        from TrackToCalo.CaloExtensionBuilderAlgCfg import (
+            CaloExtensionBuilderCfg)
+        acc.merge(CaloExtensionBuilderCfg(flags))
+        log.info("---------- Configured track calorimeter extension builder")
+
+    # PFlow
     if flags.Reco.EnablePFlow:
         from eflowRec.PFRun3Config import PFCfg
         acc.merge(PFCfg(flags))
         log.info("---------- Configured particle flow")
 
+    # EGamma and CombinedMuon isolation
+    if flags.Reco.EnableCombinedMuon or flags.Reco.EnableEgamma:
+        from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
+        acc.merge(IsolationSteeringCfg(flags, doIsoMuon = tryConfiguringAll))
+        log.info("---------- Configured isolation")
+
     # jets
+
     # btagging
     if flags.Reco.EnableBTagging and tryConfiguringAll:
         # hack to prevent btagging fragments to rename top sequence
@@ -85,8 +102,18 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(BTagRecoSplitCfg(flags))
         log.info("---------- Configured btagging")
 
+    # Tau
+
+    # HI
+    if flags.Reco.EnableHI:
+        from HIRecConfig.HIRecConfig import HIRecCfg
+        acc.merge(HIRecCfg(flags))
+        log.info("---------- Configured Heavy Ion reconstruction")
+
     # setup output
-    if any((flags.Output.doWriteESD, flags.Output.doWriteAOD, flags.Output.doWriteRDO)):
+    if any((flags.Output.doWriteESD,
+            flags.Output.doWriteAOD,
+            flags.Output.doWriteRDO)):
         from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
         acc.merge(PoolWriteCfg(flags))
         log.info("setup POOL format writing")

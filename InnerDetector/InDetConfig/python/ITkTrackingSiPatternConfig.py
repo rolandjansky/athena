@@ -38,7 +38,7 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     kwargs.setdefault("useOverlapSpCollection", flags.ITk.Tracking.useITkStrip and flags.ITk.Tracking.useITkStripSeeding )
     kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
     kwargs.setdefault("radMax", flags.ITk.Tracking.radMax)
-    kwargs.setdefault("RapidityCut",  flags.ITk.Tracking.maxEta )
+    kwargs.setdefault("etaMax", flags.ITk.Tracking.maxEta )
 
     if usePrdAssociationTool:
         # not all classes have that property !!!
@@ -197,9 +197,12 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("Xi2maxMultiTracks", flags.ITk.Tracking.Xi2max[0])
     kwargs.setdefault("useSSSseedsFilter", flags.ITk.doSSSfilter)
     kwargs.setdefault("doMultiTracksProd", True)
-    kwargs.setdefault("useBremModel", flags.ITk.doBremRecovery and useBremMode and flags.Detector.GeometryLAr) # only for NewTracking the brem is debugged !!!
-    kwargs.setdefault("doCaloSeededBrem", flags.ITk.doCaloSeededBrem and flags.Detector.GeometryLAr)
-    kwargs.setdefault("doHadCaloSeedSSS", flags.ITk.doHadCaloSeededSSS and flags.Detector.GeometryTile)
+    kwargs.setdefault("useBremModel", flags.ITk.doBremRecovery and useBremMode and flags.Detector.EnableCalo) # only for NewTracking the brem is debugged !!!
+    kwargs.setdefault("doCaloSeededBrem", flags.ITk.doCaloSeededBrem and flags.Detector.EnableCalo)
+    kwargs.setdefault("doHadCaloSeedSSS", flags.ITk.doHadCaloSeededSSS and flags.Detector.EnableCalo)
+    if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
+        from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
+        acc.merge(ITkCaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("phiWidth", flags.ITk.Tracking.phiWidthBrem[0])
     kwargs.setdefault("etaWidth", flags.ITk.Tracking.etaWidthBrem[0])
     kwargs.setdefault("InputClusterContainerName", 'ITkCaloClusterROIs')
@@ -223,8 +226,13 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSPSeededFinder')
 
     if flags.ITk.doStoreTrackSeeds:
-        ITkSeedToTrackConversion = CompFactory.InDet.SeedToTrackConversionTool(  name = "ITkSeedToTrackConversion",
-                                                                                 OutputName = 'SiSPSeedSegments' + flags.ITk.Tracking.extension)
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+        acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+
+        ITkSeedToTrackConversion = CompFactory.InDet.SeedToTrackConversionTool(name="ITkSeedToTrackConversion",
+                                                                               OutputName=f"SiSPSeedSegments{flags.ITk.Tracking.extension}",
+                                                                               Extrapolator=extrapolator)
         acc.setPrivateTools(ITkSeedToTrackConversion)
         kwargs.setdefault("SeedToTrackConversion", ITkSeedToTrackConversion)
         kwargs.setdefault("SeedSegmentsWrite", True)
@@ -303,7 +311,8 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     return acc
 
 def ITkSiSPSeededTrackFinderROIConvCfg(flags, name="ITkSiSpTrackFinderROIConv", InputCollections = None, SiSPSeededTrackCollectionKey = None, **kwargs) :
-    acc = ComponentAccumulator()
+    from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
+    acc = ITkCaloClusterROI_SelectorCfg(flags)
 
     from RegionSelector.RegSelToolConfig import regSelTool_ITkStrip_Cfg
     RegSelTool_ITkStrip   = acc.popToolsAndMerge(regSelTool_ITkStrip_Cfg(flags))
@@ -349,7 +358,6 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
     kwargs.setdefault("DriftCircleCutTool", None)
     kwargs.setdefault("AssociationTool" , ITkPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("minTRTHits"      , 0) # used for Si only tracking !!!
-    kwargs.setdefault("sharedProbCut"   , 0.10)
     kwargs.setdefault("UseParameterization" , False)
     kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics')
     kwargs.setdefault("doPixelSplitting"    , flags.ITk.doPixelClusterSplitting )
@@ -361,19 +369,28 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
         kwargs.setdefault("minSiHitsToAllowSplitting" , nhitsToAllowSplitting)
         kwargs.setdefault("minUniqueSCTHits"          , 4)
         kwargs.setdefault("minTrackChi2ForSharedHits" , 3)
-        kwargs.setdefault("InputHadClusterContainerName", "ITkHadCaloClusterROIs" + "Bjet" )
-        kwargs.setdefault("doHadCaloSeed"             , flags.ITk.doCaloSeededAmbi)   #Do special cuts in region of interest
         kwargs.setdefault("minPtSplit"                , flags.ITk.pixelClusterSplitMinPt)       #Only allow split clusters on track withe pt greater than this MeV
         kwargs.setdefault("maxSharedModulesInROI"     , 3)     #Maximum number of shared modules for tracks in ROI
         kwargs.setdefault("minNotSharedInROI"         , 2)     #Minimum number of unique modules for tracks in ROI
-        kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 7)  #Minimum number of Si hits to allow splittings for tracks in ROI
-        kwargs.setdefault("phiWidth"                  , 0.1)     #Split cluster ROI size
-        kwargs.setdefault("etaWidth"                  , 0.1)     #Split cluster ROI size
-        kwargs.setdefault("InputEmClusterContainerName" , 'ITkCaloClusterROIs')
-        kwargs.setdefault("doEmCaloSeed"              , flags.Detector.GeometryLAr)   #Only split in cluster in region of interest
+        kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 8)  #Minimum number of Si hits to allow splittings for tracks in ROI
+        kwargs.setdefault("phiWidth"                  , 0.05)     #Split cluster ROI size
+        kwargs.setdefault("etaWidth"                  , 0.05)     #Split cluster ROI size
+        kwargs.setdefault("doEmCaloSeed"              , flags.ITk.doCaloSeededAmbi)   #Only split in cluster in region of interest
+        kwargs.setdefault("InputEmClusterContainerName", 'ITkCaloClusterROIs')
+        if flags.Detector.EnableCalo:
+            from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
+            acc.merge(ITkCaloClusterROI_SelectorCfg(flags))
+        kwargs.setdefault("doHadCaloSeed"             , flags.ITk.doCaloSeededAmbi)   #Do special cuts in region of interest
+        kwargs.setdefault("InputHadClusterContainerName", "ITkHadCaloClusterROIs" + "Bjet")
+        if flags.Detector.EnableCalo:
+            from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkHadCaloClusterROI_SelectorCfg
+            acc.merge(ITkHadCaloClusterROI_SelectorCfg(flags))
         kwargs.setdefault("minPtConv"                 , 10000)   #Only allow split clusters on track withe pt greater than this MeV
+        kwargs.setdefault("minPtBjetROI"              , 10000)
         kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size
         kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size
+    else:
+        kwargs.setdefault("sharedProbCut", 0.10)
 
     if 'InDetEtaDependentCutsSvc' not in kwargs :
         acc.merge(TC.ITkEtaDependentCutsSvcCfg(flags))
@@ -482,8 +499,6 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
 
     ITkAmbiTrackSelectionTool = acc.popToolsAndMerge(ITkAmbiTrackSelectionToolCfg(flags))
 
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
 
     kwargs.setdefault("Fitter", fitter_list)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
@@ -491,7 +506,6 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     kwargs.setdefault("TrackSummaryTool", ambi_track_summary_tool)
     kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
     kwargs.setdefault("SelectionTool", ITkAmbiTrackSelectionTool)
-    kwargs.setdefault("TrackExtrapolator", Extrapolator)
     kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.ITk.Tracking.extension)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.extension)
     kwargs.setdefault("SuppressHoleSearch", False)

@@ -3,18 +3,21 @@
 #include "../CTPUnpackingToolBase.h"
 #include "../CTPUnpackingTool.h"
 #include "../CTPUnpackingEmulationTool.h"
-#include "../eFexEMRoIsUnpackingTool.h"
 #include "../eFexEMRoIThresholdsTool.h"
-#include "../eFexTauRoIsUnpackingTool.h"
 #include "../eFexTauRoIThresholdsTool.h"
-#include "../jFexTauRoIsUnpackingTool.h"
 #include "../jFexTauRoIThresholdsTool.h"
+#include "../cTauRoIThresholdsTool.h"
+#include "../jFexSRJetRoIThresholdsTool.h"
+#include "../jFexLRJetRoIThresholdsTool.h"
+#include "../gFexSRJetRoIThresholdsTool.h"
+#include "../gFexLRJetRoIThresholdsTool.h"
 #include "../EMRoIsUnpackingTool.h"
 #include "../METRoIsUnpackingTool.h"
 #include "../FSRoIsUnpackingTool.h"
 #include "../JRoIsUnpackingTool.h"
 #include "../TAURoIsUnpackingTool.h"
 #include "../RoIsUnpackingToolBase.h"
+#include "../RoIsUnpackingToolPhase1.h"
 #include "../RoIsUnpackingEmulationTool.h"
 #include "../MURoIsUnpackingTool.h"
 #include "../PrescalingTool.h"
@@ -36,7 +39,8 @@ DECLARE_COMPONENT( CTPUnpackingTool )
 DECLARE_COMPONENT( CTPUnpackingEmulationTool )
 
 // Seeding tools: Muon
-DECLARE_COMPONENT( MURoIsUnpackingTool )
+DECLARE_COMPONENT( MURoIsUnpackingTool ) // legacy
+DECLARE_COMPONENT( MuonRoIsUnpackingTool ) // phase-1
 
 // Seeding: tools L1Calo
 DECLARE_COMPONENT( eFexEMRoIsUnpackingTool )
@@ -45,6 +49,16 @@ DECLARE_COMPONENT( eFexTauRoIsUnpackingTool )
 DECLARE_COMPONENT( eFexTauRoIThresholdsTool )
 DECLARE_COMPONENT( jFexTauRoIsUnpackingTool )
 DECLARE_COMPONENT( jFexTauRoIThresholdsTool )
+DECLARE_COMPONENT( cTauRoIsUnpackingTool )
+DECLARE_COMPONENT( cTauRoIThresholdsTool )
+DECLARE_COMPONENT( jFexSRJetRoIsUnpackingTool )
+DECLARE_COMPONENT( jFexSRJetRoIThresholdsTool )
+DECLARE_COMPONENT( jFexLRJetRoIsUnpackingTool )
+DECLARE_COMPONENT( jFexLRJetRoIThresholdsTool )
+DECLARE_COMPONENT( gFexSRJetRoIsUnpackingTool )
+DECLARE_COMPONENT( gFexSRJetRoIThresholdsTool )
+DECLARE_COMPONENT( gFexLRJetRoIsUnpackingTool )
+DECLARE_COMPONENT( gFexLRJetRoIThresholdsTool )
 
 // Seeding tools: Legacy L1Calo
 DECLARE_COMPONENT( EMRoIsUnpackingTool )

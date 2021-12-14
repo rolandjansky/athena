@@ -13,8 +13,8 @@ atlas_add_component( RpcRawDataMonitoring
                      src/*.cxx
                      src/components/*.cxx
 
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} 
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES}
                      AthenaMonitoringLib AthenaMonitoringKernelLib
                      StoreGateLib SGtests
                      LumiBlockData

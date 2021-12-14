@@ -91,8 +91,7 @@ namespace Trk {
     }
     
     ATH_MSG_DEBUG("done setting AlignModules");
-    return;
-  }
+ }
 
 
   //________________________________________________________________________
@@ -119,8 +118,7 @@ namespace Trk {
       }
       
     }
-    return;
-  }
+     }
 
   //________________________________________________________________________  
   AlignModule* AlignModuleTool::findAlignModule(const TrkDetElementBase* det,
@@ -292,8 +290,7 @@ namespace Trk {
     }
 
     ATH_MSG_DEBUG("set");
-    return;
-  
+ 
   }
 
   //________________________________________________________________________

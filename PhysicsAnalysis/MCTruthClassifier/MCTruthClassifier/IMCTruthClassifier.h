@@ -50,10 +50,6 @@ class IMCTruthClassifier : virtual public asg::IAsgTool
 
   ASG_TOOL_INTERFACE(IMCTruthClassifier)
 public:
-#if !defined(XAOD_ANALYSIS) &&                                                 \
-  !defined(GENERATIONBASE) // Can only be used in Athena
-  typedef Trk::IParticleCaloExtensionTool::Cache Cache;
-#endif
   // Additional information that can be returned by the classifier.
   // Originally, these were all held in member variables in the classifier,
   // but that prevents the classifier methods from being made const.
@@ -108,10 +104,6 @@ public:
     std::vector<MCTruthPartClassifier::ParticleOrigin> cnvPhotPartOrig;
 #endif
 
-#if !defined(XAOD_ANALYSIS) &&                                                 \
-  !defined(GENERATIONBASE) /*Can only be used in Athena*/
-    Cache* extrapolationCache = nullptr;
-#endif
   };
 
   /** Virtual destructor */

@@ -1,12 +1,13 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef XAODEVENTINFOATHENAPOOL_XAODEVENTAUXINFOCNV_H
 #define XAODEVENTINFOATHENAPOOL_XAODEVENTAUXINFOCNV_H
 
 // Local include(s).
 #include "xAODEventAuxInfoCnv_v1.h"
+#include "xAODEventAuxInfoCnv_v2.h"
 
 // EDM include(s).
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -16,7 +17,8 @@
 
 // Declare the POOL converter.
 typedef T_AthenaPoolAuxContainerCnv< xAOD::EventAuxInfo,
-                                     xAODEventAuxInfoCnv_v1 >
+                                     xAODEventAuxInfoCnv_v1,
+                                     xAODEventAuxInfoCnv_v2 >
    xAODEventAuxInfoCnv;
 
 #endif // XAODEVENTINFOATHENAPOOL_XAODEVENTAUXINFOCNV_H

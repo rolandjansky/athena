@@ -10,8 +10,6 @@ def LArKnownBadFebCfg(configFlags, tag=None):
 
     if configFlags.GeoModel.Run == "RUN1":
         rekey=""
-    elif configFlags.GeoModel.Run == "RUN4":  # TODO: remove when conditions tag is updated
-        rekey=""
     else:    
         rekey="/LAR/BadChannels/KnownBADFEBs"
         result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/KnownBADFEBs",
@@ -25,8 +23,6 @@ def LArKnownMNBFebCfg(configFlags, tag=None):
     result=ComponentAccumulator()
 
     if configFlags.GeoModel.Run == "RUN1":
-        rekey=""
-    elif configFlags.GeoModel.Run == "RUN4":  # TODO: remove when conditions tag is updated
         rekey=""
     else:
         rekey="/LAR/BadChannels/KnownMNBFEBs"

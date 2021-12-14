@@ -27,9 +27,9 @@ public:
 
 public slots:
   void setMinNHitsPerStation(unsigned);
-  void setAllowedADCValues(VP1Interval);
+  void setAllowedADCValues(const VP1Interval&);
   void setExcludeMaskedHits(bool);
-  void setStatus(QString);
+  void setStatus(const QString&);
   void setHighLightByMask(bool);
   void setHighLightByUpperADCBound(int);
   void setEnableProjections( bool );

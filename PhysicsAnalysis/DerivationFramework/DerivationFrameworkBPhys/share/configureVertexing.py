@@ -15,8 +15,8 @@ class BPHYVertexTools:
         from AthenaCommon.AppMgr import ToolSvc
 
         # set up extrapolator
-        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        self.InDetExtrapolator = AtlasExtrapolator(name             = derivation+"_AtlasExtrapolator")
+        from InDetRecExample import TrackingCommon
+        self.InDetExtrapolator = TrackingCommon.getInDetExtrapolator()
         ToolSvc += self.InDetExtrapolator
         print((self.InDetExtrapolator))
 
@@ -146,3 +146,9 @@ class BPHYVertexTools:
         self.VertexUpdator = Trk__KalmanVertexUpdator(name             = derivation+"_KalmanVertexUpdator")
         ToolSvc += self.VertexUpdator
         print((self.VertexUpdator))
+
+        from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__PrimaryVertexRefitter
+        self.PrimaryVertexRefitter = Analysis__PrimaryVertexRefitter( TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator() )
+        ToolSvc += self.PrimaryVertexRefitter
+        print((self.PrimaryVertexRefitter))
+

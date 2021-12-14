@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -28,5 +28,6 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_CopyHelpers
       SOURCES test/ut_CopyHelpers.cxx
       LINK_LIBRARIES xAODRootAccess AsgTools xAODBase xAODJet
-      SystematicsHandlesLib )
+      SystematicsHandlesLib
+      POST_EXEC_SCRIPT nopost.sh )
 endif()

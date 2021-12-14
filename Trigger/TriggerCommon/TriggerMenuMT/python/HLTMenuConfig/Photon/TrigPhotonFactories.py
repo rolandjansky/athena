@@ -12,27 +12,25 @@ Offline configurations are available here:
 """
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory,  FcnWrapper
-
-from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, egammaMVASvc, EGammaAmbiguityTool
-
+from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, EGammaAmbiguityTool
 # Tools and funtions from TrigEgammaFactories
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder_HI, TrigEMShowerBuilder, TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
-
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
 from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
-TrigEgammaKeys = getTrigEgammaKeys()
-from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
 
 
 # Decoration tools for egamma and photon objects:
 # Copying from https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaRec/python/topoEgammaGetter.py#L28
 
+TrigEgammaKeys = getTrigEgammaKeys()
+
 
 # Factory for egamaRecBuilder/TrigEgammaRecPhoton
 TrigEgammaRecPhoton = AlgFactory( egammaAlgsConf.egammaRecBuilder,
         name = 'TrigEgammaRecPhoton' ,
-        InputClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters, # Use as input, the clusters made by precisionCalo
-        egammaRecContainer=TrigEgammaKeys.EgammaRecKey,
+        InputClusterContainerName = TrigEgammaKeys.precisionCaloClusterContainer, # Use as input, the clusters made by precisionCalo
+        egammaRecContainer=TrigEgammaKeys.precisionEgammaRecCollection ,
         doTrackMatching = False,
         doConversions = False,
         ## Builder tools
@@ -44,8 +42,9 @@ TrigEgammaRecPhoton = AlgFactory( egammaAlgsConf.egammaRecBuilder,
 #Factory for photon SC builder
 TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBuilder,
         name = 'TrigPhotonSuperClusterBuilder',
-        InputEgammaRecContainerName=TrigEgammaKeys.EgammaRecKey,
-        SuperPhotonRecCollectionName=TrigEgammaKeys.SuperPhotonRecCollectionName,
+        InputEgammaRecContainerName=TrigEgammaKeys.precisionEgammaRecCollection ,
+        SuperPhotonRecCollectionName=TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
+        SuperClusterCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterCollection,
         ClusterCorrectionTool=egammaSwSuperClusterTool,
         MVACalibSvc= egammaMVASvc,
         doConversions = False,
@@ -58,10 +57,10 @@ TrigPhotonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBui
 #Factory for photons
 TrigTopoEgammaPhotons_HI = AlgFactory( egammaAlgsConf.xAODEgammaBuilder,
         name = 'TrigTopoEgammaPhotons_HI',
-        InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-        InputPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
-        ElectronOutputName = TrigEgammaKeys.outputElectronKey,
-        PhotonOutputName = TrigEgammaKeys.outputPhotonKey,
+        InputElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterRecCollection,
+        InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
+        ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
+        PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,
         AmbiguityTool = EGammaAmbiguityTool,
         EMClusterTool = TrigEMClusterTool,
         EMShowerTool=TrigEMShowerBuilder_HI,
@@ -74,10 +73,10 @@ TrigTopoEgammaPhotons_HI = AlgFactory( egammaAlgsConf.xAODEgammaBuilder,
 
 TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.xAODEgammaBuilder, 
         name = 'TrigTopoEgammaPhotons',
-        InputElectronRecCollectionName = TrigEgammaKeys.SuperElectronRecCollectionName,
-        InputPhotonRecCollectionName = TrigEgammaKeys.SuperPhotonRecCollectionName,
-        ElectronOutputName = TrigEgammaKeys.outputElectronKey,
-        PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
+        InputElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterRecCollection,
+        InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
+        ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
+        PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,  
         AmbiguityTool = EGammaAmbiguityTool,
         EMClusterTool = TrigEMClusterTool,
         EMShowerTool=TrigEMShowerBuilder,
@@ -97,7 +96,7 @@ def PrecisionPhotonTopoMonitorCfg(name = 'PrecisionPhotonTopoMonitoring'):
     PrecisionPhotonTopoMonitor = AlgFactory( TrigEgammaMonitoringConf.egammaMonitorPhotonAlgorithm,
             name = name,
             doAdd = False,
-            PhotonKey = TrigEgammaKeys.outputPhotonKey,
+            PhotonKey = TrigEgammaKeys.precisionPhotonContainer,
             MonTool = monTool
             )
 
@@ -112,7 +111,7 @@ def PrecisionPhotonSuperClusterMonitorCfg(name = 'PrecisionPhotonSuperClusterMon
     PrecisionPhotonSuperClusterMonitor = AlgFactory( TrigEgammaMonitoringConf.egammaMonitorSuperClusterAlgorithm,
             name = name,
             doAdd = False,
-            InputEgammaRecContainerName = TrigEgammaKeys.EgammaRecKey,
+            InputEgammaRecContainerName = TrigEgammaKeys.precisionEgammaRecCollection,
             MonTool = monTool
             )
 

@@ -36,6 +36,7 @@ atlas_install_runtime( share/file/qgsjet_crmc.param )
 
 # Install files from Crmc.
 foreach( _file "sectnu-II-04" "qgsdat-II-04.lzma" )
+   unset( _datFile )
    find_file( _datFile "${_file}"
       PATHS "${CRMC_LCGROOT}"
       PATH_SUFFIXES "tabs" "share/crmc"

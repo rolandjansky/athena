@@ -37,9 +37,8 @@ def defineMenu():
         ##
         # single EM
         ##
-        'L1_EM3','L1_EM7','L1_EM12', 'L1_EM8VH', 'L1_EM10VH', 'L1_EM15', 'L1_EM15VH', 'L1_EM15VHI', 'L1_EM18VHI',
-        'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VH', 'L1_EM22VHI', 'L1_EM24VHI', 
-        'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
+        'L1_EM7', 'L1_EM8VH', 'L1_EM10', 'L1_EM10VH', 'L1_EM12', 'L1_EM14', 'L1_EM15', 'L1_EM16', 'L1_EM18VH', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22',
+        'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         # new calo
         'L1_eEM3', 'L1_eEM7', 'L1_eEM15', 'L1_eEM12',
@@ -61,26 +60,14 @@ def defineMenu():
         ##
         # combined lepton (e and mu)
         ##
-        'L1_2EM3', 'L1_2EM7', 'L1_2EM15', 'L1_2EM15VH', 'L1_2EM15VHI',
-        'L1_2EM20VH', 'L1_EM20VH_3EM10VH',
-        'L1_EM7_MU8F', 'L1_2EM8VH_MU8F', 'L1_EM15VH_MU8F', 'L1_EM7_MU14FCH',
-
-        # combined em - jet
-        'L1_EM18VHI_3J20',
-        'L1_EM20VH_3J20',
+        'L1_2EM7', 'L1_2EM10', 'L1_2EM15', 'L1_2EM16',
         
         # combined mu - jet
-        'L1_MU3V_J15', 
+        'L1_MU3V_J12','L1_MU3V_J15', 
 
-        #ATR-13743 
-        'L1_MU8F_2J20','L1_MU8F_3J20', 'L1_MU8F_2J15_J20',
-        'L1_MU14FCH_J40',
-        'L1_MU14FCH_XE30',
-        'L1_MU14FCH_J50',
 
         # single jet
-        'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J400',
-        'L1_J400_LAR',
+        'L1_J12','L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
         'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
         'L1_J15p31ETA49_UNPAIRED_ISO',
@@ -88,34 +75,33 @@ def defineMenu():
         'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB',         
         'L1_J100_FIRSTEMPTY',
         'L1_J12_BGRP12',
-
-       
-        # multi jet
-        'L1_J45p0ETA21_3J15p0ETA25',
-        'L1_J50_2J40p0ETA25_3J15p0ETA25',
-        'L1_3J50', 'L1_4J15', 'L1_4J20',
-        'L1_3J15p0ETA25_XE40',
-        'L1_6J15',
-        'L1_J85_3J30', 
-
-        # multi jet forward
-        'L1_J25p0ETA23_2J15p31ETA49',
-        'L1_J40p0ETA25_2J15p31ETA49',
-        'L1_J40p0ETA25_2J25_J20p31ETA49',
-        
-        # multi jet central
-        'L1_3J25p0ETA23',
-        'L1_3J35p0ETA23',
-        'L1_4J15p0ETA25',
-        'L1_5J15p0ETA25', 
-
-        # combined jet
-        'L1_2J15_XE55', 'L1_J40_XE50',
-        'L1_2J50_XE40', 'L1_J40_XE60',
         
         # XE
         'L1_XE35', 'L1_XE40', 'L1_XE45', 'L1_XE50', 
         'L1_XE55', 'L1_XE60', 'L1_XE30', 'L1_XE300',
+        
+         # calo
+        'L1_TE20','L1_VTE20','L1_TE50','L1_TE600p0ETA49','L1_TE50_VTE600p0ETA49','L1_TE12000',
+        
+         # new calo
+        'L1_gTE200',
+        #UPC - MU
+        'L1_MU3V_VTE50',
+        
+        #UPC - EM
+        'L1_TAU1_TE4_VTE200', 'L1_2TAU1_VTE50',
+        
+        #UPC - new EM
+        #'L1_eEM1_TE4_VgTE200', 'L1_2eEM1_VgTE50'
+        
+        #UPC - calo, MBTS, calo  
+        'L1_ZDC_XOR_VTE200', 'L1_VZDC_A_VZDC_C_TE5_VTE200',
+        'L1_ZDC_A_VZDC_C_VTE200', 'L1_ZDC_C_VZDC_A_VTE200',
+        'L1_MBTS_1_ZDC_A_VZDC_C_VTE200', 'L1_MBTS_1_ZDC_C_VZDC_A_VTE200',
+        'L1_TE3p0ETA49_ZDC_A_VZDC_C_VTE200', 'L1_TE3p0ETA49_ZDC_C_VZDC_A_VTE200', 'L1_TE5_ZDC_A_VZDC_C_VTE200','L1_TE5_ZDC_C_VZDC_A_VTE200','L1_TE20_ZDC_A_VZDC_C_VTE200', 'L1_TE20_ZDC_C_VZDC_A_VTE200', 
+        
+        
+
                 
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
@@ -129,7 +115,11 @@ def defineMenu():
         #LUCID
 
         # ZDC
-
+        'L1_ZDC_A','L1_ZDC_C','L1_ZDC_A_C',
+        
+        # ZDC and calo
+        'L1_ZDC_A_C_VTE50',
+        
         # VDM
 
         # TRT
@@ -169,9 +159,7 @@ def defineMenu():
 
         'L1_LAR-ZEE', 'L1_LAR-ZEE-eEM',
 
-
-
-                
+               
         #ATR-17320
         'L1_CEP-CjJ60',
         'L1_CEP-CjJ50' ,

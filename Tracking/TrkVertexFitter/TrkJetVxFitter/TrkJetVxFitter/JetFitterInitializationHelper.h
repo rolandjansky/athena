@@ -107,7 +107,7 @@ namespace Trk {
      *
      */
 
-    void updateTrackNumbering(VxJetCandidate*) const;
+    static void updateTrackNumbering(VxJetCandidate*) ;
 
     /**
      * Calls the linearization of all the tracks (adds the Linearized Track data member 

@@ -3,11 +3,6 @@
 */
 #include "eFexTauRoIThresholdsTool.h"
 
-namespace eFexTauRoIThresholdsToolParams {
-  const char ContainerName[] = "L1_eTauRoI";
-  const char ThresholdType[] = "eTAU";
-}
-
 uint64_t eFexTauRoIThresholdsTool::getPattern(const xAOD::eFexTauRoI& /*roi*/,
                                               const RoIThresholdsTool::ThrVec& /*menuThresholds*/,
                                               const TrigConf::L1ThrExtraInfoBase& /*menuExtraInfo*/) const {

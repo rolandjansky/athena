@@ -28,4 +28,5 @@ atlas_install_joboptions( share/*.py )
 
 # Test(s) in the package.
 atlas_add_test( LinearTransformExample
-   SCRIPT athena.py --stdcmalloc AthExSYCL/LinearTransformExample_jobOptions.py )
+   SCRIPT athena.py --stdcmalloc AthExSYCL/LinearTransformExample_jobOptions.py
+   POST_EXEC_SCRIPT nopost.sh )

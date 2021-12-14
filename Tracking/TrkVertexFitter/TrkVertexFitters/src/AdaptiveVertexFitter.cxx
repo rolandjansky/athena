@@ -351,7 +351,6 @@ namespace Trk
 
     //Count the steps for the fit and the number of relinearizations needed in the fit
     int num_steps(0);
-    int num_relinearizations(0);
 
 
     xAOD::Vertex* ActualVertex = new xAOD::Vertex();
@@ -418,7 +417,6 @@ namespace Trk
           }
         }
         
-        num_relinearizations+=1;
       }
 
 
@@ -537,8 +535,6 @@ namespace Trk
                       << "the ndf of the vertex is at fit end: " << ActualVertex->numberDoF() << endmsg;
     }
 
-    // TODO: get rid of following line
-    //std::cout << "Number of steps: " << num_steps << ". Number of relinearizations: " << num_relinearizations << "." << std::endl << std::endl;
 
     //Give back all info into the ActualVertex xAOD::Vertex
     return ActualVertex;

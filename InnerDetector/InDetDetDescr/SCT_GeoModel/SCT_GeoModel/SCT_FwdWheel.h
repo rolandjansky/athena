@@ -66,33 +66,33 @@ private:
   int m_endcap;
 
   // Basic parameters
-  int      m_numRings;
-  double   m_zPosition;
+  int      m_numRings = 0;
+  double   m_zPosition = 0.0;
   std::vector<int> m_ringType;
   std::vector<int> m_patchPanelType;
   std::vector<double> m_patchPanelLocAngle;
   std::vector<bool> m_patchPanelRepeatQuadrant;
-  int m_numPatchPanelLocs;
-  int m_numPatchPanelTypes;
-  int m_numFSITypes;
-  int m_numWheels;
-  bool m_optoHarnessPresent;
-  bool m_pPConnectorPresent;
-  bool m_pPCoolingPresent;
-  bool m_discFixationPresent;
+  int m_numPatchPanelLocs = 0;
+  int m_numPatchPanelTypes = 0;
+  int m_numFSITypes = 0;
+  int m_numWheels = 0;
+  bool m_optoHarnessPresent = false;
+  bool m_pPConnectorPresent = false;
+  bool m_pPCoolingPresent = false;
+  bool m_discFixationPresent = false;
   std::vector<double> m_discFixationLocAngle;
 
   // Derived parameters
-  double m_innerRadius;
-  double m_outerRadius;
-  double m_thickness;
-  double m_thicknessFront;
-  double m_thicknessBack;
-  int    m_totalModules;
-  int    m_rotateWheel;
-  double m_ringMaxRadius;
+  double m_innerRadius = 0.0;
+  double m_outerRadius = 0.0;
+  double m_thickness = 0.0;
+  double m_thicknessFront = 0.0;
+  double m_thicknessBack = 0.0;
+  int    m_totalModules = 0;
+  int    m_rotateWheel = 0;
+  double m_ringMaxRadius = 0.0;
 
-  double m_safety;
+  double m_safety = 0.0;
 
   // Child detector elements
   std::vector<std::unique_ptr<SCT_FwdRing>> m_rings;
@@ -106,7 +106,7 @@ private:
   const std::vector<SCT_FwdModule*> & m_modules;
 
 
-  const std::vector<const FSIDetails *> * m_fsiVector;
+  const std::vector<const FSIDetails *> * m_fsiVector = nullptr;
 
 
 };

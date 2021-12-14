@@ -31,8 +31,8 @@ TrigDecChecker.MonitoredChains=[]
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior+=1
-from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool 
-tdtAcc = getTrigDecisionTool(ConfigFlags)
+from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg 
+tdtAcc = TrigDecisionToolCfg(ConfigFlags)
 Configurable.configurableRun3Behavior-=1
 
 theTDT = tdtAcc.getPrimary()

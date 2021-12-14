@@ -209,12 +209,8 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
 
     # Won't explicitly configure MuonEDMHelperSvc
     kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+    kwargs.setdefault("Extrapolator", result.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
-    acc = AtlasExtrapolatorCfg(flags)
-    extrap = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("Extrapolator", extrap)
-    
     acc = MuonSegmentMatchingToolCfg(flags, doPhiMatching = doSegmentPhiMatching)
     muon_seg_matching = acc.getPrimary()
     result.merge(acc)
@@ -385,7 +381,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
     
-    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
     if flags.Common.isOnline:
         kwargs.setdefault("MdtCondKey","")
 

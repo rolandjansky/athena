@@ -1,10 +1,10 @@
 TrkVertexFitterUtils/ImpactPoint3dEstimator_test
 
 
-Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
+Initializing Gaudi ApplicationMgr using job opts /home/emoyse/atlas/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
+JobOptionsSvc        INFO # =======> /home/emoyse/atlas/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
 JobOptionsSvc        INFO # (1,1): ToolSvc.Trk::DetAnnealingMaker.SetOfTemperatures = [3, 2, 1]
-JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
+JobOptionsSvc        INFO Job options successfully read in from /home/emoyse/atlas/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v36r2)

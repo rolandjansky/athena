@@ -62,42 +62,42 @@ private:
   Gaudi::Property<std::string> m_ntupleDirName{this, "DirName", "/ExtrapolationStudies/", ""};
   Gaudi::Property<std::string> m_treeName{this, "TreeName", "ATLAS", ""};
 
-  int m_eventNum;
+  int m_eventNum = 0;
   
-  float m_start_d0              ;
-  float m_start_z0              ;
-  float m_start_phi             ;
-  float m_start_theta           ;
-  float m_start_qop             ;
+  float m_start_d0 = 0.0F              ;
+  float m_start_z0 = 0.0F              ;
+  float m_start_phi = 0.0F             ;
+  float m_start_theta = 0.0F           ;
+  float m_start_qop = 0.0F             ;
                                 
-  float m_fwd_success           ;
-  float m_fwd_time              ;
-  float m_fwd_final_l0          ;
-  float m_fwd_final_l1          ;
-  float m_fwd_final_x           ;
-  float m_fwd_final_y           ;
-  float m_fwd_final_z           ;
-  float m_fwd_final_phi         ;
-  float m_fwd_final_theta       ;
-  float m_fwd_final_qop         ;
-  float m_fwd_final_sigma_l0    ;
-  float m_fwd_final_sigma_l1    ;
-  float m_fwd_final_sigma_phi   ;
-  float m_fwd_final_sigma_theta ;
-  float m_fwd_final_sigma_qop   ;
+  float m_fwd_success = 0.0F           ;
+  float m_fwd_time = 0.0F              ;
+  float m_fwd_final_l0 = 0.0F          ;
+  float m_fwd_final_l1 = 0.0F          ;
+  float m_fwd_final_x = 0.0F           ;
+  float m_fwd_final_y = 0.0F           ;
+  float m_fwd_final_z = 0.0F           ;
+  float m_fwd_final_phi = 0.0F         ;
+  float m_fwd_final_theta = 0.0F       ;
+  float m_fwd_final_qop = 0.0F         ;
+  float m_fwd_final_sigma_l0 = 0.0F    ;
+  float m_fwd_final_sigma_l1 = 0.0F    ;
+  float m_fwd_final_sigma_phi = 0.0F   ;
+  float m_fwd_final_sigma_theta = 0.0F ;
+  float m_fwd_final_sigma_qop = 0.0F   ;
                                 
-  float m_bkw_success           ;
-  float m_bkw_time              ;
-  float m_bkw_final_d0          ;
-  float m_bkw_final_z0          ;
-  float m_bkw_final_phi         ;
-  float m_bkw_final_theta       ;
-  float m_bkw_final_qop         ;
-  float m_bkw_final_sigma_d0    ;
-  float m_bkw_final_sigma_z0    ;
-  float m_bkw_final_sigma_phi   ;
-  float m_bkw_final_sigma_theta ;
-  float m_bkw_final_sigma_qop   ;
+  float m_bkw_success = 0.0F           ;
+  float m_bkw_time = 0.0F              ;
+  float m_bkw_final_d0 = 0.0F          ;
+  float m_bkw_final_z0 = 0.0F          ;
+  float m_bkw_final_phi = 0.0F         ;
+  float m_bkw_final_theta = 0.0F       ;
+  float m_bkw_final_qop = 0.0F         ;
+  float m_bkw_final_sigma_d0 = 0.0F    ;
+  float m_bkw_final_sigma_z0 = 0.0F    ;
+  float m_bkw_final_sigma_phi = 0.0F   ;
+  float m_bkw_final_sigma_theta = 0.0F ;
+  float m_bkw_final_sigma_qop = 0.0F   ;
   
   };
   

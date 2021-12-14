@@ -11,6 +11,6 @@ Wrapping underling call in case any additional monitoring configuration is requi
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 @AccumulatorCache
-def getTrigDecisionTool(flags):
-    from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool as getTDT
+def TrigDecisionToolCfg(flags):
+    from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg as getTDT
     return getTDT(flags)

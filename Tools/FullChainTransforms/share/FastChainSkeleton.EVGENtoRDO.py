@@ -186,6 +186,15 @@ else:
     athenaCommonFlags.PoolHitsOutput = ""
     athenaCommonFlags.PoolHitsOutput.statusOn = False
 
+## Simulator
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
+elif hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
+
 #==============================================================
 # Job Configuration parameters:
 #==============================================================
@@ -219,13 +228,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     if hasattr(runArgs, "outputEVNT_TRFile") and\
         not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
-
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
-elif hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
-else:
-    ISF_Flags.Simulator.set_Value_and_Lock('FullG4')
 
 from AthenaCommon.DetFlags import DetFlags
 
@@ -1056,6 +1058,12 @@ if digitizationFlags.RunAndLumiOverrideList.statusOn:
     include("Digitization/LumiBlockOverrides.py")
     if digitizationFlags.dataRunNumber.statusOn:
         fast_chain_log.warning('digitizationFlags.RunAndLumiOverrideList has been set! digitizationFlags.dataRunNumber (set to %s) will be ignored. ', digitizationFlags.dataRunNumber.get_Value() )
+    # Hack to set the three values of EventSelector
+    if simFlags.RunNumber.statusOn:
+        ServiceMgr.EventSelector.FirstLB = 1
+        from RunDependentSimComps.RunDMCFlags import runDMCFlags
+        ServiceMgr.EventSelector.InitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(simFlags.RunNumber())
+        ServiceMgr.EventSelector.RunNumber = simFlags.RunNumber()
 else:
     include("Digitization/RunNumberOverride.py")
 

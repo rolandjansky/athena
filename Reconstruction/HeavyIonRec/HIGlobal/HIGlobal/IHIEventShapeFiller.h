@@ -22,22 +22,23 @@ class CaloCellContainer;
 
 class IHIEventShapeFiller : virtual public asg::IAsgTool
 {
-   ASG_TOOL_INTERFACE(IHIEventShapeFiller)
+  ASG_TOOL_INTERFACE(IHIEventShapeFiller)
 public:
-   virtual ~IHIEventShapeFiller() {};
+  virtual ~IHIEventShapeFiller() {};
 
-   virtual StatusCode initializeCollection            (xAOD::HIEventShapeContainer *evtShape_        )=0;
-   virtual StatusCode fillCollectionFromTowers        (const SG::ReadHandleKey<xAOD::CaloClusterContainer> &m_tower_container_key,
-                                                       const SG::ReadHandleKey<INavigable4MomentumCollection>  &m_navi_container_key)=0;
-   virtual StatusCode fillCollectionFromCells         (const SG::ReadHandleKey<CaloCellContainer> &m_cell_container_key                )=0;
+  virtual StatusCode initializeCollection(xAOD::HIEventShapeContainer* evtShape_) = 0;
+  
+  virtual StatusCode fillCollectionFromTowers(const SG::ReadHandleKey<xAOD::CaloClusterContainer>& m_tower_container_key,
+    const SG::ReadHandleKey<INavigable4MomentumCollection>& m_navi_container_key) = 0;
 
-   virtual const xAOD::HIEventShapeContainer* getHIEventShapeContainer() const =0;
-   virtual StatusCode  setNumOrders(int NumOrders)=0;
+  virtual StatusCode fillCollectionFromCells(const SG::ReadHandleKey<CaloCellContainer>& m_cell_container_key) = 0;
 
-   inline std::string getContainerName() const { return m_outputContainerName; };
-   inline void setContainerName(std::string cname) { m_outputContainerName=cname; };
+  virtual const xAOD::HIEventShapeContainer* getHIEventShapeContainer() const = 0;
 
-private :
+  inline std::string getContainerName() const { return m_outputContainerName; };
+  inline void setContainerName(std::string cname) { m_outputContainerName = cname; };
+
+private:
 
   std::string m_outputContainerName;
 

@@ -714,6 +714,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("charge","charge; charge; Count", 4,-2,2))
     self.addHistogram(monGroup, TH1F("ptcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0))
     self.addHistogram(monGroup, TH1F("ptvarcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0))
+    self.addHistogram(monGroup, TH1F("z0", "z0; z0 ; Count", 40, -1, 1))
     self.addHistogram(monGroup, TH1F("d0", "d0; d0 ; Count", 40, -1, 1))
     self.addHistogram(monGroup, TH1F("d0sig", "d0sig; d0sig ; Count", 40, -10, 10))
     self.addHistogram(monGroup, TH1F("pt", "p_{T}; p_{T} [GeV] ; Count", 100,0.,100.))
@@ -762,11 +763,11 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TProfile("npvtx,npvtx_passed", "#epsilon(npvtx); npvtx ; Efficiency", 16, 0, 80))
 
     # Efficiency ET in eta slices
-    if self.detailedHistograms:
-      self.addHistogram(monGroup, TProfile("et_slice0,et_slice0_passed", "#epsilon(E_T) in [|#eta| <= 0.8]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
-      self.addHistogram(monGroup, TProfile("et_slice1,et_slice1_passed", "#epsilon(E_T) in [0.8 < |#eta| <= 1.37]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
-      self.addHistogram(monGroup, TProfile("et_slice2,et_slice2_passed", "#epsilon(E_T) in [1.37 < |#eta| <= 1.54]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
-      self.addHistogram(monGroup, TProfile("et_slice3,et_slice3_passed", "#epsilon(E_T) in [1.54 < |#eta| <= 2.50]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
+    
+    self.addHistogram(monGroup, TProfile("et_slice0,et_slice0_passed", "#epsilon(E_T) in [|#eta| <= 0.8]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
+    self.addHistogram(monGroup, TProfile("et_slice1,et_slice1_passed", "#epsilon(E_T) in [0.8 < |#eta| <= 1.37]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
+    self.addHistogram(monGroup, TProfile("et_slice2,et_slice2_passed", "#epsilon(E_T) in [1.37 < |#eta| <= 1.54]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
+    self.addHistogram(monGroup, TProfile("et_slice3,et_slice3_passed", "#epsilon(E_T) in [1.54 < |#eta| <= 2.50]; E_{T} [GeV]  ; Efficiency", self._nEtbins, self._etbins))
 
 
   def bookL1CaloResolutions(self, monAlg, trigger):
@@ -934,6 +935,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("res_deta2", "deta2; deta2 ; (deta2(on)-deta2(off))/deta2(off)", 100, -1., 1.))
     self.addHistogram(monGroup, TH1F("res_dphi2", "dphi2; dphi2 ; (dphi2(on)-dphi2(off))/dphi2(off)", 100, -1., 1.))
     self.addHistogram(monGroup, TH1F("res_dphiresc", "dphiresc; (dphires(on)-dphires(off))/dphires(off) ; Count", 100, -1., 1.))
+    self.addHistogram(monGroup, TH1F("res_z0", "resolution z0; (z0(on)-z0(off)) ; Count", 100, -0.5, 0.5))
     self.addHistogram(monGroup, TH1F("res_d0", "resolution d0; (d0(on)-d0(off)) ; Count", 100, -0.5, 0.5))
     self.addHistogram(monGroup, TH1F("res_d0sig", "resolution d0sig; (d0sig(on)-d0sig(off)) ; Count", 50, -10, 10))
     self.addHistogram(monGroup, TH1F("res_eprobht","resolution eProbHT; (eProbHT(on)-eProbHT(off)); Count",50, -1, 1))

@@ -12,7 +12,7 @@
 //
 #include<iostream>
 #include<algorithm>
-
+#include <cmath>
 
  namespace Trk {
 
@@ -416,17 +416,18 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 //tp - ATLAS parameters, vp - VKalVrt parameters//
   {   tp1= vp2;   //phi angle
       tp2= vp1;   //theta angle
-      tp3= vp3 * sin( vp1 ) /(m_CNVMAG*curBMAG);
+      tp3= vp3 * std::sin( vp1 ) /(m_CNVMAG*curBMAG);
+      constexpr double pi = M_PI;
            // -pi < phi < pi  range
-      while ( tp1 > 3.1415926535897) tp1 -= 2.*3.1415926535897;    
-      while ( tp1 <-3.1415926535897) tp1 += 2.*3.1415926535897;    
+      while ( tp1 > pi) tp1 -= 2.*pi;
+      while ( tp1 <-pi) tp1 += 2.*pi;
            // 0 < Theta < pi   range
-      while ( tp2 > 3.1415926535897) tp2 -= 2.*3.1415926535897;    
-      while ( tp2 <-3.1415926535897) tp2 += 2.*3.1415926535897;    
+      while ( tp2 > pi) tp2 -= 2.*pi;
+      while ( tp2 <-pi) tp2 += 2.*pi;
       if    ( tp2 < 0.) { 
-        tp2 = fabs(tp2); tp1 += 3.1415926535897; 
-        while ( tp1 > 3.1415926535897) tp1 -= 2.*3.1415926535897;    
-      } 
+        tp2 = fabs(tp2); tp1 += pi;
+        while ( tp1 > pi) tp1 -= 2.*pi;
+      }
 
   } 
   
@@ -588,7 +589,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
   }
   
 
-  int  TrkVKalVrtFitter::VKalGetNDOF(const State& state) const
+  int  TrkVKalVrtFitter::VKalGetNDOF(const State& state) 
   {    
     if(!state.m_FitStatus) return 0;
     int NDOF=2*state.m_FitStatus-3;

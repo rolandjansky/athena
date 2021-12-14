@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -82,10 +82,8 @@ void RDBRecordset::getData(coral::ISessionProxy* session
 
     // change table name to upper case
     std::string upperName = m_tableName;
-    std::string::iterator it = upperName.begin();
-    while(it!=upperName.end()) {
-      *it = toupper(*it);
-      it++;
+    for (char& ch : upperName) {
+      ch = std::toupper (static_cast<unsigned int>(ch));
     }
 
     coral::IQuery* queryStructure = session->nominalSchema().newQuery();
@@ -196,10 +194,8 @@ void RDBRecordset::compare(const RDBRecordset& rec, std::ostream& os) const
 
   // change table name to upper case
   std::string upperName = m_tableName;
-  std::string::iterator it = upperName.begin();
-  while(it!=upperName.end()) {
-    *it = toupper(*it);
-    it++;
+  for (char& ch : upperName) {
+    ch = std::toupper (static_cast<unsigned int>(ch));
   }
 
   // Collect data_id's for both recordsets

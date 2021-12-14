@@ -29,9 +29,11 @@ class TrigMuonTLAHypoAlg : public HypoBase {
 
     
     SG::WriteHandleKey< xAOD::MuonContainer > m_TLAMuonsKey {
-      this, "TLAMuons", "Muons", "TLA Muon container key"
+      this, "TLAOutputName", "Muons", "TLA Muon container key"
     };
 
 };
 
 #endif
+
+

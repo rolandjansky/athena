@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR
@@ -16,22 +16,22 @@ def precisionElectronRecoSequence_GSF(RoIs):
     log.debug('precisionElectronRecoSequence_GSF(RoIs = %s)',RoIs)
     
     import AthenaCommon.CfgMgr as CfgMgr
-    # First the data verifiers:
-    # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
        
     # precision Tracking related data dependencies
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import  TrigEgammaKeys_GSF
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-
-    TrigEgammaKeys = getTrigEgammaKeys()
+    TrigEgammaKeys_noGSF = getTrigEgammaKeys()
+    TrigEgammaKeys = getTrigEgammaKeys('_GSF', ion=False)
+    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    trackParticles = TrigEgammaKeys.precisionElectronTrackParticleContainerGSF
+    trackParticles_noGSF = TrigEgammaKeys_noGSF.precisionTrackingContainer
 
     ViewVerifyTrk_GSF   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier_GSF")
 
     from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
     ViewVerifyTrk_GSF.DataObjects = [( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % precisionCaloMenuDefs.precisionCaloClusters ),
-                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % TrigEgammaKeys.TrigElectronTracksCollectionName),
+                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % caloClusters ),
+                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % trackParticles),
+                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % trackParticles_noGSF),
                                  # verifier object needed by GSF
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing' ), 
                                  ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+%s' % TrigPixelKeys.PixelClusterAmbiguitiesMap ),
@@ -52,27 +52,21 @@ def precisionElectronRecoSequence_GSF(RoIs):
     # Create the sequence of three steps:
     #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
 
-        
-    from TriggerMenuMT.HLTMenuConfig.Electron.TrigEMBremCollectionBuilder import TrigEMBremCollectionBuilder
     # Create the sequence of steps:
     #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
     #The sequence of these algorithms
     thesequence_GSF = parOR( "precisionElectron_GSF%s" % RoIs)
     thesequence_GSF += ViewVerifyTrk_GSF
-    
-    ## TrigEMBremCollectionBuilder ##
-    track_GSF = TrigEMBremCollectionBuilder()
-    thesequence_GSF += track_GSF
 
     ## TrigEMTrackMatchBuilder_GSF ##
     TrigEMTrackMatchBuilder_GSF = TrigEMTrackMatchBuilder("TrigEMTrackMatchBuilder_GSF")
-    TrigEMTrackMatchBuilder_GSF.TrackParticlesName = track_GSF.OutputTrkPartContainerName
+    TrigEMTrackMatchBuilder_GSF.TrackParticlesName = trackParticles
     
     ## TrigEgammaRecElectron_GSF ##
     TrigEgammaRecAlgo_GSF = TrigEgammaRecElectron("TrigEgammaRecElectron_GSF")
     thesequence_GSF += TrigEgammaRecAlgo_GSF
     TrigEgammaRecAlgo_GSF.TrackMatchBuilderTool = TrigEMTrackMatchBuilder_GSF
-    TrigEgammaRecAlgo_GSF.InputClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
+    TrigEgammaRecAlgo_GSF.InputClusterContainerName = caloClusters
 
     ## TrigElectronSuperClusterBuilder_GSF ##
     TrigSuperElectronAlgo_GSF = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_GSF")
@@ -82,7 +76,7 @@ def precisionElectronRecoSequence_GSF(RoIs):
     ## TrigTopoEgammaElectronCfg_GSF ##
     TrigTopoEgammaAlgo_GSF = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_GSF") 
     thesequence_GSF += TrigTopoEgammaAlgo_GSF
-    TrigTopoEgammaAlgo_GSF.ElectronOutputName = TrigEgammaKeys_GSF.outputElectronKey_GSF
+    TrigTopoEgammaAlgo_GSF.ElectronOutputName = TrigEgammaKeys.precisionElectronContainer
     collectionOut_GSF = TrigTopoEgammaAlgo_GSF.ElectronOutputName
     TrigTopoEgammaAlgo_GSF.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
     collectionOut_GSF_dummy = TrigTopoEgammaAlgo_GSF.DummyElectronOutputName
@@ -90,8 +84,8 @@ def precisionElectronRecoSequence_GSF(RoIs):
     ## TrigElectronIsoBuilderCfg_GSF ##
     isoBuilder_GSF = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_GSF")
     thesequence_GSF += isoBuilder_GSF
-    isoBuilder_GSF.ElectronCollectionContainerName = TrigEgammaKeys_GSF.outputElectronKey_GSF
-
+    isoBuilder_GSF.ElectronCollectionContainerName = TrigEgammaKeys.precisionElectronContainer
+    
     #online monitoring for topoEgammaBuilder_GSF
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
     PrecisionElectronRecoMonAlgo_GSF = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoMonitoring_GSF")

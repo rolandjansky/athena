@@ -13,15 +13,15 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
     result.merge(BeamPipeGeometryCfg(configFlags))
   if configFlags.Detector.GeometryPixel:
     subDetectors += ["Pixel"]
-  if configFlags.Detector.GeometrySCT:
+  if configFlags.Detector.GeometrySCT and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
     subDetectors += ["SCT"]
-  if configFlags.Detector.GeometryTRT:
+  if configFlags.Detector.GeometryTRT and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
     # Commented out because TRT is not production ready yet and we don't 
     # want to turn it on even if the global flag is set
     #  subDetectors += ["TRT"]
     pass
 
-  if configFlags.Detector.GeometryCalo:
+  if configFlags.Detector.GeometryCalo and configFlags.Acts.TrackingGeometry.buildAllAvailableSubDetectors:
     # Commented out because Calo is not production ready yet and we don't 
     # want to turn it on even if the global flag is set
     #  subDetectors += ["Calo"]
@@ -40,6 +40,12 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
     subDetectors += ["ITkStrip"]
 
 
+  if configFlags.Detector.GeometryBpipe:
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    result.merge(BeamPipeGeometryCfg(configFlags))
+    kwargs.setdefault("BuildBeamPipe", True)
+
+
   idSub = [sd in subDetectors for sd in ("Pixel", "SCT", "TRT", "ITkPixel", "ITkStrip")]
   if any(idSub):
     # ANY of the ID subdetectors are on => we require GM sources
@@ -55,12 +61,12 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc", **
                                                          **kwargs)
 
 
-  if configFlags.TrackingGeometry.MaterialSource == "Input":
+  if configFlags.Acts.TrackingGeometry.MaterialSource == "Input":
     actsTrackingGeometrySvc.UseMaterialMap = True
     actsTrackingGeometrySvc.MaterialMapInputFile = "material-maps.json"
-  if configFlags.TrackingGeometry.MaterialSource.find(".json") != -1:  
+  if configFlags.Acts.TrackingGeometry.MaterialSource.find(".json") != -1:  
     actsTrackingGeometrySvc.UseMaterialMap = True
-    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.TrackingGeometry.MaterialSource
+    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.Acts.TrackingGeometry.MaterialSource
   result.addService(actsTrackingGeometrySvc)
   return result
 
@@ -84,6 +90,8 @@ def ActsTrackingGeometryToolCfg(configFlags, name = "ActsTrackingGeometryTool" )
   
   acc = ActsTrackingGeometrySvcCfg(configFlags)
   result.merge(acc)
+
+  result.merge(ActsAlignmentCondAlgCfg(configFlags))
   
   Acts_ActsTrackingGeometryTool = CompFactory.ActsTrackingGeometryTool
   actsTrackingGeometryTool = Acts_ActsTrackingGeometryTool(name)
@@ -106,8 +114,25 @@ def NominalAlignmentCondAlgCfg(configFlags, name = "NominalAlignmentCondAlg", **
 def ActsAlignmentCondAlgCfg(configFlags, name = "ActsAlignmentCondAlg", **kwargs) :
   result = ComponentAccumulator()
   
-  acc = ActsTrackingGeometrySvcCfg(configFlags)
-  result.merge(acc)
+  if configFlags.Detector.GeometryITk:
+    from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelAlignCondAlgCfg
+    result.merge(ITkPixelAlignCondAlgCfg(configFlags))
+
+    from SCT_ConditionsAlgorithms.ITkStripConditionsAlgorithmsConfig import ITkStripAlignCondAlgCfg
+    result.merge(ITkStripAlignCondAlgCfg(configFlags))
+
+    kwargs.setdefault("PixelAlignStoreReadKey", "ITkPixelAlignmentStore")
+    kwargs.setdefault("SCTAlignStoreReadKey", "ITkStripAlignmentStore")
+  else:
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelAlignCondAlgCfg
+    result.merge(PixelAlignCondAlgCfg(configFlags))
+
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_AlignCondAlgCfg
+    result.merge(SCT_AlignCondAlgCfg(configFlags))
+
+    kwargs.setdefault("PixelAlignStoreReadKey", "PixelAlignmentStore")
+    kwargs.setdefault("SCTAlignStoreReadKey", "SCTAlignmentStore")
+
   
   Acts_ActsAlignmentCondAlg = CompFactory.ActsAlignmentCondAlg
   actsAlignmentCondAlg = Acts_ActsAlignmentCondAlg(name, **kwargs)

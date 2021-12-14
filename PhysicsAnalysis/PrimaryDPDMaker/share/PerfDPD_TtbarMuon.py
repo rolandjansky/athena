@@ -111,7 +111,7 @@ ExcludeList=[ "TrackCollection#Tracks",
               ]
 #dpdOutput.addAllItemsFromInputExceptExcludeList(streamName,ExcludeList)
 
-trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+trackParticleAuxExclusions="-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 
 from AthenaCommon.KeyStore import CfgKeyStore,CfgItemList

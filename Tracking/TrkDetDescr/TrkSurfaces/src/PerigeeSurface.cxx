@@ -200,10 +200,10 @@ Trk::PerigeeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, cons
   double D = dir.dot(S);
   double A = (1. - D) * (1. + D);
   if (A == 0.) {
-    return Trk::DistanceSolution(1, pos.perp(), false, 0.);
+    return {1, pos.perp(), false, 0.};
   }
   double sol = (pos - C).dot(D * S - dir) / A;
-  return Trk::DistanceSolution(1, pos.perp(), false, sol);
+  return {1, pos.perp(), false, sol};
 }
 
 Trk::DistanceSolution
@@ -218,9 +218,9 @@ Trk::PerigeeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, cons
   // Step to surface
   //
   if (A > 0.) {
-    return Trk::DistanceSolution(1, 0., false, -(dir[0] * dx + dir[1] * dy) / A);
+    return {1, 0., false, -(dir[0] * dx + dir[1] * dy) / A};
   }
-  return Trk::DistanceSolution(1, 0., false, 0.);
+  return {1, 0., false, 0.};
 }
 
 // overload of ostream operator

@@ -6,17 +6,13 @@ __author__ = "Bruno Lenzi"
 
 
 from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
-from .EMPIDBuilderBase import EMPIDBuilderElectronBase
 from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 
 
 from egammaTools import egammaToolsConf
 from egammaRec.Factories import ToolFactory
 from egammaRec import egammaKeys
-# to set jobproperties.egammaRecFlags
-from egammaRec.egammaRecFlags import jobproperties
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
 _clusterTypes = dict(
@@ -43,7 +39,7 @@ def configureSuperClusterCorrections(swTool):
             make_CaloSwCorrections(
                 clName,
                 suffix='EGSuperCluster',
-                version=jobproperties.egammaRecFlags.superClusterCorrectionVersion(),
+                version=ConfigFlags.Egamma.Calib.SuperClusterCorrectionVersion,
                 cells_name=egammaKeys.caloCellKey())))
 
 
@@ -51,43 +47,10 @@ egammaSwSuperClusterTool = ToolFactory(
     egammaToolsConf.egammaSwTool,
     postInit=[configureSuperClusterCorrections])
 
-
-EMClusterTool = ToolFactory(
-    egammaToolsConf.EMClusterTool,
-    OutputClusterContainerName=egammaKeys.outputClusterKey(),
-    MVACalibSvc=egammaMVASvc
-)
-
-
-EMConversionBuilder = ToolFactory(
-    egammaToolsConf.EMConversionBuilder,
-    ConversionContainerName=egammaKeys.outputConversionKey(),
-    ExtrapolationTool=EMExtrapolationTools)
-
 EGammaAmbiguityTool = ToolFactory(
     ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool)
 
 EMFourMomBuilder = ToolFactory(egammaToolsConf.EMFourMomBuilder)
-
-egammaLargeClusterMakerTool = ToolFactory(
-    egammaToolsConf.egammaLargeClusterMaker,
-    name="egammaLCMakerTool",
-    InputClusterCollection=egammaKeys.ClusterKey(),
-    CellsName=egammaKeys.caloCellKey()
-)
-
-egammaLargeFWDClusterMakerTool = ToolFactory(
-    egammaToolsConf.egammaLargeClusterMaker,
-    name="egammaLCFWDMakerTool",
-    InputClusterCollection=egammaKeys.FwdClusterKey(),
-    CellsName=egammaKeys.caloCellKey(),
-    doFWDelesurraundingWindows=True
-)
-
-# Electron Selectors
-ElectronPIDBuilder = ToolFactory(
-    EMPIDBuilderElectronBase,
-    name="ElectronPIDBuilder")
 
 # Photon Selectors
 PhotonPIDBuilder = ToolFactory(

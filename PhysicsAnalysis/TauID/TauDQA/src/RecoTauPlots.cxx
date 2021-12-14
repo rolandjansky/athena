@@ -6,7 +6,7 @@
 
 namespace Tau{
 
-  RecoTauPlots::RecoTauPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+  RecoTauPlots::RecoTauPlots(PlotBase* pParent, const std::string& sDir, const std::string& sTauJetContainerName):
     PlotBase(pParent, sDir),
     m_oParamPlots(this, "", sTauJetContainerName),
     m_cellBased_neuPFO_Pt(nullptr),
@@ -73,7 +73,7 @@ namespace Tau{
 
     //Neutral Pions
     const std::vector< ElementLink< xAOD::PFOContainer > >& cellBased_neutralPFO = thisTau.protoNeutralPFOLinks();
-    for(auto link : cellBased_neutralPFO) {
+    for(const auto& link : cellBased_neutralPFO) {
       const xAOD::PFO* PFO = *link;
       m_cellBased_neuPFO_Pt->Fill(PFO->pt(), weight);
       m_cellBased_neuPFO_Eta->Fill(PFO->eta(), weight);

@@ -53,9 +53,9 @@ public:
   BCM_RDO_Collection* getCollection(unsigned int chan, BCM_RDO_Container* cont) const;
   
 private:
-  mutable std::atomic<unsigned int>   m_fragment_number;
-  mutable std::atomic<unsigned int>   m_LVL1A_number;
-  mutable std::atomic<unsigned int>   m_hit_number;
+  mutable std::atomic<unsigned int>   m_fragment_number{};
+  mutable std::atomic<unsigned int>   m_LVL1A_number{};
+  mutable std::atomic<unsigned int>   m_hit_number{};
   
 };
 

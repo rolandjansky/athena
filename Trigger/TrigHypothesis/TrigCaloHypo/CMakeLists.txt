@@ -3,12 +3,16 @@
 # Declare the package name:
 atlas_subdir( TrigCaloHypo )
 
+find_package( tdaq-common COMPONENTS hltinterface )
+
+
 # Component(s) in the package:
 atlas_add_library( TrigCaloHypoLib
                    TrigCaloHypo/*.h
                    INTERFACE
                    PUBLIC_HEADERS TrigCaloHypo
-                   LINK_LIBRARIES xAODTrigCalo CaloEvent DecisionHandlingLib GaudiKernel Identifier TrigSteeringEvent )
+                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+                   LINK_LIBRARIES xAODTrigCalo CaloEvent DecisionHandlingLib GaudiKernel Identifier TrigSteeringEvent ${TDAQ-COMMON_LIBRARIES} )
 
 atlas_add_component( TrigCaloHypo
                      src/*.cxx src/components/*.cxx

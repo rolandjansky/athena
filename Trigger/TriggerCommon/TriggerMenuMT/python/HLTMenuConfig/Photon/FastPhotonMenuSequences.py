@@ -3,12 +3,12 @@
 
 
 # menu components   
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
 import AthenaCommon.CfgMgr as CfgMgr
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # logger
 from AthenaCommon.Logging import logging
@@ -18,6 +18,8 @@ log = logging.getLogger(__name__)
 def fastPhotonSequence(flags):
     """Creates secpond step photon sequence"""
     
+    TrigEgammaKeys = getTrigEgammaKeys()
+
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import CaloMenuDefs
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastPhotonViewDataVerifier")
@@ -27,8 +29,8 @@ def fastPhotonSequence(flags):
 
     from TrigEgammaRec.TrigEgammaFastPhotonConfig import TrigEgammaFastPhoton_ReFastAlgo 
     thePhotonFex = TrigEgammaFastPhoton_ReFastAlgo ()
-    thePhotonFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
-    thePhotonFex.PhotonsName=recordable("HLT_FastPhotons")
+    thePhotonFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters # From commom staff
+    thePhotonFex.PhotonsName= TrigEgammaKeys.fastPhotonContainer
     #thePhotonFex.RoIs="EMIDRoIs"
 
 
@@ -37,7 +39,7 @@ def fastPhotonSequence(flags):
     # Spawn View on SuperRoI encompassing all clusters found within the L1 RoI
     roiTool = ViewCreatorCentredOnClusterROITool()
     roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
-    roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastPhoton")
+    roiTool.RoisWriteHandleKey = TrigEgammaKeys.fastPhotonRoIContainer
     # not running the tracking here, so do not need to set this size 
     # from the ID Trigger configuration, however, if we want overlap 
     # of the Rois then we would need to use the electron instance size
@@ -70,6 +72,8 @@ def fastPhotonSequence(flags):
 
 def fastPhotonMenuSequence(flags=None):
     """Creates secpond step photon sequence"""
+    
+    TrigEgammaKeys = getTrigEgammaKeys()
 
     # retrieve the reco sequence+IM
     (photonAthSequence, l2PhotonViewsMaker) = RecoFragmentsPool.retrieve(fastPhotonSequence, flags=None)
@@ -77,7 +81,7 @@ def fastPhotonMenuSequence(flags=None):
     # make the hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlg
     thePhotonHypo = TrigEgammaFastPhotonHypoAlg()
-    thePhotonHypo.Photons = "HLT_FastPhotons"
+    thePhotonHypo.Photons = TrigEgammaKeys.fastPhotonContainer
     thePhotonHypo.RunInView=True
 
     from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict

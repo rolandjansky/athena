@@ -159,7 +159,7 @@ ExcludeList=[]
 
 #dpdOutput.addAllItemsFromInputExceptExcludeList(streamName,ExcludeList)
 
-trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+trackParticleAuxExclusions="-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 
 TileMuStream.AddItem(["xAOD::EventInfo#*"])

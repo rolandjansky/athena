@@ -17,7 +17,7 @@ class TruthVariables : public ValAlgVariables
   TruthVariables(StoreGateSvc* evtStore,
                      const MuonGM::MuonDetectorManager* detManager,
                      TTree* tree,
-                     std::string containername,
+                     const std::string & containername,
                      MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_Truth_nVertices(0),
@@ -57,14 +57,14 @@ class TruthVariables : public ValAlgVariables
   void deleteVariables();
   StatusCode clearVariables();
 
-  int m_Truth_nVertices;
+  int m_Truth_nVertices{};
   std::vector<double> *m_Truth_vertexX;
   std::vector<double> *m_Truth_vertexY;
   std::vector<double> *m_Truth_vertexZ;
   std::vector<double> *m_Truth_vertexT;
   std::vector<int> *m_Truth_vertexId;
   
-  int m_Truth_nParticles;  
+  int m_Truth_nParticles{};  
   std::vector<double> *m_Truth_particlePt;
   std::vector<double> *m_Truth_particleEta;
   std::vector<double> *m_Truth_particlePhi;

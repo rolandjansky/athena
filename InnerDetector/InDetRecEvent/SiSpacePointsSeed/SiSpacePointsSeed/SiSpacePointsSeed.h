@@ -96,24 +96,24 @@ namespace InDet {
   protected:
     
     std::vector<const Trk::SpacePoint*> m_spacepoints;
-    double                            m_d0         ;
-    double                            m_zvertex    ;
-    double                            m_eta        ;  
-    double                            m_x1         ;
-    double                            m_x2         ;
-    double                            m_x3         ;
-    double                            m_y1         ;
-    double                            m_y2         ;
-    double                            m_y3         ;
-    double                            m_z1         ;
-    double                            m_z2         ;
-    double                            m_z3         ;
-    double                            m_r1         ;
-    double                            m_r2         ;
-    double                            m_r3         ;
-    double                            m_dzdr_b     ;
-    double                            m_dzdr_t     ;
-    double                            m_pt         ;
+    double                            m_d0 = 0.0;
+    double                            m_zvertex =0.0;
+    double                            m_eta = 0.0 ;  
+    double                            m_x1 = 0.0 ;
+    double                            m_x2 = 0.0 ;
+    double                            m_x3 = 0.0 ;
+    double                            m_y1 = 0.0 ;
+    double                            m_y2 = 0.0 ;
+    double                            m_y3 = 0.0 ;
+    double                            m_z1 = 0.0 ;
+    double                            m_z2 = 0.0 ;
+    double                            m_z3 = 0.0 ;
+    double                            m_r1 = 0.0 ;
+    double                            m_r2 = 0.0 ;
+    double                            m_r3 = 0.0 ;
+    double                            m_dzdr_b = 0.0 ;
+    double                            m_dzdr_t = 0.0 ;
+    double                            m_pt = 0.0 ;
   };
 
   MsgStream&    operator << (MsgStream&   ,const SiSpacePointsSeed&);

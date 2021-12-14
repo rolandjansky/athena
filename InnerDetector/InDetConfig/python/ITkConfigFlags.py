@@ -22,7 +22,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doRefitInvalidCov", False) # Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices.
   itkcf.addFlag("ITk.doSSSfilter", True) # Switch for running SSS filter
   itkcf.addFlag("ITk.doNNToTCalibration", False ) # USe ToT calibration for NN clustering rather than Charge 
-  itkcf.addFlag("ITk.useNNTTrainedNetworks", True ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
+  itkcf.addFlag("ITk.useNNTTrainedNetworks", False ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
   itkcf.addFlag("ITk.doStripModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   itkcf.addFlag("ITk.doStoreTrackSeeds", False) # Turn on to save the Track Seeds in a xAOD track collecting for development studies 
   itkcf.addFlag("ITk.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs   
@@ -36,13 +36,13 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
   itkcf.addFlag("ITk.doHeavyIon", False) # Turn running of HeavyIons on and off
   itkcf.addFlag("ITk.doFastTracking", False) # Turn running of ITk FastTracking on and off
-  itkcf.addFlag("ITk.doITkConversionFinding",True) # Turn running of doITkConversionFinding second pass on and off
-  itkcf.addFlag("ITk.doITkLargeD0", False)
+  itkcf.addFlag("ITk.doConversionFinding",True) # Turn running of ConversionFinding second pass on and off
+  itkcf.addFlag("ITk.doLargeD0", False)
   itkcf.addFlag("ITk.storeSeparateLargeD0Container", False)
   itkcf.addFlag("ITk.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   itkcf.addFlag("ITk.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   itkcf.addFlag("ITk.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
-  itkcf.addFlag("ITk.doCaloSeededAmbi", False) # Use Calo ROIs to seed specific cuts for the ambi
+  itkcf.addFlag("ITk.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
   itkcf.addFlag("ITk.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
   itkcf.addFlag("ITk.loadRotCreator", True) # Turn loading of ROT_Creator tool on and off
   itkcf.addFlag("ITk.useBeamConstraint", True) # use beam spot service in new tracking 
@@ -58,7 +58,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.materialInteractionsType", 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
   itkcf.addFlag("ITk.pixelClusterBadClusterID", 3) # Select the mode to identify suspicous pixel clusteri 
   itkcf.addFlag("ITk.KeepFirstParameters", False) # Keep the first set of track parameters in addition to the defining ones for TrackParticles. False to drop them
-  itkcf.addFlag("ITk.doVertexFinding", False) # Turn on the primary vertex reconstruction, temporarily disabled
+  itkcf.addFlag("ITk.doVertexFinding", True) # Turn on the primary vertex reconstruction
   itkcf.addFlag("ITk.truthMatchStrategy", 'TruthMatchRatio') # defines how truth matching is done. possible values TruthMatchRatio (old style) or TruthMatchTanimoto (new style)
   itkcf.addFlag("ITk.useBroadClusterErrors", False) # Use broad cluster errors for Pixel/Strip
   itkcf.addFlag("ITk.useBroadPixClusterErrors", False) # Use broad cluster errors for Pixel
@@ -95,6 +95,9 @@ def createITkConfigFlags():
   itkcf.addFlagsCategory ("ITk.ConversionFindingTracking", createITkConversionFindingTrackingFlags, prefix=True)
   itkcf.addFlagsCategory ("ITk.FastTracking", createITkFastTrackingFlags, prefix=True)
   itkcf.addFlagsCategory ("ITk.LargeD0FastTracking", createITkLargeD0FastTrackingFlags, prefix=True)
+
+  from InDetConfig.VertexFindingFlags import createITkPriVertexingFlags
+  itkcf.addFlagsCategory("ITk.PriVertex", createITkPriVertexingFlags, prefix=True)
 
 
   return itkcf

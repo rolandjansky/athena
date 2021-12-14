@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FLUKAPARTICLE_H
@@ -19,8 +19,8 @@
 class FlukaParticle {
  public:
   FlukaParticle(int type = 0);
-  FlukaParticle(const FlukaParticle& flukaParticle);
-  FlukaParticle& operator=(const FlukaParticle& flukaParticle);
+  FlukaParticle(const FlukaParticle& flukaParticle) = default;
+  FlukaParticle& operator=(const FlukaParticle& flukaParticle) = default;
 
   /** A function to read the values from a single row definition and
       fill the data members. */

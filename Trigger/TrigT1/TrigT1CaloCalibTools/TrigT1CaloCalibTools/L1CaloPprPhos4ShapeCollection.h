@@ -274,7 +274,6 @@ private:
    unsigned int m_runNumber;
    std::string m_runNumberStr;
    
-   static const float PI;
 };
 
 

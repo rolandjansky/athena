@@ -61,8 +61,8 @@ private:
     const TRT_ID* m_pTRTHelper;
     const InDetDD::TRT_DetectorManager *m_mgr;
     
-    unsigned char m_mat_chip_E[64][3840];
-    unsigned char m_mat_chip_B[64][1642];
+    unsigned char m_mat_chip_E[64][3840]{};
+    unsigned char m_mat_chip_B[64][1642]{};
     
     enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
     

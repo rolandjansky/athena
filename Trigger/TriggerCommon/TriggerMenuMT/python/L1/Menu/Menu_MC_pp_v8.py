@@ -90,6 +90,8 @@ def defineMenu():
 
         # multi tau, new calo
         'L1_eTAU60_2eTAU40', 
+        'L1_cTAU20M_2cTAU12M_4jJ12p0ETA25',
+        'L1_cTAU25M_2cTAU20M_2jJ25_3jJ20',  
 
         # combined tau - lepton
         'L1_EM15VHI_2TAU12IM',
@@ -119,7 +121,7 @@ def defineMenu():
         'L1_EM20VH_3J20',
 
         # combined mu - jet 
-        'L1_MU3V_J15', 'L1_BTAG-MU3VjJ15',
+        'L1_MU3V_J15', 'L1_BTAG-MU3VjJ15', 'L1_BTAG-MU5VFjJ20', 
 
         #ATR-13743 
         'L1_MU8F_2J20','L1_MU8F_3J20', 'L1_MU8F_2J15_J20',
@@ -127,6 +129,7 @@ def defineMenu():
         'L1_MU14FCH_XE30',
 
         # single jet
+        # L1_J12 must be kept in the menu for online monitoring of BIB (can be disabled via PS is necessary)
         'L1_J12', 'L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100', 'L1_J400',
         'L1_J400_LAR',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
@@ -185,12 +188,13 @@ def defineMenu():
         'L1_XE55', 'L1_XE60', 'L1_XE30', 'L1_XE300',
         # new calo
         'L1_gXERHO30', 'L1_gXERHO50',
-        'L1_gXEPUFIT30', 'L1_gXEPUFIT50',
-        'L1_gXE30', 'L1_gXE40', 'L1_gXE50',
-        'L1_gTE50',
+        'L1_gXENC30', 'L1_gXENC50',
+        'L1_gXEJWOJ30', 'L1_gXEJWOJ40', 'L1_gXEJWOJ50',
+        'L1_gTE200',
+        'L1_gMHT500',
 
         'L1_jXE30', 'L1_jXE40', 'L1_jXE50', 'L1_jXE55', 'L1_jXE300', 
-        'L1_jXEC50', 'L1_jTE100', 'L1_jTEC100', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
+        'L1_jXEC50', 'L1_jTE200', 'L1_jTEC200', 'L1_jTEFWD100', 'L1_jTEFWDA100', 'L1_jTEFWDC100',
            
         # ATR-24037 
         'L1_jXEPerf50',
@@ -327,6 +331,12 @@ def defineMenu():
         'L1_SC111-CjJ15',  
         'L1_jJ50_DETA20-jJ50J', 
 
+        # tau 
+        'L1_DR-eTAU20eTAU12', 'L1_DR-eTAU20eTAU12-jJ25', 
+        'L1_DR-eTAU20MeTAU12M', 'L1_DR-eTAU20MeTAU12M-jJ25', 
+        'L1_cTAU20M_2cTAU12M_DR-eTAU20MeTAU12M', 'L1_cTAU20M_2cTAU12M_DR-eTAU20MeTAU12M-jJ25',
+        'L1_eTAU60_2cTAU12M_DR-eTAU20eTAU12', 
+
         #ATR-19510
         'L1_DY-BOX-2MU5VF', 'L1_DY-BOX-MU5VFMU3V', 'L1_DY-BOX-2MU3V',
 
@@ -356,8 +366,10 @@ def defineMenu():
         #ATR-19638
         'L1_BPH-0M10C-3MU3V',
         #ATR-21566 
+        'L1_BPH-0DR12-2MU3V',
+        'L1_BPH-7M22-0DR20-2MU3V',
         'L1_BPH-0DR12C-2MU3V',
-
+        'L1_BPH-7M22-0DR20C-2MU3V',
         #ATR-22782
         'L1_BPH-0M16-20DR99-2MU3V', 'L1_BPH-0M16-15DR99-2MU3V',
         'L1_BPH-8M15-20DR99-C-2MU3V', 'L1_BPH-8M15-20DR99-2MU3V', 'L1_BPH-8M15-15DR99-2MU3V',          
@@ -367,7 +379,7 @@ def defineMenu():
         'L1_jMJJ-400-NFF-0DPHI24',
         'L1_jMJJ-400-NFF-0DPHI26',
 
-        'L1_LATE-MU8F_XE30', 'L1_LATE-MU8F_J50',
+        'L1_LATE-MU8F_jXE30', 'L1_LATE-MU8F_jJ50',
 
         #ATR-18824
         'L1_ZAFB-04DPHI-eEM15M',
@@ -376,7 +388,7 @@ def defineMenu():
         #'L1_ZAFB-25DPHI-eEM18M',
 
         'L1_DPHI-M70-2eEM10M', 'L1_DPHI-M70-2eEM12M', #ATR-19302
-        'L1_DPHI-M70-2eEM12', # ATR-21637 (no shower shape cuts)
+        'L1_DPHI-M70-2eEM7', 'L1_DPHI-M70-2eEM7L', # ATR-21637 (no or loose shower shape cuts)
                 
         #ATR-17320
         'L1_CEP-CjJ60',

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEEVENT_TILEFASTRAWCHANNEL_H
@@ -32,6 +32,21 @@ class TileFastRawChannel {
                         float time,
                         float quality)
       : m_frag(-1)
+      , m_channel(channel)
+      , m_adc(adc)
+      , m_amplitude(amplitude)
+      , m_time(time)
+      , m_quality(quality)
+    {
+    }
+
+    TileFastRawChannel (int frag,
+                        unsigned int channel,
+                        unsigned int adc,
+                        float amplitude,
+                        float time,
+                        float quality)
+      : m_frag(frag)
       , m_channel(channel)
       , m_adc(adc)
       , m_amplitude(amplitude)

@@ -54,20 +54,20 @@ private:
 
   // Basic parameters
   int     m_endcap;
-  int     m_numModuleTypes;
-  int     m_numWheels;
-  double  m_innerRadius;
-  double  m_outerRadius;
-  double  m_zMin;
-  double  m_zMax;
-  double  m_trtGapPos;
-  double  m_coolingPipeRadius;
-  int     m_numThermalShieldElements;
-  bool    m_cylinderServicesPresent;
+  int     m_numModuleTypes = 0;
+  int     m_numWheels = 0;
+  double  m_innerRadius = 0.0;
+  double  m_outerRadius = 0.0;
+  double  m_zMin = 0.0;
+  double  m_zMax = 0.0;
+  double  m_trtGapPos = 0.0;
+  double  m_coolingPipeRadius = 0.0;
+  int     m_numThermalShieldElements = 0;
+  bool    m_cylinderServicesPresent = false;
  
   // Derived parameters
-  double m_length;
-  double m_outerRadiusCylinderServices;
+  double m_length = 0.0;
+  double m_outerRadiusCylinderServices = 0.0;
 
   // Child detector elements
   std::vector<std::unique_ptr<SCT_FwdWheel>> m_wheels;

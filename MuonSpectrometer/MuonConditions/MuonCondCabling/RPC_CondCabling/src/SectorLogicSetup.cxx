@@ -725,7 +725,7 @@ bool SectorLogicSetup::operator+=(RPCchamberdata& data) {
                 int eta_st_of = (*current).second.eta_strip_global() / div;
                 int eta_co = (*current).second.eta_connectors() / div;
                 int eta_co_of = (*current).second.eta_conn_global() / div;
-                current++;
+                ++current;
                 if (current != m_RPCs.end()) {
                     (*current).second.set_eta_st_global(eta_st + eta_st_of);
                     (*current).second.set_eta_co_global(eta_co + eta_co_of);

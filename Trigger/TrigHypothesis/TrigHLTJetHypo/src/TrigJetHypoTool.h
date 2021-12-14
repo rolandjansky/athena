@@ -26,11 +26,6 @@
 #include <string>
 #include <optional>
 
-struct EventSN{
-  std::size_t m_id{0};
-  std::size_t getSN(){return m_id++;}
-};
-
 class TrigJetHypoTool: public AthAlgTool{
   
 public:
@@ -89,7 +84,8 @@ public:
     this, "chain_name", {}, "chain name"};
   
   
-  std::unique_ptr<EventSN> m_eventSN;
+  mutable std::atomic<size_t> m_id = 0;
+  
 
   StatusCode
   checkPassingJets(const xAODJetCollector&,

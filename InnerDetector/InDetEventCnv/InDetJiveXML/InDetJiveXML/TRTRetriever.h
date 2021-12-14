@@ -69,7 +69,7 @@ namespace JiveXML{
       /// The StoreGate key for the TRT Cluster collection to retrieve
       SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_TRTDriftCircleCollKey{ this, "TRTClusters", "TRT_DriftCircles", "Container name for TRT Drift Circles" }; 
       /// The StoreGate key for the TRT MultiTruthMap with the track associations
-      bool m_useTRTTruthMap;
+      bool m_useTRTTruthMap = false;
       SG::ReadHandleKey<PRD_MultiTruthCollection> m_TRTTruthMapKey{ this, "TRT_TruthMap", "PRD_MultiTruthTRT", "Container name for PRD Multi-truth TRT MAP" };
   };
 

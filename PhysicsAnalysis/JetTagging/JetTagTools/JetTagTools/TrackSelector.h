@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGTOOLS_TRACKSELECTOR_H
@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "ITrackToVertex/ITrackToVertex.h"
@@ -15,10 +16,7 @@
 #include <string>
 #include <bitset>
 
-//namespace xAOD  { class TrackParticle; }
 namespace Reco { class ITrackToVertex; }
-
-// class SharedHitTrackAssoc;
 
 namespace Analysis {
 
@@ -66,7 +64,6 @@ private:
   bool m_usepTDepTrackSel;
   double m_pTMinOffset;
   double m_pTMinSlope;
-  //  double m_SumTrkPt;  /// sum of tracks pT
   double m_d0Max;     /// max. d0: |d0|<d0Max
   double m_z0Max;     /// max. z0:
   double m_sigd0Max; // max sig d0:
@@ -80,12 +77,6 @@ private:
   int m_nHitSi;       /// at least n hits in pixels+SCT
   int m_nHitTrt;      /// at least n hits in TRT
   int m_nHitTrtHighE; /// at least n transition hits in TRT 
-  //bool m_useSharedHitInfo; /// if false the following cuts are ignored
-  //int m_nSharedFirstLayer; /// max. number of shared hits in first Si layer
-  //int m_nSharedBLayer;/// max. number of shared hits in B layer
-  //int m_nSharedPix;   /// max. number of shared hits in pixels
-  //int m_nSharedSct;   /// max. number of shared hits in SCT
-  //int m_nSharedSi;    /// max. number of shared hits in pixels+SCT
   bool m_useDeadPixInfo;  /// if true uses dead pixel sensors from conddb (except b-layer) to compute nPix
   bool m_useDeadSctInfo;  /// if true uses dead SCT sensors to compute nSct
   bool m_useTrackQualityInfo; /// if false the following cuts are ignored
@@ -114,6 +105,10 @@ private:
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool{this, "trackToVertexTool", "Reco::TrackToVertex"};
 
   std::bitset<numCuts> m_passedCuts;
+
+  bool m_useEtaDependentCuts;
+  /** service to get cut values depending on different variable */
+  ServiceHandle<InDet::IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
 
 };
 

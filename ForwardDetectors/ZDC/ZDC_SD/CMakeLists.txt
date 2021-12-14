@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ZDC_SD )
@@ -26,8 +26,10 @@ atlas_install_joboptions( share/optionForTest.txt )
 # Tests in the package:
 atlas_add_test( ZDC_StripSD_gtest
                 SOURCES test/ZDC_StripSD_gtest.cxx
-                LINK_LIBRARIES TestTools ZDC_SDLib )
+                LINK_LIBRARIES TestTools ZDC_SDLib
+                POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( ZDC_PixelSD_gtest
                 SOURCES test/ZDC_PixelSD_gtest.cxx
-                LINK_LIBRARIES TestTools ZDC_SDLib )
+                LINK_LIBRARIES TestTools ZDC_SDLib
+                POST_EXEC_SCRIPT nopost.sh )

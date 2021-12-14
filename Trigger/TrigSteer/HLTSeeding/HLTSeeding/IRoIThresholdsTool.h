@@ -72,7 +72,13 @@ public:
     // Decorate the RoI objects with threshold patterns
     SG::WriteDecorHandle<T_RoIContainer, uint64_t> thresholdPatterns(m_thresholdPatternsKey, eventContext);
     for (const T_RoI* roi: *thresholdPatterns) {
-      thresholdPatterns(*roi) = getPattern(*roi, menuThresholds.value().get(), menuExtraInfo.value().get());
+      try {
+        thresholdPatterns(*roi) = getPattern(*roi, menuThresholds.value().get(), menuExtraInfo.value().get());
+      }
+      catch (const std::exception& ex) {
+        ATH_MSG_ERROR("getPattern() for " << N_RoIContainer << " failed with exception: " << ex.what());
+        return StatusCode::FAILURE;
+      }
     }
 
     return StatusCode::SUCCESS;

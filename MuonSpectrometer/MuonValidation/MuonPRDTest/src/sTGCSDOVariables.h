@@ -18,7 +18,7 @@ class sTGCSDOVariables : public ValAlgVariables
                        const MuonGM::MuonDetectorManager* detManager,
                        const MuonIdHelper* idhelper,
                        TTree* tree,
-							  std::string containername,
+							  const std::string & containername,
 						     MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
     m_sTgcIdHelper(0),
@@ -58,16 +58,16 @@ class sTGCSDOVariables : public ValAlgVariables
     m_sTgcIdHelper = dynamic_cast<const sTgcIdHelper*>(idhelper);
     if(m_sTgcIdHelper == 0) {
        ATH_MSG_ERROR("casting IdHelper to MmIdhelper failed");
-       throw;
+       throw std::runtime_error("Casting error in sTGCSDOVariables::setHelper");
     }
   }
 
   void deleteVariables();
   StatusCode clearVariables();
 
-  const sTgcIdHelper* m_sTgcIdHelper;
+  const sTgcIdHelper* m_sTgcIdHelper{};
 
-  int m_NSWsTGC_nsdo;
+  int m_NSWsTGC_nsdo{};
   std::vector<std::string> *m_NSWsTGC_sdo_stationName;
   std::vector<int> *m_NSWsTGC_sdo_stationEta;
   std::vector<int> *m_NSWsTGC_sdo_stationPhi;

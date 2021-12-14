@@ -8,7 +8,7 @@ def main():
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("menu", nargs="?", default=ConfigFlags.Trigger.triggerMenuSetup,
+    parser.add_argument("menu", nargs="?", default='PhysicsP1_pp_run3_v1', #ConfigFlags.Trigger.triggerMenuSetup,
                         help="the menu to generate [%(default)s]")
     parser.add_argument("--bgrp", action="store_true",
                         help="generate default MC bunchgroup")

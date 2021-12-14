@@ -114,36 +114,27 @@ StatusCode TrigEgammaPrecisionElectronHypoAlg::execute( const EventContext& cont
         // Decorate the info with all CB decisions
         for (std::size_t i = 0; i < m_cbNames.size(); ++i) {
           auto const& pidname = m_cbNames[i];
-          if(m_do_idperf){
-             info.pidDecorator[pidname] = false;
-          }
-          else
-             info.pidDecorator[pidname] = (bool)m_egammaElectronCBTools[i]->accept(electronHandle->at(cl));
+          info.pidDecorator[pidname] = (bool)m_egammaElectronCBTools[i]->accept(electronHandle->at(cl));
         }
 
         // Decorate the info with all LH decisions
         ATH_MSG_DEBUG ("Using LH Tool..");
         int idx=0;
         for ( auto &pidname : m_lhNames ){
-          if(m_do_idperf){
-             info.valueDecorator[pidname+"LHValue"] = 0;
-             info.pidDecorator[pidname] = false;
+          timer_lh.start();
+          if(eventInfoDecor.isPresent()) {
+            float avg_mu = eventInfoDecor(0);
+            float lhvalue = m_egammaElectronLHTools[idx]->calculate(context, electronHandle.cptr()->at(cl),avg_mu);
+            info.valueDecorator[pidname+"LHValue"] = lhvalue;
+            info.pidDecorator[pidname] = (bool)m_egammaElectronLHTools[idx]->accept(context, electronHandle.cptr()->at(cl),avg_mu);
+          }else{
+            float lhvalue = m_egammaElectronLHTools[idx]->calculate(context, electronHandle.cptr()->at(cl));
+            info.valueDecorator[pidname+"LHValue"] = lhvalue;
+            ATH_MSG_WARNING("EventInfo decoration not available!");
+            info.pidDecorator[pidname] = (bool)m_egammaElectronLHTools[idx]->accept(context, electronHandle.cptr()->at(cl));
           }
-          else{ 
-             timer_lh.start();
-             if(eventInfoDecor.isPresent()) {
-                 float avg_mu = eventInfoDecor(0);
-                 float lhvalue = m_egammaElectronLHTools[idx]->calculate(context, electronHandle.cptr()->at(cl),avg_mu);
-                 info.valueDecorator[pidname+"LHValue"] = lhvalue;
-                 info.pidDecorator[pidname] = (bool)m_egammaElectronLHTools[idx]->accept(context, electronHandle.cptr()->at(cl),avg_mu);
-             }else{
-                 float lhvalue = m_egammaElectronLHTools[idx]->calculate(context, electronHandle.cptr()->at(cl));
-                 info.valueDecorator[pidname+"LHValue"] = lhvalue;
-                 ATH_MSG_WARNING("EventInfo decoration not available!");
-                 info.pidDecorator[pidname] = (bool)m_egammaElectronLHTools[idx]->accept(context, electronHandle.cptr()->at(cl));
-             }
-             timer_lh.stop();
-          }
+          timer_lh.stop();
+  
           idx++;
         }
        
@@ -152,22 +143,17 @@ StatusCode TrigEgammaPrecisionElectronHypoAlg::execute( const EventContext& cont
         idx = 0;
         for ( auto &pidname : m_dnnNames ){
           ATH_MSG_DEBUG("pidname: "<<pidname);
-          if(m_do_idperf){      
-       	     info.pidDecorator[pidname] = false;
-       	  }
-          else{
-             timer_dnn.start();
-             if(eventInfoDecor.isPresent()) {
-                 float avg_mu = eventInfoDecor(0);
-                 info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTools[idx]->accept(context, electronHandle.cptr()->at(cl),avg_mu);
-                 ATH_MSG_DEBUG("info.pidDecorator[pidname]: "<<info.pidDecorator[pidname]);
-             }else{
-                 ATH_MSG_WARNING("EventInfo decoration not available!");
-                 info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTools[idx]->accept(context, electronHandle.cptr()->at(cl));
-                 ATH_MSG_DEBUG("info.pidDecorator[pidname]: "<<info.pidDecorator[pidname]);
-             }
-             timer_dnn.stop();
+          timer_dnn.start();
+          if(eventInfoDecor.isPresent()) {
+            float avg_mu = eventInfoDecor(0);
+            info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTools[idx]->accept(context, electronHandle.cptr()->at(cl),avg_mu);
+            ATH_MSG_DEBUG("info.pidDecorator[pidname]: "<<info.pidDecorator[pidname]);
+          }else{
+            ATH_MSG_WARNING("EventInfo decoration not available!");
+            info.pidDecorator[pidname] = (bool)m_egammaElectronDNNTools[idx]->accept(context, electronHandle.cptr()->at(cl));
+            ATH_MSG_DEBUG("info.pidDecorator[pidname]: "<<info.pidDecorator[pidname]);
           }
+          timer_dnn.stop();
           idx++;
         }
 

@@ -45,11 +45,12 @@ def _IncTool(name, monGroups, threshold, sel, tool=None):
         tool.dETACLUSTERthr = 9999.
         tool.dPHICLUSTERthr = 9999.
 
-    elif sel == "etcut" or 'ion' in sel:
+    elif sel in ('etcut', 'ion'):
         tool.ETthr          = same( ( float( threshold ) -  3 )*GeV ) 
         # No other cuts applied
         tool.dETACLUSTERthr = 9999.
         tool.dPHICLUSTERthr = 9999.
+
  
     return tool
 
@@ -62,7 +63,7 @@ def TrigEgammaPrecisionCaloHypoToolFromDict( d, tool=None ):
         return cpart['threshold']
     
     def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'] + cpart['extra']
+        return 'ion' if 'ion' in cpart['extra'] else (cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo'])
     
     name = d['chainName']
     monGroups = d['monGroups']    

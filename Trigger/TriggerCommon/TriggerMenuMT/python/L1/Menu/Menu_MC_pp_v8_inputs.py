@@ -131,7 +131,7 @@ def defineInputsMenu():
             None, 
 
             # gJ thresholds for commissioning
-            ('gJ15',3), ('gJ25',3), ('gJ35',3), 
+            ('gJ20',3), ('gJ30',3), ('gJ40',3), 
 
             (None,3),
 
@@ -218,24 +218,27 @@ def defineInputsMenu():
             ('jXE30',1), ('jXE40',1), ('jXE50',1), ('jXE55',1), ('jXE300',1),
             # gXE
             ('gXERHO30',1), ('gXERHO50',1),
-            ('gXEPUFIT30',1), ('gXEPUFIT50',1),
-            ('gXE30',1), ('gXE40',1), ('gXE50',1),
+            ('gXENC30',1), ('gXENC50',1),
+            ('gXEJWOJ30',1), ('gXEJWOJ40',1), ('gXEJWOJ50',1),
             # gTE
-            ('gTE50',1),
+            ('gTE200',1),
+
+            # MHT
+            ('gMHT500',1),
 
             # test thresholds
             ('jXEC50',1),
-            ('jTE100',1), ('jTEC100',1), ('jTEFWD100',1), ('jTEFWDA100',1), ('jTEFWDC100',1),
+            ('jTE200',1), ('jTEC200',1), ('jTEFWD100',1), ('jTEFWDA100',1), ('jTEFWDC100',1),
 
             # spare energy thresholds for commissioning
             ('jXESPARE1',1), ('jXESPARE2',1), ('jXESPARE3',1), ('jXESPARE4',1), ('jXESPARE5',1), ('jXESPARE6',1), ('jXESPARE7',1), ('jXESPARE8',1), ('jXESPARE9',1),
 
             # production
             ('jXESPARE10',1), ('jXESPARE11',1), ('jXESPARE12',1), ('jXESPARE13',1), 
-            #('jXESPARE14',1),
-            #('jXESPARE15',1), ('jXESPARE16',1), ('jXESPARE17',1), ('jXESPARE18',1), ('jXESPARE19',1),
-            #('jXESPARE20',1), ('jXESPARE21',1), ('jXESPARE22',1), ('jXESPARE23',1), ('jXESPARE24',1),
-            #('jXESPARE25',1), ('jXESPARE26',1), ('jXESPARE27',1), ('jXESPARE28',1), ('jXESPARE29',1), 
+            ('jXESPARE14',1),
+            ('jXESPARE15',1), ('jXESPARE16',1), ('jXESPARE17',1), ('jXESPARE18',1), ('jXESPARE19',1),
+            ('jXESPARE20',1), ('jXESPARE21',1), ('jXESPARE22',1), ('jXESPARE23',1), ('jXESPARE24',1),
+            ('jXESPARE25',1), ('jXESPARE26',1), ('jXESPARE27',1), ('jXESPARE28',1),
 
             # Performance thresholds, should not go in physics menu!
             ('jXEPerf50',1),
@@ -272,10 +275,12 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 1,
                 "algorithms" : [
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR25-eTAU20abi-eTAU12abi',   outputbits = 0 ),
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abi-eTAU12abi',   outputbits = 1 ),
-                    TopoMenuDef( '0DR25-eTAU20abi-eTAU12abi',                  outputbits = 2 ),
-                    TopoMenuDef( '0DR28-eTAU20abi-eTAU12abi',                  outputbits = 3 ), 
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR25-eTAU20ab-eTAU12ab',   outputbits = 0 ),
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20ab-eTAU12ab',   outputbits = 1 ),
+                    TopoMenuDef( '0DR25-eTAU20ab-eTAU12ab',                  outputbits = 2 ),
+                    TopoMenuDef( '0DR28-eTAU20ab-eTAU12ab',                  outputbits = 3 ), 
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abm-eTAU12abm',   outputbits = 4 ),
+                    TopoMenuDef( '0DR28-eTAU20abm-eTAU12abm',                  outputbits = 5 ), 
                 ]
             },
             
@@ -296,7 +301,8 @@ def defineInputsMenu():
                     TopoMenuDef( 'INVM_eEMs6',                     outputbits = (10,11), outputlines = [ '1INVM5-eEM7s1-eEMs6',
                                                                                                          '1INVM5-eEM12s1-eEMs6'] ),
                     TopoMenuDef( '27DPHI32-eEMs1-eEMs6',           outputbits = 12 ),
-                    TopoMenuDef( '0INVM70-27DPHI32-eEM12s1-eEM12s6',           outputbits = 13 ),
+                    TopoMenuDef( '0INVM70-27DPHI32-eEM7s1-eEM7s6',           outputbits = 13 ),
+                    TopoMenuDef( '0INVM70-27DPHI32-eEM7sl1-eEM7sl6',         outputbits = 14 ),
                 ]
             },
             
@@ -365,7 +371,10 @@ def defineInputsMenu():
                     TopoMenuDef( '0INVM70-27DPHI32-eEM12sm1-eEM12sm6',   outputbits = 3 ),
                     TopoMenuDef( 'ZEE-eEM20sm2',                         outputbits = 4 ), 
                     TopoMenuDef( '10DR99-2MU5VFab',                      outputbits = 5 ), #Msonly Narrow scan triggers
-                    TopoMenuDef( '0DR12C-2MU3Vab',                       outputbits = 6 ), #BLS
+                    TopoMenuDef( '0DR12C-2MU3Vab',                       outputbits = 6 ), # ATR-21566
+                    TopoMenuDef( '7INVM22-0DR20C-2MU3Vab',               outputbits = 7 ), # ATR-21566
+                    TopoMenuDef( '0DR12-2MU3Vab',                        outputbits = 8 ), # ATR-21566
+                    TopoMenuDef( '7INVM22-0DR20-2MU3Vab',                outputbits = 9 ), # ATR-21566
                 ]
             },
 

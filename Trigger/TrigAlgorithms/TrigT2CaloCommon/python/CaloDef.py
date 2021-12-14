@@ -35,8 +35,9 @@ def _algoHLTHIEventShape(name='HLTEventShapeMaker', inputEDM='CellsClusters', ou
     from HIGlobal.HIGlobalConf import HIEventShapeFillerTool
 
     algo = HIEventShapeMaker(name)
-    algo.UseCaloCell = True
     algo.InputCellKey = inputEDM
+    algo.InputTowerKey=""
+    algo.NaviTowerKey=""
     algo.OutputContainerKey = outputEDM
     algo.HIEventShapeFillerTool = HIEventShapeFillerTool()
 
@@ -253,8 +254,10 @@ def HLTRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
 
 
 def HLTHIRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
-    from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloMenuSequences import precisionCaloMenuDefs
-    eventShape = precisionCaloMenuDefs.egEventShape
+
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
+    TrigEgammaKeys = getTrigEgammaKeys()
+    eventShape = TrigEgammaKeys.egEventShape
 
     import AthenaCommon.CfgMgr as CfgMgr
     HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTHIRoITopoRecoSequenceVDV")

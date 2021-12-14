@@ -73,37 +73,37 @@ private:
   int    m_endcap;
 
   // Basic parameters
-  int     m_numModules;
-  double  m_moduleStagger;
-  double  m_safety;
-  int     m_identifier;
-  int     m_ringSide;
-  int     m_stereoSign;
-  double  m_refStartAngle;
-  int     m_refFirstStagger;
-  double  m_ringOffset;
-  double  m_discSupportThickness;
+  int     m_numModules = 0;
+  double  m_moduleStagger = 0.0;
+  double  m_safety = 0.0;
+  int     m_identifier = 0;
+  int     m_ringSide = 0;
+  int     m_stereoSign = 0;
+  double  m_refStartAngle = 0.0;
+  int     m_refFirstStagger = 0;
+  double  m_ringOffset = 0.0;
+  double  m_discSupportThickness = 0.0;
 
   // Derived parameters
-  double m_innerRadius;
-  double m_outerRadius;
-  double m_thickness;
-  double m_thicknessInner;
-  double m_thicknessOuter;
-  double m_startAngle;
-  int    m_firstStagger;
-  bool   m_discRotated;
-  int    m_moduleZero;
+  double m_innerRadius = 0.0;
+  double m_outerRadius = 0.0;
+  double m_thickness = 0.0;
+  double m_thicknessInner = 0.0;
+  double m_thicknessOuter = 0.0;
+  double m_startAngle = 0.0;
+  int    m_firstStagger = 0;
+  bool   m_discRotated = false;
+  int    m_moduleZero = 0;
 
-  double m_moduleServicesHiRPos;
-  double m_moduleServicesLoRPos;
-  double m_moduleServicesHiZPos;
-  double m_moduleServicesLoZPos;
+  double m_moduleServicesHiRPos = 0.0;
+  double m_moduleServicesLoRPos = 0.0;
+  double m_moduleServicesHiZPos = 0.0;
+  double m_moduleServicesLoZPos = 0.0;
 
-  double m_moduleServicesHiOuterZPos;
-  double m_moduleServicesLoOuterZPos;
+  double m_moduleServicesHiOuterZPos = 0.0;
+  double m_moduleServicesLoOuterZPos = 0.0;
 
-  double m_maxModuleServicesBaseToRingCenter;
+  double m_maxModuleServicesBaseToRingCenter = 0.0;
 
   // Child detector elements
   SCT_FwdModule* m_module;
@@ -112,8 +112,8 @@ private:
   std::unique_ptr<SCT_FwdCoolingBlock> m_coolingBlockLoMain;
   std::unique_ptr<SCT_FwdCoolingBlock> m_coolingBlockLoSec;
 
-  GeoPhysVol * m_moduleServicesHi;
-  GeoPhysVol * m_moduleServicesLo;
+  GeoPhysVol * m_moduleServicesHi = nullptr;
+  GeoPhysVol * m_moduleServicesLo = nullptr;
 
 };
 

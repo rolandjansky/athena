@@ -41,7 +41,7 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
 
 class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
 
-        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackBDT=False, doRNN=False, doLLP=False):
+        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doTrackBDT=False, doRNN=False, doLLP=False):
         
             super( TrigTauRecMerged_TauPrecisionMVA , self ).__init__( name )
             self.MonTool = tauMonitoringPrecisionMVA()
@@ -61,13 +61,8 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
 
             tools.append(taualgs.getTauAxis())
             
-            # for now, use 'doMVATES=False' to detect tracktwoEF, instead of introducing new flag
-            if not doMVATES:
-                # Count tracks with deltaZ0 cut of 1mm for tracktwoEF           
-                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
-            else:
-                # tightened to 0.75 mm for tracktwoMVA (until the track BDT can be used)
-                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTightDZ_'))            
+            # tightened to 0.75 mm for tracktwoMVA (until the track BDT can be used)
+            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTightDZ_'))            
             
             # Decorate the clusters
             tools.append(taualgs.getTauClusterFinder())
@@ -80,10 +75,9 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # Calibrate to calo TES
             tools.append(taualgs.getEnergyCalibrationLC())
 
-            if doMVATES:
-                # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
-                tools.append(taualgs.getMvaTESVariableDecorator())
-                tools.append(taualgs.getMvaTESEvaluator())
+            # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
+            tools.append(taualgs.getMvaTESVariableDecorator())
+            tools.append(taualgs.getMvaTESEvaluator())
 
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
             tools.append(taualgs.getCellVariables(cellConeSize=0.2))
@@ -103,8 +97,17 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                
 
             if doLLP:
-                    doRNN = False
-            if doRNN:
+                # RNN tau ID for displaced tau signatures (placeholder configs)
+                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="llpdev/net_experimental_llz_0p.json",
+                                                           NetworkFile1P="llpdev/net_experimental_llz_1p.json",
+                                                           NetworkFile3P="llpdev/net_experimental_llz_mp.json",
+                                                           MaxTracks=10,
+                                                           MaxClusters=6,
+                                                           MaxClusterDR=1.0,
+                                                           suffix = "_LLP"))
+                # flattened RNN score and WP
+                tools.append(taualgs.getTauWPDecoratorJetLLP())       
+            elif doRNN:
                 # RNN tau ID
                 tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v3.json",
                                                            NetworkFile1P="rnnid_config_1p_v3.json",
@@ -114,19 +117,6 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                                                            MaxClusterDR=1.0))
                 # flattened RNN score and WP
                 tools.append(taualgs.getTauWPDecoratorJetRNN())
-
-            if doLLP:
-                # RNN tau ID for displaced tau signatures (placeholder configs)
-                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="llpdev/net_experimental_llz_0p.json",
-                                                           NetworkFile1P="llpdev/net_experimental_llz_1p.json",
-                                                           NetworkFile3P="llpdev/net_experimental_llz_mp.json",
-                                                           MaxTracks=10, 
-                                                           MaxClusters=6,
-                                                           MaxClusterDR=1.0,
-                                                           suffix = "_LLP"))
-                # flattened RNN score and WP
-                tools.append(taualgs.getTauWPDecoratorJetLLP())
-
 
             for tool in tools:
                 tool.inTrigger = True
@@ -191,7 +181,7 @@ def TrigTauRecMergedOnlyMVACfg(flags):
     alg.Key_trackPartInputContainer = ''
     alg.Key_trigJetSeedOutputKey = 'HLT_jet_seed' 
     alg.Key_trigTauJetInputContainer = ''
-    alg.Key_trigTauJetOutputContainer = 'HLT_TrigTauRecMerged_CaloOnly'
+    alg.Key_trigTauJetOutputContainer = 'HLT_TrigTauRecMerged_CaloMVAOnly'
     alg.Key_trigTauTrackInputContainer = ''
     alg.Key_trigTauTrackOutputContainer = 'HLT_tautrack_dummy' 
     alg.Key_vertexInputContainer = ''

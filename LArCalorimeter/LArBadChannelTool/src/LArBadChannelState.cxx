@@ -84,8 +84,8 @@ void LArBadChannelState::CoolChannelData::resolveDuplicateEntries()
   typedef std::vector<BadChanEntry>::iterator   Iter;
 
   std::multiset<Iter> toDelete;
-  for (Iter i = m_entries.begin(); i != m_entries.end(); i++) {
-    for (Iter j = i+1; j != m_entries.end(); j++) {    
+  for (Iter i = m_entries.begin(); i != m_entries.end(); ++i) {
+    for (Iter j = i+1; j != m_entries.end(); ++j) {    
       if (i->first == j->first) {
 	mergeFlags( *i, *j);  // j's flags are added to i's flags
 	toDelete.insert(j);
@@ -96,7 +96,7 @@ void LArBadChannelState::CoolChannelData::resolveDuplicateEntries()
   // We make a copy of the vector to avoid erasing elements
   std::vector<BadChanEntry> tmp;
   tmp.reserve( m_entries.size() - toDelete.size());
-  for (Iter i = m_entries.begin(); i != m_entries.end(); i++) {
+  for (Iter i = m_entries.begin(); i != m_entries.end(); ++i) {
     if (toDelete.find(i) == toDelete.end()) {
       tmp.push_back(*i); // not one of the duplicates
     }

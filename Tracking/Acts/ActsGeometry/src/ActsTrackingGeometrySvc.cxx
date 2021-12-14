@@ -11,6 +11,8 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "BeamPipeGeoModel/BeamPipeDetectorManager.h"
+#include "GeoModelKernel/GeoTube.h"
 
 // ACTS
 #include "Acts/ActsVersion.hpp"
@@ -27,6 +29,7 @@
 #include "Acts/Geometry/TrackingVolumeArrayCreator.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Definitions/Units.hpp"
+#include "Acts/Geometry/PassiveLayerBuilder.hpp"
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 
@@ -88,6 +91,11 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
     ATH_CHECK(m_detStore->retrieve(p_ITkStripManager, "ITkStrip"));
   }
 
+  if(m_buildBeamPipe) {
+    ATH_CHECK(m_detStore->retrieve(p_beamPipeMgr, "BeamPipe"));
+  }
+
+
   ATH_MSG_DEBUG("Setting up ACTS geometry helpers");
 
   Acts::LayerArrayCreator::Config lacCfg;
@@ -113,6 +121,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
   if (m_useMaterialMap) {
     std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
     std::string matFile = m_materialMapInputFile;
+    ATH_MSG_INFO("Configured to use material input: " << matFile);
     if (matFile.find(".json") != std::string::npos) {
       // Set up the converter first
       Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
@@ -127,7 +136,27 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
   ActsGeometryContext constructionContext;
   constructionContext.construction = true;
 
+  std::pair sctECEnvelopeZ{20_mm, 20_mm};
+
   try {
+    // BeamPipe
+    if(m_buildBeamPipe) {
+      tgbConfig.trackingVolumeBuilders.push_back([&](const auto &gctx,
+                                                     const auto &inner,
+                                                     const auto &) {
+
+        Acts::CylinderVolumeBuilder::Config bpvConfig =
+          makeBeamPipeConfig(cylinderVolumeHelper);
+
+        Acts::CylinderVolumeBuilder beamPipeVolumeBuilder {
+          bpvConfig, makeActsAthenaLogger(this, "BPVolBldr", "ActsTGSvc")};
+
+        return beamPipeVolumeBuilder.trackingVolume(gctx, inner);
+      });
+    }
+
+
+
     // PIXEL
     if (buildSubdet.count("Pixel") > 0) {
       tgbConfig.trackingVolumeBuilders.push_back([&](const auto &gctx,
@@ -138,13 +167,13 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
         auto lb = std::make_shared<ActsLayerBuilder>(
             cfg, makeActsAthenaLogger(this, "PixelGMSLayBldr", "ActsTGSvc"));
         Acts::CylinderVolumeBuilder::Config cvbConfig;
-        cvbConfig.layerEnvelopeR = {5_mm, 5_mm};
+        cvbConfig.layerEnvelopeR = {3_mm, 3_mm};
         cvbConfig.layerEnvelopeZ = 1_mm;
         cvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
         cvbConfig.volumeSignature = 0;
         cvbConfig.volumeName = "Pixel";
         cvbConfig.layerBuilder = lb;
-        cvbConfig.buildToRadiusZero = true;
+        cvbConfig.buildToRadiusZero = !m_buildBeamPipe;
 
         Acts::CylinderVolumeBuilder cvb(
             cvbConfig, makeActsAthenaLogger(this, "CylVolBldr", "ActsTGSvc"));
@@ -160,6 +189,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
             auto cfg = makeLayerBuilderConfig(p_ITkPixelManager);
             cfg.mode = ActsLayerBuilder::Mode::ITkPixelInner;
             cfg.objDebugOutput = m_objDebugOutput;
+            cfg.doEndcapLayerMerging = true;
             auto lb = std::make_shared<ActsLayerBuilder>(
                 cfg, makeActsAthenaLogger(this, "ITkPxInLb", "ActsTGSvc"));
 
@@ -170,7 +200,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
             cvbConfig.volumeSignature = 0;
             cvbConfig.volumeName = "ITkPixelInner";
             cvbConfig.layerBuilder = lb;
-            cvbConfig.buildToRadiusZero = true;
+            cvbConfig.buildToRadiusZero = !m_buildBeamPipe;
 
             Acts::CylinderVolumeBuilder cvb(
                 cvbConfig,
@@ -184,6 +214,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
             auto cfg = makeLayerBuilderConfig(p_ITkPixelManager);
             cfg.mode = ActsLayerBuilder::Mode::ITkPixelOuter;
             cfg.objDebugOutput = m_objDebugOutput;
+            cfg.doEndcapLayerMerging = false;
             auto lb = std::make_shared<ActsLayerBuilder>(
                 cfg, makeActsAthenaLogger(this, "ITkPxOtLb", "ActsTGSvc"));
 
@@ -195,6 +226,8 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
             cvbConfig.volumeName = "ITkPixelOuter";
             cvbConfig.layerBuilder = lb;
             cvbConfig.buildToRadiusZero = false;
+            cvbConfig.checkRingLayout = true;
+            cvbConfig.ringTolerance = 10_mm;
 
             Acts::CylinderVolumeBuilder cvb(
                 cvbConfig,
@@ -221,7 +254,8 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
             cvbConfig.volumeSignature = 0;
             cvbConfig.volumeName = "ITkStrip";
             cvbConfig.layerBuilder = lb;
-            cvbConfig.buildToRadiusZero = buildSubdet.count("ITkPixel") == 0;
+            cvbConfig.buildToRadiusZero = 
+              buildSubdet.count("ITkPixel") == 0 && !m_buildBeamPipe;
 
             Acts::CylinderVolumeBuilder cvb(
                 cvbConfig,
@@ -240,6 +274,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
           [&](const auto &gctx, const auto &inner, const auto &) {
             auto cfg = makeLayerBuilderConfig(p_SCTManager);
             cfg.mode = ActsLayerBuilder::Mode::SCT;
+            cfg.endcapEnvelopeZ = sctECEnvelopeZ;
             auto sct_lb = std::make_shared<ActsLayerBuilder>(
                 cfg, makeActsAthenaLogger(this, "SCTGMSLayBldr", "ActsTGSvc"));
 
@@ -254,6 +289,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
           [&](const auto &gctx, const auto &inner, const auto &) {
             auto lbCfg = makeLayerBuilderConfig(p_SCTManager);
             lbCfg.mode = ActsLayerBuilder::Mode::SCT;
+            lbCfg.endcapEnvelopeZ = sctECEnvelopeZ;
             auto lb = std::make_shared<ActsLayerBuilder>(
                 lbCfg,
                 makeActsAthenaLogger(this, "SCTGMSLayBldr", "ActsTGSvc"));
@@ -463,6 +499,7 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(
     const Acts::GeometryContext &gctx, const Acts::ILayerBuilder &sct_lb,
     const Acts::ILayerBuilder &trt_lb, const Acts::CylinderVolumeHelper &cvh,
     const std::shared_ptr<const Acts::TrackingVolume> &pixel) {
+  ATH_MSG_VERBOSE("Building SCT+TRT assembly");
 
   Acts::CylinderVolumeBuilder::Config cvbCfg;
   Acts::CylinderVolumeBuilder cvb(
@@ -501,13 +538,29 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(
   using CVBBV = Acts::CylinderVolumeBounds::BoundValues;
 
   // if pixel is present, shrink SCT volumes in R
+  bool isSCTSmallerInZ = false;
   if (pixel) {
-    ATH_MSG_VERBOSE("Shrinking SCT to fit around Pixel");
+    ATH_MSG_VERBOSE("Shrinking SCT in R (and maybe in increase size in Z) to fit around Pixel");
     auto pixelBounds = dynamic_cast<const Acts::CylinderVolumeBounds *>(
         &pixel->volumeBounds());
+    double sctNegECzMin = std::min(sctNegEC.zMin, -pixelBounds->get(CVBBV::eHalfLengthZ));
+    double sctPosECzMax = std::max(sctPosEC.zMax, pixelBounds->get(CVBBV::eHalfLengthZ));
+
+    ATH_MSG_VERBOSE("- SCT +-EC.rMin: " << sctNegEC.rMin << " -> " << pixelBounds->get(CVBBV::eMaxR));
+    ATH_MSG_VERBOSE("- SCT  BRL.rMin: " << sctBrl.rMin << " -> " << pixelBounds->get(CVBBV::eMaxR));
+    ATH_MSG_VERBOSE("- SCT EC.zMin: " << sctNegEC.zMin << " -> " << sctNegECzMin);
+    ATH_MSG_VERBOSE("- SCT EC.zMax: " << sctPosEC.zMax << " -> " << sctPosECzMax);
+
     sctNegEC.rMin = pixelBounds->get(CVBBV::eMaxR);
     sctPosEC.rMin = pixelBounds->get(CVBBV::eMaxR);
     sctBrl.rMin = pixelBounds->get(CVBBV::eMaxR);
+
+    isSCTSmallerInZ = sctPosEC.zMax < pixelBounds->get(CVBBV::eHalfLengthZ);
+
+    sctNegEC.zMin = sctNegECzMin;
+    sctPosEC.zMax = sctPosECzMax;
+
+
   } else {
     ATH_MSG_VERBOSE("Pixel is not configured, not wrapping");
   }
@@ -619,30 +672,39 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(
         &pixel->volumeBounds());
     std::vector<std::shared_ptr<Acts::TrackingVolume>> noVolumes;
 
-    auto posGap = cvh.createGapTrackingVolume(
-        gctx, noVolumes,
-        nullptr, // no material,
-        pixelBounds->get(CVBBV::eMinR), pixelBounds->get(CVBBV::eMaxR),
-        pixelBounds->get(CVBBV::eHalfLengthZ),
-        containerBounds->get(CVBBV::eHalfLengthZ),
-        0,    // material layers,
-        true, // cylinder
-        "Pixel::PositiveGap");
-    auto negGap = cvh.createGapTrackingVolume(
-        gctx, noVolumes,
-        nullptr, // no material,
-        pixelBounds->get(CVBBV::eMinR), pixelBounds->get(CVBBV::eMaxR),
-        -containerBounds->get(CVBBV::eHalfLengthZ),
-        -pixelBounds->get(CVBBV::eHalfLengthZ),
-        0,    // material layers,
-        true, // cylinder
-        "Pixel::NegativeGap");
+    if(!isSCTSmallerInZ) {
+      // pixel is smaller in z, need gap volumes
+      auto posGap = cvh.createGapTrackingVolume(
+          gctx, noVolumes,
+          nullptr, // no material,
+          pixelBounds->get(CVBBV::eMinR), pixelBounds->get(CVBBV::eMaxR),
+          pixelBounds->get(CVBBV::eHalfLengthZ),
+          containerBounds->get(CVBBV::eHalfLengthZ),
+          0,    // material layers,
+          true, // cylinder
+          "Pixel::PositiveGap");
+      auto negGap = cvh.createGapTrackingVolume(
+          gctx, noVolumes,
+          nullptr, // no material,
+          pixelBounds->get(CVBBV::eMinR), pixelBounds->get(CVBBV::eMaxR),
+          -containerBounds->get(CVBBV::eHalfLengthZ),
+          -pixelBounds->get(CVBBV::eHalfLengthZ),
+          0,    // material layers,
+          true, // cylinder
+          "Pixel::NegativeGap");
 
-    auto pixelContainer =
-        cvh.createContainerTrackingVolume(gctx, {negGap, pixel, posGap});
-    // and now create one container that contains Pixel+SCT+TRT
-    container =
-        cvh.createContainerTrackingVolume(gctx, {pixelContainer, container});
+      auto pixelContainer =
+          cvh.createContainerTrackingVolume(gctx, {negGap, pixel, posGap});
+      // and now create one container that contains Pixel+SCT+TRT
+      container =
+          cvh.createContainerTrackingVolume(gctx, {pixelContainer, container});
+    }
+    else {
+      // wrap the pixel directly
+      container =
+          cvh.createContainerTrackingVolume(gctx, {pixel, container});
+    }
+
   }
 
   return container;
@@ -665,4 +727,91 @@ void ActsTrackingGeometrySvc::populateAlignmentStore(
 const ActsAlignmentStore *
 ActsTrackingGeometrySvc::getNominalAlignmentStore() const {
   return m_nominalAlignmentStore.get();
+}
+
+Acts::CylinderVolumeBuilder::Config
+ActsTrackingGeometrySvc::makeBeamPipeConfig(
+    std::shared_ptr<const Acts::CylinderVolumeHelper> cvh) const {
+
+  // adapted from InnerDetector/InDetDetDescr/InDetTrackingGeometry/src/BeamPipeBuilder.cxx
+
+  PVConstLink beamPipeTopVolume =  p_beamPipeMgr->getTreeTop(0);
+
+  if (p_beamPipeMgr->getNumTreeTops() == 1){ 
+    beamPipeTopVolume = p_beamPipeMgr->getTreeTop(0)->getChildVol(0)->getChildVol(0);
+  }
+
+  Acts::Transform3 beamPipeTransform;
+  beamPipeTransform.setIdentity();
+
+  beamPipeTransform = Acts::Translation3(
+      beamPipeTopVolume->getX().translation().x(),
+      beamPipeTopVolume->getX().translation().y(),
+      beamPipeTopVolume->getX().translation().z()
+  );
+
+  double beamPipeRadius = 20;
+
+  const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
+  const GeoTube* beamPipeTube = nullptr;
+
+
+  if (beamPipeLogVolume == nullptr) {
+    ATH_MSG_ERROR("Beam pip volume has no log volume");
+    throw std::runtime_error("Beam pip volume has no log volume");
+  }
+  // get the geoShape and translate
+  beamPipeTube = dynamic_cast<const GeoTube*>(beamPipeLogVolume->getShape());
+  if (beamPipeTube == nullptr){
+    ATH_MSG_ERROR("BeamPipeLogVolume was not of type GeoTube");
+    throw std::runtime_error{"BeamPipeLogVolume was not of type GeoTube"};
+  }
+
+  for(unsigned int i=0;i<beamPipeTopVolume->getNChildVols();i++) {
+
+    if(beamPipeTopVolume->getNameOfChildVol(i) == "SectionC03"){
+
+      PVConstLink childTopVolume =  beamPipeTopVolume->getChildVol(i);
+      const GeoLogVol* childLogVolume = childTopVolume->getLogVol();
+      const GeoTube* childTube = nullptr;
+
+      if (childLogVolume){
+        childTube = dynamic_cast<const GeoTube*>(childLogVolume->getShape());
+        if (childTube){
+          beamPipeRadius = 0.5 * (childTube->getRMax()+childTube->getRMin());
+        }
+      }
+
+      break; // Exit loop after SectionC03 is found
+    }
+
+  } // Loop over child volumes
+
+  ATH_MSG_VERBOSE("BeamPipe constructed from Database: translation (yes) - radius "
+      << ( beamPipeTube ? "(yes)" : "(no)") << " - r = " << beamPipeRadius );
+
+  ATH_MSG_VERBOSE("BeamPipe shift estimated as    : " 
+      <<  beamPipeTransform.translation().x() << ", "
+      <<  beamPipeTransform.translation().y() << ","
+      <<  beamPipeTransform.translation().y());
+
+  Acts::CylinderVolumeBuilder::Config cfg;
+
+  Acts::PassiveLayerBuilder::Config bplConfig;
+  bplConfig.layerIdentification = "BeamPipe";
+  bplConfig.centralLayerRadii = {beamPipeRadius * 1_mm};
+  bplConfig.centralLayerHalflengthZ = {3000_mm};
+  bplConfig.centralLayerThickness = {1_mm};
+  auto beamPipeBuilder = std::make_shared<const Acts::PassiveLayerBuilder>(
+      bplConfig, makeActsAthenaLogger(this, "BPLayBldr", "ActsTGSvc"));
+
+  // create the volume for the beam pipe
+  cfg.trackingVolumeHelper = cvh;
+  cfg.volumeName = "BeamPipe";
+  cfg.layerBuilder = beamPipeBuilder;
+  cfg.layerEnvelopeR = {1_mm, 1_mm};
+  cfg.buildToRadiusZero = true;
+  cfg.volumeSignature = 0;
+
+  return cfg;
 }

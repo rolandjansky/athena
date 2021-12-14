@@ -301,7 +301,6 @@ def MuonChi2TrackFitter(name='MuonChi2TrackFitter',**kwargs):
     
     cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
     kwargs.setdefault("TrackingGeometryReadKey",cond_alg.TrackingGeometryWriteKey)
-    kwargs.setdefault("TrackingGeometrySvc", '')
     return Trk__GlobalChi2Fitter(name,**kwargs)
 
 
@@ -436,7 +435,7 @@ def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwa
 
 # end of factory function DCMathSegmentMaker
 
-def MuonLayerHoughTool(name='MuonLayerHoughTool',extraFlags=None,**kwargs):
+def MuonLayerHoughTool(name='MuonLayerHoughTool', **kwargs):
     if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("DoTruth", False)
     else:

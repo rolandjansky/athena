@@ -5,7 +5,6 @@
 #include "BTaggingValidationPlots.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
 #include "xAODBTagging/BTaggingUtilities.h" 
-#include "xAODBTagging/ftagfloat_t.h"
 using CLHEP::GeV;
 #include <stdexcept>
 
@@ -1500,11 +1499,11 @@ namespace JetTagDQA{
 
     // pb, pu, pc 
     double RNNIP_pb, RNNIP_pu, RNNIP_pc;
-    try{ RNNIP_pb = btag->auxdata<ftagfloat_t>("rnnip_pb"); }
+    try{ RNNIP_pb = btag->auxdata<float>("rnnip_pb"); }
     catch(std::exception& exception){ RNNIP_pb = -1; }
-    try{ RNNIP_pu = btag->auxdata<ftagfloat_t>("rnnip_pu"); }
+    try{ RNNIP_pu = btag->auxdata<float>("rnnip_pu"); }
     catch(std::exception& exception){ RNNIP_pu = -1; }
-    try{ RNNIP_pc = btag->auxdata<ftagfloat_t>("rnnip_pc"); }
+    try{ RNNIP_pc = btag->auxdata<float>("rnnip_pc"); }
     catch(std::exception& exception){ RNNIP_pc = -1; }
     m_RNNIP_pb->Fill(RNNIP_pb, event->beamSpotWeight());
     m_RNNIP_pu->Fill(RNNIP_pu, event->beamSpotWeight());
@@ -1538,33 +1537,33 @@ namespace JetTagDQA{
 
     // get the DL1x vars
     double DL1_pb, DL1_pu, DL1_pc;
-    try{ DL1_pb = btag->auxdata<ftagfloat_t>("DL1_pb"); }
+    try{ DL1_pb = btag->auxdata<float>("DL1_pb"); }
     catch(std::exception& exception){ DL1_pb = -1; }
-    try{ DL1_pu = btag->auxdata<ftagfloat_t>("DL1_pu"); }
+    try{ DL1_pu = btag->auxdata<float>("DL1_pu"); }
     catch(std::exception& exception){ DL1_pu = -1; }
-    try{ DL1_pc = btag->auxdata<ftagfloat_t>("DL1_pc"); }
+    try{ DL1_pc = btag->auxdata<float>("DL1_pc"); }
     catch(std::exception& exception){ DL1_pc = -1; }
     m_DL1_pb->Fill(DL1_pb, event->beamSpotWeight());
     m_DL1_pu->Fill(DL1_pu, event->beamSpotWeight());
     m_DL1_pc->Fill(DL1_pc, event->beamSpotWeight());
 
     double DL1d_pb, DL1d_pu, DL1d_pc;
-    try{ DL1d_pb = btag->auxdata<ftagfloat_t>("DL1dv00_pb"); }
+    try{ DL1d_pb = btag->auxdata<float>("DL1dv00_pb"); }
     catch(std::exception& exception){ DL1d_pb = -1; }
-    try{ DL1d_pu = btag->auxdata<ftagfloat_t>("DL1dv00_pu"); }
+    try{ DL1d_pu = btag->auxdata<float>("DL1dv00_pu"); }
     catch(std::exception& exception){ DL1d_pu = -1; }
-    try{ DL1d_pc = btag->auxdata<ftagfloat_t>("DL1dv00_pc"); }
+    try{ DL1d_pc = btag->auxdata<float>("DL1dv00_pc"); }
     catch(std::exception& exception){ DL1d_pc = -1; }
     m_DL1d_pb->Fill(DL1d_pb, event->beamSpotWeight());
     m_DL1d_pu->Fill(DL1d_pu, event->beamSpotWeight());
     m_DL1d_pc->Fill(DL1d_pc, event->beamSpotWeight());
 
     double DL1r_pb, DL1r_pu, DL1r_pc;
-    try{ DL1r_pb = btag->auxdata<ftagfloat_t>("DL1r_pb"); }
+    try{ DL1r_pb = btag->auxdata<float>("DL1r_pb"); }
     catch(std::exception& exception){ DL1r_pb = -1; }
-    try{ DL1r_pu = btag->auxdata<ftagfloat_t>("DL1r_pu"); }
+    try{ DL1r_pu = btag->auxdata<float>("DL1r_pu"); }
     catch(std::exception& exception){ DL1r_pu = -1; }
-    try{ DL1r_pc = btag->auxdata<ftagfloat_t>("DL1r_pc"); }
+    try{ DL1r_pc = btag->auxdata<float>("DL1r_pc"); }
     catch(std::exception& exception){ DL1r_pc = -1; }
     m_DL1r_pb->Fill(DL1r_pb, event->beamSpotWeight());
     m_DL1r_pu->Fill(DL1r_pu, event->beamSpotWeight());

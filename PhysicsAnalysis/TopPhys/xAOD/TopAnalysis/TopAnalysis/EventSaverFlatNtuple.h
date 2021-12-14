@@ -732,6 +732,7 @@ namespace top {
 
     //met
     float m_met_met;
+    float m_met_sumet;
     float m_met_phi;
     //these are for specific studies on the met, turned off by default, and turned on with the WriteMETBuiltWithLooseObjects option
     float m_met_met_withLooseObjects;

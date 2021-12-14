@@ -658,7 +658,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger
     auto monGroup = getGroup( trigger + ( online ? "_Distributions_HLT" : "_Distributions_Offline") );
     
     std::vector<float> deta1_vec, deta1_EMECA_vec, deta1_EMECC_vec, deta1_EMEBA_vec, deta1_EMEBC_vec, deta2_vec, dphi2_vec,
-      dphiresc_vec, eprobht_vec, npixhits_vec, nscthits_vec, charge_vec, ptcone20_vec, ptvarcone20_vec, d0_vec, d0sig_vec,
+      dphiresc_vec, eprobht_vec, npixhits_vec, nscthits_vec, charge_vec, ptcone20_vec, ptvarcone20_vec, z0_vec, d0_vec, d0sig_vec, 
       pt_vec, ptcone20_rel_vec, ptvarcone20_rel_vec;
 
     auto deta1_col            = Monitored::Collection( "deta1"       , deta1_vec           );
@@ -675,6 +675,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger
     auto charge_col           = Monitored::Collection( "charge"      , charge_vec          );
     auto ptcone20_col         = Monitored::Collection( "ptcone20"    , ptcone20_vec        );
     auto ptvarcone20_col      = Monitored::Collection( "ptvarcone20" , ptvarcone20_vec     );
+    auto z0_col               = Monitored::Collection( "z0"          , z0_vec              );
     auto d0_col               = Monitored::Collection( "d0"          , d0_vec              );
     auto d0sig_col            = Monitored::Collection( "d0sig"       , d0sig_vec           );
     auto pt_col               = Monitored::Collection( "pt"          , pt_vec              );
@@ -713,6 +714,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger
       
       // Quantities directly from tracks
       ATH_MSG_DEBUG("Get track Quantities");
+      z0_vec.push_back( getTrack_z0(eg));
       d0_vec.push_back( getTrack_d0(eg));
       d0sig_vec.push_back(getD0sig(eg));
       pt_vec.push_back( getTrack_pt(eg)/Gaudi::Units::GeV);
@@ -726,8 +728,8 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger
     
     
     fill( monGroup, deta1_col, deta1_EMECA_col, deta1_EMECC_col, deta1_EMEBA_col, deta1_EMEBC_col, deta2_col, dphi2_col,
-      dphiresc_col, eprobht_col, npixhits_col, nscthits_col, charge_col, ptcone20_col, ptvarcone20_col, d0_col, d0sig_col,
-      pt_col, ptcone20_rel_col, ptvarcone20_rel_col);
+      dphiresc_col, eprobht_col, npixhits_col, nscthits_col, charge_col, ptcone20_col, ptvarcone20_col, z0_col, d0_col, d0sig_col,
+	  pt_col, ptcone20_rel_col, ptvarcone20_rel_col);
 }
 
 
@@ -781,10 +783,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( const std::vector< std
   
   // Fill HLT electron for all onl objects found
   if ( info.signature=="Electron"){
-    fillHLTElectronResolution( trigger, pair_eg_vec, info.isolated ); 
+    fillHLTElectronResolution( trigger, pair_eg_vec, info ); 
   }  
   else if ( info.signature=="Photon"){
-    fillHLTPhotonResolution( trigger, pair_eg_vec, info.isolated );
+    fillHLTPhotonResolution( trigger, pair_eg_vec, info );
     }
 
 }
@@ -852,13 +854,13 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloAbsResolution(const std::stri
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::string &trigger,
                                                         const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs,
-                                                        bool filliso) const
+                                                        const TrigInfo& info) const
 {
 
     auto monGroup = getGroup( trigger + "_Resolutions_HLT" );
 
     std::vector<float> res_pt_vec, res_et_vec, res_phi_vec, res_eta_vec, res_deta1_vec, res_deta2_vec, res_dphi2_vec, res_dphiresc_vec,
-    res_d0_vec, res_d0sig_vec, res_eprobht_vec, res_npixhits_vec, res_nscthits_vec, res_Rhad_vec, res_Rhad1_vec, res_Reta_vec,
+    res_z0_vec, res_d0_vec, res_d0sig_vec, res_eprobht_vec, res_npixhits_vec, res_nscthits_vec, res_Rhad_vec, res_Rhad1_vec, res_Reta_vec,
     res_Rphi_vec, res_weta1_vec, res_weta2_vec, res_wtots1_vec, res_f1_vec, res_f3_vec, res_eratio_vec, res_ethad_vec, res_ethad1_vec,
     et_vec, eta_vec, mu_vec;
     std::vector<float> res_ptcone20_vec, res_ptcone20_rel_vec, res_ptvarcone20_vec, res_ptvarcone20_rel_vec;
@@ -897,6 +899,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
     auto res_deta2_col            = Monitored::Collection( "res_deta2"                , res_deta2_vec               );
     auto res_dphi2_col            = Monitored::Collection( "res_dphi2"                , res_dphi2_vec               );
     auto res_dphiresc_col         = Monitored::Collection( "res_dphiresc"             , res_dphiresc_vec            );
+    auto res_z0_col               = Monitored::Collection( "res_z0"                   , res_z0_vec                  );
     auto res_d0_col               = Monitored::Collection( "res_d0"                   , res_d0_vec                  );
     auto res_d0sig_col            = Monitored::Collection( "res_d0sig"                , res_d0sig_vec               );
     auto res_eprobht_col          = Monitored::Collection( "res_eprobht"              , res_eprobht_vec             );
@@ -913,7 +916,9 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
     // Check for zero before filling
     ATH_MSG_DEBUG("Fill Resolution");
 
-
+    std::string key = match()->key("Electrons");
+    if(info.gsf) key = match()->key("Electrons_GSF");
+    if(info.lrt) key = match()->key("Electrons_LRT");
 
     for ( const auto & pairObj : pairObjs ){
 
@@ -923,7 +928,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
       { // Get the closest electron object from the trigger starting with deltaR = 0.15
         float maxDeltaR=0.05;
-        auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics ,match()->key("Electrons") );      
+        auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics ,key );      
         for(auto &featLinkInfo : vec ){                                             
           if(! featLinkInfo.isValid() ) continue;
           const auto *feat = *(featLinkInfo.link);                   
@@ -1104,6 +1109,14 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
       
       val_off=getCaloTrackMatch_deltaPhiRescaled2(off);
       res_dphiresc_vec.push_back( (getCaloTrackMatch_deltaPhiRescaled2(onl)-val_off)/val_off );
+      // Resolution of Z0 of the track
+      val_off=getTrack_z0(off);
+      if(val_off!=0.) {
+        res_z0_vec.push_back(  getTrack_z0(onl)-val_off );
+      }else{
+        res_z0_vec.push_back(  dummy );
+      }
+      
       // Absolute resolution for impact parameter
       val_off=getTrack_d0(off);
       if(val_off!=0.) {
@@ -1128,7 +1141,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
 
       
-      if(filliso){
+      if(info.isolated){
 
         float val_off=getIsolation_ptcone20(off);
         if (val_off > 0.) {
@@ -1182,6 +1195,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
           res_deta2_col   , 
           res_dphi2_col   , 
           res_dphiresc_col, 
+          res_z0_col      , 
           res_d0_col      , 
           res_d0sig_col   , 
           res_eprobht_col , 
@@ -1218,7 +1232,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
 
 void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::string &trigger,
                                                         const std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >>& pairObjs, 
-                                                        bool filliso) const
+                                                        const TrigInfo& info) const
 {
 
     auto monGroup = getGroup( trigger + "_Resolutions_HLT" );
@@ -1454,7 +1468,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
       }
    
 
-      if( filliso ){
+      if( info.isolated ){
         // topoetcone20 isolation
         float val_off=getIsolation_topoetcone20(off);
         float etonl=onl->pt();

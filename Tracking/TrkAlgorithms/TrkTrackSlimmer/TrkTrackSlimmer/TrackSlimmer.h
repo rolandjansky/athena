@@ -58,7 +58,7 @@ namespace Trk
       unsigned int m_numSlimmedTracks;
       unsigned int m_numOriginalTracks;      
 
-      bool m_setPersistificationHints;
+      bool m_setPersistificationHints = false;
   }; 
 } // end of namespace
 

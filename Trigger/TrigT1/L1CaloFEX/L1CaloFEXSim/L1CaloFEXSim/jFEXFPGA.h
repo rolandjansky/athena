@@ -100,8 +100,8 @@ namespace LVL1 {
     
    /** Internal data */
   private:
-    static bool etSRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 12 ) & 0x7ff  )> ((j.at(0) >> 12) & 0x7ff ));}
-    static bool etLRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 10 ) & 0x1fff )> ((j.at(0) >> 10) & 0x1fff));}
+    static bool etSRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 1 ) & 0x7ff  )> ((j.at(0) >> 1) & 0x7ff ));}
+    static bool etLRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 1 ) & 0x1fff )> ((j.at(0) >> 1) & 0x1fff));}
     static bool etTauSort  (std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 0 ) & 0x7ff000)> ((j.at(0) >> 0) & 0x7ff000)); }
     
     int m_id;

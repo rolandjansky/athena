@@ -146,7 +146,6 @@ StatusCode MatchingTool::initialize() {
   
   ATH_MSG_DEBUG("chain has: " << combinations.size() << " combos");
 
-  return false;
   
   bool result = false;
   for(auto& comb : combinations){

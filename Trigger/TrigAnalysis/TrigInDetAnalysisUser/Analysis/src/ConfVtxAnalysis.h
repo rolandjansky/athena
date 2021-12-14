@@ -54,34 +54,34 @@ private:
 
   TIDDirectory* mdir;
 
-  TH1F*    hnvtx;
-  TH1F*    hzed;
-  TH1F*    hntrax;
-  TH1F*    hmu;
-  TH1F*    hlb;
+  TH1F*    hnvtx = 0;
+  TH1F*    hzed = 0;
+  TH1F*    hntrax = 0;
+  TH1F*    hmu = 0;
+  TH1F*    hlb = 0;
 
-  TH1F*    hnvtx_rec;
-  TH1F*    hzed_rec;
-  TH1F*    hntrax_rec;
+  TH1F*    hnvtx_rec = 0;
+  TH1F*    hzed_rec = 0;
+  TH1F*    hntrax_rec = 0;
 
-  TH1F*    hzed_res;
+  TH1F*    hzed_res = 0;
 
-  Resplot* rdz_vs_zed;
-  Resplot* rdz_vs_ntrax;
-  Resplot* rdz_vs_nvtx;
-  Resplot* rdz_vs_mu;
+  Resplot* rdz_vs_zed = 0;
+  Resplot* rdz_vs_ntrax = 0;
+  Resplot* rdz_vs_nvtx = 0;
+  Resplot* rdz_vs_mu = 0;
 
-  Resplot* rnvtxrec_nvtx;
+  Resplot* rnvtxrec_nvtx = 0;
 
-  Efficiency* eff_zed;
-  Efficiency* eff_ntrax;
-  Efficiency* eff_nvtx;
-  Efficiency* eff_mu;
-  Efficiency* eff_lb;
+  Efficiency* eff_zed = 0;
+  Efficiency* eff_ntrax = 0;
+  Efficiency* eff_nvtx = 0;
+  Efficiency* eff_mu = 0;
+  Efficiency* eff_lb = 0;
 
-  Resplot* rdx_vs_lb;
-  Resplot* rdy_vs_lb;
-  Resplot* rdz_vs_lb;
+  Resplot* rdx_vs_lb = 0;
+  Resplot* rdy_vs_lb = 0;
+  Resplot* rdz_vs_lb = 0;
  
   //  Contour<Efficiency>* eff_zed_vs_ntrax;
 

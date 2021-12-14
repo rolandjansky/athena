@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGH_HIT_H
@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 
 #include "CxxUtils/fpcompare.h"
 #include "MuonStationIndex/MuonStationIndex.h"
@@ -76,15 +77,15 @@ namespace MuonHough {
         float w{UNINITIALIZED};     /// weight of the hit
 
         /// access to debug information
-        const HitDebugInfo* debugInfo() const { return m_debug; }
-        HitDebugInfo* debugInfo() { return m_debug; }
+        const HitDebugInfo* debugInfo() const { return m_debug.get(); }
+        HitDebugInfo* debugInfo() { return m_debug.get(); }
 
         /// access to assiciated hit, either the prd or the tgc pointer is set in athena
         const Trk::PrepRawData* prd{nullptr};
         const Muon::TgcClusterObj3D* tgc{nullptr};
 
     private:
-        HitDebugInfo* m_debug{nullptr};  /// pointer to debug information
+        std::unique_ptr<HitDebugInfo> m_debug{nullptr};  /// pointer to debug information
 
         /// copy function for internal use
         void copy(const Hit& hit);
@@ -112,15 +113,15 @@ namespace MuonHough {
         float w{UNINITIALIZED};       /// weight of the hit
 
         /// access to debug information
-        const HitDebugInfo* debugInfo() const { return m_debug; }
-        HitDebugInfo* debugInfo() { return m_debug; }
+        const HitDebugInfo* debugInfo() const { return m_debug.get(); }
+        HitDebugInfo* debugInfo() { return m_debug.get(); }
 
         /// access to assiciated hit, either the prd or the tgc pointer is set in athena
         const Trk::PrepRawData* prd{nullptr};
         const Muon::TgcClusterObj3D* tgc{nullptr};
 
     private:
-        HitDebugInfo* m_debug{nullptr};  /// pointer to debug information
+        std::unique_ptr<HitDebugInfo> m_debug{nullptr};  /// pointer to debug information
 
         /// copy function for internal use
         void copy(const PhiHit& hit);
@@ -191,6 +192,10 @@ namespace MuonHough {
 
         bool operator()(const Hit* hit1, const Hit* hit2) const { return operator()(*hit1, *hit2); }
         bool operator()(const PhiHit* hit1, const PhiHit* hit2) const { return operator()(*hit1, *hit2); }
+   
+        bool operator()(const std::shared_ptr<Hit>& hit1, const std::shared_ptr<Hit>& hit2) const { return operator()(*hit1, *hit2); }
+        bool operator()(const std::shared_ptr<PhiHit>& hit1, const std::shared_ptr<PhiHit>& hit2) const { return operator()(*hit1, *hit2); }
+   
     };
 
 }  // namespace MuonHough

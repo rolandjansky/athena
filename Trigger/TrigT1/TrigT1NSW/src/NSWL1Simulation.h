@@ -104,8 +104,6 @@ namespace NSWL1 {
 
 
     protected:
-    SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey{this,"xAODEventInfoKey","EventInfo","Key of xAOD::EventInfo"};
-    SG::ReadHandleKey<EventInfo> m_eventInfoKey{this,"EventInfoKey","McEventInfo","Key of RDO EventInfo"};
     SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
 
   };  // end of NSWL1Simulation class

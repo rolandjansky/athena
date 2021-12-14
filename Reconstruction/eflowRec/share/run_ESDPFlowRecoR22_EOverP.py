@@ -19,8 +19,11 @@ recAlgs.doEFlow.set_Value_and_Lock(True)
 #Disable reco of trigger, egamma, muons and taus
 from RecExConfig.RecFlags import rec
 rec.doTrigger.set_Value_and_Lock(False)
-rec.doEgamma.set_Value_and_Lock(False)
-rec.doMuon.set_Value_and_Lock(False)
+# enable egamma reco
+rec.doEgamma.set_Value_and_Lock(True)
+# enable muon reco
+rec.doMuon.set_Value_and_Lock(True)
+#Disable tau reco
 rec.doTau.set_Value_and_Lock(False)
 
 #Disable linking of PFO/FE to and from other objects - this won't work because e.g electrons already have links to PFO/FE and

@@ -12,7 +12,7 @@ from JetTagTools.InDetTrackSelectorConfig import InDetTrackSelectorCfg
 # import the IPTag configurable
 Analysis__IPTag=CompFactory.Analysis.IPTag
 
-def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme = '', useBTagFlagsDefaults = True, **options ):
+def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme = '', useBTagFlagsDefaults = True,FlipOption='STANDARD', **options ):
     """Sets up a IP3DTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -39,7 +39,7 @@ def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme 
     if useBTagFlagsDefaults:
         trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
         svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
-        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
+        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg(flags, 'IP3DDetailedTrackGradeFactory'))
         trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
         likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D', scheme))
         inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
@@ -66,6 +66,50 @@ def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme 
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
+
+    # Define the settings for the IP3DNeg ("NEGATIVE_IP_ONLY") and IP2DFlip ("FLIP_SIGN") taggers. 
+    # Set as well a different name to distinguish from the "Standard" taggers 
+    
+    if FlipOption=='NEGATIVE_IP_ONLY':
+        negtagoptions = {
+            'flipIPSign'      : True,
+            'flipZIPSign'     : True,
+            'usePosIP'        : True,
+            'useNegIP'        : False    
+        }
+        # make sure that the name includes 'Neg' if setup 'Neg' tagging option
+        nameNeg=''
+        if 'NegTag' in name:
+            nameNeg=name
+        elif 'Tag' in name:
+            nameNeg=name.replace("Tag","NegTag")
+        else:
+            nameNeg=name+"Neg"
+        options['name'] = nameNeg
+        options['xAODBaseName'] = 'IP3DNeg' 
+        for option in negtagoptions:
+            options.setdefault(option, negtagoptions[option])	
+
+    elif FlipOption=='FLIP_SIGN':
+        fliptagoptions = {
+            'flipIPSign'                   : True,
+            'flipZIPSign'                  : True, #would naively say 'True' but in Rel.21 (https://gitlab.cern.ch/atlas/athena/-/blob/21.2/PhysicsAnalysis/JetTagging/JetTagAlgs/BTagging/python/BTaggingConfiguration_IP3DFlipTag.py), the default from 'False' is not changed
+            'usePosIP'                     : True,
+            'useNegIP'                     : True
+        }
+        nameFlip=''
+        if 'FlipTag' in name:
+            nameFlip=name
+        elif 'Tag' in name:
+            nameFlip=name.replace("Tag","FlipTag")
+        else:
+            nameFlip=name+"Flip"
+        options['name'] = nameFlip
+        options['xAODBaseName'] = 'IP3DFlip'
+        for option in fliptagoptions:
+            options.setdefault(option, fliptagoptions[option])    
+
+
     acc.setPrivateTools(Analysis__IPTag( **options))
    
     return acc

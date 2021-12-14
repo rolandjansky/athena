@@ -39,6 +39,9 @@ def createTriggerFlags():
     # Enable emulation tool for NSW-TGC coincidence in C-side
     flags.addFlag('Trigger.L1MuonSim.EmulateNSWC', False)
 
+    # Enable the veto mode of the NSW-TGC coincidence
+    flags.addFlag('Trigger.L1MuonSim.NSWVetoMode', False)
+
     # Offline CondDB tag for RPC/TGC coincidence window in rerunLVL1 on data
     flags.addFlag('Trigger.L1MuonSim.CondDBOffline', 'OFLCOND-MC16-SDR-RUN2-04')
 
@@ -179,7 +182,7 @@ def createTriggerFlags():
         # RAW: check if keys are in COOL
         elif flags.Input.Format=="BS":
             from TrigConfigSvc.TriggerConfigAccess import getKeysFromCool
-            keys = getKeysFromCool(flags.Input.RunNumber[0])  # currently only checking first file
+            keys = getKeysFromCool(flags.Input.RunNumber[0], lbNr = 1)  # currently only checking first file
             return ( (['L1'] if 'L1PSK' in keys else []) +
                      (['HLT'] if 'HLTPSK' in keys else []) )
         # POOL: metadata (do not distinguish L1/HLT yet, see discussions on GitLab commit f83ae2bc)

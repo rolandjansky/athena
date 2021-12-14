@@ -40,7 +40,7 @@ public:
 
   void handle(QTreeWidgetItem *item, const HepMC::GenParticle &particle);
 
-  void expand(QString text, QTreeWidgetItem *item);
+  void expand(const QString& text, QTreeWidgetItem *item);
   void zeroFormat(QTreeWidgetItem *item);
 };
 
@@ -60,12 +60,12 @@ VP1MCSystem::Imp::Imp(VP1MCSystem *tc):theclass(tc),tw(0),pps(0) {
 
 }
 
-void VP1MCSystem::Imp::expand(QString name, QTreeWidgetItem *item) {
+void VP1MCSystem::Imp::expand(const QString& name, QTreeWidgetItem *item) {
   QFont font = item->font(0);
 
   if (item->text(0)==name) {
     font.setBold(true);
-    for (int i=0;i<item->columnCount();i++) {
+    for (int i=0;i<item->columnCount();++i) {
       item->setFont(i,font);
     }
 
@@ -77,7 +77,7 @@ void VP1MCSystem::Imp::expand(QString name, QTreeWidgetItem *item) {
       if (!expandItem || expandItem->isExpanded()) break;
     }
   }
-  for (int i=0;i<item->childCount();i++) {
+  for (int i=0;i<item->childCount();++i) {
     expand(name, item->child(i));
   }
 }
@@ -85,10 +85,10 @@ void VP1MCSystem::Imp::expand(QString name, QTreeWidgetItem *item) {
 void VP1MCSystem::Imp::zeroFormat(QTreeWidgetItem *item) {
   QFont font = item->font(0);
   font.setBold(false);
-  for (int i=0;i<item->columnCount();i++) {
+  for (int i=0;i<item->columnCount();++i) {
     item->setFont(i,font);
   }
-  for (int i=0;i<item->childCount();i++) {
+  for (int i=0;i<item->childCount();++i) {
     zeroFormat(item->child(i));
   }
 }
@@ -177,7 +177,7 @@ void VP1MCSystem::Imp::handle(QTreeWidgetItem *item, const HepMC::GenParticle &t
       //      decayVertex->print();
       for ( HepMC::GenVertex::particles_out_const_iterator current = decayVertex->particles_out_const_begin();
 	    current != decayVertex->particles_out_const_end(); 
-	    current++ ) {
+	    ++current ) {
 	
 	QTreeWidgetItem *newItem = new QTreeWidgetItem();
 	item->addChild(newItem);
@@ -225,12 +225,12 @@ void VP1MCSystem::refresh( StoreGateSvc* )
   //erase();
   const DataHandle<McEventCollection> iter,endColl;
   if (VP1SGAccessHelper(this).retrieve(iter,endColl)) {
-    for (;iter!=endColl;iter++) {
+    for (;iter!=endColl;++iter) {
       DataVector<HepMC::GenEvent>::const_iterator e;
-      for (e=iter->begin();e!=iter->end(); e++) {
+      for (e=iter->begin();e!=iter->end(); ++e) {
 	//      (*e)->print(std::cout);
 	for (HepMC::GenEvent::particle_const_iterator p= (**e).particles_begin();
-	     p!= (**e).particles_end(); p++) {
+	     p!= (**e).particles_end(); ++p) {
 	  HepMC::GenParticle *particle=*p;
 	 
 	  if (!particle->production_vertex() || ! particle->production_vertex()->particles_in_size()) {
@@ -258,7 +258,7 @@ QByteArray VP1MCSystem::saveState()
   VP1Serialise serialise(0/*version*/,this);
   serialise.save(IVP1System::saveState());//Info from base class
   serialise.save(d->ui.listWidget->count());
-  for (int i=0;i<d->ui.listWidget->count();i++) {
+  for (int i=0;i<d->ui.listWidget->count();++i) {
     d->ui.listWidget->setCurrentRow(i);
     serialise.save(d->ui.listWidget->item(i)->text());
   }
@@ -277,7 +277,7 @@ void VP1MCSystem::restoreFromState(QByteArray ba)
   }
   IVP1System::restoreFromState(state.restoreByteArray());
   qint32 itemCount=state.restoreInt();
-  for (int i=0;i<itemCount;i++) {
+  for (int i=0;i<itemCount;++i) {
     QString text=state.restoreString();
     d->ui.listWidget->addItem(text);
   }
@@ -302,7 +302,7 @@ void VP1MCSystem::addParticle() {
 void VP1MCSystem::removeParticle(){
   message("Removing...");
   QList<QListWidgetItem *> selectedItems =d->ui.listWidget->selectedItems();
-  for (int i=0;i<selectedItems.size();i++) {
+  for (int i=0;i<selectedItems.size();++i) {
     int row = d->ui.listWidget->row(selectedItems[i]);
     QListWidgetItem *item = d->ui.listWidget->takeItem(row);
     delete item;
@@ -311,18 +311,18 @@ void VP1MCSystem::removeParticle(){
 void VP1MCSystem::searchParticles() {
   message("Searching...");
   d->tw->collapseAll();
-  for (int j=0;j<d->ui.listWidget->count();j++) {
+  for (int j=0;j<d->ui.listWidget->count();++j) {
     d->ui.listWidget->setCurrentRow(j);
     QString text = d->ui.listWidget->currentItem()->text();
-    for (int i=0;i<d->tw->topLevelItemCount();i++) {
+    for (int i=0;i<d->tw->topLevelItemCount();++i) {
       d->zeroFormat(d->tw->topLevelItem(i));
     }
   }
 
-  for (int j=0;j<d->ui.listWidget->count();j++) {
+  for (int j=0;j<d->ui.listWidget->count();++j) {
     d->ui.listWidget->setCurrentRow(j);
     QString text = d->ui.listWidget->currentItem()->text();
-    for (int i=0;i<d->tw->topLevelItemCount();i++) {
+    for (int i=0;i<d->tw->topLevelItemCount();++i) {
       d->expand(text,d->tw->topLevelItem(i));
     }
   }

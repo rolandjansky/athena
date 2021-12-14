@@ -76,6 +76,12 @@ def StoppedParticleActionToolCfg(ConfigFlags, name="G4UA::StoppedParticleActionT
     return result
 
 
+def FixG4CreatorProcessToolCfg(ConfigFlags, name="G4UA::FixG4CreatorProcessTool", **kwargs):
+    result = ComponentAccumulator()
+    result.setPrivateTools(CompFactory.G4UA.FixG4CreatorProcessTool(name, **kwargs))
+    return result
+
+
 def HitWrapperToolCfg(ConfigFlags, name="G4UA::HitWrapperTool", **kwargs):
     result = ComponentAccumulator()
     # FIXME UserActionConfig not yet migrated
@@ -86,6 +92,7 @@ def HitWrapperToolCfg(ConfigFlags, name="G4UA::HitWrapperTool", **kwargs):
     #         kwargs.setdefault(prop,value)
     result.setPrivateTools(CompFactory.G4UA.HitWrapperTool(name, **kwargs))
     return result
+
 
 def LengthIntegratorToolCfg(ConfigFlags, name="G4UA::UserActionSvc.LengthIntegratorTool", **kwargs):
     THistSvc= CompFactory.THistSvc

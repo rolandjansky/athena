@@ -3,12 +3,11 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s).
-#include "xAODBTagging/ftagfloat_t.h"
 #include "AthContainers/AuxElement.h"
 
 // Helper macro for registering the types of auxiliary variables in memory.
 #define AUX_VAR(NAME)                                                          \
-  static const SG::AuxElement::Accessor<ftagfloat_t> NAME(#NAME)
+  static const SG::AuxElement::Accessor<float> NAME(#NAME)
 
 // Register the correct types for a select set of auxiliary variables.
 AUX_VAR( rnnip_pb );

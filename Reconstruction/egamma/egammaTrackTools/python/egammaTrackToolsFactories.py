@@ -3,14 +3,15 @@
 __doc__ = """ToolFactories to instantiate all
 egammaCaloTools with default configuration"""
 __author__ = "Bruno Lenzi , Christos Anastopoulos"
-from egammaRec.Factories import ToolFactory, PublicToolFactory
+
+from egammaRec.Factories import ToolFactory
 from egammaTrackTools import egammaTrackToolsConf
 from egammaTools.egammaExtrapolators import (
     egammaCaloExtrapolator, egammaExtrapolator)
 import AthenaCommon.CfgMgr as CfgMgr
 
 
-egCaloDepthTool = PublicToolFactory(
+egCaloDepthTool = ToolFactory(
     CfgMgr.CaloDepthTool,
     name="egCaloDepthTool",
     DepthChoice="middle"
@@ -21,13 +22,6 @@ egCaloSurfaceBuilder = ToolFactory(
     name="egCaloSurfaceBuilder",
     CaloDepthTool=egCaloDepthTool
 )
-
-EMLastCaloExtensionTool = ToolFactory(
-    CfgMgr.Trk__ParticleCaloExtensionTool,
-    name="EMLastCaloExtensionTool",
-    Extrapolator=egammaCaloExtrapolator,
-    ParticleType="electron",
-    CaloSurfaceBuilder=egCaloSurfaceBuilder)
 
 EMParticleCaloExtensionTool = ToolFactory(
     CfgMgr.Trk__ParticleCaloExtensionTool,
@@ -41,10 +35,6 @@ EMParticleCaloExtensionTool = ToolFactory(
 EMExtrapolationTools = ToolFactory(
     egammaTrackToolsConf.EMExtrapolationTools,
     name="EMExtrapolationTools",
-    LastCaloExtensionTool=EMLastCaloExtensionTool,
-    PerigeeCaloExtensionTool=EMParticleCaloExtensionTool,
-    Extrapolator=egammaExtrapolator,
-    useCaching=False,
-    useLastCaching=False
+    CaloExtensionTool=EMParticleCaloExtensionTool,
+    Extrapolator=egammaExtrapolator
 )
-

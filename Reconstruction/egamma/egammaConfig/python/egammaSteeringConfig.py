@@ -14,40 +14,38 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def EGammaSteeringCfg(flags,
                       name="EGammaSteering",
-                      forceDisableLRT=True):
+                      doAllUpstream=False):
 
     mlog = logging.getLogger(name)
-    mlog.info('Starting EGamma steering')
+    mlog.info('Starting EGamma Steering')
 
     acc = ComponentAccumulator()
 
-    # Things upstream the main egamma reconstruction
+    # upstream the main egamma reconstruction
     from egammaConfig.egammaUpstreamConfig import (
         egammaUpstreamCfg)
-    acc.merge(egammaUpstreamCfg(flags))
+    acc.merge(egammaUpstreamCfg(flags,
+                                doAll=doAllUpstream))
 
     # e/gamma main Reconstruction
     from egammaConfig.egammaReconstructionConfig import (
         egammaReconstructionCfg)
     acc.merge(egammaReconstructionCfg(flags))
 
+    # Add e/gamma related containers to the output stream
     if flags.Output.doWriteESD or flags.Output.doWriteAOD:
-        # Add e/gamma related containers to the output stream
         from egammaConfig.egammaOutputConfig import (
             egammaOutputCfg)
         acc.merge(egammaOutputCfg(flags))
 
+    # Add e/gamma xAOD thinning
     if flags.Output.doWriteAOD:
-        # Add e/gamma xAOD thinning
         from egammaConfig.egammaxAODThinningConfig import (
             egammaxAODThinningCfg)
         acc.merge(egammaxAODThinningCfg(flags))
 
-    if forceDisableLRT:
-        mlog.info('e/gamma LRT force disabled ')
-
-    if flags.InDet.doR3LargeD0 and not forceDisableLRT:
-        # LRT Reconstruction
+    # LRT Reconstruction
+    if flags.Detector.GeometryID and flags.InDet.doR3LargeD0:
         from egammaConfig.egammaLRTReconstructionConfig import (
             egammaLRTReconstructionCfg)
         acc.merge(egammaLRTReconstructionCfg(flags))
@@ -58,7 +56,7 @@ def EGammaSteeringCfg(flags,
                 egammaLRTOutputCfg)
             acc.merge(egammaLRTOutputCfg(flags))
 
-    mlog.info("EGamma steering done")
+    mlog.info("EGamma Steering done")
     return acc
 
 
@@ -73,8 +71,7 @@ if __name__ == "__main__":
     flags.Output.doWriteAOD = True  # To test the AOD parts
     flags.lock()
     acc = MainServicesCfg(flags)
-    acc.merge(EGammaSteeringCfg(flags,
-                                forceDisableLRT=False))
+    acc.merge(EGammaSteeringCfg(flags))
     acc.printConfig(withDetails=True,
                     printDefaults=True)
 

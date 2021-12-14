@@ -95,13 +95,9 @@ def createExtendNameIfNotDefaultCfg(alg,
     return acc
 
 
-def PhysValMonInDetHoleSearchToolCfg(flags, name="PhysValMonInDetHoleSearchTool", **kwargs):    
-    if flags.Detector.GeometryID:
-        from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
-        return InDetTrackHoleSearchToolCfg(flags, name=name, **kwargs)
-    elif flags.Detector.GeometryITk:
-        from InDetConfig.ITkRecToolConfig import ITkTrackHoleSearchToolCfg
-        return ITkTrackHoleSearchToolCfg(flags, name=name, **kwargs)
+def PhysValMonInDetHoleSearchToolCfg(flags, name="PhysValMonInDetHoleSearchTool", **kwargs):
+    from InDetConfig.InDetRecToolConfig import TrackHoleSearchToolCfg
+    return TrackHoleSearchToolCfg(flags, name=name, **kwargs)
 
 def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
     '''
@@ -113,13 +109,8 @@ def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
 
     kwargs.setdefault( "InDetTrackHoleSearchTool", acc.popToolsAndMerge(PhysValMonInDetHoleSearchToolCfg(flags)) )
 
-    Updator = None
-    if flags.Detector.GeometryID:
-        from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
-        Updator = acc.getPrimaryAndMerge(InDetUpdatorCfg(flags))
-    elif flags.Detector.GeometryITk:
-        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
-        Updator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
+    from InDetConfig.TrackingCommonConfig import UpdatorCfg
+    Updator = acc.popToolsAndMerge(UpdatorCfg(flags))
     kwargs.setdefault( "Updator", Updator )
 
     acc.merge(createExtendNameIfNotDefaultCfg(CompFactory.InDetPhysHitDecoratorAlg,
@@ -148,14 +139,10 @@ def InDetPhysValTruthDecoratorAlgCfg(flags, **kwargs):
     '''
     acc = ComponentAccumulator()
 
-    Extrapolator = None
-    if flags.Detector.GeometryITk:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-    else:
-        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    kwargs.setdefault("Extrapolator", Extrapolator)
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", extrapolator)
 
     acc.merge(createExtendNameIfNotDefaultCfg(CompFactory.InDetPhysValTruthDecoratorAlg,
                                               'TruthParticleContainerName', 'TruthParticles',

@@ -36,6 +36,9 @@ BTaggingStandardAux = \
 
     , "SV1_NGTinSvx"
     , "SV1_masssvx"
+    , "dipsLoose20210729flip_pu"
+    , "dipsLoose20210729flip_pc"
+    , "dipsLoose20210729flip_pb"
     ]
 
 # These are the inputs to DL1rmu + SMT
@@ -218,3 +221,4 @@ def BTaggingXbbContent(jetcol):
     btagcontent = [ ".".join( [ btagging + "Aux" ] + btaggingAllAux ) ]
 
     return [jetcol] + jetcontent + [ btagging ] + btagcontent
+    

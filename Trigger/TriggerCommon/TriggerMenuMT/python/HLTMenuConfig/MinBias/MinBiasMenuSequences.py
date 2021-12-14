@@ -23,11 +23,13 @@ def SPCountHypoToolGen(chainDict):
     from TrigMinBias.TrigMinBiasConf import SPCountHypoTool
     hypo = SPCountHypoTool(chainDict["chainName"])
     if "hmt" in chainDict["chainName"]:
-        hypo.sctSP = int(chainDict["chainParts"][0]["hypoL2Info"].strip("sp"))
+        hypo.sctSP = int(chainDict["chainParts"][0]["hypoSPInfo"].strip("sp"))
     if "mb_sptrk" in chainDict["chainName"]:
         hypo.pixCL = 2
         hypo.sctSP = 3
-            # will set here thresholds
+    if "mb_excl" in chainDict["chainName"]:
+        hypo.pixCLMax = 150 # TODO revisit tightening those
+        hypo.sctSPMax = 150 # as above
     return hypo
 
 
@@ -36,13 +38,21 @@ def TrackCountHypoToolGen(chainDict):
     from TrigMinBias.TrigMinBiasConf import TrackCountHypoTool
     hypo = TrackCountHypoTool(chainDict["chainName"])
     if "hmt" in chainDict["chainName"]:
-        hypo.minNtrks = int(chainDict["chainParts"][0]["hypoEFInfo"].strip("trk"))
+        hypo.minNtrks = int(chainDict["chainParts"][0]["hypoTrkInfo"].strip("trk"))
     if "mb_sptrk" in chainDict["chainName"]:
         hypo.minPt = 200
         hypo.maxZ0 = 401
     if "mb_sptrk_pt" in chainDict["chainName"]:
-        hypo.minPt = int(chainDict["chainParts"][0]["hypoEFInfo"].strip("pt"))*Units.GeV
+        hypo.minPt = int(chainDict["chainParts"][0]["hypoPtInfo"].strip("pt"))*Units.GeV
         hypo.maxZ0 = 401
+    if "mb_excl" in chainDict["chainName"]:
+        hypo.exclusive = True
+        hypo.minPt = int(chainDict["chainParts"][0]["hypoPtInfo"].strip("pt"))*Units.GeV
+        trk = chainDict["chainParts"][0]["hypoTrkInfo"]
+        # this is string of the form 4trk6 - 'number'trk'number'
+        limits =  trk[0:trk.index("trk")], trk[trk.index("trk")+3:]
+        hypo.minNtrks = int(limits[0])
+        hypo.maxNtrks = int(limits[1])
 
         # will set here cuts
     return hypo

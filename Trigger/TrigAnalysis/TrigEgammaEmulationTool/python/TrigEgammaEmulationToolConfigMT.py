@@ -52,22 +52,23 @@ class TrigEgammaEmulationToolConfig:
     #
     def configure(self):
 
+        from TrigEgammaHypo.TrigEgammaFastCaloHypoTool          import createTrigEgammaFastCaloSelectors
+        from TrigEgammaHypo.TrigEgammaPrecisionPhotonHypoTool   import createTrigEgammaPrecisionPhotonSelectors
+        from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronCBSelectorCfg
+        from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronLHSelectorCfg
+        from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronDNNSelectorCfg
 
-        from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaPrecisionElectronLHSelectors
-        from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaPrecisionElectronDNNSelectors
-        from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaPrecisionElectronCBSelectors
-        from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaPrecisionPhotonSelectors
-        from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
 
         # create the emulator tool
         self.__emulator = CompFactory.Trig.TrigEgammaEmulationToolMT( self.name, 
                                                                ElectronTriggerList = self.ElectronTriggerList,
                                                                PhotonTriggerList = self.PhotonTriggerList )
-
+        
+        # NOTE: will be adapt next
         self.__emulator.RingerTools              = createTrigEgammaFastCaloSelectors(ConfigFilePath = self.FastCaloConfigFilePath)
-        self.__emulator.ElectronLHSelectorTools  = createTrigEgammaPrecisionElectronLHSelectors(ConfigFilePath = self.ElectronLHConfigFilePath)
-        self.__emulator.ElectronCBSelectorTools  = createTrigEgammaPrecisionElectronCBSelectors(ConfigFilePath = self.ElectronCBConfigFilePath)
-        self.__emulator.ElectronDNNSelectorTools = createTrigEgammaPrecisionElectronDNNSelectors(ConfigFilePath = self.ElectronDNNConfigFilePath)
+        self.__emulator.ElectronLHSelectorTools  = TrigEgammaPrecisionElectronLHSelectorCfg(ConfigFilePath = self.ElectronLHConfigFilePath).getPublicTool()
+        self.__emulator.ElectronCBSelectorTools  = TrigEgammaPrecisionElectronCBSelectorCfg(ConfigFilePath = self.ElectronCBConfigFilePath).getPublicTool()
+        self.__emulator.ElectronDNNSelectorTools = TrigEgammaPrecisionElectronDNNSelectorCfg(ConfigFilePath = self.ElectronDNNConfigFilePath).getPublicTool()
         self.__emulator.PhotonCBSelectorTools    = createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath = self.PhotonCBConfigFilePath)
     
     

@@ -201,7 +201,7 @@ SeqPHYSLITE += electronSequence
 
 # Include, and then set up the photon analysis sequence:                                       
 from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import makePhotonAnalysisSequence
-photonSequence = makePhotonAnalysisSequence( dataType, 'Loose.Undefined', deepCopyOutput = True, recomputeIsEM=True )
+photonSequence = makePhotonAnalysisSequence( dataType, 'Loose.Undefined', deepCopyOutput = True, recomputeIsEM=False )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons' )
 print( photonSequence ) # For debugging
@@ -253,12 +253,12 @@ scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
 # Create trigger matching decorations
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
 PHYSLITEtrigmatching_helper_notau = TriggerMatchingHelper(name='PHYSLITETriggerMatchingToolNoTau',
-        OutputContainerPrefix = "Analysis",
+        OutputContainerPrefix = "AnalysisTrigMatch_",
         trigger_list = PhysCommonTrigger.trigger_names_notau, add_to_df_job=False,
         InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
         InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
 PHYSLITEtrigmatching_helper_tau = TriggerMatchingHelper(name='PHYSLITETriggerMatchingToolTau',
-        OutputContainerPrefix = "Analysis",
+        OutputContainerPrefix = "AnalysisTrigMatch_",
         trigger_list = PhysCommonTrigger.trigger_names_tau, add_to_df_job=False, DRThreshold=0.2,
         InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
         InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")

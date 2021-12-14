@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 # import the DetailedTrackGradeFactory configurable
 Analysis__DetailedTrackGradeFactory=CompFactory.Analysis.DetailedTrackGradeFactory
 
-def IPDetailedTrackGradeFactoryCfg( name = 'IPDetailedTrackGradeFactory', useBTagFlagsDefaults = True, **options ):
+def IPDetailedTrackGradeFactoryCfg( flags, name = 'IPDetailedTrackGradeFactory', useBTagFlagsDefaults = True, **options ):
     """Sets up a IPDetailedTrackGradeFactory tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -21,15 +21,16 @@ def IPDetailedTrackGradeFactoryCfg( name = 'IPDetailedTrackGradeFactory', useBTa
                   **options: Python dictionary with options for the tool.
     output: The actual tool."""
     acc = ComponentAccumulator()
-    #btagrun1 was used to check old config, not sure we need it for Run3
-    btagrun1 = False
+
+    btagrun23 = (flags.GeoModel.Run in ['RUN2', 'RUN3'])
 
     if useBTagFlagsDefaults:
         defaults = { 'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-                     'useRun2TrackGrading'    : (btagrun1 is False),
-                     'useInnerLayers0HitInfo' : (btagrun1 is False),
-                     'useDetailSplitHitInfo'  : (btagrun1 is False),
+                     'useRun2TrackGrading'    : btagrun23,
+                     'useInnerLayers0HitInfo' : btagrun23,
+                     'useDetailSplitHitInfo'  : btagrun23,
+                     'useITkTrackGrading'     : flags.GeoModel.Run not in ['RUN1', 'RUN2', 'RUN3'],
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])

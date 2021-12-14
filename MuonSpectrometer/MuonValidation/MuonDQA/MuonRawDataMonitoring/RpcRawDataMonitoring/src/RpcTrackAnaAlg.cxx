@@ -210,7 +210,7 @@ StatusCode RpcTrackAnaAlg::fillMuonExtrapolateEff(const EventContext& ctx) const
 
   std::vector<MyMuon> mymuons;
 
-  for(const auto& muon : *muons){
+  for(const xAOD::Muon* muon : *muons){
     // if(muon->muonType()!=xAOD::Muon::Combined)continue;
     // if(!(muon->quality() <= xAOD::Muon::Medium))continue;
     if(!(muon->quality() <= xAOD::Muon::Loose))continue;

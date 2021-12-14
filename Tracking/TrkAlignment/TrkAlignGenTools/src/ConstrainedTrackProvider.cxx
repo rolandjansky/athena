@@ -446,8 +446,7 @@ namespace Trk {
     ATH_MSG_DEBUG("Scaling by 1/m_reduceConstraintUncertainty  " << m_reduceConstraintUncertainty << '\t'<< pow( m_reduceConstraintUncertainty,-2)) ;    
     correctedQoverPError = correctedQoverPError * pow( m_reduceConstraintUncertainty,-2); 
     ATH_MSG_DEBUG(" == input pt: " << pt << "  deltaSagitta: " << delta << "  final pt: " << sin(measuredPerigee->parameters()[Trk::theta]) * 1e-3/correctedQoverP);  
-    return;
-  }
+ }
 
 
   void  ConstrainedTrackProvider::getCorrectedValues_d0(const Trk::Perigee* measuredPerigee, double& correctedD0, double& correctedD0Error)
@@ -477,8 +476,7 @@ namespace Trk {
 
     ATH_MSG_DEBUG(" == input d0: " << d0 << "  deltad0: " << delta << "  final d0: " << correctedD0 << " +- " << correctedD0Error);  
     ATH_MSG_DEBUG(" == getCorrectedValues_d0 == Completed ==");
-    return;
-  }
+ }
 
   void  ConstrainedTrackProvider::getCorrectedValues_z0(const Trk::Perigee* measuredPerigee, double& correctedZ0,double& correctedZ0Error)
   {
@@ -503,8 +501,7 @@ namespace Trk {
     ATH_MSG_DEBUG("Scaling by 1/m_reduceConstraintUncertainty  " << m_reduceConstraintUncertainty << '\t'<< pow( m_reduceConstraintUncertainty,-2)) ;    
     correctedZ0Error = correctedZ0Error * pow( m_reduceConstraintUncertainty,-2); 
     ATH_MSG_DEBUG(" == input z0: " << z0 << "  deltaz0: " << delta << "  final z0: " << correctedZ0 << " +- " << correctedZ0Error);  
-    return;
-  }
+ }
 
 
 

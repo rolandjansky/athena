@@ -6,8 +6,6 @@ from InDetConfig.ITkRecToolConfig             import makeName
 import AthenaCommon.SystemOfUnits               as   Units
 #######################################################################
 
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 def copyArgs(kwargs, copy_list):
     dict_copy={}
@@ -341,8 +339,10 @@ def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase',**kwargs)
     if len(pix_cluster_on_track_args)>0 and len(nameSuffix)>0 :
         pix_cluster_on_track_args['nameSuffix']=nameSuffix
 
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    kwargs.setdefault("ExtrapolatorHandle", acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags)))
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+    acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("ExtrapolatorHandle", extrapolator)
 
     if 'RIO_OnTrackCreatorHandle' not in kwargs :
         ITkRefitRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, 
@@ -397,9 +397,10 @@ def ITkKalmanCompetingPixelClustersToolCfg(flags, name='ITkKalmanCompetingPixelC
     kwargs.setdefault('WeightCutValueEndCap',5.5)
 
     if 'Extrapolator' not in kwargs:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-        kwargs.setdefault("Extrapolator", Extrapolator)
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+        acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+        kwargs.setdefault("Extrapolator", extrapolator)
 
     acc.setPrivateTools(CompFactory.InDet.CompetingPixelClustersOnTrackTool(name=name, **kwargs))
     return acc
@@ -410,9 +411,10 @@ def ITkKalmanCompetingStripClustersToolCfg(flags, name='ITkKalmanCompetingStripC
     kwargs.setdefault('WeightCutValueEndCap',5.5)
 
     if 'Extrapolator' not in kwargs:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
-        kwargs.setdefault("Extrapolator", Extrapolator)
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
+        acc.addPublicTool(extrapolator)  # TODO: migrate to private?
+        kwargs.setdefault("Extrapolator", extrapolator)
 
     acc.setPrivateTools(CompFactory.InDet.CompetingSCT_ClustersOnTrackTool(name=name,**kwargs))
     return acc
@@ -538,8 +540,8 @@ def ITkDistributedKalmanFilterCfg(flags, name="ITkDistributedKalmanFilter", **kw
     pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
 
     if 'ExtrapolatorTool' not in kwargs:
-        from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-        kwargs.setdefault('ExtrapolatorTool', acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags)))
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        kwargs.setdefault('ExtrapolatorTool', acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
     if 'ROTcreator' not in kwargs:
         ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, **pix_cluster_on_track_args))
@@ -663,24 +665,19 @@ def ITkTrackFitterCfg(flags, name='ITkTrackFitter', **kwargs) :
 def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) :
     acc = ComponentAccumulator()
 
-    if 'TrackingGeometrySvc' not in kwargs :
-        if not use_tracking_geometry_cond_alg :
-            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-            acc.merge(TrackingGeometrySvcCfg(flags))
-            kwargs.setdefault("TrackingGeometrySvc", acc.getService('AtlasTrackingGeometrySvc') )
-
     if 'TrackingGeometryReadKey' not in kwargs :
-        if use_tracking_geometry_cond_alg :
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            acc.merge( TrackingGeometryCondAlgCfg(flags) )
-            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-            kwargs.setdefault("TrackingGeometryReadKey", 'AtlasTrackingGeometry')
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+                TrackingGeometryCondAlgCfg)
+        geom_cond = TrackingGeometryCondAlgCfg(flags)
+        geom_cond_key = geom_cond.getPrimary().TrackingGeometryWriteKey
+        acc.merge(acc)
+        kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
 
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, ITkPropagatorCfg, ITkMaterialEffectsUpdatorCfg
-    from InDetConfig.ITkRecToolConfig  import ITkUpdatorCfg
+    from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
 
-    Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+    Extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     Navigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
     ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
     ITkUpdator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
@@ -804,24 +801,25 @@ def ITkTrackSummaryToolNoHoleSearchCfg(flags, name='ITkTrackSummaryToolNoHoleSea
 
 def ITkROIInfoVecCondAlgCfg(flags, name='ITkROIInfoVecCondAlg', **kwargs) :
     acc = ComponentAccumulator()
-    kwargs.setdefault("InputEmClusterContainerName", 'ITkCaloClusterROIs')
+    from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
+    acc.merge(ITkCaloClusterROI_SelectorCfg(flags))
+    kwargs.setdefault("InputEmClusterContainerName", "ITkCaloClusterROIs")
     kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
     kwargs.setdefault("minPtEM", 5000.0) #in MeV
-    acc.setPrivateTools(CompFactory.ROIInfoVecAlg(name = name,**kwargs))
+    acc.addEventAlgo(CompFactory.ROIInfoVecAlg(name = name,**kwargs), primary=True)
     return acc
 
 def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags)))
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    kwargs.setdefault("Extrapolator", acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags)))
 
     ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags))
 
-    from AthenaCommon.DetFlags  import DetFlags
-    have_calo_rois = flags.ITk.doBremRecovery and flags.ITk.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
-    if have_calo_rois :
-        alg = acc.popToolsAndMerge(ITkROIInfoVecCondAlgCfg(flags))
+    have_calo_rois = flags.ITk.doBremRecovery and flags.ITk.doCaloSeededBrem and flags.Detector.EnableCalo
+    if have_calo_rois:
+        alg = acc.getPrimaryAndMerge(ITkROIInfoVecCondAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
     kwargs.setdefault("SummaryTool", ITkTrackSummaryTool )
     kwargs.setdefault("DriftCircleCutTool", None )
@@ -879,14 +877,13 @@ def ITkNNScoringToolBaseCfg(flags, name='ITkNNScoringTool', **kwargs) :
     acc = ComponentAccumulator()
     the_name=makeName(name,kwargs)
 
-    from AthenaCommon.DetFlags  import DetFlags
-    have_calo_rois = flags.ITk.doBremRecovery and flags.ITk.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
-    if have_calo_rois :
-        alg = acc.popToolsAndMerge(ITkROIInfoVecCondAlgCfg(flags))
+    have_calo_rois = flags.ITk.doBremRecovery and flags.ITk.doCaloSeededBrem and flags.Detector.EnableCalo
+    if have_calo_rois:
+        alg = acc.getPrimaryAndMerge(ITkROIInfoVecCondAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
 
-    from TrkConfig.AtlasUpgradeExtrapolatorConfig import AtlasUpgradeExtrapolatorCfg
-    Extrapolator = acc.getPrimaryAndMerge(AtlasUpgradeExtrapolatorCfg(flags))
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    Extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags))
 
     kwargs.setdefault("nnCutConfig", "dev/TrackingCP/LRTAmbiNetwork/20200727_225401/nn-config.json" )

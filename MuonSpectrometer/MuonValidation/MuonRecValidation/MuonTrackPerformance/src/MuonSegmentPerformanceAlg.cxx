@@ -106,8 +106,8 @@ StatusCode MuonSegmentPerformanceAlg::execute() {
     return StatusCode::SUCCESS;
 }
 
-std::string MuonSegmentPerformanceAlg::printRatio(std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco,
-                                                  const std::vector<int> truth) const {
+std::string MuonSegmentPerformanceAlg::printRatio(const std::string& prefix, unsigned int begin, unsigned int end, const std::vector<int>& reco,
+                                                  const std::vector<int>& truth) const {
     std::ostringstream sout;
     unsigned int width = 9;
     unsigned int precision = 3;
@@ -131,8 +131,8 @@ std::string MuonSegmentPerformanceAlg::printRatio(std::string prefix, unsigned i
     }
     return sout.str();
 }
-std::string MuonSegmentPerformanceAlg::printRatio(std::string prefix, unsigned int begin, unsigned int end,
-                                                  const std::vector<int> reco) const {
+std::string MuonSegmentPerformanceAlg::printRatio(const std::string& prefix, unsigned int begin, unsigned int end,
+                                                  const std::vector<int>& reco) const {
     std::ostringstream sout;
     unsigned int width = 9;
     unsigned int precision = 3;

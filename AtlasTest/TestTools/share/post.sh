@@ -82,12 +82,8 @@ EOF
 # Patterns that cannot be ignored
 ERRORS="^ERROR | ERROR | FATAL "
 
-# ignore diff annotations
-PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
-
 # ignore hex addresses
-PP="$PP"'|0x\w{4,}'
-
+PP="0x\w{4,}"
 # ignore package names e.g. Package-00-00-00
 PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
 # ignore trunk package names e.g. Package-r123456
@@ -239,10 +235,6 @@ PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
 # Ignore sourceID message from EventSelector.
 PP="$PP"'|Disconnecting input sourceID'
 
-# Printouts from new-style job configuration.
-PP="$PP"'|Py:ComponentAccumulator +INFO '
-PP="$PP"'|^[a-zA-Z0-9.]+ +: [^ ]'
-
 # xAODMaker::EventInfoCnvAlg
 PP="$PP"'|^xAODMaker::Even.*(WARNING|INFO)'
 
@@ -302,20 +294,20 @@ else
        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
        # We first look for it in DATAPATH.  If we don't find it,
        # we then look under ATLAS_REFERENCE_DATA.
-       if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
+       if [ ! -r $reflog ] && [ -n "$ATLAS_REFERENCE_TAG" ]; then
            # Look for the file in DATAPATH.
            # We have to look for the directory, not the file itself,
            # since get_files is hardcoded not to look more than two
            # levels down.
            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
            reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
-           if [ ! -r $reflog ]; then
+           if [ ! -r $reflog ] && [ -n "${ATLAS_REFERENCE_DATA}" ]; then
                reflog=${ATLAS_REFERENCE_DATA}/${ATLAS_REFERENCE_TAG}/${test}.ref
            fi
        fi
 
-       echo "Reference log taken from: $reflog" 
        if [ -r $reflog ]; then
+           echo "Reference log taken from: $reflog"
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
 
@@ -331,24 +323,20 @@ else
            diff -a -b -E -B -u $refdiff $jobdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
-               echo "$RED post.sh> ERROR: $reflog and $joblog differ $RESET"
+               echo "$RED post.sh> ERROR: ${reflog} and ${joblog} differ $RESET"
                # Return with failure in this case:
                exit 1
            fi
        else
-           # Don't warn for gtest tests.
-           tail -1 $joblog | grep 'PASSED .* tests' > /dev/null
-           refstat=$?
-           if [ $refstat != 0 ]; then
-             tail $joblog
-             echo "$YELLOW post.sh> WARNING: reference output $reflog not available $RESET"
-             echo  " post.sh> Please check ${PWD}/$joblog"
-           fi
+           echo "$RED post.sh> ERROR: reference output ${reflog} not available $RESET"
+           echo " post.sh> Either create a reference file or use a different POST_EXEC_SCRIPT."
+           echo " post.sh> see: https://gitlab.cern.ch/atlas/athena/-/tree/master/AtlasTest/TestTools"
+           exit 1
        fi
    else
        tail $joblog
        echo  "$RED post.sh> ERROR: Athena exited abnormally! Exit code: $testStatus $RESET"
-       echo  " post.sh> Please check ${PWD}/$joblog"
+       echo  " post.sh> Please check ${PWD}/${joblog}"
    fi
 fi
 exit $testStatus

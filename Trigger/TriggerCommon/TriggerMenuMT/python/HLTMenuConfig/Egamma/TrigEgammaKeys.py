@@ -1,6 +1,6 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-__author__ = "Fernando Monticelli, Debottam Gupta"
+__author__ = "Fernando Monticelli, Debottam Gupta, Joao Victor Pinto"
 __doc__    = "ConfigSettings"
 __all__    = [ "getTrigEgammaKeys" ]
 
@@ -10,148 +10,103 @@ __all__    = [ "getTrigEgammaKeys" ]
 
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from AthenaCommon.Logging import logging
-
-log = logging.getLogger(__name__)
-
-def getTrigEgammaKeys(name=''):
-    if name in _TrigEgammaConfigurations:
-        return _TrigEgammaConfigurations[name]
-    else:
-        # OK that name is not valid so lets prepare a list of valid names to throw in the exception msg:
-        validnames = []
-        for key in _TrigEgammaConfigurations:
-            validnames.append(key)
-        raise Exception('getTrigEgammaKeys() called with non valid name : ' + name + ' valid names are:' + str(validnames))
 
 
-class TrigEgammaKeys_base():
-      """Base clas to configure TrigEgamma Container names, tuning names and other configurations"""
-      def __init__(self):
-        # First Egamma, calo and common configuration stuff
-        self._EgammaRecKey = 'HLT_egammaRecCollection'
-        self._TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusters'
-        self._outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
-        self._outputTopoCollection = 'HLT_egammaTopoCluster'
-        self._PrecisionCaloEgammaRecKey = 'HLT_prcisionCaloEgammaRecCollection'
+class TrigEgammaKeysBase(object):
+
+      """Base clas to configure TrigEgamma Container names. Containers will be record, collections not"""
+      def __init__(self, ion=False):
 
 
-        # Tracking configuration stuff now
-        self._IDTrigConfig = getInDetTrigConfig( 'electron' )
-        self._outputTrackKey = 'HLT_IDTrkTrack_Electron'
-        self._outputTrackParticleKey = 'HLT_IDTrack_Electron'
+        """Static class to collect all string manipulation in fast electron sequences """
+        self.fastElectronRoIContainer                   = recordable("HLT_Roi_FastElectron")
+        self.fastElectronContainer                      = recordable("HLT_FastElectrons")
 
-        # Electron Specific
-        self._SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
-        self._outputElectronKey = 'HLT_egamma_Electrons'
+        """Static class to collect all string manipulation in fast photon sequences """
+        self.fastPhotonRoIContainer                     = recordable("HLT_Roi_FastPhoton")
+        self.fastPhotonContainer                        = recordable("HLT_FastPhotons")
 
-        # Photon specific
-        self._SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
-        self._outputPhotonKey = 'HLT_egamma_Photons'
+        """Static class to collect all string manipulation in precision calo sequences """
+        self.precisionCaloTopoCollection                = 'HLT_egammaTopoCluster'
+        self.precisionCaloEgammaRecCollection           = 'HLT_precisionCaloEgammaRecCollection'
+        self.precisionCaloClusterContainer              = recordable("HLT_CaloEMClusters") if not ion else recordable("HLT_HICaloEMClusters") 
+        self.precisionEgammaRecCollection               = 'HLT_egammaRecCollection'
+        self.precisionEMClusterContainer                = recordable('HLT_TrigEMClusters')
 
-        # Tunning configuration
-        self._pidVersion = 'rel22_20210611'
-        self._dnnVersion = 'rel21_20210928'
-        self._ringerVersion = 'TrigL2_20210702_r4'
-        self._calibMVAVersion = '"egammaMVACalib/online/v6"'
+        """Static class to collect all string manipulation in precision photon sequences """
+        self.precisionPhotonSuperClusterRecCollection      = 'HLT_PhotonSuperRecCollection'
+        self.precisionPhotonSuperClusterCollection      = 'HLT_PhotonSuperClusters'
+        self.precisionPhotonContainer                   = recordable('HLT_egamma_Photons')
+
+        """Static class to collect all string manipulation in precision electron sequences """
+        self.precisionElectronSuperClusterRecCollection    = 'HLT_ElectronSuperRecCollection'
+        self.precisionElectronSuperClusterCollection    = 'HLT_ElectronSuperClusters'
+        self.precisionElectronContainer                 = recordable('HLT_egamma_Electrons')
+
+        #
+        # Track configuration
+        #
+        self._IDTrigConfig                              = getInDetTrigConfig( 'electron' )
+
+        #
+        # Special sequences
+        #
+        self.TrigTRTHTCountsContainer                   = recordable("HLT_TrigTRTHTCounts")
+        self.egEventShape                               = recordable('HLT_HIEventShapeEG')
 
 
-                                                
-      @property
-      def SuperElectronRecCollectionName(self):  
-          return self._SuperElectronRecCollectionName
 
       @property
-      def outputElectronKey(self):               
-          return recordable(self._outputElectronKey)
-
-      @property
-      def SuperPhotonRecCollectionName(self):    
-          return self._SuperPhotonRecCollectionName
-
-      @property
-      def EgammaRecKey(self):                    
-          return self._EgammaRecKey
-
-      @property
-      def outputPhotonKey(self):                 
-          return recordable(self._outputPhotonKey)
-
-      @property
-      def outputTopoSeededClusterKey(self):      
-          return self._outputTopoSeededClusterKey
-
-      @property
-      def outputTopoCollection(self):      
-          return self._outputTopoCollection
-
-      @property
-      def PrecisionCaloEgammaRecKey(self):      
-          return self._PrecisionCaloEgammaRecKey
-
-      @property
-      def TrigEMClusterToolOutputContainer(self):
-          return recordable(self._TrigEMClusterToolOutputContainer)
+      def precisionTrackingContainer(self):
+          return self._IDTrigConfig.tracks_IDTrig()
 
       @property
       def IDTrigConfig(self):
           return self._IDTrigConfig
 
-      @property
-      def TrigElectronTracksCollectionName(self):
-          return self._IDTrigConfig.tracks_IDTrig()
-
-      @property
-      def pidVersion(self):                      
-          return self._pidVersion
-
-      @property
-      def dnnVersion(self):                      
-          return self._dnnVersion
-
-      @property
-      def ringerVersion(self):                   
-          return self._ringerVersion
-
-      @property
-      def calibMVAVersion(self):                   
-          return self._calibMVAVersion
 
 
-      @property
-      def outputTrackKey(self):
-        return self._outputTrackKey
 
-      @property
-      def  outputTrackParticleKey(self):
-        return recordable(self._outputTrackParticleKey)
-      
-
-class TrigEgammaKeys_electrons_LRT(TrigEgammaKeys_base):
+class TrigEgammaKeys_LRT(TrigEgammaKeysBase):
     # This class contians modified base configuration class for LRT electron trigger chains
-    def __init__(self):
-        TrigEgammaKeys_base.__init__(self)
-        self._outputElectronKey = 'HLT_egamma_Electrons_LRT'
-        self._IDTrigConfig = getInDetTrigConfig('electronLRT')
+    def __init__(self,ion):
+        TrigEgammaKeysBase.__init__(self,ion)
+        
+        self.fastElectronRoIContainer       = recordable("HLT_Roi_FastElectron_LRT")
+        self.fastElectronContainer          = recordable('HLT_FastElectrons_LRT')
+        self.precisionCaloClusterContainer  = recordable("HLT_CaloEMClusters_LRT")
+        self.precisionElectronContainer     = recordable('HLT_egamma_Electrons_LRT')
+        self._IDTrigConfig                  = getInDetTrigConfig('electronLRT')
 
-class TrigEgammaKeys_electrons_GSF(TrigEgammaKeys_base):
+
+
+class TrigEgammaKeys_GSF(TrigEgammaKeysBase):
     # This class contians modified base configuration class for GSF electron trigger chains
-    def __init__(self):
-        TrigEgammaKeys_base.__init__(self)
-        self._outputElectronKey = 'HLT_egamma_Electrons_GSF'
-        self._outputTrackKey = 'HLT_IDTrkTrack_Electron_GSF'
-        self._outputTrackParticleKey = 'HLT_IDTrack_Electron_GSF'
+    def __init__(self, ion):
+        TrigEgammaKeysBase.__init__(self, ion)
+        
+        # from HLT_IDTrack_Electron to HLT_IDTrack_Electron by refit alg
+        self.precisionElectronTrkCollectionGSF          = 'HLT_IDTrkTrack_Electron_GSF'
+        self.precisionElectronTrackParticleContainerGSF = recordable('HLT_IDTrack_Electron_GSF')
+        self.precisionElectronContainer                 = recordable('HLT_egamma_Electrons_GSF')
 
 
+#
+# Get keys from variant name
+#
+def getTrigEgammaKeys(name='', ion=False):
 
-
-
-
-_TrigEgammaConfigurations = {
+    _d = {
         # Dictionary that maps a string to a configuration setting for electron and photon chains
-        '': TrigEgammaKeys_base(),
-        '_LRT': TrigEgammaKeys_electrons_LRT(),
-        '_GSF': TrigEgammaKeys_electrons_GSF(),
+        ''      : TrigEgammaKeysBase(ion),
+        '_LRT'  : TrigEgammaKeys_LRT(ion),
+        '_GSF'  : TrigEgammaKeys_GSF(ion),
         }
+
+    if name in _d.keys():
+        return _d[name]
+    else:
+        raise Exception('getTrigEgammaKeys() called with non valid name : ' + name + ' valid names are:' + str(_d.keys()) )
+
 
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set the name of the package.
 atlas_subdir( AthExCUDA )
@@ -14,7 +14,9 @@ atlas_install_joboptions( share/*.py )
 
 # Test(s) in the package.
 atlas_add_test( LinearTransformTask
-   SCRIPT athena.py AthExCUDA/LinearTransformTaskExample_jobOptions.py )
+   SCRIPT athena.py AthExCUDA/LinearTransformTaskExample_jobOptions.py
+   POST_EXEC_SCRIPT nopost.sh )
+
 atlas_add_test( LinearTransformTaskMT
-   SCRIPT athena.py --threads=4
-          AthExCUDA/LinearTransformTaskExample_jobOptions.py )
+   SCRIPT athena.py --threads=4 AthExCUDA/LinearTransformTaskExample_jobOptions.py
+   POST_EXEC_SCRIPT nopost.sh )

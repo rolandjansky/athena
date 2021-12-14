@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SICLUSTERTOOLS_IAFPSICLUSTERTOOL_H
@@ -12,27 +12,16 @@
 /// @brief  Header file for interface IAFPSiClusterTool
 
 
-// STL includes
-
-
 // FrameWork includes
 #include "GaudiKernel/IAlgTool.h"
-#include "AthContainers/DataVector.h"
-
-static const InterfaceID IID_IAFPSiClusterTool("IAFPSiClusterTool", 1, 0);
+#include "xAODForward/AFPSiHitsClusterContainer.h"
 
 /// Interface for AFP tools that create silicon pixel hits clusters
 class IAFPSiClusterTool : virtual public ::IAlgTool
 { 
 
  public: 
-  /// Empty destructor
-  virtual ~IAFPSiClusterTool() {}
-
-  static const InterfaceID& interfaceID();
-
-  virtual StatusCode initialize() = 0;
-  virtual StatusCode finalize() = 0;
+  DeclareInterfaceID(IAFPSiClusterTool, 1, 0);
 
   /// @brief Run clusters reconstruction
   /// 
@@ -41,14 +30,9 @@ class IAFPSiClusterTool : virtual public ::IAlgTool
   /// clustering algorithm, assigns clusters positions in station
   /// local coordinate system and saves them in xAOD format to
   /// StoreGate.
-  virtual StatusCode clusterHits() = 0;
+  virtual StatusCode clusterHits(std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& clustr, const EventContext &ctx) const = 0;
 
-}; 
-
-inline const InterfaceID& IAFPSiClusterTool::interfaceID() 
-{ 
-   return IID_IAFPSiClusterTool; 
-}
+};
 
 
 #endif //> !AFP_SICLUSTERTOOLS_IAFPSICLUSTERTOOL_H

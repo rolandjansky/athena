@@ -245,7 +245,6 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(eflowData& data) 
 	double totalEnergyPerRing = 0;
 
 	double cellVolume = 0;
-	int totalCells = 0;
 
 	/* 100 is chosen as a number higher than the number of cells found in a normal list */
 	bool breakloop = false;
@@ -277,7 +276,6 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(eflowData& data) 
 	    ATH_MSG_DEBUG(" cell eta and phi are " << (thisPair.first)->eta() << " and " << (thisPair.first)->phi() << " with index " << thisPair.second << " and sampling of " << sampling);
 	    ATH_MSG_DEBUG(" cell energy is " << (thisPair.first)->energy());
 
-	    totalCells += 1;
 	    totalCellsinRing += 1;
 
 	    totalEnergyPerRing += (thisPair.first)->energy();

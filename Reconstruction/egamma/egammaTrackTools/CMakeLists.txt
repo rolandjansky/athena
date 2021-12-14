@@ -14,7 +14,7 @@ atlas_add_component( egammaTrackTools
                      LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib CaloGeoHelpers AthenaBaseComps AthContainers
 		     AtlasDetDescr IdDictDetDescr EventPrimitives xAODCaloEvent xAODEgamma xAODTracking FourMomUtils GaudiKernel BeamSpotConditionsData InDetIdentifier
 		     RecoToolInterfaces TrkSurfaces TrkCaloCluster_OnTrack TrkCaloExtension TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase
-		     TrkNeutralParameters TrkParameters TrkParametersIdentificationHelpers TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack
+		     TrkNeutralParameters TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack
 		     TrkVertexOnTrack TrkExInterfaces TrkFitterInterfaces TrkVertexFitterInterfaces egammaInterfacesLib CaloTrackingGeometryLib )
 
 # Install files from the package:

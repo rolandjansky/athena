@@ -5,16 +5,12 @@
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
-
-
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
-
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
 from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
-from ..Egamma.PrecisionCaloMenuSequences import precisionCaloMenuSequence
-from ..Egamma.HipTRTMenuSequences import hipTRTMenuSequence
-from ..Photon.TLAPhotonMenuSequences import TLAPhotonMenuSequence
+from ..Photon.PrecisionCaloMenuSequences import precisionCaloMenuSequence
+from ..Photon.HipTRTMenuSequences import hipTRTMenuSequence
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
 
@@ -30,15 +26,11 @@ def fastPhotonCaloSequenceCfg( flags ):
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence( flags )
 
-def TLAPhotonSequenceCfg(flags,  HLT_threshold ):
-    photonsIn = "HLT_egamma_Photons"
-    return TLAPhotonMenuSequence(flags, photonsIn, HLT_threshold=HLT_threshold)
-
 def precisionPhotonCaloSequenceCfg( flags ):
-    return precisionCaloMenuSequence('Photon', is_photon=True)
+    return precisionCaloMenuSequence('Photon')
 
 def precisionPhotonCaloSequenceCfg_ion( flags ):
-    return precisionCaloMenuSequence('Photon', is_photon=True, ion=True)
+    return precisionCaloMenuSequence('Photon', ion=True)
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
@@ -93,9 +85,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration
         # --------------------
         stepDictionary = {
-            "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
-            "hiptrt" : ['getFastCalo', 'getHipTRT'],                                # hipTRT sequence 
-            "nominal":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "etcut"  : ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
+            "hiptrt" : ['getFastCalo', 'getHipTRT'], # hipTRT sequence 
+            "nominal": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
         }
 
         ## This needs to be configured by the Egamma Developer!!
@@ -120,16 +112,6 @@ class PhotonChainConfiguration(ChainConfigurationBase):
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
 
-
- 
-        if self.dict["eventBuildType"] == "PhysicsTLA" :
-            log.debug('Adding photon trigger step getTLAPhoton')
-            TLAStep = self.getTLAPhoton()
-            chainSteps+= [TLAStep]
-
-
-
-
         myChain = self.buildChain(chainSteps)
         return myChain
 
@@ -144,17 +126,6 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     def getFastPhoton(self):
         stepName = "FastPhoton"
         return self.getStep(2,stepName,[ fastPhotonSequenceCfg])
-
-    def getTLAPhoton(self):
-        stepName = "TLAPhoton"
-        HLT_threshold = 0
-       
-        for cPart in self.dict['chainParts']:
-            if 'Photon' in cPart['signature']:
-                HLT_threshold = float(cPart['threshold'])
-            
-        #print("MARCOLOG ", HLT_threshold)    
-        return self.getStep(5, stepName, [TLAPhotonSequenceCfg],  HLT_threshold=HLT_threshold)
 
     def getPrecisionCaloPhoton(self):
         if self.chainPart['extra'] == 'ion':

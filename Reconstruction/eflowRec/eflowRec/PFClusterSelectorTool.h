@@ -31,7 +31,7 @@ private:
   void retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight,const xAOD::CaloClusterContainer& caloCalClustersContainer,const CaloDetDescrManager& calo_dd_man);
   
   /** ReadHandleKey for the CaloClusterContainer to be used as input */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClustersReadHandleKey{this,"clustersName","CaloTopoCluster","ReadHandleKey for the CaloClusterContainer to be used as input"};
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClustersReadHandleKey{this,"clustersName","CaloTopoClusters","ReadHandleKey for the CaloClusterContainer to be used as input"};
 
   /** ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input */
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloCalClustersReadHandleKey{this,"calClustersName","CaloCalTopoClusters","ReadHandleKey for the CaloClusterContainer, at LC scale, to be used as input"};  

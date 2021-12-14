@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 class SegmentCnv_p1;
 
 namespace Trk {
@@ -179,7 +180,7 @@ inline const MeasurementBase*
 Segment::measurement(unsigned int indx) const
 {
   if (m_containedMeasBases && indx < m_containedMeasBases->size()) {
-    return m_containedMeasBases->operator[](indx);
+    return std::as_const(*m_containedMeasBases)[indx];
   }
   return nullptr;
 }

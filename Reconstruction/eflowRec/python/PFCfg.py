@@ -26,6 +26,19 @@ def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
 
     PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
+    # P->T conversion extra dependencies
+    if inputFlags.Detector.GeometryITk:
+        PFTrackSelector.ExtraInputs = [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ]
+    else:
+        PFTrackSelector.ExtraInputs = [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+            ("InDetDD::TRT_DetElementContainer", "ConditionStore+TRT_DetElementContainer"),
+        ]
+
     result.addEventAlgo (PFTrackSelector, primary=True)
 
     return result

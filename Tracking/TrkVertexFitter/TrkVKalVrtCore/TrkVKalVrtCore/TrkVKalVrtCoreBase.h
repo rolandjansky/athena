@@ -184,7 +184,8 @@ namespace Trk {
 
        bool truncatedStep;
        int  existFullCov;
-       double ader[(3*vkalNTrkM+3)*(3*vkalNTrkM+3)]{};  // was [903][903]
+       //this is quite large to 0 initialize here
+       double ader[(3*vkalNTrkM+3)*(3*vkalNTrkM+3)];  // was [903][903]
 
      public:        // Object with defining information for VKalVrtCore library.
                     // Each vertex has a copy of VKalVrtControl object what allows

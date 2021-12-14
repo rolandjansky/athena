@@ -106,7 +106,7 @@ void Muon::TgcCoinDataContainerCnv_p1::transToPers(const Muon::TgcCoinDataContai
     // }
     persCont->m_collections.resize(numColl);    log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
 
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         // Add in new collection
         log << MSG::DEBUG  << " New collection" << endmsg;
         const Muon::TgcCoinDataCollection& collection = (**it_Coll);

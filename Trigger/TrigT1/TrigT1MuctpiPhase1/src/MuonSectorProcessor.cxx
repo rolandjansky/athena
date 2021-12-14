@@ -79,7 +79,7 @@ namespace LVL1MUCTPIPHASE1 {
       return prefix;
     }
     
-    std::string make_pair(std::string lhs, std::string rhs){
+    std::string make_pair(std::string lhs, std::string rhs) const {
       return lhs + ":" + rhs;
     }
 
@@ -96,24 +96,24 @@ namespace LVL1MUCTPIPHASE1 {
       }
     }
     
-    std::vector<std::string> get_lhs_keys(std::string dettype, int roi, int sector){
+    std::vector<std::string> get_lhs_keys(std::string dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       r.push_back(dettype + std::to_string(sector) + "_" + std::to_string(roi));
       return r;   
     }
     
-    std::vector<std::string> get_rhs_keys(std::string dettype, int roi, int sector){
+    std::vector<std::string> get_rhs_keys(std::string dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       r.push_back(dettype + std::to_string(sector) + "_" + std::to_string(roi));
       return r;   
     }
     
-    std::vector<std::string> relevant_regions(int side, const std::string& dettype, int roi, int sector){
+    std::vector<std::string> relevant_regions(int side, const std::string& dettype, int roi, int sector) const {
       std::vector<std::string>  r;
       for(auto key : get_lhs_keys(dettype,roi,sector)){
 	auto x = lhs_index[side].find(key);
 	if(x != lhs_index[side].end()){
-	  for(auto rr : lhs_index[side][key]){
+	  for(auto rr : x->second){
 	    r.push_back(make_pair(key,rr));
 	  }
 	}
@@ -121,7 +121,7 @@ namespace LVL1MUCTPIPHASE1 {
       for(auto key : get_rhs_keys(dettype,roi,sector)){
 	auto x = rhs_index[side].find(key);
 	if(x != rhs_index[side].end()){
-	  for(auto rr : rhs_index[side][key]){
+	  for(auto rr : x->second){
 	    r.push_back(make_pair(rr,key));
 	  }
 	}
@@ -225,45 +225,17 @@ namespace LVL1MUCTPIPHASE1 {
     //and the key is the index for an arbitrary subsystem.
     //not all indices will be covered by all subsystems since
     //barrel only has 3 bits, so initialize the value tuple with -1
-    const std::vector<std::shared_ptr<TrigConf::L1Threshold> >* thresholds = &m_l1menu->thresholds("MU");
-    for (auto itr=thresholds->begin();itr!=thresholds->end();++itr)
-    {
-      std::shared_ptr<TrigConf::L1Threshold_MU> thr = std::static_pointer_cast<TrigConf::L1Threshold_MU>(*itr);
-
-      std::vector<std::pair<int, int> > values;
-      values.push_back(std::make_pair(thr->idxBarrel()+1, thr->ptBarrel()));
-      values.push_back(std::make_pair(thr->idxEndcap()+1, thr->ptEndcap()));
-      values.push_back(std::make_pair(thr->idxForward()+1, thr->ptForward()));
-
-      for (unsigned i=0;i<3;i++) m_ptEncoding[i][values[i].first] = values[i].second;
+    const auto & exMU = &m_l1menu->thrExtraInfo().MU();
+    auto rpcPtValues = exMU->knownRpcPtValues();
+    auto tgcPtValues = exMU->knownTgcPtValues();
+    for ( unsigned i=0; i<rpcPtValues.size(); i++){
+       m_ptEncoding[0][i] = exMU->ptForRpcIdx(i);
     }
-
-    //for the indices that weren't filled, add the next highest value.
-    //reverse iterate over the encoded values, check if the previous value
-    //is empty for each subsys, and fill it with the next highest value if so.
-    for (unsigned isub=0;isub<3;isub++)
-    {
-      std::map<int, int> filledEncoding = m_ptEncoding[isub];
-      for (auto itr = m_ptEncoding[isub].rbegin();itr != m_ptEncoding[isub].rend(); ++itr)
-      {
-	int idx = itr->first;
-	int thr = itr->second;
-
-	//fill from the N-1 index until either 0 or we've reached the next lowest encoded value
-	for (int previous_idx=idx-1; previous_idx >= 0; previous_idx--)
-	{
-	  //stop if we've reached the next lowest filled encoding
-	  if (m_ptEncoding[isub].find(previous_idx) != m_ptEncoding[isub].end()) break;
-
-	  //fill
-	  filledEncoding[previous_idx] = thr;
-	}
-
-	//set the member variable to the now-filled encoding
-      }
-      m_ptEncoding[isub] = filledEncoding;
+    for ( unsigned i=0; i<tgcPtValues.size(); i++){
+       m_ptEncoding[1][i] = exMU->ptForTgcIdx(i);
+       m_ptEncoding[2][i] = exMU->ptForTgcIdx(i);
     }
-
+  
     return true;
   }
 

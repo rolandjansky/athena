@@ -292,10 +292,10 @@ StatusCode Trk::CETmaterial::execute()
             }
           }
           // stop of extrapolation failed
-          if (!lay || !nextPrec || !nextPrec->size() || !nextPrec->back() ) break;
+          if (!lay || !nextPrec || nextPrec->empty() || !nextPrec->back() ) break;
           precPar = nextPrec->back()->trackParameters();
           double mat=0.;
-          if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
+          if (!material.empty()) for (unsigned int i=0; i< material.size(); i++) {
             if (material[i]->materialEffectsOnTrack()) mat += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
           if ( precPar ) printMatComp(theta,phi,currPar,lay->enclosingDetachedTrackingVolume()->name(),mat,matApp,currPar->parameters()[0]-precPar->parameters()[0],
@@ -309,7 +309,7 @@ StatusCode Trk::CETmaterial::execute()
           int id = 0;
           if (lay) id = lay->layerType();
           double matc=0.;
-          if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
+          if (!material.empty()) for (unsigned int i=0; i< material.size(); i++) {
             if (material[i]->materialEffectsOnTrack()) matc += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
           else ATH_MSG_INFO( "mat & error:" << theta << "," << phi << "," << matc << ","
@@ -322,7 +322,7 @@ StatusCode Trk::CETmaterial::execute()
       }
       if (m_printMaterial) {
         double mat=0.;
-        if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
+        if (!material.empty()) for (unsigned int i=0; i< material.size(); i++) {
           if (material[i]->materialEffectsOnTrack()) {
             mat += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
@@ -350,7 +350,7 @@ StatusCode Trk::CETmaterial::execute()
             mat += mEff->thicknessInX0();
             // find volume
             std::vector<const Trk::DetachedTrackingVolume*>* detVols = m_extrapolator->trackingGeometry()->lowestDetachedTrackingVolumes(trPar->position());
-            if (detVols && detVols->size()) printMatScan(theta,phi,trPar->position().perp(),trPar->position().z(),mEff->thicknessInX0(),(*detVols)[0]->name());
+            if (detVols && !detVols->empty()) printMatScan(theta,phi,trPar->position().perp(),trPar->position().z(),mEff->thicknessInX0(),(*detVols)[0]->name());
             else printMatScan(theta,phi,trPar->position().perp(),trPar->position().z(),mEff->thicknessInX0(),m_extrapolator->trackingGeometry()->lowestStaticTrackingVolume(trPar->position())->volumeName());
           }
         }
@@ -362,7 +362,7 @@ StatusCode Trk::CETmaterial::execute()
         printMat(theta,phi,mat);
       }
 
-      if (!destParameters || !destParameters->size() ) {
+      if (!destParameters || destParameters->empty() ) {
         ATH_MSG_ERROR( "extrapolation to outer boundary failed for input parameters: " << initialPerigee.parameters() );
       } else if (destParameters->back()->trackParameters()) {
         // forward extrapolation ok
@@ -405,7 +405,6 @@ void Trk::CETmaterial::printMat(double theta, double phi, double mat, double dth
   std::ofstream myfilemat;
   myfilemat.open (m_matTotFile,std::ios::app);
   myfilemat<<theta<<" "<<phi<<" "<<mat<<" "<<dtheta<<" "<<dphi<<std::endl;
-  return;
 }
 
 
@@ -414,12 +413,11 @@ void Trk::CETmaterial::printMatScan(double theta, double phi, double r, double z
   std::ofstream myfilemat;
   myfilemat.open(m_matScanFile,std::ios::app);
   myfilemat << theta << " " << phi << " " << r << " " << z << " " << mat << " " << name << std::endl;
-  return;
 }
 
 void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackParameters* nextPar, const Trk::TrackParameters* mdest, double mat, int id, const std::string& name) const {
 
-  if (name=="") {}; // dummy to get rid of warning message (unused variable name)
+  if (name.empty()) {}; // dummy to get rid of warning message (unused variable name)
   std::ofstream myfilemat;
   myfilemat.open(m_matActiveFile,std::ios::app);
 
@@ -481,8 +479,7 @@ void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackPa
 	*m_err = mdest->covariance()->inverse().eval();
     }
   }
-  return;
-}
+  }
 
 void Trk::CETmaterial::printMatComp(double theta, double phi, const Trk::TrackParameters* currPar, const std::string& name, double mat, double matApp,double dx, double dy) const
 {
@@ -490,6 +487,4 @@ void Trk::CETmaterial::printMatComp(double theta, double phi, const Trk::TrackPa
   myfilemat.open(m_matCompFile,std::ios::app);
   myfilemat << theta << " " << phi << " " << currPar->position().perp() << " " << currPar->position().z() << " " << name.substr(0,2)
            << " " << mat << " " << matApp << " " << dx << " " << dy << std::endl;
-
-  return;
 }

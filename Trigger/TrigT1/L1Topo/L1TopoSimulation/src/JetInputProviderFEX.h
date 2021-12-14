@@ -41,15 +41,15 @@ namespace LVL1 {
       StringProperty m_gFEXJetLoc {""};
 
       mutable LockedHandle<TH1> m_hjJetPt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjJetEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjJetPhiEta ATLAS_THREAD_SAFE;
 
       mutable LockedHandle<TH1> m_hjLargeRJetPt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjLargeRJetEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjLargeRJetPhiEta ATLAS_THREAD_SAFE;
      
       mutable LockedHandle<TH1> m_hjTauPt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hjTauIsolation ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjTauEtaPhi ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjTauEtaIsolation ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjTauPhiEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjTauIsolationEta ATLAS_THREAD_SAFE;
 
       SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jEDMKey {this, "L1_jFexSRJetRoI", "L1_jFexSRJetRoI", "jFEX EDM"};
       SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_JEDMKey {this, "L1_jFexLRJetRoI", "L1_jFexLRJetRoI", "JFEX EDM"};

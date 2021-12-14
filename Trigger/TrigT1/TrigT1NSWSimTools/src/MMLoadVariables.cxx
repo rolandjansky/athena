@@ -171,8 +171,8 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
             int gas_gap          = m_MmIdHelper->gasGap(id);
             int channel          = m_MmIdHelper->channel(id);
 
-            if (stName.substr(0,2) != "MM") continue;
-            int isSmall = (stName[2] == 'S');
+            if (!m_MmIdHelper->is_mm(id)) continue;
+            bool isSmall = (m_MmIdHelper->isSmall(id));
             const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
             std::vector<float>  time          = digit->stripTimeForTrigger();
@@ -472,7 +472,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
   }
 
   void MMLoadVariables::hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const{
-    double degree=TMath::DegToRad()*(par->stereo_degree);
+    double degree=M_PI/180.0*(par->stereo_degree);
     if(m_striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);
@@ -481,7 +481,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
   }
 
   void MMLoadVariables::hit_rot_stereo_bck(ROOT::Math::XYZVector& hit, std::shared_ptr<MMT_Parameters> par)const{
-    double degree=-TMath::DegToRad()*(par->stereo_degree);
+    double degree=-M_PI/180.0*(par->stereo_degree);
     if(m_striphack) hit.SetY(hit.Y()*std::cos(degree));
     else{
       double xnew=hit.X()*std::cos(degree)+hit.Y()*std::sin(degree),ynew=-hit.X()*std::sin(degree)+hit.Y()*std::cos(degree);

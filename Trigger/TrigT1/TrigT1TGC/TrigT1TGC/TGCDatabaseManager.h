@@ -21,7 +21,6 @@
 namespace LVL1TGC {
 class BigWheelCoincidenceLUT;
 class TGCTileMuCoincidenceLUT;
-class Run2TileMuCoincidenceMap;
 }
 
 namespace LVL1TGCTrigger {
@@ -31,9 +30,9 @@ class TGCConnectionASDToPP;
 class TGCConnectionInPP;
 class TGCPatchPanel;
 class TGCConnectionPPToSL;
-class TGCRPhiCoincidenceMap;
 class TGCEIFICoincidenceMap;
 class TGCNSWCoincidenceMap;
+class TGCBIS78CoincidenceMap;
 class TGCGoodMF;
 
 class TGCDatabaseManager : public AthMessaging
@@ -57,11 +56,8 @@ class TGCDatabaseManager : public AthMessaging
   const TGCEIFICoincidenceMap* getEIFICoincidenceMap(int sideId) const;
   std::shared_ptr<LVL1TGC::TGCTileMuCoincidenceLUT> getTileMuCoincidenceLUT() const;
   std::shared_ptr<TGCNSWCoincidenceMap> getNSWCoincidenceMap(int sideId, int octantId, int moduleId) const;
+  std::shared_ptr<TGCBIS78CoincidenceMap> getBIS78CoincidenceMap() const;
   std::shared_ptr<TGCGoodMF> getGoodMFMap() const;
-
-  // only Run-2
-  std::shared_ptr<TGCRPhiCoincidenceMap> getRPhiCoincidenceMap(int sideId, int octantId) const;
-  std::shared_ptr<LVL1TGC::Run2TileMuCoincidenceMap> getRun2TileMuCoincidenceMap() const;
 
   TGCConnectionInPP* getConnectionInPP(TGCPatchPanel* patchPanel) const;
   void addConnectionInPP(const TGCPatchPanel* patchPanel, const TGCConnectionInPP* connectionInPP);
@@ -81,12 +77,10 @@ class TGCDatabaseManager : public AthMessaging
   TGCEIFICoincidenceMap* m_mapEIFI[NumberOfSide];
   std::shared_ptr<LVL1TGC::TGCTileMuCoincidenceLUT> m_tileMuLUT;
   std::array<std::array<std::array<std::shared_ptr<TGCNSWCoincidenceMap>, NumberOfModuleInBW>, NumberOfOctant>, NumberOfSide> m_mapNSW;
+  std::shared_ptr<TGCBIS78CoincidenceMap> m_mapBIS78; // temporal
   TGCConnectionPPToSL* m_PPToSL[NumberOfRegionType];
   TGCConnectionASDToPP* m_ASDToPP[NumberOfRegionType][TGCSector::NumberOfPatchPanelType][TotalNumForwardBackwardType];
   std::shared_ptr<TGCGoodMF> m_mapGoodMF;
-
-  std::array<std::array<std::shared_ptr<TGCRPhiCoincidenceMap>, NumberOfOctant>,NumberOfSide> m_mapRphi;
-  std::shared_ptr<LVL1TGC::Run2TileMuCoincidenceMap> m_mapRun2TileMu;
 
   std::map<PatchPanelIDs, std::pair<const TGCConnectionInPP, PatchPanelPointers> > m_patchPanelToConnectionInPP;
   
@@ -113,6 +107,11 @@ inline std::shared_ptr<TGCNSWCoincidenceMap> TGCDatabaseManager::getNSWCoinciden
   return m_mapNSW[sideId][octantId][moduleId];
 }
 
+inline std::shared_ptr<TGCBIS78CoincidenceMap> TGCDatabaseManager::getBIS78CoincidenceMap() const
+{
+  return m_mapBIS78;
+}
+
 inline std::shared_ptr<TGCGoodMF> TGCDatabaseManager::getGoodMFMap() const {
   return m_mapGoodMF;
 }
@@ -123,14 +122,6 @@ inline const TGCConnectionPPToSL* TGCDatabaseManager::getConnectionPPToSL(TGCReg
 
 inline const TGCConnectionASDToPP* TGCDatabaseManager::getConnectionASDToPP(TGCRegionType region, int type, TGCForwardBackwardType forwardBackward) const {
   return m_ASDToPP[region-1][type][forwardBackward];
-}
-
-inline std::shared_ptr<TGCRPhiCoincidenceMap> TGCDatabaseManager::getRPhiCoincidenceMap(const int sideId, const int octantId) const {
-  return m_mapRphi[sideId][octantId];
-}
-
-inline std::shared_ptr<LVL1TGC::Run2TileMuCoincidenceMap> TGCDatabaseManager::getRun2TileMuCoincidenceMap() const {
-  return m_mapRun2TileMu;
 }
 
 }   // end of LVL1TGCTrigger namespace

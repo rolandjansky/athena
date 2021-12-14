@@ -25,7 +25,6 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkSegment/TrackSegment.h"
 #include "TrkParameters/TrackParameters.h"
@@ -262,8 +261,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
           fittedTrack.reset();
         }
         else {
-          auto trajectory = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-          trajectory->reserve (fittedTrack->trackStateOnSurfaces()->size() + 1);
+          auto trajectory = DataVector<const Trk::TrackStateOnSurface>();
           itSet = fittedTrack->trackStateOnSurfaces()->begin();
           for ( ; itSet!=itSetEnd; ++itSet) {
             if (!(**itSet).type(Trk::TrackStateOnSurface::Perigee)) {
@@ -276,18 +274,18 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
               else if ((**itSet).type(Trk::TrackStateOnSurface::Outlier)) typePattern.set(Trk::TrackStateOnSurface::Outlier);
               else if ((**itSet).type(Trk::TrackStateOnSurface::Scatterer)) typePattern.set(Trk::TrackStateOnSurface::Scatterer);
               else if ((**itSet).type(Trk::TrackStateOnSurface::BremPoint)) typePattern.set(Trk::TrackStateOnSurface::BremPoint);
-              trajectory->push_back(trajectory->allocate(std::move(measurement), std::move(trackpar), std::move(fitQual), std::move(mateff), typePattern));
+              trajectory.push_back(new Trk::TrackStateOnSurface(std::move(measurement), std::move(trackpar), std::move(fitQual), std::move(mateff), typePattern));
 
             }
           }
           bool peradded=false;
-          itSet = trajectory->begin()+1;
-          itSetEnd = trajectory->end();
+          itSet = trajectory.begin()+1;
+          itSetEnd = trajectory.end();
           std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
           typePattern.set(Trk::TrackStateOnSurface::Perigee);
           const auto myPosition {myper->position()};
           const auto myMomentum {myper->momentum()};
-          auto pertsos=trajectory->allocate(nullptr,std::move(myper),nullptr,nullptr,typePattern);
+          const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(nullptr,std::move(myper),nullptr,nullptr,typePattern);
 
           int index=1;
           for ( ; itSet!=itSetEnd; ++itSet) {
@@ -296,19 +294,18 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
             double inprod2=((**itSet).trackParameters()->position()-myPosition).dot(myMomentum);
             ++itSet;
             if (inprod1>0 && inprod2<0) {
-              trajectory->insert(trajectory->begin()+index,std::move(pertsos));
+              trajectory.insert(trajectory.begin()+index,pertsos);
               peradded=true;
               break;
             }
             index++;
           }
           if (!peradded){
-            itSet = trajectory->begin();
+            itSet = trajectory.begin();
             double inprod=((**itSet).trackParameters()->position()-myPosition).dot(myMomentum);
-            if (inprod>0) trajectory->insert(trajectory->begin(),std::move(pertsos));
-            else trajectory->push_back(std::move(pertsos));
+            if (inprod>0) trajectory.insert(trajectory.begin(),pertsos);
+            else trajectory.push_back(pertsos);
           }
-          trajectory->elt_allocator().protect();
           std::unique_ptr<Trk::Track> track =
             std::make_unique<Trk::Track>(fittedTrack->info(),
                                          std::move(trajectory),

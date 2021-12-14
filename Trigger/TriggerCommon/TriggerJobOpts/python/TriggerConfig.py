@@ -263,20 +263,21 @@ def triggerMonitoringCfg(flags, hypos, filters, hltSeeding):
         mon.DecisionCollectorTools += [ dcEventTool ]
         mon.FeatureCollectorTools  += [ dcFeatureTool ]
 
+    # Configure additional chain error monitoring for athenaHLT/online:
+    if flags.Trigger.Online.isPartition:
+        from TrigServices.TrigServicesConfig import TrigServicesCfg
+        onlineServicesAcc = TrigServicesCfg(flags)
+        hltEventLoopMgr = onlineServicesAcc.getPrimary()
 
-    mon.L1Decisions  = getProp( hltSeeding, 'HLTSeedingSummaryKey' )
-
-    # For now use old svcMgr interface as this service is not available from acc.getService()
-    algToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    if hasattr(svcMgr,'HltEventLoopMgr'):
-        svcMgr.HltEventLoopMgr.TrigErrorMonTool.AlgToChainTool = conf2toConfigurable(algToChainTool)
-
-        svcMgr.HltEventLoopMgr.TrigErrorMonTool.MonTool.defineHistogram(
+        hltEventLoopMgr.TrigErrorMonTool.AlgToChainTool = CompFactory.TrigCompositeUtils.AlgToChainTool()
+        hltEventLoopMgr.TrigErrorMonTool.MonTool.defineHistogram(
             'ErrorChainName,ErrorCode', path='EXPERT', type='TH2I',
             title='Error StatusCodes per chain;Chain name;StatusCode',
             xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
 
+        acc.merge(onlineServicesAcc)
+
+    mon.L1Decisions  = getProp( hltSeeding, 'HLTSeedingSummaryKey' )
 
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in list(filters.values()) ]
@@ -329,7 +330,7 @@ def triggerOutputCfg(flags, hypos):
         acc = triggerBSOutputCfg(flags, hypos, offline=True)
     elif writePOOL:
         __log.info("Configuring POOL HLT output")
-        acc = triggerPOOLOutputCfg(flags, edmSet)
+        acc = triggerPOOLOutputCfg(flags)
     else:
         __log.info("No HLT output writing is configured")
         acc = ComponentAccumulator()
@@ -433,64 +434,66 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
     return acc
 
 
-def triggerPOOLOutputCfg(flags, edmSet):
+def triggerPOOLOutputCfg(flags):
     # Get the list of output collections from TriggerEDM
-    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-    edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMVersion)
-
-    # Build the output ItemList
-    itemsToRecord = []
-    for edmType, edmKeys in edmList.items():
-        itemsToRecord.extend([edmType+'#'+collKey for collKey in edmKeys])
-
-    # Add EventInfo
-    itemsToRecord.append('xAOD::EventInfo#EventInfo')
-    itemsToRecord.append('xAOD::EventAuxInfo#EventInfoAux.')
-
-    # Create OutputStream
-    outputType = ''
-    if flags.Output.doWriteRDO:
-        outputType = 'RDO'
-    if flags.Output.doWriteESD:
-        outputType = 'ESD'
-    if flags.Output.doWriteAOD:
-        outputType = 'AOD'
     acc = ComponentAccumulator()
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags, outputType, ItemList=itemsToRecord, disableEventTag=True))
-    streamAlg = acc.getEventAlgo("OutputStream"+outputType)
 
-    # Keep input RDO objects in the output RDO_TRIG file
-    if flags.Output.doWriteRDO:
-        streamAlg.TakeItemsFromInput = True
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 
     # Produce trigger bits
     bitsmaker = CompFactory.TriggerBitsMakerTool()
-    decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT", BitsMakerTool = bitsmaker)
+    decmaker = CompFactory.TrigDec.TrigDecisionMakerMT("TrigDecMakerMT", BitsMakerTool = bitsmaker)
     acc.addEventAlgo( decmaker )
 
     # Produce trigger metadata
-    menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
-    menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')
+    menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
+    menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
-    streamAlg.MetadataItemList += [ "xAOD::TriggerMenuJsonContainer#*", "xAOD::TriggerMenuJsonAuxContainer#*" ]
 
     # Schedule the insertion of L1 prescales into the conditions store
     # Required for metadata production
     from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg
     acc.merge( L1PrescaleCondAlgCfg( flags ) )
 
-    # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
-    streamAlg.ExtraInputs += [
-        ("xAOD::TrigDecision", str(decmaker.TrigDecisionKey)),
-        ("xAOD::TrigConfKeys", str(menuwriter.KeyWriterTool.ConfKeys))]
-
     # Produce xAOD L1 RoIs from RoIBResult
     from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
     xRoIBResultAcc, xRoIBResultOutputs = RoIBResultToxAODCfg(flags)
     acc.merge(xRoIBResultAcc)
     # Ensure outputs are produced before streamAlg runs
-    streamAlg.ExtraInputs += xRoIBResultOutputs
+
+
+    # Create OutputStream
+    for doit, outputType, edmSet in [( flags.Output.doWriteRDO, 'RDO', flags.Trigger.ESDEDMSet), # not a mistake, RDO content is meant to be as ESD
+                                     ( flags.Output.doWriteESD, 'ESD', flags.Trigger.ESDEDMSet), 
+                                     ( flags.Output.doWriteAOD, 'AOD', flags.Trigger.AODEDMSet)]:
+        if not doit: continue
+
+        edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMVersion)
+
+        # Build the output ItemList
+        itemsToRecord = []
+        for edmType, edmKeys in edmList.items():
+            itemsToRecord.extend([edmType+'#'+collKey for collKey in edmKeys])
+
+        # Add EventInfo
+        itemsToRecord.append('xAOD::EventInfo#EventInfo')
+        itemsToRecord.append('xAOD::EventAuxInfo#EventInfoAux.')
+
+
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, outputType, ItemList=itemsToRecord, disableEventTag=True, 
+                                    MetadataItemList=[ "xAOD::TriggerMenuJsonContainer#*", "xAOD::TriggerMenuJsonAuxContainer#*" ]))
+        alg = acc.getEventAlgo("OutputStream"+outputType)
+        # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
+        alg.ExtraInputs += [
+            ("xAOD::TrigDecision", str(decmaker.TrigDecisionKey)),
+            ("xAOD::TrigConfKeys", str(menuwriter.KeyWriterTool.ConfKeys))] + xRoIBResultOutputs
+
+        # Keep input RDO objects in the output RDO_TRIG file
+        if outputType == 'RDO':
+            alg.TakeItemsFromInput = True #TODO, make the OutputStreamCfg accepting modifier for this
+
+
 
     return acc
 
@@ -684,10 +687,10 @@ def triggerIDCCacheCreatorsCfg(flags, seqName = None):
     """
     acc = ComponentAccumulator(seqName)
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
-    acc.merge( MuonCacheCfg(), sequenceName = seqName )
+    acc.merge( MuonCacheCfg(flags), sequenceName = seqName )
 
     from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheCfg
-    acc.merge( MuonPrdCacheCfg(), sequenceName = seqName )
+    acc.merge( MuonPrdCacheCfg(flags), sequenceName = seqName )
 
     from TrigInDetConfig.TrigInDetConfig import InDetIDCCacheCreatorCfg
     acc.merge( InDetIDCCacheCreatorCfg(), sequenceName = seqName )

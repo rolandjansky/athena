@@ -15,6 +15,16 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include <memory>
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
+#include "L1CaloFEXSim/gTowerContainer.h"
+
+#include "xAODTrigger/gFexJetRoI.h"
+#include "xAODTrigger/gFexJetRoIContainer.h"
+#include "xAODTrigger/gFexJetRoIAuxContainer.h"
+
+#include "xAODTrigger/gFexGlobalRoI.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
+#include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
+
 
 namespace LVL1 {
 class gFEXNtupleWriter : public AthAlgorithm
@@ -31,7 +41,12 @@ public:
 private:
   //readhandle key for gFEXOutputCollection
   SG::ReadHandleKey<LVL1::gFEXOutputCollection> m_gFEXOutputCollectionSGKey {this, "MyOutputs", "gFEXOutputCollection", "MyOutputs"};
-
+  SG::ReadHandleKey<LVL1::gTowerContainer> m_gTowerContainerSGKey {this, "MyGTowers", "gTowerContainer", "MyGTowers"};
+  SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexRhoOutKey {this,"Key_gFexRhoOutputContainer","L1_gFexRhoRoI","Output gFexRho"};
+  SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexBlockOutKey {this,"Key_gFexSRJetOutputContainer","L1_gFexSRJetRoI","Output gFexBlock"};
+  SG::ReadHandleKey< xAOD::gFexJetRoIContainer > m_gFexJetOutKey {this,"Key_gFexLRJetOutputContainer","L1_gFexLRJetRoI","Output gFexJet"};
+  SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
+  
   gFEXOutputCollection* m_gFEXOutputCollection;
   float m_jet_nTOBs;
   float m_global_nTOBs;
@@ -59,6 +74,34 @@ private:
 
   std::string m_jet_container_name = "AntiKt10TruthJets";
   TTree *m_myTree;
+  TTree *m_valiTree;
+
+  std::vector<float> m_SC_phi;
+  std::vector<float> m_SC_eta;
+  std::vector<float> m_SC_et;
+
+  std::vector<float> m_gtower_phi;
+  std::vector<float> m_gtower_eta;
+  std::vector<float> m_gtower_et;
+  std::vector<float> m_gtower_etFloat;
+  std::vector<float> m_gtower_etEMFloat;
+  std::vector<float> m_gtower_etHADFloat;
+  std::vector<int> m_gtower_ID;
+  std::vector<int> m_posneg;
+
+
+  std::vector<float> m_gRho_eta;
+  std::vector<float> m_gRho_phi;
+  std::vector<float> m_gRho_et;
+
+  std::vector<float> m_gSJ_eta;
+  std::vector<float> m_gSJ_phi;
+  std::vector<float> m_gSJ_et;
+
+  std::vector<float> m_gLJ_eta;
+  std::vector<float> m_gLJ_phi;
+  std::vector<float> m_gLJ_et;
+
 
   StatusCode loadJetAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);
   StatusCode loadGlobalAlgoVariables(SG::ReadHandle<LVL1::gFEXOutputCollection>);

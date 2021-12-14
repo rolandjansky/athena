@@ -6,14 +6,14 @@ def createRecoConfigFlags():
     flags = AthConfigFlags()
     # Different components
     flags.addFlag("Reco.EnableBTagging", True)
-    flags.addFlag("Reco.EnableCalo", True)
-    flags.addFlag("Reco.EnableCombinedMuon", True)
+    flags.addFlag("Reco.EnableCombinedMuon", lambda prevFlags: prevFlags.Detector.EnableMuon)
     flags.addFlag("Reco.EnableEgamma", True)
     flags.addFlag("Reco.EnableJet", True)
-    flags.addFlag("Reco.EnableMuon", True)
     flags.addFlag("Reco.EnablePFlow", True)
     flags.addFlag("Reco.EnableTau", True)
     flags.addFlag("Reco.EnableTracking", True)
+    flags.addFlag("Reco.EnableTrigger", lambda prevFlags: prevFlags.Input.Format == "BS")    # this flags enables trigger data decoding (not trigger simulation)
+    flags.addFlag("Reco.EnableHI", lambda prevFlags: "_hi" in prevFlags.Input.ProjectName )  # enable automatically for HI data
 
     return flags
 

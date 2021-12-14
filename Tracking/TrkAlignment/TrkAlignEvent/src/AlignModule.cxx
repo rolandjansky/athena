@@ -116,8 +116,7 @@ namespace Trk {
         values[4] = -M_PI * 0.5;
    }
 
-    return;
-  }
+     }
   
   //________________________________________________________________________
   Amg::Vector3D AlignModule::centerOfGravity(const std::vector<DetElementCollection*>& detelementsVec)
@@ -179,8 +178,7 @@ namespace Trk {
   
 
     *m_log<<MSG::DEBUG<<"done adding transform"<<endmsg;
-    return;
-  }
+ }
 
   //________________________________________________________________________
   const Amg::Transform3D* AlignModule

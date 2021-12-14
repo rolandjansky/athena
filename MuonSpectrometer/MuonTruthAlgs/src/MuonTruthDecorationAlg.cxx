@@ -495,24 +495,34 @@ namespace Muon {
 
                 if (m_idHelperSvc->issTgc(id)) {
                     int index = m_idHelperSvc->phiIndex(id);
-                    if (measPhi)
-                        ++nphiHitsPerChamberLayer[index];
-                    else
-                        ++ntrigEtaHitsPerChamberLayer[index];
+                    if (index >= 0) {
+                      if (measPhi)
+                        ++nphiHitsPerChamberLayer.at(index);
+                      else
+                        ++ntrigEtaHitsPerChamberLayer.at(index);
+                    }
                 } else if (m_idHelperSvc->isMM(id)) {
-                    ++nprecHitsPerChamberLayer[chIndex];
+                  if (chIndex >= 0) {
+                    ++nprecHitsPerChamberLayer.at(chIndex);
+                  }
                 } else if (m_idHelperSvc->isTrigger(id)) {
                     int index = m_idHelperSvc->phiIndex(id);
-                    if (measPhi)
-                        ++nphiHitsPerChamberLayer[index];
-                    else
-                        ++ntrigEtaHitsPerChamberLayer[index];
+                    if (index >= 0) {
+                      if (measPhi)
+                        ++nphiHitsPerChamberLayer.at(index);
+                      else
+                        ++ntrigEtaHitsPerChamberLayer.at(index);
+                    }
                 } else {
                     if (measPhi) {
                         Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
-                        ++nphiHitsPerChamberLayer[index];
+                        if (index >= 0) {
+                          ++nphiHitsPerChamberLayer.at(index);
+                        }
                     } else {
-                        ++nprecHitsPerChamberLayer[chIndex];
+                      if (chIndex >= 0) {
+                        ++nprecHitsPerChamberLayer.at(chIndex);
+                      }
                     }
                 }
             }

@@ -251,124 +251,124 @@ private:
 
   //---First a list of data members used for holding the parameters:
   unsigned int m_digversion;
-  bool m_useMagneticFieldMap;
-  bool m_getT0FromData;
-  unsigned int m_storeSDO;            /**< Time window in which to store SDOs*/
+  bool m_useMagneticFieldMap = false;
+  bool m_getT0FromData = false;
+  unsigned int m_storeSDO = 0U;            /**< Time window in which to store SDOs*/
 
-  double m_ionisationPotential;       /**< Mean ionisation potential */
-  double m_ionisationPotentialArgon;  /**< Mean ionisation potential for Argon mixture */
-  double m_ionisationPotentialKrypton;  /**< Mean ionisation potential for Krypton mixture */
-  double m_smearingFactor;            /**< Cluster energy smearing factor */
-  double m_smearingFactorArgon;       /**< Cluster energy smearing factor for Argon mixture */
-  double m_smearingFactorKrypton;       /**< Cluster energy smearing factor for Krypton mixture */
+  double m_ionisationPotential = 0.0;       /**< Mean ionisation potential */
+  double m_ionisationPotentialArgon = 0.0;  /**< Mean ionisation potential for Argon mixture */
+  double m_ionisationPotentialKrypton = 0.0;  /**< Mean ionisation potential for Krypton mixture */
+  double m_smearingFactor = 0.0;            /**< Cluster energy smearing factor */
+  double m_smearingFactorArgon = 0.0;       /**< Cluster energy smearing factor for Argon mixture */
+  double m_smearingFactorKrypton = 0.0;       /**< Cluster energy smearing factor for Krypton mixture */
 
-  double m_timeInterval;             /**< Time interval covered by each digit*/
-  unsigned int m_numberOfBins;        /**< No. bins used internally */
-  unsigned int m_numberOfBinsInEncodingBin;  /**< No. internal bins for each
+  double m_timeInterval = 0.0;             /**< Time interval covered by each digit*/
+  unsigned int m_numberOfBins = 0U;        /**< No. bins used internally */
+  unsigned int m_numberOfBinsInEncodingBin = 0U;  /**< No. internal bins for each
                                               *   readout bit */
-  double m_minDiscriminatorWidth;     /**< Min. discriminator width */
-  double m_discriminatorSettlingTime; /**< Discriminator settling time */
-  double m_discriminatorDeadTime;     /**< Discriminator dead time */
-  double m_signalPropagationSpeed;/**< Signal propagation time in signal wire*/
-  double m_distanceToTimeFactor; /**< Fudge factor: time to distance */
+  double m_minDiscriminatorWidth = 0.0;     /**< Min. discriminator width */
+  double m_discriminatorSettlingTime = 0.0; /**< Discriminator settling time */
+  double m_discriminatorDeadTime = 0.0;     /**< Discriminator dead time */
+  double m_signalPropagationSpeed = 0.0;/**< Signal propagation time in signal wire*/
+  double m_distanceToTimeFactor = 0.0; /**< Fudge factor: time to distance */
 
-  double m_lowThresholdBar;         /**< Low threshold discriminator setting */
-  double m_lowThresholdEC;         /**< Low threshold discriminator setting */
+  double m_lowThresholdBar = 0.0;         /**< Low threshold discriminator setting */
+  double m_lowThresholdEC = 0.0;         /**< Low threshold discriminator setting */
 
-  double m_lowThresholdBarArgon;         /**< Low threshold discriminator setting for Argon mixture */
-  double m_lowThresholdECArgon;         /**< Low threshold discriminator setting for Argon mixture */
+  double m_lowThresholdBarArgon = 0.0;         /**< Low threshold discriminator setting for Argon mixture */
+  double m_lowThresholdECArgon = 0.0;         /**< Low threshold discriminator setting for Argon mixture */
 
-  double m_lowThresholdBarKrypton;         /**< Low threshold discriminator setting for Krypton mixture */
-  double m_lowThresholdECKrypton;         /**< Low threshold discriminator setting for Krypton mixture */
+  double m_lowThresholdBarKrypton = 0.0;         /**< Low threshold discriminator setting for Krypton mixture */
+  double m_lowThresholdECKrypton = 0.0;         /**< Low threshold discriminator setting for Krypton mixture */
 
-  double m_highThresholdBarShort;        /**< High threshold discriminator setting */
-  double m_highThresholdBarLong;        /**< High threshold discriminator setting */
-  double m_highThresholdECAwheels;        /**< High threshold discriminator setting */
-  double m_highThresholdECBwheels;        /**< High threshold discriminator setting */
+  double m_highThresholdBarShort = 0.0;        /**< High threshold discriminator setting */
+  double m_highThresholdBarLong = 0.0;        /**< High threshold discriminator setting */
+  double m_highThresholdECAwheels = 0.0;        /**< High threshold discriminator setting */
+  double m_highThresholdECBwheels = 0.0;        /**< High threshold discriminator setting */
 
-  double m_highThresholdBarShortArgon;        /**< High threshold discriminator setting Argon */
-  double m_highThresholdBarLongArgon;        /**< High threshold discriminator setting Argon */
-  double m_highThresholdECAwheelsArgon;        /**< High threshold discriminator setting Argon */
-  double m_highThresholdECBwheelsArgon;        /**< High threshold discriminator setting Argon */
+  double m_highThresholdBarShortArgon = 0.0;        /**< High threshold discriminator setting Argon */
+  double m_highThresholdBarLongArgon = 0.0;        /**< High threshold discriminator setting Argon */
+  double m_highThresholdECAwheelsArgon = 0.0;        /**< High threshold discriminator setting Argon */
+  double m_highThresholdECBwheelsArgon = 0.0;        /**< High threshold discriminator setting Argon */
 
-  double m_highThresholdBarShortKrypton;        /**< High threshold discriminator setting Krypton */
-  double m_highThresholdBarLongKrypton;        /**< High threshold discriminator setting Krypton */
-  double m_highThresholdECAwheelsKrypton;        /**< High threshold discriminator setting Krypton */
-  double m_highThresholdECBwheelsKrypton;        /**< High threshold discriminator setting Krypton */
+  double m_highThresholdBarShortKrypton = 0.0;        /**< High threshold discriminator setting Krypton */
+  double m_highThresholdBarLongKrypton = 0.0;        /**< High threshold discriminator setting Krypton */
+  double m_highThresholdECAwheelsKrypton = 0.0;        /**< High threshold discriminator setting Krypton */
+  double m_highThresholdECBwheelsKrypton = 0.0;        /**< High threshold discriminator setting Krypton */
 
-  int m_htT0shiftBarShort; /** HT T0 shift */
-  int m_htT0shiftBarLong;
-  int m_htT0shiftECAwheels;
-  int m_htT0shiftECBwheels;
+  int m_htT0shiftBarShort = 0; /** HT T0 shift */
+  int m_htT0shiftBarLong = 0;
+  int m_htT0shiftECAwheels = 0;
+  int m_htT0shiftECBwheels = 0;
 
-  int m_ltT0shiftBarShortXe; /** LT T0 shift */
-  int m_ltT0shiftBarShortKr;
-  int m_ltT0shiftBarShortAr;
-  int m_ltT0shiftBarLongXe;
-  int m_ltT0shiftBarLongKr;
-  int m_ltT0shiftBarLongAr;
-  int m_ltT0shiftECAwheelsXe;
-  int m_ltT0shiftECAwheelsKr;
-  int m_ltT0shiftECAwheelsAr;
-  int m_ltT0shiftECBwheelsXe;
-  int m_ltT0shiftECBwheelsKr;
-  int m_ltT0shiftECBwheelsAr;
+  int m_ltT0shiftBarShortXe = 0; /** LT T0 shift */
+  int m_ltT0shiftBarShortKr = 0;
+  int m_ltT0shiftBarShortAr = 0;
+  int m_ltT0shiftBarLongXe = 0;
+  int m_ltT0shiftBarLongKr = 0;
+  int m_ltT0shiftBarLongAr = 0;
+  int m_ltT0shiftECAwheelsXe = 0;
+  int m_ltT0shiftECAwheelsKr = 0;
+  int m_ltT0shiftECAwheelsAr = 0;
+  int m_ltT0shiftECBwheelsXe = 0;
+  int m_ltT0shiftECBwheelsKr = 0;
+  int m_ltT0shiftECBwheelsAr = 0;
 
-  double m_innerRadiusOfStraw;   /**< Inner radius of straw */
-  double m_outerRadiusOfWire;    /**< Radius of drift wire */
-  double m_lengthOfDeadRegion;   /**< Length of dead region at straw end */
+  double m_innerRadiusOfStraw = 0.0;   /**< Inner radius of straw */
+  double m_outerRadiusOfWire = 0.0;    /**< Radius of drift wire */
+  double m_lengthOfDeadRegion = 0.0;   /**< Length of dead region at straw end */
 
-  bool m_timeCorrection; /**< Corrrect for flight and wire propagation delays*/
+  bool m_timeCorrection = false; /**< Corrrect for flight and wire propagation delays*/
 
-  unsigned int m_numberOfCrossingsBeforeMain; /**< For pileup: BCs before main
+  unsigned int m_numberOfCrossingsBeforeMain = 0U; /**< For pileup: BCs before main
                                                *   event */
-  double m_pileUpSDOsMinEkin;      /**< Min. Ekin for pileup particle to appear in MC-truth */
-  double m_maxVertexDisplacement;  /**< Max. vertex displacement */
-  double m_timeOffsetCalcVertexX;  /**< x-coord. of point where particle is assumed to originate */
-  double m_timeOffsetCalcVertexY;  /**< y-coord. of point where particle is assumed to originate */
-  double m_timeOffsetCalcVertexZ;  /**< z-coord. of point where particle is assumed to originate */
-  bool m_electronicsAreAtFarEnd;   /**< Electronics assumed at far end of straw */
-  bool m_timeshiftsSymmetricForPhiSectors;  /**< Time offset assumed phi symmetric */
+  double m_pileUpSDOsMinEkin = 0.0;      /**< Min. Ekin for pileup particle to appear in MC-truth */
+  double m_maxVertexDisplacement = 0.0;  /**< Max. vertex displacement */
+  double m_timeOffsetCalcVertexX = 0.0;  /**< x-coord. of point where particle is assumed to originate */
+  double m_timeOffsetCalcVertexY = 0.0;  /**< y-coord. of point where particle is assumed to originate */
+  double m_timeOffsetCalcVertexZ = 0.0;  /**< z-coord. of point where particle is assumed to originate */
+  bool m_electronicsAreAtFarEnd = false;   /**< Electronics assumed at far end of straw */
+  bool m_timeshiftsSymmetricForPhiSectors = false;  /**< Time offset assumed phi symmetric */
 
-  double m_trEfficiencyBarrel; /**< Transition Radiation efficiency, barrel */
-  double m_trEfficiencyEndCapA; /**< Transition Radiation efficiency, end cap A*/
-  double m_trEfficiencyEndCapB; /**< Transition Radiation efficiency, end cap B*/
-  double m_trEfficiencyBarrelArgon; /**< Transition Radiation efficiency, barrel, Argon */
-  double m_trEfficiencyEndCapAArgon; /**< Transition Radiation efficiency, end cap A, Argon */
-  double m_trEfficiencyEndCapBArgon; /**< Transition Radiation efficiency, end cap B, Argon */
-  double m_trEfficiencyBarrelKrypton; /**< Transition Radiation efficiency, barrel, Krypton */
-  double m_trEfficiencyEndCapAKrypton; /**< Transition Radiation efficiency, end cap A, Krypton */
-  double m_trEfficiencyEndCapBKrypton; /**< Transition Radiation efficiency, end cap B, Krypton */
+  double m_trEfficiencyBarrel = 0.0; /**< Transition Radiation efficiency, barrel */
+  double m_trEfficiencyEndCapA = 0.0; /**< Transition Radiation efficiency, end cap A*/
+  double m_trEfficiencyEndCapB = 0.0; /**< Transition Radiation efficiency, end cap B*/
+  double m_trEfficiencyBarrelArgon = 0.0; /**< Transition Radiation efficiency, barrel, Argon */
+  double m_trEfficiencyEndCapAArgon = 0.0; /**< Transition Radiation efficiency, end cap A, Argon */
+  double m_trEfficiencyEndCapBArgon = 0.0; /**< Transition Radiation efficiency, end cap B, Argon */
+  double m_trEfficiencyBarrelKrypton = 0.0; /**< Transition Radiation efficiency, barrel, Krypton */
+  double m_trEfficiencyEndCapAKrypton = 0.0; /**< Transition Radiation efficiency, end cap A, Krypton */
+  double m_trEfficiencyEndCapBKrypton = 0.0; /**< Transition Radiation efficiency, end cap B, Krypton */
 
-  bool m_noiseInUnhitStraws;   /**< Simulate noise in unhit straws */
-  bool m_noiseInSimhits;       /**< Simulate noise in hit straws */
+  bool m_noiseInUnhitStraws = false;   /**< Simulate noise in unhit straws */
+  bool m_noiseInSimhits = false;       /**< Simulate noise in hit straws */
 
-  bool m_isCTB;                /**< Data is from CTB (Combined Test Beam) */
+  bool m_isCTB = false;                /**< Data is from CTB (Combined Test Beam) */
 
-  bool m_killEndCap;           /**< Disable end cap */
-  bool m_killBarrel;           /**< Disable barrel */
-  double m_jitterTimeOffset;   /**< Event time not correlated with LHC clock */
-  bool m_doCosmicTimingPit;    /**< Cosmics pit setup */
-  bool m_doCrosstalk;          /**< Crosstalk noise */
+  bool m_killEndCap = false;           /**< Disable end cap */
+  bool m_killBarrel = false;           /**< Disable barrel */
+  double m_jitterTimeOffset = 0.0;   /**< Event time not correlated with LHC clock */
+  bool m_doCosmicTimingPit = false;    /**< Cosmics pit setup */
+  bool m_doCrosstalk = false;          /**< Crosstalk noise */
 
-  unsigned int m_cosmicFlag;   /**< Data is cosmics */
-  bool m_isOverlay;   /**< Doing overlay */
+  unsigned int m_cosmicFlag = 0U;   /**< Data is cosmics */
+  bool m_isOverlay = false;   /**< Doing overlay */
 
-  double m_fastElectronicsNoisePulseDistance; /**< Fast electronics noise pulse distance (time) */
-  double m_slowPeriodicNoisePulseDistance;    /**< Slow periodic noise pulse distance (time) */
-  double m_slowPeriodicNoisePulseFraction;    /**< Slow periodic noise pulse fraction */
-  double m_averageNoiseLevel;                 /**< Average noise level */
-  double m_crosstalkNoiseLevel;               /**< Average cross talk noise level */
-  double m_crosstalkNoiseLevelOtherEnd;       /**< Average cross talk noise level - other end */
+  double m_fastElectronicsNoisePulseDistance = 0.0; /**< Fast electronics noise pulse distance (time) */
+  double m_slowPeriodicNoisePulseDistance = 0.0;    /**< Slow periodic noise pulse distance (time) */
+  double m_slowPeriodicNoisePulseFraction = 0.0;    /**< Slow periodic noise pulse fraction */
+  double m_averageNoiseLevel = 0.0;                 /**< Average noise level */
+  double m_crosstalkNoiseLevel = 0.0;               /**< Average cross talk noise level */
+  double m_crosstalkNoiseLevelOtherEnd = 0.0;       /**< Average cross talk noise level - other end */
 
-  double m_relativeLowThresholdFluctuation;   /**< Relative low threshold fluctuation */
-  double m_relativeHighThresholdFluctuation;  /**< Relative high threshold fluctuation */
-  double m_solenoidFieldStrength;             /**< Solenoid field strength */
+  double m_relativeLowThresholdFluctuation = 0.0;   /**< Relative low threshold fluctuation */
+  double m_relativeHighThresholdFluctuation = 0.0;  /**< Relative high threshold fluctuation */
+  double m_solenoidFieldStrength = 0.0;             /**< Solenoid field strength */
 
-  bool m_useAttenuation;
-  double m_attenuationLength;
+  bool m_useAttenuation = false;
+  double m_attenuationLength = 0.0;
 
-  double m_trtRangeCutProperty; /**< Electrons xenon range cut in TRT simulation  */
+  double m_trtRangeCutProperty = 0.0; /**< Electrons xenon range cut in TRT simulation  */
 
   //Now follows infrastructure for handling all the parameters in a robust way:
 

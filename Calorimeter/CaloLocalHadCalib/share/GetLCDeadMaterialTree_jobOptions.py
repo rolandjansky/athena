@@ -8,8 +8,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 
 GetLCDM = GetLCDeadMaterialTree("GetLCDM")
 GetLCDM.HadDMCoeffInitFile = "CaloHadDMCoeff_init_v2.txt"
-GetLCDM.ClusterCollectionName = "CaloTopoCluster"
-GetLCDM.ClusterCollectionNameCalib = "CaloCalTopoCluster"
+GetLCDM.ClusterCollectionName = "CaloTopoClusters"
+GetLCDM.ClusterCollectionNameCalib = "CaloCalTopoClusters"
 GetLCDM.doSaveCalibClusInfo = False # to save additional info from collection with calibrated clusters
 if 'outFileNameLCDM' in dir():
   GetLCDM.OutputFileName = outFileNameLCDM

@@ -5,7 +5,7 @@ from GaudiKernel.GaudiHandles import PrivateToolHandleArray
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 def _setupCondDB(flags, CoolDataBaseFolder, quiet=True):
 
@@ -71,7 +71,7 @@ def _getInDetTrackingGeometryBuilder(name, flags,
 
     # Pixel
     if flags.Detector.GeometryPixel:
-        # for Pixel DetectorElement conditions data :
+        # for Pixel DetectorElement conditions data:
         from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
         result.merge(PixelReadoutGeometryCfg(flags))
 
@@ -106,20 +106,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,
         binnings += [PixelLayerBinning]
         colors += [3]
 
-        # add artifical dependencies to Pixel DetectorElement
-        # conditions algs to ensure that the IOV
-        # is identical to the IOV of the tracking geoemtry cond alg
-        from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementCondAlgCfg
-        result.merge(PixelDetectorElementCondAlgCfg(
-            flags,
-            MuonManagerKey=[
-                "MuonDetectorManager"] if flags.Muon.enableAlignment and flags.Detector.GeometryMuon else [],
-            TRT_DetEltContKey=[
-                "TRT_DetElementContainer"] if flags.Detector.GeometryTRT else [],
-            SCTAlignmentStore=["SCTAlignmentStore"] if flags.Detector.GeometrySCT else []))
-
     if flags.Detector.GeometrySCT:
-        # for SCT DetectorElement conditions data :
+        # for SCT DetectorElement conditions data:
         from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
         result.merge(SCT_ReadoutGeometryCfg(flags))
 
@@ -154,18 +142,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,
         binnings += [SCT_LayerBinning]
         colors += [4]
 
-        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import (
-            SCT_DetectorElementCondAlgCfg)
-        result.merge(SCT_DetectorElementCondAlgCfg(
-            flags,
-            MuonManagerKey=[
-                "MuonDetectorManager"] if flags.Muon.enableAlignment and flags.Detector.GeometryMuon else [],
-            TRT_DetEltContKey=[
-                "TRT_DetElementContainer"] if flags.Detector.GeometryTRT else [],
-            PixelAlignmentStore=["PixelAlignmentStore"] if flags.Detector.GeometryPixel else []))
-
     if flags.Detector.GeometryTRT:
-        # for TRT DetectorElement conditions data :
+        # for TRT DetectorElement conditions data:
         from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
         result.merge(TRT_ReadoutGeometryCfg(flags))
 
@@ -325,6 +303,7 @@ def _getITkTrackingGeometryBuilder(name, flags, result,
         PixelLayerBuilderOuter.SiDetManagerLocation = 'ITkPixel'
         PixelLayerBuilderOuter.PixelReadKey = 'ITkPixelDetectorElementCollection'
         PixelLayerBuilderOuter.SCT_ReadKey = 'ITkStripDetectorElementCollection'
+        PixelLayerBuilderOuter.EndcapEnvelope = 25.
         PixelLayerBuilderOuter.LayerIndicesBarrel = [2, 3, 4]
         PixelLayerBuilderOuter.LayerIndicesEndcap = [3, 4, 5, 6, 7, 8]
         PixelLayerBuilderOuter.UseRingLayout = True
@@ -525,11 +504,10 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
     Trk__TrackingVolumeHelper = CompFactory.Trk.TrackingVolumeHelper
     HGTD_TrackingVolumeHelper = Trk__TrackingVolumeHelper(
         name='HGTD_TrackingVolumeHelper')
-    # TODO move these variables to HGTD configuration
-    HGTD_TrackingVolumeHelper.BarrelLayerBinsZ = flags.ITk.trackingGeometry.passiveBarrelMatZbins
-    HGTD_TrackingVolumeHelper.BarrelLayerBinsPhi = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
-    HGTD_TrackingVolumeHelper.EndcapLayerBinsR = flags.ITk.trackingGeometry.passiveEndcapMatRbins
-    HGTD_TrackingVolumeHelper.EndcapLayerBinsPhi = flags.ITk.trackingGeometry.passiveEndcapMatPhiBins
+    HGTD_TrackingVolumeHelper.BarrelLayerBinsZ = flags.HGTD.trackingGeometry.passiveBarrelMatZbins
+    HGTD_TrackingVolumeHelper.BarrelLayerBinsPhi = flags.HGTD.trackingGeometry.passiveBarrelMatPhiBins
+    HGTD_TrackingVolumeHelper.EndcapLayerBinsR = flags.HGTD.trackingGeometry.passiveEndcapMatRbins
+    HGTD_TrackingVolumeHelper.EndcapLayerBinsPhi = flags.HGTD.trackingGeometry.passiveEndcapMatPhiBins
 
     # the material bins - assume defaults
     # add to ToolSvc
@@ -543,9 +521,8 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
     HGTD_CylinderVolumeCreator.LayerArrayCreator = HGTD_LayerArrayCreator
     HGTD_CylinderVolumeCreator.TrackingVolumeArrayCreator = HGTD_TrackingVolumeArrayCreator
     HGTD_CylinderVolumeCreator.TrackingVolumeHelper = HGTD_TrackingVolumeHelper
-    # TODO move these variables to HGTD configuration
-    HGTD_CylinderVolumeCreator.PassiveLayerBinsRZ = flags.ITk.trackingGeometry.passiveBarrelMatZbins
-    HGTD_CylinderVolumeCreator.PassiveLayerBinsPhi = flags.ITk.trackingGeometry.passiveBarrelMatPhiBins
+    HGTD_CylinderVolumeCreator.PassiveLayerBinsRZ = flags.HGTD.trackingGeometry.passiveBarrelMatZbins
+    HGTD_CylinderVolumeCreator.PassiveLayerBinsPhi = flags.HGTD.trackingGeometry.passiveBarrelMatPhiBins
 
     result.addPublicTool(HGTD_CylinderVolumeCreator)
 
@@ -563,7 +540,7 @@ def _getHGTD_TrackingGeometryBuilder(name, flags, result,
 # and TrkDetFlags.MaterialValidation().
 # For new configuration, (temporarily?) pass as parameters.
 
-
+@AccumulatorCache
 def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMaterialValidation=False):
     """
     Sets up the Tracking Geometry Conditions Algorithm
@@ -628,7 +605,7 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
 
         Trk__TrackingVolumeHelper = CompFactory.Trk.TrackingVolumeHelper
         trackingVolumeHelper = Trk__TrackingVolumeHelper(
-            name=namePrefix+'TrackingVolumeHelper'+nameSuffix)
+            name=namePrefix+'TrackingVolumeHelper')
         result.addPublicTool(trackingVolumeHelper)
 
         caloTrackingGeometryBuilder = _getCaloTrackingGeometryBuilder(
@@ -707,30 +684,23 @@ def TrackingGeometryCondAlgCfg(flags, name='AtlasTrackingGeometryCondAlg', doMat
         GeometryProcessors=PrivateToolHandleArray(atlas_geometry_processors))
     result.addCondAlgo(condAlg, primary=True)
 
-    # Hack for Single Threaded Athena: manually move dependencies of SCT_DetectorElementCondAlg
-    # and PixelDetectorElementCondAlg such that these are executed after their dependencies.
-
-    if flags.Concurrency.NumThreads <= 0:
-        condAlgs = result._conditionsAlgs
-        dependencies = {"PixelAlignCondAlg",
-                        "SCT_AlignCondAlg",
-                        "TRTAlignCondAlg",
-                        "MuonAlignmentCondAlg",
-                        "MuonDetectorCondAlg",
-                        "CondInputLoader"}
-        prependList = list()
-        appendList = list()
-        for alg in condAlgs:
-            prepend = False
-            for name in dependencies:
-                if str(alg).startswith(name+"("):
-                    prependList.append(alg)
-                    prepend = True
-            if not prepend:
-                appendList.append(alg)
-        prependList.extend(appendList)
-        condAlgs = prependList
-        result._conditionsAlgs = condAlgs
+    # Hack for running on  RecExCommon  via CAtoGlobalWrapper.
+    # We need to be sure
+    # we set "all" DetectorTools otherwise
+    # we get Py:conf2toConfigurable WARNINGs
+    # due to conflicts.
+    # "all" can include forward detectors
+    # when enabled (the module below check for this internally)
+    #
+    # Also we need this only when called via
+    # CAtoGlobalWrapper
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2:
+        functions = list(map(lambda x: x.function, stack))
+        if 'CAtoGlobalWrapper' in functions:
+            from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+            result.merge(ForDetGeometryCfg(flags))
 
     return result
 

@@ -21,10 +21,16 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
         TC.AtlasRKPropagatorCfg(flags))
     AtlasSTEP_Propagator = result.getPrimaryAndMerge(
         TC.AtlasSTEP_PropagatorCfg(flags))
+    ITkPropagator = None
+    if flags.Detector.GeometryITk:
+        ITkPropagator = result.getPrimaryAndMerge(
+            TC.ITkPropagatorCfg(flags))
 
     AtlasPropagators = []
     AtlasPropagators += [AtlasRungeKuttaPropagator]
     AtlasPropagators += [AtlasSTEP_Propagator]
+    if flags.Detector.GeometryITk:
+        AtlasPropagators += [ITkPropagator]
 
     # UPDATOR DEFAULTS --------------------------------------------------
 
@@ -32,10 +38,16 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
         TC.AtlasMaterialEffectsUpdatorCfg(flags))
     AtlasMaterialEffectsUpdatorLandau = result.getPrimaryAndMerge(
         TC.AtlasMaterialEffectsUpdatorLandauCfg(flags))
+    ITkMaterialEffectsUpdator = None
+    if flags.Detector.GeometryITk:
+        ITkMaterialEffectsUpdator = result.getPrimaryAndMerge(
+            TC.ITkMaterialEffectsUpdatorCfg(flags))
 
     AtlasUpdators = []
     AtlasUpdators += [AtlasMaterialEffectsUpdator]
     AtlasUpdators += [AtlasMaterialEffectsUpdatorLandau]
+    if flags.Detector.GeometryITk:
+        AtlasUpdators += [ITkMaterialEffectsUpdator]
 
     AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags))
 
@@ -43,7 +55,10 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
 
     AtlasSubPropagators = []
     AtlasSubPropagators += [AtlasRungeKuttaPropagator.name]  # Global
-    AtlasSubPropagators += [AtlasRungeKuttaPropagator.name]  # ID
+    if flags.Detector.GeometryITk:
+        AtlasSubPropagators += [ITkPropagator.name]  # ITk
+    else:
+        AtlasSubPropagators += [AtlasRungeKuttaPropagator.name]  # ID
     AtlasSubPropagators += [AtlasSTEP_Propagator.name]  # BeamPipe
     AtlasSubPropagators += [AtlasSTEP_Propagator.name]  # Calo
     AtlasSubPropagators += [AtlasSTEP_Propagator.name]  # MS
@@ -51,7 +66,10 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
 
     AtlasSubUpdators = []
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # Global
-    AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # ID
+    if flags.Detector.GeometryITk:
+        AtlasSubUpdators += [ITkMaterialEffectsUpdator.name]  # ITk
+    else:
+        AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # ID
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # BeamPipe
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # Calo
     AtlasSubUpdators += [AtlasMaterialEffectsUpdator.name]  # MS
@@ -66,10 +84,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
                                                 SubMEUpdators=AtlasSubUpdators
                                                 )
 
-    # TODO: figure out if it should be public or private
-    result.addPublicTool(Extrapolator)
     result.setPrivateTools(Extrapolator)
-
     return result
 
 
@@ -84,25 +99,40 @@ def egammaCaloExtrapolatorCfg(flags, name='egammaCaloExtrapolator'):
         TC.AtlasRKPropagatorCfg(flags))
     NoMatSTEP_Propagator = result.getPrimaryAndMerge(
         TC.AtlasNoMatSTEP_PropagatorCfg(flags))
+    ITkPropagator = None
+    if flags.Detector.GeometryITk:
+        ITkPropagator = result.getPrimaryAndMerge(
+            TC.ITkPropagatorCfg(flags))
 
     egammaPropagators = []
     egammaPropagators += [RungeKuttaPropagator]
     egammaPropagators += [NoMatSTEP_Propagator]
+    if flags.Detector.GeometryITk:
+        egammaPropagators += [ITkPropagator]
 
     MaterialEffectsUpdator = result.getPrimaryAndMerge(
         TC.AtlasMaterialEffectsUpdatorCfg(flags))
     NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge(
         TC.AtlasNoElossMaterialEffectsUpdatorCfg(flags))
+    ITkMaterialEffectsUpdator = None
+    if flags.Detector.GeometryITk:
+        ITkMaterialEffectsUpdator = result.getPrimaryAndMerge(
+            TC.ITkMaterialEffectsUpdatorCfg(flags))
 
     egammaUpdators = []
     egammaUpdators += [MaterialEffectsUpdator]
     egammaUpdators += [NoElossMaterialEffectsUpdator]
+    if flags.Detector.GeometryITk:
+        egammaUpdators += [ITkMaterialEffectsUpdator]
 
     # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
 
     egammaSubPropagators = []
     egammaSubPropagators += [RungeKuttaPropagator.name]  # Global
-    egammaSubPropagators += [RungeKuttaPropagator.name]  # ID
+    if flags.Detector.GeometryITk:
+        egammaSubPropagators += [ITkPropagator.name]  # ITk
+    else:
+        egammaSubPropagators += [RungeKuttaPropagator.name]  # ID
     # BeamPipe (default is STEP)
     egammaSubPropagators += [RungeKuttaPropagator.name]
     # Calo (default is STEP)
@@ -112,7 +142,10 @@ def egammaCaloExtrapolatorCfg(flags, name='egammaCaloExtrapolator'):
 
     egammaSubUpdators = []
     egammaSubUpdators += [MaterialEffectsUpdator.name]  # Global
-    egammaSubUpdators += [MaterialEffectsUpdator.name]  # ID
+    if flags.Detector.GeometryITk:
+        egammaSubUpdators += [ITkMaterialEffectsUpdator.name]  # ID
+    else:
+        egammaSubUpdators += [MaterialEffectsUpdator.name]  # ID
     egammaSubUpdators += [MaterialEffectsUpdator.name]  # BeamPipe
     # Calo (default is Mat)
     egammaSubUpdators += [NoElossMaterialEffectsUpdator.name]
@@ -128,7 +161,6 @@ def egammaCaloExtrapolatorCfg(flags, name='egammaCaloExtrapolator'):
     egammaExtrapolator.STEP_Propagator = NoMatSTEP_Propagator
 
     result.setPrivateTools(egammaExtrapolator)
-
     return result
 
 
@@ -159,7 +191,6 @@ def MCTruthClassifierExtrapolatorCfg(flags, name='MCTruthClassifierExtrapolator'
     MCTruthExtrapolator.SubMEUpdators = MCTruthSubUpdators
 
     result.setPrivateTools(MCTruthExtrapolator)
-
     return result
 
 
@@ -185,7 +216,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
         'MaterialEffectsUpdators', None) is not None and len(kwargs.get('MaterialEffectsUpdators', None)) > 0 else None
 
     if 'Navigator' not in kwargs:
-        AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags))
+        AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags, name="InDetNavigator"))
         kwargs.setdefault("Navigator", AtlasNavigator)
 
     sub_propagators = []

@@ -46,7 +46,7 @@ namespace FPTracker{
     m_bender(bender),
     m_label(label){
     if (m_apertype == 1){ assert(m_aper_A1 != 0.);}
-    if (m_apertype == 2){ assert(m_aper_A3 != 0. and  m_aper_A4 != 0.);}
+    if (m_apertype == 2 || m_apertype == 3){ assert(m_aper_A3 != 0. and  m_aper_A4 != 0.);}
   }
   IBeamElement::ConstPtr_t Magnet::clone() const{
     IBeamElement::ConstPtr_t pm(new Magnet(*this));
@@ -175,8 +175,50 @@ namespace FPTracker{
 	 
 	return false;
       }
+    if(m_apertype == 3) 
+      {
+	double part_x = offCenter.x(); 
+	double part_y = offCenter.y(); 
+	
+	if ( m_aper_A1 > 0. )
+	  {
+	    if( std::fabs(part_x)>m_aper_A1 )
+	      {
+		std::ostringstream ost;
+		ost<<"outside for aperture type 3 x test: particle x  "<<part_x<<" m_aper_A1 "<<m_aper_A1<<"\n";
+		particle.addMsg( ost.str() );
+		return true;
+	      }
+	  }
+	if ( m_aper_A2 > 0. )
+	  {
+	    if( std::fabs(part_y)>m_aper_A2)
+	      {
+		std::ostringstream ost;
+		ost<<"outside for aperture type 3 y test: particle y  "<<part_y<<" m_aper_A2 "<<m_aper_A2<<"\n";
+		particle.addMsg( ost.str() );
+		return true;
+	      }
+	  }
+	if ( m_aper_A3 > 0. && m_aper_A4 > 0. )
+	  {
+	    float B3=std::tan(m_aper_A3)*m_aper_A1;
+	    float B4=m_aper_A2/std::tan(m_aper_A4);
+	    float d=(m_aper_A1-std::fabs(part_x))/(m_aper_A1-B4)+(m_aper_A2-std::fabs(part_y))/(m_aper_A2-B3);
+	    
+	    if(d<1.)
+	    {
+	      std::ostringstream ost;
+	      ost<<"outside for aperture type 3 test: particle x  "<<part_x<<" particle y  "<<part_y<<"; m_aper_A1 "<<m_aper_A1<<"  m_aper_A2 "<<m_aper_A2<<"  m_aper_A3 "<<m_aper_A3<<"  m_aper_A4 "<<m_aper_A4<<"\n";
+	      particle.addMsg( ost.str() );
+	      return true;
+	    }
+	  }
+	 
+	return false;
+      }
     
-    // aperture is checked anly if aperture type i s 1 or 2
+    // aperture is checked anly if aperture type i s 1, 2, or 3
     return false;
   }
 

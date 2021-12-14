@@ -43,7 +43,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
-  icf.addFlag("InDet.doCaloSeededAmbi", False) # Use Calo ROIs to seed specific cuts for the ambi
+  icf.addFlag("InDet.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
   icf.addFlag("InDet.doCaloSeededRefit", False) # Use Calo ROIs to seed refif for the ambi processor
   icf.addFlag("InDet.doBeamGas", False) # Turn running of BeamGas second pass on and off
   icf.addFlag("InDet.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
@@ -67,30 +67,30 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.useBeamConstraint", True) # use beam spot service in new tracking 
   icf.addFlag("InDet.kalmanUpdator", 'smatrix') # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg") 
   icf.addFlag("InDet.magField", 'None') # control which field tool to use ("None"/"fast") 
+  icf.addFlag("InDet.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
   icf.addFlag("InDet.propagatorType", 'RungeKutta') # control which propagator to use ('RungeKutta'/'STEP') 
   icf.addFlag("InDet.trackFitterType", 'GlobalChi2Fitter') # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter' 
   icf.addFlag("InDet.doHolesOnTrack", True) # do holes search from now on in summry tool
   icf.addFlag("InDet.useHolesFromPattern", False) 
   icf.addFlag("InDet.useZvertexTool", False) # start with Zvertex finding 
   icf.addFlag("InDet.doSiSPSeededTrackFinder", False) # use track finding in silicon 
-  icf.addFlag("InDet.doTRTExtensionNew", True) # turn on / off TRT extensions 
+  icf.addFlag("InDet.doTRTExtension", True) # turn on / off TRT extensions 
   icf.addFlag("InDet.trtExtensionType", 'xk') # which extension type ("xk"/"DAF") 
   icf.addFlag("InDet.redoTRT_LR", True) # use smart TRT LR/tube hit creator and redo ROTs 
   icf.addFlag("InDet.doTrtSegments", True) # control to run TRT Segment finding (do it always after new tracking!) 
   icf.addFlag("InDet.doTRTPhaseCalculation", False) # control to run TRT phase calculation 
-  icf.addFlag("InDet.doTRTSeededTrackFinder", False) # control running the back tracking 
+  icf.addFlag("InDet.doTRTSeededTrackFinder", True) # control running the back tracking 
   icf.addFlag("InDet.loadTRTSeededSPFinder", True) # control which SP finder is used exclusive with loadSimpleTRTSeededSPFinder control which SP finder is used 
   icf.addFlag("InDet.loadSimpleTRTSeededSPFinder", True)
-  icf.addFlag("InDet.doResolveBackTracks", False) # control running the ambi on back tracking 
+  icf.addFlag("InDet.doResolveBackTracks", True) # control running the ambi on back tracking 
   icf.addFlag("InDet.doTRTStandalone", True) # control TRT Standalone 
   icf.addFlag("InDet.refitROT", True) # control if refit is done from PRD or ROT 
   icf.addFlag("InDet.doSlimming", True) # turn track slimming on/off 
   icf.addFlag("InDet.doSlimPoolTrack", True) # Slimming at converter level rather than creating a slim track collections; requires slimming to be on. 
   icf.addFlag("InDet.doWriteTracksToESD", True) # turn track slimming on/off 
   icf.addFlag("InDet.doVertexFinding", True) # Turn on the primary vertex reconstruction 
-  icf.addFlag("InDet.primaryVertexSetup", 'IterativeFinding') # string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' 'GaussIterativeFinding' 'GaussAdaptiveMultiFinding' 
+  icf.addFlag("InDet.primaryVertexSetup", 'ActsGaussAdaptiveMultiFinding') # string to store the setup for primary vertexing, possible types: 'ActsGaussAdaptiveMultiFinding', 'GaussAdaptiveMultiFinding', 'GaussIterativeFinding', 'AdaptiveMultiFinding', 'IterativeFinding'
   icf.addFlag("InDet.primaryVertexCutSetup", 'Offline') # string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'HeavyIon' 
-  icf.addFlag("InDet.vertexSeedFinder", 'SlidingWindowMultiSeedFinder') # string to store the type of seed finder, possible types: 'SlidingWindowMultiSeedFinder', 'HistogrammingMultiSeedFinder', 'DivisiveMultiSeedFinder' 
   icf.addFlag("InDet.primaryVertexSortingSetup", 'SumPt2Sorting') # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'NoReSorting','SumPt2Sorting','VxProbSorting','NNSorting' 
   icf.addFlag("InDet.doPrimaryVertex3DFinding", True) # will be set to false automatically if beam constraint ON, otherwise true. Control if to use 3d seeding for primary vertex finding (useful in case of poor / no knowledge of the beam spot. Will be set to false automatically if beam constraint ON, otherwise true
   icf.addFlag("InDet.doVertexFindingForMonitoring", False) # Turn on the primary vertex reconstruction needed to run the enhanced vertex monitoring, this runs the iterative PV with no beam constraint 
@@ -169,7 +169,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doTrackSegmentsDisappearing", True) # Turn running of track segment creation in pixel after NewTracking, and with PRD association, on and off
   icf.addFlag("InDet.doTRTGlobalOccupancy", False) # Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation) 
   icf.addFlag("InDet.doNNToTCalibration", False ) # USe ToT calibration for NN clustering rather than Charge 
-  icf.addFlag("InDet.useNNTTrainedNetworks", True ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
+  icf.addFlag("InDet.useNNTTrainedNetworks", False ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
   icf.addFlag("InDet.keepAdditionalHitsOnTrackParticle", False) # Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!) 
   icf.addFlag("InDet.doSCTModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later 
   icf.addFlag("InDet.doParticleConversion", False) # In case anyone still wants to do Rec->xAOD TrackParticle Conversion 
@@ -180,7 +180,12 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
   icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
 
-  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, createLowPtTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createBeamGasTrackingFlags, createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
+  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, \
+    createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, \
+    createLowPtTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createBeamGasTrackingFlags, \
+    createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, \
+    createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, \
+    createTRTStandaloneTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
 
   icf.addFlagsCategory ("InDet.Tracking", createTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.IBLTracking", createIBLTrackingFlags, prefix=True)
@@ -201,10 +206,12 @@ def createInDetConfigFlags():
   icf.addFlagsCategory ("InDet.DisappearingTracking", createDisappearingTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.SCTTracking", createSCTTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.TRTTracking", createTRTTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.TRTStandaloneTracking", createTRTStandaloneTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingFlags, prefix=True)
   icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingFlags, prefix=True)
 
-  from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags
+  from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags, createPriVertexingFlags
+  icf.addFlagsCategory("InDet.PriVertex", createPriVertexingFlags, prefix=True)
   icf.addFlagsCategory("InDet.SecVertex", createSecVertexingFlags, prefix=True)
   icf.addFlagsCategory("InDet.SecVertexEGammaPileUp", createEGammaPileUpSecVertexingFlags, prefix=True)
   return icf

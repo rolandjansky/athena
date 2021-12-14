@@ -16,7 +16,9 @@
 class TH1;
 
 namespace MuonHough {
-
+    
+    using PhiHitVec = std::vector<std::shared_ptr<MuonHough::PhiHit>>;
+   
     struct MuonPhiLayerHough {
         struct Maximum {
             Maximum() = default;
@@ -30,7 +32,7 @@ namespace MuonHough {
 
             int sector{-1};
 
-            std::vector<PhiHit*> hits;
+            PhiHitVec hits;
 
             const MuonPhiLayerHough* hough{nullptr};
         };
@@ -42,7 +44,7 @@ namespace MuonHough {
         void setDebug(bool d) { m_debug = d; }
 
         bool findMaximum(Maximum& maximum, float maxval) const;
-        void associateHitsToMaximum(Maximum& maximum, const std::vector<PhiHit*>& hits) const;
+        void associateHitsToMaximum(Maximum& maximum, const PhiHitVec& hits) const;
 
         std::pair<int, int> range(float /*r*/, float phi1, float phi2) const {
             float phimin = std::min(phi1, phi2);
@@ -55,8 +57,8 @@ namespace MuonHough {
             return std::make_pair(bphimin, bphimax);
         }
 
-        void fillLayer(const std::vector<PhiHit*>& hits, bool substract = false) const;
-        void fillLayer2(const std::vector<PhiHit*>& hits, bool substract = false) const;
+        void fillLayer(const PhiHitVec& hits, bool substract = false) const;
+        void fillLayer2(const PhiHitVec& hits, bool substract = false) const;
 
         float maximum(float r, float phimin, float phimax, int& posbin) const {
             unsigned int max = 0;

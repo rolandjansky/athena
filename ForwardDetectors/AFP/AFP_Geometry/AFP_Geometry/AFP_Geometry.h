@@ -2,7 +2,6 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef AFP_GEOMETRY_H
 #define AFP_GEOMETRY_H 1
 
@@ -17,40 +16,41 @@
 #include <vector>
 #include <string>
 
-enum eStationElement { ESE_RPOT, ESE_SID, ESE_TOF};
-enum eSIDTransformType { ESTT_SUPPORT, ESTT_PLATE, ESTT_SENSOR, ESTT_VACUUMSENSOR, ESTT_SENSORLOCAL, ESTT_SENSORGLOBAL };
-enum eAFPStation { EAS_UNKNOWN=-1, EAS_AFP00=0, EAS_AFP01=1, EAS_AFP02=2, EAS_AFP03=3 };
-
-
 class AFP_Geometry
 {
 
 protected:
 	AFP_CONFIGURATION m_CfgParams;
 
-private:
 	std::map<eAFPStation, std::map<int, HepGeom::Transform3D> > m_MapSIDTransToLocal;
 	std::map<eAFPStation, std::map<int, HepGeom::Transform3D> > m_MapSIDTransToGlobal;
 
 public:
 	AFP_Geometry() {}
-	AFP_Geometry(const PAFP_CONFIGURATION pCfgParams);
+	AFP_Geometry(const AFP_CONFIGURATION* pCfgParams);
 	~AFP_Geometry();
 
 public:
-	void GetCfgParams(PAFP_CONFIGURATION pCfgParams) const { *pCfgParams=m_CfgParams; }
-	HepGeom::Transform3D GetStationTransform(const char* pszStationName); //in world
-	HepGeom::Transform3D GetStationElementTransform(const char* pszStationName, eStationElement eElement); //in station
+	void getCfgParams(AFP_CONFIGURATION* pCfgParams) const { *pCfgParams=m_CfgParams; }
+	HepGeom::Transform3D getStationTransform(const char* pszStationName) const; //in world
+	HepGeom::Transform3D getStationElementTransform(const char* pszStationName, eStationElement eElement, const int nPlateID=-1) const; //in station
 
 public:
 	//SID detector
-	int GetSIDPlatesCnt() const { return m_CfgParams.sidcfg.fLayerCount; }
-	HepGeom::Transform3D GetSIDTransform(const eSIDTransformType eType, const char* pszStationName, const int nPlateIndex); // in station
-	StatusCode GetPointInSIDSensorLocalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& GlobalPoint, HepGeom::Point3D<double>& LocalPoint);
-	StatusCode GetPointInSIDSensorGlobalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& LocalPoint, HepGeom::Point3D<double>& GlobalPoint);
+	int getSIDPlatesCnt(const eAFPStation eStation) const{
+		std::map<eAFPStation, AFP_SIDCONFIGURATION> sidcfg(m_CfgParams.sidcfg.begin(),m_CfgParams.sidcfg.end());
+		return sidcfg[eStation].fLayerCount;
+	}
+	HepGeom::Transform3D getSIDTransform(const eSIDTransformType eType, const char* pszStationName, const int nPlateID) const; // in station
+	StatusCode getPointInSIDSensorLocalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& GlobalPoint, HepGeom::Point3D<double>& LocalPoint) const;
+	StatusCode getPointInSIDSensorGlobalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& LocalPoint, HepGeom::Point3D<double>& GlobalPoint) const;
+	eAFPStation parseStationName(const char* pszStationName) const;
 
-private:
-	eAFPStation ParseStationName(const char* pszStationName);
+	//TOF detector
+	void setupLBarsDims(const eAFPStation eStation);
+	void getPixelLocalPosition(const eAFPStation eStation, const int nPixelID, double* pfX1Pos, double* pfX2Pos) const;
+	int getPixelRow(const int nPixelID) const { return (nPixelID-(nPixelID%10))/10; }
+	int getPixelColumn(const int nPixelID) const { return nPixelID%10; }
 
 };
 

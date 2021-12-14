@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( JetAnalysisAlgorithms )
@@ -33,18 +33,21 @@ if( XAOD_STANDALONE )
   #    PROPERTIES TIMEOUT 600 )
   atlas_add_test( testJobDataPFlow
      SCRIPT JetAnalysisAlgorithmsTest_PFlow_eljob.py --data-type data --unit-test
+     POST_EXEC_SCRIPT nopost.sh
      PROPERTIES TIMEOUT 600 )
   # atlas_add_test( testJobFullSimEMTopo
   #    SCRIPT JetAnalysisAlgorithmsTest_EMTopo_eljob.py --data-type mc --unit-test
   #    PROPERTIES TIMEOUT 600 )
   atlas_add_test( testJobFullSimPFlow
      SCRIPT JetAnalysisAlgorithmsTest_PFlow_eljob.py --data-type mc --unit-test
+     POST_EXEC_SCRIPT nopost.sh
      PROPERTIES TIMEOUT 600 )
   # atlas_add_test( testJobFastSimEMTopo
   #    SCRIPT JetAnalysisAlgorithmsTest_EMTopo_eljob.py --data-type afii --unit-test
   #    PROPERTIES TIMEOUT 600 )
   atlas_add_test( testJobFastSimPFlow
      SCRIPT JetAnalysisAlgorithmsTest_PFlow_eljob.py --data-type afii --unit-test
+     POST_EXEC_SCRIPT nopost.sh
      PROPERTIES TIMEOUT 600 )
 else()
    # atlas_add_test( testJobDataEMTopo
@@ -54,6 +57,7 @@ else()
    atlas_add_test( testJobDataPFlow
       SCRIPT athena.py
       JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_PFlow_jobOptions.py - --data-type data
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    # atlas_add_test( testJobFullSimEMTopo
    #    SCRIPT athena.py
@@ -62,6 +66,7 @@ else()
    atlas_add_test( testJobFullSimPFlow
       SCRIPT athena.py
       JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_PFlow_jobOptions.py - --data-type mc
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    # atlas_add_test( testJobFastSimEMTopo
    #    SCRIPT athena.py
@@ -70,5 +75,6 @@ else()
    atlas_add_test( testJobFastSimPFlow
       SCRIPT athena.py
       JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_PFlow_jobOptions.py - --data-type afii
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
 endif()

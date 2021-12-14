@@ -125,7 +125,7 @@ BPHY21_JpsiFinder = Analysis__JpsiFinder(
 
 ToolSvc += BPHY21_JpsiFinder
 print(BPHY21_JpsiFinder)
-
+from InDetRecExample import TrackingCommon
 #--------------------------------------------------------------------
 ## b/ setup the vertex reconstruction "call" tool(s). They are part of the derivation framework.
 ##    These Augmentation tools add output vertex collection(s) into the StoreGate and add basic 
@@ -137,6 +137,8 @@ BPHY21_JpsiSelectAndWrite = DerivationFramework__Reco_Vertex(
     name                   = "BPHY21_JpsiSelectAndWrite",
     VertexSearchTool             = BPHY21_JpsiFinder,
     OutputVtxContainerName = "BPHY21_JpsiCandidates",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY21_VertexTools.PrimaryVertexRefitter,
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
     DoVertexType           = 1)
@@ -151,6 +153,7 @@ BPHY21_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY21_Select_Jpsi2mumu",
     HypothesisName        = "Jpsi",
     InputVtxContainerName = "BPHY21_JpsiCandidates",
+    V0Tools               = TrackingCommon.getV0Tools(),
     VtxMassHypo           = 3096.900,
     MassMin               = 2600.0,
     MassMax               = 3600.0,
@@ -260,14 +263,6 @@ BPHY21_fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY21Stream )
 BPHY21_Stream  = MSMgr.NewPoolRootStream( BPHY21_streamName, BPHY21_fileName )
 BPHY21_Stream.AcceptAlgs(["BPHY21_Kernel"])
 
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-BPHY21_augStream = MSMgr.GetStream( BPHY21_streamName )
-BPHY21_evtStream = BPHY21_augStream.GetEventStream()
-
-BPHY21_ThinningSvc = createThinningSvc( svcName="BPHY21_ThinningSvc", outStreams=[BPHY21_evtStream] )
-svcMgr += BPHY21_ThinningSvc
 
 #====================================================================
 # Slimming 

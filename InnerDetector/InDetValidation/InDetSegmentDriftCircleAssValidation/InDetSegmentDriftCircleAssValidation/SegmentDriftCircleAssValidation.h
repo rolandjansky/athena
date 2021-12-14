@@ -79,7 +79,7 @@ namespace InDet {
       std::multimap<int,int>                        m_allParticles          ;
       std::multimap<int,int>                        m_tracks                ;
       std::multimap<const HepMC::GenParticle*, int> m_genPars               ;
-      int                                           m_efficiency[5]         ;
+      int                                           m_efficiency[5]{}         ;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods

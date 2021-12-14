@@ -37,9 +37,9 @@ def GSFTrackSummaryToolCfg(flags,
                     name="GSFBuildTestBLayerTool"))
 
         from InDetConfig.InDetRecToolConfig import (
-            InDetTrackSummaryHelperToolCfg)
+            TrackSummaryHelperToolCfg)
         kwargs["InDetSummaryHelperTool"] = acc.getPrimaryAndMerge(
-            InDetTrackSummaryHelperToolCfg(
+            TrackSummaryHelperToolCfg(
                 flags,
                 name="GSFBuildTrackSummaryHelperTool",
                 HoleSearch=None,
@@ -86,17 +86,11 @@ def EMBremCollectionBuilderCfg(flags,
             egammaTrkRefitterToolCfg(flags))
 
     if "TrackParticleCreatorTool" not in kwargs:
-        if flags.Detector.GeometryITk:
-            from InDetConfig.ITkTrackRecoConfig import ITkTrackToVertexCfg
-            ttv = acc.popToolsAndMerge(ITkTrackToVertexCfg(flags))
-        else:
-            from InDetConfig.TrackRecoConfig import TrackToVertexCfg
-            ttv = acc.popToolsAndMerge(TrackToVertexCfg(flags))
-
+        from InDetConfig.TrackRecoConfig import TrackToVertexCfg
         gsfTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            TrackToVertex=ttv,
+            TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
             TrackSummaryTool="",
             BadClusterID=0,
             IBLParameterSvc="IBLParameterSvc" if flags.Detector.GeometryID else "")
@@ -113,9 +107,21 @@ def EMBremCollectionBuilderCfg(flags,
         kwargs["TrackSummaryTool"] = acc.popToolsAndMerge(
             GSFTrackSummaryToolCfg(flags))
 
-    kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
-    kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
+    kwargs.setdefault("usePixel", flags.Detector.EnablePixel or flags.Detector.EnableITkPixel)
+    kwargs.setdefault("useSCT", flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
+
+    # P->T conversion extra dependencies
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ])
+    else:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+        ])
 
     alg = CompFactory.EMBremCollectionBuilder(name, **kwargs)
     acc.addEventAlgo(alg)

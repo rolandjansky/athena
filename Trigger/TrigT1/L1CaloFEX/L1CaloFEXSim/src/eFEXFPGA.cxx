@@ -351,7 +351,7 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
   std::copy(&tmp_eTowersIDs_subset[0][0], &tmp_eTowersIDs_subset[0][0]+(10*6),&m_eTowersIDs[0][0]);
   
   if(false){ //this prints out the eTower IDs that each FPGA is responsible for
-    ATH_MSG_DEBUG("\n---- eFEXFPGA --------- FPGA (" << m_id << ") IS RESPONSIBLE FOR eTOWERS :");
+    ATH_MSG_DEBUG("\n---- eFEXFPGA --------- eFEX (" << m_efexid << " ----- FPGA (" << m_id << ") IS RESPONSIBLE FOR eTOWERS :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
 	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_eTowersIDs[thisRow][thisCol] << "  "); }

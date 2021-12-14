@@ -69,7 +69,7 @@ include ( "RecExCond/RecExCommon_flags.py" )
 from AthenaCommon.DetFlags import DetFlags   # this import has to be after RecExCommon_flags.py !
 
 if (jobproperties.ConcurrencyFlags.NumThreads() > 0):
-    logRecExCommon_topOptions.info("MT mode: Not scheduling RecoTiming")    
+    logRecExCommon_topOptions.info("MT mode: Not scheduling RecoTiming")
     rec.doRecoTiming.set_Value_and_Lock(False)
 
 if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
@@ -146,7 +146,7 @@ try:
 except Exception:
     logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
-# append new tag if previous exists and is not the same otherwise take the new alone 
+# append new tag if previous exists and is not the same otherwise take the new alone
 if amitag != "" and amitag != rec.AMITag():
     svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : amitag + "_" + rec.AMITag()})
     print ("Adding AMITag ", amitag, " _ ", rec.AMITag())
@@ -443,12 +443,12 @@ if rec.doMonitoring():
 if recAlgs.doEFlow():
     #Some settings for pflow have to toggle to a different setup for RecExCommon workflows.
     ConfigFlags.PF.useRecExCommon=True
+    from eflowRec.eflowRecFlags import jobproperties
+    if False == jobproperties.eflowRecFlags.usePFFlowElementAssoc:
+        ConfigFlags.PF.useElPhotLinks = False
+        ConfigFlags.PF.useMuLinks = False
 
-if rec.doEgamma():
-    # C.A uses Clusters RecExCommom Cluster (rm the "s")
-    ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters = 'egammaTopoCluster'
-    ConfigFlags.Egamma.Keys.Input.TopoClusters = 'CaloTopoCluster'
-
+HIDict = {}
 if rec.doHeavyIon():
     # This is copy from the old style to the new
     # We need to have HI flags to do it nicer
@@ -457,6 +457,13 @@ if rec.doHeavyIon():
     ConfigFlags.Egamma.Keys.Input.CaloCells = 'SubtractedCells'
     ConfigFlags.Egamma.doCentral = True
     ConfigFlags.Egamma.doForward = False
+    # This is a trick : in HeavyIon, egammaTopoClusterCopier is run two times
+    # one on the unsubtracted clusters (in SystemRec_config.py),
+    # the other on subtracted clusters (in HIegamma_jobO).
+    # Why is the first followed by InDetCaloClusterROISelector needed in Heavy Ion reco ?
+    HIDict['InputTopoCollection'] = 'CaloTopoClusters'
+    HIDict['OutputTopoCollection'] = 'egammaTopoClusters'
+    HIDict['OutputTopoCollectionShallow'] = 'tmp_egammaTopoClusters'
 
 # Lock the flags
 logRecExCommon_topOptions.info("Locking ConfigFlags")
@@ -541,6 +548,13 @@ if rec.readRDO():
         LumiBlockMuWriterDefault()
 
 #
+# Write beamspot information into xAOD::EventInfo.
+#
+if globalflags.InputFormat.is_bytestream():
+    topSequence += CfgMgr.xAODMaker__EventInfoBeamSpotDecoratorAlg()
+    pass
+
+#
 # System Reconstruction
 #
 include ("RecExCommon/SystemRec_config.py")
@@ -584,10 +598,22 @@ if rec.doESD() and not rec.readESD() and (rec.doBeamBackgroundFiller() or rec.do
 # need to go here for ordering reasons...
 if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
     try:
-        protectedInclude ("RecBackgroundAlgs/RecBackground_jobOptions.py")
+        from AthenaCommon.Configurable import Configurable
+        Configurable.configurableRun3Behavior=1
+        from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from RecBackgroundAlgs.BackgroundAlgsConfig import BackgroundAlgsCfg
+        ca=BackgroundAlgsCfg(ConfigFlags)
+
+        for el in ca._allSequences:
+            el.name = "TopAlg"
+
+            appendCAtoAthena(ca)
+
     except Exception:
-        treatException("Problem including RecBackgroundAlgs/RecBackground_jobOptions.py !!")
-        pass
+        treatException("Could not translate BackgroundAlgsCfg to old cfg")
+    finally:
+         Configurable.configurableRun3Behavior=0
     pass
 
 
@@ -803,7 +829,7 @@ if rec.doFileMetaData():
 
     try:
         # ByteStreamMetadata
-        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool        
+        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
         if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
             ToolSvc += ByteStreamMetadataTool()
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.ByteStreamMetadataTool ]
@@ -1081,8 +1107,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
         try:
             from CaloRec.CaloCellAODGetter import addClusterToCaloCellAOD
 
-            from egammaRec.egammaRecFlags import jobproperties
-            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
+            if ( rec.readESD() or ConfigFlags.Reco.EnableEgamma ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
                 addClusterToCaloCellAOD(egammaKeys.outputFwdClusterKey())
@@ -1097,7 +1122,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                         addClusterToCaloCellAOD(egammaKeys.EgammaLargeClustersKey())
                 else:
                     addClusterToCaloCellAOD(egammaKeys.EgammaLargeClustersKey())
-                
+
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
             if ( rec.readESD() or muonCombinedRecFlags.doMuonClusters() ) and rec.doMuon:
                 addClusterToCaloCellAOD("MuonClusterCollection")
@@ -1150,7 +1175,7 @@ if rec.doWriteAOD():
                                                                   doTau = rec.doTau(),
                                                                   doMuon = rec.doMuonCombined())
             topSequence += thinTRTStandaloneTrackAlg
-        
+
         if rec.doEgamma() and (AODFlags.Photon or AODFlags.Electron):
             if AODFlags.egammaTrackSlimmer:
                 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
@@ -1169,7 +1194,7 @@ if rec.doWriteAOD():
 
         if rec.doCalo and AODFlags.ThinNegativeEnergyCaloClusters:
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
-            ThinNegativeEnergyCaloClusters()            
+            ThinNegativeEnergyCaloClusters()
         if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
@@ -1182,10 +1207,10 @@ if rec.doWriteAOD():
             ThinInDetForwardTrackParticles()
 
         #Thin Trk::Tracks for Electons and Muons (GSF/Combined)
-        if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()): 
+        if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()):
             from ThinningUtils.ThinTrkTrack import ThinTrkTrack
             ThinTrkTrack()
-            
+
 
     pdr.flag_domain('output')
     # Create output StreamAOD
@@ -1217,7 +1242,7 @@ if rec.doWriteAOD():
         # Metadata declared by the sub-systems:
         StreamAOD_Augmented.AddMetaDataItem( objKeyStore._store.metaData() )
         pass
-        
+
     ## This line provides the 'old' StreamAOD (which is the Event Stream only)
     ## for backward compatibility
     StreamAOD=StreamAOD_Augmented.GetEventStream()

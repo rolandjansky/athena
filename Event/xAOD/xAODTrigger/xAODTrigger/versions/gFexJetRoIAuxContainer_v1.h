@@ -36,8 +36,8 @@ namespace xAOD {
       std::vector< uint16_t > tobEt;
       std::vector< uint8_t >  iEta;
       std::vector< uint8_t >  iPhi;
-      std::vector< char >  status;
-      std::vector< char >  saturated;
+      std::vector< uint8_t >  gFexJetStatus;
+      std::vector< uint8_t >  saturated;
 
    }; // class gFexJetRoIAuxContainer_v1
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SICLUSTERIZATIONTOOL_TruthClusterizationFactory_C
@@ -31,7 +31,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
@@ -70,9 +70,9 @@ namespace InDet {
     SG::ReadHandleKey<InDetSimDataCollection> m_simDataCollectionName {this, "InputSDOMap", "PixelSDO_Map", "sim data collection name"};
 
   protected:
-    ServiceHandle<IAtRndmGenSvc> m_rndmSvc{this, "RndmSvc", "AtDSFMTGenSvc", "Random Number Service used in TruthClusterizationFactory"};
+    ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service used in TruthClusterizationFactory"};
     Gaudi::Property<std::string> m_rndmEngineName {this, "RndmEngine", "TruthClustering", "Random Engine Name"};
-    CLHEP::HepRandomEngine*      m_rndmEngine{nullptr};
+    ATHRNG::RNGWrapper*      m_rndmEngine{nullptr};
     Gaudi::Property<bool> m_usePUHits{this, "usePUHits", false, "Take into account PU hits as contributing particles for NN emulation"};
 
    };

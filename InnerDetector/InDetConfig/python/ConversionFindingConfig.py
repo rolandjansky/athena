@@ -53,8 +53,7 @@ def InDetConversionTrackSelectorToolCfg(flags, name="TrackSelector"):
     acc = ComponentAccumulator()
     kwargs = {}
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-        AtlasExtrapolatorCfg(flags))
+    kwargs["Extrapolator"] = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     kwargs["RatioCut1"] = flags.InDet.SecVertex.TrkSel.RatioCut1
     kwargs["RatioCut2"] = flags.InDet.SecVertex.TrkSel.RatioCut2
     kwargs["RatioCut3"] = flags.InDet.SecVertex.TrkSel.RatioCut3
@@ -79,8 +78,7 @@ def TrkVKalVrtFitterCfg(flags, name="TrkVKalVrtFitter"):
     acc = ComponentAccumulator()
     kwargs = {}
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-        AtlasExtrapolatorCfg(flags))
+    kwargs["Extrapolator"] = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     kwargs["FirstMeasuredPoint"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPoint
     kwargs["FirstMeasuredPointLimit"] = flags.InDet.SecVertex.Fitter.FirstMeasuredPointLimit
     kwargs["InputParticleMasses"] = flags.InDet.SecVertex.Fitter.InputParticleMasses
@@ -113,9 +111,6 @@ def ConversionFinderCfg(flags, name="ConversionFinderTool"):
 
     acc = ComponentAccumulator()
     kwargs = {}
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    kwargs["Extrapolator"] = acc.getPrimaryAndMerge(
-        AtlasExtrapolatorCfg(flags))
     kwargs["PostSelector"] = acc.getPrimaryAndMerge(
         ConversionPostSelectorCfg(flags))
     kwargs["SingleTrackConversionTool"] = acc.getPrimaryAndMerge(

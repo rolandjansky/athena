@@ -48,12 +48,12 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
         
-        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-        InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
-        inDetGlobalTrackMonAlg.TrackSummaryTool = InDetTrackSummaryTool
-        inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
+        from InDetConfig.TrackingCommonConfig import TrackSummaryToolCfg
+        TrackSummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags))
+        inDetGlobalTrackMonAlg.TrackSummaryTool = TrackSummaryTool
+        inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
-        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
+        inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
         
         InDetGlobalTrackMonAlgCfg(helper, inDetGlobalTrackMonAlg, **kwargsInDetGlobalTrackMonAlg)
@@ -78,9 +78,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
 
         inDetGlobalLRTMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('InDetGlobalLRTMonAlg_TrackSelectionTool')
         inDetGlobalLRTMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-        inDetGlobalLRTMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalLRTMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 5000
+        inDetGlobalLRTMonAlg.TrackSelectionTool.minPt            = 1000
         
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
         InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))

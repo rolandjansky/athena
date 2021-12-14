@@ -2,11 +2,13 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "EVetoPlots.h"
 
 namespace Tau{
 
-EVetoPlots::EVetoPlots(PlotBase* pParent, std::string sDir, std::string sTauJetContainerName):
+EVetoPlots::EVetoPlots(PlotBase* pParent, const std::string& sDir, std::string sTauJetContainerName):
    PlotBase(pParent, sDir),
    m_HadRadius(nullptr),
    m_EMRadius(nullptr),	 
@@ -19,7 +21,7 @@ EVetoPlots::EVetoPlots(PlotBase* pParent, std::string sDir, std::string sTauJetC
    m_pt_eleRNNlooseHighPt(nullptr),
    m_pt_eleRNNmedHighPt(nullptr),
    m_pt_eleRNNtightHighPt(nullptr),
-   m_sTauJetContainerName(sTauJetContainerName)
+   m_sTauJetContainerName(std::move(sTauJetContainerName))
 {
 }
 	

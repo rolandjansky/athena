@@ -77,14 +77,14 @@ class egammaKeysDict:
         TrackParticle=[
             'xAOD::TrackParticleContainer',
             'GSFTrackParticles',
-            '-caloExtension.-cellAssociation.-perigeeExtrapEta.-perigeeExtrapPhi', ''],
+            '', ''],
         Track=['TrackCollection',
                'GSFTracks',
                '',
                ''],
         Truth=['xAOD::TruthParticleContainer',
                'egammaTruthParticles',
-               '-caloExtension',
+               '',
                '']
     )
     #
@@ -128,10 +128,10 @@ del i, j
 
 def caloCellKey():
     "Return the default key for CaloCells, depending on the job configuration"
-    from egammaRec import egammaRecFlags as egRecFlags
-    egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
-    if egammaRecFlags.cellContainerName.statusOn:
-        return egammaRecFlags.cellContainerName()
+    #from egammaRec import egammaRecFlags as egRecFlags
+    #egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
+    #if egammaRecFlags.cellContainerName.statusOn:
+    #    return egammaRecFlags.cellContainerName()
     from RecExConfig.RecFlags import rec
     if rec.readAOD:
         return "AODCellContainer"

@@ -226,7 +226,7 @@ std::vector<std::string>    TrigTSerializer::s_dictsToIgnore = {
    "SG::IAuxStoreCompression"
 };
 
-TrigTSerializer::TrigTSerializer(const std::string& toolname, const std::string& type, const IInterface* parent) : AthAlgTool(toolname, type, parent) {
+TrigTSerializer::TrigTSerializer(const std::string& toolname, const std::string& type, const IInterface* parent) : AthAlgTool(toolname, type, parent), m_streamersList{nullptr} {
   declareInterface<ITrigSerializerToolBase>( this );
   declareProperty("OnlineMode", m_onlineMode=false, "avoid initializations not needed in the online");
 
@@ -234,6 +234,10 @@ TrigTSerializer::TrigTSerializer(const std::string& toolname, const std::string&
 }
 
 TrigTSerializer::~TrigTSerializer(){
+  if (m_streamersList){
+    delete m_streamersList;
+    m_streamersList = nullptr;
+  }
 }
 
 StatusCode TrigTSerializer::initialize(){
@@ -298,8 +302,8 @@ void TrigTSerializer::add_previous_streamerinfos()
   std::string extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
   ATH_MSG_DEBUG( "Using " << extFile );
   TFile f(extFile.c_str());
-  TList* streamersList = f.GetStreamerInfoList();
-  TIter nextinfo(streamersList);
+  m_streamersList = f.GetStreamerInfoList();
+  TIter nextinfo(m_streamersList);
   while (TObject* obj = nextinfo()) {
     TStreamerInfo *inf = dynamic_cast<TStreamerInfo*> (obj);
     if (!inf) continue;
@@ -317,8 +321,6 @@ void TrigTSerializer::add_previous_streamerinfos()
       ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
                      << " checksum: " << inf->GetCheckSum()  );
   }
-  streamersList->SetOwner(false);
-  streamersList->Clear("nodelete");
   f.Close();
 }
 
@@ -666,11 +668,11 @@ void TrigTSerializerUnimplError() {
    abort();
 }
 
-void TrigTSerializer::do_persistify(const std::string , void* ) { TrigTSerializerUnimplError(); }
-void TrigTSerializer::do_persistify_obj(const std::string , void*) { TrigTSerializerUnimplError(); }
+void TrigTSerializer::do_persistify(const std::string& , void* ) { TrigTSerializerUnimplError(); }
+void TrigTSerializer::do_persistify_obj(const std::string& , void*) { TrigTSerializerUnimplError(); }
 
 
-void TrigTSerializer::do_follow_ptr(const std::string name, void *ptr){
+void TrigTSerializer::do_follow_ptr(const std::string& name, void *ptr){
 
   ATH_MSG_VERBOSE("Entering do_follow_ptr for "  << name << " at " << ptr  );
   

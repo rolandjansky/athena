@@ -70,12 +70,15 @@ print(BPHY10JpsiFinder)
 ##    decorations which do not depend on the vertex mass hypothesis (e.g. lxy, ptError, etc).
 ##    There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
 ##    Reco tool is the JpsiFinder mass window is wide enough.
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex
 BPHY10JpsiSelectAndWrite   = DerivationFramework__Reco_Vertex(
     name                   = "BPHY10JpsiSelectAndWrite",
     VertexSearchTool             = BPHY10JpsiFinder,
     OutputVtxContainerName = "BPHY10JpsiCandidates",
     PVContainerName        = "PrimaryVertices",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY10_VertexTools.PrimaryVertexRefitter,
     RefPVContainerName     = "SHOULDNOTBEUSED",
     #    RefPVContainerName     = "BPHY10RefJpsiPrimaryVertices",
     #    RefitPV                = True,
@@ -92,6 +95,7 @@ BPHY10_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY10_Select_Jpsi2mumu",
   HypothesisName        = "Jpsi",
   InputVtxContainerName = "BPHY10JpsiCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3096.916,
   MassMin               = 2600.0,
   MassMax               = 4000.0,
@@ -155,10 +159,12 @@ print(BPHY10BdJpsiKst)
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex	
 BPHY10BdKstSelectAndWrite  = DerivationFramework__Reco_Vertex(
     name                   = "BPHY10BdKstSelectAndWrite",
-    Jpsi2PlusTrackName     = BPHY10BdJpsiKst,
+    VertexSearchTool     = BPHY10BdJpsiKst,
     OutputVtxContainerName = "BPHY10BdJpsiKstCandidates",
     PVContainerName        = "PrimaryVertices",
-    RefPVContainerName     = "BPHY10RefittedPrimaryVertices",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY10_VertexTools.PrimaryVertexRefitter,
+    RefPVContainerName     = "BPHY10RefittedPrimaryVertices1",
     RefitPV                = True,
     MaxPVrefit             = 10000,
     DoVertexType = 7)
@@ -172,6 +178,7 @@ BPHY10_Select_Bd2JpsiKst = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY10_Select_Bd2JpsiKst",
     HypothesisName             = "Bd",
     InputVtxContainerName      = "BPHY10BdJpsiKstCandidates",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     TrkMasses                  = [105.658, 105.658, 493.677, 139.570],
     VtxMassHypo                = 5279.6,
     MassMin                    = 100.0,      #no mass cuts here
@@ -187,6 +194,7 @@ BPHY10_Select_Bd2JpsiKstbar = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY10_Select_Bd2JpsiKstbar",
     HypothesisName             = "Bdbar",
     InputVtxContainerName      = "BPHY10BdJpsiKstCandidates",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     TrkMasses                  = [105.658, 105.658, 139.570, 493.677],
     VtxMassHypo                = 5279.6,
     MassMin                    = 100.0,      #no mass cuts here
@@ -211,6 +219,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY10_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
     name                   = "BPHY10_Reco_V0Finder",
     V0FinderTool           = BPHY10_V0FinderTools.V0FinderTool,
+    V0Tools                = TrackingCommon.getV0Tools(),
     #OutputLevel            = DEBUG,
     V0ContainerName        = "BPHY10RecoV0Candidates",
     KshortContainerName    = "BPHY10RecoKshortCandidates",
@@ -240,6 +249,7 @@ print(JpsiV0VertexFit)
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__JpsiPlusV0Cascade
 BPHY10JpsiKshort            = DerivationFramework__JpsiPlusV0Cascade(
     name                    = "BPHY10JpsiKshort",
+    V0Tools                 = TrackingCommon.getV0Tools(),
     #OutputLevel             = DEBUG,
     HypothesisName          = "Bd",
     TrkVertexFitterTool     = JpsiV0VertexFit,
@@ -251,7 +261,7 @@ BPHY10JpsiKshort            = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4300.,
     MassUpperCut            = 6300.,
     RefitPV                 = True,
-    RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
+    RefPVContainerName      = "BPHY10RefittedPrimaryVertices2",
     JpsiVertices            = "BPHY10JpsiCandidates",
     CascadeVertexCollections= ["BPHY10JpsiKshortCascadeSV2", "BPHY10JpsiKshortCascadeSV1"],
     V0Vertices              = "BPHY10RecoV0Candidates")
@@ -263,6 +273,7 @@ print(BPHY10JpsiKshort)
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__JpsiPlusV0Cascade
 BPHY10JpsiLambda            = DerivationFramework__JpsiPlusV0Cascade(
     name                    = "BPHY10JpsiLambda",
+    V0Tools                 = TrackingCommon.getV0Tools(),
     #OutputLevel             = DEBUG,
     HypothesisName          = "Lambda_b",
     TrkVertexFitterTool     = JpsiV0VertexFit,
@@ -274,7 +285,7 @@ BPHY10JpsiLambda            = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4600.,
     MassUpperCut            = 6600.,
     RefitPV                 = True,
-    RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
+    RefPVContainerName      = "BPHY10RefittedPrimaryVertices3",
     JpsiVertices            = "BPHY10JpsiCandidates",
     CascadeVertexCollections= ["BPHY10JpsiLambdaCascadeSV2", "BPHY10JpsiLambdaCascadeSV1"],
     V0Vertices              = "BPHY10RecoV0Candidates")
@@ -287,6 +298,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY10JpsiLambdabar         = DerivationFramework__JpsiPlusV0Cascade(
     name                    = "BPHY10JpsiLambdabar",
     HypothesisName          = "Lambda_bbar",
+    V0Tools                 = TrackingCommon.getV0Tools(),
     #OutputLevel             = DEBUG,
     TrkVertexFitterTool     = JpsiV0VertexFit,
     V0Hypothesis            = -3122,
@@ -297,7 +309,7 @@ BPHY10JpsiLambdabar         = DerivationFramework__JpsiPlusV0Cascade(
     MassLowerCut            = 4600.,
     MassUpperCut            = 6600.,
     RefitPV                 = True,
-    RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
+    RefPVContainerName      = "BPHY10RefittedPrimaryVertices4",
     JpsiVertices            = "BPHY10JpsiCandidates",
     CascadeVertexCollections= ["BPHY10JpsiLambdabarCascadeSV2", "BPHY10JpsiLambdabarCascadeSV1"],
     V0Vertices              = "BPHY10RecoV0Candidates")
@@ -394,14 +406,6 @@ fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY10Stream )
 BPHY10Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY10Stream.AcceptAlgs(["BPHY10Kernel"])
 
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-
-BPHY10ThinningSvc = createThinningSvc( svcName="BPHY10ThinningSvc", outStreams=[evtStream] )
-svcMgr += BPHY10ThinningSvc
 
 #====================================================================
 # Slimming 
@@ -419,8 +423,10 @@ BPHY10SlimmingHelper.IncludeBPhysTriggerContent = TRUE
 
 ## primary vertices
 AllVariables  += ["PrimaryVertices"]
-StaticContent += ["xAOD::VertexContainer#BPHY10RefittedPrimaryVertices"]
-StaticContent += ["xAOD::VertexAuxContainer#BPHY10RefittedPrimaryVerticesAux."]
+
+for x in range(1,5):
+   StaticContent += ["xAOD::VertexContainer#BPHY10RefittedPrimaryVertices%s"   %     str(x)]
+   StaticContent += ["xAOD::VertexAuxContainer#BPHY10RefittedPrimaryVertices%sAux." % str(x)]
 
 ## ID track particles
 AllVariables += ["InDetTrackParticles"]

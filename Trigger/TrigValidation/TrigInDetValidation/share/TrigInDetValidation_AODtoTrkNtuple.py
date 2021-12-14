@@ -33,9 +33,9 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSeque
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
+from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
 Configurable.configurableRun3Behavior+=1
-tdtAcc = getTrigDecisionTool(ConfigFlags)
+tdtAcc = TrigDecisionToolCfg(ConfigFlags)
 Configurable.configurableRun3Behavior-=1
 appendCAtoAthena( tdtAcc )
 

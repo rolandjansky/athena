@@ -3,7 +3,7 @@
 __doc__ = "Instantiate egammaSelectedTrackCopy with default configuration"
 
 from egammaTrackTools.egammaTrackToolsConfig import (
-    EMExtrapolationToolsCfg, EMExtrapolationToolsCommonCacheCfg)
+    EMExtrapolationToolsCfg)
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -31,16 +31,24 @@ def egammaSelectedTrackCopyCfg(
             flags, name="EMExtrapolationTools")
         kwargs["ExtrapolationTool"] = acc.popToolsAndMerge(extraptool)
 
-    if "ExtrapolationToolCommonCache" not in kwargs:
-        kwargs["ExtrapolationToolCommonCache"] = acc.popToolsAndMerge(
-            EMExtrapolationToolsCommonCacheCfg(flags))
-
     kwargs.setdefault(
         "ClusterContainerName",
         flags.Egamma.Keys.Internal.EgammaTopoClusters)
     kwargs.setdefault(
         "TrackParticleContainerName",
         flags.Egamma.Keys.Input.TrackParticles)
+
+    # P->T conversion extra dependencies
+    if flags.Detector.GeometryITk:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkPixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+ITkStripDetectorElementCollection"),
+        ])
+    else:
+        kwargs.setdefault("ExtraInputs", [
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+PixelDetectorElementCollection"),
+            ("InDetDD::SiDetectorElementCollection", "ConditionStore+SCT_DetectorElementCollection"),
+        ])
 
     egseltrkcpAlg = CompFactory.egammaSelectedTrackCopy(name, **kwargs)
 

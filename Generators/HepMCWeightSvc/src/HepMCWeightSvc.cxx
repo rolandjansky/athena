@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -17,10 +17,8 @@
 #include "boost/algorithm/string.hpp"
 
 HepMCWeightSvc::HepMCWeightSvc(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthService(name, pSvcLocator),
-   m_metaDataTool("IOVDbMetaDataTool"),m_weightNamesLoaded(false)
+  : AthService(name, pSvcLocator)
 {
-  declareProperty("Enable",m_enabled=true,"If false, will return failure on loadWeights");
 }
 
 

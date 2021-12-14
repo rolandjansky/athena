@@ -47,7 +47,7 @@ StatusCode MuonTrackStatisticsTool::finalize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(std::string name, const DetailedTrackTruthCollection* truthMap) const {
+StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(const std::string& name, const DetailedTrackTruthCollection* truthMap) const {
     std::vector<MuonTrackStatisticsTool::TruthTrackCounters*>::iterator counterTruth_it = m_allTruthCounters.begin();
     std::vector<MuonTrackStatisticsTool::TruthTrackCounters*>::iterator counterTruth_itEnd = m_allTruthCounters.end();
     for (; counterTruth_it != counterTruth_itEnd; counterTruth_it++) {
@@ -114,7 +114,7 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
     ;
 }
 
-StatusCode MuonTrackStatisticsTool::updateTrackCounters(std::string name, const TrackCollection* tracks) const {
+StatusCode MuonTrackStatisticsTool::updateTrackCounters(const std::string& name, const TrackCollection* tracks) const {
     std::vector<MuonTrackStatisticsTool::TrackCounters*>::iterator counter_it = m_allCounters.begin();
     std::vector<MuonTrackStatisticsTool::TrackCounters*>::iterator counter_itEnd = m_allCounters.end();
     for (; counter_it != counter_itEnd; counter_it++) {
@@ -152,7 +152,7 @@ StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters,
     return StatusCode::SUCCESS;
 }
 
-void MuonTrackStatisticsTool::addTrackCounters(std::string trkLoc) const {
+void MuonTrackStatisticsTool::addTrackCounters(const std::string& trkLoc) const {
     TString temp_string(trkLoc);
 
     if (temp_string.Contains("Truth") && m_doTruth) {

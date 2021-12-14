@@ -22,7 +22,7 @@ theCaloClusterRetriever.FavouriteClusterCollection="egClusterCollection"
 
 ## example how to set other collection. when commented out: all other, non-HLT
 ##
-theCaloClusterRetriever.OtherClusterCollections=["CombinedCluster","MuonClusterCollection","CaloTopoCluster"]
+theCaloClusterRetriever.OtherClusterCollections=["CombinedCluster","MuonClusterCollection","CaloTopoClusters"]
 
 # See M5 jOs for further commissioning options
 #

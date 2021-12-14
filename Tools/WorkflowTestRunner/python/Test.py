@@ -24,7 +24,7 @@ class TestSetup:
         self.checks_only = False
         self.release_reference = ""
         self.release_validation = ""
-        self.release_ID = environ['AtlasVersion'][0:4]
+        self.release_ID = "master"  # The following is not flexible enough, can probably be hardcoded: environ["AtlasVersion"][0:4]
         self.parallel_execution = False
         self.disable_output_checks = False
 
@@ -45,19 +45,26 @@ class TestSetup:
 
 
 class WorkflowRun(Enum):
-    Run2 = 'Run2'
-    Run3 = 'Run3'
-    Run4 = 'Run4'
+    Run2 = "Run2"
+    Run3 = "Run3"
+    Run4 = "Run4"
+
+    def __str__(self):
+        return self.name
 
 
 class WorkflowType(Enum):
-    FullSim = 'FullSim'
-    AF3 = 'AF3'
-    Overlay = 'Overlay'
-    MCReco = 'MCReco'
-    MCPileUpReco = 'MCPileUpReco'
-    DataReco = 'DataReco'
-    PileUpPresampling = 'PileUpPresampling'
+    FullSim = "FullSim"
+    AF3 = "AF3"
+    MCOverlay = "MCOverlay"
+    DataOverlay = "DataOverlay"
+    MCReco = "MCReco"
+    MCPileUpReco = "MCPileUpReco"
+    DataReco = "DataReco"
+    PileUpPresampling = "PileUpPresampling"
+
+    def __str__(self):
+        return self.name
 
 
 class WorkflowCheck:
@@ -86,6 +93,9 @@ class WorkflowTest:
 
         if not hasattr(self, "output_checks"):
             self.output_checks = []
+
+        if not hasattr(self, "digest_checks"):
+            self.digest_checks = []
 
         if not hasattr(self, "skip_performance_checks"):
             self.skip_performance_checks = False
@@ -135,7 +145,7 @@ class WorkflowTest:
         self.logger.info(f"Finished validation in rel {self.setup.release_validation}")
         self.logger.info(f"\"{self.command}\"")
 
-    def run_checks(self, main_check: WorkflowCheck, performance_checks: List[WorkflowCheck]) -> bool:
+    def run_checks(self, main_check: WorkflowCheck, fpe_check: WorkflowCheck, performance_checks: List[WorkflowCheck]) -> bool:
         self.logger.info("-----------------------------------------------------")
         self.logger.info(f"----------- Post-processing of {self.ID} Test -----------")
         result = True
@@ -145,16 +155,24 @@ class WorkflowTest:
         if not main_check.run(self):
             return False
 
+        # FPE check
+        if fpe_check:
+            result = fpe_check.run(self) and result
+
+        # digest checks
+        for check in self.digest_checks:
+            result = check.run(self) and result
+
         # output checks
         if not self.setup.disable_output_checks:
             for check in self.output_checks:
-                result = result and check.run(self)
+                result = check.run(self) and result
 
         if self.setup.validation_only or self.skip_performance_checks:
             return result  # Performance checks against static references not possible
 
         # performance checks
         for check in performance_checks:
-            result = result and check.run(self)
+            result = check.run(self) and result
 
         return result

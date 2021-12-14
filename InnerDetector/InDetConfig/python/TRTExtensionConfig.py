@@ -39,7 +39,7 @@ def DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF', **kwargs):
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
 
     from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
-    InDetUpdator = acc.getPrimaryAndMerge(InDetUpdatorCfg(flags))
+    InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
 
     kwargs.setdefault("ToolForExtrapolation", InDetExtrapolator)
     kwargs.setdefault("ToolForCompetingROTsCreation", InDetCompetingRotCreator)
@@ -126,30 +126,27 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
 #
 # ------------------------------------------------------------
 def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCollection = None, ExtendedTracksMap = None, doPhase = True):
-    acc = ComponentAccumulator()
+    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+    acc = TRTPreProcessingCfg(flags)
     #
-    # ---------- TRT_TrackExtension
+    # Track extension to TRT algorithm
     #
-    if flags.InDet.doTRTExtensionNew:
-        #
-        # Track extension to TRT algorithm
-        #
-        if doPhase:
-            acc.merge(TRT_TrackExtensionAlgCfg( flags,
-                                                name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.extension,
-                                                SiTrackCollection=SiTrackCollection,
-                                                ExtendedTracksMap = ExtendedTracksMap))
-        else:
-            acc.merge(TRT_TrackExtensionAlgCfg( flags,  
-                                                name = 'InDetTRT_Extension' + flags.InDet.Tracking.extension,
-                                                SiTrackCollection=SiTrackCollection,
-                                                ExtendedTracksMap = ExtendedTracksMap,
-                                                TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
-        acc.merge(InDetExtensionProcessorCfg(flags,
-                                             SiTrackCollection = SiTrackCollection,
-                                             ExtendedTrackCollection = ExtendedTrackCollection,
-                                             ExtendedTracksMap = ExtendedTracksMap,
-                                             doPhase = doPhase))
+    if doPhase:
+        acc.merge(TRT_TrackExtensionAlgCfg( flags,
+                                            name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.extension,
+                                            SiTrackCollection=SiTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap))
+    else:
+        acc.merge(TRT_TrackExtensionAlgCfg( flags,  
+                                            name = 'InDetTRT_Extension' + flags.InDet.Tracking.extension,
+                                            SiTrackCollection=SiTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap,
+                                            TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
+    acc.merge(InDetExtensionProcessorCfg(flags,
+                                            SiTrackCollection = SiTrackCollection,
+                                            ExtendedTrackCollection = ExtendedTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap,
+                                            doPhase = doPhase))
     return acc
 ##########################################################################################################################
 
@@ -197,9 +194,6 @@ if __name__ == "__main__":
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
     top_acc.merge(MuonGeoModelCfg(ConfigFlags))
     top_acc.merge(MuonIdHelperSvcCfg(ConfigFlags))
-
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
 
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg
     top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))

@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElementLink.h 785879 2016-11-22 22:17:10Z ssnyder $
 /**
  * @file AthLinks/ElementLink.h
  * @author scott snyder <snyder@bnl.gov>
@@ -364,7 +363,8 @@ public:
   ElementLink (const ElementLink<U>& other);
 
 
-  // Default assignment --- declare explicitly to prevent warning from coverity.
+  // Default copy and assignment.
+  ElementLink (const ElementLink&) = default;
   ElementLink& operator= (const ElementLink&) = default;
 
 

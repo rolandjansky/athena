@@ -52,7 +52,7 @@ class JetChainConfiguration(ChainConfigurationBase):
 
             # Check if there is exactly one exotic hypothesis defined
             if len(p['exotHypo']) > 1:
-                raise RuntimeError(f'Exotic chains currently not configurable with more than one exotic selection!')
+                raise RuntimeError(f'emerging chains currently not configurable with more than one emerging selection!')
             if p['exotHypo']:
                 self.exotHypo = p['exotHypo'][0]
 
@@ -131,23 +131,30 @@ class JetChainConfiguration(ChainConfigurationBase):
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
             else:
-                clustersKey, jetPreselStep = self.getJetCaloPreselChainStep()
+                clustersKey, preselJetDef, jetPreselStep = self.getJetCaloPreselChainStep()
                 chainSteps.append( jetPreselStep )
-            jetCollectionName, jetDef, jetTrackingHypoStep = self.getJetTrackingHypoChainStep(clustersKey)
-            chainSteps.append( jetTrackingHypoStep )
+            jetCollectionName, jetDef, jetFSTrackingHypoStep = self.getJetFSTrackingHypoChainStep(clustersKey)
+            chainSteps.append( jetFSTrackingHypoStep )
+        elif self.recoDict["trkopt"]=="roiftf":
+            # Can't work w/o presel jets to seed RoIs
+            if self.trkpresel=="nopresel":
+                raise RuntimeError("RoI FTF jet tracking requested with no jet preselection to provide RoIs")
+            # Set up preselection step first
+            clustersKey, preselJetDef, jetPreselStep = self.getJetCaloPreselChainStep()
+            chainSteps.append( jetPreselStep )
+            # Standard tracking step, configure the tracking instance differently
+            # Later we should convert this to a preselection-style hypo
+            jetRoITrackingHypoStep = self.getJetRoITrackingHypoChainStep(preselJetDef.fullname())
+            chainSteps.append( jetRoITrackingHypoStep )
+            # For later
+            # jetCollectionName, jetDef, jetFSTrackingHypoStep = self.getJetFSTrackingHypoChainStep(clustersKey)
+            # chainSteps.append( jetFSTrackingHypoStep )
         else:
             jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
 
-        if self.dict["eventBuildType"]=="PhysicsTLA":
-            # Select the TLA jets from the full jet container
-            # rather than the filtered one seen by the hypo
-            # (No diff in practice if the TLA cut is higher than the hypo filter)
-            TLAStep = self.getJetTLAChainStep(jetDef.fullname())
-            chainSteps+= [TLAStep]
-
         # Add exotic jets hypo
-        if self.exotHypo != '' and ("Exotic" in self.exotHypo or "Trackless" in self.exotHypo):
+        if self.exotHypo != '' and ("emerging" in self.exotHypo or "trackless" in self.exotHypo):
             EJsStep = self.getJetEJsChainStep(jetCollectionName, self.chainName, self.exotHypo)
             chainSteps+= [EJsStep]
         
@@ -181,15 +188,26 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         return jetCollectionName, jetDef ,ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
-    def getJetTrackingHypoChainStep(self, clustersKey):
+    def getJetRoITrackingHypoChainStep(self, jetsInKey):
+        jetDefStr = jetRecoDictToString(self.recoDict)
+
+        stepName = "RoIFTFStep_jet_"+jetDefStr
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
+        jetSeq = RecoFragmentsPool.retrieve( jetRoITrackingHypoMenuSequence,
+                                             ConfigFlags, jetsIn=jetsInKey, **self.recoDict )
+        return ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
+    def getJetFSTrackingHypoChainStep(self, clustersKey):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "MainStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
-        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetTrackingHypoMenuSequence,
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetFSTrackingHypoMenuSequence
+        jetSeq, jetDef = RecoFragmentsPool.retrieve( jetFSTrackingHypoMenuSequence,
                                                      ConfigFlags, clustersKey=clustersKey,
-                                                     isPerf=self.isPerf, **self.recoDict )
+                                                     isPerf=self.isPerf,
+                                                     **self.recoDict )
         jetCollectionName = str(jetSeq.hypo.Alg.Jets)
         return jetCollectionName, jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
@@ -296,40 +314,31 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetSeq, jetDef, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
                                                                   ConfigFlags, **preselRecoDict )
 
-        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
-
-    def getJetTLAChainStep(self, jetCollectionName):
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetTLASequences import jetTLAMenuSequence
-
-        stepName = "TLAStep_"+jetCollectionName
-        jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, None, jetsin=jetCollectionName )
-        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
-
-        return chainStep
+        return str(clustersKey), jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
 
 
     def getJetEJsChainStep(self, jetCollectionName, thresh, exotdictstring):
         from TriggerMenuMT.HLTMenuConfig.Jet.ExoticJetSequences import jetEJsMenuSequence
 
-        # Must be configured similar to : ExoticPTF0p0dR1p2 or TracklessdR1p2
-        if 'Exotic' in exotdictstring and ('dR' not in exotdictstring \
+        # Must be configured similar to : emergingPTF0p0dR1p2 or tracklessdR1p2
+        if 'emerging' in exotdictstring and ('dR' not in exotdictstring \
            or 'PTF' not in exotdictstring):
             log.error('Misconfiguration of exotic jet chain - need dR and PTF options')
             exit(1)
-        if 'Trackless' in exotdictstring and 'dR' not in exotdictstring:
+        if 'trackless' in exotdictstring and 'dR' not in exotdictstring:
             log.error('Misconfiguration of trackless exotic jet chain - need dR option')
             exit(1)
 
         trackless = int(0)
-        if 'Exotic' in exotdictstring:
+        if 'emerging' in exotdictstring:
             ptf = float(exotdictstring.split('PTF')[1].split('dR')[0].replace('p', '.'))
             dr  = float(exotdictstring.split('dR')[1].split('_')[0].replace('p', '.'))
-        elif 'Trackless' in exotdictstring:
+        elif 'trackless' in exotdictstring:
             trackless = int(1)
             ptf = 0.0
             dr = float(exotdictstring.split('dR')[1].split('_')[0].replace('p', '.'))
         else:
-            log.error('Misconfiguration of trackless exotic jet chain - need Exotic or Trackless selection')
+            log.error('Misconfiguration of trackless exotic jet chain - need emerging or trackless selection')
             exit(1)
 
         log.debug("Running exotic jets with ptf: " + str(ptf) + "\tdR: " + str(dr) + "\ttrackless: " + str(trackless) + "\thypo: " + exotdictstring)

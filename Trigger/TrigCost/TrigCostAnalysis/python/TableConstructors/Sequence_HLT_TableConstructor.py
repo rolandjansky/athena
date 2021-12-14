@@ -15,11 +15,11 @@ from TrigCostAnalysis.TableConstructorBase import TableConstructorBase, Column
 class Sequence_HLT_TableConstructor(TableConstructorBase):
     ''' @brief Class representing Sequence_HLT table
     '''
-    def __init__(self, tableObj):
-        super(). __init__(tableObj) 
+    def __init__(self, tableObj, underflowThreshold, overflowThreshold):
+        super(). __init__(tableObj, underflowThreshold, overflowThreshold) 
         self.expectedHistograms = ["Sequence_perEvent",
                                    "AlgCalls_perEvent",
-                                   #"Time_perCall", 
+                                   "Time_perCall", 
                                    "Time_perEvent",
                                    "Request_perEvent",
                                    "NetworkRequest_perEvent",
@@ -32,13 +32,13 @@ class Sequence_HLT_TableConstructor(TableConstructorBase):
         self.columns["name"]                    = Column("Name", "Sequence name")
         self.columns["events"]                  = Column("Raw Active Events", "Raw underlying statistics on how many events in which this sequence was executed.")
         self.columns["eventsWeighted"]          = Column("Active Events", "How many events in which this sequence was executed.")
-        # self.columns["callsPerEvent"]           = Column("Calls/Event", "Total number of calls made to this sequence.")
-        # self.columns["callsSlow"]               = Column("Calls > 1000 ms", "Number of sequence executions which were particularly slow.")
+        self.columns["callsPerEvent"]           = Column("Calls/Event", "Total number of calls made to this sequence.")
+        self.columns["callsSlow"]               = Column("Calls > 1000 ms", "Number of sequence executions which were particularly slow.")
         self.columns["eventRate"]               = Column("Event Rate [Hz]", "Rate in this run range of events with at least one execution of this sequence.", True)
-        #self.columns["callRate"]                = Column("Call Rate [Hz]", "Rate in this run range of calls to this sequence.", True)
-        #self.columns["totalTimeSec"]            = Column("Sequence Total Time [s]", "Total time for this sequence")
-        #self.columns["totalTimePerc"]           = Column("Sequence Total Time [%]", "Total time for this sequence as a percentage of all sequence executions in this run range")
-        #self.columns["timePerCall"]             = Column("Sequence Total Time/Call [ms]", "Average execution time per sequence call in this run range.")
+        self.columns["callRate"]                = Column("Call Rate [Hz]", "Rate in this run range of calls to this sequence.", True)
+        self.columns["totalTimeSec"]            = Column("Sequence Total Time [s]", "Total time for this sequence")
+        self.columns["totalTimePerc"]           = Column("Sequence Total Time [%]", "Total time for this sequence as a percentage of all sequence executions in this run range")
+        self.columns["timePerCall"]             = Column("Sequence Total Time/Call [ms]", "Average execution time per sequence call in this run range.")
         self.columns["timePerEvent"]            = Column("Sequence Total Time/Event [ms]", "Mean weighted alg time. Normalised to all events with one or more alg calls")
         self.columns["algsPerEvent"]            = Column("Run Algs/Event", "Total number of algorithms executed by this sequence.")
         self.columns["requestTimePerEvent"]     = Column("ROS Data Request Time/Event [ms]", "Average time waiting for ROS data per event for  events with at least one execution in this run range")
@@ -50,19 +50,19 @@ class Sequence_HLT_TableConstructor(TableConstructorBase):
     
     def fillColumns(self, histName):
         weightedEvents = self.getHistogram("Sequence_perEvent").Integral()
-        #weightedCalls = self.getXWeightedIntegral("Sequence_perEvent", isLog=False)
-        #slowCalls = self.getHistogram("Time_perCall").Integral(self.getHistogram("Time_perCall").FindBin(1000.), self.getHistogram("Time_perCall").GetNbinsX())
+        weightedCalls = self.getXWeightedIntegral("Sequence_perEvent", isLog=False)
+        slowCalls = self.getHistogram("Time_perCall").Integral(self.getHistogram("Time_perCall").FindBin(1000.), self.getHistogram("Time_perCall").GetNbinsX())
 
         self.columns["name"].addValue(histName)
         self.columns["events"].addValue(self.getHistogram("Sequence_perEvent").GetEntries())
         self.columns["eventsWeighted"].addValue(weightedEvents)
-        #self.columns["callsPerEvent"].addValue(self.getHistogram("Sequence_perEvent").GetMean())
-        #self.columns["callsSlow"].addValue(slowCalls)
+        self.columns["callsPerEvent"].addValue(self.getHistogram("Sequence_perEvent").GetMean())
+        self.columns["callsSlow"].addValue(slowCalls)
         self.columns["eventRate"].addValue(weightedEvents)
-        #self.columns["callRate"].addValue(weightedCalls)
-        #self.columns["totalTimeSec"].addValue(self.getXWeightedIntegral("Time_perCall", isLog=True) * 1e-3)
+        self.columns["callRate"].addValue(weightedCalls)
+        self.columns["totalTimeSec"].addValue(self.getXWeightedIntegral("Time_perCall", isLog=True) * 1e-3)
         #self.columns["totalTimePerc"] in post processing
-        #self.columns["timePerCall"].addValue((self.getHistogram("Time_perCall").GetMean()))
+        self.columns["timePerCall"].addValue((self.getHistogram("Time_perCall").GetMean()))
         self.columns["timePerEvent"].addValue(self.getHistogram("Time_perEvent").GetMean())
         self.columns["algsPerEvent"].addValue(self.getHistogram("AlgCalls_perEvent").GetMean())
         self.columns["requestTimePerEvent"].addValue(self.getHistogram("RequestTime_perEvent").GetMean())
@@ -73,9 +73,8 @@ class Sequence_HLT_TableConstructor(TableConstructorBase):
 
 
     def postProcessing(self):
-        #totalTimeEntries = self.columns["totalTimeSec"].content
-        #totalTime = sum(totalTimeEntries)
+        totalTimeEntries = self.columns["totalTimeSec"].content
+        totalTime = sum(totalTimeEntries)
 
-        #for entry in totalTimeEntries:
-        #    self.columns["totalTimePerc"].addValue(100 * entry / totalTime)
-        pass
+        for entry in totalTimeEntries:
+            self.columns["totalTimePerc"].addValue(100 * entry / totalTime)

@@ -62,7 +62,7 @@ StatusCode TrigJetTLAHypoTool::finalize(){
 }
 
 StatusCode
-TrigJetTLAHypoTool::decide(std::vector<JetDecision>& jetHypoInputs) const {
+TrigJetTLAHypoTool::decide(TrigCompositeUtils::DecisionContainer* outputDecisions) const {
 
   int decision_count=0;
 
@@ -71,15 +71,15 @@ TrigJetTLAHypoTool::decide(std::vector<JetDecision>& jetHypoInputs) const {
   // jet hypo inputs:
   // pairs of const xAOD::Jet* (first) and mutable Decision* (second)
 
-  for (auto& pair : jetHypoInputs) { 
+  for (auto decision : *outputDecisions) { 
       
       //check that the previous decision comes from the appropriate chain
       DecisionIDContainer previousDecisionIDs;
-      const auto previousDecisionEL = TrigCompositeUtils::getLinkToPrevious(pair.second).at(0); // We know that the parent HypoAlg added exactly one parent.
+      const auto previousDecisionEL = TrigCompositeUtils::getLinkToPrevious(decision).at(0); // We know that the parent HypoAlg added exactly one parent.
       decisionIDs(*previousDecisionEL, previousDecisionIDs);
       //check that the previous decision corresponding to this decisionId was positive
       if ( previousDecisionIDs.count( m_decisionId.numeric() ) > 0) {
-          TrigCompositeUtils::addDecisionID(getId().numeric(), pair.second);
+          TrigCompositeUtils::addDecisionID(getId().numeric(), decision);
           ++decision_count;
       }
   }

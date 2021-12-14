@@ -12,7 +12,7 @@ namespace Tau{
 
 class ParamPlots:public PlotBase {
    public:      
-      ParamPlots(PlotBase *pParent, std::string sDir, std::string sParticleType);
+      ParamPlots(PlotBase *pParent, const std::string& sDir, std::string sParticleType);
       ~ParamPlots();
       void fill(const xAOD::IParticle& prt, float weight);
       

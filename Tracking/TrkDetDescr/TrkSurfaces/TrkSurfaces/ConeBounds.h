@@ -151,7 +151,7 @@ private:
   TDD_real_t m_cosAlpha;
 
   /** Helper function for angle parameter initialization */
-  virtual void initCache() override;
+  virtual void initCache() override final;
 
   /** Helpers for inside() functions */
   inline double minPhi() const

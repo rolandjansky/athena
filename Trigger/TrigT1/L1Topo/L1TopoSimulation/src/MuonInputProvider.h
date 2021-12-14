@@ -90,9 +90,10 @@ namespace LVL1 {
       Gaudi::Property<uint16_t> m_MuonEncoding {this, "MuonEncoding", 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity"};
 
       mutable LockedHandle<TH1> m_hPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hPtTGC ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hPtRPC ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hPtEta ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEtaPhiTopo ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hBW2or3Eta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hInnerCoinEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hGoodMFEta ATLAS_THREAD_SAFE;

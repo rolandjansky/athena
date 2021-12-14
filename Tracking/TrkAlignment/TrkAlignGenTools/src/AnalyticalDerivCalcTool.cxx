@@ -115,7 +115,7 @@ namespace Trk {
         continue;
 
       // if the module is not yet in the list for this track, add it
-      if(hitModules[module->identifyHash()] == false) {
+      if(!hitModules[module->identifyHash()]) {
         hitModules[module->identifyHash()] = true;
         alignModules.push_back(module);
       }

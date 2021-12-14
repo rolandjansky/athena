@@ -21,9 +21,9 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNa
     if SVFinder == 'JetFitter':
         secVtxFinder = acc.popToolsAndMerge(InDetImprovedJetFitterVxFinderCfg(ConfigFlags, 'JFVxFinder'))
     elif SVFinder == 'SV1':
-        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalVxInJet"))
+        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg(ConfigFlags, "IDVKalVxInJet"))
     elif SVFinder == 'MSV':
-        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalMultiVxInJet", MSV = True))
+        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg(ConfigFlags, "IDVKalMultiVxInJet", MSV = True))
     else:
         return acc
 

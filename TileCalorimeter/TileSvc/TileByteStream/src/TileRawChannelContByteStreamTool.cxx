@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,7 +37,6 @@ TileRawChannelContByteStreamTool::TileRawChannelContByteStreamTool(const std::st
     , m_tileHWID(0)
     , m_hid2re(0)
     , m_verbose(false)
-    , m_channels(nullptr)
     , m_maxChannels(TileCalibUtils::MAX_CHAN)
 {
   declareInterface<TileRawChannelContByteStreamTool>(this);
@@ -69,14 +68,10 @@ StatusCode TileRawChannelContByteStreamTool::initialize() {
 
   m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
-  m_channels = new TileFastRawChannel[m_tileHWID->channel_hash_max()];
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode TileRawChannelContByteStreamTool::finalize() {
-  delete[] m_channels;
-
   ATH_MSG_INFO ("Finalizing TileRawChannelContByteStreamTool successfuly");
   return StatusCode::SUCCESS;
 }
@@ -96,6 +91,8 @@ StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContai
   ATH_MSG_DEBUG( " Number of raw channel collections... " << rawChannelContainer->size() << " " << evtStore()->proxy(rawChannelContainer)->name());
 
   std::map<uint32_t, TileROD_Encoder> mapEncoder;
+  std::vector<TileFastRawChannel> channels;
+  channels.reserve (m_tileHWID->channel_hash_max());
 
   int nch = 0;
   uint32_t reid = 0x0;
@@ -107,9 +104,11 @@ StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContai
     if (isTMDB) reid = m_hid2re->getRodTileMuRcvID(frag_id);
     else reid = m_hid2re->getRodID(frag_id);
 
-    mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 4);
-    mapEncoder[reid].setTypeAndUnit(contType, outputUnit);
-    mapEncoder[reid].setMaxChannels(m_maxChannels);
+    TileROD_Encoder& encoder = mapEncoder[reid];
+
+    encoder.setTileHWID(m_tileHWID, m_verbose, 4);
+    encoder.setTypeAndUnit(contType, outputUnit);
+    encoder.setMaxChannels(m_maxChannels);
 
     HWIdentifier drawer_id = m_tileHWID->drawer_id(frag_id);
 
@@ -128,17 +127,18 @@ StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContai
       float time = rawChannel->time();
       float quality = rawChannel->quality();
       if (isTMDB) {
-        m_channels[nch].set(frag_id, channel, adc, amplitude, 0., 0.);      
+        channels.emplace_back (frag_id, channel, adc, amplitude, 0., 0.);
       } else {
         if (oflCont) {
           if (quality > 15.0) quality = 15.0;
           if (m_tileBadChanTool->getAdcStatus(drawerIdx, channel, adc).isBad()) quality += 16.;
 	}
         //amplitude = m_tileToolEmscale->channelCalib(drawerIdx, channel, adc, amplitude, inputUnit, outputUnit);
-        m_channels[nch].set(frag_id, channel, adc, amplitude, time, quality); 
+        channels.emplace_back (frag_id, channel, adc, amplitude, time, quality);
       }
 
-      mapEncoder[reid].add(&m_channels[nch]);
+      // Don't need to worry about these moving due to the reserve() above.
+      encoder.add(&channels.back());
       ++nch;
       ++n;
     }

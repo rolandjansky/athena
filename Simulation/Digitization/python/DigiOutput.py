@@ -127,6 +127,10 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.AFP_on():
             StreamRDO_ItemList+=["AFP_SiDigiCollection#*"]
             StreamRDO_ItemList+=["AFP_TDDigiCollection#*"]
+            StreamRDO_ItemList+=["xAOD::AFPSiHitContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPToFHitContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPSiHitAuxContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPToFHitAuxContainer#*"]
     # Inner Detector Output
     if DetFlags.digitize.BCM_on():
         if DetFlags.writeRDOPool.BCM_on():
@@ -136,6 +140,7 @@ def getStreamRDO_ItemList(log):
             if fastPixelDigiOutputExpected():
                 StreamRDO_ItemList+=["InDet::SiClusterContainer#*"]
                 StreamRDO_ItemList+=["InDet::PixelGangedClusterAmbiguities#*"]
+                StreamRDO_ItemList+=["InDet::PixelClusterContainer#*"]
             if standardPixelDigiOutputExpected():
                 StreamRDO_ItemList+=["PixelRDO_Container#*"]
     if DetFlags.digitize.SCT_on():

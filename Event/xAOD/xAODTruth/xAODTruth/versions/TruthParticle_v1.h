@@ -117,20 +117,20 @@ namespace xAOD {
       /// @{
 
       /// The transverse momentum (\f$p_T\f$) of the particle
-      virtual double pt() const;
+      virtual double pt() const override final;
       /// The pseudorapidity (\f$\eta\f$) of the particle
-      virtual double eta() const;
+      virtual double eta() const override final;
       /// The azimuthal angle (\f$\phi\f$) of the particle
-      virtual double phi() const;
+      virtual double phi() const override final;
       /// The mass of the particle
       ///
       /// Note, not necessarily = \f$E^2-p^2\f$ if not on mass shell.
       ///
-      virtual double m() const;
+      virtual double m() const override final;
       /// The total energy of the particle
-      virtual double e() const;
+      virtual double e() const override final;
       /// The true rapidity (\f$y\f$) of the particle
-      virtual double rapidity() const;
+      virtual double rapidity() const override final;
 
       /// Definition of the 4-momentum type
       typedef IParticle::FourMom_t FourMom_t;
@@ -140,7 +140,7 @@ namespace xAOD {
       /// Note that m may not be right, though, if not on mass shell. In which
       /// case <code>p4().M()</code> will be different from <code>m()</code>.
       ///
-      virtual FourMom_t p4() const;
+      virtual FourMom_t p4() const override final;
 
       /// Base 4 Momentum type for TruthParticle
       typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > GenVecFourMom_t;
@@ -149,7 +149,7 @@ namespace xAOD {
       GenVecFourMom_t genvecP4() const;
 
       /// The type of the object as a simple enumeration
-      virtual Type::ObjectType type() const;
+      virtual Type::ObjectType type() const override final;
 
       /// @}
 

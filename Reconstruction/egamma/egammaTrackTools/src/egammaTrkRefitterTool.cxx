@@ -243,7 +243,7 @@ egammaTrkRefitterTool::addPointsToTrack(const EventContext& ctx,
     if (track->perigeeParameters())
       charge = (int)track->perigeeParameters()->charge();
     std::unique_ptr<const Trk::CaloCluster_OnTrack> ccot(
-      m_CCOTBuilder->buildClusterOnTrack(eg->caloCluster(), charge));
+      m_CCOTBuilder->buildClusterOnTrack(ctx, eg->caloCluster(), charge));
     if (ccot != nullptr) {
       collect.m_trash.push_back(std::move(ccot));
       collect.m_measurements.push_back(collect.m_trash.back().get());
@@ -275,7 +275,6 @@ egammaTrkRefitterTool::provideVotFromBeamspot(const EventContext& ctx,
   float beamTiltY = beamSpotData->beamTilt(1);
   float beamSigmaX = beamSpotData->beamSigma(0);
   float beamSigmaY = beamSpotData->beamSigma(1);
-
 
   float z0 = track->perigeeParameters()->parameters()[Trk::z0];
   float beamX = beamSpotX + tan(beamTiltX) * (z0 - beamSpotZ);

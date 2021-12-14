@@ -28,8 +28,8 @@ def makeEGammaDFCommon():
     ToolSvc += DFCommonPhotonsDirection
 
     # ====================================================================
-    # SHOWER SHAPE FUDGING IN MC
-    # (TUNE22: FUDGE FACTORS RUN2 2015+2016 DATA, Rel 21)
+    # SHOWER SHAPE CORRECTIONS IN MC
+    # (TUNE23: FUDGE FACTORS RUN2 FULL DATA, derived with rel 21.2)
     # ====================================================================
 
     from PyUtils import AthFile
@@ -54,7 +54,7 @@ def makeEGammaDFCommon():
             ElectronPhotonVariableCorrectionTool)
         EGVariableCorrectionTool = ElectronPhotonVariableCorrectionTool(
             name='EGVariableCorrectionTool',
-            ConfigFile='EGammaVariableCorrection/TUNE22/ElPhVariableNominalCorrection.conf')
+            ConfigFile='EGammaVariableCorrection/TUNE23/ElPhVariableNominalCorrection.conf')
         ToolSvc += EGVariableCorrectionTool
         print(EGVariableCorrectionTool)
 
@@ -412,10 +412,6 @@ def makeEGammaDFCommon():
         isMC=(globalflags.DataSource() != 'data'))
     ToolSvc += ElectronAmbiguity
 
-    #
-    # Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium,
-    # ForwardElectronPassLHTight tools due to they are not available in R22 yet
-    #
     # list of all the decorators so far
     EGAugmentationTools = [DFCommonPhotonsDirection,
                            ElectronPassLHVeryLoose,

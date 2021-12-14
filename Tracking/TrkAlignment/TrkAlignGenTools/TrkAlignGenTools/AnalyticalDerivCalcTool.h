@@ -75,9 +75,9 @@ namespace Trk
     std::vector<std::pair<const AlignModule *, std::vector<Amg::VectorX> > > m_derivatives;
 
     bool m_useLocalSetting;         //!< use local setup for the covariance matrix of the track
-    bool m_useIntrinsicPixelErrors; //!< use intrinsic errors for Pixel
-    bool m_useIntrinsicSCTErrors;   //!< use intrinsic errors for SCT
-    bool m_useIntrinsicTRTErrors;   //!< use intrinsic errors for TRT
+    bool m_useIntrinsicPixelErrors = false; //!< use intrinsic errors for Pixel
+    bool m_useIntrinsicSCTErrors = false;   //!< use intrinsic errors for SCT
+    bool m_useIntrinsicTRTErrors = false;   //!< use intrinsic errors for TRT
 
     mutable bool m_firstEvent; //!< recognise the first call to setResidualCovMatrix()
 

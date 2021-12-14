@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSYSTEMEXTENSIONTOOL_H
@@ -32,12 +32,13 @@ namespace Muon {
 
         /** Default AlgTool functions */
         MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent);
-        virtual ~MuonSystemExtensionTool(){};
-        StatusCode initialize();
+        virtual ~MuonSystemExtensionTool() = default;
+        StatusCode initialize() override;
 
         /** get muon system extension */
-        bool muonSystemExtension(const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension*& muonSystemExtention) const;
+        bool muonSystemExtension(const EventContext& ctx, SystemExtensionCache& cache) const override;
 
+        MuonSystemExtension::Intersection getInterSection(const EventContext& ctx, const Trk::TrackParameters& muon_pars) const override;
     private:
         /** initialize geometry */
         bool initializeGeometry();
@@ -46,8 +47,11 @@ namespace Muon {
                                       const Amg::AngleAxis3D& sectorRotation);
 
         /** get surfaces to be intersected for a given start parameters */
-        SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars) const;
+        SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars, const SystemExtensionCache& cache) const;
 
+        MuonSystemExtension::Intersection makeInterSection(std::shared_ptr<const Trk::TrackParameters> pars, const MuonLayerSurface& surf) const;
+
+        
         ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
             this,
             "ParticleCaloExtensionTool",
@@ -58,7 +62,7 @@ namespace Muon {
             "Extrapolator",
             "Trk::Extrapolator/AtlasExtrapolator",
         };
-
+        
         /** reference surfaces per region and sector */
         std::vector<std::vector<SurfaceVec> > m_referenceSurfaces;
 

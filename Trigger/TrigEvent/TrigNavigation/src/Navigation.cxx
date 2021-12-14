@@ -35,7 +35,7 @@ Navigation::Navigation(  const std::string& type, const std::string& name,
 
   declareProperty("ClassesToPreregister", m_classesToPreregisterProperty,
                   "List of classes which need to be put in SG independently if they appear in event.");
-  declareProperty("Dlls",  m_dlls, "Libraries to load (with trigger EDM)");
+
   declareProperty("ObjectsKeyPrefix", m_objectsKeyPrefix="HLT", "The prefix which all Trigger EDM objects will get, by default it is HLT");
   declareProperty("ObjectsIndexOffset", m_objectsIndexOffset=0, "The offset with which the objects idx is be shifted.");
   declareProperty("ReadonlyHolders", m_readonly = false, "read only flag for holders (cannot create new feature containers");

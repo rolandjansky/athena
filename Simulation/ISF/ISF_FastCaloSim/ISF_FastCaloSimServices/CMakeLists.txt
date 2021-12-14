@@ -21,4 +21,5 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 atlas_add_test( ISF_FastCaloSimServices_Config_test
                 SCRIPT test/FastCaloSimServicesTest.py -n 3
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 2000)

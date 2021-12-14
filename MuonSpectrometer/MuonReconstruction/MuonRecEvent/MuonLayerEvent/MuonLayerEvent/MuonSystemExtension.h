@@ -19,7 +19,7 @@ namespace Muon {
     public:
         /** data per intersection */
         struct Intersection {
-            Intersection() {}
+            Intersection()= default;
             Intersection(std::shared_ptr<const Trk::TrackParameters> trackParameters_, const MuonLayerSurface& layerSurface_) :
                 trackParameters(trackParameters_), layerSurface(layerSurface_) {}
 
@@ -31,7 +31,7 @@ namespace Muon {
             The muonEntry pointer should be non-zero
             The class takes ownership of all inputs.
          */
-        MuonSystemExtension(std::unique_ptr<const Trk::TrackParameters> muonEntry, std::vector<Intersection>&& intersections);
+        MuonSystemExtension(const Trk::TrackParameters* muonEntry, std::vector<Intersection>&& intersections);
 
         /** destructor */
         ~MuonSystemExtension();
@@ -53,7 +53,7 @@ namespace Muon {
         MuonSystemExtension() = delete;
 
         /** data members */
-        std::unique_ptr<const Trk::TrackParameters> m_muonEntryLayerIntersection;  /// parameters at the muon entrance
+       const Trk::TrackParameters* m_muonEntryLayerIntersection{nullptr};  /// parameters at the muon entrance
         std::vector<Intersection> m_layerIntersections;                            /// parameters at the different layers
     };
 

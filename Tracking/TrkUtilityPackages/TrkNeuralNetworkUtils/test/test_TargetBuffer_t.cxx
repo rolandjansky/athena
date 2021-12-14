@@ -101,7 +101,7 @@ public:
       {
         std::cerr << "TTrainedNetwork WARNING Input size: " << input.size()
                   << " does not match with network: " << mnInput << std::endl;
-        return std::vector<double>();
+        return {};
       }
 
     T_DoubleBuffer_t tmp_array;
@@ -177,7 +177,7 @@ public:
         {
           std::cerr << "TTrainedNetwork WARNING Input size: " << input.size()
                     << " does not match with network: " << mnInput << std::endl;
-          return std::vector<double>();
+          return {};
         }
 
     const unsigned nTargetLayers(mnHidden+1);

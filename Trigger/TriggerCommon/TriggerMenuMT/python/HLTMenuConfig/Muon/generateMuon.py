@@ -169,7 +169,9 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
 
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedParticleCreatorCfg
     acc = MuonCombinedParticleCreatorCfg(flags)
-    kwargs.setdefault("TrackParticleCreator", acc.popPrivateTools())
+    particleCreator = acc.popPrivateTools()
+    result.addPublicTool(particleCreator) # Still public in TrackParticleCnvAlg
+    kwargs.setdefault("TrackParticleCreator", particleCreator)
     result.merge(acc)
 
     acc = MuonTrackCollectionCnvToolCfg(flags)
@@ -403,7 +405,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
                               inputMuons = "Muons_"+name )
 
     selAccMS.addHypoAlgo(efmuMSHypo)
-
+    
     efmuMSSequence = MenuSequenceCA(selAccMS,
                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
@@ -455,7 +457,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
                                      InDetCandidateLocation="IndetCandidates_"+name)
     recoCB.mergeReco(muonCombCfg)
 
-    muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=muonCandName, TagMaps=["muidcoTagMap"], 
+    muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=[muonCandName], TagMaps=["muidcoTagMap"], 
                                          InDetCandidateLocation="IndetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
                                          ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name)
     recoCB.mergeReco(muonCreatorCBCfg)

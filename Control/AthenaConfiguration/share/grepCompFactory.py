@@ -7,6 +7,13 @@
 import re
 import glob
 import json
+import argparse
+
+parser = argparse.ArgumentParser(description='Find duplicate config for athena modules in the current and all subfolders. Scans files ending in *onfig.py or *onfigNew.py. Ignores duplicates listed in given reference file.')
+parser.add_argument('referenceFile', metavar='referenceFile', type=str,
+                    help='Reference file with duplicates to ignore.')
+args = parser.parse_args()
+
 
 functionDict = {}
 files = glob.glob('**/*onfig.py', recursive=True)
@@ -26,13 +33,13 @@ for item in functionDict.items():
     if len(item[1]) > 1:
         duplicates[item[0]]=list(item[1])
 
-with open("referenceDuplicates.txt") as f:
+with open(args.referenceFile) as f:
   ref = json.loads(f.read())
   addedDuplicates = {}
   removedDuplicates = {}
   for refItem in ref.items():
     if refItem[0] not in duplicates.keys():
-      removedDuplicates.add(refItem)
+      removedDuplicates[refItem[0]]=refItem[1]
       continue
     newRemoved = list(set(refItem[1]) - set(duplicates[refItem[0]]))
     if len(newRemoved) > 0:
