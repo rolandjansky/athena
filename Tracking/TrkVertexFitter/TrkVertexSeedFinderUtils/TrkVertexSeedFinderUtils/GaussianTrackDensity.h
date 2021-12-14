@@ -29,7 +29,7 @@ namespace Trk
    Changes:
   */
 
-  class GaussianTrackDensity : public extends<AthAlgTool, IVertexTrackDensityEstimator>
+  class GaussianTrackDensity final: public extends<AthAlgTool, IVertexTrackDensityEstimator>
   {
   public:
     /// Inherit constructor.
@@ -41,7 +41,7 @@ namespace Trk
      * @param vectorTrk List of input tracks.
      */
     virtual double
-    globalMaximum (const std::vector<const Track*>& vectorTrk) const override;
+    globalMaximum (const std::vector<const Track*>& vectorTrk) const override final;
 
 
     /**
@@ -51,7 +51,7 @@ namespace Trk
      */
     virtual double
     globalMaximum (const std::vector<const Track*>& vectorTrk,
-                   std::unique_ptr<ITrackDensity>& density) const override;
+                   std::unique_ptr<ITrackDensity>& density) const override final;
 
 
     /**
@@ -59,7 +59,7 @@ namespace Trk
      * @param perigeeList List of input tracks.
      */
     virtual double
-    globalMaximum (const std::vector<const TrackParameters*>& perigeeList) const override;
+    globalMaximum (const std::vector<const TrackParameters*>& perigeeList) const override final;
 
 
     /**
@@ -69,11 +69,11 @@ namespace Trk
      */
     virtual double
     globalMaximum (const std::vector<const TrackParameters*>& perigeeList,
-                   std::unique_ptr<ITrackDensity>& density) const override;
+                   std::unique_ptr<ITrackDensity>& density) const override final;
 
     virtual
     std::pair<double,double> globalMaximumWithWidth (const std::vector<const TrackParameters*>& perigeeList/*,
-                                                  std::unique_ptr<ITrackDensity>& density*/) const override;
+                                                  std::unique_ptr<ITrackDensity>& density*/) const override final;
 
 
   private:
@@ -112,7 +112,7 @@ namespace Trk
     struct pred_perigee {
       bool operator()(const Perigee& left, const Perigee& right) const
       {
-	return left.parameters()[Trk::z0] < right.parameters()[Trk::z0];
+        return left.parameters()[Trk::z0] < right.parameters()[Trk::z0];
       }
     };
 
@@ -133,7 +133,7 @@ namespace Trk
     struct pred_entry_by_min {
       bool operator()(const TrackEntry& left, const TrackEntry& right) const
       {
-	return left.lowerBound < right.lowerBound;
+        return left.lowerBound < right.lowerBound;
       }
     };
 
@@ -141,7 +141,7 @@ namespace Trk
     struct pred_entry_by_max {
       bool operator()(const TrackEntry& left, const TrackEntry& right) const
       {
-	return left.upperBound < right.upperBound;
+        return left.upperBound < right.upperBound;
       }
     };
 
@@ -190,7 +190,7 @@ namespace Trk
                       GaussianTrackDensity::pred_entry_by_min >::const_iterator upperMapIterator;
 
 
-    class TrackDensity : public ITrackDensity
+    class TrackDensity final: public ITrackDensity
     {
     public:
       TrackDensity (bool gaussStep) : m_gaussStep (gaussStep) {}
@@ -201,7 +201,7 @@ namespace Trk
        *  Evaluate the density function at the specified coordinate
        *  along the beamline.
        */
-      virtual double trackDensity (double z) const override;
+      virtual double trackDensity (double z) const override final;
 
 
       /**
@@ -211,7 +211,7 @@ namespace Trk
       virtual void trackDensity (double z,
                                  double& density,
                                  double& firstDerivative,
-                                 double& secondDerivative) const override;
+                                 double& secondDerivative) const override final;
 
 
       /**
@@ -241,11 +241,24 @@ namespace Trk
 
 
     private:
-      inline void updateMaximum(double trialZ, double trialValue, double secondDerivative, double& maxZ, double& maxValue, double& maxSecondDerivative) const
-      { if (trialValue > maxValue) { maxZ = trialZ; maxValue = trialValue; maxSecondDerivative=secondDerivative;} }
+      inline void updateMaximum(double trialZ,
+                                double trialValue,
+                                double secondDerivative,
+                                double& maxZ,
+                                double& maxValue,
+                                double& maxSecondDerivative) const
+      {
+        if (trialValue > maxValue) {
+          maxZ = trialZ;
+          maxValue = trialValue;
+          maxSecondDerivative = secondDerivative;
+        }
+      }
 
       inline double stepSize(double y, double dy, double ddy) const
-      { return ( m_gaussStep ? (y * dy)/(dy * dy - y * ddy) : -dy/ddy ); }
+      {
+        return (m_gaussStep ? (y * dy) / (dy * dy - y * ddy) : -dy / ddy);
+      }
 
       bool m_gaussStep;
 
@@ -257,27 +270,35 @@ namespace Trk
       double m_maxRange = 0;
     };
 
-    
     //  Cuts set by configurable properties
     
     //  Maximum allowed d0 significance to use (in sigma)
-    Gaudi::Property<double> m_d0MaxSignificance { this, 
-                                                  "MaxD0Significance", 
-	                                          3.5, 
-                                                  "Maximum radial impact parameter significance to use track" };
+    Gaudi::Property<double> m_d0MaxSignificance{
+      this,
+      "MaxD0Significance",
+      3.5,
+      "Maximum radial impact parameter significance to use track"
+    };
 
-    // Tracks within this many sigma(z) are added to weight; increasing cut trades CPU efficiency for improved smoothness in tails
-    Gaudi::Property<double> m_z0MaxSignificance { this,
-	                                          "MaxZ0Significance",
-	                                          12.0,
-	                                          "Maximum longitudinal impact parameter significance to include track in weight"};
+    // Tracks within this many sigma(z) are added to weight; increasing cut
+    // trades CPU efficiency for improved smoothness in tails
+    Gaudi::Property<double> m_z0MaxSignificance{
+      this,
+      "MaxZ0Significance",
+      12.0,
+      "Maximum longitudinal impact parameter significance to include track in "
+      "weight"
+    };
 
-    // Assumed shape of density function near peak; Gaussian (true) or parabolic (false)
-    Gaudi::Property<bool> m_gaussStep           { this,
-	                                          "GaussianStep",
-	                                          true,
-	                                          "Peak search: True means assume Gaussian behavior, False means Newton/parabolic" };
-                            
+    // Assumed shape of density function near peak; Gaussian (true) or parabolic
+    // (false)
+    Gaudi::Property<bool> m_gaussStep{
+      this,
+      "GaussianStep",
+      true,
+      "Peak search: True means assume Gaussian behavior, False means "
+      "Newton/parabolic"
+    };
   };
 }
 #endif

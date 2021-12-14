@@ -26,7 +26,7 @@ namespace Trk
 
   static const InterfaceID IID_NewtonTrkDistanceFinder("NewtonTrkDistanceFinder", 1, 1);
   
-  class NewtonTrkDistanceFinder : public AthAlgTool
+  class NewtonTrkDistanceFinder final: public AthAlgTool
   {
   public:
 
@@ -47,7 +47,7 @@ namespace Trk
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     
-  const TwoPoints GetClosestPoints(const Perigee & a, const Perigee & b) const {
+    const TwoPoints GetClosestPoints(const Perigee & a, const Perigee & b) const {
     //with the constractur of PointOnTrackPar a track is constructed with, as seed, 
     //directly the point of closest approach (see for info PointOnTrack.h)
     return GetClosestPoints(PointOnTrack(a),PointOnTrack(b));

@@ -41,7 +41,7 @@ namespace Trk
 
 
 
-  class SeedNewtonTrkDistanceFinder : public extends<AthAlgTool, ITrkDistanceFinder>
+  class SeedNewtonTrkDistanceFinder final: public extends<AthAlgTool, ITrkDistanceFinder>
   {
   public:
     virtual StatusCode initialize() override;
@@ -56,15 +56,15 @@ namespace Trk
     /** method to do the calculation starting from two Perigees*/
     /** If successful, returns the points on the two tracks at minimum distance. */
     virtual std::optional<TwoPoints>
-    CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) const override;
+    CalculateMinimumDistance(const Trk::Perigee &, const Trk::Perigee &) const override final;
     
     /** method to do the calculation starting from two tracks */
     virtual std::optional<TwoPoints>
-    CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) const override;
+    CalculateMinimumDistance(const  Trk::Track &, const Trk::Track &) const override final;
 
     /** method to do the calculation starting from two track particles */
     virtual std::optional<TwoPoints>
-    CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &) const override;
+    CalculateMinimumDistance(const  Trk::TrackParticleBase &, const Trk::TrackParticleBase &) const override final;
     
         
   private:

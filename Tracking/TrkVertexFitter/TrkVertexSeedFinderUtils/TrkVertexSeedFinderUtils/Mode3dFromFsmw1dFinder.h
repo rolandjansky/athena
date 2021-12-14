@@ -28,7 +28,7 @@ namespace Trk
    In each one dimension, FractionalSampleModeWeighted is tried. 
   **/
 
-  class Mode3dFromFsmw1dFinder : public extends<AthAlgTool, IMode3dFinder>
+  class Mode3dFromFsmw1dFinder final : public extends<AthAlgTool, IMode3dFinder>
   {
   public:
     // Standard Athena constructor.
@@ -47,7 +47,7 @@ namespace Trk
     virtual Amg::Vector3D
     getMode (const double vx,
              const double vy,
-             const std::vector<Trk::PositionAndWeight>& points) const override;
+             const std::vector<Trk::PositionAndWeight>& points) const override final;
 
 
     /**
@@ -64,7 +64,7 @@ namespace Trk
     getMode (const double vx,
              const double vy,
              const std::vector<Trk::PositionAndWeight>& points,
-             std::unique_ptr<IMode3dInfo>& info) const override;
+             std::unique_ptr<IMode3dInfo>& info) const override final;
 
 
     /**
@@ -77,7 +77,7 @@ namespace Trk
     virtual Amg::Vector3D
     getMode (const double vx,
              const double vy,
-             const std::vector<Amg::Vector3D>& points) const override;
+             const std::vector<Amg::Vector3D>& points) const override final;
       
 
     /**
@@ -94,7 +94,7 @@ namespace Trk
     getMode (const double vx,
              const double vy,
              const std::vector<Amg::Vector3D>& points,
-             std::unique_ptr<IMode3dInfo>& info) const override;
+             std::unique_ptr<IMode3dInfo>& info) const override final;
 
 
 
@@ -185,13 +185,13 @@ namespace Trk
     double  m_minXYbeam ;
     bool m_broaden ;
 
-    class Mode3dFromFsmw1dInfo : public IMode3dInfo
+    class Mode3dFromFsmw1dInfo final: public IMode3dInfo
     {
     public:
       // Passing some middle result to outside world, useless unless to monitor the tool
       virtual unsigned int
       Modes1d(std::vector<float> &, std::vector<float> &, 
-              std::vector<float> &, std::vector<float> &) const override;
+              std::vector<float> &, std::vector<float> &) const override final;
 
       
       virtual const std::vector<int>&
@@ -204,11 +204,11 @@ namespace Trk
 
       virtual int
       perigeesAtSeed (std::vector<const Trk::TrackParameters*>& perigees , 
-                      const std::vector<const Trk::TrackParameters*> & perigeeList) const override;
+                      const std::vector<const Trk::TrackParameters*> & perigeeList) const override final;
 
 
       virtual void
-      setTrkidx (std::vector< std::pair <int, int> >&& trkidx) override;
+      setTrkidx (std::vector< std::pair <int, int> >&& trkidx) override final;
 
 
       void pushIndex (int idx);

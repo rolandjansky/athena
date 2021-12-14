@@ -32,7 +32,7 @@ namespace Trk
   //                         from Trk::RecVertex   to xAOD::Vertex,
   //                         from Trk::Vertex      to Amg::Vector3D
 
-  class MCTrueSeedFinder : public extends<AthAlgTool, IVertexSeedFinder>
+  class MCTrueSeedFinder final: public extends<AthAlgTool, IVertexSeedFinder>
   {
   public:
     // Standard Gaudi constructor.
@@ -57,7 +57,7 @@ namespace Trk
      */
     virtual Amg::Vector3D
     findSeed (const std::vector<const Trk::Track*> & vectorTrk,
-              const xAOD::Vertex * constraint=0) const override;
+              const xAOD::Vertex * constraint=0) const override final;
     
 
     /** 
@@ -67,7 +67,7 @@ namespace Trk
      */
     virtual Amg::Vector3D
     findSeed (const std::vector<const Trk::TrackParameters*> & perigeeList,
-              const xAOD::Vertex * constraint=0) const override;
+              const xAOD::Vertex * constraint=0) const override final;
 
 
     /**
@@ -77,7 +77,7 @@ namespace Trk
      */
     virtual std::vector<Amg::Vector3D>
     findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,
-                   const xAOD::Vertex * constraint=0) const override;
+                   const xAOD::Vertex * constraint=0) const override final;
 
 
     /**
@@ -88,11 +88,16 @@ namespace Trk
      */
     virtual std::vector<Amg::Vector3D>
     findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,
-                   const xAOD::Vertex * constraint=0) const override;
+                   const xAOD::Vertex * constraint=0) const override final;
 
 
   private:
-    SG::ReadHandleKey<McEventCollection> m_mcEventCollectionKey { this, "McTruthCollection", "G4Truth", "MC Event Collection Name" };
+    SG::ReadHandleKey<McEventCollection> m_mcEventCollectionKey{
+      this,
+      "McTruthCollection",
+      "G4Truth",
+      "MC Event Collection Name"
+    };
 
     /// Get particle properties
     ServiceHandle< IPartPropSvc > m_partPropSvc;

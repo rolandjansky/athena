@@ -26,7 +26,7 @@ namespace Trk
   // 
   // -------------------------------------------
 
-  class TrackDensitySeedFinder : public extends<AthAlgTool, IVertexAnalyticSeedFinder>
+  class TrackDensitySeedFinder final: public extends<AthAlgTool, IVertexAnalyticSeedFinder>
   {
   public:
     // Standard Gaudi constructor.
@@ -51,7 +51,7 @@ namespace Trk
      */
     virtual Amg::Vector3D
     findSeed (const std::vector<const Trk::Track*> & vectorTrk,
-              const xAOD::Vertex * constraint=0) const override;
+              const xAOD::Vertex * constraint=0) const override final;
     
 
     /** 
@@ -61,11 +61,11 @@ namespace Trk
      */
     virtual Amg::Vector3D
     findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,
-             const xAOD::Vertex * constraint=0) const override;
+             const xAOD::Vertex * constraint=0) const override final;
 
-    virtual std::pair<Amg::Vector3D,Amg::MatrixX>  findAnalyticSeed (const std::vector<const Trk::TrackParameters*>& perigeeList,
-    														   const xAOD::Vertex * constraint=0) const override;
-
+    virtual std::pair<Amg::Vector3D, Amg::MatrixX> findAnalyticSeed(
+      const std::vector<const Trk::TrackParameters*>& perigeeList,
+      const xAOD::Vertex* constraint = 0) const override final;
 
     /**
      * Finds full vector of linearization points from a vector of tracks
@@ -74,7 +74,7 @@ namespace Trk
      */
     virtual std::vector<Amg::Vector3D>
     findMultiSeeds (const std::vector<const Trk::Track*>& vectorTrk,
-                    const xAOD::Vertex * constraint=0) const override;
+                    const xAOD::Vertex * constraint=0) const override final;
 
 
     /**
@@ -85,15 +85,16 @@ namespace Trk
      */
     virtual std::vector<Amg::Vector3D>
     findMultiSeeds (const std::vector<const Trk::TrackParameters*>& perigeeList,
-                    const xAOD::Vertex * constraint=0) const override;
+                    const xAOD::Vertex * constraint=0) const override final;
 
 
   private:
-    ToolHandle< IVertexTrackDensityEstimator > m_densityEstimator { this, 
-	                                                            "DensityEstimator", 
-	                                                            "Trk::GaussianTrackDensity",
-                                                                    "Track density tool" } ;
-
+    ToolHandle<IVertexTrackDensityEstimator> m_densityEstimator{
+      this,
+      "DensityEstimator",
+      "Trk::GaussianTrackDensity",
+      "Track density tool"
+    };
   };
 }
 #endif

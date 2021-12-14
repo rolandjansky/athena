@@ -9,11 +9,12 @@
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
+#include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
+
 namespace Trk
 {
   class Track;
-  class IMode3dFinder;
-  class ITrkDistanceFinder;
 
   // @author N. Giacinto Piacquadio (Albert-Ludwigs-Universitaet Freiburg - Germany)
   //
@@ -38,7 +39,7 @@ namespace Trk
   //                         from Trk::Vertex      to Amg::Vector3D
 
 
-  class CrossDistancesSeedFinder : public extends<AthAlgTool, IVertexSeedFinder>
+  class CrossDistancesSeedFinder final: public extends<AthAlgTool, IVertexSeedFinder>
   {
   public:
     // Standard Gaudi constructor.
@@ -61,7 +62,7 @@ namespace Trk
      */
     virtual Amg::Vector3D
     findSeed (const std::vector<const Trk::Track*> & vectorTrk,
-              const xAOD::Vertex * constraint=0) const override;
+              const xAOD::Vertex * constraint=0) const override final;
     
 
     /** 
@@ -71,7 +72,7 @@ namespace Trk
      */
     virtual Amg::Vector3D
     findSeed (const std::vector<const Trk::TrackParameters*> & perigeeList,
-              const xAOD::Vertex * constraint=0) const override;
+              const xAOD::Vertex * constraint=0) const override final;
         
 
     /**
@@ -81,7 +82,7 @@ namespace Trk
      */
     virtual std::vector<Amg::Vector3D>
     findMultiSeeds (const std::vector<const Trk::Track*>& vectorTrk,
-                    const xAOD::Vertex * constraint=0) const override;
+                    const xAOD::Vertex * constraint=0) const override final;
 
 
     /**
@@ -92,7 +93,7 @@ namespace Trk
      */
     virtual std::vector<Amg::Vector3D>
     findMultiSeeds (const std::vector<const Trk::TrackParameters*>& perigeeList,
-                    const xAOD::Vertex * constraint=0) const override;
+                    const xAOD::Vertex * constraint=0) const override final;
 
 
   private:
@@ -102,11 +103,17 @@ namespace Trk
     int m_trackdistexppower;
     float m_constraintcutoff;
     float m_constrainttemp;
-    ToolHandle<IMode3dFinder> m_mode3dfinder;
-    ToolHandle<ITrkDistanceFinder> m_distancefinder;
     unsigned int m_maximumTracksNoCut;
     double m_maximumDistanceCut;
 
+    ToolHandle<IMode3dFinder> m_mode3dfinder{ this,
+                                              "Mode3dFinder",
+                                              "Trk::Mode3dTo1dFinder" };
+    ToolHandle<ITrkDistanceFinder> m_distancefinder{
+      this,
+      "TrkDistanceFinder",
+      "Trk::SeedNewtonTrkDistanceFinder"
+    };
   };
 }
 #endif

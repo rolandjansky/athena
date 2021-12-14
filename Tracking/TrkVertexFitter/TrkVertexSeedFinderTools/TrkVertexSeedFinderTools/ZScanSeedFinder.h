@@ -11,6 +11,11 @@
 #include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/SlotSpecificObj.h"
+
+#include "TrkVertexSeedFinderUtils/IMode1dFinder.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
+
+
 #include "CxxUtils/checker_macros.h"
 
 #include <unordered_map>
@@ -19,8 +24,6 @@ namespace Trk
 {
 
   class Track;
-  class IMode1dFinder;
-  class ITrackToVertexIPEstimator;
 
   // @author N. Giacinto Piacquadio (Albert-Ludwigs-Universitaet Freiburg - Germany)
   //
@@ -40,7 +43,7 @@ namespace Trk
   //                         from Trk::Vertex      to Amg::Vector3D
 
 
-  class ZScanSeedFinder : public extends<AthAlgTool, IVertexSeedFinder>
+  class ZScanSeedFinder final: public extends<AthAlgTool, IVertexSeedFinder>
   {
   public:
     // Standard Gaudi constructor.
@@ -65,7 +68,7 @@ namespace Trk
      */
     virtual Amg::Vector3D
     findSeed (const std::vector<const Trk::Track*> & vectorTrk,
-              const xAOD::Vertex * constraint=0) const override;
+              const xAOD::Vertex * constraint=0) const override final;
     
 
     /** 
@@ -75,7 +78,7 @@ namespace Trk
      */
     virtual Amg::Vector3D
     findSeed (const std::vector<const Trk::TrackParameters*> & perigeeList,
-              const xAOD::Vertex * constraint=0) const override;
+              const xAOD::Vertex * constraint=0) const override final;
 
 
     /**
@@ -85,7 +88,7 @@ namespace Trk
      */
     virtual std::vector<Amg::Vector3D>
     findMultiSeeds (const std::vector<const Trk::Track*>& vectorTrk,
-                    const xAOD::Vertex * constraint=0) const override;
+                    const xAOD::Vertex * constraint=0) const override final;
 
 
     /**
@@ -96,7 +99,7 @@ namespace Trk
      */
     virtual std::vector<Amg::Vector3D>
     findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,
-                   const xAOD::Vertex * constraint=0) const override;
+                   const xAOD::Vertex * constraint=0) const override final; 
 
 
   private:
@@ -114,12 +117,22 @@ namespace Trk
     getPositionsCached (const std::vector<const Trk::TrackParameters*> & perigeeList,
                         const xAOD::Vertex * constraint) const;
 
-    
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfo", "EventInfo", "key for EventInfo retrieval" };
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{
+      this,
+      "EventInfo",
+      "EventInfo",
+      "key for EventInfo retrieval"
+    };
 
-    ToolHandle< IMode1dFinder > m_mode1dfinder;
+    ToolHandle<IMode1dFinder> m_mode1dfinder{ this,
+                                              "Mode1dFinder",
+                                              "Trk::FsmwMode1dFinder" };
 
-    ToolHandle< ITrackToVertexIPEstimator > m_IPEstimator;
+    ToolHandle<ITrackToVertexIPEstimator> m_IPEstimator{
+      this,
+      "IPEstimator",
+      "Trk::TrackToVertexIPEstimator"
+    };
 
     bool m_disableAllWeights;
     float m_constraintcutoff;
