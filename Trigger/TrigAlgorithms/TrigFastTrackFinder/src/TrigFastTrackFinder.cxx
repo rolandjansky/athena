@@ -1645,7 +1645,7 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    if( m_doHitDV_Seeding ) {
 
       // space-point based (unseeded mode)
-      ATH_CHECK( findSPSeeds(v_sp_eta, v_sp_phi, v_sp_layer, v_sp_usedTrkId, v_seeds_eta, v_seeds_phi) );
+      ATH_CHECK( findSPSeeds(ctx, v_sp_eta, v_sp_phi, v_sp_layer, v_sp_usedTrkId, v_seeds_eta, v_seeds_phi) );
       ATH_MSG_VERBOSE("Nr of SP seeds = " << v_seeds_eta.size());
 
       // add J1 J30 seeds
@@ -1742,7 +1742,8 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    return StatusCode::SUCCESS;
 }
 
-StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta, const std::vector<float>& v_sp_phi,
+StatusCode TrigFastTrackFinder::findSPSeeds( const EventContext& ctx,
+					     const std::vector<float>& v_sp_eta, const std::vector<float>& v_sp_phi,
 					     const std::vector<int>& v_sp_layer, const std::vector<int>& v_sp_usedTrkId,
 					     std::vector<float>& seeds_eta, std::vector<float>& seeds_phi ) const
 {
@@ -1757,17 +1758,20 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta,
    const float PHI_MIN   = -4.0; 
    const float PHI_MAX   =  4.0;
 
-   std::string hname;
+   char hname[64];
 
-   hname = "ly6_h2_nsp";
-   TH2F*    ly6_h2_nsp = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   hname = "ly7_h2_nsp";
-   TH2F*    ly7_h2_nsp = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   unsigned int slotnr    = ctx.slot();
+   unsigned int subSlotnr = ctx.subSlot();
 
-   hname = "ly6_h2_nsp_notrk";
-   TH2F*    ly6_h2_nsp_notrk = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
-   hname = "ly7_h2_nsp_notrk";
-   TH2F*    ly7_h2_nsp_notrk = new TH2F(hname.c_str(),hname.c_str(),NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   sprintf(hname,"ftf_s%i_ss%i_ly6_h2_nsp",slotnr,subSlotnr);
+   std::unique_ptr<TH2F> ly6_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   sprintf(hname,"ftf_s%i_ss%i_ly7_h2_nsp",slotnr,subSlotnr);
+   std::unique_ptr<TH2F> ly7_h2_nsp = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+
+   sprintf(hname,"ftf_s%i_ss%i_ly6_h2_nsp_notrk",slotnr,subSlotnr);
+   std::unique_ptr<TH2F> ly6_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
+   sprintf(hname,"ftf_s%i_ss%i_ly7_h2_nsp_notrk",slotnr,subSlotnr);
+   std::unique_ptr<TH2F> ly7_h2_nsp_notrk = std::make_unique<TH2F>(hname,hname,NBINS_ETA,ETA_MIN,ETA_MAX,NBINS_PHI,PHI_MIN,PHI_MAX);
 
    for(unsigned int iSeed=0; iSeed<v_sp_eta.size(); ++iSeed) {
 
@@ -1844,10 +1848,6 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const std::vector<float>& v_sp_eta,
 	 QT.push_back(std::make_tuple(-1,w,weta,wphi));
       }
    }
-   delete ly6_h2_nsp;
-   delete ly7_h2_nsp;
-   delete ly6_h2_nsp_notrk;
-   delete ly7_h2_nsp_notrk;
    ATH_MSG_VERBOSE("nr of ly6/ly7 doublet candidate seeds=" << QT.size() << ", doing clustering...");
 
    // sort
