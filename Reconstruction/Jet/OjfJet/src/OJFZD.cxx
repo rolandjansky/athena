@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: OJFZD.cxx,v 1.5 2008-02-15 14:31:34 seuster Exp $
@@ -162,7 +162,7 @@ namespace OptimalJetFinder {
   void Position::Validate() const {
     
     assert( dim <= len_z - 1 );
-    double s = 0;
+    double s [[maybe_unused]] = 0;
     double zj;  
     for( unsigned j = 0; j <= dim; j++ ) {
       zj = z[j];  assert(  zj >= eps_snap   ||   zj == 0  );
@@ -337,7 +337,7 @@ namespace OptimalJetFinder {
     
     assert(  z == 0   ||   dim == z->GetDim()  );
     
-    double s = 0;
+    double s [[maybe_unused]] = 0;
     for( unsigned j = 0; j <= dim; j++ ) {
       assert(  z->At(j) != 0   ||   d[j] >= 0  );
       s += d[j];
