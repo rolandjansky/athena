@@ -278,7 +278,7 @@ def run_command(command, stdin = None):
     """
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stdin=stdin)
     while True:
-        output = process.stdout.readline()
+        output = process.stdout.readline().decode("utf-8")
         if output == '' and process.poll() is not None:
             break
         if output:
