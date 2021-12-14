@@ -104,20 +104,18 @@ public:
 		       Amg::Vector3D* pt_ctb,
                        Amg::Vector3D* pt_local);
 
-
   /** The "do-it-all" method which combines the 3 steps */
-  bool TrackSeenByCalo (const Trk::Track* trk, 
-			const CaloCell_ID::CaloSample sample,
-			const double offset, 
-			Amg::Vector3D* pt_ctb,
-                        Amg::Vector3D* pt_local);
+  bool TrackSeenByCalo(const Trk::Track* trk,
+                       const CaloCell_ID::CaloSample sample,
+                       const double offset,
+                       Amg::Vector3D* pt_ctb,
+                       Amg::Vector3D* pt_local);
 
-  bool TrackSeenByCalo (const Trk::TrackParameters* parm, 
-			const CaloCell_ID::CaloSample sample,
-			const double offset, 
-			Amg::Vector3D* pt_ctb,
-                        Amg::Vector3D* pt_local);
-
+  bool TrackSeenByCalo(const Trk::TrackParameters* parm,
+                       const CaloCell_ID::CaloSample sample,
+                       const double offset,
+                       Amg::Vector3D* pt_ctb,
+                       Amg::Vector3D* pt_local);
 
   bool TrackSeenByCalo (const Trk::Track* trk, 
 			const bool barrel,

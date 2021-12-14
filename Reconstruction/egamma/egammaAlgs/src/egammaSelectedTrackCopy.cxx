@@ -163,7 +163,7 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
          check if it the track is selected due to this cluster.
          If not continue to next cluster
          */
-      if (!selectTrack(ctx, cluster, track, isTRT, calodetdescrmgr)) {
+      if (!selectTrack(ctx, cluster, track, isTRT, *calodetdescrmgr)) {
         continue;
       }
       viewCopy->push_back(track);
@@ -192,7 +192,7 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
                                      const xAOD::CaloCluster* cluster,
                                      const xAOD::TrackParticle* track,
                                      bool trkTRT,
-                                     const CaloDetDescrManager* caloDD) const
+                                     const CaloDetDescrManager& caloDD) const
 {
 
   if (cluster == nullptr || track == nullptr) {
