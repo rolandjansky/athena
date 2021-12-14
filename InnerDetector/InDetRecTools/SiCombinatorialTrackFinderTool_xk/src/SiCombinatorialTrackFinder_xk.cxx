@@ -847,7 +847,7 @@ Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToTrack(SiCombinatorial
 Trk::Track* InDet::SiCombinatorialTrackFinder_xk::convertToNextTrack(SiCombinatorialTrackFinderData_xk& data) 
 {
   auto tsos = data.trajectory().convertToNextTrackStateOnSurface();
-  if (tsos->empty()) return nullptr;
+  if (tsos.empty()) return nullptr;
   return new Trk::Track(data.trackinfo(),
                         std::move(tsos),
                         data.trajectory().convertToFitQuality());
