@@ -307,8 +307,9 @@ namespace xAOD {
     // check if track pointer matches the one of input or one of the exclusion set
     if(input.corrections.trackbitset.test(static_cast<unsigned int>(Iso::coreTrackPtr))){
       if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2) && (!m_coreTrackEtaRange || fabs(input.particle->eta()-tp2.eta())<m_coreTrackEtaRange))){
-	ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
-	result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
+        ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
+        result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
+        //result.coreCorrections[Iso::coreTrackPtr] = tp2.pt() > result.coreCorrections[Iso::coreTrackPtr] ? tp2.pt() : result.coreCorrections[Iso::coreTrackPtr];
 	return;
       }
     }
@@ -328,6 +329,7 @@ namespace xAOD {
     if(input.corrections.trackbitset.test(static_cast<unsigned int>(Iso::coreTrackCone))
        && dr2 < m_overlapCone2 ) {
       result.coreCorrections[Iso::coreTrackCone] += tp2.pt();
+      //result.coreCorrections[Iso::coreTrackCone] = tp2.pt() > result.coreCorrections[Iso::coreTrackCone] ? tp2.pt() : result.coreCorrections[Iso::coreTrackCone];
       return;
     }
       
@@ -335,8 +337,10 @@ namespace xAOD {
     for( unsigned int k=0;k<input.coneSizesSquared.size();++k ){
       if( dr2 >= input.coneSizesSquared[k] ) return; 
       result.ptcones[k] += tp2.pt();
+      //result.ptcones[k] = tp2.pt() > result.ptcones[k] ? tp2.pt() : result.ptcones[k];
       if( dr2 <= input.ptvarconeRadiusSquared ){
         result.ptvarcones_10GeVDivPt[k] += tp2.pt();
+        //result.ptvarcones_10GeVDivPt[k] = tp2.pt() > result.ptvarcones_10GeVDivPt[k] ? tp2.pt() : result.ptvarcones_10GeVDivPt[k];
       }
     }      
   }  

@@ -1,5 +1,13 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
+from SUSYCommonTriggerList import SingleLepton_2018,SingleLepton_2017,SingleLepton_2016,SingleLepton_2015
+from SUSYCommonTriggerList import SinglePhoton_2018,SinglePhoton_2017,SinglePhoton_2016,SinglePhoton_2015
+
+SingleLeptonTriggers = SingleLepton_2018 + SingleLepton_2017 + SingleLepton_2016 + SingleLepton_2015
+triggersElectron = [t for t in SingleLeptonTriggers if 'HLT_e' in t]
+triggersPhoton = SinglePhoton_2018 + SinglePhoton_2017 + SinglePhoton_2016 + SinglePhoton_2015
+
+
 from SUSYCommonTriggerList import MET_2018,MET_2017,MET_2016,MET_2015
 
 # start with common list for MET triggers
@@ -100,4 +108,4 @@ triggersJetPlusMet = [
 
 
 
-triggersNavThin=triggersMET+triggersSoftMuon+triggersJetPlusMet+triggersSoftMuonEmulation
+triggersNavThin=triggersMET+triggersSoftMuon+triggersJetPlusMet+triggersSoftMuonEmulation+triggersElectron+triggersPhoton
