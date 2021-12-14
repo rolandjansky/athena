@@ -32,16 +32,22 @@ atlas_add_test( ITkTrackRecoConfig_test
     SCRIPT python -m InDetConfig.ITkTrackRecoConfig --norun
     POST_EXEC_SCRIPT nopost.sh)
 
-atlas_add_test( VertexFindingConfig_test
-    SCRIPT python -m InDetConfig.VertexFindingConfig 
+atlas_add_test( VertexFindingConfigGaussAgaptive_test
+    SCRIPT python -m InDetConfig.VertexFindingConfig  GaussAdaptiveMultiFinding
     POST_EXEC_SCRIPT nopost.sh)
 
-atlas_add_test( VertexFindingConfigActs_test
+atlas_add_test( VertexFindingConfigActsGaussAgaptive_test
     SCRIPT python -m InDetConfig.VertexFindingConfig ActsGaussAdaptiveMultiFinding
     POST_EXEC_SCRIPT nopost.sh)
+
+    atlas_add_test( VertexFindingConfigAdaptive_test
+    SCRIPT python -m InDetConfig.VertexFindingConfig AdaptiveMultiFinding
+    POST_EXEC_SCRIPT nopost.sh) 
 
 atlas_add_test( VertexFindingConfigIterative_test
     SCRIPT python -m InDetConfig.VertexFindingConfig IterativeFinding
     POST_EXEC_SCRIPT nopost.sh)
 
-    
+atlas_add_test( VertexFindingConfigGaussIterative_test
+    SCRIPT python -m InDetConfig.VertexFindingConfig GaussIterativeFinding
+    POST_EXEC_SCRIPT nopost.sh)
