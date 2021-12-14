@@ -820,6 +820,10 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
    bool hasTTreeName = (contName.length() > 6 && contName.compare(0, 6, "TTree=") == 0);
    if (contName.empty() || hasTTreeName || m_persistencySvcVec[contextId]->session().defaultConnectionPolicy().writeModeForNonExisting() == pool::DatabaseConnectionPolicy::RAISE_ERROR) {
       objName = hasTTreeName ? contName.substr(6) : contName;
+      if (!objName.empty() && getContainerHandle(dbH.get(), contName) == nullptr) {
+         ATH_MSG_DEBUG("Failed to get ContainerHandle to set POOL property.");
+         return(StatusCode::FAILURE);
+      }
       if (data[data.size() - 1] == 'L') {
          retError = dbH->technologySpecificAttributes().setAttribute<long long int>(optName, atoll(data.c_str()), objName);
       } else {
