@@ -76,6 +76,7 @@ namespace Analysis {
     ATH_CHECK( m_VertexCollectionName.initialize() );
     ATH_CHECK( m_jetSVLinkName.initialize() );
     ATH_CHECK( m_jetJFVtxLinkName.initialize() );
+    ATH_CHECK( m_jetJFFlipVtxLinkName.initialize() );
     ATH_CHECK( m_VxSecVertexInfoNames.initialize() );
 
     /* ----------------------------------------------------------------------------------- */
@@ -207,7 +208,8 @@ namespace Analysis {
 					       const xAOD::TrackParticleContainer* theTrackParticleContainer,
 					       std::string basename) const {
 
-    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetJFVtxLinkName (m_jetJFVtxLinkName);
+    //THIS is a nasty hack from VD but by it's more likely we get GNN to work than someone to re-organise JetFitter
+    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetJFVtxLinkName ( basename.find("Flip")!=std::string::npos ? m_jetJFFlipVtxLinkName : m_jetJFVtxLinkName);
     std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVerticesLinks;
 
     //twotrackVerticesInJet
@@ -216,7 +218,7 @@ namespace Analysis {
       const Trk::TwoTrackVerticesInJet* TwoTrkVtxInJet = myVertexInfoJetFitter->getTwoTrackVerticesInJet();
       vecTwoTrkVtx = TwoTrkVtxInJet->getTwoTrackVertice();
       if (!h_jetJFVtxLinkName.isAvailable()) {
-        ATH_MSG_ERROR( " cannot retrieve vertex container EL decoration with key " << m_jetJFVtxLinkName.key()  );
+        ATH_MSG_ERROR( " cannot retrieve vertex container EL decoration with key " << ( (basename.find("Flip")!=std::string::npos) ? m_jetJFFlipVtxLinkName : m_jetJFVtxLinkName).key()  );
         return StatusCode::FAILURE;
       }
       JFVerticesLinks = h_jetJFVtxLinkName(myJet);

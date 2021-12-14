@@ -63,6 +63,7 @@ namespace Analysis
          SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
          Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer>> m_jetSVLinkName{ this, "JetSecVtxLinkName", "", "Element Link vector form jet to SV container"};
          Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer>> m_jetJFVtxLinkName{ this, "JetJFVtxLinkName", "", "Element Link vector form jet to JF vertex"};
+	 Gaudi::Property<SG::ReadDecorHandleKey<xAOD::JetContainer>> m_jetJFFlipVtxLinkName{ this, "JetJFFlipVtxLinkName", "AntiKt4EMPFlowJets.JFVtxFlip", "Element Link vector form jet to JF vertexFlip"};
          SG::ReadHandleKeyArray<Trk::VxSecVertexInfoContainer> m_VxSecVertexInfoNames {this, "BTagVxSecVertexInfoNames", {""}, "Input VxSecVertexInfo containers"};
 
   }; // End class

@@ -5,8 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 #from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-Analysis__BTagLightSecVertexing=CompFactory.Analysis.BTagLightSecVertexing
-
+#Analysis__BTagLightSecVertexing=CompFactory.Analysis.BTagLightSecVertexing
 
 def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionName="", SecVertexers = [], TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.
@@ -53,8 +52,8 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionNa
     #options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = Name+TimeStamp
 
-    tool = Analysis__BTagLightSecVertexing(**options)
-
+    tool = CompFactory.Analysis.BTagLightSecVertexing(**options)
+    
     acc.setPrivateTools(tool)
 
     return acc
