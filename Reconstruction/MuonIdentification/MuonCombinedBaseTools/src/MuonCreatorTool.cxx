@@ -1119,10 +1119,7 @@ namespace MuonCombined {
         
         std::unique_ptr<const TrackCollection> resolvedTracks;
         std::vector<std::unique_ptr<Trk::Track>> garbage_collection;
-            
-        std::set<size_t> alreadyIncluded;
-        std::hash<const Trk::Track*> trackHash;
-       
+             
        
         /// Find all InDetCandidate -- Combined tag combinations
         /// Be aware that different InDetCandidateMaps could have different
@@ -1189,12 +1186,7 @@ namespace MuonCombined {
                 const TagBase* primaryTag = candidate.second[0];
              
                 // check if a track is available
-                if (primaryTag->primaryTrack()) {
-                    if (alreadyIncluded.count(trackHash(primaryTag->primaryTrack()))) {
-                        ATH_MSG_DEBUG("Duplicated ID candidate " << candidate.first->toString());
-                        continue;
-                    }
-                    alreadyIncluded.insert(trackHash(primaryTag->primaryTrack()));
+                if (primaryTag->primaryTrack()) {                    
                     /// Add the track for the ambiguity reprocessing
                     to_resolve.push_back(primaryTag->primaryTrack());
                     // create a track summary for this track
@@ -1247,9 +1239,7 @@ namespace MuonCombined {
             // add muons only found by calo tagger
             resolvedInDetCandidates.insert(resolvedInDetCandidates.end(), 
                                            caloMuons.begin(), 
-                                            caloMuons.end()); 
-        
-        
+                                           caloMuons.end()); 
         }
 
         
@@ -1267,6 +1257,17 @@ namespace MuonCombined {
 
         ConstDataVector<TrackCollection> resolvedTracks2{SG::VIEW_ELEMENTS};
         if (resolvedTracks) { resolvedTracks2.assign(resolvedTracks->begin(), resolvedTracks->end()); }
+        // Keep track of the MuonCandidates used by MuidCo
+        std::set<const MuonCandidate*> used_candidates;
+        for (const InDetCandidateTags& indet_cand : resolvedInDetCandidates) {
+            for (const TagBase* tag : indet_cand.second) {
+                /// In principle we can include here STACO as well but that is lower ranked as MuidSA 
+                if (tag->author() == xAOD::Muon::MuidCo) {
+                    const CombinedFitTag* cmb_tag  = dynamic_cast<const CombinedFitTag*>(tag);
+                    used_candidates.insert(&cmb_tag->muonCandidate());
+                }
+            }
+        }
 
         // add MS tracks to resolvedTrack collection and store a link between tracks
         // and muon candidates
@@ -1275,11 +1276,11 @@ namespace MuonCombined {
             if (candidate->isComissioning() != select_comissioning) continue;
             const Trk::Track* track =
                 candidate->extrapolatedTrack() ? candidate->extrapolatedTrack() : &candidate->muonSpectrometerTrack();
-            if (alreadyIncluded.count(trackHash(track))) {
+            if (used_candidates.count(candidate)) {
                 ATH_MSG_DEBUG("Duplicate MS track " << m_printer->print(*track));
                 continue;
             }
-            alreadyIncluded.insert(trackHash(track));
+            used_candidates.insert(candidate);
             resolvedTracks2.push_back(track);  // VIEW_ELEMENTS, pointer only
             trackMuonCandLinks[track] = candidate;
         }
