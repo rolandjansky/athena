@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 @AccumulatorCache
-def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
+def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
     # Based on AtlasTrackSummaryTool.py
     # FIXME - check all of this once the ID configuration is available, because probably we can simplify this a lot
 
@@ -39,7 +39,7 @@ def AtlasTrackSummaryToolCfg(flags, name="", **kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
     muon_track_summary_helper_tool = result.getPrimaryAndMerge(MuonTrackSummaryHelperToolCfg(flags))
 
-    track_summary_tool = CompFactory.Trk.TrackSummaryTool(name="CombinedMuonTrackSummary",
+    track_summary_tool = CompFactory.Trk.TrackSummaryTool(name=name,
                                                           doSharedHits=False,
                                                           doHolesInDet=True,
                                                           doHolesMuon=False,

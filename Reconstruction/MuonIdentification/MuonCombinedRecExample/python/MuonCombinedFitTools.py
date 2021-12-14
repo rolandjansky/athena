@@ -87,8 +87,8 @@ def MuidTrackCleaner( name='MuidTrackCleaner', **kwargs ):
         kwargs.setdefault("Iterate", False)
         kwargs.setdefault("RecoverOutliers", False)
 
-    kwargs.setdefault("Fitter"      , getPublicTool("iPatFitter") )
-    kwargs.setdefault("SLFitter"    , getPublicTool("iPatSLFitter") )
+    kwargs.setdefault("Fitter"      , getPrivateTool("iPatFitter") )
+    kwargs.setdefault("SLFitter"    , getPrivateTool("iPatSLFitter") )
     return CfgMgr.Muon__MuonTrackCleaner(name,**kwargs)
 
     
@@ -318,15 +318,15 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         kwargs.setdefault("TrackSummaryTool"              , ToolSvc.CombinedMuonTrackSummary )
-        kwargs.setdefault("Propagator"                    , getPublicTool("MuonCombinedPropagator") )
-        kwargs.setdefault("SLPropagator"                  , getPublicTool("MuonCombinedPropagator") )
-        kwargs.setdefault("Fitter"                        , getPublicTool("iPatFitter") )
-        kwargs.setdefault("SLFitter"                      , getPublicTool("iPatSLFitter") )
-        kwargs.setdefault("CscRotCreator"                 , getPublicTool("CscClusterOnTrackCreator") if reco_cscs else "")
-        kwargs.setdefault("MMRotCreator"                  , getPublicTool("MMClusterOnTrackCreator") if reco_mircomegas else "" )
+        kwargs.setdefault("Propagator"                    , getPrivateTool("MuonCombinedPropagator") )
+        kwargs.setdefault("SLPropagator"                  , getPrivateTool("MuonCombinedPropagator") )
+        kwargs.setdefault("Fitter"                        , getPrivateTool("iPatFitter") )
+        kwargs.setdefault("SLFitter"                      , getPrivateTool("iPatSLFitter") )
+        kwargs.setdefault("CscRotCreator"                 , getPrivateTool("CscClusterOnTrackCreator") if reco_cscs else "")
+        kwargs.setdefault("MMRotCreator"                  , getPrivateTool("MMClusterOnTrackCreator") if reco_mircomegas else "" )
         kwargs.setdefault("Cleaner"                       , getPrivateTool("MuidTrackCleaner") )
-        kwargs.setdefault("MuonErrorOptimizer"            , getPublicTool('MuidErrorOptimisationTool'))
-        kwargs.setdefault("MuonHoleRecovery"              , getPublicTool("MuonChamberHoleRecoveryTool") ) 
+        kwargs.setdefault("MuonErrorOptimizer"            , getPrivateTool('MuidErrorOptimisationTool'))
+        kwargs.setdefault("MuonHoleRecovery"              , getPrivateTool("MuonChamberHoleRecoveryTool") ) 
 
 
     if beamFlags.beamType() == 'cosmics':

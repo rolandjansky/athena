@@ -103,6 +103,14 @@ def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs ):
     result.addEventAlgo( alg, primary=True )
     return result
 
+def MuGirlAlg_LRTCfg(flags, name="MuGirlAlg_LRT",**kwargs):
+    kwargs.setdefault("TagMap","MuGirlMap_LRT")
+    kwargs.setdefault("METrackCollection","MuGirlMETracks_LRT")
+    kwargs.setdefault("SegmentCollection","MuGirlSegments_LRT")
+    kwargs.setdefault("CombinedTrackCollection","MuGirlCombinedMuonContainerLRT")
+    kwargs.setdefault("InDetCandidateLocation","TrackParticleCandidateLRT")
+    return MuonInsideOutRecoAlgCfg(flags, name, **kwargs)
+
 def MuGirlStauAlgCfg(flags, name="MuGirlStauAlg",**kwargs):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonStauRecoToolCfg
     result = MuonStauRecoToolCfg(flags)
@@ -302,9 +310,7 @@ def MuonCombinedReconstructionCfg(flags):
     result.merge( MuonCombinedInDetCandidateAlgCfg(flags) )
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
     
-
-    doLRT = False # FIXME, once this is in InDetFlags
-    if (doLRT):
+    if (flags.InDet.doR3LargeD0):
         result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doStatisticalCombination or flags.MuonCombined.doCombinedFit:
@@ -317,6 +323,8 @@ def MuonCombinedReconstructionCfg(flags):
         result.merge(MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg") ) 
         if flags.MuonCombined.doMuGirlLowBeta:
             result.merge(MuGirlStauAlgCfg)
+        if flags.InDet.doR3LargeD0: 
+            result.merge( MuGirlAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doCaloTrkMuId:
         result.merge( MuonCaloTagAlgCfg(flags) )
@@ -332,6 +340,8 @@ def MuonCombinedReconstructionCfg(flags):
         # Has to be at end if not using sequencer. If we drop this requirement, can be moved above
         result.merge( StauCreatorAlgCfg(flags) )
 
+    # post processing
+    result.addEventAlgo( CompFactory.ClusterMatching.CaloClusterMatchLinkAlg("MuonTCLinks",ClustersToDecorate="MuonClusterCollection") )
     return result
 
 if __name__=="__main__":
@@ -361,13 +371,14 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometrySCT   = True 
     ConfigFlags.Detector.GeometryTRT   = True  
     ConfigFlags.Output.ESDFileName=args.output
-
+    ConfigFlags.InDet.doR3LargeD0 = False # Not working with this input
     if args.debug:
         from AthenaCommon.Debugging import DbgStage
         if args.debug not in DbgStage.allowed_values:
             raise ValueError("Unknown debug stage, allowed values {}".format
                              (DbgStage.allowed_values))
         ConfigFlags.Exec.DebugStage = args.debug
+
 
     ConfigFlags.lock()
 
