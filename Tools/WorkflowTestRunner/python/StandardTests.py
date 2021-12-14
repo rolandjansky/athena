@@ -22,8 +22,15 @@ class QTest(WorkflowTest):
         if "input" not in extra_args and type == WorkflowType.MCPileUpReco:
             extra_args += f" --inputHITSFile {input_HITS[run]} --inputRDO_BKGFile ../run_d*/myRDO.pool.root"
 
+        threads = 1
+        threads_argument = '--multithreaded'
+        if setup.custom_threads is not None:
+            threads = setup.custom_threads
+            if threads <= 0:
+                threads_argument = ''
+
         self.command = \
-            (f"ATHENA_CORE_NUMBER=1 Reco_tf.py --multithreaded --AMIConfig {ID}"
+            (f"ATHENA_CORE_NUMBER={threads} Reco_tf.py {threads_argument} --AMIConfig {ID}"
              f" --imf False {extra_args}")
 
         self.output_checks = []
