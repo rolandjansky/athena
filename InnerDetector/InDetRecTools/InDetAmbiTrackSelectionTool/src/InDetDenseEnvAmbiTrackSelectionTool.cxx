@@ -25,7 +25,6 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 
@@ -1487,12 +1486,12 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
     return nullptr;
   }
 
-  auto vecTsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  vecTsos->reserve (tsos.size());
+  auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
 
   // loop over TSOS, copy TSOS and push into vector
   for (const Trk::TrackStateOnSurface* iTsos : tsos) {
-    vecTsos->push_back(vecTsos->allocate(*iTsos));
+    const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(*iTsos);
+    vecTsos.push_back(newTsos);
   }
 
   Trk::TrackInfo info;
@@ -1501,7 +1500,6 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
   newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
   info.addPatternReco(newInfo);
 
-  vecTsos->elt_allocator().protect();
   Trk::Track* newTrack = new Trk::Track(info, std::move(vecTsos),nullptr);
   
   return newTrack;

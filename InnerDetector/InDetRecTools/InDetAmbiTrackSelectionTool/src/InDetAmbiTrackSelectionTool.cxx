@@ -20,7 +20,6 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 #include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
@@ -555,12 +554,12 @@ Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std::vecto
     return nullptr;
   }
 
-  auto vecTsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  vecTsos->reserve (tsos.size());
+  auto vecTsos = DataVector<const Trk::TrackStateOnSurface>();
 
   // loop over TSOS, copy TSOS and push into vector
   for (const Trk::TrackStateOnSurface* tsosIt : tsos) {
-    vecTsos->push_back(vecTsos->allocate(*tsosIt));
+    const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(*tsosIt);
+    vecTsos.push_back(newTsos);
   }
 
   Trk::TrackInfo info;
@@ -569,7 +568,6 @@ Trk::Track* InDet::InDetAmbiTrackSelectionTool::createSubTrack( const std::vecto
   newInfo.setPatternRecognitionInfo(Trk::TrackInfo::InDetAmbiTrackSelectionTool);
   info.addPatternReco(newInfo);
 
-  vecTsos->elt_allocator().protect();
   Trk::Track* newTrack = new Trk::Track(info, std::move(vecTsos),nullptr);
   
   return newTrack;
