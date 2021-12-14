@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCHitPattern_hh
@@ -9,8 +9,7 @@
 namespace LVL1TGCTrigger {
 
 class TGCHitPattern {
-
-public:
+ public:
   TGCHitPattern();
   TGCHitPattern(int len);
   ~TGCHitPattern();
@@ -28,7 +27,6 @@ public:
   void clear();
   void print(int unit) const; // print bit pattern separated by underscore.
   void print() const;
-  bool isEmpty() const;
   bool getChannel(int iChannel) const;
 
   // new method for hit visualization (KH 19/01/01) 
@@ -39,27 +37,12 @@ public:
 
   void printb() const;
   void printb(std::ofstream* ofs) const;
-  void printb(std::ofstream* ofs, int lengthIn) const;
-  void printb3(std::ofstream* ofs) const;
-  void printb012(std::ofstream* ofs) const;
-  void printb123(std::ofstream* ofs) const;
-  void insert(int pos, bool v);
   void dec2bin(int dec);
-  void dec2binInv(int dec);
-  void resize(int size);
   void push_back(TGCHitPattern* hp);
-  void replace(int pos, TGCHitPattern* hp);
-  void del(int pos);
-  void write(char* buf) const;
-  const bool* getPatad(void) const;
-  void reverse(int pos);
-  const char* bool2char(void);
 
-private:
+ private:
   bool* m_pattern; // this array is created when the length is specified
   int m_length;
-
-  char* m_cPattern;
 };
 
 inline
@@ -72,16 +55,12 @@ inline
 void TGCHitPattern::onChannel(int iChannel)
 {
   m_pattern[iChannel] = true;
-  if(m_cPattern){delete [] m_cPattern;}
-  m_cPattern = 0;
 }
 
 inline
 void TGCHitPattern::offChannel(int iChannel)
 {
   m_pattern[iChannel] = false;
-  if(m_cPattern){delete [] m_cPattern;}
-  m_cPattern = 0;
 }
 
 
