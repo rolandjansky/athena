@@ -80,7 +80,7 @@ EMTrackMatchBuilder::executeRec(const EventContext& ctx,
   // Loop over calling the trackExecute method
   for (egammaRec* eg : *egammas) {
     // retrieve the cluster
-    ATH_CHECK(trackExecute(ctx, eg, trackPC.cptr(), caloDD));
+    ATH_CHECK(trackExecute(ctx, eg, trackPC.cptr(), *caloDD));
   }
   return StatusCode::SUCCESS;
 }
@@ -89,7 +89,7 @@ StatusCode
 EMTrackMatchBuilder::trackExecute(const EventContext& ctx,
                                   egammaRec* eg,
                                   const xAOD::TrackParticleContainer* trackPC,
-                                  const CaloDetDescrManager* caloDD) const
+                                  const CaloDetDescrManager& caloDD) const
 {
   if (!eg || !trackPC) {
     ATH_MSG_WARNING(
@@ -158,7 +158,7 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
                                    const xAOD::CaloCluster& cluster,
                                    int trackNumber,
                                    const xAOD::TrackParticle& trkPB,
-                                   const CaloDetDescrManager* caloDD) const
+                                   const CaloDetDescrManager& caloDD) const
 {
 
   IEMExtrapolationTools::TrkExtrapDef extrapFrom =

@@ -203,7 +203,7 @@ public:
     const TrackParameters& startPars,
     const std::vector<CaloSampling::CaloSample>& clusterLayers,
     double eta,
-    const CaloDetDescrManager* caloDD = nullptr,
+    const CaloDetDescrManager& caloDD,
     ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
 
   /**
@@ -221,7 +221,7 @@ public:
     const EventContext& ctx,
     const TrackParameters& startPars,
     const xAOD::CaloCluster& cluster,
-    const CaloDetDescrManager* caloDD = nullptr,
+    const CaloDetDescrManager& caloDD,
     ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
 
   static const InterfaceID& interfaceID();

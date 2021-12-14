@@ -438,7 +438,7 @@ ParticleCaloExtensionTool::layersCaloExtension(
   const TrackParameters& startPars,
   const std::vector<CaloSampling::CaloSample>& clusterLayers,
   double eta,
-  const CaloDetDescrManager* caloDD,
+  const CaloDetDescrManager& caloDD,
   ParticleHypothesis particleType) const
 {
 
@@ -450,7 +450,7 @@ ParticleCaloExtensionTool::layersCaloExtension(
   std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces;
   caloSurfaces.reserve(clusterLayers.size());
   for (CaloSampling::CaloSample lay : clusterLayers) {
-    auto* surf = m_calosurf->CreateUserSurface(lay, 0., eta, caloDD);
+    auto* surf = m_calosurf->CreateUserSurface(lay, 0., eta, &caloDD);
     if (surf) {
       caloSurfaces.emplace_back(surf);
     }
@@ -477,7 +477,7 @@ ParticleCaloExtensionTool::egammaCaloExtension(
   const EventContext& ctx,
   const TrackParameters& startPars,
   const xAOD::CaloCluster& cluster,
-  const CaloDetDescrManager* caloDD,
+  const CaloDetDescrManager& caloDD,
   ParticleHypothesis particleType) const
 {
 
