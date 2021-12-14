@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/PhysicalConstants.h"
@@ -294,7 +294,6 @@ void TruthJetWeightFilter::getJetSubinfo(const CLHEP::HepLorentzVector &axis, st
   hadall -= k0sall;
 
   double egallpt = egall.perp();
-  double hadallpt = hadall.perp();
   double k0sallpt = k0sall.perp();
   double egcorept = getJetSubcomponent(axis, 1, 0.1).perp();
   // Perform "recovery" procedure for "core" contributions:
@@ -313,7 +312,6 @@ void TruthJetWeightFilter::getJetSubinfo(const CLHEP::HepLorentzVector &axis, st
   // Immediately merge the K0s into eg and had here according to naive branching
   egallpt += 0.3*k0sallpt;
   egcorept += 0.3*k0scorept;
-  hadallpt += 0.7*k0sallpt;
   hadcorept += 0.7*k0scorept;
 
   // Get leading truth particles info
