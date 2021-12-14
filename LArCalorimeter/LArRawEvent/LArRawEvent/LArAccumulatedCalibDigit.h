@@ -50,10 +50,10 @@ private:
   CaloGain::CaloGain m_gain;
 
   /** @brief vector of sample sums */
-  std::vector < uint32_t > m_sampleSum;   
+  std::vector < uint64_t > m_sampleSum;   
   
   /** @brief vector of sample square sums */
-  std::vector < uint32_t > m_sample2Sum;
+  std::vector < uint64_t > m_sample2Sum;
 
   /** @brief number of samples */
   //uint32_t m_nsamples;
@@ -75,8 +75,8 @@ public:
 
   /** @brief Constructor (initialize everything)*/      
   LArAccumulatedCalibDigit(HWIdentifier & channel_value, CaloGain::CaloGain gain_value, 
-			   const std::vector < uint32_t >& sampleSum_value, 
-			   const std::vector < uint32_t >& sample2Sum_value,
+			   const std::vector < uint64_t >& sampleSum_value, 
+			   const std::vector < uint64_t >& sample2Sum_value,
 			   uint32_t nTrigger_value,  uint32_t DAC_value=0, uint16_t delay_value=0, 
 			   uint16_t isPulsed_value=false, uint16_t nStep_value=0, uint16_t iStep_value=0) : 
     m_hardwareID(channel_value), m_gain(gain_value), m_sampleSum(sampleSum_value), m_sample2Sum(sample2Sum_value),
@@ -120,10 +120,10 @@ public:
   size_t nsamples() const { return m_sampleSum.size(); }
 
   /** @brief return a reference to a stl vector containing the sample-sums */
-  const std::vector < uint32_t > & sampleSum() const { return m_sampleSum; }
+  const std::vector < uint64_t > & sampleSum() const { return m_sampleSum; }
 
   /** @brief return a reference to a stl vector containing the sum of the squares of the sample  */
-  const std::vector < uint32_t > & sample2Sum() const { return m_sample2Sum; }
+  const std::vector < uint64_t > & sample2Sum() const { return m_sample2Sum; }
 
   /** @brief return the number of triggers */
   unsigned nTriggers() const {return m_nTriggers;}
@@ -170,16 +170,16 @@ public:
   uint16_t stepIndex() const {return m_iStep;}
 
   /** @brief Set the sampleSum */
-  void setSampleSum(const std::vector< uint32_t >& sampleSum);
+  void setSampleSum(const std::vector< uint64_t >& sampleSum);
 
   /** @brief Set the sample2Sum */
-  void setSample2Sum(const std::vector< uint32_t >& sample2Sum);
+  void setSample2Sum(const std::vector< uint64_t >& sample2Sum);
 
   /** @brief Sum up with another (individual) LArCalibDigit */
   bool setAddDigit(const std::vector<short>& samples);
 
   /** @brief Sum up with another substep */
-  bool setAddSubStep(const std::vector < uint32_t >& sampleSum, const std::vector < uint32_t >& sample2Sum, const uint32_t nTriggerPerStep);
+  bool setAddSubStep(const std::vector < uint64_t >& sampleSum, const std::vector < uint64_t >& sample2Sum, const uint32_t nTriggerPerStep);
 
 };
 

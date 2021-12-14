@@ -354,8 +354,8 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       if (m_doAccDigits && rodBlockType==10) {
 	uint32_t gain;
 	int fcNb;
-	std::vector<uint32_t> samplesSum;
-	std::vector<uint32_t> samples2Sum;
+	std::vector<uint64_t> samplesSum;
+	std::vector<uint64_t> samples2Sum;
         uint32_t nTrigger;
 	while (rodBlock->getNextAccumulatedDigit(fcNb,samplesSum,samples2Sum,gain)) {
 	  if (fcNb>=NthisFebChannel)
@@ -381,8 +381,8 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
         uint16_t ispulsed_int;
         unsigned bitShift;
 	int fcNb;
-	std::vector<uint32_t> samplesSum;
-	std::vector<uint32_t> samples2Sum;
+	std::vector<uint64_t> samplesSum;
+	std::vector<uint64_t> samples2Sum;
         uint32_t nTrigger;
 	while (rodBlock->getNextAccumulatedCalibDigit(fcNb,samplesSum,samples2Sum,itmp,gain)) {
 	  if (fcNb>=NthisFebChannel)

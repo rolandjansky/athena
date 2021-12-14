@@ -131,7 +131,7 @@ StatusCode LArDigitsAccumulator::execute()
 	//ATH_MSG_DEBUG( "filling LArAccumulatedCalibDigit "  );
 	//ATH_MSG_DEBUG( "chid = " << chid << ", gain = " << gain << ", trigPerStep = " << m_NtriggersPerStep  );
 	
-	accuDigit->setAddSubStep(gain,cellAccumulated.m_samplesum,cellAccumulated.m_matrix,m_NtriggersPerStep);
+	accuDigit->setAddSubStep(gain,chid,cellAccumulated.m_samplesum,cellAccumulated.m_matrix,m_NtriggersPerStep);
       
 	larAccuDigitContainer->push_back(accuDigit);
 

@@ -810,12 +810,12 @@ if (WriteNtuple):
    if ( SaveAverages ):
       # Ramp points ntuple(s)
       from LArCalibTools.LArCalibToolsConf import LArAverages2Ntuple
-      
+
       if not SuperCells:
          for g in GainList:
-            LArAverages2Ntuple=LArAverages2Ntuple("LArAverages2Ntuple"+g)
-            LArAverages2Ntuple.ContainerKey = g
-            topSequence+= LArAverages2Ntuple
+            LArAverages2NtupleMR=LArAverages2Ntuple("LArAverages2Ntuple"+g)
+            LArAverages2NtupleMR.ContainerKey = g
+            topSequence+= LArAverages2NtupleMR
                
       if SuperCells:
          LArAverages2NtupleSC=LArAverages2Ntuple("LArAverages2NtupleSC")

@@ -120,8 +120,8 @@ unsigned LArCalibParams::CalibBoard::DAC(const unsigned event) const
   else  {
      MsgStream log(Athena::getMessageSvc(), "LArCalibParams::DAC");
      log << MSG::ERROR << "Event #" << event << ": DAC index out of range! (" 
-	 << iDAC << "max=" << m_DAC.size() << "). Return 0" << endmsg;
-     return 0;
+	 << iDAC << "max=" << m_DAC.size() << "). Return kmaxDAC" << endmsg;
+     return kmaxDAC;
   }
 }
 

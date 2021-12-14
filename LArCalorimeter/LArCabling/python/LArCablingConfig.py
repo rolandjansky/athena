@@ -15,8 +15,7 @@ def _larCablingCfg(configFlags,algo,folder,algName=None):
                    "/LAR/Identifier/FebRodMap":"LARIdentifierFebRodMap-005",
                    "/LAR/Identifier/CalibIdMap":"LARIdentifierCalibIdMap-012",
                    "/LAR/IdentifierOfl/OnOffIdMap_SC":"LARIdentifierOflOnOffIdMap_SC-000",
-                   "/LAR/Identifier/OnOffIdMap_SC":"",
-                   "/LAR/Identifier/CalibIdMap_SC":"",
+                   "/LAR/IdentifierOfl/CalibIdMap_SC":"LARIdentifierOflCalibIdMap_SC-000",
                    }
 
     if configFlags.Input.isMC:
@@ -40,8 +39,23 @@ def _larLatomeCfg(configFlags,algo,folder,outkey):
 
     result.merge(IOVDbSvcCfg(configFlags))
 
+    #MC folder-tag hack 
+    tagsperFolder={"/LAR/IdentifierSC/LatomeMapping":"LARIdentifierSCLatomeMapping-UPD1-00"
+                   }
+
+    if configFlags.Input.isMC:
+        db='LAR_OFL'
+        if folder in tagsperFolder:
+            ft=tagsperFolder[folder]
+            folderwithtag=folder+"<tag>"+ft+"</tag>"
+    else:
+        #db='LAR_ONL'
+        db='<db>sqlite://;schema=/afs/cern.ch/user/p/pavol/w0/public/LAr_Reco_SC_22/Phase1/test_mapping/LatomeMapping.db;dbname=CONDBR2</db>'
+        folderwithtag=db+folder
+
     result.addCondAlgo(algo(ReadKey=folder,WriteKey=outkey),primary=True)
-    result.merge(addFolders(configFlags,folder,className="CondAttrListCollection",detDb="LAR_ONL"))
+    result.merge(addFolders(configFlags,folderwithtag,className="CondAttrListCollection"))
+    #print (result)
     return result
 
 

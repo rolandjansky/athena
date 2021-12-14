@@ -88,7 +88,7 @@ public:
   // in case there is more than 1 FEB in 1 fragment, jump to next FEB
   virtual uint8_t getTDCPhase() const;
   virtual int  getNextRawData(int& channelNumber, std::vector<short>& samples, uint32_t& gain);
-  virtual int  getNextAccumulatedCalibDigit(int& channelNumber,  std::vector < uint32_t >& samplesSum,  std::vector < uint32_t >& samples2Sum,  uint32_t& iStepTrigger, uint32_t& gain);
+  virtual int  getNextAccumulatedCalibDigit(int& channelNumber,  std::vector < uint64_t >& samplesSum,  std::vector < uint64_t >& samples2Sum,  uint32_t& iStepTrigger, uint32_t& gain);
   virtual uint32_t getNumberOfSamples() const;
   virtual uint32_t getNumberOfGains() const;
   virtual uint32_t getRadd(uint32_t adc, uint32_t sample) const;

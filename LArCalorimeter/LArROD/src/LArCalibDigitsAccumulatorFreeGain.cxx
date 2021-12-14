@@ -246,8 +246,8 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 
 	if (cellAccumulatedHG.m_ntrigger>0) {
 	  LArAccumulatedCalibDigit* accuCalibDigitHG;
-	  std::vector < uint32_t > sampleSumHG;
-	  std::vector < uint32_t > sample2SumHG;
+	  std::vector < uint64_t > sampleSumHG;
+	  std::vector < uint64_t > sample2SumHG;
 	  sampleSumHG.resize(sizeSamples,0);
 	  sample2SumHG.resize(sizeSamples,0);
 	  accuCalibDigitHG = new LArAccumulatedCalibDigit(chid, gain, sampleSumHG, sample2SumHG, 0, (uint16_t)digit->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);
@@ -257,8 +257,8 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 
 	if (cellAccumulatedMG.m_ntrigger>0) {
 	  LArAccumulatedCalibDigit* accuCalibDigitMG;
-	  std::vector < uint32_t > sampleSumMG;
-	  std::vector < uint32_t > sample2SumMG;
+	  std::vector < uint64_t > sampleSumMG;
+	  std::vector < uint64_t > sample2SumMG;
 	  sampleSumMG.resize(sizeSamples,0);
 	  sample2SumMG.resize(sizeSamples,0);
 	  accuCalibDigitMG = new LArAccumulatedCalibDigit(chid, gain, sampleSumMG, sample2SumMG, 0, (uint16_t)digit->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);
@@ -268,8 +268,8 @@ StatusCode LArCalibDigitsAccumulatorFreeGain::execute()
 
 	if (cellAccumulatedLG.m_ntrigger>0) {
 	  LArAccumulatedCalibDigit* accuCalibDigitLG;
-	  std::vector < uint32_t > sampleSumLG;
-	  std::vector < uint32_t > sample2SumLG;
+	  std::vector < uint64_t > sampleSumLG;
+	  std::vector < uint64_t > sample2SumLG;
 	  sampleSumLG.resize(sizeSamples,0);
 	  sample2SumLG.resize(sizeSamples,0);
 	  accuCalibDigitLG = new LArAccumulatedCalibDigit(chid, gain, sampleSumLG, sample2SumLG, 0, (uint16_t)digit->DAC(), (uint16_t)m_delay, m_isPulsed, 0, 0);

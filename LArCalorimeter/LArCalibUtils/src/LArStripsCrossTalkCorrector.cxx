@@ -176,24 +176,25 @@ StatusCode LArStripsCrossTalkCorrector::execute()
       //check for saturation:
       bool saturated=false;
       if (m_ADCsatur>0) {
-	      const std::vector<uint32_t>& samples=dig->sampleSum();
-	      const size_t& nS=samples.size();
-	      const uint32_t maxValue=(uint32_t)(m_ADCsatur*dig->nTriggers());
-	      for (size_t i=0;i<nS;++i) {
-	        if (samples[i] >= maxValue) {
-	        saturated=true;
-	        ATH_MSG_DEBUG("Found saturating digit (index = " << i << ", <ADC> = " << samples[i]/dig->nTriggers()
-			      << ", DAC = " << dig->DAC() << ") for channel " << m_onlineHelper->channel_name(chid)
-			      << ". Skipping.");
-	        break;
-	        }//end if>maxvalue
-	      }//end loop over digits
-      }//end if m_ADCsatur>0
-    if (saturated) {
-	    ++nSaturation;
-	    continue; //Skip this channel
-    }
-
+	const std::vector<uint64_t>& samples=dig->sampleSum();
+	const size_t& nS=samples.size();
+	const uint32_t maxValue=(uint32_t)(m_ADCsatur*dig->nTriggers());
+	for (size_t i=0;i<nS;++i) {
+	  if (samples[i] >= maxValue) {
+	    saturated=true;
+	    ATH_MSG_DEBUG("Found saturating digit (index = " << i           
+			  << ", <ADC> = " << samples[i]/dig->nTriggers()
+			  << ", DAC = " << dig->DAC()
+			  << ") for channel 0x"  << MSG::hex << chid.get_compact() << MSG::dec
+			  << ". Skipping.");
+	    break;
+	  }//end if>maxvalue
+	}//end loop over digits
+      }
+      if (saturated) {
+	++nSaturation;
+	continue; //Skip this channel
+      }
      
     m_stripsLookUp[bec][iphi][ieta]=dig;
 
@@ -360,19 +361,19 @@ StatusCode LArStripsCrossTalkCorrector::execute()
 	      }//end loop over the four neighbors
 	    
 	    
-	      std::vector<uint32_t> SampleSumInt(NtotSamples);
-	      bool unresonable=false;
-	      std::size_t iPeak=std::max_element(currDig->sampleSum().begin(),currDig->sampleSum().end())-currDig->sampleSum().begin();
-	      for (std::size_t SampleIndex=0;SampleIndex<NtotSamples; ++SampleIndex ) {
-		const double& thisSampleSum=SampleSums[SampleIndex];
-		const uint32_t& oldVal=currDig->sampleSum()[SampleIndex];
-		if (thisSampleSum<0) {
-		  unresonable=true;
-		  ATH_MSG_WARNING("Strip " << m_onlineHelper->channel_name(chid) 
+	    std::vector<uint64_t> SampleSumInt(NtotSamples);
+	    bool unresonable=false;
+	    std::size_t iPeak=std::max_element(currDig->sampleSum().begin(),currDig->sampleSum().end())-currDig->sampleSum().begin();
+	    for (std::size_t SampleIndex=0;SampleIndex<NtotSamples; ++SampleIndex ) {
+	      const double& thisSampleSum=SampleSums[SampleIndex];
+	      const uint32_t& oldVal=currDig->sampleSum()[SampleIndex];
+	      if (thisSampleSum<0) {
+		unresonable=true;
+		ATH_MSG_WARNING( "Channel 0x"  << MSG::hex << chid.get_compact() << MSG::dec
 				  << " (Eta = " << ieta << ", Phi = " << iphi << ") Resulting ADC sample " << SampleIndex <<" negative! " 
 				  << thisSampleSum << " instead of " << oldVal << " Not corrected." );
-		  break;
-		}
+		break;
+	      }
 
 		if (SampleIndex==iPeak) { //check value of correction at peak
 		  const float dev=(thisSampleSum-oldVal)/oldVal;
@@ -388,8 +389,9 @@ StatusCode LArStripsCrossTalkCorrector::execute()
 		    break;
 		  }//end if dev>m_acceptableDifference
 		} // end if at peak sample
-		SampleSumInt[SampleIndex] = (uint32_t)(thisSampleSum);
-	      }//End loop over samples
+	      SampleSumInt[SampleIndex] = (uint64_t)(thisSampleSum);
+	    }//End loop over samples
+
 	 
 	      if (unresonable) {
 		m_uncorrectedIds.insert(chid);
@@ -440,8 +442,8 @@ StatusCode LArStripsCrossTalkCorrector::finalize() {
 
 std::string  LArStripsCrossTalkCorrector::printMaxSample(const LArAccumulatedCalibDigit* thisDig) {
 
-  const std::vector<uint32_t>& ss=thisDig->sampleSum();
-  std::vector<uint32_t>::const_iterator imax=std::max_element(ss.begin(),ss.end());
+  const std::vector<uint64_t>& ss=thisDig->sampleSum();
+  std::vector<uint64_t>::const_iterator imax=std::max_element(ss.begin(),ss.end());
   std::ostringstream output;
   output << "S[" << imax-ss.begin() << "]=" << *imax/thisDig->nTriggers(); 
   return output.str();

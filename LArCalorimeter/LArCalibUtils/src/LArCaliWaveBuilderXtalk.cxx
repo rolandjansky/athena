@@ -514,8 +514,8 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 	  // transform sampleSum vector from uint32_t to double
 	  // Allow to cut waves :  consider only first samples to reduce needed memory (0 = no cut)
 	  std::vector<double> samplesum;     
-	  std::vector < uint32_t >::const_iterator samplesum_it=(*it)->sampleSum().begin();
-	  std::vector < uint32_t >::const_iterator samplesum_it_e=(*it)->sampleSum().end();
+	  std::vector < uint64_t >::const_iterator samplesum_it=(*it)->sampleSum().begin();
+	  std::vector < uint64_t >::const_iterator samplesum_it_e=(*it)->sampleSum().end();
 	  int nSample=m_cutOnSample;
 	  do {
 	    samplesum.push_back((double)(*samplesum_it));     
@@ -527,8 +527,8 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 	  // transform sample2Sum vector from uint32_t to double
 	  // Allow to cut waves :  consider only first samples to reduce needed memory (0 = no cut)
 	  std::vector<double> sample2sum;     
-	  std::vector < uint32_t >::const_iterator sample2sum_it=(*it)->sample2Sum().begin();
-	  std::vector < uint32_t >::const_iterator sample2sum_it_e=(*it)->sample2Sum().end();
+	  std::vector < uint64_t >::const_iterator sample2sum_it=(*it)->sample2Sum().begin();
+	  std::vector < uint64_t >::const_iterator sample2sum_it_e=(*it)->sample2Sum().end();
 	  nSample=m_cutOnSample;
 	  do {
 	    sample2sum.push_back((double)(*sample2sum_it));     

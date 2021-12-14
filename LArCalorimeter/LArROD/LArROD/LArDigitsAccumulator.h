@@ -40,8 +40,8 @@ public:
   class LArAccumulated{
   public:
     unsigned int m_ntrigger;
-    std::vector<uint32_t>     m_samplesum;
-    std::vector<uint32_t>     m_matrix;
+    std::vector<uint64_t>     m_samplesum;
+    std::vector<uint64_t>     m_matrix;
     LArAccumulated() : m_ntrigger(0) {};
   };
 
