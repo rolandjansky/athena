@@ -49,7 +49,7 @@ SCT_Ski::SCT_Ski(const std::string & name,
     m_module(module)
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_Ski::preBuild();
 }
 
 

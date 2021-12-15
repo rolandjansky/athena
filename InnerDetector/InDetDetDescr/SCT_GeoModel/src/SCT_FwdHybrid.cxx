@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -43,7 +43,7 @@ SCT_FwdHybrid::SCT_FwdHybrid(const std::string & name, int ringType,
     m_ringType(ringType) 
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdHybrid::build();
 }
 
 

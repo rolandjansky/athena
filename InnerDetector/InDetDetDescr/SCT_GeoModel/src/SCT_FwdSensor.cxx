@@ -47,7 +47,7 @@ SCT_FwdSensor::SCT_FwdSensor(const std::string & name,
     m_noElementWarning{true}
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_FwdSensor::preBuild();
 }
 
 SCT_FwdSensor::~SCT_FwdSensor() {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdDiscPowerTape.h"
@@ -23,7 +23,7 @@ SCT_FwdDiscPowerTape::SCT_FwdDiscPowerTape(const std::string & name, int iRing,
     m_ringNumber(iRing) 
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdDiscPowerTape::build();
 }
 
 

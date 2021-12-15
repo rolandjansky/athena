@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Forward.h"
@@ -44,7 +44,7 @@ SCT_Forward::SCT_Forward(const std::string & name, int ec,
     m_endcap(ec)
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_Forward::preBuild();
 }
 
 SCT_Forward::~SCT_Forward()

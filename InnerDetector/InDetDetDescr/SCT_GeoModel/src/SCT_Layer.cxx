@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -58,7 +58,7 @@ SCT_Layer::SCT_Layer(const std::string & name,
     m_module(module)
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_Layer::preBuild();
 }
 
 SCT_Layer::~SCT_Layer()

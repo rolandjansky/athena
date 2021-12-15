@@ -56,7 +56,7 @@ SCT_SkiAux::SCT_SkiAux(const std::string & name,
   m_ski(ski), m_bracket(bracket), m_harness(harness), m_skiPowerTape(skiPowerTape)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_SkiAux::build();
 }
     
 void 

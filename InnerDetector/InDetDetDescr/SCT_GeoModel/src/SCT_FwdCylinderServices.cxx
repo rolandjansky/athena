@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdCylinderServices.h"
@@ -34,7 +34,7 @@ SCT_FwdCylinderServices::SCT_FwdCylinderServices(const std::string & name,
     m_innerRadius(rmin), m_outerRadius(rmax), m_length(length)
 {
   getParameters();
-  m_physVolume = build(); 
+  m_physVolume = SCT_FwdCylinderServices::build(); 
   
 }
 

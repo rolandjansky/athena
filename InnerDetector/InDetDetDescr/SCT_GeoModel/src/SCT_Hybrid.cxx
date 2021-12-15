@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Hybrid.h"
@@ -22,7 +22,7 @@ SCT_Hybrid::SCT_Hybrid(const std::string & name,
   : SCT_SharedComponentFactory(name, detectorManager, geometryManage, materials)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_Hybrid::build();
 }
 
 void

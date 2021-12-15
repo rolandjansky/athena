@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdCoolingBlock.h"
@@ -25,7 +25,7 @@ SCT_FwdCoolingBlock::SCT_FwdCoolingBlock(const std::string & name, int hiLo, int
     m_hiLo(hiLo), m_mainSec(mainOrSecondary)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdCoolingBlock::build();
 }
 
 

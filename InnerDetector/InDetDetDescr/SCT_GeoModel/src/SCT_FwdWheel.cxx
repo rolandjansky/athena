@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdWheel.h"
@@ -60,7 +60,7 @@ SCT_FwdWheel::SCT_FwdWheel(const std::string & name,
     m_modules(modules)
 {
   getParameters();
-  m_logVolume = preBuild(); 
+  m_logVolume = SCT_FwdWheel::preBuild(); 
   
 }
 

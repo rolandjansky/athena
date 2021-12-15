@@ -43,7 +43,7 @@ SCT_FwdSubSpine::SCT_FwdSubSpine(const std::string & name,
     m_ringType(ringType), m_spineSide(spineSide)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdSubSpine::build();
 }
 
 

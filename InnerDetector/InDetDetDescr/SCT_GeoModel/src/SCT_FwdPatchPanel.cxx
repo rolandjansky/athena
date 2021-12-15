@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdPatchPanel.h"
@@ -23,7 +23,7 @@ SCT_FwdPatchPanel::SCT_FwdPatchPanel(const std::string & name, int type,
     m_type(type)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdPatchPanel::build();
 }
 
 

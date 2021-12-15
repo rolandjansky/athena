@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -68,7 +68,7 @@ SCT_FwdModule::SCT_FwdModule(const std::string & name, int ringType,
                                              m_detectorManager, m_geometryManager, materials);
   }
 
-  m_logVolume = preBuild();
+  m_logVolume = SCT_FwdModule::preBuild();
 
 }
 

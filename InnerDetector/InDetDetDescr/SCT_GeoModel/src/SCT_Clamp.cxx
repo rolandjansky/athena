@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Clamp.h"
@@ -24,7 +24,7 @@ SCT_Clamp::SCT_Clamp(const std::string & name, int iLayer,
     m_iLayer(iLayer), m_innerRadius(innerRadius)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_Clamp::build();
 }
 
 

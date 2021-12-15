@@ -48,7 +48,7 @@ SCT_FwdRing::SCT_FwdRing(const std::string & name,
     m_module(module)
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_FwdRing::preBuild();
 }
 
 void 

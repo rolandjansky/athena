@@ -41,7 +41,7 @@ SCT_SkiPowerTape::SCT_SkiPowerTape(const std::string & name,
   m_length(length), m_ski(ski)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_SkiPowerTape::build();
 }
 
 void 

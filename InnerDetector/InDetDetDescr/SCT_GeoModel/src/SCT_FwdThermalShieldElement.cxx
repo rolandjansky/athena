@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdThermalShieldElement.h"
@@ -24,7 +24,7 @@ SCT_FwdThermalShieldElement::SCT_FwdThermalShieldElement(const std::string & nam
     m_iElement(iElement)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_FwdThermalShieldElement::build();
 }
 
 

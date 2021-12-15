@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_CloseOut.h"
@@ -23,7 +23,7 @@ SCT_CloseOut::SCT_CloseOut(const std::string & name, int iLayer,
     m_iLayer(iLayer)
 {
   getParameters();
-  m_physVolume = build();
+  m_physVolume = SCT_CloseOut::build();
 }
 
 

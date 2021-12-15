@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -44,7 +44,7 @@ SCT_InnerSide::SCT_InnerSide(const std::string & name,
   : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
-  m_logVolume = preBuild();
+  m_logVolume = SCT_InnerSide::preBuild();
 }
 
 
