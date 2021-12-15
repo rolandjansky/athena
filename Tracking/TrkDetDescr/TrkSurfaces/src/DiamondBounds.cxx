@@ -35,7 +35,7 @@ Trk::DiamondBounds::DiamondBounds(double minhalex, double medhalex, double maxha
   m_boundValues[DiamondBounds::bv_halfY2] = haley2;
   if (minhalex > maxhalex)
     swap(m_boundValues[DiamondBounds::bv_minHalfX], m_boundValues[DiamondBounds::bv_maxHalfX]);
-  initCache();
+  DiamondBounds::initCache();
 }
 
 bool

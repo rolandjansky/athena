@@ -39,7 +39,7 @@ Trk::RotatedDiamondBounds::RotatedDiamondBounds(double minhalex,
   m_boundValues[RotatedDiamondBounds::bv_halfY2] = haley2;
   if (minhalex > maxhalex)
     swap(m_boundValues[RotatedDiamondBounds::bv_minHalfX], m_boundValues[RotatedDiamondBounds::bv_maxHalfX]);
-  initCache();
+  RotatedDiamondBounds::initCache();
 }
 
 bool

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ Trk::ConeBounds::ConeBounds(double alpha, bool symm, double halfphi, double avph
   m_boundValues[ConeBounds::bv_maxZ] = MAXBOUNDVALUE;
   m_boundValues[ConeBounds::bv_averagePhi] = avphi;
   m_boundValues[ConeBounds::bv_halfPhiSector] = halfphi;
-  initCache();
+  ConeBounds::initCache();
 }
 
 Trk::ConeBounds::ConeBounds(double alpha, double zmin, double zmax, double halfphi, double avphi)
@@ -47,7 +47,7 @@ Trk::ConeBounds::ConeBounds(double alpha, double zmin, double zmax, double halfp
   m_boundValues[ConeBounds::bv_maxZ] = zmax;
   m_boundValues[ConeBounds::bv_averagePhi] = avphi;
   m_boundValues[ConeBounds::bv_halfPhiSector] = halfphi;
-  initCache();
+  ConeBounds::initCache();
 }
 
 bool

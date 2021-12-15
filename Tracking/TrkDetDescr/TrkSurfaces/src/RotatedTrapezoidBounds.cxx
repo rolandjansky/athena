@@ -35,7 +35,7 @@ Trk::RotatedTrapezoidBounds::RotatedTrapezoidBounds(double halex, double minhale
   if (m_boundValues[RotatedTrapezoidBounds::bv_minHalfY] > m_boundValues[RotatedTrapezoidBounds::bv_maxHalfY])
     swap(m_boundValues[RotatedTrapezoidBounds::bv_minHalfY], m_boundValues[RotatedTrapezoidBounds::bv_maxHalfY]);
   // assign kappa and delta
-  initCache();
+  RotatedTrapezoidBounds::initCache();
 }
 
 
