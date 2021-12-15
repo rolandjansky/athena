@@ -24,8 +24,8 @@ namespace top {
     bool orOfAllTriggers(false);
     for (const auto& trigger : m_triggers) {
       bool passThisTrigger(false);
-      if (event.m_info->isAvailable<char>("TRIGDEC_" + trigger)) {
-        if (event.m_info->auxdataConst<char>("TRIGDEC_" + trigger) == 1) {
+      if (event.m_info->isAvailable<char>("TRIGDEC_" + trigger.first)) {
+        if (event.m_info->auxdataConst<char>("TRIGDEC_" + trigger.first) == 1) {
           passThisTrigger = true;
         }
       }
@@ -39,7 +39,7 @@ namespace top {
   std::string TrigDecisionLooseSelector::name() const {
     std::string name = "TRIGDEC_LOOSE ";
     for (auto trigger : m_triggers)
-      name += " " + trigger;
+      name += " " + trigger.first;
 
     return name;
   }

@@ -55,7 +55,8 @@ namespace top {
 
     bool isElectronTrigger(std::string const& trigger) const;
     bool isMuonTrigger(std::string const& trigger) const;
-    static std::vector<std::string> getIndividualFromGlobalTriggers(std::vector<std::string> const& triggers);
+    bool isPhotonTrigger(std::string const& trigger) const;
+    static std::vector<std::pair<std::string, int> > getIndividualFromGlobalTriggers(std::vector<std::pair<std::string, int> > const& triggers);
   private:
     ///Match offline electrons to the trigger
     void matchElectrons();
@@ -65,6 +66,9 @@ namespace top {
 
     ///Match offline taus to the trigger
     void matchTaus();
+
+    ///Match offline photon to the trigger
+    void matchPhotons();
 
     /// Top config
     std::shared_ptr<top::TopConfig> m_config;
@@ -89,14 +93,16 @@ namespace top {
     ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSFLoose;
 
     ///List of triggers to 'or' together for each event. If any one passes, the event passes
-    std::vector<std::string> m_allTriggers_Tight;
-    std::vector<std::string> m_electronTriggers_Tight;
-    std::vector<std::string> m_muonTriggers_Tight;
-    std::vector<std::string> m_tauTriggers_Tight;
-    std::vector<std::string> m_allTriggers_Loose;
-    std::vector<std::string> m_electronTriggers_Loose;
-    std::vector<std::string> m_muonTriggers_Loose;
-    std::vector<std::string> m_tauTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_allTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_electronTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_muonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_tauTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_photonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_allTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_electronTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_muonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_tauTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_photonTriggers_Loose;
 
     /// Apply a logical OR cut to all supplied triggers
     /// If ANY selection does not request the trigger, this will not be set

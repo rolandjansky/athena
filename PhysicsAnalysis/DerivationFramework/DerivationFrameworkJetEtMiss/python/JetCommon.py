@@ -23,6 +23,13 @@ addJetRecoToAlgSequence(DerivationFrameworkJob,eventShapeTools=None)
 
 DFJetAlgs = {}
 
+from RecExConfig.ObjKeyStore import objKeyStore
+usingEVNT = False
+if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ) or\
+   objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
+    # We are running on either EVNT or HITS, and so should not run reco-related quantities
+    usingEVNT = True
+
 ##################################################################
 #                  Definitions of helper functions 
 ##################################################################
@@ -570,11 +577,11 @@ def addBadBatmanFlag(sequence=DerivationFrameworkJob):
             if not batmanaugtool in batmanaug.AugmentationTools:
                 batmanaug.AugmentationTools.append(batmanaugtool)
         else:
-            if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            if not usingEVNT:
                 dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
 
 # Run it by default if we are not running on EVNT
-if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+if not usingEVNT:
     addBadBatmanFlag(DerivationFrameworkJob)
 ##################################################################
 
@@ -612,7 +619,7 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
             distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
 
 # Run it by default if we are not running on EVNT
-if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+if not usingEVNT:
     addDistanceInTrain(DerivationFrameworkJob)
 ##################################################################
 
@@ -642,7 +649,7 @@ def addCHSPFlowObjects():
             dfjetlog.info(job.jetalg.Tools)
 
 # If we are not running on EVNT then add PFlow Rho for precision recommendations
-if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+if not usingEVNT:
     addCHSPFlowObjects()
     DerivationFrameworkJob += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 

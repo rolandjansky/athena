@@ -72,20 +72,20 @@ namespace met {
     // Athena algtool's Hooks
     StatusCode  initialize();
     StatusCode  finalize();
-      
+
     StatusCode varianceMET(xAOD::MissingETContainer* metCont, float avgmu, std::string jetTermName, std::string softTermName, std::string totalMETName);
 
     // rotates the phi direction of the object resolutions & recomputes the MET significance
     StatusCode RotateToPhi(float phi);
-    
+
     // subtracks the vector lambda from the MET & recomputes the met signficance in new MET - lambda direction
     StatusCode SetLambda(const float px, const float py, const bool GeV=true);
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
-    double GetMETOverSqrtSumET() const { if(m_sumet>0.0)        return (m_met/sqrt(m_sumet)); return -1.0; } 
-    double GetMETOverSqrtHT   () const { if(m_ht>0.0)           return (m_met/sqrt(m_ht));    return -1.0; } 
+    double GetMETOverSqrtSumET() const { if(m_sumet>0.0)        return (m_met/sqrt(m_sumet)); return -1.0; }
+    double GetMETOverSqrtHT   () const { if(m_ht>0.0)           return (m_met/sqrt(m_ht));    return -1.0; }
     double GetSignificance()     const { if(m_significance>0.0) return sqrt(m_significance);  return -1.0; }
     double GetSigDirectional()   const { if(m_VarL>0.0)         return m_met/sqrt(m_VarL);    return -1.0; }
     double GetRho()              const { return m_rho;  }
@@ -141,7 +141,7 @@ namespace met {
 
     // Fill Reso map
     void AddResoMap(const double varL,
-		    const double varT, 
+		    const double varT,
 		    const double CvTV, const int term);
 
     // variables

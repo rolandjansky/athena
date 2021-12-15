@@ -23,6 +23,7 @@ namespace top {
     int WfromTopDecay1_pdgId;
     int WfromTopDecay2_pdgId;
 
+    //look for the top
     bool event_top = CalcTopPartonHistory::topWb(truthParticles, 6, t_before, t_after, WfromTop, bFromTop,
                                                  WfromTopDecay1, WfromTopDecay1_pdgId, WfromTopDecay2,
                                                  WfromTopDecay2_pdgId);
@@ -35,6 +36,7 @@ namespace top {
     int WfromAntiTopDecay1_pdgId;
     int WfromAntiTopDecay2_pdgId;
 
+    //look for the anti top
     bool event_antitop = CalcTopPartonHistory::topWb(truthParticles, -6, antit_before, antit_after, WfromAntiTop,
                                                      bFromAntiTop, WfromAntiTopDecay1, WfromAntiTopDecay1_pdgId,
                                                      WfromAntiTopDecay2, WfromAntiTopDecay2_pdgId);
@@ -46,7 +48,20 @@ namespace top {
     int spectatorquark_pdgId;
     int spectatorquark_status;
 
-    bool event_sq = CalcTChannelSingleTopPartonHistory::spectatorquark(truthParticles, spectatorquark_before, spectatorquark_after, spectatorquark_pdgId, spectatorquark_status);
+    TLorentzVector spectatorquark_method2_before;
+    TLorentzVector spectatorquark_method2_after;
+
+    int spectatorquark_method2_pdgId;
+    int spectatorquark_method2_status;
+
+    bool event_sq =false;
+
+    if (event_top && !event_antitop){
+      event_sq = CalcTChannelSingleTopPartonHistory::spectatorquark(truthParticles, t_before, spectatorquark_before, spectatorquark_after, spectatorquark_pdgId, spectatorquark_status, spectatorquark_method2_before, spectatorquark_method2_after, spectatorquark_method2_pdgId, spectatorquark_method2_status);
+    }
+    else if (!event_top && event_antitop){
+      event_sq = CalcTChannelSingleTopPartonHistory::spectatorquark(truthParticles, antit_before, spectatorquark_before, spectatorquark_after, spectatorquark_pdgId, spectatorquark_status, spectatorquark_method2_before, spectatorquark_method2_after, spectatorquark_method2_pdgId, spectatorquark_method2_status);
+    }
 
     if (event_top && !event_antitop) {
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_top_beforeFSR_pt") = t_before.Pt();
@@ -126,55 +141,83 @@ namespace top {
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_eta") = spectatorquark_after.Eta();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_phi") = spectatorquark_after.Phi();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_m") = spectatorquark_after.M();
+      
+      tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_method2_beforeFSR_pt") = spectatorquark_method2_before.Pt();
+      tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_method2_beforeFSR_eta") = spectatorquark_method2_before.Eta();
+      tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_method2_beforeFSR_phi") = spectatorquark_method2_before.Phi();
+      tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_method2_beforeFSR_m") = spectatorquark_method2_before.M();
+      tChannelSingleTopPartonHistory->auxdecor< int >("MC_spectatorquark_method2_pdgId") = spectatorquark_method2_pdgId;
+      tChannelSingleTopPartonHistory->auxdecor< int >("MC_spectatorquark_method2_status") = spectatorquark_method2_status;
+
+      tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_method2_afterFSR_pt") = spectatorquark_method2_after.Pt();
+      tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_method2_afterFSR_eta") = spectatorquark_method2_after.Eta();
+      tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_method2_afterFSR_phi") = spectatorquark_method2_after.Phi();
+      tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_method2_afterFSR_m") = spectatorquark_method2_after.M();
     }
   }
 
 
   bool CalcTChannelSingleTopPartonHistory::spectatorquark(const xAOD::TruthParticleContainer* truthParticles,
+                                  TLorentzVector& top_quark,
                                   TLorentzVector& spectatorquark_beforeFSR, TLorentzVector& spectatorquark_afterFSR,
-                                  int& spectatorquark_pdgId, int& spectatorquark_status) {
+                                  int& spectatorquark_pdgId, int& spectatorquark_status,
+                                  TLorentzVector& spectatorquark_method2_beforeFSR, TLorentzVector& spectatorquark_method2_afterFSR,
+                                  int& spectatorquark_method2_pdgId, int& spectatorquark_method2_status) {
     bool hasSpectatorquark = false;
+    bool hasSpectatorquark_method2 = false;
 
     //identify quark which does not originate from a decaying top quark -> W -> qq
     //should come from hard scattering process
     float min_pt =0;
-    for (const xAOD::TruthParticle* particle : *truthParticles) {
+    float pt_balance = 9999999;
+
+    for (const xAOD::TruthParticle* particle : *truthParticles) { //loop over all truth partons
       if (particle == nullptr) continue;
-      if (abs(particle->pdgId()) > 4) continue; //only light quarks
 
-      for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) {
-        if (particle->parent(iparent) == nullptr){
-          continue;
-        }
+      if (abs(particle->pdgId()) == 6){
+        for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) { // loop over parents of top
+          if (particle->parent(iparent) == nullptr){
+            continue;
+          }
+          if (std::abs(particle->parent(iparent)->pdgId()) == std::abs(particle->pdgId())) continue; 
+            for (size_t ichildren = 0; ichildren < particle->parent(iparent)->nChildren(); ++ichildren) { 
+              if (particle->parent(iparent)->child(ichildren) == nullptr) continue;
+              if (abs(particle->parent(iparent)->child(ichildren)->pdgId()) >4) continue;
 
-        // we dont want quarks that have same pdgID as parent, since its a W interaction it should change sign
-        if (std::abs(particle->parent(iparent)->pdgId()) == std::abs(particle->pdgId())) continue;
+              auto partoncandidate = particle->parent(iparent)->child(ichildren);
 
-        // we dont want quarks that come from top
-        if (std::abs(particle->parent(iparent)->pdgId()) == 6) continue;
+              //Method1 select highest PT light quark if more than 1 light quark
+              if( partoncandidate->p4().Pt() > min_pt ) {
+                min_pt= particle->parent(iparent)->child(ichildren)->p4().Pt();
 
-        // we dont want quarks that come from W
-        if (std::abs(particle->parent(iparent)->pdgId()) == 24) continue;
+                spectatorquark_beforeFSR =partoncandidate->p4();
+                spectatorquark_pdgId = partoncandidate->pdgId();
+                spectatorquark_status = partoncandidate->status();
+                hasSpectatorquark = true;
 
-        // we dont want quarks that come from proton
-        if (std::abs(particle->parent(iparent)->pdgId()) == 2212) continue;
+                // find after FSR
+                auto particle2 = PartonHistoryUtils::findAfterFSR(partoncandidate);
+                spectatorquark_afterFSR = particle2->p4();
+              } //if
 
-        if( particle->p4().Pt() > min_pt ) {
-          min_pt= particle->p4().Pt();
-
-          spectatorquark_beforeFSR = particle->p4();
-          spectatorquark_pdgId = particle->pdgId();
-          spectatorquark_status = particle->status();
-          hasSpectatorquark = true;
-
-          // find after FSR
-          particle = PartonHistoryUtils::findAfterFSR(particle);
-          spectatorquark_afterFSR = particle->p4();
-        } //if
-      } // parent loop
+              TLorentzVector sum_top_spectatorquark = top_quark + partoncandidate->p4(); //sum of top quark and the light quark in question 
+              //Method2 check if this top quark system has a smaller PT than other system. 0 pt expected because of feynman diagram
+              if (sum_top_spectatorquark.Pt() < pt_balance){ 
+                pt_balance = sum_top_spectatorquark.Pt();
+                spectatorquark_method2_beforeFSR = partoncandidate->p4();
+                spectatorquark_method2_pdgId = partoncandidate->pdgId();
+                spectatorquark_method2_status = partoncandidate->status();
+                hasSpectatorquark_method2 = true;
+              
+                auto particle2 = PartonHistoryUtils::findAfterFSR(partoncandidate);
+                spectatorquark_method2_afterFSR = particle2->p4();
+              } //if
+            }//children of top parents loop
+        }//parents loop of top
+      }//top if statement
     } // particle loop
-
-    if (hasSpectatorquark) return true;
+    
+    if (hasSpectatorquark || hasSpectatorquark_method2) return true;
 
     return false;
   }

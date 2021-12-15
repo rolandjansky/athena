@@ -9,9 +9,10 @@
 // includes
 //
 
-#include <AsgTools/MessageCheck.h>
-#include <AsgTools/StatusCode.h>
-#include <SystematicsHandles/Helpers.h>
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/StatusCode.h>
+#include <SystematicsHandles/ISystematicsSvc.h>
+#include <SystematicsHandles/SysListHandle.h>
 
 //
 // method implementations
@@ -27,7 +28,6 @@ namespace CP
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
-    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
   }
 
 
@@ -48,22 +48,43 @@ namespace CP
 
 
 
+  template<typename T> std::string SysReadHandle<T> ::
+  getNamePattern () const
+  {
+    return m_inputName;
+  }
+
+
+
+  template<typename T> StatusCode SysReadHandle<T> ::
+  initialize (SysListHandle& sysListHandle)
+  {
+    return sysListHandle.addHandle (*this);
+  }
+
+
+
+  template<typename T> StatusCode SysReadHandle<T> ::
+  initialize (SysListHandle& sysListHandle, SG::AllowEmptyEnum)
+  {
+    if (!empty())
+      return initialize (sysListHandle);
+    else
+      return StatusCode::SUCCESS;
+  }
+
+
+
   template<typename T> const std::string& SysReadHandle<T> ::
   getName (const CP::SystematicSet& sys) const
   {
     auto cache = m_inputNameCache.find (sys);
     if (cache == m_inputNameCache.end())
     {
-      std::string newName = makeSystematicsName
-        (m_inputName, m_affectingRegex, sys);
-      ANA_MSG_DEBUG ("SysReadHandle: " << newName << " (" << sys.name() << ")");
-      m_inputNameCache.insert (std::make_pair (sys, newName));
-      cache = m_inputNameCache.find (sys);
-      assert (cache != m_inputNameCache.end());
-
-      // retrieving this here, just so it exists
-      if (!m_evtStore)
-        m_evtStore = m_evtStoreGetter();
+      if (m_inputNameCache.empty())
+        throw std::logic_error ("uninitialized SysReadHandle (" + m_inputName + ")");
+      else
+        throw std::logic_error ("unsupported systematic in SysReadHandle (" + m_inputName + "): (" + sys.name() + ")");
     }
     return cache->second;
   }
@@ -80,9 +101,33 @@ namespace CP
 
 
 
-  template<typename T> std::string SysReadHandle<T> ::
-  getInputAffecting () const
+  template<typename T> CP::SystematicSet SysReadHandle<T> ::
+  getInputAffecting (const ISystematicsSvc& svc) const
   {
-    return m_affectingRegex;
+    return svc.getObjectSystematics (m_inputName);
+  }
+
+
+
+  template<typename T> StatusCode SysReadHandle<T> ::
+  fillSystematics (const ISystematicsSvc& svc,
+                   const CP::SystematicSet& /*fullAffecting*/,
+                   const std::vector<CP::SystematicSet>& sysList)
+  {
+    const CP::SystematicSet affecting = svc.getObjectSystematics (m_inputName);
+    for (auto& sys : sysList)
+    {
+      CP::SystematicSet inputSys;
+      ANA_CHECK (SystematicSet::filterForAffectingSystematics (sys, affecting, inputSys));
+      std::string inputName;
+      ANA_CHECK (svc.makeSystematicsName (inputName, m_inputName, inputSys));
+      m_inputNameCache.emplace (sys, inputName);
+    }
+
+    // retrieving this here, just so it exists
+    if (!m_evtStore)
+      m_evtStore = m_evtStoreGetter();
+
+    return StatusCode::SUCCESS;
   }
 }

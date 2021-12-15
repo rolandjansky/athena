@@ -12,7 +12,7 @@
 
 #include <EventLoop/AlgorithmData.h>
 
-#include <EventLoop/Algorithm.h>
+#include <AnaAlgorithm/IAlgorithmWrapper.h>
 
 //
 // method implementations
@@ -23,7 +23,7 @@ namespace EL
   namespace Detail
   {
     AlgorithmData ::
-    AlgorithmData (std::unique_ptr<Algorithm> val_algorithm)
+    AlgorithmData (std::unique_ptr<IAlgorithmWrapper> val_algorithm)
       : m_algorithm (std::move (val_algorithm))
     {}
 

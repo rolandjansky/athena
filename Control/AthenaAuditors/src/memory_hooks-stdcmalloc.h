@@ -8,6 +8,11 @@
 #ifndef ATHENAAUDITORS_MEMORYHOOKSSTDCMALLOC_H
 #define ATHENAAUDITORS_MEMORYHOOKSSTDCMALLOC_H
 
+// WARNING: This specifically disables warnings in 21.2 that we do not
+// intend to fix anymore.  It should not be swept to any other
+// branches.
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>

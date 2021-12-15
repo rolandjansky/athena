@@ -122,6 +122,8 @@ namespace top {
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLVTight;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLVLoose;
     ToolHandle<CP::IIsolationLowPtPLVTool> m_isolationTool_LowPtPLV;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLImprovedTight;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLImprovedVeryTight;
     ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr;
     ToolHandle<CP::IClassificationTool> m_IFFTruthTool;
 

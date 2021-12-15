@@ -21,7 +21,7 @@ namespace CP {
 class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgMetadataTool {
   
   // Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( MuonCalibrationPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
+  ASG_TOOL_CLASS3( MuonCalibrationPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool, CP::IReentrantSystematicsTool )
   
   public:
      // There are two recommended options by MCP to setup the tool (https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/MCPAnalysisConsolidationMC16)

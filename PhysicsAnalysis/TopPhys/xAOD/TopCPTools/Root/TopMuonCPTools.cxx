@@ -35,6 +35,7 @@ namespace top {
     declareProperty("MuonEfficiencyCorrectionsToolLoose", m_muonEfficiencyCorrectionsToolLoose);
     declareProperty("MuonEfficiencyCorrectionsToolIso", m_muonEfficiencyCorrectionsToolIso);
     declareProperty("MuonEfficiencyCorrectionsToolLooseIso", m_muonEfficiencyCorrectionsToolLooseIso);
+    declareProperty("MuonEfficiencyCorrectionsToolBadMuonVeto", m_muonEfficiencyCorrectionsToolBadMuonVeto);
 
     declareProperty("SoftMuonSelectionTool", m_softmuonSelectionTool);
     declareProperty("SoftMuonEfficiencyCorrectionsTool", m_softmuonEfficiencyCorrectionsTool);
@@ -154,14 +155,23 @@ namespace top {
     if (m_config->muonQuality() == "LowPt" && m_config->muonUseMVALowPt()) muonQuality_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsTool
       = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsTool",
-                        muonQuality_name);
+                        muonQuality_name
+                        );
 
     std::string muonQualityLoose_name = m_config->muonQualityLoose();
     if (m_config->muonQualityLoose() == "HighPt" && !(m_config->muonUse2stationMuonsHighPtLoose()) ) muonQualityLoose_name = "HighPt3Layers";
     if (m_config->muonQualityLoose() == "LowPt" && m_config->muonUseMVALowPtLoose()) muonQualityLoose_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsToolLoose
       = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLoose",
-                        muonQualityLoose_name);
+                        muonQualityLoose_name
+                        );
+
+    if (m_config->muonQuality() == "HighPt" || m_config->muonQualityLoose() == "HighPt") {
+      m_muonEfficiencyCorrectionsToolLoose
+        = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolBadMuonVeto",
+                          "BadMuonVeto_HighPt"
+                          );
+    }
 
     //now the soft muon part
     std::string softmuonQuality_name = m_config->softmuonQuality();
@@ -169,7 +179,8 @@ namespace top {
     if (m_config->useSoftMuons()) {
       m_softmuonEfficiencyCorrectionsTool
         = setupMuonSFTool("CP::SoftMuonEfficiencyScaleFactorsTool",
-			  softmuonQuality_name);
+			                    softmuonQuality_name
+                          );
     }
     
     /************************************************************
@@ -185,7 +196,8 @@ namespace top {
       std::string muon_isolation = m_config->muonIsolationSF() + "Iso";
       m_muonEfficiencyCorrectionsToolIso =
         setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
-                        muon_isolation);
+                        muon_isolation
+                        );
     }
 
     // Do we have isolation on our loose muons? If not no need for the tool...
@@ -194,7 +206,8 @@ namespace top {
       std::string muon_isolation = m_config->muonIsolationSFLoose() + "Iso";
       m_muonEfficiencyCorrectionsToolLooseIso =
         setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLooseIso",
-                        muon_isolation);
+                        muon_isolation
+                        );
     }
 
     /************************************************************
@@ -205,7 +218,8 @@ namespace top {
     ************************************************************/
     m_muonEfficiencyCorrectionsToolTTVA
       = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolTTVA",
-                        "TTVA");
+                        "TTVA"
+                        );
 
     // WARNING - The PromptLeptonIsolation scale factors are only derived with respect to the loose PID
     //         - Hence we need to fail if this has occured
@@ -285,6 +299,13 @@ namespace top {
                  "Failed to set WP for " + name + " tool");
       top::check(asg::setProperty(tool, "CloseJetDRDecorator", "dRMuJet_AT_usingWeirdNameToAvoidUsingOnTheFlyCalculation"), 
                  "Failed to set WP for " + name + " tool"); //in this way we'll only read the dR(mu,jet) from the derivation, IF the variable is there, but we'll not use on-the-fly calculation, which is tricky in AT
+      if (m_config->muonSFCustomInputFolder() != " ") {
+        top::check(asg::setProperty(tool, "CustomInputFolder", m_config->muonSFCustomInputFolder()),
+                   "Failed to set CustomInputFolder property for MuonEfficiencyScaleFactors tool");
+      }
+
+      top::check(asg::setProperty(tool, "BreakDownSystematics", m_config->muonBreakDownSystematics()), 
+                  "Failed to set BreakDownSystematics for " + name + " tool");
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }

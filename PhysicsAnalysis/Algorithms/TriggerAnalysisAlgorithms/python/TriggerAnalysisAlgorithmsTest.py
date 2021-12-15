@@ -4,7 +4,7 @@
 # @author Nils Krumnack
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
 
 def makeSequence (dataType) :
 
@@ -18,10 +18,9 @@ def makeSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    alg = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    alg.sigmaRecommended = 1
-    algSeq += alg
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
     from TriggerAnalysisAlgorithms.TriggerAnalysisSequence import \
@@ -40,7 +39,6 @@ def makeSequence (dataType) :
         'EventInfo.eventNumber -> eventNumber',
         ]
     ntupleMaker.Branches += ['EventInfo.trigPassed_' + t + ' -> trigPassed_' + t for t in triggerChains]
-    ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'events'

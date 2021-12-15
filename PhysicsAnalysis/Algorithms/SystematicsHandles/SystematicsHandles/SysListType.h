@@ -28,10 +28,6 @@ namespace CP
   /// performant in all situations.  This way at least I will get
   /// compilation errors if I change it.
   typedef std::vector<CP::SystematicSet> SysListType;
-
-  /// \brief the default name for putting the systematics list into
-  /// the event store
-  const std::string& sysListDefaultName ();
 }
 
 #endif

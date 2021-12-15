@@ -14,16 +14,4 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "FourMomUtils/xAODHelpers.h"
 
-// AthAnalysisBase/ManaCore doesn't currently include these
-#ifndef XAOD_ANALYSIS
-
-#include "FourMomUtils/P4Helpers.h"
-#include "FourMomUtils/P4Sorters.h"
-#include "FourMomUtils/Thrust.h"
-#include "FourMomUtils/FoxWolfram.h"
-#include "FourMomUtils/JetBroadening.h"
-#include "FourMomUtils/JetMasses.h"
-
-#endif
-
 #endif // FOURMOMUTILS_FOURMOMUTILSDICT_H

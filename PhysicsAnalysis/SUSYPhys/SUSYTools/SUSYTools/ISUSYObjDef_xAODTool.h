@@ -162,7 +162,7 @@ namespace ST {
   static inline int getMCShowerType(const std::string& sample_name) {
     /** Get MC generator index for the b-tagging efficiency maps*/
     // This needs VERY careful syncing with m_showerType in SUSYToolsInit!  Change with care!
-    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIA8EVTGEN", "HERWIG", "SHERPA_CT", "SHERPA", "AMCATNLO"};
+    const static std::vector<TString> gen_mc_generator_keys = {"HERWIG", "SHERPA_CT", "SHERPA", "AMCATNLO", "SH_228", "SH_2210"};
     //This was the 20.7 vector... {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"};
 
     //pre-process sample name
@@ -170,6 +170,8 @@ namespace ST {
     tmp_name.ReplaceAll("Py8EG","PYTHIA8EVTGEN");
     if(tmp_name.Contains("Pythia") && !tmp_name.Contains("Pythia8") && !tmp_name.Contains("EvtGen")) tmp_name.ReplaceAll("Pythia","PYTHIA8EVTGEN");
     if(tmp_name.Contains("Pythia8") && !tmp_name.Contains("EvtGen")) tmp_name.ReplaceAll("Pythia8","PYTHIA8EVTGEN");
+    if(tmp_name.Contains("Py8") && !tmp_name.Contains("EG")) tmp_name.ReplaceAll("Py8","PYTHIA8EVTGEN");
+    if(tmp_name.Contains("H7")) tmp_name.ReplaceAll("H7","HERWIG");
 
     //capitalize the entire sample name
     tmp_name.ToUpper();
@@ -177,9 +179,10 @@ namespace ST {
     //find shower type in name
     unsigned int ishower = 0;
     for( const auto & gen : gen_mc_generator_keys ){
-      if( tmp_name.Contains(gen) ){ return ishower; }
+      if( tmp_name.Contains(gen) ){ return ishower+1; }
       ishower++;
     }
+    if( tmp_name.Contains("PYTHIA8EVTGEN") ) return 0;
 
     // See if they are doing something really unwise, just in case
     TRegexp is_data("^data1[5-9]_13TeV");
@@ -217,7 +220,7 @@ namespace ST {
 
     // Apply the correction on a modifyable object
     virtual StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) = 0;
-    virtual StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, const bool isFat = false, const bool isTCC = false) = 0;
+    virtual StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, const bool isFat = false, const bool doLargeRdecorations = false) = 0;
     virtual StatusCode FillTrackJet(xAOD::Jet& input) = 0;
     virtual StatusCode FillTau(xAOD::TauJet& input) = 0;
     virtual StatusCode FillElectron(xAOD::Electron& input, const float etcut, const float etacut) = 0;

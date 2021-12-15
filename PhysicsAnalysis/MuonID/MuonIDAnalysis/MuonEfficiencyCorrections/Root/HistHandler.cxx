@@ -67,23 +67,33 @@ namespace CP {
         return CorrectionCode::Ok;
     }
     void dRJetAxisHandler::set_close_jet_decorator(const std::string& decor_name){
-        m_close_jet_decor = decor_name;
+        s_close_jet_decor = decor_name;
     }
     
-    std::string dRJetAxisHandler::m_close_jet_decor = "dRJet";
+    void dRJetAxisHandler::set_use_2D_sf(const bool in)
+    {
+        s_use_2D_sf=in;
+    }
+    
+    std::string dRJetAxisHandler::s_close_jet_decor = "dRJet";
+    bool dRJetAxisHandler::s_use_2D_sf = false;
     dRJetAxisHandler::dRJetAxisHandler():
-            m_acc(m_close_jet_decor){}
+            m_acc(s_close_jet_decor),
+            m_use_2D_sf(s_use_2D_sf){}
     
     CorrectionCode dRJetAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        
         static std::atomic<unsigned int> warned = {0};
         static const SG::AuxElement::ConstAccessor<float> acc_dR_deriv("DFCommonJetDr");
-        if (acc_dR_deriv.isAvailable(mu)){
+        
+        if(!m_use_2D_sf) value = -2.;
+        else if (acc_dR_deriv.isAvailable(mu)){
             value = acc_dR_deriv(mu);
         }else if( m_acc.isAvailable(mu) ) {
             // decoration available in DxAOD
             value = m_acc(mu);
             if (warned < 5){
-                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The DFCommonJetDr jet decoration is not available in the derivaiton will fall back to %s",m_close_jet_decor.c_str());
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The DFCommonJetDr jet decoration is not available in the derivation will fall back to %s",s_close_jet_decor.c_str());
                 ++warned;
             }
         } else {
@@ -91,7 +101,7 @@ namespace CP {
             value = -2.; 
             // We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
             if (warned<5){
-                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The %s decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)", m_close_jet_decor.c_str());
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The %s decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)", s_close_jet_decor.c_str());
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
                 Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "For the time being the inclusive scale-factor is going to be returned.");

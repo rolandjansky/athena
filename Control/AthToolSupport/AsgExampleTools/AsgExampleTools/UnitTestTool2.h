@@ -49,6 +49,10 @@ namespace asg
     wasUserConfigured (const std::string& handleName) const override;
 
   public:
+    virtual const ToolHandleArray<IUnitTestTool1>&
+    getArray () const override;
+
+  public:
     ToolHandle<IUnitTestTool1> m_regPublicHandle;
 
   public:
@@ -59,6 +63,9 @@ namespace asg
 
   public:
     AnaToolHandle<IUnitTestTool1> m_anaPrivateHandle;
+
+  public:
+    ToolHandleArray<IUnitTestTool1> m_regPrivateArray {this};
 
   private:
     bool m_wasUserConfiguredPublic = false;

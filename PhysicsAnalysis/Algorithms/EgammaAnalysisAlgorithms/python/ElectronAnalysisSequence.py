@@ -98,20 +98,32 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                               'selectionDecorCount' : [3]},
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
-    # Set up the likelihood ID selection algorithm
-    # It is safe to do this before calibration, as the cluster E is used
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
-    alg.selectionDecoration = 'selectLikelihood' + postfix + ',as_bits'
-    if recomputeLikelihood:
-        # Rerun the likelihood ID
-        addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
-        alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
-        alg.selectionTool.WorkingPoint = likelihoodWP
+    if 'LH' in likelihoodWP:
+        # Set up the likelihood ID selection algorithm
+        # It is safe to do this before calibration, as the cluster E is used
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' + postfix )
+        alg.selectionDecoration = 'selectLikelihood' + postfix + ',as_bits'
+        if recomputeLikelihood:
+            # Rerun the likelihood ID
+            addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
+            alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
+            alg.selectionTool.WorkingPoint = likelihoodWP
+        else:
+            # Select from Derivation Framework flags
+            addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+            dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
+            alg.selectionTool.selectionFlags = [dfFlag]
     else:
-        # Select from Derivation Framework flags
-        addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-        dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
-        alg.selectionTool.selectionFlags = [dfFlag]
+        # Set up the DNN ID selection algorithm
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronDNNAlg' + postfix )
+        alg.selectionDecoration = 'selectDNN' + postfix + ',as_bits'
+        if recomputeLikelihood:
+            # Rerun the DNN ID
+            addPrivateTool( alg, 'selectionTool', 'AsgElectronSelectorTool' )
+            alg.selectionTool.WorkingPoint = likelihoodWP
+        else:
+            # Select from Derivation Framework flags
+            raise ValueError ( "DNN working points are not available in derivations yet.")
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
@@ -144,7 +156,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
         alg.calibrationAndSmearingTool.useAFII = 0
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                affectingSystematics = '(^EG_RESOLUTION_.*)|(^EG_SCALE_.*)',
                 stageName = 'calibration',
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
@@ -248,7 +259,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgElectronEfficiencyCorrectionTool' )
     alg.scaleFactorDecoration = 'effSF' + postfix + '_%SYS%'
-    alg.scaleFactorDecorationRegex = '(^EL_EFF_Reco.*)'
     alg.efficiencyCorrectionTool.RecoKey = "Reconstruction"
     alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
     if dataType == 'afii':
@@ -262,7 +272,6 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
     alg.outOfValidityDeco = 'bad_eff' + postfix
     if dataType != 'data':
         seq.append( alg, inputPropName = 'electrons',
-                    affectingSystematics = '(^EL_EFF_Reco.*)',
                     stageName = 'efficiency',
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
         pass

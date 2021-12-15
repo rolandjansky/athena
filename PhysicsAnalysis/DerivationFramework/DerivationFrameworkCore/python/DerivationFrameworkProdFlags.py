@@ -766,6 +766,19 @@ class WriteDAOD_HDBS2Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HDBS2Stream)
 listAODtoDPD.append(WriteDAOD_HDBS2Stream.StreamName)
 
+class WriteDAOD_HDBS3Stream(JobProperty):
+    """HDBS3: Meson Gamma"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_HDBS3'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkHDBS/HDBS3.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HDBS3Stream)
+listAODtoDPD.append(WriteDAOD_HDBS3Stream.StreamName)
+
 #################################
 # Defined by the STDM group
 #################################
@@ -1627,6 +1640,19 @@ class WriteDAOD_EXOT28Stream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT28Stream)
 listAODtoDPD.append(WriteDAOD_EXOT28Stream.StreamName)
+
+class WriteDAOD_EXOT29Stream(JobProperty):
+    """EXOT29: Lepton-only Displaced vertex"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT29'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT29.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT29Stream)
+listAODtoDPD.append(WriteDAOD_EXOT29Stream.StreamName)
 
 #################################
 # Defined by the Jet/MET group
@@ -2734,6 +2760,19 @@ class WriteDAOD_HION11Stream (JobProperty):
      pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HION11Stream)
 listAODtoDPD.append(WriteDAOD_HION11Stream.StreamName)
+
+class WriteDAOD_HION12Stream (JobProperty):
+     """HION12 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_HION12'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkHI/HION12.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HION12Stream)
+listAODtoDPD.append(WriteDAOD_HION12Stream.StreamName)
 
 ################################
 # Defined by the trigger group

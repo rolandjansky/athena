@@ -165,6 +165,7 @@ namespace top {
     ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolIso;
     ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLooseIso;
     ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolTTVA;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolBadMuonVeto;
 
     std::string m_decor_triggerEff;
     std::string m_decor_triggerEff_loose;
@@ -190,21 +191,80 @@ namespace top {
     CP::SystematicSet m_reco_stat_DOWN;
     CP::SystematicSet m_reco_syst_UP;
     CP::SystematicSet m_reco_syst_DOWN;
+    
+    CP::SystematicSet m_reco_bkg_fraction_UP;
+    CP::SystematicSet m_reco_bkg_fraction_DOWN;
+    CP::SystematicSet m_reco_fit_model_lowpt_UP;
+    CP::SystematicSet m_reco_fit_model_lowpt_DOWN;
+    CP::SystematicSet m_reco_lumi_uncert_UP;
+    CP::SystematicSet m_reco_lumi_uncert_DOWN;
+    CP::SystematicSet m_reco_matching_UP;
+    CP::SystematicSet m_reco_matching_DOWN;
+    CP::SystematicSet m_reco_matching_lowpt_UP;
+    CP::SystematicSet m_reco_matching_lowpt_DOWN;
+    CP::SystematicSet m_reco_mc_xsec_UP;
+    CP::SystematicSet m_reco_mc_xsec_DOWN;
+    CP::SystematicSet m_reco_pt_dependency_UP;
+    CP::SystematicSet m_reco_pt_dependency_DOWN;
+    CP::SystematicSet m_reco_qcd_template_UP;
+    CP::SystematicSet m_reco_qcd_template_DOWN;
+    CP::SystematicSet m_reco_supression_scale_UP;
+    CP::SystematicSet m_reco_supression_scale_DOWN;
+    CP::SystematicSet m_reco_sys_UP;
+    CP::SystematicSet m_reco_sys_DOWN;
+    CP::SystematicSet m_reco_truth_UP;
+    CP::SystematicSet m_reco_truth_DOWN;
+    CP::SystematicSet m_reco_truth_lowpt_UP;
+    CP::SystematicSet m_reco_truth_lowpt_DOWN;
 
     CP::SystematicSet m_reco_stat_lowpt_UP;
     CP::SystematicSet m_reco_stat_lowpt_DOWN;
     CP::SystematicSet m_reco_syst_lowpt_UP;
     CP::SystematicSet m_reco_syst_lowpt_DOWN;
+    
+    CP::SystematicSet m_reco_bad_muon_veto_UP;
+    CP::SystematicSet m_reco_bad_muon_veto_DOWN;
 
     CP::SystematicSet m_iso_stat_UP;
     CP::SystematicSet m_iso_stat_DOWN;
     CP::SystematicSet m_iso_syst_UP;
     CP::SystematicSet m_iso_syst_DOWN;
 
+    CP::SystematicSet m_iso_bkg_fraction_UP;
+    CP::SystematicSet m_iso_bkg_fraction_DOWN;
+    CP::SystematicSet m_iso_lumi_uncert_UP;
+    CP::SystematicSet m_iso_lumi_uncert_DOWN;
+    CP::SystematicSet m_iso_mc_xsec_UP;
+    CP::SystematicSet m_iso_mc_xsec_DOWN;
+    CP::SystematicSet m_iso_qcd_template_UP;
+    CP::SystematicSet m_iso_qcd_template_DOWN;
+    CP::SystematicSet m_iso_supression_scale_UP;
+    CP::SystematicSet m_iso_supression_scale_DOWN;
+    CP::SystematicSet m_iso_mllwindow_UP      ; 
+    CP::SystematicSet m_iso_mllwindow_DOWN    ; 
+    CP::SystematicSet m_iso_drmuj_UP          ; 
+    CP::SystematicSet m_iso_drmuj_DOWN        ; 
+    CP::SystematicSet m_iso_probeq_UP         ; 
+    CP::SystematicSet m_iso_probeq_DOWN       ; 
+    CP::SystematicSet m_iso_sherpa_powheg_UP  ; 
+    CP::SystematicSet m_iso_sherpa_powheg_DOWN; 
+
+
     CP::SystematicSet m_TTVA_stat_UP;
     CP::SystematicSet m_TTVA_stat_DOWN;
     CP::SystematicSet m_TTVA_syst_UP;
     CP::SystematicSet m_TTVA_syst_DOWN;
+
+    CP::SystematicSet m_TTVA_bkg_fraction_UP;
+    CP::SystematicSet m_TTVA_bkg_fraction_DOWN;
+    CP::SystematicSet m_TTVA_lumi_uncert_UP;
+    CP::SystematicSet m_TTVA_lumi_uncert_DOWN;
+    CP::SystematicSet m_TTVA_mc_xsec_UP;
+    CP::SystematicSet m_TTVA_mc_xsec_DOWN;
+    CP::SystematicSet m_TTVA_qcd_template_UP;
+    CP::SystematicSet m_TTVA_qcd_template_DOWN;
+    CP::SystematicSet m_TTVA_supression_scale_UP;
+    CP::SystematicSet m_TTVA_supression_scale_DOWN;
 
     std::string m_muon_trigger_sf_config = "";
   };

@@ -6,7 +6,6 @@
 
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"
-
 #include "TopCorrections/ScaleFactorRetriever.h"
 
 #include <cmath>
@@ -25,6 +24,7 @@ namespace top {
                              std::shared_ptr<top::TopConfig> config) :
     m_hists(name, outputFile, wk), m_nominalHashValue(0) {
     m_config = config;
+    m_sfRetriever = asg::ToolStore::get<ScaleFactorRetriever>("top::ScaleFactorRetriever");
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
 
@@ -32,6 +32,12 @@ namespace top {
     if (m_config->isMC()) {
       m_hists.addHist("mc_weight", ";MC Event Weight", 30, -1, 1000);
       m_hists.addHist("jvt_SF", ";JVT SF", 120, -0.5, 2.5);
+      if (m_config->useElectrons() || m_config->useMuons())
+        m_hists.addHist("lepton_SF", ";Lepton SF", 120, -0.5, 2.5);
+      if (m_config->useTaus())
+        m_hists.addHist("tau_SF", ";Tau SF", 120, -0.5, 2.5);
+      if (m_config->usePhotons())
+        m_hists.addHist("photon_SF", ";Photon SF", 120, -0.5, 2.5);
     }
 
     m_hists.addHist("pileup_weight", ";Pileup Weight", 20, -1, 5);
@@ -139,6 +145,13 @@ namespace top {
     if (m_config->isMC()) {
       m_hists.hist("mc_weight")->Fill(eventWeight, eventWeight);
       m_hists.hist("jvt_SF")->Fill(event.m_jvtSF, eventWeight);
+
+      if (m_config->useElectrons() || m_config->useMuons())
+        m_hists.hist("lepton_SF")->Fill(m_sfRetriever->leptonSF(event, topSFSyst::nominal), eventWeight);
+      if (m_config->useTaus())
+        m_hists.hist("tau_SF")->Fill(m_sfRetriever->tauSF(event, topSFSyst::nominal), eventWeight);
+      if (m_config->usePhotons())
+        m_hists.hist("photon_SF")->Fill(m_sfRetriever->photonSF(event, topSFSyst::nominal), eventWeight);
 
       //pileup weight needs pileup reweighting tool to have run
       if (top::ScaleFactorRetriever::hasPileupSF(event)) m_hists.hist("pileup_weight")->Fill(top::ScaleFactorRetriever::pileupSF(

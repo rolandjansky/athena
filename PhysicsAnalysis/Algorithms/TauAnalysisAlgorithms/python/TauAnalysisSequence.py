@@ -75,7 +75,7 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
         addPrivateTool( alg, 'matchingTool',
                         'TauAnalysisTools::TauTruthMatchingTool' )
         alg.matchingTool.WriteTruthTaus = 1
-        seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
+        seq.append( alg, inputPropName = 'taus',
                     stageName = 'selection' )
         pass
 
@@ -83,7 +83,6 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
     alg = createAlgorithm( 'CP::TauSmearingAlg', 'TauSmearingAlg' + postfix )
     addPrivateTool( alg, 'smearingTool', 'TauAnalysisTools::TauSmearingTool' )
     seq.append( alg, inputPropName = 'taus', outputPropName = 'tausOut',
-                affectingSystematics = '(^TAUS_TRUEHADTAU_SME_TES_.*)',
                 stageName = 'calibration' )
 
     # Set up the algorithm selecting taus:
@@ -106,21 +105,9 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
         alg.efficiencyCorrectionsTool.TauSelectionTool = '%s/%s' % \
             ( selectionTool.getType(), selectionTool.getName() )
         alg.scaleFactorDecoration = 'tau_effSF' + postfix + '_%SYS%'
-        alg.scaleFactorDecorationRegex = '(^TAUS_TRUEELECTRON_EFF_.*)' \
-                                         + '|(^TAUS_TRUEHADTAU_EFF_RECO.*)' \
-                                         + '|(^TAUS_TRUEHADTAU_EFF_RNNID.*)' \
-                                         + '|(^TAUS_TRUEHADTAU_EFF_JETID.*)' \
-                                         + '|(^TAUS_TRUEHADTAU_EFF_RECO.*)' \
-                                         + '|(^TAUS_TRUEHADTAU_EFF_ELEOLR.*)'
         alg.outOfValidity = 2 #silent
         alg.outOfValidityDeco = 'bad_eff' + postfix
         seq.append( alg, inputPropName = 'taus',
-                    affectingSystematics = '(^TAUS_TRUEELECTRON_EFF_.*)' \
-                                           + '|(^TAUS_TRUEHADTAU_EFF_RECO.*)' \
-                                           + '|(^TAUS_TRUEHADTAU_EFF_RNNID.*)' \
-                                           + '|(^TAUS_TRUEHADTAU_EFF_JETID.*)' \
-                                           + '|(^TAUS_TRUEHADTAU_EFF_RECO.*)' \
-                                           + '|(^TAUS_TRUEHADTAU_EFF_ELEOLR.*)',
                     stageName = 'efficiency' )
 
     # Set up an algorithm used to create tau selection cutflow:

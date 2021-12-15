@@ -9,7 +9,8 @@
 #define SYSTEMATICS_HANDLES__SYS_READ_HANDLE_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AsgTools/AsgMessagingForward.h>
+#include <AsgDataHandles/VarHandleKey.h>
+#include <AsgMessaging/AsgMessagingForward.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <string>
@@ -20,7 +21,9 @@ class StatusCode;
 
 namespace CP
 {
+  class SysListHandle;
   class SystematicSet;
+
 
   /// \brief a data handle for reading systematics varied input data
 
@@ -41,11 +44,23 @@ namespace CP
 
     /// \brief whether we have a name configured
   public:
-    bool empty () const noexcept;
+    virtual bool empty () const noexcept override;
 
     /// \brief !empty()
   public:
     explicit operator bool () const noexcept;
+
+    /// \brief get the name pattern before substitution
+  public:
+    virtual std::string getNamePattern () const override;
+
+
+    /// \brief initialize this handle
+    /// \{
+  public:
+    StatusCode initialize (SysListHandle& sysListHandle);
+    StatusCode initialize (SysListHandle& sysListHandle, SG::AllowEmptyEnum);
+    /// \}
 
 
     /// \brief get the name we retrieve from the event store
@@ -64,8 +79,13 @@ namespace CP
     // inherited interface
     //
 
-  public:
-    virtual std::string getInputAffecting () const override;
+  private:
+    virtual CP::SystematicSet
+    getInputAffecting (const ISystematicsSvc& svc) const override;
+    virtual StatusCode
+    fillSystematics (const ISystematicsSvc& svc,
+                     const CP::SystematicSet& fullAffecting,
+                     const std::vector<CP::SystematicSet>& sysList) override;
 
 
 
@@ -77,22 +97,19 @@ namespace CP
   private:
     std::string m_inputName;
 
-    /// \brief the regular expression for affecting systematics
-  private:
-    std::string m_affectingRegex {".*"};
-
     /// \brief the cache of names we use
   private:
-    mutable std::unordered_map<CP::SystematicSet,std::string> m_inputNameCache;
+    std::unordered_map<CP::SystematicSet,std::string> m_inputNameCache;
 
 
     /// \brief the type of the event store we use
   private:
-    typedef std::decay<decltype(*((EL::AnaAlgorithm*)0)->evtStore())>::type StoreType;
+    typedef std::decay<decltype(
+      *(std::declval<EL::AnaAlgorithm>().evtStore()))>::type StoreType;
 
     /// \brief the event store we use
   private:
-    mutable StoreType *m_evtStore = nullptr;
+    StoreType *m_evtStore = nullptr;
 
     /// \brief the function to retrieve the event store
     ///

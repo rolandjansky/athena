@@ -9,7 +9,7 @@
 #====================================================================
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 if not hasattr(svcMgr, 'ItemListSvc'): svcMgr += CfgMgr.ItemListSvc()
-svcMgr.ItemListSvc.OutputLevel = DEBUG
+svcMgr.ItemListSvc.OutputLevel = INFO
 
 #====================================================================
 # FLAGS TO PERSONALIZE THE DERIVATION
@@ -52,274 +52,6 @@ BPHY20_AugOriginalCounts = DerivationFramework__AugOriginalCounts(
    TrackContainer = "InDetTrackParticles" )
 ToolSvc += BPHY20_AugOriginalCounts
 
-#====================================================================
-# TriggerCounting for Kernel1 (from BPHY7)
-#====================================================================
-#List of trigggers to be counted (high Sig-eff*Lumi ones are in)
-triggersToMetadata= [
-### 2018
-"HLT_mu11_mu6_bJpsimumu",
-"HLT_2mu10_bJpsimumu",
-"HLT_mu6_2mu4_bJpsi",
-"HLT_3mu4_bJpsi",
-"HLT_mu11_mu6_bJpsimumu_Lxy0",
-"HLT_3mu6_bJpsi",
-"HLT_mu11_mu6_bJpsimumu_L1LFV-MU11",
-"HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-"HLT_mu11_mu6_bJpsimumu_Lxy0_L1LFV-MU11",
-"HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-"HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_2mu4_bJpsimumu_Lxy0_L1BPH-2M9-2MU4_BPH-0DR15-2MU4",
-"HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_mu10_bJpsi_TrkPEB",
-"HLT_mu6_bJpsi_TrkPEB",
-"HLT_2mu6_bJpsimumu",
-"HLT_mu6_mu2noL1_msonly_bJpsimumu_noid_PEB",
-
-### 2017
-#HLT_2mu10_bJpsimumu
-"HLT_2mu10_bJpsimumu_noL2",
-"HLT_2mu6_bJpsimumu",
-#HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6
-"HLT_2mu6_bJpsimumu_Lxy0",
-#HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6
-#HLT_3mu4_bJpsi
-#HLT_3mu6_bJpsi
-#HLT_mu10_bJpsi_TrkPEB
-"HLT_mu10_mu6_bJpsimumu",
-"HLT_mu10_mu6_bJpsimumu_Lxy0",
-#HLT_mu11_mu6_bJpsimumu
-#HLT_mu11_mu6_bJpsimumu_Lxy0
-"HLT_mu14_bJpsi_Trkloose",
-"HLT_mu14_bJpsi_TrkPEB",
-"HLT_mu20_2mu2noL1_JpsimumuFS",
-"HLT_mu20_2mu4_JpsimumuL2",
-"HLT_mu20_bJpsi_Trkloose",
-"HLT_mu20_bJpsi_TrkPEB",
-#HLT_mu6_bJpsi_TrkPEB
-#HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4
-#HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4
-
-### 2016
-#HLT_2mu10_bJpsimumu
-"HLT_2mu10_bJpsimumu_delayed",
-"HLT_2mu10_bJpsimumu_noL2",
-"HLT_2mu4_bJpsimumu_delayed_L1BPH-2M8-2MU4",
-"HLT_2mu4_bJpsimumu_L1BPH-2M8-2MU4",
-"HLT_2mu4_bJpsimumu_Lxy0_delayed_L1BPH-2M8-2MU4",
-"HLT_2mu6_bJpsimumu",
-"HLT_2mu6_bJpsimumu_delayed",
-"HLT_2mu6_bJpsimumu_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-#HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6
-"HLT_2mu6_bJpsimumu_Lxy0",
-"HLT_2mu6_bJpsimumu_Lxy0_delayed",
-"HLT_2mu6_bJpsimumu_Lxy0_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-#HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6
-#HLT_3mu4_bJpsi
-"HLT_3mu4_bJpsi_delayed",
-#HLT_3mu6_bJpsi
-"HLT_mu10_mu6_bJpsimumu",
-"HLT_mu10_mu6_bJpsimumu_delayed",
-"HLT_mu10_mu6_bJpsimumu_Lxy0",
-"HLT_mu10_mu6_bJpsimumu_Lxy0_delayed",
-"HLT_mu18_bJpsi_Trkloose",
-"HLT_mu20_2mu0noL1_JpsimumuFS",
-"HLT_mu20_2mu4_JpsimumuL2",
-#HLT_mu6_2mu4_bJpsi
-"HLT_mu6_2mu4_bJpsi_delayed",
-"HLT_mu6_mu4_bJpsimumu",
-"HLT_mu6_mu4_bJpsimumu_delayed",
-"HLT_mu6_mu4_bJpsimumu_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_mu6_mu4_bJpsimumu_delayed_L1MU6MU4-BO",
-"HLT_mu6_mu4_bJpsimumu_L12MU4-B",
-"HLT_mu6_mu4_bJpsimumu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_mu6_mu4_bJpsimumu_L1MU6MU4-BO",
-"HLT_mu6_mu4_bJpsimumu_Lxy0",
-"HLT_mu6_mu4_bJpsimumu_Lxy0_delayed",
-"HLT_mu6_mu4_bJpsimumu_Lxy0_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-
-### 2015
-#HLT_2mu10_bJpsimumu
-#HLT_2mu10_bJpsimumu_noL2
-"HLT_2mu10_l2msonly_bJpsimumu_noL2",
-"HLT_2mu4_bJpsimumu",
-"HLT_2mu4_bJpsimumu_noL2",
-"HLT_2mu4_l2msonly_bJpsimumu_noL2",
-#HLT_2mu6_bJpsimumu
-"HLT_2mu6_bJpsimumu_noL2",
-"HLT_2mu6_l2msonly_bJpsimumu_noL2",
-#HLT_3mu4_bJpsi
-#HLT_3mu6_bJpsi
-"HLT_mu10_mu10_l2msonly_bJpsimumu_noL2",
-"HLT_mu18_2mu0noL1_JpsimumuFS",
-"HLT_mu18_2mu4_JpsimumuL2",
-#HLT_mu18_bJpsi_Trkloose
-#HLT_mu20_2mu0noL1_JpsimumuFS
-#HLT_mu20_2mu4_JpsimumuL2
-"HLT_mu4_mu4_l2msonly_bJpsimumu_noL2",
-"HLT_mu6_l2msonly_mu4_bJpsimumu_noL2",
-"HLT_mu6_l2msonly_mu4_l2msonly_bJpsimumu_noL2",
-#HLT_mu6_mu4_bJpsimumu
-"HLT_mu6_mu4_bJpsimumu_noL2",
-"HLT_mu6_mu4_l2msonly_bJpsimumu_noL2",
-"HLT_mu6_mu6_l2msonly_bJpsimumu_noL2",
-
-"HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu14","HLT_mu18","HLT_mu24" #5%
-
- ]
-
-triggersToMetadata_filter = list( set(triggersToMetadata) )
-
-from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__TriggerCountToMetadata
-BPHY20TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata(name = "BPHY20TriggerCount",
-                                                                          TriggerList = triggersToMetadata_filter,
-                                                                          FolderName = "BPHY20")
-
-ToolSvc += BPHY20TriggerCountToMetadata
-
-#====================================================================
-# PRESELECTION for Kernel1 #Added by Matteo
-#====================================================================
-## 1/ Setup the skimming based on triggers
-##     
-
-triggerList = [ 
-## 2018
-"HLT_mu11_mu6_bJpsimumu",
-"HLT_2mu10_bJpsimumu",
-"HLT_mu6_2mu4_bJpsi",
-"HLT_3mu4_bJpsi",
-"HLT_mu11_mu6_bJpsimumu_Lxy0",
-"HLT_3mu6_bJpsi",
-"HLT_mu11_mu6_bJpsimumu_L1LFV-MU11",
-"HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-"HLT_mu11_mu6_bJpsimumu_Lxy0_L1LFV-MU11",
-"HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-"HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_2mu4_bJpsimumu_Lxy0_L1BPH-2M9-2MU4_BPH-0DR15-2MU4",
-"HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_mu10_bJpsi_TrkPEB",
-"HLT_mu6_bJpsi_TrkPEB",
-"HLT_2mu6_bJpsimumu",
-"HLT_mu6_mu2noL1_msonly_bJpsimumu_noid_PEB",
-
-
-"HLT_mu22_mu8noL1_TagandProbe",
-
-### 2017
-#HLT_2mu10_bJpsimumu
-"HLT_2mu10_bJpsimumu_noL2",
-"HLT_2mu6_bJpsimumu",
-#HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6
-"HLT_2mu6_bJpsimumu_Lxy0",
-#HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6
-#HLT_3mu4_bJpsi
-#HLT_3mu6_bJpsi
-#HLT_mu10_bJpsi_TrkPEB
-"HLT_mu10_mu6_bJpsimumu",
-"HLT_mu10_mu6_bJpsimumu_Lxy0",
-#HLT_mu11_mu6_bJpsimumu
-#HLT_mu11_mu6_bJpsimumu_Lxy0
-"HLT_mu14_bJpsi_Trkloose",
-"HLT_mu14_bJpsi_TrkPEB",
-"HLT_mu20_2mu2noL1_JpsimumuFS",
-"HLT_mu20_2mu4_JpsimumuL2",
-"HLT_mu20_bJpsi_Trkloose",
-"HLT_mu20_bJpsi_TrkPEB",
-#HLT_mu6_bJpsi_TrkPEB
-#HLT_mu6_mu4_bJpsimumu_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4
-#HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4
-
-### 2016
-#HLT_2mu10_bJpsimumu
-"HLT_2mu10_bJpsimumu_delayed",
-"HLT_2mu10_bJpsimumu_noL2",
-"HLT_2mu4_bJpsimumu_delayed_L1BPH-2M8-2MU4",
-"HLT_2mu4_bJpsimumu_L1BPH-2M8-2MU4",
-"HLT_2mu4_bJpsimumu_Lxy0_delayed_L1BPH-2M8-2MU4",
-"HLT_2mu6_bJpsimumu",
-"HLT_2mu6_bJpsimumu_delayed",
-"HLT_2mu6_bJpsimumu_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-#HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6
-"HLT_2mu6_bJpsimumu_Lxy0",
-"HLT_2mu6_bJpsimumu_Lxy0_delayed",
-"HLT_2mu6_bJpsimumu_Lxy0_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-#HLT_2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6
-#HLT_3mu4_bJpsi
-"HLT_3mu4_bJpsi_delayed",
-#HLT_3mu6_bJpsi
-"HLT_mu10_mu6_bJpsimumu",
-"HLT_mu10_mu6_bJpsimumu_delayed",
-"HLT_mu10_mu6_bJpsimumu_Lxy0",
-"HLT_mu10_mu6_bJpsimumu_Lxy0_delayed",
-"HLT_mu18_bJpsi_Trkloose",
-"HLT_mu20_2mu0noL1_JpsimumuFS",
-"HLT_mu20_2mu4_JpsimumuL2",
-#HLT_mu6_2mu4_bJpsi
-"HLT_mu6_2mu4_bJpsi_delayed",
-"HLT_mu6_mu4_bJpsimumu",
-"HLT_mu6_mu4_bJpsimumu_delayed",
-"HLT_mu6_mu4_bJpsimumu_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_mu6_mu4_bJpsimumu_delayed_L1MU6MU4-BO",
-"HLT_mu6_mu4_bJpsimumu_L12MU4-B",
-"HLT_mu6_mu4_bJpsimumu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_mu6_mu4_bJpsimumu_L1MU6MU4-BO",
-"HLT_mu6_mu4_bJpsimumu_Lxy0",
-"HLT_mu6_mu4_bJpsimumu_Lxy0_delayed",
-"HLT_mu6_mu4_bJpsimumu_Lxy0_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-"HLT_mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-
-### 2015
-#HLT_2mu10_bJpsimumu
-#HLT_2mu10_bJpsimumu_noL2
-"HLT_2mu10_l2msonly_bJpsimumu_noL2",
-"HLT_2mu4_bJpsimumu",
-"HLT_2mu4_bJpsimumu_noL2",
-"HLT_2mu4_l2msonly_bJpsimumu_noL2",
-#HLT_2mu6_bJpsimumu
-"HLT_2mu6_bJpsimumu_noL2",
-"HLT_2mu6_l2msonly_bJpsimumu_noL2",
-#HLT_3mu4_bJpsi
-#HLT_3mu6_bJpsi
-"HLT_mu10_mu10_l2msonly_bJpsimumu_noL2",
-"HLT_mu18_2mu0noL1_JpsimumuFS",
-"HLT_mu18_2mu4_JpsimumuL2",
-#HLT_mu18_bJpsi_Trkloose
-#HLT_mu20_2mu0noL1_JpsimumuFS
-#HLT_mu20_2mu4_JpsimumuL2
-"HLT_mu4_mu4_l2msonly_bJpsimumu_noL2",
-"HLT_mu6_l2msonly_mu4_bJpsimumu_noL2",
-"HLT_mu6_l2msonly_mu4_l2msonly_bJpsimumu_noL2",
-#HLT_mu6_mu4_bJpsimumu
-"HLT_mu6_mu4_bJpsimumu_noL2",
-"HLT_mu6_mu4_l2msonly_bJpsimumu_noL2",
-"HLT_mu6_mu6_l2msonly_bJpsimumu_noL2" ,
-
-
-
-"HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu14","HLT_mu18","HLT_mu24", #5%
-                
-             
-"HLT_.*mu11_mu6.*",     # Recent triggers
-"HLT_.*mu.*imedium.*",	# Trigger with looser isolation selection 
-"HLT_.*mu.*iloose.*",
-"HLT_.*mu6.*2mu4.*",
-"HLT_.*2mu.*",
-"HLT_.*mu11.*2mu4noL1.*",
-"HLT_.*2mu14_nomucomb.*",
-"HLT_.*bTau.*",		# Our tau triggers
-"HLT_.*bDimu2700.*",
-"HLT_.*bPhi.*"
-               ]    
-               
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-BPHY20TriggerSkim = DerivationFramework__TriggerSkimmingTool(name = "BPHY20TriggerSkim",
-                                                            TriggerListOR = triggerList,
-                                                            TriggerListAND = [] )
-
-ToolSvc += BPHY20TriggerSkim
-
 #--------------------------------------------------------------------
 # 2/ Select J/psi>mu+mu-
 #--------------------------------------------------------------------
@@ -339,9 +71,10 @@ BPHY20JpsiFinder = Analysis__JpsiFinder(
     invMassLower               = 2000.0,
     Chi2Cut                    = 20.,
     oppChargesOnly	        = True,
+    allMuons                   = True,
 #    allChargeCombinations	   = True,
     combOnly                   = False,
-    atLeastOneComb             = True,
+    atLeastOneComb             = False,
     useCombinedMeasurement     = False, # Only takes effect if combOnly=True    
     muonCollectionKey          = "Muons",
     TrackParticleCollection    = "InDetTrackParticles",
@@ -369,7 +102,7 @@ BPHY20JpsiSelectAndWrite = DerivationFramework__Reco_mumu(
     OutputVtxContainerName = "BPHY20JpsiCandidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
-    DoVertexType           = 1)
+    DoVertexType           = 7)
 
 ToolSvc += BPHY20JpsiSelectAndWrite
 print BPHY20JpsiSelectAndWrite
@@ -385,7 +118,7 @@ BPHY20_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
     MassMin               = 2000.0,
     MassMax               = 4500.0,
     Chi2Max               = 20,
-    DoVertexType          = 1)
+    DoVertexType          = 7)
   
 ToolSvc += BPHY20_Select_Jpsi2mumu
 print      BPHY20_Select_Jpsi2mumu
@@ -398,7 +131,7 @@ from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 BcJpsiMuVertexFit = Trk__TrkVKalVrtFitter(
     name               = "BcJpsiMuVertexFit",
     Extrapolator       = BPHY20_VertexTools.InDetExtrapolator,
-    FirstMeasuredPoint = True,
+    FirstMeasuredPoint = False,
     MakeExtendedVertex = True)
 
 ToolSvc += BcJpsiMuVertexFit
@@ -411,11 +144,11 @@ BPHY20BcJpsiMu = Analysis__JpsiPlus1Track(
     name                    = "BPHY20BcJpsiMu",
     OutputLevel             = INFO, #DEBUG,
     pionHypothesis          = True, #False,
-    kaonHypothesis        = False,#True,
+    kaonHypothesis        = True,#True,
     trkThresholdPt        = 1000,
     trkMaxEta               = 3.0,
     BThresholdPt            = 1000.0,
-    BMassUpper                = 6900.0,
+    BMassUpper                = 10000.0,
     BMassLower                = 2000.0,
     JpsiContainerKey        = "BPHY20JpsiCandidates",
     TrackParticleCollection = "InDetTrackParticles",
@@ -426,7 +159,7 @@ BPHY20BcJpsiMu = Analysis__JpsiPlus1Track(
     UseMassConstraint       = True, 
     RequireNMuonTracks      = 1,
     Chi2Cut                 = 1000, #5
-    TrkTrippletMassUpper    = 6900,
+    TrkTrippletMassUpper    = 10000.0,
     TrkTrippletMassLower    = 2000.0)
         
 ToolSvc += BPHY20BcJpsiMu
@@ -457,7 +190,7 @@ BPHY20_Select_Bc2JpsiMu = DerivationFramework__Select_onia2mumu(
     TrkMasses             = [105.658, 105.658, 105.658],
     VtxMassHypo           = 6274.9,
     MassMin               = 2000.0,
-    MassMax               = 6900.0,
+    MassMax               = 10000.0,
     Chi2Max               = 1000)
 
 ToolSvc += BPHY20_Select_Bc2JpsiMu
@@ -561,7 +294,6 @@ ToolSvc += BPHY20_Extrap_Tool
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 BPHY20ThinningHelper = ThinningHelper( "BPHY20ThinningHelper" )
-BPHY20ThinningHelper.TriggerChains = 'HLT_.*mu.*' #triggerList    # . = any character; * = 0 or more times; + = 1 or more times; ? 0 or 1 times  "Regular_Expression"
 BPHY20ThinningHelper.AppendToStream( BPHY20Stream )
 
 
@@ -572,18 +304,6 @@ BPHY20ThinningHelper.AppendToStream( BPHY20Stream )
 ##    vertices that passed the selection. Multiple thinning tools can perform the 
 ##    selection. The final thinning decision is based OR of all the decisions (by default,
 ##    although it can be changed by the JO).
-
-## 12/ Cleans up, removing duplicate vertices. An issue caused by the logic of Jpsi+1 track in the case of 3-muon candidates
-
-from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxDuplicates
-BPHY20Thin_vtxDuplicates = DerivationFramework__Thin_vtxDuplicates(name                       = "BPHY20Thin_vtxDuplicates",
-                                                                  OutputLevel                = INFO,
-                                                                  ThinningService            = BPHY20ThinningHelper.ThinningSvc(),
-                                                                  TrackParticleContainerName = "InDetTrackParticles",
-                                                                  VertexContainerNames       = ["BPHY20BcJpsiMuCandidates"],
-                                                                  PassFlags                  = ["passed_Bc"])
-
-ToolSvc += BPHY20Thin_vtxDuplicates
 
 ## a) thining out vertices that didn't pass any selection and idetifying tracks associated with 
 ##    selected vertices. The "VertexContainerNames" is a list of the vertex containers, and "PassFlags"
@@ -604,7 +324,7 @@ BPHY20Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
 ToolSvc += BPHY20Thin_vtxTrk
 
 
-## 13/ thinning out tracks that are not attached to muons. The final thinning decision is based on the OR operation
+## 12/ thinning out tracks that are not attached to muons. The final thinning decision is based on the OR operation
 ##     between decision from this and the previous tools.
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 BPHY20MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "BPHY20MuonTPThinningTool",
@@ -632,7 +352,7 @@ ToolSvc += BPHY20TauTPThinningTool
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY20TruthThinTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY20TruthThinTool",
                                                                ThinningService         = BPHY20ThinningHelper.ThinningSvc(),
-                                                               ParticleSelectionString = "abs(TruthParticles.pdgId) == 13 || abs(TruthParticles.pdgId) == 15 || abs(TruthParticles.pdgId) == 541 || abs(TruthParticles.pdgId) == 431 || abs(TruthParticles.pdgId) == 411 || abs(TruthParticles.pdgId) == 413 || abs(TruthParticles.pdgId) == 433 || TruthParticles.pdgId == 421 || TruthParticles.pdgId == 423 || abs(TruthParticles.pdgId) == 521 || abs(TruthParticles.pdgId) == 523 || TruthParticles.pdgId == 511 || TruthParticles.pdgId == 513",
+                                                               ParticleSelectionString = "abs(TruthParticles.pdgId) == 13 || abs(TruthParticles.pdgId) == 15 || abs(TruthParticles.pdgId) == 541 || abs(TruthParticles.pdgId) == 543 || abs(TruthParticles.pdgId) == 100541 || abs(TruthParticles.pdgId) == 100543 || abs(TruthParticles.pdgId) == 431 || abs(TruthParticles.pdgId) == 411 || abs(TruthParticles.pdgId) == 413 || abs(TruthParticles.pdgId) == 433 || TruthParticles.pdgId == 421 || TruthParticles.pdgId == 423 || abs(TruthParticles.pdgId) == 521 || abs(TruthParticles.pdgId) == 523 || TruthParticles.pdgId == 511 || TruthParticles.pdgId == 513 || TruthParticles.pdgId == 531 || TruthParticles.pdgId == 533 || TruthParticles.pdgId == 443 || TruthParticles.pdgId == 100443",
                                                                PreserveDescendants     = True,
                                                                PreserveAncestors      = True)
 ToolSvc += BPHY20TruthThinTool
@@ -651,7 +371,7 @@ ToolSvc += BPHY20TruthThinNoChainTool
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
-BPHY20ThinningTools = [ BPHY20MuonTPThinningTool, BPHY20Thin_vtxDuplicates, 
+BPHY20ThinningTools = [ BPHY20MuonTPThinningTool, 
                         BPHY20Thin_vtxTrk, BPHY20_thinningTool_PV,  
                         BPHY20TauTPThinningTool]
 
@@ -665,7 +385,7 @@ BPHY20AugmentationTools = [BPHY20JpsiSelectAndWrite, BPHY20_Select_Jpsi2mumu,
 if addMuExtrapolationForTrigger:
     BPHY20AugmentationTools.append(BPHY20_Extrap_Tool)
 
-Kernel1Tools = [BPHY20TriggerSkim]
+Kernel1Tools = []
 
 if isSimulation:
     #BPHY20AugmentationTools.append(DFCommonTauTruthMatchingWrapper)
@@ -685,11 +405,6 @@ if onlyAugmentations:
     BPHY20ThinningTools = []
 
 # Kernel n1 PRESELECTION
-# The name of the kernel (BPHY20Kernel1 in this case) must be unique to this derivation
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-BPHY20_Sequence += CfgMgr.DerivationFramework__DerivationKernel("BPHY20Kernel_trigPresel",
-                                                               AugmentationTools = [BPHY20TriggerCountToMetadata] ,
-                                                               SkimmingTools     = Kernel1Tools)
 # Kernel n2 deep Derivation
 # The name of the kernel (BPHY20Kernel2 in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -717,7 +432,6 @@ SmartCollections = [
                     "TauJets", 
                     "AntiKt4EMTopoJets_BTagging201810", 
                     "BTagging_AntiKt4EMTopo_201810", 
-                    "PrimaryVertices", 
                     "Muons", 
                     "InDetTrackParticles", 
                     "MET_Reference_AntiKt4EMTopo"
@@ -728,6 +442,7 @@ AllVariables = ["METAssoc_AntiKt4EMTopo",
                  "MET_Core_AntiKt4EMTopo",
                  "MET_Truth",
                  "MET_Track",
+                 "PrimaryVertices",
                  "MET_LocHadTopo"]
 
 AllVariables += ["Kt4EMTopoOriginEventShape",

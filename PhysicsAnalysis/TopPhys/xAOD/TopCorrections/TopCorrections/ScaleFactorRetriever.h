@@ -55,6 +55,34 @@ namespace top {
     // Muon TTVA SFs
     MU_SF_TTVA_STAT_UP, MU_SF_TTVA_STAT_DOWN,
     MU_SF_TTVA_SYST_UP, MU_SF_TTVA_SYST_DOWN,
+    // For more complex systematics
+    MU_SF_ID_BKG_FRACTION_UP, MU_SF_ID_BKG_FRACTION_DOWN,
+    MU_SF_ID_FIT_MODEL_LOWPT_UP, MU_SF_ID_FIT_MODEL_LOWPT_DOWN,
+    MU_SF_ID_LUMI_UNCERT_UP, MU_SF_ID_LUMI_UNCERT_DOWN,
+    MU_SF_ID_MATCHING_UP, MU_SF_ID_MATCHING_DOWN,
+    MU_SF_ID_MATCHING_LOWPT_UP, MU_SF_ID_MATCHING_LOWPT_DOWN,
+    MU_SF_ID_MC_XSEC_UP, MU_SF_ID_MC_XSEC_DOWN,
+    MU_SF_ID_PT_DEPENDENCY_UP, MU_SF_ID_PT_DEPENDENCY_DOWN,
+    MU_SF_ID_QCD_TEMPLATE_UP, MU_SF_ID_QCD_TEMPLATE_DOWN,
+    MU_SF_ID_SUPRESSION_SCALE_UP, MU_SF_ID_SUPRESSION_SCALE_DOWN,
+    MU_SF_ID_SYS_UP, MU_SF_ID_SYS_DOWN,
+    MU_SF_ID_TRUTH_UP, MU_SF_ID_TRUTH_DOWN,
+    MU_SF_ID_TRUTH_LOWPT_UP, MU_SF_ID_TRUTH_LOWPT_DOWN,
+    MU_SF_ID_BAD_MUON_VETO_UP, MU_SF_ID_BAD_MUON_VETO_DOWN,
+    MU_SF_TTVA_BKG_FRACTION_UP, MU_SF_TTVA_BKG_FRACTION_DOWN,
+    MU_SF_TTVA_LUMI_UNCERT_UP, MU_SF_TTVA_LUMI_UNCERT_DOWN,
+    MU_SF_TTVA_MC_XSEC_UP, MU_SF_TTVA_MC_XSEC_DOWN,
+    MU_SF_TTVA_QCD_TEMPLATE_UP, MU_SF_TTVA_QCD_TEMPLATE_DOWN,
+    MU_SF_TTVA_SUPRESSION_SCALE_UP, MU_SF_TTVA_SUPRESSION_SCALE_DOWN,
+    MU_SF_Isol_BKG_FRACTION_UP,     MU_SF_Isol_BKG_FRACTION_DOWN,
+    MU_SF_Isol_LUMI_UNCERT_UP,      MU_SF_Isol_LUMI_UNCERT_DOWN,
+    MU_SF_Isol_MC_XSEC_UP,          MU_SF_Isol_MC_XSEC_DOWN,
+    MU_SF_Isol_QCD_TEMPLATE_UP,     MU_SF_Isol_QCD_TEMPLATE_DOWN,
+    MU_SF_Isol_SUPRESSION_SCALE_UP, MU_SF_Isol_SUPRESSION_SCALE_DOWN,
+    MU_SF_Isol_MLLWINDOW_UP,          MU_SF_Isol_MLLWINDOW_DOWN,
+    MU_SF_Isol_DRMUJ_UP,          MU_SF_Isol_DRMUJ_DOWN,
+    MU_SF_Isol_PROBEQ_UP,          MU_SF_Isol_PROBEQ_DOWN,
+    MU_SF_Isol_SHERPA_POWHEG_UP,          MU_SF_Isol_SHERPA_POWHEG_DOWN,
 
     TAU_SF_NOMINAL,
     // Tau EleOLR SFs
@@ -88,6 +116,8 @@ namespace top {
     // Photon SFs
     PHOTON_IDSF_UP, PHOTON_IDSF_DOWN,
     PHOTON_EFF_ISO_UP, PHOTON_EFF_ISO_DOWN,
+    PHOTON_EFF_TRIGGER_UNCERTAINTY_UP,
+    PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN,
     // B-tagging SFs
     BTAG_SF_EIGEN_B, BTAG_SF_EIGEN_C,
     BTAG_SF_EIGEN_LIGHT,
@@ -173,7 +203,7 @@ namespace top {
     {TAUS_TRUEHADTAU_EFF_RNNID_1PRONGSTATSYSTPT3040__1down, "EFF_RNNID_1PRONGSTATSYSTPT3040_DOWN"},
     {TAUS_TRUEHADTAU_EFF_RNNID_1PRONGSTATSYSTPTGE40__1up, "EFF_RNNID_1PRONGSTATSYSTPTGE40_UP"},
     {TAUS_TRUEHADTAU_EFF_RNNID_1PRONGSTATSYSTPTGE40__1down, "EFF_RNNID_1PRONGSTATSYSTPTGE40_DOWN"},
-	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2025__1up, "EFF_RNNID_1PRONGSTATSYSTPT2025_UP"},
+	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2025__1up, "EFF_RNNID_3PRONGSTATSYSTPT2025_UP"},
 	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2025__1down, "EFF_RNNID_3PRONGSTATSYSTPT2025_DOWN"},
 	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2530__1up, "EFF_RNNID_3PRONGSTATSYSTPT2530_UP"},
 	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2530__1down, "EFF_RNNID_3PRONGSTATSYSTPT2530_DOWN"},
@@ -233,6 +263,7 @@ namespace top {
 
     // Obtain the trigger SF
     float triggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
+    float triggerSFPhoton(const top::Event& event, const top::topSFSyst SFSyst) const;
 
     // Obtain trigger SF via global tool
     float globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
@@ -247,6 +278,9 @@ namespace top {
 
     //get vector of systematic variations of electron SFs, var=1 for up, var=-1 for down
     std::vector<float> electronSFSystVariationVector(const top::Event& event, const top::topSFComp SFComp, int var = 1) const;
+
+    //get vector of systematic variations of electron SFs, var=1 for up, var=-1 for down and size of systematic variations
+    std::vector<float> electronSFSystVariationVector(const top::Event& event, const top::topSFComp SFComp, int var = 1, int size=50) const;
 
     // Obtain the fwd electron SF
     float fwdElectronSF(const top::Event& event,
@@ -465,15 +499,19 @@ namespace top {
 
     // List of triggers to 'or' together for each event.
     // If any one passes, the event passes
-    std::vector<std::string> m_electronTriggers_Tight;
-    std::vector<std::string> m_muonTriggers_Tight;
-    std::vector<std::string> m_electronTriggers_Loose;
-    std::vector<std::string> m_muonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_electronTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_muonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_photonTriggers_Tight;
+    std::vector<std::pair<std::string, int> > m_electronTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_muonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_photonTriggers_Loose;
     // Do we need to add tau triggers?
 
     // Configuration
     std::shared_ptr<top::TopConfig> m_config;
     bool m_preferGlobalTriggerSF;
+
+    static size_t s_warn_counter; // print WARNING messages limited times to prevent excessive log spam
   };
 }  // namespace top
 

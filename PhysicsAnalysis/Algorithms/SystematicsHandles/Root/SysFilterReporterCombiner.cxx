@@ -23,7 +23,6 @@ namespace CP
 {
   SysFilterReporterCombiner ::
   SysFilterReporterCombiner (SysFilterReporterParams& val_params,
-                             SysListHandle& systematicsList,
                              bool val_passedDefault)
     : AsgMessagingForward (&val_params)
     , m_params (val_params)
@@ -34,8 +33,6 @@ namespace CP
       ANA_MSG_FATAL ("using uninitialized SysFilterReporterParams, throwing exception");
       throw std::logic_error ("using uninitialized SysFilterReporterParams");
     }
-
-    ANA_CHECK_THROW (m_params.m_eventDecisionOutputDecoration.preExecute(systematicsList));
   }
 
 

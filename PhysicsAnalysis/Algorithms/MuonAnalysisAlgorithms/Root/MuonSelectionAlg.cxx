@@ -47,7 +47,7 @@ namespace CP
       ANA_CHECK (m_selectionTool.retrieve());
     }
 
-    m_systematicsList.addHandle (m_muonsHandle);
+    ANA_CHECK (m_muonsHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
@@ -66,11 +66,11 @@ namespace CP
   StatusCode MuonSelectionAlgV2 ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode
+    for (const auto& sys : m_systematicsList.systematicsVector())
     {
-      xAOD::MuonContainer *muons = nullptr;
-      ANA_CHECK (m_muonsHandle.getCopy (muons, sys));
-      for (xAOD::Muon *muon : *muons)
+      const xAOD::MuonContainer *muons = nullptr;
+      ANA_CHECK (m_muonsHandle.retrieve (muons, sys));
+      for (const xAOD::Muon *muon : *muons)
       {
         if (m_preselection.getBool (*muon))
         {
@@ -90,7 +90,7 @@ namespace CP
           }
         }
       }
-      return StatusCode::SUCCESS;
-    });
+    }
+    return StatusCode::SUCCESS;
   }
 }

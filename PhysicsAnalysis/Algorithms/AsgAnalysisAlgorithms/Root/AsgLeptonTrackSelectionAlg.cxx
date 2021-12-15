@@ -73,7 +73,7 @@ namespace CP
     if (m_nMinSCTHits != -1 || m_nMaxSCTHits != -1)
       m_accept.addCut ("numSCTHits", "Minimum and/or maxiumum SCT hits");
 
-    m_systematicsList.addHandle (m_particlesHandle);
+    ANA_CHECK (m_particlesHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
@@ -114,81 +114,82 @@ namespace CP
       }
     }
 
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::IParticleContainer *particles = nullptr;
-        ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
-        for (xAOD::IParticle *particle : *particles)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      const xAOD::IParticleContainer *particles = nullptr;
+      ANA_CHECK (m_particlesHandle.retrieve (particles, sys));
+      for (const xAOD::IParticle *particle : *particles)
+      {
+        m_accept.clear();
+
+        if (m_preselection.getBool (*particle))
         {
-          m_accept.clear();
+          std::size_t cutIndex {0};
 
-          if (m_preselection.getBool (*particle))
+          const xAOD::TrackParticle *track {nullptr};
+          if (const xAOD::Muon *muon = dynamic_cast<const xAOD::Muon *>(particle))
+            track = muon->primaryTrackParticle();
+          else if (const xAOD::Electron *electron = dynamic_cast<const xAOD::Electron *>(particle))
+            track = electron->trackParticle();
+          else
           {
-            std::size_t cutIndex {0};
-
-            const xAOD::TrackParticle *track {nullptr};
-            if (const xAOD::Muon *muon = dynamic_cast<xAOD::Muon*>(particle))
-              track = muon->primaryTrackParticle();
-            else if (const xAOD::Electron *electron = dynamic_cast<xAOD::Electron*>(particle))
-              track = electron->trackParticle();
-            else
-            {
-              ANA_MSG_ERROR ("failed to cast input to electron or muon");
-              return StatusCode::FAILURE;
-            }
-
-            m_accept.setCutResult (cutIndex ++, track != nullptr);
-            if (track != nullptr)
-            {
-              if (m_maxD0Significance > 0)
-              {
-                try
-                {
-                  const float d0sig = xAOD::TrackingHelpers::d0significance
-                    (track, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(),
-                    eventInfo->beamPosSigmaXY());
-                  m_accept.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
-                } catch (const std::runtime_error &) {
-                  m_accept.setCutResult (cutIndex ++, false);
-                }
-              }
-              if (m_maxDeltaZ0SinTheta > 0)
-              {
-                const double vertex_z = primaryVertex ? primaryVertex->z() : 0;
-                const float deltaZ0SinTheta
-                  = (track->z0() + track->vz() - vertex_z) * sin (particle->p4().Theta());
-                m_accept.setCutResult (cutIndex ++, fabs (deltaZ0SinTheta) < m_maxDeltaZ0SinTheta);
-              }
-              if (m_nMinPixelHits != -1 || m_nMaxPixelHits != -1) {
-                uint8_t nPixelHits;
-                track->summaryValue(nPixelHits, xAOD::numberOfPixelHits);
-                bool accept = true;
-                if(m_nMinPixelHits != -1) {
-                  accept &= nPixelHits >= m_nMinPixelHits;
-                }
-                if(m_nMaxPixelHits != -1) {
-                  accept &= nPixelHits <= m_nMaxPixelHits;
-                }
-                m_accept.setCutResult (cutIndex++, accept);
-              }
-              if (m_nMinSCTHits != -1 || m_nMaxSCTHits != -1) {
-                uint8_t nSCTHits;
-                track->summaryValue(nSCTHits, xAOD::numberOfSCTHits);
-                bool accept = true;
-                if(m_nMinSCTHits != -1) {
-                  accept &= nSCTHits >= m_nMinSCTHits;
-                }
-                if(m_nMaxSCTHits != -1) {
-                  accept &= nSCTHits <= m_nMaxSCTHits;
-                }
-                m_accept.setCutResult (cutIndex++, accept);
-              }
-            }
+            ANA_MSG_ERROR ("failed to cast input to electron or muon");
+            return StatusCode::FAILURE;
           }
 
-          m_selectionAccessor->setBits
-              (*particle, selectionFromAccept (m_accept));
+          m_accept.setCutResult (cutIndex ++, track != nullptr);
+          if (track != nullptr)
+          {
+            if (m_maxD0Significance > 0)
+            {
+              try
+              {
+                const float d0sig = xAOD::TrackingHelpers::d0significance
+                  (track, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(),
+                   eventInfo->beamPosSigmaXY());
+                m_accept.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
+              } catch (const std::runtime_error &) {
+                m_accept.setCutResult (cutIndex ++, false);
+              }
+            }
+            if (m_maxDeltaZ0SinTheta > 0)
+            {
+              const double vertex_z = primaryVertex ? primaryVertex->z() : 0;
+              const float deltaZ0SinTheta
+                = (track->z0() + track->vz() - vertex_z) * sin (particle->p4().Theta());
+              m_accept.setCutResult (cutIndex ++, fabs (deltaZ0SinTheta) < m_maxDeltaZ0SinTheta);
+            }
+            if (m_nMinPixelHits != -1 || m_nMaxPixelHits != -1) {
+              uint8_t nPixelHits;
+              track->summaryValue(nPixelHits, xAOD::numberOfPixelHits);
+              bool accept = true;
+              if(m_nMinPixelHits != -1) {
+                accept &= nPixelHits >= m_nMinPixelHits;
+              }
+              if(m_nMaxPixelHits != -1) {
+                accept &= nPixelHits <= m_nMaxPixelHits;
+              }
+              m_accept.setCutResult (cutIndex++, accept);
+            }
+            if (m_nMinSCTHits != -1 || m_nMaxSCTHits != -1) {
+              uint8_t nSCTHits;
+              track->summaryValue(nSCTHits, xAOD::numberOfSCTHits);
+              bool accept = true;
+              if(m_nMinSCTHits != -1) {
+                accept &= nSCTHits >= m_nMinSCTHits;
+              }
+              if(m_nMaxSCTHits != -1) {
+                accept &= nSCTHits <= m_nMaxSCTHits;
+              }
+              m_accept.setCutResult (cutIndex++, accept);
+            }
+          }
         }
-        return StatusCode::SUCCESS;
-      });
+
+        m_selectionAccessor->setBits
+          (*particle, selectionFromAccept (m_accept));
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

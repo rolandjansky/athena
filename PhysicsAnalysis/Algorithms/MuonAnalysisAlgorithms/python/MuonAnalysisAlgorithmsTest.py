@@ -3,23 +3,28 @@
 # @author Nils Krumnack
 
 from AnaAlgorithm.AlgSequence import AlgSequence
-from AnaAlgorithm.DualUseConfig import createAlgorithm
+from AnaAlgorithm.DualUseConfig import createAlgorithm, createService
+from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import pileupConfigFiles
 
 def makeSequence (dataType) :
 
     algSeq = AlgSequence()
 
-    # Set up the systematics loader/handler algorithm:
-    sysLoader = createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
-    sysLoader.sigmaRecommended = 1
-    algSeq += sysLoader
-
+    # Set up the systematics loader/handler service:
+    sysService = createService( 'CP::SystematicsSvc', 'SystematicsSvc', sequence = algSeq )
+    sysService.sigmaRecommended = 1
 
     # Include, and then set up the pileup analysis sequence:
+    prwfiles, lumicalcfiles = pileupConfigFiles(dataType)
+
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
-    pileupSequence = makePileupAnalysisSequence( dataType )
-    pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo_%SYS%' )
+    pileupSequence = makePileupAnalysisSequence(
+        dataType,
+        userPileupConfigs=prwfiles,
+        userLumicalcFiles=lumicalcfiles,
+    )
+    pileupSequence.configure( inputName = {}, outputName = {} )
 
     # Add the pileup sequence to the job:
     algSeq += pileupSequence
@@ -40,8 +45,7 @@ def makeSequence (dataType) :
                                                   enableCutflow=True, enableKinematicHistograms=True )
     muonSequenceTight.removeStage ("calibration")
     muonSequenceTight.configure( inputName = 'AnalysisMuonsMedium_%SYS%',
-                                 outputName = 'AnalysisMuons_%SYS%',
-                                 affectingSystematics = muonSequenceMedium.affectingSystematics())
+                                 outputName = 'AnalysisMuons_%SYS%')
 
     # Add the sequence to the job:
     algSeq += muonSequenceTight
@@ -54,14 +58,15 @@ def makeSequence (dataType) :
     ntupleMaker.TreeName = 'muons'
     ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
                              'EventInfo.eventNumber   -> eventNumber', ]
-    ntupleMaker.systematicsRegex = '(^$)'
     algSeq += ntupleMaker
     ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMakerMuons' )
     ntupleMaker.TreeName = 'muons'
     ntupleMaker.Branches = [ 'AnalysisMuons_NOSYS.eta -> mu_eta',
                              'AnalysisMuons_NOSYS.phi -> mu_phi',
                              'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
-    ntupleMaker.systematicsRegex = '(^MUON_.*)'
+    if dataType != 'data':
+        ntupleMaker.Branches += [ 'AnalysisMuons_%SYS%.muon_effSF_tight_%SYS% -> mu_%SYS%_effSF' ]
+    ntupleMaker.OutputLevel = 2  # For output validation
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )
     treeFiller.TreeName = 'muons'

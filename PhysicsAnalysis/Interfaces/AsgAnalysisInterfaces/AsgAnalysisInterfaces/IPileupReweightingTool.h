@@ -34,13 +34,13 @@ class TPileupReweighting;
 
 
          /// Return combined pileup weight
-         virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo ) = 0;
+         virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo, bool correctUnrepresented=false ) = 0;
 
          /// Same as above, but for a 'custom weight' variable
-         virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo,Double_t x, Double_t y=0. ) = 0;
+         virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo,Double_t x, Double_t y=0., bool correctUnrepresented=false ) = 0;
 
          /// get combined weight (i.e. pileup weight) but with a 1./dataWeight factor applied, this if used for 'prescaling' MC
-         virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent=true ) = 0;
+         virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent=true, bool correctUnrepresented=false ) = 0;
 
          /// When using UnrepresentedDataAction=2, you may want to apply this additional weight to ensure sum of weights are preserved
          virtual float getUnrepresentedDataWeight( const xAOD::EventInfo& eventInfo ) = 0;

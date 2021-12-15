@@ -30,20 +30,20 @@ namespace TauAnalysisTools {
 namespace met {
   class METMakerAlg : public AthAlgorithm {
 
-  public: 
+  public:
 
     /// Constructor with parameters:
     METMakerAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     /// Destructor:
-    ~METMakerAlg(); 
+    ~METMakerAlg();
 
     /// Athena algorithm's Hooks
     StatusCode  initialize();
     StatusCode  execute();
     StatusCode  finalize();
 
-  private: 
+  private:
 
     /// Default constructor:
     METMakerAlg();
@@ -67,7 +67,7 @@ namespace met {
     std::string m_muonColl;
 
     bool m_doTruthLep;
-    
+
     /// Athena configured tools
     ToolHandle<IMETMaker> m_metmaker;
 
@@ -76,7 +76,7 @@ namespace met {
     ToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMTool;
     ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
 
-  }; 
+  };
 
 }
 

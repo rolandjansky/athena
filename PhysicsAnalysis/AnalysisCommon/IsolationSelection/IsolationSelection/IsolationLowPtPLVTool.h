@@ -35,7 +35,8 @@ namespace CP {
 	    float m_varTMVA_Muon[ N_VARIABLES ];
 	    float m_varTMVA_Elec[ N_VARIABLES ];
 
-	    bool m_varMissingMsg = false;
+	    static const int N_MSG_COUNTS = 100;
+	    unsigned int varMissingMsgCounter = 0;
     };
 
 }

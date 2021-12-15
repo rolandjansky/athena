@@ -32,7 +32,7 @@ EXOT17Stream.AcceptAlgs(["EXOT17Kernel"])
 #thinning helper
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT17ThinningHelper = ThinningHelper( "EXOT17ThinningHelper" )
-EXOT17ThinningHelper.TriggerChains = '^(?!.*_[0-9]*(e|j|xe|tau|ht|xs|te))(?!HLT_mu.*_[0-9]*mu.*)HLT_mu.*'
+EXOT17ThinningHelper.TriggerChains = '^(?!.*_[0-9]*(e|j|xe|tau|ht|xs|te))(?!HLT_mu.*_[0-9]*mu.*)HLT_mu.*|HLT_j420|HLT_j400'
 EXOT17ThinningHelper.AppendToStream( EXOT17Stream )
 
 thinningTools = []
@@ -83,7 +83,7 @@ if isMC:
   ToolSvc += EXOT17TruthTool
   thinningTools.append(EXOT17TruthTool)
 
-truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
+truth_cond_Lepton = "((((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16)) || ((abs(TruthParticles.pdgId) >= 20000000) && (abs(TruthParticles.pdgId) <= 20010100))) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT17TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT17TruthTool2",
@@ -100,7 +100,7 @@ if isMC:
 # CREATE THE SKIMMING TOOL   
 #=======================================
 
-expression = '(count(Muons.pt > 50*GeV && (Muons.DFCommonGoodMuon && Muons.muonType == 0)) >= 1)'
+expression = '(( count(Muons.pt > 30*GeV && (Muons.DFCommonGoodMuon && Muons.muonType == 0)) >= 1) || ( count(Staus.pt > 30*GeV && Staus.muonType == 0) >= 1))'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EXOT17SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT17SkimmingTool1", expression = expression)
@@ -134,13 +134,52 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'],Sequencer = exot17Seq)
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
+EXOT17Content = []
+
+EXOT17AllVariables = [
+    "TruthParticles",
+    "TruthEvents",
+    "TruthVertices",
+    "MET_Truth",
+    "SlowMuons",
+    "Staus",
+    "ExtrapolatedMuonTrackParticles",
+    "CombinedMuonTrackParticles",
+    "CombinedStauTrackParticles",
+    "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht",
+    "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC",
+    "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET"
+]
+
+EXOT17SmartCollections = [
+    "Photons",
+    "TauJets",
+    "Electrons",
+    "Muons",
+    "MET_Reference_AntiKt4EMTopo",
+    "MET_Reference_AntiKt4EMPFlow",
+    "BTagging_AntiKt4EMTopo_201810",
+    "BTagging_AntiKt4EMPFlow_201810",
+    "BTagging_AntiKt4EMPFlow_201903",
+    "AntiKt4EMTopoJets",
+    "AntiKt4EMTopoJets_BTagging201810",
+    "AntiKt4EMPFlowJets",
+    "AntiKt4EMPFlowJets_BTagging201810",
+    "AntiKt4EMPFlowJets_BTagging201903",
+    "PrimaryVertices",
+    "InDetTrackParticles"
+]
+
+EXOT17Extravariables = [
+    "Muons.rpcHitTime.meanDeltaADCCountsMDT.MeasEnergyLoss",
+    "InDetTrackParticles.numberOfIBLOverflowsdEdx.TRTdEdxUsedHits.TRTdEdx.numberOfTRTHighThresholdHitsTotal.numberOfTRTXenonHits.numberOfUsedHitsdEdx.pixeldEdx.eProbabilityHT"
+]
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkExotics.EXOT9ContentList import *
 EXOT17SlimmingHelper = SlimmingHelper("EXOT17SlimmingHelper")
-EXOT17SlimmingHelper.StaticContent = EXOT9Content
-EXOT17SlimmingHelper.AllVariables = EXOT9AllVariables
-EXOT17SlimmingHelper.SmartCollections = EXOT9SmartCollections
-EXOT17SlimmingHelper.ExtraVariables += EXOT9Extravariables
+EXOT17SlimmingHelper.StaticContent = EXOT17Content
+EXOT17SlimmingHelper.AllVariables = EXOT17AllVariables
+EXOT17SlimmingHelper.SmartCollections = EXOT17SmartCollections
+EXOT17SlimmingHelper.ExtraVariables += EXOT17Extravariables
 EXOT17SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 EXOT17SlimmingHelper.IncludeEGammaTriggerContent = False
 EXOT17SlimmingHelper.IncludeMuonTriggerContent = True

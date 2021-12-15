@@ -58,6 +58,8 @@ namespace top {
     m_isolationTool_PLVTight("CP::IsolationTool_PLVTight"),
     m_isolationTool_PLVLoose("CP::IsolationTool_PLVLoose"),
     m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
+    m_isolationTool_PLImprovedTight("CP::IsolationTool_PLImprovedTight"),
+    m_isolationTool_PLImprovedVeryTight("CP::IsolationTool_PLImprovedVeryTight"),
     m_isolationCorr("CP::IsolationCorrectionTool"),
     m_IFFTruthTool("TruthClassificationTool"){
     declareProperty("config", m_config);
@@ -86,6 +88,8 @@ namespace top {
     declareProperty("IsolationTool_PLVTight", m_isolationTool_PLVTight);
     declareProperty("IsolationTool_PLVLoose", m_isolationTool_PLVLoose);
     declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
+    declareProperty("IsolationTool_PLImprovedTight", m_isolationTool_PLImprovedTight);
+    declareProperty("IsolationTool_PLImprovedVeryTight", m_isolationTool_PLImprovedVeryTight);
     declareProperty("IsolationCorrectionTool", m_isolationCorr);
     declareProperty("IFFTruthClassificationTool", m_IFFTruthTool);
   }
@@ -131,6 +135,8 @@ namespace top {
       top::check(m_isolationTool_PflowTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PLVLoose.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_PLImprovedTight.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_PLImprovedVeryTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
     }
 
@@ -300,6 +306,10 @@ namespace top {
     static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
     static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
     static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
+    static const SG::AuxElement::ConstAccessor<short> PromptLeptonImprovedInput_MVAXBin("PromptLeptonImprovedInput_MVAXBin");
+    static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVetoECAP("PromptLeptonImprovedVetoECAP");
+    static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVetoBARR("PromptLeptonImprovedVetoBARR");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt500("ptvarcone30_TightTTVA_pt500");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCTight("AnalysisTop_Isol_FCTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FCLoose("AnalysisTop_Isol_FCLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_Tight("AnalysisTop_Isol_Tight");
@@ -310,6 +320,8 @@ namespace top {
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVTight("AnalysisTop_Isol_PLVTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVLoose("AnalysisTop_Isol_PLVLoose");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLImprovedTight("AnalysisTop_Isol_PLImprovedTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLImprovedVeryTight("AnalysisTop_Isol_PLImprovedVeryTight");
     static const SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
     static const SG::AuxElement::Decorator<int> AnalysisTop_IFFTruthClass("AnalysisTop_IFFTruthClass");
 
@@ -417,25 +429,32 @@ namespace top {
           electron->auxdecor<char>("AnalysisTop_Isol_PromptLeptonVeto") =
             (electron->auxdata<float>("PromptLeptonVeto") < -0.5) ? 1 : 0;
 
-	// New PLV: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTaggerIFF
-	// For PLV isolation, we need to compute additional variables in the low-pT regime (<12 GeV)
-	if ( PLV_TrackJetNTrack.isAvailable(*electron) &&
-	     PLV_DRlj.isAvailable(*electron) &&
-	     PLV_PtRel.isAvailable(*electron) &&
-	     PLV_PtFrac.isAvailable(*electron) )
-	  top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
-	else
-	  byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
-	if ( PLV_PromptLeptonVeto.isAvailable(*electron) &&
-	     ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
-	  AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
-	  AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
-	}
-	else {
-	  // decorate with special character to indicate failure to retrieve necessary variables
-	  AnalysisTop_Isol_PLVTight(*electron) = 'n';
-	  AnalysisTop_Isol_PLVLoose(*electron) = 'n';
-	}
+        // New PLV: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PromptLeptonTaggerIFF
+        // For PLV isolation, we need to compute additional variables in the low-pT regime (<12 GeV)
+        if ( PLV_TrackJetNTrack.isAvailable(*electron) &&
+             PLV_DRlj.isAvailable(*electron) &&
+             PLV_PtRel.isAvailable(*electron) &&
+             PLV_PtFrac.isAvailable(*electron) )
+          top::check(m_isolationTool_LowPtPLV->augmentPLV(*electron), "Failed to augment electron with LowPtPLV decorations");
+        else
+          byhand_LowPtPLV(*electron) = 1.1; // decorate the electron ourselves following IFF default
+        if ( PLV_PromptLeptonVeto.isAvailable(*electron) &&
+             ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
+          AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
+        } else {
+          AnalysisTop_Isol_PLVTight(*electron) = 'n';
+          AnalysisTop_Isol_PLVLoose(*electron) = 'n';
+        }
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*electron) && PromptLeptonImprovedInput_MVAXBin.isAvailable(*electron)
+            && PromptLeptonImprovedVetoECAP.isAvailable(*electron) && PromptLeptonImprovedVetoBARR.isAvailable(*electron)) {
+          AnalysisTop_Isol_PLImprovedTight(*electron) = (m_isolationTool_PLImprovedTight->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_PLImprovedVeryTight(*electron) = (m_isolationTool_PLImprovedVeryTight->accept(*electron) ? 1 : 0);
+        } else {
+          // decorate with special character to indicate failure to retrieve necessary variables
+          AnalysisTop_Isol_PLImprovedTight(*electron) = 'n';
+          AnalysisTop_Isol_PLImprovedVeryTight(*electron) = 'n';
+        }
       }
 
       ///-- set links to original objects- needed for MET calculation --///
@@ -566,7 +585,7 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
-      
+
       if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsPhotons.push_back(s);
       if (s.name() == "") {
@@ -603,7 +622,7 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
-      
+
       if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsElectrons.push_back(s);
       if (s.name() == "") {
@@ -641,7 +660,7 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
-      
+
       if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsFwdElectrons.push_back(s);
       if (s.name() == "") {

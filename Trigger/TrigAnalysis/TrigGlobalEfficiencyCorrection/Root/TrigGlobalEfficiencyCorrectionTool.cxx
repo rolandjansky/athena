@@ -928,7 +928,7 @@ auto TrigGlobalEfficiencyCorrectionTool::rankTriggerLegs(float pt, const Contain
 	CachedRanking r;
 	r.ranking = std::numeric_limits<decltype(r.ranking)>::max();
 	r.minPt = 0.f;
-	r.maxPt = 1e12f;
+	r.maxPt = std::numeric_limits<float>::max();
 	if(nLegs >= 2*sizeof(r.ranking))
 	{
 		ATH_MSG_ERROR("Implementation currently doesn't support ranking of more than " << 2*sizeof(r.ranking) << " trigger legs");

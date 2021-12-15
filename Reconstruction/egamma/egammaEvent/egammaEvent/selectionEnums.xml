@@ -2,6 +2,10 @@
 
 <lcgdict>
 
+  <!-- WARNING: This file has been specifically modified to remove
+       patterns not present in 21.2 that lead to warnings.  It should
+       not be swept to any other branches. -->
+
  <!-- <enum pattern="egammaPID::*"/> -->
  <!-- <variable pattern="egammaPID::*"/> -->
 
@@ -10,7 +14,9 @@
  <class name="egammaParameters::ROOT6_NamespaceAutoloadHook" />
 
  <enum pattern="EMTrackMatch::*"/>
+ <!--
  <variable pattern="EMTrackMatch::*"/>
+ -->
 
 </lcgdict>
 

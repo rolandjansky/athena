@@ -15,6 +15,13 @@
 #ifndef ASG_DATA_HANDLES_VAR_HANDLE_KEY_H
 #define ASG_DATA_HANDLES_VAR_HANDLE_KEY_H
 
+namespace SG {
+  enum AllowEmptyEnum {
+    AllowEmpty = 1
+  };
+}
+
+
 #ifndef XAOD_STANDALONE
 #include <StoreGate/VarHandleKey.h>
 #else
@@ -23,11 +30,6 @@
 #include <string>
 
 namespace SG {
-
-
-enum AllowEmptyEnum {
-  AllowEmpty = 1
-};
 
 
 class VarHandleBase;

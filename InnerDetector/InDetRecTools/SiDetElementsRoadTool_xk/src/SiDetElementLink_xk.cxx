@@ -12,6 +12,11 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
+// WARNING: This specifically disables warnings in 21.2 that we do not
+// intend to fix anymore.  It should not be swept to any other
+// branches.
+#pragma GCC diagnostic ignored "-Wmisleading-indentation"
+
 #include <iostream>
 #include <iomanip>
 #include "SiDetElementsRoadTool_xk/SiDetElementLink_xk.h"

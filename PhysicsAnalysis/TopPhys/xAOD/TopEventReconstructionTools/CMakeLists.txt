@@ -37,7 +37,11 @@ atlas_add_library( TopEventReconstructionTools Root/*.cxx Root/*.h Root/*.icc
                                   TopAnalysis
                                   ${KLFITTER_LIBRARIES}
                                   ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${KLFITTER_INCLUDE_DIRS} )
+		   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${KLFITTER_INCLUDE_DIRS})
+
 
 # Install data files from the package:
 atlas_install_data( share/* )
+
+
+

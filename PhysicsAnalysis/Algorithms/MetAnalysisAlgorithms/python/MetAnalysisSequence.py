@@ -20,14 +20,7 @@ def makeMetAnalysisSequence( dataType, metSuffix,
                                  'muons'     : 'AnalysisMuons_%SYS%',
                                  'taus'      : 'AnalysisTaus_%STS%',
                               },
-                              outputName = 'AnalysisMET_%SYS%',
-                              affectingSystematics = {
-                                 'jets'      : '(^$)|(^JET_.*)',
-                                 'electrons' : '(^$)|(^EG_.*)|(^EL_.*)',
-                                 'photons'   : '(^$)|(^EG_.*)|(^PH_.*)',
-                                 'muons'     : '(^$)|(^MUON_.*)',
-                                 'taus'      : '(^$)|(^TAUS_.*)',
-                              } )
+                              outputName = 'AnalysisMET_%SYS%' )
 
     Note that defining a jet container is mandatory, but all other input
     containers are optional.
@@ -60,6 +53,8 @@ def makeMetAnalysisSequence( dataType, metSuffix,
     alg.makerTool.DoPFlow = 'PFlow' in metSuffix
     if useFJVT:
         alg.makerTool.JetRejectionDec = 'passFJVT'
+    if dataType != "data" :
+        addPrivateTool( alg, 'systematicsTool', 'met::METSystematicsTool' )
     alg.metCore = 'MET_Core_' + metSuffix
     alg.metAssociation = 'METAssoc_' + metSuffix
     seq.append( alg,
@@ -69,15 +64,7 @@ def makeMetAnalysisSequence( dataType, metSuffix,
                                   'muons'     : 'muons',
                                   'taus'      : 'taus',
                                   'invisible' : 'invisible'},
-                outputPropName = 'met',
-                affectingSystematics = '(^MET_.*)' )
-
-    if dataType != "data" :
-        alg = createAlgorithm( 'CP::MetSystematicsAlg', 'MetSystematicsAlg' + postfix )
-        addPrivateTool( alg, 'systematicsTool', 'met::METSystematicsTool' )
-        seq.append( alg, inputPropName = 'met',
-                    affectingSystematics = '(^MET_.*)' )
-        pass
+                outputPropName = 'met' )
 
     # Set up the met builder algorithm:
     alg = createAlgorithm( 'CP::MetBuilderAlg', 'MetBuilderAlg' + postfix )

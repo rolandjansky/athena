@@ -35,7 +35,7 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_selectionTool.retrieve());
-    m_systematicsList.addHandle (m_jetHandle);
+    ANA_CHECK (m_jetHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
@@ -54,18 +54,20 @@ namespace CP
   StatusCode JetSelectionAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::JetContainer *jets = nullptr;
-        ANA_CHECK (m_jetHandle.getCopy (jets, sys));
-        for (xAOD::Jet *jet : *jets)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      const xAOD::JetContainer *jets = nullptr;
+      ANA_CHECK (m_jetHandle.retrieve (jets, sys));
+      for (const xAOD::Jet *jet : *jets)
+      {
+        if (m_preselection.getBool (*jet))
         {
-          if (m_preselection.getBool (*jet))
-          {
-            m_selectionAccessor->setBool
-              (*jet, m_selectionTool->keep(*jet));
-          }
+          m_selectionAccessor->setBool
+            (*jet, m_selectionTool->keep(*jet));
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+
+    return StatusCode::SUCCESS;
   }
 }

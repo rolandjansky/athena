@@ -63,6 +63,7 @@ namespace top {
     std::string m_electronIsolationLoose;
     bool m_useElectronChargeIDSelection;
     bool m_useEgammaLeakageCorrection;
+    bool m_useEgammaPileupCorrection;
     bool m_enablePromptLeptonImprovedVetoStudies;
 
     std::string m_fwdElectronID;
@@ -106,15 +107,17 @@ namespace top {
 
     std::vector<std::string> m_allSelectionNames;
 
-    std::unordered_map<std::string, std::vector<std::string> > m_allTriggers_Tight;
-    std::unordered_map<std::string, std::vector<std::string> > m_electronTriggers_Tight;
-    std::unordered_map<std::string, std::vector<std::string> > m_muonTriggers_Tight;
-    std::unordered_map<std::string, std::vector<std::string> > m_tauTriggers_Tight;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_allTriggers_Tight;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_electronTriggers_Tight;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_muonTriggers_Tight;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_tauTriggers_Tight;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_photonTriggers_Tight;
 
-    std::unordered_map<std::string, std::vector<std::string> > m_allTriggers_Loose;
-    std::unordered_map<std::string, std::vector<std::string> > m_electronTriggers_Loose;
-    std::unordered_map<std::string, std::vector<std::string> > m_muonTriggers_Loose;
-    std::unordered_map<std::string, std::vector<std::string> > m_tauTriggers_Loose;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_allTriggers_Loose;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_electronTriggers_Loose;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_muonTriggers_Loose;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_tauTriggers_Loose;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > m_photonTriggers_Loose;
   };
 }
 // Dictonaries

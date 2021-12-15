@@ -36,7 +36,7 @@ namespace CP
 
 
   void SelectionAccessorChar ::
-  setBits (SG::AuxElement& element,
+  setBits (const SG::AuxElement& element,
            SelectionType selection) const
   {
     if (selection == selectionAccept())
@@ -56,7 +56,7 @@ namespace CP
 
 
   void SelectionAccessorChar ::
-  setBool (SG::AuxElement& element,
+  setBool (const SG::AuxElement& element,
            bool selection) const
   {
     m_accessor (element) = selection;

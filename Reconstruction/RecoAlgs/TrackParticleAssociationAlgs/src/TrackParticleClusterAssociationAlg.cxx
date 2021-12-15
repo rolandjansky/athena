@@ -32,6 +32,7 @@ TrackParticleClusterAssociationAlg::TrackParticleClusterAssociationAlg(const std
 
   declareProperty("TrackVertexAssoTool" , m_trackvertexassoTool);
   declareProperty("VertexContainerName", m_vertexContname );
+  declareProperty("UseDetectorEta",      m_useDetectorEta = false);
 }
 
 TrackParticleClusterAssociationAlg::~TrackParticleClusterAssociationAlg()
@@ -66,7 +67,14 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
     cl->retrieveMoment(xAOD::CaloCluster::SECOND_R,rad);
     double cent;
     cl->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,cent);
-    double sigmaWidth = atan(sqrt(rad)/cent)*cosh(cl->eta());
+    double cleta = cl->eta();
+    if (m_useDetectorEta)
+    {
+        static SG::AuxElement::ConstAccessor<float> acc_det_eta ("DetectorEta");
+        if (acc_det_eta.isAvailable(*cl))
+            cleta = acc_det_eta(*cl);
+    }
+    double sigmaWidth = atan(sqrt(rad)/cent)*cosh(cleta);
     sig_dec(*cl) = sigmaWidth;
   }
   

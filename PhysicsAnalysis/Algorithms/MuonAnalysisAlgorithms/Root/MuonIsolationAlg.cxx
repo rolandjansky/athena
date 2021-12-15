@@ -43,7 +43,7 @@ namespace CP
     ANA_CHECK (makeSelectionAccessor (m_isolationDecoration, m_isolationAccessor));
 
     ANA_CHECK (m_isolationTool.retrieve());
-    m_systematicsList.addHandle (m_muonHandle);
+    ANA_CHECK (m_muonHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
@@ -61,20 +61,21 @@ namespace CP
   StatusCode MuonIsolationAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::MuonContainer *muons = nullptr;
-        ANA_CHECK (m_muonHandle.getCopy (muons, sys));
-        for (xAOD::Muon *muon : *muons)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      const xAOD::MuonContainer *muons = nullptr;
+      ANA_CHECK (m_muonHandle.retrieve (muons, sys));
+      for (const xAOD::Muon *muon : *muons)
+      {
+        if (m_preselection.getBool (*muon))
         {
-          if (m_preselection.getBool (*muon))
-          {
-            m_isolationAccessor->setBits
-              (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
-          } else {
-            m_isolationAccessor->setBits (*muon, m_setOnFail);
-          }
+          m_isolationAccessor->setBits
+            (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
+        } else {
+          m_isolationAccessor->setBits (*muon, m_setOnFail);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

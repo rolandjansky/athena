@@ -1,4 +1,11 @@
 <lcgdict>
+
+  <!-- WARNING: This file has been specifically modified to remove
+       patterns not present in 21.2 that lead to warnings.  It should
+       not be swept to any other branches. -->
+  
  <enum pattern="TauJetParameters::*"/>
+ <!--
  <variable pattern="TauJetParameters::*"/>
+ -->
 </lcgdict>

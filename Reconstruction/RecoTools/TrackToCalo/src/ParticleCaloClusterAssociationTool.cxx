@@ -34,6 +34,7 @@ namespace Rec {
     //coneSize for including calo cells around track
     declareProperty("ConeSize",                    m_coneSize = 0.1);
     declareProperty("UseCovariance",               m_useCovariance = true);
+    declareProperty("UseDetectorEta",              m_useDetectorEta = false);
   }
 
   ParticleCaloClusterAssociationTool::~ParticleCaloClusterAssociationTool() {}
@@ -146,6 +147,12 @@ namespace Rec {
         const xAOD::CaloCluster *cl = (*container)[i];
         float dPhi = P4Helpers::deltaPhi( cl->phi(), phi);
         float dEta = cl->eta()-eta;
+        if (m_useDetectorEta)
+        {
+            static SG::AuxElement::ConstAccessor<float> acc_det_eta ("DetectorEta");
+            if (acc_det_eta.isAvailable(*cl))
+                dEta = acc_det_eta(*cl) - eta;
+        }
         float dr2  = dPhi*dPhi+ dEta*dEta;
         
         if(m_useCovariance) {

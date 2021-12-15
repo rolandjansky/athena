@@ -106,6 +106,10 @@ namespace top {
     inline bool applyTTVACut() const {return m_applyTTVACut;}
 
     inline bool useAntiMuons() const {return m_useAntiMuons;};
+    inline bool useJetElectrons() const {return m_useJetElectrons;};
+    inline float jetElectronEMFractionMin() const {return m_jetElectronEMFractionMin;};
+    inline float jetElectronEMFractionMax() const {return m_jetElectronEMFractionMax;};
+    inline float jetElectronEtaMax() const {return m_jetElectronEtaMax;};
 
     // MC or not MC - this should be set by metadata
     inline bool isMC() const {return m_isMC;}
@@ -160,6 +164,14 @@ namespace top {
     inline void setFilterNominalLooseBranches(const std::vector<std::string>& value) {
       if (!m_configFixed) {
         m_filterNominalLooseBranches = value;
+      }
+    }
+
+    // List of Nominal branches to be removed
+    inline std::vector<std::string> filterNominalBranches() const {return m_filterNominalBranches;}
+    inline void setFilterNominalBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterNominalBranches = value;
       }
     }
 
@@ -239,6 +251,9 @@ namespace top {
     // Default is true for Data and false for MC
     inline bool doLooseEvents() const {return m_doLooseEvents;}
 
+    inline void setUseHItoolsConfiguration(const bool flag) {m_useHItoolsConfiguration = flag;}
+    inline bool useHItoolsConfiguration() const {return m_useHItoolsConfiguration;}
+
     // Run systematics on Loose selection
     // Default is true
     inline bool doTightSysts() const {return m_doTightSysts;}
@@ -293,6 +308,13 @@ namespace top {
 
     inline float overlapRemovalSlidingInnerDRmu() const
     {return m_overlapRemovalSlidingInnerDRmu;}
+    
+    //test option for muon OR
+    inline void setNoORForMuons(bool in){ 
+      if (!m_configFixed) m_noORForMuons=in;
+    }
+    
+    inline bool noORForMuons() const{ return m_noORForMuons;}
 
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
@@ -323,6 +345,23 @@ namespace top {
         m_applyElectronInJetSubtraction = true;
       }
     }
+
+    // electron in jet subtraction configuration:
+    // detla pT cut and bias values
+    inline virtual void elInJetPtcut(const float cut) {
+      if (!m_configFixed) {
+        m_elInJet_Ptcut = cut;
+      }
+    }
+
+    inline virtual void elInJetPtbias(const float bias) {
+      if (!m_configFixed) {
+        m_elInJet_Ptbias = bias;
+      }
+    }
+
+    inline virtual float elInJetPtcut() const {return m_elInJet_Ptcut;}
+    inline virtual float elInJetPtbias() const {return m_elInJet_Ptbias;}
 
     // Dump truth block info
     inline bool doTruthBlockInfo() const {return m_doTruthBlockInfo;}
@@ -416,6 +455,7 @@ namespace top {
     inline bool doParticleLevelOverlapRemovalMuJet() const {return m_doParticleLevelOverlapRemovalMuJet;}
     inline bool doParticleLevelOverlapRemovalElJet() const {return m_doParticleLevelOverlapRemovalElJet;}
     inline bool doParticleLevelOverlapRemovalJetPhoton() const {return m_doParticleLevelOverlapRemovalJetPhoton;}
+    inline bool useParticleLevelOverlapRemovalWithRapidity() const {return m_useParticleLevelOverlapRemovalWithRapidity;}
     inline void setParticleLevelOverlapRemovalMuJet(bool value) {
       if (!m_configFixed) {
         m_doParticleLevelOverlapRemovalMuJet = value;
@@ -431,6 +471,12 @@ namespace top {
     inline void setParticleLevelOverlapRemovalJetPhoton(bool value) {
       if (!m_configFixed) {
         m_doParticleLevelOverlapRemovalJetPhoton = value;
+      }
+    }
+
+    inline void setParticleLevelOverlapRemovalWithRapidity(bool value){
+      if(!m_configFixed){
+        m_useParticleLevelOverlapRemovalWithRapidity = value;
       }
     }
 
@@ -462,71 +508,87 @@ namespace top {
 
     // Triggers
     inline virtual void allTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_allTriggers_Tight = triggers;
       }
     }
 
     inline virtual void electronTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                                  std::vector<std::string> > > triggers) {
+                                                                                  std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_electronTriggers_Tight = triggers;
       }
     }
 
     inline virtual void muonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                              std::vector<std::string> > > triggers) {
+                                                                              std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_muonTriggers_Tight = triggers;
       }
     }
 
     inline virtual void tauTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_tauTriggers_Tight = triggers;
       }
     }
 
+    inline virtual void photonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
+      if (!m_configFixed) {
+        m_photonTriggers_Tight = triggers;
+      }
+    }
+
     inline virtual void allTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_allTriggers_Loose = triggers;
       }
     }
 
     inline virtual void electronTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                                  std::vector<std::string> > > triggers) {
+                                                                                  std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_electronTriggers_Loose = triggers;
       }
     }
 
     inline virtual void muonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                              std::vector<std::string> > > triggers) {
+                                                                              std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_muonTriggers_Loose = triggers;
       }
     }
 
     inline virtual void tauTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
-                                                                             std::vector<std::string> > > triggers) {
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
       if (!m_configFixed) {
         m_tauTriggers_Loose = triggers;
       }
     }
 
-    inline std::shared_ptr<std::vector<std::string> > allSelectionNames() const {return m_allSelectionNames;}
-    virtual const std::vector<std::string>& allTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& electronTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& muonTriggers_Tight(const std::string& selection) const;
-    virtual const std::vector<std::string>& tauTriggers_Tight(const std::string& selection) const;
+    inline virtual void photonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,
+                                                                             std::vector<std::pair<std::string, int> > > > triggers) {
+      if (!m_configFixed) {
+        m_photonTriggers_Loose = triggers;
+      }
+    }
 
-    virtual const std::vector<std::string>& allTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& electronTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& muonTriggers_Loose(const std::string& selection) const;
-    virtual const std::vector<std::string>& tauTriggers_Loose(const std::string& selection) const;
+    inline std::shared_ptr<std::vector<std::string> > allSelectionNames() const {return m_allSelectionNames;}
+    virtual const std::vector<std::pair<std::string, int> >& allTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& electronTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& muonTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& tauTriggers_Tight(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& photonTriggers_Tight(const std::string& selection) const;
+
+    virtual const std::vector<std::pair<std::string, int> >& allTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& electronTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& muonTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& tauTriggers_Loose(const std::string& selection) const;
+    virtual const std::vector<std::pair<std::string, int> >& photonTriggers_Loose(const std::string& selection) const;
 
     // StoreGate Keys
     virtual void sgKeyMCParticle(const std::string& s);
@@ -716,6 +778,37 @@ namespace top {
       }
     }
 
+    inline virtual void electronEfficiencySystematicModelNToys(const int& s) {
+      if (!m_configFixed) {
+        m_electronEfficiencySystematicModelNToys = s;
+      }
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelToySeed(const int& s) {
+      if (!m_configFixed) {
+        m_electronEfficiencySystematicModelToySeed = s;
+      }
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelRecoSize(const int& s) {
+        m_electronEfficiencySystematicModelRecoSize = s;
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelIdSize(const int& s) {
+        m_electronEfficiencySystematicModelIdSize = s;
+    }
+
+
+
+    inline virtual void electronEfficiencySystematicModelIsoSize(const int& s) {
+        m_electronEfficiencySystematicModelIsoSize = s;
+    }
+
+
+
     inline virtual void electronID(const std::string& s) {
       if (!m_configFixed) {
         m_electronID = s;
@@ -743,6 +836,18 @@ namespace top {
     inline virtual void electronPtcut(const float pt) {
       if (!m_configFixed) {
         m_electronPtcut = pt;
+      }
+    }
+
+    inline virtual void electrond0Sigcut(const float d0sig) {
+      if (!m_configFixed) {
+         m_electron_d0SigCut = d0sig;
+      }
+    }
+
+    inline virtual void electrondeltaz0cut(const float delta_z0) {
+      if (!m_configFixed) {
+	m_electron_delta_z0 = delta_z0;
       }
     }
 
@@ -781,6 +886,11 @@ namespace top {
         m_useEgammaLeakageCorrection = (s == "True" || s == "true");
       }
     }
+    inline virtual void useEgammaPileupCorrection(const std::string& s) {
+      if (!m_configFixed) {
+        m_useEgammaPileupCorrection = (s == "True" || s == "true");
+      }
+    }
 
     inline virtual void enablePromptLeptonImprovedVetoStudies(const std::string& s) {
       if (!m_configFixed) {
@@ -796,10 +906,34 @@ namespace top {
     inline virtual const std::string& electronEfficiencySystematicModelEtBinning() {
       return m_electronEfficiencySystematicModelEtBinning;
     }
+    inline virtual const int& electronEfficiencySystematicModelNToys() {
+      return m_electronEfficiencySystematicModelNToys;
+    }
+
+    inline virtual const int& electronEfficiencySystematicModelToySeed() {
+      return m_electronEfficiencySystematicModelToySeed;
+    }
+
+
+    inline virtual const int& electronEfficiencySystematicModelRecoSize() {
+      return m_electronEfficiencySystematicModelRecoSize;
+    }
+
+    inline virtual const int& electronEfficiencySystematicModelIdSize() {
+      return m_electronEfficiencySystematicModelIdSize;
+    }
+
+
+    inline virtual const int& electronEfficiencySystematicModelIsoSize() {
+      return m_electronEfficiencySystematicModelIsoSize;
+    }
+
     inline virtual const std::string& electronID()     const {return m_electronID;}
     inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
     inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
     inline virtual float electronPtcut()       const {return m_electronPtcut;}
+    inline virtual float electrond0Sigcut()    const {return m_electron_d0SigCut;}
+    inline virtual float electrondeltaz0cut()  const {return m_electron_delta_z0;}
     inline virtual const std::string& electronIsolation() const {return m_electronIsolation;}
     inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
     std::string const& electronIsolationSF() const {return m_electronIsolationSF;}
@@ -809,6 +943,7 @@ namespace top {
     inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
     inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
     inline bool useEgammaLeakageCorrection() const {return m_useEgammaLeakageCorrection;}
+    inline bool useEgammaPileupCorrection() const {return m_useEgammaPileupCorrection;}
     inline bool enablePromptLeptonImprovedVetoStudies() const {return m_enablePromptLeptonImprovedVetoStudies;}
 
     // Fwd electron
@@ -862,6 +997,13 @@ namespace top {
     inline virtual int fwdElectronBCIDCleaningMinRun() const {return m_fwdElectronBCIDCleaningMinRun;}
     inline virtual int fwdElectronBCIDCleaningMaxRun() const {return m_fwdElectronBCIDCleaningMaxRun;}
 
+    const std::string electronIDSFFilePath() const
+    {return m_electronIDSFFile_path;}
+    bool printEIDFileWarning() const
+    {return m_eid_path_warning;}
+    void setPrintEIDFileWarning(bool flag)
+    {m_eid_path_warning = flag;}
+
     // Photon configuration
     inline virtual void photonPtcut(const float pt) {
       if (!m_configFixed) {
@@ -906,6 +1048,18 @@ namespace top {
       }
     }
 
+    inline virtual void muond0Sigcut(const float d0sig) {
+      if (!m_configFixed) {
+         m_muon_d0SigCut = d0sig;
+      }
+    }
+
+    inline virtual void muondeltaz0cut(const float delta_z0) {
+      if (!m_configFixed) {
+	m_muon_delta_z0 = delta_z0;
+      }
+    }
+
     inline virtual void muonEtacut(const float eta) {
       if (!m_configFixed) {
         m_muonEtacut = eta;
@@ -920,25 +1074,25 @@ namespace top {
 
     void muonUseMVALowPt(const bool& UseMVALowPt) {
       if (!m_configFixed) {
-	m_muonUseMVALowPt = UseMVALowPt;
+        m_muonUseMVALowPt = UseMVALowPt;
       }
     }
 
     void muonUse2stationMuonsHighPt(const bool& Use2stationMuonsHighPt) {
       if (!m_configFixed) {
-	m_muonUse2stationMuonsHighPt = Use2stationMuonsHighPt;
+        m_muonUse2stationMuonsHighPt = Use2stationMuonsHighPt;
       }
     }
 
     void muonUseMVALowPtLoose(const bool& UseMVALowPtLoose) {
       if (!m_configFixed) {
-	m_muonUseMVALowPtLoose = UseMVALowPtLoose;
+        m_muonUseMVALowPtLoose = UseMVALowPtLoose;
       }
     }
 
     void muonUse2stationMuonsHighPtLoose(const bool& Use2stationMuonsHighPtLoose) {
       if (!m_configFixed) {
-	m_muonUse2stationMuonsHighPtLoose = Use2stationMuonsHighPtLoose;
+        m_muonUse2stationMuonsHighPtLoose = Use2stationMuonsHighPtLoose;
       }
     }
 
@@ -974,18 +1128,20 @@ namespace top {
 
     void muonMuonDoSmearing2stationHighPt(const bool& MuonDoSmearing2stationHighPt) {
       if (!m_configFixed) {
-	m_muonMuonDoSmearing2stationHighPt = MuonDoSmearing2stationHighPt;
+        m_muonMuonDoSmearing2stationHighPt = MuonDoSmearing2stationHighPt;
       }
     }
 
     void muonMuonDoExtraSmearingHighPt(const bool& MuonDoExtraSmearingHighPt) {
       if (!m_configFixed) {
-	m_muonMuonDoExtraSmearingHighPt = MuonDoExtraSmearingHighPt;
+        m_muonMuonDoExtraSmearingHighPt = MuonDoExtraSmearingHighPt;
       }
     }
 
     inline virtual float muonPtcut() const {return m_muonPtcut;}
     inline virtual float muonEtacut() const {return m_muonEtacut;}
+    inline virtual float muond0Sigcut()    const {return m_muon_d0SigCut;}
+    inline virtual float muondeltaz0cut()  const {return m_muon_delta_z0;}
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
     inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
     inline virtual bool muonUseMVALowPt() const {return m_muonUseMVALowPt;}
@@ -998,6 +1154,16 @@ namespace top {
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
     inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
+
+    inline virtual void muonBreakDownSystematics(const bool flag) {m_muonBreakDownSystematics = flag;}
+    inline virtual bool muonBreakDownSystematics() {return m_muonBreakDownSystematics;}
+
+    std::string const& muonSFCustomInputFolder() const {return m_muonSFCustomInputFolder;}
+    void muonSFCustomInputFolder(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonSFCustomInputFolder = s;
+      }
+    } 
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -1124,23 +1290,6 @@ namespace top {
       }
     }
     
-    inline virtual void ghostTrackspTLargeR(const float pt) {
-      if (!m_configFixed) {
-        m_ghostTrackspTLargeR = pt;
-      }
-    }
-    
-    inline virtual void ghostTracksVertexAssociationLargeR(const std::string& vertexassociation) {
-      if (!m_configFixed) {
-        m_ghostTracksVertexAssociationLargeR = vertexassociation;
-      }
-    }
-    
-    inline virtual void ghostTracksQualityLargeR(const std::string& ghostTracksQuality) {
-     if (!m_configFixed) {
-        m_ghostTracksQualityLargeR = ghostTracksQuality;
-     }
-    }
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
@@ -1148,10 +1297,6 @@ namespace top {
     inline virtual float ghostTrackspT()  const {return m_ghostTrackspT;}
     inline virtual const std::string& ghostTracksVertexAssociation()  const {return m_ghostTracksVertexAssociation;}
     inline virtual const std::string& ghostTracksQuality()  const {return m_ghostTracksQuality;}
-    
-    inline virtual float ghostTrackspTLargeR()  const {return m_ghostTrackspTLargeR;}
-    inline virtual const std::string& ghostTracksVertexAssociationLargeR()  const {return m_ghostTracksVertexAssociationLargeR;}
-    inline virtual const std::string& ghostTracksQualityLargeR()  const {return m_ghostTracksQualityLargeR;}
     
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
     inline virtual float jetEtaGhostTracks()  const {return m_jetEtaGhostTracks;}
@@ -1166,6 +1311,12 @@ namespace top {
       }
     }
 
+    inline virtual void largeRJetMasscut(const float m) {
+      if (!m_configFixed) {
+        m_largeRJetMasscut = m;
+      }
+    }
+
     inline virtual void largeRJetEtacut(const float eta) {
       if (!m_configFixed) {
         m_largeRJetEtacut = eta;
@@ -1177,7 +1328,13 @@ namespace top {
         m_largeRJetUncertainties_NPModel = largeR_config;
       }
     }
-    
+ 
+    inline virtual void largeRJetUncertainties_JMR_NPModel(const std::string& largeR_JMR_config) {
+      if (!m_configFixed) {
+        m_largeRJetUncertainties_JMR_NPModel = largeR_JMR_config;
+      }
+    }
+   
     inline virtual void largeRJetUncertaintiesConfigDir(const std::string& largeRConfigDir) {
       if (!m_configFixed) {
         m_largeRJetUncertaintiesConfigDir = largeRConfigDir;
@@ -1191,9 +1348,11 @@ namespace top {
     }
 
     inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
+    inline virtual float largeRJetMasscut()  const {return m_largeRJetMasscut;}
     inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
     inline virtual const std::map<std::string,std::string> largeRJetSubstructureVariables() const {return m_largeRJetSubstructureVariables;}
     inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
+    inline virtual const std::string& largeRJetUncertainties_JMR_NPModel() const {return m_largeRJetUncertainties_JMR_NPModel;}
     inline virtual const std::string& largeRJetUncertaintiesConfigDir() const {return m_largeRJetUncertaintiesConfigDir;}
     inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
 
@@ -1364,9 +1523,7 @@ namespace top {
     inline bool doMultipleJES() const {return m_doMultipleJES;}
     inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
     inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
-    inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {
-                                                                                            return m_jetUncertainties_QGHistPatterns;
-                                                                                                                                     }
+    inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {return m_jetUncertainties_QGHistPatterns;}
 
     inline virtual void jetJERSmearingModel(const std::string& s) {
       if (!m_configFixed) {
@@ -1376,6 +1533,22 @@ namespace top {
 
     inline virtual const std::string& jetJERSmearingModel() const {return m_jetJERSmearingModel;}
 
+    inline virtual void jetJMSOption(const std::string& s) {
+      if (!m_configFixed) {
+        m_jetJMSOption = s;
+      }
+    }
+
+    inline virtual const std::string& jetJMSOption() const {return m_jetJMSOption;}
+
+    inline virtual void doLargeRPseudodataJER(const bool& b) {
+      if (!m_configFixed) {
+        m_doLargeRPseudodataJER = b;
+      }
+    }
+
+    inline virtual bool doLargeRPseudodataJER() const {return m_doLargeRPseudodataJER;}
+
     inline virtual void jetCalibSequence(const std::string& s) {
       if (!m_configFixed) {
         m_jetCalibSequence = s;
@@ -1383,6 +1556,14 @@ namespace top {
     }
 
     inline virtual const std::string& jetCalibSequence() const {return m_jetCalibSequence;}
+
+    inline virtual void allowSmallRJMSforAFII(const bool setting) {
+      if (!m_configFixed) {
+        m_allowSmallRJMSforAFII = setting;
+      }
+    }
+
+    inline virtual bool allowSmallRJMSforAFII() const {return m_allowSmallRJMSforAFII;}
 
     inline virtual void jetStoreTruthLabels(bool b) {
       if (!m_configFixed) {
@@ -1438,6 +1619,29 @@ namespace top {
       }
     }
     inline virtual const std::string& METUncertaintiesConfigDir() const {return m_METUncertaintiesConfigDir;}
+
+    inline virtual void METMuonPFlowBugfix(bool doMETMuonPFlowBugfix) {
+      if (!m_configFixed) {
+        m_METMuonPFlowBugfix = doMETMuonPFlowBugfix;
+      }
+    }
+
+    inline virtual void METSignificance(bool doMETSignificance) {
+      if (!m_configFixed) {
+        m_METSignif= doMETSignificance;
+      }
+    }
+
+    inline virtual void METSignifSoftTermParam(const std::string& METSignifSoftTermParam) {
+      if (!m_configFixed) {
+        m_METSignifSoftTermParam = METSignifSoftTermParam;
+      }
+    }
+
+    inline virtual const std::string& METSignifSoftTermParam() const {return m_METSignifSoftTermParam;}
+
+    inline virtual bool METMuonPFlowBugfix() const {return m_METMuonPFlowBugfix;}
+    inline virtual bool METSignificance() const {return m_METSignif;}
 
     // Tau configuration setters
     inline virtual void tauPtcut(const float pt) {
@@ -1814,6 +2018,14 @@ namespace top {
     const std::string& bTaggingCalibration_Light() const
     {return m_btagging_calibration_Light;};
 
+    // egamma calibration
+    bool printEgammaCalibModelWarning() const
+    {return m_egamma_calibmodel_warning;}
+    void setPrintEgammaCalibModelWarning(bool flag)
+    {m_egamma_calibmodel_warning = flag;}
+    const std::string& egammaCalibration() const
+    {return m_egamma_calibration_model;};
+
     // LHAPDF settings
 
     inline virtual std::vector<std::string> LHAPDFSets() {return m_lhapdf_options.pdf_set_names;}
@@ -2014,7 +2226,8 @@ namespace top {
     inline bool isNominalAvailable() const {return m_isNominalAvailable;}
 
     // Function to set the options for global trigger tool
-    void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
+    void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>,
+                                       std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
     inline bool useGlobalTrigger() const {return m_trigGlobalConfiguration.isActivated;} // Was this requested by the
                                                                                          // user
     inline auto const& getGlobalTriggers() const {return m_trigGlobalConfiguration.trigger;}
@@ -2024,8 +2237,10 @@ namespace top {
                                                                                                        // configured
     inline std::vector<std::string> getGlobalTriggerElectronSystematics() const {return m_trigGlobalConfiguration.electron_trigger_systematics;}
     inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const {return m_trigGlobalConfiguration.muon_trigger_systematics;}
+    inline std::vector<std::string> getGlobalTriggerPhotonSystematics()   const {return m_trigGlobalConfiguration.photon_trigger_systematics;}
     inline std::vector<std::string> getGlobalTriggerElectronTools()       const {return m_trigGlobalConfiguration.electron_trigger_tool_names;}
     inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.muon_trigger_tool_names;}
+    inline std::vector<std::string> getGlobalTriggerPhotonTools()         const {return m_trigGlobalConfiguration.photon_trigger_tool_names;}
     
     inline const TreeFilter* getTreeFilter() const { return m_treeFilter.get();}
 
@@ -2052,6 +2267,7 @@ namespace top {
     bool m_useMuons;
     bool m_useSoftMuons;
     bool m_useAntiMuons;
+    bool m_useJetElectrons;
     bool m_useTaus;
     bool m_useJets;
     bool m_useLargeRJets;
@@ -2081,6 +2297,12 @@ namespace top {
     bool m_useTruthTaus;
     bool m_useTruthMET;
 
+    // jet-electron parameters
+    float m_jetElectronEMFractionMin=0.8;
+    float m_jetElectronEMFractionMax=0.95;
+    float m_jetElectronEtaMax=2.47;
+
+
     // define if d0/z0 cut should be used at all
     bool m_applyTTVACut;
 
@@ -2107,7 +2329,7 @@ namespace top {
     bool m_isMC;
     bool m_isAFII;
     bool m_isDataOverlay;
-    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches;
+    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches, m_filterNominalBranches;
     std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;
@@ -2144,6 +2366,9 @@ namespace top {
 
     float m_overlapRemovalSlidingInnerDRel = 0.2;
     float m_overlapRemovalSlidingInnerDRmu = 0.2;
+    
+    //test option for muon OR
+    bool m_noORForMuons;
 
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
@@ -2153,6 +2378,8 @@ namespace top {
     bool m_doTightEvents;
     // Dumps the "*_Loose trees (on demand)
     bool m_doLooseEvents;
+    
+    bool m_useHItoolsConfiguration;
 
     // Run systematics on the given selection
     bool m_doTightSysts;
@@ -2166,6 +2393,8 @@ namespace top {
     // Apply Electron In Jet subtraction
     // For boosted analysis
     bool m_applyElectronInJetSubtraction;
+    float m_elInJet_Ptcut;
+    float m_elInJet_Ptbias;
 
     // Write Truth block info
     bool m_doTruthBlockInfo;
@@ -2196,6 +2425,7 @@ namespace top {
     bool m_doParticleLevelOverlapRemovalMuJet;
     bool m_doParticleLevelOverlapRemovalElJet;
     bool m_doParticleLevelOverlapRemovalJetPhoton;
+    bool m_useParticleLevelOverlapRemovalWithRapidity;
 
     // KLFitter
     bool m_doKLFitter;
@@ -2266,6 +2496,11 @@ namespace top {
     // Electron configuration
     std::string m_egammaSystematicModel;
     std::string m_electronEfficiencySystematicModel;
+    int m_electronEfficiencySystematicModelNToys;
+    int m_electronEfficiencySystematicModelToySeed;
+    int m_electronEfficiencySystematicModelRecoSize;
+    int m_electronEfficiencySystematicModelIdSize;
+    int m_electronEfficiencySystematicModelIsoSize;
     std::string m_electronEfficiencySystematicModelEtaBinning;
     std::string m_electronEfficiencySystematicModelEtBinning;
     std::string m_electronID;
@@ -2284,7 +2519,12 @@ namespace top {
     std::string m_electronIDLooseDecoration;
     bool m_useElectronChargeIDSelection;
     bool m_useEgammaLeakageCorrection;
+    bool m_useEgammaPileupCorrection;
     bool m_enablePromptLeptonImprovedVetoStudies;
+
+    // experimental electronID map path
+    std::string m_electronIDSFFile_path = "Default";
+    bool m_eid_path_warning = false;
 
     //Fwd electron configuration
     float m_fwdElectronPtcut;
@@ -2312,6 +2552,8 @@ namespace top {
     float m_muon_delta_z0;
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
+    bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
+    std::string m_muonSFCustomInputFolder;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
@@ -2337,7 +2579,10 @@ namespace top {
                                                                 // more flexibility
     bool m_doMultipleJES;
     std::string m_jetJERSmearingModel; // Full or Simple
+    std::string m_jetJMSOption; // None, JMS_frozen or JMS_scaled
+    bool m_doLargeRPseudodataJER; // True or False
     std::string m_jetCalibSequence; // GCC or JMS
+    bool m_allowSmallRJMSforAFII; // JMS is not supported on AFII so we crash, unless people override this option
     bool m_jetStoreTruthLabels; // True or False
     bool m_doJVTInMETCalculation;
     bool m_saveFailJVTJets;
@@ -2348,21 +2593,23 @@ namespace top {
 
     // MET configuration
     std::string m_METUncertaintiesConfigDir; //Path prefix for directory with MET calibration configs
-    
+
+    bool m_METMuonPFlowBugfix; // bugfix for muon-PFlow jet OR in MET
+    bool m_METSignif; // METSignificance turn on/off 
+    std::string m_METSignifSoftTermParam; // METSignificance Soft term parameter
+
     //Ghost tracks quality
     float m_ghostTrackspT;
     std::string m_ghostTracksVertexAssociation;
     std::string m_ghostTracksQuality;
     
-    float m_ghostTrackspTLargeR;
-    std::string m_ghostTracksVertexAssociationLargeR;
-    std::string m_ghostTracksQualityLargeR;
-
     // Large R jet configuration
-    float m_largeRJetPtcut; // large R jet object selection pT cut
+    float m_largeRJetPtcut; // large R jet object selection lower pT cut
+    float m_largeRJetMasscut; // large R jet object selection lower mass cut
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
     std::map<std::string,std::string> m_largeRJetSubstructureVariables;
     std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration
+    std::string m_largeRJetUncertainties_JMR_NPModel; //large R JMR uncertainties configuration
     std::string m_largeRJetUncertaintiesConfigDir; //Relative path to directory with large R JES config
                                                   // file
     //See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
@@ -2543,6 +2790,10 @@ namespace top {
     std::string m_btagging_calibration_C = "default";
     std::string m_btagging_calibration_Light = "default";
 
+    // EGamma calibration to be used
+    bool m_egamma_calibmodel_warning = false;
+    std::string m_egamma_calibration_model = "es2018_R21_v0";
+
     // b-tag SF helpers - one of each per WP
     // will be set in the BTagScaleFactorCalculator
     // These are the base names of the SF systematics (without __up/__down)
@@ -2608,7 +2859,7 @@ namespace top {
     // manage systematic variations through this tool
 
     struct {
-      typedef std::unordered_map<std::string, std::vector<std::string> > triggermap_t;
+      typedef std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > triggermap_t;
       // -- Set from cutfile --//
       // Boolean to be set to true if the user activates a flag
       bool isActivated = false;
@@ -2623,10 +2874,14 @@ namespace top {
       std::vector<std::string> electron_trigger_systematics;
       // Names of CP::SystematicSet from muon trigger tools
       std::vector<std::string> muon_trigger_systematics;
+      // Names of CP::SystematicSet from photon trigger tools
+      std::vector<std::string> photon_trigger_systematics;
       // Name of the underlying electron tools, to be accessed and passes CP::SystematicSet
       std::vector<std::string> electron_trigger_tool_names;
       // Name of the underlying muon tools, to be accessed and passes CP::SystematicSet
       std::vector<std::string> muon_trigger_tool_names;
+      // Name of the underlying photon tools, to be accessed and passes CP::SystematicSet
+      std::vector<std::string> photon_trigger_tool_names;
     } m_trigGlobalConfiguration;
 
     // Muon Trigger SF configuration
@@ -2637,15 +2892,17 @@ namespace top {
     std::shared_ptr<std::vector<std::string> > m_allSelectionNames;
     // Trigger configuration
     // First string is the selection name, second string is the trigger
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_allTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_electronTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_muonTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_tauTriggers_Tight;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_allTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_electronTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_muonTriggers_Loose;
-    std::shared_ptr<std::unordered_map<std::string, std::vector<std::string> > > m_tauTriggers_Loose;
-    std::vector<std::string> m_dummyTrigger;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_allTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_electronTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_muonTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_tauTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_photonTriggers_Tight;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_allTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_electronTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_muonTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_tauTriggers_Loose;
+    std::shared_ptr<std::unordered_map<std::string, std::vector<std::pair<std::string, int> > > > m_photonTriggers_Loose;
+    std::vector<std::pair<std::string, int> > m_dummyTrigger;
 
     // Where the sum of event weights
     // before derivation framework is kept

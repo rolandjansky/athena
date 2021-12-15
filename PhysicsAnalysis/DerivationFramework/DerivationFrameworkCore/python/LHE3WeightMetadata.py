@@ -23,6 +23,7 @@ def addLHE3Weights(seq, pref = '', var_dict = {}):
 
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth,DerivationFrameworkJob
+from RecExConfig.InputFilePeeker import inputFileSummary
 
 # skip this in datfrom AthenaCommon.GlobalFlags import globalflags
 if DerivationFrameworkHasTruth:

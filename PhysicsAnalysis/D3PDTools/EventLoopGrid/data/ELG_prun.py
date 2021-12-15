@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -50,21 +50,22 @@ def ELG_prun(sample) :
                 'useRootCore',
                 'useAthenaPackages']
 
+    from ROOT import SH
     for opt in opts :
-        arg = sample.getMetaDouble('nc_' + opt, -1)        
+        arg = sample.meta().castDouble('nc_' + opt, -1, SH.MetaObject.CAST_NOCAST_DEFAULT)
         if abs(arg + 1) > 1e-6 :
             cmd += ["--" + opt + "=" + str(int(round(arg)))]
         else :
-            arg = sample.getMetaString('nc_' + opt)
+            arg = sample.meta().castString('nc_' + opt)
             if len(arg) :
                 cmd += ["--" + opt + "=" + arg]
     
     for switch in switches :
-        arg = sample.getMetaDouble('nc_' + switch, 0)
+        arg = sample.meta().castDouble('nc_' + switch, 0, SH.MetaObject.CAST_NOCAST_DEFAULT)
         if arg != 0 :
             cmd += ["--" + switch]
         else :
-            arg = sample.getMetaString('nc_' + switch)
+            arg = sample.meta().castString('nc_' + switch)
             if len(arg) :
                 if arg != "False" and arg != "false" and arg != "FALSE" :
                     cmd += ["--" + switch]
@@ -78,25 +79,30 @@ def ELG_prun(sample) :
                     'match']                    
 
     for opt in internalOpts :
-        cmd += ["--" + opt + "=" + sample.getMetaString('nc_' + opt)]
+        cmd += ["--" + opt + "=" + sample.meta().castString('nc_' + opt)]
 
-    if sample.getMetaDouble('nc_mergeOutput', 1) == 0 or sample.getMetaString('nc_mergeOutput').upper() == 'FALSE' :   
+    if sample.meta().castDouble('nc_mergeOutput', 1, SH.MetaObject.CAST_NOCAST_DEFAULT) == 0 or sample.meta().castString('nc_mergeOutput').upper() == 'FALSE' :
         #don't set merge script 
         pass
     else :
-        cmd += ["--mergeScript=" + sample.getMetaString('nc_mergeScript')]
+        cmd += ["--mergeScript=" + sample.meta().castString('nc_mergeScript')]
 
-    if len(sample.getMetaString('nc_EventLoop_SubmitFlags')) :
-        cmd += shlex.split (sample.getMetaString('nc_EventLoop_SubmitFlags'))
+    if len(sample.meta().castString('nc_EventLoop_SubmitFlags')) :
+        cmd += shlex.split (sample.meta().castString('nc_EventLoop_SubmitFlags'))
 
-    if sample.getMetaDouble('nc_showCmd', 0) != 0 :
+    if sample.meta().castDouble('nc_showCmd', 0, SH.MetaObject.CAST_NOCAST_DEFAULT) != 0 :
         print (cmd)
 
     if not os.path.isfile('jobcontents.tgz') : 
         import copy
         dummycmd = copy.deepcopy(cmd)
         dummycmd += ["--outTarBall=jobcontents.tgz"]
-        dummycmd += ["--extFile=jobdef.root,runjob.sh"]
+        if len(sample.meta().castString('nc_EventLoop_UserFiles')) :
+            dummycmd += ["--extFile=jobdef.root,runjob.sh," + ",".join (sample.meta().castString('nc_EventLoop_UserFiles'))]
+            pass
+        else :
+            dummycmd += ["--extFile=jobdef.root,runjob.sh"]
+            pass
         dummycmd += ["--noSubmit"]
 
         try:

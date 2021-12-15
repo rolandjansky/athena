@@ -33,7 +33,7 @@ namespace CP
   initialize ()
   {
     ANA_CHECK (m_matchingTool.retrieve());
-    m_systematicsList.addHandle (m_tauHandle);
+    ANA_CHECK (m_tauHandle.initialize (m_systematicsList));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     return StatusCode::SUCCESS;
@@ -44,17 +44,18 @@ namespace CP
   StatusCode TauTruthMatchingAlg ::
   execute ()
   {
-    return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
-        xAOD::TauJetContainer *taus = nullptr;
-        ANA_CHECK (m_tauHandle.getCopy (taus, sys));
-        for (xAOD::TauJet *tau : *taus)
+    for (const auto& sys : m_systematicsList.systematicsVector())
+    {
+      const xAOD::TauJetContainer *taus = nullptr;
+      ANA_CHECK (m_tauHandle.retrieve (taus, sys));
+      for (const xAOD::TauJet *tau : *taus)
+      {
+        if (m_preselection.getBool (*tau))
         {
-          if (m_preselection.getBool (*tau))
-          {
-            m_matchingTool->applyTruthMatch (*tau);
-          }
+          m_matchingTool->applyTruthMatch (*tau);
         }
-        return StatusCode::SUCCESS;
-      });
+      }
+    }
+    return StatusCode::SUCCESS;
   }
 }

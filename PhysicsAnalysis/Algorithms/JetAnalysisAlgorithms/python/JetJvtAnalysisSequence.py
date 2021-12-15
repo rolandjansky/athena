@@ -5,6 +5,8 @@ from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 
 def makeJetJvtAnalysisSequence( dataType, jetCollection,
+                                preselection = '',
+                                systematicsAwarePreselection = '',
                                 disableFJvt = False,
                                 globalSF = True,
                                 runSelection = True,
@@ -36,29 +38,25 @@ def makeJetJvtAnalysisSequence( dataType, jetCollection,
 
     # Set up the per-event jet efficiency scale factor calculation algorithm
     if dataType != 'data' and globalSF:
-        from JetAnalysisSequence import jvtSysts, fjvtSysts
-
         alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'JvtEventScaleFactorAlg' )
+        alg.preselection = preselection + '&&no_jvt' if preselection else 'no_jvt'
+        alg.inputSelectionDecoration = systematicsAwarePreselection
         alg.scaleFactorInputDecoration = 'jvt_effSF_%SYS%'
-        alg.scaleFactorInputDecorationRegex = jvtSysts
         alg.scaleFactorOutputDecoration = 'jvt_effSF_%SYS%'
 
         seq.append( alg,
-                    affectingSystematics = jvtSysts,
-                    inputPropName = { 'jets' : 'particles',
-                                      'eventInfo' : 'eventInfo' },
+                    inputPropName = { 'jets' : 'particles' },
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
         if not disableFJvt:
             alg = createAlgorithm( 'CP::AsgEventScaleFactorAlg', 'ForwardJvtEventScaleFactorAlg' )
+            alg.preselection = preselection + '&&no_fjvt' if preselection else 'no_fjvt'
+            alg.inputSelectionDecoration = systematicsAwarePreselection
             alg.scaleFactorInputDecoration = 'fjvt_effSF_%SYS%'
-            alg.scaleFactorInputDecorationRegex = fjvtSysts
             alg.scaleFactorOutputDecoration = 'fjvt_effSF_%SYS%'
 
             seq.append( alg,
-                        affectingSystematics = fjvtSysts,
-                        inputPropName = { 'jets' : 'particles',
-                                          'eventInfo' : 'eventInfo' },
+                        inputPropName = { 'jets' : 'particles' },
                         metaConfig = {'selectionDecorNames' : ['fjvt_selection'] if runSelection else [],
                                       'selectionDecorCount' : [1] if runSelection else [] },
                         dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"] + ['no_fjvt'])} )

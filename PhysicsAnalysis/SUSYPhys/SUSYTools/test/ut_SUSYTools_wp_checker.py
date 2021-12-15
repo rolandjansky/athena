@@ -88,13 +88,12 @@ FwdJet.JvtEtaMin: 2.5
 FwdJet.JvtWP: Tight
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-Jet.LargeRuncConfig: rel21/Spring2019/R10_GlobalReduction.config
-# 80% efficiency working points
-Jet.WtaggerConfig: SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat # set to None to turn this off
-Jet.ZtaggerConfig: SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat # set to None to turn this off
-Jet.ToptaggerConfig: JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat # set to None to turn this off
 # JMS Calibration (None, Extrap, Frozen)
 Jet.JMSCalib: None
+# Large R Taggers
+Jet.WtaggerConfig: SmoothedInclWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat # set to None to turn this off
+Jet.ZtaggerConfig: SmoothedInclZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_SUSYOpt_MC16_20210129.dat # set to None to turn this off
+Jet.ToptaggerConfig: JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16d_20190405_80Eff.dat # set to None to turn this off
 #
 BadJet.Cut: LooseBad
 #

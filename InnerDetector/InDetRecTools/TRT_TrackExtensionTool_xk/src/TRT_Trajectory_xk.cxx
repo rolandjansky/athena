@@ -2,6 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// WARNING: This specifically disables warnings in 21.2 that we do not
+// intend to fix anymore.  It should not be swept to any other
+// branches.
+#pragma GCC diagnostic ignored "-Wmisleading-indentation"
+
 #include <iostream>
 #include <iomanip>
 #include "TrkSurfaces/PerigeeSurface.h"

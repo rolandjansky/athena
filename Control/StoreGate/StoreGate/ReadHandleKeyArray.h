@@ -2,6 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+// WARNING! WARNING! WARNING!
+//
+// This version of the file has been modified for use in 21.2 and
+// should not be swept into master.
+
+
 #ifndef STOREGATE_READHANDLEKEYARRAY_H
 #define STOREGATE_READHANDLEKEYARRAY_H 1
 
@@ -64,6 +71,24 @@ namespace SG {
      */
     ReadHandleKeyArray( std::initializer_list<std::string> l ):
       VarHandleKeyArrayCommon<ReadHandleKey<T>> {l} {};
+
+    /**
+     * @brief auto-declaring Property Constructor from a HandleKeyArray 
+     * that takes an initializer list of std::strings, and associates the WHKA
+     * with the specified Property name
+     * @param name name of Property
+     * @param l initializer list of std::strings used to create the
+     *          HandleKeys
+     * @param doc documentation string
+     */
+    template <class OWNER>
+    inline ReadHandleKeyArray( OWNER* owner,
+                                std::string name,
+                                std::initializer_list<std::string> l,
+                                std::string doc="") :
+      VarHandleKeyArrayCommon<ReadHandleKey<T>> {l} {
+      owner->declareProperty(std::move(name), *this, std::move(doc));
+    }
 
     /**
      * @brief return the type (Read/Write/Update) of handle

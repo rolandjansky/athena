@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -12,13 +12,19 @@
 #include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
+#include <boost/algorithm/string/join.hpp>
+
+#include "TopConfiguration/MsgCategory.h"
+
+using namespace TopConfiguration;
 
 namespace top {
   ConfigurationSettings* ConfigurationSettings::m_instance = 0;
 
   ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronCollectionName", "Name of the Electron container");
-    registerParameter("FwdElectronCollectionName", "Name of the Forward Electrons container, ForwardElectrons or None (default)", "None");
+    registerParameter("FwdElectronCollectionName",
+                      "Name of the Forward Electrons container, ForwardElectrons or None (default)", "None");
     registerParameter("MuonCollectionName", "Name of the Muon container");
     registerParameter("PhotonCollectionName", "Name of the Photon container");
     registerParameter("JetCollectionName", "Name of the Jet container");
@@ -27,7 +33,8 @@ namespace top {
     registerParameter("TrackJetCollectionName", "Name of the track Jet container", "None");
     registerParameter("TrackCollectionName", "Name of the track container", "None");
     registerParameter("TauCollectionName", "Name of the Tau container");
-    registerParameter("JetGhostTrackDecoName", "Name of the jet decoration that holds the ghost-associated track.", "None");
+    registerParameter("JetGhostTrackDecoName", "Name of the jet decoration that holds the ghost-associated track.",
+                      "None");
 
     registerParameter("TruthCollectionName", "Name of the Truth container");
     registerParameter("TruthElectronCollectionName", "Name of the Truth Electron container", "TruthElectrons");
@@ -55,10 +62,18 @@ namespace top {
     registerParameter("ElectronIDLoose",
                       "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH", "MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
+    registerParameter("Electrond0Sig", "Electron d0 significance cut for object selection. Default 5", "5.");
+    registerParameter("Electrondeltaz0", "Electron delta z0 cut for object selection. Default 0.5 mm", "0.5");
+    registerParameter("ElectronIDSFFilePath", "EXPERIMENTAL! Path to a root file containing custom electron ID SFs, e.g. dev/ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/offline/efficiencySF.offline.TightLLH_d0z0_v13.root."
+                      "This should only be used by experts for testing SFs! Default: Using the most recent recommended map.", "Default");
     registerParameter("EgammaSystematicModel", "Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)",
                       "1NP_v1");
+    registerParameter("ElectronEfficiencySystematicModelNToys",
+                      "Electron Efficiency Toy Systematics Number of Toys: ","40");
+    registerParameter("ElectronEfficiencySystematicModelToySeed",
+                      "Electron Efficiency Toy Systematics Seed of Toys: ","12345");
     registerParameter("ElectronEfficiencySystematicModel",
-                      "Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default)", "TOTAL");
+                      "Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default), COMBMCTOYS", "TOTAL");
     registerParameter("ElectronEfficiencySystematicModelEtaBinning",
                       "Electron Efficiency Systematic model eta binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ, e.g. 0.0:1.37:4.9)",
                       "default");
@@ -66,10 +81,10 @@ namespace top {
                       "Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)",
                       "default");
     registerParameter("ElectronIsolation",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLImprovedTight, PLImprovedVeryTight), (DANGEROUS: PflowTight, PflowLoose), None",
                       "FCTight");
     registerParameter("ElectronIsolationLoose",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLImprovedTight, PLImprovedVeryTight), (DANGEROUS: PflowTight, PflowLoose), None",
                       "None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -78,9 +93,12 @@ namespace top {
     registerParameter("UseElectronChargeIDSelection",
                       "True/False. Switch on/off electron charge ID selection (Default False).", "False");
     registerParameter("UseEgammaLeakageCorrection",
-                      "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default True).", "True");
+                      "True/False. Switch on/off super cluster based core leakage correction -- REQUIRES ptag>p3947 (Default True).", "False");
+    registerParameter("UseEgammaPileupCorrection",
+                      "True/False. Switch on/off improved egamma pileup correction is correction", "True");
     registerParameter("EnablePromptLeptonImprovedVetoStudies",
-		      "True/False. Adds the (many!) variables necessary to validate the PromptLeptonImprovedVeto electron+muon isolation -- TEMPORARY, for studies only (Default False).", "False");
+                      "True/False. Adds the (many!) variables necessary to validate the PromptLeptonImprovedVeto electron+muon isolation -- TEMPORARY, for studies only (Default False).",
+                      "False");
 
     registerParameter("FwdElectronID", "Type of fwd electron. Loose, Medium, Tight (default)", "Tight");
     registerParameter("FwdElectronIDLoose", "Type of fwd loose electrons. Loose, Medium, Tight (default)", "Tight");
@@ -106,6 +124,8 @@ namespace top {
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5");
+    registerParameter("Muond0Sig", "Muon d0 significance cut for object selection. Default 3", "3.");
+    registerParameter("Muondeltaz0", "Muon delta z0 cut for object selection. Default 0.5 mm", "0.5");
     registerParameter("MuonQuality",
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");
@@ -113,28 +133,36 @@ namespace top {
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");
     registerParameter("MuonUseMVALowPt",
-		      "Turn on MVA for low-pT muons (only for LowPt WP). Optimized to improve efficiency and hadron rejection. - Default: False",
-		      "False");
+                      "Turn on MVA for low-pT muons (only for LowPt WP). Optimized to improve efficiency and hadron rejection. - Default: False",
+                      "False");
     registerParameter("MuonUse2stationHighPt",
-		      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 - Default: True (only for HighPt)",
-		      "True");
+                      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 - Default: True (only for HighPt)",
+                      "True");
     registerParameter("MuonUseMVALowPtLoose",
-		      "Turn on MVA for low-pT muons (only for LowPt WP) for Loose tree. Optimized to improve efficiency and hadron rejection. - Default: False",
-		      "False");
+                      "Turn on MVA for low-pT muons (only for LowPt WP) for Loose tree. Optimized to improve efficiency and hadron rejection. - Default: False",
+                      "False");
     registerParameter("MuonUse2stationHighPtLoose",
-		      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 for Loose tree - Default: True (only for HighPt)",
-		      "True");
+                      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 for Loose tree - Default: True (only for HighPt)",
+                      "True");
     registerParameter("MuonIsolation",
                       "Isolation to use : PflowTight_VarRad, PflowTight_FixedRad, PflowLoose_VarRad, PflowLoose_FixedRad, HighPtTrackOnly, TightTrackOnly_VarRad, TightTrackOnly_FixedRad, PLVTight, PLVLoose, Tight_VarRad, Tight_FixedRad, Loose_VarRad, Loose_FixedRad, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, FCTight_FixedRad, AntiMuon_nominal, AntiMuon_shapeSyst1, AntiMuon_shapeSyst2, None",
-		      "PflowTight_FixedRad");
+                      "PflowTight_FixedRad, PLImprovedTight, PLImprovedVeryTight");
     registerParameter("MuonIsolationLoose",
                       "Isolation to use : PflowTight_VarRad, PflowTight_FixedRad, PflowLoose_VarRad, PflowLoose_FixedRad, HighPtTrackOnly, TightTrackOnly_VarRad, TightTrackOnly_FixedRad, PLVTight, PLVLoose, Tight_VarRad, Tight_FixedRad, Loose_VarRad, Loose_FixedRad, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, FCTight_FixedRad, None",
-		      "None");
+                      "None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
-    registerParameter("MuonDoSmearing2stationHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True", "True");
-    registerParameter("MuonDoExtraSmearingHighPt", "True/False, To be used by analyses using willing to check their sensitivity to momentum resolution effects at large muon momenta and in case move to the HighPt WP - Default: false", "false");
+    registerParameter("MuonDoSmearing2stationHighPt",
+                      "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True",
+                      "True");
+    registerParameter("MuonDoExtraSmearingHighPt",
+                      "True/False, To be used by analyses using willing to check their sensitivity to momentum resolution effects at large muon momenta and in case move to the HighPt WP - Default: false",
+                      "false");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
+    registerParameter("UseJetElectrons", "Use JetElectrons for fake estimate. Default: False", "False");
+    registerParameter("JetElectronEMFractionMin", "Minimum EM fraction for JetElectrons. Default: 0.8", "0.8");
+    registerParameter("JetElectronEMFractionMax", "Maximum EM fraction for JetElectrons. Default: 0.95", "0.95");
+    registerParameter("JetElectronEtaMax", "Maximum eta absolute value for jet-electrons. Default: 2.47", "2.47");
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
     registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
     registerParameter("SoftMuonEta", "Absolute Soft Muon eta cut for object selection. Default 2.5.", "2.5");
@@ -142,8 +170,8 @@ namespace top {
                       "Soft Muon quality cut for object selection. Options are Loose, Medium, Tight (default), LowPt",
                       "Tight");
     registerParameter("SoftMuonUseMVALowPt",
-		      "Turn on MVA for low-pT soft muons (only for LowPt WP). Optimized to improve efficiency and hadron rejection. - Default: False",
-		      "False");
+                      "Turn on MVA for low-pT soft muons (only for LowPt WP). Optimized to improve efficiency and hadron rejection. - Default: False",
+                      "False");
     registerParameter("SoftMuonDRJet",
                       "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4",
                       "0.4");
@@ -160,22 +188,42 @@ namespace top {
                       "Debug output for soft muon additional truth-level information: True or False (default)",
                       "False");
 
+    registerParameter("MuonSFCustomInputFolder",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom input folder path. If set to \" \" will use the default",
+                      " ");
+
+    registerParameter("MuonBreakDownSystematics",
+                      "Tells the MuonEfficiencyScaleFactors tools to use a more complex systematic model, if set to True. Default is False",
+                      "False", {"True", "False"});
+
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
-   
+
     registerParameter("JVTinMETCalculation",
                       "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True");
     registerParameter("SaveFailJVTJets", "Save the jets that failed the JVT cut? False (default) or True.", "False");
     registerParameter("JVTWP", "Set JVT WP, default is set to \'Default\' (Tight for PFlow and Medium for Topo).",
                       "Default");
     registerParameter("ForwardJVTWP", "Set fJVT Working Point for selecting forward jets (|eta|>2.5 & 20GeV<pT<60GeV)"
-		      "\'None\': No fJVT (doesn't run tool for selection) - use this if you don't have forward jets in your selection or if using using PFlow jets with a derivation older than p4173, \'Tight\' (fJVT<0.4, recommended), \'Medium\': (fJVT<0.5, if combined with ForwardJVTinMETCalculation this will set MET WP to Tenacious with stricter JVTinMET requirements",
+                                      "\'None\': No fJVT (doesn't run tool for selection) - use this if you don't have forward jets in your selection or if using using PFlow jets with a derivation older than p4173, \'Tight\' (fJVT<0.4, recommended), \'Medium\': (fJVT<0.5, if combined with ForwardJVTinMETCalculation this will set MET WP to Tenacious with stricter JVTinMET requirements",
                       "None");
     registerParameter("ForwardJVTinMETCalculation",
-                      "Use fJVT cut on forward jets to improve resolution in the MET recalculation? \'False\' (default - must set false if using pflow jets with derivations older than P4173), or \'True\'", "False");
-    registerParameter("SaveFailForwardJVTJets", "Save the jets that failed the fJVT cut? \'False\' (default), or \'True\'", "False");
-    registerParameter("AdvancedUsage_METUncertaintiesConfigDir", "Path to directory containing MET uncertainties configs (including trailing /) \'Latest\' (default), or previous \'METUtilities/data17_13TeV/prerec_Jan16/\'", "Latest");
-   
+                      "Use fJVT cut on forward jets to improve resolution in the MET recalculation? \'False\' (default - must set false if using pflow jets with derivations older than P4173), or \'True\'",
+                      "False");
+    registerParameter("SaveFailForwardJVTJets",
+                      "Save the jets that failed the fJVT cut? \'False\' (default), or \'True\'", "False");
+    registerParameter("AdvancedUsage_METUncertaintiesConfigDir",
+                      "Path to directory containing MET uncertainties configs (including trailing /) \'Latest\' (default), or previous \'METUtilities/data17_13TeV/prerec_Jan16/\'",
+                      "Latest");
+    registerParameter("METMuonPFlowBugfix", "Whether to run MET bugfix for muon-PFlow jet overlap removal.", "True",
+                      {"True", "False"});
+    registerParameter("METSignificance",
+                      "Setting that provide option to turn on/off METSignificance",
+                      "False", {"True", "False"});
+
+    registerParameter("METSignificanceSoftTermParam",
+                      "String that sets the type of resolutions that are used for the soft term, Random(met::Random), PthardParam(met::PthardParam), TSTParam(met::TSTParam)",
+                      "Random", {"Random", "PthardParam", "TSTParam"});
     registerParameter("JetPtGhostTracks",
                       "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 25 GeV.",
                       "25000.");
@@ -186,24 +234,19 @@ namespace top {
                       "PT of the ghost tracks associated small-R jets (in MeV). Default 500 MeV.",
                       "500.");
     registerParameter("GhostTracksVertexAssociation",
-                      "WP of the ghost track vertex association. Option: none, nominal and tight. Default nominal.","nominal");
+                      "WP of the ghost track vertex association. Option: none, nominal and tight. Default nominal.",
+                      "nominal");
     registerParameter("GhostTracksQuality",
-                      "WP of the ghost track quality. Option: TightPrimary, LoosePrimary. Loose, NoCut. Default TightPrimary.","TightPrimary");
-    
+                      "WP of the ghost track quality. Option: TightPrimary, LoosePrimary. Loose, NoCut. Default TightPrimary.",
+                      "TightPrimary");
+
     registerParameter("LargeRJetPtGhostTracks",
                       "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 150000 GeV.",
                       "150000.");
     registerParameter("LargeRJetEtaGhostTracks",
                       "Jet eta threshold for ghost track systematic variations calculation. Default 2.0",
                       "2.0");
-    registerParameter("GhostTrackspTLargeR",
-                      "PT of the ghost tracks associated large-R jets (in MeV). Default 500 MeV.",
-                      "500.");
-    registerParameter("GhostTracksVertexAssociationLargeR",
-                      "WP of the ghost track vertex association (for largeR jets). Option: none, nominal and tight. Default nominal.","nominal");
-    registerParameter("GhostTracksQualityLargeR",
-                      "WP of the ghost track quality (for largeR jets). Option: TightPrimary, LoosePrimary. Loose, NoCut. Default TightPrimary.","TightPrimary");
-    
+
     registerParameter("JetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties",
                       "CategoryReduction");
@@ -219,22 +262,37 @@ namespace top {
                       "None");
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
-                      "Simple");
-    registerParameter("JetCalibSequence", "Jet calibaration sequence, GSC (default) or JMS", "GSC");
+                      "Full_PseudoData", {"All", "All_PseudoData", "Full", "Full_PseudoData", "Simple"});
+    registerParameter("JetJMSOption",
+		      "None (default),"
+                      "JMS_frozen (The shape and magnitude of the uncertainties at m/pT = 0.25 are also used for m/pT > 0.25),"
+                       "JMS_scaled (The magnitude of the uncertainties at m/pT = 0.25 was scaled linearly with increasing m/pT)",
+                      "None");
+    registerParameter("DoLargeRPseudodataJER",
+                      "If set to True, produce additional JER smearing systematics treating MC as pseudo-data, provided FullJER or AllJER is specified with LargeRJetUncertainties_JESJERJMS_NPModel.",
+                      "True",{"True", "False"});
+    registerParameter("JetCalibSequence", "Jet calibaration sequence.", "GSC", {"GSC", "JMS"});
+    registerParameter("AllowJMSforAFII", "Enable use of UNSUPPORTED small-R jet JMS calibration use on AFII samples.", "False", {"True", "False"});
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
 
     registerParameter("JSF", "Used for top mass analysis, default is 1.0", "1.0");
     registerParameter("bJSF", "Used for top mass analysis, default is 1.0", "1.0");
 
     registerParameter("LargeRJetPt", "LargeRJet pT cut for object selection (in MeV). Default 150 GeV.", "150000.");
+    registerParameter("LargeRJetMass", "LargeRJet min. mass cut for object selection (in MeV).", "0");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0");
-    registerParameter("LargeRJetSubstructureVariables", "List of substructure variables stored in the output separated by commas. By default no variable is added to output.", " ");
-    registerParameter("LargeRJetUncertainties_NPModel",
-                      "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",
-                      "CategoryReduction");
+    registerParameter("LargeRJetSubstructureVariables",
+                      "List of substructure variables stored in the output separated by commas. By default no variable is added to output.",
+                      " ");
+    registerParameter("LargeRJetUncertainties_JESJERJMS_NPModel",
+                      "Input form: {A}JES_{B}JER_{C}JMS, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21ConsolidatedLargeRScaleRes for configuration options, - for LCTopo large-R jet energy scale, energy resolution, and mass scale uncertainties",
+                      "CategoryJES_FullJER_FullJMS");
+    registerParameter("LargeRJetUncertainties_JMR_NPModel",
+                      "FullJMR_COMB_newBinning (10 NP; aimed at the most precise jet-dependent measurements), SimpleJMR_COMB_newBinning (1 NP; flat 20 percent uncertainty, as it was recommended in the past)  - for LCTopo large-R jet mass resolution uncertainties",
+                      "FullJMR_COMB_newBinning", {"FullJMR_COMB_newBinning", "SimpleJMR_COMB_newBinning"});
     registerParameter("AdvancedUsage_LargeRJetUncertaintiesConfigDir",
                       "Path to directory containing large-R jet uncertainties config",
-                      "rel21/Summer2019");
+                      "rel21/Winter2021");
     registerParameter("LargeRJESJMSConfig",
                       "Calibration for large-R JES/JMS. CombMass, CaloMass, TCCMass or UFOSDMass (default CombMass).",
                       "CombMass");
@@ -249,23 +307,27 @@ namespace top {
     registerParameter("TrackPt", "Track pT cut for object selection (in MeV). Default 0.5 GeV.", "0.5");
     registerParameter("TrackEta", "Absolute Track eta cut for object selection. Default 2.5.", "2.5");
     registerParameter("TrackQuality",
-		      "Track quality cut for object selection. Options are TightPrimary,...",
-		      "TightPrimary");
+                      "Track quality cut for object selection. Options are TightPrimary,...",
+                      "TightPrimary");
 
 
     registerParameter("RCJetPt", "Reclustered Jet pT cut for object selection (in MeV). Default 100000 MeV.",
                       "100000.");
     registerParameter("RCJetEta", "Reclustered Jet eta cut for object selection. Default 2.0.", "2.0");
-    registerParameter("RCInputJetPtMin", "Min Pt cut for RC jet inputs collection. Parameter is shared between RC and VarRC jets. Default 30000. [MeV]", "30000.");
-    registerParameter("RCInputJetEtaMax", "Max |Eta| cut for RC jet inputs collection. Parameter is shared between RC and VarRC jets. Default 2.5", "2.5");
+    registerParameter("RCInputJetPtMin",
+                      "Min Pt cut for RC jet inputs collection. Parameter is shared between RC and VarRC jets. Default 30000. [MeV]",
+                      "30000.");
+    registerParameter("RCInputJetEtaMax",
+                      "Max |Eta| cut for RC jet inputs collection. Parameter is shared between RC and VarRC jets. Default 2.5",
+                      "2.5");
     registerParameter("RCJetTrim", "Reclustered Jet trimming cut for object selection. Default 0.05.", "0.05");
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0", "1.0");
     registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",
                       "False");
-    registerParameter("RCJetSubstructureVariables", 
-		      R"("List of reclustered jet substructure variables stored in the output separated by commas.
-		      Available variables: Tau32_clstr,Tau21_clstr,Tau3_clstr,Tau2_clstr,Tau1_clstr,d12_clstr,d23_clstr,Qw_clstr,nconstituent_clstr,D2_clstr,ECF1_clstr,ECF2_clstr,ECF3_clstr,gECF332_clstr,gECF461_clstr,gECF322_clstr,gECF331_clstr,gECF422_clstr,gECF441_clstr,gECF212_clstr,gECF321_clstr,gECF311_clstr,L1_clstr,L2_clstr,L3_clstr,L4_clstr,L5_clstr,rrcjet_pt,rrcjet_eta,rrcjet_phi,rrcjet_e)",
-		      " ");
+    registerParameter("RCJetSubstructureVariables",
+                      R"("List of reclustered jet substructure variables stored in the output separated by commas.
+                      Available variables: Tau32_clstr,Tau21_clstr,Tau3_clstr,Tau2_clstr,Tau1_clstr,d12_clstr,d23_clstr,Qw_clstr,nconstituent_clstr,D2_clstr,ECF1_clstr,ECF2_clstr,ECF3_clstr,gECF332_clstr,gECF461_clstr,gECF322_clstr,gECF331_clstr,gECF422_clstr,gECF441_clstr,gECF212_clstr,gECF321_clstr,gECF311_clstr,L1_clstr,L2_clstr,L3_clstr,L4_clstr,L5_clstr,rrcjet_pt,rrcjet_eta,rrcjet_phi,rrcjet_e)",
+                      " ");
 
     registerParameter("UseRCJets", "Use Reclustered Jets. Default False.", "False");
 
@@ -284,20 +346,20 @@ namespace top {
     registerParameter("UseVarRCJets", "Use Reclustered Jets (Variable-R Jets). Default False.", "False");
     registerParameter("UseVarRCJetSubstructure",
                       "Calculate Variable-R Reclustered Jet Substructure Variables. Default False", "False");
-    
+
     registerParameter("VarRCJetSubstructureVariables",
-		      R"(List of variable-R reclustered jet substructure variables stored in the output separated by commas.
-		      Available variables: Tau32_clstr,Tau21_clstr,Tau3_clstr,Tau2_clstr,Tau1_clstr,d12_clstr,d23_clstr,Qw_clstr,nconstituent_clstr,D2_clstr,ECF1_clstr,ECF2_clstr,ECF3_clstr,gECF332_clstr,gECF461_clstr,gECF322_clstr,gECF331_clstr,gECF422_clstr,gECF441_clstr,gECF212_clstr,gECF321_clstr,gECF311_clstr,L1_clstr,L2_clstr,L3_clstr,L4_clstr,L5_clstr,rrcjet_pt,rrcjet_eta,rrcjet_phi,rrcjet_e)",
-		      " ");
+                      R"(List of variable-R reclustered jet substructure variables stored in the output separated by commas.
+                      Available variables: Tau32_clstr,Tau21_clstr,Tau3_clstr,Tau2_clstr,Tau1_clstr,d12_clstr,d23_clstr,Qw_clstr,nconstituent_clstr,D2_clstr,ECF1_clstr,ECF2_clstr,ECF3_clstr,gECF332_clstr,gECF461_clstr,gECF322_clstr,gECF331_clstr,gECF422_clstr,gECF441_clstr,gECF212_clstr,gECF321_clstr,gECF311_clstr,L1_clstr,L2_clstr,L3_clstr,L4_clstr,L5_clstr,rrcjet_pt,rrcjet_eta,rrcjet_phi,rrcjet_e)",
+                      " ");
 
     registerParameter("TauPt",
                       "Pt cut applied to both tight and loose taus (in MeV)."
                       "Default 25 GeV.",
                       "25000");
     registerParameter("TauEtaRegions",
-					            "Eta regions used for both tight and loose taus."
-					            "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
-					            "[0., 1.37, 1.52, 2.5]");
+                      "Eta regions used for both tight and loose taus."
+                      "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
+                      "[0., 1.37, 1.52, 2.5]");
     registerParameter("TauJetIDWP",
                       "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose, RNNLoose, RNNMedium, RNNTight)."
                       "Default RNNMedium.",
@@ -394,11 +456,17 @@ namespace top {
     registerParameter("FilterBranches",
                       "Comma separated list of names of the branches that will be removed from the output", " ");
     registerParameter("FilterPartonLevelBranches",
-                      "Comma separated list of names of the parton-level branches that will be removed from the output", " ");
+                      "Comma separated list of names of the parton-level branches that will be removed from the output",
+                      " ");
     registerParameter("FilterParticleLevelBranches",
-                      "Comma separated list of names of the particle-level branches that will be removed from the output", " ");
+                      "Comma separated list of names of the particle-level branches that will be removed from the output",
+                      " ");
     registerParameter("FilterNominalLooseBranches",
-                      "Comma separated list of names of the nominal_Loose tree branches that will be removed from the output", " ");
+                      "Comma separated list of names of the nominal_Loose tree branches that will be removed from the output",
+                      " ");
+    registerParameter("FilterNominalBranches",
+                      "Comma separated list of names of the nominal tree branches that will be removed from the output. If not provided, the branches from FilterBraches will be used",
+                      " ");
     registerParameter("FilterTrees",
                       "Comma separated list of names of the trees that will be removed from the output", " ");
 
@@ -415,12 +483,19 @@ namespace top {
     registerParameter("DoTight", "Dumps the normal non-\"*_Loose\" trees : Data, MC, Both (default), False", "Both");
     registerParameter("DoLoose", "Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False",
                       "Data");
+    registerParameter("UseHItoolsConfiguration", "Flag to tell the code to use heavy ion specific tool setup. Default is False", "False", {"True","False"});
     registerParameter("DoSysts", "Run systematics on given selection: Both (default), Tight, Loose", "Both");
-    
-    registerParameter("UseLooseObjectsInMETInLooseTree","Experimental: use loose objects when rebuilding the MET for the loose tree : True or False (default = False)","False");
-    registerParameter("UseLooseObjectsInMETInNominalTree","Experimental: use loose objects when rebuilding the MET for the nominal tree : True or False (default = False)","False");
-    
-    registerParameter("WriteMETBuiltWithLooseObjects","Write a separate branch with the met built with loose objects in the output for tests: True or False (default = False)","False");
+
+    registerParameter("UseLooseObjectsInMETInLooseTree",
+                      "Experimental: use loose objects when rebuilding the MET for the loose tree : True or False (default = False)",
+                      "False");
+    registerParameter("UseLooseObjectsInMETInNominalTree",
+                      "Experimental: use loose objects when rebuilding the MET for the nominal tree : True or False (default = False)",
+                      "False");
+
+    registerParameter("WriteMETBuiltWithLooseObjects",
+                      "Write a separate branch with the met built with loose objects in the output for tests: True or False (default = False)",
+                      "False");
 
     registerParameter("OverlapRemovalLeptonDef",
                       "Special: run overlap removal on : Tight (top default) or Loose (not top default) lepton definitions",
@@ -431,10 +506,16 @@ namespace top {
 
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHq, False (default)", "False");
+    registerParameter("ElectronInJetSubtractionCut",
+                      "pT ratio cut used in the ElectronInJetSubtraction method. Default 0.37", "0.37");
+    registerParameter("ElectronInJetSubtractionBias",
+                      "pT ratio bias used in the ElectronInJetSubtraction method. Default 20.0", "20.0");
+    registerParameter("TopPartonHistory", "Topology to be assumed when reconstructing parton-level history.", "False",
+                      {"ttbar", "ttbarlight", "tb", "Wtb", "tchannel", "ttz", "ttgamma", "tHq", "tZq", "tttt", "False"});
     registerParameter("TopPartonLevel", "Perform parton level analysis (stored in truth tree)? True or False", "True");
-    
-    registerParameter("TopParticleLevel", "Perform particle level selection (stored in particleLevel tree)? True or False", "False");
+
+    registerParameter("TopParticleLevel",
+                      "Perform particle level selection (stored in particleLevel tree)? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
                       "Perform overlap removal at particle level? True (default), False, or any combination (comma separated) of MuonJet, ElectronJet, JetPhoton",
                       "True");
@@ -447,7 +528,7 @@ namespace top {
                       "False");
     registerParameter("NominalWeightNames",
                       "List of nominal weight names to attempt to retrieve. Attempts are made in the order as specified. If none of the names can be found, we will crash with error message. Use index instead in such case.",
-                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \",\" mur=1 muf=1 \"");
+                      "\" nominal \",\"nominal\",\"Default\",\"Weight\",\"1001\",\" muR=0.10000E+01 muF=0.10000E+01 \",\"\",\" \",\" dyn=   3 muR=0.10000E+01 muF=0.10000E+01 \",\" mur=1 muf=1 \", \" dyn=   0 muR=0.10000E+01 muF=0.10000E+01 \"");
     registerParameter("NominalWeightFallbackIndex",
                       "Index of nominal weight in MC weights vector. This option is only used in case the MC sample has broken metadata. (Default: -1 means no fallback index specified, rely on metadata and crash if metadata cannot be read)",
                       "-1");
@@ -467,12 +548,13 @@ namespace top {
                       "Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("TruthMuonEta",
                       "Absolute Muon eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5");
-    
+
     registerParameter("TruthSoftMuonPt",
-                      "Soft Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 4 GeV.", "4000");
+                      "Soft Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 4 GeV.",
+                      "4000");
     registerParameter("TruthSoftMuonEta",
                       "Absolute Soft Muon eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5");
-                      
+
     registerParameter("TruthPhotonPt",
                       "Photon pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.",
                       "25000");
@@ -556,6 +638,8 @@ namespace top {
                       " Default 'default'",
                       "default");
 
+    registerParameter("EGammaCalibrationModel", "To override default EGammaCalibration model, Default 'es2018_R21_v0'", "es2018_R21_v0");
+
     registerParameter("PRWConfigFiles",
                       "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options",
                       " ");
@@ -597,7 +681,7 @@ namespace top {
                       "kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod", "Recommend use kNotag or kVetoNoFit - see KLFitter TWiki", "kNotag");
     registerParameter("KLFitterLH",
-                      "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets",
+                      "Select likelihood depending on signal, ttbar, ttbar_JetAngles, ttbar_Angular, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets",
                       "ttbar");
     registerParameter("KLFitterTopMassFixed", "Fix the mass of the top quark? True or False", "True");
     registerParameter("KLFitterSaveAllPermutations",
@@ -614,11 +698,15 @@ namespace top {
                                                  " noPhotonMuOR, noPhotonMuOrJetOR",
                       "recommended"
                       );
+    
+    registerParameter("NoOverlapRemovalForMuons", "For tests: do not remove muons due to OR, instead store a flag with the OR result for them in the output. True or False (default: False).", "False");
 
     registerParameter("OverlapRemovalSlidingInnerDRel",
                       "Overlap removal inner radius to be used for electron SlidingDR ,", "0.2");
     registerParameter("OverlapRemovalSlidingInnerDRmu", "Overlap removal inner radius to be used for muon SlidingDR ,",
                       "0.2");
+    registerParameter("OverlapRemovalParticleLevelUseRapidity", "Use rapidity instead of pseudo-rapidity for DeltaR"
+                                                                " calculation for overlap removal in particle level ","False", {"True", "False"});
 
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
@@ -661,10 +749,14 @@ namespace top {
     registerParameter("MuonTriggers", "Deprecated, use GlobalTriggers instead.", "None");
     registerParameter("MuonTriggersLoose", "Deprecated, use GlobalTriggersLoose instead.", "None");
 
-    registerParameter("DemandPrimaryVertex", "Wether at least one primary vertex in event is required. Default True. For debugging purposes only!", "True");
+    registerParameter("DemandPrimaryVertex",
+                      "Wether at least one primary vertex in event is required. Default True. For debugging purposes only!",
+                      "True");
 
     registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
-    registerParameter("RedefineMCMCMap", "Dictionary for translating the shower names from TopDataPreparation. Format: \"shower1:shower2,shower3:shower4\".", " ");
+    registerParameter("RedefineMCMCMap",
+                      "Dictionary for translating the shower names from TopDataPreparation. Format: \"shower1:shower2,shower3:shower4\".",
+                      " ");
   }
 
   ConfigurationSettings* ConfigurationSettings::get() {
@@ -698,18 +790,17 @@ namespace top {
       size_t commentpos = size_t(-1);
       while (true) {
         // find next occurence of '#' -- after the already scanned chars
-        commentpos = newstring.find("#", commentpos+1);
-        if (commentpos == std::string::npos)
-          break;
+        commentpos = newstring.find("#", commentpos + 1);
+        if (commentpos == std::string::npos) break;
         if (commentpos == 0) { // the whole line is a comment, to be ignored
           newstring = "";
           break;
         }
         // if it's '\#', then do not erase this part, but remove the '\'
-        if (newstring.compare(commentpos-1, 1, "\\") == 0) {
-            newstring.erase(commentpos-1, 1);
-            --commentpos; // the position of the '#' shifted after removing '\'
-            continue;
+        if (newstring.compare(commentpos - 1, 1, "\\") == 0) {
+          newstring.erase(commentpos - 1, 1);
+          --commentpos; // the position of the '#' shifted after removing '\'
+          continue;
         } else {
           newstring = newstring.substr(0, commentpos);
           break;
@@ -718,9 +809,9 @@ namespace top {
 
       // remove (multiple) spaces hanging around relevant information
       // if a pair of "" appears, the spaces in "" won't be touched
-      bool hasquote = (newstring.find("\"",0) != std::string::npos);
+      bool hasquote = (newstring.find("\"", 0) != std::string::npos);
       if (!hasquote) boost::algorithm::trim_all(newstring);
-      else { 
+      else {
         //split the string into segments, separated by pairs of quotes
         //e.g. the string "abc \"def\" ghi"
         //     becomes a vector of 3 strings: "abc", "\"def\"", "ghi"
@@ -729,43 +820,46 @@ namespace top {
         std::size_t strsize = newstring.size();
         std::size_t tmppos = 0;
         bool leftquote = true;
-        while (tmppos <= strsize-1) {
+        while (tmppos <= strsize - 1) {
           // find the position of the 1st quote after newstring[tmppos]
-          std::size_t tmppos2 = newstring.find_first_of("\"",tmppos);
-          
-	  // when the quote found has \ ahead of it, jump over and update tmppos2
-	  std::size_t tmppos3 = newstring.find_first_of("\\\"",tmppos);
-          while (tmppos2 == tmppos3+1) {
-	    tmppos3 = newstring.find_first_of("\\\"",tmppos2+1);
-            tmppos2 = newstring.find_first_of("\"",tmppos2+1);
+          std::size_t tmppos2 = newstring.find_first_of("\"", tmppos);
+
+          // when the quote found has \ ahead of it, jump over and update tmppos2
+          std::size_t tmppos3 = newstring.find_first_of("\\\"", tmppos);
+          while (tmppos2 == tmppos3 + 1) {
+            tmppos3 = newstring.find_first_of("\\\"", tmppos2 + 1);
+            tmppos2 = newstring.find_first_of("\"", tmppos2 + 1);
           }
 
           // when no more quote found, save the segment from the last rightquote to the end, then quit the loop
           if (tmppos2 == std::string::npos) {
-            segments.push_back(newstring.substr(tmppos,strsize-tmppos));
+            segments.push_back(newstring.substr(tmppos, strsize - tmppos));
             segments_isquote.push_back(false);
             break;
           }
 
           // check it's a left quote or right quote
           if (leftquote) {
-            segments.push_back(newstring.substr(tmppos,tmppos2-tmppos));
+            segments.push_back(newstring.substr(tmppos, tmppos2 - tmppos));
             segments_isquote.push_back(false);
 
             // update the position indicator and leftquote flag
-            tmppos = tmppos2+1;
+            tmppos = tmppos2 + 1;
             leftquote = false;
           } else {
-            segments.push_back(newstring.substr(tmppos-1,tmppos2-(tmppos-1)+1)); // have to include the two quotes, which is why +/-1 adjustment is introduced
+            segments.push_back(newstring.substr(tmppos - 1, tmppos2 - (tmppos - 1) + 1)); // have to include the two
+                                                                                          // quotes, which is why +/-1
+                                                                                          // adjustment is introduced
             segments_isquote.push_back(true);
 
             // update the position indicator and leftquote flag
-            tmppos = tmppos2+1;
+            tmppos = tmppos2 + 1;
             leftquote = true;
           }
         }
 
-        // sanity check: if leftquote = false after the loop, it means a left quote is found but not its associated rightquote
+        // sanity check: if leftquote = false after the loop, it means a left quote is found but not its associated
+        // rightquote
         // in this case, crash the code
         if (!leftquote) {
           std::string message = "Problematic configuration line\n";
@@ -781,8 +875,8 @@ namespace top {
           boost::algorithm::trim_all(seg);
 
           // if the segment has a space in the end and it's not the last segment, add the space back
-          if (i+1 != segments.size()) {
-            if (segments.at(i).at(segments.at(i).size()-1) == ' ') {
+          if (i + 1 != segments.size()) {
+            if (segments.at(i).at(segments.at(i).size() - 1) == ' ') {
               seg += " ";
             }
           }
@@ -847,6 +941,10 @@ namespace top {
       if (its != strings_.end()) {
         its->second.m_data = value;
         its->second.m_set = true;
+      } else {
+        ATH_MSG_ERROR("\n\nConfig file includes non-existant option: " << key
+            << "\nThis option either does not exist anymore, or you have a typo.");
+        throw std::runtime_error("Unsupported config option.");
       }
 
       //// add dynamic keys
@@ -888,12 +986,30 @@ namespace top {
     m_configured = true;
   }
 
+  void ConfigurationSettings::checkSettings() {
+    for (const std::pair<std::string, StringData>& entry : strings_) {
+      const StringData& data = entry.second;
+      // if the config option restricts allowed values to some limited set,
+      // check that the configured value is valid
+      if (!data.m_allowed_values.empty()) {
+        if (std::find(data.m_allowed_values.begin(), data.m_allowed_values.end(),data.m_data) == data.m_allowed_values.end()) {
+          ATH_MSG_ERROR("Unsupported value specified for config option " << entry.first << ": " << data.m_data
+              << "\nAllowed values: " << boost::algorithm::join(data.m_allowed_values, ", "));
+          throw std::runtime_error("Unsupported value for config option");
+        }
+      }
+    }
+  }
+
   void ConfigurationSettings::registerParameter(const std::string& name, const std::string& message,
-                                                const std::string& default_val) {
+                                                const std::string& default_val,
+                                                const std::vector<std::string> allowed_values) {
     StringData data;
 
     data.m_data = default_val;
     data.m_human_explanation = message;
+    data.m_default_val = default_val;
+    data.m_allowed_values = allowed_values;
     data.m_set = (default_val.empty() ? false : true);
     strings_[name] = data;
   }
@@ -954,10 +1070,11 @@ namespace top {
     }
     throw std::invalid_argument(std::string("expected boolean value for configuration setting ") + key);
   }
-  
+
   bool ConfigurationSettings::retrieve(std::string const& key) const {
-    bool result=false;
-    retrieve(key,result);
+    bool result = false;
+
+    retrieve(key, result);
     return result;
   }
 
@@ -985,12 +1102,13 @@ namespace top {
 
       std::stringstream s2;
       s2 << "\"" << its->second.m_data << "\"";
+      std::string s_values;
+      if (!its->second.m_allowed_values.empty()) {
+        s_values = " Allowed values: " + boost::algorithm::join(its->second.m_allowed_values, ", ");
+      }
       os << std::setw(40) << std::left << s.str() << " : " << std::setw(35) << s2.str() << " - " << std::right <<
-        its->second.m_human_explanation << "\n";
+        its->second.m_human_explanation << " Default: \"" << its->second.m_default_val << "\"." << s_values << "\n";
     }
-
-    //for (const auto& selection : settings.selections())
-    //    os << selection << "\n";
 
     return os;
   }

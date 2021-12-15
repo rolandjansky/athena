@@ -28,6 +28,10 @@ if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
     ToolSvc += DecoTool
 
 
+if DerivationFrameworkHasTruth:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================

@@ -22,6 +22,7 @@ ClusterFilterTool::ClusterFilterTool(const std::string& t, const std::string& n,
   declareProperty("VertexCollection",                 m_vertexCollectionName        = "PrimaryVertices"       );
   declareProperty("ConeSize",                         m_coneSize                    = 0.2                     );
   declareProperty("PtFractionAtPV0",                  m_ptFractionPV0               = 0.1                     );
+  declareProperty("UseDetectorEta",                   m_useDetectorEta              = false                   );
 }
 
 ClusterFilterTool::~ClusterFilterTool() {}
@@ -74,6 +75,12 @@ bool ClusterFilterTool::rejectCluster(const xAOD::CaloCluster& cluster) {
     
     float dPhi = P4Helpers::deltaPhi( cluster.phi(), phi);
     float dEta = cluster.eta()-eta;
+    if (m_useDetectorEta)
+    {
+        static SG::AuxElement::ConstAccessor<float> acc_det_eta("DetectorEta");
+        if (acc_det_eta.isAvailable(cluster))
+            dEta = acc_det_eta(cluster)-eta;
+    }
     float dr2  = dPhi*dPhi+ dEta*dEta;
         
     // check if the track is matching the cluster

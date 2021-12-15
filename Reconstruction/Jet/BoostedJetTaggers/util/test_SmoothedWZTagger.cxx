@@ -136,7 +136,7 @@ int main( int argc, char* argv[] ) {
   // Fill a validation true with the tag return value
   std::unique_ptr<TFile> outputFile(TFile::Open("output_SmoothedWZTagger.root", "recreate"));
   int pass,truthLabel,ntrk;
-  float sf,pt,eta,m,eff,effSF;
+  float sf,pt,eta,m,eff,effSF,sigeffSF;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
   Tree->Branch( "sf", &sf, "sf/F" );
@@ -146,11 +146,12 @@ int main( int argc, char* argv[] ) {
   Tree->Branch( "ntrk", &ntrk, "ntrk/I" );
   Tree->Branch( "eff", &eff, "eff/F" );
   Tree->Branch( "effSF", &effSF, "effSF/F" );  
+  Tree->Branch( "sigeffSF", &sigeffSF, "sigeffSF/F" );  
   Tree->Branch( "truthLabel", &truthLabel, "truthLabel/I" );
   
   std::unique_ptr<JetUncertaintiesTool> m_jetUncToolSF(new JetUncertaintiesTool(("JetUncProvider_SF")));
   m_jetUncToolSF->setProperty("JetDefinition", "AntiKt10LCTopoTrimmedPtFrac5SmallR20");
-  m_jetUncToolSF->setProperty("ConfigFile", "/afs/cern.ch/user/t/tnobe/workDir/testBJT_consol/run/configs/R10_SF_LCTopo_WTag_SigEff50.config");
+  m_jetUncToolSF->setProperty("ConfigFile", "rel21/Fall2020/R10_SF_LCTopo_WTag_SigEff80.config");
   m_jetUncToolSF->setProperty("MCType", "MC16");
   m_jetUncToolSF->initialize();
 
@@ -180,7 +181,7 @@ int main( int argc, char* argv[] ) {
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
   m_Tagger.setProperty( "CalibArea", "SmoothedWZTaggers/Rel21/");
-  m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20200720.dat");
+  m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16_20201216.dat");
   m_Tagger.setProperty( "IsMC", m_isMC );
   m_Tagger.retrieve();
 
@@ -201,6 +202,7 @@ int main( int argc, char* argv[] ) {
     if(ievent!=-1 && static_cast <int> (evtInfo->eventNumber())!=ievent) {
       continue;
     }
+    std::cout << "eventNumber " << evtInfo->eventNumber() << std::endl;
 
     // Get the jets
     const xAOD::JetContainer* myJets = 0;
@@ -232,13 +234,16 @@ int main( int argc, char* argv[] ) {
       m  = jetSC->m();
       eta = jetSC->eta();
       ntrk = jetSC->auxdata<int>("ParentJetNTrkPt500");
-      sf = jetSC->auxdata<float>("SmoothWContained50_SF");
-      eff = jetSC->auxdata<float>("SmoothWContained50_efficiency");
-      effSF = jetSC->auxdata<float>("SmoothWContained50_effSF");
+      sf = jetSC->auxdata<float>("SmoothWContained80_SF");
+      eff = jetSC->auxdata<float>("SmoothWContained80_efficiency");
+      effSF = jetSC->auxdata<float>("SmoothWContained80_effSF");
+      sigeffSF = jetSC->auxdata<float>("SmoothWContained80_sigeffSF");
       std::cout << "pass " << pass
 		<< " truthLabel " << truthLabel
 		<< " sf " << sf
-		<< " eff " << jetSC->auxdata<float>("SmoothWContained50_effMC")
+		<< " eff " << eff
+		<< " effSF " << effSF
+		<< " sigeffSF " << sigeffSF
 		<< std::endl;
 
       Tree->Fill();
@@ -256,7 +261,7 @@ int main( int argc, char* argv[] ) {
 		m_Tagger->tag( *jetSC );
 		m_jetUncToolSF->applySystematicVariation(sysSet);
 		m_jetUncToolSF->applyCorrection(*jetSC);
-		std::cout << sysSet.name() << " " << jetSC->auxdata<float>("SmoothWContained50_SF") << std::endl;
+		std::cout << sysSet.name() << " " << jetSC->auxdata<float>("SmoothWContained80_SF") << std::endl;
 	      }
 	    }
 	}

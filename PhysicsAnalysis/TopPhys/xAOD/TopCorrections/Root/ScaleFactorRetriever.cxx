@@ -25,16 +25,20 @@ namespace top {
     declareProperty("config", m_config);
   }
 
+  size_t ScaleFactorRetriever::s_warn_counter = 0;
+
   StatusCode ScaleFactorRetriever::initialize() {
     ATH_MSG_INFO("Initialising " << this->name());
 
     std::shared_ptr<std::vector<std::string> > selectors = m_config->allSelectionNames();
 
     for (std::string selPtr : *selectors) {
-      std::vector<std::string> muonTrig_Tight = m_config->muonTriggers_Tight(selPtr);
-      std::vector<std::string> electronTrig_Tight = m_config->electronTriggers_Tight(selPtr);
-      std::vector<std::string> muonTrig_Loose = m_config->muonTriggers_Loose(selPtr);
-      std::vector<std::string> electronTrig_Loose = m_config->electronTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > muonTrig_Tight = m_config->muonTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > electronTrig_Tight = m_config->electronTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > photonTrig_Tight = m_config->photonTriggers_Tight(selPtr);
+      std::vector<std::pair<std::string, int> > muonTrig_Loose = m_config->muonTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > electronTrig_Loose = m_config->electronTriggers_Loose(selPtr);
+      std::vector<std::pair<std::string, int> > photonTrig_Loose = m_config->photonTriggers_Loose(selPtr);
 
       for (auto trig : muonTrig_Tight)
         m_muonTriggers_Tight.push_back(trig);
@@ -45,6 +49,11 @@ namespace top {
         m_electronTriggers_Tight.push_back(trig);
       for (auto trig : electronTrig_Loose)
         m_electronTriggers_Loose.push_back(trig);
+      
+      for (auto trig : photonTrig_Tight)
+        m_photonTriggers_Tight.push_back(trig);
+      for (auto trig : photonTrig_Loose)
+        m_photonTriggers_Loose.push_back(trig);
     }
 
     return StatusCode::SUCCESS;
@@ -89,6 +98,7 @@ namespace top {
     top::check(eventInfo, "Failed to retrieve SystematicEvent");
     const bool electronTriggerIsEmpty = event.m_isLoose ? m_electronTriggers_Loose.empty() : m_electronTriggers_Tight.empty();
     const bool muonTriggerIsEmpty     = event.m_isLoose ? m_muonTriggers_Loose.empty()     : m_muonTriggers_Tight.empty();
+    const bool photonTriggerIsEmpty   = event.m_isLoose ? m_photonTriggers_Loose.empty()   : m_photonTriggers_Tight.empty();
 
     // Create a hard-coded map linking top::topSFSyst <-> EventInfo decoration
     switch (SFSyst) {
@@ -140,6 +150,22 @@ namespace top {
       }
       break;
 
+    case top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_UP:
+      if (photonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "PH_EFF_TRIGGER_Uncertainty__1up");
+      }
+      break;
+
+    case top::topSFSyst::PHOTON_EFF_TRIGGER_UNCERTAINTY_DOWN:
+      if (photonTriggerIsEmpty) {
+        sf = 1;
+      } else {
+        sf = eventInfo->auxdataConst<float>(prefix + "PH_EFF_TRIGGER_Uncertainty__1down");
+      }
+      break;
+
     default:
       // Nominal weight
       sf = eventInfo->auxdataConst<float>(prefix);
@@ -150,8 +176,30 @@ namespace top {
 
   float ScaleFactorRetriever::triggerSF(const top::Event& event,
                                         const top::topSFSyst SFSyst) const {
+
+    // if it has photon triggers return 1;
+    if (event.m_isLoose) {
+      if (!m_photonTriggers_Loose.empty()) return 1.;
+    } else {
+      if (!m_photonTriggers_Tight.empty()) return 1.;
+    }
+
     return(m_preferGlobalTriggerSF &&
            m_config->useGlobalTrigger() ? globalTriggerSF(event, SFSyst) : oldTriggerSF(event, SFSyst));
+  }
+
+  float ScaleFactorRetriever::triggerSFPhoton(const top::Event& event,
+                                              const top::topSFSyst SFSyst) const {
+
+    if (!m_config->useGlobalTrigger()) {
+      if (s_warn_counter < 5) {
+        ATH_MSG_WARNING("Photon trigger SFs are currently supported only for the global triggers");
+        ++s_warn_counter;
+      }
+      return 1.;
+    }
+
+    return globalTriggerSF(event, SFSyst);
   }
 
   float ScaleFactorRetriever::oldTriggerSF(const top::Event& event,
@@ -171,7 +219,7 @@ namespace top {
       bool trigMatch = false;
 
       for (const auto& trigger : retrieveLoose ? m_electronTriggers_Loose : m_electronTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (elPtr->isAvailable<char>(trig)) {
           if (elPtr->auxdataConst<char>(trig) == 1) trigMatch = true;
         }
@@ -185,7 +233,7 @@ namespace top {
       bool trigMatch = false;
 
       for (const auto& trigger : retrieveLoose ? m_muonTriggers_Loose : m_muonTriggers_Tight) {
-        std::string trig = "TRIGMATCH_" + trigger;
+        std::string trig = "TRIGMATCH_" + trigger.first;
         if (muPtr->isAvailable<char>(trig)) {
           if (muPtr->auxdataConst<char>(trig) == 1) trigMatch = true;
         }
@@ -205,8 +253,9 @@ namespace top {
   }
 
   std::vector<float> ScaleFactorRetriever::electronSFSystVariationVector(const top::Event& event,
-                                                                         const top::topSFComp SFComp, int var) const {
+                                                                         const top::topSFComp SFComp, int var, int sysSize) const {
     std::vector<float> sf;
+
     if (abs(var) != 1) {
       ATH_MSG_ERROR("ScaleFactorRetriever::electronSFSystVariationVector must be called with var=+1 (up) or -1 (down)");
       return sf;
@@ -254,7 +303,6 @@ namespace top {
         ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in accessing decoration " << decorationName);
       }
-
       if (sf.size() == 0) sf = std::vector<float>(sf_aux.size(), leptonSF(event, top::topSFSyst::nominal));
       if (sf.size() != sf_aux.size()) ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in size of vector of electron SFs");
@@ -268,6 +316,7 @@ namespace top {
       }
     }//end of loop on electrons
 
+    if (sf.size() == 0) sf = std::vector<float>(sysSize, leptonSF(event, top::topSFSyst::nominal));
     return sf;
   }
 
@@ -303,10 +352,8 @@ namespace top {
       id *= electronSF_ID(*elPtr, electronID, SFSyst, retrieveLoose);
       isol *= electronSF_Isol(*elPtr, electronIso, SFSyst, retrieveLoose);
       chargeid *= electronSF_ChargeID(*elPtr, electronID, electronIso, SFSyst, retrieveLoose);
-      // Charge MisID is not supported for PLVTight/Loose, we already printed a warning message in TopEgammaCPTools
-      if (electronIso != "PLVTight" && electronIso != "PLVLoose") {
-	chargemisid *= electronSF_ChargeMisID(*elPtr, electronID, electronIso, SFSyst, retrieveLoose);
-      }
+      // we can add charge misID SF since it defaults to 1. for the unsupported WPs
+      chargemisid *= electronSF_ChargeMisID(*elPtr, electronID, electronIso, SFSyst, retrieveLoose);
     }
 
     sf = reco * id * isol; // *chargeid*chargemisid; // let the charge id scale factors out until further tested by
@@ -748,7 +795,7 @@ namespace top {
 
     return sf;
   }
-
+  
   float ScaleFactorRetriever::muonEff_Trigger(const xAOD::Muon& x,
                                               const top::topSFSyst SFSyst,
                                               bool useLooseDef) const {
@@ -848,12 +895,117 @@ namespace top {
       decoration += "_SYST_LOWPT_DOWN";
       break;
 
+    case top::topSFSyst::MU_SF_ID_BKG_FRACTION_UP:
+      decoration += "_BKG_FRACTION_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_BKG_FRACTION_DOWN:
+      decoration += "_BKG_FRACTION_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_FIT_MODEL_LOWPT_UP:
+      decoration += "_FIT_MODEL_LOWPT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_FIT_MODEL_LOWPT_DOWN:
+      decoration += "_FIT_MODEL_LOWPT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_LUMI_UNCERT_UP:
+      decoration += "_LUMI_UNCERT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_LUMI_UNCERT_DOWN:
+      decoration += "_LUMI_UNCERT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MATCHING_UP:
+      decoration += "_MATCHING_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MATCHING_DOWN:
+      decoration += "_MATCHING_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MATCHING_LOWPT_UP:
+      decoration += "_MATCHING_LOWPT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MATCHING_LOWPT_DOWN:
+      decoration += "_MATCHING_LOWPT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MC_XSEC_UP:
+      decoration += "_MC_XSEC_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_MC_XSEC_DOWN:
+      decoration += "_MC_XSEC_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_PT_DEPENDENCY_UP:
+      decoration += "_PT_DEPENDENCY_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_PT_DEPENDENCY_DOWN:
+      decoration += "_PT_DEPENDENCY_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_QCD_TEMPLATE_UP:
+      decoration += "_QCD_TEMPLATE_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_QCD_TEMPLATE_DOWN:
+      decoration += "_QCD_TEMPLATE_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_SUPRESSION_SCALE_UP:
+      decoration += "_SUPRESSION_SCALE_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_SUPRESSION_SCALE_DOWN:
+      decoration += "_SUPRESSION_SCALE_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_SYS_UP:
+      decoration += "_SYS_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_SYS_DOWN:
+      decoration += "_SYS_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_TRUTH_UP:
+      decoration += "_TRUTH_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_TRUTH_DOWN:
+      decoration += "_TRUTH_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_TRUTH_LOWPT_UP:
+      decoration += "_TRUTH_LOWPT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_TRUTH_LOWPT_DOWN:
+      decoration += "_TRUTH_LOWPT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_BAD_MUON_VETO_UP:
+      decoration += "_BAD_MUON_VETO_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_ID_BAD_MUON_VETO_DOWN:
+      decoration += "_BAD_MUON_VETO_DOWN";
+      break;
+
     default:
       // Do nothing, we have the decoration already
       break;
     }
 
     if (!x.isAvailable<float>(decoration)) {
+      ATH_MSG_INFO("Muon is not decorated with requested ID SF: " << decoration << ". 1.0 will be returned.");
       return 1.0;
     } else {
       return x.auxdataConst<float>(decoration);
@@ -961,6 +1113,122 @@ namespace top {
       }
     }
 
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_LUMI_UNCERT_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_LUMI_UNCERT_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_LUMI_UNCERT_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_LUMI_UNCERT_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_LUMI_UNCERT_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_LUMI_UNCERT_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_BKG_FRACTION_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_BKG_FRACTION_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_BKG_FRACTION_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_BKG_FRACTION_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_BKG_FRACTION_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_BKG_FRACTION_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_MC_XSEC_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_MC_XSEC_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_MC_XSEC_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_MC_XSEC_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_MC_XSEC_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_MC_XSEC_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_MLLWINDOW_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_MLLWINDOW_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_MLLWINDOW_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_MLLWINDOW_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_MLLWINDOW_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_MLLWINDOW_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_QCD_TEMPLATE_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_QCD_TEMPLATE_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_QCD_TEMPLATE_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_QCD_TEMPLATE_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_QCD_TEMPLATE_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_QCD_TEMPLATE_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_SUPRESSION_SCALE_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SUPRESSION_SCALE_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SUPRESSION_SCALE_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_SUPRESSION_SCALE_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SUPRESSION_SCALE_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SUPRESSION_SCALE_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_DRMUJ_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_DRMUJ_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_DRMUJ_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_DRMUJ_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_DRMUJ_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_DRMUJ_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_PROBEQ_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_PROBEQ_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_PROBEQ_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_PROBEQ_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_PROBEQ_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_PROBEQ_DOWN");
+      }
+    }
+
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_SHERPA_POWHEG_UP) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SHERPA_POWHEG_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SHERPA_POWHEG_UP");
+      }
+    }
+
+    if (SFSyst == top::topSFSyst::MU_SF_Isol_SHERPA_POWHEG_DOWN) {
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SHERPA_POWHEG_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SHERPA_POWHEG_DOWN");
+      }
+    }
+
     return sf;
   }
 
@@ -995,13 +1263,53 @@ namespace top {
       decoration += "_SYST_DOWN";
       break;
 
+    case top::topSFSyst::MU_SF_TTVA_LUMI_UNCERT_UP:
+      decoration += "_LUMI_UNCERT_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_LUMI_UNCERT_DOWN:
+      decoration += "_LUMI_UNCERT_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_BKG_FRACTION_UP:
+      decoration += "_BKG_FRACTION_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_BKG_FRACTION_DOWN:
+      decoration += "_BKG_FRACTION_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_MC_XSEC_UP:
+      decoration += "_MC_XSEC_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_MC_XSEC_DOWN:
+      decoration += "_MC_XSEC_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_QCD_TEMPLATE_UP:
+      decoration += "_QCD_TEMPLATE_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_QCD_TEMPLATE_DOWN:
+      decoration += "_QCD_TEMPLATE_DOWN";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_SUPRESSION_SCALE_UP:
+      decoration += "_SUPRESSION_SCALE_UP";
+      break;
+
+    case top::topSFSyst::MU_SF_TTVA_SUPRESSION_SCALE_DOWN:
+      decoration += "_SUPRESSION_SCALE_DOWN";
+      break;
+
     default:
       // Do nothing, we have the decoration already
       break;
     }
 
     if (!(x.isAvailable<float>(decoration))) {
-      ATH_MSG_INFO("Muon is not decorated with requested TTVA SF. 1.0 will be returned.");
+      ATH_MSG_INFO("Muon is not decorated with requested TTVA SF: " << decoration << ". 1.0 will be returned.");
       return 1.0;
     }
 
@@ -1101,13 +1409,15 @@ namespace top {
     float sf(1.);
     float reco(1.);
     float isol(1.);
+    float trigger(1.);
 
     for (auto photon : event.m_photons) {
       reco *= photonSF_Reco(*photon, SFSyst);
       isol *= photonSF_Isol(*photon, SFSyst, event.m_isLoose);
     }
+    trigger = triggerSFPhoton(event, SFSyst);
 
-    sf = reco * isol;
+    sf = reco * isol * trigger;
 
     return sf;
   }
@@ -1295,4 +1605,5 @@ namespace top {
     ATH_MSG_INFO("    LeptonEventWeight  : " << std::to_string(leptonSF(event, top::topSFSyst::nominal)));
     ATH_MSG_INFO("    B-TagEventWeight   : " << std::to_string(btagSF(event, top::topSFSyst::nominal)));
   }
+
 }  // namespace top

@@ -25,7 +25,9 @@
 #include "TF1.h"
 
 // forward declarations
+class TObject;
 class TGraph;
+class TH2;
 class TEnv;
 
 // ===========================================================================
@@ -47,7 +49,7 @@ public:
      * @details Reads out the configuration file set via the setProperty(ConfigFile, "/path/to/conf/file.conf") function
      * and sets up the class instance accordingly
      */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** @brief Apply the correction given in the conf file to the passed photon
      * @param photon The photon which should be corrected
@@ -129,12 +131,15 @@ private:
         EtaBinned,
         PtBinned,
         EtaTimesPtBinned,
+        EtaTimesPhiTH2,
         EventDensity
     }; // end enum ParameterType
     //! @brief The name of the configuration file
     std::string m_configFile;
     //! @brief The name of the variable to correct
     std::string m_correctionVariable;
+    //! @brief Whether to apply normal correction or smearing correction
+    bool m_doGaussianSmearing = false;
     //! @brief Values of discontinuities in the variable which should not be corrected
     std::vector<float> m_uncorrectedDiscontinuities;
     //! @brief Function to use for the variable correction, TF1 style
@@ -147,10 +152,16 @@ private:
     std::vector<parameterType> m_ParameterTypeVector;
     //! @brief Copy of the TGraph from the root file, stored if needed by the respective correction function parameter
     std::vector<TGraph*> m_graphCopies;
+    //! @brief Copy of the TH2 from the root file, stored if needed by the respective correction function parameter
+    std::vector<TH2*> m_TH2Copies;
+    //! @brief Store the lowest eta bin boundary: used for checking if the respective TH2 needs the eta or abs(eta) value for evaluation
+    std::vector<float> m_useAbsEtaTH2;
     //! @brief List of eta/pt dependent values, stored if needed by the respective correction function parameter
     std::vector<std::vector<float>> m_binValues;
     //! @brief List of bin boundaries in eta, stored if needed by any correction function parameter
     std::vector<float> m_etaBins;
+    //! @brief Store if the eta binned parameters need the eta or abs(eta) value for evaluation
+    bool m_useAbsEtaBinned;
     //! @brief List of bin boundaries in pT, stored if needed by any correction function parameter
     std::vector<float> m_ptBins;
     //! @brief List of bools whether a parameter should use linear interpolation in pT if it's some kind of pT binned parameter
@@ -197,14 +208,35 @@ private:
      */
     const StatusCode getParameterInformationFromConf(TEnv& env, const int parameter_number, const ElectronPhotonVariableCorrectionBase::parameterType type);
 
+    /** @brief Get the eta and pt binning as well as the respective correction values from the given conf file
+     * @param getEtaBins if to get the eta binning and bin values
+     * @param getPtBins if to get the pt binning and bin values
+     * @param binValues the conf file key to retrieve the bin values
+     * @param interpolate the conf file key on wheather to interpolate the pt values
+     * @param env The given TEnv,, which is used to read out the current conf file
+     * @param parameter_number The parameter number with respect to the m_correctionFunctionTF1
+     */
+    const StatusCode getEtaPtBinningsFromConf(const bool getEtaBins, const bool getPtBins, const TString& binValues, const TString& interpolate, TEnv& env, const int parameter_number);
+
+    /** @brief Get a TObject storing corrections (i.e. TGraph or TH2) from a root file
+     * @param env The configuration file to search for the relevant information (file path, object name)
+     * @param parameter_number The number of the respective parameter, used to display error messages correctly
+     * @param filePathKey The key for finding the file path in env
+     * @param nameKey The key for finding the object name in env
+     * @param return_object The retrieved TObject will be saved in this variable
+     * @details The TObject with the name matching the key nameKey stored in the file with path matching filePathKey in the configuration file env will be retrieved
+     * and saved in return_object.
+     */
+    const StatusCode getObjectFromRootFile(TEnv& env, const int parameter_number, const TString& filePathKey, const TString& nameKey, std::unique_ptr<TObject>& return_object);
+
     /** @brief Get the actual parameters entering the correction TF1 for the current e/y object to be corrected
      * @param properties The vector where the values of the correction TF1 parameters will be saved in
      * @param pt The pT of the current e/y object to be corrected
-     * @param absEta The absolute eta of the current e/y object to be corrected
+     * @param eta The eta of the current e/y object to be corrected
      * @details As every electron/photon has different values of pT/eta, the correction function must be adapted accordingly for every e/y. The according values of
      * each of the correction function parameters are updated with this function.
      */
-    const StatusCode getCorrectionParameters(std::vector<float>& properties, const float pt, const float absEta) const;
+    const StatusCode getCorrectionParameters(std::vector<float>& properties, const float pt, const float eta, const float phi) const;
 
     /** @brief Get the correction function parameter value if its type is eta- or pT-binned
      * @param return_parameter_value The respective correction function parameter value is saved in this parameter
@@ -221,6 +253,14 @@ private:
      * @param parameter_number The number of the parameter with respect to the correction TF1. Needed in order to retrieve the correct values matching this parameter.
      */
     const StatusCode get2DBinnedParameter(float& return_parameter_value, const float etaEvalPoint, const float ptEvalPoint, const int parameter_number) const;
+
+    /** @brief Get the correction function parameter value if its type is eta- and pT-binned
+     * @param return_parameter_value The respective correction function parameter value is saved in this parameter
+     * @param etaEvalPoint eta evaluation point - i.e., the eta value of the current e/y object to be corrected. Used to find the correct eta bin to use for the correction
+     * @param phiEvalPoint phi evaluation point - i.e., the phi value of the current e/y object to be corrected. Used to find the correct phi bin to use for the correction
+     * @param parameter_number The number of the parameter with respect to the correction TF1. Needed in order to retrieve the correct values matching this parameter.
+     */
+    const StatusCode get2DHistParameter(float& return_parameter_value, const float etaEvalPoint, const float phiEvalPoint, const int parameter_number) const;
 
     /** @brief Find the bin number in which the evalPoint is located in the binning binning.
      * @param return_bin The respective bin number is saved in this parameter
@@ -269,11 +309,11 @@ private:
     /** @brief Get the e/y kinematic properties
      * @param egamma_object The e/y object to get the kinemativ properties of
      * @param pt The pT value is saved in this parameter
-     * @param absEta The absolute eta value is saved in this parameter
+     * @param eta The eta value is saved in this parameter
      * @details As every electron/photon has different values of pT/eta, the correction function must be adapted accordingly for every e/y. The according values of
      * eta and pt are updated with this function.
      */
-    const StatusCode getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& absEta) const;
+    const StatusCode getKinematicProperties(const xAOD::Egamma& egamma_object, float& pt, float& eta, float& phi) const;
 
     /** @brief Actual application of the correction to the variable
      * @param return_corrected_variable The corrected variable value is saved in this parameter

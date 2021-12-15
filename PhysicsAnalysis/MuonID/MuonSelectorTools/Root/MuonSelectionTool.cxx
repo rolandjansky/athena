@@ -31,8 +31,9 @@ namespace CP {
     //for users of high-pT working point to choose whether to include "safe" 2-station muons
     declareProperty( "Use2stationMuonsHighPt", m_use2stationMuonsHighPt = true );
 
-    //for users of low-pT working point to choose whether to use MVA
+    //for users of low-pT working point to choose whether to use MVA and whether to include MuTagIMO muons
     declareProperty( "UseMVALowPt", m_useMVALowPt = false );
+    declareProperty( "UseSegmentTaggedLowPt", m_useSegmentTaggedLowPt = false );
 
     //MVA configs for low-pT working point
     declareProperty( "MVAreaderFile_EVEN_MuidCB", m_MVAreaderFile_EVEN_MuidCB = 
@@ -43,6 +44,13 @@ namespace CP {
 		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml");
     declareProperty( "MVAreaderFile_ODD_MuGirl", m_MVAreaderFile_ODD_MuGirl =
 		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml");
+    declareProperty( "MVAreaderFile_MuTagIMO_etaBin1", m_MVAreaderFile_MuTagIMO_etaBin1 = 
+		     "dev/MuonSelectorTools/181121_MuTagIMO_BDT/BDT_NOV2021_MuTagIMO_etaBin1.weights.xml");
+    declareProperty( "MVAreaderFile_MuTagIMO_etaBin2", m_MVAreaderFile_MuTagIMO_etaBin2 = 
+		     "dev/MuonSelectorTools/181121_MuTagIMO_BDT/BDT_NOV2021_MuTagIMO_etaBin2.weights.xml");
+    declareProperty( "MVAreaderFile_MuTagIMO_etaBin3", m_MVAreaderFile_MuTagIMO_etaBin3 = 
+		     "dev/MuonSelectorTools/181121_MuTagIMO_BDT/BDT_NOV2021_MuTagIMO_etaBin3.weights.xml");
+
 
     //switch to cut away the tail of very large smearing in MC to mimic the effect of the bad muon veto for 2-station muons in the high-pT selection
     declareProperty( "DoBadMuonVetoMimic", m_doBadMuonVetoMimic = false );
@@ -65,6 +73,8 @@ namespace CP {
     lowPTmva_muonSeg2ChamberIdx = new Float_t; lowPTmva_momentumBalanceSig = new Float_t;
     lowPTmva_scatteringCurvatureSig = new Float_t; lowPTmva_scatteringNeighbourSig = new Float_t;
     lowPTmva_energyLoss = new Float_t; lowPTmva_muonSegmentDeltaEta = new Float_t;
+    lowPTmva_muonSeg1NPrecisionHits = new Float_t; lowPTmva_muonSeg1GlobalR = new Float_t;
+    lowPTmva_muonSeg1Chi2OverDoF = new Float_t;
 
 
     ATH_MSG_DEBUG("Creating MuonSelectionTool named "<<m_name);
@@ -75,6 +85,7 @@ namespace CP {
     //
     delete lowPTmva_middleHoles; delete lowPTmva_muonSeg1ChamberIdx; delete lowPTmva_muonSeg2ChamberIdx; delete lowPTmva_momentumBalanceSig;
     delete lowPTmva_scatteringCurvatureSig; delete lowPTmva_scatteringNeighbourSig; delete lowPTmva_energyLoss; delete lowPTmva_muonSegmentDeltaEta;
+    delete lowPTmva_muonSeg1NPrecisionHits; delete lowPTmva_muonSeg1GlobalR; delete lowPTmva_muonSeg1Chi2OverDoF;
   }
   
   StatusCode MuonSelectionTool::initialize() {
@@ -190,6 +201,25 @@ namespace CP {
     PrepareReader( readerO_MUGIRL.get() );
     readerO_MUGIRL->BookMVA("BDTG", weightPath_ODD_MuGirl);
 
+    if (m_useSegmentTaggedLowPt) {
+
+      TString weightPath_MuTagIMO_etaBin1 = PathResolverFindCalibFile(m_MVAreaderFile_MuTagIMO_etaBin1);
+      TString weightPath_MuTagIMO_etaBin2 = PathResolverFindCalibFile(m_MVAreaderFile_MuTagIMO_etaBin2);
+      TString weightPath_MuTagIMO_etaBin3 = PathResolverFindCalibFile(m_MVAreaderFile_MuTagIMO_etaBin3);
+      
+      reader_MUTAGIMO_etaBin1 = std::make_unique<TMVA::Reader>();
+      PrepareReader_MuTagIMO( reader_MUTAGIMO_etaBin1.get(), false );
+      reader_MUTAGIMO_etaBin1->BookMVA("BDT", weightPath_MuTagIMO_etaBin1);
+      
+      reader_MUTAGIMO_etaBin2 = std::make_unique<TMVA::Reader>();
+      PrepareReader_MuTagIMO( reader_MUTAGIMO_etaBin2.get(), false );
+      reader_MUTAGIMO_etaBin2->BookMVA("BDT", weightPath_MuTagIMO_etaBin2);
+      
+      reader_MUTAGIMO_etaBin3 = std::make_unique<TMVA::Reader>();
+      PrepareReader_MuTagIMO( reader_MUTAGIMO_etaBin3.get(), true );
+      reader_MUTAGIMO_etaBin3->BookMVA("BDT", weightPath_MuTagIMO_etaBin3);
+    }
+
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
@@ -224,6 +254,19 @@ namespace CP {
     reader->AddVariable( "muonSegmentDeltaEta", lowPTmva_muonSegmentDeltaEta );
     reader->AddVariable( "muonSeg1ChamberIdx", lowPTmva_muonSeg1ChamberIdx );
     reader->AddVariable( "muonSeg2ChamberIdx", lowPTmva_muonSeg2ChamberIdx );
+    // ::
+    return;
+  }
+
+  void MuonSelectionTool::PrepareReader_MuTagIMO( TMVA::Reader* reader, bool useSeg2ChamberIndex ) {
+    // ::
+    if (useSeg2ChamberIndex) reader->AddVariable( "muonSeg2ChamberIndex", lowPTmva_muonSeg2ChamberIdx );
+    reader->AddVariable( "muonSeg1ChamberIndex", lowPTmva_muonSeg1ChamberIdx );
+    reader->AddVariable( "muonSeg1NPrecisionHits", lowPTmva_muonSeg1NPrecisionHits );
+    reader->AddVariable( "muonSegmentDeltaEta", lowPTmva_muonSegmentDeltaEta );
+    reader->AddVariable( "muonSeg1GlobalR", lowPTmva_muonSeg1GlobalR );
+    reader->AddVariable( "muonSeg1Chi2OverDoF", lowPTmva_muonSeg1Chi2OverDoF );
+    reader->AddVariable( "muonSCS", lowPTmva_scatteringCurvatureSig );
     // ::
     return;
   }
@@ -708,14 +751,32 @@ namespace CP {
       return false; 
     }
 
-    // requiring combined muons
-    if( mu.muonType() != xAOD::Muon::Combined ) {
-      ATH_MSG_VERBOSE( "Muon is not combined - fail low-pT" );
-      return false;
+    // requiring combined muons, unless segment-tags are included
+    if (!m_useSegmentTaggedLowPt) {
+      if( mu.muonType() != xAOD::Muon::Combined) {
+	ATH_MSG_VERBOSE( "Muon is not combined - fail low-pT" );
+	return false;
+      }
     }
-    if( mu.author()!=xAOD::Muon::MuGirl && mu.author()!=xAOD::Muon::MuidCo ) {
-      ATH_MSG_VERBOSE( "Muon is neither MuGirl nor MuidCo - fail low-pT" );
-      return false;
+    else {
+      if( mu.muonType() != xAOD::Muon::Combined && mu.muonType() != xAOD::Muon::SegmentTagged) {
+	ATH_MSG_VERBOSE( "Muon is not combined or segment-tagged - fail low-pT" );
+	return false;
+      }
+    }
+
+    // author check
+    if (!m_useSegmentTaggedLowPt) {
+      if( mu.author() != xAOD::Muon::MuGirl && mu.author() != xAOD::Muon::MuidCo ) {
+	ATH_MSG_VERBOSE( "Muon is neither MuGirl nor MuidCo - fail low-pT" );
+	return false;
+      }
+    }
+    else {
+      if( mu.author() != xAOD::Muon::MuGirl && mu.author() != xAOD::Muon::MuidCo && mu.author() != xAOD::Muon::MuTagIMO ) {
+	ATH_MSG_VERBOSE( "Muon is neither MuGirl / MuidCo / MuTagIMO - fail low-pT" );
+	return false;
+      }
     }
 
     // applying Medium selection above pT = 18 GeV 
@@ -749,15 +810,17 @@ namespace CP {
     }
 
     // requiring explicitely >=1 station (2 in the |eta|>1.3 region when Medium selection is not explicitely required)
-    uint8_t nprecisionLayers;
-    if (!mu.summaryValue(nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers)){
-      ATH_MSG_WARNING("passedLowPtEfficiencyCuts - #precision layers missing in combined muon! Failing selection...");
-      return false;
-    }
-    uint nStationsCut = (std::abs(mu.eta())>1.3 && std::abs(mu.eta())<1.55) ? 2 : 1;
-    if ( nprecisionLayers<nStationsCut ) {
-      ATH_MSG_VERBOSE( "number of precision layers = " << (int)nprecisionLayers << " is lower than cut value " << nStationsCut << " - fail low-pT" );
-      return false;
+    if( mu.muonType() == xAOD::Muon::Combined) {
+      uint8_t nprecisionLayers;
+      if (!mu.summaryValue(nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers)){
+	ATH_MSG_WARNING("passedLowPtEfficiencyCuts - #precision layers missing in combined muon! Failing selection...");
+	return false;
+      }
+      uint nStationsCut = (std::abs(mu.eta())>1.3 && std::abs(mu.eta())<1.55) ? 2 : 1;
+      if ( nprecisionLayers<nStationsCut ) {
+	ATH_MSG_VERBOSE( "number of precision layers = " << (int)nprecisionLayers << " is lower than cut value " << nStationsCut << " - fail low-pT" );
+	return false;
+      }
     }
 
     // reject MuGirl muon if not found also by MuTagIMO
@@ -815,12 +878,33 @@ namespace CP {
       return false;
     }
 
+    //BDT for MuTagIMO muons uses the absolute value of SCS
+    if (mu.author() == xAOD::Muon::MuTagIMO)
+      *lowPTmva_scatteringCurvatureSig = std::abs(*lowPTmva_scatteringCurvatureSig);
+
     *lowPTmva_middleHoles = (Float_t)(middleSmallHoles + middleLargeHoles);
 
-    if (mu.nMuonSegments() > 0)
+    if (mu.nMuonSegments() > 0) {
       *lowPTmva_muonSeg1ChamberIdx = mu.muonSegment(0)->chamberIndex();
-    else
+
+      //these variables are only used for MuTagIMO
+      if (mu.author() == xAOD::Muon::MuTagIMO) {
+	*lowPTmva_muonSeg1NPrecisionHits = mu.muonSegment(0)->nPrecisionHits();
+	*lowPTmva_muonSeg1GlobalR = sqrt( mu.muonSegment(0)->x()*mu.muonSegment(0)->x() + 
+					  mu.muonSegment(0)->y()*mu.muonSegment(0)->y() +
+					  mu.muonSegment(0)->z()*mu.muonSegment(0)->z() );
+	*lowPTmva_muonSeg1Chi2OverDoF = mu.muonSegment(0)->chiSquared() / mu.muonSegment(0)->numberDoF();
+      }
+    }
+    else {
       *lowPTmva_muonSeg1ChamberIdx = -9.0;
+      *lowPTmva_muonSeg1NPrecisionHits = -1.0;
+      *lowPTmva_muonSeg1GlobalR = 0.0;
+      *lowPTmva_muonSeg1Chi2OverDoF = -1.0;
+
+      if (mu.author() == xAOD::Muon::MuTagIMO)
+	ATH_MSG_WARNING("passedLowPtEfficiencyMVACut - found segment-tagged muon with no segments!");
+    }
 
     if (mu.nMuonSegments() > 1)
       *lowPTmva_muonSeg2ChamberIdx = mu.muonSegment(1)->chamberIndex();
@@ -847,20 +931,33 @@ namespace CP {
       reader_MUGIRL = readerO_MUGIRL.get();
     }
 
+    //BDT for MuTagIMO is binned in |eta|
+    TMVA::Reader *reader_MUTAGIMO;
+    if ( std::abs(mu.eta()) < 0.7 )
+      reader_MUTAGIMO = reader_MUTAGIMO_etaBin1.get();
+    else if (std::abs(mu.eta()) < 1.3)
+      reader_MUTAGIMO = reader_MUTAGIMO_etaBin2.get();
+    else
+      reader_MUTAGIMO = reader_MUTAGIMO_etaBin3.get();
+
     // get the BDT discriminant response
     float BDTdiscriminant;
     
-    if( mu.author() == 1 )
+    if( mu.author() == xAOD::Muon::MuidCo )
       BDTdiscriminant = reader_MUID->EvaluateMVA( "BDTG" );
-    else if( mu.author() == 6 || mu.author() == 4 )
+    else if( mu.author() == xAOD::Muon::MuGirl)
       BDTdiscriminant = reader_MUGIRL->EvaluateMVA( "BDTG" );
+    else if (mu.author() == xAOD::Muon::MuTagIMO && m_useSegmentTaggedLowPt)
+      BDTdiscriminant = reader_MUTAGIMO->EvaluateMVA( "BDT" );
     else {
       ATH_MSG_WARNING("Invalid author for low-pT MVA, failing selection...");
       return false;
     }
 
-    //cut on dicriminant at -0.6
-    if (BDTdiscriminant > -0.6) {
+    //cut on dicriminant
+    float BDTcut = (mu.author() == xAOD::Muon::MuTagIMO) ? 0.12 : -0.6;
+
+    if (BDTdiscriminant > BDTcut) {
       ATH_MSG_VERBOSE( "Passed low-pT MVA cut" );
       return true;
     }
@@ -1217,7 +1314,7 @@ namespace CP {
     // ::
     if( mu.muonType() == xAOD::Muon::CaloTagged && std::abs(mu.eta())<0.105 && passedCaloTagQuality(mu)) return true;
     // ::
-    if( mu.muonType() == xAOD::Muon::SegmentTagged && std::abs(mu.eta())<0.105 ) return true;
+    if( mu.muonType() == xAOD::Muon::SegmentTagged && (std::abs(mu.eta()) < 0.105 || m_useSegmentTaggedLowPt)) return true;
     // ::
     if( mu.author()==xAOD::Muon::MuidSA && std::abs(mu.eta())>2.4 ) return true;
     // ::

@@ -65,9 +65,9 @@ endif()
 # Test(s) in the package: 
 if( XAOD_STANDALONE )
    atlas_add_test( ut_MuonSelectorToolsTester_data
-      SOURCES test/ut_MuonSelectorToolsTester_data.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools )
+      SCRIPT test/ut_MuonSelectorToolsTester_data.sh )
+   atlas_add_test( ut_MuonSelectorToolsTester_MC
+      SCRIPT test/ut_MuonSelectorToolsTester_MC.sh )
 endif()
 
 # Install files from the package:

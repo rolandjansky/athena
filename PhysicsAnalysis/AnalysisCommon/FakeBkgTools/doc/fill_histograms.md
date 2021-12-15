@@ -28,12 +28,13 @@ ATH_CHECK( tool->register2DHistogram(&hPt1Pt2, &lepton1Pt, &lepton2Pt) );
 
 Histogram bin errors correspond only to the (symmetrized) statistical uncertainty in the predicted yield. To retrieve systematic uncertainties, one should use `applySystematicVariation()`, which will change the bin contents accordingly to the requested up/down variation (see [current limitations for LhoodMM_tools](handle_uncertainties.md)). Do not forget to call `getTotalYield()` each time to update the histogram:
 ```c++
-std::map<std::string, TH1F> hMETSysts;
-for(auto& sysvar : sysvars)
+std::unordered_map<CP::SystematicSet, TH1F> hMETSysts;
+for(auto& systvar : tool->recommendedSystematics())
 {
-    ATH_CHECK( tool->applySystematicVariation({sysvar}) );
-    ATH_CHECK( tool->getTotalYield(unused,unused,unused) );
-    hMETSysts[sysvar].Copy(hMET)
+    CP::SystematicSet systset{systvar};
+    ATH_CHECK( tool->applySystematicVariation(systset) );
+    ATH_CHECK( tool->getTotalYield(unused, unused, unused) ); // this changes the registered hMET
+    hMETSysts[systset].Copy(hMET);
 }
 ```
 
