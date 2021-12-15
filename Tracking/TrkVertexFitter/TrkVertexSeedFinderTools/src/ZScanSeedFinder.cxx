@@ -9,8 +9,6 @@
 #include "TrkVertexSeedFinderTools/ZScanSeedFinder.h"
 
 #include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
-#include "TrkVertexSeedFinderUtils/IMode1dFinder.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
@@ -27,9 +25,6 @@ namespace Trk
 
   ZScanSeedFinder::ZScanSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) :
     base_class(t,n,p),
-
-    m_mode1dfinder("Trk::FsmwMode1dFinder", this),
-    m_IPEstimator("Trk::TrackToVertexIPEstimator", this),
     m_disableAllWeights(false),
     m_constraintcutoff(9.),
     m_constrainttemp(1.),
@@ -39,8 +34,6 @@ namespace Trk
     m_expPt(1.),
     m_cacheWeights(true)
   {
-    declareProperty("Mode1dFinder",     m_mode1dfinder);
-    declareProperty("IPEstimator", m_IPEstimator);
     declareProperty("disableAllWeights", m_disableAllWeights);
     declareProperty("constrainttemp", m_constrainttemp);
     declareProperty("constraintcutoff", m_constraintcutoff);

@@ -11,9 +11,6 @@
 #include "TrkVertexSeedFinderTools/CrossDistancesSeedFinder.h"
 
 #include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
-#include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
-#include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
-
 #include "TrkTrack/Track.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -49,8 +46,6 @@ namespace Trk
     m_trackdistexppower(2),
     m_constraintcutoff(9.),
     m_constrainttemp(9.),
-    m_mode3dfinder("Trk::Mode3dTo1dFinder", this),
-    m_distancefinder("Trk::SeedNewtonTrkDistanceFinder", this),
     m_maximumTracksNoCut(20),
     m_maximumDistanceCut(3.)
   {   
@@ -59,8 +54,6 @@ namespace Trk
     declareProperty("trackdistexppower",m_trackdistexppower);
     declareProperty("constrainttemp",m_constrainttemp);
     declareProperty("constraintcutoff",m_constraintcutoff);
-    declareProperty("Mode3dFinder",     m_mode3dfinder);
-    declareProperty("TrkDistanceFinder",     m_distancefinder);
     declareProperty("maximumTracksNoCut",m_maximumTracksNoCut);
     declareProperty("maximumDistanceCut",m_maximumDistanceCut);
   }

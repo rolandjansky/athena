@@ -34,7 +34,7 @@ namespace Trk
 
 
 
-  class FsmwMode1dFinder : public AthAlgTool, virtual public IMode1dFinder
+  class FsmwMode1dFinder final : public AthAlgTool, virtual public IMode1dFinder
   {
   public:
     //default constructor due to Athena interface
@@ -44,25 +44,29 @@ namespace Trk
     virtual ~FsmwMode1dFinder();
 
     //obtain the 1d-mode (double) from a list of doubles (unidimensional distribution)
-    virtual double getMode(std::vector<DoubleAndWeight>) const;
+    virtual double getMode(std::vector<DoubleAndWeight>) const override final;
 
-    virtual double getMode(std::vector<double>) const;
+    virtual double getMode(std::vector<double>) const override final;
 
 
         
   private:
+    struct CompareTheTwoDoubleAndWeights
+    {
+      int operator()(const DoubleAndWeight& first,
+                     const DoubleAndWeight& second) const
+      {
+        return first.first < second.first;
+      }
+    };
+    struct CompareTheTwoDoubles
+    {
+      int operator()(const double& first, const double& second) const
+      {
+        return first < second;
+      }
+    };
 
-    struct CompareTheTwoDoubleAndWeights {
-      int operator () ( const DoubleAndWeight & first, const DoubleAndWeight & second ) const {
-	return first.first < second.first;
-      }
-    };
-    struct CompareTheTwoDoubles {
-      int operator () ( const double & first, const double & second ) const {
-	return first < second;
-      }
-    };
-    
     double m_fraction;
     double m_firstfraction;
   };
