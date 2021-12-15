@@ -71,7 +71,7 @@ Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::stri
   m_forceSymmetry(true)
 
 {
-  declareInterface<Trk::ITrackingVolumeBuilder>(this);
+  declareInterface<Trk::ICaloTrackingVolumeBuilder>(this);
   // declare the properties via Python
   declareProperty("TileDetManagerLocation",                 m_tileMgrLocation);
   // layers and general setup
@@ -133,7 +133,8 @@ StatusCode Tile::TileVolumeBuilder::finalize()
   return StatusCode::SUCCESS;
 }
 
-const std::vector<Trk::TrackingVolume*>* Tile::TileVolumeBuilder::trackingVolumes() const
+const std::vector<Trk::TrackingVolume*>*
+Tile::TileVolumeBuilder::trackingVolumes(const CaloDetDescrManager& caloDDM) const
 {
   // the return vector
   std::vector<Trk::TrackingVolume*>* tileTrackingVolumes = new std::vector<Trk::TrackingVolume*>;
@@ -180,18 +181,10 @@ const std::vector<Trk::TrackingVolume*>* Tile::TileVolumeBuilder::trackingVolume
   const Trk::LayerArray* dummyLayers = 0;
   const Trk::TrackingVolumeArray* dummyVolumes = 0;
 
-  // load layer surfaces 
-  // See ATLASRECTS-5012
-   // Here we prb want to move to conditions data
-  const CaloDetDescrManager* calo_dd = nullptr;
-  if (detStore()->retrieve(calo_dd).isFailure()) {
-    ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-    return{};
-  }
   std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> entrySurf =
-    m_surfBuilder->entrySurfaces(calo_dd);
+    m_surfBuilder->entrySurfaces(&caloDDM);
   std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> exitSurf =
-    m_surfBuilder->exitSurfaces(calo_dd);
+    m_surfBuilder->exitSurfaces(&caloDDM);
 
   // averaged material properties 
   auto barrelProperties = std::make_unique<Trk::Material>(22.7, 212., 45.8, 21.4, 0.0062);
