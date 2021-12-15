@@ -43,6 +43,8 @@
 
 #include "DBReplicaSvc/IDBReplicaSvc.h"
 
+#include "boost/algorithm/string.hpp" // for starts_with()
+
 #include <cstdlib> 	// for getenv()
 #include <cstring> 	// for strcmp()
 #include <sys/stat.h> 	// for struct stat
@@ -820,6 +822,20 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
    bool hasTTreeName = (contName.length() > 6 && contName.compare(0, 6, "TTree=") == 0);
    if (contName.empty() || hasTTreeName || m_persistencySvcVec[contextId]->session().defaultConnectionPolicy().writeModeForNonExisting() == pool::DatabaseConnectionPolicy::RAISE_ERROR) {
       objName = hasTTreeName ? contName.substr(6) : contName;
+      if (!objName.empty()) {
+         bool found = false;
+         const std::vector<std::string>& containers = dbH->containers();
+         for (std::vector<std::string>::const_iterator iter = containers.begin(), last = containers.end(); iter != last; ++iter) {
+            if (*iter == objName || boost::starts_with(*iter, objName + "(") || boost::starts_with(*iter, objName + "_")) {
+               found = true;
+               break;
+            }
+         }
+         if (!found) {
+            ATH_MSG_DEBUG("Failed to find TTree: " << objName << " to set POOL property.");
+            return(StatusCode::FAILURE);
+         }
+      }
       if (data[data.size() - 1] == 'L') {
          retError = dbH->technologySpecificAttributes().setAttribute<long long int>(optName, atoll(data.c_str()), objName);
       } else {
