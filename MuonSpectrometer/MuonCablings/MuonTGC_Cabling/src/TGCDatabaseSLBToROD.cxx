@@ -15,7 +15,7 @@ TGCDatabaseSLBToROD::TGCDatabaseSLBToROD(const std::string& filename,
    : TGCDatabase(TGCDatabase::SLBToROD, filename, blockname)
 {
   // read out ascii file and fill database
-  readDB();
+  TGCDatabaseSLBToROD::readDB();
 }
 
 TGCDatabaseSLBToROD::TGCDatabaseSLBToROD(const TGCDatabaseSLBToROD& right)

@@ -20,7 +20,7 @@ TGCDatabaseInPP::TGCDatabaseInPP(const std::string& filename,
   }
 
   // read out ascii file and fill database
-  readDB();
+  TGCDatabaseInPP::readDB();
 }
 
 TGCDatabaseInPP::TGCDatabaseInPP(const TGCDatabaseInPP& right)

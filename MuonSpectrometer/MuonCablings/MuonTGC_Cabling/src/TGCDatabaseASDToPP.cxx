@@ -31,7 +31,7 @@ TGCDatabaseASDToPP::TGCDatabaseASDToPP(const std::string& filename,
   }
 
   // read out ascii file and fill database
-  readDB();
+  TGCDatabaseASDToPP::readDB();
 }
   
 TGCDatabaseASDToPP::TGCDatabaseASDToPP(const TGCDatabaseASDToPP& right, bool v_isCommon)

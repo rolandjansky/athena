@@ -15,7 +15,7 @@ TGCDatabasePPToSL::TGCDatabasePPToSL(const std::string& filename,
     : TGCDatabase(TGCDatabase::PPToSL, filename, blockname)
 {
   // read out ascii file and fill database
-  readDB();
+  TGCDatabasePPToSL::readDB();
 }
 
 TGCDatabasePPToSL::TGCDatabasePPToSL(const TGCDatabasePPToSL& right)
