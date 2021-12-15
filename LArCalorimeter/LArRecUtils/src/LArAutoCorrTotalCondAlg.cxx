@@ -101,6 +101,7 @@ StatusCode LArAutoCorrTotalCondAlg::initialize() {
     m_nGains = 3;
   }
 
+  ATH_MSG_DEBUG("settings: m_Nminbias " << m_Nminbias << " m_NoPile " << m_NoPile);
   return StatusCode::SUCCESS;
 }
 

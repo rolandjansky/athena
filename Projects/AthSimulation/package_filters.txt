@@ -353,6 +353,7 @@
 + TileCalorimeter/TileSvc/TileSimEventAthenaPool
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
 + Tools/ART
++ Tools/Campaigns
 + Tools/FilePeeker
 + Tools/PathResolver
 + Tools/PmbCxxUtils

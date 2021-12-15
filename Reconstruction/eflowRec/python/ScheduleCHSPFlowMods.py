@@ -10,10 +10,17 @@
 
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecConf import JetToolRunner
-jtm += JetToolRunner("jetconstitCHSPFlow",
-                     EventShapeTools=[],
-                     Tools=[jtm.JetConstitSeq_PFlowCHS],
-                     )
+from JetRec.JetRecFlags import jetFlags
+if jetFlags.useTrackVertexTool:
+    jtm += JetToolRunner("jetconstitCHSPFlow",
+                             EventShapeTools=[],
+                             Tools=[jtm.ttvaassocNew,jtm.JetConstitSeq_PFlowCHS],
+                             )
+else:
+    jtm += JetToolRunner("jetconstitCHSPFlow",
+                             EventShapeTools=[],
+                             Tools=[jtm.JetConstitSeq_PFlowCHS],
+                             )
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

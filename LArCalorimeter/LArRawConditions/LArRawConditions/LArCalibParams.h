@@ -23,6 +23,8 @@ class StatusCode;
  
  */
 
+#define kmaxDAC 100000
+
 class LArCalibParams {
   
  public: 

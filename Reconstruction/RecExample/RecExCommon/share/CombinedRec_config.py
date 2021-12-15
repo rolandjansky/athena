@@ -170,10 +170,11 @@ if (jetOK or rec.readESD()) and DetFlags.ID_on() and rec.doWriteAOD() and BTaggi
         treatException("Could not set up jet hit association")
 
 #
-# functionality : tau identification
+# functionality : tau reconstruction
 #
 pdr.flag_domain('tau')
-if jetOK and rec.doTau():
+from tauRec.tauRecFlags import tauFlags
+if (jetOK or tauFlags.isStandalone) and rec.doTau():
     protectedInclude ("tauRec/tauRec_config.py")    
 AODFix_posttauRec()
 

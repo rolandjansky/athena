@@ -21,7 +21,7 @@ def addTLAStep(chain, chainDict):
         
         log.debug("addTLAStep: processing signature: %s", cPart['signature'] )
         # call the sequence from their respective signatures
-        tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, chainDict=chainDict, signature=cPart['signature'])),
+        tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, chainDict=chainDict, chainPart=cPart)), #signature=cPart['signature'])),
             
     log.debug("addTLAStep: About to add a step with: %d, parallel sequences.", len(tlaSequencesList))            
     
@@ -38,18 +38,18 @@ def addTLAStep(chain, chainDict):
 
 
 
-def getTLASignatureSequence(ConfigFlags, chainDict, signature):
+def getTLASignatureSequence(ConfigFlags, chainDict, chainPart):
     # Here we simply retrieve the TLA sequence from the existing signature code 
-
+    signature= chainPart['signature']
+    
     if signature == 'Photon':    
         from ..Photon.PrecisionPhotonTLAMenuSequences import TLAPhotonMenuSequence
         photonOutCollectionName = "HLT_egamma_Photons"
         return RecoFragmentsPool.retrieve(TLAPhotonMenuSequence, ConfigFlags, photonsIn=photonOutCollectionName)
-  
+    
     elif signature == 'Muon':    
-        from ..Muon.TLAMuonSequence import TLAMuonMenuSequence
-        muonOutCollectionName = "HLT_MuonsCB_RoI"
-        return RecoFragmentsPool.retrieve(TLAMuonMenuSequence, ConfigFlags, muonsIn=muonOutCollectionName)
+        from ..Muon.TLAMuonSequence import TLAMuonMenuSequence        
+        return TLAMuonMenuSequence (ConfigFlags, muChainPart=chainPart)       
     
     elif signature  == 'Jet' or signature  == 'Bjet':   
         from ..Jet.JetTLASequences import TLAJetMenuSequence

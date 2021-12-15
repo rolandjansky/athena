@@ -9,14 +9,6 @@
 
 #include "TrkVertexFitters/AdaptiveVertexFitter.h"
 
-#include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
-#include "TrkVertexFitterInterfaces/IVertexTrackCompatibilityEstimator.h"
-#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
-#include "TrkVertexFitterInterfaces/IVertexSmoother.h"
-#include "TrkVertexFitterInterfaces/IVertexAnnealingMaker.h"
-#include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
-
 #include "VxVertex/LinearizedTrack.h"
 #include "TrkParametersBase/ParametersBase.h"
 #include "VxVertex/VxTrackAtVertex.h"
@@ -36,13 +28,6 @@ namespace Trk
   
   AdaptiveVertexFitter::AdaptiveVertexFitter(const std::string& t, const std::string& n, const IInterface*  p) : 
     base_class(t,n,p),
-    m_SeedFinder("Trk::CrossDistancesSeedFinder"),
-    m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory"),
-    m_TrackCompatibilityEstimator("Trk::Chi2TrackCompatibilityEstimator"),
-    m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator/ImpactPoint3dEstimator"),
-    m_VertexUpdator("Trk::KalmanVertexUpdator"),
-    m_VertexSmoother("Trk::DummyVertexSmoother"),
-    m_AnnealingMaker("Trk::DetAnnealingMaker"),
     m_maxIterations(50),
     m_maxDistToLinPoint(0.5),
     m_initialError(0.0001),
@@ -52,13 +37,6 @@ namespace Trk
     declareProperty("MaxIterations",        m_maxIterations);
     declareProperty("MaxDistToLinPoint",    m_maxDistToLinPoint);
     declareProperty("InitialError",m_initialError);
-    declareProperty("SeedFinder",m_SeedFinder);
-    declareProperty("LinearizedTrackFactory",m_LinearizedTrackFactory);
-    declareProperty("TrackCompatibilityEstimator",m_TrackCompatibilityEstimator);
-    declareProperty("ImpactPoint3dEstimator",m_ImpactPoint3dEstimator);
-    declareProperty("VertexUpdator",m_VertexUpdator);
-    declareProperty("VertexSmoother",m_VertexSmoother);
-    declareProperty("AnnealingMaker",m_AnnealingMaker);
     declareProperty("onlyzseed",m_onlyzseed);
     declareProperty("DoSmoothing",m_doSmoothing);
     declareInterface<IVertexFitter>(this);

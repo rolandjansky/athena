@@ -21,14 +21,22 @@ public:
   
 private:
   SG::ReadHandleKeyArray<xAOD::TrigBphysContainer> m_TrigBphysContainerKeys;
-  std::vector<std::string> m_MonitoredChains;
-  std::vector<std::string> m_MonitoredContainers;
-  ToolHandle<GenericMonitoringTool> m_mainGMT;
   
-  StatusCode fillContainerHists(const EventContext& ctx) const;
-  StatusCode fillChainHists(const EventContext& ctx) const;
+  Gaudi::Property<std::vector<std::string>> m_ContainerNames{this, "ContainerNames", {}};
   
-  void fillContainer(const xAOD::TrigBphys* bphysObject,
-                     const SG::ReadHandleKey<xAOD::TrigBphysContainer>& trigBphysContainerKey) const;
+  Gaudi::Property<std::vector<std::string>> m_ChainNames_MuMu{this, "ChainNames_MuMu", {}};
+  Gaudi::Property<std::vector<std::string>> m_ChainNames_MuMuX{this, "ChainNames_MuMuX", {}};
+  
+  StatusCode fillContainers(const EventContext& ctx) const;
+  StatusCode fillContainerHists(const EventContext& ctx, const SG::ReadHandleKey<xAOD::TrigBphysContainer>& trigBphysContainerKey) const;
+  
+  StatusCode fillChains(const EventContext& ctx) const;
+  StatusCode fillChainHistograms(const EventContext& ctx) const;
+  StatusCode fillDimuonChainHists(const EventContext& ctx, const std::string& chainName) const;
+  StatusCode fillBmumuxChainHists(const EventContext& ctx, const std::string& chainName) const;
+  StatusCode fillChainGenericHists(const EventContext& /*ctx*/, const ToolHandle<GenericMonitoringTool>& currentMonGroup, const std::string& chainName) const;
+  StatusCode fillBphysObjectHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer> bphysLink, const std::string& objStr) const;
+  StatusCode fillMuonHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer> bphysLink) const;
+  
 };
 #endif

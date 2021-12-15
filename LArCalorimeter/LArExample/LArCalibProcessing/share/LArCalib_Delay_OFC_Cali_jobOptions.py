@@ -890,7 +890,6 @@ if doOFC:
    LArOFC2Ntuple.Nsamples = Nsamples  # number of samples to use for OFC
    LArOFC2Ntuple.RealGeometry = True
    LArOFC2Ntuple.OffId = True
-   LArOFC2Ntuple.ContainerKey = OFCKey 	   
    LArOFC2Ntuple.NtupleFile = "FILE2" 	   
    LArOFC2Ntuple.AddFEBTempInfo = False 	   
    LArOFC2Ntuple.isSC = SuperCells

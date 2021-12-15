@@ -276,6 +276,8 @@ HLT_2j55_0eta290_020jvt_pf_ftf_bdl1r60_2j55_pf_ftf_0eta320_presel4j25_L14jJ15p0E
     0: 13
   stepFeatures:
     0: 26
+HLT_2mu10_PhysicsTLA_L12MU8F:
+  eventCount: 0
 HLT_2mu10_bJpsimumu_L12MU8F:
   eventCount: 0
 HLT_2mu10_bUpsimumu_L12MU8F:
@@ -314,6 +316,8 @@ HLT_2mu4_L1BPH-0M16-15DR99-2MU3V:
   eventCount: 0
 HLT_2mu4_L1BPH-0M16-20DR99-2MU3V:
   eventCount: 0
+HLT_2mu4_L1BPH-7M11-25DR99-2MU3V:
+  eventCount: 0
 HLT_2mu4_L1BPH-8M15-15DR99-2MU3V:
   eventCount: 0
 HLT_2mu4_L1BPH-8M15-20DR99-2MU3V:
@@ -326,6 +330,14 @@ HLT_2mu4_PhysicsTLA_L12MU3V:
     0: 1
   stepFeatures:
     0: 2
+HLT_2mu4_PhysicsTLA_L1BPH-0DR12-2MU3V:
+  eventCount: 0
+HLT_2mu4_PhysicsTLA_L1BPH-0DR12C-2MU3V:
+  eventCount: 0
+HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3V:
+  eventCount: 0
+HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20C-2MU3V:
+  eventCount: 0
 HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12-2MU3V:
   eventCount: 0
 HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12C-2MU3V:
@@ -497,6 +509,12 @@ HLT_2mu6_2j50_0eta490_j0_DJMASS900j50_L1MJJ-500-NFF:
 HLT_2mu6_2j50_0eta490_j0_DJMASS900j50_L1jMJJ-500-NFF:
   eventCount: 0
 HLT_2mu6_L12MU5VF:
+  eventCount: 0
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 2
+HLT_2mu6_PhysicsTLA_L12MU5VF:
   eventCount: 0
   stepCounts:
     0: 1
@@ -3620,6 +3638,12 @@ HLT_mu10_lateMu_L1LATE-MU8F_jJ50:
   eventCount: 0
 HLT_mu10_lateMu_L1LATE-MU8F_jXE30:
   eventCount: 0
+HLT_mu10_mu6_probe_PhysicsTLA_L1MU8F:
+  eventCount: 0
+  stepCounts:
+    0: 5
+  stepFeatures:
+    0: 5
 HLT_mu11_l2io_mu6_l2io_invmDimu_L1LFV-MU8VF:
   eventCount: 0
 HLT_mu11_l2io_mu6_l2io_invmDimu_L1MU8VF_2MU5VF:
@@ -4482,6 +4506,8 @@ HLT_mu6_mu4_L12MU3V:
     0: 1
   stepFeatures:
     0: 4
+HLT_mu6_mu4_L1BPH-7M14-0DR25-MU5VFMU3V:
+  eventCount: 0
 HLT_mu6_mu4_bBmumu_L1BPH-2M9-0DR15-C-MU5VFMU3V:
   eventCount: 0
 HLT_mu6_mu4_bBmumu_L1BPH-2M9-0DR15-MU5VFMU3V:

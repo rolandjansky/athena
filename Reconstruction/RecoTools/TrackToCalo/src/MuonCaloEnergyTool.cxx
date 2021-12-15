@@ -261,7 +261,6 @@ namespace Rec {
         SG::ReadCondHandle<CaloNoise> caloNoiseHdl{m_caloNoiseCDOKey};
         const CaloNoise* caloNoise = *caloNoiseHdl;
 
-        double E_em1 = 0.;
         double E_em = 0.;
         double E_em_expected = 0.;
         double E_em_exptot = 0.;
@@ -332,7 +331,6 @@ namespace Rec {
             //
             if (cellSampling == CaloSampling::PreSamplerB || cellSampling == CaloSampling::PreSamplerE) {
                 if (f_exp > 0 && cellEn > m_sigmasAboveNoise * sigma_Noise && !badCell) {
-                    E_em1 += cellEn;
                     if (storeCells) {
                         crossedCells->push_back(id);
                         sigmaNoise_cell->push_back(sigma_Noise);
@@ -455,7 +453,6 @@ namespace Rec {
         E_FSR = 0.;
         double E_measured = 0.;
         double E_measured_expected = E_em_expected + E_tile_expected + E_HEC_expected;
-        //     if(E_em*cos(theta)>m_emEtCut&&E_em1>0.15*E_em) {
         if (E_em * std::sin(theta) > m_emEtCut) {
             // large e.m. deposit starting in first e.m. layer
             E_FSR = E_em;

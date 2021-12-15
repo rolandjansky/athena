@@ -70,11 +70,11 @@ std::vector<float> LArAccumulatedCalibDigit::RMS() const {
 
 
 
-void LArAccumulatedCalibDigit::setSampleSum(const std::vector < uint32_t >& sampleSum) {
+void LArAccumulatedCalibDigit::setSampleSum(const std::vector < uint64_t >& sampleSum) {
   m_sampleSum = sampleSum;
 }
 
-void LArAccumulatedCalibDigit::setSample2Sum(const std::vector < uint32_t >& sample2Sum) {
+void LArAccumulatedCalibDigit::setSample2Sum(const std::vector < uint64_t >& sample2Sum) {
   m_sample2Sum = sample2Sum;
 }
 
@@ -91,11 +91,11 @@ bool LArAccumulatedCalibDigit::setAddDigit(const std::vector<short>& samples) {
      }
 
    for(size_t i=0;i<nS;++i) {
-     const uint32_t s2=samples[i]*samples[i];
-     if (m_sampleSum[i]>=std::numeric_limits<uint32_t>::max()-samples[i]) {
+     const uint64_t s2=samples[i]*samples[i];
+     if (m_sampleSum[i]>=std::numeric_limits<uint64_t>::max()-samples[i]) {
        return false; //ERROR, overflow! 
      }
-     if (m_sample2Sum[i]>=std::numeric_limits<uint32_t>::max()-s2) {
+     if (m_sample2Sum[i]>=std::numeric_limits<uint64_t>::max()-s2) {
        return false; //ERROR, overflow! 
      }
 
@@ -109,8 +109,8 @@ bool LArAccumulatedCalibDigit::setAddDigit(const std::vector<short>& samples) {
 
 
 
-bool LArAccumulatedCalibDigit::setAddSubStep(const std::vector < uint32_t >& sampleSum, 
-					     const std::vector < uint32_t >& sample2Sum, const uint32_t nTriggerPerStep) {
+bool LArAccumulatedCalibDigit::setAddSubStep(const std::vector < uint64_t >& sampleSum, 
+					     const std::vector < uint64_t >& sample2Sum, const uint32_t nTriggerPerStep) {
 
  
   const size_t nS=sampleSum.size();
@@ -125,10 +125,10 @@ bool LArAccumulatedCalibDigit::setAddSubStep(const std::vector < uint32_t >& sam
     }
 
   for(size_t is=0; is<nS; is++) {
-    if (m_sampleSum[is]>=std::numeric_limits<uint32_t>::max()-sampleSum[is]) {
+    if (m_sampleSum[is]>=std::numeric_limits<uint64_t>::max()-sampleSum[is]) {
       return false; //ERROR, overflow! 
     }
-    if (m_sample2Sum[is]>=std::numeric_limits<uint32_t>::max()-sample2Sum[is]) {
+    if (m_sample2Sum[is]>=std::numeric_limits<uint64_t>::max()-sample2Sum[is]) {
       return false; //ERROR, overflow! 
     }
 

@@ -516,6 +516,7 @@ else :
 # pre computation in the DSP or acummulator
 from LArCalibUtils.LArCalibUtilsConf import LArPedestalAutoCorrBuilder
 LArPedACBuilder=LArPedestalAutoCorrBuilder("LArPedestalAutoCorrBuilder")
+#LArPedACBuilder.isSC            = SuperCells
 LArPedACBuilder.KeyList         = GainList
 LArPedACBuilder.PedestalKey     = KeyOutputPed
 LArPedACBuilder.AutoCorrKey     = KeyOutputAC      

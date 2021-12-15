@@ -132,7 +132,8 @@ class ConfigDBLoader(ConfigLoader):
                     from cx_Oracle import connect
                     [tns,schema] = connSvc.split("/")[-2:]
                     cursor = connect(userpw["user"], userpw["password"], tns, threaded=False).cursor()
-                elif connSvc.startswith("frontier:"):
+                    return cursor, schema
+                if connSvc.startswith("frontier:"):
                     import re, os
                     pattern = r"frontier://ATLF/\(\)/(.*)"
                     m = re.match(pattern,connSvc)
@@ -143,9 +144,9 @@ class ConfigDBLoader(ConfigLoader):
                     from TrigConfigSvc.TrigConfFrontier import getFrontierCursor
                     cursor = getFrontierCursor(urls = os.getenv('FRONTIER_SERVER', None), schema = schema, loglevel=2)
                     cursor.encoding = "latin-1"
-                elif connSvc.startswith("sqlite_file:"):
+                    return cursor, schema
+                if connSvc.startswith("sqlite_file:"):
                     raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
-                return cursor, schema
             except Exception as e:
                 raise RuntimeError(e)
 

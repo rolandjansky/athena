@@ -635,7 +635,7 @@ LArPhysOFCAlg.KeyList      = [ InputKey ]
 LArPhysOFCAlg.Normalize    = Normalize
 LArPhysOFCAlg.Verify       = True
 LArPhysOFCAlg.GroupingType = GroupingType
-
+LArPhysOFCAlg.OutputLevel = DEBUG
 LArPhysOFCAlg.Nphase    = Nphases
 LArPhysOFCAlg.Dphase    = Dphases
 LArPhysOFCAlg.Ndelay    = Ndelays
