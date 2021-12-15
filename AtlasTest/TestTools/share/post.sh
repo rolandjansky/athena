@@ -13,42 +13,29 @@
 
 usage() {
     cat <<EOF
-Syntax: post.sh TESTNAME [-s REGEX] [-i REGEX]
-    TESTNAME       name of unit test
-    -s             lines matching REGEX will be selected for the diff
-    -i             lines matching REGEX will be ignored for the diff
-    -h             help
+Syntax: post.sh
+    Driven by the following environment variables:
+      ATLAS_CTEST_TESTNAME              test name
+      ATLAS_CTEST_TESTSTATUS            test return code
+      [ATLAS_CTEST_LOG_SELECT_PATTERN]  lines matching (regex) will be selected for the diff
+      [ATLAS_CTEST_LOG_IGNORE_PATTERN]  lines matching (regex) will be ignored for the diff
 
 Post-processing script that checks the return code of an executable (expected
-in \$testStatus) and compares its output with a reference.
+in \$ATLAS_CTEST_TESTSTATUS) and compares its output with a reference.
 
-The select pattern is always extended to include common ERROR patterns.
+The select pattern is always extended to include common error patterns.
 If both select and ignore are specified, the lines are first selected and
 then filtered by the ignore pattern. In all cases, a default ignore list is applied.
 EOF
 }
 
-if [ "$#" -lt 1 -o "$1" == "-h" ]; then
+if [ "$1" == "-h" ]; then
     usage
     exit 1
 fi
-test=$1
-shift
 
-while getopts ":s:i:h" opt; do
-    case $opt in
-        s)
-            selectpatterns=$OPTARG
-            ;;
-        i)
-            ignorepatterns=$OPTARG
-            ;;
-        h)
-            usage
-            exit 0
-            ;;
-    esac
-done
+selectpatterns=${ATLAS_CTEST_LOG_SELECT_PATTERN}
+ignorepatterns=${ATLAS_CTEST_LOG_IGNORE_PATTERN}
 
 if [ "$POST_SH_NOCOLOR" = "" ]; then
  YELLOW="[93;1m"
@@ -280,13 +267,13 @@ if [ -n "$selectpatterns" ]; then
     selectpatterns="$selectpatterns|$ERRORS"
 fi
 
-if [ -z "$testStatus" ]; then
-   echo "$YELLOW post.sh> Warning: athena exit status is not available (\$testStatus is not set). $RESET"
+if [ -z "$ATLAS_CTEST_TESTSTATUS" ]; then
+   echo "$YELLOW post.sh> Warning: test exit status is not available (\$ATLAS_CTEST_TESTSTATUS is not set). $RESET"
 else
    # check exit status
-   joblog=${test}.log
-   if [ "$testStatus" = 0 ]; then
-       reflog=../share/${test}.ref
+   joblog=${ATLAS_CTEST_TESTNAME}.log
+   if [ "$ATLAS_CTEST_TESTSTATUS" = 0 ]; then
+       reflog=../share/${ATLAS_CTEST_TESTNAME}.ref
 
        # If we can't find the reference file, maybe it's located outside
        # the repo.  With the switch to git, we have to fall back
@@ -300,9 +287,9 @@ else
            # since get_files is hardcoded not to look more than two
            # levels down.
            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
-           reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
+           reflog=`basename $ATLAS_REFERENCE_TAG`/${ATLAS_CTEST_TESTNAME}.ref
            if [ ! -r $reflog ] && [ -n "${ATLAS_REFERENCE_DATA}" ]; then
-               reflog=${ATLAS_REFERENCE_DATA}/${ATLAS_REFERENCE_TAG}/${test}.ref
+               reflog=${ATLAS_REFERENCE_DATA}/${ATLAS_REFERENCE_TAG}/${ATLAS_CTEST_TESTNAME}.ref
            fi
        fi
 
@@ -335,8 +322,8 @@ else
        fi
    else
        tail $joblog
-       echo  "$RED post.sh> ERROR: Athena exited abnormally! Exit code: $testStatus $RESET"
-       echo  " post.sh> Please check ${PWD}/${joblog}"
+       echo "$RED post.sh> ERROR: Test ${ATLAS_CTEST_TESTNAME} failed with exit code: ${ATLAS_CTEST_TESTSTATUS}$RESET"
+       echo  " post.sh> Please check ${PWD}/$joblog"
    fi
 fi
-exit $testStatus
+exit $ATLAS_CTEST_TESTSTATUS
