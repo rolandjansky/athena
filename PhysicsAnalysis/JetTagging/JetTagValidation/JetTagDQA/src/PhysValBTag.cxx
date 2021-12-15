@@ -39,12 +39,12 @@ namespace JetTagDQA {
                             const std::string& name,
                             const IInterface* parent ) :
     ManagedMonitorToolBase( type, name, parent ),
+    m_muonAugmenter("Muons"),
     m_isData(false),
     m_antiKt4EMTopoPlots                     (0, "BTag/AntiKt4EMTopoJets/"                , "antiKt4EMTopoJets"),
     m_antiKt4EMPFlowJetsPlots                (0, "BTag/AntiKt4EMPFlowJets/"               , "antiKt4EMPFlowJets"),
     m_antiKtVR30Rmax4Rmin02PV0TrackJetsPlots (0, "BTag/AntiKtVR30Rmax4Rmin02PV0TrackJets/", "antiKtVR30Rmax4Rmin02PV0TrackJets"),
-    m_nevents(0),
-    m_muonAugmenter("Muons")
+    m_nevents(0)
   {
 
     declareProperty( "isData", m_isData );
