@@ -5256,28 +5256,20 @@ HLT_g25_tight_icalotight_xe40_cell_xe40_tcpufit_xe40_pfopufit_18dphiAB_18dphiAC_
     0: 9
     1: 7
     2: 7
-    3: 4
-    4: 2
   stepFeatures:
     0: 15
     1: 10
     2: 10
-    3: 4
-    4: 10
-    5: 2
 HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_18dphiAB_18dphiAC_80mTAC_L1EM22VHI:
   eventCount: 0
   stepCounts:
     0: 9
     1: 7
     2: 7
-    3: 4
   stepFeatures:
     0: 15
     1: 10
     2: 10
-    3: 4
-    4: 6
 HLT_g300_etcut_L1EM22VHI:
   eventCount: 1
   stepCounts:
@@ -5637,28 +5629,20 @@ HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM24VHI:
     0: 9
     1: 7
     2: 7
-    3: 4
   stepFeatures:
     0: 15
     1: 10
     2: 10
-    3: 4
 HLT_g35_tight_icalotight_mu18noL1_L1EM24VHI:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 9
     1: 7
     2: 7
-    3: 4
-    4: 1
-    5: 1
   stepFeatures:
     0: 15
     1: 10
     2: 10
-    3: 4
-    4: 1
-    5: 1
 HLT_g3_loose_LArPEBHLT_L1EM3:
   eventCount: 0
 HLT_g40_loose_L1EM20VH:

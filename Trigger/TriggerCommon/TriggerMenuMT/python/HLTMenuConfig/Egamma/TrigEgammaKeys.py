@@ -30,6 +30,7 @@ class TrigEgammaKeysBase(object):
         self.precisionCaloTopoCollection                = 'HLT_egammaTopoCluster'
         self.precisionCaloEgammaRecCollection           = 'HLT_precisionCaloEgammaRecCollection'
         self.precisionCaloClusterContainer              = recordable("HLT_CaloEMClusters") if not ion else recordable("HLT_HICaloEMClusters") 
+        self.precisionTopoClusterContainer              = recordable("HLT_TopoCaloClustersRoI") if not ion else recordable("HLT_TopoCaloClustersHIRoI") 
         self.precisionEgammaRecCollection               = 'HLT_egammaRecCollection'
         self.precisionEMClusterContainer                = recordable('HLT_TrigEMClusters')
 

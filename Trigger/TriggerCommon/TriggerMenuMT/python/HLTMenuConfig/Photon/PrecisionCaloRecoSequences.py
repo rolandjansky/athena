@@ -25,10 +25,8 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
     topoRecoSequence = HLTHIRoITopoRecoSequence if ion is True else HLTRoITopoRecoSequence
     (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix='')
 
+    log.debug('Photon topoRecoSequence output container = %s',caloclusters)
     tag = 'HI' if ion is True else '' 
-    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer
-    log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
-
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
                                           name = 'gTrigEgammaTopoClusterCopier' + tag + RoIs ,
                                           InputTopoCollection = caloclusters,
@@ -44,6 +42,10 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
     trigEgammaRec.InputClusterContainerName = TrigEgammaKeys.precisionCaloTopoCollection # input
     trigEgammaRec.egammaRecContainer        = TrigEgammaKeys.precisionCaloEgammaRecCollection # output
     precisionRecoSequence += trigEgammaRec
+    
+    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
+
 
 
     trigEgammaSuperClusterBuilder = TrigEgammaSuperClusterBuilder(name = 'gTrigEgammaSuperClusterBuilder' + tag + RoIs )
