@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -90,7 +90,8 @@ EMECDetectorManager::EMECDetectorManager(const EMECHVManager* hvManagerInner
 EMECDetectorManager::~EMECDetectorManager()
 {
   for (unsigned int i=0;i<getNumDetectorRegions();i++) delete m_DetRegionsIterative[i];
-  for (unsigned int i=0;i<getNumTreeTops();i++) getTreeTop(i)->unref();
+  unsigned int ntree = EMECDetectorManager::getNumTreeTops();
+  for (unsigned int i=0;i<ntree;i++) EMECDetectorManager::getTreeTop(i)->unref();
   delete m_MagicNumbers;
 }
 
