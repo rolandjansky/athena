@@ -39,3 +39,9 @@ atlas_add_test( VertexFindingConfig_test
 atlas_add_test( VertexFindingConfigActs_test
     SCRIPT python -m InDetConfig.VertexFindingConfig ActsGaussAdaptiveMultiFinding
     POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( VertexFindingConfigIterative_test
+    SCRIPT python -m InDetConfig.VertexFindingConfig IterativeFinding
+    POST_EXEC_SCRIPT nopost.sh)
+
+    

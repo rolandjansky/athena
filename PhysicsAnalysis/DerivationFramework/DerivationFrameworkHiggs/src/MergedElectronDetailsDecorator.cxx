@@ -61,11 +61,10 @@ namespace DerivationFramework {
     }
     ATH_MSG_INFO("Retrieved tool: " << m_V0Tools);
 
+    ATH_CHECK(m_eventInfoKey.initialize());
 
-    ATH_CHECK( m_eventInfoKey.initialize() );
-
-    ATH_CHECK( m_electronKey.initialize() );
-
+    ATH_CHECK(m_electronKey.initialize());
+    ATH_CHECK(m_caloMgrKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -132,7 +131,9 @@ namespace DerivationFramework {
                                                                               const xAOD::TrackParticle* tp,
                                                                               const xAOD::CaloCluster* cluster) const {
 
-    
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey };
+    const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
     //Reset values
     for(unsigned int i(0); i<trkMatchTrk.size(); ++i ){
       trkMatchTrk[i] = -999;
@@ -152,7 +153,7 @@ namespace DerivationFramework {
                                            phi,
                                            deltaEta,
                                            deltaPhi,
-                                           nullptr,
+                                           *caloDDMgr,
                                            IEMExtrapolationTools::fromPerigee).isSuccess()) // Perigee
     {
       trkMatchTrk[0] = deltaEta[1];
@@ -168,7 +169,7 @@ namespace DerivationFramework {
                                            phi,
                                            deltaEta,
                                            deltaPhi,
-                                           nullptr,
+                                           *caloDDMgr,
                                            IEMExtrapolationTools::fromLastMeasurement).isSuccess()) //Last Measurement
     {
       trkMatchTrk[4] = deltaEta[1];
@@ -184,7 +185,7 @@ namespace DerivationFramework {
                                            phi,
                                            deltaEta,
                                            deltaPhi,
-                                           nullptr,
+                                           *caloDDMgr,
                                            IEMExtrapolationTools::fromPerigeeRescaled).isSuccess()) //Last Measurement
     {
       trkMatchTrk[8] = deltaPhi[2];

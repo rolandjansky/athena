@@ -630,7 +630,9 @@ namespace CP {
             if (cbtrack && std::abs(cbtrack->eta()) > 2.5) { return true; }
             return false;
         } else {
-            if (mu.primaryTrackParticle())
+	    if (mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle))
+	        return passedIDCuts(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle));
+            else if (mu.primaryTrackParticle())
                 return passedIDCuts(*mu.primaryTrackParticle());
             else
                 return false;

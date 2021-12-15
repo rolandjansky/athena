@@ -489,9 +489,15 @@ def addCHSPFlowObjects():
         from JetRec.JetRecStandard import jtm
         if not hasattr(job,"jetalgCHSPFlow") and not hasattr(jtm,"jetconstitCHSPFlow"):
             from JetRec.JetRecConf import JetToolRunner
-            jtm += JetToolRunner("jetconstitCHSPFlow",
-                                 EventShapeTools=[],
-                                 Tools=[jtm.JetConstitSeq_PFlowCHS])
+            from JetRec.JetRecFlags import jetFlags
+            if jetFlags.useTrackVertexTool:
+                jtm += JetToolRunner("jetconstitCHSPFlow",
+                                         EventShapeTools=[],
+                                         Tools=[jtm.ttvaassocNew,jtm.JetConstitSeq_PFlowCHS])
+            else:
+                jtm += JetToolRunner("jetconstitCHSPFlow",
+                                         EventShapeTools=[],
+                                         Tools=[jtm.JetConstitSeq_PFlowCHS])
             # Add this tool runner to the JetAlgorithm instance "jetalg"
             # which runs all preparatory tools
             # This was added by JetCommon

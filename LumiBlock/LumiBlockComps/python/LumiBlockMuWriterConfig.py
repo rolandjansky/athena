@@ -10,8 +10,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter'):
-    result = ComponentAccumulator()
+def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter', seqName="AthAlgSeq"):
+    result = ComponentAccumulator(seqName)
 
     if (configFlags.Beam.Type == 'cosmics' or configFlags.Input.isMC):
         condkey = ''
@@ -22,7 +22,12 @@ def LumiBlockMuWriterCfg (configFlags, name = 'LumiBlockMuWriter'):
 
     LumiBlockMuWriter = CompFactory.LumiBlockMuWriter # LumiBlockComps
     alg = LumiBlockMuWriter (name, LumiDataKey = condkey)
-    result.addCondAlgo (alg)
+    #In the HLT we want to run LumiBlockMuWriter as a normal EventAlgo, but in a pre-event sequence (HLTBeginSeq)
+    if  configFlags.Trigger.doHLT:
+         result.addEventAlgo(alg)
+    #For offline and particularly serial athena, add LumiBlockMuWriter to AthCondSeq to ensure it runs first (ATR-24721)
+    else:
+         result.addCondAlgo(alg)
     return result
 
 

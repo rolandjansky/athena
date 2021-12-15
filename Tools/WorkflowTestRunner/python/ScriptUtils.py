@@ -50,6 +50,8 @@ def setup_parser() -> ArgumentParser:
     advanced = parser.add_argument_group("advanced")
     advanced.add_argument("--CI", action="store_true", dest="ci_mode", default=False,
                           help="Will not setup Athena - only for CI tests!")
+    advanced.add_argument("--threads", type=int, dest="threads", default=None,
+                          help="Override the number of threads to run the test with.")
     advanced.add_argument("--ref", type=str, dest="reference_release", default=None,
                           help="Define a particular reference release.")
     advanced.add_argument("--val", type=str, dest="validation_release", default=None,
@@ -95,6 +97,7 @@ def get_test_setup(name: str, options: Namespace, log: logging.Logger) -> TestSe
         setup.unique_ID = options.unique_ID
     setup.parallel_execution = options.fast_mode
     setup.disable_output_checks = options.disable_output_checks
+    setup.custom_threads = options.threads
     # not in global setup:
     # options.extra_args
 

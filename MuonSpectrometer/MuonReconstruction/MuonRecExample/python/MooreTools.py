@@ -237,7 +237,10 @@ def MooTrackBuilder(name="MooTrackBuilderTemplate",
             else:
                 tool = getPublicTool("MuonErrorOptimisationTool")
             kwargs["ErrorOptimisationTool"] = tool
-        
+    
+    from MuonRecExample.MuonRecTools import MuonTrackSummaryTool
+    kwargs.setdefault('TrackSummaryTool', MuonTrackSummaryTool())
+
     builder = CfgMgr.Muon__MooTrackBuilder(name,**kwargs)
 
     # make clones of some tools if namePrefix (e.g. for TrigMuonEF) or namePostfix (e.g. for FinalFit) is given

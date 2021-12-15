@@ -4,6 +4,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
+from ..Jet.JetChainConfiguration import JetChainConfiguration
 log = logging.getLogger(__name__)
 
 
@@ -20,7 +21,7 @@ def addTLAStep(chain, chainDict):
         
         log.debug("addTLAStep: processing signature: %s", cPart['signature'] )
         # call the sequence from their respective signatures
-        tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, chainPart=cPart)),
+        tlaSequencesList.append(getTLASignatureSequence(ConfigFlags, chainDict=chainDict, chainPart=cPart)), #signature=cPart['signature'])),
             
     log.debug("addTLAStep: About to add a step with: %d, parallel sequences.", len(tlaSequencesList))            
     
@@ -37,26 +38,32 @@ def addTLAStep(chain, chainDict):
 
 
 
-def getTLASignatureSequence(ConfigFlags, chainPart):
+def getTLASignatureSequence(ConfigFlags, chainDict, chainPart):
     # Here we simply retrieve the TLA sequence from the existing signature code 
+    signature= chainPart['signature']
     
-    if chainPart['signature'] == 'Photon':    
+    if signature == 'Photon':    
         from ..Photon.PrecisionPhotonTLAMenuSequences import TLAPhotonMenuSequence
         photonOutCollectionName = "HLT_egamma_Photons"
         return RecoFragmentsPool.retrieve(TLAPhotonMenuSequence, ConfigFlags, photonsIn=photonOutCollectionName)
-  
     
-    elif chainPart['signature'] == 'Muon':    
-        from ..Muon.TLAMuonSequence import TLAMuonMenuSequence
-        muonOutCollectionName = "HLT_MuonsCB_RoI"
-        return RecoFragmentsPool.retrieve(TLAMuonMenuSequence, ConfigFlags, muonsIn=muonOutCollectionName)
+    elif signature == 'Muon':    
+        from ..Muon.TLAMuonSequence import TLAMuonMenuSequence        
+        return TLAMuonMenuSequence (ConfigFlags, muChainPart=chainPart)       
     
-    elif chainPart['signature']  == 'Jet':   
+    elif signature  == 'Jet' or signature  == 'Bjet':   
         from ..Jet.JetTLASequences import TLAJetMenuSequence
-        jetOutCollectionName = "HLT_AntiKt4EMTopoJets_subjesIS"
-        if chainPart['constitType'] == 'pf': jetOutCollectionName = "HLT_AntiKt4EMPFlowJets_subjesIS"
-        return RecoFragmentsPool.retrieve(TLAJetMenuSequence, ConfigFlags, jetsIn=jetOutCollectionName)
-
+        jetDef = JetChainConfiguration(chainDict)
+        jetInputCollectionName = jetDef.jetName
+        log.debug(f"TLA jet input collection = {jetInputCollectionName}")
+        # Turn off b-tagging for jets that have no tracks anyway - we want to avoid 
+        # adding a TLA AntiKt4EMTopoJets_subjetsIS BTagging container in the EDM.
+        # We do not switch off BTag recording for Jet signatures as both Jet and Bjet signature
+        # will use the same hypo alg, so it needs to be configured the same!
+        # Thus, BTag recording will always run for PFlow jets, creating an empty container if no btagging exists. 
+        attachBtag = True
+        if jetDef.recoDict["trkopt"] == "notrk": attachBtag = False
+        return RecoFragmentsPool.retrieve(TLAJetMenuSequence, ConfigFlags, jetsIn=jetInputCollectionName, attachBtag=attachBtag)
 
 
 def findTLAStep(chainConfig):
@@ -105,4 +112,3 @@ def alignTLASteps(chain_configs, chain_dicts):
             log.debug('Aligning TLA step for chain %s by adding %d empty steps', chainName, numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyTLAAlign', numStepsNeeded, tlaStepPosition-1)
 
-   

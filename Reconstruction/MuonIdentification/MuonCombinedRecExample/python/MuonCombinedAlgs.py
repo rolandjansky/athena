@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm
+from AthenaCommon.CfgGetter import getPublicTool, getPrivateTool, getAlgorithm
 from MuonRecExample.ConfiguredMuonRec import ConfiguredMuonRec
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
@@ -245,7 +245,7 @@ def MuonCreatorAlg_LRT( name="MuonCreatorAlg_LRT",**kwargs ):
     return CfgMgr.MuonCreatorAlg(name,**kwargs)
 
 def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
-    kwargs.setdefault("MuonCreatorTool",getPublicTool("StauCreatorTool"))
+    kwargs.setdefault("MuonCreatorTool",getPrivateTool("StauCreatorTool"))
     kwargs.setdefault("MuonContainerLocation","Staus")
     kwargs.setdefault("CombinedLocation","CombinedStau")
     kwargs.setdefault("ExtrapolatedLocation","ExtrapolatedStau")

@@ -70,6 +70,22 @@ class BasicTests(FlagsSetup):
         self.assertEqual(cacheInfo["hits"] , 2)
         self.assertEqual(cacheInfo["cache_size"] , 2)
 
+    def test_hash_invariance(self):
+        """Test that hash doesn't change on dynamic flag loading"""
+        def generator():
+            extraFlags = AthConfigFlags()
+            extraFlags.addFlag('Extra.X', 'foo')
+            extraFlags.addFlag('Extra.Y', lambda flags : flags.Extra.X+'_bar')
+            return extraFlags
+
+        self.flags.addFlagsCategory('Extra', generator)
+        self.flags.lock()
+        hash_value = self.flags.athHash()
+        self.assertEqual(self.flags.Extra.X, 'foo')
+        self.assertEqual(self.flags.athHash() , hash_value)
+        self.assertEqual(self.flags.Extra.Y, 'foo_bar')
+        self.assertEqual(self.flags.athHash() , hash_value)
+
 
 class TestFlagsSetupDynamic(FlagsSetup):
     def setUp(self):

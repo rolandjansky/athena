@@ -353,6 +353,7 @@
 + TileCalorimeter/TileSvc/TileSimEventAthenaPool
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
 + Tools/ART
++ Tools/Campaigns
 + Tools/FilePeeker
 + Tools/PathResolver
 + Tools/PmbCxxUtils
@@ -360,6 +361,7 @@
 + Tools/PyJobTransforms
 + Tools/PyUtils
 + Tools/Scripts
++ Tools/WorkflowTestRunner
 + Tools/XMLCoreParser
 + Tracking/TrkDetDescr/TrkDetDescrUtils
 + Tracking/TrkDetDescr/TrkDetElementBase

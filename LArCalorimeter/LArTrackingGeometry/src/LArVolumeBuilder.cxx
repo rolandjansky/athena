@@ -12,6 +12,7 @@
 #include "LArReadoutGeometry/LArDetectorManager.h"
 // CaloDepth
 #include "CaloDetDescr/CaloDepthTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 // GeoModel
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -193,10 +194,17 @@ const std::vector<Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes(
 
   throwIntoGarbage(lArBarrelPresamplerMaterial);
   throwIntoGarbage(lArBarrelMaterial);
-  
-  // load layer surfaces 
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurf = m_calosurf->entrySurfaces();
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurf  = m_calosurf->exitSurfaces();
+
+  const CaloDetDescrManager* calo_dd = nullptr;
+  if (detStore()->retrieve(calo_dd).isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
+    return {};
+  }
+  // load layer surfaces
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> entrySurf =
+    m_calosurf->entrySurfaces(calo_dd);
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> exitSurf =
+    m_calosurf->exitSurfaces(calo_dd);
 
   StoredPhysVol* storedPV = nullptr;
 
@@ -1361,12 +1369,12 @@ const std::vector<Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes(
 
      double z, rmin, rmax, hphi, depth;
      Amg::Transform3D* pos = new Amg::Transform3D();
-     m_calosurf->get_disk_surface(CaloCell_ID::HEC0, 1, pos, z, rmin, rmax, hphi, depth);
+     m_calosurf->get_disk_surface(CaloCell_ID::HEC0, 1, pos, z, rmin, rmax, hphi, depth, calo_dd);
      delete pos;
      caloSurfZOffset = lArHecZmin - z;
      lArHecZmax = z + depth + caloSurfZOffset;
      pos = new Amg::Transform3D();
-     m_calosurf->get_disk_surface(CaloCell_ID::HEC3, 1, pos, z, rmin, rmax, hphi, depth);
+     m_calosurf->get_disk_surface(CaloCell_ID::HEC3, 1, pos, z, rmin, rmax, hphi, depth, calo_dd);
      delete pos;
      hecEnd = z + depth + caloSurfZOffset;
    }
@@ -1794,49 +1802,6 @@ void LAr::LArVolumeBuilder::printCheckResult(MsgStream& log, const Trk::Tracking
   if (vol) log << "... ok"      << endmsg;
   else     log << "... missing" << endmsg;
 }
-
-
-
-Trk::Volume* LAr::LArVolumeBuilder::cylAssociatedVolume(const CaloCell_ID::CaloSample sample, const double hlenz, double& radius) const
-{
-  Amg::Transform3D* pos = new Amg::Transform3D();
-  double rmax=0,hphi=0,hlen=0;
-  int side = 1;
-  m_calosurf->get_cylinder_surface(sample, side, pos, radius, hphi, hlen, rmax);
-  
- 
-  //use the Bounds given by the ChildVolumeBounds
-  if(m_useCaloTrackingGeometryBounds)
-    hlen = hlenz;
-  Trk::CylinderVolumeBounds*  volBounds = new Trk::CylinderVolumeBounds (radius, rmax, hlen);
-  radius += (rmax - radius)/2;
-  return  new Trk::Volume(pos, volBounds); 
-}
-
-Trk::Volume* LAr::LArVolumeBuilder::discAssociatedVolume(const CaloCell_ID::CaloSample sample, 
-                                                         const int side, 
-                                                         const double radmin, 
-                                                         const double radmax, 
-                                                         double& z, 
-                                                         double& depth) const
-{
-  Amg::Transform3D* pos0 = new Amg::Transform3D();
-  double rmin=0,rmax=0,hphi=0;
-  if (!m_calosurf->get_disk_surface(sample, side, pos0, z, rmin, rmax, hphi, depth))
-    ATH_MSG_WARNING("get_disk_surface returns false");
-  delete pos0;
-
-  z += side*depth/2;
-  Amg::Transform3D* pos = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,z)));
-  //use the Bounds given by the ChildVolumeBounds
-  if(m_useCaloTrackingGeometryBounds){
-    rmin =radmin;
-    rmax = radmax;
-  }
-  Trk::CylinderVolumeBounds*  volBounds = new Trk::CylinderVolumeBounds (rmin, rmax, depth/2);                  
-  return  new Trk::Volume(pos, volBounds);
-}
-
 
 void LAr::LArVolumeBuilder::printInfo(const PVConstLink& pv, int gen) const
 {

@@ -172,7 +172,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     bool isNCone = false;
 
     bool isExt =
-      genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone, caloDDMgr);
+      genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone, *caloDDMgr);
     if (!isExt) {
       continue;
     }
@@ -292,7 +292,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     double dR(-999.);
     bool isNCone = false;
     bool isExt =
-      genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone, caloDDMgr);
+      genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone, *caloDDMgr);
     if (!isExt) {
       continue;
     }
@@ -367,7 +367,7 @@ MCTruthClassifier::genPartToCalo(const EventContext& ctx,
                                  bool isFwrdEle,
                                  double& dRmatch,
                                  bool& isNarrowCone,
-                                 const CaloDetDescrManager* caloDDMgr) const
+                                 const CaloDetDescrManager& caloDDMgr) const
 {
   dRmatch = -999.;
   isNarrowCone = false;
