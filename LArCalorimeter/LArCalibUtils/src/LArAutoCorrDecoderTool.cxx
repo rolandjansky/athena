@@ -49,6 +49,8 @@ StatusCode LArAutoCorrDecoderTool::initialize()
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Failed to register Datahandle<ILArAutoCorr> to SG key " << m_keyAutoCorr );
     return sc;
+  } else {
+    ATH_MSG_INFO( "Registered Datahandle<ILArAutoCorr> to SG key " << m_keyAutoCorr );
   }
 
 
@@ -105,7 +107,7 @@ const Eigen::MatrixXd LArAutoCorrDecoderTool::ACDiagonal( const HWIdentifier&  C
     ATH_MSG_WARNING( "No valid AutoCorr object loaded from DetStore" );
   }
 
-  ATH_MSG_DEBUG("AutoCorr matrix for channel " <<  m_onlineID->channel_name(CellID) 
+  ATH_MSG_DEBUG("AutoCorr Diagonal matrix for channel " <<  m_onlineID->channel_name(CellID) 
 		<< " in Gain = " << gain
 		<< ":\n" << AutoCorrMatrix);
 
@@ -155,10 +157,9 @@ const Eigen::MatrixXd LArAutoCorrDecoderTool::ACPhysics( const HWIdentifier&  Ce
     ATH_MSG_WARNING( "No valid AutoCorr object loaded from DetStore" );
   }
    
-  ATH_MSG_DEBUG("AutoCorr matrix for channel " <<  m_onlineID->channel_name(CellID) 
+  ATH_MSG_DEBUG("AutoCorr Physics matrix for channel " <<  m_onlineID->channel_name(CellID) 
 		<< " in Gain = " << gain
 		<< ":\n" << AutoCorrMatrix);
-
   return AutoCorrMatrix;
   
 }

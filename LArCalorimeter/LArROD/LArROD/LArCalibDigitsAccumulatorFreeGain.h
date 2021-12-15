@@ -45,8 +45,8 @@ public:
   class LArAccumulated{
   public:
     unsigned int m_ntrigger;
-    std::vector<unsigned int> m_sum;
-    std::vector<unsigned int> m_sum2;
+    std::vector< uint64_t > m_sum;
+    std::vector< uint64_t > m_sum2;
     LArAccumulated() : m_ntrigger(0) {};
   };
 

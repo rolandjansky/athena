@@ -61,7 +61,10 @@ if not 'FullFileName' in dir():
 if not 'EvtMax' in dir():
    EvtMax=-1
 
-if not 'SuperCells' in dir():
+if not 'WriteNtuple' in dir():
+   WriteNtuple = LArCalib_Flags.WriteNtuple
+
+if not 'SuperCells' in dir():   
    SuperCells=False
 
 if not 'GainList' in dir():
@@ -257,12 +260,14 @@ svcMgr += NTupleSvc()
 svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputDir + "/" +OutputRootFileName+"' OPT='NEW'" ]
 
 AthenaEventLoopMgr=Service("AthenaEventLoopMgr")
-AthenaEventLoopMgr.OutputLevel=WARNING
+AthenaEventLoopMgr.OutputLevel=DEBUG
 
 theApp.EvtMax=EvtMax
-svcMgr.MessageSvc.OutputLevel=INFO
 
-LArDigits2Ntuple.OutputLevel=INFO
+
+svcMgr.MessageSvc.OutputLevel=DEBUG
+
+LArDigits2Ntuple.OutputLevel=DEBUG
 
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)

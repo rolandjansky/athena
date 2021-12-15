@@ -175,10 +175,10 @@ StatusCode LArCalibShortCorrector::execute(){
 	shortedDigits[ii].second=shortedDigits[ii].first;
       }
 
-      const std::vector<uint32_t>& sampleSumsPulsed=shortedDigits[ii].first->sampleSum();
-      const std::vector<uint32_t>& sampleSumsNeighbor=shortedDigits[ii].second->sampleSum();
+      const std::vector<uint64_t>& sampleSumsPulsed=shortedDigits[ii].first->sampleSum();
+      const std::vector<uint64_t>& sampleSumsNeighbor=shortedDigits[ii].second->sampleSum();
 
-      std::vector<uint32_t> newSampleSum(sampleSumsPulsed.size());
+      std::vector<uint64_t> newSampleSum(sampleSumsPulsed.size());
       
 
       if (sampleSumsPulsed.size() != sampleSumsNeighbor.size()) {

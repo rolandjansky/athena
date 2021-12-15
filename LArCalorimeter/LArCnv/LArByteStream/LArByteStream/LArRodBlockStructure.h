@@ -127,8 +127,8 @@ public :
 
   virtual inline int getNextEnergy(int& channelNumber, int32_t& energy, int32_t& time,int32_t& quality,uint32_t& gain);
   virtual int  getNextRawData(int& channelNumber, std::vector<short>& samples, uint32_t& gain);
-  virtual int  getNextAccumulatedCalibDigit(int& channelNumber, std::vector < uint32_t >& SamplesSum,  std::vector < uint32_t >& Samples2Sum, uint32_t&  nStepTriggers, uint32_t& gain);
-  virtual int  getNextAccumulatedDigit(int& channelNumber, std::vector<uint32_t>& SamplesSum, std::vector < uint32_t >& corr2Sum, uint32_t& gain);
+  virtual int  getNextAccumulatedCalibDigit(int& channelNumber, std::vector < uint64_t >& SamplesSum,  std::vector < uint64_t >& Samples2Sum, uint32_t&  nStepTriggers, uint32_t& gain);
+  virtual int  getNextAccumulatedDigit(int& channelNumber, std::vector<uint64_t>& SamplesSum, std::vector < uint64_t >& corr2Sum, uint32_t& gain);
 
   // Get functions related to hasCalibBlock
   virtual inline bool     getPulsed(unsigned channelNumber) const;

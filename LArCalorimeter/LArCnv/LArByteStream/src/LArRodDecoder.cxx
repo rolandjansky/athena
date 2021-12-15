@@ -537,8 +537,8 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   int bitShift; 
   uint32_t FirstGoodFEB=1;
   int fcNb;
-  std::vector< uint32_t > samplesSum;   
-  std::vector< uint32_t > samples2Sum;   
+  std::vector< uint64_t > samplesSum;   
+  std::vector< uint64_t > samples2Sum;   
 
   //  for(int i=0;i<16;i++)
   //  std::cout << " -     " << std::hex << p[i] << std::endl;
@@ -659,8 +659,8 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   uint32_t gain, ntrigger;
   //int NStep=-1, StepIndex=-1;
   int fcNb;
-  std::vector<uint32_t> sampleSum;   
-  std::vector< uint32_t > sampleSquare;   
+  std::vector<uint64_t> sampleSum;   
+  std::vector< uint64_t > sampleSquare;   
 
   //  for(int i=0;i<16;i++)
   //  std::cout << " -     " << std::hex << p[i] << std::endl;
