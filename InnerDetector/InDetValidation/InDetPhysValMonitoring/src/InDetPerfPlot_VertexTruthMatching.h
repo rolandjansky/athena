@@ -137,18 +137,6 @@ private:
     TH1* m_vx_sumpT_HS_matched;
     TH1* m_vx_sumpT_HS_merged;
     TH1* m_vx_sumpT_HS_split;
-    TH1* m_vx_sumCharge_matched;
-    TH1* m_vx_sumCharge_merged;
-    TH1* m_vx_sumCharge_split;
-    TH1* m_vx_sumCharge_HS_matched;
-    TH1* m_vx_sumCharge_HS_merged;
-    TH1* m_vx_sumCharge_HS_split;
-    TH1* m_vx_sumCharge_N_trk_HS_matched;
-    TH1* m_vx_sumCharge_N_trk_HS_merged;
-    TH1* m_vx_sumCharge_N_trk_HS_split;
-    TH1* m_vx_sumCharge_N_trk_matched;
-    TH1* m_vx_sumCharge_N_trk_merged;
-    TH1* m_vx_sumCharge_N_trk_split;
     
     TH1* m_vx_z_asym_matched;
     TH1* m_vx_z_asym_merged;
@@ -177,13 +165,6 @@ private:
     TH1* m_vx_normalised_track_weight_HS_merged;
     TH1* m_vx_normalised_track_weight_HS_split;
 
-    TH1* m_vx_d_asym_matched;
-    TH1* m_vx_d_asym_merged;
-    TH1* m_vx_d_asym_split;
-    TH1* m_vx_d_asym_HS_matched;
-    TH1* m_vx_d_asym_HS_merged;
-    TH1* m_vx_d_asym_HS_split;
-
     TH1* m_vx_chi2Over_ndf_matched;
     TH1* m_vx_chi2Over_ndf_merged;
     TH1* m_vx_chi2Over_ndf_split;
@@ -204,43 +185,11 @@ private:
     TH1* m_vx_z0_kurtosis_HS_merged;
     TH1* m_vx_z0_kurtosis_HS_split;
 
-    TH1* m_vx_d0_skewness_matched;
-    TH1* m_vx_d0_skewness_merged;
-    TH1* m_vx_d0_skewness_split;
-    TH1* m_vx_d0_skewness_HS_matched;
-    TH1* m_vx_d0_skewness_HS_merged;
-    TH1* m_vx_d0_skewness_HS_split;
-    TH1* m_vx_d0_kurtosis_matched;
-    TH1* m_vx_d0_kurtosis_merged;
-    TH1* m_vx_d0_kurtosis_split;
-    TH1* m_vx_d0_kurtosis_HS_matched;
-    TH1* m_vx_d0_kurtosis_HS_merged;
-    TH1* m_vx_d0_kurtosis_HS_split;
-
-
-    TH1* m_vx_pt_skewness_matched;
-    TH1* m_vx_pt_skewness_merged;
-    TH1* m_vx_pt_skewness_split;
-    TH1* m_vx_pt_skewness_HS_matched;
-    TH1* m_vx_pt_skewness_HS_merged;
-    TH1* m_vx_pt_skewness_HS_split;
-    TH1* m_vx_pt_kurtosis_matched;
-    TH1* m_vx_pt_kurtosis_merged;
-    TH1* m_vx_pt_kurtosis_split;
-    TH1* m_vx_pt_kurtosis_HS_matched;
-    TH1* m_vx_pt_kurtosis_HS_merged;
-    TH1* m_vx_pt_kurtosis_HS_split;
     // ALL Vertices
     TH1* m_vx_sumpT_ALL_matched;
     TH1* m_vx_sumpT_ALL_merged;
     TH1* m_vx_sumpT_ALL_split;
     
-    TH1* m_vx_sumCharge_ALL_matched;
-    TH1* m_vx_sumCharge_ALL_merged;
-    TH1* m_vx_sumCharge_ALL_split;
-    TH1* m_vx_sumCharge_N_trk_ALL_matched;
-    TH1* m_vx_sumCharge_N_trk_ALL_merged;
-    TH1* m_vx_sumCharge_N_trk_ALL_split;
     TH1* m_vx_z_asym_ALL_matched;
     TH1* m_vx_z_asym_ALL_merged;
     TH1* m_vx_z_asym_ALL_split;
@@ -253,9 +202,6 @@ private:
     TH1* m_vx_normalised_track_weight_ALL_matched;
     TH1* m_vx_normalised_track_weight_ALL_merged;
     TH1* m_vx_normalised_track_weight_ALL_split;
-    TH1* m_vx_d_asym_ALL_matched;
-    TH1* m_vx_d_asym_ALL_merged;
-    TH1* m_vx_d_asym_ALL_split;
 
     TH1* m_vx_chi2Over_ndf_ALL_matched;
     TH1* m_vx_chi2Over_ndf_ALL_merged;
@@ -268,19 +214,6 @@ private:
     TH1* m_vx_z0_kurtosis_ALL_merged;
     TH1* m_vx_z0_kurtosis_ALL_split;
 
-    TH1* m_vx_d0_skewness_ALL_matched;
-    TH1* m_vx_d0_skewness_ALL_merged;
-    TH1* m_vx_d0_skewness_ALL_split;
-    TH1* m_vx_d0_kurtosis_ALL_matched;
-    TH1* m_vx_d0_kurtosis_ALL_merged;
-    TH1* m_vx_d0_kurtosis_ALL_split;
-
-    TH1* m_vx_pt_skewness_ALL_matched;
-    TH1* m_vx_pt_skewness_ALL_merged;
-    TH1* m_vx_pt_skewness_ALL_split;
-    TH1* m_vx_pt_kurtosis_ALL_matched;
-    TH1* m_vx_pt_kurtosis_ALL_merged;
-    TH1* m_vx_pt_kurtosis_ALL_split;
     TH1* m_vx_nVertices_ALL_matched;
     TH1* m_vx_nVertices_ALL_merged;
     TH1* m_vx_nVertices_ALL_split;
@@ -291,85 +224,6 @@ private:
     TH1* m_vx_nVertices_merged;
     TH1* m_vx_nVertices_split;
 
-    TH1* m_vx_track_z0_ALL_matched;
-    TH1* m_vx_track_z0_ALL_merged;
-    TH1* m_vx_track_z0_ALL_split;
-    TH1* m_vx_track_z0_HS_matched;
-    TH1* m_vx_track_z0_HS_merged;
-    TH1* m_vx_track_z0_HS_split;
-    TH1* m_vx_track_z0_matched;
-    TH1* m_vx_track_z0_merged;
-    TH1* m_vx_track_z0_split;
-
-    TH1* m_vx_track_d0_ALL_matched;
-    TH1* m_vx_track_d0_ALL_merged;
-    TH1* m_vx_track_d0_ALL_split;
-    TH1* m_vx_track_d0_HS_matched;
-    TH1* m_vx_track_d0_HS_merged;
-    TH1* m_vx_track_d0_HS_split;
-    TH1* m_vx_track_d0_matched;
-    TH1* m_vx_track_d0_merged;
-    TH1* m_vx_track_d0_split;
-
-    TH1* m_vx_track_z0_err_ALL_matched;
-    TH1* m_vx_track_z0_err_ALL_merged;
-    TH1* m_vx_track_z0_err_ALL_split;
-    TH1* m_vx_track_z0_err_HS_matched;
-    TH1* m_vx_track_z0_err_HS_merged;
-    TH1* m_vx_track_z0_err_HS_split;
-    TH1* m_vx_track_z0_err_matched;
-    TH1* m_vx_track_z0_err_merged;
-    TH1* m_vx_track_z0_err_split;
-
-    TH1* m_vx_track_d0_err_ALL_matched;
-    TH1* m_vx_track_d0_err_ALL_merged;
-    TH1* m_vx_track_d0_err_ALL_split;
-    TH1* m_vx_track_d0_err_HS_matched;
-    TH1* m_vx_track_d0_err_HS_merged;
-    TH1* m_vx_track_d0_err_HS_split;
-    TH1* m_vx_track_d0_err_matched;
-    TH1* m_vx_track_d0_err_merged;
-    TH1* m_vx_track_d0_err_split;
-
-    TH2* m_vx_track_z0_ALL_matched_vs_track_pt;
-    TH2* m_vx_track_z0_ALL_merged_vs_track_pt;
-    TH2* m_vx_track_z0_ALL_split_vs_track_pt;
-    TH2* m_vx_track_z0_HS_matched_vs_track_pt;
-    TH2* m_vx_track_z0_HS_merged_vs_track_pt;
-    TH2* m_vx_track_z0_HS_split_vs_track_pt;
-    TH2* m_vx_track_z0_matched_vs_track_pt;
-    TH2* m_vx_track_z0_merged_vs_track_pt;
-    TH2* m_vx_track_z0_split_vs_track_pt;
-
-    TH2* m_vx_track_d0_ALL_matched_vs_track_pt;
-    TH2* m_vx_track_d0_ALL_merged_vs_track_pt;
-    TH2* m_vx_track_d0_ALL_split_vs_track_pt;
-    TH2* m_vx_track_d0_HS_matched_vs_track_pt;
-    TH2* m_vx_track_d0_HS_merged_vs_track_pt;
-    TH2* m_vx_track_d0_HS_split_vs_track_pt;
-    TH2* m_vx_track_d0_matched_vs_track_pt;
-    TH2* m_vx_track_d0_merged_vs_track_pt;
-    TH2* m_vx_track_d0_split_vs_track_pt;
-
-    TH2* m_vx_track_z0_err_ALL_matched_vs_track_pt;
-    TH2* m_vx_track_z0_err_ALL_merged_vs_track_pt;
-    TH2* m_vx_track_z0_err_ALL_split_vs_track_pt;
-    TH2* m_vx_track_z0_err_HS_matched_vs_track_pt;
-    TH2* m_vx_track_z0_err_HS_merged_vs_track_pt;
-    TH2* m_vx_track_z0_err_HS_split_vs_track_pt;
-    TH2* m_vx_track_z0_err_matched_vs_track_pt;
-    TH2* m_vx_track_z0_err_merged_vs_track_pt;
-    TH2* m_vx_track_z0_err_split_vs_track_pt;
-
-    TH2* m_vx_track_d0_err_ALL_matched_vs_track_pt;
-    TH2* m_vx_track_d0_err_ALL_merged_vs_track_pt;
-    TH2* m_vx_track_d0_err_ALL_split_vs_track_pt;
-    TH2* m_vx_track_d0_err_HS_matched_vs_track_pt;
-    TH2* m_vx_track_d0_err_HS_merged_vs_track_pt;
-    TH2* m_vx_track_d0_err_HS_split_vs_track_pt;
-    TH2* m_vx_track_d0_err_matched_vs_track_pt;
-    TH2* m_vx_track_d0_err_merged_vs_track_pt;
-    TH2* m_vx_track_d0_err_split_vs_track_pt;
 
     ///@}
 private:
