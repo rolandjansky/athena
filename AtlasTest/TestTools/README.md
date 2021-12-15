@@ -13,4 +13,5 @@ where `<script>` is one of:
 - [`post.sh`](share/post.sh): **default** post-processing script used for comparing the test log file
   against a reference
 - [`nopost.sh`](share/nopost.sh): no post-processing
+- [`noerror.sh`](share/noerror.sh): check log file for common error patterns
 - any user-defined script
