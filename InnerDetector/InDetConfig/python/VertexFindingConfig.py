@@ -15,13 +15,18 @@ def primaryVertexFindingCfg(flags, **kwargs):
 def primaryVertexFindingImplCfg(flags, SortingSetup, VertexSetup, **kwargs):
     acc = ComponentAccumulator()
 
-    vertexSorter = None
+    vertexWeightTool = None
     if SortingSetup == "SumPt2Sorting":
-        vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator()
-        vertexSorter = CompFactory.Trk.VertexCollectionSortingTool(
-            VertexWeightCalculator=vertexWeightTool,
+        vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
+            DoSumPt2Selection=True
         )
-
+    elif SortingSetup == "SumPtSorting":
+        vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
+            DoSumPt2Selection=False
+        )
+    vertexSorter = CompFactory.Trk.VertexCollectionSortingTool(
+            VertexWeightCalculator=vertexWeightTool,
+    )
     # finder tool
     finderTool = None
     if VertexSetup == "GaussAdaptiveMultiFinding":
@@ -297,5 +302,5 @@ if __name__ == "__main__":
         mlog,
         acc.getEventAlgo(f"InDet{flags.InDet.Tracking.extension}PriVxFinder"),
         nestLevel=2,
-        printDefaults=False,
+        printDefaults=True,
     )
