@@ -26,10 +26,20 @@ def primaryVertexFindingImplCfg(flags, SortingSetup, VertexSetup, **kwargs):
     finderTool = None
     if VertexSetup == "GaussAdaptiveMultiFinding":
         finderTool = acc.popToolsAndMerge(
-            GaussAdaptiveMultiFindingBaseCfg(flags)
+            AdaptiveMultiFindingBaseCfg(flags, doGauss=True)
+        )
+    elif VertexSetup == "AdaptiveMultiFinding":
+        finderTool = acc.popToolsAndMerge(
+            AdaptiveMultiFindingBaseCfg(flags, doGauss=False)
+        )
+    elif VertexSetup == "GaussIterativeFinding":
+        finderTool = acc.popToolsAndMerge(
+            IterativeFindingBaseCfg(flags, doGauss=True)
         )
     elif VertexSetup == "IterativeFinding":
-        finderTool = acc.popToolsAndMerge(IterativeFindingBaseCfg(flags))
+        finderTool = acc.popToolsAndMerge(
+            IterativeFindingBaseCfg(flags, doGauss=False)
+        )
     elif VertexSetup == "ActsGaussAdaptiveMultiFinding":
         finderTool = acc.popToolsAndMerge(
             ActsGaussAdaptiveMultiFindingBaseCfg(flags)
@@ -93,10 +103,21 @@ def VtxInDetTrackSelectionCfg(flags, **kwargs):
     return acc
 
 
-def GaussAdaptiveMultiFindingBaseCfg(flags, **kwargs):
+def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
     acc = ComponentAccumulator()
     if "SeedFinder" not in kwargs:
-        kwargs["SeedFinder"] = CompFactory.Trk.TrackDensitySeedFinder()
+        if doGauss:
+            kwargs["SeedFinder"] = CompFactory.Trk.TrackDensitySeedFinder()
+        else:
+            from InDetConfig.TrackingCommonConfig import (
+                TrackToVertexIPEstimatorCfg,
+            )
+
+            kwargs["SeedFinder"] = CompFactory.Trk.ZScanSeedFinder(
+                IPEstimator=acc.popToolsAndMerge(
+                    TrackToVertexIPEstimatorCfg(flags)
+                ),
+            )
 
     if "TrackSelector" not in kwargs:
         kwargs["TrackSelector"] = acc.popToolsAndMerge(
@@ -143,18 +164,22 @@ def GaussAdaptiveMultiFindingBaseCfg(flags, **kwargs):
     return acc
 
 
-def IterativeFindingBaseCfg(flags, **kwargs):
+def IterativeFindingBaseCfg(flags, doGauss, **kwargs):
     acc = ComponentAccumulator()
     if "SeedFinder" not in kwargs:
-        from InDetConfig.TrackingCommonConfig import (
-            TrackToVertexIPEstimatorCfg,
-        )
+        if doGauss:
+            kwargs["SeedFinder"] = CompFactory.Trk.TrackDensitySeedFinder()
+        else:
+            from InDetConfig.TrackingCommonConfig import (
+                TrackToVertexIPEstimatorCfg,
+            )
 
-        kwargs["SeedFinder"] = CompFactory.Trk.ZScanSeedFinder(
-            IPEstimator=acc.popToolsAndMerge(
-                TrackToVertexIPEstimatorCfg(flags)
-            ),
-        )
+            kwargs["SeedFinder"] = CompFactory.Trk.ZScanSeedFinder(
+                IPEstimator=acc.popToolsAndMerge(
+                    TrackToVertexIPEstimatorCfg(flags)
+                ),
+            )
+
     if "TrackSelector" not in kwargs:
         kwargs["TrackSelector"] = acc.popToolsAndMerge(
             VtxInDetTrackSelectionCfg(flags)
@@ -253,6 +278,12 @@ if __name__ == "__main__":
         flags.InDet.primaryVertexSetup = "ActsGaussAdaptiveMultiFinding"
     elif "IterativeFinding" in sys.argv:
         flags.InDet.primaryVertexSetup = "IterativeFinding"
+    elif "GaussIterativeFinding" in sys.argv:
+        flags.InDet.primaryVertexSetup = "GaussIterativeFinding"
+    elif "AdaptiveMultiFinding" in sys.argv:
+        flags.InDet.primaryVertexSetup = "AdaptiveMultiFinding"
+    elif "GaussAdaptiveMultiFinding" in sys.argv:
+        flags.InDet.primaryVertexSetup = "GaussAdaptiveMultiFinding"
     else:
         flags.InDet.primaryVertexSetup = "GaussAdaptiveMultiFinding"
     flags.lock()
