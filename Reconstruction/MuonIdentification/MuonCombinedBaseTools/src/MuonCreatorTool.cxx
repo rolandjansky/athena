@@ -1265,6 +1265,9 @@ namespace MuonCombined {
                 if (tag->author() == xAOD::Muon::MuidCo) {
                     const CombinedFitTag* cmb_tag  = dynamic_cast<const CombinedFitTag*>(tag);
                     used_candidates.insert(&cmb_tag->muonCandidate());
+                } else if (indet_cand.second.size() == 1 && tag->author() == xAOD::Muon::STACO) {
+                    const StacoTag* staco_tag = dynamic_cast<const StacoTag*>(tag);
+                    used_candidates.insert(&staco_tag->muonCandidate());
                 }
             }
         }
@@ -1274,8 +1277,7 @@ namespace MuonCombined {
         std::map<const Trk::Track*, const MuonCandidate*> trackMuonCandLinks;
         for (const MuonCandidate* candidate : *muonCandidates) {
             if (candidate->isComissioning() != select_comissioning) continue;
-            const Trk::Track* track =
-                candidate->extrapolatedTrack() ? candidate->extrapolatedTrack() : &candidate->muonSpectrometerTrack();
+            const Trk::Track* track = candidate->primaryTrack();
             if (used_candidates.count(candidate)) {
                 ATH_MSG_DEBUG("Duplicate MS track " << m_printer->print(*track));
                 continue;
