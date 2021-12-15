@@ -5,7 +5,6 @@
 # @param test_name
 #
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
-# $Id: post_check.sh,v 1.32 2009-05-06 18:10:12 ssnyder Exp $
 # **/
 
 PP="adummythatshouldntmatch"
@@ -253,14 +252,14 @@ PP="$PP"'|Empty temporary A-line container'
 PP="$PP"'|^RootAuxDynReader::init.*Could not find auxid for'
 
 test=$1
-if [ -z "$testStatus" ]; then
+if [ -z "$ATLAS_CTEST_TESTSTATUS" ]; then
     echo "post.sh> Warning: athena exit status is not available "
 else
     # check exit status
     joblog=${test}.log
     if [ -r ${test}-SKIPPED ]; then
         echo "WARNING: Test skipped because required libraries are not available."
-    elif [ "$testStatus" = 0 ]; then
+    elif [ "$ATLAS_CTEST_TESTSTATUS" = 0 ]; then
 	reflog=../../share/${test}.ref
         if [ ! -r $reflog ]; then
 	  reflog=../share/${test}.ref
@@ -310,7 +309,7 @@ else
 	fi
     else
 	tail --lines=500 $joblog
-	echo  "post.sh> ERROR: Athena exited abnormally! Exit code: $testStatus "
+	echo  "post.sh> ERROR: Athena exited abnormally! Exit code: $ATLAS_CTEST_TESTSTATUS "
 	echo  " post.sh> Please check ${PWD}/$joblog"
     fi
 fi
@@ -318,4 +317,4 @@ fi
 # Check output for ERROR/FATAL
 joblog=${test}.log
 
-exit $testStatus
+exit $ATLAS_CTEST_TESTSTATUS
