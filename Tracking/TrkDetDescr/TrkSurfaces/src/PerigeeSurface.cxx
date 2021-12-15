@@ -106,7 +106,7 @@ Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars) const
                              locpars[Trk::z0]);
     return Amg::Vector3D(transform() * loc3Dframe);
   }
-  return Amg::Vector3D(0., 0., locpars[Trk::z0] + (center().z()));
+  return {0., 0., locpars[Trk::z0] + (center().z())};
 }
 
 #if defined(FLATTEN) && defined(__GNUC__)
@@ -154,7 +154,7 @@ Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars,
   double x = -locpars[Trk::d0] * sin(phi) + center().x();
   double y = locpars[Trk::d0] * cos(phi) + center().y();
   double z = locpars[Trk::z0] + center().z();
-  return Amg::Vector3D(x, y, z);
+  return {x, y, z};
 }
 
 // true global to local method

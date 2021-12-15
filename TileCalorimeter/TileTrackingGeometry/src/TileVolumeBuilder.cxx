@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -181,9 +181,18 @@ const std::vector<Trk::TrackingVolume*>* Tile::TileVolumeBuilder::trackingVolume
   const Trk::TrackingVolumeArray* dummyVolumes = 0;
 
   // load layer surfaces 
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurf = m_surfBuilder->entrySurfaces();
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurf  = m_surfBuilder->exitSurfaces();
-  
+  // See ATLASRECTS-5012
+   // Here we prb want to move to conditions data
+  const CaloDetDescrManager* calo_dd = nullptr;
+  if (detStore()->retrieve(calo_dd).isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
+    return{};
+  }
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> entrySurf =
+    m_surfBuilder->entrySurfaces(calo_dd);
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> exitSurf =
+    m_surfBuilder->exitSurfaces(calo_dd);
+
   // averaged material properties 
   auto barrelProperties = std::make_unique<Trk::Material>(22.7, 212., 45.8, 21.4, 0.0062);
   auto extendedBarrelProperties = std::make_unique<Trk::Material>(22.7, 210., 45.8, 21.4, 0.0062);

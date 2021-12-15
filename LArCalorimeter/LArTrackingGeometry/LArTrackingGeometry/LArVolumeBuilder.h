@@ -73,18 +73,6 @@ namespace LAr {
 
       void throwIntoGarbage(const Trk::Material* mat) const;
 
-      /** create the sensitive volumes to associate to the layers **/
-      Trk::Volume* cylAssociatedVolume(const CaloCell_ID::CaloSample sample,
-                                       const double hlenz, 
-                                       double& radius) const;
-
-      Trk::Volume* discAssociatedVolume(const CaloCell_ID::CaloSample sample, 
-                                        const int side, 
-                                        const double radmin, 
-                                        const double radmax, 
-                                        double& z, 
-                                        double& depth) const;
-
       // ------------- private members -----------------------------------------
                                      
       std::string                                       m_lArMgrLocation;             //!< Location of the CaloDetDescrMgr

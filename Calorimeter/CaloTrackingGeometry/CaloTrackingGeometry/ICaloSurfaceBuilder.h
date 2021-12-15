@@ -63,14 +63,14 @@ public:
     const CaloCell_ID::CaloSample sample,
     const double offset,
     const double etaCaloLocal,
-    const CaloDetDescrManager* calo_dd = nullptr) const = 0;
+    const CaloDetDescrManager* calo_dd) const = 0;
 
   /** end of the sample for the last layers of the Calo */
   virtual Trk::Surface* CreateLastSurface(
     const CaloCell_ID::CaloSample sample,
     const double offset,
     const double etaCaloLocal,
-    const CaloDetDescrManager* calo_dd = nullptr) const = 0;
+    const CaloDetDescrManager* calo_dd) const = 0;
 
   /** Creates a surface at the end of the girder (Tile Calorimeter Iron Support
    * extructure) */
@@ -96,7 +96,7 @@ public:
     double& hphi,
     double& hlength,
     double& depth,
-    const CaloDetDescrManager* calo_dd = nullptr) const = 0;
+    const CaloDetDescrManager* calo_dd) const = 0;
 
   virtual bool get_disk_surface(
     CaloCell_ID::CaloSample sample,
@@ -107,7 +107,7 @@ public:
     double& rmax,
     double& hphisec,
     double& depth,
-    const CaloDetDescrManager* calo_dd = nullptr) const = 0;
+    const CaloDetDescrManager* calo_dd) const = 0;
 
   virtual bool get_cylinder_surface(CaloSubdetNames::ALIGNVOL alvol,
                                     Amg::Transform3D* htrans,
@@ -125,9 +125,9 @@ public:
                                 std::vector<double>& rmax) const = 0;
 
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
-  entrySurfaces(const CaloDetDescrManager* calo_dd = nullptr) const = 0;
+  entrySurfaces(const CaloDetDescrManager* calo_dd) const = 0;
   virtual std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>>
-  exitSurfaces(const CaloDetDescrManager* calo_dd = nullptr) const = 0;
+  exitSurfaces(const CaloDetDescrManager* calo_dd) const = 0;
 };
 
 #endif // CALOTRACKINGGEOMETRY_ICALOSURFACEBUILDER_H

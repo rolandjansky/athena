@@ -64,7 +64,7 @@ namespace D3PD {
   {
     CHECK( m_extrapolator.retrieve() );
     CHECK( m_caloSurfaceBuilder.retrieve() );
-    
+    CHECK(m_caloMgrKey.initialize());   
     return StatusCode::SUCCESS;
   }
   
@@ -137,6 +137,10 @@ namespace D3PD {
   egammaTraversedMaterialFillerTool::fill (const xAOD::Egamma& eg,
                                            const Trk::TrackParameters& parameters)
   {
+
+    SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey };
+    const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
+
     if (parameters.pT() < m_minPt)
     {
       ATH_MSG_DEBUG("Momentum too low");
@@ -159,7 +163,7 @@ namespace D3PD {
     
     // create a surface at the entrance of the sample (0 is the offset)
     std::unique_ptr<Trk::Surface> surface
-      (m_caloSurfaceBuilder->CreateUserSurface(sample, 0., cl->eta()));
+      (m_caloSurfaceBuilder->CreateUserSurface(sample, 0., cl->eta(), caloDDMgr));
     if (!surface)
     {
       ATH_MSG_DEBUG("Could not create surface at entrance of sample " << sample);

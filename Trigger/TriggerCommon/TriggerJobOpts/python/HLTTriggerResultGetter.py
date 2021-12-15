@@ -56,7 +56,7 @@ class ByteStreamUnpackGetterRun1or2(Configured):
 class TrigDecisionGetter(Configured):
     def configure(self):
         log = logging.getLogger("TrigDecisionGetter")
-        from TrigDecisionMaker.TrigDecisionNamerConfig import Run3DecisionMakerCfg
+        from TrigDecisionMaker.TrigDecisionMakerConfig import Run3DecisionMakerCfg
         CAtoGlobalWrapper( Run3DecisionMakerCfg, ConfigFlags)
         log.info('xTrigDecision writing enabled')
 

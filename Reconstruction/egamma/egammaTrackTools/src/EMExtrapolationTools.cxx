@@ -117,7 +117,7 @@ EMExtrapolationTools::getMatchAtCalo(const EventContext& ctx,
                                      std::array<double, 4>& phi,
                                      std::array<double, 4>& deltaEta,
                                      std::array<double, 4>& deltaPhi,
-                                     const CaloDetDescrManager* caloDD,
+                                     const CaloDetDescrManager& caloDD,
                                      unsigned int extrapFrom) const
 {
   /* Extrapolate track to calo and return

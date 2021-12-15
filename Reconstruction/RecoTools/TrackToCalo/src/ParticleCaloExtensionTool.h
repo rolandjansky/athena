@@ -87,7 +87,7 @@ public:
     const TrackParameters& startPars,
     const std::vector<CaloSampling::CaloSample>& clusterLayers,
     double eta,
-    const CaloDetDescrManager* caloDD,
+    const CaloDetDescrManager& caloDD,
     ParticleHypothesis particleType) const override final;
 
   virtual std::vector<std::pair<CaloSampling::CaloSample,
@@ -95,7 +95,7 @@ public:
   egammaCaloExtension(const EventContext& ctx,
                       const TrackParameters& startPars,
                       const xAOD::CaloCluster& cluster,
-                      const CaloDetDescrManager* caloDD,
+                      const CaloDetDescrManager& caloDD,
                       ParticleHypothesis particleType) const override final;
 
 private:

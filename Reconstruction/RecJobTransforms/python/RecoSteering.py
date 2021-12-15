@@ -23,7 +23,8 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(PoolReadCfg(flags))
         # Check if running on legacy inputs
         if "EventInfo" not in flags.Input.Collections:
-            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+            from xAODEventInfoCnv.xAODEventInfoCnvConfig import (
+                EventInfoCnvAlgCfg)
             acc.merge(EventInfoCnvAlgCfg(flags))
         log.info("---------- Configured POOL reading")
 
@@ -63,21 +64,20 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(EGammaSteeringCfg(flags))
         log.info("---------- Configured egamma")
 
+    # Caching of CaloExtension for downstream 
+    # Combined Performance algorithms.
+    if flags.Reco.EnableCaloExtension:
+        from TrackToCalo.CaloExtensionBuilderAlgCfg import (
+            CaloExtensionBuilderCfg)
+        acc.merge(CaloExtensionBuilderCfg(flags))
+        log.info("---------- Configured track calorimeter extension builder")
+
     # Muon Combined
     if flags.Reco.EnableCombinedMuon and tryConfiguringAll:
         from MuonCombinedConfig.MuonCombinedReconstructionConfig import (
             MuonCombinedReconstructionCfg)
         acc.merge(MuonCombinedReconstructionCfg(flags))
         log.info("---------- Configured combined muon reconstruction")
-
-    # Caching of CaloExtension for downstream Combined Performance algorithms.
-    if ((flags.Reco.EnablePFlow or flags.Reco.EnableTau or flags.Reco.EnableCombinedMuon)
-        and flags.Detector.EnableCalo
-            and flags.Reco.EnableTracking):
-        from TrackToCalo.CaloExtensionBuilderAlgCfg import (
-            CaloExtensionBuilderCfg)
-        acc.merge(CaloExtensionBuilderCfg(flags))
-        log.info("---------- Configured track calorimeter extension builder")
 
     # PFlow
     if flags.Reco.EnablePFlow:
@@ -88,7 +88,7 @@ def RecoSteering(flags, tryConfiguringAll=False):
     # EGamma and CombinedMuon isolation
     if flags.Reco.EnableCombinedMuon or flags.Reco.EnableEgamma:
         from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
-        acc.merge(IsolationSteeringCfg(flags, doIsoMuon = tryConfiguringAll))
+        acc.merge(IsolationSteeringCfg(flags, doIsoMuon=tryConfiguringAll))
         log.info("---------- Configured isolation")
 
     # jets

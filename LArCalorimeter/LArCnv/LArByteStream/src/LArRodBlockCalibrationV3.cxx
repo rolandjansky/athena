@@ -155,7 +155,7 @@ int LArRodBlockCalibrationV3::getNextRawData(int& channelNumber, std::vector<sho
 
 
 
-int LArRodBlockCalibrationV3::getNextAccumulatedCalibDigit(int& channelNumber,  std::vector < uint32_t >& samplesSum ,  std::vector < uint32_t >& samples2Sum,  uint32_t& /*idummy*/, uint32_t& gain )
+int LArRodBlockCalibrationV3::getNextAccumulatedCalibDigit(int& channelNumber,  std::vector < uint64_t >& samplesSum ,  std::vector < uint64_t >& samples2Sum,  uint32_t& /*idummy*/, uint32_t& gain )
 {
 #ifdef LARBSDBGOUTPUT
   MsgStream logstr(Athena::getMessageSvc(), BlockType());

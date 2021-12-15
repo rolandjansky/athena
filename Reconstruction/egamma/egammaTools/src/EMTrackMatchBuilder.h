@@ -62,7 +62,7 @@ private:
   StatusCode trackExecute(const EventContext& ctx,
                           egammaRec* eg,
                           const xAOD::TrackParticleContainer* trackPC,
-                          const CaloDetDescrManager* caloDD) const;
+                          const CaloDetDescrManager& caloDD) const;
 
   /** @brief A structure for keeping track match information */
   struct TrackMatch
@@ -98,7 +98,7 @@ private:
                      const xAOD::CaloCluster& cluster,
                      int trackNumber,
                      const xAOD::TrackParticle& trkPB,
-                     const CaloDetDescrManager* caloDD) const;
+                     const CaloDetDescrManager& caloDD) const;
 
   /** @brief Loose track-cluster matching */
   bool isCandidateMatch(const xAOD::CaloCluster* cluster,

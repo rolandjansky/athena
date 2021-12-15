@@ -321,14 +321,6 @@ CaloSurfaceBuilder::CreateLastSurface(const CaloCell_ID::CaloSample sample,
                                       const double etaCaloLocal,
                                       const CaloDetDescrManager* calo_dd) const
 {
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  if (calo_dd == nullptr) {
-    if (detStore()->retrieve(calo_dd).isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-      return nullptr;
-    }
-  }
 
   Trk::Surface* surf = nullptr;
 
@@ -591,15 +583,6 @@ CaloSurfaceBuilder::get_cylinder_surface(
 {
   bool result = false;
 
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  if (calo_dd == nullptr) {
-    if (detStore()->retrieve(calo_dd).isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-      return false;
-    }
-  }
-
   // strips are spread on several descriptor, which all have the same
   // htrans, radius, hphi, but not the same hlength
   double hl{};
@@ -677,15 +660,6 @@ CaloSurfaceBuilder::get_disk_surface(CaloCell_ID::CaloSample sample,
   z = 0.;
   rmin = 999999.;
   rmax = 0.;
-
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  if (calo_dd == nullptr) {
-    if (detStore()->retrieve(calo_dd).isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-      return false;
-    }
-  }
 
   // strips are spread on several descriptor, which all have the same
   // htrans, hphisec, but not the same rmin and rmax
@@ -796,15 +770,6 @@ CaloSurfaceBuilder::get_disk_surface(CaloSubdetNames::ALIGNVOL alvol,
 void
 CaloSurfaceBuilder::fill_tg_surfaces(const CaloDetDescrManager* calo_dd) const
 {
-
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  if (calo_dd == nullptr) {
-    if (detStore()->retrieve(calo_dd).isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-      return;
-    }
-  }
 
   // entry surfaces ( id<24 to avoid error messages )
   for (CaloCell_ID::CaloSample sample = CaloCell_ID::PreSamplerB; sample < 24;

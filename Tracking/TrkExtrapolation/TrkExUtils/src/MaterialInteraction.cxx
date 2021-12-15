@@ -30,9 +30,9 @@ Trk::MaterialInteraction::dEdl_ionization(double p,
   //
   // For a Landau: MOP value = Mean + 3.59524*sigmaL
   //
-  const double factor = (1. / 3.59524); // the compiler will evaulate this
+  constexpr double factor = (1. / 3.59524); // the compiler will evaulate this
 
-  double path = 1.; // this is a scaling factor for the landau convolution
+  constexpr double path = 1.; // this is a scaling factor for the landau convolution
 
   sigma = 0.;
   if (mat->averageZ() < 1)
@@ -60,7 +60,6 @@ Trk::MaterialInteraction::dEdl_ionization(double p,
   sigma = 4 * kaz * beta / beta; // dsigma/dl
   kazL = 0.;
 
-  double MOP = 0.;
   if (particle == Trk::electron) {
     // for electrons use slightly different BetheBloch adaption
     // see Stampfer, et al, "Track Fitting With Energy Loss", Comp. Pyhs. Comm.
@@ -89,7 +88,7 @@ Trk::MaterialInteraction::dEdl_ionization(double p,
     //    PDG formula 27.11 for MOP value from
     //    http://pdg.lbl.gov/2011/reviews/rpp2011-rev-passage-particles-matter.pdf
     //
-    MOP = -kaz * (log(2. * me * eta2 / I) + log(path * kaz / I) + 0.2 -
+    const double MOP = -kaz * (log(2. * me * eta2 / I) + log(path * kaz / I) + 0.2 -
                   (beta * beta) - delta);
     sigma = -(Ionization - MOP) * factor;
     kazL = kaz * factor;
@@ -110,10 +109,10 @@ Trk::MaterialInteraction::dEdl_radiation(double p,
     return 0.;
 
   // preparation of kinetic constants
-  double m = s_particleMasses.mass[particle];
-  double me = s_particleMasses.mass[Trk::electron];
-  double mfrac = me / m;
-  double E = sqrt(p * p + m * m);
+  const double m = s_particleMasses.mass[particle];
+  const double me = s_particleMasses.mass[Trk::electron];
+  const double mfrac = me / m;
+  const double E = sqrt(p * p + m * m);
 
   // Bremsstrahlung - Bethe-Heitler
   double Radiation = -E * mfrac * mfrac;
@@ -201,7 +200,7 @@ Trk::MaterialInteraction::PDG_energyLoss_ionization(
   //    PDG formula 32.11 for MOP value from
   //    http://http://pdg.lbl.gov/2014/reviews/rpp2014-rev-passage-particles-matter.pdf
   //
-  double MOP = -kazL * (log(2. * me * eta2 / I) + log(kazL / I) + 0.2 -
+  const double MOP = -kazL * (log(2. * me * eta2 / I) + log(kazL / I) + 0.2 -
                         (beta * beta) - delta);
   sigma = 0.424 * 4. * kazL; // 0.424: scale factor from sigma to FWHM
 

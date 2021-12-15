@@ -14,7 +14,7 @@
 class BFieldTest
 {
 public:
-  int runTest(bool doDebug = false)
+  static int runTest(bool doDebug = false)
   {
 
     // Create a field zone
@@ -235,8 +235,7 @@ main()
 
   std::cout << "start BFieldExample test" << '\n';
 
-  BFieldTest bftest;
-  int status = bftest.runTest(true);
+  int status = BFieldTest::runTest(true);
 
   if (status == 0) {
     std::cout << "Test passed OK" << '\n';

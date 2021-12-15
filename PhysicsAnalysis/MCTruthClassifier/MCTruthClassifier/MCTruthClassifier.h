@@ -205,7 +205,7 @@ private:
                      bool isFwrdEle,
                      double& dRmatch,
                      bool& isNarrowCone,
-                     const CaloDetDescrManager* caloDDMgr) const;
+                     const CaloDetDescrManager& caloDDMgr) const;
 
   const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*,
                                              bool,
