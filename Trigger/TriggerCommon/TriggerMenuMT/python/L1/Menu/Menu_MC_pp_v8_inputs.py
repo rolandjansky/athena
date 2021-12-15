@@ -268,6 +268,8 @@ def defineInputsMenu():
                     TopoMenuDef( '0DR04-MU5VFab-CjJ20ab',                      outputbits = 8 ), #Bjet, TODO: not a primary
                     TopoMenuDef( '0INVM10C-3MU3Vab',                           outputbits = 9 ), #BLS
                     TopoMenuDef( '2INVM9-0DR15-C-MU5VFab-MU3Vab',              outputbits = 10), #BLS 
+                    TopoMenuDef( '7INVM11-25DR99-2MU3Vab',                     outputbits = 11), #BLS, test
+                    TopoMenuDef( '7INVM14-0DR25-MU5VFab-MU3Vab',               outputbits = 12), #BLS, test
                 ]
             },            
 
