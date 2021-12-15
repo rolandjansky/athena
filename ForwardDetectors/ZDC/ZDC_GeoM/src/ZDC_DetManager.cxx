@@ -11,18 +11,18 @@ ZDC_DetManager::ZDC_DetManager()
   setName("ZDC");
   
   ATH_MSG_DEBUG( " CONSTRUCTOR OF DETMANAGER :: getNumTreeTops() = "
-                 << getNumTreeTops() );
+                 << ZDC_DetManager::getNumTreeTops() );
 }
 
 ZDC_DetManager::~ZDC_DetManager()
 {  
   ATH_MSG_DEBUG( " DESTRUCTOR OF DETMANAGER start:: getNumTreeTops() = " 
-                 << getNumTreeTops() );
+                 << ZDC_DetManager::getNumTreeTops() );
   
   for (unsigned int i=0; i<m_volume.size(); i++) m_volume[i]->unref();
 
   ATH_MSG_DEBUG( " DESTRUCTOR OF DETMANAGER end:: getNumTreeTops() = " 
-                 << getNumTreeTops() );
+                 << ZDC_DetManager::getNumTreeTops() );
 }
 
 unsigned int ZDC_DetManager::getNumTreeTops() const
