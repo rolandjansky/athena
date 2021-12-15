@@ -229,16 +229,6 @@ DecorationTools.append(SUSY20PixelTrackDecorator)
 # SKIMMING TOOL 
 #====================================================================
 
-
-# ------------------------------------------------------------
-# Lepton selection
-#muonsRequirements = '(Muons.pt > 2.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
-#electronsRequirements = '(Electrons.pt > 3*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
-#leptonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 0)'
-stdTrackRequirements = ' ( InDetTrackParticles.pt >= 1*GeV ) && ( ( InDetTrackParticles.ptcone20 / InDetTrackParticles.pt ) < 0.2 )'
-pixTrackRequirements = ' ( InDetPixelPrdAssociationTrackParticles.pt >= 1*GeV ) && ( ( InDetPixelPrdAssociationTrackParticles.ptcone20 / InDetPixelPrdAssociationTrackParticles.pt ) < 0.2 ) '
-trackExpression='( count('+stdTrackRequirements+') + count('+pixTrackRequirements+')>= 2 )'
-
 # ------------------------------------------------------------
 # JEFF: Jet selection for skimming (which jet collection to use?)
 applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY20) # JEFF: trying this, otherwise breaks with PFlow jets
@@ -247,7 +237,7 @@ jetSelection = '(count('+jetRequirements+') >= 1)'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 
 SUSY20JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20JetSkimmingTool",
-                                                                        expression = expression)
+                                                                        expression = jetSelection)
 ToolSvc += SUSY20JetSkimmingTool # JEFF: turn this back on to add jet skimming
 
 # ------------------------------------------------------------
