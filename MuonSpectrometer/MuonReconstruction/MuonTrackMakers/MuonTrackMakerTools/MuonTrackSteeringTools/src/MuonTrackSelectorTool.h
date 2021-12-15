@@ -120,19 +120,19 @@ namespace Muon {
         };
 
         /** counter for statistics */
-        mutable std::atomic_uint m_ntotalTracks;
-        mutable std::atomic_uint m_failedChi2NDofCut;
-        mutable std::atomic_uint m_failedSingleStationCut;
-        mutable std::atomic_uint m_failedRPCAveMinTimeCut;
-        mutable std::atomic_uint m_failedRPCAveMaxTimeCut;
-        mutable std::atomic_uint m_failedRPCSpreadTimeCut;
-        mutable std::atomic_uint m_failedTwoStationsCut;
-        mutable std::atomic_uint m_failedTwoStationsMaxMDTHoleCut;
-        mutable std::atomic_uint m_failedTwoStationsMaxHoleCut;
-        mutable std::atomic_uint m_failedTwoStationsGoodStationCut;
-        mutable std::atomic_uint m_failedTriggerStationCut;
-        mutable std::atomic_uint m_failedMaxMDTHoleCut;
-        mutable std::atomic_uint m_failedMaxHoleCut;
+        mutable std::atomic_uint m_ntotalTracks{0};
+        mutable std::atomic_uint m_failedChi2NDofCut{0};
+        mutable std::atomic_uint m_failedSingleStationCut{0};
+        mutable std::atomic_uint m_failedRPCAveMinTimeCut{0};
+        mutable std::atomic_uint m_failedRPCAveMaxTimeCut{0};
+        mutable std::atomic_uint m_failedRPCSpreadTimeCut{0};
+        mutable std::atomic_uint m_failedTwoStationsCut{0};
+        mutable std::atomic_uint m_failedTwoStationsMaxMDTHoleCut{0};
+        mutable std::atomic_uint m_failedTwoStationsMaxHoleCut{0};
+        mutable std::atomic_uint m_failedTwoStationsGoodStationCut{0};
+        mutable std::atomic_uint m_failedTriggerStationCut{0};
+        mutable std::atomic_uint m_failedMaxMDTHoleCut{0};
+        mutable std::atomic_uint m_failedMaxHoleCut{0};
     };
 
 }  // namespace Muon

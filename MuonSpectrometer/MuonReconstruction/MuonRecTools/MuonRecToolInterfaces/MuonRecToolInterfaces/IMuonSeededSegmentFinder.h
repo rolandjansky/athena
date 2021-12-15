@@ -37,10 +37,10 @@ namespace Muon {
         static const InterfaceID& interfaceID();
 
         /** @brief find segments in a set of chambers starting from seeding TrackParameters */
-        virtual std::unique_ptr<Trk::SegmentCollection> find(const Trk::TrackParameters& pars, const std::set<Identifier>& chIds) const = 0;
+        virtual std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars, const std::set<Identifier>& chIds) const = 0;
 
         /** @brief find segments in a set of chambers starting from seeding TrackParameters (version with Hashes) */
-        virtual std::unique_ptr<Trk::SegmentCollection> find(const Trk::TrackParameters& pars,
+        virtual std::unique_ptr<Trk::SegmentCollection> find(const EventContext& ctx, const Trk::TrackParameters& pars,
                                                              const std::set<IdentifierHash>& chIdHs) const = 0;
 
         /** @brief find segments in a set of MdtPrepData starting from seeding TrackParameters */
@@ -48,20 +48,20 @@ namespace Muon {
                                                              const std::vector<const MdtPrepData*>& mdtPrds) const = 0;
 
         /** @brief retrieve MDT PRD collections for the given hashes */
-        virtual void extractMdtPrdCols(const std::set<IdentifierHash>& chIdHs, std::vector<const MdtPrepDataCollection*>& target) const = 0;
+        virtual void extractMdtPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs, std::vector<const MdtPrepDataCollection*>& target) const = 0;
 
         /** @brief retrieve RPC PRD collections for the given hashes */
-        virtual void extractRpcPrdCols(const std::set<IdentifierHash>& chIdHs, std::vector<const RpcPrepDataCollection*>& target) const = 0;
+        virtual void extractRpcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs, std::vector<const RpcPrepDataCollection*>& target) const = 0;
 
         /** @brief retrieve TGC PRD collections for the given hashes */
-        virtual void extractTgcPrdCols(const std::set<IdentifierHash>& chIdHs, std::vector<const TgcPrepDataCollection*>& target) const = 0;
+        virtual void extractTgcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs, std::vector<const TgcPrepDataCollection*>& target) const = 0;
 
         /** @brief retrieve CSC PRD collections for the given hashes */
         virtual void extractCscPrdCols(const std::set<IdentifierHash>& chIdHs, std::vector<const CscPrepDataCollection*>& target) const = 0;
 
         // New Small Wheel
         /** @brief retrieve STGC PRD collections for the given hashes */
-        virtual void extractsTgcPrdCols(const std::set<IdentifierHash>& chIdHs,
+        virtual void extractsTgcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
                                         std::vector<const sTgcPrepDataCollection*>& target) const = 0;
 
         /** @brief retrieve MM PRD collections for the given hashes */

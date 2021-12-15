@@ -33,8 +33,8 @@ namespace Muon {
         if (!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
         return StatusCode::SUCCESS;
     }
-
-    MuonSegment* MuonTrackToSegmentTool::convert(const Trk::Track& track) const {
+    
+    MuonSegment* MuonTrackToSegmentTool::convert(const EventContext& ctx, const Trk::Track& track) const {
         /** convert track to segment, express the new segment parameters on the surface of the first segment */
 
         ATH_MSG_DEBUG(" creating MuonSegment from track ");
@@ -209,7 +209,7 @@ namespace Muon {
             std::set<Identifier>::iterator cit = chIds.begin();
             std::set<Identifier>::iterator cit_end = chIds.end();
             for (; cit != cit_end; ++cit) {
-                std::vector<Identifier> holesChamber = calculateHoles(*cit, *exPars, rots->stdcont());
+                std::vector<Identifier> holesChamber = calculateHoles(ctx, *cit, *exPars, rots->stdcont());
                 holes.insert(holes.end(), holesChamber.begin(), holesChamber.end());
             }
 
@@ -224,17 +224,17 @@ namespace Muon {
         return seg;
     }
 
-    std::vector<Identifier> MuonTrackToSegmentTool::calculateHoles(const Identifier& chid, const Trk::TrackParameters& pars,
+    std::vector<Identifier> MuonTrackToSegmentTool::calculateHoles(const EventContext& ctx, const Identifier& chid, const Trk::TrackParameters& pars,
                                                                    const MuonTrackToSegmentTool::MeasVec& measurements) const {
         // calculate crossed tubes
         const MdtCondDbData* dbData;
         if (!m_condKey.empty()) {
-            SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+            SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey, ctx};
             dbData = readHandle.cptr();
         } else
             dbData = nullptr;  // for online running
 
-        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
         const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
         if (MuonDetMgr == nullptr) {
             ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");

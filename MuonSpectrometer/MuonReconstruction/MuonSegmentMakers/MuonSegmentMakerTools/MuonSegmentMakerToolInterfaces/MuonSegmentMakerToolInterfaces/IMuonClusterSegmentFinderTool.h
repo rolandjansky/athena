@@ -27,8 +27,8 @@ namespace Muon {
             return IID_IMuonClusterSegmentFinderTool;
         }
 
-        virtual void find(std::vector<const Muon::MuonClusterOnTrack*>& clusters, std::vector<Muon::MuonSegment*>& segments,
-                          Trk::SegmentCollection* segColl = 0) const = 0;
+        virtual void find(const EventContext& ctx, std::vector<const Muon::MuonClusterOnTrack*>& clusters, std::vector<std::unique_ptr<Muon::MuonSegment>>& segments,
+                          Trk::SegmentCollection* segColl) const = 0;
 
         virtual ~IMuonClusterSegmentFinderTool() = default;
     };

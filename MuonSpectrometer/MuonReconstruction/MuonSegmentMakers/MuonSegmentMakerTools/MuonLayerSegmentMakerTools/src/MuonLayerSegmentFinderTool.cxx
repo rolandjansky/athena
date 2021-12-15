@@ -317,13 +317,12 @@ MuonLayerSegmentFinderTool::findClusterSegments(const MuonSystemExtension::Inter
         }
     }
 
-    std::vector<MuonSegment*> foundSegments;
-    m_clusterSegMakerNSW->find(clusters, foundSegments);
+    std::vector<std::unique_ptr<MuonSegment>> foundSegments;
+    m_clusterSegMakerNSW->find(ctx, clusters, foundSegments, nullptr);
     if (!foundSegments.empty()) {
-        for (auto *seg : foundSegments) {
+        for (std::unique_ptr<MuonSegment> & seg : foundSegments) {
             ATH_MSG_DEBUG(" NSW segment " << m_printer->print(*seg));
-            segments.push_back(std::shared_ptr<const MuonSegment>(seg));
-            ATH_MSG_DEBUG(" total segments " << segments.size());
+            segments.emplace_back(std::move(seg));
         }
     }
 }

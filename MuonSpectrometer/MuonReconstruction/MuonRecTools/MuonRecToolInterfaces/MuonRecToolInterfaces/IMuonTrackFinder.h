@@ -36,7 +36,7 @@ namespace Muon {
                     The ownership of the tracks is passed to the client calling the tool.
 
         */
-        virtual TrackCollection* find(const std::vector<const MuonSegment*>& segments) const = 0;
+        virtual TrackCollection* find(const EventContext& ctx, const std::vector<const MuonSegment*>& segments) const = 0;
     };
 
     inline const InterfaceID& IMuonTrackFinder::interfaceID() { return IID_IMuonTrackFinder; }

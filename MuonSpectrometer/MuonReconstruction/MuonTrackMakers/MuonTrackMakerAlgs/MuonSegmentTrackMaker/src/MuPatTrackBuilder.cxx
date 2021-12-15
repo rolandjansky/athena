@@ -16,7 +16,10 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 
 using namespace Muon;
+MuPatTrackBuilder::MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcLocator):
+    AthReentrantAlgorithm(name,pSvcLocator) {
 
+    }
 StatusCode MuPatTrackBuilder::initialize() {
     ATH_CHECK(m_trackMaker.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
@@ -30,10 +33,10 @@ StatusCode MuPatTrackBuilder::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuPatTrackBuilder::execute() {
+StatusCode MuPatTrackBuilder::execute(const EventContext& ctx) const {
     typedef std::vector<const Muon::MuonSegment*> MuonSegmentCollection;
 
-    SG::ReadHandle<Trk::SegmentCollection> segmentColl(m_segmentKey);
+    SG::ReadHandle<Trk::SegmentCollection> segmentColl(m_segmentKey, ctx);
     if (!segmentColl.isValid()) {
         ATH_MSG_WARNING("Could not find MuonSegmentCollection at " << segmentColl.name());
         return StatusCode::FAILURE;
@@ -60,10 +63,10 @@ StatusCode MuPatTrackBuilder::execute() {
                                                           << msc.size() << ") are not the same size.");
     }
 
-    std::unique_ptr<TrackCollection> newtracks{m_trackMaker->find(msc)};
+    std::unique_ptr<TrackCollection> newtracks{m_trackMaker->find(ctx, msc)};
     if (!newtracks) newtracks = std::make_unique<TrackCollection>();
     const TrackCollection* track_raw_ptr = newtracks.get();
-    SG::WriteHandle<TrackCollection> spectroTracks(m_spectroTrackKey);
+    SG::WriteHandle<TrackCollection> spectroTracks(m_spectroTrackKey, ctx);
     ATH_CHECK(spectroTracks.record(std::move(newtracks)));
     ATH_MSG_DEBUG("TrackCollection '" << m_spectroTrackKey.key() << "' recorded in storegate, ntracks: " << track_raw_ptr->size());
 

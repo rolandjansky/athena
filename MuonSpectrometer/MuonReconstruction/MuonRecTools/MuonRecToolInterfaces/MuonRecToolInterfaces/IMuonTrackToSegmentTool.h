@@ -26,7 +26,7 @@ namespace Muon {
         static const InterfaceID& interfaceID();
 
         /** @brief convert track to segment */
-        virtual MuonSegment* convert(const Trk::Track& track) const = 0;
+        virtual MuonSegment* convert(const EventContext& ctx, const Trk::Track& track) const = 0;
     };
 
     inline const InterfaceID& IMuonTrackToSegmentTool::interfaceID() { return IID_IMuonTrackToSegmentTool; }

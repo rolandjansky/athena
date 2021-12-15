@@ -26,7 +26,7 @@ namespace Muon {
             user should not delete the old track! The cleaning will not clean if all the chambers in the exclusions list
             are marked as to be deleted.
             The caller should ensure the track gets deleted. */
-        virtual bool match(const Trk::Track& track, const MuonSegment& segment, bool useTightCuts = false) const = 0;
+        virtual bool match(const EventContext& ctx, const Trk::Track& track, const MuonSegment& segment, bool useTightCuts = false) const = 0;
         /** virtual destructor **/
         virtual ~IMuonTrackSegmentMatchingTool() = default;
     };

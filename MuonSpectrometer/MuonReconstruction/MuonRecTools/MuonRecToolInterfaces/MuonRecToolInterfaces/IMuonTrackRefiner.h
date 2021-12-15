@@ -41,7 +41,7 @@ namespace Muon {
             @param track input track
             @return new refined track. Pointer could be zero, ownership passed to caller
         */
-        virtual void refine(MuPatTrack& track, GarbageContainer& trash_bin) const = 0;
+        virtual void refine(const EventContext& ctx, MuPatTrack& track, GarbageContainer& trash_bin) const = 0;
     };
 }  // namespace Muon
 

@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -17,13 +17,11 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
 
-class MuPatTrackBuilder : public AthAlgorithm {
+class MuPatTrackBuilder : public AthReentrantAlgorithm {
 public:
-    using AthAlgorithm::AthAlgorithm;
-
-public:
+    MuPatTrackBuilder(const std::string& name, ISvcLocator* pSvcLocator);
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
     SG::ReadHandleKey<Trk::SegmentCollection> m_segmentKey{this, "MuonSegmentCollection", "MooreSegments",

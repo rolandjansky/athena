@@ -738,7 +738,7 @@ namespace Muon {
             for (const auto& chit : data.mdtPerStation) {
                 ATH_MSG_VERBOSE("Region " << MuonStationIndex::chName(chit.first) << " size  " << chit.second.size());
                 std::vector<const MdtPrepDataCollection*> cols;
-                m_seededSegmentFinder->extractMdtPrdCols(chit.second, cols);
+                m_seededSegmentFinder->extractMdtPrdCols(ctx, chit.second, cols);
                 std::map<int, std::vector<const MdtPrepData*>> mdtPrds;
                 std::unique_ptr<const Trk::TrackParameters> exParsFirst;
                 for (const MdtPrepDataCollection* mit : cols) {
@@ -785,7 +785,7 @@ namespace Muon {
 
                             if (m_trackSegmentMatchingTool.empty())
                                 ATH_MSG_VERBOSE("No track/segment matching");
-                            else if (!m_trackSegmentMatchingTool->match(track, *mseg, true)) {
+                            else if (!m_trackSegmentMatchingTool->match(ctx, track, *mseg, true)) {
                                 ATH_MSG_DEBUG(" Segment does not match with track ");
                                 continue;
                             } else {
@@ -831,7 +831,7 @@ namespace Muon {
         } else {
             unsigned int nstates = states.size();
             {
-                m_seededSegmentFinder->extractRpcPrdCols(data.rpc, data.rpcCols);
+                m_seededSegmentFinder->extractRpcPrdCols(ctx, data.rpc, data.rpcCols);
                 std::vector<const RpcPrepDataCollection*> newtcols;
                 for (const RpcPrepDataCollection* rit : data.rpcCols) {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(rit)->front()->detectorElement())};
@@ -849,7 +849,7 @@ namespace Muon {
                 data.rpcCols = std::move(newtcols);
             }
             {
-                m_seededSegmentFinder->extractTgcPrdCols(data.tgc, data.tgcCols);
+                m_seededSegmentFinder->extractTgcPrdCols(ctx, data.tgc, data.tgcCols);
                 std::vector<const TgcPrepDataCollection*> newtcols;
                 for (const TgcPrepDataCollection* tgcit : data.tgcCols) {
                     std::unique_ptr<const Trk::TrackParameters> exPars{reachableDetEl(ctx, track, *(tgcit)->front()->detectorElement())};
@@ -887,7 +887,7 @@ namespace Muon {
 
             nstates = states.size();
             if (m_recoverSTGC) {
-                m_seededSegmentFinder->extractsTgcPrdCols(data.stgc, data.stgcCols);
+                m_seededSegmentFinder->extractsTgcPrdCols(ctx, data.stgc, data.stgcCols);
                 std::vector<const sTgcPrepDataCollection*> newstcols;
                 ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
                 for (const sTgcPrepDataCollection* stgcit : data.stgcCols) {
