@@ -17,7 +17,7 @@ TrigConf::L1Board::L1Board(const std::string & boardName, const boost::property_
    : DataStructure(data)
 {
    m_name = boardName;
-   update();
+   L1Board::update();
 }
 
 TrigConf::L1Board::~L1Board()
