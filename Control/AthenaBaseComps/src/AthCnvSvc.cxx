@@ -56,7 +56,7 @@ AthCnvSvc::AthCnvSvc (const std::string& name,
   // Property declaration
   // 
   //declareProperty( "Property", m_nProperty );
-  setAddressCreator(this).ignore();
+  AthCnvSvc::setAddressCreator(this).ignore();
 
   m_cnvSvc = this;
 }
