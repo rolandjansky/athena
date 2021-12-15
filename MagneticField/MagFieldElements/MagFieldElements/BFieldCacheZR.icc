@@ -6,6 +6,8 @@ inline BFieldCacheZR::BFieldCacheZR()
   , m_zmax(-1.0)
   , m_rmin(0.0)
   , m_rmax(-1.0)
+  , m_invz(-1.0)
+  , m_invr(-1.0)
 {}
 inline void
 BFieldCacheZR::invalidate()
@@ -25,9 +27,7 @@ BFieldCacheZR::setRange(double zmin, double zmax, double rmin, double rmax)
 }
 // set the field values at each corner (rescale for current scale factor)
 inline void
-BFieldCacheZR::setField(int i,
-                        const BFieldVectorZR& field,
-                        double scaleFactor)
+BFieldCacheZR::setField(int i, const BFieldVectorZR& field, double scaleFactor)
 {
   m_field[0][i] = scaleFactor * field[0];
   m_field[1][i] = scaleFactor * field[1];
@@ -37,5 +37,4 @@ BFieldCacheZR::inside(double z, double r) const
 {
   return (z >= m_zmin && z <= m_zmax && r >= m_rmin && r <= m_rmax);
 }
-
 

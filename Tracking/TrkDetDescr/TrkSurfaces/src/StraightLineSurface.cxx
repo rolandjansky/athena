@@ -276,7 +276,7 @@ Trk::StraightLineSurface::straightLineIntersection(const Amg::Vector3D& pos,
     Amg::Vector3D result = (ma + lambda0 * ea);
     isValid = bchk ? (isValid && isOnSurface(result)) : isValid;
     // return the result
-    return Trk::Intersection(result, lambda0, isValid);
+    return {result, lambda0, isValid};
   }
-  return Trk::Intersection(pos, 0., false);
+  return {pos, 0., false};
 }

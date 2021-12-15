@@ -214,7 +214,7 @@ Trk::DiscSurface::globalToLocal(const Amg::Vector3D& glopos,
 {
   Amg::Vector3D loc3Dframe = (transform().inverse()) * glopos;
   locpos = Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi());
-  return (fabs(loc3Dframe.z()) <= s_onSurfaceTolerance);
+  return (std::fabs(loc3Dframe.z()) <= s_onSurfaceTolerance);
 }
 
 Amg::Vector2D
@@ -233,11 +233,11 @@ Trk::DiscSurface::localPolarToLocalCartesian(const Amg::Vector2D& locpol) const
     Amg::Vector2D locPos(Pos[Trk::locX] * sin(phi) - Pos[Trk::locY] * cos(phi),
                          Pos[Trk::locY] * sin(phi) + Pos[Trk::locX] * cos(phi));
 
-    return Amg::Vector2D(locPos[Trk::locX], locPos[Trk::locY]);
+    return {locPos[Trk::locX], locPos[Trk::locY]};
   }
 
-  return Amg::Vector2D(locpol[Trk::locR] * cos(locpol[Trk::locPhi]),
-                       locpol[Trk::locR] * sin(locpol[Trk::locPhi]));
+  return { locpol[Trk::locR] * cos(locpol[Trk::locPhi]),
+           locpol[Trk::locR] * sin(locpol[Trk::locPhi]) };
 }
 
 /** local<->global transformation in case of polar local coordinates */
