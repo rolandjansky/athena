@@ -62,10 +62,13 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey, ctx);
     ATH_CHECK(handle.record(std::make_unique<Trk::SegmentCollection>()));
 
-    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey, ctx);
+    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey, ctx);   
     const Muon::TgcPrepDataContainer* tgcPrdCont = tgcPrds.cptr();
+
+
     SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_rpcPrdsKey, ctx);
     const Muon::RpcPrepDataContainer* rpcPrdCont = rpcPrds.cptr();
+
 
     SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey, ctx);
     if (!patternColl.isValid()) {
@@ -80,14 +83,22 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
             // check the technology & call the corresponding segment finder
             std::vector<const Muon::TgcPrepDataCollection*> tgcCols;
             std::vector<const Muon::RpcPrepDataCollection*> rpcCols;
-            tgcCols.reserve(tgcPrdCont->size());
-            for (auto p : *tgcPrdCont) {
-                if (!p->empty()) tgcCols.push_back(p);
-            }
-            rpcCols.reserve(rpcPrdCont->size());
-            for (auto p : *rpcPrdCont) {
-                if (!p->empty()) rpcCols.push_back(p);
-            }
+            
+            if (tgcPrdCont) {
+                tgcCols.reserve(tgcPrdCont->size());
+                for (const Muon::TgcPrepDataCollection* p : *tgcPrdCont) {
+                    if (!p->empty()) tgcCols.push_back(p);
+                }
+            } else ATH_MSG_VERBOSE("No tgc container is available");
+
+            if (rpcPrdCont) {
+                rpcCols.reserve(rpcPrdCont->size());
+                  for (const Muon::RpcPrepDataCollection* p : *rpcPrdCont) {
+                    if (!p->empty()) rpcCols.push_back(p);
+                }
+            } else ATH_MSG_VERBOSE("No rpc container is available");
+            
+            
             createSegmentsWithMDTs(*patt, handle.ptr(), rpcCols, tgcCols, ctx);
             createSegmentsFromClusters(*patt, handle.ptr());
         }  // end loop on pattern combinations
