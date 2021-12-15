@@ -66,7 +66,7 @@ if DerivationFrameworkHasTruth:
    HDBS3TruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="HDBS3TruthNavigationDecorator",
           InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
    ToolSvc += HDBS3TruthNavigationDecorator
-   SeqHDBS3.PHYS_MCTruthNavigationDecoratorKernel.AugmentationTools = [HDBS3TruthNavigationDecorator]
+   SeqHDBS3.HDBS3_MCTruthNavigationDecoratorKernel.AugmentationTools = [HDBS3TruthNavigationDecorator]
    # Re-point links on reco objects
    addMiniTruthCollectionLinks(SeqHDBS3)
    addPVCollection(SeqHDBS3)
@@ -197,7 +197,7 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqHDBS3,algname="QGTaggerToolAl
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqHDBS3,algname="QGTaggerToolPFAlg")
 
 # fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqHDBS3, algname='PHYSJetForwardPFlowJvtToolAlg')
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqHDBS3, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # PromptLeptonVeto
