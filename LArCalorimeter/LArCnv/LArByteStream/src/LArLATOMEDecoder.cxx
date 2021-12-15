@@ -104,14 +104,13 @@ StatusCode LArLATOMEDecoder::convert(const RawEvent* re, const LArLATOMEMapping 
   return StatusCode::SUCCESS;
 }
 
-LArLATOMEDecoder::EventProcess::EventProcess(const LArLATOMEDecoder* decoderInput, const LArLATOMEMapping *map,
+LArLATOMEDecoder::EventProcess::EventProcess(const LArLATOMEDecoder* decoderInput, const LArLATOMEMapping *,
                                              LArDigitContainer* adc_coll, 
                                              LArDigitContainer* adc_bas_coll,
 					     LArRawSCContainer* et_coll,
 					     LArRawSCContainer* et_id_coll,
 					     LArLATOMEHeaderContainer* header_coll)
   : m_decoder(decoderInput),
-    m_map(map),
     m_adc_coll(adc_coll),
     m_adc_bas_coll(adc_bas_coll),
     m_et_coll(et_coll),
