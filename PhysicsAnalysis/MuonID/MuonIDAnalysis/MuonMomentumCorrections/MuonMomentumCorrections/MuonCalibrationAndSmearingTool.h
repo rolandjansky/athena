@@ -134,7 +134,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SystCase, InfoHelper& muonInfo) const;
     virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC, double p2Kin=0) const;
-  virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo, const unsigned int SystCase=0) const;
+    virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo, const unsigned int SystCase=0) const;
 
 
   protected:
@@ -189,6 +189,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
       double SagittaRho;
       double SagittaBias;
       double SagittaDataStat;
+      double SagittaEtaSlice;
     };
 
     bool m_expertMode;
@@ -210,6 +211,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     double m_extraRebiasSys;
     double m_useNsigmaForICombine;
     bool m_doDirectCBCalib;
+    bool m_doEtaSaggitaSys;
     std::vector<double> m_scale_ID, m_enLoss_MS, m_scale_MS, m_scale_CB;
 
     //sys variations (stat error added in quadrature), one if it's simmetrized, 2 if Up != Dw.

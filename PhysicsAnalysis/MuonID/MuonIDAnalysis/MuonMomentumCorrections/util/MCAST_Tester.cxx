@@ -127,47 +127,33 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool; //!
   corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCorrectionTool");
   // New tool settings
-  // //::: set the properties
-  // corrTool.setProperty("Year",                  "Data17" );
-  // //   corrTool.setProperty("Algo",                  "muons" );
-  // //   corrTool.setProperty("SmearingType",          "q_pT" );
-  // corrTool.setProperty("Release",               "Recs2021_11_04" );
-
-  // corrTool.setProperty("StatComb",              false);
-  // //   corrTool.setProperty("MinCombPt",             300.0);
-  // corrTool.setProperty("SagittaCorr",           true);
-  // corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_15_09_2021");
-  // corrTool.setProperty("doSagittaMCDistortion", false);
-  // corrTool.setProperty("SagittaCorrPhaseSpace", false);
-  // corrTool.setProperty("SagittaIterWeight", 1);
-  // //   corrTool.setProperty("sgItersCB",             11);
-  // //   corrTool.setProperty("sgItersID",             11);
-  // //   corrTool.setProperty("sgItersME",             11);
-  // //   corrTool.setProperty("sgIetrsMamual",         false);
-  // corrTool.setProperty("fixedRho",              1.0);
-  // corrTool.setProperty("useFixedRho",           true);
-  // corrTool.setProperty("noEigenDecor" ,         false);
-  // corrTool.setProperty("sagittaMapsInputType" ,         1);
-  // corrTool.setProperty("sagittaMapUnitConversion",1); 
-  // // corrTool.setProperty("systematicCorrelationScheme", "Decorr_Scale"); 
-  // //   corrTool.setProperty("useExternalSeed" ,      false);
-  // //   corrTool.setProperty("externalSeed" ,         0);
+  corrTool.setProperty("Year",                      "Data16" );
+  corrTool.setProperty("Release",                   "Recs2021_11_04" );
+  corrTool.setProperty("SagittaCorr",               true );
+  corrTool.setProperty("SagittaRelease",            "sagittaBiasDataAll_15_09_2021" );
+  corrTool.setProperty("doSagittaMCDistortion",     false );
+  corrTool.setProperty("SagittaIterWeight",         1 );
+  corrTool.setProperty("useFixedRho",               true );
+  corrTool.setProperty("sagittaMapsInputType",      1 );
+  corrTool.setProperty("sagittaMapUnitConversion",  1 );
+  corrTool.setProperty("extraRebiasSys",            0.00002 );
+  corrTool.setProperty("systematicCorrelationScheme", "Corr_Scale");
+  corrTool.setProperty("doDirectCBCalib",           false  );
 
 
-  corrTool.setProperty("Year",                  "Data17" );
-  corrTool.setProperty("Release", "Recs2020_03_03");
-  corrTool.setProperty("SagittaRelease", "sagittaBiasDataAll_03_02_19_Data17");
-  corrTool.setProperty("StatComb", false);
-  corrTool.setProperty("SagittaCorr", true);
-  corrTool.setProperty("doSagittaMCDistortion", false);
-  corrTool.setProperty("SagittaCorrPhaseSpace", true);
-  // corrTool.setProperty("SagittaIterWeight", 0.5);
-  // corrTool.setProperty("fixedRho", 1);
-  // corrTool.setProperty("useFixedRho", false);
-  // corrTool.setProperty("sagittaMapsInputType", 0);
-  // corrTool.setProperty("sagittaMapUnitConversion", 1e-3);
+  // Old calibration
+  // corrTool.setProperty("Year",                      "Data16" );
+  // corrTool.setProperty("Release",                   "Recs2020_03_03" );
+  // corrTool.setProperty("SagittaCorr",               false );
+  // corrTool.setProperty("SagittaRelease",            "sagittaBiasDataAll_03_02_19_Data16" );
+  // corrTool.setProperty("doSagittaMCDistortion",     true );
+  // corrTool.setProperty("SagittaIterWeight",         0.5 );
+  // corrTool.setProperty("useFixedRho",               false );
+  // corrTool.setProperty("sagittaMapsInputType",      10);
+  // corrTool.setProperty("sagittaMapUnitConversion",  1e-3 );
+  // corrTool.setProperty("extraRebiasSys",            0 );
   // corrTool.setProperty("systematicCorrelationScheme", "Corr_Scale");
-
+  // corrTool.setProperty("doDirectCBCalib",           false  );
 
   bool isDebug = false;
   if(nEvents >= 0 || Ievent >= 0) isDebug = true;

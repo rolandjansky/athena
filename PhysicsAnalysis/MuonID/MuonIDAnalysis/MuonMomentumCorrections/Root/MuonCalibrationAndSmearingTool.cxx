@@ -46,7 +46,7 @@ namespace CP {
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2020_03_03" ); // new Recs2021_11_04
+    declareProperty("Release", m_release = "Recs2020_03_03" ); // new Recs2021_12_11
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("AddExtraDecorations", m_extra_decorations = false );
     declareProperty("doExtraSmearing", m_extra_highpt_smearing = false );
@@ -72,10 +72,12 @@ namespace CP {
     declareProperty("sagittaMapsInputType", m_saggitaMapsInputType=MCAST::SagittaInputHistType::NOMINAL); // new MCAST::SagittaInputHistType::SINGLE
     declareProperty("sagittaMapUnitConversion",m_sagittaMapUnitConversion=1e-3); // new calib 1 
     declareProperty("systematicCorrelationScheme", m_sysScheme = "Corr_Scale");
+    declareProperty("doEtaSaggitaSys", m_doEtaSaggitaSys = false); // for AFB, set to true
+    declareProperty("extraRebiasSys", m_extraRebiasSys = 0.0); // new calib 0.00002
+    declareProperty("doDirectCBCalib", m_doDirectCBCalib = false);
     declareProperty("expertMode", m_expertMode = false);
     declareProperty("expertSetting_isData", m_expertMode_isData = false);
-    declareProperty("expert_extraRebiasSys", m_extraRebiasSys = 0.0); // new calib 0.00003
-    declareProperty("expert_doDirectCBCalib", m_doDirectCBCalib = false);
+
 
     m_SagittaIterations.push_back(0);
     m_SagittaIterations.push_back(0);
@@ -535,14 +537,36 @@ namespace CP {
       p2 = -0.5*p2;
     }
 
+
+    // Extra scaling to cover for non-closure in the forward and transition region
+    double deltas = m_extraRebiasSys;
+
+    if(deltas > 0)
+    {
+      if(lv.Eta()>2 || (lv.Eta()>-2 && lv.Eta()<-1.05 ) ) 
+      {
+        if(lv.Pt()>450.0) deltas += std::abs(450.0-45) /100 * deltas; // Above 1TeV flat
+        else              deltas += std::abs(lv.Pt()-45)/100 * deltas;
+      }
+      if(lv.Eta()<-2 || (lv.Eta()<2 && lv.Eta()>1.5 ) )  
+      {
+        if(lv.Pt()>450.0) deltas += std::abs(450.0-45) /200 * deltas; // Above 1TeV flat
+        else              deltas += std::abs(lv.Pt()-45)/200 * deltas;
+      }
+    } 
     if(m_currentParameters->SagittaBias == MCAST::SystVariation::Up)
     {
-      p2 += m_extraRebiasSys;
+      p2 += deltas;
     }
     else if (m_currentParameters->SagittaBias == MCAST::SystVariation::Down)
     {
-      p2 -= m_extraRebiasSys;
+      p2 -= deltas;
     }
+
+
+    // If eta dependant, set the p2 to 0, if it not in the given eta slices
+    if((m_currentParameters->SagittaEtaSlice == MCAST::SystVariation::Up) && lv.Eta() < 0) p2 = 0;
+    if((m_currentParameters->SagittaEtaSlice == MCAST::SystVariation::Down) && lv.Eta() > 0) p2 = 0;
 
     
     return p2;
@@ -1744,10 +1768,22 @@ namespace CP {
       result.insert( SystematicVariation( "MUON_SAGITTA_RHO", -1 ) );
     }
 
-    // Sagitta correction resid bias
-    result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS", 1 ) );
-    result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS", -1 ) );
-    
+    if(m_doEtaSaggitaSys)
+    {
+      // Sagitta correction residual bias
+      result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS_NEGETA", 1 ) );
+      result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS_NEGETA", -1 ) );
+      
+      result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS_POSETA", 1 ) );
+      result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS_POSETA", -1 ) );
+
+    }
+    else
+    {
+      // Sagitta correction residual bias
+      result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS", 1 ) );
+      result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS", -1 ) );
+    } 
     if( (m_saggitaMapsInputType==MCAST::SagittaInputHistType::SINGLE) || m_sysScheme == "AllSys" )
     {
       // Sagitta correction resid bias
@@ -1792,6 +1828,7 @@ namespace CP {
     param.SagittaRho      = MCAST::SystVariation::Default;
     param.SagittaBias     = MCAST::SystVariation::Default;
     param.SagittaDataStat = MCAST::SystVariation::Default;
+    param.SagittaEtaSlice = MCAST::SystVariation::Default;
     // ID systematics
     SystematicVariation syst = systConfig.getSystematicByBaseName( "MUON_ID" );
 
@@ -1944,6 +1981,38 @@ namespace CP {
       param.SagittaBias = MCAST::SystVariation::Up;
     }
     else if( !syst.empty() ) return SystematicCode::Unsupported;
+
+
+    // Sagitta Residual Bias systematics
+    syst = systConfig.getSystematicByBaseName( "MUON_SAGITTA_RESBIAS_POSETA" );
+
+    if( syst == SystematicVariation( "MUON_SAGITTA_RESBIAS_POSETA", 1 ) ) 
+    {
+      param.SagittaBias = MCAST::SystVariation::Down;
+      param.SagittaEtaSlice = MCAST::SystVariation::Up;
+    }
+    else if( syst == SystematicVariation( "MUON_SAGITTA_RESBIAS_POSETA", -1 ) ) 
+    {
+      param.SagittaBias = MCAST::SystVariation::Up;
+      param.SagittaEtaSlice = MCAST::SystVariation::Up;
+    }
+    else if( !syst.empty() ) return SystematicCode::Unsupported;
+
+    // Sagitta Residual Bias systematics
+    syst = systConfig.getSystematicByBaseName( "MUON_SAGITTA_RESBIAS_NEGETA" );
+
+    if( syst == SystematicVariation( "MUON_SAGITTA_RESBIAS_NEGETA", 1 ) ) 
+    {
+      param.SagittaBias = MCAST::SystVariation::Down;
+      param.SagittaEtaSlice = MCAST::SystVariation::Down;
+    }
+    else if( syst == SystematicVariation( "MUON_SAGITTA_RESBIAS_NEGETA", -1 ) ) 
+    {
+      param.SagittaBias = MCAST::SystVariation::Up;
+      param.SagittaEtaSlice = MCAST::SystVariation::Down;
+    }
+    else if( !syst.empty() ) return SystematicCode::Unsupported;
+
 
 
     // Sagitta Residual Bias systematics
@@ -2115,7 +2184,9 @@ namespace CP {
     else if (rel == "Recs2021_11_14") {
         m_Trel = MCAST::Release::Recs2021_07_01;
     }
-
+    else if (rel == "Recs2021_12_11") {
+        m_Trel = MCAST::Release::Recs2021_07_01;
+    }
     else 
     {
         m_Trel = MCAST::Release::Recs2021_07_01;
