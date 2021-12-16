@@ -350,10 +350,10 @@ Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
                                                  TFile* pdfFile,
                                                  unsigned int varIndex)
 {
-  for (unsigned int s_or_b = 0; s_or_b < 2; s_or_b++) {
-    for (unsigned int ip = 0; ip < IP_BINS; ip++) {
-      for (unsigned int et = 0; et < s_fnEtBinsHist; et++) {
-        for (unsigned int eta = 0; eta < s_fnEtaBins; eta++) {
+  for (unsigned int s_or_b = 0; s_or_b < 2; ++s_or_b) {
+    for (unsigned int ip = 0; ip < IP_BINS; ++ip) {
+      for (unsigned int et = 0; et < s_fnEtBinsHist; ++et) {
+        for (unsigned int eta = 0; eta < s_fnEtaBins; ++eta) {
 
           std::string sig_bkg = (s_or_b == 0) ? "sig" : "bkg";
           // Because eta bins in the root file don't match up exactly with cut
@@ -406,12 +406,6 @@ Root::TElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
             ATH_MSG_INFO("Warning: skipping variable "
                          << vstr << " because the folder does not exist.");
             return 1;
-          }
-
-          // We only need to load PDFs
-          // up to a certain ET value (40 GeV)
-          if (et > s_fnEtBinsHist - 1) {
-            continue;
           }
 
           // If the 0th et bin (4-7 GeV) histogram does not exist in the root
