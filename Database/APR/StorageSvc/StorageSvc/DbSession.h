@@ -70,9 +70,9 @@ namespace pool  {
     /// Access reference counter
     int refCount() const;
     /// Find domain object in session (by technology type)
-    DbDomainObj* find(const DbType& type) const;
+    DbDomainObj* find(const DbType& type);
     /// Add domain to session
-    DbStatus add(DbDomainObj* dom) const;
+    DbStatus add(DbDomainObj* dom);
     /// Find domain in session
     DbStatus remove(const DbDomainObj* dom);
     /// Open the session in a given mode
@@ -80,7 +80,7 @@ namespace pool  {
     /// Close the session
     DbStatus close();
     /// Allow access to the Database implementation
-    IOODatabase* db(const DbType& typ)   const;
+    IOODatabase* db(const DbType& typ);
   };
 }       // End namespace pool
 #endif  // POOL_DBSESSION_H

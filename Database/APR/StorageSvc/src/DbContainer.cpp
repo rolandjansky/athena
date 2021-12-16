@@ -70,17 +70,12 @@ void DbContainer::switchPtr(DbContainerObj* obj) {
   }
 }
 
-const DbDatabase& DbContainer::containedIn() const {
-  static const DbDatabase null_dbH(type());
-  return isValid() ? m_ptr->database() : null_dbH;
-}
-
 DbDatabase& DbContainer::containedIn() {
   if (!isValid()) std::abort();
   return m_ptr->database();
 }
 
-long long int DbContainer::size() const {
+long long int DbContainer::size() {
   return isValid() ? m_ptr->size() : -1;
 }
 
@@ -120,7 +115,7 @@ DbStatus DbContainer::setOption(const DbOption& refOpt) {
 }
 
 /// Access options
-DbStatus DbContainer::getOption(DbOption& refOpt) const {
+DbStatus DbContainer::getOption(DbOption& refOpt) {
   return isValid() ? m_ptr->getOption(refOpt) : Error;
 }
 
@@ -131,20 +126,21 @@ const Token* DbContainer::token() const {
 
 /// Access implementation internals
 const IDbContainer* DbContainer::info() const {
-  return isValid() ? m_ptr->info() : 0;
+  // Be sure to use the const version of info() to avoid checker warnings.
+  return isValid() ? std::as_const(*m_ptr).info() : 0;
 }
 IDbContainer* DbContainer::info() {
   return isValid() ? m_ptr->info() : 0;
 }
 
 /// Allow access to the Database implementation
-IOODatabase* DbContainer::db() const {
+IOODatabase* DbContainer::db() {
   return isValid() ? m_ptr->db() : 0;
 }
 
 /// Retrieve persistent type information
 const DbTypeInfo* 
-DbContainer::objectShape(const Guid& guid) const {
+DbContainer::objectShape(const Guid& guid) {
   return isValid() ? m_ptr->objectShape(guid) : 0;
 }
 
@@ -159,12 +155,12 @@ DbStatus DbContainer::destroy(DbSelect& sel)  {
 }
 
 /// Perform selection
-DbStatus DbContainer::select(DbSelect& sel) const {
+DbStatus DbContainer::select(DbSelect& sel) {
   return isValid() ? m_ptr->select(sel) : Error;
 }
 
 /// Fetch next object address of the selection to set token
-DbStatus DbContainer::fetch(DbSelect& sel) const {
+DbStatus DbContainer::fetch(DbSelect& sel) {
   return isValid() ? m_ptr->fetch(sel) : Error;
 }
 
@@ -198,7 +194,7 @@ DbStatus DbContainer::destroy(const Token::OID_t& linkH)    {
 /// Load object in the container identified by its handle
 DbStatus DbContainer::load( void** ptr,
                             ShapeH shape,
-                            const Token::OID_t& linkH ) const
+                            const Token::OID_t& linkH )
 {
   if ( isValid() )  {
     Token::OID_t oid;

@@ -87,7 +87,7 @@ namespace pool    {
       *
       * @return boolean value indicating if the database was found.
       */
-    bool exist(const DbSession& sesH, int technology) const;
+    bool exist(DbSession& sesH, int technology) const;
 
     /// Open domain within a session environment
     /**
@@ -99,7 +99,7 @@ namespace pool    {
       *
       * @return DbStatus code indicating success or failure.
       */
-    DbStatus open(const DbSession&  sesH, 
+    DbStatus open(DbSession&  sesH, 
                   const DbType&     technology,
                   DbAccessMode      mod=pool::READ);
     /// Close domain
@@ -109,7 +109,7 @@ namespace pool    {
     /// Access to session handle
     DbSession containedIn() const;
     /// Check if Database exists within the domain
-    bool existsDbase(const std::string& db_name) const;
+    bool existsDbase(const std::string& db_name);
     /// Find Database in domain
     const DbDatabaseObj* find(const std::string& db_name) const;
           DbDatabaseObj* find(const std::string& db_name);
