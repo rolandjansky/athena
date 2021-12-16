@@ -23,23 +23,3 @@ timeout 64800 Reco_tf.py \
 
 rc1=$?
 echo "art-result: $rc1 Reco_tf_data16_mt"
-
-rc2=-9999
-if [ ${rc1} -eq 0 ]
-then
-  ArtPackage=$1
-  ArtJobName=$2
-  art.py compare grid --entries 30 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
-  rc2=$?
-fi
-echo  "art-result: ${rc2} Comparison with the latest result"
-
-
-rc3=-9999
-if [ ${rc1} -eq 0 ]
-then
-  art.py compare ref . /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TrfTestsART_22.0-mc20/test_trf_data16_mt_2021-12-04T2101 --entries 30 --mode=semi-detailed --order-trees --ignore-exit-code diff-pool
-  rc3=$?
-fi
-echo  "art-result: ${rc3} Comparison with fixed reference"
-
