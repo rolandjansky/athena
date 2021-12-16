@@ -240,58 +240,32 @@ def jetFSTrackingHypoMenuSequence(configFlags, clustersKey, isPerf, **jetRecoDic
 # Presel jets to be reused, which makes ghost association impossible
 # Substitute DR association decorator
 
-
-def getPreselFTagDecorators(flags,jet_name):
-
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    IDTrigConfig = getInDetTrigConfig('jetSuper')
-
-    trackContainer = IDTrigConfig.tracks_FTF()
-    primaryVertexContainer = ''  # IDTrigConfig.vertex_jet
-    simpleTrackIpPrefix = 'simpleIp_'
-    
-    CompFactory.FlavorTagDiscriminants__PoorMansIpAugmenterAlg(
-            'SimpleTrackAugmenter',
-            trackContainer=trackContainer,
-            primaryVertexContainer=primaryVertexContainer,
-            prefix=simpleTrackIpPrefix,
-        )
-
-    # now we assicoate the tracks to the jet
-    # tracksOnJetDecoratorName = "TracksForMinimalJetTag"
-    # ca.merge(JetParticleAssociationAlgCfg(
-    #     flags,
-    #     JetCollection=jet_name,
-    #     InputParticleCollection=trackContainer,
-    #     OutputParticleDecoration=tracksOnJetDecoratorName,
-    # ))
-
-
 def jetRoITrackingHypoMenuSequence(configFlags, jetsIn, **jetRecoDict):
     InputMakerAlg = getTrackingInputMaker(jetRecoDict['trkopt'])
     
     # Get the track reconstruction sequence
     from .JetTrackingConfig import JetRoITrackingSequence
     jetTrkSeq = RecoFragmentsPool.retrieve(
-        JetRoITrackingSequence, configFlags, trkopt=jetRecoDict["trkopt"], RoIs=InputMakerAlg.InViewRoIs)
+        JetRoITrackingSequence, configFlags, jetsIn=jetsIn,trkopt=jetRecoDict["trkopt"], RoIs=InputMakerAlg.InViewRoIs)
 
     InputMakerAlg.ViewNodeName = jetTrkSeq.name()
 
     jetDefString = jetRecoDictToString(jetRecoDict)
 
     #Marco: adding decoration part
-    DipzTool = CompFactory.DipsFTTool('DipsFTTool', JetContainer=jetsIn)
+    # DipzTool = CompFactory.DipsFTTool('DipsFTTool', JetContainer=jetsIn)
 
-    jetDecAlg = conf2toConfigurable(CompFactory.JetDecorationAlg(
-                                    f'JetDec_{jetDefString}', 
-                                    JetContainer=jetsIn,
-                                    Decorators=[DipzTool],
-                                    ))
-    
+    # jetDecAlg = conf2toConfigurable(CompFactory.JetDecorationAlg(
+    #                                 f'JetDec_{jetDefString}', 
+    #                                 JetContainer=jetsIn,
+    #                                 Decorators=[DipzTool],
+    #                                 ))
+
     log.debug("Generating jet tracking hypo menu sequence for reco %s",jetDefString)
-    jetAthSeq = seqAND("jetSeqTrkHypo_"+jetDefString,[InputMakerAlg]+[jetTrkSeq]+[jetDecAlg])
 
-    getPreselFTagDecorators(configFlags, jetsIn)
+    jetAthSeq = seqAND("jetSeqTrkHypo_"+jetDefString,
+                       [InputMakerAlg]+[jetTrkSeq])
+
 
     # Needs track-to-jet association here, maybe with dR decorator
     hypoType = JetHypoAlgType.STANDARD

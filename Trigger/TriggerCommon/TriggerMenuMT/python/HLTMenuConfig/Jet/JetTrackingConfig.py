@@ -82,7 +82,80 @@ def JetFSTrackingSequence(dummyFlags,trkopt,RoIs):
 
     return jetTrkSeq, trackcollmap
 
-def JetRoITrackingSequence(dummyFlags,trkopt,RoIs):
+
+def getPreselFTagDecorators(flags, jet_name):
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig('jetSuper')
+
+    trackContainer = IDTrigConfig.tracks_FTF()
+    primaryVertexContainer = ''  # IDTrigConfig.vertex_jet
+    simpleTrackIpPrefix = 'simpleIp_'
+
+    ip_augmenter_alg = CompFactory.FlavorTagDiscriminants__PoorMansIpAugmenterAlg(
+        '_'.join(['SimpleTrackAugmenter',jet_name]),
+        trackContainer=trackContainer,
+        primaryVertexContainer=primaryVertexContainer,
+        prefix=simpleTrackIpPrefix,
+        OutputLevel=1,
+    )
+
+    # from ParticleJetTools.JetParticleAssociationAlgConfig import (
+    #     JetParticleAssociationAlgCfg
+    # )
+
+    # now we assicoate the tracks to the jet
+    tracksOnJetDecoratorName = "TracksForMinimalJetTag"
+    # jet_part_assoc_alg = JetParticleAssociationAlgCfg(
+    #                         flags,
+    #                         JetCollection=jet_name,
+    #                         InputParticleCollection=trackContainer,
+    #                         OutputParticleDecoration=tracksOnJetDecoratorName,
+    #                     )
+
+    jet_part_assoc_alg = CompFactory.JetDecorationAlg(
+        '_'.join([jet_name, tracksOnJetDecoratorName, 'assoc']).lower(),
+        JetContainer=jet_name,
+        Decorators=[
+            CompFactory.JetParticleShrinkingConeAssociation(
+                '_'.join([jet_name, tracksOnJetDecoratorName, 'coneassoc']).lower(),
+                JetContainer=jet_name,
+                coneSizeFitPar1=+0.239,
+                coneSizeFitPar2=-1.220,
+                coneSizeFitPar3=-1.64e-5,
+                InputParticleContainer=trackContainer,
+                OutputDecoration=tracksOnJetDecoratorName)]
+    )
+
+    # Now we have to add an algorithm that tags the jets with dips
+    # The input and output remapping is handled via a map in DL2.
+    #
+    # The file above adds dipsLoose20210517_p*, we'll call them
+    # dips_p* on the jet.
+    variableRemapping = {
+        'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
+        **{f'dipsLoose20210517_p{x}': f'dipsOnJet_p{x}' for x in 'cub'},
+        'btagIp_': simpleTrackIpPrefix,
+    }
+    nnFile = 'dev/BTagging/20210517/dipsLoose/antikt4empflow/network.json'
+    ft_discr_alg = CompFactory.FlavorTagDiscriminants__JetTagDecoratorAlg(
+        'simpleJetTagAlg',
+        container=jet_name,
+        constituentContainer=trackContainer,
+        decorator=CompFactory.FlavorTagDiscriminants__DL2Tool(
+            'simpleDipsToJet',
+            nnFile=nnFile,
+            variableRemapping=variableRemapping,
+            # note that the tracks are associated to the jet as
+            # and IParticle container.
+            trackLinkType='IPARTICLE',
+        ),
+    )
+
+    return [ip_augmenter_alg ] # , ft_discr_alg]
+
+
+def JetRoITrackingSequence(dummyFlags,jetsIn,trkopt,RoIs):
 
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( 'jetSuper' )
@@ -91,7 +164,9 @@ def JetRoITrackingSequence(dummyFlags,trkopt,RoIs):
     viewAlgs, viewVerify = makeInDetTrigFastTracking( config = IDTrigConfig, rois=RoIs)
     viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
 
-    jetTrkSeq = parOR( "JetRoITrackingSeq_"+trkopt, viewAlgs)
+    ft_algs = getPreselFTagDecorators(dummyFlags, jetsIn)
+
+    jetTrkSeq = parOR( "JetRoITrackingSeq_"+trkopt, viewAlgs+ft_algs)
 
     return jetTrkSeq
 
