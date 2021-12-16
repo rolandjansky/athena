@@ -497,21 +497,25 @@ class GenerateMenuMT(object, metaclass=Singleton):
         applyHLTPrescale(TriggerConfigHLT, self.HLTPrescales, self.signaturesOverwritten)
 
         log.info("Checking the L1HLTConsistency...")
-        from TriggerMenuMT.HLTMenuConfig.Menu.CheckL1HLTConsistency import checkL1HLTConsistency
+        from .CheckL1HLTConsistency import checkL1HLTConsistency
         checkL1HLTConsistency()
         
+        log.info("Checking the Coherent Prescale assignments...")
+        from .CheckCPSGroups import checkCPSGroups
+        checkCPSGroups(TriggerConfigHLT.dictsList())
+
         log.info("Generating HLT menu JSON...")
         
-        from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+        from .HLTMenuJSON import generateJSON
         generateJSON()
 
         log.info("Generating HLT prescale JSON...")
 
-        from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
+        from .HLTPrescaleJSON import generateJSON as generatePrescaleJSON
         generatePrescaleJSON()
 
         log.info('Generating HLTMonitoring JSON...')
-        from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+        from .HLTMonitoringJSON import generateDefaultMonitoringJSON
         generateDefaultMonitoringJSON()
 
         log.info('Menu generation is complete.')
