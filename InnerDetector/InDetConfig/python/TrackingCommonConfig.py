@@ -267,6 +267,11 @@ def InDetBroadTRT_DriftCircleOnTrackToolCfg(name='InDetBroadTRT_DriftCircleOnTra
     return acc
 
 def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorCfg
+        return ITkRotCreatorCfg(flags, name, **kwargs)
+
     acc = ComponentAccumulator()
     strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix']
     pix_cluster_on_track_args = copyArgs(kwargs,strip_args)
@@ -366,6 +371,11 @@ def InDetSummaryHelperNoHoleSearchCfg(flags, name='InDetSummaryHelperNoHoleSearc
     return InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs)
 
 def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolCfg
+        return ITkTrackSummaryToolCfg(flags, name, **kwargs)
+
     acc = ComponentAccumulator()
     # makeName will remove the namePrefix in suffix from kwargs, so copyArgs has to be first
     hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
@@ -490,6 +500,11 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
     return acc
 
 def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
+        return ITkUpdatorCfg(flags, name, **kwargs)
+
     the_name = makeName( name, kwargs )
     acc = ComponentAccumulator()
 
@@ -1414,33 +1429,6 @@ def InDetNNScoringToolSiCfg(flags, name='InDetNNScoringToolSi', **kwargs) :
 def InDetCosmicsScoringToolCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     return InDetCosmicsScoringToolBaseCfg(flags,
                                           name=name+flags.InDet.Tracking.extension)
-
-
-### Common InDet/ITk config interfaces
-
-def TrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
-    if flags.Detector.GeometryID:
-        return InDetTrackSummaryToolCfg(flags, name, **kwargs)
-    elif flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolCfg
-        return ITkTrackSummaryToolCfg(flags, name, **kwargs)
-
-def UpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
-    if flags.Detector.GeometryID:
-        return InDetUpdatorCfg(flags, name, **kwargs)
-    elif flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
-        return ITkUpdatorCfg(flags, name, **kwargs)
-
-def RotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
-    if flags.Detector.GeometryID:
-        return InDetRotCreatorCfg(flags, name, **kwargs)
-    elif flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorCfg
-        return ITkRotCreatorCfg(flags, name, **kwargs)
 
 def FullLinearizedTrackFactoryCfg(flags, name='TrackToVertexIPEstimator', **kwargs):
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg

@@ -3,7 +3,12 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def InDetPrdAssociationToolCfg(name='InDetPrdAssociationTool',**kwargs) :
+def InDetPrdAssociationToolCfg(flags, name='InDetPrdAssociationTool', **kwargs) :
+  if flags.Detector.GeometryITk:
+    name = name.replace("InDet", "ITk")
+    from InDetConfig.ITkRecToolConfig import ITkPrdAssociationToolCfg
+    return ITkPrdAssociationToolCfg(flags, name,**kwargs)
+
   acc = ComponentAccumulator()
   '''
   Provide an instance for all clients in which the tool is only set in c++
@@ -17,20 +22,25 @@ def InDetPrdAssociationToolCfg(name='InDetPrdAssociationTool',**kwargs) :
   acc.setPrivateTools(InDetPRD_AssociationToolGangedPixels)
   return acc
 
-def InDetPrdAssociationTool_setupCfg(name='InDetPrdAssociationTool_setup',**kwargs) :
+def InDetPrdAssociationTool_setupCfg(flags, name='InDetPrdAssociationTool_setup', **kwargs) :
   '''
   Provide an instance for all clients which set the tool explicitely
   '''
   kwargs.setdefault("SetupCorrect", True)
-  return InDetPrdAssociationToolCfg(name, **kwargs)
+  return InDetPrdAssociationToolCfg(flags, name, **kwargs)
 
-def InDetTrigPrdAssociationToolCfg(name='InDetTrigPrdAssociationTool_setup',**kwargs) :
+def InDetTrigPrdAssociationToolCfg(flags, name='InDetTrigPrdAssociationTool_setup', **kwargs) :
   kwargs.setdefault("PixelClusterAmbiguitiesMapName", "TrigPixelClusterAmbiguitiesMap")
   kwargs.setdefault("addTRToutliers", False)
 
-  return InDetPrdAssociationToolCfg(name, **kwargs)
+  return InDetPrdAssociationToolCfg(flags, name, **kwargs)
 
 def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
+  if flags.Detector.GeometryITk:
+    name = name.replace("InDet", "ITk")
+    from InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
+    return ITkTrackSummaryHelperToolCfg(flags, name, **kwargs)
+
   result = ComponentAccumulator()
 
   the_name = makeName( name, kwargs)
@@ -38,11 +48,11 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
 
   if 'AssoTool' not in kwargs :
     if not isHLT:
-      InDetPrdAssociationTool_setup = result.popToolsAndMerge(InDetPrdAssociationTool_setupCfg())
+      InDetPrdAssociationTool_setup = result.popToolsAndMerge(InDetPrdAssociationTool_setupCfg(flags))
       result.addPublicTool(InDetPrdAssociationTool_setup)
       kwargs.setdefault("AssoTool", InDetPrdAssociationTool_setup)
     else:
-      InDetTrigPrdAssociationTool = result.popToolsAndMerge(InDetTrigPrdAssociationToolCfg())
+      InDetTrigPrdAssociationTool = result.popToolsAndMerge(InDetTrigPrdAssociationToolCfg(flags))
       result.addPublicTool(InDetTrigPrdAssociationTool)
       kwargs.setdefault("AssoTool", InDetTrigPrdAssociationTool)
 
@@ -90,6 +100,11 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
 
 
 def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
+  if flags.Detector.GeometryITk:
+    name = name.replace("InDet", "ITk")
+    from InDetConfig.ITkRecToolConfig import ITkTrackHoleSearchToolCfg
+    return ITkTrackHoleSearchToolCfg(flags, name, **kwargs)
+
   result = ComponentAccumulator()
   if 'Extrapolator' not in kwargs:
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
@@ -150,31 +165,3 @@ def makeNameGetPreAndSuffix( name, kwargs) :
     namePrefix=kwargs.pop('namePrefix',default_prefix)
     nameSuffix=kwargs.pop('nameSuffix','')
     return namePrefix + name + nameSuffix,namePrefix,nameSuffix
-
-
-
-### Common InDet/ITk config interfaces
-
-def PrdAssociationToolCfg(flags, name='InDetPrdAssociationTool',**kwargs):
-  if flags.Detector.GeometryID:
-    return InDetPrdAssociationToolCfg(name,**kwargs)
-  elif flags.Detector.GeometryITk:
-    name = name.replace("InDet", "ITk")
-    from InDetConfig.ITkRecToolConfig import ITkPrdAssociationToolCfg
-    return ITkPrdAssociationToolCfg(flags, name,**kwargs)
-
-def TrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
-  if flags.Detector.GeometryID:
-    return InDetTrackHoleSearchToolCfg(flags, name, **kwargs)
-  elif flags.Detector.GeometryITk:
-    name = name.replace("InDet", "ITk")
-    from InDetConfig.ITkRecToolConfig import ITkTrackHoleSearchToolCfg
-    return ITkTrackHoleSearchToolCfg(flags, name, **kwargs)
-
-def TrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
-  if flags.Detector.GeometryID:
-    return InDetTrackSummaryHelperToolCfg(flags, name, **kwargs)
-  elif flags.Detector.GeometryITk:
-    name = name.replace("InDet", "ITk")
-    from InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
-    return ITkTrackSummaryHelperToolCfg(flags, name, **kwargs)
