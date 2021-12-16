@@ -66,6 +66,9 @@ public: // Non-static members
    /// @param maxFile [IN] maximum number of open input files.
    virtual unsigned int getInputContext(const std::string& label, unsigned int maxFile = 0, const std::string& fileID = "") = 0;
 
+   /// @return map of all labelled input contexts.
+   virtual const std::map<std::string, unsigned int>& getInputContextMap() const  = 0;
+
    /// @return the context.
    virtual const coral::Context* context() const = 0;
 
