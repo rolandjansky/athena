@@ -207,18 +207,18 @@ const TestObj *test7Helper(const TestObj &external_obj) {
    GuardedPtr nobj(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
    GuardedPtr nobj2(GuardedPtr::recapture(empty,cloneObj(&external_obj)));
    if (nobj==nobj2) {
-      throw;
+      std::abort();
    }
    if (nobj.index()==nobj2.index()) {
-      throw;
+      std::abort();
    }
    
    GuardedPtr nobj3(nobj);
    if (nobj!=nobj3) {
-      throw;
+      std::abort();
    }
    if (nobj.index()!=nobj3.index()) {
-      throw;
+      std::abort();
    }
 
    nobj2=std::move(nobj);
