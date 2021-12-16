@@ -14,6 +14,7 @@
 
 #include <cassert>
 #include <vector>
+#include <utility>
 
 #include "CxxUtils/fpcompare.h"
 
@@ -188,7 +189,7 @@ public:
   virtual unsigned int nCells() const
   {
     if (m_efRecCluster) {
-      const xAOD::CaloCluster* thisCluster = m_efRecCluster->getCluster();
+      const xAOD::CaloCluster* thisCluster = std::as_const(*m_efRecCluster).getCluster();
       if (thisCluster)
         return thisCluster->size();
       // Logically if we have no valid pointer to xAOD::CaloCluster, we have no
@@ -229,7 +230,7 @@ private:
     std::vector<double> tmp_cellEta;
     std::vector<double> tmp_cellPhi;
     if (m_efRecCluster) {
-      const xAOD::CaloCluster* thisCluster = m_efRecCluster->getCluster();
+      const xAOD::CaloCluster* thisCluster = std::as_const(*m_efRecCluster).getCluster();
       if (thisCluster) {
         const CaloClusterCellLink* theCellLink = thisCluster->getCellLinks();
         CaloClusterCellLink::const_iterator itCell = theCellLink->begin();
