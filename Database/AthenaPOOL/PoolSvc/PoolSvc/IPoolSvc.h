@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOLSVC_IPOOLSVC_H
@@ -74,7 +74,7 @@ public: // Non-static members
 
    /// @return void
    /// @param compName [IN] string name of the component to be loaded.
-   virtual void loadComponent(const std::string& compName) const = 0;
+   virtual void loadComponent(const std::string& compName) = 0;
 
    /// @return void
    /// @param shareCat [IN] bool to share the file catalog.
@@ -92,7 +92,7 @@ public: // Non-static members
    /// @return void
    /// @param pf [IN] filename to be renamed
    /// @param newpf [IN] new filename
-   virtual void renamePfn(const std::string& pf, const std::string& newpf) const = 0;
+   virtual void renamePfn(const std::string& pf, const std::string& newpf) = 0;
 
    /// @return a pointer to a Pool Collection.
    /// @param collectionType [IN] string containing the collection type.
@@ -167,7 +167,7 @@ public: // Non-static members
 	   unsigned int contextId = IPoolSvc::kOutputStream) const = 0;
 
    /// Setup Frontier cache for given logical or physical connection name
-   virtual StatusCode setFrontierCache(const std::string& conn) const = 0;
+   virtual StatusCode setFrontierCache(const std::string& conn) = 0;
 };
 
 #endif

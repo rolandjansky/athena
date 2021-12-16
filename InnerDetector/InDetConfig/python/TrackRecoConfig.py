@@ -140,6 +140,11 @@ def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     return result
 
 def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackParticleCreatorToolCfg
+        return ITkTrackParticleCreatorToolCfg(flags, name, **kwargs)
+
     result = ComponentAccumulator()
     if "TrackToVertex" not in kwargs:
         kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
@@ -158,6 +163,11 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
     return result
 
 def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticleCreator = None):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackCollectionCnvToolCfg
+        return ITkTrackCollectionCnvToolCfg(flags, name, TrackParticleCreator)
+
     result = ComponentAccumulator()
     if TrackParticleCreator is None:
         TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
@@ -186,6 +196,11 @@ def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger", InputC
     return result
 
 def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName="CombinedInDetTracks", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackParticleCnvAlgCfg
+        return ITkTrackParticleCnvAlgCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs)
+
     result = ComponentAccumulator()
     kwargs.setdefault("ConvertTracks", True)
     kwargs.setdefault("ConvertTrackParticles", False)
@@ -215,6 +230,10 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName
     return result
 
 def InDetTrackRecoCfg(flags):
+    if flags.Detector.GeometryITk:
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
+        return ITkTrackRecoCfg(flags)
+
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
@@ -315,15 +334,6 @@ def InDetTrackRecoCfg(flags):
     return result
 
 
-### Common InDet/ITk config interfaces
-def TrackRecoCfg(flags):
-    if flags.Detector.GeometryID:
-        return InDetTrackRecoCfg(flags)
-    elif flags.Detector.GeometryITk:
-        from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
-        return ITkTrackRecoCfg(flags)
-
-
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
@@ -360,7 +370,7 @@ if __name__ == "__main__":
         from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
         top_acc.merge(GEN_AOD2xAODCfg(ConfigFlags))
 
-    top_acc.merge(TrackRecoCfg(ConfigFlags))
+    top_acc.merge(InDetTrackRecoCfg(ConfigFlags))
     from AthenaCommon.Constants import DEBUG
     top_acc.foreach_component("AthEventSeq/*").OutputLevel=DEBUG
     top_acc.printConfig(withDetails=True, summariseProps=True)

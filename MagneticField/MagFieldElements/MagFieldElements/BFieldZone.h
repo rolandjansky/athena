@@ -36,9 +36,6 @@ public:
   void addBiotSavart(const double* ATH_RESTRICT xyz,
                      double* ATH_RESTRICT B,
                      double* ATH_RESTRICT deriv = nullptr) const;
-  // scale B field by a multiplicative factor: RDS 2019/09 - no longer used.
-  // Scaling is done in cachec
-  void scaleField(double factor);
   // accessors
   int id() const;
   unsigned ncond() const;

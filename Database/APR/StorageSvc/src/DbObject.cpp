@@ -87,7 +87,7 @@ const Token::OID_t& DbObjectAccessor::objectOid(const DbObject* pObj) {
 /// Read an object from a container
 DbStatus DbObjectAccessor::read( void**                  ptr,
                                  ShapeH                  shape,
-                                 const DbContainer&      cntH, 
+                                 DbContainer&            cntH, 
                                  const Token::OID_t&     oid,
                                  int                     /* merge_section_n */ )
 {

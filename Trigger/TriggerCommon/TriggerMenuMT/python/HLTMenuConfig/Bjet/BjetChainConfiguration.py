@@ -24,12 +24,8 @@ class BjetChainConfiguration(ChainConfigurationBase):
     def assembleChainImpl(self):                            
         log.debug("Assembling chain for %s", self.chainName)
 
-        def bjetSequenceCfg(flags):
-            return getBJetSequence(
-                jc_name=self.jc_name
-            )
         stepName = f"Step2_{self.jc_name}_bjet"
-        chainSteps = [self.getStep(2, stepName, [bjetSequenceCfg])]
+        chainSteps = [self.getStep(2, stepName, [getBJetSequence], jc_name=self.jc_name)]
 
         myChain = self.buildChain(chainSteps)
         return myChain

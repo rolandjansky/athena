@@ -591,9 +591,8 @@ SCTErrMonTool::fillByteStreamErrors() {
   }
 
   //--- Fill map histograms for each BS
-  int total_errors{0};
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType, ctx), false, errType);
+    fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType, ctx), false, errType);
   }
 
   //--- Fill detector coverage histograms

@@ -30,11 +30,11 @@ def fastCaloSequence(flags, name="fastCaloSequence"):
 
 
 
-def fastCaloMenuSequence(name, doRinger=True, is_probe_leg=False):
+def fastCaloMenuSequence(flags, name, doRinger=True, is_probe_leg=False):
     """ Creates Egamma Fast Calo  MENU sequence
     The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
     """
-    (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, flags=None)
+    (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, flags=flags)
     # check if use Ringer and are electron because there aren't ringer for photons yet:
 
     # hypo
@@ -74,7 +74,7 @@ def caloClusterRecoSequence(
         flags, name="HLTCaloClusterMakerFS", RoIs=caloFSRoI,
         outputName="HLT_TopoCaloClustersFS"):
     """ Create the EM-level fullscan clusters """
-    cell_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=RoIs)
+    cell_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=flags, RoIs=RoIs)
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
     alg = TrigCaloClusterMaker_topo(
             name,
@@ -91,7 +91,7 @@ def LCCaloClusterRecoSequence(
 
     The clusters will be created as a shallow copy of the EM level clusters
     """
-    em_sequence, em_clusters = RecoFragmentsPool.retrieve(caloClusterRecoSequence, flags=None, RoIs=RoIs)
+    em_sequence, em_clusters = RecoFragmentsPool.retrieve(caloClusterRecoSequence, flags=flags, RoIs=RoIs)
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterCalibrator_LC
     alg = TrigCaloClusterCalibrator_LC(
             name,
@@ -104,7 +104,7 @@ def caloTowerHIRecoSequence(
         flags, name="HLTHICaloTowerMakerFS", RoIs=caloFSRoI,
         outputName="HLT_HICaloTowerFS"):
     """ Create the EM-level fullscan clusters for heavy-ion"""
-    cell_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=RoIs)
+    cell_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=flags, RoIs=RoIs)
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloTowerMaker_hijet
     alg = TrigCaloTowerMaker_hijet(
             name,

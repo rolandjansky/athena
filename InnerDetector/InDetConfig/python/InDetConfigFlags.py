@@ -91,7 +91,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doVertexFinding", True) # Turn on the primary vertex reconstruction 
   icf.addFlag("InDet.primaryVertexSetup", 'ActsGaussAdaptiveMultiFinding') # string to store the setup for primary vertexing, possible types: 'ActsGaussAdaptiveMultiFinding', 'GaussAdaptiveMultiFinding', 'GaussIterativeFinding', 'AdaptiveMultiFinding', 'IterativeFinding'
   icf.addFlag("InDet.primaryVertexCutSetup", 'Offline') # string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'HeavyIon' 
-  icf.addFlag("InDet.primaryVertexSortingSetup", 'SumPt2Sorting') # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'NoReSorting','SumPt2Sorting','VxProbSorting','NNSorting' 
+  icf.addFlag("InDet.primaryVertexSortingSetup", 'SumPt2Sorting') # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'SumPt2Sorting','SumPtSorting'
   icf.addFlag("InDet.doPrimaryVertex3DFinding", True) # will be set to false automatically if beam constraint ON, otherwise true. Control if to use 3d seeding for primary vertex finding (useful in case of poor / no knowledge of the beam spot. Will be set to false automatically if beam constraint ON, otherwise true
   icf.addFlag("InDet.doVertexFindingForMonitoring", False) # Turn on the primary vertex reconstruction needed to run the enhanced vertex monitoring, this runs the iterative PV with no beam constraint 
   icf.addFlag("InDet.doSplitVertexFindingForMonitoring", False) # will be set to false automatically if beam constraint ON, otherwise true. Turn on the primary vertex reconstruction needed to run the enhanced vertex monitoring, this runs iterative PV in split mode 

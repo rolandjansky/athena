@@ -39,7 +39,7 @@ void InDet::SiTrajectory_xk::erase(int n)
 // Trajectory conversion to TrackStateOnSurface  
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface>
 InDet::SiTrajectory_xk::convertToTrackStateOnSurface(int cosmic)
 {
   if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
@@ -52,36 +52,33 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurface(int cosmic)
 // Trajectory conversion to TrackStateOnSurface  with old direction
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface>
 InDet::SiTrajectory_xk::convertToTrackStateOnSurface()
 {
 
-  auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  dtsos->reserve (1 + m_lastElement - m_firstElement);
+  auto dtsos = DataVector<const Trk::TrackStateOnSurface>();
 
   bool multi = m_tools->multiTrack(); if (m_nclusters <= m_tools->clustersmin() || pTfirst() < m_tools->pTmin()) multi = false;
  
   int i = m_firstElement;
+  
+  const Trk::TrackStateOnSurface* 
+    tsos = m_elements[m_elementsMap[i]].trackStateOnSurface(false,true,multi,1);
 
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackStateOnSurface(*dtsos, false,true,multi,1);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  if (tsos) dtsos.push_back(tsos);
 
   for (++i; i!=m_lastElement; ++i) {
 
     int m = m_elementsMap[i];
     if (m_elements[m].cluster() || m_elements[m].clusterNoAdd() ) {
-      auto tsos = m_elements[m].trackStateOnSurface(*dtsos, false,false,multi,0);
-      if (tsos) dtsos->push_back(std::move(tsos));
+      tsos = m_elements[m].trackStateOnSurface(false,false,multi,0);
+      if (tsos) dtsos.push_back(tsos);
     }
   }
 
   i = m_lastElement;
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackStateOnSurface(*dtsos, false,false,multi,2);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  tsos = m_elements[m_elementsMap[i]].trackStateOnSurface(false,false,multi,2);
+  if (tsos) dtsos.push_back(tsos);
 
   if (multi) {
     m_ntos = 0;
@@ -93,9 +90,6 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurface()
       m_itos[m_ntos++] = 0;
     }
   }
-  // This gets hit many times.
-  // Comment it out until we can make things more efficient.
-  //dtsos->elt_allocator().protect();
   return dtsos;
 }
 
@@ -103,40 +97,34 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurface()
 // Trajectory conversion to TrackStateOnSurface  with new direction
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface>
 InDet::SiTrajectory_xk::convertToTrackStateOnSurfaceWithNewDirection()
 {
 
-  auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  dtsos->reserve (1 + m_lastElement - m_firstElement);
+  auto dtsos = DataVector<const Trk::TrackStateOnSurface>();
 
   bool multi = m_tools->multiTrack(); if (pTfirst() < m_tools->pTmin()) multi = false;
 
   int i = m_lastElement;
 
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackStateOnSurface(*dtsos, true,true,multi,2);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  const Trk::TrackStateOnSurface* 
+    tsos = m_elements[m_elementsMap[i]].trackStateOnSurface(true,true,multi,2);
+
+  if (tsos) dtsos.push_back(tsos);
 
   for (--i; i!=m_firstElement; --i) {
 
     int m = m_elementsMap[i];
     if (m_elements[m].cluster() || m_elements[m].clusterNoAdd() ) {
-      {
-        auto tsos = m_elements[m].trackStateOnSurface(*dtsos,true,false,multi,0);
-        if (tsos) dtsos->push_back(std::move(tsos));
-      }
+      tsos = m_elements[m].trackStateOnSurface(true,false,multi,0);
+      if (tsos) dtsos.push_back(tsos);
     }
   }
 
   i = m_firstElement;
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackStateOnSurface(*dtsos,true,false,multi,1);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  tsos = m_elements[m_elementsMap[i]].trackStateOnSurface(true,false,multi,1);
+  if (tsos) dtsos.push_back(tsos);
 
-  dtsos->elt_allocator().protect();
   return dtsos;
 }
 
@@ -144,7 +132,7 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurfaceWithNewDirection()
 // Trajectory conversion to simple TrackStateOnSurface   
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface>
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface(int cosmic)
 {
   if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
@@ -157,23 +145,21 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface(int cosmic)
 // Trajectory conversion to simple TrackStateOnSurface  with old direction
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface> 
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
 {
-  auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  dtsos->reserve (2 + m_lastElement - m_firstElement);
+  auto dtsos = DataVector<const Trk::TrackStateOnSurface>();
 
   int i = m_firstElement;
+  
+  const Trk::TrackStateOnSurface* 
+    tsos = m_elements[m_elementsMap[i]].trackPerigeeStateOnSurface();
 
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackPerigeeStateOnSurface(*dtsos);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  if (tsos) dtsos.push_back(tsos);
+  
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,false,0);
 
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(*dtsos,false,false,0);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  if (tsos) dtsos.push_back(tsos);
   
   int lastClusterElement = 0;
   for (int j=m_lastElement; j>=i; j--) {
@@ -183,27 +169,21 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
 	break;
      }
   }
-  if( lastClusterElement==0 || lastClusterElement==i ) {
-    dtsos->elt_allocator().protect();
-    return dtsos;
-  }
+  if( lastClusterElement==0 || lastClusterElement==i ) return dtsos;
 
   for (++i; i<std::min(lastClusterElement,m_lastElement); ++i) {
     
     int m = m_elementsMap[i];
     if (m_elements[m].cluster()) {
-      auto tsos = m_elements[m].trackSimpleStateOnSurface(*dtsos,false,false,0);
-      if (tsos) dtsos->push_back(std::move(tsos));
+      tsos = m_elements[m].trackSimpleStateOnSurface(false,false,0);
+      if (tsos) dtsos.push_back(tsos);
     }
   }
 
   i = std::min(lastClusterElement,m_lastElement);
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(*dtsos,false,true,2);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,true,2);
+  if (tsos) dtsos.push_back(tsos);
 
-  dtsos->elt_allocator().protect();
   return dtsos;
 }
 
@@ -211,35 +191,31 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface()
 // Trajectory conversion to simple TrackStateOnSurface with new direction
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface>
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceWithNewDirection()
 {
-  auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  dtsos->reserve (1 + m_lastElement - m_firstElement);
+  auto dtsos = DataVector<const Trk::TrackStateOnSurface>();
 
   int i = m_lastElement;
 
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(*dtsos,true,true,2);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  const Trk::TrackStateOnSurface* 
+    tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(true,true,2);
+
+  if (tsos) dtsos.push_back(tsos);
 
   for (--i; i!=m_firstElement; --i) {
 
     int m = m_elementsMap[i];
     if (m_elements[m].cluster() || m_elements[m].clusterNoAdd() ) {
-      auto tsos = m_elements[m].trackSimpleStateOnSurface(*dtsos,true,false,0);
-      if (tsos) dtsos->push_back(std::move(tsos));
+      tsos = m_elements[m].trackSimpleStateOnSurface(true,false,0);
+      if (tsos) dtsos.push_back(tsos);
     }
   }
 
   i = m_firstElement;
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(*dtsos,true,false,1);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(true,false,1);
+  if (tsos) dtsos.push_back(tsos);
 
-  dtsos->elt_allocator().protect();
   return dtsos;
 }
 
@@ -248,7 +224,7 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceWithNewDirection()
 // Only for Disappearing Track Trigger that uses also failed tracks
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface>
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger(int cosmic)
 {
   if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
@@ -262,23 +238,21 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger(int
 // Only for Disappearing Track Trigger that uses also failed tracks
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface> 
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger()
 {
-  auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  dtsos->reserve (1 + m_lastElement - m_firstElement);
+  auto dtsos = DataVector<const Trk::TrackStateOnSurface>();
 
   int i = m_firstElement;
+  
+  const Trk::TrackStateOnSurface* 
+    tsos = m_elements[m_elementsMap[i]].trackPerigeeStateOnSurface();
 
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackPerigeeStateOnSurface(*dtsos);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  if (tsos) dtsos.push_back(tsos);
+  
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,false,0);
 
-  {
-    auto tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(*dtsos,false,false,0);
-    if (tsos) dtsos->push_back(std::move(tsos));
-  }
+  if (tsos) dtsos.push_back(tsos);
   
   int lastClusterElement = 0;
   for (int j=m_lastElement; j>=i; j--) {
@@ -288,25 +262,21 @@ InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurfaceForDisTrackTrigger()
 	break;
      }
   }
-  if( lastClusterElement==0 || lastClusterElement==i ) {
-    dtsos->elt_allocator().protect();
-    return dtsos;
-  }
+  if( lastClusterElement==0 || lastClusterElement==i ) return dtsos;
 
   for (++i; i<std::min(lastClusterElement,m_lastElement); ++i) {
     
     int m = m_elementsMap[i];
     if (m_elements[m].cluster()) {
-      auto tsos = m_elements[m].trackSimpleStateOnSurface(*dtsos,false,false,0);
-      if (tsos) dtsos->push_back(std::move(tsos));
+      tsos = m_elements[m].trackSimpleStateOnSurface(false,false,0);
+      if (tsos) dtsos.push_back(tsos);
     }
   }
 
   i = std::min(lastClusterElement,m_lastElement);
-  auto tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(*dtsos,false,true,2);
-  if (tsos) dtsos->push_back(std::move(tsos));
+  tsos = m_elements[m_elementsMap[i]].trackSimpleStateOnSurface(false,true,2);
+  if (tsos) dtsos.push_back(tsos);
 
-  dtsos->elt_allocator().protect();
   return dtsos;
 }
 
@@ -2170,7 +2140,7 @@ double InDet::SiTrajectory_xk::qualityOptimization()
 // Trajectory conversion to TrackStateOnSurface for next tracks
 ///////////////////////////////////////////////////////////////////
 
-Trk::TrackStateOnSurfaceProtContainer::ContainerUniquePtr
+DataVector<const Trk::TrackStateOnSurface>
 InDet::SiTrajectory_xk::convertToNextTrackStateOnSurface()
 {
   int i=0;
@@ -2178,24 +2148,17 @@ InDet::SiTrajectory_xk::convertToNextTrackStateOnSurface()
     if (m_itos[i]+1 < m_elements[m_atos[i]].ntsos()) {++m_itos[i]; break;}
     m_itos[i] = 0;
   }
-
-  auto dtsos = Trk::TrackStateOnSurfaceProtContainer::make_unique();
-  dtsos->reserve (m_ntos);
-
   if (i==m_ntos) {
-    dtsos->elt_allocator().protect();
-    return dtsos;
+    return DataVector<const Trk::TrackStateOnSurface>();
   }
 
-  dtsos->reserve (m_ntos);
+   auto dtsos = DataVector<const Trk::TrackStateOnSurface>();
+
   for (i=0; i!=m_ntos; ++i) {
 
-    auto tsos = m_elements[m_atos[i]].tsos(*dtsos, m_itos[i]);
-    if (tsos) dtsos->push_back(std::move(tsos));
+    Trk::TrackStateOnSurface* tsos = m_elements[m_atos[i]].tsos(m_itos[i]);
+    if (tsos) dtsos.push_back(tsos);
   }
-  // This gets hit many times.
-  // Comment it out until we can make things more efficient.
-  //dtsos->elt_allocator().protect();
   return dtsos;
 }
 

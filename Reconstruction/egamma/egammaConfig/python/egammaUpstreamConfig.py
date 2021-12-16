@@ -28,8 +28,8 @@ def egUpstreamSystemCfg(flags,
 
     # ID / ITk
     if flags.Reco.EnableTracking:
-        from InDetConfig.TrackRecoConfig import TrackRecoCfg
-        acc.merge(TrackRecoCfg(flags))
+        from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+        acc.merge(InDetTrackRecoCfg(flags))
 
     return acc
 

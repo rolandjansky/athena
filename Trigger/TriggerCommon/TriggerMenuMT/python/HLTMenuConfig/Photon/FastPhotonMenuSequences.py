@@ -76,7 +76,7 @@ def fastPhotonMenuSequence(flags=None):
     TrigEgammaKeys = getTrigEgammaKeys()
 
     # retrieve the reco sequence+IM
-    (photonAthSequence, l2PhotonViewsMaker) = RecoFragmentsPool.retrieve(fastPhotonSequence, flags=None)
+    (photonAthSequence, l2PhotonViewsMaker) = RecoFragmentsPool.retrieve(fastPhotonSequence, flags)
 
     # make the hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlg

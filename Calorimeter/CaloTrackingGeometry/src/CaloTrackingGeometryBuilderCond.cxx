@@ -8,7 +8,7 @@
 // Calo
 #include "CaloTrackingGeometry/CaloTrackingGeometryBuilderCond.h"
 // Trk
-#include "TrkDetDescrInterfaces/ITrackingVolumeBuilder.h"
+#include "TrkDetDescrInterfaces/ICaloTrackingVolumeBuilder.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
 #include "TrkDetDescrInterfaces/ILayerArrayCreator.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
@@ -107,7 +107,8 @@ Calo::CaloTrackingGeometryBuilderCond::~CaloTrackingGeometryBuilderCond()
 // initialize
 StatusCode Calo::CaloTrackingGeometryBuilderCond::initialize()
 {
-  
+
+    ATH_CHECK(m_caloMgrKey.initialize());  
     // retrieve envelope definition service --------------------------------------------------
     if ( m_enclosingEnvelopeSvc.retrieve().isFailure() ){
       ATH_MSG_FATAL( "Could not retrieve EnvelopeDefinition service. Abort.");
@@ -190,7 +191,7 @@ StatusCode Calo::CaloTrackingGeometryBuilderCond::finalize()
 
 std::pair<EventIDRange, Trk::TrackingGeometry*>
 Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
-  const EventContext&,
+  const EventContext& ctx, 
   std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const
 {
 
@@ -350,7 +351,10 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
     
   // PART 1 : Liquid Argon Volumes ===========================================================================================
   // get the Tracking Volumes from the LAr Builder 
-  const std::vector<Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes();
+  //
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey, ctx };
+  const CaloDetDescrManager* caloDDM = *caloMgrHandle;
+  const std::vector<Trk::TrackingVolume*>* lArVolumes = m_lArVolumeBuilder->trackingVolumes(*caloDDM);
 
   ATH_MSG_INFO( lArVolumes->size() << " volumes retrieved from " << m_lArVolumeBuilder.name() );   
   if (msgLvl(MSG::VERBOSE)){
@@ -385,7 +389,7 @@ Calo::CaloTrackingGeometryBuilderCond::trackingGeometry(
 
   // PART 2 : Tile Volumes ===========================================================================================
   // get the Tracking Volumes from the Tile Builder 
-  const std::vector<Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes();
+  const std::vector<Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes(*caloDDM);
 
   ATH_MSG_INFO( tileVolumes->size() << " volumes retrieved from " << m_tileVolumeBuilder.name() );   
   if (msgLvl(MSG::INFO)){

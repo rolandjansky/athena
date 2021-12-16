@@ -71,6 +71,7 @@ class opt:
 
 ################################################################################
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AccumulatorCache import AccumulatorDecorator
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -649,3 +650,8 @@ for mod in modifierList:
 #-------------------------------------------------------------
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
+
+#-------------------------------------------------------------
+# Print caching statistics
+#-------------------------------------------------------------
+AccumulatorDecorator.printStats()

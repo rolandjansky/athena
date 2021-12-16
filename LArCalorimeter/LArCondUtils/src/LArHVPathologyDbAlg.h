@@ -11,6 +11,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArCabling/LArOnOffIdMapping.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class IIOVRegistrationSvc;
 class ILArHVPathologyDbTool;
@@ -19,7 +20,6 @@ class LArHEC_ID;
 class LArFCAL_ID;
 class LArOnlineID;
 class CaloIdManager;
-class CaloDetDescrManager;
 class Identifier;
 
 class LArHVPathologyDbAlg : public AthAlgorithm 
@@ -28,19 +28,20 @@ class LArHVPathologyDbAlg : public AthAlgorithm
   LArHVPathologyDbAlg(const std::string& name, ISvcLocator* pSvcLocator);
   ~LArHVPathologyDbAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize(){return StatusCode::SUCCESS;}
-  StatusCode stop();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode stop() override;
 
  private:
-  StatusCode createCondObjects (const EventContext& ctx);
-  StatusCode printCondObjects (const EventContext& ctx);
+  StatusCode createCondObjects (const EventContext& ctx, const CaloDetDescrManager* calodetdescrmgr);
+  StatusCode printCondObjects (const EventContext& ctx, const CaloDetDescrManager* calodetdescrmgr);
   StatusCode registerCondObjects();
   std::vector<unsigned int> getElectInd(const LArHVIdMapping& hvIdMapping,
-                                        const Identifier& id, unsigned int module, unsigned int line);
+                                        const Identifier& id, unsigned int module, unsigned int line,
+					const CaloDetDescrManager* calodetdescrmgr);
   int getHVline(const LArHVIdMapping& hvIdMapping,
-                const Identifier& id, short unsigned int ElectInd);
+                const Identifier& id, short unsigned int ElectInd,
+		const CaloDetDescrManager* calodetdescrmgr);
  
   BooleanProperty           m_writeCondObjs;
   StringProperty            m_inpFile;
@@ -54,17 +55,18 @@ class LArHVPathologyDbAlg : public AthAlgorithm
 
   int m_mode;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
-  const LArEM_ID*       m_larem_id;
-  const LArHEC_ID*       m_larhec_id;
-  const LArFCAL_ID*       m_larfcal_id;
-  const LArOnlineID*      m_laronline_id;
+  const CaloIdManager* m_caloIdMgr{nullptr};
+  const LArEM_ID*      m_larem_id{nullptr};
+  const LArHEC_ID*     m_larhec_id{nullptr};
+  const LArFCAL_ID*    m_larfcal_id{nullptr};
+  const LArOnlineID*   m_laronline_id{nullptr};
 
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvCablingKey
     {this, "LArHVIdMapping", "LArHVIdMap", "SG key for HV ID mapping"};
   SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey
-     {this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+    {this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey 
+    {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
 };
 
 #endif

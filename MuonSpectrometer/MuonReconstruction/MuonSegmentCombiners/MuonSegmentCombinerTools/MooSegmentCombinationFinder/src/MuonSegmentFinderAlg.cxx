@@ -100,7 +100,7 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
             
             
             createSegmentsWithMDTs(*patt, handle.ptr(), rpcCols, tgcCols, ctx);
-            createSegmentsFromClusters(*patt, handle.ptr());
+            createSegmentsFromClusters(ctx, *patt, handle.ptr());
         }  // end loop on pattern combinations
 
     } else {
@@ -186,7 +186,7 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
 }  // execute
 
-void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const {
+void MuonSegmentFinderAlg::createSegmentsFromClusters(const EventContext& ctx, const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const {
     // turn the PRD into MuonCluster
     std::map<int, std::vector<const Muon::MuonClusterOnTrack*> > clustersPerSector;
     std::vector<Muon::MuonPatternChamberIntersect>::const_iterator it = patt->chamberData().begin();
@@ -215,8 +215,8 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCom
     std::map<int, std::vector<const Muon::MuonClusterOnTrack*> >::iterator sit_end = clustersPerSector.end();
     for (; sit != sit_end; ++sit) {
         std::vector<const Muon::MuonClusterOnTrack*>& clusters = sit->second;
-        std::vector<Muon::MuonSegment*> segVec;
-        m_clusterSegMakerNSW->find(clusters, segVec, segments);
+        std::vector<std::unique_ptr<Muon::MuonSegment>> segVec;
+        m_clusterSegMakerNSW->find(ctx, clusters, segVec, segments);
 
         // cleanup the memory
         for (std::vector<const Muon::MuonClusterOnTrack*>::iterator cit = clusters.begin(); cit != clusters.end(); ++cit) { delete *cit; }

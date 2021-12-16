@@ -30,7 +30,7 @@ namespace Trk {
   class Layer;
   class MagneticFieldProperties;
   class TrackingGeometry;
-  class ITrackingVolumeBuilder;
+  class ICaloTrackingVolumeBuilder;
   class ITrackingVolumeCreator;
   class ITrackingVolumeHelper;
   class ITrackingVolumeArrayCreator;
@@ -86,9 +86,9 @@ private:
 
   ToolHandle<Trk::ITrackingVolumeCreator> m_trackingVolumeCreator; //!< Second helper for volume creation
 
-  ToolHandle<Trk::ITrackingVolumeBuilder> m_lArVolumeBuilder; //!< Volume Builder for the Liquid Argon Calorimeter
+  ToolHandle<Trk::ICaloTrackingVolumeBuilder> m_lArVolumeBuilder; //!< Volume Builder for the Liquid Argon Calorimeter
 
-  ToolHandle<Trk::ITrackingVolumeBuilder> m_tileVolumeBuilder; //!< Volume Builder for the Tile Calorimeter
+  ToolHandle<Trk::ICaloTrackingVolumeBuilder> m_tileVolumeBuilder; //!< Volume Builder for the Tile Calorimeter
 
   Trk::Material* m_caloMaterial; //!< Material properties
 

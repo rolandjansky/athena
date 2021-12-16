@@ -14,6 +14,9 @@ regexEventStreamInfo = re.compile(r'^EventStreamInfo(_p\d+)?$')
 regexIOVMetaDataContainer = re.compile(r'^IOVMetaDataContainer(_p\d+)?$')
 regexByteStreamMetadataContainer = re.compile(r'^ByteStreamMetadataContainer(_p\d+)?$')
 regexXAODEventFormat = re.compile(r'^xAOD::EventFormat(_v\d+)?$')
+regexXAODFileMetaData = re.compile(r'^xAOD::FileMetaData(_v\d+)?$')
+regexXAODFileMetaDataAux = re.compile(r'^xAOD::FileMetaDataAuxInfo(_v\d+)?$')
+regexXAODFileMetaDataAuxDyn = re.compile(r'^(xAOD::)?FileMetaData.*AuxDyn(\.[a-zA-Z0-9]+)?$')
 regexXAODTriggerMenu = re.compile(r'^DataVector<xAOD::TriggerMenu(_v\d+)?>$')
 regexXAODTriggerMenuAux = re.compile(r'^xAOD::TriggerMenuAuxContainer(_v\d+)?$')
 regexXAODTriggerMenuJson = re.compile(r'^DataVector<xAOD::TriggerMenuJson(_v\d+)?>$')
@@ -181,6 +184,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     meta_filter = {f: '*' for f in meta_key_filter}
                 # store all persistent classes for metadata container existing in a POOL/ROOT file.
                 persistent_instances = {}
+                dynamic_fmd_items = {}
 
                 for i in range(0, nr_of_branches):
                     branch = metadata_branches.At(i)
@@ -197,13 +201,15 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         meta_dict[filename]['metadata_items'][name] = 'ByteStreamMetadataContainer'
                     elif regexEventStreamInfo.match(class_name):
                         meta_dict[filename]['metadata_items'][name] = 'EventStreamInfo'
+                    elif regexXAODFileMetaData.match(class_name):
+                        meta_dict[filename]['metadata_items'][name] = 'FileMetaData'
                     else:
                         meta_dict[filename]['metadata_items'][name] = class_name
 
                     if len(meta_filter) > 0:
                         keep = False
                         for filter_key, filter_class in meta_filter.items():
-                            if (filter_key.replace('/', '_') == name.replace('/', '_') or filter_key == '*') and fnmatchcase(class_name, filter_class):
+                            if (filter_key.replace('/', '_') in name.replace('/', '_') or filter_key == '*') and fnmatchcase(class_name, filter_class):
                                 keep = True
                                 break
 
@@ -230,11 +236,42 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         persistent_instances[name] = ROOT.xAOD.TriggerMenuJsonContainer_v1()
                     elif regexXAODTriggerMenuJsonAux.match(class_name) and _check_project() not in ['AthGeneration']:
                         persistent_instances[name] = ROOT.xAOD.TriggerMenuJsonAuxContainer_v1()
+                    elif regexXAODFileMetaData.match(class_name):
+                        persistent_instances[name] = ROOT.xAOD.FileMetaData_v1()
+                    elif regexXAODFileMetaDataAux.match(class_name):
+                        persistent_instances[name] = ROOT.xAOD.FileMetaDataAuxInfo_v1()
 
                     if name in persistent_instances:
                         branch.SetAddress(ROOT.AddressOf(persistent_instances[name]))
 
+                    # This creates a dict to store the dynamic attributes of the xAOD::FileMetaData
+                    dynamicFMD = regexXAODFileMetaDataAuxDyn.match(name)
+                    if dynamicFMD:
+                        dynamicName = dynamicFMD.group().split('.')[-1]
+                        dynamicType = regex_cppname.match(class_name)
+                        if dynamicType:
+                            # this should be a string
+                            dynamic_fmd_items[dynamicName] = ROOT.std.string()
+                            branch.SetAddress(ROOT.AddressOf(dynamic_fmd_items[dynamicName]))
+                        else:
+                            dynamic_fmd_items[dynamicName] = None
+
+
                 metadata_tree.GetEntry(0)
+
+                # This loads the dynamic attributes of the xAOD::FileMetaData from the TTree
+                for key in dynamic_fmd_items:
+                    if dynamic_fmd_items[key] is None:
+                        try:
+                            if key.startswith("is"):
+                                # this is probably a boolean
+                                dynamic_fmd_items[key] = getattr(metadata_tree, key) != '\x00'
+                            else:
+                                # this should be a float
+                                dynamic_fmd_items[key] = getattr(metadata_tree, key)
+                        except AttributeError:
+                            # should not happen, but just ignore missing attributes
+                            pass
 
                 # clean the meta-dict if the meta_key_filter flag is used, to return only the key of interest
                 if meta_key_filter:
@@ -269,6 +306,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         continue # Extracted using the interface object
                     elif key == 'TriggerMenuJson_L1Aux.' or key == 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.':
                         continue # Extracted using the interface object
+                    elif key == 'FileMetaData' and 'FileMetaDataAux.' in persistent_instances:
+                        aux = persistent_instances['FileMetaDataAux.']
+                    elif key == 'xAOD::FileMetaData_v1_FileMetaData' and 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.' in persistent_instances:
+                        aux = persistent_instances['xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.']
 
                     return_obj = _convert_value(content, aux)
 
@@ -276,6 +317,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         if 'TriggerMenu' not in meta_dict[filename]:
                             meta_dict[filename]['TriggerMenu'] = {}
                         meta_dict[filename]['TriggerMenu'].update(return_obj)
+                    elif "FileMetaData" in key:
+                        if "FileMetaData" not in meta_dict[filename]:
+                            meta_dict[filename]["FileMetaData"] = dynamic_fmd_items
+                        meta_dict[filename]["FileMetaData"].update(return_obj)
                     else:
                         meta_dict[filename][key] = return_obj
 
@@ -545,6 +590,8 @@ def _convert_value(value, aux = None):
 
             elif cl.__cpp_name__ == 'xAOD::EventFormat_v1':
                 return _extract_fields_ef(value)
+            elif cl.__cpp_name__ == 'xAOD::FileMetaData_v1':
+                return _extract_fields_fmd(interface=value, aux=aux)
 
             elif cl.__cpp_name__ == 'DataVector<xAOD::TriggerMenu_v1>' :
                 return _extract_fields_triggermenu(interface=value, aux=aux)
@@ -676,6 +723,36 @@ def _extract_fields_ef(value):
     for ef_element in value:
         result[ef_element.first] = ef_element.second.className()
 
+    return result
+
+
+def _extract_fields_fmd(interface=None, aux=None):
+    """Turn static FileMetaData content into dictionary
+
+    This function takes the FileMetaData_v1 and FileMetaDataAuxInfo_v1 objects.
+    It makes sure the the interface object uses the auxiary object as store.
+    Next the two static variables of FileMetaDataAuxInfo_v1 are retrieved and
+    added to the dictionary that is returned.
+        Args:
+            interface (FileMetaData_v1):        the interface class
+            aux       (FileMetaDataAuxInfo_v1): auxiliary container object
+        Returns
+            dict: with the production release and dataType
+    """
+    import ROOT
+    if not interface or not aux:
+        return {}
+    interface.setStore(aux)
+    result = {
+        "productionRelease": ROOT.std.string(),
+        "dataType": ROOT.std.string(),
+    }
+    # Note: using this for dynamic attributes retruns empty content
+    for k, v in result.items():
+        try:
+            interface.value(getattr(interface, k), v)
+        except AttributeError:
+            interface.value(k, v)
     return result
 
 """ Note: Deprecated. Legacy support for Run 2 AODs produced in release 21 or in release 22 prior to April 2021

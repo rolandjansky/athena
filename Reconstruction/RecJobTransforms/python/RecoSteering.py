@@ -48,12 +48,12 @@ def RecoSteering(flags, tryConfiguringAll=False):
 
     # ID / ITk
     if flags.Reco.EnableTracking:
-        from InDetConfig.TrackRecoConfig import TrackRecoCfg
-        acc.merge(TrackRecoCfg(flags))
+        from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+        acc.merge(InDetTrackRecoCfg(flags))
         log.info("---------- Configured tracking")
 
     # Muon
-    if flags.Detector.EnableMuon and flags.GeoModel.AtlasVersion != 'ATLAS-P2-ITK-24-00-00':  # Temporarily disable Muons for Phase-II
+    if flags.Detector.EnableMuon:
         from MuonConfig.MuonReconstructionConfig import MuonReconstructionCfg
         acc.merge(MuonReconstructionCfg(flags))
         log.info("---------- Configured muon tracking")

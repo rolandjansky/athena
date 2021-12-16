@@ -54,6 +54,10 @@ namespace MuonCombined {
         if (m_extrapolatedTrack) return m_extrapolatedTrack.get();
         return m_extrapolatedTrackLink.isValid() ? *m_extrapolatedTrackLink : nullptr;
     }
+    const Trk::Track* MuonCandidate::primaryTrack() const {
+        const Trk::Track* ext_trk = extrapolatedTrack();
+        return ext_trk ? ext_trk : &muonSpectrometerTrack();
+    }
 
     std::unique_ptr<Trk::Track> MuonCandidate::releaseExtrapolatedTrack() { return std::move(m_extrapolatedTrack); }
 

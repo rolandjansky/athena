@@ -62,15 +62,15 @@ namespace MuonCombined {
 
         /** access extrapolated track, can be zero if back extrapolation failed */
         const Trk::Track* extrapolatedTrack() const;
+        /** Returns the extrapolated track otherwise the muonSpectrometer
+         */
+        const Trk::Track* primaryTrack() const;
 
         /** access extrapolated track, can be zero if back extrapolation failed */
         std::unique_ptr<Trk::Track> releaseExtrapolatedTrack();
 
         /** access extrapolated track element link*/
         const ElementLink<TrackCollection>& extrapolatedTrackLink() const;
-
-        /** ask if the MuonCandidate owns the extrapolated track */
-        bool ownsExtrapolatedTrack() const;
 
         /** print candidate to string */
         std::string toString() const;
