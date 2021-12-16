@@ -25,7 +25,7 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 #----------------------------------------------------------------
 
 def electronFastCaloCfg( flags, is_probe_leg=False ):
-    return fastCaloMenuSequence("Electron", is_probe_leg=is_probe_leg)
+    return fastCaloMenuSequence(flags, "Electron", is_probe_leg=is_probe_leg)
 
 def fastElectronSequenceCfg( flags, is_probe_leg=False ):
     return fastElectronMenuSequence(do_idperf=False, is_probe_leg=is_probe_leg)
@@ -106,7 +106,7 @@ def diEgammaHegMassComboHypoToolFromDict(chainDict):
     return _diElectronMassComboHypoToolFromDict(chainDict, (90000, 1400000))
 
 def electronFastCaloCfg_fwd( flags, is_probe_leg=False ):
-    return fastCaloMenuSequence_FWD("Electron", is_probe_leg=is_probe_leg)
+    return fastCaloMenuSequence_FWD(flags, "Electron", is_probe_leg=is_probe_leg)
 
 
 #----------------------------------------------------------------
@@ -203,10 +203,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
             signatures = self.chainDict['signatures']
             if signatures.count(signatures[0]) == len(signatures):
                 stepName = "noMuon_fast_electron_bBee"
-                return self.getStep(2,stepName,sequenceCfgArray=[fastElectronSequenceCfg], comboHypoCfg=StreamerNoMuonDiElecFastComboHypoCfg)
+                return self.getStep(2,stepName,sequenceCfgArray=[fastElectronSequenceCfg], comboHypoCfg=StreamerNoMuonDiElecFastComboHypoCfg, is_probe_leg=is_probe_leg)
             else:
                 stepName = "fast_electron_bBee"
-                return self.getStep(2,stepName,sequenceCfgArray=[fastElectronSequenceCfg], comboHypoCfg=StreamerDiElecFastComboHypoCfg)
+                return self.getStep(2,stepName,sequenceCfgArray=[fastElectronSequenceCfg], comboHypoCfg=StreamerDiElecFastComboHypoCfg, is_probe_leg=is_probe_leg)
         elif 'idperf' in self.chainPart['idperfInfo']:
             stepName = "fast_electron_idperf"
             return self.getStep(2,stepName,[ fastElectronSequenceCfg_idperf], is_probe_leg=is_probe_leg)
@@ -257,21 +257,21 @@ class ElectronChainConfiguration(ChainConfigurationBase):
          
         if "Zee" in self.chainDict['topo']:
             stepName = "precision_electron_Zee"+str(isocut)
-            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict]) # Needs probe leg option too?
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif "Jpsiee" in self.chainDict['topo']:
             stepName = "precision_topoelectron_Jpsiee"+str(isocut)
-            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict]) # Needs probe leg option too?
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif "Heg" in  self.chainDict['topo']:
             stepName = "precision_electron_Heg"+str(isocut)
-            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diEgammaHegMassComboHypoToolFromDict])
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diEgammaHegMassComboHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif "bBeeM6000" in  self.chainDict['topo']:
             signatures = self.chainDict['signatures']
             if signatures.count(signatures[0]) == len(signatures):
                 stepName = "noMuon_precision_electron_bBee"+str(isocut)
-                return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=NoMuonDiElecPrecisionComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
+                return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=NoMuonDiElecPrecisionComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict], is_probe_leg=is_probe_leg)
             else:
                 stepName = "precision_electron_bBee"+str(isocut)
-                return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=DiElecPrecisionComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
+                return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=DiElecPrecisionComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif self.chainPart['extra'] == 'ion':
             stepName = "precision_ion_electron" + str(isocut)
             return self.getStep(5,stepName,[precisionElectronSequenceCfg_ion], is_probe_leg=is_probe_leg)
@@ -286,10 +286,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
        
         if "Zee" in  self.chainDict['topo']:
             stepName = "precision_topoelectron_Zee_GSF"+str(isocut)
-            return self.getStep(6,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict]) # Needs probe leg option too?
+            return self.getStep(6,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif "Jpsiee" in  self.chainDict['topo']:
             stepName = "precision_topoelectron_Jpsiee_GSF"+str(isocut)
-            return self.getStep(6,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict]) # Needs probe leg option too?
+            return self.getStep(6,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict], is_probe_leg=is_probe_leg)
         else:
             stepName = "precision_electron_GSF"+str(isocut)
             return self.getStep(6,stepName,[ precisionGSFElectronSequenceCfg], is_probe_leg=is_probe_leg)

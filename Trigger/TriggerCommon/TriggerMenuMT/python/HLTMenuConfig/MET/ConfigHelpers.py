@@ -6,6 +6,7 @@
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from ..Menu.SignatureDicts import METChainParts_Default
 from ..Menu.MenuComponents import (
     RecoFragmentsPool,
@@ -316,11 +317,11 @@ class AlgConfig(ABC):
             yield subcls
 
     @classmethod
-    def _makeCls(cls, dummyFlags, **kwargs):
+    def _makeCls(cls, flags, **kwargs):
         """This is a rather horrible work-around.
 
         The RecoFragmentsPool approach wants a function that takes a set of
-        dummy flags. However our class constructors don't do this (and passing
+        flags. However our class constructors don't do this (and passing
         in a class doesn't *quite* fit what the RecoFragmentsPool is expecting.
         So instead we pass this function...
         """
@@ -331,7 +332,7 @@ class AlgConfig(ABC):
         for subcls in cls._get_subclasses():
             if subcls.algType() == EFrecoAlg:
                 return RecoFragmentsPool.retrieve(
-                    subcls._makeCls, None, EFrecoAlg=EFrecoAlg, **recoDict
+                    subcls._makeCls, ConfigFlags, EFrecoAlg=EFrecoAlg, **recoDict
                 )
 
         raise ValueError("Unknown EFrecoAlg '{}' requested".format(EFrecoAlg))

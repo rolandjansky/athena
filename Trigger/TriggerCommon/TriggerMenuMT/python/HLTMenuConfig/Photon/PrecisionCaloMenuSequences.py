@@ -14,7 +14,7 @@ def tag(ion):
     return 'precision' + ('HI' if ion is True else '') + 'CaloPhoton'
 
 
-def precisionCaloSequence(ConfigFlags, ion=False):
+def precisionCaloSequence(flags, ion=False):
     """ Creates PrecisionCalo sequence """
     # EV creator
     InViewRoIs="PrecisionCaloRoIs"     
@@ -34,7 +34,7 @@ def precisionCaloSequence(ConfigFlags, ion=False):
 
     # reco sequence
     from TriggerMenuMT.HLTMenuConfig.Photon.PrecisionCaloRecoSequences import precisionCaloRecoSequence
-    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(None, InViewRoIs, ion)
+    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(flags, InViewRoIs, ion)
         
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
 

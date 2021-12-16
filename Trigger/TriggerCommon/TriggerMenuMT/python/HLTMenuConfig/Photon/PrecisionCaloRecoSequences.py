@@ -14,16 +14,16 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEgammaRec
 log = logging.getLogger(__name__)
 
 
-def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False):
+def precisionCaloRecoSequence(flags, RoIs, ion=False):
 
     TrigEgammaKeys = getTrigEgammaKeys(ion=ion)
 
-    log.debug('DummyFlag = %s',str(DummyFlag))
+    log.debug('flags = %s',flags)
     log.debug('RoIs = %s',RoIs)
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence, HLTHIRoITopoRecoSequence
     topoRecoSequence = HLTHIRoITopoRecoSequence if ion is True else HLTRoITopoRecoSequence
-    (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix='')
+    (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, flags, RoIs=RoIs, algSuffix='')
 
     log.debug('Photon topoRecoSequence output container = %s',caloclusters)
     tag = 'HI' if ion is True else '' 
