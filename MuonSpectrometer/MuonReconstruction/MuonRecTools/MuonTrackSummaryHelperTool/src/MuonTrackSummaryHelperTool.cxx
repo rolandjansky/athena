@@ -122,8 +122,8 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&
         ATH_MSG_DEBUG("TrackSummary already has detailed muon track summary, not adding a new one");
         return;
     }
-
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
     const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
     if (MuonDetMgr == nullptr) {
         ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
@@ -378,7 +378,8 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent(Trk::MuonTrackSummary::
 
     if (m_idHelperSvc->issTgc(chamberHitSummary.chamberId()) || m_idHelperSvc->isMM(chamberHitSummary.chamberId())) { return; }
 
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
     const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
     if (!MuonDetMgr) {
         ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
@@ -543,7 +544,8 @@ bool Muon::MuonTrackSummaryHelperTool::isFirstProjection(const Identifier& id) c
 }
 
 const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdCollection(const Identifier& chId) const {
-    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrdContainer(m_mdtKey);
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrdContainer(m_mdtKey, ctx);
 
     if (!mdtPrdContainer.isValid()) {
         ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_mdtKey);

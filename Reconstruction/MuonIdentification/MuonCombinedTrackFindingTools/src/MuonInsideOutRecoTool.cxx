@@ -132,7 +132,7 @@ namespace MuonCombined {
         const xAOD::TrackParticle& indetTrackParticle, const std::vector<Muon::MuonLayerRecoData>& allLayers) const {
         // resolve ambiguities
         std::vector<Muon::MuonCandidate> resolvedCandidates;
-        m_ambiguityResolver->resolveOverlaps(allLayers, resolvedCandidates);
+        m_ambiguityResolver->resolveOverlaps(ctx, allLayers, resolvedCandidates);
 
         // fit candidates
         TrackCollection tracks(SG::VIEW_ELEMENTS);

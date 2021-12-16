@@ -45,7 +45,7 @@ namespace Muon {
                     The ownership of the tracks is passed to the client calling the tool.
 
         */
-        virtual std::vector<std::unique_ptr<MuPatTrack> > find(MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments,
+        virtual std::vector<std::unique_ptr<MuPatTrack> > find(const EventContext& ctx, MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments,
                                                                GarbageContainer& trash_bin) const = 0;
     };
 
