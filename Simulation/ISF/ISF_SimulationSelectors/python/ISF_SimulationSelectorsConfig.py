@@ -267,7 +267,9 @@ def getPionAFIIGeant4Selector(name="ISF_PionAFIIGeant4Selector", **kwargs):
     return getKinematicAFIIGeant4Selector(name, **kwargs)
 
 def getPionATLFAST3Geant4Selector(name="ISF_PionATLFAST3Geant4Selector", **kwargs):
-    return getPionAFIIGeant4Selector(name, **kwargs)
+    kwargs.setdefault('MaxEkin'          , 200)
+    kwargs.setdefault('ParticlePDG'     , 211)
+    return getKinematicAFIIGeant4Selector(name, **kwargs)
 
 def getPionAFII_QS_Geant4Selector(name="ISF_PionAFII_QS_Geant4Selector", **kwargs):
     kwargs.setdefault('MaxMom'          , 200)
