@@ -338,6 +338,8 @@ HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3V:
   eventCount: 0
 HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20C-2MU3V:
   eventCount: 0
+HLT_2mu4_PhysicsTLA_L1BPH-8M22-2MU3V:
+  eventCount: 0
 HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12-2MU3V:
   eventCount: 0
 HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12C-2MU3V:
@@ -4507,6 +4509,10 @@ HLT_mu6_mu4_L12MU3V:
   stepFeatures:
     0: 4
 HLT_mu6_mu4_L1BPH-7M14-0DR25-MU5VFMU3V:
+  eventCount: 0
+HLT_mu6_mu4_b0dRAB12vtx20_L1BPH-7M22-0DR12-MU5VFMU3V:
+  eventCount: 0
+HLT_mu6_mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-MU5VFMU3V:
   eventCount: 0
 HLT_mu6_mu4_bBmumu_L1BPH-2M9-0DR15-C-MU5VFMU3V:
   eventCount: 0
