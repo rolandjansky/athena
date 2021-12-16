@@ -186,7 +186,7 @@ void XercesParser::navigateTree(AGDDController& c)
     }
     DOMNode* node = 0;
     node = dynamic_cast<DOMNode*>(m_doc->getDocumentElement());
-    if( !node ) throw;
+    if( !node ) std::abort();
     elementLoop(c, node);
 }
 
