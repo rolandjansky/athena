@@ -270,6 +270,9 @@ def defineInputsMenu():
                     TopoMenuDef( '2INVM9-0DR15-C-MU5VFab-MU3Vab',              outputbits = 10), #BLS 
                     TopoMenuDef( '7INVM11-25DR99-2MU3Vab',                     outputbits = 11), #BLS, test
                     TopoMenuDef( '7INVM14-0DR25-MU5VFab-MU3Vab',               outputbits = 12), #BLS, test
+                    TopoMenuDef( '8INVM22-2MU3Vab',                            outputbits = 13), #BLS, test
+                    TopoMenuDef( '7INVM22-0DR12-MU5VFab-MU3Vab',               outputbits = 14), #BLS, test
+                    TopoMenuDef( '7INVM22-0DR20-MU5VFab-MU3Vab',               outputbits = 15), #BLS, test
                 ]
             },            
 
