@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTErrMonAlg.h"
@@ -231,11 +231,10 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
   }
 
   categoryErrorMap_t categoryErrorMap;
-  int total_errors{0};
   std::array<int, N_REGIONS_INC_GENERAL> nMaskedLinks{};
   nMaskedLinks.fill(0);
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType, ctx), errType, categoryErrorMap, nMaskedLinks);
+    fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType, ctx), errType, categoryErrorMap, nMaskedLinks);
   }
   for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
     m_nMaskedLinks[reg] = nMaskedLinks[reg];
