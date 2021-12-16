@@ -21,7 +21,7 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 # so let's make them functions already now
 #----------------------------------------------------------------
 def fastPhotonCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence('Photon', doRinger=False)
+    return fastCaloMenuSequence(flags, 'Photon', doRinger=False)
     
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence( flags )

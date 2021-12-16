@@ -25,6 +25,12 @@ def MinBiasTrkSequenceCfg(flags):
 def MinBiasMbtsSequenceCfg(flags):
     return MinBiasMbtsSequence()
 
+def MinBiasMbtsEmptySequenceCfg(flags):
+    return EmptyMenuSequence("EmptyMbts")
+
+def MinBiasZFindEmptySequenceCfg(flags):
+    return EmptyMenuSequence("EmptyZFind")
+
 def AFPrecoSequenceCfg(flags):
     return AFPTrkRecoSequence()
 
@@ -116,7 +122,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
         return self.getStep(1, 'Mbts',[MinBiasMbtsSequenceCfg])
 
     def getMinBiasEmptyMbtsStep(self):
-        return self.getStep(1,'EmptyMbts',[lambda flags: EmptyMenuSequence("EmptyMbts")])
+        return self.getStep(1,'EmptyMbts',[MinBiasMbtsEmptySequenceCfg])
 
     def getMinBiasSpStep(self):
         return self.getStep(2,'SPCount',[MinBiasSPSequenceCfg])
@@ -125,7 +131,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
         return self.getStep(3,'ZFind',[MinBiasZVertexFinderCfg])
 
     def getMinBiasEmptyZFindStep(self):
-        return self.getStep(3,'EmptyZFind',[lambda flags: EmptyMenuSequence("EmptyZFind")])
+        return self.getStep(3,'EmptyZFind',[MinBiasZFindEmptySequenceCfg])
 
     def getMinBiasTrkStep(self):
         return self.getStep(4,'TrkCount',[MinBiasTrkSequenceCfg])

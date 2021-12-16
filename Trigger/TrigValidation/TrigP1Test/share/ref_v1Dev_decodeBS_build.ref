@@ -2220,14 +2220,6 @@ HLT_j110_pf_ftf_preselj80_L1jJ30:
   stepFeatures:
     0: 5
     1: 2
-HLT_j110_subjesgscIS_ftf_bdl1r60_j45_subjesgscIS_ftf_bdl1r70_L1J50:
-  eventCount: 0
-  stepCounts:
-    0: 4
-    1: 1
-  stepFeatures:
-    0: 8
-    1: 3
 HLT_j140_320eta490_LArPEBHLT_L1J75p31ETA49:
   eventCount: 0
 HLT_j140_a10_tc_em_nojcalib_L1J100:
@@ -2444,8 +2436,6 @@ HLT_j275_0eta290_pf_ftf_bdl1r85_preselj225_L1J100:
   eventCount: 0
 HLT_j275_0eta290_pf_ftf_bdl1r85_preselj225_L1jJ100:
   eventCount: 0
-HLT_j275_subjesgscIS_ftf_bdl1r60_L1J100:
-  eventCount: 0
 HLT_j280_320eta490_L1J75p31ETA49:
   eventCount: 0
 HLT_j280_320eta490_L1jJ75p31ETA49:
@@ -2475,8 +2465,6 @@ HLT_j300_0eta290_pf_ftf_bdl1r85_preselj225_L1jJ100:
 HLT_j300_320eta490_L1J75p31ETA49:
   eventCount: 0
 HLT_j300_320eta490_L1jJ75p31ETA49:
-  eventCount: 0
-HLT_j300_subjesgscIS_ftf_bdl1r70_L1J100:
   eventCount: 0
 HLT_j30_0eta290_020jvt_pf_ftf_boffperf_L1J20:
   eventCount: 13
@@ -2555,8 +2543,6 @@ HLT_j360_a10t_lcw_jes_preselj225_L1jJ100:
 HLT_j360_pf_ftf_preselj225_L1J100:
   eventCount: 0
 HLT_j360_pf_ftf_preselj225_L1jJ100:
-  eventCount: 0
-HLT_j360_subjesgscIS_ftf_bdl1r77_L1J100:
   eventCount: 0
 HLT_j370_a10sd_cssk_pf_jes_ftf_35smcINF_j370_a10sd_cssk_pf_jes_ftf_L1SC111-CJ15:
   eventCount: 0
@@ -2864,16 +2850,6 @@ HLT_j45_subjesgscIS_ftf_L1J15:
   stepFeatures:
     0: 22
     1: 25
-HLT_j45_subjesgscIS_ftf_bdl1r70_L1J20:
-  eventCount: 1
-  stepCounts:
-    0: 16
-    1: 14
-    2: 1
-  stepFeatures:
-    0: 16
-    1: 19
-    2: 1
 HLT_j45_subjesgsc_ftf_L1J15:
   eventCount: 17
   stepCounts:
