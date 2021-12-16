@@ -142,14 +142,14 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST2Stream
 listAODtoDPD.append(WriteDAOD_TEST2Stream.StreamName)
 
 class WriteDAOD_TEST3Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST3 - skimming example using augmentations """
+    """ Produce the DPD for DAOD_TEST3 - thinning example """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
     StreamName   = "StreamDAOD_TEST3"
     FileName     = ""
     isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/StringsToolsExample.py"
+    DPDMakerScript = "DerivationFrameworkExamples/ThinningExample.py"
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST3Stream)
 listAODtoDPD.append(WriteDAOD_TEST3Stream.StreamName)
@@ -205,97 +205,6 @@ class WriteDAOD_TEST7Stream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST7Stream)
 listAODtoDPD.append(WriteDAOD_TEST7Stream.StreamName)
-
-class WriteDAOD_TEST8Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST8 - thinning example """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_TEST8"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/ThinningExample.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST8Stream)
-listAODtoDPD.append(WriteDAOD_TEST8Stream.StreamName)
-
-class WriteDAOD_TEST9Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST9 - example of adding reconstruction tools """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_TEST9"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/RecoExample.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST9Stream)
-listAODtoDPD.append(WriteDAOD_TEST9Stream.StreamName)
-
-class WriteDAOD_TEST10Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST10 - example of trigger content management """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_TEST10"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/TriggerContentExample.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST10Stream)
-listAODtoDPD.append(WriteDAOD_TEST10Stream.StreamName)
-
-class WriteDAOD_TEST11Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST1011 - example of trigger navigation thinning """
-    statusOn       = True
-    allowedTypes   = ['bool']
-    StoredValue    = False
-    StreamName     = "StreamDAOD_TEST11"
-    FileName       = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkExamples/TriggerMatchingExample.py"
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST11Stream)
-listAODtoDPD.append(WriteDAOD_TEST11Stream.StreamName)
-
-class WriteDAOD_MCTEST1Stream(JobProperty):
-    """ Produce the DPD for DAOD_MCTEST1 - derivation framework test """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_MCTEST1"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkMCTruth/MCTEST1.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MCTEST1Stream)
-listAODtoDPD.append(WriteDAOD_MCTEST1Stream.StreamName)
-
-class WriteDAOD_MCTEST2Stream(JobProperty):
-    """ Produce the DPD for DAOD_MCTEST2 - derivation framework test """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_MCTEST2"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkMCTruth/MCTEST2.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MCTEST2Stream)
-listAODtoDPD.append(WriteDAOD_MCTEST2Stream.StreamName)
-
-class WriteDAOD_MCTEST3Stream(JobProperty):
-    """ Produce the DPD for DAOD_MCTEST3 - derivation framework test """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_MCTEST3"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "DerivationFrameworkMCTruth/MCTEST3.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MCTEST3Stream)
-listAODtoDPD.append(WriteDAOD_MCTEST3Stream.StreamName)
-
 
 ##################################
 # Defined by the Top group
