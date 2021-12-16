@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of a LArRODBlockStructure class
@@ -42,7 +42,7 @@ LArRodBlockPhysicsV5::LArRodBlockPhysicsV5()
 {
   m_iHeadBlockSize=endtag/2; // The implicit cast rounds down to the right size 
   m_fixedGain=CaloGain::LARNGAIN;
-  resetPointers();
+  LArRodBlockPhysicsV5::resetPointers();
   m_EnergyThreshold1=100;
   m_EnergyThreshold2=0;
   m_requiredNSamples = 0;
