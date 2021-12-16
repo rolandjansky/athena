@@ -185,7 +185,7 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    }
    if (m_persSvcPerInputType) { // Use separate PersistencySvc for each input data type
       TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
-      if (tokAddr != nullptr && tokAddr->getToken() != nullptr) {
+      if (tokAddr != nullptr && tokAddr->getToken() != nullptr && (boost::starts_with(tokAddr->getToken()->contID(), "CollectionTree(") || boost::starts_with(tokAddr->getToken()->contID(), "CollectionTree_"))) {
          char text[32];
          ::sprintf(text, "[CTXT=%08X]", m_poolSvc->getInputContext(tokAddr->getToken()->classID().toString(), 1, "FID:" + tokAddr->getToken()->dbID().toString()));
          tokAddr->getToken()->setAuxString(text);
@@ -1051,8 +1051,8 @@ StatusCode AthenaPoolCnvSvc::cleanUp(const std::string& connection) {
    if (bpos != std::string::npos) bpos = bpos - cpos;
    const std::string conn = connection.substr(cpos, bpos);
    ATH_MSG_VERBOSE("Cleanup for Connection='"<< conn <<"'");
-   for (auto convertr : m_cnvs) {
-      if (!convertr->cleanUp(conn).isSuccess()) {
+   for (auto converter : m_cnvs) {
+      if (!converter->cleanUp(conn).isSuccess()) {
          ATH_MSG_WARNING("AthenaPoolConverter cleanUp failed.");
          retError = true;
       }
@@ -1068,6 +1068,15 @@ StatusCode AthenaPoolCnvSvc::setInputAttributes(const std::string& fileName) {
    }
    if (!processPoolAttributes(m_inputAttr, m_lastInputFileName, IPoolSvc::kInputStream, true, false).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed getting POOL database/container attributes.");
+   }
+   if (m_persSvcPerInputType) {
+      // Loop over all extra event input contexts and switch off TTreeCache
+      const auto extraInputContextMap = m_poolSvc->getInputContextMap();
+      for (auto extraInputContext : extraInputContextMap) {
+         if (m_poolSvc->setAttribute("TREE_CACHE", "0", pool::DbType(pool::ROOTTREE_StorageType).type(), m_lastInputFileName, "CollectionTree", extraInputContext.second).isSuccess()) {
+            ATH_MSG_DEBUG("setInputAttribute failed to switch off TTreeCache for id = " << extraInputContext.first << ".");
+         }
+      }
    }
    return(StatusCode::SUCCESS);
 }

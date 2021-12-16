@@ -71,6 +71,9 @@ public: // Non-static members
    /// @param maxFile [IN] maximum number of open input files.
    unsigned int getInputContext(const std::string& label, unsigned int maxFile = 0, const std::string& fileID = "");
 
+   /// @return map of all labelled input contexts.
+   const std::map<std::string, unsigned int>& getInputContextMap() const;
+
    /// @return the context.
    const coral::Context* context() const;
 
@@ -185,7 +188,8 @@ private: // data
    pool::IFileCatalog*                               m_catalog{nullptr};
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
    mutable std::vector<CallMutex*>                   m_pers_mut ATLAS_THREAD_SAFE;
-   std::map<std::string, unsigned int>               m_contextLabel;
+   std::map<std::string, unsigned int>               m_inputContextLabel;
+   std::map<std::string, unsigned int>               m_outputContextLabel;
    std::string                                       m_mainOutputLabel{};
    std::map<unsigned int, unsigned int>              m_contextMaxFile;
    // Cache for open file guids for each m_persistencySvcVec member, protected by m_pers_mut
@@ -204,6 +208,9 @@ private: // properties
    StringArrayProperty m_readCatalog{this,"ReadCatalog",{},"List of catalog files to read from","OrderedSet<std::string>"};
    /// Use ROOT Implicit MultiThreading, default = true.
    BooleanProperty m_useROOTIMT{this,"UseROOTImplicitMT",true};
+   /// Increase virtual TTree size to avoid backreads in multithreading, default = false.
+   BooleanProperty m_useROOTMaxTree{this,"UseROOTIncreaseVMaxTree",false};
+
    /// AttemptCatalogPatch, option to create catalog: default = false.
    BooleanProperty m_attemptCatalogPatch{this,"AttemptCatalogPatch",true};
    /// ConnectionRetrialPeriod, retry period for CORAL Connection Service: default = 30 seconds

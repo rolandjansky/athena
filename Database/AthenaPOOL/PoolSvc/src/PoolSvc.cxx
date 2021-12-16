@@ -248,7 +248,8 @@ void PoolSvc::clearState() {
       delete persistencyMutex;
    }
    m_mainOutputLabel.clear();
-   m_contextLabel.clear();
+   m_inputContextLabel.clear();
+   m_outputContextLabel.clear();
    m_pers_mut.clear();
    if (m_catalog != nullptr) {
       m_catalog->commit();
@@ -340,13 +341,13 @@ unsigned int PoolSvc::getOutputContext(const std::string& label) {
    std::lock_guard<CallMutex> lock(m_pool_mut);
    if (m_mainOutputLabel.empty()) {
       m_mainOutputLabel = label;
-      m_contextLabel.insert(std::pair<std::string, unsigned int>(label, IPoolSvc::kOutputStream));
+      m_outputContextLabel.insert(std::pair<std::string, unsigned int>(label, IPoolSvc::kOutputStream));
    }
    if (label == m_mainOutputLabel || label.empty()) {
       return(IPoolSvc::kOutputStream);
    }
-   std::map<std::string, unsigned int>::const_iterator contextIter = m_contextLabel.find(label);
-   if (contextIter != m_contextLabel.end()) {
+   std::map<std::string, unsigned int>::const_iterator contextIter = m_outputContextLabel.find(label);
+   if (contextIter != m_outputContextLabel.end()) {
       return(contextIter->second);
    }
    const unsigned int id = m_persistencySvcVec.size();
@@ -359,15 +360,15 @@ unsigned int PoolSvc::getOutputContext(const std::string& label) {
       policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
    }
    m_persistencySvcVec[id]->session().setDefaultConnectionPolicy(policy);
-   m_contextLabel.insert(std::pair<std::string, unsigned int>(label, id));
+   m_outputContextLabel.insert(std::pair<std::string, unsigned int>(label, id));
    return(id);
 }
 //__________________________________________________________________________
 unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int maxFile, const std::string& fileID) {
    std::lock_guard<CallMutex> lock(m_pool_mut);
    if (!label.empty()) {
-      std::map<std::string, unsigned int>::const_iterator contextIter = m_contextLabel.find(label);
-      if (contextIter != m_contextLabel.end()) {
+      std::map<std::string, unsigned int>::const_iterator contextIter = m_inputContextLabel.find(label);
+      if (contextIter != m_inputContextLabel.end()) {
          if (maxFile > 0) {
             m_contextMaxFile[contextIter->second] = maxFile;
          }
@@ -382,7 +383,7 @@ unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int max
       return(IPoolSvc::kInputStream);
    }
    if (!label.empty()) {
-      m_contextLabel.insert(std::pair<std::string, unsigned int>(label, id));
+      m_inputContextLabel.insert(std::pair<std::string, unsigned int>(label, id));
    }
    m_contextMaxFile.insert(std::pair<unsigned int, int>(id, maxFile));
    if (!fileID.empty()) {
@@ -391,6 +392,10 @@ unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int max
       }
    }
    return(id);
+}
+//__________________________________________________________________________
+const std::map<std::string, unsigned int>& PoolSvc::getInputContextMap() const {
+   return(m_inputContextLabel);
 }
 //__________________________________________________________________________
 const coral::Context* PoolSvc::context() const {
@@ -543,7 +548,7 @@ pool::ICollection* PoolSvc::createCollection ATLAS_NOT_THREAD_SAFE
    }
    // For multithreaded processing (with multiple events in flight),
    // increase virtual tree size to accomodate back reads
-   if (m_useROOTIMT && Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1) {
+   if (m_useROOTMaxTree && Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() > 1) {
       if (!this->setAttribute("TREE_MAX_VIRTUAL_SIZE", "-1", pool::ROOT_StorageType.type(), connection.substr(4), "CollectionTree", IPoolSvc::kInputStream).isSuccess()) {
          ATH_MSG_WARNING("Failed to increase maximum virtual TTree size.");
       }
