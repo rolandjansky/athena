@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalPixelTool.cxx
@@ -71,57 +71,56 @@ InDetGlobalPixelTool::InDetGlobalPixelTool(
 //---------------------------------------------------------
 StatusCode InDetGlobalPixelTool::bookHistograms()
 {
-  bool status = true;
   m_Pixel_track_clus_groupsize = new TH1F("m_Pixel_track_clus_groupsize","Number of pixels per cluster for clusters on track",10,0,10);
-  status &= regHist(m_Pixel_track_clus_groupsize, "InDetGlobal/Pixel", run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_clus_groupsize, "InDetGlobal/Pixel", run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_cluster_ToT = new TH1F("m_Pixel_track_cluster_ToT","Time over threshold for pixel clusters on track",100,0,300);
-  status &= regHist(m_Pixel_track_cluster_ToT, "InDetGlobal/Pixel", run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_cluster_ToT, "InDetGlobal/Pixel", run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_res_phi = new TH1F("m_Pixel_track_res_phi","Pixel Residual LocX",500,-5,5);
-  status &= regHist(m_Pixel_track_res_phi, "InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_res_phi, "InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_pull_phi = new TH1F("m_Pixel_track_pull_phi","Pixel pull LocX",500,-5,5);
-  status &= regHist(m_Pixel_track_pull_phi, "InDetGlobal/Pixel", run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_pull_phi, "InDetGlobal/Pixel", run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_res_eta = new TH1F("m_Pixel_track_res_eta","Pixel Residual LocY",500,-5,5);
-  status &= regHist(m_Pixel_track_res_eta,"InDetGlobal/Pixel",  run ).isSuccess();
+  regHist(m_Pixel_track_res_eta,"InDetGlobal/Pixel",  run ).isSuccess();
   m_Pixel_track_pull_eta = new TH1F("m_Pixel_track_pull_eta","Pixel Pull LocY",500,-5,5);
-  status &= regHist(m_Pixel_track_pull_eta,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();   
+  regHist(m_Pixel_track_pull_eta,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();   
   m_Pixel_track_ecA_cluster_occupancy = new TH2F("m_Pixel_track_ecA_cluster_occupancy","Pixel cluster occupancy in ECA",3,0,3,48,0,48);
-  status &= regHist(m_Pixel_track_ecA_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();     
+  regHist(m_Pixel_track_ecA_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();     
   m_Pixel_track_ecC_cluster_occupancy = new TH2F("m_Pixel_track_ecC_cluster_occupancy","Pixel cluster occupancy in ECC",3,0,3,48,0,48);     
-  status &= regHist(m_Pixel_track_ecC_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();     
+  regHist(m_Pixel_track_ecC_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();     
   m_Pixel_track_bar_lay0_cluster_occupancy = new TH2F("m_Pixel_track_bar_lay0_cluster_occupancy","Pixel cluster occupancy in the first barrel layer",13,-6.5,6.5,22,-0.5,21.5);
-  status &= regHist(m_Pixel_track_bar_lay0_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_bar_lay0_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_bar_lay1_cluster_occupancy = new TH2F("m_Pixel_track_bar_lay1_cluster_occupancy","Pixel cluster occupancy in the second barrel layer",13,-6.5,6.5,38,-0.5,37.5);  
-  status &= regHist(m_Pixel_track_bar_lay1_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_bar_lay1_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_bar_lay2_cluster_occupancy = new TH2F("m_Pixel_track_bar_lay2_cluster_occupancy","Pixel cluster occupancy in the third barrel layer",13,-6.5,6.5,52,-0.5,51.5);
-  status &= regHist(m_Pixel_track_bar_lay2_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_bar_lay2_cluster_occupancy,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_Lvl1A = new TH1F("m_Pixel_track_Lvl1A","Level 1 Accept on track",17,-0.5,16.5);
-  status &= regHist(m_Pixel_track_Lvl1A ,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_Lvl1A ,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_chi2  = new TH1F("m_Pixel_track_chi2",  "chi2/DoF of reconstructed track (with >0 pixel hits)", 80,-0.,20.);
-  status &= regHist(m_Pixel_track_chi2,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_chi2,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_qOverP  = new TH1F("m_Pixel_track_qOverP",  "Reconstructed inverse momentum of track (with >0 pixel hits)", 100,-5.,5.);
   TAxis *xaxis = m_Pixel_track_qOverP->GetXaxis();
   xaxis->SetTitle("Inverse momentum [GeV^{-1}]");
-  status &= regHist(m_Pixel_track_qOverP,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_qOverP,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_d0  = new TH1F("m_Pixel_track_d0",  "Reconstructed d_0 of track (with >0 pixel hits)", 400,-200.,200.);
   xaxis = m_Pixel_track_d0->GetXaxis();
   xaxis->SetTitle("d_0 [mm]");
-  status &= regHist(m_Pixel_track_d0,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_d0,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_z0  = new TH1F("m_Pixel_track_z0",  "Reconstructed z_0 of track (with >0 pixel hits)", 300,-1000.,1000.);
   xaxis = m_Pixel_track_z0->GetXaxis();
   xaxis->SetTitle("z_0 [mm]");
-  status &= regHist(m_Pixel_track_z0,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_z0,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_phi0  = new TH1F("m_Pixel_track_phi0",  "Reconstructed #phi_0 of track (with >0 pixel hits)", 40,-4.,4.);
   xaxis = m_Pixel_track_phi0->GetXaxis();
   xaxis->SetTitle("#phi_0");
-  status &= regHist(m_Pixel_track_phi0,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_phi0,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_theta  = new TH1F("m_Pixel_track_theta",  "Reconstructed #theta of track (with >0 pixel hits)", 30,-0.,4.);
   xaxis = m_Pixel_track_d0->GetXaxis();
   xaxis->SetTitle("#theta");
-  status &= regHist(m_Pixel_track_theta,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_theta,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_eta  = new TH1F("m_Pixel_track_eta",  "Reconstructed #eta of track (with >0 pixel hits)", 40,-4.,4.);
   xaxis = m_Pixel_track_eta->GetXaxis();
   xaxis->SetTitle("#eta");
-  status &= regHist(m_Pixel_track_eta,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
+  regHist(m_Pixel_track_eta,"InDetGlobal/Pixel",  run, ATTRIB_MANAGED).isSuccess();
 
   return StatusCode::SUCCESS;
 }
