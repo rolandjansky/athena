@@ -49,26 +49,11 @@ AthenaOutputStreamTool::AthenaOutputStreamTool(const std::string& type,
 	m_clidSvc("ClassIDSvc", name),
 	m_decSvc("DecisionSvc/DecisionSvc", name),
 	m_dataHeader(nullptr),
-	m_dataHeaderKey(name),
 	m_connectionOpen(false),
 	m_extendProvenanceRecord(false) {
    // Declare IAthenaOutputStreamTool interface
    declareInterface<IAthenaOutputStreamTool>(this);
 
-   // Remove "ToolSvc." from m_dataHeaderKey.
-   if (boost::starts_with (m_dataHeaderKey, "ToolSvc.")) {
-      m_dataHeaderKey = m_dataHeaderKey.substr(8);
-      // Remove "Tool" from m_dataHeaderKey.
-      if (m_dataHeaderKey.find("Tool") == m_dataHeaderKey.size() - 4) {
-         m_dataHeaderKey = m_dataHeaderKey.substr(0, m_dataHeaderKey.size() - 4);
-      }
-   } else {
-      const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent);
-      if (parentAlg != 0) {
-         m_dataHeaderKey = parentAlg->name();
-      }
-   }
-   m_processTag = m_dataHeaderKey;
    declareProperty("SaveDecisions",         m_extend = false, "Set to true to add streaming decisions to an attributeList");
 }
 //__________________________________________________________________________
@@ -80,6 +65,27 @@ StatusCode AthenaOutputStreamTool::initialize() {
 
    ATH_CHECK( m_clidSvc.retrieve() );
    ATH_CHECK( m_conversionSvc.retrieve() );
+
+   // Autoconfigure
+   if (m_dataHeaderKey.empty()) {
+      m_dataHeaderKey.setValue(name());
+      // Remove "ToolSvc." from m_dataHeaderKey.
+      if (boost::starts_with (m_dataHeaderKey.value(), "ToolSvc.")) {
+         m_dataHeaderKey.setValue(m_dataHeaderKey.value().substr(8));
+         // Remove "Tool" from m_dataHeaderKey.
+         if (m_dataHeaderKey.value().find("Tool") == m_dataHeaderKey.size() - 4) {
+            m_dataHeaderKey.setValue(m_dataHeaderKey.value().substr(0, m_dataHeaderKey.size() - 4));
+         }
+      } else {
+         const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent());
+         if (parentAlg != 0) {
+            m_dataHeaderKey.setValue(parentAlg->name());
+         }
+      }
+   }
+   if (m_processTag.empty()) {
+      m_processTag.setValue(m_dataHeaderKey);
+   }
 
    { // handle the AttrKey overwite
      const std::string keyword = "[AttributeListKey=";
