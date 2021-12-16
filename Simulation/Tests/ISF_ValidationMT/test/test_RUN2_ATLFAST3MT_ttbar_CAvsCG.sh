@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: MC21-style simulation using ATLFAST3MT
+# art-description: MC21-style simulation using ATLFAST3MT_QS
 # art-include: master/Athena
 # art-type: grid
 # art-output: test.*.HITS.pool.root
@@ -10,7 +10,7 @@
 unset ATHENA_CORE_NUMBER
 
 # RUN3 setup
-# ATLAS-R3S-2021-01-00-02 and OFLCOND-MC16-SDR-RUN3-01
+# ATLAS-R2-2016-01-02-01 and OFLCOND-MC16-SDR-RUN3-01
   Sim_tf.py \
   --CA \
   --conditionsTag 'default:OFLCOND-MC16-SDR-RUN3-01' \
@@ -19,8 +19,8 @@ unset ATHENA_CORE_NUMBER
   --simulator 'ATLFAST3MT' \
   --postInclude 'PyJobTransforms.UseFrontier' \
   --preInclude 'EVNTtoHITS:SimuJobTransforms.BeamPipeKill,SimuJobTransforms.TightMuonStepping' \
-  --DataRunNumber '330000' \
-  --geometryVersion 'default:ATLAS-R3S-2021-01-00-02' \
+  --DataRunNumber '284500' \
+  --geometryVersion 'default:ATLAS-R2-2016-01-02-01' \
   --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
   --outputHITSFile "test.CA.HITS.pool.root" \
   --maxEvents 4 \
@@ -42,9 +42,9 @@ then
         --simulator 'ATLFAST3MT' \
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
         --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
-        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;' \
-        --DataRunNumber '330000' \
-        --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
+        --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
+        --DataRunNumber '284500' \
+        --geometryVersion 'default:ATLAS-R2-2016-01-02-01_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
         --outputHITSFile "test.CA.HITS.pool.root" \
         --maxEvents 4 \
@@ -59,8 +59,8 @@ then
         --postInclude 'default:PyJobTransforms/UseFrontier.py' \
         --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
         --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
-        --DataRunNumber '330000' \
-        --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
+        --DataRunNumber '284500' \
+        --geometryVersion 'default:ATLAS-R2-2016-01-02-01_VALIDATION' \
         --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
         --outputHITSFile "test.CG.HITS.pool.root" \
         --maxEvents 4 \
@@ -85,7 +85,6 @@ then
 fi
 
 echo "art-result: $rc3 OLDvsCA"
-
 rc4=-9999
 if [ $rc2 -eq 0 ]
 then
