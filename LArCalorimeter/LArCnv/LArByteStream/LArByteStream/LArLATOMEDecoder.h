@@ -188,7 +188,6 @@ private:
 
     
     const LArLATOMEDecoder *m_decoder;
-    const LArLATOMEMapping *m_map;
     LArDigitContainer* m_adc_coll;
     LArDigitContainer* m_adc_bas_coll;
     LArRawSCContainer* m_et_coll;
