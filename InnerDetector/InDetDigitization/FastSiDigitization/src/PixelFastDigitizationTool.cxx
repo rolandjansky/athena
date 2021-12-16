@@ -492,14 +492,10 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
     Pixel_detElement_RIO_map PixelDetElClusterMap;
 
-    int nnn = 0;
-
     trkNo.clear();
     detEl.clear();
 
     while (i != e) {
-
-      nnn+=1;
 
       TimedHitPtr<SiHit> hit(*i++);
 
