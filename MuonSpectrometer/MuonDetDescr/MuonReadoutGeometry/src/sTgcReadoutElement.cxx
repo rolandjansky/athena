@@ -41,10 +41,10 @@
 
 namespace MuonGM {
 
-    sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored,
-                                           MuonDetectorManager* mgr) :
-        MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr) {
-        m_ml = mL;
+    //============================================================================
+    sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr) 
+    : MuonClusterReadoutElement(pv, std::move(stName), zi, fi, is_mirrored, mgr)
+    , m_ml(mL) {
 
         // get the setting of the caching flag from the manager
         setCachingFlag(mgr->cachingFlag());
@@ -52,27 +52,25 @@ namespace MuonGM {
         std::string vName = pv->getLogVol()->getName();
         std::string sName = vName.substr(vName.find('-') + 1);
         std::string fixName = (sName[1] == 'L') ? "STL" : "STS";
+        Identifier id = mgr->stgcIdHelper()->channelID(fixName, zi, fi, mL, 1, 2, 1);
 
         setStationName(fixName);
         setStationEta(zi);
         setStationPhi(fi);
         setChamberLayer(mL);
-        // in principle here one can set the identifier, with stName, stEta, stPhi, mL
-        // build here the identifier and set it
-        Identifier id = mgr->stgcIdHelper()->channelID(fixName, zi, fi, mL, 1, 2, 1);
-        setIdentifier(id);
+        setIdentifier(id); // representative identifier, with stName, stEta, stPhi, mL 
 
         sTGCDetectorHelper sTGC_helper;
 
-        std::string sTGCname = std::string("sTG1-") + sName;
 #ifndef NDEBUG
+        std::string sTGCname = std::string("sTG1-") + sName;
         MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "sTGCname: " << sTGCname << endmsg;
         sTGCDetectorDescription* sTGC = sTGC_helper.Get_sTGCDetectorType(sTGCname);
         if (sTGC && log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found sTGC detector: " << sTGCname << " " << sTGC << endmsg;
         static const int nLayers = 4;
         for (int layer = 0; layer < nLayers; layer++) {
-            double length = sTGC->Length();    // Distance between parallel sides of the trapezoid
+            double length  = sTGC->Length();   // Distance between parallel sides of the trapezoid
             double ysFrame = sTGC->ysFrame();  // Frame thickness on short parallel edge
             double ylFrame = sTGC->ylFrame();  // Frame thickness on long parallel edge
             if (log.level() <= MSG::DEBUG)
@@ -111,8 +109,12 @@ namespace MuonGM {
         }
     }
 
+
+    //============================================================================
     sTgcReadoutElement::~sTgcReadoutElement() { clearCache(); }
 
+
+    //============================================================================
     void sTgcReadoutElement::setIdentifier(const Identifier& id) {
         m_id = id;
         const sTgcIdHelper* idh = manager()->stgcIdHelper();
@@ -132,25 +134,24 @@ namespace MuonGM {
         m_detectorElIdhash = detIdhash;
     }
 
+    //============================================================================
     void sTgcReadoutElement::initDesign(double /*largeX*/, double /*smallX*/, double /*lengthY*/, double /*stripPitch*/,
                                         double /*wirePitch*/, double /*stripWidth*/, double /*wireWidth*/, double thickness) {
+                                        
         char sector_l = getStationName().substr(2, 1) == "L" ? 'L' : 'S';
-
-        int stEta = std::abs(getStationEta());
-        int Etasign = getStationEta() / stEta;
-        std::string side;
-        if (Etasign > 0)
-            side = "A";
-        else
-            side = "C";  // This needs to be checked
-
-        sTGCDetectorHelper aHelper;
+        int  stEta    = std::abs(getStationEta());
+        int  Etasign  = getStationEta() / stEta;
+        std::string side = (Etasign > 0) ? "A" : "C";
+        m_diamondShape   = (sector_l == 'L' && stEta == 3) ? true : false;
+        
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "station name" << getStationName() << endmsg;
 #endif
 
+        sTGCDetectorHelper aHelper;
         sTGCDetectorDescription* stgc = aHelper.Get_sTGCDetector(sector_l, stEta, getStationPhi(), m_ml, side.back());
+   
 #ifndef NDEBUG
         if (stgc)
             log << MSG::DEBUG << "Found sTGC Detector " << stgc->GetName() << endmsg;
@@ -161,51 +162,41 @@ namespace MuonGM {
 #endif
 
         auto tech = stgc->GetTechnology();
+        if (!tech)
+            throw std::runtime_error(
+                Form("File: %s, Line: %d\nsTgcReadoutElement::initDesign() - Failed To get Technology for stgc element: %s", __FILE__,  __LINE__, stgc->GetName().c_str()));
 
         m_phiDesign = std::vector<MuonChannelDesign>(m_nlayers);
         m_etaDesign = std::vector<MuonChannelDesign>(m_nlayers);
         m_padDesign = std::vector<MuonPadDesign>(m_nlayers);
 
         // Get Chamber length, width and frame widths
-        double length = stgc->Length();  // Distance between parallel sides of the trapezoid
-        double sWidth = stgc->sWidth();  // Width on short side of trapezoid
-        double lWidth = stgc->lWidth();  // Width on long side
-
-        double ysFrame = stgc->ysFrame();         // Frame thickness on short parallel edge
-        double ylFrame = stgc->ylFrame();         // Frame thickness on long parallel edge
-        double xFrame = stgc->xFrame();           // Frame thickness of non parallel edges
-        double yCutout = stgc->yCutoutCathode();  // y of cutout of trapezoid (only in outermost detectors)
+        double length  = stgc->Length();         // Distance between parallel sides of the trapezoid
+        double sWidth  = stgc->sWidth();         // Width on short side of trapezoid
+        double lWidth  = stgc->lWidth();         // Width on long side
+        double ysFrame = stgc->ysFrame();        // Frame thickness on short parallel edge
+        double ylFrame = stgc->ylFrame();        // Frame thickness on long parallel edge
+        double xFrame  = stgc->xFrame();         // Frame thickness of non parallel edges
+        double yCutout = stgc->yCutoutCathode(); // y of cutout of trapezoid (only in outermost detectors)
         sTGCReadoutParameters roParam = stgc->GetReadoutParameters();
 
-        // AGDDParameterBagsTGCTech* parameterBagTech = dynamic_cast<AGDDParameterBagsTGCTech*>
-        // (AGDDParameterStore::GetParameterStore()->GetParameterBag(stgc->GetName()));
+        // For strips:
+        m_halfX        = std::vector<double>(m_nlayers);
+        m_minHalfY     = std::vector<double>(m_nlayers);
+        m_maxHalfY     = std::vector<double>(m_nlayers);
+        // For pads and wires:
+        m_PadhalfX     = std::vector<double>(m_nlayers);
+        m_PadminHalfY  = std::vector<double>(m_nlayers);
+        m_PadmaxHalfY  = std::vector<double>(m_nlayers);
 
-        /* Here we define a new variable called m_sTGC_type.
-         * It is to be used when creating the sTGC trapezoid geometry.
-         * Currently, the default trapezoid surface class creates a geometry which is
-         * offset from the real position, caused by the frames of the detectors in the 2nd and 3rd detectors
-         * An other issue fixed with this is that the QL3 detectors are not normal trapezoids
-         * but rather are cutoff trapezoids.
-         * m_sTGC_type = 1 : QL1C, QL1P, QS1C, QL1P
-         * m_sTGC_type = 2 : QL2C, QL2P, QS2C, QL2P, QS3C, QS3P
-         * m_sTGC_type = 3 : QL3C, QL3P the 2 detectors which are cut-off trapezoids*/
-        std::string quadNo = stgc->GetName().substr(7, 1);
-        std::string quadType = stgc->GetName().substr(8, 1);
-        if (quadNo == "3" && sector_l == 'L')
-            m_sTGC_type = 3;  // if its QL3P or QL3C
-        else if (quadNo == "1")
-            m_sTGC_type = 1;
-        else
-            m_sTGC_type = 2;
+        // Radial shift of the local frame origin w.r.t. the center of the quadruplet.
+        // For diamond shape (QL3) the origin is on the cutout base. For the rest, the it is at the center 
+        // of the active area, therefore the shift is half the difference of the top and bottom frame widths.
+        m_offset = (m_diamondShape) ? 0.5*length - (yCutout + ylFrame) : -0.5*(ylFrame - ysFrame); 
 
-        // This block here was moved from another place in code in order to reduce repetitions
-        m_halfX = std::vector<double>(m_nlayers);
-        m_minHalfY = std::vector<double>(m_nlayers);
-        m_maxHalfY = std::vector<double>(m_nlayers);
-        // These values are used for the Pad and Wire geometry definition.
-        m_PadhalfX = std::vector<double>(m_nlayers);
-        m_PadminHalfY = std::vector<double>(m_nlayers);
-        m_PadmaxHalfY = std::vector<double>(m_nlayers);
+        //-------------------
+        // Strips
+        //-------------------
 
         for (int il = 0; il < m_nlayers; il++) {
             // identifier of the first channel - strip plane - to retrieve max number of strips
@@ -225,9 +216,8 @@ namespace MuonGM {
             m_etaDesign[il].ylFrame = ylFrame;
             m_etaDesign[il].minYSize = roParam.sStripWidth;
             m_etaDesign[il].maxYSize = roParam.lStripWidth;
-            ;
 
-            m_halfX[il] = (length - ysFrame - ylFrame) / 2.0;
+            m_halfX[il]    = m_etaDesign[il].xSize / 2.0;
             m_minHalfY[il] = roParam.sStripWidth / 2.0;
             m_maxHalfY[il] = roParam.lStripWidth / 2.0;
 
@@ -235,49 +225,33 @@ namespace MuonGM {
             m_etaDesign[il].deadI = 0.;
             m_etaDesign[il].deadS = 0.;
 
-            m_etaDesign[il].inputPitch = stgc->stripPitch();
+            m_etaDesign[il].inputPitch  = stgc->stripPitch();
             m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
-            m_etaDesign[il].inputWidth = stgc->stripWidth();
-            // If the top and bottom frames are not the same widths, the active geometry is incorrectly positionned by half the difference
-            m_offset = 0.5 * (m_etaDesign[il].ylFrame - m_etaDesign[il].ysFrame);
+            m_etaDesign[il].inputWidth  = stgc->stripWidth();
+            m_etaDesign[il].thickness   = tech->gasThickness;  //+stgc->GetTechnology()->pcbThickness;
+            m_etaDesign[il].firstPos    = (m_diamondShape) ? -(m_etaDesign[il].xSize - yCutout) + m_etaDesign[il].firstPitch
+                                                           : -0.5 * m_etaDesign[il].xSize + m_etaDesign[il].firstPitch;
 
-            if (!tech) {
-                throw std::runtime_error(
-                    Form("File: %s, Line: %d\nsTgcReadoutElement::initDesign() - Failed To get Technology for stgc element: %s", __FILE__,
-                         __LINE__, stgc->GetName().c_str()));
-            } else {
-                m_etaDesign[il].thickness = stgc->GetTechnology()->gasThickness;  //+stgc->GetTechnology()->pcbThickness;
-            }
-
-            // These values depend on local geometry. When using DiamondBounds for QL3, the origin (0,0) is not at the center of the gas
-            // volume, but rather where the yCutout begins.
-            if (m_sTGC_type == 3)
-                m_etaDesign[il].firstPos = -(m_etaDesign[il].xSize - yCutout) + m_etaDesign[il].firstPitch;
-            else
-                m_etaDesign[il].firstPos = -0.5 * m_etaDesign[il].xSize + m_etaDesign[il].firstPitch;
-
-#ifndef NDEBUG
-            if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "firstPos: " << m_etaDesign[il].firstPos << endmsg;
-#endif
             m_etaDesign[il].sAngle = 0.;
-            m_etaDesign[il].signY = 1;
-
-            m_etaDesign[il].nch = roParam.nStrips;
-
+            m_etaDesign[il].signY  = 1;
+            m_etaDesign[il].nch    = roParam.nStrips;
             m_nStrips.push_back(m_etaDesign[il].nch);
 
 #ifndef NDEBUG
             if (log.level() <= MSG::DEBUG)
                 log << MSG::DEBUG << "initDesign:" << getStationName() << " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch
-                    << ", nstrips " << m_etaDesign[il].nch << endmsg;
+                    << ", nstrips " << m_etaDesign[il].nch << << ", firstPos: " << m_etaDesign[il].firstPos << endmsg;
 #endif
         }
 
+        //-------------------
+        // Wires
+        //-------------------
+            
         for (int il = 0; il < m_nlayers; il++) {
-            m_phiDesign[il].type = MuonChannelDesign::Type::phiStrip;
-            m_phiDesign[il].detType = MuonChannelDesign::DetType::STGC;
-
-            m_phiDesign[il].xSize = length - ysFrame - ylFrame;
+            m_phiDesign[il].type     = MuonChannelDesign::Type::phiStrip;
+            m_phiDesign[il].detType  = MuonChannelDesign::DetType::STGC;
+            m_phiDesign[il].xSize    = length - ysFrame - ylFrame;
             m_phiDesign[il].minYSize = roParam.sPadWidth;
             m_phiDesign[il].maxYSize = roParam.lPadWidth;
 
@@ -285,21 +259,19 @@ namespace MuonGM {
             m_phiDesign[il].deadI = 0.;
             m_phiDesign[il].deadS = 0.;
 
-            m_phiDesign[il].inputPitch = stgc->wirePitch();
+            m_phiDesign[il].inputPitch  = stgc->wirePitch();
             m_phiDesign[il].inputLength = m_phiDesign[il].xSize;
-            m_phiDesign[il].inputWidth = 0.015;
-            m_phiDesign[il].thickness = stgc->Tck();
-
-            m_phiDesign[il].firstPos = roParam.firstWire[il];         // Position of 1st wire, accounts for staggering
-            m_phiDesign[il].firstPitch = roParam.firstWireGroup[il];  // Number of Wires in 1st group, group staggering
-            m_phiDesign[il].groupWidth = roParam.wireGroupWidth;      // Number of Wires normal group
-            m_phiDesign[il].nGroups = roParam.nWireGroups[il];        // Number of Wire Groups
-            m_phiDesign[il].wireCutout = roParam.wireCutout[il];      // Size of "active" wire region for digits
+            m_phiDesign[il].inputWidth  = 0.015;
+            m_phiDesign[il].thickness   = stgc->Tck();
+            m_phiDesign[il].firstPos    = roParam.firstWire[il];      // Position of 1st wire, accounts for staggering
+            m_phiDesign[il].firstPitch  = roParam.firstWireGroup[il]; // Number of Wires in 1st group, group staggering
+            m_phiDesign[il].groupWidth  = roParam.wireGroupWidth;     // Number of Wires normal group
+            m_phiDesign[il].nGroups     = roParam.nWireGroups[il];    // Number of Wire Groups
+            m_phiDesign[il].wireCutout  = roParam.wireCutout[il];     // Size of "active" wire region for digits
 
             m_phiDesign[il].sAngle = 0.;  // handled by surface rotation
-            m_phiDesign[il].signY = 1;
-
-            m_phiDesign[il].nch = roParam.nWires[il];
+            m_phiDesign[il].signY  = 1;
+            m_phiDesign[il].nch    = roParam.nWires[il];
 
             m_nWires.push_back(m_phiDesign[il].nGroups);  // number of nWireGroups
 
@@ -310,12 +282,16 @@ namespace MuonGM {
 #endif
         }
 
+        //-------------------
+        // Pads
+        //-------------------
+
         for (int il = 0; il < m_nlayers; il++) {
-            m_padDesign[il].Length = length;
-            m_padDesign[il].sWidth = sWidth;
-            m_padDesign[il].lWidth = lWidth;
-            m_padDesign[il].Size = length - ylFrame - ysFrame;
-            m_padDesign[il].xFrame = xFrame;
+            m_padDesign[il].Length  = length;
+            m_padDesign[il].sWidth  = sWidth;
+            m_padDesign[il].lWidth  = lWidth;
+            m_padDesign[il].Size    = length - ylFrame - ysFrame;
+            m_padDesign[il].xFrame  = xFrame;
             m_padDesign[il].ysFrame = ysFrame;
             m_padDesign[il].ylFrame = ylFrame;
             m_padDesign[il].yCutout = yCutout;
@@ -324,7 +300,7 @@ namespace MuonGM {
             m_padDesign[il].sPadWidth = roParam.sPadWidth;
             m_padDesign[il].lPadWidth = roParam.lPadWidth;
 
-            m_PadhalfX[il] = (length - ysFrame - ylFrame) / 2.0;
+            m_PadhalfX[il]    = m_padDesign[il].Size / 2.0;
             m_PadminHalfY[il] = roParam.sPadWidth / 2.0;
             m_PadmaxHalfY[il] = roParam.lPadWidth / 2.0;
 
@@ -333,23 +309,20 @@ namespace MuonGM {
             m_padDesign[il].deadS = 0.;
 
             m_padDesign[il].nPadColumns = roParam.nPadPhi[il];
+
             // The C side of the NSW is mirrored instead of rotated
             // We should be using the same values for the pads for both A and C
             // It is easier for us to simply read the same correct value once
             // whereas changing the XML and the reading functions will make this incompatible with past versions
             // Alexandre Laurier 12 Sept 2018
-            m_padDesign[il].firstPhiPos = roParam.firstPadPhiDivision_A[il];
-
-            m_padDesign[il].inputPhiPitch = roParam.anglePadPhi;  // stEta<2 ?  PAD_PHI_DIVISION/PAD_PHI_SUBDIVISION : PAD_PHI_DIVISION ;
-
-            m_padDesign[il].PadPhiShift = roParam.PadPhiShift_A[il];
-
-            m_padDesign[il].padEtaMin = roParam.firstPadRow[il];  // FIRST_PAD_ROW_DIVISION[2*sector+(m_ml-1)][stEta-1][il];
-            m_padDesign[il].nPadH = roParam.nPadH[il];
-            m_padDesign[il].padEtaMax = m_padDesign[il].padEtaMin + roParam.nPadH[il];  // PAD_ROWS[2*sector+(m_ml-1)][stEta-1][il];
-
-            m_padDesign[il].firstRowPos = roParam.firstPadH[il];  // H_PAD_ROW_0[2*sector+(m_ml-1)][il];
-            m_padDesign[il].inputRowPitch = roParam.padH[il];     // PAD_HEIGHT[2*sector+(m_ml-1)][il];
+            m_padDesign[il].firstPhiPos   = roParam.firstPadPhiDivision_A[il];
+            m_padDesign[il].inputPhiPitch = roParam.anglePadPhi;       // stEta<2 ?  PAD_PHI_DIVISION/PAD_PHI_SUBDIVISION : PAD_PHI_DIVISION ;
+            m_padDesign[il].PadPhiShift   = roParam.PadPhiShift_A[il];
+            m_padDesign[il].padEtaMin     = roParam.firstPadRow[il];   // FIRST_PAD_ROW_DIVISION[2*sector+(m_ml-1)][stEta-1][il];
+            m_padDesign[il].nPadH         = roParam.nPadH[il];
+            m_padDesign[il].padEtaMax     = m_padDesign[il].padEtaMin + roParam.nPadH[il];  // PAD_ROWS[2*sector+(m_ml-1)][stEta-1][il];
+            m_padDesign[il].firstRowPos   = roParam.firstPadH[il];     // H_PAD_ROW_0[2*sector+(m_ml-1)][il];
+            m_padDesign[il].inputRowPitch = roParam.padH[il];          // PAD_HEIGHT[2*sector+(m_ml-1)][il];
 
             if (sector_l == 'L') {
                 m_padDesign[il].isLargeSector = 1;
@@ -360,9 +333,8 @@ namespace MuonGM {
             }
 
             m_padDesign[il].thickness = thickness;
-
             m_padDesign[il].sAngle = 0.;  // handled by surface rotation
-            m_padDesign[il].signY = 1;
+            m_padDesign[il].signY  = 1;
 
 #ifndef NDEBUG
             if (log.level() <= MSG::DEBUG)
@@ -377,14 +349,12 @@ namespace MuonGM {
                     << " ysFrame: " << m_padDesign[il].ysFrame << " ylFrame: " << m_padDesign[il].ylFrame
                     << " yCutout: " << m_padDesign[il].yCutout << endmsg;
 #endif
-        }
+        }       
     }
 
+
+    //============================================================================
     void sTgcReadoutElement::fillCache() {
-    
-        if (m_sTGC_type < 1 || m_sTGC_type > 3) // should never happen
-            std::runtime_error(
-                Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Geometry not Created!", __FILE__, __LINE__, m_sTGC_type));
 
         if (!m_surfaceData)
             m_surfaceData = std::make_unique<SurfaceData>();
@@ -398,14 +368,14 @@ namespace MuonGM {
         
             // Define the geometry for the strips, pads and wires of this readout element. 
             // For QL3 (cutoff trapezoid), diamondBounds are used, while trapezoid bounds are used for the rest. 
-            // The assigned coordinate along the layer normal (x-axis in the chamber frame) is at the center of 
-            // the gas gap; wires are considered at x=0, while strips and pads are shifted by +10/-10 microns.
+            // The assigned coordinate along the layer normal is at the center of the gas gap; 
+            // wires are considered at x=0, while strips and pads are shifted by +10/-10 microns.
 
             //-------------------
             // Layer boundaries
             //-------------------
 
-            if (m_sTGC_type == 3) {
+            if (m_diamondShape) {
                 m_surfaceData->m_surfBounds.push_back(std::make_unique<Trk::RotatedDiamondBounds>(
                     m_minHalfY[layer], m_maxHalfY[layer], m_maxHalfY[layer], m_halfX[layer] - m_etaDesign[layer].yCutout / 2, m_etaDesign[layer].yCutout / 2));  // strips
                 m_surfaceData->m_surfBounds.push_back(std::make_unique<Trk::DiamondBounds>(
@@ -427,17 +397,13 @@ namespace MuonGM {
 
             m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
 
-            if (m_sTGC_type == 3)  // if QL3 (diamond shape), we have to shift geometry to account for origin not being in center
-                m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(0, 0., -m_offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for wires
-                                                  
-            else
-                m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(0, 0., -m_offset)
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for wires
+            m_surfaceData->m_layerTransforms.push_back(
+               absTransform()                        // transformation from chamber to ATLAS frame
+               * m_delta                             // transformations from the alignment group
+               * m_Xlg[layer]                        // x-shift of the gas-gap center w.r.t. quadruplet center
+               * Amg::Translation3D(0, 0., m_offset) // z-shift to volume center (after m_delta!)
+               * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
+               * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for wires
 
             m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
             m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() * Amg::Vector3D(0., 0., -1.));
@@ -446,7 +412,7 @@ namespace MuonGM {
             // Strips
             //-------------------
 
-            double shift = 0.01;
+            double shift{0.01};
             if (layer % 2) shift = -shift;  // In layers indexed 1 and 3, order is reversed
 
             // identifier of the first channel - strip plane
@@ -454,15 +420,8 @@ namespace MuonGM {
 
             m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
 
-            if (m_sTGC_type == 3)  // if QL3 (diamond shape) we have to shift geometry to account for origin not being in center
-                m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(shift, 0., -m_offset + m_halfX[layer] - m_etaDesign[layer].yCutout) 
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))); // x<->z because of GeoTrd definition
-                    
-            else
-                m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(shift, 0., -m_offset) 
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))); // x<->z because of GeoTrd definition
+            m_surfaceData->m_layerTransforms.push_back(absTransform() * m_delta * m_Xlg[layer] *Amg::Translation3D(shift, 0., m_offset)
+                                                      *Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))); // x<->z because of GeoTrd definition
 
             m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
             m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() * Amg::Vector3D(0., 0., -1.));
@@ -476,17 +435,9 @@ namespace MuonGM {
 
             m_surfaceData->m_layerSurfaces.push_back(std::make_unique<Trk::PlaneSurface>(*this, id));
 
-            if (m_sTGC_type == 3)  // if QL3 (diamond shape) we have to shift geometry to account for origin not being in center
-                m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(-shift, 0., -m_offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout) 
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for pads
- 
-            else
-                m_surfaceData->m_layerTransforms.push_back(
-                    absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(-shift, 0., -m_offset) 
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
-                                                            * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for pads
+            m_surfaceData->m_layerTransforms.push_back(absTransform() * m_delta * m_Xlg[layer] * Amg::Translation3D(-shift, 0., m_offset)
+                                                       * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 1., 0.))   // x<->z because of GeoTrd definition
+                                                       * Amg::AngleAxis3D(-90 * CLHEP::deg, Amg::Vector3D(0., 0., 1.))); // x<->y for pads
 
             m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
             m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear() * Amg::Vector3D(0., 0., -1.));
@@ -497,6 +448,8 @@ namespace MuonGM {
         }
     }
 
+
+    //============================================================================
     bool sTgcReadoutElement::containsId(const Identifier& id) const {
         if (manager()->stgcIdHelper()->stationEta(id) != getStationEta()) return false;
         if (manager()->stgcIdHelper()->stationPhi(id) != getStationPhi()) return false;
@@ -514,46 +467,39 @@ namespace MuonGM {
         return true;
     }
 
+
+    //============================================================================
     Amg::Vector3D sTgcReadoutElement::localToGlobalCoords(const Amg::Vector3D& locPos, Identifier id) const {
         int gg = manager()->stgcIdHelper()->gasGap(id);
         int channelType = manager()->stgcIdHelper()->channelType(id);
 
-        Amg::Vector3D locP(0, 0, 0);
-        // strip plane moved along normal, pad plane in the opposite direction
-        // We no longer want the readout elements to be seperated by the gas gas volume
-        // We place all 3 readouts at the center of the gas gap in z, with a 10 micron offset to seperate them
-        double shift = 0.01;
+        // The assigned coordinate along the layer normal is at the center of the gas gap; 
+        // wires are considered at x=0, while strips and pads are shifted by +10/-10 microns.
+        Amg::Vector3D locPos_ML(0, 0, 0);
+        double shift{0.01};
         if ((gg - 1) % 2) shift = -shift;
 
-        if (channelType == 0) {  // if pad plane
-            if (m_sTGC_type == 1 || m_sTGC_type == 2)
-                locP = m_Xlg[gg - 1] * Amg::Translation3D(-shift, 0., -m_offset) * locPos;
-            else if (m_sTGC_type == 3)
-                locP =
-                    m_Xlg[gg - 1] * Amg::Translation3D(-shift, 0., -m_offset + m_PadhalfX[gg - 1] - m_padDesign[gg - 1].yCutout) * locPos;
+        if (channelType == 0) {         // if pad plane
+            locPos_ML = m_Xlg[gg - 1] * Amg::Translation3D(-shift, 0., m_offset) * locPos;
         } else if (channelType == 1) {  // if strip plane
-            if (m_sTGC_type == 1 || m_sTGC_type == 2)
-                locP = m_Xlg[gg - 1] * Amg::Translation3D(shift, 0., -m_offset) * locPos;
-            else if (m_sTGC_type == 3)
-                locP = m_Xlg[gg - 1] * Amg::Translation3D(shift, 0., -m_offset + m_halfX[gg - 1] - m_etaDesign[gg - 1].yCutout) * locPos;
+            locPos_ML = m_Xlg[gg - 1] * Amg::Translation3D(shift, 0., m_offset) * locPos;
         } else if (channelType == 2) {  // if wire plane
-            if (m_sTGC_type == 1 || m_sTGC_type == 2)
-                locP = m_Xlg[gg - 1] * Amg::Translation3D(0, 0., -m_offset) * locPos;
-            else if (m_sTGC_type == 3)
-                locP = m_Xlg[gg - 1] * Amg::Translation3D(0, 0., -m_offset + m_PadhalfX[gg - 1] - m_padDesign[gg - 1].yCutout) * locPos;
+            locPos_ML = m_Xlg[gg - 1] * Amg::Translation3D(0, 0., m_offset) * locPos;
         }
 
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
         if (log.level() <= MSG::DEBUG) {
-            log << MSG::DEBUG << "locPos in the gg      r.f. " << locPos << endmsg;
-            log << MSG::DEBUG << "locP in the multilayer r.f. " << locP << endmsg;
+            log << MSG::DEBUG << "locPos in the gg      r.f. "  << locPos << endmsg;
+            log << MSG::DEBUG << "locP in the multilayer r.f. " << locPos_ML << endmsg;
         }
 #endif
-        Amg::Vector3D gVec = absTransform() * locP;
-        return m_delta * gVec;
+        Amg::Vector3D gVec = absTransform() * m_delta * locPos_ML;
+        return gVec;
     }
 
+
+    //============================================================================
     void sTgcReadoutElement::setDelta(double tras, double traz, double trat, double rots, double rotz, double rott) {
         m_rots  = rots;
         m_rotz  = rotz;
@@ -565,6 +511,12 @@ namespace MuonGM {
                     * Amg::AngleAxis3D(rots, Amg::Vector3D(0., 1., 0.))  // rotation about Y (applied 3rd)
                     * Amg::AngleAxis3D(rotz, Amg::Vector3D(0., 0., 1.))  // rotation about Z (applied 2nd)
                     * Amg::AngleAxis3D(rott, Amg::Vector3D(1., 0., 0.)); // rotation about X (applied 1st)
+                    
+            // m_delta is w.r.t. the ML reference frame, except for a shift in the z (radial) coordinate. 
+            // We account for this shift here so that it can be applied on ML frame coordinates.
+            Amg::Translation3D t(0., 0., m_offset);
+            m_delta = t*m_delta*t.inverse();
+
             m_hasALines = true;
         } else {
             m_delta = Amg::Transform3D::Identity();
@@ -572,6 +524,8 @@ namespace MuonGM {
         refreshCache();
     }
 
+
+    //============================================================================
     void sTgcReadoutElement::setDelta(MuonDetectorManager* mgr) {
         const ALineMapContainer* alineMap = mgr->ALineContainer();
         Identifier id = mgr->stgcIdHelper()->elementID(getStationName(), getStationEta(), getStationPhi());
@@ -587,6 +541,8 @@ namespace MuonGM {
         }
     }
 
+
+    //============================================================================
     void sTgcReadoutElement::setBLinePar(BLinePar* bLine) {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
@@ -597,6 +553,8 @@ namespace MuonGM {
         m_BLinePar = bLine;
     }
 
+
+    //============================================================================
     double sTgcReadoutElement::channelPitch(const Identifier& id) const {
         if (manager()->stgcIdHelper()->channelType(id) == 0) {
             const MuonPadDesign* design = getPadDesign(id);
@@ -619,6 +577,8 @@ namespace MuonGM {
             return -1;
     }
 
+
+    //============================================================================
     int sTgcReadoutElement::padNumber(const Amg::Vector2D& pos, const Identifier& id) const {
         const MuonPadDesign* design = getPadDesign(id);
         if (!design) {
@@ -650,6 +610,8 @@ namespace MuonGM {
         return -1;
     }
 
+
+    //============================================================================
     int sTgcReadoutElement::wireNumber(const Amg::Vector2D& pos, const Identifier& id) const {
         const MuonChannelDesign* design = getDesign(id);
         if (!design) {
@@ -660,6 +622,8 @@ namespace MuonGM {
         return design->wireNumber(pos);
     }
 
+
+    //============================================================================
     double sTgcReadoutElement::wirePitch(int gas_gap) const {
         if (m_phiDesign.size() < 1) {
             MsgStream log(Athena::getMessageSvc(), "sTgcReadoutElement");
@@ -669,6 +633,8 @@ namespace MuonGM {
         return (m_phiDesign[gas_gap - 1]).inputPitch;
     }
 
+
+    //============================================================================
     double sTgcReadoutElement::positionFirstWire(const Identifier& id) const {
         double pos_wire = -9999.9;
         if (manager()->stgcIdHelper()->channelType(id) == sTgcIdHelper::sTgcChannelTypes::Wire) {
@@ -686,6 +652,8 @@ namespace MuonGM {
         return pos_wire;
     }
 
+
+    //============================================================================
     int sTgcReadoutElement::numberOfWires(const Identifier& id) const {
         int nWires = -1;
         if (manager()->stgcIdHelper()->channelType(id) == sTgcIdHelper::sTgcChannelTypes::Wire) {

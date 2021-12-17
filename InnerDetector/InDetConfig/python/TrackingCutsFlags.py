@@ -603,7 +603,8 @@ def createR3LargeD0TrackingFlags():
     icf.maxdImpactSSSSeeds      = 300.0
     icf.doZBoundary             = True
     icf.keepAllConfirmedStripSeeds = True
-    icf.maxSeedsPerSP_Strips       = 1
+    icf.maxSeedsPerSP_Strips = 1
+    icf.usePixel             = False
 
     return icf
 
@@ -902,6 +903,7 @@ def createPixelTrackingFlags():
 def createDisappearingTrackingFlags():
     icf = createTrackingFlags()
     icf.extension        = "Disappearing"
+    icf.minPT            = 5 * Units.GeV
     icf.minClusters      = 4
     icf.maxHoles         = 0
     icf.maxPixelHoles    = 0

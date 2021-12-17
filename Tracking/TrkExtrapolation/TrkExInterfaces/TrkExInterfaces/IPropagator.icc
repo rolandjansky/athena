@@ -100,17 +100,6 @@ Trk::IPropagator::intersectSurface(const EventContext&,
   return nullptr;
 }
 
-inline void
-Trk::IPropagator::propagateStep(const EventContext&,
-                                const Amg::Vector3D&,
-                                const Amg::Vector3D&,
-                                double,
-                                double,
-                                Amg::Vector3D&,
-                                Amg::Vector3D&,
-                                const MagneticFieldProperties&) const
-{}
-
 
 /*
  * Implementation of interfaces without Gaudi Context
@@ -413,25 +402,5 @@ Trk::IPropagator::globalPositions(std::list<Amg::Vector3D>& positionslist,
                   stepSize,
                   particle = pion,
                   tVol);
-}
-
-/** a very simple propagation along a given path length */
-inline void
-Trk::IPropagator::propagateStep(const Amg::Vector3D& inputPosition,
-                                const Amg::Vector3D& inputMomentum,
-                                double charge,
-                                double step,
-                                Amg::Vector3D& outputPosition,
-                                Amg::Vector3D& outputMomentum,
-                                const Trk::MagneticFieldProperties& mprop) const
-{
-  propagateStep(Gaudi::Hive::currentContext(),
-                inputPosition,
-                inputMomentum,
-                charge,
-                step,
-                outputPosition,
-                outputMomentum,
-                mprop);
 }
 

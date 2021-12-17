@@ -93,7 +93,7 @@ StatusCode SiHitAnalysis::initialize()
     bin_up = 1000;
     radius_up = 700;
     radius_down = 0;
-    z_max = 3600;
+    z_max = 4000;
   } else if (detName == "PLR") {
     bin_down = -125;
     bin_up = 125;
@@ -246,6 +246,7 @@ StatusCode SiHitAnalysis::execute()
 
   SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
   if (hitCollection.isValid()) {
+    ATH_MSG_INFO("Event contains " << hitCollection->size() << " entries in " << m_hitsContainerKey.key());
     for (const SiHit &hit : *hitCollection) {
       GeoSiHit ghit(hit);
       HepGeom::Point3D<double> p = ghit.getGlobalPosition();
@@ -311,7 +312,10 @@ StatusCode SiHitAnalysis::execute()
       m_module_eta->push_back(hit.getEtaModule());
       m_module_phi->push_back(hit.getPhiModule());
     } // End while hits
-  } // End statuscode success upon retrieval of hits
+  } else { // End statuscode success upon retrieval of hits
+    ATH_MSG_ERROR("Invalid collection");
+    return StatusCode::FAILURE;
+  }
 
   if (m_tree != nullptr) m_tree->Fill();
 

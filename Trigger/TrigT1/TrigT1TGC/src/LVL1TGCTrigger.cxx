@@ -533,7 +533,7 @@ void LVL1TGCTrigger::recordRdoSLB(TGCSector * sector)
       moduleType = getLPTTypeInRawData(itype);
 
       // loop over all SB of each type
-      for(int index=0; index<sector->getNumberOfSB(itype); index++) {
+      for(unsigned int index=0; index<sector->getNumberOfSB(itype); index++) {
         TGCSlaveBoard * slb = sector->getSB(itype, index);
         if (0==slb) continue;
         id = slb->getId();
@@ -672,7 +672,7 @@ void LVL1TGCTrigger::recordRdoHPT(TGCSector* sector)
     
     for(int itype=0; itype<2; itype++) { // loop over HPB type(wire/strip)
       isStrip = (itype==0 ? 0 : 1); // 0=wire 1=strip
-      for(int ihpb=0; ihpb<sector->getNumberOfHPB(itype); ihpb++) { // loop over # of HPB per sector
+      for(unsigned int ihpb=0; ihpb<sector->getNumberOfHPB(itype); ihpb++) { // loop over # of HPB per sector
         TGCHighPtBoard * hpb = sector->getHPB(itype, ihpb);
         if (0==hpb) continue;
         TGCHighPtChipOut * out = hpb->getOutput();

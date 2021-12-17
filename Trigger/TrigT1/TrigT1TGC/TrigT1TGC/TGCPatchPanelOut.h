@@ -1,23 +1,24 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCPatchPanelOut.h,v 1.1.1.10 2003-11-03 10:18:17 mishino Exp $
 #ifndef TGCPatchPanelOut_hh
 #define TGCPatchPanelOut_hh
 
-#include "TrigT1TGC/TGCPatchPanel.h"
 #include "TrigT1TGC/TGCHitPattern.h"
+#include "MuonDigitContainer/TgcDigit.h"
 
 namespace LVL1TGCTrigger {
 
+const int NumberOfConnectorPerPPOut = 2;
+
+class TGCPatchPanel;
+
 class TGCPatchPanelOut {
-
-public:
+ public:
   TGCPatchPanelOut();
-  ~TGCPatchPanelOut();
-
-  TGCPatchPanelOut(const TGCPatchPanelOut& right);
+  ~TGCPatchPanelOut() = default;
+  TGCPatchPanelOut(const TGCPatchPanelOut& right) = default;
   TGCPatchPanelOut& operator=(const TGCPatchPanelOut& right);
 
   TGCHitPattern* getHitPattern(int connector) const;
@@ -27,15 +28,15 @@ public:
   void setOrigin(const TGCPatchPanel* pp);
 
   int getBid() const;
-  void setBid( int bidIn);
+  void setBid(const int bidIn);
   
   void print() const;
   void deleteHitPattern(int i);
   void clear();
 
-private:
-  int m_bid;
-  const TGCPatchPanel* m_origin; // pointer to Patch Panel generate this PatchPanelOut.
+ private:
+  int m_bid{TgcDigit::BC_UNDEFINED};        ///< bunch ID number
+  const TGCPatchPanel* m_origin{nullptr};   ///< pointer to Patch Panel generate this PatchPanelOut
   TGCHitPattern* m_signalPattern[NumberOfConnectorPerPPOut];
 };
 
@@ -53,7 +54,7 @@ const TGCPatchPanel* TGCPatchPanelOut::getOrigin() const
 }
 
 inline
-void TGCPatchPanelOut::setBid(int bidIn) 
+void TGCPatchPanelOut::setBid(const int bidIn) 
 {
   m_bid = bidIn; 
 }

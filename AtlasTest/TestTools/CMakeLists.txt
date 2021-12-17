@@ -66,13 +66,22 @@ atlas_add_test( noerror_failure
    POST_EXEC_SCRIPT noerror.sh
    PROPERTIES WILL_FAIL TRUE )
 
+atlas_add_test( noerror_fpe
+   SCRIPT "echo INFO       FPEAuditor        WARNING FPE INVALID in"
+   POST_EXEC_SCRIPT noerror.sh
+   PROPERTIES WILL_FAIL TRUE )
+
 atlas_add_test( noerror_select
-   SCRIPT "echo This is an FPE"
-   LOG_SELECT_PATTERN ".*FPE.*"
+   SCRIPT "echo This is a failure"
+   LOG_SELECT_PATTERN ".*failure.*"
    POST_EXEC_SCRIPT noerror.sh
    PROPERTIES WILL_FAIL TRUE )
 
 atlas_add_test( noerror_ignore
    SCRIPT "echo ERROR known error"
    LOG_IGNORE_PATTERN ".*ERROR known"
+   POST_EXEC_SCRIPT noerror.sh )
+
+atlas_add_test( noerror_false_positive
+   SCRIPT "echo ['WARNING', 'ERROR', 'FATAL']"
    POST_EXEC_SCRIPT noerror.sh )

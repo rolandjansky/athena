@@ -69,7 +69,6 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
             fitter_args.setdefault("DoHoleSearch", True)
             from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
             InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
-            acc.addPublicTool(InDetBoundaryCheckTool)
             fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
         if flags.InDet.Tracking.extension != "LowPt":
             InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.extension, **fitter_args))
@@ -167,10 +166,6 @@ if __name__ == "__main__":
     ConfigFlags.addFlag('InDet.doExtensionProcessor', True)
     ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
     ConfigFlags.addFlag('InDet.holeSearchInGX2Fit', True)
-
-    # SiliconPreProcessing
-    ConfigFlags.InDet.doPixelClusterSplitting = True
-    ConfigFlags.InDet.doSiSPSeededTrackFinder = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO

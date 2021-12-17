@@ -123,7 +123,7 @@ def InDetCosmicsEventPhaseCfg(flags, InputTrackCollections, name = 'InDetCosmics
 # --------------------------------------------------------------------------------
 def TRTPhaseCfg(flags, self, InputTrackCollections = [], **kwargs):
     acc = ComponentAccumulator()
-    if flags.Detector.EnableTRT and flags.InDet.doPRDFormation:
+    if flags.Detector.EnableTRT:
         from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTPhaseCondCfg
         acc.merge(TRTPhaseCondCfg(flags))
         #    

@@ -4,6 +4,7 @@
 # art-type: grid
 # art-athena-mt.
 # art-include: master/Athena
+# art-output: *.log   
 
 python $Athena_DIR/python/MuonConfig/MuonSegmentFindingConfig.py | tee temp1.log
 echo "art-result: ${PIPESTATUS[0]}"
@@ -12,3 +13,4 @@ echo "art-result: ${PIPESTATUS[0]}"
 
 test_postProcessing_Errors.sh temp1.log
 test_postProcessing_Errors.sh temp2.log
+

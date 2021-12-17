@@ -410,7 +410,6 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
           // path length statistics
           double potentialClusterPath_Geom  = localDirection.mag();    // geometrical path length
           double potentialClusterPath_Step  = 0.;                      // path calculated through stepping
-          double potentialClusterPath_Drift = 0.;                      // path calculated through drift charge
           double potentialClusterPath_Used  = 0.;                      // path used (contains smearing & cut if applied)
 
           // relational slope
@@ -753,8 +752,6 @@ StatusCode SCT_FastDigitizationTool::digitize(const EventContext& ctx)
             {
               // get the (effective) path length in the strip
               double chargeWeight = (weightIter)->second;
-              // path statistics
-              potentialClusterPath_Drift += chargeWeight;
               const Identifier chargeId = (weightIter)->first;
               // charge smearing if set : 2 possibilities landau/gauss
               // two options fro charge smearing: landau / gauss

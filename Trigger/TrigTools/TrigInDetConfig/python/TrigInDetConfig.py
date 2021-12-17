@@ -222,13 +222,13 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
                                                        useTRT        = flags.Detector.EnableTRT                                                      
                                                       )
 
-  acc.addPublicTool( tool, primary=True )
+  acc.setPrivateTools( tool )
   return acc
 
 def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
   acc = ComponentAccumulator()
   if not summaryHelperTool:
-    summaryHelperTool = acc.getPrimaryAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
+    summaryHelperTool = acc.popToolsAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
 
   tool = CompFactory.Trk.TrackSummaryTool(name = name,
                                           InDetSummaryHelperTool = summaryHelperTool,

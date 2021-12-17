@@ -37,6 +37,7 @@ namespace DerivationFramework {
     declareProperty("ObjectRequirements", m_expression);  
     declareProperty("LowMassCut", m_massCut);
     declareProperty("MCSamples",m_MCSamples);
+    declareProperty("PrimaryVertexRefitterTool", m_pvrefitter);
   }
 
   StatusCode ZeeVertexRefittingTool::initialize()
