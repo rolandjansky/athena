@@ -29,6 +29,9 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
             raise Exception("Requested Concurrency.NumThreads>0 and Concurrency.NumConcurrentEvents==0, which will not process events!")
         LoopMgr = "AthenaHiveEventLoopMgr"
 
+    if cfgFlags.Concurrency.NumProcs>0:
+        LoopMgr = "AthMpEvtLoopMgr"
+
     ########################################################################
     # Core components needed for serial and threaded jobs
     cfg=MainServicesMiniCfg(loopMgr=LoopMgr, masterSequence='AthMasterSeq')
@@ -93,6 +96,10 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     if cfgFlags.Exec.DebugStage != "":
         cfg.setDebugStage(cfgFlags.Exec.DebugStage)
 
+    if cfgFlags.Concurrency.NumProcs>0:
+        from AthenaMP.AthenaMPConfig import AthenaMPCfg
+        mploop = AthenaMPCfg(cfgFlags)
+        cfg.merge(mploop)
 
     ########################################################################
     # Additional components needed for threaded jobs only

@@ -404,6 +404,7 @@ class AthConfigFlags(object):
         parser.add_argument("-l", "--loglevel", default=None, help="logging level (ALL, VERBOSE, DEBUG,INFO, WARNING, ERROR, or FATAL")
         parser.add_argument("--configOnly", type=str, default=None, help="Stop after configuration phase (may not be respected by all diver scripts)")
         parser.add_argument("--threads", type=int, default=0, help="Run with given number of threads")
+        parser.add_argument("--nprocs", type=int, default=0, help="Run AthenaMP with given number of worker processes")
 
         return parser
 
@@ -446,6 +447,9 @@ class AthConfigFlags(object):
         
         if args.threads:
             self.Concurrency.NumThreads = args.threads
+
+        if args.nprocs:
+            self.Concurrency.NumProcs = args.nprocs
 
         #All remaining arguments are assumed to be key=value pairs to set arbitrary flags:
 
