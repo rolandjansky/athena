@@ -5,6 +5,7 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool # ChainStep,
 from TrigT2CaloCommon.CaloDef import fastCaloRecoSequence
@@ -18,7 +19,7 @@ def getLArNoiseBurstEndOfEvent():
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.FullScanDefs import caloFSRoI
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import cellRecoSequence
 
-    cells_sequence, _ = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=caloFSRoI)
+    cells_sequence, _ = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs=caloFSRoI)
     return cells_sequence, caloFSRoI
 
 # --------------------
@@ -36,7 +37,7 @@ def getLArNoiseBurst(self):
 
     from AthenaCommon.CFElements import parOR, seqAND
     noiseBurstRecoSeq = parOR( "LArNoiseRecoSeq")
-    cells_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=noiseBurstInputMakerAlg.RoIs)
+    cells_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs=noiseBurstInputMakerAlg.RoIs)
     noiseBurstRecoSeq += cells_sequence
     hypoAlg.CellContainerKey = cells_name
 
@@ -65,7 +66,7 @@ def LArPSAllEMSequence(flags, name="LArPSSequence_AllEM"):
 
 def getCaloAllEMLayersPS(self):
 
-    sequence, viewsmaker, sequenceOut =  RecoFragmentsPool.retrieve(LArPSAllEMSequence,flags=None)
+    sequence, viewsmaker, sequenceOut =  RecoFragmentsPool.retrieve(LArPSAllEMSequence,flags=ConfigFlags)
     
     from TrigCaloHypo.TrigCaloHypoConfig import TrigL2CaloLayersHypoToolGen
     TrigL2CaloLayersAlg = CompFactory.TrigL2CaloLayersAlg("TrigL2CaloLayersAlg_AllEM")
@@ -96,7 +97,7 @@ def LArPSAllSequence( flags,  name="LArPSSequence_All"):
 
 def getCaloAllLayersPS(self):
 
-    sequence, viewsmaker, sequenceOut =  RecoFragmentsPool.retrieve(LArPSAllSequence,flags=None)
+    sequence, viewsmaker, sequenceOut =  RecoFragmentsPool.retrieve(LArPSAllSequence,flags=ConfigFlags)
 
     from TrigCaloHypo.TrigCaloHypoConfig import TrigL2CaloLayersHypoToolGen
     TrigL2CaloLayersAlg = CompFactory.TrigL2CaloLayersAlg("TrigL2CaloLayersAlg_All")

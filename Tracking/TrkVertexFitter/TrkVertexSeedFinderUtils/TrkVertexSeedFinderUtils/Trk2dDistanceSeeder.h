@@ -32,7 +32,7 @@ namespace Trk
 
   static const InterfaceID IID_Trk2dDistanceSeeder("Trk2dDistanceSeeder", 1, 1);
   
-  class Trk2dDistanceSeeder : public AthAlgTool
+  class Trk2dDistanceSeeder final: public AthAlgTool
   {
   public:
 

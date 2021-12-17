@@ -19,7 +19,7 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
           https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/src/topoEgammaBuilder.cxx
     """
 
-    log.debug('precisionElectronRecoSequence(RoIs = %s, variant = %s)',(RoIs,variant))
+    log.debug('precisionElectronRecoSequence(RoIs = %s, variant = %s)',RoIs,variant)
 
     tag = '_ion' if ion is True else ''
     tag+=variant

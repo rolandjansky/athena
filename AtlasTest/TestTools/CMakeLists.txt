@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TestTools )
@@ -20,7 +20,7 @@ endif()
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/post.sh share/nopost.sh )
+atlas_install_scripts( share/post.sh share/nopost.sh share/noerror.sh )
 
 if( NOT XAOD_STANDALONE )
    find_package( TBB )
@@ -50,3 +50,38 @@ atlas_add_test( postsh_select_ignore_test
    SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
    LOG_SELECT_PATTERN "MyAlg"
    LOG_IGNORE_PATTERN "XYZ marker" )
+
+# Unit tests for noerror.sh script:
+atlas_add_test( noerror_test_success
+   SCRIPT "echo Hello"
+   POST_EXEC_SCRIPT noerror.sh )
+
+atlas_add_test( noerror_test_failure
+   SCRIPT "exit 1"
+   POST_EXEC_SCRIPT noerror.sh
+   PROPERTIES WILL_FAIL TRUE )
+
+atlas_add_test( noerror_failure
+   SCRIPT cat "${CMAKE_CURRENT_SOURCE_DIR}/test/test_postsh_example.log"
+   POST_EXEC_SCRIPT noerror.sh
+   PROPERTIES WILL_FAIL TRUE )
+
+atlas_add_test( noerror_fpe
+   SCRIPT "echo INFO       FPEAuditor        WARNING FPE INVALID in"
+   POST_EXEC_SCRIPT noerror.sh
+   PROPERTIES WILL_FAIL TRUE )
+
+atlas_add_test( noerror_select
+   SCRIPT "echo This is a failure"
+   LOG_SELECT_PATTERN ".*failure.*"
+   POST_EXEC_SCRIPT noerror.sh
+   PROPERTIES WILL_FAIL TRUE )
+
+atlas_add_test( noerror_ignore
+   SCRIPT "echo ERROR known error"
+   LOG_IGNORE_PATTERN ".*ERROR known"
+   POST_EXEC_SCRIPT noerror.sh )
+
+atlas_add_test( noerror_false_positive
+   SCRIPT "echo ['WARNING', 'ERROR', 'FATAL']"
+   POST_EXEC_SCRIPT noerror.sh )

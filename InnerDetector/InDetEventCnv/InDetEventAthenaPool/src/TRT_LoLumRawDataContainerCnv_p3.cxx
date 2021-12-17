@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "InDetEventAthenaPool/InDetRawDataCollection_p1.h"
 #include "InDetRawData/TRT_RDO_Container.h"
@@ -165,7 +165,6 @@ void  TRT_LoLumRawDataContainerCnv_p3::persToTrans(const InDetRawDataContainer_p
   unsigned int trt_channel_id;
   unsigned int trt_channel_index=0;
   unsigned int trt_channel_index_old;
-  unsigned int total_number_of_channels=0;
 
   TRT_RDO_Collection* tcoll=0;         // transient collection to be constructed
 
@@ -188,10 +187,7 @@ void  TRT_LoLumRawDataContainerCnv_p3::persToTrans(const InDetRawDataContainer_p
     }
     if (!mchans) continue;
 
-    // This collection has "mchans" digits
-    total_number_of_channels += mchans;
-
-    // Create the transeint collection and fill with channels
+    // Create the transient collection and fill with channels
     tcoll = new TRT_RDO_Collection(IdentifierHash(trt_collection_index));
     tcoll->setIdentifier(Identifier(trt_collection_id[trt_collection_index]));
     tcoll->resize(mchans);

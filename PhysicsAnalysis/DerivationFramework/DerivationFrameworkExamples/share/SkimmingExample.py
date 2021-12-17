@@ -1,7 +1,10 @@
 #====================================================================
 # SkimmingExample.py
-# This an example job options script showing how to set up a 
-# derivation of the data using the derivation framework.  
+# This example demonstrates event skimming by means of a dedicated
+# C++ tool (also in this example package). Dedicated tools are 
+# typically used for very complex selections - simple selections such
+# as the one shown here would usually use the generic string-based 
+# skimming tool.
 # It requires the reductionConf flag TEST1 in Reco_tf.py   
 #====================================================================
 

@@ -41,6 +41,7 @@ from xAODEgamma.xAODEgammaParameters import xAOD
 
 TrigEgammaKeys = getTrigEgammaKeys()
 TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT') 
+TrigEgammaKeys_HI = getTrigEgammaKeys(ion=True) 
 
 
 
@@ -228,13 +229,35 @@ cfrc = ToolFactory(
 
 # tool to collect topo clusters in cone
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
-TrigCaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
-                                     CaloClusterLocation = TrigEgammaKeys.precisionEMClusterContainer)
+TrigCaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool, name = 'TrigCaloClustersInConeTool',
+                                     CaloClusterLocation = TrigEgammaKeys.precisionTopoClusterContainer)
+
+TrigCaloClustersInConeToolHI = ToolFactory(xAOD__CaloClustersInConeTool, name = 'TrigCaloClustersInConeToolHI',
+                                     CaloClusterLocation = TrigEgammaKeys_HI.precisionTopoClusterContainer)
 
 # this is not used below...
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
 IsoCorrectionTool = ToolFactory(ICT,
                                 name = "TrigLeakageCorrTool")
+
+TrigCaloIsolationToolHI = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsolationToolHI",
+                                postInit                        = [],
+                                CaloFillRectangularClusterTool  = cfrc,
+                                ClustersInConeTool              = TrigCaloClustersInConeToolHI,
+                                FlowElementsInConeTool          = None,
+                                ParticleCaloExtensionTool       = None,
+                                IsoLeakCorrectionTool           = None,
+                                ParticleCaloCellAssociationTool = None,
+                                saveOnlyRequestedCorrections    = True,
+                                EMCaloNums                      = [SUBCALO.LAREM],
+                                HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
+                                )
+from AthenaCommon import CfgMgr
+""" Configure the HLT CaloIsoTool """
+H_ClIT_HI = CfgMgr.xAOD__CaloIsolationTool('TrigCaloIsolationToolHI')                                
+H_ClIT_HI.doEnergyDensityCorrection=False
+H_ClIT_HI.InitializeReadHandles=False
+H_ClIT_HI.UseEMScale=True
 
 TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsolationTool",
                                 postInit                        = [],
@@ -271,6 +294,23 @@ def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
                                     )
     return TrigPhotonIsolationBuilder()
 
+def TrigPhotonIsoBuilderHICfg(name='TrigPhotonIsolationBuilderHI'):
+    TrigPhotonIsolationBuilder = AlgFactory(IsolationBuilder,
+                                    name                  = name,
+                                    doAdd                 = False,
+                                    PhotonCollectionContainerName = TrigEgammaKeys.precisionPhotonContainer,
+                                    CaloCellIsolationTool = None,
+                                    CaloTopoIsolationTool = TrigCaloIsolationToolHI,
+                                    PFlowIsolationTool    = None,
+                                    TrackIsolationTool    = None, 
+                                    PhIsoTypes            = [[isoPar.topoetcone20, isoPar.topoetcone40]],
+                                    PhCorTypes            = [[isoPar.core57cells]],
+                                    PhCorTypesExtra       = [[]],
+                                    )
+    return TrigPhotonIsolationBuilder()
+
+
+
 
 def TrigEgammaDecorationTools():
     #Return a list with the tools that decorate both electrons and photons. 
@@ -289,9 +329,6 @@ def egammaFSCaloRecoSequence():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
-
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-    TrigEgammaKeys = getTrigEgammaKeys()
 
     cellMaker = HLTCaloCellMaker('HLTCaloCellMakerEGFS')
     cellMaker.RoIs = mapThresholdToL1RoICollection('FSNOSEED')

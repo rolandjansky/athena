@@ -28,12 +28,16 @@ class LArCalibDigitMaker : public AthAlgorithm
   std::vector<std::vector<double>> m_vPattern;
   std::vector<std::vector<double>> m_vDAC;
   std::vector<unsigned> m_vDelay;
+  std::vector<int> m_nPatterns;
   std::vector<std::vector<double>> m_vBoardIDs;
   unsigned m_nTrigger;
   double m_delayScale;
   bool m_dontRun;
   bool m_isSC;
-  
+  int m_oldeventNb;
+  int m_eventNb;
+  bool m_skipDuplicates;
+  std::vector<HWIdentifier> m_pulsedChids;
 };
 
 #endif

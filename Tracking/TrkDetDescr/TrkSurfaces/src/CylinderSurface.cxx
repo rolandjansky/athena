@@ -268,7 +268,7 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
       t1 = (pquad.first - point1.x()) * idirx;
       t2 = (pquad.second - point1.x()) * idirx;
     } else // bail out if no solution exists
-      return Trk::Intersection(pos, 0., false);
+      return {pos, 0., false};
   } else if (direction.y()) {
     // x value is the one of point1
     // x^2 + y^2 = R^2
@@ -277,14 +277,14 @@ Trk::CylinderSurface::straightLineIntersection(const Amg::Vector3D& pos,
     double r2mx2 = R * R - x * x;
     // bail out if no solution
     if (r2mx2 < 0.)
-      return Trk::Intersection(pos, 0., false);
+      return {pos, 0., false};
     double y = sqrt(r2mx2);
     // assign parameters and solutions
     double idiry = 1. / direction.y();
     t1 = (y - point1.y()) * idiry;
     t2 = (-y - point1.y()) * idiry;
   } else {
-    return Trk::Intersection(pos, 0., false);
+    return {pos, 0., false};
   }
   Amg::Vector3D sol1raw(point1 + t1 * direction);
   Amg::Vector3D sol2raw(point1 + t2 * direction);

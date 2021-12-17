@@ -31,7 +31,7 @@
 #include "TrigInDetAnalysis/Track.h" 
 #include "TrigInDetAnalysis/TIDDirectory.h" 
 #include "TrigInDetAnalysis/Efficiency.h" 
-#include "TrigInDetAnalysis/TIDARoiDescriptor.h" 
+#include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
 
 class TagNProbe {
@@ -90,11 +90,11 @@ public:
     m_chain_tnp = chain_tnp;
   }
 
-
   /// probe searching method
 
   bool FindProbes();
 
+  void FindTIDAChains( std::vector<TIDA::Chain>& chains ) ;
 
   /// getter methods
 
@@ -107,6 +107,24 @@ public:
   std::vector<double> GetInvMasses_obj( unsigned int probe_index=0 ) { return m_masses_obj[ probe_index ]; }
 
   std::vector<TIDA::Roi*> GetRois( TIDA::Chain * chain, std::vector<TIDA::Chain>& chains );
+
+  std::vector<TIDA::Roi*> GetRois( std::vector<TIDA::Chain>& chains );
+
+  void tag( const std::string& chainName ) { m_tagChainName = chainName ; }
+
+  const std::string& tag() { return m_tagChainName ; }
+
+  void probe( const std::string& chainName ) { m_probeChainName = chainName ; }
+
+  const std::string& probe() { return m_probeChainName ; }
+
+  TIDA::Chain* GetTIDAProbe() { return m_chain_tnp ; } 
+
+  TIDA::Chain* GetTIDATag() { return m_chain ; }
+
+  TH1D* GetMinvHisto() { return m_hMinv ; }
+
+  TH1D* GetMinvObjHisto() { return m_hMinv_obj ; }
 
 
   /// utility methods
@@ -121,7 +139,11 @@ public:
 
   void BookMinvHisto( std::string chain_name );
 
+  void BookMinvHisto();
+
   void FillMinvHisto( std::string chain_name, unsigned int probe_index );
+
+  void FillMinvHisto( unsigned int probe_index );
 
   void WriteMinvHisto( TDirectory* foutdir );
 
@@ -147,6 +169,9 @@ private:
   TIDA::Chain * m_chain;
   TIDA::Chain * m_chain_tnp;
 
+  std::string m_probeChainName ;
+  std::string m_tagChainName ;
+
   std::vector<TIDA::Roi*> m_probes;
   std::vector< std::vector<double> > m_masses;
   std::vector< std::vector<double> > m_masses_obj;
@@ -168,6 +193,9 @@ private:
 
   std::map<std::string,TH1D*> m_hMinv_map;
   std::map<std::string,TH1D*> m_hMinv_obj_map;
+
+  TH1D* m_hMinv ;
+  TH1D* m_hMinv_obj ;
 
 };
 

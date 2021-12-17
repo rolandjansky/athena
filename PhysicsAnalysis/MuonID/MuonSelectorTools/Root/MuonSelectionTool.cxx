@@ -139,6 +139,13 @@ namespace CP {
             ATH_MSG_INFO("You have opted to select only 3-station muons in the high-pT selection! "
                          << "Please feed 'HighPt3Layers' to the 'WorkingPoint' property to retrieve the appropriate scale-factors");
 
+	// Only an MVA-based selection is defined for segment-tagged muons for the Low-pT working point
+	if (m_useSegmentTaggedLowPt && !m_useMVALowPt) {
+	  ATH_MSG_WARNING("No cut-based selection is defined for segment-tagged muons in the Low-pT working point. "
+			  << "Please set UseMVALowPt=true if you want to try the UseSegmentTaggedLowPt=true option.");
+	  m_useSegmentTaggedLowPt = false;
+	}
+
         // Set up the TAccept object:
         m_acceptInfo.addCut("Eta", "Selection of muons according to their pseudorapidity");
         m_acceptInfo.addCut("IDHits", "Selection of muons according to whether they passed the MCP ID Hit cuts");

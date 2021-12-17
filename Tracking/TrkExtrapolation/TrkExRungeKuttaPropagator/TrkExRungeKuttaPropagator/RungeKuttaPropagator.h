@@ -23,6 +23,9 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
 
+//
+#include "CxxUtils/restrict.h"
+
 namespace Trk {
 
     class Surface                  ;
@@ -125,7 +128,6 @@ namespace Trk {
         using IPropagator::propagate;
         using IPropagator::propagateParameters;
         using IPropagator::globalPositions;
-        using IPropagator::propagateStep;
         using IPropagator::intersectSurface;
         using IPatternParametersPropagator::propagate;
         using IPatternParametersPropagator::propagateParameters;
@@ -313,20 +315,6 @@ namespace Trk {
          const MagneticFieldProperties                &,
          ParticleHypothesis particle=pion              ) const  override final;
 
-        /** a very simple propagation along a given path length */
-
-        virtual void propagateStep(
-          const EventContext& ctx,
-          const Amg::Vector3D& inputPosition,
-          const Amg::Vector3D& inputMomentum,
-          double charge,
-          double step,
-          Amg::Vector3D& outputPosition,
-          Amg::Vector3D& outputMomentum,
-          const MagneticFieldProperties& mprop) const override final;
-
-      private:
-
         struct Cache{
             MagField::AtlasFieldCache    m_fieldCache;
             double  m_field[3];
@@ -339,6 +327,9 @@ namespace Trk {
             bool    m_needgradient                       = false;
             bool    m_newfield                           = true;
         };
+
+
+      private:
 
         /////////////////////////////////////////////////////////////////////////////////
         // Private methods:
@@ -393,9 +384,9 @@ namespace Trk {
         (Cache& cache                  ,
          bool                          ,
          int                           ,
-         double                       *,
-         double                       *,
-         double                       &) const;
+         double          * ATH_RESTRICT,
+         double          * ATH_RESTRICT,
+         double          & ATH_RESTRICT) const;
 
         /** Propagation methods runge kutta step*/
 
@@ -403,7 +394,7 @@ namespace Trk {
         (Cache& cache,
          bool                          ,
          double                        ,
-         double                       *,
+         double          * ATH_RESTRICT,
          bool                         &) const;
 
         /** Propagation methods runge kutta step*/
@@ -411,7 +402,7 @@ namespace Trk {
         double rungeKuttaStepWithGradient
         (Cache& cache                  ,
          double                        ,
-         double                       *,
+         double          * ATH_RESTRICT,
          bool                         &) const;
 
 
@@ -420,8 +411,8 @@ namespace Trk {
         double stepEstimatorWithCurvature(
           Cache& cache,
           int,
-          double*,
-          const double*,
+          double* ATH_RESTRICT ,
+          const double* ATH_RESTRICT,
           bool&) const;
 
         /** Step reduction */
@@ -447,17 +438,6 @@ namespace Trk {
          double                          ,
          ParticleHypothesis particle=pion) const;
 
-        void getField(
-          Cache& cache,
-          double*,
-          double*) const;
-
-        void getFieldGradient(
-          Cache& cache,
-          double*,
-          double*,
-          double*) const;
-
         void getFieldCacheObject(
           Cache& cache,
           const EventContext& ctx) const;
@@ -481,29 +461,5 @@ namespace Trk {
     // Inline methods for magnetic field information
     /////////////////////////////////////////////////////////////////////////////////
 
-    inline void
-    RungeKuttaPropagator::getField(Cache& cache, double* R, double* H) const
-    {
-
-      if (cache.m_solenoid) {
-        cache.m_fieldCache.getFieldZR(R, H);
-      } else {
-        cache.m_fieldCache.getField(R, H);
-      }
-    }
-
-    inline void
-    RungeKuttaPropagator::getFieldGradient(Cache& cache,
-                                           double* R,
-                                           double* H,
-                                           double* dH) const
-    {
-      if (cache.m_solenoid){
-        cache.m_fieldCache.getFieldZR(R, H, dH);
-      }
-      else{
-        cache.m_fieldCache.getField(R, H, dH);
-      }
-    }
 }//end namespace Trk
 #endif // RungeKuttaPropagator_H

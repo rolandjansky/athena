@@ -160,7 +160,7 @@ class TrigTauMonAlgBuilder:
   
     # if mon groups not found fall back to hard-coded trigger monitoring list
     if len(monitoring_tau) == 0:
-       monitoring_tau = [
+      monitoring_tau = [
        # tau0
        'HLT_tau0_ptonly_L1TAU8',
        'HLT_tau0_ptonly_L1TAU60',
@@ -225,7 +225,7 @@ class TrigTauMonAlgBuilder:
        'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
        'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
        'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
-       ]
+      ]
 
     self.tauList = monitoring_tau
 

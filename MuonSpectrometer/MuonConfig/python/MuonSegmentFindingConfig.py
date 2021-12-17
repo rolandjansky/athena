@@ -789,7 +789,9 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     result.merge(MuonLayerHoughAlgCfg(flags))
     result.merge(MuonSegmentFinderAlgCfg(flags, name="MuonSegmentFinderAlg"))
   
-    result.merge( MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality) )
+    result.merge(MooSegmentFinderAlg_NCBCfg(flags, Cardinality=cardinality))
+
+    result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
 
     return result
 

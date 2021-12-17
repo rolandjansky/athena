@@ -1,14 +1,13 @@
 #====================================================================
 # SlimmingExample.py
 # This an example job options script showing how to set up slimming 
-# in the derivation framework. For trigger content see the 
-# TriggerContentExample.py (TEST10) 
+# in the derivation framework. 
 # It requires the reductionConf flag TEST4 in Reco_tf.py   
 #====================================================================
 
 # Set up common services and job object. 
 # This should appear in ALL derivation job options
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName 
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
@@ -37,18 +36,24 @@ TEST4Stream.AcceptAlgs(["TEST4Kernel"])
 # For trigger information see TriggerContentExample.py 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 TEST4SlimmingHelper = SlimmingHelper("TEST4SlimmingHelper")
-TEST4SlimmingHelper.SmartCollections = ["Electrons",
-					"Photons",
-					"Muons",
-					"TauJets",
-					"MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt2Track",
-                                        "BTagging_AntiKt3Track",
-                                        "BTagging_AntiKt4Track", 
+TEST4SlimmingHelper.SmartCollections = ["EventInfo",
+                                        "Electrons",
+                                        "Photons",
+                                        "Muons",
+                                        "PrimaryVertices",
                                         "InDetTrackParticles",
-					"PrimaryVertices" ]
+                                        "AntiKt4EMTopoJets",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track", 
+                                        "MET_Baseline_AntiKt4EMTopo",
+                                        "MET_Baseline_AntiKt4EMPFlow",
+                                        "TauJets",
+                                        "DiTauJets",
+                                        "DiTauJetsLowPt",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKtVR30Rmax4Rmin02PV0TrackJets",
+                                      ]
 #TEST4SlimmingHelper.ExtraVariables = ["PhotonCollection.weta2.f1.phi.weta1.emaxs1"]
 #TEST4SlimmingHelper.AllVariables = ["Muons"]
 #TEST4SlimmingHelper.StaticContent = ["CaloCellContainer#AODCellContainer"]

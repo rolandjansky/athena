@@ -151,7 +151,7 @@ void CaloSwCalibHitsCalibration::makeTheCorrection
 
    // Compute longitudinal barycenter: this is a very old and approximate
    // parametrization that needs to be updated.
-   double shower_lbary = m_showerDepth.depth (the_aeta,
+   double shower_lbary = CaloClusterCorr::CaloSwCalibHitsShowerDepth::depth (the_aeta,
                                               eta_start_crack,
                                               eta_end_crack,
                                               m_sampling_depth(myctx),

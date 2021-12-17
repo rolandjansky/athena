@@ -43,10 +43,10 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find(const Trk::TrackParameters& pars,
+    std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find(const EventContext& ctx, const Trk::TrackParameters& pars,
                                                                           const std::set<Identifier>& chIds) const {
         // get MdtPrepData collections correspondign to the chamber Identifiers
-        std::vector<const MdtPrepData*> mdtPrds = extractPrds(chIds);
+        std::vector<const MdtPrepData*> mdtPrds = extractPrds(ctx, chIds);
 
         if (mdtPrds.empty()) {
             ATH_MSG_DEBUG(" no MdtPrepData found ");
@@ -57,10 +57,10 @@ namespace Muon {
         return find(pars, mdtPrds);
     }
 
-    std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find(const Trk::TrackParameters& pars,
+    std::unique_ptr<Trk::SegmentCollection> MuonSeededSegmentFinder::find(const EventContext& ctx, const Trk::TrackParameters& pars,
                                                                           const std::set<IdentifierHash>& chIdHs) const {
         // get MdtPrepData collections correspondign to the chamber Identifiers
-        std::vector<const MdtPrepData*> mdtPrds = extractPrds(chIdHs);
+        std::vector<const MdtPrepData*> mdtPrds = extractPrds(ctx, chIdHs);
 
         if (mdtPrds.empty()) {
             ATH_MSG_DEBUG(" no MdtPrepData found ");
@@ -118,8 +118,8 @@ namespace Muon {
         return segments;
     }
 
-    std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds(const std::set<Identifier>& chIds) const {
-        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds(const EventContext& ctx, const std::set<Identifier>& chIds) const {
+        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
         const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
         if (MuonDetMgr == nullptr) {
             ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
@@ -148,13 +148,13 @@ namespace Muon {
         }
 
         // vector to store pointers to collections
-        std::vector<const MdtPrepData*> mdtPrds = extractPrds(chIdHs);
+        std::vector<const MdtPrepData*> mdtPrds = extractPrds(ctx, chIdHs);
 
         return mdtPrds;
     }
 
-    std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds(const std::set<IdentifierHash>& chIdHs) const {
-        SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt);
+    std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs) const {
+        SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt, ctx);
         const Muon::MdtPrepDataContainer* mdtPrdContainer;
         if (h_mdtPrdCont.isValid()) {
             mdtPrdContainer = h_mdtPrdCont.cptr();
@@ -180,9 +180,9 @@ namespace Muon {
         return mdtPrds;
     }
 
-    void MuonSeededSegmentFinder::extractMdtPrdCols(const std::set<IdentifierHash>& chIdHs,
+    void MuonSeededSegmentFinder::extractMdtPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
                                                     std::vector<const MdtPrepDataCollection*>& target) const {
-        SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt);
+        SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt, ctx);
         const Muon::MdtPrepDataContainer* mdtPrdContainer;
         if (h_mdtPrdCont.isValid()) {
             mdtPrdContainer = h_mdtPrdCont.cptr();
@@ -206,9 +206,9 @@ namespace Muon {
         }
     }
 
-    void MuonSeededSegmentFinder::extractRpcPrdCols(const std::set<IdentifierHash>& chIdHs,
+    void MuonSeededSegmentFinder::extractRpcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
                                                     std::vector<const RpcPrepDataCollection*>& target) const {
-        SG::ReadHandle<Muon::RpcPrepDataContainer> h_rpcPrdCont(m_key_rpc);
+        SG::ReadHandle<Muon::RpcPrepDataContainer> h_rpcPrdCont(m_key_rpc, ctx);
         const Muon::RpcPrepDataContainer* rpcPrdContainer;
         if (h_rpcPrdCont.isValid()) {
             rpcPrdContainer = h_rpcPrdCont.cptr();
@@ -232,9 +232,9 @@ namespace Muon {
         }
     }
 
-    void MuonSeededSegmentFinder::extractTgcPrdCols(const std::set<IdentifierHash>& chIdHs,
+    void MuonSeededSegmentFinder::extractTgcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
                                                     std::vector<const TgcPrepDataCollection*>& target) const {
-        SG::ReadHandle<Muon::TgcPrepDataContainer> h_tgcPrdCont(m_key_tgc);
+        SG::ReadHandle<Muon::TgcPrepDataContainer> h_tgcPrdCont(m_key_tgc, ctx);
         const Muon::TgcPrepDataContainer* tgcPrdContainer;
         if (h_tgcPrdCont.isValid()) {
             tgcPrdContainer = h_tgcPrdCont.cptr();
@@ -292,14 +292,15 @@ namespace Muon {
 
     // New Small Wheel
     // sTGC
-    void MuonSeededSegmentFinder::extractsTgcPrdCols(const std::set<IdentifierHash>& chIdHs,
+
+    void MuonSeededSegmentFinder::extractsTgcPrdCols(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs,
                                                      std::vector<const sTgcPrepDataCollection*>& target) const {
         if (m_key_stgc.key().empty()) {
             ATH_MSG_DEBUG("no sTGC collection");
             return;
         }
 
-        SG::ReadHandle<Muon::sTgcPrepDataContainer> h_stgcPrdCont(m_key_stgc);
+        SG::ReadHandle<Muon::sTgcPrepDataContainer> h_stgcPrdCont(m_key_stgc, ctx);
         const Muon::sTgcPrepDataContainer* stgcPrdContainer;
         if (h_stgcPrdCont.isValid()) {
             stgcPrdContainer = h_stgcPrdCont.cptr();

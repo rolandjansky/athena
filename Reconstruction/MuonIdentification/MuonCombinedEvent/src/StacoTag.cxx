@@ -26,10 +26,7 @@ namespace MuonCombined {
   std::unique_ptr<const Trk::Perigee> StacoTag::releaseCombinedParameters() { return std::move(m_combinedParameters); }
   const MuonCandidate& StacoTag::muonCandidate() const { return *m_muonCandidate; }
   double StacoTag::matchChi2() const { return m_chi2; }
-  const Trk::Track* StacoTag::primaryTrack() const {
-    if( muonCandidate().extrapolatedTrack() ) return muonCandidate().extrapolatedTrack();
-    return &muonCandidate().muonSpectrometerTrack();
-  }
+  const Trk::Track* StacoTag::primaryTrack() const { return muonCandidate().primaryTrack();}
 
   bool operator<( const StacoTag& t1,  const StacoTag& t2 ){
     return t1.matchChi2() < t2.matchChi2();

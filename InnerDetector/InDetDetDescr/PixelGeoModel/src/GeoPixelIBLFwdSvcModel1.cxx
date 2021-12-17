@@ -101,7 +101,6 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
   //  double zpos0 = 903.;
   double zpos = 0.;
   //  double zposRing = 0.;
-  double totalLength=0.;
   //  double hermJunction = .4;
   double breakAngle = 11.*Gaudi::Units::deg;
 
@@ -206,7 +205,6 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 	gblShapeCoolingC = addShape(gblShapeCoolingC, coolingShape, trfC1 );
 
 	zpos += zHalfLength;
-	totalLength+=2.*zHalfLength;
       }
       else {
 
@@ -227,7 +225,6 @@ GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 	gblShapeCoolingC = addShape(gblShapeCoolingC, coolingShape, trfC1 );
 
  	zpos += zHalfLength;
-	totalLength+=2.*cableHalfLength;
 	angleSign*=-1;
       }
      

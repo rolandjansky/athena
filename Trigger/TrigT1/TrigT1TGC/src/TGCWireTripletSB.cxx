@@ -4,6 +4,7 @@
 
 // ref. SOS051V07,S0S052V06 
 #include "TrigT1TGC/TGCWireTripletSB.h"
+#include "TrigT1TGC/TGCPatchPanel.h"
 #include "TrigT1TGC/TGCPatchPanelOut.h"
 #include <iostream>
 #include <cstdlib>
@@ -104,26 +105,6 @@ void TGCWireTripletSB::doCoincidence()
 
     delete [] b;
     delete [] out;
-  }
-}
-
-TGCWireTripletSB::TGCWireTripletSB(const TGCWireTripletSB& right) :
-  TGCSlaveBoard(right)
-{
-  m_id = right.m_id;
-  m_bid = right.m_bid;
-  m_idHighPtBoard = right.m_idHighPtBoard;
-  m_type = right.m_type;
-  m_lengthOfCoincidenceOut = right.m_lengthOfCoincidenceOut;
-  *m_slaveBoardOut = *right.m_slaveBoardOut;
-  *m_patchPanel = *right.m_patchPanel;
-  *m_patchPanelOut = *right.m_patchPanelOut;
-
-  if ( m_lengthOfCoincidenceOut > 0) { 
-    if ( m_coincidenceOut ) delete  m_coincidenceOut; 
-    m_coincidenceOut = new TGCHitPattern (m_lengthOfCoincidenceOut);
-    if ( !m_coincidenceOut ) 
-      std::cerr << "TGCWireTripletSB::TGCWireTripletSB: Memory allocation failure." << std::endl;
   }
 }
 

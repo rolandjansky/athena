@@ -86,10 +86,15 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
 
     AFP_TDCONFIGURATION tdcfg=m_CfgParams.tdcfg.at(eStation);
     AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg.at(eStation);
+    AFP_CONSTANTS AfpConstants;
 
     double xComponent = -m_CfgParams.vecRPotFloorDistance[eStation];
     double yComponent = m_CfgParams.vecRPotYPos[eStation];
 
+    double xStag = 0.0;
+    if(eElement==ESE_SID && nPlateID!=AfpConstants.Stat_GlobalVacuumSensorID)
+        xStag = (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0;
+    
     switch(eStation)
     {
     case EAS_AFP00:
@@ -98,21 +103,21 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
         else if(eElement==ESE_TOF)
             ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot);
         else if(eElement==ESE_SID)
-            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,-sidcfg.fZDistanceInRPot);
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( xStag,0.0,-sidcfg.fZDistanceInRPot);
         else {};
         break;
     case EAS_AFP01:
         if(eElement==ESE_RPOT)
             ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0);
         else if(eElement==ESE_SID)
-            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::TranslateX3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0);
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::TranslateX3D( xStag);
         else {};
         break;
     case EAS_AFP02:
         if(eElement==ESE_RPOT)
             ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0);
         else if(eElement==ESE_SID)
-            ReqTransform=HepGeom::Translate3D(xComponent, yComponent ,0.0)*HepGeom::TranslateX3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0);
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent ,0.0)*HepGeom::TranslateX3D( xStag);
         else {};
         break;
     case EAS_AFP03:
@@ -121,7 +126,7 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
 	else if(eElement==ESE_TOF)
             ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot);
 	else if(eElement==ESE_SID)
-            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,-sidcfg.fZDistanceInRPot);
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( xStag,0.0,-sidcfg.fZDistanceInRPot);
         break;
     default:
         break;

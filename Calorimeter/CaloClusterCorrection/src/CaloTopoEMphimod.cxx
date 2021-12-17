@@ -79,7 +79,4 @@ void CaloTopoEMphimod::makeTheCorrection(const Context& myctx,
 
   ATH_MSG_DEBUG( " ... phi-mod END" << endmsg);
   ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << endmsg);
-
-  // Done
-  return ; 
 }

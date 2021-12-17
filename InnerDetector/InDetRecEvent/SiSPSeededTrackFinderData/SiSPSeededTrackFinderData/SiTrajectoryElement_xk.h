@@ -24,7 +24,6 @@
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 // MagField cache
 #include "MagFieldElements/AtlasFieldCache.h"
@@ -74,8 +73,7 @@ namespace InDet{
       const InDet::SiCluster*           cluster     () const {return m_cluster   ;  }  
       const InDet::SiCluster*           clusterOld  () const {return m_clusterOld;  }  
       const InDet::SiCluster*           clusterNoAdd() const {return m_clusterNoAdd;} 
-      Trk::TrackStateOnSurfaceProtContainer::Ptr
-      tsos (Trk::TrackStateOnSurfaceProtContainer& c, int i);
+      Trk::TrackStateOnSurface*         tsos (int i);
 
       bool isNextClusterHoleB(bool&,double&);
       bool isNextClusterHoleF(bool&,double&);
@@ -263,12 +261,9 @@ namespace InDet{
       // @name TrackStateOnSurface production  
       ///////////////////////////////////////////////////////////////////
       //@{
-      Trk::TrackStateOnSurfaceProtContainer::Ptr
-      trackStateOnSurface(Trk::TrackStateOnSurfaceProtContainer& c, bool,bool,bool,int);
-      Trk::TrackStateOnSurfaceProtContainer::Ptr
-      trackSimpleStateOnSurface(Trk::TrackStateOnSurfaceProtContainer& c, bool,bool,int);
-      Trk::TrackStateOnSurfaceProtContainer::Ptr
-      trackPerigeeStateOnSurface(Trk::TrackStateOnSurfaceProtContainer& c);
+      Trk::TrackStateOnSurface* trackStateOnSurface(bool,bool,bool,int);
+      Trk::TrackStateOnSurface* trackSimpleStateOnSurface(bool,bool,int);
+      Trk::TrackStateOnSurface* trackPerigeeStateOnSurface();
       //@}
 
       ///////////////////////////////////////////////////////////////////
@@ -429,6 +424,7 @@ namespace InDet{
       };
 
       bool                                        m_stereo{}      ;
+      bool                                        m_utsos[3]{}    ;
       bool                                        m_fieldMode{}   ;
       bool                                        m_useassoTool = false ;
       /// status flag. Start as 0. 
@@ -514,7 +510,7 @@ namespace InDet{
       const Trk::IRIO_OnTrackCreator*             m_riotool{}     ;
       const Trk::PRDtoTrackMap                   *m_prdToTrackMap{};      
 
-      std::unique_ptr<Trk::TrackStateOnSurface>   m_tsos[3]     ;
+      Trk::TrackStateOnSurface*                   m_tsos[3]{}     ;
       Amg::MatrixX                                m_covariance  ;
       Amg::Vector2D                               m_position    ;
 

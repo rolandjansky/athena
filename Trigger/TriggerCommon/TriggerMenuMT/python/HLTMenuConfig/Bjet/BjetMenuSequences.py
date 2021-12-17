@@ -23,14 +23,14 @@ from ..Menu.MenuComponents import MenuSequence
 # ====================================================================================================
 
 # todo: pass in more information, i.e. jet collection name
-def getBJetSequence(jc_name):
+def getBJetSequence(flags, jc_name=None):
+    if not jc_name:
+        raise ValueError("jet collection name is empty - pass the full HLT jet collection name to getBJetSequence().")
 
     config=getInDetTrigConfig('jet')
     prmVtxKey = config.vertex
     outputRoIName = getInDetTrigConfig('bjet').roi
 
-    if not jc_name:
-        raise ValueError("jet collection name is empty - pass the full HLT jet collection name to getBJetSequence().")
     jc_key = f'{jc_name}_'
     # Output container names as defined in TriggerEDMRun3
     BTagName = recordable(f'{jc_key}BTagging')

@@ -537,6 +537,7 @@ class TopoAlgoDef:
             {"minInvm": 8, "maxInvm": 15, "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #8INVM15-2MU5VFab
             {"minInvm": 2, "maxInvm": 9,  "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #2INVM9-2MU5VFab 
             {"minInvm": 7, "maxInvm": 15, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #7INVM15-2MU3Vab 
+            {"minInvm": 8, "maxInvm": 22, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #8INVM22-2MU3Vab #ATR-21566
         ]
         for x in listofalgos:
             class d:
@@ -1248,8 +1249,13 @@ class TopoAlgoDef:
             {"minInvm": 8, "maxInvm": 15, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-15DR99-2MU3Vab
           
             {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR20-2MU3Vab # ATR-21566
- 
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3Vab",},  #7INVM22-0DR12-MU5VFab-MU3Vab # ATR-21566
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3Vab",},  #7INVM22-0DR20-MU5VFab-MU3Vab # ATR-21566 
+
             {"minInvm": 8, "maxInvm": 15, "minDr": 0,  "maxDr": 22, "mult": 1, "otype1" : "CMU5VFab","otype2": "CMU3Vab",}, #8INVM15-0DR22-CMU5VFab-CMU3Vab
+ 
+            {"minInvm": 7, "maxInvm": 14, "minDr": 0,  "maxDr": 25, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #7INVM14-0DR25-MU5VFab-MU3Vab
+            {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #7INVM11-25DR99-2MU3Vab
         ]
         for x in listofalgos:
             class d:

@@ -530,9 +530,18 @@ def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, inputtype, ptmin=0.,
         return DFJetAlgs[algname]
 
     if VRJetName not in jtm.tools:
-
         mods = []
+        # add VR track jet overlap decorator tool to list of jet modifiers
+        vrODT = None
+        from AthenaCommon.AppMgr import ToolSvc
+        if hasattr(ToolSvc,"VRJetOverlapDecoratorTool"):
+            vrODT = getattr(ToolSvc,"VRJetOverlapDecoratorTool")
+        else:
+            vrODT = CfgMgr.FlavorTagDiscriminants__VRJetOverlapDecoratorTool("VRJetOverlapDecoratorTool")
+            ToolSvc += vrODT
+        mods += [vrODT]
 
+        # Cone matching for B, C and tau truth for VR track jets.
         if jetFlags.useTruth and jtm.haveParticleJetTools and inputtype == 'PV0Track':
             mods += [jtm.trackjetdrlabeler, jtm.ghostlabeler]
 

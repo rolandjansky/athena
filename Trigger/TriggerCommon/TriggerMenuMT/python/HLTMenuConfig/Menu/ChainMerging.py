@@ -4,6 +4,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import get_alignment_gr
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from TrigCompositeUtils.TrigCompositeUtils import legName
 
@@ -301,10 +302,10 @@ def serial_zip(allSteps, chainName, chainDefList, legOrdering):
                     for ileg in range(len(chainDefList[stepPlacement2].L1decisions)):                        
                         if isFullScanRoI(chainDefList[stepPlacement2].L1decisions[ileg]):
                             log.debug("[serial_zip] adding FS empty sequence")
-                            emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg]+"FS")]
+                            emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=ConfigFlags, name=seqNames[ileg]+"FS")]
                         else:
                             log.debug("[serial_zip] adding non-FS empty sequence")
-                            emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg])]
+                            emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=ConfigFlags, name=seqNames[ileg])]
 
                     if doBonusDebug:
                         log.debug("[serial_zip] emptyChainDicts %s",emptyChainDicts)
@@ -476,10 +477,10 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
             seqName = getEmptySeqName(new_stepDict['signature'], chain_index, stepNumber, chainDefList[0].alignmentGroups[0])
 
             if isFullScanRoI(chainDefList[chain_index].L1decisions[0]):
-                stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName+"FS"))
+                stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=ConfigFlags, name=seqName+"FS"))
                 currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDict['chainParts'][0]['multiplicity']+new_stepDict['signature']+'FS'
             else:
-                stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName))
+                stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=ConfigFlags, name=seqName))
                 currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDict['chainParts'][0]['multiplicity']+new_stepDict['signature']
 
             log.debug("[makeCombinedStep]  chain_index: %s, step name: %s,  empty sequence name: %s", chain_index, currentStepName, seqName)

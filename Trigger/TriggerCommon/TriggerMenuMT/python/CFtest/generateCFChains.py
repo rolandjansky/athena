@@ -15,7 +15,9 @@ def generateCFChains(opt):
     from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import ChainStore
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     from DecisionHandling.TestUtils import makeChain, makeChainStep
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+    ConfigFlags.lock()
     menu = GenerateMenuMT()
     menu.chainsInMenu = ChainStore()
     ##################################################################
@@ -23,9 +25,9 @@ def generateCFChains(opt):
     ##################################################################
     if opt.doEgammaSlice is True:
         from TriggerMenuMT.HLTMenuConfig.Electron.ElectronChainConfiguration import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
-        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
-        electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
-        precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, ConfigFlags )
+        electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, ConfigFlags )
+        precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, ConfigFlags )
         
         FastCaloStep      = makeChainStep("ElectronFastCaloStep", [fastCaloSeq])
         FastElectronStep  = makeChainStep("ElectronFastTrackStep", [electronSeq])
@@ -40,9 +42,9 @@ def generateCFChains(opt):
         menu.chainsInMenu['Egamma'] += electronChains
 
         from TriggerMenuMT.HLTMenuConfig.Photon.PhotonChainConfiguration import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
-        fastCaloSeq            = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
-        fastPhotonSeq          = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
-        precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None)
+        fastCaloSeq            = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, ConfigFlags )
+        fastPhotonSeq          = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, ConfigFlags )
+        precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, ConfigFlags)
         
         FastCaloStep            = makeChainStep("PhotonFastCaloStep", [fastCaloSeq])
         fastPhotonStep          = makeChainStep("PhotonStep2", [fastPhotonSeq])
@@ -112,7 +114,6 @@ def generateCFChains(opt):
     ##################################################################
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import jetRecoDictFromString
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     def jetCaloHypoMenuSequenceFromString(jet_def_str):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
@@ -176,7 +177,7 @@ def generateCFChains(opt):
         
         step1 = makeChainStep("Step_jet_a4_tc_em_presel", [jetSeq_a4_tc_em_presel])
         step2 = makeChainStep("Step_jet_a4_tc_em_gsc_ftf", [jetSeq_a4_tc_em_gsc_ftf])
-        step3 = makeChainStep("Step3_bjet", [getBJetSequence(jc_name)])
+        step3 = makeChainStep("Step3_bjet", [getBJetSequence(ConfigFlags, jc_name)])
         
         menu.chainsInMenu['Bjet']  = [
             makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
@@ -258,7 +259,7 @@ def generateCFChains(opt):
     ##################################################################
     if opt.doCombinedSlice is True:
         from TriggerMenuMT.HLTMenuConfig.Electron.ElectronChainConfiguration import electronFastCaloCfg
-        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, ConfigFlags )
         
         from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence
         

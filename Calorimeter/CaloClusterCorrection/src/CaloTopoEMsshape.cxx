@@ -81,7 +81,4 @@ void CaloTopoEMsshape::makeTheCorrection(const Context& myctx,
 
   ATH_MSG_DEBUG( " ... s-shapes END" << endmsg);
   ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
-
-  // Done
-  return ; 
 }

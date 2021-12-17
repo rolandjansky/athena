@@ -459,7 +459,11 @@ class FPECheck(WorkflowCheck):
 
         if result:
             self.logger.info("Passed!\n")
-        else :
+        elif test.type in [WorkflowType.FullSim, WorkflowType.DataOverlay, WorkflowType.MCOverlay]:
+            self.logger.warning("Failed!")
+            self.logger.warning("Check disabled due to irreproducibilities!\n")
+            result = True
+        else:
             self.logger.error("Failed!\n")
 
         return result

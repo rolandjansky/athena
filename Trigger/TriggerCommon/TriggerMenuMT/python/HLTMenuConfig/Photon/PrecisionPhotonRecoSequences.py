@@ -34,6 +34,7 @@ def precisionPhotonRecoSequence(RoIs, ion=False):
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier" + tag)
     ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % caloClusters ),
+                              ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % TrigEgammaKeys.precisionTopoClusterContainer), # this is for the calo isolation tool 
                               ( 'EgammaRecContainer', 'StoreGateSvc+%s' % TrigEgammaKeys.precisionPhotonSuperClusterCollection),
                               ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' )]
                               
@@ -59,9 +60,10 @@ def precisionPhotonRecoSequence(RoIs, ion=False):
     collectionOut = trigTopoEgammaAlgo.PhotonOutputName
 
     # Add CaloIsolationTool
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigPhotonIsoBuilderCfg
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigPhotonIsoBuilderCfg, TrigPhotonIsoBuilderHICfg
     isoBuilder = TrigPhotonIsoBuilderCfg('TrigPhotonIsolationBuilder' + tag)
-    thesequence += isoBuilder
+    isoBuilderHI = TrigPhotonIsoBuilderHICfg('TrigPhotonIsolationBuilderHI' + tag)
+    thesequence += isoBuilderHI if ion is True else isoBuilder
 
     #online monitoring for topoEgammaBuilder
     from TriggerMenuMT.HLTMenuConfig.Photon.TrigPhotonFactories import PrecisionPhotonTopoMonitorCfg

@@ -56,7 +56,7 @@ public:
 
   bool debug() const { return m_debug; }
   
- private:
+public:
 
   void addHistogram( TH1* h ) {
     std::string name = h->GetName();
@@ -70,7 +70,7 @@ public:
 
   double phi(double p);
 
- private:
+private:
 
   std::map<std::string, TH1*> m_histos;
   std::map<std::string, TProfile*> m_effhistos;

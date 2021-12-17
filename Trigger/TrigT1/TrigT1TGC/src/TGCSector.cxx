@@ -93,7 +93,7 @@ int TGCSector::getPatchPanelType(TGCSignalType signal, int layer) const
 }
 
 TGCSector::TGCSector()
- : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
+ : m_regionType(FORWARD), m_numberOfHit(0), 
    m_sideId(0), m_octantId(0), m_moduleId(0), 
    m_forwardBackward(ForwardSector), 
    m_SL(0), m_TMDB(0), m_NSW(0),m_BIS78(0),
@@ -101,16 +101,13 @@ TGCSector::TGCSector()
 {
   for(unsigned int iPatchPanelType=0; iPatchPanelType<NumberOfPatchPanelType; iPatchPanelType++) {
     m_ASDToPP[iPatchPanelType] = 0;
-    m_numberOfPP[iPatchPanelType] = 0;
-    m_PP[iPatchPanelType] = 0;
+    m_PP[iPatchPanelType].clear();
   }
   for(unsigned int iSlaveBoardType=0; iSlaveBoardType<NumberOfSlaveBoardType; iSlaveBoardType++) {
-    m_numberOfSB[iSlaveBoardType] = 0;
-    m_SB[iSlaveBoardType] = 0;
+    m_SB[iSlaveBoardType].clear();
   }
   for(unsigned int iHighPtBoardType=0; iHighPtBoardType<NumberOfHighPtBoardType; iHighPtBoardType++) {
-    m_numberOfHPB[iHighPtBoardType] = 0;
-    m_HPB[iHighPtBoardType] = 0;
+    m_HPB[iHighPtBoardType].clear();
   }
 }
 
@@ -170,45 +167,13 @@ TGCSector::TGCSector(TGCArguments* tgcargs,
   }
 }
 
-//  copy constructor is hidden
-TGCSector::TGCSector(const TGCSector&)
- : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
-   m_sideId(0), m_octantId(0), m_moduleId(0), 
-   m_forwardBackward(ForwardSector), 
-   m_SL(0), m_TMDB(0), m_NSW(0), m_BIS78(0),
-   m_tgcArgs(nullptr)
-{
-  for(unsigned int iPatchPanelType=0; iPatchPanelType<NumberOfPatchPanelType; iPatchPanelType++) {
-    m_ASDToPP[iPatchPanelType] = 0;
-    m_numberOfPP[iPatchPanelType] = 0;
-    m_PP[iPatchPanelType] = 0;
-  }
-  for(unsigned int iSlaveBoardType=0; iSlaveBoardType<NumberOfSlaveBoardType; iSlaveBoardType++) {
-    m_numberOfSB[iSlaveBoardType] = 0;
-    m_SB[iSlaveBoardType] = 0;
-  }
-  for(unsigned int iHighPtBoardType=0; iHighPtBoardType<NumberOfHighPtBoardType; iHighPtBoardType++) {
-    m_numberOfHPB[iHighPtBoardType] = 0;
-    m_HPB[iHighPtBoardType] = 0;
-  }
-}
-
-// assignment operator is hidden
-TGCSector& TGCSector::operator=( const TGCSector& )
-{
-   return *this;
-}
-
 void TGCSector::setModule(const TGCConnectionPPToSL* connection)
 {
-  int jpp, jsb, jhp;
-  
-  if (m_moduleId <9) {
-    // m_PP
-    for( jpp=0; jpp<=SDPP; jpp+=1){
-      m_numberOfPP[jpp] = connection->getPPToSB()->getNumber(jpp);
-      m_PP[jpp] = new TGCPatchPanel* [m_numberOfPP[jpp]];
-      for(int i=0; i<m_numberOfPP[jpp]; i+=1){
+  if (m_moduleId <9) {   // BW Sectors
+    // PP ASIC
+    for (int jpp=0; jpp <= SDPP; jpp++) {
+      m_PP[jpp].resize(connection->getPPToSB()->getNumber(jpp));
+      for (unsigned int i=0; i < m_PP[jpp].size(); i++) {
 	if     (jpp==WTPP) { m_PP[jpp][i] = new TGCWireTripletPP(tgcArgs()); }
 	else if(jpp==WDPP) { m_PP[jpp][i] = new TGCWireDoubletPP(tgcArgs()); }
 	else if(jpp==STPP) { m_PP[jpp][i] = new TGCStripTripletPP(tgcArgs());}
@@ -218,37 +183,33 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
 	m_PP[jpp][i]->setRegion(m_regionType);
       }
     }
-    for( jpp=WIPP; jpp<NumberOfPatchPanelType; jpp+=1){
-      m_PP[jpp] = 0;
-      m_numberOfPP[jpp]=0;
+    for (int jpp=WIPP; jpp<NumberOfPatchPanelType; jpp++) {
+      m_PP[jpp].clear();
     }
     
-    //m_SB
-    for( jsb=0; jsb<=SDSB; jsb+=1){
-      m_numberOfSB[jsb] = connection->getSBToHPB()->getNumber(jsb);
-      m_SB[jsb] = new TGCSlaveBoard* [m_numberOfSB[jsb]];
-      for(int i=0; i<m_numberOfSB[jsb]; i+=1) {
-	if     (jsb==WTSB) { m_SB[jsb][i] = new TGCWireTripletSB(); }
-	else if(jsb==WDSB) { m_SB[jsb][i] = new TGCWireDoubletSB(); }
-	else if(jsb==STSB) { m_SB[jsb][i] = new TGCStripTripletSB();}
-	else if(jsb==SDSB) { m_SB[jsb][i] = new TGCStripDoubletSB();}
+    // SLB
+    for (int jsb=0; jsb <= SDSB; jsb++) {
+      m_SB[jsb].resize(connection->getSBToHPB()->getNumber(jsb));
+      for (unsigned int i=0; i < m_SB[jsb].size(); i++) {
+	if      (jsb == WTSB) { m_SB[jsb][i] = new TGCWireTripletSB(); }
+	else if (jsb == WDSB) { m_SB[jsb][i] = new TGCWireDoubletSB(); }
+	else if (jsb == STSB) { m_SB[jsb][i] = new TGCStripTripletSB();}
+	else if (jsb == SDSB) { m_SB[jsb][i] = new TGCStripDoubletSB();}
 	m_SB[jsb][i]->setId(connection->getSBToHPB()->getId(jsb,i));
 	m_SB[jsb][i]->setType(jsb);
 	m_SB[jsb][i]->setRegion(m_regionType);
       }
     }
-    for( jsb=WISB; jsb<NumberOfSlaveBoardType; jsb+=1){
-      m_SB[jsb] = 0;
-      m_numberOfSB[jsb] =0;
+    for (int jsb=WISB; jsb < NumberOfSlaveBoardType; jsb++) {
+      m_SB[jsb].clear();
     }
     
-    //HPT
-    for( jhp=0; jhp<NumberOfHighPtBoardType; jhp+=1){
-      m_numberOfHPB[jhp] = connection->getHPBToSL()->getNumber(jhp);
-      m_HPB[jhp] = new TGCHighPtBoard* [m_numberOfHPB[jhp]];
-      for(int i=0; i<m_numberOfHPB[jhp]; i+=1) {
-	if(jhp==WHPB) m_HPB[jhp][i] = new TGCWireHighPtBoard;
-	if(jhp==SHPB) m_HPB[jhp][i] = new TGCStripHighPtBoard;
+    // HPT
+    for (int jhp=0; jhp<NumberOfHighPtBoardType; jhp++) {
+      m_HPB[jhp].resize(connection->getHPBToSL()->getNumber(jhp));
+      for (unsigned int i=0; i < m_HPB[jhp].size(); i++) {
+	if(jhp == WHPB) m_HPB[jhp][i] = new TGCWireHighPtBoard;
+	if(jhp == SHPB) m_HPB[jhp][i] = new TGCStripHighPtBoard;
 	m_HPB[jhp][i]->setId(connection->getHPBToSL()->getId(jhp,i));
 	m_HPB[jhp][i]->setType(jhp);
 	m_HPB[jhp][i]->setRegion(m_regionType);
@@ -258,53 +219,47 @@ void TGCSector::setModule(const TGCConnectionPPToSL* connection)
     // Sector Logic
     m_SL = new TGCSectorLogic(tgcArgs(), m_dbMgr, m_regionType, m_id);
     m_SL->getSSCController()->setNumberOfWireHighPtBoard(connection->getHPBToSL()->getNumber(WHPB));
-  } else {
-    //Inner
-    //m_PP
-    for( jpp=0; jpp<=SDPP; jpp+=1){
-      m_PP[jpp] = 0;
-      m_numberOfPP[jpp]=0;
+  } else {   // Inner Small Wheel
+    // PP ASIC
+    for (int jpp=0; jpp <= SDPP; jpp++) {
+      m_PP[jpp].clear();
     }
-    for( jpp=WIPP; jpp<NumberOfPatchPanelType; jpp+=1){
-      m_numberOfPP[jpp] = connection->getPPToSB()->getNumber(jpp);
-      m_PP[jpp] = new TGCPatchPanel* [m_numberOfPP[jpp]];
-      for(int i=0; i<m_numberOfPP[jpp]; i+=1){
-        if(jpp==WIPP) { m_PP[jpp][i] = new TGCWireInnerPP(tgcArgs());   }
-        else if(jpp==SIPP) { m_PP[jpp][i] = new TGCStripInnerPP(tgcArgs());  }
+    for (int jpp=WIPP; jpp < NumberOfPatchPanelType; jpp++) {
+      m_PP[jpp].resize(connection->getPPToSB()->getNumber(jpp));
+      for (unsigned int i=0; i < m_PP[jpp].size(); i++) {
+        if      (jpp == WIPP) { m_PP[jpp][i] = new TGCWireInnerPP(tgcArgs());  }
+        else if (jpp == SIPP) { m_PP[jpp][i] = new TGCStripInnerPP(tgcArgs()); }
         m_PP[jpp][i]->setId(connection->getPPToSB()->getId(jpp,i));
         m_PP[jpp][i]->setType(jpp);
         m_PP[jpp][i]->setRegion(m_regionType);
       }
     }
 
-    //m_SB
-    for( jsb=0; jsb<=SDSB; jsb+=1){
-      m_SB[jsb] = 0;
-      m_numberOfSB[jsb] = 0;
+    // SLB
+    for (int jsb=0; jsb<=SDSB; jsb+=1) {
+      m_SB[jsb].clear();
     }
-    for( jsb=WISB; jsb<NumberOfSlaveBoardType; jsb+=1){
-      m_numberOfSB[jsb] = 1;
-      m_SB[jsb] = new TGCSlaveBoard* [m_numberOfSB[jsb]];
+    for (int jsb=WISB; jsb<NumberOfSlaveBoardType; jsb++) {
+      m_SB[jsb].resize(1);
       m_SB[jsb][0] = new TGCInnerSB();
       m_SB[jsb][0]->setType(jsb);
       m_SB[jsb][0]->setRegion(m_regionType);
       m_SB[jsb][0]->setId(0); 
     }
 
-    //HPT
-    for( jhp=0; jhp<NumberOfHighPtBoardType; jhp+=1){
-      m_HPB[jhp] =0;
-      m_numberOfHPB[jhp] =0;
+    // HPT
+    for(int jhp=0; jhp<NumberOfHighPtBoardType; jhp+=1){
+      m_HPB[jhp].clear();
     }
 
-    // m_SL
+    // no specific Sector Logic
     m_SL = 0;
   }
 }
    
 void TGCSector::connectPPToSB(const TGCConnectionPPToSB* connection)
 {
-  int iPP,iSB,iPort,i;
+  int iPort;
   int startType, endType;
   if (m_moduleId <9) {
     startType =0;
@@ -316,20 +271,20 @@ void TGCSector::connectPPToSB(const TGCConnectionPPToSB* connection)
 
   // set a Slave Board ID to connect for each Patch Panel.
   // find the Slave Board and give a pointer of the Patch Panel to it.
-  for( i=startType; i<=endType; i+=1){
+  for (int i=startType; i <= endType; i++) {
 #ifdef TGCDEBUG
     std::cerr << "connectionPPToSB :" 
               << "  module:" << m_moduleId 
               << "  type: " << i 
-              << "  #PP=" <<  m_numberOfPP[i]
-              << "  #SB=" <<  m_numberOfSB[i]
+              << "  #PP=" <<  m_PP[i].size()
+              << "  #SB=" <<  m_SB[i].size()
               << std::endl;
 #endif
-    for( iPP = 0; iPP < m_numberOfPP[i]; iPP += 1) {
+    for(unsigned int iPP = 0; iPP < m_PP[i].size(); iPP++) {
       for ( iPort = 0; iPort < connection->getNumberOfPort(); iPort += 1) {
         m_PP[i][iPP]->setIdSlaveBoard(iPort,connection->getSBIdToPP(i,iPort,iPP));
-        for ( iSB = 0; iSB < m_numberOfSB[i]; iSB += 1) {
-          if ( m_PP[i][iPP]->getIdSlaveBoard(iPort) == m_SB[i][iSB]->getId()) {
+        for (unsigned int iSB = 0; iSB < m_SB[i].size(); iSB++) {
+          if (m_PP[i][iPP]->getIdSlaveBoard(iPort) == m_SB[i][iSB]->getId()) {
             m_SB[i][iSB]->setPatchPanel(m_PP[i][iPP]);
             break;
           }
@@ -343,50 +298,48 @@ void TGCSector::connectPPToSB(const TGCConnectionPPToSB* connection)
 
 void TGCSector::connectAdjacentPP()
 {
-  int iPP;
-  for( iPP = 1; iPP < m_numberOfPP[WDPP]; iPP += 1) {
+  for (unsigned int iPP = 1; iPP < m_PP[WDPP].size(); iPP++) {
     m_PP[WDPP][iPP-1]->setAdjacentPP(1,m_PP[WDPP][iPP]);
     m_PP[WDPP][iPP]->setAdjacentPP(0,m_PP[WDPP][iPP-1]);
   }
 
-  for( iPP = 1; iPP < m_numberOfPP[WTPP]; iPP += 1) {
+  for (unsigned int iPP = 1; iPP < m_PP[WTPP].size(); iPP++) {
     m_PP[WTPP][iPP-1]->setAdjacentPP(1,m_PP[WTPP][iPP]);
     m_PP[WTPP][iPP]->setAdjacentPP(0,m_PP[WTPP][iPP-1]);
   }
 
-  for( iPP = 1; iPP < m_numberOfPP[STPP]; iPP += 1) {
+  for (unsigned int iPP = 1; iPP < m_PP[STPP].size(); iPP++) {
     m_PP[STPP][iPP-1]->setAdjacentPP(1,m_PP[STPP][iPP]);
     m_PP[STPP][iPP]->setAdjacentPP(0,m_PP[STPP][iPP-1]);
   }
 
-  for( iPP = 1; iPP < m_numberOfPP[SDPP]; iPP += 1) {
+  for (unsigned int iPP = 1; iPP < m_PP[SDPP].size(); iPP++) {
     m_PP[SDPP][iPP-1]->setAdjacentPP(1,m_PP[SDPP][iPP]);
     m_PP[SDPP][iPP]->setAdjacentPP(0,m_PP[SDPP][iPP-1]);
   }
 
-  int i;
-  for( i=0; i<=SDPP; i+=1)
-    for( iPP = 0; iPP < m_numberOfPP[i]; iPP += 1)
-      m_PP[i][iPP]->connect();
+  for (int i=0; i<=SDPP; i++) {
+    for (TGCPatchPanel* ppasic : m_PP[i]) {
+      ppasic->connect();
+    }
+  }
 }
 
 void TGCSector::connectSBToHPB(const TGCConnectionSBToHPB* connection)
 {
-  int iSB,iHPB,type,i;
-
-  for( i=0; i<NumberOfSlaveBoardType; i+=1){
+  for (int i=0; i < NumberOfSlaveBoardType; i++) {
     if ( i==WISB )  continue;  // Inner m_SB is not connected to m_HPB
     if ( i==SISB )  continue;  // Inner m_SB is not connected to m_HPB
  
-    for ( iSB = 0; iSB < m_numberOfSB[i]; iSB += 1) {
+    for (unsigned int iSB = 0; iSB < m_SB[i].size(); iSB++) {
       m_SB[i][iSB]->setIdHighPtBoard(connection->getHPBIdToSB(i,iSB));
-      type = i/2;     // ! assume HighPtBoardType=SlaveBoardType/2
-      for ( iHPB = 0; iHPB < m_numberOfHPB[type]; iHPB += 1){
-        if ( m_SB[i][iSB]->getIdHighPtBoard() == m_HPB[type][iHPB]->getId()) {
+      int type = i/2;     // ! assume HighPtBoardType=SlaveBoardType/2
+      for (unsigned int iHPB = 0; iHPB < m_HPB[type].size(); iHPB += 1){
+        if ( m_SB[i][iSB]->getIdHighPtBoard() == m_HPB[type].at(iHPB)->getId()) {
           if((i==WDSB)||(i==SDSB))
-            m_HPB[type][iHPB]->setDSB(connection->getHPBPortToSB(i,iSB),m_SB[i][iSB]);
+            m_HPB[type].at(iHPB)->setDSB(connection->getHPBPortToSB(i,iSB),m_SB[i][iSB]);
           else if((i==WTSB)||(i==STSB))
-            m_HPB[type][iHPB]->setTSB(connection->getHPBPortToSB(i,iSB),m_SB[i][iSB]);
+            m_HPB[type].at(iHPB)->setTSB(connection->getHPBPortToSB(i,iSB),m_SB[i][iSB]);
           break;
         }
       }
@@ -396,15 +349,15 @@ void TGCSector::connectSBToHPB(const TGCConnectionSBToHPB* connection)
 
 void TGCSector::connectHPBToSL(const TGCConnectionHPBToSL* connection)
 {
-  int iHPB;
   if (!m_SL) return;
 
   // set pointers of HighPtBoard to connect to SectorLogic
-  for ( iHPB = 0; iHPB < m_numberOfHPB[WHPB]; iHPB += 1){
-    m_SL->setWireHighPtBoard(connection->getSLPortToHPB(WHPB,iHPB) ,m_HPB[WHPB][iHPB]);
+  for (unsigned int iHPB = 0; iHPB < m_HPB[WHPB].size(); iHPB++){
+    m_SL->setWireHighPtBoard(connection->getSLPortToHPB(WHPB,iHPB), m_HPB[WHPB].at(iHPB));
   }
-  for ( iHPB = 0; iHPB < m_numberOfHPB[SHPB]; iHPB += 1)   
-    m_SL->setStripHighPtBoard(m_HPB[SHPB][iHPB]);
+  for (unsigned int iHPB = 0; iHPB < m_HPB[SHPB].size(); iHPB++) {
+    m_SL->setStripHighPtBoard(m_HPB[SHPB].at(iHPB));
+  }
 }
 
 void TGCSector::connectAdjacentHPB()
@@ -412,7 +365,7 @@ void TGCSector::connectAdjacentHPB()
   switch(m_regionType){
   case Endcap:
     // assume there are only two WireHighPtBoards.
-    if((m_HPB[WHPB][1])&&(m_HPB[WHPB][0])){
+    if((m_HPB[WHPB][1]) && (m_HPB[WHPB][0])){
       m_HPB[WHPB][0]->setAdjacentHPB(1,m_HPB[WHPB][1]); //! 
       m_HPB[WHPB][1]->setAdjacentHPB(0,m_HPB[WHPB][0]); //!
     }
@@ -430,31 +383,28 @@ void TGCSector::connectAdjacentHPB()
 TGCSector::~TGCSector()
 {
   // Don't delete m_ASDToPP! 22 May 2001 (MT, KH)
-
-  int i,j;
-
-  for( i=0; i<NumberOfPatchPanelType; i+=1){
-    for( j=0; j<m_numberOfPP[i]; j+=1)
-      if(m_PP[i][j]!=0) delete m_PP[i][j];
-    if(m_PP[i]!=0) delete [] m_PP[i];
-    m_PP[i]=0;
+  for (int i=0; i < NumberOfPatchPanelType; i++) {
+    for (unsigned int j=0; j<m_PP[i].size(); j++) {
+      if (m_PP[i][j] != nullptr) delete m_PP[i][j];
+    }
+    m_PP[i].clear();
   }
 
-  for( i=0; i<NumberOfSlaveBoardType; i+=1){
-    for( j=0; j<m_numberOfSB[i]; j+=1)
-      if(m_SB[i][j]!=0) delete m_SB[i][j];
-    if(m_SB[i]!=0) delete [] m_SB[i];
-    m_SB[i]=0;
+  for (int i=0; i < NumberOfSlaveBoardType; i++) {
+    for (unsigned int j=0; j < m_SB[i].size(); j+=1) {
+      if(m_SB[i][j] != nullptr) delete m_SB[i][j];
+    }
+    m_SB[i].clear();
   }
 
-  for( i=0; i<NumberOfHighPtBoardType; i+=1){
-    for( j=0; j<m_numberOfHPB[i]; j+=1) 
-      if(m_HPB[i][j]!=0) delete m_HPB[i][j];
-    if(m_HPB[i]!=0) delete [] m_HPB[i];
-    m_HPB[i]=0;
+  for(int i=0; i<NumberOfHighPtBoardType; i+=1){
+    for(unsigned int j=0; j < m_HPB[i].size(); j+=1) {
+      if(m_HPB[i][j] != nullptr) delete m_HPB[i][j];
+    }
+    m_HPB[i].clear();
   }
   if (m_SL) delete m_SL;
-  m_SL =0;
+  m_SL = 0;
 }
 
 void TGCSector::dumpModule()
@@ -462,57 +412,52 @@ void TGCSector::dumpModule()
   std::cout << "Side:" << m_sideId << "  Octant:" << m_octantId 
 	    << "  ModuleId:" << m_moduleId << std::endl; 
   
-  int i,j;
-  std::cout << "PatchPanel    NumberOfPatchPanelType:" << NumberOfPatchPanelType << std::endl;
-  for( j=0; j<NumberOfPatchPanelType; j+=1){
-    std::cout << "numberOfPP(index in a type):" << m_numberOfPP[j] << std::endl;
-    for( i=0; i<m_numberOfPP[j]; i+=1){
-      std::cout << "PP[" << j << "][" << i << "]:" << m_PP[j][i];
-      std::cout << " Type:" << m_PP[j][i]->getType();
-      std::cout << " Id:" << m_PP[j][i]->getId();
-      std::cout << " Region:" << m_PP[j][i]->getRegion();
-      if(m_PP[j][i]->getRegion()==Endcap){std::cout << ":Endcap" << std::endl;}else{std::cout << ":Forward" << std::endl;}
+  std::cout << "PatchPanel    NumberOfPatchPanelType: " << NumberOfPatchPanelType << std::endl;
+  for (int j=0; j < NumberOfPatchPanelType; j++) {
+    std::cout << "numberOfPP(index in a type): " << m_PP[j].size() << std::endl;
+    for (TGCPatchPanel* ppasic : m_PP[j]) {
+      std::cout << " Type:" << ppasic->getType();
+      std::cout << " Id:" << ppasic->getId();
+      std::cout << " Region:" << ppasic->getRegion();
+      std::cout << ((ppasic->getRegion() == Endcap) ? ":Endcap" : ":Forward") << std::endl;
     }
   }
 
-  std::cout << "SlaveBoard    NumberOfSlaveBoardType:" << NumberOfSlaveBoardType << std::endl;
-  for( j=0; j<NumberOfSlaveBoardType; j+=1){
-    std::cout << "numberOfSB(index in a type):" << m_numberOfSB[j] << std::endl;
-    for( i=0; i<m_numberOfSB[j]; i+=1) { // index in a type
-      std::cout << "SB[" << j << "][" << i << "]:" << m_SB[j][i];
+  std::cout << "SlaveBoard    NumberOfSlaveBoardType: " << NumberOfSlaveBoardType << std::endl;
+  for (int j=0; j < NumberOfSlaveBoardType; j++) {
+    std::cout << "numberOfSB(index in a type): " << m_SB[j].size() << std::endl;
+    for (unsigned int i=0; i < m_SB[j].size(); i++) {  // index in a type
       std::cout << " Type:" << m_SB[j][i]->getType();
       std::cout << " Id:"   << m_SB[j][i]->getId();
       std::cout << " Region:" << m_SB[j][i]->getRegion();
-      if(m_SB[j][i]->getRegion()==Endcap){std::cout << ":Endcap" << std::endl;}else{std::cout << ":Forward" << std::endl;}
+      std::cout << ((m_SB[j][i]->getRegion() == Endcap) ? ":Endcap" : ":Forward") << std::endl;
     }
   }
 
   std::cout << "HighPtBoard    NumberOfHighPtBoardType:" << NumberOfHighPtBoardType << std::endl;
-  for( j=0; j<NumberOfHighPtBoardType; j+=1){
-    std::cout << "numberOfHPB(index in a type):" << m_numberOfHPB[j] << std::endl;
-    for( i=0; i<m_numberOfHPB[j]; i+=1) {
-      std::cout << "HPB[" << j << "][" << i << "]:" << m_HPB[j][i];
+  for(int j=0; j<NumberOfHighPtBoardType; j+=1){
+    std::cout << "numberOfHPB(index in a type):" << m_HPB[j].size() << std::endl;
+    for(unsigned int i=0; i < m_HPB[j].size(); i+=1) {
       std::cout << " Type:" << m_HPB[j][i]->getType();
       std::cout << " Id:"   << m_HPB[j][i]->getId();
       std::cout << " Region:" << m_HPB[j][i]->getRegion();
-      if(m_HPB[j][i]->getRegion()==Endcap){std::cout << ":Endcap" << std::endl;}else{std::cout << ":Forward" << std::endl;}
+      std::cout << ((m_HPB[j][i]->getRegion()==Endcap) ? ":Endcap" : ":Forward") << std::endl;
     }
   }
 
   std::cout << "SectorLogic" << std::endl;
   if (m_SL) {
     std::cout << "SL:" << m_SL << std::endl;
-    std::cout << " Id:"   << i << " " << m_SL->getId();
+    std::cout << " Id:"  << m_SL->getId();
     std::cout << " Region:" << m_SL->getRegion();
     if(m_SL->getRegion()==Endcap){
       std::cout << ":Endcap" << std::endl;
     }else{
       std::cout << ":Forward" << std::endl;
     }
-    //  m_SL->getSSCController()->setNumberOfWireHighPtBoard(connection->getHPBToSL()->getNumber(WHPB));
   } else {
     std::cout << "NO SL" << std::endl;
   } 
 }  
 
-} //end of namespace bracket
+}  // namespace LVL1TGCTrigger

@@ -48,8 +48,8 @@ def InDetGlobalMonitoringRun3TestConfig(flags):
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.CutLevel         = "TightPrimary"
         inDetGlobalTrackMonAlg.Tight_TrackSelectionTool.minPt            = 5000
         
-        from InDetConfig.TrackingCommonConfig import TrackSummaryToolCfg
-        TrackSummaryTool = acc.getPrimaryAndMerge(TrackSummaryToolCfg(flags))
+        from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
+        TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
         inDetGlobalTrackMonAlg.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.TrackSummaryTool = TrackSummaryTool
         inDetGlobalTrackMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")

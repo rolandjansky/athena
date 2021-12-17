@@ -68,7 +68,7 @@ LAr::LArVolumeBuilder::LArVolumeBuilder(const std::string& t, const std::string&
   m_calosurf("CaloSurfaceBuilder"),
   m_scale_HECmaterial(1.1)
 {
-  declareInterface<Trk::ITrackingVolumeBuilder>(this);
+  declareInterface<Trk::ICaloTrackingVolumeBuilder>(this);
   // declare the properties via Python
   declareProperty("LArDetManagerLocation",             m_lArMgrLocation);
   declareProperty("TrackingVolumeCreator",            m_trackingVolumeCreator);
@@ -139,7 +139,8 @@ StatusCode LAr::LArVolumeBuilder::finalize()
   return StatusCode::SUCCESS;
 }
 
-const std::vector<Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes() const
+const std::vector<Trk::TrackingVolume*>*
+LAr::LArVolumeBuilder::trackingVolumes(const CaloDetDescrManager& caloDDM) const
 {
   // the return vector
   std::vector<Trk::TrackingVolume*>* lArTrackingVolumes = new std::vector<Trk::TrackingVolume*>;
@@ -195,16 +196,11 @@ const std::vector<Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes(
   throwIntoGarbage(lArBarrelPresamplerMaterial);
   throwIntoGarbage(lArBarrelMaterial);
 
-  const CaloDetDescrManager* calo_dd = nullptr;
-  if (detStore()->retrieve(calo_dd).isFailure()) {
-    ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-    return {};
-  }
   // load layer surfaces
   std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> entrySurf =
-    m_calosurf->entrySurfaces(calo_dd);
+    m_calosurf->entrySurfaces(&caloDDM);
   std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> exitSurf =
-    m_calosurf->exitSurfaces(calo_dd);
+    m_calosurf->exitSurfaces(&caloDDM);
 
   StoredPhysVol* storedPV = nullptr;
 
@@ -1369,12 +1365,12 @@ const std::vector<Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes(
 
      double z, rmin, rmax, hphi, depth;
      Amg::Transform3D* pos = new Amg::Transform3D();
-     m_calosurf->get_disk_surface(CaloCell_ID::HEC0, 1, pos, z, rmin, rmax, hphi, depth, calo_dd);
+     m_calosurf->get_disk_surface(CaloCell_ID::HEC0, 1, pos, z, rmin, rmax, hphi, depth, &caloDDM);
      delete pos;
      caloSurfZOffset = lArHecZmin - z;
      lArHecZmax = z + depth + caloSurfZOffset;
      pos = new Amg::Transform3D();
-     m_calosurf->get_disk_surface(CaloCell_ID::HEC3, 1, pos, z, rmin, rmax, hphi, depth, calo_dd);
+     m_calosurf->get_disk_surface(CaloCell_ID::HEC3, 1, pos, z, rmin, rmax, hphi, depth, &caloDDM);
      delete pos;
      hecEnd = z + depth + caloSurfZOffset;
    }
@@ -1795,7 +1791,6 @@ const std::vector<Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVolumes(
    }
    return lArTrackingVolumes;
 }
-
 
 void LAr::LArVolumeBuilder::printCheckResult(MsgStream& log, const Trk::TrackingVolume* vol) 
 {

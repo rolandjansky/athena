@@ -28,9 +28,7 @@ SumPtVertexWeightCalculator::SumPtVertexWeightCalculator(const std::string& t,
                                                          const std::string& n,
                                                          const IInterface* p)
   : AthAlgTool(t, n, p)
-  , m_doSumPt2Selection(true)
 {
-  declareProperty("DoSumPt2Selection", m_doSumPt2Selection);
   declareInterface<IVertexWeightCalculator>(this);
 }
 
