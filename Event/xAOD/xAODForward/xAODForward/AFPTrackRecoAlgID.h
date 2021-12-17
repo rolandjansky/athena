@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,12 +38,14 @@ namespace xAOD
  * | ID  | Algorithm                                                  | Comments |
  * | :-: | ---------------------------------------------------------- | -------- |
  * | 0   | Basic Kalman algorithm (AFP_LocReco/AFPSiDBasicKalmanTool) |          |
+ * | 1   | Linear Regression algorithm (AFP_LocRecoAFPSiDLinRegTool)  |          |
  * 
  */
   class AFPTrackRecoAlgID
   {
   public:
-    static const int basicKalman; ///< basic Kalman algorithm id=0
+    static constexpr int basicKalman{0}; ///< basic Kalman algorithm id=0
+    static constexpr int linReg{1}; ///< linear regression algorithm id=1
   };
 
 }
