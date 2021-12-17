@@ -4,10 +4,11 @@
 # art-type: grid
 # art-athena-mt: 8
 # art-include: master/Athena
+# art-output: *.log   
 
 export ATHENA_CORE_NUMBER=8
 
 python -m MuonConfig.MuonSegmentFindingConfig --run --threads=8 -o=ESD_8.pool.root  | tee temp1.log
 echo "art-result: ${PIPESTATUS[0]}"
-
 test_postProcessing_Errors.sh temp1.log
+
