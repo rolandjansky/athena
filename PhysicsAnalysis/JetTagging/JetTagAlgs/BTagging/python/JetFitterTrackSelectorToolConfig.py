@@ -34,7 +34,7 @@ def InDetJetFitterTrackSelectorToolCfg(flags, name, suffix="", useBTagFlagsDefau
                      'cutCompPrimaryVertexForNegLifetimeTracks' : 0.05,
                      'Extrapolator' : jetFitterExtrapolator ,
                      'InDetJetFitterUtils' : inDetJetFitterUtils,
-                     'TrackSelector' : inDetImprovedJetFitterTrackSelectorTool }        
+                     'TrackSelector' : inDetImprovedJetFitterTrackSelectorTool }
         for option in defaults:
             options.setdefault(option, defaults[option])
             

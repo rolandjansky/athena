@@ -82,5 +82,5 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
       options['name'] = 'btag'
       btagtool = Analysis__BTagTool(**options)
       acc.setPrivateTools(btagtool)
- 
+
       return acc

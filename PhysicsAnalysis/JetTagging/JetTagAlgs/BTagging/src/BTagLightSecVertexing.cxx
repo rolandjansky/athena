@@ -209,7 +209,8 @@ namespace Analysis {
 					       std::string basename) const {
 
     //THIS is a nasty hack from VD but by it's more likely we get GNN to work than someone to re-organise JetFitter
-    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetJFVtxLinkName ( basename.find("Flip")!=std::string::npos ? m_jetJFFlipVtxLinkName : m_jetJFVtxLinkName);
+    const auto& key = basename.find("Flip")!=std::string::npos ? m_jetJFFlipVtxLinkName : m_jetJFVtxLinkName;
+    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetJFVtxLinkName ( key );
     std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVerticesLinks;
 
     //twotrackVerticesInJet
@@ -218,7 +219,7 @@ namespace Analysis {
       const Trk::TwoTrackVerticesInJet* TwoTrkVtxInJet = myVertexInfoJetFitter->getTwoTrackVerticesInJet();
       vecTwoTrkVtx = TwoTrkVtxInJet->getTwoTrackVertice();
       if (!h_jetJFVtxLinkName.isAvailable()) {
-        ATH_MSG_ERROR( " cannot retrieve vertex container EL decoration with key " << ( (basename.find("Flip")!=std::string::npos) ? m_jetJFFlipVtxLinkName : m_jetJFVtxLinkName).key()  );
+        ATH_MSG_ERROR( " cannot retrieve vertex container EL decoration with key " << key.key()  );
         return StatusCode::FAILURE;
       }
       JFVerticesLinks = h_jetJFVtxLinkName(myJet);

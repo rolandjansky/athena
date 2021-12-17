@@ -35,7 +35,6 @@ def InDetJetFitterTwoTrackVtxFinderToolCfg(name, suffix="", useBTagFlagsDefaults
         for option in defaults:
             options.setdefault(option, defaults[option])
 
-
     options['name'] = name
     acc.setPrivateTools( InDet__JetFitterTwoTrackVtxFinderTool(**options) )
     return acc
