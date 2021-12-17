@@ -72,11 +72,9 @@ public: // Non-static members
    /// @return an Id for an input context (POOL persistency service) and create it if needed.
    /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
    /// @param maxFile [IN] maximum number of open input files.
-   /// @param fileID [IN] file ID (PFN or FID) to allow setting of TTreeCache.
    virtual
    unsigned int getInputContext(const std::string& label,
-                                unsigned int maxFile = 0,
-                                const std::string& fileID = "") override;
+                                unsigned int maxFile = 0) override;
    /// @return map of all labelled input contexts.
    virtual
    const std::map<std::string, unsigned int>& getInputContextMap() const override;

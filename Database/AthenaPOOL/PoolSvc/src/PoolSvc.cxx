@@ -364,7 +364,7 @@ unsigned int PoolSvc::getOutputContext(const std::string& label) {
    return(id);
 }
 //__________________________________________________________________________
-unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int maxFile, const std::string& fileID) {
+unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int maxFile) {
    std::lock_guard<CallMutex> lock(m_pool_mut);
    if (!label.empty()) {
       std::map<std::string, unsigned int>::const_iterator contextIter = m_inputContextLabel.find(label);
@@ -386,11 +386,6 @@ unsigned int PoolSvc::getInputContext(const std::string& label, unsigned int max
       m_inputContextLabel.insert(std::pair<std::string, unsigned int>(label, id));
    }
    m_contextMaxFile.insert(std::pair<unsigned int, int>(id, maxFile));
-   if (!fileID.empty()) {
-      if (!this->setAttribute("TREE_CACHE", "0", pool::ROOT_StorageType.type(), fileID, "CollectionTree", id).isSuccess()) {
-         ATH_MSG_WARNING("Failed to switch off TTreeCache.");
-      }
-   }
    return(id);
 }
 //__________________________________________________________________________
