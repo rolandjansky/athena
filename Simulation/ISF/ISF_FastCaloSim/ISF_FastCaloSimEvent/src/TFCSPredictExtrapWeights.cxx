@@ -104,8 +104,8 @@ bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::s
   } else {
     m_normStdDevs = new std::vector<float>();
   }
-  std::string inputFileName = FastCaloTXTInputFolderName;
-  if(pid == 22){
+  std::string inputFileName = FastCaloTXTInputFolderName + "MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
+  /*if(pid == 22){
     inputFileName += "v23/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
   } else if(pid == 11 || pid == -11){
     inputFileName += "v24/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
@@ -114,7 +114,7 @@ bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::s
   } else {
     std:: cout << "ERROR: pid ("<<pid<<") not supported yet" << std::endl;
     return false;
-  }
+  }*/
   ATH_MSG_DEBUG(" Opening " << inputFileName);
   std::ifstream inputTXT(inputFileName);
   if(inputTXT.is_open()){
@@ -253,10 +253,10 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
 
   ATH_MSG_INFO("Using FastCaloNNInputFolderName: " << FastCaloNNInputFolderName );
 
-  std::string inputFileName = FastCaloNNInputFolderName;
-  if(pid == 22){                        inputFileName += "v23/NN_photons_v23_"+etaBin+".json";
-  } else if(pid == 11 || pid == -11){   inputFileName += "v24/NN_electrons_v24_"+etaBin+".json";
-  } else if(pid == 211 || pid == -211){ inputFileName += "v25/NN_pions_v25_"+etaBin+".json";}
+  std::string inputFileName = FastCaloNNInputFolderName + "NN_"+etaBin+".json";
+  /*if(pid == 22){                      inputFileName += "NN_"+etaBin+".json";
+  } else if(pid == 11 || pid == -11){   inputFileName += "NN_"+etaBin+".json";
+  } else if(pid == 211 || pid == -211){ inputFileName += "NN_"+etaBin+".json";}*/
   ATH_MSG_DEBUG("Will read JSON file: " << inputFileName );
   if(inputFileName.empty()){
     ATH_MSG_ERROR("Could not find json file " << inputFileName );
@@ -383,8 +383,8 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
   TFCSPredictExtrapWeights NN("NN", "NN");
   NN.setLevel(MSG::VERBOSE);
   const int pid = truth->pdgid();
-  NN.initializeNetwork(pid, etaBin,"/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/json/");
-  NN.getNormInputs(pid, etaBin, "/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/txt/");
+  NN.initializeNetwork(pid, etaBin,"/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/json/v26/"); // UPDATE ME
+  NN.getNormInputs(pid, etaBin, "/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/txt/v26/"); // UPDATE ME
 
   // Get extrapWeights and save them as AuxInfo in simulstate
 
