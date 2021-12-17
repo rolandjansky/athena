@@ -29,9 +29,6 @@ jp.AthenaCommonFlags.FilesInput = [
 #jp.AthenaCommonFlags.FilesInput = INPUT
 
 # from david R.
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
-ServiceMgr += InDetSCT_ConditionsSummarySvc
 
 from RecExConfig.RecFlags import rec
 
@@ -115,12 +112,12 @@ ServiceMgr.EventSelector.InputCollections = jp.AthenaCommonFlags.FilesInput()
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output = ["AANT DATAFILE='vert.root' OPT='RECREATE'"]
-from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
-topSequence += AANTupleStream()
-topSequence.AANTupleStream.ExtraRefNames = [ "StreamESD","Stream1" ]
-topSequence.AANTupleStream.OutputName = 'vert.root'
-topSequence.AANTupleStream.WriteInputDataHeader = True
-topSequence.AANTupleStream.OutputLevel = INFO
+#from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
+#topSequence += AANTupleStream()
+#topSequence.AANTupleStream.ExtraRefNames = [ "StreamESD","Stream1" ]
+#topSequence.AANTupleStream.OutputName = 'vert.root'
+#topSequence.AANTupleStream.WriteInputDataHeader = True
+#topSequence.AANTupleStream.OutputLevel = INFO
 
 # Number of Events to process
 theApp.EvtMax = -1
