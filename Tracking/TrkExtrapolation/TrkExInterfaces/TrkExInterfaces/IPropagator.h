@@ -284,16 +284,6 @@ public:
                                ParticleHypothesis particle = pion,
                                const TrackingVolume* tVol = nullptr) const = 0;
 
-  /** a very simple propagation along a given path length */
-  virtual void propagateStep(const EventContext& ctx,
-                             const Amg::Vector3D& inputPosition,
-                             const Amg::Vector3D& inputMomentum,
-                             double charge,
-                             double step,
-                             Amg::Vector3D& outputPosition,
-                             Amg::Vector3D& outputMomentum,
-                             const MagneticFieldProperties& mprop) const;
-
   /** Validation Action:
     Can be implemented optionally, outside access to internal validation steps
   */
@@ -474,14 +464,6 @@ public:
                        ParticleHypothesis particle = pion,
                        const TrackingVolume* tVol = nullptr) const;
 
-  /** a very simple propagation along a given path length */
-  void propagateStep(const Amg::Vector3D& inputPosition,
-                     const Amg::Vector3D& inputMomentum,
-                     double charge,
-                     double step,
-                     Amg::Vector3D& outputPosition,
-                     Amg::Vector3D& outputMomentum,
-                     const MagneticFieldProperties& mprop) const;
 };
 
 } // end of namespace
