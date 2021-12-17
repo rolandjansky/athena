@@ -183,11 +183,18 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
    }
-   if (m_persSvcPerInputType) { // Use separate PersistencySvc for each input data type
+   if (!m_persSvcPerInputType.empty()) { // Use separate PersistencySvc for each input data type
       TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddress);
-      if (tokAddr != nullptr && tokAddr->getToken() != nullptr && (boost::starts_with(tokAddr->getToken()->contID(), "CollectionTree(") || boost::starts_with(tokAddr->getToken()->contID(), "CollectionTree_"))) {
+      if (tokAddr != nullptr && tokAddr->getToken() != nullptr && (boost::starts_with(tokAddr->getToken()->contID(), m_persSvcPerInputType.value() + "(") || boost::starts_with(tokAddr->getToken()->contID(), m_persSvcPerInputType.value() + "_"))) {
+         const unsigned int maxContext = m_poolSvc->getInputContextMap().size();
+         const unsigned int auxContext = m_poolSvc->getInputContext(tokAddr->getToken()->classID().toString(), 1);
          char text[32];
-         ::sprintf(text, "[CTXT=%08X]", m_poolSvc->getInputContext(tokAddr->getToken()->classID().toString(), 1, "FID:" + tokAddr->getToken()->dbID().toString()));
+         ::sprintf(text, "[CTXT=%08X]", auxContext);
+         if (m_poolSvc->getInputContextMap().size() > maxContext) {
+            if (m_poolSvc->setAttribute("TREE_CACHE", "0", pool::DbType(pool::ROOTTREE_StorageType).type(), "FID:" + tokAddr->getToken()->dbID().toString(), m_persSvcPerInputType.value(), auxContext).isSuccess()) {
+               ATH_MSG_DEBUG("setInputAttribute failed to switch off TTreeCache for id = " << auxContext << ".");
+            }
+         }
          tokAddr->getToken()->setAuxString(text);
       }
    }
@@ -1069,11 +1076,11 @@ StatusCode AthenaPoolCnvSvc::setInputAttributes(const std::string& fileName) {
    if (!processPoolAttributes(m_inputAttr, m_lastInputFileName, IPoolSvc::kInputStream, true, false).isSuccess()) {
       ATH_MSG_DEBUG("setInputAttribute failed getting POOL database/container attributes.");
    }
-   if (m_persSvcPerInputType) {
+   if (!m_persSvcPerInputType.empty()) {
       // Loop over all extra event input contexts and switch off TTreeCache
       const auto extraInputContextMap = m_poolSvc->getInputContextMap();
       for (auto extraInputContext : extraInputContextMap) {
-         if (m_poolSvc->setAttribute("TREE_CACHE", "0", pool::DbType(pool::ROOTTREE_StorageType).type(), m_lastInputFileName, "CollectionTree", extraInputContext.second).isSuccess()) {
+         if (m_poolSvc->setAttribute("TREE_CACHE", "0", pool::DbType(pool::ROOTTREE_StorageType).type(), m_lastInputFileName, m_persSvcPerInputType.value(), extraInputContext.second).isSuccess()) {
             ATH_MSG_DEBUG("setInputAttribute failed to switch off TTreeCache for id = " << extraInputContext.first << ".");
          }
       }
