@@ -786,7 +786,7 @@ HLT_2mu4_L12MU3V:
     2: 3
     3: 2
   stepFeatures:
-    0: 8
+    0: 9
     1: 6
     2: 10
     3: 6
@@ -812,7 +812,7 @@ HLT_2mu4_PhysicsTLA_L12MU3V:
     4: 2
     5: 2
   stepFeatures:
-    0: 8
+    0: 9
     1: 6
     2: 10
     3: 6
@@ -828,7 +828,7 @@ HLT_2mu4_PhysicsTLA_L1BPH-0DR12-2MU3V:
     4: 1
     5: 1
   stepFeatures:
-    0: 4
+    0: 5
     1: 2
     2: 6
     3: 4
@@ -844,7 +844,7 @@ HLT_2mu4_PhysicsTLA_L1BPH-0DR12C-2MU3V:
     4: 1
     5: 1
   stepFeatures:
-    0: 4
+    0: 5
     1: 2
     2: 6
     3: 4
@@ -1102,7 +1102,7 @@ HLT_2mu4_muonqual_L12MU3V:
     2: 3
     3: 2
   stepFeatures:
-    0: 8
+    0: 9
     1: 6
     2: 10
     3: 6
