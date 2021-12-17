@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloRec/CaloClusterProcessor.h"
+#include "CaloClusterCorrection/CaloFillRectangularCluster.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -83,6 +84,8 @@ private:
       {},
       "SG keys for electrons decorations not really configurable"
     };
+
+  const CaloFillRectangularCluster* m_tool = nullptr;
 
   std::vector<float> decorateObject(const EventContext& ctx,
                                     const xAOD::Egamma* egamma,
