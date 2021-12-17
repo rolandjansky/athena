@@ -327,7 +327,10 @@ bJetChainParts_Default = {
 #==========================================================
 # Muon
 #==========================================================
-AllowedTopos_mu = ['b7invmAB9vtx20', 'b11invmAB60vtx20', 'b11invmAB24vtx20', 'b24invmAB60vtx20']
+AllowedTopos_mu = [
+    'b7invmAB9vtx20', 'b11invmAB60vtx20', 'b11invmAB24vtx20', 'b24invmAB60vtx20',
+    '50invmAB130' # Zmumu
+    ]
 
 # ---- Muon Dictionary of all allowed Values ----
 MuonChainParts = {
@@ -1079,7 +1082,7 @@ UnconventionalTrackingChainParts_Default = {
 # Combined Chains
 #==========================================================
 AllowedTopos_comb = [
-    'dRAA12', 'dRAB15', '03dRAB','03dRAB30','dRAB03','02dRAB','02dRAC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
+    'dRAA12', 'dRAB15', '03dRAB','03dRAB30','dRAB03','02dRAB','02dRAC','02dRBC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
     '90invmAB',# TEST
     '1invmAB5','50invmAB130', # Jpsiee, Zee/Zeg
     '25dphiAA','invmAA80', # Low-mass diphoton

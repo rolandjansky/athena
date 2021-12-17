@@ -74,7 +74,7 @@ def defineMenu():
         'L1_eEM15L_MU8F', 'L1_2eEM8L_MU8F',
 
         # single tau
-        'L1_TAU8', 'L1_TAU12IM',   'L1_TAU20IM',  'L1_TAU40', 'L1_TAU60', 'L1_TAU100',
+        'L1_TAU8', 'L1_TAU12IM',   'L1_TAU20IM', 'L1_TAU40', 'L1_TAU60', 'L1_TAU100',
         'L1_TAU8_EMPTY', 'L1_TAU8_FIRSTEMPTY', 'L1_TAU8_UNPAIRED_ISO', 'L1_TAU40_EMPTY', 'L1_TAU40_UNPAIRED_ISO',
         # new calo
         'L1_eTAU8', 
@@ -127,6 +127,8 @@ def defineMenu():
         'L1_MU8F_2J20','L1_MU8F_3J20', 'L1_MU8F_2J15_J20',
         'L1_MU14FCH_J40',
         'L1_MU14FCH_XE30',
+        'L1_MU14FCH_EMPTY',
+        'L1_MU14FCH_UNPAIRED_ISO',
 
         # single jet
         # L1_J12 must be kept in the menu for online monitoring of BIB (can be disabled via PS is necessary)
@@ -353,6 +355,8 @@ def defineMenu():
         'L1_eEM18M_jMJJ-300-NFF',
 
         'L1_10DR-MU14FCH-MU5VF', #ATR-19376
+        'L1_10DR-MU14FCH-MU5VF_EMPTY',
+        'L1_10DR-MU14FCH-MU5VF_UNPAIRED_ISO',
     
         #ATR-19720, ATR-19639
         'L1_BPH-2M9-0DR15-2MU3V',
