@@ -28,7 +28,7 @@
 class ISvcLocator;
 
 muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
-   AthAlgorithm(name, pSvcLocator)
+   AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -63,7 +63,7 @@ StatusCode muComb::initialize()
 // muon-trk match based on angular distance
 // return 0 --> match,  1 --> no match
 int muComb::drptMatch(const xAOD::L2StandAloneMuon* feature, double id_pt, double id_eta, double id_phi, int algo,
-                      double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr)
+                      double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr) const
 {
    double pt     = feature->pt() * Gaudi::Units::GeV;
    double phi    = feature->phiMS();
@@ -72,7 +72,7 @@ int muComb::drptMatch(const xAOD::L2StandAloneMuon* feature, double id_pt, doubl
 }
 
 int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id_eta, double id_phi, int algo,
-                      double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr)
+                      double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr) const
 {
 
    // algo: 1 --> R (+ pt), combined pt
@@ -130,7 +130,7 @@ int muComb::drptMatch(double pt, double eta, double phi, double id_pt, double id
 // return 0 --> match,  1/2/3/4/5/6 --> no match (muon pt zero, muon angle zero, ID pt zero, fail eta match, fail phi match, fail chi2 match)
 int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
                     double id_eta, double id_phi, double id_pt, double id_charge, double id_eeta, double id_ephi, double id_eipt,
-                    double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof)
+                    double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof) const
 {
 
    chi2 = 1.0e30;
@@ -326,7 +326,7 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
 // return 0 --> match,  1/2/3/4/5/6 --> no match (muon pt zero, muon angle zero, ID pt zero, fail eta match, fail phi match, fail chi2 match)
 int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
                     double id_eta, double id_phi, double id_pt, double id_charge,
-                    double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof)
+                    double& combPtInv, double& combPtRes, double& deta, double& dphi, double& chi2, int& ndof) const
 {
 
    chi2 = 1.0e30;
@@ -450,11 +450,9 @@ int muComb::mfMatch(const xAOD::L2StandAloneMuon* feature,
  * @brief Execute() method.
  * @return bool
  */
-StatusCode muComb::execute()
+StatusCode muComb::execute(const EventContext& ctx) const
 {
    using namespace xAOD;
-
-   auto ctx = getContext();
 
    // Monitoring variables
    //Timer
