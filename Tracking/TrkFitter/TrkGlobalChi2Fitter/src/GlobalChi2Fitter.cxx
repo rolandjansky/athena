@@ -5526,9 +5526,7 @@ namespace Trk {
           for (int j = scatmin; j < scatmax; j++) {
             int index = nperparams + ((trajectory.prefit() != 1) ? 2 * j : j);
             double thisderiv = 0;
-            // this look suspicious: 
-            double sign = (j < nscatupstream) ? -1 : 1;
-            sign = 1;
+            double sign = 1;
             //
             
             if (i == 0 && sinstereo != 0) {
