@@ -361,8 +361,6 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
   //weights from each TruthVertex
   //=============================================================================
   size_t vtxEntry = 0;
-  unsigned int n_bad_links = 0;
-  unsigned int n_links = 0;
   unsigned int n_vx_with_bad_links = 0;
 
   for ( const xAOD::Vertex* vtx : vtxContainer ) {
@@ -399,8 +397,6 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
     float totalWeight = 0.;
 
     float totalPt = 0; 
-    float otherPt = 0;
-    float fakePt = 0;
 
     unsigned vx_n_bad_links = 0;
     //loop over the tracks in the vertex
@@ -452,18 +448,14 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
           std::get<1>(matchinfo[matchIdx]) += trkWeights[t];
           std::get<2>(matchinfo[matchIdx]) += trk.pt();
         } else {
-          //truth particle failed cuts -> add to other
-          otherPt += trk.pt();
+          //truth particle failed cuts
         }
       } else {
-        //not valid or low matching probability -> add to fakes
+        //not valid or low matching probability
         ATH_MSG_DEBUG("Invalid or low prob truth link!");
-        fakePt += trk.pt();
       }
     }//end loop over tracks in vertex
 
-    n_links     += ntracks;
-    n_bad_links += vx_n_bad_links;
     if (vx_n_bad_links>0) {
        ++n_vx_with_bad_links;
     }
