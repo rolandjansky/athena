@@ -41,7 +41,7 @@ public:
   bool initializeNetwork(int pid, std::string etaBin, std::string FastCaloNNInputFolderName);
 
   // Get inputs needed to normalize data
-  bool getNormInputs(int pid, std::string etaBin, std::string FastCaloTXTInputFolderName);
+  bool getNormInputs(std::string etaBin, std::string FastCaloTXTInputFolderName);
  
   // Test function 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,const TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);

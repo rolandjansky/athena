@@ -84,7 +84,7 @@ bool TFCSPredictExtrapWeights::operator==(const TFCSParametrizationBase& ref) co
 
 // getNormInputs()
 // Get values needed to normalize inputs
-bool TFCSPredictExtrapWeights::getNormInputs(int pid, std::string etaBin, std::string FastCaloTXTInputFolderName)
+bool TFCSPredictExtrapWeights::getNormInputs(std::string etaBin, std::string FastCaloTXTInputFolderName)
 {
   ATH_MSG_DEBUG(" Getting normalization inputs... ");
 
@@ -384,7 +384,7 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
   NN.setLevel(MSG::VERBOSE);
   const int pid = truth->pdgid();
   NN.initializeNetwork(pid, etaBin,"/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/json/v26/"); // UPDATE ME
-  NN.getNormInputs(pid, etaBin, "/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/txt/v26/"); // UPDATE ME
+  NN.getNormInputs(etaBin, "/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/txt/v26/"); // UPDATE ME
 
   // Get extrapWeights and save them as AuxInfo in simulstate
 
