@@ -12,7 +12,9 @@
 
 # Set up common services and job object. 
 # This should appear in ALL derivation job options
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
+from DerivationFrameworkPhys import PhysCommon
+
 
 #====================================================================
 # SKIMMING TOOLS 
@@ -23,7 +25,7 @@ TEST6StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TE
                                                                  #expression = "EventInfo.eventNumber")
 
 ToolSvc += TEST6StringSkimmingTool
-print TEST6StringSkimmingTool
+print(TEST6StringSkimmingTool)
 
 #====================================================================
 # CREATE THE SEQUENCER  
@@ -47,7 +49,7 @@ TEST6Sequence += CfgMgr.DerivationFramework__DerivationKernel("TEST6Preselection
 from DerivationFrameworkExamples.DerivationFrameworkExamplesConf import DerivationFramework__AugmentationToolExample
 TEST6AugmentationTool = DerivationFramework__AugmentationToolExample(name= "TEST6AugmentationTool")
 ToolSvc += TEST6AugmentationTool
-print TEST6AugmentationTool
+print(TEST6AugmentationTool)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  

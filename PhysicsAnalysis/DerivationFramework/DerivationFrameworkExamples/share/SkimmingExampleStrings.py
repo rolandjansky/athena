@@ -1,22 +1,23 @@
 #====================================================================
 # SkimmingExampleStrings.py
 # This an example job options script showing how to set up a 
-# derivation of the data using the derivation framework with xAOD
-# input. 
+# skim using the string parser which should be used for most simple
+# selections. 
+# Note the use of a variable made on-the-fly that isn't in the AOD
+# This is possible due to the inclusion of PhysCommon
 # It requires the reductionConf flag TEST2 in Reco_tf.py   
 #====================================================================
 
 # Set up common services and job object. 
-# This should appear in ALL derivation job options
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName, DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SKIMMING TOOLS 
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 TEST2StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TEST2StringSkimmingTool",
-                                                                 expression = "count(abs(Electrons.eta) < 1.0) > 0 && count(Muons.pt > (20 * GeV)) >= 1")
-                                                                 #expression = "EventInfo.eventNumber")
+                                                                      expression = 'count((Muons.DFCommonMuonPassPreselection) && (Muons.pt > 15*GeV)) >= 2')
 
 ToolSvc += TEST2StringSkimmingTool
 printfunc(TEST2StringSkimmingTool)
