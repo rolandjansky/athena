@@ -13,5 +13,4 @@ RES=$?
 xAODDigest.py myAOD.pool.root digest.txt
 
 echo "art-result: $RES Reco"
-return $RES
 
