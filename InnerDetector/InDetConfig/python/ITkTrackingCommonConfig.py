@@ -259,9 +259,9 @@ def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
             from  InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
-            ITkSummaryHelperTool = acc.getPrimaryAndMerge(ITkTrackSummaryHelperToolCfg(flags, **id_helper_args))
+            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags, **id_helper_args))
         else:
-            ITkSummaryHelperTool = acc.getPrimaryAndMerge(ITkSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
+            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperTool)
 
     #
@@ -292,7 +292,7 @@ def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits'
         id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
         kwargs.pop('ClusterSplitProbabilityName',None)
 
-        ITkSummaryHelperSharedHits = acc.getPrimaryAndMerge(ITkSummaryHelperSharedHitsCfg(flags, **id_helper_args))
+        ITkSummaryHelperSharedHits = acc.popToolsAndMerge(ITkSummaryHelperSharedHitsCfg(flags, **id_helper_args))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperSharedHits)
 
     kwargs.setdefault( "PixelToTPIDTool", None)

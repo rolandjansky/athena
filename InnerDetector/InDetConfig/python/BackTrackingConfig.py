@@ -91,7 +91,6 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     InDetPatternUpdator = acc.getPrimaryAndMerge(TC.InDetPatternUpdatorCfg())
 
     InDetSiComTrackFinder = acc.popToolsAndMerge(TC.SiCombinatorialTrackFinder_xkCfg(flags))
-    acc.addPublicTool(InDetSiComTrackFinder)
 
     if (flags.InDet.Tracking.usePixel and flags.InDet.Tracking.useSCT) is not False:
         InDetTRT_SeededSiRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags))
@@ -172,7 +171,6 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
                                                                               WriteKey="SCT_DetElementBoundaryLinks_xk"))
 
     InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
-    acc.addPublicTool(InDetTrackFitterBT)
 
     InDetTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
@@ -240,7 +238,6 @@ def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelec
     InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
@@ -263,26 +260,19 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     # --- load Ambiguity Processor
     #
     InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
-    acc.addPublicTool(InDetTrackFitterBT)
-
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     #
     # --- set up special Scoring Tool for TRT seeded tracks
     #
     if flags.Beam.Type == "cosmics":
         InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetCosmicScoringTool_TRTCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededScoringTool)
         InDetTRT_SeededSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolSharedHitsCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededSummaryTool)
     else:
         InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetTRT_SeededScoringToolCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededScoringTool)
         InDetTRT_SeededSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
     InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetTRTAmbiTrackSelectionToolCfg(flags))
-    acc.addPublicTool(InDetTRT_SeededAmbiTrackSelectionTool)
 
     kwargs.setdefault("Fitter", InDetTrackFitterBT)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)

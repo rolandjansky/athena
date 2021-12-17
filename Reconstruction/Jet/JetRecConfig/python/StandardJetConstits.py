@@ -89,7 +89,7 @@ _stdInputList = [
     # *****************************
     JetInputExternal("InDetTrackParticles",   xAODType.TrackParticle,
                      algoBuilder = standardReco("Tracks"),
-                     filterfn = lambda flags : (not flags.InDet.disableTracking, "Tracking is disabled") ,
+                     filterfn = lambda flags : (flags.Reco.EnableTracking, "Tracking is disabled") ,
                      ),
 
     JetInputExternal("PrimaryVertices",   xAODType.Vertex,

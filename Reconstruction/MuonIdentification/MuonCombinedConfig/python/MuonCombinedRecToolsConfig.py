@@ -121,7 +121,8 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**k
     kwargs.setdefault("MuonSummaryTool", CompFactory.Muon.MuonHitSummaryTool("MuonHitSummaryTool"))
     if flags.Beam.Type=="cosmics":
         kwargs.setdefault("PerigeeExpression","Origin")
-    tool = CompFactory.Trk.TrackParticleCreatorTool(name,**kwargs)
+    kwargs.setdefault("IBLParameterSvc", "IBLParameterSvc" if flags.Detector.GeometryID else "")
+    tool = CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs)
     result.setPrivateTools(tool)
     return result
  
@@ -160,7 +161,7 @@ def MuonCaloParticleCreatorCfg(flags, name = "MuonCaloParticleCreator", **kwargs
         kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(MuonCombinedTrackSummaryToolCfg(flags)))
     kwargs.setdefault("KeepAllPerigee", True) 
     kwargs.setdefault("PerigeeExpression", "Origin")
-    
+    kwargs.setdefault("IBLParameterSvc", "IBLParameterSvc" if flags.Detector.GeometryID else "")
     track_particle_creator = CompFactory.Trk.TrackParticleCreatorTool(name="MuonCaloParticleCreator",**kwargs)
     result.setPrivateTools(track_particle_creator)
     return result
@@ -909,13 +910,13 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
 
 # Misc 
 def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kwargs ):
-    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg, MuonPRDSelectionToolCfg
+    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MuonClusterSegmentFinderToolCfg, MuonClusterSegmentFinderCfg, MuonPRDSelectionToolCfg
     result = ComponentAccumulator() 
 
     csc2d=""
     csc4d=""
     if flags.Detector.GeometryCSC:
-        from MuonConfig.MuonSegmentFindingConfig import Csc2dSegmentMakerCfg, MuonClusterSegmentFinderCfg, Csc4dSegmentMakerCfg
+        from MuonConfig.MuonSegmentFindingConfig import Csc2dSegmentMakerCfg, Csc4dSegmentMakerCfg
         acc = Csc2dSegmentMakerCfg(flags)
         csc2d = acc.popPrivateTools()
         result.merge(acc)

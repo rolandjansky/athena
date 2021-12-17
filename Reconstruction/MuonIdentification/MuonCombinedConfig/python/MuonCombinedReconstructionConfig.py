@@ -309,8 +309,8 @@ def MuonCombinedReconstructionCfg(flags):
     
     result.merge( MuonCombinedInDetCandidateAlgCfg(flags) )
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
-    
-    if (flags.InDet.doR3LargeD0):
+
+    if flags.Detector.GeometryID and flags.InDet.doR3LargeD0:
         result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doStatisticalCombination or flags.MuonCombined.doCombinedFit:
@@ -323,7 +323,7 @@ def MuonCombinedReconstructionCfg(flags):
         result.merge(MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg") ) 
         if flags.MuonCombined.doMuGirlLowBeta:
             result.merge(MuGirlStauAlgCfg)
-        if flags.InDet.doR3LargeD0: 
+        if flags.Detector.GeometryID and flags.InDet.doR3LargeD0: 
             result.merge( MuGirlAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doCaloTrkMuId:

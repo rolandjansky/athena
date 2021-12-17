@@ -12,7 +12,7 @@ def createMuonCombinedConfigFlags():
     mcf.addFlag("MuonCombined.doStatisticalCombination",True)
     mcf.addFlag("MuonCombined.doMuonSegmentTagger",True)
     # 'silicon-associated'muons, or muons which rely on special ID reconstruction because they're outside the usual acceptance.
-    mcf.addFlag("MuonCombined.doSiAssocForwardMuons",True)      
+    mcf.addFlag("MuonCombined.doSiAssocForwardMuons",lambda prevFlags : prevFlags.Detector.GeometryID)      
     # Switch on/off algorithms that make Muons for the CaloMuonCollection
     mcf.addFlag("MuonCombined.doCaloTrkMuId",True) 
     # Switch on/off algorithms that make Muons for the MuGirlLowBetaMuonCollection         

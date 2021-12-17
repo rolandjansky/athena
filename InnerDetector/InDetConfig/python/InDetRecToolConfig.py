@@ -76,7 +76,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
   result.setPrivateTools(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs))
   return result
 
-def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
+def InDetBoundaryCheckToolCfg(flags, name='InDetBoundarySearchTool', **kwargs):
   result = ComponentAccumulator()
 
   if 'SctSummaryTool' not in kwargs:
@@ -94,8 +94,7 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
   kwargs.setdefault("UsePixel", flags.Detector.EnablePixel)
   kwargs.setdefault("UseSCT", flags.Detector.EnableSCT)
 
-  indet_boundary_check_tool = CompFactory.InDet.InDetBoundaryCheckTool(name, **kwargs)
-  result.setPrivateTools(indet_boundary_check_tool)
+  result.setPrivateTools(CompFactory.InDet.InDetBoundaryCheckTool(name, **kwargs))
   return result
 
 
