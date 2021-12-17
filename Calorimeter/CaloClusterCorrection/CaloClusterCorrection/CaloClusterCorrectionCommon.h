@@ -142,10 +142,10 @@ public:
   /// tabulated values, and @c energy_degree is the degree of the
   /// polynomial interpolation in energy.
   /// 
-  float energy_interpolation (float energy,
+  static float energy_interpolation (float energy,
                               const TableBuilder& builder,
                               const CaloRec::Array<1>& energies,
-                              int energy_degree) const;
+                              int energy_degree) ;
 
 
 

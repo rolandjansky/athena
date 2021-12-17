@@ -173,8 +173,8 @@ private:
 
 protected:
   /// Cell window sizes in each sampling.
-  double m_deta0, m_deta1, m_deta2, m_deta3;
-  double m_dphi0, m_dphi1, m_dphi2, m_dphi3;
+  double m_deta0 = 0.0, m_deta1 = 0.0, m_deta2 = 0.0, m_deta3 = 0.0;
+  double m_dphi0 = 0.0, m_dphi1 = 0.0, m_dphi2 = 0.0, m_dphi3 = 0.0;
 
   /// @f$\eta\times\phi@f$ cluster size.  These are properties.
   int m_neta, m_nphi;
