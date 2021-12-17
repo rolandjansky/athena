@@ -63,7 +63,7 @@ class TestElement
 public:
   using TileRawData::TileRawData;
 
-  unsigned m_x;
+  unsigned m_x = 0;
 };
 
 
