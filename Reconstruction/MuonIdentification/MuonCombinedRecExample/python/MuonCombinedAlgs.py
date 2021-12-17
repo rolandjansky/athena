@@ -135,7 +135,8 @@ def MuonCombinedInDetCandidateAlg_LRT( name="MuonCombinedInDetCandidateAlg_LRT",
     if not InDetFlags.storeSeparateLargeD0Container(): track_container = InDetKeys.xAODTrackParticleContainer()
     kwargs.setdefault("TrackParticleLocation", [track_container])
     if not ConfigFlags.Muon.MuonTrigger:    
-        kwargs.setdefault("CaloExtensionLocation", ["ParticleCaloExtension_LRT"])    
+        kwargs.setdefault("CaloExtensionLocation", ["ParticleCaloExtension_LRT"] 
+                if InDetFlags.storeSeparateLargeD0Container() else ["ParticleCaloExtension"])
     kwargs.setdefault("InDetCandidateLocation",MuonCbKeys.InDetTrackParticlesLargeD0())
     kwargs.setdefault("DoSiliconAssocForwardMuons", False)
     kwargs.setdefault("ExtendBulk", not muonCombinedRecFlags.doCombinedFit() or ConfigFlags.Muon.MuonTrigger)  
