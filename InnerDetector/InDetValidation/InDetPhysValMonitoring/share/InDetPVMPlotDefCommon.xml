@@ -1081,365 +1081,365 @@
   <y title="Entries"/>
 </h>
 <!-- New Expert plots for Vertex classifications  -->
-<h id="vx_ntracks_matched" type="TH1" title="Number of tracks for matched PU vertices">
+<h id="vx_ntracks_matched" type="TH1" title="Number of tracks for matched PU vertices with sum pt > 0">
   <x title="Number of Matched PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_merged" type="TH1" title="Number of tracks for merged PU vertices">
+<h id="vx_ntracks_merged" type="TH1" title="Number of tracks for merged PU vertices with sum pt > 0">
   <x title="Number of Merged PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_split" type="TH1" title="Number of tracks for split PU vertices">
+<h id="vx_ntracks_split" type="TH1" title="Number of tracks for split PU vertices with sum pt > 0">
   <x title="Number of Split PU Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_HS_matched" type="TH1" title="Number of tracks for matched HS vertices">
+<h id="vx_ntracks_HS_matched" type="TH1" title="Number of tracks for matched HS vertices with sum pt > 0">
   <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_HS_merged" type="TH1" title="Number of tracks for merged HS vertices">
+<h id="vx_ntracks_HS_merged" type="TH1" title="Number of tracks for merged HS vertices with sum pt > 0">
   <x title="Number of Merged HS Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_HS_split" type="TH1" title="Number of tracks for split HS vertices">
+<h id="vx_ntracks_HS_split" type="TH1" title="Number of tracks for split HS vertices with sum pt > 0">
   <x title="Number of Matched HS Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_ALL_matched" type="TH1" title="Number of tracks for matched ALL vertices">
+<h id="vx_ntracks_ALL_matched" type="TH1" title="Number of tracks for ALL matched vertices with sum pt > 20GeV">
   <x title="Number of Matched ALL Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_ALL_merged" type="TH1" title="Number of tracks for merged ALL vertices">
+<h id="vx_ntracks_ALL_merged" type="TH1" title="Number of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="Number of Merged ALL Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_ntracks_ALL_split" type="TH1" title="Number of tracks for split ALL vertices">
+<h id="vx_ntracks_ALL_split" type="TH1" title="Number of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="Number of Matched ALL Vertices" n="150" lo="0.0" hi="150"/>
   <y title="Number of Tracks" />
 </h>
-<h id="vx_sumpT_matched" type="TH1" title="SumPt of tracks for matched vertices">
+<h id="vx_sumpT_matched" type="TH1" title="SumPt of tracks for matched PU vertices with sum pt > 0">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_merged" type="TH1" title="SumPt of tracks for merged vertices">
+<h id="vx_sumpT_merged" type="TH1" title="SumPt of tracks for merged PU vertices with sum pt > 0">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_split" type="TH1" title="SumPt of tracks for split vertices">
+<h id="vx_sumpT_split" type="TH1" title="SumPt of tracks for split PU vertices with sum pt > 0">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="150000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_HS_matched" type="TH1" title="SumPt of tracks for HS matched vertices">
+<h id="vx_sumpT_HS_matched" type="TH1" title="SumPt of tracks for HS matched vertices with sum pt > 0">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_HS_merged" type="TH1" title="SumPt of tracks for HS merged vertices">
+<h id="vx_sumpT_HS_merged" type="TH1" title="SumPt of tracks for HS merged vertices with sum pt > 0">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_HS_split" type="TH1" title="SumPt of tracks for HS split vertices">
+<h id="vx_sumpT_HS_split" type="TH1" title="SumPt of tracks for HS split vertices with sum pt > 0">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="0.0" hi="400000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_ALL_matched" type="TH1" title="SumPt of tracks for ALL matched vertices">
+<h id="vx_sumpT_ALL_matched" type="TH1" title="SumPt of tracks for ALL matched vertices with sum pt > 20GeV">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_ALL_merged" type="TH1" title="SumPt of tracks for ALL merged vertices">
+<h id="vx_sumpT_ALL_merged" type="TH1" title="SumPt of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
   <y title="Entries" />
 </h>
-<h id="vx_sumpT_ALL_split" type="TH1" title="SumPt of tracks for ALL split vertices">
+<h id="vx_sumpT_ALL_split" type="TH1" title="SumPt of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="sum p_{T} (MeV)of tracks" n="100" lo="20.0" hi="400000"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for matched vertices">
+<h id="vx_z_asym_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for matched PU vertices with sum pt > 0">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_merged" type="TH1" title="asymmetry of track Z0 around vertex of tracks for merged vertices">
+<h id="vx_z_asym_merged" type="TH1" title="asymmetry of track Z0 around vertex of tracks for merged PU vertices with sum pt > 0">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for split vertices">
+<h id="vx_z_asym_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for split PU vertices with sum pt > 0">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for matched vertices">
+<h id="vx_z_asym_weighted_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for matched PU vertices with sum pt > 0">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for merged vertices">
+<h id="vx_z_asym_weighted_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for merged PU vertices with sum pt > 0">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for split vertices">
+<h id="vx_z_asym_weighted_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for split PU vertices with sum pt > 0">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1.0"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_matched" type="TH1" title="Weights of tracks for PU  matched vertices">
+<h id="vx_track_weight_matched" type="TH1" title="Weights of tracks for PU  matched vertices with sum pt > 0">
   <x title="track weights for PU vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_merged" type="TH1" title="Weights of tracks for PU merged vertices">
+<h id="vx_track_weight_merged" type="TH1" title="Weights of tracks for PU merged vertices with sum pt > 0">
   <x title="track weights for PU vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_split" type="TH1" title="Weights of tracks for PU split vertices">
+<h id="vx_track_weight_split" type="TH1" title="Weights of tracks for PU split vertices with sum pt > 0">
   <x title="track weights for PU vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_matched" type="TH1" title="Normalised weights of tracks for PU  matched vertices">
+<h id="vx_normalised_track_weight_matched" type="TH1" title="Normalised weights of tracks for PU  matched vertices with sum pt > 0">
   <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_merged" type="TH1" title="Normalised weights of tracks for PU merged vertices">
+<h id="vx_normalised_track_weight_merged" type="TH1" title="Normalised weights of tracks for PU merged vertices with sum pt > 0">
   <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_split" type="TH1" title="Normalised weights of tracks for PU split vertices">
+<h id="vx_normalised_track_weight_split" type="TH1" title="Normalised weights of tracks for PU split vertices with sum pt > 0">
   <x title="Normalised track weights for PU vertex" n="100" lo="0" hi="0.50"/>
   <y title="Entries" />
 </h>
 
-<h id="vx_z_asym_HS_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS matched vertices">
+<h id="vx_z_asym_HS_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS matched vertices with sum pt > 0">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_HS_merged" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS merged vertices">
+<h id="vx_z_asym_HS_merged" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS merged vertices with sum pt > 0">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_HS_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS split vertices">
+<h id="vx_z_asym_HS_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for HS split vertices with sum pt > 0">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_HS_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS matched vertices">
+<h id="vx_z_asym_weighted_HS_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS matched vertices with sum pt > 0">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_HS_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS merged vertices">
+<h id="vx_z_asym_weighted_HS_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS merged vertices with sum pt > 0">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_HS_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS split vertices">
+<h id="vx_z_asym_weighted_HS_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for HS split vertices with sum pt > 0">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_HS_matched" type="TH1" title="Weights of tracks for HS  matched vertices">
+<h id="vx_track_weight_HS_matched" type="TH1" title="Weights of tracks for HS  matched vertices with sum pt > 0">
   <x title="track weights for HS vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_HS_merged" type="TH1" title="Weights of tracks for HS merged vertices">
+<h id="vx_track_weight_HS_merged" type="TH1" title="Weights of tracks for HS merged vertices with sum pt > 0">
   <x title="track weights for HS vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_HS_split" type="TH1" title="Weights of tracks for HS split vertices">
+<h id="vx_track_weight_HS_split" type="TH1" title="Weights of tracks for HS split vertices with sum pt > 0">
   <x title="track weights for HS vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_HS_matched" type="TH1" title="Normalised weights of tracks for HS  matched vertices">
+<h id="vx_normalised_track_weight_HS_matched" type="TH1" title="Normalised weights of tracks for HS  matched vertices with sum pt > 0">
   <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_HS_merged" type="TH1" title="Normalised weights of tracks for HS merged vertices">
+<h id="vx_normalised_track_weight_HS_merged" type="TH1" title="Normalised weights of tracks for HS merged vertices with sum pt > 0">
   <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_HS_split" type="TH1" title="Normalised weights of tracks for HS split vertices">
+<h id="vx_normalised_track_weight_HS_split" type="TH1" title="Normalised weights of tracks for HS split vertices with sum pt > 0">
   <x title="Normalised track weights for HS vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_matched" type="TH1" title="Chi squared/ndf of tracks for PU matched vertices">
+<h id="vx_chi2Over_ndf_matched" type="TH1" title="Chi squared/ndf of tracks for PU matched vertices with sum pt > 0">
   <x title="Chi squared/ndf for vertex fit for PU" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_merged" type="TH1" title="Chi squared/ndf of tracks for PU merged vertices">
+<h id="vx_chi2Over_ndf_merged" type="TH1" title="Chi squared/ndf of tracks for PU merged vertices with sum pt > 0">
   <x title="Chi squared/ndf for vertex fit for PU" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_split" type="TH1" title="Chi squared/ndf of tracks for PU split vertices">
+<h id="vx_chi2Over_ndf_split" type="TH1" title="Chi squared/ndf of tracks for PU split vertices with sum pt > 0">
   <x title="Chi squared/ndf for vertex fit for PU" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_HS_matched" type="TH1" title="Chi squared/ndf of tracks for HS matched vertices">
+<h id="vx_chi2Over_ndf_HS_matched" type="TH1" title="Chi squared/ndf of tracks for HS matched vertices with sum pt > 0">
   <x title="Chi squared/ndf for vertex fit for matched HS" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_HS_merged" type="TH1" title="Chi squared/ndf of tracks for HS merged vertices">
+<h id="vx_chi2Over_ndf_HS_merged" type="TH1" title="Chi squared/ndf of tracks for HS merged vertices with sum pt > 0">
   <x title="Chi squared/ndf for vertex fit for merged HS" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_HS_split" type="TH1" title="Chi squared/ndf of tracks for HS split vertices">
+<h id="vx_chi2Over_ndf_HS_split" type="TH1" title="Chi squared/ndf of tracks for HS split vertices with sum pt > 0">
   <x title="Chi squared/ndf for vertex fit for split HS" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_HS_matched" type="TH1" title="Skewness of z0 of tracks z0 for HS matched vertices">
+<h id="vx_z0_skewness_HS_matched" type="TH1" title="Skewness of z0 of tracks z0 for HS matched vertices with sum pt > 0">
   <x title="Skewness for z0 for HS" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_HS_merged" type="TH1" title="Skewness of z0 of tracks for HS merged vertices">
+<h id="vx_z0_skewness_HS_merged" type="TH1" title="Skewness of z0 of tracks for HS merged vertices with sum pt > 0">
   <x title="Skewness for z0 for HS" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_HS_split" type="TH1" title="Skewness of z0 of tracks for HS split vertices">
+<h id="vx_z0_skewness_HS_split" type="TH1" title="Skewness of z0 of tracks for HS split vertices with sum pt > 0">
   <x title="Skewness for z0 for HS" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_matched" type="TH1" title="Skewness of z0 of tracks z0 for PU matched vertices">
+<h id="vx_z0_skewness_matched" type="TH1" title="Skewness of z0 of tracks z0 for PU matched vertices with sum pt > 0">
   <x title="Skewness for Z0 PU" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_merged" type="TH1" title="Skewness of z0 of tracks for PU merged vertices">
+<h id="vx_z0_skewness_merged" type="TH1" title="Skewness of z0 of tracks for PU merged vertices with sum pt > 0">
   <x title="Skewness for Z0 PU" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_split" type="TH1" title="Skewness of z0 of tracks for PU split vertices">
+<h id="vx_z0_skewness_split" type="TH1" title="Skewness of z0 of tracks for PU split vertices with sum pt > 0">
   <x title="Skewness for Z0 PU" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_HS_matched" type="TH1" title="Kurtosis of z0 of tracks z0 for HS matched vertices">
+<h id="vx_z0_kurtosis_HS_matched" type="TH1" title="Kurtosis of z0 of tracks z0 for HS matched vertices with sum pt > 0">
   <x title="Kurtosis for Z0 HS" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_HS_merged" type="TH1" title="Kurtosis of z0 of tracks for HS merged vertices">
+<h id="vx_z0_kurtosis_HS_merged" type="TH1" title="Kurtosis of z0 of tracks for HS merged vertices with sum pt > 0">
   <x title="Kurtosis for Z0 HS" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_HS_split" type="TH1" title="Kurtosis of z0 of tracks for HS split vertices">
+<h id="vx_z0_kurtosis_HS_split" type="TH1" title="Kurtosis of z0 of tracks for HS split vertices with sum pt > 0">
   <x title="Kurtosis for Z0 HS" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_matched" type="TH1" title="Kurtosis of z0 of tracks for PU matched vertices">
+<h id="vx_z0_kurtosis_matched" type="TH1" title="Kurtosis of z0 of tracks for PU matched vertices with sum pt > 0">
   <x title="Kurtosis for z0 PU" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_merged" type="TH1" title="Kurtosis of z0 of tracks for PU merged vertices">
+<h id="vx_z0_kurtosis_merged" type="TH1" title="Kurtosis of z0 of tracks for PU merged vertices with sum pt > 0">
   <x title="Kurtosis for z0 PU" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_split" type="TH1" title="Kurtosis of z0 of tracks for PU split vertices">
+<h id="vx_z0_kurtosis_split" type="TH1" title="Kurtosis of z0 of tracks for PU split vertices with sum pt > 0">
   <x title="Kurtosis for z0 PU" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
 <!-- ALL vertices (PU and HS) with sumpt > 20Mev -->
-<h id="vx_z_asym_ALL_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL matched vertices">
+<h id="vx_z_asym_ALL_matched" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL matched vertices with sum pt > 20GeV">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_ALL_merged" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL merged vertices">
+<h id="vx_z_asym_ALL_merged" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_ALL_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL split vertices">
+<h id="vx_z_asym_ALL_split" type="TH1" title="asymmetry of track Z0 around vertex of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_ALL_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL matched vertices">
+<h id="vx_z_asym_weighted_ALL_matched" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL matched vertices with sum pt > 20GeV">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_ALL_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL merged vertices">
+<h id="vx_z_asym_weighted_ALL_merged" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_z_asym_weighted_ALL_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL split vertices">
+<h id="vx_z_asym_weighted_ALL_split" type="TH1" title="Weighted asymmetry of track Z0 around vertex of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="Weighted asymmetry of track Z0 around vertex of tracks" n="100" lo="-1.0" hi="1"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_ALL_matched" type="TH1" title="Weights of tracks for ALL  matched vertices">
+<h id="vx_track_weight_ALL_matched" type="TH1" title="Weights of tracks for ALL  matched vertices with sum pt > 20GeV">
   <x title="track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_ALL_merged" type="TH1" title="Weights of tracks for ALL merged vertices">
+<h id="vx_track_weight_ALL_merged" type="TH1" title="Weights of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_track_weight_ALL_split" type="TH1" title="Weights of tracks for ALL split vertices">
+<h id="vx_track_weight_ALL_split" type="TH1" title="Weights of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="track weights for ALL vertex" n="100" lo="0" hi="1.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_ALL_matched" type="TH1" title="Normalised weights of tracks for ALL  matched vertices">
+<h id="vx_normalised_track_weight_ALL_matched" type="TH1" title="Normalised weights of tracks for ALL  matched vertices with sum pt > 20GeV">
   <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_ALL_merged" type="TH1" title="Normalised weights of tracks for ALL merged vertices">
+<h id="vx_normalised_track_weight_ALL_merged" type="TH1" title="Normalised weights of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_normalised_track_weight_ALL_split" type="TH1" title="Normalised weights of tracks for ALL split vertices">
+<h id="vx_normalised_track_weight_ALL_split" type="TH1" title="Normalised weights of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="Normalised track weights for ALL vertex" n="100" lo="0" hi="0.10"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_ALL_matched" type="TH1" title="Chi squared/ndf of tracks for ALL matched vertices">
+<h id="vx_chi2Over_ndf_ALL_matched" type="TH1" title="Chi squared/ndf of tracks for ALL matched vertices with sum pt > 20GeV">
   <x title="Chi squared/ndf for vertex fit for matched ALL" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_ALL_merged" type="TH1" title="Chi squared/ndf of tracks for ALL merged vertices">
+<h id="vx_chi2Over_ndf_ALL_merged" type="TH1" title="Chi squared/ndf of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="Chi squared/ndf for vertex fit for merged ALL" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_chi2Over_ndf_ALL_split" type="TH1" title="Chi squared/ndf of tracks for ALL split vertices">
+<h id="vx_chi2Over_ndf_ALL_split" type="TH1" title="Chi squared/ndf of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="Chi squared/ndf for vertex fit for split ALL" n="100" lo="0" hi="3"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_ALL_matched" type="TH1" title="Skewness of z0 of tracks z0 for ALL matched vertices">
+<h id="vx_z0_skewness_ALL_matched" type="TH1" title="Skewness of z0 of tracks z0 for ALL matched vertices with sum pt > 20GeV">
   <x title="Skewness for z0 for ALL" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_ALL_merged" type="TH1" title="Skewness of z0 of tracks for ALL merged vertices">
+<h id="vx_z0_skewness_ALL_merged" type="TH1" title="Skewness of z0 of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="Skewness for z0 for ALL" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_skewness_ALL_split" type="TH1" title="Skewness of z0 of tracks for ALL split vertices">
+<h id="vx_z0_skewness_ALL_split" type="TH1" title="Skewness of z0 of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="Skewness for z0 for ALL" n="100" lo="-5" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_ALL_matched" type="TH1" title="Kurtosis of z0 of tracks z0 for ALL matched vertices">
+<h id="vx_z0_kurtosis_ALL_matched" type="TH1" title="Kurtosis of z0 of tracks z0 for ALL matched vertices with sum pt > 20GeV">
   <x title="Kurtosis for Z0 ALL" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_ALL_merged" type="TH1" title="Kurtosis of z0 of tracks for ALL merged vertices">
+<h id="vx_z0_kurtosis_ALL_merged" type="TH1" title="Kurtosis of z0 of tracks for ALL merged vertices with sum pt > 20GeV">
   <x title="Kurtosis for Z0 ALL" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_z0_kurtosis_ALL_split" type="TH1" title="Kurtosis of z0 of tracks for ALL split vertices">
+<h id="vx_z0_kurtosis_ALL_split" type="TH1" title="Kurtosis of z0 of tracks for ALL split vertices with sum pt > 20GeV">
   <x title="Kurtosis for Z0 ALL" n="100" lo="0" hi="20"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_ALL_matched" type="TH1" title="Number of matched vertices per event for sumpt above 20Gev">
+<h id="vx_nVertices_ALL_matched" type="TH1" title="Number of ALL matched vertices per event with sum pt > 20GeV">
   <x title="Number of vertices per event ALL" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_ALL_merged" type="TH1" title="Number of merged vertices per event for sumpt above 20Gev">
+<h id="vx_nVertices_ALL_merged" type="TH1" title="Number of ALL merged vertices per event with sum pt > 20GeV">
   <x title="Number of vertices per event ALL" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_ALL_split" type="TH1" title="Number of split vertices per event for sumpt above 20Gev">
+<h id="vx_nVertices_ALL_split" type="TH1" title="Number of ALL split vertices per event with sum pt > 20GeV">
   <x title="Number of vertices per event ALL" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_HS_matched" type="TH1" title="Number of HS matched vertices per event">
+<h id="vx_nVertices_HS_matched" type="TH1" title="Number of HS matched vertices per event with sumpt > 0">
   <x title="Number of vertices per event HS" n="100" lo="0" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_HS_merged" type="TH1" title="Number of HS merged vertices per event">
+<h id="vx_nVertices_HS_merged" type="TH1" title="Number of HS merged vertices per event with sumpt > 0">
   <x title="Number of vertices per event HS" n="100" lo="0" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_HS_split" type="TH1" title="Number of HS split vertices per event">
+<h id="vx_nVertices_HS_split" type="TH1" title="Number of HS split vertices per event with sumpt > 0">
   <x title="Number of vertices per event HS" n="100" lo="0" hi="5"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_matched" type="TH1" title="Number of PU matched vertices per event">
+<h id="vx_nVertices_matched" type="TH1" title="Number of PU matched vertices per event with sumpt > 0">
   <x title="Number of vertices per event PU" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_merged" type="TH1" title="Number of PU merged vertices per event">
+<h id="vx_nVertices_merged" type="TH1" title="Number of PU merged vertices per event with sumpt > 0">
   <x title="Number of vertices per event PU" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>
-<h id="vx_nVertices_split" type="TH1" title="Number of PU split vertices per event">
+<h id="vx_nVertices_split" type="TH1" title="Number of PU split vertices per event with sumpt > 0">
   <x title="Number of vertices per event PU" n="100" lo="0" hi="50"/>
   <y title="Entries" />
 </h>

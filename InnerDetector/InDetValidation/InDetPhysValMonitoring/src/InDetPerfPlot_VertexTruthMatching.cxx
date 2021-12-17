@@ -787,49 +787,49 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
               if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
                if (vertex == bestRecoHSVtx_truth) {
 	
-		 fillHisto(m_vx_sumpT_HS_matched,sumPt );
-                 fillHisto(m_vx_z_asym_HS_matched, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_HS_matched, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_HS_matched, vertex->chiSquared()/ndf);
+		 fillHisto(m_vx_sumpT_HS_matched,sumPt ,weight);
+                 fillHisto(m_vx_z_asym_HS_matched, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_HS_matched, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_HS_matched, vertex->chiSquared()/ndf,weight);
 
-                 fillHisto(m_vx_z0_skewness_HS_matched, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_HS_matched, z_kurt);
+                 fillHisto(m_vx_z0_skewness_HS_matched, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_HS_matched, z_kurt,weight);
        
 
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_HS_matched, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_HS_matched, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_HS_matched, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_HS_matched, trkWeight/number_tracks,weight);
                  }
 
                }	
 	       else { 
 		
-                 fillHisto(m_vx_sumpT_matched,sumPt );
-                 fillHisto(m_vx_z_asym_matched, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_matched, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_matched, vertex->chiSquared()/ndf);
+                 fillHisto(m_vx_sumpT_matched,sumPt ,weight);
+                 fillHisto(m_vx_z_asym_matched, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_matched, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_matched, vertex->chiSquared()/ndf,weight);
               
-                 fillHisto(m_vx_z0_skewness_matched, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_matched, z_kurt);
+                 fillHisto(m_vx_z0_skewness_matched, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_matched, z_kurt,weight);
 
 
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_matched, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_matched, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_matched, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_matched, trkWeight/number_tracks,weight);
                  }
                }
 // fill some histograms that contain both HS and PU above a min pt - say 20GeV
               if (sumPt > minpt) {
-                 fillHisto(m_vx_sumpT_ALL_matched,sumPt );
-                 fillHisto(m_vx_z_asym_ALL_matched, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_ALL_matched, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_ALL_matched, vertex->chiSquared()/ndf);
+                 fillHisto(m_vx_sumpT_ALL_matched,sumPt ,weight);
+                 fillHisto(m_vx_z_asym_ALL_matched, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_ALL_matched, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_ALL_matched, vertex->chiSquared()/ndf,weight);
 
-                 fillHisto(m_vx_z0_skewness_ALL_matched, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_ALL_matched, z_kurt);
+                 fillHisto(m_vx_z0_skewness_ALL_matched, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_ALL_matched, z_kurt,weight);
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_ALL_matched, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_ALL_matched, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_ALL_matched, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_ALL_matched, trkWeight/number_tracks,weight);
                  }
 
               }
@@ -838,46 +838,46 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
               if (vertex == bestRecoHSVtx_truth) {
               
-                 fillHisto(m_vx_sumpT_HS_merged, sumPt );
-                 fillHisto(m_vx_z_asym_HS_merged, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_HS_merged, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_HS_merged, vertex->chiSquared()/ndf);
+                 fillHisto(m_vx_sumpT_HS_merged, sumPt ,weight);
+                 fillHisto(m_vx_z_asym_HS_merged, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_HS_merged, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_HS_merged, vertex->chiSquared()/ndf,weight);
 
-                 fillHisto(m_vx_z0_skewness_HS_merged, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_HS_merged, z_kurt);
+                 fillHisto(m_vx_z0_skewness_HS_merged, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_HS_merged, z_kurt,weight);
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_HS_merged, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_HS_merged, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_HS_merged, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_HS_merged, trkWeight/number_tracks,weight);
                  }
 
 
 
               }
               else {
-                 fillHisto(m_vx_sumpT_merged, sumPt );
-                 fillHisto(m_vx_z_asym_merged, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_merged, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_merged, vertex->chiSquared()/ndf);
+                 fillHisto(m_vx_sumpT_merged, sumPt ,weight);
+                 fillHisto(m_vx_z_asym_merged, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_merged, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_merged, vertex->chiSquared()/ndf,weight);
              
-                 fillHisto(m_vx_z0_skewness_merged, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_merged, z_kurt);
+                 fillHisto(m_vx_z0_skewness_merged, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_merged, z_kurt,weight);
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_merged, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_merged, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_merged, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_merged, trkWeight/number_tracks,weight);
                  }
 
               }
               if (sumPt > minpt) {
-                 fillHisto(m_vx_sumpT_ALL_merged,sumPt );
-                 fillHisto(m_vx_z_asym_ALL_merged, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_ALL_merged, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_ALL_merged, vertex->chiSquared()/ndf);
+                 fillHisto(m_vx_sumpT_ALL_merged,sumPt ,weight);
+                 fillHisto(m_vx_z_asym_ALL_merged, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_ALL_merged, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_ALL_merged, vertex->chiSquared()/ndf,weight);
 
-                 fillHisto(m_vx_z0_skewness_ALL_merged, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_ALL_merged, z_kurt);
+                 fillHisto(m_vx_z0_skewness_ALL_merged, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_ALL_merged, z_kurt,weight);
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_ALL_merged, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_ALL_merged, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_ALL_merged, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_ALL_merged, trkWeight/number_tracks,weight);
                  }
 
               }
@@ -885,47 +885,47 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
               if (vertex == bestRecoHSVtx_truth) {
-                 fillHisto(m_vx_sumpT_HS_split, sumPt );
-                 fillHisto(m_vx_z_asym_HS_split, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_HS_split, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_HS_split, vertex->chiSquared()/ndf);
+                 fillHisto(m_vx_sumpT_HS_split, sumPt ,weight);
+                 fillHisto(m_vx_z_asym_HS_split, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_HS_split, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_HS_split, vertex->chiSquared()/ndf,weight);
 
-                 fillHisto(m_vx_z0_skewness_HS_split, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_HS_split, z_kurt);
+                 fillHisto(m_vx_z0_skewness_HS_split, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_HS_split, z_kurt,weight);
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_HS_split, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_HS_split, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_HS_split, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_HS_split, trkWeight/number_tracks,weight);
                  }
 
 
               }
               else {
-                 fillHisto(m_vx_sumpT_split, sumPt );
-                 fillHisto(m_vx_z_asym_split, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_split, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_split, vertex->chiSquared()/ndf);
+                 fillHisto(m_vx_sumpT_split, sumPt ,weight);
+                 fillHisto(m_vx_z_asym_split, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_split, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_split, vertex->chiSquared()/ndf,weight);
 
-                 fillHisto(m_vx_z0_skewness_split, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_split, z_kurt);
+                 fillHisto(m_vx_z0_skewness_split, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_split, z_kurt,weight);
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_split, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_split, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_split, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_split, trkWeight/number_tracks,weight);
                  }
 
 
               }
 
               if (sumPt > minpt) {
-                 fillHisto(m_vx_sumpT_ALL_split,sumPt );
-                 fillHisto(m_vx_z_asym_ALL_split, z_asym);
-                 fillHisto(m_vx_z_asym_weighted_ALL_split, weighted_z_asym);
-                 fillHisto(m_vx_chi2Over_ndf_ALL_split, vertex->chiSquared()/ndf);
+                 fillHisto(m_vx_sumpT_ALL_split,sumPt ,weight);
+                 fillHisto(m_vx_z_asym_ALL_split, z_asym,weight);
+                 fillHisto(m_vx_z_asym_weighted_ALL_split, weighted_z_asym,weight);
+                 fillHisto(m_vx_chi2Over_ndf_ALL_split, vertex->chiSquared()/ndf,weight);
 
-                 fillHisto(m_vx_z0_skewness_ALL_split, z_skew);
-                 fillHisto(m_vx_z0_kurtosis_ALL_split, z_kurt);
+                 fillHisto(m_vx_z0_skewness_ALL_split, z_skew,weight);
+                 fillHisto(m_vx_z0_kurtosis_ALL_split, z_kurt,weight);
                  for (const float& trkWeight : vertex->trackWeights()) {
-                     fillHisto(m_vx_track_weight_ALL_split, trkWeight);
-                     fillHisto(m_vx_normalised_track_weight_ALL_split, trkWeight/number_tracks);
+                     fillHisto(m_vx_track_weight_ALL_split, trkWeight,weight);
+                     fillHisto(m_vx_normalised_track_weight_ALL_split, trkWeight/number_tracks,weight);
                  }
               }
 
@@ -981,16 +981,16 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
          
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
 
-                fillHisto(m_vx_ntracks_HS_matched, vertex->nTrackParticles());
+                fillHisto(m_vx_ntracks_HS_matched, vertex->nTrackParticles(),weight);
              } 
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
-                 fillHisto(m_vx_ntracks_HS_merged,  vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_HS_merged,  vertex->nTrackParticles(),weight);
 
              }
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
-                 fillHisto(m_vx_ntracks_HS_split,   vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_HS_split,   vertex->nTrackParticles(),weight);
              }
            }
            else {
@@ -998,32 +998,32 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               
-                fillHisto(m_vx_ntracks_matched, vertex->nTrackParticles());
+                fillHisto(m_vx_ntracks_matched, vertex->nTrackParticles(),weight);
              }
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
-                fillHisto(m_vx_ntracks_merged,  vertex->nTrackParticles());
+                fillHisto(m_vx_ntracks_merged,  vertex->nTrackParticles(),weight);
 
              }
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
-                 fillHisto(m_vx_ntracks_split,   vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_split,   vertex->nTrackParticles(),weight);
              }  
 
            }
            if (sumPt > minpt) {
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               
-                fillHisto(m_vx_ntracks_ALL_matched, vertex->nTrackParticles());
+                fillHisto(m_vx_ntracks_ALL_matched, vertex->nTrackParticles(),weight);
              }
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
-                fillHisto(m_vx_ntracks_ALL_merged,  vertex->nTrackParticles());
+                fillHisto(m_vx_ntracks_ALL_merged,  vertex->nTrackParticles(),weight);
 
              }
 
              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
-                 fillHisto(m_vx_ntracks_ALL_split,   vertex->nTrackParticles());
+                 fillHisto(m_vx_ntracks_ALL_split,   vertex->nTrackParticles(),weight);
              }  
 
            }
@@ -1032,15 +1032,15 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
        } // end loop over vertices
 
 // new histos to count number of vertices per event
-        fillHisto(m_vx_nVertices_ALL_matched, number_matched);
-        fillHisto(m_vx_nVertices_ALL_merged, number_merged);
-        fillHisto(m_vx_nVertices_ALL_split, number_split);
-        fillHisto(m_vx_nVertices_HS_matched, number_matched_HS);
-        fillHisto(m_vx_nVertices_HS_merged, number_merged_HS);
-        fillHisto(m_vx_nVertices_HS_split, number_split_HS);
-        fillHisto(m_vx_nVertices_matched, number_matched_PU);
-        fillHisto(m_vx_nVertices_merged, number_merged_PU);
-        fillHisto(m_vx_nVertices_split, number_split_PU);
+        fillHisto(m_vx_nVertices_ALL_matched, number_matched,weight);
+        fillHisto(m_vx_nVertices_ALL_merged, number_merged,weight);
+        fillHisto(m_vx_nVertices_ALL_split, number_split,weight);
+        fillHisto(m_vx_nVertices_HS_matched, number_matched_HS,weight);
+        fillHisto(m_vx_nVertices_HS_merged, number_merged_HS,weight);
+        fillHisto(m_vx_nVertices_HS_split, number_split_HS,weight);
+        fillHisto(m_vx_nVertices_matched, number_matched_PU,weight);
+        fillHisto(m_vx_nVertices_merged, number_merged_PU,weight);
+        fillHisto(m_vx_nVertices_split, number_split_PU,weight);
 
         // Now fill plots relating to the reconstruction of our truth HS vertex (efficiency and resolutions)
         if (truthHSVertices.size() != 0) {
