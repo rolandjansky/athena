@@ -32,6 +32,33 @@
 ATH_ENABLE_VECTORIZATION;
 
 namespace {
+
+/////////////////////////////////////////////////////////////////////////////////
+// get magnetic field methods
+/////////////////////////////////////////////////////////////////////////////////
+
+using Cache = Trk::RungeKuttaPropagator::Cache;
+void
+getField(Cache& cache, double* R, double* H)
+{
+
+  if (cache.m_solenoid) {
+    cache.m_fieldCache.getFieldZR(R, H);
+  } else {
+    cache.m_fieldCache.getField(R, H);
+  }
+}
+
+void
+getFieldGradient(Cache& cache, double* R, double* H, double* dH)
+{
+  if (cache.m_solenoid) {
+    cache.m_fieldCache.getFieldZR(R, H, dH);
+  } else {
+    cache.m_fieldCache.getField(R, H, dH);
+  }
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 // Straight line trajectory model
 /////////////////////////////////////////////////////////////////////////////////
@@ -202,7 +229,8 @@ crossPoint(const Trk::TrackParameters& Tp,
   }
   return SU[N].first->createUniqueTrackParameters(p[0], p[1], p[2], p[3], p[4], std::move(e));
 }
-}
+
+}//end of anonymous namespace
 
 /////////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -1071,9 +1099,9 @@ bool
 Trk::RungeKuttaPropagator::propagateWithJacobian(Cache& cache,
                                                  bool Jac,
                                                  int kind,
-                                                 double* Su,
-                                                 double* P,
-                                                 double& W) const
+                                                 double* ATH_RESTRICT Su,
+                                                 double* ATH_RESTRICT P,
+                                                 double& ATH_RESTRICT W) const
 {
   const double Smax = 1000.;     // max. step allowed
   double Wmax = cache.m_maxPath; // Max way allowed
@@ -1192,7 +1220,11 @@ Trk::RungeKuttaPropagator::propagateWithJacobian(Cache& cache,
 /////////////////////////////////////////////////////////////////////////////////
 
 double
-Trk::RungeKuttaPropagator::rungeKuttaStep(Cache& cache, bool Jac, double S, double* P, bool& InS) const
+Trk::RungeKuttaPropagator::rungeKuttaStep(Cache& cache,
+                                          bool Jac,
+                                          double S,
+                                          double* ATH_RESTRICT P,
+                                          bool& InS) const
 {
   double* R = &P[0]; // Coordinates
   double* A = &P[3]; // Directions
@@ -1346,7 +1378,10 @@ Trk::RungeKuttaPropagator::rungeKuttaStep(Cache& cache, bool Jac, double S, doub
 /////////////////////////////////////////////////////////////////////////////////
 
 double
-Trk::RungeKuttaPropagator::rungeKuttaStepWithGradient(Cache& cache, double S, double* P, bool& InS) const
+Trk::RungeKuttaPropagator::rungeKuttaStepWithGradient(Cache& cache,
+                                                      double S,
+                                                      double* ATH_RESTRICT P,
+                                                      bool& InS) const
 {
   const double C33 = 1. / 3.;
   double* R = &P[0]; // Coordinates
@@ -1969,8 +2004,8 @@ Trk::RungeKuttaPropagator::propagateRungeKutta(Cache& cache,
 double
 Trk::RungeKuttaPropagator::stepEstimatorWithCurvature(Cache& cache,
                                                       int kind,
-                                                      double* Su,
-                                                      const double* P,
+                                                      double* ATH_RESTRICT Su,
+                                                      const double* ATH_RESTRICT P,
                                                       bool& Q) const
 {
   // Straight step estimation
@@ -2248,83 +2283,6 @@ Trk::RungeKuttaPropagator::stepReduction(const double* E) const
   if ((dR2 > 16. * dlt2 && cS < 1.) || cS >= 3.)
     return cS;
   return 1.;
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-// Simple propagation on Step
-// Ri and Pi - initial coordinate and momentum
-// Ro and Po - output  coordinate and momentum after propagation
-/////////////////////////////////////////////////////////////////////////////////
-
-void
-Trk::RungeKuttaPropagator::propagateStep(const EventContext& ctx,
-                                         const Amg::Vector3D& Ri,
-                                         const Amg::Vector3D& Pi,
-                                         double Charge,
-                                         double Step,
-                                         Amg::Vector3D& Ro,
-                                         Amg::Vector3D& Po,
-                                         const MagneticFieldProperties& Mag) const
-{
-
-  Cache cache{};
-
-  // Get field cache object
-  getFieldCacheObject(cache, ctx);
-
-  // Magnetic field information preparation
-  //
-  Mag.magneticFieldMode() == Trk::FastField ? cache.m_solenoid = true : cache.m_solenoid = false;
-  Mag.magneticFieldMode() != Trk::NoField ? cache.m_mcondition = true : cache.m_mcondition = false;
-
-  double M = std::sqrt(Pi[0] * Pi[0] + Pi[1] * Pi[1] + Pi[2] * Pi[2]);
-  if (M < .00001) {
-    Ro = Ri;
-    Po = Pi;
-    return;
-  }
-  double Mi = 1. / M;
-
-  double P[45];
-  P[0] = Ri[0];
-  P[1] = Ri[1];
-  P[2] = Ri[2];
-  P[3] = Mi * Pi[0];
-  P[4] = Mi * Pi[1];
-  P[5] = Mi * Pi[2];
-  P[6] = Charge * Mi;
-
-  bool In = false;
-  double S = Step;
-  double W = 0.;
-
-  cache.m_newfield = true;
-
-  while (true) {
-
-    if (cache.m_mcondition) {
-      W += (S = rungeKuttaStep(cache, false, S, P, In));
-    } else {
-      W += (S = straightLineStep(false, S, P));
-    }
-
-    double ws = Step - W;
-    double wsa = std::fabs(ws);
-    if (wsa < .0001 || ws * Step < 0.)
-      break;
-
-    double Sa = std::fabs(S);
-    if (Sa > wsa)
-      S = ws;
-    else if (In && wsa >= 2. * Sa)
-      S *= 2.;
-  }
-  Ro[0] = P[0];
-  Ro[1] = P[1];
-  Ro[2] = P[2];
-  Po[0] = M * P[3];
-  Po[1] = M * P[4];
-  Po[2] = M * P[5];
 }
 
 void
