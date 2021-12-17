@@ -9,9 +9,12 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation', **kwargs):
+def egammaTruthAssociationCfg(flags, name='egammaTruthAssociation',
+                              sequenceName = None,
+                              **kwargs):
 
-    acc = ComponentAccumulator()
+    seqkw = {'sequence': sequenceName} if sequenceName else {}
+    acc = ComponentAccumulator (**seqkw)
 
     if "MCTruthClassifier" not in kwargs:
         kwargs["MCTruthClassifier"] = acc.popToolsAndMerge(
