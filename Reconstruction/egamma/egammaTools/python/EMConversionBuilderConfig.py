@@ -6,7 +6,6 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
-EMConversionBuilder = CompFactory.EMConversionBuilder
 
 
 def EMConversionBuilderCfg(flags, name='EMConversionBuilder', **kwargs):
@@ -15,6 +14,7 @@ def EMConversionBuilderCfg(flags, name='EMConversionBuilder', **kwargs):
     mlog.debug('Start configuration')
 
     acc = ComponentAccumulator()
+    EMConversionBuilder = CompFactory.EMConversionBuilder
 
     if "ExtrapolationTool" not in kwargs:
         extraptool = EMExtrapolationToolsCfg(flags)
