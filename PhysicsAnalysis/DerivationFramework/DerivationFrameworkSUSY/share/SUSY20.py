@@ -241,21 +241,14 @@ SUSY20JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUS
 ToolSvc += SUSY20JetSkimmingTool # JEFF: turn this back on to add jet skimming
 
 # ------------------------------------------------------------
-# JetMET trigger name contained ' - ' cause crash when using xAODStringSkimmingTool
-from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET,triggersSoftMuon,triggersJetPlusMet,triggersSoftMuonEmulation, triggersElectron, triggersPhoton
-trigReq=triggersMET+triggersSoftMuon+triggersElectron+triggersPhoton
+from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET, triggersSingleLepton, triggersPhoton
+trigReq=triggersMET+triggersSingleLepton+triggersPhoton
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
-SUSY20InclusiveTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20InclusiveTriggerSkimmingTool",
-                                                                               TriggerListOR = trigReq)
-ToolSvc += SUSY20InclusiveTriggerSkimmingTool
 
-#SUSY20TriggerSkimmingTool = None
-SUSY20TriggerSkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY20TriggerSkimmingTool", 
-                                                                         FilterList = [SUSY20InclusiveTriggerSkimmingTool])
-ToolSvc += SUSY20TriggerSkimmingTool    
-    
-
+SUSY20TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool",
+                                                                      TriggerListOR = trigReq)
+ToolSvc += SUSY20TriggerSkimmingTool 
 
 # ------------------------------------------------------------
 # Final MET-based skim selection, with trigger selection and lepton selection
