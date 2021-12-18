@@ -8,12 +8,12 @@ class L1MenuAccess(TriggerConfigAccess):
     this class provides access to the L1Menu
     the methods are self-explanatory for people with knowledge of the configuration
     """
-    def __init__(self, filename = None, dbalias = None, smkey = None ):
+    def __init__(self, filename = None, jsonString=None, dbalias = None, smkey = None ):
         """
         accessor needs to be initialized with either a filename or the dbalias and smkey
         """
         super(L1MenuAccess,self).__init__( ConfigType.L1MENU, mainkey = "items",
-                                           filename = filename, dbalias = dbalias, dbkey = smkey)
+                                           jsonString=jsonString, filename = filename, dbalias = dbalias, dbkey = smkey)
         self.loader.setQuery([
             "SELECT L1MT.L1TM_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.L1_MENU L1MT WHERE L1MT.L1TM_ID=SMT.SMT_L1_MENU_ID AND SMT.SMT_ID={dbkey}", # for new db schema
             "SELECT L1MT.L1MT_MENU FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.L1_MASTER_TABLE L1MT WHERE L1MT.L1MT_ID=SMT.SMT_L1_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
@@ -145,12 +145,12 @@ class L1PrescalesSetAccess(TriggerConfigAccess):
         """
         return 0xFFFFFF / ( 0x1000000 - cut )
 
-    def __init__(self, filename = None, dbalias = None, l1pskey = None ):
+    def __init__(self, filename = None, jsonString=None, dbalias = None, l1pskey = None ):
         """
         accessor needs to be initialized with either a filename or the dbalias and l1pskey
         """
         super(L1PrescalesSetAccess,self).__init__( ConfigType.L1PS, mainkey = "cutValues",
-                                                   filename = filename, dbalias = dbalias, dbkey = l1pskey )
+                                                   jsonString = jsonString, filename = filename, dbalias = dbalias, dbkey = l1pskey )
         self.loader.setQuery([
             "SELECT L1PS_DATA FROM {schema}.L1_PRESCALE_SET WHERE L1PS_ID={dbkey}" # for current and new db schema
         ])
@@ -180,9 +180,9 @@ class BunchGroupSetAccess(TriggerConfigAccess):
     this class provides access to the L1 bunchgroup set
     the methods are self-explanatory for people with knowledge of the configuration
     """
-    def __init__(self, filename = None, dbalias = None, bgskey = None ):
+    def __init__(self, filename = None, jsonString=None, dbalias = None, bgskey = None ):
         super(BunchGroupSetAccess,self).__init__( ConfigType.BGS, mainkey = "bunchGroups",
-                                                  filename = filename, dbalias = dbalias, dbkey = bgskey )
+                                                  jsonString = jsonString, filename = filename, dbalias = dbalias, dbkey = bgskey )
         self.loader.setQuery([
             "SELECT L1BGS_DATA FROM {schema}.L1_BUNCH_GROUP_SET WHERE L1BGS_ID={dbkey}" # for current and new db schema
         ])

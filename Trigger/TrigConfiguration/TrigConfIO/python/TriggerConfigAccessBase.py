@@ -66,6 +66,20 @@ class ConfigFileLoader(ConfigLoader):
             outfn = outfn.rsplit('.',1)[0]
         return outfn + ".out.json"
 
+class ConfigDirectLoader(ConfigLoader):
+    """Class to load from json string"""
+    def __init__(self, configType,  jsonString):
+        super(ConfigDirectLoader,self).__init__(configType) 
+        self.jsonString = jsonString
+    def load(self):
+        config = json.loads(self.jsonString, object_pairs_hook = odict)
+        self.confirmConfigType(config)
+        return config
+    def setQuery(self, query):
+        pass
+    def getWriteFilename(self):
+        pass
+
 class ConfigDBLoader(ConfigLoader):
     def __init__(self, configType, dbalias, dbkey):
         super(ConfigDBLoader,self).__init__(configType)
@@ -187,18 +201,20 @@ class TriggerConfigAccess(object):
     base class to hold the configuration (OrderedDict) 
     and provides basic functions to access and print
     """
-    def __init__(self, configType, mainkey, filename = None, dbalias = None, dbkey = None):
-        self._getLoader(configType = configType, filename = filename, dbalias = dbalias, dbkey = dbkey)
+    def __init__(self, configType, mainkey, filename = None, jsonString=None, dbalias = None, dbkey = None):
+        self._getLoader(configType = configType, filename = filename, jsonString=jsonString, dbalias = dbalias, dbkey = dbkey)
         self._mainkey = mainkey
         self._config = None
 
-    def _getLoader(self, configType, filename = None, dbalias = None, dbkey = None ):
+    def _getLoader(self, configType, filename = None, jsonString=None, dbalias = None, dbkey = None ):
         if filename:
             self.loader = ConfigFileLoader( configType, filename )
         elif dbalias and dbkey:
             self.loader = ConfigDBLoader( configType, dbalias, dbkey )
+        elif jsonString:
+            self.loader = ConfigDirectLoader( configType, jsonString )
         else:
-            raise RuntimeError("Neither input file nor db alias and key provided")
+            raise RuntimeError("Neither input file, nor JSON nor db alias and key provided")
 
     def load(self):
         self._config = self.loader.load()
