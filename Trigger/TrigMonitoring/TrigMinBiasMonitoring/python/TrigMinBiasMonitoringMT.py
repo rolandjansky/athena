@@ -15,9 +15,7 @@ def TrigMinBias(configFlags):
     acc = ComponentAccumulator()
     acc.merge(TrigSPTRK(configFlags))
     acc.merge(TrigMBTS(configFlags))
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
-    if 'TriggerMenu' in GetFileMD(configFlags.Input.Files):
-        acc.merge(TrigMinBiasEff(configFlags))
+    acc.merge(TrigMinBiasEff(configFlags))
     return acc
 
 
