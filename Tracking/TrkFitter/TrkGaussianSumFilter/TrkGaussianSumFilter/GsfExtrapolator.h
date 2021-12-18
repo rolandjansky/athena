@@ -237,7 +237,7 @@ private:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  ToolHandleArray<IPropagator> m_propagators{ this, "Propagators", {}, "" };
+  ToolHandle<IPropagator> m_propagator{ this, "Propagator", "", "" };
   ToolHandle<INavigator> m_navigator{ this,
                                       "Navigator",
                                       "Trk::Navigator/Navigator",
@@ -261,15 +261,9 @@ private:
     ""
   };
 
-  //!< Switch between simple and full configured propagators
-  bool m_propagatorStickyConfiguration;
   //!< Switch to turn on/off surface based material effects
   bool m_surfaceBasedMaterialEffects;
   bool m_fastField;
-  //! < Configuration level of the propagator
-  unsigned int m_propagatorConfigurationLevel;
-  //!< Search level of the propagator
-  unsigned int m_propagatorSearchLevel;
   Trk::MagneticFieldProperties m_fieldProperties;
 
   //!< Statistics: Number of calls to the main extrapolate method

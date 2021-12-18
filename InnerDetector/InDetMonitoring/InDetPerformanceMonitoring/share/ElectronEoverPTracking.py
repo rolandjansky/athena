@@ -152,9 +152,7 @@ ToolSvc += ElectronUpdator
 
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
 GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtrapolator',
-                                       Propagators                   = [ ElectronTrkPropagator ],
-                                       SearchLevelClosestParameters  = 10,
-                                       StickyConfiguration           = True,
+                                       Propagator                    = ElectronTrkPropagator,
                                        Navigator                     = ElectronTrkNavigator,
                                        GsfMaterialConvolution        = GsfMaterialUpdator,
                                        SurfaceBasedMaterialEffects   = False )
