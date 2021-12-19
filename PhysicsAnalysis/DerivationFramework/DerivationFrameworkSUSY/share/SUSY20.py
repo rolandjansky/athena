@@ -231,7 +231,7 @@ DecorationTools.append(SUSY20PixelTrackDecorator)
 
 # ------------------------------------------------------------
 # JEFF: Jet selection for skimming (which jet collection to use?)
-applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY20) # JEFF: trying this, otherwise breaks with PFlow jets
+# applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY20) # JEFF: trying this, otherwise breaks with PFlow jets
 jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
 jetSelection = '(count('+jetRequirements+') >= 1)'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -418,8 +418,6 @@ SeqSUSY20 += IPAugmentor
 #====================================================================
 # Prompt Lepton Tagger
 #====================================================================
-
-
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 
 # simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY20, "SUSY20")
@@ -456,25 +454,15 @@ SUSY20SlimmingHelper = SlimmingHelper("SUSY20SlimmingHelper")
 SUSY20SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                          "AntiKt4EMTopoJets",
                                          "AntiKt4EMPFlowJets",
-                                         "MET_Reference_AntiKt4EMTopo",
                                          "MET_Reference_AntiKt4EMPFlow",
                                          "PrimaryVertices",
-                                         #"BTagging_AntiKt4EMTopo",
-                                         #"BTagging_AntiKt4EMPFlow",
-                                         "AntiKt4EMPFlowJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201903",
-                                         "BTagging_AntiKt4EMPFlow_201810",
                                          "BTagging_AntiKt4EMPFlow_201903",
-                                         "AntiKt4EMTopoJets_BTagging201810", # JEFF
-                                         "BTagging_AntiKt4EMTopo_201810", # JEFF
                                          "InDetTrackParticles"
                                          ]
 
 SUSY20SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
-                                     "MET_Core_AntiKt4EMTopo", # JEFF: why no equivalent for PFlow?
-                                     "METAssoc_AntiKt4EMTopo", # JEFF: why no equivalent for PFlow?
                                      "InDetPixelPrdAssociationTrackParticles"
-                                     #,"InDetTrackParticles" #Sicong
                                      ]
  
 
