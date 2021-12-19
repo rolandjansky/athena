@@ -12,6 +12,9 @@ from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
+  # Add sumOfWeights metadata for LHE3 multiweights
+  from DerivationFrameworkCore.LHE3WeightMetadata import *
+
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
@@ -103,6 +106,48 @@ SUSY20PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(na
 ToolSvc += SUSY20PhotonTPThinningTool
 thinningTools.append(SUSY20PhotonTPThinningTool)
 
+
+#====================================================================
+# SKIMMING TOOL 
+#====================================================================
+
+# Jet skimming
+# ------------------------------------------------------------
+jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
+jetSelection = '(count('+jetRequirements+') >= 1)'
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+
+SUSY20JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20JetSkimmingTool",
+                                                                     expression = jetSelection)
+ToolSvc += SUSY20JetSkimmingTool
+
+# Trigger skimming
+# ------------------------------------------------------------
+from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET, triggersSingleLepton, triggersPhoton
+trigReq=triggersMET+triggersSingleLepton+triggersPhoton
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
+
+SUSY20TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool",
+                                                                      TriggerListOR = trigReq)
+ToolSvc += SUSY20TriggerSkimmingTool 
+
+# Final skim selection, with trigger selection and jet selection
+# ------------------------------------------------------------
+SUSY20SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool",
+                                                               FilterList = [SUSY20JetSkimmingTool, SUSY20TriggerSkimmingTool])
+ToolSvc += SUSY20SkimmingTool
+
+
+#==============================================================================
+# SUSY skimming selection
+#==============================================================================
+
+# run CPU-intensive algorithms afterwards to restrict those to skimmed events
+SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
+  "SUSY20KernelSkim",
+  SkimmingTools = [SUSY20SkimmingTool]
+)
 
 
 # JEFF: run V0 finder
@@ -224,45 +269,7 @@ SUSY20PixelTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "
 ToolSvc += SUSY20PixelTrackDecorator
 DecorationTools.append(SUSY20PixelTrackDecorator)
 
-        
-#====================================================================
-# SKIMMING TOOL 
-#====================================================================
 
-# ------------------------------------------------------------
-# JEFF: Jet selection for skimming (which jet collection to use?)
-applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY20) # JEFF: trying this, otherwise breaks with PFlow jets
-jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
-jetSelection = '(count('+jetRequirements+') >= 1)'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-
-SUSY20JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20JetSkimmingTool",
-                                                                        expression = jetSelection)
-ToolSvc += SUSY20JetSkimmingTool # JEFF: turn this back on to add jet skimming
-
-# ------------------------------------------------------------
-# JetMET trigger name contained ' - ' cause crash when using xAODStringSkimmingTool
-from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET,triggersSoftMuon,triggersJetPlusMet,triggersSoftMuonEmulation, triggersElectron, triggersPhoton
-trigReq=triggersMET+triggersSoftMuon+triggersElectron+triggersPhoton
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
-SUSY20InclusiveTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20InclusiveTriggerSkimmingTool",
-                                                                               TriggerListOR = trigReq)
-ToolSvc += SUSY20InclusiveTriggerSkimmingTool
-
-#SUSY20TriggerSkimmingTool = None
-SUSY20TriggerSkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY20TriggerSkimmingTool", 
-                                                                         FilterList = [SUSY20InclusiveTriggerSkimmingTool])
-ToolSvc += SUSY20TriggerSkimmingTool    
-    
-
-
-# ------------------------------------------------------------
-# Final MET-based skim selection, with trigger selection and lepton selection
-SUSY20SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool",
-                                                               FilterList = [SUSY20JetSkimmingTool, SUSY20TriggerSkimmingTool])
-
-ToolSvc += SUSY20SkimmingTool
 
 #====================================================================
 # Max Cell sum decoration tool
@@ -274,38 +281,6 @@ SUSY20_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name       
                                                                      SGKey_photons           = "Photons",
                                                                      )
 ToolSvc += SUSY20_MaxCellDecoratorTool
-
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
-#=======================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-
-# Add sumOfWeights metadata for LHE3 multiweights =======
-from DerivationFrameworkCore.LHE3WeightMetadata import *
-
-#==============================================================================
-# SUSY signal augmentation (before skimming!)
-#==============================================================================
-from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-if IsSUSYSignal():
-   
-   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-   SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel("SUSY20KernelSigAug",
-                                                            AugmentationTools = DecorateSUSYProcess("SUSY20")
-                                                            )
-   
-   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
-
-
-#==============================================================================
-# SUSY skimming selection
-#==============================================================================
-SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
-  "SUSY20KernelSkim",
-  AugmentationTools = DecorationTools,
-  SkimmingTools = [SUSY20SkimmingTool]
-)
-
 
 
 #==============================================================================
@@ -320,7 +295,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY20)
 #==============================================================================
 SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY20KernelAug",
-  AugmentationTools = AugmentationTools,
+  AugmentationTools = DecorationTools+AugmentationTools,
   ThinningTools = thinningTools,
 )
 
@@ -425,8 +400,6 @@ SeqSUSY20 += IPAugmentor
 #====================================================================
 # Prompt Lepton Tagger
 #====================================================================
-
-
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 
 # simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY20, "SUSY20")
@@ -463,25 +436,15 @@ SUSY20SlimmingHelper = SlimmingHelper("SUSY20SlimmingHelper")
 SUSY20SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                          "AntiKt4EMTopoJets",
                                          "AntiKt4EMPFlowJets",
-                                         "MET_Reference_AntiKt4EMTopo",
                                          "MET_Reference_AntiKt4EMPFlow",
                                          "PrimaryVertices",
-                                         #"BTagging_AntiKt4EMTopo",
-                                         #"BTagging_AntiKt4EMPFlow",
-                                         "AntiKt4EMPFlowJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201903",
-                                         "BTagging_AntiKt4EMPFlow_201810",
                                          "BTagging_AntiKt4EMPFlow_201903",
-                                         "AntiKt4EMTopoJets_BTagging201810", # JEFF
-                                         "BTagging_AntiKt4EMTopo_201810", # JEFF
                                          "InDetTrackParticles"
                                          ]
 
 SUSY20SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
-                                     "MET_Core_AntiKt4EMTopo", # JEFF: why no equivalent for PFlow?
-                                     "METAssoc_AntiKt4EMTopo", # JEFF: why no equivalent for PFlow?
                                      "InDetPixelPrdAssociationTrackParticles"
-                                     #,"InDetTrackParticles" #Sicong
                                      ]
  
 
