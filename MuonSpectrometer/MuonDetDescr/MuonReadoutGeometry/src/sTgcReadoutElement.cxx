@@ -240,7 +240,7 @@ namespace MuonGM {
 #ifndef NDEBUG
             if (log.level() <= MSG::DEBUG)
                 log << MSG::DEBUG << "initDesign:" << getStationName() << " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch
-                    << ", nstrips " << m_etaDesign[il].nch << << ", firstPos: " << m_etaDesign[il].firstPos << endmsg;
+                    << ", nstrips " << m_etaDesign[il].nch << ", firstPos: " << m_etaDesign[il].firstPos << endmsg;
 #endif
         }
 
