@@ -12,6 +12,9 @@ from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
+  # Add sumOfWeights metadata for LHE3 multiweights
+  from DerivationFrameworkCore.LHE3WeightMetadata import *
+
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
@@ -267,27 +270,6 @@ SUSY20_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name       
                                                                      SGKey_photons           = "Photons",
                                                                      )
 ToolSvc += SUSY20_MaxCellDecoratorTool
-
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
-#=======================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-
-# Add sumOfWeights metadata for LHE3 multiweights =======
-from DerivationFrameworkCore.LHE3WeightMetadata import *
-
-#==============================================================================
-# SUSY signal augmentation (before skimming!)
-#==============================================================================
-from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
-if IsSUSYSignal():
-   
-   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-   SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel("SUSY20KernelSigAug",
-                                                            AugmentationTools = DecorateSUSYProcess("SUSY20")
-                                                            )
-   
-   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
 
 
 #==============================================================================
