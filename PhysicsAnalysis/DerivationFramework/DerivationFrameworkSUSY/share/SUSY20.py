@@ -107,6 +107,48 @@ ToolSvc += SUSY20PhotonTPThinningTool
 thinningTools.append(SUSY20PhotonTPThinningTool)
 
 
+#====================================================================
+# SKIMMING TOOL 
+#====================================================================
+
+# Jet skimming
+# ------------------------------------------------------------
+jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
+jetSelection = '(count('+jetRequirements+') >= 1)'
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+
+SUSY20JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20JetSkimmingTool",
+                                                                     expression = jetSelection)
+ToolSvc += SUSY20JetSkimmingTool
+
+# Trigger skimming
+# ------------------------------------------------------------
+from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET, triggersSingleLepton, triggersPhoton
+trigReq=triggersMET+triggersSingleLepton+triggersPhoton
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
+
+SUSY20TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool",
+                                                                      TriggerListOR = trigReq)
+ToolSvc += SUSY20TriggerSkimmingTool 
+
+# Final skim selection, with trigger selection and jet selection
+# ------------------------------------------------------------
+SUSY20SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool",
+                                                               FilterList = [SUSY20JetSkimmingTool, SUSY20TriggerSkimmingTool])
+ToolSvc += SUSY20SkimmingTool
+
+
+#==============================================================================
+# SUSY skimming selection
+#==============================================================================
+
+# run CPU-intensive algorithms afterwards to restrict those to skimmed events
+SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
+  "SUSY20KernelSkim",
+  SkimmingTools = [SUSY20SkimmingTool]
+)
+
 
 # JEFF: run V0 finder
 # JEFF: See also:
@@ -227,38 +269,7 @@ SUSY20PixelTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "
 ToolSvc += SUSY20PixelTrackDecorator
 DecorationTools.append(SUSY20PixelTrackDecorator)
 
-        
-#====================================================================
-# SKIMMING TOOL 
-#====================================================================
 
-# ------------------------------------------------------------
-# JEFF: Jet selection for skimming (which jet collection to use?)
-# applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY20) # JEFF: trying this, otherwise breaks with PFlow jets
-jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
-jetSelection = '(count('+jetRequirements+') >= 1)'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-
-SUSY20JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY20JetSkimmingTool",
-                                                                        expression = jetSelection)
-ToolSvc += SUSY20JetSkimmingTool # JEFF: turn this back on to add jet skimming
-
-# ------------------------------------------------------------
-from DerivationFrameworkSUSY.SUSY20TriggerList import triggersMET, triggersSingleLepton, triggersPhoton
-trigReq=triggersMET+triggersSingleLepton+triggersPhoton
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__FilterCombinationOR,DerivationFramework__FilterCombinationAND
-
-SUSY20TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY20TriggerSkimmingTool",
-                                                                      TriggerListOR = trigReq)
-ToolSvc += SUSY20TriggerSkimmingTool 
-
-# ------------------------------------------------------------
-# Final MET-based skim selection, with trigger selection and lepton selection
-SUSY20SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20SkimmingTool",
-                                                               FilterList = [SUSY20JetSkimmingTool, SUSY20TriggerSkimmingTool])
-
-ToolSvc += SUSY20SkimmingTool
 
 #====================================================================
 # Max Cell sum decoration tool
@@ -273,17 +284,6 @@ ToolSvc += SUSY20_MaxCellDecoratorTool
 
 
 #==============================================================================
-# SUSY skimming selection
-#==============================================================================
-SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
-  "SUSY20KernelSkim",
-  AugmentationTools = DecorationTools,
-  SkimmingTools = [SUSY20SkimmingTool]
-)
-
-
-
-#==============================================================================
 # Jet building
 #==============================================================================
 #re-tag PFlow jets so they have b-tagging info.
@@ -295,7 +295,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY20)
 #==============================================================================
 SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY20KernelAug",
-  AugmentationTools = AugmentationTools,
+  AugmentationTools = DecorationTools+AugmentationTools,
   ThinningTools = thinningTools,
 )
 
