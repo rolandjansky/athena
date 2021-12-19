@@ -288,7 +288,6 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 # read the metadata
                 for name, content in persistent_instances.items():
                     key = name
-                    print("Meta reader", key)
                     if hasattr(content, 'm_folderName'):
                         key = getattr(content, 'm_folderName')
 
