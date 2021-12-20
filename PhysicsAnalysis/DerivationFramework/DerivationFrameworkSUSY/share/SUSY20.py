@@ -8,13 +8,6 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-
-if DerivationFrameworkHasTruth:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-  addStandardTruthContents()
-  # Add sumOfWeights metadata for LHE3 multiweights
-  from DerivationFrameworkCore.LHE3WeightMetadata import *
-
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
@@ -108,6 +101,38 @@ thinningTools.append(SUSY20PhotonTPThinningTool)
 
 
 #====================================================================
+# TRUTH THINNING
+#====================================================================
+if DerivationFrameworkHasTruth:
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+  SUSY20TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY20TruthThinningTool",
+                                                                     ThinningService              = SUSY20ThinningHelper.ThinningSvc(),
+                                                                     WritePartons                 = False,
+                                                                     WriteHadrons                 = True,
+                                                                     WriteBHadrons                = True,
+                                                                     WriteGeant                   = False,
+                                                                     GeantPhotonPtThresh          = 20000,
+                                                                     WriteTauHad                  = True,
+                                                                     PartonPtThresh               = -1.0,
+                                                                     WriteBSM                     = True,
+                                                                     WriteBosons                  = True,
+                                                                     WriteBosonProducts           = False,
+                                                                     WriteBSMProducts             = True,
+                                                                     WriteTopAndDecays            = True,
+                                                                     WriteEverything              = False,
+                                                                     WriteAllLeptons              = True,
+                                                                     WriteLeptonsNotFromHadrons   = False,
+                                                                     WriteStatus3                 = False,
+                                                                     WriteFirstN                  = 10,
+                                                                     PreserveAncestors            = False,
+                                                                     PreserveGeneratorDescendants = False,
+                                                                     SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
+
+  ToolSvc += SUSY20TruthThinningTool
+  thinningTools.append(SUSY20TruthThinningTool)
+
+
+#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 
@@ -139,15 +164,52 @@ SUSY20SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY20Ski
 ToolSvc += SUSY20SkimmingTool
 
 
-#==============================================================================
+#====================================================================
 # SUSY skimming selection
-#==============================================================================
+#====================================================================
 
 # run CPU-intensive algorithms afterwards to restrict those to skimmed events
 SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY20KernelSkim",
   SkimmingTools = [SUSY20SkimmingTool]
 )
+
+
+#====================================================================
+# Truth collections
+#====================================================================
+# copied from PHYS.py to ensure having consistent standard Truth containers
+if DerivationFrameworkHasTruth:
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
+   import DerivationFrameworkHiggs.TruthCategories
+   # Add charm quark collection
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
+   SUSY20TruthCharmTool = DerivationFramework__TruthCollectionMaker(name                  = "SUSY20TruthCharmTool",
+                                                                  NewCollectionName       = "TruthCharm",
+                                                                  KeepNavigationInfo      = False,
+                                                                  ParticleSelectionString = "(abs(TruthParticles.pdgId) == 4)",
+                                                                  Do_Compress             = True)
+   ToolSvc += SUSY20TruthCharmTool
+   from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+   SeqSUSY20 += CfgMgr.DerivationFramework__CommonAugmentation("SUSY20TruthCharmKernel",AugmentationTools=[SUSY20TruthCharmTool])
+   # Add HF particles
+   addHFAndDownstreamParticles(SeqSUSY20)
+   # Add standard truth
+   addStandardTruthContents(SeqSUSY20,prefix='')
+   # Update to include charm quarks and HF particles - require a separate instance to be train safe
+   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthNavigationDecorator
+   SUSY20TruthNavigationDecorator = DerivationFramework__TruthNavigationDecorator( name="SUSY20TruthNavigationDecorator",
+          InputCollections=["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson","TruthCharm","TruthHFWithDecayParticles"])
+   ToolSvc += SUSY20TruthNavigationDecorator
+   SeqSUSY20.MCTruthNavigationDecoratorKernel.AugmentationTools = [SUSY20TruthNavigationDecorator]
+   # Re-point links on reco objects
+   addMiniTruthCollectionLinks(SeqSUSY20)
+   addPVCollection(SeqSUSY20)
+   # Set appropriate truth jet collection for tau truth matching
+   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
+   # Add sumOfWeights metadata for LHE3 multiweights =======
+   from DerivationFrameworkCore.LHE3WeightMetadata import *
+
 
 
 # JEFF: run V0 finder
@@ -182,12 +244,6 @@ SUSY20_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
 ToolSvc += SUSY20_Reco_V0Finder
 DecorationTools.append(SUSY20_Reco_V0Finder)
 
-#====================================================================
-# TRUTH THINNING
-#====================================================================
-#####################
-##NO TRUTH THINNING##
-#####################
 
 #==========================================================================================
 # ISOLATION DECORATING ( copied from DerivationFrameworkMuons/TrackIsolationDecorator.py )
@@ -429,7 +485,6 @@ SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
 #====================================================================
 # CONTENT LIST  
 #====================================================================
-# Sicong Note: SmartCollections, AllVariables, ExtraVariables, StaticContent
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSUSY.SUSY20ContentList import *
 SUSY20SlimmingHelper = SlimmingHelper("SUSY20SlimmingHelper")
@@ -443,7 +498,7 @@ SUSY20SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                          "InDetTrackParticles"
                                          ]
 
-SUSY20SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
+SUSY20SlimmingHelper.AllVariables = ["MET_Truth", "TruthParticles", "TruthEvents", "TruthVertices",
                                      "InDetPixelPrdAssociationTrackParticles"
                                      ]
  
@@ -504,14 +559,37 @@ StaticContent += [
 SUSY20SlimmingHelper.StaticContent = StaticContent
 # Sicong: End VSI
 
-# All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
-# Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
+# same Truth-related content as in PHYS.py to ensure having consistent standard Truth containers
 if DerivationFrameworkHasTruth:
 
-  SUSY20SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY20SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
+                                            'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
+                                            'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
-  
-  SUSY20SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
+                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthForwardProtons':'xAOD::TruthParticleContainer','TruthForwardProtonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'BornLeptons':'xAOD::TruthParticleContainer','BornLeptonsAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBosonsWithDecayParticles':'xAOD::TruthParticleContainer','TruthBosonsWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBosonsWithDecayVertices':'xAOD::TruthVertexContainer','TruthBosonsWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthBSMWithDecayParticles':'xAOD::TruthParticleContainer','TruthBSMWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBSMWithDecayVertices':'xAOD::TruthVertexContainer','TruthBSMWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'HardScatterParticles':'xAOD::TruthParticleContainer','HardScatterParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'HardScatterVertices':'xAOD::TruthVertexContainer','HardScatterVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthHFWithDecayParticles':'xAOD::TruthParticleContainer','TruthHFWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthHFWithDecayVertices':'xAOD::TruthVertexContainer','TruthHFWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'TruthCharm':'xAOD::TruthParticleContainer','TruthCharmAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
+                                            'AntiKt10TruthSoftDropBeta100Zcut10Jets':'xAOD::JetContainer', 'AntiKt10TruthSoftDropBeta100Zcut10JetsAux':'xAOD::JetAuxContainer'
+                                           }
+
+  from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+  addTruth3ContentToSlimmerTool(SUSY20SlimmingHelper)
+  SUSY20SlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
 SUSY20SlimmingHelper.AppendContentToStream(SUSY20Stream)
