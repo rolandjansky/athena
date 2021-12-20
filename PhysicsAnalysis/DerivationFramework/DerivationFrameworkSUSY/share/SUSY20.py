@@ -24,25 +24,26 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 SUSY20ThinningHelper = ThinningHelper( "SUSY20ThinningHelper" )
 thinningTools       = []
 AugmentationTools   = []
-DecorationTools   = []
 
 # stream-specific sequence for on-the-fly jet building
 SeqSUSY20 = CfgMgr.AthSequencer("SeqSUSY20")
 DerivationFrameworkJob += SeqSUSY20
 
+
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
 from DerivationFrameworkSUSY.SUSY20TriggerList import triggersNavThin
-SUSY20ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
 
+SUSY20ThinningHelper.TriggerChains = '|'.join(triggersNavThin)
 SUSY20ThinningHelper.AppendToStream( SUSY20Stream )
+
 
 #====================================================================
 # THINNING TOOLS 
 #====================================================================
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__InDetTrackSelectionToolWrapper
+
 SUSY20TrackSelection = DerivationFramework__InDetTrackSelectionToolWrapper(name = "SUSY20TrackSelection",
                                                                                  ContainerName = "InDetTrackParticles",
                                                                                  DecorationName = "DFLoose" )
@@ -53,8 +54,8 @@ AugmentationTools.append(SUSY20TrackSelection)
 
 thinning_expression = "InDetTrackParticles.DFLoose && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta) ) < 3.0)"
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 # TrackParticles directly
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 SUSY20TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY20TPThinningTool",
                                                                  ThinningService         = SUSY20ThinningHelper.ThinningSvc(),
                                                                  SelectionString         = thinning_expression,
@@ -135,7 +136,6 @@ if DerivationFrameworkHasTruth:
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-
 # Jet skimming
 # ------------------------------------------------------------
 jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
@@ -167,7 +167,6 @@ ToolSvc += SUSY20SkimmingTool
 #====================================================================
 # SUSY skimming selection
 #====================================================================
-
 # run CPU-intensive algorithms afterwards to restrict those to skimmed events
 SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY20KernelSkim",
@@ -211,15 +210,14 @@ if DerivationFrameworkHasTruth:
    from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
-
-# JEFF: run V0 finder
-# JEFF: See also:
+#====================================================================
+# V0Finder
+#====================================================================
+# See also:
 #       https://gitlab.cern.ch/atlas/athena/-/tree/21.2/InnerDetector/InDetRecAlgs/InDetV0Finder
 #       https://twiki.cern.ch/twiki/bin/view/Main/InclusiveSecondaryVertexFinder
 #       https://gitlab.cern.ch/atlas/athena/-/tree/master/InnerDetector/InDetRecAlgs/InDetInclusiveSecVtx
-#====================================================================
 # Add K_S0->pi+pi- reconstruction (TOPQDERIV-69)
-#====================================================================
 doSimpleV0Finder = False
 if doSimpleV0Finder:
     include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
@@ -232,8 +230,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 SUSY20_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
     name                   = "SUSY20_Reco_V0Finder",
     V0FinderTool           = SUSY20_V0FinderTools.V0FinderTool,
-    #OutputLevel            = WARNING,
-    OutputLevel            = DEBUG,
+    OutputLevel            = INFO,
     V0ContainerName        = "SUSY20RecoV0Candidates",
     KshortContainerName    = "SUSY20RecoKshortCandidates",
     LambdaContainerName    = "SUSY20RecoLambdaCandidates",
@@ -242,12 +239,13 @@ SUSY20_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
 )
 
 ToolSvc += SUSY20_Reco_V0Finder
-DecorationTools.append(SUSY20_Reco_V0Finder)
+AugmentationTools.append(SUSY20_Reco_V0Finder)
 
 
-#==========================================================================================
-# ISOLATION DECORATING ( copied from DerivationFrameworkMuons/TrackIsolationDecorator.py )
-#==========================================================================================
+#====================================================================
+# Track Isolation Decorations ( copied from DerivationFrameworkMuons/TrackIsolationDecorator.py )
+#====================================================================
+
 from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
 SUSY20TrackIsoTool = xAOD__TrackIsolationTool("SUSY20TrackIsoTool")
 SUSY20TrackIsoTool.TrackSelectionTool.maxZ0SinTheta= 1.5
@@ -295,9 +293,8 @@ SUSY20KVU = DerivationFramework__TrackParametersKVU(name = "SUSY20KVU",
                                                              VertexContainerName = "PrimaryVertices" )
 
 
-
 ToolSvc += SUSY20KVU
-DecorationTools.append(SUSY20KVU)
+AugmentationTools.append(SUSY20KVU)
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__CaloIsolationDecorator
 SUSY20IDTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY20IDTrackDecorator",
@@ -310,7 +307,7 @@ SUSY20IDTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUS
                                                                     Prefix = deco_prefix,
                                                                     )
 ToolSvc += SUSY20IDTrackDecorator
-DecorationTools.append(SUSY20IDTrackDecorator)
+AugmentationTools.append(SUSY20IDTrackDecorator)
 
 
 SUSY20PixelTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "SUSY20PixelTrackDecorator",
@@ -323,45 +320,31 @@ SUSY20PixelTrackDecorator = DerivationFramework__CaloIsolationDecorator(name = "
                                                                        Prefix = deco_prefix,
                                                                        )
 ToolSvc += SUSY20PixelTrackDecorator
-DecorationTools.append(SUSY20PixelTrackDecorator)
-
+AugmentationTools.append(SUSY20PixelTrackDecorator)
 
 
 #====================================================================
-# Max Cell sum decoration tool
-#====================================================================
-
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
-SUSY20_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "SUSY20_MaxCellDecoratorTool",
-                                                                     SGKey_electrons         = "Electrons",
-                                                                     SGKey_photons           = "Photons",
-                                                                     )
-ToolSvc += SUSY20_MaxCellDecoratorTool
-
-
-#==============================================================================
 # Jet building
-#==============================================================================
+#====================================================================
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY20)
 
 
-#==============================================================================
+#====================================================================
 # Augment after skim
-#==============================================================================
+#====================================================================
 SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY20KernelAug",
-  AugmentationTools = DecorationTools+AugmentationTools,
+  AugmentationTools = AugmentationTools,
   ThinningTools = thinningTools,
 )
 
-# Sicong Try VrtSecInclusive
-#
-#
-#
-#
 
+#====================================================================
+# VrtSecInclusive
+#====================================================================
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
+
 InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
 ServiceMgr += InDetSCT_ConditionsSummarySvc
 
@@ -381,17 +364,11 @@ include ("RecExCond/RecExCommon_flags.py")
 include( "RecExCond/AllDet_detDescr.py" )
 include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
 
-#----------------------------------------------------------
-#  VrtSecInclusive creates also TrackSummary tool.
-#   TrackSummary tool creates InDetExtrapolator and AtlasMagneticFieldTool
-#
+# VrtSecInclusive creates also TrackSummary tool
+# TrackSummary tool creates InDetExtrapolator and AtlasMagneticFieldTool
 from VrtSecInclusive.VrtSecInclusive import VrtSecInclusive
 SUSY20_VSI = VrtSecInclusive()
-
-
-##SeqSUSY20.VrtSecInclusive.OutputLevel = DEBUG
-SUSY20_VSI.OutputLevel = DEBUG
-#SUSY20_VSI.OutputLevel = INFO
+SUSY20_VSI.OutputLevel = INFO
 #SUSY20_VSI.CutBLayHits = 1
 #SUSY20_VSI.CutPixelHits = 1
 SUSY20_VSI.CutSctHits = 1
@@ -406,35 +383,33 @@ SUSY20_VSI.TrkChi2Cut=5.0
 SUSY20_VSI.TruthTrkLen=1
 SUSY20_VSI.DoSAloneTRT=False
 SUSY20_VSI.DoTruth = False
+
 # following is when there is no GEN_AOD in input file,
 # e.g., when I run on output of InDetRecExample or on a ESD file
 # when running on AOD output of InDetRecEx, explicitly uncomment the next line and comment out rec.readESD
 #     SUSY20_VSI.MCEventContainer = "TruthEvent"
-
 if rec.readESD():
     SUSY20_VSI.MCEventContainer = "TruthEvent"
 
 if 'IS_SIMULATION' in inputFileSummary['evt_type']:
     SUSY20_VSI.DoTruth=True
 
-
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxFitter",
 	                                      Extrapolator        = ToolSvc.AtlasExtrapolator,
 	                                      IterationNumber     = 30
 					     )
-ToolSvc +=  InclusiveVxFitterTool;
+ToolSvc +=  InclusiveVxFitterTool
 InclusiveVxFitterTool.OutputLevel = INFO
 SUSY20_VSI.VertexFitterTool=InclusiveVxFitterTool
 SUSY20_VSI.Extrapolator = ToolSvc.AtlasExtrapolator
 
-print VrtSecInclusive
 SeqSUSY20 += SUSY20_VSI
 
-#==============================================================================
-# VrtSecInclusive IP Augmentor
-#==============================================================================
 
+#====================================================================
+# VrtSecInclusive IP Augmentor
+#====================================================================
 from VrtSecInclusive.IPAugmentor import IPAugmentor
 
 IPAugmentor = IPAugmentor("VsiIPAugmentor")
@@ -444,14 +419,6 @@ IPAugmentor.VertexFitterTool=InclusiveVxFitterTool
 
 SeqSUSY20 += IPAugmentor
 
-#MSMgr.GetStream("StreamDAOD_SUSY20").AddItem( [# 'xAOD::TrackParticleContainer#InDetTrackParticles*',
-#                                               #   'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
-#                                                  'xAOD::VertexContainer#VrtSecInclusive*',
-#                                                  'xAOD::VertexAuxContainer#VrtSecInclusive*'
-#                                                  ] )
-
-
-# Sicong End Try VrtSecInclusive
 
 #====================================================================
 # Prompt Lepton Tagger
@@ -466,6 +433,7 @@ SeqSUSY20 += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 # Tau algorithm: PromptTauVeto
 SeqSUSY20 += JetTagConfig.GetDecoratePromptTauAlgs()
+
 
 #====================================================================
 # TrackAssociatedCaloSampleDecorator
@@ -482,11 +450,13 @@ SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   AugmentationTools = [SUSY20_TrackAssociatedCaloSampleDecorator]
 )
 
+
 #====================================================================
 # CONTENT LIST  
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSUSY.SUSY20ContentList import *
+
 SUSY20SlimmingHelper = SlimmingHelper("SUSY20SlimmingHelper")
 SUSY20SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
                                          "AntiKt4EMTopoJets",
@@ -517,9 +487,8 @@ SUSY20SlimmingHelper.IncludeTauTriggerContent = False
 SUSY20SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY20SlimmingHelper.IncludeBJetTriggerContent = False
 
-# JEFF V0
+# add V0 content
 StaticContent = []
-
 for containerName in ["SUSY20RecoV0Candidates","SUSY20RecoKshortCandidates","SUSY20RecoLambdaCandidates","SUSY20RecoLambdabarCandidates"]:
   StaticContent += [
             'xAOD::VertexContainer#%s'%containerName,
@@ -536,9 +505,8 @@ for containerName in ["SUSY20RecoV0Candidates","SUSY20RecoKshortCandidates","SUS
             + '.-gamma_massError'
             + '.-gamma_probability',
   ]
-# JEFF V0
 
-# Sicong: Try VSI
+# add VSI content
 SUSY20SlimmingHelper.AllVariables += [ "VrtSecInclusive_SecondaryVertices" ]
 
 # Include dvtrack variables from re-running of VSI 
@@ -556,8 +524,8 @@ StaticContent += [
             + '.-trackParticleLinks'
             + '.-neutralWeights'
  ]
+
 SUSY20SlimmingHelper.StaticContent = StaticContent
-# Sicong: End VSI
 
 # same Truth-related content as in PHYS.py to ensure having consistent standard Truth containers
 if DerivationFrameworkHasTruth:
