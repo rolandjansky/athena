@@ -31,6 +31,7 @@
 #include "xAODForward/AFPSiHitsClusterContainer.h"
 #include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPTrackAuxContainer.h"
+#include "xAODForward/AFPTrackRecoAlgID.h"
 
 // AFP_LocReco includes
 #include "AFP_LocReco/IAFPSiDLocRecoTrackAlgTool.h"
