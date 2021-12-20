@@ -55,20 +55,18 @@ MuonSegmentConverterTool::addClusterTiming(const MuonSegment& seg, xAOD::MuonSeg
 
     // loop over hits and extract clusters
     std::vector<const MuonClusterOnTrack*>                   clusters;
-    std::vector<const Trk::MeasurementBase*>::const_iterator mit     = seg.containedMeasurements().begin();
-    std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg.containedMeasurements().end();
-    for (; mit != mit_end; ++mit) {
+    for (const Trk::MeasurementBase* meas : seg.containedMeasurements()) {
 
         // get Identifier and remove MDT hits
-        Identifier id = m_edmHelper->getIdentifier(**mit);
+        Identifier id = m_edmHelper->getIdentifier(*meas);
         if (!id.is_valid() || !m_idHelperSvc->isTrigger(id)) continue;
 
         // cast to  MuonClusterOnTrack
-        const MuonClusterOnTrack* clus = dynamic_cast<const MuonClusterOnTrack*>(*mit);
+        const MuonClusterOnTrack* clus = dynamic_cast<const MuonClusterOnTrack*>(meas);
         if (clus)
             clusters.push_back(clus);
         else {
-            const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(*mit);
+            const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(meas);
             if (!crot || crot->containedROTs().empty()) continue;
             clusters.insert(clusters.end(), crot->containedROTs().begin(), crot->containedROTs().end());
         }
@@ -76,8 +74,8 @@ MuonSegmentConverterTool::addClusterTiming(const MuonSegment& seg, xAOD::MuonSeg
 
     // call timing tool and dress xaodSeg
     IMuonHitTimingTool::TimingResult result = m_hitTimingTool->calculateTimingResult(clusters);
-    if (std::fabs(result.time) > std::numeric_limits<float>::max()
-        || std::fabs(result.error) > std::numeric_limits<float>::max())
+    if (std::abs(result.time) > std::numeric_limits<float>::max()
+        || std::abs(result.error) > std::numeric_limits<float>::max())
     {
         // xAOD stores this as a float. To avoid FPE, we need to check here...
         if (result.valid)
