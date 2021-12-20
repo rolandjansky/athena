@@ -17,8 +17,6 @@ ByteStreamCnvSvcBase::ByteStreamCnvSvcBase(const std::string& name, ISvcLocator*
    ::AthCnvSvc(name, pSvcLocator, ByteStreamAddress::storageType())
 {
    declareProperty("InitCnvs", m_initCnvs); 
-   // This property is used by Tile BS converter, not by this class.
-   declareProperty("ROD2ROBmap", m_ROD2ROBmap);
 }
 //______________________________________________________________________________
 /// Standard Destructor
