@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from .TrigConfigSvcCfg import getTrigConfigFromFlag, getL1MenuFileName, getHLTMenuFileName, getL1PrescalesSetFileName, getHLTPrescalesSetFileName, getBunchGroupSetFileName, getHLTJobOptionsFileName, getHLTMonitoringFileName
 
@@ -167,9 +167,12 @@ def getHLTMenuAccess( flags = None ):
             raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s", flags.Input.Format )            
         from AthenaConfiguration.AutoConfigFlags import GetFileMD
         metadata = GetFileMD(flags.Input.Files)
-        if 'TriggerMenuJson_HLT' not in metadata:
+        menu_json = metadata.get ('TriggerMenuJson_HLT', None)
+        if menu_json is None:
+            menu_json = metadata.get ('DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT', None)
+        if menu_json is None:
             raise RuntimeError("Cannot read trigger configuration (TriggerMenuJson_HLT) from input file metadata" )
-        cfg = HLTMenuAccess(jsonString=metadata['TriggerMenuJson_HLT'])
+        cfg = HLTMenuAccess(jsonString=menu_json)
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
