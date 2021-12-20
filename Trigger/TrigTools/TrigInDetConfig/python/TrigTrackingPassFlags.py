@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 import AthenaCommon.SystemOfUnits as Units
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from InDetConfig.TrackingCutsFlags import createTrackingFlags
+from InDetConfig.TrackingPassFlags import createTrackingPassFlags
 
 # for the time when the two config systems coexist we reuse -flags 
 from TrigInDetConfig.ConfigSettings import (
@@ -10,7 +10,7 @@ from TrigInDetConfig.ConfigSettings import (
 
 
 def __flagsFromConfigSettings(settings):
-    flags = createTrackingFlags()
+    flags = createTrackingPassFlags()
     for setting, value in settings.__dict__.items():
         setting = setting.lstrip("_")
         if value is None:
@@ -55,7 +55,7 @@ def __tauIsoBDTFlags():
 def __jetFlags():
     return __flagsFromConfigSettings(_ConfigSettings_fullScan())
 
-def createTrigTrackingFlags():
+def createTrigTrackingPassFlags():
     flags = AthConfigFlags()
     flags.addFlagsCategory('Trigger.InDetTracking.Electron', __electronFlags, prefix=True)
     flags.addFlagsCategory('Trigger.InDetTracking.Muon', __muonFlags, prefix=True)

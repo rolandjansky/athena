@@ -74,15 +74,9 @@ def ITkPropagatorCfg(flags,
                      **kwargs):
     result = ComponentAccumulator()
 
-    ITkPropagator = None
-    if flags.ITk.propagatorType == "STEP":
-        ITkPropagator = result.getPrimaryAndMerge(
-            AtlasSTEP_PropagatorCfg(flags, name, **kwargs))
-    elif flags.ITk.propagatorType == "RungeKutta":
-        kwargs.setdefault("AccuracyParameter", 0.0001)
-        kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
-        ITkPropagator = result.getPrimaryAndMerge(
-            AtlasRKPropagatorCfg(flags, name, **kwargs))
+    kwargs.setdefault("AccuracyParameter", 0.0001)
+    kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
+    ITkPropagator = result.getPrimaryAndMerge(AtlasRKPropagatorCfg(flags, name, **kwargs))
 
     result.addPublicTool(ITkPropagator, primary=True)
     return result
