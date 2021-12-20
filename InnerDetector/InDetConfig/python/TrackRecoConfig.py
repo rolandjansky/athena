@@ -399,7 +399,7 @@ def InDetTrackRecoCfg(flags):
     # TODO add followup algs
     result.merge(TrackParticleCnvAlgCfg(flags))
 
-    if flags.InDet.doVertexFinding:
+    if flags.InDet.PriVertex.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
         result.merge(primaryVertexFindingCfg(flags))
 

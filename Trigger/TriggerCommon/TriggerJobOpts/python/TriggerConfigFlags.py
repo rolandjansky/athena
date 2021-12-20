@@ -259,8 +259,8 @@ def createTriggerFlags():
     flags.addFlagsCategory('Trigger.Offline.Tau', createTrigTauConfigFlags)
     #TODO come back and use systematically the same 
 
-    from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
-    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
+    from TrigInDetConfig.TrigTrackingPassFlags import createTrigTrackingPassFlags
+    flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingPassFlags )
 
     # NB: Longer term it may be worth moving these into a PF set of config flags, but right now the only ones that exist do not seem to be used in the HLT.
     # When we use component accumulators for this in the HLT maybe we should revisit this

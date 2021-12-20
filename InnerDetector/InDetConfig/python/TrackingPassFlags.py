@@ -197,7 +197,7 @@ def maxSeedsPerSP_Strips_ranges( inflags ):
 ################################################################
     ## create set of tracking cut flags
 ################################################################
-def createTrackingFlags():
+def createTrackingPassFlags():
     #from InDetConfig.InDetConfigFlags import createInDetConfigFlags
     #icf = createInDetConfigFlags()
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -376,8 +376,8 @@ def createTrackingFlags():
 
 
 ### ITk mode ####################
-def createITkTrackingFlags():
-    icf = createTrackingFlags()   
+def createITkTrackingPassFlags():
+    icf = createTrackingPassFlags()   
     icf.extension               = ""
 
     icf.useEtaDepCuts           = True
@@ -420,9 +420,9 @@ def createITkTrackingFlags():
     return icf
 
 
-def createITkFastTrackingFlags():
+def createITkFastTrackingPassFlags():
 
-    icf = createITkTrackingFlags()
+    icf = createITkTrackingPassFlags()
 
     icf.minPT                 = [1.0 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
     icf.maxZImpact            = [150.0 * Units.mm]
@@ -436,9 +436,9 @@ def createITkFastTrackingFlags():
     return icf
 
 ### ITk LRT mode ####################
-def createITkLargeD0TrackingFlags():
+def createITkLargeD0TrackingPassFlags():
 
-    icf = createTrackingFlags()
+    icf = createTrackingPassFlags()
     icf.extension               = "LargeD0"
 
     icf.useEtaDepCuts      = True
@@ -485,9 +485,9 @@ def createITkLargeD0TrackingFlags():
 
     return icf
 
-def createITkLargeD0FastTrackingFlags():
+def createITkLargeD0FastTrackingPassFlags():
 
-    icf = createITkLargeD0TrackingFlags()
+    icf = createITkLargeD0TrackingPassFlags()
 
     icf.maxEta             = 2.4
     icf.etaBins            = [-1.0, 2.4]
@@ -506,8 +506,8 @@ def createITkLargeD0FastTrackingFlags():
     return icf
 
 ### IBL mode ####################
-def createIBLTrackingFlags():
-    icf = createTrackingFlags()
+def createIBLTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension               = "IBL"
     icf.seedFilterLevel         = 1
     icf.minPT                   = 0.900 * Units.GeV
@@ -517,8 +517,8 @@ def createIBLTrackingFlags():
     return icf
 
 ### HighPileUP mode ####################
-def createHighPileupTrackingFlags():
-    icf = createTrackingFlags()
+def createHighPileupTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension               = "HighPileup"
     icf.seedFilterLevel         = 1
     icf.minPT                   = 0.900 * Units.GeV
@@ -528,8 +528,8 @@ def createHighPileupTrackingFlags():
     return icf
 
 ## MinBias mode ########################
-def createMinBiasTrackingFlags():
-    icf = createTrackingFlags()
+def createMinBiasTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension                 = "MinBias"
     icf.minPT = lambda pcf: (0.3 if  pcf.InDet.doHIP300 else 0.1) * Units.GeV
 
@@ -545,8 +545,8 @@ def createMinBiasTrackingFlags():
     return icf
 
 ## LargeD0 mode ########################
-def createLargeD0TrackingFlags():
-    icf = createTrackingFlags()
+def createLargeD0TrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension          = "LargeD0"
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 900 * Units.MeV
@@ -573,8 +573,8 @@ def createLargeD0TrackingFlags():
 
 
 ## R3LargeD0 mode ########################
-def createR3LargeD0TrackingFlags():
-    icf = createTrackingFlags()
+def createR3LargeD0TrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension          = "R3LargeD0"
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 1.0 * Units.GeV                                                                                    
@@ -609,8 +609,8 @@ def createR3LargeD0TrackingFlags():
     return icf
 
 ## LowPtLargeD0 mode ########################
-def createLowPtLargeD0TrackingFlags():
-    icf = createTrackingFlags()
+def createLowPtLargeD0TrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension          = "LowPtLargeD0"
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 100 * Units.MeV
@@ -636,8 +636,8 @@ def createLowPtLargeD0TrackingFlags():
     return icf
 
 ## LowPt mode ########################
-def createLowPtTrackingFlags():
-    icf = createTrackingFlags()
+def createLowPtTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "LowPt"
     icf.maxPT = lambda pcf: (1e6  if pcf.InDet.doMinBias else pcf.InDet.Tracking.minPT + 0.3) * Units.GeV
     icf.minPT            = 0.050 * Units.GeV
@@ -657,8 +657,8 @@ def createLowPtTrackingFlags():
     return icf
 
 ## ITkConversionFinding mode ########################
-def createITkConversionFindingTrackingFlags(): #To be updated
-    icf = createTrackingFlags()
+def createITkConversionFindingTrackingPassFlags(): #To be updated
+    icf = createTrackingPassFlags()
     icf.extension               = "ConversionFinding"
 
     icf.useEtaDepCuts           = True
@@ -691,8 +691,8 @@ def createITkConversionFindingTrackingFlags(): #To be updated
     return icf
 
 ## VeryLowPt mode ########################
-def createVeryLowPtTrackingFlags():
-    icf = createTrackingFlags() #TODO consider using createLowPtTrackingFlags as a base here
+def createVeryLowPtTrackingPassFlags():
+    icf = createTrackingPassFlags() #TODO consider using createLowPtTrackingPassFlags as a base here
     icf.extension        = "VeryLowPt"
     icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.doMinBias  else  pcf.InDet.Tracking.minPT + 0.3) * Units.GeV # some overlap
     icf.minPT            = 0.050 * Units.GeV
@@ -711,8 +711,8 @@ def createVeryLowPtTrackingFlags():
     return icf
 
 ## ForwardTracks mode ########################
-def createForwardTracksTrackingFlags():
-    icf = createTrackingFlags()
+def createForwardTracksTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "ForwardTracks"
     icf.minEta           = 2.4 # restrict to minimal eta
     icf.maxEta           = 2.7
@@ -733,8 +733,8 @@ def createForwardTracksTrackingFlags():
     return icf
 
 ## BeamGas mode ########################
-def createBeamGasTrackingFlags():
-    icf = createTrackingFlags()
+def createBeamGasTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "BeamGas"
     icf.minPT            = 0.500 * Units.GeV
     icf.maxPrimaryImpact = 300. * Units.mm
@@ -750,8 +750,8 @@ def createBeamGasTrackingFlags():
     return icf
 
 ## VtxLumi mode ########################
-def createVtxLumiTrackingFlags():
-    icf = createTrackingFlags()
+def createVtxLumiTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension               = "VtxLumi"
     icf.seedFilterLevel         = 1
     icf.minPT                   = 0.900 * Units.GeV
@@ -765,8 +765,8 @@ def createVtxLumiTrackingFlags():
     return icf
 
 ## VtxBeamSpot mode ########################
-def createVtxBeamSpotTrackingFlags():
-    icf = createTrackingFlags()
+def createVtxBeamSpotTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension               = "VtxBeamSpot"
     icf.seedFilterLevel         = 1
     icf.minPT                   = 0.900 * Units.GeV
@@ -780,8 +780,8 @@ def createVtxBeamSpotTrackingFlags():
     return icf
 
 ## Cosmics mode ########################
-def createCosmicsTrackingFlags():
-    icf = createTrackingFlags()
+def createCosmicsTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "Cosmics"
     icf.minPT            = 0.500 * Units.GeV
     icf.maxPrimaryImpact = 1000. * Units.mm
@@ -805,8 +805,8 @@ def createCosmicsTrackingFlags():
     return icf
 
 ## Heavyion mode #######################
-def createHeavyIonTrackingFlags():
-    icf = createTrackingFlags()
+def createHeavyIonTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "HeavyIon"
     icf.maxZImpact       = 200. * Units.mm
     icf.minClusters      = 9
@@ -850,8 +850,8 @@ def createHeavyIonTrackingFlags():
     return icf
 
 ### Pixel mode ###############################################
-def createPixelTrackingFlags():
-    icf = createTrackingFlags()
+def createPixelTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "Pixel"
 
     def _minPt( pcf ):
@@ -900,8 +900,8 @@ def createPixelTrackingFlags():
     return icf
 
 ########## Disappearing mode ######################
-def createDisappearingTrackingFlags():
-    icf = createTrackingFlags()
+def createDisappearingTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "Disappearing"
     icf.minPT            = 5 * Units.GeV
     icf.minClusters      = 4
@@ -922,8 +922,8 @@ def createDisappearingTrackingFlags():
     return icf
 
 ########## SCT mode ######################
-def createSCTTrackingFlags():
-    icf = createTrackingFlags()
+def createSCTTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "SCT"
     icf.minClusters      = 7
     icf.maxDoubleHoles   = 1
@@ -964,8 +964,8 @@ def createSCTTrackingFlags():
     return icf
 
 ########## TRT subdetector tracklet cuts  ##########
-def createTRTTrackingFlags():
-    icf = createTrackingFlags()
+def createTRTTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension               = "TRT"
     icf.minPT                   = 0.4 * Units.GeV
     icf.minTRTonly              = 15
@@ -975,8 +975,8 @@ def createTRTTrackingFlags():
 
 
 ########## TRT standalone tracklet cuts  ##########
-def createTRTStandaloneTrackingFlags():
-    icf = createTrackingFlags()
+def createTRTStandaloneTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.minSecondaryTRTPrecFrac = 0.15
     # Mu- and eta- dependent cuts on nTRT
     icf.TrkSel.TRTTrksEtaBins                  = [ 0.7,   0.8,   0.9,  1.2,  1.3,  1.6,  1.7,  1.8,  1.9,  999]  # eta bins (10) for eta-dep cuts on TRT conversion tracks
@@ -987,8 +987,8 @@ def createTRTStandaloneTrackingFlags():
 
 
 ######### SCTandTRT mode ###########################
-def createSCTandTRTTrackingFlags():
-    icf = createTrackingFlags()
+def createSCTandTRTTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension        = "SCTandTRT"
     icf.minPT            = lambda pcf: 0.5 * Units.GeV if pcf.Beam.Type == "cosmics" else 0.4 * Units.GeV
     icf.maxDoubleHoles   = 0
@@ -1017,8 +1017,8 @@ def createSCTandTRTTrackingFlags():
     return icf
 
 ########## DBM mode ################################
-def createDBMTrackingFlags():
-    icf = createTrackingFlags()
+def createDBMTrackingPassFlags():
+    icf = createTrackingPassFlags()
     icf.extension               = "DBM"
     icf.minEta                  = 3.05
     icf.maxEta                  = 3.45
