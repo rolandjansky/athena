@@ -987,6 +987,11 @@ def setupMenu():
         #ChainProp(name='HLT_noalg_AlfaPEB_L1ALFA_ANY', l1SeedThresholds=['FSNOSEED'], stream=['ALFACalib'], groups=['RATE:ALFACalibration','BW:Detector']+LowMuGroup),
         # Calib Chains
         ChainProp(name='HLT_larpsallem_L1EM3', groups=SingleElectronGroup),
+
+        # IDCalib Chains
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1XE50', stream=['IDCalib'], groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L1J100', stream=['IDCalib'], groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_idcalib_trk9_IDCalibPEB_L14J15', stream=['IDCalib'], groups=MultiJetGroup,  l1SeedThresholds=['FSNOSEED'])
     ]
 
     chains['Streaming'] += [

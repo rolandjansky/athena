@@ -1984,6 +1984,20 @@ HLT_g85_tight_3j50_L1EM22VHI:
   eventCount: 0
 HLT_g90_loose_xe90_cell_L1EM22VHI:
   eventCount: 0
+HLT_idcalib_trk9_IDCalibPEB_L14J15:
+  eventCount: 0
+HLT_idcalib_trk9_IDCalibPEB_L1J100:
+  eventCount: 0
+HLT_idcalib_trk9_IDCalibPEB_L1XE50:
+  eventCount: 1
+  stepCounts:
+    0: 1
+    1: 1
+    2: 1
+  stepFeatures:
+    0: 1
+    1: 1
+    2: 1
 HLT_j0_DIJET20j12etXX110djmass_L1J20:
   eventCount: 13
   stepCounts:
