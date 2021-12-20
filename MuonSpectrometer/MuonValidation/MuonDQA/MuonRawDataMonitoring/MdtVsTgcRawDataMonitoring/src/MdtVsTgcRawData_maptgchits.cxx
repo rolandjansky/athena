@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,24 +123,14 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
       // Get detector variables
       Identifier tgcid=(*tgc_itc)->identify();
       int tgcStationName = m_idHelperSvc->tgcIdHelper().stationName(tgcid);
-      int gasGap         = m_idHelperSvc->tgcIdHelper().gasGap(tgcid);
       
       // Get position variables
       const Amg::Vector3D tgcGlobalPos  = tpd->globalPosition();
       float tgcGlobalPhi = tgcGlobalPos.phi();
       if(tgcGlobalPhi<0)tgcGlobalPhi+=2*M_PI;
       
-      // Cut non-TGC-Endcap, get layer number
+      // Cut non-TGC-Endcap
       if(tgcStationName<41 || tgcStationName>48)continue;
-      // 41=T1F,42=T1E,43=T2F,44=T2E,45=T3F,46=T3E,47=T4F,48=T4E
-      int layer = gasGap-1;
-      if(tgcStationName==43||tgcStationName==44){
-        layer+=3;
-      }else if(tgcStationName==45||tgcStationName==46){
-        layer+=5;
-      }else if(tgcStationName==47||tgcStationName==48){
-        layer+=7;
-      }
     }// TGC PRD Collection
   }// TGC PRD Container
   
