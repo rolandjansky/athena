@@ -565,62 +565,34 @@ def ITkGlobalChi2FitterCfg(flags, name='ITkGlobalChi2Fitter', **kwargs) :
     acc.setPrivateTools(ITkGlobalChi2Fitter)
     return acc
 
-def ITkGsfMaterialUpdatorCfg(flags, name='ITkGsfMaterialUpdator', **kwargs) :
-    the_name = makeName( name, kwargs)
+def ITkGaussianSumFitterCfg(flags, name="ITkGaussianSumFitter", **kwargs):
     acc = ComponentAccumulator()
 
-    if 'MaximumNumberOfComponents' not in kwargs :
-        kwargs.setdefault('MaximumNumberOfComponents', 12)
+    pix_cluster_on_track_args = stripArgs(
+        kwargs,
+        [
+            "SplitClusterMapExtension",
+            "ClusterSplitProbabilityName",
+            "nameSuffix",
+        ],
+    )
 
-    GsfMaterialMixtureConvolution = CompFactory.Trk.GsfMaterialMixtureConvolution (name = the_name, **kwargs)
-    acc.setPrivateTools(GsfMaterialMixtureConvolution)
-    return acc
+    if "ToolForROTCreation" not in kwargs:
+        ITkRotCreator = acc.popToolsAndMerge(
+            ITkRotCreatorCfg(flags, **pix_cluster_on_track_args)
+        )
+        kwargs.setdefault("ToolForROTCreation", ITkRotCreator )
 
-def ITkGsfExtrapolatorCfg(flags, name='ITkGsfExtrapolator', **kwargs) :
-    the_name = makeName(name,kwargs)
-    acc = ComponentAccumulator()
+    kwargs.setdefault("MakePerigee", True)
+    kwargs.setdefault("RefitOnMeasurementBase", True)
+    kwargs.setdefault("DoHitSorting", True)
 
-    if 'Propagators' not in kwargs :
-        from TrkConfig.AtlasExtrapolatorToolsConfig import ITkPropagatorCfg
-        ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
-        kwargs.setdefault('Propagators', [ ITkPropagator ])
+    from egammaTrackTools.GSFTrackFitterConfig import EMGSFTrackFitterCfg
 
-    if 'Navigator' not in kwargs :
-        from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
-        Navigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
-        kwargs.setdefault('Navigator', Navigator)
+    GaussianSumFitter = acc.popToolsAndMerge(
+        EMGSFTrackFitterCfg(flags, name=name, **kwargs)
+    )
 
-    if 'GsfMaterialConvolution' not in kwargs :
-        ITkGsfMaterialUpdato = acc.popToolsAndMerge(ITkGsfMaterialUpdatorCfg(flags))
-        kwargs.setdefault('GsfMaterialConvolution', ITkGsfMaterialUpdato)
-
-    kwargs.setdefault('SearchLevelClosestParameters', 10)
-    kwargs.setdefault('StickyConfiguration', True)
-    kwargs.setdefault('SurfaceBasedMaterialEffects', False)
-
-    GsfExtrapolator = CompFactory.Trk.GsfExtrapolator(name = the_name, **kwargs)
-    acc.setPrivateTools(GsfExtrapolator)
-    return acc
-
-def ITkGaussianSumFitterCfg(flags, name='ITkGaussianSumFitter', **kwargs) :
-    acc = ComponentAccumulator()
-
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
-    if 'ToolForROTCreation' not in kwargs :
-        ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, **pix_cluster_on_track_args))
-        kwargs.setdefault('ToolForROTCreation', ITkRotCreator)
-
-    if 'ToolForExtrapolation' not in kwargs :
-        ITkGsfExtrapolator = acc.popToolsAndMerge(ITkGsfExtrapolatorCfg(flags))
-        kwargs.setdefault('ToolForExtrapolation', ITkGsfExtrapolator)
-
-    kwargs.setdefault('ReintegrateOutliers', False)
-    kwargs.setdefault('MakePerigee', True)
-    kwargs.setdefault('RefitOnMeasurementBase', True)
-    kwargs.setdefault('DoHitSorting', True)
-
-    GaussianSumFitter = CompFactory.Trk.GaussianSumFitter(name = name, **kwargs)
     acc.setPrivateTools(GaussianSumFitter)
     return acc
 
