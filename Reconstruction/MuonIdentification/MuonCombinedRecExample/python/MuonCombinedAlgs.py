@@ -95,7 +95,7 @@ def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","MuGirlStauSegments")
     kwargs.setdefault("InDetCandidateLocation", 
-                      "InDetCandidates" if not muonCombinedRecFlags.doCombinedFit() else "InDetCandidatesSystemExtened")
+                      "InDetCandidates" if not muonCombinedRecFlags.doCombinedFit() else "InDetCandidatesStaus")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):    
@@ -113,7 +113,7 @@ def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs
 
 def MuonInDetToMuonSystemExtensionAlg(name= "MuonInDetToMuonSystemExtensionAlg", **kwargs):
     kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
-    kwargs.setdefault("WriteStauCandidates","")
+    kwargs.setdefault("WriteStauCandidates", "InDetCandidatesStaus")
     return CfgMgr.MuonInDetToMuonSystemExtensionAlg(name,**kwargs) 
 
 def MuonInDetToMuonSystemExtensionAlg_LRT(name= "MuonInDetToMuonSystemExtensionAlg_LRT", **kwargs):

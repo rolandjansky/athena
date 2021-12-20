@@ -6,12 +6,25 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
+#include "MuonCombinedEvent/TagBase.h"
 #include "MuonDetDescrUtils/MuonChamberLayerDescription.h"
 #include "MuonIdHelpers/MuonStationIndexHelpers.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonLayerEvent/MuonSystemExtensionCollection.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
+
+namespace {
+    std::string to_string(const Trk::TrackParameters& pars) {
+        std::stringstream sstr;
+        sstr<<"position: "<<pars.position().x()<<", "<<pars.position().y()<<", "<<pars.position().z()
+            <<" -- momentum: "<<pars.momentum().x()<<", "<<pars.momentum().y()<<", "<<pars.momentum().z()<<" ";
+        if (pars.covariance())
+            sstr<<" -- uncertainties Lx:"<<Amg::error(*pars.covariance(), Trk::locX)<<
+                                 ", Ly: "<< Amg::error(*pars.covariance(), Trk::locY);
+        return sstr.str();
+    }
+}
 
 namespace Muon {
 
@@ -23,7 +36,7 @@ namespace Muon {
     StatusCode MuonSystemExtensionTool::initialize() {
         ATH_CHECK(m_caloExtensionTool.retrieve());
         ATH_CHECK(m_extrapolator.retrieve());
-
+        ATH_CHECK(m_idHelperSvc.retrieve());
         if (!initializeGeometry()) return StatusCode::FAILURE;
 
         return StatusCode::SUCCESS;
@@ -56,12 +69,12 @@ namespace Muon {
         SurfaceVec& surfaces = m_referenceSurfaces[regionIndex][sector - 1];
         MuonChamberLayerDescription chamberLayerDescription;
 
-        std::vector<MuonStationIndex::StIndex> layers = {MuonStationIndex::EI, MuonStationIndex::EE, MuonStationIndex::EM,
+        static const std::vector<MuonStationIndex::StIndex> layers = {MuonStationIndex::EI, MuonStationIndex::EE, MuonStationIndex::EM,
                                                          MuonStationIndex::EO};
 
-        for (std::vector<MuonStationIndex::StIndex>::const_iterator stLayer = layers.begin(); stLayer != layers.end(); ++stLayer) {
+        for (const MuonStationIndex::StIndex& stLayer : layers) {
             // calculate reference position from radial position of the layer
-            MuonStationIndex::LayerIndex layer = MuonStationIndex::toLayerIndex(*stLayer);
+            MuonStationIndex::LayerIndex layer = MuonStationIndex::toLayerIndex(stLayer);
             MuonChamberLayerDescriptor layerDescriptor = chamberLayerDescription.getDescriptor(sector, regionIndex, layer);
             Amg::Vector3D globalPosition(0., 0., layerDescriptor.referencePosition);
 
@@ -98,7 +111,7 @@ namespace Muon {
         MuonChamberLayerDescription chamberLayerDescription;
 
         SurfaceVec& surfaces = m_referenceSurfaces[MuonStationIndex::Barrel][sector - 1];
-        double xToZRotation = -0.5 * M_PI;
+        constexpr double xToZRotation = -M_PI_2;
 
         for (unsigned int stationLayer = MuonStationIndex::BI; stationLayer <= MuonStationIndex::BE; ++stationLayer) {
             // skip BEE if in small sectors, not installed
@@ -180,44 +193,43 @@ namespace Muon {
         for (const Muon::MuonLayerSurface& it : surfaces) {
             // extrapolate to next layer
             const Trk::Surface& surface = *it.surfacePtr;
-            if (msgLvl(MSG::VERBOSE)) {
-                ATH_MSG_VERBOSE(" startPars: phi pos "
-                                << currentPars->position().phi() << " direction phi " << currentPars->momentum().phi() << " theta pos "
-                                << currentPars->position().theta() << " theta " << currentPars->momentum().theta() << " r "
-                                << currentPars->position().perp() << " z " << currentPars->position().z() << " momentum "
-                                << currentPars->momentum().mag() << " local " << currentPars->parameters()[Trk::locX] << " "
-                                << currentPars->parameters()[Trk::locY]);
-                if (currentPars->covariance())
-                    ATH_MSG_VERBOSE(" err " << Amg::error(*currentPars->covariance(), Trk::locX) << " "
-                                            << Amg::error(*currentPars->covariance(), Trk::locY));
-                ATH_MSG_VERBOSE(" destination: sector " << it.sector << "  " << MuonStationIndex::regionName(it.regionIndex) << "  "
-                                                        << MuonStationIndex::layerName(it.layerIndex) << " phi  " << surface.center().phi()
-                                                        << " r " << surface.center().perp() << " z " << surface.center().z());
-            }
-
+            ATH_MSG_VERBOSE(" startPars: "<<to_string(*currentPars));               
+            ATH_MSG_VERBOSE(" destination: sector " << it.sector << "  " << MuonStationIndex::regionName(it.regionIndex) << "  "
+                                                    << MuonStationIndex::layerName(it.layerIndex) << " phi  " << surface.center().phi()
+                                                    << " r " << surface.center().perp() << " z " << surface.center().z());
+            
             std::unique_ptr<const Trk::TrackParameters> exPars{
                 m_extrapolator->extrapolate(ctx, *currentPars, surface, Trk::alongMomentum, false, Trk::muon)};
             if (!exPars) {
                 ATH_MSG_VERBOSE("extrapolation failed, trying next layer ");
                 continue;
             }
+            ATH_MSG_DEBUG("Extrapolated in event "<<ctx.eventID().event_number()<<" track @ "<<to_string(*exPars));
 
             //    reject intersections with very big uncertainties (parallel to surface)
-            if (!Amg::saneCovarianceDiagonal(*exPars->covariance()) || Amg::error(*exPars->covariance(), Trk::locX) > 10000. ||
-                Amg::error(*exPars->covariance(), Trk::locY) > 10000.)
+            constexpr double TenMeter = 10. * Gaudi::Units::meter;
+            const double sigma_lx = Amg::error(*exPars->covariance(), Trk::locX);
+            const double sigma_ly = Amg::error(*exPars->covariance(), Trk::locY);
+            if (!Amg::saneCovarianceDiagonal(*exPars->covariance()) || std::max(sigma_lx, sigma_ly) > TenMeter){
+                ATH_MSG_DEBUG("Reject bad extrapolation "<<to_string(*exPars));
                 continue;
-
+            }
+               
             // create shared pointer and add to garbage collection
             std::shared_ptr<const Trk::TrackParameters> sharedPtr{std::move(exPars)};
             trackParametersVec.emplace_back(sharedPtr);
 
             MuonSystemExtension::Intersection intersection = makeInterSection(sharedPtr, it);
             if (intersection.trackParameters) intersections.push_back(std::move(intersection));
-
-            if (Amg::error(*sharedPtr->covariance(), Trk::locX) < 10. * Amg::error(*currentPars->covariance(), Trk::locX) &&
-                Amg::error(*sharedPtr->covariance(), Trk::locY) < 10. * Amg::error(*currentPars->covariance(), Trk::locY)) {
+            
+            constexpr double TenCm = 10. * Gaudi::Units::cm;
+            if(std::hypot(sigma_lx, sigma_ly) < std::max(TenCm, 10. * std::hypot(Amg::error(*currentPars->covariance(), Trk::locX), 
+                                                                                 Amg::error(*currentPars->covariance(), Trk::locY)))) {
                 // only update the parameters if errors don't blow up
                 currentPars = sharedPtr.get();
+            } else {
+                ATH_MSG_DEBUG("Extrapolation reached at "<<to_string(*sharedPtr)<<" has larger uncertainties than "<<
+                                 to_string(*currentPars));
             }
         }
         ATH_MSG_DEBUG("Completed extrapolation: destinations " << surfaces.size() << " intersections " << intersections.size());
@@ -261,7 +273,7 @@ namespace Muon {
     MuonSystemExtensionTool::SurfaceVec MuonSystemExtensionTool::getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars,
                                                                                             const SystemExtensionCache& cache) const {
         // if in endcaps pick endcap surfaces
-        double eta = muonEntryPars.position().eta();
+        const double eta = muonEntryPars.position().eta();
         MuonStationIndex::DetectorRegionIndex regionIndex = MuonStationIndex::Barrel;
         if (eta < -1.05) regionIndex = MuonStationIndex::EndcapC;
         if (eta > 1.05) regionIndex = MuonStationIndex::EndcapA;
@@ -287,7 +299,7 @@ namespace Muon {
             }
         }
 
-        for (auto sector : sectors) {
+        for (const int sector : sectors) {
             surfaces.insert(surfaces.end(), m_referenceSurfaces[regionIndex][sector - 1].begin(),
                             m_referenceSurfaces[regionIndex][sector - 1].end());
         }
@@ -301,31 +313,81 @@ namespace Muon {
         std::stable_sort(surfaces.begin(), surfaces.end(), sortFunction);
         return surfaces;
     }
-
-    MuonSystemExtension::Intersection MuonSystemExtensionTool::getInterSection(const EventContext& ctx, const Trk::TrackParameters& muon_pars) const {
-        // get reference surfaces
-        ATH_MSG_VERBOSE(" getSurfacesForIntersection " << muon_pars);
-        SystemExtensionCache cache{};
-        cache.useHitSectors = false;
-
-        /// Find the surface which is closes to the muon_pars
-        SurfaceVec surfaces = getSurfacesForIntersection(muon_pars, cache);
-        if (surfaces.empty()) {
-            return makeInterSection(nullptr, MuonLayerSurface());
-        }   
-        const Amg::Vector3D pos = muon_pars.position();
-        /// Pick the surface which is the closest to the track parameters
-        SurfaceVec::const_iterator itr = std::min_element(surfaces.begin(),surfaces.end(), [&pos](const MuonLayerSurface& a, const MuonLayerSurface& b )  {
-            return (a.surfacePtr->center() - pos).mag2() < (b.surfacePtr->center() - pos).mag2();
+    bool MuonSystemExtensionTool::muonLayerInterSections(const EventContext& ctx, 
+                                            const MuonCombined::TagBase& cmb_tag,
+                                            SystemExtensionCache& cache) const{
+      
+        const Trk::Track* cmb_trk = cmb_tag.primaryTrack();
+        if (!cmb_trk){
+            ATH_MSG_WARNING("A combined tag without any track? Please check "<<cmb_tag.toString());
+            return false;
+        }
+        /// Get the proper surfaces for the intersections
+        const Trk::TrackParameters* entry_pars = cache.candidate->getCaloExtension()->muonEntryLayerIntersection();
+        const Trk::TrackStates* const cmb_tsos = cmb_trk->trackStateOnSurfaces();
+        /// Copy all track parameters in the MS into a separate vector
+        std::vector<const Trk::TrackStateOnSurface*> ms_tsos;
+        ms_tsos.reserve(cmb_tsos->size());
+        std::copy_if(cmb_tsos->begin(), cmb_tsos->end(), ms_tsos.end(),[this, entry_pars](const Trk::TrackStateOnSurface* tsos){
+            if  (!(tsos->type(Trk::TrackStateOnSurface::Perigee) || tsos->type(Trk::TrackStateOnSurface::Parameter)))
+             return false;
+            const Trk::TrackParameters* params = tsos->trackParameters();
+            if (!params) return false;
+            const Trk::Surface& surf = params->associatedSurface();
+            if (!surf.associatedDetectorElement()) {
+                return entry_pars->associatedSurface().normal().dot(params->position() - entry_pars->associatedSurface().center())>0;
+            }
+            return m_idHelperSvc->isMuon(surf.associatedDetectorElement()->identify());
         });
-        /// Define the direction of the extrapolation
-        const Trk::Surface& surf = *(itr->surfacePtr);
-        const bool isBarrel = std::abs(pos.eta()) < 1.05;
-        const Trk::PropDirection dir = (isBarrel && pos.perp2() < surf.center().perp()) || 
-                                 (!isBarrel && std::abs(pos.z()) < std::abs(surf.center().z()) ) ? Trk::alongMomentum : Trk::oppositeMomentum;
-       
-        std::unique_ptr<const Trk::TrackParameters> exPars{m_extrapolator->extrapolate(ctx, muon_pars, surf, dir, false, Trk::muon)};
-        return makeInterSection(std::move(exPars), *itr);
-    } 
 
+        if (ms_tsos.empty()){
+            ATH_MSG_VERBOSE("A combined track without track parameters in the MS. THat should not happen");
+            return false;
+        }
+
+        SurfaceVec surfaces = getSurfacesForIntersection(*entry_pars, cache);
+        if (surfaces.empty()) {
+            ATH_MSG_DEBUG("MS extenion without surfaces.. "<<cache.candidate->toString());
+            return false;
+        }
+        
+        std::vector<Muon::MuonSystemExtension::Intersection> intersections;
+        
+        std::vector<const Trk::TrackStateOnSurface*>::const_iterator itr = ms_tsos.begin();
+        std::vector<const Trk::TrackStateOnSurface*>::const_iterator end  = ms_tsos.end();
+        for (const Muon::MuonLayerSurface& it : surfaces) {
+            const Trk::Surface& surf = *(it.surfacePtr);
+            /// Calculate the minimum distance to the plane
+            itr = std::min_element(itr, end, [&surf](const Trk::TrackStateOnSurface* a, const Trk::TrackStateOnSurface* b) {
+                return std::abs(surf.normal().dot(a->trackParameters()->position() - surf.center())) <
+                       std::abs(surf.normal().dot(b->trackParameters()->position() - surf.center()));
+            });
+            const Trk::TrackParameters* trk_pars = (*itr)->trackParameters();
+
+            const Amg::Vector3D pos = trk_pars->position();
+            const bool isBarrel = it.regionIndex == MuonStationIndex::Barrel;
+            ATH_MSG_VERBOSE("Distance of closest parameters to the surface: "<< std::sqrt(std::abs(surf.normal().dot(pos - surf.center()))));
+            
+           
+            
+            const Trk::PropDirection dir = (isBarrel && pos.perp2() < surf.center().perp2()) || 
+                                           (!isBarrel && std::abs(pos.z()) < std::abs(surf.center().z()) ) ? Trk::alongMomentum : Trk::oppositeMomentum;
+            std::shared_ptr<const Trk::TrackParameters> exPars{m_extrapolator->extrapolate(ctx, *trk_pars, surf, dir, false, Trk::muon)};
+            if (!exPars) {
+                ATH_MSG_WARNING("Failed to extrapolate track @ "<<to_string(*trk_pars)<<" to surface "<<std::endl<<surf);
+                continue;
+            }
+            MuonSystemExtension::Intersection intersect = makeInterSection(exPars,it);
+            if (intersect.trackParameters) intersections.push_back(std::move(intersect));            
+        }
+        /// We are trying to reconstruct the layer extensions of a combined track. 
+        /// There is no way that this can fail
+        if (intersections.empty()) {
+            ATH_MSG_DEBUG("Failed to find the intersections for the combined track");
+            return false;
+        }
+        cache.candidate->setExtension(std::make_unique<MuonSystemExtension>(entry_pars, std::move(intersections)));      
+
+        return true;
+    }
 }  // namespace Muon
