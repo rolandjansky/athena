@@ -12,7 +12,29 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
-     
+# adds TightEventCleaning flag on EventInfo, copied and adjusted from ExtendendJetCommon.py
+def eventCleanTight_xAODCollSUSY20(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
+    from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
+    from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
+    
+    prefix = "DFCommonJets_"
+    ecToolTight = EventCleaningTool('SUSY20EventCleaningTool_Tight',
+                                     CleaningLevel='TightBad',
+                                     NJets=1,
+                                     DoDecorations=False # decorations already set in ExtendendJetCommon.py
+                                     )
+
+    ecToolTight.JetCleanPrefix = prefix
+    ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
+    algCleanTight = EventCleaningTestAlg('SUSY20EventCleaningTestAlg_Tight',
+                                          EventCleaningTool=ecToolTight,
+                                          JetCollectionName="AntiKt4EMTopoJets",
+                                          EventCleanPrefix="DFSUSY20_",
+                                          CleaningLevel="TightBad",
+                                          doEvent=True)
+    sequence += algCleanTight
+
+
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY20Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_SUSY20Stream )
@@ -172,6 +194,12 @@ SeqSUSY20 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY20KernelSkim",
   SkimmingTools = [SUSY20SkimmingTool]
 )
+
+
+#====================================================================
+# Tight Event Cleaning
+#====================================================================
+eventCleanTight_xAODCollSUSY20("AntiKt4EMTopo")
 
 
 #====================================================================
