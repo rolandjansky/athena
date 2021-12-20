@@ -25,6 +25,7 @@ Reco_tf.py \
 --digiSeedOffset1="476" \
 --digiSeedOffset2="476" \
 --inputRDO_BKGFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_MC_Run2Reprocessing/RDO.26835823._011177.pool.root.1" \
+--runNumber="411316" \
 --AMITag="r13145" \
 --steering "doOverlay" "doRDO_TRIG" \
 --outputAODFile="AOD.27175309._011910.pool.root.1" \
