@@ -334,10 +334,19 @@ Starlight_i::starlight2lhef()
       lheStream << "     4  9999  1.000000e+00  "<<ptscale<<"  7.297e-03  2.569093e-01\n";
       
       if(m_doTauolappLheFormat){
+      	if(i%2==0){
       	lheStream << " -11    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
                   << photon_system.m()/2.*exp(photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
       	lheStream << " 11    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
-                  << -photon_system.m()/2.*exp(-photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(-photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";     
+                  << -photon_system.m()/2.*exp(-photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(-photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";  
+         }
+         else{
+         lheStream << " 11    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << photon_system.m()/2.*exp(photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
+      	lheStream << " -11    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                  << -photon_system.m()/2.*exp(-photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(-photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";  
+         
+         }   
       }
       else{
       	lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
