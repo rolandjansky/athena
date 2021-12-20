@@ -220,11 +220,9 @@ if 'AthSequencer/EvgenGenSeq' in topSeq.getSequence():
     fast_chain_log.info("Pileup emulation enabled - setup GenEventStackFiller")
     include("FastChainPileup/FastPileupSimConfig.py")
 
-## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+# Set AMITag in in-file metadata
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 ### Changing to post-sim include/exec
 ## Post-include
