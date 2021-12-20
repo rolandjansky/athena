@@ -73,7 +73,11 @@ public: // Non-static members
    /// @param label [IN] string label to name new context and allow sharing (returns existing contextId)
    /// @param maxFile [IN] maximum number of open input files.
    virtual
-   unsigned int getInputContext(const std::string& label, unsigned int maxFile = 0) override;
+   unsigned int getInputContext(const std::string& label,
+                                unsigned int maxFile = 0) override;
+   /// @return map of all labelled input contexts.
+   virtual
+   const std::map<std::string, unsigned int>& getInputContextMap() const override;
 
    /// @return map of all labelled input contexts.
    const std::map<std::string, unsigned int>& getInputContextMap() const;
