@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from difflib import unified_diff
 from pathlib import Path
 import subprocess
 
@@ -163,7 +162,8 @@ class FrozenTier0PolicyCheck(WorkflowCheck):
             print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
             print()
 
-            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}:")
+            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
+            self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
             with log_file.open() as file:
                 for line in file:
                     self.logger.info(f"  {line.strip()}")
@@ -198,7 +198,7 @@ class AODContentCheck(WorkflowCheck):
             reference_path = test.validation_path
             reference_output_name = f"{self.setup.release_ID}_{test.ID}_AOD_content.ref"
             reference_output = reference_path / reference_output_name
-            subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -remove -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             if not reference_output.exists():
                 self.logger.info(f"No reference file '{reference_output_name}' to compare the content with.")
                 return True
@@ -210,31 +210,35 @@ class AODContentCheck(WorkflowCheck):
             reference_command = f"acmd.py chk-file {reference_file} | awk '/---/{{flag=1;next}}/===/{{flag=0}}flag' | awk '{{print $10}}' | sort > {reference_output}"
             subprocess.Popen(["/bin/bash", "-c", reference_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-        # Compute the diff
-        with reference_output.open() as f:
-            reference_lines = sorted(f.readlines())
-        with validation_output.open() as f:
-            validation_lines = sorted(f.readlines())
-
         # Remove HLT containers in some cases
+        extra_diff_args = ""
         if test.type == WorkflowType.MCReco or test.type == WorkflowType.MCPileUpReco:
-            reference_lines = [line for line in reference_lines if not (line.startswith('HLT') or line.startswith('L1') or line.startswith('LVL1'))]
-            validation_lines = [line for line in validation_lines if not (line.startswith('HLT') or line.startswith('L1') or line.startswith('LVL1'))]
+            extra_diff_args = "-I '^HLT' -I '^LVL1' -I '^L1'"
 
-        result = list(unified_diff(reference_lines, validation_lines, fromfile="reference", tofile="validation"))
-        if not result:
+        # Compute the diff
+        diff_output, diff_error = subprocess.Popen(["/bin/bash", "-c", f"diff {extra_diff_args} {reference_output} {validation_output}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        diff_output, diff_error = diff_output.decode("utf-8"), diff_error.decode("utf-8")
+
+        result = False
+        if not diff_output and not diff_error:
             self.logger.info("Passed!\n")
+            result = True
         else:
             # print CI helper directly to avoid logger decorations
             print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
             print()
 
-            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}:")
-            for line in result:
-                self.logger.info(f"  {line.strip()}")
+            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
+            self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
+            self.logger.error("The output (>) differs from the reference (<):")
+            if diff_output:
+                print()
+                print(diff_output)
+            if diff_error:
+                print(diff_error)
             self.logger.info("-----------------------------------------------------\n")
 
-        return not result
+        return result
 
 
 class AODDigestCheck(WorkflowCheck):
@@ -268,7 +272,7 @@ class AODDigestCheck(WorkflowCheck):
             reference_path = test.validation_path
             reference_output_name = f"{self.setup.release_ID}_{test.ID}_AOD_digest.ref"
             reference_output = reference_path / reference_output_name
-            subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            subprocess.Popen(["/bin/bash", "-c", f"cd {reference_path}; get_files -remove -data {reference_output_name}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             if not reference_output.exists():
                 self.logger.info(f"No reference file '{reference_output_name}' to compare the digest with. Printing the full digest:")
                 with validation_output.open() as f:
@@ -285,25 +289,29 @@ class AODDigestCheck(WorkflowCheck):
             subprocess.Popen(["/bin/bash", "-c", reference_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
         # Compute the diff
-        with reference_output.open() as f:
-            reference_lines = f.readlines()
-        with validation_output.open() as f:
-            validation_lines = f.readlines()
+        diff_output, diff_error = subprocess.Popen(["/bin/bash", "-c", f"diff {reference_output} {validation_output}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        diff_output, diff_error = diff_output.decode("utf-8"), diff_error.decode("utf-8")
 
-        result = list(unified_diff(reference_lines, validation_lines, fromfile="reference", tofile="validation"))
-        if not result:
+        result = False
+        if not diff_output and not diff_error:
             self.logger.info("Passed!\n")
+            result = True
         else:
             # print CI helper directly to avoid logger decorations
             print(f"ATLAS-CI-ADD-LABEL: {test.run.value}-{test.type.value}-output-changed")
             print()
 
-            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}:")
-            for line in result:
-                self.logger.info(f"  {line.strip()}")
+            self.logger.error(f"Your change breaks the frozen tier0 policy in test {test.ID}.")
+            self.logger.error("Please make sure this has been discussed in the correct meeting (RIG or Simulation) meeting and approved by the relevant experts.")
+            self.logger.error("The output (>) differs from the reference (<):")
+            if diff_output:
+                print()
+                print(diff_output)
+            if diff_error:
+                print(diff_error)
             self.logger.info("-----------------------------------------------------\n")
 
-        return not result
+        return result
 
 
 class SimpleCheck(WorkflowCheck):
