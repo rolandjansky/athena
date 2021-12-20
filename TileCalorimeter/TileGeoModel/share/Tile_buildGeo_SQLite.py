@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 # job options to build geometry of the ATLAS detector
 # from a standalone GeoModel SQLite file,
 # and then to visualize the built geometry with VP1.
@@ -5,6 +7,9 @@
 # Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
 # Oct 2021
 #
+
+## Python settings
+from __future__ import print_function
 
 # Create an event selector
 import AthenaCommon.AtlasUnixGeneratorJob
