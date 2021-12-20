@@ -27,6 +27,7 @@ PartialEventBuildingIdentifiers = [
     'BeamSpotPEB',
     'LArPEBCalib',
     'MuonTrkPEB',
+    'IDCalibPEB',
     'LArPEBHLT',
     'LArPEB',
     'LATOMEPEB',

@@ -5818,6 +5818,36 @@ HLT_g90_loose_xe90_cell_L1EM22VHI:
     1: 5
     2: 5
     3: 1
+HLT_idcalib_trk9_IDCalibPEB_L14J15:
+  eventCount: 13
+  stepCounts:
+    0: 13
+    1: 13
+    2: 13
+  stepFeatures:
+    0: 13
+    1: 109
+    2: 109
+HLT_idcalib_trk9_IDCalibPEB_L1J100:
+  eventCount: 5
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+  stepFeatures:
+    0: 5
+    1: 58
+    2: 58
+HLT_idcalib_trk9_IDCalibPEB_L1XE50:
+  eventCount: 8
+  stepCounts:
+    0: 8
+    1: 8
+    2: 8
+  stepFeatures:
+    0: 8
+    1: 67
+    2: 67
 HLT_j0_DIJET20j12etXX110djmass_L1J20:
   eventCount: 20
   stepCounts:
@@ -12507,12 +12537,6 @@ HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100:
     2: 3
     3: 3
     4: 2
-HLT_tau200_ptonly_L1TAU100:
-  eventCount: 1
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 3
 HLT_tau200_tightRNN_tracktwoLLP_L1TAU100:
   eventCount: 1
   stepCounts:
@@ -12833,12 +12857,6 @@ HLT_tau25_perf_tracktwoMVA_L1TAU12IM:
     2: 32
     3: 32
     4: 15
-HLT_tau25_ptonly_L1TAU12IM:
-  eventCount: 17
-  stepCounts:
-    0: 17
-  stepFeatures:
-    0: 32
 HLT_tau25_tightRNN_tracktwoLLP_L1TAU12IM:
   eventCount: 5
   stepCounts:
@@ -13178,12 +13196,6 @@ HLT_tau35_perf_tracktwoMVA_L1TAU20IM:
     2: 23
     3: 23
     4: 10
-HLT_tau35_ptonly_L1TAU20IM:
-  eventCount: 13
-  stepCounts:
-    0: 13
-  stepFeatures:
-    0: 23
 HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM:
   eventCount: 5
   stepCounts:
