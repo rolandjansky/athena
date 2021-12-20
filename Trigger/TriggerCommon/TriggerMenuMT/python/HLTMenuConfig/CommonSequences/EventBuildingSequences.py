@@ -81,6 +81,13 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.PhiWidth= 0.75#values from run2 check later
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
         tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
+    elif 'IDCalibPEB' == eventBuildType:
+        tool = RoIPEBInfoWriterToolCfg(name)
+        tool.addRegSelDets(['Pixel', 'SCT', 'TRT'])
+        tool.EtaWidth = 0.1
+        tool.PhiWidth = 0.1
+        tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
+        tool.addSubDets([SubDetector.TDAQ_CTP]) # add full CTP data to the output
     elif 'LArPEBCalib' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.LAR_EM_BARREL_A_SIDE,
