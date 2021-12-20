@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.FilePeekerTool
 # @purpose peek into APR files to read in-file metadata without Athena (based on PyAthena.FilePeekerLib code by Sebastian Binet) 
@@ -343,8 +343,12 @@ class FilePeekerTool():
             stream_tags = []
             for item in ti:
                 i = item.split(',')
-                stream_tags.append( { 'obeys_lbk':bool(i[2]), 'stream_name':i[0], 'stream_type':i[1] } )
-                peeked_data['stream_tags'] = stream_tags
+                if len(i)!=3:
+                    print('**error** Invalid StreamInfo entry:',item, file=stdout)
+                else:
+                    stream_tags.append( { 'obeys_lbk':bool(i[2]), 'stream_name':i[0], 'stream_type':i[1] } )
+
+            peeked_data['stream_tags'] = stream_tags
 
         # AtlasRelease - reproduce AthFile behavior
         from AthenaCommon.AppMgr import release_metadata

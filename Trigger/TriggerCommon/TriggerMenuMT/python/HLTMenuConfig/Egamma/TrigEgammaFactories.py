@@ -13,34 +13,67 @@ Offline configurations are available here:
 # athena imports
 from AthenaCommon.BeamFlags import jobproperties
 
+# slice flags
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
+
 # Calo tools imports
 from CaloTools.CaloToolsConf import CaloAffectedTool
 from egammaCaloTools.egammaCaloToolsFactories import egammaShowerShape, egammaIso
 from CaloIdentifier import SUBCALO 
 
+
 # Egamma imports
-from egammaRec.Factories import ToolFactory, AlgFactory
+from egammaRec.Factories import ToolFactory, AlgFactory, ServiceFactory
 from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
 from egammaTools.egammaToolsFactories import (
-    egammaToolsConf, EMFourMomBuilder, PhotonPIDBuilder, ElectronPIDBuilder, egammaSwSuperClusterTool)
+    egammaToolsConf, EMFourMomBuilder, PhotonPIDBuilder, egammaSwSuperClusterTool)
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-
-# Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import getTrigEgammaKeys
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaMVASvc
-from .TrigEgammaSliceFlags import TrigEgammaSliceFlags
 
 from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__TrackParticlesInConeTool
 from AthenaCommon import CfgMgr
 from egammaAlgs import egammaAlgsConf
 
+# calib svc
+from egammaMVACalib import egammaMVACalibConf
+from xAODEgamma.xAODEgammaParameters import xAOD
 
 TrigEgammaKeys = getTrigEgammaKeys()
-TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT')
+TrigEgammaKeys_LRT = getTrigEgammaKeys('_LRT') 
+TrigEgammaKeys_HI = getTrigEgammaKeys(ion=True) 
+
+
+
+
+
+def TrigEgammaMVASvcCfg( ConfigFilePath ):
+
+    trigElectronMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigElectronMVATool",
+        ParticleType=xAOD.EgammaParameters.electron,
+        folder=ConfigFilePath )
+    trigUnconvPhotonMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigUnconvPhotonMVATool",
+        ParticleType=xAOD.EgammaParameters.unconvertedPhoton,
+        folder=ConfigFilePath )
+    trigConvertedPhotonMVATool = ToolFactory(
+        egammaMVACalibConf.egammaMVACalibTool,
+        name="TrigConvertePhotonMVATool",
+        ParticleType=xAOD.EgammaParameters.convertedPhoton,
+        folder=ConfigFilePath)
+    trigEgammaMVASvc = ServiceFactory(
+        egammaMVACalibConf.egammaMVASvc,
+        name = "TrigEgammaMVASvc",
+        ElectronTool=trigElectronMVATool,
+        ConvertedPhotonTool=trigConvertedPhotonMVATool,
+        UnconvertedPhotonTool=trigUnconvPhotonMVATool)
+    return trigEgammaMVASvc
 
 """ Configuring trigger precision MVA Svc """
-TrigEgammaMVASvc = createTrigEgammaMVASvc( TrigEgammaSliceFlags.calibMVAVersion() )
+TrigEgammaMVASvc = TrigEgammaMVASvcCfg( TrigEgammaSliceFlags.calibMVAVersion() )
 
 
 """Configuring egammaRecBuilder """
@@ -196,13 +229,35 @@ cfrc = ToolFactory(
 
 # tool to collect topo clusters in cone
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
-TrigCaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
-                                     CaloClusterLocation = TrigEgammaKeys.precisionEMClusterContainer)
+TrigCaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool, name = 'TrigCaloClustersInConeTool',
+                                     CaloClusterLocation = TrigEgammaKeys.precisionTopoClusterContainer)
+
+TrigCaloClustersInConeToolHI = ToolFactory(xAOD__CaloClustersInConeTool, name = 'TrigCaloClustersInConeToolHI',
+                                     CaloClusterLocation = TrigEgammaKeys_HI.precisionTopoClusterContainer)
 
 # this is not used below...
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
 IsoCorrectionTool = ToolFactory(ICT,
                                 name = "TrigLeakageCorrTool")
+
+TrigCaloIsolationToolHI = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsolationToolHI",
+                                postInit                        = [],
+                                CaloFillRectangularClusterTool  = cfrc,
+                                ClustersInConeTool              = TrigCaloClustersInConeToolHI,
+                                FlowElementsInConeTool          = None,
+                                ParticleCaloExtensionTool       = None,
+                                IsoLeakCorrectionTool           = None,
+                                ParticleCaloCellAssociationTool = None,
+                                saveOnlyRequestedCorrections    = True,
+                                EMCaloNums                      = [SUBCALO.LAREM],
+                                HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
+                                )
+from AthenaCommon import CfgMgr
+""" Configure the HLT CaloIsoTool """
+H_ClIT_HI = CfgMgr.xAOD__CaloIsolationTool('TrigCaloIsolationToolHI')                                
+H_ClIT_HI.doEnergyDensityCorrection=False
+H_ClIT_HI.InitializeReadHandles=False
+H_ClIT_HI.UseEMScale=True
 
 TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsolationTool",
                                 postInit                        = [],
@@ -239,6 +294,23 @@ def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
                                     )
     return TrigPhotonIsolationBuilder()
 
+def TrigPhotonIsoBuilderHICfg(name='TrigPhotonIsolationBuilderHI'):
+    TrigPhotonIsolationBuilder = AlgFactory(IsolationBuilder,
+                                    name                  = name,
+                                    doAdd                 = False,
+                                    PhotonCollectionContainerName = TrigEgammaKeys.precisionPhotonContainer,
+                                    CaloCellIsolationTool = None,
+                                    CaloTopoIsolationTool = TrigCaloIsolationToolHI,
+                                    PFlowIsolationTool    = None,
+                                    TrackIsolationTool    = None, 
+                                    PhIsoTypes            = [[isoPar.topoetcone20, isoPar.topoetcone40]],
+                                    PhCorTypes            = [[isoPar.core57cells]],
+                                    PhCorTypesExtra       = [[]],
+                                    )
+    return TrigPhotonIsolationBuilder()
+
+
+
 
 def TrigEgammaDecorationTools():
     #Return a list with the tools that decorate both electrons and photons. 
@@ -247,11 +319,6 @@ def TrigEgammaDecorationTools():
 def TrigPhotonDecorationTools():
     #Return a list with the tools that decorate only photons
     return [ PhotonPIDBuilder() ]
-
-def TrigElectronDecorationTools():
-    #Return a list with the tools that decorate only photons
-    return [ ElectronPIDBuilder()]
-
 
 def egammaFSCaloRecoSequence():
     from AthenaCommon.CFElements import parOR
@@ -262,9 +329,6 @@ def egammaFSCaloRecoSequence():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1RoICollection
     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
-
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-    TrigEgammaKeys = getTrigEgammaKeys()
 
     cellMaker = HLTCaloCellMaker('HLTCaloCellMakerEGFS')
     cellMaker.RoIs = mapThresholdToL1RoICollection('FSNOSEED')

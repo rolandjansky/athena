@@ -57,7 +57,7 @@ namespace Trk{
  }
  
  void TrkVKalVrtFitter::VKalTransform(double BMAG_FIXED,
-     double A0V,double ZV,double PhiV,double ThetaV,double  PInv,double CovTrk[15],
+     double A0V,double ZV,double PhiV,double ThetaV,double  PInv,const double CovTrk[15],
      long int & Charge, double VTrkPar[5], double VTrkCov[15]) const
  {
      int i,j,ii,jj;

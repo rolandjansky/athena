@@ -205,8 +205,8 @@ namespace top {
                    "Failed to set tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWP),
                    "Failed to set tau JetIDWP");
-        //top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWP),
-        //           "Failed to set tau EleBDTWP");
+        top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWP),
+                  "Failed to set tau EleBDTWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLR()),
                    "Failed to set tau MuonOLR");
       }
@@ -278,8 +278,8 @@ namespace top {
                    "Failed to set loose tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWPLoose),
                    "Failed to set loose tau JetIDWP");
-        //top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWPLoose),
-        //           "Failed to set loose tau EleBDTWP");
+        top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWPLoose),
+                  "Failed to set loose tau EleBDTWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLRLoose()),
                    "Failed to set tau MuonOLR");
       }

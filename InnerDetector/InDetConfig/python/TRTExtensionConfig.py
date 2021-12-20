@@ -69,7 +69,6 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
             fitter_args.setdefault("DoHoleSearch", True)
             from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
             InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
-            acc.addPublicTool(InDetBoundaryCheckTool)
             fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
         if flags.InDet.Tracking.extension != "LowPt":
             InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.extension, **fitter_args))
@@ -126,30 +125,27 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
 #
 # ------------------------------------------------------------
 def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCollection = None, ExtendedTracksMap = None, doPhase = True):
-    acc = ComponentAccumulator()
+    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+    acc = TRTPreProcessingCfg(flags)
     #
-    # ---------- TRT_TrackExtension
+    # Track extension to TRT algorithm
     #
-    if flags.InDet.doTRTExtensionNew:
-        #
-        # Track extension to TRT algorithm
-        #
-        if doPhase:
-            acc.merge(TRT_TrackExtensionAlgCfg( flags,
-                                                name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.extension,
-                                                SiTrackCollection=SiTrackCollection,
-                                                ExtendedTracksMap = ExtendedTracksMap))
-        else:
-            acc.merge(TRT_TrackExtensionAlgCfg( flags,  
-                                                name = 'InDetTRT_Extension' + flags.InDet.Tracking.extension,
-                                                SiTrackCollection=SiTrackCollection,
-                                                ExtendedTracksMap = ExtendedTracksMap,
-                                                TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
-        acc.merge(InDetExtensionProcessorCfg(flags,
-                                             SiTrackCollection = SiTrackCollection,
-                                             ExtendedTrackCollection = ExtendedTrackCollection,
-                                             ExtendedTracksMap = ExtendedTracksMap,
-                                             doPhase = doPhase))
+    if doPhase:
+        acc.merge(TRT_TrackExtensionAlgCfg( flags,
+                                            name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.extension,
+                                            SiTrackCollection=SiTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap))
+    else:
+        acc.merge(TRT_TrackExtensionAlgCfg( flags,  
+                                            name = 'InDetTRT_Extension' + flags.InDet.Tracking.extension,
+                                            SiTrackCollection=SiTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap,
+                                            TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
+    acc.merge(InDetExtensionProcessorCfg(flags,
+                                            SiTrackCollection = SiTrackCollection,
+                                            ExtendedTrackCollection = ExtendedTrackCollection,
+                                            ExtendedTracksMap = ExtendedTracksMap,
+                                            doPhase = doPhase))
     return acc
 ##########################################################################################################################
 
@@ -170,10 +166,6 @@ if __name__ == "__main__":
     ConfigFlags.addFlag('InDet.doExtensionProcessor', True)
     ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
     ConfigFlags.addFlag('InDet.holeSearchInGX2Fit', True)
-
-    # SiliconPreProcessing
-    ConfigFlags.InDet.doPixelClusterSplitting = True
-    ConfigFlags.InDet.doSiSPSeededTrackFinder = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
@@ -197,9 +189,6 @@ if __name__ == "__main__":
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
     top_acc.merge(MuonGeoModelCfg(ConfigFlags))
     top_acc.merge(MuonIdHelperSvcCfg(ConfigFlags))
-
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
 
     from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg
     top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))

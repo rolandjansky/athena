@@ -188,15 +188,16 @@ class AthConfigFlags(object):
                 return
             if flagBaseName in self._dynaflags:
                 _msg.debug("Dynamically loading the flags under %s", flagBaseName )
+                # Retain locked status and hash
                 isLocked = self._locked
+                myHash = self._hash
                 self._locked = False
                 generator, prefix = self._dynaflags[flagBaseName]
                 self.join( generator(), flagBaseName if prefix else "" )
                 self._locked = isLocked
+                self._hash = myHash
                 del self._dynaflags[flagBaseName]
                 self._loaded.add(flagBaseName)
-                # recalculate hash if needed
-                if self._locked: self._hash = self._calculateHash()
 
         pathfrags = name.split('.')
         for maxf in range(1, len(pathfrags)+1):

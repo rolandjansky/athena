@@ -97,8 +97,8 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
            monTool.defineHistogram("nTrackAccepted", path='EXPERT',type='TH1F',title=';nTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)
            monTool.defineHistogram("nWideTrackAccepted", path='EXPERT',type='TH1F',title=';nWideTrackAccepted; Entries', xbins=10, xmin=0.,xmax=10.)       
            monTool.defineHistogram("nInputTaus", path='EXPERT',type='TH1F',title=';nInputTaus; Entries', xbins=10, xmin=0.,xmax=10.) 
-           monTool.defineHistogram("RNNJetScore", path='EXPERT',type='TH1F',title=';RNN score; Entries', xbins=40, xmin=0.,xmax=1.)
-           monTool.defineHistogram("RNNJetScoreSigTrans", path='EXPERT',type='TH1F',title=';RNN score sig trans; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreAccepted", path='EXPERT',type='TH1F',title=';RNN score Accepted; Entries', xbins=40, xmin=0.,xmax=1.)
+           monTool.defineHistogram("RNNJetScoreSigTransAccepted", path='EXPERT',type='TH1F',title=';RNN score sig trans Accepted; Entries', xbins=40, xmin=0.,xmax=1.)
            currentHypo.MonTool = monTool
 
  
@@ -108,12 +108,11 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         currentHypo.numTrackWideTrackMax = theThresh.numTrackWideTrackMax
         currentHypo.EtCalibMin  = theThresh.EtCalibMin
         currentHypo.level       = theThresh.level
-        currentHypo.method      = 3   
+        currentHypo.method      = 1   
      
         if criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
-            currentHypo.numTrackMin = 0
             currentHypo.highptidthr = 280000.
-            currentHypo.method      = 3
+            currentHypo.method      = 1
         elif 'idperf' in criteria: 
             currentHypo.AcceptAll = True
         elif 'perf' in criteria:

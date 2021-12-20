@@ -858,6 +858,9 @@ def IsInInputFile(collectionname,key=None):
     try:
         from PyUtils.MetaReaderPeeker import metadata, convert_itemList
         if metadata['file_type'] == 'POOL':
+            if metadata['file_size'] is None:
+                logAutoConfiguration.info("IsInInputFile failed to read the input file: %s. Returning False", metadata['file_name'])
+                return False
             try:
                 ItemDic = convert_itemList(layout='dict')
                 if collectionname in ItemDic:

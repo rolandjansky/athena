@@ -58,9 +58,12 @@ class ElementFraction : public std::pair<unsigned char, unsigned char> {
 /** @struct MaterialComposition */
 class MaterialComposition : public std::vector<ElementFraction> {
  public:
-  /** default constructor*/
+  /** default constructors*/
   MaterialComposition() : std::vector<ElementFraction>() {}
-
+  MaterialComposition(const MaterialComposition&) = default;
+  MaterialComposition(MaterialComposition&&) = default;
+  MaterialComposition& operator=(const MaterialComposition&) = default;
+  MaterialComposition& operator=(MaterialComposition&&) = default;
   ~MaterialComposition() {}
 
   /** constructor for persistency (1), size optimized */

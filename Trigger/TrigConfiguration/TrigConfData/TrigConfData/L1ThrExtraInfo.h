@@ -629,6 +629,9 @@ namespace TrigConf {
       virtual std::string className() const { return "L1ThrExtraInfo_MU"; }
       unsigned int rpcIdxForPt(unsigned int pt) const;
       unsigned int tgcIdxForPt(unsigned int pt) const;
+      unsigned int ptForRpcIdx(unsigned int idx) const;
+      unsigned int ptForTgcIdx(unsigned int idx) const;
+      unsigned int tgcIdxForRpcIdx(unsigned int rpcIdx) const; // this maps the rpc idx to the tgc idx for the same pt value
       std::vector<unsigned int> knownRpcPtValues() const;
       std::vector<unsigned int> knownTgcPtValues() const;
       std::vector<std::string> exclusionListNames() const;

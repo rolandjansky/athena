@@ -37,12 +37,12 @@ private:
   void getParameters();
   virtual GeoVPhysVol * build();
 
-  const GeoMaterial * m_material;
+  const GeoMaterial * m_material = nullptr;
   int m_numPipes;
-  double m_pipeRadius; 
+  double m_pipeRadius = 0.0; 
   double m_innerRadius;
-  double m_outerRadius;
-  double m_thickness;
+  double m_outerRadius = 0.0;
+  double m_thickness = 0.0;
   double m_length;
   double m_zPosition;
 

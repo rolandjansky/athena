@@ -2,6 +2,7 @@
 #
 # art-description: Run MC20d pile-up presamling with 2017 geometry and conditions, 25ns pile-up, MT output containers
 # art-type: grid
+# art-include: 22.0-mc20/Athena
 # art-include: master/Athena
 # art-output: mc20d_presampling.RDO.pool.root
 # art-output: log.*

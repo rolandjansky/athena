@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,8 +38,8 @@ namespace MagField {
 class AtlasFieldMap
 {
 public:
-  AtlasFieldMap();
-  ~AtlasFieldMap();
+  AtlasFieldMap() = default;
+  ~AtlasFieldMap() { delete m_meshZR; }
 
   // initialize map from root file
   bool initializeMap(TFile* rootfile,
@@ -112,4 +112,5 @@ private:
 
 } // namespace MagField
 
+#include "AtlasFieldMap.icc"
 #endif // MAGFIELDCONDITIONS_ATLASFIELDMAP_H

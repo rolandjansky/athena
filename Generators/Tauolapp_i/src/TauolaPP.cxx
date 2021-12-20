@@ -127,7 +127,8 @@ StatusCode TauolaPP::initialize(){
   Tauola::setRandomGenerator(RanluxGenerator);
 
   //seeding tauola-fortran generator
-  Tauola::setSeed((int) si1,0,0);
+  // See tauola.f: the first parameter should be positive int <900000000
+  Tauola::setSeed(int(std::abs(sip[0])%(900000000)),0,0);
 
   //seeding tauola++ generator
   theRanluxEngine.setSeed(si2,1);
@@ -152,12 +153,9 @@ StatusCode TauolaPP::execute() {
 
   HepRandomEngine* engine = atRndmGenSvc()->GetEngine(tauolapp_stream());
   const long*   sip     =       engine->getSeeds();
-  long  int     si1     =       sip[0];
   long  int     si2     =       sip[1];
 	 
-
-  //seeding tauola-fortran generator
-  Tauola::setSeed((int) si1,0,0);
+  // We leave the Fortran random engine as it is.
 
   //seeding tauola++ generator
   theRanluxEngine.setSeed(si2,1);

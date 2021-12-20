@@ -34,15 +34,15 @@ private:
   void getParameters();
   virtual GeoVPhysVol * build();
   
-  const GeoMaterial * m_material;
-  double m_thickness;
-  double m_width;
-  double m_length;
+  const GeoMaterial * m_material = nullptr;
+  double m_thickness = 0.0;
+  double m_width = 0.0;
+  double m_length = 0.0;
 
   //double m_baseBoardOffsetX; // Thu 16th Jun 2005 D.Naito removed.
   //double m_baseBoardOffsetY; // Thu 16th Jun 2005 D.Naito removed.
   //double m_baseBoardOffsetZ; // Thu 16th Jun 2005 D.Naito removed.
-  double m_safety;
+  double m_safety = 0.0;
 
 };
 

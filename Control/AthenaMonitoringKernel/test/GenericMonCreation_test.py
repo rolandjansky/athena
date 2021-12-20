@@ -154,5 +154,20 @@ class TestLegacy(TestGMT):
         gmt = GenericMonitoringTool('gmt')
         self.assertFalse(hasattr(gmt,'__cpp_type__'))
 
+
+class TestGaudiConfig2(unittest.TestCase):
+    """Tests specific to GaudiConfig2"""
+
+    @classmethod
+    def setUpClass(cls):
+        from AthenaConfiguration import AtlasSemantics  # noqa: F401 (ATLAS merge semantics)
+
+    def test_merge(self):
+        t1 = GenericMonitoringTool(Histograms = ['x','y'])
+        t2 = GenericMonitoringTool(Histograms = ['z'])
+        t2.merge(t1)
+        self.assertEqual(list(t1.Histograms), ['x','y','z'])
+
+
 if __name__ == '__main__':
    unittest.main()

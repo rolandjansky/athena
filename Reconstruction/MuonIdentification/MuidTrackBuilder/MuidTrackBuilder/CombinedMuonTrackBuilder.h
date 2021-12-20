@@ -167,12 +167,12 @@ namespace Rec {
         ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{
             this,
             "CaloEnergyParam",
-            "Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam",
+            "",
         };
         ToolHandle<Rec::IMuidCaloTrackStateOnSurface> m_caloTSOS{
             this,
             "CaloTSOS",
-            "Rec::MuidCaloTrackStateOnSurface/MuidCaloTrackStateOnSurface",
+            "",
         };
         ToolHandle<Muon::IMuonTrackCleaner> m_cleaner{
             this,
@@ -184,6 +184,9 @@ namespace Rec {
             "CscRotCreator",
             "",
         };
+
+        ToolHandle<Muon::IMuonClusterOnTrackCreator> m_mmRotCreator{this, "MMRotCreator", ""};
+
         ToolHandle<Trk::IExtrapolator> m_extrapolator{
             this,
             "Extrapolator",
@@ -247,7 +250,7 @@ namespace Rec {
         ToolHandle<Trk::ITrkMaterialProviderTool> m_materialUpdator{
             this,
             "CaloMaterialProvider",
-            "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool",
+            "",
         };
 
         /// ToolHandles to retrieve the uncertainties for theta and phi for
@@ -268,33 +271,37 @@ namespace Rec {
 
         ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc{this, "TrackingVolumesSvc", "TrackingVolumesSvc/TrackingVolumesSvc"};
 
-        Trk::MagneticFieldProperties m_magFieldProperties;
+        Trk::MagneticFieldProperties m_magFieldProperties{Trk::FullField};
 
-        bool m_allowCleanerVeto;
-        bool m_cleanCombined;
-        bool m_cleanStandalone;
-        bool m_perigeeAtSpectrometerEntrance;
-        bool m_reallocateMaterial;
-        double m_badFitChi2;
-        double m_largeImpact;
-        double m_largeMomentumChange;
-        double m_largeMomentumError;
-        double m_largePhiError;
-        double m_lineMomentum;
-        double m_lowMomentum;
-        unsigned m_maxWarnings;
-        double m_minEnergy;
-        double m_numberSigmaFSR;
-        bool m_redoRots;
-        double m_vertex2DSigmaRPhi;
-        double m_vertex2DSigmaZ;
-        double m_vertex3DSigmaRPhi;
-        double m_vertex3DSigmaZ;
-        double m_zECToroid;
+        Gaudi::Property<bool> m_allowCleanerVeto{this, "AllowCleanerVeto", true};
+        Gaudi::Property<bool> m_cleanCombined{this, "CleanCombined", true};
+        Gaudi::Property<bool> m_cleanStandalone{this, "CleanStandalone", true};
 
-        // dummy (unused - kept for backwards compatibility)
-        bool m_indetSlimming;
-        bool m_inputSlimming;
+        Gaudi::Property<bool> m_perigeeAtSpectrometerEntrance{this, "PerigeeAtSpectrometerEntrance", false};
+        Gaudi::Property<bool> m_reallocateMaterial{this, "ReallocateMaterial", true};
+
+        Gaudi::Property<double> m_badFitChi2{this, "BadFitChi2", 2.5};
+
+        Gaudi::Property<double> m_largeImpact{this, "LargeImpact", 100. * Gaudi::Units::mm};
+
+        Gaudi::Property<double> m_largeMomentumChange{this, "LargeMomentumChange", 0.05};
+        Gaudi::Property<double> m_largeMomentumError{this, "LargeMomentumError", 0.15};
+        Gaudi::Property<double> m_largePhiError{this, "LargePhiError", 0.020};
+        Gaudi::Property<double> m_lineMomentum{this, "LineMomentum", 2. * Gaudi::Units::GeV};
+        Gaudi::Property<double> m_lowMomentum{this, "LowMomentum", 10. * Gaudi::Units::GeV};
+
+        Gaudi::Property<unsigned> m_maxWarnings{this, "MaxNumberOfWarnings", 10,
+                                                "Maximum number of permitted WARNING messages per message type."};
+        Gaudi::Property<double> m_minEnergy{this, "MinEnergy", 0.3 * Gaudi::Units::GeV};
+        Gaudi::Property<double> m_numberSigmaFSR{this, "NumberSigmaFSR", 2.5};
+
+        Gaudi::Property<double> m_vertex2DSigmaRPhi{this, "Vertex2DSigmaRPhi", 100. * Gaudi::Units::mm};
+        Gaudi::Property<double> m_vertex2DSigmaZ{this, "Vertex2DSigmaZ", 100. * Gaudi::Units::meter};
+        Gaudi::Property<double> m_vertex3DSigmaRPhi{this, "Vertex3DSigmaRPhi", 6. * Gaudi::Units::mm};
+        Gaudi::Property<double> m_vertex3DSigmaZ{this, "Vertex3DSigmaZ", 60. * Gaudi::Units::mm};
+        Gaudi::Property<double> m_zECToroid{this, "zECToroid", 10. * Gaudi::Units::meter};
+
+        bool m_redoRots{false};
 
         // constants
         std::unique_ptr<const Trk::Volume> m_calorimeterVolume;
@@ -303,7 +310,7 @@ namespace Rec {
         // vertex region and phi modularity for pseudo-measurement constraints
         std::unique_ptr<Trk::RecVertex> m_beamAxis;
         std::unique_ptr<Trk::PerigeeSurface> m_perigeeSurface;
-        double m_sigmaPhiSector;
+
         std::unique_ptr<Trk::RecVertex> m_vertex;
 
         // counters
@@ -318,14 +325,14 @@ namespace Rec {
         // count warnings
         std::unique_ptr<MessageHelper> m_messageHelper;
 
-        bool m_updateWithCaloTG;
-        bool m_useCaloTG;
-        bool m_iterateCombinedTrackFit;
-        bool m_refineELossCombinedTrackFit;
-        bool m_refineELossStandAloneTrackFit;
-        bool m_addElossID;
-        bool m_addIDMSerrors;
-        bool m_useRefitTrackError;
+        Gaudi::Property<bool> m_updateWithCaloTG{this, "UpdateWithCaloTG", false};
+        Gaudi::Property<bool> m_useCaloTG{this, "UseCaloTG", false};
+        Gaudi::Property<bool> m_iterateCombinedTrackFit{this, "IterateCombinedTrackFit", false};
+        Gaudi::Property<bool> m_refineELossCombinedTrackFit{this, "RefineELossCombinedTrackFit", true};
+        Gaudi::Property<bool> m_refineELossStandAloneTrackFit{this, "RefineELossStandAloneTrackFit", true};
+        Gaudi::Property<bool> m_addElossID{this, "AddElossID", true};
+        Gaudi::Property<bool> m_addIDMSerrors{this, "AddIDMSerrors", true};
+        Gaudi::Property<bool> m_useRefitTrackError{this, "UseRefitTrackError", true};
 
         const Trk::TrackingVolume* getVolume(const std::string&& vol_name, const EventContext& ctx) const;
         const AtlasFieldCacheCondObj* getFieldCacheObj(const EventContext& ctx) const;

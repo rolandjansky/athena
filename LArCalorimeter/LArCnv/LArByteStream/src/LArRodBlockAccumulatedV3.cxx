@@ -143,8 +143,8 @@ int LArRodBlockAccumulatedV3::getNextRawData(int& channelNumber, std::vector<sho
   return 1;
 }
 
-int LArRodBlockAccumulatedV3::getNextAccumulatedDigit(int& channelNumber, std::vector<uint32_t>& samplesSum, 
-						      std::vector < uint32_t >& corr2Sum, uint32_t& gain )
+int LArRodBlockAccumulatedV3::getNextAccumulatedDigit(int& channelNumber, std::vector<uint64_t>& samplesSum, 
+						      std::vector < uint64_t >& corr2Sum, uint32_t& gain )
 {
 #ifdef LARBSDBGOUTPUT
   MsgStream logstr(Athena::getMessageSvc(), BlockType());

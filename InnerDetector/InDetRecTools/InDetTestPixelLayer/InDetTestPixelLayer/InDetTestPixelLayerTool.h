@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "TrkEventPrimitives/ResidualPull.h"
@@ -53,10 +54,8 @@ public:
   InDetTestPixelLayerTool(const std::string& name,
                           const std::string& n,
                           const IInterface* p);
-  virtual ~InDetTestPixelLayerTool();
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode finalize() override final;
 
   //    bool expectHitInPixelLayer(const Rec::TrackParticle*) const ;
   virtual bool expectHitInPixelLayer(

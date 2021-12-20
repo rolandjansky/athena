@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,56 +11,26 @@
  * 
  */
 
-// STL includes
 
-// FrameWork includes
-#include "AFPSiClusterTool.h"
-#include "AFP_SiClusterTools/IAFPSiRowColToLocalCSTool.h"
+#include "AFP_SiClusterTools/AFPSiClusterTool.h"
 
-#include "xAODForward/AFPSiHit.h"
-#include "xAODForward/AFPSiHitContainer.h"
-#include "xAODForward/AFPSiHitsCluster.h"
-#include "xAODForward/AFPSiHitsClusterContainer.h"
-#include "xAODForward/AFPSiHitsClusterAuxContainer.h"
 
 AFPSiClusterTool::AFPSiClusterTool (const std::string& type,
-				    const std::string& name,
-				    const IInterface* parent)
-  : ::AthAlgTool(type, name, parent),
-  m_clusterAlgToolHandle ("AFPSiClusterSingleHitTool"),
-  m_rowColToLocalCSToolHandle ("AFPSiRowColToLocalCSTool")
+                                    const std::string& name,
+                                    const IInterface* parent)
+  : base_class(type, name, parent)
 {
-  declareInterface<IAFPSiClusterTool>(this);
-
-  declareProperty("hitsContainerName",
-                  m_hitsContainerName = "AFPSiHitContainer",
-                  "Name of the container with hits from which tracks are to be clustered");
-  
-  declareProperty("clustersContainerName",
-                  m_clustersContainerName = "AFPSiHitsClusterContainer",
-                  "Name of the container in which clusters of hits are saved");
-
-  declareProperty("clusterAlgTool",
-                  m_clusterAlgToolHandle,
-                  "Tool with algorithm to perform actual clustering");
-  
-  declareProperty("rowColToLocalCSTool",
-		  m_rowColToLocalCSToolHandle,
-                  "Tool to rewrite clusters to xAOD and transform rows and columns to station local coordinates");  
-
-  declareProperty("numberOfLayersInStations",
-		  m_numberOfLayersInStations,
-                  "Array defining number of stations and layers in each station. The size of the array in argument defines number of stations, the value in each entry defines number of layers in the station.");
 }
 
-void AFPSiClusterTool::initLayers (const std::vector<int>& layersInStations)
+std::vector< std::vector<AFPSiClusterLayerBasicObj> > AFPSiClusterTool::initLayers (const std::vector<int>& layersInStations) const
 {
   // set number of stations
-  m_layers.resize(layersInStations.size());
+  std::vector< std::vector<AFPSiClusterLayerBasicObj> > my_layers;
+  my_layers.resize(layersInStations.size());
 
   // initialise number of layers in each station
   int stationID = 0;
-  std::vector<std::vector<AFPSiClusterLayerBasicObj> >::iterator layersIter = m_layers.begin();
+  std::vector<std::vector<AFPSiClusterLayerBasicObj> >::iterator layersIter = my_layers.begin();
   for (const int layersN : layersInStations) {
     int layerID = 0;
     std::vector<AFPSiClusterLayerBasicObj>& layersVec = (*layersIter++);
@@ -72,31 +42,25 @@ void AFPSiClusterTool::initLayers (const std::vector<int>& layersInStations)
     }
     stationID++;
   } // close for over layersN
+
+  return my_layers;
 }
 
 StatusCode AFPSiClusterTool::initialize()
 {
-  ATH_MSG_INFO("Initializing " << name() << "...");
+  ATH_MSG_DEBUG("Initializing " << name() << "...");
+
+  CHECK( m_AFPSiHitContainerKey.initialize() );
 
   // retrieve tools
-  if (m_clusterAlgToolHandle.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Failed to retrieve " << m_clusterAlgToolHandle<<". Aborting AFPSiClusterTool initialisation");     
-    return StatusCode::SUCCESS;   
+  CHECK( m_clusterAlgToolHandle.retrieve() );
+  CHECK( m_rowColToLocalCSToolHandle.retrieve() );
+  
+  // monitoring
+  if (!(m_monTool.name().empty())) {
+    CHECK( m_monTool.retrieve() );
+    ATH_MSG_DEBUG("m_monTool name: " << m_monTool);
   }
-
-  if (m_rowColToLocalCSToolHandle.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Failed to retrieve " << m_rowColToLocalCSToolHandle<<". Aborting AFPSiClusterTool initialisation");     
-    return StatusCode::SUCCESS;   
-  }
-
-  // prepare array of layers
-  if (m_numberOfLayersInStations.empty()) {
-    // no job options configuration - use default values
-    m_numberOfLayersInStations.resize(4, 4);
-  }
-
-  initLayers(m_numberOfLayersInStations);
-
 
   return StatusCode::SUCCESS;
 }
@@ -106,75 +70,117 @@ StatusCode AFPSiClusterTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFPSiClusterTool::clusterHits()
+StatusCode AFPSiClusterTool::clusterHits(std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& clustr, const EventContext &ctx) const
 {
-  clearAllLayers();
-  fillLayersWithHits();
-  clusterEachLayer();
-  saveToXAOD();
+  std::vector< std::vector<AFPSiClusterLayerBasicObj> > my_layers=initLayers(m_numberOfLayersInStations);
+
+  if(clearAllLayers(my_layers).isFailure())
+  {
+    ATH_MSG_WARNING("clearAllLayers failed");
+    return StatusCode::FAILURE;
+  }
+  
+  if(fillLayersWithHits(my_layers, ctx).isFailure())
+  {
+    ATH_MSG_WARNING("fillLayersWithHits failed");
+    return StatusCode::FAILURE;
+  }
+  
+  if(clusterEachLayer(my_layers).isFailure())
+  {
+    ATH_MSG_WARNING("clusterEachLayer failed");
+    return StatusCode::FAILURE;
+  }
+  
+  if(saveToXAOD(clustr, my_layers, ctx).isFailure())
+  {
+    ATH_MSG_WARNING("saveToXAOD failed");
+    return StatusCode::FAILURE;
+  }
+  
+  auto clusterSize = Monitored::Scalar("ClusterSize", clustr->size());
+  Monitored::Group( m_monTool, clusterSize);
 
   return StatusCode::SUCCESS;
 }
 
-void AFPSiClusterTool::clearAllLayers()
+StatusCode AFPSiClusterTool::clearAllLayers(std::vector< std::vector<AFPSiClusterLayerBasicObj> > &my_layers) const
 {
-  for (std::vector<AFPSiClusterLayerBasicObj>& station : m_layers)
+  for (std::vector<AFPSiClusterLayerBasicObj>& station : my_layers)
     for (AFPSiClusterLayerBasicObj& layer : station)
       layer.clearHitsAndClusters();
+  
+  return StatusCode::SUCCESS;
 }
 
-void AFPSiClusterTool::fillLayersWithHits()
+StatusCode AFPSiClusterTool::fillLayersWithHits(std::vector< std::vector<AFPSiClusterLayerBasicObj> > &my_layers, const EventContext &ctx) const
 {
   // retrieve hits
-  if (evtStore()->retrieve(m_hitsContainer, m_hitsContainerName).isSuccess()) {
+  SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer( m_AFPSiHitContainerKey, ctx );
+  if(!siHitContainer.isValid())
+  {
+      ATH_MSG_INFO("AFPSiClusterTool, cannot get siHitContainer");
+      // this is allowed, there might be no AFP data in the input
+      return StatusCode::SUCCESS;
+  }
+  else
+  {
+    ATH_MSG_DEBUG("AFPSiClusterTool::fillLayersWithHits(), successfully got siHitContainer, there are "<<siHitContainer->size()<<" hits");
+    
+    auto hitsSize = Monitored::Scalar("HitsSize", siHitContainer->size());
+    Monitored::Group( m_monTool, hitsSize);
+
     try {
       // fill layers with hits
-      for (xAOD::AFPSiHit* theHit : *m_hitsContainer)
-	m_layers.at(theHit->stationID()).at(theHit->pixelLayerID()).hits().push_back(theHit);
+      for(const auto &theHit : *siHitContainer)
+        my_layers.at(theHit->stationID()).at(theHit->pixelLayerID()).hits().push_back(theHit);
     }
     catch (const std::out_of_range& outOfRange) {
       ATH_MSG_WARNING("Hit with station or pixel ID outside expected range. Aborting pixels clustering.");
-      clearAllLayers();
+      clearAllLayers(my_layers).ignore();
+      return StatusCode::FAILURE;
     }
   }
-  else
-    ATH_MSG_WARNING("Failed to retrieve hits container.");
+
+  return StatusCode::SUCCESS;
 }
 
-void AFPSiClusterTool::clusterEachLayer()
+StatusCode AFPSiClusterTool::clusterEachLayer(std::vector< std::vector<AFPSiClusterLayerBasicObj> > &my_layers) const
 {
-  for (std::vector<AFPSiClusterLayerBasicObj>& station : m_layers)
+  for (std::vector<AFPSiClusterLayerBasicObj>& station : my_layers)
     for (AFPSiClusterLayerBasicObj& layer : station)
       m_clusterAlgToolHandle->doClustering(layer.hits(), layer.clusters()).ignore();
+  
+  return StatusCode::SUCCESS;
 }
 
-void AFPSiClusterTool::saveToXAOD()
-{
-  // create cluster containers and register in store gate
-  xAOD::AFPSiHitsClusterContainer* clusterContainer = new xAOD::AFPSiHitsClusterContainer();
-  if (evtStore()->record(clusterContainer, m_clustersContainerName).isSuccess()) {
-    xAOD::AFPSiHitsClusterAuxContainer *clusterAuxContainer = new xAOD::AFPSiHitsClusterAuxContainer();
-    if (evtStore()->record(clusterAuxContainer, m_clustersContainerName + "Aux.").isSuccess()) {
-      clusterContainer->setStore(clusterAuxContainer);
+StatusCode AFPSiClusterTool::saveToXAOD(std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& clusterContainer, std::vector< std::vector<AFPSiClusterLayerBasicObj> > &my_layers, const EventContext &ctx) const
+{ 
+  SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer( m_AFPSiHitContainerKey, ctx );
+  if(!siHitContainer.isValid())
+  {
+      // this is allowed, there might be no AFP data in the input
+      return StatusCode::SUCCESS;
+  }
+  
+  // fill xAOD container
+  for (std::vector<AFPSiClusterLayerBasicObj>& station : my_layers)
+    for (AFPSiClusterLayerBasicObj& layer : station) {
+      const int stationID = layer.stationID();
+      const int layerID = layer.layerID();
+      for (const AFPSiClusterBasicObj& theCluster : layer.clusters()) {
+        // create xAOD object and set cluster coordinates and errors
+        xAOD::AFPSiHitsCluster* xAODCluster = m_rowColToLocalCSToolHandle->newXAODLocal(stationID, layerID, theCluster, clusterContainer);
 
-      // fill xAOD container
-      for (std::vector<AFPSiClusterLayerBasicObj>& station : m_layers)
-	for (AFPSiClusterLayerBasicObj& layer : station) {
-	  const int stationID = layer.stationID();
-	  const int layerID = layer.layerID();
-	  for (const AFPSiClusterBasicObj& theCluster : layer.clusters()) {
-	    // create xAOD object and set cluster coordinates and errors
-	    xAOD::AFPSiHitsCluster* xAODCluster = m_rowColToLocalCSToolHandle->newXAODLocal(stationID, layerID, theCluster, clusterContainer);
+        // add links to hits
+        for (const xAOD::AFPSiHit* theHit : theCluster.hits()) {
+          ElementLink< xAOD::AFPSiHitContainer >* hitLink = new ElementLink< xAOD::AFPSiHitContainer >; // will be taken over by the xAODCluster and deleted
+          hitLink->toContainedElement(*siHitContainer, theHit);
+          xAODCluster->addHitLink(*hitLink);
+        }
+      } // end for over layers
+    } // end for over stations
 
-	    // add links to hits
-	    for (const xAOD::AFPSiHit* theHit : theCluster.hits()) {
-	      ElementLink< xAOD::AFPSiHitContainer >* hitLink = new ElementLink< xAOD::AFPSiHitContainer >; // will be taken over by the xAODCluster and deleted
-	      hitLink->toContainedElement(*m_hitsContainer, theHit);
-	      xAODCluster->addHitLink(*hitLink);
-	    }
-	  } // end for over layers
-	} // end for over stations
-
-    } // if (clusterContainerAux.isSuccess())
-  } // if (clusterContainer.isSuccess())
+  return StatusCode::SUCCESS;
 }
+

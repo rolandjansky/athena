@@ -24,6 +24,7 @@ def CaloFwdTopoTowerCfg(flags,**kwargs):
 
     kwargs.setdefault("PrepareLCW",flags.Calo.FwdTower.prepareLCW)
     kwargs.setdefault("TopoClusterRange",flags.Calo.FwdTower.clusterRange)
+    kwargs.setdefault("BuildCombinedTopoSignal",True)
 
     #This property is for the algorithm, not for tool doing most of the work
     towerContainerKey=kwargs.pop('towerContainerKey','CaloCalFwdTopoTowers')

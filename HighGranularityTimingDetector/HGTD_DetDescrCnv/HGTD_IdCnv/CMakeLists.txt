@@ -5,5 +5,6 @@ atlas_subdir( HGTD_IdCnv )
 
 # Component(s) in the package:
 atlas_add_component( HGTD_IdCnv
-                     src/*.cxx
-                     LINK_LIBRARIES StoreGateLib SGtests DetDescrCnvSvcLib IdDictDetDescr GaudiKernel HGTD_Identifier AthenaBaseComps AthenaKernel )
+   src/*.h src/*.cxx src/components/*.cxx
+   LINK_LIBRARIES AthenaBaseComps StoreGateLib DetDescrCnvSvcLib HGTD_Identifier
+   IdDictDetDescr )

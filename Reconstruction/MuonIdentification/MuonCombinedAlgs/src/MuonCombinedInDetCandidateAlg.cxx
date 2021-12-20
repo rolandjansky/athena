@@ -7,15 +7,9 @@
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/xAODTruthHelpers.h"
 
-namespace {
-    static const SG::AuxElement::Accessor<ElementLink<xAOD::TruthParticleContainer>> acc_truth_link("truthParticleLink");
-    constexpr unsigned int num_sectors = 16;
-    using RegionIndex = Muon::MuonStationIndex::DetectorRegionIndex;
-    using LayerIndex = Muon::MuonStationIndex::LayerIndex;   
-}  // namespace
 using namespace MuonCombined;
-
 MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     AthReentrantAlgorithm(name, pSvcLocator) {}
 
@@ -23,23 +17,21 @@ StatusCode MuonCombinedInDetCandidateAlg::initialize() {
     ATH_CHECK(m_trackSelector.retrieve(DisableTool{m_trackSelector.empty()}));
     ATH_CHECK(m_muonSystemExtensionTool.retrieve());
     ATH_CHECK(m_indetTrackParticleLocation.initialize());
+    ATH_CHECK(m_caloExtensionLocation.initialize());
     ATH_CHECK(m_indetForwardTrackParticleLocation.initialize(m_doSiliconForwardMuons));
+    ATH_CHECK(m_caloFwdExtensionLocation.initialize(m_doSiliconForwardMuons && !m_caloFwdExtensionLocation.empty()));
     ATH_CHECK(m_candidateCollectionName.initialize());
     ATH_CHECK(m_forwardTrackSelector.retrieve(DisableTool{!m_doSiliconForwardMuons}));
-
-    if (m_restrictExtension) { 
-        ATH_MSG_INFO("Use the Hough seeds to determine the sectors in the MS worth for being extrapolated to");
-    }
-    ATH_CHECK(m_houghDataPerSectorVecKey.initialize(m_restrictExtension)); 
-   
+    ATH_MSG_INFO("Successfully initialized using the following configuration --  SAF: "<<(m_doSiliconForwardMuons? "si":"no")<<", "
+                << "MS extension bulk: "<<(m_extendBulk ? "si" : "no")
+                <<", MS extension SAF: "<<( m_doSiliconForwardMuons && m_extendSAF ? "si" : "no")
+                <<", Require MS estension: "<<( m_requireExtension? "si" : "no")<<" min pT for extension "<<m_extThreshold);
     return StatusCode::SUCCESS;
 }
 
 StatusCode MuonCombinedInDetCandidateAlg::execute(const EventContext& ctx) const {
     InDetCandidateCache output_cache{};
-
-    if (m_restrictExtension) { ATH_CHECK(findHittedSectors(ctx, m_houghDataPerSectorVecKey, output_cache)); }
-
+    unsigned int counter{0};  
     for (SG::ReadHandle<xAOD::TrackParticleContainer>& readHandle : m_indetTrackParticleLocation.makeHandles(ctx)) {
         if (!readHandle.isValid()) {
             ATH_MSG_FATAL("Failed to retrieve " << readHandle.key());
@@ -47,6 +39,15 @@ StatusCode MuonCombinedInDetCandidateAlg::execute(const EventContext& ctx) const
         }
         output_cache.inDetContainer = readHandle.cptr();
         output_cache.trackSelector = !m_trackSelector.empty() ? m_trackSelector.get() : nullptr;
+        if (counter < m_caloExtensionLocation.size()){
+            SG::ReadHandle<CaloExtensionCollection> caloExtension{m_caloExtensionLocation[counter], ctx};
+            if (!caloExtension.isValid()) {
+                ATH_MSG_FATAL("Failed to retrieve "<<m_caloExtensionLocation[counter].fullKey() );
+                return StatusCode::FAILURE;
+            }
+            output_cache.extensionContainer = caloExtension.cptr();
+        } else output_cache.extensionContainer = nullptr;
+        ++counter;
         ATH_CHECK(create(ctx, output_cache));
     }
     if (m_doSiliconForwardMuons) {
@@ -55,6 +56,15 @@ StatusCode MuonCombinedInDetCandidateAlg::execute(const EventContext& ctx) const
             ATH_MSG_FATAL("Failed to retrieve " << readHandle.key());
             return StatusCode::FAILURE;
         }
+        if (!m_caloFwdExtensionLocation.empty()) {
+            SG::ReadHandle<CaloExtensionCollection> caloExtension{m_caloFwdExtensionLocation, ctx};
+            if (!caloExtension.isValid()) {
+                ATH_MSG_FATAL("Failed to retrieve "<<m_caloFwdExtensionLocation.fullKey());
+                return StatusCode::FAILURE;
+            }
+            output_cache.extensionContainer = caloExtension.cptr();
+        } else output_cache.extensionContainer = nullptr;
+
         output_cache.inDetContainer = readHandle.cptr();
         output_cache.trackSelector = !m_forwardTrackSelector.empty() ? m_forwardTrackSelector.get() : nullptr;
         output_cache.flagAsSAF = true;
@@ -83,21 +93,25 @@ StatusCode MuonCombinedInDetCandidateAlg::create(const EventContext& ctx, InDetC
         link.toPersistent();
         printTrackParticleInfo(tp, "Creating");
 
-        if (msgLvl(MSG::VERBOSE) && acc_truth_link.isAvailable(*tp)) {
-            const ElementLink<xAOD::TruthParticleContainer>& truthLink = acc_truth_link(*tp);
-            if (truthLink.isValid()) {
-                ATH_MSG_VERBOSE("  Truth particle: pdgId " << (*truthLink)->pdgId() << " type " << tp->auxdata<int>("truthType")
-                                                           << " origin " << tp->auxdata<int>("truthOrigin") << " pt " << (*truthLink)->pt()
-                                                           << " eta " << (*truthLink)->eta() << " phi " << (*truthLink)->phi());
+        if (msgLvl(MSG::VERBOSE)) {
+            const xAOD::TruthParticle* truth_part = xAOD::TruthHelpers::getTruthParticle(*tp);
+            if (truth_part) {
+                ATH_MSG_VERBOSE("  Truth particle: pdgId " << truth_part->pdgId() << " type " << tp->auxdata<int>("truthType")
+                                                           << " origin " << tp->auxdata<int>("truthOrigin") << " pt " << truth_part->pt()
+                                                           << " eta " << truth_part->eta() << " phi " << truth_part->phi());
             }
         }
         Muon::IMuonSystemExtensionTool::SystemExtensionCache cache;
+        cache.extensionContainer = output_cache.extensionContainer;
         cache.candidate = std::make_unique<InDetCandidate>(link);
         cache.candidate->setSiliconAssociated(output_cache.flagAsSAF);  // Si-associated candidates don't need these
-        cache.useHittedSectors = m_restrictExtension;
-        cache.sectorsWithHits = &output_cache.hitted_sectors;
-        // MuGirl only operates on ID tracks with pt at least this high
-        if (tp->pt() < m_extThreshold) { continue; }
+        cache.useHitSectors = false;
+        if (tp->pt() < m_extThreshold) continue;
+        /// MuGirl only operates on ID tracks with pt at least this high   
+        cache.createSystemExtension = (tp->pt() >= m_extThreshold) && 
+                                      ( (m_extendSAF && cache.candidate->isSiliconAssociated()) ||
+                                        (m_extendBulk && !cache.candidate->isSiliconAssociated()));
+        cache.requireSystemExtension = m_requireExtension;   
         if (!m_muonSystemExtensionTool->muonSystemExtension(ctx, cache)) continue;
         output_cache.outputContainer->push_back(std::move(cache.candidate));
     }
@@ -111,7 +125,10 @@ bool MuonCombinedInDetCandidateAlg::isValidTrackParticle(const Trk::ITrackSelect
         ATH_MSG_WARNING("InDet TrackParticle without perigee! ");
         return false;
     }
-
+    if (!tp->track()) {
+        ATH_MSG_WARNING("The track particle has not an associated track");
+        return false;
+    }
     if (currentTrackSelector && !currentTrackSelector->decision(*tp)) {
         if (msgLvl(MSG::VERBOSE) && tp->pt() > 5000.) printTrackParticleInfo(tp, "Discarding");
         return false;
@@ -129,57 +146,4 @@ int MuonCombinedInDetCandidateAlg::getCount(const xAOD::TrackParticle& tp, xAOD:
     uint8_t val{0};
     if (!tp.summaryValue(val, type)) return 0;
     return static_cast<int>(val);
-}
-StatusCode MuonCombinedInDetCandidateAlg::findHittedSectors(const EventContext& ctx,
-                                                            const SG::ReadHandleKey<Muon::HoughDataPerSectorVec>& key,
-                                                            InDetCandidateCache& output_cache) const {
-    SG::ReadHandle<Muon::HoughDataPerSectorVec> readHandle{key, ctx};
-    if (!readHandle.isValid()) {
-        ATH_MSG_FATAL("Failed to retrieve the prep data container " << key.fullKey());
-        return StatusCode::FAILURE;
-    }
-    const std::vector<Muon::HoughDataPerSec>& hough_data = readHandle->vec;
-    /// Helper function to cound whether all three stations are actually complete
-    auto count_finished = [&output_cache]() -> unsigned int {
-        unsigned int n{0};
-        for (const auto& sector_hits : output_cache.hitted_sectors) { n += sector_hits.second.size() >= num_sectors; }
-        return n;
-    };
-    /// Helper
-    static const Muon::MuonSectorMapping sector_mapping;
-    for (const Muon::HoughDataPerSec& sector_data : hough_data) {
-        /// The phi-hit vector has a size of 3 representing
-        /// the forward-backward and barrel sections
-        for (int det_region = 0; det_region < Muon::MuonStationIndex::DetectorRegionIndexMax; ++det_region) {
-            const RegionIndex region_index = static_cast<RegionIndex>(det_region);
-            const Muon::HoughDataPerSec::PhiMaximumVec& phi_hits = sector_data.phiMaxVec[det_region];
-            for (const std::shared_ptr<MuonHough::MuonPhiLayerHough::Maximum>& hit : phi_hits) {
-                output_cache.hitted_sectors[region_index].insert(hit->sector);
-            }
-            if (count_finished() >= RegionIndex::DetectorRegionIndexMax) {
-                ATH_MSG_VERBOSE("The MS is filled up with Hough seeds. We do not need to search for them any longer");
-                return StatusCode::SUCCESS;
-            }
-            for (int layer = 0; layer < Muon::MuonStationIndex::LayerIndexMax; ++layer) {
-                const LayerIndex layer_index = static_cast<LayerIndex>(layer);
-                const unsigned int hash = Muon::MuonStationIndex::sectorLayerHash(region_index, layer_index);
-
-                const Muon::HoughDataPerSec::MaximumVec& eta_hits = sector_data.maxVec[hash];
-                for (const std::shared_ptr<MuonHough::MuonLayerHough::Maximum>& maxima : eta_hits) {
-                    for (const std::shared_ptr<MuonHough::Hit>& hit : maxima->hits) {
-                        const Trk::PrepRawData* prep_data{hit->prd};
-                        if (!prep_data && hit->tgc) { prep_data = hit->tgc->phiCluster.hitList.front(); }
-                        if (!prep_data) continue;
-                        const Amg::Vector3D glob_pos = prep_data->detectorElement()->center(prep_data->identify());
-                        output_cache.hitted_sectors[region_index].insert(sector_mapping.getSector(glob_pos.phi()));
-                    }
-                }
-                if (count_finished() >= RegionIndex::DetectorRegionIndexMax) {
-                    ATH_MSG_VERBOSE("The MS is filled up with Hough seeds. We do not need to search for them any longer");
-                    return StatusCode::SUCCESS;
-                }            
-            }
-        }
-    }
-    return StatusCode::SUCCESS;
 }

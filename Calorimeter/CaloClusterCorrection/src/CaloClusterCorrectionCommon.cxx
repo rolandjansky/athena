@@ -102,11 +102,11 @@ public:
 
 private:
   /// Find the detector descriptor element for a given position.
-  const CaloDetDescrElement* find_dd_elt1 (const CaloDetDescrManager* dd_mgr,
+  static const CaloDetDescrElement* find_dd_elt1 (const CaloDetDescrManager* dd_mgr,
 					   int region,
                                            const CaloCluster* cluster,
                                            float eta,
-                                           float phi) const;
+                                           float phi) ;
 
 
   /// Work around innermost strip problem.
@@ -117,11 +117,11 @@ private:
                         float phi) const;
 
 
-  const CaloDetDescrElement* dd_try_gap (const CaloDetDescrManager* dd_man,
+  static const CaloDetDescrElement* dd_try_gap (const CaloDetDescrManager* dd_man,
 					 int region,
                                          const CaloCluster* cluster,
                                          float eta,
-                                         float phi) const;
+                                         float phi) ;
 
 
   /// Construct dummy DDEs used to work around innermost strip problem.
@@ -240,7 +240,7 @@ DDHelper::find_dd_elt1 (const CaloDetDescrManager* dd_man,
 			int region,
                         const CaloCluster* cluster,
                         float eta,
-                        float phi) const
+                        float phi) 
 {
   const CaloDetDescrElement* elt = nullptr;
 
@@ -337,7 +337,7 @@ DDHelper::dd_try_gap (const CaloDetDescrManager* dd_man,
 		      int region,
                       const CaloCluster* cluster,
                       float eta,
-                      float phi) const
+                      float phi) 
 {
   const CaloDetDescrElement* elt1 = find_dd_elt1 (dd_man,region, cluster,
                                                   eta + 1e-4, phi);
@@ -579,7 +579,7 @@ CaloClusterCorrectionCommon::energy_interpolation (float energy,
 						   const CaloRec::Array<1>&
                                                      energies,
 						   int energy_degree)
-  const
+  
 {
   // Calculate the correction for each energy.
   unsigned int n_energies = energies.size();

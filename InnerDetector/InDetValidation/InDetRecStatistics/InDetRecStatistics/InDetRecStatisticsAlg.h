@@ -143,8 +143,8 @@ namespace InDet {
       SG::ReadHandleKeyArray<TrackCollection>        m_RecTrackCollection_keys;
       SG::ReadHandleKeyArray<TrackTruthCollection>   m_TrackTruthCollection_keys;
 
-      mutable std::atomic<bool>      m_pullWarning    ATLAS_THREAD_SAFE; //!< warn only once, if pull cannot be calculated
-      mutable std::atomic<bool>      m_UpdatorWarning ATLAS_THREAD_SAFE; //!< warn only once, if unbiased track states can not be calculated
+      mutable std::atomic<bool>      m_pullWarning    ATLAS_THREAD_SAFE{}; //!< warn only once, if pull cannot be calculated
+      mutable std::atomic<bool>      m_UpdatorWarning ATLAS_THREAD_SAFE{}; //!< warn only once, if unbiased track states can not be calculated
       mutable std::atomic<int>       m_isUnbiased     ATLAS_THREAD_SAFE;  //!< if can get unbiased residuals
 
       mutable std::atomic<long> m_events_processed    ATLAS_THREAD_SAFE;//!< number of events processed

@@ -12,7 +12,6 @@
 // GaudiKernel
 #include "GaudiKernel/IIncidentSvc.h"
 // Trk
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
@@ -26,15 +25,7 @@ const Amg::Vector3D Reco::TrackToVertex::s_origin(0.,0.,0.);
 
 // constructor
 Reco::TrackToVertex::TrackToVertex(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_extrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"}
-{
-   declareInterface<ITrackToVertex>(this);
-   declareProperty("ForceBeamSpotZero", m_ForceBeamSpotZero);
-}
-
-// destructor
-Reco::TrackToVertex::~TrackToVertex()
+  base_class(t,n,p)
 {
 }
 

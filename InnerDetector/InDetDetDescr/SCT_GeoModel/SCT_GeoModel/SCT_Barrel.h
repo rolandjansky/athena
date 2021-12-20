@@ -36,17 +36,17 @@ private:
   void buildEMIShield(GeoFullPhysVol * parent) const;
 
   
-  int    m_numLayers;
+  int    m_numLayers = 0;
 
-  double m_innerRadius;
-  double m_outerRadius;
-  double m_length;
+  double m_innerRadius = 0.0;
+  double m_outerRadius = 0.0;
+  double m_length = 0.0;
 
-  double m_thermalShieldEndWallThickness;
+  double m_thermalShieldEndWallThickness = 0.0;
 
-  double m_zClearance;
+  double m_zClearance = 0.0;
 
-  bool   m_isOldGeometry;
+  bool   m_isOldGeometry = false;
 
 };
 

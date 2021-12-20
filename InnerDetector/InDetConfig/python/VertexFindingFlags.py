@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+import AthenaCommon.SystemOfUnits as Units
+
 def createSecVertexingFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
     flags = AthConfigFlags()        
@@ -119,3 +121,34 @@ def createEGammaPileUpSecVertexingFlags():
     flags.Finder.MinInitVtxR                = 0.0        # off
     return flags
 # TODO add more variants
+
+def createPriVertexingFlags():
+    from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+    flags= AthConfigFlags()
+
+    flags.addFlag("maxAbsEta", 9999.0)
+    flags.addFlag("maxD0", 4.0 * Units.mm)
+    flags.addFlag("maxNPixelHoles", 1)
+    flags.addFlag("maxSigmaD0", 5.0)
+    flags.addFlag("maxSigmaZ0SinTheta", 10.0)
+    flags.addFlag("maxZ0", 1000.0 * Units.mm)
+    flags.addFlag("maxZ0SinTheta", 1000.0)
+    flags.addFlag("minNInnermostLayerHits", 0)
+    flags.addFlag("minNPixelHits", 1)
+    flags.addFlag("minNSctHits", 4)
+    flags.addFlag("minNSiHits", 6)
+    flags.addFlag("minNTrtHits", 0)
+    flags.addFlag("minPt", 500.0 * Units.MeV)
+    flags.addFlag("maxZinterval", 3)
+    flags.addFlag("doMaxTracksCut", True)
+    flags.addFlag("MaxTracks", 3000)
+
+
+    return flags
+
+def createITkPriVertexingFlags():
+    flags = createPriVertexingFlags()
+
+    flags.minNTrtHits = 0
+
+    return flags

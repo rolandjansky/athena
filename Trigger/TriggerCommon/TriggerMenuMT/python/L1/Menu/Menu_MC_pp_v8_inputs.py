@@ -268,6 +268,11 @@ def defineInputsMenu():
                     TopoMenuDef( '0DR04-MU5VFab-CjJ20ab',                      outputbits = 8 ), #Bjet, TODO: not a primary
                     TopoMenuDef( '0INVM10C-3MU3Vab',                           outputbits = 9 ), #BLS
                     TopoMenuDef( '2INVM9-0DR15-C-MU5VFab-MU3Vab',              outputbits = 10), #BLS 
+                    TopoMenuDef( '7INVM11-25DR99-2MU3Vab',                     outputbits = 11), #BLS, test
+                    TopoMenuDef( '7INVM14-0DR25-MU5VFab-MU3Vab',               outputbits = 12), #BLS, test
+                    TopoMenuDef( '8INVM22-2MU3Vab',                            outputbits = 13), #BLS, test
+                    TopoMenuDef( '7INVM22-0DR12-MU5VFab-MU3Vab',               outputbits = 14), #BLS, test
+                    TopoMenuDef( '7INVM22-0DR20-MU5VFab-MU3Vab',               outputbits = 15), #BLS, test
                 ]
             },            
 
@@ -371,7 +376,10 @@ def defineInputsMenu():
                     TopoMenuDef( '0INVM70-27DPHI32-eEM12sm1-eEM12sm6',   outputbits = 3 ),
                     TopoMenuDef( 'ZEE-eEM20sm2',                         outputbits = 4 ), 
                     TopoMenuDef( '10DR99-2MU5VFab',                      outputbits = 5 ), #Msonly Narrow scan triggers
-                    TopoMenuDef( '0DR12C-2MU3Vab',                       outputbits = 6 ), #BLS
+                    TopoMenuDef( '0DR12C-2MU3Vab',                       outputbits = 6 ), # ATR-21566
+                    TopoMenuDef( '7INVM22-0DR20C-2MU3Vab',               outputbits = 7 ), # ATR-21566
+                    TopoMenuDef( '0DR12-2MU3Vab',                        outputbits = 8 ), # ATR-21566
+                    TopoMenuDef( '7INVM22-0DR20-2MU3Vab',                outputbits = 9 ), # ATR-21566
                 ]
             },
 

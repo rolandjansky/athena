@@ -32,8 +32,6 @@ TGCTimingManager::TGCTimingManager(const SG::ReadCondHandleKey<TGCTriggerData>& 
 
 void TGCTimingManager::startPatchPanel(TGCSector* sector, TGCDatabaseManager* db)
 {
-  int i,j;
-
 #ifdef TGCDEBUG
   std::cout << " Start PatchPanel " 
 	    << "or sector# " << sector->getSideId() << ":"
@@ -44,8 +42,8 @@ void TGCTimingManager::startPatchPanel(TGCSector* sector, TGCDatabaseManager* db
 
   // start BID by first clockIn, start OrLogic by second clockIn.
   for( int iClk=0; iClk<2; iClk+=1) {
-    for( j=0; j<TGCSector::NumberOfPatchPanelType; j+=1) {
-      for ( i=0; i<sector->getNumberOfPP(j); i+=1) {
+    for(int j=0; j<TGCSector::NumberOfPatchPanelType; j+=1) {
+      for (unsigned int i=0; i<sector->getNumberOfPP(j); i+=1) {
 	TGCPatchPanel *pp = sector->getPP(j,i);
 	if(pp) pp->clockIn(m_bunchCounter, db);
       }
@@ -55,8 +53,6 @@ void TGCTimingManager::startPatchPanel(TGCSector* sector, TGCDatabaseManager* db
 
 void TGCTimingManager::startSlaveBoard(TGCSector* sector)
 {
-  int i,j;
-
 #ifdef TGCDEBUG
   std::cout << " Start SlaveBoard " 
 	    << "for sector# " << sector->getSideId() << ":"
@@ -65,8 +61,8 @@ void TGCTimingManager::startSlaveBoard(TGCSector* sector)
 	    << std::endl;
 #endif
   
-  for( j=0; j<NumberOfSlaveBoardType; j+=1){
-    for( i=0; i<sector->getNumberOfSB(j); i+=1){
+  for(int j=0; j<NumberOfSlaveBoardType; j+=1){
+    for(unsigned int i=0; i<sector->getNumberOfSB(j); i+=1){
       TGCSlaveBoard* sb = sector->getSB(j,i);
       if(sb)sb->clockIn(m_bunchCounter);
     }
@@ -81,7 +77,7 @@ void TGCTimingManager::startHighPtBoard(TGCSector* sector)
   // perform coincidence by 2nd clockIn.
   for(int iClk=0; iClk<2; iClk+=1) {
     for(int j=0; j<TGCSector::NumberOfHighPtBoardType; j+=1) {
-      for(int i=0; i<sector->getNumberOfHPB(j); i+=1) {
+      for(unsigned int i=0; i<sector->getNumberOfHPB(j); i+=1) {
         sector->getHPB(j,i)->clockIn(m_bunchCounter);
       }
     }

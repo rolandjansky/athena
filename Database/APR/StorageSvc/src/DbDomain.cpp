@@ -29,7 +29,7 @@ DbDomain::DbDomain(DbDomainObj* dom)   {
   if ( dom ) setType(dom->type());
 }
 
-DbStatus DbDomain::open(const DbSession& sesH,const DbType& typ,DbAccessMode mod)  {
+DbStatus DbDomain::open(DbSession& sesH,const DbType& typ,DbAccessMode mod)  {
   if ( !isValid() )   {
     if ( sesH.isValid() )    {
       DbType db_typ(typ.majorType());
@@ -100,7 +100,7 @@ DbStatus DbDomain::remove(DbDatabaseObj* dbH) {
 }
 
 /// Check for the existence of a domain within a session
-bool DbDomain::exist(const DbSession& sH, int typ) const
+bool DbDomain::exist(DbSession& sH, int typ) const
 {  return sH.find(typ) != 0;                                            }
 
 DbSession DbDomain::containedIn() const 
@@ -126,7 +126,7 @@ DbDatabaseObj* DbDomain::find(const string& db_name)
 {  return isValid() ? ptr()->find(db_name) : 0;                         }
 
 /// Check if Database exists within the domain
-bool DbDomain::existsDbase(const string& nam) const
+bool DbDomain::existsDbase(const string& nam)
 {  return isValid() ? ptr()->existsDbase(nam) : false;                  }
 
 /// Access implementation internals

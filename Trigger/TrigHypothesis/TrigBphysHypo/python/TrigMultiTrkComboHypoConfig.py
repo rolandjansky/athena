@@ -20,7 +20,12 @@ trigMultiTrkComboHypoToolDict = {
     'bTau'       : { 'massRange' : (   0.,  2700.), 'chi2' : 50. },
     'b3mu'       : { 'massRange' : ( 100., 10000.), 'chi2' : 30., 'nTrk' : 3, 'charge' : 1 },
     'bBeeM6000'  : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
-    'b0dRAB12vtx20' : { 'massRange' : ( 0.,  999999999.),  'chi2' : 20., 'deltaRMax' : 1.2  }
+    'b0dRAB12vtx20'         : { 'massRange' : ( 0., 999999999.), 'chi2' : 20., 'deltaRMax' : 1.2 },
+    'b0dRAB207invmAB22vtx20': { 'massRange' : ( 7000., 22000.), 'chi2' : 20., 'deltaRMax' : 2.0 },
+    'b7invmAB9vtx20'   : { 'massRange' : (  7000.,  9000.), 'chi2' : 20., 'charge' : -1 },
+    'b11invmAB60vtx20' : { 'massRange' : ( 11000., 60000.), 'chi2' : 20., 'charge' : -1 },
+    'b11invmAB24vtx20' : { 'massRange' : ( 11000., 24000.), 'chi2' : 20., 'charge' : -1 },
+    'b24invmAB60vtx20' : { 'massRange' : ( 24000., 60000.), 'chi2' : 20., 'charge' : -1 }
 }
 
 
@@ -146,6 +151,25 @@ def BmutrkComboHypoCfg(name):
     hypo.totalCharge = [ 0 ]
     hypo.massRange = [ (2500., 4400.) ]
     hypo.trackPtThresholds = [ [ 10000., 3000. ] ]
+    return hypo
+
+def DrellYanComboHypoCfg(name):
+    log.debug('DrellYanComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
+        trigSequenceName = 'DrellYan',
+        trigLevel = 'EF',
+        outputTrigBphysCollection = 'HLT_DrellYan')
+    hypo.nTracks = [ 2 ]
+    hypo.totalCharge = [ -1 ]
+    hypo.massRange = [ (7000., 60000.) ]
+    hypo.trackPtThresholds = [ [ 100., 100. ] ]
+    hypo.chi2 = 20.
+    hypo.combineInputDecisionCollections = True
+    hypo.applyOverlapRemoval = False
+    hypo.useLeptonMomentum = True
     return hypo
 
 def TrigMultiTrkComboHypoToolFromDict(chainDict):

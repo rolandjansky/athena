@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TheLArHV2Ntuple.h
@@ -25,6 +25,7 @@
 #include "LArHV/EMECPresamplerHVManager.h"
 #include "LArHV/HECHVManager.h"
 #include "LArHV/FCALHVManager.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "TTree.h"
 
@@ -32,7 +33,6 @@ class CaloCell_ID;
 class LArOnlineID;
 class Identifier;
 class HWIdentifier;
-class CaloDetDescrManager;
 class CondAttrListCollection;
 
 class LArHV2Ntuple : public AthAlgorithm {
@@ -55,6 +55,10 @@ class LArHV2Ntuple : public AthAlgorithm {
     {this, "LArHVIdMapping", "LArHVIdMap", "SG key for HV ID mapping"};
   SG::ReadCondHandleKeyArray<CondAttrListCollection>  m_DCSFolderKeys
     { this, "DCSFolderNames", {"/LAR/DCS/HV/BARREl/I16", "/LAR/DCS/HV/BARREL/I8"}, "DCS folders with HV values"};
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
+      , "CaloDetDescrManager"
+      , "CaloDetDescrManager"
+      , "SG Key for CaloDetDescrManager in the Condition Store" };
 
 
   //---------------------------------------------------
@@ -85,7 +89,6 @@ class LArHV2Ntuple : public AthAlgorithm {
   // ID helper
   const CaloCell_ID* m_caloId; 
   const LArOnlineID* m_onlId;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   std::map<int, std::vector<HWIdentifier> >m_hvonlId_map;
 
   std::vector<int> GetHVLines (const EMBHVManager::EMBHVData& hvdata_EMB,
@@ -95,6 +98,7 @@ class LArHV2Ntuple : public AthAlgorithm {
                                const EMECPresamplerHVManager::EMECPresamplerHVData& hvdata_EMECPS,
                                const HECHVManager::HECHVData& hvdata_HEC,
                                const FCALHVManager::FCALHVData& hvdata_FCAL,
-                               const Identifier& id) ;
+                               const Identifier& id,
+			       const CaloDetDescrManager* calodetdescrmgr) ;
 };
 #endif

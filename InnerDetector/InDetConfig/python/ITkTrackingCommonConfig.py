@@ -6,8 +6,6 @@ from InDetConfig.ITkRecToolConfig             import makeName
 import AthenaCommon.SystemOfUnits               as   Units
 #######################################################################
 
-# @TODO retire once migration to TrackingGeometry conditions data is complete
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 def copyArgs(kwargs, copy_list):
     dict_copy={}
@@ -261,9 +259,9 @@ def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
             from  InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
-            ITkSummaryHelperTool = acc.getPrimaryAndMerge(ITkTrackSummaryHelperToolCfg(flags, **id_helper_args))
+            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags, **id_helper_args))
         else:
-            ITkSummaryHelperTool = acc.getPrimaryAndMerge(ITkSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
+            ITkSummaryHelperTool = acc.popToolsAndMerge(ITkSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperTool)
 
     #
@@ -294,7 +292,7 @@ def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits'
         id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
         kwargs.pop('ClusterSplitProbabilityName',None)
 
-        ITkSummaryHelperSharedHits = acc.getPrimaryAndMerge(ITkSummaryHelperSharedHitsCfg(flags, **id_helper_args))
+        ITkSummaryHelperSharedHits = acc.popToolsAndMerge(ITkSummaryHelperSharedHitsCfg(flags, **id_helper_args))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperSharedHits)
 
     kwargs.setdefault( "PixelToTPIDTool", None)
@@ -667,18 +665,13 @@ def ITkTrackFitterCfg(flags, name='ITkTrackFitter', **kwargs) :
 def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) :
     acc = ComponentAccumulator()
 
-    if 'TrackingGeometrySvc' not in kwargs :
-        if not use_tracking_geometry_cond_alg :
-            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-            acc.merge(TrackingGeometrySvcCfg(flags))
-            kwargs.setdefault("TrackingGeometrySvc", acc.getService('AtlasTrackingGeometrySvc') )
-
     if 'TrackingGeometryReadKey' not in kwargs :
-        if use_tracking_geometry_cond_alg :
-            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            acc.merge( TrackingGeometryCondAlgCfg(flags) )
-            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-            kwargs.setdefault("TrackingGeometryReadKey", 'AtlasTrackingGeometry')
+        from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
+                TrackingGeometryCondAlgCfg)
+        geom_cond = TrackingGeometryCondAlgCfg(flags)
+        geom_cond_key = geom_cond.getPrimary().TrackingGeometryWriteKey
+        acc.merge(acc)
+        kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, ITkPropagatorCfg, ITkMaterialEffectsUpdatorCfg
@@ -808,10 +801,12 @@ def ITkTrackSummaryToolNoHoleSearchCfg(flags, name='ITkTrackSummaryToolNoHoleSea
 
 def ITkROIInfoVecCondAlgCfg(flags, name='ITkROIInfoVecCondAlg', **kwargs) :
     acc = ComponentAccumulator()
-    kwargs.setdefault("InputEmClusterContainerName", 'ITkCaloClusterROIs')
+    from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
+    acc.merge(ITkCaloClusterROI_SelectorCfg(flags))
+    kwargs.setdefault("InputEmClusterContainerName", "ITkCaloClusterROIs")
     kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
     kwargs.setdefault("minPtEM", 5000.0) #in MeV
-    acc.setPrivateTools(CompFactory.ROIInfoVecAlg(name = name,**kwargs))
+    acc.addEventAlgo(CompFactory.ROIInfoVecAlg(name = name,**kwargs), primary=True)
     return acc
 
 def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
@@ -822,10 +817,9 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
 
     ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags))
 
-    from AthenaCommon.DetFlags  import DetFlags
-    have_calo_rois = flags.ITk.doBremRecovery and flags.ITk.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
-    if have_calo_rois :
-        alg = acc.popToolsAndMerge(ITkROIInfoVecCondAlgCfg(flags))
+    have_calo_rois = flags.ITk.doBremRecovery and flags.ITk.doCaloSeededBrem and flags.Detector.EnableCalo
+    if have_calo_rois:
+        alg = acc.getPrimaryAndMerge(ITkROIInfoVecCondAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
     kwargs.setdefault("SummaryTool", ITkTrackSummaryTool )
     kwargs.setdefault("DriftCircleCutTool", None )
@@ -883,10 +877,9 @@ def ITkNNScoringToolBaseCfg(flags, name='ITkNNScoringTool', **kwargs) :
     acc = ComponentAccumulator()
     the_name=makeName(name,kwargs)
 
-    from AthenaCommon.DetFlags  import DetFlags
-    have_calo_rois = flags.ITk.doBremRecovery and flags.ITk.doCaloSeededBrem and DetFlags.detdescr.Calo_allOn()
-    if have_calo_rois :
-        alg = acc.popToolsAndMerge(ITkROIInfoVecCondAlgCfg(flags))
+    have_calo_rois = flags.ITk.doBremRecovery and flags.ITk.doCaloSeededBrem and flags.Detector.EnableCalo
+    if have_calo_rois:
+        alg = acc.getPrimaryAndMerge(ITkROIInfoVecCondAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg

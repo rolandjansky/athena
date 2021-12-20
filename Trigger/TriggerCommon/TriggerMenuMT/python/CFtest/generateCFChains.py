@@ -15,7 +15,9 @@ def generateCFChains(opt):
     from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import ChainStore
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     from DecisionHandling.TestUtils import makeChain, makeChainStep
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+    ConfigFlags.lock()
     menu = GenerateMenuMT()
     menu.chainsInMenu = ChainStore()
     ##################################################################
@@ -23,9 +25,9 @@ def generateCFChains(opt):
     ##################################################################
     if opt.doEgammaSlice is True:
         from TriggerMenuMT.HLTMenuConfig.Electron.ElectronChainConfiguration import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
-        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
-        electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
-        precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
+        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, ConfigFlags )
+        electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, ConfigFlags )
+        precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, ConfigFlags )
         
         FastCaloStep      = makeChainStep("ElectronFastCaloStep", [fastCaloSeq])
         FastElectronStep  = makeChainStep("ElectronFastTrackStep", [electronSeq])
@@ -40,9 +42,9 @@ def generateCFChains(opt):
         menu.chainsInMenu['Egamma'] += electronChains
 
         from TriggerMenuMT.HLTMenuConfig.Photon.PhotonChainConfiguration import fastPhotonCaloSequenceCfg, fastPhotonSequenceCfg, precisionPhotonCaloSequenceCfg
-        fastCaloSeq            = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, None )
-        fastPhotonSeq          = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, None )
-        precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, None)
+        fastCaloSeq            = RecoFragmentsPool.retrieve( fastPhotonCaloSequenceCfg, ConfigFlags )
+        fastPhotonSeq          = RecoFragmentsPool.retrieve( fastPhotonSequenceCfg, ConfigFlags )
+        precisionCaloPhotonSeq = RecoFragmentsPool.retrieve( precisionPhotonCaloSequenceCfg, ConfigFlags)
         
         FastCaloStep            = makeChainStep("PhotonFastCaloStep", [fastCaloSeq])
         fastPhotonStep          = makeChainStep("PhotonStep2", [fastPhotonSeq])
@@ -112,7 +114,6 @@ def generateCFChains(opt):
     ##################################################################
 
     from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import jetRecoDictFromString
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     def jetCaloHypoMenuSequenceFromString(jet_def_str):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
@@ -151,16 +152,16 @@ def generateCFChains(opt):
         step_a4_pf_em_ftf = makeChainStep("Step_jet_a4_pf_em_ftf", [jetSeq_a4_pf_em_ftf])
 
         menu.chainsInMenu['Jet'] = [
-            makeChain(name='HLT_j45_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-            makeChain(name='HLT_j85_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-            makeChain(name='HLT_j420_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-            makeChain(name='HLT_j260_320eta490_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-            makeChain(name='HLT_j460_a10_lcw_subjes_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a10_tc_lcw_subjes]  ),
-            makeChain(name='HLT_j460_a10r_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a10r]  ),
-            makeChain(name='HLT_j460_a10t_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a10t]  ),
-            makeChain(name='HLT_3j200_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-            makeChain(name='HLT_5j70_0eta240_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported)
-            makeChain(name='HLT_j45_pf_subresjesgscIS_ftf_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em_presel,step_a4_pf_em_ftf]  ),
+            makeChain(name='HLT_j45_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em]  ),
+            makeChain(name='HLT_j85_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em]  ),
+            makeChain(name='HLT_j420_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em]  ),
+            makeChain(name='HLT_j260_320eta490_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em]  ),
+            makeChain(name='HLT_j460_a10_lcw_subjes_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a10_tc_lcw_subjes]  ),
+            makeChain(name='HLT_j460_a10r_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a10r]  ),
+            makeChain(name='HLT_j460_a10t_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a10t]  ),
+            makeChain(name='HLT_3j200_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em]  ),
+            makeChain(name='HLT_5j70_0eta240_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported)
+            makeChain(name='HLT_j45_pf_subresjesgscIS_ftf_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step_a4_tc_em_presel,step_a4_pf_em_ftf]  ),
             ]
 
 
@@ -176,12 +177,11 @@ def generateCFChains(opt):
         
         step1 = makeChainStep("Step_jet_a4_tc_em_presel", [jetSeq_a4_tc_em_presel])
         step2 = makeChainStep("Step_jet_a4_tc_em_gsc_ftf", [jetSeq_a4_tc_em_gsc_ftf])
-        step3 = makeChainStep("Step3_bjet", [getBJetSequence(jc_name)])
+        step3 = makeChainStep("Step3_bjet", [getBJetSequence(ConfigFlags, jc_name)])
         
         menu.chainsInMenu['Bjet']  = [
-            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] )
+            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_L1J20', L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
+            makeChain(name='HLT_j45_ftf_subjesgscIS_bdl1r70_L1J20',  L1Thresholds=["FSNOSEED"], ChainSteps=[step1,step2,step3] ),
             ]
 
    
@@ -227,10 +227,10 @@ def generateCFChains(opt):
         comboStep_cell_clusterpufit  = makeChainStep("Step1_combo_cell_clusterpufit", metCellSeqs + metClusterPufitSeqs, multiplicity=[1,1])
 
         menu.chainsInMenu['MET'] = [
-            makeChain(name="HLT_xe65_L1XE50",         L1Thresholds=["XE50"], ChainSteps=[metCellStep]),
-            makeChain(name="HLT_xe30_L1XE30",         L1Thresholds=["XE30"], ChainSteps=[metCellStep]),
-            makeChain(name="HLT_xe30_tcpufit_L1XE30", L1Thresholds=["XE30"], ChainSteps=[metClusterPufitStep]),
-            makeChain(name='HLT_xe30_cell_xe30_tcpufit_L1XE30',  L1Thresholds=["XE30","XE30"], ChainSteps=[comboStep_cell_clusterpufit ]) 
+            makeChain(name="HLT_xe65_L1XE50",         L1Thresholds=["FSNOSEED"], ChainSteps=[metCellStep]),
+            makeChain(name="HLT_xe30_L1XE30",         L1Thresholds=["FSNOSEED"], ChainSteps=[metCellStep]),
+            makeChain(name="HLT_xe30_tcpufit_L1XE30", L1Thresholds=["FSNOSEED"], ChainSteps=[metClusterPufitStep]),
+            makeChain(name='HLT_xe30_cell_xe30_tcpufit_L1XE30',  L1Thresholds=["FSNOSEED","FSNOSEED"], ChainSteps=[comboStep_cell_clusterpufit ]) 
             ]
 
     ##################################################################
@@ -259,7 +259,7 @@ def generateCFChains(opt):
     ##################################################################
     if opt.doCombinedSlice is True:
         from TriggerMenuMT.HLTMenuConfig.Electron.ElectronChainConfiguration import electronFastCaloCfg
-        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+        fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, ConfigFlags )
         
         from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuSequences import muFastSequence
         

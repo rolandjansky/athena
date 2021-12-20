@@ -83,6 +83,18 @@ if "__main__" == __name__:
 
   cfg.merge(alg)
 
+  tgSvc = cfg.getService("ActsTrackingGeometrySvc")
+
+  # Service will have removed TRT and Calo
+  # We want them enabled for testing
+  tgSvc.BuildSubDetectors += [
+    "TRT",
+    "Calo"
+  ]
+  # needed to construct the calo geometry in ACTS
+  tgSvc.CaloVolumeBuilder = CompFactory.ActsCaloTrackingVolumeBuilder()
+
+
   cfg.printConfig()
 
   log.info("CONFIG DONE")

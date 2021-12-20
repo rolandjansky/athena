@@ -143,6 +143,7 @@ int JetFinder::_find(const PseudoJetContainer& pjContainer,
     }
     pvrp = new VariableRPlugin(m_massscale, m_minrad, m_jetrad, vct, false);
     jetdef = fastjet::JetDefinition(pvrp);
+    jetdef.delete_plugin_when_unused ();
   }
 #else
   if ( isVariableR() ) {

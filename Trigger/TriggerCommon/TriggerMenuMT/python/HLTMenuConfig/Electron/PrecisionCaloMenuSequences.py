@@ -15,11 +15,11 @@ def tag(ion):
     return 'precision' + ('HI' if ion is True else '') + 'CaloElectron'
 
 
-def precisionCaloSequence(ConfigFlags, ion=False, variant=''):
+def precisionCaloSequence(flags, ion=False, variant=''):
     """ Creates PrecisionCalo sequence """
 
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-    TrigEgammaKeys = getTrigEgammaKeys(variant)
+    TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
 
     # EV creator
     InViewRoIs="PrecisionCaloRoIs" + variant
@@ -39,7 +39,7 @@ def precisionCaloSequence(ConfigFlags, ion=False, variant=''):
 
     # reco sequence
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionCaloRecoSequences import precisionCaloRecoSequence
-    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(None, InViewRoIs, ion, variant)
+    (precisionCaloInViewSequence, sequenceOut) = precisionCaloRecoSequence(flags, InViewRoIs, ion, variant)
         
     precisionCaloViewsMaker.ViewNodeName = precisionCaloInViewSequence.name()
 

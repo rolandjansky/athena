@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( xAODRootAccess )
@@ -62,7 +62,7 @@ macro( _add_test name )
       LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore
       xAODRootAccess
       PROPERTIES TIMEOUT 600
-      LOG_IGNORE_PATTERN "Opened file:|find dictionary for type|is already in|[0-9]+ bytes" )
+      POST_EXEC_SCRIPT nopost.sh )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
@@ -82,7 +82,8 @@ _add_test( ut_xaodrootaccess_tfilemerger_test )
 _add_test( ut_xaodrootaccess_tstore_test )
 atlas_add_test( ut_xaodrootaccess_tpystore_test
    SCRIPT python
-   ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_tpystore_test.py )
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_tpystore_test.py
+   POST_EXEC_SCRIPT nopost.sh )
 
 if( XAOD_ANALYSIS )
    _add_test( ut_xaodrootaccess_tevent_test )
@@ -91,10 +92,12 @@ if( XAOD_ANALYSIS )
    atlas_add_test( ut_xaodrootaccess_tpyevent_test
       SCRIPT python
       ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_tpyevent_test.py
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
    atlas_add_test( ut_xaodrootaccess_transtree2_test
       SCRIPT python
       ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_transtree2_test.py
+      POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 600 )
 endif()
 

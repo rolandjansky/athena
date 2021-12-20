@@ -16,10 +16,6 @@ def _fastCaloSeq(flags):
     selAcc=SelectionCA('FastCaloElectron')
     selAcc.mergeReco(l2CaloRecoCfg(flags))
 
-     # this alg needs EventInfo decorated with the  pileup info
-    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-    selAcc.merge(LumiBlockMuWriterCfg(flags))
-
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoAlgCfg
     l2CaloHypo = TrigEgammaFastCaloHypoAlgCfg(flags,
                                               name='ElectronEgammaFastCaloHypo',
@@ -139,7 +135,7 @@ def _precisionTracking(flags, chainDict):
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
-def _precisionElectronSeq(flags, doIDperf=False):
+def _precisionElectronSeq(flags):
     name='PrecionElectron'
     selAcc=SelectionCA(name)
     recoAcc = InViewRecoCA(name, RequireParentView=True)
@@ -266,7 +262,7 @@ def _precisionElectronSeq(flags, doIDperf=False):
 
     selAcc.mergeReco(recoAcc)
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict, TrigEgammaPrecisionElectronHypoAlgCfg
-    selAcc.mergeHypo( TrigEgammaPrecisionElectronHypoAlgCfg(flags, 'TrigEgammaHypoAlg_noGSF', TrigEgammaKeys.precisionElectronContainer, doIDperf=doIDperf ) )
+    selAcc.mergeHypo( TrigEgammaPrecisionElectronHypoAlgCfg(flags, 'TrigEgammaHypoAlg_noGSF', TrigEgammaKeys.precisionElectronContainer ) )
     menuSequence = MenuSequenceCA(selAcc,
                                    HypoToolGen=TrigEgammaPrecisionElectronHypoToolFromDict)
     return (selAcc, menuSequence)

@@ -313,7 +313,7 @@ if primDPDAlignTrigMu.ApplySkimming():
 #AlignmentTriggerMuonStream.Stream.TakeItemsFromInput = True
 from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 
-trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+trackParticleAuxExclusions="-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 if primDPDAlignTrigMu.doAlignmentFormat():
 		trackParticleAuxExclusions=""

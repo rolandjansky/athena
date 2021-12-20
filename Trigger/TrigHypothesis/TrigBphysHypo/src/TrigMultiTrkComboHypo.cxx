@@ -264,12 +264,32 @@ StatusCode TrigMultiTrkComboHypo::mergeLeptonsFromDecisions(TrigMultiTrkState<T>
   auto& leptons = state.leptons();
   leptons.clear();
 
+  std::vector<const Decision*> previousDecisions(state.previousDecisions().begin(), state.previousDecisions().end());
+  if (m_combineInputDecisionCollections && decisionsInput().size() > 1) {
+    for (size_t k = 1; k < decisionsInput().size(); ++k) {
+      auto previousDecisionsHandle = SG::makeHandle(decisionsInput().at(k), state.context());
+      CHECK( previousDecisionsHandle.isValid() );
+      ATH_MSG_DEBUG( "Adding " << previousDecisionsHandle->size() << " decisions from " << decisionsInput().at(k).key() );
+      for (const Decision* decision : *previousDecisionsHandle) {
+        previousDecisions.push_back(decision);
+      }
+    }
+  }
+
   // all muons/electrons from views are already connected with previous decisions by TrigMuonEFHypoAlg
-  for (const Decision* decision : state.previousDecisions()) {
+  for (const Decision* decision : previousDecisions) {
     if (!TrigCompositeUtils::isAnyIDPassing(decision, (m_doElectrons ? m_resolvedElectronIDs : m_allowedIDs))) continue;
 
-    ATH_CHECK( decision->hasObjectLink(TrigCompositeUtils::featureString(), ClassID_traits<T>::ID()) );
-    auto leptonEL = decision->objectLink<T>(TrigCompositeUtils::featureString());
+    ElementLink<T> leptonEL;
+    if (decision->hasObjectLink(TrigCompositeUtils::featureString(), ClassID_traits<T>::ID())) {
+      leptonEL = decision->objectLink<T>(TrigCompositeUtils::featureString());
+    }
+    else {
+      auto leptonLinkInfo = TrigCompositeUtils::findLink<T>(decision, TrigCompositeUtils::featureString(), true);
+      ATH_CHECK( leptonLinkInfo.isValid() );
+      leptonEL = leptonLinkInfo.link;
+    }
+
     const auto lepton = *leptonEL;
     if constexpr(std::is_same<T, xAOD::MuonContainer>::value) {
       if (!lepton->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle)) continue;
@@ -595,8 +615,14 @@ StatusCode TrigMultiTrkComboHypo::findMultiLeptonCandidates(TrigMultiTrkState<T>
           trackEL = leg->trackParticleLink();
         }
         tracklist[j] = trackEL;
-        p[j] = (*trackEL)->genvecP4();
-        p[j].SetM(m_trkMass[iTrk][j]);
+        if (m_useLeptonMomentum) {
+          p[j] = leg->genvecP4();
+          p[j].SetM(0.);  // to keep consistency with TrigComboHypoTool::compute()
+        }
+        else {
+          p[j] = (*trackEL)->genvecP4();
+          p[j].SetM(m_trkMass[iTrk][j]);
+        }
         if (p[j].Pt() < m_trkPt[iTrk][j]) {
           isValidCombination = false;
           break;
@@ -625,6 +651,7 @@ StatusCode TrigMultiTrkComboHypo::findMultiLeptonCandidates(TrigMultiTrkState<T>
       auto vertex = fit(tracklist, m_trkMass[iTrk], *fitterState);
       if (!vertex) continue;
       xAOD::TrigBphys* trigBphys = makeTrigBPhys(*vertex, m_trkMass[iTrk], state.beamSpotPosition(), *fitterState);
+      if (m_useLeptonMomentum) trigBphys->setMass(mass);
       state.addTrigBphysObject(trigBphys, leptonIndices);
 
       mon_nBPhysObject++;
@@ -789,7 +816,7 @@ StatusCode TrigMultiTrkComboHypo::copyDecisionObjects(TrigMultiTrkStateBase& sta
     }
 
     // copy additional decisions for combined chains, as 'HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_mu4_L1BPH-0M9-EM7-EM5_MU6'
-    ATH_CHECK( copyAdditionalDecisionObjects(state) );
+    if (!m_combineInputDecisionCollections) ATH_CHECK( copyAdditionalDecisionObjects(state) );
   }
   return StatusCode::SUCCESS;
 }

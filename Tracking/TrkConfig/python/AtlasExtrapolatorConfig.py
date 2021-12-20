@@ -216,7 +216,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
         'MaterialEffectsUpdators', None) is not None and len(kwargs.get('MaterialEffectsUpdators', None)) > 0 else None
 
     if 'Navigator' not in kwargs:
-        AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags))
+        AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags, name="InDetNavigator"))
         kwargs.setdefault("Navigator", AtlasNavigator)
 
     sub_propagators = []

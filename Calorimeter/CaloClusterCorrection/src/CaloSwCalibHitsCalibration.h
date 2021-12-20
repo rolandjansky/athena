@@ -68,7 +68,6 @@ public:
   Constant<bool>  m_fix_v6_pathologies     { this, "fix_v6_pathologies", "" };
   Constant<bool>  m_updateSamplingEnergies { this, "update_sampling_energies", true, "" };
 
-  CaloClusterCorr::CaloSwCalibHitsShowerDepth m_showerDepth;
 };
 
 #endif

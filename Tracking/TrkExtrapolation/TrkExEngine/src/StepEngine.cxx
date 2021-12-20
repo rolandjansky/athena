@@ -299,8 +299,7 @@ void Trk::StepEngine::evaluateDistance(Trk::TargetSurface& tt, const Amg::Vector
        }
     }
 
-    return;
-}  
+    }  
 
 // handle extrapolation step
 Trk::ExtrapolationCode Trk::StepEngine::handleIntersection(ExCellCharged& ecCharged, 

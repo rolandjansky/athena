@@ -11,7 +11,8 @@ find_package( GTest )
 atlas_add_test( MdtOverlay_test
                 SOURCES src/*.cxx test/MdtOverlay_test.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES GaudiKernel TestTools MuonDigitContainer MuonOverlayBase StoreGateLib MuonIdHelpersLib ${GTEST_LIBRARIES} )
+                LINK_LIBRARIES GaudiKernel TestTools MuonDigitContainer MuonOverlayBase StoreGateLib MuonIdHelpersLib ${GTEST_LIBRARIES}
+                POST_EXEC_SCRIPT nopost.sh )
 
 # Component(s) in the package:
 atlas_add_component( MdtOverlay

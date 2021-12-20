@@ -190,8 +190,6 @@ def TrigTauRecMergedOnlyMVACfg(flags):
     alg.RoIInputKey = 'UpdatedCaloRoI'
     acc.addEventAlgo(alg)
 
-    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-    acc.merge(LumiBlockMuWriterCfg(flags))
     return acc
 
 

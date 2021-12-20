@@ -14,4 +14,3 @@ Reco_tf.py --athenaopts="--threads=8" --AMI=q122 --DataRunNumber 00191920 --outp
 
 RES=$?
 echo "art-result: $RES Reco"
-return $RES

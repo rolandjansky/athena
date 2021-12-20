@@ -35,7 +35,10 @@ def jetRecoDictForMET(**recoDict):
         jrd["clusterCalib"] = "em"
     # Interpret jet calibration
     if jrd["jetCalib"] == "default":
-        jrd["jetCalib"] = interpretJetCalibDefault(jrd)
+        if recoDict["EFrecoAlg"] == "mhtpufit":
+            jrd["jetCalib"] = "subjesgscIS"
+        else:
+            jrd["jetCalib"] = interpretJetCalibDefault(jrd)
     return jrd
 
 
@@ -54,7 +57,7 @@ class CellInputConfig(AlgInputConfig):
         from ..CommonSequences.CaloSequences import cellRecoSequence
 
         cellSeq, cellName = RecoFragmentsPool.retrieve(
-            cellRecoSequence, flags=None, RoIs=RoIs
+            cellRecoSequence, flags=ConfigFlags, RoIs=RoIs
         )
         return cellSeq, {"Cells": cellName}
 
@@ -88,11 +91,11 @@ class ClusterInputConfig(AlgInputConfig):
         calib = recoDict["calib"]
         if calib == "em":
             tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                caloClusterRecoSequence, flags=None, RoIs=RoIs
+                caloClusterRecoSequence, flags=ConfigFlags, RoIs=RoIs
             )
         elif calib == "lcw":
             tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                LCCaloClusterRecoSequence, flags=None, RoIs=RoIs
+                LCCaloClusterRecoSequence, flags=ConfigFlags, RoIs=RoIs
             )
         else:
             raise ValueError(f"Invalid value for cluster calibration: {calib}")
@@ -166,7 +169,7 @@ class EMClusterInputConfig(AlgInputConfig):
         from ..CommonSequences.CaloSequences import caloClusterRecoSequence
 
         tcSeq, clusterName = RecoFragmentsPool.retrieve(
-            caloClusterRecoSequence, flags=None, RoIs=RoIs
+            caloClusterRecoSequence, flags=ConfigFlags, RoIs=RoIs
         )
         return [tcSeq], {"EMClusters": clusterName}
 
@@ -196,7 +199,7 @@ class TrackingInputConfig(AlgInputConfig):
         from ..Jet.JetTrackingConfig import JetFSTrackingSequence
 
         trkSeq, trkColls = RecoFragmentsPool.retrieve(
-            JetFSTrackingSequence, flags=None, trkopt="ftf", RoIs=RoIs
+            JetFSTrackingSequence, flags=ConfigFlags, trkopt="ftf", RoIs=RoIs
         )
         return [trkSeq], trkColls
 
@@ -229,7 +232,7 @@ class PFOInputConfig(AlgInputConfig):
 
         pfSeq, pfoPrefix = RecoFragmentsPool.retrieve(
             PFHLTSequence,
-            flags=None,
+            flags=ConfigFlags,
             clustersin=inputs[self._input_clusters(recoDict)],
             tracktype="ftf",
             cellsin=inputs["Cells"],
@@ -308,24 +311,25 @@ class MergedPFOInputConfig(AlgInputConfig):
     def __init__(self):
         super().__init__(produces=["MergedPFOs", "PFOPUCategory"])
 
-    def dependencies(self, recoDict):
+    @staticmethod
+    def dependencies(recoDict):
         return ["PFOPrefix", "cPFOs", "nPFOs"]
 
-    def create_sequence(self, inputs, RoIs, recoDict):
+    @staticmethod
+    def getPFOPrepAlg(flags, **inputs):
+        '''Alg generator for RecoFragmentsPool. Need to unpack dict as not hashable'''
         from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__PFOPrepAlg
+        return HLT__MET__PFOPrepAlg(
+            f"{inputs['PFOPrefix']}METTrigPFOPrepAlg",
+            InputNeutralKey=inputs["nPFOs"],
+            InputChargedKey=inputs["cPFOs"],
+            OutputKey=f"{inputs['PFOPrefix']}METTrigCombinedParticleFlowObjects",
+            OutputCategoryKey="PUClassification",
+        )
 
-        # Alg generator for RecoFragmentsPool
-        # Need to unpack dict as not hashable
-        def getPFOPrepAlg(_, **inputs):
-            return HLT__MET__PFOPrepAlg(
-                f"{inputs['PFOPrefix']}METTrigPFOPrepAlg",
-                InputNeutralKey=inputs["nPFOs"],
-                InputChargedKey=inputs["cPFOs"],
-                OutputKey=f"{inputs['PFOPrefix']}METTrigCombinedParticleFlowObjects",
-                OutputCategoryKey="PUClassification",
-            )
-
-        prepAlg = RecoFragmentsPool.retrieve(getPFOPrepAlg, None, **inputs)
+    @staticmethod
+    def create_sequence(inputs, RoIs, recoDict):
+        prepAlg = RecoFragmentsPool.retrieve(MergedPFOInputConfig.getPFOPrepAlg, ConfigFlags, **inputs)
         return (
             [prepAlg],
             {
@@ -334,7 +338,8 @@ class MergedPFOInputConfig(AlgInputConfig):
             },
         )
 
-    def create_accumulator(self, flags, inputs, RoIs, recoDict):
+    @staticmethod
+    def create_accumulator(flags, inputs, RoIs, recoDict):
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -363,74 +368,72 @@ class CVFClusterInputConfig(AlgInputConfig):
     def __init__(self):
         super().__init__(produces=["CVF", "CVFPUCategory"])
 
-    def dependencies(self, recoDict):
+    @staticmethod
+    def dependencies(recoDict):
         return ["Clusters", "Tracks", "Vertices"]
 
-    def create_sequence(self, inputs, RoIs, recoDict):
-        from TrigEFMissingET.TrigEFMissingETConf import (
-            HLT__MET__CVFAlg,
-            HLT__MET__CVFPrepAlg,
-            ApproximateTrackToLayerTool,
-        )
-        from InDetTrackSelectionTool.InDetTrackSelectionToolConf import (
-            InDet__InDetTrackSelectionTool,
-        )
+    @staticmethod
+    def getCVFAlg(flags, inputClusters, inputTracks, inputVertices, trkopt, **recoDict):
+        '''Alg generator for RecoFragmentsPool. Need to unpack dict as not hashable'''
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__CVFAlg, ApproximateTrackToLayerTool
+        from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
         from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+        return HLT__MET__CVFAlg(
+            f"{recoDict['calib']}{trkopt}ClusterCVFAlg",
+            InputClusterKey=inputClusters,
+            InputTrackKey=inputTracks,
+            InputVertexKey=inputVertices,
+            OutputCVFKey="CVF",
+            TrackSelectionTool=InDet__InDetTrackSelectionTool(
+                CutLevel="TightPrimary"
+            ),
+            # Note: Currently (March 2021), this is configured to not use the TTVA decorations
+            # provided by tracking CP. This will work with the current configured WP.
+            #
+            # If you need the decorations, you need to make sure to pass
+            # this method the correct alg sequence to add to, since it needs
+            # to schedule an algorithm to provide the information.
+            TVATool=getTTVAToolForReco(
+                WorkingPoint="Custom",
+                d0_cut=2.0,
+                dzSinTheta_cut=2.0,
+                addDecoAlg=False,
+                TrackContName=inputTracks,
+                VertexContName=inputVertices,
+            ),
+            ExtensionTool=ApproximateTrackToLayerTool(),
+        )
 
+    @staticmethod
+    def getCVFPrepAlg(flags, inputClusters, inputCVFKey, trkopt, **recoDict):
+        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__CVFPrepAlg
+        return HLT__MET__CVFPrepAlg(
+            f"{recoDict['calib']}{trkopt}ClusterCVFPrepAlg",
+            InputClusterKey=inputClusters,
+            InputCVFKey=inputCVFKey,
+            OutputCategoryKey="PUClassification",
+        )
+
+    @staticmethod
+    def create_sequence(inputs, RoIs, recoDict):
         trkopt = "ftf"
-        # Alg generator for RecoFragmentsPool
-        # Need to unpack dict as not hashable
-        # We can only use ** once, so manually
-        # extract the inputs
-        def getCVFAlg(_, inputClusters, inputTracks, inputVertices, **recoDict):
-            return HLT__MET__CVFAlg(
-                f"{recoDict['calib']}{trkopt}ClusterCVFAlg",
-                InputClusterKey=inputClusters,
-                InputTrackKey=inputTracks,
-                InputVertexKey=inputVertices,
-                OutputCVFKey="CVF",
-                TrackSelectionTool=InDet__InDetTrackSelectionTool(
-                    CutLevel="TightPrimary"
-                ),
-                # Note: Currently (March 2021), this is configured to not use the TTVA decorations
-                # provided by tracking CP. This will work with the current configured WP.
-                #
-                # If you need the decorations, you need to make sure to pass
-                # this method the correct alg sequence to add to, since it needs
-                # to schedule an algorithm to provide the information.
-                TVATool=getTTVAToolForReco(
-                    WorkingPoint="Custom",
-                    d0_cut=2.0,
-                    dzSinTheta_cut=2.0,
-                    addDecoAlg=False,
-                    TrackContName=inputTracks,
-                    VertexContName=inputVertices,
-                ),
-                ExtensionTool=ApproximateTrackToLayerTool(),
-            )
 
         cvfAlg = RecoFragmentsPool.retrieve(
-            getCVFAlg,
-            None,
+            CVFClusterInputConfig.getCVFAlg,
+            ConfigFlags,
             inputClusters=inputs["Clusters"],
             inputTracks=inputs["Tracks"],
             inputVertices=inputs["Vertices"],
+            trkopt=trkopt,
             **recoDict,
         )
 
-        def getCVFPrepAlg(_, inputClusters, inputCVFKey, **recoDict):
-            return HLT__MET__CVFPrepAlg(
-                f"{recoDict['calib']}{trkopt}ClusterCVFPrepAlg",
-                InputClusterKey=inputClusters,
-                InputCVFKey=inputCVFKey,
-                OutputCategoryKey="PUClassification",
-            )
-
         prepAlg = RecoFragmentsPool.retrieve(
-            getCVFPrepAlg,
-            None,
+            CVFClusterInputConfig.getCVFPrepAlg,
+            ConfigFlags,
             inputClusters=inputs["Clusters"],
             inputCVFKey=cvfAlg.OutputCVFKey,
+            trkopt=trkopt,
             **recoDict,
         )
         return (

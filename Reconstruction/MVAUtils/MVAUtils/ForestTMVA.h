@@ -65,7 +65,7 @@ namespace MVAUtils
     public:
 
         using ForestWeighted<NodeTMVA>::newTree;
-        ForestTMVA(TTree* tree);
+        explicit ForestTMVA(TTree* tree);
         ForestTMVA() = default;
         ForestTMVA (const ForestTMVA&) = default;
         ForestTMVA& operator=(const ForestTMVA&)=default;

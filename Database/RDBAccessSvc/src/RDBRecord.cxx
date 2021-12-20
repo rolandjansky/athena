@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,7 +25,7 @@
 #include <string>
 
 RDBRecord::RDBRecord(const coral::AttributeList& attList
-		     , std::string tableName)
+		     , const std::string& tableName)
   : m_values(0)
   , m_tableName(tableName)
 {
@@ -51,7 +51,8 @@ bool RDBRecord::isFieldNull(const std::string& fieldName) const
     throw std::runtime_error( "Wrong name for the field " + m_tableName+"."+fieldName);
   }
 
-  return (*m_values)[it->second].isNull();
+  const coral::AttributeList& values = *m_values;
+  return values[it->second].isNull();
 }
 
 int RDBRecord::getInt(const std::string& fieldName) const
@@ -61,11 +62,12 @@ int RDBRecord::getInt(const std::string& fieldName) const
     throw std::runtime_error( "Wrong name for the field " + m_tableName+"."+fieldName);
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(int)) {
-    return (*m_values)[it->second].data<int>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(int)) {
+    return values[it->second].data<int>();
   }
-  else if((*m_values)[it->second].specification().type()==typeid(long)) {
-    return (int)(*m_values)[it->second].data<long>();
+  else if(values[it->second].specification().type()==typeid(long)) {
+    return (int)values[it->second].data<long>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of integer type\n");
@@ -79,14 +81,15 @@ long RDBRecord::getLong(const std::string& fieldName) const
     throw std::runtime_error( "Wrong name for the field " + m_tableName+"."+fieldName);
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(long)) {
-    return (*m_values)[it->second].data<long>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(long)) {
+    return values[it->second].data<long>();
   }
-  else if((*m_values)[it->second].specification().type()==typeid(int)) {
-    return (long)(*m_values)[it->second].data<int>();
+  else if(values[it->second].specification().type()==typeid(int)) {
+    return (long)values[it->second].data<int>();
   }
-  else if((*m_values)[it->second].specification().type()==typeid(long long)) {
-    return (long)(*m_values)[it->second].data<long long>();
+  else if(values[it->second].specification().type()==typeid(long long)) {
+    return (long)values[it->second].data<long long>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of long type");
@@ -100,8 +103,9 @@ double RDBRecord::getDouble(const std::string& fieldName) const
     throw std::runtime_error( "Wrong name for the field " + m_tableName+"."+fieldName);
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(double)) {
-    return (*m_values)[it->second].data<double>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(double)) {
+    return values[it->second].data<double>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of double type");
@@ -115,8 +119,9 @@ float RDBRecord::getFloat(const std::string& fieldName) const
     throw std::runtime_error( "Wrong name for the field " + m_tableName+"."+fieldName);
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(float)) {
-    return (*m_values)[it->second].data<float>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(float)) {
+    return values[it->second].data<float>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of float type");
@@ -130,8 +135,9 @@ std::string RDBRecord::getString(const std::string& fieldName) const
     throw std::runtime_error( "Wrong name for the field " + m_tableName+"."+fieldName);
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(std::string)) {
-    return (*m_values)[it->second].data<std::string>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(std::string)) {
+    return values[it->second].data<std::string>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of string type");
@@ -145,11 +151,12 @@ int RDBRecord::getInt(const std::string& fieldName, unsigned int index) const
     throw std::runtime_error("Wrong name for the array field " + m_tableName+"."+fieldName + " or index=" + std::to_string(index) + " is out of range");
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(int)) {
-    return (*m_values)[it->second].data<int>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(int)) {
+    return values[it->second].data<int>();
   }
-  else if((*m_values)[it->second].specification().type()==typeid(long)) {
-    return (int)(*m_values)[it->second].data<long>();
+  else if(values[it->second].specification().type()==typeid(long)) {
+    return (int)values[it->second].data<long>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of integer type\n");
@@ -163,11 +170,12 @@ long RDBRecord::getLong(const std::string& fieldName, unsigned int index) const
     throw std::runtime_error("Wrong name for the array field " + m_tableName+"."+fieldName + " or index=" + std::to_string(index) + " is out of range");
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(long)) {
-    return (*m_values)[it->second].data<long>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(long)) {
+    return values[it->second].data<long>();
   }
-  else if((*m_values)[it->second].specification().type()==typeid(int)) {
-    return (long)(*m_values)[it->second].data<int>();
+  else if(values[it->second].specification().type()==typeid(int)) {
+    return (long)values[it->second].data<int>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of long type");
@@ -181,8 +189,9 @@ double RDBRecord::getDouble(const std::string& fieldName, unsigned int index) co
     throw std::runtime_error("Wrong name for the array field " + m_tableName+"."+fieldName + " or index=" + std::to_string(index) + " is out of range");
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(double)) {
-    return (*m_values)[it->second].data<double>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(double)) {
+    return values[it->second].data<double>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of double type");
@@ -196,8 +205,9 @@ float RDBRecord::getFloat(const std::string& fieldName, unsigned int index) cons
     throw std::runtime_error("Wrong name for the array field " + m_tableName+"."+fieldName + " or index=" + std::to_string(index) + " is out of range");
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(float)) {
-    return (*m_values)[it->second].data<float>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(float)) {
+    return values[it->second].data<float>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of float type");
@@ -211,8 +221,9 @@ std::string RDBRecord::getString(const std::string& fieldName, unsigned int inde
     throw std::runtime_error("Wrong name for the array field " + m_tableName+"."+fieldName + " or index=" + std::to_string(index) + " is out of range");
   }
 
-  if((*m_values)[it->second].specification().type()==typeid(std::string)) {
-    return (*m_values)[it->second].data<std::string>();
+  const coral::AttributeList& values = *m_values;
+  if(values[it->second].specification().type()==typeid(std::string)) {
+    return values[it->second].data<std::string>();
   }
   else {
     throw std::runtime_error( "Field " + fieldName + " is NOT of string type");

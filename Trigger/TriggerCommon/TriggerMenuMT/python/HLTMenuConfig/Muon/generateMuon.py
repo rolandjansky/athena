@@ -405,7 +405,7 @@ def _muEFSAStepSeq(flags, name='RoI'):
                               inputMuons = "Muons_"+name )
 
     selAccMS.addHypoAlgo(efmuMSHypo)
-
+    
     efmuMSSequence = MenuSequenceCA(selAccMS,
                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
@@ -457,7 +457,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
                                      InDetCandidateLocation="IndetCandidates_"+name)
     recoCB.mergeReco(muonCombCfg)
 
-    muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=muonCandName, TagMaps=["muidcoTagMap"], 
+    muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=[muonCandName], TagMaps=["muidcoTagMap"], 
                                          InDetCandidateLocation="IndetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
                                          ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name)
     recoCB.mergeReco(muonCreatorCBCfg)

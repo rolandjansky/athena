@@ -11,10 +11,12 @@ namespace xAOD {
   L1TopoSimResultsAuxContainer_v1::L1TopoSimResultsAuxContainer_v1()
     : AuxContainerBase() {
    
-    AUX_VARIABLE( boardName );
-    AUX_VARIABLE( word32 );
-    AUX_VARIABLE( word64 );
-    AUX_VARIABLE( wordOptical );
+    AUX_VARIABLE( connectionId );
+    AUX_VARIABLE( topoWord );
+    AUX_VARIABLE( topoWordOverflow );
+    AUX_VARIABLE( topoWord64 );
+    AUX_VARIABLE( topoWord64Overflow );
+    AUX_VARIABLE( bitWidth );
     AUX_VARIABLE( clock );
 
   }

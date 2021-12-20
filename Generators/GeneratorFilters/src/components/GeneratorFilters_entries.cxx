@@ -38,6 +38,7 @@
 #include "GeneratorFilters/ParentTwoChildrenFilter.h"
 #include "GeneratorFilters/SameParticleHardScatteringFilter.h"
 #include "GeneratorFilters/TauFilter.h"
+#include "GeneratorFilters/TTbarWithJpsimumuFilter.h"
 #include "GeneratorFilters/VBFForwardJetsFilter.h"
 #include "GeneratorFilters/VBFMjjIntervalFilter.h"
 #include "GeneratorFilters/XtoVVDecayFilterExtended.h"
@@ -148,6 +149,7 @@ DECLARE_COMPONENT( ParentChildFilter )
 DECLARE_COMPONENT( ParentTwoChildrenFilter ) 
 DECLARE_COMPONENT( SameParticleHardScatteringFilter )
 DECLARE_COMPONENT( TauFilter )
+DECLARE_COMPONENT( TTbarWithJpsimumuFilter )
 DECLARE_COMPONENT( VBFForwardJetsFilter )
 DECLARE_COMPONENT( VBFMjjIntervalFilter )
 DECLARE_COMPONENT( XtoVVDecayFilterExtended )
@@ -219,5 +221,4 @@ DECLARE_COMPONENT( DuplicateEventFilter )
 DECLARE_COMPONENT( BoostedHadTopAndTopPair )
 DECLARE_COMPONENT( HTFilter )
 DECLARE_COMPONENT( TrimuMassRangeFilter )
-
 

@@ -84,8 +84,7 @@ DerivationFramework::MaxCellDecorator::addBranches() const
 
   if (!m_SGKey_photons.key().empty()) {
     // Retrieve photon container
-    SG::ReadHandle<xAOD::EgammaContainer> photonContainer( m_SGKey_photons,
-                                                           ctx );
+    SG::ReadHandle<xAOD::EgammaContainer> photonContainer(m_SGKey_photons, ctx);
     // setup vector of decorators
     SG::WriteDecorHandle<xAOD::EgammaContainer, float> decorationPh0(
       m_SGKey_photons_decorations[0], ctx);
@@ -118,8 +117,8 @@ DerivationFramework::MaxCellDecorator::addBranches() const
 
   if (!m_SGKey_electrons.key().empty()) {
     // Retrieve electron container
-    SG::ReadHandle<xAOD::EgammaContainer> electronContainer( m_SGKey_electrons,
-                                                             ctx );
+    SG::ReadHandle<xAOD::EgammaContainer> electronContainer(m_SGKey_electrons,
+                                                            ctx);
 
     // setup vector of decorators
     SG::WriteDecorHandle<xAOD::EgammaContainer, float> decorationEl0(

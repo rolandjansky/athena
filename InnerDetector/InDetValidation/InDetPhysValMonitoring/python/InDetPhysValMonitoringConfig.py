@@ -126,7 +126,6 @@ def InDetPhysValMonitoringToolCfg(flags, **kwargs):
 
     if flags.Detector.GeometryITk:
         #Disable vertex container for now
-        kwargs.setdefault("VertexContainerName", '')
         kwargs.setdefault("doTRTExtensionPlots", False)
 
     # Control the number of output histograms

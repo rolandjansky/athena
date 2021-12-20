@@ -43,7 +43,7 @@ def ITkPixelChargeCalibCondAlgCfg(flags, name="ITkPixelChargeCalibCondAlg", **kw
     acc.merge(ITkPixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
-    kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")  # Proper calibration path inserted
+    kwargs.setdefault("ReadKey", "")  # TODO: enable when ready
     kwargs.setdefault("WriteKey", "ITkPixelChargeCalibCondData")
     acc.addCondAlgo(CompFactory.PixelChargeCalibCondAlg(name, **kwargs))
     return acc

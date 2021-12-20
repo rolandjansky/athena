@@ -65,7 +65,15 @@ def JetRecCfg( configFlags, jetdef,  returnConfiguredDef=False):
     elif isinstance(jetdef, GroomingDefinition):
         algs, jetdef_i = getJetGroomAlgs(configFlags, jetdef, True)
 
+    # FIXME temporarily reorder for serial running
+    if configFlags.Concurrency.NumThreads <= 0:
+        jetlog.info("Reordering algorithms in sequence {0}".format(sequenceName))
+        algs = reOrderAlgs(algs)
+
     for a in algs:
+        if a is None:
+            continue
+
         if isinstance(a, ComponentAccumulator):
             components.merge(a )
         else:
@@ -89,7 +97,13 @@ def JetInputCfg(configFlags,jetOrConstitdef , context="default"):
     algs = getInputAlgs(jetOrConstitdef, configFlags, context)
 
     for a in algs:
-        components.addEventAlgo( a )
+        if not a:
+            continue
+
+        if isinstance(a, ComponentAccumulator):
+            components.merge(a)
+        else:
+            components.addEventAlgo(a)
     
     return components
 
@@ -690,6 +704,23 @@ def isAnalysisRelease():
     return 'Analysis' in os.environ.get("AtlasProject", "")
 
 
+def reOrderAlgs(algs):
+    """In runIII the scheduler automatically orders algs, so the JetRecConfig helpers do not try to enforce the correct ordering.
+    This is not the case in runII config for which this jobO is intended --> This function makes sure some jet-related algs are well ordered.
+    """
+    evtDensityAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'EventDensityAthAlg' ]
+    pjAlgs = [(i, alg) for (i, alg) in enumerate(algs) if alg and alg.getType() == 'PseudoJetAlgorithm' ]
+    pairsToswap = []
+    for i, edalg in evtDensityAlgs:
+        edInput = edalg.EventDensityTool.InputContainer
+        for j, pjalg in pjAlgs:
+            if j < i:
+                continue 
+            if edInput == str(pjalg.OutputContainer):
+                pairsToswap.append((i, j))
+    for i, j in pairsToswap:
+        algs[i], algs[j] = algs[j], algs[i]
+    return algs
 
 
 

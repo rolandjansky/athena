@@ -35,8 +35,9 @@ def _algoHLTHIEventShape(name='HLTEventShapeMaker', inputEDM='CellsClusters', ou
     from HIGlobal.HIGlobalConf import HIEventShapeFillerTool
 
     algo = HIEventShapeMaker(name)
-    algo.UseCaloCell = True
     algo.InputCellKey = inputEDM
+    algo.InputTowerKey=""
+    algo.NaviTowerKey=""
     algo.OutputContainerKey = outputEDM
     algo.HIEventShapeFillerTool = HIEventShapeFillerTool()
 

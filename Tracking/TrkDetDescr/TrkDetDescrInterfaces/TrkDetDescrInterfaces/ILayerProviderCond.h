@@ -41,17 +41,12 @@ public:
   /** AlgTool and IAlgTool interface methods */
   static const InterfaceID& interfaceID() { return IID_ILayerProviderCond; }
 
-  /** LayerBuilder interface method - returning the layers at negative side */
-  virtual std::pair<EventIDRange, const std::vector<Layer*>>
-  negativeLayers(const EventContext& ctx) const = 0;
+  /** LayerBuilder interface method - returning the endcap layer */
+  virtual std::tuple<EventIDRange, const std::vector<Layer*>, const std::vector<Layer*> > endcapLayer(const EventContext& ctx) const = 0;
 
   /** LayerBuilder interface method - returning the central layers */
   virtual std::pair<EventIDRange, const std::vector<Layer*>>
   centralLayers(const EventContext& ctx) const = 0;
-
-  /** LayerBuilder interface method - returning the layers at negative side */
-  virtual std::pair<EventIDRange, const std::vector<Layer*>>
-  positiveLayers(const EventContext& ctx) const = 0;
 
   /** Name identification */
   virtual const std::string& identification() const = 0;

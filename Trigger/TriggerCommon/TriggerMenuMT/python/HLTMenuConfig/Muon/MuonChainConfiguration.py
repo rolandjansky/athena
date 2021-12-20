@@ -192,7 +192,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getmuEFCB(self,is_probe_leg=False):
 
         if 'invm' in self.chainPart['invMassInfo']: # No T&P support, add if needed
-            return self.getStep(4,'EFCB', [muEFCBSequenceCfg], comboTools=[TrigMuonEFInvMassHypoToolFromDict])
+            return self.getStep(4,'EFCB', [muEFCBSequenceCfg], comboTools=[TrigMuonEFInvMassHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif "LRT" in self.chainPart['addInfo']:
             return self.getStep(4,'EFCBLRT', [muEFCBLRTSequenceCfg], is_probe_leg=is_probe_leg)
         else:
@@ -211,7 +211,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     #---------------------
     def getmuEFIso(self,is_probe_leg=False):
-        return self.getStep(5,'muEFIso',[ muEFIsoSequenceCfg], is_probe_leg=is_probe_leg)
+        if any(x in self.dict['topo'] for x in ['b7invmAB9vtx20', 'b11invmAB60vtx20', 'b11invmAB24vtx20', 'b24invmAB60vtx20']):
+            from TrigBphysHypo.TrigMultiTrkComboHypoConfig import DrellYanComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
+            return self.getStep(5,'muEFIsoDY', [muEFIsoSequenceCfg], comboHypoCfg=DrellYanComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict], is_probe_leg=is_probe_leg)
+        else:
+            return self.getStep(5,'muEFIso', [muEFIsoSequenceCfg], is_probe_leg=is_probe_leg)
 
     #---------------------
     def getmuEFMSIso(self,is_probe_leg=False):
@@ -235,10 +239,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
     
     #--------------------
     def getLateMuRoI(self,is_probe_leg=False): # No T&P support, add if needed
-        return self.getStep(1,'muEFLateRoI',[muEFLateRoISequenceCfg])
+        return self.getStep(1,'muEFLateRoI',[muEFLateRoISequenceCfg], is_probe_leg=is_probe_leg)
 
     #--------------------
     def getLateMu(self,is_probe_leg=False): # No T&P support, add if needed
-        return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])
+        return self.getStep(2,'muEFLate',[muEFLateSequenceCfg], is_probe_leg=is_probe_leg)
 
 

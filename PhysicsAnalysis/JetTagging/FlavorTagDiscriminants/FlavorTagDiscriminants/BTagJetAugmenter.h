@@ -20,21 +20,21 @@ public:
                    FlipTagConfig flip = FlipTagConfig::STANDARD);
   ~BTagJetAugmenter();
   BTagJetAugmenter(BTagJetAugmenter&&);
-  void augmentJfDr(const xAOD::BTagging &btag);
-  void augmentIpRatios(const xAOD::BTagging &btag);
+  void augmentJfDr(const xAOD::BTagging &btag) const;
+  void augmentIpRatios(const xAOD::BTagging &btag) const;
   void augmentBtagJes(const xAOD::BTagging &target,
-                      const xAOD::BTagging &uncalib);
-  void augment(const xAOD::BTagging &btag);
+                      const xAOD::BTagging &uncalib) const;
+  void augment(const xAOD::BTagging &btag) const;
   void augment(const xAOD::BTagging &btag,
-               const xAOD::BTagging &uncalibrated_btag);
+               const xAOD::BTagging &uncalibrated_btag) const;
 
   std::set<std::string> getDecoratorKeys() const;
   std::set<std::string> getAuxInputKeys() const;
 
 private:
-  bool jfIsDefaults(const xAOD::BTagging &btag);
+  bool jfIsDefaults(const xAOD::BTagging &btag) const;
 
-  float safelog_prob(float p_up, float p_down);
+  float safelog_prob(float p_up, float p_down) const;
 
   typedef SG::AuxElement AE;
 

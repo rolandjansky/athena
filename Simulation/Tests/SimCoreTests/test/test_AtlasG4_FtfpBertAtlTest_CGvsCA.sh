@@ -4,7 +4,7 @@
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
-# art-output: test.*.HITS.pool.root
+# art-output: *.HITS.pool.root
 # art-output: log.*
 # art-output: Config*.pkl
 
@@ -16,7 +16,7 @@ AtlasG4_tf.py \
 --DataRunNumber '222525' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/J2_jetjet-pythia6-7000.evgen.pool.root' \
---outputHITSFile "test.NEW.HITS.pool.root" \
+--outputHITSFile "test.CA.HITS.pool.root" \
 --maxEvents '10' \
 --skipEvents '0' \
 --randomSeed '10' \
@@ -25,8 +25,8 @@ AtlasG4_tf.py \
 --imf False
 
 rc=$?
-mv log.AtlasG4Tf log.G4AtlasAlg_AthenaCA
-echo  "art-result: $rc G4AtlasAlg_AthenaCA"
+mv log.AtlasG4Tf log.AtlasG4Tf_CA
+echo  "art-result: $rc simCA"
 rc2=-9999
 if [ $rc -eq 0 ]
 then
@@ -37,7 +37,7 @@ then
     --DataRunNumber '222525' \
     --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
     --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/J2_jetjet-pythia6-7000.evgen.pool.root' \
-    --outputHITSFile "test.OLD.HITS.pool.root" \
+    --outputHITSFile "test.HITS.pool.root" \
     --maxEvents '10' \
     --skipEvents '0' \
     --randomSeed '10' \
@@ -52,21 +52,20 @@ then
     --DataRunNumber '222525' \
     --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
     --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/J2_jetjet-pythia6-7000.evgen.pool.root' \
-    --outputHITSFile "test.OLD.HITS.pool.root" \
+    --outputHITSFile "test.HITS.pool.root" \
     --maxEvents '10' \
     --skipEvents '0' \
     --randomSeed '10' \
     --truthStrategy 'MC15aPlus' \
     --imf False
-    mv log.AtlasG4Tf log.G4AtlasAlg_AthenaCA_OLD
     rc2=$?
-
+    mv log.AtlasG4Tf log.AtlasG4Tf_OLD
 fi
-echo  "art-result: $rc2 G4AtlasAlg_AthenaCA_OLD"
+echo  "art-result: $rc2 simOLD"
 rc4=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root test.OLD.HITS.pool.root test.NEW.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_AtlasG4Tf_timings index_ref
+    acmd.py diff-root test.HITS.pool.root test.CA.HITS.pool.root --error-mode resilient --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref
     rc4=$?
 fi
 echo  "art-result: $rc4 FullG4MT_OLDvsCA"

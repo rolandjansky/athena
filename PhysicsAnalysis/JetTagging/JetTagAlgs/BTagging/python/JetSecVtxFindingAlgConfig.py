@@ -23,9 +23,9 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNa
     elif SVFinder == 'JetFitterFlip': #Add the JetFitterFlip tagger (invert sign of signed track impact parameter)
         secVtxFinder = acc.popToolsAndMerge(InDetImprovedJetFitterVxFinderCfg(ConfigFlags, 'JFVxFinder', 'FLIP_SIGN'))
     elif SVFinder == 'SV1':
-        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalVxInJet"))
+        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg(ConfigFlags, "IDVKalVxInJet"))
     elif SVFinder == 'MSV':
-        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalMultiVxInJet", MSV = True))
+        secVtxFinder = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg(ConfigFlags, "IDVKalMultiVxInJet", MSV = True))
     else:
         return acc
 

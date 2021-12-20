@@ -15,20 +15,19 @@ log = logging.getLogger(__name__)
 # in the RecoFragmentsPool -- only the RoIs are used to distinguish
 # different sequences. New convention is just to pass "None" for flags
 # taken from Jet/JetRecoSequences.py
-def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False, variant=''):
-    log.debug('DummyFlag = %s',str(DummyFlag))
+def precisionCaloRecoSequence(flags, RoIs, ion=False, variant=''):
+    log.debug('flags = %s',flags)
     log.debug('RoIs = %s',RoIs)
 
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-    TrigEgammaKeys = getTrigEgammaKeys(variant)
+    TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
 
     from TrigT2CaloCommon.CaloDef import HLTRoITopoRecoSequence, HLTHIRoITopoRecoSequence
     topoRecoSequence = HLTHIRoITopoRecoSequence if ion is True else HLTRoITopoRecoSequence
-    (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, None, RoIs=RoIs, algSuffix=variant)
+    (caloRecoSequence, caloclusters) = RecoFragmentsPool.retrieve(topoRecoSequence, flags, RoIs=RoIs, algSuffix=variant)
 
+    log.debug('topoRecoSequence output conmtainer = %s',caloclusters)
     tag = 'HI' if ion is True else '' 
-    outputCaloClusters = TrigEgammaKeys.precisionHICaloClusterContainer if ion else TrigEgammaKeys.precisionCaloClusterContainer
-    log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
                                           name = 'eTrigEgammaTopoClusterCopier' + tag + RoIs + variant ,
@@ -36,6 +35,9 @@ def precisionCaloRecoSequence(DummyFlag, RoIs, ion=False, variant=''):
                                           OutputTopoCollection = TrigEgammaKeys.precisionCaloTopoCollection,
                                           OutputTopoCollectionShallow = "tmp_" + TrigEgammaKeys.precisionCaloTopoCollection,
                                           doAdd = False )
+
+    outputCaloClusters = TrigEgammaKeys.precisionCaloClusterContainer
+    log.debug('precisionOutputCaloClusters = %s',outputCaloClusters)
 
     algo = egammaTopoClusterCopier()
     precisionRecoSequence = parOR( "electronRoITopoRecoSequence"+tag + variant)

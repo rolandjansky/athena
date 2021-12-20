@@ -35,12 +35,12 @@ private:
   virtual const GeoLogVol * preBuild();
   void makeDesign(); 
  
-  const GeoMaterial * m_material;
-  double m_thickness;
-  double m_width;
-  double m_length;
+  const GeoMaterial * m_material = nullptr;
+  double m_thickness = 0.0;
+  double m_width = 0.0;
+  double m_length = 0.0;
   
-  InDetDD::SiDetectorDesign * m_design;
+  InDetDD::SiDetectorDesign * m_design = nullptr;
 
   mutable std::atomic_bool m_noElementWarning;
 };

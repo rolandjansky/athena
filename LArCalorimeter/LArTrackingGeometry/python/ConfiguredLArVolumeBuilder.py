@@ -25,9 +25,9 @@ class ConfiguredLArVolumeBuilder( LAr__LArVolumeBuilder ):
         
         # The volume helper
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__TrackingVolumeHelper
-        LArTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper'+nameSuffix)
+        LArTrackingVolumeHelper = Trk__TrackingVolumeHelper(name='TrackingVolumeHelper')
         ToolSvc += LArTrackingVolumeHelper 
-          
+        
         LAr__LArVolumeBuilder.__init__(self,
                                        name+nameSuffix,
                                        UseCaloSurfBuilder = TrkDetFlags.LArUseCaloSurfBuilder(),

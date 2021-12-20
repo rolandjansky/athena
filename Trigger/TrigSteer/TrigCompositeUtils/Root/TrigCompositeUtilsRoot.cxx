@@ -10,6 +10,7 @@
 #include "AthContainers/AuxElement.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "boost/algorithm/string/predicate.hpp"
 
 #include <unordered_map>
 #include <regex>
@@ -286,7 +287,7 @@ namespace TrigCompositeUtils {
     // Loop over each DecisionContainer,
     for (const std::string& key : keys) {
       // Get and check this container
-      if ( key.find("HLTNav_") != 0 ) {
+      if ( ! boost::starts_with (key, "HLTNav_") ) {
         continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
       }
       if (keysToIgnore.count(key) == 1) {

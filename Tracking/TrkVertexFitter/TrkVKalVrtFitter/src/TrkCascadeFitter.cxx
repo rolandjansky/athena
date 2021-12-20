@@ -89,7 +89,7 @@ VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParti
 //
 // Calculate total number of degrees of freedom for cascade WITHOUT pointing to primary vertex
 //
-int TrkVKalVrtFitter::getCascadeNDoF (const CascadeState& cstate) const 
+int TrkVKalVrtFitter::getCascadeNDoF (const CascadeState& cstate) 
 {
 
 // get Tracks, Vertices and Pointings in cascade
@@ -192,7 +192,7 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
 //------------------------
 void TrkVKalVrtFitter::makeSimpleCascade(std::vector< std::vector<int> > & vrtDef,
                                          std::vector< std::vector<int> > & cascadeDef,
-                                         CascadeState& cstate) const
+                                         CascadeState& cstate) 
 {
     int iv,ip,it, nVAdd, iva;
     vrtDef.clear();
@@ -249,7 +249,7 @@ void TrkVKalVrtFitter::makeSimpleCascade(std::vector< std::vector<int> > & vrtDe
 //
 void TrkVKalVrtFitter::printSimpleCascade(std::vector< std::vector<int> > & vrtDef, 
                                           std::vector< std::vector<int> > & cascadeDef,
-                                          const CascadeState& cstate) const
+                                          const CascadeState& cstate) 
 {
       int kk,kkk;
       for(kk=0; kk<(int)vrtDef.size(); kk++){
@@ -800,7 +800,7 @@ StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
 //----------------------------------------------------------------------------------------
 //   Looks for index of each element of inputList in refList
 //
-int TrkVKalVrtFitter::findPositions(const std::vector<int> &inputList,const std::vector<int> &refList, std::vector<int> &index) const
+int TrkVKalVrtFitter::findPositions(const std::vector<int> &inputList,const std::vector<int> &refList, std::vector<int> &index) 
 {   
    int R,I;
    index.clear();
@@ -818,7 +818,7 @@ int TrkVKalVrtFitter::findPositions(const std::vector<int> &inputList,const std:
 //   Get index of given vertex in simplified cascade structure
 //
 int TrkVKalVrtFitter::getSimpleVIndex( const VertexID & vrt,
-                                       const CascadeState& cstate) const
+                                       const CascadeState& cstate) 
 {
     int NVRT=cstate.m_cascadeVList.size();
 
@@ -837,7 +837,7 @@ int TrkVKalVrtFitter::getSimpleVIndex( const VertexID & vrt,
 //   Get index of given vertex in full cascade structure
 //
 int TrkVKalVrtFitter::indexInV( const VertexID & vrt,
-                                const CascadeState& cstate) const
+                                const CascadeState& cstate) 
 {  int icv;   int NVRT=cstate.m_cascadeVList.size();
    for(icv=0; icv<NVRT; icv++)  if(vrt==cstate.m_cascadeVList[icv].vID)break;
    if(icv==NVRT)return -1;

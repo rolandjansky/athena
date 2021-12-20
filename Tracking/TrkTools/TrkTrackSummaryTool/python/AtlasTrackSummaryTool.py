@@ -18,6 +18,7 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
     # constructor
     def __init__(self,name = 'AtlasTrackSummaryTool'):
         from AthenaCommon.AppMgr import ToolSvc        
+        import InDetRecExample.TrackingCommon as TrackingCommon
 
         #
         # Setup Atlas Extrapolator
@@ -36,7 +37,9 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
                                                                              )
         ToolSvc += AtlasPrdAssociationTool
         #print      AtlasPrdAssociationTool
-    
+
+        TestPixelLayerTool = TrackingCommon.getInDetTestPixelLayerTool()
+        
         # 
         # Setup Boundary Check Tool
         #
@@ -44,9 +47,9 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
         AtlasBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
             name="AtlasBoundaryCheckTool",
             UsePixel      = DetFlags.haveRIO.pixel_on(),
-            UseSCT        = DetFlags.haveRIO.SCT_on()
+            UseSCT        = DetFlags.haveRIO.SCT_on(),
+            PixelLayerTool = TestPixelLayerTool
         )
-        ToolSvc += AtlasBoundaryCheckTool
     
         #
         # Loading Configurable HoleSearchTool
@@ -63,22 +66,15 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
         # Configrable version of loading the AtlasTrackSummaryHelperTool
         #
         from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-        if DetFlags.haveRIO.TRT_on():
-            AtlasTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(
-                name         = "AtlasTrackSummaryHelperTool",
-                HoleSearch   = AtlasHoleSearchTool,
-                AssoTool     = AtlasPrdAssociationTool,
-                DoSharedHits = False
-                )
-        else:
-            AtlasTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(
-                name         = "AtlasTrackSummaryHelperTool",
-                HoleSearch   = AtlasHoleSearchTool,
-                AssoTool     = AtlasPrdAssociationTool,
-                DoSharedHits = False,
-                TRTStrawSummarySvc = ""
-                )     
-            
+        AtlasTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(
+            name           = "AtlasTrackSummaryHelperTool",
+            HoleSearch     = AtlasHoleSearchTool,
+            AssoTool       = AtlasPrdAssociationTool,
+            DoSharedHits   = False,
+            TestBLayerTool = TrackingCommon.getInDetRecTestBLayerTool(),
+            useTRT         = DetFlags.haveRIO.TRT_on()
+        )
+
         ToolSvc += AtlasTrackSummaryHelperTool
         #print      AtlasTrackSummaryHelperTool                                                                   
         

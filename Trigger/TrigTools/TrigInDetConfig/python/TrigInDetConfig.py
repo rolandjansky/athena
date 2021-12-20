@@ -151,14 +151,12 @@ def ExtrapolatorCfg(flags):
 def InDetTestPixelLayerToolCfg(flags):
   acc = ComponentAccumulator()
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-  
 
-  tool = CompFactory.InDet.InDetTestPixelLayerTool("InDetTrigTestPixelLayerTool",
-                                                               PixelSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) ),
-                                                               Extrapolator     = acc.getPrimaryAndMerge(ExtrapolatorCfg( flags)),
-                                                               CheckActiveAreas = True,
-                                                               CheckDeadRegions = True)
-  acc.addPublicTool( tool )
+  tool = CompFactory.InDet.InDetTestPixelLayerTool(PixelSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) ),
+                                                   Extrapolator     = acc.getPrimaryAndMerge(ExtrapolatorCfg( flags)), 
+                                                   CheckActiveAreas = True,
+                                                   CheckDeadRegions = True)
+  acc.setPrivateTools( tool )
   return acc
 
 
@@ -224,13 +222,13 @@ def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
                                                        useTRT        = flags.Detector.EnableTRT                                                      
                                                       )
 
-  acc.addPublicTool( tool, primary=True )
+  acc.setPrivateTools( tool )
   return acc
 
 def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
   acc = ComponentAccumulator()
   if not summaryHelperTool:
-    summaryHelperTool = acc.getPrimaryAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
+    summaryHelperTool = acc.popToolsAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
 
   tool = CompFactory.Trk.TrackSummaryTool(name = name,
                                           InDetSummaryHelperTool = summaryHelperTool,
@@ -927,7 +925,6 @@ def KalmanUpdatorCfg(flags):
 
 def FitterToolCfg(flags):
   acc = ComponentAccumulator()
-  from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
   from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
@@ -943,7 +940,6 @@ def FitterToolCfg(flags):
                                                  RotCreatorTool        = acc.getPrimaryAndMerge(RIO_OnTrackCreatorCfg(flags, "InDetTrigRefitRotCreator")),
                                                  BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it
                                                  MeasurementUpdateTool = acc.popToolsAndMerge(KalmanUpdatorCfg( flags )),
-                                                 TrackingGeometrySvc   = acc.getPrimaryAndMerge(TrackingGeometrySvcCfg(flags)),
                                                  MaterialUpdateTool    = CompFactory.Trk.MaterialEffectsUpdator(name = "InDetTrigMaterialEffectsUpdator"),
                                                  StraightLine          = not flags.BField.solenoidOn,
                                                  OutlierCut            = 4,

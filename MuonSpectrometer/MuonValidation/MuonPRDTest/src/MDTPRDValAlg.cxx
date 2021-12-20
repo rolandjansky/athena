@@ -23,9 +23,7 @@
 
 #include "TTree.h"
 #include <TString.h> // for Form
-#include <string>
 #include <sstream>
-#include <map>
 #include <iostream>
 #include <fstream>
 
@@ -354,7 +352,7 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
     ATH_MSG_WARNING(" MC event size larger than one: exit algorithm ");
   }
   if( msgLvl(MSG::VERBOSE) ) ATH_MSG_VERBOSE(" looping over MC particles ");
-  for (e=mcEvent->begin();e!=mcEvent->end(); e++) {
+  for (e=mcEvent->begin();e!=mcEvent->end(); ++e) {
     for (auto p: (**e)) {
 
       int pdg = p->pdg_id();
@@ -827,16 +825,20 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       const MuonGM::MdtReadoutElement* detEl = mdt->detectorElement();
       if (!detEl) throw std::runtime_error(Form("File: %s, Line: %d\nMDTPRDValAlg::analyseHits() - no associated detectorElement", __FILE__, __LINE__));
 
+      if (not simHit){
+        ATH_MSG_ERROR("simHit pointer is null in MDTPRDValAlg::analyseHits");
+        throw std::runtime_error("simHit pointer is null in  MDTPRDValAlg::analyseHits");
+      }
       // transform to global coords
       Amg::Vector3D simHitPosLoc(simHit->localPosition().x(), simHit->localPosition().y(), simHit->localPosition().z());
       Amg::Vector3D simHitPos(0., 0., 0.);
       double simRadius = 0.;
       double simDistRO = 0.;
-      if( simHit ){
+      
 	simHitPos = detEl->localToGlobalCoords(simHitPosLoc , id );
 	simRadius = simHit->driftRadius();
 	simDistRO = simHit->localPosition().z();
-      }
+      
 
       double sdoRadius = 0.;
       double sdoDistRO = 0.;

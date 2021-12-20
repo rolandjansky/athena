@@ -3,71 +3,304 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def primaryVertexFindingCfg(flags):
+def primaryVertexFindingCfg(flags, **kwargs):
+    return primaryVertexFindingImplCfg(
+        flags,
+        SortingSetup=flags.InDet.primaryVertexSortingSetup,
+        VertexSetup=flags.InDet.primaryVertexSetup,
+        **kwargs,
+    )
+
+
+def primaryVertexFindingImplCfg(flags, SortingSetup, VertexSetup, **kwargs):
     acc = ComponentAccumulator()
-    vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
-        "InDetSumPtVertexWeightCalculator"
-    )
+
+    vertexWeightTool = None
+    if SortingSetup == "SumPt2Sorting":
+        vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
+            DoSumPt2Selection=True
+        )
+    elif SortingSetup == "SumPtSorting":
+        vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
+            DoSumPt2Selection=False
+        )
     vertexSorter = CompFactory.Trk.VertexCollectionSortingTool(
-        "InDetVertexCollectionSortingTool", VertexWeightCalculator=vertexWeightTool
+            VertexWeightCalculator=vertexWeightTool,
     )
+    # finder tool
+    finderTool = None
+    if VertexSetup == "GaussAdaptiveMultiFinding":
+        finderTool = acc.popToolsAndMerge(
+            AdaptiveMultiFindingBaseCfg(flags, doGauss=True)
+        )
+    elif VertexSetup == "AdaptiveMultiFinding":
+        finderTool = acc.popToolsAndMerge(
+            AdaptiveMultiFindingBaseCfg(flags, doGauss=False)
+        )
+    elif VertexSetup == "GaussIterativeFinding":
+        finderTool = acc.popToolsAndMerge(
+            IterativeFindingBaseCfg(flags, doGauss=True)
+        )
+    elif VertexSetup == "IterativeFinding":
+        finderTool = acc.popToolsAndMerge(
+            IterativeFindingBaseCfg(flags, doGauss=False)
+        )
+    elif VertexSetup == "ActsGaussAdaptiveMultiFinding":
+        finderTool = acc.popToolsAndMerge(
+            ActsGaussAdaptiveMultiFindingBaseCfg(flags)
+        )
 
-    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolCfg
-
-    from ActsGeometry.ActsGeometryConfig import (
-            ActsTrackingGeometryToolCfg,
-            ActsExtrapolationToolCfg,
-            ActsAlignmentCondAlgCfg)
-    #TODO the alignment conditions alg should be loaded with extrapolator (same for ActsGeoSvc)
-    acc.merge(ActsAlignmentCondAlgCfg(flags))
-    actsGeoAcc, geometry = ActsTrackingGeometryToolCfg(flags)
-    acc.merge(actsGeoAcc)
-
-    trackExtrapolator = acc.getPrimaryAndMerge(ActsExtrapolationToolCfg(flags))
-    trackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
-
-    # TODO find out which of the settings below need to be picked from flags
-    trackSelector = CompFactory.InDet.InDetTrackSelectionTool(
-        "InDetDetailedTrackSelectionTool",
-        CutLevel="TightPrimary",
-        Extrapolator=trackExtrapolator,
-        TrackSummaryTool=trackSummaryTool,
-        maxAbsEta=9999.0,
-        maxD0=4.0,
-        maxNPixelHoles=1,
-        maxSigmaD0=5.0,
-        maxSigmaZ0SinTheta=10.0,
-        maxZ0=1000.0,
-        maxZ0SinTheta=1000.0,
-        minNInnermostLayerHits=0,
-        minNPixelHits=1,
-        minNSctHits=4,
-        minNSiHits=6,
-        minNTrtHits=0,
-        minPt=500.0,
-    )
-
-
-    finderTool = CompFactory.ActsAdaptiveMultiPriVtxFinderTool(
-        "ActsAdaptiveMultiPriVtxFinderTool",
-        ExtrapolationTool=trackExtrapolator,
-        TrackSelector=trackSelector,
-        TrackingGeometryTool=geometry,
-        tracksMaxZinterval=3,
-    )
-
+    # setup the finder alg
     InDetPriVxFinder = CompFactory.InDet.InDetPriVxFinder(
         name=f"InDet{flags.InDet.Tracking.extension}PriVxFinder",
         doVertexSorting=True,
         VertexCollectionSortingTool=vertexSorter,
-        VertexFinderTool=finderTool
+        VertexFinderTool=finderTool,
     )
     acc.addEventAlgo(InDetPriVxFinder)
 
-    #from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
-    #TODO debug why vertex container is crashing AOD writing
-    #verticesContainer = ["xAOD::VertexContainer#PrimaryVertices", "xAOD::VertexAuxContainer#PrimaryVerticesAux."]
-    #acc.merge(addToAOD(flags, verticesContainer))
-    #acc.merge(addToESD(flags, verticesContainer))
+    from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
+
+    excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+    verticesContainer = [
+        "xAOD::VertexContainer#PrimaryVertices",
+        "xAOD::VertexAuxContainer#PrimaryVerticesAux." + excludedVtxAuxData,
+    ]
+
+    acc.merge(addToAOD(flags, verticesContainer))
+    acc.merge(addToESD(flags, verticesContainer))
 
     return acc
+
+
+def VtxInDetTrackSelectionCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    if flags.Detector.GeometryITk:
+        vtxFlags = flags.ITk.PriVertex
+    else:
+        vtxFlags = flags.InDet.PriVertex
+
+    for key in (
+        "maxAbsEta",
+        "maxD0",
+        "maxNPixelHoles",
+        "maxSigmaD0",
+        "maxSigmaZ0SinTheta",
+        "maxZ0",
+        "maxZ0SinTheta",
+        "minNInnermostLayerHits",
+        "minNPixelHits",
+        "minNSctHits",
+        "minNSiHits",
+        "minNTrtHits",
+        "minPt",
+    ):
+        kwargs.setdefault(key, getattr(vtxFlags, key))
+
+    # TODO find out which of the settings below need to be picked from flags
+    InDetTrackSelectorTool = CompFactory.InDet.InDetTrackSelectionTool(
+        CutLevel="TightPrimary",
+        UseTrkTrackTools=False,
+        **kwargs,
+    )
+    acc.setPrivateTools(InDetTrackSelectorTool)
+    return acc
+
+
+def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
+    acc = ComponentAccumulator()
+    if "SeedFinder" not in kwargs:
+        if doGauss:
+            kwargs["SeedFinder"] = CompFactory.Trk.TrackDensitySeedFinder()
+        else:
+            from InDetConfig.TrackingCommonConfig import (
+                TrackToVertexIPEstimatorCfg,
+            )
+
+            kwargs["SeedFinder"] = CompFactory.Trk.ZScanSeedFinder(
+                IPEstimator=acc.popToolsAndMerge(
+                    TrackToVertexIPEstimatorCfg(flags)
+                ),
+            )
+
+    if "TrackSelector" not in kwargs:
+        kwargs["TrackSelector"] = acc.popToolsAndMerge(
+            VtxInDetTrackSelectionCfg(flags)
+        )
+
+    if "VertexFitterTool" not in kwargs:
+        InDetAnnealingMaker = CompFactory.Trk.DetAnnealingMaker(
+            SetOfTemperatures=[1.0]
+        )
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+
+        InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
+        InDetImpactPoint3dEstimator = CompFactory.Trk.ImpactPoint3dEstimator(
+            Extrapolator=InDetExtrapolator
+        )
+        from InDetConfig.TrackingCommonConfig import (
+            FullLinearizedTrackFactoryCfg,
+        )
+
+        linearizedFactory = acc.popToolsAndMerge(
+            FullLinearizedTrackFactoryCfg(flags)
+        )
+        kwargs["VertexFitterTool"] = CompFactory.Trk.AdaptiveMultiVertexFitter(
+            LinearizedTrackFactory=linearizedFactory,
+            ImpactPoint3dEstimator=InDetImpactPoint3dEstimator,
+            AnnealingMaker=InDetAnnealingMaker,
+            DoSmoothing=True,
+        )
+    if flags.Detector.GeometryITk:
+        vtxFlags = flags.ITk.PriVertex
+    else:
+        vtxFlags = flags.InDet.PriVertex
+    kwargs.setdefault("useBeamConstraint", flags.InDet.useBeamConstraint)
+    kwargs.setdefault("selectiontype", 0)
+    kwargs.setdefault("TracksMaxZinterval", vtxFlags.maxZinterval)
+    kwargs.setdefault("do3dSplitting", flags.InDet.doPrimaryVertex3DFinding)
+    kwargs.setdefault("m_useSeedConstraint", False)
+    finderTool = CompFactory.InDet.InDetAdaptiveMultiPriVxFinderTool(
+        name="InDetAdaptiveMultiPriVxFinderTool",
+        **kwargs,
+    )
+    acc.setPrivateTools(finderTool)
+    return acc
+
+
+def IterativeFindingBaseCfg(flags, doGauss, **kwargs):
+    acc = ComponentAccumulator()
+    if "SeedFinder" not in kwargs:
+        if doGauss:
+            kwargs["SeedFinder"] = CompFactory.Trk.TrackDensitySeedFinder()
+        else:
+            from InDetConfig.TrackingCommonConfig import (
+                TrackToVertexIPEstimatorCfg,
+            )
+
+            kwargs["SeedFinder"] = CompFactory.Trk.ZScanSeedFinder(
+                IPEstimator=acc.popToolsAndMerge(
+                    TrackToVertexIPEstimatorCfg(flags)
+                ),
+            )
+
+    if "TrackSelector" not in kwargs:
+        kwargs["TrackSelector"] = acc.popToolsAndMerge(
+            VtxInDetTrackSelectionCfg(flags)
+        )
+    if "LinearizedTrackFactory" not in kwargs:
+        from InDetConfig.TrackingCommonConfig import (
+            FullLinearizedTrackFactoryCfg,
+        )
+
+        kwargs["LinearizedTrackFactory"] = acc.popToolsAndMerge(
+            FullLinearizedTrackFactoryCfg(flags)
+        )
+    if "ImpactPoint3dEstimator" not in kwargs:
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+
+        InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
+        kwargs[
+            "ImpactPoint3dEstimator"
+        ] = CompFactory.Trk.ImpactPoint3dEstimator(
+            Extrapolator=InDetExtrapolator
+        )
+    if "VertexFitterTool" not in kwargs:
+        InDetAnnealingMaker = CompFactory.Trk.DetAnnealingMaker(
+            SetOfTemperatures=[1.0]
+        )
+        InDetVertexSmoother = CompFactory.Trk.SequentialVertexSmoother()
+        kwargs["VertexFitterTool"] = CompFactory.Trk.AdaptiveVertexFitter(
+            SeedFinder=kwargs["SeedFinder"],
+            LinearizedTrackFactory=kwargs["LinearizedTrackFactory"],
+            ImpactPoint3dEstimator=kwargs["ImpactPoint3dEstimator"],
+            AnnealingMaker=InDetAnnealingMaker,
+            VertexSmoother=InDetVertexSmoother,
+        )
+
+    if flags.Detector.GeometryITk:
+        vtxFlags = flags.ITk.PriVertex
+    else:
+        vtxFlags = flags.InDet.PriVertex
+    kwargs.setdefault("useBeamConstraint", flags.InDet.useBeamConstraint)
+    kwargs.setdefault("significanceCutSeeding", 12)
+    kwargs.setdefault("maximumChi2cutForSeeding", 49)
+    kwargs.setdefault("maxVertices", 200)
+    kwargs.setdefault("doMaxTracksCut", vtxFlags.doMaxTracksCut)
+    kwargs.setdefault("MaxTracks", vtxFlags.MaxTracks)
+    finderTool = CompFactory.InDet.InDetIterativePriVxFinderTool(
+        name="InDetIterativePriVxFinderTool", **kwargs
+    )
+
+    acc.setPrivateTools(finderTool)
+    return acc
+
+
+def ActsGaussAdaptiveMultiFindingBaseCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    from ActsGeometry.ActsGeometryConfig import (
+        ActsTrackingGeometryToolCfg,
+        ActsExtrapolationToolCfg,
+    )
+
+    if "TrackSelector" not in kwargs:
+        kwargs["TrackSelector"] = acc.popToolsAndMerge(
+            VtxInDetTrackSelectionCfg(flags)
+        )
+    actsGeoAcc, geometry = ActsTrackingGeometryToolCfg(flags)
+    acc.merge(actsGeoAcc)
+    trackExtrapolator = acc.getPrimaryAndMerge(ActsExtrapolationToolCfg(flags))
+    if flags.Detector.GeometryITk:
+        vtxFlags = flags.ITk.PriVertex
+    else:
+        vtxFlags = flags.InDet.PriVertex
+    kwargs.setdefault("tracksMaxZinterval", vtxFlags.maxZinterval)
+    finderTool = CompFactory.ActsAdaptiveMultiPriVtxFinderTool(
+        "ActsAdaptiveMultiPriVtxFinderTool",
+        **kwargs,
+        ExtrapolationTool=trackExtrapolator,
+        TrackingGeometryTool=geometry,
+    )
+    acc.setPrivateTools(finderTool)
+    return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Logging import logging
+    from AthenaCommon.Configurable import Configurable
+
+    Configurable.configurableRun3Behavior = 1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+
+    flags.Input.Files = defaultTestFiles.RDO
+    import sys
+
+    if "ActsGaussAdaptiveMultiFinding" in sys.argv:
+        flags.InDet.primaryVertexSetup = "ActsGaussAdaptiveMultiFinding"
+    elif "IterativeFinding" in sys.argv:
+        flags.InDet.primaryVertexSetup = "IterativeFinding"
+    elif "GaussIterativeFinding" in sys.argv:
+        flags.InDet.primaryVertexSetup = "GaussIterativeFinding"
+    elif "AdaptiveMultiFinding" in sys.argv:
+        flags.InDet.primaryVertexSetup = "AdaptiveMultiFinding"
+    elif "GaussAdaptiveMultiFinding" in sys.argv:
+        flags.InDet.primaryVertexSetup = "GaussAdaptiveMultiFinding"
+    else:
+        flags.InDet.primaryVertexSetup = "GaussAdaptiveMultiFinding"
+    flags.lock()
+
+    acc = MainServicesCfg(flags)
+    acc.merge(primaryVertexFindingCfg(flags))
+
+    mlog = logging.getLogger("primaryVertexFindingConfigTest")
+    mlog.info("Configuring  primaryVertexFinding: ")
+    printProperties(
+        mlog,
+        acc.getEventAlgo(f"InDet{flags.InDet.Tracking.extension}PriVxFinder"),
+        nestLevel=2,
+        printDefaults=True,
+    )

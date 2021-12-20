@@ -80,13 +80,15 @@ namespace xAOD {
       static const std::vector<int> s_FWD_EtaPosition; 
       static const std::vector<int> s_FCAL_EtaPosition; 
 
-      // Data locations within word 
-      static const int s_satBit =0;
-      //static const int s_ResBit =1;
-      static const int s_etBit  = 12;
-      static const int s_phiBit = 23;
-      static const int s_etaBit = 27;
-                       
+      // Data locations within word
+       
+      //static const int s_ResBit =21; //reserved bits kept for future
+      static const int s_etaBit = 16;
+      static const int s_phiBit = 12;
+      static const int s_etBit  = 1;
+      static const int s_satBit = 0;
+      
+      
       //Data masks
       static const int s_etMask   = 0x7ff;
       static const int s_etaMask  = 0x1f;

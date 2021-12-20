@@ -240,6 +240,10 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
     "range of the invariant mass of the track combinations"};
   Gaudi::Property<bool> m_applyOverlapRemoval {this, "applyOverlapRemoval", true,
     "apply overlap removal for the close-by same-sign objects from different views"};
+  Gaudi::Property<bool> m_combineInputDecisionCollections {this, "combineInputDecisionCollections", false,
+    "combine objects attached to decisions from different input collections, needed for HLT_mu4_ivarloose_mu4_b10invmAB120vtx20_L12MU3V chains"};
+  Gaudi::Property<bool> m_useLeptonMomentum {this, "useLeptonMomentum", false,
+    "use 4-momentum of the xAOD::Muon to make fast calculation of the xAOD::TrigBphys mass, needed for consistency with TrigComboHypoTool::compute()"};
   Gaudi::Property<float> m_deltaR {this, "deltaR", 0.01,
     "minimum deltaR between same-sign tracks (overlap removal)"};
   Gaudi::Property<float> m_deltaRMax {this, "deltaRMax", std::numeric_limits<float>::max(),

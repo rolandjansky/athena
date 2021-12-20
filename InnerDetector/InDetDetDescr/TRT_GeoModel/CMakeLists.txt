@@ -19,4 +19,5 @@ atlas_install_scripts( test/*.py )
 # Test(s) in the package:
 atlas_add_test( TRT_GMConfig_test
                 SCRIPT test/TRT_GMConfig_test.py
+                POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )

@@ -25,10 +25,13 @@ Interface definition for eFEXegAlgo
     static const InterfaceID& interfaceID( ) ;
 
 
-    virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atwr, gTowersCentral Btwr,
-                              gTowersForward CNtwr, gTowersForward CPtwr, int pucA, int pucB, int seedThreshold, int jetThreshold,
-                              std::array<uint32_t, 7> & ATOB1_dat, std::array<uint32_t, 7> & ATOB2_dat,
-                              std::array<uint32_t, 7> & BTOB1_dat, std::array<uint32_t, 7> & BTOB2_dat) = 0;
+    virtual std::vector<std::unique_ptr<gFEXJetTOB>> largeRfinder(gTowersCentral Atwr, gTowersCentral Btwr, 
+                                                                  gTowersForward CNtwr, gTowersForward CPtwr, 
+                                                                  int pucA, int pucB, int gLJ_seedThrA, int gLJ_seedThrB, 
+                                                                  int gJ_ptMinToTopoCounts1, int gJ_ptMinToTopoCounts2, 
+                                                                  int jetThreshold, int gLJ_ptMinToTopoCounts1, int gLJ_ptMinToTopoCounts2,
+                                                                  std::array<uint32_t, 7> & ATOB1_dat, std::array<uint32_t, 7> & ATOB2_dat,
+                                                                  std::array<uint32_t, 7> & BTOB1_dat, std::array<uint32_t, 7> & BTOB2_dat) = 0;
 
 
   };

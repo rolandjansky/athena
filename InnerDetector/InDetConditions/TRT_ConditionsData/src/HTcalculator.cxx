@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "TRT_ConditionsData/HTcalculator.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -164,339 +164,257 @@ StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
    CondAttrListVec::const_iterator first_channel = channel_values->begin();
    CondAttrListVec::const_iterator last_channel  = channel_values->end();
 
-   int inichan = 0;
    for (; first_channel != last_channel; ++first_channel) {
      switch(first_channel->first){
         case 0:			  // gamma_All_Xenon_All_Barrel
 		m_par_pHTvsPGOG_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 1 :                  // gamma_All_Xenon_All_EndcapA
 		m_par_pHTvsPGOG_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 2 :                  // gamma_All_Xenon_All_EndcapB
 		m_par_pHTvsPGOG_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 3 :                  // gamma_All_Argon_All_Barrel
 		m_par_pHTvsPGOG_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 4 :                  // gamma_All_Argon_All_EndcapA
 		m_par_pHTvsPGOG_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 5 :                  // gamma_All_Argon_All_EndcapB
 		m_par_pHTvsPGOG_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 6 :                  // gamma_All_Krypton_All_Barrel
 		m_par_pHTvsPGOG_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 7 :                  // gamma_All_Krypton_All_EndcapA
 		m_par_pHTvsPGOG_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 8 :                  // gamma_All_Krypton_All_EndcapB
 		m_par_pHTvsPGOG_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
 
 	// Xenon Corrections: 
        case 9 :                  // SL_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_SL_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 10 :                 // SL_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_SL_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 11 :                 // SL_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_SL_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 12 :                 // ZR_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_ZR_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 13 :                 // ZR_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_ZR_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 14 :                 // ZR_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_ZR_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 15 :                 // TW_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_TW_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 16 :                 // TW_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_TW_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 17 :                 // TW_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_TW_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 18 :                 // OR_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_OR_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 19 :                 // OR_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_OR_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 20 :                 // OR_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_OR_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 21 :                 // SL_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_SL_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 22 :                 // SL_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_SL_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 23 :                 // SL_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_SL_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 24 :                 // ZR_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_ZR_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 25 :                 // ZR_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_ZR_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 26 :                 // ZR_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_ZR_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 27 :                 // TW_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_TW_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 28 :                 // TW_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_TW_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 29 :                 // TW_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_TW_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 30 :                 // OR_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_OR_new [0][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 31 :                 // OR_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_OR_new [0][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 32 :                 // OR_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_OR_new [0][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
 
 	// Argon Corrections: 
         case 33 :                  // SL_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_SL_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 34 :                 // SL_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_SL_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 35 :                 // SL_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_SL_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 36 :                 // ZR_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_ZR_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 37 :                 // ZR_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_ZR_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 38 :                 // ZR_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_ZR_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 39 :                 // TW_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_TW_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 40 :                 // TW_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_TW_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 41 :                 // TW_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_TW_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 42 :                 // OR_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_OR_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 43 :                 // OR_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_OR_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 44 :                 // OR_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_OR_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 45 :                 // SL_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_SL_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 46 :                 // SL_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_SL_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 47 :                 // SL_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_SL_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 48 :                 // ZR_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_ZR_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 49 :                 // ZR_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_ZR_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 50 :                 // ZR_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_ZR_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 51 :                 // TW_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_TW_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 52 :                 // TW_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_TW_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 53 :                 // TW_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_TW_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 54 :                 // OR_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_OR_new [1][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 55 :                 // OR_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_OR_new [1][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 56 :                 // OR_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_OR_new [1][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
 
 
 	// Krypton Corrections: 
         case 57 :                  // SL_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_SL_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 58 :                 // SL_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_SL_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 59 :                 // SL_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_SL_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 60 :                 // ZR_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_ZR_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 61 :                 // ZR_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_ZR_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 62 :                 // ZR_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_ZR_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 63 :                 // TW_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_TW_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 64 :                 // TW_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_TW_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 65 :                 // TW_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_TW_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 66 :                 // OR_Zee_Xenon_Electrons_Barrel
 		m_CpHT_B_Zee_OR_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 67 :                 // OR_Zee_Xenon_Electrons_EndcapA
 		m_CpHT_B_Zee_OR_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 68 :                 // OR_Zee_Xenon_Electrons_EndcapB
 		m_CpHT_B_Zee_OR_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 69 :                 // SL_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_SL_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 70 :                 // SL_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_SL_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 71 :                 // SL_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_SL_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 72 :                 // ZR_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_ZR_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 73 :                 // ZR_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_ZR_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 74 :                 // ZR_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_ZR_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 75 :                 // TW_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_TW_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 76 :                 // TW_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_TW_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 77 :                 // TW_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_TW_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 78 :                 // OR_Zmm_Xenon_NonElecs_Barrel
 		m_CpHT_B_Zmm_OR_new [2][0].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 79 :                 // OR_Zmm_Xenon_NonElecs_EndcapA
 		m_CpHT_B_Zmm_OR_new [2][1].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
         case 80 :                 // OR_Zmm_Xenon_NonElecs_EndcapB
 		m_CpHT_B_Zmm_OR_new [2][2].push_back(first_channel->second["array_value"].data<float>());
-		inichan += 1;
                 break;
 	}
     }

@@ -64,23 +64,14 @@ private:
   bool selectTrack(const EventContext& ctx,
                    const xAOD::CaloCluster* cluster,
                    const xAOD::TrackParticle* track,
-                   IEMExtrapolationTools::Cache& cache,
-                   bool trkTRT) const;
+                   bool trkTRT,
+                   const CaloDetDescrManager& caloDD) const;
 
   /** @brief Tool for extrapolation */
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool{ this,
                                                          "ExtrapolationTool",
                                                          "EMExtrapolationTools",
                                                          "Extrapolation tool" };
-
-  /** @brief Tool for extrapolation */
-  ToolHandle<IEMExtrapolationTools> m_extrapolationToolCommonCache{
-    this,
-    "ExtrapolationToolCommonCache",
-    "EMExtrapolationToolsCommonCache",
-    "Extrapolation tool using the ATLAS common cache"
-  };
-
   /** @brief Tool to filter the calo clusters */
   ToolHandle<IegammaCaloClusterSelector> m_egammaCaloClusterSelector{
     this,

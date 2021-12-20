@@ -349,7 +349,7 @@ ROI MMT_Fitter::Get_ROI(double M_x, double M_u, double M_v, const vector<Hit>&tr
   ATH_MSG_DEBUG("\nGet_ROI(" << M_x << "," << M_u << "," << M_v << ") ");
 
   //--- calc constants ------
-  double b=TMath::DegToRad()*(par->stereo_degree);
+  double b=M_PI/180.0*(par->stereo_degree);
   double A=1./std::tan(b);
   double B=1./std::tan(b);
 

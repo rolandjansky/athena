@@ -19,18 +19,19 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
           https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaAlgs/src/topoEgammaBuilder.cxx
     """
 
-    log.debug('precisionElectronRecoSequence(RoIs = %s, variant = %s)',(RoIs,variant))
+    log.debug('precisionElectronRecoSequence(RoIs = %s, variant = %s)',RoIs,variant)
 
     tag = '_ion' if ion is True else ''
+    tag+=variant
     
     import AthenaCommon.CfgMgr as CfgMgr
     # First the data verifiers:
     # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run       
     # precision Tracking related data dependencies
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
-    TrigEgammaKeys = getTrigEgammaKeys(variant)
+    TrigEgammaKeys = getTrigEgammaKeys(variant, ion=ion)
 
-    caloClusters = TrigEgammaKeys.precisionHICaloClusterContainer if ion else TrigEgammaKeys.precisionCaloClusterContainer
+    caloClusters = TrigEgammaKeys.precisionCaloClusterContainer
     trackParticles = TrigEgammaKeys.precisionTrackingContainer
 
     ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier" + tag)
@@ -42,10 +43,7 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
 
     """ Retrieve the factories now """
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectronCfg
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigEMTrackMatchBuilder, TrigElectronIsoBuilderCfg
-
-    # Create the sequence of three steps:
-    #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigEMTrackMatchBuilder
 
     # Create the sequence of three steps:
     #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
@@ -59,39 +57,55 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
 
     ## TrigEgammaRecElectron_noGSF ##
     TrigEgammaRecAlgo = TrigEgammaRecElectron("TrigEgammaRecElectron_noGSF" + tag)
+    TrigEgammaRecAlgo.TrackMatchBuilderTool     = TrigEMTrackMatchBuilder
+    TrigEgammaRecAlgo.InputClusterContainerName = caloClusters # input
+    TrigEgammaRecAlgo.egammaRecContainer        = TrigEgammaKeys.precisionEgammaRecCollection # output
     thesequence += TrigEgammaRecAlgo
-    TrigEgammaRecAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
-    TrigEgammaRecAlgo.InputClusterContainerName = caloClusters
 
     ## TrigElectronSuperClusterBuilder_noGSF ##
     TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_noGSF" + tag)
+    TrigSuperElectronAlgo.TrackMatchBuilderTool          = TrigEMTrackMatchBuilder
+    TrigSuperElectronAlgo.InputEgammaRecContainerName    = TrigEgammaRecAlgo.egammaRecContainer # input
+    TrigSuperElectronAlgo.SuperElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterCollection # output
     thesequence += TrigSuperElectronAlgo
-    TrigSuperElectronAlgo.InputEgammaRecContainerName =  TrigEgammaRecAlgo.egammaRecContainer
-    TrigSuperElectronAlgo.TrackMatchBuilderTool = TrigEMTrackMatchBuilder
 
     ## TrigTopoEgammaElectronCfg_noGSF ##
     TrigTopoEgammaAlgo = TrigTopoEgammaElectronCfg("TrigTopoEgammaElectronCfg_noGSF" + tag)
     thesequence += TrigTopoEgammaAlgo
     TrigTopoEgammaAlgo.InputElectronRecCollectionName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
-    collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
+    TrigTopoEgammaAlgo.ElectronOutputName = TrigEgammaKeys.precisionElectronContainer
     TrigTopoEgammaAlgo.DummyElectronOutputName = "HLT_PrecisionDummyElectron"
-    collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName
+    
+
     ## TrigElectronIsoBuilderCfg_noGSF ##
-    isoBuilder = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_noGSF" + tag)
-    isoBuilder.useBremAssoc = False
+    if variant == '_LRT': # LRT sequence noGSF, NOTE: variant can be: _LRT, _GSF or ''
+        from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigElectronIsoBuilderCfg_LRT
+        isoBuilder = TrigElectronIsoBuilderCfg_LRT("TrigElectronIsoBuilderCfg_noGSF" + tag)
+    else: # standard sequence noGSF
+        from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigElectronIsoBuilderCfg
+        isoBuilder = TrigElectronIsoBuilderCfg("TrigElectronIsoBuilderCfg_noGSF" + tag)
+        isoBuilder.useBremAssoc = False #TODO: Is this correct?
+    
+    isoBuilder.ElectronCollectionContainerName = TrigEgammaKeys.precisionElectronContainer
     thesequence += isoBuilder
+
 
     #online monitoring for topoEgammaBuilder
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronTopoMonitorCfg
-    PrecisionElectronRecoMonAlgo = PrecisionElectronTopoMonitorCfg()
+    PrecisionElectronRecoMonAlgo = PrecisionElectronTopoMonitorCfg("PrecisionElectronTopoMonitoring" + tag)
     PrecisionElectronRecoMonAlgo.ElectronKey = TrigTopoEgammaAlgo.ElectronOutputName
     PrecisionElectronRecoMonAlgo.IsoVarKeys = [ '%s.ptcone20' % TrigTopoEgammaAlgo.ElectronOutputName, '%s.ptvarcone20' % TrigTopoEgammaAlgo.ElectronOutputName]
     thesequence += PrecisionElectronRecoMonAlgo
 
     #online monitoring for TrigElectronSuperClusterBuilder
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronSuperClusterMonitorCfg
-    PrecisionElectronSuperClusterMonAlgo = PrecisionElectronSuperClusterMonitorCfg()
+    PrecisionElectronSuperClusterMonAlgo = PrecisionElectronSuperClusterMonitorCfg("PrecisionElectronSuperClusterBuilder" + tag)
     PrecisionElectronSuperClusterMonAlgo.InputEgammaRecContainerName = TrigSuperElectronAlgo.SuperElectronRecCollectionName
     thesequence += PrecisionElectronSuperClusterMonAlgo
+
+
+    collectionOut = TrigTopoEgammaAlgo.ElectronOutputName
+    collectionOut_dummy = TrigTopoEgammaAlgo.DummyElectronOutputName
+
     return (thesequence, collectionOut, collectionOut_dummy)
 

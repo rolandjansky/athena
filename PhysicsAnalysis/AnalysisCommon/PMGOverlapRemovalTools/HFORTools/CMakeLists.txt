@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( HFORTools )
@@ -39,7 +39,8 @@ endif()
 # Test(s) in the package:
 atlas_add_test( ut_HFORTools_test
    SOURCES test/ut_HFORTools_test.cxx
-   LINK_LIBRARIES AsgTools PMGAnalysisInterfacesLib xAODEventInfo HFORToolsLib ${test_lib} )
+   LINK_LIBRARIES AsgTools PMGAnalysisInterfacesLib xAODEventInfo HFORToolsLib ${test_lib}
+   POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_data( data/*.cfg )

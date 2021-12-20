@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCPatchPanelOut.h"
@@ -11,29 +11,10 @@
 namespace LVL1TGCTrigger {
 
 TGCPatchPanelOut::TGCPatchPanelOut()
-  :m_bid(0), m_origin(0)
 {
   for(int  i=0; i<NumberOfConnectorPerPPOut; i+=1){
     m_signalPattern[i] = 0;
   }
-}
-
-TGCPatchPanelOut::~TGCPatchPanelOut()
-{
-  m_origin=0;
-  for(int i=0; i<NumberOfConnectorPerPPOut; i+=1){
-    if(m_signalPattern[i]!=0) delete m_signalPattern[i];
-      m_signalPattern[i] = 0;
-  }
-}
-
-TGCPatchPanelOut::TGCPatchPanelOut(const TGCPatchPanelOut& right)
-  :m_bid(0), m_origin(0)
-{
-  for(int  i=0; i<NumberOfConnectorPerPPOut; i+=1){
-    m_signalPattern[i] = 0;
-  }
-  *this = right;
 }
 
 TGCPatchPanelOut& TGCPatchPanelOut::operator=(const TGCPatchPanelOut& right)

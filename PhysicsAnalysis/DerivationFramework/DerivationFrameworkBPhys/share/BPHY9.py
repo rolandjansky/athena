@@ -72,11 +72,14 @@ print(BPHY9JpsiFinder)
 #    output vertex collection(s) into the StoreGate and add basic decorations which do not depend on the vertex mass hypothesis 
 #    (e.g. lxy, ptError, etc). There should be one tool per topology, i.e. Jpsi and Psi(2S) do not need two instance of the
 #    Reco tool is the JpsiFinder mass window is wide enough.
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_Vertex
 BPHY9_Reco_mumu = DerivationFramework__Reco_Vertex(name                   = 'BPHY9_Reco_mumu',
                                                  VertexSearchTool             = BPHY9JpsiFinder,
                                                  OutputVtxContainerName = 'BPHY9OniaCandidates',
                                                  PVContainerName        = 'PrimaryVertices',
+                                                 V0Tools                = TrackingCommon.getV0Tools(),
+                                                 PVRefitter             = BPHY9_VertexTools.PrimaryVertexRefitter,
                                                  RefPVContainerName     = 'BPHY9RefittedPrimaryVertices',
                                                  RefitPV                = True,
                                                  MaxPVrefit             = 100000,
@@ -96,6 +99,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY9_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(name                  = 'BPHY9_Select_Jpsi2mumu',
                                                                HypothesisName        = 'Jpsi',
                                                                InputVtxContainerName = 'BPHY9OniaCandidates',
+                                                               V0Tools               = TrackingCommon.getV0Tools(),
                                                                VtxMassHypo           = 3096.916,
                                                                MassMin               = 2000.0,
                                                                MassMax               = 3600.0,
@@ -108,6 +112,7 @@ print(BPHY9_Select_Jpsi2mumu)
 BPHY9_Select_Psi2mumu = DerivationFramework__Select_onia2mumu(name                  = 'BPHY9_Select_Psi2mumu',
                                                               HypothesisName        = 'Psi',
                                                               InputVtxContainerName = 'BPHY9OniaCandidates',
+                                                              V0Tools               = TrackingCommon.getV0Tools(),
                                                               VtxMassHypo           = 3686.09,
                                                               MassMin               = 3300.0,
                                                               MassMax               = 4500.0,

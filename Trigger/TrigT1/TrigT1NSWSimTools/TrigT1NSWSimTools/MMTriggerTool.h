@@ -69,6 +69,28 @@ namespace NSWL1 {
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
     void fillNtuple(const MMLoadVariables& loadedVariables);
 
+    // Functions and variables for RDO conversion: since they are method-independent, they should be stored as private members of the main class
+    void setPhiMin(float value) { m_rdoPhiMin = value; }
+    void setPhiMax(float value) { m_rdoPhiMax = value; }
+    void setPhiBits(uint8_t bits) { m_rdoPhiBits = bits; }
+    void setRMin(float value) { m_rdoRMin = value; }
+    void setRMax(float value) { m_rdoRMax = value; }
+    void setRBits(uint8_t bits) { m_rdoRBits = bits; }
+    void setdThetaMin(float value) { m_rdodThetaMin = value; }
+    void setdThetaMax(float value) { m_rdodThetaMax = value; }
+    void setdThetaBits(uint8_t bits) { m_rdodThetaBits = bits; }
+    float getPhiMin() const { return m_rdoPhiMin; }
+    float getPhiMax() const { return m_rdoPhiMax; }
+    uint8_t getPhiBits() const { return m_rdoPhiBits; }
+    float getRMin() const { return m_rdoRMin; }
+    float getRMax() const { return m_rdoRMax; }
+    uint8_t getRBits() const { return m_rdoRBits; }
+    float getdThetaMin() const { return m_rdodThetaMin; }
+    float getdThetaMax() const { return m_rdodThetaMax; }
+    uint8_t getdThetaBits() const { return m_rdodThetaBits; }
+    float m_rdoPhiMin, m_rdoPhiMax, m_rdoRMin, m_rdoRMax, m_rdodThetaMin, m_rdodThetaMax;
+    uint8_t m_rdoPhiBits, m_rdoRBits, m_rdodThetaBits;
+
     // properties: container and service names
     StringProperty   m_MmDigitContainer;                    //!< property, see @link MMStripTdsOfflineTool::MMStripTdsOfflineTool @endlink
 

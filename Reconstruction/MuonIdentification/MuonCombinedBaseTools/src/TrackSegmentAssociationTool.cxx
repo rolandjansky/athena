@@ -11,11 +11,22 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/Track.h"
 
-namespace Muon {
+namespace {
+    struct MatchResult {
+        ElementLink<xAOD::MuonSegmentContainer> link;
+        Muon::MuonSegmentKey key;
+        unsigned int numberOfMatchedMeasurements;
+        MatchResult(const ElementLink<xAOD::MuonSegmentContainer>& link_, const Muon::MuonSegmentKey& key_,
+                    unsigned int numberOfMatchedMeasurements_) :
+            link(link_), key(key_), numberOfMatchedMeasurements(numberOfMatchedMeasurements_) {}
+    };
+}
+
+namespace MuonCombined {
 
     TrackSegmentAssociationTool::TrackSegmentAssociationTool(const std::string& t, const std::string& n, const IInterface* p) :
         AthAlgTool(t, n, p) {
-        declareInterface<TrackSegmentAssociationTool>(this);
+        declareInterface<IMuonTrackToSegmentAssociationTool>(this);
     }
 
     StatusCode TrackSegmentAssociationTool::initialize() {
@@ -26,7 +37,20 @@ namespace Muon {
 
     /** Returns a list of segments that match with the input Muon. */
     bool TrackSegmentAssociationTool::associatedSegments(const xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments,
-                                                         std::vector<ElementLink<xAOD::MuonSegmentContainer> >& associatedSegments) const {
+                                                         std::vector<ElementLink<xAOD::MuonSegmentContainer> >& assoc_segments) const {
+
+        /// only fill if the primary track particle is not equal to the ID track particle and
+        /// it has an associated track with track states
+        const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
+        if (!tp || !tp->track() || !tp->track()->measurementsOnTrack() || tp == muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle))
+            return false;
+
+        return associatedSegments(*tp->track(), segments, assoc_segments);
+    }
+
+    
+    bool TrackSegmentAssociationTool::associatedSegments(const Trk::Track& track, const xAOD::MuonSegmentContainer* segments,
+                                std::vector<ElementLink<xAOD::MuonSegmentContainer> >& assoc_segments) const  {
         if (!segments) {
             ATH_MSG_DEBUG("no segment container passed, returning");
             return false;
@@ -35,30 +59,12 @@ namespace Muon {
             ATH_MSG_DEBUG("no segments in container, returning");
             return false;
         }
-        // only fill if the primary track particle is not equal to the ID track particle and
-        // it has an associated track with track states
-        const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
-        if (!tp || !tp->track() || !tp->track()->measurementsOnTrack() || tp == muon.trackParticle(xAOD::Muon::InnerDetectorTrackParticle))
-            return false;
-
-        const Trk::Track& track = *tp->track();
-
-        struct MatchResult {
-            ElementLink<xAOD::MuonSegmentContainer> link;
-            MuonSegmentKey key;
-            unsigned int numberOfMatchedMeasurements;
-            MatchResult(const ElementLink<xAOD::MuonSegmentContainer>& link_, const MuonSegmentKey& key_,
-                        unsigned int numberOfMatchedMeasurements_) :
-                link(link_), key(key_), numberOfMatchedMeasurements(numberOfMatchedMeasurements_) {}
-        };
-
         std::vector<MatchResult> matched_segs;
-
         ATH_MSG_VERBOSE("track " << m_printer->print(track) << std::endl << m_printer->printStations(track));
 
-        MuonSegmentKey trackKeys(tp->track()->measurementsOnTrack()->stdcont());
+        Muon::MuonSegmentKey trackKeys(track.measurementsOnTrack()->stdcont());
 
-        CompareMuonSegmentKeys compareKeys{};
+        Muon::CompareMuonSegmentKeys compareKeys{};
 
         for (unsigned int i = 0; i < segments->size(); ++i) {
             const xAOD::MuonSegment* curr_seg = (*segments)[i];
@@ -70,11 +76,11 @@ namespace Muon {
                 ATH_MSG_DEBUG("Segment without valid link");
                 continue;
             }
-            const MuonSegment* muonSegment = dynamic_cast<const MuonSegment*>(*muonSegmentLink);
+            const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(*muonSegmentLink);
             if (!muonSegment) continue;
-            MuonSegmentKey segmentKeys(*muonSegment);
-            CompareMuonSegmentKeys::OverlapResult overlapResult = compareKeys(trackKeys, segmentKeys, true);
-            if (overlapResult == CompareMuonSegmentKeys::NoOverlap) continue;
+            Muon::MuonSegmentKey segmentKeys(*muonSegment);
+            Muon::CompareMuonSegmentKeys::OverlapResult overlapResult = compareKeys(trackKeys, segmentKeys, true);
+            if (overlapResult == Muon::CompareMuonSegmentKeys::NoOverlap) continue;
             MatchResult matchResult(ElementLink<xAOD::MuonSegmentContainer>(*segments, i), segmentKeys, compareKeys.intersectionSize);
             matched_segs.push_back(matchResult);
             ATH_MSG_DEBUG("numberOfMatchedMeasurements = " << matchResult.numberOfMatchedMeasurements);
@@ -82,8 +88,7 @@ namespace Muon {
         ATH_MSG_DEBUG("Number of matched space-time points = " << matched_segs.size());
 
         // refined selection
-        std::vector<bool> matched_segs_isSelected;
-        matched_segs_isSelected.assign(matched_segs.size(), bool(true));
+        std::vector<bool> matched_segs_isSelected(matched_segs.size(), true);
 
         for (unsigned int i = 0; i < matched_segs.size(); i++) {
             if (!matched_segs_isSelected[i]) continue;
@@ -104,8 +109,8 @@ namespace Muon {
                 // In case the two segments have common hits:
                 // 1) choose the one with higher number of matched hits to the track.
                 // 2) if the numbers of matched hits are the same, choose the one with smaller chi2/DoF.
-                CompareMuonSegmentKeys::OverlapResult overlapResult = compareKeys(result_i.key, result_j.key, true);
-                if (overlapResult == CompareMuonSegmentKeys::NoOverlap) continue;
+                Muon::CompareMuonSegmentKeys::OverlapResult overlapResult = compareKeys(result_i.key, result_j.key, true);
+                if (overlapResult == Muon::CompareMuonSegmentKeys::NoOverlap) continue;
                 if (nMatched_j > nMatched_i) {
                     matched_segs_isSelected[i] = false;
                 } else if (nMatched_j < nMatched_i) {
@@ -126,10 +131,9 @@ namespace Muon {
         }
 
         for (unsigned int i = 0; i < matched_segs.size(); i++) {
-            if (matched_segs_isSelected[i]) { associatedSegments.push_back(matched_segs.at(i).link); }
+            if (matched_segs_isSelected[i]) { assoc_segments.push_back(matched_segs.at(i).link); }
         }
-        ATH_MSG_DEBUG("Selected segments " << associatedSegments.size());
-
+        ATH_MSG_DEBUG("Selected segments " << assoc_segments.size());
         return true;
     }
 

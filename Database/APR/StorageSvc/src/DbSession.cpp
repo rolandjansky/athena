@@ -75,7 +75,7 @@ DbStatus DbSession::close() {
 }
 
 /// Add domain to session
-DbStatus DbSession::add(DbDomainObj* dom)  const   {
+DbStatus DbSession::add(DbDomainObj* dom)   {
   DbStatus sc = Error;
   if ( isValid() && dom )    {
     sc = m_ptr->add(dom->type().type(), dom);
@@ -104,7 +104,7 @@ int DbSession::refCount() const  {
 }
 
 /// Find domain in session
-DbDomainObj* DbSession::find(const DbType& tech_type)  const {
+DbDomainObj* DbSession::find(const DbType& tech_type) {
   DbDomainObj* dom = 0;
   if ( isValid() )  {
     dom = m_ptr->find(tech_type);
@@ -116,7 +116,7 @@ DbDomainObj* DbSession::find(const DbType& tech_type)  const {
 }
 
 /// Allow access to the Database implementation
-IOODatabase* DbSession::db(const DbType& typ) const {
+IOODatabase* DbSession::db(const DbType& typ) {
   return isValid() ? m_ptr->db(typ) : 0;
 }
 

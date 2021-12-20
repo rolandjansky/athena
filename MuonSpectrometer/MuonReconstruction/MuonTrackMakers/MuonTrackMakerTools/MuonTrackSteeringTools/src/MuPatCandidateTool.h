@@ -44,8 +44,7 @@ namespace Muon {
     class MuPatCandidateBase;
     class MuonClusterOnTrack;
 
-    static const InterfaceID IID_MuPatCandidateTool("Muon::MuPatCandidateTool", 1, 0);
-
+   
     /** class to manipulate MuPatCandidateBase objects */
     class MuPatCandidateTool : public AthAlgTool {
     public:
@@ -64,7 +63,10 @@ namespace Muon {
         virtual StatusCode initialize() override;
 
         /** @brief access to tool interface */
-        static const InterfaceID& interfaceID() { return IID_MuPatCandidateTool; }
+        static const InterfaceID& interfaceID() {
+             static const InterfaceID IID_MuPatCandidateTool("Muon::MuPatCandidateTool", 1, 0);
+             return IID_MuPatCandidateTool; 
+        }
 
         /** @brief extend a track candidate with a segment
             @param[in] can   the MuPatTrack to be extended
@@ -116,7 +118,7 @@ namespace Muon {
             @param[in] segment  input segment
             @param[out] the MuPatSegment object, ownership is passed to caller
         */
-        MuPatSegment* createSegInfo(const MuonSegment& segment, GarbageContainer& trash_bin) const;
+        std::unique_ptr<MuPatSegment> createSegInfo(const MuonSegment& segment, GarbageContainer& trash_bin) const;
 
         /** @brief get list of the readout elements of the hits on the entry */
         std::set<const MuonGM::MuonReadoutElement*> readoutElements(const MuPatCandidateBase& entry) const;

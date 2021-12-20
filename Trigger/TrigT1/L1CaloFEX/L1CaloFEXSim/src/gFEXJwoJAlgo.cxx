@@ -34,13 +34,15 @@ StatusCode gFEXJwoJAlgo::initialize(){
 
 
 void gFEXJwoJAlgo::setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
-                                  unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                  int gblockThreshold) {
+                                   unsigned int aFPGA_B, unsigned int bFPGA_B,
+                                   int gXE_seedThrA, int gXE_seedThrB) {
   m_aFPGA_A = aFPGA_A;
   m_bFPGA_A = bFPGA_A;
   m_aFPGA_B = aFPGA_B;
   m_bFPGA_B = bFPGA_B;
-  m_gBlockthreshold = gblockThreshold;
+  m_gBlockthresholdA = gXE_seedThrA;
+  m_gBlockthresholdB = gXE_seedThrB;
+
 }
 
 
@@ -89,8 +91,8 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   unsigned int MST_y = 0x0;
 
 
-  metFPGA(Atwr, gBLKA, A_MHT_x, A_MHT_y, A_MST_x, A_MST_y, A_MET_x, A_MET_y);
-  metFPGA(Btwr, gBLKB, B_MHT_x, B_MHT_y, B_MST_x, B_MST_y, B_MET_x, B_MET_y);
+  metFPGA(Atwr, gBLKA, m_gBlockthresholdA, A_MHT_x, A_MHT_y, A_MST_x, A_MST_y, A_MET_x, A_MET_y);
+  metFPGA(Btwr, gBLKB, m_gBlockthresholdB, B_MHT_x, B_MHT_y, B_MST_x, B_MST_y, B_MET_x, B_MET_y);
 
   metTotal(A_MET_x, A_MET_y, B_MET_x, B_MET_y, MET_x, MET_y, MET);
 
@@ -225,7 +227,7 @@ void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 }
 
 
-void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum,
+void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
                            unsigned int & MHT_x, unsigned int & MHT_y,
                            unsigned int & MST_x, unsigned int & MST_y,
                            unsigned int & MET_x, unsigned int & MET_y){
@@ -234,7 +236,7 @@ void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum,
   int cols = twrs[0].size();
   for( int irow = 0; irow < rows; irow++ ){
     for(int jcolumn = 0; jcolumn<cols; jcolumn++){
-      if(gBlkSum[irow][jcolumn] > m_gBlockthreshold){
+      if(gBlkSum[irow][jcolumn] > gBlockthreshold){
         MHT_x += (twrs[irow][jcolumn])*cosLUT(irow, 5, 6);
         MHT_y += (twrs[irow][jcolumn])*sinLUT(irow, 5, 6);
       }

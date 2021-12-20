@@ -17,7 +17,7 @@
 
 std::map<std::string,TH1*> 
 NetworkToHistoTool::histsFromNetwork(const TTrainedNetwork* trainedNetwork) 
-  const
+  
 {
 
   std::map<std::string,TH1*> outputHistos;
@@ -111,7 +111,7 @@ NetworkToHistoTool::histsFromNetwork(const TTrainedNetwork* trainedNetwork)
     
   }
 
-  typedef TTrainedNetwork::Input Input; 
+  using Input = TTrainedNetwork::Input; 
   std::vector<Input> inputs = trainedNetwork->getInputs(); 
 
   if (inputs.empty()) { 
@@ -139,7 +139,7 @@ NetworkToHistoTool::histsFromNetwork(const TTrainedNetwork* trainedNetwork)
 
 TTrainedNetwork* 
 NetworkToHistoTool::networkFromHists(const std::map<std::string,const TH1*>& inputHistos) 
-  const
+  
 {
   auto getHist = [&inputHistos] (const std::string& name) -> const TH1*
                  {
@@ -275,7 +275,7 @@ for (Int_t i=0;i<nHidden;++i)
 }
 
 std::vector<TH1*> NetworkToHistoTool
-::fromTrainedNetworkToHisto(const TTrainedNetwork* net) const
+::fromTrainedNetworkToHisto(const TTrainedNetwork* net) 
 {
   std::map<std::string, TH1*> hists = histsFromNetwork(net); 
   std::vector<TH1*> hist_vec; 
@@ -288,7 +288,7 @@ std::vector<TH1*> NetworkToHistoTool
 }
 
 TTrainedNetwork* NetworkToHistoTool
-::fromHistoToTrainedNetwork(const std::vector<TH1*>& hists) const 
+::fromHistoToTrainedNetwork(const std::vector<TH1*>& hists) 
 {
   std::map<std::string, const TH1*> hist_map;
   for (const TH1* h : hists) {
@@ -298,7 +298,7 @@ TTrainedNetwork* NetworkToHistoTool
 }
 
 TTrainedNetwork* NetworkToHistoTool
-::fromHistoToTrainedNetwork(const std::vector<const TH1*>& hists) const 
+::fromHistoToTrainedNetwork(const std::vector<const TH1*>& hists) 
 {
   std::map<std::string, const TH1*> hist_map;
   for (const TH1* h : hists) {

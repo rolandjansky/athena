@@ -10,6 +10,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from GaudiKernel.DataHandle import DataHandle
 from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
@@ -17,8 +18,6 @@ from TrigCompositeUtils.TrigCompositeUtils import legName
 from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena, conf2toConfigurable
 
-
-from inspect import signature
 from collections import MutableSequence
 import collections.abc
 import re
@@ -27,6 +26,9 @@ log = logging.getLogger( __name__ )
 
 RoRSeqFilter=CompFactory.RoRSeqFilter
 PassFilter = CompFactory.PassFilter
+
+# Pool of mutable ComboHypo instances (as opposed to immutable cache of RecoFragmentsPool)
+_ComboHypoPool = dict()
 
 
 class NoHypoToolCreated(Exception):
@@ -118,7 +120,7 @@ class AlgNode(Node):
         return outputs
 
     def addInput(self, name):
-        inputs = self.readInputList()
+        inputs = self.readInputList()        
         if name in inputs:
             log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
@@ -269,12 +271,15 @@ class RoRSequenceFilterNode(SequenceFilterNode):
     def getChainsPerInput(self):
         return self.getPar("ChainsPerInput")
 
+
+from AthenaCommon.AlgSequence import AthSequencer
 class PassFilterNode(SequenceFilterNode):
     """ PassFilter is a Filter node without inputs/outputs, so OutputProp=InputProp=empty"""
-    def __init__(self, name):
-        Alg= PassFilter(name)
+    def __init__(self, name):        
+        Alg=AthSequencer( "PassSequence" )
+        Alg.IgnoreFilterPassed=True   # always pass     
         SequenceFilterNode.__init__(self,  Alg, '', '')
-
+  
 
 class InputMakerNode(AlgNode):
     def __init__(self, Alg):
@@ -288,7 +293,6 @@ class ComboMaker(AlgNode):
     def __init__(self, name, comboHypoCfg):
         self.prop1="MultiplicitiesMap"
         self.prop2="LegToInputCollectionMap"
-        self.rawInputs = []
         self.comboHypoCfg = comboHypoCfg
         Alg = self.create( name )
         log.debug("ComboMaker init: Alg %s", name)
@@ -300,6 +304,7 @@ class ComboMaker(AlgNode):
 
     """
     AlgNode automatically de-duplicates input ReadHandles upon repeated calls to addInput.
+    Node instead stores all the inputs, even if repeated (self.inputs)
     This function maps from the raw number of times that addInput was called to the de-duplicated index of the handle.
     E.g. a step processing chains such as HLT_e5_mu6 would return [0,1]
     E.g. a step processing chains such as HLT_e5_e6 would return [0,0]
@@ -307,21 +312,21 @@ class ComboMaker(AlgNode):
     These data are needed to configure the step's ComboHypo
     """
     def mapRawInputsToInputsIndex(self):
-        mapping = []
-        theInputs = self.readInputList()
-        for rawInput in self.rawInputs:
+        mapping = []        
+        theInputs = self.readInputList() #only unique inputs    
+        for rawInput in self.inputs: # all inputs
             mapping.append( theInputs.index(rawInput) )
         return mapping
 
-    def addInput(self, name):
-        self.rawInputs.append(str(name) if isinstance(name, DataHandle) else name)
+    """ overwrite AlgNode::addInput with Node::addInput"""
+    def addInput(self, name):        
         return AlgNode.addInput(self, name)
 
     def addChain(self, chainDict):
         chainName = chainDict['chainName']
         chainMult = chainDict['chainMultiplicities']
         legsToInputCollections = self.mapRawInputsToInputsIndex()
-        
+
         if len(chainMult) != len(legsToInputCollections):
             log.error("ComboMaker for Alg:{} with addChain for:{} Chain multiplicity:{} Per leg input collection index:{}."
                 .format(compName(self.Alg), chainName, tuple(chainMult), tuple(legsToInputCollections)))
@@ -464,37 +469,10 @@ class MenuSequence(object):
         # so we will use temp variables for both
         if IsProbe:
             log.debug("MenuSequence: found a probe leg")
-            # Clone hypo & input maker
-            def getProbeHypo(dummyFlags,basehypo):
-                probehypo = basehypo.clone(basehypo.name()+"_probe")
-                for p,v in basehypo.getValuedProperties().items():                    
-                    setattr(probehypo,p,getattr(basehypo,p))
-                return probehypo
-            _Hypo = RecoFragmentsPool.retrieve(getProbeHypo,None,basehypo=Hypo)
+            _Hypo = RecoFragmentsPool.retrieve(MenuSequence.getProbeHypo,ConfigFlags,basehypo=Hypo)
             # Reset this so that HypoAlgNode.addOutput will actually do something
             _Hypo.HypoOutputDecisions = "StoreGateSvc+UNSPECIFIED_OUTPUT"
-
-
-            def getProbeInputMaker(dummyFlags,baseIM):
-                probeIM = baseIM.clone(baseIM.name()+"_probe")
-                for p,v in baseIM.getValuedProperties().items():                    
-                    setattr(probeIM,p,getattr(baseIM,p))
-
-                if isinstance(probeIM,CompFactory.EventViewCreatorAlgorithm):
-                    assert(baseIM.Views)
-                    probeIM.Views = baseIM.Views.Path + "_probe"
-                    probeIM.RoITool = baseIM.RoITool
-                    probeIM.InputCachedViews = baseIM.InputMakerOutputDecisions
-                    if hasattr(baseIM.RoITool,"RoisWriteHandleKey") and baseIM.RoITool.RoisWriteHandleKey.Path!="StoreGateSvc+":
-                        probeIM.RoITool.RoisWriteHandleKey = baseIM.RoITool.RoisWriteHandleKey.Path + "_probe"
-                else:
-                    raise TypeError(f"Probe leg input maker may not be of type '{baseIM.__class__}'.")
-                
-                # Reset this initially to avoid interference
-                # with the original
-                probeIM.InputMakerInputDecisions = []
-                return probeIM
-            _Maker = RecoFragmentsPool.retrieve(getProbeInputMaker,None,baseIM=Maker)
+            _Maker = RecoFragmentsPool.retrieve(MenuSequence.getProbeInputMaker,ConfigFlags,baseIM=Maker)
 
         else: # For regular legs, just use the provided components
             _Hypo = Hypo
@@ -513,7 +491,7 @@ class MenuSequence(object):
         self._hypo.setPreviousDecision( input_maker_output )
 
         if IsProbe:
-            def getProbeSequence(dummyFlags,baseSeq,probeIM):
+            def getProbeSequence(baseSeq,probeIM):
                 # Add IM and sequence contents to duplicated sequence
                 probeSeq = baseSeq.clone(baseSeq.name()+"_probe")
                 probeSeq += probeIM                
@@ -526,7 +504,7 @@ class MenuSequence(object):
                     probeSeq += _ViewSeq                
                 return probeSeq
                 # Make sure nothing was lost
-            _Sequence = RecoFragmentsPool.retrieve(getProbeSequence,None,baseSeq=Sequence,probeIM=_Maker)
+            _Sequence = getProbeSequence(baseSeq=Sequence,probeIM=_Maker)
             assert(len(_Sequence.getChildren()) == len(Sequence.getChildren()))
 
         self._sequence = Node( Alg=_Sequence)
@@ -557,6 +535,35 @@ class MenuSequence(object):
     @property
     def hypo(self):
         return self._hypo
+
+    @staticmethod
+    def getProbeHypo(flags,basehypo):
+        '''Clone hypo & input maker'''
+        probehypo = basehypo.clone(basehypo.name()+"_probe")
+        for p,v in basehypo.getValuedProperties().items():
+            setattr(probehypo,p,getattr(basehypo,p))
+        return probehypo
+
+    @staticmethod
+    def getProbeInputMaker(flags,baseIM):
+        probeIM = baseIM.clone(baseIM.name()+"_probe")
+        for p,v in baseIM.getValuedProperties().items():
+            setattr(probeIM,p,getattr(baseIM,p))
+
+        if isinstance(probeIM,CompFactory.EventViewCreatorAlgorithm):
+            assert(baseIM.Views)
+            probeIM.Views = baseIM.Views.Path + "_probe"
+            probeIM.RoITool = baseIM.RoITool
+            probeIM.InputCachedViews = baseIM.InputMakerOutputDecisions
+            if hasattr(baseIM.RoITool,"RoisWriteHandleKey") and baseIM.RoITool.RoisWriteHandleKey.Path!="StoreGateSvc+":
+                probeIM.RoITool.RoisWriteHandleKey = baseIM.RoITool.RoisWriteHandleKey.Path + "_probe"
+        else:
+            raise TypeError(f"Probe leg input maker may not be of type '{baseIM.__class__}'.")
+
+        # Reset this initially to avoid interference
+        # with the original
+        probeIM.InputMakerInputDecisions = []
+        return probeIM
 
     def getOutputList(self):
         outputlist = []     
@@ -870,15 +877,14 @@ class CFSequence(object):
         if self.step.combo is None:
             return
 
-        for seq in self.step.sequences:
-            if type(seq.getOutputList()) is list:
-               combo_input=seq.getOutputList()[-1] # last one?
-            else:
-               combo_input=seq.getOutputList()[0]
+        for seq in self.step.sequences:            
+            combo_input=seq.getOutputList()[0]
             self.step.combo.addInput(combo_input)
+            inputs = self.step.combo.readInputList()
+            legindex = inputs.index(combo_input)
             log.debug("CFSequence.connectCombo: adding input to  %s: %s",  self.step.combo.Alg.getName(), combo_input)
             # inputs are the output decisions of the hypos of the sequences
-            combo_output=CFNaming.comboHypoOutputName (self.step.combo.Alg.getName(), combo_input)
+            combo_output=CFNaming.comboHypoOutputName (self.step.combo.Alg.getName(), legindex)            
             self.step.combo.addOutput(combo_output)
             log.debug("CFSequence.connectCombo: adding output to  %s: %s",  self.step.combo.Alg.getName(), combo_output)
 
@@ -1024,7 +1030,11 @@ class ChainStep(object):
         self.combo=None 
         if self.isEmpty or self.comboHypoCfg is None:
             return
-        self.combo = RecoFragmentsPool.retrieve(createComboAlg, None, name=CFNaming.comboHypoName(self.name), comboHypoCfg=self.comboHypoCfg)
+        comboName = CFNaming.comboHypoName(self.name)
+        key = hash((comboName, self.comboHypoCfg))
+        if key not in _ComboHypoPool:
+            _ComboHypoPool[key] = createComboAlg(None, name=comboName, comboHypoCfg=self.comboHypoCfg)
+        self.combo = _ComboHypoPool[key]
 
 
     def createComboHypoTools(self, chainName):      
@@ -1064,6 +1074,11 @@ class ChainStep(object):
 
 
 def createComboAlg(dummyFlags, name, comboHypoCfg):
+    # remove StepXXX_ from the name
+    if re.search('^Step[0-9]_',name):
+        name = name[6:]
+    elif re.search('^Step[0-9]{2}_', name):
+        name = name[7:]
     return ComboMaker(name, comboHypoCfg)
 
 
@@ -1201,9 +1216,10 @@ def menuSequenceCAToGlobalWrapper(gen, flags, *args, **kwargs):
             if isSequence(member):
                 old += _convertSeq(member)
             else:
-                old += conf2toConfigurable(member)
+                if member != msca.hypo.Alg: # removed hypo, as MenuSequence assembles it later
+                    old += conf2toConfigurable(member)
         return old
-    sequence = _convertSeq(msca.sequence.Alg.Members[0]) 
+    sequence = _convertSeq(msca.sequence.Alg.Members[0])
     msca.ca._algorithms = {}
     msca.ca._sequence = None
     msca.ca._allSequences = []
@@ -1247,55 +1263,79 @@ def lockConfigurable(conf):
     pass
 
 class RecoFragmentsPool(object):
-    """ Class to host all the reco fragments that need to be reused """
-    fragments = {}
-    @classmethod
-    def retrieve( cls,  creator, flags, **kwargs ):
-        """ create, or return created earlier reco fragment
+    """
+    This used to be a custom cache implementation for the creator function,
+    but now it is a fairly simple wrapper to apply @AccumulatorCache to creator.
+    All methods are static, this class holds no state (instead AccumulatorCache does).
+    """
 
-        Reco fragment is uniquelly identified by the function and set of **kwargs.
-        The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
-        TODO, if that code survives migration to New JO we need to handle the case when the creator is an inner function
+    # Set RecoFragmentsPool.DebugCaching=True in top-level JO to enable debug messages.
+    # This is very useful to study cache misses and find which ones can be avoided.
+    DebugCaching = False
+
+    @staticmethod
+    def chacheableArgsDict(kwargsDict):
         """
-        def bind_callargs(func, *args, **kwargs):
-            """ Take a function and a set of args and kwargs and return a dictionary mapping argument name to value, accounting for defaults
-            """
-            sig = signature(func)
-            bound = sig.bind(*args, **kwargs)
-            bound.apply_defaults()
-            return dict(bound.arguments)
+        Sort the kwargs dictionary and replace all DataHandle objects in dict values with
+        their string representation.
 
-        if not(isinstance(flags,AthConfigFlags) or flags is None):
-            raise TypeError("RecoFragmentsPool: First argument for creator function passed to retrieve() must be of type ConfigFlags or None")
+        For the purpose of RecoFragmentsPool we can assume DataHandle objects in kwargs
+        are immutable and thus hashable by their string representation.
+        """
+        kwargsCopy = dict()
+        for k,v in sorted(kwargsDict.items()):
+            if (isinstance(v,DataHandle)):
+                kwargsCopy[k] = str(v)
+            else:
+                kwargsCopy[k] = v
+        return kwargsCopy
 
-        allargs = bind_callargs(creator, flags, **kwargs)
-        # First arg is flags, which we don't want to depend on
-        firstkey = list(allargs.keys())[0]
-        del allargs[firstkey]
-        # Drop dict of kwargs if it is in allargs
-        if allargs.keys():
-            lastkey = list(allargs.keys())[-1]
-            if allargs[lastkey].__class__ == dict:
-               kwargs = allargs[lastkey]
-               del allargs[lastkey]
-               allargs.update(kwargs)
-        
-        sortedkeys = sorted(allargs.keys())
-        sortedvals = [str(allargs[key]) if isinstance(allargs[key], DataHandle)
-                      else allargs[key] for key in sortedkeys]
+    @staticmethod
+    def recursiveToTuple(obj):
+        """Convert unhashable dict or list to a hashable tuple"""
+        if isinstance(obj,list):
+            new_list = [RecoFragmentsPool.recursiveToTuple(x) for x in obj]
+            return tuple(new_list)
+        if isinstance(obj,dict):
+            new_dict = dict([(k,RecoFragmentsPool.recursiveToTuple(v)) for k,v in obj.items()])
+            return tuple(new_dict.items())
+        # neither list or dict
+        return obj
 
-        requestHash = hash( ( creator.__module__, creator.__qualname__, tuple(sortedkeys), tuple(sortedvals) ) )
-        if requestHash in cls.fragments:
-            return cls.fragments[requestHash]
-        else:
-            recoFragment = creator( flags, **allargs )
-            try:
-                lockConfigurable(recoFragment)
-            except Exception as e:
-                log.info(f"RecoFragmentsPool: Failed to lock {recoFragment} with exception {e}")
-                raise e
-            cls.fragments[requestHash] = recoFragment
-            return recoFragment
+    @staticmethod
+    def recursiveFromTuple(obj):
+        """Reverse operation to recursiveToTuple"""
+        if not isinstance(obj,tuple):
+            return obj
+        if all([isinstance(x,tuple) and len(x)==2 for x in obj]):
+            # tuple consisting only of 2-element tuples is most likely a dict
+            return dict([(k,RecoFragmentsPool.recursiveFromTuple(v)) for k,v in obj])
+        # all other cases is a list
+        return list([RecoFragmentsPool.recursiveFromTuple(x) for x in obj])
+
+    @staticmethod
+    def retrieve(creator, flags, **kwargs):
+        if not isinstance(flags, AthConfigFlags):
+            raise TypeError("RecoFragmentsPool: First argument for creator function passed to retrieve() must be of type AthConfigFlags")
+        kwargs2 = RecoFragmentsPool.chacheableArgsDict(kwargs)
+        return RecoFragmentsPool.retrieve_cacheable(creator, flags, RecoFragmentsPool.recursiveToTuple(kwargs2))
+
+    @staticmethod
+    @AccumulatorCache(maxSize=1024)
+    def retrieve_cacheable(creator, flags, kwargsTuple):
+        kwargs = RecoFragmentsPool.recursiveFromTuple(kwargsTuple)
+        if RecoFragmentsPool.DebugCaching:
+            fName = 'RecoFragmentsPool.retrieve_cacheable'
+            log.debug('%s: creator = %s hash = %s', fName, creator, hash(creator))
+            log.debug('%s: flags = %s hash = %s', fName, flags, flags.athHash())
+            log.debug('%s: kwargs = %s hash = %s', fName, kwargs, hash(kwargsTuple))
+        recoFragment = creator( flags, **kwargs )
+        try:
+            lockConfigurable(recoFragment)
+        except Exception as e:
+            log.error("RecoFragmentsPool: Failed to lock %s with exception %s", recoFragment, e)
+            raise e
+        return recoFragment
 
 
 def getChainStepName(chainName, stepNumber):

@@ -32,7 +32,7 @@
 #include "xAODTruth/TruthParticle.h"
 
 class AtlasDetectorID;
-
+class CaloDetDescrManager;
 namespace Trk {
 
 class IExtrapolator;
@@ -52,6 +52,8 @@ public:
 
   /*
    * Implement the IParticleCaloExtension methods
+   * see IParticleCaloExtension.h for
+   * documentation
    */
   virtual std::unique_ptr<Trk::CaloExtension> caloExtension(
     const EventContext& ctx,
@@ -77,15 +79,29 @@ public:
     const TrackParameters& startPars,
     PropDirection propDir,
     ParticleHypothesis particleType) const override final;
-  
+
+  virtual std::vector<std::pair<CaloSampling::CaloSample,
+                                std::unique_ptr<const Trk::TrackParameters>>>
+  layersCaloExtension(
+    const EventContext& ctx,
+    const TrackParameters& startPars,
+    const std::vector<CaloSampling::CaloSample>& clusterLayers,
+    double eta,
+    const CaloDetDescrManager& caloDD,
+    ParticleHypothesis particleType) const override final;
+
   virtual std::vector<std::pair<CaloSampling::CaloSample,
                                 std::unique_ptr<const Trk::TrackParameters>>>
   egammaCaloExtension(const EventContext& ctx,
                       const TrackParameters& startPars,
                       const xAOD::CaloCluster& cluster,
+                      const CaloDetDescrManager& caloDD,
                       ParticleHypothesis particleType) const override final;
 
 private:
+  /*
+   * Internal methods for different IParticle types
+   */
   std::unique_ptr<Trk::CaloExtension> caloExtension(
     const EventContext& ctx,
     const xAOD::TruthParticle& particle) const;
@@ -102,7 +118,7 @@ private:
   ToolHandle<ICaloSurfaceBuilder> m_calosurf{
     this,
     "CaloSurfaceBuilder",
-    "CaloSurfaceBuilder",
+    "",
     "Tool to build calorimeter layer surfaces"
   };
   Gaudi::Property<std::string> m_particleTypeName{

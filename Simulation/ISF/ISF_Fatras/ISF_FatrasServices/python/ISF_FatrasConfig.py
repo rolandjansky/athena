@@ -12,7 +12,6 @@ from ISF_Services.ISF_ServicesConfigNew import (
 )
 from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import G4RunManagerHelperCfg
 from RngComps.RandomServices import dSFMT
-from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 ################################################################################
 # HIT CREATION SECTION
@@ -402,12 +401,13 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
         result.merge(acc)
 
     # @TODO retire once migration to TrackingGeometry conditions data is complete
-    if 'TrackingGeometryReadKey' not in kwargs:
-        if use_tracking_geometry_cond_alg:
+    if flags.Sim.ISF.UseTrackingGeometryCond:
+        if 'TrackingGeometryReadKey' not in kwargs:
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
-            result.merge(TrackingGeometryCondAlgCfg(flags))
-            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
-            kwargs.setdefault("TrackingGeometryReadKey", 'AtlasTrackingGeometry')
+            acc = TrackingGeometryCondAlgCfg(flags)
+            geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
+            result.merge(acc)
+            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
 
     # hadronic interactions
     kwargs.setdefault("HadronicInteraction", True)

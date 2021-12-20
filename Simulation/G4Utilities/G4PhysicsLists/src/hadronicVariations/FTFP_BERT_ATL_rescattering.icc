@@ -55,7 +55,7 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
-#include "G4HadronPhysicsFTFP_BERT_ATL_rescattering.hh"
+#include "G4AtlasHadronPhysicsFTFP_BERT_ATL_rescattering.hh"
 
 #include "G4WarnPLStatus.hh"
 
@@ -85,7 +85,7 @@ template<class T> TFTFP_BERT_ATL_rescattering<T>::TFTFP_BERT_ATL_rescattering(G4
   this->RegisterPhysics( new G4HadronElasticPhysics(ver) );
 
    // Hadron Physics
-  this->RegisterPhysics( new G4HadronPhysicsFTFP_BERT_ATL_rescattering(ver) );
+  this->RegisterPhysics( new G4AtlasHadronPhysicsFTFP_BERT_ATL_rescattering(ver) );
 
   // Stopping Physics
   this->RegisterPhysics( new G4StoppingPhysics(ver) );

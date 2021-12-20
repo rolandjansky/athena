@@ -499,9 +499,9 @@ namespace FlavorTagDiscriminants {
 
       StringRegexes flip_converters {
         {"(IP[23]D)_(.*)"_r, "$1Neg_$2"},
-        {"rnnip_(.*)"_r, "rnnipflip_$1"},
+        {"(rnnip|dips[^_]*)_(.*)"_r, "$1flip_$2"},
         {"(JetFitter|SV1|JetFitterSecondaryVertex)_(.*)"_r, "$1Flip_$2"},
-        {"rnnip"_r, "rnnipflip"},
+        {"(rnnip|dips[^_]*)"_r, "$1flip"},
         {"^(DL1|DL1r|DL1rmu)$"_r, "$1Flip"},
         {"pt|abs_eta"_r, "$&"},
         {"softMuon.*|smt.*"_r, "$&"}

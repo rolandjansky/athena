@@ -2,6 +2,14 @@
 
 
 from AthenaCommon.SystemOfUnits import GeV
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from AthenaCommon.Configurable import Configurable
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+if not Configurable.configurableRun3Behavior:
+    from AthOnnxruntimeService.AthOnnxruntimeServiceConf import AthONNX__ONNXRuntimeSvc
+    from AthenaCommon.AppMgr import ServiceMgr
+    ServiceMgr += AthONNX__ONNXRuntimeSvc()
 
 
 def same( val , tool):
@@ -14,7 +22,7 @@ def same( val , tool):
 def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   
   # make the Hypo
-  #from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaDefs import createTrigEgammaFastCaloSelectors
+  #from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import createTrigEgammaFastCaloSelectors
   from AthenaConfiguration.ComponentFactory import CompFactory
   theFastCaloHypo = CompFactory.TrigEgammaFastCaloHypoAlg(name)
   theFastCaloHypo.CaloClusters = sequenceOut
@@ -38,9 +46,8 @@ def createTrigEgammaFastCaloHypoAlg(name, sequenceOut):
   ]
   MonTool.HistPath = 'FastCaloL2EgammaHypo/'+name
   theFastCaloHypo.MonTool=MonTool
-
-
   return theFastCaloHypo
+
 
 def TrigEgammaFastCaloHypoAlgCfg(flags, name, CaloClusters):
   from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -345,21 +352,33 @@ def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):
 
 
 
-if __name__ == "__main__":
 
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Trigger.doValidationMonitoring = True
+def createTrigEgammaFastCaloSelectors(ConfigFilePath=None):
 
-    t = TrigEgammaFastCaloHypoToolFromName( "HLT_e10_etcut_L1EM3","HLT_e10_etcut_L1EM3" )
-    assert t, "cant configure EtCut"
+    import collections
 
-    t = TrigEgammaFastCaloHypoToolFromName( "HLT_e5_etcut_L1EM3","HLT_e5_etcut_L1EM3" )
-    assert t, "cant configure EtCut"
+    if not ConfigFilePath:
+      ConfigFilePath = 'RingerSelectorTools/'+TrigEgammaSliceFlags.ringerVersion()
 
-    t = TrigEgammaFastCaloHypoToolFromName( "HLT_e26_lhtight_nod0_ivarloose_L1EM22VH","HLT_e26_lhtight_nod0_ivarloose_L1EM22VH" )
-    assert t, "cant configure EtCut"
+  
+    SelectorNames = collections.OrderedDict({
+            'tight'    : 'AsgElectronFastCaloRingerTightSelectorTool',
+            'medium'   : 'AsgElectronFastCaloRingerMediumSelectorTool',
+            'loose'    : 'AsgElectronFastCaloRingerLooseSelectorTool',
+            'vloose'   : 'AsgElectronFastCaloRingerVeryLooseSelectorTool',
+            })
+        
 
-
-    tool = TrigEgammaFastCaloHypoToolFromName('HLT_e3_etcut1step_g5_etcut_L12EM3', 'HLT_e3_etcut1step_g5_etcut_L12EM3')
-    assert tool, 'cant configure HLT_e3_etcut1step_g5_etcut_L12EM3'
-
+    ToolConfigFile = collections.OrderedDict({
+          'tight'   :['ElectronJpsieeRingerTightTriggerConfig_RingsOnly.conf'     , 'ElectronZeeRingerTightTriggerConfig_RingsOnly.conf'    ],
+          'medium'  :['ElectronJpsieeRingerMediumTriggerConfig_RingsOnly.conf'    , 'ElectronZeeRingerMediumTriggerConfig_RingsOnly.conf'   ],
+          'loose'   :['ElectronJpsieeRingerLooseTriggerConfig_RingsOnly.conf'     , 'ElectronZeeRingerLooseTriggerConfig_RingsOnly.conf'    ],
+          'vloose'  :['ElectronJpsieeRingerVeryLooseTriggerConfig_RingsOnly.conf' , 'ElectronZeeRingerVeryLooseTriggerConfig_RingsOnly.conf'],
+          })
+    
+    selectors = []    
+    for pidname , name in SelectorNames.items():
+      SelectorTool=CompFactory.Ringer.AsgRingerSelectorTool(name)
+      SelectorTool.ConfigFiles = [ (ConfigFilePath+'/'+path) for path in ToolConfigFile[pidname] ]
+      selectors.append(SelectorTool)
+    return selectors

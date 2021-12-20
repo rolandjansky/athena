@@ -45,8 +45,8 @@ def defaultTestFlags(configFlags, args):
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-P2-ITK-24-00-00"
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
     ConfigFlags.GeoModel.Align.Dynamic = False
-    #ConfigFlags.TrackingGeometry.MaterialSource = "Input"
-    # ConfigFlags.TrackingGeometry.MaterialSource = "material-maps.json"
+    #ConfigFlags.Acts.TrackingGeometry.MaterialSource = "Input"
+    # ConfigFlags.Acts.TrackingGeometry.MaterialSource = "material-maps.json"
     ConfigFlags.Beam.Type =''
 
     ConfigFlags.Detector.GeometryCalo = False

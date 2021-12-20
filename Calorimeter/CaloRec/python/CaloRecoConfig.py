@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
+def CaloRecoCfg(configFlags, clustersname=None):
     
     result=ComponentAccumulator()
     if not configFlags.Input.isMC:
@@ -11,17 +11,18 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
         from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg
         result.merge(LArRawDataReadingCfg(configFlags))
 
-
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        result.merge( ByteStreamReadCfg(configFlags,type_names=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
+        result.merge(ByteStreamReadCfg(configFlags,type_names=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
 
+        if configFlags.Output.doWriteESD:
+            from TileRecAlgs.TileDigitsFilterConfig import TileDigitsFilterOutputCfg
+            result.merge(TileDigitsFilterOutputCfg(configFlags))
 
         from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
         result.merge(LArRawChannelBuilderAlgCfg(configFlags))
-
         
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
-        result.merge( TileRawChannelMakerCfg(configFlags) )
+        result.merge(TileRawChannelMakerCfg(configFlags))
 
         from LArCellRec.LArTimeVetoAlgConfig import LArTimeVetoAlgCfg
         result.merge(LArTimeVetoAlgCfg(configFlags))
@@ -33,11 +34,11 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     
     #Configure topo-cluster builder
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname, doLCCalib=doLCCalib))
+    result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname))
 
     #Configure forward towers:
     from CaloRec.CaloFwdTopoTowerConfig import CaloFwdTopoTowerCfg
-    result.merge(CaloFwdTopoTowerCfg(configFlags,CaloTopoClusterContainerKey="CaloTopoClusters"))
+    result.merge(CaloFwdTopoTowerCfg(configFlags,CaloTopoClusterContainerKey="CaloCalTopoClusters"))
 
     #Configure NoisyROSummary
     from LArCellRec.LArNoisyROSummaryConfig import LArNoisyROSummaryCfg
@@ -51,6 +52,11 @@ def CaloRecoCfg(configFlags, clustersname=None,doLCCalib=None):
     from TileMuId.TileMuIdConfig import TileLookForMuAlgCfg
     result.merge(TileLookForMuAlgCfg(configFlags))
 
+    if not configFlags.Input.isMC:
+        #Configure LArDigitsThinner:
+        from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
+        result.merge(LArDigitThinnerCfg(configFlags))
+    
     #Configure MBTSTimeDiff 
     #Clients are BackgroundWordFiller and (deprecated?) DQTBackgroundMonTool
     #Consider moving to BackgroundWordFiller config

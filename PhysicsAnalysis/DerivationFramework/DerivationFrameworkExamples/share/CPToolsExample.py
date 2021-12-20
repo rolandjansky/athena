@@ -1,14 +1,14 @@
 #====================================================================
 # CPToolsExample.py
-# This an example job options script showing how to set up a 
-# derivation of the data using the derivation framework with xAOD
-# input. 
+# This shows how a tool from the CP groups is scheduled in a DAOD job
+# and then the outcome used to skim events.
 # It requires the reductionConf flag TEST5 in Reco_tf.py   
 #====================================================================
 
 # Set up common services and job object. 
 # This should appear in ALL derivation job options
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName 
+from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # CP GROUP TOOLS 
@@ -16,7 +16,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
 TEST5MuonTool = CP__MuonSelectionTool(name = "TEST5MuonTool")
 ToolSvc += TEST5MuonTool
-print TEST5MuonTool
+print(TEST5MuonTool)
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -28,19 +28,18 @@ TEST5MuonToolWrapper = DerivationFramework__AsgSelectionToolWrapper( 	name = "TE
 									StoreGateEntryName = "TEST5GoodMuons",
 									ContainerName = "Muons")									
 ToolSvc += TEST5MuonToolWrapper
-print TEST5MuonToolWrapper
+print(TEST5MuonToolWrapper)
 
 #====================================================================
 # SKIMMING TOOLS 
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-expression = 'count((TEST5GoodMuons) && (Muons.pt > 10*GeV)) >= 1'
+expression = 'count((Muons.TEST5GoodMuons) && (Muons.pt > 10*GeV)) >= 1'
 TEST5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TEST5StringSkimmingTool",
                                                                  expression = expression)
-                                                                 #expression = "EventInfo.eventNumber")
 
 ToolSvc += TEST5StringSkimmingTool
-print TEST5StringSkimmingTool
+print(TEST5StringSkimmingTool)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  

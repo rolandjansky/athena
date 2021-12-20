@@ -9,12 +9,11 @@
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
 #include "TrigT1TGC/TGCTileMuCoincidenceLUT.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
+#include "TrigT1TGC/TGCBIS78CoincidenceMap.h"
 #include "TrigT1TGC/TGCGoodMF.h"
 #include "TrigT1TGC/TGCConnectionASDToPP.h"
 #include "TrigT1TGC/TGCConnectionInPP.h"
 #include "TrigT1TGC/TGCPatchPanel.h"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
-#include "TrigT1TGC/Run2TileMuCoincidenceMap.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -120,25 +119,26 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
   }
 
   std::string version;
-  if(tgcArgs()->useRun3Config()) {
-    tgcArgs()->set_USE_CONDDB(false);
-    version = "1_01_01_06_02";
-  }
+  // Temporary solution for Run 3 simulation (to be migrated to CONDDB
+  tgcArgs()->set_USE_CONDDB(false);
+  version = "1_01_01_06_02";
 
   // CW for SL (ONLY available for Run-3 development phase)
   std::string ver_BW   = "02";
   std::string ver_EIFI = "06";
   std::string ver_TILE = "01";
   std::string ver_NSW  = "01";
+  std::string ver_BIS78  = "01"; // OK?
   std::string ver_HotRoI = "1";
 
   std::vector<std::string> vers = TGCDatabaseManager::splitCW(version, '_');
-  if(vers.size() == 5 && tgcArgs()->useRun3Config()) { // for Run3
+  if(vers.size() == 5) {
     ver_BW   = "v" + vers[4];
     ver_EIFI = "v" + vers[3];
     ver_TILE = "v" + vers[2];
     ver_NSW  = "v" + vers[1];
     ver_HotRoI = "v" + vers[0];
+    //ver_BIS78  = "v" + vers[5]; // OK?
   }
 
   // EIFI Coincidence Map
@@ -147,39 +147,31 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
     m_mapEIFI[side] = new TGCEIFICoincidenceMap(tgcArgs(), readCondKey, ver_EIFI, side);
   }
 
-  if(tgcArgs()->useRun3Config()){
-    // Big Wheel Coincidence LUT
-    m_bigWheelLUT.reset(new LVL1TGC::BigWheelCoincidenceLUT(tgcArgs(), readLUTsCondKey, ver_BW));
+  // Big Wheel Coincidence LUT
+  m_bigWheelLUT.reset(new LVL1TGC::BigWheelCoincidenceLUT(tgcArgs(), readLUTsCondKey, ver_BW));
 
-    // Tile-Muon LUT
-    m_tileMuLUT.reset(new LVL1TGC::TGCTileMuCoincidenceLUT(tgcArgs(), readCondKey, ver_TILE));
+  // Tile-Muon LUT
+  m_tileMuLUT.reset(new LVL1TGC::TGCTileMuCoincidenceLUT(tgcArgs(), readCondKey, ver_TILE));
 
-    // NSW coincidence Map
-    if(tgcArgs()->USE_NSW()){
-      for (int side=0; side<NumberOfSide; side +=1) {
-	for (int oct=0; oct<NumberOfOctant; oct++) {
-	  for(int mod=0; mod<NumberOfModuleInBW; mod++){
-	    // NSW Coincidence Map
-	    m_mapNSW[side][oct][mod].reset(new TGCNSWCoincidenceMap(tgcArgs(),ver_NSW,side,oct,mod));
-	  }
-	}
-      }
-    }
-
-    //Hot RoI LUT
-    m_mapGoodMF.reset(new TGCGoodMF(tgcArgs(),ver_HotRoI));
-
-  } else {   // for Run-2
-    // RPhi Coincidence Map (available on DB)
+  // NSW coincidence Map
+  if(tgcArgs()->USE_NSW()){
     for (int side=0; side<NumberOfSide; side +=1) {
       for (int oct=0; oct<NumberOfOctant; oct++) {
-        m_mapRphi[side][oct].reset(new TGCRPhiCoincidenceMap(tgcArgs(),readCondKey, side, oct));
+        for(int mod=0; mod<NumberOfModuleInBW; mod++){
+          // NSW Coincidence Map
+          m_mapNSW[side][oct][mod].reset(new TGCNSWCoincidenceMap(tgcArgs(),ver_NSW,side,oct,mod));
+        }
       }
     }
-
-    // Tile-Muon Coincidence Map (available on DB)
-    m_mapRun2TileMu.reset(new LVL1TGC::Run2TileMuCoincidenceMap(readCondKey));
   }
+    
+  // BIS78 coincidence Map
+  if(tgcArgs()->USE_BIS78()){
+    m_mapBIS78.reset(new TGCBIS78CoincidenceMap(tgcArgs(),ver_BIS78));
+  }
+
+  //Hot RoI LUT
+  m_mapGoodMF.reset(new TGCGoodMF(tgcArgs(),ver_HotRoI));
 }
 
 void TGCDatabaseManager::deleteConnectionPPToSL()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 #include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include <mutex>
@@ -110,8 +110,7 @@ namespace InDet {
     bool           m_randomRemovalMode;
     unsigned int   m_maxNumberOfHoles;   
 
-    ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;       //!< Random number generator
-    CLHEP::HepRandomEngine*      m_randomEngine;
+    ServiceHandle<IAthRNGSvc>    m_rndmGenSvc;       //!< Random number generator
     std::string                  m_randomEngineName; //!< Name of the random number stream
 
     // some information for statistics -> printout in finalize

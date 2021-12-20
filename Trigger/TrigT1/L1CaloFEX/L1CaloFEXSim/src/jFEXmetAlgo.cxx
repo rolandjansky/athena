@@ -62,6 +62,7 @@ void LVL1::jFEXmetAlgo::setup(int FPGA[FEXAlgoSpaceDefs::jFEX_algoSpace_height][
 
     ATH_MSG_DEBUG("---------------- jFEXmetAlgo::setup ----------------");
     m_FPGA.resize(FEXAlgoSpaceDefs::jFEX_algoSpace_height);
+
     for(int iphi=0;iphi<FEXAlgoSpaceDefs::jFEX_algoSpace_height;iphi++){
         for(int ieta=8;ieta<16;ieta++){
             m_FPGA[iphi].push_back(FPGA[iphi][ieta]);
@@ -113,9 +114,10 @@ void LVL1::jFEXmetAlgo::buildBarrelmet()
     for(uint iphi=0;iphi<m_FPGA.size();iphi++){
         for(uint ieta=0;ieta<m_FPGA[iphi].size();ieta++){
             m_met[iphi]+=getTTowerET(m_FPGA[iphi][ieta]);
+            
         }
         const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA[iphi][0]);
-        m_met_angle[iphi]=tmpTower->phi();
+        m_met_angle[iphi]=tmpTower->centrePhi();
     }
     
     buildMetXComponent();
@@ -143,7 +145,7 @@ void LVL1::jFEXmetAlgo::buildFWDmet()
             m_met[iphi]+=getTTowerET(m_FPGA[iphi][ieta]);
         }
         const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA[iphi][0]);
-        m_met_angle[iphi]=tmpTower->phi();
+        m_met_angle[iphi]=tmpTower->centrePhi();
     }
     buildMetXComponent();
     buildMetYComponent();
@@ -159,7 +161,7 @@ void LVL1::jFEXmetAlgo::buildFWDmet()
             m_met[iphi]+=getTTowerET(m_FPGA_phi02[iphi][ieta]);
         }
         const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA_phi02[iphi][0]);
-        m_met_angle[iphi]=tmpTower->phi();
+        m_met_angle[iphi]=tmpTower->centrePhi();
     }
     buildMetXComponent();
     buildMetYComponent();
@@ -175,7 +177,7 @@ void LVL1::jFEXmetAlgo::buildFWDmet()
             m_met[iphi]+=getTTowerET(m_FPGA_fcal[iphi][ieta]);
         }
         const LVL1::jTower * tmpTower = jk_jFEXmetAlgo_jTowerContainer->findTower(m_FPGA_fcal[iphi][0]);
-        m_met_angle[iphi]=tmpTower->phi();
+        m_met_angle[iphi]=M_PI/64 + tmpTower->phi()*(4*M_PI/32);
     }
     buildMetXComponent();
     buildMetYComponent();
@@ -190,7 +192,7 @@ void LVL1::jFEXmetAlgo::buildMetXComponent()
     
     //computing the X and Y component of MET
     for(uint iphi=0;iphi<m_met.size();iphi++){
-        m_met_Xcoord[iphi]=m_met[iphi]*cos(m_met_angle[iphi]/10.)/**pow(2,9)*/; // the 2^9 is used in the firmware to sum with higher precision
+        m_met_Xcoord[iphi]=m_met[iphi]*cos(m_met_angle[iphi]);
     }
     
     //Summing all X coordinate
@@ -203,9 +205,7 @@ void LVL1::jFEXmetAlgo::buildMetXComponent()
 //return the X component of the Met
 int LVL1::jFEXmetAlgo::GetMetXComponent()
 {
-    //Bit shifting to correct the 2^9 factor above
-    return m_Totalmet_Xcoord /*>> 9*/;
-    
+    return m_Totalmet_Xcoord;
 }
 
 //build Met Y component for the central barrels
@@ -217,7 +217,7 @@ void LVL1::jFEXmetAlgo::buildMetYComponent()
     
     //computing the X and Y component of MET
     for(uint iphi=0;iphi<m_met.size();iphi++){
-        m_met_Ycoord[iphi]=m_met[iphi]*sin(m_met_angle[iphi]/10.)/**pow(2,9)*/; // the 2^9 is used in the firmware to sum with higher precision
+        m_met_Ycoord[iphi]=m_met[iphi]*sin(m_met_angle[iphi]); 
     }
     
     //Summing all Y coordinate
@@ -230,9 +230,7 @@ void LVL1::jFEXmetAlgo::buildMetYComponent()
 //return the Y component of the Met
 int LVL1::jFEXmetAlgo::GetMetYComponent()
 {
-    //Bit shifting to correct the 2^9 factor above
-    return m_Totalmet_Ycoord /*>> 9*/;
-    
+    return m_Totalmet_Ycoord;
 }
          
 std::unique_ptr<jFEXmetTOB> LVL1::jFEXmetAlgo::getmetTOBs(){

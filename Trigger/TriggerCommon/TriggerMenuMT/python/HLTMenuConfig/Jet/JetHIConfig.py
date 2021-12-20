@@ -27,12 +27,12 @@ def jetHIClusterSequence(configFlags, ionopt, RoIs):
     # Start by adding the HI calo tower sequence
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import caloTowerHIRecoSequence
     HICaloTowerSequence, towerKey, cellKey = RecoFragmentsPool.retrieve(
-                caloTowerHIRecoSequence, flags=None, RoIs=RoIs)
+                caloTowerHIRecoSequence, flags=configFlags, RoIs=RoIs)
     clusterskey="HLT_HIClusters"
 
     # HI cluster sequence
     HIClusterSequence = RecoFragmentsPool.retrieve(
-                HLTHIClusterGetter, flags=None, tower_key=towerKey, cell_key=cellKey, cluster_key=clusterskey)
+                HLTHIClusterGetter, flags=configFlags, tower_key=towerKey, cell_key=cellKey, cluster_key=clusterskey)
 
     return [HICaloTowerSequence,HIClusterSequence], clusterskey, towerKey
 ###############################################################################################
@@ -54,7 +54,6 @@ def jetHIEventShapeSequence(configFlags, clustersKey, towerKey):
     
     ESAlg_W=HIEventShapeMaker("ESAlg_W")
     ESAlg_W.OutputContainerKey=EventShapeKey
-    ESAlg_W.UseCaloCell=False
     ESAlg_W.InputTowerKey=clustersKey
     ESAlg_W.NaviTowerKey=towerKey
     

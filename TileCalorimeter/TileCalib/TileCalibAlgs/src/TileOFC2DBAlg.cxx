@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //=== IOVDbTest includes
@@ -281,7 +281,6 @@ StatusCode TileOFC2DBAlg::execute() {
                            << " phase = " << phase );
 
             double w_a_sum = 0, w_b_sum = 0, w_c_sum = 0;
-            double w_ag_sum = 0, w_bg_sum = 0;
             for (int isam = 0; isam < ndig; isam++) {
               if (m_of2) {
                 ATH_MSG_DEBUG( " sampling " << isam
@@ -301,8 +300,6 @@ StatusCode TileOFC2DBAlg::execute() {
               w_a_sum += weights.w_a[isam];
               w_b_sum += weights.w_b[isam];
               w_c_sum += weights.w_c[isam];
-              w_ag_sum += weights.w_a[isam] * weights.g[isam];
-              w_bg_sum += weights.w_b[isam] * weights.g[isam];
 
               drawerOfc->setOfc(0, drawerIdx, gain, channel, isam, weights.w_a[isam]);
               drawerOfc->setOfc(1, drawerIdx, gain, channel, isam, weights.w_b[isam]);

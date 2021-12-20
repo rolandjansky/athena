@@ -100,8 +100,8 @@ namespace LVL1 {
     
    /** Internal data */
   private:
-    static bool etSRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 12 ) & 0x7ff  )> ((j.at(0) >> 12) & 0x7ff ));}
-    static bool etLRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 10 ) & 0x1fff )> ((j.at(0) >> 10) & 0x1fff));}
+    static bool etSRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 1 ) & 0x7ff  )> ((j.at(0) >> 1) & 0x7ff ));}
+    static bool etLRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 1 ) & 0x1fff )> ((j.at(0) >> 1) & 0x1fff));}
     static bool etTauSort  (std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> 0 ) & 0x7ff000)> ((j.at(0) >> 0) & 0x7ff000)); }
     
     int m_id;
@@ -113,7 +113,7 @@ namespace LVL1 {
     std::vector<uint32_t> m_Met_tobwords;
     int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width] = {{0}};
     int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
-    int m_jTowersIDs      [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width] = {{0}};
+    
     std::unordered_map<int,jTower> m_jTowersColl;
     std::unordered_map<int,std::vector<int> > m_map_Etvalues_FPGA;
     std::unordered_map<int,std::vector<int> > m_map_HAD_Etvalues_FPGA;

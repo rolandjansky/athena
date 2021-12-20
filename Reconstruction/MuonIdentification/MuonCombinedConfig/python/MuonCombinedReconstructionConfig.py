@@ -3,27 +3,8 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def MuonCombinedInDetExtensionAlg(flags, name="MuonCombinedInDetExtensionAlg",**kwargs):
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCaloTagToolCfg
-    tools = []
-    result = ComponentAccumulator()
-    if flags.MuonCombined.doCaloTrkMuId:
-        acc = MuonCaloTagToolCfg(flags)
-        tools.append( acc.getPrimary() )
-        result.merge(acc)
-        kwargs.setdefault("TagMap", "caloTagMap" )
-    kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
-    kwargs.setdefault("HasCSC", flags.Detector.GeometryCSC )
-    kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC )
-    kwargs.setdefault("HasMM", flags.Detector.GeometryMM )
-    
-    alg = CompFactory.MuonCombinedInDetExtensionAlg(name,**kwargs)
-    result.addEventAlgo( alg, primary=True )
-    return result
-
 def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCaloTagToolCfg
-    
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCaloTagToolCfg    
     tools=[]
     result = MuonCaloTagToolCfg(flags)
     tools.append( result.getPrimary() )
@@ -31,10 +12,7 @@ def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
     result.addPublicTool(kwargs['MuonCombinedInDetExtensionTools'][0]) #Ugh
     kwargs.setdefault("TagMap","caloTagMap")
     kwargs.setdefault("CombinedTrackCollection","")
-    kwargs.setdefault("METrackCollection","")
-    kwargs.setdefault("HasCSC", flags.Detector.GeometryCSC )
-    kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC )
-    kwargs.setdefault("HasMM", flags.Detector.GeometryMM )
+    kwargs.setdefault("METrackCollection","") 
     alg = CompFactory.MuonCombinedInDetExtensionAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
@@ -93,15 +71,9 @@ def MuTagAmbiguitySolverToolCfg(flags, name='MuTagAmbiguitySolverTool', **kwargs
   
 def MuonSegmentTagToolCfg(flags, name="MuonSegmentTagTool", **kwargs ):
     result = ComponentAccumulator()
-    from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
-    acc = ParticleCaloExtensionToolCfg(flags)
-    kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary())
-    result.merge(acc)
-
-    acc = MuTagMatchingToolCfg(flags)
-    kwargs.setdefault("MuTagMatchingTool", acc.getPrimary())
-    result.merge(acc)
-
+    mu_tag_matching = result.getPrimaryAndMerge(MuTagMatchingToolCfg(flags))
+    kwargs.setdefault("MuTagMatchingTool", mu_tag_matching)
+    
     acc = MuTagAmbiguitySolverToolCfg(flags)
     kwargs.setdefault("MuTagAmbiguitySolverTool", acc.getPrimary())
     result.merge(acc)
@@ -130,6 +102,14 @@ def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs ):
     alg = CompFactory.MuonCombinedInDetExtensionAlg(name,**kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
+
+def MuGirlAlg_LRTCfg(flags, name="MuGirlAlg_LRT",**kwargs):
+    kwargs.setdefault("TagMap","MuGirlMap_LRT")
+    kwargs.setdefault("METrackCollection","MuGirlMETracks_LRT")
+    kwargs.setdefault("SegmentCollection","MuGirlSegments_LRT")
+    kwargs.setdefault("CombinedTrackCollection","MuGirlCombinedMuonContainerLRT")
+    kwargs.setdefault("InDetCandidateLocation","TrackParticleCandidateLRT")
+    return MuonInsideOutRecoAlgCfg(flags, name, **kwargs)
 
 def MuGirlStauAlgCfg(flags, name="MuGirlStauAlg",**kwargs):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonStauRecoToolCfg
@@ -172,8 +152,7 @@ def MuonCombinedMuonCandidateAlgCfg(flags, name="MuonCombinedMuonCandidateAlg", 
 def MuonCombinedInDetCandidateAlgCfg(flags, name="MuonCombinedInDetCandidateAlg",**kwargs ):
     # FIXME - need to have InDet flags set at this point to know if doForwardTracks is true. 
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedInDetDetailedTrackSelectorToolCfg
-    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-
+    
     result = MuonCombinedInDetDetailedTrackSelectorToolCfg(flags)
     kwargs.setdefault("TrackSelector", result.getPrimary() )
     # if flags.MuonCombined.doSiAssocForwardMuons and flags.InDet.doForwardTracks: FIXME
@@ -184,14 +163,32 @@ def MuonCombinedInDetCandidateAlgCfg(flags, name="MuonCombinedInDetCandidateAlg"
         kwargs.setdefault("InDetForwardTrackSelector", acc.getPrimary() )
         result.merge(acc)
 
-    extrapolator = result.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
-    muon_particle_extension_tool = CompFactory.Trk.ParticleCaloExtensionTool(Extrapolator=extrapolator)
-
-    muon_ext_tool = CompFactory.Muon.MuonSystemExtensionTool(ParticleCaloExtensionTool = muon_particle_extension_tool, Extrapolator = extrapolator)
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonSystemExtensionToolCfg
+    muon_ext_tool = result.getPrimaryAndMerge(MuonSystemExtensionToolCfg(flags))
     kwargs.setdefault("MuonSystemExtensionTool", muon_ext_tool)
+    
+    #### Switch off the muon system extensions if we fit combined muons 
+    #### The MuonInDetToSystemExtensionAlg will perform the system extensions then
+    kwargs.setdefault("ExtendBulk", not  flags.MuonCombined.doCombinedFit or flags.Muon.MuonTrigger)
+    
+    ### FIX ME... Are the CaloExtensions already available in CA?
+    if False and not flags.Muon.MuonTrigger:
+        kwargs.setdefault("CaloExtensionLocation", ["ParticleCaloExtension"] )
+ 
     alg = CompFactory.MuonCombinedInDetCandidateAlg(name, **kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
+
+def MuonInDetToMuonSystemExtensionAlgCfg(flags, name ="MuonInDetToMuonSystemExtensionAlg",  **kwargs):
+    result = ComponentAccumulator()
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonSystemExtensionToolCfg
+    muon_ext_tool = result.getPrimaryAndMerge(MuonSystemExtensionToolCfg(flags))
+    kwargs.setdefault("MuonSystemExtensionTool", muon_ext_tool)
+    kwargs.setdefault("WriteStauCandidates","")
+    alg = CompFactory.MuonInDetToMuonSystemExtensionAlg(name,**kwargs) 
+    result.addEventAlgo( alg, primary=True )
+    return result
+
 
 def MuonCombinedInDetCandidateAlg_LRTCfg(flags, name="MuonCombinedInDetCandidateAlg_LRT",**kwargs ):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedInDetDetailedTrackSelectorToolCfg, MuonCombinedInDetDetailedTrackSelectorTool_LRTCfg
@@ -253,7 +250,7 @@ def recordMuonCreatorAlgObjs (kw):
 
 def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg
-    result = MuonCreatorToolCfg(flags, FillTimingInformation=False)
+    result = MuonCreatorToolCfg(flags)
     kwargs.setdefault("MuonCreatorTool",result.popPrivateTools())
 
     # MuonSegmentConvertorTool not set up. But it currently only contains:
@@ -309,21 +306,25 @@ def MuonCombinedReconstructionCfg(flags):
     # Set up to read Tracks.
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
     result.merge (TrackCollectionReadCfg (flags, 'Tracks'))
-    useSectors = False #FIXME, switch off the sector seeding for the moment
-    result.merge( MuonCombinedInDetCandidateAlgCfg(flags, UseOnlyHittedSectors=useSectors) )
+    
+    result.merge( MuonCombinedInDetCandidateAlgCfg(flags) )
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
 
-    doLRT = False # FIXME, once this is in InDetFlags
-    if (doLRT):
-        result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags, UseOnlyHittedSectors=useSectors) )
+    if flags.Detector.GeometryID and flags.InDet.doR3LargeD0:
+        result.merge( MuonCombinedInDetCandidateAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doStatisticalCombination or flags.MuonCombined.doCombinedFit:
         result.merge( MuonCombinedAlgCfg(flags) )
+
+    if flags.MuonCombined.doCombinedFit:
+        result.merge(MuonInDetToMuonSystemExtensionAlgCfg(flags))
 
     if flags.MuonCombined.doMuGirl:
         result.merge(MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg") ) 
         if flags.MuonCombined.doMuGirlLowBeta:
             result.merge(MuGirlStauAlgCfg)
+        if flags.Detector.GeometryID and flags.InDet.doR3LargeD0: 
+            result.merge( MuGirlAlg_LRTCfg(flags) )
 
     if flags.MuonCombined.doCaloTrkMuId:
         result.merge( MuonCaloTagAlgCfg(flags) )
@@ -339,6 +340,8 @@ def MuonCombinedReconstructionCfg(flags):
         # Has to be at end if not using sequencer. If we drop this requirement, can be moved above
         result.merge( StauCreatorAlgCfg(flags) )
 
+    # post processing
+    result.addEventAlgo( CompFactory.ClusterMatching.CaloClusterMatchLinkAlg("MuonTCLinks",ClustersToDecorate="MuonClusterCollection") )
     return result
 
 if __name__=="__main__":
@@ -368,13 +371,14 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometrySCT   = True 
     ConfigFlags.Detector.GeometryTRT   = True  
     ConfigFlags.Output.ESDFileName=args.output
-
+    ConfigFlags.InDet.doR3LargeD0 = False # Not working with this input
     if args.debug:
         from AthenaCommon.Debugging import DbgStage
         if args.debug not in DbgStage.allowed_values:
             raise ValueError("Unknown debug stage, allowed values {}".format
                              (DbgStage.allowed_values))
         ConfigFlags.Exec.DebugStage = args.debug
+
 
     ConfigFlags.lock()
 
@@ -384,7 +388,7 @@ if __name__=="__main__":
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True))
+    cfg.merge(CaloTopoClusterCfg(ConfigFlags))
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     

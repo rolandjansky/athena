@@ -622,15 +622,15 @@ TH2D* Resplot::combine(const TH2* h, double x, int N) {
     }
  
     for ( int i=0 ; i<=hy->GetNbinsX()+1 ; i++ ) ybins.push_back( hy->GetBinLowEdge(i+1) );
-   
-    std::cout << "x: " << xbins[0] << " - " << xbins.back() << std::endl;  
-    std::cout << "y: " << ybins[0] << " - " << ybins.back() << std::endl;  
-    
+
     if ( xbins.size()==0 || ybins.size()==0 ) { 
       std::cerr << "Resplot::combine() bad limits for histogram: N xbins: " << xbins.size() << "\tN ybins: " << ybins.size() << std::endl;
       return 0;
     }
 
+    std::cout << "x: " << xbins[0] << " - " << xbins.back() << std::endl;
+    std::cout << "y: " << ybins[0] << " - " << ybins.back() << std::endl;
+    
     TH2D* h2 = new TH2D("duff","duff", xbins.size()-1, &xbins[0],  ybins.size()-1, &ybins[0] ); 
     h2->SetDirectory(0); 
  
@@ -675,13 +675,13 @@ TH1D* Resplot::combine(const TH1* h, double x, int N) {
       if ( h->GetBinLowEdge(i+1)>x ) for ( int k=1 ; k<N ; k++, i++ );
     }
  
-    std::cout << "x: " << xbins[0] << " - " << xbins.back() << std::endl;  
-    
     if ( xbins.size()==0 ) { 
       std::cerr << "Resplot::combine() bad limits for histogram: N xbins: " << xbins.size() << std::endl;
       return 0;
     }
 
+    std::cout << "x: " << xbins[0] << " - " << xbins.back() << std::endl;
+    
     TH1D* h2 = new TH1D(  (std::string(h->GetName())+"-duff").c_str(),"duff", xbins.size()-1, &xbins[0] );
     h2->SetDirectory(0); 
  
@@ -771,15 +771,15 @@ TH2D* Resplot::combine(const TH2* h, double inveps2) {
     
     std::cout << "combine" << std::endl;
     std::cout << "x bins " << hx->GetNbinsX() << "\t y bins " << hy->GetNbinsX() << std::endl;
-    
-    std::cout << "x: " << xbins.size() << " " << xbins[0] << " - " << xbins.back() << std::endl;  
-    std::cout << "y: " << ybins.size() << " " << ybins[0] << " - " << ybins.back() << std::endl;  
-    
+
     if ( xbins.size()==0 || ybins.size()==0 ) { 
       std::cerr << "Resplot::combine() bad limits for histogram: N xbins: " << xbins.size() << "\tN ybins: " << ybins.size() << std::endl;
       return 0;
     }
 
+    std::cout << "x: " << xbins.size() << " " << xbins[0] << " - " << xbins.back() << std::endl;
+    std::cout << "y: " << ybins.size() << " " << ybins[0] << " - " << ybins.back() << std::endl;
+    
     TH2D* h2 = new TH2D( (std::string(h->GetName())+"-duff").c_str(), "duff", xbins.size()-1, &xbins[0],  ybins.size()-1, &ybins[0] ); 
     h2->SetDirectory(0); 
     
@@ -1226,11 +1226,7 @@ TF1* Resplot::FitATan(TH1D* s, double , double ) {
   char name[8];
   sprintf(name,"atan_%02d", counter); counter++;
   
-  //  static TF1* f1 = new TF1("atan", "(100-sqrt([2]*[2]))*(0.5*3.14159-atan([1]*pow((x-[0]),[4])))/3.14159+sqrt([2]*
-  // [2])", -100, 100);
-  //  static TF1* f1 = new TF1("atan", "   100*pow(0.01*([3]-sqrt([2]*[2]))*(0.5*3.14159-atan( [1]*(x-[0]) ))/3.14159+
-  //						   sqrt([2]*[2]),[4])   ", -100, 100);
-  
+  // Cannot use "M_PI" here as root does not replace M_PI in the string expressions for function  in TF1 definition
   TF1* f1 = new TF1(name, "100*pow( (0.01*[3]-sqrt(0.0001*[2]*[2]))*(0.5-(1/3.14159)*atan( [1]*(x-[0]) ) )+sqrt(0.0001*[2]*[2]) , [4] )   ", -100, 100);
   
   f1->SetParName(0, "Mean");

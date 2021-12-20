@@ -314,6 +314,8 @@ class TopoAlgoDef:
             {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU5VFab",  "otype2" : "",       }, #2DR15-2MU5VFab
             {"minDr": 0, "maxDr": 22, "mult": 2, "otype1" : "MU5VFab",  "otype2" : "",       }, #0DR22-2MU5VFab
             {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab" ,  "otype2" : "",       }, #2DR99-2MU3Vab
+
+            {"minDr": 0, "maxDr": 12, "mult": 2, "otype1" : "MU3Vab",   "otype2" : "",       }, #0DR12-2MU3Vab #ATR-21566
         ]
         for x in listofalgos:
             class d:
@@ -369,6 +371,39 @@ class TopoAlgoDef:
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('DeltaRMin', d.minDr*d.minDr*_dr_conversion*_dr_conversion)
             alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
+            alg.addvariable('MinET1',    0*_et_conversion)
+            alg.addvariable('MinET2',    0*_et_conversion)
+            tm.registerTopoAlgo(alg)
+
+        # dimu INVM+DR with opposite charge, ATR-23073, ATR-21566
+        listofalgos=[
+            {"minInvm":7, "maxInvm":22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab", "otype2" : "", }, #7INVM22-0DR20C-2MU3Vab
+        ]
+        for x in listofalgos:
+            class d:
+                pass
+            for k in x:
+                setattr (d, k, x[k])
+            obj1 = "%s%s" % ((str(d.mult) if d.mult>1 else ""), d.otype1)
+            obj2 = "-%s" % (d.otype2)
+            toponame = "%iINVM%i-%iDR%iC-%s%s"  % (d.minInvm, d.maxInvm, d.minDr, d.maxDr, obj1, "" if d.mult>1 else obj2)
+            log.debug("Define %s", toponame)
+            inputList = [d.otype1] if (d.mult>1) else [d.otype1, d.otype2]
+            algoname = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1Charge if (d.mult>1) else AlgConf.InvariantMassInclusiveDeltaRSqrIncl2Charge
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ])
+            if (d.mult>1):
+                alg.addgeneric('InputWidth', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob', HW.muonOutputWidthSelect)
+            else:
+                alg.addgeneric('InputWidth1', HW.muonOutputWidthSelect)
+                alg.addgeneric('InputWidth2', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob1', HW.muonOutputWidthSelect)
+                alg.addgeneric('MaxTob2', HW.muonOutputWidthSelect)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('DeltaRMin', d.minDr*d.minDr*_dr_conversion*_dr_conversion)
+            alg.addvariable('DeltaRMax', d.maxDr*d.maxDr*_dr_conversion*_dr_conversion)
+            alg.addvariable('MinMSqr',   d.minInvm * d.minInvm *_et_conversion*_et_conversion)
+            alg.addvariable('MaxMSqr',   d.maxInvm * d.maxInvm *_et_conversion*_et_conversion)
             alg.addvariable('MinET1',    0*_et_conversion)
             alg.addvariable('MinET2',    0*_et_conversion)
             tm.registerTopoAlgo(alg)
@@ -502,6 +537,7 @@ class TopoAlgoDef:
             {"minInvm": 8, "maxInvm": 15, "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #8INVM15-2MU5VFab
             {"minInvm": 2, "maxInvm": 9,  "mult": 2, "otype1" : "MU5VFab", "otype2" : "",      }, #2INVM9-2MU5VFab 
             {"minInvm": 7, "maxInvm": 15, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #7INVM15-2MU3Vab 
+            {"minInvm": 8, "maxInvm": 22, "mult": 2, "otype1" : "MU3Vab",  "otype2" : "",      }, #8INVM22-2MU3Vab #ATR-21566
         ]
         for x in listofalgos:
             class d:
@@ -1211,8 +1247,15 @@ class TopoAlgoDef:
             {"minInvm": 0, "maxInvm": 16, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #0INVM16-15DR99-2MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 20, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-20DR99-2MU3Vab
             {"minInvm": 8, "maxInvm": 15, "minDr": 15, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #8INVM15-15DR99-2MU3Vab
+          
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},         #7INVM22-0DR20-2MU3Vab # ATR-21566
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 12, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3Vab",},  #7INVM22-0DR12-MU5VFab-MU3Vab # ATR-21566
+            {"minInvm": 7, "maxInvm": 22, "minDr": 0, "maxDr": 20, "mult": 1, "otype1" : "MU5VFab",  "otype2": "MU3Vab",},  #7INVM22-0DR20-MU5VFab-MU3Vab # ATR-21566 
 
             {"minInvm": 8, "maxInvm": 15, "minDr": 0,  "maxDr": 22, "mult": 1, "otype1" : "CMU5VFab","otype2": "CMU3Vab",}, #8INVM15-0DR22-CMU5VFab-CMU3Vab
+ 
+            {"minInvm": 7, "maxInvm": 14, "minDr": 0,  "maxDr": 25, "mult": 1, "otype1" : "MU5VFab", "otype2": "MU3Vab", }, #7INVM14-0DR25-MU5VFab-MU3Vab
+            {"minInvm": 7, "maxInvm": 11, "minDr": 25, "maxDr": 99, "mult": 2, "otype1" : "MU3Vab",  "otype2": "",},        #7INVM11-25DR99-2MU3Vab
         ]
         for x in listofalgos:
             class d:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryH62002.h"
@@ -441,9 +441,7 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
   // Add descriptors to the HEC detector manager:
   //
 
-  unsigned int currentBlock=0;
   for (unsigned int s=0;s<3;s++) {
-    unsigned int nBlocks = s==0 ? 1:2;
     unsigned int width = s==2 ? 2:  3;
     for (unsigned int r=0;r<2;r++) {
       unsigned int nPhi    = r==0? 2:1;
@@ -461,7 +459,6 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
 	}                                                                     
       }
     }
-    currentBlock+=nBlocks;
     }  
   
 

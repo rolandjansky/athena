@@ -210,6 +210,11 @@ def _createCfgFlags():
         return createITkConfigFlags()
     _addFlagsCategory(acf, "ITk", __itk, 'InDetConfig' )
 
+    def __acts():
+        from ActsInterop.ActsConfigFlags import createActsConfigFlags
+        return createActsConfigFlags()
+    _addFlagsCategory(acf, "Acts", __acts, 'ActsInterop')
+
     def __hgtd():
         from HGTD_Config.HGTD_ConfigFlags import createHGTD_ConfigFlags
         return createHGTD_ConfigFlags()
@@ -253,7 +258,7 @@ def _createCfgFlags():
     def __hi():
         from HIRecConfig.HIRecConfigFlags import createHIRecConfigFlags
         return createHIRecConfigFlags()
-    _addFlagsCategory(acf, "HIRec", __hi, "HIRecConfig")
+    _addFlagsCategory(acf, "HeavyIon", __hi, "HIRecConfig")
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags

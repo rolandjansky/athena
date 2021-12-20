@@ -10,6 +10,7 @@
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 
 class TH2;
+class ICaloGeometry;
 
 class TFCSHistoLateralShapeParametrization:public TFCSLateralShapeParametrizationHitBase {
 public:
@@ -20,6 +21,9 @@ public:
   enum FCSStatusBits {
      k_phi_symmetric = BIT(15) ///< Set this bit to simulate phi symmetric histograms
   };
+
+  ///will actually not store the geometry information, but rather used to check the validity of the 2D shape histogram
+  virtual void set_geometry(ICaloGeometry* geo) override;
 
   bool is_phi_symmetric() const {return TestBit(k_phi_symmetric);};
   virtual void set_phi_symmetric() {SetBit(k_phi_symmetric);};

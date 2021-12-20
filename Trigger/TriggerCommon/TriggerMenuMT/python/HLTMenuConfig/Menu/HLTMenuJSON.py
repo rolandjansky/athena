@@ -59,9 +59,12 @@ def __getChainSequencers(stepsData, chainName):
     """
     sequencers = []
     for counter, step in enumerate(stepsData, 1):
-        mySequencer = None
-        for sequencer in step:
-            sequencerFilter = getSequenceChildren( sequencer )[0] # Always the first child in the step
+        mySequencer = None        
+        for sequencer in step:     
+            seqq=getSequenceChildren( sequencer)                       
+            if not seqq: # empty steps
+                continue     
+            sequencerFilter = seqq[0] # Always the first child in the step
             if __isChainInFilter(chainName, sequencerFilter):
                 if mySequencer is not None:
                     __log.error( "Multiple Filters found (corresponding Sequencers %s, %s) for %s in Step %i!",

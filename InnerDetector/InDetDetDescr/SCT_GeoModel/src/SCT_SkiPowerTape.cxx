@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -80,8 +80,6 @@ SCT_SkiPowerTape::build()
   GeoPhysVol * skiPowerTape = new GeoPhysVol(skiPowerTapeLog);
 
   // Loop over modules in ski as we need their z positions.
-  double mass = 0.;
-  double ltot = 0.;
   for (int iModule = 0; iModule < m_ski->modulesPerSki(); iModule++) {
     
     // Position PowerTapes
@@ -144,8 +142,6 @@ SCT_SkiPowerTape::build()
     // Position the tape
     skiPowerTape->add(new GeoTransform(GeoTrf::Translate3D(xTapePos, yTapePos, tapeMid)));
     skiPowerTape->add(powerTape.getVolume());
-    mass += (powerTape.getVolume()->getLogVol()->getShape()->volume()/Gaudi::Units::cm3)*(powerTape.material()->getDensity()/GeoModelKernelUnits::g/Gaudi::Units::cm3);
-    ltot += tapeLength;
 
   }    
 

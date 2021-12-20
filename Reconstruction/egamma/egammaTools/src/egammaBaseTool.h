@@ -18,9 +18,9 @@
   @author F. Derue, A. Kaczmarska
 */
 
-// INCLUDE HEADER FILES:
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
+
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class egammaBaseTool
   : public AthAlgTool

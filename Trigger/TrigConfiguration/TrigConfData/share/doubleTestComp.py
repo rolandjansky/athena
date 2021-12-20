@@ -4,7 +4,7 @@ import json
 import sys
 import os, os.path
 
-testStatus = int(os.environ["testStatus"])
+testStatus = int(os.environ["ATLAS_CTEST_TESTSTATUS"])
 if testStatus != 0:
     print(f"Post evaluation: ERROR: previous step went wrong (exit code {testStatus})")
     sys.exit(testStatus)

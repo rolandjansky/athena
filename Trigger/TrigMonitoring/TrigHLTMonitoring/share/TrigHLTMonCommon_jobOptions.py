@@ -125,8 +125,8 @@ if data_type == 'pool':
         from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         Configurable.configurableRun3Behavior += 1
-        from TrigDecisionTool.TrigDecisionToolConfig import getTrigDecisionTool
-        acc = getTrigDecisionTool(ConfigFlags)
+        from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
+        acc = TrigDecisionToolCfg(ConfigFlags)
         appendCAtoAthena( acc )
         Configurable.configurableRun3Behavior -= 1
     

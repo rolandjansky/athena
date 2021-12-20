@@ -211,6 +211,8 @@ JetChainParts = {
                       'DIJET35j12etXX1000djmass',
                       'DIJET20j12etXX110djmass',  # very loose cuts for testing
                       # pt threshold cuts
+                      'DJMASS200j20', # alias, for TLA
+                      'DJMASS350j20', # alias, for TLA
                       'DJMASS500j35', # alias
                       'DJMASS700j35', # alias
                       'DJMASS1000j35', # alias
@@ -245,11 +247,13 @@ JetChainParts = {
                       'HT50XX10ptXX0eta320' # HT selection with explicit jet et/eta cuts
                       ],
 
-    'exotHypo' : ['ExoticPTF0p4dR1p2', 'ExoticPTF0p3dR1p2', 'ExoticPTF0p2dR1p2', 'ExoticPTF0p1dR1p2', 'ExoticPTF0p0dR1p2', 'TracklessdR1p2', 'ExoticPTF0p4dR0p4', 'ExoticPTF0p3dR0p4', 'ExoticPTF0p2dR0p4', 'ExoticPTF0p1dR0p4', 'ExoticPTF0p0dR0p4', 'TracklessdR0p4'],
+    'exotHypo' : ['emergingPTF0p2dR1p2', 'emergingPTF0p1dR1p2', 'emergingPTF0p09dR1p2', 'emergingPTF0p08dR1p2', 'emergingPTF0p0dR1p2', 
+                  'emergingPTF0p2dR0p4', 'emergingPTF0p1dR0p4', 'emergingPTF0p09dR0p4', 'emergingPTF0p08dR0p4', 'emergingPTF0p0dR0p4', 
+                  'tracklessdR1p2',      'tracklessdR0p4'],
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
-      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490', '0eta200'],
+      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490', '0eta200', '0eta180'],
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
@@ -265,10 +269,9 @@ JetChainParts = {
     # Setup for alternative data stream readout
     # B-tagging information
     'bTag'         : ['boffperf'  ,
-                      'bmv2c2040' , 'bmv2c2050' , 'bmv2c2060' , 'bmv2c2070' , 'bmv2c2077' , 'bmv2c2085' ,
-                      'bmv2c1040' , 'bmv2c1050' , 'bmv2c1060' , 'bmv2c1070' , 'bmv2c1077' , 'bmv2c1085' ,
-                      'bhmv2c1040', 'bhmv2c1050', 'bhmv2c1060', 'bhmv2c1070', 'bhmv2c1077', 'bhmv2c1085',
-                      'bdl1r60','bdl1r70','bdl1r77','bdl1r85'],
+                      'bdl1r60','bdl1r70','bdl1r77','bdl1r85',
+                      'bdl1d60', 'bdl1d65','bdl1d70','bdl1d77',
+                      'bdl1d80', 'bdl1d85'],
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
@@ -324,7 +327,10 @@ bJetChainParts_Default = {
 #==========================================================
 # Muon
 #==========================================================
-AllowedTopos_mu = []
+AllowedTopos_mu = [
+    'b7invmAB9vtx20', 'b11invmAB60vtx20', 'b11invmAB24vtx20', 'b24invmAB60vtx20',
+    '50invmAB130' # Zmumu
+    ]
 
 # ---- Muon Dictionary of all allowed Values ----
 MuonChainParts = {
@@ -381,7 +387,7 @@ MuonChainParts_Default = {
 #==========================================================
 AllowedTopos_Bphysics = [
     'bJpsimumu','bJpsi','bJpsimutrk','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','b3mu',
-    'bBmumux','b0dRAB12vtx20',
+    'bBmumux','b0dRAB12vtx20', 'b0dRAB207invmAB22vtx20',
     
     ##### TO BE REMOVED ONCE IMPLEMENTED IN SIGNATURE CODE
     # topoVariants
@@ -663,7 +669,7 @@ MinBiasChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'excl','dijet'], #ncb = non collision background, blayer = only sum innermost pix layer
+    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'dijet'], #ncb = non collision background, blayer = only sum innermost pix layer
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
@@ -674,11 +680,11 @@ MinBiasChainParts = {
     'pileupInfo'     : ['pusup0','pusup200','pusup300','pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
                         'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
     'hypoTrkInfo'    : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
-                        'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',
-                         '1trk2', '1trk4'], #ranges for exclusive tracks
+                        'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280', 'trk290',
+                         '2trk6', '1trk5'], #ranges for exclusive tracks
     'hypoPtInfo'     : [ 'pt05', 'pt1', 'pt2', 'pt4', 'pt6', 'pt8', ],
     'hypoSumEtInfo'  : ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
-    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf', 'alfaperf', 'afprec', 'afptof'],
+    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf', 'alfaperf', 'afprec', 'afptof', 'excl'],
     'addInfo'        : ['peb'],
     'sigFolder'     : 'MinBias',
     'subSigs'       : ['MinBias'],
@@ -1076,12 +1082,13 @@ UnconventionalTrackingChainParts_Default = {
 # Combined Chains
 #==========================================================
 AllowedTopos_comb = [
-    'dRAA12', 'dRAB15', '03dRAB','03dRAB30','dRAB03','02dRAB','02dRAC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
+    'dRAA12', 'dRAB15', '03dRAB','03dRAB30','dRAB03','02dRAB','02dRAC','02dRBC','50invmAB','60invmAB','afpdijet','18dphiAB','18dphiAC','80mTAC',
     '90invmAB',# TEST
     '1invmAB5','50invmAB130', # Jpsiee, Zee/Zeg
     '25dphiAA','invmAA80', # Low-mass diphoton
     '10invmAA70', # Low-mass dimuon
     'invmAB10', '10invmAB70',
+    '7invmAB9', '11invmAB60', '11invmAB24', '24invmAB60', '7invmAA9', '11invmAA60', '11invmAA24', '24invmAA60', # Low mass Drell-Yan
     ]
 
 # ---- Combined Dictionary of all allowed Values ----

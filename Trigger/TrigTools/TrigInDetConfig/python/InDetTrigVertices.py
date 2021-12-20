@@ -351,7 +351,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
                                                                     VertexFitterTool  = vertexFitterTool,
                                                                     TrackSelector     = trackSelectorTool,
                                                                     useBeamConstraint = True,
-                                                                    m_useSeedConstraint = True,  # default parameter but included for symmetry with the ACT vertex which uses a different default
+                                                                    m_useSeedConstraint = False,  # default parameter is True sop use ACTS default value
                                                                     TracksMaxZinterval  = tracksMaxZinterval,
                                                                     addSingleTrackVertices = singleTrackVertices,
                                                                     selectiontype     = 0, # what is this? - ACTS equivalent ? 
@@ -389,7 +389,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
         vertexFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool" + signature,
                                                              TrackSelector      = trackSelectorTool,
                                                              useBeamConstraint  = True,
-                                                             useSeedConstraint  = True,
+                                                             useSeedConstraint  = False, # use explicit ACTS default parameter
                                                              tracksMaxZinterval = tracksMaxZinterval,
                                                              do3dSplitting      = doVtx3DFinding, 
                                                              addSingleTrackVertices = singleTrackVertices,

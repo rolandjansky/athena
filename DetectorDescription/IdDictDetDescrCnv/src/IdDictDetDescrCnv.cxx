@@ -29,6 +29,11 @@
 #include "AthenaKernel/StorableConversions.h"
 
 
+// To write text file
+#include <iostream>
+#include <fstream>
+
+
 //--------------------------------------------------------------------
 
 long int   
@@ -257,6 +262,24 @@ IdDictDetDescrCnv::parseXMLDescription()
             << (boolProperty2.value() ? "True" : "False")
             << endmsg;
     }
+    
+    
+    // Determine if the dictionary content comes from DD database or
+    // if properties from JobOptions should be used.
+    BooleanProperty  boolProperty3("useGeomDB_InDet", true);
+    sc = propertyServer->getProperty(&boolProperty3);
+    if (!sc.isSuccess()) {
+        log << MSG::ERROR << "unable to get useGeomDB_InDet: found " 
+            << boolProperty3.value()
+            << endmsg;
+        return sc;
+    } else {
+        m_useGeomDB_InDet =  boolProperty3.value();           
+        log << MSG::DEBUG << "useGeomDB_InDet:  " 
+            << (boolProperty3.value() ? "True" : "False")
+            << endmsg;
+    }    
+
 
     if (m_idDictFromRDB && !serviceLocator()->existsService("GeoDbTagSvc")) {
       log << MSG::WARNING << "GeoDbTagSvc not part of this job. Falling back to files name from job options" << endmsg;
@@ -452,7 +475,8 @@ IdDictDetDescrCnv::IdDictDetDescrCnv(ISvcLocator* svcloc)
     m_doNeighbours(true),
     m_idDictFromRDB(false),
     m_doParsing(false)
-{}
+    {}
+
 
 //--------------------------------------------------------------------
 StatusCode
@@ -595,6 +619,7 @@ IdDictDetDescrCnv::getFileNamesFromProperties(IProperty* propertyServer)
             << fileName
             << endmsg;
     }
+
 
     // LAr ids
     property = StringProperty("LArIDFileName", "");
@@ -998,10 +1023,49 @@ IdDictDetDescrCnv::getFileNamesFromTags()
     }
                         
 
+
+    // Get Innner Detector xml and write to the temporary file InDetIdDict.xml
+    if(m_useGeomDB_InDet) {
+      detectorKey = DecodeVersionKey(geoDbTagSvc, "InnerDetector");
+      log << MSG::DEBUG << "From Version Tag: " << detectorKey.tag()
+	  << " at Node: " << detectorKey.node() << endmsg;
+      detTag = detectorKey.tag();
+      detNode = detectorKey.node();
+    }
+    idDictSet = rdbAccessSvc->getRecordsetPtr("DICTXDD",detTag,detNode);
+   
+    // Size == 0 if not found
+    if (idDictSet->size()) {
+    
+      const IRDBRecord *recordInDet = (*idDictSet)[0];
+      std::string InDetString = recordInDet->getString("XMLCLOB");
+      
+      
+      //  write to the temporary file
+
+      std::ofstream blobFile;
+
+      blobFile.open("InDetIdDict.xml");
+      blobFile<<InDetString<<std::endl;
+      blobFile.close();
+ 	
+    }
+    else {
+      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+    }
+  
+
+
+
+
     log << MSG::DEBUG << "End access to RDB for id dictionary info " << endmsg;
 
     return StatusCode::SUCCESS ;
 }
+
+
+
+
 
 //--------------------------------------------------------------------
 StatusCode 
@@ -1010,6 +1074,20 @@ IdDictDetDescrCnv::registerFilesWithParser()
     // If files names were found, register them with the parser to be read 
 
     MsgStream log(msgSvc(), "IdDictDetDescrCnv");
+
+    
+    //If InDetIdDict.xml exists set InDetFileName set to it's name
+    if (m_useGeomDB_InDet){
+    	std::ifstream ifile;
+    	ifile.open("InDetIdDict.xml");
+    	if(ifile) {
+    	  m_inDetIDFileName = "InDetIdDict.xml";
+    	} else {
+    	  log << MSG::WARNING << " no temp. file InDetIdDict.xml found - using file "<<m_inDetIDFileName << endmsg;
+    	}
+    }
+    log << MSG::INFO << " Reading InDet info from: "<<m_inDetIDFileName<< endmsg;
+   
 
     if ("" != m_atlasIDFileName) {
         m_parser->register_external_entity("ATLAS", m_atlasIDFileName);

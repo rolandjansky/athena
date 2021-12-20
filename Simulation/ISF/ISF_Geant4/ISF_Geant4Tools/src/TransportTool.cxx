@@ -227,10 +227,11 @@ StatusCode iGeant4::G4TransportTool::finalize()
 
   if (m_doTiming) {
     m_runTimer->Stop();
-    float runTime=m_runTimer->GetUserElapsed()+m_runTimer->GetSystemElapsed();
-    float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(m_nrOfEntries-1.) : runTime;
-    float sigma=( m_nrOfEntries>2) ? std::sqrt((m_accumulatedEventTimeSq/float(m_nrOfEntries-1)-
-                                                avgTimePerEvent*avgTimePerEvent)/float(m_nrOfEntries-2)) : 0;
+    const float numEntriesFloat(m_nrOfEntries);
+    const float runTime=m_runTimer->GetUserElapsed()+m_runTimer->GetSystemElapsed();
+    const float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(numEntriesFloat-1.f) : runTime;
+    const float avgTimeSqPerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTimeSq/(numEntriesFloat-1.f) : runTime*runTime;
+    const float sigma=(m_nrOfEntries>2) ? std::sqrt(std::abs(avgTimeSqPerEvent - avgTimePerEvent*avgTimePerEvent)/(numEntriesFloat-2.f)) : 0;
     ATH_MSG_INFO("*****************************************"<<endmsg<<
                  "**                                     **"<<endmsg<<
                  "    End of run - time spent is "<<std::setprecision(4) <<
@@ -416,15 +417,16 @@ StatusCode iGeant4::G4TransportTool::releaseEvent(const EventContext&)
   if (m_doTiming) {
     m_eventTimer->Stop();
 
-    double eventTime=m_eventTimer->GetUserElapsed()+m_eventTimer->GetSystemElapsed();
+    const double eventTime=m_eventTimer->GetUserElapsed()+m_eventTimer->GetSystemElapsed();
     if (m_nrOfEntries>1) {
       m_accumulatedEventTime  +=eventTime;
       m_accumulatedEventTimeSq+=eventTime*eventTime;
     }
 
-    float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(m_nrOfEntries-1.) : eventTime;
-    float sigma=(m_nrOfEntries>2) ? std::sqrt((m_accumulatedEventTimeSq/float(m_nrOfEntries-1)-
-                                               avgTimePerEvent*avgTimePerEvent)/float(m_nrOfEntries-2)) : 0.;
+    const float numEntriesFloat(m_nrOfEntries);
+    const float avgTimePerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTime/(numEntriesFloat-1.f) : eventTime;
+    const float avgTimeSqPerEvent=(m_nrOfEntries>1) ? m_accumulatedEventTimeSq/(numEntriesFloat-1.f) : eventTime*eventTime;
+    const float sigma=(m_nrOfEntries>2) ? std::sqrt(std::abs(avgTimeSqPerEvent - avgTimePerEvent*avgTimePerEvent)/(numEntriesFloat-2.f)) : 0;
 
     ATH_MSG_INFO("\t Event nr. "<<m_nrOfEntries<<" took " << std::setprecision(4) <<
                  eventTime << " s. New average " << std::setprecision(4) <<

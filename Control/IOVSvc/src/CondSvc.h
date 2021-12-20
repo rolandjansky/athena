@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_CONDSVC_H
@@ -20,7 +20,7 @@
 class ConditionSlotFuture;
 class ICondtionIOSvc;
 
-class ATLAS_CHECK_THREAD_SAFETY CondSvc: public extends<AthService, ICondSvc, ICondSvcSetupDone> {
+class CondSvc: public extends<AthService, ICondSvc, ICondSvcSetupDone> {
 public:
 
   CondSvc(const std::string& name, ISvcLocator* svc);

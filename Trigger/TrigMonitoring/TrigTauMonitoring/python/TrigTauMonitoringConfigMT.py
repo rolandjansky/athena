@@ -160,16 +160,14 @@ class TrigTauMonAlgBuilder:
   
     # if mon groups not found fall back to hard-coded trigger monitoring list
     if len(monitoring_tau) == 0:
-       monitoring_tau = [
+      monitoring_tau = [
        # tau0
        'HLT_tau0_ptonly_L1TAU8',
        'HLT_tau0_ptonly_L1TAU60',
        # tau25
        'HLT_tau25_ptonly_L1TAU12IM',
-       'HLT_tau25_idperf_tracktwo_L1TAU12IM',
        'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',
        'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
-       'HLT_tau25_perf_tracktwo_L1TAU12IM',
        'HLT_tau25_perf_tracktwoMVA_L1TAU12IM',
        'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
        'HLT_tau25_looseRNN_tracktwoMVA_L1TAU12IM',
@@ -180,10 +178,8 @@ class TrigTauMonAlgBuilder:
        'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
        # tau35
        'HLT_tau35_ptonly_L1TAU20IM',
-       'HLT_tau35_idperf_tracktwo_L1TAU20IM',
        'HLT_tau35_idperf_tracktwoMVA_L1TAU20IM',
        'HLT_tau35_idperf_tracktwoMVABDT_L1TAU20IM',
-       'HLT_tau35_perf_tracktwo_L1TAU20IM',
        'HLT_tau35_perf_tracktwoMVA_L1TAU20IM',
        'HLT_tau35_perf_tracktwoMVABDT_L1TAU20IM',
        'HLT_tau35_looseRNN_tracktwoMVA_L1TAU20IM',
@@ -194,10 +190,8 @@ class TrigTauMonAlgBuilder:
        'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
        # tau160
        'HLT_tau160_ptonly_L1TAU100',
-       'HLT_tau160_idperf_tracktwo_L1TAU100',
        'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
        'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
-       'HLT_tau160_perf_tracktwo_L1TAU100',
        'HLT_tau160_perf_tracktwoMVA_L1TAU100',
        'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
        'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
@@ -215,16 +209,23 @@ class TrigTauMonAlgBuilder:
        'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_03dRAB_L1TAU60_2TAU40',
        'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB30_L1TAU60_DR-TAU20ITAU12I',
        'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+       'HLT_tau80_mediumRNN_tracktwoMVABDT_tau60_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU60_2TAU40',
+       'HLT_tau80_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB30_L1TAU60_DR-TAU20ITAU12I',
+       'HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_L1DR-TAU20ITAU12I-J25',
        'HLT_tau80_mediumRNN_tracktwoLLP_tau60_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
        'HLT_tau80_mediumRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
        'HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
        'HLT_tau100_mediumRNN_tracktwoLLP_tau80_mediumRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40',
+       'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25',
+       'HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20',
+       'HLT_tau35_mediumRNN_tracktwoMVABDT_tau25_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25',
+       'HLT_tau40_mediumRNN_tracktwoMVABDT_tau35_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU25IM_2TAU20IM_2J25_3J20',
        # Phase-I
        'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12',
        'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
        'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
        'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
-       ]
+      ]
 
     self.tauList = monitoring_tau
 
@@ -260,20 +261,24 @@ class TrigTauMonAlgBuilder:
   
       l1seeds.append(info.L1seed())
 
-      self.bookbasicVars( monAlg, trigger, online=False )
-      self.bookbasicVars( monAlg, trigger, online=True )
+      self.bookbasicVars( monAlg, trigger, '0P', online=True )
+      self.bookbasicVars( monAlg, trigger, '1P', online=True )
+      self.bookbasicVars( monAlg, trigger, 'MP', online=True )
+      self.bookbasicVars( monAlg, trigger, '1P', online=False )
+      self.bookbasicVars( monAlg, trigger, 'MP', online=False )
+
       self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
       self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
 
-      if info.isRNN() is True:
-        self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
-        self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
-        self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
-        self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
-        self.bookRNNTrack( monAlg, trigger, online=True )
-        self.bookRNNCluster( monAlg, trigger, online=True )
-        self.bookRNNTrack( monAlg, trigger, online=False )
-        self.bookRNNCluster( monAlg, trigger, online=False )
+      self.bookRNNInputVars( monAlg, trigger,nProng='0P', online=True ) 
+      self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
+      self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
+      self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
+      self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
+      self.bookRNNTrack( monAlg, trigger, online=True )
+      self.bookRNNCluster( monAlg, trigger, online=True )
+      self.bookRNNTrack( monAlg, trigger, online=False )
+      self.bookRNNCluster( monAlg, trigger, online=False )
 
     #remove duplicated from L1 seed list
     l1seeds = list(dict.fromkeys(l1seeds))
@@ -422,10 +427,10 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('cluster_SECOND_LAMBDA_log10',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
     monGroup.defineHistogram('cluster_CENTER_LAMBDA_log10',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
     
-  def bookbasicVars( self, monAlg, trigger, online ):
+  def bookbasicVars( self, monAlg, trigger, nProng, online ):
   
-    monGroupName = trigger+('HLT' if online else 'Offline')+'_basicVars'
-    monGroupPath = 'basicVars/'+trigger+('/HLT' if online else '/Offline')
+    monGroupName = trigger+('HLT' if online else 'Offline')+'_basicVars_'+nProng
+    monGroupPath = 'basicVars/'+trigger+('/HLT' if online else '/Offline')+'_'+nProng
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )

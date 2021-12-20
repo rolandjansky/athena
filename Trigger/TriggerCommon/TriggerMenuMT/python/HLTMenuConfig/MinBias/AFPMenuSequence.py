@@ -7,7 +7,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR, seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
-from AthenaCommon.GlobalFlags import globalflags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
 
@@ -18,67 +17,103 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
     AFPInputMaker.RoITool = ViewCreatorInitialROITool()
     AFPInputMaker.RoIs = "AFPRoIs"
 
-    # get AFP_GeometryTool 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    AFP_Geometry_tool = CompFactory.getComp("AFP_GeometryTool")("AFP_Geometry_tool")
 
     from AFP_ByteStream2RawCnv.AFP_ByteStream2RawCnvConf import AFP_RawDataProvider
     AFP_Raw = AFP_RawDataProvider()
 
     from AFP_Raw2Digi.AFP_Raw2DigiConf import AFP_Raw2Digi
     AFP_R2D = AFP_Raw2Digi()
-
-    # select between a real data or a simulation mode - Simulation = 0, RealData = 1
-    if globalflags.DataSource()=='data':
-        AFP_SIDLocReco_DataType = 1
-    else:
-        AFP_SIDLocReco_DataType = 0
-
-    AFP_SIDLocReco_ListAlgoSID = ["SIDBasicKalman"]
-    AFP_SIDLocReco_AmpThresh = 5000.
     
-    # SID part
+    # SiD part
+    # setup clustering tool
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    clusterNeighbour = CompFactory.getComp("AFPSiClusterBasicNearestNeighbour")("AFPSiClusterBasicNearestNeighbour")
+    rowColToLocal = CompFactory.getComp("AFPSiRowColToLocalCSTool")("AFPSiRowColToLocalCSTool")
+    clusterTool = CompFactory.getComp("AFPSiClusterTool")("AFPSiClusterTool", clusterAlgTool=clusterNeighbour, rowColToLocalCSTool = rowColToLocal)
+    from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiCluster
+    AFP_SiCl = AFPSiCluster("AFPSiCluster", clusterRecoTool = clusterTool)
+    
+    # setup track reconstruction algorithm tools
+    kalmanTool0 = CompFactory.getComp("AFPSiDBasicKalmanTool")("AFPSiDBasicKalmanTool0", stationID=0, tracksContainerName = recordable("HLT_AFPTrackContainer"))
+    kalmanTool1 = CompFactory.getComp("AFPSiDBasicKalmanTool")("AFPSiDBasicKalmanTool1", stationID=1, tracksContainerName = recordable("HLT_AFPTrackContainer"))
+    kalmanTool2 = CompFactory.getComp("AFPSiDBasicKalmanTool")("AFPSiDBasicKalmanTool2", stationID=2, tracksContainerName = recordable("HLT_AFPTrackContainer"))
+    kalmanTool3 = CompFactory.getComp("AFPSiDBasicKalmanTool")("AFPSiDBasicKalmanTool3", stationID=3, tracksContainerName = recordable("HLT_AFPTrackContainer"))
+    kalmanToolsList=[kalmanTool0, kalmanTool1, kalmanTool2, kalmanTool3]
+    # collect all output names and make a list with unique names for write handle keys; if this goes wrong AFP_SIDLocRecoTool::initialize() will complain
+    outputKalmanList=[]
+    for kalmanTool in kalmanToolsList:
+        try:
+            # in case the "tracksContainerName" is set
+            contName=getattr(kalmanTool, "tracksContainerName")
+        except AttributeError:
+            # in case the "tracksContainerName" is not set
+            contName=kalmanTool.getDefaultProperty("tracksContainerName")
+        if contName not in outputKalmanList:
+            outputKalmanList.append(contName)
+    trackRecoTool = CompFactory.getComp("AFP_SIDLocRecoTool")("AFP_SIDLocRecoTool", RecoToolsList=kalmanToolsList, AFPTrackContainerList=outputKalmanList )
     from AFP_LocReco.AFP_LocRecoConf import AFP_SIDLocReco
-    AFP_SID = AFP_SIDLocReco("AFP_SIDLocReco",
-                            AFP_Geometry = AFP_Geometry_tool,
-                            vecListAlgoSID = AFP_SIDLocReco_ListAlgoSID,
-                            DataType = AFP_SIDLocReco_DataType,
-                            AmpThresh = AFP_SIDLocReco_AmpThresh, 
-                            AFPTrackContainerKey = recordable('HLT_AFPTrackContainer'))
+    AFP_SID = AFP_SIDLocReco("AFP_SIDLocReco", recoTool = trackRecoTool)
+    
     
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-    monTool = GenericMonitoringTool("MonTool_AFP_SIDLocReco")
-
-    monTool.defineHistogram( 'HitsSize', path='EXPERT', type='TH1F', title='SID hits size',xbins=50, xmin=0, xmax=50 )
-
-    monTool.defineHistogram( 'TrkSize', path='EXPERT', type='TH1F', title='AFP tracks size',xbins=50, xmin=0, xmax=100 )
     
-    monTool.defineHistogram( 'TrkStationID', path='EXPERT', type='TH1F', title='Track station ID',xbins=4, xmin=0, xmax=4 )
-    monTool.defineHistogram( 'TrkXLocal', path='EXPERT', type='TH1F', title='Track xLocal',xbins=100, xmin=-200, xmax=200 )
-    monTool.defineHistogram( 'TrkYLocal', path='EXPERT', type='TH1F', title='Track yLocal',xbins=100, xmin=-30, xmax=30 )
-    monTool.defineHistogram( 'TrkZLocal', path='EXPERT', type='TH1F', title='Track zLocal',xbins=100, xmin=-500000, xmax=500000 )
+    monTool_AFP_SiClusterTool = GenericMonitoringTool("MonTool_AFP_SiClusterTool")
+    monTool_AFP_SiClusterTool.defineHistogram( 'HitsSize', path='EXPERT', type='TH1F', title='SID hits size',xbins=50, xmin=0, xmax=50 )
+    monTool_AFP_SiClusterTool.defineHistogram( 'ClusterSize', path='EXPERT', type='TH1F', title='SID cluster size',xbins=50, xmin=0, xmax=50 )
+    AFP_SiCl.clusterRecoTool.MonTool = monTool_AFP_SiClusterTool
     
-    monTool.defineHistogram( 'TrkXSlope', path='EXPERT', type='TH1F', title='Track x slope',xbins=100, xmin=-0.5, xmax=0.5 )
-    monTool.defineHistogram( 'TrkYSlope', path='EXPERT', type='TH1F', title='Track y slope',xbins=100, xmin=-0.5, xmax=0.5 )
-    monTool.defineHistogram( 'TrkNHoles', path='EXPERT', type='TH1F', title='Track number of holes',xbins=0, xmin=0, xmax=200 )
-    monTool.defineHistogram( 'TrkChi2', path='EXPERT', type='TH1F', title='Track chi2',xbins=50, xmin=0, xmax=10 )
+    
+    monTool_AFP_SIDLocRecoTool = GenericMonitoringTool("MonTool_AFP_SIDLocRecoTool")
+    monTool_AFP_SIDLocRecoTool.defineHistogram( 'TrkSize', path='EXPERT', type='TH1F', title='AFP tracks size',xbins=50, xmin=0, xmax=100 )
+    AFP_SID.recoTool.MonTool = monTool_AFP_SIDLocRecoTool
+    
+    for i, kalmanTool in enumerate(kalmanToolsList):
+        monTool_AFP_BasicKalman = GenericMonitoringTool("MonTool_AFP_"+kalmanTool.name())
+    
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkStationID', path='EXPERT', type='TH1F', title='Track station ID',xbins=4, xmin=0, xmax=4 )
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkXLocal', path='EXPERT', type='TH1F', title='Track xLocal',xbins=100, xmin=-200, xmax=200 )
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkYLocal', path='EXPERT', type='TH1F', title='Track yLocal',xbins=100, xmin=-30, xmax=30 )
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkZLocal', path='EXPERT', type='TH1F', title='Track zLocal',xbins=100, xmin=-500000, xmax=500000 )
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkXSlope', path='EXPERT', type='TH1F', title='Track x slope',xbins=100, xmin=-0.5, xmax=0.5 )
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkYSlope', path='EXPERT', type='TH1F', title='Track y slope',xbins=100, xmin=-0.5, xmax=0.5 )
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkNClusters', path='EXPERT', type='TH1F', title='Track number of clusters',xbins=100, xmin=0, xmax=100 )
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkNHoles', path='EXPERT', type='TH1F', title='Track number of holes',xbins=100, xmin=0, xmax=100 )
+        monTool_AFP_BasicKalman.defineHistogram( 'TrkChi2', path='EXPERT', type='TH1F', title='Track chi2',xbins=50, xmin=0, xmax=10 )
 
-    AFP_SID.MonTool = monTool
+        AFP_SID.recoTool.RecoToolsList[i].MonTool = monTool_AFP_BasicKalman
+    
     
     # TID part
-    # from AFP_LocReco.AFP_LocRecoConf import AFP_TDLocReco
-    # AFP_TD = AFP_TDLocReco("AFP_TDLocReco")
+    BarWeight = [1.0, 1.0, 1.0, 1.0] 
+    TimeOffset0 = [105707, 105670, 105675, 105638,
+                   105834, 105819, 105778, 105754,
+                   105900, 105892, 105870, 105820,
+                   105726, 105720, 105714, 105717]
+    basicTool0 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool0", stationID=0, maxAllowedLength=100, TimeOffset=TimeOffset0, BarWeight=BarWeight)
+    TimeOffset3 = [105796, 105761, 105742, 105696,
+                   105890, 105871, 105839, 105816,
+                   105923, 105899, 105862, 105853,
+                   105707, 105711, 105714, 105713]
+    basicTool3 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool3", stationID=3, maxAllowedLength=100, TimeOffset=TimeOffset3, BarWeight=BarWeight)
+    basicToolsList=[basicTool0, basicTool3]
+    # collect all output names and make a list with unique names for write handle keys; if this goes wrong AFP_SIDLocRecoTool::initialize() will complain
+    outputBasicList=[]
+    for basicTool in basicToolsList:
+        try:
+            # in case the "tracksContainerName" is set
+            contName=getattr(basicTool, "tracksContainerName")
+        except AttributeError:
+            # in case the "tracksContainerName" is not set
+            contName=basicTool.getDefaultProperty("tracksContainerName")
+        if contName not in outputBasicList:
+            outputBasicList.append(contName)
+    ToFtrackRecoTool = CompFactory.getComp("AFP_TDLocRecoTool")("AFP_TDLocRecoTool", RecoToolsList=basicToolsList, AFPToFTrackContainerList=outputBasicList )
+    from AFP_LocReco.AFP_LocRecoConf import AFP_TDLocReco
+    AFP_TD = AFP_TDLocReco("AFP_TDLocReco", recoTool=ToFtrackRecoTool)
 
-    # if globalflags.DataSource()=='data':
-    #     AFP_TDLocReco.DataType = 1
-    # else:
-    #     AFP_TDLocReco.DataType = 0
+    # AFP_Proton part to be added here
 
-    # # select algo for timing reco and parameters
-    # AFP_TDLocReco.ListAlgoTD = ["TDZVertex"]
-    # AFP_TDLocReco.AmpThresh = 10.
-
-    AFPRecoSeq = parOR("AFPRecoSeq", [AFP_Raw, AFP_R2D, AFP_SID])    
+    AFPRecoSeq = parOR("AFPRecoSeq", [AFP_Raw, AFP_R2D, AFP_SiCl, AFP_SID, AFP_TD])    
 
     return (AFPRecoSeq, AFPInputMaker)
 

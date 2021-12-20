@@ -92,12 +92,18 @@ MCTruthClassifier::initialize()
 #endif
 
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Tools making sense only for the Athena only environment*/
-  if (!m_caloExtensionTool.empty() && m_caloExtensionTool.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Cannot retrieve extrapolateToCaloTool " << m_caloExtensionTool
-                                                             << " - will not perform extrapolation.");
+  if (!m_caloExtensionTool.empty()) {
+    ATH_CHECK(m_caloExtensionTool.retrieve());
+  } else {
+    m_caloExtensionTool.disable();
   }
-  if (!m_truthInConeTool.empty() && m_truthInConeTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve Truth in cone Tool " << m_truthInConeTool);
+
+  ATH_CHECK(m_caloMgrKey.initialize(SG::AllowEmpty));
+
+  if (!m_truthInConeTool.empty()) {
+    ATH_CHECK(m_truthInConeTool.retrieve());
+  } else {
+    m_truthInConeTool.disable();
   }
 #endif
   return StatusCode::SUCCESS;

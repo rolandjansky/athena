@@ -6,7 +6,6 @@ __author__ = "Bruno Lenzi"
 
 
 from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
-from .EMPIDBuilderBase import EMPIDBuilderElectronBase
 from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
 
 
@@ -52,11 +51,6 @@ EGammaAmbiguityTool = ToolFactory(
     ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool)
 
 EMFourMomBuilder = ToolFactory(egammaToolsConf.EMFourMomBuilder)
-
-# Electron Selectors
-ElectronPIDBuilder = ToolFactory(
-    EMPIDBuilderElectronBase,
-    name="ElectronPIDBuilder")
 
 # Photon Selectors
 PhotonPIDBuilder = ToolFactory(

@@ -18,6 +18,10 @@ def LVL1CaloMonitoringConfig(flags):
     if not flags.DQ.triggerDataAvailable:
         return result
 
+    #TODO restore proper config
+    if flags.Trigger.triggerConfig == "INFILE":
+        return result
+
     from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
     result.merge(L1ConfigSvcCfg(flags))
 

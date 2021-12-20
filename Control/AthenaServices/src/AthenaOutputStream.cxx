@@ -42,6 +42,7 @@
 #include "SelectionVetoes.h"
 
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cassert>
 #include <mutex>
 #include <string>
@@ -91,7 +92,7 @@ namespace {
       addRef();
     }
     // Extra constructor to create a temporary proxy without aliases, for objects in MetaContainers
-    AltDataBucket(void* ptr, CLID clid, const std::type_info& tinfo, const std::string name) :
+    AltDataBucket(void* ptr, CLID clid, const std::type_info& tinfo, const std::string& name) :
        m_proxy(this, new SG::TransientAddress(clid, name) ),
        m_ptr(ptr), m_clid(clid), m_tinfo(tinfo)
     {
@@ -432,7 +433,7 @@ void AthenaOutputStream::handle(const Incident& inc)
 // method to write MetaData for this stream
 // in ES mode the range substream is determined by the current Event slot
 // called from the incident handler - returns void and throws GaudiExceptions on errors
-void AthenaOutputStream::writeMetaData(const std::string outputFN)
+void AthenaOutputStream::writeMetaData(const std::string& outputFN)
 {
    // use main stream tool by default, or per outputFile in ES mode
    IAthenaOutputStreamTool* streamer = outputFN.empty()? &*m_streamer : m_streamerMap[outputFN].get();
@@ -668,7 +669,7 @@ StatusCode AthenaOutputStream::collectAllObjects() {
    std::vector<CLID> folderclids;
    // Collect all objects that need to be persistified:
    //FIXME refactor: move this in folder. Treat as composite
-   for (SG::IFolder::const_iterator i = m_p2BWritten->begin(), iEnd = m_p2BWritten->end(); i != iEnd; i++) {
+   for (SG::IFolder::const_iterator i = m_p2BWritten->begin(), iEnd = m_p2BWritten->end(); i != iEnd; ++i) {
      addItemObjects(*i, *vetoes, *compInfo);
       folderclids.push_back(i->id());
    }
@@ -738,7 +739,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
    static const std::string wildCard = "*";
    std::set<std::string> clidKeys;
    for (SG::IFolder::const_iterator iter = m_decoder->begin(), iterEnd = m_decoder->end();
-           iter != iterEnd; iter++) {
+           iter != iterEnd; ++iter) {
       if (iter->id() == item_id) {
          clidKeys.insert(iter->key());
       }
@@ -983,7 +984,7 @@ AthenaOutputStream::buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
 
   // First the high compression list
   for (SG::IFolder::const_iterator iter = handle->begin(), iterEnd = handle->end();
-         iter != iterEnd; iter++) {
+         iter != iterEnd; ++iter) {
     // First match the IDs for early rejection.
     if (iter->id() != item_id) {
       continue;
@@ -1106,7 +1107,7 @@ void AthenaOutputStream::tokenizeAtSep( std::vector<std::string>& subStrings,
                                         const std::string& sepstr ) const {
   subStrings.clear(); // clear from previous iteration step
   // If the portia starts with a wildcard, add an empty string
-  if ( portia.find(sepstr) == 0 ) {
+  if ( boost::starts_with (portia, sepstr )) {
     subStrings.push_back("");
   }
   boost::char_separator<char> csep(sepstr.c_str());

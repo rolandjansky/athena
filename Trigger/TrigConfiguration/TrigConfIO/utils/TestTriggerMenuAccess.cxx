@@ -583,6 +583,9 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
    cout << endl << "    known pt values for tgc ";
    for(auto pt : exMU.knownTgcPtValues()) cout << pt << " ";
    cout << endl;
+   cout << " RPC pt value for index 2: "<< exMU.ptForRpcIdx(2) << endl;
+   cout << " TGC pt value for index 2: "<< exMU.ptForTgcIdx(2) << endl;
+   cout << " TGC index for RPC index 2: "<< exMU.tgcIdxForRpcIdx(2) << endl;
    if( const auto & list = exMU.exclusionListNames(); std::find(list.begin(), list.end(), "rpcFeet")!=list.end() ) {
       cout << "    exclusionList 'rpcFeet'" << endl;
       for(auto & x : exMU.exclusionList("rpcFeet")) {

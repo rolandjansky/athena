@@ -40,21 +40,21 @@ StatusCode  NeuralNetworkToHistoTool::finalize() {
 
 
 std::vector<TH1*> NeuralNetworkToHistoTool
-::fromTrainedNetworkToHisto(TTrainedNetwork* trainedNetwork) const
+::fromTrainedNetworkToHisto(TTrainedNetwork* trainedNetwork) 
 {
   NetworkToHistoTool tool; 
   return tool.fromTrainedNetworkToHisto(trainedNetwork); 
 }
 
 TTrainedNetwork* NeuralNetworkToHistoTool
-::fromHistoToTrainedNetwork(const std::vector<TH1*> & inputHistos) const
+::fromHistoToTrainedNetwork(const std::vector<TH1*> & inputHistos) 
 {
   NetworkToHistoTool tool; 
   return tool.fromHistoToTrainedNetwork(inputHistos); 
 }
 
 TTrainedNetwork* NeuralNetworkToHistoTool
-::fromHistoToTrainedNetwork(const std::vector<const TH1*> & inputHistos) const
+::fromHistoToTrainedNetwork(const std::vector<const TH1*> & inputHistos) 
 {
   NetworkToHistoTool tool; 
   return tool.fromHistoToTrainedNetwork(inputHistos); 
@@ -62,18 +62,18 @@ TTrainedNetwork* NeuralNetworkToHistoTool
 
 std::map<std::string,TH1*> NeuralNetworkToHistoTool
 ::histsFromNetwork(TTrainedNetwork* net) 
-  const 
+  
 {
   NetworkToHistoTool tool; 
-  return tool.histsFromNetwork(net); 
+  return NetworkToHistoTool::histsFromNetwork(net); 
 }
 
 TTrainedNetwork* NeuralNetworkToHistoTool
 ::networkFromHists(const std::map<std::string,const TH1*>& hists) 
-  const 
+  
 {
   NetworkToHistoTool tool; 
-  return tool.networkFromHists(hists); 
+  return NetworkToHistoTool::networkFromHists(hists); 
 }
 }//end namespace Trk
   

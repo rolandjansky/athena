@@ -75,7 +75,6 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.trackBuilder", "Moore") # Allowed: 'Moore','TruthTracking','None'
     mcf.addFlag("Muon.refinementTool", "Moore") # Allowed: Moore TODO surely we can drop this if there is only one option?
     mcf.addFlag("Muon.patternsOnly", False) # TODO probably can be dropped? Just disable later steps.
-    mcf.addFlag("Muon.createTrackParticles", True ) # TODO do we ever turn this off?
     mcf.addFlag("Muon.straightLineFitMomentum", 2000.0 ) 
     #mcf.addFlag("Muon.doSegmentsOnly", True) # Also in MuonRecFlags ... redundant in both?
     mcf.addFlag("Muon.Chi2NDofCut", 20.0 )  # chi-squared per degree of freedom cut in fitter.

@@ -22,13 +22,13 @@ namespace xAOD{
     jFexSumETRoIAuxContainer_v1();
 
   private:
-    std::vector<uint32_t> word0;
+    std::vector<uint32_t> tobWord;
     std::vector<uint8_t>  fpgaNumber;
     std::vector<uint8_t>  jFexNumber;
-    std::vector<uint16_t> Et_lower;
-    std::vector<uint16_t> Et_upper;
-    std::vector<uint8_t>  Sat_lower;
-    std::vector<uint8_t>  Sat_upper; 
+    std::vector<uint16_t> tobEt_lower;
+    std::vector<uint8_t>  tobSat_lower;
+    std::vector<uint16_t> tobEt_upper;
+    std::vector<uint8_t>  tobSat_upper; 
 }; // class jFexSumETRoIAuxContainer_v1
 
 }//end of namespace xAOD 

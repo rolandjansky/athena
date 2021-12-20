@@ -24,4 +24,5 @@ atlas_add_component( PileUpComps
 atlas_add_test( PileUpHashHelper_test
                 SOURCES test/PileUpHashHelper_test.cxx src/PileUpHashHelper.cxx
                 INCLUDE_DIRS src ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES xAODEventInfo ${GTEST_LIBRARIES} )
+                LINK_LIBRARIES xAODEventInfo ${GTEST_LIBRARIES}
+                POST_EXEC_SCRIPT nopost.sh )

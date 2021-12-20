@@ -244,12 +244,6 @@ namespace Trk {
       m_acceleration = false;
     }
 
-#ifdef LEGACY_TRKGEOM
-    if (m_trackingGeometryReadKey.key().empty()) {
-      ATH_CHECK(m_trackingGeometrySvc.retrieve());
-      ATH_MSG_INFO("  geometry Svc " << m_trackingGeometrySvc << " retrieved ");
-    }
-#endif
     if (!m_trackingGeometryReadKey.key().empty()){
       ATH_CHECK( m_trackingGeometryReadKey.initialize());
     }
@@ -4676,11 +4670,7 @@ namespace Trk {
         cache.m_fastmat && 
         cache.m_acceleration &&
         trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits() == trajectory.numberOfHits() && 
-        (m_matupdator.empty() || (m_trackingGeometryReadKey.key().empty()
-#ifdef LEGACY_TRKGEOM
-                                  && m_trackingGeometrySvc.empty()
-#endif
-                                  ))
+        (m_matupdator.empty() || (m_trackingGeometryReadKey.key().empty()))
       ) {
         ATH_MSG_WARNING("Tracking Geometry Service and/or Material Updator Tool not configured");
         ATH_MSG_WARNING("Falling back to slow material collection");
@@ -5536,9 +5526,7 @@ namespace Trk {
           for (int j = scatmin; j < scatmax; j++) {
             int index = nperparams + ((trajectory.prefit() != 1) ? 2 * j : j);
             double thisderiv = 0;
-            // this look suspicious: 
-            double sign = (j < nscatupstream) ? -1 : 1;
-            sign = 1;
+            double sign = 1;
             //
             
             if (i == 0 && sinstereo != 0) {
@@ -7767,7 +7755,7 @@ __attribute__ ((flatten))
     int nperpars = trajectory.numberOfPerigeeParameters(); 
     int nfitpars = trajectory.numberOfFitParameters();
 
-    typedef Eigen::Matrix<double, 5, 5> Matrix55;
+    using Matrix55 = Eigen::Matrix<double, 5, 5>;
 
     Matrix55 initialjac;
     initialjac.setZero();

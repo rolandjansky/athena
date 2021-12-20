@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 import AthenaCommon.SystemOfUnits as Units
-##from AthenaCommon.DetFlags import DetFlags
+
 
 ## constants
 max_holes = 2 ## was 5
@@ -60,7 +60,8 @@ def maxPrimaryImpact_ranges( inflags ):
 def maxZImpact_ranges( inflags ):
     return select( inflags.InDet.cutLevel,
     {'-8':  320.0 * Units.mm,
-    '9-':  250 * Units.mm } )
+    '9-16':  250 * Units.mm,
+    '17-':  200.0 * Units.mm } )
 
 def nHolesMax_ranges( inflags ):
     return select( inflags.InDet.cutLevel,
@@ -207,7 +208,7 @@ def createTrackingFlags():
     icf.addFlag("minPT", minPT_ranges )
     icf.addFlag("minSecondaryPt", minSecondaryPT_ranges ) #Pt cut for back tracking + segment finding for these
     icf.addFlag("minTRTonlyPt", minTRTonlyPt_ranges ) #Pt cut for TRT only
-    icf.addFlag("pT_SSScut", -1. * Units.GeV) # off
+    icf.addFlag("pT_SSScut", -1. ) # off
 
     # --- first set kinematic defaults
     icf.addFlag("maxPT", lambda pcf : 1000.0 * Units.TeV) # off!
@@ -254,7 +255,7 @@ def createTrackingFlags():
 
     # --- this is for the TRT-extension
     icf.addFlag("minTRTonTrk", 9)
-    icf.addFlag("minTRTPrecFrac", 0.4) #old: 0.3
+    icf.addFlag("minTRTPrecFrac", 0.3)
 
     # --- general pattern cuts for NewTracking
 
@@ -339,7 +340,7 @@ def createTrackingFlags():
     icf.addFlag("SecondaryXi2maxNoAdd"      , 50.0)
 
     # --- run back tracking and TRT only in RoI seed regions
-    icf.addFlag("RoISeededBackTracking"     , RoISeededBackTracking_ranges and ( lambda pcf : pcf.Detector.GeometryCalo ) )
+    icf.addFlag("RoISeededBackTracking"     , RoISeededBackTracking_ranges and ( lambda pcf : pcf.Detector.EnableCalo ) )
     icf.addFlag("minRoIClusterEt"           , minRoIClusterEt_ranges)
 
     icf.addFlag("usePixel"       		  , lambda pcf : pcf.Detector.EnablePixel )
@@ -360,6 +361,9 @@ def createTrackingFlags():
     icf.addFlag("maxTRTonlyShared"          , 0.7)
     icf.addFlag("useTRTonlyParamCuts"       , True)
     icf.addFlag("useTRTonlyOldLogic"        , False)
+    icf.addFlag("TrkSel.TRTTrksEtaBins"                 , [999, 999, 999, 999, 999, 999, 999, 999, 999, 999])  # eta bins (10) for eta-dep cuts on TRT conversion tracks
+    icf.addFlag("TrkSel.TRTTrksMinTRTHitsThresholds"    , [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0])  # eta-dep nTRT for TRT conversion tracks (> 15 is applied elsewhere)
+    icf.addFlag("TrkSel.TRTTrksMinTRTHitsMuDependencies", [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0])  # eta-dep nTRT, mu dependence for TRT conversion tracks
 
     # --- ITk flags
     icf.addFlag("useEtaDepCuts"             , False)
@@ -576,7 +580,7 @@ def createR3LargeD0TrackingFlags():
     icf.minPT              = 1.0 * Units.GeV                                                                                    
     icf.maxEta             = 3                                                                                                        
     icf.maxPrimaryImpact   = 300.0 * Units.mm
-    icf.maxZImpact         = 750 * Units.mm    
+    icf.maxZImpact         = 500 * Units.mm    
     icf.maxSecondaryImpact = 300.0 * Units.mm  
     icf.minSecondaryPt     = 1000.0 * Units.MeV 
     icf.minClusters        = 8                  
@@ -594,13 +598,13 @@ def createR3LargeD0TrackingFlags():
     icf.maxTracksPerSharedPRD   = 2
     icf.Xi2max                  = 9.0  
     icf.Xi2maxNoAdd             = 25.0 
-    icf.roadWidth               = 10. 
+    icf.roadWidth               = 5. 
     icf.nWeightedClustersMin    = 8   
     icf.maxdImpactSSSSeeds      = 300.0
     icf.doZBoundary             = True
-    icf.keepAllConfirmedStripSeeds   = True
-    icf.maxSeedsPerSP_Strips           = 1
-    icf.keepAllConfirmedStripSeeds  = True
+    icf.keepAllConfirmedStripSeeds = True
+    icf.maxSeedsPerSP_Strips = 1
+    icf.usePixel             = False
 
     return icf
 
@@ -899,6 +903,7 @@ def createPixelTrackingFlags():
 def createDisappearingTrackingFlags():
     icf = createTrackingFlags()
     icf.extension        = "Disappearing"
+    icf.minPT            = 5 * Units.GeV
     icf.minClusters      = 4
     icf.maxHoles         = 0
     icf.maxPixelHoles    = 0
@@ -965,6 +970,18 @@ def createTRTTrackingFlags():
     icf.minPT                   = 0.4 * Units.GeV
     icf.minTRTonly              = 15
     icf.maxTRTonlyShared        = 0.7
+
+    return icf
+
+
+########## TRT standalone tracklet cuts  ##########
+def createTRTStandaloneTrackingFlags():
+    icf = createTrackingFlags()
+    icf.minSecondaryTRTPrecFrac = 0.15
+    # Mu- and eta- dependent cuts on nTRT
+    icf.TrkSel.TRTTrksEtaBins                  = [ 0.7,   0.8,   0.9,  1.2,  1.3,  1.6,  1.7,  1.8,  1.9,  999]  # eta bins (10) for eta-dep cuts on TRT conversion tracks
+    icf.TrkSel.TRTTrksMinTRTHitsThresholds     = [  27,    18,    18,   18,   26,   28,   26,   24,   22,    0]  # eta-dep nTRT for TRT conversion tracks (> 15 is applied elsewhere)
+    icf.TrkSel.TRTTrksMinTRTHitsMuDependencies = [ 0.2,  0.05,  0.05, 0.05, 0.15, 0.15, 0.15, 0.15, 0.15,    0]  # eta-dep nTRT, mu dependence for TRT conversion tracks
 
     return icf
 

@@ -25,7 +25,7 @@ find_package( Boost )
 atlas_add_root_dictionary( FastCaloSimLib
                            FastCaloSimLibDictSource
                            ROOT_HEADERS FastCaloSim/ParticleEnergyParametrization.h FastCaloSim/ParticleEnergyParametrizationInDistbin.h FastCaloSim/TShape_Result.h FastCaloSim/TLateralShapeCorrection.h FastCaloSim/TSplineReweight.h FastCaloSim/TCellReweight.h FastCaloSim/LinkDef.h
-                           EXTERNAL_PACKAGES  ROOT HepPDT CLHEP HepMC Eigen )
+                           EXTERNAL_PACKAGES  ROOT HepPDT CLHEP Eigen )
 
 atlas_add_library( FastCaloSimLib
                    src/CaloCellContainerFCSFinalizerTool.cxx

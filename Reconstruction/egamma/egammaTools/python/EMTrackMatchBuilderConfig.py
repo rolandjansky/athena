@@ -6,7 +6,7 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTrackTools.egammaTrackToolsConfig import (
-    EMExtrapolationToolsCacheCfg)
+    EMExtrapolationToolsCfg)
 
 
 def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
@@ -17,8 +17,8 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
     acc = ComponentAccumulator()
 
     if "ExtrapolationTool" not in kwargs:
-        extrapcache = EMExtrapolationToolsCacheCfg(flags)
-        kwargs["ExtrapolationTool"] = extrapcache.popToolsAndMerge(extrapcache)
+        extrap = EMExtrapolationToolsCfg(flags)
+        kwargs["ExtrapolationTool"] = acc.popToolsAndMerge(extrap)
 
     kwargs.setdefault("TrackParticlesName",
                       flags.Egamma.Keys.Output.GSFTrackParticles)

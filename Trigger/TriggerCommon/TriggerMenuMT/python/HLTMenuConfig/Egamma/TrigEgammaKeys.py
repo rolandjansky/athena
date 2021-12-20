@@ -12,10 +12,10 @@ from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 
-class TrigEgammaKeysBase():
+class TrigEgammaKeysBase(object):
 
       """Base clas to configure TrigEgamma Container names. Containers will be record, collections not"""
-      def __init__(self):
+      def __init__(self, ion=False):
 
 
         """Static class to collect all string manipulation in fast electron sequences """
@@ -29,18 +29,19 @@ class TrigEgammaKeysBase():
         """Static class to collect all string manipulation in precision calo sequences """
         self.precisionCaloTopoCollection                = 'HLT_egammaTopoCluster'
         self.precisionCaloEgammaRecCollection           = 'HLT_precisionCaloEgammaRecCollection'
-        self.precisionCaloClusterContainer              = recordable("HLT_CaloEMClusters")
-        self.precisionHICaloClusterContainer            = recordable("HLT_HICaloEMClusters")
-        self.egEventShape                               = recordable('HLT_HIEventShapeEG')
+        self.precisionCaloClusterContainer              = recordable("HLT_CaloEMClusters") if not ion else recordable("HLT_HICaloEMClusters") 
+        self.precisionTopoClusterContainer              = recordable("HLT_TopoCaloClustersRoI") if not ion else recordable("HLT_TopoCaloClustersHIRoI") 
         self.precisionEgammaRecCollection               = 'HLT_egammaRecCollection'
         self.precisionEMClusterContainer                = recordable('HLT_TrigEMClusters')
 
         """Static class to collect all string manipulation in precision photon sequences """
-        self.precisionPhotonSuperClusterCollection      = 'HLT_PhotonSuperRecCollection'
+        self.precisionPhotonSuperClusterRecCollection      = 'HLT_PhotonSuperRecCollection'
+        self.precisionPhotonSuperClusterCollection      = 'HLT_PhotonSuperClusters'
         self.precisionPhotonContainer                   = recordable('HLT_egamma_Photons')
 
         """Static class to collect all string manipulation in precision electron sequences """
-        self.precisionElectronSuperClusterCollection    = 'HLT_ElectronSuperRecCollection'
+        self.precisionElectronSuperClusterRecCollection    = 'HLT_ElectronSuperRecCollection'
+        self.precisionElectronSuperClusterCollection    = 'HLT_ElectronSuperClusters'
         self.precisionElectronContainer                 = recordable('HLT_egamma_Electrons')
 
         #
@@ -52,6 +53,7 @@ class TrigEgammaKeysBase():
         # Special sequences
         #
         self.TrigTRTHTCountsContainer                   = recordable("HLT_TrigTRTHTCounts")
+        self.egEventShape                               = recordable('HLT_HIEventShapeEG')
 
 
 
@@ -68,8 +70,9 @@ class TrigEgammaKeysBase():
 
 class TrigEgammaKeys_LRT(TrigEgammaKeysBase):
     # This class contians modified base configuration class for LRT electron trigger chains
-    def __init__(self):
-        TrigEgammaKeysBase.__init__(self)
+    def __init__(self,ion):
+        TrigEgammaKeysBase.__init__(self,ion)
+        
         self.fastElectronRoIContainer       = recordable("HLT_Roi_FastElectron_LRT")
         self.fastElectronContainer          = recordable('HLT_FastElectrons_LRT')
         self.precisionCaloClusterContainer  = recordable("HLT_CaloEMClusters_LRT")
@@ -80,8 +83,8 @@ class TrigEgammaKeys_LRT(TrigEgammaKeysBase):
 
 class TrigEgammaKeys_GSF(TrigEgammaKeysBase):
     # This class contians modified base configuration class for GSF electron trigger chains
-    def __init__(self):
-        TrigEgammaKeysBase.__init__(self)
+    def __init__(self, ion):
+        TrigEgammaKeysBase.__init__(self, ion)
         
         # from HLT_IDTrack_Electron to HLT_IDTrack_Electron by refit alg
         self.precisionElectronTrkCollectionGSF          = 'HLT_IDTrkTrack_Electron_GSF'
@@ -92,13 +95,13 @@ class TrigEgammaKeys_GSF(TrigEgammaKeysBase):
 #
 # Get keys from variant name
 #
-def getTrigEgammaKeys(name=''):
+def getTrigEgammaKeys(name='', ion=False):
 
     _d = {
         # Dictionary that maps a string to a configuration setting for electron and photon chains
-        ''      : TrigEgammaKeysBase(),
-        '_LRT'  : TrigEgammaKeys_LRT(),
-        '_GSF'  : TrigEgammaKeys_GSF(),
+        ''      : TrigEgammaKeysBase(ion),
+        '_LRT'  : TrigEgammaKeys_LRT(ion),
+        '_GSF'  : TrigEgammaKeys_GSF(ion),
         }
 
     if name in _d.keys():

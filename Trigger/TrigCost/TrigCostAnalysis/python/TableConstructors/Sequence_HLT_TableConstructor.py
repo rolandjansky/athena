@@ -15,8 +15,8 @@ from TrigCostAnalysis.TableConstructorBase import TableConstructorBase, Column
 class Sequence_HLT_TableConstructor(TableConstructorBase):
     ''' @brief Class representing Sequence_HLT table
     '''
-    def __init__(self, tableObj):
-        super(). __init__(tableObj) 
+    def __init__(self, tableObj, underflowThreshold, overflowThreshold):
+        super(). __init__(tableObj, underflowThreshold, overflowThreshold) 
         self.expectedHistograms = ["Sequence_perEvent",
                                    "AlgCalls_perEvent",
                                    "Time_perCall", 

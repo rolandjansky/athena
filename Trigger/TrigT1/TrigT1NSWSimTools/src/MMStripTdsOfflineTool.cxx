@@ -15,8 +15,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-// ROOT includes
-#include "TMath.h"
+#include <cmath>
 
 const bool striphack=true;
 
@@ -559,8 +558,8 @@ namespace NSWL1 {
       }
 
   double MMStripTdsOfflineTool::phi_shift(double athena_phi) const{
-    return athena_phi+(athena_phi>=0?-1:1)*TMath::Pi();
-    return (-1.*athena_phi+(athena_phi>=0?1.5*TMath::Pi():-0.5*TMath::Pi()));
+    return athena_phi+(athena_phi>=0?-1:1)*M_PI;
+    return (-1.*athena_phi+(athena_phi>=0?1.5*M_PI:-0.5*M_PI));
   }
   void MMStripTdsOfflineTool::xxuv_to_uvxx(ROOT::Math::XYZVector& hit,int plane)const{
     if(plane<4)return;
@@ -571,7 +570,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_fwd(ROOT::Math::XYZVector& hit)const{
-    double degree=TMath::DegToRad()*(m_par->stereo_degree);
+    double degree=M_PI/180.0*(m_par->stereo_degree);
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -580,7 +579,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_bck(ROOT::Math::XYZVector& hit)const{
-    double degree=-TMath::DegToRad()*(m_par->stereo_degree);
+    double degree=-M_PI/180.0*(m_par->stereo_degree);
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -605,7 +604,7 @@ namespace NSWL1 {
   int MMStripTdsOfflineTool::Get_Strip_ID(double X,double Y,int plane) const{  //athena_strip_id,module_y_center,plane)
     if(Y==-9999) return -1;
     std::string setup(m_par->setup);
-    double strip_width=m_par->strip_width, degree=TMath::DegToRad()*(m_par->stereo_degree);//,vertical_strip_width_UV = strip_width/cos(degree);
+    double strip_width=m_par->strip_width, degree=M_PI/180.0*(m_par->stereo_degree);//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){

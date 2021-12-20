@@ -14,7 +14,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
 
-def saveMetadata(inputFile, userDetails):
+def saveMetadata(inputFile, userDetails, processingWarnings=[]):
     import json
 
     metatree = inputFile.Get("metadata")
@@ -43,6 +43,8 @@ def saveMetadata(inputFile, userDetails):
 
     metadata.append({'Details' : userDetails})
 
+    metadata.append({'Histogram under/overflows' : processingWarnings})
+
     with open('metadata.json', 'w') as outMetaFile:
         metafile = {}
         metafile['text'] = 'metadata'
@@ -50,7 +52,7 @@ def saveMetadata(inputFile, userDetails):
         json.dump(obj=metafile, fp=outMetaFile, indent=2, sort_keys=True)
 
 
-def exploreTree(inputFile, dumpSummary=False):
+def exploreTree(inputFile, dumpSummary=False, underflowThreshold=0.1, overflowThreshold=0.1):
     ''' @brief Explore ROOT Tree to find tables with histograms to be saved in csv
 
     Per each found directory TableConstructor object is created.
@@ -71,7 +73,7 @@ def exploreTree(inputFile, dumpSummary=False):
     @param[in] inputFile ROOT.TFile object with histograms
     '''
 
-
+    processingWarnings = []
     for key in inputFile.GetListOfKeys():
         walltime = getWalltime(inputFile, key.GetName())
         obj = key.ReadObj()
@@ -85,7 +87,7 @@ def exploreTree(inputFile, dumpSummary=False):
             try:
                 className = table.GetName() + "_TableConstructor"
                 exec("from TrigCostAnalysis." + className + " import " + className)
-                t = eval(className + "(tableObj)")
+                t = eval(className + "(tableObj, underflowThreshold, overflowThreshold)")
 
                 if table.GetName() == "Chain_HLT" or table.GetName() == "Chain_Algorithm_HLT":
                     t.totalTime = getAlgorithmTotalTime(inputFile, obj.GetName())
@@ -103,9 +105,45 @@ def exploreTree(inputFile, dumpSummary=False):
                 t.normalizeColumns(walltime)
                 t.saveToFile(fileName)
 
+                processingWarnings += t.getWarningMsgs()
+
             except (NameError, ImportError):
                 log.warning("Class {0} not defined - directory {1} will not be processed"
                             .format(table.GetName()+"_TableConstructor", table.GetName()))
+
+    # add smmary of most overflown histograms
+    summary = createOverflowSummary(processingWarnings)
+    summary["Summary"] += ["Underflow threshold: {0}".format(underflowThreshold), "Overflow threshold: {0}".format(overflowThreshold)]
+    return processingWarnings + [summary]
+
+
+def createOverflowSummary(warnings):
+    histogramStats = {}
+    for entry in warnings:
+        histFullName = entry.split(" ")[-1]
+        histType = histFullName.split("_")[-2] + "_" + histFullName.split("_")[-1]
+        summary = entry.split(" ")[-1].split("HLT")[0] + "HLT"
+
+        if "LumiBlock" in summary:
+            # format LumiBlock_000XX_SummaryName...
+            summary = summary.split('_', 1)[1]
+            summary = summary.split('_', 1)[1]
+        elif "All" in summary:
+            # format All_SummaryName...
+            summary = summary.split('_', 1)[1]
+
+        entryName = summary + "_" + histType
+        if entryName in histogramStats:
+            histogramStats[entryName] += 1
+        else:
+            histogramStats[entryName] = 1
+
+    histogramStatsStr = []
+    for name, value in histogramStats.items():
+        histogramStatsStr.append("{0}: {1} histograms with over/underflows".format(name, value))
+
+    return {"Summary": histogramStatsStr}
+
 
 
 def getWalltime(inputFile, rootName):

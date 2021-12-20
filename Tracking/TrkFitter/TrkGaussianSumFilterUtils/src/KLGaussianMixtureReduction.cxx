@@ -46,6 +46,17 @@ struct triangularToIJ
   int8_t J = -1;
 };
 
+/*
+ * these are q/P , 
+ * mean = 1e9 means P=1e-9 MeV
+ * 1e-3 ev
+ * we want to approximate a delta function
+ * at some impossible q/P with a normal.
+ */
+constexpr double largeMean = 1e9 ;
+constexpr double tinySigma = 1e-15;
+constexpr double invertTinySigma = 1e15 ;
+
 /**
  * @brief Helper method to precalucate
  * the mapping of an triangular array index
@@ -118,11 +129,14 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
   updated.cov = sumVariance;
   updated.invCov = 1. / sumVariance;
   updated.weight = sumWeight;
-  // large numbers to enter the multiplications/sums
-  // make distance large
-  removed.mean = std::numeric_limits<float>::max();
-  removed.cov = std::numeric_limits<float>::max();
-  removed.invCov = std::numeric_limits<float>::max();
+  // approximate a delta function
+  // as a Gaussian
+  // with large mean a small sigma
+  // the KL distance to it
+  // will be large
+  removed.mean = largeMean;
+  removed.cov = tinySigma;
+  removed.invCov = invertTinySigma;
   removed.weight = -1;
 }
 
@@ -134,7 +148,6 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
 void
 recalculateDistances(const Component1D* componentsIn,
                      float* distancesIn,
-                     const IsMergedArray& ismerged,
                      const int32_t mini,
                      const int32_t n)
 {
@@ -153,20 +166,16 @@ recalculateDistances(const Component1D* componentsIn,
   // Rows
   for (int32_t i = 0; i < j; ++i) {
     // only change for non-merged components
-    if (!ismerged[i]) {
-      const Component1D componentI = components[i];
-      const int32_t index = indexConst + i;
-      distances[index] = symmetricKL(componentI, componentJ);
-    }
+    const Component1D componentI = components[i];
+    const int32_t index = indexConst + i;
+    distances[index] = symmetricKL(componentI, componentJ);
   }
   // Columns
   for (int32_t i = j + 1; i < n; ++i) {
     // only change for non-merged components
-    if (!ismerged[i]) {
-      const Component1D componentI = components[i];
-      const int32_t index = (i - 1) * i / 2 + j;
-      distances[index] = symmetricKL(componentI, componentJ);
-    }
+    const Component1D componentI = components[i];
+    const int32_t index = (i - 1) * i / 2 + j;
+    distances[index] = symmetricKL(componentI, componentJ);
   }
 }
 
@@ -247,7 +256,6 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
   calculateAllDistances(components, distances.buffer(), n);
   // keep track of where we are
   int32_t numberOfComponentsLeft = n;
-  IsMergedArray ismerged = {};
   // Result to  returned
   MergeArray result{};
   // merge loop
@@ -263,9 +271,8 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
     // so they can not be re-found as minimum distances.
     resetDistances(distances.buffer(), minj, n);
     // Set minj as merged
-    ismerged[minj] = true;
     // re-calculate distances wrt the new component at mini
-    recalculateDistances(components, distances.buffer(), ismerged, mini, n);
+    recalculateDistances(components, distances.buffer(), mini, n);
     // keep track and decrement
     result.merges[result.numMerges] = { mini, minj };
     ++result.numMerges;
@@ -291,7 +298,7 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
  * can be good enough instead of calling this function.
  *
  * Note than the above "STL"  code in gcc
- * (up to 10.2 at least) this emits
+ * (up to 10.2 at least) emits
  * a cmov which make it considerable slower
  * than the clang when the branch can
  * be well predicted.

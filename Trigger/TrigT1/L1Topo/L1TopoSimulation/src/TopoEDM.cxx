@@ -4,6 +4,9 @@
 
 #include "xAODTrigger/L1TopoSimResults.h"
 
+#include <string>
+#include <bitset>
+
 using namespace LVL1;
 
 TopoEDM::TopoEDM(const std::string& type, const std::string& name, 
@@ -39,7 +42,7 @@ TopoEDM::Read(bool isLegacy) const {
 
   for(const xAOD::L1TopoSimResults* it : * cont){
     l1topo_dec = it;
-    ATH_MSG_DEBUG( "Reading L1Topo EDM:: BoardName: " << l1topo_dec->boardName() << " Clock: " << l1topo_dec->clock() << " Word32: " << l1topo_dec->word32() << " Word64: " << l1topo_dec->word64() << " WordOpt: " << l1topo_dec->wordOptical() );
+    ATH_MSG_DEBUG( "Reading L1Topo EDM:: Connection ID: " << l1topo_dec->connectionId() << " Clock: " << l1topo_dec->clock() << " Bit-length: " << l1topo_dec->bitWidth() << " Word: " << l1topo_dec->topoWord() << " Word64: " << l1topo_dec->topoWord64() );
   }
 
   return StatusCode::SUCCESS;

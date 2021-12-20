@@ -29,7 +29,8 @@ def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', **kwargs
     return acc
 
 def SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', InputCollections=[], **kwargs):
-    acc = ComponentAccumulator()
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    acc = MagneticFieldSvcCfg(flags)
 
     #
     # --- decide if use the association tool
@@ -80,7 +81,9 @@ def TRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', Inp
     return acc
 
 def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputCollections=[], **kwargs):
-    acc = ComponentAccumulator()
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    acc = MagneticFieldSvcCfg(flags)
+
     #
     # --- TRT seeded back tracking tool
     #
@@ -88,7 +91,6 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     InDetPatternUpdator = acc.getPrimaryAndMerge(TC.InDetPatternUpdatorCfg())
 
     InDetSiComTrackFinder = acc.popToolsAndMerge(TC.SiCombinatorialTrackFinder_xkCfg(flags))
-    acc.addPublicTool(InDetSiComTrackFinder)
 
     if (flags.InDet.Tracking.usePixel and flags.InDet.Tracking.useSCT) is not False:
         InDetTRT_SeededSiRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags))
@@ -116,7 +118,12 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     kwargs.setdefault("Xi2max", flags.InDet.Tracking.SecondaryXi2max)
     kwargs.setdefault("Xi2maxNoAdd", flags.InDet.Tracking.SecondaryXi2maxNoAdd)
     kwargs.setdefault("SearchInCaloROI", False)
-    kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer()
+    if kwargs["SearchInCaloROI"]:
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        kwargs.setdefault("InputClusterContainerName", "InDetCaloClusterROIs") # InDetKeys.CaloClusterROIContainer()
+    else:
+        kwargs.setdefault("InputClusterContainerName", "")
     kwargs.setdefault("ConsistentSeeds", True)
     kwargs.setdefault("BremCorrection", False)
 
@@ -149,8 +156,21 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputColl
         suffix = ''
         usePrdAssociationTool = False
 
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(flags))
+
+    if flags.InDet.Tracking.usePixel:
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name="InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                              ReadKey="PixelDetectorElementCollection",
+                                                                              WriteKey="PixelDetElementBoundaryLinks_xk"))
+    if flags.InDet.Tracking.useSCT:
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name="InDet__SiDetElementsRoadCondAlg_xk"))
+
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name="InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                              ReadKey="SCT_DetectorElementCollection",
+                                                                              WriteKey="SCT_DetElementBoundaryLinks_xk"))
+
     InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
-    acc.addPublicTool(InDetTrackFitterBT)
 
     InDetTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
@@ -218,7 +238,6 @@ def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelec
     InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
@@ -241,26 +260,19 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     # --- load Ambiguity Processor
     #
     InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
-    acc.addPublicTool(InDetTrackFitterBT)
-
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
-    acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     #
     # --- set up special Scoring Tool for TRT seeded tracks
     #
     if flags.Beam.Type == "cosmics":
         InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetCosmicScoringTool_TRTCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededScoringTool)
         InDetTRT_SeededSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolSharedHitsCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededSummaryTool)
     else:
         InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetTRT_SeededScoringToolCfg(flags))
-        acc.addPublicTool(InDetTRT_SeededScoringTool)
         InDetTRT_SeededSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
     InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetTRTAmbiTrackSelectionToolCfg(flags))
-    acc.addPublicTool(InDetTRT_SeededAmbiTrackSelectionTool)
 
     kwargs.setdefault("Fitter", InDetTrackFitterBT)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
@@ -340,12 +352,8 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     flags.Input.Files=defaultTestFiles.RDO
 
-    flags.Detector.GeometryPixel   = True
-    flags.Detector.GeometrySCT   = True
-    flags.Detector.GeometryTRT   = True
-
-    flags.InDet.doTRTSeededTrackFinder = True
-    flags.InDet.doResolveBackTracks = True
+    # disable calo for this test
+    flags.Detector.EnableCalo = False
 
     numThreads=1
     flags.Concurrency.NumThreads=numThreads
@@ -364,48 +372,9 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(flags))
 
-    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
-    top_acc.merge( PixelReadoutGeometryCfg(flags) )
-
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
-    top_acc.merge(SCT_ReadoutGeometryCfg(flags))
-
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
-    top_acc.merge(TRT_ReadoutGeometryCfg( flags ))
-
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
-    top_acc.merge(MuonGeoModelCfg(flags))
-    top_acc.merge(MuonIdHelperSvcCfg(flags))
     ##
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    top_acc.merge(BeamSpotCondAlgCfg(flags))
-
-    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    top_acc.merge(BeamPipeGeometryCfg(flags))
-    ##
-    top_acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
-                                                                                ReadKey  = "PixelDetectorElementCollection",
-                                                                                WriteKey = "PixelDetElementBoundaryLinks_xk") )
-
-    top_acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
-    ##
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
-    top_acc.addPublicTool(PixelLorentzAngleTool(flags))
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(PixelLorentzAngleCfg(flags)))
-
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags)))
-    ##
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg
-    top_acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-    top_acc.merge(PixelDistortionAlgCfg(flags))
-    ##
-    top_acc.merge(TC.PixelClusterNnCondAlgCfg(flags))
-    top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(flags))
-    ##
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
-    top_acc.merge(TRTActiveCondAlgCfg(flags))
-    top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg(flags))
+    from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
+    top_acc.merge(InDetRecPreProcessingSiliconCfg(flags))
 
     ########################## TRTPreProcessing Configuration ################################
 
@@ -441,5 +410,5 @@ if __name__ == "__main__":
     top_acc.store(open("test_BackTrackingConfig.pkl", "wb"))
     import sys
     if "--norun" not in sys.argv:
-        sc = top_acc.run(25)
+        sc = top_acc.run(5)
         sys.exit(not sc.isSuccess())

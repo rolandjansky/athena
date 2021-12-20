@@ -53,6 +53,7 @@
 #include "xAODTruth/TruthEventContainer.h"
 //
 //
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
 #include "InDetVKalVxInJetTool/InDetTrkInJetType.h"
 
@@ -216,12 +217,15 @@ namespace InDet {
       double    m_vertexMergeCut{};
       double    m_trackDetachCut{};
 
-
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
       Trk::TrkVKalVrtFitter*   m_fitSvc{};
       IChronoStatSvc * m_timingProfile{}; 
  
       ToolHandle < IInDetTrkInJetType >       m_trackClassificator;
+
+      bool m_useEtaDependentCuts = false;
+      /** service to get cut values depending on different variable */
+      ServiceHandle<InDet::IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
 
       double m_massPi {};
       double m_massP {};
@@ -366,8 +370,8 @@ namespace InDet {
       void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string& name ) const;
 
 
-      StatusCode cutTrk(double,double, double , double , double , 
-         long int ,long int ,long int , long int ) const;
+      StatusCode cutTrk(std::unordered_map<std::string,double> TrkVarDouble,
+                        std::unordered_map<std::string,int> TrkVarInt) const;
       double coneDist(const AmgVector(5) & , const TLorentzVector & ) const;
 //
 // Gives correct mass assignment in case of nonequal masses

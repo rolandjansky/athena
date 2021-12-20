@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSYSTEMEXTENSIONTOOL_H
@@ -38,6 +38,7 @@ namespace Muon {
         /** get muon system extension */
         bool muonSystemExtension(const EventContext& ctx, SystemExtensionCache& cache) const override;
 
+        MuonSystemExtension::Intersection getInterSection(const EventContext& ctx, const Trk::TrackParameters& muon_pars) const override;
     private:
         /** initialize geometry */
         bool initializeGeometry();
@@ -48,6 +49,9 @@ namespace Muon {
         /** get surfaces to be intersected for a given start parameters */
         SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars, const SystemExtensionCache& cache) const;
 
+        MuonSystemExtension::Intersection makeInterSection(std::shared_ptr<const Trk::TrackParameters> pars, const MuonLayerSurface& surf) const;
+
+        
         ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
             this,
             "ParticleCaloExtensionTool",
@@ -58,8 +62,6 @@ namespace Muon {
             "Extrapolator",
             "Trk::Extrapolator/AtlasExtrapolator",
         };
-        Gaudi::Property<bool> m_extendSAF{this, "extendSAF", false, "Flag deciding whether SAF tracks shall be equipped with the system extension"};
-        Gaudi::Property<bool> m_extendBulk{this, "extendBulk", true, "Flag deciding whether the ordinary tracks shall be equipped with the system extension"};
         
         /** reference surfaces per region and sector */
         std::vector<std::vector<SurfaceVec> > m_referenceSurfaces;

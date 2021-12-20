@@ -13,12 +13,13 @@ import AthenaCommon.CfgMgr as CfgMgr
 # logger
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
-TrigEgammaKeys = getTrigEgammaKeys()
 
 
 def fastPhotonSequence(flags):
     """Creates secpond step photon sequence"""
     
+    TrigEgammaKeys = getTrigEgammaKeys()
+
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequences import CaloMenuDefs
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastPhotonViewDataVerifier")
@@ -71,9 +72,11 @@ def fastPhotonSequence(flags):
 
 def fastPhotonMenuSequence(flags=None):
     """Creates secpond step photon sequence"""
+    
+    TrigEgammaKeys = getTrigEgammaKeys()
 
     # retrieve the reco sequence+IM
-    (photonAthSequence, l2PhotonViewsMaker) = RecoFragmentsPool.retrieve(fastPhotonSequence, flags=None)
+    (photonAthSequence, l2PhotonViewsMaker) = RecoFragmentsPool.retrieve(fastPhotonSequence, flags)
 
     # make the hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlg

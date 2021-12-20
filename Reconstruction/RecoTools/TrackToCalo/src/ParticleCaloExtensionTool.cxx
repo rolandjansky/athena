@@ -50,7 +50,7 @@ ParticleCaloExtensionTool::initialize()
     ATH_MSG_WARNING("Unsupported particle type, using strategy based on type "
                     << m_particleTypeName);
   }
-  if (m_particleStrategy == electron) {
+  if (!m_calosurf.empty()) {
     ATH_CHECK(m_calosurf.retrieve());
   } else {
     m_calosurf.disable();
@@ -433,10 +433,12 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
 
 std::vector<std::pair<CaloSampling::CaloSample,
                       std::unique_ptr<const Trk::TrackParameters>>>
-ParticleCaloExtensionTool::egammaCaloExtension(
+ParticleCaloExtensionTool::layersCaloExtension(
   const EventContext& ctx,
   const TrackParameters& startPars,
-  const xAOD::CaloCluster& cluster,
+  const std::vector<CaloSampling::CaloSample>& clusterLayers,
+  double eta,
+  const CaloDetDescrManager& caloDD,
   ParticleHypothesis particleType) const
 {
 
@@ -444,9 +446,40 @@ ParticleCaloExtensionTool::egammaCaloExtension(
                         std::unique_ptr<const Trk::TrackParameters>>>
     caloParameters{};
 
-  if (m_particleStrategy != electron) {
-    return caloParameters;
+  // Create surfaces at the layers
+  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces;
+  caloSurfaces.reserve(clusterLayers.size());
+  for (CaloSampling::CaloSample lay : clusterLayers) {
+    auto* surf = m_calosurf->CreateUserSurface(lay, 0., eta, &caloDD);
+    if (surf) {
+      caloSurfaces.emplace_back(surf);
+    }
   }
+
+  const auto* lastImpact = &startPars;
+  // Go into steps from layer to layer
+  size_t numSteps = caloSurfaces.size();
+  for (size_t i = 0; i < numSteps; ++i) {
+    const auto* nextImpact = m_extrapolator->extrapolate(
+      ctx, *lastImpact, *(caloSurfaces[i]), alongMomentum, false, particleType);
+
+    if (nextImpact) {
+      caloParameters.emplace_back(clusterLayers[i], nextImpact);
+      lastImpact = nextImpact;
+    }
+  }
+  return caloParameters;
+}
+
+std::vector<std::pair<CaloSampling::CaloSample,
+                      std::unique_ptr<const Trk::TrackParameters>>>
+ParticleCaloExtensionTool::egammaCaloExtension(
+  const EventContext& ctx,
+  const TrackParameters& startPars,
+  const xAOD::CaloCluster& cluster,
+  const CaloDetDescrManager& caloDD,
+  ParticleHypothesis particleType) const
+{
 
   // figure which layer we need
   // based on the where most of the energy of the cluster
@@ -504,31 +537,8 @@ ParticleCaloExtensionTool::egammaCaloExtension(
       }
     }
   }
-  //
-
-  // Create surfaces at them
-  std::vector<std::unique_ptr<Trk::Surface>> caloSurfaces;
-  caloSurfaces.reserve(4);
-  for (CaloSampling::CaloSample lay : clusterLayers) {
-    auto* surf = m_calosurf->CreateUserSurface(lay, 0., cluster.eta());
-    if (surf) {
-      caloSurfaces.emplace_back(surf);
-    }
-  }
-
-  const auto* lastImpact = &startPars;
-  // Go into steps from layer to layer
-  size_t numSteps = caloSurfaces.size();
-  for (size_t i = 0; i < numSteps; ++i) {
-    const auto* nextImpact = m_extrapolator->extrapolate(
-      ctx, *lastImpact, *(caloSurfaces[i]), alongMomentum, false, particleType);
-
-    if (nextImpact) {
-      caloParameters.emplace_back(clusterLayers[i], nextImpact);
-      lastImpact = nextImpact;
-    }
-  }
-  return caloParameters;
+  return layersCaloExtension(
+    ctx, startPars, clusterLayers, cluster.eta(), caloDD, particleType);
 }
 
 } // end of namespace Trk

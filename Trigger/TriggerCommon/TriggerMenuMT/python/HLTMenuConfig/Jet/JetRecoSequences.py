@@ -33,10 +33,10 @@ def jetClusterSequence(configFlags, RoIs, clusterCalib):
             caloClusterRecoSequence, LCCaloClusterRecoSequence)
     if clusterCalib == "em":
         topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
-                caloClusterRecoSequence, flags=None, RoIs=RoIs)
+                caloClusterRecoSequence, flags=configFlags, RoIs=RoIs)
     elif clusterCalib == "lcw":
         topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
-                LCCaloClusterRecoSequence, flags=None, RoIs=RoIs)
+                LCCaloClusterRecoSequence, flags=configFlags, RoIs=RoIs)
     else:
         raise ValueError("Invalid value for calib: '{}'".format(clusterCalib))
 

@@ -19,7 +19,7 @@ namespace Muon {
     public:
         /** data per intersection */
         struct Intersection {
-            Intersection() {}
+            Intersection()= default;
             Intersection(std::shared_ptr<const Trk::TrackParameters> trackParameters_, const MuonLayerSurface& layerSurface_) :
                 trackParameters(trackParameters_), layerSurface(layerSurface_) {}
 

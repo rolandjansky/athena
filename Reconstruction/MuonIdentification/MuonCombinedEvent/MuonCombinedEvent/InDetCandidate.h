@@ -1,21 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDEVENT_INDETCANDIDATE_H
 #define MUONCOMBINEDEVENT_INDETCANDIDATE_H
 
 #include <vector>
-
 #include "AthLinks/ElementLink.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "TrkCaloExtension/CaloExtension.h"
 
-namespace Trk {
-    class CaloExtension;
-
-}
 
 namespace MuonCombined {
 
@@ -32,6 +28,9 @@ namespace MuonCombined {
             as it internally caches a pointer to it.
          */
         InDetCandidate(const ElementLink<xAOD::TrackParticleContainer>& idTrackLink);
+        /** Define two InDetCandidates to be equal if they are built from the same track */
+        bool operator==(const InDetCandidate& other ) const;
+        
 
         /** destructor */
         ~InDetCandidate();
@@ -45,13 +44,13 @@ namespace MuonCombined {
         // access MuonSystemExtension
         const Muon::MuonSystemExtension* getExtension() const;
         // access the CaloExtension
-        std::shared_ptr<Trk::CaloExtension> getCaloExtension() const;
+        const Trk::CaloExtension* getCaloExtension() const;
 
         // set MuonSystemExtension, taking ownership
         void setExtension(std::unique_ptr<Muon::MuonSystemExtension> extension);
         /// set CaloExtension
-        void setExtension(std::unique_ptr<Trk::CaloExtension> extension);
-        void setExtension(std::shared_ptr<Trk::CaloExtension> extension);
+        void setExtension(std::unique_ptr<Trk::CaloExtension>& extension);
+        void setExtension(const Trk::CaloExtension* extension);
 
         /** Returns true if this candidate was formed from a special far forward InDet track.*/
         bool isSiliconAssociated() const;
@@ -72,10 +71,12 @@ namespace MuonCombined {
         /** Was this created using a special far forward indet track*/
         bool m_siAssociated{false};
 
-        std::unique_ptr<Muon::MuonSystemExtension> m_extension;
-        std::shared_ptr<Trk::CaloExtension> m_calo_extension;
+        std::unique_ptr<Muon::MuonSystemExtension> m_extension{nullptr};
+        std::unique_ptr<Trk::CaloExtension> m_calo_extension{nullptr};
+        const Trk::CaloExtension* m_calo_extension_ptr{nullptr};
     };
 
 }  // namespace MuonCombined
+
 
 #endif

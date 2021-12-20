@@ -47,9 +47,9 @@ class ValAlgVariables
   virtual void deleteVariables() = 0;
   virtual StatusCode clearVariables()  = 0;
 
-  StoreGateSvc*                      m_evtStore;
-  const MuonGM::MuonDetectorManager* m_detManager;
-  TTree*                             m_tree;
+  StoreGateSvc*                      m_evtStore{};
+  const MuonGM::MuonDetectorManager* m_detManager{};
+  TTree*                             m_tree{};
   std::string                        m_ContainerName;
   mutable Athena::MsgStreamMember    m_msg;
 

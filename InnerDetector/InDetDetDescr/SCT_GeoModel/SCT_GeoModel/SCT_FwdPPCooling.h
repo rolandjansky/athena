@@ -32,10 +32,10 @@ private:
   virtual GeoVPhysVol * build();
 
   // Basic parameters
-  double m_deltaR;
-  double m_rphi;
-  double m_thickness;
-  const GeoMaterial * m_material;
+  double m_deltaR = 0.0;
+  double m_rphi = 0.0;
+  double m_thickness = 0.0;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
 
 };

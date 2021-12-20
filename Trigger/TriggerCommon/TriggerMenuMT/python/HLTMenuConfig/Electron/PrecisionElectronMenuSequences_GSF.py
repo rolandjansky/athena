@@ -37,18 +37,14 @@ def precisionElectronSequence_GSF(ConfigFlags):
     return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut, sequenceOut_dummy)
 
 
-def precisionElectronMenuSequence_GSF(is_probe_leg=False, do_idperf=False):
+def precisionElectronMenuSequence_GSF(is_probe_leg=False):
     # retrieve the reco seuqence+EVC
     (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut, sequenceOut_dummy) = RecoFragmentsPool.retrieve(precisionElectronSequence_GSF, ConfigFlags)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import createTrigEgammaPrecisionElectronHypoAlg
-    if do_idperf:
-        with ConfigurableRun3Behavior():
-            hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_GSF_idperf", sequenceOut_dummy, do_idperf)
-    else:
-        with ConfigurableRun3Behavior():
-            hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_GSF", sequenceOut, do_idperf)
+    with ConfigurableRun3Behavior():
+        hypo_tuple = createTrigEgammaPrecisionElectronHypoAlg("TrigEgammaPrecisionElectronHypoAlg_GSF", sequenceOut)
 
     thePrecisionElectronHypo = conf2toConfigurable(hypo_tuple[0])
     hypo_acc = hypo_tuple[1]

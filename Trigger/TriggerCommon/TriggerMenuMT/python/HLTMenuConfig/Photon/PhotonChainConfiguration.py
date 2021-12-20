@@ -5,14 +5,12 @@
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
-
-
 from ..Menu.ChainConfigurationBase import ChainConfigurationBase
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
 from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
 from ..Photon.PrecisionCaloMenuSequences import precisionCaloMenuSequence
-from ..Egamma.HipTRTMenuSequences import hipTRTMenuSequence
+from ..Photon.HipTRTMenuSequences import hipTRTMenuSequence
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaTopoHypoTool
 
 
@@ -23,7 +21,7 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 # so let's make them functions already now
 #----------------------------------------------------------------
 def fastPhotonCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence('Photon', doRinger=False)
+    return fastCaloMenuSequence(flags, 'Photon', doRinger=False)
     
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence( flags )
@@ -87,9 +85,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration
         # --------------------
         stepDictionary = {
-            "etcut": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
-            "hiptrt" : ['getFastCalo', 'getHipTRT'],                                # hipTRT sequence 
-            "nominal":  ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
+            "etcut"  : ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
+            "hiptrt" : ['getFastCalo', 'getHipTRT'], # hipTRT sequence 
+            "nominal": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
         }
 
         ## This needs to be configured by the Egamma Developer!!

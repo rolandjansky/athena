@@ -5,11 +5,8 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-# Tracking
-from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-
 def MuonEDMPrinterTool(flags, name="MuonEDMPrinterTool", **kwargs):
-    kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
+    kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     return CompFactory.Muon.MuonEDMPrinterTool(name, **kwargs)
 
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
@@ -67,7 +64,7 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     kwargs.setdefault("MdtRotCreator", acc.getPrimary())
     result.merge(acc)
 
-    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
+    kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     
     muon_seeded_segment_finder = Muon__MuonSeededSegmentFinder(name, **kwargs)
     result.setPrivateTools(muon_seeded_segment_finder)
@@ -94,17 +91,11 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     return result
     
 def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kwargs):
-
-    result = ComponentAccumulator()
-    acc  = TrackingGeometrySvcCfg(flags)
-    
-    result.merge(acc)
-    
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    acc = AtlasExtrapolatorCfg(flags)
-    extrap = acc.getPrimary()
-    acc.addPublicTool(extrap)
-    result.merge(acc)
+    
+    result = AtlasExtrapolatorCfg(flags)
+    extrap = result.getPrimary()
+    result.addPublicTool(extrap)
     kwargs.setdefault("Extrapolator", extrap)
 
     kwargs.setdefault("CalculateCloseHits", True)
@@ -269,7 +260,7 @@ def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
     result.addPublicTool(material_effects_updator)
     kwargs.setdefault("MaterialEffectsUpdators", [material_effects_updator])
     
-    navigator_ca = MuonNavigatorCfg(flags)
+    navigator_ca = MuonNavigatorCfg(flags, name="InDetNavigator") # FIXME, misnamed to match old-style config. Remove name at some point.
     navigator = navigator_ca.popPrivateTools()
     result.addPublicTool(navigator)
     result.merge(navigator_ca)
@@ -305,8 +296,7 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     rotcreator=acc.getPrimary()
     result.merge(acc)
     
-    measurement_updater = Trk__KalmanUpdator()
-    result.addPublicTool(measurement_updater) #FIXME
+    measurement_updater = Trk__KalmanUpdator(name="MuonMeasUpdator")
 
     kwargs.setdefault("ExtrapolationTool"    , extrapolator)
     kwargs.setdefault("RotCreatorTool"       , rotcreator)

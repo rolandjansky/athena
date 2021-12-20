@@ -172,7 +172,7 @@ StatusCode Rivet_i::execute() {
   /// @todo Actually use back(), for the most recent event, or throw an exception if more than one event found?
   /// @todo Replace with new GenBase const_event() functionality
   const HepMC::GenEvent* event = eventCollection->front();
-  if (event == NULL) {
+  if (event == nullptr) {
     ATH_MSG_ERROR("Rivet_i received a null HepMC event");
     return StatusCode::FAILURE;
   }
@@ -336,50 +336,11 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
 
 #ifdef HEPMC3
   modEvent->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
-  return modEvent;
+  if (modEvent->particles().size() == 1) modEvent->set_beam_particles(modEvent->particles().front(), modEvent->particles().front());
 #else
-  if (!modEvent->valid_beam_particles()) {
-    for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
-      if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
-        beams.push_back(*p);
-      }
-    }
-    if (beams.size() > 2) std::sort(beams.begin(), beams.end(), cmpGenParticleByEDesc);
-    beams.resize(2);
-  } else {
-    beams.resize(2);
-    beams[0] = modEvent->beam_particles().first;
-    beams[1] = modEvent->beam_particles().second;
-  }
-
-  double scalefactor = 1.0;
-  //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
-  //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
   modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
-  if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
-
-  if (scalefactor == 1.0 && modEvent->valid_beam_particles()) {
-    return modEvent;
-  } else {
-    if (scalefactor != 1.0) {
-      // ATH_MSG_ALWAYS("RESCALING * " << scalefactor);
-      for (HepMC::GenEvent::particle_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
-        const HepMC::FourVector pGeV((*p)->momentum().px() * scalefactor,
-                                     (*p)->momentum().py() * scalefactor,
-                                     (*p)->momentum().pz() * scalefactor,
-                                     (*p)->momentum().e() * scalefactor);
-        (*p)->set_momentum(pGeV);
-        (*p)->set_generated_mass( (*p)->generated_mass() * scalefactor );
-      }
-    }
-    for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin();
-         p != modEvent->particles_end(); ++p) {
-      // map beam particle pointers to new event
-      if (beams[0]->barcode() == (*p)->barcode()) beams[0]=*p;
-      if (beams[1]->barcode() == (*p)->barcode()) beams[1]=*p;
-    }
-    modEvent->set_beam_particles(beams[0], beams[1]);
-    return modEvent;
-  }
+  if (modEvent->particles_size() == 1)  modEvent->set_beam_particles(*modEvent->particles_begin(), *modEvent->particles_begin());
 #endif
+
+  return modEvent;
 }

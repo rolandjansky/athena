@@ -29,7 +29,7 @@ def SPCountHypoToolGen(chainDict):
         hypo.sctSP = 3
     if "mb_excl" in chainDict["chainName"]:
         hypo.pixCLMax = 150 # TODO revisit tightening those
-        hypo.pixSPMax = 150 # as above
+        hypo.sctSPMax = 150 # as above
     return hypo
 
 

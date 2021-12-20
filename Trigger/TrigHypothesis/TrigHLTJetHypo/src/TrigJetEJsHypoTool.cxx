@@ -84,8 +84,9 @@ TrigJetEJsHypoTool::decide( std::vector<JetInfo>& input ) const {
 
     // cut on jet eta
     auto jetEta=std::abs( (i.jet)->p4().Eta() );
-    if( (m_trackless == 0 && jetEta > m_jetEtaCut_Exotics  ) || \
-	(m_trackless == 1 && jetEta > m_jetEtaCut_Trackless)) {
+    if ( (m_trackless == 0 && jetEta > m_jetEtaCut_Exotics   ) || \
+	 (m_trackless == 1 && jetEta > m_jetEtaCut_Trackless ) || \
+	 (jetPt <= 0.0)                                      ) {
       objDecision = false;
     }
 
@@ -109,10 +110,12 @@ TrigJetEJsHypoTool::decide( std::vector<JetInfo>& input ) const {
 	  // if d0 greater than a multiple of sigma, is not a prompt track
 	  if (std::abs((*trackIter)->d0()) > m_PTFSigmaCut*sigma) continue;
 	  promptTrackFrac += trackPt;
+
+	  // Exit track loop if PTF is greater than cut, no need to continue loop
+	  if (promptTrackFrac/jetPt > m_ptf) break;
 	}
 
-	if (jetPt > 0.0) promptTrackFrac /= jetPt;
-	else promptTrackFrac = -1.0;
+	promptTrackFrac /= jetPt;
 
 	ATH_MSG_DEBUG("exotics jets chain promptTrackFrac: " << promptTrackFrac);
 	if (promptTrackFrac < -0.5 || promptTrackFrac > m_ptf) objDecision = false;

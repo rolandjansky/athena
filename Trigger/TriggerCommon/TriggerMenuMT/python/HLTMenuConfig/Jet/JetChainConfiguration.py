@@ -4,6 +4,8 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 from .JetRecoConfiguration import jetRecoDictToString
@@ -52,7 +54,7 @@ class JetChainConfiguration(ChainConfigurationBase):
 
             # Check if there is exactly one exotic hypothesis defined
             if len(p['exotHypo']) > 1:
-                raise RuntimeError(f'Exotic chains currently not configurable with more than one exotic selection!')
+                raise RuntimeError(f'emerging chains currently not configurable with more than one emerging selection!')
             if p['exotHypo']:
                 self.exotHypo = p['exotHypo'][0]
 
@@ -90,11 +92,15 @@ class JetChainConfiguration(ChainConfigurationBase):
         from ..Menu.ChainDictTools import splitChainDict
         from .JetRecoSequences import JetRecoConfiguration
         from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
-        try:
-            subChainDict = splitChainDict(self.dict)[0]
-        except IndexError:
-            raise ValueError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
-        jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
+        subJetChainDict = {}
+        for subChainDict in splitChainDict(self.dict):
+            for part in subChainDict["chainParts"]:
+                if part['signature'] in ["Jet", "Bjet"]:
+                    subJetChainDict = subChainDict
+                    break
+        if not subJetChainDict:
+            raise ValueError("sub Jet Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
+        jetRecoDict = JetRecoConfiguration.extractRecoDict(subJetChainDict["chainParts"])
         clustersKey = JetRecoConfiguration.getClustersKey(jetRecoDict)
         prefix = JetRecoConfiguration.getHLTPrefix()
         suffix = "_"+jetRecoDict["jetCalib"]
@@ -154,7 +160,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             chainSteps.append( jetCaloHypoStep )
 
         # Add exotic jets hypo
-        if self.exotHypo != '' and ("Exotic" in self.exotHypo or "Trackless" in self.exotHypo):
+        if self.exotHypo != '' and ("emerging" in self.exotHypo or "trackless" in self.exotHypo):
             EJsStep = self.getJetEJsChainStep(jetCollectionName, self.chainName, self.exotHypo)
             chainSteps+= [EJsStep]
         
@@ -170,7 +176,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "MainStep_jet_"+jetDefStr
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
         jetSeq, jetDef = RecoFragmentsPool.retrieve( jetCaloHypoMenuSequence, 
                                                      ConfigFlags, isPerf=self.isPerf, **self.recoDict )
@@ -180,7 +185,6 @@ class JetChainConfiguration(ChainConfigurationBase):
 
     def getJetHICaloHypoChainStep(self):
         stepName = "MainStep_HIjet"
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetHICaloHypoMenuSequence
         jetSeq, jetDef = RecoFragmentsPool.retrieve( jetHICaloHypoMenuSequence,
                                                      ConfigFlags, isPerf=self.isPerf, **self.recoDict )
@@ -192,7 +196,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "RoIFTFStep_jet_"+jetDefStr
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
         jetSeq = RecoFragmentsPool.retrieve( jetRoITrackingHypoMenuSequence,
                                              ConfigFlags, jetsIn=jetsInKey, **self.recoDict )
@@ -202,7 +205,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "MainStep_jet_"+jetDefStr
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetFSTrackingHypoMenuSequence
         jetSeq, jetDef = RecoFragmentsPool.retrieve( jetFSTrackingHypoMenuSequence,
                                                      ConfigFlags, clustersKey=clustersKey,
@@ -213,7 +215,6 @@ class JetChainConfiguration(ChainConfigurationBase):
 
     def getJetCaloRecoChainStep(self):
         stepName = "CaloRecoPTStep_jet_"+self.recoDict["clusterCalib"]
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloRecoMenuSequence
         jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloRecoMenuSequence,
                                                           ConfigFlags, clusterCalib=self.recoDict["clusterCalib"] )
@@ -309,7 +310,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(preselRecoDict)
 
         stepName = "PreselStep_jet_"+jetDefStr
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloPreselMenuSequence
         jetSeq, jetDef, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
                                                                   ConfigFlags, **preselRecoDict )
@@ -320,31 +320,31 @@ class JetChainConfiguration(ChainConfigurationBase):
     def getJetEJsChainStep(self, jetCollectionName, thresh, exotdictstring):
         from TriggerMenuMT.HLTMenuConfig.Jet.ExoticJetSequences import jetEJsMenuSequence
 
-        # Must be configured similar to : ExoticPTF0p0dR1p2 or TracklessdR1p2
-        if 'Exotic' in exotdictstring and ('dR' not in exotdictstring \
+        # Must be configured similar to : emergingPTF0p0dR1p2 or tracklessdR1p2
+        if 'emerging' in exotdictstring and ('dR' not in exotdictstring \
            or 'PTF' not in exotdictstring):
             log.error('Misconfiguration of exotic jet chain - need dR and PTF options')
             exit(1)
-        if 'Trackless' in exotdictstring and 'dR' not in exotdictstring:
+        if 'trackless' in exotdictstring and 'dR' not in exotdictstring:
             log.error('Misconfiguration of trackless exotic jet chain - need dR option')
             exit(1)
 
         trackless = int(0)
-        if 'Exotic' in exotdictstring:
+        if 'emerging' in exotdictstring:
             ptf = float(exotdictstring.split('PTF')[1].split('dR')[0].replace('p', '.'))
             dr  = float(exotdictstring.split('dR')[1].split('_')[0].replace('p', '.'))
-        elif 'Trackless' in exotdictstring:
+        elif 'trackless' in exotdictstring:
             trackless = int(1)
             ptf = 0.0
             dr = float(exotdictstring.split('dR')[1].split('_')[0].replace('p', '.'))
         else:
-            log.error('Misconfiguration of trackless exotic jet chain - need Exotic or Trackless selection')
+            log.error('Misconfiguration of trackless exotic jet chain - need emerging or trackless selection')
             exit(1)
 
         log.debug("Running exotic jets with ptf: " + str(ptf) + "\tdR: " + str(dr) + "\ttrackless: " + str(trackless) + "\thypo: " + exotdictstring)
 
         stepName = "EJsStep_"
-        jetSeq = RecoFragmentsPool.retrieve( jetEJsMenuSequence, None, jetsin=jetCollectionName, name=thresh)
+        jetSeq = RecoFragmentsPool.retrieve( jetEJsMenuSequence, ConfigFlags, jetsin=jetCollectionName, name=thresh)
         #from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
         chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])#, comboHypoCfg=PassthroughComboHypoCfg)
 

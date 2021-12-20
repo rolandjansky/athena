@@ -121,6 +121,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
   if (m_useMaterialMap) {
     std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
     std::string matFile = m_materialMapInputFile;
+    ATH_MSG_INFO("Configured to use material input: " << matFile);
     if (matFile.find(".json") != std::string::npos) {
       // Set up the converter first
       Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
@@ -166,7 +167,7 @@ StatusCode ActsTrackingGeometrySvc::initialize() {
         auto lb = std::make_shared<ActsLayerBuilder>(
             cfg, makeActsAthenaLogger(this, "PixelGMSLayBldr", "ActsTGSvc"));
         Acts::CylinderVolumeBuilder::Config cvbConfig;
-        cvbConfig.layerEnvelopeR = {5_mm, 5_mm};
+        cvbConfig.layerEnvelopeR = {3_mm, 3_mm};
         cvbConfig.layerEnvelopeZ = 1_mm;
         cvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
         cvbConfig.volumeSignature = 0;

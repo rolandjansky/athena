@@ -70,6 +70,17 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
       POST_EXEC_SCRIPT nopost.sh )
 endif()
 
+if (NOT XAOD_ANALYSIS )
+   atlas_add_test( Run2TrigDecisionToolOnRAW_test 
+      SCRIPT python -m TrigDecisionTool.TrigDecisionToolConfig --RAWRUN2
+      LOG_SELECT_PATTERN "UnitTest")
+
+      # AOD test
+   atlas_add_test( Run2TrigDecisionToolOnAOD_test
+      SCRIPT python -m TrigDecisionTool.TrigDecisionToolConfig
+      LOG_SELECT_PATTERN "UnitTest")
+endif()
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( share/checkTriggerEDM.py

@@ -3,8 +3,8 @@
 */
 
 //Dear emacs, this is -*-c++-*-
-#ifndef LARCOND2NTUPLEBASE_H
-#define LARCOND2NTUPLEBASE_H
+#ifndef LARCALIBTOOLS_LARCOND2NTUPLEBASE_H
+#define LARCALIBTOOLS_LARCOND2NTUPLEBASE_H
 
 //#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -17,6 +17,7 @@
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecConditions/LArCalibLineMapping.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 class HWIdentifier;
 class LArOnlineID_Base;
@@ -83,6 +84,12 @@ class LArCond2NtupleBase : public AthAlgorithm {
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapSCKey{this,"CalibMapSCKey","LArCalibIdMapSC","SG Key of calib line mapping object"};
+
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store"};
+  SG::ReadCondHandleKey<CaloSuperCellDetDescrManager> m_caloSuperCellMgrKey{this
+      , "CaloSuperCellDetDescrManager"
+      , "CaloSuperCellDetDescrManager"
+      , "SG key of the resulting CaloSuperCellDetDescrManager" };
 
   bool m_isSC;
   bool m_isFlat;

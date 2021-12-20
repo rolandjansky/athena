@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthAsgExUnittest )
@@ -20,20 +20,22 @@ atlas_add_component( AthAsgExUnittest
 # Add tests:
 atlas_add_test( gt_AthAsgExUnittest
   SOURCES test/gt_AthAsgExUnittest.cxx
-  LINK_LIBRARIES GaudiKernel GoogleTestTools AsgTools AthAnalysisBaseCompsLib
-  AthAsgExUnittestLib )
+  LINK_LIBRARIES GaudiKernel GoogleTestTools AsgTools AthAnalysisBaseCompsLib AthAsgExUnittestLib
+  POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( gt_AthExUnittest
   SOURCES test/gt_AthExUnittest.cxx
-  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps
-  AthAsgExUnittestLib )
+  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps AthAsgExUnittestLib
+  POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( gt_MockxAODJet
   SOURCES test/gt_MockxAODJet.cxx
   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-  LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} xAODJet )
+  LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} xAODJet
+  POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( gt_xAODJet
   SOURCES test/gt_xAODJet.cxx
   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-  LINK_LIBRARIES ${GTEST_LIBRARIES} xAODJet )
+  LINK_LIBRARIES ${GTEST_LIBRARIES} xAODJet
+  POST_EXEC_SCRIPT nopost.sh )

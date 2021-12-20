@@ -14,9 +14,9 @@ CounterChain::CounterChain(const std::string& name, const MonitorBase* parent)
   regHistogram("Group_perCall", "Chain group/Call;Group;Calls", VariableType::kPerCall, kLinear, -0.5, 9.5, 10);
   regHistogram("Chain_perEvent", "Chain calls/Event;Chain call;Events", VariableType::kPerEvent, kLinear, -0.5, 49.5);
   regHistogram("AlgCalls_perEvent", "Algorithm Calls/Event;Calls;Events", VariableType::kPerEvent, kLinear, -0.5, 999.5, 100);
-  regHistogram("Time_perCall", "CPU Time/Call;Time [ms];Calls", VariableType::kPerCall);
+  regHistogram("Time_perCall", "CPU Time/Call;Time [ms];Calls", VariableType::kPerCall, kLog, 0.01, 100000);
   regHistogram("Time_perEvent", "CPU Time/Event;Time [ms];Events", VariableType::kPerEvent);
-  regHistogram("UniqueTime_perCall", "Unique CPU Time/Call;Time [ms];Calls", VariableType::kPerCall);
+  regHistogram("UniqueTime_perCall", "Unique CPU Time/Call;Time [ms];Calls", VariableType::kPerCall, kLog, 0.01, 100000);
   regHistogram("ChainPassed_perEvent", "Passed chain/Event;Passsed;Events", VariableType::kPerEvent, kLinear, -0.5, 1.5, 2);
   regHistogram("Request_perEvent", "Number of requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 299.5, 300);
   regHistogram("NetworkRequest_perEvent", "Number of network requests/Event;Number of requests;Events", VariableType::kPerEvent, LogType::kLinear, -0.5, 149.5, 150);

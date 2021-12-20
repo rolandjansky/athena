@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileAtlasFactory.h"
@@ -151,8 +151,6 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   //unsigned int ienv_size = 6;
 
   // set default finger length
-  double PosEnvThickness  =0;
-  double NegEnvThickness  =0;
   double BFingerLength    =0;
   double BFingerLengthNeg =0;
   double BFingerLengthPos =0;
@@ -267,14 +265,9 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   BFingerRmin = dbManager->TILBrmax()*Gaudi::Units::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
   EFingerRmin = dbManager->TILBrmax()*Gaudi::Units::cm;
-  
-  /** calculation PosEnvThickness enlarge mother volume by extra distance between barrel and positive ext.barrel */
-  dbManager->SetCurrentEnvByType(3);
-  PosEnvThickness += dbManager->GetEnvDZ()*dbManager->GetEnvSide();
 
-  /** enlarge mother volume by extra distance between barrel and negative ext.barrel */
+  // ??? Is this needed?
   dbManager->SetCurrentEnvByType(2);
-  NegEnvThickness += dbManager->GetEnvDZ()*dbManager->GetEnvSide();
 
 
   //

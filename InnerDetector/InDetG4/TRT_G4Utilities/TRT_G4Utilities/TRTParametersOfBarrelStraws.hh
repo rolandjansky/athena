@@ -30,36 +30,36 @@ class TRTParametersOfBarrelStraws
     void DefineParameters();
     void PrintParameters(MsgStream& msg) const;
 
-    double m_outerRadiusOfStrawHole;
-    double m_lengthOfStrawHole;
+    double m_outerRadiusOfStrawHole = 0.0;
+    double m_lengthOfStrawHole = 0.0;
 
-    double m_outerRadiusOfStraw;
-    double m_lengthOfStraw;
+    double m_outerRadiusOfStraw = 0.0;
+    double m_lengthOfStraw = 0.0;
 
-    double m_innerRadiusOfGas;
-    double m_outerRadiusOfGas;
-    double m_lengthOfGasL;
-    double m_lengthOfGasS;
+    double m_innerRadiusOfGas = 0.0;
+    double m_outerRadiusOfGas = 0.0;
+    double m_lengthOfGasL = 0.0;
+    double m_lengthOfGasS = 0.0;
 
-    double m_positionOfGasL;
-    double m_positionOfGasS;
+    double m_positionOfGasL = 0.0;
+    double m_positionOfGasS = 0.0;
 
-    double m_innerRadiusOfDeadRegion;
-    double m_outerRadiusOfDeadRegion;
-    double m_lengthOfDeadRegion;
-    double m_lengthOfLongDeadRegion;
+    double m_innerRadiusOfDeadRegion = 0.0;
+    double m_outerRadiusOfDeadRegion = 0.0;
+    double m_lengthOfDeadRegion = 0.0;
+    double m_lengthOfLongDeadRegion = 0.0;
 
-    double m_positionOfDeadRegionLA;
-    double m_positionOfDeadRegionLB;
-    double m_positionOfDeadRegionSA;
-    double m_positionOfLongDeadRegionSB;
+    double m_positionOfDeadRegionLA = 0.0;
+    double m_positionOfDeadRegionLB = 0.0;
+    double m_positionOfDeadRegionSA = 0.0;
+    double m_positionOfLongDeadRegionSB = 0.0;
 
-    double m_innerRadiusOfTwister;
-    double m_outerRadiusOfTwister;
-    double m_lengthOfTwister;
+    double m_innerRadiusOfTwister = 0.0;
+    double m_outerRadiusOfTwister = 0.0;
+    double m_lengthOfTwister = 0.0;
 
-    double m_outerRadiusOfWire;
-    double m_lengthOfWire;
+    double m_outerRadiusOfWire = 0.0;
+    double m_lengthOfWire = 0.0;
 
     const TRTParameters* m_pParameters;
 

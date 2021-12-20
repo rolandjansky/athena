@@ -75,7 +75,7 @@ class ParticleGun(EvgenAlg):
         try:
           from AthenaPython.PyAthena import HepMC3  as HepMC
         except ImportError:
-          from AthenaPython.PyAthena import HepMC   as HepMC   
+          from AthenaPython.PyAthena import HepMC   as HepMC
         evt.weights().push_back(1.0)
 
         ## Make and fill particles

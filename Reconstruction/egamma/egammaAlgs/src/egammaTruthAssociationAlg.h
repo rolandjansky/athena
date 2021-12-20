@@ -41,7 +41,6 @@ class egammaTruthAssociationAlg : public AthReentrantAlgorithm
 {
 
 public:
-  typedef Trk::IParticleCaloExtensionTool::Cache Cache;
 
   /** @brief constructor */
   egammaTruthAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -101,8 +100,7 @@ private:
    * **/
   template<class T>
   MCTruthInfo_t particleTruthClassifier(const EventContext& ctx,
-                                        const T*,
-                                        Cache*) const;
+                                        const T*) const;
 
   /** @brief Create a copy a truth particle, add it to the new getNewTruthParticle
    * container and decorate it with a link to the original particle **/

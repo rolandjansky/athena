@@ -84,9 +84,9 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
                                            const IInterface* parent)
   : AthAlgTool(type, name, parent)
   , m_emHelper(nullptr)
+  , m_calocellId(nullptr)
 {
   declareInterface<IegammaOQFlagsBuilder>(this);
-  m_calocellId = nullptr;
 }
 
 egammaOQFlagsBuilder::~egammaOQFlagsBuilder() = default;

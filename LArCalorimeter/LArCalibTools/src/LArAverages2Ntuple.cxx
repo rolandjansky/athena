@@ -95,8 +95,9 @@ StatusCode LArAverages2Ntuple::execute()
        trueMaxSample = m_Nsamples;
      }
    
-     const std::vector<uint32_t>& sampleSum = (*it)->sampleSum();
-     const std::vector<uint32_t>& sampleSum2 = (*it)->sample2Sum();
+  
+     const std::vector<uint64_t>& sampleSum = (*it)->sampleSum();
+     const std::vector<uint64_t>& sampleSum2 = (*it)->sample2Sum();
      const std::vector<float>& mean = (*it)->mean();
      const std::vector<float>& RMSv = (*it)->RMS();
 

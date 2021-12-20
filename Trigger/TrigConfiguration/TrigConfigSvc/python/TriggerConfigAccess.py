@@ -88,10 +88,13 @@ def getL1MenuAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = L1MenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (L1 menu) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (L1 menu) from in-file metadata not yet implemented")
+        if flags.Input.Format != 'POOL':
+            raise RuntimeError("Cannot read trigger configuration (L1 menu) from input type %s", flags.Input.Format )            
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        metadata = GetFileMD(flags.Input.Files)
+        if 'TriggerMenuJson_L1' not in metadata:
+            raise RuntimeError("Cannot read trigger configuration (TriggerMenuJson_L1) from input file metadata" )
+        cfg = L1MenuAccess(jsonString=metadata['TriggerMenuJson_L1'])
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -109,10 +112,13 @@ def getL1PrescalesSetAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = L1PrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["l1psk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (L1 prescales) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (L1 prescales) from in-file metadata not yet implemented")
+        if flags.Input.Format != 'POOL':
+            raise RuntimeError("Cannot read trigger configuration (L1 prescales) from input type %s", flags.Input.Format )
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        metadata = GetFileMD(flags.Input.Files)
+        if 'TriggerMenuJson_L1PS' not in metadata:
+            raise RuntimeError("Cannot read trigger configuration (TriggerMenuJson_L1PS) from input file metadata" )
+        cfg = L1PrescalesSetAccess(jsonString=metadata['TriggerMenuJson_L1PS'])
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -157,10 +163,13 @@ def getHLTMenuAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = HLTMenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
+        if flags.Input.Format != 'POOL':
+            raise RuntimeError("Cannot read trigger configuration (HLT menu) from input type %s", flags.Input.Format )            
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        metadata = GetFileMD(flags.Input.Files)
+        if 'TriggerMenuJson_HLT' not in metadata:
+            raise RuntimeError("Cannot read trigger configuration (TriggerMenuJson_HLT) from input file metadata" )
+        cfg = HLTMenuAccess(jsonString=metadata['TriggerMenuJson_HLT'])
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -178,10 +187,13 @@ def getHLTPrescalesSetAccess( flags = None ):
     elif tc["SOURCE"] == "DB":
         cfg = HLTPrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["hltpsk"] )
     elif tc["SOURCE"] == "INFILE":
-        from RecExConfig.InputFilePeeker import inputFileSummary as inpSum
-        if inpSum["file_type"] != 'pool':
-            raise RuntimeError("Cannot read trigger configuration (HLT prescales) from input type %s" % inpSum["file_type"])
-        raise NotImplementedError("Python access to the trigger configuration (HLT prescales) from in-file metadata not yet implemented")
+        if flags.Input.Format != 'POOL':
+            raise RuntimeError("Cannot read trigger configuration (HLT prescales) from input type %s", flags.Input.Format )            
+        from AthenaConfiguration.AutoConfigFlags import GetFileMD
+        metadata = GetFileMD(flags.Input.Files)
+        if 'TriggerMenuJson_HLTPS' not in metadata:
+            raise RuntimeError("Cannot read trigger configuration (TriggerMenuJson_HLTPS) from input file metadata" )
+        cfg = HLTPrescalesSetAccess(jsonString=metadata['TriggerMenuJson_HLTPS'])
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg
@@ -218,8 +230,12 @@ def getHLTMonitoringAccess( flags = None ):
         # TODO when database will be ready
         raise NotImplementedError("Python DB access to the HLT monitoring not yet implemented")
     elif tc["SOURCE"] == "INFILE":
-        # TODO when database will be ready
-        raise NotImplementedError("Python access to the trigger configuration (HLT menu) from in-file metadata not yet implemented")
+        # TODO when database metadata ready
+        filename = getHLTMonitoringFileName( flags )
+        from AthenaCommon.Logging import logging
+        logging.getLogger().info("Using  HLTMonitoringAccess from external file %s to be fixed once in file metadata contains relevant information",  filename)
+        cfg = HLTMonitoringAccess( filename = filename )
+
     else:
         raise RuntimeError("Unknown source of trigger configuration: %s" % tc["SOURCE"])
     return cfg

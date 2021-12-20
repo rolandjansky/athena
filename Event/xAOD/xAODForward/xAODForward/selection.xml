@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
    <!-- xAOD::AFPData interface type(s). -->
@@ -88,6 +88,18 @@
    <class name="xAOD::AFPToFHitAuxContainer_v1"
           id="65012075-753E-4F3E-8A37-5BBB66C523D6" />
    <typedef name="xAOD::AFPToFHitAuxContainer" />
+
+   <!-- xAOD::AFPToFTrack interface type(s). -->
+   <class name="xAOD::AFPToFTrack_v1" />
+   <class name="xAOD::AFPToFTrackContainer_v1"
+          id="C2373AB6-252C-44AE-9523-252CA8E03292" />
+   <typedef name="xAOD::AFPToFTrack" />
+   <typedef name="xAOD::AFPToFTrackContainer" />
+
+   <!--	xAOD::AFPToFTrack auxiliary type(s). -->
+   <class name="xAOD::AFPToFTrackAuxContainer_v1"
+          id="85C26A25-81A9-4554-85D7-4432B064CC00" />
+   <typedef name="xAOD::AFPToFTrackAuxContainer" />
 
    <!-- xAOD::AFPProton interface type(s). -->
    <class name="xAOD::AFPProton_v1" />

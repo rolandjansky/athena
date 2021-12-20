@@ -625,11 +625,9 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
     for(int iv=0; iv<(int)goodVertices.size(); iv++) {
           nth=goodVertices[iv].selTrk.size();
           if(xAODwrk)xAODwrk->tmpListTracks.clear(); 
-	  float vrtSumW=0.;
           for(i=0;i<nth;i++) {
              j=goodVertices[iv].selTrk[i];                           /*Track number*/
              if     (xAODwrk)xAODwrk->tmpListTracks.push_back( xAODwrk->listJetTracks[j] );
-	     if(xAODwrk)vrtSumW+=trkScore[j][0];
           }
           if( m_fillHist ){
             if(nth==1)m_hb_r1dc->Fill( goodVertices[iv].vertex.perp(), m_w_1);

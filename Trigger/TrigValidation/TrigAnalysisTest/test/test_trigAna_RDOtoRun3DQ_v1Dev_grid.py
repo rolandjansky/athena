@@ -43,7 +43,7 @@ dq.executable = 'Run3DQTestingDriver.py'
 dq.input = ''
 dq.args = '--threads=4'
 dq.args += ' --dqOffByDefault'
-dq.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True'
+dq.args += ' Input.Files="[\'AOD.pool.root\']" DQ.Steering.doHLTMon=True Trigger.triggerMenuSetup=\'LS2_v1_TriggerValidation_prescale\''
 
 test = Test.Test()
 test.art_type = 'grid'

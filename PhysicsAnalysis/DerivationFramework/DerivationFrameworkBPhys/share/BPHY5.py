@@ -13,7 +13,7 @@ if globalflags.DataSource()=='geant4':
     isSimulation = True
 
 print( isSimulation )
-
+from InDetRecExample import TrackingCommon
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -73,6 +73,8 @@ BPHY5JpsiSelectAndWrite = DerivationFramework__Reco_Vertex(name                 
                                                        VertexSearchTool             = BPHY5JpsiFinder,
                                                        OutputVtxContainerName = "BPHY5JpsiCandidates",
                                                        PVContainerName        = "PrimaryVertices",
+                                                       V0Tools                = TrackingCommon.getV0Tools(),
+                                                       PVRefitter             = BPHY5_VertexTools.PrimaryVertexRefitter,
                                                        RefPVContainerName     = "SHOULDNOTBEUSED",
                                                        DoVertexType           =1)
 ToolSvc += BPHY5JpsiSelectAndWrite
@@ -86,6 +88,7 @@ BPHY5_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   name                  = "BPHY5_Select_Jpsi2mumu",
   HypothesisName        = "Jpsi",
   InputVtxContainerName = "BPHY5JpsiCandidates",
+  V0Tools               = TrackingCommon.getV0Tools(),
   VtxMassHypo           = 3096.916,
   MassMin               = 2000.0,
   MassMax               = 3600.0,
@@ -243,6 +246,8 @@ BPHY5BsKKSelectAndWrite = DerivationFramework__Reco_Vertex(name                 
                                                            VertexSearchTool       = BPHY5BsJpsiKK,
                                                            OutputVtxContainerName   = "BPHY5BsJpsiKKCandidates",
                                                            PVContainerName          = "PrimaryVertices",
+                                                           V0Tools                  = TrackingCommon.getV0Tools(),
+                                                           PVRefitter               = BPHY5_VertexTools.PrimaryVertexRefitter,
                                                            RefPVContainerName       = "BPHY5RefittedPrimaryVertices",
                                                            RefitPV                  = True, Do3d = False,
                                                            MaxPVrefit               = 10000, DoVertexType = 7)
@@ -253,6 +258,8 @@ BPHY5BplKplSelectAndWrite = DerivationFramework__Reco_Vertex(name				     	= "BP
 															  VertexSearchTool	    =  BPHY5BplJpsiKpl,
 															  OutputVtxContainerName 	= "BPHY5BpmJpsiKpmCandidates",
                                                               PVContainerName           = "PrimaryVertices",
+                                                              V0Tools                   = TrackingCommon.getV0Tools(),
+                                                              PVRefitter                = BPHY5_VertexTools.PrimaryVertexRefitter,
                                                               RefPVContainerName        = "BPHY5RefBplJpsiKplPrimaryVertices",                                                              
                                                               RefitPV                   = True,
                                                               MaxPVrefit                = 10000 )
@@ -263,6 +270,8 @@ BPHY5BpipiXSelectAndWrite = DerivationFramework__Reco_Vertex(name               
                                                            VertexSearchTool       = BPHY5BJpsipipiX,
                                                            OutputVtxContainerName   = "BPHY5BJpsipipiXCandidates",
                                                            PVContainerName          = "PrimaryVertices",
+                                                           V0Tools                  = TrackingCommon.getV0Tools(),
+                                                           PVRefitter               = BPHY5_VertexTools.PrimaryVertexRefitter,
                                                            RefPVContainerName       = "BPHY5RefittedBPipiPrimaryVertices",
                                                            RefitPV                  = True, Do3d = False,
                                                            MaxPVrefit               = 10000, DoVertexType = 7)
@@ -273,6 +282,8 @@ BPHY5BdKstSelectAndWrite  = DerivationFramework__Reco_Vertex(
     name                   = "BPHY5BdKstSelectAndWrite",
     VertexSearchTool     = BPHY5BdJpsiKst,
     OutputVtxContainerName = "BPHY5BdJpsiKstCandidates",
+    V0Tools                = TrackingCommon.getV0Tools(),
+    PVRefitter             = BPHY5_VertexTools.PrimaryVertexRefitter,
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "BPHY5RefittedKstPrimaryVertices",
     RefitPV                = True,
@@ -286,6 +297,7 @@ BPHY5_Select_Bd2JpsiKst = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY5_Select_Bd2JpsiKst",
     HypothesisName             = "Bd",
     InputVtxContainerName      = "BPHY5BdJpsiKstCandidates",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     TrkMasses                  = [105.658, 105.658, 493.677, 139.570],
     VtxMassHypo                = 5279.6,
     MassMin                    = 100.0,      #no mass cuts here
@@ -301,6 +313,7 @@ BPHY5_Select_Bd2JpsiKstbar = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY5_Select_Bd2JpsiKstbar",
     HypothesisName             = "Bdbar",
     InputVtxContainerName      = "BPHY5BdJpsiKstCandidates",
+    V0Tools                    = TrackingCommon.getV0Tools(),
     TrkMasses                  = [105.658, 105.658, 139.570, 493.677],
     VtxMassHypo                = 5279.6,
     MassMin                    = 100.0,      #no mass cuts here
@@ -316,6 +329,7 @@ BPHY5_Select_Bs2JpsiKK = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY5_Select_Bs2JpsiKK",
   HypothesisName             = "Bs",
   InputVtxContainerName      = "BPHY5BsJpsiKKCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658, 493.677, 493.677],
   VtxMassHypo                = 5366.3,
   MassMin                    = 5000.0,
@@ -329,6 +343,7 @@ BPHY5_Select_Bpl2JpsiKpl     = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY5_Select_Bpl2JpsiKpl",
   HypothesisName             = "Bplus",
   InputVtxContainerName      = "BPHY5BpmJpsiKpmCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658, 493.677],
   VtxMassHypo                = 5279.26,
   MassMin                    = 5279.26 - 500, Do3d = False,
@@ -342,6 +357,7 @@ BPHY5_Select_Bpl2JpsiPi      = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY5_Select_Bpl2JpsiPi",
   HypothesisName             = "Bc",
   InputVtxContainerName      = "BPHY5BpmJpsiKpmCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658, 139.570],
   VtxMassHypo                = 6275.1, Do3d = False,
   MassMin                    = 6275.1 - 500,
@@ -355,6 +371,7 @@ BPHY5_Select_B2JpsipipiX = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY5_Select_B2JpsipipiX",
   HypothesisName             = "pipiJpsi",
   InputVtxContainerName      = "BPHY5BJpsipipiXCandidates",
+  V0Tools                    = TrackingCommon.getV0Tools(),
   TrkMasses                  = [105.658, 105.658, 139.570, 139.570],
   VtxMassHypo                = 4260,
   MassMin                    = 3400.0,
@@ -450,14 +467,6 @@ fileName     = buildFileName( derivationFlags.WriteDAOD_BPHY5Stream )
 BPHY5Stream  = MSMgr.NewPoolRootStream( streamName, fileName )
 BPHY5Stream.AcceptAlgs(["BPHY5Kernel"])
 
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-
-#BPHY5ThinningSvc = createThinningSvc( svcName="BPHY5ThinningSvc", outStreams=[evtStream] )
-#svcMgr += BPHY5ThinningSvc
 
 #====================================================================
 # Slimming 

@@ -16,7 +16,7 @@
 #include "TrkSurfaces/SurfaceHolders.h"
 #include <atomic>
 #include <iosfwd>
-
+#include <utility>
 class MsgStream;
 
 namespace Trk {
@@ -153,7 +153,7 @@ CompetingTRT_DriftCirclesOnTrack::containedROTs() const
 inline const InDet::TRT_DriftCircleOnTrack&
 CompetingTRT_DriftCirclesOnTrack::rioOnTrack(unsigned int indx) const
 {
-  return *m_containedChildRots->operator[](indx);
+  return *std::as_const(*m_containedChildRots)[indx];
 }
 
 inline unsigned int

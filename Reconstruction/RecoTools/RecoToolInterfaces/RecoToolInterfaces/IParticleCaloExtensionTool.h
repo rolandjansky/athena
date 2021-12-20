@@ -1,17 +1,46 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 /**  IParticleCaloExtensionTool.h
  *
  * Original by Niels van Eldik (2014)
- * Modified by Christos Anastopoulos (2018) for AthenaMT
+ * Modified by Christos Anastopoulos for AthenaMT
+ * and additional calo layer methods
  *
- * The purpose of the tool is to handle extensions
- * of TrackParticles attached to an IParticle,
- * or of Neutral/Truth Particles.
+ * The purpose of the tool is to handle Particles
+ * extrapolated to the calorimeter creating so
+ * called extensions
  *
- * There are 3 different usage patterns.
+ * Methods accepting TrackParameters
+ *
+ * - caloExtension : extrapolate typically from parameters
+ *   until the exit of the calorimeter (can be changed to be
+ *   entry in the configuration). This typically uses the STEP
+ *   propagator via the Extrapolator. This is the most
+ *   generic case if one wants all intersections and
+ *   the full path inside the calo.
+ *
+ * - layersCaloExtension : Extrapolate to particular
+ *   layers using the configured Propagator in the
+ *   Extrapolator. This can be faster but assumes
+ *   explicit knowledge of which layer intersection to
+ *   target
+ *
+ * - egammaCaloExtension : Specialize layersCaloExtension
+ *   given an egamma cluster
+ *
+ *
+ * Methods accepting  IParticle :
+ *
+ * These will extract the needed information and form
+ * the proper track parameters. Then will call the
+ * caloExtension method from above.
+ *
+ * Since we might want to repeat the same extrapolation
+ * from different domains or multiple times from the
+ * same domain we allow for the following strategies
+ * for caching.
  *
  * 1. No-caching
  * std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::IParticle&
@@ -58,6 +87,7 @@
 #include <unordered_map>
 #include <vector>
 
+class CaloDetDescrManager;
 namespace Trk {
 static const InterfaceID
   IID_IParticleCaloExtensionTool("Trk::IParticleCaloExtensionTool", 1, 0);
@@ -157,8 +187,28 @@ public:
     ParticleHypothesis particleType) const = 0;
 
   /**
-   * Method returning a vector of the Track Parameters at the cluster
+   * Method returning a vector of the Track Parameters at
    * layers/samplings
+   * @param ctx          event context needed for multithreading
+   * @param startPars    the starting track parameters
+   * @param clusterLayers  the layers (should be ordered)  we aim for
+   * @param eta            eta used for the depth
+   * @param particleType type of particle
+   */
+
+  virtual std::vector<std::pair<CaloSampling::CaloSample,
+                                std::unique_ptr<const Trk::TrackParameters>>>
+  layersCaloExtension(
+    const EventContext& ctx,
+    const TrackParameters& startPars,
+    const std::vector<CaloSampling::CaloSample>& clusterLayers,
+    double eta,
+    const CaloDetDescrManager& caloDD,
+    ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
+
+  /**
+   * Method returning a vector of the Track Parameters at the
+   * egamma cluster layers/samplings
    * @param ctx          event context needed for multithreading
    * @param startPars    the starting track parameters
    * @param caloCluster  the cluster we aim for
@@ -171,6 +221,7 @@ public:
     const EventContext& ctx,
     const TrackParameters& startPars,
     const xAOD::CaloCluster& cluster,
+    const CaloDetDescrManager& caloDD,
     ParticleHypothesis particleType = Trk::nonInteracting) const = 0;
 
   static const InterfaceID& interfaceID();

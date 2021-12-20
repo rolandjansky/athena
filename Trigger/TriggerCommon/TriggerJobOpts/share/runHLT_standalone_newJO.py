@@ -101,6 +101,9 @@ menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # menu.printConfig(withDetails=True, summariseProps=True)
 acc.merge(menu)
 
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+acc.merge(LumiBlockMuWriterCfg(flags), sequenceName="HLTBeginSeq")
+
 if flags.Trigger.doTransientByteStream and flags.Trigger.doCalo:
     from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
     acc.merge(triggerTransBSCfg_Calo(flags), sequenceName="HLTBeginSeq")

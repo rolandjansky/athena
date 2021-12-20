@@ -11,7 +11,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 using namespace TrigCompositeUtils;
 
 TrackCountHypoTool::TrackCountHypoTool(const std::string &type, const std::string &name, const IInterface *parent)
-	: AthAlgTool(type, name, parent),
+	: AthCheckedComponent<AthAlgTool>(type, name, parent),
 	  m_decisionId(HLT::Identifier::fromToolName(name)) {}
 
 
@@ -30,8 +30,8 @@ StatusCode TrackCountHypoTool::decide(TrkCountsInfo &trkinfo) const
 	std::vector<int> counts;
 	trkinfo.counts->getDetail<std::vector<int>>("counts", counts);
 	if ( m_exclusive ) {
-		if ( counts[0] > ExclusivityThreshold ) {
-			ATH_MSG_DEBUG("Lowest pt tracks count " << counts[0] << " exceeds exclusivity cut, " <<  ExclusivityThreshold<<" rejecting");
+		if ( counts[0] > m_exclusivityThreshold ) {
+			ATH_MSG_DEBUG("Lowest pt tracks count " << counts[0] << " exceeds exclusivity cut, " <<  m_exclusivityThreshold<<" rejecting");
 			return StatusCode::SUCCESS;
 		}
 	}

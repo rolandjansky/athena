@@ -799,10 +799,10 @@ namespace LArG4 {
       const G4double dl=0.001;
       const G4double inv_dl = 1. / dl;
       G4double cenx[15],ceny[15];
-      G4double xl,xl2;
+      //G4double xl,xl2;
       G4double sum1[5000],sumx[5000];
-      xl=0;
-      xl2=0.;
+      //xl=0;
+      //xl2=0.;
       m_NRphi=5000;
       m_Rmin=1500.;
       m_dR=0.10;
@@ -858,10 +858,10 @@ namespace LArG4 {
             phi1=-m_delta[i];
           }
         }
-        xl2+=rint*std::fabs(phi1-phi0);
+        //xl2+=rint*std::fabs(phi1-phi0);
         const G4int nstep=int((phi1-phi0)*inv_dt)+1;
         for (int ii=0;ii<nstep;ii++) {
-          xl+=dl;
+          //xl+=dl;
           const G4double phi=phi0+dt*((G4double)ii);
           const G4double x=cenx[i]+rint*cos(phi);
           const G4double y=ceny[i]+rint*sin(phi);
@@ -885,10 +885,10 @@ namespace LArG4 {
           const G4double phi = (i%2==m_parity) ? CLHEP::pi/2-m_delta[i] : -CLHEP::pi/2.+m_delta[i];
           const G4double x1=x0-0.5*along*cos(phi);
           const G4double y1=y0-0.5*along*sin(phi);
-          xl2+=along;
+          //xl2+=along;
           const int nstep=int(along*inv_dl)+1;
           for (int ii=0;ii<nstep;ii++) {
-            xl+=dl;
+            //xl+=dl;
             const G4double x=x1+dl*((G4double)ii)*cos(phi);
             const G4double y=y1+dl*((G4double)ii)*sin(phi);
             const G4double radius=sqrt(x*x+y*y);
@@ -902,7 +902,7 @@ namespace LArG4 {
           }
         }
       }
-      //  ATH_MSG_VERBOSE("total electrode lenght " << xl << " " << xl2);
+      //  ATH_MSG_VERBOSE("total electrode length " << xl << " " << xl2);
       //  ATH_MSG_VERBOSE("rmax in accordion " << m_Rmax);
       for (int i=0; i<m_NRphi; i++) {
         if (sum1[i]>0) {
