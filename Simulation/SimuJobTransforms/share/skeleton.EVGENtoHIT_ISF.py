@@ -261,10 +261,9 @@ if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
 include("ISF_Config/ISF_ConfigJobInclude.py")
 
 ## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
+
 ## Set firstEvent for cosmics jobs
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     if hasattr(runArgs, "firstEvent"):
