@@ -14,9 +14,11 @@ from egammaTools.EMConversionBuilderConfig import EMConversionBuilderCfg
 def egammaRecBuilderCfg(
         flags,
         name='egammaRecBuilder',
+        sequenceName = None,
         **kwargs):
 
-    acc = ComponentAccumulator()
+    seqkw = {'sequence': sequenceName} if sequenceName else {}
+    acc = ComponentAccumulator (**seqkw)
 
     if "TrackMatchBuilderTool" not in kwargs:
         emtrkmatch = EMTrackMatchBuilderCfg(flags)
