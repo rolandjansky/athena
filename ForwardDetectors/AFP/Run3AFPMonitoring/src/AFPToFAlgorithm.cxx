@@ -147,13 +147,13 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	auto lbCToF_T3_End = Monitored::Scalar<int>("lbCToF_T3_End", 0);
 	
 	auto lbCToF_TEnd_Weight = Monitored::Scalar<float>("lbCToF_TEnd_Weight", 1);
-    
-	lb                = GetEventInfo(ctx)->lumiBlock();
-	lbAToF            = GetEventInfo(ctx)->lumiBlock();
-	lbCToF            = GetEventInfo(ctx)->lumiBlock();
-	lbAToFEvents      = GetEventInfo(ctx)->lumiBlock();
-	lbCToFEvents      = GetEventInfo(ctx)->lumiBlock();
-	lbAandCToFEvents  = GetEventInfo(ctx)->lumiBlock();
+	SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo(ctx);
+	lb                = eventInfo->lumiBlock();
+	lbAToF            = eventInfo->lumiBlock();
+	lbCToF            = eventInfo->lumiBlock();
+	lbAToFEvents      = eventInfo->lumiBlock();
+	lbCToFEvents      = eventInfo->lumiBlock();
+	lbAandCToFEvents  = eventInfo->lumiBlock();
 	muPerBXToF        = lbAverageInteractionsPerCrossing(ctx);
 	
 	ToFHits_MU_Weight       = 1/muPerBXToF;
@@ -171,7 +171,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	fill("AFPToFTool", lb, muPerBXToF);
 
 	// BCX handler
-	unsigned int tempBCID = GetEventInfo(ctx)->bcid();
+	unsigned int tempBCID = eventInfo->bcid();
 	SG::ReadCondHandle<BunchCrossingCondData> bcidHdlToF(m_bunchCrossingKeyToF,ctx);
 	if (!bcidHdlToF.isValid()) {
 		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object (ToF)" );
@@ -244,92 +244,92 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 			barInTrainAllA = (hitsItr->trainID()*4)+barInTrainIDA;
 			fill("AFPToFTool", barInTrainAllA);
 			
-			ToFHits_sideA = GetEventInfo(ctx)->lumiBlock();
+			ToFHits_sideA = eventInfo->lumiBlock();
 			fill("AFPToFTool", ToFHits_sideA, ToFHits_MU_Weight);
 			
 			
 			if(hitsItr->trainID() == 0)
 			{
-				lbAToF_T0 = GetEventInfo(ctx)->lumiBlock();
+				lbAToF_T0 = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbAToF_T0, lbAToF_TAll_Weight);
 				
 				if(isInListVectorToF(tempBCID, frontBCIDsVectorToF))
 				{
-					lbAToF_T0_Front = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T0_Front = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T0_Front, lbAToF_TFront_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, middleBCIDsVectorToF))
 				{
-					lbAToF_T0_Middle = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T0_Middle = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T0_Middle, lbAToF_TMiddle_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, endBCIDsVectorToF))
 				{
-					lbAToF_T0_End = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T0_End = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T0_End, lbAToF_TEnd_Weight);
 				}
 				
 			}
 			else if(hitsItr->trainID() == 1)
 			{
-				lbAToF_T1 = GetEventInfo(ctx)->lumiBlock();
+				lbAToF_T1 = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbAToF_T1, lbAToF_TAll_Weight);
 				
 				if(isInListVectorToF(tempBCID, frontBCIDsVectorToF))
 				{
-					lbAToF_T1_Front = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T1_Front = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T1_Front, lbAToF_TFront_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, middleBCIDsVectorToF))
 				{
-					lbAToF_T1_Middle = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T1_Middle = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T1_Middle, lbAToF_TMiddle_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, endBCIDsVectorToF))
 				{
-					lbAToF_T1_End = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T1_End = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T1_End, lbAToF_TEnd_Weight);
 				}
 			}
 			else if(hitsItr->trainID() == 2)
 			{
-				lbAToF_T2 = GetEventInfo(ctx)->lumiBlock();
+				lbAToF_T2 = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbAToF_T2, lbAToF_TAll_Weight);
 				
 				if(isInListVectorToF(tempBCID, frontBCIDsVectorToF))
 				{
-					lbAToF_T2_Front = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T2_Front = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T2_Front, lbAToF_TFront_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, middleBCIDsVectorToF))
 				{
-					lbAToF_T2_Middle = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T2_Middle = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T2_Middle, lbAToF_TMiddle_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, endBCIDsVectorToF))
 				{
-					lbAToF_T2_End = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T2_End = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T2_End, lbAToF_TEnd_Weight);
 				}
 			}
 			else if(hitsItr->trainID() == 3)
 			{
-				lbAToF_T3 = GetEventInfo(ctx)->lumiBlock();
+				lbAToF_T3 = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbAToF_T3, lbAToF_TAll_Weight);
 				
 				if(isInListVectorToF(tempBCID, frontBCIDsVectorToF))
 				{
-					lbAToF_T3_Front = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T3_Front = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T3_Front, lbAToF_TFront_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, middleBCIDsVectorToF))
 				{
-					lbAToF_T3_Middle = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T3_Middle = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T3_Middle, lbAToF_TMiddle_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, endBCIDsVectorToF))
 				{
-					lbAToF_T3_End = GetEventInfo(ctx)->lumiBlock();
+					lbAToF_T3_End = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbAToF_T3_End, lbAToF_TEnd_Weight);
 				}
 			}
@@ -344,90 +344,90 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 			barInTrainAllC = (hitsItr->trainID()*4)+barInTrainIDC;
 			fill("AFPToFTool", barInTrainAllC);
 			
-			ToFHits_sideC = GetEventInfo(ctx)->lumiBlock();
+			ToFHits_sideC = eventInfo->lumiBlock();
 			fill("AFPToFTool", ToFHits_sideC, ToFHits_MU_Weight);
 			
 			if(hitsItr->trainID() == 0)
 			{
-				lbCToF_T0 = GetEventInfo(ctx)->lumiBlock();
+				lbCToF_T0 = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbCToF_T0, lbCToF_TAll_Weight);
 				
 				if(isInListVectorToF(tempBCID, frontBCIDsVectorToF))
 				{
-					lbCToF_T0_Front = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T0_Front = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T0_Front, lbCToF_TFront_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, middleBCIDsVectorToF))
 				{
-					lbCToF_T0_Middle = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T0_Middle = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T0_Middle, lbCToF_TMiddle_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, endBCIDsVectorToF))
 				{
-					lbCToF_T0_End = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T0_End = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T0_End, lbCToF_TEnd_Weight);
 				}
 			}
 			else if(hitsItr->trainID() == 1)
 			{
-				lbCToF_T1 = GetEventInfo(ctx)->lumiBlock();
+				lbCToF_T1 = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbCToF_T1, lbCToF_TAll_Weight);
 				
 				if(isInListVectorToF(tempBCID, frontBCIDsVectorToF))
 				{
-					lbCToF_T1_Front = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T1_Front = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T1_Front, lbCToF_TFront_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, middleBCIDsVectorToF))
 				{
-					lbCToF_T1_Middle = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T1_Middle = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T1_Middle, lbCToF_TMiddle_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, endBCIDsVectorToF))
 				{
-					lbCToF_T1_End = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T1_End = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T1_End, lbCToF_TEnd_Weight);
 				}
 			}
 			else if(hitsItr->trainID() == 2)
 			{
-				lbCToF_T2 = GetEventInfo(ctx)->lumiBlock();
+				lbCToF_T2 = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbCToF_T2, lbCToF_TAll_Weight);
 				
 				if(isInListVectorToF(tempBCID, frontBCIDsVectorToF))
 				{
-					lbCToF_T2_Front = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T2_Front = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T2_Front, lbCToF_TFront_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, middleBCIDsVectorToF))
 				{
-					lbCToF_T2_Middle = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T2_Middle = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T2_Middle, lbCToF_TMiddle_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, endBCIDsVectorToF))
 				{
-					lbCToF_T2_End = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T2_End = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T2_End, lbCToF_TEnd_Weight);
 				}
 			}
 			else if(hitsItr->trainID() == 3)
 			{
-				lbCToF_T3 = GetEventInfo(ctx)->lumiBlock();
+				lbCToF_T3 = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbCToF_T3, lbCToF_TAll_Weight);
 				
 				if(isInListVectorToF(tempBCID, frontBCIDsVectorToF))
 				{
-					lbCToF_T3_Front = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T3_Front = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T3_Front, lbCToF_TFront_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, middleBCIDsVectorToF))
 				{
-					lbCToF_T3_Middle = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T3_Middle = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T3_Middle, lbCToF_TMiddle_Weight);
 				}
 				else if(isInListVectorToF(tempBCID, endBCIDsVectorToF))
 				{
-					lbCToF_T3_End = GetEventInfo(ctx)->lumiBlock();
+					lbCToF_T3_End = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbCToF_T3_End, lbCToF_TEnd_Weight);
 			}
 		}
