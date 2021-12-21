@@ -105,16 +105,6 @@ bool TFCSPredictExtrapWeights::getNormInputs(std::string etaBin, std::string Fas
     m_normStdDevs = new std::vector<float>();
   }
   std::string inputFileName = FastCaloTXTInputFolderName + "MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
-  /*if(pid == 22){
-    inputFileName += "v23/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
-  } else if(pid == 11 || pid == -11){
-    inputFileName += "v24/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
-  } else if(pid == 211 || pid == -211){
-    inputFileName += "v25/MeanStdDevEnergyFractions_eta_" + etaBin + ".txt";
-  } else {
-    std:: cout << "ERROR: pid ("<<pid<<") not supported yet" << std::endl;
-    return false;
-  }*/
   ATH_MSG_DEBUG(" Opening " << inputFileName);
   std::ifstream inputTXT(inputFileName);
   if(inputTXT.is_open()){
@@ -150,17 +140,11 @@ bool TFCSPredictExtrapWeights::getNormInputs(std::string etaBin, std::string Fas
 
 // prepareInputs()
 // Prepare input variables to the Neural Network
-//std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulationState& simulstate, const float truthE) const
 std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(const int pid, TFCSSimulationState& simulstate, const float truthE) const
 {
   std::map<std::string, double> inputVariables;
   std::vector<int>              inputLayers = {0,1,2,3,12};
   if(is_match_pdgid(211) || is_match_pdgid(-211)){
-    inputLayers.push_back(13);
-    inputLayers.push_back(14);
-  }
-  // Temporary (needed since I will be using v27 NN for electrons (for now)
-  if(is_match_pdgid(11) || is_match_pdgid(-11)){
     inputLayers.push_back(13);
     inputLayers.push_back(14);
   }
@@ -181,10 +165,9 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(const int p
   auto itr  = std::find(m_normLayers->begin(), m_normLayers->end(), -1);
   int index = std::distance(m_normLayers->begin(), itr);
   inputVariables["etrue"] = ( truthE - (*m_normMeans).at(index) ) / (*m_normStdDevs).at(index);
-  inputVariables["pdgId"] = pid; // Temporary (only needed when using NNs trained using multiple particles
-  /*if(pid == 22 || pid == 11){ // keeping it because I will need something similar for electrons + pions
+  if(pid == 211){
     inputVariables["pdgId"] = pid;
-  }*/
+  }
 
   return inputVariables;
 }
@@ -198,7 +181,6 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate(TFCSSimulationState& simulstate
   const int pid = truth->pdgid();
 
   // Get inputs to Neural Network
-  //std::map<std::string,double> inputVariables = prepareInputs(simulstate, truth->E()*0.001);
   std::map<std::string,double> inputVariables = prepareInputs(pid, simulstate, truth->E()*0.001);
 
   // Get predicted extrapolation weights
@@ -264,9 +246,6 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
   ATH_MSG_INFO("Using FastCaloNNInputFolderName: " << FastCaloNNInputFolderName );
 
   std::string inputFileName = FastCaloNNInputFolderName + "NN_"+etaBin+".json";
-  /*if(pid == 22){                      inputFileName += "NN_"+etaBin+".json";
-  } else if(pid == 11 || pid == -11){   inputFileName += "NN_"+etaBin+".json";
-  } else if(pid == 211 || pid == -211){ inputFileName += "NN_"+etaBin+".json";}*/
   ATH_MSG_DEBUG("Will read JSON file: " << inputFileName );
   if(inputFileName.empty()){
     ATH_MSG_ERROR("Could not find json file " << inputFileName );
@@ -393,13 +372,12 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
   TFCSPredictExtrapWeights NN("NN", "NN");
   NN.setLevel(MSG::VERBOSE);
   const int pid = truth->pdgid();
-  NN.initializeNetwork(pid, etaBin,"/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/json/v26/"); // UPDATE ME
-  NN.getNormInputs(etaBin, "/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/txt/v26/"); // UPDATE ME
+  NN.initializeNetwork(pid, etaBin,"/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/json/v23/");
+  NN.getNormInputs(etaBin, "/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/txt/v23/");
 
   // Get extrapWeights and save them as AuxInfo in simulstate
 
   // Get inputs to Neural Network
-  //std::map<std::string,double> inputVariables = NN.prepareInputs(*simulstate, truth->E()*0.001);
   std::map<std::string,double> inputVariables = NN.prepareInputs(pid, *simulstate, truth->E()*0.001);
 
   // Get predicted extrapolation weights
