@@ -140,11 +140,7 @@ namespace Trk {
         /** AlgTool initailize method.*/
         virtual StatusCode initialize() override final;
 
-        /** AlgTool finalize method */
-        virtual StatusCode finalize() override final;
-
         /** Main propagation method NeutralParameters */
-
         virtual std::unique_ptr<NeutralParameters> propagate
         (const NeutralParameters        &,
          const Surface                  &,
@@ -153,7 +149,6 @@ namespace Trk {
          bool                            ) const override final;
 
         /** Main propagation method without transport jacobian production*/
-
         virtual  std::unique_ptr<TrackParameters>           propagate
         (const EventContext&          ctx,
          const TrackParameters          &,
@@ -166,7 +161,6 @@ namespace Trk {
          const TrackingVolume*           ) const override final;
 
         /** Main propagation method with transport jacobian production*/
-
         virtual  std::unique_ptr<TrackParameters>           propagate
         (const EventContext&          ctx,
          const TrackParameters          &,
@@ -181,7 +175,6 @@ namespace Trk {
          const TrackingVolume*            ) const override final;
 
         /** The propagation method finds the closest surface */
-
         virtual std::unique_ptr<TrackParameters>           propagate
         (const EventContext&          ctx,
          const TrackParameters         &,
@@ -196,7 +189,6 @@ namespace Trk {
          const TrackingVolume*          ) const override final;
 
         /** Main propagation method for parameters only without transport jacobian productio*/
-
         virtual  std::unique_ptr<TrackParameters>           propagateParameters
         (const EventContext&          ctx,
          const TrackParameters          &,
@@ -210,7 +202,6 @@ namespace Trk {
 
 
         /** Main propagation method for parameters only with transport jacobian productio*/
-
         virtual  std::unique_ptr<TrackParameters>           propagateParameters
         (const EventContext&          ctx,
          const TrackParameters          &,
@@ -224,7 +215,6 @@ namespace Trk {
          const TrackingVolume*           ) const override final;
 
         /** Global position together with direction of the trajectory on the surface */
-
         virtual const IntersectionSolution*      intersect
         (const EventContext&          ctx,
          const TrackParameters          &,
@@ -234,7 +224,6 @@ namespace Trk {
          const TrackingVolume*   tvol=nullptr  ) const override final;
 
         /** GlobalPositions list interface:*/
-
         virtual void globalPositions
         (const EventContext&          ctx,
          std::list<Amg::Vector3D>       &,
@@ -250,7 +239,6 @@ namespace Trk {
         /////////////////////////////////////////////////////////////////////////////////
 
         /** Main propagation method */
-
         virtual bool propagate
         (const EventContext&          ctx,
          PatternTrackParameters         &,
@@ -261,7 +249,6 @@ namespace Trk {
          ParticleHypothesis particle=pion) const  override final;
 
         /** Main propagation method with step to surface calculation*/
-
         virtual bool propagate
         (const EventContext&          ctx,
          PatternTrackParameters         &,
@@ -273,7 +260,6 @@ namespace Trk {
          ParticleHypothesis particle=pion) const  override final;
 
         /** Main propagation method for parameters only */
-
         virtual bool propagateParameters
         (const EventContext&          ctx,
          PatternTrackParameters         &,
@@ -295,7 +281,6 @@ namespace Trk {
          ParticleHypothesis particle=pion) const  override final;
 
         /** GlobalPositions list interface:*/
-
         virtual void globalPositions
         (const EventContext&          ctx,
          std::list<Amg::Vector3D>       &,
@@ -306,7 +291,6 @@ namespace Trk {
          ParticleHypothesis particle=pion) const  override final;
 
         /** GlobalPostions and steps for set surfaces */
-
         virtual void globalPositions
         (const EventContext&          ctx,
          const PatternTrackParameters                 &,
@@ -315,19 +299,22 @@ namespace Trk {
          const MagneticFieldProperties                &,
          ParticleHypothesis particle=pion              ) const  override final;
 
-        struct Cache{
-            MagField::AtlasFieldCache    m_fieldCache;
-            double  m_field[3];
-            double  m_direction;
-            double  m_step;
-            double  m_maxPath                            = 10000;
-            bool    m_maxPathLimit                       = false;
-            bool    m_mcondition                         = false;
-            bool    m_solenoid                           = true;
-            bool    m_needgradient                       = false;
-            bool    m_newfield                           = true;
+        struct Cache
+        {
+          MagField::AtlasFieldCache m_fieldCache;
+          double m_field[3];
+          double m_direction;
+          double m_step;
+          double m_maxPath = 10000;
+          double m_dlt = .000200;
+          double m_helixStep = 1;
+          double m_straightStep = 0.01;
+          bool m_maxPathLimit = false;
+          bool m_mcondition = false;
+          bool m_solenoid = true;
+          bool m_needgradient = false;
+          bool m_newfield = true;
         };
-
 
       private:
 
@@ -354,18 +341,6 @@ namespace Trk {
          double                       *,
          bool                returnCurv) const;
 
-        /** Internal RungeKutta propagation method for neutral track parameters*/
-
-        std::unique_ptr<NeutralParameters>     propagateStraightLine
-        (Cache& cache                  ,
-         bool                          ,
-         const NeutralParameters      &,
-         const Surface                &,
-         const PropDirection           ,
-         const BoundaryCheck&          ,
-         double                       *,
-         bool                returnCurv) const;
-
         /** Internal RungeKutta propagation method */
 
         bool propagateRungeKutta
@@ -377,66 +352,6 @@ namespace Trk {
          PropDirection                 ,
          const MagneticFieldProperties&,
          double                       &) const;
-
-        /** Internal RungeKutta propagation method for propation with jacobian*/
-
-        bool propagateWithJacobian
-        (Cache& cache                  ,
-         bool                          ,
-         int                           ,
-         double          * ATH_RESTRICT,
-         double          * ATH_RESTRICT,
-         double          & ATH_RESTRICT) const;
-
-        /** Propagation methods runge kutta step*/
-
-        double rungeKuttaStep
-        (Cache& cache,
-         bool                          ,
-         double                        ,
-         double          * ATH_RESTRICT,
-         bool                         &) const;
-
-        /** Propagation methods runge kutta step*/
-
-        double rungeKuttaStepWithGradient
-        (Cache& cache                  ,
-         double                        ,
-         double          * ATH_RESTRICT,
-         bool                         &) const;
-
-
-        /** Step estimator with directions correction */
-
-        double stepEstimatorWithCurvature(
-          Cache& cache,
-          int,
-          double* ATH_RESTRICT ,
-          const double* ATH_RESTRICT,
-          bool&) const;
-
-        /** Step reduction */
-        double stepReduction(const double*) const;
-
-        /** Build new track parameters without propagation */
-
-        void globalOneSidePositions
-        (Cache& cache                   ,
-         std::list<Amg::Vector3D>       &,
-         const double                   *,
-         const MagneticFieldProperties  &,
-         const CylinderBounds           &,
-         double                          ,
-         ParticleHypothesis particle=pion) const;
-
-        void globalTwoSidePositions
-        (Cache& cache                   ,
-         std::list<Amg::Vector3D>       &,
-         const double                   *,
-         const MagneticFieldProperties  &,
-         const CylinderBounds           &,
-         double                          ,
-         ParticleHypothesis particle=pion) const;
 
         void getFieldCacheObject(
           Cache& cache,
