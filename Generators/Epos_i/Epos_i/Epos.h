@@ -7,6 +7,7 @@
 
 #include "GeneratorModules/GenModule.h"
 #include "AtlasHepMC/HEPEVT_Wrapper.h"
+#include <sys/types.h>
 
 /**
 @class Epos
@@ -51,10 +52,12 @@ protected:
   int         m_itab;
   int         m_ilheout;
   int         m_nEvents;
+  double      m_degymx;
 
     // max number of particles MUST BE EQUAL TO THE NUMBER SET IN crmc-aaa.f! (it is max. number allowed by HepMC2.6 now)
- static const size_t kMaxParticles = HEPEVT_EntriesAllocation; 
+// static const size_t kMaxParticles = HEPEVT_EntriesAllocation; 
 //  static const size_t kMaxParticles = HEPEVT_SIZE_REPLACE;
+  inline static const size_t kMaxParticles {10000};
   std::vector<int>   m_partID;
   std::vector<double> m_partPx;
   std::vector<double> m_partPy;
