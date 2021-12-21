@@ -323,10 +323,8 @@ def CombinedMuonOutputCfg(flags):
         aod_items+=["xAOD::CaloClusterAuxContainer#MuonClusterCollectionAux."]
         aod_items+=["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
 
-    excludedAuxData = '-caloExtension.-cellAssociation.-clusterAssociation'
-    excludedMuonAuxData = ".-"+".-".join(iso_vars)
-
     # Adding the xAOD content by default
+    excludedAuxData = '-clusterAssociation'
     aod_items+=[ "xAOD::TrackParticleContainer#CombinedMuonTrackParticles"]
     aod_items+=[ "xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux." + excludedAuxData ]
     aod_items+=[ "xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles" ]
@@ -337,7 +335,9 @@ def CombinedMuonOutputCfg(flags):
     aod_items+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." + excludedAuxData ]
     aod_items+=[ "xAOD::MuonContainer#Muons" ]
     aod_items+=[ "xAOD::MuonContainer#MuonsLRT"]
+
     # FIXME! Next two lines are hack to remove derivation framework variables that are added by DRAW building and are supposed to be transient
+    excludedMuonAuxData = ".-"+".-".join(iso_vars)
     aod_items+=[ "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData ]
     aod_items+=[ "xAOD::MuonAuxContainer#MuonsLRTAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" + excludedMuonAuxData] 
     
