@@ -1072,8 +1072,6 @@ IdDictDetDescrCnv::registerFilesWithParser()
     	  log << MSG::WARNING << " no temp. file InDetIdDict.xml found - using file "<<m_inDetIDFileName << endmsg;
     	}
     }
-    log << MSG::INFO << " Reading InDet info from: "<<m_inDetIDFileName<< endmsg;
-   
 
     if ("" != m_atlasIDFileName) {
         m_parser->register_external_entity("ATLAS", m_atlasIDFileName);
