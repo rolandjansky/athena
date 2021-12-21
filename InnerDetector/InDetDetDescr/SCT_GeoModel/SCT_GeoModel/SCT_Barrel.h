@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_BARREL_H
@@ -32,8 +32,8 @@ private:
   void getParameters();
   virtual const GeoLogVol * preBuild();
 
-  void buildThermalShield(GeoFullPhysVol * parent) const;
-  void buildEMIShield(GeoFullPhysVol * parent) const;
+  void buildThermalShield(GeoFullPhysVol * parent);
+  void buildEMIShield(GeoFullPhysVol * parent);
 
   
   int    m_numLayers = 0;
