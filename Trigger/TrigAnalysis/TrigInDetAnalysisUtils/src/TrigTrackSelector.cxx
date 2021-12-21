@@ -13,10 +13,39 @@
 #include "xAODTruth/TruthVertexContainer.h"
 
 
-TrigTrackSelector::TrigTrackSelector( TrackFilter* selector, double radius ) : 
+TrigTrackSelector::TrigTrackSelector( TrackFilter* selector, double radius, int selectPdgId, int selectParentPdgId ) : 
     TrackSelector(selector), m_id(0), m_xBeam(0), m_yBeam(0), m_zBeam(0),
     m_correctTrkTracks(false), 
-    m_radius(radius) {  } 
+    m_radius(radius), m_selectPdgId(selectPdgId), m_selectParentPdgId(selectParentPdgId) { 
+ } 
+
+
+
+const xAOD::TruthParticle* TrigTrackSelector::fromParent(const int pdg_id,  const xAOD::TruthParticle *p) const { 
+  if ( p==nullptr ) return nullptr;
+  if (p->absPdgId()==11 || p->absPdgId()==13 ) return nullptr; //don't want light leptons from tau decays
+  if ( p->absPdgId()==pdg_id ) {
+    return p;   // recursive stopping conditions
+  }
+  auto vertex = p->prodVtx();
+  if ( vertex == nullptr ) {
+    return nullptr; // has no production vertex !!!
+  }
+  if ( vertex->nIncomingParticles() < 1 ) {
+    return nullptr;  // recursive stopping conditions
+  }
+  for( unsigned ip = 0; ip < vertex->nIncomingParticles(); ip++ ) {
+    auto* in = vertex->incomingParticle(ip);
+    auto parent = fromParent( pdg_id, in);
+    if ( parent!=nullptr ) { 
+      if (parent->absPdgId()==pdg_id) return parent;
+    }
+  }
+  
+  return nullptr;
+}
+  
+
 
 
 bool TrigTrackSelector::selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap ) {     
@@ -264,7 +293,6 @@ void TrigTrackSelector::selectTracks( const Rec::TrackParticleContainer* trigtra
 
 // extract all the tracks from a TruthParticle collection and add them
 void TrigTrackSelector::selectTracks( const TruthParticleContainer* truthtracks ) { 
-    
     //    std::cout << "\t\t\tSUTT \tTrackParticleContainer->size() = " << trigtracks->size() << std::endl;
     
     TruthParticleContainer::const_iterator  trackitr = truthtracks->begin();
@@ -359,8 +387,8 @@ void TrigTrackSelector::truthBeamline( const xAOD::TruthParticleContainer* truth
 
 
 // extract all the tracks from a xAOD::TruthParticle collection and add them
-void TrigTrackSelector::selectTracks( const xAOD::TruthParticleContainer* truthtracks ) { 
-    
+void TrigTrackSelector::selectTracks( const xAOD::TruthParticleContainer* truthtracks) { 
+
   xAOD::TruthParticleContainer::const_iterator  trackitr = truthtracks->begin();
   xAOD::TruthParticleContainer::const_iterator  trackend = truthtracks->end();
   
@@ -370,11 +398,33 @@ void TrigTrackSelector::selectTracks( const xAOD::TruthParticleContainer* trutht
 
   truthBeamline( truthtracks, x0, y0 );
 
-  while ( trackitr!=trackend ) { 
-    
-    selectTrack( *trackitr, x0, y0 );
-      
-    trackitr++;
+
+  for ( ; trackitr!=trackend; trackitr++) {
+
+
+    // Only select charged final state particles
+    double q = (*trackitr)->charge();
+
+    /// fix default (unset) TruthParticle charge
+    static particleType ptype;
+    if ( q==-999 ) q = ptype.charge( (*trackitr)->pdgId() );
+
+    if (q == 0 || (*trackitr)->status() !=1) continue;
+
+    // If looking for tau parents, don't select mu or e children
+
+    // select based on the pdg of final state particle 
+    bool gotPdgId = true;
+    if (m_selectPdgId!=0) gotPdgId = (*trackitr)->absPdgId()==m_selectPdgId;
+
+    // select based on the pdg of the parent or ancestor
+    bool gotParentPdgId = true;
+    if (gotPdgId && m_selectParentPdgId!=0) {
+      gotParentPdgId = fromParent(m_selectParentPdgId, (*trackitr))!=nullptr;
+      if ( gotParentPdgId && gotPdgId) {
+	selectTrack( *trackitr, x0, y0);
+      }
+    }
 
   } // loop over tracks
     
@@ -427,8 +477,7 @@ bool TrigTrackSelector::selectTrack( const TruthParticle* track ) {
 
 
 // add an xAOD::TruthParticle 
-bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track, double x0, double y0 ) { 
-
+bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track, double x0, double y0) { 
   if ( track ) { 
         
     // check it is a final state particle - documentation particles have status() == 3     
@@ -542,7 +591,6 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track, double x0
 	      << "\tz0="  << z0 
 	      << "\tpT="  << pT 
 	      << "\td0="  << d0
-	      << "\tfitter=" << fitter
 	      << "\tauthor=" << trackAuthor
 	      << "\tVTX x " << xp[0]<< "\ty " << xp[1] << "\tz " << xp[2] 
 	      << std::endl;
@@ -560,13 +608,11 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track, double x0
     /// useful debug info - leave in
     //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
       
+    // addTrack applies additional cuts using the Filter
     if ( !addTrack( t ) ){
       delete t;
       return false;
     }
-
-    return true;
-      
   }
   return false;
      
@@ -761,7 +807,7 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     //    std::cout << "\t\t\tSUTT Truth track" 
     //	            << "\teta=" << eta  // << " +- " << (*trackitr)->params()->deta()
     //	            << "\tphi=" << phi  // << " +- " << (*trackitr)->params()->dphi()
-    //	            << "\tz0="  << z0 
+    //              << "\tz0="  << z0 
     //              << "\tpT="  << pT // << "\t( " << 1/qoverp << ")"
     //              << "\td0="  << d0
     //              << "\tauthor=" << author
@@ -982,7 +1028,6 @@ void  TrigTrackSelector::selectTracks( const TrackCollection* trigtracks ) {
 #ifdef XAODTRACKING_TRACKPARTICLE_H
 
 bool TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
-     
     // do the track extraction stuff here....
 
     //    static int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
