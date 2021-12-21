@@ -121,6 +121,14 @@ if ( True ) :
   if 'ptmin' in dir():
      TestMonTool.pTCutOffline = ptmin
 
+
+  if 'pdgid' in dir():
+     TestMonTool.SelectTruthPdgId=pdgid
+ 
+  if 'parentpdgid' in dir():
+     TestMonTool.SelectParentTruthPdgId=parentpdgid
+
+
   TestMonTool.KeepAllEvents = False
   # TestMonTool.TrigConfigTool = "TrigConf::xAODConfigTool"
   TestMonTool.ntupleChainNames += [
