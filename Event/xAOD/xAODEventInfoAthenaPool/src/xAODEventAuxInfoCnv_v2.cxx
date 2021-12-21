@@ -2,23 +2,13 @@
 
 // Local include(s).
 #include "xAODEventAuxInfoCnv_v2.h"
+#include "MessageMacros.h"
 
 // Core EDM include(s):
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 
 // System include(s).
 #include <stdexcept>
-
-/// Convenience macro for setting the level of output messages
-#define MSGLVL MSG::DEBUG
-
-/// Another convenience macro for printing messages in the converter
-#define ATH_MSG( MSG )                          \
-   do {                                         \
-      if( log.level() <= MSGLVL ) {             \
-         log << MSGLVL << MSG << endmsg;        \
-      }                                         \
-   } while( 0 )
 
 void xAODEventAuxInfoCnv_v2::persToTrans( const xAOD::EventAuxInfo_v2* oldObj,
                                           xAOD::EventAuxInfo* newObj,

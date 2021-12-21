@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -73,13 +73,13 @@ TVector3 AFPLocalToGlobalCSTool::localToGlobalCS(const double localX, const doub
   const HepGeom::Point3D<double> localPoint (localX, localY, localZ);
   HepGeom::Point3D<double> globalPoint;
 
-  if (m_geometry->GetPointInSIDSensorGlobalCS(stationID, 0, localPoint, globalPoint).isSuccess()) {
+  if (m_geometry->getPointInSIDSensorGlobalCS(stationID, 0, localPoint, globalPoint).isSuccess()) {
     // if transformation was successful return new coordinates corrected for the offset
     return TVector3(globalPoint.x() + m_xCorrection[stationID], globalPoint.y(), globalPoint.z());
   }
   else {
     // if transformation failed print warning message and return local position
-    ATH_MSG_WARNING ("Error occurred when calling m_geometry->GetPointInSIDSensorGlobalCS(). Returning local coordinates.");
+    ATH_MSG_WARNING ("Error occurred when calling m_geometry->getPointInSIDSensorGlobalCS(). Returning local coordinates.");
     return TVector3(localX, localY, localZ);
   }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_GeoModel/AFP_GeoModelManager.h"
@@ -24,6 +24,7 @@ PVConstLink AFP_GeoModelManager::getTreeTop(unsigned int i) const
   return volume[i];
 }
 
-void  AFP_GeoModelManager::addTreeTop(PVLink vol){
+void  AFP_GeoModelManager::addTreeTop(PVLink vol)
+{
   volume.push_back(vol);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -21,6 +21,7 @@
 #include "G4ReflectedSolid.hh"
 #include "G4Material.hh"
 #include "G4MaterialPropertyVector.hh"
+#include "AFP_Geometry/AFP_constants.h"
 
 // STL header
 #include <sstream>
@@ -39,11 +40,12 @@ AFP_SiDSensitiveDetector::AFP_SiDSensitiveDetector(const std::string& name, cons
   , m_delta_pixel_y(0.250)
   , m_HitColl(hitCollectionName)
 {
+  AFP_CONSTANTS AfpConstants;
   for( int i=0; i < 4; i++){
     m_nNOfSIDSimHits[i] = 0;
     for( int j=0; j < 10; j++){
-      m_death_edge[i][j] = SID_DEATH_EDGE; //in mm, it is left edge as the movement is horizontal
-      m_lower_edge[i][j] = SID_LOWER_EDGE; //in mm,
+      m_death_edge[i][j] = AfpConstants.SiT_DeathEdge; //in mm, it is left edge as the movement is horizontal
+      m_lower_edge[i][j] = AfpConstants.SiT_LowerEdge; //in mm,
     }
   }
 }

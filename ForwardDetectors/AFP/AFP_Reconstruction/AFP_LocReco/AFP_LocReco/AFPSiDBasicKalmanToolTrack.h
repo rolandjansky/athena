@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file   AFPSiDBasicKalmanToolTrack.h
@@ -45,11 +45,7 @@ public:
   /// positions slopes multiplied by the z distance i.e. secondPos - firstPos.
   /// @f[
   /// \left(
-  /// \begin{array}{cccc}
-  /// 1 & \Delta z & 0 & 0 \\       
-  /// 0 & 1 & 0 & 0 \\      
-  /// 0 & 0 & 1 & \Delta z \\     
-  /// 0 & 0 & 0 & 1
+  /// \begin{array}{cccc} 1 & \Delta z & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & \Delta z \\ 0 & 0 & 0 & 1
   /// \end{array}
   /// \right)
   /// @f]

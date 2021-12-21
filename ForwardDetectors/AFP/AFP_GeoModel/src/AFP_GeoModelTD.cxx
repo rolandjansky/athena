@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "AFP_GeoModel/AFP_GeoModelFactory.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
@@ -44,7 +43,7 @@
 
 #include <stdlib.h>
 
-void AFP_GeoModelFactory::InitializeTDParameters()
+void AFP_GeoModelFactory::initializeTDParameters()
 {
     // Surface definition (preliminary)
     m_pOpticalSurface = new GeoOpticalSurface("TDQuarticOpticalSurface", GeoOpticalSurface::unified, GeoOpticalSurface::polished, GeoOpticalSurface::dielectric_dielectric, GeoOpticalSurface::polished);
@@ -57,427 +56,187 @@ void AFP_GeoModelFactory::InitializeTDParameters()
     m_pReflectionOptSurface->SetMaterialPropertiesTable(pMPT);
 }
 
-StatusCode AFP_GeoModelFactory::AddTimingDetector(const char* pszStationName, GeoOpticalPhysVol* pPhysMotherVol, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
+StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, GeoOpticalPhysVol* pPhysMotherVol, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
 {
-    int i,j,k;
-    double fXShift,fZShift;
-    AFP_LQBARDIMENSIONS LQBarDims, MainLQBarDims;
-    HepGeom::Transform3D TotTransform;
+	int i,j,nPixelID;
+	double fXShift,fYShift,fZShift;
 
-    MainLQBarDims=m_CfgParams.tdcfg.MainLQBarDims;
-    int nTrainsCnt=m_CfgParams.tdcfg.nRowsCnt;
-    int nColsCnt=m_CfgParams.tdcfg.nColsCnt;
-	int nLQBarID=-1;
+	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
+    
+	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
+	AFPTOF_LBARDIMENSIONS BarDims11=TofCfg.mapBarDims[11];
+	fXShift=-73.5*CLHEP::mm; 
+	fYShift=(BarDims11.fRadLength+TofCfg.mapTrainInfo[BarDims11.nTrainID].fPerpShiftInPixel-0.5*(BarDims11.fLGuideWidth-TofCfg.mapTrainInfo[BarDims11.nTrainID].fTaperOffset)-0.5*BarDims11.fLBarThickness/tan(TofCfg.fAlpha))*sin(TofCfg.fAlpha);
+	fZShift=std::abs(fYShift)/tan(TofCfg.fAlpha)+0.5*BarDims11.fLBarThickness/sin(TofCfg.fAlpha);
+    
+	HepGeom::Transform3D TofTransform=TransInMotherVolume*HepGeom::Translate3D(fXShift,fYShift,fZShift)*HepGeom::RotateX3D((90.0*CLHEP::deg-TofCfg.fAlpha))*HepGeom::RotateZ3D(-90.0*CLHEP::deg);
 
-    for(i=0;i<nTrainsCnt;i++)
-    {
-        for(j=0;j<nColsCnt;j++)
-        {
-			nLQBarID=nColsCnt*i+j;
-            fXShift=0.0*CLHEP::mm;
-            GetLQBarDimensions(i,j,&LQBarDims);
+	for(i=0;i<m_CfgParams.tdcfg[eStation].nX1PixCnt;i++)
+	{
+		for(j=0;j<m_CfgParams.tdcfg[eStation].nX2PixCnt;j++)
+		{
+			nPixelID=10*(i+1)+(j+1);
+			addSepRadLBar(pszStationName,1,nPixelID,pPhysMotherVol,TofTransform,bsContainer);
+		}
+	}
 
-            for(k=0;k<i;k++) fXShift+=(m_CfgParams.tdcfg.vecBarXDim[k]+m_CfgParams.tdcfg.fVertXGap);
-            fZShift=(MainLQBarDims.fAlpha>0.0)? j*(MainLQBarDims.fLBarZDim/sin(MainLQBarDims.fAlpha)+m_CfgParams.tdcfg.fVertZGap):0.0*CLHEP::mm;
-
-            TotTransform=TransInMotherVolume*HepGeom::Translate3D(-0.5*LQBarDims.fVertBarXDim-fXShift,LQBarDims.fOffsetFromBeam,fZShift);
-			AddLQBarSegment(pszStationName,0,nLQBarID,LQBarDims,pPhysMotherVol,TotTransform,bsContainer);
-
-            TotTransform=TotTransform*HepGeom::Reflect3D(0.0,1.0,0.0,0.0);
-			AddLQBarSegment(pszStationName,1,nLQBarID,LQBarDims,pPhysMotherVol,TotTransform,bsContainer);
-        }
-    }
-
+	addSensor(pszStationName,1,pPhysMotherVol,TofTransform,bsContainer);
 
     return StatusCode::SUCCESS;
 }
 
-void AFP_GeoModelFactory::AddLQBarSegment(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol *pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
+void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQuarticID, const int nBarID, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
 {
-    switch(LQBarDims.eType)
-    {
-    case ELBT_REGULAR:
-    case ELBT_HYBRID:
-    case ELBT_MIKELBAR:
-        //AddLBar(nLBarID,LQBarDims,pPhysMotherVolume,TransInMotherVolume);
-        break;
-    case ELBT_METALELBOW:
-    case ELBT_AIRGUIDE:
-    case ELBT_HYBRIDMETALELBOW:
-        AddSepRadLBar(pszStationName, nQuarticID, nLQBarID,LQBarDims,pPhysMotherVolume,TransInMotherVolume,bsContainer);
-        break;
-    case ELBT_ONEARM:
-        //AddOneArmLBar(nLBarID,LQBarDims,pPhysMotherVolume,TransInMotherVolume);
-        break;
-    case ELBT_ONEARMAIRGUIDE:
-        //AddSepRadOneArmLBar(nLBarID,LQBarDims,pPhysMotherVolume,TransInMotherVolume);
-        break;
-    default:
-        break;
-    }
+	double fX1Pos,fX2Pos,falpha,fd;
+	HepGeom::Vector3D<double> vecA1, vecA2, vecX;
+	CLHEP::Hep3Vector vecCutShift;
+	HepGeom::Transform3D TransCut;
+	GeoShapeShift* pMoveCut;
+	GeoBox* pSolAux;
+	char szlabel[64];
+
+	CLHEP::HepRotation Rot1,Rot2,Rot3;
+
+	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
+	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
+	AFPTOF_LBARDIMENSIONS BarDims=TofCfg.mapBarDims[nBarID];
+
+	double fTaperOffset=TofCfg.mapTrainInfo[BarDims.nTrainID].fTaperOffset;
+	m_pGeometry->getPixelLocalPosition(eStation,nBarID,&fX1Pos,&fX2Pos);
+
+	fX1Pos+=TofCfg.mapTrainInfo[BarDims.nTrainID].fPerpShiftInPixel;
+
+    
+	//Light guide
+	HepGeom::Transform3D TotTransform=TransInMotherVolume*HepGeom::Translate3D( fX1Pos,
+                                                                                0.5*BarDims.fLGuideLength,
+                                                                                fX2Pos);
+	GeoShape* pSolVolume=new GeoBox(0.5*BarDims.fLGuideWidth,0.5*BarDims.fLGuideLength,0.5*BarDims.fLBarThickness);
+
+	if(TofCfg.mapTrainInfo[BarDims.nTrainID].bUseTaper)
+	{
+		falpha=TofCfg.mapTrainInfo[BarDims.nTrainID].fTaperAngle;
+		fd=fTaperOffset/sin(falpha);
+		vecA1=-fd*cos(falpha)*CLHEP::Hep3Vector(0.0,1.0,0.0);
+		vecA2=+0.5*fd*sqrt(2.0)*(CLHEP::HepRotationZ(+(45*CLHEP::deg-falpha))*CLHEP::Hep3Vector(0.0,1.0,0.0)).unit();
+		vecX=vecA1+vecA2;
+		vecCutShift=CLHEP::Hep3Vector(-0.5*BarDims.fLGuideWidth,0.5*BarDims.fLGuideLength,0.0)+CLHEP::Hep3Vector(vecX);
+		Rot1.rotateZ(-falpha);
+
+		pSolAux=new GeoBox(0.5*fd,0.5*fd,0.5*BarDims.fLBarThickness+SLIMCUT);
+		TransCut=HepGeom::Transform3D(Rot1,vecCutShift);
+		pMoveCut=new GeoShapeShift(pSolAux, TransCut);
+		pSolVolume=new GeoShapeSubtraction(pSolVolume, pMoveCut);
+	}
+
+	sprintf(szlabel,"%s_Q%i_LogLGuide[%i]",pszStationName,nQuarticID,nBarID);
+	GeoLogVol* pLogLGuide=new GeoLogVol(szlabel,pSolVolume,m_MapMaterials[std::string("Quartz")]);
+	GeoOpticalPhysVol* pPhysLGuide=new GeoOpticalPhysVol(pLogLGuide);
+	sprintf(szlabel,"%s_Q%i_LGuide[%i]",pszStationName,nQuarticID,nBarID);
+	pPhysMotherVolume->add(new GeoNameTag(szlabel));
+	pPhysMotherVolume->add(new GeoTransform(TotTransform));
+	pPhysMotherVolume->add(pPhysLGuide);
+	sprintf(szlabel,"%s_Q%i_LGuideSurface[%i]",pszStationName,nQuarticID,nBarID);
+	bsContainer->push_back(GeoBorderSurface(szlabel, pPhysLGuide, pPhysMotherVolume, m_pOpticalSurface));
+
+	//Radiator elbow
+	double fRadYDim=BarDims.fRadYDim;
+	double fElbowXDim=BarDims.fRadYDim;
+	TotTransform=TransInMotherVolume*HepGeom::Translate3D(  fX1Pos-0.5*BarDims.fLGuideWidth+0.5*fElbowXDim+fTaperOffset,
+                                                            BarDims.fLGuideLength+0.5*fRadYDim,
+                                                            fX2Pos);
+	pSolVolume=new GeoBox(0.5*fElbowXDim,0.5*fRadYDim,0.5*BarDims.fLBarThickness);
+
+	falpha=45.0*CLHEP::deg;
+	fd=fRadYDim/sin(falpha);//sqrt(2.0)*fRadYDim;
+	vecA1=-fd*cos(falpha)*CLHEP::Hep3Vector(0.0,1.0,0.0);
+	vecA2=+0.5*fd*sqrt(2.0)*(CLHEP::HepRotationZ(+(45*CLHEP::deg-falpha))*CLHEP::Hep3Vector(0.0,1.0,0.0)).unit();
+	vecX=vecA1+vecA2;
+	vecCutShift=CLHEP::Hep3Vector(-0.5*fElbowXDim,0.5*fRadYDim,0.0)+CLHEP::Hep3Vector(vecX);
+	Rot2.rotateZ(-falpha);
+
+	pSolAux=new GeoBox(0.5*fd,0.5*fd,0.5*BarDims.fLBarThickness+SLIMCUT);
+	TransCut=HepGeom::Transform3D(Rot2,vecCutShift);
+	pMoveCut=new GeoShapeShift(pSolAux, TransCut);
+	pSolVolume=new GeoShapeSubtraction(pSolVolume, pMoveCut);
+
+	sprintf(szlabel,"%s_Q%i_LogRadiator[%i]",pszStationName,nQuarticID,nBarID);
+	GeoLogVol* pLogRadiator=new GeoLogVol(szlabel,pSolVolume,m_MapMaterials[std::string("Quartz")]);
+	GeoOpticalPhysVol* pPhysRadiator=new GeoOpticalPhysVol(pLogRadiator);
+	sprintf(szlabel,"%s_Q%i_Radiator[%i]",pszStationName,nQuarticID,nBarID);
+	pPhysMotherVolume->add(new GeoNameTag(szlabel));
+	pPhysMotherVolume->add(new GeoTransform(TotTransform));
+	pPhysMotherVolume->add(pPhysRadiator);
+	sprintf(szlabel,"%s_Q%i_RadiatorElbowSurface[%i]",pszStationName,nQuarticID,nBarID);
+	bsContainer->push_back(GeoBorderSurface(szlabel, pPhysRadiator, pPhysMotherVolume, m_pReflectionOptSurface));
+
+	//Radiator
+	double fRadLength=BarDims.fRadLength-(BarDims.fLGuideWidth-fTaperOffset);
+	TotTransform=TransInMotherVolume*HepGeom::Translate3D(  fX1Pos-0.5*BarDims.fLGuideWidth+fElbowXDim+fTaperOffset+0.5*fRadLength,
+                                                            BarDims.fLGuideLength+0.5*fRadYDim,
+                                                            fX2Pos);
+	pSolVolume=new GeoBox(0.5*fRadLength,0.5*fRadYDim,0.5*BarDims.fLBarThickness);
+    
+	if(TofCfg.bApplyBottomCut){
+		falpha = TofCfg.fAlpha;
+		fd = BarDims.fLBarThickness/sin(falpha);
+		vecA1 = -fd*cos(falpha)*CLHEP::Hep3Vector(1.0,0.0,0.0);
+		vecA2 = 0.5*fd*sqrt(2.0)*(CLHEP::HepRotationY(-(45*CLHEP::deg-falpha))*CLHEP::Hep3Vector(1.0,0.0,0.0)).unit();
+		vecX = vecA1 + vecA2;
+		vecCutShift = CLHEP::Hep3Vector(0.5*fRadLength,0.0,0.5*BarDims.fLBarThickness) + CLHEP::Hep3Vector(vecX);
+		Rot3.rotateY(falpha);
+
+		pSolAux=new GeoBox(0.5*fd,0.5*fRadYDim+SLIMCUT,0.5*fd);
+		TransCut=HepGeom::Transform3D(Rot3,vecCutShift);
+		pMoveCut=new GeoShapeShift(pSolAux, TransCut);
+		pSolVolume=new GeoShapeSubtraction(pSolVolume, pMoveCut);
+	}
+
+	sprintf(szlabel,"%s_Q%i_LogRadiator[%i]",pszStationName,nQuarticID,nBarID);
+	pLogRadiator=new GeoLogVol(szlabel,pSolVolume,m_MapMaterials[std::string("Quartz")]);
+	pPhysRadiator=new GeoOpticalPhysVol(pLogRadiator);
+	sprintf(szlabel,"%s_Q%i_Radiator[%i]",pszStationName,nQuarticID,nBarID);
+	pPhysMotherVolume->add(new GeoNameTag(szlabel));
+	pPhysMotherVolume->add(new GeoTransform(TotTransform));
+	pPhysMotherVolume->add(pPhysRadiator);
+	sprintf(szlabel,"%s_Q%i_RadiatorSurface[%i]",pszStationName,nQuarticID,nBarID);
+	bsContainer->push_back(GeoBorderSurface(szlabel, pPhysRadiator, pPhysMotherVolume, m_pOpticalSurface));
 }
 
-//row=train, column=position along z-axis
-void AFP_GeoModelFactory::GetLQBarDimensions(const int nRowID, const int nColID, PAFP_LQBARDIMENSIONS pLQBarDims)
+void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuarticID, GeoOpticalPhysVol* pPhysMotherVolume,
+									HepGeom::Transform3D &TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
 {
-    int i;
-    double fAux=0.0;
-    AFP_LQBARDIMENSIONS MainLQBarDims=m_CfgParams.tdcfg.MainLQBarDims;
-    memcpy(pLQBarDims,&m_CfgParams.tdcfg.MainLQBarDims,sizeof(AFP_LQBARDIMENSIONS));
+	int i,j,nPixelID;
+	char szlabel[64];
+	double fX1Pos, fX2Pos;
+	HepGeom::Transform3D TotTransform;
 
-    double falpha=MainLQBarDims.fAlpha;
-    pLQBarDims->fVertBarXDim=m_CfgParams.tdcfg.vecBarXDim[nRowID];
+	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
+	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
+	double fSensor2BarDistance=(TofCfg.bEmulateImmersion)? 0.0:m_AfpConstants.ToF_Sensor2BarDist;
 
-    pLQBarDims->fVertBarYDim=MainLQBarDims.fVertBarYDim-(nColID*(MainLQBarDims.fLBarZDim+m_CfgParams.tdcfg.fVertZGap*sin(falpha))/tan(falpha));
-    pLQBarDims->fVertBarYDim-=nRowID*(MainLQBarDims.fHorzBarYDim+m_CfgParams.tdcfg.fHorzYGap);
-    for(i=0;i<nRowID;i++)fAux+=(m_CfgParams.tdcfg.vecBarXDim[i]+m_CfgParams.tdcfg.fVertXGap);
-    pLQBarDims->fHorzBarXDim=MainLQBarDims.fHorzBarXDim+MainLQBarDims.fVertBarXDim-fAux-pLQBarDims->fVertBarXDim;
+	GeoBox* pSolSensor=new GeoBox(0.5*TofCfg.fPixelX1Dim,0.5*m_AfpConstants.ToF_SensorThickness,0.5*TofCfg.fPixelX2Dim);
 
-    if(MainLQBarDims.eType==ELBT_METALELBOW || MainLQBarDims.eType==ELBT_HYBRIDMETALELBOW)
-    {
-        pLQBarDims->fRadiatorLength=pLQBarDims->fVertBarYDim-pLQBarDims->fVertBarXDim;
-    }
+	for(i=0;i<TofCfg.nX1PixCnt;i++)
+	{
+		for(j=0;j<TofCfg.nX2PixCnt;j++)
+		{
+			nPixelID=10*(i+1)+(j+1);
+            m_pGeometry->getPixelLocalPosition(eStation,nPixelID,&fX1Pos,&fX2Pos);
 
-}
 
-HepGeom::Vector3D<double> AFP_GeoModelFactory::GetBarShift(AFP_LQBARDIMENSIONS& LQBarDims, eLQBarType eSpecType)
-{
-    //calculate auxilliary parameters for position
-    double fz1=0.0,fz2=0.0,fy1=0.0,fy2=0.0,fyd,fzd,falpha;
-    double fXShift,fYShift,fZShift;
-    falpha=LQBarDims.fAlpha;
+                        sprintf(szlabel,"%s_Q%i_LogTDSensor[%i]",pszStationName,nQuarticID,nPixelID);
+			TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos,-0.5*m_AfpConstants.ToF_SensorThickness-fSensor2BarDistance,fX2Pos);
+			GeoLogVol* pLogSensor=new GeoLogVol(szlabel,pSolSensor,m_MapMaterials["SiliconPMT"]);
+			GeoOpticalPhysVol* pPhysSensor=new GeoOpticalPhysVol(pLogSensor);
+                        sprintf(szlabel,"%s_Q%i_TDSensor[%i]",pszStationName,nQuarticID,nPixelID);
+			pPhysMotherVolume->add(new GeoNameTag(szlabel));
+			pPhysMotherVolume->add(new GeoTransform(TotTransform));
+			pPhysMotherVolume->add(pPhysSensor);
+			sprintf(szlabel,"%s_Q%i_SensorSurface[%i]",pszStationName,nQuarticID,nPixelID);
+			bsContainer->push_back(GeoBorderSurface(szlabel, pPhysSensor, pPhysMotherVolume, m_pOpticalSurface));
 
-    fyd=LQBarDims.fVertBarYDim;
-    fzd=LQBarDims.fLBarZDim;
-
-    eLQBarType eLBType=(eSpecType==ELBT_UNDEFINED)? LQBarDims.eType:eSpecType;
-
-    switch(eLBType){
-    case ELBT_REGULAR:
-    case ELBT_HYBRID:
-    case ELBT_ONEARM:
-        fy1=0.5*fzd/tan(falpha);
-        fy2=0.5*fyd-fy1;
-        fz1=0.5*fzd/sin(falpha);
-        fz2=fy2*cos(falpha);
-        break;
-    case ELBT_MIKELBAR:
-        fy1=0.0*CLHEP::mm;
-        fy2=0.5*fyd;
-        fz1=0.0*CLHEP::mm;
-        fz2=fy2*cos(falpha);
-        break;
-    case ELBT_METALELBOW:
-    case ELBT_HYBRIDMETALELBOW:
-        fy1=0.5*fzd/tan(falpha);
-        fy2=0.5*fyd+0.5*LQBarDims.fRadiatorLength-fy1;
-        fz1=0.5*fzd/sin(falpha);
-        fz2=fy2*cos(falpha);
-        break;
-    case ELBT_ONEARMAIRGUIDE:
-    case ELBT_AIRGUIDE:
-        fy1=0.5*fzd/tan(falpha);
-        fy2=0.5*fyd+0.5*LQBarDims.fRadiatorLength-fy1;
-        fz1=0.5*fzd/sin(falpha);
-        fz2=fy2*cos(falpha);
-        break;
-    default:
-        fy2=0.0*CLHEP::mm;
-    }
-
-    fXShift=0.0*CLHEP::mm;//0.5*LQBarDims.fVertBarXDim;
-    fYShift=fy2*sin(falpha)+((LQBarDims.eType==ELBT_MIKELBAR)? 0.5*LQBarDims.fLBarZDim:0.0*CLHEP::mm);
-    fZShift=fz1+fz2;
-
-    return HepGeom::Vector3D<double>(fXShift,fYShift,fZShift);
-}
-
-void AFP_GeoModelFactory::AddSepRadLBar(const char* pszStationName, const int nQuarticID, const int nLQBarID,AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
-{
-    //G4LogicalVolume* pLogMotherVolume=pPhysMotherVolume->GetLogicalVolume();
-
-    double fd,falpha;
-    const double fslimcut=TD_SLIMCUT;
-    CLHEP::Hep3Vector vecCutShift;
-    CLHEP::HepRotation Rot;
-    GeoBox* pSolAux;
-    char szLabel[64];
-    //G4LogicalBorderSurface* pSurface; --TODO
-    std::string VertBarMaterial;
-
-    if(LQBarDims.eType==ELBT_AIRGUIDE){
-        VertBarMaterial="OpticalVacuum";
-    }
-    else if(LQBarDims.eType==ELBT_METALELBOW){
-        VertBarMaterial="Quartz";
-    }
-    else if(LQBarDims.eType==ELBT_HYBRIDMETALELBOW){
-        VertBarMaterial="Quartz";
-    }
-
-    falpha=LQBarDims.fAlpha;
-    HepGeom::Vector3D<double> BarShift=GetBarShift(LQBarDims);
-    HepGeom::Transform3D LQBarTotTransform=TransInMotherVolume*HepGeom::Translate3D(BarShift)*HepGeom::RotateX3D((90.0*CLHEP::deg-falpha));
-    //HepGeom::Transform3D LQBarTotTransform=TransInMotherVolume;
-
-    //G4OpticalSurface* pOptSurface=CreateReflectionOptSurface(); --TODO
-
-    //vertical bar ------------------------------------------------------------------------------------
-    double fVertAirYDim=LQBarDims.fVertBarYDim-LQBarDims.fRadiatorLength;
-    GeoBox* pSolVertBar1=new GeoBox(0.5*LQBarDims.fVertBarXDim,0.5*fVertAirYDim,0.5*LQBarDims.fLBarZDim);
-
-    //upper cut
-    GeoShape* pSolVertBar=NULL;
-    if(LQBarDims.bIs45degElbow){
-        fd=LQBarDims.fVertBarXDim/sin(45.0*CLHEP::deg); //cut box dim
-        Rot=CLHEP::HepRotation(); Rot.rotateZ(45.0*CLHEP::deg);
-        vecCutShift=HepGeom::Vector3D<double>(0.5*LQBarDims.fVertBarXDim,0.5*fVertAirYDim,0.0*CLHEP::mm);
-        pSolAux=new GeoBox(0.5*fd+fslimcut,0.5*fd+fslimcut,0.5*LQBarDims.fLBarZDim+fslimcut);
-
-        HepGeom::Transform3D TransCutWnd=HepGeom::Transform3D(Rot,vecCutShift);
-        GeoShapeShift* pMoveCutWnd=new GeoShapeShift(pSolAux, TransCutWnd);
-        GeoShapeSubtraction* pSolVertBar2=new GeoShapeSubtraction(pSolVertBar1, pMoveCutWnd);
-        //G4SubtractionSolid* pSolVertBar2=new G4SubtractionSolid("SolVertBar2",pSolVertBar1,pSolAux,pRot,vecCutShift);
-
-        pSolVertBar=pSolVertBar2;
-    }
-    else{
-        pSolVertBar=pSolVertBar1;
-    }
-
-    sprintf(szLabel,"%s_Q%i_LogVertBar[%i]",pszStationName,nQuarticID,nLQBarID);
-    GeoLogVol* pLogVertBar=new GeoLogVol(szLabel,pSolVertBar,m_MapMaterials[std::string(VertBarMaterial)]);
-    GeoOpticalPhysVol* pPhysVertBar=new GeoOpticalPhysVol(pLogVertBar);
-    sprintf(szLabel,"%s_Q%i_VertBar[%i]",pszStationName,nQuarticID,nLQBarID);
-    pPhysMotherVolume->add(new GeoNameTag(szLabel));
-    pPhysMotherVolume->add(new GeoTransform(LQBarTotTransform));
-    pPhysMotherVolume->add(pPhysVertBar);
-    sprintf(szLabel,"%s_Q%i_VertAirLightGuideSurface[%i]",pszStationName,nQuarticID,nLQBarID);
-    bsContainer->push_back(GeoBorderSurface(szLabel, pPhysVertBar, pPhysMotherVolume, m_pReflectionOptSurface));
-    //G4LogicalVolume* pLogVertBar=new G4LogicalVolume(pSolVertBar,G4Material::GetMaterial(VertBarMaterial),"LogVertBar",NULL,0,0);
-    //pLogVertBar->SetVisAttributes(pVertVisAttr);
-    //G4VPhysicalVolume* pPhysVertBar=new G4PVPlacement(LBarTotTransform,pLogVertBar,"VertBar",pLogMotherVolume,false,0);
-    //pSurface=new G4LogicalBorderSurface("VertAirGuideSurface",pPhysVertBar,pPhysMotherVolume,pOptSurface);
-
-    //radiator ------------------------------------------------------------------------------------
-    GeoBox* pSolRadiator1=new GeoBox(0.5*LQBarDims.fVertBarXDim,0.5*LQBarDims.fRadiatorLength,0.5*LQBarDims.fLBarZDim);
-
-    //bottom cut
-    GeoShape* pSolRadiator=NULL;
-    if(LQBarDims.bApplyBottomCut)
-    {
-        fd=LQBarDims.fLBarZDim/sin(falpha); //cut box dim
-        HepGeom::Vector3D<double> vecA4=-LQBarDims.fLBarZDim*HepGeom::Vector3D<double>(0.0,0.0,1.0);
-        HepGeom::Vector3D<double> vecA5=fd/sqrt(2)*(HepGeom::RotateX3D(-(45.0*CLHEP::deg-falpha))*HepGeom::Vector3D<double>(0.0,0.0,1.0)).unit();
-        HepGeom::Vector3D<double> vecX=vecA4+vecA5;
-        vecCutShift=CLHEP::Hep3Vector(0.0*CLHEP::mm,-0.5*LQBarDims.fRadiatorLength,0.5*LQBarDims.fLBarZDim)+CLHEP::Hep3Vector(vecX);
-
-        Rot=CLHEP::HepRotation(); Rot.rotateX(-(90.0*CLHEP::deg-falpha));
-        pSolAux=new GeoBox(0.5*LQBarDims.fVertBarXDim+fslimcut,0.5*fd+fslimcut,0.5*fd+fslimcut);
-
-        HepGeom::Transform3D TransCutWnd=HepGeom::Transform3D(Rot,vecCutShift);
-        GeoShapeShift* pMoveCutWnd=new GeoShapeShift(pSolAux, TransCutWnd);
-        GeoShapeSubtraction* pSolRadiator2=new GeoShapeSubtraction(pSolRadiator1, pMoveCutWnd);
-        //G4SubtractionSolid* pSolRadiator2=new G4SubtractionSolid("SolRadiator2",pSolRadiator1,pSolAux,pRot,vecCutShift);
-
-        //        GeoLogVol* pAuxLog=new GeoLogVol("Aux",pSolAux,m_MapMaterials[std::string("Quartz")]);
-        //        GeoPhysVol* pAuxPhys=new GeoPhysVol(pAuxLog);
-        //        pPhysMotherVolume->add(new GeoNameTag("Aux"));
-        //        pPhysMotherVolume->add(new GeoTransform(LQBarTotTransform*HepGeom::TranslateY3D(-0.5*LQBarDims.fVertBarYDim)*TransCutWnd));
-        //        pPhysMotherVolume->add(pAuxPhys);
-
-        pSolRadiator=pSolRadiator2;
-    }
-    else
-    {
-        pSolRadiator=pSolRadiator1;
-    }
-
-    HepGeom::Transform3D TransRadiator2VertBar=HepGeom::TranslateY3D(-0.5*LQBarDims.fVertBarYDim);
-    sprintf(szLabel,"%s_Q%i_LogRadiator[%i]",pszStationName,nQuarticID,nLQBarID);
-    GeoLogVol* pLogRadiator=new GeoLogVol(szLabel,pSolRadiator,m_MapMaterials[std::string("Quartz")]);
-    GeoPhysVol* pPhysRadiator=new GeoPhysVol(pLogRadiator);
-    sprintf(szLabel,"%s_Q%i_Radiator[%i]",pszStationName,nQuarticID,nLQBarID);
-    pPhysMotherVolume->add(new GeoNameTag(szLabel));
-    pPhysMotherVolume->add(new GeoTransform(LQBarTotTransform*TransRadiator2VertBar));
-    pPhysMotherVolume->add(pPhysRadiator);
-    sprintf(szLabel,"%s_Q%i_RadiatorSurface[%i]",pszStationName,nQuarticID,nLQBarID);
-    bsContainer->push_back(GeoBorderSurface(szLabel, pPhysVertBar, pPhysMotherVolume, m_pOpticalSurface));
-    //G4Transform3D TransRadiator2VertBar=G4TranslateY3D(-0.5*LQBarDims.fVertBarYDim);
-    //G4LogicalVolume* pLogRadiator=new G4LogicalVolume(pSolRadiator,G4Material::GetMaterial("Quartz"),"LogRadiator",NULL,0,0);
-    //pLogRadiator->SetVisAttributes(m_pVisAttQuartz);
-    //G4VPhysicalVolume* pPhysRadiator=new G4PVPlacement(LBarTotTransform*TransRadiator2VertBar,pLogRadiator,"Radiator",pLogMotherVolume,false,0);
-
-    //horizontal bar ------------------------------------------------------------------------------------
-    HepGeom::Transform3D HorzArmPartialTransform=LQBarTotTransform*HepGeom::TranslateY3D(0.5*fVertAirYDim-0.5*LQBarDims.fHorzBarYDim+LQBarDims.fHorzBarExtYOffset);
-    AddHorizontalArm(pszStationName,nQuarticID,nLQBarID,LQBarDims,pPhysMotherVolume,HorzArmPartialTransform,bsContainer);
-
-    //sensor --------------------------------------------------------------------------------------------
-    HepGeom::Transform3D TransTotSensor=LQBarTotTransform*HepGeom::Translate3D(-0.5*TD_SENSORTHICKNESS-LQBarDims.fHorzBarXDim-0.5*LQBarDims.fVertBarXDim,0.5*fVertAirYDim-0.5*LQBarDims.fHorzBarYDim+LQBarDims.fHorzBarExtYOffset,0.0*CLHEP::mm);
-    AddSensor(pszStationName,nQuarticID,nLQBarID,LQBarDims,pPhysMotherVolume,TransTotSensor);
-}
-
-void AFP_GeoModelFactory::AddHorizontalArm(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& PartialTransInMotherVolume, GeoBorderSurfaceContainer* bsContainer)
-{
-    const double fslimcut=TD_SLIMCUT;
-    char szLabel[64];
-
-    std::string HorzBarMaterial;
-    switch(LQBarDims.eType)
-    {
-    case ELBT_REGULAR:
-    case ELBT_MIKELBAR:
-    case ELBT_METALELBOW:
-        HorzBarMaterial="Quartz";
-        break;
-    case ELBT_AIRGUIDE:
-    case ELBT_HYBRID:
-    case ELBT_HYBRIDMETALELBOW:
-        HorzBarMaterial="OpticalVacuum";
-        break;
-    default:
-        break;
-    }
-
-    bool bAddSepPart=false;
-    double fTaperPartXDim=0.0*CLHEP::mm;
-    GeoShape* pSolHorzBar=NULL;
-    GeoBox* pSolHorzBar1=NULL, *pSolHorzBar2=NULL;
-
-    if((LQBarDims.eType==ELBT_HYBRID || LQBarDims.eType==ELBT_HYBRIDMETALELBOW) && LQBarDims.bSepHorzBarInTaper)
-    {
-        if(LQBarDims.fHorzBarTaperAngle>0.0 && LQBarDims.fHorzBarExtYOffset>0.0)
-            fTaperPartXDim=LQBarDims.fHorzBarExtYOffset/tan(LQBarDims.fHorzBarTaperAngle)+LQBarDims.fHorzBarXTaperOffset;
-        else fTaperPartXDim=LQBarDims.fHorzBarXTaperOffset;
-
-        //if(LQBarDims.fHorzBarXDim-fTaperPartXDim<0) throw G4Exception("CMyDetectorConstruction::AddHorizontalArm","",RunMustBeAborted,"Cannot create taper, insufficient length of horizontal arm");
-
-        pSolHorzBar1=new GeoBox(0.5*fTaperPartXDim,0.5*LQBarDims.fHorzBarYDim,0.5*LQBarDims.fLBarZDim);
-        pSolHorzBar2=new GeoBox(0.5*(LQBarDims.fHorzBarXDim-fTaperPartXDim),0.5*LQBarDims.fHorzBarYDim,0.5*LQBarDims.fLBarZDim);
-        bAddSepPart=true;
-    }
-    else
-    {
-        pSolHorzBar1=new GeoBox(0.5*LQBarDims.fHorzBarXDim,0.5*LQBarDims.fHorzBarYDim,0.5*LQBarDims.fLBarZDim);
-    }
-
-    if(LQBarDims.fHorzBarTaperAngle>0.0 && LQBarDims.fHorzBarExtYOffset>0.0)
-    {
-        double falpha=LQBarDims.fHorzBarTaperAngle;
-        double fd=LQBarDims.fHorzBarExtYOffset/sin(falpha);
-        HepGeom::Vector3D<double> vecA1=-fd*cos(falpha)*HepGeom::Vector3D<double>(1.0,0.0,0.0);
-        HepGeom::Vector3D<double> vecA2=+0.5*fd*sqrt(2.0)*(HepGeom::RotateZ3D(+(45.0*CLHEP::deg-falpha))*HepGeom::Vector3D<double>(1.0,0.0,0.0)).unit();
-        HepGeom::Vector3D<double> vecX=vecA1+vecA2;
-        CLHEP::Hep3Vector vecCutShift=CLHEP::Hep3Vector(bAddSepPart? 0.5*fTaperPartXDim:0.5*LQBarDims.fHorzBarXDim,0.5*LQBarDims.fHorzBarYDim,0.0)+CLHEP::Hep3Vector(vecX);
-        CLHEP::HepRotation Rot=CLHEP::HepRotation(); Rot.rotateZ(falpha);
-
-        GeoBox* pSolAux=new GeoBox(0.5*fd,0.5*fd,0.5*LQBarDims.fLBarZDim+fslimcut);
-
-        HepGeom::Transform3D TransCutWnd=HepGeom::Transform3D(Rot,vecCutShift);
-        GeoShapeShift* pMoveCutWnd=new GeoShapeShift(pSolAux, TransCutWnd);
-        GeoShapeSubtraction* pSolHorzBar=new GeoShapeSubtraction(pSolHorzBar1, pMoveCutWnd);
-        //pSolHorzBar=new G4SubtractionSolid("SolHorzBarWithTaper",pSolHorzBar1,pSolAux,pRot,vecCutShift);
-    }
-    else
-    {
-        pSolHorzBar=pSolHorzBar1;
-    }
-
-    HepGeom::Transform3D TransInMotherVolume;
-    GeoLogVol* pLogHorzBar=NULL;
-    GeoOpticalPhysVol* pPhysHorzBar;
-
-    if(bAddSepPart)
-    {
-        TransInMotherVolume=PartialTransInMotherVolume*HepGeom::TranslateX3D(-0.5*fTaperPartXDim-0.5*LQBarDims.fVertBarXDim);
-        sprintf(szLabel,"%s_Q%i_LogHorzBarTaper[%i]",pszStationName, nQuarticID, nLQBarID);
-        pLogHorzBar=new GeoLogVol(szLabel,pSolHorzBar,m_MapMaterials[(LQBarDims.eTaperMaterial==EM_VACUUM)? std::string("OpticalVacuum"):std::string("Quartz")]);
-        pPhysHorzBar=new GeoOpticalPhysVol(pLogHorzBar);
-        sprintf(szLabel,"%s_Q%i_HorzBarTaper[%i]",pszStationName, nQuarticID, nLQBarID);
-        pPhysMotherVolume->add(new GeoNameTag(szLabel));
-        pPhysMotherVolume->add(new GeoTransform(TransInMotherVolume));
-        pPhysMotherVolume->add(pPhysHorzBar);
-        sprintf(szLabel,"%s_Q%i_HorzTaperAirGuideSurface[%i]",pszStationName,nQuarticID,nLQBarID);
-        bsContainer->push_back(GeoBorderSurface(szLabel, pPhysHorzBar, pPhysMotherVolume, (LQBarDims.eTaperMaterial==EM_VACUUM)? m_pReflectionOptSurface:m_pOpticalSurface));
-        //TransInMotherVolume=PartialTransInMotherVolume*G4TranslateX3D(-0.5*fTaperPartXDim-0.5*LQBarDims.fVertBarXDim);
-        //pLogHorzBar=new G4LogicalVolume(pSolHorzBar, (LQBarDims.eTaperMaterial==EM_OpticalVacuum)? G4Material::GetMaterial("OpticalVacuum"):G4Material::GetMaterial("Quartz"),"LogHorzBarTaper",NULL,0,0);
-        //pLogHorzBar->SetVisAttributes((LQBarDims.eTaperMaterial==EM_OpticalVacuum)? m_pVisAttAirGuide:m_pVisAttQuartz);
-        //pPhysHorzBar=new G4PVPlacement(TransInMotherVolume,pLogHorzBar,"HorzBarTaper",pPhysMotherVolume->GetLogicalVolume(),false,0);
-        //if(LQBarDims.eTaperMaterial==EM_OpticalVacuum) pDummyPtr=new G4LogicalBorderSurface("HorzTaperAirGuideSurface",pPhysHorzBar,pPhysMotherVolume,pOptSurface);
-
-        TransInMotherVolume=PartialTransInMotherVolume*HepGeom::TranslateX3D(-0.5*(LQBarDims.fHorzBarXDim-fTaperPartXDim)-fTaperPartXDim-0.5*LQBarDims.fVertBarXDim);
-        sprintf(szLabel,"%s_Q%i_LogHorzBar[%i]",pszStationName, nQuarticID, nLQBarID);
-        pLogHorzBar=new GeoLogVol(szLabel,pSolHorzBar,m_MapMaterials[std::string("OpticalVacuum")]);
-        pPhysHorzBar=new GeoOpticalPhysVol(pLogHorzBar);
-        sprintf(szLabel,"%s_Q%i_HorzBar[%i]",pszStationName, nQuarticID, nLQBarID);
-        pPhysMotherVolume->add(new GeoNameTag(szLabel));
-        pPhysMotherVolume->add(new GeoTransform(TransInMotherVolume));
-        pPhysMotherVolume->add(pPhysHorzBar);
-        sprintf(szLabel,"%s_Q%i_HorzAirGuideSurface[%i]",pszStationName,nQuarticID,nLQBarID);
-        bsContainer->push_back(GeoBorderSurface(szLabel, pPhysHorzBar, pPhysMotherVolume, m_pReflectionOptSurface));
-        //TransInMotherVolume=PartialTransInMotherVolume*G4TranslateX3D(-0.5*(LQBarDims.fHorzBarXDim-fTaperPartXDim)-fTaperPartXDim-0.5*LQBarDims.fVertBarXDim);
-        //pLogHorzBar=new G4LogicalVolume(pSolHorzBar2,G4Material::GetMaterial("OpticalVacuum"),"LogHorzBar",NULL,0,0);
-        //pLogHorzBar->SetVisAttributes(m_pVisAttAirGuide);
-        //pPhysHorzBar=new G4PVPlacement(TransInMotherVolume,pLogHorzBar,"HorzBar",pPhysMotherVolume->GetLogicalVolume(),false,0);
-        //pDummyPtr=new G4LogicalBorderSurface("HorzAirGuideSurface",pPhysHorzBar,pPhysMotherVolume,pOptSurface);
-    }
-    else
-    {
-        TransInMotherVolume=PartialTransInMotherVolume*HepGeom::TranslateX3D(-0.5*LQBarDims.fHorzBarXDim-0.5*LQBarDims.fVertBarXDim);
-        sprintf(szLabel,"%s_Q%i_LogHorzBar[%i]",pszStationName, nQuarticID, nLQBarID);
-        pLogHorzBar=new GeoLogVol(szLabel,pSolHorzBar,m_MapMaterials[HorzBarMaterial]);
-        pPhysHorzBar=new GeoOpticalPhysVol(pLogHorzBar);
-        sprintf(szLabel,"%s_Q%i_HorzBar[%i]",pszStationName, nQuarticID, nLQBarID);
-        pPhysMotherVolume->add(new GeoNameTag(szLabel));
-        pPhysMotherVolume->add(new GeoTransform(TransInMotherVolume));
-        pPhysMotherVolume->add(pPhysHorzBar);
-        if(LQBarDims.eType==ELBT_HYBRID || LQBarDims.eType==ELBT_HYBRIDMETALELBOW)
-        {
-            sprintf(szLabel,"%s_Q%i_HorzAirGuideSurface[%i]",pszStationName,nQuarticID,nLQBarID);
-            bsContainer->push_back(GeoBorderSurface(szLabel, pPhysHorzBar, pPhysMotherVolume, m_pReflectionOptSurface));
-        }
-        //TransInMotherVolume=PartialTransInMotherVolume*G4TranslateX3D(-0.5*LQBarDims.fHorzBarXDim-0.5*LQBarDims.fVertBarXDim);
-        //pLogHorzBar=new G4LogicalVolume(pSolHorzBar,G4Material::GetMaterial(HorzBarMaterial),"LogHorzBar",NULL,0,0);
-        //pLogHorzBar->SetVisAttributes(pHorzVisAttr);
-        //pPhysHorzBar=new G4PVPlacement(TransInMotherVolume,pLogHorzBar,"HorzBar",pPhysMotherVolume->GetLogicalVolume(),false,0);
-        //if(LQBarDims.eType==ELBT_HYBRID || LQBarDims.eType==ELBT_HYBRIDMETALELBOW){
-        //   pDummyPtr=new G4LogicalBorderSurface("HorzAirGuideSurface",pPhysHorzBar,pPhysMotherVolume,pOptSurface);
-        //}
-    }
-}
-
-void AFP_GeoModelFactory::AddSensor(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D &TransInMotherVolume)
-{
-    int i;
-    double fFirstSensorZPos;
-    HepGeom::Transform3D TotTransform;
-    char szLabel[64];
-
-    double fSensorLength=LQBarDims.fLBarZDim/LQBarDims.nNumOfSensors;
-    bool bIsOddSensorNumber=(LQBarDims.nNumOfSensors%2==0)? false:true;
-    GeoBox* pSolSensor=new GeoBox(0.5*TD_SENSORTHICKNESS,0.5*LQBarDims.fHorzBarYDim,0.5*fSensorLength);
-
-    fFirstSensorZPos=bIsOddSensorNumber? -((LQBarDims.nNumOfSensors-1)>>1)*fSensorLength:-((LQBarDims.nNumOfSensors>>1)-0.5)*fSensorLength;
-
-    for(i=0;i<LQBarDims.nNumOfSensors;i++)
-    {
-        TotTransform=TransInMotherVolume*HepGeom::TranslateZ3D(fFirstSensorZPos+i*fSensorLength);
-        sprintf(szLabel,"%s_Q%i_LogTDSensor[%i][%02i]",pszStationName,nQuarticID,nLQBarID,(m_CfgParams.tdcfg.nColsCnt>1)? nLQBarID:i);
-        GeoLogVol* pLogSensor=new GeoLogVol(szLabel,pSolSensor,m_MapMaterials["SiliconPMT"]);
-        GeoOpticalPhysVol* pPhysSensor=new GeoOpticalPhysVol(pLogSensor);
-        //sprintf(szLabel,"%s_Q%i_TDSensor[%i]",pszStationName,nQuarticID,nRowsCnt*i+j);
-        sprintf(szLabel,"%s_Q%i_TDSensor[%i][%02i]",pszStationName,nQuarticID,nLQBarID,(m_CfgParams.tdcfg.nColsCnt>1)? nLQBarID:i);
-        pPhysMotherVolume->add(new GeoNameTag(szLabel));
-        pPhysMotherVolume->add(new GeoTransform(TotTransform));
-        pPhysMotherVolume->add(pPhysSensor);
-        //TotTransform=TransInMotherVolume*HepGeom::TranslateZ3D(fFirstSensorZPos+i*fSensorLength);
-        //sprintf(szLabel,"%s_Q%i_LogSensor[%i][%02i]",pszStationName,nQuarticID,nLQBarID,(m_LBarDimensions.nNumOfLBars>1)? nLQBarID:i);
-        //G4LogicalVolume* pLogSensor=new G4LogicalVolume(pSolSensor,G4Material::GetMaterial("BoroGlass"),szbuff,NULL,0,0);
-        //sprintf(szbuff,"Sensor%02i",i);
-        //G4VPhysicalVolume* pPhysSensor=new G4PVPlacement(TotTransform,pLogSensor,szbuff,pLogMotherVolume,false,0);
-        //m_mapTransToSensorCS[i]=TransInMotherVolume.inverse();
-
-        pPhysSensor=NULL;
-    }
-
+			pPhysSensor=NULL;
+		}
+	}
 }

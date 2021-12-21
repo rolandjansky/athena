@@ -31,6 +31,10 @@
   <class name="xAOD::AFPTrackContainer_v1" id="EF887FA6-D17C-4D30-A2E6-3F46CA2EB44B" />
   <class name="xAOD::AFPTrackAuxContainer_v1" id="07BAB867-F028-4CCA-829A-3A6B93AD3411" />
 
+  <class name="xAOD::AFPToFTrack_v1" />
+  <class name="xAOD::AFPToFTrackContainer_v1" id="C2373AB6-252C-44AE-9523-252CA8E03292" />
+  <class name="xAOD::AFPToFTrackAuxContainer_v1" id="85C26A25-81A9-4554-85D7-4432B064CC00" />
+
   <class name="xAOD::AFPTrack_v2" />
   <class name="xAOD::AFPTrackContainer_v2" id="2BCE47B1-7C55-48D0-AFA7-01563154AD02" />
   <class name="xAOD::AFPTrackAuxContainer_v2" id="21E536F5-7B58-4BDE-8CEE-3FF40E355C3F" />

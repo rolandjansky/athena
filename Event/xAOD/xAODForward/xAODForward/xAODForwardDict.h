@@ -58,6 +58,12 @@
 #include "xAODForward/versions/AFPTrackAuxContainer_v2.h"
 #include "xAODForward/versions/AFPTrack_v2.h"
 
+#include "xAODForward/AFPToFTrackContainer.h"
+#include "xAODForward/AFPToFTrackAuxContainer.h"
+#include "xAODForward/versions/AFPToFTrackContainer_v1.h"
+#include "xAODForward/versions/AFPToFTrackAuxContainer_v1.h"
+#include "xAODForward/versions/AFPToFTrack_v1.h"
+
 #include "xAODForward/AFPProtonContainer.h"
 #include "xAODForward/AFPProtonAuxContainer.h"
 #include "xAODForward/versions/AFPProtonContainer_v1.h"
@@ -121,6 +127,12 @@ namespace xAOD
     std::vector<ElementLink<xAOD::AFPSiHitsClusterContainer_v1> > afpSiHitsContainer_l4;
     std::vector<std::vector<ElementLink<xAOD::AFPSiHitsClusterContainer_v1> > > afpSiHitsContainer_l5;
 
+    xAOD::AFPToFTrackContainer_v1 afpToFTrack_c1;
+    DataLink<xAOD::AFPToFTrackContainer_v1> afpToFTrack_l1;
+    std::vector<DataLink<xAOD::AFPToFTrackContainer_v1> > afpToFTrack_l2;
+    ElementLink<xAOD::AFPToFTrackContainer_v1> afpToFTrack_l3;
+    std::vector<ElementLink<xAOD::AFPToFTrackContainer_v1> > afpToFTrack_l4;
+    std::vector<std::vector<ElementLink<xAOD::AFPToFTrackContainer_v1> > > afpToFTrack_l5;
 
     xAOD::AFPTrackContainer_v1 afpTrack_c1;
     DataLink<xAOD::AFPTrackContainer_v1> afpTrack_l1;

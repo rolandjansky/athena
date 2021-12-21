@@ -53,4 +53,5 @@ if rec.doAFP() and rec.doESD():
     pass
 
   # tracks reconstruction
-  #include("AFP_LocReco/AFP_LocReco_joboption.py")
+  include("AFP_LocReco/AFP_LocReco_joboption.py")
+

@@ -29,6 +29,8 @@ atlas_add_poolcnv_library( xAODForwardAthenaPoolPoolCnv
    xAODForward/AFPSiHitsClusterAuxContainer.h
    xAODForward/AFPTrackContainer.h
    xAODForward/AFPTrackAuxContainer.h
+   xAODForward/AFPToFTrackContainer.h
+   xAODForward/AFPToFTrackAuxContainer.h
    xAODForward/AFPProtonContainer.h
    xAODForward/AFPProtonAuxContainer.h
    xAODForward/ZdcModuleContainer.h
@@ -43,6 +45,7 @@ atlas_add_poolcnv_library( xAODForwardAthenaPoolPoolCnv
    xAOD::AFPToFHitContainer xAOD::AFPToFHitAuxContainer
    xAOD::AFPSiHitsClusterContainer xAOD::AFPSiHitsClusterAuxContainer
    xAOD::AFPTrackContainer xAOD::AFPTrackAuxContainer
+   xAOD::AFPToFTrackContainer xAOD::AFPToFTrackAuxContainer
    xAOD::AFPProtonContainer xAOD::AFPProtonAuxContainer
    xAOD::ZdcModuleContainer xAOD::ZdcModuleAuxContainer
    xAOD::MBTSModuleContainer xAOD::MBTSModuleAuxContainer

@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
 			  Event/xAOD/xAODForward
+                          ForwardDetectors/AFP/AFP_Geometry
 			  PRIVATE
 			  Control/AthLinks
 			  )
@@ -25,7 +26,7 @@ atlas_add_component( AFP_SiClusterTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthenaPoolUtilities GaudiKernel GeneratorObjects xAODForward AthLinks)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthenaPoolUtilities GaudiKernel GeneratorObjects xAODForward AthLinks AFP_Geometry)
 
 
 # Install files from the package:

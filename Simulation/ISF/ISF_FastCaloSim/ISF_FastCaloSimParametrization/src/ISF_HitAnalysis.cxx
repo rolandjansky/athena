@@ -1157,8 +1157,8 @@ StatusCode ISF_HitAnalysis::execute()
 
 // Get the reco clusters if available
 // retreiving cluster container
-  const DataHandle<xAOD::CaloClusterContainer > theClusters;
-  std::string clusterContainerName = "CaloCalTopoClusters";
+ const DataHandle<xAOD::CaloClusterContainer > theClusters;
+ std::string clusterContainerName = "CaloCalTopoClusters";  //Local hadron calibrated Topo-clusters , raw is the EM scale
   sc = evtStore()->retrieve(theClusters, clusterContainerName);
   if (sc.isFailure()) {
     ATH_MSG_WARNING(" Couldn't get cluster container '" << clusterContainerName << "'");
@@ -1168,11 +1168,11 @@ StatusCode ISF_HitAnalysis::execute()
   xAOD::CaloClusterContainer::const_iterator itrLastClus = theClusters->end();
   for ( ; itrClus!=itrLastClus; ++itrClus){
     const xAOD::CaloCluster *cluster =(*itrClus);
-    m_cluster_energy->push_back(cluster->e());
-    m_cluster_eta->push_back(cluster->eta());
-    m_cluster_phi->push_back(cluster->phi());
-    ATH_MSG_VERBOSE("Cluster energy: " << cluster->e() << " cells: " << " links: " << cluster->getCellLinks());
-    //cluster->getCellLinks();
+    m_cluster_energy->push_back(cluster->e(xAOD::CaloCluster::UNCALIBRATED)); // getRawE, cluster->e() is the Local hadron calibrated topo-clusters
+    m_cluster_eta->push_back(cluster->eta(xAOD::CaloCluster::UNCALIBRATED));
+    m_cluster_phi->push_back(cluster->phi(xAOD::CaloCluster::UNCALIBRATED));
+    ATH_MSG_VERBOSE("Cluster energy: " << cluster->e() << " EMscale: " << cluster->e(xAOD::CaloCluster::UNCALIBRATED) << " cells: " << " links: " << cluster->getCellLinks());
+
     const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
     if (!cellLinks) {
       ATH_MSG_DEBUG( "No cell links for this cluster"  );

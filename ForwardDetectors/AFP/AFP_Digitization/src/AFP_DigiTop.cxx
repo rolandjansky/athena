@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_Digitization/AFP_DigiTop.h"
@@ -27,7 +27,10 @@ StatusCode AFP_DigiTop::initialize()
 StatusCode AFP_DigiTop::execute() 
 {
   ATH_MSG_DEBUG ( "AFP_DigiTop::execute" );
-  return m_digTool->processAllSubEvents();
+
+  CHECK ( m_digTool->processAllSubEvents() );
+
+  return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_DigiTop::finalize() 

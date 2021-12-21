@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
   <class name="xAOD::EventInfo_v1"
@@ -13,6 +13,8 @@
          id="2CFD72A2-D3AA-4C18-9B40-E5ACBA20D785" />
   <class name="xAOD::EventAuxInfo_v2"
          id="FA684B06-EC03-4B0B-9FAE-91423B1ED35D" />
+  <class name="xAOD::EventAuxInfo_v3"
+         id="0D6FFB22-1BCB-49B9-BBFB-66B6DF352067" />
 
   <read sourceClass="xAOD::EventInfo_v1" version="[1-]"
         targetClass="xAOD::EventInfo_v1" source="" target="" >

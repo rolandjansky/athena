@@ -57,6 +57,13 @@ TFCSEnergyAndHitGAN::~TFCSEnergyAndHitGAN()
   }
 }
 
+bool TFCSEnergyAndHitGAN::is_match_calosample(int calosample) const 
+{
+  if(get_Binning().find(calosample)==get_Binning().cend()) return false;
+  if(get_Binning().at(calosample).GetNbinsX()==1) return false;
+  return true;
+}
+
 unsigned int TFCSEnergyAndHitGAN::get_nr_of_init(unsigned int bin) const
 {
   if(bin>=m_bin_ninit.size()) return 0;
@@ -519,8 +526,8 @@ void TFCSEnergyAndHitGAN::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
 
   if(longprint) {
-    ATH_MSG_INFO(optprint<<"  "<<"Graph="<<m_graph<<"; json input"<<m_input<<"; free mem="<<GANfreemem()<<"; latent space="<<m_GANLatentSize<<"; Binning size="<<m_Binning.size());
-    for(auto& l : m_Binning) if(l.second.GetNbinsX()>1) {
+    ATH_MSG_INFO(optprint<<"  "<<"Graph="<<m_graph<<"; json input="<<m_input<<"; free mem="<<GANfreemem()<<"; latent space="<<m_GANLatentSize<<"; Binning size="<<m_Binning.size());
+    for(auto& l : m_Binning) if(is_match_calosample(l.first)) {
       ATH_MSG_INFO(optprint<<"    "<<"layer="<<l.first<<" nR="<<l.second.GetNbinsX()<<" nalpha="<<l.second.GetNbinsY());
     }
   }  
@@ -617,7 +624,7 @@ void TFCSEnergyAndHitGAN::unit_test(TFCSSimulationState* simulstate,const TFCSTr
   int etaMin=20;
   int etaMax = etaMin + 5;
   GAN.initializeNetwork(pid,etaMin,"/eos/atlas/atlascerngroupdisk/proj-simul/VoxalisationOutputs/nominal/GAN_michele_normE_MaxE/input_for_service_new");
-  for(int i=0;i<24;++i) {
+  for(int i=0;i<24;++i) if(GAN.is_match_calosample(i)) {
     TFCSCenterPositionCalculation* c=new TFCSCenterPositionCalculation(Form("center%d",i),Form("center layer %d",i));
     c->set_calosample(i);
     c->setExtrapWeight(0.5);

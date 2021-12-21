@@ -1,5 +1,5 @@
 #==============================================================
-# Job options file for the ALFA_LocRec package
+# Job options file for the AFP_LocRec package
 #==============================================================
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -14,16 +14,22 @@ TopLocRecSeq += siDLocReco
 
 from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterTool
 clusterTool=AFPSiClusterTool("AFPSiClusterTool")
+
+#if globalflags.DataSource()=='data':
+clusterTool.hitsContainerName = "AFPSiHitContainer"
+#else:
+#        clusterTool.hitsContainerName = "AFP_SiDigiCollection"
+
 ToolSvc+=clusterTool
 
 # cluster algorithm
-# from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterBasicNearestNeighbour
-# clusterNeighbour=AFPSiClusterBasicNearestNeighbour("AFPSiClusterBasicNearestNeighbour")
-# ToolSvc+=clusterNeighbour
+from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterBasicNearestNeighbour
+clusterNeighbour=AFPSiClusterBasicNearestNeighbour("AFPSiClusterBasicNearestNeighbour")
+ToolSvc+=clusterNeighbour
 
-# clusterTool.clusterAlgTool = clusterNeighbour
+clusterTool.clusterAlgTool = clusterNeighbour
 
-# AFP_SIDLocReco.clusterTool=clusterTool
+AFP_SIDLocReco.clusterTool=clusterTool
 
 # cluster to local CS transformation
 from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiRowColToLocalCSTool
@@ -156,8 +162,38 @@ siDLocReco.recoTool = trackRecoTool
 
 #-- TiD part ------------------------------------------------------------
 
-from AFP_LocReco.AFP_LocRecoConf      import AFP_TDLocReco
-TopLocRecSeq += AFP_TDLocReco("AFP_TDLocReco")
+from AFP_LocReco.AFP_LocRecoConf      import AFP_TDLocReco, AFP_TDLocRecoTool, AFPTDBasicTool
+tofDLocReco = AFP_TDLocReco("AFP_TDLocReco")
+TopLocRecSeq += tofDLocReco
+
+# Prepare ToF reconstruction algorithm tools - one for each station
+
+basicTool1 = AFPTDBasicTool("AFPTDBasicTool1")
+basicTool1.stationID=0
+basicTool1.maxAllowedLength = 100
+basicTool1.TimeOffset = [105707, 105670, 105675, 105638,
+                         105834, 105819, 105778, 105754,
+                         105900, 105892, 105870, 105820,
+                         105726, 105720, 105714, 105717]
+basicTool1.BarWeight =	[1.0, 1.0, 1.0, 1.0] 
+ToolSvc += basicTool1
+
+basicTool2 = AFPTDBasicTool("AFPTDBasicTool2")
+basicTool2.stationID=3
+basicTool2.maxAllowedLength = 100
+basicTool2.TimeOffset = [105796, 105761, 105742, 105696,
+                         105890, 105871, 105839, 105816,
+                         105923, 105899, 105862, 105853,
+       	       	       	 105707, 105711, 105714, 105713]
+basicTool2.BarWeight =  [1.0, 1.0, 1.0, 1.0]
+ToolSvc += basicTool2
+
+ToFtrackRecoTool=AFP_TDLocRecoTool("AFP_TDLocRecoTool")
+ToolSvc += ToFtrackRecoTool
+
+ToFtrackRecoTool.recoTools = [basicTool1, basicTool2]
+
+tofDLocReco.recoTool = ToFtrackRecoTool
 
 # select between a real data or a simulation mode - Simulation = 0, RealData = 1
 if globalflags.DataSource()=='data':
