@@ -1,0 +1,24 @@
+#
+#   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#
+# Separate blocks with ---
+---
+Input : ['MuonPhysics/MuonTrkPhys/Z/m_Z_M_Eta_region']
+Output : ['MuonPhysics/MuonTrkPhys/Z/m_Z_M_Mean', 'MuonPhysics/MuonTrkPhys/Z/m_Z_M_Sigma']
+Function : MuonTrackMonitoring.MuonTrackMonitorPostProcessing.project_mean_ROOT
+Description: 2DMassToMeanSigma
+---
+Input : ['MuonPhysics/MuonTrkPhys/Jpsi/m_Jpsi_M_Eta_region']
+Output : ['MuonPhysics/MuonTrkPhys/Jpsi/m_Jpsi_M_Mean', 'MuonPhysics/MuonTrkPhys/Jpsi/m_Jpsi_M_Sigma']
+Function : MuonTrackMonitoring.MuonTrackMonitorPostProcessing.project_mean_ROOT
+Description: 2DMassToMeanSigma
+---
+Input : ['MuonPhysics/Muons/Z/ZMassAverage']
+Output : ['MuonPhysics/MuonTrkPhys/Z/m_Z_M_Mean_eta', 'MuonPhysics/MuonTrkPhys/Z/m_Z_M_Sigma_eta']
+Function : MuonTrackMonitoring.MuonTrackMonitorPostProcessing.project_mean_ROOT
+Description: 2DMassToMeanSigma
+---
+Input : ['MuonPhysics/Muons/Jpsi/JPsiMassAverage']
+Output : ['MuonPhysics/MuonTrkPhys/Jpsi/m_Jpsi_M_Mean_eta', 'MuonPhysics/MuonTrkPhys/Jpsi/m_Jpsi_M_Sigma_eta']
+Function : MuonTrackMonitoring.MuonTrackMonitorPostProcessing.project_mean_ROOT
+Description: 2DMassToMeanSigma

@@ -1,0 +1,5 @@
+---
+Input: [ 'HLT/MuonMon/TruthMon/HLT_(?P<pT>mu26|mu50|mu60|mu6|2mu14)(?P<iso>_ivarmedium_|_0eta105_msonly_|_)(?P<Lev1>L1MU14FCH|L1MU5VF|L12MU8F)/HLT_(?P=pT)(?P=iso)(?P=Lev1)_truth(?P<var>Eta|Phi|Pt)','HLT/MuonMon/TruthMon/HLT_(?P<pT>mu26|mu50|mu60|mu6|2mu14)(?P<iso>_ivarmedium_|_0eta105_msonly_|_)(?P<Lev1>L1MU14FCH|L1MU5VF|L12MU8F)/HLT_(?P=pT)(?P=iso)(?P=Lev1)_MatchedEFCBtruth(?P<var>Eta|Phi|Pt)' ]
+Output: [ 'HLT/MuonMon/TruthMon/HLT_{pT}{iso}{Lev1}/HLT_{pT}{iso}{Lev1}_efficiency_truth{var}' ]
+Function: TrigMuonMonitoringMT.TrigMuonTruthMonMTTransforms.efficiency
+Description: TrigMuonTruthMonMT_efficiency_hists

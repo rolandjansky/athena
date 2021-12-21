@@ -26,7 +26,7 @@
 namespace dqutils {
 
 void 
-MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */ ) 
+MonitoringFile::RPCPostProcess( const std::string & inFilename, bool /* isIncremental */ ) 
 {
  // std::cout << "Running RPC post processing \n" ;
   
@@ -1266,8 +1266,8 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	    int PanelStripId          = 0;
 	    int StripProfileContenent = 0;
 	  
-	    for ( std::vector<std::string>::const_iterator iter=layerList.begin(); iter!=layerList.end(); iter++ ) {
-	      for ( int i_dblPhi=0; i_dblPhi!=2*1+1; i_dblPhi++ ) {
+	    for ( std::vector<std::string>::const_iterator iter=layerList.begin(); iter!=layerList.end(); ++iter ) {
+	      for ( int i_dblPhi=0; i_dblPhi!=2*1+1; ++i_dblPhi ) {
 	        char coolName[40];
 		sprintf(coolName, "Sector%.2d_%s_dblPhi%d", i_sec+1, (*iter).c_str(), i_dblPhi+1 );
 		std::string stripId_name       = dir_cool_raw + coolName + "_PanelId" ;

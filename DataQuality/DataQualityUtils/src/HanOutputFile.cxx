@@ -56,7 +56,7 @@ namespace {
 
   Double_t getScaleVal(std::string& display) {
     std::size_t found = display.find("ScaleRef");
-    std::size_t found2 = display.find_first_of(",",found+1);
+    std::size_t found2 = display.find_first_of(',',found+1);
     // has multiple entries? Do this later.
     try {
       return boost::lexical_cast<Double_t>(display.substr(found+9, found2-found-9));
@@ -879,7 +879,7 @@ bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string locati
 
   std::string::size_type i = location.find_last_of( '/' );
   if( i != (location.size()-1) ) {
-    location+="/";
+    location+='/';
   }
   namePNG   = location + namePNG;
   nameJSON  = location + nameJSON;
@@ -944,7 +944,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   std::size_t found = display.find("Draw=");
   std::string drawopt ="";
   while (found!=std::string::npos){
-    std::size_t found1 = display.find_first_of(",",found+1);
+    std::size_t found1 = display.find_first_of(',',found+1);
     if (found1!=std::string::npos){
       drawopt +=boost::algorithm::to_lower_copy(display.substr(found+5,found1-found-5));
     }
@@ -957,7 +957,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   found = display.find("DrawRef=");
   std::string drawrefopt ="";
   while (found!=std::string::npos){
-    std::size_t found1 = display.find_first_of(",",found+1);
+    std::size_t found1 = display.find_first_of(',',found+1);
     if (found1!=std::string::npos){
       drawrefopt +=boost::algorithm::to_lower_copy(display.substr(found+8,found1-found-8));
     }
@@ -972,7 +972,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   found = display.find("DrawRef2D=");
   std::string drawrefopt2D ="";
   while (found!=std::string::npos){
-    std::size_t found1 = display.find_first_of(",",found+1);
+    std::size_t found1 = display.find_first_of(',',found+1);
     if (found1!=std::string::npos){
       drawrefopt2D +=boost::algorithm::to_lower_copy(display.substr(found+10,found1-found-10));
     }
@@ -989,7 +989,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     datatitle = "Data";
   }
   while (found!=std::string::npos){
-    std::size_t found1 = display.find_first_of(",",found+1);
+    std::size_t found1 = display.find_first_of(',',found+1);
     if (found1!=std::string::npos){
       datatitle += display.substr(found+9,found1-found-9);
     }
@@ -1031,9 +1031,9 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   int wh = 490;
   found = display.find("TCanvas",found+1);
   if (found!=std::string::npos){
-    std::size_t found1 = display.find_first_of(",",found+1);
+    std::size_t found1 = display.find_first_of(',',found+1);
     ww = std::atoi((display.substr(found+8,found1-found-8)).c_str() );
-    found = display.find_first_of(")",found1+1);
+    found = display.find_first_of(')',found1+1);
     wh = std::atoi((display.substr(found1+1,found-found1-1)).c_str() );
   }
 
@@ -1050,7 +1050,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     gPad->SetGridy(display.find("SetGridy")!=std::string::npos );
     std::size_t found  = display.find("SetPalette");
     if (found!=std::string::npos) {
-      std::size_t found1 = display.find_first_of("(",found+1);
+      std::size_t found1 = display.find_first_of('(',found+1);
       std::size_t found2 = display.find_first_of(",)",found+1);
       std::string cn =display.substr(found1+1,found2-found1-1);
       int n1=std::strtol(cn.c_str(),NULL,0);
@@ -1058,7 +1058,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     }
     found  = display.find("SetGridStyle");
     if (found!=std::string::npos) {
-      std::size_t found1 = display.find_first_of("(",found+1);
+      std::size_t found1 = display.find_first_of('(',found+1);
       std::size_t found2 = display.find_first_of(",)",found+1);
       std::string cn =display.substr(found1+1,found2-found1-1);
       int n1=std::strtol(cn.c_str(),NULL,0);
@@ -1072,9 +1072,9 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       std::size_t fpos1,fpos2,fpos;
       fpos=display.find("MinStat");
       if (fpos!= std::string::npos){
-  fpos1=display.find("(",fpos+1);
+  fpos1=display.find('(',fpos+1);
   if (fpos1!=std::string::npos) {
-    fpos2 = display.find(")",fpos1+1);
+    fpos2 = display.find(')',fpos1+1);
     if (fpos2!=std::string::npos) {
       std::string s_minstat=display.substr(fpos1+1,fpos2-fpos1-1);
       minstat=std::strtod(s_minstat.c_str(),NULL);
@@ -1085,9 +1085,9 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       std::string fitopt("");
       fpos=display.find("FitOption");
       if (fpos!= std::string::npos){
-          fpos1=display.find("(",fpos+1);
+          fpos1=display.find('(',fpos+1);
           if (fpos1!=std::string::npos) {
-              fpos2 = display.find(")",fpos1+1);
+              fpos2 = display.find(')',fpos1+1);
               if (fpos2!=std::string::npos) {
                   fitopt=display.substr(fpos1+1,fpos2-fpos1-1);
               }    
@@ -1096,13 +1096,13 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       //plot double gaus
       std::size_t found1 = display.find("doublegaus");
       if (found1!=std::string::npos) {
-	std::size_t found2 = display.find("(",found1+1);
+	std::size_t found2 = display.find('(',found1+1);
 	if (found2!=std::string::npos) {
-	  std::size_t found3 = display.find(")",found2+1);
+	  std::size_t found3 = display.find(')',found2+1);
 	  if (found3 != std::string::npos){
 	    std::string range = display.substr(found2+1,found3-found2-1);
 	    Double_t xmin = std::strtod(range.c_str(),NULL);
-	    std::size_t found4 = display.find(",",found2+1);
+	    std::size_t found4 = display.find(',',found2+1);
 	    if ( found4 != std::string::npos) {
 	      range = display.substr(found4+1,found3-found4-1);
 	      Double_t xmax = std::strtod(range.c_str(),NULL);
@@ -1129,13 +1129,13 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	//draw gaus+pol1
 	std::size_t found1 = display.find("gauspluspol1");
 	if (found1!=std::string::npos) {
-	  std::size_t found2 = display.find("(",found1+1);
+	  std::size_t found2 = display.find('(',found1+1);
 	  if (found2!=std::string::npos) {
-	    std::size_t found3 = display.find(")",found2+1);
+	    std::size_t found3 = display.find(')',found2+1);
 	    if (found3 != std::string::npos){
 	      std::string range = display.substr(found2+1,found3-found2-1);
 	      Double_t xmin = std::strtod(range.c_str(),NULL);
-	      std::size_t found4 = display.find(",",found2+1);
+	      std::size_t found4 = display.find(',',found2+1);
 	      if ( found4 != std::string::npos) {
 		range = display.substr(found4+1,found3-found4-1);
 		Double_t xmax = std::strtod(range.c_str(),NULL);
@@ -1155,13 +1155,13 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	  //draw gaus+expo
 	  found1 = display.find("gausplusexpo");
 	  if (found1!=std::string::npos) {
-	    std::size_t found2 = display.find("(",found1+1);
+	    std::size_t found2 = display.find('(',found1+1);
     if (found2!=std::string::npos) {
-	      std::size_t found3 = display.find(")",found2+1);
+	      std::size_t found3 = display.find(')',found2+1);
 	      if (found3 != std::string::npos){
 		std::string range = display.substr(found2+1,found3-found2-1);
 		Double_t xmin = std::strtod(range.c_str(),NULL);
-		std::size_t found4 = display.find(",",found2+1);
+		std::size_t found4 = display.find(',',found2+1);
 		if ( found4 != std::string::npos) {
 		  range = display.substr(found4+1,found3-found4-1);
 		  Double_t xmax = std::strtod(range.c_str(),NULL);
@@ -1180,13 +1180,13 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	    }
 	  }else {  
 	    // the last case: single gaus
-	    std::size_t found2 = display.find("(",found+1);
+	    std::size_t found2 = display.find('(',found+1);
 	    if (found2!=std::string::npos) {
-	      std::size_t found3 = display.find(")",found2+1);
+	      std::size_t found3 = display.find(')',found2+1);
 	      if (found3 != std::string::npos){
 		std::string range = display.substr(found2+1,found3-found2-1);
 		Double_t xmin = std::strtod(range.c_str(),NULL);
-		std::size_t found4 = display.find(",",found2+1);
+		std::size_t found4 = display.find(',',found2+1);
 		if ( found4 != std::string::npos) {
 		  range = display.substr(found4+1,found3-found4-1);
 		  Double_t xmax = std::strtod(range.c_str(),NULL);
@@ -1654,7 +1654,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
   std::size_t found = display.find("Draw");
   std::string drawopt ="";
   while (found!=std::string::npos){
-    std::size_t found1 = display.find_first_of(",",found+1);
+    std::size_t found1 = display.find_first_of(',',found+1);
     if (found1!=std::string::npos){
       drawopt +=boost::algorithm::to_lower_copy(display.substr(found+5,found1-found-5));
     }
@@ -1698,9 +1698,9 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
   int wh = 490;
   found = display.find("TCanvas",found+1);
   if (found!=std::string::npos){
-    std::size_t found1 = display.find_first_of(",",found+1);
+    std::size_t found1 = display.find_first_of(',',found+1);
     ww = std::atoi((display.substr(found+8,found1-found-8)).c_str() );
-    found = display.find_first_of(")",found1+1);
+    found = display.find_first_of(')',found1+1);
     wh = std::atoi((display.substr(found1+1,found-found1-1)).c_str() );
   }
 
@@ -1776,7 +1776,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       legend->SetBorderSize(0);
 
     std::size_t foundN1 = run_min_LB.find_first_of("-");
-    std::size_t foundN2 = run_min_LB.find_first_of(",");
+    std::size_t foundN2 = run_min_LB.find_first_of(',');
 
       legend->AddEntry(h,("Run "+run_min_LB.substr(5,foundN1-5)).c_str());
       legend->AddEntry(hist2,("Run "+run_min_LB.substr(foundN1+1,foundN2-foundN1-1)).c_str());
@@ -1908,7 +1908,7 @@ void HanOutputFile::setupCanvas(std::string &drawopt,std::string &display){
   gPad->SetGridy(display.find("SetGridy")!=std::string::npos );
   std::size_t found  = display.find("SetPalette");
   if (found!=std::string::npos) {
-    std::size_t found1 = display.find_first_of("(",found+1);
+    std::size_t found1 = display.find_first_of('(',found+1);
     std::size_t found2 = display.find_first_of(",)",found+1);
     std::string cn =display.substr(found1+1,found2-found1-1);
     int n1=std::strtol(cn.c_str(),NULL,0);
@@ -1916,7 +1916,7 @@ void HanOutputFile::setupCanvas(std::string &drawopt,std::string &display){
   }
   found  = display.find("SetGridStyle");
   if (found!=std::string::npos) {
-    std::size_t found1 = display.find_first_of("(",found+1);
+    std::size_t found1 = display.find_first_of('(',found+1);
     std::size_t found2 = display.find_first_of(",)",found+1);
     std::string cn =display.substr(found1+1,found2-found1-1);
     int n1=std::strtol(cn.c_str(),NULL,0);
@@ -1934,9 +1934,9 @@ void HanOutputFile::attachFits(TH1* h,std::string &drawopt,std::string &display)
     std::size_t fpos1,fpos2,fpos;
     fpos=display.find("MinStat");
     if (fpos!= std::string::npos){
-      fpos1=display.find("(",fpos+1);
+      fpos1=display.find('(',fpos+1);
       if (fpos1!=std::string::npos) {
-	fpos2 = display.find(")",fpos1+1);
+	fpos2 = display.find(')',fpos1+1);
 	if (fpos2!=std::string::npos) {
 	  std::string s_minstat=display.substr(fpos1+1,fpos2-fpos1-1);
 	  minstat=std::strtod(s_minstat.c_str(),NULL);
@@ -1947,9 +1947,9 @@ void HanOutputFile::attachFits(TH1* h,std::string &drawopt,std::string &display)
     std::string fitopt("");
     fpos=display.find("FitOption");
     if (fpos!= std::string::npos){
-      fpos1=display.find("(",fpos+1);
+      fpos1=display.find('(',fpos+1);
       if (fpos1!=std::string::npos) {
-	fpos2 = display.find(")",fpos1+1);
+	fpos2 = display.find(')',fpos1+1);
 	if (fpos2!=std::string::npos) {
 	  fitopt=display.substr(fpos1+1,fpos2-fpos1-1);
 	}    
@@ -1958,13 +1958,13 @@ void HanOutputFile::attachFits(TH1* h,std::string &drawopt,std::string &display)
     //plot double gaus
     std::size_t found1 = display.find("doublegaus");
     if (found1!=std::string::npos) {
-      std::size_t found2 = display.find("(",found1+1);
+      std::size_t found2 = display.find('(',found1+1);
       if (found2!=std::string::npos) {
-	std::size_t found3 = display.find(")",found2+1);
+	std::size_t found3 = display.find(')',found2+1);
 	if (found3 != std::string::npos){
 	  std::string range = display.substr(found2+1,found3-found2-1);
 	  Double_t xmin = std::strtod(range.c_str(),NULL);
-	  std::size_t found4 = display.find(",",found2+1);
+	  std::size_t found4 = display.find(',',found2+1);
 	  if ( found4 != std::string::npos) {
 	    range = display.substr(found4+1,found3-found4-1);
 	    Double_t xmax = std::strtod(range.c_str(),NULL);
@@ -1991,13 +1991,13 @@ void HanOutputFile::attachFits(TH1* h,std::string &drawopt,std::string &display)
       //draw gaus+pol1
       std::size_t found1 = display.find("gauspluspol1");
       if (found1!=std::string::npos) {
-	std::size_t found2 = display.find("(",found1+1);
+	std::size_t found2 = display.find('(',found1+1);
 	if (found2!=std::string::npos) {
-	  std::size_t found3 = display.find(")",found2+1);
+	  std::size_t found3 = display.find(')',found2+1);
 	  if (found3 != std::string::npos){
 	    std::string range = display.substr(found2+1,found3-found2-1);
 	    Double_t xmin = std::strtod(range.c_str(),NULL);
-	    std::size_t found4 = display.find(",",found2+1);
+	    std::size_t found4 = display.find(',',found2+1);
 	    if ( found4 != std::string::npos) {
 	      range = display.substr(found4+1,found3-found4-1);
 	      Double_t xmax = std::strtod(range.c_str(),NULL);
@@ -2017,13 +2017,13 @@ void HanOutputFile::attachFits(TH1* h,std::string &drawopt,std::string &display)
 	//draw gaus+expo
 	found1 = display.find("gausplusexpo");
 	if (found1!=std::string::npos) {
-	  std::size_t found2 = display.find("(",found1+1);
+	  std::size_t found2 = display.find('(',found1+1);
 	  if (found2!=std::string::npos) {
-	    std::size_t found3 = display.find(")",found2+1);
+	    std::size_t found3 = display.find(')',found2+1);
 	    if (found3 != std::string::npos){
 	      std::string range = display.substr(found2+1,found3-found2-1);
 	      Double_t xmin = std::strtod(range.c_str(),NULL);
-	      std::size_t found4 = display.find(",",found2+1);
+	      std::size_t found4 = display.find(',',found2+1);
 	      if ( found4 != std::string::npos) {
 		range = display.substr(found4+1,found3-found4-1);
 		Double_t xmax = std::strtod(range.c_str(),NULL);
@@ -2042,13 +2042,13 @@ void HanOutputFile::attachFits(TH1* h,std::string &drawopt,std::string &display)
 	  }
 	}else {  
 	  // the last case: single gaus
-	  std::size_t found2 = display.find("(",found+1);
+	  std::size_t found2 = display.find('(',found+1);
 	  if (found2!=std::string::npos) {
-	    std::size_t found3 = display.find(")",found2+1);
+	    std::size_t found3 = display.find(')',found2+1);
 	    if (found3 != std::string::npos){
 	      std::string range = display.substr(found2+1,found3-found2-1);
 	      Double_t xmin = std::strtod(range.c_str(),NULL);
-	      std::size_t found4 = display.find(",",found2+1);
+	      std::size_t found4 = display.find(',',found2+1);
 	      if ( found4 != std::string::npos) {
 		range = display.substr(found4+1,found3-found4-1);
 		Double_t xmax = std::strtod(range.c_str(),NULL);
@@ -2219,25 +2219,25 @@ axisOption( std::string str, TH1* h )
    while (found!=std::string::npos)
     {
       //std::string coordinates, cx1,cy1 ="";
-      //std::size_t found1 = str.find_first_of(")",found+1);
+      //std::size_t found1 = str.find_first_of(')',found+1);
       //std::size_t found2 = str.find_first_of("\'",found+1);
       //if (found2!=std::string::npos){
       std::string coordinates, cx1,cy1 ="";
-      std::size_t found1 = str.find_first_of(")",found+1);
+      std::size_t found1 = str.find_first_of(')',found+1);
       std::size_t found2 = str.find_first_of("\'",found+1);
       if (found2!=std::string::npos){
 	 found2 = str.find_first_of("\'",found2+1);
 	 if (found1 < found2) {
-	    found1 = str.find_first_of(")",found2+1);
+	    found1 = str.find_first_of(')',found2+1);
 	 }
 /*      }
       if (found1!=std::string::npos){
 	coordinates = str.substr(found+10,found1-found-10);
-	found1 = coordinates.find_first_of(",");
+	found1 = coordinates.find_first_of(',');
 	if (found1!=std::string::npos){
 	  cx1 = coordinates.substr(0,found1);
 	  double x1=std::strtod(cx1.c_str(),NULL);
-	  found2 =  coordinates.find_first_of(",",found1+1);
+	  found2 =  coordinates.find_first_of(',',found1+1);
 	  if (found2!=std::string::npos){
 	    cy1 = coordinates.substr(found1+1,found2-found1-1);
 	    double y1=std::strtod(cy1.c_str(),NULL);
@@ -2265,11 +2265,11 @@ axisOption( std::string str, TH1* h )
        }
        if (found1!=std::string::npos){
     coordinates = str.substr(found+10,found1-found-10);
-    found1 = coordinates.find_first_of(",");
+    found1 = coordinates.find_first_of(',');
     if (found1!=std::string::npos){
       cx1 = coordinates.substr(0,found1);
       double x1=std::strtod(cx1.c_str(),NULL);
-      found2 =  coordinates.find_first_of(",",found1+1);
+      found2 =  coordinates.find_first_of(',',found1+1);
       if (found2!=std::string::npos){
         cy1 = coordinates.substr(found1+1,found2-found1-1);
         double y1=std::strtod(cy1.c_str(),NULL);
@@ -2510,11 +2510,11 @@ void HanOutputFile::polynomial( TCanvas* c, std::string str,TH1* h ) {
     std::size_t found = str.find("polynomial(");
     while (found!=std::string::npos)
     {
-        std::size_t endpos= str.find_first_of(")",found+1);
+        std::size_t endpos= str.find_first_of(')',found+1);
         std::cout<<"found;"<<found<<" endpos;"<<endpos<<"count "<<" \n";
         std::string inp_str=str.substr(found+11,endpos-found-11);
         std::size_t found1 =0;
-        std::size_t found2 =inp_str.find_first_of(",",found1);
+        std::size_t found2 =inp_str.find_first_of(',',found1);
         TF1 *func = new TF1("func", "pol9",xmin,xmax);
         for(int j=0; j<10; j++) {
             std::string value_str=inp_str.substr(found1,found2-found1);
@@ -2524,7 +2524,7 @@ void HanOutputFile::polynomial( TCanvas* c, std::string str,TH1* h ) {
                 break;
             }
             found1=found2+1;
-            found2=inp_str.find_first_of(",",found1);
+            found2=inp_str.find_first_of(',',found1);
         }
         func->SetNpx(1000);
         c->cd();
@@ -2541,22 +2541,22 @@ displayExtra( TCanvas* c, std::string str )
   std::size_t found = str.find("TLine");  
   while (found!=std::string::npos)
     {
-      std::size_t found1 = str.find_first_of(")",found+1);
+      std::size_t found1 = str.find_first_of(')',found+1);
       if (found1!=std::string::npos){
 	std::string coordinates = str.substr(found+6,found1-found-6);
 	bool NDC = false;
 	if (found1 < str.size()-3 && str.substr(found1+1,3)=="NDC") {
 	  NDC = true;
 	}
-	found1 = coordinates.find_first_of(",");
+	found1 = coordinates.find_first_of(',');
 	if (found1!=std::string::npos){
 	  std::string cx1 = coordinates.substr(0,found1);
 	  double x1=std::strtod(cx1.c_str(),NULL);
-	  std::size_t found2 =  coordinates.find_first_of(",",found1+1);
+	  std::size_t found2 =  coordinates.find_first_of(',',found1+1);
 	  if (found2!=std::string::npos){
 	    std::string cy1 = coordinates.substr(found1+1,found2-found1-1);
 	    double y1=std::strtod(cy1.c_str(),NULL);
-	    found1 = coordinates.find_first_of(",",found2+1);
+	    found1 = coordinates.find_first_of(',',found2+1);
 	    if (found1!=std::string::npos){
 	      std::string cx2 = coordinates.substr(found2+1,found1-found2-1);
 	      double x2=std::strtod(cx2.c_str(),NULL);
@@ -2583,12 +2583,12 @@ displayExtra( TCanvas* c, std::string str )
   while (found!=std::string::npos)
     {
       std::string coordinates, cx1,cy1 ="";
-      std::size_t found1 = str.find_first_of(")",found+1);
-      std::size_t found2 = str.find_first_of("\'",found+1);
+      std::size_t found1 = str.find_first_of(')',found+1);
+      std::size_t found2 = str.find_first_of('\'',found+1);
       if (found2!=std::string::npos){
-	 found2 = str.find_first_of("\"",found2+1);
+	 found2 = str.find_first_of('\"',found2+1);
 	 if (found2!=std::string::npos && found1 < found2) {
-	    found1 = str.find_first_of(")",found2+1);
+	    found1 = str.find_first_of(')',found2+1);
 	 }
       }
       if (found1!=std::string::npos){
@@ -2597,11 +2597,11 @@ displayExtra( TCanvas* c, std::string str )
 	if (found1 < str.size()-3 && str.substr(found1+1,3)=="NDC") {
 	  NDC = true;
 	}
-	found1 = coordinates.find_first_of(",");
+	found1 = coordinates.find_first_of(',');
 	if (found1!=std::string::npos){
 	  cx1 = coordinates.substr(0,found1);
 	  double x1=std::strtod(cx1.c_str(),NULL);
-	  found2 =  coordinates.find_first_of(",",found1+1);
+	  found2 =  coordinates.find_first_of(',',found1+1);
 	  if (found2!=std::string::npos){
 	    cy1 = coordinates.substr(found1+1,found2-found1-1);
 	    double y1=std::strtod(cy1.c_str(),NULL);
@@ -2627,22 +2627,22 @@ displayExtra( TCanvas* c, std::string str )
   found = str.find("TDota");  
   while (found!=std::string::npos)
     {
-      std::size_t found1 = str.find_first_of(")",found+1);
+      std::size_t found1 = str.find_first_of(')',found+1);
       if (found1!=std::string::npos){
 	std::string coordinates = str.substr(found+6,found1-found-6);
 	bool NDC = false;
 	if (found1 < str.size()-3 && str.substr(found1+1,3)=="NDC") {
 	  NDC = true;
 	}
-	found1 = coordinates.find_first_of(",");
+	found1 = coordinates.find_first_of(',');
 	if (found1!=std::string::npos){
 	  std::string cx1 = coordinates.substr(0,found1);
 	  double x1=std::strtod(cx1.c_str(),NULL);
-	  std::size_t found2 =  coordinates.find_first_of(",",found1+1);
+	  std::size_t found2 =  coordinates.find_first_of(',',found1+1);
 	  if (found2!=std::string::npos){
 	    std::string cy1 = coordinates.substr(found1+1,found2-found1-1);
 	    double y1=std::strtod(cy1.c_str(),NULL);
-	    found1 = coordinates.find_first_of(",",found2+1);
+	    found1 = coordinates.find_first_of(',',found2+1);
 	    if (found1!=std::string::npos){
 	      std::string cx2 = coordinates.substr(found2+1,found1-found2-1);
 	      double x2=std::strtod(cx2.c_str(),NULL);
@@ -2670,12 +2670,12 @@ displayExtra( TCanvas* c, std::string str )
   while (found!=std::string::npos)
     {
       std::string coordinates, cx1,cy1,txtsize ="";
-      std::size_t found1 = str.find_first_of(")",found+1);
-      std::size_t found2 = str.find_first_of("\'",found+1);
+      std::size_t found1 = str.find_first_of(')',found+1);
+      std::size_t found2 = str.find_first_of('\'',found+1);
       if (found2!=std::string::npos){
-	 found2 = str.find_first_of("\"",found2+1);
+	 found2 = str.find_first_of('\"',found2+1);
 	 if (found2!=std::string::npos && found1 < found2) {
-	    found1 = str.find_first_of(")",found2+1);
+	    found1 = str.find_first_of(')',found2+1);
 	 }
       }
       if (found1!=std::string::npos){
@@ -2684,15 +2684,15 @@ displayExtra( TCanvas* c, std::string str )
 	if (found1 < str.size()-3 && str.substr(found1+1,3)=="NDC") {
 	  NDC = true;
 	}
-	found1 = coordinates.find_first_of(",");
+	found1 = coordinates.find_first_of(',');
 	if (found1!=std::string::npos){
 	  cx1 = coordinates.substr(0,found1);
 	  double x1=std::strtod(cx1.c_str(),NULL);
-	  found2 =  coordinates.find_first_of(",",found1+1);
+	  found2 =  coordinates.find_first_of(',',found1+1);
 	  if (found2!=std::string::npos){
 	    cy1 = coordinates.substr(found1+1,found2-found1-1);
 	    double y1=std::strtod(cy1.c_str(),NULL);
-	    std::size_t found3 =  coordinates.find_first_of(",",found2+1);
+	    std::size_t found3 =  coordinates.find_first_of(',',found2+1);
 	    if (found3!=std::string::npos){
 	     txtsize = coordinates.substr(found2+1,found3-found2-1);
 	     double size=std::strtod(txtsize.c_str(),NULL);

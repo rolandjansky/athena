@@ -42,7 +42,7 @@ namespace dqutils {
   static const bool fdbg = true;
   bool HI_pp_key=false;//true::HI false::pp
 
-  void MonitoringFile::HLTMuonHistogramDivision(std::string inFilename, TString& run_dir)
+  void MonitoringFile::HLTMuonHistogramDivision(const std::string & inFilename, TString& run_dir)
   {
 
     if (fdbg) std::cout << "  Start to Divide HLTMuon Histograms for Efficiency and Rate Ratio" << std::endl;
@@ -154,7 +154,7 @@ namespace dqutils {
       effnames.push_back("L2MuonSA_effi_toRecMuonCB_eta");
       effnames.push_back("L2MuonSA_effi_toRecMuonCB_phi");
 
-      for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); it++ ){
+      for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); ++it ){
 	seff = eff_dir + (*it);
 	snum = mf_dir + (*it) + "_numer";
 	sden = mf_dir + (*it) + "_denom";
@@ -201,7 +201,7 @@ namespace dqutils {
       effnames.push_back("muComb_effi_toOffl_eta");
       effnames.push_back("muComb_effi_toOffl_phi");
 
-      for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); it++ ){
+      for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); ++it ){
 	seff = eff_dir + (*it);
 	snum = mc_dir + (*it) + "_numer";
 	sden = mc_dir + (*it) + "_denom";
@@ -244,7 +244,7 @@ namespace dqutils {
       effnames.clear();
       effnames.push_back("muIso_effi_toOffl_pt");
 
-      for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); it++ ){
+      for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); ++it ){
 	seff = eff_dir + (*it);
 	snum = mi_dir + (*it) + "_numer";
 	sden = mi_dir + (*it) + "_denom";
@@ -365,7 +365,7 @@ namespace dqutils {
       effnames.push_back("EFSA_effi_toOffl_pt");
       effnames.push_back("EFCB_effi_toOffl_pt");
 
-      for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); it++ ){
+      for( std::vector<TString>::iterator it = effnames.begin(); it != effnames.end(); ++it ){
 	seff = eff_dir + (*it);
 	snum = ef_dir + (*it) + "_numer";
 	sden = ef_dir + (*it) + "_denom";

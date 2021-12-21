@@ -27,7 +27,7 @@ namespace dqutils {
   //--------------------------------------------------------------------------------
   // main process
   //--------------------------------------------------------------------------------
-  void MonitoringFile::HLTMinBiasMonPostProcess( std::string inFilename, bool /* isIncremental */ ){
+  void MonitoringFile::HLTMinBiasMonPostProcess( const std::string & inFilename, bool /* isIncremental */ ){
     //     std::cout << "--> HLTMinBiasMonPostProcess: Begin HLT MinBias    post-processing" << std::endl;
     
     //open root file

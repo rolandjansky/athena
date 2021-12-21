@@ -38,7 +38,6 @@ class ATLASDQMListener(object):
             cfg = {}
             cfg['heartbeats'] = (0,0)
             cfg['reconnect_attempts_max'] = 3
-            cfg['version'] = 1.1
             conn=stomp.Connection([svr], **cfg)
             conn.set_listener('somename',self.listener)
             if hasattr(self.listener, 'conn'):

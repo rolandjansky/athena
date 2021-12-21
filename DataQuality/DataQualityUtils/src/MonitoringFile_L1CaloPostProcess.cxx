@@ -28,7 +28,7 @@ namespace dqutils {
   //--------------------------------------------------------------------------------
   // main process
   //--------------------------------------------------------------------------------
-  void MonitoringFile::L1CaloPostProcess( std::string inFilename, bool /* isIncremental */ ){
+  void MonitoringFile::L1CaloPostProcess( const std::string & inFilename, bool /* isIncremental */ ){
 
     bool debug = L1CALOPOSTPROCESSDEBUG;
     if (debug) std::cout << "--> L1CaloPostProcess: Begin L1Calo post-processing" << std::endl;
