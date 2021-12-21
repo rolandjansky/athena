@@ -101,12 +101,12 @@ xAODEgammaBuilder::execute(const EventContext& ctx) const
     inputElRecs = electronSuperRecs.ptr();
 
     electronContainer.emplace(m_electronOutputKey, ctx);
-
     ATH_CHECK(electronContainer->record(
       std::make_unique<xAOD::ElectronContainer>(),
       std::make_unique<xAOD::ElectronAuxContainer>()));
 
     electrons = electronContainer->ptr();
+    electrons->reserve(inputElRecs->size());
   }
   if (m_doPhotons) {
     SG::ReadHandle<EgammaRecContainer> photonSuperRecs(
@@ -114,12 +114,12 @@ xAODEgammaBuilder::execute(const EventContext& ctx) const
     inputPhRecs = photonSuperRecs.ptr();
 
     photonContainer.emplace(m_photonOutputKey, ctx);
-
     ATH_CHECK(
       photonContainer->record(std::make_unique<xAOD::PhotonContainer>(),
                               std::make_unique<xAOD::PhotonAuxContainer>()));
 
     photons = photonContainer->ptr();
+    photons->reserve(inputPhRecs->size());
   }
 
   /*
