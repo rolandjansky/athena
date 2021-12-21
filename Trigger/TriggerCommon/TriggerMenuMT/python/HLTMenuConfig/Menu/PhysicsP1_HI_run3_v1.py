@@ -10,7 +10,13 @@
 from .ChainDefInMenu import ChainProp
 from .SignatureDicts import ChainStore
 #from .Physics_pp_run3_v1 import SingleMuonGroup,SinglePhotonGroup,MinBiasGroup,PrimaryL1MuGroup
-from .Physics_pp_run3_v1 import SingleMuonGroup,MinBiasGroup,PrimaryL1MuGroup
+from .Physics_pp_run3_v1 import (
+        SingleMuonGroup,
+        MinBiasGroup,
+        PrimaryL1MuGroup,
+        SupportGroup
+)
+from .PhysicsP1_pp_run3_v1 import addP1Signatures
 
 HardProbesStream="HardProbes"
 MinBiasStream="MinBias"
@@ -29,6 +35,7 @@ def setupMenu():
     log.info('setupMenu ...')
 
     chains = ChainStore()
+    addP1Signatures(chains)
 
     chains['Muon'] = [
             ChainProp(name='HLT_mu4_L1MU3V', stream=[HardProbesStream], groups=SingleMuonGroup+PrimaryL1MuGroup),
@@ -40,8 +47,12 @@ def setupMenu():
     #]
 
     chains['Streaming'] = [
-          ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup),
-          ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup), 
+        ChainProp(name='HLT_noalg_L1RD0_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup+['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup+['PS:Online']+SupportGroup), 
+
+        ChainProp(name='HLT_noalg_L1ZDC_A', l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup+['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_L1ZDC_C', l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup+['PS:Online']+SupportGroup),
+        ChainProp(name='HLT_noalg_L1ZDC_AND', l1SeedThresholds=['FSNOSEED'], stream=[MinBiasStream], groups=MinBiasGroup+['PS:Online']+SupportGroup),
     ]
 
     chains['Monitor'] = [

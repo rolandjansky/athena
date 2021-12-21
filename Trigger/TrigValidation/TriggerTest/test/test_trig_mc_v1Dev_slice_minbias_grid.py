@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# art-description: Trigger RDO->RDO_TRIG athena test of the b-physics slice in Dev_pp_run3_v1 menu (Jpsimu6mu6 input)
+# art-description: Trigger RDO->RDO_TRIG athena test of the minbias slice in Dev_pp_run3_v1 menu (minbias input)
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 4
@@ -23,11 +23,11 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
-ex.input = 'bphysics'
+ex.input = 'minbias'
 ex.threads = 4
 ex.concurrent_events = 4
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale_lowMu\';doEmptyMenu=True;doMinBiasSlice=True;doJetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'PhysicsP1_pp_lowMu_run3_v1\';doEmptyMenu=True;doMinBiasSlice=True;doJetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'grid'
