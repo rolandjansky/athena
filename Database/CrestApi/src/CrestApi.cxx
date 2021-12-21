@@ -1865,7 +1865,7 @@ namespace Crest {
 
     std::string tagname = "";
     try{
-      tagname = js["tagName"];
+      tagname = static_cast<std::string> (js["tagName"]);
     }
     catch (...) {
       throw std::runtime_error(
@@ -1925,7 +1925,7 @@ namespace Crest {
 
     std::string tagname = "";
     try{
-      tagname = js["tagName"];
+      tagname = static_cast<std::string>(js["tagName"]);
     }
     catch (...) {
       throw std::runtime_error(
@@ -1951,7 +1951,7 @@ namespace Crest {
     if (m_mode == FILESYSTEM_MODE) {
       std::string name = "";
       try{
-        name = js["tagName"];
+        name = static_cast<std::string>(js["tagName"]);
       }
       catch (...) {
         throw std::runtime_error(
@@ -2022,7 +2022,7 @@ namespace Crest {
   void CrestClient::createTagMetaInfoFs(nlohmann::json& js) {
     std::string name = "";
     try{
-      name = js["tagName"];
+      name = static_cast<std::string>(js["tagName"]);
     }
     catch (...) {
       throw std::runtime_error(
@@ -2117,7 +2117,7 @@ namespace Crest {
   void CrestClient::createGlobalTagFs(nlohmann::json& js) {
     std::string name = "";
     try{
-      name = js["name"];
+      name = static_cast<std::string>(js["tagName"]);
     }
     catch (...) {
       throw std::runtime_error("ERROR in CrestClient::createGlobalTagFs: cannot get the global tag name from JSON.");
@@ -2182,7 +2182,7 @@ namespace Crest {
     // global tag name:
     std::string name = "";
     try{
-      name = js["globalTagName"];
+      name = static_cast<std::string>(js["tagName"]);
     }
     catch (...) {
       throw std::runtime_error("ERROR in CrestClient::createGlobalTagMapFs: cannot get the global tag name from JSON.");
@@ -2191,7 +2191,7 @@ namespace Crest {
     // tag name:
     std::string tagname = "";
     try{
-      tagname = js["tagName"];
+      tagname = static_cast<std::string>(js["tagName"]);
     }
     catch (...) {
       throw std::runtime_error("ERROR in CrestClient::createGlobalTagMapFs: cannot get the tag name from JSON.");
