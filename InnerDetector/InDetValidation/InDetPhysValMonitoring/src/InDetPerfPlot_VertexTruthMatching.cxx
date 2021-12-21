@@ -767,10 +767,8 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
             double z_zbar=0;    // for use in calculation below
 
             for ( auto i : track_deltaZ) {
-           // for ( size_t i = 0; i < track_deltaZ.size(); i++) {
       
                z_zbar = (i - mean_Dz);
-             //  z_zbar = (track_deltaZ.at(i) - mean_Dz );
                z_var =(z_var + z_zbar*z_zbar);
                z_skew =(z_skew + z_zbar*z_zbar*z_zbar);
                z_kurt =(z_kurt + z_zbar*z_zbar*z_zbar*z_zbar);
@@ -835,7 +833,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
               }
              }  // end of if matched vertices
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
               if (vertex == bestRecoHSVtx_truth) {
               
                  fillHisto(m_vx_sumpT_HS_merged, sumPt ,weight);
@@ -883,7 +881,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
               }
              }   //end of if merged vertices
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
               if (vertex == bestRecoHSVtx_truth) {
                  fillHisto(m_vx_sumpT_HS_split, sumPt ,weight);
                  fillHisto(m_vx_z_asym_HS_split, z_asym,weight);
@@ -946,7 +944,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
              }
          }
 
-         if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+         else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
               if (vertex == bestRecoHSVtx_truth) {
                  number_merged_HS++;
               }
@@ -958,7 +956,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
              }
          }
 
-         if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+         else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
               if (vertex == bestRecoHSVtx_truth) {
                  number_split_HS++;
               }
@@ -984,12 +982,12 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                 fillHisto(m_vx_ntracks_HS_matched, vertex->nTrackParticles(),weight);
              } 
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
                  fillHisto(m_vx_ntracks_HS_merged,  vertex->nTrackParticles(),weight);
 
              }
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
                  fillHisto(m_vx_ntracks_HS_split,   vertex->nTrackParticles(),weight);
              }
            }
@@ -1001,12 +999,12 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                 fillHisto(m_vx_ntracks_matched, vertex->nTrackParticles(),weight);
              }
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
                 fillHisto(m_vx_ntracks_merged,  vertex->nTrackParticles(),weight);
 
              }
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
                  fillHisto(m_vx_ntracks_split,   vertex->nTrackParticles(),weight);
              }  
 
@@ -1017,12 +1015,12 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
                 fillHisto(m_vx_ntracks_ALL_matched, vertex->nTrackParticles(),weight);
              }
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
                 fillHisto(m_vx_ntracks_ALL_merged,  vertex->nTrackParticles(),weight);
 
              }
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
                  fillHisto(m_vx_ntracks_ALL_split,   vertex->nTrackParticles(),weight);
              }  
 
