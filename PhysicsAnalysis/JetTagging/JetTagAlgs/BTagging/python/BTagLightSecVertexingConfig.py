@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 #from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
-
+from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
 def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionName="", SecVertexers = [], TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.
@@ -19,6 +19,7 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionNa
 
     jetcol = JetCollection.replace('Track', 'PV0Track') + 'Jets'
     OutputFilesJFVxname = "JFVtx"
+    OutputFilesJFVxFlipname = "JFVtxFlip"
     OutputFilesSVname = "SecVtx"
     VxSecVertexInfoNameList = []
     secVtxFinderxAODBaseNameList = []
@@ -48,6 +49,10 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionNa
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options['JetSecVtxLinkName'] = jetcol + '.' + OutputFilesSVname
     options['JetJFVtxLinkName'] = jetcol + '.' + OutputFilesJFVxname
+    
+    if cfgFlags.BTagging.RunFlipTaggers is True:
+        options['JetJFFlipVtxLinkName'] = jetcol + '.' + OutputFilesJFVxFlipname
+
     #options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = Name+TimeStamp
 

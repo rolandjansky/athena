@@ -76,7 +76,7 @@ namespace Analysis {
     ATH_CHECK( m_VertexCollectionName.initialize() );
     ATH_CHECK( m_jetSVLinkName.initialize() );
     ATH_CHECK( m_jetJFVtxLinkName.initialize() );
-    ATH_CHECK( m_jetJFFlipVtxLinkName.initialize() );
+    ATH_CHECK( m_jetJFFlipVtxLinkName.initialize(!m_jetJFFlipVtxLinkName.empty()));
     ATH_CHECK( m_VxSecVertexInfoNames.initialize() );
 
     /* ----------------------------------------------------------------------------------- */
