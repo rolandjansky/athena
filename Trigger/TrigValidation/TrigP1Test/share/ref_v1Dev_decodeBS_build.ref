@@ -4587,28 +4587,6 @@ HLT_mu8_L1MU5VF:
     3: 1
 HLT_noalg_CIS_TilePEB_L1CALREQ1:
   eventCount: 0
-HLT_noalg_CSCPEB_L1All:
-  eventCount: 50
-  stepCounts:
-    0: 50
-  stepFeatures:
-    0: 50
-HLT_noalg_CSCPEB_L1EM3_EMPTY:
-  eventCount: 0
-HLT_noalg_CSCPEB_L1EM7_EMPTY:
-  eventCount: 0
-HLT_noalg_CSCPEB_L1EM7_FIRSTEMPTY:
-  eventCount: 0
-HLT_noalg_CSCPEB_L1J12_EMPTY:
-  eventCount: 0
-HLT_noalg_CSCPEB_L1J12_FIRSTEMPTY:
-  eventCount: 0
-HLT_noalg_CSCPEB_L1J30_FIRSTEMPTY:
-  eventCount: 0
-HLT_noalg_CSCPEB_L1J30p31ETA49_EMPTY:
-  eventCount: 0
-HLT_noalg_CSCPEB_L1TAU8_EMPTY:
-  eventCount: 0
 HLT_noalg_CostMonDS_L1All:
   eventCount: 50
   stepCounts:
@@ -5020,6 +4998,22 @@ HLT_noalg_LArPEBCalib_L1RD0_BGRP11:
 HLT_noalg_LArPEBCalib_L1RD0_EMPTY:
   eventCount: 0
 HLT_noalg_LArPEBCalib_L1jJ400_LAR:
+  eventCount: 0
+HLT_noalg_LArPEBNoise_L1EM3_EMPTY:
+  eventCount: 0
+HLT_noalg_LArPEBNoise_L1EM7_EMPTY:
+  eventCount: 0
+HLT_noalg_LArPEBNoise_L1EM7_FIRSTEMPTY:
+  eventCount: 0
+HLT_noalg_LArPEBNoise_L1J12_EMPTY:
+  eventCount: 0
+HLT_noalg_LArPEBNoise_L1J12_FIRSTEMPTY:
+  eventCount: 0
+HLT_noalg_LArPEBNoise_L1J30_FIRSTEMPTY:
+  eventCount: 0
+HLT_noalg_LArPEBNoise_L1J30p31ETA49_EMPTY:
+  eventCount: 0
+HLT_noalg_LArPEBNoise_L1TAU8_EMPTY:
   eventCount: 0
 HLT_noalg_SCTPEB_L1RD0_EMPTY:
   eventCount: 0
