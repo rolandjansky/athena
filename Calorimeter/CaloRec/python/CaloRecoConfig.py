@@ -76,6 +76,19 @@ def CaloRecoCfg(configFlags, clustersname=None):
     return result
 
 
+def CaloRecoDebuggingCfg(configFlags):
+    result = ComponentAccumulator()
+
+    result.addEventAlgo(CompFactory.DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_FromDigits"))
+    result.addEventAlgo(CompFactory.CaloCellDumper())
+
+    ClusterDumper = CompFactory.ClusterDumper
+    result.addEventAlgo(ClusterDumper("TopoDumper", ContainerName="CaloCalTopoClusters", FileName="TopoCluster.txt"))
+    result.addEventAlgo(ClusterDumper("FwdTopoDumper", ContainerName="CaloCalFwdTopoTowers", FileName="FwdTopoCluster.txt"))
+
+    return result
+
+
 if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
