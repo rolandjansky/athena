@@ -30,12 +30,12 @@ PartialEventBuildingIdentifiers = [
     'IDCalibPEB',
     'LArPEBHLT',
     'LArPEB',
+    'LArPEBNoise',
     'LATOMEPEB',
     'RPCPEBSecondaryReadout',
     'SCTPEB',
     'TilePEB',
     'AlfaPEB',
-    'CSCPEB',
     'ZDCPEB'
 ]
 
