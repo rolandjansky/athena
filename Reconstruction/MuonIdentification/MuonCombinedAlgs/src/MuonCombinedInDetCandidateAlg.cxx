@@ -106,7 +106,6 @@ StatusCode MuonCombinedInDetCandidateAlg::create(const EventContext& ctx, InDetC
         cache.candidate = std::make_unique<InDetCandidate>(link);
         cache.candidate->setSiliconAssociated(output_cache.flagAsSAF);  // Si-associated candidates don't need these
         cache.useHitSectors = false;
-        if (tp->pt() < m_extThreshold) continue;
         /// MuGirl only operates on ID tracks with pt at least this high   
         cache.createSystemExtension = (tp->pt() >= m_extThreshold) && 
                                       ( (m_extendSAF && cache.candidate->isSiliconAssociated()) ||
