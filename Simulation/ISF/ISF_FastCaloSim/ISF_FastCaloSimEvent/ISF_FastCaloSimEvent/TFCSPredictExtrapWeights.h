@@ -38,7 +38,7 @@ public:
   void set_freemem() {SetBit(kfreemem);};
 
   // Initialize Neural Network
-  bool initializeNetwork(int pid, std::string etaBin, std::string FastCaloNNInputFolderName);
+  bool initializeNetwork(int pid, std::vector<int> relevantLayers, std::string etaBin, std::string FastCaloNNInputFolderName);
 
   // Get inputs needed to normalize data
   bool getNormInputs(std::string etaBin, std::string FastCaloTXTInputFolderName);
@@ -56,11 +56,12 @@ private:
   
   // Persistify configuration in string m_input. A custom Streamer(...) builds m_nn on the fly when reading from file.
   //Inside Athena, if freemem() is true, the content of m_input is deleted after reading in order to free memory
-  std::string*                   m_input       = nullptr;
-  lwt::LightweightNeuralNetwork* m_nn          = nullptr; //! Do not persistify
-  std::vector<int>*              m_normLayers  = nullptr; // vector of index layers (-1 corresponds to truth energy)
-  std::vector<float>*            m_normMeans   = nullptr; // vector of mean values for normalizing energy fraction per layer, last index is for total energy
-  std::vector<float>*            m_normStdDevs = nullptr; // vector of std dev values for normalizing energy fraction per layer, last index is for total energy
+  std::string*                   m_input          = nullptr;
+  std::vector<int>*              m_relevantLayers = nullptr;
+  lwt::LightweightNeuralNetwork* m_nn             = nullptr; //! Do not persistify
+  std::vector<int>*              m_normLayers     = nullptr; // vector of index layers (-1 corresponds to truth energy)
+  std::vector<float>*            m_normMeans      = nullptr; // vector of mean values for normalizing energy fraction per layer, last index is for total energy
+  std::vector<float>*            m_normStdDevs    = nullptr; // vector of std dev values for normalizing energy fraction per layer, last index is for total energy
 
   ClassDefOverride(TFCSPredictExtrapWeights,1)  // TFCSPredictExtrapWeights
 };
