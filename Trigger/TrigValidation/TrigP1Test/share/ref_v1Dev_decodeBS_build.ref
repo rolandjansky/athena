@@ -314,6 +314,8 @@ HLT_2mu4_L1BPH-0M16-20DR99-2MU3V:
   eventCount: 0
 HLT_2mu4_L1BPH-7M11-25DR99-2MU3V:
   eventCount: 0
+HLT_2mu4_L1BPH-7M11-25DR99-2MU3VF:
+  eventCount: 0
 HLT_2mu4_L1BPH-8M15-15DR99-2MU3V:
   eventCount: 0
 HLT_2mu4_L1BPH-8M15-20DR99-2MU3V:
@@ -328,21 +330,31 @@ HLT_2mu4_PhysicsTLA_L12MU3V:
     0: 2
 HLT_2mu4_PhysicsTLA_L1BPH-0DR12-2MU3V:
   eventCount: 0
+HLT_2mu4_PhysicsTLA_L1BPH-0DR12-2MU3VF:
+  eventCount: 0
 HLT_2mu4_PhysicsTLA_L1BPH-0DR12C-2MU3V:
+  eventCount: 0
+HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR12-2MU3V:
+  eventCount: 0
+HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR12-2MU3VF:
   eventCount: 0
 HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3V:
   eventCount: 0
-HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20C-2MU3V:
-  eventCount: 0
 HLT_2mu4_PhysicsTLA_L1BPH-8M22-2MU3V:
+  eventCount: 0
+HLT_2mu4_PhysicsTLA_L1BPH-8M22-2MU3VF:
+  eventCount: 0
+HLT_2mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-2MU3V:
   eventCount: 0
 HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12-2MU3V:
   eventCount: 0
+HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12-2MU3VF:
+  eventCount: 0
 HLT_2mu4_b0dRAB12vtx20_L1BPH-0DR12C-2MU3V:
   eventCount: 0
-HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-2MU3V:
+HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR12-2MU3VF:
   eventCount: 0
-HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20C-2MU3V:
+HLT_2mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-2MU3V:
   eventCount: 0
 HLT_2mu4_bBmumu_L1BPH-2M9-0DR15-2MU3V:
   eventCount: 0
@@ -647,13 +659,23 @@ HLT_3mu4_b3mu_noos_L1BPH-0M10-3MU3V:
   eventCount: 0
 HLT_3mu4_bDimu2700_L13MU3V:
   eventCount: 0
+HLT_3mu4_bDimu2700_L13MU3VF:
+  eventCount: 0
 HLT_3mu4_bJpsi_L13MU3V:
+  eventCount: 0
+HLT_3mu4_bJpsi_L13MU3VF:
   eventCount: 0
 HLT_3mu4_bPhi_L13MU3V:
   eventCount: 0
+HLT_3mu4_bPhi_L13MU3VF:
+  eventCount: 0
 HLT_3mu4_bTau_L13MU3V:
   eventCount: 0
+HLT_3mu4_bTau_L13MU3VF:
+  eventCount: 0
 HLT_3mu4_bUpsi_L13MU3V:
+  eventCount: 0
+HLT_3mu4_bUpsi_L13MU3VF:
   eventCount: 0
 HLT_3mu6_L13MU5VF:
   eventCount: 0
@@ -4470,7 +4492,11 @@ HLT_mu6_mu4_L12MU3V:
     0: 4
 HLT_mu6_mu4_L1BPH-7M14-0DR25-MU5VFMU3V:
   eventCount: 0
-HLT_mu6_mu4_b0dRAB12vtx20_L1BPH-7M22-0DR12-MU5VFMU3V:
+HLT_mu6_mu4_L1BPH-7M14-0DR25-MU5VFMU3VF:
+  eventCount: 0
+HLT_mu6_mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-MU5VFMU3V:
+  eventCount: 0
+HLT_mu6_mu4_b0dRAB127invmAB22vtx20_L1BPH-7M22-0DR12-MU5VFMU3VF:
   eventCount: 0
 HLT_mu6_mu4_b0dRAB207invmAB22vtx20_L1BPH-7M22-0DR20-MU5VFMU3V:
   eventCount: 0
