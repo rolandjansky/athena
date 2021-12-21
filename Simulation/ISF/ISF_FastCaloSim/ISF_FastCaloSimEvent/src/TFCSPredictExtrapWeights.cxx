@@ -159,6 +159,11 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(const int p
     inputLayers.push_back(13);
     inputLayers.push_back(14);
   }
+  // Temporary (needed since I will be using v27 NN for electrons (for now)
+  if(is_match_pdgid(11) || is_match_pdgid(-11)){
+    inputLayers.push_back(13);
+    inputLayers.push_back(14);
+  }
   for(int ilayer=0;ilayer<CaloCell_ID_FCS::MaxSample;++ilayer) {
     if(std::find(inputLayers.begin(), inputLayers.end(), ilayer) != inputLayers.end()){
       std::string layer = std::to_string(ilayer);
@@ -173,7 +178,7 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(const int p
     }
   }
   // Find index for truth energy
-  auto itr = std::find(m_normLayers->begin(), m_normLayers->end(), -1);
+  auto itr  = std::find(m_normLayers->begin(), m_normLayers->end(), -1);
   int index = std::distance(m_normLayers->begin(), itr);
   inputVariables["etrue"] = ( truthE - (*m_normMeans).at(index) ) / (*m_normStdDevs).at(index);
   inputVariables["pdgId"] = pid; // Temporary (only needed when using NNs trained using multiple particles
