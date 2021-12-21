@@ -622,11 +622,11 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
     from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
 
     Extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
-    Navigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
+    Navigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags))
     ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
     ITkUpdator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
     ITkMultipleScatteringUpdator = acc.popToolsAndMerge(ITkMultipleScatteringUpdatorCfg(flags))
-    ITkMaterialEffectsUpdator = acc.getPrimaryAndMerge(ITkMaterialEffectsUpdatorCfg(flags))
+    ITkMaterialEffectsUpdator = acc.popToolsAndMerge(ITkMaterialEffectsUpdatorCfg(flags))
 
     kwargs.setdefault("ExtrapolationTool", Extrapolator)
     kwargs.setdefault("NavigatorTool", Navigator)

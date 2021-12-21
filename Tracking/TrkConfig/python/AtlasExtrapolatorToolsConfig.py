@@ -16,10 +16,8 @@ def AtlasNavigatorCfg(flags,
     geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
     result.merge(acc)
     # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) ------------------------
-    Trk__Navigator = CompFactory.Trk.Navigator
-    AtlasNavigator = Trk__Navigator(name=name,
-                                    TrackingGeometryKey=geom_cond_key)
-    result.addPublicTool(AtlasNavigator, primary=True)
+    result.setPrivateTools(CompFactory.Trk.Navigator(name,
+                                                     TrackingGeometryKey=geom_cond_key))
     return result
 
 
@@ -86,9 +84,7 @@ def AtlasMaterialEffectsUpdatorCfg(flags,
                                    name='AtlasMaterialEffectsUpdator',
                                    **kwargs):
     result = ComponentAccumulator()
-    MaterialEffectsUpdator = CompFactory.Trk.MaterialEffectsUpdator
-    AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name, **kwargs)
-    result.addPublicTool(AtlasMaterialEffectsUpdator, primary=True)
+    result.setPrivateTools(CompFactory.Trk.MaterialEffectsUpdator(name, **kwargs))
     return result
 
 

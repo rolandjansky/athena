@@ -814,14 +814,14 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
         AtlasNavigatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg)
 
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    InDetNavigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags, name="InDetNavigator"))
+    InDetNavigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetNavigator"))
     InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
     InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
 
     InDetMultipleScatteringUpdator = acc.popToolsAndMerge(
         InDetMultipleScatteringUpdatorCfg())
 
-    InDetMaterialEffectsUpdator = acc.getPrimaryAndMerge(
+    InDetMaterialEffectsUpdator = acc.popToolsAndMerge(
         InDetMaterialEffectsUpdatorCfg(flags))
 
     kwargs.setdefault("ExtrapolationTool", InDetExtrapolator)

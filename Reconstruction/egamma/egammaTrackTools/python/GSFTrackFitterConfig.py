@@ -21,7 +21,7 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
         from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
 
         egTrkNavigator = AtlasNavigatorCfg(flags, name="egTrkNavigator")
-        kwargs["Navigator"] = acc.getPrimaryAndMerge(egTrkNavigator)
+        kwargs["Navigator"] = acc.popToolsAndMerge(egTrkNavigator)
 
     if "GsfMaterialConvolution" not in kwargs:
         GsfMaterialUpdator = CompFactory.Trk.GsfMaterialMixtureConvolution(
