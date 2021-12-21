@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcByteStream.h"
@@ -182,12 +182,10 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
   statusBS.push_back(toBS32(ls));
   statusBS.push_back(rdo->orbit());
   
-  uint32_t nElements = 0;
   for(int iCnt = 0; iCnt < 7; iCnt++)
     {
       if(counters[iCnt].count > 0)
         {
-	  nElements += counters[iCnt].count;
 	  countersBS.push_back(toBS32(counters[iCnt]));
         }
     }

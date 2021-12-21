@@ -4,23 +4,19 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def primaryVertexFindingCfg(flags, **kwargs):
-    return primaryVertexFindingImplCfg(
-        flags,
-        SortingSetup=flags.InDet.primaryVertexSortingSetup,
-        VertexSetup=flags.InDet.primaryVertexSetup,
-        **kwargs,
-    )
-
-
-def primaryVertexFindingImplCfg(flags, SortingSetup, VertexSetup, **kwargs):
     acc = ComponentAccumulator()
 
-    vertexWeightTool = None
-    if SortingSetup == "SumPt2Sorting":
+    if flags.Detector.GeometryITk:
+        vtxFlags = flags.ITk.PriVertex
+    else:
+        vtxFlags = flags.InDet.PriVertex
+
+    vertexSorter = None
+    if vtxFlags.sortingSetup == 'SumPt2Sorting':
         vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
             DoSumPt2Selection=True
         )
-    elif SortingSetup == "SumPtSorting":
+    elif vtxFlags.sortingSetup == "SumPtSorting":
         vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
             DoSumPt2Selection=False
         )
@@ -29,30 +25,30 @@ def primaryVertexFindingImplCfg(flags, SortingSetup, VertexSetup, **kwargs):
     )
     # finder tool
     finderTool = None
-    if VertexSetup == "GaussAdaptiveMultiFinding":
+    if vtxFlags.setup == 'GaussAdaptiveMultiFinding':
         finderTool = acc.popToolsAndMerge(
             AdaptiveMultiFindingBaseCfg(flags, doGauss=True)
         )
-    elif VertexSetup == "AdaptiveMultiFinding":
+    elif vtxFlags.setup == "AdaptiveMultiFinding":
         finderTool = acc.popToolsAndMerge(
             AdaptiveMultiFindingBaseCfg(flags, doGauss=False)
         )
-    elif VertexSetup == "GaussIterativeFinding":
+    elif vtxFlags.setup == "GaussIterativeFinding":
         finderTool = acc.popToolsAndMerge(
             IterativeFindingBaseCfg(flags, doGauss=True)
         )
-    elif VertexSetup == "IterativeFinding":
+    elif vtxFlags.setup == "IterativeFinding":
         finderTool = acc.popToolsAndMerge(
             IterativeFindingBaseCfg(flags, doGauss=False)
         )
-    elif VertexSetup == "ActsGaussAdaptiveMultiFinding":
+    elif vtxFlags.setup == "ActsGaussAdaptiveMultiFinding":
         finderTool = acc.popToolsAndMerge(
             ActsGaussAdaptiveMultiFindingBaseCfg(flags)
         )
 
     # setup the finder alg
     InDetPriVxFinder = CompFactory.InDet.InDetPriVxFinder(
-        name=f"InDet{flags.InDet.Tracking.extension}PriVxFinder",
+        name=f"InDetPriVxFinder",
         doVertexSorting=True,
         VertexCollectionSortingTool=vertexSorter,
         VertexFinderTool=finderTool,
@@ -152,14 +148,15 @@ def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
             AnnealingMaker=InDetAnnealingMaker,
             DoSmoothing=True,
         )
+
     if flags.Detector.GeometryITk:
         vtxFlags = flags.ITk.PriVertex
     else:
         vtxFlags = flags.InDet.PriVertex
-    kwargs.setdefault("useBeamConstraint", flags.InDet.useBeamConstraint)
+    kwargs.setdefault("useBeamConstraint", vtxFlags.useBeamConstraint)
     kwargs.setdefault("selectiontype", 0)
     kwargs.setdefault("TracksMaxZinterval", vtxFlags.maxZinterval)
-    kwargs.setdefault("do3dSplitting", flags.InDet.doPrimaryVertex3DFinding)
+    kwargs.setdefault("do3dSplitting", vtxFlags.doPrimaryVertex3DFinding)
     kwargs.setdefault("m_useSeedConstraint", False)
     finderTool = CompFactory.InDet.InDetAdaptiveMultiPriVxFinderTool(
         name="InDetAdaptiveMultiPriVxFinderTool",
@@ -223,7 +220,7 @@ def IterativeFindingBaseCfg(flags, doGauss, **kwargs):
         vtxFlags = flags.ITk.PriVertex
     else:
         vtxFlags = flags.InDet.PriVertex
-    kwargs.setdefault("useBeamConstraint", flags.InDet.useBeamConstraint)
+    kwargs.setdefault("useBeamConstraint", vtxFlags.useBeamConstraint)
     kwargs.setdefault("significanceCutSeeding", 12)
     kwargs.setdefault("maximumChi2cutForSeeding", 49)
     kwargs.setdefault("maxVertices", 200)
@@ -278,19 +275,16 @@ if __name__ == "__main__":
 
     flags.Input.Files = defaultTestFiles.RDO
     import sys
-
-    if "ActsGaussAdaptiveMultiFinding" in sys.argv:
-        flags.InDet.primaryVertexSetup = "ActsGaussAdaptiveMultiFinding"
+    if 'ActsGaussAdaptiveMultiFinding' in sys.argv:
+        flags.InDet.PriVertex.setup = "ActsGaussAdaptiveMultiFinding"
     elif "IterativeFinding" in sys.argv:
-        flags.InDet.primaryVertexSetup = "IterativeFinding"
+        flags.InDet.PriVertex.setup = "IterativeFinding"
     elif "GaussIterativeFinding" in sys.argv:
-        flags.InDet.primaryVertexSetup = "GaussIterativeFinding"
+        flags.InDet.PriVertex.setup = "GaussIterativeFinding"
     elif "AdaptiveMultiFinding" in sys.argv:
-        flags.InDet.primaryVertexSetup = "AdaptiveMultiFinding"
+        flags.InDet.PriVertex.setup = "AdaptiveMultiFinding"
     elif "GaussAdaptiveMultiFinding" in sys.argv:
-        flags.InDet.primaryVertexSetup = "GaussAdaptiveMultiFinding"
-    else:
-        flags.InDet.primaryVertexSetup = "GaussAdaptiveMultiFinding"
+        flags.InDet.PriVertex.setup = "GaussAdaptiveMultiFinding"
     flags.lock()
 
     acc = MainServicesCfg(flags)
@@ -298,9 +292,10 @@ if __name__ == "__main__":
 
     mlog = logging.getLogger("primaryVertexFindingConfigTest")
     mlog.info("Configuring  primaryVertexFinding: ")
+
     printProperties(
         mlog,
-        acc.getEventAlgo(f"InDet{flags.InDet.Tracking.extension}PriVxFinder"),
+        acc.getEventAlgo(f"InDetPriVxFinder"),
         nestLevel=2,
         printDefaults=True,
     )

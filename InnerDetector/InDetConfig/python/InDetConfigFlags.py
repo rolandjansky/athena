@@ -37,7 +37,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doTrackSegmentsPixel", False) # Turn running of track segment creation in pixel on and off
   icf.addFlag("InDet.doTrackSegmentsSCT", False) # Turn running of track segment creation in SCT on and off
   icf.addFlag("InDet.doTrackSegmentsTRT", False) # Turn running of track segment creation in TRT on and off
-  icf.addFlag("InDet.useBeamConstraint", True) # use beam spot service in new tracking
+  icf.addFlag("InDet.useBeamSpotInfoNN", True) # use beam spot service in new tracking
   icf.addFlag("InDet.kalmanUpdator", "smatrix") # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg")
   icf.addFlag("InDet.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
   icf.addFlag("InDet.propagatorType", "RungeKutta") # control which propagator to use ('RungeKutta'/'STEP')
@@ -56,11 +56,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doResolveBackTracks", True) # control running the ambi on back tracking
   icf.addFlag("InDet.doTRTStandalone", True) # control TRT Standalone
   icf.addFlag("InDet.refitROT", True) # control if refit is done from PRD or ROT
-  icf.addFlag("InDet.doVertexFinding", True) # Turn on the primary vertex reconstruction
-  icf.addFlag("InDet.primaryVertexSetup", 'ActsGaussAdaptiveMultiFinding') # string to store the setup for primary vertexing, possible types: 'ActsGaussAdaptiveMultiFinding', 'GaussAdaptiveMultiFinding', 'GaussIterativeFinding', 'AdaptiveMultiFinding', 'IterativeFinding'
-  # icf.addFlag("InDet.primaryVertexCutSetup", 'Offline') # string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'HeavyIon'
-  icf.addFlag("InDet.primaryVertexSortingSetup", 'SumPt2Sorting') # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'SumPt2Sorting','SumPtSorting'
-  icf.addFlag("InDet.doPrimaryVertex3DFinding", True) # will be set to false automatically if beam constraint ON, otherwise true. Control if to use 3d seeding for primary vertex finding (useful in case of poor / no knowledge of the beam spot. Will be set to false automatically if beam constraint ON, otherwise true
   icf.addFlag("InDet.perigeeExpression", "BeamLine") # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   # icf.addFlag("InDet.secondaryVertexCutSetup", "PileUp") # string to store the type of cuts to be used in PV reconstruction: 'StartUp', 'PileUp'
   # icf.addFlag("InDet.conversionVertexCutSetup", "ConversionPileUp") # string to store the type of cuts to be used in conversion reconstruction: 'ConversionStartUp', 'ConversionPileUp'
@@ -106,35 +101,35 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
   icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
 
-  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, \
-    createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, \
-    createLowPtTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createBeamGasTrackingFlags, \
-    createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, \
-    createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, \
-    createTRTStandaloneTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
+  from InDetConfig.TrackingPassFlags import createTrackingPassFlags, createIBLTrackingPassFlags, createHighPileupTrackingPassFlags, \
+    createMinBiasTrackingPassFlags, createLargeD0TrackingPassFlags, createR3LargeD0TrackingPassFlags, createLowPtLargeD0TrackingPassFlags, \
+    createLowPtTrackingPassFlags, createVeryLowPtTrackingPassFlags, createForwardTracksTrackingPassFlags, createBeamGasTrackingPassFlags, \
+    createVtxLumiTrackingPassFlags, createVtxBeamSpotTrackingPassFlags, createCosmicsTrackingPassFlags, createHeavyIonTrackingPassFlags, \
+    createPixelTrackingPassFlags, createDisappearingTrackingPassFlags, createSCTTrackingPassFlags, createTRTTrackingPassFlags, \
+    createTRTStandaloneTrackingPassFlags, createSCTandTRTTrackingPassFlags, createDBMTrackingPassFlags
 
-  icf.addFlagsCategory ("InDet.Tracking", createTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.IBLTracking", createIBLTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.HighPileupTracking", createHighPileupTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.MinBiasTracking", createMinBiasTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.LargeD0Tracking", createLargeD0TrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.R3LargeD0Tracking", createR3LargeD0TrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.LowPtLargeD0Tracking", createLowPtLargeD0TrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.LowPtTracking", createLowPtTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.VeryLowPtTracking", createVeryLowPtTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.ForwardTracksTracking", createForwardTracksTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.BeamGasTracking", createBeamGasTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.VtxLumiTracking", createVtxLumiTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.VtxBeamSpotTracking", createVtxBeamSpotTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.CosmicsTracking", createCosmicsTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.HeavyIonTracking", createHeavyIonTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.PixelTracking", createPixelTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.DisappearingTracking", createDisappearingTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.SCTTracking", createSCTTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.TRTTracking", createTRTTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.TRTStandaloneTracking", createTRTStandaloneTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking", createTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.IBLTracking", createIBLTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.HighPileupTracking", createHighPileupTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.MinBiasTracking", createMinBiasTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LargeD0Tracking", createLargeD0TrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.R3LargeD0Tracking", createR3LargeD0TrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LowPtLargeD0Tracking", createLowPtLargeD0TrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LowPtTracking", createLowPtTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VeryLowPtTracking", createVeryLowPtTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.ForwardTracksTracking", createForwardTracksTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.BeamGasTracking", createBeamGasTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VtxLumiTracking", createVtxLumiTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VtxBeamSpotTracking", createVtxBeamSpotTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.CosmicsTracking", createCosmicsTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.HeavyIonTracking", createHeavyIonTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.PixelTracking", createPixelTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.DisappearingTracking", createDisappearingTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SCTTracking", createSCTTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.TRTTracking", createTRTTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.TRTStandaloneTracking", createTRTStandaloneTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingPassFlags, prefix=True)
 
   from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags, createPriVertexingFlags
   icf.addFlagsCategory("InDet.PriVertex", createPriVertexingFlags, prefix=True)

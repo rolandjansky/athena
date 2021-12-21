@@ -126,6 +126,7 @@ def createPriVertexingFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
     flags= AthConfigFlags()
 
+    flags.addFlag("doVertexFinding", True) # Turn on the primary vertex reconstruction
     flags.addFlag("maxAbsEta", 9999.0)
     flags.addFlag("maxD0", 4.0 * Units.mm)
     flags.addFlag("maxNPixelHoles", 1)
@@ -142,7 +143,10 @@ def createPriVertexingFlags():
     flags.addFlag("maxZinterval", 3)
     flags.addFlag("doMaxTracksCut", True)
     flags.addFlag("MaxTracks", 3000)
-
+    flags.addFlag("setup", "ActsGaussAdaptiveMultiFinding") # string to store the setup for primary vertexing, possible types: 'ActsGaussAdaptiveMultiFinding', 'GaussAdaptiveMultiFinding', 'GaussIterativeFinding', 'AdaptiveMultiFinding', 'IterativeFinding'
+    flags.addFlag("sortingSetup", "SumPt2Sorting") # string to store the type of sorting algorithm to separate signal and pile-up vertices, possible types: 'NoReSorting','SumPt2Sorting','VxProbSorting','NNSorting'
+    flags.addFlag("useBeamConstraint", True)
+    flags.addFlag("doPrimaryVertex3DFinding", True)  # will be set to false automatically if beam constraint ON, otherwise true. Control if to use 3d seeding for primary vertex finding (useful in case of poor / no knowledge of the beam spot. Will be set to false automatically if beam constraint ON, otherwise true
 
     return flags
 

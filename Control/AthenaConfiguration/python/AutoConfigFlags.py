@@ -43,6 +43,9 @@ class DynamicallyLoadMetadata:
     def __repr__(self):
         return repr(self.metadata)
 
+    def keys(self):
+        return self.metadata.keys()
+
 def GetFileMD(filenames):
     if isinstance(filenames, str):
         filenames = [filenames]

@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -37,11 +37,8 @@
  *   class ATLAS_CHECK_THREAD_SAFETY C  { ... }
  @endcode
  *
- * Implementation note: the attributes are currently all in the `gnu'
- * attribute namespace due to a gcc limitation.  This has been fixed
- * in gcc7, so eventually the attributes should move into an atlas-specific
- * namespace.  Thus, you should always use the macros defined here; don't
- * write the attributes directly.
+ * You should always use the macros defined here; don't write
+ * the attributes directly.
  */
 
 

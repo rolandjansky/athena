@@ -48,7 +48,7 @@ void TrackCnv_p4::persToTrans( const Trk::Track_p4 *persObj,
   std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> sink(
     m_trackStateVectorCnv.createTransient(&persObj->m_trackState, log));
   //move copy
-  transObj->m_trackStateVectorPtr = std::move(sink);
+  transObj->m_trackStateVector = std::move(*sink);
 }
 
 //-----------------------------------------------------------------------------
@@ -82,22 +82,22 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
     log<<MSG::WARNING<<"No FitQuality on track at ["<<transObj<<"]"<<" with info="<<transObj->info().dumpInfo()<<endmsg;
   }
 
-  if (!transObj->m_trackStateVectorPtr->empty()) {
+  if (!transObj->m_trackStateVector.empty()) {
     unsigned int n_elms = 0;
     {
       for (const Trk::TrackStateOnSurface* tsos :
-           (*transObj->m_trackStateVectorPtr)) {
+           (transObj->m_trackStateVector)) {
         if (keepTSOS(tsos))
           ++n_elms;
       }
     }
 
-    if (n_elms != transObj->m_trackStateVectorPtr->size()) {
+    if (n_elms != transObj->m_trackStateVector.size()) {
       DataVector<const Trk::TrackStateOnSurface> pers_tsos(SG::VIEW_ELEMENTS);
       pers_tsos.reserve(n_elms);
       {
         for (const Trk::TrackStateOnSurface* tsos :
-             (*transObj->m_trackStateVectorPtr)) {
+             (transObj->m_trackStateVector)) {
           if (keepTSOS(tsos)) {
             pers_tsos.push_back(const_cast<Trk::TrackStateOnSurface*>(tsos));
           }
@@ -107,9 +107,9 @@ void TrackCnv_p4::transToPers( const Trk::Track    *transObj,
         &pers_tsos, &persObj->m_trackState, log);
     } else {
       m_trackStateVectorCnv.transToPers(
-        transObj->m_trackStateVectorPtr.get(), &persObj->m_trackState, log);
+        &transObj->m_trackStateVector, &persObj->m_trackState, log);
     }
   } else {
-    m_trackStateVectorCnv.transToPers( transObj->m_trackStateVectorPtr.get(), &persObj->m_trackState, log );
+    m_trackStateVectorCnv.transToPers( &transObj->m_trackStateVector, &persObj->m_trackState, log );
   }
 }

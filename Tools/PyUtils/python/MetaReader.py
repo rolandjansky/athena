@@ -171,12 +171,20 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.': 'xAOD::TriggerMenuAuxContainer_v1',
                         'TriggerMenuJson_HLT': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format AOD
                         'TriggerMenuJson_HLTAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'TriggerMenuJson_HLTPS': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format AOD
+                        'TriggerMenuJson_HLTPSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         'TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>',
                         'TriggerMenuJson_L1Aux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'TriggerMenuJson_L1PS': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'TriggerMenuJson_L1PSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
                         'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLTPS': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
+                        'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTPSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>',
                         'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1PS': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1PSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         '*': 'EventStreamInfo_p*'
                     }
 
@@ -280,40 +288,30 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 # read the metadata
                 for name, content in persistent_instances.items():
                     key = name
-
                     if hasattr(content, 'm_folderName'):
                         key = getattr(content, 'm_folderName')
 
                     # Some transition AODs contain both the Run2 and Run3 metadata formats. We only wish to read the Run3 format if such a file is encountered.
                     has_r3_trig_meta = ('TriggerMenuJson_HLT' in persistent_instances or 'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT' in persistent_instances)
-
                     aux = None
-                    if key == 'TriggerMenuJson_HLT' and 'TriggerMenuJson_HLTAux.' in persistent_instances: # AOD case (HLT menu)
-                        aux = persistent_instances['TriggerMenuJson_HLTAux.']
-                    elif key == 'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT' and 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.' in persistent_instances: # ESD case (HLT menu)
-                        aux = persistent_instances['xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.']
-                    elif key == 'TriggerMenuJson_L1' and 'TriggerMenuJson_L1Aux.' in persistent_instances: # AOD case (L1 menu)
-                        aux = persistent_instances['TriggerMenuJson_L1Aux.']
-                    elif key == 'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1' and 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.' in persistent_instances: # ESD case (L1 menu)
-                        aux = persistent_instances['xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.']
+                    if key.startswith('TriggerMenuJson_') and not key.endswith('Aux.'): # interface container for the menu (AOD)
+                        aux = persistent_instances[key+'Aux.']
+                    elif key.startswith('DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_') and not key.endswith('Aux.'): # interface container for the menu (ESD)
+                        menuPart = key.split('_')[-1]
+                        aux = persistent_instances['xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_'+menuPart+'Aux.']    
                     elif key == 'TriggerMenu' and 'TriggerMenuAux.' in persistent_instances and not has_r3_trig_meta: # AOD case (legacy support, HLT and L1 menus)
                         aux = persistent_instances['TriggerMenuAux.']
                     elif key == 'DataVector<xAOD::TriggerMenu_v1>_TriggerMenu' and 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.' in persistent_instances and not has_r3_trig_meta: # ESD case (legacy support, HLT and L1 menus)
-                        aux = persistent_instances['xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.']
-                    elif key == 'TriggerMenuAux.' or key == 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.':
-                        continue # Extracted using the interface object
-                    elif key == 'TriggerMenuJson_HLTAux.' or key == 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.':
-                        continue # Extracted using the interface object
-                    elif key == 'TriggerMenuJson_L1Aux.' or key == 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.':
-                        continue # Extracted using the interface object
-                    elif key == 'FileMetaData' and 'FileMetaDataAux.' in persistent_instances:
-                        aux = persistent_instances['FileMetaDataAux.']
-                    elif key == 'xAOD::FileMetaData_v1_FileMetaData' and 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.' in persistent_instances:
-                        aux = persistent_instances['xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.']
+                        aux = persistent_instances['xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.']                    
+                    elif 'Menu' in key and key.endswith('Aux.'): # Extracted using the interface object
+                        continue
 
                     return_obj = _convert_value(content, aux)
 
-                    if 'TriggerMenuJson_HLT' in key or 'TriggerMenuJson_L1' in key or ('TriggerMenu' in key and not has_r3_trig_meta):
+                    if 'TriggerMenuJson' in key  or ('TriggerMenu' in key and not has_r3_trig_meta):
+                        if 'RAWTriggerMenuJson' in return_obj:
+                            meta_dict[filename][key] = return_obj['RAWTriggerMenuJson']
+                            del return_obj['RAWTriggerMenuJson']
                         if 'TriggerMenu' not in meta_dict[filename]:
                             meta_dict[filename]['TriggerMenu'] = {}
                         meta_dict[filename]['TriggerMenu'].update(return_obj)
@@ -792,10 +790,16 @@ def _extract_fields_triggermenujson(interface, aux):
             firstMenu = interface.at(0)
             import json
             decoded = json.loads(firstMenu.payload())
+            result['RAWTriggerMenuJson'] = firstMenu.payload()
             if decoded['filetype'] == 'hltmenu':
                 result['HLTChains'] = [ _convert_value(chain) for chain in decoded['chains'] ] 
             elif decoded['filetype'] == 'l1menu':
                 result['L1Items'] = [ _convert_value(item) for item in decoded['items'] ] 
+            elif decoded['filetype'] == 'hltprescale':
+                return result
+            elif decoded['filetype'] == 'l1prescale':
+                return result
+
             else:
                 msg.warn('Got an xAOD::TriggerMenuJson called {0} but only expecting hltmenu or l1menu'.format(decoded['filetype']))
                 return {}

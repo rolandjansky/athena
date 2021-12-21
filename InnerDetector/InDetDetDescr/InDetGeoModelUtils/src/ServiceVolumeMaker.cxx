@@ -96,7 +96,7 @@ namespace InDetDD {
 
   const IGeometryDBSvc*
   ServiceVolumeMakerMgr::db() const {
-    return m_athenaComps->geomDB();
+    return std::as_const(*m_athenaComps).geomDB();
   }
 
   double
@@ -222,7 +222,7 @@ namespace InDetDD {
   }
 
   std::vector<double>
-  ServiceVolumeMakerMgr::readLayerShift() const {
+  ServiceVolumeMakerMgr::readLayerShift() {
     std::vector<double> layerShift;
 
     IRDBAccessSvc* rdbSvc = m_athenaComps->rdbAccessSvc();

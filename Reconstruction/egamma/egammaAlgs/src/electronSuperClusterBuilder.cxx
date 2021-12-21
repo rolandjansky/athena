@@ -156,22 +156,18 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
 
     // Create the new cluster: take the full list of cluster and add their
     // cells together
-    std::unique_ptr<xAOD::CaloCluster> newCluster =
+    bool clusterAdded =
       createNewCluster(ctx,
                        accumulatedClusters,
                        *calodetdescrmgr,
                        xAOD::EgammaParameters::electron,
+                       outputClusterContainer.ptr(),
                        precorrClustersH ? precorrClustersH->ptr() : nullptr);
-
-    if (!newCluster) {
-      ATH_MSG_DEBUG("Creating a new cluster failed");
+    if (!clusterAdded) {
       // Revert status of constituent clusters.
       isUsed.swap(isUsedRevert);
       continue;
     }
-
-    // Push back the new cluster into the output container.
-    outputClusterContainer->push_back(std::move(newCluster));
 
     // Add the cluster link to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(

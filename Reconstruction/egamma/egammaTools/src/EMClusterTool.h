@@ -62,9 +62,6 @@ private:
   void setNewCluster(const EventContext& ctx,
                      xAOD::Egamma* eg,
                      xAOD::CaloClusterContainer* outputClusterContainer) const;
-  /** @brief creation of new super cluster based on existing one */
-  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster,
-                                         xAOD::Egamma* eg) const;
 
   /** @brief Key of the output cluster container **/
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClusterContainerKey{

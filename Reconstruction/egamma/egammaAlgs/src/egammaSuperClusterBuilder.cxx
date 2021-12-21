@@ -119,22 +119,18 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
       // no need to add vertices
     }
 
-    std::unique_ptr<xAOD::CaloCluster> newCluster =
+   bool clusterAdded =
       createNewCluster(ctx,
                        accumulatedClusters,
                        *calodetdescrmgr,
                        m_egTypeForCalibration,
+                       outputClusterContainer.ptr(),
                        precorrClustersH ? precorrClustersH->ptr() : nullptr);
 
-    if (!newCluster) {
-      ATH_MSG_DEBUG("Creating a new cluster failed");
-      // Revert status of constituent clusters.
+    if (!clusterAdded) {
       isUsed.swap(isUsedRevert);
       continue;
     }
-
-    // push back the new egamma super cluster to the output container
-    outputClusterContainer->push_back(std::move(newCluster));
 
     // Add the cluster link to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(

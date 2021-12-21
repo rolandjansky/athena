@@ -915,10 +915,9 @@ if 'AthSequencer/EvgenGenSeq' in topSequence.getSequence():
 
     ###############Back to MyCustomSkeleton######################
 
-## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag":runArgs.AMITag})
+# Set AMITag in in-file metadata
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
 patch_mc_channel_numberMetadata()

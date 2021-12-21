@@ -1,5 +1,4 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
@@ -15,13 +14,14 @@
 #define EGAMMAD3PDANALYSIS_EGAMMATRUTHALG_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include <string>
 
 
@@ -32,7 +32,7 @@ namespace D3PD {
  * @brief Select egtruth particles.
  */
 class egammaTruthAlg
-  : public AthAlgorithm
+  : public AthReentrantAlgorithm
 {
 public:
   /**
@@ -49,7 +49,7 @@ public:
 
 
   /// Standard Gaudi @c execute method.
-  virtual StatusCode execute() override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
 
 
 private:
@@ -61,7 +61,7 @@ private:
    */
   bool isAccepted (const xAOD::TruthParticle& tp,
                    const xAOD::TruthParticleContainer& cont,
-                   float& iso);
+                   float& iso) const;
 
 
   /**
@@ -70,7 +70,7 @@ private:
    * @param cont The container of particles.
    */
   float computeIso (const xAOD::TruthParticle& tp,
-                    const xAOD::TruthParticleContainer& cont);
+                    const xAOD::TruthParticleContainer& cont) const;
 
 
   /**
@@ -78,20 +78,25 @@ private:
    * @param p The particle to analyze.
    * @param etaCalo[out] Eta of the particle's impact with the calorimeter.
    * @param phiCalo[out] Phi of the particle's impact with the calorimeter.
+   * @param depthCalo[out] Depth of the particle's impact with the calorimeter
+   *                       (r for barrel and abs(z) for endcap).
    */
   StatusCode findImpact (const xAOD::TruthParticle& tp,
                          float& etaCalo,
-                         float& phiCalo);
+                         float& phiCalo,
+                         float& depthCalo) const;
 
 
   /// Property: Prefix to add to aux data items.
   std::string m_auxPrefix;
 
   /// Property: Name of the input container.
-  std::string m_inputKey;
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_inputKey
+    { this, "InputKey", "", "SG key for the input container." };
 
   /// Property: Name of the output container.
-  std::string m_outputKey;
+  SG::WriteHandleKey<xAOD::TruthParticleContainer> m_outputKey
+    { this, "OutputKey", "", "SG key for the output container." };
 
   /// Property: Minimum pt for electrons.
   float m_electronPtMin;

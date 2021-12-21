@@ -1682,6 +1682,7 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    
    // track
    const float TRKCUT_DELTA_R_TO_SEED = 1.0;
+   hitDVTrkContainer->reserve(v_dvtrk_pt.size());
    for(unsigned int iTrk=0; iTrk<v_dvtrk_pt.size(); ++iTrk) {
       float trk_eta = v_dvtrk_eta[iTrk];
       float trk_phi = v_dvtrk_phi[iTrk];
@@ -1696,7 +1697,6 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 	 if( ! isNearSeed ) continue;
       }
       xAOD::TrigComposite *hitDVTrk = new xAOD::TrigComposite();
-      hitDVTrk->makePrivateStore();
       hitDVTrkContainer->push_back(hitDVTrk);
       hitDVTrk->setDetail<int>  ("hitDVTrk_id",  v_dvtrk_id[iTrk]);
       hitDVTrk->setDetail<float>("hitDVTrk_pt",  v_dvtrk_pt[iTrk]);
@@ -1712,6 +1712,8 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    const float SPCUT_DELTA_R_TO_SEED = 0.6;
    unsigned int n_sp_stored = 0;
    const unsigned int N_MAX_SP_STORED = 100000;
+
+   hitDVSPContainer->reserve(v_sp_eta.size());
    for(unsigned int iSp=0; iSp<v_sp_eta.size(); ++iSp) {
       float sp_eta = v_sp_eta[iSp];
       float sp_phi = v_sp_phi[iSp];
@@ -1728,7 +1730,6 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       ++n_sp_stored;
       if( n_sp_stored > N_MAX_SP_STORED ) break;
       xAOD::TrigComposite *hitDVSP = new xAOD::TrigComposite();
-      hitDVSP->makePrivateStore();
       hitDVSPContainer->push_back(hitDVSP);
       hitDVSP->setDetail<float>  ("hitDVSP_eta",       v_sp_eta[iSp]);
       hitDVSP->setDetail<float>  ("hitDVSP_r",         v_sp_r[iSp]);

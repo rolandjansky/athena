@@ -67,17 +67,13 @@ def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **
         kwargs.setdefault("ParticleKillerTool", pubTool) # public toolHandle
 
     if "GeoIDSvc" not in kwargs:
-        acc.merge(GeoIDSvcCfg(flags))
-        kwargs.setdefault("GeoIDSvc", acc.getService("ISF_GeoIDSvc"))
+        kwargs.setdefault("GeoIDSvc", acc.getPrimaryAndMerge(GeoIDSvcCfg(flags)).name)
 
     if "InputConverter" not in kwargs:
-        acc.merge(InputConverterCfg(flags))
-        kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
+        kwargs.setdefault("InputConverter", acc.getPrimaryAndMerge(InputConverterCfg(flags)).name)
 
     if "TruthRecordService" not in kwargs:
-        truthacc = TruthServiceCfg(flags)
-        kwargs.setdefault("TruthRecordService", truthacc.getPrimary())
-        acc.merge(truthacc)
+        kwargs.setdefault("TruthRecordService", acc.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     if "EntryLayerTool" not in kwargs:
         entryLayerTool  = acc.popToolsAndMerge(EntryLayerToolMTCfg(flags))
@@ -148,8 +144,7 @@ def Kernel_FullG4MT_QSCfg(flags, name="ISF_Kernel_FullG4MT_QS", **kwargs):
         acc.popToolsAndMerge(LongLivedGeant4ToolCfg(flags))
     ])
 
-    acc.merge(LongLivedInputConverterCfg(flags))
-    kwargs.setdefault("InputConverter", acc.getService("ISF_LongLivedInputConverter"))
+    kwargs.setdefault("InputConverter", acc.getPrimaryAndMerge(LongLivedInputConverterCfg(flags)).name)
 
     acc.merge(Kernel_GenericG4OnlyMTCfg(flags, name, **kwargs))
     return acc
@@ -190,8 +185,7 @@ def Kernel_PassBackG4MTCfg(flags, name="ISF_Kernel_PassBackG4MT", **kwargs):
 
 def Kernel_ATLFASTIIMTCfg(flags, name="ISF_Kernel_ATLFASTIIMT", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(AFIIGeoIDSvcCfg(flags))
-    kwargs.setdefault("GeoIDSvc", acc.getService("ISF_AFIIGeoIDSvc"))
+    kwargs.setdefault("GeoIDSvc", acc.getPrimaryAndMerge(AFIIGeoIDSvcCfg(flags)).name)
     eltool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
     acc.addPublicTool(eltool)
     kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(eltool.name)) # public ToolHandle
@@ -296,8 +290,7 @@ def Kernel_ATLFAST3MTCfg(flags, name="ISF_Kernel_ATLFAST3MT", **kwargs):
 
 def Kernel_ATLFAST3MT_QSCfg(flags, name="ISF_Kernel_ATLFAST3MT_QS", **kwargs):
     acc = ComponentAccumulator()
-    acc.merge(LongLivedInputConverterCfg(flags))
-    kwargs.setdefault("InputConverter", acc.getService("ISF_LongLivedInputConverter"))
+    kwargs.setdefault("InputConverter", acc.getPrimaryAndMerge(LongLivedInputConverterCfg(flags)).name)
     kwargs.setdefault("ParticleOrderingTool"       ,   acc.popToolsAndMerge(ParticleOrderingToolCfg(flags)))
 
     tool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
@@ -345,9 +338,7 @@ def Kernel_GenericSimulatorCfg(flags, name="ISF_Kernel_GenericSimulator", **kwar
     acc = ComponentAccumulator()
 
     if "TruthRecordService" not in kwargs:
-        truthacc = TruthServiceCfg(flags)
-        kwargs.setdefault("TruthRecordService", truthacc.getPrimary())
-        acc.merge(truthacc)
+        kwargs.setdefault("TruthRecordService", acc.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     if "MemoryMonitoringTool" not in kwargs:
         tool = acc.popToolsAndMerge(MemoryMonitorToolCfg(flags))
@@ -356,12 +347,10 @@ def Kernel_GenericSimulatorCfg(flags, name="ISF_Kernel_GenericSimulator", **kwar
         kwargs.setdefault("MemoryMonitoringTool", pubTool)
 
     if "ParticleBroker" not in kwargs:
-        acc.merge(AFIIParticleBrokerSvcCfg(flags))
-        kwargs.setdefault("ParticleBroker", acc.getService("ISF_AFIIParticleBrokerSvc"))
+        kwargs.setdefault("ParticleBroker", acc.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
 
     if "InputConverter" not in kwargs:
-        acc.merge(InputConverterCfg(flags))
-        kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
+        kwargs.setdefault("InputConverter", acc.getPrimaryAndMerge(InputConverterCfg(flags)).name)
 
     kwargs.setdefault("InputHardScatterCollection", "BeamTruthEvent")
     kwargs.setdefault("OutputHardScatterTruthCollection", "TruthEvent")

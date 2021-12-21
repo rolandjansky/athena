@@ -244,6 +244,7 @@ void AFPSiDBasicKalmanTool::saveToXAOD (const AFPSiDBasicKalmanToolTrack& recoTr
   track->setNClusters(recoTrack.clustersInTrack().size());
   track->setNHoles(recoTrack.holes());
   track->setChi2(recoTrack.trkChi2NDFSmooth());
+  track->setAlgID(xAOD::AFPTrackRecoAlgID::basicKalman);
 
   // add links to clusters
   ATH_MSG_DEBUG("Track position: (x="<<track->xLocal()<<", y="<<track->yLocal()<<", z="<<track->zLocal()<<")   slope: (dx="<<track->xSlope()<<", dy="<<track->ySlope()<<")   chi2="<<track->chi2()<<", nHoles="<<track->nHoles()<<", nClusters="<<track->nClusters());

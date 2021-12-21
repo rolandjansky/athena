@@ -10,6 +10,7 @@ genSeq.Epos.TargetParticle   = 1
 genSeq.Epos.Model            = 0
 genSeq.Epos.TabCreate        = 0
 genSeq.Epos.ParamFile        = "epos_crmc.param"
+genSeq.Epos.maxCMEnergy      = runArgs.ecmEnergy
 
 ## Get files from the InstallArea
 import os

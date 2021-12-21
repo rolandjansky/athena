@@ -20,7 +20,6 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 namespace Muon {
     class MuonSegment;
@@ -59,8 +58,6 @@ private:
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-                                                              "Handle to the service providing the IMuonEDMHelperSvc interface"};
       
     /// Helper struct to cache the MuidCo track and it's associated segments while keeping
     /// the association InDetCandidate <-- > muidCo Tag
@@ -68,8 +65,6 @@ private:
         
         const MuonCombined::InDetCandidate* id_trk{nullptr};
         const MuonCombined::CombinedFitTag* cmb_trk{nullptr};
-        std::vector<const Muon::MuonSegment*> segments;
-
         MuidCoCache(const MuonCombined::InDetCandidate* _id, const MuonCombined::CombinedFitTag* _cb):
             id_trk{_id}, cmb_trk{_cb} {}
     };
@@ -89,14 +84,14 @@ private:
         std::unique_ptr<InDetCandidateCollection> outputContainer = std::make_unique<InDetCandidateCollection>(SG::OWN_ELEMENTS);
 
      
-        std::map<Muon::MuonStationIndex::DetectorRegionIndex, std::set<int>> hitted_sectors;
+        std::map<Muon::MuonStationIndex::DetectorRegionIndex, std::set<int>> hit_sectors;
     };
 
     /// Restrict the extrapolation of ID tracks to sectors in the MS where at least a hit is recorded     
     Gaudi::Property<bool> m_restrictExtension{this, "UseOnlyHitSectors", false};
     /// The hough maxima always contain at least 2 hits. If a muon track passes through a chamber one expects more than that.
     /// Apply a minimum cuts on the hits in the hough maximum to reject background --> needs to be further tuned
-    Gaudi::Property<unsigned int> m_houghMin{this,"minHoughHits", 2, "Minimum number of hits required for a hough maximum to be accepted"};
+    Gaudi::Property<unsigned int> m_houghMin{this,"minHoughHits", 4, "Minimum number of hits required for a hough maximum to be accepted"};
    
     /// Minimum pt threshold of the IdCandidate to be extrapolated through the spectrometer
     Gaudi::Property<float> m_extThreshold{this, "ExtensionPtThreshold", 2500};
@@ -108,7 +103,7 @@ private:
     /// Select the MuidCo candidates and put the associated id tracks on a black list
     StatusCode selectCandidates(const EventContext& ctx, InDetCandidateCache& cache) const;
     /// Find the sectors in the MS with muon signals
-    StatusCode findHittedSectors(const EventContext& ctx, 
+    StatusCode findHitSectors(const EventContext& ctx, 
                                  InDetCandidateCache& output_cache) const;
     /// Create the InDetCandidaes with system extensions
     StatusCode create(const EventContext& ctx, InDetCandidateCache& cache) const;

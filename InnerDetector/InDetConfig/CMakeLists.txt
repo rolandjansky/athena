@@ -11,8 +11,8 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 #atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_runtime( test/ITkTest.py )
 
-atlas_add_test( TrackingCutsFlags_test
-    SCRIPT python -m InDetConfig.TrackingCutsFlags
+atlas_add_test( TrackingPassFlags_test
+    SCRIPT python -m InDetConfig.TrackingPassFlags
     POST_EXEC_SCRIPT nopost.sh)
  
 atlas_add_test( BackTrackingConfig_test

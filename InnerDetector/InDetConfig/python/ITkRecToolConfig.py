@@ -52,7 +52,7 @@ def ITkTrackSummaryHelperToolCfg(flags, name='ITkSummaryHelper', **kwargs):
   kwargs.setdefault("TRTStrawSummarySvc", "")
   kwargs.setdefault("PixelToTPIDTool", None)
   kwargs.setdefault("TestBLayerTool", None)
-  kwargs.setdefault("RunningTIDE_Ambi", flags.ITk.doTIDE_Ambi)
+  kwargs.setdefault("RunningTIDE_Ambi", True)
   kwargs.setdefault("DoSharedHits", False)
   kwargs.setdefault("usePixel", flags.Detector.EnableITkPixel)
   kwargs.setdefault("useSCT", flags.Detector.EnableITkStrip)
@@ -117,9 +117,9 @@ def ITkTestPixelLayerToolCfg(flags, name = "ITkTestPixelLayerTool", **kwargs):
     result.addPublicTool(extrapolator)  # TODO: migrate to private?
     kwargs.setdefault("Extrapolator", extrapolator)
 
-  kwargs.setdefault("CheckActiveAreas", flags.ITk.checkDeadElementsOnTrack)
-  kwargs.setdefault("CheckDeadRegions", flags.ITk.checkDeadElementsOnTrack)
-  kwargs.setdefault("CheckDisabledFEs", flags.ITk.checkDeadElementsOnTrack)
+  kwargs.setdefault("CheckActiveAreas", flags.ITk.checkDeadPixelsOnTrack)
+  kwargs.setdefault("CheckDeadRegions", flags.ITk.checkDeadPixelsOnTrack)
+  kwargs.setdefault("CheckDisabledFEs", flags.ITk.checkDeadPixelsOnTrack)
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool( name = the_name, **kwargs)
   result.setPrivateTools( tool )
@@ -144,13 +144,13 @@ def ITkUpdatorCfg(flags, name = 'ITkUpdator', **kwargs):
     result = ComponentAccumulator()
 
     tool = None
-    if flags.ITk.kalmanUpdator == "fast" :
+    if flags.ITk.Tracking.kalmanUpdator == "fast" :
         tool = CompFactory.Trk.KalmanUpdator_xk(name = the_name, **kwargs)
-    elif flags.ITk.kalmanUpdator == "weight" :
+    elif flags.ITk.Tracking.kalmanUpdator == "weight" :
         tool = CompFactory.Trk.KalmanWeightUpdator(name = the_name, **kwargs)
-    elif flags.ITk.kalmanUpdator == "smatrix" :
+    elif flags.ITk.Tracking.kalmanUpdator == "smatrix" :
         tool = CompFactory.Trk.KalmanUpdatorSMatrix(name = the_name, **kwargs)
-    elif flags.ITk.kalmanUpdator == "amg" :
+    elif flags.ITk.Tracking.kalmanUpdator == "amg" :
         tool = CompFactory.Trk.KalmanUpdatorAmg(name = the_name, **kwargs)
     else :
         tool = CompFactory.Trk.KalmanUpdator(name = the_name, **kwargs)

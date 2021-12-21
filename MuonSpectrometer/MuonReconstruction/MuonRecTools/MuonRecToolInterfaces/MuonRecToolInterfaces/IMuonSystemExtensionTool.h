@@ -22,6 +22,7 @@
 
 namespace MuonCombined {
     class InDetCandidate;
+    class TagBase;
 }
 namespace Muon {
    
@@ -58,8 +59,10 @@ namespace Muon {
         /** get muon system extension */
         virtual bool muonSystemExtension(const EventContext& ctx, SystemExtensionCache& cache) const = 0;
 
-        /** Constructs the next intersection of the track parameters with the MS **/
-        virtual MuonSystemExtension::Intersection getInterSection(const EventContext& ctx, const Trk::TrackParameters& muon_pars) const = 0;
+        /** Constructs the layer intersections from a primary muon track using the track states in the muon spectrometer **/
+        virtual bool muonLayerInterSections(const EventContext& ctx, 
+                                            const MuonCombined::TagBase& cmb_tag,
+                                            SystemExtensionCache& cache) const = 0;
     };
 
 }  // namespace Muon

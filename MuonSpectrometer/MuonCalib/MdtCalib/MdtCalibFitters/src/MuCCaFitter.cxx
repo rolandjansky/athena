@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibFitters/MuCCaFitter.h"
@@ -110,11 +110,10 @@ namespace MuonCalib {
             log << MSG::DEBUG << "fit() MuCCaFitter>>> getZ( pos )= " << getZ(pos) << " getY( pos )= " << getY(pos) << " Zc= " << Zc
                 << " Yc= " << Yc << endmsg;
         }
-        double Szz(0), Syy(0), Szy(0), Syyzz(0), Att(0);
+        double Syy(0), Szy(0), Syyzz(0), Att(0);
         R = 0;
         for (int i = 0; i < N; ++i) {
             if (selection[i]) continue;
-            Szz += (z[i] - Zc) * (z[i] - Zc) * w[i];
             Syy += (y[i] - Yc) * (y[i] - Yc) * w[i];
             Szy += (y[i] - Yc) * (z[i] - Zc) * w[i];
             Syyzz += ((y[i] - Yc) - (z[i] - Zc)) * ((y[i] - Yc) + (z[i] - Zc)) * w[i];
@@ -202,13 +201,12 @@ namespace MuonCalib {
         double aoutn, bout, sig2a, sig2b, corrab;
         double temp, det;
         double hesse[2][2];
-        double W, WX, WX2, WY, WY2, WXY;
+        double W, WX, WX2, WY, WXY;
         //  double errormatrix[2][2];
         W = 0.;
         WX = 0.;
         WX2 = 0.;
         WY = 0.;
-        WY2 = 0.;
         WXY = 0;
         for (int i = 0; i < number_of_hits; i++) {
             temp = 1. / (sr[i] * sr[i]);
@@ -216,7 +214,6 @@ namespace MuonCalib {
             WX += xout[i] * temp;
             WX2 += xout[i] * xout[i] * temp;
             WY += yout[i] * temp;
-            WY2 += yout[i] * yout[i] * temp;
             WXY += xout[i] * yout[i] * temp;
         }
         det = W * WX2 - WX * WX;

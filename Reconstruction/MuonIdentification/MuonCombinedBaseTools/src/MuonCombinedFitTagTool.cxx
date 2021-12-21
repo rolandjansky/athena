@@ -242,7 +242,7 @@ namespace MuonCombined {
         return nullptr;
     }
 
-    bool MuonCombinedFitTagTool::combinedTrackQualityCheck(Trk::Track& combinedTrack, const Trk::Track& indetTrack,
+    bool MuonCombinedFitTagTool::combinedTrackQualityCheck(const Trk::Track& combinedTrack, const Trk::Track& indetTrack,
                                                            const EventContext& ctx) const {
         // require calo correctly associated to track
         if (!m_trackQuery->isCaloAssociated(combinedTrack, ctx)) {
@@ -282,7 +282,7 @@ namespace MuonCombined {
         return true;
     }
 
-    std::unique_ptr<Trk::Track> MuonCombinedFitTagTool::evaluateMatchProperties(Trk::Track* combinedTrack, CombinedFitTag& tag,
+    std::unique_ptr<Trk::Track> MuonCombinedFitTagTool::evaluateMatchProperties(const Trk::Track* combinedTrack, CombinedFitTag& tag,
                                                                                 const xAOD::TrackParticle& idTrackParticle,
                                                                                 const EventContext& ctx) const {
         const Trk::Track& idTrack = *idTrackParticle.track();
@@ -554,9 +554,9 @@ namespace MuonCombined {
         return false;
     }
 
-    bool MuonCombinedFitTagTool::bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag, Trk::Track& curTrack,
-                                                  Trk::Track* curMETrack, const InDetCandidate& /*bestCandidate*/,
-                                                  const CombinedFitTag& bestTag, Trk::Track& bestTrack, Trk::Track* bestMETrack) const
+    bool MuonCombinedFitTagTool::bestMatchChooser(const InDetCandidate& curCandidate, const CombinedFitTag& curTag, const Trk::Track& curTrack,
+                                                  const Trk::Track* curMETrack, const InDetCandidate& /*bestCandidate*/,
+                                                  const CombinedFitTag& bestTag, const Trk::Track& bestTrack, const Trk::Track* bestMETrack) const
 
     {
         // pointers to extrapolated track
@@ -624,9 +624,7 @@ namespace MuonCombined {
 
         // protect momentum balance and field integral when magnets off:
         if (!curCandidate.indetTrackParticle().track()->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
-            double cutRatio = 1.5;
-            double integral1 = 0.;
-            double integral2 = 0.;
+            double cutRatio {1.5}, integral1{0.}, integral2{0.};
 
             if (curExtrTrack && !curExtrTrack->info().trackProperties(Trk::TrackInfo::StraightTrack) && bestExtrTrack &&
                 !bestExtrTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
@@ -724,6 +722,5 @@ namespace MuonCombined {
             // best match chi2
             return matchChiSq1 < matchChiSq2;
         }
-    }
-
+    }   
 }  // namespace MuonCombined

@@ -27,20 +27,18 @@ def G4RunManagerHelperCfg(flags, name="G4RunManagerHelper", **kwargs):
 
 
 def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
-    acc = RNG(flags.Random.Engine, name="AthRNGSvc")
-    kwargs.setdefault("RandomNumberService", acc.getService("AthRNGSvc"))
+    acc = ComponentAccumulator()
+    kwargs.setdefault("DetGeoSvc", acc.getPrimaryAndMerge(DetectorGeometrySvcCfg(flags)).name)
 
-    acc.merge(DetectorGeometrySvcCfg(flags))
-    kwargs.setdefault("DetGeoSvc", acc.getService("DetectorGeometrySvc"))
+    acc.merge(RNG(flags.Random.Engine, name="AthRNGSvc"))
+    kwargs.setdefault("RandomNumberService", acc.getService("AthRNGSvc").name) # FIXME
 
     # Only add it if it's not added already
     if "InputConverter" not in kwargs.keys():
-        acc.merge(InputConverterCfg(flags))
-        kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
+        kwargs.setdefault("InputConverter", acc.getPrimaryAndMerge(InputConverterCfg(flags)).name)
 
     if "UserActionSvc" not in kwargs.keys():
-        acc.merge(ISFUserActionSvcCfg(flags))
-        kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISFUserActionSvc"))
+        kwargs.setdefault("UserActionSvc", acc.getPrimaryAndMerge(ISFUserActionSvcCfg(flags)).name)
 
     kwargs.setdefault("RecordFlux", flags.Sim.RecordFlux)
 
@@ -58,8 +56,7 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
         kwargs.setdefault("FastSimMasterTool", acc.getPublicTool(tool.name))
 
     # PhysicsListSvc
-    acc.merge(PhysicsListSvcCfg(flags))
-    kwargs.setdefault("PhysicsListSvc", acc.getService("PhysicsListSvc"))
+    kwargs.setdefault("PhysicsListSvc", acc.getPrimaryAndMerge(PhysicsListSvcCfg(flags)).name)
 
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
     if flags.Sim.ISF.Simulator in ["FullG4MT", "FullG4MT_QS", "PassBackG4MT", "ATLFAST3MT", "ATLFAST3MT_QS"]:
@@ -73,40 +70,40 @@ def Geant4ToolCfg(flags, name="ISF_Geant4Tool", **kwargs):
 
 
 def FullGeant4ToolCfg(flags, name="ISF_FullGeant4Tool", **kwargs):
-    acc = ISFFullUserActionSvcCfg(flags)
-    kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISFFullUserActionSvc"))
+    acc = ComponentAccumulator()
+    kwargs.setdefault("UserActionSvc", acc.getPrimaryAndMerge(ISFFullUserActionSvcCfg(flags)).name)
     FullGeant4Tool = acc.popToolsAndMerge(Geant4ToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(FullGeant4Tool)
     return acc
 
 
 def PassBackGeant4ToolCfg(flags, name="ISF_PassBackGeant4Tool", **kwargs):
-    acc = ISFPassBackUserActionSvcCfg(flags)
-    kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISFPassBackUserActionSvc"))
+    acc = ComponentAccumulator()
+    kwargs.setdefault("UserActionSvc", acc.getPrimaryAndMerge(ISFPassBackUserActionSvcCfg(flags)).name)
     PassBackGeant4Tool = acc.popToolsAndMerge(Geant4ToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(PassBackGeant4Tool)
     return acc
 
 
 def AFIIGeant4ToolCfg(flags, name="ISF_AFIIGeant4Tool", **kwargs):
-    acc = ISF_AFIIUserActionSvcCfg(flags)
-    kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISF_AFIIUserActionSvc"))
+    acc = ComponentAccumulator()
+    kwargs.setdefault("UserActionSvc", acc.getPrimaryAndMerge(ISF_AFIIUserActionSvcCfg(flags)).name)
     PassBackGeant4Tool = acc.popToolsAndMerge(Geant4ToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(PassBackGeant4Tool)
     return acc
 
 
 def LongLivedGeant4ToolCfg(flags, name="ISF_LongLivedGeant4Tool", **kwargs):
-    acc = LongLivedInputConverterCfg(flags)
-    kwargs.setdefault("InputConverter", acc.getService("ISF_LongLivedInputConverter"))
+    acc = ComponentAccumulator()
+    kwargs.setdefault("InputConverter", acc.getPrimaryAndMerge(LongLivedInputConverterCfg(flags)).name)
     FullGeant4Tool = acc.popToolsAndMerge(FullGeant4ToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(FullGeant4Tool)
     return acc
 
 
 def AFII_QS_Geant4ToolCfg(flags, name="AFII_QS_Geant4Tool", **kwargs):
-    acc = LongLivedInputConverterCfg(flags)
-    kwargs.setdefault("InputConverter", acc.getService("ISF_LongLivedInputConverter"))
+    acc = ComponentAccumulator()
+    kwargs.setdefault("InputConverter", acc.getPrimaryAndMerge(LongLivedInputConverterCfg(flags)).name)
     AFIIGeant4Tool = acc.popToolsAndMerge(AFIIGeant4ToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(AFIIGeant4Tool)
     return acc

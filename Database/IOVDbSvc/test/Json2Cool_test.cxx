@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_SUITE(Json2CoolTest)
     referenceSpec->extend("BCIDOffset", StorageType::Int16);
     referenceSpec->extend("AName", StorageType::String255);
     auto returnedSpec = Json2Cool::parsePayloadSpec(testSpecString);
-    BOOST_CHECK(*(returnedSpec) == *referenceSpec);
+    BOOST_CHECK(*(returnedSpec) == *static_cast<const cool::IRecordSpecification*>(referenceSpec));
   }
   BOOST_AUTO_TEST_CASE(createAttributeList){
     auto referenceSpec = new cool::RecordSpecification();

@@ -11,6 +11,6 @@ atlas_add_test( trigInDetFastTrackingCfg
    SCRIPT python -m TrigInDetConfig.TrigInDetConfig
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( TrigTrackingCutFlags
-   SCRIPT python -m unittest -v TrigInDetConfig.TrigTrackingCutFlags
+atlas_add_test( TrigTrackingPassFlags
+   SCRIPT python -m unittest -v TrigInDetConfig.TrigTrackingPassFlags
    POST_EXEC_SCRIPT nopost.sh )

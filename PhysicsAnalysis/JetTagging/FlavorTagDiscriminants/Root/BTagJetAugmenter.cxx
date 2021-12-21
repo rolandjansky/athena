@@ -167,7 +167,7 @@ std::set<std::string> BTagJetAugmenter::getAuxInputKeys() const {
 }
 
 void BTagJetAugmenter::augment(const xAOD::BTagging &jet,
-                               const xAOD::BTagging &uncalibrated_jet) {
+                               const xAOD::BTagging &uncalibrated_jet) const {
 
   augmentBtagJes(jet, uncalibrated_jet);
 
@@ -175,7 +175,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &jet,
   augment(jet);
 }
 
-void BTagJetAugmenter::augmentJfDr(const xAOD::BTagging& btag) {
+void BTagJetAugmenter::augmentJfDr(const xAOD::BTagging& btag) const {
   if (jfIsDefaults(btag)) {
     m_jf_deltaR(btag) = NAN;
   } else {
@@ -184,7 +184,7 @@ void BTagJetAugmenter::augmentJfDr(const xAOD::BTagging& btag) {
 }
 
 
-float BTagJetAugmenter::safelog_prob(float p_up, float p_down){
+float BTagJetAugmenter::safelog_prob(float p_up, float p_down) const {
 
   if( std::isnan(p_up) ){
     return -1000.0;
@@ -205,7 +205,7 @@ float BTagJetAugmenter::safelog_prob(float p_up, float p_down){
   return std::log(p_up /p_down);
 }
 
-void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
+void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) const {
 
   m_ip2d_cu(btag) = safelog_prob(m_ip2d_pc(btag) , m_ip2d_pu(btag));
   m_ip2d_bu(btag) = safelog_prob(m_ip2d_pb(btag) , m_ip2d_pu(btag));
@@ -217,7 +217,7 @@ void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
 
 }
 void BTagJetAugmenter::augmentBtagJes(const xAOD::BTagging &btag,
-                                      const xAOD::BTagging &uncalib_tag) {
+                                      const xAOD::BTagging &uncalib_tag) const {
 
   auto uncalib_link = m_jetLink(uncalib_tag);
   if (!uncalib_link.isValid()) {
@@ -231,7 +231,7 @@ void BTagJetAugmenter::augmentBtagJes(const xAOD::BTagging &btag,
 
 }
 
-void BTagJetAugmenter::augment(const xAOD::BTagging &btag) {
+void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
 
   if (m_ip2d_weightBOfTracks(btag).size() > 0) {
     m_ip2d_isDefaults(btag) = 0;
@@ -406,6 +406,6 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) {
 }
 
 
-bool BTagJetAugmenter::jfIsDefaults(const xAOD::BTagging& btag) {
+bool BTagJetAugmenter::jfIsDefaults(const xAOD::BTagging& btag) const {
   return !(m_jf_vertices(btag).size() > 0 && (m_jf_nVtx(btag) > 0 || m_jf_nSingleTracks(btag) > 0));
 }

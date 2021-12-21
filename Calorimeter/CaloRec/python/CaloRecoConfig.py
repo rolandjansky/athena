@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -12,11 +13,17 @@ def CaloRecoCfg(configFlags, clustersname=None):
         result.merge(LArRawDataReadingCfg(configFlags))
 
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        result.merge(ByteStreamReadCfg(configFlags,type_names=['TileDigitsContainer/TileDigitsCnt','TileRawChannelContainer/TileRawChannelCnt']))
-
+        
+        result.merge(ByteStreamReadCfg(configFlags,type_names=['TileDigitsContainer/TileDigitsCnt',
+                                                               'TileRawChannelContainer/TileRawChannelCnt',
+                                                               'TileMuonReceiverContainer/TileMuRcvCnt']))
+        result.getService("ByteStreamCnvSvc").ROD2ROBmap=["-1"]
         if configFlags.Output.doWriteESD:
             from TileRecAlgs.TileDigitsFilterConfig import TileDigitsFilterOutputCfg
             result.merge(TileDigitsFilterOutputCfg(configFlags))
+        else: #Mostly for wrapping in RecExCommon
+            from TileRecAlgs.TileDigitsFilterConfig import TileDigitsFilterCfg
+            result.merge(TileDigitsFilterCfg(configFlags))
 
         from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
         result.merge(LArRawChannelBuilderAlgCfg(configFlags))
@@ -57,6 +64,7 @@ def CaloRecoCfg(configFlags, clustersname=None):
         from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
         result.merge(LArDigitThinnerCfg(configFlags))
     
+
     #Configure MBTSTimeDiff 
     #Clients are BackgroundWordFiller and (deprecated?) DQTBackgroundMonTool
     #Consider moving to BackgroundWordFiller config
