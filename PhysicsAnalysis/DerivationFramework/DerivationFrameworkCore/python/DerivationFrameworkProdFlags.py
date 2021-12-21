@@ -1286,6 +1286,19 @@ class WriteDAOD_SUSY19Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY19Stream)
 listAODtoDPD.append(WriteDAOD_SUSY19Stream.StreamName)
 
+class WriteDAOD_SUSY20Stream(JobProperty):
+    """SUSY19: 1 ISR + MET + 0lepton + 1 displaced track"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_SUSY20'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSUSY/SUSY20.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY20Stream)
+listAODtoDPD.append(WriteDAOD_SUSY20Stream.StreamName)
+
 #################################
 # Defined by the Exotics group
 #################################
