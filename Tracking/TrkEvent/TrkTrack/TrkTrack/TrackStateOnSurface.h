@@ -263,7 +263,7 @@ public:
   Trk::TrackStateOnSurface& operator=(const Trk::TrackStateOnSurface& rhs);
   Trk::TrackStateOnSurface& operator=(Trk::TrackStateOnSurface&& rhs) noexcept = default;
   /** destructor*/
-  virtual ~TrackStateOnSurface();
+  virtual ~TrackStateOnSurface() = default ;
 
   /** returns 0 if there is no FQOS object assigned*/
   const FitQualityOnSurface* fitQualityOnSurface() const;
