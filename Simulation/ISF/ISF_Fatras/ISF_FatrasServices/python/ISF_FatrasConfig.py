@@ -288,13 +288,10 @@ def fatrasParticleDecayHelperCfg(flags, name="ISF_FatrasParticleDecayHelper", **
     kwargs.setdefault("ValidationMode", flags.Sim.ISF.ValidationMode)
 
     if "ParticleBroker" not in kwargs:
-        result.merge(AFIIParticleBrokerSvcCfg(flags))
-        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
+        kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
 
     if "TruthRecordSvc" not in kwargs:
-        acc = TruthServiceCfg(flags)
-        kwargs.setdefault("ParticleTruthSvc", acc.getPrimary())
-        result.merge(acc)
+        kwargs.setdefault("ParticleTruthSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     pdg_g4part_cfg = result.popToolsAndMerge(fatrasPdgG4ParticleCfg(flags))
     result.addPublicTool(pdg_g4part_cfg)
@@ -392,13 +389,10 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
     kwargs.setdefault("RandomNumberService", result.getService("AtDSFMTGenSvc"))
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
     if "ParticleBroker" not in kwargs:
-        result.merge(AFIIParticleBrokerSvcCfg(flags))
-        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
+        kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
 
     if "TruthRecordSvc" not in kwargs:
-        acc = TruthServiceCfg(flags)
-        kwargs.setdefault("TruthRecordSvc", acc.getPrimary())
-        result.merge(acc)
+        kwargs.setdefault("TruthRecordSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     # @TODO retire once migration to TrackingGeometry conditions data is complete
     if flags.Sim.ISF.UseTrackingGeometryCond:
@@ -555,13 +549,10 @@ def fatrasConversionCreatorCfg(flags, name="ISF_FatrasConversionCreator", **kwar
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
 
     if "ParticleBroker" not in kwargs:
-        result.merge(AFIIParticleBrokerSvcCfg(flags))
-        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
+        kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
 
     if "TruthRecordSvc" not in kwargs:
-        acc = TruthServiceCfg(flags)
-        kwargs.setdefault("TruthRecordSvc", acc.getPrimary())
-        result.merge(acc)
+        kwargs.setdefault("TruthRecordSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     phys_val_cfg = result.popToolsAndMerge(fatrasPhysicsValidationToolCfg(flags))
     result.addPublicTool(phys_val_cfg)
@@ -587,13 +578,10 @@ def fatrasG4HadIntProcessorCfg(flags, name="ISF_FatrasG4HadIntProcessor", **kwar
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
 
     if "ParticleBroker" not in kwargs:
-        result.merge(AFIIParticleBrokerSvcCfg(flags))
-        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
+        kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
 
     if "TruthRecordSvc" not in kwargs:
-        acc = TruthServiceCfg(flags)
-        kwargs.setdefault("TruthRecordSvc", acc.getPrimary())
-        result.merge(acc)
+        kwargs.setdefault("TruthRecordSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     phys_val_cfg = result.popToolsAndMerge(fatrasPhysicsValidationToolCfg(flags))
     result.addPublicTool(phys_val_cfg)
@@ -624,13 +612,10 @@ def fatrasParametricHadIntProcessorCfg(flags, name="ISF_FatrasParametricHadIntPr
     kwargs.setdefault("RandomStreamName", flags.Sim.Fatras.RandomStreamName)
 
     if "ParticleBroker" not in kwargs:
-        result.merge(AFIIParticleBrokerSvcCfg(flags))
-        kwargs.setdefault("ParticleBroker", result.getService("ISF_AFIIParticleBrokerSvc"))
+        kwargs.setdefault("ParticleBroker", result.getPrimaryAndMerge(AFIIParticleBrokerSvcCfg(flags)).name)
 
     if "TruthRecordSvc" not in kwargs:
-        acc = TruthServiceCfg(flags)
-        kwargs.setdefault("TruthRecordSvc", acc.getPrimary())
-        result.merge(acc)
+        kwargs.setdefault("TruthRecordSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     kwargs.setdefault("HadronicInteractionScaleFactor", flags.Sim.Fatras.HadronIntProb)
     kwargs.setdefault("MinimumHadronicInitialEnergy", flags.Sim.Fatras.MomCutOffSec)
@@ -660,9 +645,7 @@ def fatrasProcessSamplingToolCfg(flags, name="ISF_FatrasProcessSamplingTool", **
 
     # truth record
     if "TruthRecordSvc" not in kwargs:
-        acc = TruthServiceCfg(flags)
-        kwargs.setdefault("TruthRecordSvc", acc.getPrimary())
-        result.merge(acc)
+        kwargs.setdefault("TruthRecordSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     # decays
     pd_helper_cfg = result.popToolsAndMerge(fatrasParticleDecayHelperCfg(flags))
