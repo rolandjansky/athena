@@ -40,22 +40,22 @@ private:
 
   int m_ringType;
 
-  double m_outerWidth; // Outer width of hybrid. (When module is placed on
+  double m_outerWidth = 0.0; // Outer width of hybrid. (When module is placed on
                        // inner edge). ie the long side with wire bonds.
-  double m_innerWidth; // Inner width
-  double m_length1;
+  double m_innerWidth = 0.0; // Inner width
+  double m_length1 = 0.0;
   
-  double m_length;     // Length (radially).
-  double m_thickness;
+  double m_length = 0.0;     // Length (radially).
+  double m_thickness = 0.0;
 
-  double m_width2;     // second part of hybrid - rectangular 
-  double m_length2;     
-  double m_thickness2;
+  double m_width2 = 0.0;     // second part of hybrid - rectangular 
+  double m_length2 = 0.0;     
+  double m_thickness2 = 0.0;
 
-  double m_mountPointToInnerEdge;
-  double m_mountPointToOuterEdge;
+  double m_mountPointToInnerEdge = 0.0;
+  double m_mountPointToOuterEdge = 0.0;
 
-  const GeoMaterial * m_material;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
 
 };

@@ -63,6 +63,9 @@ StatusCode RoIBResultToxAOD::initialize() {
       // Get the TGC RecRoI tool
       ATH_CHECK( m_recTGCRoiTool.retrieve() );
       ATH_MSG_DEBUG( "Connected to " << m_recTGCRoiTool.typeAndName() );
+   } else {
+      m_recRPCRoiTool.disable();
+      m_recTGCRoiTool.disable();
    }
 
    if( m_doCalo ) {
@@ -72,6 +75,9 @@ StatusCode RoIBResultToxAOD::initialize() {
 
       ATH_CHECK( m_jetTool.retrieve() );
       ATH_MSG_DEBUG( "Got " << m_jetTool.typeAndName() );
+   } else {
+      m_emTauTool.disable();
+      m_jetTool.disable();
    }
 
    // Initialise the keys.

@@ -179,7 +179,7 @@ bool CaloClusterCellWeightCalib::setup(const std::string& name,
 				       std::string&       conf,
 				       MsgStream&         report)
 {
-  if ( this->cmpNoCase(name,m_posName) )
+  if ( CaloClusterCellWeightCalib::cmpNoCase(name,m_posName) )
     {
       report << MSG::INFO
 	     << "cluster direction ("
@@ -192,7 +192,7 @@ bool CaloClusterCellWeightCalib::setup(const std::string& name,
 	: &CaloClusterCellWeightCalib::f_dirPos;
       return true;
     }
-  else if ( this->cmpNoCase(name,m_absName) )
+  else if ( CaloClusterCellWeightCalib::cmpNoCase(name,m_absName) )
     {
       report << MSG::INFO
 	     << "cluster direction ("
@@ -205,7 +205,7 @@ bool CaloClusterCellWeightCalib::setup(const std::string& name,
 	: &CaloClusterCellWeightCalib::f_dirAbs;
       return true;
     }
-  else if ( this->cmpNoCase(name,m_rawName) )
+  else if ( CaloClusterCellWeightCalib::cmpNoCase(name,m_rawName) )
     {
       report << MSG::INFO
 	     << "cluster direction ("

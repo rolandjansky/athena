@@ -85,6 +85,8 @@ protected:
    IClassIDSvc_t m_pCLIDSvc;
    ServiceHandle<OutputStreamSequencerSvc>  m_outSeqSvc;
   
+   /// Stream name (defaults to algorithm name)
+   StringProperty           m_streamName{this, "StreamName", "", "name of the output stream"};
    /// Vector of item names
    StringArrayProperty      m_itemList{this,"ItemList",{},"List of items to write","OrderedSet<std::string>"};
    /// Vector of item names

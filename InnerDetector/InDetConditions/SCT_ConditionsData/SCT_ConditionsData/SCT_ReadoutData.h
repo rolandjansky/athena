@@ -14,7 +14,7 @@
 #define SCT_ConditionData_SCT_ReadoutData_h
 
 // Athena
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "SCT_ConditionsData/SCT_Chip.h"
 #include "SCT_ConditionsData/SCT_PortMap.h"
 
@@ -37,21 +37,18 @@ namespace SCT_Parameters {
  * @class SCT_ReadoutTool
  * Class to represent the SCT module readout
  **/
-class SCT_ReadoutData {
-
+class SCT_ReadoutData
+  : public AthMessaging
+{
 public:
 
   SCT_ReadoutData(IMessageSvc* msgSvc=nullptr);
   ~SCT_ReadoutData() = default;
 
-  /** No copy ctor due to m_msg*/
+  /** No copy ctor*/
   SCT_ReadoutData(const SCT_ReadoutData&) = delete;
-  /** No assignment operator due to m_msg */
+  /** No assignment operator */
   SCT_ReadoutData& operator=(const SCT_ReadoutData&) = delete;
-  /** Default move constructor*/
-  SCT_ReadoutData(SCT_ReadoutData&&) = default;
-  /** Default move assignment operator*/
-  SCT_ReadoutData& operator=(SCT_ReadoutData&&) = default;
   
   /** Find the ID of the input chip for chip*/ 
   SCT_Parameters::ChipType inputChip(const SCT_Chip& chip) const {
@@ -79,12 +76,6 @@ public:
   bool isChipReadOut(const SCT_Chip& chip) const {
     return m_chipInReadout.test(chip.id());
   }
-
-  /** Log a message using the Athena controlled logging system */
-  MsgStream& msg(MSG::Level lvl) const { return *m_msg << lvl; }
-
-  /** Check whether the logging system is active at the provided verbosity level */
-  bool msgLvl(MSG::Level lvl) const { return m_msg->get().level() <= lvl; }
 
   /** Set the module type */
   void setModuleType(const Identifier& moduleId, int bec);
@@ -132,8 +123,6 @@ private:
   SCT_Parameters::ModuleType          m_type{SCT_Parameters::BARREL}; //!< The type of this module (Barrel, Modified Barrel (0 or 1), Endcap)
   std::vector<int>                    m_chipsOnLink0{}; //!< The chips read out on link 0
   std::vector<int>                    m_chipsOnLink1{}; //! <The chips read out on link 1
-
-  std::unique_ptr<Athena::MsgStreamMember> m_msg{};
 };
 
 #endif // SCT_ConditionData_SCT_ReadoutData_h

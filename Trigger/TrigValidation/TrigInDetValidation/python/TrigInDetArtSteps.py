@@ -113,7 +113,6 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
-                chains +=  "'HLT_tau25_idperf_tracktwo_L1TAU12IM',"
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :

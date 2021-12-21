@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::stri
   m_forceSymmetry(true)
 
 {
-  declareInterface<Trk::ITrackingVolumeBuilder>(this);
+  declareInterface<Trk::ICaloTrackingVolumeBuilder>(this);
   // declare the properties via Python
   declareProperty("TileDetManagerLocation",                 m_tileMgrLocation);
   // layers and general setup
@@ -133,7 +133,8 @@ StatusCode Tile::TileVolumeBuilder::finalize()
   return StatusCode::SUCCESS;
 }
 
-const std::vector<Trk::TrackingVolume*>* Tile::TileVolumeBuilder::trackingVolumes() const
+const std::vector<Trk::TrackingVolume*>*
+Tile::TileVolumeBuilder::trackingVolumes(const CaloDetDescrManager& caloDDM) const
 {
   // the return vector
   std::vector<Trk::TrackingVolume*>* tileTrackingVolumes = new std::vector<Trk::TrackingVolume*>;
@@ -180,10 +181,11 @@ const std::vector<Trk::TrackingVolume*>* Tile::TileVolumeBuilder::trackingVolume
   const Trk::LayerArray* dummyLayers = 0;
   const Trk::TrackingVolumeArray* dummyVolumes = 0;
 
-  // load layer surfaces 
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurf = m_surfBuilder->entrySurfaces();
-  std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurf  = m_surfBuilder->exitSurfaces();
-  
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> entrySurf =
+    m_surfBuilder->entrySurfaces(&caloDDM);
+  std::vector<std::pair<const Trk::Surface*, const Trk::Surface*>> exitSurf =
+    m_surfBuilder->exitSurfaces(&caloDDM);
+
   // averaged material properties 
   auto barrelProperties = std::make_unique<Trk::Material>(22.7, 212., 45.8, 21.4, 0.0062);
   auto extendedBarrelProperties = std::make_unique<Trk::Material>(22.7, 210., 45.8, 21.4, 0.0062);

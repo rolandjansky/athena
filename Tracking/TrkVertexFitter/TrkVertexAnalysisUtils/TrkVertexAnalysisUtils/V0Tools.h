@@ -79,16 +79,16 @@ namespace Trk
  *  Methods, returning the refitted 3-momenta of the positive and negative tracks
  *  and the V0 (for more than one track with the same charge, the first one is returned)
  */ 
-  Amg::Vector3D trackMomentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex) const;
-  Amg::Vector3D positiveTrackMomentum(const xAOD::Vertex * vxCandidate) const;
-  Amg::Vector3D negativeTrackMomentum(const xAOD::Vertex * vxCandidate) const;
-  Amg::Vector3D V0Momentum(const xAOD::Vertex * vxCandidate) const;
+  static Amg::Vector3D trackMomentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex) ;
+  static Amg::Vector3D positiveTrackMomentum(const xAOD::Vertex * vxCandidate) ;
+  static Amg::Vector3D negativeTrackMomentum(const xAOD::Vertex * vxCandidate) ;
+  static Amg::Vector3D V0Momentum(const xAOD::Vertex * vxCandidate) ;
 
 /**
  *  Methods, returning the refitted 4-momenta of the positive and negative tracks
  *  and the V0 for a given hypothesis for the masses of the input tracks and the V0 mass.
  */
-  xAOD::TrackParticle::FourMom_t track4Momentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex, double trackMass) const;
+  static xAOD::TrackParticle::FourMom_t track4Momentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex, double trackMass) ;
   xAOD::TrackParticle::FourMom_t positiveTrack4Momentum(const xAOD::Vertex * vxCandidate, double posTrackMass) const;
   xAOD::TrackParticle::FourMom_t negativeTrack4Momentum(const xAOD::Vertex * vxCandidate, double negTrackMass) const;
   xAOD::TrackParticle::FourMom_t V04Momentum(const xAOD::Vertex * vxCandidate, double V0Mass) const;
@@ -96,12 +96,12 @@ namespace Trk
 /**
  *  NDoF of the vertex fit
  */
-  float ndof(const xAOD::Vertex * vxCandidate) const;
+  static float ndof(const xAOD::Vertex * vxCandidate) ;
 
 /**
  *  Chisq of the vertex fit
  */
-  float chisq(const xAOD::Vertex * vxCandidate) const;
+  static float chisq(const xAOD::Vertex * vxCandidate) ;
 
 /**
  *  Probability of the vertex fit
@@ -111,27 +111,27 @@ namespace Trk
 /**
  *  vertex position
  */
-  Amg::Vector3D vtx(const xAOD::Vertex * vxCandidate) const;
+  static Amg::Vector3D vtx(const xAOD::Vertex * vxCandidate) ;
 
 /**
  *  Rxy of the vertex
  */
-  double rxy(const xAOD::Vertex * vxCandidate) const;
+  static double rxy(const xAOD::Vertex * vxCandidate) ;
 
 /**
  * wrt an xAOD::Vertex vertex
  */
-  double rxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+  static double rxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) ;
 
 /**
  * wrt an Amg::Vector3D vertex
  */
-  double rxy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const;
+  static double rxy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) ;
 
 /**
  * rxy_var
  */
-  double rxy_var(double dx, double dy, const Amg::MatrixX& cov) const;
+  static double rxy_var(double dx, double dy, const Amg::MatrixX& cov) ;
 
 /**
  * error on Rxy
@@ -313,14 +313,14 @@ namespace Trk
  * cosThetaStar
  */
   double cosThetaStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double cosThetaStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack) const;
+  static double cosThetaStar(const CLHEP::HepLorentzVector & posTrack, const CLHEP::HepLorentzVector & negTrack) ;
 
 /**
  * phiStar
  */
   //double phiStar(xAOD::Vertex * vxCandidate) const;
   double phiStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
-  double phiStar(const CLHEP::HepLorentzVector & v0, const CLHEP::HepLorentzVector & track) const;
+  static double phiStar(const CLHEP::HepLorentzVector & v0, const CLHEP::HepLorentzVector & track) ;
 
 /**
  * cosTheta (pointing angle to an Amg::Vector3D or an xAOD::Vertex)
@@ -337,14 +337,14 @@ namespace Trk
 /**
  * sum of the charges of the tracks in the vertex
  */
-  float charge(const xAOD::Vertex * vxCandidate) const;
+  static float charge(const xAOD::Vertex * vxCandidate) ;
 
 /**
  * pointers to original tracks
  */
-  const xAOD::TrackParticle* origTrack(const xAOD::Vertex * vxCandidate, int trkIndex) const;
-  const xAOD::TrackParticle* positiveOrigTrack(const xAOD::Vertex * vxCandidate) const;
-  const xAOD::TrackParticle* negativeOrigTrack(const xAOD::Vertex * vxCandidate) const;
+  static const xAOD::TrackParticle* origTrack(const xAOD::Vertex * vxCandidate, int trkIndex) ;
+  static const xAOD::TrackParticle* positiveOrigTrack(const xAOD::Vertex * vxCandidate) ;
+  static const xAOD::TrackParticle* negativeOrigTrack(const xAOD::Vertex * vxCandidate) ;
 
 /**
  * create neutral TrackParticle from vxCandidate
@@ -374,21 +374,21 @@ namespace Trk
   double invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, const Amg::Vector3D& vertex) const;
   double invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses, const Amg::Vector3D& vertex) const;
 
-  Amg::MatrixX * convertCovMatrix(const xAOD::Vertex * vxCandidate) const;
+  static Amg::MatrixX * convertCovMatrix(const xAOD::Vertex * vxCandidate) ;
 
 /**
  * pointer from a mass constrained (Kshort, Lambda or Lambdabar) V0 to the unconstrained one
  */
-  const xAOD::Vertex* v0Link(const xAOD::Vertex * vxCandidate) const;
+  static const xAOD::Vertex* v0Link(const xAOD::Vertex * vxCandidate) ;
 
 /**
  * pointers to Kshort, Lambda or Lambdabar mass constrained V0s, if they exist, from the unconstrained one
  */
-  const xAOD::Vertex* kshortLink(const xAOD::Vertex * vxCandidate) const;
-  const xAOD::Vertex* lambdaLink(const xAOD::Vertex * vxCandidate) const;
-  const xAOD::Vertex* lambdabarLink(const xAOD::Vertex * vxCandidate) const;
+  static const xAOD::Vertex* kshortLink(const xAOD::Vertex * vxCandidate) ;
+  static const xAOD::Vertex* lambdaLink(const xAOD::Vertex * vxCandidate) ;
+  static const xAOD::Vertex* lambdabarLink(const xAOD::Vertex * vxCandidate) ;
  
-  Amg::MatrixX makeV0Cov(const xAOD::Vertex * vxCandidate) const;
+  static Amg::MatrixX makeV0Cov(const xAOD::Vertex * vxCandidate) ;
  
   private:
 

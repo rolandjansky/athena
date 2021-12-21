@@ -28,7 +28,7 @@
 #include "LArDigitization/LArHitEMap.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "LArElecCalib/ILArfSampl.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 
 class CaloSuperCellDetDescrManager;
@@ -64,6 +64,12 @@ private:
   SG::ReadCondHandleKey<ILArfSampl> m_fracSKey
      {this, "FracSKey", "LArfSamplSC", "SG Key of fSamplS conditions object"};
 
+  SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey
+    {this, "CaloDetDescrManager", "CaloDetDescrManager", "SG Key for CaloDetDescrManager in the Condition Store" };
+
+  SG::ReadCondHandleKey<CaloSuperCellDetDescrManager>  m_caloSuperCellMgrKey
+    {this, "CaloSuperCellDetDescrManager", "CaloSuperCellDetDescrManager", "SG key of the resulting CaloSuperCellDetDescrManager" };
+
   /// Property: Offline / supercell mapping tool.
   ToolHandle<ICaloSuperCellIDTool>     m_scidtool
 	{ this, "SCIDTool", "CaloSuperCellIDTool" ,
@@ -79,9 +85,6 @@ private:
   /// if is SuperCell
   Gaudi::Property<bool> m_isSC { this, "IsSuperCell",true,
 	"Is Super Cell" };
-
-  /// Geometry manager.
-  const CaloDetDescrManager_Base* m_dd_mgr;
 
   /// Entry point for calorimeter ID helpers.
   const CaloIdManager* m_calo_id_manager;

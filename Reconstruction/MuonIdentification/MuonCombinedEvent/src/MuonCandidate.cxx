@@ -54,6 +54,10 @@ namespace MuonCombined {
         if (m_extrapolatedTrack) return m_extrapolatedTrack.get();
         return m_extrapolatedTrackLink.isValid() ? *m_extrapolatedTrackLink : nullptr;
     }
+    const Trk::Track* MuonCandidate::primaryTrack() const {
+        const Trk::Track* ext_trk = extrapolatedTrack();
+        return ext_trk ? ext_trk : &muonSpectrometerTrack();
+    }
 
     std::unique_ptr<Trk::Track> MuonCandidate::releaseExtrapolatedTrack() { return std::move(m_extrapolatedTrack); }
 
@@ -61,5 +65,8 @@ namespace MuonCombined {
 
     void MuonCandidate::setComissioning(bool b) { m_isComissioning = b; }
     bool MuonCandidate::isComissioning() const { return m_isComissioning; }
+
+    void MuonCandidate::setSegments(std::vector<ElementLink<xAOD::MuonSegmentContainer>>&& segments) { m_assoc_segments = std::move(segments);}
+    const std::vector<ElementLink<xAOD::MuonSegmentContainer>>& MuonCandidate::getSegments() const { return m_assoc_segments; }
 
 }  // namespace MuonCombined

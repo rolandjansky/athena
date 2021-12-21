@@ -47,8 +47,13 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlStauAlg","MuGirlStau
 
 from AthenaCommon.BeamFlags import jobproperties
 useOnlyHitSectors = (jobproperties.Beam.beamType()=='collisions')
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg", UseOnlyHittedSectors=useOnlyHitSectors)
-addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg_LRT","MuonCombinedInDetCandidateAlg_LRT",UseOnlyHittedSectors=useOnlyHitSectors)
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg_LRT","MuonCombinedInDetCandidateAlg_LRT")
+
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInDetToMuonSystemExtensionAlg", "MuonInDetToMuonSystemExtensionAlg", UseOnlyHitSectors=useOnlyHitSectors)
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInDetToMuonSystemExtensionAlg_LRT","MuonInDetToMuonSystemExtensionAlg_LRT", UseOnlyHitSectors=useOnlyHitSectors)
+
+
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
 

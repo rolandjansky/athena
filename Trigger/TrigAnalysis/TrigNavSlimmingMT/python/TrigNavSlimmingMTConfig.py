@@ -16,7 +16,7 @@ def getTrigNavSlimmingMTOnlineConfig():
   onlineSlim.NodesToDrop = [""]
   return onlineSlim
 
-def getTrigNavSlimmingMTConfig(ConfigFlags):
+def TrigNavSlimmingMTCfg(ConfigFlags):
 
   log = logging.getLogger("getTrigNavSlimmingMTConfig.py")
 

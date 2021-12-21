@@ -389,7 +389,7 @@ namespace TrigCompositeUtils {
   template<class CONTAINER>
   const std::vector< LinkInfo<CONTAINER> > recursiveGetFeaturesOfType( 
     const NavGraph& navGraph, 
-    const std::string containerSGKey = "",
+    const std::string& containerSGKey = "",
     const bool lastFeatureOfType = true,
     const std::string& navElementLinkKey = featureString(),
     const DecisionIDContainer chainIDs = DecisionIDContainer());
@@ -406,7 +406,7 @@ namespace TrigCompositeUtils {
     std::vector< LinkInfo<CONTAINER> >& features, 
     std::set<const NavGraphNode*>& fullyExploredFrom,
     const NavGraphNode* navGraphNode, 
-    const std::string containerSGKey,
+    const std::string& containerSGKey,
     const bool lastFeatureOfType,
     const std::string& navElementLinkKey,
     const DecisionIDContainer chainIDs);

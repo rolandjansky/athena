@@ -33,13 +33,13 @@ private:
 
   int m_ringType;
 
-  double m_innerRadius;
-  double m_outerRadius;
-  double m_thickness;
-  const GeoMaterial * m_material;
+  double m_innerRadius = 0.0;
+  double m_outerRadius = 0.0;
+  double m_thickness = 0.0;
+  const GeoMaterial * m_material = nullptr;
   std::string m_materialName;
   
-  int m_numModules;
+  int m_numModules = 0;
 
 };
 

@@ -267,6 +267,11 @@ def InDetBroadTRT_DriftCircleOnTrackToolCfg(name='InDetBroadTRT_DriftCircleOnTra
     return acc
 
 def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorCfg
+        return ITkRotCreatorCfg(flags, name, **kwargs)
+
     acc = ComponentAccumulator()
     strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix']
     pix_cluster_on_track_args = copyArgs(kwargs,strip_args)
@@ -366,6 +371,11 @@ def InDetSummaryHelperNoHoleSearchCfg(flags, name='InDetSummaryHelperNoHoleSearc
     return InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs)
 
 def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolCfg
+        return ITkTrackSummaryToolCfg(flags, name, **kwargs)
+
     acc = ComponentAccumulator()
     # makeName will remove the namePrefix in suffix from kwargs, so copyArgs has to be first
     hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
@@ -380,9 +390,9 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
             from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
-            InDetSummaryHelperTool = acc.getPrimaryAndMerge(InDetTrackSummaryHelperToolCfg(flags, **id_helper_args))
+            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, **id_helper_args))
         else:
-            InDetSummaryHelperTool = acc.getPrimaryAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
+            InDetSummaryHelperTool = acc.popToolsAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags, **id_helper_args))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
 
     #
@@ -452,7 +462,7 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
         kwargs.setdefault("DoSharedHitsTRT", flags.InDet.doSharedHits)
 
     from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg    
-    InDetSummaryHelper = acc.getPrimaryAndMerge(InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs))
+    InDetSummaryHelper = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs))
 
     acc.setPrivateTools(InDetSummaryHelper)
     return acc
@@ -477,7 +487,7 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
             kwargs.setdefault("TRT_ElectronPidTool", None)
         else:
             from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
-            kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags)))
+            kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags, name="InDetTRT_ElectronPidTool")))
 
     if 'PixelToTPIDTool' not in kwargs :
         InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
@@ -490,6 +500,11 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
     return acc
 
 def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
+        return ITkUpdatorCfg(flags, name, **kwargs)
+
     the_name = makeName( name, kwargs )
     acc = ComponentAccumulator()
 
@@ -741,59 +756,34 @@ def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
     acc.setPrivateTools(InDetGlobalChi2FitterBase)
     return acc
 
-def InDetGsfMaterialUpdatorCfg(name='InDetGsfMaterialUpdator', **kwargs) :
-    the_name = makeName( name, kwargs)
+def GaussianSumFitterCfg(flags, name="GaussianSumFitter", **kwargs):
     acc = ComponentAccumulator()
 
-    if 'MaximumNumberOfComponents' not in kwargs :
-        kwargs.setdefault('MaximumNumberOfComponents', 12)
+    pix_cluster_on_track_args = stripArgs(
+        kwargs,
+        [
+            "SplitClusterMapExtension",
+            "ClusterSplitProbabilityName",
+            "nameSuffix",
+        ],
+    )
 
-    GsfMaterialMixtureConvolution = CompFactory.Trk.GsfMaterialMixtureConvolution (name = the_name, **kwargs)
-    acc.setPrivateTools(GsfMaterialMixtureConvolution)
-    return acc
+    if "ToolForROTCreation" not in kwargs:
+        InDetRotCreator = acc.popToolsAndMerge(
+            InDetRotCreatorCfg(flags, **pix_cluster_on_track_args)
+        )
+        kwargs.setdefault("ToolForROTCreation", InDetRotCreator)
 
-def InDetGsfExtrapolatorCfg(flags, name='GsfExtrapolator', **kwargs) :
-    the_name = makeName(name,kwargs)
-    acc = ComponentAccumulator()
+    kwargs.setdefault("MakePerigee", True)
+    kwargs.setdefault("RefitOnMeasurementBase", True)
+    kwargs.setdefault("DoHitSorting", True)
 
-    if 'Propagators' not in kwargs :
-        from TrkConfig.AtlasExtrapolatorToolsConfig import InDetPropagatorCfg
-        kwargs['Propagators'] = [ acc.getPrimaryAndMerge(InDetPropagatorCfg(flags)) ]
+    from egammaTrackTools.GSFTrackFitterConfig import EMGSFTrackFitterCfg
 
-    if 'Navigator' not in kwargs :
-        from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg
-        kwargs['Navigator'] = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
+    GaussianSumFitter = acc.popToolsAndMerge(
+        EMGSFTrackFitterCfg(flags, name=name, **kwargs)
+    )
 
-    if 'GsfMaterialConvolution' not in kwargs :
-        kwargs['GsfMaterialConvolution'] = acc.popToolsAndMerge(InDetGsfMaterialUpdatorCfg())
-
-    kwargs.setdefault('SearchLevelClosestParameters', 10)
-    kwargs.setdefault('StickyConfiguration', True)
-    kwargs.setdefault('SurfaceBasedMaterialEffects', False)
-    print("REMOVEME", the_name, kwargs)
-    extrapolatorTool = CompFactory.Trk.GsfExtrapolator(name = the_name, **kwargs)
-    acc.setPrivateTools(extrapolatorTool)
-    return acc
-
-def GaussianSumFitterCfg(flags, name='GaussianSumFitter', **kwargs) :
-    acc = ComponentAccumulator()
-
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
-    if 'ToolForROTCreation' not in kwargs :
-        InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags, **pix_cluster_on_track_args))
-        kwargs.setdefault('ToolForROTCreation', InDetRotCreator)
-
-    if 'ToolForExtrapolation' not in kwargs :
-        InDetGsfExtrapolator = acc.popToolsAndMerge(InDetGsfExtrapolatorCfg(flags))
-        kwargs.setdefault('ToolForExtrapolation', InDetGsfExtrapolator)
-    
-    kwargs.setdefault('ReintegrateOutliers', False)
-    kwargs.setdefault('MakePerigee', True)
-    kwargs.setdefault('RefitOnMeasurementBase', True)
-    kwargs.setdefault('DoHitSorting', True)
-
-    GaussianSumFitter = CompFactory.Trk.GaussianSumFitter(name = name, **kwargs)
     acc.setPrivateTools(GaussianSumFitter)
     return acc
 
@@ -824,7 +814,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
         AtlasNavigatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg)
 
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
-    InDetNavigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags))
+    InDetNavigator = acc.getPrimaryAndMerge(AtlasNavigatorCfg(flags, name="InDetNavigator"))
     InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
     InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
 
@@ -1134,13 +1124,13 @@ def TRT_DetElementsRoadCondAlgCfg(flags, **kwargs):
 
 def InDetTRT_ExtensionToolCfg(flags, **kwargs):
     # @TODO set all names to InDetTRT_ExtensionTool ?
-    if (flags.InDet.trtExtensionType == 'xk') or (not flags.InDet.doNewTracking) :
-        if (flags.Beam.Type == "cosmics"):
+    if flags.InDet.trtExtensionType == 'xk':
+        if flags.Beam.Type == "cosmics":
             return InDetTRT_ExtensionToolCosmicsCfg(flags, **kwargs)
         else:
             return InDetTRT_TrackExtensionTool_xkCfg(flags, **kwargs)
-    elif flags.InDet.trtExtensionType == 'DAF' :
-        return InDetTRT_TrackExtensionTool_DAFCfg(flags, name = 'InDetTRT_ExtensionTool',**kwargs)
+    if flags.InDet.trtExtensionType == 'DAF':
+        return InDetTRT_TrackExtensionTool_DAFCfg(flags, name='InDetTRT_ExtensionTool', **kwargs)
 
 #############################################################################################
 # BackTracking
@@ -1276,8 +1266,8 @@ def InDetCosmicScoringTool_TRTCfg(flags, name='InDetCosmicExtenScoringTool',**kw
 def InDetTRT_SeededScoringToolCfg(flags, name='InDetTRT_SeededScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("useAmbigFcn",  not flags.InDet.doNewTracking) # full search => use NewT
-    kwargs.setdefault("useTRT_AmbigFcn",  flags.InDet.doNewTracking) # full search => use NewT
+    kwargs.setdefault("useAmbigFcn", False)
+    kwargs.setdefault("useTRT_AmbigFcn", True)
     kwargs.setdefault("minTRTonTrk",  flags.InDet.Tracking.minSecondaryTRTonTrk)
     kwargs.setdefault("minTRTPrecisionFraction",  flags.InDet.Tracking.minSecondaryTRTPrecFrac)
     kwargs.setdefault("minPt",  flags.InDet.Tracking.minSecondaryPt)
@@ -1414,33 +1404,6 @@ def InDetNNScoringToolSiCfg(flags, name='InDetNNScoringToolSi', **kwargs) :
 def InDetCosmicsScoringToolCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     return InDetCosmicsScoringToolBaseCfg(flags,
                                           name=name+flags.InDet.Tracking.extension)
-
-
-### Common InDet/ITk config interfaces
-
-def TrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
-    if flags.Detector.GeometryID:
-        return InDetTrackSummaryToolCfg(flags, name, **kwargs)
-    elif flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolCfg
-        return ITkTrackSummaryToolCfg(flags, name, **kwargs)
-
-def UpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
-    if flags.Detector.GeometryID:
-        return InDetUpdatorCfg(flags, name, **kwargs)
-    elif flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
-        return ITkUpdatorCfg(flags, name, **kwargs)
-
-def RotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
-    if flags.Detector.GeometryID:
-        return InDetRotCreatorCfg(flags, name, **kwargs)
-    elif flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorCfg
-        return ITkRotCreatorCfg(flags, name, **kwargs)
 
 def FullLinearizedTrackFactoryCfg(flags, name='TrackToVertexIPEstimator', **kwargs):
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg

@@ -74,10 +74,8 @@ class ParticleGun(EvgenAlg):
         # TODO: allow weighted sampling?
         try:
           from AthenaPython.PyAthena import HepMC3  as HepMC
-          GeVtoMeV = 1000
         except ImportError:
           from AthenaPython.PyAthena import HepMC   as HepMC
-          GeVtoMeV = 1   
         evt.weights().push_back(1.0)
 
         ## Make and fill particles
@@ -98,13 +96,13 @@ class ParticleGun(EvgenAlg):
                 evt.add_vertex(gv)
 
                 ## Make particle with status == 1
-                mom = HepMC.FourVector(p.mom.Px()*GeVtoMeV, p.mom.Py()*GeVtoMeV, p.mom.Pz()*GeVtoMeV, p.mom.E()*GeVtoMeV)
+                mom = HepMC.FourVector(p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())
                 gp = HepMC.GenParticle()
                 gp.set_status(1)
                 gp.set_pdg_id(p.pid)
                 gp.set_momentum(mom)
                 if p.mass is not None:
-                    gp.set_generated_mass(p.mass*GeVtoMeV)
+                    gp.set_generated_mass(p.mass)
                 ROOT.SetOwnership(gp, False)
                 gv.add_particle_out(gp)
 

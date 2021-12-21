@@ -176,17 +176,14 @@ namespace MuonGM {
         std::vector<int> m_nStrips;
         std::vector<int> m_nWires;
         std::vector<int> m_nPads;
-        int m_nlayers{0};
-
-        int m_ml{0};
+        int    m_nlayers{0};
+        int    m_ml{0};
         double m_offset{0.};
-
-        int m_sTGC_type;
-
         double m_rots{0.};
         double m_rotz{0.};
         double m_rott{0.};
 
+        bool m_diamondShape{false};
         bool m_hasALines{false};
         bool m_hasBLines{false};
 

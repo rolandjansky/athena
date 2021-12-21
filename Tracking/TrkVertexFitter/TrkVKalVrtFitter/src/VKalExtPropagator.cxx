@@ -47,7 +47,7 @@ namespace Trk {
 
 //Protection against exit outside ID volume
 //
-  double VKalExtPropagator::Protection(double *RefEnd,
+  double VKalExtPropagator::Protection(const double *RefEnd,
                                        const IVKalState& istate) const
   {   
       const TrkVKalVrtFitter::State& state = static_cast<const TrkVKalVrtFitter::State&> (istate);

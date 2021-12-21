@@ -82,10 +82,14 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     return theMatchPart;
   }
 
-  ATH_MSG_DEBUG("xAODTruthParticleContainer with key  "
-                << truthParticleContainerReadHandle.key()
-                << " has valid ReadHandle ");
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{ m_caloMgrKey, ctx };
+  if (!caloMgrHandle.isValid()) {
+    ATH_MSG_WARNING(" Invalid ReadCondHandle for CaloDetDescrManager with key: "
+                    << m_caloMgrKey.key());
+    return theMatchPart;
+  }
 
+  const CaloDetDescrManager* caloDDMgr = *caloMgrHandle;
   const xAOD::TruthParticle* theEgamma(nullptr);
   const xAOD::TruthParticle* theLeadingPartInCone(nullptr);
   const xAOD::TruthParticle* theBestPartOutCone(nullptr);
@@ -167,7 +171,8 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     double dR(-999.);
     bool isNCone = false;
 
-    bool isExt = genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone);
+    bool isExt =
+      genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone, *caloDDMgr);
     if (!isExt) {
       continue;
     }
@@ -286,7 +291,8 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
 
     double dR(-999.);
     bool isNCone = false;
-    bool isExt = genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone);
+    bool isExt =
+      genPartToCalo(ctx, clus, thePart, isFwrdEle, dR, isNCone, *caloDDMgr);
     if (!isExt) {
       continue;
     }
@@ -360,7 +366,8 @@ MCTruthClassifier::genPartToCalo(const EventContext& ctx,
                                  const xAOD::TruthParticle* thePart,
                                  bool isFwrdEle,
                                  double& dRmatch,
-                                 bool& isNarrowCone) const
+                                 bool& isNarrowCone,
+                                 const CaloDetDescrManager& caloDDMgr) const
 {
   dRmatch = -999.;
   isNarrowCone = false;
@@ -415,7 +422,7 @@ MCTruthClassifier::genPartToCalo(const EventContext& ctx,
   std::vector<std::pair<CaloSampling::CaloSample,
                         std::unique_ptr<const Trk::TrackParameters>>>
     extension = m_caloExtensionTool->layersCaloExtension(
-      ctx, *params, samples, etaClus);
+      ctx, *params, samples, etaClus, caloDDMgr);
   double etaCalo = -99;
   double phiCalo = -99;
   bool extensionOK = (!extension.empty());

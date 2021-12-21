@@ -55,34 +55,16 @@ class ITGCcablingSvc;
 
 namespace LVL1TGCTrigger {
   
-  /**
-   *
-   *  @short Dump LVL1TGCTrigger::LVL1TGCTrigger for main algorithm
-   *  
-   *  Input  : TgcDigitContainer (digits)
-   *  Output : LVL1MUONIF::Lvl1MuSectorLogicData (trigger decision)
-   *
-   *  @see TgcDigitContainer
-   *  @see LVL1MUONIF::Lvl1MuSectorLogicData
-   * 
-   *  @author Chihiro Omachi <omati@phys.sci.kobe-u.ac.jp>
-   *  @author Masaya Ishino <Masaya.Ishino@cern.ch>
-   *  @author Naoko Kanaya <Naoko.Kanaya@cern.ch>
-   *  @author Hisaya Kurashige <Hisaya.Kurashige@cern.ch>
-   *
-   * 
-   */
-  class TGCSector;
-  class TGCSLSelectorOut;//for Run2
-  class TGCTrackSelectorOut;//for Run3
-  class TGCElectronicsSystem;
-  class TGCTimingManager;
-  class TGCDatabaseManager;
-  class TGCEvent;
+class TGCSector;
+class TGCTrackSelectorOut;
+class TGCElectronicsSystem;
+class TGCTimingManager;
+class TGCDatabaseManager;
+class TGCEvent;
   
-  class LVL1TGCTrigger : public AthAlgorithm
-  {
-  public:
+class LVL1TGCTrigger : public AthAlgorithm
+{
+ public:
     
     /** standard constructor and destructor for algorithms
      */
@@ -94,9 +76,8 @@ namespace LVL1TGCTrigger {
     StatusCode execute() ;
     StatusCode finalize() ;
     
-  private:
+ private:
     StatusCode processOneBunch(const TgcDigitContainer*,
-			       LVL1MUONIF::Lvl1MuCTPIInput*,
 			       LVL1MUONIF::Lvl1MuCTPIInputPhase1*);
     void doMaskOperation(const TgcDigitContainer* ,std::map<Identifier, int>& );
     void fillTGCEvent(std::map<Identifier, int>& ,  TGCEvent&);
@@ -135,9 +116,6 @@ namespace LVL1TGCTrigger {
     void extractFromString(std::string, std::vector<int>&);
     bool addRawData(TgcRawData *);
     int getLPTTypeInRawData(int type);
-    void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
-			     const TGCSLSelectorOut* out,
-			     unsigned int subsystem);
     void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1* sldata,
 			     const TGCTrackSelectorOut *trackSelectorOut);
     
@@ -195,18 +173,17 @@ namespace LVL1TGCTrigger {
     SG::ReadHandleKey<Muon::RpcBis78_TrigRawDataContainer> m_keyBIS78TrigOut{this,"BIS78Trig_Input","BIS78TrigContainer","Location of RpcBis78_TrigRawDataContainer"};
     SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey{this,"ReadCondKey","TGCTriggerData"};
     SG::ReadCondHandleKey<TGCTriggerLUTs> m_readLUTs_CondKey{this,"ReadLUTCondKey","TGCTriggerLUTs"};
-    SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationTGC", "L1MuctpiStoreTGC", "Location of muctpi for Tgc"};
     SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};
 
     /// mask channel map
     std::map<Identifier, int> m_MaskedChannel;
 
-  }; // class LVL1TGCTrigger
+};  // class LVL1TGCTrigger
 
-  inline TGCArguments* LVL1TGCTrigger::tgcArgs() {
-    return &m_tgcArgs;
-  }
+inline TGCArguments* LVL1TGCTrigger::tgcArgs() {
+  return &m_tgcArgs;
+}
   
-} // namespace LVL1TGCTrigger
+}  // namespace LVL1TGCTrigger
 
-#endif // not TRIGT1TGC_LVL1TGCTRIGGER_H
+#endif  // TRIGT1TGC_LVL1TGCTRIGGER_H

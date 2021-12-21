@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-def RecoSteering(flags, tryConfiguringAll=False):
+def RecoSteering(flags):
     """
     Generates configuration of the reconstructions
 
@@ -23,7 +23,8 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(PoolReadCfg(flags))
         # Check if running on legacy inputs
         if "EventInfo" not in flags.Input.Collections:
-            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+            from xAODEventInfoCnv.xAODEventInfoCnvConfig import (
+                EventInfoCnvAlgCfg)
             acc.merge(EventInfoCnvAlgCfg(flags))
         log.info("---------- Configured POOL reading")
 
@@ -47,8 +48,8 @@ def RecoSteering(flags, tryConfiguringAll=False):
 
     # ID / ITk
     if flags.Reco.EnableTracking:
-        from InDetConfig.TrackRecoConfig import TrackRecoCfg
-        acc.merge(TrackRecoCfg(flags))
+        from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
+        acc.merge(InDetTrackRecoCfg(flags))
         log.info("---------- Configured tracking")
 
     # Muon
@@ -63,21 +64,20 @@ def RecoSteering(flags, tryConfiguringAll=False):
         acc.merge(EGammaSteeringCfg(flags))
         log.info("---------- Configured egamma")
 
-    # Muon Combined
-    if flags.Reco.EnableCombinedMuon and tryConfiguringAll:
-        from MuonCombinedConfig.MuonCombinedReconstructionConfig import (
-            MuonCombinedReconstructionCfg)
-        acc.merge(MuonCombinedReconstructionCfg(flags))
-        log.info("---------- Configured combined muon reconstruction")
-
-    # Caching of CaloExtension for downstream Combined Performance algorithms.
-    if ((flags.Reco.EnablePFlow or flags.Reco.EnableTau)
-        and flags.Detector.EnableCalo
-            and flags.Reco.EnableTracking):
+    # Caching of CaloExtension for downstream 
+    # Combined Performance algorithms.
+    if flags.Reco.EnableCaloExtension:
         from TrackToCalo.CaloExtensionBuilderAlgCfg import (
             CaloExtensionBuilderCfg)
         acc.merge(CaloExtensionBuilderCfg(flags))
         log.info("---------- Configured track calorimeter extension builder")
+
+    # Muon Combined
+    if flags.Reco.EnableCombinedMuon:
+        from MuonCombinedConfig.MuonCombinedReconstructionConfig import (
+            MuonCombinedReconstructionCfg)
+        acc.merge(MuonCombinedReconstructionCfg(flags))
+        log.info("---------- Configured combined muon reconstruction")
 
     # PFlow
     if flags.Reco.EnablePFlow:
@@ -88,13 +88,17 @@ def RecoSteering(flags, tryConfiguringAll=False):
     # EGamma and CombinedMuon isolation
     if flags.Reco.EnableCombinedMuon or flags.Reco.EnableEgamma:
         from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
-        acc.merge(IsolationSteeringCfg(flags, doIsoMuon = tryConfiguringAll))
+        acc.merge(IsolationSteeringCfg(flags))
         log.info("---------- Configured isolation")
 
     # jets
+    if flags.Reco.EnableJet:
+        from JetRecConfig.JetRecoSteering import JetRecoSteeringCfg
+        acc.merge(JetRecoSteeringCfg(flags))
+        log.info("---------- Configured jets")
 
     # btagging
-    if flags.Reco.EnableBTagging and tryConfiguringAll:
+    if flags.Reco.EnableBTagging:
         # hack to prevent btagging fragments to rename top sequence
         from AthenaCommon.ConcurrencyFlags import jobproperties
         jobproperties.ConcurrencyFlags.NumThreads = flags.Concurrency.NumThreads

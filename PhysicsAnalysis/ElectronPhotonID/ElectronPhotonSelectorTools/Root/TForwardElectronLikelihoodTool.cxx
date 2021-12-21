@@ -161,10 +161,10 @@ int
 Root::TForwardElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
                                                         unsigned int varIndex)
 {
-  for (unsigned int s_or_b = 0; s_or_b < 2; s_or_b++) {
-    for (unsigned int ip = 0; ip < IP_FBINS; ip++) {
-      for (unsigned int et = 0; et < s_fnEtBinsHist; et++) {
-        for (unsigned int eta = 0; eta < s_fnEtaBins; eta++) {
+  for (unsigned int s_or_b = 0; s_or_b < 2; ++s_or_b) {
+    for (unsigned int ip = 0; ip < IP_FBINS; ++ip) {
+      for (unsigned int et = 0; et < s_fnEtBinsHist; ++et) {
+        for (unsigned int eta = 0; eta < s_fnEtaBins; ++eta) {
 
           std::string sig_bkg = (s_or_b == 0) ? "sig" : "bkg";
           // For the fwd LH PDFs and optimisation have matching eta bin
@@ -195,10 +195,6 @@ Root::TForwardElectronLikelihoodTool::loadVarHistograms(const std::string& vstr,
             ATH_MSG_INFO("Warning: skipping variable "
                          << vstr << " because the folder does not exist.");
             return 1;
-          }
-          // it shouldn't go to the last bin (which is 7000 GeV)
-          if (et > s_fnEtBinsHist - 1) {
-            continue;
           }
           // Use the first Et bin given in the root file for all Et ranges below
           if (et == 0 && !((TDirectory*)m_pdfFile->Get(pdfdir))

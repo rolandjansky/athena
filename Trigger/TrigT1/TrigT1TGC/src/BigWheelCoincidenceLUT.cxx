@@ -80,12 +80,6 @@ BigWheelCoincidenceLUT::BigWheelCoincidenceLUT(LVL1TGCTrigger::TGCArguments* tgc
   }
   MsgStream log(msgSvc, "LVL1TGC::BigWheelCoincidenceLUT");
 
-  if (!tgcArgs()->useRun3Config()) {
-    log << MSG::ERROR
-        << "This class should be used only for Run-3 configuration!"
-        << endmsg;
-  }
-
   log << MSG::INFO
       << " BigWheel LUT version of " << m_verName << " is selected." << endmsg;
 

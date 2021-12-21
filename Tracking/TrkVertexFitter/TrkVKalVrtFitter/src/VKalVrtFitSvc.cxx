@@ -589,7 +589,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
   }
   
 
-  int  TrkVKalVrtFitter::VKalGetNDOF(const State& state) const
+  int  TrkVKalVrtFitter::VKalGetNDOF(const State& state) 
   {    
     if(!state.m_FitStatus) return 0;
     int NDOF=2*state.m_FitStatus-3;

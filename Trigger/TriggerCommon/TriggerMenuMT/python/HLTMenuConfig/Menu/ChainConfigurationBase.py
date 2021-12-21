@@ -7,6 +7,7 @@ log = logging.getLogger(__name__)
 import abc
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 #----------------------------------------------------------------
 # Base class to configure chain
@@ -39,12 +40,7 @@ class ChainConfigurationBase(metaclass=abc.ABCMeta):
         self.chainPartNameNoMult = self.chainPartName[1:] if self.mult > 1 else self.chainPartName
         self.chainPartNameNoMultwL1 += "_"+self.chainL1Item
 
-    # this is the cache, hoping to be able to get rid of it in future
-    def checkRecoFragmentPool(mySequenceCfg):
-        mySequence = RecoFragmentsPool.retrieve(mySequenceCfg, None) # the None will be used for flags in future
-        return mySequence
-
-    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboHypoCfg=ComboHypoCfg, comboTools=[], **stepArgs):
+    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboHypoCfg=ComboHypoCfg, comboTools=[], flags=ConfigFlags, **stepArgs):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
 
         if self.mult >1 :
@@ -52,7 +48,7 @@ class ChainConfigurationBase(metaclass=abc.ABCMeta):
         log.debug("Configuring step %s", stepName)
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
-            seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None, **stepArgs ))
+            seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, flags, **stepArgs ))
         return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboHypoCfg=comboHypoCfg, comboToolConfs=comboTools)
 
     def getEmptyStep(self, stepID, stepPartName):

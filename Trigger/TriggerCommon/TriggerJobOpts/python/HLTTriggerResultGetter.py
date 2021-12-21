@@ -56,7 +56,7 @@ class ByteStreamUnpackGetterRun1or2(Configured):
 class TrigDecisionGetter(Configured):
     def configure(self):
         log = logging.getLogger("TrigDecisionGetter")
-        from TriggerJobOpts.TriggerRecoConfig import Run3DecisionMakerCfg
+        from TrigDecisionMaker.TrigDecisionMakerConfig import Run3DecisionMakerCfg
         CAtoGlobalWrapper( Run3DecisionMakerCfg, ConfigFlags)
         log.info('xTrigDecision writing enabled')
 
@@ -68,7 +68,7 @@ class TrigDecisionGetterRun1or2(Configured):
         if ( rec.doWriteESD() or rec.doWriteAOD() or rec.doESD() or rec.doAOD() ) and \
                ( not ( rec.readAOD() or rec.readESD() or rec.doWriteBS()) ):
             log = logging.getLogger("TrigDecisionGetterRun1or2")
-            from TriggerJobOpts.TriggerRecoConfig import Run1Run2DecisionMakerCfg
+            from TrigDecisionMaker.TrigDecisionMakerConfig import Run1Run2DecisionMakerCfg
             CAtoGlobalWrapper(Run1Run2DecisionMakerCfg, ConfigFlags)
             log.info('xTrigDecision writing enabled')
         return True
@@ -77,28 +77,6 @@ class TrigDecisionGetterRun1or2(Configured):
 class HLTTriggerResultGetter(Configured):
 
     log = logging.getLogger("HLTTriggerResultGetter.py")
-
-    def _AddOPIToESD(self):
-
-        log = logging.getLogger("HLTTriggerResultGetter.py")        
-        
-        if rec.doESD():
-            from PyUtils.MetaReaderPeeker import metadata
-            if 'stream' in metadata:
-                stream = metadata['stream']
-                log.debug("the stream found in 'metadata' is %s", stream)
-                if "express" in stream:
-                    from TrigEDMConfig.TriggerEDM import getTypeAndKey,EDMDetails
-                    type,key=getTypeAndKey("TrigOperationalInfo#HLT_EXPRESS_OPI_HLT")
-                    if 'collection'in EDMDetails[type]:
-                        colltype = EDMDetails[type]['collection']
-                        log.info("Adding HLT_EXPRESS_OPI_HLT to ESD for stream %s", stream)
-                        from RecExConfig.ObjKeyStore import objKeyStore
-                        objKeyStore.addStreamESD(colltype, key)
-                    return True
-            else:
-                log.warning("Could not determine stream of bytestream file, not adding HLT_EXPRESS_OPI_HLT to ESD.")
-        return False
 
     def configure(self):
 
@@ -164,11 +142,7 @@ class HLTTriggerResultGetter(Configured):
             from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
             objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
 
-        #Are we adding operational info objects in ESD?
-        added=self._AddOPIToESD()
-        if added:
-            log.debug("Operational Info object HLT_EXPRESS_OPI_HLT with extra information about express stream prescaling added to the data.")
-        
+
 
 
         # ESD objects definitions
@@ -243,11 +217,11 @@ class HLTTriggerResultGetter(Configured):
 
             # Run 3 slimming
             if ConfigFlags.Trigger.doNavigationSlimming: 
-                from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import getTrigNavSlimmingMTConfig
+                from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import TrigNavSlimmingMTCfg
                 from AthenaCommon.Configurable import Configurable
                 Configurable.configurableRun3Behavior += 1
                 from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
-                appendCAtoAthena( getTrigNavSlimmingMTConfig(ConfigFlags) )
+                appendCAtoAthena( TrigNavSlimmingMTCfg(ConfigFlags) )
                 Configurable.configurableRun3Behavior -= 1
             else:
                 log.info("doNavigationSlimming is False, won't schedule run 3 navigation slimming")

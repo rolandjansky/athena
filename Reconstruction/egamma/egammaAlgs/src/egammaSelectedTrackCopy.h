@@ -65,7 +65,7 @@ private:
                    const xAOD::CaloCluster* cluster,
                    const xAOD::TrackParticle* track,
                    bool trkTRT,
-                   const CaloDetDescrManager* caloDD) const;
+                   const CaloDetDescrManager& caloDD) const;
 
   /** @brief Tool for extrapolation */
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool{ this,

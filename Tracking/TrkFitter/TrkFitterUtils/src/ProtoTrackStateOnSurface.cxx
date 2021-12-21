@@ -267,7 +267,7 @@ Trk::ProtoTrackStateOnSurface::checkoutMeasurement()
     return m_measurement->uniqueClone();
   } else {
     //const_cast is safe here, purely for reasons of interface; should be changed to shared_ptr later
-    auto ncMeasurement ATLAS_THREAD_SAFE = const_cast<Trk::MeasurementBase*>(m_measurement);
+    auto *ncMeasurement ATLAS_THREAD_SAFE = const_cast<Trk::MeasurementBase*>(m_measurement);
     return std::unique_ptr<Trk::MeasurementBase>(ncMeasurement);
   }
 }

@@ -5,17 +5,16 @@
 '''
 @brief configuration for the trigger efficiency monitoring
 '''
-from AthenaConfiguration.AutoConfigFlags import GetFileMD
+from TrigConfigSvc.TriggerConfigAccess import getHLTMenuAccess
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def _TrigEff(configFlags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
+def _TrigEff(flags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
     from AthenaMonitoring import AthMonitorCfgHelper
-    monConfig = AthMonitorCfgHelper(
-        configFlags, 'HLTMinBiasEffMonitoringAlg')
+    monConfig = AthMonitorCfgHelper(flags, algname)
 
     alg = monConfig.addAlgorithm(
-        CompFactory.HLTEfficiencyMonitoringAlg, 'HLTMinBiasEffMonitoringAlg')
+        CompFactory.HLTEfficiencyMonitoringAlg, algname)
 
     trkSel = CompFactory.InDet.InDetTrackSelectionTool(
         "InDetTrackSelectionTool_LoosePrimary", CutLevel="LoosePrimary"
@@ -62,12 +61,13 @@ def _TrigEff(configFlags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
     return monConfig.result()
 
 
-def TrigMinBiasEff(ConfigFlags):
+def TrigMinBiasEff(flags):
 
     # configure the monitoring dynamically according to the chains present in the menu
-    mbChains = [ c for c in GetFileMD(ConfigFlags.Input.Files)['TriggerMenu']['HLTChains'] if '_mb_' in c]
+    #mbChains = [ c for c in GetFileMD(flags.Input.Files)['TriggerMenu']['HLTChains'] if '_mb_' in c]
+    mbChains = [c for c in getHLTMenuAccess(flags) if '_mb_' in c]
     if len(mbChains) == 0:
-        return _TrigEff(ConfigFlags, [])
+        return _TrigEff(flags, [])
 
 
     # here we generate config with detailed settings
@@ -105,7 +105,7 @@ def TrigMinBiasEff(ConfigFlags):
             return "_".join(s[:3]+s[4:])
         triggerAndRef += [  _c(chain, _dropsup(chain),  xmin=_trk(chain)-20, xmax=_trk(chain)+50) for chain in pusup ]
     # add here all the special cases
-    return _TrigEff(ConfigFlags, triggerAndRef)
+    return _TrigEff(flags, triggerAndRef)
 
 
 
@@ -124,12 +124,7 @@ if __name__ == '__main__':
 #         'AOD.25577237._000120.pool.root.1'
 # #        '/afs/cern.ch/user/k/kburka/workspace/mbts/AOD.25577237._000120.pool.root.1'
 #     ]
-    import glob
-    ConfigFlags.Input.Files = glob.glob("/ATLAS/tbold/athena/add-view-to-zfinder-output-config/*/*AOD._lb*")
-    ConfigFlags.Output.HISTFileName = 'TestEffMonitorOutput.root'
-    import sys
-    thisScriptIndex = [ i for i, option in enumerate(sys.argv) if "TrigEffMonitoring" in option][0]
-    ConfigFlags.fillFromArgs(sys.argv[thisScriptIndex+1:])
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.

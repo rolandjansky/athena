@@ -23,7 +23,7 @@ def egammaTruthParticleConfig \
          prefix = '',
          doPileup     = D3PDMakerFlags.TruthDoPileup(),
          **kwargs):
-    
+
     if not rec.doTruth():
         return
 
@@ -46,10 +46,33 @@ def egammaTruthParticleConfig \
             OutputKey = sgkey,
             ParticleCaloExtensionTool = exten,
             AuxPrefix = D3PDMakerFlags.EgammaUserDataPrefix())
-            
+
         cfgKeyStore.addTransient ('DataVector<xAOD::TruthParticle_v1>', sgkey)
 
     return
 
-    
-    
+
+
+def egammaTruthParticleCfg (flags,
+                            algname = 'egammaTruthBuilder',
+                            sequenceName = None,
+                            **kwargs):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+
+    seqkw = {'sequence': sequenceName} if sequenceName else {}
+    acc = ComponentAccumulator (**seqkw)
+
+    if 'ParticleCaloExtensionTool' not in kwargs:
+        from MCTruthClassifier.MCTruthClassifierBase import getMCTruthClassifierCaloExtensionTool
+        kwargs['ParticleCaloExtensionTool'] = getMCTruthClassifierCaloExtensionTool()
+
+    kwargs.setdefault ('InputKey', D3PDMakerFlags.TruthSGKey())
+    kwargs.setdefault ('OutputKey', 'egammaTruth')
+    kwargs.setdefault ('AuxPrefix', D3PDMakerFlags.EgammaUserDataPrefix())
+
+    # From egammaD3PDAnalysis
+    alg = CompFactory.D3PD.egammaTruthAlg (algname, **kwargs)
+    acc.addEventAlgo (alg)
+    return acc
+

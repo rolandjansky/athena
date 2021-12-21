@@ -229,7 +229,7 @@ namespace Trk
 
 
   AmgMatrix(3,3) NeutralParticleParameterCalculator::getPhiThetaQOverPToPxPyPzJacobian
-      (double qOverP,double theta,double phi) const {
+      (double qOverP,double theta,double phi) {
     AmgMatrix(3,3) transform; transform.setZero();
     transform(0,0)=-1./fabs(qOverP)*sin(theta)*sin(phi);
     transform(0,1)=1./fabs(qOverP)*sin(theta)*cos(phi);

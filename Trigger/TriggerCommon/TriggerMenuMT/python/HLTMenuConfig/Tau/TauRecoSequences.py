@@ -119,17 +119,17 @@ def _algoTauPrecision(name, inputRoIs, tracks):
 
     return algo
 
-def tauCaloMVARecoSequence(InViewRoIs, SeqName):
+def tauCaloMVARecoSequence(flags, InViewRoIs, SeqName):
     global TauCaloJetContainer
     # lc sequence
-    (lcTopoInViewSequence, lcCaloSequenceOut) = RecoFragmentsPool.retrieve(HLTLCTopoRecoSequence, None, RoIs=InViewRoIs)
+    (lcTopoInViewSequence, lcCaloSequenceOut) = RecoFragmentsPool.retrieve(HLTLCTopoRecoSequence, flags, RoIs=InViewRoIs)
     tauCaloRoiUpdaterAlg                      = _algoTauRoiUpdater(SeqName, inputRoIs = InViewRoIs, clusters = lcCaloSequenceOut)
     updatedRoIs                               = tauCaloRoiUpdaterAlg.RoIOutputKey
     tauCaloOnlyMVAAlg	                      = _algoTauCaloOnlyMVA(SeqName, L1RoIs = InViewRoIs,inputRoIs = updatedRoIs, clusters = lcCaloSequenceOut)
     RecoSequence                              = parOR( SeqName, [lcTopoInViewSequence,tauCaloRoiUpdaterAlg,tauCaloOnlyMVAAlg] )
     return (RecoSequence, tauCaloOnlyMVAAlg.Key_trigTauJetOutputContainer)
 
-def tauCaloMVASequence(ConfigFlags):
+def tauCaloMVASequence(flags):
     """ Creates L2 Fast Calo sequence for Taus"""
     # EV creator
     InViewRoIs                              = "HLT_TAURoI"
@@ -142,7 +142,7 @@ def tauCaloMVASequence(ConfigFlags):
     tauCaloMVAViewsMaker.InViewRoIs         = InViewRoIs
     tauCaloMVAViewsMaker.Views              = "TAUCaloMVAViews"
     tauCaloMVAViewsMaker.ViewNodeName       = RecoSequenceName
-    (tauCaloMVAInViewSequence, sequenceOut) = tauCaloMVARecoSequence(InViewRoIs, RecoSequenceName)
+    (tauCaloMVAInViewSequence, sequenceOut) = tauCaloMVARecoSequence(flags, InViewRoIs, RecoSequenceName)
 
     tauCaloMVARecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloMVARecoVDV" )
     tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI' ),

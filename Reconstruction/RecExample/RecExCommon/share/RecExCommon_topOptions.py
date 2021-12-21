@@ -135,26 +135,9 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.bea
                                             "project_name": str(rec.projectName()),
                                             "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
                                             })
-# Build amitag list
-amitag = ""
-from PyUtils.MetaReaderPeeker import metadata
-try:
-    amitag = metadata['AMITag']
-    # In some cases AMITag can be a list, just take the last one
-    if type(amitag) == list:
-        amitag=amitag[-1]
-except Exception:
-    logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
-
-# append new tag if previous exists and is not the same otherwise take the new alone
-if amitag != "" and amitag != rec.AMITag():
-    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : amitag + "_" + rec.AMITag()})
-    print ("Adding AMITag ", amitag, " _ ", rec.AMITag())
-else:
-    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
-    print ("Adding AMITag ", rec.AMITag())
-
-
+# Set AMITag in /TagInfo
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(outputTag=rec.AMITag())
 
 AODFix.AODFix_addMetaData()
 RecoFix.RecoFix_addMetaData()

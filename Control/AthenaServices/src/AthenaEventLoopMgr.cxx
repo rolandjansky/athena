@@ -1043,8 +1043,9 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   if(inc.type()!="BeforeFork")
     return;
 
-  if(!m_evtSelCtxt || !m_firstRun) {
-    warning() << "Skipping BeforeFork handler. Either no event selector is provided or begin run has already passed" << endmsg;
+  if(!m_firstRun) {
+    warning() << "Skipping BeforeFork handler. Begin run has already passed" << endmsg;
+    return;
   }
 
   // Initialize Algorithms and Output Streams
@@ -1052,6 +1053,11 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   if(sc.isFailure()) {
     error() << "Failed to initialize Algorithms" << endmsg;
     return; 
+  }
+
+  if(!m_evtSelCtxt) {
+    warning() << "Skipping BeforeFork handler. No event selector is provided" << endmsg;
+    return;
   }
 
   // Construct EventInfo

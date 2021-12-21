@@ -4,6 +4,8 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
 from .JetRecoConfiguration import jetRecoDictToString
@@ -90,11 +92,15 @@ class JetChainConfiguration(ChainConfigurationBase):
         from ..Menu.ChainDictTools import splitChainDict
         from .JetRecoSequences import JetRecoConfiguration
         from JetRecConfig.JetDefinition import buildJetAlgName, xAODType
-        try:
-            subChainDict = splitChainDict(self.dict)[0]
-        except IndexError:
-            raise ValueError("Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
-        jetRecoDict = JetRecoConfiguration.extractRecoDict(subChainDict["chainParts"])
+        subJetChainDict = {}
+        for subChainDict in splitChainDict(self.dict):
+            for part in subChainDict["chainParts"]:
+                if part['signature'] in ["Jet", "Bjet"]:
+                    subJetChainDict = subChainDict
+                    break
+        if not subJetChainDict:
+            raise ValueError("sub Jet Chain dictionary is empty. Cannot define jet collection name on empty dictionary")
+        jetRecoDict = JetRecoConfiguration.extractRecoDict(subJetChainDict["chainParts"])
         clustersKey = JetRecoConfiguration.getClustersKey(jetRecoDict)
         prefix = JetRecoConfiguration.getHLTPrefix()
         suffix = "_"+jetRecoDict["jetCalib"]
@@ -170,7 +176,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "MainStep_jet_"+jetDefStr
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
         jetSeq, jetDef = RecoFragmentsPool.retrieve( jetCaloHypoMenuSequence, 
                                                      ConfigFlags, isPerf=self.isPerf, **self.recoDict )
@@ -180,7 +185,6 @@ class JetChainConfiguration(ChainConfigurationBase):
 
     def getJetHICaloHypoChainStep(self):
         stepName = "MainStep_HIjet"
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetHICaloHypoMenuSequence
         jetSeq, jetDef = RecoFragmentsPool.retrieve( jetHICaloHypoMenuSequence,
                                                      ConfigFlags, isPerf=self.isPerf, **self.recoDict )
@@ -192,7 +196,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "RoIFTFStep_jet_"+jetDefStr
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
         jetSeq = RecoFragmentsPool.retrieve( jetRoITrackingHypoMenuSequence,
                                              ConfigFlags, jetsIn=jetsInKey, **self.recoDict )
@@ -202,7 +205,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "MainStep_jet_"+jetDefStr
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetFSTrackingHypoMenuSequence
         jetSeq, jetDef = RecoFragmentsPool.retrieve( jetFSTrackingHypoMenuSequence,
                                                      ConfigFlags, clustersKey=clustersKey,
@@ -213,7 +215,6 @@ class JetChainConfiguration(ChainConfigurationBase):
 
     def getJetCaloRecoChainStep(self):
         stepName = "CaloRecoPTStep_jet_"+self.recoDict["clusterCalib"]
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloRecoMenuSequence
         jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloRecoMenuSequence,
                                                           ConfigFlags, clusterCalib=self.recoDict["clusterCalib"] )
@@ -309,7 +310,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(preselRecoDict)
 
         stepName = "PreselStep_jet_"+jetDefStr
-        from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloPreselMenuSequence
         jetSeq, jetDef, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
                                                                   ConfigFlags, **preselRecoDict )
@@ -344,7 +344,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         log.debug("Running exotic jets with ptf: " + str(ptf) + "\tdR: " + str(dr) + "\ttrackless: " + str(trackless) + "\thypo: " + exotdictstring)
 
         stepName = "EJsStep_"
-        jetSeq = RecoFragmentsPool.retrieve( jetEJsMenuSequence, None, jetsin=jetCollectionName, name=thresh)
+        jetSeq = RecoFragmentsPool.retrieve( jetEJsMenuSequence, ConfigFlags, jetsin=jetCollectionName, name=thresh)
         #from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
         chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])#, comboHypoCfg=PassthroughComboHypoCfg)
 

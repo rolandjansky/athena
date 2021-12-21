@@ -12,6 +12,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
         (flags.InDet.Tracking.extension == "LowPt" \
             or flags.InDet.Tracking.extension == "VeryLowPt" \
             or flags.InDet.Tracking.extension == "LargeD0" \
+            or flags.InDet.Tracking.extension == "R3LargeD0" \
             or flags.InDet.Tracking.extension == "LowPtLargeD0" \
             or flags.InDet.Tracking.extension == "BeamGas" \
             or flags.InDet.Tracking.extension == "ForwardTracks" \
@@ -207,7 +208,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
+    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "R3LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -271,7 +272,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     elif flags.InDet.Tracking.extension == "ForwardTracks":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_ForwardTracks')
 
-    elif flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0":
+    elif flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "R3LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_LargeD0')
 
     else:
@@ -297,7 +298,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
+    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "R3LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -350,7 +351,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
         kwargs.setdefault("FreeClustersCut",2) #Heavy Ion optimization from Igor
 
     if flags.InDet.Tracking.extension == "":
-        kwargs.setdefault("writeHolesFromPattern", True) # TODO fix it flags.InDet.useHolesFromPattern)
+        kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
 
     InDetSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.InDet.Tracking.extension, **kwargs)
     acc.addEventAlgo(InDetSiSPSeededTrackFinder)
@@ -370,13 +371,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     #
     prob1 = flags.InDet.pixelClusterSplitProb1
     prob2 = flags.InDet.pixelClusterSplitProb2
-    nhitsToAllowSplitting = 9
-    
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-    if CommonGeometryFlags.Run() == 1:
-        prob1 = flags.InDet.pixelClusterSplitProb1_run1
-        prob2 = flags.InDet.pixelClusterSplitProb2_run1
-        nhitsToAllowSplitting = 8
+    nhitsToAllowSplitting = 8 if flags.GeoModel.Run == 'RUN1' else 9
 
     if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
         AmbiTrackSelectionTool = CompFactory.InDet.InDetDenseEnvAmbiTrackSelectionTool
@@ -691,7 +686,7 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     #
     # --- decide if use the association tool
     #
-    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
+    if (len(InputCollections) > 0) and (flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or flags.InDet.Tracking.extension == "LargeD0" or flags.InDet.Tracking.extension == "R3LargeD0" or flags.InDet.Tracking.extension == "LowPtLargeD0" or flags.InDet.Tracking.extension == "BeamGas" or flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "Disappearing"):
         usePrdAssociationTool = True
     else:
         usePrdAssociationTool = False
@@ -711,7 +706,7 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     #
     # ------------------------------------------------------------
     
-    if True: #flags.InDet.doSiSPSeededTrackFinder: # TODO fix logic here, this is SiPatternConfig - it should make no sense to call this when SiSPSeededTrackFinder is False???
+    if flags.InDet.doSiSPSeededTrackFinder:
         acc.merge(SiSPSeededTrackFinderCfg( flags,
                                             InputCollections = InputCollections, 
                                             SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))

@@ -18,10 +18,6 @@ def _fastCaloSeq(flags):
     selAcc=SelectionCA('FastCaloPhoton')
     selAcc.mergeReco(l2CaloRecoCfg(flags))
 
-     # this alg needs EventInfo decorated with the  pileup info
-    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-    selAcc.merge(LumiBlockMuWriterCfg(flags))
-
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoAlgCfg
     l2CaloHypo = TrigEgammaFastCaloHypoAlgCfg(flags,
                                               name='ElectronEgammaFastCaloHypo',

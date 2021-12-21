@@ -16,14 +16,18 @@ from egammaTools.EMPIDBuilderConfig import (
     EMPIDBuilderElectronCfg, EMPIDBuilderPhotonCfg)
 
 
-def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder', **kwargs):
+def topoEgammaBuilderCfg(flags, name='topoEgammaBuilder',
+                         sequenceName = None,
+                         **kwargs):
 
-    acc = ComponentAccumulator()
+    seqkw = {'sequence': sequenceName} if sequenceName else {}
+    acc = ComponentAccumulator (**seqkw)
+
     if "EMClusterTool" not in kwargs:
         emclustool = EMClusterToolCfg(flags)
         kwargs["EMClusterTool"] = acc.popToolsAndMerge(emclustool)
 
-    if "EMShowerBuilder" not in kwargs:
+    if "EMShowerTool" not in kwargs:
         emshowerbuilder = EMShowerBuilderCfg(flags)
         kwargs["EMShowerTool"] = acc.popToolsAndMerge(emshowerbuilder)
 

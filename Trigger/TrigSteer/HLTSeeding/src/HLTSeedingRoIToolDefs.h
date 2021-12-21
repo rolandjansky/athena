@@ -42,6 +42,12 @@ namespace HLTSeedingRoIToolDefs {
     using UnpackingBaseClass = RoIsUnpackingToolPhase1<xAOD::jFexTauRoI, xAOD::jFexTauRoIContainer, &xAOD::jFexTauRoI::tobWord, ContainerName, ThresholdType>;
     using ThresholdBaseClass = RoIThresholdsTool<xAOD::jFexTauRoI, xAOD::jFexTauRoIContainer, ContainerName, ThresholdType>;
   }
+  namespace cTau {
+    extern const char ContainerName[];
+    extern const char ThresholdType[];
+    using UnpackingBaseClass = RoIsUnpackingToolPhase1<xAOD::eFexTauRoI, xAOD::eFexTauRoIContainer, &xAOD::eFexTauRoI::word0, ContainerName, ThresholdType>;
+    using ThresholdBaseClass = RoIThresholdsTool<xAOD::eFexTauRoI, xAOD::eFexTauRoIContainer, ContainerName, ThresholdType>;
+  }
   namespace jFexSRJet {
     extern const char ContainerName[];
     extern const char ThresholdType[];

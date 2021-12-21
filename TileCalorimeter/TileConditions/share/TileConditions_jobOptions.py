@@ -9,7 +9,10 @@ msg = logging.getLogger( 'TileConditions_jobOptions.py' )
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
 
-if 'RunNumber' in dir():
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+if athenaCommonFlags.isOnline():
+    rn = None
+elif 'RunNumber' in dir():
     rn = RunNumber
 elif '_run_number' in dir():
     rn = _run_number
@@ -28,27 +31,28 @@ if (type(ss) != type(None)):
         TileUseCOOL = False
         TileFrameLength = 9
 
-if (not 'TileCablingType' in dir()):
-    if rn is None:
-        try:
-            from Digitization.DigitizationFlags import digitizationFlags
-            if digitizationFlags.dataRunNumber.statusOn:
-                rn = digitizationFlags.dataRunNumber()
-        except:
-            msg.info("No DigitizationFlags available - looks like HLT job")
-    if rn is None:
-        try:
-            from G4AtlasApps.SimFlags import simFlags
-            if simFlags.RunNumber.statusOn:
-                rn = simFlags.RunNumber()
-        except:
-            msg.info("No SimFlags available - looks like HLT job")
-    if rn is None:
-        try:
-            from RecExConfig.AutoConfiguration import GetRunNumber
-            rn=GetRunNumber()
-        except:
-            msg.info("No Run Number available - assume latest cabling")
+if not 'TileCablingType' in dir():
+    if not athenaCommonFlags.isOnline():
+        if rn is None:
+            try:
+                from Digitization.DigitizationFlags import digitizationFlags
+                if digitizationFlags.dataRunNumber.statusOn:
+                    rn = digitizationFlags.dataRunNumber()
+            except:
+                msg.info("No DigitizationFlags available - looks like HLT job")
+        if rn is None:
+            try:
+                from G4AtlasApps.SimFlags import simFlags
+                if simFlags.RunNumber.statusOn:
+                    rn = simFlags.RunNumber()
+            except:
+                msg.info("No SimFlags available - looks like HLT job")
+        if rn is None:
+            try:
+                from RecExConfig.AutoConfiguration import GetRunNumber
+                rn=GetRunNumber()
+            except:
+                msg.info("No Run Number available - assume latest cabling")
 
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     if geoFlags.Run()=="RUN1":
@@ -76,7 +80,6 @@ if not 'TileFrameLength' in dir():
 if not 'TileUseCOOL' in dir():
     TileUseCOOL=True; # use COOL DB by default for everything
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if not 'TileUseDCS' in dir():
     TileUseDCS = TileUseCOOL and (not athenaCommonFlags.isOnline()) and globalflags.DataSource()=='data'
 

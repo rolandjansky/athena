@@ -7,6 +7,7 @@
 #include "TrigT1TGC/TGCHighPtBoard.h"
 #include "TrigT1TGC/TGCHighPtBoardOut.h"
 #include "TrigT1TGC/TGCHighPtChipOut.h"
+#include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
@@ -18,13 +19,10 @@
 #include "TrigT1TGC/BIS78TrigOut.h"
 #include "TrigT1TGC/TGCBIS78CoincidenceMap.h"
 #include "TrigT1TGC/TGCGoodMF.h"
-#include "TrigT1TGC/Run2TileMuCoincidenceMap.h"
+#include "TrigT1TGC/TGCTrackSelectorOut.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
-
-//for Run3
-#include "TrigT1TGC/TGCTrackSelectorOut.h"
 
 #include <iostream>
 
@@ -39,9 +37,7 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
    m_SSCController(tgcargs,this), 
    m_matrix(tgcargs,this),
    m_pTMDB(0),
-   m_preSelector(this),      // for Run2
-   m_selector(this),         // for Run2
-   m_trackSelector(this),    // for Run3
+   m_trackSelector(this),
    m_wordTileMuon(0),
    m_wordInnerStation(0),
    m_stripHighPtBoard(0),
@@ -69,22 +65,16 @@ TGCSectorLogic::TGCSectorLogic(TGCArguments* tgcargs, const TGCDatabaseManager* 
   m_mapEIFI = db->getEIFICoincidenceMap(m_sideId);
 
   m_useTileMu = tgcArgs()->TILE_MU() && (m_region==ENDCAP);
-  if(tgcArgs()->useRun3Config()) {
-    m_matrix.setCoincidenceLUT(db->getBigWheelCoincidenceLUT());
-    m_tileMuLUT = db->getTileMuCoincidenceLUT();
-    m_useTileMu = (m_tileMuLUT != nullptr) && m_useTileMu;
-  } else {
-    m_matrix.setRPhiMap(db->getRPhiCoincidenceMap(m_sideId, m_octantId));
-    m_mapRun2TileMu = db->getRun2TileMuCoincidenceMap();
-    m_useTileMu = (m_mapRun2TileMu != nullptr) && m_useTileMu;
-  }
+
+  m_matrix.setCoincidenceLUT(db->getBigWheelCoincidenceLUT());
+  m_tileMuLUT = db->getTileMuCoincidenceLUT();
+  m_useTileMu = (m_tileMuLUT != nullptr) && m_useTileMu;
 
   m_mapGoodMF = db->getGoodMFMap();
   m_mapNSW = db->getNSWCoincidenceMap(m_sideId, m_octantId, m_moduleId);
   if(tgcArgs()->USE_BIS78()) m_mapBIS78 = db->getBIS78CoincidenceMap();
 
-  m_selectorOut.reset(new TGCSLSelectorOut);
-  m_trackSelectorOut.reset(new TGCTrackSelectorOut());//for Run3
+  m_trackSelectorOut.reset(new TGCTrackSelectorOut());
 
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
       m_wireHighPtBoard[i] = 0;
@@ -139,11 +129,9 @@ void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut>
   trackSelectorOut=m_trackSelectorOut;
 }
 
-void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
+void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> /* readCondKey */,
                              int bidIn, bool process)
 {
-  // reset output at the previous bunch crossing
-  m_selectorOut.get()->reset();
   // skip to process if want. (e.g. no hit in TGC)
   if(!process) return;
 
@@ -157,8 +145,6 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
   SSCCOut->print();
 #endif  
   deleteHPBOut();
-
-  m_preSelector.init();
 
   for(int SSCid=0; SSCid<getNumberOfSubSectorCluster(); SSCid+=1){
     TGCRPhiCoincidenceOut* coincidenceOut = 0;
@@ -203,79 +189,31 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
       }
     }
 
-    if(tgcArgs()->useRun3Config()){
-      if(coincidenceOut){
-        if (m_useGoodMF){
-          bool isgoodMF;
-          isgoodMF = m_mapGoodMF->test_GoodMF(m_moduleId,SSCid,coincidenceOut->getRoI());
-          coincidenceOut->setGoodMFFlag(isgoodMF);
-        }
+    if (coincidenceOut) {
+      if (m_useGoodMF) {
+        bool isgoodMF = m_mapGoodMF->test_GoodMF(m_moduleId,SSCid,coincidenceOut->getRoI());
+        coincidenceOut->setGoodMFFlag(isgoodMF);
       }
     }
 
     ////////////////////////////////////////////
-    // do coincidence with Inner Tracklet of EIFI and/or TileMu
+    // do coincidence with Inner Tracklet of EI, NSW, Tile, and/or RPC-BIS78
+    doInnerCoincidence(SSCid, coincidenceOut);
 
-    if(!tgcArgs()->useRun3Config()){
-      if (m_useEIFI){ 
-	doInnerCoincidence(readCondKey, SSCid, coincidenceOut);
-      }
-    }
-    else{
-      doInnerCoincidenceRun3(SSCid, coincidenceOut);/*InnerCoincidence Algorithm for Run3 will be implemented;*/
-    }
-
-
-    if(coincidenceOut){
-      if(tgcArgs()->useRun3Config()){m_trackSelector.input(coincidenceOut);}// TrackSelector for Run3
-      else{m_preSelector.input(coincidenceOut);}// TrackSelector for Run2
-      // coincidenceOut will be deleted 
-      //  in m_preSelector.input() if coincidenceOut has no hit
-      //  in m_preSelector.select() if if coincidenceOut has hit
+    if (coincidenceOut) {
+      m_trackSelector.input(coincidenceOut);
     }
   }
   if(SSCCOut!=0) delete SSCCOut;
   SSCCOut=0;
 
-  if(tgcArgs()->useRun3Config()){
-    //Track selector in Run3. max 4 tracks ,which are send to MUCTPI, are selected. 
-    m_trackSelector.select(m_trackSelectorOut);
-
-  } else{
-#ifdef TGCDEBUG
-    m_preSelector.dumpInput();
-#endif
-  
-    // get SLPreSelectorOut
-    TGCSLPreSelectorOut* preSelectorOut = m_preSelector.select();
-    // preSelectorOut will be deleted after m_selector.select() 
-
-#ifdef TGCDEBUG
-    preSelectorOut->print();
-#endif
-
-    // reset output at the previous bunch crossing
-    m_selectorOut.get()->reset();
-
-    if(preSelectorOut!=0){
-      // select final canidates
-      m_selector.select(preSelectorOut, m_selectorOut);
-    
-      // delete SLPreSelectorOut
-      delete preSelectorOut;
-      preSelectorOut=0;
-    }
-  }
-
-#ifdef TGCDEBUG
-  showResult(m_selectorOut);
-#endif
+  // Track selector chooses up to 4 track candidates to be sent to MUCTPI.
+  m_trackSelector.select(m_trackSelectorOut);
 }
 
 void TGCSectorLogic::collectInput()
 {
-  int i;
-  for( i = 0; i < m_SSCController.getNumberOfWireHighPtBoard(); i += 1) {
+  for(int i = 0; i < m_SSCController.getNumberOfWireHighPtBoard(); i += 1) {
     m_wireHighPtChipOut[i] = m_wireHighPtBoard[i]->getOutput();
     m_wireHighPtBoard[i]->eraseOutput();
   }  
@@ -302,15 +240,6 @@ void TGCSectorLogic::showResult()
   std::cout<<"#SL O"<<" BID:"<<m_bid
 	   <<" region:"<<((m_region==FORWARD) ? "FWD" : "END")
 	   <<" SLid:"<<m_id<<" ";
-
-  for(int i=0; i<m_selectorOut->getNCandidate(); i+=1){
-    std::cout<<"  "<<i<<" "
-	     <<m_selectorOut->getPtLevel(i)<<" "
-	     <<m_selectorOut->getR(i)<<" "
-	     <<m_selectorOut->getPhi(i)<<std::endl;
-  }
-  std::cout<<std::endl;
-
 }
 
 
@@ -326,7 +255,6 @@ TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right)
    m_matrix(right.tgcArgs(),this),
    m_mapEIFI(right.m_mapEIFI),
    m_pTMDB(right.m_pTMDB),
-   m_preSelector(this), m_selector(this),
    m_wordTileMuon(0), m_wordInnerStation(0),
    m_stripHighPtBoard(right.m_stripHighPtBoard), 
    m_stripHighPtChipOut(0),
@@ -398,145 +326,13 @@ void TGCSectorLogic::setInnerTrackletSlots(const TGCInnerTrackletSlot* innerTrac
 }
 
  
-void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
-                                        int ssc,
-					TGCRPhiCoincidenceOut* coincidenceOut)
-{
-  ////////////////////////////////////////////////////////////////////////////
-  // This function is only called for Run 2.
-  ////////////////////////////////////////////////////////////////////////////
+void TGCSectorLogic::doInnerCoincidence(int SSCId, TGCRPhiCoincidenceOut* coincidenceOut) {
+  if (coincidenceOut == 0) return;
 
-  if (coincidenceOut ==0) return;
-
-  int pt = coincidenceOut->getPtLevel();
+  int pt = coincidenceOut->getpT();
   if (pt==0) return;
 
-  SG::ReadCondHandle<TGCTriggerData> readHandle{readCondKey};
-  const TGCTriggerData* readCdo{*readHandle};
-
-  // Run-2 Tile-Muon coincidence uses CONDDB, and m_useTileMu is set to the active content.
-  // (go into the scope only once, if the Tile-CW DB is not active)
-  if(m_useTileMu) {
-    m_useTileMu = readCdo->isActive(TGCTriggerData::CW_TILE);
-  }
-
-  // check if inner is used for the ptLevel
-  bool validInner = (m_mapEIFI->getFlagPT(pt, ssc, m_sectorId) == 1);
-
-  // check if TileMu is used for the ptLevel
-  bool validTileMu = false;
-  if (m_useTileMu)  validTileMu = (m_mapRun2TileMu->getFlagPT(pt, ssc, m_sectorId, m_sideId) == 1) ;
-  
-  int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
-  // check if inner is used for the roi 
-  if (validInner) validInner = (m_mapEIFI->getFlagROI(pos, ssc, m_sectorId) == 1);
- 
-  // check if TileMu is used for the roi 
-  if (validTileMu) validTileMu = (m_mapRun2TileMu->getFlagROI(pos, ssc, m_sectorId, m_sideId) == 1);
-  // not use InnerStation if TileMu is used
-  if (validTileMu) validInner = false;
-
-  // Check hits of inner tracklet
-  bool isHitInner = false;
-  if (validInner) {
-    for(unsigned int iSlot=0; (!isHitInner) && (iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR); iSlot++) {
-      const TGCInnerTrackletSlot* hit = m_innerTrackletSlots[iSlot];
-      
-      for (size_t reg=0; (!isHitInner) && (reg< TGCInnerTrackletSlot::NUMBER_OF_REGIONS); reg++){
-	// Wire    
-	bool isHitWire = false;
-        
-	for (size_t bit=0; (!isHitWire) && (bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS); bit++){
-	  isHitWire =   m_mapEIFI->getTriggerBit(iSlot, ssc, m_sectorId, reg, TGCInnerTrackletSlot::WIRE, bit)
-	    &&   hit->getTriggerBit(reg,TGCInnerTrackletSlot::WIRE,bit) ;
-	}
-	// Strip
-	bool isHitStrip = false;
-	for (size_t bit=0; (!isHitStrip) && (bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS); bit++){
-	  isHitStrip =  m_mapEIFI->getTriggerBit(iSlot, ssc, m_sectorId, reg, TGCInnerTrackletSlot::STRIP, bit)
-	    && hit->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit);
-	}
-	isHitInner = isHitWire && isHitStrip;
-      }
-    }
-
-    // m_wordInnerStation
-    // FI[3:0] EI[3:0]
-    m_wordInnerStation = 0;
-    for(unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
-      const TGCInnerTrackletSlot* hit = m_innerTrackletSlots[iSlot];
-      for (size_t reg=0; reg< TGCInnerTrackletSlot::NUMBER_OF_REGIONS; reg++){ // reg = 0:FI, 1:EI
-	bool isHitW = false;
-	bool isHitS = false;
-	for (size_t bit=0; bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS; bit++){
-	  isHitW  = isHitW ||  hit->getTriggerBit(reg,TGCInnerTrackletSlot::WIRE,bit);
-	  isHitS  = isHitS || hit->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit);
-	}
-	if (isHitW && isHitS) {
-	  m_wordInnerStation |= (2-reg)<<(iSlot*2);
-	}
-      }
-    }
-  }
-
-  // Check hits of TileMu
-  bool isHitTileMu = false;
-  if (validTileMu) {
-
-    m_wordTileMuon = 0;
-    for(int mod=0; mod< LVL1TGC::Run2TileMuCoincidenceMap::N_Input_TileMuModule; mod++) {
-      uint8_t maskTM = m_mapRun2TileMu->getTrigMask(mod, ssc, m_sectorId, m_sideId);
-      const TGCTMDBOut* tm = m_pTMDB->getOutput(m_sideId, m_sectorId, mod);
-      isHitTileMu = isHitTileMu || this->hitTileMu(maskTM, tm->getHit6(), tm->getHit56());
-
-      if (tm->getHit6()>0)  m_wordTileMuon |= 0x02 << mod*2;
-      if (tm->getHit56()>0) m_wordTileMuon |= 0x01 << mod*2;
-    }
-  } 
- 
-  if ( !validInner && !validTileMu ) return;  //OK
- 
-  if ( validInner   &&  isHitInner)  return; //OK
-  
-  if  (validTileMu  &&  isHitTileMu) return; //OK 
-
-  // NO Trigger
-  coincidenceOut->setInnerVeto(true);
-
-  // decrease pt level to the highest pt without InnerrCoin
-
-  bool innerVeto = tgcArgs()->INNER_VETO();
-  if (tgcArgs()->USE_CONDDB()) {
-    bool isActiveEifi = readCdo->isActive(TGCTriggerData::CW_EIFI);  
-    innerVeto  = isActiveEifi && (m_region==ENDCAP);
-  }
-
-  coincidenceOut->clearHit(pt);
-
-  while (innerVeto && validInner && (pt>1) ) {
-    pt = pt-1;
-    validInner = (m_mapEIFI->getFlagPT(pt, ssc, m_sectorId) == 1);
-  }
-  while (m_useTileMu && validTileMu && (pt>1) ){
-    pt = pt-1;
-    validTileMu = (m_mapRun2TileMu->getFlagPT(pt, ssc, m_sectorId, m_sideId) == 1) ;
-  }
-  coincidenceOut->setHit(pt);
- 
-}
-
-
-
-  ////////////////////////////////////////
-  // Inner Coincidnece Algorithms on Run3
-  ////////////////////////////////////////
-  void TGCSectorLogic::doInnerCoincidenceRun3(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut){
-    if (coincidenceOut ==0) return;
-    
-    int pt = coincidenceOut->getpT();
-    if (pt==0) return;
-
-    if(SSCId<=4 && m_region==ENDCAP){//3 detectors are used to inner coincidnece in SSC#0~4 in Endcap;  
+  if(SSCId<=4 && m_region==ENDCAP){  //3 detectors are used to inner coincidnece in SSC#0~4 in Endcap;  
 
       // WHICH INNER COINCIDENCE
       // select a inner station detector which is used in inner coincidence algorithm.
@@ -561,9 +357,8 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
       if(validBIS78){isBIS78=doTGCBIS78Coincidence(coincidenceOut); }
 
       coincidenceOut->setInnerCoincidenceFlag(isEI || isTILE || isBIS78 || (!m_useEIFI && !validEI && !m_useTileMu && !validTileMu && !tgcArgs()->USE_BIS78() && !validBIS78));
-    }
-    else{//  NSW or FI are used to inner coincidnece in SSC#5~18 in Endcap and Forward region 
-
+  } else {
+    //  NSW or FI are used to inner coincidnece in SSC#5~18 in Endcap and Forward region 
       int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
       bool validFI = (m_mapEIFI->getFlagROI(pos, coincidenceOut->getIdSSC(), m_sectorId) == 1) && m_region==ENDCAP;
 
@@ -579,37 +374,34 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
 	if(m_useEIFI){
 	  coincidenceOut->setInnerCoincidenceFlag( doTGCFICoincidence(coincidenceOut) );
 	}
-      }
-      else{coincidenceOut->setInnerCoincidenceFlag(true);} // ?
+    } else {
+      coincidenceOut->setInnerCoincidenceFlag(true);   // TBD
     }
-
-
-
   }
+}
 
 
-  void TGCSectorLogic::doTGCNSWCoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+void TGCSectorLogic::doTGCNSWCoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+  std::shared_ptr<const NSWTrigOut> pNSWOut = m_nsw->getOutput(m_region,m_sideId,m_sectorId);
 
-    std::shared_ptr<const NSWTrigOut> pNSWOut = m_nsw->getOutput(m_region,m_sideId,m_sectorId);
+  // for now, if there is a hit at NSW, turn on the inner coin flag
+  coincidenceOut->setInnerCoincidenceFlag( pNSWOut->getNSWeta().size()>0 );
+  return;
 
-    // for now, if there is a hit at NSW, turn on the inner coin flag
-    coincidenceOut->setInnerCoincidenceFlag( pNSWOut->getNSWeta().size()>0 );
-    return;
+  // will implement NSW pT calculation later
+}
 
-    // will implement NSW pT calculation later
-  }
-
-  bool TGCSectorLogic::doTGCBIS78Coincidence(TGCRPhiCoincidenceOut* coincidenceOut){
-    std::shared_ptr<const BIS78TrigOut> pBIS78Out = m_bis78->getOutput(m_region,m_sectorId);
-    if ( pBIS78Out.get() == 0 ) return false;
-    int pt=0;
-    pBIS78Out->print(); // just for test
+bool TGCSectorLogic::doTGCBIS78Coincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+  std::shared_ptr<const BIS78TrigOut> pBIS78Out = m_bis78->getOutput(m_region,m_sectorId);
+  if ( pBIS78Out.get() == 0 ) return false;
+  int pt=0;
+  pBIS78Out->print(); // just for test
     
-    pt = m_mapBIS78->TGCBIS78_pt(pBIS78Out.get(), 	
-				 coincidenceOut->getRoI());
+  pt = m_mapBIS78->TGCBIS78_pt(pBIS78Out.get(), 	
+                               coincidenceOut->getRoI());
 
-    return (pt>0);
-  }
+  return (pt > 0);
+}
 
 bool TGCSectorLogic::doTILECoincidence(TGCRPhiCoincidenceOut* coincidenceOut)
 {
@@ -629,7 +421,7 @@ bool TGCSectorLogic::doTILECoincidence(TGCRPhiCoincidenceOut* coincidenceOut)
 }
 
 
-  bool TGCSectorLogic::doTGCEICoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+bool TGCSectorLogic::doTGCEICoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
 
     bool isHitInner=false;
     for(unsigned int iSlot=0;iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
@@ -662,14 +454,12 @@ bool TGCSectorLogic::doTILECoincidence(TGCRPhiCoincidenceOut* coincidenceOut)
     }
 
     return false;
-
-  }
-
+}
 
 
-  bool TGCSectorLogic::doTGCFICoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
+bool TGCSectorLogic::doTGCFICoincidence(TGCRPhiCoincidenceOut* coincidenceOut){
    return doTGCEICoincidence(coincidenceOut);
-  }
+}
 
 
 bool TGCSectorLogic::hitTileMu(const uint8_t& mask, const uint8_t& hit6, const uint8_t& hit56) const
@@ -680,16 +470,16 @@ bool TGCSectorLogic::hitTileMu(const uint8_t& mask, const uint8_t& hit6, const u
    * @param[in] hit56 TMDBOut for D5+D6
    */
   switch(mask) {
-    case LVL1TGC::Run2TileMuCoincidenceMap::TM_D6_L:
+    case LVL1TGC::TGCTileMuCoincidenceLUT::TM_D6_L:
       return (hit6==TGCTMDBOut::TM_LOW || hit6==TGCTMDBOut::TM_HIGH);
       break;
-    case LVL1TGC::Run2TileMuCoincidenceMap::TM_D6_H:
+    case LVL1TGC::TGCTileMuCoincidenceLUT::TM_D6_H:
       return (hit6==TGCTMDBOut::TM_HIGH);
       break;
-    case LVL1TGC::Run2TileMuCoincidenceMap::TM_D56_L:
+    case LVL1TGC::TGCTileMuCoincidenceLUT::TM_D56_L:
       return (hit56==TGCTMDBOut::TM_LOW || hit56==TGCTMDBOut::TM_HIGH);
       break;
-    case LVL1TGC::Run2TileMuCoincidenceMap::TM_D56_H:
+    case LVL1TGC::TGCTileMuCoincidenceLUT::TM_D56_H:
       return (hit56==TGCTMDBOut::TM_HIGH);
       break;
     default:

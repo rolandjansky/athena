@@ -20,7 +20,7 @@ namespace TrkDriftCircleMath {
     public:
         TangentToCircles() : m_debug(false) {}
 
-        LineVec tangentLines(const DriftCircle& dc1, const DriftCircle& dc2) const;
+        static LineVec tangentLines(const DriftCircle& dc1, const DriftCircle& dc2) ;
 
         void debug(bool debug) { m_debug = debug; }
 

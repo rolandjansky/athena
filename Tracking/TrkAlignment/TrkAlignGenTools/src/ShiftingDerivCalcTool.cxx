@@ -933,8 +933,6 @@ void ShiftingDerivCalcTool::deleteChi2VAlignParam()
     delete [] m_chi2VAlignParamVecMeasType[i];  m_chi2VAlignParamVecMeasType[i]=nullptr;
   }
   m_chi2VAlignParamVecMeasType.clear();
-
-  return;
 }
 
 //________________________________________________________________________

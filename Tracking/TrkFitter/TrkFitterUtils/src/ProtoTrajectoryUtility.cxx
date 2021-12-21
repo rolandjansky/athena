@@ -282,7 +282,7 @@ Trk::ProtoTrajectoryUtility::forwardFilterQuality(const Trk::Trajectory& T,
     }
   }
   int    ndof_int = ndof>5 ? (int)(ndof-5.0) : 0;
-  return FitQuality(chisquared,ndof_int);
+  return {chisquared,ndof_int};
 }
 
 

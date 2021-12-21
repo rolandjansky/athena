@@ -98,6 +98,8 @@ MCTruthClassifier::initialize()
     m_caloExtensionTool.disable();
   }
 
+  ATH_CHECK(m_caloMgrKey.initialize(SG::AllowEmpty));
+
   if (!m_truthInConeTool.empty()) {
     ATH_CHECK(m_truthInConeTool.retrieve());
   } else {

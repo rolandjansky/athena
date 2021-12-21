@@ -27,7 +27,7 @@
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrackSegmentAssociationTool.h"
+#include "MuonCombinedToolInterfaces/IMuonTrackToSegmentAssociationTool.h"
 #include "TrackToCalo/CaloCellCollector.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
@@ -69,8 +69,7 @@ namespace MuonCombined {
 
         /** IMuonCreatorTool interface: build muons from ID and MS candidates */
         virtual void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
-                            const InDetCandidateCollection* inDetCandidates, const std::vector<const InDetCandidateToTagMap*>& tagMaps,
-                            OutputData& outputData) const override final;
+                            const std::vector<const InDetCandidateToTagMap*>& tagMaps, OutputData& outputData) const override final;
 
         /** IMuonCreatorTool interface: create a muon from a muon candidate */
         virtual xAOD::Muon* create(const EventContext& ctx, const MuonCandidate& candidate, OutputData& outputData) const override final;
@@ -79,7 +78,7 @@ namespace MuonCombined {
         virtual xAOD::Muon* create(const EventContext& ctx, InDetCandidateTags& candidate, OutputData& outputData) const override final;
 
     private:
-        void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates,
+        void create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
                     const std::vector<const InDetCandidateToTagMap*>& tagMaps, OutputData& outputData, bool select_comissioning) const;
 
         /// De^corated a bunch of dummy values to the muon to ensure data consistency in the xAOD
@@ -118,20 +117,14 @@ namespace MuonCombined {
                                                                              Trk::SegmentCollection* muonSegmentCollection = 0) const;
 
     private:
-        //// Method to resolve the overlaps between the particular track candidates
-        /// The methos
-        void resolveOverlaps(const EventContext& ctx, const InDetCandidateCollection* inDetCandidates,
-                             const MuonCandidateCollection* muonCandidates, const std::vector<const InDetCandidateToTagMap*>& tagMaps,
-                             InDetCandidateTagsMap& resolvedInDetCandidates,
+
+        void resolveOverlaps(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
+                             const std::vector<const InDetCandidateToTagMap*>& tagMaps, InDetCandidateTagsMap& resolvedInDetCandidates,
                              std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates,
                              bool select_comissioning = false) const;
 
-        void selectStaus(const InDetCandidateCollection* inDetCandidates, InDetCandidateTagsMap& resolvedInDetCandidates,
+        void selectStaus(InDetCandidateTagsMap& resolvedInDetCandidates,
                          const std::vector<const InDetCandidateToTagMap*>& tagMaps) const;
-
-    public:
-        void selectStaus(const InDetCandidateCollection* inDetCandidates,
-                         std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates) const;
 
         std::unique_ptr<Trk::Track> createDummyTrack(const EventContext& ctx, const std::vector<const Muon::MuonSegment*>& segments,
                                                      const Trk::Track& indetTrack) const;
@@ -145,8 +138,9 @@ namespace MuonCombined {
 
         void setP4(xAOD::Muon& muon, const xAOD::TrackParticle& tp) const;
 
-        void collectCells(const EventContext& ctx, xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer,
-                          Trk::CaloExtension* inputCaloExt = nullptr) const;
+        void collectCells(const EventContext& ctx, 
+                          xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer, 
+                          const Trk::CaloExtension* inputCaloExt = nullptr) const;
 
         void getRpcTiming(const xAOD::TrackParticle& tp, std::vector<unsigned int>& rpcHitIdentifier, std::vector<float>& rpcHitPositionX,
                           std::vector<float>& rpcHitPositionY, std::vector<float>& rpcHitPositionZ, std::vector<float>& rpcHitTime) const;
@@ -165,8 +159,6 @@ namespace MuonCombined {
 
         ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtTool{this, "ParticleCaloExtensionTool",
                                                                   "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"};
-        ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtToolID{this, "ParticleCaloExtensionToolID",
-                                                                    "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"};
         ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator{this, "TrackParticleCreator",
                                                                      "Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"};
         ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor{this, "AmbiguityProcessor", ""};
@@ -185,8 +177,10 @@ namespace MuonCombined {
                                                                   "Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"};
         ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider{this, "CaloMaterialProvider",
                                                                          "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"};
-        ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool{
-            this, "TrackSegmentAssociationTool", "Muon::TrackSegmentAssociationTool/TrackSegmentAssociationTool"};
+        
+        PublicToolHandle<MuonCombined::IMuonTrackToSegmentAssociationTool> m_trackSegmentAssociationTool{
+            this, "TrackSegmentAssociationTool", "MuonCombined::TrackSegmentAssociationTool/TrackSegmentAssociationTool"};
+
         ToolHandle<Rec::IMuonTrackQuery> m_trackQuery{this, "TrackQuery", "Rec::MuonTrackQuery/MuonTrackQuery"};
         ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
 
@@ -224,10 +218,8 @@ namespace MuonCombined {
 
         Gaudi::Property<float> m_sigmaCaloNoiseCut{this, "SigmaCaloNoiseCut", 3.4};
 
-        SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this, "CaloDetDescrManager", "CaloDetDescrManager"};
-    };
-
-    inline void MuonCreatorTool::setP4(xAOD::Muon& muon, const xAOD::TrackParticle& tp) const { muon.setP4(tp.pt(), tp.eta(), tp.phi()); }
+        SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
+    };    
 
 }  // namespace MuonCombined
 

@@ -152,6 +152,8 @@ protected:
   //pdgId
   int m_selectTruthPdgId;
 
+  int m_selectParentTruthPdgId;
+
   /// kepp events even if they fail the requested trigger chains
   bool  m_keepAllEvents;
 

@@ -17,6 +17,7 @@ _mapL1ThresholdToDecisionCollection = {
     "eEM": "HLTNav_L1eEM",
     "eTAU": "HLTNav_L1eTAU",
     "jTAU": "HLTNav_L1jTAU",
+    "cTAU": "HLTNav_L1cTAU",
     "jJ": "HLTNav_L1jJ",
     "jLJ": "HLTNav_L1jLJ",
     "gJ": "HLTNav_L1gJ",
@@ -24,6 +25,7 @@ _mapL1ThresholdToDecisionCollection = {
     "PROBEeEM" : "HLTNav_L1PROBEeEM",
     "PROBEeTAU" : "HLTNav_L1PROBEeTAU",
     "PROBEjTAU" : "HLTNav_L1PROBEjTAU",
+    "PROBEcTAU" : "HLTNav_L1PROBEcTAU",
     # Run-2 L1Calo
     "EM" : "HLTNav_L1EM",
     "J"  : "HLTNav_L1J",
@@ -45,6 +47,7 @@ _mapL1ThresholdToRoICollection = {
     "eEM": "HLT_eEMRoIs",
     "eTAU": "HLT_eTAURoIs",
     "jTAU": "HLT_jTAURoIs",
+    "cTAU": "HLT_cTAURoIs",
     "jJ": "HLT_jJRoIs",
     "jLJ": "HLT_jLJRoIs",
     "gJ": "HLT_gJRoIs",
@@ -52,6 +55,7 @@ _mapL1ThresholdToRoICollection = {
     "PROBEeEM" : "HLT_eEMRoIs",
     "PROBEeTAU": "HLT_eTAURoIs",
     "PROBEjTAU": "HLT_jTAURoIs",
+    "PROBEcTAU": "HLT_cTAURoIs",
     # Run-2 L1Calo
     "EM" : "HLT_EMRoIs",
     "J"  : "HLT_JETRoI",
@@ -138,6 +142,13 @@ def createCaloRoIUnpackers():
         RoIHalfWidthEta = 0.4,
         RoIHalfWidthPhi = math.pi/8,
         MonTool = RoIsUnpackingMonitoring(prefix="jTAU", maxCount=maxRoICount))
+    cTauUnpacker = CompFactory.cTauRoIsUnpackingTool(
+        Decisions = mapThresholdToL1DecisionCollection("cTAU"),
+        DecisionsProbe = mapThresholdToL1DecisionCollection("PROBEcTAU"),
+        OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("cTAU")),
+        RoIHalfWidthEta = 0.4,
+        RoIHalfWidthPhi = math.pi/8,
+        MonTool = RoIsUnpackingMonitoring(prefix="cTAU", maxCount=maxRoICount))
     jFexSRJetUnpacker = CompFactory.jFexSRJetRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("jJ"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jJ")),
@@ -163,7 +174,7 @@ def createCaloRoIUnpackers():
         RoIHalfWidthPhi = 0.1,
         MonTool = RoIsUnpackingMonitoring(prefix="gLJ", maxCount=maxRoICount))
 
-    return [eFexEMUnpacker, eFexTauUnpacker, jFexTauUnpacker,
+    return [eFexEMUnpacker, eFexTauUnpacker, jFexTauUnpacker, cTauUnpacker,
             jFexSRJetUnpacker, gFexLRJetUnpacker, gFexSRJetUnpacker, jFexLRJetUnpacker]
 
 def createLegacyMuonRoIUnpackers(flags):
@@ -221,10 +232,13 @@ def getL1TriggerResultMaker(flags):
         l1trMaker.jFexLRJetRoIKey = "L1_jFexLRJetRoI"
         l1trMaker.gFexSRJetRoIKey = "L1_gFexSRJetRoI"
         l1trMaker.gFexLRJetRoIKey = "L1_gFexLRJetRoI"
+        l1trMaker.cTauRoIKey = "L1_cTauRoI"  # Note: WriteHandle
+        l1trMaker.cjTauLinkKey = "L1_cTauRoI.jTauLink"  # Note: WriteDecorHandle
         l1trMaker.ThresholdPatternTools += [
             CompFactory.eFexEMRoIThresholdsTool(),
             CompFactory.eFexTauRoIThresholdsTool(),
             CompFactory.jFexTauRoIThresholdsTool(),
+            CompFactory.cTauRoIThresholdsTool(),
             CompFactory.jFexSRJetRoIThresholdsTool(),
             CompFactory.jFexLRJetRoIThresholdsTool(),
             CompFactory.gFexSRJetRoIThresholdsTool(),
@@ -238,6 +252,8 @@ def getL1TriggerResultMaker(flags):
        l1trMaker.jFexLRJetRoIKey = ""
        l1trMaker.gFexSRJetRoIKey = ""
        l1trMaker.gFexLRJetRoIKey = ""
+       l1trMaker.cTauRoIKey = ""
+       l1trMaker.cjTauLinkKey = ""
 
     # Placeholder for other L1 xAOD outputs:
     # - CTP result

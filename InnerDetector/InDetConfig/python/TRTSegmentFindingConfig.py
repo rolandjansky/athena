@@ -182,7 +182,7 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
     # --- TRT track reconstruction
     #
     acc.merge(TRT_TrackSegmentsFinderCfg( flags,
-                                          name = 'InDetTRT_TrackSegmentsFinderPhase'+extension,
+                                          name = 'InDetTRT_TrackSegmentsFinder'+extension,
                                           extension =extension,
                                           BarrelSegments=BarrelSegments,
                                           InputCollections = InputCollections,

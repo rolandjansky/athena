@@ -194,7 +194,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 	if (vLink == nullptr) ATH_MSG_ERROR("Invalid truthVertexLink from signalEvents");
 	Amg::Vector3D vTruth(vLink->x(),vLink->y(),vLink->z());
 	int nGoodTracks = 0;
-	for (auto trk : trackVector)
+	for (auto *trk : trackVector)
 	{
 	    Trk::LinkToXAODTrackParticle* lxtp = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trk);
 	    if (lxtp)
@@ -257,7 +257,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 	if (vLink == nullptr) ATH_MSG_ERROR("Invalid truthVertexLink from pileupEvents");
 	Amg::Vector3D vTruth(vLink->x(),vLink->y(),vLink->z());
 	int nGoodTracks = 0;
-	for (auto trk : trackVector)
+	for (auto *trk : trackVector)
 	{
 	    Trk::LinkToXAODTrackParticle* lxtp = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trk);
 	    if (lxtp)

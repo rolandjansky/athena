@@ -11,7 +11,6 @@
 // of size neta X nphi built on the fly
 
 #include "DerivationFrameworkCalo/ClusterEnergyPerLayerDecorator.h"
-#include "CaloClusterCorrection/CaloFillRectangularCluster.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 
 #include <TString.h>
@@ -50,6 +49,13 @@ DerivationFramework::ClusterEnergyPerLayerDecorator::initialize()
   // how to add a statement to theck that the tool indeed has the size matching
   // the neta and nphi properties? ATH_MSG_DEBUG("CaloFillRectangularCluster
   // print size ...
+  m_tool =
+    dynamic_cast<const CaloFillRectangularCluster*>(
+      &(*m_caloFillRectangularTool));
+  if (m_tool==nullptr) {
+    ATH_MSG_ERROR("Pointer to CaloFillRectantularCluster tool is invalid");
+    return StatusCode::FAILURE;
+  }
 
   ATH_CHECK(m_SGKey_caloCells.initialize());
 
@@ -170,10 +176,7 @@ DerivationFramework::ClusterEnergyPerLayerDecorator::decorateObject(
                                           egamma->caloCluster()->eta0(),
                                           egamma->caloCluster()->phi0(),
                                           egamma->caloCluster()->clusterSize());
-    const CaloFillRectangularCluster* tool =
-      dynamic_cast<const CaloFillRectangularCluster*>(
-        &(*m_caloFillRectangularTool));
-    tool->makeCorrection(ctx, egcClone);
+    m_tool->makeCorrection(ctx, egcClone);
   }
 
   for (unsigned int layer : m_layers) {

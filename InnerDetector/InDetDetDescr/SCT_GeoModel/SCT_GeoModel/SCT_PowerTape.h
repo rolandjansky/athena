@@ -33,9 +33,9 @@ private:
   void getParameters();
   virtual GeoVPhysVol * build();
   
-  const GeoMaterial * m_material;
-  double m_thickness;
-  double m_width;
+  const GeoMaterial * m_material = nullptr;
+  double m_thickness = 0.0;
+  double m_width = 0.0;
   double m_length;
 
 };

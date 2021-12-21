@@ -70,4 +70,5 @@ def getMCTruthClassifierCaloExtensionTool():
 MCTruthClassifierCalo = classifierTool(
     name='MCTruthClassifierCalo',
     barcodeG4Shift=firstSimCreatedBarcode(),
-    ParticleCaloExtensionTool=getMCTruthClassifierCaloExtensionTool())
+    ParticleCaloExtensionTool=getMCTruthClassifierCaloExtensionTool(),
+    CaloDetDescrManager="CaloDetDescrManager")

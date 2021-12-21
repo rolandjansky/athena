@@ -32,6 +32,8 @@
 #include <fstream>
 #include "eformat/index.h"
 
+using namespace OFFLINE_FRAGMENTS_NAMESPACE;
+
 /**
  * @brief Byte stream converter of LATOME.
  *
@@ -109,6 +111,7 @@ private:
 		 LArLATOMEHeaderContainer* header_coll);
     
     /** @brief Execute decoding for an event*/
+
     void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* pROB, const LArLATOMEMapping *map);
 
   private:

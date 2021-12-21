@@ -65,7 +65,7 @@ public:
     std::array<double, 4>& phi,
     std::array<double, 4>& deltaEta,
     std::array<double, 4>& deltaPhi,
-    const CaloDetDescrManager* caloDD = nullptr,
+    const CaloDetDescrManager& caloDD,
     unsigned int extrapFrom = fromPerigee) const = 0;
 
   /** test for vertex-to-cluster match given also the positions

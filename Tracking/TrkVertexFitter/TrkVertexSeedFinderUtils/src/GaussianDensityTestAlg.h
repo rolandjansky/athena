@@ -86,7 +86,7 @@ class GaussianDensityTestAlg
 
   void selectTracks(const xAOD::TrackParticleContainer* trackParticles, std::vector<Trk::ITrackLink*> & trackVector);
 
-  void analyzeTracks(const std::vector<Trk::ITrackLink*> & trackVector, std::vector<const Trk::TrackParameters*>& perigeeList);
+  static void analyzeTracks(const std::vector<Trk::ITrackLink*> & trackVector, std::vector<const Trk::TrackParameters*>& perigeeList);
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

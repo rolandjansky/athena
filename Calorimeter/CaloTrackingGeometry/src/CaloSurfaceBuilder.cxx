@@ -74,20 +74,17 @@ CaloSurfaceBuilder::initialize()
   if (m_lar_mat.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve " << m_lar_mat << ". Aborting.");
     return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG("Sucessfully retrieved " << m_lar_mat << ".");
+  }
 
   if (m_lar_simplegeom.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve " << m_lar_simplegeom << ". Aborting.");
     return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG("Sucessfully retrieved " << m_lar_simplegeom << ".");
+  }
 
   if (m_calodepth.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve " << m_calodepth << ". Aborting.");
     return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG("Sucessfully retrieved " << m_calodepth << ".");
+  }
 
   if (detStore()->retrieve(m_tile_dd).isFailure()) {
     ATH_MSG_FATAL("Could not find TileDetDescrManager in DetStore");
@@ -149,8 +146,9 @@ CaloSurfaceBuilder::CreateDDSurface(const CaloCell_ID::CaloSample sample,
       sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
       sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
       sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
-      sample == CaloCell_ID::FCAL2)
+      sample == CaloCell_ID::FCAL2) {
     barrel = false;
+  }
 
   if (barrel) {
     result = this->get_cylinder_surface(
@@ -158,9 +156,6 @@ CaloSurfaceBuilder::CreateDDSurface(const CaloCell_ID::CaloSample sample,
     if (!result) {
       return nullptr;
     }
-    ATH_MSG_VERBOSE("got -flat- cylinder for Sample "
-                    << (int)sample << " radius, hlen are " << radius << " "
-                    << hlen);
     if (hphi < 0.9 * M_PI) {
       surf = new Trk::CylinderSurface(*pos, radius, hphi, hlen);
     } else {
@@ -172,9 +167,6 @@ CaloSurfaceBuilder::CreateDDSurface(const CaloCell_ID::CaloSample sample,
     if (!result) {
       return nullptr;
     }
-    ATH_MSG_VERBOSE(" got -flat- disk for Sample "
-                    << (int)sample << " rmin rmax = " << rmin << " " << rmax
-                    << " z = " << pos->translation().z());
     // for Atlas configuration, avoid to create a hole a phi ~ pi by hphi
     // rounding effects. the phi range was introduced for the testbeam
     if (hphi < 0.9 * M_PI) {
@@ -183,7 +175,6 @@ CaloSurfaceBuilder::CreateDDSurface(const CaloCell_ID::CaloSample sample,
       surf = new Trk::DiscSurface(*pos, rmin, rmax);
     }
   }
-
   return surf;
 }
 
@@ -194,8 +185,9 @@ CaloSurfaceBuilder::CreateUserSurface(const CaloCell_ID::CaloSample sample,
                                       const CaloDetDescrManager* calo_dd) const
 {
 
-  if (sample == CaloCell_ID::Unknown)
+  if (sample == CaloCell_ID::Unknown) {
     return nullptr;
+  }
 
   // See ATLASRECTS-5012
   // Here we prb want to move to conditions data
@@ -250,8 +242,9 @@ CaloSurfaceBuilder::CreateUserSurface(const CaloCell_ID::CaloSample sample,
       sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
       sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
       sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
-      sample == CaloCell_ID::FCAL2 || sample == CaloCell_ID::TileGap3)
+      sample == CaloCell_ID::FCAL2 || sample == CaloCell_ID::TileGap3) {
     barrel = false;
+  }
 
   if (barrel) {
 
@@ -328,16 +321,6 @@ CaloSurfaceBuilder::CreateLastSurface(const CaloCell_ID::CaloSample sample,
                                       const double etaCaloLocal,
                                       const CaloDetDescrManager* calo_dd) const
 {
-  ATH_MSG_DEBUG("In CreateLastSurface()");
-
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  if (calo_dd == nullptr) {
-    if (detStore()->retrieve(calo_dd).isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-      return nullptr;
-    }
-  }
 
   Trk::Surface* surf = nullptr;
 
@@ -403,21 +386,19 @@ CaloSurfaceBuilder::CreateLastSurface(const CaloCell_ID::CaloSample sample,
       TileDetDescriptor* TileBar_descr = *(Tile_first + 1);
       TileDetDescriptor* TileExt_descr = *(Tile_first + 3);
       TileDetDescriptor* TileGap_descr = *(Tile_first + 5);
-      if (sample == CaloCell_ID::TileBar2)
+      if (sample == CaloCell_ID::TileBar2) {
         radius = TileBar_descr->rcenter(2) + .5 * TileBar_descr->dr(2);
-      else if (sample == CaloCell_ID::TileExt2)
+      } else if (sample == CaloCell_ID::TileExt2) {
         radius = TileExt_descr->rcenter(2) + .5 * TileExt_descr->dr(2);
-      else if (sample == CaloCell_ID::TileGap2)
+      } else if (sample == CaloCell_ID::TileGap2) {
         radius = TileGap_descr->rcenter(2) + .5 * TileGap_descr->dr(2);
-      else
+      } else {
         ATH_MSG_DEBUG("Not a considered cylinder tile");
+      }
 
-      if (tile)
+      if (tile) {
         hlen = hlen / 2;
-      ATH_MSG_DEBUG("got -real- cylinder for Sample "
-                    << (int)sample << " eta= " << etaCaloLocal
-                    << " offset=" << offset << " ==> radius, hlen are "
-                    << radius << " " << hlen);
+      }
 
       if (hphi < 0.9 * M_PI) {
         return surf = new Trk::CylinderSurface(*pos, radius, hphi, hlen);
@@ -452,17 +433,9 @@ CaloSurfaceBuilder::CreateLastSurface(const CaloCell_ID::CaloSample sample,
     }
 
     z = offset + zend - (*pos)(2, 3);
-    ATH_MSG_DEBUG(" LastSurface shift z by : offset - zend + oldz  = "
-                  << offset << " - " << zend << " +  " << (*pos)(2, 3) << " = "
-                  << z);
 
     Amg::Translation3D vec(0., 0., z);
     *pos = (*pos) * vec;
-
-    ATH_MSG_DEBUG(" got -real- disk for Sample "
-                  << (int)sample << " rmin: " << rmin << "  rmax: " << rmax
-                  << " z = " << (*pos)(2, 3)
-                  << " for etaCaloLocal=" << etaCaloLocal);
 
     // for Atlas configuration, avoid to create a hole a phi ~ pi by hphi
     // rounding effects. the phi range was introduced for the testbeam
@@ -586,10 +559,6 @@ CaloSurfaceBuilder::CreateDDECLayers(
 void
 CaloSurfaceBuilder::setCaloDepth(CaloDepthTool* /*mytool*/)
 {
-  // This allows clients who already have a CaloDepthTool to use it
-  // and be sure that the properties set via jobOpt are used consistently
-  //
-  // For clients who do not have any, the default will be retrieved and used
   ATH_MSG_WARNING("The client doesn't need to set CaloDepthTool anymore!!! ");
 }
 
@@ -614,48 +583,21 @@ CaloSurfaceBuilder::get_cylinder_surface(
 {
   bool result = false;
 
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  if (calo_dd == nullptr) {
-    if (detStore()->retrieve(calo_dd).isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-      return false;
-    }
-  }
-
   // strips are spread on several descriptor, which all have the same
   // htrans, radius, hphi, but not the same hlength
   double hl{};
   hlength = 0;
 
   // these ones are definitely not cylinders :
-  if (sample == CaloCell_ID::PreSamplerE)
+  if (sample == CaloCell_ID::PreSamplerE || sample == CaloCell_ID::EME1 ||
+      sample == CaloCell_ID::EME2 || sample == CaloCell_ID::EME3 ||
+      sample == CaloCell_ID::HEC0 || sample == CaloCell_ID::HEC1 ||
+      sample == CaloCell_ID::HEC2 || sample == CaloCell_ID::HEC3 ||
+      sample == CaloCell_ID::FCAL0 || sample == CaloCell_ID::FCAL1 ||
+      sample == CaloCell_ID::FCAL2 || sample == CaloCell_ID::Unknown ||
+      sample == CaloCell_ID::TileGap3) {
     return false;
-  if (sample == CaloCell_ID::EME1)
-    return false;
-  if (sample == CaloCell_ID::EME2)
-    return false;
-  if (sample == CaloCell_ID::EME3)
-    return false;
-  if (sample == CaloCell_ID::HEC0)
-    return false;
-  if (sample == CaloCell_ID::HEC1)
-    return false;
-  if (sample == CaloCell_ID::HEC2)
-    return false;
-  if (sample == CaloCell_ID::HEC3)
-    return false;
-  if (sample == CaloCell_ID::FCAL0)
-    return false;
-  if (sample == CaloCell_ID::FCAL1)
-    return false;
-  if (sample == CaloCell_ID::FCAL2)
-    return false;
-  if (sample == CaloCell_ID::Unknown)
-    return false;
-  if (sample == CaloCell_ID::TileGap3)
-    return false;
-
+  }
   if (sample == CaloCell_ID::PreSamplerB || sample == CaloCell_ID::EMB1 ||
       sample == CaloCell_ID::EMB2 || sample == CaloCell_ID::EMB3) {
 
@@ -670,8 +612,7 @@ CaloSurfaceBuilder::get_cylinder_surface(
   }
 
   else {
-    // this are not cylinders
-
+    // these are not cylinders
     switch (sample) {
       case CaloCell_ID::TileBar0:
       case CaloCell_ID::TileBar1:
@@ -690,7 +631,7 @@ CaloSurfaceBuilder::get_cylinder_surface(
     for (const CaloDetDescriptor* reg : calo_dd->tile_descriptors_range()) {
       if (reg) {
         if (reg->getSampling(0) == sample && reg->calo_sign() * side > 0) {
-          (void)reg->get_cylinder_surface(htrans, radius, hphi, hl, depth);
+          result = reg->get_cylinder_surface(htrans, radius, hphi, hl, depth);
           if (hl > hlength)
             hlength = hl;
           hphi = .5 * reg->dphi() * reg->n_phi();
@@ -720,15 +661,6 @@ CaloSurfaceBuilder::get_disk_surface(CaloCell_ID::CaloSample sample,
   rmin = 999999.;
   rmax = 0.;
 
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  if (calo_dd == nullptr) {
-    if (detStore()->retrieve(calo_dd).isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-      return false;
-    }
-  }
-
   // strips are spread on several descriptor, which all have the same
   // htrans, hphisec, but not the same rmin and rmax
   // + for EMEC2 and EMEC3, the InnerWeel entrance z is different :-(
@@ -736,30 +668,14 @@ CaloSurfaceBuilder::get_disk_surface(CaloCell_ID::CaloSample sample,
   //     take OW z and fix the HepTransform accordingly
 
   // these ones are definitely not disks :
-  if (sample == CaloCell_ID::PreSamplerB)
+  if (sample == CaloCell_ID::PreSamplerB || sample == CaloCell_ID::EMB1 ||
+      sample == CaloCell_ID::EMB2 || sample == CaloCell_ID::EMB3 ||
+      sample == CaloCell_ID::TileBar0 || sample == CaloCell_ID::TileBar1 ||
+      sample == CaloCell_ID::TileBar2 || sample == CaloCell_ID::TileGap1 ||
+      sample == CaloCell_ID::TileGap2 || sample == CaloCell_ID::TileExt0 ||
+      sample == CaloCell_ID::TileExt1 || sample == CaloCell_ID::TileExt2) {
     return false;
-  if (sample == CaloCell_ID::EMB1)
-    return false;
-  if (sample == CaloCell_ID::EMB2)
-    return false;
-  if (sample == CaloCell_ID::EMB3)
-    return false;
-  if (sample == CaloCell_ID::TileBar0)
-    return false;
-  if (sample == CaloCell_ID::TileBar1)
-    return false;
-  if (sample == CaloCell_ID::TileBar2)
-    return false;
-  if (sample == CaloCell_ID::TileGap1)
-    return false;
-  if (sample == CaloCell_ID::TileGap2)
-    return false;
-  if (sample == CaloCell_ID::TileExt0)
-    return false;
-  if (sample == CaloCell_ID::TileExt1)
-    return false;
-  if (sample == CaloCell_ID::TileExt2)
-    return false;
+  }
 
   double ri, ra, zow;
   for (const CaloDetDescriptor* reg : calo_dd->calo_descriptors_range()) {
@@ -788,8 +704,9 @@ CaloSurfaceBuilder::get_disk_surface(CaloCell_ID::CaloSample sample,
     }
   }
 
-  if (rmin > rmax)
+  if (rmin > rmax) {
     rmin = 0.;
+  }
   // Fix the z ( convention is different in Calo's and Tracking )
   Amg::Translation3D vec(0., 0., z - (*htrans)(2, 3));
   *htrans = (*htrans) * vec;
@@ -851,15 +768,8 @@ CaloSurfaceBuilder::get_disk_surface(CaloSubdetNames::ALIGNVOL alvol,
 
 // store all the surfaces into a vector
 void
-CaloSurfaceBuilder::fill_tg_surfaces() const
+CaloSurfaceBuilder::fill_tg_surfaces(const CaloDetDescrManager* calo_dd) const
 {
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  const CaloDetDescrManager* calo_dd = nullptr;
-  if (detStore()->retrieve(calo_dd).isFailure()) {
-    ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-    return;
-  }
 
   // entry surfaces ( id<24 to avoid error messages )
   for (CaloCell_ID::CaloSample sample = CaloCell_ID::PreSamplerB; sample < 24;
@@ -1096,45 +1006,56 @@ CaloSurfaceBuilder::fill_tg_surfaces() const
     CreateLastSurface(CaloCell_ID::TileBar2, 0., 1., calo_dd);
   Trk::Surface* lneg =
     CreateLastSurface(CaloCell_ID::TileBar2, 0., -1., calo_dd);
-  if (lpos)
+  if (lpos) {
     lpos->setOwner(Trk::TGOwn);
-  if (lneg)
+  }
+  if (lneg) {
     lneg->setOwner(Trk::TGOwn);
+  }
   m_layerExits[CaloCell_ID::TileBar2] =
     std::pair<const Trk::Surface*, const Trk::Surface*>(lpos, lneg);
 
   lpos = CreateLastSurface(CaloCell_ID::TileExt2, 0., 1., calo_dd);
   lneg = CreateLastSurface(CaloCell_ID::TileExt2, 0., -1., calo_dd);
-  if (lpos)
+  if (lpos) {
     lpos->setOwner(Trk::TGOwn);
-  lneg->setOwner(Trk::TGOwn);
+  }
+  if (lneg) {
+    lneg->setOwner(Trk::TGOwn);
+  }
   m_layerExits[CaloCell_ID::TileExt2] =
     std::pair<const Trk::Surface*, const Trk::Surface*>(lpos, lneg);
 
   lpos = CreateLastSurface(CaloCell_ID::TileGap2, 0., 1., calo_dd);
   lneg = CreateLastSurface(CaloCell_ID::TileGap2, 0., -1., calo_dd);
-  if (lpos)
+  if (lpos) {
     lpos->setOwner(Trk::TGOwn);
-  if (lneg)
+  }
+  if (lneg) {
     lneg->setOwner(Trk::TGOwn);
+  }
   m_layerExits[CaloCell_ID::TileGap2] =
     std::pair<const Trk::Surface*, const Trk::Surface*>(lpos, lneg);
 
   lpos = CreateLastSurface(CaloCell_ID::TileGap3, 0., 1., calo_dd);
   lneg = CreateLastSurface(CaloCell_ID::TileGap3, 0., -1., calo_dd);
-  if (lpos)
+  if (lpos) {
     lpos->setOwner(Trk::TGOwn);
-  if (lneg)
+  }
+  if (lneg) {
     lneg->setOwner(Trk::TGOwn);
+  }
   m_layerExits[CaloCell_ID::TileGap3] =
     std::pair<const Trk::Surface*, const Trk::Surface*>(lpos, lneg);
 
   lpos = CreateLastSurface(CaloCell_ID::HEC3, 0., 1., calo_dd);
   lneg = CreateLastSurface(CaloCell_ID::HEC3, 0., -1., calo_dd);
-  if (lpos)
+  if (lpos) {
     lpos->setOwner(Trk::TGOwn);
-  if (lneg)
+  }
+  if (lneg) {
     lneg->setOwner(Trk::TGOwn);
+  }
   m_layerExits[CaloCell_ID::HEC3] =
     std::pair<const Trk::Surface*, const Trk::Surface*>(lpos, lneg);
 }

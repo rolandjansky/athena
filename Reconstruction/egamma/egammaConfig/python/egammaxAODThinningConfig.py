@@ -32,7 +32,7 @@ def egammaxAODThinningCfg(flags, name="EGammaxAODThinning"):
     for clus in allClusters:
         acc.merge(CaloThinCellsByClusterAlgCfg(
             flags,
-            streamName='AOD',
+            streamName='StreamAOD',
             clusters=clus,
             samplings=samplings))
 

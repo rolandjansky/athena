@@ -71,6 +71,7 @@ class opt:
 
 ################################################################################
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.AccumulatorCache import AccumulatorDecorator
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
@@ -472,17 +473,21 @@ else:
 # ---------------------------------------------------------------
 # Add LumiBlockMuWriter creating xAOD::EventInfo decorations for pileup values
 # ---------------------------------------------------------------
-from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
-LumiBlockMuWriterDefault(sequence=hltBeginSeq)
+from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+CAtoGlobalWrapper(LumiBlockMuWriterCfg, ConfigFlags, seqName="HLTBeginSeq")
+
 
 # ---------------------------------------------------------------
 # Level 1 simulation
 # ---------------------------------------------------------------
 if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
-    #from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
-    #CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
+    if ConfigFlags.Detector.GeometrysTGC and ConfigFlags.Detector.GeometryMM and ConfigFlags.Input.isMC:
+        from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+        hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+    else:
+        from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationCfg
+        CAtoGlobalWrapper(Lvl1SimulationCfg, ConfigFlags, seqName="HLTBeginSeq")
+
 
 # ---------------------------------------------------------------
 # Add HLTSeeding providing inputs to HLT
@@ -648,3 +653,8 @@ for mod in modifierList:
 #-------------------------------------------------------------
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
+
+#-------------------------------------------------------------
+# Print caching statistics
+#-------------------------------------------------------------
+AccumulatorDecorator.printStats()

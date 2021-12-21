@@ -27,6 +27,7 @@ class TestSetup:
         self.release_ID = "master"  # The following is not flexible enough, can probably be hardcoded: environ["AtlasVersion"][0:4]
         self.parallel_execution = False
         self.disable_output_checks = False
+        self.custom_threads = None
 
     def setup_release(self, reference=None, validation=None) -> None:
         if reference and validation:

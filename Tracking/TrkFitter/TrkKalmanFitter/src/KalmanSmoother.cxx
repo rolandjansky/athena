@@ -487,7 +487,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
   ATH_MSG_VERBOSE ("create smoothed state at end of track by adding the last meas't");
   std::unique_ptr<const TrackParameters>  smooPar;
   // first smoothed TrkParameter is last forward prediction updated with last MBase
-  auto pFitQual = fitQual.get(); //in/out pointer parameter below
+  auto *pFitQual = fitQual.get(); //in/out pointer parameter below
   std::unique_ptr<std::pair<AmgVector(5),AmgSymMatrix(5)> > updatedDifference (
     m_updator->updateParameterDifference(forwardDiffPar, forwardCov,
                                          *(lastPredictedState->measurementDifference()),
@@ -633,7 +633,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
         AmgSymMatrix(5)(updatedDifference->second));
       rit->checkinSmoothedPar(std::move(smooPar));
     } else if (m_doSmoothing) {
-      auto pFitQual = fitQual.get();//in/out parameter
+      auto *pFitQual = fitQual.get();//in/out parameter
       std::unique_ptr< std::pair<AmgVector(5),AmgSymMatrix(5)> > smoothedDifference(
         m_updator->updateParameterDifference(*(rit->parametersDifference()),
                                              *(rit->parametersCovariance()),

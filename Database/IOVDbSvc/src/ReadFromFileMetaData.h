@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //@file ReadFromFileMetaData.h
@@ -31,6 +31,8 @@ namespace IOVDbNamespace{
   class ReadFromFileMetaData{
   public:
     ReadFromFileMetaData()=delete;
+    ReadFromFileMetaData(const ReadFromFileMetaData&)=delete;
+    ReadFromFileMetaData& operator=(const ReadFromFileMetaData&)=delete;
     ReadFromFileMetaData(const IOVMetaDataContainer* m_metacon, const IOVTime & refTime, const bool useEpochTimestamp);
     ReadFromFileMetaData(const IOVMetaDataContainer* m_metacon, const cool::ValidityKey & refTimeKey, const bool useEpochTimestamp);
     ~ReadFromFileMetaData();

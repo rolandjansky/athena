@@ -31,7 +31,7 @@ def getOverallL1item(chainName):
     from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
 
     # this assumes that the last string of a chain name is the overall L1 item
-    cNameParts = chainName.split("_L1")
+    cNameParts = chainName.rsplit("_L1",1)
     l1seed = 'L1_' + cNameParts[-1]
     # For reference, remapping of L1seeds lived originally in LVL1MenuConfig/LVL1Menu/L1Seeds.py
     # L1 collections can be read out from there in case they are needed again
@@ -153,7 +153,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     genchainDict['chainName'] = chainName
 
     # ---- remove the L1 item from the name ----
-    hltChainName = chainName[:chainName.index("_L1")]
+    hltChainName = chainName.rsplit("_L1",1)[0]
 
     # ---- check for HLT_HLT in name ---
     if 'HLT_HLT' in hltChainName:
@@ -338,7 +338,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
     # check the case when _L1 appears more than once in the name
     if chainName.count("_L1") > 1:
-        indices = [ chainName.index( th ) for th in L1thresholds  ]
+        # handle muXnoL1
+        _chainName_fsnoseed = chainName.replace('noL1','_FSNOSEED')
+        indices = [ _chainName_fsnoseed.index( th ) for th in L1thresholds  ]
         # verify if all thresholds are mentioned in chain parts, if they are not then one of the indices will be -1
         assert all( [i > 0 for i in indices] ), "Some thresholds are not part of the chain name name {}, {}".format(chainName, L1thresholds)
         # verify that the order of threshold and order of threshold mentioned in the name (there they are prexixed by L1) is identical, else there may be mistake
@@ -346,15 +348,18 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
     for chainindex, chainparts in enumerate(multichainparts):
         chainProperties = {} #will contain properties for one part of chain if multiple parts
+        chainpartsNoL1 = chainparts
+
         if len(L1thresholds) != 0:
             chainProperties['L1threshold'] = L1thresholds[chainindex]
+            if '_L1' in chainparts:
+                chainpartsNoL1,thisl1 = chainparts.rsplit('_L1',1)
+                assert thisl1 == chainProperties['L1threshold'], f"Explicit L1 threshold for chainpart {thisl1} does not match provided list {chainProperties['L1threshold']}"
         else:
             __th = getAllThresholdsFromItem ( L1item )
-            assert chainindex < len(__th), "In defintion of the chain {} there is not enough thresholds to be used, index: {} >= number of thresholds, thresholds are: {}".format(chainName, chainindex, __th )
+            assert chainindex < len(__th), "In defintion of the chain {chainName} there is not enough thresholds to be used, index: {chainindex} >= number of thresholds, thresholds are: {__th}"
             chainProperties['L1threshold'] = __th[chainindex]  #replced getUniqueThresholdsFromItem
 
-
-        chainpartsNoL1 = chainparts
         parts=chainpartsNoL1.split('_')
         log.debug("[analyseChainName] chain parts w/o L1 are %s", parts)
         if None in parts:
@@ -488,7 +493,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         # ---- set the alignment group here, once we have fully worked out the properties ----
         # ---- this is for the benefit of the probe leg in T&P chains ----
     
-        if 'larnoiseburst' in chainName:
+        if 'larnoiseburst' in chainName or 'idcalib' in chainName:
             chainProperties['alignmentGroup'] = 'JetMET'
         else:
             if 'tnpInfo' in chainProperties.keys() and chainProperties['tnpInfo'] != "":

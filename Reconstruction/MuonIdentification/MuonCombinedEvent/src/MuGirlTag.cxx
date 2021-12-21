@@ -31,9 +31,6 @@ namespace MuonCombined {
 
     const Trk::Track* MuGirlTag::primaryTrack() const { return combinedTrack(); }
 
-    void MuGirlTag::setComissioning(bool b) { m_isComissioning = b; }
-    bool MuGirlTag::isComissioning() const { return m_isComissioning; }
-
     ElementLink<TrackCollection> MuGirlTag::combinedTrackLink() const { return m_combLink; }
     ElementLink<TrackCollection> MuGirlTag::updatedExtrapolatedTrackLink() const { return m_meLink; }
     void MuGirlTag::setUpdatedExtrapolatedTrack(ElementLink<TrackCollection> melink) { m_meLink = melink; }
@@ -46,5 +43,8 @@ namespace MuonCombined {
         if (t1FQ && t2FQ) { return t1FQ->chiSquared() < t2FQ->chiSquared(); }
         return t1.segments().size() < t2.segments().size();
     }
+    void MuGirlTag::setComissioning(bool b) { m_isComissioning = b; }
+    bool MuGirlTag::isComissioning() const { return m_isComissioning; }
+   
 
 }  // namespace MuonCombined

@@ -260,7 +260,7 @@ def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
     result.addPublicTool(material_effects_updator)
     kwargs.setdefault("MaterialEffectsUpdators", [material_effects_updator])
     
-    navigator_ca = MuonNavigatorCfg(flags)
+    navigator_ca = MuonNavigatorCfg(flags, name="InDetNavigator") # FIXME, misnamed to match old-style config. Remove name at some point.
     navigator = navigator_ca.popPrivateTools()
     result.addPublicTool(navigator)
     result.merge(navigator_ca)
@@ -296,8 +296,7 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     rotcreator=acc.getPrimary()
     result.merge(acc)
     
-    measurement_updater = Trk__KalmanUpdator()
-    result.addPublicTool(measurement_updater) #FIXME
+    measurement_updater = Trk__KalmanUpdator(name="MuonMeasUpdator")
 
     kwargs.setdefault("ExtrapolationTool"    , extrapolator)
     kwargs.setdefault("RotCreatorTool"       , rotcreator)

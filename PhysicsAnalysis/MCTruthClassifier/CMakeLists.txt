@@ -17,7 +17,7 @@ elseif( GENERATIONBASE )
 else()
    set( extra_libs GaudiKernel xAODCaloEvent xAODEgamma xAODJet xAODMuon
       xAODTracking RecoToolInterfaces GeneratorObjects ParticlesInConeToolsLib
-      AtlasHepMCLib
+      AtlasHepMCLib CaloDetDescrLib
       PRIVATE_LINK_LIBRARIES AthenaKernel TrkEventPrimitives
       TrkParametersIdentificationHelpers )
 endif()

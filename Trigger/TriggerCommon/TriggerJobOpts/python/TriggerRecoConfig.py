@@ -6,10 +6,10 @@ from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStr
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
 from TriggerJobOpts.TriggerConfig import triggerPOOLOutputCfg
 from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerRecoConfig')
-
 
 
 def TriggerRecoCfg(flags):
@@ -36,8 +36,8 @@ def TriggerRecoCfg(flags):
     if flags.Trigger.EDMVersion == 3:
         acc.merge(Run3TriggerBSUnpackingCfg(flags))
         acc.merge(triggerPOOLOutputCfg(flags))
+        from TrigDecisionMaker.TrigDecisionMakerConfig import Run3DecisionMakerCfg
         acc.merge(Run3DecisionMakerCfg(flags))
-
     elif flags.Trigger.EDMVersion == 2 or flags.Trigger.EDMVersion == 1:
         if flags.Trigger.EDMVersion == 1:
             acc.merge(Run1xAODConversionCfg(flags))
@@ -45,6 +45,7 @@ def TriggerRecoCfg(flags):
         from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
         xRoIBResultAcc, _ = RoIBResultToxAODCfg(flags)
         acc.merge( xRoIBResultAcc )
+        from TrigDecisionMaker.TrigDecisionMakerConfig import Run1Run2DecisionMakerCfg
         acc.merge (Run1Run2DecisionMakerCfg(flags) )
         menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
         menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool("KeyWriterToolOffline")
@@ -52,14 +53,50 @@ def TriggerRecoCfg(flags):
 
     else:
         raise RuntimeError("Invalid EDMVersion=%s " % flags.Trigger.EDMVersion)
-    if flags.Trigger.EDMVersion == 1:
-        pass # TODO add R1 to xAOD conversion
-
-
+    if flags.Output.doWriteESD  or flags.Output.doWriteAOD:
+        acc.merge(TriggerEDMCfg(flags))
 
     return acc
 
 
+def TriggerEDMCfg(flags):
+    """Configures which trigger collections are recorded"""
+    acc = ComponentAccumulator()
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+
+    def _asList(edm):
+        return [ f"{type}#{name}" for type, names in edm.items() for name in names ]
+    _TriggerESDList = getTriggerEDMList(flags.Trigger.ESDEDMSet,  flags.Trigger.EDMVersion)
+    _TriggerAODList = getTriggerEDMList(flags.Trigger.AODEDMSet,  flags.Trigger.EDMVersion)
+    log.debug("ESD EDM list: %s", _TriggerESDList)
+    log.debug("AOD EDM list: %s", _TriggerAODList)
+    
+    # Highlight what is in AOD list but not in ESD list, as this can cause
+    # the "different number of entries in branch" problem, when it is in the
+    # AOD list but the empty container per event is not created
+    # Just compares keys of dicts, which are the class names, not their string keys in StoreGate
+    not_in = [ element for element in  _TriggerAODList if element not in _TriggerESDList ]
+    if (len(not_in)>0):
+        log.warning("In AOD list but not in ESD list: ")
+        log.warning(not_in)
+    else:
+        log.info("AOD list is subset of ESD list - good.")
+
+    # there is internal gating  in addTo* if AOD or ESD do not need to be written out
+    acc.merge(addToESD(flags, _asList(_TriggerESDList) ))
+    acc.merge(addToAOD(flags, _asList(_TriggerAODList)))
+    
+    log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", flags.Trigger.AODEDMSet, flags.Trigger.EDMVersion)
+ 
+    if flags.Trigger.EDMVersion == 3 and not flags.Trigger.doOnlineNavigationCompactification and not flags.Trigger.doNavigationSlimming:
+        nav = ['xAOD::TrigCompositeContainer#HLTNav*', 'xAOD::TrigCompositeAuxContainer#HLTNav*']
+        acc.merge(addToAOD(flags, nav))
+        acc.merge(addToESD(flags, nav))
+    jetSpecials = ["JetKeyDescriptor#JetKeyMap", "JetMomentMap#TrigJetRecMomentMap"]
+    acc.merge(addToESD(flags, jetSpecials))
+    acc.merge(addToAOD(flags, jetSpecials))
+
+    return acc
 
 def Run1Run2BSExtractionCfg( flags ):
     """Configures Trigger data from BS extraction """
@@ -151,7 +188,6 @@ def Run1xAODConversionCfg(flags):
 
     acc.addEventAlgo(xaodConverter)
 
-    from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
     acc.merge(addToESD(flags, edm))
     acc.merge(addToAOD(flags, edm))
 
@@ -169,62 +205,6 @@ def Run3TriggerBSUnpackingCfg(flags):
     acc.addEventAlgo( decoder, "HLTDecodingSeq")
     acc.addEventAlgo( deserialiser, "HLTDecodingSeq")
     log.debug("Configured HLT result BS decoding sequence")
-    return acc
-
-def Run1Run2DecisionMakerCfg(flags):
-    """Configures HLTNavigation(tool) -> xAODNavigation and TrigDec::TrigDecision -> xAOD::TrigDecision """
-    acc = ComponentAccumulator()
-    doL1=True
-    doL2=True
-    doEF=True
-    doHLT=True
-
-    if 'HLT' not in flags.Trigger.availableRecoMetadata:
-        doL2=False
-        doEF=False
-        doHLT=False
-    if 'L1' not in flags.Trigger.availableRecoMetadata:
-        doL1=False
-
-    if flags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
-        doHLT = False
-        doL2 = False
-    else:
-        doL2 = False
-        doEF = False
-
-    decMaker = CompFactory.TrigDec.TrigDecisionMaker( 'TrigDecMaker', 
-                                                      doL1 = doL1,
-                                                      doL2 = doL2,
-                                                      doEF = doEF,
-                                                      doHLT = doHLT)
-    acc.addEventAlgo(decMaker)
-
-
-    from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
-    acc.merge(TrigDecisionToolCfg(flags))
-
-    from TrigConfxAOD.TrigConfxAODConfig import getxAODConfigSvc
-    cnvTool = CompFactory.xAODMaker.TrigDecisionCnvTool('TrigDecisionCnvTool', 
-                                                        TrigConfigSvc = acc.getPrimaryAndMerge( getxAODConfigSvc( flags )) )
-
-    decCnv = CompFactory.xAODMaker.TrigDecisionCnvAlg(CnvTool = cnvTool)    
-
-    acc.addEventAlgo(decCnv)
-
-    acc.addEventAlgo( CompFactory.xAODMaker.TrigNavigationCnvAlg('TrigNavigationCnvAlg', 
-                                                                 doL2 = doL2, 
-                                                                 doEF = doEF,
-                                                                 doHLT = doHLT))
-    return acc
-
-def Run3DecisionMakerCfg(flags):
-    acc = ComponentAccumulator()
-    tdm = CompFactory.TrigDec.TrigDecisionMakerMT()
-    if not flags.Trigger.readBS:
-        # Construct trigger bits from HLTNav_summary instead of reading from BS
-        tdm.BitsMakerTool = CompFactory.TriggerBitsMakerTool()
-    acc.addEventAlgo( tdm )
     return acc
 
 

@@ -77,8 +77,9 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_noalg_LArPEBCalib_L1RD0_BGRP11', l1SeedThresholds=['FSNOSEED'], stream=['LArPEB'], groups=['PS:Online','RATE:Calibration','BW:Detector']),
 
         ChainProp(name='HLT_noalg_LArPEBCalib_L1J400_LAR', l1SeedThresholds=['FSNOSEED'], stream=['LArPEBDigitalTrigger'], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_LArPEBCalib_L1LAR-ZEE', l1SeedThresholds=['FSNOSEED'], stream=['LArPEBDigitalTrigger'], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_LArPEBCalib_L1LAR-ZEE-eEM', l1SeedThresholds=['FSNOSEED'], stream=['LArPEBDigitalTrigger'], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportPhIGroup),
+        ChainProp(name='HLT_noalg_LArPEBCalib_L1jJ400_LAR', l1SeedThresholds=['FSNOSEED'], stream=['LArPEBDigitalTrigger'], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportPhIGroup),
+        ChainProp(name='HLT_noalg_LArPEBCalib_L1LAR-ZEE', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_LArPEBCalib_L1LAR-ZEE-eEM', l1SeedThresholds=['FSNOSEED'], stream=['LArCells'], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportPhIGroup),
 
         ChainProp(name='HLT_noalg_LATOMEPEB_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], stream=['LArPEBDigitalTrigger'], groups=['PS:Online','RATE:Calibration','BW:Detector']),
         ChainProp(name='HLT_noalg_LATOMEPEB_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArPEBDigitalTrigger'], groups=['PS:Online','RATE:Calibration','BW:Detector']),
@@ -196,19 +197,15 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_noalg_L1TAU8_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['PS:Online','RATE:Cosmic_Calo','RATE:Calibration','BW:Jet']+SupportLegGroup),
         ChainProp(name='HLT_noalg_L1RD0_BGRP7', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo'], groups=['PS:Online','RATE:Calibration','BW:Detector']),
 
-        ChainProp(name='HLT_noalg_CSCPEB_L1EM3_EMPTY',  l1SeedThresholds=['FSNOSEED'],  stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_CSCPEB_L1EM7_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_CSCPEB_L1J12_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_CSCPEB_L1TAU8_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_CSCPEB_L1J30p31ETA49_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        #
-        ChainProp(name='HLT_noalg_CSCPEB_L1EM7_FIRSTEMPTY',  l1SeedThresholds=['FSNOSEED'],  stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_CSCPEB_L1J12_FIRSTEMPTY',  l1SeedThresholds=['FSNOSEED'],  stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_CSCPEB_L1J30_FIRSTEMPTY',  l1SeedThresholds=['FSNOSEED'],  stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        # LAr
-        ChainProp(name='HLT_noalg_L1J400_LAR', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_L1LAR-ZEE', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
-        ChainProp(name='HLT_noalg_L1LAR-ZEE-eEM', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportPhIGroup),
+        ChainProp(name='HLT_noalg_LArPEBNoise_L1EM3_EMPTY',  l1SeedThresholds=['FSNOSEED'],  stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_LArPEBNoise_L1EM7_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_LArPEBNoise_L1J12_EMPTY',  l1SeedThresholds=['FSNOSEED'], stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_LArPEBNoise_L1TAU8_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_LArPEBNoise_L1J30p31ETA49_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
+        #                         
+        ChainProp(name='HLT_noalg_LArPEBNoise_L1EM7_FIRSTEMPTY',  l1SeedThresholds=['FSNOSEED'],  stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_LArPEBNoise_L1J12_FIRSTEMPTY',  l1SeedThresholds=['FSNOSEED'],  stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
+        ChainProp(name='HLT_noalg_LArPEBNoise_L1J30_FIRSTEMPTY',  l1SeedThresholds=['FSNOSEED'],  stream=['LArCellsEmpty'],groups=['PS:Online','RATE:Calibration','BW:Detector']+SupportLegGroup),
         
         # TGC
         ChainProp(name='HLT_noalg_L1TGC_BURST',  l1SeedThresholds=['FSNOSEED'], stream=['TgcNoiseBurst'],groups=['PS:Online','RATE:Calibration','BW:Detector']),
@@ -304,8 +301,6 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_noalg_L1ZDC_A', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportGroup),
         ChainProp(name='HLT_noalg_L1ZDC_C', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportGroup),
         ChainProp(name='HLT_noalg_L1ZDC_AND', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']+SupportGroup),
-
-        ChainProp(name='HLT_noalg_L1jJ400_LAR', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=SupportPhIGroup+JetStreamersGroup+['PS:Online','BW:Other']),
  
     ]
 

@@ -31,7 +31,7 @@ def treat_list_of_chains_by_name( list_of_chains, part_name=None):
 
 #Force generation of all online monitoring histograms on HypoAlgs side 
 def doOnlineMonForceCfg():
-    doOnlineMonForce = True
+    doOnlineMonForce = False
     return doOnlineMonForce
 
 class TrigEgammaMonAlgBuilder:
@@ -712,14 +712,15 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("npixhits","nPixHit; nPixHits; Count",10, 0, 10))
     self.addHistogram(monGroup, TH1F("nscthits","nSCTHit; nSCTHits; Count",20, 0, 20))
     self.addHistogram(monGroup, TH1F("charge","charge; charge; Count", 4,-2,2))
+    self.addHistogram(monGroup, TH1F("pt", "p_{T}; p_{T} [GeV] ; Count", 100,0.,100.))
     self.addHistogram(monGroup, TH1F("ptcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0))
     self.addHistogram(monGroup, TH1F("ptvarcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0))
+    self.addHistogram(monGroup, TH1F("ptcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0))
+    self.addHistogram(monGroup, TH1F("ptvarcone20_rel", "ptvarcone20/pt; ptvarcone20/pt; Count", 50, 0.0, 0.5))
     self.addHistogram(monGroup, TH1F("z0", "z0; z0 ; Count", 40, -1, 1))
     self.addHistogram(monGroup, TH1F("d0", "d0; d0 ; Count", 40, -1, 1))
     self.addHistogram(monGroup, TH1F("d0sig", "d0sig; d0sig ; Count", 40, -10, 10))
-    self.addHistogram(monGroup, TH1F("pt", "p_{T}; p_{T} [GeV] ; Count", 100,0.,100.))
-    self.addHistogram(monGroup, TH1F("ptcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0))
-    self.addHistogram(monGroup, TH1F("ptvarcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0))
+    
     
     
   #

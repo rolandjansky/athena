@@ -8,18 +8,10 @@
 
 #include "TrkVertexFitters/AdaptiveMultiVertexFitter.h"
 //
-#include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
-#include "TrkVertexFitterInterfaces/IVertexAnnealingMaker.h"
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
-#include "TrkVertexFitterInterfaces/IVertexSmoother.h"
-#include "TrkVertexFitterInterfaces/IVertexTrackCompatibilityEstimator.h"
-#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
-//
 #include "VxMultiVertex/MVFVxTrackAtVertex.h"
 #include "VxMultiVertex/MvfFitInfo.h"
 #include "VxMultiVertex/TrackToVtxLink.h"
 #include "VxVertex/LinearizedTrack.h"
-//
 // xAOD Includes
 #include "xAODTracking/Vertex.h"
 //
@@ -40,23 +32,10 @@ AdaptiveMultiVertexFitter::AdaptiveMultiVertexFitter(const std::string& t,
   , m_doSmoothing(false)
   , m_minweight(0.001)
   , m_maxRelativeShift(0.01)
-  , m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory")
-  , m_TrackCompatibilityEstimator("Trk::Chi2TrackCompatibilityEstimator")
-  , m_ImpactPoint3dEstimator(
-      "Trk::ImpactPoint3dEstimator/ImpactPoint3dEstimator")
-  , m_VertexUpdator("Trk::KalmanVertexUpdator")
-  , m_VertexSmoother("Trk::SequentialVertexSmoother")
-  , m_AnnealingMaker("Trk::DetAnnealingMaker")
 {
   declareProperty("MaxIterations", m_maxIterations);
   declareProperty("MaxDistToLinPoint", m_maxDistToLinPoint);
   declareProperty("InitialError", m_initialError);
-  declareProperty("LinearizedTrackFactory", m_LinearizedTrackFactory);
-  declareProperty("TrackCompatibilityEstimator", m_TrackCompatibilityEstimator);
-  declareProperty("ImpactPoint3dEstimator", m_ImpactPoint3dEstimator);
-  declareProperty("VertexUpdator", m_VertexUpdator);
-  declareProperty("VertexSmoother", m_VertexSmoother);
-  declareProperty("AnnealingMaker", m_AnnealingMaker);
   declareProperty("DoSmoothing", m_doSmoothing);
   declareProperty("MinWeight", m_minweight);
   declareProperty("MaxRelativeShift", m_maxRelativeShift);

@@ -155,7 +155,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
   // @TODO find better solution for the error counter to avoid complex index computations and hard coded maximum size.
   // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
-  std::array<uint64_t, PixelRodDecoder::ERROR_CONTAINER_MAX> bsErrWord;
+  std::array<uint64_t, PixelRodDecoder::ERROR_CONTAINER_MAX> bsErrWord{};
   std::fill(bsErrWord.begin(),bsErrWord.end(),0);
   // Check ROD status
   if (robFrag->nstatus()!=0) {

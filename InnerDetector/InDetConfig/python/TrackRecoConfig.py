@@ -139,7 +139,12 @@ def TrackToVertexCfg(flags, name="AtlasTrackToVertexTool", **kwargs):
     result.setPrivateTools(CompFactory.Reco.TrackToVertex(name, **kwargs))
     return result
 
-def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs):
+def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackParticleCreatorToolCfg
+        return ITkTrackParticleCreatorToolCfg(flags, name, **kwargs)
+
     result = ComponentAccumulator()
     if "TrackToVertex" not in kwargs:
         kwargs["TrackToVertex"] = result.popToolsAndMerge(TrackToVertexCfg(flags))
@@ -149,8 +154,8 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
         kwargs["TrackSummaryTool"] = TrackSummaryTool
     p_expr = flags.InDet.perigeeExpression
     kwargs.setdefault("BadClusterID", flags.InDet.pixelClusterBadClusterID)
-    kwargs.setdefault("KeepParameters", True)
-    kwargs.setdefault("KeepFirstParameters", flags.InDet.KeepFirstParameters)
+    kwargs.setdefault("KeepParameters", flags.InDet.keepParameters)
+    kwargs.setdefault("KeepFirstParameters", flags.InDet.keepFirstParameters)
     kwargs.setdefault(
         "PerigeeExpression",
         p_expr if p_expr != "Vertex" else "BeamLine")
@@ -158,6 +163,11 @@ def TrackParticleCreatorToolCfg(flags, name="TrackParticleCreatorTool", **kwargs
     return result
 
 def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticleCreator = None):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackCollectionCnvToolCfg
+        return ITkTrackCollectionCnvToolCfg(flags, name, TrackParticleCreator)
+
     result = ComponentAccumulator()
     if TrackParticleCreator is None:
         TrackParticleCreator = result.getPrimaryAndMerge(TrackParticleCreatorToolCfg(flags))
@@ -186,6 +196,11 @@ def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger", InputC
     return result
 
 def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName="CombinedInDetTracks", OutputTrackParticleContainer="InDetTrackParticles", **kwargs):
+    if flags.Detector.GeometryITk:
+        name = name.replace("InDet", "ITk")
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackParticleCnvAlgCfg
+        return ITkTrackParticleCnvAlgCfg(flags, name, TrackContainerName, OutputTrackParticleContainer, **kwargs)
+
     result = ComponentAccumulator()
     kwargs.setdefault("ConvertTracks", True)
     kwargs.setdefault("ConvertTrackParticles", False)
@@ -215,6 +230,10 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName
     return result
 
 def InDetTrackRecoCfg(flags):
+    if flags.Detector.GeometryITk:
+        from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
+        return ITkTrackRecoCfg(flags)
+
     """Configures complete ID tracking """
     result = ComponentAccumulator()
 
@@ -242,14 +261,16 @@ def InDetTrackRecoCfg(flags):
                                                 ExtendedTracksMap="ExtendedTracksMap",
                                                 doPhase=False))
         InputCombinedInDetTracks = ["ExtendedTracks"]
+    else:
+        InputCombinedInDetTracks = ["ResolvedTracks"]
 
+    # TRT segments
+    if flags.InDet.doTrtSegments:
         from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
         result.merge(TRTSegmentFindingCfg(flags,
                                           "",
                                           InputCombinedInDetTracks,
                                           "TRTSegments"))
-    else:
-        InputCombinedInDetTracks = ["ResolvedTracks"]
 
     # BackTracking
     if flags.InDet.doBackTracking:
@@ -265,13 +286,13 @@ def InDetTrackRecoCfg(flags):
             flagsLRT = flags.cloneAndReplace("InDet.Tracking", "InDet.R3LargeD0Tracking")
         else:
             flagsLRT = flags.cloneAndReplace("InDet.Tracking", "InDet.LargeD0Tracking")
-        result.merge(TrackingSiPatternCfg(flagsLRT, InputCombinedInDetTracks, "ResolvedLargeD0Tracks", "SiSpSeededLargeD0Tracks"))
+        result.merge(TrackingSiPatternCfg(flagsLRT, InputCombinedInDetTracks, "ResolvedLargeD0Tracks", "SiSpSeededLargeD0Tracks", "InDetTRT_SeededAmbiguityProcessorSplitProb"))
         LRTTrackContainer = "ResolvedLargeD0Tracks"
         if flags.InDet.doTRTExtension:
             result.merge(NewTrackingTRTExtensionCfg(flagsLRT,
                                                     SiTrackCollection="ResolvedLargeD0Tracks",
                                                     ExtendedTrackCollection="ExtendedLargeD0Tracks",
-                                                    ExtendedTracksMap="ExtendedLargeD0TracksMap",
+                                                    ExtendedTracksMap="ExtendedTracksMapLargeD0",
                                                     doPhase=False))
             LRTTrackContainer = "ExtendedLargeD0Tracks"
         if flags.InDet.storeSeparateLargeD0Container:
@@ -288,11 +309,86 @@ def InDetTrackRecoCfg(flags):
         else:
             InputCombinedInDetTracks += [LRTTrackContainer]
 
+    # Low pt
+    if flags.InDet.doLowPt:
+        flagsLowPt = flags.cloneAndReplace("InDet.Tracking", "InDet.LowPtTracking")
+        result.merge(TrackingSiPatternCfg(flagsLowPt, InputCombinedInDetTracks, "ResolvedLowPtTracks", "SiSpSeededLowPtTracks"))
+        LowPtTrackContainer = "ResolvedLowPtTracks"
+        if flags.InDet.doTRTExtension:
+            result.merge(NewTrackingTRTExtensionCfg(flagsLowPt,
+                                                    SiTrackCollection="ResolvedLowPtTracks",
+                                                    ExtendedTrackCollection="ExtendedLowPtTracks",
+                                                    ExtendedTracksMap="ExtendedTracksMapLowPt",
+                                                    doPhase=False))
+            LowPtTrackContainer = "ExtendedLowPtTracks"
+        InputCombinedInDetTracks += [LowPtTrackContainer]
+
+    # Very low pt
+    if flags.InDet.doVeryLowPt:
+        flagsVeryLowPt = flags.cloneAndReplace("InDet.Tracking", "InDet.VeryLowPtTracking")
+        result.merge(TrackingSiPatternCfg(flagsVeryLowPt, InputCombinedInDetTracks, "ResolvedVeryLowPtTracks", "SiSpSeededLowPtTracks"))
+        InputCombinedInDetTracks += ["ResolvedVeryLowPtTracks"]
+
+    # TRT standalone
     if flags.InDet.doTRTStandalone:
         flagsTRTStandalone = flags.cloneAndReplace("InDet.Tracking", "InDet.TRTStandaloneTracking")
         from InDetConfig.TRTStandaloneConfig import TRTStandaloneCfg
         result.merge(TRTStandaloneCfg(flagsTRTStandalone, "", InputCombinedInDetTracks, "TRTSegments"))
         InputCombinedInDetTracks += ["TRTStandaloneTracks"]
+
+    # Forward tracklets
+    if flags.InDet.doForwardTracks:
+        # Add tracks that are not saved to the InputCombinedInDetTracks
+        InputForwardInDetTracks = []
+        InputForwardInDetTracks += InputCombinedInDetTracks
+        if flags.InDet.storeSeparateLargeD0Container:
+            InputForwardInDetTracks += ["ExtendedLargeD0Tracks"]
+
+        flagsForward = flags.cloneAndReplace("InDet.Tracking", "InDet.ForwardTracksTracking")
+        result.merge(TrackingSiPatternCfg(flagsForward, InputForwardInDetTracks, "ResolvedForwardTracks", "SiSpSeededForwardTracks", "InDetAmbiguityProcessorSplitProbR3LargeD0"))
+        InputForwardInDetTracks += ["ResolvedForwardTracks"]
+
+        if flags.InDet.doTruth:
+            from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+            result.merge(InDetTrackTruthCfg(flagsForward,
+                                            Tracks="ResolvedForwardTracks",
+                                            DetailedTruth="ResolvedForwardTracksDetailedTruth",
+                                            TracksTruth="ResolvedForwardTracksTruthCollection"))
+        result.merge(TrackParticleCnvAlgCfg(flagsForward,
+                                            name="ForwardTrackParticleCnvAlg",
+                                            TrackContainerName="ResolvedForwardTracks",
+                                            OutputTrackParticleContainer="InDetForwardTrackParticles"))
+
+    if flags.InDet.doTrackSegmentsDisappearing:
+        InputPixelInDetTracks = []
+        InputPixelInDetTracks += InputCombinedInDetTracks
+        # Add tracks that are not saved to the InputCombinedInDetTracks
+        if flags.InDet.doForwardTracks:
+            InputPixelInDetTracks += ["ResolvedForwardTracks"]
+        if flags.InDet.storeSeparateLargeD0Container:
+            InputPixelInDetTracks += ["ExtendedLargeD0Tracks"]
+
+        flagsDisappearing = flags.cloneAndReplace("InDet.Tracking", "InDet.DisappearingTracking")
+        result.merge(TrackingSiPatternCfg(flagsDisappearing, InputPixelInDetTracks, "ResolvedDisappearingTracks", "SiSpSeededDisappearingTracks", "InDetAmbiguityProcessorSplitProbForwardTracks"))
+        DisappearingTrackContainer = "ResolvedDisappearingTracks"
+        if flags.InDet.doTRTExtension:
+            result.merge(NewTrackingTRTExtensionCfg(flagsDisappearing,
+                                                    SiTrackCollection="ResolvedDisappearingTracks",
+                                                    ExtendedTrackCollection="ExtendedTracksDisappearing",
+                                                    ExtendedTracksMap="ExtendedTracksMapDisappearing",
+                                                    doPhase=False))
+            DisappearingTrackContainer = "ExtendedTracksDisappearing"
+
+        if flags.InDet.doTruth:
+            from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+            result.merge(InDetTrackTruthCfg(flagsDisappearing,
+                                            Tracks="ExtendedTracksDisappearing",
+                                            DetailedTruth="ExtendedTracksDisappearingDetailedTruth",
+                                            TracksTruth="ExtendedTracksDisappearingTruthCollection"))
+        result.merge(TrackParticleCnvAlgCfg(flagsDisappearing,
+                                            name="DisappearingTrackParticleCnvAlg",
+                                            TrackContainerName=DisappearingTrackContainer,
+                                            OutputTrackParticleContainer="InDetDisappearingTrackParticles"))
 
     result.merge(TrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedInDetTracks))
 
@@ -303,7 +399,7 @@ def InDetTrackRecoCfg(flags):
     # TODO add followup algs
     result.merge(TrackParticleCnvAlgCfg(flags))
 
-    if flags.InDet.doVertexFinding:
+    if flags.InDet.PriVertex.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
         result.merge(primaryVertexFindingCfg(flags))
 
@@ -315,23 +411,11 @@ def InDetTrackRecoCfg(flags):
     return result
 
 
-### Common InDet/ITk config interfaces
-def TrackRecoCfg(flags):
-    if flags.Detector.GeometryID:
-        return InDetTrackRecoCfg(flags)
-    elif flags.Detector.GeometryITk:
-        from InDetConfig.ITkTrackRecoConfig import ITkTrackRecoCfg
-        return ITkTrackRecoCfg(flags)
-
-
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.InDet.doPixelClusterSplitting = True
-    ConfigFlags.InDet.doSiSPSeededTrackFinder = True
-
     # Disable calo for this test
     ConfigFlags.Detector.EnableCalo = False
 
@@ -360,7 +444,7 @@ if __name__ == "__main__":
         from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
         top_acc.merge(GEN_AOD2xAODCfg(ConfigFlags))
 
-    top_acc.merge(TrackRecoCfg(ConfigFlags))
+    top_acc.merge(InDetTrackRecoCfg(ConfigFlags))
     from AthenaCommon.Constants import DEBUG
     top_acc.foreach_component("AthEventSeq/*").OutputLevel=DEBUG
     top_acc.printConfig(withDetails=True, summariseProps=True)

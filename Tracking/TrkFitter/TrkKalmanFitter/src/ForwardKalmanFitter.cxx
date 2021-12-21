@@ -764,7 +764,7 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::enterSeedIntoTrajectory
   if (ffs->forwardTrackParameters() || ffs->referenceParameters()) {
     ATH_MSG_WARNING (" wrong input? Dont call enterSeedIntoTrajectory on a full trajectory");
     if (ffs->forwardTrackParameters()) { [[maybe_unused]] auto p = ffs->checkoutForwardPar();}
-    if (ffs->referenceParameters()){ [[maybe_unused]] auto p = ffs->checkoutReferenceParameters();}
+    if (ffs->referenceParameters()){ [[maybe_unused]] const auto *p = ffs->checkoutReferenceParameters();}
   }
   if (ffs->measurement() == nullptr) {
     ATH_MSG_WARNING ("-Fe mess-up in enterSeedIntoTraj: can not find a first measurement!");

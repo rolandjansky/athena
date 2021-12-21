@@ -70,7 +70,7 @@ namespace Trk
 
     private:
       /** private helper method to create a HepTransform */
-      Amg::Transform3D createTransform(double x, double y, double z, double phi=0., double theta=0., double alphaZ=0.);      
+      static Amg::Transform3D createTransform(double x, double y, double z, double phi=0., double theta=0., double alphaZ=0.);      
 
       /** the highest volume */
       const TrackingVolume*     m_highestVolume;

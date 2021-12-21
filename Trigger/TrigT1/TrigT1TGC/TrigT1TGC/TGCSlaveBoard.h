@@ -31,8 +31,8 @@ class TGCSlaveBoard
 
   TGCSlaveBoard();
   virtual ~TGCSlaveBoard(); 
-  TGCSlaveBoard(const TGCSlaveBoard& right); 
-  TGCSlaveBoard& operator=(const TGCSlaveBoard& right); 
+  TGCSlaveBoard(const TGCSlaveBoard& right) = delete;
+  TGCSlaveBoard& operator=(const TGCSlaveBoard& right) = delete;
 
   void clockIn(int bidIn);
   TGCSlaveBoardOut* getOutput() { return m_slaveBoardOut; }

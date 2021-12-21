@@ -15,6 +15,7 @@
 #include "DecisionHandling/HypoBase.h"
 
 #include "TrigJetTLAHypoTool.h"
+#include "TrigBtagTLATool.h"
 
 /**
  * @class TrigJetTLAHypoAlg
@@ -43,7 +44,8 @@ class TrigJetTLAHypoAlg : public ::HypoBase {
   SG::WriteHandleKey< xAOD::JetContainer > m_TLAjetsKey {
     this, "TLAOutputName", "TLAOutputName", "TLA jet container key"};  
 
-  
+  Gaudi::Property<bool> m_attach_btag{this, "AttachBtag", true, "Use BtagJetTool to attach btag information to TLA jets."};
+  ToolHandle<TrigBtagTLATool> m_btag_record_tool { this, "BtagJetTool", "BtagJetTool", "Btag jet tool"};
   
 }; 
 

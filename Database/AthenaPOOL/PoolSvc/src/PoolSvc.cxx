@@ -390,7 +390,7 @@ const coral::Context* PoolSvc::context() const {
    return(m_context);
 }
 //__________________________________________________________________________
-void PoolSvc::loadComponent(const std::string& compName) const {
+void PoolSvc::loadComponent(const std::string& compName) {
    m_context->loadComponent(compName);
 }
 //__________________________________________________________________________
@@ -420,7 +420,7 @@ void PoolSvc::lookupBestPfn(const std::string& token, std::string& pfn, std::str
    m_catalog->getFirstPFN(dbID, pfn, type); // FID -> best PFN
 }
 //__________________________________________________________________________
-void PoolSvc::renamePfn(const std::string& pf, const std::string& newpf) const {
+void PoolSvc::renamePfn(const std::string& pf, const std::string& newpf) {
    std::string dbID, type;
     m_catalog->lookupFileByPFN(pf, dbID, type);
    if (dbID.empty()) {
@@ -848,7 +848,7 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
+StatusCode PoolSvc::setFrontierCache(const std::string& conn) {
    std::lock_guard<CallMutex> lock(m_pool_mut);
    ATH_MSG_VERBOSE("setFrontierCache called for connection:" << conn);
    // setup the Frontier cache information for the given logical or physical connection string

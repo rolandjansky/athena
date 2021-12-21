@@ -46,7 +46,7 @@ AODFix_postEgammaRec()
 # to be used  in tau, pflow, e/gamma
 #
 pdr.flag_domain('CaloExtensionBuilder')
-if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau()):  # or rec.readESD()
+if  (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doMuonCombined()):  # or rec.readESD()
     try:
         from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
         CaloExtensionBuilder(False)
@@ -170,10 +170,11 @@ if (jetOK or rec.readESD()) and DetFlags.ID_on() and rec.doWriteAOD() and BTaggi
         treatException("Could not set up jet hit association")
 
 #
-# functionality : tau identification
+# functionality : tau reconstruction
 #
 pdr.flag_domain('tau')
-if jetOK and rec.doTau():
+from tauRec.tauRecFlags import tauFlags
+if (jetOK or tauFlags.isStandalone) and rec.doTau():
     protectedInclude ("tauRec/tauRec_config.py")    
 AODFix_posttauRec()
 

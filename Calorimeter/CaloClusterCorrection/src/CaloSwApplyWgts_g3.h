@@ -39,7 +39,7 @@ public:
   CaloSwApplyWgts_g3() = delete;
 
   static const int s_numEtaBins=100;
-  float GetWgt(int table, float eta) const;
+  static float GetWgt(int table, float eta) ;
   static const float m_table_eta[s_numEtaBins+1];
   static const float m_table_p[4][s_numEtaBins];
 };

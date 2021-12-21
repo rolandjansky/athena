@@ -304,6 +304,8 @@ if "FolderShape2" not in dir():
 rs=FolderTagResover()
 if not 'AutoCorrLArCalibFolderTag' in dir():
    AutoCorrLArCalibFolderTag=rs.getFolderTagSuffix(AutoCorrFolder)
+
+
 if not 'PhysAutoCorrLArCalibFolderTag' in dir():
    PhysAutoCorrLArCalibFolderTag="_mu_"+str(NColl)+rs.getFolderTagSuffix(PhysAutoCorrFolder)
 

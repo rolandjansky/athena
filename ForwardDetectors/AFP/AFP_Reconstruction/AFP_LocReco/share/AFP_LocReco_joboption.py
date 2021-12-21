@@ -35,18 +35,24 @@ topSequence += AFPSiCluster("AFPSiCluster", clusterRecoTool = clusterTool)
 # prepare track reconstruction algorithm tools - one for each station
 kalmanTool0 = CompFactory.getComp("AFPSiDBasicKalmanTool")("AFPSiDBasicKalmanTool0", stationID=0)
 
-# # number of layers in each station, size of the vector determines number of stations
+# number of layers in each station, size of the vector determines number of stations
 # kalmanTool1.numberOfLayersInStation = 3
 
-# # Maximal distance at which cluster can be joined to the track
+# Maximal distance at which cluster can be joined to the track
 # kalmanTool1.maxAllowedDistance = 10
 
-# # Minimal number of clusters in track. If there are less clusters track is rejected
+# Minimal number of clusters in track. If there are less clusters track is rejected
 # kalmanTool1.minClustersNumber = 3
 
 kalmanTool1 = CompFactory.getComp("AFPSiDBasicKalmanTool")("AFPSiDBasicKalmanTool1", stationID=1)
 kalmanTool2 = CompFactory.getComp("AFPSiDBasicKalmanTool")("AFPSiDBasicKalmanTool2", stationID=2)
 kalmanTool3 = CompFactory.getComp("AFPSiDBasicKalmanTool")("AFPSiDBasicKalmanTool3", stationID=3)
+
+# it's also possible to have the same track reco tool as in AFPAnalysisToolbox
+# linRegTool0 = CompFactory.getComp("AFPSiDLinRegTool")("AFPSiDLinRegTool0", stationID=0)
+# linRegTool1 = CompFactory.getComp("AFPSiDLinRegTool")("AFPSiDLinRegTool1", stationID=1)
+# linRegTool2 = CompFactory.getComp("AFPSiDLinRegTool")("AFPSiDLinRegTool2", stationID=2)
+# linRegTool3 = CompFactory.getComp("AFPSiDLinRegTool")("AFPSiDLinRegTool3", stationID=3)
 
 kalmanToolsList=[kalmanTool0, kalmanTool1, kalmanTool2, kalmanTool3]
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -29,7 +29,7 @@ using namespace std;
 using namespace pool;
 
 /// Constructor
-DbDomainObj::DbDomainObj(const DbSession& sessionH, 
+DbDomainObj::DbDomainObj(DbSession& sessionH, 
                                const DbType& typ,
                                DbAccessMode mode)
 : Base("", mode, typ, sessionH.db(typ)), 
@@ -78,7 +78,7 @@ DbDomainObj::~DbDomainObj()  {
       << DbPrint::endmsg;
 }
 
-bool DbDomainObj::existsDbase( const string& name) const
+bool DbDomainObj::existsDbase( const string& name)
 {  return (m_info) ? m_info->existsDbase( name ) : false;               }
 
 DbStatus DbDomainObj::open(DbAccessMode mod)   {

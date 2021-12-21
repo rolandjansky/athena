@@ -33,7 +33,7 @@ def jetEJsMenuSequence(flags, jetsin, name):
     DummyInputMakerAlg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
     DummyInputMakerAlg.mergeUsingFeature = True
 
-    sequence = RecoFragmentsPool.retrieve( returnEJSequence , None, algo=DummyInputMakerAlg)
+    sequence = RecoFragmentsPool.retrieve( returnEJSequence , flags, algo=DummyInputMakerAlg)
 
 
     return MenuSequence( Sequence    = sequence,

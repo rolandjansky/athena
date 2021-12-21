@@ -49,11 +49,17 @@ def getTransform():
                                    substep = 'simdigi', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData=['NULL','EVNT'],
                                    outData=['RDO','NULL'] ))
+
     # Overlay
-    from EventOverlayJobTransforms.overlayTransformUtils import addOverlay_PoolArguments
-    executorSet.add(athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',
-                                   substep = 'overlayPOOL', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
-                                   inData = [('HITS', 'RDO_BKG')], outData = ['RDO', 'RDO_SGNL']))
+    from OverlayConfiguration.OverlayTransformHelpers import addOverlayArguments
+    executorSet.add(athenaExecutor(name='Overlay',
+                                   skeletonFile='OverlayConfiguration/skeleton_LegacyOverlay.py',
+                                   skeletonCA='OverlayConfiguration.OverlaySkeleton',
+                                   substep='overlay',
+                                   tryDropAndReload=False,
+                                   perfMonFile='ntuple.pmon.gz',
+                                   inData=['RDO_BKG', 'BS_SKIM', 'HITS'],
+                                   outData=['RDO', 'RDO_SGNL']))
 
     trf = transform(executor = executorSet, description = 'Fast chain ATLAS transform with ISF simulation, digitisation'
                     ' and reconstruction. Inputs can be EVNT, with outputs of RDO, ESD, AOD or DPDs.'
@@ -77,8 +83,8 @@ def getTransform():
     addTrackRecordArgs(trf.parser)
     addFastChainTrfArgs(trf.parser)
 
-    # Overlay
-    addOverlay_PoolArguments(trf.parser)
+    # Overlay arguments
+    addOverlayArguments(trf.parser)
 
     # Add PhysVal
     addPhysValidationFiles(trf.parser)
@@ -108,10 +114,12 @@ def addFastChainTrfArgs(parser):
     parser.add_argument('--preDigiInclude',type=argFactory(argList),nargs='+',
                         help='preInclude before digitisation step',
                         group='FastChain')
-    parser.defineArgGroup('EventOverlayPool', 'Event Overlay Options')
+    parser.defineArgGroup('MCOverlay', 'MC Overlay Options')
     parser.add_argument('--inputRDO_BKGFile', nargs='+',
                         type=argFactory(argRDOFile, io='input'),
-                        help='Input RAW RDO for pileup overlay', group='EventOverlayPool')
+                        help='Input background RDO for MC+MC overlay',
+                        group='MCOverlay')
+
 
 if __name__ == '__main__':
     main()

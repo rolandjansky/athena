@@ -188,7 +188,7 @@ private:
     mutable std::mutex  m_mutex;
     mutable CutFlow     m_truthCutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex
     std::vector<int> m_prospectsMatched;
-    int m_truthCounter;
+    int m_truthCounter = 0;
 
     std::vector<std::string> m_trackCutflowNames;
     std::vector<int> m_trackCutflow;
