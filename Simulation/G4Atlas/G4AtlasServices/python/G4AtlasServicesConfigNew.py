@@ -1,9 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc, PhysicsListSvc=CompFactory.getComps("DetectorGeometrySvc","G4AtlasSvc","G4GeometryNotifierSvc","PhysicsListSvc",)
 from G4AtlasTools.G4GeometryToolConfig import G4AtlasDetectorConstructionToolCfg
 from G4StepLimitation.G4StepLimitationConfigNew import G4StepLimitationToolCfg
 from ExtraParticles.ExtraParticlesConfigNew import ExtraParticlesPhysicsToolCfg
@@ -16,24 +14,8 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     result.addPublicTool(detConstTool)
     kwargs.setdefault("DetectorConstruction", result.getPublicTool(detConstTool.name))
 
-    result.addService(DetectorGeometrySvc(name, **kwargs))
+    result.addService(CompFactory.DetectorGeometrySvc(name, **kwargs), primary = True)
     return result
-
-
-def G4AtlasSvcCfg(ConfigFlags, name="G4AtlasSvc", **kwargs):
-    if ConfigFlags.Concurrency.NumThreads > 0:
-        is_hive = True
-    else:
-        is_hive = False
-    kwargs.setdefault("isMT", is_hive)
-    kwargs.setdefault("DetectorGeometrySvc", 'DetectorGeometrySvc')
-    return G4AtlasSvc(name, **kwargs)
-
-
-def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs):
-    kwargs.setdefault("ActivateLVNotifier", True)
-    kwargs.setdefault("ActivatePVNotifier", False)
-    return G4GeometryNotifierSvc(name, **kwargs)
 
 
 def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
@@ -71,5 +53,5 @@ def PhysicsListSvcCfg(ConfigFlags, name="PhysicsListSvc", **kwargs):
     """
     ## kwargs.setdefault("EMDEDXBinning"   , 77)
     ## kwargs.setdefault("EMLambdaBinning" , 77)
-    result.addService(PhysicsListSvc(name, **kwargs))
+    result.addService(CompFactory.PhysicsListSvc(name, **kwargs), primary = True)
     return result

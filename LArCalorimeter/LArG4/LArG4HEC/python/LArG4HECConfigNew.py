@@ -10,6 +10,7 @@ LArHECWheelCalculator=CompFactory.LArHECWheelCalculator
 LArG4__HEC__HECGeometry=CompFactory.LArG4.HEC.HECGeometry
 from LArG4HEC import HECGeometryType
 
+# Not used???
 def LArHECLocalCalculatorCfg(ConfigFlags, name="LArHECLocalCalculator", **kwargs):
     return LArHECLocalCalculator(name, **kwargs)
 
@@ -23,15 +24,15 @@ def LocalHECGeometry(name="LocalHECGeometry", **kwargs):
 
 
 def HECWheelCalculatorCfg(ConfigFlags, name="HECWheelCalculator", **kwargs):
-    result = HECGeometryCfg(ConfigFlags)
-    kwargs.setdefault("GeometryCalculator", result.getService("HECGeometry"))
-    result.addService(LArHECWheelCalculator(name, **kwargs))
+    result = ComponentAccumulator()
+    kwargs.setdefault("GeometryCalculator", result.getPrimaryAndMerge(HECGeometryCfg(ConfigFlags)).name)
+    result.addService(LArHECWheelCalculator(name, **kwargs), primary = True)
     return result
 
 
 def LArHECCalibrationWheelCalculatorCfg(ConfigFlags, name="LArHECCalibrationWheelCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService( LArG4__HEC__LArHECCalibrationWheelCalculator(name, **kwargs) )
+    result.addService( LArG4__HEC__LArHECCalibrationWheelCalculator(name, **kwargs), primary = True )
     return result
 
 
@@ -52,5 +53,5 @@ def HECCalibrationWheelDeadCalculatorCfg(ConfigFlags, name="HECCalibrationWheelD
 
 def HECGeometryCfg(ConfigFlags, name="HECGeometry", **kwargs):
     result = ComponentAccumulator()
-    result.addService(LArG4__HEC__HECGeometry(name, **kwargs))
+    result.addService(LArG4__HEC__HECGeometry(name, **kwargs), primary = True)
     return result

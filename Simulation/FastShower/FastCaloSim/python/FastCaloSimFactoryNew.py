@@ -47,7 +47,7 @@ def AtlasNavigatorCfg(flags, name="AtlasNavigator", **kwargs):
         if 'TrackingGeometrySvc' not in kwargs:
             from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
             acc = TrackingGeometrySvcCfg(flags)
-            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary().name)
             kwargs.setdefault("TrackingGeometryKey", '')
             result.merge(acc)
     else:
