@@ -12,6 +12,12 @@ Py:ConfigurableDb    INFO Read module info for 5056 configurables from 4 genConf
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.41
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
+Py:AutoConfiguration    INFO in IsInInputFile...
+Py:MetaReaderPeeker WARNING Input files not set ConfigFlags.Input.Files. Falling back to the legacy way of obtaining input file names
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['RDO.pool.root']
+Py:MetaReader     WARNING Ignoring not accessible file: RDO.pool.root
+Py:AutoConfiguration    INFO IsInInputFile failed to read the input file: RDO.pool.root. Returning False
 Py:Athena            INFO including file "TileConditions/TileConditions_jobOptions.py"
 Py:TileInfoConf.     INFO Adding TileCablingSvc to ServiceMgr
 Py:TileConditions_jobOptions.py    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01

@@ -47,12 +47,12 @@ atlas_add_test( exceptions_test
 
 atlas_add_test( CaloTowerStore_test
    SCRIPT athena.py CaloUtils/CaloTowerStore_test.py
-   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|IOVDbSvc +INFO"
+   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|MetaReader|AutoConfiguration|IOVDbSvc +INFO"
    PROPERTIES TIMEOUT 500 )
 
 atlas_add_test( CaloTowerBuilderTool_test
    SCRIPT athena.py CaloUtils/CaloTowerBuilderTool_test.py
-   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|IOVDbSvc +INFO|INFO Initializing"
+   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment|MetaReader|AutoConfiguration|IOVDbSvc +INFO|INFO Initializing"
    ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-18"
    PROPERTIES TIMEOUT 500 )
 

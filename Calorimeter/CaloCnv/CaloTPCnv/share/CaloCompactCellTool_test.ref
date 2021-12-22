@@ -164,6 +164,7 @@ AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionar
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
+ToolSvc.CaloSup...   INFO Done with initIDMap
 *** test 400 400 0 1
      668      0.0     0.00 65095 6942 -1
      752      0.0     0.00 58512 2204 -1
@@ -5466,7 +5467,6 @@ AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'Det
 *** test 504 100000 1 1
 *** test 504 187652 0 1
 *** test SC 504
-ToolSvc.CaloSup...   INFO Done with initIDMap
 *** test_errs
  --- err1
 CaloCellPacker_...WARNING FILE:LINE (void CaloCellPacker_400_500::unpack(const CaloCompactCellContainer&, const std::vector<int>&, CaloCellContainer&, DataPool<LArCell>&, DataPool<TileCell>&) const): Corrupted data: Too many cells 1010000.
