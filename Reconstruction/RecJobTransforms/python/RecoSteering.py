@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
+
 def RecoSteering(flags):
     """
     Generates configuration of the reconstructions
@@ -114,6 +117,11 @@ def RecoSteering(flags):
         acc.merge(HIRecCfg(flags))
         log.info("---------- Configured Heavy Ion reconstruction")
 
+    # Setup the final post-processing
+    if flags.Reco.EnablePostProcessing:
+        acc.merge(RecoPostProcessingCfg(flags))
+        log.info("---------- Configured post-processing")
+
     # setup output
     if any((flags.Output.doWriteESD,
             flags.Output.doWriteAOD,
@@ -132,4 +140,11 @@ def RecoSteering(flags):
             "OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
 
+    return acc
+
+
+def RecoPostProcessingCfg(flags):
+    acc = ComponentAccumulator()
+    # TODO: ThinTRTStandaloneTrackAlg
+    # TODO: ThinGeantTruth
     return acc
