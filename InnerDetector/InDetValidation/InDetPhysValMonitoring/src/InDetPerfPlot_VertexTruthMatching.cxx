@@ -774,7 +774,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
             float ndf = vertex->numberDoF();
             if (ndf != 0) {
 
-              if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
+              if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
                if (vertex == bestRecoHSVtx_truth) {
 	
 		 fillHisto(m_vx_sumpT_HS_matched,sumPt ,weight);
@@ -825,7 +825,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
               }
              }  // end of if matched vertices
 
-             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
               if (vertex == bestRecoHSVtx_truth) {
               
                  fillHisto(m_vx_sumpT_HS_merged, sumPt ,weight);
@@ -873,7 +873,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
               }
              }   //end of if merged vertices
 
-             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
               if (vertex == bestRecoHSVtx_truth) {
                  fillHisto(m_vx_sumpT_HS_split, sumPt ,weight);
                  fillHisto(m_vx_z_asym_HS_split, z_asym,weight);
@@ -924,7 +924,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
 // Count the number of vertices for each type per event
          
 
-         if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
+         if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               if (vertex == bestRecoHSVtx_truth) {
                  number_matched_HS++;
               }
@@ -936,7 +936,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
              }
          }
 
-         else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+         else if (matchType  == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
               if (vertex == bestRecoHSVtx_truth) {
                  number_merged_HS++;
               }
@@ -948,7 +948,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
              }
          }
 
-         else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+         else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
               if (vertex == bestRecoHSVtx_truth) {
                  number_split_HS++;
               }
@@ -969,50 +969,50 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
            if (vertex == bestRecoHSVtx_truth) {
 
          
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
+             if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
 
                 fillHisto(m_vx_ntracks_HS_matched, vertex->nTrackParticles(),weight);
              } 
 
-             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
                  fillHisto(m_vx_ntracks_HS_merged,  vertex->nTrackParticles(),weight);
 
              }
 
-             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
                  fillHisto(m_vx_ntracks_HS_split,   vertex->nTrackParticles(),weight);
              }
            }
            else {
 
 
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
+             if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               
                 fillHisto(m_vx_ntracks_matched, vertex->nTrackParticles(),weight);
              }
 
-             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
                 fillHisto(m_vx_ntracks_merged,  vertex->nTrackParticles(),weight);
 
              }
 
-             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
                  fillHisto(m_vx_ntracks_split,   vertex->nTrackParticles(),weight);
              }  
 
            }
            if (sumPt > minpt) {
-             if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
+             if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MATCHED) {
               
                 fillHisto(m_vx_ntracks_ALL_matched, vertex->nTrackParticles(),weight);
              }
 
-             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
+             else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::MERGED) {
                 fillHisto(m_vx_ntracks_ALL_merged,  vertex->nTrackParticles(),weight);
 
              }
 
-             else if (recoVtxMatchTypeInfo(*vertex) == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
+             else if (matchType == InDetVertexTruthMatchUtils::VertexMatchType::SPLIT) {
                  fillHisto(m_vx_ntracks_ALL_split,   vertex->nTrackParticles(),weight);
              }  
 
