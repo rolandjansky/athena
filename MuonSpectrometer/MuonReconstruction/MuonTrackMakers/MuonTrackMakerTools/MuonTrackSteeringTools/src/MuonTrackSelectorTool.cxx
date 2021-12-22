@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackSelectorTool.h"
@@ -170,7 +170,6 @@ namespace Muon {
         unsigned int mdtHoles = 0;
         unsigned int mdtOutliers = 0;
         unsigned int nholes = 0;
-        unsigned int nmeasPhi = 0;
         std::map<MuonStationIndex::StIndex, StationData> stations;
 
         Trk::TrackSummary* summary = track.trackSummary();
@@ -204,8 +203,6 @@ namespace Muon {
             bool useHoles = false;
             if ((isMdt && m_useMDTHoles) || (isTgc && m_useTGCHoles) || (isRpc && m_useRPCHoles) || (isCsc && m_useCSCHoles))
                 useHoles = true;
-
-            if (!isMdt) nmeasPhi += chit->phiProjection().nhits;
 
             if (isMdt) {
                 MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);

@@ -1272,13 +1272,10 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  float zyEta = 0 ;
  
 		  float xav=0;
-                  float x2av=0;
                   float yav=0;
                   float y2av=0;
                   float zav=0;
-                  float z2av=0;
                   float xyav=0;
-                  float xzav=0;
                   float zyav=0 ;
  
 		  int NplaneSmall0  = 0;
@@ -1316,11 +1313,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    }  
 			 
 		    xav += Rpc_x_3D.at( i_3D) ; yav += Rpc_y_3D.at( i_3D) ; zav += Rpc_z_3D.at( i_3D) ;
-		    x2av += Rpc_x_3D.at( i_3D)*Rpc_x_3D.at( i_3D) ;
 		    y2av += Rpc_y_3D.at( i_3D)*Rpc_y_3D.at( i_3D) ;
-		    z2av += Rpc_z_3D.at( i_3D)*Rpc_z_3D.at( i_3D) ;
 		    xyav += Rpc_x_3D.at( i_3D)*Rpc_y_3D.at( i_3D) ;
-		    xzav += Rpc_x_3D.at( i_3D)*Rpc_z_3D.at( i_3D) ;
 		    zyav += Rpc_y_3D.at( i_3D)*Rpc_z_3D.at( i_3D) ;
 		  }
 			
