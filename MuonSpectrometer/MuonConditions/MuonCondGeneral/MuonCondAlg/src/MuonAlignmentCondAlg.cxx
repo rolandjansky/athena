@@ -335,7 +335,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
     // =======================
     EventIDRange rangeALinesTemp;
     EventIDRange rangeBLinesTemp;
-    const CondAttrListCollection* readCdo;
+    const CondAttrListCollection* readCdo = nullptr;
     if (folderName.find("/MUONALIGN/MDT/BARREL") != std::string::npos) {
         SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readMdtBarrelKey};
         readCdo = *readHandle;
@@ -532,7 +532,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
                 eg = line["eg"];
                 ep = line["ep"];
                 en = line["en"];
-                ChamberHwName = line["hwElement"];
+                ChamberHwName = static_cast<std::string>(line["hwElement"]);
                 thisRowHasBLine = true;
             }
 
