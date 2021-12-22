@@ -235,7 +235,7 @@ def TrkAmbiguityScoreCfg(flags, name='InDetTRT_SeededAmbiguityScore', **kwargs):
 def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
     acc = ComponentAccumulator()
 
-    InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+    InDetTRTDriftCircleCut = acc.popToolsAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
 
@@ -250,8 +250,7 @@ def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelec
     kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
     kwargs.setdefault("doPixelSplitting", flags.InDet.doPixelClusterSplitting)
 
-    InDetTRT_SeededAmbiTrackSelectionTool = CompFactory.InDet.InDetAmbiTrackSelectionTool(name = name, **kwargs)
-    acc.setPrivateTools(InDetTRT_SeededAmbiTrackSelectionTool)
+    acc.setPrivateTools(CompFactory.InDet.InDetAmbiTrackSelectionTool(name, **kwargs))
     return acc
 
 def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcessor', ClusterSplitProbContainer="", **kwargs):

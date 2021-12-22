@@ -9,7 +9,8 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     #
     # --- set up special Scoring Tool for standalone TRT tracks
     #
-    InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+    InDetTRTDriftCircleCut = acc.popToolsAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+    acc.addPublicTool(InDetTRTDriftCircleCut)
 
     #
     # Cut values and output key for the TRT segments standalone TRT track finder
@@ -78,10 +79,6 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
 
 def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', extension = "", BarrelSegments = None, prd_to_track_map = '', **kwargs):
     acc = ComponentAccumulator()
-    if not flags.Input.isMC:
-        # TODO: certainly not the right dependency but at least it makes this algorithm run
-        from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-        acc.merge(LumiBlockMuWriterCfg(flags))
 
     usePrdAssociationTool = True
     #usePrdAssociationTool = True if len(InputCollections) > 0 else False
