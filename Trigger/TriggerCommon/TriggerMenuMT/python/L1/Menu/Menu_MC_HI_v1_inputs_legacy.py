@@ -25,7 +25,7 @@ def defineLegacyInputsMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'EM7', 'EM8VH', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM14', 'EM15' ],
+            "thresholds" : [ 'EM3', 'EM7', 'EM8VH', 'EM10', 'EM10VH', 'EM12', 'EM14', 'EM15' ],
             "zeroBias" : "ZB_EM15"
         },
         {
@@ -34,7 +34,7 @@ def defineLegacyInputsMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'EM15HI', 'EM16', 'EM18VH', 'EM18VHI', 'EM20', 'EM20VH', 'EM20VHI', 'EM22' ]
+            "thresholds" : [ 'EM15HI', 'EM16', 'EM18VH', 'EM20', 'EM20VH', 'EM20VHI', 'EM22', 'EM22VHI' ]
         },
         {
             "name" : "TAU1",

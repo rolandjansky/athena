@@ -37,8 +37,9 @@ def defineMenu():
         ##
         # single EM
         ##
-        'L1_EM7', 'L1_EM8VH', 'L1_EM10', 'L1_EM10VH', 'L1_EM12', 'L1_EM14', 'L1_EM15', 'L1_EM16', 'L1_EM18VH', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22',
-        'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
+        'L1_EM3', 'L1_EM7', 'L1_EM8VH', 'L1_EM10', 'L1_EM10VH', 'L1_EM12', 'L1_EM14', 'L1_EM15', 'L1_EM16', 'L1_EM18VH', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22',
+        'L1_EM22VHI',
+        'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         # new calo
         'L1_eEM3', 'L1_eEM7', 'L1_eEM15', 'L1_eEM12',
@@ -65,6 +66,8 @@ def defineMenu():
         # combined mu - jet
         'L1_MU3V_J12','L1_MU3V_J15', 
 
+        'L1_TAU8', 'L1_TAU60', 'L1_TAU12IM', 'L1_TAU20IM',
+        'L1_TAU8_EMPTY',
 
         # single jet
         'L1_J12','L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100',
@@ -75,11 +78,15 @@ def defineMenu():
         'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB',         
         'L1_J100_FIRSTEMPTY',
         'L1_J12_BGRP12',
-        
+        'L1_J400', 'L1_J400_LAR',
+        'L1_jJ400', 'L1_jJ400_LAR',
+
         # XE
         'L1_XE35', 'L1_XE40', 'L1_XE45', 'L1_XE50', 
         'L1_XE55', 'L1_XE60', 'L1_XE30', 'L1_XE300',
-        
+       
+        'L1_J40_XE50', 'L1_J40_XE60', 
+ 
          # calo
         'L1_TE20','L1_VTE20','L1_TE50','L1_TE600p0ETA49','L1_TE50_VTE600p0ETA49','L1_TE12000',
         
@@ -105,7 +112,7 @@ def defineMenu():
                 
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
-        'L1_RD0_FIRSTEMPTY', 'L1_RD0_BGRP11',
+        'L1_RD0_FIRSTEMPTY', 'L1_RD0_BGRP11', 'L1_RD0_BGRP7',
         'L1_RD1_EMPTY',
         'L1_RD2_EMPTY',
         'L1_RD2_FILLED',
@@ -116,6 +123,7 @@ def defineMenu():
 
         # ZDC
         'L1_ZDC_A','L1_ZDC_C','L1_ZDC_A_C',
+        'L1_ZDC_AND',
         
         # ZDC and calo
         'L1_ZDC_A_C_VTE50',
@@ -149,9 +157,21 @@ def defineMenu():
         'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
 
         # AFP
+        'L1_EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_AND_C', 'L1_MU5VF_AFP_A_OR_C', 'L1_MU5VF_AFP_A_AND_C',
+        'L1_AFP_FSA_BGRP0', 'L1_AFP_FSC_BGRP0', 'L1_AFP_NSA_BGRP0', 'L1_AFP_NSC_BGRP0',
+        'L1_AFP_A_AND_C_TOF_J20', 'L1_AFP_A_AND_C_TOF_T0T1_J20', 'L1_AFP_A_AND_C_TOF_J30', 'L1_AFP_A_AND_C_TOF_T0T1_J30',
+        'L1_AFP_A_AND_C_TOF_J50', 'L1_AFP_A_AND_C_TOF_J75', 'L1_AFP_A_AND_C_TOF_jJ50', 'L1_AFP_A_AND_C_TOF_jJ75',
+        'L1_AFP_A_AND_C_TOF_T0T1_J50', 'L1_AFP_A_AND_C_TOF_T0T1_J75',
+        'L1_AFP_A_OR_C', 'L1_AFP_A_AND_C',
+        'L1_AFP_A_AND_C_TOF_jJ20', 'L1_AFP_A_AND_C_TOF_T0T1_jJ20', 'L1_AFP_A_AND_C_TOF_jJ30', 'L1_AFP_A_AND_C_TOF_T0T1_jJ30',
+        'L1_AFP_A_AND_C_TOF_T0T1_jJ50', 'L1_AFP_A_AND_C_TOF_T0T1_jJ75',
+        'L1_AFP_FSA_TOF_T0_BGRP0', 'L1_AFP_FSA_TOF_T1_BGRP0', 'L1_AFP_FSA_TOF_T2_BGRP0', 'L1_AFP_FSA_TOF_T3_BGRP0',
+        'L1_AFP_FSC_TOF_T0_BGRP0', 'L1_AFP_FSC_TOF_T1_BGRP0', 'L1_AFP_FSC_TOF_T2_BGRP0', 'L1_AFP_FSC_TOF_T3_BGRP0',
 
         # MBTS
-        'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
+        'L1_MBTS_1', 'L1_MBTS_1_1', 'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
+        'L1_MBTS_2',
+        'L1_MBTS_A', 'L1_MBTS_C',
 
         #--------------------------------
         # TOPO items
@@ -159,7 +179,6 @@ def defineMenu():
 
         'L1_LAR-ZEE', 'L1_LAR-ZEE-eEM',
 
-               
         #ATR-17320
         'L1_CEP-CjJ60',
         'L1_CEP-CjJ50' ,

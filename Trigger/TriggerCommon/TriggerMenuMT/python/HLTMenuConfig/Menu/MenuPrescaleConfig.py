@@ -37,20 +37,16 @@ def MenuPrescaleConfig(triggerConfigHLT):
                          invert = True)  # enable these groups
             L1Prescales = Prescales.L1Prescales_trigvalid_prescale
             HLTPrescales = Prescales.HLTPrescales_primary_prescale
-        elif 'TriggerValidation_prescale_lowMu' in menu_name:
-            filterChains(chains, Prescales.HLTPrescales_trigvalid_prescale_lowMu, ["PS:Online"])
-            L1Prescales = Prescales.L1Prescales_trigvalid_prescale_lowMu
-            HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale_lowMu
         elif 'TriggerValidation_prescale' in menu_name:
-            filterChains(chains, Prescales.HLTPrescales_trigvalid_prescale, ["PS:Online","Primary:LowMu"])
+            filterChains(chains, Prescales.HLTPrescales_trigvalid_prescale, ["PS:Online"])
             L1Prescales = Prescales.L1Prescales_trigvalid_prescale
             HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale
         elif 'BulkMCProd_prescale' in menu_name:
-            filterChains(chains, Prescales.HLTPrescales_bulkmcprod_prescale, ["PS:Online","Primary:LowMu"])
+            filterChains(chains, Prescales.HLTPrescales_bulkmcprod_prescale, ["PS:Online"])
             L1Prescales = Prescales.L1Prescales_bulkmcprod_prescale
             HLTPrescales = Prescales.HLTPrescales_bulkmcprod_prescale
         elif 'CPSampleProd_prescale' in menu_name:
-            filterChains(chains, Prescales.HLTPrescales_cpsampleprod_prescale, ["PS:Online","Primary:LowMu"])
+            filterChains(chains, Prescales.HLTPrescales_cpsampleprod_prescale, ["PS:Online"])
             L1Prescales = Prescales.L1Prescales_cpsampleprod_prescale
             HLTPrescales = Prescales.HLTPrescales_cpsampleprod_prescale
         else:
@@ -60,31 +56,21 @@ def MenuPrescaleConfig(triggerConfigHLT):
     elif menu_name.startswith('Physics_pp_run3_v1'):
         from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import setupMenu
         chains = setupMenu()
-        if 'tight_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        elif 'lowMu' not in menu_name:
-            filterChains(chains, Prescales.HLTPrescales, ["PS:Online","Primary:LowMu"])
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales            
-        else:
-            filterChains(chains, Prescales.HLTPrescales, ["PS:Online"])
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales        
+        filterChains(chains, Prescales.HLTPrescales, ["PS:Online"])
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales        
 
     elif menu_name.startswith('PhysicsP1_pp_run3_v1'):
         from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 import setupMenu
         chains = setupMenu()
-        if 'tight_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        elif 'lowMu' not in menu_name:
-            filterChains(chains, Prescales.HLTPrescales, ["Primary:LowMu"])
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales            
-        else:
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales        
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales        
+
+    elif menu_name.startswith('PhysicsP1_pp_lowMu_run3_v1'):
+        from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_lowMu_run3_v1 import setupMenu
+        chains = setupMenu()
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales
 
     elif menu_name.startswith('MC_pp_run3_v1'):
         from TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 import setupMenu
@@ -99,12 +85,8 @@ def MenuPrescaleConfig(triggerConfigHLT):
     elif menu_name.startswith('PhysicsP1_HI_run3_v1'):
         from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_HI_run3_v1 import setupMenu
         chains = setupMenu()
-        if 'tight_mc_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        else:
-            L1Prescales = Prescales.L1Prescales
-            HLTPrescales = Prescales.HLTPrescales        
+        L1Prescales = Prescales.L1Prescales
+        HLTPrescales = Prescales.HLTPrescales        
 
     elif menu_name.startswith('Dev_HI_run3_v1'):
         from TriggerMenuMT.HLTMenuConfig.Menu.Dev_HI_run3_v1 import setupMenu
@@ -182,9 +164,6 @@ class PrescaleClass(object):
 
     L1Prescales_trigvalid_prescale  = {}
     HLTPrescales_trigvalid_prescale = {}
-
-    L1Prescales_trigvalid_prescale_lowMu  = {}
-    HLTPrescales_trigvalid_prescale_lowMu = {}
 
     L1Prescales_bulkmcprod_prescale  = {}
     HLTPrescales_bulkmcprod_prescale = {}
