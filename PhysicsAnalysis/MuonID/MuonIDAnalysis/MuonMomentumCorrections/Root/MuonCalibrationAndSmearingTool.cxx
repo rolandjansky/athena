@@ -46,7 +46,7 @@ namespace CP {
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2020_03_03" ); // new Recs2021_12_11
+    declareProperty("Release", m_release = "Recs2021_12_11" ); 
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("AddExtraDecorations", m_extra_decorations = false );
     declareProperty("doExtraSmearing", m_extra_highpt_smearing = false );
@@ -55,25 +55,25 @@ namespace CP {
     declareProperty("StatComb", m_useStatComb = false);
     declareProperty("MinCombPt", m_StatCombPtThreshold=300.0);
     declareProperty("HighPtSystThr", m_HighPtSystThreshold=300.0);
-    declareProperty("SagittaCorr", m_doSagittaCorrection = false); // new true
-    declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_03_02_19"); // new sagittaBiasDataAll_15_09_2021
-    declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=true); // new false
+    declareProperty("SagittaCorr", m_doSagittaCorrection = false); 
+    declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_15_09_2021"); 
+    declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false); 
     declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false); 
-    declareProperty("SagittaIterWeight", m_IterWeight=0.5); // new 1.0
+    declareProperty("SagittaIterWeight", m_IterWeight=1.0); 
     declareProperty("sgItersCB",m_sgItersCB=4);
     declareProperty("sgItersID",m_sgItersID=4);
     declareProperty("sgItersME",m_sgItersME=4);
     declareProperty("sgIetrsManual",m_sgIetrsManual=false);
     declareProperty("fixedRho",m_fixedRho=1.0);
-    declareProperty("useFixedRho",m_useFixedRho=false); // new true
+    declareProperty("useFixedRho",m_useFixedRho=true); // new true
     declareProperty("noEigenDecor" ,m_doNotUseAMGMATRIXDECOR=false);
     declareProperty("useExternalSeed" ,m_useExternalSeed=false);
     declareProperty("externalSeed" ,m_externalSeed=0);
-    declareProperty("sagittaMapsInputType", m_saggitaMapsInputType=MCAST::SagittaInputHistType::NOMINAL); // new MCAST::SagittaInputHistType::SINGLE
-    declareProperty("sagittaMapUnitConversion",m_sagittaMapUnitConversion=1e-3); // new calib 1 
+    declareProperty("sagittaMapsInputType", m_saggitaMapsInputType=MCAST::SagittaInputHistType::SINGLE); 
+    declareProperty("sagittaMapUnitConversion",m_sagittaMapUnitConversion=1);  
     declareProperty("systematicCorrelationScheme", m_sysScheme = "Corr_Scale");
-    declareProperty("doEtaSaggitaSys", m_doEtaSaggitaSys = false); // for AFB, set to true
-    declareProperty("extraRebiasSys", m_extraRebiasSys = 0.0); // new calib 0.00002
+    declareProperty("doEtaSagittaSys", m_doEtaSagittaSys = false); // for AFB, set to true
+    declareProperty("extraRebiasSys", m_extraRebiasSys = 0.00002); // new calib 0.00002
     declareProperty("doDirectCBCalib", m_doDirectCBCalib = false);
     declareProperty("expertMode", m_expertMode = false);
     declareProperty("expertSetting_isData", m_expertMode_isData = false);
@@ -426,7 +426,7 @@ namespace CP {
       if(m_doSagittaCorrection==false && m_doSagittaMCDistortion==true){
         ATH_MSG_INFO("Not correcting data, only using systematic uncertainty");
         m_useFixedRho=true;
-        m_fixedRho=0.0;
+        m_fixedRho=1.0;
         ATH_MSG_INFO("Using only statistical combination of sagitta bias ID and sagitta bias MS with rho "<<m_fixedRho);
       } 
     }
@@ -545,12 +545,12 @@ namespace CP {
     {
       if(lv.Eta()>2 || (lv.Eta()>-2 && lv.Eta()<-1.05 ) ) 
       {
-        if(lv.Pt()>450.0) deltas += std::abs(450.0-45) /100 * deltas; // Above 1TeV flat
+        if(lv.Pt()>450.0) deltas += std::abs(450.0-45) /100 * deltas; // Above 450 GeV flat
         else              deltas += std::abs(lv.Pt()-45)/100 * deltas;
       }
       if(lv.Eta()<-2 || (lv.Eta()<2 && lv.Eta()>1.5 ) )  
       {
-        if(lv.Pt()>450.0) deltas += std::abs(450.0-45) /200 * deltas; // Above 1TeV flat
+        if(lv.Pt()>450.0) deltas += std::abs(450.0-45) /200 * deltas; // Above 450 GeV flat
         else              deltas += std::abs(lv.Pt()-45)/200 * deltas;
       }
     } 
@@ -588,7 +588,7 @@ namespace CP {
       p2 = p2 - p2Kin;
       corrPt = corrPt/(1 + q*p2*m_sagittaMapUnitConversion*corrPt);
     }
-    ATH_MSG_DEBUG("CorrectForCharge - in pT: "<<pt<<" corrPt: "<<corrPt);
+    ATH_MSG_DEBUG("CorrectForCharge - in pT: "<<pt<<" corrPt: "<<corrPt<<" applied saggita: "<<p2);
     pt = corrPt;
     return CorrectionCode::Ok;
   }
@@ -760,8 +760,8 @@ namespace CP {
       if(muonInfo.ptms == 0 ) return CorrectionCode::Ok;
       ATH_MSG_VERBOSE("ME saggita at "<<iter<< " size - "<<m_sagittasME.size());
       if( iter >=  m_sagittasME.size() )  return CorrectionCode::Ok;
-      CorrectionCode corr = CorrectForCharge(sagitta(m_sagittasME.at(iter).get(), lvME)*m_IterWeight, muonInfo.ptms, q, isMC,p2PhaseSpaceME);
       ATH_MSG_VERBOSE("ME saggita at "<<iter<< ": "<<sagitta(m_sagittasME.at(iter).get(), lvME)*m_IterWeight);
+      CorrectionCode corr = CorrectForCharge(sagitta(m_sagittasME.at(iter).get(), lvME)*m_IterWeight, muonInfo.ptms, q, isMC,p2PhaseSpaceME);
 
       muonInfo.sagitta_calibrated_ptms=muonInfo.ptms;
       iter++;
@@ -1768,7 +1768,7 @@ namespace CP {
       result.insert( SystematicVariation( "MUON_SAGITTA_RHO", -1 ) );
     }
 
-    if(m_doEtaSaggitaSys)
+    if(m_doEtaSagittaSys)
     {
       // Sagitta correction residual bias
       result.insert( SystematicVariation( "MUON_SAGITTA_RESBIAS_NEGETA", 1 ) );
@@ -3040,18 +3040,14 @@ namespace CP {
     if ( loc_detRegion<0 || loc_detRegion>=m_nb_regions ) return 0;
     double expRes = 0.;
     if ( DetType == MCAST::DetectorType::MS ) {
-      ATH_MSG_VERBOSE("MS resolution");
       if (loc_ptms == 0) return 1e12;
       double p0 = mc ? m_MC_p0_MS[loc_detRegion] : ( std::sqrt(m_MC_p0_MS[loc_detRegion]*m_MC_p0_MS[loc_detRegion] + m_p0_MS[loc_detRegion]*m_p0_MS[loc_detRegion]));
       double p1 = mc ? m_MC_p1_MS[loc_detRegion] : ( std::sqrt(m_MC_p1_MS[loc_detRegion]*m_MC_p1_MS[loc_detRegion] + m_p1_MS[loc_detRegion]*m_p1_MS[loc_detRegion]));
       double p2 = mc ? m_MC_p2_MS[loc_detRegion] : ( std::sqrt(m_MC_p2_MS[loc_detRegion]*m_MC_p2_MS[loc_detRegion] + m_p2_MS[loc_detRegion]*m_p2_MS[loc_detRegion]));
-    ATH_MSG_VERBOSE("p0,p1,p2 = "<<p0<<"  "<<p1<<"  "<<p2);
       expRes =  std::sqrt( std::pow( p0/loc_ptms, 2 ) + std::pow( p1, 2 ) + std::pow( p2*loc_ptms ,2 ) );
-      ATH_MSG_VERBOSE("expRes = "<<expRes);
       return expRes; //+++++No SYS!!!
     }
     else if ( DetType == MCAST::DetectorType::ID ) {
-      ATH_MSG_VERBOSE("ID resolution");
       if ( loc_ptid == 0 ) ATH_MSG_DEBUG( "ptid == 0" );
       double p1 = mc ? m_MC_p1_ID[loc_detRegion] : ( std::sqrt(m_MC_p1_ID[loc_detRegion]*m_MC_p1_ID[loc_detRegion] + m_p1_ID[loc_detRegion]*m_p1_ID[loc_detRegion]));
       double p2 = mc ? m_MC_p2_ID[loc_detRegion] : ( std::sqrt(m_MC_p2_ID[loc_detRegion]*m_MC_p2_ID[loc_detRegion] + m_p2_ID[loc_detRegion]*m_p2_ID[loc_detRegion]));
@@ -3063,13 +3059,10 @@ namespace CP {
         p2 = mc ? m_MC_p2_ID_TAN[loc_detRegion] : ( std::sqrt(m_MC_p2_ID_TAN[loc_detRegion]*m_MC_p2_ID_TAN[loc_detRegion] + m_p2_ID_TAN[loc_detRegion]*m_p2_ID_TAN[loc_detRegion]));
         p2 = p2*sinh( mu.eta() );
       }
-      ATH_MSG_VERBOSE("p1,p2 = "<<p1<<"  "<<p2);
       expRes = std::sqrt( std::pow( p1, 2 ) + std::pow( p2*loc_ptid ,2 ) );
-      ATH_MSG_VERBOSE("expRes = "<<expRes);
       return expRes; //+++++No SYS!!!
     }
     else if ( DetType == MCAST::DetectorType::CB ) {
-      ATH_MSG_VERBOSE("CB resolution");
       // Due to complicated maths, the expected combined resolution
       // is given by this equation (note: all sigmas are fractional uncertainties):
       // sigma_CB = std::sqrt(2) * sigma_ID * sigma_MS * pTMS * pTID / {pTCB * std::sqrt({sigma_ID*pTID}^2 + {sigma_MS*pTMS}^2)}
@@ -3077,9 +3070,7 @@ namespace CP {
       // Turn these into *absolute* uncertainties to make life easier
       double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, mc ) * loc_ptid;
       double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * loc_ptms;
-      ATH_MSG_VERBOSE("sigmaID,sigmaMS = "<<sigmaID<<"  "<<sigmaMS);
       double denominator = ( loc_ptcb ) * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
-      //return denominator ? std::sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
       return denominator ?  sigmaID * sigmaMS / denominator : 0.;
     }
     else {
