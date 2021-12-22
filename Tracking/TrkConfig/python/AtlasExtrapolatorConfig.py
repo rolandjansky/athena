@@ -34,13 +34,13 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
 
     # UPDATOR DEFAULTS --------------------------------------------------
 
-    AtlasMaterialEffectsUpdator = result.getPrimaryAndMerge(
+    AtlasMaterialEffectsUpdator = result.popToolsAndMerge(
         TC.AtlasMaterialEffectsUpdatorCfg(flags))
-    AtlasMaterialEffectsUpdatorLandau = result.getPrimaryAndMerge(
+    AtlasMaterialEffectsUpdatorLandau = result.popToolsAndMerge(
         TC.AtlasMaterialEffectsUpdatorLandauCfg(flags))
     ITkMaterialEffectsUpdator = None
     if flags.Detector.GeometryITk:
-        ITkMaterialEffectsUpdator = result.getPrimaryAndMerge(
+        ITkMaterialEffectsUpdator = result.popToolsAndMerge(
             TC.ITkMaterialEffectsUpdatorCfg(flags))
 
     AtlasUpdators = []
@@ -49,7 +49,7 @@ def AtlasExtrapolatorCfg(flags, name='AtlasExtrapolator'):
     if flags.Detector.GeometryITk:
         AtlasUpdators += [ITkMaterialEffectsUpdator]
 
-    AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags))
+    AtlasNavigator = result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags))
 
     # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
 
@@ -110,13 +110,13 @@ def egammaCaloExtrapolatorCfg(flags, name='egammaCaloExtrapolator'):
     if flags.Detector.GeometryITk:
         egammaPropagators += [ITkPropagator]
 
-    MaterialEffectsUpdator = result.getPrimaryAndMerge(
+    MaterialEffectsUpdator = result.popToolsAndMerge(
         TC.AtlasMaterialEffectsUpdatorCfg(flags))
-    NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge(
+    NoElossMaterialEffectsUpdator = result.popToolsAndMerge(
         TC.AtlasNoElossMaterialEffectsUpdatorCfg(flags))
     ITkMaterialEffectsUpdator = None
     if flags.Detector.GeometryITk:
-        ITkMaterialEffectsUpdator = result.getPrimaryAndMerge(
+        ITkMaterialEffectsUpdator = result.popToolsAndMerge(
             TC.ITkMaterialEffectsUpdatorCfg(flags))
 
     egammaUpdators = []
@@ -173,7 +173,7 @@ def MCTruthClassifierExtrapolatorCfg(flags, name='MCTruthClassifierExtrapolator'
 
     MCTruthUpdators = []
 
-    NoElossMaterialEffectsUpdator = result.getPrimaryAndMerge(
+    NoElossMaterialEffectsUpdator = result.popToolsAndMerge(
         TC.AtlasNoElossMaterialEffectsUpdatorCfg(flags))
     MCTruthUpdators += [NoElossMaterialEffectsUpdator]
 
@@ -216,7 +216,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
         'MaterialEffectsUpdators', None) is not None and len(kwargs.get('MaterialEffectsUpdators', None)) > 0 else None
 
     if 'Navigator' not in kwargs:
-        AtlasNavigator = result.getPrimaryAndMerge(TC.AtlasNavigatorCfg(flags, name="InDetNavigator"))
+        AtlasNavigator = result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags, name="InDetNavigator"))
         kwargs.setdefault("Navigator", AtlasNavigator)
 
     sub_propagators = []
