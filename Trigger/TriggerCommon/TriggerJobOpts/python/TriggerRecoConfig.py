@@ -4,8 +4,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
 from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, HLTConfigSvcCfg, L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
-from TriggerJobOpts.TriggerConfig import triggerPOOLOutputCfg
 from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
 
 from AthenaCommon.Logging import logging
@@ -33,12 +33,14 @@ def TriggerRecoCfg(flags):
     acc.merge( L1PrescaleCondAlgCfg(flags) )
     acc.merge( HLTPrescaleCondAlgCfg(flags) )
 
-    if flags.Trigger.EDMVersion == 3:
+    if flags.Trigger.EDMVersion >= 3:
         acc.merge(Run3TriggerBSUnpackingCfg(flags))
-        acc.merge(triggerPOOLOutputCfg(flags))
         from TrigDecisionMaker.TrigDecisionMakerConfig import Run3DecisionMakerCfg
         acc.merge(Run3DecisionMakerCfg(flags))
-    elif flags.Trigger.EDMVersion == 2 or flags.Trigger.EDMVersion == 1:
+        if flags.Trigger.doNavigationSlimming:
+            from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import TrigNavSlimmingMTCfg
+            acc.merge(TrigNavSlimmingMTCfg(flags))
+    elif flags.Trigger.EDMVersion in [1, 2]:
         if flags.Trigger.EDMVersion == 1:
             acc.merge(Run1xAODConversionCfg(flags))
         acc.merge( Run1Run2BSExtractionCfg(flags) )
@@ -50,6 +52,8 @@ def TriggerRecoCfg(flags):
         menuwriter = CompFactory.TrigConf.xAODMenuWriterMT()
         menuwriter.KeyWriterTool = CompFactory.TrigConf.KeyWriterTool("KeyWriterToolOffline")
         acc.addEventAlgo( menuwriter )
+        if flags.Trigger.doNavigationSlimming:
+            acc.merge(Run2Run1NavigationSlimingCfg(flags))
 
     else:
         raise RuntimeError("Invalid EDMVersion=%s " % flags.Trigger.EDMVersion)
@@ -62,8 +66,15 @@ def TriggerRecoCfg(flags):
 def TriggerEDMCfg(flags):
     """Configures which trigger collections are recorded"""
     acc = ComponentAccumulator()
-    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+    # standard collections & metadata
+    # TODO consider unifying with TriggerConfig.triggerPOOLOutputCfg - there the assumption is that Run3 
+    # metadata
+    menuMetadata = [ "xAOD::TriggerMenuJsonContainer#*", 
+                                                "xAOD::TriggerMenuJsonAuxContainer#*" ]
+    if flags.Trigger.EDMVersion in [1,2]:
+        menuMetadata += ['xAOD::TriggerMenuAuxContainer#*', 'xAOD::TriggerMenuContainer#*']
 
+    # EDM
     def _asList(edm):
         return [ f"{type}#{name}" for type, names in edm.items() for name in names ]
     _TriggerESDList = getTriggerEDMList(flags.Trigger.ESDEDMSet,  flags.Trigger.EDMVersion)
@@ -83,20 +94,56 @@ def TriggerEDMCfg(flags):
         log.info("AOD list is subset of ESD list - good.")
 
     # there is internal gating  in addTo* if AOD or ESD do not need to be written out
-    acc.merge(addToESD(flags, _asList(_TriggerESDList) ))
-    acc.merge(addToAOD(flags, _asList(_TriggerAODList)))
+    acc.merge(addToESD(flags, _asList(_TriggerESDList), MetadataItemList=menuMetadata))
+    acc.merge(addToAOD(flags, _asList(_TriggerAODList), MetadataItemList=menuMetadata))
     
     log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", flags.Trigger.AODEDMSet, flags.Trigger.EDMVersion)
- 
+    # navigation for Run 3
     if flags.Trigger.EDMVersion == 3 and not flags.Trigger.doOnlineNavigationCompactification and not flags.Trigger.doNavigationSlimming:
         nav = ['xAOD::TrigCompositeContainer#HLTNav*', 'xAOD::TrigCompositeAuxContainer#HLTNav*']
         acc.merge(addToAOD(flags, nav))
         acc.merge(addToESD(flags, nav))
+    # extra jet keys
     jetSpecials = ["JetKeyDescriptor#JetKeyMap", "JetMomentMap#TrigJetRecMomentMap"]
     acc.merge(addToESD(flags, jetSpecials))
     acc.merge(addToAOD(flags, jetSpecials))
 
+    # RoIs
+    if flags.Output.doWriteAOD and flags.Trigger.EDMVersion == 2:
+        roiWriter = CompFactory.RoiWriter( ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]) 
+        acc.addEventAlgo(roiWriter)
+
+        from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
+        acc.merge(addToAOD(flags, TriggerRoiList))
+
     return acc
+
+def Run2Run1NavigationSlimingCfg(flags):
+    """Configures legacy Run1/2 navigation slimming"""
+    acc = ComponentAccumulator()
+    def _flatten(edm):
+        return list(y.split('-')[0] for x in edm.values() for y in x)
+    from TrigNavTools.TrigNavToolsConfig import TrigNavigationThinningSvcCfg
+    
+
+    if flags.Output.doWriteAOD:
+        _TriggerAODList = getTriggerEDMList(flags.Trigger.AODEDMSet,  flags.Trigger.EDMVersion)
+        thinningSvc = acc.getPrimaryAndMerge(TrigNavigationThinningSvcCfg(flags, {'name':'HLTNav_StreamAOD', 'mode':'cleanup_noreload', 
+                                          'result':'HLTResult_HLT',
+                                          'features':_flatten(_TriggerAODList)}))
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "AOD", trigNavThinningSvc=thinningSvc))
+
+    if flags.Output.doWriteESD:
+        _TriggerESDList = getTriggerEDMList(flags.Trigger.ESDEDMSet,  flags.Trigger.EDMVersion)
+        thinningSvc = acc.getPrimaryAndMerge(TrigNavigationThinningSvcCfg(flags, {'name':'HLTNav_StreamESD', 'mode':'cleanup_noreload', 
+                                          'result':'HLTResult_HLT',
+                                          'features':_flatten(_TriggerESDList)}))
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "ESD", trigNavThinningSvc=thinningSvc))
+
+    return acc
+
 
 def Run1Run2BSExtractionCfg( flags ):
     """Configures Trigger data from BS extraction """
