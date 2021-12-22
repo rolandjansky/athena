@@ -19,6 +19,8 @@ def JetSecVertexingAlgCfg(ConfigFlags, BTaggingCollection, JetCollection, TrackC
 
     if SVFinder == 'JetFitter':
         JetSVLink = 'JFVtx'
+    if SVFinder == 'JetFitterFlip':#Flip version of jetFitter
+        JetSVLink = 'JFVtxFlip'
     if SVFinder == 'SV1':
         JetSVLink = 'SecVtx'
     if SVFinder == 'MSV':
