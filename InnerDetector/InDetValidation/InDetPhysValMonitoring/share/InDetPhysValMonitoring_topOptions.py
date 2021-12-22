@@ -6,8 +6,6 @@ print("WARNING - The IDPVM jobOptions you're currently running will soon be remo
 print("*********************************************************************************************************************************")
 
 
-
-
 # Define a few configuration arguments that can be passed by the user via the command line.
 # Avoid the need of hacking the job option file 
 def GetCustomAthArgs():
@@ -85,5 +83,4 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 
 svcMgr.THistSvc.Output += ["M_output DATAFILE='"+MyArgs.outputFile+"' OPT='RECREATE'"]
-
 
