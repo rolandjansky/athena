@@ -1,7 +1,7 @@
 // -*- C++ -*-
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALORUNPARAMETERS_H
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #define TRIGT1CALOCALIBCONDITIONS_L1CALORUNPARAMETERS_H
 
@@ -47,16 +47,16 @@ public:
 
 private:
   unsigned int m_channelId = 0;
-  std::string m_runType = 0;
-  std::string m_runActionName = 0;
+  std::string m_runType;
+  std::string m_runActionName;
   unsigned int m_runActionVersion = 0;
-  std::string m_readoutConfig = 0;
+  std::string m_readoutConfig;
   unsigned int m_readoutConfigID = 0;
-  std::string m_ttcConfiguration = 0;
+  std::string m_ttcConfiguration;
   unsigned int m_ttcConfigurationID = 0;
-  std::string m_triggerMenu = 0;
-  std::string m_calibration = 0;
-  std::string m_conditions = 0;
+  std::string m_triggerMenu;
+  std::string m_calibration;
+  std::string m_conditions;
 };
 
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALORUNPARAMETERS_H
