@@ -255,7 +255,9 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
 
     def addOverride(self,folder,tag):
         "Add a tag override for the specified folder"
-        self.iovdbsvc.overrideTags+=['<prefix>%s</prefix> <tag>%s</tag>' % (folder,tag)]
+        overrideDirective = '<prefix>%s</prefix> <tag>%s</tag>' % (folder,tag)
+        if overrideDirective not in self.iovdbsvc.overrideTags:
+            self.iovdbsvc.overrideTags+=[overrideDirective]
 
     def blockFolder(self,folder):
         "Block use of specified conditions DB folder so data can be read from elsewhere"
