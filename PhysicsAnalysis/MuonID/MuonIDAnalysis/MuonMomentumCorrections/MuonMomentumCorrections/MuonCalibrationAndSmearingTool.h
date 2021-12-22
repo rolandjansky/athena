@@ -211,7 +211,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     double m_extraRebiasSys;
     double m_useNsigmaForICombine;
     bool m_doDirectCBCalib;
-    bool m_doEtaSaggitaSys;
+    bool m_doEtaSagittaSys;
     std::vector<double> m_scale_ID, m_enLoss_MS, m_scale_MS, m_scale_CB;
 
     //sys variations (stat error added in quadrature), one if it's simmetrized, 2 if Up != Dw.

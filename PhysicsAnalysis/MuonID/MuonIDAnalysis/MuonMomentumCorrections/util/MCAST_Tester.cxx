@@ -129,9 +129,9 @@ int main( int argc, char* argv[] ) {
   // New tool settings
   corrTool.setProperty("Year",                      "Data16" );
   corrTool.setProperty("Release",                   "Recs2021_11_04" );
-  corrTool.setProperty("SagittaCorr",               true );
+  corrTool.setProperty("SagittaCorr",               false );
   corrTool.setProperty("SagittaRelease",            "sagittaBiasDataAll_15_09_2021" );
-  corrTool.setProperty("doSagittaMCDistortion",     false );
+  corrTool.setProperty("doSagittaMCDistortion",     true );
   corrTool.setProperty("SagittaIterWeight",         1 );
   corrTool.setProperty("useFixedRho",               true );
   corrTool.setProperty("sagittaMapsInputType",      1 );
