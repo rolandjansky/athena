@@ -327,10 +327,14 @@ float PixelChargeCalibCondData::getToT(const int chanNum, const int FE, const in
   if (getCalibrationStrategy(chanNum)==CalibrationStrategy::LUTFEI4) {
     return getToTLUTFEI4(chanNum,FE,Q);
   }
-  float paramA = getQ2TotA(chanNum,FE,type);
-  float paramE = getQ2TotE(chanNum,FE,type);
-  float paramC = getQ2TotC(chanNum,FE,type);
-  return paramA*(paramE+Q)/(paramC+Q);
+  float paramA = getQ2TotA(chanNum,FE, type);
+  float paramE = getQ2TotE(chanNum,FE, type);
+  float paramC = getQ2TotC(chanNum,FE, type);
+  float tot = 0.0;
+  if (paramC+Q!=0.0) {
+    tot = paramA*(paramE+Q)/(paramC+Q);
+  }
+  return tot;
 }
 
 float PixelChargeCalibCondData::getCharge(const int chanNum, const int FE, const int type, float ToT) const {
