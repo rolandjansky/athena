@@ -18,22 +18,34 @@ def JetRecoSteeringCfg(flags):
     for jd in jetdefs:
         result.merge(JetRecCfg(flags, jd))
 
+
+    return result
+
+
+def addJetsToOutput(flags,jetdefs, toAOD=True, toESD=True):
+    """Write out the jet containers as defined by jetdefs (a list of JetDefinition).
+    
+    In Run3 we don't write out jets in AOD : this function is left for convenience and testing purpose.
+    """
+    result = ComponentAccumulator()
+
     #--------------------------------------------------------------
     # Build output container list.
     #--------------------------------------------------------------
-    jetAODList = []
-    jetESDList = []
+    jetList = []
 
     for jetdef in jetdefs:
-        jetAODList += [ f"xAOD::JetContainer#{jetdef.fullname()}" ]
-        auxprefix = ""
+        jetList += [ f"xAOD::JetContainer#{jetdef.fullname()}" ,
+                     f"xAOD::JetAuxContainer#{jetdef.fullname()}Aux.-PseudoJet"]
+        # Not sure if this trigger special AuxContainer is obsolete in Run3 ?
         # if trigger:
         #   auxprefix = "Trig"
-        jetAODList += [ f"xAOD::Jet{auxprefix}AuxContainer#{jetdef.fullname()}Aux." ,
-                        f"xAOD::JetAuxContainer#{jetdef.fullname()}Aux.-PseudoJet"]
+        #   jetAODList += [ f"xAOD::Jet{auxprefix}AuxContainer#{jetdef.fullname()}Aux." ,
 
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
-    result.merge(addToESD(flags, jetAODList+jetESDList))
-    result.merge(addToAOD(flags, jetAODList))
+    if toESD:
+        result.merge(addToESD(flags, jetList))
+    if toAOD:
+        result.merge(addToAOD(flags, jetList))
 
     return result

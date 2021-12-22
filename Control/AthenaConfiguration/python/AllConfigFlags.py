@@ -240,6 +240,11 @@ def _createCfgFlags():
         return createMETConfigFlags()
     _addFlagsCategory(acf,"MET",__met, 'METReconstruction')
 
+    def __jet():
+        from JetRecConfig.JetConfigFlags import createJetConfigFlags
+        return createJetConfigFlags()
+    _addFlagsCategory(acf,"Jet",__jet, 'JetRecConfig')
+
     def __tau():
         from tauRec.TauConfigFlags import createTauConfigFlags
         return createTauConfigFlags()
