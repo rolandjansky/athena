@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Package : MMRawDataMonAlg
@@ -510,7 +510,6 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	  int trk_gap=  m_idHelperSvc->mmIdHelper().gasGap(surfaceId);
 	  if(  trk_stPhi==stPhi  and trk_stEta==stEta and trk_multi==multi and trk_gap==gap ){
 	    double x_trk = trkState->trackParameters()->parameters()[Trk::loc1];
-	    double y_trk = trkState->trackParameters()->parameters()[Trk::locY];
 	    
 	    
 	    int stPhi16=0;
@@ -521,15 +520,6 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	    int iside=0;
 	    if(stEta>0) iside=1;
 	    
-	    float stereo_angle=		      0.02618;
-	    float stereo_correction=sin(stereo_angle)*y_trk;
-	    if(multi==1 && gap<3) stereo_correction=0;
-	    if(multi==2 && gap>2) stereo_correction=0;
-	    if(multi==1 && gap==3 ) stereo_correction*=-1;
-	    if(multi==2 && gap==1 ) stereo_correction*=-1;
-	    if(multi==1 && gap<3) stereo_angle=0;
-	    if(multi==2 && gap>2) stereo_angle=0;
-	    stereo_correction=0;
 	    float res_stereo = (x - x_trk);
 	    auto residual_mon = Monitored::Scalar<float>("residual", res_stereo);
 	    auto stPhi_mon = Monitored::Scalar<float>("stPhi_mon",stPhi16);

@@ -2046,24 +2046,18 @@ bool Muon::MuonTrackingGeometryBuilderCond::enclosed(const Trk::Volume* vol, con
     double hz = 0.;
     double rMin = 0.;
     double rMax = 0.;
-    double rMaxc = 0.;
-    int type = 0;
     if (cyl) {
         rmed = cyl->mediumRadius();
         dphi = cyl->halfPhiSector();
         hz = cyl->halflengthZ();
         rMin = cyl->innerRadius();
         rMax = cyl->outerRadius();
-        rMaxc = rMax;
     } else if (bcyl) {
         rmed = bcyl->mediumRadius();
         dphi = bcyl->halfPhiSector();
         hz = bcyl->halflengthZ();
         rMin = bcyl->innerRadius();
         rMax = bcyl->outerRadius();
-        rMaxc = rMax;
-        type = bcyl->type();
-        if (type > 1) rMaxc *= 1. / cos(dphi);
     } else
         return false;
 
