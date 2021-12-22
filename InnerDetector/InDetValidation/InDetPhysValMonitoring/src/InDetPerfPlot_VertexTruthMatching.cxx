@@ -10,10 +10,8 @@
 #include "InDetPerfPlot_VertexTruthMatching.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-// 3 new includes HRM
 #include "InDetPerfPlot_Vertex.h"
 #include "InDetPerfPlot_nTracks.h"
-//#include "VxVertex/VxTrackAtVertex.h"
 #include "TFitResult.h"
 #include "TFitResultPtr.h"
 
@@ -385,9 +383,6 @@ const xAOD::Vertex* InDetPerfPlot_VertexTruthMatching::getHSRecoVertexSumPt2(con
 }
 
 
-
-
-
 template<typename U, typename V>
 float InDetPerfPlot_VertexTruthMatching::getRadialDiff2(const U* vtx1, const V* vtx2) const {
     return (std::pow((vtx1->x() - vtx2->x()), 2) + std::pow((vtx1->y() - vtx2->y()), 2) + std::pow((vtx1->z() - vtx2->z()), 2));
@@ -545,8 +540,6 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex& vertex, const x
         try {
             matchType = recoVtxMatchTypeInfo(vertex);
             ATH_MSG_DEBUG("VERTEX DECORATOR ======= " << matchType << ", with nTRACKS === " << vertex.nTrackParticles() << ", vertex index = " << vertex.index() << " AT (x, y, z) = (" << vertex.x() << ", " << vertex.y() << ", " << vertex.z() << ")");
-
-
             fillHisto(m_vx_type_truth, matchType, weight);
         }
         catch (SG::ExcBadAuxVar &) {
@@ -562,7 +555,6 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex& vertex, const x
 void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter,const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, float weight) {
 
     if (m_iDetailLevel >= 200) {
-
         // Fill our histograms
         // Inclusive:
         int nTruthVertices = (int)(truthHSVertices.size() + truthPUVertices.size());

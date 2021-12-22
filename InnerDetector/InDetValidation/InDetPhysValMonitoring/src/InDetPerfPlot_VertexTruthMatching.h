@@ -64,8 +64,6 @@ private:
     TProfile* m_vx_nReco_vs_nTruth_highpu;
     TProfile* m_vx_nReco_vs_nTruth_hssplit;
     TProfile* m_vx_nReco_vs_nTruth_none;
-
-
     // HS vertex reconstruction efficiency vs PU
     TEfficiency* m_vx_hs_reco_eff;
     // HS vertex selection efficiency vs PU
