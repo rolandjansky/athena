@@ -687,10 +687,19 @@ def MuonLayerHoughAlgCfg(flags, name = "MuonLayerHoughAlg", **kwargs):
     return result
 
 
+def MuonPatternCalibrationCfg(flags, name="MuonPatternCalibration", **kwargs):
+    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonClusterOnTrackCreatorCfg, MdtDriftCircleOnTrackCreatorCfg
+    result = MdtDriftCircleOnTrackCreatorCfg(flags)
+    kwargs.setdefault("MdtCreator", result.popPrivateTools())
+    kwargs.setdefault('ClusterCreator', result.popToolsAndMerge(MuonClusterOnTrackCreatorCfg(flags)))
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    # Won't explicitly configure MuonIdHelperSvc
+    result.setPrivateTools( CompFactory.Muon.MuonPatternCalibration(name, **kwargs) )
+    return result
+
 def MuonSegmentFinderAlgCfg(flags, name="MuonSegmentMaker", **kwargs):
     result = ComponentAccumulator()
     
-   
     acc = MuonStraightLineExtrapolatorCfg(flags)
     extrapolator = acc.getPrimary()
     result.merge(acc)
@@ -752,8 +761,7 @@ def MuonSegmentFinderAlgCfg(flags, name="MuonSegmentMaker", **kwargs):
     kwargs.setdefault('TGC_PRDs', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
 
     # for test purposes allow parallel running of truth segment finding and new segment finder
-    #### Do we need to setup this tool as well?
-    ####  MuonPatternCalibration = getPublicTool("MuonPatternCalibration"),
+    kwargs.setdefault('MuonPatternCalibration', result.popToolsAndMerge( MuonPatternCalibrationCfg(flags) ) )
     the_alg = CompFactory.MuonSegmentFinderAlg( name,
                                                **kwargs)
                                                        
