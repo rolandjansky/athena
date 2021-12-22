@@ -13,7 +13,7 @@ export ATHENA_PROC_NUMBER=8
 export ATHENA_CORE_NUMBER=8
 Reco_tf.py \
 --inputHITSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_MC_Run2Reprocessing/HITS.25836923._001783.pool.root.1" \
---asetup="RDOtoRDOTrigger:Athena,21.0.131" \
+--asetup="RDOtoRDOTrigger:Athena,21.0,latest" \
 --maxEvents="200" \
 --multithreaded="True" \
 --postInclude "default:PyJobTransforms/UseFrontier.py" "all:PyJobTransforms/DisableFileSizeLimit.py" \
