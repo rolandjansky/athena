@@ -865,7 +865,7 @@ def IsInInputFile(collectionname,key=None):
                 ItemDic = convert_itemList(layout='dict')
                 if collectionname in ItemDic:
                     logAutoConfiguration.info("found collection with name %s in input file.", collectionname)
-                    print(ItemDic[collectionname])
+                    logAutoConfiguration.info(f'{ItemDic[collectionname]}')
                     if key is None:
                         logAutoConfiguration.info("no explicit storegate key given. Returning True")
                         return True

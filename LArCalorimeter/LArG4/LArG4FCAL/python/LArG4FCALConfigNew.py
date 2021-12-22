@@ -10,7 +10,7 @@ import math
 def FCALCalculatorBaseCfg(name="FCALCalculatorBase", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("OOTcut",2.5*ns)
-    result.addService(LArFCALCalculatorBase(name, **kwargs))
+    result.addService(LArFCALCalculatorBase(name, **kwargs), primary = True)
     return result
 
 
@@ -34,7 +34,7 @@ def FCAL1CalibCalculatorCfg(ConfigFlags, name="FCAL1CalibCalculator", **kwargs):
     kwargs.setdefault("FCALdeltaX",7.5*mm)
     kwargs.setdefault("FCALdeltaY",7.5*mm*math.sin(60*deg))
     kwargs.setdefault("FCALSampling",1)
-    result.addService(LArG4__FCAL__LArFCALCalibCalculatorBase(name, **kwargs))
+    result.addService(LArG4__FCAL__LArFCALCalibCalculatorBase(name, **kwargs), primary = True)
     return result
 
 
@@ -43,7 +43,7 @@ def FCAL2CalibCalculatorCfg(ConfigFlags, name="FCAL2CalibCalculator", **kwargs):
     kwargs.setdefault("FCALdeltaX",8.179*mm)
     kwargs.setdefault("FCALdeltaY",8.179*mm*math.sin(60*deg))
     kwargs.setdefault("FCALSampling",2)
-    result.addService(LArG4__FCAL__LArFCALCalibCalculatorBase(name, **kwargs))
+    result.addService(LArG4__FCAL__LArFCALCalibCalculatorBase(name, **kwargs), primary = True)
     return result
 
 
@@ -52,5 +52,5 @@ def FCAL3CalibCalculatorCfg(ConfigFlags, name="FCAL3CalibCalculator", **kwargs):
     kwargs.setdefault("FCALdeltaX",9.0*mm)
     kwargs.setdefault("FCALdeltaY",9.0*mm*math.sin(60*deg))
     kwargs.setdefault("FCALSampling",3)
-    result.addService(LArG4__FCAL__LArFCALCalibCalculatorBase(name, **kwargs))
+    result.addService(LArG4__FCAL__LArFCALCalibCalculatorBase(name, **kwargs), primary = True)
     return result

@@ -2,7 +2,7 @@
 
 PrimaryVerticesCPContent = [
 "InDetTrackParticles",
-"InDetTrackParticlesAux.vertexLink.d0.z0.theta.vz",
+"InDetTrackParticlesAux.vertexLink.d0.z0.theta.vz.truthParticleLink",
 "PrimaryVertices",
-"PrimaryVerticesAux.trackParticleLinks.z.vertexType"
+"PrimaryVerticesAux.trackParticleLinks.x.y.z.vertexType.neutralParticleLinks"
 ]

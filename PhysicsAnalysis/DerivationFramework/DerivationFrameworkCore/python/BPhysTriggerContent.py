@@ -12,9 +12,9 @@ BPhysTriggerContent = [
 "HLT_xAOD__TrigBphysContainer_L2BMuMuFex",
 "HLT_xAOD__TrigBphysContainer_L2BMuMuFexAux.",
 "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFID",
-"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFIDAux.phi.d0.z0.theta.qOverP",
+"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFIDAux.",
 "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_IDTrig",
-"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_IDTrigAux.phi.d0.z0.theta.qOverP"
+"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_IDTrigAux."
 #"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
 #"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bphysics_IDTrigAux.pt.eta.phi.d0.z0"
 ]

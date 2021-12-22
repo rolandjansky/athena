@@ -76,6 +76,7 @@ namespace Analysis {
     ATH_CHECK( m_VertexCollectionName.initialize() );
     ATH_CHECK( m_jetSVLinkName.initialize() );
     ATH_CHECK( m_jetJFVtxLinkName.initialize() );
+    ATH_CHECK( m_jetJFFlipVtxLinkName.initialize(!m_jetJFFlipVtxLinkName.empty()));
     ATH_CHECK( m_VxSecVertexInfoNames.initialize() );
 
     /* ----------------------------------------------------------------------------------- */
@@ -207,7 +208,9 @@ namespace Analysis {
 					       const xAOD::TrackParticleContainer* theTrackParticleContainer,
 					       std::string basename) const {
 
-    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetJFVtxLinkName (m_jetJFVtxLinkName);
+    //THIS is a nasty hack from VD but by it's more likely we get GNN to work than someone to re-organise JetFitter
+    const auto& key = basename.find("Flip")!=std::string::npos ? m_jetJFFlipVtxLinkName : m_jetJFVtxLinkName;
+    SG::ReadDecorHandle<xAOD::JetContainer, std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetJFVtxLinkName ( key );
     std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVerticesLinks;
 
     //twotrackVerticesInJet
@@ -216,7 +219,7 @@ namespace Analysis {
       const Trk::TwoTrackVerticesInJet* TwoTrkVtxInJet = myVertexInfoJetFitter->getTwoTrackVerticesInJet();
       vecTwoTrkVtx = TwoTrkVtxInJet->getTwoTrackVertice();
       if (!h_jetJFVtxLinkName.isAvailable()) {
-        ATH_MSG_ERROR( " cannot retrieve vertex container EL decoration with key " << m_jetJFVtxLinkName.key()  );
+        ATH_MSG_ERROR( " cannot retrieve vertex container EL decoration with key " << key.key()  );
         return StatusCode::FAILURE;
       }
       JFVerticesLinks = h_jetJFVtxLinkName(myJet);
@@ -410,7 +413,7 @@ namespace Analysis {
               (*btagIter)->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
               (*btagIter)->setDynVxELName(basename, "vertices");
 	          }
-	          else if("JetFitter" == basename) {
+	          else if("JetFitter" == basename || "JetFitterFlip" == basename) {
               std::vector< ElementLink< xAOD::TrackParticleContainer > > tracksAtPVlinks;
               (*btagIter)->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);
               (*btagIter)->setDynTPELName(basename, "tracksAtPVlinks");
@@ -431,7 +434,7 @@ namespace Analysis {
 	            ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo for " << basename);
 	            return sc;
 	          }
-          } else if (basename == "JetFitter") {
+          } else if (basename == "JetFitter" || basename == "JetFitterFlip") {
             const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo);
             ATH_MSG_DEBUG("#BTAG# Found valid VxJetFitterVertexInfo information: " << infoCont.key());
             StatusCode sc = fillJFVariables(jetToTag, *btagIter, myVertexInfoJetFitter, theTrackParticleContainer, basename);

@@ -17,6 +17,8 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 
 namespace Trk {
     class Surface;
@@ -38,7 +40,10 @@ namespace Muon {
         /** get muon system extension */
         bool muonSystemExtension(const EventContext& ctx, SystemExtensionCache& cache) const override;
 
-        MuonSystemExtension::Intersection getInterSection(const EventContext& ctx, const Trk::TrackParameters& muon_pars) const override;
+        bool muonLayerInterSections(const EventContext& ctx, 
+                                    const MuonCombined::TagBase& cmb_tag,
+                                    SystemExtensionCache& cache) const override;                                   
+       
     private:
         /** initialize geometry */
         bool initializeGeometry();
@@ -63,6 +68,9 @@ namespace Muon {
             "Trk::Extrapolator/AtlasExtrapolator",
         };
         
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+      
         /** reference surfaces per region and sector */
         std::vector<std::vector<SurfaceVec> > m_referenceSurfaces;
 

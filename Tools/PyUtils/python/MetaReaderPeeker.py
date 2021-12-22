@@ -21,9 +21,18 @@ def _setup():
     if inFiles == ['_ATHENA_GENERIC_INPUTFILE_NAME_']:
         # Input files have not been set in ConfigFlags
         # Fall back to the legacy configuration mechanisms
-        msg.warning("Input files not set ConfigFlags.Input.Files. Falling back to the legacy way of obtaining input file names")
-        from RecExConfig.RecoFunctions import InputFileNames
-        inFiles = InputFileNames()
+        try:
+            msg.warning("Input files not set ConfigFlags.Input.Files. Falling back to the legacy way of obtaining input file names")
+            from RecExConfig.RecoFunctions import InputFileNames
+            inFiles = InputFileNames()
+        except ModuleNotFoundError:
+            try:
+                msg.warning("In a release without RecExConfig, trying AthenaCommonFlags")
+                from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+                inFiles = athenaCommonFlags.FilesInput()
+            except ModuleNotFoundError:
+                msg.warning("Failed to load any module containing list of input files")
+                pass
 
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if athenaCommonFlags.isOnline() and (not inFiles or all([f.strip() == '' for f in inFiles])):

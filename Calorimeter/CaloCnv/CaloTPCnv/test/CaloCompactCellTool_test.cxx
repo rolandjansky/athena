@@ -46,6 +46,11 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 
+#include "StoreGate/WriteCondHandleKey.h"
+#include "StoreGate/WriteCondHandle.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+
 using CLHEP::MeV;
 using CLHEP::GeV;
 using CLHEP::TeV;
@@ -406,6 +411,7 @@ CaloCellContainer* fill_cells (int n,
 
 
 CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells,
+				    CaloSuperCellDetDescrManager* scmgr,
                                     ISvcLocator* svcloc)
 {
   CaloCellContainer* cont = new CaloCellContainer;
@@ -422,9 +428,6 @@ CaloCellContainer* fill_supercells (const std::vector<CaloCell*>& cells,
   CHECK( detstore->retrieve (idmgr, "CaloIdManager") );
   const CaloCell_SuperCell_ID* schelper =
     idmgr->getCaloCell_SuperCell_ID();
-
-  CaloSuperCellDetDescrManager* scmgr = 0;
-  CHECK( detstore->retrieve (scmgr, "CaloSuperCellMgr") );
 
   DDLookup ddlookup (scmgr);
 
@@ -830,13 +833,11 @@ void test_one (int n,
 
 
 void test_supercells (int version,
-                      const std::vector<CaloCell*>& cells,
+		      CaloCellContainer* cont,
                       CaloCompactCellTool& tool,
-                      SG::Arena& arena,
-                      ISvcLocator* svcloc)
+                      SG::Arena& arena)
 {
   printf ("*** test SC %d\n", version);
-  CaloCellContainer* cont = fill_supercells (cells, svcloc);
   //dump_cells (*cont);
 
   CaloCompactCellContainer ccc;
@@ -1163,7 +1164,9 @@ void test_errs (const std::vector<CaloCell*>& cells,
 std::vector<CaloCell*> init (IdDictParser* parser,
                              URNG& rng,
                              ISvcLocator*& svcloc,
-                             CaloDetDescrManager*& mgr)
+                             CaloDetDescrManager*& mgr,
+			     CaloSuperCellDetDescrManager*& scmgr,
+			     CaloCellContainer*& cont)
 {
   if (!Athena_test::initGaudi("CaloCompactCellTool_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
@@ -1177,21 +1180,42 @@ std::vector<CaloCell*> init (IdDictParser* parser,
   mgr->set_helper (helper);
   mgr->initialize();
 
-  CaloSuperCellDetDescrManager* scmgr = new CaloSuperCellDetDescrManager;
+  scmgr = new CaloSuperCellDetDescrManager;
   scmgr->set_helper (schelper);
   scmgr->initialize();
+
+  StoreGateSvc* detstore = nullptr;
+  CHECK( svcloc->service ("DetectorStore", detstore) );
+  StoreGateSvc* condstore = nullptr;
+  CHECK( svcloc->service ("StoreGateSvc/ConditionStore", condstore) );
+
+  CHECK( detstore->record (idmgr, "CaloIdManager") );
+  CHECK( detstore->record (helper, "CaloCell_ID") );
+  CHECK( detstore->record (schelper, "CaloCell_SuperCell_ID") );
 
   DDLookup ddlookup (mgr);
   std::vector<CaloCell*> cells = make_cells (mgr, ddlookup, rng);
 
-  StoreGateSvc* detstore = 0;
-  CHECK( svcloc->service ("DetectorStore", detstore) );
+  cont = fill_supercells(cells,scmgr,svcloc);
 
-  CHECK( detstore->record (mgr, "CaloMgr") );
-  CHECK( detstore->record (scmgr, "CaloSuperCellMgr") );
-  CHECK( detstore->record (idmgr, "CaloIdManager") );
-  CHECK( detstore->record (helper, "CaloCell_ID") );
-  CHECK( detstore->record (schelper, "CaloCell_SuperCell_ID") );
+  SG::WriteCondHandleKey<CaloDetDescrManager> caloMgrKey{"CaloDetDescrManager"};
+  CHECK( caloMgrKey.initialize() );
+  SG::WriteCondHandle<CaloDetDescrManager> caloMgrHandle{caloMgrKey};
+  caloMgrHandle.addDependency(EventIDRange(IOVInfiniteRange::infiniteRunLB()));
+  CHECK( caloMgrHandle.record(mgr) );
+
+  SG::WriteCondHandleKey<CaloSuperCellDetDescrManager> caloSCMgrKey{"CaloSuperCellDetDescrManager"};
+  CHECK( caloSCMgrKey.initialize() );
+  SG::WriteCondHandle<CaloSuperCellDetDescrManager> caloSCMgrHandle{caloSCMgrKey};
+  caloSCMgrHandle.addDependency(EventIDRange(IOVInfiniteRange::infiniteRunLB()));
+  CHECK( caloSCMgrHandle.record(scmgr) );
+
+
+  EventIDBase now(0, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM, 0, 1);
+  EventContext ctx(1);
+  ctx.setEventID( now );
+  ctx.setExtension( Atlas::ExtendedEventContext(condstore) );
+  Gaudi::Hive::setCurrentContext(ctx);
 
   return cells;
 }
@@ -1203,7 +1227,9 @@ void runtests (IdDictParser* parser)
   CaloCompactCellTool tool;
   ISvcLocator* svcloc = nullptr;
   CaloDetDescrManager* mgr = nullptr;
-  std::vector<CaloCell*> cells = init (parser, rng, svcloc, mgr);
+  CaloSuperCellDetDescrManager* scmgr = nullptr;
+  CaloCellContainer* cont = nullptr;
+  std::vector<CaloCell*> cells = init (parser, rng, svcloc, mgr, scmgr, cont);
   auto arena = std::make_unique<SG::Arena> ("arena");
 
   rng.seed = 10;
@@ -1282,7 +1308,7 @@ void runtests (IdDictParser* parser)
   test_one (cells.size(), CaloCompactCellTool::VERSION_504, cells, tool, rng, *arena);
 
   rng.seed = 80;
-  test_supercells (CaloCompactCellTool::VERSION_504, cells, tool, *arena, svcloc);
+  test_supercells (CaloCompactCellTool::VERSION_504, cont, tool, *arena);
 
   rng.seed = 30;
   test_errs (cells, tool, rng, *arena, mgr);
@@ -1311,7 +1337,9 @@ void timetests (IdDictParser* parser, int nrep)
   CaloCompactCellTool tool;
   ISvcLocator* svcloc = nullptr;
   CaloDetDescrManager* mgr = nullptr;
-  std::vector<CaloCell*> cells = init (parser, rng, svcloc, mgr);
+  CaloSuperCellDetDescrManager* scmgr = nullptr;
+  CaloCellContainer* contsc = nullptr;
+  std::vector<CaloCell*> cells = init (parser, rng, svcloc, mgr, scmgr, contsc);
   CaloCellContainer* cont = fill_cells (10000, cells, true, true, rng);
 
   rusage ru0, ru1, ru2, ru3;

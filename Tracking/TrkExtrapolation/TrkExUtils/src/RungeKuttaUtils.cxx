@@ -270,7 +270,7 @@ transformGlobalToDisc(const Amg::Transform3D& T,
   const double RC = d[0] * Ax[0] + d[1] * Ax[1] + d[2] * Ax[2];
   const double RS = d[0] * Ay[0] + d[1] * Ay[1] + d[2] * Ay[2];
   const double R2 = RC * RC + RS * RS;
-  par[0] = sqrt(R2);
+  par[0] = std::sqrt(R2);
   par[1] = atan2(RS, RC);
 
   if (!useJac)
@@ -378,7 +378,7 @@ transformGlobalToLine(const Amg::Transform3D& T,
   double Bx = Az[1] * P[5] - Az[2] * P[4];
   double By = Az[2] * P[3] - Az[0] * P[5];
   double Bz = Az[0] * P[4] - Az[1] * P[3];
-  const double Bn = 1. / sqrt(Bx * Bx + By * By + Bz * Bz);
+  const double Bn = 1. / std::sqrt(Bx * Bx + By * By + Bz * Bz);
   Bx *= Bn;
   By *= Bn;
   Bz *= Bn;
@@ -605,7 +605,7 @@ transformLineToGlobal(bool useJac,
   double Bx = Az[1] * P[5] - Az[2] * P[4];
   double By = Az[2] * P[3] - Az[0] * P[5];
   double Bz = Az[0] * P[4] - Az[1] * P[3];
-  const double Bn = 1. / sqrt(Bx * Bx + By * By + Bz * Bz);
+  const double Bn = 1. / std::sqrt(Bx * Bx + By * By + Bz * Bz);
   Bx *= Bn;
   By *= Bn;
   Bz *= Bn;
@@ -825,7 +825,7 @@ jacobianTransformCurvilinearToStraightLine(const double* ATH_RESTRICT P,
   double Bx = A[1] * At[2] - A[2] * At[1];
   double By = A[2] * At[0] - A[0] * At[2];
   double Bz = A[0] * At[1] - A[1] * At[0];
-  const double Bn = 1. / sqrt(Bx * Bx + By * By + Bz * Bz);
+  const double Bn = 1. / std::sqrt(Bx * Bx + By * By + Bz * Bz);
   Bx *= Bn;
   By *= Bn;
   Bz *= Bn;
@@ -987,7 +987,7 @@ Trk::RungeKuttaUtils::transformGlobalToLocal(const Trk::Surface* su,
     C = 1. / C;
     P3 = P[3] * C;
     P4 = P[4] * C;
-    C = -sqrt(C);
+    C = -std::sqrt(C);
   } else {
     C = -1.e10;
     P3 = 1.;
@@ -1099,7 +1099,7 @@ Trk::RungeKuttaUtils::stepEstimatorToCylinder(double* ATH_RESTRICT S,
 
   if (Sq > 0.) {
 
-    Sq = sqrt(Sq) / A;
+    Sq = std::sqrt(Sq) / A;
     if (B > 0.) {
       Smin += Sq;
       Smax -= Sq;
@@ -1108,7 +1108,7 @@ Trk::RungeKuttaUtils::stepEstimatorToCylinder(double* ATH_RESTRICT S,
       Smax += Sq;
     }
   } else {
-    if (fabs(Smax) < .1) {
+    if (std::fabs(Smax) < .1) {
       Q = false;
       return 0.;
     }
@@ -1144,7 +1144,7 @@ Trk::RungeKuttaUtils::stepEstimatorToCylinder(double* ATH_RESTRICT S,
     return Smax;
   }
 
-  // if(fabs(Smin) < .001) {S[8]=-1.; return Smax;}
+  // if(std::fabs(Smin) < .001) {S[8]=-1.; return Smax;}
 
   S[8] = 1.;
   return Smin;
@@ -1204,7 +1204,7 @@ Trk::RungeKuttaUtils::stepEstimatorToCone(double* ATH_RESTRICT S,
     Smax = Smin;
     double Sq = KABC * KABC + (k * A * A - dx * dx - dy * dy - dz * dz) * KB;
     if (Sq >= 0.) {
-      Sq = sqrt(Sq) / KB;
+      Sq = std::sqrt(Sq) / KB;
       if (KABC > 0.) {
         Smin -= Sq;
         Smax += Sq;
@@ -1303,11 +1303,11 @@ Trk::RungeKuttaUtils::stepEstimator(
   int Nv,
   bool& next)
 {
-  W = fabs(W);
+  W = std::fabs(W);
   next = false;
   int N = -1;
   double D[3] = { Pout[0] - Pinp[0], Pout[1] - Pinp[1], Pout[2] - Pinp[2] };
-  double Smax = sqrt(D[0] * D[0] + D[1] * D[1] + D[2] * D[2]);
+  double Smax = std::sqrt(D[0] * D[0] + D[1] * D[1] + D[2] * D[2]);
   double Sign = D[0] * Pinp[3] + D[1] * Pinp[4] + D[2] * Pinp[5];
   // The magnitude of the vector is essentially 0. No
   /// sensible estimate of the next step possible.
@@ -1381,7 +1381,7 @@ Trk::RungeKuttaUtils::stepEstimator(
 
     double sa, s;
     i == 0 ? s = ds.first() : s = ds.second();
-    sa = fabs(s);
+    sa = std::fabs(s);
 
     if (s * Sign < 0.) {
       // if(sa < So    ) {next = true; return std::make_pair(s,N);}
@@ -1471,7 +1471,7 @@ Trk::RungeKuttaUtils::transformLocalToGlobal(bool useJac,
   P[4] = Sf * Se; // Ay
   P[5] = Ce;      // Az
   P[6] = p[4];    // CM
-  if (fabs(P[6]) < .000000000000001) {
+  if (std::fabs(P[6]) < .000000000000001) {
     P[6] < 0. ? P[6] = -.000000000000001 : P[6] = .000000000000001;
   }
 
@@ -1553,7 +1553,7 @@ Trk::RungeKuttaUtils::transformGlobalToCurvilinear(bool useJac,
   if (!useJac)
     return;
 
-  const double An = sqrt(P[3] * P[3] + P[4] * P[4]);
+  const double An = std::sqrt(P[3] * P[3] + P[4] * P[4]);
   double Ax[3];
   if (An != 0.) {
     Ax[0] = -P[4] / An;
@@ -1584,7 +1584,7 @@ Trk::RungeKuttaUtils::transformGlobalToCurvilinear(bool useJac,
     C = 1. / C;
     P3 = P[3] * C;
     P4 = P[4] * C;
-    C = -sqrt(C);
+    C = -std::sqrt(C);
   } else {
     C = -1.e10;
     P3 = 1.;
@@ -1822,7 +1822,7 @@ Trk::RungeKuttaUtils::fillDistancesMap(
   Step[2] = 0.;
 
   int N = SU.size();
-  W = fabs(W);
+  W = std::fabs(W);
 
   for (int i = 0; i != N; ++i) {
 
@@ -1847,7 +1847,7 @@ Trk::RungeKuttaUtils::fillDistancesMap(
       double st;
       i == 0 ? st = ds.first() : st = ds.second();
 
-      if (s == So && fabs(st) <= .001)
+      if (s == So && std::fabs(st) <= .001)
         continue;
 
       if (st < 0.) {

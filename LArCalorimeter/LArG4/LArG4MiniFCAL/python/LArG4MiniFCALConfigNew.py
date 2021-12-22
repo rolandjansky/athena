@@ -7,7 +7,7 @@ LArG4__MiniFCAL__MiniFCALCalibrationCalculator=CompFactory.LArG4.MiniFCAL.MiniFC
 
 def MiniFCALCalibrationCalculatorCfg(ConfigFlags, name="MiniFCALCalibrationCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService(LArG4__MiniFCAL__MiniFCALCalibrationCalculator(name, **kwargs))
+    result.addService(LArG4__MiniFCAL__MiniFCALCalibrationCalculator(name, **kwargs), primary = True)
     return result
 
 def MiniFCALActiveCalibrationCalculatorCfg(ConfigFlags, name="MiniFCALActiveCalibrationCalculator", **kwargs):

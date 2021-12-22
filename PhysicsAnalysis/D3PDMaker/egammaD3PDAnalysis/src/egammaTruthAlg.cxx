@@ -16,6 +16,8 @@
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
 #include "EventKernel/PdtPdg.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 
@@ -89,16 +91,11 @@ namespace D3PD {
  */
 egammaTruthAlg::egammaTruthAlg (const std::string& name,
                                 ISvcLocator* svcloc)
-  : AthAlgorithm (name, svcloc)
+  : AthReentrantAlgorithm (name, svcloc)
 {
   declareProperty ("AuxPrefix", m_auxPrefix,
                    "Prefix to add to aux data items.");
 
-  declareProperty ("InputKey", m_inputKey,
-                   "SG key for the input container.");
-  declareProperty ("OutputKey", m_outputKey,
-                   "SG key for the output container.");
-  
   declareProperty ("ElectronPtMin", m_electronPtMin = 2*GeV,
                    "Minimum pt for electrons.");
   declareProperty ("PhotonPtMin",   m_photonPtMin = 2*GeV,
@@ -117,8 +114,10 @@ egammaTruthAlg::egammaTruthAlg (const std::string& name,
  */
 StatusCode egammaTruthAlg::initialize()
 {
-  CHECK( AthAlgorithm::initialize() );
+  CHECK( AthReentrantAlgorithm::initialize() );
   CHECK( m_exten.retrieve() );
+  CHECK( m_inputKey.initialize() );
+  CHECK( m_outputKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -127,10 +126,9 @@ StatusCode egammaTruthAlg::initialize()
 /**
  * @brief Standard Gaudi @c execute method.
  */
-StatusCode egammaTruthAlg::execute()
+StatusCode egammaTruthAlg::execute (const EventContext& ctx) const
 {
-  const xAOD::TruthParticleContainer* pin = 0;
-  CHECK( evtStore()->retrieve (pin, m_inputKey) );
+  SG::ReadHandle<xAOD::TruthParticleContainer> pin (m_inputKey, ctx);
 
   auto pout = std::make_unique<xAOD::TruthParticleContainer>();
   auto pout_aux = std::make_unique<xAOD::TruthParticleAuxContainer>();
@@ -139,6 +137,7 @@ StatusCode egammaTruthAlg::execute()
 #define DECOR(TYPE,N) xAOD::TruthParticle::Decorator<TYPE> N (m_auxPrefix + #N)
   DECOR(float,        etaCalo);
   DECOR(float,        phiCalo);
+  DECOR(float,        depthCalo);
   DECOR(float,        Etcone20);
 #undef DECOR
 
@@ -148,13 +147,16 @@ StatusCode egammaTruthAlg::execute()
       pout->push_back (std::make_unique<xAOD::TruthParticle>());
       *pout->back() = *tp;
 
-      CHECK( findImpact (*tp, etaCalo(*pout->back()), phiCalo(*pout->back())) );
+      CHECK( findImpact (*tp,
+                         etaCalo(*pout->back()),
+                         phiCalo(*pout->back()),
+                         depthCalo(*pout->back())) );
       Etcone20(*pout->back()) = iso;
     }
   }
 
-  CHECK( evtStore()->record (std::move(pout), m_outputKey) );
-  CHECK( evtStore()->record (std::move(pout_aux), m_outputKey + "Aux.") );
+  SG::WriteHandle<xAOD::TruthParticleContainer> output (m_outputKey, ctx);
+  CHECK( output.record (std::move(pout), std::move(pout_aux)) );
 
   return StatusCode::SUCCESS;
 }
@@ -168,7 +170,7 @@ StatusCode egammaTruthAlg::execute()
  */
 bool egammaTruthAlg::isAccepted (const xAOD::TruthParticle& tp,
                                  const xAOD::TruthParticleContainer& cont,
-                                 float& iso)
+                                 float& iso) const
 {
   iso = -999;
 
@@ -221,7 +223,7 @@ bool egammaTruthAlg::isAccepted (const xAOD::TruthParticle& tp,
  * @param cont The container of particles.
  */
 float egammaTruthAlg::computeIso (const xAOD::TruthParticle& tp,
-                                  const xAOD::TruthParticleContainer& cont)
+                                  const xAOD::TruthParticleContainer& cont) const
 {
   TLorentzVector sum;
   for (const xAOD::TruthParticle* p : cont) {
@@ -241,13 +243,17 @@ float egammaTruthAlg::computeIso (const xAOD::TruthParticle& tp,
  * @param p The particle to analyze.
  * @param etaCalo[out] Eta of the particle's impact with the calorimeter.
  * @param phiCalo[out] Phi of the particle's impact with the calorimeter.
+ * @param depthCalo[out] Depth of the particle's impact with the calorimeter
+ *                       (r for barrel and abs(z) for endcap).
  */
 StatusCode egammaTruthAlg::findImpact (const xAOD::TruthParticle& tp,
                                        float& etaCalo,
-                                       float& phiCalo)
+                                       float& phiCalo,
+                                       float& depthCalo) const
 {
   etaCalo = -999;
   phiCalo = -999;
+  depthCalo = -999;
 
   std::unique_ptr<Trk::CaloExtension> extension =
     m_exten->caloExtension(Gaudi::Hive::currentContext(), tp);
@@ -256,15 +262,20 @@ StatusCode egammaTruthAlg::findImpact (const xAOD::TruthParticle& tp,
     return StatusCode::FAILURE;
   }
 
-  CaloExtensionHelpers::EtaPhiHashLookupVector posvec;
-  CaloExtensionHelpers::entryEtaPhiHashLookupVector (*extension, posvec);
-  if (std::get<0> (posvec[CaloSampling::EMB2])) {
-    etaCalo = std::get<1> (posvec[CaloSampling::EMB2]);
-    phiCalo = std::get<2> (posvec[CaloSampling::EMB2]);
-  }
-  else if (std::get<0> (posvec[CaloSampling::EME2])) {
-    etaCalo = std::get<1> (posvec[CaloSampling::EME2]);
-    phiCalo = std::get<2> (posvec[CaloSampling::EME2]);
+  CaloExtensionHelpers::EntryExitPerLayerVector lvec;
+  CaloExtensionHelpers::entryExitPerLayerVector (*extension, lvec);
+  for (const auto& [sampling, entry, exit] : lvec) {
+    if (sampling == CaloSampling::EMB2) {
+      etaCalo = entry.eta();
+      phiCalo = entry.phi();
+      depthCalo = entry.perp();
+      break;
+    }
+    else if (sampling == CaloSampling::EME2) {
+      etaCalo = entry.eta();
+      phiCalo = entry.phi();
+      depthCalo = std::abs(entry.z());
+    }
   }
 
   return StatusCode::SUCCESS;

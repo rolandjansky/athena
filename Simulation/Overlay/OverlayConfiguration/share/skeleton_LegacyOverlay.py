@@ -278,10 +278,9 @@ if not overlayFlags.isDataOverlay():
     ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(
         overlayFlags.extraTagInfoPairs.get_Value())
 
-if hasattr(overlayArgs, 'AMITag'):
-    if overlayArgs.AMITag != 'NONE':
-        ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update(
-            {'AMITag': overlayArgs.AMITag})
+# Set AMITag in /TagInfo
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=overlayArgs)
 
 # ================================================================
 logOverlay.info('\nOverlay: OutputStream = \n' + str(outStream))  # noqa F821

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_DetectorFactoryBase_H
@@ -9,6 +9,7 @@
 #include "CxxUtils/checker_macros.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h" 
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
+#include <utility>
 
 class StoreGateSvc;
 class IGeoDbTagSvc;
@@ -25,9 +26,9 @@ public:
   {}
 
   StoreGateSvc * detStore () {return m_athenaComps->detStore();}
-  const StoreGateSvc * detStore () const {return m_athenaComps->detStore();}
+  const StoreGateSvc * detStore () const {return std::as_const(*m_athenaComps).detStore();}
 
-  const IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
+  const IGeoDbTagSvc * geoDbTagSvc() const {return std::as_const(*m_athenaComps).geoDbTagSvc();}
 
   IRDBAccessSvc * rdbAccessSvc() {return m_athenaComps->rdbAccessSvc();}
   
@@ -37,7 +38,7 @@ public:
   MsgStream& msg (MSG::Level lvl) const { return m_athenaComps->msg(lvl); }
 
   //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl) const { return m_athenaComps->msgLvl(lvl); }
+  bool msgLvl (MSG::Level lvl) { return m_athenaComps->msgLvl(lvl); }
 
   InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
 

@@ -872,12 +872,10 @@ namespace Muon {
     void MSVertexRecoTool::MSStraightLineVx_oldMethod(const std::vector<Tracklet>& trks, std::unique_ptr<MSVertex>& vtx,
                                                       const EventContext& ctx) const {
         // find the line of flight of the vpion
-        float aveX(0), aveY(0), aveR(0), aveZ(0);
+        float aveX(0), aveY(0);
         for (auto trkItr = trks.cbegin(); trkItr != trks.cend(); ++trkItr) {
             aveX += trkItr->globalPosition().x();
             aveY += trkItr->globalPosition().y();
-            aveR += trkItr->globalPosition().perp();
-            aveZ += trkItr->globalPosition().z();
         }
         float vxphi = std::atan2(aveY, aveX);
 

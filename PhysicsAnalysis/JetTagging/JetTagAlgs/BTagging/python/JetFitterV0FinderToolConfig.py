@@ -50,7 +50,7 @@ def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True
     if useBTagFlagsDefaults:
         inDetJetFitterUtils = acc.popToolsAndMerge(InDetJetFitterUtilsCfg(flags,'InDetJFUtils'+suffix))
         jetFitterMode3dTo1dFinder = acc.popToolsAndMerge(JetFitterMode3dTo1dFinderCfg('JFMode3dTo1dFinder'+suffix))
-        defaults = { 'revertFromPositiveToNegativeTags' : False ,
+        defaults = { 'revertFromPositiveToNegativeTags' : True if (suffix=="FLIP_SIGN") else False,
                      'cutTwoTrkVtxVtxProbForBFirstSelectCriteriumA' : 0.05 ,
                      'cutTwoTrkVtxVtxProbForBFirstSelectCriteriumB' : 0.034 ,
                      'cutCompatibilityPrimaryVertexSingleTrackForBFirstSelection' : 1e-1 ,
@@ -81,6 +81,7 @@ def JetFitterV0FinderToolCfg(flags, name, suffix="", useBTagFlagsDefaults = True
                      'Mode3dFinder' : jetFitterMode3dTo1dFinder }
         for option in defaults:
             options.setdefault(option, defaults[option])
+
 
     options['name'] = name
     acc.setPrivateTools( InDet__JetFitterV0FinderTool(**options) )

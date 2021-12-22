@@ -217,10 +217,8 @@ namespace MuonGM {
                                 break;      // leave isup loop
                             }
                         } // isup, iymax
-                        int totNBS = 0;
                         for (int iBS = 0; iBS < nBS; iBS++) {
                             for (int isupz = izmin; isupz <= izmax; isupz++) {
-                                totNBS += nBS;
                                 double yposleft = yposCentre[iBS] - t->pitchButton[0] / 2. + (lengthActive / 2. - t->pitchButton[1] / 2. * isupz) * tan(angleTiltButton[iBS]);
                                 GeoTrf::Translate3D vtransBS(0., yposleft + t->pitchButton[0] * std::abs(isupz % 2), t->pitchButton[1] / 2. * isupz);
                                 sGasVolume = &(sGasVolume->subtract((*stubesup) << GeoTrf::Transform3D(vtransBS * rotY)));

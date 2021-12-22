@@ -2157,7 +2157,7 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, GeoTrf::Ve
 
 //
 //GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/ ) const {
-GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/, ActiveGasMixture gasMixture) const {
+GeoPhysVol * TRTDetectorFactory_Full::makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion /*= false*/, ActiveGasMixture gasMixture) {
 
   double lengthOfInnerDeadRegion= hasLargeDeadRegion ? m_data->barrelLengthOfLargeDeadRegion : m_data->lengthOfDeadRegion ;
   double lengthOfActiveGas = (m_data->barrelLengthOfStraw-m_data->barrelLengthOfTwister)/2.0 - m_data->lengthOfDeadRegion - lengthOfInnerDeadRegion;

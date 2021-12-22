@@ -96,6 +96,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
 
   declareProperty( "SelectTruthPdgId", m_selectTruthPdgId = 0 );
 
+  declareProperty( "SelectParentTruthPdgId", m_selectParentTruthPdgId = 0 );
+
   declareProperty( "KeepAllEvents", m_keepAllEvents = false );
 
   declareProperty( "Leagacy", m_legacy = true );
@@ -143,7 +145,7 @@ StatusCode TrigTestMonToolAC::init() {
     else { 
       AnalysisConfigMT_Ntuple* ac = new AnalysisConfigMT_Ntuple( &m_roiInfo, m_ntupleChainNames, 
 								 m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
-								 m_keepAllEvents );
+								 m_keepAllEvents, m_selectParentTruthPdgId );
       ac->set_fiducial_radius( m_fiducial_radius );
       ac->set_ptmin( m_pTCutOffline );
       m_sequences.push_back( ac );

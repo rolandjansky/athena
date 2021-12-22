@@ -235,10 +235,8 @@ topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 print(topSeq)
 
 ## Add AMITag MetaData to TagInfoMgr
-if hasattr(runArgs, 'AMITag'):
-    if runArgs.AMITag != "NONE":
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
+from PyUtils import AMITagHelper
+AMITagHelper.SetAMITag(runArgs=runArgs)
 
 ## Post-include
 if hasattr(runArgs, "postInclude"):

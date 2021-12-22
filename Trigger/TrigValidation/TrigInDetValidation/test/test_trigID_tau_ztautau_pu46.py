@@ -32,6 +32,9 @@ Slots   = 8
 Release = "current"
 Input   = 'Ztautau_pu46'    # defined in TrigValTools/share/TrigValInputs.json  
 
+ExtraAna = " -c 'parentpdgid=15' "
+
+
 Jobs = [ ( "Offline",  " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ),
          ( "Truth",    " TIDAdata-run3.dat                    -o data-hists.root" ) ]
 

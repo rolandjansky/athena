@@ -7,7 +7,7 @@
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "xAODTruth/TruthParticleContainer.h"
-#include "MuonSegment/MuonSegment.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 namespace {
     constexpr unsigned int num_sectors = 16;
     using RegionIndex = Muon::MuonStationIndex::DetectorRegionIndex;
@@ -21,7 +21,6 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::initialize() {
     
     ATH_CHECK(m_muonSystemExtensionTool.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
-    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_combTagMap.initialize());
     ATH_CHECK(m_inputCandidate.initialize());
     ATH_CHECK(m_bulkInDetCandKey.initialize());
@@ -45,7 +44,7 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::execute(const EventContext& ctx) c
     output_cache.input_candidates = input_container.cptr();
     ATH_CHECK(selectCandidates(ctx,output_cache));    
     
-    if (m_restrictExtension) { ATH_CHECK(findHittedSectors(ctx, output_cache)); }
+    if (m_restrictExtension) { ATH_CHECK(findHitSectors(ctx, output_cache)); }
 
     
     ATH_MSG_DEBUG("Find the inner detector candidates to be used for MuGirl / Segment tagging");
@@ -76,8 +75,6 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::selectCandidates(const EventContex
         }
         const MuonCombined::CombinedFitTag* cmb_tag = dynamic_cast<const MuonCombined::CombinedFitTag*>(combined_tags.second.get());
         MuidCoCache cache{combined_tags.first, cmb_tag};
-        /// Need to remember to put the segment retrieval here somehow
-
         out_cache.tag_map.push_back(std::move(cache));
         out_cache.excluded_trks.insert(combined_tags.first);       
     }
@@ -107,7 +104,7 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::create(const EventContext& ctx, In
         cache.candidate->setSiliconAssociated(candidate->isSiliconAssociated());
         cache.candidate->setExtension(candidate->getCaloExtension());
         cache.useHitSectors = m_restrictExtension;
-        cache.sectorsWithHits = &out_cache.hitted_sectors;
+        cache.sectorsWithHits = &out_cache.hit_sectors;
         cache.createSystemExtension = true;
         cache.requireSystemExtension = true; 
 
@@ -156,7 +153,7 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::create(const EventContext& ctx, In
     
 
 
-StatusCode MuonInDetToMuonSystemExtensionAlg::findHittedSectors(const EventContext& ctx,
+StatusCode MuonInDetToMuonSystemExtensionAlg::findHitSectors(const EventContext& ctx,
                                                                 InDetCandidateCache& output_cache) const {
     SG::ReadHandle<Muon::HoughDataPerSectorVec> readHandle{m_houghDataPerSectorVecKey, ctx};
     if (!readHandle.isValid()) {
@@ -167,7 +164,7 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::findHittedSectors(const EventConte
     /// Helper function to cound whether all three stations are actually complete
     auto count_finished = [&output_cache]() -> unsigned int {
         unsigned int n{0};
-        for (const auto& sector_hits : output_cache.hitted_sectors) { n += sector_hits.second.size() >= num_sectors; }
+        for (const auto& sector_hits : output_cache.hit_sectors) { n += sector_hits.second.size() >= num_sectors; }
         return n;
     };
     /// Helper
@@ -190,7 +187,7 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::findHittedSectors(const EventConte
                         if (!prep_data && hit->tgc) { prep_data = hit->tgc->phiCluster.hitList.front(); }
                         if (!prep_data) continue;
                         const Amg::Vector3D glob_pos = prep_data->detectorElement()->center(prep_data->identify());
-                        output_cache.hitted_sectors[region_index].insert(sector_mapping.getSector(glob_pos.phi()));
+                        output_cache.hit_sectors[region_index].insert(sector_mapping.getSector(glob_pos.phi()));
                     }
                 }
                 if (count_finished() >= RegionIndex::DetectorRegionIndexMax) {
@@ -223,25 +220,19 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::createStaus(const EventContext& ct
     /// the perigee parameters of the associated muon segments, we have a much much shorter path 
     /// to extrapolate the track to the MuonLayerInterSection surfaces.  
     for (const MuidCoCache& idMuidCo : tag_map) {      
-        if (idMuidCo.segments.empty()) {
-            ATH_MSG_WARNING("No segments were associated with muidCo tag ");
+        Muon::IMuonSystemExtensionTool::SystemExtensionCache cache;     
+        cache.candidate = std::make_unique<MuonCombined::InDetCandidate>(idMuidCo.id_trk->indetTrackParticleLink());
+        cache.candidate->setSiliconAssociated(idMuidCo.id_trk->isSiliconAssociated());
+        cache.candidate->setExtension(idMuidCo.id_trk->getCaloExtension());        
+        cache.useHitSectors = false;
+        cache.createSystemExtension = true;
+        cache.requireSystemExtension = true; 
+        
+        if (!m_muonSystemExtensionTool->muonLayerInterSections(ctx,*idMuidCo.cmb_trk, cache)){
+            ATH_MSG_DEBUG("Could not determine the intersections. Although that should be possible");
             continue;
-        }
-        std::unique_ptr<MuonCombined::InDetCandidate> candidate = std::make_unique<MuonCombined::InDetCandidate>(idMuidCo.id_trk->indetTrackParticleLink());
-        candidate->setSiliconAssociated(idMuidCo.id_trk->isSiliconAssociated());
-        candidate->setExtension(idMuidCo.id_trk->getCaloExtension());
-        const xAOD::TrackParticle& id_trk = candidate->indetTrackParticle();
-        std::vector<Muon::MuonSystemExtension::Intersection> intersections;
-        for (const Muon::MuonSegment* seg : idMuidCo.segments) {
-            double momentum{0.};
-            std::unique_ptr<const Trk::TrackParameters> pars{m_edmHelperSvc->createTrackParameters(*seg, momentum, id_trk.charge())};
-            Muon::MuonSystemExtension::Intersection intersect = m_muonSystemExtensionTool->getInterSection(ctx, *pars);
-            if (intersect.trackParameters) intersections.push_back(std::move(intersect));           
-        }
-        if (intersections.empty()) continue;
-        candidate->setExtension(std::make_unique<Muon::MuonSystemExtension>(candidate->getCaloExtension()->muonEntryLayerIntersection(), 
-                                            std::move(intersections)));  
-        stau_cache.outputContainer->push_back(std::move(candidate));
+        }        
+        stau_cache.outputContainer->push_back(std::move(cache.candidate));       
     }
     
     SG::WriteHandle<InDetCandidateCollection> indetCandidateCollection(m_stauInDetCandKey, ctx);

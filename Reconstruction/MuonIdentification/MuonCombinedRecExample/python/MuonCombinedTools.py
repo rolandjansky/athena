@@ -151,8 +151,10 @@ def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
         trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
                                               TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))
         kwargs.setdefault("TrackBuilder", trigTrackBuilder)
+        kwargs.setdefault("TrackSegmentAssociationTool", "" )
     else:
         kwargs.setdefault("TrackBuilder", getPublicTool("CombinedMuonTrackBuilder"))
+        kwargs.setdefault("SegmentContainer", "xaodMuonSegments")
   
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 

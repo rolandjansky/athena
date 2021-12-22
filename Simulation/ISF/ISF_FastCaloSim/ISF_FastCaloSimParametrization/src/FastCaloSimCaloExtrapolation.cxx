@@ -473,7 +473,10 @@ void FastCaloSimCaloExtrapolation::extrapolateToLayers(TFCSExtrapolationState& r
               //scale the extrapolation to fit the radius of the cylinder in the case of barrel and scale extrapolation to fit z component in case of endcap layer
               //scale is only non-unitary in case we extrapolate to the endcaps of the cylinder for barrel and in case we extrapolate to cover for endcaps
               //this will keep phi, eta intact and only scale r and z to fit a sensible position on the cylinder
-              double scale = isCaloBarrel(sample) ? cylR / extPos.perp(): cylZ / std::abs(extPos.z());
+              double scale = 1;
+              if (isCaloBarrel(sample) && std::abs(extPos.perp()) > 1e-6)     scale = cylR / extPos.perp();
+              else if (!isCaloBarrel(sample) && std::abs(extPos.z()) > 1e-6)  scale = cylZ / std::abs(extPos.z());
+              //scale extrapolated position accordingly
               extPos = scale * extPos; 
 
               result.set_OK(sample, subpos,  true);

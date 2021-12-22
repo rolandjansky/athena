@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
+from ..CommonSequences.FullScanDefs import caloFSRoI
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
@@ -131,6 +132,8 @@ class CalibChainConfiguration(ChainConfigurationBase):
             steps=stepDictionary['LArPSAllEM']
         elif self.chainPart['purpose'][0] == 'larpsall':
             steps=stepDictionary['LArPSAll']
+        elif self.chainPart['purpose'][0] == 'idcalib':
+            steps=stepDictionary['IDCalib']
         for i, step in enumerate(steps): 
             chainstep = getattr(self, step)(i)
             chainSteps+=[chainstep]
@@ -147,6 +150,7 @@ class CalibChainConfiguration(ChainConfigurationBase):
             "LArNoiseBurst": ['getAllTEStep'],
             "LArPSAllEM" : ['getCaloAllEMStep'],
             "LArPSAll" : ['getCaloAllStep'],
+            "IDCalib"  : ['getIDCalibEmpty','getIDCalibFTFReco','getIDCalibTrigger']
         }
         return stepDictionary
 
@@ -160,3 +164,81 @@ class CalibChainConfiguration(ChainConfigurationBase):
     def getCaloAllStep(self, i):
         return self.getStep(1, 'LArPSALL', [getCaloAllLayersPS])
 
+    def getIDCalibEmpty(self,i):
+        return self.getEmptyStep(1, 'IDCalibEmptyStep')
+
+    def getIDCalibFTFReco(self,i):
+        return self.getStep(2,'IDCalibFTFCfg',[IDCalibFTFCfg])
+
+    def getIDCalibTrigger(self,i):
+        return self.getStep(3,'IDCalibTriggerCfg',[IDCalibTriggerCfg])
+
+#----------------------------------------------------------------
+
+# --------------------
+# IDCalib trigger configurations
+# --------------------
+
+def IDCalibTriggerCfg(flags):
+
+    from TrigTrackingHypo.IDCalibHypoConfig import IDCalibHypoToolFromDict
+    from TrigTrackingHypo.IDCalibHypoConfig import createIDCalibHypoAlg
+    theHypoAlg = createIDCalibHypoAlg("IDCalibHypo")
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ( TrkSeq, InputMakerAlg, sequenceOut ) = RecoFragmentsPool.retrieve(FTFTrackSequence,ConfigFlags)
+
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    theHypoAlg.tracksKey = recordable(sequenceOut)
+
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    DummyInputMakerAlg = conf2toConfigurable(CompFactory.InputMakerForRoI( "IM_IDCalib_HypoOnlyStep" ))
+    DummyInputMakerAlg.RoITool = conf2toConfigurable(CompFactory.ViewCreatorInitialROITool())
+
+    return MenuSequence( Sequence    = seqAND("IDCalibEmptySeq",[DummyInputMakerAlg]),
+                         Maker       = DummyInputMakerAlg,
+                         Hypo        = theHypoAlg,
+                         HypoToolGen = IDCalibHypoToolFromDict,
+    )
+
+# --------------------
+
+def FTFTrackSequence(ConfigFlags):
+
+    from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import getTrackingInputMaker
+    InputMakerAlg=getTrackingInputMaker("ftf")
+
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'jet' )
+
+    from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTrackingNoView
+    TrkInputNoViewAlg = makeInDetTrigFastTrackingNoView( config=IDTrigConfig, rois=caloFSRoI )
+
+    from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
+    
+    vtxAlgs = makeInDetTrigVertices( "jet", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex_jet, IDTrigConfig, adaptiveVertex=IDTrigConfig.adaptiveVertex_jet)
+    prmVtx = vtxAlgs[-1]
+
+    TrkSeq =  [InputMakerAlg,TrkInputNoViewAlg, prmVtx]
+    sequenceOut = IDTrigConfig.tracks_FTF()
+
+    return (TrkSeq, InputMakerAlg, sequenceOut)
+
+# --------------------
+
+def IDCalibFTFCfg(flags):
+
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ( TrkSeq, InputMakerAlg, sequenceOut ) = RecoFragmentsPool.retrieve(FTFTrackSequence,ConfigFlags)
+
+    from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlg
+    from TrigStreamerHypo.TrigStreamerHypoConfig import StreamerHypoToolGenerator
+    HypoAlg = TrigStreamerHypoAlg("IDCalibTrkDummyStream")
+
+    return MenuSequence( Sequence    = seqAND("IDCalibTrkrecoSeq", TrkSeq),
+                         Maker       = InputMakerAlg,
+                         Hypo        = HypoAlg,
+                         HypoToolGen = StreamerHypoToolGenerator )
+
+#----------------------------------------------------------------

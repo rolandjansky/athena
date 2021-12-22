@@ -418,7 +418,7 @@ namespace MuonCombined {
             ATH_MSG_DEBUG("MuonCreatorTool::create(...) - InDetCandidate with empty combinedDataTags. Aborting. Will not create Muon.");
             return nullptr;
         }       
-        std::vector<const TagBase*>& tags = candidate.second;
+        const std::vector<const TagBase*>& tags = candidate.second;
         if (tags.size() == 1 && !m_buildStauContainer) {
             const MuGirlLowBetaTag* muGirlLowBetaTag = dynamic_cast<const MuGirlLowBetaTag*>(tags[0]);
             if (muGirlLowBetaTag) {
@@ -430,8 +430,7 @@ namespace MuonCombined {
         // Create the xAOD object:
         xAOD::Muon* muon = new xAOD::Muon();
         outputData.muonContainer->push_back(muon);
-        std::vector<ElementLink<xAOD::MuonSegmentContainer>> segments;
-        muon->setMuonSegmentLinks(segments);
+        muon->setMuonSegmentLinks(std::vector<ElementLink<xAOD::MuonSegmentContainer>>{});
 
         // now we need to sort the tags to get the best muon
 
@@ -847,8 +846,7 @@ namespace MuonCombined {
                 if (!foundseg) {  // add parameters for the first segment
                     muon.setParameter(static_cast<float>(info.dtheta), xAOD::Muon::segmentDeltaEta);
                     muon.setParameter(static_cast<float>(info.dphi), xAOD::Muon::segmentDeltaPhi);
-                    muon.setParameter(
-                        static_cast<float>(info.segment->fitQuality()->chiSquared() / info.segment->fitQuality()->numberDoF()),
+                    muon.setParameter(static_cast<float>(info.segment->fitQuality()->chiSquared() / info.segment->fitQuality()->numberDoF()),
                         xAOD::Muon::segmentChi2OverDoF);
                     foundseg = true;
                 } else if (muon.author() != xAOD::Muon::MuTagIMO)
@@ -1343,28 +1341,23 @@ namespace MuonCombined {
     }
 
     bool MuonCreatorTool::dressMuon(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const {
-        if (muon.primaryTrackParticleLink().isValid()) {
-            const xAOD::TrackParticle* primary = muon.primaryTrackParticle();
-
-            // update parameters with primary track particle
-            setP4(muon, *primary);
-            float qOverP = primary->qOverP();
-            if (qOverP != 0.0) {
-                muon.setCharge(qOverP / std::abs(qOverP));
-                // try/catch didn't work...
-            } else {
-                ATH_MSG_WARNING(
-                    "MuonCreatorTool::dressMuon - trying to set qOverP, but value from "
-                    "muon.primaryTrackParticle ["
-                    << muon.primaryTrackParticleLink().dataID()
-                    << "] is zero. Setting charge=0.0. The eta/phi of the muon is: " << muon.eta() << "/" << muon.phi());
-                muon.setCharge(0.0);
-            }
-        } else {
+        if (!muon.primaryTrackParticleLink().isValid()) {
             ATH_MSG_DEBUG("No primary track particle set, deleting muon");
             return false;
         }
-
+        const xAOD::TrackParticle* primary = muon.primaryTrackParticle();
+        // update parameters with primary track particle
+        setP4(muon, *primary);
+        const float qOverP = primary->qOverP();
+        if (qOverP != 0.0) {
+            muon.setCharge(qOverP >0 ? 1. : -1.);
+        } else {
+            ATH_MSG_WARNING("MuonCreatorTool::dressMuon - trying to set qOverP, but value from muon.primaryTrackParticle ["
+                    << muon.primaryTrackParticleLink().dataID()
+                    << "] is zero. Setting charge=0.0. The eta/phi of the muon is: " << muon.eta() << "/" << muon.phi());
+            muon.setCharge(0.0);
+        }
+    
         // add hit summary
         m_muonDressingTool->addMuonHitSummary(muon);
 
@@ -1397,7 +1390,6 @@ namespace MuonCombined {
             // set id cuts
             m_selectorTool->setPassesIDCuts(muon);
             ATH_MSG_VERBOSE("Setting passesIDCuts " << muon.passesIDCuts());
-
             // set quality
             m_selectorTool->setQuality(muon);
             ATH_MSG_VERBOSE("Setting Quality " << muon.quality());
@@ -1405,9 +1397,9 @@ namespace MuonCombined {
 
         if (m_fillEnergyLossFromTrack) {
             const Trk::Track* trk = nullptr;
-            if (muon.combinedTrackParticleLink().isValid()) { trk = (*(muon.combinedTrackParticleLink()))->track(); }
-            if (!trk && muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid()) {
-                trk = (*(muon.extrapolatedMuonSpectrometerTrackParticleLink()))->track();
+            if (muon.trackParticle(xAOD::Muon::CombinedTrackParticle)) { trk = muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track(); }
+            if (!trk && muon.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle)) {
+                trk = muon.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle)->track();
             }
             if (trk) {
                 fillEnergyLossFromTrack(muon, &(trk->trackStateOnSurfaces()->stdcont()));
@@ -1419,9 +1411,8 @@ namespace MuonCombined {
 
         if (m_fillTimingInformationOnMuon) addRpcTiming(muon);
 
-        if (!m_trackSegmentAssociationTool.empty() && muon.author() != xAOD::Muon::MuTagIMO && muon.author() != xAOD::Muon::MuGirl &&
-            (muon.author() != xAOD::Muon::MuGirlLowBeta || m_segLowBeta))
-            addSegmentsOnTrack(muon, segments);
+        
+        addSegmentsOnTrack(muon, segments);
 
         addMSIDScatteringAngles(muon);
         addMSIDScatteringAngles(muon.trackParticle(xAOD::Muon::CombinedTrackParticle));
@@ -1491,11 +1482,15 @@ namespace MuonCombined {
     }
 
     void MuonCreatorTool::addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const {
-        std::vector<ElementLink<xAOD::MuonSegmentContainer>> associatedSegments;
-        if (!m_trackSegmentAssociationTool->associatedSegments(muon, segments, associatedSegments)) {
-            ATH_MSG_DEBUG("Failed to find associated segments ");
+        /// Segments are associated with the muon if the author is MuTagIMO / MuGirl
+        if (!m_trackSegmentAssociationTool.empty() && !muon.nMuonSegments()) {
+            std::vector<ElementLink<xAOD::MuonSegmentContainer>> associatedSegments;
+            if (m_trackSegmentAssociationTool->associatedSegments(muon, segments, associatedSegments)) {
+                 muon.setMuonSegmentLinks(associatedSegments);
+             }            
         }
-        muon.setMuonSegmentLinks(associatedSegments);
+        if (!muon.nMuonSegments() || muon.isAuthor(xAOD::Muon::Author::MuTagIMO)
+           || muon.muonType() != xAOD::Muon::Combined) return;    
     }
 
     void MuonCreatorTool::addEnergyLossToMuon(xAOD::Muon& muon) const {

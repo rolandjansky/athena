@@ -7,7 +7,7 @@ __doc__ = """
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-def IsolationSteeringCfg(flags, name = 'IsolationSteering', doIsoMuon = True):
+def IsolationSteeringCfg(flags, name = 'IsolationSteering'):
 
     mlog = logging.getLogger(name)
     mlog.info('Starting Isolation steering')
@@ -30,8 +30,13 @@ def IsolationSteeringCfg(flags, name = 'IsolationSteering', doIsoMuon = True):
     if flags.Reco.EnableEgamma:
         acc.merge(egIsolationCfg(flags,name = 'photonIsolation'))
         acc.merge(egIsolationCfg(flags,name = 'electronIsolation'))
-    if flags.Reco.EnableCombinedMuon and doIsoMuon:
+    if flags.Reco.EnableCombinedMuon:
         acc.merge(muIsolationCfg(flags,name = 'muonIsolation'))
+
+    # Add density related containers to the output stream
+    if flags.Output.doWriteESD or flags.Output.doWriteAOD:
+        from IsolationAlgs.IsoOutputConfig import IsoOutputCfg
+        acc.merge(IsoOutputCfg(flags))
 
     # To use isolation CA within standard config
     import inspect

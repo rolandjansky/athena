@@ -2,7 +2,7 @@
 
 TauTriggerContent = [
 "HLT_xAOD__TauJetContainer_TrigTauRecMerged",
-"HLT_xAOD__TauJetContainer_TrigTauRecMergedAux.pt.eta.phi.m",
+"HLT_xAOD__TauJetContainer_TrigTauRecMergedAux.",
 "LVL1EmTauRoIs",
 "LVL1EmTauRoIsAux."
 ]

@@ -246,13 +246,14 @@ class SlimmingHelper:
                                 else:
                                         entry = "xAOD::AuxContainerBase!#"+item+"."
                                 for element in auxEntries[item]:
-                                        if (theDictionary[item.replace("Aux","")]=='xAOD::TrackParticleContainer') and element in excludedAuxEntries:continue #Skip anything that shouldn't be written out to a DAOD for tracks
+                                        #Skip anything that shouldn't be written out to a DAOD for tracks 
+                                        if ('xAOD::TrackParticleContainer' in theDictionary[item]) and (element in excludedAuxEntries): continue
                                         length = len(auxEntries[item])
                                         if (element==(auxEntries[item])[length-1]):
                                                 entry += element
                                         else:
                                                 entry += element+"."
-                                if theDictionary[item.replace("Aux","")]=='xAOD::TrackParticleContainer' and auxEntries[item]=="":
+                                if ('xAOD::TrackParticleContainer' in theDictionary[item] and auxEntries[item]==""):
                                         entry+=excludedAuxData
                                 Stream.AddItem(entry)
 
@@ -296,8 +297,6 @@ class SlimmingHelper:
                         print (badItemsXAOD)
                         raise RuntimeError("Static content list contains xAOD collections")
                 #Prevent any more modifications As they will be completely ignored, and hard to debug
-                print (self.ExtraVariables,dir(self.ExtraVariables))
-
                 self.StaticContent.lock()
                 self.ExtraVariables.lock()
                 self.SmartCollections.lock()

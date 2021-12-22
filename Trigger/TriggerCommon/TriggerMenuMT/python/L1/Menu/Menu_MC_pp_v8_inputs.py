@@ -284,8 +284,14 @@ def defineInputsMenu():
                     TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20ab-eTAU12ab',   outputbits = 1 ),
                     TopoMenuDef( '0DR25-eTAU20ab-eTAU12ab',                  outputbits = 2 ),
                     TopoMenuDef( '0DR28-eTAU20ab-eTAU12ab',                  outputbits = 3 ), 
-                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abm-eTAU12abm',   outputbits = 4 ),
-                    TopoMenuDef( '0DR28-eTAU20abm-eTAU12abm',                  outputbits = 5 ), 
+                    TopoMenuDef( '2DISAMB-jJ25ab-0DR28-eTAU20abm-eTAU12abm', outputbits = 4 ),
+                    TopoMenuDef( '0DR28-eTAU20abm-eTAU12abm',                outputbits = 5 ), 
+                    TopoMenuDef( '7INVM22-0DR12-MU5VFab-MU3VFab',            outputbits = 6 ), #BLS, test
+                    TopoMenuDef( '0DR12-2MU3VFab',                           outputbits = 7 ), # BLS, test
+                    TopoMenuDef( '7INVM22-0DR12-2MU3VFab',                   outputbits = 8 ), # BLS, test
+                    TopoMenuDef( '7INVM11-25DR99-2MU3VFab',                  outputbits = 9 ), #BLS, test
+                    TopoMenuDef( '7INVM14-0DR25-MU5VFab-MU3VFab',            outputbits = 10), #BLS, test
+                    TopoMenuDef( '8INVM22-2MU3VFab',                         outputbits = 11), #BLS, test
                 ]
             },
             
@@ -377,7 +383,7 @@ def defineInputsMenu():
                     TopoMenuDef( 'ZEE-eEM20sm2',                         outputbits = 4 ), 
                     TopoMenuDef( '10DR99-2MU5VFab',                      outputbits = 5 ), #Msonly Narrow scan triggers
                     TopoMenuDef( '0DR12C-2MU3Vab',                       outputbits = 6 ), # ATR-21566
-                    TopoMenuDef( '7INVM22-0DR20C-2MU3Vab',               outputbits = 7 ), # ATR-21566
+                    TopoMenuDef( '7INVM22-0DR12-2MU3Vab',                outputbits = 7 ), # ATR-21566
                     TopoMenuDef( '0DR12-2MU3Vab',                        outputbits = 8 ), # ATR-21566
                     TopoMenuDef( '7INVM22-0DR20-2MU3Vab',                outputbits = 9 ), # ATR-21566
                 ]

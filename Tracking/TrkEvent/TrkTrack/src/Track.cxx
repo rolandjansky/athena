@@ -10,7 +10,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkTrack/TrackStateOnSurfaceContainer.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include <cassert>
@@ -22,7 +21,7 @@ std::atomic<unsigned int> Trk::Track::s_numberOfInstantiations{};
 #endif
 
 Trk::Track::Track()
-  : m_trackStateVectorPtr (std::make_unique<const TrackStates>())
+  : m_trackStateVector{}
   , m_cachedParameterVector{}
   , m_cachedMeasurementVector{}
   , m_cachedOutlierVector{}
@@ -37,25 +36,7 @@ Trk::Track::Track()
 Trk::Track::Track(const TrackInfo& info,
                   TrackStates&& trackStateOnSurfaces,
                   const FitQuality* fitQuality)
-  : m_trackStateVectorPtr(std::make_unique<const TrackStates>(std::move(trackStateOnSurfaces)))
-  , m_cachedParameterVector{}
-  , m_cachedMeasurementVector{}
-  , m_cachedOutlierVector{}
-  , m_perigeeParameters{}
-  , m_fitQuality(fitQuality)
-  , m_trackInfo(info)
-{
-  // find the Perigee params they will become valid given the outcome
-  findPerigeeImpl();
-#ifndef NDEBUG
-  s_numberOfInstantiations++; // new Track, so increment total count
-#endif
-}
-
-Trk::Track::Track(const TrackInfo& info,
-                  std::unique_ptr<const TrackStates> trackStateOnSurfaces,
-                  const FitQuality* fitQuality)
-  : m_trackStateVectorPtr(std::move(trackStateOnSurfaces))
+  : m_trackStateVector(std::move(trackStateOnSurfaces))
   , m_cachedParameterVector{}
   , m_cachedMeasurementVector{}
   , m_cachedOutlierVector{}
@@ -71,7 +52,7 @@ Trk::Track::Track(const TrackInfo& info,
 }
 
 Trk::Track::Track(const Trk::Track& rhs)
-  : m_trackStateVectorPtr (std::make_unique<const TrackStates>())
+  : m_trackStateVector{}
   , m_cachedParameterVector{}
   , m_cachedMeasurementVector{}
   , m_cachedOutlierVector{}
@@ -101,7 +82,7 @@ Trk::Track::operator=(const Trk::Track& rhs)
     m_perigeeParameters.reset();
     // The following is a DataVector and so will delete
     // the contained objects automatically.
-    m_trackStateVectorPtr.reset();
+    m_trackStateVector.clear();
 
     // copy payload of rhs to this
     copyHelper(rhs);
@@ -123,19 +104,17 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
   if (rhs.trackSummary() != nullptr) {
     m_trackSummary = std::make_unique<Trk::TrackSummary>(*(rhs.m_trackSummary));
   }
-
   // Create the TrackStateVector and the perigeeParameters
-  auto tsvec = std::make_unique<TrackStates>();
-  tsvec->reserve (rhs.trackStateOnSurfaces()->size());
+  m_trackStateVector.reserve(rhs.m_trackStateVector.size());
 
-  TSoS_iterator itTSoSEnd = rhs.trackStateOnSurfaces()->end();
-  for (TSoS_iterator itTSoS = rhs.trackStateOnSurfaces()->begin();
+  TSoS_iterator itTSoSEnd = rhs.m_trackStateVector.end();
+  for (TSoS_iterator itTSoS = rhs.m_trackStateVector.begin();
        itTSoS != itTSoSEnd;
        ++itTSoS) {
     assert(*itTSoS != nullptr); // check that is defined.
     // clone and store
-    const TrackStateOnSurface* otsos = *itTSoS;
-    auto *tsos = otsos->clone();
+    TrackStateOnSurface* tsos = (**itTSoS).clone();
+    m_trackStateVector.push_back(tsos);
     // Check if this a perigee so we can already cache it
     if (tsos != nullptr && tsos->type(TrackStateOnSurface::Perigee)) {
       const Trk::Perigee* perigee = nullptr;
@@ -148,10 +127,7 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
         m_perigeeParameters.store(perigee); // Now they will be valid
       }
     }
-    tsvec->push_back(tsos);
   }
-
-  m_trackStateVectorPtr = std::move(tsvec);
 }
 
 #ifndef NDEBUG // When DEBUG we need to count down instantiations.
@@ -167,7 +143,7 @@ const DataVector<const Trk::TrackParameters>*
 Trk::Track::trackParameters() const
 {
 
-  if (trackStateOnSurfaces()->empty()) {
+  if (m_trackStateVector.empty()) {
     return nullptr;
   }
   // Do work only if it is not valid.
@@ -175,8 +151,8 @@ Trk::Track::trackParameters() const
     // create cached parameter vector (which DOES NOT OWN ELEMENTS ...
     DataVector<const Trk::TrackParameters> tmp_ParameterVector(
       SG::VIEW_ELEMENTS);
-    TSoS_iterator itTSoSEnd = trackStateOnSurfaces()->end();
-    for (TSoS_iterator itTSoS = trackStateOnSurfaces()->begin(); itTSoS != itTSoSEnd;
+    TSoS_iterator itTSoSEnd = m_trackStateVector.end();
+    for (TSoS_iterator itTSoS = m_trackStateVector.begin(); itTSoS != itTSoSEnd;
          ++itTSoS) {
       const TrackParameters* trackParameters = (*itTSoS)->trackParameters();
       // check to make sure that the TrackParameters exists first
@@ -208,9 +184,9 @@ Trk::Track::findPerigeeImpl() const
 
   const Trk::Perigee* tmpPerigeeParameters = nullptr;
   DataVector<const TrackStateOnSurface>::const_iterator it =
-    trackStateOnSurfaces()->begin();
+    m_trackStateVector.begin();
   DataVector<const TrackStateOnSurface>::const_iterator itEnd =
-    trackStateOnSurfaces()->end();
+    m_trackStateVector.end();
   for (; it != itEnd; ++it) {
     if ((*it)->type(TrackStateOnSurface::Perigee)) {
       const Trk::TrackParameters* tp = (*it)->trackParameters();
@@ -250,7 +226,7 @@ Trk::Track::perigeeParameters() const
 const DataVector<const Trk::MeasurementBase>*
 Trk::Track::measurementsOnTrack() const
 {
-  if (trackStateOnSurfaces()->empty()) {
+  if (m_trackStateVector.empty()) {
     return nullptr;
   }
 
@@ -261,10 +237,10 @@ Trk::Track::measurementsOnTrack() const
       SG::VIEW_ELEMENTS);
     // for measurements on track it is very likely that #(meas) ~ #(TSOS)->
     // reserve(#(TSOS))
-    tmpMeasurementVector.reserve(trackStateOnSurfaces()->size());
+    tmpMeasurementVector.reserve(m_trackStateVector.size());
 
-    TSoS_iterator itTSoSEnd = trackStateOnSurfaces()->end();
-    for (TSoS_iterator itTSoS = trackStateOnSurfaces()->begin(); itTSoS != itTSoSEnd;
+    TSoS_iterator itTSoSEnd = m_trackStateVector.end();
+    for (TSoS_iterator itTSoS = m_trackStateVector.begin(); itTSoS != itTSoSEnd;
          ++itTSoS) {
       if (!(*itTSoS)->type(TrackStateOnSurface::Outlier)) {
         const Trk::MeasurementBase* rot = (*itTSoS)->measurementOnTrack();
@@ -283,15 +259,15 @@ Trk::Track::measurementsOnTrack() const
 const DataVector<const Trk::MeasurementBase>*
 Trk::Track::outliersOnTrack() const
 {
-  if (trackStateOnSurfaces()->empty()) {
+  if (m_trackStateVector.empty()) {
     return nullptr;
   }
   // We only need to do work if not valid
   if (!m_cachedOutlierVector.isValid()) {
     // create new DataVector which DOES NOT OWN ELEMENTS .
     DataVector<const Trk::MeasurementBase> tmpOutlierVector(SG::VIEW_ELEMENTS);
-    TSoS_iterator itTSoSEnd = trackStateOnSurfaces()->end();
-    for (TSoS_iterator itTSoS = trackStateOnSurfaces()->begin(); itTSoS != itTSoSEnd;
+    TSoS_iterator itTSoSEnd = m_trackStateVector.end();
+    for (TSoS_iterator itTSoS = m_trackStateVector.begin(); itTSoS != itTSoSEnd;
          ++itTSoS) {
       if ((*itTSoS)->type(TrackStateOnSurface::Outlier)) {
         const Trk::MeasurementBase* rot = (*itTSoS)->measurementOnTrack();
@@ -314,14 +290,7 @@ void
 Trk::Track::setTrackStateOnSurfaces(
   DataVector<const Trk::TrackStateOnSurface>&& input)
 {
-  m_trackStateVectorPtr = std::make_unique<const TrackStates> (std::move(input));
-  reset(); // reset caches
-}
-
-void
-Trk::Track::setTrackStateOnSurfaces(std::unique_ptr<const TrackStates> input)
-{
-  m_trackStateVectorPtr = std::move(input);
+  m_trackStateVector = std::move(input);
   reset(); // reset caches
 }
 
