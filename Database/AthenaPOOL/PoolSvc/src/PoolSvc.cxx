@@ -825,8 +825,8 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
       if (!objName.empty()) {
          bool found = false;
          const std::vector<std::string>& containers = dbH->containers();
-         for (std::vector<std::string>::const_iterator iter = containers.begin(), last = containers.end(); iter != last; ++iter) {
-            if (*iter == objName || boost::starts_with(*iter, objName + "(") || boost::starts_with(*iter, objName + "_")) {
+         for (const auto& containerName : containers) {
+            if (containerName == objName || boost::starts_with(containerName, objName + "(") || boost::starts_with(containerName, objName + "_")) {
                found = true;
                break;
             }

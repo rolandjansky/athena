@@ -1078,10 +1078,10 @@ StatusCode AthenaPoolCnvSvc::setInputAttributes(const std::string& fileName) {
    }
    if (!m_persSvcPerInputType.empty()) {
       // Loop over all extra event input contexts and switch off TTreeCache
-      const auto extraInputContextMap = m_poolSvc->getInputContextMap();
-      for (auto extraInputContext : extraInputContextMap) {
-         if (m_poolSvc->setAttribute("TREE_CACHE", "0", pool::DbType(pool::ROOTTREE_StorageType).type(), m_lastInputFileName, m_persSvcPerInputType.value(), extraInputContext.second).isSuccess()) {
-            ATH_MSG_DEBUG("setInputAttribute failed to switch off TTreeCache for id = " << extraInputContext.first << ".");
+      const auto& extraInputContextMap = m_poolSvc->getInputContextMap();
+      for (const auto& [label, id]: extraInputContextMap) {
+         if (m_poolSvc->setAttribute("TREE_CACHE", "0", pool::DbType(pool::ROOTTREE_StorageType).type(), m_lastInputFileName, m_persSvcPerInputType.value(), id).isSuccess()) {
+            ATH_MSG_DEBUG("setInputAttribute failed to switch off TTreeCache for = " << label << ".");
          }
       }
    }
