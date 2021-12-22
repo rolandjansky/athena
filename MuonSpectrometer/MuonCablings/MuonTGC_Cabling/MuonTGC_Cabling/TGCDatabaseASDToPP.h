@@ -86,9 +86,9 @@ private:
   virtual int convertIndexDBIn(int* indexIn) const;
 
   std::vector<int> m_indexDBIn;
-  int m_NIndexDBIn;
-  int m_maxIndexIn[NIndexIn];
-  int m_minIndexIn[NIndexIn];
+  int m_NIndexDBIn = 0;
+  int m_maxIndexIn[NIndexIn]{};
+  int m_minIndexIn[NIndexIn]{};
 
   /** Make the IndexDBOut table */
   virtual void makeIndexDBOut(void);
@@ -96,9 +96,9 @@ private:
   virtual int convertIndexDBOut(int* indexOut) const;
 
   std::vector<int> m_indexDBOut;
-  int m_NIndexDBOut;
-  int m_maxIndexOut[NIndexOut];
-  int m_minIndexOut[NIndexOut];
+  int m_NIndexDBOut = 0;
+  int m_maxIndexOut[NIndexOut]{};
+  int m_minIndexOut[NIndexOut]{};
 
   /** This bool variable is used to know the database is common or sector specific */
   bool m_isCommon; 

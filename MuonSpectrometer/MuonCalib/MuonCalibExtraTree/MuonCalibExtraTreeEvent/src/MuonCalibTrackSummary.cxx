@@ -12,7 +12,7 @@
 namespace MuonCalib {
 
     std::string MuonCalibTrackSummary::dump() const {
-        MuonFixedIdPrinter printer;
+        MuonFixedIdPrinter printer{};
 
         std::ostringstream sout;
         if (hasId()) {

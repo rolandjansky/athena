@@ -191,7 +191,7 @@ class TGCTriggerData
 
  private:
   std::string m_type[CW_NUM];
-  bool m_active[CW_NUM];
+  bool m_active[CW_NUM]{};
 
   /// Run-2 BW-CW LUT map
   std::unordered_map<uint32_t, uint8_t> m_ptmap_bw;

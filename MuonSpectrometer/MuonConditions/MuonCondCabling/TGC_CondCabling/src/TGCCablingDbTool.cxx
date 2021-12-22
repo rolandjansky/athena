@@ -40,7 +40,7 @@ StatusCode TGCCablingDbTool::updateAddress(StoreID::type /*storeID*/,
                                            SG::TransientAddress* tad,
                                            const EventContext& /*ctx*/) {
   CLID clid = tad->clID();
-  std::string key = tad->name();
+  const std::string& key = tad->name();
   // Need to add the CLID comparison 
   if(/* ==clid && */m_DataLocation==key) {
     ATH_MSG_DEBUG("updateAddress OK, clid = " << clid << " key = " << key);
@@ -155,7 +155,7 @@ StatusCode TGCCablingDbTool::loadASD2PP_DIFF_12(IOVSVC_CALLBACK_ARGS_P(/*I*/, /*
     // string_ASD2PP_DIFF_12 has multiple newlines and will be separated into multiple lines (strings)
     unsigned int length = string_ASD2PP_DIFF_12.length();
     while(length>0) {
-      unsigned int newLine = string_ASD2PP_DIFF_12.find("\n");
+      unsigned int newLine = string_ASD2PP_DIFF_12.find('\n');
       if(length>newLine) {
 	m_ASD2PP_DIFF_12->push_back(string_ASD2PP_DIFF_12.substr(0, newLine));
 	string_ASD2PP_DIFF_12.erase(0, newLine+1); 

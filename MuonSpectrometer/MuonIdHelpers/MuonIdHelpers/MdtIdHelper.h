@@ -155,8 +155,8 @@ public:
 
 private:
     int init_id_to_hashes();
-    unsigned int m_module_hashes[60][20][8];
-    unsigned int m_detectorElement_hashes[60][20][8][3];
+    unsigned int m_module_hashes[60][20][8]{};
+    unsigned int m_detectorElement_hashes[60][20][8][3]{};
 
     // compact id indices
     size_type m_TUBELAYER_INDEX;

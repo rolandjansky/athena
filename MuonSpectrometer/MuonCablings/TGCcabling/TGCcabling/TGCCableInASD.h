@@ -33,7 +33,7 @@ private:
 				      bool orChannel=false) const;
   virtual TGCChannelId* getChannelOut (const TGCChannelId* asdin,
 				       bool orChannel=false) const;
-  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType]{};
 
 };
   

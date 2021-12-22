@@ -64,9 +64,9 @@ private:
   virtual int convertIndexDBIn(int* indexIn) const;
 
   std::vector<int> m_indexDBIn;
-  int m_NIndexDBIn;
-  int m_maxIndexIn[NIndexIn];
-  int m_minIndexIn[NIndexIn];
+  int m_NIndexDBIn = 0;
+  int m_maxIndexIn[NIndexIn]{};
+  int m_minIndexIn[NIndexIn]{};
 
   /** hidden assignment operator */
   TGCDatabaseInPP & operator=(const TGCDatabaseInPP &right);

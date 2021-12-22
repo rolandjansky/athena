@@ -19,7 +19,7 @@ public:
                                    xercesc::DOMNode *t) override;
         sTGCDetectorDescription* GetsTGCCurrent();
 private:
-        sTGCDetectorDescription* m_sTGCCurrent;
+        sTGCDetectorDescription* m_sTGCCurrent = nullptr;
 };
 
 #endif

@@ -37,7 +37,7 @@ namespace Muon
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       /** TgcPrepRawData (hit PRD) containers */
-      TgcPrepDataContainer* m_tgcPrepDataContainer[BC_NUM];
+      TgcPrepDataContainer* m_tgcPrepDataContainer[BC_NUM]{};
 
       /** Make new TgcPrepData */
       TgcPrepData* makeTgcPrepData(TgcPrepDataCollection::const_iterator itr, uint16_t bcBitMap) const;

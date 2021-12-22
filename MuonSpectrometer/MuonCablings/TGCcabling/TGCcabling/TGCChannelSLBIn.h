@@ -50,8 +50,8 @@ public:
   
 private:
   CellType m_cellType;
-  int m_channelInCell;
-  int m_channelInSLB;
+  int m_channelInCell = 0;
+  int m_channelInSLB = 0;
 
   static const int s_lengthCell[];
   static const int s_offsetCell[];

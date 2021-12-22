@@ -25,7 +25,7 @@ StatusCode TGCTriggerDbTool::updateAddress(StoreID::type /*storeID*/,
                                            SG::TransientAddress* tad,
                                            const EventContext& /*ctx*/) {
   CLID clid = tad->clID();
-  std::string key = tad->name();
+  const std::string& key = tad->name();
   // Need to add the CLID comparison 
   if(/* ==clid && */m_DataLocation==key) {
     ATH_MSG_DEBUG("updateAddress OK, clid = " << clid << " key = " << key);

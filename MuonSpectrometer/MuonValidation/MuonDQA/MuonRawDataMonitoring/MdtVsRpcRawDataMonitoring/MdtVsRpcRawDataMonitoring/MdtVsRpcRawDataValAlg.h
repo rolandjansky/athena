@@ -53,13 +53,13 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   StatusCode addClusters(std::string clusterContainerName);  
    
   //m_chambersIdmdt;
-  int m_mdt_eventstotal;
+  int m_mdt_eventstotal = 0;
 
   int m_sector;
   int m_side;
   std::vector<std::string> m_layer_name_list       ;
   std::vector<std::string> m_layerSector_name_list ;   
-  int m_rpc_eventstotal; 
+  int m_rpc_eventstotal = 0; 
   
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
@@ -75,7 +75,7 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
 
   bool m_doClusters;
   std::string m_clusterContainerName;
-  bool m_checkCabling;
+  bool m_checkCabling = false;
   bool m_mdtvsrpcchamberhist; 
   bool m_mdtvsrpcsectorhist; 
  
@@ -102,8 +102,8 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   int  m_BOLid{-1};
   int  m_BMFid{-1};
  
-  TH1*    m_MdtRpcZdiff             ; 
-  TH2*    m_MdtNHitsvsRpcNHits      ;
+  TH1*    m_MdtRpcZdiff = nullptr             ; 
+  TH2*    m_MdtNHitsvsRpcNHits = nullptr      ;
 };
 
 #endif

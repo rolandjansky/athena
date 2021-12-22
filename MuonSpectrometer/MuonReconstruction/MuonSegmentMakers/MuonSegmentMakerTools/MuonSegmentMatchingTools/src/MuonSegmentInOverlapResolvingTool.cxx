@@ -144,7 +144,7 @@ MuonSegmentInOverlapResolvingTool::estimateSegmentDirection(const MuonSegment& s
     // Confusing but  Amg::Vector3D can hold a 3D local position
     Amg::Vector3D lPos1  = gToLocal1 * gPos1;
     Amg::Vector3D lPos21 = gToLocal2 * gPos1;
-    Amg::Vector3D gPos2  = seg2.globalPosition();
+    const Amg::Vector3D& gPos2  = seg2.globalPosition();
     Amg::Vector3D lPos12 = gToLocal1 * gPos2;
     Amg::Vector3D lPos2  = gToLocal2 * gPos2;
     // In local frame of segment 2 shift segment 1 to obtain zero residual
@@ -262,7 +262,7 @@ MuonSegmentInOverlapResolvingTool::bestPhiMatchAnalytic(const MuonSegment& seg1,
     Amg::Vector3D lDirn1(dxn, dyn, dzn);
     // Global direction of both segments
     Amg::Vector3D       segDir1Min = gToGlobal1.linear() * lDirn1;
-    Amg::Vector3D       segDir2Min = segDir1Min;  // updateSegmentDirection(seg2,segDir1Min.phi());
+    const Amg::Vector3D&       segDir2Min = segDir1Min;  // updateSegmentDirection(seg2,segDir1Min.phi());
     Trk::LocalDirection segLocDir1;
     seg2.associatedSurface().globalToLocalDirection(segDir1Min, segLocDir1);
     Trk::LocalDirection segLocDir2;

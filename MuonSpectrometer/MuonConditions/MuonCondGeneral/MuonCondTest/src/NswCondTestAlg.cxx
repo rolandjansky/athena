@@ -45,18 +45,18 @@ NswCondTestAlg::execute(const EventContext& ctx) const {
 	ATH_MSG_INFO("Calling execute");
 
 	// setup parameters
-	std::chrono::duration<double> retrieving_MM_TDO_A;
-	std::chrono::duration<double> retrieving_MM_TDO_C;
-	std::chrono::duration<double> retrieving_MM_PDO_A;
-	std::chrono::duration<double> retrieving_MM_PDO_C;
-	std::chrono::duration<double> retrieving_MM_VMM_A;
-	std::chrono::duration<double> retrieving_MM_VMM_C;
-	std::chrono::duration<double> retrieving_STGC_TDO_A;
-	std::chrono::duration<double> retrieving_STGC_TDO_C;
-	std::chrono::duration<double> retrieving_STGC_PDO_A;
-	std::chrono::duration<double> retrieving_STGC_PDO_C;
-	std::chrono::duration<double> retrieving_STGC_VMM_A;
-	std::chrono::duration<double> retrieving_STGC_VMM_C;
+	std::chrono::duration<double> retrieving_MM_TDO_A{};
+	std::chrono::duration<double> retrieving_MM_TDO_C{};
+	std::chrono::duration<double> retrieving_MM_PDO_A{};
+	std::chrono::duration<double> retrieving_MM_PDO_C{};
+	std::chrono::duration<double> retrieving_MM_VMM_A{};
+	std::chrono::duration<double> retrieving_MM_VMM_C{};
+	std::chrono::duration<double> retrieving_STGC_TDO_A{};
+	std::chrono::duration<double> retrieving_STGC_TDO_C{};
+	std::chrono::duration<double> retrieving_STGC_PDO_A{};
+	std::chrono::duration<double> retrieving_STGC_PDO_C{};
+	std::chrono::duration<double> retrieving_STGC_VMM_A{};
+	std::chrono::duration<double> retrieving_STGC_VMM_C{};
 
 	// retrieve all folders
 	if(!retrieveTdoPdo(ctx, "TDO", "MM"  , "A", retrieving_MM_TDO_A  ).isSuccess()) return StatusCode::FAILURE;

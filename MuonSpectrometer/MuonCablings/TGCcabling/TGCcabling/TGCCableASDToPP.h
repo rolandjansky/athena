@@ -32,7 +32,7 @@ private:
 				      bool orChannel=false) const;
   virtual TGCChannelId* getChannelOut (const TGCChannelId* asdout,
 				       bool orChannel=false) const;
-  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType]{};
 
   static const int s_stripForward[];
 };

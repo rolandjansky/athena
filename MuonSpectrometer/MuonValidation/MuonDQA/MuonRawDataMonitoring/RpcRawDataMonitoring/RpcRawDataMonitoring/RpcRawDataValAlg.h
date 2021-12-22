@@ -80,7 +80,7 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
 
   int m_sector;
   int m_side;
-  int m_rpc_eventstotal;
+  int m_rpc_eventstotal = 0;
   std::string m_hardware_name                                ;
   std::vector<Identifier>*    m_chambersId		     ;
   std::vector<std::string>    m_layer_name_list              ; 
@@ -89,11 +89,11 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   std::vector<std::string>    m_layervslayer_name_list       ;
   std::vector<std::string>    m_layerPhivsEta_name_list      ;
   std::vector<std::string>    m_layerPhivsEtaSector_name_list;
-  int                         m_StationNameViewIndex[100][2] ;
-  float                       m_StationNameSectorSize[100]   ;
-  float                       m_StationPivotSectorSize[100]  ;
+  int                         m_StationNameViewIndex[100][2]{} ;
+  float                       m_StationNameSectorSize[100]{}   ;
+  float                       m_StationPivotSectorSize[100]{}  ;
   
-  int m_shiftphiatlas ;
+  int m_shiftphiatlas = 0 ;
    
   std::vector<Identifier>* m_padsId;
   std::map<std::string,int> m_hitsperchamber_map;
@@ -116,7 +116,7 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   
   int  m_rpcreducenbins			;
   int  m_rpcreducenbinsstrip	        ;
-  int  m_rpcreducetimenbins		;
+  int  m_rpcreducetimenbins = 0		;
   
   int  m_lv1Thres_0		        ;
   int  m_lv1Thres_1		        ;
@@ -134,31 +134,31 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   int m_cosmicStation    		;
  
   // Define variables in the Ntuple:
-  int m_nColl;  		    // number of collection in the container
-  int m_nPrd ;			    // number of prd in the collection
-  int m_nTrig;
-  int m_nClus;                      // number of clusters
+  int m_nColl = 0;  		    // number of collection in the container
+  int m_nPrd = 0 ;			    // number of prd in the collection
+  int m_nTrig = 0;
+  int m_nClus = 0;                      // number of clusters
 
-  int m_nPrd_BA	;
-  int m_nPrd_BC ;
+  int m_nPrd_BA = 0	;
+  int m_nPrd_BC = 0 ;
   
   enum {enumBA_LowPt, enumBC_LowPt, enumBA_HighPt, enumBC_HighPt};
   std::vector<TH2I*> m_rpc2DEtaStationTriggerHits_Side_Pt      ; 
   std::vector<TH2F*> m_rpc2DEtaStationTriggerHits_Side_Pt_norm ; 
-  int   m_nEtaStatFired_BA_LowPt	       ;
-  int   m_nEtaStatFired_BC_LowPt	       ;
-  int   m_nEtaStatFired_BA_HighPt	       ;
-  int   m_nEtaStatFired_BC_HighPt	       ; 
+  int   m_nEtaStatFired_BA_LowPt = 0	       ;
+  int   m_nEtaStatFired_BC_LowPt = 0	       ;
+  int   m_nEtaStatFired_BA_HighPt = 0	       ;
+  int   m_nEtaStatFired_BC_HighPt = 0	       ; 
    
   std::vector<TH1I*> m_rpcNumberEtaStatFired_Side_Pt      ;
   bool  m_doTrigEvol		       ;
   bool  m_doLumiPlot		       ;
   bool  m_doTriggerHits                ;
   int   m_minStatTrEvol                  ;
-  int   m_nTrigEtaStat_BA_LowPt	       ;
-  int   m_nTrigEtaStat_BC_LowPt	       ;
-  int   m_nTrigEtaStat_BA_HighPt	       ;
-  int   m_nTrigEtaStat_BC_HighPt	       ; 
+  int   m_nTrigEtaStat_BA_LowPt = 0	       ;
+  int   m_nTrigEtaStat_BC_LowPt = 0	       ;
+  int   m_nTrigEtaStat_BA_HighPt = 0	       ;
+  int   m_nTrigEtaStat_BC_HighPt = 0	       ; 
   
   enum {enum_Phi_LowPt        ,enum_Phi_HighPt       ,enum_Eta_LowPt       ,enum_Eta_HighPt       ,
         enum_Phi_LowPt_BA     ,enum_Phi_HighPt_BA    ,enum_Eta_LowPt_BA    ,enum_Eta_HighPt_BA    ,
@@ -176,125 +176,125 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
         enum_Phi_TrigTowerLowPt_BC ,enum_Phi_TrigTowerHighPt_BC, enum_Eta_TrigTowerLowPt_BC ,enum_Eta_TrigTowerHighPt_BC };    
   std::vector<TH2I*> m_rpc1DvsLBTrigTowerHits ;  
   
-  TH1* m_rpcEtaTime	   ;
-  TH1* m_rpcPhiTime	   ;
-  TH1* m_rpcevents	   ;
-  TH1* m_rpctime		   ;
+  TH1* m_rpcEtaTime = nullptr	   ;
+  TH1* m_rpcPhiTime = nullptr	   ;
+  TH1* m_rpcevents = nullptr	   ;
+  TH1* m_rpctime = nullptr		   ;
     
   
-  TH1* m_rpcclusters	   ;
-  TH1* m_rpcCSEta 	   ;
-  TH1* m_rpcCSPhi 	   ;
+  TH1* m_rpcclusters = nullptr	   ;
+  TH1* m_rpcCSEta = nullptr 	   ;
+  TH1* m_rpcCSPhi = nullptr 	   ;
 
-  TH1* m_rpcCSEta_BA 	   ;
-  TH1* m_rpcCSPhi_BA 	   ;
-  TH1* m_rpcCSEta_BC 	   ;
-  TH1* m_rpcCSPhi_BC 	   ;
+  TH1* m_rpcCSEta_BA = nullptr 	   ;
+  TH1* m_rpcCSPhi_BA = nullptr 	   ;
+  TH1* m_rpcCSEta_BC = nullptr 	   ;
+  TH1* m_rpcCSPhi_BC = nullptr 	   ;
 
   
   
-  TH2* m_rpcPhivsEtaAtlasPivot0   	       ;
-  TH2* m_rpcPhivsEtaAtlasPivot1   	       ;
-  TH2* m_rpcPhivsEtaAtlasLowPt0   	       ;
-  TH2* m_rpcPhivsEtaAtlasLowPt1   	       ;
-  TH2* m_rpcPhivsEtaAtlasHighPt0  	       ;
-  TH2* m_rpcPhivsEtaAtlasHighPt1  	       ;
-  TH2* m_rpcPhivsEtaAtlasLowPt_TriggerOut        ;
-  TH2* m_rpcPhivsEtaAtlasHighPt_TriggerFromLowPt ;
-  TH2* m_rpcPhivsEtaAtlasHighPt_TriggerOut       ;
+  TH2* m_rpcPhivsEtaAtlasPivot0 = nullptr   	       ;
+  TH2* m_rpcPhivsEtaAtlasPivot1 = nullptr   	       ;
+  TH2* m_rpcPhivsEtaAtlasLowPt0 = nullptr   	       ;
+  TH2* m_rpcPhivsEtaAtlasLowPt1 = nullptr   	       ;
+  TH2* m_rpcPhivsEtaAtlasHighPt0 = nullptr  	       ;
+  TH2* m_rpcPhivsEtaAtlasHighPt1 = nullptr  	       ;
+  TH2* m_rpcPhivsEtaAtlasLowPt_TriggerOut = nullptr        ;
+  TH2* m_rpcPhivsEtaAtlasHighPt_TriggerFromLowPt = nullptr ;
+  TH2* m_rpcPhivsEtaAtlasHighPt_TriggerOut = nullptr       ;
   
-  TH2* m_rpcPhivsEtaAtlasPivot0_PhivsZ	       ;
-  TH2* m_rpcPhivsEtaAtlasPivot1_PhivsZ	       ;
-  TH2* m_rpcPhivsEtaAtlasLowPt0_PhivsZ	       ;
-  TH2* m_rpcPhivsEtaAtlasLowPt1_PhivsZ	       ;
-  TH2* m_rpcPhivsEtaAtlasHighPt0_PhivsZ	       ;
-  TH2* m_rpcPhivsEtaAtlasHighPt1_PhivsZ	       ;
-  TH2* m_rpcPhivsEtaAtlasLowPt_TriggerOut_PhivsZ        ;
-  TH2* m_rpcPhivsEtaAtlasHighPt_TriggerFromLowPt_PhivsZ ;
-  TH2* m_rpcPhivsEtaAtlasHighPt_TriggerOut_PhivsZ       ;
+  TH2* m_rpcPhivsEtaAtlasPivot0_PhivsZ = nullptr	       ;
+  TH2* m_rpcPhivsEtaAtlasPivot1_PhivsZ = nullptr	       ;
+  TH2* m_rpcPhivsEtaAtlasLowPt0_PhivsZ = nullptr	       ;
+  TH2* m_rpcPhivsEtaAtlasLowPt1_PhivsZ = nullptr	       ;
+  TH2* m_rpcPhivsEtaAtlasHighPt0_PhivsZ = nullptr	       ;
+  TH2* m_rpcPhivsEtaAtlasHighPt1_PhivsZ = nullptr	       ;
+  TH2* m_rpcPhivsEtaAtlasLowPt_TriggerOut_PhivsZ = nullptr        ;
+  TH2* m_rpcPhivsEtaAtlasHighPt_TriggerFromLowPt_PhivsZ = nullptr ;
+  TH2* m_rpcPhivsEtaAtlasHighPt_TriggerOut_PhivsZ = nullptr       ;
   
     
-  TH2* m_rpc2DEtaStation                	    ;
-  TH2* m_rpc2DEtaStationGap1           	    ;
-  TH2* m_rpc2DEtaStationGap2           	    ;
-  TH2* m_rpc2DEtaStationTriggerHits    	    ;
+  TH2* m_rpc2DEtaStation = nullptr                	    ;
+  TH2* m_rpc2DEtaStationGap1 = nullptr           	    ;
+  TH2* m_rpc2DEtaStationGap2 = nullptr           	    ;
+  TH2* m_rpc2DEtaStationTriggerHits = nullptr    	    ;
   
-  TH2* m_GlobalHitsPerRPCMiddle        	    ;
-  TH2* m_GlobalHitsPerRPCOuter         	    ;
+  TH2* m_GlobalHitsPerRPCMiddle = nullptr        	    ;
+  TH2* m_GlobalHitsPerRPCOuter = nullptr         	    ;
 
-  TH2* m_EtavsPhi_TriggeredMuons_LowPt        ;
-  TH2* m_EtavsPhi_TriggeredMuons_HighPt        ;
-  TH2* m_EtavsPhi_TriggeredMuons_Pt1          ;
-  TH2* m_EtavsPhi_TriggeredMuons_Pt2          ;
-  TH2* m_EtavsPhi_TriggeredMuons_Pt3          ;
-  TH2* m_EtavsPhi_TriggeredMuons_Pt4          ;
-  TH2* m_EtavsPhi_TriggeredMuons_Pt5          ;
-  TH2* m_EtavsPhi_TriggeredMuons_Pt6          ;
+  TH2* m_EtavsPhi_TriggeredMuons_LowPt = nullptr        ;
+  TH2* m_EtavsPhi_TriggeredMuons_HighPt = nullptr        ;
+  TH2* m_EtavsPhi_TriggeredMuons_Pt1 = nullptr          ;
+  TH2* m_EtavsPhi_TriggeredMuons_Pt2 = nullptr          ;
+  TH2* m_EtavsPhi_TriggeredMuons_Pt3 = nullptr          ;
+  TH2* m_EtavsPhi_TriggeredMuons_Pt4 = nullptr          ;
+  TH2* m_EtavsPhi_TriggeredMuons_Pt5 = nullptr          ;
+  TH2* m_EtavsPhi_TriggeredMuons_Pt6 = nullptr          ;
   
-  TH1* m_RPC_Threshold_Eta             	    ;	  
-  TH1* m_RPC_Threshold_Phi             	    ;
+  TH1* m_RPC_Threshold_Eta = nullptr             	    ;	  
+  TH1* m_RPC_Threshold_Phi = nullptr             	    ;
  
-  TH2* m_RPC_TriggerRoad                      ;
-  TH2* m_RPC_TriggerRoad_Large_Eta      ;
-  TH2* m_RPC_TriggerRoad_Large_Phi      ;
-  TH2* m_RPC_TriggerRoad_Small_Eta      ;
-  TH2* m_RPC_TriggerRoad_Small_Phi      ;
+  TH2* m_RPC_TriggerRoad = nullptr                      ;
+  TH2* m_RPC_TriggerRoad_Large_Eta = nullptr      ;
+  TH2* m_RPC_TriggerRoad_Large_Phi = nullptr      ;
+  TH2* m_RPC_TriggerRoad_Small_Eta = nullptr      ;
+  TH2* m_RPC_TriggerRoad_Small_Phi = nullptr      ;
     
   
-  TH1* m_TotalNumber_of_RPC_hits_per_events_BA;
-  TH1* m_TotalNumber_of_RPC_hits_per_events_BC;
-  TH1* m_rpctime_BA			    ;
-  TH1* m_rpctime_BC			    ;
-  TH1* m_rpctime_LPt_BA			;
-  TH1* m_rpctime_LPt_BC			;
-  TH1* m_rpctime_HPt_BA			;
-  TH1* m_rpctime_HPt_BC			;
+  TH1* m_TotalNumber_of_RPC_hits_per_events_BA = nullptr;
+  TH1* m_TotalNumber_of_RPC_hits_per_events_BC = nullptr;
+  TH1* m_rpctime_BA = nullptr			    ;
+  TH1* m_rpctime_BC = nullptr			    ;
+  TH1* m_rpctime_LPt_BA = nullptr			;
+  TH1* m_rpctime_LPt_BC = nullptr			;
+  TH1* m_rpctime_HPt_BA = nullptr			;
+  TH1* m_rpctime_HPt_BC = nullptr			;
 
 
-  TH1* m_rpctime_Sector1_BA		    ;
-  TH1* m_rpctime_Sector2_BA		    ;
-  TH1* m_rpctime_Sector3_BA		    ;
-  TH1* m_rpctime_Sector4_BA		    ;
-  TH1* m_rpctime_Sector5_BA		    ;
-  TH1* m_rpctime_Sector6_BA		    ;
-  TH1* m_rpctime_Sector7_BA		    ;
-  TH1* m_rpctime_Sector8_BA		    ;
-  TH1* m_rpctime_Sector9_BA		    ;
-  TH1* m_rpctime_Sector10_BA		    ;
-  TH1* m_rpctime_Sector11_BA		    ;
-  TH1* m_rpctime_Sector12_BA		    ;
-  TH1* m_rpctime_Sector13_BA		    ;
-  TH1* m_rpctime_Sector14_BA		    ;
-  TH1* m_rpctime_Sector15_BA		    ;
-  TH1* m_rpctime_Sector16_BA		    ;
+  TH1* m_rpctime_Sector1_BA = nullptr		    ;
+  TH1* m_rpctime_Sector2_BA = nullptr		    ;
+  TH1* m_rpctime_Sector3_BA = nullptr		    ;
+  TH1* m_rpctime_Sector4_BA = nullptr		    ;
+  TH1* m_rpctime_Sector5_BA = nullptr		    ;
+  TH1* m_rpctime_Sector6_BA = nullptr		    ;
+  TH1* m_rpctime_Sector7_BA = nullptr		    ;
+  TH1* m_rpctime_Sector8_BA = nullptr		    ;
+  TH1* m_rpctime_Sector9_BA = nullptr		    ;
+  TH1* m_rpctime_Sector10_BA = nullptr		    ;
+  TH1* m_rpctime_Sector11_BA = nullptr		    ;
+  TH1* m_rpctime_Sector12_BA = nullptr		    ;
+  TH1* m_rpctime_Sector13_BA = nullptr		    ;
+  TH1* m_rpctime_Sector14_BA = nullptr		    ;
+  TH1* m_rpctime_Sector15_BA = nullptr		    ;
+  TH1* m_rpctime_Sector16_BA = nullptr		    ;
 
-  TH1* m_rpctime_Sector1_BC		    ;
-  TH1* m_rpctime_Sector2_BC		    ;
-  TH1* m_rpctime_Sector3_BC		    ;
-  TH1* m_rpctime_Sector4_BC		    ;
-  TH1* m_rpctime_Sector5_BC		    ;
-  TH1* m_rpctime_Sector6_BC		    ;
-  TH1* m_rpctime_Sector7_BC		    ;
-  TH1* m_rpctime_Sector8_BC		    ;
-  TH1* m_rpctime_Sector9_BC		    ;
-  TH1* m_rpctime_Sector10_BC		    ;
-  TH1* m_rpctime_Sector11_BC		    ;
-  TH1* m_rpctime_Sector12_BC		    ;
-  TH1* m_rpctime_Sector13_BC		    ;
-  TH1* m_rpctime_Sector14_BC		    ;
-  TH1* m_rpctime_Sector15_BC		    ;
-  TH1* m_rpctime_Sector16_BC		    ;
+  TH1* m_rpctime_Sector1_BC = nullptr		    ;
+  TH1* m_rpctime_Sector2_BC = nullptr		    ;
+  TH1* m_rpctime_Sector3_BC = nullptr		    ;
+  TH1* m_rpctime_Sector4_BC = nullptr		    ;
+  TH1* m_rpctime_Sector5_BC = nullptr		    ;
+  TH1* m_rpctime_Sector6_BC = nullptr		    ;
+  TH1* m_rpctime_Sector7_BC = nullptr		    ;
+  TH1* m_rpctime_Sector8_BC = nullptr		    ;
+  TH1* m_rpctime_Sector9_BC = nullptr		    ;
+  TH1* m_rpctime_Sector10_BC = nullptr		    ;
+  TH1* m_rpctime_Sector11_BC = nullptr		    ;
+  TH1* m_rpctime_Sector12_BC = nullptr		    ;
+  TH1* m_rpctime_Sector13_BC = nullptr		    ;
+  TH1* m_rpctime_Sector14_BC = nullptr		    ;
+  TH1* m_rpctime_Sector15_BC = nullptr		    ;
+  TH1* m_rpctime_Sector16_BC = nullptr		    ;
 
   
-  TH1* m_rpcTriggerHitsPerEvents_Eta_LowPt    ;  
-  TH1* m_rpcTriggerHitsPerEvents_Phi_LowPt    ;  
-  TH1* m_rpcTriggerHitsPerEvents_Eta_HighPt   ;  
-  TH1* m_rpcTriggerHitsPerEvents_Phi_HighPt   ;
+  TH1* m_rpcTriggerHitsPerEvents_Eta_LowPt = nullptr    ;  
+  TH1* m_rpcTriggerHitsPerEvents_Phi_LowPt = nullptr    ;  
+  TH1* m_rpcTriggerHitsPerEvents_Eta_HighPt = nullptr   ;  
+  TH1* m_rpcTriggerHitsPerEvents_Phi_HighPt = nullptr   ;
   
-  TH1* m_rpc1DStationNameHitsSideA            ;
-  TH1* m_rpc1DStationNameTriggerHitsSideA     ;
-  TH1* m_rpc1DStationNameHitsSideC            ;
-  TH1* m_rpc1DStationNameTriggerHitsSideC     ;
+  TH1* m_rpc1DStationNameHitsSideA = nullptr            ;
+  TH1* m_rpc1DStationNameTriggerHitsSideA = nullptr     ;
+  TH1* m_rpc1DStationNameHitsSideC = nullptr            ;
+  TH1* m_rpc1DStationNameTriggerHitsSideC = nullptr     ;
   
   
   // Global Variables declaration
@@ -314,7 +314,7 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   std::string m_layer_name_panel          ;
   std::string m_sector_dphi_layer         ;
   
-  int     m_threshold       ;
+  int     m_threshold = 0       ;
   
   int     m_MinEntries	    ; 
 
@@ -323,8 +323,8 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   bool m_doCoolDB		       ;
   std::vector<std::string> m_DB_list   ;
   
-  TH1* m_rpcCool_StripProfile          ;
-  TH1* m_rpcCool_PanelIdHist           ;
+  TH1* m_rpcCool_StripProfile = nullptr          ;
+  TH1* m_rpcCool_PanelIdHist = nullptr           ;
   
   
   

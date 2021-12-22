@@ -50,7 +50,7 @@ namespace MuonCalib {
         //! path to calibration directory - job option
         std::string m_calib_dir;
         //! if true use validated - jo
-        bool m_use_validated_t0, m_use_validated_rt;
+        bool m_use_validated_t0, m_use_validated_rt = false;
         // url of oracle data-base
         std::string m_db_ConnectionString;
         std::string m_writer_connection_string;
@@ -63,7 +63,7 @@ namespace MuonCalib {
         int m_headid;
         std::string m_sitename;
         /** pointer to region selection service */
-        RegionSelectionSvc *p_reg_sel_svc;
+        RegionSelectionSvc *p_reg_sel_svc = nullptr;
         std::vector<MuonCalib::NtupleStationId> m_region_ids;
         /** pointer to db connection */
         std::unique_ptr<CalibDbConnection> m_connection;

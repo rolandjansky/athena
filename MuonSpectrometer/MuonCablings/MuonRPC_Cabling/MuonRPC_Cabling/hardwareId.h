@@ -25,10 +25,10 @@ class hardwareId {
   int m_stName, m_stEta, m_stPhi, m_dbR, m_dbPhi, m_dbZ, m_gasGap;
   std::string m_HwId;
   std::string m_HwStationName;
-  int    m_HwStationNumber;
+  int    m_HwStationNumber = 0;
   std::string m_HwSide;
   std::string m_HwPICO;
-  int    m_HwSector,m_HwDP,m_HwLy,m_HwDZ;
+  int    m_HwSector = 0,m_HwDP = 0,m_HwLy = 0,m_HwDZ = 0;
   
 };
 #endif //  MUONRPC_CABLING_

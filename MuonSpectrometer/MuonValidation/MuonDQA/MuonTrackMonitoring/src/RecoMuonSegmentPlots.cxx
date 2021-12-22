@@ -26,7 +26,7 @@ void RecoMuonSegmentPlots::fill(const xAOD::MuonContainer& muContainer){
 //get's the corresponding link and fill it
 //Tony 2015.9.21: fix to go around the segment link problem for now
 void RecoMuonSegmentPlots::fill(const xAOD::Muon& mu){
-  const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments = mu.muonSegmentLinks();
+  const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>>& Mu_Segments = mu.muonSegmentLinks();
   fill(Mu_Segments);
 }
 

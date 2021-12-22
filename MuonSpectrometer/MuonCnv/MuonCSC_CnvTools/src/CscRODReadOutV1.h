@@ -103,7 +103,7 @@ private:
     double m_CHARGE_TO_ADC_COUNT;
     double m_Z0;
 
-    uint32_t m_TRIGGER_INFO[3];
+    uint32_t m_TRIGGER_INFO[3]{};
 
     static const uint32_t ROD_HEADER_SIZE = 12;
 

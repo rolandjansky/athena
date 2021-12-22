@@ -59,8 +59,8 @@ namespace Muon {
   struct MuonValidationIdBlock : public MuonValidationBlockBase {
     MuonValidationIdBlock();
 
-    std::vector<int>*   sector;  // sector
-    std::vector<int>*   chIndex; // chamber index
+    std::vector<int>*   sector = nullptr;  // sector
+    std::vector<int>*   chIndex = nullptr; // chamber index
 
     void fill( int sector_, int chIndex_ ) { sector->push_back(sector_); chIndex->push_back(chIndex_); }
       
@@ -72,9 +72,9 @@ namespace Muon {
   struct MuonValidationTruthBlock : public MuonValidationBlockBase {
     MuonValidationTruthBlock();
 
-    std::vector<int>*   pdg;     // pdg id
-    std::vector<int>*   barcode; // barcode
-    std::vector<float>* beta;    // beta
+    std::vector<int>*   pdg = nullptr;     // pdg id
+    std::vector<int>*   barcode = nullptr; // barcode
+    std::vector<float>* beta = nullptr;    // beta
 
     void fill( int pdg_, int barcode_, float beta_=1. ) { pdg->push_back(pdg_); barcode->push_back(barcode_);beta->push_back(beta_); }
       
@@ -86,7 +86,7 @@ namespace Muon {
   struct MuonValidationTrackBlock : public MuonValidationBlockBase {
     MuonValidationTrackBlock();
 
-    std::vector<int>*   trkid;  // track index
+    std::vector<int>*   trkid = nullptr;  // track index
       
     void fill( int trkid_ ) { trkid->push_back(trkid_); }
 
@@ -103,19 +103,19 @@ namespace Muon {
     MuonValidationTrackBlock          track; // index of corresponding track particle
     MuonValidationTruthBlock          truth; // truth matching based on the hit content of the segment
 
-    std::vector<int>*     type;      // type: 0 = rpc, 1 = segment, 2 = rpc, 10 MDTT, 12 RPC track
-    std::vector<int>*     stage;     // stage of reco
-    std::vector<unsigned int>* gasgapId;  // gasgapId (set to the chamber id for segments)
-    std::vector<float>*   r;         // r-position
-    std::vector<float>*   z;         // z-position
-    std::vector<float>*   d;         // total distance from ip
-    std::vector<float>*   time;      // time 
-    std::vector<float>*   err;       // error
-    std::vector<float>*   timeProp;  // propagation time 
-    std::vector<float>*   avTimeProp;// average propagation time 
-    std::vector<float>*   tof;       // time of flight
-    std::vector<float>*   avTof;     // average time of flight
-    std::vector<float>*   timeCor;   // time correction
+    std::vector<int>*     type = nullptr;      // type: 0 = rpc, 1 = segment, 2 = rpc, 10 MDTT, 12 RPC track
+    std::vector<int>*     stage = nullptr;     // stage of reco
+    std::vector<unsigned int>* gasgapId = nullptr;  // gasgapId (set to the chamber id for segments)
+    std::vector<float>*   r = nullptr;         // r-position
+    std::vector<float>*   z = nullptr;         // z-position
+    std::vector<float>*   d = nullptr;         // total distance from ip
+    std::vector<float>*   time = nullptr;      // time 
+    std::vector<float>*   err = nullptr;       // error
+    std::vector<float>*   timeProp = nullptr;  // propagation time 
+    std::vector<float>*   avTimeProp = nullptr;// average propagation time 
+    std::vector<float>*   tof = nullptr;       // time of flight
+    std::vector<float>*   avTof = nullptr;     // average time of flight
+    std::vector<float>*   timeCor = nullptr;   // time correction
 
     void fill( int type_, unsigned int gasgapId_, float r_, float z_, float time_, float err_,
                float timeProp_ = 0., float avTimeProp_ = 0., float tof_ = 0., float avTof_ = 0., float timeCor_ = 0., int stage_ = 0 ) { 
@@ -176,13 +176,13 @@ namespace Muon {
       expos_errstatus->push_back(status);
     }
  
-    std::vector<float>* residual;         // residual 
-    std::vector<float>* pull;             // pull
-    std::vector<float>* pos;              // measured position 
-    std::vector<float>* err;              // error on the measured position
-    std::vector<float>* expos;            // extrapolated position (prediction)
-    std::vector<float>* expos_err;        // error on extrapolated position
-    std::vector<int>*   expos_errstatus;  // status, 0 if no error estimate was provided on the extrapolated position
+    std::vector<float>* residual = nullptr;         // residual 
+    std::vector<float>* pull = nullptr;             // pull
+    std::vector<float>* pos = nullptr;              // measured position 
+    std::vector<float>* err = nullptr;              // error on the measured position
+    std::vector<float>* expos = nullptr;            // extrapolated position (prediction)
+    std::vector<float>* expos_err = nullptr;        // error on extrapolated position
+    std::vector<int>*   expos_errstatus = nullptr;  // status, 0 if no error estimate was provided on the extrapolated position
       
   };
 
@@ -192,10 +192,10 @@ namespace Muon {
   struct MuonValidationTrackParticleBlock : public MuonValidationBlockBase {
     MuonValidationTrackParticleBlock();
 
-    std::vector<float>* pt;         // pt (at the vertex)
-    std::vector<float>* p;          // p (at the vertex)
-    std::vector<float>* eta;        // eta (at the vertex) 
-    std::vector<float>* phi;        // phi (at the vertex) 
+    std::vector<float>* pt = nullptr;         // pt (at the vertex)
+    std::vector<float>* p = nullptr;          // p (at the vertex)
+    std::vector<float>* eta = nullptr;        // eta (at the vertex) 
+    std::vector<float>* phi = nullptr;        // phi (at the vertex) 
     MuonValidationTruthBlock truth; // truth information
 
   };
@@ -206,17 +206,17 @@ namespace Muon {
   struct MuonValidationSegmentBlock : public MuonValidationBlockBase {
     MuonValidationSegmentBlock();
 
-    std::vector<int>*   stage;               // reco stage (0 : segment finding, 1: after matching with ID track)
-    std::vector<int>*   quality;             // segment quality
-    std::vector<int>*   nmdtHits;            // number of MDT hits
-    std::vector<int>*   ntrigEtaHits;        // number of trigger eta hits
-    std::vector<int>*   ntrigPhiHits;        // number of trigger phi hits
-    std::vector<float>* r;                   // r-position
-    std::vector<float>* z;                   // z-position
-    std::vector<float>* t0;                  // t0 from t0 fit
-    std::vector<float>* t0Error;             // error on t0 from t0 fit
-    std::vector<float>* t0Trig;              // t0 from trigger hits
-    std::vector<float>* t0TrigError;         // error on t0 from trigger hits
+    std::vector<int>*   stage = nullptr;               // reco stage (0 : segment finding, 1: after matching with ID track)
+    std::vector<int>*   quality = nullptr;             // segment quality
+    std::vector<int>*   nmdtHits = nullptr;            // number of MDT hits
+    std::vector<int>*   ntrigEtaHits = nullptr;        // number of trigger eta hits
+    std::vector<int>*   ntrigPhiHits = nullptr;        // number of trigger phi hits
+    std::vector<float>* r = nullptr;                   // r-position
+    std::vector<float>* z = nullptr;                   // z-position
+    std::vector<float>* t0 = nullptr;                  // t0 from t0 fit
+    std::vector<float>* t0Error = nullptr;             // error on t0 from t0 fit
+    std::vector<float>* t0Trig = nullptr;              // t0 from trigger hits
+    std::vector<float>* t0TrigError = nullptr;         // error on t0 from trigger hits
     MuonValidationIdBlock             id;    // identifier information for the segment
     MuonValidationTrackBlock          track; // index of corresponding track particle
     MuonValidationTruthBlock          truth; // truth matching based on the hit content of the segment
@@ -234,7 +234,7 @@ namespace Muon {
   struct MuonValidationHoughBlock : public MuonValidationBlockBase {
     MuonValidationHoughBlock();
 
-    std::vector<float>*               maximum;   // height of the maximum
+    std::vector<float>*               maximum = nullptr;   // height of the maximum
     MuonValidationIdBlock             id;        // identifier information for the maximum
     MuonValidationTrackBlock          track;     // index of corresponding track particle
     MuonValidationTruthBlock          truth;     // truth matching based on the hit content of the maximum
@@ -254,14 +254,14 @@ namespace Muon {
   struct MuonValidationCandidateBlock : public MuonValidationBlockBase {
     MuonValidationCandidateBlock();
 
-    std::vector<int>*   ntimes;        // number of time measurements
-    std::vector<float>* beta;          // beta
-    std::vector<float>* chi2ndof;      // chi2/ndof beta fit
-    std::vector<int>*   nseg;          // number of segments
-    std::vector<int>*   nprec;         // precision layers
-    std::vector<int>*   ntrigPhi;      // trigger phi layers
-    std::vector<int>*   ntrigEta;      // trigger eta layers
-    std::vector<int>*   stage;         // reco stage
+    std::vector<int>*   ntimes = nullptr;        // number of time measurements
+    std::vector<float>* beta = nullptr;          // beta
+    std::vector<float>* chi2ndof = nullptr;      // chi2/ndof beta fit
+    std::vector<int>*   nseg = nullptr;          // number of segments
+    std::vector<int>*   nprec = nullptr;         // precision layers
+    std::vector<int>*   ntrigPhi = nullptr;      // trigger phi layers
+    std::vector<int>*   ntrigEta = nullptr;      // trigger eta layers
+    std::vector<int>*   stage = nullptr;         // reco stage
 
     MuonValidationTrackBlock          track;     // index of corresponding track particle
 

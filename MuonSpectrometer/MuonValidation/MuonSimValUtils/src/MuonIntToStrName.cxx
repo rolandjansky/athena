@@ -15,7 +15,7 @@ std::string convertIntToStrName(int ChamberNameInt, std::string ChamberType) {
   //"MDT","CSC","TGC" go in the same loop while
   //"RPC" go to a different loop due to the same
   //naming with "MDT"
-  std::string Type=ChamberType;
+  const std::string& Type=ChamberType;
 
 
   //Set string variables

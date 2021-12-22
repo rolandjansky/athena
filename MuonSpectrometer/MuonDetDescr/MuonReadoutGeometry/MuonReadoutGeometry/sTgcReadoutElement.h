@@ -201,7 +201,7 @@ namespace MuonGM {
         std::vector<double> m_PadminHalfY;
         std::vector<double> m_PadmaxHalfY;
 
-        BLinePar* m_BLinePar;
+        BLinePar* m_BLinePar = nullptr;
 
         // transforms (RE->layer)
         Amg::Transform3D m_Xlg[4];

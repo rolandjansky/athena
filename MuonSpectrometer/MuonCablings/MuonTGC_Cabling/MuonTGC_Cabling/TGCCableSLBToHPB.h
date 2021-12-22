@@ -42,7 +42,7 @@ private:
   virtual TGCModuleMap* getModuleIn(const TGCModuleId* hpb) const;
   virtual TGCModuleMap* getModuleInforHPB(const TGCModuleId* hpb, TGCIdBase::ModuleType moduleType) const;
   virtual TGCModuleMap* getModuleOut(const TGCModuleId* slb) const;
-  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][TGCIdBase::MaxModuleType]{};
 };
   
 } // end of namespace

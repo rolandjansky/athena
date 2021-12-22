@@ -79,7 +79,7 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
 
   StatusCode StoreTriggerType();
   int GetTriggerType() { return m_trigtype; }
-  int m_trigtype;
+  int m_trigtype = 0;
   
   int m_sector;
   int m_side;

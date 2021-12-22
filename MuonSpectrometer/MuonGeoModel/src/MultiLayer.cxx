@@ -518,7 +518,7 @@ namespace MuonGM {
         if (cutoutNsteps < -10000 && cutoutNsteps > -40000) {
 
             bool internalCutoutBMG[3] = {false, true, false};
-            std::array<std::array<int, 3>, 4> NtubesBMG;
+            std::array<std::array<int, 3>, 4> NtubesBMG{};
 
             if (cutoutNsteps == -11112) { // BMG1A12 - ML1
                 NtubesBMG = {{{{23, 7, 24}}, {{24, 7, 23}}, {{24, 7, 23}}, {{25, 7, 22}}}};
