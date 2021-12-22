@@ -81,7 +81,7 @@ PATCore::ParticleDataType::DataType datatype=PATCore::ParticleDataType::Full;
 if(file.Contains("AFII")) datatype=PATCore::ParticleDataType::Fast;
 
 // Access the file to get the histogram binning:
-TH2F * h = file.Contains("AFII") ? (TH2F*)TFile::Open(file)->Get(Form("%s/AltFast2_sf",dirName.Data())) : (TH2F*)TFile::Open(file)->Get(Form("%s/FullSim_sf",dirName.Data()));
+TH2F * h = file.Contains("AFII") ? (TH2F*)TFile::Open(file)->Get(Form("%s/AtlFast2_sf",dirName.Data())) : (TH2F*)TFile::Open(file)->Get(Form("%s/FullSim_sf",dirName.Data()));
 
 
 const Double_t * pTbounds = h->GetXaxis()->GetXbins()->GetArray();
