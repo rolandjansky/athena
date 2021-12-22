@@ -374,7 +374,7 @@ If possible, use the provided parameter types which are already implemented and 
 3. Add the code to be executed if the correction parameter is of your new parameter type to the following functions:
 
     - `ElectronPhotonVariableCorrectionBase::GetParameterInformationFromConf`
-    - `ElectronPhotonVariableCorrectionBase::GetCorrectionParameters`
+    - `ElectronPhotonVariableCorrectionBase::setCorrectionParameters`
     - `ElectronPhotonVariableCorrectionBase::StringToParameterType`
 
 If there is a style which all the other types use to implement their functionalities, follow it. This holds especially for `ElectronPhotonVariableCorrectionBase::GetCorrectionParameters`.
