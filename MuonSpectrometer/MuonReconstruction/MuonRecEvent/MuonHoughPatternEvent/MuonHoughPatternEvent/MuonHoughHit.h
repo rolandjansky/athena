@@ -103,7 +103,7 @@ protected:
 
     Amg::Vector3D m_pos{};
     /** unique id */
-    int m_id;
+    int m_id = 0;
 
     /** radius of hit*/
     double m_radius{0.};
@@ -134,7 +134,7 @@ protected:
     bool m_measures_phi{false};
 
     /** hit associated to pattern */
-    bool m_associated;
+    bool m_associated = false;
 
 private:
     /** method that calculates phi sector of hit */

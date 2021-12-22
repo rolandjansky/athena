@@ -23,7 +23,7 @@ public:
    StatusCode execute();
 
 private:
-   const MuonGM::MuonDetectorManager* m_MuonDetMgrDS; // nominal MuonDetectorManager (no alignment) from the DetectorStore (needed in this test alg to compare against the ConditionsObject)
+   const MuonGM::MuonDetectorManager* m_MuonDetMgrDS = nullptr; // nominal MuonDetectorManager (no alignment) from the DetectorStore (needed in this test alg to compare against the ConditionsObject)
    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};    

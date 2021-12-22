@@ -4554,7 +4554,7 @@ void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(std::string sector_n
       //histo path for rpc strip 
       std::string generic_path_rpcstriplayerPhivsEtaSector = generic_path_rpcmonitoring+"/Sectors/"+sector_name+"/PhivsEta/";
       generic_path_rpcstriplayerPhivsEtaSector += layerPhivsEtaSector_name;
-      std::string rpcstriplayerPhivsEtaSector_title = layerPhivsEtaSector_name; 	
+      const std::string& rpcstriplayerPhivsEtaSector_title = layerPhivsEtaSector_name; 	
       const char* rpcstriplayerPhivsEtaSector_title_char = rpcstriplayerPhivsEtaSector_title.c_str();
  
       TH2 *rpcstriplayerPhivsEtaSector=new TH2I(rpcstriplayerPhivsEtaSector_title_char,rpcstriplayerPhivsEtaSector_title_char, binz/m_rpcreducenbins, binminz, binmaxz, binx/m_rpcreducenbins, binminx, binmaxx); 

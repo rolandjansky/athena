@@ -118,7 +118,7 @@ private:
   double m_rotZ ; //!< rotZ parameter
   double m_rotT ; //!< rotT parameter
 
-  char m_StationNameChar[3] ; //!< station name as character array
+  char m_StationNameChar[3]{} ; //!< station name as character array
 
 };
 #endif

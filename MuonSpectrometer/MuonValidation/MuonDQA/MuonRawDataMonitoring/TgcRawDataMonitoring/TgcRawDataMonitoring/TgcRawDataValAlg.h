@@ -58,9 +58,9 @@ private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   // event properties
-  int m_event;
-  int m_lumiblock;
-  int m_BCID;
+  int m_event = 0;
+  int m_lumiblock = 0;
+  int m_BCID = 0;
     
   //histograms directory names
   std::string m_generic_path_tgcmonitoring;
@@ -92,9 +92,9 @@ private:
   
   // Event variables
   int m_nEvent;       // event counter
-  int m_nColl;        // number of collections in the event
-  int m_nPrd;          // number of prd in the event
-  int m_nHits[2][2];  //[ac][ws] number of hits per side, per type in event
+  int m_nColl = 0;        // number of collections in the event
+  int m_nPrd = 0;          // number of prd in the event
+  int m_nHits[2][2]{};  //[ac][ws] number of hits per side, per type in event
   
   // Vectors of TgcElement ids per chamber, wire/strip, BCID, layer
   // in case of multiple hits from the same channel, only the first is added
@@ -122,23 +122,23 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // offset for 1/48 phi division so that channel numbers can be directly compared
-  int m_offset[3][6];  //[TGC]1-3 , [Eta]: 0:forward 1-5:endcap
+  int m_offset[3][6]{};  //[TGC]1-3 , [Eta]: 0:forward 1-5:endcap
   // EIFI offset not used directly, but used for calculating nWire/StripEIFI....
-  int m_offsetEIFI[4][12];  //[sect]:Sector, [sectorPhi]: 0-5:FI 6-11:EI 
+  int m_offsetEIFI[4][12]{};  //[sect]:Sector, [sectorPhi]: 0-5:FI 6-11:EI 
   
   // number of wires/strips in each TGC station
-  int m_nWireTGCSingleLayerInPhi48Division[3]; //[TGC]1-3
-  int m_nStripTGCSingleLayerInPhi48Division[3];//[TGC]1-3
-  int m_nWireTGCEIFISingleLayerInSect4Division[4]; //[sect]EIFI only
-  int m_nStripTGCEIFISingleLayerInSect4Division[4];//[sect]EIFI only
+  int m_nWireTGCSingleLayerInPhi48Division[3]{}; //[TGC]1-3
+  int m_nStripTGCSingleLayerInPhi48Division[3]{};//[TGC]1-3
+  int m_nWireTGCEIFISingleLayerInSect4Division[4]{}; //[sect]EIFI only
+  int m_nStripTGCEIFISingleLayerInSect4Division[4]{};//[sect]EIFI only
   
   // limits on difference of channel numbers (after offset has been applied)
   // used when calculating efficiency by searching for hits in different layers at same eta
-  int m_dchmin[9][9][2][2];//[+layer][-layer][ws][ac]
-  int m_dchmax[9][9][2][2];//[+layer][-layer][ws][ac]
+  int m_dchmin[9][9][2][2]{};//[+layer][-layer][ws][ac]
+  int m_dchmax[9][9][2][2]{};//[+layer][-layer][ws][ac]
   
   // Offsets used to compare channels between layers inside stations
-  int m_SLBoffset[2][2][6][9];//[ws][ac][eta][layer]
+  int m_SLBoffset[2][2][6][9]{};//[ws][ac][eta][layer]
   
   // functions to clear/set the values of the above variables
   void clearVectorsArrays();
@@ -151,16 +151,16 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // single bin histogram for counting events
-  TH1* m_tgceventcounter;
+  TH1* m_tgceventcounter = nullptr;
 
   // Hits per event histograms
-  TH1* m_tgcevents;
-  TH1* m_tgcnumberofhits[2];//[ac]
-  TH1* m_tgcnumberofwirehits;
-  TH1* m_tgcnumberofstriphits;
+  TH1* m_tgcevents = nullptr;
+  TH1* m_tgcnumberofhits[2]{};//[ac]
+  TH1* m_tgcnumberofwirehits = nullptr;
+  TH1* m_tgcnumberofstriphits = nullptr;
 
   // Hit rate across whole of midstation per lumiblock
-  TH2* m_tgctripletdoublethitsinlbvssect[2];// profile lumiblock, FE, phi
+  TH2* m_tgctripletdoublethitsinlbvssect[2]{};// profile lumiblock, FE, phi
   
   // book histograms
   StatusCode bookHistogramsNumberOfHits();
@@ -174,21 +174,21 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // flag for whether to monitor profile histograms
-  bool m_mon_profile;
+  bool m_mon_profile = false;
   // numbering version, 0:sector based, 1:phi based
   int m_numberingVersion;
   
   // profile histograms, filled with unique number for each element in a layer-phi48 section
-  TH1* m_tgcwireprofilephi48[2][7][48]; //[ac][layer][phi48]
-  TH1* m_tgcstripprofilephi48[2][7][48];//[ac][layer][phi48]
+  TH1* m_tgcwireprofilephi48[2][7][48]{}; //[ac][layer][phi48]
+  TH1* m_tgcstripprofilephi48[2][7][48]{};//[ac][layer][phi48]
   
   // profile and occupancy maps filled in procHistograms and PostProcessor
-  TH2* m_tgcprofilemap[2][2];  //[ac][ws]
-  TH2* m_tgcoccupancymap[2][2];//[ac][ws]
+  TH2* m_tgcprofilemap[2][2]{};  //[ac][ws]
+  TH2* m_tgcoccupancymap[2][2]{};//[ac][ws]
   
   // coincidence of wires and strip chamber maps
-  TH2* m_tgcwirestripcoin[2];//[ac]
-  TH2* m_tgcwirestripcoinlowstat[2];//[ac]
+  TH2* m_tgcwirestripcoin[2]{};//[ac]
+  TH2* m_tgcwirestripcoinlowstat[2]{};//[ac]
   
   // book histograms
   StatusCode bookHistogramsProfile();
@@ -203,23 +203,23 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // efficiency per layer-wire/strip
-  TH1* m_tgceff[2];     //[ac]
-  TH1* m_tgceffnum[2];  //[ac]
-  TH1* m_tgceffdenom[2];//[ac]
+  TH1* m_tgceff[2]{};     //[ac]
+  TH1* m_tgceffnum[2]{};  //[ac]
+  TH1* m_tgceffdenom[2]{};//[ac]
   
   // efficiency per sector-layer
-  TH1* m_tgceffsector[2][2];     //[ac][ws]
-  TH1* m_tgceffsectornum[2][2];  //[ac][ws]
-  TH1* m_tgceffsectordenom[2][2];//[ac][ws]
+  TH1* m_tgceffsector[2][2]{};     //[ac][ws]
+  TH1* m_tgceffsectornum[2][2]{};  //[ac][ws]
+  TH1* m_tgceffsectordenom[2][2]{};//[ac][ws]
   
   // efficiency maps (current)
-  TH2* m_tgceffmap[2][2];     //[ac][ws]
-  TH2* m_tgceffmapnum[2][2];  //[ac][ws]
-  TH2* m_tgceffmapdenom[2][2];//[ac][ws]
+  TH2* m_tgceffmap[2][2]{};     //[ac][ws]
+  TH2* m_tgceffmapnum[2][2]{};  //[ac][ws]
+  TH2* m_tgceffmapdenom[2][2]{};//[ac][ws]
   
   // efficiency maps for BCID next/prev, (current denominator is used)
-  TH2* m_tgceffmapbc[2][2][2];   //[ac][ws][prev/next]
-  TH2* m_tgceffmapnumbc[2][2][2];//[ac][ws][prev/next]
+  TH2* m_tgceffmapbc[2][2][2]{};   //[ac][ws][prev/next]
+  TH2* m_tgceffmapnumbc[2][2][2]{};//[ac][ws][prev/next]
   
   // calculates efficiency for given side, ws, chamber-layer 
   // is called by fillEfficiency after checks
@@ -237,8 +237,8 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // XY View histograms, filled with (per chamber) each wire's R and each strip's Phi
-  TH2* m_tgcxyview[2];        //[ac]
-  TH2* m_tgcxyviewlayer[2][9];//[ac][layer]
+  TH2* m_tgcxyview[2]{};        //[ac]
+  TH2* m_tgcxyviewlayer[2][9]{};//[ac][layer]
   
   // book histograms
   StatusCode bookHistogramsXYView();
@@ -252,14 +252,14 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // summary of bin values from efficiency maps
-  TH1* m_tgcsummaryofeffpergasgap[2][2];      //[ac][ws]
-  TH1* m_tgcsummaryofeffperchambertype[2][17];//[ws][TYPE]
+  TH1* m_tgcsummaryofeffpergasgap[2][2]{};      //[ac][ws]
+  TH1* m_tgcsummaryofeffperchambertype[2][17]{};//[ws][TYPE]
   
   // summary of bin values from occupancy maps
-  TH1* m_tgcsummaryoflog10wireoccupancypergasgap[2];       //[ac]
-  TH1* m_tgcsummaryoflog10stripoccupancypergasgap[2];      //[ac]
-  TH1* m_tgcsummaryoflog10wireoccupancyperchambertype[19]; //[TYPE]
-  TH1* m_tgcsummaryoflog10stripoccupancyperchambertype[19];//[TYPE]
+  TH1* m_tgcsummaryoflog10wireoccupancypergasgap[2]{};       //[ac]
+  TH1* m_tgcsummaryoflog10stripoccupancypergasgap[2]{};      //[ac]
+  TH1* m_tgcsummaryoflog10wireoccupancyperchambertype[19]{}; //[TYPE]
+  TH1* m_tgcsummaryoflog10stripoccupancyperchambertype[19]{};//[TYPE]
   
   // book histograms
   StatusCode bookHistogramsSummary();

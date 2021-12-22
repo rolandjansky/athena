@@ -829,7 +829,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
     std::vector< uint32_t >::const_iterator dw_end = muctpiRDO->dataWord().end();
     for( ; dw_itr != dw_end; ++dw_itr ) {
       
-      muctpi_rdo  muctpi_rdo_roi;
+      muctpi_rdo  muctpi_rdo_roi{};
       // Use the same class that is used by the LVL2 steering to decode
       // the muon RoIs:
       

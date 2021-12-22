@@ -9,13 +9,13 @@
 int convertStrToIntName(std::string ChamberName, std::string ChamberType) {
 
   //Input values
-  std::string Name_str = ChamberName;
+  const std::string& Name_str = ChamberName;
 
   //add type
   //"MDT","CSC","TGC" go in the same loop while
   //"RPC" go to a different loop due to the same
   //naming with "MDT"
-  std::string Type=ChamberType;
+  const std::string& Type=ChamberType;
 
 
   //Set string variables

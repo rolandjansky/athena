@@ -35,7 +35,7 @@ private:
   TGCCableSLBToSSW(void) {}
   virtual TGCModuleMap* getModuleIn(const TGCModuleId* ssw) const;
   virtual TGCModuleMap* getModuleOut(const TGCModuleId* slb) const;
-  TGCDatabase* m_database[TGCIdBase::MaxRegionType][MaxModuleType];
+  TGCDatabase* m_database[TGCIdBase::MaxRegionType][MaxModuleType]{};
 };
   
 } // end of namespace

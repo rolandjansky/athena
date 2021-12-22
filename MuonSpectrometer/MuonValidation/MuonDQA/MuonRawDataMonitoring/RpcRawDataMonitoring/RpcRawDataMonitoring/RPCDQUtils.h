@@ -25,7 +25,7 @@ struct RpcPanel
             const int                        _measPhi,
             int                        &_panelIn);
 
-  const MuonGM::RpcReadoutElement *readoutEl;
+  const MuonGM::RpcReadoutElement *readoutEl = nullptr;
   
   Identifier      panelId     {0};
   bool            panel_valid {false};

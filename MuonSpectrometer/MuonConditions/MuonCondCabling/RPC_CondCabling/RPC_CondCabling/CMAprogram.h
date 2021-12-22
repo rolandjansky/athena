@@ -103,8 +103,8 @@ private:
     uint16_t m_l1c_pre{0x1ff};
     uint16_t m_bcc_pre{0};
 
-    bool m_threshold_registers[3][CMAparameters::pivot_channels][CMAparameters::confirm_channels];
-    uint32_t m_program_bytes[3][CMAparameters::pivot_channels][2];
+    bool m_threshold_registers[3][CMAparameters::pivot_channels][CMAparameters::confirm_channels]{};
+    uint32_t m_program_bytes[3][CMAparameters::pivot_channels][2]{};
 
     bool read_v02(DBline&);
 

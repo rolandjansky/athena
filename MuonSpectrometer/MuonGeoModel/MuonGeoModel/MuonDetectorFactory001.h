@@ -96,7 +96,7 @@ namespace MuonGM {
         int m_caching{0};
         int m_cacheFillingFlag{0};
         int m_mdtDeformationFlag{0};
-        int m_mdtAsBuiltParaFlag;
+        int m_mdtAsBuiltParaFlag = 0;
         bool m_dumpMemoryBreakDown{false};
         int m_enableFineClashFixing{0};
         bool m_hasCSC{true};

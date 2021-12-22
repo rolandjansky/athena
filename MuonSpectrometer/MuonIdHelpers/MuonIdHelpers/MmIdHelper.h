@@ -131,8 +131,8 @@ public:
 
 private:
     int init_id_to_hashes();
-    unsigned int m_module_hashes[60][20][48];             // Nektar Probably need to change this
-    unsigned int m_detectorElement_hashes[60][20][8][3];  // Nektar Probably need to change this
+    unsigned int m_module_hashes[60][20][48]{};             // Nektar Probably need to change this
+    unsigned int m_detectorElement_hashes[60][20][8][3]{};  // Nektar Probably need to change this
 
     // compact id indices
     size_type m_GASGAP_INDEX;

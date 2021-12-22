@@ -76,7 +76,7 @@ namespace MuonCalib {
 
     private:
         // parameters of the curved line //
-        const Legendre_polynomial *m_Legendre;  // pointer to the Legendre polynomial
+        const Legendre_polynomial *m_Legendre = nullptr;  // pointer to the Legendre polynomial
                                                 // describing the curved line
         Amg::VectorX m_coeff_xz;                // coefficients of the straight line in the local
                                                 // xz plane

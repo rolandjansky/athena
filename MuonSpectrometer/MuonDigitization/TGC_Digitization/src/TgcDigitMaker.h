@@ -188,11 +188,11 @@ class TgcDigitMaker : public AthMessaging {
   double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI]{};
 
   /** Position of Strip Channel (Longer base or Shorter base) */
-  float m_StripPos[N_STATIONNAME][N_ABSSTATIONETA][N_STRIPCHANNEL];
+  float m_StripPos[N_STATIONNAME][N_ABSSTATIONETA][N_STRIPCHANNEL]{};
   /** ASD propagation time offset for each chamber */
-  float m_ASDpropTimeOffset[N_STATIONNAME][N_STATIONETA][N_ISSTRIP][N_ASDNUM];
+  float m_ASDpropTimeOffset[N_STATIONNAME][N_STATIONETA][N_ISSTRIP][N_ASDNUM]{};
   /** max channel for ASD */
-  float m_maxch[N_STATIONNAME][N_STATIONETA][N_ISSTRIP][N_ASDNUM];
+  float m_maxch[N_STATIONNAME][N_STATIONETA][N_ISSTRIP][N_ASDNUM]{};
 
   std::vector<std::vector<float> > m_vecAngle_Time;
 

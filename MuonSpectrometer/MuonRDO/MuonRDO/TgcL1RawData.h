@@ -290,88 +290,88 @@ private:
      */
 
     // BC tag (Central, Next, Previous)
-    uint16_t m_bcTag;
+    uint16_t m_bcTag = 0U;
 
     // online Identifiers
-    uint16_t m_subDetectorId;
-    uint16_t m_srodId;
+    uint16_t m_subDetectorId = 0U;
+    uint16_t m_srodId = 0U;
 
     // BCID and L1ID on SLB
-    uint16_t m_l1Id;
-    uint16_t m_bcId;
+    uint16_t m_l1Id = 0U;
+    uint16_t m_bcId = 0U;
 
     /********** Hit attributes
      */
 
     // bitmap position [40..199]
-    uint16_t m_bitpos;
+    uint16_t m_bitpos = 0U;
 
     // Index of assocaitated coincidence (if any) [0..63]
-    uint16_t m_tracklet;
+    uint16_t m_tracklet = 0U;
 
-    bool m_adjacent;
+    bool m_adjacent = false;
 
     /********** Coincidence attributes
      */
 
     //  Coincidence type (L-Pt, H-Pt, SL)
     DataType m_type;
-    bool m_forward;
+    bool m_forward = false;
 
     // Coincidence index
-    uint16_t m_index;
+    uint16_t m_index = 0U;
 
     // Coincidence Data
-    uint16_t m_pos;
-    int16_t m_delta;
-    uint16_t m_segment;
-    uint16_t m_subMatrix;
+    uint16_t m_pos = 0U;
+    int16_t m_delta = 0;
+    uint16_t m_segment = 0U;
+    uint16_t m_subMatrix = 0U;
 
     // HipT data
-    uint16_t m_sector;
-    uint16_t m_chip;
-    bool m_hipt;
-    uint16_t m_hitId;
-    uint16_t m_hsub;
-    bool m_strip;
-    uint16_t m_inner;
+    uint16_t m_sector = 0U;
+    uint16_t m_chip = 0U;
+    bool m_hipt = false;
+    uint16_t m_hitId = 0U;
+    uint16_t m_hsub = 0U;
+    bool m_strip = false;
+    uint16_t m_inner = 0U;
 
     // New Sector Logic
     // RoI
-    bool m_cand3plus;
-    bool m_muplus;
-    uint16_t m_threshold;
-    bool m_overlap;
-    bool m_veto;
-    uint16_t m_roi;
-    uint16_t m_innerflag;
-    uint16_t m_coinflag;
+    bool m_cand3plus = false;
+    bool m_muplus = false;
+    uint16_t m_threshold = 0U;
+    bool m_overlap = false;
+    bool m_veto = false;
+    uint16_t m_roi = 0U;
+    uint16_t m_innerflag = 0U;
+    uint16_t m_coinflag = 0U;
 
     // NSW
-    uint16_t m_nsweta;
-    uint16_t m_nswphi;
-    uint16_t m_nswsl;
-    uint16_t m_nswcand;
-    uint16_t m_nswdtheta;
-    uint16_t m_nswphires;
-    uint16_t m_nswlowres;
-    uint16_t m_nswid;
+    uint16_t m_nsweta  = 0U;
+    uint16_t m_nswphi  = 0U;
+    uint16_t m_nswsl  = 0U;
+    uint16_t m_nswcand  = 0U;
+    uint16_t m_nswdtheta  = 0U;
+    uint16_t m_nswphires  = 0U;
+    uint16_t m_nswlowres  = 0U;
+    uint16_t m_nswid  = 0U;
     
     // RPC BIS78
-    uint16_t m_rpceta;
-    uint16_t m_rpcphi;
-    uint16_t m_rpcflag;
-    uint16_t m_rpcdeta;
-    uint16_t m_rpcdphi;
+    uint16_t m_rpceta  = 0U;
+    uint16_t m_rpcphi  = 0U;
+    uint16_t m_rpcflag = 0U;
+    uint16_t m_rpcdeta  = 0U;
+    uint16_t m_rpcdphi  = 0U;
     
     // EIFI
-    uint16_t m_ei;
-    uint16_t m_fi;
-    uint16_t m_cid;
+    uint16_t m_ei  = 0U;
+    uint16_t m_fi  = 0U;
+    uint16_t m_cid  = 0U;
 
     // TMDB
-    uint16_t m_tmdbmod;
-    uint16_t m_tmdbbcid;
+    uint16_t m_tmdbmod  = 0U;
+    uint16_t m_tmdbbcid  = 0U;
     
 };
 

@@ -30,7 +30,7 @@ namespace MuonGM {
 
         double thickness;
         double cscthickness;
-        double dim[8];
+        double dim[8]{};
 
       public: // methods
         CscMultiLayer(const MYSQL& mysql, std::string n);

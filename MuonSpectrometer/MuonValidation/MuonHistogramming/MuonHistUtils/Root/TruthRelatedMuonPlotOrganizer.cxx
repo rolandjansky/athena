@@ -126,7 +126,7 @@ TruthRelatedMuonPlotOrganizer::~TruthRelatedMuonPlotOrganizer()
     }
     else {
       // gymnastics to get msTrk...
-      ElementLink<xAOD::TrackParticleContainer> msExtrapTrkLink = mu.trackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle);      
+      const ElementLink<xAOD::TrackParticleContainer>& msExtrapTrkLink = mu.trackParticleLink(xAOD::Muon::MuonSpectrometerTrackParticle);      
       if (msExtrapTrkLink.isValid()) {
 	//msExtrapTrk = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );
 	TruthLink truthLink_muTrk;

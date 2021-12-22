@@ -44,15 +44,15 @@ TgcRdoCnv_p2::transToPers(const TgcRdo* transColl, TgcRdo_p2* persColl, MsgStrea
     persColl->m_bcId          = transColl->bcId();
     persColl->m_l1Id          = transColl->l1Id();
 
-    Errors_u errors_u;
+    Errors_u errors_u{};
     errors_u.errors = transColl->errors();
     persColl->m_errors        = errors_u.i;
 
-    RodStatus_u rodStatus_u;
+    RodStatus_u rodStatus_u{};
     rodStatus_u.rodStatus = transColl->rodStatus();
     persColl->m_rodStatus        = rodStatus_u.i;
 
-    LocalStatus_u localStatus_u;
+    LocalStatus_u localStatus_u{};
     localStatus_u.localStatus = transColl->localStatus();
     persColl->m_localStatus        = localStatus_u.i;
 

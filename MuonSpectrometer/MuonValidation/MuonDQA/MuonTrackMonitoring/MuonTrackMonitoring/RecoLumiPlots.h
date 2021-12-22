@@ -34,7 +34,7 @@ class RecoLumiPlots:public PlotBase {
             TH2* m_hNMuon_LB;
             TH2* m_hNResonance_LB;
 
-            int n_lbs;
+            int n_lbs = 0;
 
             //for locating Z and Jpsi
             std::string type;

@@ -45,7 +45,7 @@ namespace MuonCalib {
 
     private:
         std::list<TH2F *> m_residuals[2];
-        TH2F *m_current_residuals[2];
+        TH2F *m_current_residuals[2]{};
         std::list<TProfile *> m_res_prov[2];
         std::list<TProfile *> m_res_prov_diff;
         TDirectory *m_control_histogram_dir;

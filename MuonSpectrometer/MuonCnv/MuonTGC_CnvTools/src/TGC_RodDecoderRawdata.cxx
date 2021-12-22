@@ -181,7 +181,7 @@ void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
   TGC_BYTESTREAM_FRAGMENTCOUNT counters[7] = {
     {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 8}, {0, 9}
   };
-  TGC_BYTESTREAM_FRAGMENTCOUNT counter;
+  TGC_BYTESTREAM_FRAGMENTCOUNT counter{};
 
   int iBs = 0;
   for(int iCnt = 0; iCnt < 7; iCnt++)
