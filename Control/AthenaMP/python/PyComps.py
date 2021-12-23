@@ -63,9 +63,6 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         use_shared_reader = jp.AthenaMPFlags.UseSharedReader()
         use_shared_writer = jp.AthenaMPFlags.UseSharedWriter()
         use_parallel_compression = jp.AthenaMPFlags.UseParallelCompression()
-        if use_shared_writer and use_parallel_compression and events_before_fork > 0:
-            msg.info('SharedWriter with parallel compression is not compatible with EventsBeforeFork > 0. Therefore, disabling parallel compression.')
-            use_parallel_compression = False
 
         if strategy=='SharedQueue' or strategy=='RoundRobin':
             if use_shared_reader:
@@ -107,7 +104,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                                                        Debug=debug_worker)   ]
             if use_shared_writer:
                 from AthenaMPTools.AthenaMPToolsConf import SharedWriterTool
-                self.Tools += [ SharedWriterTool() ]
+                self.Tools += [ SharedWriterTool(MotherProcess=(events_before_fork>0)) ]
 
             # Enable seeking
             if not use_shared_reader:
