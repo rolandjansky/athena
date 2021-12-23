@@ -188,6 +188,10 @@ class TrigTauMonAlgBuilder:
        'HLT_tau35_mediumRNN_tracktwoMVABDT_L1TAU20IM',
        'HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM',
        'HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM',
+       # tau60
+       'HLT_tau60_mediumRNN_tracktwoMVABDT_L1TAU40',
+       # tau80
+       'HLT_tau80_mediumRNN_tracktwoMVABDT_L1TAU60', 
        # tau160
        'HLT_tau160_ptonly_L1TAU100',
        'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
