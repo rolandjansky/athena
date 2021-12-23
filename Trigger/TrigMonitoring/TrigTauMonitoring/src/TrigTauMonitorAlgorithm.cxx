@@ -325,6 +325,11 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, const
                found_thrName = true;
                break;
             }
+            else if( trigL1Item.find("L1TAU40") != std::string::npos && item.find("HA40") != std::string::npos)
+            {
+               found_thrName = true;
+               break;
+            }       
             else if ( trigL1Item.find("L1TAU60") != std::string::npos && item.find("HA60") != std::string::npos)
             {
                found_thrName = true;
