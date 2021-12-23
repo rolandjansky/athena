@@ -5,86 +5,93 @@
 */
 
 #ifndef THINNINGUTILS_ThinTrkTrackAlg_H
-#define THINNINGUTILS_ThinTrkTrackAlg_H 
+#define THINNINGUTILS_ThinTrkTrackAlg_H
 /**
  @class ThinTrkTrackAlg
 */
 // STL includes
 #include <string>
 
-
 // FrameWork includes
-#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "xAODMuon/MuonContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "TrkTrack/TrackCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ThinningHandleKey.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
+#include "TrkTrack/TrackCollection.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
-
-class ThinTrkTrackAlg : public ::AthAlgorithm {
+class ThinTrkTrackAlg : public AthReentrantAlgorithm
+{
 public:
-  
-  /// Constructor with parameters:
-  ThinTrkTrackAlg( const std::string& name, ISvcLocator* pSvcLocator );
-    
-  /// Destructor:
-  virtual ~ThinTrkTrackAlg();
-  
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
   /// Athena algorithm's initalize hook
-  virtual StatusCode  initialize() final;
-  
+  virtual StatusCode initialize() override final;
+
   /// Athena algorithm's execute hook
-  virtual StatusCode  execute() final;
-  
-  /// Athena algorithm's finalize hook
-  virtual StatusCode  finalize() final;
-  
- private:
+  virtual StatusCode execute(const EventContext& ctx) const override final;
+
+private:
   /// Inline method
-  StatusCode doEGamma() ;
-  StatusCode doMuons() ;
-  
-  StringProperty m_streamName
-  { this, "StreamName", "", "Name of the stream being thinned" };
+  StatusCode doEGamma(const EventContext& ctx) const;
+  StatusCode doMuons(const EventContext& ctx) const;
+
+  StringProperty m_streamName{ this,
+                               "StreamName",
+                               "",
+                               "Name of the stream being thinned" };
 
   /// Should the thinning run?
-  bool m_doElectrons;
-  bool m_doPhotons;
-  bool m_doMuons;
   /// The containers of Objects of interest Electron/Muon
-  SG::ReadHandleKey<xAOD::MuonContainer> m_muonsKey
-  { this, "MuonsKey", "Muons", "StoreGate key for muons container" };
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonsKey{
+    this,
+    "MuonsKey",
+    "Muons",
+    "StoreGate key for muons container"
+  };
 
-  SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsKey
-  { this, "ElectronsKey", "Electrons", "StoreGate key for electrons container" };
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsKey{
+    this,
+    "ElectronsKey",
+    "Electrons",
+    "StoreGate key for electrons container"
+  };
 
-  SG::ReadHandleKey<xAOD::PhotonContainer> m_photonsKey
-  { this, "PhotonsKey", "Photons", "StoreGate key for photon container" };
-
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_photonsKey{
+    this,
+    "PhotonsKey",
+    "Photons",
+    "StoreGate key for photon container"
+  };
 
   /// Containers to thin
-  SG::ThinningHandleKey<TrackCollection> m_CombinedMuonsTracksKey
-  { this, "CombinedMuonsTrackKey", "CombinedMuonTracks", "StoreGate key for combined muons Trk::Track container" };
+  SG::ThinningHandleKey<TrackCollection> m_CombinedMuonsTracksKey{
+    this,
+    "CombinedMuonsTrackKey",
+    "CombinedMuonTracks",
+    "StoreGate key for combined muons Trk::Track container"
+  };
 
-  SG::ThinningHandleKey<TrackCollection> m_GSFTracksKey
-  { this, "GSFTrackKey", "GSFTracks", "StoreGate key for GSF Trk::Track container" };
+  SG::ThinningHandleKey<TrackCollection> m_GSFTracksKey{
+    this,
+    "GSFTrackKey",
+    "GSFTracks",
+    "StoreGate key for GSF Trk::Track container"
+  };
 
-  //pT cuts for the objects
-  double m_minptElectrons;
-  double m_minptPhotons;
-  double m_minptMuons;
-  //Should we only keep the best match?
-  bool m_bestonlyElectrons;
-  bool m_bestonlyPhotons;
-
+  Gaudi::Property<bool> m_doElectrons{ this, "doElectrons", true };
+  Gaudi::Property<bool> m_doPhotons{ this, "doPhotons", true };
+  Gaudi::Property<bool> m_doMuons{ this, "doMuons", true };
+  Gaudi::Property<bool> m_bestonlyElectrons{ this, "OnlyBestElectrons", true };
+  Gaudi::Property<bool> m_bestonlyPhotons{ this, "OnlyBestPhotons", true };
+  Gaudi::Property<double> m_minptElectrons{ this, "minptElectrons", 4000. };
+  Gaudi::Property<double> m_minptPhotons{ this, "minptPhotons", 4000. };
+  Gaudi::Property<double> m_minptMuons{ this, "minptMuons", 4000. };
 };
 
-
-#endif 
+#endif
