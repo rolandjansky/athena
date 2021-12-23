@@ -181,7 +181,7 @@ StatusCode ThinGeantTruthAlg::execute()
         }
       //Only central isolated true electrons	
       typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
-      static SG::AuxElement::ConstAccessor<TruthLink_t> linkToTruth("truthParticleLink");
+      static const SG::AuxElement::ConstAccessor<TruthLink_t> linkToTruth("truthParticleLink");
       if (!linkToTruth.isAvailable(*egTruthParticle)) {
         continue;
       }
