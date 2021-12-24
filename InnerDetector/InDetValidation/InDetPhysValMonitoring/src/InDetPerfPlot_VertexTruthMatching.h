@@ -119,6 +119,109 @@ private:
     TH2* m_vx_hs_truth_z_pull_vs_nTrk;
     TH2* m_vx_hs_truth_x_pull_vs_nTrk;
     TH2* m_vx_hs_truth_y_pull_vs_nTrk;
+    // New Histograms for Expert Plots for observables for different vertex classifications
+    TH1* m_vx_ntracks_matched;
+    TH1* m_vx_ntracks_merged;
+    TH1* m_vx_ntracks_split;
+    TH1* m_vx_ntracks_HS_matched;
+    TH1* m_vx_ntracks_HS_merged;
+    TH1* m_vx_ntracks_HS_split;
+    TH1* m_vx_ntracks_ALL_matched;
+    TH1* m_vx_ntracks_ALL_merged;
+    TH1* m_vx_ntracks_ALL_split;
+    TH1* m_vx_sumpT_matched;
+    TH1* m_vx_sumpT_merged;
+    TH1* m_vx_sumpT_split;
+    TH1* m_vx_sumpT_HS_matched;
+    TH1* m_vx_sumpT_HS_merged;
+    TH1* m_vx_sumpT_HS_split;
+    
+    TH1* m_vx_z_asym_matched;
+    TH1* m_vx_z_asym_merged;
+    TH1* m_vx_z_asym_split;
+    TH1* m_vx_z_asym_HS_matched;
+    TH1* m_vx_z_asym_HS_merged;
+    TH1* m_vx_z_asym_HS_split;
+    TH1* m_vx_z_asym_weighted_matched;
+    TH1* m_vx_z_asym_weighted_merged;
+    TH1* m_vx_z_asym_weighted_split;
+    TH1* m_vx_z_asym_weighted_HS_matched;
+    TH1* m_vx_z_asym_weighted_HS_merged;
+    TH1* m_vx_z_asym_weighted_HS_split;
+    
+    TH1* m_vx_track_weight_matched;
+    TH1* m_vx_track_weight_merged;
+    TH1* m_vx_track_weight_split;
+    TH1* m_vx_track_weight_HS_matched;
+    TH1* m_vx_track_weight_HS_merged;
+    TH1* m_vx_track_weight_HS_split;
+
+    TH1* m_vx_normalised_track_weight_matched;
+    TH1* m_vx_normalised_track_weight_merged;
+    TH1* m_vx_normalised_track_weight_split;
+    TH1* m_vx_normalised_track_weight_HS_matched;
+    TH1* m_vx_normalised_track_weight_HS_merged;
+    TH1* m_vx_normalised_track_weight_HS_split;
+
+    TH1* m_vx_chi2Over_ndf_matched;
+    TH1* m_vx_chi2Over_ndf_merged;
+    TH1* m_vx_chi2Over_ndf_split;
+    TH1* m_vx_chi2Over_ndf_HS_matched;
+    TH1* m_vx_chi2Over_ndf_HS_merged;
+    TH1* m_vx_chi2Over_ndf_HS_split;
+
+    TH1* m_vx_z0_skewness_matched;
+    TH1* m_vx_z0_skewness_merged;
+    TH1* m_vx_z0_skewness_split;
+    TH1* m_vx_z0_skewness_HS_matched;
+    TH1* m_vx_z0_skewness_HS_merged;
+    TH1* m_vx_z0_skewness_HS_split;
+    TH1* m_vx_z0_kurtosis_matched;
+    TH1* m_vx_z0_kurtosis_merged;
+    TH1* m_vx_z0_kurtosis_split;
+    TH1* m_vx_z0_kurtosis_HS_matched;
+    TH1* m_vx_z0_kurtosis_HS_merged;
+    TH1* m_vx_z0_kurtosis_HS_split;
+
+    // ALL Vertices
+    TH1* m_vx_sumpT_ALL_matched;
+    TH1* m_vx_sumpT_ALL_merged;
+    TH1* m_vx_sumpT_ALL_split;
+    
+    TH1* m_vx_z_asym_ALL_matched;
+    TH1* m_vx_z_asym_ALL_merged;
+    TH1* m_vx_z_asym_ALL_split;
+    TH1* m_vx_z_asym_weighted_ALL_matched;
+    TH1* m_vx_z_asym_weighted_ALL_merged;
+    TH1* m_vx_z_asym_weighted_ALL_split;
+    TH1* m_vx_track_weight_ALL_matched;
+    TH1* m_vx_track_weight_ALL_merged;
+    TH1* m_vx_track_weight_ALL_split;
+    TH1* m_vx_normalised_track_weight_ALL_matched;
+    TH1* m_vx_normalised_track_weight_ALL_merged;
+    TH1* m_vx_normalised_track_weight_ALL_split;
+
+    TH1* m_vx_chi2Over_ndf_ALL_matched;
+    TH1* m_vx_chi2Over_ndf_ALL_merged;
+    TH1* m_vx_chi2Over_ndf_ALL_split;
+
+    TH1* m_vx_z0_skewness_ALL_matched;
+    TH1* m_vx_z0_skewness_ALL_merged;
+    TH1* m_vx_z0_skewness_ALL_split;
+    TH1* m_vx_z0_kurtosis_ALL_matched;
+    TH1* m_vx_z0_kurtosis_ALL_merged;
+    TH1* m_vx_z0_kurtosis_ALL_split;
+
+    TH1* m_vx_nVertices_ALL_matched;
+    TH1* m_vx_nVertices_ALL_merged;
+    TH1* m_vx_nVertices_ALL_split;
+    TH1* m_vx_nVertices_HS_matched;
+    TH1* m_vx_nVertices_HS_merged;
+    TH1* m_vx_nVertices_HS_split;
+    TH1* m_vx_nVertices_matched;
+    TH1* m_vx_nVertices_merged;
+    TH1* m_vx_nVertices_split;
+
 
     ///@}
 private:
