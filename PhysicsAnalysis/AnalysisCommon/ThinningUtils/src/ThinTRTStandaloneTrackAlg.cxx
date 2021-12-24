@@ -14,18 +14,10 @@ ThinTRTStandaloneTrackAlg::initialize()
 {
   ATH_CHECK(m_InDetTrackParticlesKey.initialize(m_streamName));
 
-  if (m_doElectron) {
-    ATH_CHECK(m_InputElectronContainerKey.initialize());
-  }
-  if (m_doPhoton) {
-    ATH_CHECK(m_InputPhotonContainerKey.initialize());
-  }
-  if (m_doTau) {
-    ATH_CHECK(m_InputTauJetContainerKey.initialize());
-  }
-  if (m_doMuon) {
-    ATH_CHECK(m_inputMuonContainerKey.initialize());
-  }
+  ATH_CHECK(m_InputElectronContainerKey.initialize(m_doElectron));
+  ATH_CHECK(m_InputPhotonContainerKey.initialize(m_doPhoton));
+  ATH_CHECK(m_InputTauJetContainerKey.initialize(m_doTau));
+  ATH_CHECK(m_inputMuonContainerKey.initialize(m_doMuon));
   return StatusCode::SUCCESS;
 }
 
@@ -145,20 +137,20 @@ ThinTRTStandaloneTrackAlg::execute(const EventContext& ctx) const
       }
     }
   }
-   if (m_doMuon){
-     SG::ReadHandle<xAOD::MuonContainer> muons(m_inputMuonContainerKey, ctx);
-     if( !muons.isValid() ) {
-        ATH_MSG_FATAL("Failed to retrieve "<< m_inputMuonContainerKey.key());
-       return StatusCode::FAILURE;
-     }
-     for (const xAOD::Muon* muon : *muons){
-        const xAOD::TrackParticle* trk = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-        /// SaF muons have the ID link to the InDetForwardTrackParticles
-        if (muon->muonType() != xAOD::Muon::SiliconAssociatedForwardMuon && trk) keptInDetTrackParticles[trk->index()] = true;
-     }
-   
-   
-   }
+  if (m_doMuon) {
+    SG::ReadHandle<xAOD::MuonContainer> muons(m_inputMuonContainerKey, ctx);
+    if (!muons.isValid()) {
+      ATH_MSG_FATAL("Failed to retrieve " << m_inputMuonContainerKey.key());
+      return StatusCode::FAILURE;
+    }
+    for (const xAOD::Muon* muon : *muons) {
+      const xAOD::TrackParticle* trk =
+        muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+      /// SaF muons have the ID link to the InDetForwardTrackParticles
+      if (muon->muonType() != xAOD::Muon::SiliconAssociatedForwardMuon && trk)
+        keptInDetTrackParticles[trk->index()] = true;
+    }
+  }
 
   // Do the thinning
   indetTrackPC.keep(keptInDetTrackParticles);

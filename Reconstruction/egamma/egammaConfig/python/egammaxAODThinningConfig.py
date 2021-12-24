@@ -15,26 +15,41 @@ def egammaxAODThinningCfg(flags, name="EGammaxAODThinning"):
 
     acc = ComponentAccumulator()
     # Add e/gamma track thinning
-    # (although we call the Alg slimming)
     if flags.Egamma.doTrackThinning:
         from egammaAlgs.egammaTrackSlimmerConfig import (
             egammaTrackSlimmerCfg)
         acc.merge(egammaTrackSlimmerCfg(flags))
 
-    # Add the Cell Thinning for egamma and egammaLargeClusters
-    outFlags = flags.Egamma.Keys.Output
-    allClusters = [outFlags.CaloClusters, outFlags.EgammaLargeClusters,
-                   outFlags.ForwardClusters, outFlags.EgammaLargeFWDClusters]
-    samplings = ['TileGap1', 'TileGap2', "TileGap3",
-                 'TileBar0', 'TileExt0', 'HEC0']
-    from CaloRec.CaloThinCellsByClusterAlgConfig import (
-        CaloThinCellsByClusterAlgCfg)
-    for clus in allClusters:
-        acc.merge(CaloThinCellsByClusterAlgCfg(
-            flags,
-            streamName='StreamAOD',
-            clusters=clus,
-            samplings=samplings))
+    # keep cells for egamma and egammaLargeClusters
+    if flags.Egamma.keepCaloCellsAOD:
+        outFlags = flags.Egamma.Keys.Output
+        allClusters = []
+        if flags.Egamma.doCentral:
+            allClusters.append(outFlags.CaloClusters)
+            allClusters.append(outFlags.EgammaLargeClusters)
+
+        if flags.Egamma.doForward:
+            allClusters.append(outFlags.ForwardClusters)
+            allClusters.append(outFlags.EgammaLargeFWDClusters)
+
+        samplings = [
+            "TileGap1",
+            "TileGap2",
+            "TileGap3",
+            "TileBar0",
+            "TileExt0",
+            "HEC0",
+        ]
+        from CaloRec.CaloThinCellsByClusterAlgConfig import (
+            CaloThinCellsByClusterAlgCfg)
+
+        for clus in allClusters:
+            acc.merge(CaloThinCellsByClusterAlgCfg(
+                flags,
+                streamName="StreamAOD",
+                clusters=clus,
+                samplings=samplings)
+            )
 
     mlog.info("EGamma xAOD Thinning configured")
     return acc
