@@ -6,6 +6,8 @@ AFPToFTrackContainer
 AFPToFTrackContainerAux.
 AFPTrackContainer
 AFPTrackContainerAux.
+AFPVertexContainer
+AFPVertexContainerAux.
 AllCalo
 BunchId
 CaloCalFwdTopoTowers
