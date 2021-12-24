@@ -12,7 +12,7 @@
 
 InDetPerfPlot_nTracks::InDetPerfPlot_nTracks(InDetPlotBase* pParent, const std::string& sDir) : InDetPlotBase(pParent,
                                                                                                               sDir),
-  m_counters{0} {
+  m_counters{nullptr} {
   // nop
 }
 

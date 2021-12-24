@@ -62,18 +62,18 @@ public:
   void book(TEfficiency*& pHisto, const SingleHistogramDefinition& hd);
 
   // weight2 allows us to weight averaging in the profile
-  void fillHisto(TProfile* pTprofile, const float bin, const float weight, const float weight2=1.0);
-  void fillHisto(TProfile2D* pTprofile, const float xval, const float yval, const float weight, const float weight2=1.0);
+  static void fillHisto(TProfile* pTprofile, const float bin, const float weight, const float weight2=1.0);
+  static void fillHisto(TProfile2D* pTprofile, const float xval, const float yval, const float weight, const float weight2=1.0);
   //
-  void fillHisto(TH1* pTh1, const float value);
-  void fillHisto(TH1* pTh1, const float value, const float weight);
+  static void fillHisto(TH1* pTh1, const float value);
+  static void fillHisto(TH1* pTh1, const float value, const float weight);
   //
-  void fillHisto(TH2* pTh2, const float xval, const float yval);
-  void fillHisto(TH2* pTh2, const float xval, const float yval, const float weight);
+  static void fillHisto(TH2* pTh2, const float xval, const float yval);
+  static void fillHisto(TH2* pTh2, const float xval, const float yval, const float weight);
   //
-  void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
+  static void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
   //
-  void fillHisto(TEfficiency* pTeff,  const float value, const bool accepted, float weight);
+  static void fillHisto(TEfficiency* pTeff,  const float value, const bool accepted, float weight);
   //
 protected:
   /// book, for use by macro

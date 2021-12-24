@@ -227,14 +227,14 @@ private:
 private:
     // plot base has no default implementation of this; we use it to book the histos
     void initializePlots();
-    const xAOD::Vertex* getHSRecoVertexSumPt2(const xAOD::VertexContainer& recoVertices) const;
+    static const xAOD::Vertex* getHSRecoVertexSumPt2(const xAOD::VertexContainer& recoVertices) ;
     template<typename U, typename V>
     float getRadialDiff2(const U* vtx1, const V* vtx2) const;
     float getLocalPUDensity(const xAOD::TruthVertex* vtxOfInterest, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, const float radialWindow = 2.0) const;
-    float getRecoLongitudinalReso(const xAOD::Vertex* recoVtx) const;
-    float getRecoTransverseReso(const xAOD::Vertex* recoVtx) const;
+    static float getRecoLongitudinalReso(const xAOD::Vertex* recoVtx) ;
+    static float getRecoTransverseReso(const xAOD::Vertex* recoVtx) ;
     const xAOD::TruthVertex* getTruthVertex(const xAOD::Vertex* recoVtx) const;
-    void fillResoHist(TH1* resoHist, const TH2* resoHist2D);
+    static void fillResoHist(TH1* resoHist, const TH2* resoHist2D);
     void finalizePlots();
 };
 

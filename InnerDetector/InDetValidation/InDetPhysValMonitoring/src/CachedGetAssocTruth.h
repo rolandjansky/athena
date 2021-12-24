@@ -31,7 +31,7 @@ namespace IDPVM {
     const xAOD::TruthParticle* operator () (const xAOD::TrackParticle* trackParticle);
     const xAOD::TruthParticle* getTruth(const xAOD::TrackParticle* const trackParticle);
     ///Report statistics
-    std::string report() const;
+    static std::string report() ;
   private:
     ///private cache container; map or unordered_map could be used
     std::unordered_map<const xAOD::TrackParticle*, const xAOD::TruthParticle*> m_cache;

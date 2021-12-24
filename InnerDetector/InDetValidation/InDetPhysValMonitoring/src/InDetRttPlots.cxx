@@ -296,7 +296,7 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const xAOD::Ve
   if (recoHardScatter) {
     if (m_hardScatterVertexPlots) m_hardScatterVertexPlots->fill(*recoHardScatter, weight);
     if (m_hardScatterVertexTruthMatchingPlots){ 
-      if(truthHSVertices.size()>0 ) m_hardScatterVertexTruthMatchingPlots->fill(*recoHardScatter,truthHSVertices[0],weight);
+      if(!truthHSVertices.empty() ) m_hardScatterVertexTruthMatchingPlots->fill(*recoHardScatter,truthHSVertices[0],weight);
       else m_hardScatterVertexTruthMatchingPlots->fill(*recoHardScatter,nullptr,weight); 
     }
     ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all HS vertex");
