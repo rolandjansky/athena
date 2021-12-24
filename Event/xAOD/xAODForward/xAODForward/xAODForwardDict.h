@@ -60,6 +60,12 @@
 #include "xAODForward/versions/AFPProtonAuxContainer_v1.h"
 #include "xAODForward/versions/AFPProton_v1.h"
 
+#include "xAODForward/AFPVertexContainer.h"
+#include "xAODForward/AFPVertexAuxContainer.h"
+#include "xAODForward/versions/AFPVertexContainer_v1.h"
+#include "xAODForward/versions/AFPVertexAuxContainer_v1.h"
+#include "xAODForward/versions/AFPVertex_v1.h"
+
 #include "xAODForward/ZdcModuleContainer.h"
 #include "xAODForward/ZdcModuleAuxContainer.h"
 #include "xAODForward/versions/ZdcModuleContainer_v1.h"

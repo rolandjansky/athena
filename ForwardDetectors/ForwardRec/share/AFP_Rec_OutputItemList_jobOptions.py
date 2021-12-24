@@ -20,3 +20,6 @@ AFP_ItemList.append("xAOD::AFPProtonContainer#AFPProtonContainer")
 AFP_ItemList.append("xAOD::AFPProtonAuxContainer#AFPProtonContainerAux.")
 AFP_ItemList.append("xAOD::AFPToFTrackContainer#AFPToFTrackContainer")
 AFP_ItemList.append("xAOD::AFPToFTrackAuxContainer#AFPToFTrackContainerAux.")
+AFP_ItemList.append("xAOD::AFPVertexContainer#AFPVertexContainer")
+AFP_ItemList.append("xAOD::AFPVertexAuxContainer#AFPVertexContainerAux.")
+

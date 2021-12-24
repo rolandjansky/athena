@@ -25,3 +25,5 @@
 #include "xAODForward/AFPToFTrackAuxContainer.h"
 #include "xAODForward/AFPProtonContainer.h"
 #include "xAODForward/AFPProtonAuxContainer.h"
+#include "xAODForward/AFPVertexContainer.h"
+#include "xAODForward/AFPVertexAuxContainer.h"

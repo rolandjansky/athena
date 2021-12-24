@@ -113,6 +113,19 @@
           id="A5E4D2CC-2541-49D8-BAC7-3C5DFD51779B" />
    <typedef name="xAOD::AFPProtonAuxContainer" />
 
+   <!-- xAOD::AFPVertex interface type(s). -->
+   <class name="xAOD::AFPVertex_v1" />
+   <class name="xAOD::AFPVertexContainer_v1"
+          id="6B04BFB0-1207-4559-BFC5-FC93188BAAF4" />
+   <typedef name="xAOD::AFPVertex" />
+   <typedef name="xAOD::AFPVertexContainer" />
+
+   <!-- xAOD::AFPVertex auxiliary type(s). -->
+   <class name="xAOD::AFPVertexAuxContainer_v1"
+          id="D445E437-C944-456A-895D-58542C1D3928" />
+   <typedef name="xAOD::AFPVertexAuxContainer" />
+
+
    <!-- xAOD::ALFAData interface type(s). -->
    <class name="xAOD::ALFAData_v1" />
    <class name="xAOD::ALFADataContainer_v1"
