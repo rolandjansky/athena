@@ -37,6 +37,11 @@ def createEgammaConfigFlags():
                  lambda prevFlags: prevFlags.Output.doWriteAOD and
                  prevFlags.Egamma.doTracking)
 
+    # Keep egamma Cells in AOD
+    egcf.addFlag("Egamma.keepCaloCellsAOD",
+                 lambda prevFlags: prevFlags.Egamma.doCentral or
+                 prevFlags.Egamma.doForward)
+
     # The cluster corrections/calib
     egcf.addFlag("Egamma.Calib.ClusterCorrectionVersion",
                  'v12phiflip_noecorrnogap')
@@ -75,10 +80,10 @@ def createEgammaConfigFlags():
     egcf.addFlag("Egamma.Keys.Output.CaloClustersSuppAOD", '')
 
     egcf.addFlag("Egamma.Keys.Output.EgammaSuppAOD",
-                     '-e033.-e011.-e333.-e335.-e337.-e377.'
-                     '-isEMLoose.-isEMTight.'
-                     '-ptconeCorrBitset.-ptconecoreTrackPtrCorrection.'
-                     '-topoetconeCorrBitset')
+                 '-e033.-e011.-e333.-e335.-e337.-e377.'
+                 '-isEMLoose.-isEMTight.'
+                 '-ptconeCorrBitset.-ptconecoreTrackPtrCorrection.'
+                 '-topoetconeCorrBitset')
 
     egcf.addFlag("Egamma.Keys.Output.Electrons", 'Electrons')
     egcf.addFlag("Egamma.Keys.Output.ElectronsSuppESD", '')

@@ -67,7 +67,7 @@ def RecoSteering(flags):
         acc.merge(EGammaSteeringCfg(flags))
         log.info("---------- Configured egamma")
 
-    # Caching of CaloExtension for downstream 
+    # Caching of CaloExtension for downstream
     # Combined Performance algorithms.
     if flags.Reco.EnableCaloExtension:
         from TrackToCalo.CaloExtensionBuilderAlgCfg import (
@@ -145,6 +145,13 @@ def RecoSteering(flags):
 
 def RecoPostProcessingCfg(flags):
     acc = ComponentAccumulator()
-    # TODO: ThinTRTStandaloneTrackAlg
-    # TODO: ThinGeantTruth
+    if flags.Reco.PostProcessing.TRTAloneThinning:
+        from ThinningUtils.ThinTRTStandaloneConfig import (
+            ThinTRTStandaloneCfg)
+        # TODO doTau when Tau are added
+        acc.merge(ThinTRTStandaloneCfg(flags, doTau=False))
+    if flags.Reco.PostProcessing.GeantTruthThinning:
+        # TODO: ThinGeantTruth
+        pass
+
     return acc
