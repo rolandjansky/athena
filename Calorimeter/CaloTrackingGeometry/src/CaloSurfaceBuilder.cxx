@@ -189,14 +189,6 @@ CaloSurfaceBuilder::CreateUserSurface(const CaloCell_ID::CaloSample sample,
     return nullptr;
   }
 
-  // See ATLASRECTS-5012
-  // Here we prb want to move to conditions data
-  if (calo_dd == nullptr) {
-    if (detStore()->retrieve(calo_dd).isFailure()) {
-      ATH_MSG_WARNING("Failed to retrieve calo Det Descr manager");
-      return nullptr;
-    }
-  }
 
   // NB: the Transform3D created here belong to the surface,
   //     and will be deleted by it
