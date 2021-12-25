@@ -23,7 +23,7 @@ class sTGCSimHit {
   // Destructor:
   virtual ~sTGCSimHit();
    sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy, const int trackNumber);
-   sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy, const HepMcParticleLink hmpl);
+   sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy, const HepMcParticleLink& hmpl);
  
   //
   // member functions

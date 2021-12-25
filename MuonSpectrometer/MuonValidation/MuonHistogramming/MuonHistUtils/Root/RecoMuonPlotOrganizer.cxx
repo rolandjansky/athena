@@ -6,19 +6,19 @@
 
 namespace Muon{
   
-  RecoMuonPlotOrganizer::RecoMuonPlotOrganizer(PlotBase* pParent, std::string sDir, std::vector<int> *selPlots):
+  RecoMuonPlotOrganizer::RecoMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir, std::vector<int> *selPlots):
   PlotBase(pParent, sDir)
   // Reco plots
-  , m_oIDHitPlots(NULL)
-  , m_oTrkParamPlots(NULL)
-  , m_oImpactPlots(NULL)
-  , m_oMuonParamPlots(NULL)
-  , m_oMuRecoInfoPlots(NULL)
-  , m_oMomentumPullPlots(NULL)
-  , m_oMuonHitSummaryPlots(NULL)
-  , m_oMuonIsolationPlots(NULL)
-  , m_oChargeParamPlotsLowPt(NULL)
-  , m_oChargeParamPlotsHighPt(NULL)
+  , m_oIDHitPlots(nullptr)
+  , m_oTrkParamPlots(nullptr)
+  , m_oImpactPlots(nullptr)
+  , m_oMuonParamPlots(nullptr)
+  , m_oMuRecoInfoPlots(nullptr)
+  , m_oMomentumPullPlots(nullptr)
+  , m_oMuonHitSummaryPlots(nullptr)
+  , m_oMuonIsolationPlots(nullptr)
+  , m_oChargeParamPlotsLowPt(nullptr)
+  , m_oChargeParamPlotsHighPt(nullptr)
 {
   
   if (!selPlots) {

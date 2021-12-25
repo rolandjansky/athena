@@ -20,7 +20,7 @@ public:
   int GetStationEta(const int& hid) const;
   int GetGasGap(const int& hid) const;
 
-  int BuildTgcHitId (const std::string, const int, const int, const int) const;
+  int BuildTgcHitId (const std::string&, const int, const int, const int) const;
 
 private:
   TgcHitIdHelper();

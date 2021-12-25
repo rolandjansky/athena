@@ -8,7 +8,7 @@
 namespace LVL1TGCCabling8 {
 
 // Constructor & Destructor
-TGCCableInPP::TGCCableInPP (std::string filename)
+TGCCableInPP::TGCCableInPP (const std::string& filename)
   : TGCCable(TGCCable::InPP)
 {
   m_database[TGCIdBase::Endcap][TGCIdBase::WD] = new TGCDatabaseInPP(filename,"EWD");
@@ -51,12 +51,12 @@ TGCChannelId* TGCCableInPP::getChannel (const TGCChannelId* channelId,
     if(channelId->getChannelIdType()==TGCChannelId::PPOut)
       return getChannelIn(channelId,orChannel);
   }
-  return 0;
+  return nullptr;
 }
   
 TGCChannelId* TGCCableInPP::getChannelIn (const TGCChannelId* ppout,
 					  bool orChannel) const {
-  if(ppout->isValid()==false) return 0;
+  if(ppout->isValid()==false) return nullptr;
 
   TGCDatabase* databaseP = 
     m_database[ppout->getRegionType()][ppout->getModuleType()];
@@ -64,7 +64,7 @@ TGCChannelId* TGCCableInPP::getChannelIn (const TGCChannelId* ppout,
   int indexIn[TGCDatabaseInPP::NIndexIn] = 
     {ppout->getId(), ppout->getBlock(), ppout->getChannel()};
   int i = databaseP->getIndexDBIn(indexIn);
-  if(i<0) return 0;
+  if(i<0) return nullptr;
 
   int id, block, channel;
   bool found = false;
@@ -75,7 +75,7 @@ TGCChannelId* TGCCableInPP::getChannelIn (const TGCChannelId* ppout,
     block = databaseP->getEntry(i,4);
     channel = databaseP->getEntry(i,5);
     
-    if(id==-1&&block==-1&&channel==-1) return 0;
+    if(id==-1&&block==-1&&channel==-1) return nullptr;
 
     found = true;
   } else {
@@ -88,7 +88,7 @@ TGCChannelId* TGCCableInPP::getChannelIn (const TGCChannelId* ppout,
     } 
   }
 
-  if(!found) return 0;
+  if(!found) return nullptr;
 
   TGCChannelPPIn* ppin = 
     new TGCChannelPPIn(ppout->getSideType(),
@@ -104,12 +104,12 @@ TGCChannelId* TGCCableInPP::getChannelIn (const TGCChannelId* ppout,
 
 TGCChannelId* TGCCableInPP::getChannelOut (const TGCChannelId* ppin,
 					   bool orChannel) const {
-  if(ppin->isValid()==false) return 0;
+  if(ppin->isValid()==false) return nullptr;
 
   TGCDatabase* databaseP =
     m_database[ppin->getRegionType()][ppin->getModuleType()];
 
-  TGCChannelPPOut* ppout = 0;
+  TGCChannelPPOut* ppout = nullptr;
   int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     if((databaseP->getEntry(i,3)==ppin->getId()&&

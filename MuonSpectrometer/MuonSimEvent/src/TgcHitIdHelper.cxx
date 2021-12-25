@@ -75,7 +75,7 @@ int TgcHitIdHelper::GetGasGap(const int& hid) const
 }
 
 //packing method
-int TgcHitIdHelper::BuildTgcHitId(const std::string statName, const int statPhi,
+int TgcHitIdHelper::BuildTgcHitId(const std::string& statName, const int statPhi,
                                   const int statEta, const int gasG) const
 {
   int theID(0);

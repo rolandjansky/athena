@@ -4,9 +4,10 @@
 
 #include "AmdcDb/AmdcDbRecord.h"
 #include <cmath>
-#include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <utility>
 
 AmdcDbRecord::AmdcDbRecord(long UniversalId,const std::string& NameOfTheRecord){
 
@@ -192,7 +193,7 @@ void AmdcDbRecord::addDouble(std::string NameToSet,std::string Comment,double Va
 }
 
 void AmdcDbRecord::addString(std::string NameToSet,std::string Comment,std::string ValueToSet){
- m_MapOfstring[NameToSet] = ValueToSet;
+ m_MapOfstring[NameToSet] = std::move(ValueToSet);
  m_VectorOfVariableNames.push_back(NameToSet);
  m_VectorOfVariableNamesComment.push_back(Comment);
  m_VectorOfVariableNamesType.push_back(3);
@@ -206,7 +207,7 @@ void AmdcDbRecord::addLong(std::string NameToSet,std::string Comment,long ValueT
 }
 
 void AmdcDbRecord::addBlob(std::string NameToSet,std::string Comment,std::string ValueToSet){
- m_MapOfBlob[NameToSet] = ValueToSet;
+ m_MapOfBlob[NameToSet] = std::move(ValueToSet);
  m_VectorOfVariableNames.push_back(NameToSet);
  m_VectorOfVariableNamesComment.push_back(Comment);
  m_VectorOfVariableNamesType.push_back(5);

@@ -25,7 +25,7 @@ public:
   };
 
   // Constructor & Destructor
-  TGCCableSLBToSSW(std::string filename);
+  TGCCableSLBToSSW(const std::string& filename);
 
   virtual ~TGCCableSLBToSSW(void);
   

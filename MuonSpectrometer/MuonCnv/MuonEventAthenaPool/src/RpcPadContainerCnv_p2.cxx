@@ -104,7 +104,7 @@ RpcPadContainer* RpcPadContainerCnv_p2::createTransient(const RpcPadContainer_p2
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize RpcPadContainerCnv_p2 " << endmsg;
-            return 0;
+            return nullptr;
         }
     }
     std::unique_ptr<RpcPadContainer> trans(new RpcPadContainer(m_rpcIdHelper->module_hash_max()));

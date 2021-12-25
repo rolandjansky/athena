@@ -71,7 +71,7 @@ namespace Muon {
       
       // now run the analysis per track
       // loop over tracks
-      TrackPlots* trackPlots = 0;
+      TrackPlots* trackPlots = nullptr;
       for( unsigned int i=0;i<ntuple.trackParticleBlock.pt->size();++i){
 
         //if( (*ntuple.trackParticleBlock.pt)[i] < 50000. ) continue;
@@ -387,7 +387,7 @@ namespace Muon {
   }
 
   TimePointBetaFitter::FitResult MuonInsideOutAnalysis::fitBeta( MuonInsideOutValidationNtuple& ntuple, 
-                                                              const std::vector<int>& indexVec, std::set<int> types ) {
+                                                              const std::vector<int>& indexVec, const std::set<int>& types ) {
 
     TimePointBetaFitter fitter;
     std::map<int,TimePointBetaFitter::HitVec> hitsPerCandidate;

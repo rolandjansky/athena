@@ -32,7 +32,7 @@ using namespace MuonGM;
 
 MDTPRDValAlg::MDTPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_mdttree(0),
+  m_mdttree(nullptr),
   m_event_counter(0),
 
   m_counter_ValHitNumber(-99),
@@ -97,7 +97,7 @@ MDTPRDValAlg::MDTPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   m_Validation_MDT_RotRadius(-99999.),
   m_Validation_MDT_WireLen(-99999.),
 
-  m_rootsvc(0),
+  m_rootsvc(nullptr),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_rotCreator("Muon::MdtDriftCircleOnTrackCreator/SaggingMdtDriftCircleOnTrackCreator")
 {
@@ -149,7 +149,7 @@ StatusCode MDTPRDValAlg::initialize()
       m_mdttree = new TTree(TString(mdttreeName), "Muon MDT Hits output");
       
       StatusCode status;
-      ITHistSvc* hSvc=0;
+      ITHistSvc* hSvc=nullptr;
       ISvcLocator* svcLocator = Gaudi::svcLocator();
       ATH_CHECK(svcLocator->service("THistSvc", hSvc));
       
@@ -591,7 +591,7 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
 
   //Retrieving MDT truth hits from MDT_SDO container 
   std::string  location = "MDT_SDO";
-  const MuonSimDataCollection* sdoContainer = 0;
+  const MuonSimDataCollection* sdoContainer = nullptr;
   if ( !evtStore()->contains<MuonSimDataCollection>(location) ) {
     if( msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG(" No SimData found at " << location);
     return;
@@ -654,7 +654,7 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
 void MDTPRDValAlg::addPrepData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap ) const{
 
   //MDT raw hits....
-  const Muon::MdtPrepDataContainer* mdtPrds = 0;      
+  const Muon::MdtPrepDataContainer* mdtPrds = nullptr;      
   std::string  location = "MDT_DriftCircles";
   if ( !evtStore()->contains<Muon::MdtPrepDataContainer>(location) ) {
     if( msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG(" No MdtPrepData found at " << location);
@@ -705,7 +705,7 @@ MDTPRDValAlg::MdtHitData* MDTPRDValAlg::findMdtHitData( const Identifier& id, MD
     MdtHitIt pos = it->second.find(id);
     if( pos!=it->second.end() ) return pos->second;
   }
-  return 0;
+  return nullptr;
 }
 
 

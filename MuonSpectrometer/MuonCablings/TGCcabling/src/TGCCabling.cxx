@@ -5,14 +5,15 @@
 #include "TGCcabling/TGCCabling.h"
 
 #include <iostream>
+#include <utility>
 
 namespace LVL1TGCCabling8 {
 
 // Constructor & Destructor
-TGCCabling::TGCCabling (std::string filenameASDToPP,
-			std::string filenameInPP,
-			std::string filenamePPToSL,
-			std::string filenameSLBToROD)
+TGCCabling::TGCCabling (const std::string& filenameASDToPP,
+			const std::string& filenameInPP,
+			const std::string& filenamePPToSL,
+			const std::string& filenameSLBToROD)
   : TGCCablingBase()
 {
   m_cableInASD    = new TGCCableInASD(filenameASDToPP);
@@ -86,10 +87,10 @@ const TGCModuleId* TGCCabling::getSLBFromReadout (TGCIdBase::SideType side,
   TGCModuleMap* sswMap =  getModule(&rod,TGCModuleId::SSW);
   if(!sswMap) {
     m_slbModuleIdMap.insert(std::pair<int, TGCModuleId*>(indexFromReadoutWithoutChannel, 0));
-    return 0;
+    return nullptr;
   }
 
-  TGCModuleId* ssw = 0;
+  TGCModuleId* ssw = nullptr;
   int size = sswMap->size();
   for(int i=0; i<size; i++){
     if((sswMap->moduleId(i))->getId()==sswId){
@@ -100,7 +101,7 @@ const TGCModuleId* TGCCabling::getSLBFromReadout (TGCIdBase::SideType side,
   delete sswMap;
   if(!ssw) {
     m_slbModuleIdMap.insert(std::pair<int, TGCModuleId*>(indexFromReadoutWithoutChannel, 0));
-    return 0;
+    return nullptr;
   }
 
   // SLB Module
@@ -108,10 +109,10 @@ const TGCModuleId* TGCCabling::getSLBFromReadout (TGCIdBase::SideType side,
   delete ssw;
   if(!slbMap) {
     m_slbModuleIdMap.insert(std::pair<int, TGCModuleId*>(indexFromReadoutWithoutChannel, 0));
-    return 0;
+    return nullptr;
   }
 
-  TGCModuleId* slb = 0;
+  TGCModuleId* slb = nullptr;
   int index = slbMap->find(slbId);
   if (index < slbMap->size()) {
     slb = slbMap->popModuleId(index);
@@ -366,7 +367,7 @@ TGCChannelId* TGCCabling::getASDOutFromReadout (TGCIdBase::SideType side,
 					      rodId,
 					      sswId,
 					      slbId);
-  if(!slb) return 0;
+  if(!slb) return nullptr;
   
   TGCChannelSLBIn slbin(slb->getSideType(),
 			slb->getModuleType(),
@@ -423,24 +424,24 @@ TGCChannelId* TGCCabling::getChannel (const TGCChannelId* channelId,
       return m_cableInASD->getChannel(channelId,orChannel);
     if(type==TGCChannelId::SLBIn){
       TGCChannelId* asdout = m_cableInASD->getChannel(channelId,false);
-      if(!asdout) return 0;
+      if(!asdout) return nullptr;
       if(!asdout->isValid()){
 	delete asdout;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* ppin = m_cableASDToPP->getChannel(asdout,false);
       delete asdout;
-      if(!ppin) return 0;
+      if(!ppin) return nullptr;
       if(!ppin->isValid()){
 	delete ppin;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* ppout = m_cableInPP->getChannel(ppin,orChannel);
       delete ppin;
-      if(!ppout) return 0;
+      if(!ppout) return nullptr;
       if(!ppout->isValid()){
 	delete ppout;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* slbin = m_cablePPToSLB->getChannel(ppout,false);
       delete ppout;
@@ -454,17 +455,17 @@ TGCChannelId* TGCCabling::getChannel (const TGCChannelId* channelId,
       return m_cableASDToPP->getChannel(channelId,orChannel);
     if(type==TGCChannelId::SLBIn){
       TGCChannelId* ppin = m_cableASDToPP->getChannel(channelId,false);
-      if(!ppin) return 0;
+      if(!ppin) return nullptr;
       if(!ppin->isValid()){
 	delete ppin;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* ppout = m_cableInPP->getChannel(ppin,orChannel);
       delete ppin;
-      if(!ppout) return 0;
+      if(!ppout) return nullptr;
       if(!ppout->isValid()){
 	delete ppout;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* slbin = m_cablePPToSLB->getChannel(ppout,false);
       delete ppout;
@@ -486,10 +487,10 @@ TGCChannelId* TGCCabling::getChannel (const TGCChannelId* channelId,
   case TGCChannelId::SLBIn:
     if(type==TGCChannelId::HPBIn){
       TGCChannelId* slbout = m_cableInSLB->getChannel(channelId,orChannel);
-      if(!slbout) return 0; 
+      if(!slbout) return nullptr; 
       if(!slbout->isValid()) {
 	delete slbout;
-	return 0;
+	return nullptr;
       } 
       TGCChannelId* hpbin = m_cableSLBToHPB->getChannel(slbout,false);
       delete slbout;
@@ -501,17 +502,17 @@ TGCChannelId* TGCCabling::getChannel (const TGCChannelId* channelId,
       return m_cableInSLB->getChannel(channelId,orChannel);
     if(type==TGCChannelId::ASDOut){
       TGCChannelId* ppout = m_cablePPToSLB->getChannel(channelId,false);
-      if(!ppout) return 0;
+      if(!ppout) return nullptr;
       if(!ppout->isValid()){
 	delete ppout;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* ppin = m_cableInPP->getChannel(ppout,orChannel);
       delete ppout;
-      if(!ppin) return 0;
+      if(!ppin) return nullptr;
       if(!ppin->isValid()){
 	delete ppin;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* asdout = m_cableASDToPP->getChannel(ppin,false);
       delete ppin;
@@ -519,24 +520,24 @@ TGCChannelId* TGCCabling::getChannel (const TGCChannelId* channelId,
     } 
     if(type==TGCChannelId::ASDIn){
       TGCChannelId* ppout = m_cablePPToSLB->getChannel(channelId,false);
-      if(!ppout) return 0;
+      if(!ppout) return nullptr;
       if(!ppout->isValid()){
 	delete ppout;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* ppin = m_cableInPP->getChannel(ppout,orChannel);
       delete ppout;
-      if(!ppin) return 0;
+      if(!ppin) return nullptr;
       if(!ppin->isValid()){
 	delete ppin;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* asdout = m_cableASDToPP->getChannel(ppin,false);
       delete ppin;
-      if(!asdout) return 0;
+      if(!asdout) return nullptr;
       if(!asdout->isValid()){
 	delete asdout;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* asdin = m_cableInASD->getChannel(asdout,false);
       delete asdout;
@@ -552,10 +553,10 @@ TGCChannelId* TGCCabling::getChannel (const TGCChannelId* channelId,
   case TGCChannelId::HPBIn:
     if(type==TGCChannelId::SLBIn){
       TGCChannelId* slbout = m_cableSLBToHPB->getChannel(channelId,false);
-      if(!slbout) return 0;
+      if(!slbout) return nullptr;
       if(!slbout->isValid()){
 	delete slbout;
-	return 0;
+	return nullptr;
       }
       TGCChannelId* slbin = m_cableInSLB->getChannel(slbout,orChannel);
       delete slbout;
@@ -567,7 +568,7 @@ TGCChannelId* TGCCabling::getChannel (const TGCChannelId* channelId,
   default:
     break;
   }
-  return 0;
+  return nullptr;
 }
 
 TGCModuleMap* TGCCabling::getModule (const TGCModuleId* moduleId,
@@ -608,7 +609,7 @@ TGCModuleMap* TGCCabling::getModule (const TGCModuleId* moduleId,
   default:
     break;
   }
-  return 0;
+  return nullptr;
 } 
 
 int TGCCabling::getIndexFromReadoutWithoutChannel(const TGCIdBase::SideType side, 

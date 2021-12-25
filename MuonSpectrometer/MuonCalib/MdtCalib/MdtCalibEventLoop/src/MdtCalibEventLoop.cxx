@@ -67,7 +67,7 @@ namespace MuonCalib {
         } else {
             MsgStream log(Athena::getMessageSvc(), "MdtCalibEventLoop");
             log << MSG::WARNING << "MdtCalibEventLoop::setCalibImp: got nullptr " << endmsg;
-            m_calibrationImp = 0;
+            m_calibrationImp = nullptr;
         }
     }
 

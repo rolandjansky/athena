@@ -22,7 +22,7 @@ class TGCCableSLBToHPB : public TGCCable
 public:
 
   // Constructor & Destructor
-  TGCCableSLBToHPB (std::string filename);
+  TGCCableSLBToHPB (const std::string& filename);
 
   virtual ~TGCCableSLBToHPB (void);
   

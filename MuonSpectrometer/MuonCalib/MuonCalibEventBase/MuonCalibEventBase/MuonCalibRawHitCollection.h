@@ -103,23 +103,23 @@ namespace MuonCalib {
 
         //!< add a MuonCalibRawMdtHit to the collection
         void addMuonCalibRawHit(MuonCalibRawMdtHit* rawHit);
-        void addMuonCalibRawHit(MdtCalibRawHitPtr rawHit);
+        void addMuonCalibRawHit(const MdtCalibRawHitPtr& rawHit);
 
         //!< add a MuonCalibRawRpcHit to the collection
         void addMuonCalibRawHit(MuonCalibRawRpcHit* rawHit);
-        void addMuonCalibRawHit(RpcCalibRawHitPtr rawHit);
+        void addMuonCalibRawHit(const RpcCalibRawHitPtr& rawHit);
 
         //!< add a MuonCalibRawTgcHit to the collection
         void addMuonCalibRawHit(MuonCalibRawTgcHit* rawHit);
-        void addMuonCalibRawHit(TgcCalibRawHitPtr rawHit);
+        void addMuonCalibRawHit(const TgcCalibRawHitPtr& rawHit);
 
         //!< add a MuonCalibRawTgcCoin to the collection
         void addMuonCalibRawHit(MuonCalibRawTgcCoin* rawHit);
-        void addMuonCalibRawHit(TgcCoinRawPtr rawHit);
+        void addMuonCalibRawHit(const TgcCoinRawPtr& rawHit);
 
         //!< add a MuonCalibRawCscHit to the collection
         void addMuonCalibRawHit(MuonCalibRawCscHit* rawHit);
-        void addMuonCalibRawHit(CscCalibRawHitPtr rawHit);
+        void addMuonCalibRawHit(const CscCalibRawHitPtr& rawHit);
 
     private:
         void copy(const MuonCalibRawHitCollection& other);

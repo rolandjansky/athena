@@ -151,13 +151,13 @@ private:
                   );
 
    /**AntiSelection on Station type */
-   int AntiSelectedStation(std::string TheStationName);
+   int AntiSelectedStation(const std::string& TheStationName);
 
    /**Selection on Station type */
-   int SelectedStation(std::string TheStationName);
+   int SelectedStation(const std::string& TheStationName);
 
    /**Selection on chambers */
-   int SelectedChamber(std::string TheStationName, int AmdcJzz, int AmdcJff);
+   int SelectedChamber(const std::string& TheStationName, int AmdcJzz, int AmdcJff);
 
 //Data
 

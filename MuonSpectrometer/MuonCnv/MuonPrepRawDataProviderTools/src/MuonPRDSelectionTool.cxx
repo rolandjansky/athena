@@ -92,7 +92,7 @@ namespace Muon {
     Amg::Vector2D localPosition;
     if( !surface.globalToLocal(intersect,direction,localPosition) ){
       ATH_MSG_VERBOSE(" globalToLocal failed for " << m_idHelperSvc->toString(id) );
-      return 0;
+      return nullptr;
     }
 	  
     // bound checks
@@ -104,12 +104,12 @@ namespace Muon {
 
     if( std::abs(distanceAlongTube) > tubeHalfLen + m_secondCoordinateCut ) {
       if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " outside tube second coordinate range, dropping " << endmsg;
-      return 0;
+      return nullptr;
     }
 
     if( std::abs(localPosition[Trk::locR]) > m_distanceToTubeCut ) {
       if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " too far from wire, dropping " << endmsg;
-      return 0;
+      return nullptr;
     }
     
     // shift intersection within tube 
@@ -143,14 +143,14 @@ namespace Muon {
     Amg::Vector2D localPosition;
     if( !surf.globalToLocal(intersect,direction,localPosition) ){
       ATH_MSG_VERBOSE(" globalToLocal failed for " << m_idHelperSvc->toString(id) );
-      return 0;
+      return nullptr;
     }
 
     if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Intersected " << m_idHelperSvc->toString(id) << " local position " << localPosition[Trk::loc1] << " " << localPosition[Trk::loc2];
 
     if( !surf.insideBounds(localPosition, m_distanceToTubeCut, m_secondCoordinateCut) ) {
       if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " outside bounds, dropping " << endmsg;
-      return 0;
+      return nullptr;
     }
     if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endmsg;
     
@@ -162,7 +162,7 @@ namespace Muon {
     }
     if( !cluster ){
       ATH_MSG_VERBOSE("  --- cluster creation failed ");
-      return 0;
+      return nullptr;
     }
     
     return cluster;    

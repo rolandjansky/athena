@@ -114,7 +114,7 @@ StatusCode TGCTriggerDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
     m_active[ii].clear();
     
     bool found = false;
-    for(std::string key: keys) {
+    for(const std::string& key: keys) {
       ATH_MSG_INFO("loadParameters " << key << " I=" << I << " ");
       if (key == m_folders[ii]) {
         found = true;

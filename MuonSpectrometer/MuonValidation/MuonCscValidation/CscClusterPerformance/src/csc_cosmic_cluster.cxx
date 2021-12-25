@@ -209,7 +209,7 @@ int main(int narg, char* argv[]) {
   // Open simpos file.
   TFile* psfile = new TFile(arg1.c_str(), "READ");
   TTree* pctree = dynamic_cast<TTree*>(psfile->Get("csc_cluster"));
-  if ( pctree == 0 ) {
+  if ( pctree == nullptr ) {
     std::cout << "Unable to retrieve simpos tree" << std::endl;
     std::cerr << "  File: " << arg1 << std::endl;
     psfile->Print();

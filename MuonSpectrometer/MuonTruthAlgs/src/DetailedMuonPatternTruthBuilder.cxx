@@ -615,7 +615,7 @@ namespace Trk {
                     ++detLayer.nmdtL;
                 // meas = mdt;
             } else if (mm) {
-                const MuonSimData::Deposit* deposit = 0;
+                const MuonSimData::Deposit* deposit = nullptr;
                 for (auto it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
                     deposit = getDeposit(*mmSimDataMap, *it, id);
                 }
@@ -675,7 +675,7 @@ namespace Trk {
                 // there is already a check for this at the beginning of the method
                 // if( !stgcSimDataMap ) continue;
 
-                const MuonSimData::Deposit* deposit = 0;
+                const MuonSimData::Deposit* deposit = nullptr;
                 for (auto it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
                     deposit = getDeposit(*stgcSimDataMap, *it, id);
                 }
@@ -1134,7 +1134,7 @@ namespace Trk {
         MuonSimDataCollection::const_iterator it = simCol.find(id);
         if (it == simCol.end()) {
             ATH_MSG_WARNING(" Truth PRD not found in simdata collection: " << m_idHelperSvc->toString(id));
-            return 0;
+            return nullptr;
         }
 
         const MuonSimData& simData = it->second;
@@ -1159,11 +1159,11 @@ namespace Trk {
         return deposit;
     }
 
-    const MuonSimDataCollection* DetailedMuonPatternTruthBuilder::retrieveTruthCollection(std::string colName) {
+    const MuonSimDataCollection* DetailedMuonPatternTruthBuilder::retrieveTruthCollection(const std::string& colName) {
         // Retrieve SDO map for this event
         if (!evtStore()->contains<MuonSimDataCollection>(colName)) return nullptr;
 
-        const MuonSimDataCollection* truthCol(0);
+        const MuonSimDataCollection* truthCol(nullptr);
         if (!evtStore()->retrieve(truthCol, colName).isSuccess()) {
             ATH_MSG_VERBOSE("Could NOT find the MuonSimDataMap map key = " << colName);
         } else {

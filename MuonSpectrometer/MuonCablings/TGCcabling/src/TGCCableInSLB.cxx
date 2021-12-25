@@ -15,12 +15,12 @@ TGCChannelId* TGCCableInSLB::getChannel (const TGCChannelId* channelId,
     if(channelId->getChannelIdType()==TGCChannelId::SLBOut)
       return getChannelIn(channelId,orChannel);
   }
-  return 0;
+  return nullptr;
 }
   
 TGCChannelId* TGCCableInSLB::getChannelIn (const TGCChannelId* slbout, 
 					   bool orChannel) const {
-  if(slbout->isValid()==false) return 0;
+  if(slbout->isValid()==false) return nullptr;
 
   int channel = slbout->getChannel();
   int block = slbout->getBlock();
@@ -179,7 +179,7 @@ TGCChannelId* TGCCableInSLB::getChannelIn (const TGCChannelId* slbout,
     break;
   }
   
-  TGCChannelSLBIn* slbin = 0;
+  TGCChannelSLBIn* slbin = nullptr;
   if(channelInSLB!=-1){
     int channelOfSLB = TGCChannelSLBIn::convertChannel(slbout->getModuleType(),
 						       cellType,channelInSLB);
@@ -196,11 +196,11 @@ TGCChannelId* TGCCableInSLB::getChannelIn (const TGCChannelId* slbout,
 
 TGCChannelId* TGCCableInSLB::getChannelOut (const TGCChannelId* slbin, 
 					    bool orChannel) const {
-  if(slbin->isValid()==false) return 0;
+  if(slbin->isValid()==false) return nullptr;
 
   TGCChannelSLBIn::CellType cellType =
     TGCChannelSLBIn::convertCellType(slbin->getChannel());
-  if(cellType==TGCChannelSLBIn::NoCellType) return 0; 
+  if(cellType==TGCChannelSLBIn::NoCellType) return nullptr; 
 
   TGCIdBase::ModuleType moduleType = slbin->getModuleType();
   int channelInCell = 
@@ -286,7 +286,7 @@ TGCChannelId* TGCCableInSLB::getChannelOut (const TGCChannelId* slbin,
     break;
   }
 
-  TGCChannelSLBOut* slbout = 0;
+  TGCChannelSLBOut* slbout = nullptr;
   if(block!=-1&&channel!=-1)
     slbout = new TGCChannelSLBOut(slbin->getSideType(),
 				  slbin->getModuleType(),

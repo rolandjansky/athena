@@ -48,7 +48,7 @@ namespace MuonCalib {
     void ADCMTHistos::Initialize(int id, const T0MTSettings *settings, const char *hname) {
         m_settings = settings;
         char buf[100];
-        if (hname == NULL)
+        if (hname == nullptr)
             snprintf(buf, 100, "adc_spec_%d", id);
         else
             snprintf(buf, 100, "adc_spec_%s", hname);

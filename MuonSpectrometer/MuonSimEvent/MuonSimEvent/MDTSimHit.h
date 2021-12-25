@@ -32,7 +32,7 @@ public:
     MDTSimHit(HitID id, double time, double radius, const Amg::Vector3D& position);
     MDTSimHit(HitID id, double time, double radius, const Amg::Vector3D& position, const int trackNumber);
     MDTSimHit(HitID id, double time, double radius, const Amg::Vector3D& position, const int trackNumber, const double stepLength, const double energyDeposit, const int particleEncoding, const double kineticEnergy);
-    MDTSimHit(HitID id, double time, double radius, const Amg::Vector3D& position, const HepMcParticleLink hmpl, const double stepLength, const double energyDeposit, const int particleEncoding, const double kineticEnergy);
+    MDTSimHit(HitID id, double time, double radius, const Amg::Vector3D& position, const HepMcParticleLink& hmpl, const double stepLength, const double energyDeposit, const int particleEncoding, const double kineticEnergy);
      
     
     //

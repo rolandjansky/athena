@@ -34,18 +34,18 @@ public:
   void DumpT0Shift() ;
   
   void DumpT0Shift( const Identifier& id ) ;
-  void DumpT0Shift( std::string stationNameString, int stationEta, int stationPhi ) ;
+  void DumpT0Shift( const std::string& stationNameString, int stationEta, int stationPhi ) ;
   void DumpT0Shift( int stationName, int stationEta, int stationPhi ) ;
   void DumpT0Shift( int IdentSta ) ;
   
   
-  void SetStatTShift( std::string stationNameString, int stationEta, int stationPhi, double TShift )  ;
+  void SetStatTShift( const std::string& stationNameString, int stationEta, int stationPhi, double TShift )  ;
   void SetStatTShift( int stationName, int stationEta, int stationPhi, double TShift );
   void SetStatTShift( int IdentSta , double TShift );
 
 
   double GetT0Shift( const Identifier& id ) const;
-  double GetT0Shift( std::string stationNameString, int stationEta, int stationPhi ) const;
+  double GetT0Shift( const std::string& stationNameString, int stationEta, int stationPhi ) const;
   double GetT0Shift( int stationName, int stationEta, int stationPhi ) const;
   double GetT0Shift( int IdentSta ) const;
 
@@ -61,7 +61,7 @@ private:
 ///////////////////////////////////
   
   int    GetIdentSta( const Identifier& id ) const;
-  int    GetIdentSta( std::string stationNameString, int stationEta, int stationPhi ) const;
+  int    GetIdentSta( const std::string& stationNameString, int stationEta, int stationPhi ) const;
   int    GetIdentSta( int stationName, int stationEta, int stationPhi) const;
 
   void   DecodeIdentSta( int IdentSta, int& stationName, int& stationEta, int& stationPhi) const;

@@ -17,7 +17,7 @@ namespace Muon{
 
 class MuonSegmentSlimPlots:public PlotBase {
     public:
-      MuonSegmentSlimPlots(PlotBase* pParent, std::string sDir);
+      MuonSegmentSlimPlots(PlotBase* pParent, const std::string& sDir);
       ~MuonSegmentSlimPlots();
 
       void fill(const xAOD::MuonSegment& muonSeg, float weight=1.0);

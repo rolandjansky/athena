@@ -103,7 +103,7 @@ TEST_F ( MDTSensitiveDetectortest, ProcessHits )
   fLogical0->SetSensitiveDetector(SDetector);
   G4String PhysicalName0 = physicalname[0];//para
   G4VPhysicalVolume* pPhysical0 = nullptr;
-  G4MyPhysicalVolume* physicalVolume0 = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName0, fLogical0, pPhysical0);
+  G4MyPhysicalVolume* physicalVolume0 = new G4MyPhysicalVolume(nullptr, G4ThreeVector(0,0,0), PhysicalName0, fLogical0, pPhysical0);
   G4int CopyNo0 = copynos[0];
   physicalVolume0->SetCopyNo(CopyNo0);//para
   G4int nReplica0 = 2;
@@ -121,7 +121,7 @@ TEST_F ( MDTSensitiveDetectortest, ProcessHits )
     size_t idx(0);
     for( const auto& name : physicalname) {
       if (skip) { skip=false; ++idx; continue; }//skip first entry
-      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), name, fLogical0, pPhysical0);
+      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(nullptr, G4ThreeVector(0,0,0), name, fLogical0, pPhysical0);
       parentPhysVol->SetCopyNo(copynos[idx]);
       ++idx;
       navigationHistory0->NewLevel(parentPhysVol, kNormal, nReplica0);
@@ -153,7 +153,7 @@ TEST_F ( MDTSensitiveDetectortest, ProcessHits )
   G4LogicalVolume* fLogical = new G4LogicalVolume(box, material, name);
   G4String PhysicalName = physicalname[0];//para
   G4VPhysicalVolume* pPhysical = nullptr;
-  G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName, fLogical, pPhysical);
+  G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(nullptr, G4ThreeVector(0,0,0), PhysicalName, fLogical, pPhysical);
   G4int CopyNo = copynos[0];
   physicalVolume->SetCopyNo(CopyNo);//para
   G4int nReplica = 2;
@@ -171,7 +171,7 @@ TEST_F ( MDTSensitiveDetectortest, ProcessHits )
     size_t idx(0);
     for( const auto& name : physicalname) {
       if (skip) { skip=false; ++idx; continue; }//skip first entry
-      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), name, fLogical0, pPhysical0);
+      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(nullptr, G4ThreeVector(0,0,0), name, fLogical0, pPhysical0);
       parentPhysVol->SetCopyNo(copynos[idx]);
       ++idx;
       navigationHistory->NewLevel(parentPhysVol, kNormal, nReplica);
@@ -274,7 +274,7 @@ TEST_F ( MDTSensitiveDetectortest, GetIdentifier )
   G4LogicalVolume* fLogical = new G4LogicalVolume(box, material, name);
   std::vector<G4String> physicalname = {"physical_MDT_Muon::STN[2]_av___impr_Name"};
   G4VPhysicalVolume* pPhysical = nullptr;
-  G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), physicalname[0], fLogical, pPhysical);
+  G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(nullptr, G4ThreeVector(0,0,0), physicalname[0], fLogical, pPhysical);
   physicalVolume->SetCopyNo(10100000);
   G4int nReplica = 2;
   navigationHistory->SetFirstEntry(physicalVolume);

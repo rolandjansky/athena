@@ -4,7 +4,7 @@
 
 #include "MuonTrackMonitoring/RecoMuonTrackPlots.h"
 
-RecoMuonTrackPlots::RecoMuonTrackPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+RecoMuonTrackPlots::RecoMuonTrackPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
 m_oAllPlots(this, "/", "Reco Muon"),
 m_oImpactPlots(this, "/"),
 m_oTrkRecoInfoPlots(this, "/"),

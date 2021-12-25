@@ -14,7 +14,7 @@ namespace Muon{
 
 class RecoInfoPlots: public PlotBase {
   public:
-    RecoInfoPlots(PlotBase *pParent, std::string sDir);
+    RecoInfoPlots(PlotBase *pParent, const std::string& sDir);
 
     void fill(const xAOD::Muon& mu, float weight=1.0);
 

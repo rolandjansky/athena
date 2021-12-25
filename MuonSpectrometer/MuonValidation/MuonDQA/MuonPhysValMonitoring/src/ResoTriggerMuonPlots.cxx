@@ -2,19 +2,21 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "ResoTriggerMuonPlots.h"
 
 namespace Muon{
 
-ResoTriggerMuonPlots::ResoTriggerMuonPlots(PlotBase* pParent, std::string sDir, std::string sType):
+ResoTriggerMuonPlots::ResoTriggerMuonPlots(PlotBase* pParent, const std::string& sDir, std::string sType):
   PlotBase(pParent, sDir),
-  Res_pT(NULL),
-  Res_eta(NULL),
-  Res_phi(NULL),
-  Res_pT_vs_pT(NULL),
-  Res_eta_vs_pT(NULL),
-  Res_phi_vs_pT(NULL),
-  m_sType(sType)
+  Res_pT(nullptr),
+  Res_eta(nullptr),
+  Res_phi(nullptr),
+  Res_pT_vs_pT(nullptr),
+  Res_eta_vs_pT(nullptr),
+  Res_phi_vs_pT(nullptr),
+  m_sType(std::move(sType))
 {
   m_pt_slices = {"0","25","55","100"};
   m_etaBins= {-3., -2.5, -2.4, -1.918, -1.623, -1.348, -1.2329, -1.1479, -1.05, -0.908, -0.791, -0.652, -0.476, -0.324, -0.132, 0, 0.132, 0.324, 0.476, 0.652, 0.791, 0.908, 1.05, 1.1479, 1.2329, 1.348, 1.623, 1.918, 2.4, 2.5, 3.};

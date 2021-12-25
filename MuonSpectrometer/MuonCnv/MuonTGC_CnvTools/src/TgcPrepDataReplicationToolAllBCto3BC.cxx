@@ -113,7 +113,7 @@ Muon::TgcPrepDataReplicationToolAllBCto3BC::makeTgcPrepData(Muon::TgcPrepDataCol
   auto newErrHitPos = Amg::MatrixX(*errHitPos);
 
   Muon::TgcPrepData* newPrepData = new TgcPrepData(channelId, tgcHashId, (*itr)->localPosition(),
-                                                   identifierList, std::move(newErrHitPos), descriptor);
+                                                   identifierList, newErrHitPos, descriptor);
   newPrepData->setBcBitMap(bcBitMap);
 
   return newPrepData;

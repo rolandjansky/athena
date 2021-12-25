@@ -27,8 +27,8 @@ MuonIdHelper::MuonIdHelper(const std::string& logName) :
     m_MODULE_INDEX = 5;
     m_DETECTORELEMENT_INDEX = 5;
     m_CHANNEL_INDEX = 10;
-    m_dict = 0;
-    m_msgSvc = 0;
+    m_dict = nullptr;
+    m_msgSvc = nullptr;
     if (m_logName.empty()) m_logName = "MuonIdHelper";
 
     ISvcLocator* svcLocator = Gaudi::svcLocator();

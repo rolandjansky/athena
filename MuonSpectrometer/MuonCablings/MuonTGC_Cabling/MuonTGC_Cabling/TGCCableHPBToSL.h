@@ -20,7 +20,7 @@ class TGCCableHPBToSL : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableHPBToSL(std::string filename);
+  TGCCableHPBToSL(const std::string& filename);
 
   virtual ~TGCCableHPBToSL(void);
   

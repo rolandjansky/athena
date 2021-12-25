@@ -14,7 +14,7 @@ namespace Muon{
 class MuonParamPlots: public PlotBase
 {
  public:
-  MuonParamPlots(PlotBase *pParent, std::string sDir);
+  MuonParamPlots(PlotBase *pParent, const std::string& sDir);
   void fill(const xAOD::Muon& mu, float weight=1.0);
   
   TH1* msInnerMatchChi2;

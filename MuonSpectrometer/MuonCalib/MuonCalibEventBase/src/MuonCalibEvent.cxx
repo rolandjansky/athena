@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <utility>
 
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
@@ -19,11 +20,11 @@ namespace MuonCalib {
     MuonCalibEvent::MuonCalibEvent(MuonCalibEvent::MCPVec patvec) : m_patternVec{std::move(patvec)} {}
 
     MuonCalibEvent::MuonCalibEvent(MuonCalibEvent::MCPVec patvec, std::shared_ptr<const MuonCalibRawHitCollection> Coll) :
-        m_patternVec{std::move(patvec)}, m_rawColl{Coll} {}
+        m_patternVec{std::move(patvec)}, m_rawColl{std::move(Coll)} {}
 
     MuonCalibEvent::MuonCalibEvent(MuonCalibEvent::MCPVec patvec, std::shared_ptr<MuonCalibEventInfo> eventInfo,
                                    std::shared_ptr<const MuonCalibRawHitCollection> Coll) :
-        m_patternVec{std::move(patvec)}, m_eventInfo(eventInfo), m_rawColl(Coll) {}
+        m_patternVec{std::move(patvec)}, m_eventInfo(std::move(eventInfo)), m_rawColl(std::move(Coll)) {}
 
     MuonCalibEvent::MCPVec &MuonCalibEvent::pattern() { return m_patternVec; }
     const MuonCalibEvent::MCPVec &MuonCalibEvent::pattern() const { return m_patternVec; }
@@ -35,7 +36,7 @@ namespace MuonCalib {
     const RpcSectorLogicContainer *MuonCalibEvent::rpcSectorLogicContainer() const { return m_rpcSlLogicContainer.get(); }
     const MuonCalibTriggerTimeInfo *MuonCalibEvent::triggerTimeInfo() const { return m_triggerTimeInfo.get(); }
 
-    void MuonCalibEvent::setMuonCalibEventInfo(std::shared_ptr<MuonCalibEventInfo> eventInfo) { m_eventInfo = eventInfo; }
+    void MuonCalibEvent::setMuonCalibEventInfo(std::shared_ptr<MuonCalibEventInfo> eventInfo) { m_eventInfo = std::move(eventInfo); }
     void MuonCalibEvent::setRpcSectorLogicContainer(std::shared_ptr<const RpcSectorLogicContainer> rpcSlContainer) {
         m_rpcSlLogicContainer = std::move(rpcSlContainer);
     }

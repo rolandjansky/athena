@@ -57,7 +57,7 @@ namespace Muon {
                                                                         const TrkDriftCircleMath::CLVec& clvec,
                                                                         const TrkDriftCircleMath::Road& road,
                                                                         const TrkDriftCircleMath::DCStatistics& dcstats,
-                                                                        const TrkDriftCircleMath::ChamberGeometry* multiGeo = 0) const {
+                                                                        const TrkDriftCircleMath::ChamberGeometry* multiGeo = nullptr) const {
         // setup finder
         std::unique_ptr<TrkDriftCircleMath::SegmentFinder> segmentFinder = std::make_unique<TrkDriftCircleMath::SegmentFinder>(m_roadWidth, m_mdtAssociationPullCut, false);
 

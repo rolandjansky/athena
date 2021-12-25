@@ -5,6 +5,8 @@
 #include "MuonDQAMonitoring/MuonDQAEventInfo.h"
 #include <inttypes.h>
 
+#include <utility>
+
 namespace MuonDQA {
   
   MuonDQAEventInfo::MuonDQAEventInfo()
@@ -43,9 +45,9 @@ namespace MuonDQA {
 					std::vector<long>* ef_info ,
 				      */  
 				      std::string tag )
-    : m_runNumber( run_number ), m_eventNumber( event_number ), m_eventtype( event_type ) , m_timeStamp( time_stamp ), 
+    : m_runNumber( run_number ), m_eventNumber( event_number ), m_eventtype( std::move(event_type) ) , m_timeStamp( time_stamp ), 
       m_ns_Offset( ns_Offset ), m_trigType ( trig_Type ), m_running_time( running_time ), m_lumiBlock( lumi_block ), 
-      /*m_lvl1Type( lvl1_Type ), m_extLvl1ID( ext_Lvl1ID ) , m_lvl2Info( lvl2_Info ) , m_efinfo( ef_info ) , */  m_tag( tag )
+      /*m_lvl1Type( lvl1_Type ), m_extLvl1ID( ext_Lvl1ID ) , m_lvl2Info( lvl2_Info ) , m_efinfo( ef_info ) , */  m_tag( std::move(tag) )
   {
   }
 

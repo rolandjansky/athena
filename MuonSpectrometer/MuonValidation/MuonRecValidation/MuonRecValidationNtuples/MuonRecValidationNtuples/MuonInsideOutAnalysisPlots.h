@@ -20,7 +20,7 @@ namespace Muon {
     TH1* pull;
     TH1* exerr;
     
-    void book( TString prefix );
+    void book( const TString& prefix );
     void fill( float res_, float pull_, float exerr_ );
   };
 
@@ -30,7 +30,7 @@ namespace Muon {
     TH2* pull_p;
     TH2* exerr_p;
     
-    void book( TString prefix );
+    void book( const TString& prefix );
     void fill( float res_, float pull_, float exerr_, float pt );
   };
 
@@ -40,7 +40,7 @@ namespace Muon {
     std::vector<ResPlots>   plots;
     std::vector<ResPlotsPt> plots_p;
 
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
     void fill( int chIndex_, float res_, float pull_, float exerr_, float p_ );
 
   };
@@ -51,7 +51,7 @@ namespace Muon {
     ResPlotsPt       all_p;
     ChamberResPlots  chamber;
 
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
 
     void fill( const MuonValidationHitBlock& hits, int index, float p_ );
 
@@ -91,7 +91,7 @@ namespace Muon {
     TH1* timePull150_350;
     TH1* timePull350_800;
 
-    void book( TDirectory* dir, TString prefix, int type );
+    void book( TDirectory* dir, const TString& prefix, int type );
 
     void fill( const MuonValidationTimeBlock& times, int index, float betaTrack );
   };
@@ -104,7 +104,7 @@ namespace Muon {
     ResPlots         all;
     ChamberResPlots  chamber;
 
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
     void fill( const MuonValidationHoughBlock& hough, int index, float p_ );
     void fill( int chIndex_, float res_, float pull_, float exerr_, float p_, float max_ );
 
@@ -140,7 +140,7 @@ namespace Muon {
     ResPlots        allcy;
     ChamberResPlots chambercy;
 
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
     void fill( int chIndex_, int sector_, int quality_ );
     void fill( const MuonValidationSegmentBlock& segments, int index, float p_, float betaTrack );
 
@@ -154,7 +154,7 @@ namespace Muon {
     TH1* ndof;
     TH1* res;
 
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
     void fill( float beta_, float betaTruth_, float chi2_, int ndof_ );
   };
 
@@ -167,7 +167,7 @@ namespace Muon {
     BetaFitPlots all;
     BetaFitPlots allt;
     BetaFitPlots allt_good;
-    void book( TDirectory* dir, TString prefix, bool isBarrel );
+    void book( TDirectory* dir, const TString& prefix, bool isBarrel );
   };
 
   /** candidate based plots */
@@ -181,7 +181,7 @@ namespace Muon {
     BetaFitPlots betaCandidates;
     BetaFitPlots betaBestCandidate;
 
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
     void fill( int ntruth_, int nseg_, int nseg1_, int nhough_ );
     void fill( const MuonValidationTrackParticleBlock& tracks, int index );
 
@@ -198,7 +198,7 @@ namespace Muon {
     CandidatePlots allCandidates;
     CandidatePlots tagCandidates;
     CandidatePlots combinedCandidates;
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
   };
 
   /** track based plots */
@@ -239,7 +239,7 @@ namespace Muon {
     
     std::vector<StageSummaryPlots> candidateStages;
     
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
     void fill( int ntruth_, int nseg_, int nseg1_, int nseg2_, int nseg3_, int nhough_ );
     void fill( const MuonValidationTrackParticleBlock& tracks, int index );
   };
@@ -248,7 +248,7 @@ namespace Muon {
     TrackPlots muon;
     TrackPlots stau;
     TrackPlots rest;
-    void book( TDirectory* dir, TString prefix );
+    void book( TDirectory* dir, const TString& prefix );
   };
 
 }

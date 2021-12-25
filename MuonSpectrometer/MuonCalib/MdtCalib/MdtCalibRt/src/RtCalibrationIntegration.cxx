@@ -41,11 +41,11 @@ inline void update_parameter_on_mttmax(TH1 *h, TF1 *f, const float &b, const flo
 void RtCalibrationIntegration::init(bool close_hits, double r_max, double lower_extrapolation_radius, double upper_extrapolation_radius,
                                     bool add_tmax_difference) {
     m_close_hits = close_hits;
-    m_rt = 0;
+    m_rt = nullptr;
     m_r_max = r_max;
     m_lower_extrapolation_radius = lower_extrapolation_radius;
     m_upper_extrapolation_radius = upper_extrapolation_radius;
-    m_output = 0;
+    m_output = nullptr;
     m_nb_hits_used = 0;
     m_nb_segments_used = 0;
     m_add_tmax_difference = add_tmax_difference;

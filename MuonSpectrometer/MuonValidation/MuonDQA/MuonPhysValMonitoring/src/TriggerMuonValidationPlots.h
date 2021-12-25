@@ -18,7 +18,7 @@
 
 class TriggerMuonValidationPlots:public PlotBase {
   public:
-  TriggerMuonValidationPlots(PlotBase* pParent, std::string sDir, std::vector<unsigned int> authors, bool isData, bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation, std::vector<std::vector<std::string>> ChainSeed,std::vector<std::string> L1MuonItems);
+  TriggerMuonValidationPlots(PlotBase* pParent, const std::string& sDir, std::vector<unsigned int> authors, bool isData, bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation, std::vector<std::vector<std::string>> ChainSeed,std::vector<std::string> L1MuonItems);
 
     float PlateauTreshold;
     virtual ~TriggerMuonValidationPlots();
@@ -29,14 +29,14 @@ class TriggerMuonValidationPlots:public PlotBase {
     void fill(const xAOD::Muon& Trigmu, const xAOD::Muon& Recomu);
     void fill(const xAOD::L2StandAloneMuon& L2SAmu, const xAOD::Muon& Recomu);
     void fill(const xAOD::L2CombinedMuon& L2CBmu, const xAOD::Muon& Recomu);
-    void fillNumEff(const xAOD::Muon& Trigmu, std::string selectedChain);
-    void fillDenEff(const xAOD::Muon& Trigmu, std::string selectedChain);
-    void fillNumL1Eff(const xAOD::Muon& Trigmu, std::string selectedChain);
-    void fillDenL1Eff(const xAOD::Muon& Trigmu, std::string selectedChain);
-    void fillFeatPlots(const xAOD::Muon& Trigmu, std::string selectedChain);
-    void fillFeatPlots(const xAOD::MuonRoI& TrigL1mu, std::string selectedChain);
-    void fillDenRELEff(const xAOD::Muon& Trigmu, std::string selectedChain);
-    void fillNumRELEff(const xAOD::Muon& Trigmu, std::string selectedChain);
+    void fillNumEff(const xAOD::Muon& Trigmu, const std::string& selectedChain);
+    void fillDenEff(const xAOD::Muon& Trigmu, const std::string& selectedChain);
+    void fillNumL1Eff(const xAOD::Muon& Trigmu, const std::string& selectedChain);
+    void fillDenL1Eff(const xAOD::Muon& Trigmu, const std::string& selectedChain);
+    void fillFeatPlots(const xAOD::Muon& Trigmu, const std::string& selectedChain);
+    void fillFeatPlots(const xAOD::MuonRoI& TrigL1mu, const std::string& selectedChain);
+    void fillDenRELEff(const xAOD::Muon& Trigmu, const std::string& selectedChain);
+    void fillNumRELEff(const xAOD::Muon& Trigmu, const std::string& selectedChain);
 
     std::vector<unsigned int> m_selectedAuthors;
     std::vector<std::string> m_chains;
@@ -68,7 +68,7 @@ class TriggerMuonValidationPlots:public PlotBase {
     void fillTriggerMuonPlots(const xAOD::MuonRoI& TrigL1mu);
     void fillTriggerMuonPlots(const xAOD::L2StandAloneMuon& L2SAmu);
     void fillTriggerMuonPlots(const xAOD::L2CombinedMuon& L2CBmu);
-    float findTrigTreshold(TString chain);
+    float findTrigTreshold(const TString& chain);
 
     bool m_doTrigMuonL1Validation;
     bool m_doTrigMuonL2Validation;

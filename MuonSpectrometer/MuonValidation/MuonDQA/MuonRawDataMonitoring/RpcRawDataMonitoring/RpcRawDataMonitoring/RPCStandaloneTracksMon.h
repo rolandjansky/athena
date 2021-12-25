@@ -97,15 +97,15 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   
   //Function for histogram booking and parameterd for fitting
 
-  void bookRPCTracksLayerHistograms(std::string, std::string,  std::string, int, int, int);
+  void bookRPCTracksLayerHistograms(const std::string&, const std::string&,  const std::string&, int, int, int);
   void bookHistogramsSummaryDistribution(   );
  
   /* void bookRPCSummaryHistograms( int, std::vector<std::string>::const_iterator &iter ) ; */
   void bookRPCSummaryHistograms( int, const std::string & quantity )      ;
   void bookRPCSummaryFinalHistograms( int, const std::string & quantity ) ;
-  void bookRPCLayerRadiographyHistograms( int isec, std::string layer_name );
-  void bookRPCCoolHistograms_NotNorm(std::vector<std::string>::const_iterator &iter , int , int , std::string layer );
-  void bookRPCCoolHistograms(std::vector<std::string>::const_iterator &iter , int , int , std::string layer );
+  void bookRPCLayerRadiographyHistograms( int isec, const std::string& layer_name );
+  void bookRPCCoolHistograms_NotNorm(std::vector<std::string>::const_iterator &iter , int , int , const std::string& layer );
+  void bookRPCCoolHistograms(std::vector<std::string>::const_iterator &iter , int , int , const std::string& layer );
   
   ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_rpcRoiTool{ this, "RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC Rec Roi Tool"};
   ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_tgcRoiTool{ this, "TGCRecRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC Rec Roi Tool"};

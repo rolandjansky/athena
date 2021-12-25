@@ -23,7 +23,7 @@ public:
   int GetLayer(const int& hid) const;
   int GetTube(const int& hid) const;
 
-  int BuildMdtHitId (const std::string, const int, const int, const int,
+  int BuildMdtHitId (const std::string&, const int, const int, const int,
                      const int, const int) const;
 
 private:

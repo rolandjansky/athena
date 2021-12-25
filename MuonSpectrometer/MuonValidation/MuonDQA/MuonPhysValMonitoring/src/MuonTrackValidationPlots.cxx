@@ -4,10 +4,10 @@
 
 #include "MuonTrackValidationPlots.h"
 
-MuonTrackValidationPlots::MuonTrackValidationPlots(PlotBase* pParent, std::string sDir, std::string sTrackType, bool isData):
+MuonTrackValidationPlots::MuonTrackValidationPlots(PlotBase* pParent, const std::string& sDir, const std::string& sTrackType, bool isData):
   PlotBase(pParent, sDir)
-  , m_oRecoMuonTrackPlots(NULL)
-  , m_oMatchedMuonTrackPlots(NULL)
+  , m_oRecoMuonTrackPlots(nullptr)
+  , m_oMatchedMuonTrackPlots(nullptr)
   , m_sTrackType(sTrackType)
 {
 

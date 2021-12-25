@@ -115,7 +115,7 @@ std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const EventContext&
 
     // get the element corresponding to multilayer = 1
     const MuonGM::MdtReadoutElement* mdt1 = manager->getMdtReadoutElement(Id);
-    if (mdt1 == NULL) {
+    if (mdt1 == nullptr) {
       continue;
     }
 
@@ -130,7 +130,7 @@ std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const EventContext&
     int ntubesl1 = mdt1->getNtubesperlayer();
     int ntubesl2 = 0;
 
-    if (mdt2 != NULL) ntubesl2 = mdt2->getNtubesperlayer();
+    if (mdt2 != nullptr) ntubesl2 = mdt2->getNtubesperlayer();
 
     Identifier Idv[4];
     Idv[0] = helper->channelID(Id, 1, 1, 1);
@@ -164,11 +164,11 @@ std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const EventContext&
     //  to a more sensibly named "itr" 
     for (int i=0; i<4; i++) {
      
-      const MuonGM::MdtReadoutElement* mdt = NULL;
+      const MuonGM::MdtReadoutElement* mdt = nullptr;
       
       if ( i<2 )  mdt = mdt1;
       else mdt = mdt2;
-      if (mdt == NULL) {
+      if (mdt == nullptr) {
 	//  std::cout<<" element not found for index i = "<<i<<" --------- "<<std::endl;
 	if (i==2) {
 	  Idv[2] = helper->channelID(Id, 1, ntlay, 1);

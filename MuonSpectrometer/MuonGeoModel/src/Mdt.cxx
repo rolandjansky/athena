@@ -57,7 +57,7 @@ namespace MuonGM {
 
     Mdt::~Mdt() {
         delete layer;
-        layer = 0;
+        layer = nullptr;
     }
 
     GeoFullPhysVol *Mdt::build(const StoredMaterialManager& matManager,

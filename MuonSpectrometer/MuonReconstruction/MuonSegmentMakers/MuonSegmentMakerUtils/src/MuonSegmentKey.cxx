@@ -32,7 +32,7 @@ void Muon::MuonSegmentKey::calculateKeys(const std::vector<const Trk::Measuremen
     std::vector<const Trk::MeasurementBase*>::const_iterator it = measurements.begin(), itEnd = measurements.end();
     for (; it != itEnd; ++it) {
         const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*it);
-        const Muon::CompetingMuonClustersOnTrack* crot = 0;
+        const Muon::CompetingMuonClustersOnTrack* crot = nullptr;
         if (!rot) {
             crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(*it);
 

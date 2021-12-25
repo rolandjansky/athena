@@ -55,8 +55,8 @@ namespace {
 
 namespace MuonGM {
 
-    MultiLayer::MultiLayer(const MYSQL& mysql, std::string n)
-        : DetectorElement(std::move(n)), nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.), mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0),
+    MultiLayer::MultiLayer(const MYSQL& mysql, const std::string& n)
+        : DetectorElement(n), nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.), mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0),
           cutoutAtAngle(false), m_nonCutoutXSteps(), m_nonCutoutYSteps() {
         MsgStream log(Athena::getMessageSvc(), "MultiLayer::MultiLayer");
 

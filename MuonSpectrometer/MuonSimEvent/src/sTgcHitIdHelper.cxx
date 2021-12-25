@@ -87,7 +87,7 @@ int sTgcHitIdHelper::GetSide(const int& hid) const {
 
 
 //packing method
-int sTgcHitIdHelper::BuildsTgcHitId(const std::string statName, const int phiSect,
+int sTgcHitIdHelper::BuildsTgcHitId(const std::string& statName, const int phiSect,
                                     const int zSect, const int multiLayer, const int layer, const int side) const {
 
   int theID(0);

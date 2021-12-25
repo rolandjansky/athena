@@ -7,7 +7,7 @@
 namespace LVL1TGCCabling8 {
 
 // Constructor & Destructor
-TGCCableASDToPP::TGCCableASDToPP (std::string filename)
+TGCCableASDToPP::TGCCableASDToPP (const std::string& filename)
   : TGCCable(TGCCable::ASDToPP)
 {
   m_database[TGCIdBase::Endcap][TGCIdBase::WD] = 
@@ -63,13 +63,13 @@ TGCChannelId* TGCCableASDToPP::getChannel (const TGCChannelId* channelId,
     if(channelId->getChannelIdType()==TGCChannelId::PPIn)
       return getChannelIn(channelId,orChannel);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCChannelId* TGCCableASDToPP::getChannelIn (const TGCChannelId* ppin,
 					     bool orChannel) const {
-  if(orChannel) return 0;
-  if(ppin->isValid()==false) return 0;
+  if(orChannel) return nullptr;
+  if(ppin->isValid()==false) return nullptr;
 
   int ppinSector = ppin->getSector();
   bool ppinisAside = ppin->isAside();
@@ -83,7 +83,7 @@ TGCChannelId* TGCCableASDToPP::getChannelIn (const TGCChannelId* ppin,
   int indexOut[TGCDatabaseASDToPP::NIndexOut] = 
     {ppin->getId(), ppin->getBlock(), ppin->getChannel()};
   int i = databaseP->getIndexDBOut(indexOut);
-  if(i<0) return 0;
+  if(i<0) return nullptr;
 
   // ASD2PP.db is backward connection
   int layer = databaseP->getEntry(i,0);
@@ -113,13 +113,13 @@ TGCChannelId* TGCCableASDToPP::getChannelIn (const TGCChannelId* ppin,
 
 TGCChannelId* TGCCableASDToPP::getChannelOut (const TGCChannelId* asdout,
 					      bool orChannel) const {
-  if(orChannel) return 0;
-  if(asdout->isValid()==false) return 0;
+  if(orChannel) return nullptr;
+  if(asdout->isValid()==false) return nullptr;
 
   TGCDatabase* databaseP =
     m_database[asdout->getRegionType()][asdout->getModuleType()];
   
-  TGCChannelPPIn* ppin = 0;
+  TGCChannelPPIn* ppin = nullptr;
   int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     // ASD2PP.db is backward connection

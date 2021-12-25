@@ -27,7 +27,7 @@ namespace MuonGM {
     public:
         /** constructor */
 
-        sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
+        sTgcReadoutElement(GeoVFullPhysVol* pv, const std::string& stName, int zi, int fi, int mL, bool is_mirrored, MuonDetectorManager* mgr);
 
         /** destructor */
         ~sTgcReadoutElement();

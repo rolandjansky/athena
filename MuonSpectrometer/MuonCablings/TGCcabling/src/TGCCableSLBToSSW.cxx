@@ -7,7 +7,7 @@
 namespace LVL1TGCCabling8 {
 
 // Constructor & Destructor
-TGCCableSLBToSSW::TGCCableSLBToSSW (std::string filename)
+TGCCableSLBToSSW::TGCCableSLBToSSW (const std::string& filename)
   : TGCCable(TGCCable::SLBToSSW)
 {
   m_database[TGCIdBase::Endcap][TGCIdBase::WT] =
@@ -61,11 +61,11 @@ TGCModuleMap* TGCCableSLBToSSW::getModule (const TGCModuleId* moduleId) const {
     if(moduleId->getModuleIdType()==TGCModuleId::SSW)
       return getModuleIn(moduleId);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCModuleMap* TGCCableSLBToSSW::getModuleIn (const TGCModuleId* ssw) const {
-  if(ssw->isValid()==false) return 0;
+  if(ssw->isValid()==false) return nullptr;
 
   TGCDatabase* databaseP[TGCIdBase::MaxRegionType*TGCIdBase::MaxModuleType];
   TGCIdBase::ModuleType module[TGCIdBase::MaxRegionType*TGCIdBase::MaxModuleType];
@@ -82,7 +82,7 @@ TGCModuleMap* TGCCableSLBToSSW::getModuleIn (const TGCModuleId* ssw) const {
   TGCIdBase::SideType sswSideType = ssw->getSideType();
   int sswOctant = ssw->getOctant();
 
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   for(int type=0; type<TGCIdBase::MaxRegionType*TGCIdBase::MaxModuleType; type++){
     int MaxEntry = databaseP[type]->getMaxEntry();
     for(int i=0; i<MaxEntry; i++){
@@ -102,7 +102,7 @@ TGCModuleMap* TGCCableSLBToSSW::getModuleIn (const TGCModuleId* ssw) const {
 					       sector,
 					       id);
 
-	  if(mapId==0) mapId = new TGCModuleMap();
+	  if(mapId==nullptr) mapId = new TGCModuleMap();
 	  mapId->insert(block,slb);
 	} 
     }
@@ -113,14 +113,14 @@ TGCModuleMap* TGCCableSLBToSSW::getModuleIn (const TGCModuleId* ssw) const {
 
 
 TGCModuleMap* TGCCableSLBToSSW::getModuleOut (const TGCModuleId* slb) const {
-  if(slb->isValid()==false) return 0;
+  if(slb->isValid()==false) return nullptr;
 
   TGCDatabase* databaseP =m_database[slb->getRegionType()][slb->getModuleType()];
 
   int octant = slb->getOctant();
   int sector = slb->getSectorInOctant();
   
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     if(databaseP->getEntry(i,0)==sector&&

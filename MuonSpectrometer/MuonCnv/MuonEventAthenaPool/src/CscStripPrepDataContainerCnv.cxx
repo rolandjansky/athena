@@ -12,7 +12,7 @@
 CscStripPrepDataContainerCnv::CscStripPrepDataContainerCnv(ISvcLocator* svcloc) :
 CscStripPrepDataContainerCnvBase(svcloc),
     // Must create DataVector that does NOT own elements
-    m_storeGate(0)
+    m_storeGate(nullptr)
 {
 }
 
@@ -62,7 +62,7 @@ Muon::CscStripPrepDataContainer* CscStripPrepDataContainerCnv::createTransient()
     static pool::Guid   p0_guid("A41C9D99-F977-43B5-8DFC-819F057A9136"); // before t/p split
     static pool::Guid   p1_guid("6075244C-C6BB-4E24-B711-E7E4ED0F7462"); // with CscStripPrepData_tlp1
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    Muon::CscStripPrepDataContainer* p_collection(0);
+    Muon::CscStripPrepDataContainer* p_collection(nullptr);
     if( compareClassGuid(p1_guid) ) {
         log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
         std::unique_ptr< CscStripPrepDataContainer_PERS >  p_coll( poolReadObject< CscStripPrepDataContainer_PERS >() );

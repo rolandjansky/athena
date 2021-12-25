@@ -6,13 +6,13 @@
 
 namespace Muon{
   
-TruthMuonPlotOrganizer::TruthMuonPlotOrganizer(PlotBase* pParent, std::string sDir, std::vector<int> *selPlots):
+TruthMuonPlotOrganizer::TruthMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir, std::vector<int> *selPlots):
   PlotBase(pParent, sDir)
   // Truth plots
-, m_oTruthPlots(NULL)
-, m_oTruthInfoPlots(NULL)
-, m_oTruthTrkExtrapolationPlots(NULL)
-, m_oTruthMSHitPlots(NULL)
+, m_oTruthPlots(nullptr)
+, m_oTruthInfoPlots(nullptr)
+, m_oTruthTrkExtrapolationPlots(nullptr)
+, m_oTruthMSHitPlots(nullptr)
 {
   if (!selPlots) {
     m_selPlots.clear();

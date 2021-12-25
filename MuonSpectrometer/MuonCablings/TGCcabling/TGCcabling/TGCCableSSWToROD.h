@@ -19,7 +19,7 @@ class TGCCableSSWToROD : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableSSWToROD (std::string filename);
+  TGCCableSSWToROD (const std::string& filename);
 
   virtual ~TGCCableSSWToROD (void);
   

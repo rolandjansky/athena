@@ -82,7 +82,7 @@ void compare (const RpcPadContainer& p1,
 
 void testit (const RpcPadContainer& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   RpcPadContainerCnv_p1 cnv;
   assert(cnv.initialize (log));
   RpcPadContainer_p1 pers;
@@ -99,7 +99,7 @@ void test1 (const std::vector<Identifier>& ids)
   // Go through initialization once before we enable leak checking,
   // to get all framework stuff built.
   {
-    MsgStream log (0, "test");
+    MsgStream log (nullptr, "test");
     RpcPadContainerCnv_p1 cnv;
     assert( cnv.initialize (log).isSuccess() );
   }

@@ -14,7 +14,7 @@ const int maxDig  = 4096;
 
 ReadTgcDigit::ReadTgcDigit(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator), 
-    m_ntuplePtr(0), 
+    m_ntuplePtr(nullptr), 
     m_activeStore("ActiveStoreSvc", name)
 {
   // Declare the properties

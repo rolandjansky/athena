@@ -52,7 +52,7 @@ DblQ00Atyp::DblQ00Atyp(AmdcDb* atyp) :
   if (m_nObj == 0) std::cerr<<"NO Atyp banks in the AmdcDbRecord"<<std::endl;
 
   const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-  if (pAmdcDbRecord == 0){
+  if (pAmdcDbRecord == nullptr){
     std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
     return;
   }
@@ -67,7 +67,7 @@ DblQ00Atyp::DblQ00Atyp(AmdcDb* atyp) :
   it = pIRDBRecordset->begin();
   for( ; it<pIRDBRecordset->end(); ++it){
      pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
-     if(pAmdcDbRecord == 0){
+     if(pAmdcDbRecord == nullptr){
        std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
        return;
      }

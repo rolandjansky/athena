@@ -42,10 +42,10 @@ StatusCode MuonSegmentPerformanceAlg::initialize() {
 }
 
 StatusCode MuonSegmentPerformanceAlg::execute() {
-    const xAOD::MuonSegmentContainer* segments = 0;
+    const xAOD::MuonSegmentContainer* segments = nullptr;
     if (!retrieve(m_segmentKey, segments) || !segments) return StatusCode::SUCCESS;
 
-    const xAOD::MuonSegmentContainer* truthSegments = 0;
+    const xAOD::MuonSegmentContainer* truthSegments = nullptr;
     if (!retrieve(m_truthSegmentKey, truthSegments) || !truthSegments) return StatusCode::SUCCESS;
     std::set<const xAOD::MuonSegment*> matchedSegments;
     ++m_nevents;

@@ -21,11 +21,11 @@
 
 MuonGMTestOnPrd::MuonGMTestOnPrd(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm               ( name, pSvcLocator ),
-    m_MuonMgr		    ( 0 ),
-    m_RpcIdHelper           ( 0 ),
-    m_TgcIdHelper           ( 0 ),
-    m_CscIdHelper           ( 0 ),
-    m_MdtIdHelper           ( 0 ),
+    m_MuonMgr		    ( nullptr ),
+    m_RpcIdHelper           ( nullptr ),
+    m_TgcIdHelper           ( nullptr ),
+    m_CscIdHelper           ( nullptr ),
+    m_MdtIdHelper           ( nullptr ),
     m_mdt(true),
     m_rpc(true),
     m_tgc(true),

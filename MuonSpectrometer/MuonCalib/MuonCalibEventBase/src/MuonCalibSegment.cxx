@@ -203,17 +203,17 @@ namespace MuonCalib {
     void MuonCalibSegment::addHitOnTrack(TgcCalibHitBase* hit) { m_tgcHitsOnTrack.emplace_back(hit); }
     void MuonCalibSegment::addCloseHit(TgcCalibHitBase* hit) { m_tgcCloseHits.emplace_back(hit); }
 
-    void MuonCalibSegment::addHitOnTrack(MdtHitPtr hit) { m_mdtHitsOnTrack.emplace_back(hit); }
-    void MuonCalibSegment::addCloseHit(MdtHitPtr hit) { m_mdtCloseHits.emplace_back(hit); }
+    void MuonCalibSegment::addHitOnTrack(const MdtHitPtr& hit) { m_mdtHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(const MdtHitPtr& hit) { m_mdtCloseHits.emplace_back(hit); }
 
-    void MuonCalibSegment::addHitOnTrack(CscHitPtr hit) { m_cscHitsOnTrack.emplace_back(hit); }
-    void MuonCalibSegment::addCloseHit(CscHitPtr hit) { m_cscCloseHits.emplace_back(hit); }
+    void MuonCalibSegment::addHitOnTrack(const CscHitPtr& hit) { m_cscHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(const CscHitPtr& hit) { m_cscCloseHits.emplace_back(hit); }
 
-    void MuonCalibSegment::addHitOnTrack(RpcHitPtr hit) { m_rpcHitsOnTrack.emplace_back(hit); }
-    void MuonCalibSegment::addCloseHit(RpcHitPtr hit) { m_rpcCloseHits.emplace_back(hit); }
+    void MuonCalibSegment::addHitOnTrack(const RpcHitPtr& hit) { m_rpcHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(const RpcHitPtr& hit) { m_rpcCloseHits.emplace_back(hit); }
 
-    void MuonCalibSegment::addHitOnTrack(TgcHitPtr hit) { m_tgcHitsOnTrack.emplace_back(hit); }
-    void MuonCalibSegment::addCloseHit(TgcHitPtr hit) { m_tgcCloseHits.emplace_back(hit); }
+    void MuonCalibSegment::addHitOnTrack(const TgcHitPtr& hit) { m_tgcHitsOnTrack.emplace_back(hit); }
+    void MuonCalibSegment::addCloseHit(const TgcHitPtr& hit) { m_tgcCloseHits.emplace_back(hit); }
 
 }  // namespace MuonCalib
 

@@ -39,7 +39,7 @@ namespace MuonCalib {
     void MuonCalibPattern::copy(const MuonCalibPattern& other) {
         m_pars = other.m_pars;
         /// Need to find out whether the segment should be copied or not
-        for (MuonCalibSegPtr other_seg : other.muonSegs()) {
+        for (const MuonCalibSegPtr& other_seg : other.muonSegs()) {
             MuonCalibSegPtr seg{new MuonCalibSegment(*other_seg)};
             addMuonSegment(seg);
         }

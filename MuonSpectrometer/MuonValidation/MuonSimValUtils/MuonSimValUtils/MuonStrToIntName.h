@@ -9,7 +9,7 @@
 #include <vector>
 #include <iostream>
 
-int convertStrToIntName(std::string ChamberName, std::string ChamberType); 
+int convertStrToIntName(const std::string& ChamberName, const std::string& ChamberType); 
 
 
 #endif

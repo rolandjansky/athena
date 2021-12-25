@@ -11,13 +11,13 @@ namespace Muon {
 
     //________________________________________________________________________
     CscAlignModule::CscAlignModule(MsgStream* log, const Amg::Transform3D& transform) :
-        CombinedMuonAlignModule(log, transform), m_rootfile(0), m_tubePositionTree(0), m_log(new MsgStream(*log)) {}
+        CombinedMuonAlignModule(log, transform), m_rootfile(nullptr), m_tubePositionTree(nullptr), m_log(new MsgStream(*log)) {}
 
     //________________________________________________________________________
     CscAlignModule::CscAlignModule(const AlgTool* algtool, const Amg::Transform3D& transform) :
         CombinedMuonAlignModule(algtool, transform),
-        m_rootfile(0),
-        m_tubePositionTree(0),
+        m_rootfile(nullptr),
+        m_tubePositionTree(nullptr),
         m_log(new MsgStream(algtool->msgSvc(), "CscAlignModule")) {
         const AthAlgTool* athAlgTool = dynamic_cast<const AthAlgTool*>(algtool);
         if (athAlgTool) m_log->setLevel(athAlgTool->msg().level());

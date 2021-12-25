@@ -7,13 +7,13 @@
 
 namespace Muon{
 
-MuonParamPlots::MuonParamPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir)
-								   ,msInnerMatchChi2(NULL)
-								   ,msOuterMatchChi2(NULL)
-								   ,ELoss(NULL)
-								   ,ELossSigma(NULL)
-								   ,paramELoss(NULL)
-								   ,measELoss(NULL)
+MuonParamPlots::MuonParamPlots(PlotBase *pParent, const std::string& sDir):PlotBase(pParent, sDir)
+								   ,msInnerMatchChi2(nullptr)
+								   ,msOuterMatchChi2(nullptr)
+								   ,ELoss(nullptr)
+								   ,ELossSigma(nullptr)
+								   ,paramELoss(nullptr)
+								   ,measELoss(nullptr)
 {}
 
 void MuonParamPlots::initializePlots()

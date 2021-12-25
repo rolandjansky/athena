@@ -390,7 +390,7 @@ StatusCode RpcTrackAnaAlg::triggerMatching(const xAOD::Muon* offline_muon, const
   if( getTrigDecisionTool().empty() ) return StatusCode::SUCCESS;
   TVector3 muonvec; muonvec.SetPtEtaPhi(offline_muon->pt(),offline_muon->eta(),offline_muon->phi());
   
-  for(auto tagTrig : list_of_triggers ){
+  for(const auto& tagTrig : list_of_triggers ){
     if( !getTrigDecisionTool()->isPassed( tagTrig.eventTrig.Data() ) ) continue;
 
     ATH_MSG_DEBUG("tagTrig.eventTrig = "<< tagTrig.eventTrig << ";  tagTrig.tagTrig = "<< tagTrig.tagTrig );
@@ -398,7 +398,7 @@ StatusCode RpcTrackAnaAlg::triggerMatching(const xAOD::Muon* offline_muon, const
     
     std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> >  features = getTrigDecisionTool()->features<xAOD::MuonContainer>( tagTrig.tagTrig.Data() ,TrigDefs::Physics);
     
-    for(auto aaa : features){
+    for(const auto& aaa : features){
       ATH_CHECK( aaa.isValid() );
       auto trigmuon_link = aaa.link;
       auto trigmuon = *trigmuon_link;
@@ -550,7 +550,7 @@ StatusCode RpcTrackAnaAlg::computeTrackIntersectionWithGasGap(ExResult &        
   ATH_MSG_DEBUG( "computeTrackIntersectionWithGasGap - gas gap id: " << m_idHelperSvc->toString(gap->gapid) <<std::endl
               << " bound:   " << bounds << std::endl);
 
-  const Trk::TrackParameters *detParameters = 0;
+  const Trk::TrackParameters *detParameters = nullptr;
 
   if(m_useAODParticle) {
     detParameters = m_extrapolator->extrapolate(*track_particle,

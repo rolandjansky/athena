@@ -45,7 +45,7 @@ namespace Muon {
   
   const CompetingMuonClustersOnTrack* MuonCompetingClustersOnTrackCreator::createBroadCluster(const std::list< const Trk::PrepRawData * > & prds, const double errorScaleFactor ) const
   {
-    if (prds.size() == 0) return 0;
+    if (prds.size() == 0) return nullptr;
 
 // implement cluster formation
     std::vector <const Muon::MuonClusterOnTrack* >* rios = new std::vector <const Muon::MuonClusterOnTrack* >() ;

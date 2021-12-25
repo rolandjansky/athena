@@ -7,16 +7,16 @@
 
 namespace Muon{
 
-MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, std::string sDir, std::string sType, bool doBinnedResolutionPlots):
+MuonResolutionPlots::MuonResolutionPlots(PlotBase* pParent, const std::string& sDir, const std::string& sType, bool doBinnedResolutionPlots):
   PlotBase(pParent, sDir),
   m_oResolutionPlots(this, "", sType),
-  Res_pT_vs_lowpT(NULL),
-  Res_pT_vs_highpT(NULL),
-  Res_pT_vs_pT(NULL),
-  Res_pT_vs_eta(NULL),
-  Res_pT_vs_phi(NULL),
-  Res_eta_vs_pT(NULL),
-  Res_phi_vs_pT(NULL),
+  Res_pT_vs_lowpT(nullptr),
+  Res_pT_vs_highpT(nullptr),
+  Res_pT_vs_pT(nullptr),
+  Res_pT_vs_eta(nullptr),
+  Res_pT_vs_phi(nullptr),
+  Res_eta_vs_pT(nullptr),
+  Res_phi_vs_pT(nullptr),
   m_sType(sType),
   m_doBinnedResolutionPlots(doBinnedResolutionPlots)
 {

@@ -40,7 +40,7 @@ Muon::sTgcPrepDataContainer* sTgcPrepDataContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "sTgcPrepDataContainerCnv" );
     static pool::Guid   p1_guid("7AB87DDE-8D7C-11E2-AA7C-001517648C14"); 
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
-    Muon::sTgcPrepDataContainer* p_collection(0);
+    Muon::sTgcPrepDataContainer* p_collection(nullptr);
     if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
         std::unique_ptr< Muon::sTgcPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::sTgcPrepDataContainer_p1 >() );

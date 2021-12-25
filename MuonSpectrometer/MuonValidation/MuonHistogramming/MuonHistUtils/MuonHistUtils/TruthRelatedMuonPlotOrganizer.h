@@ -26,7 +26,7 @@ namespace Muon
   
   class TruthRelatedMuonPlotOrganizer:public PlotBase {
   public:
-    TruthRelatedMuonPlotOrganizer(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots, std::vector<int> *selPlots=0);
+    TruthRelatedMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir,bool doBinnedResolutionPlots, std::vector<int> *selPlots=0);
     ~TruthRelatedMuonPlotOrganizer();
 
     

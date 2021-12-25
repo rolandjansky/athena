@@ -130,9 +130,9 @@ struct MDTSegmentHistogramStruct {
 
 MdtRawDataMonAlg::MdtRawDataMonAlg( const std::string& name, ISvcLocator* pSvcLocator )
  :AthMonitorAlgorithm(name,pSvcLocator),
- m_masked_tubes(NULL),
+ m_masked_tubes(nullptr),
  m_atlas_ready(0),
- m_hist_hash_list(0),
+ m_hist_hash_list(nullptr),
  m_BMGpresent(false),
  m_BMGid(-1)
 {
@@ -174,7 +174,7 @@ MdtRawDataMonAlg::~MdtRawDataMonAlg()
   if(m_hist_hash_list) {
     clear_hist_map(0);
   }
-  delete m_masked_tubes; m_masked_tubes = NULL;
+  delete m_masked_tubes; m_masked_tubes = nullptr;
   ATH_MSG_DEBUG(" deleting MdtRawDataMonAlg " );
 
 }
@@ -443,7 +443,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
             Identifier rotId = rot_from_track->identify();
             if(!m_idHelperSvc->isMdt(rotId)) continue;
             IdentifierHash mdt_idHash;
-	    MDTChamber* mdt_chamber = 0;
+	    MDTChamber* mdt_chamber = nullptr;
             m_idHelperSvc->mdtIdHelper().get_module_hash( rotId, mdt_idHash );
 	    ATH_CHECK(getChamber(mdt_idHash, mdt_chamber));
 	    std::string mdt_chambername = mdt_chamber->getName();
@@ -733,7 +733,7 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryVects( const Muon::MdtPrepData* mdtCo
   auto& thisVects = array[v];
 
   bool is_on_track = false;
-  for(auto ch : chambers_from_tracks) {
+  for(const auto& ch : chambers_from_tracks) {
     if(chambername==ch) is_on_track=true;
   }
 
@@ -1076,7 +1076,7 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
   // LOOP OVER SEGMENTS  
   for (Trk::SegmentCollection::const_iterator s = segms->begin(); s != segms->end(); ++s) {
     const Muon::MuonSegment* segment = dynamic_cast<const Muon::MuonSegment*>(*s);
-    if (segment == 0) {
+    if (segment == nullptr) {
       ATH_MSG_DEBUG("no pointer to segment!!!");
       break;
     }    
@@ -1098,7 +1098,7 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
     	  
         Identifier tmpid = rot->identify();
         IdentifierHash idHash;
-        MDTChamber* chamber = 0;
+        MDTChamber* chamber = nullptr;
         m_idHelperSvc->mdtIdHelper().get_module_hash( tmpid, idHash );  
         sc = getChamber(idHash, chamber);
         std::string chambername = chamber->getName();

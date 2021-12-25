@@ -71,9 +71,9 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
  private:
 
   //Function for histogram booking and parameterd for fitting
-  StatusCode bookRPCLV1cmatimevschHistograms(std::string m_sectorlogic_name, std::string m_tower_name, std::string m_cma_name);    
-  StatusCode bookRPCLV1TriggerRoadHistograms(std::string m_sectorlogic_name, std::string m_tower_name, std::string m_cma_name, std::string m_thr_name);
-  StatusCode bookRPCLV1ProfilesHistograms(int m_i_sector, std::string m_sectorlogic_name, std::string m_cma_name,  int m_i_ijk, std::string m_ijk_name) ;  
+  StatusCode bookRPCLV1cmatimevschHistograms(const std::string& m_sectorlogic_name, const std::string& m_tower_name, const std::string& m_cma_name);    
+  StatusCode bookRPCLV1TriggerRoadHistograms(const std::string& m_sectorlogic_name, const std::string& m_tower_name, const std::string& m_cma_name, const std::string& m_thr_name);
+  StatusCode bookRPCLV1ProfilesHistograms(int m_i_sector, const std::string& m_sectorlogic_name, const std::string& m_cma_name,  int m_i_ijk, const std::string& m_ijk_name) ;  
 
   MuonDQAHistMap m_stationHists;
 
@@ -107,7 +107,7 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   
   SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
-  void  bookRPCCoolHistograms(std::vector<std::string>::const_iterator &m_iter, int, int, std::string m_layer);
+  void  bookRPCCoolHistograms(std::vector<std::string>::const_iterator &m_iter, int, int, const std::string& m_layer);
   bool m_doCoolDB;
   
   std::string m_chamberName;

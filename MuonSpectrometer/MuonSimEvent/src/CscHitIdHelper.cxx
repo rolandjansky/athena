@@ -87,7 +87,7 @@ int CscHitIdHelper::GetWireLayer(const int& hid) const
 }
 
 //packing method
-int CscHitIdHelper::BuildCscHitId(const std::string statName, const int phiSect,
+int CscHitIdHelper::BuildCscHitId(const std::string& statName, const int phiSect,
                                   const int zSect, const int chamberLayer, int wireLayer) const
 {
   int theID(0);

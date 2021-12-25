@@ -7,7 +7,7 @@
 namespace LVL1TGCCabling8 {
 
 // Constructor & Destructor
-TGCCablePPToSLB::TGCCablePPToSLB (std::string filename)
+TGCCablePPToSLB::TGCCablePPToSLB (const std::string& filename)
   : TGCCable(TGCCable::PPToSLB)
 {
   m_database[TGCIdBase::Endcap][TGCIdBase::WT] = 
@@ -61,7 +61,7 @@ TGCChannelId* TGCCablePPToSLB::getChannel (const TGCChannelId* channelId,
     if(channelId->getChannelIdType()==TGCChannelId::SLBIn)
       return getChannelIn(channelId,orChannel);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCModuleMap* TGCCablePPToSLB::getModule (const TGCModuleId* moduleId) const {
@@ -71,38 +71,38 @@ TGCModuleMap* TGCCablePPToSLB::getModule (const TGCModuleId* moduleId) const {
     if(moduleId->getModuleIdType()==TGCModuleId::SLB)
       return getModuleIn(moduleId);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCChannelId* TGCCablePPToSLB::getChannelIn (const TGCChannelId* slbin,
 					     bool orChannel) const {
-  if(orChannel) return 0;
-  if(slbin->isValid()==false) return 0;
-  TGCChannelPPOut* ppout = 0;
+  if(orChannel) return nullptr;
+  if(slbin->isValid()==false) return nullptr;
+  TGCChannelPPOut* ppout = nullptr;
 
   // SLB channel
-  const TGCChannelSLBIn* slbIn = 0;
+  const TGCChannelSLBIn* slbIn = nullptr;
   if(slbin->getChannelIdType()==TGCChannelId::SLBIn){
     slbIn = dynamic_cast<const TGCChannelSLBIn*>(slbin);
   } 
   if(!slbIn) {
-    return 0;
+    return nullptr;
   }
 
   // SLB module
   TGCModuleId* slb = slbIn->getModule();
-  if(!slb) return 0;
+  if(!slb) return nullptr;
 
   // SLB -> PP module connection
   TGCModuleMap* mapId = getModule(slb);
   delete slb;
-  if(!mapId) return 0;
+  if(!mapId) return nullptr;
 
   // PP module
   int port = mapId->connector(0);
   TGCModuleId* pp = mapId->popModuleId(0);
   delete mapId;
-  if(!pp) return 0;
+  if(!pp) return nullptr;
 
   // SLB ->PP channel connection
   int block = -1;
@@ -110,7 +110,7 @@ TGCChannelId* TGCCablePPToSLB::getChannelIn (const TGCChannelId* slbin,
   TGCChannelSLBIn::CellType cellType = slbIn->getCellType();
   if(cellType==TGCChannelSLBIn::NoCellType){
     delete pp; 
-    return 0;
+    return nullptr;
   }
 
   if(cellType==TGCChannelSLBIn::CellA) {
@@ -148,21 +148,21 @@ TGCChannelId* TGCCablePPToSLB::getChannelIn (const TGCChannelId* slbin,
 
 TGCChannelId* TGCCablePPToSLB::getChannelOut (const TGCChannelId* ppout,
 					      bool orChannel) const {
-  if(orChannel) return 0;
-  if(ppout->isValid()==false) return 0;
-  TGCChannelSLBIn* slbin = 0;
+  if(orChannel) return nullptr;
+  if(ppout->isValid()==false) return nullptr;
+  TGCChannelSLBIn* slbin = nullptr;
   
   // PP module
   TGCModuleId* pp = ppout->getModule();
-  if(!pp) return 0;
+  if(!pp) return nullptr;
 
   // PP -> SLB module connection
   TGCModuleMap* mapId = getModule(pp);
   delete pp;
-  if(!mapId) return 0;
+  if(!mapId) return nullptr;
   
   // SLB module
-  TGCModuleId* slb = 0;
+  TGCModuleId* slb = nullptr;
   int size = mapId->size();
   for(int i=0;i<size;i++){
     if(mapId->connector(i)==ppout->getBlock()/2){
@@ -171,7 +171,7 @@ TGCChannelId* TGCCablePPToSLB::getChannelOut (const TGCChannelId* ppout,
     }
   }
   delete mapId;
-  if(!slb) return 0;
+  if(!slb) return nullptr;
 
   // PP ->SLB channel connection
   TGCChannelSLBIn::CellType cellType = TGCChannelSLBIn::NoCellType;
@@ -212,10 +212,10 @@ TGCChannelId* TGCCablePPToSLB::getChannelOut (const TGCChannelId* ppout,
 }
   
 TGCModuleMap* TGCCablePPToSLB::getModuleIn (const TGCModuleId* slb) const {
-  if(slb->isValid()==false) return 0;
+  if(slb->isValid()==false) return nullptr;
 
   TGCDatabase* databaseP =m_database[slb->getRegionType()][slb->getModuleType()];
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     if(databaseP->getEntry(i,1)==slb->getId())
@@ -250,17 +250,17 @@ TGCModuleMap* TGCCablePPToSLB::getModuleIn (const TGCModuleId* slb) const {
 }
   
 TGCModuleMap* TGCCablePPToSLB::getModuleOut (const TGCModuleId* pp) const {
-  if(pp->isValid()==false) return 0;
+  if(pp->isValid()==false) return nullptr;
 
   TGCDatabase* databaseP = m_database[pp->getRegionType()][pp->getModuleType()];
   
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     if(databaseP->getEntry(i,0)==pp->getId())
       {
 	int id=-1;
-	TGCModuleSLB* slb=0;
+	TGCModuleSLB* slb=nullptr;
 	mapId = new TGCModuleMap();
 
 	id = databaseP->getEntry(i,1);

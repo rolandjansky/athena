@@ -43,19 +43,19 @@ void AmdcBlineStore::Print() const
 }
 
 // Add a AmdcBline
-void AmdcBlineStore::Add(AmdcBline ToBeAdded){m_AmdcBlineSet.push_back(ToBeAdded);}
+void AmdcBlineStore::Add(const AmdcBline& ToBeAdded){m_AmdcBlineSet.push_back(ToBeAdded);}
  
 // Nber of AmdcBline
 int AmdcBlineStore::NberOfObjects() const{return m_AmdcBlineSet.size();}
  
 // Get a Pointer on a AmdcBline of Nber AmdcBlineNber
 const AmdcBline* AmdcBlineStore::GetAmdcBline(int AmdcBlineNber) const{
- const AmdcBline* ToBeReturned = 0 ;
+ const AmdcBline* ToBeReturned = nullptr ;
  if (AmdcBlineNber < 0 || AmdcBlineNber > NberOfObjects()) return ToBeReturned;
  return &m_AmdcBlineSet[AmdcBlineNber];
 }
 AmdcBline* AmdcBlineStore::GetAmdcBlineForUpdate(int AmdcBlineNber){
- AmdcBline* ToBeReturned = 0 ;
+ AmdcBline* ToBeReturned = nullptr ;
  if (AmdcBlineNber < 0 || AmdcBlineNber > NberOfObjects()) return ToBeReturned;
  return &m_AmdcBlineSet[AmdcBlineNber];
 }

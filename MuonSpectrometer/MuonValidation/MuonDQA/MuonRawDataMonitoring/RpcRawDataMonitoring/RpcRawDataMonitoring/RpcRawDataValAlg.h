@@ -65,14 +65,14 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   
   //Function for histogram booking and parameterd for fitting
   void bookRPCChamberStats();
-  void bookRPCLayerHistograms(std::string, std::string,  std::string, int, int, int);
-  void bookRPCLayerHistogramsPanel(std::string, std::string);
-  void bookRPCLayervsTimeHistograms( std::string hardware_name,  std::string layer_name, 
+  void bookRPCLayerHistograms(const std::string&, const std::string&,  const std::string&, int, int, int);
+  void bookRPCLayerHistogramsPanel(const std::string&, const std::string&);
+  void bookRPCLayervsTimeHistograms( const std::string& hardware_name,  const std::string& layer_name, 
 				     int bin,  int binmin ,  int binmax);
-  void bookRPCLayerPhiAmbiHistograms(std::string, std::string, std::string, int, int, int);
-  void bookRPCLayervsLayerHistograms(std::string, std::string, std::string, std::string, int, int, int, int, int ,int);
-  void bookRPCLayerPhivsEtaHistograms(std::string, std::string, int, int, int, int, int, int);
-  void bookRPCLayerPhivsEtaSectorHistograms(std::string, std::string, int, int, int, int, int, int);
+  void bookRPCLayerPhiAmbiHistograms(const std::string&, const std::string&, const std::string&, int, int, int);
+  void bookRPCLayervsLayerHistograms(const std::string&, const std::string&, const std::string&, const std::string&, int, int, int, int, int ,int);
+  void bookRPCLayerPhivsEtaHistograms(const std::string&, const std::string&, int, int, int, int, int, int);
+  void bookRPCLayerPhivsEtaSectorHistograms(const std::string&, const std::string&, int, int, int, int, int, int);
  
   void bookRPCSummaryHistograms( int, const std::string & m_quantity ) ;
   
@@ -319,7 +319,7 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   int     m_MinEntries	    ; 
 
   // cool
-  void  bookRPCCoolHistograms(std::vector<std::string>::const_iterator &m_iter, int, int, std::string m_layer);
+  void  bookRPCCoolHistograms(std::vector<std::string>::const_iterator &m_iter, int, int, const std::string& m_layer);
   bool m_doCoolDB		       ;
   std::vector<std::string> m_DB_list   ;
   

@@ -13,7 +13,7 @@ namespace Muon{
 
 class ChargeDepParamPlots:public PlotBase {
   public:      
-    ChargeDepParamPlots(PlotBase *pParent, std::string sDir, std::string sType);
+    ChargeDepParamPlots(PlotBase *pParent, const std::string& sDir, std::string sType);
     //void fill(const xAOD::TrackParticle& trkprt);
     void fill(const xAOD::Muon& mu,float weight=1.0);
 
