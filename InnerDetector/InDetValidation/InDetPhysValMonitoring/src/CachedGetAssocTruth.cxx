@@ -44,7 +44,7 @@ namespace IDPVM {
       #endif
       return pCache->second;
     }
-    typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
+    using ElementTruthLink_t = ElementLink<xAOD::TruthParticleContainer>;
     const xAOD::TruthParticle* result(nullptr);
     // 0. is there any truth?
     if (trackParticle->isAvailable<ElementTruthLink_t>("truthParticleLink")) {
@@ -64,7 +64,7 @@ namespace IDPVM {
   }
 
   std::string
-  CachedGetAssocTruth::report() const {
+  CachedGetAssocTruth::report() {
     std::string op("No cache report from 'CachedGetAssocTruth' is available in OPT builds.");
     #ifndef NDEBUG
     op = "\nCache report\nNum. calls = " + std::to_string(m_nCalls);

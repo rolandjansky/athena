@@ -123,7 +123,7 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
     return false;
   }
 
-  const xAOD::TruthVertex* ptruthVertex(0);
+  const xAOD::TruthVertex* ptruthVertex(nullptr);
   try{
     ptruthVertex = particle.prodVtx();
   } catch (const std::exception& e) {

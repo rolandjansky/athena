@@ -54,7 +54,7 @@ TrackSelectionTool::~TrackSelectionTool() {
 StatusCode
 TrackSelectionTool::initialize() {
 
-  if (AlgTool::initialize().isFailure()) {
+  if (asg::AsgTool::initialize().isFailure()) {
     return StatusCode::FAILURE;
   }
 
@@ -64,94 +64,94 @@ TrackSelectionTool::initialize() {
   m_cuts.clear();
 
   if (m_maxPt > -1) {
-    m_cuts.push_back(std::make_pair("maxPt", "descr."));
+    m_cuts.emplace_back("maxPt", "descr.");
   }
   if (m_minPt > -1) {
-    m_cuts.push_back(std::make_pair("minPt", "descr."));
+    m_cuts.emplace_back("minPt", "descr.");
   }
   if (m_maxEta > -1) {
-    m_cuts.push_back(std::make_pair("maxEta", "descr."));
+    m_cuts.emplace_back("maxEta", "descr.");
   }
   if (m_minEta > -1) {
-    m_cuts.push_back(std::make_pair("minEta", "descr."));
+    m_cuts.emplace_back("minEta", "descr.");
   }
   if (m_maxPrimaryImpact > -1) {
-    m_cuts.push_back(std::make_pair("maxPrimaryImpact", "descr."));
+    m_cuts.emplace_back("maxPrimaryImpact", "descr.");
   }
   if (m_maxZImpact > -1) {
-    m_cuts.push_back(std::make_pair("maxZImpact", "descr."));
+    m_cuts.emplace_back("maxZImpact", "descr.");
   }
   if (m_minPrimaryImpact > -1) {
-    m_cuts.push_back(std::make_pair("minPrimaryImpact", "descr."));
+    m_cuts.emplace_back("minPrimaryImpact", "descr.");
   }
   if (m_minZImpact > -1) {
-    m_cuts.push_back(std::make_pair("minZImpact", "descr."));
+    m_cuts.emplace_back("minZImpact", "descr.");
   }
   if (m_maxSecondaryImpact > -1) {
-    m_cuts.push_back(std::make_pair("maxSecondaryImpact", "descr."));
+    m_cuts.emplace_back("maxSecondaryImpact", "descr.");
   }
   if (m_minSecondaryPt > -1) {
-    m_cuts.push_back(std::make_pair("minSecondaryPt", "descr."));
+    m_cuts.emplace_back("minSecondaryPt", "descr.");
   }
   if (m_minClusters > -1) {
-    m_cuts.push_back(std::make_pair("minClusters", "descr."));
+    m_cuts.emplace_back("minClusters", "descr.");
   }
   if (m_minSiNotShared > -1) {
-    m_cuts.push_back(std::make_pair("minSiNotShared", "descr."));
+    m_cuts.emplace_back("minSiNotShared", "descr.");
   }
   if (m_maxShared > -1) {
-    m_cuts.push_back(std::make_pair("maxShared", "descr."));
+    m_cuts.emplace_back("maxShared", "descr.");
   }
   if (m_minPixelHits > -1) {
-    m_cuts.push_back(std::make_pair("minPixelHits", "descr."));
+    m_cuts.emplace_back("minPixelHits", "descr.");
   }
   if (m_maxHoles > -1) {
-    m_cuts.push_back(std::make_pair("maxHoles", "descr."));
+    m_cuts.emplace_back("maxHoles", "descr.");
   }
   if (m_maxPixelHoles > -1) {
-    m_cuts.push_back(std::make_pair("maxPixelHoles", "descr."));
+    m_cuts.emplace_back("maxPixelHoles", "descr.");
   }
   if (m_maxSctHoles > -1) {
-    m_cuts.push_back(std::make_pair("maxSctHoles", "descr."));
+    m_cuts.emplace_back("maxSctHoles", "descr.");
   }
   if (m_maxDoubleHoles > -1) {
-    m_cuts.push_back(std::make_pair("maxDoubleHoles", "descr."));
+    m_cuts.emplace_back("maxDoubleHoles", "descr.");
   }
   if (m_radMax > -1) {
-    m_cuts.push_back(std::make_pair("radMax", "descr."));
+    m_cuts.emplace_back("radMax", "descr.");
   }
   if (m_nHolesMax > -1) {
-    m_cuts.push_back(std::make_pair("nHolesMax", "descr."));
+    m_cuts.emplace_back("nHolesMax", "descr.");
   }
   if (m_nHolesGapMax > -1) {
-    m_cuts.push_back(std::make_pair("nHolesGapMax", "descr."));
+    m_cuts.emplace_back("nHolesGapMax", "descr.");
   }
   if (m_seedFilterLevel > -1) {
-    m_cuts.push_back(std::make_pair("seedFilterLevel", "descr."));
+    m_cuts.emplace_back("seedFilterLevel", "descr.");
   }
   if (m_maxTRTHighThresholdHits > -1) {
-    m_cuts.push_back(std::make_pair("maxTRTHighThresholdHits", "descr."));
+    m_cuts.emplace_back("maxTRTHighThresholdHits", "descr.");
   }
   if (m_minTRTHighThresholdHits > -1) {
-    m_cuts.push_back(std::make_pair("minTRTHighThresholdHits", "descr."));
+    m_cuts.emplace_back("minTRTHighThresholdHits", "descr.");
   }
   if (m_maxTRTHighThresholdOutliers > -1) {
-    m_cuts.push_back(std::make_pair("maxTRTHighThresholdOutliers", "descr."));
+    m_cuts.emplace_back("maxTRTHighThresholdOutliers", "descr.");
   }
   if (m_maxSCTHits > -1) {
-    m_cuts.push_back(std::make_pair("maxSCTHits", "descr."));
+    m_cuts.emplace_back("maxSCTHits", "descr.");
   }
   if (m_minSCTHits > -1) {
-    m_cuts.push_back(std::make_pair("minSCTHits", "descr."));
+    m_cuts.emplace_back("minSCTHits", "descr.");
   }
   if (m_maxTRTOutliers > -1) {
-    m_cuts.push_back(std::make_pair("maxTRTOutliers", "descr."));
+    m_cuts.emplace_back("maxTRTOutliers", "descr.");
   }
   if (m_maxBLayerSplitHits > -1) {
-    m_cuts.push_back(std::make_pair("maxBLayerSplitHits", "descr."));
+    m_cuts.emplace_back("maxBLayerSplitHits", "descr.");
   }
   if (m_maxPixelOutliers > -1) {
-    m_cuts.push_back(std::make_pair("maxPixelOutliers", "descr."));
+    m_cuts.emplace_back("maxPixelOutliers", "descr.");
   }
 
   // Example.

@@ -31,7 +31,7 @@ TrackTruthSelectionTool::~TrackTruthSelectionTool() {
 
 StatusCode
 TrackTruthSelectionTool::initialize() {
-  if (AlgTool::initialize().isFailure()) {
+  if (asg::AsgTool::initialize().isFailure()) {
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Initializing " << name() << "...");
@@ -39,32 +39,32 @@ TrackTruthSelectionTool::initialize() {
   // Define cut names and descriptions
   m_cuts.clear();
   if (m_maxEta > -1) {
-    m_cuts.push_back(std::make_pair("eta", "Cut on (absolute) particle eta"));
+    m_cuts.emplace_back("eta", "Cut on (absolute) particle eta");
   }
   if (m_minPt > -1) {
-    m_cuts.push_back(std::make_pair("min_pt", "Cut on minimum particle pT"));
+    m_cuts.emplace_back("min_pt", "Cut on minimum particle pT");
   }
   if (m_maxPt > -1) {
-    m_cuts.push_back(std::make_pair("max_pt", "Cut on maximum particle pT"));
+    m_cuts.emplace_back("max_pt", "Cut on maximum particle pT");
   }
 
   if (m_maxBarcode > -1) {
-    m_cuts.push_back(std::make_pair("barcode", "Cut on maximum particle barcode"));
+    m_cuts.emplace_back("barcode", "Cut on maximum particle barcode");
   }
 
   if (m_requireCharged) {
-    m_cuts.push_back(std::make_pair("charged", "Require charged particle"));
+    m_cuts.emplace_back("charged", "Require charged particle");
   }
   if (m_requireStatus1) {
-    m_cuts.push_back(std::make_pair("status_1", "Particle status=1"));
+    m_cuts.emplace_back("status_1", "Particle status=1");
   }
 
   if (m_maxProdVertRadius > 0.) {
-    m_cuts.push_back(std::make_pair("decay_before_pixel", "Decays before first pixel layer"));
+    m_cuts.emplace_back("decay_before_pixel", "Decays before first pixel layer");
   }
 
   if (m_pdgId > -1) {
-    m_cuts.push_back(std::make_pair("pdgId", "Pdg Id cut")); // 3-18-16 normally enabled, disabled for testing
+    m_cuts.emplace_back("pdgId", "Pdg Id cut"); // 3-18-16 normally enabled, disabled for testing
   }
   // Add cuts to the AcceptInfo
   for (const auto& cut : m_cuts) {

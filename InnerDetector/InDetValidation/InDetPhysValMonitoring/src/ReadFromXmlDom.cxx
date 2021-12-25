@@ -61,7 +61,7 @@ bool
 ReadFromXmlDom::histoDefinitionMap(std::map<std::string, SingleHistogramDefinition>& usersmap) const {
   bool ok(true);
 
-  for (auto i:m_vectorOfDefinitions) {
+  for (const auto& i:m_vectorOfDefinitions) {
     if (i.empty()) {
       continue;
     }
@@ -100,20 +100,20 @@ ReadFromXmlDom::initialize() {
   };
   xercesc::DOMImplementation* impl = xercesc::DOMImplementationRegistry::getDOMImplementation(gLS);
   xercesc::DOMLSParser* parser = ((xercesc::DOMImplementationLS*) impl)->createLSParser(
-    xercesc::DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+    xercesc::DOMImplementationLS::MODE_SYNCHRONOUS, nullptr);
   xercesc::DOMConfiguration* config = parser->getDomConfig();
   if (config->canSetParameter(xercesc::XMLUni::fgXercesDoXInclude, true)) {
     config->setParameter(xercesc::XMLUni::fgXercesDoXInclude, true);
   }
   XIncludeErrHandler errorHandler;
   config->setParameter(xercesc::XMLUni::fgDOMErrorHandler, &errorHandler);
-  auto doc = parser->parseURI(m_source.c_str());
+  auto *doc = parser->parseURI(m_source.c_str());
   const XercesString temp = fromNative("h");
   xercesc::DOMNodeList* list = doc->getElementsByTagName(temp.c_str());
   const auto nElements = list->getLength();
   for (unsigned long i(0); i != nElements; ++i) {
     xercesc::DOMNode const* thisNode = list->item(i);
-    auto thisElement = dynamic_cast<xercesc::DOMElement const*> (thisNode);
+    const auto *thisElement = dynamic_cast<xercesc::DOMElement const*> (thisNode);
     if (thisElement) {
       insertDefinition(parseXmlElement(thisElement));
     }

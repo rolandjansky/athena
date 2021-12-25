@@ -359,7 +359,7 @@ void InDetPerfPlot_VertexTruthMatching::initializePlots() {
     }
 
 }
-const xAOD::Vertex* InDetPerfPlot_VertexTruthMatching::getHSRecoVertexSumPt2(const xAOD::VertexContainer& recoVertices) const {
+const xAOD::Vertex* InDetPerfPlot_VertexTruthMatching::getHSRecoVertexSumPt2(const xAOD::VertexContainer& recoVertices) {
     const xAOD::Vertex* recoHSVertex = nullptr;
     float sumPtMax = -1.;
     const xAOD::TrackParticle* trackTmp = nullptr;
@@ -413,11 +413,11 @@ float InDetPerfPlot_VertexTruthMatching::getLocalPUDensity(const xAOD::TruthVert
     return localPUDensity;
 }
 
-float InDetPerfPlot_VertexTruthMatching::getRecoLongitudinalReso(const xAOD::Vertex* recoVtx) const {
+float InDetPerfPlot_VertexTruthMatching::getRecoLongitudinalReso(const xAOD::Vertex* recoVtx) {
     return std::sqrt(recoVtx->covariancePosition()(2, 2));
 }
 
-float InDetPerfPlot_VertexTruthMatching::getRecoTransverseReso(const xAOD::Vertex* recoVtx) const {
+float InDetPerfPlot_VertexTruthMatching::getRecoTransverseReso(const xAOD::Vertex* recoVtx) {
     float x = recoVtx->x();
     float y = recoVtx->y();
     float xErr2 = recoVtx->covariancePosition()(0, 0);
@@ -481,7 +481,6 @@ void InDetPerfPlot_VertexTruthMatching::fillResoHist(TH1* resoHist, const TH2* r
             safety_counter++;
             mean = fitResult->Parameter(1);
             rms  = itr_rms;
-            continue;
 
         }
 
@@ -603,7 +602,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
         float truthRecoRadialDiff2 = -1.;
         const xAOD::TruthVertex* truthHSVtx = nullptr;
         // Check that we have *exactly* 1 truth HS vertex
-        if (truthHSVertices.size() != 0) {
+        if (!truthHSVertices.empty()) {
             if (truthHSVertices.size() != 1) {
                 ATH_MSG_WARNING("Size of truth HS vertex vector is >1 -- only using the first one in the vector.");
             }
@@ -1033,7 +1032,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
         fillHisto(m_vx_nVertices_split, number_split_PU,weight);
 
         // Now fill plots relating to the reconstruction of our truth HS vertex (efficiency and resolutions)
-        if (truthHSVertices.size() != 0) {
+        if (!truthHSVertices.empty()) {
             localPUDensity = getLocalPUDensity(truthHSVtx, truthHSVertices, truthPUVertices);
             if (truthHSVtxRecoed) {
                 float residual_z = truthHSVtx->z() - bestRecoHSVtx_truth->z();
