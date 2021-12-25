@@ -10,7 +10,7 @@
 namespace MuonAlign {
     class AlignmentTranslationDeviation : public Trk::AlignmentDeviation {
     public:
-        AlignmentTranslationDeviation(Amg::Vector3D u, double sigma, const std::vector<const Trk::RIO_OnTrack*>& hits);
+        AlignmentTranslationDeviation(const Amg::Vector3D& u, double sigma, const std::vector<const Trk::RIO_OnTrack*>& hits);
 
         virtual ~AlignmentTranslationDeviation() = default;
 

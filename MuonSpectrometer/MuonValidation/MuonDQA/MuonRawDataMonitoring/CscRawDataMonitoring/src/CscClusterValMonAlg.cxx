@@ -188,7 +188,7 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
 
       // if cluster is okay get Qmax, Qleft, Qright and Qsum = (Qmax + Qleft + Qright)
       if(eta_cluster_status || phi_cluster_status ) {
-        const CscStripPrepDataCollection* pcol(0);
+        const CscStripPrepDataCollection* pcol(nullptr);
         bool found_id = true;
         std::vector <const CscStripPrepData*> stripVec;
         std::vector <float> fStripIDs;

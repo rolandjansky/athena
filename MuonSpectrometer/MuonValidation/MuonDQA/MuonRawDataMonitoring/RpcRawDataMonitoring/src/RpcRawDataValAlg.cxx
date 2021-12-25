@@ -84,8 +84,8 @@ RpcRawDataValAlg::RpcRawDataValAlg( const std::string & type, const std::string 
   declareProperty("MinimunEntries",      m_MinEntries		= 10	);    // min entries required for summary plot 
   declareProperty("LB_Nbins"      ,      m_LB_Nbins		= 300	);     
   declareProperty("LBmax"         ,      m_LBmax		= 1500	);
-  m_padsId     = 0;
-  m_chambersId = 0;
+  m_padsId     = nullptr;
+  m_chambersId = nullptr;
 } 
                             
 RpcRawDataValAlg::~RpcRawDataValAlg()
@@ -93,11 +93,11 @@ RpcRawDataValAlg::~RpcRawDataValAlg()
   // fixes fot Memory leak
   if (m_padsId) { 
     delete m_padsId;
-    m_padsId = 0; 
+    m_padsId = nullptr; 
   }
   if (m_chambersId) { 
     delete m_chambersId;
-    m_chambersId = 0; 
+    m_chambersId = nullptr; 
   } 
   ATH_MSG_INFO (  " deleting RpcRawDataValAlg " );
 }
@@ -161,8 +161,8 @@ StatusCode RpcRawDataValAlg::initialize(){
   m_StationPivotSectorSize[10]= 1235*2*128*3;
   m_StationPivotSectorSize[53]=  965*6*128*3;
 
-  m_rpcCool_StripProfile = 0 ;
-  m_rpcCool_PanelIdHist = 0 ;
+  m_rpcCool_StripProfile = nullptr ;
+  m_rpcCool_PanelIdHist = nullptr ;
  
   m_first = true ;
   
@@ -4304,7 +4304,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
   return sc;
 }
 
-void RpcRawDataValAlg::bookRPCLayerHistograms(std::string hardware_name, std::string layer_name, std::string layer0_name, int bin, int binmin, int binmax )
+void RpcRawDataValAlg::bookRPCLayerHistograms(const std::string& hardware_name, const std::string& layer_name, const std::string& layer0_name, int bin, int binmin, int binmax )
 {
   gErrorIgnoreLevel=kInfo;
   
@@ -4383,7 +4383,7 @@ void RpcRawDataValAlg::bookRPCLayerHistograms(std::string hardware_name, std::st
  
 }
 		
-void RpcRawDataValAlg::bookRPCLayerHistogramsPanel(std::string hardware_name, std::string layer_name )
+void RpcRawDataValAlg::bookRPCLayerHistogramsPanel(const std::string& hardware_name, const std::string& layer_name )
 {
   gErrorIgnoreLevel=kInfo;
 
@@ -4421,7 +4421,7 @@ void RpcRawDataValAlg::bookRPCLayerHistogramsPanel(std::string hardware_name, st
 }
 		
   
-void RpcRawDataValAlg::bookRPCLayervsTimeHistograms(std::string  hardware_name, std::string layer_name, int bin, int binmin, int binmax)
+void RpcRawDataValAlg::bookRPCLayervsTimeHistograms(const std::string&  hardware_name, const std::string& layer_name, int bin, int binmin, int binmax)
 {
   gErrorIgnoreLevel=kInfo;
   
@@ -4459,7 +4459,7 @@ void RpcRawDataValAlg::bookRPCLayervsTimeHistograms(std::string  hardware_name, 
     }}//m_doRpcESD // AthenaMonManager::tier0 || AthenaMonManager::tier0ESD  
 }
 
-void RpcRawDataValAlg::bookRPCLayerPhiAmbiHistograms(std::string hardware_name, std::string layer_name, std::string layer0_name, int bin, int binmin, int binmax )
+void RpcRawDataValAlg::bookRPCLayerPhiAmbiHistograms(const std::string& hardware_name, const std::string& layer_name, const std::string& layer0_name, int bin, int binmin, int binmax )
 {
   gErrorIgnoreLevel=kInfo;
 
@@ -4494,7 +4494,7 @@ void RpcRawDataValAlg::bookRPCLayerPhiAmbiHistograms(std::string hardware_name, 
   
 }
 
-void RpcRawDataValAlg::bookRPCLayerPhivsEtaHistograms(std::string hardware_name, std::string layerPhivsEta_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
+void RpcRawDataValAlg::bookRPCLayerPhivsEtaHistograms(const std::string& hardware_name, const std::string& layerPhivsEta_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
 {
   gErrorIgnoreLevel=kInfo;
 
@@ -4537,7 +4537,7 @@ void RpcRawDataValAlg::bookRPCLayerPhivsEtaHistograms(std::string hardware_name,
    		     	
 
 //void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(std::string hardware_name,std::string m_sector_name, std::string m_layerPhivsEtaSector_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
-void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(std::string sector_name, std::string layerPhivsEtaSector_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
+void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(const std::string& sector_name, const std::string& layerPhivsEtaSector_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
 {
   gErrorIgnoreLevel=kInfo;
   if ( binmaxx==64  ) { binmaxx=96 ; } //exception for SU2 / SU3 chambers
@@ -4606,8 +4606,8 @@ void RpcRawDataValAlg::bookRPCLayerPhivsEtaSectorHistograms(std::string sector_n
 }
  
     
-void RpcRawDataValAlg::bookRPCLayervsLayerHistograms(std::string hardware_name, std::string layervslayer_name, 
-                                                     std::string   layer1_name, std::string layer2_name, 
+void RpcRawDataValAlg::bookRPCLayervsLayerHistograms(const std::string& hardware_name, const std::string& layervslayer_name, 
+                                                     const std::string&   layer1_name, const std::string& layer2_name, 
 						     int binx, int binminx, int binmaxx, int biny, int binminy, int binmaxy)
 {
   gErrorIgnoreLevel=kInfo;
@@ -4650,7 +4650,7 @@ void RpcRawDataValAlg::bookRPCLayervsLayerHistograms(std::string hardware_name, 
 }
 
 void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_iterator & iter, int isec, int idblPhi,
-					      std::string layer ) 
+					      const std::string& layer ) 
 {
   StatusCode sc = StatusCode::SUCCESS ;
   

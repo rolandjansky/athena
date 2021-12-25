@@ -22,7 +22,7 @@ public:
   int GetLayer(const int& hid) const;
   int GetSide(const int& hid) const;
 
-  int BuildsTgcHitId (const std::string, const int, const int, const int,
+  int BuildsTgcHitId (const std::string&, const int, const int, const int,
                       const int, const int) const;
 
 private:

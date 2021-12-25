@@ -2,14 +2,16 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonValidationPlots.h"
 #include "MuonHistUtils/MuonEnumDefs.h"
 
 typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
-MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<int> wps,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doSeparateSAFMuons, bool doMuonTree):
-  PlotBase(pParent, sDir),  m_selectedWPs(wps), m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(nullptr), m_isData(isData), m_doSeparateSAFMuons(doSeparateSAFMuons), m_MuonTree(nullptr)
+MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, const std::string& sDir,std::vector<int> wps,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doSeparateSAFMuons, bool doMuonTree):
+  PlotBase(pParent, sDir),  m_selectedWPs(std::move(wps)), m_selectedAuthors(std::move(authors)), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(nullptr), m_isData(isData), m_doSeparateSAFMuons(doSeparateSAFMuons), m_MuonTree(nullptr)
 {
   if (!m_isData) {
     m_truthSelections[0] = "all"; //no selection on truth muons (minimum selection is |eta|<2.5, pt>5 GeV, defined in MuonPhysValMonitoringTool::handleTruthMuon() 
@@ -73,17 +75,17 @@ MuonValidationPlots::~MuonValidationPlots()
 {
   if (!m_isData) {
     delete m_oTruthRelatedMuonPlots;
-    m_oTruthRelatedMuonPlots=0;    
+    m_oTruthRelatedMuonPlots=nullptr;    
 
     for (unsigned int i=0; i<m_oTruthRelatedMuonPlots_perQuality.size(); i++) {    
       Muon::TruthRelatedMuonPlotOrganizer *truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_perQuality[i];
       delete truthRelatedMuonPlots;
-      truthRelatedMuonPlots = 0;
+      truthRelatedMuonPlots = nullptr;
     }
     for (unsigned int i=0; i<m_oTruthRelatedMuonPlots_perAuthor.size(); i++) {    
       Muon::TruthRelatedMuonPlotOrganizer *truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_perAuthor[i];
       delete truthRelatedMuonPlots;
-      truthRelatedMuonPlots = 0;
+      truthRelatedMuonPlots = nullptr;
     }
   }
   
@@ -91,23 +93,23 @@ MuonValidationPlots::~MuonValidationPlots()
   for (unsigned int i=0; i<m_oRecoMuonPlots_perQuality.size(); i++) {    
     Muon::RecoMuonPlotOrganizer *recoMuonPlots = m_oRecoMuonPlots_perQuality[i];    
     delete recoMuonPlots;
-    recoMuonPlots = 0;
+    recoMuonPlots = nullptr;
   }
   for (unsigned int i=0; i<m_oRecoMuonPlots_perAuthor.size(); i++) {    
     Muon::RecoMuonPlotOrganizer *recoMuonPlots = m_oRecoMuonPlots_perAuthor[i];
     delete recoMuonPlots;
-    recoMuonPlots = 0;
+    recoMuonPlots = nullptr;
   }
 
   for (unsigned int i=0; i<m_oRecoMuonPlots_SiAssocFwrdMu.size(); i++) {    
     Muon::RecoMuonPlotOrganizer *recoMuonPlots = m_oRecoMuonPlots_SiAssocFwrdMu[i];
     delete recoMuonPlots;
-    recoMuonPlots = 0;
+    recoMuonPlots = nullptr;
   }
   for (unsigned int i=0; i<m_oTruthRelatedMuonPlots_SiAssocFwrdMu.size(); i++) {    
     Muon::TruthRelatedMuonPlotOrganizer *truthRelatedMuonPlots = m_oTruthRelatedMuonPlots_SiAssocFwrdMu[i];
     delete truthRelatedMuonPlots;
-    truthRelatedMuonPlots = 0;
+    truthRelatedMuonPlots = nullptr;
   }
    
   if(m_MuonTree) { delete m_MuonTree; m_MuonTree=nullptr; } 

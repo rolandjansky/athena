@@ -117,8 +117,8 @@ RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const 
   declareProperty( "triggerChainGroupRegExp"    , m_triggerChainGroupRegExp    ="HLT_mu.*"  );//".*" all triggers//"HLT_mu.*" all EF muon triggers//"HLT_.*" all EF triggers//"L2_.*"  all L2 triggers//"L1_.*"  all L1 triggers 
 
   
-  m_padsId     = 0;
-  m_chambersId = 0;
+  m_padsId     = nullptr;
+  m_chambersId = nullptr;
 
   m_chainGroupSelect=nullptr;
   m_chainGroupVeto=nullptr;
@@ -131,11 +131,11 @@ RPCStandaloneTracksMon::~RPCStandaloneTracksMon()
   // fixes fot Memory leak
   if (m_padsId) { 
     delete m_padsId;
-    m_padsId = 0; 
+    m_padsId = nullptr; 
   }
   if (m_chambersId) { 
     delete m_chambersId;
-    m_chambersId = 0; 
+    m_chambersId = nullptr; 
   } 
   ATH_MSG_INFO ( " deleting RPCStandaloneTracksMon " );
 }
@@ -154,7 +154,7 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   StatusCode sc;
 
   // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
+  StoreGateSvc* detStore = nullptr;
   sc = service("DetectorStore", detStore);
   if (sc.isFailure()) {
     ATH_MSG_FATAL ( "DetectorStore service not found !" );
@@ -1354,7 +1354,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      float projz   =  z0Eta + zyEta * Rpc_y_3D.at(i_3D)  ;
 		      float res	  = (projz -Rpc_z_3D.at(i_3D))  	;
 		                            
-		      if ( m_rpcEtaResidual!=0  &&  ilayertype==6  ) {m_rpcEtaResidual->Fill( res );}
+		      if ( m_rpcEtaResidual!=nullptr  &&  ilayertype==6  ) {m_rpcEtaResidual->Fill( res );}
 		      else {ATH_MSG_DEBUG ( "rpcEtaResidual not in hist list!" );}
 			  
 		      float residual2 = res*res				;
@@ -1365,7 +1365,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      float cosyx = std::cos(( (2*(Rpc_Phi_3D.at(i_3D)-1) + SmallLarge.at(i_3D) -5) )*M_PI/8) ;
 		      res = res * cosyx ;
 		                            
-		      if ( m_rpcPhiResidual!=0  &&  ilayertype==6  ) {m_rpcPhiResidual->Fill( res );}
+		      if ( m_rpcPhiResidual!=nullptr  &&  ilayertype==6  ) {m_rpcPhiResidual->Fill( res );}
 		      else {ATH_MSG_DEBUG ( "rpcPhiResidual not in hist list!" );}
 		  		  
 		      residual2 = res*res				;
@@ -1802,10 +1802,10 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 					    if (rpcresidualslayer) {rpcresidualslayer->Fill( residuals );}
 					    else {  ATH_MSG_DEBUG ( "rpcstripresidualslayer not in hist list!" );}
              			 
-					    if (m_f_rpcEtaResidual!=0 && imeasphi==0) {m_f_rpcEtaResidual->Fill( residuals );}
+					    if (m_f_rpcEtaResidual!=nullptr && imeasphi==0) {m_f_rpcEtaResidual->Fill( residuals );}
 					    else {  ATH_MSG_DEBUG ( "f_rpcEtaResidual not in hist list!" );}
                
-					    if (m_f_rpcPhiResidual!=0 && imeasphi==1) {m_f_rpcPhiResidual->Fill( residuals );}
+					    if (m_f_rpcPhiResidual!=nullptr && imeasphi==1) {m_f_rpcPhiResidual->Fill( residuals );}
 					    else {  ATH_MSG_DEBUG ( "f_rpcPhiResidual not in hist list!" );} 
 	
 					    char ResidualVsCS_title_char[100] = "ResidualVsCS";
@@ -4402,7 +4402,7 @@ void RPCStandaloneTracksMon::bookHistogramsSummaryDistribution(  )
 }
     
 // Radiography histograms
-void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int isec, std::string layer_name )
+void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int isec, const std::string& layer_name )
 {
 
   ATH_MSG_DEBUG ( "bookRPCLayerRadiographyHistograms" );
@@ -4580,7 +4580,7 @@ void RPCStandaloneTracksMon::bookRPCLayerRadiographyHistograms( int isec, std::s
 }
 
 // BOOK COOL STRIP HISTOGRAMSS
-void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::string>::const_iterator & iter, int isec, int idblPhi, std::string layer ) 
+void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::string>::const_iterator & iter, int isec, int idblPhi, const std::string& layer ) 
 {
   gErrorIgnoreLevel=kInfo;
   ATH_MSG_DEBUG ( "RPCStandaloneTracksMon: bookRPCCoolHistograms_NotNorm" );
@@ -4698,7 +4698,7 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::str
 }
   
   
-void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::const_iterator & iter, int isec, int idblPhi, std::string layer ) 
+void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::const_iterator & iter, int isec, int idblPhi, const std::string& layer ) 
 { 
   /* book histograms with normalized quantities: this histograms are filled by RPC PostProcess		*/
   /* only metadata histograms are written by monitoring 						*/
@@ -4823,7 +4823,7 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::co
   
   TDirectory* currentDir = gDirectory;
   TDirectory* targetDir = rpcCoolHisto->GetDirectory();
-  if( targetDir != 0 ) {
+  if( targetDir != nullptr ) {
     targetDir->cd();
   }
   rpcCoolHisto->Write();
@@ -4834,7 +4834,7 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::co
   
 }
   
-void RPCStandaloneTracksMon::bookRPCTracksLayerHistograms(std::string hardware_name, std::string layer_name, std::string layer0_name, int bin, int binmin, int binmax )
+void RPCStandaloneTracksMon::bookRPCTracksLayerHistograms(const std::string& hardware_name, const std::string& layer_name, const std::string& layer0_name, int bin, int binmin, int binmax )
 {
   gErrorIgnoreLevel=kError;
   StatusCode sc = StatusCode::SUCCESS;
@@ -5062,7 +5062,7 @@ void RPCStandaloneTracksMon::bookRPCSummaryFinalHistograms( int i_sec, const std
 
    
   TDirectory* targetDir = m_sumTmpHist.back()->GetDirectory();
-  if( targetDir != 0 ) {
+  if( targetDir != nullptr ) {
     targetDir->cd();
   }
   m_sumTmpHist.back()->Write();

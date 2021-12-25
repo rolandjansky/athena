@@ -166,7 +166,7 @@ MuonSegmentCombination* CscSegmentUtilTool::get2dMuonSegmentCombination(Identifi
 
     if (nGoodEta < 2 && nGoodPhi < 2) {
         ATH_MSG_DEBUG(" Not enough hits in either eta or phi to form a segment");
-        MuonSegmentCombination* pcol = 0;
+        MuonSegmentCombination* pcol = nullptr;
         return pcol;
     }
 
@@ -802,7 +802,7 @@ MuonSegment* CscSegmentUtilTool::build_segment(const ICscSegmentFinder::Segment&
     Trk::SurfaceBounds* pbnd = pro->bounds(chid).clone();
     Trk::TrapezoidBounds* pbnd_trap = dynamic_cast<Trk::TrapezoidBounds*>(pbnd);
     Trk::RotatedTrapezoidBounds* pbnd_rtrap = dynamic_cast<Trk::RotatedTrapezoidBounds*>(pbnd);
-    Trk::PlaneSurface* psrf = 0;
+    Trk::PlaneSurface* psrf = nullptr;
 
     ATH_MSG_VERBOSE("                Surface: ");
     if (pbnd_trap) {
@@ -1025,7 +1025,7 @@ MuonSegment* CscSegmentUtilTool::build_segment(const ICscSegmentFinder::Segment&
         ATH_MSG_DEBUG(" Segment dropped chisq " << (pseg->fitQuality())->chiSquared() << " cut value " << m_max_chisquare);
         delete pseg;
         delete pseg_ref;
-        return 0;
+        return nullptr;
     }
 
     const Trk::LocalParameters& l = pseg->localParameters();
@@ -1640,7 +1640,7 @@ MuonSegmentCombination* CscSegmentUtilTool::get4dMuonSegmentCombination(const Mu
     const ICscSegmentFinder::SegmentVec& rsegs = *insegs->stationSegments(0);
     const ICscSegmentFinder::SegmentVec& phisegs = *insegs->stationSegments(1);
 
-    MuonSegmentCombination* pcol = 0;
+    MuonSegmentCombination* pcol = nullptr;
 
     ATH_MSG_DEBUG("  Combination has r/phi segments " << rsegs.size() << " / " << phisegs.size());
     ATH_MSG_DEBUG("chamber has " << insegs->getNGoodCscLayers(1) << " good eta layers and " << insegs->getNGoodCscLayers(0)
@@ -1806,7 +1806,7 @@ MuonSegment* CscSegmentUtilTool::make_4dMuonSegment(const MuonSegment& rsg, cons
     Amg::Vector3D glop = etasrf.transform().translation();
     Amg::Transform3D xf(phisrf.transform().rotation());
     xf.pretranslate(glop);
-    Trk::PlaneSurface* psrf = 0;
+    Trk::PlaneSurface* psrf = nullptr;
     if (bnd_trap) {
         psrf = new Trk::PlaneSurface(xf, bnd_trap);
     } else if (bnd_rtrap) {
@@ -1952,7 +1952,7 @@ MuonSegment* CscSegmentUtilTool::make_4dMuonSegment(const MuonSegment& rsg, cons
                 ATH_MSG_DEBUG("eta hit in a 2-layer segment not matched, bailing");
                 delete rios;
                 delete psrf;
-                return 0;
+                return nullptr;
             }
         }
 
@@ -1974,7 +1974,7 @@ MuonSegment* CscSegmentUtilTool::make_4dMuonSegment(const MuonSegment& rsg, cons
                 ATH_MSG_DEBUG("phi hit in a 2-layer segment not matched, bailing");
                 delete rios;
                 delete psrf;
-                return 0;
+                return nullptr;
             }
         }
     } else {  // We should never get here!
@@ -1997,7 +1997,7 @@ MuonSegment* CscSegmentUtilTool::make_4dMuonSegment(const MuonSegment& rsg, cons
         ATH_MSG_WARNING("too few CSC hits collected, not making segment: rios " << rios->size());
         delete rios;
         delete psrf;
-        return 0;
+        return nullptr;
     }
     int ndof = rfq.numberDoF() + phifq.numberDoF();
     Trk::FitQuality* pfq = new Trk::FitQuality(chsq, ndof);
@@ -2113,7 +2113,7 @@ void CscSegmentUtilTool::getRios(const ICscSegmentFinder::Segment& seg, ICscSegm
     for (int iclu = 0; iclu < seg.nclus; ++iclu) {
         const CscClusterOnTrack* pclu = seg.clus[iclu].cl;
 
-        if (pclu != 0) {
+        if (pclu != nullptr) {
             // if this cluster is picked up as outlier cluster
             if (seg.outlierid == iclu) {  // && pclu->status() == Muon::CscStatusUnspoiled) {
                 Identifier id = pclu->identify();

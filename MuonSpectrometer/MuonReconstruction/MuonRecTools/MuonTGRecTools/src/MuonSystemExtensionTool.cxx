@@ -242,7 +242,7 @@ namespace Muon {
             std::make_unique<MuonSystemExtension>(cache.candidate->getCaloExtension()->muonEntryLayerIntersection(), std::move(intersections)));
         return true;
     }
-    MuonSystemExtension::Intersection MuonSystemExtensionTool::makeInterSection(std::shared_ptr<const Trk::TrackParameters> sharedPtr, const MuonLayerSurface& it) const{
+    MuonSystemExtension::Intersection MuonSystemExtensionTool::makeInterSection(const std::shared_ptr<const Trk::TrackParameters>& sharedPtr, const MuonLayerSurface& it) const{
         if (sharedPtr && it.regionIndex != MuonStationIndex::Barrel) {
             // in the endcaps we need to update the sector and check that we are in the correct sector
             double phi = sharedPtr->position().phi();

@@ -161,7 +161,7 @@ class TgcDigitMaker : public AthMessaging {
   /** Method to get propagation time offset of the ASD */
   float getASDpropTimeOffset(const Identifier elemId, const int isStrip, const int channel) const;
   /** Method to get position of Strip channel */
-  float getStripPosition(const std::string stationName, int stationEta, int channel) const;
+  float getStripPosition(const std::string& stationName, int stationEta, int channel) const;
   /** Method to get signal propagation time delay */
   float getSigPropTimeDelay(const float cableDistance) const;
   /** Method to get time difference by cable radius of inner */

@@ -105,7 +105,7 @@ int MdtHitIdHelper::GetTube(const int& hid) const
 }
 
 //packing method
-int MdtHitIdHelper::BuildMdtHitId(const std::string statName, const int phiSect,
+int MdtHitIdHelper::BuildMdtHitId(const std::string& statName, const int phiSect,
                                   const int zSect, const int multiLayer, const int layer, const int tube) const
 {
   int theID(0);

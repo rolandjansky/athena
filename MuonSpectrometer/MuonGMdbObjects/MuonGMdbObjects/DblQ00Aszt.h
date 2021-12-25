@@ -26,10 +26,10 @@ public:
     DblQ00Aszt();
     ~DblQ00Aszt();
     DblQ00Aszt(std::unique_ptr<IRDBQuery>&&);
-    DblQ00Aszt(std::string asciiFileName);
+    DblQ00Aszt(const std::string& asciiFileName);
     DblQ00Aszt(AmdcDb* aszt);
     
-    void WriteAsztToAsciiFile(std::string filename);
+    void WriteAsztToAsciiFile(const std::string& filename);
 
     // data members for DblQ00/ASZT fields
     struct ASZT {

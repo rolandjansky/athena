@@ -19,7 +19,7 @@ class TGCCableASDToPP : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableASDToPP (std::string filename);
+  TGCCableASDToPP (const std::string& filename);
   
   virtual ~TGCCableASDToPP (void);
 

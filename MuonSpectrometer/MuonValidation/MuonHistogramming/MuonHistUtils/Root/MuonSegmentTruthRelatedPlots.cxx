@@ -8,7 +8,7 @@
 
 namespace Muon{
 
-MuonSegmentTruthRelatedPlots::MuonSegmentTruthRelatedPlots(PlotBase* pParent, std::string sDir):
+MuonSegmentTruthRelatedPlots::MuonSegmentTruthRelatedPlots(PlotBase* pParent, const std::string& sDir):
   PlotBase(pParent, sDir),
   nPrecisionHits(this,"diff_nPrecisionHits","diff(reco-truth) segment precision hits;hits;Entries",-5,5),
   nPhiLayers(this,"diff_nPhiLayers","diff(reco-truth) segment phi layers;#phi layers;Entries",-5,5),

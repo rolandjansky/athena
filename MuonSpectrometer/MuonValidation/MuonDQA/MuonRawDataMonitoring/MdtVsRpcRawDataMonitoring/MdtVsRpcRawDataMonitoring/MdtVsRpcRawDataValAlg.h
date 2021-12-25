@@ -68,8 +68,8 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
    
-  void bookMDTvsRPCHistograms(std::string m_hardware_name, std::string m_layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx );
-  void bookMDTvsRPCsectorHistograms(std::string m_sector_name, std::string m_layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax );
+  void bookMDTvsRPCHistograms(const std::string& m_hardware_name, const std::string& m_layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx );
+  void bookMDTvsRPCsectorHistograms(const std::string& m_sector_name, const std::string& m_layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax );
 
   MuonDQAHistMap m_stationHists;
 

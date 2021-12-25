@@ -121,7 +121,7 @@ namespace Muon {
     // we need a none zero momentum
     if( momentum == 0. ) {
       ATH_MSG_WARNING(" cannot create parameters with zero momentum ");
-      return 0;
+      return nullptr;
     }
     double locx = seg.localParameters().contains(Trk::locX) ? seg.localParameters()[Trk::locX] : 0.;
     double locy = seg.localParameters().contains(Trk::locY) ? seg.localParameters()[Trk::locY] : 0.;

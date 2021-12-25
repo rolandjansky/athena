@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonHistUtils/IDHitSummaryPlots.h"
 #include "xAODTracking/TrackingPrimitives.h"
 
@@ -9,7 +11,7 @@ namespace Muon{
 
     /////////// 
 HitFracTypePlots::HitFracTypePlots(PlotBase* pParent,std::string sHitType, std::string sHitLabel):
-  PlotBase(pParent, ""), fracHits(NULL), fracHitsVsEta(NULL) , m_sHitType(sHitType), m_sHitLabel(sHitLabel)
+  PlotBase(pParent, ""), fracHits(nullptr), fracHitsVsEta(nullptr) , m_sHitType(std::move(sHitType)), m_sHitLabel(std::move(sHitLabel))
 {}  
 void HitFracTypePlots::initializePlots()
 {
@@ -24,7 +26,7 @@ void HitFracTypePlots::initializePlots()
 }  
   ///////////
   
-IDHitSummaryPlots::IDHitSummaryPlots(PlotBase* pParent, std::string sDir):
+IDHitSummaryPlots::IDHitSummaryPlots(PlotBase* pParent, const std::string& sDir):
     PlotBase(pParent, sDir)
   , nBLayerHitsIfExpected(this, "nBLayerHitsIfExpected", "B-Layer clusters",0,4)
   , nPixelHitsPlusDead(this, "nPixelHitsPlusDead","Pixel clusters",0,9)

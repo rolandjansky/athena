@@ -7,7 +7,7 @@
 namespace LVL1TGCCabling8 {
 
 // Constructor & Destructor
-TGCCableHPBToSL::TGCCableHPBToSL (std::string filename)
+TGCCableHPBToSL::TGCCableHPBToSL (const std::string& filename)
   : TGCCable(TGCCable::HPBToSL)
 {
   m_database[TGCIdBase::Endcap][TGCIdBase::Wire] =
@@ -36,16 +36,16 @@ TGCModuleMap* TGCCableHPBToSL::getModule (const TGCModuleId* moduleId) const {
     if(moduleId->getModuleIdType()==TGCModuleId::SL)
       return getModuleIn(moduleId);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCModuleMap* TGCCableHPBToSL::getModuleIn (const TGCModuleId* sl) const {
-  if(sl->isValid()==false) return 0;  
+  if(sl->isValid()==false) return nullptr;  
 
   TGCDatabase* wireP = m_database[sl->getRegionType()][TGCIdBase::Wire];
   TGCDatabase* stripP = m_database[sl->getRegionType()][TGCIdBase::Strip];
 
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   int MaxEntry = wireP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     int id = wireP->getEntry(i,0);
@@ -55,7 +55,7 @@ TGCModuleMap* TGCCableHPBToSL::getModuleIn (const TGCModuleId* sl) const {
 					 sl->getRegionType(),
 					 sl->getSector(),
 					 id);
-    if(mapId==0) mapId = new TGCModuleMap();
+    if(mapId==nullptr) mapId = new TGCModuleMap();
     mapId->insert(block,hpb);
   } 
   
@@ -68,7 +68,7 @@ TGCModuleMap* TGCCableHPBToSL::getModuleIn (const TGCModuleId* sl) const {
 					 sl->getRegionType(),
 					 sl->getSector(),
 					 id);
-    if(mapId==0) mapId = new TGCModuleMap();
+    if(mapId==nullptr) mapId = new TGCModuleMap();
     mapId->insert(block,hpb);	
   }
 
@@ -77,11 +77,11 @@ TGCModuleMap* TGCCableHPBToSL::getModuleIn (const TGCModuleId* sl) const {
   
 
 TGCModuleMap* TGCCableHPBToSL::getModuleOut (const TGCModuleId* hpb) const {
-  if(hpb->isValid()==false) return 0;  
+  if(hpb->isValid()==false) return nullptr;  
 
   TGCDatabase* databaseP =m_database[hpb->getRegionType()][hpb->getSignalType()];
 
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++){
     if(databaseP->getEntry(i,0)==hpb->getId())

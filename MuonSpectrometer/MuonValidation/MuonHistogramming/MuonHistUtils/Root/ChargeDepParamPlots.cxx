@@ -2,18 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonHistUtils/ChargeDepParamPlots.h"
 
 namespace Muon{
 
-ChargeDepParamPlots::ChargeDepParamPlots(PlotBase* pParent, std::string sDir, std::string sType)
+ChargeDepParamPlots::ChargeDepParamPlots(PlotBase* pParent, const std::string& sDir, std::string sType)
   :PlotBase(pParent, sDir)
-  , q_times_eta(NULL)
-  , q_over_p(NULL)
-  , q_over_pt(NULL)
-  , qMS_times_qCB(NULL)
-  , qID_times_qCB(NULL)
-  , m_sType(sType)
+  , q_times_eta(nullptr)
+  , q_over_p(nullptr)
+  , q_over_pt(nullptr)
+  , qMS_times_qCB(nullptr)
+  , qID_times_qCB(nullptr)
+  , m_sType(std::move(sType))
 {}
 
 void ChargeDepParamPlots::initializePlots() {

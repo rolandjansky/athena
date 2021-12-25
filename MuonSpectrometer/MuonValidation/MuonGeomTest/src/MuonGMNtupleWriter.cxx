@@ -17,7 +17,7 @@ namespace MuonGM {
    
   MuonGMNtupleWriter::MuonGMNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_tree(0),
+    m_tree(nullptr),
     m_nevents(0)
   {
     declareProperty("NtupleFileName",       m_ntupleFileName = "MuonGMNtuple");
@@ -39,7 +39,7 @@ namespace MuonGM {
     
     m_tree = new TTree(treeName.c_str(), "MdtTubeSurface");
     
-    ITHistSvc* rootsvc = 0;  
+    ITHistSvc* rootsvc = nullptr;  
     if( service("THistSvc",rootsvc, true).isFailure() ) {
       ATH_MSG_ERROR("Unable to locate the MDTPRDValAlg Histogram service");
       delete m_tree;
@@ -73,7 +73,7 @@ namespace MuonGM {
       return; 
     } 
 
-    std::ofstream* fout = 0;
+    std::ofstream* fout = nullptr;
     if( m_outputToTextFile ){
       std::string gVersion = MuonDetMgr->geometryVersion();
       std::string fileName = "muon_current_"+gVersion;

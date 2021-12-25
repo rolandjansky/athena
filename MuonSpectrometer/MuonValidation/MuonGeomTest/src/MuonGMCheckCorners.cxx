@@ -29,8 +29,8 @@ typedef std::istringstream mystream;
 
 MuonGMCheckCorners::MuonGMCheckCorners(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm               ( name, pSvcLocator ),
-    p_EventStore            ( 0 ),
-    p_ActiveStore           ( 0 )
+    p_EventStore            ( nullptr ),
+    p_ActiveStore           ( nullptr )
 {
 
     m_check_surfaces = 0;

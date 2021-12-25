@@ -325,7 +325,7 @@ int test_nsw_common_decoder_loop ()
 
   for (auto file_iter = g_file_names.begin (); file_iter != g_file_names.end (); ++file_iter)
   {
-    char *buf = 0;
+    char *buf = nullptr;
     unsigned int size = 0;
 
     std::string data_file_name (*file_iter);

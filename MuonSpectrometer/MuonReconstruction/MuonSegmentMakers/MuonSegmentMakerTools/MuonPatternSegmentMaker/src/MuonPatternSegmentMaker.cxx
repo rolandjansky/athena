@@ -706,7 +706,7 @@ MuonPatternSegmentMaker::isSubSet(const MuonSegment* seg1, const MuonSegment* se
     if (std::abs(dtheta) < 0.001 && std::abs(dphi) < 0.001 && std::abs(dR * dR + dz * dz) < 0.01) {
         return seg1;
     }
-    return 0;
+    return nullptr;
 }
 
 }  // namespace Muon

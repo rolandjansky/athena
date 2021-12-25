@@ -93,9 +93,9 @@ TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Tr
     applyClusterConsistency(limitingChannels,limitingRots);
 
     // overall localPosition, error matrix and surface
-    Trk::LocalParameters* parameters	= 0;
-    Amg::MatrixX* errorMatrix 	= 0;
-    Trk::Surface* surface		= 0;
+    Trk::LocalParameters* parameters	= nullptr;
+    Amg::MatrixX* errorMatrix 	= nullptr;
+    Trk::Surface* surface		= nullptr;
     makeOverallParameters(parameters,errorMatrix,surface,limitingChannels,limitingRots);
     
     // clear lists

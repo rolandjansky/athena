@@ -442,7 +442,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
             }
         }
     }
-    const Trk::IExtrapolator* extrapolator = 0;
+    const Trk::IExtrapolator* extrapolator = nullptr;
     if (!isStraightLine && !m_extrapolator.empty()) {
         extrapolator = &*(m_extrapolator);
     } else if (isStraightLine && !m_slExtrapolator.empty()) {
@@ -481,7 +481,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
 
         const Trk::Surface& surf = mdtPrd.detectorElement()->surface(id);
 
-        const Trk::TrackParameters* exPars = 0;
+        const Trk::TrackParameters* exPars = nullptr;
         if (pars.associatedSurface() == surf) {
             exPars = &pars;
         } else {

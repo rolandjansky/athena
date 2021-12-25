@@ -99,7 +99,7 @@ int MicromegasHitIdHelper::GetSide(const int& hid) const
 
 
 //packing method
-int MicromegasHitIdHelper::BuildMicromegasHitId(const std::string statName, const int phiSect,
+int MicromegasHitIdHelper::BuildMicromegasHitId(const std::string& statName, const int phiSect,
                                                 const int zSect, const int multiLayer, const int layer, const int side) const
 {
   int theID(0);

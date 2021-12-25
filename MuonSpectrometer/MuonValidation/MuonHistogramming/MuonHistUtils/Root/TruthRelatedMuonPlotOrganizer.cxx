@@ -12,19 +12,19 @@ typedef ElementLink< xAOD::TruthParticleContainer > TruthLink;
 
 namespace Muon{
   
-TruthRelatedMuonPlotOrganizer::TruthRelatedMuonPlotOrganizer(PlotBase* pParent, std::string sDir, bool doBinnedResolutionPlots, std::vector<int> *selPlots):
+TruthRelatedMuonPlotOrganizer::TruthRelatedMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir, bool doBinnedResolutionPlots, std::vector<int> *selPlots):
   PlotBase(pParent, sDir)
   // Truth related plots
-, m_oMatchedPlots(NULL)
-, m_oMatchedRecoPlots(NULL)
-, m_oMSHitDiffPlots(NULL)
-, m_oMuonHitDiffSummaryPlots(NULL)
-, m_oMuonTruthHitPlots(NULL)
-, m_oMuonResolutionPlots(NULL)
-, m_oDefParamPullPlots(NULL)
-, m_oMomentumTruthPullPlots_Tail(NULL)
-, m_oMomentumTruthPullPlots_NoTail(NULL)
-, m_oMatchedRecoElossPlots(NULL)
+, m_oMatchedPlots(nullptr)
+, m_oMatchedRecoPlots(nullptr)
+, m_oMSHitDiffPlots(nullptr)
+, m_oMuonHitDiffSummaryPlots(nullptr)
+, m_oMuonTruthHitPlots(nullptr)
+, m_oMuonResolutionPlots(nullptr)
+, m_oDefParamPullPlots(nullptr)
+, m_oMomentumTruthPullPlots_Tail(nullptr)
+, m_oMomentumTruthPullPlots_NoTail(nullptr)
+, m_oMatchedRecoElossPlots(nullptr)
 
 {
   
@@ -107,7 +107,7 @@ TruthRelatedMuonPlotOrganizer::~TruthRelatedMuonPlotOrganizer()
   
   if (m_oMomentumTruthPullPlots_NoTail || m_oMomentumTruthPullPlots_Tail) {
     //muon spectrometer track at MS entry (not extrapolated)
-    const xAOD::TrackParticle *msTrk(0);  
+    const xAOD::TrackParticle *msTrk(nullptr);  
     //muon extrapolated to IP
     //const xAOD::TrackParticle* msExtrapTrk(0);
   

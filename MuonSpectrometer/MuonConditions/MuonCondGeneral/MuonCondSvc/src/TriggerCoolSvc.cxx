@@ -21,7 +21,7 @@ namespace MuonCalib{
 
 TriggerCoolSvc::TriggerCoolSvc(const std::string& name, ISvcLocator* svc) :
   AthService(name,svc),
-  p_detstore(0),
+  p_detstore(nullptr),
   m_etafolder("/RPC/TRIGGER/CM_THR_ETA"),
   m_phifolder("/RPC/TRIGGER/CM_THR_PHI")
 {
@@ -90,7 +90,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
   std::string sdata_Th0_new;
 
   FILE* f = fopen (filename_Th0.c_str(),"rb");
-  if (f != NULL)   {
+  if (f != nullptr)   {
     fseek (f, 0L, SEEK_END);
     unsigned int size = ftell (f);
     fseek (f, 0L, SEEK_SET);
@@ -113,7 +113,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
     
   }
   
-  CondAttrListCollection* atrc=0;
+  CondAttrListCollection* atrc=nullptr;
   if (!p_detstore->contains<CondAttrListCollection>(etafolder)) {
     ATH_MSG_DEBUG( "Creating new CondAttrListCollection for folder "
                    << etafolder  );
@@ -126,7 +126,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
   }
   
   // do const cast here so we can add to already exisiting collections
-  const CondAttrListCollection* catrc=0;
+  const CondAttrListCollection* catrc=nullptr;
   ATH_MSG_DEBUG( "Attempting to retrieve collection (const)"  );
   if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,etafolder)) {
     ATH_MSG_ERROR( "Could not retrieve CondAttrListCollection " <<
@@ -134,7 +134,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
     return StatusCode::FAILURE;
   }
   atrc=const_cast<CondAttrListCollection*>(catrc);
-  if (atrc==0) {
+  if (atrc==nullptr) {
     ATH_MSG_ERROR( "Could not retrieve non-const pointer to atrc"  );
     return StatusCode::FAILURE;
   }
@@ -147,7 +147,7 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
   
   ATH_MSG_DEBUG( "About to create AttributeListSpecification"  );
   
-  coral::AttributeListSpecification* aspec=0;
+  coral::AttributeListSpecification* aspec=nullptr;
   aspec=new coral::AttributeListSpecification();
  
   aspec->extend("CM_File","string");
@@ -178,7 +178,7 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
   std::string sdata_Th0_new;
     
   FILE* f = fopen (filename_Th0.c_str(),"rb");
-  if (f != NULL)   {
+  if (f != nullptr)   {
     fseek (f, 0L, SEEK_END);
     int size = ftell (f);
     fseek (f, 0L, SEEK_SET);
@@ -200,7 +200,7 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
   //std::cout<< "dentro writeToDBPhi ************************88 " <<std::endl;
   //ATH_MSG_DEBUG( " folder" << phifolder );
   //ATH_MSG_DEBUG( " filename " << filename_CM );
-  CondAttrListCollection* atrc=0;
+  CondAttrListCollection* atrc=nullptr;
   if (!p_detstore->contains<CondAttrListCollection>(phifolder)) {
     ATH_MSG_DEBUG( "Creating new CondAttrListCollection for folder "
                    << phifolder  );
@@ -213,7 +213,7 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
   }
   
   // do const cast here so we can add to already exisiting collections
-  const CondAttrListCollection* catrc=0;
+  const CondAttrListCollection* catrc=nullptr;
   ATH_MSG_DEBUG( "Attempting to retrieve collection (const)"  );
   if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,phifolder)) {
     ATH_MSG_ERROR( "Could not retrieve CondAttrListCollection " <<
@@ -221,7 +221,7 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
     return StatusCode::FAILURE;
   }
   atrc=const_cast<CondAttrListCollection*>(catrc);
-  if (atrc==0) {
+  if (atrc==nullptr) {
     ATH_MSG_ERROR( "Could not retrieve non-const pointer to atrc"  );
     return StatusCode::FAILURE;
   }
@@ -234,7 +234,7 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
   
   ATH_MSG_DEBUG( "About to create AttributeListSpecification"  );
   
-  coral::AttributeListSpecification* aspec=0;
+  coral::AttributeListSpecification* aspec=nullptr;
   aspec=new coral::AttributeListSpecification();
  
   aspec->extend("CM_File","string");

@@ -17,7 +17,7 @@ void CscSimDataCnv_p2::persToTrans(const Muon::CscSimData_p2 * persObj, CscSimDa
       m_mcpartlinkCnv.persToTrans(&p.first, &transMcPartLink, log);
       CscMcData transMcData;
       m_mcdataCnv.persToTrans(&p.second, &transMcData, log);
-      deposits.emplace_back(transMcPartLink, std::move(transMcData));
+      deposits.emplace_back(transMcPartLink, transMcData);
    }
 
    *transObj = CscSimData (std::move(deposits),
@@ -35,6 +35,6 @@ void CscSimDataCnv_p2::transToPers( const CscSimData * transObj, Muon::CscSimDat
     m_mcpartlinkCnv.transToPers(&d.first, &persMcPartLink, log);
     Muon::CscMcData_p1 persMcData;
     m_mcdataCnv.transToPers(&d.second, &persMcData, log);
-    persObj->m_deposits.emplace_back (persMcPartLink, std::move(persMcData));
+    persObj->m_deposits.emplace_back (persMcPartLink, persMcData);
   }
 }

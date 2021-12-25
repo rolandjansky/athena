@@ -4,10 +4,10 @@
 
 #include "MuonDQAUtils/MuonChambersRange.h"
 
-bool selectChambersRange(std::string f_hardware_name, std::string f_chamberName, 
+bool selectChambersRange(const std::string& f_hardware_name, const std::string& f_chamberName, 
 			 int f_stationEta, int f_StationEta, 
 			 int f_stationPhi, int f_StationPhi,
-			 std::string f_StationSize)
+			 const std::string& f_StationSize)
 {
   bool pass=false;
   std::string size="XXX";

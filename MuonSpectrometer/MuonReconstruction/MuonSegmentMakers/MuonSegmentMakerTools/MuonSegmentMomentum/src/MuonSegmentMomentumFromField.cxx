@@ -128,7 +128,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     else deltatheta=-theta1-theta2;
   }
   double dist1=-1,dist2=-1;
-  const Trk::RIO_OnTrack *firstphi1=0,*lastphi1=0,*firstphi2=0,*lastphi2=0;
+  const Trk::RIO_OnTrack *firstphi1=nullptr,*lastphi1=nullptr,*firstphi2=nullptr,*lastphi2=nullptr;
 
   const Muon::MuonSegment *bestseg=myseg1,*worstseg=myseg2;
   for (int i=0;i<(int)myseg1->numberOfMeasurementBases();i++){
@@ -188,7 +188,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     double residual = 9999.;
     double resi[4],qoverp[4];
     for (int i=0;i<4;i++){
-      Trk::TransportJacobian *jac=0;
+      Trk::TransportJacobian *jac=nullptr;
       Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),
  	 		     bestseg->globalDirection().theta(),1/signedMomentum,bestseg->associatedSurface());
       auto par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
@@ -301,7 +301,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     else deltatheta=-theta1-theta2;
   }
   double dist1=-1,dist2=-1;
-  const Trk::RIO_OnTrack *firstphi1=0,*lastphi1=0,*firstphi2=0,*lastphi2=0;
+  const Trk::RIO_OnTrack *firstphi1=nullptr,*lastphi1=nullptr,*firstphi2=nullptr,*lastphi2=nullptr;
 
   const Muon::MuonSegment *bestseg=myseg1,*worstseg=myseg2;
   for (int i=0;i<(int)myseg1->numberOfMeasurementBases();i++){
@@ -345,7 +345,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
   for (int i=0;i<3;i++){
     Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),bestseg->globalDirection().theta(),
 			   1/signedMomentum,bestseg->associatedSurface());
-    Trk::TransportJacobian *jac=0;
+    Trk::TransportJacobian *jac=nullptr;
     auto par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
 								      (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
 								      Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);

@@ -20,7 +20,7 @@ class TGCCableInASD : public TGCCable
 {
 public:
   // Constructor & Destructor
-  TGCCableInASD (std::string filename);
+  TGCCableInASD (const std::string& filename);
   
   virtual ~TGCCableInASD (void);
 

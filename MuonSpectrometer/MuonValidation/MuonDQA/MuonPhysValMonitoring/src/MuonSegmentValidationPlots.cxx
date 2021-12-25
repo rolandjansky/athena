@@ -4,8 +4,8 @@
 
 #include "MuonSegmentValidationPlots.h"
 
-MuonSegmentValidationPlots::MuonSegmentValidationPlots(PlotBase* pParent, std::string sDir, bool isData):
-  PlotBase(pParent, sDir), m_oRecoSegmPlots(NULL), m_oMatchedMuonSegmPlots(NULL), m_oMatchedMuonSegmDiffPlots(NULL), m_oTruthMuonSegmPlots(NULL)
+MuonSegmentValidationPlots::MuonSegmentValidationPlots(PlotBase* pParent, const std::string& sDir, bool isData):
+  PlotBase(pParent, sDir), m_oRecoSegmPlots(nullptr), m_oMatchedMuonSegmPlots(nullptr), m_oMatchedMuonSegmDiffPlots(nullptr), m_oTruthMuonSegmPlots(nullptr)
 {
   m_oRecoSegmPlots = new Muon::MuonSegmentPlots(this, "reco/MuonSegments/");
   if (!isData) {

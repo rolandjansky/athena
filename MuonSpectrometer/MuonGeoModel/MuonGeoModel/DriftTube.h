@@ -27,7 +27,7 @@ namespace MuonGM {
 
         GeoVPhysVol *build(const StoredMaterialManager& matManager);
         virtual void print() override;
-        DriftTube(const MYSQL& mysql, std::string s);
+        DriftTube(const MYSQL& mysql, const std::string& s);
     };
 } // namespace MuonGM
 

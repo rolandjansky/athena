@@ -17,11 +17,11 @@
 
 MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_eventInfo(0),
+    m_eventInfo(nullptr),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_truthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool"),
     m_summaryHelperTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
-    m_log(0),
+    m_log(nullptr),
     m_debug(false),
     m_verbose(false),
     m_nevents(0),
@@ -1262,13 +1262,13 @@ std::string MuonTrackPerformanceAlg::print(const MuonTrackPerformanceAlg::TrackD
 }
 
 void MuonTrackPerformanceAlg::addTrackToTrackData(const Trk::Track& track, MuonTrackPerformanceAlg::TrackData& trackData) const {
-    trackData.trackPars = track.perigeeParameters() ? new Trk::Perigee(*track.perigeeParameters()) : 0;
+    trackData.trackPars = track.perigeeParameters() ? new Trk::Perigee(*track.perigeeParameters()) : nullptr;
     trackData.chi2Ndof = 0.;
 
     if (track.fitQuality() && track.fitQuality()->numberDoF())
         trackData.chi2Ndof = track.fitQuality()->chiSquared() / track.fitQuality()->numberDoF();
 
-    trackData.trackSummary = track.trackSummary() ? new Trk::TrackSummary(*track.trackSummary()) : 0;
+    trackData.trackSummary = track.trackSummary() ? new Trk::TrackSummary(*track.trackSummary()) : nullptr;
     if (trackData.trackSummary && !trackData.trackSummary->muonTrackSummary()) {
         m_summaryHelperTool->addDetailedTrackSummary(track, *trackData.trackSummary);
     }
@@ -1276,7 +1276,7 @@ void MuonTrackPerformanceAlg::addTrackToTrackData(const Trk::Track& track, MuonT
 
 MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::createTrackData(
     const Muon::IMuonTrackTruthTool::TruthTreeEntry& trackTruth) const {
-    if (!trackTruth.truthTrack) { return 0; }
+    if (!trackTruth.truthTrack) { return nullptr; }
 
     TrackData* trackData = new TrackData();
 
@@ -1405,7 +1405,7 @@ const HepMC::GenParticle* MuonTrackPerformanceAlg::getMother(const TruthTrajecto
     for (; pit != pit_end; ++pit) {
         if (std::abs((*pit)->pdg_id()) != 13) return *pit;
     }
-    return 0;
+    return nullptr;
 }
 
 const HepMC::GenParticle* MuonTrackPerformanceAlg::getInitialState(const TruthTrajectory& traj) const {
@@ -1416,11 +1416,11 @@ const HepMC::GenParticle* MuonTrackPerformanceAlg::getInitialState(const TruthTr
             if (pit != traj.rbegin())
                 --pit;
             else
-                return 0;
+                return nullptr;
             return *pit;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 bool MuonTrackPerformanceAlg::isSecondary(const Muon::MuonTrackTruth& truthTrack) const {

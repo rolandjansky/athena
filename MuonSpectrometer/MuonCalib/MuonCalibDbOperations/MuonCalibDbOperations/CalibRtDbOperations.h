@@ -37,7 +37,7 @@ namespace MuonCalib {
         // set validation flag - last requested rt-id is used as key
         bool SetValidflag(int validflag, bool commit = true);
         // read for cconditions db insert
-        bool ReadForConditions(std::string /*site_name*/, int head_id, IConditionsStorage &storage);
+        bool ReadForConditions(const std::string& /*site_name*/, int head_id, IConditionsStorage &storage);
 
     private:
         //=====================private data members====================================

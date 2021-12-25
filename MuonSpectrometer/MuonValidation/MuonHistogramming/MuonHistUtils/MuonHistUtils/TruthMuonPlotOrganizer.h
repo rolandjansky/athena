@@ -20,7 +20,7 @@ namespace Muon
   
   class TruthMuonPlotOrganizer:public PlotBase {
   public:
-    TruthMuonPlotOrganizer(PlotBase* pParent, std::string sDir,std::vector<int> *selPlots=0);
+    TruthMuonPlotOrganizer(PlotBase* pParent, const std::string& sDir,std::vector<int> *selPlots=0);
     ~TruthMuonPlotOrganizer();
     
     std::vector<PlotBase*> m_allPlots;

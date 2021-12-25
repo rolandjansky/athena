@@ -56,7 +56,7 @@ MdtVsTgcRawDataValAlg::DQCheckMDTSegments(std::vector<const Muon::MuonSegment*> 
         segmDisqual = false;// set disqualified flag to false
         // Get segment
         const Muon::MuonSegment *segm=sortedSegments[i][jMDT].at(n);
-        if(segm==0)continue;// Cut empty entries
+        if(segm==nullptr)continue;// Cut empty entries
         
         // Check disqualifiedSegments for current segment
         skipSegm=false;

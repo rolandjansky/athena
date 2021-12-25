@@ -34,12 +34,12 @@ MuonSegmentConverterTool::convert(const ElementLink< ::Trk::SegmentCollection>& 
     // sanity checks
     if (!segLink.isValid() || !*segLink) {
         ATH_MSG_WARNING(" Got invalid element link");
-        return 0;
+        return nullptr;
     }
     const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*segLink);
     if (!seg) {
         ATH_MSG_WARNING(" Trk::Segment is not a MuonSegment ");
-        return 0;
+        return nullptr;
     }
 
     // create xAOD::Muon and set link

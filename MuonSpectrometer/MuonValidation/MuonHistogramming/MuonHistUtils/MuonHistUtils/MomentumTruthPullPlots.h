@@ -14,7 +14,7 @@ namespace Muon{
 
 class MomentumTruthPullPlots:public PlotBase {
  public:
-  MomentumTruthPullPlots(PlotBase* pParent, std::string sDir, std::string sType);
+  MomentumTruthPullPlots(PlotBase* pParent, const std::string& sDir, std::string sType);
   ~MomentumTruthPullPlots();
 
   std::string m_sType;

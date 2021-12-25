@@ -30,7 +30,7 @@
 
 namespace MuonCalib {
 
-    T0CalibrationMT::T0CalibrationMT(std::string name, const T0MTSettings *settings, const std::vector<int> &sort_by,
+    T0CalibrationMT::T0CalibrationMT(const std::string& name, const T0MTSettings *settings, const std::vector<int> &sort_by,
                                      const std::vector<int> &adc_sort_by) :
         IMdtCalibration(name),
         m_settings(settings),
@@ -63,14 +63,14 @@ namespace MuonCalib {
     }
 
     bool T0CalibrationMT::handleSegment(MuonCalibSegment &seg) {
-        for (MuonCalibSegment::MdtHitPtr hit : seg.mdtHOT()) {
+        for (const MuonCalibSegment::MdtHitPtr& hit : seg.mdtHOT()) {
             MuonFixedId id = hit->identify();
             m_nhits_per_tube[id.getIdInt()]++;
             // get the T0 originally subtracted for this hit
             int nML = id.mdtMultilayer();
             int nL = id.mdtTubeLayer();
             int nT = id.mdtTube();
-            const MdtTubeFitContainer::SingleTubeCalib *stc(NULL);
+            const MdtTubeFitContainer::SingleTubeCalib *stc(nullptr);
             NtupleStationId sid(id);
             sid.SetMultilayer(0);
             std::map<NtupleStationId, MdtTubeFitContainer *>::const_iterator res_it(m_result.find(sid));
@@ -234,7 +234,7 @@ namespace MuonCalib {
                                    std::map<int, MdtTubeFitContainer::SingleTubeCalib> &stcm) {
         if (T0h->FitAdc() && m_settings->MinEntriesADC() <= T0h->GetADCSpec()->GetEntries()) {
             const TF1 *fun(T0h->GetAdcFunction());
-            if (fun == NULL) return;
+            if (fun == nullptr) return;
             for (std::set<MuonFixedId>::const_iterator it = tube_ids.begin(); it != tube_ids.end(); it++) {
                 if (it->getIdInt() == 0) continue;
                 MdtTubeFitContainer::SingleTubeFit &fi(fim[it->getIdInt()]);

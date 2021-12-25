@@ -26,10 +26,10 @@ class TGCCabling: public TGCCablingBase
 {
 public:
   // Constructor & Destructor
-  TGCCabling (std::string filenameASDToPP,
-	      std::string filenameInPP,
-	      std::string filenamePPToSL,
-	      std::string filenameSLBToROD);
+  TGCCabling (const std::string& filenameASDToPP,
+	      const std::string& filenameInPP,
+	      const std::string& filenamePPToSL,
+	      const std::string& filenameSLBToROD);
 
   virtual ~TGCCabling (void);
 

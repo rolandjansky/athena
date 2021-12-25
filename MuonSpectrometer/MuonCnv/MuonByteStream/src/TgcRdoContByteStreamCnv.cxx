@@ -56,7 +56,7 @@ StatusCode
 TgcRdoContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const
 {
    // retrieve TGC RDO container
-   TgcRdoContainer * cont(NULL); 
+   TgcRdoContainer * cont(nullptr); 
    SG::fromStorable(pObj, cont);
    if (!cont)
      {

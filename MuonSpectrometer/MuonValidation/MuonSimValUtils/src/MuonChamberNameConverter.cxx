@@ -6,7 +6,7 @@
 
 //Function converting from ATHENA identifier int StationName,int StationEta, int StationPhi, std::string ChamberType 
 //to the (hopefully) corresponding Hardware chamber name.Works only for Barrel MDTs (for the moment) 
-std::string convertChamberName(int ChamberName , int ChamberEta , int ChamberPhi , std::string ChamberType) {
+std::string convertChamberName(int ChamberName , int ChamberEta , int ChamberPhi , const std::string& ChamberType) {
 
   //Input values
   int Name_int = ChamberName;

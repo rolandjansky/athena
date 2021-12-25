@@ -15,7 +15,7 @@ namespace Muon{
   
 class ResoTriggerMuonPlots:public PlotBase {
  public:
-  ResoTriggerMuonPlots(PlotBase* pParent, std::string sDir, std::string sType="");
+  ResoTriggerMuonPlots(PlotBase* pParent, const std::string& sDir, std::string sType="");
   void fill(const xAOD::Muon& Trigmu, const xAOD::Muon& Recomu);
   void fill(const xAOD::L2StandAloneMuon& L2SAmu, const xAOD::Muon& Recomu);
   void fill(const xAOD::L2CombinedMuon& L2CBmu, const xAOD::Muon& Recomu);

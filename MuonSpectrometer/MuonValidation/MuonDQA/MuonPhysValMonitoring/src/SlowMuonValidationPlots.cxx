@@ -9,7 +9,7 @@
 
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
-SlowMuonValidationPlots::SlowMuonValidationPlots(PlotBase* pParent, std::string sDir, bool isData):
+SlowMuonValidationPlots::SlowMuonValidationPlots(PlotBase* pParent, const std::string& sDir, bool isData):
   PlotBase(pParent, sDir),  m_isData(isData)
 {    
   //histogram classes for all muons
@@ -20,11 +20,11 @@ SlowMuonValidationPlots::SlowMuonValidationPlots(PlotBase* pParent, std::string 
 SlowMuonValidationPlots::~SlowMuonValidationPlots()
 {  
   delete m_oSlowMuonRecoPlots;
-  m_oSlowMuonRecoPlots = 0;
+  m_oSlowMuonRecoPlots = nullptr;
 
   if (!m_isData) {
     delete m_oSlowMuonMatchedPlots;
-    m_oSlowMuonMatchedPlots = 0;
+    m_oSlowMuonMatchedPlots = nullptr;
   }  
 }
 

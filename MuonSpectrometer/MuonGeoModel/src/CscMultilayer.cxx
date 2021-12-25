@@ -36,7 +36,7 @@ namespace MuonGM {
 
 namespace MuonGM {
 
-    CscMultiLayer::CscMultiLayer(const MYSQL& mysql, std::string n) : DetectorElement(std::move(n)), width(0.), longWidth(0.), upWidth(0.), excent(0.), length(0.), physicalLength(0.), maxwLength(0.) {
+    CscMultiLayer::CscMultiLayer(const MYSQL& mysql, const std::string& n) : DetectorElement(n), width(0.), longWidth(0.), upWidth(0.), excent(0.), length(0.), physicalLength(0.), maxwLength(0.) {
         const CSC *md = dynamic_cast<const CSC*>(mysql.GetTechnology(name));
         nrOfLayers = md->numOfLayers;
         cscthickness = md->totalThickness;
@@ -105,7 +105,7 @@ namespace MuonGM {
         pg10hon->add(phon);
 
         // Create gas volume
-        const GeoShape *sgas = NULL;
+        const GeoShape *sgas = nullptr;
         double beta = atan((longWidth - width) / (2. * maxwLength));
         double gShortWidth = width - 2 * md->fullwirefixbarwidth * (1 - sin(beta)) / cos(beta);
         double gLongWidth = longWidth - 2 * md->fullwirefixbarwidth * (1 + sin(beta)) / cos(beta);

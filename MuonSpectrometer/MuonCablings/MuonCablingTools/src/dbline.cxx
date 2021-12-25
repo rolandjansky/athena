@@ -158,7 +158,7 @@ void DBline::connect(std::ifstream& file) {
     if ((&file) != m_file) {
         m_line = 0;
         m_fail = 0;
-        m_stream = 0;
+        m_stream = nullptr;
         m_file = &file;
     }
 }
@@ -167,7 +167,7 @@ void DBline::connect(std::istream& stream) {
     if ((&stream) != m_stream) {
         m_line = 0;
         m_fail = 0;
-        m_file = 0;
+        m_file = nullptr;
         m_stream = &stream;
     }
 }

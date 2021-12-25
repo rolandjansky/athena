@@ -2,11 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonHistUtils/MuonIsolationPlots.h"
 
 namespace Muon{
 
-MuonIsolationPlots::MuonIsolationPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+MuonIsolationPlots::MuonIsolationPlots(PlotBase* pParent, const std::string& sDir):PlotBase(pParent, sDir),
 //iso variables
 m_oPtCone20(this,"", "ptcone20"),
 m_oPtCone30(this,"", "ptcone30"),
@@ -68,8 +70,8 @@ m_oPtVarCone40(this,"", "ptvarcone40")
 }
 
   
-IsoPlots::IsoPlots(PlotBase* pParent, std::string sDir, std::string sConeSize):PlotBase(pParent, sDir),
-m_sConeSize(sConeSize), cone(NULL), conerel(NULL)
+IsoPlots::IsoPlots(PlotBase* pParent, const std::string& sDir, std::string sConeSize):PlotBase(pParent, sDir),
+m_sConeSize(std::move(sConeSize)), cone(nullptr), conerel(nullptr)
 {}
 
 void IsoPlots::initializePlots()
@@ -97,8 +99,8 @@ void IsoPlots::initializePlots()
 
 
 #ifndef XAOD_ANALYSIS
-IsoCorrPlots::IsoCorrPlots(PlotBase* pParent, std::string sDir, std::string sCorrType):PlotBase(pParent, sDir),
-m_sCorrType(sCorrType), isocorr(NULL), isocorr_relPt(NULL), isocorr_relIsocone20(NULL), isocorr_relIsocone30(NULL), isocorr_relIsocone40(NULL)
+IsoCorrPlots::IsoCorrPlots(PlotBase* pParent, const std::string& sDir, std::string sCorrType):PlotBase(pParent, sDir),
+m_sCorrType(std::move(sCorrType)), isocorr(nullptr), isocorr_relPt(nullptr), isocorr_relIsocone20(nullptr), isocorr_relIsocone30(nullptr), isocorr_relIsocone40(nullptr)
 {}
 
 void IsoCorrPlots::initializePlots()

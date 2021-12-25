@@ -11,7 +11,7 @@
 namespace MuonTGC_Cabling {
 
 // Constructor & Destructor
-TGCCableSLBToSSW::TGCCableSLBToSSW(std::string filename)
+TGCCableSLBToSSW::TGCCableSLBToSSW(const std::string& filename)
   : TGCCable(TGCCable::SLBToSSW)
 {
   m_database[TGCIdBase::Endcap][TGCIdBase::WT] =
@@ -72,11 +72,11 @@ TGCModuleMap* TGCCableSLBToSSW::getModule(const TGCModuleId* moduleId) const {
     if(moduleId->getModuleIdType()==TGCModuleId::SSW)
       return getModuleIn(moduleId);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCModuleMap* TGCCableSLBToSSW::getModuleIn(const TGCModuleId* ssw) const {
-  if(ssw->isValid()==false) return 0;
+  if(ssw->isValid()==false) return nullptr;
 
   const int sswId = ssw->getId();
 
@@ -91,7 +91,7 @@ TGCModuleMap* TGCCableSLBToSSW::getModuleIn(const TGCModuleId* ssw) const {
     }
   }
 
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
   for(int type=0; type<TGCIdBase::MaxRegionType* MaxModuleType; type++){
     const int MaxEntry = databaseP[type]->getMaxEntry();
     for(int i=0; i<MaxEntry; i++){
@@ -128,7 +128,7 @@ TGCModuleMap* TGCCableSLBToSSW::getModuleIn(const TGCModuleId* ssw) const {
 						 psbLoc,
 						 pslbAddr);
 	  
-	    if(mapId==0) mapId = new TGCModuleMap();
+	    if(mapId==nullptr) mapId = new TGCModuleMap();
 	    mapId->insert(pblock,slb);
 	  }
 
@@ -157,7 +157,7 @@ TGCModuleMap* TGCCableSLBToSSW::getModuleIn(const TGCModuleId* ssw) const {
 					       sbLoc,
 					       slbAddr);
 	  
-	  if(mapId==0) mapId = new TGCModuleMap();
+	  if(mapId==nullptr) mapId = new TGCModuleMap();
 	  mapId->insert(block,slb);
 	} 
 
@@ -170,13 +170,13 @@ TGCModuleMap* TGCCableSLBToSSW::getModuleIn(const TGCModuleId* ssw) const {
 
 
 TGCModuleMap* TGCCableSLBToSSW::getModuleOut(const TGCModuleId* slb) const {
-  if(slb->isValid()==false) return 0;
+  if(slb->isValid()==false) return nullptr;
 
   const int slbId = slb->getId();
   const int sector = slb->getSectorInReadout();
   int readoutSector = slb->getReadoutSector();
   
-  TGCModuleMap* mapId = 0;
+  TGCModuleMap* mapId = nullptr;
 
   TGCDatabase* databaseP =m_database[slb->getRegionType()][slb->getModuleType()];
   const int MaxEntry = databaseP->getMaxEntry();

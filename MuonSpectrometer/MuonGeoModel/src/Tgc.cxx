@@ -60,8 +60,8 @@ namespace MuonGM {
         // Build TGC mother volume out of G10
         const GeoShape *strd = new GeoTrd(thickness / 2, thickness / 2, width / 2, longWidth / 2, length / 2);
         if (cutoutson && vcutdef.size() > 0) {
-            Cutout *cut = 0;
-            GeoShape *cutoutShape = 0;
+            Cutout *cut = nullptr;
+            GeoShape *cutoutShape = nullptr;
             GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
             for (unsigned i = 0; i < vcutdef.size(); i++) {
                 cut = vcutdef[i];
@@ -230,8 +230,8 @@ namespace MuonGM {
                 if (cutoutson && vcutdef.size() > 0) {
                     // Make cutout in gas volume a bit larger so that G10 of mother volume
                     // makes a gas boundary
-                    Cutout *cut = 0;
-                    GeoShape *cutoutShape = 0;
+                    Cutout *cut = nullptr;
+                    GeoShape *cutoutShape = nullptr;
                     GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
                     for (unsigned i = 0; i < vcutdef.size(); i++) {
                         cut = vcutdef[i];
@@ -262,8 +262,8 @@ namespace MuonGM {
                 // except for G10 which is material of the mother volume
                 const GeoShape *strdtmp = new GeoTrd(t->tck[i] / 2, t->tck[i] / 2, width / 2, longWidth / 2, length / 2);
                 if (cutoutson && vcutdef.size() > 0) {
-                    Cutout *cut = 0;
-                    GeoShape *cutoutShape = 0;
+                    Cutout *cut = nullptr;
+                    GeoShape *cutoutShape = nullptr;
                     GeoTrf::Transform3D cutTrans{GeoTrf::Transform3D::Identity()};
                     for (unsigned i = 0; i < vcutdef.size(); i++) {
                         cut = vcutdef[i];

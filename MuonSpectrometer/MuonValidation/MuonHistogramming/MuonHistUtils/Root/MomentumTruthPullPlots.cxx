@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonHistUtils/MomentumTruthPullPlots.h"
 #ifndef XAOD_ANALYSIS
 #include "xAODTracking/TrackingPrimitives.h"
@@ -10,21 +12,21 @@
 namespace Muon{
 
 
-MomentumTruthPullPlots::MomentumTruthPullPlots(PlotBase* pParent, std::string sDir, std::string sType):
+MomentumTruthPullPlots::MomentumTruthPullPlots(PlotBase* pParent, const std::string& sDir, std::string sType):
     PlotBase(pParent, sDir),
-    m_sType(sType),
-    dp_CB_truthIP(NULL),
-    dp_ME_truthIP(NULL),
-    dp_ME_truthIP_MS_truthMS(NULL),
-    dp_eloss(NULL),
-    dp_CB_truthIP_vs_pt(NULL),
-    dp_ME_truthIP_vs_pt(NULL),
-    dp_ME_truthIP_MS_truthMS_vs_pt(NULL),
-    dp_eloss_vs_pt(NULL),
-    dp_CB_truthIP_vs_eta(NULL),
-    dp_ME_truthIP_vs_eta(NULL),
-    dp_ME_truthIP_MS_truthMS_vs_eta(NULL),
-    dp_eloss_vs_eta(NULL)
+    m_sType(std::move(sType)),
+    dp_CB_truthIP(nullptr),
+    dp_ME_truthIP(nullptr),
+    dp_ME_truthIP_MS_truthMS(nullptr),
+    dp_eloss(nullptr),
+    dp_CB_truthIP_vs_pt(nullptr),
+    dp_ME_truthIP_vs_pt(nullptr),
+    dp_ME_truthIP_MS_truthMS_vs_pt(nullptr),
+    dp_eloss_vs_pt(nullptr),
+    dp_CB_truthIP_vs_eta(nullptr),
+    dp_ME_truthIP_vs_eta(nullptr),
+    dp_ME_truthIP_MS_truthMS_vs_eta(nullptr),
+    dp_eloss_vs_eta(nullptr)
 {}
   
 MomentumTruthPullPlots::~MomentumTruthPullPlots(){}

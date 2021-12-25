@@ -113,7 +113,7 @@ class MuonPhysValMonitoringTool
   std::vector<std::string> m_L1Seed;
   int m_SelectedAuthor;
 
-  TH1F* findHistogram(std::vector<HistData> hists,std::string hnameTag,std::string hdirTag,std::string hNewName);
+  TH1F* findHistogram(const std::vector<HistData>& hists,const std::string& hnameTag,const std::string& hdirTag,const std::string& hNewName);
   void modifyHistogram(TH1* hist);
 
   Gaudi::Property<std::string> m_tracksName{this,"TrackContainerName","InDetTrackParticles"};
@@ -161,7 +161,7 @@ class MuonPhysValMonitoringTool
   MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::Muon* prt);
   bool passesAcceptanceCuts(const xAOD::IParticle* prt);
   float deltaR(const xAOD::IParticle* prt1, const xAOD::IParticle* prt2);
-  void SplitString(TString x, TString delim, std::vector<TString> &v);
+  void SplitString(TString x, const TString& delim, std::vector<TString> &v);
   
   // Hists
   std::vector<MuonValidationPlots*> m_muonValidationPlots;

@@ -46,7 +46,7 @@ namespace Muon {
     std::vector< SubBlock >           subBlocks;
 
     // initialize the ntuple for writing or reading
-    void init( std::string prefix, TTree*, bool write = true);
+    void init( const std::string& prefix, TTree*, bool write = true);
       
     // clear, to be called with filling the ntuple at the end of the event
     void clear();

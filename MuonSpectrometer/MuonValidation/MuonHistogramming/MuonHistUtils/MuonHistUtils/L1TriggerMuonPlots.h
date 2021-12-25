@@ -17,7 +17,7 @@
 
 class L1TriggerMuonPlots:public PlotBase {
     public:
-      L1TriggerMuonPlots(PlotBase* pParent, std::string sDir);
+      L1TriggerMuonPlots(PlotBase* pParent, const std::string& sDir);
       void fill(const xAOD::MuonRoI& TrigL1mu);
       
       //

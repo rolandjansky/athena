@@ -16,7 +16,7 @@
 
 RpcStatusDbSvc::RpcStatusDbSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
-  m_dbTool(0),
+  m_dbTool(nullptr),
   m_rpcStatusDataLocation("RpcKey")
 {
   declareProperty("DBToolType", m_dbToolType = "RpcDetectorStatusDbTool");

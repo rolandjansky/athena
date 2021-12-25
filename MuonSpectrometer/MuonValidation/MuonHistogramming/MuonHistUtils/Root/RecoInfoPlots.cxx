@@ -7,14 +7,14 @@
 
 namespace Muon{
 											   
-RecoInfoPlots::RecoInfoPlots(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir)
+RecoInfoPlots::RecoInfoPlots(PlotBase *pParent, const std::string& sDir):PlotBase(pParent, sDir)
 								 ,m_oTrkRecoInfoPlots(this, "","IDTrk")
 								 ,m_oMSTrkRecoInfoPlots(this, "", "MSTrk")
 								 ,m_oRecoInfoPlots(this, "")
-								 ,author(NULL)
-								 ,quality(NULL)
-								 ,quality_cutflow(NULL)
-								 ,muonType(NULL)
+								 ,author(nullptr)
+								 ,quality(nullptr)
+								 ,quality_cutflow(nullptr)
+								 ,muonType(nullptr)
 {}
 
 void RecoInfoPlots::initializePlots(){

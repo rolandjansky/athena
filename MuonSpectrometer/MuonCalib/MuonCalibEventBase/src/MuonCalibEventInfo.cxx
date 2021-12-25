@@ -2,6 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <utility>
+
 #include "MuonCalibEventBase/MuonCalibEventInfo.h"
 
 namespace MuonCalib {
@@ -34,11 +36,11 @@ namespace MuonCalib {
         m_runNumber{run_number}, m_eventNumber{event_number}, m_timeStamp{time_stamp}, m_lumiBlock{lumi_block}, m_bcId{bc_id} {}
 
     MuonCalibEventInfo::MuonCalibEventInfo(unsigned int run_number, unsigned int event_number, unsigned int time_stamp, std::string tag) :
-        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(0), m_bcId(0), m_tag(tag) {}
+        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(0), m_bcId(0), m_tag(std::move(tag)) {}
 
     MuonCalibEventInfo::MuonCalibEventInfo(unsigned int run_number, unsigned int event_number, unsigned int time_stamp,
                                            unsigned int lumi_block, unsigned int bc_id, std::string tag) :
-        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(lumi_block), m_bcId(bc_id), m_tag(tag) {}
+        m_runNumber(run_number), m_eventNumber(event_number), m_timeStamp(time_stamp), m_lumiBlock(lumi_block), m_bcId(bc_id), m_tag(std::move(tag)) {}
 
     std::ostream &MuonCalibEventInfo::dump(std::ostream &stream) const {
         stream << "MuonCalibEventInfo : " << std::endl;

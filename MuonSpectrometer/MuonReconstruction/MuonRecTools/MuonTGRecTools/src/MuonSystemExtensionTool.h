@@ -54,7 +54,7 @@ namespace Muon {
         /** get surfaces to be intersected for a given start parameters */
         SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars, const SystemExtensionCache& cache) const;
 
-        MuonSystemExtension::Intersection makeInterSection(std::shared_ptr<const Trk::TrackParameters> pars, const MuonLayerSurface& surf) const;
+        MuonSystemExtension::Intersection makeInterSection(const std::shared_ptr<const Trk::TrackParameters>& pars, const MuonLayerSurface& surf) const;
 
         
         ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{

@@ -70,8 +70,8 @@ namespace MuonCalib {
         std::array<std::unique_ptr<CalibDbConnection>, 2> m_data_connections;
         std::unique_ptr<CalibHeadOperations> m_head_ops;
         /** convert rt and resolution to points */
-        void fillRtPoints(std::shared_ptr<const IRtRelation> rt_relation, std::vector<SamplePoint> &points);
-        void fillResPoints(std::shared_ptr<const IRtResolution> rt_resolution, std::vector<SamplePoint> &points);
+        void fillRtPoints(const std::shared_ptr<const IRtRelation>& rt_relation, std::vector<SamplePoint> &points);
+        void fillResPoints(const std::shared_ptr<const IRtResolution>& rt_resolution, std::vector<SamplePoint> &points);
         CalibDbConnection *get_connection(int write);
     };
 

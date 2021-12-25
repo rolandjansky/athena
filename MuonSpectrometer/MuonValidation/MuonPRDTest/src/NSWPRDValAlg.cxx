@@ -363,7 +363,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
   // Prepare Muon only check
   std::vector<int>* TruthParticle_Pdg;
   if ( m_doNSWMatchingMuon ) { 
-    TruthParticle_Pdg = 0;
+    TruthParticle_Pdg = nullptr;
     m_tree->SetBranchAddress("TruthParticle_Pdg", &TruthParticle_Pdg); 
   }
 

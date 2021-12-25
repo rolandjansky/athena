@@ -39,7 +39,7 @@ TGCCableASDToPP::~TGCCableASDToPP(void)
 	  // If the database is used by only this sector, it is deleted now.  
 	  if(db && !(db->isCommon())) {  
 	    delete db; 
-	    db = 0; 
+	    db = nullptr; 
 	  } 
 	} 
       } 
@@ -50,12 +50,12 @@ TGCCableASDToPP::~TGCCableASDToPP(void)
   for(int region=0; region<TGCIdBase::MaxRegionType; region++) { 
     for(int module=0; module<TGCIdBase::MaxModuleType; module++) { 
       delete m_commonDb[region][module]; // delete null pointer should be safe.   
-      m_commonDb[region][module] = 0;  
+      m_commonDb[region][module] = nullptr;  
     } 
   } 
 
   delete m_ASD2PP_DIFF_12;
-  m_ASD2PP_DIFF_12 = 0;
+  m_ASD2PP_DIFF_12 = nullptr;
 }
 
 
@@ -64,7 +64,7 @@ void TGCCableASDToPP::initialize(const std::string& filename)
   // Common database pointers are initialized 
   for(int region=0; region<TGCIdBase::MaxRegionType; region++) { 
     for(int module=0; module<TGCIdBase::MaxModuleType; module++) { 
-      m_commonDb[region][module] = 0; 
+      m_commonDb[region][module] = nullptr; 
     } 
   } 
 
@@ -127,7 +127,7 @@ StatusCode TGCCableASDToPP::updateDatabase()
     m_ASD2PP_DIFF_12->push_back(s);
   }
   delete tmp_ASD2PP_DIFF_12;
-  tmp_ASD2PP_DIFF_12 = 0;
+  tmp_ASD2PP_DIFF_12 = nullptr;
 
   for(int side=0; side<TGCIdBase::MaxSideType; side++) { 
     for(int sector=0; sector<TGCId::NumberOfForwardSector; sector++) { 
@@ -231,10 +231,10 @@ TGCDatabase* TGCCableASDToPP::getDatabase(const int side,
 					  const int sector,
 					  const int module) const
 {
-  if(side<0 || side>=TGCIdBase::MaxSideType) return 0;
-  if(sector<0) return 0;
+  if(side<0 || side>=TGCIdBase::MaxSideType) return nullptr;
+  if(sector<0) return nullptr;
 
-  TGCDatabase* db=0;
+  TGCDatabase* db=nullptr;
   if(region==TGCIdBase::Endcap) {
     switch(module) {
     case TGCIdBase::WD :
@@ -297,13 +297,13 @@ TGCChannelId* TGCCableASDToPP::getChannel(const TGCChannelId* channelId,
     if(channelId->getChannelIdType()==TGCIdBase::PPIn)
       return getChannelIn(channelId,orChannel);
   }
-  return 0;
+  return nullptr;
 }
 
 TGCChannelId* TGCCableASDToPP::getChannelIn(const TGCChannelId* ppin,
 					   bool orChannel) const {
-  if(orChannel) return 0;
-  if(ppin->isValid()==false) return 0;
+  if(orChannel) return nullptr;
+  if(ppin->isValid()==false) return nullptr;
   
   TGCDatabase* databaseP = 
     getDatabase(ppin->getSideType(),
@@ -311,12 +311,12 @@ TGCChannelId* TGCCableASDToPP::getChannelIn(const TGCChannelId* ppin,
 		ppin->getSector(),
 		ppin->getModuleType());
   
-  if(databaseP==0) return 0;
+  if(databaseP==nullptr) return nullptr;
 
   int indexOut[TGCDatabaseASDToPP::NIndexOut] = 
     {ppin->getId(), ppin->getBlock(), ppin->getChannel()};
   int i = databaseP->getIndexDBOut(indexOut);
-  if(i<0) return 0;
+  if(i<0) return nullptr;
 
   // ASD2PP.db is Backward connection  
   int layer = databaseP->getEntry(i,0);
@@ -347,8 +347,8 @@ TGCChannelId* TGCCableASDToPP::getChannelIn(const TGCChannelId* ppin,
 
 TGCChannelId* TGCCableASDToPP::getChannelOut(const TGCChannelId* asdout,
 					     bool orChannel) const {
-  if(orChannel) return 0;
-  if(asdout->isValid()==false) return 0;
+  if(orChannel) return nullptr;
+  if(asdout->isValid()==false) return nullptr;
 
   const bool asdoutisStrip = asdout->isStrip();
   const bool asdoutisBackward = asdout->isBackward();
@@ -364,9 +364,9 @@ TGCChannelId* TGCCableASDToPP::getChannelOut(const TGCChannelId* asdout,
 		asdout->getSector(),
 		asdout->getModuleType());
 
-  if(databaseP==0) return 0;
+  if(databaseP==nullptr) return nullptr;
   
-  TGCChannelPPIn* ppin = 0;
+  TGCChannelPPIn* ppin = nullptr;
   const int MaxEntry = databaseP->getMaxEntry();
   for(int i=0; i<MaxEntry; i++) {
     // ASD2PP.db is Backward connection

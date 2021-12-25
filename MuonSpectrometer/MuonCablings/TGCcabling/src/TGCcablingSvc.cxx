@@ -23,7 +23,7 @@
 #include "PathResolver/PathResolver.h"
 
 TGCcablingSvc::TGCcablingSvc (const std::string& name, ISvcLocator* svc)
-  :  ITGCcablingSvc( name, svc ), m_idHelper(0), m_cabling(0) 
+  :  ITGCcablingSvc( name, svc ), m_idHelper(nullptr), m_cabling(nullptr) 
 {
   declareProperty("AsideId",m_AsideId=103);
   declareProperty("CsideId",m_CsideId=104);
@@ -67,7 +67,7 @@ StatusCode TGCcablingSvc::initialize (void)
   if ( sc.isFailure() ) return sc;
 
   // TgcIdHelper
-  StoreGateSvc* detStore=0;
+  StoreGateSvc* detStore=nullptr;
   sc = serviceLocator()->service("DetectorStore", detStore);
 
   if (sc.isFailure()){
@@ -695,7 +695,7 @@ bool TGCcablingSvc::getOnlineIDfromOfflineID(const Identifier & offlineId,
     m_cabling->getChannel(&asdin,
 			  LVL1TGCCabling8::TGCChannelId::ASDOut,
 			  false);
-  if(asdout==0) return false;
+  if(asdout==nullptr) return false;
   if(!asdout->isValid()){
     delete asdout;
     return false;
@@ -744,7 +744,7 @@ bool TGCcablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
     m_cabling->getChannel(&asdout,
 			  LVL1TGCCabling8::TGCChannelId::ASDIn,
 			  false);
-  if(asdin==0) return false;
+  if(asdin==nullptr) return false;
   if(!asdin->isValid()){
     delete asdin;
     return false;
@@ -814,7 +814,7 @@ bool TGCcablingSvc::getOnlineIDfromReadoutID(const int subDetectorID,
 				    slbID,
 				    channelID,
 				    orChannel);
-  if(asdout==0) return false;
+  if(asdout==nullptr) return false;
   if(!asdout->isValid()){
     delete asdout;
     return false;

@@ -82,7 +82,7 @@ private:
 
     int m_mem; //<! counter for memory allocated VmSize values read from /proc/<pid>/status 
     int m_cpu[2]{}; //<! counter for cpu time read from /proc/<pid>/cpu
-    void showVmemCpu(std::string message);
+    void showVmemCpu(const std::string& message);
     void getVmemCpu(int& dVmem, int& duCpu, int& dsCpu);
 
     void testMdtCache();

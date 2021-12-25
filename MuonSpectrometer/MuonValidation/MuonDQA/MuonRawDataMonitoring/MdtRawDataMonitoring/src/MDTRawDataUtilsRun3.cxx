@@ -531,7 +531,7 @@ StatusCode MdtRawDataMonAlg::getChamber(IdentifierHash id, MDTChamber* &chamber)
   if( id >= m_hist_hash_list->size() ) return StatusCode::FAILURE;
 
    chamber = (*m_hist_hash_list)[id];
-    if( chamber == 0 ) return StatusCode::FAILURE;
+    if( chamber == nullptr ) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
@@ -545,7 +545,7 @@ void MdtRawDataMonAlg::clear_hist_map(bool reallocate){
       delete (*itr);
     }
     delete m_hist_hash_list;
-    m_hist_hash_list = 0;
+    m_hist_hash_list = nullptr;
   }
   //  if(reallocate) m_hist_map = new std::map<IdentifierHash, MDTChamber*>;
   if(reallocate) {
@@ -554,7 +554,7 @@ void MdtRawDataMonAlg::clear_hist_map(bool reallocate){
     unsigned int nChambers = 1200;
     m_hist_hash_list->reserve(nChambers);
     //Ensure size is 1200 and that all reservec quantities are 0!
-    for(unsigned int i = 0; i != 1200; ++i) m_hist_hash_list->push_back(0);
+    for(unsigned int i = 0; i != 1200; ++i) m_hist_hash_list->push_back(nullptr);
   }
 }
 

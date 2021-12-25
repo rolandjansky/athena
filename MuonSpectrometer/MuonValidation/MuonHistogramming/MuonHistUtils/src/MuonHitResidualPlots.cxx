@@ -13,10 +13,10 @@
 
 namespace Muon{
 											   
-MuonHitResidualPlots::MuonHitResidualPlots(PlotBase *pParent, std::string sDir,std::string sType):PlotBase(pParent, sDir)
+MuonHitResidualPlots::MuonHitResidualPlots(PlotBase *pParent, const std::string& sDir,std::string sType):PlotBase(pParent, sDir)
 , m_oResidualPlots(this, "",sType)
-, pulls_vs_sectorPhi(NULL)
-, pullsRMS_vs_sectorPhi(NULL)
+, pulls_vs_sectorPhi(nullptr)
+, pullsRMS_vs_sectorPhi(nullptr)
 {
   if (sType!="") sType=sType+"_";
   pulls_vs_sectorPhi = Book2D(sType+"pulls_vs_sectorPhi",sType+" pulls vs sectorPhi",16,1,17,50,-20,20);

@@ -49,7 +49,7 @@ namespace Muon {
                       const std::vector<int>& indexVec, MuonInsideOutAnalysis::MatchingStrategy matchingStrategy, 
                       TrackPlots& trackPlots );
 
-    TimePointBetaFitter::FitResult fitBeta( MuonInsideOutValidationNtuple& ntuple, const std::vector<int>& indexVec, std::set<int> type );
+    TimePointBetaFitter::FitResult fitBeta( MuonInsideOutValidationNtuple& ntuple, const std::vector<int>& indexVec, const std::set<int>& type );
     
     MuonInsideOutAnalysisPlots m_plots;
   };

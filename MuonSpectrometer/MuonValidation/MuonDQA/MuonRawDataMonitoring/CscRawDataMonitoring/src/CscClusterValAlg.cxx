@@ -68,8 +68,8 @@ CscClusterValAlg::CscClusterValAlg(const std::string & type, const std::string &
   m_stripFitter(name, this),
   m_cscCalibTool(name, this),
   m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
-  m_cscclus_oviewEA(0),
-  m_cscclus_oviewEC(0)
+  m_cscclus_oviewEA(nullptr),
+  m_cscclus_oviewEC(nullptr)
 {
 
   declareProperty("CSCClusterPath", m_cscClusterPath = "Muon/MuonRawDataMonitoring/CSC/Clusters");
@@ -94,11 +94,11 @@ CscClusterValAlg::CscClusterValAlg(const std::string & type, const std::string &
 CscClusterValAlg::~CscClusterValAlg() {
   if(m_cscclus_oviewEA) {
     delete m_cscclus_oviewEA;
-    m_cscclus_oviewEA = 0;
+    m_cscclus_oviewEA = nullptr;
   }
   if(m_cscclus_oviewEC) {
     delete m_cscclus_oviewEC;
-    m_cscclus_oviewEC = 0;
+    m_cscclus_oviewEC = nullptr;
   }
   ATH_MSG_DEBUG( "CscClusterValAlg: in destructor" );
 }
@@ -150,114 +150,114 @@ StatusCode CscClusterValAlg::initialize(){
 void CscClusterValAlg::initHistograms() {
 
   // hitmaps
-  m_h2csc_clus_hitmap = 0;
-  m_h2csc_clus_hitmap_noise = 0;
-  m_h2csc_clus_hitmap_signal = 0;
-  m_h2csc_clus_segmap_signal = 0;
+  m_h2csc_clus_hitmap = nullptr;
+  m_h2csc_clus_hitmap_noise = nullptr;
+  m_h2csc_clus_hitmap_signal = nullptr;
+  m_h2csc_clus_segmap_signal = nullptr;
 
-  m_h2csc_clus_eta_vs_phi_hitmap = 0;
-  m_h2csc_clus_r_vs_z_hitmap = 0;
-  m_h2csc_clus_y_vs_x_hitmap = 0;
+  m_h2csc_clus_eta_vs_phi_hitmap = nullptr;
+  m_h2csc_clus_r_vs_z_hitmap = nullptr;
+  m_h2csc_clus_y_vs_x_hitmap = nullptr;
 
   // layer occupancy
-  m_h1csc_clus_occupancy_signal_EA = 0;
-  m_h1csc_clus_occupancy_signal_EC = 0;
+  m_h1csc_clus_occupancy_signal_EA = nullptr;
+  m_h1csc_clus_occupancy_signal_EC = nullptr;
 
   // q_max of cluster
-  m_h2csc_clus_qmax = 0;
-  m_h2csc_clus_qmax_noise = 0;
-  m_h2csc_clus_qmax_signal = 0;
+  m_h2csc_clus_qmax = nullptr;
+  m_h2csc_clus_qmax_noise = nullptr;
+  m_h2csc_clus_qmax_signal = nullptr;
 
-  m_h2csc_clus_qmax_signal_EA = 0;
-  m_h1csc_clus_qmax_signal_EA_count = 0;
+  m_h2csc_clus_qmax_signal_EA = nullptr;
+  m_h1csc_clus_qmax_signal_EA_count = nullptr;
 
-  m_h2csc_clus_qmax_signal_EC = 0;
-  m_h1csc_clus_qmax_signal_EC_count = 0;
+  m_h2csc_clus_qmax_signal_EC = nullptr;
+  m_h1csc_clus_qmax_signal_EC_count = nullptr;
 
   // q_sum = q_max + q_left + q_right of cluster
-  m_h2csc_clus_qsum = 0;
-  m_h2csc_clus_qsum_noise = 0;
-  m_h2csc_clus_qsum_signal = 0;
+  m_h2csc_clus_qsum = nullptr;
+  m_h2csc_clus_qsum_noise = nullptr;
+  m_h2csc_clus_qsum_signal = nullptr;
 
-  m_h2csc_clus_qsum_signal_EA = 0;
-  m_h1csc_clus_qsum_signal_EA_count = 0;
-  m_h1csc_clus_qsum_signal_EA_lfitmean = 0;
+  m_h2csc_clus_qsum_signal_EA = nullptr;
+  m_h1csc_clus_qsum_signal_EA_count = nullptr;
+  m_h1csc_clus_qsum_signal_EA_lfitmean = nullptr;
 
-  m_h2csc_clus_qsum_signal_EC = 0;
-  m_h1csc_clus_qsum_signal_EC_count = 0;
-  m_h1csc_clus_qsum_signal_EC_lfitmean = 0;
+  m_h2csc_clus_qsum_signal_EC = nullptr;
+  m_h1csc_clus_qsum_signal_EC_count = nullptr;
+  m_h1csc_clus_qsum_signal_EC_lfitmean = nullptr;
 
   // sampling time - eta cluster
-  m_h1csc_clus_precision_time = 0;
-  m_h1csc_clus_precision_time_noise = 0;
-  m_h1csc_clus_precision_time_signal = 0;
-  m_h1csc_clus_precision_time_signal_EA = 0;
-  m_h1csc_clus_precision_time_signal_EC = 0;
+  m_h1csc_clus_precision_time = nullptr;
+  m_h1csc_clus_precision_time_noise = nullptr;
+  m_h1csc_clus_precision_time_signal = nullptr;
+  m_h1csc_clus_precision_time_signal_EA = nullptr;
+  m_h1csc_clus_precision_time_signal_EC = nullptr;
 
   // sampling time - phi cluster
-  m_h1csc_clus_transverse_time = 0;
-  m_h1csc_clus_transverse_time_noise = 0;
-  m_h1csc_clus_transverse_time_signal = 0;
+  m_h1csc_clus_transverse_time = nullptr;
+  m_h1csc_clus_transverse_time_noise = nullptr;
+  m_h1csc_clus_transverse_time_signal = nullptr;
 
   // sampling time - phi cluster
-  m_h1csc_clus_transverse_time = 0;
-  m_h1csc_clus_transverse_time_noise = 0;
-  m_h1csc_clus_transverse_time_signal = 0;
+  m_h1csc_clus_transverse_time = nullptr;
+  m_h1csc_clus_transverse_time_noise = nullptr;
+  m_h1csc_clus_transverse_time_signal = nullptr;
 
   // cluster charge - eta cluster
-  m_h1csc_clus_precision_charge = 0;
-  m_h1csc_clus_precision_charge_noise = 0;
-  m_h1csc_clus_precision_charge_signal = 0;
+  m_h1csc_clus_precision_charge = nullptr;
+  m_h1csc_clus_precision_charge_noise = nullptr;
+  m_h1csc_clus_precision_charge_signal = nullptr;
 
   // cluster charge - phi cluster
-  m_h1csc_clus_transverse_charge = 0;
-  m_h1csc_clus_transverse_charge_noise = 0;
-  m_h1csc_clus_transverse_charge_signal = 0;
+  m_h1csc_clus_transverse_charge = nullptr;
+  m_h1csc_clus_transverse_charge_noise = nullptr;
+  m_h1csc_clus_transverse_charge_signal = nullptr;
 
   // cluster count - phi layer // 
-  m_h2csc_clus_phicluscount = 0;
-  m_h2csc_clus_phicluscount_signal = 0;
-  m_h2csc_clus_phicluscount_noise = 0;
+  m_h2csc_clus_phicluscount = nullptr;
+  m_h2csc_clus_phicluscount_signal = nullptr;
+  m_h2csc_clus_phicluscount_noise = nullptr;
 
   // cluster count - eta layer // 
-  m_h2csc_clus_etacluscount = 0;
-  m_h2csc_clus_etacluscount_signal = 0;
-  m_h2csc_clus_etacluscount_noise = 0;
+  m_h2csc_clus_etacluscount = nullptr;
+  m_h2csc_clus_etacluscount_signal = nullptr;
+  m_h2csc_clus_etacluscount_noise = nullptr;
 
-  m_h1csc_clus_count = 0;
-  m_h1csc_clus_count_signal = 0;
-  m_h1csc_clus_count_noise = 0;
+  m_h1csc_clus_count = nullptr;
+  m_h1csc_clus_count_signal = nullptr;
+  m_h1csc_clus_count_noise = nullptr;
 
-  m_h1csc_clus_count_perlayer = 0;
+  m_h1csc_clus_count_perlayer = nullptr;
 
   // cluster width - eta layer
-  m_h2csc_clus_etacluswidth = 0;
-  m_h2csc_clus_etacluswidth_signal = 0;
-  m_h2csc_clus_etacluswidth_noise = 0;
+  m_h2csc_clus_etacluswidth = nullptr;
+  m_h2csc_clus_etacluswidth_signal = nullptr;
+  m_h2csc_clus_etacluswidth_noise = nullptr;
 
   // cluster width - phi layer
-  m_h2csc_clus_phicluswidth = 0;
-  m_h2csc_clus_phicluswidth_signal = 0;
-  m_h2csc_clus_phicluswidth_noise = 0;
+  m_h2csc_clus_phicluswidth = nullptr;
+  m_h2csc_clus_phicluswidth_signal = nullptr;
+  m_h2csc_clus_phicluswidth_noise = nullptr;
 
   //total cluster width
-  m_h1csc_clus_totalWidth_EA = 0;
-  m_h1csc_clus_totalWidth_EC = 0;
+  m_h1csc_clus_totalWidth_EA = nullptr;
+  m_h1csc_clus_totalWidth_EC = nullptr;
 
   // correlation plots
-  m_h2csc_clus_eta_vs_phi_charge = 0;
-  m_h2csc_clus_eta_vs_phi_charge_noise = 0;
-  m_h2csc_clus_eta_vs_phi_charge_signal = 0;
+  m_h2csc_clus_eta_vs_phi_charge = nullptr;
+  m_h2csc_clus_eta_vs_phi_charge_noise = nullptr;
+  m_h2csc_clus_eta_vs_phi_charge_signal = nullptr;
 
   // hit correlation b/w eta/phi clusters
-  m_h2csc_clus_eta_vs_phi_cluscount = 0;
-  m_h2csc_clus_eta_vs_phi_cluscount_noise = 0;
-  m_h2csc_clus_eta_vs_phi_cluscount_signal = 0;
+  m_h2csc_clus_eta_vs_phi_cluscount = nullptr;
+  m_h2csc_clus_eta_vs_phi_cluscount_noise = nullptr;
+  m_h2csc_clus_eta_vs_phi_cluscount_signal = nullptr;
 
   // width correlation b/w eta/phi clusters
-  m_h2csc_clus_eta_vs_phi_cluswidth = 0;
-  m_h2csc_clus_eta_vs_phi_cluswidth_signal = 0;
-  m_h2csc_clus_eta_vs_phi_cluswidth_noise = 0;
+  m_h2csc_clus_eta_vs_phi_cluswidth = nullptr;
+  m_h2csc_clus_eta_vs_phi_cluswidth_signal = nullptr;
+  m_h2csc_clus_eta_vs_phi_cluswidth_noise = nullptr;
 
 }
 
@@ -816,7 +816,7 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer* cols, const
 
       // if cluster is okay get Qmax, Qleft, Qright and Qsum = (Qmax + Qleft + Qright)
       if(eta_cluster_status || phi_cluster_status ) {
-        const CscStripPrepDataCollection* pcol(0);
+        const CscStripPrepDataCollection* pcol(nullptr);
         bool found_id = true;
         std::vector <const CscStripPrepData*> stripVec;
         std::vector <float> fStripIDs;

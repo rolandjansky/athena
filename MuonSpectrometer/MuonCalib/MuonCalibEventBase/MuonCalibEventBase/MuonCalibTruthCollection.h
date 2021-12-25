@@ -82,15 +82,15 @@ namespace MuonCalib {
 
         /// -> Smart pointer version
         //!< add a MuonCalibTruth to the collection
-        void addTruth(TruthPtr truth);
+        void addTruth(const TruthPtr& truth);
         //!< add a MuonCalibMdtTruthHit to the collection
-        void addTruth(TruthMdtPtr mdtTruth);
+        void addTruth(const TruthMdtPtr& mdtTruth);
         //!< add a MuonCalibRpcTruthHit to the collection
-        void addTruth(TruthRpcPtr rpcTruth);
+        void addTruth(const TruthRpcPtr& rpcTruth);
         //!< add a MuonCalibTgcTruthHit to the collection
-        void addTruth(TruthTgcPtr tgcTruth);
+        void addTruth(const TruthTgcPtr& tgcTruth);
         //!< add a MuonCalibCscTruthHit to the collection
-        void addTruth(TruthCscPtr cscTruth);
+        void addTruth(const TruthCscPtr& cscTruth);
 
         /// Retrieve a reference to the full truth container
         TruthVec& TruthContainer();

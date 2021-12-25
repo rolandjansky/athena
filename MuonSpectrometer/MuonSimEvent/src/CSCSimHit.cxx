@@ -81,7 +81,7 @@ CSCSimHit::CSCSimHit(int id,
 	             const Amg::Vector3D& HitStart, 
 		     const Amg::Vector3D& HitEnd, 
 	             int particleID, 
-		     const HepMcParticleLink hmpl, 
+		     const HepMcParticleLink& hmpl, 
                      const double kineticEnergy)
     : m_CSCid(id), m_globalTime(time)
     , m_energyDeposit(energy)

@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 #include "MuonPattern/MuonPatternCombination.h"
@@ -108,7 +109,7 @@ std::unique_ptr<MuonSegmentCombinationCollection> Muon::MuonCurvedSegmentCombine
 }
 
 std::unique_ptr<MuonSegmentCombinationCollection> Muon::MuonCurvedSegmentCombiner::processCombinationCollection(
-    const MuonSegmentCombinationCollection& mdtCol, MuonSegmentCombPatternCombAssociationMap* segPattMap, SegInfoMap seg2DCscInfoMap,
+    const MuonSegmentCombinationCollection& mdtCol, MuonSegmentCombPatternCombAssociationMap* segPattMap, const SegInfoMap& seg2DCscInfoMap,
     SegInfoMap seg4DCscInfoMap, SegInfoMap& segInfoMap, std::map<Muon::MuonSegment*, const MuonPatternCombination*>& segAssoMap,
     int& segmentIndex) const {
     std::unique_ptr<MuonSegmentCombinationCollection> curvedCombiCol = std::make_unique<MuonSegmentCombinationCollection>();
@@ -248,7 +249,7 @@ std::unique_ptr<MuonSegmentCombinationCollection> Muon::MuonCurvedSegmentCombine
 
                 const Trk::TrackParameters* trkparameters = pattern->trackParameter();
                 if (trkparameters) {
-                    const Trk::Perigee* perigee = 0;
+                    const Trk::Perigee* perigee = nullptr;
                     perigee = dynamic_cast<const Trk::Perigee*>(trkparameters);
                     if (perigee) {
                         // Get theta and phi values
@@ -265,7 +266,7 @@ std::unique_ptr<MuonSegmentCombinationCollection> Muon::MuonCurvedSegmentCombine
 
                 trkparameters = pattern1->trackParameter();
                 if (trkparameters) {
-                    const Trk::Perigee* perigee = 0;
+                    const Trk::Perigee* perigee = nullptr;
                     perigee = dynamic_cast<const Trk::Perigee*>(trkparameters);
                     if (perigee) {
                         // Get theta and phi values
@@ -425,7 +426,7 @@ std::unique_ptr<MuonSegmentCombinationCollection> Muon::MuonCurvedSegmentCombine
 }
 
 void Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection(
-    const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap, SegInfoMap segInfoMap,
+    const MuonSegmentCombinationCollection& combiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap, const SegInfoMap& segInfoMap,
     SegInfoMap& seg4DCscInfoMap, std::set<Identifier>& cscIdSet, std::map<Muon::MuonSegment*, const MuonPatternCombination*>& segAssoMap,
     int& segmentIndex) const {
     MuonSegmentCombinationCollection::const_iterator cit = combiCol.begin();
@@ -489,7 +490,7 @@ void Muon::MuonCurvedSegmentCombiner::processCscCombinationCollection(
 }
 
 void Muon::MuonCurvedSegmentCombiner::process2DCscCombinationCollection(
-    const MuonSegmentCombinationCollection& combiCol, SegInfoMap segInfoMap, std::set<Identifier> cscIdSet, SegInfoMap& seg2DCscInfoMap,
+    const MuonSegmentCombinationCollection& combiCol, const SegInfoMap& segInfoMap, std::set<Identifier> cscIdSet, SegInfoMap& seg2DCscInfoMap,
     std::map<Muon::MuonSegment*, const MuonPatternCombination*>& segAssoMap, int& segmentIndex) const {
     MuonSegmentCombinationCollection::const_iterator cit = combiCol.begin();
     MuonSegmentCombinationCollection::const_iterator cit_end = combiCol.end();
@@ -522,7 +523,7 @@ void Muon::MuonCurvedSegmentCombiner::process2DCscCombinationCollection(
 
                 // 2D Csc segments are NOT associated to Pattern
 
-                segAssoMap[segs[si].get()] = 0;
+                segAssoMap[segs[si].get()] = nullptr;
                 Muon::MCSCSegmentInfo info = segInfo(segs[si].get(), segInfoMap, segAssoMap);
                 segmentIndex++;
                 info.index = segmentIndex;
@@ -536,7 +537,7 @@ void Muon::MuonCurvedSegmentCombiner::process2DCscCombinationCollection(
 
 void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
     MuonSegmentCombinationCollection* curvedCombiCol, MuonSegmentCombPatternCombAssociationMap* segPattMap, SegInfoMap segInfoMap,
-    std::map<Muon::MuonSegment*, const MuonPatternCombination*> segAssoMap) const {
+    const std::map<Muon::MuonSegment*, const MuonPatternCombination*>& segAssoMap) const {
     // Strategy for makening trackcandidates: combinations of segments
     // Fill vectors with segment information MCSCSegmentInfo:
     //      e.g. station, missed hits, and crude momentum estimate
@@ -607,7 +608,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
     for (; seg_it != seg_it_end; ++seg_it) {
         Muon::MuonSegment* segm = seg_it->first;
         const Muon::MCSCSegmentInfo& info = segInfoMap[segm];
-        if (info.patPoint != 0) {
+        if (info.patPoint != nullptr) {
             if (patIndex.count(info.patPoint) != 1) {
                 patInlast++;
                 patIndex[info.patPoint] = patInlast;
@@ -666,7 +667,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
                           << info.patPoint << " pointer2 " << info2.patPoint << " theta " << theta << " theta2 " << theta2 << std::endl;
         }
         checkSegments[key] = segm;
-        if (info.patPoint != 0) {
+        if (info.patPoint != nullptr) {
             segmentsChamber[1000 * code + patIn] += 1;
         } else {
             segmentsChamber[1000 * code] += 1;
@@ -725,7 +726,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
         //            continue;
         //        }
         int patIn = 0;
-        if (info.patPoint != 0) {
+        if (info.patPoint != nullptr) {
             if (patIndex.count(info.patPoint) != 1)
                 if (m_debug) std::cout << " Pattern pointer not in PatIndex " << std::endl;
             patIn = patIndex[info.patPoint];
@@ -768,7 +769,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
         patPoint[i] = info.patPoint;
         int code = info.stationCode;
         int patIn = 0;
-        if (info.patPoint != 0) { patIn = patIndex[info.patPoint]; }
+        if (info.patPoint != nullptr) { patIn = patIndex[info.patPoint]; }
         multi[i] = segmentsChamber[1000 * code + patIn];
         int miscorrect = 0;
         if (info.phiPatHits == 0) miscorrect = 2;
@@ -828,7 +829,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
             //            if (m_debug) std::cout << " segment nr i begin  " << i << std::endl;
             //            if (m_debug) std::cout << " segment nr j begin  " << j << std::endl;
 
-            if (patPoint[i] != 0 && patPoint[j] != 0) {
+            if (patPoint[i] != nullptr && patPoint[j] != nullptr) {
                 // Combine segments from same pattern
                 // Cosmics: Combine all segments (cuts on angle applied later)
                 //  Also Cosmics on Pattern ...
@@ -870,8 +871,8 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
                 // If 2D CSC segments not on a pattern
                 // if(m_assCscMap && st1[0] =='C'&&patPoint[i]!=0) continue;
                 // if(m_assCscMap && st2[0] =='C'&&patPoint[j]!=0) continue;
-                if (st1[0] == 'C' && patPoint[i] != 0) continue;
-                if (st2[0] == 'C' && patPoint[j] != 0) continue;
+                if (st1[0] == 'C' && patPoint[i] != nullptr) continue;
+                if (st2[0] == 'C' && patPoint[j] != nullptr) continue;
                 if (m_debug) std::cout << " pattern pointer i " << patPoint[i] << " j " << patPoint[j] << std::endl;
                 // Extrapolate pattern Forward in CSC region
                 if (st1[0] == 'C' && st2[0] == 'C') continue;
@@ -902,10 +903,10 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
                 if (m_debug) std::cout << " station " << st1 << " station j " << st2 << std::endl;
                 if (m_debug) std::cout << " CSC  segment r " << hitr << " segment z " << hitz << " segment theta " << theta << std::endl;
                 if (k > -1) {
-                    if (patPoint[k] != 0) {
+                    if (patPoint[k] != nullptr) {
                         const Trk::TrackParameters* trkparameters = patPoint[k]->trackParameter();
                         if (trkparameters) {
-                            const Trk::Perigee* perigee = 0;
+                            const Trk::Perigee* perigee = nullptr;
                             perigee = dynamic_cast<const Trk::Perigee*>(trkparameters);
                             if (perigee) {
                                 const Amg::VectorX parameters = perigee->parameters();
@@ -985,7 +986,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
             }
 
             bool selectPair = false;
-            if (patPoint[i] == patPoint[j] && patPoint[i] != 0) {
+            if (patPoint[i] == patPoint[j] && patPoint[i] != nullptr) {
                 // Accept all pairs from same pattern
                 selectPair = true;
             }
@@ -1001,7 +1002,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
             //           }
             if (patPoint[i] != patPoint[j]) {
                 selectPair = false;
-                if (patPoint[i] == 0 || patPoint[j] == 0) {
+                if (patPoint[i] == nullptr || patPoint[j] == nullptr) {
                     // Accept all pairs with no link to pattern == 2D CSC segments
                     selectPair = true;
                 }
@@ -1092,12 +1093,12 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
                             if (i == combi[k]) iFound = true;
                             if (j == combi[k]) jFound = true;
                             std::string stk = station[combi[k]];
-                            if (patPoint[j] != 0 && patPoint[combi[k]] != 0) {
+                            if (patPoint[j] != nullptr && patPoint[combi[k]] != nullptr) {
                                 if (patPoint[j] != patPoint[combi[k]]) {
                                     if (st2[0] != 'C' && stk[0] != 'C') reject = true;
                                 }
                             }
-                            if (patPoint[i] != 0 && patPoint[combi[k]] != 0) {
+                            if (patPoint[i] != nullptr && patPoint[combi[k]] != nullptr) {
                                 if (patPoint[i] != patPoint[combi[k]]) {
                                     if (st1[0] != 'C' && stk[0] != 'C') reject = true;
                                 }
@@ -1243,7 +1244,7 @@ void Muon::MuonCurvedSegmentCombiner::muonCurvedSegmentCombinations(
             std::vector<int>& combi = *it;
             if (m_debug) std::cout << "Segment combination " << i;
 
-            const Muon::MuonPatternCombination* patc = 0;
+            const Muon::MuonPatternCombination* patc = nullptr;
             for (unsigned int k = 0; k < combi.size(); ++k) {
                 if (patPoint[combi[k]]) patc = patPoint[combi[k]];
                 if (m_debug) {
@@ -1332,7 +1333,7 @@ Muon::MCSCSegmentInfo Muon::MuonCurvedSegmentCombiner::segInfo(
     info.chi2 = 0.;
     if (seg->fitQuality()) { info.chi2 = (seg->fitQuality())->chiSquared(); }
 
-    const MdtDriftCircleOnTrack* mdtShortest = 0;
+    const MdtDriftCircleOnTrack* mdtShortest = nullptr;
     double shortestTube = 1e9;
     Identifier id;
     std::vector<const Trk::MeasurementBase*> mbs = seg->containedMeasurements();
@@ -1501,16 +1502,16 @@ Muon::MCSCSegmentInfo Muon::MuonCurvedSegmentCombiner::segInfo(
     double patternPhi = -1000.;
     double patternTheta = -1000.;
     double patternMomentum = -1.;
-    info.patPoint = 0;
+    info.patPoint = nullptr;
 
     // Navigate to FIRST pattern stored in segAssoMap
     const Muon::MuonPatternCombination* patP = segAssoMap[seg];
-    if (patP != 0) {
+    if (patP != nullptr) {
         // Set pattern pointer
         info.patPoint = patP;
         const Trk::TrackParameters* trkparameters = patP->trackParameter();
         if (trkparameters) {
-            const Trk::Perigee* perigee = 0;
+            const Trk::Perigee* perigee = nullptr;
             perigee = dynamic_cast<const Trk::Perigee*>(trkparameters);
             if (perigee) {
                 // Get momentum and phi value
@@ -1554,7 +1555,7 @@ Muon::MCSCSegmentInfo Muon::MuonCurvedSegmentCombiner::segInfo(
     double theta;
     double invcurvature;
     int imeth;
-    trackParameters(*seg, theta, invcurvature, imeth, segInfoMap);
+    trackParameters(*seg, theta, invcurvature, imeth, std::move(segInfoMap));
     info.invcurvature = invcurvature;
 
     return info;

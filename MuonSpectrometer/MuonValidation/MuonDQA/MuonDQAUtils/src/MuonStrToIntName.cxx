@@ -6,7 +6,7 @@
 
 //Function converting from ATHENA identifier std::str StationName, std::string ChamberType 
 //to the corresponding ATHENA identifier int StationName
-int convertStrToIntName(std::string ChamberName, std::string ChamberType) {
+int convertStrToIntName(const std::string& ChamberName, const std::string& ChamberType) {
 
   //Input values
   const std::string& Name_str = ChamberName;

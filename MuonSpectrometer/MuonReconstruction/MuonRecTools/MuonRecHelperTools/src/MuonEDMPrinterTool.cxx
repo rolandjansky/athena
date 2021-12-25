@@ -133,7 +133,7 @@ std::string
 MuonEDMPrinterTool::printStations(const Trk::Track& track) const
 {
 
-    const Trk::MuonTrackSummary* muonSummary = 0;
+    const Trk::MuonTrackSummary* muonSummary = nullptr;
 
     // check if the track already has a MuonTrackSummary, if not calculate it using the helper
     const Trk::TrackSummary* summary = track.trackSummary();
@@ -159,8 +159,8 @@ MuonEDMPrinterTool::printMeasurements(const Trk::Track& track) const
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it2_end = states->end();
     // Build map of AEOTs and the measurements they affect
     std::multimap<const Trk::MeasurementBase*, const Trk::AlignmentEffectsOnTrack*> measAndTheirAlignmentEffects;
-    const Trk::MeasurementBase*                                                     m    = 0;
-    const Trk::AlignmentEffectsOnTrack*                                             aeot = 0;
+    const Trk::MeasurementBase*                                                     m    = nullptr;
+    const Trk::AlignmentEffectsOnTrack*                                             aeot = nullptr;
     for (; it != it_end; ++it) {
         aeot = (*it)->alignmentEffectsOnTrack();
         if (aeot) {
@@ -309,7 +309,7 @@ MuonEDMPrinterTool::print(const MuonSegment& segment) const
     int        ntrigEta = 0;
     int        neta     = 0;
 
-    const MuonGM::MdtReadoutElement* mdtDetEl = 0;
+    const MuonGM::MdtReadoutElement* mdtDetEl = nullptr;
     Identifier                       shortestTubeId;
     double                           shortestTubeLen = 1e9;
 
@@ -396,7 +396,7 @@ MuonEDMPrinterTool::print(const Trk::PrepRawData& prd) const
     Identifier id = prd.identify();
     sout << m_idHelperSvc->toString(id) << "  ";
 
-    const Amg::Vector3D* pos = 0;
+    const Amg::Vector3D* pos = nullptr;
     const MuonCluster*   cl  = dynamic_cast<const MuonCluster*>(&prd);
     if (cl)
         pos = &cl->globalPosition();
@@ -687,7 +687,7 @@ MuonEDMPrinterTool::print(const MuonPatternChamberIntersect& intersect) const
     double      chTheta(-99.);
     double      chPhi(-99.);
     // if the intersect is not empty use the Identifier of first hit as chamber ID
-    const Trk::PrepRawData* firstPrd = 0;
+    const Trk::PrepRawData* firstPrd = nullptr;
     if (!intersect.prepRawDataVec().empty() && intersect.prepRawDataVec().front()) {
         firstPrd   = intersect.prepRawDataVec().front();
         chIdString = m_idHelperSvc->toStringChamber(firstPrd->identify());
@@ -733,7 +733,7 @@ MuonEDMPrinterTool::print(const MuonPatternChamberIntersect& intersect) const
                     Identifier                       idml1  = m_idHelperSvc->mdtIdHelper().channelID(id, 1, 1, 1);
                     Identifier                       idml2  = m_idHelperSvc->mdtIdHelper().channelID(id, 2, 1, 1);
                     const MuonGM::MdtReadoutElement* detEl1 = MuonDetMgr->getMdtReadoutElement(idml1);
-                    const MuonGM::MdtReadoutElement* detEl2 = 0;
+                    const MuonGM::MdtReadoutElement* detEl2 = nullptr;
                     if (m_idHelperSvc->mdtIdHelper().numberOfMultilayers(id) == 2) {
                         detEl2 = MuonDetMgr->getMdtReadoutElement(idml2);
                     } else {
@@ -776,7 +776,7 @@ MuonEDMPrinterTool::print(const MuonPatternChamberIntersect& intersect) const
 
     if (isMdt) {
         SG::ReadHandle<MdtPrepDataContainer> rh_mdt(m_mdtKey);
-        const MdtPrepDataContainer*          mdtPrdContainer = 0;
+        const MdtPrepDataContainer*          mdtPrdContainer = nullptr;
         if (!rh_mdt.isValid()) {
             ATH_MSG_DEBUG("Cannot retrieve " << m_mdtKey.key());
         } else {
@@ -791,7 +791,7 @@ MuonEDMPrinterTool::print(const MuonPatternChamberIntersect& intersect) const
         }
     } else if (m_idHelperSvc->isRpc(chId)) {
         SG::ReadHandle<RpcPrepDataContainer> rh_rpc(m_rpcKey);
-        const RpcPrepDataContainer*          rpcPrdContainer = 0;
+        const RpcPrepDataContainer*          rpcPrdContainer = nullptr;
         if (!rh_rpc.isValid()) {
             ATH_MSG_DEBUG("Cannot retrieve " << m_rpcKey.key());
         } else {
@@ -813,7 +813,7 @@ MuonEDMPrinterTool::print(const MuonPatternChamberIntersect& intersect) const
         }
     } else if (m_idHelperSvc->isTgc(chId)) {
         SG::ReadHandle<TgcPrepDataContainer> rh_tgc(m_tgcKey);
-        const TgcPrepDataContainer*          tgcPrdContainer = 0;
+        const TgcPrepDataContainer*          tgcPrdContainer = nullptr;
         if (!rh_tgc.isValid()) {
             ATH_MSG_DEBUG("Cannot retrieve " << m_tgcKey.key());
         } else {
@@ -941,7 +941,7 @@ MuonEDMPrinterTool::printData(const Trk::MeasurementBase& measurement) const
                 Identifier layerId = m_idHelperSvc->layerId((*itR)->identify());
                 layers.insert(layerId);
                 const RpcClusterOnTrack* rpc    = dynamic_cast<const RpcClusterOnTrack*>(*itR);
-                const RpcPrepData*       rpcPRD = rpc ? rpc->prepRawData() : 0;
+                const RpcPrepData*       rpcPRD = rpc ? rpc->prepRawData() : nullptr;
                 if (rpcPRD) rpcTimes.push_back(rpcPRD->time());
             }
             nlayers = layers.size();

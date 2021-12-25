@@ -23,7 +23,7 @@ TGCCablingDbTool::TGCCablingDbTool(const std::string& type,
 				   const IInterface* parent)
   : AthAlgTool(type, name, parent),
     m_DataLocation ("keyTGC"),
-    m_ASD2PP_DIFF_12(0)
+    m_ASD2PP_DIFF_12(nullptr)
 {
   declareInterface<ITGCCablingDbTool>(this);
   
@@ -55,7 +55,7 @@ StatusCode TGCCablingDbTool::initialize() {
   ATH_MSG_INFO("initialize");
   
   // Get interface to IOVSvc
-  m_IOVSvc = 0;
+  m_IOVSvc = nullptr;
   StatusCode sc = service("IOVSvc", m_IOVSvc, true);
   if(sc.isFailure() || !m_IOVSvc) {
     ATH_MSG_FATAL("Unable to get the IOVSvc");
@@ -77,7 +77,7 @@ StatusCode TGCCablingDbTool::finalize() {
 
   // Database is deleted if exists
   delete m_ASD2PP_DIFF_12; 
-  m_ASD2PP_DIFF_12 = 0;
+  m_ASD2PP_DIFF_12 = nullptr;
 
   return StatusCode::SUCCESS;
 }
@@ -91,7 +91,7 @@ std::vector<std::string>* TGCCablingDbTool::giveASD2PP_DIFF_12() {
 
   // If no database found, null pointer is returned. 
   if(!m_ASD2PP_DIFF_12) {
-    return 0;
+    return nullptr;
   }
 
   // Copy the database

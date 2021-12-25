@@ -21,7 +21,7 @@
 
 class RecoMuonPlots:public PlotBase {
     public:
-      RecoMuonPlots(PlotBase* pParent, std::string sDir, bool detail=false);
+      RecoMuonPlots(PlotBase* pParent, const std::string& sDir, bool detail=false);
       void fill(const xAOD::Muon& mu);
       void fill(const xAOD::Muon& mu, xAOD::Muon::Quality my_quality);
       

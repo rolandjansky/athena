@@ -12,7 +12,7 @@ class hardwareId {
 
  public:
   hardwareId();
-  bool SetHwId(std::string);
+  bool SetHwId(const std::string&);
   bool setOfflineID(int stName, int stEta, int stPhi, int dbR, int dbPhi, int dbZ, int gasGap);
   void dump();
   

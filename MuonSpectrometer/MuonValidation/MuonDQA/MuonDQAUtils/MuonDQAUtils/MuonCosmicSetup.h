@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 
-bool chambersCosmicSetup(std::string, int); 
+bool chambersCosmicSetup(const std::string&, int); 
 
 
 #endif

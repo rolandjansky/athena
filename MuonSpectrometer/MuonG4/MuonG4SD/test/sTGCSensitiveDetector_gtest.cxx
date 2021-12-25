@@ -86,7 +86,7 @@ TEST_F ( sTGCSensitiveDetectortest, ProcessHits )
   G4LogicalVolume* fLogical0 = new G4LogicalVolume(box0, material0, name0);
   G4String PhysicalName0 = physicalname[0];//para
   G4VPhysicalVolume* pPhysical0 = nullptr;
-  G4MyPhysicalVolume* physicalVolume0 = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName0, fLogical0, pPhysical0);
+  G4MyPhysicalVolume* physicalVolume0 = new G4MyPhysicalVolume(nullptr, G4ThreeVector(0,0,0), PhysicalName0, fLogical0, pPhysical0);
   G4int CopyNo0 = copynos[0];
   physicalVolume0->SetCopyNo(CopyNo0);//para
   G4int nReplica = 2;
@@ -107,7 +107,7 @@ TEST_F ( sTGCSensitiveDetectortest, ProcessHits )
     size_t idx(0);
     for( const auto& name : physicalname) {
       if (skip) { skip=false; ++idx; continue; }//skip first entry
-      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), name, fLogical0, pPhysical0);
+      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(nullptr, G4ThreeVector(0,0,0), name, fLogical0, pPhysical0);
       parentPhysVol->SetCopyNo(copynos[idx]);
       ++idx;
       navigationHistory0->NewLevel(parentPhysVol, kNormal, nReplica);

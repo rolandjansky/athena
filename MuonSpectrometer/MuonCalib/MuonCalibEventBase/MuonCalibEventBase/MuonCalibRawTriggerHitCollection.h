@@ -44,7 +44,7 @@ namespace MuonCalib {
         MuonCalibRawRpcTriggerHitVec& get();
 
         int numberOfMuonCalibRawRpcTriggerHits() const;  //!< retrieve the number of MuonCalibRawRpcHits in the collection
-        void addMuonCalibRawTriggerHit(CalibRawRpcTriggerHitPtr rawTriggerHit);  //!< add a MuonCalibRawRpcHit to the collection
+        void addMuonCalibRawTriggerHit(const CalibRawRpcTriggerHitPtr& rawTriggerHit);  //!< add a MuonCalibRawRpcHit to the collection
 
     private:
         MuonCalibRawRpcTriggerHitVec m_rawRpcTriggerHitVec;  //!< set of MuonCalibRawRpcHit s

@@ -26,10 +26,10 @@ public:
     DblQ00IAcsc();
     ~DblQ00IAcsc();
     DblQ00IAcsc(std::unique_ptr<IRDBQuery>&&);
-    DblQ00IAcsc(std::string asciiFileName);
+    DblQ00IAcsc(const std::string& asciiFileName);
     DblQ00IAcsc(AmdcDb* iacsc);
     
-    void WriteIAcscToAsciiFile(std::string filename);
+    void WriteIAcscToAsciiFile(const std::string& filename);
 
     // data members for DblQ00/IACSC fields
     struct IACSC {

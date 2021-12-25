@@ -19,7 +19,7 @@ sTGCDetectorHelper::sTGCDetectorHelper()
         IAGDDtoGeoSvc::LockedController c = m_svc->getController();
 	detectorList vl= c->GetDetectorStore().GetDetectorList();
 	
-	for ( auto vl_iter: vl)
+	for ( const auto& vl_iter: vl)
 	{
 		sTGCDetectorDescription* st=dynamic_cast<sTGCDetectorDescription*>(vl_iter.second);
 		if (st) {
@@ -32,7 +32,7 @@ sTGCDetectorHelper::sTGCDetectorHelper()
 
 sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta,int iphi,int layer,char side) 
 {
-	sTGCDetectorDescription* tgc=0;
+	sTGCDetectorDescription* tgc=nullptr;
 	
         IAGDDtoGeoSvc::LockedController c = m_svc->getController();
         AGDDPositionerStore& ps = c->GetPositionerStore();
@@ -67,8 +67,8 @@ sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta
 
 AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,int ieta,int iphi,int layer,char side) 
 {
-	sTGCDetectorDescription* tgc=0;
-	AGDDDetectorPositioner* dp=0;
+	sTGCDetectorDescription* tgc=nullptr;
+	AGDDDetectorPositioner* dp=nullptr;
 	
         IAGDDtoGeoSvc::LockedController c = m_svc->getController();
         AGDDPositionerStore& ps = c->GetPositionerStore();

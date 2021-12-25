@@ -9,7 +9,7 @@
 
 namespace Muon{
 
-  MuonTree::MuonTree(PlotBase* pParent, std::string sDir, bool mcFlag):
+  MuonTree::MuonTree(PlotBase* pParent, const std::string& sDir, bool mcFlag):
   	PlotBase(pParent, sDir),
     	m_tree(nullptr),
      m_isMC(mcFlag),
@@ -21,7 +21,7 @@ namespace Muon{
   {
   }
 
-  MuonTree::MuonTree(PlotBase* pParent, std::string sDir):
+  MuonTree::MuonTree(PlotBase* pParent, const std::string& sDir):
     PlotBase(pParent, sDir),
     m_tree(nullptr),
     m_isMC(true),

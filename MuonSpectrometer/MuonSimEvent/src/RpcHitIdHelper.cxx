@@ -112,7 +112,7 @@ int RpcHitIdHelper::GetMeasuresPhi(const int& hid) const
 }
 
 //packing method
-int RpcHitIdHelper::BuildRpcHitId(const std::string statName, const int phiSect,
+int RpcHitIdHelper::BuildRpcHitId(const std::string& statName, const int phiSect,
                                   const int zSect, const int doubZ, const int doubR, const int gasGap,
                                   const int doubPhi, const int measPhi) const
 {

@@ -65,8 +65,8 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   virtual StatusCode procHistograms();  
 
   //second argument is the souce type
-  void plot_lumi(   std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_Z, 
-    std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_jpsi, 
+  void plot_lumi(   const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& resonances_Z, 
+    const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& resonances_jpsi, 
     const xAOD::MuonContainer* Muons,
     const xAOD::TrackParticleContainer*   tracksMS, 
     const xAOD::MuonSegmentContainer* MuonSegments);
@@ -79,7 +79,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   void plot_segment(const xAOD::MuonSegment&   segment, int source);
   void plot_track(  const xAOD::TrackParticle& track,   int source);
   void plot_vertex( const xAOD::Vertex&        aVx,     int source);
-  void plot_resonances(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances, int source);
+  void plot_resonances(const std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> >& resonances, int source);
 
   void FillPullResid(RecoMuonTrackPlots *, const xAOD::TrackParticle*);
   
@@ -111,8 +111,8 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   StatusCode setupTools();
   StatusCode bookInMongroup(TH1* hist, MonGroup& mongroup);
   StatusCode bookInMongroup(HistData& hist, MonGroup& mongroup, std::string source);
-  StatusCode bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, std::string source);
-  StatusCode bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, std::string source, TString Montype);
+  StatusCode bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, const std::string& source);
+  StatusCode bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, const std::string& source, const TString& Montype);
 
   // define the different classes of plots;
   enum SOURCE {Z = 0, JPSI, CBMUONS, NONCBMUONS, CONTAINER, N_SOURCE};
