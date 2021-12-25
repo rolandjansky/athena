@@ -1,6 +1,7 @@
 // filters accepted for 22.6
 #include "GeneratorFilters/QCDTruthJetFilter.h"
 #include "GeneratorFilters/xAODElectronFilter.h"
+#include "GeneratorFilters/xAODM4MuIntervalFilter.h"
 #include "GeneratorFilters/xAODMETFilter.h"
 #include "GeneratorFilters/xAODMultiElecMuTauFilter.h"
 #include "GeneratorFilters/xAODMultiLeptonFilter.h"
@@ -8,6 +9,7 @@
 #include "GeneratorFilters/xAODMuonFilter.h"
 #include "GeneratorFilters/xAODPhotonFilter.h"
 #include "GeneratorFilters/xAODTauFilter.h"
+
 
 // slimmers for 22.6
 #include "GeneratorFilters/xAODTruthParticleSlimmerElectron.h"
@@ -112,6 +114,7 @@
 //filters accepted for 22.6
 DECLARE_COMPONENT( QCDTruthJetFilter )
 DECLARE_COMPONENT( xAODElectronFilter )
+DECLARE_COMPONENT( xAODM4MuIntervalFilter )
 DECLARE_COMPONENT( xAODMETFilter)
 DECLARE_COMPONENT( xAODMultiElecMuTauFilter )
 DECLARE_COMPONENT( xAODMultiLeptonFilter)
@@ -221,4 +224,5 @@ DECLARE_COMPONENT( DuplicateEventFilter )
 DECLARE_COMPONENT( BoostedHadTopAndTopPair )
 DECLARE_COMPONENT( HTFilter )
 DECLARE_COMPONENT( TrimuMassRangeFilter )
+DECLARE_COMPONENT( M4MuIntervalFilter )
 
