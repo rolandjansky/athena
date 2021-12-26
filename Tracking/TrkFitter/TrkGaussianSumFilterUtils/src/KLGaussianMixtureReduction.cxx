@@ -305,44 +305,7 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-__attribute__((target("avx2")))
-
-int32_t
-findMinimumIndex(const float* distancesIn, const int n)
-{
-  using namespace CxxUtils;
-  float* array = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
-  const vec<int, 8> increment = { 8, 8, 8, 8, 8, 8, 8, 8 };
-  vec<int, 8> indicesIn = { 0, 1, 2, 3, 4, 5, 6, 7 };
-  vec<int, 8> minindices = indicesIn;
-  vec<float, 8> minvalues{};
-  vec<float, 8> values{};
-  vload(minvalues, array);
-  for (int i = 8; i < n; i += 8) {
-    // Load next 8 elements
-    vload(values, array + i);
-    // increment the indices
-    indicesIn = indicesIn + increment;
-    // Get a mask indicating when an element is less than the ones we have
-    vec<int, 8> lt = values < minvalues;
-    // blend select the indices to update
-    vselect(minindices, indicesIn, minindices, lt);
-    vmin(minvalues, values, minvalues);
-  }
-  // Do the final calculation scalar way
-  int32_t minIndex = minindices[0];
-  float minDistance = minvalues[0];
-  for (int i = 1; i < 8; ++i) {
-    if (minvalues[i] < minDistance) {
-      minIndex = minindices[i];
-      minDistance = minvalues[i];
-    }
-  }
-  return minIndex;
-}
 __attribute__((target("sse4.1")))
-
 int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
