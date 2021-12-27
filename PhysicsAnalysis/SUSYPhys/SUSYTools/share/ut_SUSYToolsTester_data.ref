@@ -892,7 +892,6 @@ ToolSvc.TauEffTool_Med...INFO    Initializing CommonEfficiencyTool
 ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/EfficiencyCorrections/Reco_TrueHadTau_2019-summer.root
 ToolSvc.TauEffTool_Med...INFO    Initializing CommonEfficiencyTool
 ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/EfficiencyCorrections/RNNID_TrueHadTau_2019-summer.root
-SUSYObjDef_xAOD          INFO    'TauMVACalibration' is the default procedure in R21
 ToolSvc.TauSmearingTool  INFO    Initializing TauSmearingTool
 ToolSvc.TauSmearingToo...INFO    Initializing CommonSmearingTool
 ToolSvc.TauSmearingToo...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/Smearing/TES_TrueHadTau_2019-summer.root

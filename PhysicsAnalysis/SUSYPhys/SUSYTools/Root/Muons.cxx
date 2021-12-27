@@ -56,8 +56,8 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
     return StatusCode::FAILURE;
   }
   
-  const xAOD::MuonContainer* muons(0);
-  if (copy==NULL) { // empty container provided
+  const xAOD::MuonContainer* muons = nullptr;
+  if (copy==nullptr) { // empty container provided
     if (containerToBeCopied != nullptr) {
       muons = containerToBeCopied;
     }
@@ -122,7 +122,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
 
   ATH_MSG_VERBOSE( "MUON pt after calibration " << input.pt() );
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
 
   const xAOD::Vertex* pv = this->GetPrimVtx();
@@ -205,10 +205,10 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   
   if ( !m_force_noMuId && !m_muonSelectionToolBaseline->accept(input)) return StatusCode::SUCCESS;
   
-  if (input.pt() <= ptcut || fabs(input.eta()) >= etacut) return StatusCode::SUCCESS;
+  if (input.pt() <= ptcut || std::abs(input.eta()) >= etacut) return StatusCode::SUCCESS;
 
-  if (m_mubaselinez0>0. && fabs(acc_z0sinTheta(input))>m_mubaselinez0) return StatusCode::SUCCESS;
-  if (m_mubaselined0sig>0. && fabs(acc_d0sig(input))>m_mubaselined0sig) return StatusCode::SUCCESS;
+  if (m_mubaselinez0>0. && std::abs(acc_z0sinTheta(input))>m_mubaselinez0) return StatusCode::SUCCESS;
+  if (m_mubaselined0sig>0. && std::abs(acc_d0sig(input))>m_mubaselined0sig) return StatusCode::SUCCESS;
 
   //--- Do baseline isolation check
   if ( !( m_muBaselineIso_WP.empty() ) &&  !( m_isoBaselineTool->accept(input) ) ) return StatusCode::SUCCESS;
@@ -228,19 +228,18 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
 
 bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float d0sigcut, float z0cut, float etacut) const
 {
-
   if (!acc_baseline(input)) return false;
   if (!acc_passSignalID(input)) return false;
 
   if (input.pt() <= ptcut || input.pt() == 0) return false; // pT cut (might be necessary for leading muon to pass trigger)
   if ( etacut==DUMMYDEF ){
-    if(fabs(input.eta()) > m_muEta ) return false;
+    if(std::abs(input.eta()) > m_muEta ) return false;
   }
-  else if ( fabs(input.eta()) > etacut ) return false;
+  else if ( std::abs(input.eta()) > etacut ) return false;
 
-  if (z0cut > 0.0 && fabs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
+  if (z0cut > 0.0 && std::abs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
   if (acc_d0sig(input) != 0) {
-    if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
+    if (d0sigcut > 0.0 && std::abs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 
   if (m_doMuIsoSignal) {
@@ -309,7 +308,7 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
     }
   }
 
-  float Rerr = Amg::error(track->definingParametersCovMatrix(), 4) / fabs(track->qOverP());
+  float Rerr = Amg::error(track->definingParametersCovMatrix(), 4) / std::abs(track->qOverP());
   ATH_MSG_VERBOSE( "Track momentum error (%): " << Rerr * 100 );
   bool isbad = Rerr > qopcut;
   bool isbadHighPt = Rerr > qopcut;
@@ -353,7 +352,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
   double primvertex_z = pv ? pv->z() : 0;
   double mu_z0_exPV = track->z0() + track->vz() - primvertex_z;
   
-  bool isCosmicMuon = (fabs(mu_z0_exPV) >= z0cut || fabs(mu_d0) >= d0cut);
+  bool isCosmicMuon = (std::abs(mu_z0_exPV) >= z0cut || std::abs(mu_d0) >= d0cut);
 
   if (isCosmicMuon) {
     ATH_MSG_VERBOSE("COSMIC PV Z = " << primvertex_z << ", track z0 = " << mu_z0_exPV << ", track d0 = " << mu_d0);
@@ -431,7 +430,7 @@ double SUSYObjDef_xAOD::GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std
 
 double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) {
 
-  if (trigExpr.empty() || sfmuons.size()==0) return 1.;
+  if (trigExpr.empty() || sfmuons.empty()) return 1.;
 
   double trig_sf = 1.;
 
@@ -480,7 +479,6 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   }
 
   return trig_sf;
-
 }
 
 
@@ -505,7 +503,6 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
 
 
   double SUSYObjDef_xAOD::GetTotalMuonSFsys(const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const bool recoSF, const bool isoSF, const std::string& trigExpr, const bool bmhptSF) {
-
   double sf(1.);
   //Set the new systematic variation
   StatusCode ret = m_muonEfficiencySFTool->applySystematicVariation(systConfig);
@@ -593,6 +590,5 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
 
   return sf;
 }
-
 
 }

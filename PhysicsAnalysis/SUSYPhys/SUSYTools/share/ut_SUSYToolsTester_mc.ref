@@ -943,7 +943,6 @@ ToolSvc.TauTrigEffTool...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/d
 ToolSvc.TauTrigEffTool...INFO    Initializing TauEfficiencyCorrectionsTool
 ToolSvc.TauTrigEffTool...INFO    Initializing TauEfficiencyTriggerTool
 ToolSvc.TauTrigEffTool...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/EfficiencyCorrections/Trigger/RNN/Trigger_TrueHadTau_2019-summer_data2018aftTS1_comb_HLT_tau80L1TAU60_medium1_tracktwoEF_OR_mediumRNN_tracktwoMVA.root
-SUSYObjDef_xAOD          INFO    'TauMVACalibration' is the default procedure in R21
 ToolSvc.TauSmearingTool  INFO    Initializing TauSmearingTool
 ToolSvc.TauSmearingToo...INFO    Initializing CommonSmearingTool
 ToolSvc.TauSmearingToo...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/Smearing/TES_TrueHadTau_2019-summer.root
