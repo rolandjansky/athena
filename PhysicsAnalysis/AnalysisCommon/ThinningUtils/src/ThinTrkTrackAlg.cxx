@@ -89,7 +89,7 @@ ThinTrkTrackAlg::doEGamma(const EventContext& ctx) const
     SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronsKey, ctx);
 
     // Loop over electrons
-    for (auto el : *electrons) {
+    for (const auto *el : *electrons) {
       if (el->pt() < m_minptElectrons) {
         continue;
       }
@@ -114,7 +114,7 @@ ThinTrkTrackAlg::doEGamma(const EventContext& ctx) const
     SG::ReadHandle<xAOD::PhotonContainer> photons(m_photonsKey, ctx);
 
     // Loop over photons
-    for (auto ph : *photons) {
+    for (const auto *ph : *photons) {
       if (ph->pt() < m_minptPhotons) {
         continue;
       }
@@ -164,7 +164,7 @@ ThinTrkTrackAlg::doMuons(const EventContext& ctx) const
 
   // Loop over muons
   size_t kept(0);
-  for (auto mu : *muons) {
+  for (const auto *mu : *muons) {
     if (mu->pt() < m_minptMuons) {
       continue;
     }

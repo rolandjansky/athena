@@ -14,7 +14,6 @@ class ThinGeantTruth(Configured):
             from ThinningUtils.ThinningUtilsConf import ThinGeantTruthAlg
             theGeantTruthThinner = ThinGeantTruthAlg(
                 "ThinGeantTruthAlg",
-                ThinGeantTruth = True,
                 StreamName = 'StreamAOD'
             )
             print (theGeantTruthThinner)
