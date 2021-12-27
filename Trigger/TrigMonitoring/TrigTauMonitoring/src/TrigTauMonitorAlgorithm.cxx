@@ -244,6 +244,11 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_all, "1P");
   fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_mp, online_tau_vec_all, "MP");
 
+  // fill ditau information 
+  if(info.isDiTau){
+     fillDiTauVars(trigger, online_tau_vec_all);
+  }
+
   offline_for_hlt_tau_vec_1p.clear();
   offline_for_hlt_tau_vec_mp.clear();
   online_tau_vec_0p.clear();
@@ -717,6 +722,43 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string& trigger, const st
 
 }
 
+void TrigTauMonitorAlgorithm::fillDiTauVars(const std::string& trigger, const std::vector<const xAOD::TauJet*>& tau_vec) const
+{
+  ATH_MSG_DEBUG("Fill DiTau Variables: " << trigger); 
+
+  auto monGroup = getGroup(trigger+"_DiTauVars");
+
+  if(tau_vec.size() != 2) return; 
+   
+  auto leadEFEt = Monitored::Scalar<float>("hleadEFEt",0.0);
+  auto subleadEFEt = Monitored::Scalar<float>("hsubleadEFEt",0.0);
+  auto leadEFEta = Monitored::Scalar<float>("hleadEFEta",0.0);
+  auto subleadEFEta = Monitored::Scalar<float>("hsubleadEFEta",0.0);
+  auto leadEFPhi = Monitored::Scalar<float>("hleadEFPhi",0.0);
+  auto subleadEFPhi = Monitored::Scalar<float>("hsubleadEFPhi",0.0);
+  auto dR = Monitored::Scalar<float>("hdR",0.0);
+ 
+  // get the index of the leading and the subleading tau
+  unsigned int index0=0, index1=1;
+  if(tau_vec.at(1)->p4().Pt() > tau_vec.at(0)->p4().Pt()){
+    index0=1;
+    index1=0;
+  } 
+
+  leadEFEt = tau_vec.at(index0)->p4().Pt()/1000;
+  subleadEFEt = tau_vec.at(index1)->p4().Pt()/1000;
+  leadEFEta = tau_vec.at(index0)->p4().Eta();
+  subleadEFEta = tau_vec.at(index1)->p4().Eta();
+  leadEFPhi = tau_vec.at(index0)->p4().Phi();
+  subleadEFPhi = tau_vec.at(index1)->p4().Phi();
+  dR = tau_vec.at(index0)->p4().DeltaR(tau_vec.at(index1)->p4());
+
+  fill(monGroup, leadEFEt, subleadEFEt, leadEFEta, subleadEFEta, leadEFPhi, subleadEFPhi, dR);
+
+  ATH_MSG_DEBUG("After fill DiTau variables: " << trigger); 
+}
+
+
 TrigInfo TrigTauMonitorAlgorithm::getTrigInfo(const std::string& trigger) const{ 
   return m_trigInfo.at(trigger); 
 }
@@ -727,7 +769,7 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
 
   std::string idwp="",type="",l1item="",l1type="";
   float hlthr=0.,l1thr=0.;
-  bool isRNN=false,isPerf=false,isL1=false;
+  bool isRNN=false,isPerf=false,isL1=false,isDiTau=false;
 
   size_t l=trigger.length();
   size_t pos=trigger.find('_');
@@ -778,7 +820,14 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string& trigger)
     }
   }
 
-  TrigInfo info{trigger,idwp,l1item,l1type,type,isL1,isRNN,isPerf,hlthr,l1thr,false};
+  // check if it's ditau trigger -> 2 times 'tau' + '03dRAB'
+  size_t count = 0;
+  for (size_t pos =0; (pos=trigger.find("tau", pos)) != std::string::npos; ++pos, ++count);
+  if(trigger.find("03dRAB") != std::string::npos && count == 2){
+      isDiTau = true;
+  }  
+
+  TrigInfo info{trigger,idwp,l1item,l1type,type,isL1,isRNN,isPerf,hlthr,l1thr,false,isDiTau};
 
   m_trigInfo[trigger] = info;
 }
