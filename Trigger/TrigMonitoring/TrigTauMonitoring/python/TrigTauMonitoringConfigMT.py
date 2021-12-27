@@ -110,6 +110,9 @@ class TrigTauMonAlgBuilder:
       def isRNN(self):
         return True if "RNN" in self.chain() else False
 
+      def isDiTau(self):
+        return True if ( self.chain().count('tau') == 2 and '03dRAB' in self.chain()) else False
+
     return TrigTauInfo(trigger)
 
 
@@ -229,7 +232,7 @@ class TrigTauMonAlgBuilder:
        'HLT_tau25_mediumRNN_tracktwoMVABDT_L1eTAU12M',
        'HLT_tau35_mediumRNN_tracktwoMVABDT_L1eTAU20',
        'HLT_tau160_mediumRNN_tracktwoMVABDT_L1eTAU100'
-      ]
+    ]
 
     self.tauList = monitoring_tau
 
@@ -283,6 +286,9 @@ class TrigTauMonAlgBuilder:
       self.bookRNNCluster( monAlg, trigger, online=True )
       self.bookRNNTrack( monAlg, trigger, online=False )
       self.bookRNNCluster( monAlg, trigger, online=False )
+
+      if(info.isDiTau()):
+        self.bookDiTauVars(monAlg, trigger)   
 
     #remove duplicated from L1 seed list
     l1seeds = list(dict.fromkeys(l1seeds))
@@ -472,4 +478,20 @@ class TrigTauMonAlgBuilder:
 
     monGroup.defineHistogram('hRNNScore', title='EF RNN score; RNN score;Nevents',xbins=20,xmin=0,xmax=1)
     monGroup.defineHistogram('hRNNScoreSigTrans', title='EF RNN trans score; RNN Trans score;Nevents',xbins=20,xmin=0,xmax=1)
+
+  def bookDiTauVars(self, monAlg, trigger):
+    
+    monGroupName = trigger+"_DiTauVars"
+    monGroupPath = 'DiTauVars/'+trigger
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )    
+
+    monGroup.defineHistogram('hleadEFEt,hsubleadEFEt', type='TH2F', title='lead Et vs sublead Et; lead E_{T} [GeV] ; sublead E_{T} [GeV]',
+                               xbins=50,xmin=0,xmax=250,ybins=50,ymin=0,ymax=250)
+    monGroup.defineHistogram('hleadEFEta,hsubleadEFEta', type='TH2F', title='lead Eta vs sublead Eta; lead #eta ; sublead #eta',
+                               xbins=26,xmin=-2.6,xmax=2.6,ybins=26,ymin=-2.6,ymax=2.6)
+    monGroup.defineHistogram('hleadEFPhi,hsubleadEFPhi', type='TH2F', title='lead Phi vs sublead Phi; lead #phi ; sublead #phi',
+                               xbins=16,xmin=-3.2,xmax=3.2,ybins=16,ymin=-3.2,ymax=3.2) 
+    monGroup.defineHistogram('hdR', title='EF dR(#tau,#tau);dR(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
 
