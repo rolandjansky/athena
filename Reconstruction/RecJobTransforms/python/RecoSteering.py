@@ -35,7 +35,7 @@ def RecoSteering(flags):
     if flags.Input.isMC:
         from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
         acc.merge(GEN_AOD2xAODCfg(flags))
-        log.info("---------- Configured xAODTruthCnvAlg")
+        log.info("---------- Configured AODtoxAOD Truth Conversion")
 
     # trigger
     if flags.Reco.EnableTrigger:
@@ -65,7 +65,7 @@ def RecoSteering(flags):
     if flags.Reco.EnableEgamma:
         from egammaConfig.egammaSteeringConfig import EGammaSteeringCfg
         acc.merge(EGammaSteeringCfg(flags))
-        log.info("---------- Configured egamma")
+        log.info("---------- Configured e/gamma")
 
     # Caching of CaloExtension for downstream
     # Combined Performance algorithms.
@@ -148,10 +148,12 @@ def RecoPostProcessingCfg(flags):
     if flags.Reco.PostProcessing.TRTAloneThinning:
         from ThinningUtils.ThinTRTStandaloneConfig import (
             ThinTRTStandaloneCfg)
-        # TODO doTau when Tau are added
+        # TODO remove doTau=False when Tau are added
         acc.merge(ThinTRTStandaloneCfg(flags, doTau=False))
     if flags.Reco.PostProcessing.GeantTruthThinning:
-        # TODO: ThinGeantTruth
+        from ThinningUtils.ThinGeantTruthConfig import (
+            ThinGeantTruthCfg)
+        acc.merge(ThinGeantTruthCfg(flags))
         pass
 
     return acc

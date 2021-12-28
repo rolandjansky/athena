@@ -9,22 +9,16 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def ThinTRTStandaloneCfg(flags, name="ThinTRTStandaloneAlg", **kwargs):
+def ThinGeantTruthCfg(flags, name="ThinGeantTruthAlg", **kwargs):
 
     mlog = logging.getLogger(name)
-    mlog.info("Starting TRT standalone Thinning configuration")
+    mlog.info("Starting  Geant4 Truth Thinning configuration")
     acc = ComponentAccumulator()
     kwargs.setdefault("StreamName", "StreamAOD")
-    kwargs.setdefault(
-        "doElectron", flags.Reco.EnableEgamma and flags.Egamma.doTracking
-    )
-    kwargs.setdefault(
-        "doPhoton", flags.Reco.EnableEgamma and flags.Egamma.doTracking
-    )
-    kwargs.setdefault("doTau", flags.Reco.EnableTau)
-    kwargs.setdefault("doMuon", flags.Reco.EnableCombinedMuon)
-    acc.addEventAlgo(CompFactory.ThinTRTStandaloneTrackAlg(name, **kwargs))
-    mlog.info("TRT Alone Thinning configured")
+    kwargs.setdefault("keepEGamma", flags.Reco.EnableEgamma)
+    kwargs.setdefault("keepMuons", flags.Reco.EnableCombinedMuon)
+    acc.addEventAlgo(CompFactory.ThinGeantTruthAlg(name, **kwargs))
+    mlog.info("Geant4 Truth Thinning configured")
     return acc
 
 
@@ -41,14 +35,14 @@ if __name__ == "__main__":
     flags.Output.doWriteAOD = True  # To test the AOD parts
     flags.lock()
     acc = MainServicesCfg(flags)
-    acc.merge(ThinTRTStandaloneCfg(flags))
-    mlog = logging.getLogger("ThinTRTStandaloneConfigTest")
+    acc.merge(ThinGeantTruthCfg(flags))
+    mlog = logging.getLogger("ThinGeantTruthConfigTest")
     printProperties(
         mlog,
-        acc.getEventAlgo("ThinTRTStandaloneAlg"),
+        acc.getEventAlgo("ThinGeantTruthAlg"),
         nestLevel=1,
         printDefaults=True,
     )
 
-    with open("thintrtstandalonecfg.pkl", "wb") as f:
+    with open("thingeanttruchcfg.pkl", "wb") as f:
         acc.store(f)
