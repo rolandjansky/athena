@@ -19,6 +19,10 @@ atlas_add_component(ThinningUtils
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
-atlas_add_test(thinTRTStandaloneConfig_test
+atlas_add_test(ThinTRTStandaloneConfig_test
                SCRIPT python -m ThinningUtils.ThinTRTStandaloneConfig
+               POST_EXEC_SCRIPT nopost.sh)
+               
+atlas_add_test(ThinGeantTruthConfig_test
+               SCRIPT python -m ThinningUtils.ThinGeantTruthConfig
                POST_EXEC_SCRIPT nopost.sh)
