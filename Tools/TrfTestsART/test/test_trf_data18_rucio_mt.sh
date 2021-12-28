@@ -26,3 +26,9 @@ timeout 64800 Reco_tf.py \
   --runNumber='357750' --steering='doRAWtoALL' --maxEvents='-1'
 
 echo "art-result: $? Reco_tf_data18_rucio_mt"
+
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"
