@@ -38,6 +38,7 @@ class GeoAlignmentStore;
 
 namespace InDetDD {
 
+  class SurfaceCacheBase;
   class SurfaceCache;
   class TRT_Conditions;
 
@@ -228,7 +229,7 @@ namespace InDetDD {
     void deleteCache();
     void createStrawSurfaces() const;
     void createStrawSurfacesCache() const;
-    std::unique_ptr<SurfaceCache> createSurfaceCacheHelper(int straw) const;
+    std::unique_ptr<SurfaceCacheBase> createSurfaceCacheHelper(int straw) const;
 
   protected:
     Identifier                                          m_id;
@@ -240,10 +241,10 @@ namespace InDetDD {
      * initialosed in the derived constructors for now.
      * This should fine as this is pure virtual class
      */
-    unsigned int                                        m_nstraws=0;
+    unsigned int m_nstraws = 0;
     // Amg cache for the straw surfaces
     std::vector<CxxUtils::CachedUniquePtr<Trk::StraightLineSurface>> m_strawSurfaces{};
-    std::vector<CxxUtils::CachedUniquePtr<SurfaceCache>> m_strawSurfacesCache{};
+    std::vector<CxxUtils::CachedUniquePtr<SurfaceCacheBase>> m_strawSurfacesCache{};
 
     //!< helper element surface for the cache
     CxxUtils::CachedUniquePtr<SurfaceCache> m_surfaceCache;

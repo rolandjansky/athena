@@ -286,10 +286,10 @@ TRT_EndcapElement::createSurfaceCacheHelper() const
   // create the igredients and the cache
   auto center = Amg::Vector3D(transform.translation());
   auto bounds = std::make_unique<Trk::DiscBounds>(rMin, rMax, phiHalfWidth);
-  auto normal = std::make_unique<Amg::Vector3D>(transform.rotation().col(2));
+  auto normal = Amg::Vector3D(transform.rotation().col(2));
 
   return std::make_unique<SurfaceCache>(
-    transform, center, std::move(normal), std::move(bounds));
+    transform, center, normal, std::move(bounds));
 }
 
 int
