@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -1417,7 +1417,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
     if (!m_tauSmearingTool.isUserConfigured()) {
       m_tauSmearingTool.setTypeAndName("TauAnalysisTools::TauSmearingTool/TauSmearingTool");
-      ATH_MSG_INFO("'TauMVACalibration' is the default procedure in R21");
       ATH_CHECK( m_tauSmearingTool.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_tauSmearingTool.retrieve() );
     } else ATH_CHECK( m_tauSmearingTool.retrieve() );

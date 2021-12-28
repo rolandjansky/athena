@@ -35,8 +35,8 @@ StatusCode SUSYObjDef_xAOD::GetPhotons(xAOD::PhotonContainer*& copy, xAOD::Shall
     ATH_MSG_ERROR("SUSYTools was not initialized!!");
     return StatusCode::FAILURE;
   }
-  const xAOD::PhotonContainer* photons(0);
-  if (copy==NULL) { // empty container provided
+  const xAOD::PhotonContainer* photons = nullptr;
+  if (copy==nullptr) { // empty container provided
     if (containerToBeCopied != nullptr) {
       photons = containerToBeCopied;
     }
@@ -104,10 +104,10 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
 
   ATH_MSG_VERBOSE( "FillPhoton: post-calibration pt=" << input.pt() );
 
-  if (input.pt() < ptcut || fabs(input.caloCluster()->etaBE(2)) >= etacut) return StatusCode::SUCCESS;
+  if (input.pt() < ptcut || std::abs(input.caloCluster()->etaBE(2)) >= etacut) return StatusCode::SUCCESS;
 
   if (m_photonBaselineCrackVeto){
-    if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {
+    if  ( std::abs( input.caloCluster()->etaBE(2) ) >1.37 &&  std::abs( input.caloCluster()->etaBE(2) ) <1.52) {
       return StatusCode::SUCCESS; 
     }
   }
@@ -159,7 +159,6 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
 
 bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, float etacut) const
 {
-
   dec_signal(input) = false;
 
   if ( !dec_baseline(input) )  return false;
@@ -168,12 +167,12 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 
   if ( input.pt() < ptcut ) return false;
   if ( etacut==DUMMYDEF ){
-    if(fabs(input.caloCluster()->etaBE(2)) > m_photonEta ) return false;
+    if(std::abs(input.caloCluster()->etaBE(2)) > m_photonEta ) return false;
   }
-  else if ( fabs(input.caloCluster()->etaBE(2)) > etacut ) return false;
+  else if ( std::abs(input.caloCluster()->etaBE(2)) > etacut ) return false;
 
   if (m_photonCrackVeto){
-    if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {
+    if  ( std::abs( input.caloCluster()->etaBE(2) ) >1.37 &&  std::abs( input.caloCluster()->etaBE(2) ) <1.52) {
       return StatusCode::SUCCESS; 
     }
   }
@@ -313,7 +312,6 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
 
 double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, const bool effSF, const bool isoSF, const bool triggerSF) const
 {
-
   double sf(1.);
 
   for (const xAOD::Photon* photon : photons) {
@@ -321,13 +319,11 @@ double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, c
   }
 
   return sf;
-
 }
 
 
 double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const bool effSF, const bool isoSF, const bool triggerSF)
 {
-
   double sf(1.);
 
   for (const xAOD::Photon* photon : photons) {
