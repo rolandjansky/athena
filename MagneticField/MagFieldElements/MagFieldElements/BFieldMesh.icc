@@ -71,9 +71,9 @@ BFieldMesh<T>::reserve(int nz, int nr, int nphi)
 // add elements to vectors
 template<class T>
 void
-BFieldMesh<T>::appendMesh(int i, double mesh)
+BFieldMesh<T>::appendMesh(int axis, double value)
 {
-  m_mesh[i].push_back(mesh);
+  m_mesh[axis].push_back(value);
 }
 
 template<class T>
@@ -363,16 +363,16 @@ BFieldMesh<T>::getB(const double* ATH_RESTRICT xyz,
 // accessors
 template<class T>
 double
-BFieldMesh<T>::min(size_t i) const
+BFieldMesh<T>::min(size_t axis) const
 {
-  return m_min[i];
+  return m_min[axis];
 }
 
 template<class T>
 double
-BFieldMesh<T>::max(size_t i) const
+BFieldMesh<T>::max(size_t axis) const
 {
-  return m_max[i];
+  return m_max[axis];
 }
 
 template<class T>
@@ -419,16 +419,16 @@ BFieldMesh<T>::phimax() const
 
 template<class T>
 unsigned
-BFieldMesh<T>::nmesh(size_t i) const
+BFieldMesh<T>::nmesh(size_t axis) const
 {
-  return m_mesh[i].size();
+  return m_mesh[axis].size();
 }
 
 template<class T>
 double
-BFieldMesh<T>::mesh(size_t i, size_t j) const
+BFieldMesh<T>::mesh(size_t axis, size_t index) const
 {
-  return m_mesh[i][j];
+  return m_mesh[axis][index];
 }
 
 template<class T>
@@ -440,9 +440,9 @@ BFieldMesh<T>::nfield() const
 
 template<class T>
 const BFieldVector<T>&
-BFieldMesh<T>::field(size_t i) const
+BFieldMesh<T>::field(size_t index) const
 {
-  return m_field[i];
+  return m_field[index];
 }
 
 template<class T>
