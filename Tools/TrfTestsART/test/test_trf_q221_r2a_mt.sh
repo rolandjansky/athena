@@ -16,4 +16,11 @@ Reco_tf.py \
 --imf="False" \
 --maxEvents 1000
 
-echo "art-result: $? Reco_tf_q221_r2a_mt"
+rc1=$?
+echo "art-result: ${rc1} Reco_tf_q221_r2a_mt"
+
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"
