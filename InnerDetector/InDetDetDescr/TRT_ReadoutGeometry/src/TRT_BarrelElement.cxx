@@ -235,8 +235,7 @@ TRT_BarrelElement::createSurfaceCacheHelper() const{
   // Calculate normal. This will point away from the beam line based
   // on the assumption that the straw numbering goes in the direction
   // of increasing phi and the straw axis is in +ve z direction.
-  auto normal =
-    std::make_unique<Amg::Vector3D>(phiAxis.cross(etaAxis)); // phi cross z
+  auto normal = Amg::Vector3D(phiAxis.cross(etaAxis)); // phi cross z
 
   // Transform from local to global.
   // local x axis -> phiAxis
@@ -247,7 +246,7 @@ TRT_BarrelElement::createSurfaceCacheHelper() const{
   Amg::RotationMatrix3D rotation;
   rotation.col(0) = phiAxis;
   rotation.col(1) = etaAxis;
-  rotation.col(2) = (*normal);
+  rotation.col(2) = normal;
 
   // This constructor takes three points in the two coordinate systems.
   auto transform = Amg::Transform3D(Amg::Translation3D(center) * rotation);
@@ -257,7 +256,7 @@ TRT_BarrelElement::createSurfaceCacheHelper() const{
     0.5 * elementWidth, 0.5 * strawLength());
 
   return std::make_unique<SurfaceCache>(
-    transform, center, std::move(normal), std::move(elementBounds));
+    transform, center, normal, std::move(elementBounds));
 }
 
 int TRT_BarrelElement::strawDirection() const

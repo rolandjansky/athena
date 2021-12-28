@@ -104,7 +104,7 @@ TRT_BaseElement::normal() const
   if (not m_surfaceCache) {
     createSurfaceCache();
   }
-  return *(m_surfaceCache->normal());
+  return m_surfaceCache->normal();
 }
 
 // [B] Description of the individual straws
@@ -288,7 +288,7 @@ TRT_BaseElement::createSurfaceCache(Identifier id) const
   }
 }
 
-std::unique_ptr<SurfaceCache>
+std::unique_ptr<SurfaceCacheBase>
 TRT_BaseElement::createSurfaceCacheHelper(int straw) const
 {
   // get the StrawTransform from GeoModel
@@ -297,7 +297,7 @@ TRT_BaseElement::createSurfaceCacheHelper(int straw) const
     Amg::Transform3D(Amg::CLHEPTransformToEigen(cStrawTransform));
   auto sCenter = Amg::Vector3D(sTransform.translation());
   // create the surface cache & fill it
-  return std::make_unique<SurfaceCache>(sTransform, sCenter, nullptr, nullptr);
+  return std::make_unique<SurfaceCacheBase>(sTransform, sCenter);
 }
 
 void
