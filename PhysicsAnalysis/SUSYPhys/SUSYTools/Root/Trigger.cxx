@@ -307,7 +307,7 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
 }
 
 
-  std::vector<std::string> SUSYObjDef_xAOD::GetTriggerOR(std::string trigExpr) const {
+  std::vector<std::string> SUSYObjDef_xAOD::GetTriggerOR(const std::string& trigExpr) const {
 
     static std::string delOR = "_OR_";
     std::vector<std::string> trigchains = {};

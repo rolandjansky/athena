@@ -748,7 +748,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   };
 
   // Construct electron fallback WPs for SFs
-  for (auto x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
+  for (auto& x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
   m_el_iso_fallback["Tight_VarRad"] = "FCTight";                // plus actual fallback
   m_el_iso_fallback["Loose_VarRad"] = "FCLoose";
   m_el_iso_fallback["HighPtCaloOnly"] = "FCHighPtCaloOnly";
@@ -850,7 +850,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_inputMETSuffix==""){
+  if (m_inputMETSuffix.empty()){
     m_inputMETSuffix = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType));
   }
   m_defaultJets = "AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)) + "Jets";
@@ -923,13 +923,13 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     std::map<std::string,std::vector<std::string>> PRWRtags = {};
     std::string allcampaigns = "mc16a.mc16c.mc16d.mc16e.mc20a.mc20d.mc20e.mc16ans.mc16dns.mc16ens";
     bool standard_like = true;
-    for ( auto campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
+    for ( auto& campaign_rtags : split( m_autoconfigPRWRtags, "," ) ) {                                          // split string by ","
        std::string icampaign = campaign_rtags.substr(0, campaign_rtags.find(":"));                              // first field = campaign, split by ":"
        std::vector<std::string> irtags = split( campaign_rtags.substr(campaign_rtags.find(":")+1), "_" );       // remaining fields = rtags, split by "_"
        PRWRtags[icampaign] = irtags;
        ATH_MSG_DEBUG( "PRW autoconfigure considering rtags " <<  campaign_rtags.substr(campaign_rtags.find("_")+1) << " for campaign " << icampaign );
     }
-    for ( auto x : PRWRtags ) {
+    for ( auto& x : PRWRtags ) {
        if ( allcampaigns.find(x.first)==string::npos ) {
           ATH_MSG_ERROR("m_autoconfigPRWRtags contains invalid campaign: " << x.first << " (" << m_autoconfigPRWRtags << ")");
           ATH_MSG_ERROR("use any of " << allcampaigns);
@@ -943,8 +943,8 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
       bool found = false;
       while ( mcCampaignMD.empty() ) {
-         for ( auto campaign_rtags : PRWRtags ) {                                 // consider all campaigns
-            for ( auto rtag: campaign_rtags.second ) {                            // consider all rtags
+         for ( auto& campaign_rtags : PRWRtags ) {                                 // consider all campaigns
+            for ( auto& rtag: campaign_rtags.second ) {                            // consider all rtags
                if (found) continue;
                if (amiTag.find(rtag)!=string::npos) {                             // find matching tag
                   mcCampaignMD = campaign_rtags.first.substr(0,5);                // save campaign
@@ -1637,9 +1637,9 @@ const std::vector<std::string> SUSYObjDef_xAOD::split(const std::string& s, cons
   return retval;
 }
 
-void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const {
+void SUSYObjDef_xAOD::getTauConfig(const std::string& tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const {
 
-  if(tauConfigPath == "") return;
+  if(tauConfigPath.empty()) return;
 
   TEnv rEnv;
   auto filename = PathResolverFindCalibFile(tauConfigPath);
@@ -1671,7 +1671,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
   float pT_max = -99.0;
   float eta_min = -99.0;
   float eta_max = -99.0;
-  for (auto cut : cuts) {
+  for (auto& cut : cuts) {
     if(cut == "PtRegion") {
       _pT_window = split(rEnv.GetValue("PtRegion", ""), ";");
       std::transform(std::begin(_pT_window),
@@ -1830,7 +1830,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
   bool muVeto=false;
   bool muOLR=false;
 
-  if(m_tauConfigPathBaseline != "") { //baseline taus
+  if(!m_tauConfigPathBaseline.empty()) { //baseline taus
 
     std::string theConfig = m_tauConfigPathBaseline;
     if( m_tauConfigPathBaseline=="default" ){
@@ -1860,7 +1860,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
     }
   }
 
-  if(m_tauConfigPath != "") { //signal taus
+  if(!m_tauConfigPath.empty()) { //signal taus
 
     std::string theConfig = m_tauConfigPath;
     if( m_tauConfigPath=="default" ){
