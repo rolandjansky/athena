@@ -388,14 +388,14 @@ test_blend(const VEC& v1)
   // take the bottom half of v1 and v2 and put them together
   constexpr size_t N = CxxUtils::vec_size<VEC>();
   if constexpr (N == 2) {
-    CxxUtils::vblend<0, 2>(v3, v1, v2);
+    CxxUtils::vpermute2<0, 2>(v3, v1, v2);
   } else if constexpr (N == 4) {
-    CxxUtils::vblend<0, 1, 4, 5>(v3, v1, v2);
+    CxxUtils::vpermute2<0, 1, 4, 5>(v3, v1, v2);
   } else if constexpr (N == 8) {
-    CxxUtils::vblend<0, 1, 2, 3, 8, 9, 10, 11>(v3, v1, v2);
+    CxxUtils::vpermute2<0, 1, 2, 3, 8, 9, 10, 11>(v3, v1, v2);
   } else {
     // N==16
-    CxxUtils::vblend<0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23>(
+    CxxUtils::vpermute2<0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19, 20, 21, 22, 23>(
       v3, v1, v2);
   }
   for (size_t i = 0; i < N; ++i) {
