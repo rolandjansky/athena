@@ -7,7 +7,7 @@
  * @class BFieldMesh
  *
  * A 3-d mesh (axes z,r,phi) representing a simple field map.
- * 
+ *
  * The mesh is made up from 'cells'
  * We hold numz, numr , numphi positions defining
  * the corners of the cells.
@@ -15,12 +15,15 @@
  * Then we have
  * numz X numr X numphi field values at these corners
  *
- * The field type is templated - it may be short (for the toroid)
- * or double (for the solenoid)
+ * The field type is templated - it is short for both solenoid and toroid
+ * for the nominal case.
+ * There is a special case for BFieldSolenoid (not used in the nominal case)
+ * which allows a tilt  between the nominal and 'tilted' solenoid fields
+ * and uses double.
  *
- * Masahiro Morii, Harvard University
+ * @author Masahiro Morii, Harvard University
  *
- * AthenaMT : RD Schaffer , Christos Anastopoulos
+ * @author RD Schaffer , Christos Anastopoulos (Athena MT)
  */
 //
 #ifndef BFIELDMESH_H
@@ -82,37 +85,38 @@ public:
                 double phi,
                 BFieldCache& cache,
                 double scaleFactor = 1.0) const;
-  /* @brief get the bfield given a point in xyz*/
+  /** @brief get the bfield given a point in xyz*/
   void getB(const double* ATH_RESTRICT xyz,
             double* ATH_RESTRICT B,
             double* ATH_RESTRICT deriv = nullptr) const;
-  /* @brief minimum in axis*/
+  /** @brief minimum for a particular axis = 0 (z), 1 (r), 2 (phi)*/
   double min(size_t axis) const;
-  /* @brief maximum in axis*/
+  /** @brief maximum or a particular axis = 0 (z), 1 (r), 2 (phi)*/
   double max(size_t axis) const;
-  /* @brief minimum in z*/
+  /** @brief minimum in z*/
   double zmin() const;
-  /* @brief maximum in z*/
+  /** @brief maximum in z*/
   double zmax() const;
-  /* @brief minimun in r*/
+  /** @brief minimun in r*/
   double rmin() const;
-  /* @brief maximum in r*/
+  /** @brief maximum in r*/
   double rmax() const;
-  /* @brief minimun in phi*/
+  /** @brief minimun in phi*/
   double phimin() const;
-  /* @brief maximum in phi*/
+  /** @brief maximum in phi*/
   double phimax() const;
-  /* @brief number of corner cell coordinates for axis*/
+  /** @brief number of cells along each axis = 0 (z), 1 (r), 2 (phi)*/
   unsigned nmesh(size_t axis) const;
-  /* @brief coordinate at axis of cell corner */
+  /** @brief coordinate along axis (0 (z), 1 (r), 2 (phi)) of the cell at index
+   * (0 to nmesh-1)*/
   double mesh(size_t axis, size_t index) const;
-  /* @brief field entries in mesh*/
+  /** @brief field entries in mesh*/
   unsigned nfield() const;
-  /* @brief field vector at cell corner at index*/
+  /** @brief field vector at cell corner at index*/
   const BFieldVector<T>& field(size_t index) const;
-  /* @brief scale*/
+  /** @brief scale*/
   double bscale() const;
-  /* @brief memory size*/
+  /** @brief memory size*/
   int memSize() const;
 
 protected:
