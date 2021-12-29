@@ -282,15 +282,19 @@ namespace top {
                                                                                        // hopefully remove the map soon!
     std::string electronIsolationLoose = mapWorkingPoints(m_config->electronIsolationSFLoose());
 
-    if(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight" || electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight"){
+    if(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight"){
       if(!(electronID == "TightLLH" || electronID == "MediumLLH")){
 	ATH_MSG_ERROR("Combination of electron PLIV WP and ID WP not available. Try MediumLH or TightLH.");
 	return StatusCode::FAILURE;
       }
+    }
+    if(electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight"){
       if(!(electronIDLoose == "TightLLH" || electronIDLoose == "MediumLLH")){
 	ATH_MSG_ERROR("Combination of loose electron PLIV WP and ID WP not available. Try MediumLH or TightLH.");
 	return StatusCode::FAILURE;
       }
+    }
+    if(electronIsolation == "PLImprovedTight" || electronIsolation == "PLImprovedVeryTight" || electronIsolationLoose == "PLImprovedTight" || electronIsolationLoose == "PLImprovedVeryTight"){
       if(dataType == 3){
 	ATH_MSG_ERROR("electron PLIV WPs are only available for FullSim.");
 	return StatusCode::FAILURE;
@@ -534,11 +538,11 @@ namespace top {
 
     // Charge ID cannot use maps at the moment so we default to the old method
     if (m_config->useElectronChargeIDSelection()
-      && electronIsolation != "PLVTight"
-      && electronIsolation != "PLVLoose"
-      && electronIsolationLoose != "PLVTight"
-      && electronIsolationLoose != "PLVLoose" ) { // We need to update the implementation according to new
-                                                    // recommendations
+	&& electronIsolation != "PLVTight" && electronIsolation != "PLVLoose"
+	&& electronIsolationLoose != "PLVTight" && electronIsolationLoose != "PLVLoose"
+	&& electronIsolation != "PLImprovedTight" && electronIsolation != "PLImprovedVeryTight"
+	&& electronIsolationLoose != "PLImprovedTight" && electronIsolationLoose != "PLImprovedVeryTight") { // We need to update the implementation according to new recommendations
+
       ATH_MSG_INFO("Setting up Electrons ChargeID SF tool");
       // Charge ID file (no maps)
       m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", electronID, electronIsolation);
@@ -556,25 +560,20 @@ namespace top {
       m_electronEffSFChargeID = setupElectronSFTool(elSFPrefix + "ChargeID", inChargeID, dataType);
       m_electronEffSFChargeIDLoose = setupElectronSFTool(elSFPrefix + "ChargeIDLoose", inChargeIDLoose, dataType);
     }
-    if (electronIsolation != "PLVTight" && electronIsolation != "PLVLoose" &&
-        electronIsolationLoose != "PLVTight" && electronIsolationLoose != "PLVLoose" &&
-	electronIsolation != "PLImprovedTight" && electronIsolation != "PLImprovedVeryTight" &&
-	electronIsolationLoose != "PLImprovedTight" && electronIsolation != "PLImprovedVeryTight") {
-      // Charge flip correction: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EgammaChargeMisIdentificationTool
-      CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool(
-        "ElectronChargeEfficiencyCorrection");
-      CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrectionsLoose =
-        new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrectionLoose");
+    if(electronIsolation != "PLVTight" && electronIsolation != "PLVLoose" &&
+       electronIsolation != "PLImprovedTight" && electronIsolation != "PLImprovedVeryTight"){
+      CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrections = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrection");
       m_electronEffSFChargeMisIDFile = electronSFFilePath("ChargeMisID", electronID, electronIsolation);
-      m_electronEffSFChargeMisIDLooseFile = electronSFFilePath("ChargeMisID", electronIDLoose, electronIsolationLoose);
-      top::check(ChargeMisIDCorrections->setProperty("CorrectionFileName",
-                                                     m_electronEffSFChargeMisIDFile), "Failed to setProperty");
+      top::check(ChargeMisIDCorrections->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDFile), "Failed to setProperty");
       top::check(ChargeMisIDCorrections->initialize(), "Failed to setProperty");
-      top::check(ChargeMisIDCorrectionsLoose->setProperty("CorrectionFileName",
-                                                          m_electronEffSFChargeMisIDLooseFile), "Failed to setProperty");
+    }
+    if(electronIsolationLoose != "PLVTight" && electronIsolationLoose != "PLVLoose" &&
+       electronIsolationLoose != "PLImprovedTight" && electronIsolationLoose != "PLImprovedVeryTight"){
+      CP::ElectronChargeEfficiencyCorrectionTool* ChargeMisIDCorrectionsLoose = new CP::ElectronChargeEfficiencyCorrectionTool("ElectronChargeEfficiencyCorrectionLoose");
+      m_electronEffSFChargeMisIDLooseFile = electronSFFilePath("ChargeMisID", electronIDLoose, electronIsolationLoose);
+      top::check(ChargeMisIDCorrectionsLoose->setProperty("CorrectionFileName", m_electronEffSFChargeMisIDLooseFile), "Failed to setProperty");
       top::check(ChargeMisIDCorrectionsLoose->initialize(), "Failed to setProperty");
     }
-
     return StatusCode::SUCCESS;
   }
 
@@ -599,6 +598,8 @@ namespace top {
                    "Failed to set CorrelationModel to " + name);
 	if (correlationModelEtaBinning != "" && correlationModelEtaBinning != "default") this->setCorrelationModelBinning(tool, "UncorrEtaBinsUser", correlationModelEtaBinning);
 	if (correlationModelEtBinning != "" && correlationModelEtBinning != "default") this->setCorrelationModelBinning(tool, "UncorrEtBinsUser", correlationModelEtBinning);
+	
+	top::check(asg::setProperty(tool, "OutputLevel", MSG::INFO), "Failed to set OutputLevel to " + name);
         top::check(tool->initialize(), "Failed to initialize " + name);
       }
     }
@@ -732,6 +733,11 @@ IAsgElectronEfficiencyCorrectionTool*
     // If isolation WP is PLVTight or PLVLoose, switch to no isolation to trick this function.
     if (iso_key == "PLVTight" || iso_key == "PLVLoose") iso_key = "";
 
+    if( (iso_key == "PLImprovedTight" || iso_key == "PLImprovedVeryTight") && m_config->useElectronChargeIDSelection() ){
+      ATH_MSG_INFO( "ECIDS tool and PLImproved* isolation detected, switching to combined isolation SFs.");
+      iso_key += "ECIDS";
+    }
+
     std::string infoStr = "Configuring : name=" + name + " map=" + map_path + " reco_key=" + reco_key + " ID_key=" +
                           ID_key + " iso_key=" + iso_key + " trigger_key=" + trigger_key + "data_type=" +
                           std::to_string(data_type) +
@@ -775,7 +781,7 @@ IAsgElectronEfficiencyCorrectionTool*
         ATH_MSG_INFO(" Adding TriggerKey : " + trigger_key);
         top::check(asg::setProperty(tool, "TriggerKey", trigger_key), "Failed to set TriggerKey to " + name);
       }
-      // Initialise this tool
+      top::check(asg::setProperty(tool, "OutputLevel", MSG::INFO), "Failed to set OutputLevel to " + name);
       top::check(tool->initialize(), "Failed to initialize " + name);
     }
     return tool;
