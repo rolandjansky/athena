@@ -8,15 +8,12 @@
  *
  * A 3-d mesh (axes z,r,phi) representing a simple field map.
  * 
- * The mesh is made up from 'cells'
- * We hold numz, numr , numphi positions defining
- * the corners of the cells.
+ * The mesh is made up of 'cells'.
+ * There are nz x nr x nphi cells. 
+ * Each cell holds z, r, phi and the field at each of its 8 corners.
  *
- * Then we have
- * numz X numr X numphi field values at these corners
- *
- * The field type is templated - it may be short (for the toroid)
- * or double (for the solenoid)
+ * The field type is templated - it may be short (for general use)
+ * or double (for a special case of a tilting solenoid field in class BFieldSolenoid)
  *
  * Masahiro Morii, Harvard University
  *
@@ -68,11 +65,11 @@ public:
   void reserve(int nz, int nr, int nphi, int nfield);
   /**  @brief allocate space to vectors */
   void reserve(int nz, int nr, int nphi);
-  /** @brief add a position for a cell corner for an  axis  */
+  /** @brief add a position for a cell corner for an  axis (0=z, 1=r, 2=phi) */
   void appendMesh(int axis, double value);
-  /** @brief append a filed vector  */
+  /** @brief append a field vector (in z, r, phi) for a corner */
   void appendField(const BFieldVector<T>& field);
-  /** @brief  build Look Up Table*/
+  /** @brief  build Look Up Table for the BFieldCache */
   void buildLUT();
   /* @brief test if a point is inside this mesh*/
   bool inside(double z, double r, double phi) const;
@@ -86,9 +83,9 @@ public:
   void getB(const double* ATH_RESTRICT xyz,
             double* ATH_RESTRICT B,
             double* ATH_RESTRICT deriv = nullptr) const;
-  /* @brief minimum in axis*/
+  /* @brief minimum in axis (0=z, 1=r, 2=phi) */
   double min(size_t axis) const;
-  /* @brief maximum in axis*/
+  /* @brief maximum in axis (0=z, 1=r, 2=phi) */
   double max(size_t axis) const;
   /* @brief minimum in z*/
   double zmin() const;
@@ -102,11 +99,11 @@ public:
   double phimin() const;
   /* @brief maximum in phi*/
   double phimax() const;
-  /* @brief number of corner cell coordinates for axis*/
+  /* @brief number of corner cell coordinates for a specific axis (0=z, 1=r, 2=phi) */
   unsigned nmesh(size_t axis) const;
-  /* @brief coordinate at axis of cell corner */
+  /* @brief coordinate value for the ith (index) corner of a specific axis (0=z, 1=r, 2=phi) */
   double mesh(size_t axis, size_t index) const;
-  /* @brief field entries in mesh*/
+  /* @brief field entries in mesh (nz x nr x nphi) */
   unsigned nfield() const;
   /* @brief field vector at cell corner at index*/
   const BFieldVector<T>& field(size_t index) const;
