@@ -16,29 +16,28 @@
  * and there are some operations which are kind of awkward.
  *
  * This file provides some helpers for writing vectorized code
- * in C++, as well as a standard-compliant fallback that can be used
- * if the vector types are not available.
+ * in C++.
  *
  * A vectorized type may be named as @c CxxUtils::vec<T, N>.  Here @c T is the
  * element type, which should be an elementary integer or floating-point type.
  * @c N is the number of elements in the vector; it should be a power of 2.
  * This will either be a built-in vector type if the @c vector_size
  * attribute is supported or a fallback C++ class intended to be
- * (mostly) functionally equivalent.
+ * (mostly) functionally equivalent (see vec_fb.h)
  *
  *
  * The GCC, clang and fallback vector types support:
  * ++, --, +,-,*,/,%, =, &,|,^,~, >>,<<, !, &&, ||,
  * ==, !=, >, <, >=, <=, =, sizeof and Initialization from brace-enclosed lists
  *
- * Furthemore the GCC and clang (>=10) vector types support the ternary operator.
+ * Furthemore the GCC and clang vector types support the ternary operator.
  *
  * We also support some additional operations.
  *
  * Deducing useful types:
  *
  *  - @c CxxUtils::vec_type_t<VEC> is the element type of @c VEC.
- *  - @c CxxUtils::mask_type_t<VEC> is the vector type return by relational
+ *  - @c CxxUtils::vec_mask_type_t<VEC> is the vector type return by relational
  *                                  operations.
  *
  * Deducing the num of elements in a vectorized type:
@@ -57,7 +56,7 @@
  *                                          stores elements from @c src
  *                                          to @c dst
  *  - @c CxxUtils::vselect (VEC& dst, const VEC& a, const VEC& b, const
- *                          mask_type_t<VEC>& mask) copies elements
+ *                          vec_mask_type_t<VEC>& mask) copies elements
  *                          from @c a or @c b, depending
  *                          on the value of @c  mask to @c dst.
  *                          dst[i] = mask[i] ? a[i] : b[i]
@@ -77,12 +76,12 @@
  *                          according to mask.
  *                          Mask is a list of integers that specifies the elements
  *                          that should be extracted and returned in src1 and src2.
- *                          An index i in the interval [0,N) indicates that element number i 
+ *                          An index i in the interval [0,N) indicates that element number i
  *                          from the first input vector should be placed in the
- *                          corresponding position in the result vector.  
+ *                          corresponding position in the result vector.
  *                          An index in the interval [N,2N)
  *                          indicates that the element number i-N
- *                          from the second input vector should be placed 
+ *                          from the second input vector should be placed
  *                          in the corresponding position in the result vector.
  *  - @c CxxUtils::vconvert(VEC1& dst, const VEC2& src)
  *                          Fills dst with the result  of a
@@ -104,17 +103,10 @@
 #ifndef CXXUTILS_VEC_H
 #define CXXUTILS_VEC_H
 
-
 #include "CxxUtils/features.h"
-#include "boost/integer.hpp"
 #include <cstdlib>
 #include <cstring>
-#include <initializer_list>
-#include <algorithm>
 #include <type_traits>
-
-
-namespace CxxUtils {
 
 
 // Define @c WANT_VECTOR_FALLBACK prior to including this file to
@@ -126,233 +118,38 @@ namespace CxxUtils {
 #endif
 
 #if (!HAVE_VECTOR_SIZE_ATTRIBUTE) || WANT_VECTOR_FALLBACK!=0
-
-/**
- * @brief Fallback vectorized class.
- *
- * This is intended to be (mostly) functionally equivalent to the
- * built-in vectorized types.  (One difference is that we don't
- * support ?:, as that can't be overloaded.)
- */
-template <typename T, size_t N>
-class vec_fb
-{
-public:
-  vec_fb() = default;
-  vec_fb(const vec_fb&) = default;
-  vec_fb& operator=(const vec_fb&) = default;
-  vec_fb(std::initializer_list<T> init)
-  {
-    std::copy (init.begin(), init.end(), m_arr);
-    std::fill (m_arr + init.size(), m_arr + N, T());
-  }
-
-  T operator[] (size_t n) const { return m_arr[n]; }
-  T& operator[] (size_t n) { return m_arr[n]; }
-
-  T m_arr[N];
-};
-
-
-// Helper: Given a vectorized class, find another vectorized class
-// that uses integers of the same size as the original class.
-template <typename T, size_t N>
-using ivec = vec_fb<typename boost::int_t<sizeof(T)*8>::exact, N>;
-
-// Define binary operations.
-// For each operation, define
-//   V1 OP V2
-//   V OP S
-//   S OP V
-//   V1 OP= V2
-//   V  OP= S
-
-#define BINOP(op)                                                         \
-  template <typename T, size_t N>                                         \
-  inline                                                                  \
-  vec_fb<T, N> operator op (const vec_fb<T, N>& a, const vec_fb<T, N>& b) \
-  {                                                                       \
-    vec_fb<T, N> c;                                                       \
-    for (size_t i = 0; i < N; ++i)                                        \
-      c.m_arr[i] = a.m_arr[i] op b.m_arr[i];                              \
-    return c;                                                             \
-  }                                                                       \
-  template <typename T, size_t N, typename U>                             \
-  inline                                                                  \
-  vec_fb<T, N> operator op (const vec_fb<T, N>& a, U b)                   \
-  {                                                                       \
-    vec_fb<T, N> c;                                                       \
-    for (size_t i = 0; i < N; ++i)                                        \
-      c.m_arr[i] = a.m_arr[i] op b;                                       \
-    return c;                                                             \
-  }                                                                       \
-  template <typename T, size_t N, typename U>                             \
-  inline                                                                  \
-  vec_fb<T, N> operator op (U a, const vec_fb<T, N>& b)                   \
-  {                                                                       \
-    vec_fb<T, N> c;                                                       \
-    for (size_t i = 0; i < N; ++i)                                        \
-      c.m_arr[i] = a op b.m_arr[i];                                       \
-    return c;                                                             \
-  }                                                                       \
-  template <typename T, size_t N>                                         \
-  inline                                                                  \
-  vec_fb<T, N>& operator op ## = (vec_fb<T, N>& a, const vec_fb<T, N>& b) \
-  {                                                                       \
-     for (size_t i = 0; i < N; ++i)                                       \
-      a.m_arr[i] op ## = b.m_arr[i];                                      \
-    return a;                                                             \
-  }                                                                       \
-  template <typename T, size_t N, typename U>                             \
-  inline                                                                  \
-  vec_fb<T, N>& operator op ## = (vec_fb<T, N>& a, U b)                   \
-  {                                                                       \
-    for (size_t i = 0; i < N; ++i)                                        \
-      a.m_arr[i] op ## = b;                                               \
-    return a;                                                             \
-  }
-
-
-BINOP(+)
-BINOP(-)
-BINOP(*)
-BINOP(/)
-BINOP(^)
-BINOP(|)
-BINOP(&)
-BINOP(%)
-BINOP(>>)
-BINOP(<<)
-
-#undef BINOP
-
-
-// Define unary operations.
-
-
-#define UNOP(op)                                                        \
-  template <typename T, size_t N>                                       \
-  inline                                                                \
-  vec_fb<T, N> operator op (const vec_fb<T, N>& a)                      \
-  {                                                                     \
-    vec_fb<T, N> c;                                                     \
-    for (size_t i = 0; i < N; ++i)                                      \
-      c.m_arr[i] = op a.m_arr[i];                                       \
-    return c;                                                           \
-  }                                                                     \
-
-
-UNOP(-)
-UNOP(~)
-
-
-#undef UNOP
-
-
-// Define relational operations.
-
-
-#define RELOP(op)                                                       \
-  template <typename T, size_t N>                                       \
-  inline                                                                \
-  ivec<T, N> operator op (const vec_fb<T, N>& a, const vec_fb<T, N>& b) \
-  {                                                                     \
-    ivec<T, N> c;                                                       \
-    for (size_t i = 0; i < N; ++i)                                      \
-      c.m_arr[i] = a.m_arr[i] op b.m_arr[i];                            \
-    return c;                                                           \
-  }
-
-
-RELOP(==)
-RELOP(!=)
-RELOP(<)
-RELOP(<=)
-RELOP(>)
-RELOP(>=)
-
-#undef RELOP
-
-
-/// Negation.
-template <typename T, size_t N>
-inline
-ivec<T, N> operator! (const vec_fb<T, N>& a)
-{
-  ivec<T, N> c;
-  for (size_t i = 0; i < N; ++i)
-    c.m_arr[i] = a.m_arr[i] == 0;
-  return c;
-}
-
-
-/// V1 && V2
-template <typename T, size_t N>
-inline
-ivec<T, N> operator&& (const vec_fb<T, N>& a, const vec_fb<T, N>& b)
-{
-  ivec<T, N> c;
-  for (size_t i = 0; i < N; ++i)
-    c.m_arr[i] = (a.m_arr[i]!=0) & (b.m_arr[i]!=0);
-  return c;
-}
-
-
-/// S && V
-template <typename T, size_t N, class U>
-inline
-ivec<T, N> operator&& (U a, const vec_fb<T, N>& b)
-{
-  ivec<T, N> c;
-  for (size_t i = 0; i < N; ++i)
-    c.m_arr[i] = a ? b.m_arr[i] != 0 : 0;
-  return c;
-}
-
-
-/// V && S
-template <typename T, size_t N, class U>
-inline
-ivec<T, N> operator&& (const vec_fb<T, N>& a, U b)
-{
-  ivec<T, N> c;
-  for (size_t i = 0; i < N; ++i)
-    c.m_arr[i] = (a.m_arr[i]!=0) & (b ? -1 : 0);
-  return c;
-}
-
-
-/// V1 || V2
-template <typename T, size_t N>
-inline
-ivec<T, N> operator|| (const vec_fb<T, N>& a, const vec_fb<T, N>& b)
-{
-  ivec<T, N> c;
-  for (size_t i = 0; i < N; ++i)
-    c.m_arr[i] = (a.m_arr[i]!=0) | (b.m_arr[i]!=0);
-  return c;
-}
-
+#include "CxxUtils/vec_fb.h"
 #endif // !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
 
+namespace CxxUtils {
 
 
+/**
+ * @brief check the type and the size  of the vector.
+ * Choose between the built-in (if available or
+ * fallback type.
+ */
+template <typename T, size_t N>
+struct vec_typedef{
+   static_assert((N & (N-1)) == 0, "N must be a power of 2.");
+   static_assert(std::is_arithmetic_v<T>, "T not an arithmetic type");
 
 #if HAVE_VECTOR_SIZE_ATTRIBUTE
 
-/// Define a nice alias for a built-in vectorized type.
-template <typename T, size_t N>
-using vec  __attribute__ ((vector_size(N*sizeof(T)))) = T;
+   using type  __attribute__ ((vector_size(N*sizeof(T)))) = T;
 
 #else
 
-/// Define alias for the vectorized fallback type.
-template <typename T, size_t N>
-using vec = vec_fb<T, N>;
+   using type vec_fb<T, N>;
 
 #endif
+};
 
-
+/**
+ * @brief Define a nice alias for the vectorized type
+ */
+template <typename T, size_t N>
+using vec = typename vec_typedef<T,N>::type;
 
 /**
  * @brief Deduce the element type from a vectorized type.
@@ -369,26 +166,30 @@ struct vec_type
   typedef std::remove_cv_t<std::remove_reference_t<type1> > type;
 };
 
-/// Deduce the element type from a vectorized type.
+/**
+ * @brief Define a nice alias for the element type of a vectorized type
+ */
 template<class VEC>
 using vec_type_t = typename vec_type<VEC>::type;
 
 /**
- * brief Deduce the type of the mask returned by relational operations,
+ * @brief Deduce the type of the mask returned by relational operations,
  * for a vectorized type.
  */
 template<class VEC>
-struct mask_type
+struct vec_mask_type
 {
   static auto maskt(const VEC& v1, const VEC& v2) -> decltype(v1 < v2);
   typedef
-    typename std::invoke_result<decltype(maskt), const VEC&, const VEC&>::type
-      type1;
+    typename std::invoke_result<decltype(maskt), const VEC&, const VEC&>::type type1;
   typedef std::remove_cv_t<std::remove_reference_t<type1>> type;
 };
-/// Deduce the mask type for a vectorized type.
+
+/**
+ * @brief Define a nice alias for the mask type for a vectorized type.
+ */
 template<class VEC>
-using mask_type_t = typename mask_type<VEC>::type;
+using vec_mask_type_t = typename vec_mask_type<VEC>::type;
 
 /**
  * @brief Return the number of elements in a vectorized type.
@@ -420,15 +221,12 @@ inline void
 vbroadcast(VEC& v, T x)
 {
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
-  // This may look inefficient, but the loop goes away when we
-  // compile with optimization.
   constexpr size_t N = CxxUtils::vec_size<VEC>();
   for (size_t i = 0; i < N; ++i) {
     v[i] = x;
   }
 #else
   // using  - to avoid sign conversions.
-  // using + adds  extra instructions due to float arithmetic.
   v = x - VEC{ 0 };
 #endif
 }
@@ -464,7 +262,7 @@ vstore(vec_type_t<VEC>* dst, const VEC& src)
  */
 template<typename VEC>
 inline void
-vselect(VEC& dst, const VEC& a, const VEC& b, const mask_type_t<VEC>& mask)
+vselect(VEC& dst, const VEC& a, const VEC& b, const vec_mask_type_t<VEC>& mask)
 {
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
@@ -512,8 +310,8 @@ vmax(VEC& dst, const VEC& a, const VEC& b)
 #endif
 }
 
-/*
- * Helper for static asserts for argument packs
+/**
+ * @brief Helper for static asserts for argument packs
  */
 namespace bool_pack_helper {
 template<bool...>
@@ -543,14 +341,14 @@ vpermute(VEC& dst, const VEC& src)
 #elif defined(__clang__)
   dst = __builtin_shufflevector(src, src, Indices...);
 #else // gcc
-  dst = __builtin_shuffle(src, mask_type_t<VEC>{ Indices... });
+  dst = __builtin_shuffle(src, vec_mask_type_t<VEC>{ Indices... });
 #endif
 }
 
 /**
  * @brief vblend function.
  * permutes and blends elements from two vectors
- * Similar to the permute functions, but with two input vectors.  
+ * Similar to the permute functions, but with two input vectors.
  */
 template<size_t... Indices, typename VEC>
 inline void
@@ -564,19 +362,21 @@ vblend(VEC& dst, const VEC& src1, const VEC& src2)
     "vblend indices outside allowed range");
 
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
-  size_t pos{ 0 };
-  for (size_t i : { Indices... }) {
-    if (i < N) {
-      dst[pos] = src1[i];
+  VEC tmp;
+  std::array<size_t, N> indices = { Indices... };
+  for (size_t i = 0; i < N; ++i) {
+    size_t index = indices[i];
+    if (index < N) {
+      tmp[i] = src1[index];
     } else {
-      dst[pos] = src2[i - N];
+      tmp[i] = src2[index - N];
     }
-    ++pos;
   }
+  dst = tmp;
 #elif defined(__clang__)
   dst = __builtin_shufflevector(src1, src2, Indices...);
 #else // gcc
-  dst = __builtin_shuffle(src1, src2, mask_type_t<VEC>{ Indices... });
+  dst = __builtin_shuffle(src1, src2, vec_mask_type_t<VEC>{ Indices... });
 #endif
 }
 

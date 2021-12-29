@@ -4,7 +4,7 @@
 /**
  * @file CxxUtils/test/vec_test_common.h
  * @author scott snyder <snyder@bnl.gov>
- * @author Christos Anastopoulos 
+ * @author Christos Anastopoulos
  * @date Feb, 2020
  * @brief Common part for vec vec_fb unit tests.
  */
@@ -337,8 +337,8 @@ test_select(const VEC& v1)
 {
 
   const VEC v2 = 2 * v1;
-  CxxUtils::mask_type_t<VEC> greater;
-  CxxUtils::mask_type_t<VEC> less;
+  CxxUtils::vec_mask_type_t<VEC> greater;
+  CxxUtils::vec_mask_type_t<VEC> less;
   constexpr size_t N = CxxUtils::vec_size<VEC>();
   for (size_t i = 0; i < N; ++i) {
     greater[i] = v1[i] > v2[i];
