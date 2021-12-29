@@ -22,23 +22,26 @@ inline MagField::AtlasFieldCache::AtlasFieldCache(double solFieldScale,
 inline bool
 MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
 {
-  // search for the zone
-  const BFieldZone* zone =
-    m_fieldMap ? m_fieldMap->findBFieldZone(z, r, phi) : nullptr;
-
-  if (!zone) {
+  // Get a new zone from the map ONLY if we are no longer in the current zone
+  if (!m_zone3d || !m_zone3d->inside( z, r, phi )) {
+    
+    // search for the zone
+      m_zone3d = m_fieldMap ? m_fieldMap->findBFieldZone(z, r, phi) : nullptr;
+  }
+  
+  if (!m_zone3d) {
     // outsize all zones
     return false;
   }
 
   // set scale for field
-  m_scaleToUse = (zone->id() == m_solZoneId) ? m_solScale : m_torScale;
+  m_scaleToUse = (m_zone3d->id() == m_solZoneId) ? m_solScale : m_torScale;
 
   // fill the cache, pass in current scale factor
-  zone->getCache(z, r, phi, m_cache3d, m_scaleToUse);
+  m_zone3d->getCache(z, r, phi, m_cache3d, m_scaleToUse);
 
   // save pointer to the conductors in the zone
-  m_cond = zone->condVector();
+  m_cond = m_zone3d->condVector();
 
   return true;
 }
