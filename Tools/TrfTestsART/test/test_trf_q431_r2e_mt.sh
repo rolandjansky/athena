@@ -12,4 +12,11 @@ Reco_tf.py \
 --multithreaded="True" \
 --maxEvents -1
 
-echo "art-result: $? Reco_tf_q431_r2e_mt"
+rc1=$?
+echo "art-result: ${rc1} Reco_tf_q431_r2e_mt"
+
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"

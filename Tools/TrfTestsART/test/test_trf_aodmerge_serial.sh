@@ -10,4 +10,11 @@ AODMerge_tf.py \
   --maxEvents 1000 \
   --outputAOD_MRGFile aod.pool.root
 
-echo "art-result: $? AODMerge_tf_serial"
+rc1=$?
+echo "art-result: ${rc1} AODMerge_tf_serial"
+
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"
