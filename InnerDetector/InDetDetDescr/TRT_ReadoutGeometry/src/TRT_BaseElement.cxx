@@ -5,9 +5,6 @@
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TRT_ReadoutGeometry/TRT_Conditions.h"
 
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -74,37 +71,37 @@ TRT_BaseElement::surface() const
 const Trk::SurfaceBounds&
 TRT_BaseElement::bounds() const
 {
-  if (not m_surfaceCache) {
+  if (!m_surfaceCache.isValid()) {
     createSurfaceCache();
   }
-  return *(m_surfaceCache->bounds());
+  return *(m_surfaceCache.ptr()->bounds());
 }
 
 const Amg::Transform3D&
 TRT_BaseElement::transform() const
 {
-  if (not m_surfaceCache) {
+  if (!m_surfaceCache.isValid()) {
     createSurfaceCache();
   }
-  return m_surfaceCache->transform();
+  return m_surfaceCache.ptr()->transform();
 }
 
 const Amg::Vector3D&
 TRT_BaseElement::center() const
 {
-  if (not m_surfaceCache) {
+  if (!m_surfaceCache.isValid()) {
     createSurfaceCache();
   }
-  return m_surfaceCache->center();
+  return m_surfaceCache.ptr()->center();
 }
 
 const Amg::Vector3D&
 TRT_BaseElement::normal() const
 {
-  if (not m_surfaceCache) {
+  if (!m_surfaceCache.isValid()) {
     createSurfaceCache();
   }
-  return m_surfaceCache->normal();
+  return m_surfaceCache.ptr()->normal();
 }
 
 // [B] Description of the individual straws
@@ -221,56 +218,6 @@ TRT_BaseElement::strawAxis(int straw) const
           strawDirection());
 }
 
-/// ----- can be removed after full Amg migration -----------------------
-/// (start)
-// [A] in CLHEP
-const HepGeom::Transform3D
-TRT_BaseElement::transformCLHEP() const
-{
-  return Amg::EigenTransformToCLHEP(m_surfaceCache->transform());
-}
-
-const HepGeom::Point3D<double>
-TRT_BaseElement::centerCLHEP() const
-{
-
-  const Amg::Vector3D& cCenter = center();
-  return HepGeom::Point3D<double>(cCenter.x(), cCenter.y(), cCenter.z());
-}
-
-const HepGeom::Vector3D<double>
-TRT_BaseElement::normalCLHEP() const
-{
-  const Amg::Vector3D& cNormal = normal();
-  return HepGeom::Vector3D<double>(cNormal.x(), cNormal.y(), cNormal.z());
-}
-
-// [B] in CLHEP
-const HepGeom::Transform3D
-TRT_BaseElement::transformCLHEP(const Identifier& id) const
-{
-  return Amg::EigenTransformToCLHEP(transform(id));
-}
-
-const HepGeom::Point3D<double>
-TRT_BaseElement::centerCLHEP(const Identifier& id) const
-{
-  const Amg::Vector3D cCenter = center(id);
-  return HepGeom::Point3D<double>(cCenter.x(), cCenter.y(), cCenter.z());
-}
-
-const HepGeom::Vector3D<double>
-TRT_BaseElement::normalCLHEP(const Identifier&) const
-{
-  // Not sure if the normal of the straw is ever used.
-  // nor is there a well defined normal.
-  // This wont be corrected for alignments.
-  // Just return the element normal
-  return normalCLHEP();
-}
-//(end)
-// ----- can be removed after full Amg migration -----------------------
-
 void
 TRT_BaseElement::createSurfaceCache(Identifier id) const
 {
@@ -325,7 +272,7 @@ TRT_BaseElement::updateAllCaches()
   // delete the caches first
   deleteCache();
   // Strawlayer caches
-  if (not m_surfaceCache){
+  if (!m_surfaceCache.isValid()){
     createSurfaceCache();
   }
   // Loop over all straws and request items that get cached.

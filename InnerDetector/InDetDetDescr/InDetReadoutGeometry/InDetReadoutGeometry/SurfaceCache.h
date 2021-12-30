@@ -20,7 +20,7 @@ namespace InDetDD {
 
    These are for internal use in TRT_RedoutGeometry.
    They hold all the cached values related to the element surface.
-   
+
    We want to  alllow the
    Trk::Surface::transform() { m_associatedDetectorElement->transform() }
    method to work.
@@ -35,6 +35,9 @@ class SurfaceCacheBase
 public:
   SurfaceCacheBase(const Amg::Transform3D& transform,
                    const Amg::Vector3D& center);
+
+  ///
+  SurfaceCacheBase() = default;
   ///
   ~SurfaceCacheBase() = default;
   /// move c'tor
@@ -69,6 +72,8 @@ public:
                const Amg::Vector3D& center,
                const Amg::Vector3D& normal,
                std::unique_ptr<Trk::SurfaceBounds> bounds);
+  ///
+  SurfaceCache() = default;
   ///
   ~SurfaceCache() = default;
   /// move c'tor

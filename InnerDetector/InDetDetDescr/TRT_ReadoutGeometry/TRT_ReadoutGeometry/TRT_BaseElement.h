@@ -170,29 +170,6 @@ namespace InDetDD {
     /** StrawDirection. +1 if axis is in same direction as local z axis, -1 otherwise. */
     virtual int strawDirection() const = 0;
 
-    // ---- CLHEP methods ---- to be checked if needed --------------------------------------------- (start)
-    // the cache changed to Amg, hence CLHEP methods don't return by reverence anymore
-
-    /** Element Surface: Get Transform of element in Tracking frame - CLHEP converted */
-    const HepGeom::Transform3D transformCLHEP() const;
-
-    /**  Element Surface: Straw center - CLHEP converted*/
-    const HepGeom::Point3D<double> centerCLHEP() const;
-
-    /**  Element Surface: Normal of a straw layer - CLHEP converted */
-    const HepGeom::Vector3D<double> normalCLHEP() const;
-
-    /** Straw Surface : get Transform of individual straw in Tracking frame - CLHEP converted */
-    const HepGeom::Transform3D transformCLHEP(const Identifier& id) const;
-
-    /** Straw Surface : Center of a straw using Identifier - CLHEP converted */
-    const HepGeom::Point3D<double> centerCLHEP(const Identifier& id) const;
-
-    /** Straw Surface : Center of a straw using Identifier - CLHEP converted */
-    const HepGeom::Vector3D<double> normalCLHEP(const Identifier& id) const;
-
-    // ---- CLHEP methods ---- to be checked if needed ---------------------------------------------  (end)
-
     /** Invalidate cache */
     void invalidate();
 
@@ -227,8 +204,6 @@ namespace InDetDD {
     const TRT_BaseElement& operator=(const TRT_BaseElement&right);
     /** Helper method for cache dealing */
     void deleteCache();
-    void createStrawSurfaces() const;
-    void createStrawSurfacesCache() const;
     std::unique_ptr<SurfaceCacheBase> createSurfaceCacheHelper(int straw) const;
 
   protected:
@@ -247,7 +222,7 @@ namespace InDetDD {
     std::vector<CxxUtils::CachedUniquePtr<SurfaceCacheBase>> m_strawSurfacesCache{};
 
     //!< helper element surface for the cache
-    CxxUtils::CachedUniquePtr<SurfaceCache> m_surfaceCache;
+    CxxUtils::CachedValue<SurfaceCache> m_surfaceCache;
     CxxUtils::CachedUniquePtr<Trk::Surface> m_surface;
 
     CxxUtils::CachedValue<std::vector<const Trk::Surface*>> m_surfaces;
