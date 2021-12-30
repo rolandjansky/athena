@@ -391,14 +391,14 @@ vpermute2(VEC& dst, const VEC& src1, const VEC& src2)
 
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   VEC tmp;
-  std::array<size_t, N> indices = { Indices... };
-  for (size_t i = 0; i < N; ++i) {
-    size_t index = indices[i];
+  size_t pos{0};
+  for (auto index: { Indices... }) {
     if (index < N) {
-      tmp[i] = src1[index];
+      tmp[pos] = src1[index];
     } else {
-      tmp[i] = src2[index - N];
+      tmp[pos] = src2[index - N];
     }
+    ++pos;
   }
   dst = tmp;
 #elif defined(__clang__)
