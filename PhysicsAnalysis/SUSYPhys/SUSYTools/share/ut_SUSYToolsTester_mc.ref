@@ -824,8 +824,8 @@ ToolSvc.PhotonSelIsEM_...INFO    initialize : WP 11 0
 ToolSvc.PhotonSelIsEM_...INFO    operating point : Tight
 ToolSvc.PhotonSelIsEMB...INFO    initialize : WP 11 0
 ToolSvc.PhotonSelIsEMB...INFO    operating point : Tight
-Will now set key "RecoKey" to value "Reconstruction" when configuring an AsgElectronEfficiencyCorrectionTool
-Will now set key "IdKey" to value "Tight" when configuring an AsgElectronEfficiencyCorrectionTool
+SUSYObjDef_xAOD          INFO    Will now set key "RecoKey" to value "Reconstruction" when configuring an AsgElectronEfficiencyCorrectionTool
+SUSYObjDef_xAOD          INFO    Will now set key "IdKey" to value "Tight" when configuring an AsgElectronEfficiencyCorrectionTool
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_iso_TightLLHFCLoose) Your electron Iso WP: FCLoose is no longer supported. This will almost certainly cause a crash now.
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_isoHigPt_TightLLHFCHighPtCaloOnly) Your electron high-pt Iso WP: FCHighPtCaloOnly is no longer supported. This will almost certainly cause a crash now.
 SUSYObjDef_xAOD          WARNING (AsgElectronEfficiencyCorrectionTool_trig_singleLep_*) Your selected electron Iso WP (Loose_VarRad) does not have trigger SFs defined. Falling back to FCLoose for SF calculations
