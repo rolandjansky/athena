@@ -1,6 +1,13 @@
 // filters accepted for 22.6
 #include "GeneratorFilters/QCDTruthJetFilter.h"
+#include "GeneratorFilters/xAODChargedTracksFilter.h"
+#include "GeneratorFilters/xAODChargedTracksWeightFilter.h"
+#include "GeneratorFilters/xAODDecaysFinalStateFilter.h"
+#include "GeneratorFilters/xAODDecayTimeFilter.h"
+#include "GeneratorFilters/xAODDiLeptonMassFilter.h"
+#include "GeneratorFilters/xAODDirectPhotonFilter.h"
 #include "GeneratorFilters/xAODElectronFilter.h"
+#include "GeneratorFilters/xAODLeptonPairFilter.h"
 #include "GeneratorFilters/xAODM4MuIntervalFilter.h"
 #include "GeneratorFilters/xAODMETFilter.h"
 #include "GeneratorFilters/xAODMultiElecMuTauFilter.h"
@@ -12,7 +19,9 @@
 
 
 // slimmers for 22.6
+#include "GeneratorFilters/PileupTruthParticleSlimmer.h"
 #include "GeneratorFilters/xAODTruthParticleSlimmerElectron.h"
+#include "GeneratorFilters/xAODTruthParticleSlimmerLightLepton.h"
 #include "GeneratorFilters/xAODTruthParticleSlimmerMET.h"
 #include "GeneratorFilters/xAODTruthParticleSlimmerMuon.h"
 #include "GeneratorFilters/xAODTruthParticleSlimmerPhoton.h"
@@ -113,7 +122,14 @@
 
 //filters accepted for 22.6
 DECLARE_COMPONENT( QCDTruthJetFilter )
+DECLARE_COMPONENT( xAODChargedTracksFilter )
+DECLARE_COMPONENT( xAODChargedTracksWeightFilter )
+DECLARE_COMPONENT( xAODDecaysFinalStateFilter )
+DECLARE_COMPONENT( xAODDecayTimeFilter )
+DECLARE_COMPONENT( xAODDiLeptonMassFilter )
+DECLARE_COMPONENT( xAODDirectPhotonFilter )
 DECLARE_COMPONENT( xAODElectronFilter )
+DECLARE_COMPONENT( xAODLeptonPairFilter )
 DECLARE_COMPONENT( xAODM4MuIntervalFilter )
 DECLARE_COMPONENT( xAODMETFilter)
 DECLARE_COMPONENT( xAODMultiElecMuTauFilter )
@@ -124,7 +140,9 @@ DECLARE_COMPONENT( xAODPhotonFilter )
 DECLARE_COMPONENT( xAODTauFilter )
 
 //slimmers accepted for 22.6
+DECLARE_COMPONENT( PileupTruthParticleSlimmer )
 DECLARE_COMPONENT( xAODTruthParticleSlimmerElectron )
+DECLARE_COMPONENT( xAODTruthParticleSlimmerLightLepton )
 DECLARE_COMPONENT( xAODTruthParticleSlimmerMET)
 DECLARE_COMPONENT( xAODTruthParticleSlimmerMuon )
 DECLARE_COMPONENT( xAODTruthParticleSlimmerPhoton)
