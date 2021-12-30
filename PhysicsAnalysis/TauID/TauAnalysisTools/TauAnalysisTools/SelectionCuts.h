@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_SELECTIONCUTS_H
@@ -115,30 +115,6 @@ private:
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
-class SelectionCutBDTJetScore
-  : public SelectionCut
-{
-public:
-  SelectionCutBDTJetScore(TauSelectionTool* tTST);
-  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
-  virtual bool accept(const xAOD::TauJet& xTau,
-                      asg::AcceptData& accept) override;
-private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
-};
-
-class SelectionCutBDTJetScoreSigTrans
-  : public SelectionCut
-{
-public:
-  SelectionCutBDTJetScoreSigTrans(TauSelectionTool* tTST);
-  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
-  virtual bool accept(const xAOD::TauJet& xTau,
-                      asg::AcceptData& accept) override;
-private:
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
-};
-
 class SelectionCutRNNJetScoreSigTrans
   : public SelectionCut
 {
@@ -187,41 +163,6 @@ public:
                       asg::AcceptData& accept) override;
 private:
   std::string m_sEleBDTDecorationName;
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
-};
-
-class SelectionCutEleOLR
-  : public SelectionCut
-{
-public:
-  SelectionCutEleOLR(TauSelectionTool* tTST);
-  virtual ~SelectionCutEleOLR();
-  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
-  virtual bool accept(const xAOD::TauJet& xTau,
-                      asg::AcceptData& accept) override;
-
-  bool getEvetoPass(const xAOD::TauJet& xTau);
-private:
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  bool m_bCheckEleMatchPassAvailable;
-  bool m_bEleMatchPassAvailable;
-#endif // not XAODTAU_VERSIONS_TAUJET_V3_H
-
-  std::string m_sEleOlrPassDecorationName;
-
-  virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
-  std::string m_sEleOlrLhScoreDecorationName;
-};
-
-class SelectionCutMuonVeto
-  : public SelectionCut
-{
-public:
-  SelectionCutMuonVeto(TauSelectionTool* tTST);
-  virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
-  virtual bool accept(const xAOD::TauJet& xTau,
-                      asg::AcceptData& accept) override;
-private:
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 

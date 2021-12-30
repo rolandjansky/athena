@@ -35,14 +35,10 @@ class SelectionCutPt;
 class SelectionCutAbsEta;
 class SelectionCutAbsCharge;
 class SelectionCutNTracks;
-class SelectionCutBDTJetScore;
-class SelectionCutBDTJetScoreSigTrans;
 class SelectionCutJetIDWP;
 class SelectionCutRNNJetScoreSigTrans;
 class SelectionCutBDTEleScore;
 class SelectionCutEleBDTWP;
-class SelectionCutEleOLR;
-class SelectionCutMuonVeto;
 class SelectionCutMuonOLR;
 
 enum SelectionCuts
@@ -53,15 +49,11 @@ enum SelectionCuts
   CutPhi          = 1<<2,	// 000000000100
   CutNTrack       = 1<<3,	// 000000001000
   CutAbsCharge    = 1<<4,	// 000000010000
-  CutJetBDTScore  = 1<<5,	// 000000100000
-  CutJetIDWP      = 1<<6,	// 000001000000
-  CutEleBDTScore  = 1<<7,	// 000010000000
-  CutEleBDTWP     = 1<<8,	// 000100000000
-  CutMuonVeto     = 1<<9,	// 001000000000
-  CutEleOLR       = 1<<10,    // 010000000000
-  CutMuonOLR      = 1<<11,    // 100000000000
-  CutJetBDTScoreSigTrans = 1<<12, // 1000000000000
-  CutJetRNNScoreSigTrans = 1<<13  // 10000000000000
+  CutJetIDWP      = 1<<5,	// 000000100000
+  CutEleBDTScore  = 1<<6,	// 000001000000
+  CutEleBDTWP     = 1<<7,	// 000010000000
+  CutMuonOLR      = 1<<8,       // 000100000000
+  CutJetRNNScoreSigTrans = 1<<9  // 01000000000
 };
   
 class TauSelectionTool : public virtual IAsgSelectionTool,
@@ -75,15 +67,11 @@ class TauSelectionTool : public virtual IAsgSelectionTool,
   friend class SelectionCutAbsEta;
   friend class SelectionCutAbsCharge;
   friend class SelectionCutNTracks;
-  friend class SelectionCutBDTJetScore;
-  friend class SelectionCutBDTJetScoreSigTrans;
   friend class SelectionCutRNNJetScoreSigTrans;
   friend class SelectionCutJetIDWP;
   friend class SelectionCutRNNJetScoreSigTrans;
   friend class SelectionCutBDTEleScore;
   friend class SelectionCutEleBDTWP;
-  friend class SelectionCutEleOLR;
-  friend class SelectionCutMuonVeto;
   friend class SelectionCutMuonOLR;
 
   /// Create a proper constructor for Athena
@@ -144,10 +132,6 @@ private:
   std::vector<int> m_vAbsCharges;
   // vector of number of track requirements
   std::vector<unsigned> m_vNTracks;
-  // vector of JetBDT cut regions
-  std::vector<float> m_vJetBDTRegion;
-  // vector of JetBDTSigTrans cut regions
-  std::vector<float> m_vJetBDTSigTransRegion;
   // vector of JetRNNSigTrans cut regions
   std::vector<float> m_vJetRNNSigTransRegion;
   // JetID working point
@@ -158,15 +142,8 @@ private:
   // EleBDT working point
   std::string m_sEleBDTWP;
   int m_iEleBDTWP;
-  // do electron overlap removal
-  bool m_bEleOLR;
-  // do muon veto
-  bool m_bMuonVeto;
   // do muon OLR
   bool m_bMuonOLR;
-  // ignore AODFix check and re-calculate electron OLR 
-  bool m_bIgnoreAODFixCheck;
-  bool m_bRecalcEleOLR;
 
   float m_dPtMin;
   float m_dPtMax;
@@ -174,10 +151,6 @@ private:
   float m_dAbsEtaMax;
   float m_iAbsCharge;
   float m_iNTrack;
-  float m_dJetBDTMin;
-  float m_dJetBDTMax;
-  float m_dJetBDTSigTransMin;
-  float m_dJetBDTSigTransMax;
   float m_dJetRNNSigTransMin;
   float m_dJetRNNSigTransMax;
   float m_dEleBDTMin;
@@ -189,7 +162,6 @@ protected:
 
 private:
   std::string m_sConfigPath;
-  std::string m_sEleOLRFilePath;
   std::string m_sElectronContainerName;
   std::string m_sMuonContainerName;
 

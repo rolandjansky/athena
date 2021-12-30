@@ -133,14 +133,12 @@ int main( int argc, char* argv[] )
   TauSelTool->setOutFile( fOutputFile.get() );
   // CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
   CHECK(TauSelTool->setProperty("MuonOLR", true ));
-  CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTMEDIUM) ));
+  CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDRNNMEDIUM) ));
   CHECK(TauSelTool->setProperty("PtMin", 20. ));
   // CHECK(TauSelTool->setProperty("EleBDTWP", int(ELEIDBDTLOOSE) ));
   CHECK(TauSelTool->setProperty("ConfigPath", "" ));
   // CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutEleOLR|CutEleBDTWP|CutJetIDWP) ));
   CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutJetIDWP) ));
-  CHECK(TauSelTool->setProperty("IgnoreAODFixCheck", true));
-  CHECK(TauSelTool->setProperty("RecalcEleOLR", false));
   CHECK(TauSelTool->initialize());
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelToolHandle = TauSelTool;
