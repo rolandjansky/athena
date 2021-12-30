@@ -8,11 +8,17 @@
 
 
 # Test written on 16.12.2021 based on a recent Run2 Reprocessing MC task: https://bigpanda.cern.ch/task/27175309/
+# Updated inputs on 30.12.2021
+
+HITS_File="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.simul.HITS.e6337_s3681/HITS.25836812._004813.pool.root.1"
+RDO_BKG_File="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/PresampledPileUp/22.0/Run2/large/mc20_13TeV.900149.PG_single_nu_Pt50.digit.RDO.e8307_s3482_s3136_d1715/RDO.26811908._031801.pool.root.1"
+
 
 export ATHENA_PROC_NUMBER=8
 export ATHENA_CORE_NUMBER=8
 Reco_tf.py \
---inputHITSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_MC_Run2Reprocessing/HITS.25836923._001783.pool.root.1" \
+--inputHITSFile ${HITS_File} \
+--inputRDO_BKGFile ${RDO_BKG_File} \
 --asetup="RDOtoRDOTrigger:Athena,21.0,latest" \
 --maxEvents="200" \
 --multithreaded="True" \
@@ -24,8 +30,7 @@ Reco_tf.py \
 --geometryVersion="default:ATLAS-R2-2016-01-00-01" \
 --digiSeedOffset1="476" \
 --digiSeedOffset2="476" \
---inputRDO_BKGFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_MC_Run2Reprocessing/RDO.26835823._011177.pool.root.1" \
---runNumber="411316" \
+--runNumber="410470" \
 --AMITag="r13145" \
 --steering "doOverlay" "doRDO_TRIG" \
 --outputAODFile="AOD.27175309._011910.pool.root.1" \
