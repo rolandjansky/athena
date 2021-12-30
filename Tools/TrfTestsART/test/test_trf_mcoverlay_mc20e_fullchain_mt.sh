@@ -3,6 +3,7 @@
 # art-description: MC+MC Overlay chain for MC20e, ttbar, full reco chain, 1000 events, AthenaMT
 # art-type: grid
 # art-include: master/Athena/x86_64-centos7-gcc11-opt
+# art-include: master/Athena/x86_64-centos7-clang13-opt
 # art-include: 22.0-mc20/Athena
 # art-athena-mt: 8
 
@@ -26,8 +27,12 @@ Reco_tf.py \
 --outputAODFile MC_plus_MC.AOD.pool.root \
 --imf False
 
-rc=$?
-status=$rc
-echo "art-result: $rc Reco_tf_overlay_fullchain_mt"
+rc1=$?
+echo "art-result: ${rc1} Reco_tf_overlay_fullchain_mt"
 
-exit $status
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"
+exit $rc1

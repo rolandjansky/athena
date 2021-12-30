@@ -15,4 +15,11 @@ ESDMerge_tf.py \
     --outputESD_MRGFile="DESDM_MCP.pool.root" \
     --AMITag="p4756" 
 
-echo "art-result: $? ESDMerge_tf_serial"
+rc1=$?
+echo "art-result: ${rc1} ESDMerge_tf_serial"
+
+# Check for FPEs in the logiles
+test_trf_check_fpe.sh
+fpeStat=$?
+
+echo "art-result: ${fpeStat} FPEs in logfiles"
