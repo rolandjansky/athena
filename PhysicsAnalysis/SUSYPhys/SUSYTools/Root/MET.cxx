@@ -20,8 +20,6 @@
 
 namespace ST {
 
-  const static SG::AuxElement::ConstAccessor<char> cacc_baseline("baseline");
-
 StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
                                    const xAOD::JetContainer* jet,
                                    const xAOD::ElectronContainer* elec,
@@ -35,12 +33,12 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     return StatusCode::FAILURE;
   }
 
-  const xAOD::MissingETContainer* metcore(0);
+  const xAOD::MissingETContainer* metcore(nullptr);
   if ( evtStore()->retrieve( metcore, m_inputMETCore ).isFailure() ) {
     ATH_MSG_WARNING( "Unable to retrieve MET core container: " << m_inputMETCore );
     return StatusCode::FAILURE;
   }
-  const xAOD::MissingETAssociationMap* metMap(0);
+  const xAOD::MissingETAssociationMap* metMap(nullptr);
   if ( evtStore()->retrieve(metMap, m_inputMETMap).isFailure() ) {
     ATH_MSG_WARNING("Unable to retrieve MissingETAssociationMap: " << m_inputMETMap);
     return StatusCode::FAILURE;
@@ -67,7 +65,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ConstDataVector<xAOD::ElectronContainer> metelectron(SG::VIEW_ELEMENTS);
     for (const xAOD::Electron* el : *elec) {
       // pass baseline selection
-      if (cacc_baseline(*el)) {
+      if (acc_baseline(*el)) {
         bool veto(false);
         if (invis) {
           for (const xAOD::IParticle* ipart : *invis) {
@@ -85,7 +83,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ConstDataVector<xAOD::PhotonContainer> metgamma(SG::VIEW_ELEMENTS);
     for (const xAOD::Photon* ph : *gamma) {
       // pass baseline selection
-      if (cacc_baseline(*ph)) {
+      if (acc_baseline(*ph)) {
         bool veto(false);
         if (invis) {
           for (const xAOD::IParticle* ipart : *invis) {
@@ -103,7 +101,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     ConstDataVector<xAOD::TauJetContainer> mettau(SG::VIEW_ELEMENTS);
     for (const xAOD::TauJet* tau : *taujet) {
       // pass baseline selection
-      if (cacc_baseline(*tau)) {
+      if (acc_baseline(*tau)) {
         bool veto(false);
         if (invis) {
           for (const xAOD::IParticle* ipart : *invis) {
@@ -122,7 +120,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
     for (const xAOD::Muon* mu : *muon) {
       bool veto(false);
       // pass baseline selection
-      if (cacc_baseline(*mu)) {
+      if (acc_baseline(*mu)) {
         if (invis) {
           for (const xAOD::IParticle* ipart : *invis) {
             if (ipart == mu) {veto = true; break;}
@@ -157,7 +155,6 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
   ATH_MSG_VERBOSE( "Done rebuilding MET." );
 
   return StatusCode::SUCCESS;
-
 }
 
 
@@ -170,12 +167,12 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
     return StatusCode::FAILURE;
   }
 
-  const xAOD::MissingETContainer* metcore(0);
+  const xAOD::MissingETContainer* metcore(nullptr);
   if ( evtStore()->retrieve( metcore, m_inputMETCore ).isFailure() ) {
     ATH_MSG_WARNING( "Unable to retrieve MET core container: " << m_inputMETCore );
     return StatusCode::FAILURE;
   }
-  const xAOD::MissingETAssociationMap* metMap(0);
+  const xAOD::MissingETAssociationMap* metMap(nullptr);
   if ( evtStore()->retrieve(metMap, m_inputMETMap).isFailure() ) {
     ATH_MSG_WARNING("Unable to retrieve MissingETAssociationMap: " << m_inputMETMap);
     return StatusCode::FAILURE;
@@ -190,7 +187,7 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
     ConstDataVector<xAOD::ElectronContainer> metelectron(SG::VIEW_ELEMENTS);
     for (const xAOD::Electron* el : *elec) {
       // pass baseline selection
-      if (cacc_baseline(*el)) metelectron.push_back(el);
+      if (acc_baseline(*el)) metelectron.push_back(el);
     }
     ATH_CHECK( m_metMaker->rebuildMET(m_eleTerm, xAOD::Type::Electron, &met, metelectron.asDataVector(), metHelper) );
   }
@@ -200,7 +197,7 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
     ConstDataVector<xAOD::MuonContainer> metmuon(SG::VIEW_ELEMENTS);
     for (const xAOD::Muon* mu : *muon) {
       // pass baseline selection
-      if (cacc_baseline(*mu)) metmuon.push_back(mu);
+      if (acc_baseline(*mu)) metmuon.push_back(mu);
     }
     ATH_CHECK( m_metMaker->rebuildMET(m_muonTerm, xAOD::Type::Muon, &met, metmuon.asDataVector(), metHelper) );
   }
@@ -238,7 +235,6 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
   ATH_MSG_VERBOSE( "Track MET: Missing Et (x,y): (" << met["Track"]->mpx() << "," << met["Track"]->mpy() << ")");
 
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
@@ -252,42 +248,47 @@ StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
     ATH_MSG_WARNING( "Requested CST MET and a JVT cut.  This is not a recommended configuration - please consider switching to TST." );
   }
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   ATH_CHECK( m_metSignif->varianceMET( &met, evtInfo->averageInteractionsPerCrossing(), m_jetTerm, softTerm, m_outMETTerm) );
   metSignificance = m_metSignif->GetSignificance();
   ATH_MSG_VERBOSE( "Obtained MET Significance: " << metSignificance  );
 
   return StatusCode::SUCCESS;
-
 }
 
 // Crack region cleaning for PFlow jets: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/HowToCleanJetsR21#EGamma_Crack_Electron_topocluste 
 bool SUSYObjDef_xAOD::IsPFlowCrackVetoCleaning(	const xAOD::ElectronContainer* elec, 
 						const xAOD::PhotonContainer* gamma ) const {
 
+  if (m_jetInputType != xAOD::JetInput::EMPFlow) {
+    return true;
+  }
+
   bool passPFlowCVCleaning = true;
 
   if (elec) {
     for (const xAOD::Electron* el : *elec) {
-      if (m_jetInputType == xAOD::JetInput::EMPFlow) { 
-        if (acc_passCrackVetoCleaning.isAvailable(*el)) {
-          if (!acc_passCrackVetoCleaning(*el)) passPFlowCVCleaning = false;      
-        } else {
-            ATH_MSG_WARNING("DFCommonCrackVetoCleaning variable is not available! Use p3830 onwards for PFlow jets!");
-        }
+      if (acc_passCrackVetoCleaning.isAvailable(*el)) {
+	if (!acc_passCrackVetoCleaning(*el)) {
+	  passPFlowCVCleaning = false;
+	  break;
+	}
+      } else {
+	ATH_MSG_WARNING("DFCommonCrackVetoCleaning variable is not available! Use p3830 onwards for PFlow jets!");
       }
     }
   }
 
-  if (gamma) {
+  if (passPFlowCVCleaning && gamma) {
     for (const xAOD::Photon* ph : *gamma) {
-      if (m_jetInputType == xAOD::JetInput::EMPFlow) { 
-        if (acc_passCrackVetoCleaning.isAvailable(*ph)) {
-          if (!acc_passCrackVetoCleaning(*ph)) passPFlowCVCleaning = false;      
-        } else {
-            ATH_MSG_WARNING("DFCommonCrackVetoCleaning variable is not available! Use p3830 onwards for PFlow jets!");
-        }
+      if (acc_passCrackVetoCleaning.isAvailable(*ph)) {
+	if (!acc_passCrackVetoCleaning(*ph)) {
+	  passPFlowCVCleaning = false;
+	  break;
+	}
+      } else {
+	ATH_MSG_WARNING("DFCommonCrackVetoCleaning variable is not available! Use p3830 onwards for PFlow jets!");
       }
     }
   }

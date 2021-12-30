@@ -97,7 +97,7 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   if(acc_baseline(input)) dec_selected(input) = 2;
   else                    dec_selected(input) = 0;
 
-  if (dec_baseline(input)) ATH_MSG_VERBOSE("FillTau: passed baseline selection");
+  if (acc_baseline(input)) ATH_MSG_VERBOSE("FillTau: passed baseline selection");
   else ATH_MSG_VERBOSE("FillTau: failed baseline selection");
   return StatusCode::SUCCESS;
 }
@@ -107,7 +107,7 @@ bool SUSYObjDef_xAOD::IsSignalTau(const xAOD::TauJet& input, float ptcut, float 
 
   dec_signal(input) = false;
 
-  if ( !dec_baseline(input) ) return false;
+  if ( !acc_baseline(input) ) return false;
 
   if (input.pt() <= ptcut) return false;
 
@@ -129,7 +129,7 @@ double SUSYObjDef_xAOD::GetSignalTauSF(const xAOD::TauJet& tau,
   double sf(1.);
 
   if(idSF){
-    if (dec_baseline(tau)) {
+    if (acc_baseline(tau)) {
       if (m_tauEffTool->getEfficiencyScaleFactor(tau, sf) != CP::CorrectionCode::Ok) {
         ATH_MSG_WARNING("Failed to retrieve tau efficiency scale factor.");
       }
@@ -227,7 +227,7 @@ double SUSYObjDef_xAOD::GetTotalTauSF(const xAOD::TauJetContainer& taus, const b
   for (const xAOD::TauJet* tau : taus) {
     // Call this for all taus, which will add the decoration
     double tmpSF = GetSignalTauSF(*tau, idSF, triggerSF, trigExpr);
-    if (dec_signal(*tau) && dec_passOR(*tau)) {
+    if (acc_signal(*tau) && acc_passOR(*tau)) {
       sf *= tmpSF;
     }
   }

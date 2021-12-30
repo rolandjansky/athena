@@ -174,13 +174,13 @@ int main( int argc, char* argv[] ) {
   // Open file and check available containers
   std::map<std::string, std::string> containers = getFileContainers(ifile);
   bool hasTrkJets(false), hasFatJets(false);
-  for (auto x : containers) {
+  for (auto& x : containers) {
     if (x.first.find("AntiKtVR30Rmax4Rmin02TrackJets")!=std::string::npos) hasTrkJets = true;
     if (x.first.find("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")!=std::string::npos) hasFatJets = true;
   }
   if (debug>0) {
     ANA_MSG_INFO("Checking file contents (containers):");
-    for (auto x : containers) ANA_MSG_INFO("  - found " << x.first.c_str() << " (" << x.second.c_str() << ")");
+    for (auto& x : containers) ANA_MSG_INFO("  - found " << x.first.c_str() << " (" << x.second.c_str() << ")");
     ANA_MSG_INFO("hasTrkJets: " << (hasTrkJets?"true":"false"));
     ANA_MSG_INFO("hasFatJets: " << (hasFatJets?"true":"false"));
   }
@@ -338,7 +338,7 @@ int main( int argc, char* argv[] ) {
   // Trim comments and extra spaces from config entries
   std::regex comment("#.*$");
   std::regex trimspaces("^ +| +$|( ) +");
-  for (auto keyval : configDict) {
+  for (auto& keyval : configDict) {
      configDict[keyval.first] = regex_replace(configDict[keyval.first], comment, "");
      configDict[keyval.first] = regex_replace(configDict[keyval.first], trimspaces, "$1");
      ANA_MSG_DEBUG("config " << keyval.first << " : " << configDict[keyval.first]);
@@ -357,7 +357,7 @@ int main( int argc, char* argv[] ) {
   slices["fjet"] = bool(rEnv.GetValue("Slices.FJet", true));
   slices["tjet"] = bool(rEnv.GetValue("Slices.TJet", true));
   slices["met"]  = bool(rEnv.GetValue("Slices.MET", true));
-  for (auto x : slices) { ANA_MSG_DEBUG( "Slice " << x.first << ": " << ((x.second)?"true":"false")); }
+  for (auto& x : slices) { ANA_MSG_DEBUG( "Slice " << x.first << ": " << ((x.second)?"true":"false")); }
 
   // ============================================================================================
   ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> T2MT = 0;
@@ -922,7 +922,7 @@ int main( int argc, char* argv[] ) {
           if (jet->auxdata<char>("baseline") == 1  &&
               jet->auxdata<char>("passOR") == 1  &&
               jet->auxdata<char>("signal") == 1  &&
-              jet->pt() > 20000.  && ( fabs( jet->eta()) < 2.5) ) {
+              jet->pt() > 20000.  && ( std::abs(jet->eta()) < 2.5) ) {
             goodJets->push_back(jet);
           }
           // PHYSLITE doesn't bother trying to keep JetInputType as a decoration
@@ -1325,7 +1325,7 @@ std::vector<std::string> getTokens(TString line, TString delim) {
   TObjArray* tokens = TString(line).Tokenize(delim); //delimiters
   if(tokens->GetEntriesFast()) {
     TIter iString(tokens);
-    TObjString* os=0;
+    TObjString* os = nullptr;
     while ((os=(TObjString*)iString())) {
       vtokens.push_back( os->GetString().Data() );
     }

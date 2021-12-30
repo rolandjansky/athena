@@ -59,7 +59,6 @@ bool SUSYObjDef_xAOD :: isPrompt(const xAOD::IParticle* part) const {
   }
   if( part->type() == xAOD::Type::Muon ){ 
     return (type == MCTruthPartClassifier::IsoMuon);
-
   }
   else{
     ATH_MSG_DEBUG("::isPrompt() : Only Electrons supported at the moment!");
@@ -73,8 +72,8 @@ bool SUSYObjDef_xAOD :: isPrompt(const xAOD::IParticle* part) const {
 
 StatusCode SUSYObjDef_xAOD::FindSusyHP(int& pdgid1, int& pdgid2) const {
 
-  const xAOD::TruthParticleContainer    *truthP = 0;
-  bool isTruth3=false;
+  const xAOD::TruthParticleContainer* truthP = nullptr;
+  bool isTruth3 = false;
   std::string key_T1 = "TruthParticles"; 
   std::string key_T3 = "TruthBSM";
  
@@ -84,13 +83,13 @@ StatusCode SUSYObjDef_xAOD::FindSusyHP(int& pdgid1, int& pdgid2) const {
   if(evtStore()->contains<xAOD::TruthParticleContainer>( key_T1 )){
     ATH_CHECK( evtStore()->retrieve(truthP, key_T1) );
     ATH_MSG_DEBUG("Retrieved " << key_T1 << " : size = " << truthP->size());
-    if (truthP->size()==0) { ATH_MSG_WARNING(key_T1 << " is empty. Skipping FindSusyHP."); return StatusCode::SUCCESS; }
+    if (truthP->empty()) { ATH_MSG_WARNING(key_T1 << " is empty. Skipping FindSusyHP."); return StatusCode::SUCCESS; }
   }
   else if(evtStore()->contains<xAOD::TruthParticleContainer>( key_T3 )){
     isTruth3=true;    
     ATH_CHECK( evtStore()->retrieve(truthP, key_T3) );
     ATH_MSG_DEBUG("Retrieved " << key_T3 << " : size = " << truthP->size());
-    if (truthP->size()==0) { ATH_MSG_WARNING(key_T3 << " is empty. Skipping FindSusyHP."); return StatusCode::SUCCESS; }
+    if (truthP->empty()) { ATH_MSG_WARNING(key_T3 << " is empty. Skipping FindSusyHP."); return StatusCode::SUCCESS; }
   }
   else {
     ATH_MSG_WARNING("Neither " << key_T1 << " nor " << key_T3 << " are avaible. Skipping FindSusyHP.");
@@ -139,8 +138,8 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   }
 
   //go for TRUTH1-like if not...
-  const xAOD::TruthParticle* firstsp(0);
-  const xAOD::TruthParticle* secondsp(0);
+  const xAOD::TruthParticle* firstsp(nullptr);
+  const xAOD::TruthParticle* secondsp(nullptr);
 
   if (!truthP || truthP->empty()) {
     return false;
@@ -148,11 +147,11 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
   for (const xAOD::TruthParticle* tp : *truthP) {
 
     //check ifSUSY particle
-    if ((abs(tp->pdgId()) > 1000000 && abs(tp->pdgId()) < 1000007) || // squarkL
-        (abs(tp->pdgId()) > 1000010 && abs(tp->pdgId()) < 1000017) || // sleptonL
-        (abs(tp->pdgId()) > 2000000 && abs(tp->pdgId()) < 2000007) || // squarkR
-        (abs(tp->pdgId()) > 2000010 && abs(tp->pdgId()) < 2000017) || // sleptonR
-        (abs(tp->pdgId()) > 1000020 && abs(tp->pdgId()) < 1000040)) { // gauginos
+    if ((tp->absPdgId() > 1000000 && tp->absPdgId() < 1000007) || // squarkL
+        (tp->absPdgId() > 1000010 && tp->absPdgId() < 1000017) || // sleptonL
+        (tp->absPdgId() > 2000000 && tp->absPdgId() < 2000007) || // squarkR
+        (tp->absPdgId() > 2000010 && tp->absPdgId() < 2000017) || // sleptonR
+        (tp->absPdgId() > 1000020 && tp->absPdgId() < 1000040)) { // gauginos
 
       if (tp->nParents() != 0) {
         if ( tp->parent(0)->absPdgId()  < 1000000) {
@@ -202,8 +201,8 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthParticleContainer *truth
     }
   }
 
-  if (abs(firstsp->pdgId()) > 1000000) pdgid1 = firstsp->pdgId();
-  if (abs(secondsp->pdgId()) > 1000000) pdgid2 = secondsp->pdgId();
+  if (firstsp->absPdgId() > 1000000) pdgid1 = firstsp->pdgId();
+  if (secondsp->absPdgId() > 1000000) pdgid2 = secondsp->pdgId();
 
   // Return gracefully:
   return true;
@@ -233,19 +232,19 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgi
   pdgid2 = 0;
 
   //go for TRUTH1-like ...
-  const xAOD::TruthParticle* firstsp(0);
-  const xAOD::TruthParticle* secondsp(0);
+  const xAOD::TruthParticle* firstsp(nullptr);
+  const xAOD::TruthParticle* secondsp(nullptr);
 
   for (unsigned int p=0; p < truthE->nTruthParticles(); ++p){
 
     const xAOD::TruthParticle* tp = truthE->truthParticle(p);
 
     //check ifSUSY particle
-    if ((abs(tp->pdgId()) > 1000000 && abs(tp->pdgId()) < 1000007) || // squarkL
-        (abs(tp->pdgId()) > 1000010 && abs(tp->pdgId()) < 1000017) || // sleptonL
-        (abs(tp->pdgId()) > 2000000 && abs(tp->pdgId()) < 2000007) || // squarkR
-        (abs(tp->pdgId()) > 2000010 && abs(tp->pdgId()) < 2000017) || // sleptonR
-        (abs(tp->pdgId()) > 1000020 && abs(tp->pdgId()) < 1000040)) { // gauginos
+    if ((tp->absPdgId() > 1000000 && tp->absPdgId() < 1000007) || // squarkL
+        (tp->absPdgId() > 1000010 && tp->absPdgId() < 1000017) || // sleptonL
+        (tp->absPdgId() > 2000000 && tp->absPdgId() < 2000007) || // squarkR
+        (tp->absPdgId() > 2000010 && tp->absPdgId() < 2000017) || // sleptonR
+        (tp->absPdgId() > 1000020 && tp->absPdgId() < 1000040)) { // gauginos
 
       if (tp->nParents() != 0) {
         if ( tp->parent(0)->absPdgId()  < 1000000) {
@@ -297,8 +296,8 @@ bool SUSYObjDef_xAOD::FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgi
     }
   }
 
-  if (abs(firstsp->pdgId()) > 1000000) pdgid1 = firstsp->pdgId();
-  if (abs(secondsp->pdgId()) > 1000000) pdgid2 = secondsp->pdgId();
+  if (firstsp->absPdgId() > 1000000) pdgid1 = firstsp->pdgId();
+  if (secondsp->absPdgId() > 1000000) pdgid2 = secondsp->pdgId();
 
   // Return gracefully:
   return true;
@@ -316,10 +315,11 @@ bool SUSYObjDef_xAOD::IsTruthBJet(const xAOD::Jet& input) const {
     }
 
     isBjet = std::abs(truthlabel) == 5;
-    const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
-    dec_bjet_jetunc(input) = isBjet;
-
   }
+
+  const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
+  dec_bjet_jetunc(input) = isBjet;
+
   return isBjet;
 }
 
