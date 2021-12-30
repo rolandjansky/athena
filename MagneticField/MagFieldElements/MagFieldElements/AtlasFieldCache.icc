@@ -23,7 +23,9 @@ inline bool
 MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
 {
   // Get a new zone from the map ONLY if we are no longer in the current zone
-  if (!m_zone3d || !m_zone3d->inside( z, r, phi )) {
+  // (see problems outside soleniod for this logic, try for the moment to only optimize for solenoid,
+  //  id = 7000. RDS 2021/12)
+  if (!m_zone3d || m_zone3d->id() != 7000 || !m_zone3d->inside( z, r, phi )) {
     
     // search for the zone
       m_zone3d = m_fieldMap ? m_fieldMap->findBFieldZone(z, r, phi) : nullptr;
