@@ -196,7 +196,7 @@ const Trk::Surface& TRT_BarrelElement::elementSurface() const
 void TRT_BarrelElement::createSurfaceCache() const
 {
  // create the surface cache
- if (!m_surfaceCache) {
+ if (!m_surfaceCache.isValid()) {
    m_surfaceCache.set(createSurfaceCacheHelper());
  }
  // creaete the surface (only if needed, links are still ok even if cache
@@ -205,7 +205,7 @@ void TRT_BarrelElement::createSurfaceCache() const
    elementSurface();
  }
 }
-std::unique_ptr<SurfaceCache>
+SurfaceCache
 TRT_BarrelElement::createSurfaceCacheHelper() const{
 
   // Calculate the surface from the two end straws.
@@ -255,8 +255,7 @@ TRT_BarrelElement::createSurfaceCacheHelper() const{
   auto elementBounds = std::make_unique<Trk::RectangleBounds>(
     0.5 * elementWidth, 0.5 * strawLength());
 
-  return std::make_unique<SurfaceCache>(
-    transform, center, normal, std::move(elementBounds));
+  return { transform, center, normal, std::move(elementBounds) };
 }
 
 int TRT_BarrelElement::strawDirection() const
