@@ -161,7 +161,7 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 {
   dec_signal(input) = false;
 
-  if ( !dec_baseline(input) )  return false;
+  if ( !acc_baseline(input) ) return false;
 
   if ( !m_egammaAmbiguityTool->accept(input) ) return false;
 
@@ -177,7 +177,7 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
     }
   }
 
-  if (dec_isol(input) || !m_doPhIsoSignal) {
+  if (acc_isol(input) || !m_doPhIsoSignal) {
     ATH_MSG_VERBOSE( "IsSignalPhoton: passed isolation");
   } else return false;
 
@@ -315,7 +315,7 @@ double SUSYObjDef_xAOD::GetTotalPhotonSF(const xAOD::PhotonContainer& photons, c
   double sf(1.);
 
   for (const xAOD::Photon* photon : photons) {
-    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSF(*photon, effSF, isoSF, triggerSF); }
+    if (acc_signal(*photon) && acc_passOR(*photon)) { sf *= this->GetSignalPhotonSF(*photon, effSF, isoSF, triggerSF); }
   }
 
   return sf;
@@ -327,7 +327,7 @@ double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons
   double sf(1.);
 
   for (const xAOD::Photon* photon : photons) {
-    if (dec_signal(*photon) && dec_passOR(*photon)) { sf *= this->GetSignalPhotonSFsys(*photon, systConfig, effSF, isoSF, triggerSF); }
+    if (acc_signal(*photon) && acc_passOR(*photon)) { sf *= this->GetSignalPhotonSFsys(*photon, systConfig, effSF, isoSF, triggerSF); }
   }
 
   return sf;
