@@ -60,22 +60,36 @@
  *                          from @c a or @c b, depending
  *                          on the value of @c  mask to @c dst.
  *                          dst[i] = mask[i] ? a[i] : b[i]
- *  - @c CxxUtils::vmin     (VEC& dst, const VEC& a, const VEC& b)
+ *  - @c CxxUtils::vmin    (VEC& dst, const VEC& a, const VEC& b)
  *                         copies to @c dst[i]  the min(a[i],b[i])
  *  - @c CxxUtils::vmax    (VEC& dst, const VEC& a, const VEC& b)
  *                         copies to @c dst[i]  the max(a[i],b[i])
+ *  - @c CxxUtils::vconvert (VEC1& dst, const VEC2& src)
+ *                          Fills @c dst with the result  of a
+ *                          static_cast of every element of @c src
+ *                          to the element type of dst.
+ *                          dst[i] = static_cast<vec_type_t<VEC1>>(src[i])
+ *
+ *  Functions that construct a permutation of elements from one or two vectors
+ *  and return a vector of the same type as the input vector(s).
+ *  The mask has the same element count  as the vectors.
+ *  Intentionally kept compatible with gcc's _builtin_shuffle.
+ *  If we move to gcc>=12 we could unify with clang's _builtin_shuffle_vector
+ *  and relax some of these requirements
+ *
  *  - @c CxxUtils::vpermute<mask> (VEC& dst, const VEC& src)
  *                          Fills dst with permutation of src
  *                          according to mask.
- *                          Mask is a list of integers that specifies the elements
- *                          that should be extracted and returned in src.
+ *                          @c mask is a list of integers that specifies the elements
+ *                          that should be extracted and returned in @c src.
  *                          dst[i] = src[mask[i]] where mask[i] is the ith integer
- *                          in the mask.
- *  - @c CxxUtils::vblend<mask> (VEC& dst, const VEC& src1,const VEC& src2)
- *                          Fills dst with permutation of src1 and src2
- *                          according to mask.
- *                          Mask is a list of integers that specifies the elements
- *                          that should be extracted and returned in src1 and src2.
+ *                          in the @c mask.
+ *
+ *  - @c CxxUtils::vpermute2<mask> (VEC& dst, const VEC& src1,const VEC& src2)
+ *                          Fills @c dst with permutation of @c src1 and @c src2
+ *                          according to @c mask.
+ *                          @c mask is a list of integers that specifies the elements
+ *                          that should be extracted from @c src1 and @c src2.
  *                          An index i in the interval [0,N) indicates that element number i
  *                          from the first input vector should be placed in the
  *                          corresponding position in the result vector.
@@ -83,11 +97,6 @@
  *                          indicates that the element number i-N
  *                          from the second input vector should be placed
  *                          in the corresponding position in the result vector.
- *  - @c CxxUtils::vconvert(VEC1& dst, const VEC2& src)
- *                          Fills dst with the result  of a
- *                          static_cast of every element of src
- *                          to the element type of dst.
- *                          dst[i] = static_cast<vec_type_t<VEC1>>(src[i])
  *
  * In terms of expected performance it might be  advantageous to
  * use vector types that fit the size of the ISA.
@@ -310,6 +319,24 @@ vmax(VEC& dst, const VEC& a, const VEC& b)
 #endif
 }
 
+template<typename VEC1, typename VEC2>
+inline void
+vconvert(VEC1& dst, const VEC2& src)
+{
+  static_assert((vec_size<VEC1>() == vec_size<VEC2>()),
+                "vconvert dst and src have different number of elements");
+
+#if !HAVE_CONVERT_VECTOR || WANT_VECTOR_FALLBACK
+  typedef vec_type_t<VEC1> ELT;
+  constexpr size_t N = vec_size<VEC1>();
+  for (size_t i = 0; i < N; ++i) {
+    dst[i] = static_cast<ELT>(src[i]);
+  }
+#else
+  dst = __builtin_convertvector(src, VEC1);
+#endif
+}
+
 /**
  * @brief Helper for static asserts for argument packs
  */
@@ -334,7 +361,7 @@ vpermute(VEC& dst, const VEC& src)
                 "vpermute number of indices different than vector size");
   static_assert(
     bool_pack_helper::all_true<(Indices >= 0 && Indices < N)...>::value,
-    "vpermute indices outside allowed range");
+    "vpermute value of a mask index is outside the allowed range");
 
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   dst = VEC{ src[Indices]... };
@@ -346,20 +373,21 @@ vpermute(VEC& dst, const VEC& src)
 }
 
 /**
- * @brief vblend function.
- * permutes and blends elements from two vectors
- * Similar to the permute functions, but with two input vectors.
+ * @brief vpermute2 function.
+ * move any element of a vector src
+ * into any or multiple position inside dst.
  */
 template<size_t... Indices, typename VEC>
 inline void
-vblend(VEC& dst, const VEC& src1, const VEC& src2)
+vpermute2(VEC& dst, const VEC& src1, const VEC& src2)
 {
   constexpr size_t N = vec_size<VEC>();
-  static_assert((sizeof...(Indices) == N),
-                "vblend number of indices different than vector size");
+  static_assert(
+    (sizeof...(Indices) == N),
+    "vpermute2 number of indices different than vector size");
   static_assert(
     bool_pack_helper::all_true<(Indices >= 0 && Indices < 2 * N)...>::value,
-    "vblend indices outside allowed range");
+    "vpermute2 value of a mask index is outside the allowed range");
 
 #if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   VEC tmp;
@@ -380,23 +408,6 @@ vblend(VEC& dst, const VEC& src1, const VEC& src2)
 #endif
 }
 
-template<typename VEC1, typename VEC2>
-inline void
-vconvert(VEC1& dst, const VEC2& src)
-{
-  static_assert((vec_size<VEC1>() == vec_size<VEC2>()),
-                "vconvert dst and src have different number of elements");
-
-#if !HAVE_CONVERT_VECTOR || WANT_VECTOR_FALLBACK
-  typedef vec_type_t<VEC1> ELT;
-  constexpr size_t N = vec_size<VEC1>();
-  for (size_t i = 0; i < N; ++i) {
-    dst[i] = static_cast<ELT>(src[i]);
-  }
-#else
-  dst = __builtin_convertvector(src, VEC1);
-#endif
-}
 
 } // namespace CxxUtils
 
