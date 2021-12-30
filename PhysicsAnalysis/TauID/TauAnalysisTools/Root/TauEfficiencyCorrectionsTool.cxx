@@ -118,8 +118,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       }
     }
 
-    if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && (m_tTauSelectionTool->m_iEleBDTWP != ELEIDNONE))
-        and !(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // re-tuned eleBDT working points
+    if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && (m_tTauSelectionTool->m_iEleBDTWP != ELEIDNONE)))
     {
       ATH_MSG_DEBUG("EleBDT");
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTLOOSE)
@@ -132,25 +131,6 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
         ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_tTauSelectionTool->m_iEleBDTWP << 
           " are not supported in recommendations tag " << m_sRecommendationTag <<
           "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst");
-    }
-    else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && !(m_tTauSelectionTool->m_iEleBDTWP == ELEIDNONE))
-             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // old LLH based eVeto
-    {
-      ATH_MSG_DEBUG("EleVeto");
-      m_iOLRLevel = TAUELEOLR;
-    }
-    else if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && (m_tTauSelectionTool->m_iEleBDTWP != ELEIDNONE))
-             and (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR && m_tTauSelectionTool->m_bEleOLR)) // old BDT+LLH based eVeto
-    {
-      ATH_MSG_DEBUG("EleBDTPLUSVeto");
-      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDLOOSE)
-        m_iOLRLevel = ELEBDTLOOSEPLUSVETO;
-      else if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDMEDIUM)
-        m_iOLRLevel = ELEBDTMEDIUMPLUSVETO;
-      else
-        ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_tTauSelectionTool->m_iEleBDTWP << 
-          " in combination with LLH eVeto are not supported in recommendations tag " << m_sRecommendationTag <<
-          "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst"); 
     }
 
     // use electron OLR scale factors if TauSelectionTool applies electron veto
@@ -191,28 +171,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       }
     }
 
-    
-    if (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR
-      and !(m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP) )
-    {
-      ATH_MSG_DEBUG("TauEleOLR");
-      m_iOLRLevel = TAUELEOLR;
-    }
-    else if (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR
-      and m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP )
-    {
-      ATH_MSG_DEBUG("TauBDTPLUSTauEleolr");
-      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDLOOSE)
-        m_iOLRLevel = ELEBDTLOOSEPLUSVETO;
-      else if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDMEDIUM)
-        m_iOLRLevel = ELEBDTMEDIUMPLUSVETO;
-      else
-        ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_tTauSelectionTool->m_iEleBDTWP << 
-          " in combination with LLH eVeto are not supported in recommendations tag " << m_sRecommendationTag <<
-          "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst");
-    }
-    else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR)
-      and m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP )
+    if(m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP)
     {
       ATH_MSG_DEBUG("TauBDT");
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDLOOSE)
