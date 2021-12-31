@@ -289,6 +289,7 @@ class TrigTauMonAlgBuilder:
 
       if(info.isDiTau()):
         self.bookDiTauVars(monAlg, trigger)   
+        self.bookDiTauHLTEffHistograms(monAlg, trigger)
 
     #remove duplicated from L1 seed list
     l1seeds = list(dict.fromkeys(l1seeds))
@@ -322,6 +323,29 @@ class TrigTauMonAlgBuilder:
     defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
     defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
     defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2) 
+    defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
+
+  #
+  # Booking DiTau efficiencies
+  #
+
+  def bookDiTauHLTEffHistograms(self, monAlg, trigger):
+  
+    monGroupName = trigger+'_DiTauHLT_Efficiency'
+    monGroupPath = 'DiTauHLT_Efficiency/'+trigger+'/DiTauHLT_Efficiency'
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_DiTauHLTpass,'+monGroupName+'_'+xvariable+';EffDiTauHLT_'+xvariable+'_wrt_Offline',
+                                title='DiTau HLT Efficiency ' +trigger+';'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('dR',' dR(#tau,#tau)',40,0,4)
+    defineEachStepHistograms('dEta',' dEta(#tau,#tau)',40,0,4)
+    defineEachStepHistograms('dPhi',' dPhi(#tau,#tau)',16, -3.2, 3.2)
     defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
 
   #
@@ -494,4 +518,8 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hleadEFPhi,hsubleadEFPhi', type='TH2F', title='lead Phi vs sublead Phi; lead #phi ; sublead #phi',
                                xbins=16,xmin=-3.2,xmax=3.2,ybins=16,ymin=-3.2,ymax=3.2) 
     monGroup.defineHistogram('hdR', title='EF dR(#tau,#tau);dR(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
+    monGroup.defineHistogram('hdEta', title='EF dEta(#tau,#tau);dEta(#tau,#tau);Nevents',xbins=40,xmin=0,xmax=4)
+    monGroup.defineHistogram('hdPhi', title='EF dPhi(#tau,#tau);dPhi(#tau,#tau);Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+
+
 
