@@ -46,7 +46,6 @@
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
-#include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
@@ -356,7 +355,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauSmearingTool(""),
     m_tauTruthMatch(""),
     m_tauEffTool(""),
-    m_tauElORdecorator(""),
     //
     m_btagEffTool(""),
     m_btagSelTool(""),
@@ -677,7 +675,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_tauSmearingTool.declarePropertyFor( this, "TauSmearingTool", "The TauSmearingTool" );
   m_tauTruthMatch.declarePropertyFor( this, "TauTruthMatch", "The TTMT" );
   m_tauEffTool.declarePropertyFor( this, "TauEfficiencyCorrectionsTool", "The TauEfficiencyCorrectionsTool" );
-  m_tauElORdecorator.declarePropertyFor( this, "TauOverlappingElectronLLHDecorator", "The TauOverlappingElectronLLHDecorator tool" );
   //
   m_btagEffTool.declarePropertyFor( this, "BTaggingEfficiencyTool", "The BTaggingEfficiencyTool" );
   m_btagSelTool.declarePropertyFor( this, "BTaggingSelectionTool", "The main BTaggingSelectionTool" );

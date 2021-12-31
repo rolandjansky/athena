@@ -82,22 +82,6 @@ def setup(HIGG4DxName, ToolSvc):
         augmentationTools.append(HIGG4DxTauTruthMatchingWrapper)
 
 
-    #Tau Overlapping Electron LLH Decorator
-    from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauOverlappingElectronLLHDecorator
-    HIGG4DxTauOrlElLLHDec = TauAnalysisTools__TauOverlappingElectronLLHDecorator(name="HIGG4DxTauOrlElLLHDec",
-                                                                                 ElectronContainerName = "Electrons")
-    
-    ToolSvc += HIGG4DxTauOrlElLLHDec
-        
-    #Tau Overlapping Electron LLH Decorator Wrapper
-    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauOverlappingElectronLLHDecoratorWrapper
-    HIGG4DxTauOrlElLLHDecWrapper = DerivationFramework__TauOverlappingElectronLLHDecoratorWrapper( name = "HIGG4DxTauOrlElLLHDecWrapper",
-                                                                                                   TauOverlappingElectronLLHDecorator = HIGG4DxTauOrlElLLHDec,
-                                                                                                   TauContainerName     = "TauJets")
-    
-    ToolSvc += HIGG4DxTauOrlElLLHDecWrapper
-    augmentationTools.append(HIGG4DxTauOrlElLLHDecWrapper)
-
     #=============
     # return tools
     #=============

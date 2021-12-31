@@ -22,7 +22,6 @@
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/TauTruthMatchingTool.h"
 #include "TauAnalysisTools/TauTruthTrackMatchingTool.h"
-#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 // EDM include(s):
 #include "xAODTau/TauJetContainer.h"

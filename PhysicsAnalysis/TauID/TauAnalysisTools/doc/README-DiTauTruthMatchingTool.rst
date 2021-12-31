@@ -124,5 +124,4 @@ Navigation
 
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
   * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
-  * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_
 

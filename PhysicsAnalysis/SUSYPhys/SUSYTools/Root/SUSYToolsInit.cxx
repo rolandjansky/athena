@@ -46,7 +46,6 @@ using namespace ST;
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
-#include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
@@ -1434,14 +1433,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     } else if (m_tauTruthMatch.isUserConfigured()) ATH_CHECK( m_tauTruthMatch.retrieve() );
 
 
-//disable  ///////////////////////////////////////////////////////////////////////////////////////////
-//disable  // Initialise TauOverlappingElectronLLHDecorator tool
-//disable  
-//disable    if (!m_tauElORdecorator.isUserConfigured()) {
-//disable      m_tauElORdecorator.setTypeAndName("TauAnalysisTools::TauOverlappingElectronLLHDecorator/TauEleORDecorator");
-//disable      ATH_CHECK( m_tauElORdecorator.setProperty("OutputLevel", this->msg().level()) );
-//disable      ATH_CHECK( m_tauElORdecorator.retrieve() );
-//disable    } else  ATH_CHECK( m_tauElORdecorator.retrieve() );
   }
 
 
