@@ -2752,17 +2752,17 @@ StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electr
   // Count number of objects after overlap removal
   int Nel = 0;
   for (const auto& el : *electrons) {
-    if (dec_passOR( *el )) Nel++;
+    if (acc_passOR( *el )) Nel++;
   }
 
   int Nmu = 0;
   for (const auto& mu : *muons) {
-    if (dec_passOR( *mu )) Nmu++;
+    if (acc_passOR( *mu )) Nmu++;
   }
 
   int Njet = 0;
   for (const auto& jet : *jets) {
-    if (dec_passOR( *jet )) Njet++;
+    if (acc_passOR( *jet )) Njet++;
   }
 
   ATH_MSG_VERBOSE( "After overlap removal: Nel=" << Nel << ", Nmu=" << Nmu << ", Njet=" << Njet );

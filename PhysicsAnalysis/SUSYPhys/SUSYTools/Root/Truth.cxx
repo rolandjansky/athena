@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -306,10 +306,11 @@ bool SUSYObjDef_xAOD::IsTruthBJet(const xAOD::Jet& input) const {
     }
 
     isBjet = std::abs(truthlabel) == 5;
-    const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
-    dec_bjet_jetunc(input) = isBjet;
-
   }
+
+  const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
+  dec_bjet_jetunc(input) = isBjet;
+
   return isBjet;
 }
 
