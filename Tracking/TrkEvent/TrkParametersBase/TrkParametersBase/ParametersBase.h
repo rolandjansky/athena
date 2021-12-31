@@ -187,13 +187,13 @@ protected:
 
   /* Helper ctors for derived classes*/
   ParametersBase(const AmgVector(DIM) parameters,
-                 std::optional<AmgSymMatrix(DIM)> covariance,
+                 std::optional<AmgSymMatrix(DIM)>&& covariance,
                  const T chargeDef);
 
-  ParametersBase(std::optional<AmgSymMatrix(DIM)> covariance);
+  ParametersBase(std::optional<AmgSymMatrix(DIM)>&& covariance);
 
   ParametersBase(const AmgVector(DIM) & parameters,
-                 std::optional<AmgSymMatrix(DIM)> covariance = std::nullopt);
+                 std::optional<AmgSymMatrix(DIM)>&& covariance = std::nullopt);
 
   /*
    * Default Move ctor/assignment, private can be used
