@@ -95,7 +95,6 @@ namespace TauAnalysisTools {
   class ITauSelectionTool;
   class ITauSmearingTool;
   class ITauEfficiencyCorrectionsTool;
-  class ITauOverlappingElectronLLHDecorator;
   class ITauTruthMatchingTool;
 }
 
@@ -819,7 +818,6 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_tauTruthMatch;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffTool;
     std::vector<asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool>> m_tauTrigEffTool;
-    asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tauElORdecorator;
     //
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;
