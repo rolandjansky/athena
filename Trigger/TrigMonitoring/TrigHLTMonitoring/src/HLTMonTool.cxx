@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTMonTool.cxx
@@ -203,8 +203,7 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
       xAOD::LumiBlockRangeContainer::const_iterator ie = m_lbc->end();
       xAOD::LumiBlockRangeContainer::const_iterator lbit = m_lbc->begin();
 
-      int nLBs = 0;
-      uint32_t start=0, stop=0;
+      uint32_t stop=0;
 
       //      uint32_t first = (((IOVRange*)(*lbit))->start()).event();
       //      for(;lbit!=m_lbc->end();++lbit){
@@ -214,10 +213,7 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
 
       uint32_t first = (*lbit)->startLumiBlockNumber();
       for(;lbit!=ie;++lbit){
-	start = (*lbit)->startLumiBlockNumber();
 	stop = (*lbit)->stopLumiBlockNumber();
-
-	nLBs += stop - start + 1;
       }//loop over contigous lb ranges
       
       //get all LumiBlocks for this run
