@@ -153,6 +153,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
 
   const double thresholdOffset{10.0};
 
+  std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_all; // offline taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_1p; // offline 1p taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_mp; // offline mp taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_0p; // online 0p taus used for studying HLT performance
@@ -175,6 +176,10 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
     }else if(nTracks>1 && ( pairObj.first->pt() > (HLTthr-thresholdOffset)*1.e3)){
        offline_for_hlt_tau_vec_mp.push_back(pairObj.first);
     }
+     
+    // fill vector with all offline taus for ditau HLT performance studies
+    offline_for_hlt_tau_vec_all.push_back(pairObj.first);
+
   }
   // Offline
   if( !offline_for_hlt_tau_vec_1p.empty()){
@@ -247,8 +252,10 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
   // fill ditau information 
   if(info.isDiTau){
      fillDiTauVars(trigger, online_tau_vec_all);
+     fillDiTauHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_all, online_tau_vec_all);
   }
 
+  offline_for_hlt_tau_vec_all.clear();
   offline_for_hlt_tau_vec_1p.clear();
   offline_for_hlt_tau_vec_mp.clear();
   online_tau_vec_0p.clear();
@@ -391,6 +398,40 @@ void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const
 
   ATH_MSG_DEBUG("After fill HLT efficiencies: " << trigger);
 
+}
+
+void TrigTauMonitorAlgorithm::fillDiTauHLTEfficiencies(const EventContext& ctx, const std::string& trigger, const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::vector<const xAOD::TauJet*>& online_tau_vec) const
+{
+  ATH_MSG_DEBUG("Fill DiTau HLT efficiencies: " << trigger);
+
+  // require 2 offline taus and 2 online taus
+  if(online_tau_vec.size() != 2 || offline_tau_vec.size() != 2) return;
+ 
+  std::string monGroupName = trigger+"_DiTauHLT_Efficiency";
+ 
+  auto monGroup = getGroup(monGroupName);
+
+  auto dR = Monitored::Scalar<float>(monGroupName+"_dR",0.0);
+  auto dEta = Monitored::Scalar<float>(monGroupName+"_dEta",0.0);
+  auto dPhi = Monitored::Scalar<float>(monGroupName+"_dPhi",0.0);
+  auto averageMu = Monitored::Scalar<float>(monGroupName+"_averageMu",0.0);
+  auto HLT_match = Monitored::Scalar<bool>(monGroupName+"_DiTauHLTpass",false);
+
+  // efficiency numerator : hlt fires + two offline taus matched with online taus
+  bool hlt_fires = m_trigDecTool->isPassed(trigger, TrigDefs::Physics);
+  bool tau0_match = HLTMatching(offline_tau_vec.at(0), online_tau_vec, 0.2);
+  bool tau1_match = HLTMatching(offline_tau_vec.at(1), online_tau_vec, 0.2);
+
+  dR   = offline_tau_vec.at(0)->p4().DeltaR(offline_tau_vec.at(1)->p4());
+  dEta = std::abs(offline_tau_vec.at(0)->p4().Eta() - offline_tau_vec.at(1)->p4().Eta());
+  dPhi = offline_tau_vec.at(0)->p4().DeltaPhi(offline_tau_vec.at(1)->p4());
+  averageMu = lbAverageInteractionsPerCrossing(ctx);
+  HLT_match = hlt_fires && tau0_match && tau1_match;
+
+  fill(monGroup, dR, dEta, dPhi, averageMu, HLT_match);
+
+  ATH_MSG_DEBUG("After fill DiTau HLT efficiencies: " << trigger);
+  
 }
 
 void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , const std::vector<const xAOD::TauJet*>& offline_tau_vec, const std::string& nProng, const std::string& trigL1Item, const std::vector<const xAOD::EmTauRoI*>& legacyL1rois, const std::vector<const xAOD::eFexTauRoI*>& phase1L1rois) const
@@ -737,7 +778,9 @@ void TrigTauMonitorAlgorithm::fillDiTauVars(const std::string& trigger, const st
   auto leadEFPhi = Monitored::Scalar<float>("hleadEFPhi",0.0);
   auto subleadEFPhi = Monitored::Scalar<float>("hsubleadEFPhi",0.0);
   auto dR = Monitored::Scalar<float>("hdR",0.0);
- 
+  auto dEta = Monitored::Scalar<float>("hdEta",0.0);  
+  auto dPhi = Monitored::Scalar<float>("hdPhi",0.0); 
+
   // get the index of the leading and the subleading tau
   unsigned int index0=0, index1=1;
   if(tau_vec.at(1)->p4().Pt() > tau_vec.at(0)->p4().Pt()){
@@ -752,8 +795,10 @@ void TrigTauMonitorAlgorithm::fillDiTauVars(const std::string& trigger, const st
   leadEFPhi = tau_vec.at(index0)->p4().Phi();
   subleadEFPhi = tau_vec.at(index1)->p4().Phi();
   dR = tau_vec.at(index0)->p4().DeltaR(tau_vec.at(index1)->p4());
+  dEta = std::abs(tau_vec.at(index0)->p4().Eta() - tau_vec.at(index1)->p4().Eta());
+  dPhi = tau_vec.at(index0)->p4().DeltaPhi(tau_vec.at(index1)->p4());
 
-  fill(monGroup, leadEFEt, subleadEFEt, leadEFEta, subleadEFEta, leadEFPhi, subleadEFPhi, dR);
+  fill(monGroup, leadEFEt, subleadEFEt, leadEFEta, subleadEFEta, leadEFPhi, subleadEFPhi, dR, dEta, dPhi);
 
   ATH_MSG_DEBUG("After fill DiTau variables: " << trigger); 
 }
