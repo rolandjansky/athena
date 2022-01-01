@@ -76,7 +76,7 @@ void TrackTruthSimilaritySelector::fillOutput(TrackTruthCollection *out,
     ATH_MSG_VERBOSE ("track="<<selected->first.index()<<" prob="<<bestProb
 		     <<" link: "<<*(selected->second.trajectory().rbegin()));
 
-    for(Iter imatch = ++range.first; imatch != range.second; imatch++) {
+    for(Iter imatch = ++range.first; imatch != range.second; ++imatch) {
       double prob = m_matchTool->trackTruthSimilarity(imatch->second);
       ATH_MSG_VERBOSE ("track="<<imatch->first.index()<<" prob="<<prob
 		       <<" link: "<<*(imatch->second.trajectory().rbegin()));
