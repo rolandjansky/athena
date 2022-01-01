@@ -523,11 +523,11 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
       }
     }
 
-    if (ibinEta == -1) {
+    if (ibinEta < 0) {
       iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
       return iflag;
     }
- 
+
     // check the bin number
     const int ibin_combined = ibine * m_cutBinEta_photonsNonConverted.size() + ibinEta;
     
@@ -742,7 +742,7 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
   }
   if (!m_e277_photonsConverted.empty() && e277 >= m_e277_photonsConverted[0]) {
 
-    if (ibinEta == -1) {
+    if (ibinEta < 0) {
       iflag |= (0x1 << egammaPID::ClusterEtaRange_Photon);
       return iflag;
     }
