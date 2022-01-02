@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def getNewConfigFlags():
     """Create new ConfigFlags from old-style jobproperties. Usage:
@@ -79,6 +79,9 @@ def getNewConfigFlags():
     from InDetRecExample.InDetJobProperties import InDetFlags
     ConfigFlags.InDet.doTIDE_Ambi = InDetFlags.doTIDE_Ambi()
     ConfigFlags.InDet.useDCS = InDetFlags.useDCS()
+
+    from LArConditionsCommon.LArCondFlags import larCondFlags 
+    ConfigFlags.LAr.OFCShapeFolder = larCondFlags.OFCShapeFolder()
 
     if rec.doDPD():
         # flags for Physics Validation (ATLASRECTS-6636)
