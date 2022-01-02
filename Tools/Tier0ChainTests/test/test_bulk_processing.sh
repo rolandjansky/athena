@@ -7,7 +7,7 @@
 
 Reco_tf.py  \
 --AMI f1196  \
---inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data21_comm.00404400.express_express.merge.RAW/data21_comm.00404400.express_express.merge.RAW._lb2497._SFO-ALL._0001.1" \
+--inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data21_comm.00404400.express_express.merge.RAW._lb2497._SFO-ALL._0001.1" \
 --outputHISTFile="HIST.root" \
 --outputAODFile="AOD.root" \
 --imf False
