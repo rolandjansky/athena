@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 import InDetConfig.TrackingCommonConfig         as   TC
@@ -61,7 +61,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
         #
         # --- DAF Fitter setup
         #
-        InDetExtensionFitter = acc.popToolsAndMerge(DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF'+ flags.InDet.Tracking.extension))
+        InDetExtensionFitter = acc.popToolsAndMerge(DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF'+ flags.InDet.Tracking.Pass.extension))
         acc.addPublicTool(InDetExtensionFitter)
     else:
         fitter_args = {}
@@ -70,11 +70,11 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
             from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
             InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
             fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
-        if flags.InDet.Tracking.extension != "LowPt":
-            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.extension, **fitter_args))
+        if flags.InDet.Tracking.Pass.extension != "LowPt":
+            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.Pass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
         else:
-            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.extension, **fitter_args))
+            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.Pass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
     #
     # --- load scoring for extension
@@ -104,17 +104,17 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     kwargs.setdefault("suppressHoleSearch", False)
     kwargs.setdefault("tryBremFit", flags.InDet.doBremRecovery)
     kwargs.setdefault("caloSeededBrem", flags.InDet.doCaloSeededBrem)
-    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.minPTBrem)
+    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", not (flags.InDet.refitROT or (flags.InDet.trtExtensionType == 'DAF')))
     
     if doPhase:
         kwargs.setdefault("Cosmics", True)
 
-        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor(name = "InDetExtensionProcessorPhase" + flags.InDet.Tracking.extension, **kwargs))
+        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor(name = "InDetExtensionProcessorPhase" + flags.InDet.Tracking.Pass.extension, **kwargs))
     else:
         kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
 
-        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor("InDetExtensionProcessor" + flags.InDet.Tracking.extension, **kwargs))
+        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor("InDetExtensionProcessor" + flags.InDet.Tracking.Pass.extension, **kwargs))
 
     return acc
 
@@ -132,12 +132,12 @@ def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCol
     #
     if doPhase:
         acc.merge(TRT_TrackExtensionAlgCfg( flags,
-                                            name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.extension,
+                                            name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.Pass.extension,
                                             SiTrackCollection=SiTrackCollection,
                                             ExtendedTracksMap = ExtendedTracksMap))
     else:
         acc.merge(TRT_TrackExtensionAlgCfg( flags,  
-                                            name = 'InDetTRT_Extension' + flags.InDet.Tracking.extension,
+                                            name = 'InDetTRT_Extension' + flags.InDet.Tracking.Pass.extension,
                                             SiTrackCollection=SiTrackCollection,
                                             ExtendedTracksMap = ExtendedTracksMap,
                                             TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
@@ -230,8 +230,8 @@ if __name__ == "__main__":
     #################### Additional Configuration  ########################
     #######################################################################
     ################# TRTPreProcessing Configuration ######################
-    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
     if not ConfigFlags.InDet.doDBMstandalone:
+        from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
         top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
 
     ################ TRTSegmentFinding Configuration ######################

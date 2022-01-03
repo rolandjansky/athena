@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from InDetConfig.ITkRecToolConfig import ITkBoundaryCheckToolCfg, ITkPatternPropagatorCfg, ITkPatternUpdatorCfg
@@ -7,21 +7,6 @@ import InDetConfig.ITkTrackingCommonConfig as TC
 
 def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
-    #
-    # --- decide if use the association tool
-    #
-    if (len(InputCollections) > 0) and \
-        (flags.ITk.Tracking.Pass.extension == "LargeD0" \
-         or flags.ITk.Tracking.Pass.extension == "ConversionFinding"):
-        usePrdAssociationTool = True
-    else:
-        usePrdAssociationTool = False
-    #
-    # --- get list of already associated hits (always do this, even if no other tracking ran before)
-    #
-    if usePrdAssociationTool:
-        prefix = 'ITk'
-        suffix = flags.ITk.Tracking.Pass.extension
     #
     # --- Space points seeds maker, use different ones for cosmics and collisions
     #
@@ -40,9 +25,9 @@ def ITkSiSpacePointsSeedMakerCfg(flags, name="ITkSpSeedsMaker", InputCollections
     kwargs.setdefault("radMax", flags.ITk.Tracking.Pass.radMax)
     kwargs.setdefault("etaMax", flags.ITk.Tracking.Pass.maxEta )
 
-    if usePrdAssociationTool:
+    if (len(InputCollections) > 0) and flags.ITk.Tracking.Pass.usePrdAssociationTool:
         # not all classes have that property !!!
-        kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+ suffix)
+        kwargs.setdefault("PRDtoTrackMap", 'ITkPRDtoTrackMap'+ flags.ITk.Tracking.Pass.extension)
     if not flags.Beam.Type == 'cosmics':
         kwargs.setdefault("maxRadius1", 0.75*flags.ITk.Tracking.Pass.radMax)
         kwargs.setdefault("maxRadius2", flags.ITk.Tracking.Pass.radMax)
@@ -90,7 +75,6 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     #
     # --- Local track finding using sdCaloSeededSSSpace point seed
     #
-    # @TODO ensure that PRD association map is used if usePrdAssociationTool is set
     ITkRotCreatorDigital = acc.getPrimaryAndMerge(TC.ITkRotCreatorDigitalCfg(flags))
     ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
     ITkPatternUpdator = acc.popToolsAndMerge(ITkPatternUpdatorCfg(flags))
@@ -149,14 +133,6 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
 
     track_finder = acc.popToolsAndMerge(ITkSiCombinatorialTrackFinder_xkCfg(flags))
 
-    #
-    # --- decide if use the association tool
-    #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.Pass.extension == "LargeD0" or flags.ITk.Tracking.Pass.extension == "ConversionFinding"):
-        usePrdAssociationTool = True
-    else:
-        usePrdAssociationTool = False
-
     kwargs.setdefault("useSCT", flags.ITk.Tracking.Pass.useITkStrip)
     kwargs.setdefault("usePixel", flags.ITk.Tracking.Pass.useITkPixel)
     kwargs.setdefault("RoadTool", ITkSiDetElementsRoadMaker)
@@ -186,7 +162,7 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("etaWidth", flags.ITk.Tracking.Pass.etaWidthBrem[0])
     kwargs.setdefault("InputClusterContainerName", 'ITkCaloClusterROIs')
     kwargs.setdefault("InputHadClusterContainerName", 'ITkHadCaloClusterROIs')
-    kwargs.setdefault("UseAssociationTool", usePrdAssociationTool)
+    kwargs.setdefault("UseAssociationTool", (len(InputCollections) > 0) and (flags.ITk.Tracking.Pass.usePrdAssociationTool))
     kwargs.setdefault("ITKGeometry", True)
 
     if flags.Beam.Type == 'cosmics':
@@ -222,19 +198,6 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     # set output track collection name
     #
     SiTrackCollection = SiSPSeededTrackCollectionKey
-    #
-    # --- decide if use the association tool
-    #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.Pass.extension == "LargeD0" or flags.ITk.Tracking.Pass.extension == "ConversionFinding"):
-        usePrdAssociationTool = True
-    else:
-        usePrdAssociationTool = False
-    #
-    # --- get list of already associated hits (always do this, even if no other tracking ran before)
-    #
-    if usePrdAssociationTool:
-        prefix = 'ITk'
-        suffix = flags.ITk.Tracking.Pass.extension
 
     ITkSiTrackMaker = acc.popToolsAndMerge(ITkSiTrackMaker_xkCfg(flags,
                                                                  InputCollections = InputCollections ))
@@ -249,8 +212,9 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     #
     kwargs.setdefault("TrackTool", ITkSiTrackMaker)
     kwargs.setdefault("PropagatorTool", ITkPropagator)
-    kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix \
-                                            if usePrdAssociationTool else '')
+    if (len(InputCollections) > 0) and flags.ITk.Tracking.Pass.usePrdAssociationTool:
+        # not all classes have that property !!!
+        kwargs.setdefault("PRDtoTrackMap", 'ITkPRDtoTrackMap'+ flags.ITk.Tracking.Pass.extension)
     kwargs.setdefault("TrackSummaryTool", ITkTrackSummaryToolNoHoleSearch)
     kwargs.setdefault("TracksLocation", SiTrackCollection)
     kwargs.setdefault("SeedsTool", ITkSiSpacePointsSeedMaker)
@@ -494,20 +458,11 @@ def ITkTrkAmbiguitySolverCfg(flags, name="ITkAmbiguitySolver", ResolvedTrackColl
 def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollectionKey = None, SiSPSeededTrackCollectionKey = None , ClusterSplitProbContainer=''):
     acc = ComponentAccumulator()
     #
-    # --- decide if use the association tool
-    #
-    if (len(InputCollections) > 0) and (flags.ITk.Tracking.Pass.extension == "LargeD0" or flags.ITk.Tracking.Pass.extension == "ConversionFinding"):
-        usePrdAssociationTool = True
-    else:
-        usePrdAssociationTool = False
-    #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
-    if usePrdAssociationTool:
-        prefix = 'ITk'
-        suffix = flags.ITk.Tracking.Pass.extension
-        acc.merge(TC.ITkTrackPRD_AssociationCfg(flags,namePrefix = prefix,
-                                                nameSuffix = suffix,
+    if (len(InputCollections) > 0) and flags.ITk.Tracking.Pass.usePrdAssociationTool:
+        acc.merge(TC.ITkTrackPRD_AssociationCfg(flags,namePrefix = 'ITk',
+                                                nameSuffix = flags.ITk.Tracking.Pass.extension,
                                                 TracksName = list(InputCollections)))
 
     # ------------------------------------------------------------

@@ -1,12 +1,8 @@
-#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 import AthenaCommon.SystemOfUnits as Units
-
-
-## constants
-max_holes = 2 ## was 5
 
 def select( selInd, valuesmap ):
     for k,v in valuesmap.items():    
@@ -44,8 +40,8 @@ def minClusters_ranges( inflags ):
 
 def maxHoles_ranges( inflags ):
     return select( inflags.InDet.cutLevel,
-    {'-7':  max_holes,
-    '8-':  max_holes } )
+    {'-7':  3,
+    '8-':  2 } )
 
 def maxPixelHoles_ranges( inflags ):
     return select( inflags.InDet.cutLevel,
@@ -65,12 +61,12 @@ def maxZImpact_ranges( inflags ):
 
 def nHolesMax_ranges( inflags ):
     return select( inflags.InDet.cutLevel,
-    {'-11':  max_holes,
+    {'-11':  3,
     '12-':  2 } )
 
 def nHolesGapMax_ranges( inflags ):
     return select( inflags.InDet.cutLevel,
-    {'-11':  max_holes,
+    {'-11':  3,
     '12-':  2 } )
 
 def Xi2max_ranges( inflags ):
@@ -205,13 +201,17 @@ def createTrackingPassFlags():
 
     icf.addFlag("extension", "" ) ### for extension
 
+    icf.addFlag("usePrdAssociationTool", False)
+    icf.addFlag("isLowPt", False)
+    icf.addFlag("useTIDE_Ambi", True)
+
     icf.addFlag("minPT", minPT_ranges )
     icf.addFlag("minSecondaryPt", minSecondaryPT_ranges ) #Pt cut for back tracking + segment finding for these
     icf.addFlag("minTRTonlyPt", minTRTonlyPt_ranges ) #Pt cut for TRT only
     icf.addFlag("pT_SSScut", -1. ) # off
 
     # --- first set kinematic defaults
-    icf.addFlag("maxPT", lambda pcf : 1000.0 * Units.TeV) # off!
+    icf.addFlag("maxPT", 1000.0 * Units.TeV) # off!
     icf.addFlag("minEta", -1) # off!
     icf.addFlag("maxEta", 2.7)
 
@@ -440,6 +440,7 @@ def createITkLargeD0TrackingPassFlags():
 
     icf = createTrackingPassFlags()
     icf.extension               = "LargeD0"
+    icf.usePrdAssociationTool = True
 
     icf.useEtaDepCuts      = True
     icf.maxPT              = [1.0 * Units.TeV]
@@ -548,6 +549,7 @@ def createMinBiasTrackingPassFlags():
 def createLargeD0TrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension          = "LargeD0"
+    icf.usePrdAssociationTool = True
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 900 * Units.MeV
     icf.maxEta             = 5
@@ -576,6 +578,7 @@ def createLargeD0TrackingPassFlags():
 def createR3LargeD0TrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension          = "R3LargeD0"
+    icf.usePrdAssociationTool = True
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 1.0 * Units.GeV                                                                                    
     icf.maxEta             = 3                                                                                                        
@@ -612,6 +615,7 @@ def createR3LargeD0TrackingPassFlags():
 def createLowPtLargeD0TrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension          = "LowPtLargeD0"
+    icf.usePrdAssociationTool = True
     icf.maxPT              = 1.0 * Units.TeV
     icf.minPT              = 100 * Units.MeV
     icf.maxEta             = 5
@@ -639,7 +643,9 @@ def createLowPtLargeD0TrackingPassFlags():
 def createLowPtTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension        = "LowPt"
-    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.doMinBias else pcf.InDet.Tracking.minPT + 0.3) * Units.GeV
+    icf.usePrdAssociationTool = True
+    icf.isLowPt          = True
+    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.doMinBias else pcf.InDet.Tracking.Pass.minPT + 0.3) * Units.GeV
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 5
     icf.minSiNotShared   = 4
@@ -660,6 +666,7 @@ def createLowPtTrackingPassFlags():
 def createITkConversionFindingTrackingPassFlags(): #To be updated
     icf = createTrackingPassFlags()
     icf.extension               = "ConversionFinding"
+    icf.usePrdAssociationTool = True
 
     icf.useEtaDepCuts           = True
     icf.etaBins                 = [-1.0,4.0]
@@ -694,7 +701,9 @@ def createITkConversionFindingTrackingPassFlags(): #To be updated
 def createVeryLowPtTrackingPassFlags():
     icf = createTrackingPassFlags() #TODO consider using createLowPtTrackingPassFlags as a base here
     icf.extension        = "VeryLowPt"
-    icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.doMinBias  else  pcf.InDet.Tracking.minPT + 0.3) * Units.GeV # some overlap
+    icf.usePrdAssociationTool = True
+    icf.isLowPt          = True
+    icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.doMinBias  else  pcf.InDet.Tracking.Pass.minPT + 0.3) * Units.GeV # some overlap
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 3
     icf.minSiNotShared   = 3
@@ -714,6 +723,8 @@ def createVeryLowPtTrackingPassFlags():
 def createForwardTracksTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension        = "ForwardTracks"
+    icf.usePrdAssociationTool = True
+    icf.useTIDE_Ambi     = False
     icf.minEta           = 2.4 # restrict to minimal eta
     icf.maxEta           = 2.7
     icf.minPT            = 2 * Units.GeV
@@ -736,6 +747,7 @@ def createForwardTracksTrackingPassFlags():
 def createBeamGasTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension        = "BeamGas"
+    icf.usePrdAssociationTool = True
     icf.minPT            = 0.500 * Units.GeV
     icf.maxPrimaryImpact = 300. * Units.mm
     icf.maxZImpact       = 2000. * Units.mm
@@ -853,6 +865,7 @@ def createHeavyIonTrackingPassFlags():
 def createPixelTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension        = "Pixel"
+    icf.isLowPt          = lambda pcf : pcf.doMinBias
 
     def _minPt( pcf ):
         if pcf.Beam.Type == "cosmics":
@@ -867,7 +880,7 @@ def createPixelTrackingPassFlags():
         return 0.1 * Units.GeV
     
     icf.minPT            = lambda pcf : _minPt    
-    icf.minClusters      = lambda pcf : 3
+    icf.minClusters      = 3
 
     def _pick( default, hion, cosmics):
         def _internal( pcf ):
@@ -895,7 +908,7 @@ def createPixelTrackingPassFlags():
     icf.maxZImpact       = lambda pcf: 10000. * Units.mm if pcf.Beam.Type == "cosmics" else maxZImpact_ranges( pcf )
     icf.Xi2max           = lambda pcf: 60.0  if pcf.Beam.Type =="cosmics" else Xi2max_ranges( pcf )
     icf.Xi2maxNoAdd      = lambda pcf: 100.0  if pcf.Beam.Type =="cosmics" else Xi2maxNoAdd_ranges( pcf )
-    icf.nWeightedClustersMin = lambda pcf: 6 if pcf.Beam.Type =="cosmics" else 6   # why change if detault is also 6!
+    icf.nWeightedClustersMin = 6
 
     return icf
 
@@ -903,6 +916,7 @@ def createPixelTrackingPassFlags():
 def createDisappearingTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension        = "Disappearing"
+    icf.usePrdAssociationTool = True
     icf.minPT            = 5 * Units.GeV
     icf.minClusters      = 4
     icf.maxHoles         = 0
@@ -1020,6 +1034,7 @@ def createSCTandTRTTrackingPassFlags():
 def createDBMTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension               = "DBM"
+    icf.useTIDE_Ambi            = False
     icf.minEta                  = 3.05
     icf.maxEta                  = 3.45
     icf.Xi2maxNoAdd             = 10000
@@ -1068,22 +1083,21 @@ if __name__ == "__main__":
   ConfigFlags.loadAllDynamicFlags()
 
   assert ConfigFlags.InDet.cutLevel == 19 , "default cut level is wrong"
-  assert ConfigFlags.InDet.Tracking.minRoIClusterEt == 6000.0 * Units.MeV, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.minRoIClusterEt)
+  assert ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt == 6000.0 * Units.MeV, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt)
   ConfigFlags.InDet.cutLevel = 2
-  assert ConfigFlags.InDet.Tracking.minRoIClusterEt == 0.0, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.minRoIClusterEt)  
-  assert ConfigFlags.InDet.BeamGasTracking.minRoIClusterEt == 0.0, "wrong cut value {}, not following cutLevel setting ".format(ConfigFlags.InDet.BeamGasTracking.minRoIClusterEt)   
+  assert ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt == 0.0, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt)
+  assert ConfigFlags.InDet.Tracking.BeamGasPass.minRoIClusterEt == 0.0, "wrong cut value {}, not following cutLevel setting ".format(ConfigFlags.InDet.Tracking.BeamGasPass.minRoIClusterEt)
 
-  assert ConfigFlags.InDet.HeavyIonTracking.minSiNotShared == 7, "wrong cut value, overwrite"
-  assert ConfigFlags.InDet.HeavyIonTracking.minRoIClusterEt == 0.0, "wrong cut value, overwrite"
+  assert ConfigFlags.InDet.Tracking.HeavyIonPass.minSiNotShared == 7, "wrong cut value, overwrite"
+  assert ConfigFlags.InDet.Tracking.HeavyIonPass.minRoIClusterEt == 0.0, "wrong cut value, overwrite"
 
-  print("ConfigFlags.InDet.SCTandTRTTracking.minPT",ConfigFlags.InDet.SCTandTRTTracking.minPT * 1.0)
-  print("ConfigFlags.InDet.SCTandTRTTracking.minPT",ConfigFlags.InDet.MinBiasTracking.minPT * 1.0)
-  print("type(ConfigFlags.InDet.SCTandTRTTracking)",type(ConfigFlags.InDet.SCTandTRTTracking.minPT)) 
+  print("ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT",ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT * 1.0)
+  print("type(ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT)",type(ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT))
 
-  print("ConfigFlags.InDet.Tracking.minSecondaryPt",ConfigFlags.InDet.Tracking.minSecondaryPt * 1.0)
-  print("type(ConfigFlags.InDet.Tracking.MinSecondaryPt)",type(ConfigFlags.InDet.Tracking.minSecondaryPt))
+  print("ConfigFlags.InDet.Tracking.Pass.minSecondaryPt",ConfigFlags.InDet.Tracking.Pass.minSecondaryPt * 1.0)
+  print("type(ConfigFlags.InDet.Tracking.Pass.minSecondaryPt)",type(ConfigFlags.InDet.Tracking.Pass.minSecondaryPt))
   
-  print("ConfigFlags.InDet.SCTandTRTTracking.roadWidth",ConfigFlags.InDet.SCTandTRTTracking.roadWidth * 1.0)
+  print("ConfigFlags.InDet.Tracking.SCTandTRTPass.roadWidth",ConfigFlags.InDet.Tracking.SCTandTRTPass.roadWidth * 1.0)
 
   #ConfigFlags.dump()
   print( "allok" )   

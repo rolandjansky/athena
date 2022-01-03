@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -283,9 +283,9 @@ def InDetTrackRecoCfg(flags):
     # LRT
     if flags.InDet.doLargeD0 or flags.InDet.doR3LargeD0:
         if flags.InDet.doR3LargeD0:
-            flagsLRT = flags.cloneAndReplace("InDet.Tracking", "InDet.R3LargeD0Tracking")
+            flagsLRT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.R3LargeD0Pass")
         else:
-            flagsLRT = flags.cloneAndReplace("InDet.Tracking", "InDet.LargeD0Tracking")
+            flagsLRT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.LargeD0Pass")
         result.merge(TrackingSiPatternCfg(flagsLRT, InputCombinedInDetTracks, "ResolvedLargeD0Tracks", "SiSpSeededLargeD0Tracks", "InDetTRT_SeededAmbiguityProcessorSplitProb"))
         LRTTrackContainer = "ResolvedLargeD0Tracks"
         if flags.InDet.doTRTExtension:
@@ -311,7 +311,7 @@ def InDetTrackRecoCfg(flags):
 
     # Low pt
     if flags.InDet.doLowPt:
-        flagsLowPt = flags.cloneAndReplace("InDet.Tracking", "InDet.LowPtTracking")
+        flagsLowPt = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.LowPtPass")
         result.merge(TrackingSiPatternCfg(flagsLowPt, InputCombinedInDetTracks, "ResolvedLowPtTracks", "SiSpSeededLowPtTracks"))
         LowPtTrackContainer = "ResolvedLowPtTracks"
         if flags.InDet.doTRTExtension:
@@ -325,13 +325,13 @@ def InDetTrackRecoCfg(flags):
 
     # Very low pt
     if flags.InDet.doVeryLowPt:
-        flagsVeryLowPt = flags.cloneAndReplace("InDet.Tracking", "InDet.VeryLowPtTracking")
+        flagsVeryLowPt = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.VeryLowPtPass")
         result.merge(TrackingSiPatternCfg(flagsVeryLowPt, InputCombinedInDetTracks, "ResolvedVeryLowPtTracks", "SiSpSeededLowPtTracks"))
         InputCombinedInDetTracks += ["ResolvedVeryLowPtTracks"]
 
     # TRT standalone
     if flags.InDet.doTRTStandalone:
-        flagsTRTStandalone = flags.cloneAndReplace("InDet.Tracking", "InDet.TRTStandaloneTracking")
+        flagsTRTStandalone = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.TRTStandalonePass")
         from InDetConfig.TRTStandaloneConfig import TRTStandaloneCfg
         result.merge(TRTStandaloneCfg(flagsTRTStandalone, "", InputCombinedInDetTracks, "TRTSegments"))
         InputCombinedInDetTracks += ["TRTStandaloneTracks"]
@@ -344,7 +344,7 @@ def InDetTrackRecoCfg(flags):
         if flags.InDet.storeSeparateLargeD0Container:
             InputForwardInDetTracks += ["ExtendedLargeD0Tracks"]
 
-        flagsForward = flags.cloneAndReplace("InDet.Tracking", "InDet.ForwardTracksTracking")
+        flagsForward = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.ForwardTracksPass")
         result.merge(TrackingSiPatternCfg(flagsForward, InputForwardInDetTracks, "ResolvedForwardTracks", "SiSpSeededForwardTracks", "InDetAmbiguityProcessorSplitProbR3LargeD0"))
         InputForwardInDetTracks += ["ResolvedForwardTracks"]
 
@@ -368,7 +368,7 @@ def InDetTrackRecoCfg(flags):
         if flags.InDet.storeSeparateLargeD0Container:
             InputPixelInDetTracks += ["ExtendedLargeD0Tracks"]
 
-        flagsDisappearing = flags.cloneAndReplace("InDet.Tracking", "InDet.DisappearingTracking")
+        flagsDisappearing = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.DisappearingPass")
         result.merge(TrackingSiPatternCfg(flagsDisappearing, InputPixelInDetTracks, "ResolvedDisappearingTracks", "SiSpSeededDisappearingTracks", "InDetAmbiguityProcessorSplitProbForwardTracks"))
         DisappearingTrackContainer = "ResolvedDisappearingTracks"
         if flags.InDet.doTRTExtension:

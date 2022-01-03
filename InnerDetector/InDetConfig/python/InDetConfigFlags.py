@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 # TODO: clean up flags, should only contain general settings but no alg config
@@ -8,9 +8,10 @@ def createInDetConfigFlags():
   icf=AthConfigFlags()
 
   icf.addFlag("InDet.doDBMstandalone",False)
-  # FIXME: Flags shouldn't turn on/off individual algorithms
   icf.addFlag("InDet.doSplitReco", False) # Turn running of the truth seeded pseudo tracking only for pileup on and off. Only makes sense to run on RDO file where SplitDigi was used!
-  icf.addFlag("InDet.doRefit", False) # Turn running of refitting on and off
+
+  icf.addFlag("InDet.Tracking.doRefit", False) # Turn running of refitting on and off
+
   icf.addFlag("InDet.doHighPileup", False) # Turn running of high pile-up reconstruction on and off
   icf.addFlag("InDet.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
   icf.addFlag("InDet.doBackTracking", True) # Turn running of backtracking on and off
@@ -108,28 +109,28 @@ def createInDetConfigFlags():
     createPixelTrackingPassFlags, createDisappearingTrackingPassFlags, createSCTTrackingPassFlags, createTRTTrackingPassFlags, \
     createTRTStandaloneTrackingPassFlags, createSCTandTRTTrackingPassFlags, createDBMTrackingPassFlags
 
-  icf.addFlagsCategory ("InDet.Tracking", createTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.IBLTracking", createIBLTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.HighPileupTracking", createHighPileupTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.MinBiasTracking", createMinBiasTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.LargeD0Tracking", createLargeD0TrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.R3LargeD0Tracking", createR3LargeD0TrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.LowPtLargeD0Tracking", createLowPtLargeD0TrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.LowPtTracking", createLowPtTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.VeryLowPtTracking", createVeryLowPtTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.ForwardTracksTracking", createForwardTracksTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.BeamGasTracking", createBeamGasTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.VtxLumiTracking", createVtxLumiTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.VtxBeamSpotTracking", createVtxBeamSpotTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.CosmicsTracking", createCosmicsTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.HeavyIonTracking", createHeavyIonTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.PixelTracking", createPixelTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.DisappearingTracking", createDisappearingTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.SCTTracking", createSCTTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.TRTTracking", createTRTTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.TRTStandaloneTracking", createTRTStandaloneTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.Pass", createTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.IBLPass", createIBLTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.HighPileupPass", createHighPileupTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.MinBiasPass", createMinBiasTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.LargeD0Pass", createLargeD0TrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.R3LargeD0Pass", createR3LargeD0TrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.LowPtLargeD0Pass", createLowPtLargeD0TrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.LowPtPass", createLowPtTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.VeryLowPtPass", createVeryLowPtTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.ForwardTracksPass", createForwardTracksTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.BeamGasPass", createBeamGasTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.VtxLumiPass", createVtxLumiTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.VtxBeamSpotPass", createVtxBeamSpotTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.CosmicsPass", createCosmicsTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.HeavyIonPass", createHeavyIonTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.PixelPass", createPixelTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.DisappearingPass", createDisappearingTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.SCTPass", createSCTTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.TRTPass", createTRTTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.TRTStandalonePass", createTRTStandaloneTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.SCTandTRTPass", createSCTandTRTTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.DBMPass", createDBMTrackingPassFlags, prefix=True)
 
   from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags, createPriVertexingFlags
   icf.addFlagsCategory("InDet.PriVertex", createPriVertexingFlags, prefix=True)
