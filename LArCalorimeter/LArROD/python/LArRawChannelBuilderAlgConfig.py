@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 LArRawChannelBuilderAlg=CompFactory.LArRawChannelBuilderAlg
@@ -46,10 +46,11 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
             obj='LArDSPThresholdsComplete'
             dspkey = 'Run1DSPThresholdsKey'
             sgkey='LArDSPThresholds'
+            dbString = 'COMP200'
         else:
             fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
             sgkey=fld
-        dbString="CONDBR2"
+            dbString="CONDBR2"
         dbInstance="LAR_ONL"
         acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
 
