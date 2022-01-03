@@ -25,6 +25,7 @@ Reco_tf.py \
 --steering "doOverlay" "doRDO_TRIG" "doTRIGtoALL" \
 --triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2233,87,314" --asetup "RDOtoRDOTrigger:Athena,21.0,latest" \
 --outputAODFile MC_plus_MC.AOD.pool.root \
+--postExec 'FPEAuditor.NStacktracesOnFPE=10' \
 --imf False
 
 rc1=$?
