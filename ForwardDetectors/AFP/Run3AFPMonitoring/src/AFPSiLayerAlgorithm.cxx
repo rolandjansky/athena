@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 *
 *
 *	AFPSiLayerAlgorithm
@@ -15,11 +15,8 @@
 
 #include <vector>
 
-std::vector<int> frontBCIDsVector;
-std::vector<int> middleBCIDsVector;
-std::vector<int> endBCIDsVector;
 
-
+namespace {
 bool isInListVector(const int bcid, const std::vector<int>&arr)
 {
 	return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
@@ -41,6 +38,7 @@ int reorganizePlanesInt(const int station, const int layer)
 		return (station*4)+3-(layer);
 	}
 	return 0;
+}
 }
 
 
@@ -91,7 +89,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	numberOfEventsPerLumiblockEnd     = eventInfo->lumiBlock();
 
 	// BCX handler
-	unsigned int temp = eventInfo->bcid();
+	const unsigned int bcid = eventInfo->bcid();
 	SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
 	if (!bcidHdl.isValid()) {
 		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object (SiT)" );
@@ -99,39 +97,31 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	const BunchCrossingCondData* bcData{*bcidHdl};
 
 	// Classifying bunches by position in train (Front, Middle, End)
-	if(bcData->isFilled(temp))
+        enum { FRONT, MIDDLE, END, NPOS } position = NPOS;
+	if(bcData->isFilled(bcid))
 	{
-		bcidAll = temp;
+		bcidAll = bcid;
 		fill("AFPSiLayerTool", bcidAll);
-		if(!bcData->isFilled(temp-1))
+		if(!bcData->isFilled(bcid-1))
 		{
-			if(!isInListVector(temp, frontBCIDsVector))
-			{
-				frontBCIDsVector.push_back(temp);
-			}
-			bcidFront = temp;
+                        position = FRONT;
+			bcidFront = bcid;
 			fill("AFPSiLayerTool", bcidFront);
 			fill("AFPSiLayerTool", numberOfEventsPerLumiblockFront);
 		}
 		else
 		{
-			if(bcData->isFilled(temp+1))
+			if(bcData->isFilled(bcid+1))
 			{
-				if(!isInListVector(temp, middleBCIDsVector))
-				{
-					middleBCIDsVector.push_back(temp);
-				}
-				bcidMiddle = temp;
+                                position = MIDDLE;
+				bcidMiddle = bcid;
 				fill("AFPSiLayerTool", bcidMiddle);
 				fill("AFPSiLayerTool", numberOfEventsPerLumiblockMiddle);
 			}
 			else
 			{
-				if(!isInListVector(temp, endBCIDsVector))
-				{
-					endBCIDsVector.push_back(temp);
-				}
-				bcidEnd = temp;
+                                position = END;
+				bcidEnd = bcid;
 				fill("AFPSiLayerTool", bcidEnd);
 				fill("AFPSiLayerTool", numberOfEventsPerLumiblockEnd);
 			}
@@ -389,17 +379,17 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		trackY = track.y * 1.0;
 		fill(m_tools[m_StationGroup.at(m_stationnames.at(track.station))], trackY, trackX);
 		
-		if (isInListVector(eventInfo->bcid(), frontBCIDsVector))
+		if (position == FRONT)
 		{
 			++totalTracksFront[track.station];
 			++totalTracksAll[track.station];
 		}
-		else if (isInListVector(eventInfo->bcid(), middleBCIDsVector))
+		else if (position == MIDDLE)
 		{
 			++totalTracksMiddle[track.station];
 			++totalTracksAll[track.station];
 		}
-		else if (isInListVector(eventInfo->bcid(), endBCIDsVector))
+		else if (position == END)
 		{
 			++totalTracksEnd[track.station];
 			++totalTracksAll[track.station];
