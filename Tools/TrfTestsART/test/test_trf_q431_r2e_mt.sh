@@ -10,6 +10,7 @@ Reco_tf.py \
 --AMI q431 \
 --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' \
 --multithreaded="True" \
+--postExec 'FPEAuditor.NStacktracesOnFPE=10' \
 --maxEvents -1
 
 rc1=$?

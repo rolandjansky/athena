@@ -11,6 +11,7 @@ Reco_tf.py \
 --conditionsTag 'all:CONDBR2-BLKPA-RUN2-09' \
 --multithreaded="True" \
 --steering doRAWtoALL \
+--postExec 'FPEAuditor.NStacktracesOnFPE=10' \
 --maxEvents -1
 
 rc1=$?
