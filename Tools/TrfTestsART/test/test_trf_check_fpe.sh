@@ -16,7 +16,7 @@ if [[ "$fpeStat" != "0" ]]; then
   for file in `ls log.*`;
     do
       echo "=====" $file;
-      grep "WARNING FPE" $file | awk '{print $11}' | sed 's/\[//' | sed 's/\]//' | sed -r '/^\s*$/d' | sort  | uniq -c
+      grep "WARNING FPE" $file | awk -F] '{print $2}' | sed 's/^.*\[//' | sort  | uniq -c
     done
 fi
 
