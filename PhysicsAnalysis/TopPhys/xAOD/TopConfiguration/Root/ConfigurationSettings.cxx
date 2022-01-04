@@ -307,12 +307,12 @@ namespace top {
                       "Loose Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose)."
                       "Default RNNLoose.",
                       "RNNLoose");
-    registerParameter("TauEleBDTWP",
-                      "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
+    registerParameter("TauEleRNNWP",
+                      "Tau electron BDT WP (None, Loose, Medium, Tight)."
                       "Default Loose.",
                       "Loose");
-    registerParameter("TauEleBDTWPLoose",
-                      "Loose Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
+    registerParameter("TauEleRNNWPLoose",
+                      "Loose Tau electron BDT WP (None, Loose, Medium, Tight)."
                       "Default Loose.",
                       "Loose");
     registerParameter("TauMuOLR",

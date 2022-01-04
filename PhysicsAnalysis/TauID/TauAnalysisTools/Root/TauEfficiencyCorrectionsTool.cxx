@@ -33,8 +33,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "EfficiencyCorrectionTypes",    m_vEfficiencyCorrectionTypes    = {} );
   declareProperty( "InputFilePathRecoHadTau",      m_sInputFilePathRecoHadTau      = "" );
   declareProperty( "InputFilePathEleOLRHadTau",    m_sInputFilePathEleOLRHadTau    = "" );
-  declareProperty( "InputFilePathEleOLRElectron",  m_sInputFilePathEleOLRElectron  = "" );
-  declareProperty( "InputFilePathEleBDTElectron",  m_sInputFilePathEleBDTElectron  = "" );
+  declareProperty( "InputFilePathEleRNNElectron",  m_sInputFilePathEleRNNElectron  = "" );
   declareProperty( "InputFilePathJetIDHadTau",     m_sInputFilePathJetIDHadTau     = "" );
   declareProperty( "InputFilePathContJetIDHadTau", m_sInputFilePathContJetIDHadTau = "" );
   declareProperty( "InputFilePathEleIDHadTau",     m_sInputFilePathEleIDHadTau     = "" );
@@ -59,7 +58,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "UseTriggerInclusiveEta",       m_bUseTriggerInclusiveEta       = true );
   declareProperty( "UsePtBinnedSF",                m_bUsePtBinnedSF                = false );
   declareProperty( "UseHighPtUncert",              m_bUseHighPtUncert              = false );
-  declareProperty( "IDLevel",                      m_iIDLevel                      = (int)JETIDBDTTIGHT );
+  declareProperty( "IDLevel",                      m_iIDLevel                      = (int)JETIDRNNTIGHT );
   declareProperty( "OLRLevel",                     m_iOLRLevel                     = (int)OLRNONE );
   declareProperty( "ContSysType",                  m_iContSysType                  = (int)TOTAL );
   declareProperty( "TriggerPeriodBinning",         m_iTriggerPeriodBinning         = (int)PeriodBinningAll );
@@ -118,20 +117,26 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       }
     }
 
-    if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP && (m_tTauSelectionTool->m_iEleBDTWP != ELEIDNONE)))
+    if ((m_tTauSelectionTool->m_iSelectionCuts & CutEleRNNWP && (m_tTauSelectionTool->m_iEleRNNWP != ELEIDNONE)))
     {
-      ATH_MSG_DEBUG("EleBDT");
-      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTLOOSE)
-        m_iOLRLevel = ELEBDTLOOSE;
-      else if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTMEDIUM)
-        m_iOLRLevel = ELEBDTMEDIUM;
-      else if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTTIGHT)
-        m_iOLRLevel = ELEBDTTIGHT;
+      ATH_MSG_DEBUG("EleRNN");
+      if ( m_tTauSelectionTool->m_iEleRNNWP == ELEIDRNNLOOSE)
+        m_iOLRLevel = ELERNNLOOSE;
+      else if ( m_tTauSelectionTool->m_iEleRNNWP == ELEIDRNNMEDIUM)
+        m_iOLRLevel = ELERNNMEDIUM;
+      else if ( m_tTauSelectionTool->m_iEleRNNWP == ELEIDRNNTIGHT)
+        m_iOLRLevel = ELERNNTIGHT;
       else
-        ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_tTauSelectionTool->m_iEleBDTWP << 
+        ATH_MSG_ERROR("Recommendations for eleRNN working point with enum " << m_tTauSelectionTool->m_iEleRNNWP << 
           " are not supported in recommendations tag " << m_sRecommendationTag <<
           "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst");
     }
+
+    // Note : Force m_iOLRLevel to ELEIDNONE since SFs for RNN eVeto are currently not available:
+    ATH_MSG_WARNING("Recommendation for eleRNN working point with enum " << m_tTauSelectionTool->m_iEleRNNWP <<
+          " are not supported in recommendations tag " << m_sRecommendationTag << 
+          "\n SFs are disabled");
+    m_iOLRLevel = OLRNONE;
 
     // use electron OLR scale factors if TauSelectionTool applies electron veto
     if (m_iOLRLevel != OLRNONE)
@@ -145,53 +150,6 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
     if (m_bUseTauSubstructure)
       m_vEfficiencyCorrectionTypes.push_back(SFDecayMode);
 
-  }
-  else if ((m_sRecommendationTag == "2018-summer" or
-       m_sRecommendationTag == "mc16-prerec" or
-       m_sRecommendationTag == "2017-moriond" or
-       m_sRecommendationTag == "2016-fall" or
-       m_sRecommendationTag == "2016-ichep" or
-       m_sRecommendationTag == "mc15-moriond" or
-       m_sRecommendationTag == "mc15-pre-recommendations") and m_vEfficiencyCorrectionTypes.size() == 0)
-  {
-    // add reco systematics in any case
-    m_vEfficiencyCorrectionTypes.push_back(SFRecoHadTau);
-    ATH_MSG_VERBOSE( "added SFRecoHadTau" );
-    // use jet ID scale factors if TauSelectionTool applies jet ID cut and use
-    // the same workingpoint
-    if (m_tTauSelectionTool->m_iSelectionCuts & CutJetIDWP)
-    {
-      if ( m_tTauSelectionTool->m_iJetIDWP == JETIDNONE )
-        ATH_MSG_VERBOSE( "CutJetIDWP is set but working point is JETIDNONE. No scale factors will be applied for the jet ID." );
-      else
-      {
-        m_iIDLevel = m_tTauSelectionTool->m_iJetIDWP;
-        m_vEfficiencyCorrectionTypes.push_back(SFJetIDHadTau);
-        ATH_MSG_VERBOSE( "added SFJetIDHadTau" );
-      }
-    }
-
-    if(m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP)
-    {
-      ATH_MSG_DEBUG("TauBDT");
-      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDLOOSE)
-        m_iOLRLevel = ELEBDTLOOSE;      
-      else if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTOLDMEDIUM)
-        m_iOLRLevel = ELEBDTMEDIUM;
-      else 
-        ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_tTauSelectionTool->m_iEleBDTWP << 
-          " are not supported in recommendations tag " << m_sRecommendationTag <<
-          "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst");
-    }
-
-    // use electron OLR scale factors if TauSelectionTool applies electron veto
-    if (m_iOLRLevel != OLRNONE)
-    {
-      m_vEfficiencyCorrectionTypes.push_back(SFEleOLRHadTau);
-      ATH_MSG_VERBOSE( "added SFEleOLRHadTau" );
-      m_vEfficiencyCorrectionTypes.push_back(SFEleOLRElectron);
-      ATH_MSG_VERBOSE( "added SFEleOLRElectron" );
-    }
   }
   return StatusCode::SUCCESS;
 }
@@ -228,13 +186,20 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
     m_vEfficiencyCorrectionTypes = {SFRecoHadTau,
                                     SFJetIDHadTau
                                    };
+ 
+    // Note : Force m_iOLRLevel to ELEIDNONE since SFs for RNN eVeto are currently not available:   
+    ATH_MSG_WARNING("Recommendation for eleRNN working point with enum " << m_tTauSelectionTool->m_iEleRNNWP <<
+          " are not supported in recommendations tag " << m_sRecommendationTag <<
+          "\n SFs are disabled");
+    m_iOLRLevel = OLRNONE;
+
     if (m_iOLRLevel != OLRNONE)
     {
-      if (!(m_iOLRLevel==TAUELEOLR or m_iOLRLevel==ELEBDTLOOSEPLUSVETO or
-           m_iOLRLevel==ELEBDTMEDIUMPLUSVETO or m_iOLRLevel==ELEBDTLOOSE or
-           m_iOLRLevel==ELEBDTMEDIUM or m_iOLRLevel==ELEBDTTIGHT))
+      if (!(m_iOLRLevel==ELERNNLOOSE or
+           m_iOLRLevel==ELERNNMEDIUM or 
+           m_iOLRLevel==ELERNNTIGHT))
       {
-        ATH_MSG_ERROR("Recommendations for eleBDT working point with enum " << m_iOLRLevel <<
+        ATH_MSG_ERROR("Recommendations for eleRNN working point with enum " << m_iOLRLevel <<
           " are not supported in recommendations tag " << m_sRecommendationTag <<
           "\nFor further information please refer to the README:\nhttps://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauEfficiencyCorrectionsTool.rst");
       }
@@ -372,8 +337,7 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
       ATH_MSG_DEBUG( "  EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
     ATH_MSG_DEBUG( "  InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
     ATH_MSG_DEBUG( "  InputFilePathEleOLRHadTau " << m_sInputFilePathEleOLRHadTau );
-    ATH_MSG_DEBUG( "  InputFilePathEleOLRElectron " << m_sInputFilePathEleOLRElectron );
-    ATH_MSG_DEBUG( "  InputFilePathEleBDTElectron " << m_sInputFilePathEleBDTElectron );
+    ATH_MSG_DEBUG( "  InputFilePathEleRNNElectron " << m_sInputFilePathEleRNNElectron );
     ATH_MSG_DEBUG( "  InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
@@ -529,15 +493,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
       // only set vars if they differ from "", which means they have been configured by the user
       if (m_sInputFilePathJetIDHadTau.empty())
       {
-        if (m_iIDLevel == JETIDBDTLOOSE || m_iIDLevel == JETIDBDTMEDIUM || m_iIDLevel == JETIDBDTTIGHT)
-        {
-          if (m_bUseTauSubstructure)
-            m_sInputFilePathJetIDHadTau = sDirectory+"JetIDSubstructure_TrueHadTau_2019-summer.root";
-          else
-            if (m_sAFII) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer_AFII.root";
-            else m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2019-summer.root";
-        }
-        else if (m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT)
+        if (m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT)
         {
           if (m_sAFII) m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer_AFII.root";
           else m_sInputFilePathJetIDHadTau = sDirectory+"RNNID_TrueHadTau_2019-summer.root";
@@ -582,13 +538,13 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
     else if (iEfficiencyCorrectionType == SFEleOLRElectron)
     {
       // only set vars if they differ from "", which means they have been configured by the user
-      if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_2019-summer.root";
-      if (m_sInputFilePathEleBDTElectron.empty())
+      // Note : the file path in this section must be updated when eRNN SFs will be available
+      if (m_sInputFilePathEleRNNElectron.empty())
       {
-        m_sInputFilePathEleBDTElectron = sDirectory+"EleBDT_TrueElectron_2019-summer.root";
+        m_sInputFilePathEleRNNElectron = sDirectory+"EleBDT_TrueElectron_2019-summer.root";
 	// sets input file for AFII recommendations if tool is configured to do so.
 	// configuration is cross-checked in beginInputFile() using meta data
-        if (m_sAFII) m_sInputFilePathEleBDTElectron = sDirectory+"EleBDT_TrueElectron_2019-summer_AFII.root";
+        if (m_sAFII) m_sInputFilePathEleRNNElectron = sDirectory+"EleBDT_TrueElectron_2019-summer_AFII.root";
       }
       if (m_sVarNameEleOLRElectron.length() == 0) m_sVarNameEleOLRElectron = "TauScaleFactorEleOLRElectron";
 
@@ -596,18 +552,13 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
       m_vCommonEfficiencyTools.push_back(tTool);
       ATH_CHECK(tTool->setProperty("VarName", m_sVarNameEleOLRElectron));
       ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
-      ATH_CHECK(tTool->setProperty("WP", ConvertEleOLRToString(m_iOLRLevel)));
+      ATH_CHECK(tTool->setProperty("WP", ConvertEleIDToString(m_iOLRLevel)));
 
-      if (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM || (m_iOLRLevel == ELEBDTTIGHT && !m_sAFII) )
+      if (m_iOLRLevel == ELERNNLOOSE || m_iOLRLevel == ELERNNMEDIUM || (m_iOLRLevel == ELERNNTIGHT && !m_sAFII) )
       {
-        ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleBDTElectron));
+        ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleRNNElectron));
         ATH_CHECK(tTool->setProperty("UseTauSubstructure", true));
       }
-      else
-      {
-        ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleOLRElectron));
-      }
-
     }
     else if (iEfficiencyCorrectionType == SFRecoHadTau)
     {
@@ -711,9 +662,9 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
 StatusCode TauEfficiencyCorrectionsTool::beginInputFile()
 {
   bool setup_tau_id = false;
-  if (m_iIDLevel == JETIDBDTLOOSE || m_iIDLevel == JETIDBDTMEDIUM || m_iIDLevel == JETIDBDTTIGHT || m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT) setup_tau_id = true;
+  if (m_iIDLevel == JETIDRNNLOOSE || m_iIDLevel == JETIDRNNMEDIUM || m_iIDLevel == JETIDRNNTIGHT) setup_tau_id = true;
   bool setup_eveto = false;
-  if (m_iOLRLevel != OLRNONE && (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM)) setup_eveto = true;
+  if (m_iOLRLevel != OLRNONE && (m_iOLRLevel == ELERNNLOOSE || m_iOLRLevel == ELERNNMEDIUM)) setup_eveto = true;
   if (m_sRecommendationTag == "2019-summer" && (setup_tau_id || setup_eveto) )
   {
     std::string simType("");
@@ -739,33 +690,6 @@ std::string TauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLevel
   case JETIDNONE:
     return "none";
     break;
-  case JETIDBDTLOOSE:
-    return "jetbdtsigloose";
-    break;
-  case JETIDBDTMEDIUM:
-    return "jetbdtsigmedium";
-    break;
-  case JETIDBDTTIGHT:
-    return "jetbdtsigtight";
-    break;
-  case JETIDBDTOTHER:
-    return "jetbdtsigother";
-    break;
-  case JETIDLLHLOOSE:
-    return "taujllhloose";
-    break;
-  case JETIDLLHMEDIUM:
-    return "taujllhmedium";
-    break;
-  case JETIDLLHTIGHT:
-    return "taujllhtight";
-    break;
-  case JETIDLLHFAIL:
-    return "taujllh";
-    break;
-  case JETIDBDTFAIL:
-    return "jetbdtsig";
-    break;
   case JETIDRNNVERYLOOSE: 
     ATH_MSG_WARNING("Very loose RNN working point passed. Efficiency corrections for this working point are not supported.");
     return "";
@@ -785,34 +709,16 @@ std::string TauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLevel
   return "";
 }
 
-std::string TauEfficiencyCorrectionsTool::ConvertEleOLRToString(const int& iLevel)
+std::string TauEfficiencyCorrectionsTool::ConvertEleIDToString(const int& iLevel)
 {
   switch(iLevel)
   {
-  case TAUELEOLR:
-    return "TauEleOLR";
-    break;
-  case ELELOOSELLHOLR:
-    return "EleLooseLLHOLR";
-    break;
-  case ELEMEDIUMLLHOLR:
-    return "EleMediumLLHOLR";
-    break;
-  case ELETIGHTLLHOLR:
-    return "EleTightLLHOLR";
-    break;
-  case ELEBDTTIGHTPLUSVETO:
-    return "eleBDTTightPlusVeto";
-  case ELEBDTTIGHT:
-    return "eleBDTTight";
-  case ELEBDTMEDIUMPLUSVETO:
-    return "eleBDTMediumPlusVeto";
-  case ELEBDTMEDIUM:
-    return "eleBDTMedium";
-  case ELEBDTLOOSEPLUSVETO:
-    return "eleBDTLoosePlusVeto";
-  case ELEBDTLOOSE:
-    return "eleBDTLoose";
+  case ELERNNTIGHT:
+    return "eleRNNTight";
+  case ELERNNMEDIUM:
+    return "eleRNNMedium";
+  case ELERNNLOOSE:
+    return "eleRNNLoose";
   default:
     assert(false && "No valid electron OLR passed. Breaking up ...");
     break;

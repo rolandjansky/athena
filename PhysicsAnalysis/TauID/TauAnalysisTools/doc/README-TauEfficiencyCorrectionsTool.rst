@@ -133,13 +133,13 @@ are available for tool steering:
 
    * - ``IDLevel``
      - ``int``
-     - ``JETIDBDTTIGHT``
-     - ``JETIDBDTLOOSE``, ``JETIDBDTMEDIUM``, ``JETIDRNNLOOSE``, ``JETIDRNNMEDIUM``, ``JETIDRNNTIGHT``
+     - ``JETIDRNNTIGHT``
+     - ``JETIDRNNLOOSE``, ``JETIDRNNMEDIUM``
 
    * - ``OLRLevel``
      - ``int``
      - ``OLRNONE``
-     - ``ELEBDTLOOSE``, ``ELEBDTMEDIUM``, ``ELEBDTTIGHT``,  ``TAUELEOLR``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUMPLUSVETO``
+     - ``ELEBDTLOOSE``, ``ELEBDTMEDIUM``, ``ELEBDTTIGHT``
 
    * - ``UseTauSubstructure``
      - ``bool``
@@ -183,15 +183,7 @@ In addition the following properties are available for further configurations:
      - ``std::string``
      - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/Reco_TrueHadTau_mc16-prerec.root"``
 
-   * - ``InputFilePathEleOLRHadTau``
-     - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueHadTau_2016-ichep.root"``
-
-   * - ``InputFilePathEleOLRElectron``
-     - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueElectron_2019-summer.root"``
-
-   * - ``InputFilePathEleBDTElectron``
+   * - ``InputFilePathEleRNNElectron``
      - ``std::string``
      - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleBDT_TrueElectron_2018-summer.root"``
 
@@ -259,15 +251,6 @@ Jet ID scale factors are provided for a couple of working points:
    * - value
      - description
 
-   * - ``JETIDBDTLOOSE``
-     - the TauWG jet ID loose working point
-
-   * - ``JETIDBDTMEDIUM``
-     - the TauWG jet ID medium working point
-
-   * - ``JETIDBDTTIGHT``
-     - the TauWG jet ID tight working point
-
    * - ``JETIDRNNLOOSE``
      - the TauWG jet ID loose working point using a RNN
 
@@ -294,33 +277,20 @@ points:
    * - value
      - description
 
-   * - ``ELEBDTLOOSE``
+   * - ``ELERNNLOOSE``
      - electron BDT loose working point
 
-   * - ``ELEBDTMEDIUM``
+   * - ``ELERNNMEDIUM``
      - electron BDT medium working point
 
-   * - ``ELEBDTTIGHT``
+   * - ``ELERNNTIGHT``
      - electron BDT medium working point
-
-   * - ``TAUELEOLR``
-     - the TauWG eVeto (OLR very loose e)
-
-   * - ``ELEBDTLOOSEPLUSVETO``
-     - electron BDT loose working point + TauWG eVeto
-
-   * - ``ELEBDTMEDIUMPLUSVETO``
-     - electron BDT medium working point + TauWG eVeto
 
 These can be accessed, for example via::
 
-  TauEffTool.setProperty("OLRLevel", (int)TAUELEOLR);
+  TauEffTool.setProperty("OLRLevel", (int)OLRLevel);
 
-Recommendations tag ``2019-summer`` provides recommendations for the re-tuned eleBDT working points (``ELEBDTLOOSE``, ``ELEBDTMEDIUM``, ``ELEBDTTIGHT``), for the LLH based eVeto (``TAUELEOLR``) and for the LLH based eVeto in combination with the old eleBDT (``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUMPLUSVETO``). 
-
-Recommendations tag ``2018-summer`` provides recommendations for ``TAUELEOLR``, ``ELEBDTLOOSE``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUM`` and ``ELEBDTMEDIUMPLUSVETO``.
-The BDT related working points (``ELEBDTLOOSE``, ``ELEBDTLOOSEPLUSVETO``, ``ELEBDTMEDIUM``, ``ELEBDTMEDIUMPLUSVETO``) are provided separately for MC16a (corresponding to 2015-2016 data) and MC16d (corresponding to 2017 data). If you use one of those working points, you will have to provide TauEfficiencyCorrectionsTool with either a ``PileupReweightingTool`` or with the ``MCCampaign`` property. For the ``MCCampaign`` property you can choose between "MC16a", "MC16d" or "MC16e". If the MC campaign is not set explicitly TauEfficiencyCorrectionsTool will use the PileupReweightingTool to retrieve a random run number and apply the corresponding systematic prescriptions. If none of the above properties are provided TauEfficiencyCorrectionsTool will throw the following error message: ``One of these properties has to be set: "MCCampaign" or "PileupReweightingTool"``. 
-
+Recommendations for RNN based Electron identification are currently not avaiable in release 22
 
 SFDecayMode
 ----------------

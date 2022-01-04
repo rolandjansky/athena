@@ -83,7 +83,7 @@ private:
   StatusCode beginEvent();
 
   std::string ConvertJetIDToString(const int& iLevel);
-  std::string ConvertEleOLRToString(const int& iLevel);
+  std::string ConvertEleIDToString(const int& iLevel);
   std::string ConvertTriggerIDToString(const int& iLevel);
   std::string GetTriggerSFMeasrementString();
 
@@ -101,8 +101,7 @@ private:
   std::vector< asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* > m_vTriggerEfficiencyTools;
   std::string m_sInputFilePathRecoHadTau;
   std::string m_sInputFilePathEleOLRHadTau;
-  std::string m_sInputFilePathEleOLRElectron;
-  std::string m_sInputFilePathEleBDTElectron;
+  std::string m_sInputFilePathEleRNNElectron;
   std::string m_sInputFilePathJetIDHadTau;
   std::string m_sInputFilePathContJetIDHadTau;
   std::string m_sInputFilePathEleIDHadTau;
