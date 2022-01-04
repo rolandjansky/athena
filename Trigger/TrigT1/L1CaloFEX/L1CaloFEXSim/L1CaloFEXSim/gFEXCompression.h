@@ -63,7 +63,7 @@ private:
   /** Maximum code value */
   static const unsigned int s_LArMaxCode   = 4095;
   /** L1Calo ET digit step */
-  static const unsigned int s_gFEXstep     = 25;
+  static const unsigned int s_gFEXstep     = 200;
   /** L1Calo saturated/overflow */
   static const unsigned int s_gFEXOverflow = 0xffff;
   /** Error return value */
