@@ -113,26 +113,26 @@ namespace top {
     int tauJetIDWPLoose = tau_JetIDWP_to_enum(m_config->tauJetIDWPLoose());
     top::check(tauJetIDWPLoose >= 0, m_config->tauJetIDWPLoose() + " is not a valid tau WP");
 
-    auto tau_EleBDTWP_to_enum = [](const std::string& s) {
+    auto tau_EleRNNWP_to_enum = [](const std::string& s) {
                                   if (s == "None") return TauAnalysisTools::ELEIDNONE;
 
-                                  if (s == "Loose") return TauAnalysisTools::ELEIDBDTLOOSE;
+                                  if (s == "Loose") return TauAnalysisTools::ELEIDRNNLOOSE;
 
-                                  if (s == "Medium") return TauAnalysisTools::ELEIDBDTMEDIUM;
+                                  if (s == "Medium") return TauAnalysisTools::ELEIDRNNMEDIUM;
 
-                                  if (s == "Tight") return TauAnalysisTools::ELEIDBDTTIGHT;
+                                  if (s == "Tight") return TauAnalysisTools::ELEIDRNNTIGHT;
 
                                   // If we haven't found the correct WP, then return 0
                                   return TauAnalysisTools::ELEIDNONEUNCONFIGURED;
                                 };
 
-    // convert tauEleBDTWP from string to int and check it's valid
-    int tauEleBDTWP = tau_EleBDTWP_to_enum(m_config->tauEleBDTWP());
-    top::check(tauEleBDTWP >= 0, m_config->tauEleBDTWP() + " is not a valid tau WP");
+    // convert tauEleRNNWP from string to int and check it's valid
+    int tauEleRNNWP = tau_EleRNNWP_to_enum(m_config->tauEleRNNWP());
+    top::check(tauEleRNNWP >= 0, m_config->tauEleRNNWP() + " is not a valid tau WP");
 
-    // convert tauEleBDTWPLoose from string to int and check it's valid
-    int tauEleBDTWPLoose = tau_EleBDTWP_to_enum(m_config->tauEleBDTWPLoose());
-    top::check(tauEleBDTWPLoose >= 0, m_config->tauEleBDTWPLoose() + " is not a valid tau WP");
+    // convert tauEleRNNWPLoose from string to int and check it's valid
+    int tauEleRNNWPLoose = tau_EleRNNWP_to_enum(m_config->tauEleRNNWPLoose());
+    top::check(tauEleRNNWPLoose >= 0, m_config->tauEleRNNWPLoose() + " is not a valid tau WP");
 
     const double absCharge = 1.;
     const std::vector<size_t> nTracks = {
@@ -160,7 +160,7 @@ namespace top {
     iSelectionCuts |= TauAnalysisTools::CutAbsCharge;
     iSelectionCuts |= TauAnalysisTools::CutNTrack;
     iSelectionCuts |= TauAnalysisTools::CutJetIDWP;
-    iSelectionCuts |= TauAnalysisTools::CutEleBDTWP;
+    iSelectionCuts |= TauAnalysisTools::CutEleRNNWP;
 
     int iSelectionCutsLoose = iSelectionCuts;
 
@@ -205,8 +205,8 @@ namespace top {
                    "Failed to set tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWP),
                    "Failed to set tau JetIDWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWP),
-                  "Failed to set tau EleBDTWP");
+        top::check(asg::setProperty(tauSelectionTool, "EleRNNWP", tauEleRNNWP),
+                  "Failed to set tau EleRNNWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLR()),
                    "Failed to set tau MuonOLR");
       }
@@ -278,8 +278,8 @@ namespace top {
                    "Failed to set loose tau NTracks");
         top::check(asg::setProperty(tauSelectionTool, "JetIDWP", tauJetIDWPLoose),
                    "Failed to set loose tau JetIDWP");
-        top::check(asg::setProperty(tauSelectionTool, "EleBDTWP", tauEleBDTWPLoose),
-                  "Failed to set loose tau EleBDTWP");
+        top::check(asg::setProperty(tauSelectionTool, "EleRNNWP", tauEleRNNWPLoose),
+                  "Failed to set loose tau EleRNNWP");
         top::check(asg::setProperty(tauSelectionTool, "MuonOLR", m_config->tauMuOLRLoose()),
                    "Failed to set tau MuonOLR");
       }

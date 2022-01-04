@@ -140,29 +140,27 @@ private:
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
-class SelectionCutBDTEleScore
+class SelectionCutRNNEleScore
   : public SelectionCut
 {
 public:
-  SelectionCutBDTEleScore(TauSelectionTool* tTST);
+  SelectionCutRNNEleScore(TauSelectionTool* tTST);
   virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  std::string m_sEleBDTDecorationName;
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 
-class SelectionCutEleBDTWP
+class SelectionCutEleRNNWP
   : public SelectionCut
 {
 public:
-  SelectionCutEleBDTWP(TauSelectionTool* tTST);
+  SelectionCutEleRNNWP(TauSelectionTool* tTST);
   virtual void setAcceptInfo (asg::AcceptInfo& info) const override;
   virtual bool accept(const xAOD::TauJet& xTau,
                       asg::AcceptData& accept) override;
 private:
-  std::string m_sEleBDTDecorationName;
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
 

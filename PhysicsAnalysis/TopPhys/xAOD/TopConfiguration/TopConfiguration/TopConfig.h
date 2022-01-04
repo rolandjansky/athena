@@ -1479,12 +1479,12 @@ namespace top {
       if (!m_configFixed) m_tau_configuration_loose.jetIDWP = s;
     }
 
-    inline virtual void tauEleBDTWP(const std::string& s) {
-      if (!m_configFixed) m_tau_configuration.eleBDTWP = s;
+    inline virtual void tauEleRNNWP(const std::string& s) {
+      if (!m_configFixed) m_tau_configuration.eleRNNWP = s;
     }
 
-    inline virtual void tauEleBDTWPLoose(const std::string& s) {
-      if (!m_configFixed) m_tau_configuration_loose.eleBDTWP = s;
+    inline virtual void tauEleRNNWPLoose(const std::string& s) {
+      if (!m_configFixed) m_tau_configuration_loose.eleRNNWP = s;
     }
 
     inline virtual void tauMuOLR(bool do_tau_ele_olr) {
@@ -1536,12 +1536,12 @@ namespace top {
       return m_tau_configuration_loose.jetIDWP;
     }
 
-    inline const std::string& tauEleBDTWP() const {
-      return m_tau_configuration.eleBDTWP;
+    inline const std::string& tauEleRNNWP() const {
+      return m_tau_configuration.eleRNNWP;
     }
 
-    inline const std::string& tauEleBDTWPLoose() const {
-      return m_tau_configuration_loose.eleBDTWP;
+    inline const std::string& tauEleRNNWPLoose() const {
+      return m_tau_configuration_loose.eleRNNWP;
     }
 
     inline virtual bool tauMuOLR() {
@@ -2411,7 +2411,7 @@ namespace top {
       bool doRNNID = true;
       bool doBDTID = false;
       // the electron BDTWP
-      std::string eleBDTWP = "Medium";
+      std::string eleRNNWP = "Medium";
       bool substructureSF = false;
       // Whether to perform muon overlap removal
       bool muOLR = true;

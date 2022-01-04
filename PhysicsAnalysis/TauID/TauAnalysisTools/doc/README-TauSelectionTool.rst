@@ -149,26 +149,26 @@ setup:
      - accepting taus passing the given working point
      -
 
-   * - ``CutEleBDTScore``
-     - ``EleBDTRegion``
+   * - ``CutEleRNNScore``
+     - ``EleRNNRegion``
      - ``std::vector<double>``
-     - accepting taus within electron BDT score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
+     - accepting taus within electron RNN score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
      - 
 
    * -
-     - ``EleBDTMin``
+     - ``EleRNNMin``
      - ``double``
-     - accepting taus with a electron BDT score above a lower bound
-     - if ``EleBDTMin`` is configured, ``EleBDTRegion`` configuration wont be considered
+     - accepting taus with a electron RNN score above a lower bound
+     - if ``EleRNNMin`` is configured, ``EleRNNRegion`` configuration wont be considered
 
    * -
-     - ``EleBDTMax``
+     - ``EleRNNMax``
      - ``double``
-     - accepting taus with a electron BDT score below an upper bound
-     - if ``EleBDTMax`` is configured, ``EleBDTRegion`` configuration wont be considered
+     - accepting taus with a electron RNN score below an upper bound
+     - if ``EleRNNMax`` is configured, ``EleRNNRegion`` configuration wont be considered
 
-   * - ``CutEleBDTWP``
-     - ``EleBDTWP``
+   * - ``CutEleRNNWP``
+     - ``EleRNNWP``
      - ``int``
      - accepting taus passing the given working point
      - 
@@ -203,7 +203,7 @@ Currently implemented working points for ``CutJetIDWP`` are:
      - passing RNN tight working point, ID efficiency 60% (45%) for 1-prong (3-prong)
      
 
-and for ``CutEleBDTWP``:
+and for ``CutEleRNNWP``:
 
 .. list-table::
    :header-rows: 1
@@ -212,14 +212,14 @@ and for ``CutEleBDTWP``:
    * - Electron veto working points
      - description
      
-   * - ELEIDBDTLOOSE
-     - BDT loose electron veto (BDTEleScoreSigTrans_retuned > 0.05), available in new derivations with AODfix (since 21.2.54.0, p3759)
+   * - ELEIDRNNLOOSE
+     - passing electron RNN loose working point. Electron ID efficiency 95% (98%) for 1-prong (3-prong)
      
-   * - ELEIDBDTMEDIUM
-     - BDT medium electron veto (BDTEleScoreSigTrans_retuned > 0.15), available in new derivations with AODfix (since 21.2.54.0, p3759)
+   * - ELEIDRNNMEDIUM
+     - passing electron RNN medium working point. Electron ID efficiency 90% (95%) for 1-prong (3-prong)
      
-   * - ELEIDBDTTIGHT
-     - BDT tight electron veto (BDTEleScoreSigTrans_retuned > 0.25), available in new derivations with AODfix (since 21.2.54.0, p3759)
+   * - ELEIDRNNTIGHT
+     - passing electron RNN tight working point. Electron ID efficiency 85% (90%) for 1-prong (3-prong)
 
 If one wants to use a different setup one has three options:
 

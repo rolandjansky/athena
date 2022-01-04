@@ -1264,8 +1264,8 @@ namespace top {
     this->tauEtaRegions(settings->value("TauEtaRegions"));
     this->tauJetIDWP(settings->value("TauJetIDWP"));
     this->tauJetIDWPLoose(settings->value("TauJetIDWPLoose"));
-    this->tauEleBDTWP(settings->value("TauEleBDTWP"));
-    this->tauEleBDTWPLoose(settings->value("TauEleBDTWPLoose"));
+    this->tauEleRNNWP(settings->value("TauEleRNNWP"));
+    this->tauEleRNNWPLoose(settings->value("TauEleRNNWPLoose"));
     this->tauMuOLR((settings->value("TauMuOLR") == "True"));
     this->tauMuOLRLoose((settings->value("TauMuOLRLoose") == "True"));
     this->tauSFDoRNNID((settings->value("TauSFDoRNNID") == "True"));

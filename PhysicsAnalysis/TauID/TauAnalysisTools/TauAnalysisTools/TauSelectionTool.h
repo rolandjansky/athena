@@ -37,8 +37,8 @@ class SelectionCutAbsCharge;
 class SelectionCutNTracks;
 class SelectionCutJetIDWP;
 class SelectionCutRNNJetScoreSigTrans;
-class SelectionCutBDTEleScore;
-class SelectionCutEleBDTWP;
+class SelectionCutRNNEleScore;
+class SelectionCutEleRNNWP;
 class SelectionCutMuonOLR;
 
 enum SelectionCuts
@@ -50,8 +50,8 @@ enum SelectionCuts
   CutNTrack       = 1<<3,	// 000000001000
   CutAbsCharge    = 1<<4,	// 000000010000
   CutJetIDWP      = 1<<5,	// 000000100000
-  CutEleBDTScore  = 1<<6,	// 000001000000
-  CutEleBDTWP     = 1<<7,	// 000010000000
+  CutEleRNNScore  = 1<<6,	// 000001000000
+  CutEleRNNWP     = 1<<7,	// 000010000000
   CutMuonOLR      = 1<<8,       // 000100000000
   CutJetRNNScoreSigTrans = 1<<9  // 01000000000
 };
@@ -67,11 +67,10 @@ class TauSelectionTool : public virtual IAsgSelectionTool,
   friend class SelectionCutAbsEta;
   friend class SelectionCutAbsCharge;
   friend class SelectionCutNTracks;
-  friend class SelectionCutRNNJetScoreSigTrans;
   friend class SelectionCutJetIDWP;
   friend class SelectionCutRNNJetScoreSigTrans;
-  friend class SelectionCutBDTEleScore;
-  friend class SelectionCutEleBDTWP;
+  friend class SelectionCutRNNEleScore;
+  friend class SelectionCutEleRNNWP;
   friend class SelectionCutMuonOLR;
 
   /// Create a proper constructor for Athena
@@ -137,11 +136,11 @@ private:
   // JetID working point
   std::string m_sJetIDWP;
   int m_iJetIDWP;
-  // vector of EleBDT cut regions
-  std::vector<float> m_vEleBDTRegion;
-  // EleBDT working point
-  std::string m_sEleBDTWP;
-  int m_iEleBDTWP;
+  // vector of EleRNN cut regions
+  std::vector<float> m_vEleRNNRegion;
+  // EleRNN working point
+  std::string m_sEleRNNWP;
+  int m_iEleRNNWP;
   // do muon OLR
   bool m_bMuonOLR;
 
@@ -153,8 +152,8 @@ private:
   float m_iNTrack;
   float m_dJetRNNSigTransMin;
   float m_dJetRNNSigTransMax;
-  float m_dEleBDTMin;
-  float m_dEleBDTMax;
+  float m_dEleRNNMin;
+  float m_dEleRNNMax;
 
 protected:
   TFile* m_fOutFile;//!
@@ -169,9 +168,9 @@ private:
 
   void setupCutFlowHistogram();
   int convertStrToJetIDWP(const std::string& sJetIDWP);
-  int convertStrToEleBDTWP(const std::string& sEleBDTWP);
+  int convertStrToEleRNNWP(const std::string& sEleRNNWP);
   std::string convertJetIDWPToStr(int iJetIDWP);
-  std::string convertEleBDTWPToStr(int iEleBDTWP);
+  std::string convertEleRNNWPToStr(int iEleRNNWP);
 
 protected:
   bool m_bCreateControlPlots;
