@@ -757,7 +757,6 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
    double deltaPhi = 0.;
    double deltaTheta = 0.;
 
-   double depth_tot = 0.;
    int n_tot = 0;
 
    double w_tot = 0.;
@@ -831,7 +830,6 @@ const std::vector<const Trk::TrackStateOnSurface*> Trk::GeantFollowerMSHelper::m
       deltaE_rad_tot       += scaleEloss*energyLoss->meanRad();
       sigmaDeltaE_rad_tot  += scaleEloss*energyLoss->sigmaRad();
 
-      depth_tot += depth;
       n_tot++;
 
       Amg::Vector3D dir = m->trackParameters()->momentum().unit();
