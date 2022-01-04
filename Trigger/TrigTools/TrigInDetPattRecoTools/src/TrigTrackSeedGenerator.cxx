@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -195,8 +195,6 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 
 	//    const std::pair<IdentifierHash, IdentifierHash>& deIds = spm->offlineSpacePoint()->elementIdList();
 	
-	int nSP=0;
-
 	m_nInner = 0;
 	m_nOuter = 0;
 
@@ -235,7 +233,7 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	  int nI = m_nInner;
 	  int nO = m_nOuter;
 	      
-	  nSP += processSpacepointRange(layerJ, spm, checkPSS, delta, roiDescriptor);
+	  processSpacepointRange(layerJ, spm, checkPSS, delta, roiDescriptor);
 
 	  if(m_nInner > nI) m_innerMarkers.push_back(m_nInner);
 	  if(m_nOuter > nO) m_outerMarkers.push_back(m_nOuter);
@@ -330,7 +328,6 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
 
 	  for(const auto zVertex : vZv) {//loop over zvertices
 
-	    int nSP=0;
 	    m_nInner = 0;
 	    m_nOuter = 0;
 
@@ -360,7 +357,7 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
 
 		if(!getSpacepointRange(layerJ, spVec, delta)) continue;
 	      
-		nSP += processSpacepointRangeZv(spm, checkPSS, delta, checkWidth, minTau, maxTau);
+		processSpacepointRangeZv(spm, checkPSS, delta, checkWidth, minTau, maxTau);
 	      }//loop over phi bins
 
 	    }//loop over inner/outer layers
