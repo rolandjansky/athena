@@ -14,7 +14,6 @@ ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'minbias'
 ex.threads = 1
-# LS2_v1 soon to be renamed to Dev_pp_run3_v1
 ex.args = '-c "setMenu=\'PhysicsP1_pp_lowMu_run3_v1\';doEmptyMenu=True;doMinBiasSlice=True;doJetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()

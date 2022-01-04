@@ -29,7 +29,7 @@ for option in defaultOptions:
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.Trigger.generateMenuDiagnostics = True
-ConfigFlags.Trigger.triggerMenuSetup = "LS2_v1"
+ConfigFlags.Trigger.triggerMenuSetup = "Dev_pp_run3_v1"
 
 createHLTMenuExternally=True # menu will be build up explicitly here 
 doWriteRDOTrigger = False

@@ -28,7 +28,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 4
 ex.concurrent_events = 4
-ex.args = '-c "setMenu=\'LS2_v1\';doL1Sim=False;"'  # LS2_v1 to be renamed to Dev_pp_run3_v1
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;"'  
 ex.args += ' --dump-config-reload'
 
 test = Test.Test()

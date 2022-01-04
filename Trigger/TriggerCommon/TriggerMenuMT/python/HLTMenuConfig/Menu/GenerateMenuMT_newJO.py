@@ -198,7 +198,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.Trigger.triggerMenuSetup = "LS2_v1"
+    ConfigFlags.Trigger.triggerMenuSetup = "Dev_pp_run3_v1"
     ca = generateMenu(ConfigFlags)
     ca.printConfig()
     ca.wasMerged()

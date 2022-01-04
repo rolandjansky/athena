@@ -592,7 +592,7 @@ The full bjet sigature sequence looks as follows (excluding jet steps)
     +-- ComboHypo/ComboHypo_Step2_NStep2_bjet
 ```
 # Modify the bjet code
-New chains can be added in [Menu/LS2_v1.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Menu/LS2_v1.py) under `chains['Bjet']` .\
+New chains can be added in [Menu/Dev_pp_run3_v1.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Menu/Dev_pp_run3_v1.py) under `chains['Bjet']` .\
 If the dictionary has to be interpreted differently or the chain has to be build differently, [GenerateBjetChainDefs.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/GenerateBjetChainDefs.py) or [BjetChainConfiguration.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetChainConfiguration.py) has to be modified, respectively.\
 Changes to the sequence or event-view setup has to end up in [BjetMenuSequences.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetMenuSequences.py).\
 Changes to tracking and flavour-tagging configuration end up in [BjetTrackingConfiguration.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetTrackingConfiguration.py) and [BjetFlavourTaggingConfiguration.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/BjetFlavourTaggingConfiguration.py), respectively.\

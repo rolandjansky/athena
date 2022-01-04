@@ -49,7 +49,7 @@ rdo2rdotrig.explicit_input = True
 rdo2rdotrig.threads = 4
 rdo2rdotrig.concurrent_events = 4
 rdo2rdotrig.args = '--inputRDOFile=RDO.pool.root --outputRDO_TRIGFile=RDO_TRIG.pool.root'
-rdo2rdotrig.args += ' --preExec="setMenu=\'LS2_v1_TriggerValidation_prescale\'"'
+rdo2rdotrig.args += ' --preExec="setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\'"'
 
 test = Test.Test()
 test.art_type = 'grid'

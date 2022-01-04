@@ -40,12 +40,12 @@ def generateEmuMenu():
      set Emu menu and reproduce generateMT
     """
     log.info("generateEmuMenu")  
-    from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1
-    from TriggerMenuMT.HLTMenuConfig.Menu import LS2_emu_v1 
+    from TriggerMenuMT.HLTMenuConfig.Menu import Dev_pp_run3_v1
+    from TriggerMenuMT.HLTMenuConfig.Menu import Dev_pp_run3_emu_v1 
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 
-    # overwrite LS2_v1
-    LS2_v1.setupMenu = LS2_emu_v1.setupMenu
+    # overwrite Dev_pp_run3_v1
+    Dev_pp_run3_v1.setupMenu = Dev_pp_run3_emu_v1.setupMenu
 
     # Generate the menu
     menu = GenerateMenuMT()

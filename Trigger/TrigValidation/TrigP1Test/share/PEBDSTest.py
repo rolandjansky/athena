@@ -3,12 +3,12 @@
 #
 
 '''
-This test defines its own version of the LS2_v1 menu and the corresponding PEB/DS configuration,
+This test defines its own version of the Dev_pp_run3_v1 menu and the corresponding PEB/DS configuration,
 and executes several chains testing various types of Partial Event Building and Data Scouting
 '''
 
 from TrigEDMConfig import DataScoutingInfo, TriggerEDMRun3
-from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1, EventBuildingInfo, StreamInfo
+from TriggerMenuMT.HLTMenuConfig.Menu import Dev_pp_run3_v1, EventBuildingInfo, StreamInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequences
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
@@ -27,7 +27,7 @@ DataScoutingInfo.DataScoutingIdentifiers['ElectronDSTest'] = 3
 DataScoutingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
 DataScoutingInfo.TruncationThresholds[3] = 5*(1024**2) # 5 MB
 
-# Override the setupMenu function from LS2_v1
+# Override the setupMenu function from Dev_pp_run3_v1
 def myMenu():
     log.debug('Executing myMenu')
 
@@ -62,7 +62,7 @@ def myMenu():
     ]
     return chains
 
-LS2_v1.setupMenu = myMenu
+Dev_pp_run3_v1.setupMenu = myMenu
 
 # Override the pebInfoWriterTool function from EventBuildingSequences
 def myPebInfoWriterTool(name, eventBuildType):
@@ -160,7 +160,7 @@ for collectionConfig in TriggerEDMRun3.TriggerHLTListRun3:
 TriggerEDMRun3.TriggerHLTListRun3 = myTriggerHLTListRun3
 
 # Set menu flag and slice options for runHLT_standalone
-ConfigFlags.Trigger.triggerMenuSetup = 'LS2_v1'
+ConfigFlags.Trigger.triggerMenuSetup = 'Dev_pp_run3_v1'
 doEmptyMenu = True
 doEgammaSlice = True
 doMuonSlice = True

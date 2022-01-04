@@ -3,7 +3,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 def setupMenu():
     """
-    Assign chains for LS2_v1
+    Assign chains for Dev_pp_run3_v1
     """
     chains = {}
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.Trigger.triggerMenuSetup="LS2_v1"
+    ConfigFlags.Trigger.triggerMenuSetup="Dev_pp_run3_v1"
     ConfigFlags.lock()
     ConfigFlags.dump()
 

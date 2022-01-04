@@ -14,11 +14,11 @@ menuMap = {
     "Physics_pp_v8"        : ["Physics_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
     "MC_pp_run3_v1"        : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
     "MC_pp_v8"             : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
-    "LS2_v1"               : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
-    "LS2_v1_Primary_prescale"           : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
-    "LS2_v1_TriggerValidation_prescale" : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
-    "LS2_v1_BulkMCProd_prescale"        : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
-    "LS2_v1_CPSampleProd_prescale"      : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+    "Dev_pp_run3_v1"               : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+    "Dev_pp_run3_v1_Primary_prescale"           : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+    "Dev_pp_run3_v1_TriggerValidation_prescale" : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+    "Dev_pp_run3_v1_BulkMCProd_prescale"        : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
+    "Dev_pp_run3_v1_CPSampleProd_prescale"      : ["MC_pp_v8","MC_pp_v8_inputs","MC_pp_v8_inputs_legacy"],
 
     # low mu
     "PhysicsP1_pp_lowMu_run3_v1"  : ["MC_HI_v1","MC_pp_v8_inputs","MC_HI_v1_inputs_legacy"],

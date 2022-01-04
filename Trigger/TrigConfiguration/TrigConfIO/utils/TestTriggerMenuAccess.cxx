@@ -698,7 +698,7 @@ void usage() {
   cout << "[Other options]\n";
   cout << "  -h|--help                                           ... this help\n";
   cout << "\n";
-  cout << "If no input is specified, the default LS2_v1 menu file will be taken from the release\n\n";
+  cout << "If no input is specified, the default Dev_pp_run3_v1 menu file will be taken from the release\n\n";
 }
 
 int main(int argc, char** argv) {
@@ -771,7 +771,7 @@ int main(int argc, char** argv) {
          string xmlpath(env_xmlpath);
          boost::algorithm::split(paths, xmlpath, boost::is_any_of(":"));
          for( const string & p : paths) {
-            string testFN = p + "/TriggerMenuMT/L1Menu_LS2_v1_" + string(env_AV) + ".json";
+            string testFN = p + "/TriggerMenuMT/L1Menu_Dev_pp_run3_v1_" + string(env_AV) + ".json";
             struct stat buffer;
             if (stat (testFN.c_str(), &buffer) == 0) {
                filename = testFN;

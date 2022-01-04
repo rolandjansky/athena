@@ -309,7 +309,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         ## we can already use new set of flags
         #from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        #from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu as setupMenuFlags
+        #from TriggerMenuMT.HLTMenuConfig.Menu.Dev_pp_run3_v1_newJO import setupMenu as setupMenuFlags
         #setupMenuFlags( ConfigFlags )
         #ConfigFlags.lock()
 
