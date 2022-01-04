@@ -249,6 +249,9 @@ def InDetTrackRecoCfg(flags):
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
     result.merge(InDetRecPreProcessingSiliconCfg(flags))
 
+    if flags.InDet.Tracking.doHighPileup:
+        flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.HighPileupPass")
+
     from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
     result.merge(TrackingSiPatternCfg(flags, [], "ResolvedTracks", "SiSPSeededTracks"))
 
@@ -273,7 +276,7 @@ def InDetTrackRecoCfg(flags):
                                           "TRTSegments"))
 
     # BackTracking
-    if flags.InDet.doBackTracking:
+    if flags.InDet.Tracking.doBackTracking:
         from InDetConfig.BackTrackingConfig import BackTrackingCfg
         result.merge(BackTrackingCfg(flags,
                                      InputCombinedInDetTracks,
@@ -281,8 +284,10 @@ def InDetTrackRecoCfg(flags):
         InputCombinedInDetTracks += ["ResolvedTRTSeededTracks"]
 
     # LRT
-    if flags.InDet.doLargeD0 or flags.InDet.doR3LargeD0:
-        if flags.InDet.doR3LargeD0:
+    if flags.InDet.Tracking.doLargeD0 or flags.InDet.Tracking.doR3LargeD0 or flags.InDet.Tracking.doLowPtLargeD0:
+        if flags.InDet.Tracking.doLowPtLargeD0:
+            flagsLRT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.LowPtLargeD0Pass")
+        elif flags.InDet.Tracking.doR3LargeD0:
             flagsLRT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.R3LargeD0Pass")
         else:
             flagsLRT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.LargeD0Pass")
@@ -295,7 +300,7 @@ def InDetTrackRecoCfg(flags):
                                                     ExtendedTracksMap="ExtendedTracksMapLargeD0",
                                                     doPhase=False))
             LRTTrackContainer = "ExtendedLargeD0Tracks"
-        if flags.InDet.storeSeparateLargeD0Container:
+        if flags.InDet.Tracking.storeSeparateLargeD0Container:
             if flags.InDet.doTruth:
                 from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
                 result.merge(InDetTrackTruthCfg(flagsLRT,
@@ -310,7 +315,7 @@ def InDetTrackRecoCfg(flags):
             InputCombinedInDetTracks += [LRTTrackContainer]
 
     # Low pt
-    if flags.InDet.doLowPt:
+    if flags.InDet.Tracking.doLowPt:
         flagsLowPt = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.LowPtPass")
         result.merge(TrackingSiPatternCfg(flagsLowPt, InputCombinedInDetTracks, "ResolvedLowPtTracks", "SiSpSeededLowPtTracks"))
         LowPtTrackContainer = "ResolvedLowPtTracks"
@@ -324,7 +329,7 @@ def InDetTrackRecoCfg(flags):
         InputCombinedInDetTracks += [LowPtTrackContainer]
 
     # Very low pt
-    if flags.InDet.doVeryLowPt:
+    if flags.InDet.Tracking.doVeryLowPt:
         flagsVeryLowPt = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.VeryLowPtPass")
         result.merge(TrackingSiPatternCfg(flagsVeryLowPt, InputCombinedInDetTracks, "ResolvedVeryLowPtTracks", "SiSpSeededLowPtTracks"))
         InputCombinedInDetTracks += ["ResolvedVeryLowPtTracks"]
@@ -337,11 +342,11 @@ def InDetTrackRecoCfg(flags):
         InputCombinedInDetTracks += ["TRTStandaloneTracks"]
 
     # Forward tracklets
-    if flags.InDet.doForwardTracks:
+    if flags.InDet.Tracking.doForwardTracks:
         # Add tracks that are not saved to the InputCombinedInDetTracks
         InputForwardInDetTracks = []
         InputForwardInDetTracks += InputCombinedInDetTracks
-        if flags.InDet.storeSeparateLargeD0Container:
+        if flags.InDet.Tracking.storeSeparateLargeD0Container:
             InputForwardInDetTracks += ["ExtendedLargeD0Tracks"]
 
         flagsForward = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.ForwardTracksPass")
@@ -359,13 +364,13 @@ def InDetTrackRecoCfg(flags):
                                             TrackContainerName="ResolvedForwardTracks",
                                             OutputTrackParticleContainer="InDetForwardTrackParticles"))
 
-    if flags.InDet.doTrackSegmentsDisappearing:
+    if flags.InDet.Tracking.doTrackSegmentsDisappearing:
         InputPixelInDetTracks = []
         InputPixelInDetTracks += InputCombinedInDetTracks
         # Add tracks that are not saved to the InputCombinedInDetTracks
-        if flags.InDet.doForwardTracks:
+        if flags.InDet.Tracking.doForwardTracks:
             InputPixelInDetTracks += ["ResolvedForwardTracks"]
-        if flags.InDet.storeSeparateLargeD0Container:
+        if flags.InDet.Tracking.storeSeparateLargeD0Container:
             InputPixelInDetTracks += ["ExtendedLargeD0Tracks"]
 
         flagsDisappearing = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.DisappearingPass")

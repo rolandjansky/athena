@@ -200,7 +200,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("Xi2maxMultiTracks", flags.InDet.Tracking.Pass.Xi2max)
     kwargs.setdefault("useSSSseedsFilter", flags.InDet.doSSSfilter)
     kwargs.setdefault("doMultiTracksProd", True)
-    kwargs.setdefault("useBremModel", flags.InDet.doBremRecovery and flags.InDet.Tracking.Pass.extension == "" and flags.Detector.EnableCalo)
+    kwargs.setdefault("useBremModel", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "" and flags.Detector.EnableCalo)
     kwargs.setdefault("doCaloSeededBrem", flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
         from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
@@ -494,7 +494,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.InDet.Tracking.Pass.extension)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.InDet.doBremRecovery and flags.InDet.Tracking.Pass.extension == "")
+    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "")
     kwargs.setdefault("caloSeededBrem", flags.InDet.doCaloSeededBrem and flags.InDet.Tracking.Pass.extension != "DBM")
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
@@ -540,7 +540,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.InDet.doBremRecovery and flags.InDet.Tracking.Pass.extension == "")
+    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "")
     kwargs.setdefault("caloSeededBrem", flags.InDet.doCaloSeededBrem and flags.InDet.Tracking.Pass.extension != "DBM")
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)

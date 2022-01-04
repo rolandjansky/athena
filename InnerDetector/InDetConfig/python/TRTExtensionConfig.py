@@ -102,7 +102,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     kwargs.setdefault("TrackSummaryTool", InDetTrackSummaryTool)
     kwargs.setdefault("ScoringTool", InDetExtenScoringTool)
     kwargs.setdefault("suppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.InDet.doBremRecovery)
+    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery)
     kwargs.setdefault("caloSeededBrem", flags.InDet.doCaloSeededBrem)
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", not (flags.InDet.refitROT or (flags.InDet.trtExtensionType == 'DAF')))

@@ -16,177 +16,177 @@ def select( selInd, valuesmap ):
     raise RuntimeError("No value can be selected from ranges {} given key {}".format( valuesmap.keys(), selInd ))
 
 def minPT_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-1':   0.1 * Units.GeV,
     '2-13': 0.4 * Units.GeV,
     '14-':  0.5 * Units.GeV } )
 
 def minSecondaryPT_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-1':   0.4 * Units.GeV,
     '2-18': 1.0 * Units.GeV,
     '19-': 3.0 * Units.GeV } )
 
 def minTRTonlyPt_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-1':   0.4 * Units.GeV,
     '2-5': 1.0 * Units.GeV,
     '6-': 2.0 * Units.GeV, } )
 
 def minClusters_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-14':  7,
     '15-':  8 } )
 
 def maxHoles_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-7':  3,
     '8-':  2 } )
 
 def maxPixelHoles_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-7':  2,
     '8-':  1 } )
 
 def maxPrimaryImpact_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-15':  10.0 * Units.mm,
     '16-':  5.0 * Units.mm } )
 
 def maxZImpact_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-8':  320.0 * Units.mm,
     '9-16':  250 * Units.mm,
     '17-':  200.0 * Units.mm } )
 
 def nHolesMax_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-11':  3,
     '12-':  2 } )
 
 def nHolesGapMax_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-11':  3,
     '12-':  2 } )
 
 def Xi2max_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-11':  15.0,
     '12-':  9.0 } )
 
 def Xi2maxNoAdd_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-11':  35.0,
     '12-':  25.0 } )
 
 def seedFilterLevel_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-4':  1,
     '5-':  2 } )
 
 def maxdImpactPPSSeeds_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-3':  1.7,
     '4-':  2.0 } )
 
 def maxdImpactSSSSeeds_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-3':  1000.0,
     '4-16':  20.0,
     '17-': 5.0 * Units.mm } )
 
 def doZBoundary_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-9':  False,
     '10-':  True } )
 
 def TRTSegFinderPtBins_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-1':  70,
     '2-':  50 } )
 
 def excludeUsedTRToutliers_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-5':  False,
     '6-':  True } )
 
 def useParameterizedTRTCuts_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
                    {'-2':  False,
                     '3-':  True } )
 
 def useNewParameterizationTRT_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-2':  False,
     '3-':  True } )
 
 def minSecondaryTRTonTrk_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-6':  10,
     '7-':  15 } )
 
 def minSecondaryTRTPrecFrac_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-6':  0.0,
     '7-':  0.3 } )
 
 def maxSecondaryHoles_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-6':  2,
     '7-':  1 } )
 
 def maxSecondaryPixelHoles_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-6':  2,
     '7-':  1 } )
 
 def maxSecondarySCTHoles_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-6':  2,
     '7-':  1 } )
 
 def maxSecondaryDoubleHoles_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-6':  1,
     '7-':  0 } )
 
 def rejectShortExtensions_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-6':  False,
     '7-':  True } )
 
 def SiExtensionCuts_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-6':  False,
     '7-':  True } )
 
 def RoISeededBackTracking_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-12':  False,
     '13-':  True } )
 
 def roadWidth_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-16':  20.0,
     '17-':  12.0 } )
 
 def keepAllConfirmedPixelSeeds_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-17':  False,
     '18-':  True } )
 
 def minRoIClusterEt_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-18':  0.0,
     '19-':  6000. * Units.MeV } )
 
 def maxSeedsPerSP_Pixels_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-17':  5,
     '18-':   1 } )
 
 def maxSeedsPerSP_Strips_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
+    return select( inflags.InDet.Tracking.cutLevel,
     {'-17':  5,
     '18-':   5 } )
 
@@ -834,28 +834,28 @@ def createHeavyIonTrackingPassFlags():
     # CutLevel 3 MinBias
     # CutLevel 4  # ==CutLevel 2 with loosened hole cuts and chi^2 cuts
     # CutLevel 5 # ==CutLevel 3 with loosened hole cuts and chi^2 cuts    
-    icf.seedFilterLevel = lambda pcf: 2 if pcf.InDet.cutLevel >= 2 else 1
+    icf.seedFilterLevel = lambda pcf: 2 if pcf.InDet.Tracking.cutLevel >= 2 else 1
     
     icf.maxdImpactSSSSeeds =  lambda pcf: \
-                              20. if pcf.InDet.cutLevel >= 2 else 1000.
+                              20. if pcf.InDet.Tracking.cutLevel >= 2 else 1000.
     
     icf.minPT              = lambda pcf: \
-                             0.3 *Units.GeV  if pcf.InDet.cutLevel in [3, 5] else 0.5 * Units.GeV
+                             0.3 *Units.GeV  if pcf.InDet.Tracking.cutLevel in [3, 5] else 0.5 * Units.GeV
     icf.useParameterizedTRTCuts = lambda pcf: \
-                                  False if pcf.InDet.cutLevel >= 3 else True #Make these false on all HI cut levels >=3, since standard cut levels set it true from levels >=3
+                                  False if pcf.InDet.Tracking.cutLevel >= 3 else True #Make these false on all HI cut levels >=3, since standard cut levels set it true from levels >=3
     icf.useNewParameterizationTRT = lambda pcf: \
-                                    False if pcf.InDet.cutLevel >= 3 else True
+                                    False if pcf.InDet.Tracking.cutLevel >= 3 else True
 
     #set this to 1.7 for all HI cut levels >=4, since standard cut levels set it to 2.0 from levels >=4. Not sure it has any effect, since we don't usually run mixed seeds (also true for HI?)
     icf.maxdImpactPPSSeeds = lambda pcf: \
-                             1.7 if pcf.InDet.cutLevel >= 4 else True
+                             1.7 if pcf.InDet.Tracking.cutLevel >= 4 else True
     
-    icf.maxHoles = lambda pcf: 2 if pcf.InDet.cutLevel in [4, 5] else 0
-    icf.maxPixelHoles = lambda pcf: 1 if pcf.InDet.cutLevel in [4, 5] else 0
-    icf.maxSctHoles = lambda pcf: 1 if pcf.InDet.cutLevel in [4, 5] else 0
+    icf.maxHoles = lambda pcf: 2 if pcf.InDet.Tracking.cutLevel in [4, 5] else 0
+    icf.maxPixelHoles = lambda pcf: 1 if pcf.InDet.Tracking.cutLevel in [4, 5] else 0
+    icf.maxSctHoles = lambda pcf: 1 if pcf.InDet.Tracking.cutLevel in [4, 5] else 0
     icf.maxDoubleHoles   = 0    
-    icf.Xi2max           = lambda pcf: 9. if pcf.InDet.cutLevel in [4, 5] else 6.
-    icf.Xi2maxNoAdd      = lambda pcf: 25. if pcf.InDet.cutLevel in [4, 5] else 10.        
+    icf.Xi2max           = lambda pcf: 9. if pcf.InDet.Tracking.cutLevel in [4, 5] else 6.
+    icf.Xi2maxNoAdd      = lambda pcf: 25. if pcf.InDet.Tracking.cutLevel in [4, 5] else 10.
     icf.radMax           = 600. * Units.mm # restrict to pixels + first SCT layer
     icf.useTRT           = False
 
@@ -1082,9 +1082,9 @@ if __name__ == "__main__":
   l.setLevel(WARNING)
   ConfigFlags.loadAllDynamicFlags()
 
-  assert ConfigFlags.InDet.cutLevel == 19 , "default cut level is wrong"
+  assert ConfigFlags.InDet.Tracking.cutLevel == 19 , "default cut level is wrong"
   assert ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt == 6000.0 * Units.MeV, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt)
-  ConfigFlags.InDet.cutLevel = 2
+  ConfigFlags.InDet.Tracking.cutLevel = 2
   assert ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt == 0.0, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt)
   assert ConfigFlags.InDet.Tracking.BeamGasPass.minRoIClusterEt == 0.0, "wrong cut value {}, not following cutLevel setting ".format(ConfigFlags.InDet.Tracking.BeamGasPass.minRoIClusterEt)
 

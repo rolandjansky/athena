@@ -481,8 +481,7 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
 
     if 'TRT_ElectronPidTool' not in kwargs:
-        if not flags.Detector.EnableTRT or flags.InDet.doHighPileup \
-            or  flags.InDet.useExistingTracksAsInput: # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
+        if not flags.Detector.EnableTRT or flags.InDet.Tracking.doHighPileup:
             kwargs.setdefault("TRT_ElectronPidTool", None)
         else:
             from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
@@ -653,7 +652,7 @@ def KalmanFitterCfg(flags, name='KalmanFitter',**kwargs) :
     acc = ComponentAccumulator()
 
     kwargs.setdefault('ForwardKalmanFitterHandle', InDetFKF())
-    if flags.InDet.doBremRecovery:
+    if flags.InDet.Tracking.doBremRecovery:
         kwargs.setdefault('DynamicNoiseAdjustorHandle', InDetDNAdjustor())
         kwargs.setdefault('BrempointAnalyserHandle', InDetDNASeparator())
         kwargs.setdefault('DoDNAForElectronsOnly', True)
@@ -1175,7 +1174,7 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
         InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
-    have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
+    have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois:
         alg = acc.getPrimaryAndMerge(ROIInfoVecAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
@@ -1353,7 +1352,7 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     acc = ComponentAccumulator()
     the_name=makeName(name,kwargs)
 
-    have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
+    have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois :
         alg = acc.popToolsAndMerge(ROIInfoVecAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )

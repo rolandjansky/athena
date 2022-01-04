@@ -9,23 +9,22 @@ def createInDetConfigFlags():
 
   icf.addFlag("InDet.doDBMstandalone",False)
   icf.addFlag("InDet.doSplitReco", False) # Turn running of the truth seeded pseudo tracking only for pileup on and off. Only makes sense to run on RDO file where SplitDigi was used!
+  icf.addFlag("InDet.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
 
   icf.addFlag("InDet.Tracking.doRefit", False) # Turn running of refitting on and off
+  icf.addFlag("InDet.Tracking.doHighPileup", False) # Turn running of high pile-up reconstruction on and off
+  icf.addFlag("InDet.Tracking.doBackTracking", True) # Turn running of backtracking on and off
+  icf.addFlag("InDet.Tracking.doLowPt", False) # Turn running of doLowPt second pass on and off
+  icf.addFlag("InDet.Tracking.doVeryLowPt", False) # Turn running of doVeryLowPt thrid pass on and off
+  icf.addFlag("InDet.Tracking.doForwardTracks", True) # Turn running of doForwardTracks pass on and off
+  icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", True)
+  icf.addFlag("InDet.Tracking.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
+  icf.addFlag("InDet.Tracking.doLargeD0", False)
+  icf.addFlag("InDet.Tracking.doR3LargeD0", True)
+  icf.addFlag("InDet.Tracking.storeSeparateLargeD0Container", True)
+  icf.addFlag("InDet.Tracking.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
+  icf.addFlag("InDet.Tracking.doBremRecovery", True) # Turn on running of Brem Recover in tracking
 
-  icf.addFlag("InDet.doHighPileup", False) # Turn running of high pile-up reconstruction on and off
-  icf.addFlag("InDet.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
-  icf.addFlag("InDet.doBackTracking", True) # Turn running of backtracking on and off
-  icf.addFlag("InDet.doLowPt", False) # Turn running of doLowPt second pass on and off
-  icf.addFlag("InDet.doVeryLowPt", False) # Turn running of doVeryLowPt thrid pass on and off
-  icf.addFlag("InDet.doForwardTracks", True) # Turn running of doForwardTracks pass on and off
-  icf.addFlag("InDet.doTrackSegmentsDisappearing", True)
-  icf.addFlag("InDet.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
-  icf.addFlag("InDet.doLargeD0", False)
-  icf.addFlag("InDet.doR3LargeD0", True)
-  icf.addFlag("InDet.storeSeparateLargeD0Container", True)
-  icf.addFlag("InDet.useExistingTracksAsInput", False) # Use already processed Track from a (D)ESD input file. This flag is related with ProcessedESDTracks InDetKey
-  icf.addFlag("InDet.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
-  icf.addFlag("InDet.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   icf.addFlag("InDet.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
