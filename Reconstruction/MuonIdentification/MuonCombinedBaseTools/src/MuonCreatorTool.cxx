@@ -1103,6 +1103,14 @@ namespace MuonCombined {
                 msg(MSG::DEBUG) << "ID candidate staus:  " << candidate.first->toString() << endmsg;
             }
         }
+
+        // tag_map above is keyed on a pointer.
+        // So we need to sort in order to get reproducible results.
+        std::stable_sort(resolvedInDetCandidates.begin(), resolvedInDetCandidates.end(),
+                         [] (const InDetCandidateTags& a,
+                             const InDetCandidateTags& b)
+                         { return a.first->indetTrackParticle().pt() >
+                                  b.first->indetTrackParticle().pt(); });
     }
 
     void MuonCreatorTool::resolveOverlaps(const EventContext& ctx ,
@@ -1238,6 +1246,13 @@ namespace MuonCombined {
             resolvedInDetCandidates.insert(resolvedInDetCandidates.end(), 
                                            caloMuons.begin(), 
                                            caloMuons.end()); 
+
+            // now sort the selected ID candidates
+            std::stable_sort(resolvedInDetCandidates.begin(), resolvedInDetCandidates.end(),
+                             [] (const InDetCandidateTags& a,
+                                 const InDetCandidateTags& b)
+                             { return a.first->indetTrackParticle().pt() >
+                                      b.first->indetTrackParticle().pt(); });
         }
 
         
