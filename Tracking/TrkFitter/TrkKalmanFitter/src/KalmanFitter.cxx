@@ -443,7 +443,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     //    if m_option_callValidationToolForFailedFitsOnly repeat the track fit with calls of validation tool
     if (m_option_callValidationToolForFailedFitsOnly && (!m_callValidationTool) && m_haveValidationTool) {
         m_callValidationTool = true;
-        if (fit(inputTrack, runOutlier, kalMec.particleType())) {
+        if (fit(ctx,inputTrack, runOutlier, kalMec.particleType())) {
             ATH_MSG_WARNING( "Error: fit succeeded! Should not happen, if we repeat a failed fit!" );
         }
         m_callValidationTool = false;
@@ -633,7 +633,7 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     //    if m_option_callValidationToolForFailedFitsOnly repeat the track fit with calls of validation tool
     if (m_option_callValidationToolForFailedFitsOnly && (!m_callValidationTool) && m_haveValidationTool) {
         m_callValidationTool = true;
-        if (fit(inputMeasSet, estimatedStartParameters, runOutlier, kalMec.particleType())) {
+        if (fit(ctx,inputMeasSet, estimatedStartParameters, runOutlier, kalMec.particleType())) {
             ATH_MSG_WARNING( "Error: fit succeeded! Should not happen, if we repeat a failed fit!" );
         }
         m_callValidationTool = false;

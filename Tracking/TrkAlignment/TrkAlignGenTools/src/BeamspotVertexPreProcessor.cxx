@@ -647,10 +647,13 @@ const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlob
       const TrackParameters* parsATvertex=m_extrapolator->extrapolate(*track, surface);
 
       ATH_MSG_DEBUG(" Track will be refitted at this surface  ");
-      newTrack = fitter->fit(measurementCollection, *parsATvertex, m_runOutlierRemoval, particleHypothesis);
+      newTrack = (fitter->fit(Gaudi::Hive::currentContext(),measurementCollection, 
+                             *parsATvertex, m_runOutlierRemoval, particleHypothesis)).release();
       delete parsATvertex;
     } else {
-      newTrack = fitter->fit(measurementCollection, *(track->trackParameters()->front()), m_runOutlierRemoval, particleHypothesis);
+      newTrack = (fitter->fit(Gaudi::Hive::currentContext(),
+                             measurementCollection, *(track->trackParameters()->front()), 
+                             m_runOutlierRemoval, particleHypothesis)).release();
     }
      //     delete vot;
   }

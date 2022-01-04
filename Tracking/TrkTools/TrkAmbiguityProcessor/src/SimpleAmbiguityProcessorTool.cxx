@@ -280,15 +280,15 @@ Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track* track,
   if (m_tryBremFit && track->info().trackProperties(Trk::TrackInfo::BremFit)){
     stat.incrementCounterByRegion(CounterIndex::kNbremFits,track);
     ATH_MSG_VERBOSE ("Brem track, refit with electron brem fit");
-    newTrack = m_fitterTool->fit(prds, *par, true, Trk::electron);
+    newTrack = m_fitterTool->fit(Gaudi::Hive::currentContext(),prds, *par, true, Trk::electron).release();
   } else {
     stat.incrementCounterByRegion(CounterIndex::kNfits,track);
     ATH_MSG_VERBOSE ("Normal track, refit");
-    newTrack = m_fitterTool->fit(prds, *par, true, m_particleHypothesis);
+    newTrack = m_fitterTool->fit(Gaudi::Hive::currentContext(),prds, *par, true, m_particleHypothesis).release();
     if ((not newTrack) and shouldTryBremRecovery(*track, par)){
       stat.incrementCounterByRegion(CounterIndex::kNrecoveryBremFits,track);
       ATH_MSG_VERBOSE ("Normal fit failed, try brem recovery");
-      newTrack = m_fitterTool->fit(prds, *par, true, Trk::electron);
+      newTrack = m_fitterTool->fit(Gaudi::Hive::currentContext(),prds, *par, true, Trk::electron).release();
     }
   }
   if(newTrack){
@@ -379,12 +379,12 @@ Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
 
 std::unique_ptr<Trk::Track>
 Trk::SimpleAmbiguityProcessorTool::doBremRefit(const Trk::Track & track) const{
-  return std::unique_ptr<Trk::Track>(m_fitterTool->fit(track,true,Trk::electron));
+  return m_fitterTool->fit(Gaudi::Hive::currentContext(),track,true,Trk::electron);
 }
 
 std::unique_ptr<Trk::Track>
 Trk::SimpleAmbiguityProcessorTool::fit(const Track &track, bool flag, Trk::ParticleHypothesis hypo) const{
-  return std::unique_ptr<Trk::Track>(m_fitterTool->fit(track,flag,hypo));
+  return m_fitterTool->fit(Gaudi::Hive::currentContext(),track,flag,hypo);
 }
 
 

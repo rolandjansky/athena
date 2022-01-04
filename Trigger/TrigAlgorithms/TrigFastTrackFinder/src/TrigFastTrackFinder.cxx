@@ -91,9 +91,9 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   /** Initial cut */
   declareProperty( "MinHits",               m_minHits = 5,"Minimum number of hits needed to perform tracking"  );
 
-  //** Zfinder mode 
+  //** Zfinder mode
   declareProperty( "doZFinder",            m_doZFinder = true,"Use fast ZFinder to find z of primary vertices");
-  declareProperty( "doZFinderOnly",        m_doZFinderOnly = false,"stop processing after ZFinder - no tracking performed");    
+  declareProperty( "doZFinderOnly",        m_doZFinderOnly = false,"stop processing after ZFinder - no tracking performed");
   declareProperty( "VertexSeededMode",     m_vertexSeededMode = false); //** NOT USED Obsolete? ATR-24242
   declareProperty( "doFastZVertexSeeding", m_doFastZVseeding = true,"Use ZFinder vertex information to filter seeds");
   declareProperty( "zVertexResolution",    m_tcs.m_zvError = 10.0," Half-width (mm) in z of z region used to filter seeds when doFastZVertexSeeding enabled" );
@@ -132,7 +132,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("doCloneRemoval", m_doCloneRemoval = true,"Remove tracks sharing too many hits");
   declareProperty( "FreeClustersCut"   ,m_nfreeCut,"Minimum number of unshared clusters");
 
-  //** Cuts applied to final tracks after Fit 
+  //** Cuts applied to final tracks after Fit
   declareProperty("TrackInitialD0Max",            m_initialD0Max      = 10.0,"Maximum d0 of track");
   declareProperty("TrackZ0Max",                   m_Z0Max      = 300.0,"Maximum z0 of track");
 
@@ -383,16 +383,16 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
   TrigRoiDescriptor internalRoI;
 
   if ( roiCollection->size()>1 ) ATH_MSG_WARNING( "More than one Roi in the collection: " << m_roiCollectionKey << ", this is not supported - use a composite Roi" );
-  
+
   if ( roiCollection->size()>0) {
       if ( !m_useBeamSpotForRoiZwidth) {
           internalRoI = **roiCollection->begin();
       }else{
           SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-          
+
           int beamSpotBitMap = beamSpotHandle->beamStatus();
-          bool isOnlineBeamspot = ((beamSpotBitMap & 0x4) == 0x4); 
-          
+          bool isOnlineBeamspot = ((beamSpotBitMap & 0x4) == 0x4);
+
           if ((isOnlineBeamspot && (beamSpotBitMap & 0x3) == 0x3) || !isOnlineBeamspot){ //converged or MC event, if the original RoI has a zed > 3 sig + 10 then set it to 3 sig + 10.
               TrigRoiDescriptor originRoI = **roiCollection->begin();
               double beamSpot_zsig = beamSpotHandle->beamSigma(2);
@@ -400,24 +400,24 @@ StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
               double zVTX = vertex.z();
               double origin_zedPlus  = originRoI.zedPlus() ;  //!< z at the most forward end of the RoI
               double origin_zedMinus = originRoI.zedMinus();  //!< z at the most backward end of the RoI
-             
+
               double new_zedMargin = 10.;
               double new_zedRange  = 3.;
- 
+
               double new_zedPlus  = zVTX + beamSpot_zsig * new_zedRange + new_zedMargin;
               double new_zedMinus = zVTX - beamSpot_zsig * new_zedRange - new_zedMargin;
 
-              if (origin_zedPlus > new_zedPlus && origin_zedMinus < new_zedMinus){ 
-                  ATH_MSG_DEBUG("Updated RoI with zed = "<<new_zedRange<<" * sig + "<<new_zedMargin);  
+              if (origin_zedPlus > new_zedPlus && origin_zedMinus < new_zedMinus){
+                  ATH_MSG_DEBUG("Updated RoI with zed = "<<new_zedRange<<" * sig + "<<new_zedMargin);
                   double origin_etaPlus  = originRoI.etaPlus() ;    //!< gets eta at zedPlus
                   double origin_etaMinus = originRoI.etaMinus();    //!< gets eta at zMinus
                   double origin_phiPlus  = originRoI.phiPlus() ;     //!< gets phiPlus
                   double origin_phiMinus = originRoI.phiMinus();    //!< gets phiMinus
                   double origin_eta      = originRoI.eta();    //!< gets eta at zMinus
                   double origin_phi      = originRoI.phi() ;     //!< gets phiPlus
-                  unsigned int origin_roiId   = originRoI.roiId() ; 
-                  unsigned int origin_l1Id    = originRoI.l1Id() ; 
-                  unsigned int origin_roiWord = originRoI.roiWord(); 
+                  unsigned int origin_roiId   = originRoI.roiId() ;
+                  unsigned int origin_l1Id    = originRoI.l1Id() ;
+                  unsigned int origin_roiWord = originRoI.roiWord();
                   internalRoI = TrigRoiDescriptor(origin_roiWord, origin_l1Id, origin_roiId, origin_eta, origin_etaMinus, origin_etaPlus, origin_phi, origin_phiMinus, origin_phiPlus, zVTX, new_zedMinus, new_zedPlus);
                   if (originRoI.isFullscan()) internalRoI.setFullscan(true);
               }
@@ -1679,7 +1679,7 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    }
 
    // fill objects
-   
+
    // track
    const float TRKCUT_DELTA_R_TO_SEED = 1.0;
    hitDVTrkContainer->reserve(v_dvtrk_pt.size());
@@ -1703,9 +1703,9 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       hitDVTrk->setDetail<float>("hitDVTrk_eta", v_dvtrk_eta[iTrk]);
       hitDVTrk->setDetail<float>("hitDVTrk_phi", v_dvtrk_phi[iTrk]);
       hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_innermost", v_dvtrk_n_hits_innermost[iTrk]);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_pix", v_dvtrk_n_hits_pix[iTrk]); 
+      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_pix", v_dvtrk_n_hits_pix[iTrk]);
       hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_sct", v_dvtrk_n_hits_sct[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_a0beam",     v_dvtrk_a0beam[iTrk]); 
+      hitDVTrk->setDetail<float>("hitDVTrk_a0beam",     v_dvtrk_a0beam[iTrk]);
    }
 
    // space points
@@ -1752,11 +1752,11 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const EventContext& ctx,
    seeds_phi.clear();
 
    const int   NBINS_ETA = 50;
-   const float ETA_MIN   = -2.5; 
+   const float ETA_MIN   = -2.5;
    const float ETA_MAX   =  2.5;
 
    const int   NBINS_PHI = 80;
-   const float PHI_MIN   = -4.0; 
+   const float PHI_MIN   = -4.0;
    const float PHI_MAX   =  4.0;
 
    char hname[64];
@@ -1855,7 +1855,7 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const EventContext& ctx,
    std::sort(QT.begin(), QT.end(),
 	     [](const std::tuple<int,float,float,float>& lhs, const std::tuple<int,float,float,float>& rhs) {
 		return std::get<1>(lhs) > std::get<1>(rhs); } );
-   
+
    // clustering
    const double CLUSTCUT_DIST      = 0.2;
    const double CLUSTCUT_SEED_FRAC = 0.9;
@@ -1883,7 +1883,7 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const EventContext& ctx,
 	 float dist = std::sqrt(dphi*dphi+deta*deta);
 	 if( dist < dist_min ) {
 	    dist_min = dist;
-	    idx_min  = j; 
+	    idx_min  = j;
 	 }
       }
       int match_idx = IDX_INITIAL;
@@ -1966,7 +1966,7 @@ int TrigFastTrackFinder::getSPLayer(int layer, float eta) const
 
    int base = 0;
 
-   // 
+   //
    const float PixBR6limit = 1.29612;
    const float PixBR5limit = 1.45204;
    const float PixBR4limit = 1.64909;
@@ -2325,7 +2325,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 	    if(iblOverflow==1)n_usedIBLOverflowHits++;
 	 }
 	 ATH_MSG_VERBOSE("dEdx=" << dEdxValue);
-	 v_pixhit_dedx.push_back(dEdxValue); v_pixhit_tot.push_back(tot); 
+	 v_pixhit_dedx.push_back(dEdxValue); v_pixhit_tot.push_back(tot);
 	 v_pixhit_trkchi2.push_back(chi2); v_pixhit_trkndof.push_back(ndof);
 	 v_pixhit_iblovfl.push_back(iblOverflow); v_pixhit_loc.push_back(loc); v_pixhit_layer.push_back(layer);
       }
@@ -2346,7 +2346,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
          averagedEdx += itdEdx.first;
          n_usedhits++;
       }
-      if(itdEdx.second > 0){ 
+      if(itdEdx.second > 0){
 	 ATH_MSG_VERBOSE("IBLOverflow");
          IBLOverflow++;
       }
@@ -2368,7 +2368,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
 
       if (((int)pixelhits > 1) and ((int)n_usedhits >=(int)pixelhits-1)) {
 	 ATH_MSG_VERBOSE("break, skipping last??");
-	 break; 
+	 break;
       }
 
       if((int)IBLOverflow>0 and (int)pixelhits==1){ // only IBL in overflow
@@ -2384,7 +2384,7 @@ float TrigFastTrackFinder::dEdx(const Trk::Track* track, int& pixelhits, int& n_
       ATH_MSG_DEBUG("=====> averaged dEdx = " << averagedEdx << " =====>");;
       ATH_MSG_DEBUG("   +++ Used hits: " << n_usedhits << ", IBL overflows: " << IBLOverflow );;
       ATH_MSG_DEBUG("   +++ Original number of measurements = " << pixelhits << " (map size = " << dEdxMap.size() << ") ");
-      return averagedEdx;  
+      return averagedEdx;
    }
 
    // -- false return
@@ -2399,11 +2399,11 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
    const double FAIL_CHI2_OV_NDOF_CUT             = 20.0;
    //
    const int    COMB_N_HITS_IBL_OR_BL_CUT         = 1;
-   const int    COMB_N_HITS_PIX_BR_CUT            = 3; 
+   const int    COMB_N_HITS_PIX_BR_CUT            = 3;
    const double COMB_CHI2_OV_NDOF_PIX_BR_CUT      = 3.0;
    const int    COMB_N_GOOD_HITS_SCT_BR_CUT       = 2;
    const int    COMB_N_GOOD_DOUBLEHITS_SCT_BR_CUT = 0;
-   
+
    // sanity check
    if( trk==nullptr )                      return false;
    if( trk->perigeeParameters()==nullptr ) return false;
@@ -2419,7 +2419,7 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
    ATH_MSG_VERBOSE("FTF::isCleaningPassDisTrack> ... barrel cut passed");
 
    // pt cut
-   double theta  = trk->perigeeParameters()->parameters()[Trk::theta]; 
+   double theta  = trk->perigeeParameters()->parameters()[Trk::theta];
    double qOverP = std::abs(trk->perigeeParameters()->parameters()[Trk::qOverP]);
    if ( qOverP < 1e-12 ) qOverP = 1e-12;
    double pt = sin(theta)/qOverP;
@@ -2455,9 +2455,9 @@ bool TrigFastTrackFinder::isCleaningPassDisTrack(const TrigInDetTriplet& seed, T
       double chi2_ov_ndof_pixbr = chi2_pixbr / ndof_pixbr;
       if( chi2_ov_ndof_pixbr > COMB_CHI2_OV_NDOF_PIX_BR_CUT ) return false;
       ATH_MSG_VERBOSE("FTF::isCleaningPassDisTrack> ... (combTrk) Pix cut passed");
-      
+
       // SCT cuts
-      int n_hits_sctbr_good = 0; 
+      int n_hits_sctbr_good = 0;
       int n_doublehits_sctbr_good = 0;
       for(unsigned int ily=4; ily<=7; ily++) {
 	      n_hits_sctbr_good += barrelInfo[ily].nGood;
@@ -2487,7 +2487,7 @@ TrigFastTrackFinder::getTrkBarrelLayerInfo(Trk::Track* t) const
       for ( ; tsosIter != tsosIterEnd; ++tsosIter) {
 	      const Trk::FitQualityOnSurface* fq = (*tsosIter)->fitQualityOnSurface();
 	      double x2 = 0;
-	      int  ndof = 0; 
+	      int  ndof = 0;
 	      if(fq!=nullptr) {
 	        x2 = fq->chiSquared();
 	        ndof = fq->numberDoF();
@@ -2532,8 +2532,8 @@ TrigFastTrackFinder::getTrkBarrelLayerInfo(Trk::Track* t) const
 
 double TrigFastTrackFinder::disTrackQuality(const Trk::Track* Tr) const
 {
-   DataVector<const Trk::TrackStateOnSurface>::const_iterator  
-      m  = Tr->trackStateOnSurfaces()->begin(), 
+   DataVector<const Trk::TrackStateOnSurface>::const_iterator
+      m  = Tr->trackStateOnSurfaces()->begin(),
       me = Tr->trackStateOnSurfaces()->end  ();
 
    double quality_pixel = 0. ;
@@ -2547,7 +2547,7 @@ double TrigFastTrackFinder::disTrackQuality(const Trk::Track* Tr) const
 
       double x2 = fq->chiSquared();
       double q;
-      if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
+      if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5));
       else                     q =      (W-x2    );
       if(q < 0.) q = 0.;
 
@@ -2585,7 +2585,7 @@ void TrigFastTrackFinder::recoVertexForDisTrack(const EventContext& ctx, TrackCo
    const double CLUSTCUT_DIST_SIGMA = 5.0;
    const double CLUSTCUT_DIST       = 2.5;
    const double CLUSTCUT_SEED_PT    = 3.0;
-   
+
    const int VTXCUT_N_TRACKS = 3;
    const int VTXCUT_ALGO     = 1; // 0: highest pT track, 1: sumPt
 
@@ -2595,7 +2595,7 @@ void TrigFastTrackFinder::recoVertexForDisTrack(const EventContext& ctx, TrackCo
    for (auto t=tracks.begin(); t!=tracks.end(); ++t) {
       if( ! isGoodForDisTrackVertex(*t) ) continue;
       // consider for vertex fitting (idx, sort, weight, Trk)
-      double theta = (*t)->perigeeParameters()->parameters()[Trk::theta]; 
+      double theta = (*t)->perigeeParameters()->parameters()[Trk::theta];
       double qOverP = std::abs((*t)->perigeeParameters()->parameters()[Trk::qOverP]);
       if ( qOverP < 1e-12 ) qOverP = 1e-12;
       double pt = sin(theta)/qOverP;
@@ -2636,7 +2636,7 @@ void TrigFastTrackFinder::recoVertexForDisTrack(const EventContext& ctx, TrackCo
 	 double dist = std::abs(z - cluster_z[j]/cluster_wsum[j]);
 	 if( dist < dist_min ) {
 	    dist_min = dist;
-	    idx_min  = j; 
+	    idx_min  = j;
 	 }
       }
       int match_idx = IDX_INITIAL;
@@ -2718,7 +2718,7 @@ bool TrigFastTrackFinder::isGoodForDisTrackVertex(Trk::Track* t) const
    const double TRKCUT_PT                  = 1.0;
    const double TRKCUT_D0                  = 2.0;
    const int    TRKCUT_N_HITS_INNER        = 1;
-   const int    TRKCUT_N_HITS_PIX          = 3; 
+   const int    TRKCUT_N_HITS_PIX          = 3;
    const int    TRKCUT_N_HITS              = 7;
 
    // sanity check
@@ -2737,7 +2737,7 @@ bool TrigFastTrackFinder::isGoodForDisTrackVertex(Trk::Track* t) const
    if( chi2_ov_ndof > TRKCUT_CHI2_OV_NDOF )  return false;
 
    // pt
-   double theta = t->perigeeParameters()->parameters()[Trk::theta]; 
+   double theta = t->perigeeParameters()->parameters()[Trk::theta];
    double qOverP = std::abs(t->perigeeParameters()->parameters()[Trk::qOverP]);
    if ( qOverP < 1e-12 ) qOverP = 1e-12;
    double pt    = std::sin(theta)/qOverP;
@@ -2749,8 +2749,8 @@ bool TrigFastTrackFinder::isGoodForDisTrackVertex(Trk::Track* t) const
    if( std::abs(d0) > TRKCUT_D0 ) return false;
 
    // nr hits
-   int n_hits_innermost = t->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits); 
-   int n_hits_next_to_innermost = t->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits); 
+   int n_hits_innermost = t->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits);
+   int n_hits_next_to_innermost = t->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits);
    int n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
    int n_hits_pix = t->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
    int n_hits_sct = t->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
@@ -2775,11 +2775,11 @@ void TrigFastTrackFinder::filterSharedDisTracks(std::vector<std::tuple<bool, dou
 		return std::get<1>(lhs) < std::get<1>(rhs); } );
 
    for (auto& q : QT) {
-      DataVector<const Trk::MeasurementBase>::const_iterator 
-	 m  = std::get<2>(q)->measurementsOnTrack()->begin(), 
+      DataVector<const Trk::MeasurementBase>::const_iterator
+	 m  = std::get<2>(q)->measurementsOnTrack()->begin(),
          me = std::get<2>(q)->measurementsOnTrack()->end  ();
 
-      int nf = 0, nc = 0; 
+      int nf = 0, nc = 0;
       for(; m!=me; ++m ) {
 	 const Trk::PrepRawData* pr = ((const Trk::RIO_OnTrack*)(*m))->prepRawData();
 	 if(pr) {
@@ -2849,7 +2849,7 @@ StatusCode TrigFastTrackFinder::findDisTracks(const EventContext& ctx,
    int n_disFailTrkCands = recoAndFillDisTrkCand(prefix, &fittedDisFailTrks, tracksForIso, disTrkCandContainer, v_xvtx, v_yvtx, v_zvtx, true);
    ATH_MSG_VERBOSE("disFailTrk: nr of cands = " << n_disFailTrkCands);
 
-   mnt_disFailTrk_n      = qualityDisFailTrks.size(); 
+   mnt_disFailTrk_n      = qualityDisFailTrks.size();
    mnt_disFailTrk_nclone = initialDisFailTrks.size();
    mnt_disFailTrk_ncand  = n_disFailTrkCands;
 
@@ -2858,7 +2858,7 @@ StatusCode TrigFastTrackFinder::findDisTracks(const EventContext& ctx,
    int n_disCombTrkCands = recoAndFillDisTrkCand(prefix, &fittedDisCombTrks, tracksForIso, disTrkCandContainer, v_xvtx, v_yvtx, v_zvtx, false);
    ATH_MSG_VERBOSE("disCombTrk: nr of cands = " << n_disCombTrkCands);
 
-   mnt_disCombTrk_n      = qualityDisCombTrks.size(); 
+   mnt_disCombTrk_n      = qualityDisCombTrks.size();
    mnt_disCombTrk_nclone = fittedDisCombTrks.size();
    mnt_disCombTrk_ncand  = n_disCombTrkCands;
 
@@ -2871,7 +2871,7 @@ bool TrigFastTrackFinder::isPreselPassDisTrack(Trk::Track* trk, double d0_wrtVtx
    const double PRESEL_Z0_WRTVTX = 50.0;
    const int    PRESEL_N_GOOD_BR_LAYERS_PIX    = 3;
    const double PRESEL_CHI2_OV_NDOF_PIX_BR_CUT = 5.0;
-   
+
    // sanity check
    if( trk == nullptr ) return false;
    if( trk->perigeeParameters() == nullptr ) return false;
@@ -2896,7 +2896,7 @@ bool TrigFastTrackFinder::isPreselPassDisTrack(Trk::Track* trk, double d0_wrtVtx
 
    // d0
    if( std::abs(d0_wrtVtx) > PRESEL_D0_WRTVTX ) return false;
-      
+
    // z0
    if( std::abs(z0_wrtVtx) > PRESEL_Z0_WRTVTX ) return false;
 
@@ -2912,18 +2912,18 @@ const Trk::Perigee* TrigFastTrackFinder::extrapolateDisTrackToBS(Trk::Track* t,
    float vtx_x  = 0;
    float vtx_y  = 0;
    float vtx_z  = 9999;
-   float trk_z0 = t->perigeeParameters()->parameters()[Trk::z0]; 
+   float trk_z0 = t->perigeeParameters()->parameters()[Trk::z0];
    float z0_min = 9999;
    for(unsigned int i_vtx=0; i_vtx<v_zvtx.size(); i_vtx++) {
       float z = v_zvtx[i_vtx];
-      if( std::abs(trk_z0-z) < z0_min ) { 
+      if( std::abs(trk_z0-z) < z0_min ) {
 	 z0_min = std::abs(trk_z0-z);
 	 vtx_z  = z;
 	 vtx_x  = v_xvtx[i_vtx];
 	 vtx_y  = v_yvtx[i_vtx];
       }
    }
-   
+
    Amg::Vector3D gp(vtx_x, vtx_y, vtx_z);
    Trk::PerigeeSurface persf(gp);
    const Trk::Perigee* vertexPerigee   = 0;
@@ -2977,21 +2977,21 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
    float theta=0; float eta=0; float pt=0; float d0=0; float z0=0; float phi=0; float chi2=0; float ndof=0;
    int n_hits_innermost=-1; int n_hits_next_to_innermost=-1; int n_hits_inner=-1; int n_hits_pix=-1; int n_hits_sct=-1;
    if( trk != nullptr ) {
-      theta = trk->perigeeParameters()->parameters()[Trk::theta]; 
+      theta = trk->perigeeParameters()->parameters()[Trk::theta];
       eta   = -std::log(std::tan(0.5*theta));
       float qOverP = std::abs(trk->perigeeParameters()->parameters()[Trk::qOverP]);
       if ( qOverP < 1e-12 ) qOverP = 1e-12;
       pt    = sin(theta)/qOverP;
-      d0    = trk->perigeeParameters()->parameters()[Trk::d0]; 
-      z0    = trk->perigeeParameters()->parameters()[Trk::z0]; 
-      phi   = trk->perigeeParameters()->parameters()[Trk::phi]; 
+      d0    = trk->perigeeParameters()->parameters()[Trk::d0];
+      z0    = trk->perigeeParameters()->parameters()[Trk::z0];
+      phi   = trk->perigeeParameters()->parameters()[Trk::phi];
       chi2  = trk->fitQuality()->chiSquared();
       ndof  = trk->fitQuality()->doubleNumberDoF();
       if( trk->trackSummary()!=0 ) {
 	 n_hits_pix = trk->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
 	 n_hits_sct = trk->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
-	 n_hits_innermost = trk->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits); 
-	 n_hits_next_to_innermost = trk->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits); 
+	 n_hits_innermost = trk->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits);
+	 n_hits_next_to_innermost = trk->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits);
 	 n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
       }
    }
@@ -3006,37 +3006,37 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
    comp->setDetail<int>  (prefix+"_n_hits_inner",     n_hits_inner);
    comp->setDetail<int>  (prefix+"_n_hits_pix",       n_hits_pix);
    comp->setDetail<int>  (prefix+"_n_hits_sct",       n_hits_sct);
-   
+
    // extrapolate
    float theta_wrtVtx=0; float eta_wrtVtx=0; float pt_wrtVtx=0; float d0_wrtVtx=0; float z0_wrtVtx=0; float phi_wrtVtx=0;
    if( vertexPerigee != nullptr ) {
-      theta_wrtVtx = vertexPerigee->parameters()[Trk::theta]; 
+      theta_wrtVtx = vertexPerigee->parameters()[Trk::theta];
       eta_wrtVtx   = -std::log(std::tan(0.5*theta_wrtVtx));
       float qOverP_wrtVtx = std::abs(vertexPerigee->parameters()[Trk::qOverP]);
       if ( qOverP_wrtVtx < 1e-12 ) qOverP_wrtVtx = 1e-12;
       pt_wrtVtx    = std::sin(theta_wrtVtx)/qOverP_wrtVtx;
-      d0_wrtVtx    = vertexPerigee->parameters()[Trk::d0]; 
-      z0_wrtVtx    = vertexPerigee->parameters()[Trk::z0]; 
-      phi_wrtVtx   = vertexPerigee->parameters()[Trk::phi]; 
+      d0_wrtVtx    = vertexPerigee->parameters()[Trk::d0];
+      z0_wrtVtx    = vertexPerigee->parameters()[Trk::z0];
+      phi_wrtVtx   = vertexPerigee->parameters()[Trk::phi];
    }
    comp->setDetail<float>(prefix+"_pt_wrtVtx",  pt_wrtVtx);
    comp->setDetail<float>(prefix+"_eta_wrtVtx", eta_wrtVtx);
    comp->setDetail<float>(prefix+"_phi_wrtVtx", phi_wrtVtx);
    comp->setDetail<float>(prefix+"_d0_wrtVtx",  d0_wrtVtx);
    comp->setDetail<float>(prefix+"_z0_wrtVtx",  z0_wrtVtx);
-   
+
    // barrel hits
    std::array<OneLayerInfo_t, N_BARREL_LAYERS> barrelInfo{};
    int n_ibl  =-1; int n_pix1  =-1; int n_pix2  =-1; int n_pix3  =-1; int n_sct1  =-1; int n_sct2  =-1; int n_sct3  =-1; int n_sct4  =-1;
    int n_ibl_g=-1; int n_pix1_g=-1; int n_pix2_g=-1; int n_pix3_g=-1; int n_sct1_g=-1; int n_sct2_g=-1; int n_sct3_g=-1; int n_sct4_g=-1;
-   
+
    barrelInfo = getTrkBarrelLayerInfo(trk);
-   n_ibl = barrelInfo[0].nHits; n_pix1=barrelInfo[1].nHits; n_pix2=barrelInfo[2].nHits; n_pix3=barrelInfo[3].nHits; 
+   n_ibl = barrelInfo[0].nHits; n_pix1=barrelInfo[1].nHits; n_pix2=barrelInfo[2].nHits; n_pix3=barrelInfo[3].nHits;
    n_sct1=barrelInfo[4].nHits; n_sct2=barrelInfo[5].nHits; n_sct3=barrelInfo[6].nHits; n_sct4=barrelInfo[7].nHits;
    //
-   n_ibl_g =barrelInfo[0].nGood; n_pix1_g=barrelInfo[1].nGood; n_pix2_g=barrelInfo[2].nGood; n_pix3_g=barrelInfo[3].nGood; 
+   n_ibl_g =barrelInfo[0].nGood; n_pix1_g=barrelInfo[1].nGood; n_pix2_g=barrelInfo[2].nGood; n_pix3_g=barrelInfo[3].nGood;
    n_sct1_g=barrelInfo[4].nGood; n_sct2_g=barrelInfo[5].nGood; n_sct3_g=barrelInfo[6].nGood; n_sct4_g=barrelInfo[7].nGood;
-   
+
    comp->setDetail<int>  (prefix+"_n_brhits_ibl",       n_ibl);
    comp->setDetail<int>  (prefix+"_n_brhits_pix1",      n_pix1);
    comp->setDetail<int>  (prefix+"_n_brhits_pix2",      n_pix2);
@@ -3078,13 +3078,13 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
       float iso2_dr01=0; float iso2_dr02=0; float iso2_dr04=0;
       float iso3_dr01=0; float iso3_dr02=0; float iso3_dr04=0;
       for(auto t=tracksForIso.begin(); t!=tracksForIso.end(); t++) {
-	 float z0_t   = (*t)->perigeeParameters()->parameters()[Trk::z0]; 
+	 float z0_t   = (*t)->perigeeParameters()->parameters()[Trk::z0];
 	 if( std::abs(z0_t - z0) <= ISOL_CALC_Z0_DIFF_CUT ) {
-	    float theta_t = (*t)->perigeeParameters()->parameters()[Trk::theta]; 
+	    float theta_t = (*t)->perigeeParameters()->parameters()[Trk::theta];
 	    float qOverP_t= std::abs((*t)->perigeeParameters()->parameters()[Trk::qOverP]);
 	    if ( qOverP_t < 1e-12 ) qOverP_t = 1e-12;
 	    float pt_t    = std::sin(theta_t)/qOverP_t;
-	    float phi_t   = (*t)->perigeeParameters()->parameters()[Trk::phi]; 
+	    float phi_t   = (*t)->perigeeParameters()->parameters()[Trk::phi];
 	    float eta_t   = -std::log(std::tan(theta_t/2.0));
 	    float deta    = eta_t - eta;
 	    float dphi    = std::abs(phi_t - phi);
@@ -3139,13 +3139,13 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
 
       // extrapolate to vertex
       const Trk::Perigee* vertexPerigee = extrapolateDisTrackToBS(ptrk,v_xvtx,v_yvtx,v_zvtx);
-      double d0 = ptrk->perigeeParameters()->parameters()[Trk::d0]; 
-      double z0 = ptrk->perigeeParameters()->parameters()[Trk::z0]; 
+      double d0 = ptrk->perigeeParameters()->parameters()[Trk::d0];
+      double z0 = ptrk->perigeeParameters()->parameters()[Trk::z0];
       double d0_wrtVtx = 0;
       double z0_wrtVtx = 0;
       if( vertexPerigee != nullptr ) {
-	 d0_wrtVtx = vertexPerigee->parameters()[Trk::d0]; 
-	 z0_wrtVtx = vertexPerigee->parameters()[Trk::z0]; 
+	 d0_wrtVtx = vertexPerigee->parameters()[Trk::d0];
+	 z0_wrtVtx = vertexPerigee->parameters()[Trk::z0];
 	 ATH_MSG_VERBOSE("d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
 	 ATH_MSG_VERBOSE("z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
       }
@@ -3184,16 +3184,16 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
 	 else {
 	    float d0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::d0];
 	    float z0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::z0];
-	    float d0_wrtVtx    = refitVertexPerigee->parameters()[Trk::d0]; 
-	    float z0_wrtVtx    = refitVertexPerigee->parameters()[Trk::z0]; 
+	    float d0_wrtVtx    = refitVertexPerigee->parameters()[Trk::d0];
+	    float z0_wrtVtx    = refitVertexPerigee->parameters()[Trk::z0];
 	    ATH_MSG_VERBOSE("refit trk d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
 	    ATH_MSG_VERBOSE("refit trk z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
 	 }
       }
-      
+
       // store refit trk info
       prefix = base_prefix + "_refit";
-      if( refit_trk != nullptr ) { 
+      if( refit_trk != nullptr ) {
 	 fillDisTrkCand(comp,prefix,refit_trk.get(),refitVertexPerigee);
       }
       else {
@@ -3222,7 +3222,7 @@ std::unique_ptr<Trk::Track> TrigFastTrackFinder::disTrk_refit(Trk::Track* t) con
    const Trk::Perigee* origPerigee = t->perigeeParameters();
    if( origPerigee == nullptr ) return newtrack;
    ATH_MSG_VERBOSE("... origPerigee is there");
-   
+
    // remove SCT hits
    std::vector<const Trk::MeasurementBase*> vec;
    int n_measurements       = 0;
@@ -3249,7 +3249,7 @@ std::unique_ptr<Trk::Track> TrigFastTrackFinder::disTrk_refit(Trk::Track* t) con
    ATH_MSG_VERBOSE("... Nr of measurments / refit = " << n_measurements << " / " << n_measurements_refit);
 
    // perform refit
-   newtrack.reset( m_disTrkFitter->fit(vec, *origPerigee, false, m_particleHypothesis) ); // false to run outlier switch
+   newtrack = m_disTrkFitter->fit(Gaudi::Hive::currentContext(),vec, *origPerigee, false, m_particleHypothesis); // false to run outlier switch
    ATH_MSG_VERBOSE("... ---> refit track:");
    if( newtrack!=0 && newtrack.get() ) {
       print_disTrk(dynamic_cast<const Trk::Track*>(newtrack.get()));
@@ -3268,10 +3268,10 @@ void TrigFastTrackFinder::print_disTrk(const Trk::Track* t) const
    if( t!=nullptr ) {
       chi2  = t->fitQuality()->chiSquared();
       ndof  = t->fitQuality()->doubleNumberDoF();
-      d0    = t->perigeeParameters()->parameters()[Trk::d0]; 
-      z0    = t->perigeeParameters()->parameters()[Trk::z0]; 
-      phi   = t->perigeeParameters()->parameters()[Trk::phi]; 
-      theta = t->perigeeParameters()->parameters()[Trk::theta]; 
+      d0    = t->perigeeParameters()->parameters()[Trk::d0];
+      z0    = t->perigeeParameters()->parameters()[Trk::z0];
+      phi   = t->perigeeParameters()->parameters()[Trk::phi];
+      theta = t->perigeeParameters()->parameters()[Trk::theta];
       float qOverP = std::abs(t->perigeeParameters()->parameters()[Trk::qOverP]);
       if ( qOverP < 1e-12 ) qOverP = 1e-12;
       float pt = sin(theta)/qOverP;

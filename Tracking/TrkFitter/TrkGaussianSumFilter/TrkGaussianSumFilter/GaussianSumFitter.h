@@ -53,8 +53,6 @@ public:
   /** AlgTool finalise method */
   virtual StatusCode finalize() override final;
 
-  using ITrackFitter::fit;
-
   /** Refit a track using the Gaussian Sum Filter */
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,

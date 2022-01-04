@@ -52,7 +52,7 @@ public:
   virtual ~DistributedKalmanFilter();
 
   // standard Athena methods
-  virtual StatusCode initialize() override; 
+  virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
   // Filter settings:
@@ -60,11 +60,6 @@ public:
   //			ParticleHypothesis   - allow for multiple scattering and
   //energy loss?
 
-  /*
-   * Bring in default impl without
-   * EventContext for now
-   */
-  using ITrackFitter::fit;
 
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
@@ -169,7 +164,7 @@ private:
                                             "ExtrapolatorTool",
                                             "Trk::Extrapolator/Extrapolator",
                                             "Extrapolator Tool" };
-  
+
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
     this,
     "AtlasFieldCacheCondObj",

@@ -46,7 +46,7 @@
 class AtlasDetectorID;            //!< to identify measurements
 
 namespace Trk {
-	
+
   class Track;
   class TrackStateOnSurface;
   class TrackInfo;
@@ -57,12 +57,12 @@ namespace Trk {
   class TrackFitInputPreparator; // helper to fill internal trajectories
   typedef std::vector<Trk::ProtoTrackStateOnSurface> Trajectory;
   typedef DataVector<const TrackStateOnSurface>::const_iterator TS_iterator;
-				
+
   /** @brief Main Fitter tool providing the implementation for the different
       fitting, extension and refitting use cases.
 
       It manages and calls
-      the other tools in this package, such as ForwardFitter, Smoother 
+      the other tools in this package, such as ForwardFitter, Smoother
       and OutlierLogic.
       @author M. Elsing, W. Liebig
    */
@@ -75,11 +75,6 @@ namespace Trk {
     // standard Athena methods
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    /*
-     * Bring in default impl with
-     * EventContext for now
-     */
-    using ITrackFitter::fit;
 
     //! refit a track
     virtual std::unique_ptr<Track> fit(
@@ -140,7 +135,7 @@ namespace Trk {
   ///////////////////////////////////////////////////////////////////
 private:
     //! method providing common code to validate fitter input
-    bool                       check_operability(int, const RunOutlierRemoval&, 
+    bool                       check_operability(int, const RunOutlierRemoval&,
                                                  const Trk::ParticleHypothesis&, bool
                                                  ) const;
 
@@ -278,7 +273,7 @@ private:
     //! methods to do bookkeeping about fitter calls, error situations and chiSquared
     void monitorTrackFits(FitStatisticsCode, const double&) const;
     void updateChi2Asymmetry(std::vector<int>&, const Trk::FitQuality&, const double&) const;
-    
+
 };
 
 inline  Trk::FitterStatusCode Trk::KalmanFitter::statusCodeOfLastFit() const
