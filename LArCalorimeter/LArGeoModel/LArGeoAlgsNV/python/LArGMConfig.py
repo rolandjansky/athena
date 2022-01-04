@@ -37,7 +37,7 @@ def LArGMCfg(configFlags):
             result.addCondAlgo(CompFactory.LArAlignCondAlg())
             result.addCondAlgo(CompFactory.CaloAlignCondAlg())
             AthReadAlg_ExtraInputs = []
-            caloCellsInInput = configFlags.Input.Files != ["_ATHENA_GENERIC_INPUTFILE_NAME_"] and "CaloCellContainer" in [i.split('#')[0] for i in configFlags.Input.TypedCollections]
+            caloCellsInInput = "CaloCellContainer" in [i.split('#')[0] for i in configFlags.Input.TypedCollections]
             sCellsInInput = False
             caloCellKeys = []
             if caloCellsInInput:
