@@ -268,11 +268,6 @@ namespace Trk {
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    /*
-     * Bring in default impl with
-     * EventContext for now
-     */
-    using ITrackFitter::fit;
 
     virtual std::unique_ptr<Track> fit(
       const EventContext& ctx,

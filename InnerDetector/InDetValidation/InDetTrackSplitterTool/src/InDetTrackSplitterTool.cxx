@@ -290,7 +290,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling upper fit" << endmsg;
     //m_upperTrack = m_trkfitter->fit(m_upperHits, *originalPerigee, true, hypo);
-    upperTrack = m_trkfitter->fit(upperorigtrack, false, hypo);
+    upperTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),upperorigtrack, false, hypo)).release();
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling upper fit" << endmsg;
     
     if(!upperTrack){
@@ -324,7 +324,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   if(isConstrained(numberLowerPixelHits,numberLowerSCTHits,numberLowerTRTHits,numberLowerPseudoMeas)){
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling lower fit" << endmsg;
-    lowerTrack = m_trkfitter->fit(lowerorigtrack, false, hypo);
+    lowerTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),lowerorigtrack, false, hypo)).release();
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling lower fit" << endmsg;
     
     if(!lowerTrack){
@@ -431,7 +431,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
   //if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endmsg;
-  outputTrack = m_trkfitter->fit(TRTHits, *originalPerigee, true, hypo);
+  outputTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),TRTHits, *originalPerigee, true, hypo)).release();
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endmsg;
     
   if(!outputTrack){
@@ -516,7 +516,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
   //if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endmsg;
-  outputTrack = m_trkfitter->fit(SiHits, *originalPerigee, false, hypo);
+  outputTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),SiHits, *originalPerigee, false, hypo)).release();
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endmsg;
     
   if(!outputTrack){
@@ -747,7 +747,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   if(isConstrained(numberOddPixelHits,numberOddSCTHits,numberOddTRTHits,numberOddPseudoMeas)){  
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling odd fit" << endmsg;
-    oddTrack = m_trkfitter->fit(oddHits, *originalPerigee, false, hypo);
+    oddTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),oddHits, *originalPerigee, false, hypo)).release();
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling odd fit" << endmsg;
     
     if(!oddTrack){
@@ -773,7 +773,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   if(isConstrained(numberEvenPixelHits,numberEvenSCTHits,numberEvenTRTHits,numberEvenPseudoMeas)){
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling even fit" << endmsg;
-    evenTrack = m_trkfitter->fit(evenHits, *originalPerigee, false, hypo);
+    evenTrack = (m_trkfitter->fit(Gaudi::Hive::currentContext(),evenHits, *originalPerigee, false, hypo)).release();
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling even fit" << endmsg;
     
     if(!evenTrack){

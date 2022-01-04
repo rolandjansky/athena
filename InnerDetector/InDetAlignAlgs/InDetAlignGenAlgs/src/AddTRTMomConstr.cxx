@@ -390,17 +390,15 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
    ATH_MSG_VERBOSE ("==========================================");
   
   // fit TRT part of the track with PseudoMeas on z_0, theta
-  Trk::Track* trkTRT=m_trackFitter->fit( setTRTPM
-                                       , *perTrk
-                                       , true
-                                       , Trk::pion
-                                       //, Trk::muon
-                                       //, Trk::nonInteracting
-                                       ) ;
-  if( !trkTRT ) {
-    ATH_MSG_DEBUG( "TRTMomConstr() : Fit of TRT part of the track failed! " ) ;
-    return nullptr ;
-  }
+   Trk::Track* trkTRT = (m_trackFitter->fit(
+     Gaudi::Hive::currentContext(), setTRTPM, *perTrk, true, Trk::pion
+     //, Trk::muon
+     //, Trk::nonInteracting
+   )).release();
+   if (!trkTRT) {
+     ATH_MSG_DEBUG("TRTMomConstr() : Fit of TRT part of the track failed! ");
+     return nullptr;
+   }
   const Trk::Perigee* perTRT = trkTRT->perigeeParameters();
   ATH_MSG_DEBUG( "TRTMomConstr() : perTRT " << *perTRT) ;
   // the theta value after TRT+PM fit can be different from the initial one by < o(10e-4). Correct q/p optionally
@@ -418,14 +416,13 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   Trk::MeasurementSet setSiPM = addPM( setSi, pmFromTRT ) ;
 
   // fit Si part of the track with PM from TRT
-  Trk::Track* fittedTrack=m_trackFitter->fit( setSiPM
-                                            , *perTrk
-                                            , true
-                                            , Trk::pion
-                                            //, Trk::muon
-                                            //, Trk::nonInteracting
-                                            ) ;
-  if( !fittedTrack ) {
+  Trk::Track* fittedTrack =
+    m_trackFitter
+      ->fit(Gaudi::Hive::currentContext(), setSiPM, *perTrk, true, Trk::pion
+            //, Trk::muon
+            //, Trk::nonInteracting
+            ).release();
+  if (!fittedTrack) {
     ATH_MSG_DEBUG( "TRTMomConstr() : Si+TRT-p_T Track fit failed !" ) ;
   } else {
     const Trk::Perigee* perSi = fittedTrack->perigeeParameters();

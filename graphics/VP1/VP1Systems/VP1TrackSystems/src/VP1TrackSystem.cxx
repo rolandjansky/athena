@@ -916,7 +916,8 @@ void VP1TrackSystem::refitSingleTrack(const Trk::ITrackFitter* currentFitter, QL
   bool outlier = m_d->common->controller()->fitterRemoveOutliers();
   Trk::ParticleHypothesis hypo = m_d->common->controller()->fitterParticleHypthesis();
 
-  const Trk::Track* fittedtrk = currentFitter->fit(*track,outlier,hypo);
+  const Trk::Track* fittedtrk =
+    currentFitter->fit(Gaudi::Hive::currentContext(), *track, outlier, hypo).release();
 
   if (!fittedtrk) {
       message("Fit failed - no resulting track.");

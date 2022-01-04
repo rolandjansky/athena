@@ -603,7 +603,7 @@ namespace InDet {
 
       Trk::Track newTrack (info, std::move(ntsos), fq);
       Trk::Track* fitTrack =
-        m_fitterTool->fit(newTrack, true, Trk::nonInteracting);
+        m_fitterTool->fit(ctx,newTrack, true, Trk::nonInteracting).release();
 
       // cleanup
       if (segPar) {

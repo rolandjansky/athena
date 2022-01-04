@@ -151,7 +151,7 @@ namespace Muon {
             msg(MSG::DEBUG) << endmsg;
         }
         // fit track
-        std::unique_ptr<Trk::Track> newTrack(m_trackFitter->fit(track, false, m_ParticleHypothesis));
+        std::unique_ptr<Trk::Track> newTrack = m_trackFitter->fit(ctx,track, false, m_ParticleHypothesis);
 
         if (newTrack) {
             // clean and evaluate track

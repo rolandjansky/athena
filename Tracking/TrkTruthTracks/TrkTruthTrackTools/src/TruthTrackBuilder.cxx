@@ -226,7 +226,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    Trk::ParticleSwitcher particleSwitch;
    Trk::ParticleHypothesis materialInteractions = particleSwitch.particle[m_matEffects];
 
-   Trk::Track *refittedtrack=m_trackFitter->fit(track,false,materialInteractions);
+   Trk::Track *refittedtrack=(m_trackFitter->fit(Gaudi::Hive::currentContext(),track,false,materialInteractions)).release();
   
    //!<  Refit a second time to add TRT hits
    Trk::Track *refittedtrack2=nullptr;
@@ -241,7 +241,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
        if (rot) measset.push_back(rot);
        prevpar=std::move(thispar);
      }
-     refittedtrack2=m_trackFitter->fit(*refittedtrack,measset,false,materialInteractions);
+     refittedtrack2=(m_trackFitter->fit(Gaudi::Hive::currentContext(),*refittedtrack,measset,false,materialInteractions)).release();
      if (!refittedtrack2){
        auto traj2 = DataVector<const Trk::TrackStateOnSurface>();
        for (int j=0;j<(int)refittedtrack->trackStateOnSurfaces()->size();j++) traj2.push_back(new Trk::TrackStateOnSurface(*(*refittedtrack->trackStateOnSurfaces())[j]));
