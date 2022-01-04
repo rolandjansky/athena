@@ -73,13 +73,6 @@ namespace Trk {
       /** AlgTool finalize method */
       virtual StatusCode finalize() override;
 
-      using INavigator::trackingGeometry;
-      using INavigator::volume;
-      using INavigator::highestVolume;
-      using INavigator::nextBoundarySurface;
-      using INavigator::nextTrackingVolume;
-
-
       /** INavigator interface method - returns the TrackingGeometry used for
        * navigation */
       virtual const TrackingGeometry* trackingGeometry(

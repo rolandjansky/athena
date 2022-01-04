@@ -2049,7 +2049,7 @@ Trk::Extrapolator::extrapolateDirectlyImpl(const EventContext& ctx,
   ++m_extrapolateDirectlyCalls;
 
   // now du the stuff
-  const Trk::TrackingVolume* currentVolume = m_navigator->highestVolume();
+  const Trk::TrackingVolume* currentVolume = m_navigator->highestVolume(ctx);
 
   // ---------------------------------------------------------------
   // [?]: cannot increment and display m_methodSequence here, since the cache is not passed here

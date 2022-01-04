@@ -363,7 +363,7 @@ namespace Trk {
     if (!m_useCaloTG) {
       if (!m_calotool.empty()) {
         calomeots = m_calotool->extrapolationSurfacesAndEffects(
-          *m_navigator->highestVolume(), 
+          *m_navigator->highestVolume(ctx), 
           *prop,
           *parforcalo,
           parforcalo->associatedSurface(),
@@ -424,7 +424,7 @@ namespace Trk {
       ) {
         ATH_MSG_DEBUG("Changing from measured to parametrized energy loss");
         calomeots = m_calotoolparam->extrapolationSurfacesAndEffects(
-          *m_navigator->highestVolume(),
+          *m_navigator->highestVolume(ctx),
           *prop, 
           *parforcalo,
           parforcalo->associatedSurface(),
@@ -3262,12 +3262,23 @@ namespace Trk {
          * material effects.
          */
         double X0 = matprop->thicknessInX0();
-        double currentqoverp = (matEffects != Trk::electron) ? parforextrap->parameters()[Trk::qOverP] : refpar2->parameters()[Trk::qOverP];
+        double currentqoverp = (matEffects != Trk::electron)
+                                 ? parforextrap->parameters()[Trk::qOverP]
+                                 : refpar2->parameters()[Trk::qOverP];
         double actualx0 = X0 / costracksurf;
-        double de = -std::abs((matprop->thickness() / costracksurf) * m_elosstool->dEdX(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), matEffects));
+        double de = -std::abs(
+          (matprop->thickness() / costracksurf) *
+          m_elosstool->dEdX(
+            *matprop,
+            (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)),
+            matEffects));
         double sintheta = std::sin(parforextrap->parameters()[Trk::theta]);
-        double sigmascat = std::sqrt(m_scattool->sigmaSquare(*matprop, (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)), 1. / costracksurf, matEffects));
-        
+        double sigmascat = std::sqrt(m_scattool->sigmaSquare(
+          *matprop,
+          (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)),
+          1. / costracksurf,
+          matEffects));
+
         std::unique_ptr<GXFMaterialEffects> meff = std::make_unique<GXFMaterialEffects>();
         meff->setDeltaE(de);
         meff->setScatteringSigmas(sigmascat / sintheta, sigmascat);
@@ -3486,11 +3497,12 @@ namespace Trk {
        * Confirm intersection with the layer.
        */
       double zintersect = firstz + ((*it)->surfaceRepresentation().bounds().r() - firstr) * slope;
-      
-      if (std::abs(zintersect - (*it)->surfaceRepresentation().center().z()) > ((const CylinderSurface *) (&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
+
+      if (std::abs(zintersect - (*it)->surfaceRepresentation().center().z()) >
+          ((const CylinderSurface*)(&(*it)->surfaceRepresentation()))->bounds().halflengthZ() + 50) {
         continue;
       }
-      
+
       if ((*it) == endlayer) {
         continue;
       }
@@ -4074,7 +4086,7 @@ namespace Trk {
       const IPropagator *prop = &*m_propagator;
 
       std::vector<MaterialEffectsOnTrack> calomeots = m_calotool->extrapolationSurfacesAndEffects(
-        *m_navigator->highestVolume(), 
+        *m_navigator->highestVolume(ctx), 
         *prop,
         *lastidpar,
         firstmuonhit->associatedSurface(),
@@ -4428,8 +4440,12 @@ namespace Trk {
         const TrackParameters *prevtp = muonpar1.get();
         ATH_MSG_DEBUG("Collecting upstream muon material from extrapolator");
         if (matvec_used) cache.m_matTempStore.push_back( std::move(matvec) );
-        matvec.reset( m_extrapolator->extrapolateM(*prevtp, *states[0]->surface(), oppositeMomentum, false, Trk::nonInteractingMuon) );
-        matvec_used=false;
+        matvec.reset(m_extrapolator->extrapolateM(*prevtp,
+                                                  *states[0]->surface(),
+                                                  oppositeMomentum,
+                                                  false,
+                                                  Trk::nonInteractingMuon));
+        matvec_used = false;
 
         if (matvec && !matvec->empty()) {
           ATH_MSG_DEBUG("Retrieved " << matvec->size() << " material states");
@@ -4452,8 +4468,11 @@ namespace Trk {
                   meff->setSigmaDeltaE(meot->energyLoss()->sigmaDeltaE());
                 }
 
-                const TrackParameters * tmpparams = (*matvec)[j]->trackParameters() != nullptr ? (*matvec)[j]->trackParameters()->clone() : nullptr;
-                
+                const TrackParameters* tmpparams =
+                  (*matvec)[j]->trackParameters() != nullptr
+                    ? (*matvec)[j]->trackParameters()->clone()
+                    : nullptr;
+
                 matstates.insert(matstates.begin(), std::make_unique<GXFTrackState>(
                   std::move(meff),
                   std::unique_ptr<const TrackParameters>(tmpparams)
@@ -4540,7 +4559,7 @@ namespace Trk {
           trajectory.addMaterialState(std::move(matstates[layerno]));
           
           if ((layerpar != nullptr) && matEffects != pion && matEffects != muon) {
-            const TrackingVolume *tvol = m_navigator->volume(layerpar->position());
+            const TrackingVolume *tvol = m_navigator->volume(ctx,layerpar->position());
             const Layer *lay = nullptr;
 
             if (tvol != nullptr) {
@@ -4697,8 +4716,11 @@ namespace Trk {
         GXFTrackState *scatstate = nullptr;
         GXFTrackState *scatstate2 = nullptr;
         int scatindex = 0;
-        
-        for (std::vector<std::unique_ptr<GXFTrackState>>::iterator it = trajectory.trackStates().begin(); it != trajectory.trackStates().end(); ++it) {
+
+        for (std::vector<std::unique_ptr<GXFTrackState>>::iterator it =
+               trajectory.trackStates().begin();
+             it != trajectory.trackStates().end();
+             ++it) {
           if ((**it).getStateType(TrackStateOnSurface::Scatterer)) {
             if (
               scatindex == trajectory.numberOfScatterers() / 2 || 
@@ -4712,7 +4734,7 @@ namespace Trk {
             scatstate = (*it).get();
           }
         }
-        
+
         // @TODO coverity complains about a possible null pointer dereferencing in scatstate->... or scatstate2->...
         // it seems to me that if (**it).materialEffects()->deltaE()==0 of the first scatterer
         // than scatstate will be NULL.
@@ -5006,8 +5028,12 @@ namespace Trk {
 	    return nullptr;
 	  }
 	}
-	ATH_MSG_DEBUG("Iter = " << it << " | nTRTStates = " << ntrthits << " | nTRTPrecHits = " << ntrtprechits << " | nTRTTubeHits = " << ntrttubehits << " | nOutliers = " << trajectory.numberOfOutliers());
-        
+        ATH_MSG_DEBUG("Iter = " << it << " | nTRTStates = " << ntrthits
+                                << " | nTRTPrecHits = " << ntrtprechits
+                                << " | nTRTTubeHits = " << ntrttubehits
+                                << " | nOutliers = "
+                                << trajectory.numberOfOutliers());
+
         if (!trajectory.converged()) {
           cache.m_fittercode = updateFitParameters(trajectory, b, lu);
           if (cache.m_fittercode != FitterStatusCode::Success) {
@@ -5123,9 +5149,12 @@ namespace Trk {
       incrementFitStatus(S_NOT_ENOUGH_MEAS);
       cache.m_fittercode = FitterStatusCode::OutlierLogicFailure;
     }
-    
-    double cut = (finaltrajectory->numberOfSiliconHits() == finaltrajectory->numberOfHits())? 999.0 : m_chi2cut.value();
-    
+
+    double cut = (finaltrajectory->numberOfSiliconHits() ==
+                  finaltrajectory->numberOfHits())
+                   ? 999.0
+                   : m_chi2cut.value();
+
     if (
       runOutlier && 
       (track != nullptr) && (
@@ -5149,6 +5178,7 @@ namespace Trk {
   }
 
   void GlobalChi2Fitter::fillResiduals(
+    const EventContext& ctx,
     Cache & cache,
     GXFTrajectory & trajectory, 
     int it,
@@ -5342,18 +5372,20 @@ namespace Trk {
           state->materialEffects()->isMeasuredEloss() && 
           res[nmeas - nbrem + bremno] / (.001 * state->materialEffects()->sigmaDeltaEAve()) > 2.5
         ) {
-          const TrackParameters *parforcalo = trajectory.prefit() != 0? trajectory.referenceParameters() : states[hitno - 2]->trackParameters();
-          const IPropagator *prop = &*m_propagator;
-          
-          std::vector < MaterialEffectsOnTrack > calomeots = m_calotoolparam->extrapolationSurfacesAndEffects(
-            *m_navigator->highestVolume(),
-            *prop,
-            *parforcalo,
-            parforcalo->associatedSurface(),
-            Trk::anyDirection,
-            Trk::muon
-          );
-          
+          const TrackParameters* parforcalo =
+            trajectory.prefit() != 0 ? trajectory.referenceParameters()
+                                     : states[hitno - 2]->trackParameters();
+          const IPropagator* prop = &*m_propagator;
+
+          std::vector<MaterialEffectsOnTrack> calomeots =
+            m_calotoolparam->extrapolationSurfacesAndEffects(
+              *m_navigator->highestVolume(ctx),
+              *prop,
+              *parforcalo,
+              parforcalo->associatedSurface(),
+              Trk::anyDirection,
+              Trk::muon);
+
           if (calomeots.size() == 3) {
             averagenergyloss = std::abs(calomeots[1].energyLoss()->deltaE());
             double newres = .001 * averagenergyloss - energy + bremEnergy;
@@ -5517,7 +5549,10 @@ namespace Trk {
             int cols = trajectory.m_straightline ? 4 : 5;
 
             if (i == 0) {
-              weightderiv.row(measno).head(cols) = (derivatives.row(0).head(cols) * cosstereo + sinstereo * derivatives.row(1).head(cols)) / error[measno];
+              weightderiv.row(measno).head(cols) =
+                (derivatives.row(0).head(cols) * cosstereo +
+                 sinstereo * derivatives.row(1).head(cols)) /
+                error[measno];
             } else {
               weightderiv.row(measno).head(cols) = derivatives.row(i).head(cols) / error[measno];
             }
@@ -5649,7 +5684,7 @@ namespace Trk {
     
     b.setZero();
 
-    fillResiduals(cache, trajectory, it, a, b, lu, doderiv);
+    fillResiduals(ctx, cache, trajectory, it, a, b, lu, doderiv);
 
     double newredchi2 = (trajectory.nDOF() > 0) ? trajectory.chi2() / trajectory.nDOF() : 0;
 
