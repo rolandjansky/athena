@@ -17,16 +17,16 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     ## Do some aliasing here
     if menu_name == 'Physics_default': 
-        menu_name = 'LS2_v1'
+        menu_name = 'Dev_pp_run3_v1'
     elif menu_name == 'MC_loose_default': 
-        menu_name = 'LS2_v1'
+        menu_name = 'Dev_pp_run3_v1'
     elif menu_name == 'MC_tight_default': 
-        menu_name = 'LS2_v1'
+        menu_name = 'Dev_pp_run3_v1'
 
     log.info('Menu name: %s', menu_name)
 
-    if menu_name.startswith('LS2_v1'):
-        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu
+    if menu_name.startswith('Dev_pp_run3_v1'):
+        from TriggerMenuMT.HLTMenuConfig.Menu.Dev_pp_run3_v1 import setupMenu
         chains = setupMenu()
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
@@ -98,8 +98,8 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
-    elif menu_name.startswith('LS2_emu_v1'):
-        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu
+    elif menu_name.startswith('Dev_pp_run3_emu_v1'):
+        from TriggerMenuMT.HLTMenuConfig.Menu.Dev_pp_run3_v1 import setupMenu
         chains = setupMenu()
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale

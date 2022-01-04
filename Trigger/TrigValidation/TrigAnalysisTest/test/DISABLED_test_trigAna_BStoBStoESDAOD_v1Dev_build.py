@@ -9,7 +9,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigValTools.TrigValSteering.Common import find_file
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
-menu_name = 'LS2_v1_TriggerValidation_prescale'
+menu_name = 'Dev_pp_run3_v1_TriggerValidation_prescale'
 
 # Run athena BS->BS job
 BStoBS = ExecStep.ExecStep("BStoBS")

@@ -72,7 +72,7 @@ function( atlas_test_hlt_trigger_menu menu )
 endfunction()
 
 # Test all L1 menus (as this is fast):
-atlas_test_lvl1_trigger_menu( LS2_v1 )
+atlas_test_lvl1_trigger_menu( Dev_pp_run3_v1 )
 atlas_test_lvl1_trigger_menu( Physics_pp_run3_v1 )
 atlas_test_lvl1_trigger_menu( PhysicsP1_pp_run3_v1 )
 atlas_test_lvl1_trigger_menu( PhysicsP1_pp_lowMu_run3_v1 )
@@ -82,13 +82,13 @@ atlas_test_lvl1_trigger_menu( PhysicsP1_HI_run3_v1 )
 atlas_test_lvl1_trigger_menu( Dev_HI_run3_v1 )
 
 # Test only most comprehensive HLT menus:
-atlas_test_hlt_trigger_menu( LS2_v1 )
+atlas_test_hlt_trigger_menu( Dev_pp_run3_v1 )
 atlas_test_hlt_trigger_menu( Cosmic_run3_v1 )
 atlas_test_hlt_trigger_menu( Dev_HI_run3_v1 )
 
 # New job options test:
 atlas_add_test( generateMenuMT_newJO
-                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
+                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.Dev_pp_run3_v1_newJO
                 PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )

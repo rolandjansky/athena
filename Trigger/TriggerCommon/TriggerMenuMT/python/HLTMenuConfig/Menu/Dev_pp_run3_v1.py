@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
-# LS2_v1.py menu for the long shutdown development
+# Dev_pp_run3_v1.py menu for the long shutdown development
 #------------------------------------------------------------------------#
 
 # This defines the input format of the chain and it's properties with the defaults set
@@ -961,7 +961,7 @@ def setupMenu():
     ]
 
     chains['Streaming'] += [
-        ChainProp(name='HLT_noalg_L1All', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['Primary:CostAndRate', 'RATE:SeededStreamers', 'BW:Other']), # ATR-22072, for rates in MC. To move to MC menu once good nightly in LS2_v1.
+        ChainProp(name='HLT_noalg_L1All', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['Primary:CostAndRate', 'RATE:SeededStreamers', 'BW:Other']), # ATR-22072, for rates in MC. To move to MC menu once good nightly in Dev_pp_run3_v1.
 
         #Phase-I
         ChainProp(name='HLT_noalg_L1eTAU8',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=TauPhaseIStreamersGroup),
