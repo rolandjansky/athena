@@ -25,7 +25,7 @@ ParametersT<DIM, T, S>::ParametersT(double loc1,
                                     double qop,
                                     const S& surface,
                                     std::optional<AmgSymMatrix(DIM)> cov)
-  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, sgn(qop))
+  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), std::move(cov), sgn(qop))
   , SurfaceUniqHolderImpl<S>(surface)
   , m_position(Amg::Vector3D::Zero())
   , m_momentum(Amg::Vector3D::Zero())
@@ -58,7 +58,7 @@ template<int DIM, class T, class S>
 ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & parameters,
                                     const S& surface,
                                     std::optional<AmgSymMatrix(DIM)> cov)
-  : ParametersBase<DIM, T>(parameters, cov, sgn(parameters[Trk::qOverP]))
+  : ParametersBase<DIM, T>(parameters, std::move(cov), sgn(parameters[Trk::qOverP]))
   , SurfaceUniqHolderImpl<S>(surface)
   , m_position(Amg::Vector3D::Zero())
   , m_momentum(Amg::Vector3D::Zero())
@@ -93,7 +93,7 @@ ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
                                     double charge,
                                     const S& surface,
                                     std::optional<AmgSymMatrix(DIM)> cov)
-  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, charge)
+  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), std::move(cov), charge)
   , SurfaceUniqHolderImpl<S>(surface)
   , m_position(pos)
   , m_momentum(mom)
@@ -328,7 +328,7 @@ template<int DIM, class T, class S>
 ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & pars,
                                          const S* surface,
                                          std::optional<AmgSymMatrix(DIM)> cov)
-  : ParametersBase<DIM, T>(pars, cov)
+  : ParametersBase<DIM, T>(pars, std::move(cov))
   , SurfaceUniqHolderImpl<S>(surface)
 {
   float qop = m_parameters[Trk::qOverP];
