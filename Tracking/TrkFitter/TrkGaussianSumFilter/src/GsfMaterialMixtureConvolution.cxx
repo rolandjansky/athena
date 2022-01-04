@@ -358,7 +358,7 @@ Trk::GsfMaterialMixtureConvolution::update(
     return returnMultiState;
   }
 
-  // Gather the merges -- order is important -- RHS is smaller than LHS
+  // Gather the merges
   GSFUtils::MergeArray KL;
   if (n > m_maximumNumberOfComponents) {
     KL = findMerges(componentsArray, m_maximumNumberOfComponents);
@@ -366,14 +366,14 @@ Trk::GsfMaterialMixtureConvolution::update(
   // Merge components
   MultiComponentStateAssembler::Cache assemblerCache;
   int nMerges(0);
-  GSFUtils::IsMergedArray isMerged = {};
+  std::array<bool, GSFConstants::maxComponentsAfterConvolution> isMerged = {};
   int32_t returnedMerges = KL.numMerges;
 
   for (int32_t i = 0; i < returnedMerges; ++i) {
     const int8_t mini = KL.merges[i].To;
     const int8_t minj = KL.merges[i].From;
     if (isMerged[minj]) {
-      ATH_MSG_WARNING("Component is already merged " << minj);
+      ATH_MSG_WARNING("Component is already merged " << static_cast<int>(minj));
       continue;
     }
     // Get the first TP
