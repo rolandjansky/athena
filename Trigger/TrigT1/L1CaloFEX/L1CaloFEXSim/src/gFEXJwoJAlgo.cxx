@@ -221,6 +221,11 @@ void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
           twrs[irow][jcolumn-1] + twrs[krowUp][jcolumn-1] + twrs[krowDn][jcolumn-1] +
           twrs[irow][jcolumn+1] + twrs[krowUp][jcolumn+1] + twrs[krowDn][jcolumn+1];
         }
+        // switch to 800 MeV LSB 
+        gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
+        // limit result to an unsigned integer of 12 bits ( 2376 GeV) 
+        if ( gBlkSum[irow][jcolumn] < 0 )       gBlkSum[irow][jcolumn] = 0;
+        if ( gBlkSum[irow][jcolumn] > 4091 )    gBlkSum[irow][jcolumn] = 4091;  
     }
   }
 

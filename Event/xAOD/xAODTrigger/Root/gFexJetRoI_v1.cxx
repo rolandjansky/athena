@@ -16,7 +16,9 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexJetRoI_v1::s_tobEtScale = 200.; ///3.2 GeV is the energy range size (step between two adjiacent bits)
+  const float gFexJetRoI_v1::s_gRhotobEtScale = 50.; //50 MeV is the energy resolution for large-R jets (gJets) TOBs
+  const float gFexJetRoI_v1::s_gJtobEtScale = 800.; //800 MeV is the energy resolution for small-R jets (gBlocks) TOBs
+  const float gFexJetRoI_v1::s_gLJtobEtScale = 1600.; //1600 MeV is the energy resolution for large-R jets (gJets) TOBs
   const float gFexJetRoI_v1::s_centralPhiWidth = M_PI/32; ///Phi is 32-bit starting from 0 with steps of 0.2; gPhi = 0 is 0.0 < phi < 0.2 while gPhi = 31 is 6.2 < phi < 6.4 
   const float gFexJetRoI_v1::s_forwardPhiWidth = M_PI/16; ///Phi is 32-bit starting from 0 with steps of 0.4; gPhi = 0 is 0.0 < phi < 0.4 while gPhi = 15 is 6.2 < phi < 6.4 
   const std::vector<float> gFexJetRoI_v1::s_EtaEdge     = { -4.9, -4.45, -4.0, -3.5, -3.3, -3.1, 
@@ -152,11 +154,27 @@ namespace xAOD {
 
    /// ET on TOB scale
    float gFexJetRoI_v1::etMin() const {
-     return tobEt()*s_tobEtScale;
+     if (gFexType() == gRho){
+      return tobEt()*s_gRhotobEtScale;
+     }
+     else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
+      return tobEt()*s_gJtobEtScale;
+     }
+     else {//if (gFexType() == gJet)
+      return tobEt()*s_gLJtobEtScale;
+     }
    }
 
    float gFexJetRoI_v1::etMax() const {
-     return tobEt()*s_tobEtScale + s_tobEtScale;
+     if (gFexType() == gRho){
+      return tobEt()*s_gRhotobEtScale + s_gRhotobEtScale;
+     }
+     else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
+      return tobEt()*s_gJtobEtScale + s_gJtobEtScale;
+     }
+     else { //if (gFexType() == gJet)
+      return tobEt()*s_gLJtobEtScale + s_gLJtobEtScale;
+     }
    }
 
    /// Floating point coordinates. Return the center of Eta. 

@@ -97,7 +97,9 @@ namespace xAOD {
 
 
       /// Constants used in converting to ATLAS units
-      static const float s_tobEtScale;
+      static const float s_gRhotobEtScale;
+      static const float s_gJtobEtScale;
+      static const float s_gLJtobEtScale;
       static const float s_centralPhiWidth;
       static const float s_forwardPhiWidth;
       static const std::vector<float> s_EtaEdge; 

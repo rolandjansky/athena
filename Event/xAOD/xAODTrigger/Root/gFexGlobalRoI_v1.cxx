@@ -16,7 +16,7 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexGlobalRoI_v1::s_tobEtScale = 200.; 
+  const float gFexGlobalRoI_v1::s_globaltobEtScale = 800.; //800 MeV is the energy resolution for global TOBs
  
 
    gFexGlobalRoI_v1::gFexGlobalRoI_v1()
@@ -118,21 +118,21 @@ namespace xAOD {
    /// MET/SumEt on TOB scale
    float gFexGlobalRoI_v1::METquantityOne() const {
     if (globalType() != gNull){
-        return quantityOne()*s_tobEtScale;
+        return quantityOne()*s_globaltobEtScale;
     }
     return -999;
    }
 
    float gFexGlobalRoI_v1::METquantityTwo() const {
     if (globalType() != gNull){
-        return quantityTwo()*s_tobEtScale;
+        return quantityTwo()*s_globaltobEtScale;
     }
     return -999;
    }
 
    float gFexGlobalRoI_v1::SumEt() const {
     if (globalType() == gScalar ){
-        return quantityTwo()*s_tobEtScale;
+        return quantityTwo()*s_globaltobEtScale;
     }
     return -999;
    }
