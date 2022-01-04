@@ -18,7 +18,7 @@ TrigTauCaloHypoAlg::TrigTauCaloHypoAlg( const std::string& name,
 StatusCode TrigTauCaloHypoAlg::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_tauJetKey.initialize() );
-  renounce( m_tauJetKey );// clusters are made in views, so they are not in the EvtStore: hide them
+  renounce( m_tauJetKey );// taus are made in views, so they are not in the EvtStore: hide them
 
   return StatusCode::SUCCESS;
 }
@@ -55,12 +55,12 @@ StatusCode TrigTauCaloHypoAlg::execute( const EventContext& context ) const {
     const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
     ATH_CHECK( viewEL.isValid() );
 
-    auto clusterHandle = ViewHelper::makeHandle( *viewEL, m_tauJetKey, context);
-    ATH_CHECK( clusterHandle.isValid() );
-    ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
+    auto tauHandle = ViewHelper::makeHandle( *viewEL, m_tauJetKey, context);
+    ATH_CHECK( tauHandle.isValid() );
+    ATH_MSG_DEBUG ( "Tau handle size: " << tauHandle->size() << "..." );
 
-    if( clusterHandle->size() != 1 ) {
-      ATH_MSG_WARNING("Something is wrong, unexpectd number of clusters " << clusterHandle->size() << " is found (expected 1), continuing anyways skipping view");
+    if( tauHandle->size() != 1 ) {
+      ATH_MSG_WARNING("Something is wrong, unexpectd number of taus " << tauHandle->size() << " is found (expected 1), continuing anyways skipping view");
       continue;
     }
 
@@ -69,13 +69,13 @@ StatusCode TrigTauCaloHypoAlg::execute( const EventContext& context ) const {
     TrigCompositeUtils::linkToPrevious( d, previousDecision, context );
     d->setObjectLink( roiString(), roiELInfo.link );
 
-    auto el = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );
+    auto el = ViewHelper::makeLink( *viewEL, tauHandle, 0 );
     ATH_CHECK( el.isValid() );
     d->setObjectLink( featureString(),  el );
 
-    toolInput.emplace_back( d, roi, clusterHandle.cptr(), previousDecision );
+    toolInput.emplace_back( d, roi, tauHandle.cptr(), previousDecision );
 
-    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
+    ATH_MSG_DEBUG( "Added view, roi, tau, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
   }
 
   ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");
