@@ -9,7 +9,6 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     #
     # --- set up special Scoring Tool for standalone TRT tracks
     #
-    InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
     InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
 
     #
@@ -22,7 +21,6 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
         # TRT standalone
         pTmin = flags.InDet.Tracking.minTRTonlyPt # new cut parameter to make it flexible...
 
-    kwargs.setdefault("SummaryTool", InDetTrackSummaryTool)
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("useAmbigFcn", True)
     kwargs.setdefault("useSigmaChi2", False)
