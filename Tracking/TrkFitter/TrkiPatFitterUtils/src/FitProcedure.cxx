@@ -384,7 +384,7 @@ FitProcedure::execute(FitProcedure::Cache& cache,
   }
 
   // choose appropriate intersector
-  ToolHandle<IIntersector>& intersector =
+  const ToolHandle<IIntersector>& intersector =
     chooseIntersector(measurements, *parameters);
 
   // resize matrices
@@ -848,7 +848,7 @@ FitProcedure::calculateChiSq(FitProcedure::Cache& cache,
   cache.cutStep = false;
 }
 
-ToolHandle<IIntersector>&
+const ToolHandle<IIntersector>&
 FitProcedure::chooseIntersector(std::vector<FitMeasurement*>& measurements,
                                 const FitParameters& parameters) const
 {

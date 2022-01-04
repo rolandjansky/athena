@@ -17,6 +17,7 @@ scattering for brevity (mis-)named alignment and scatterer
 #include "TrkParameters/TrackParameters.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include <vector>
+#include <utility>
 
 class MsgStream;
 
@@ -213,7 +214,7 @@ inline double
 FitParameters::difference(int param) const
 {
   // if (! m_differences)  return 0.;   // surely unnecessary?
-  return (*m_differences)(param);
+  return std::as_const(*m_differences)(param);
 }
 
 inline const Amg::VectorX&

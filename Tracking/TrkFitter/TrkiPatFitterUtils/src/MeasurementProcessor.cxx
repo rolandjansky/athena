@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -27,7 +27,7 @@ namespace Trk{
 // constructor
 MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 					    Amg::MatrixX&			/*derivativeMatrix*/,
-					    ToolHandle<IIntersector>&		intersector,
+					    const ToolHandle<IIntersector>&		intersector,
 					    std::vector<FitMeasurement*>&		measurements,
 					    FitParameters*			parameters,
 					    ToolHandle<IIntersector>&		rungeKuttaIntersector,
