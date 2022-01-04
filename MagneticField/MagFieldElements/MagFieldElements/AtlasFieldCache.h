@@ -87,7 +87,7 @@ private:
   BFieldCache m_cache3d;
 
   /// zone of full 3d field cache  
-  const BFieldZone* m_zone3d { 0 };
+  const BFieldZone* m_zone3d { nullptr };
 
   /// Fast 2d field
   BFieldCacheZR m_cacheZR;
