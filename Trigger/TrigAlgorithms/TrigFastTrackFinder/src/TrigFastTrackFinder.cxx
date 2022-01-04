@@ -3274,7 +3274,7 @@ void TrigFastTrackFinder::print_disTrk(const Trk::Track* t) const
       theta = t->perigeeParameters()->parameters()[Trk::theta];
       float qOverP = std::abs(t->perigeeParameters()->parameters()[Trk::qOverP]);
       if ( qOverP < 1e-12 ) qOverP = 1e-12;
-      float pt = sin(theta)/qOverP;
+      pt = sin(theta)/qOverP;
       pt /= 1000.0;
    }
    ATH_MSG_DEBUG("... pt / theta / phi / d0 / z0 = " << pt << " / " << theta << " / " << phi << " / " << d0 << " / " << z0);
