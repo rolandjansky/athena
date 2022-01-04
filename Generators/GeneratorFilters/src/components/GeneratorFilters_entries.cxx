@@ -10,10 +10,14 @@
 #include "GeneratorFilters/xAODLeptonPairFilter.h"
 #include "GeneratorFilters/xAODM4MuIntervalFilter.h"
 #include "GeneratorFilters/xAODMETFilter.h"
+#include "GeneratorFilters/xAODMultiBjetFilter.h"
+#include "GeneratorFilters/xAODMultiCjetFilter.h"
 #include "GeneratorFilters/xAODMultiElecMuTauFilter.h"
 #include "GeneratorFilters/xAODMultiLeptonFilter.h"
 #include "GeneratorFilters/xAODMultiMuonFilter.h"
 #include "GeneratorFilters/xAODMuonFilter.h"
+#include "GeneratorFilters/xAODParentChildFilter.h"
+#include "GeneratorFilters/xAODParentTwoChildrenFilter.h"
 #include "GeneratorFilters/xAODPhotonFilter.h"
 #include "GeneratorFilters/xAODTauFilter.h"
 
@@ -132,10 +136,14 @@ DECLARE_COMPONENT( xAODElectronFilter )
 DECLARE_COMPONENT( xAODLeptonPairFilter )
 DECLARE_COMPONENT( xAODM4MuIntervalFilter )
 DECLARE_COMPONENT( xAODMETFilter)
+DECLARE_COMPONENT( xAODMultiBjetFilter )
+DECLARE_COMPONENT( xAODMultiCjetFilter )
 DECLARE_COMPONENT( xAODMultiElecMuTauFilter )
 DECLARE_COMPONENT( xAODMultiLeptonFilter)
 DECLARE_COMPONENT( xAODMultiMuonFilter)
 DECLARE_COMPONENT( xAODMuonFilter )
+DECLARE_COMPONENT( xAODParentChildFilter )
+DECLARE_COMPONENT( xAODParentTwoChildrenFilter )
 DECLARE_COMPONENT( xAODPhotonFilter )
 DECLARE_COMPONENT( xAODTauFilter )
 
