@@ -121,7 +121,7 @@ Trk::Navigator::nextBoundarySurface(const EventContext& ctx,
                                     const Trk::TrackParameters& parms,
                                     Trk::PropDirection dir) const
 {
-  const Trk::TrackingVolume* trackingVolume = volume(parms.position());
+  const Trk::TrackingVolume* trackingVolume = volume(ctx,parms.position());
 
   if (trackingVolume) {
     return (nextBoundarySurface(ctx,prop, parms, dir, *trackingVolume));

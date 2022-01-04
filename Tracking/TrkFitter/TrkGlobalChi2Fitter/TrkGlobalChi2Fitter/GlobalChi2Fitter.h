@@ -607,6 +607,7 @@ namespace Trk {
     ) const;
 
     void fillResiduals(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       int,

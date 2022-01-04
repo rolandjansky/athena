@@ -373,7 +373,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   std::vector<unsigned int> solutions;
   const Trk::TrackingVolume *assocVol = nullptr;
   unsigned int iDest = 0;
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG("  [+] start extrapolateToVolumeWithPathLimit - at " << positionOutput(parm.position())<<" parm="<<&parm);
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
@@ -384,7 +384,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   //   cache.m_lastMaterialLayer = nullptr;
   // }
   if (!cache.m_highestVolume) {
-    cache.m_highestVolume = m_navigator->highestVolume();
+    cache.m_highestVolume = m_navigator->highestVolume(ctx);
   }
 
   emptyGarbageBin(cache,&parm);
@@ -396,7 +396,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
 
   // target volume may not be part of tracking geometry
   if (destVol) {
-    const Trk::TrackingVolume *tgVol = m_navigator->trackingGeometry()->trackingVolume(destVol->volumeName());
+    const Trk::TrackingVolume *tgVol = m_navigator->trackingGeometry(ctx)->trackingVolume(destVol->volumeName());
     if (!tgVol || tgVol != destVol) {
       const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >& bounds = destVol->boundarySurfaces();
       for (unsigned int ib = 0; ib < bounds.size(); ib++) {
@@ -412,7 +412,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   Amg::Vector3D gp = parm.position();
 
   if (!cache.m_currentStatic || !cache.m_currentStatic->inside(gp, m_tolerance)) {
-    cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+    cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
     updateStatic = true;
   }
   if (m_navigator->atVolumeBoundary(currPar, cache.m_currentStatic, dir, nextVol,
@@ -569,7 +569,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
 
   gp = currPar->position();
   std::vector<const Trk::DetachedTrackingVolume *> *detVols =
-    m_navigator->trackingGeometry()->lowestDetachedTrackingVolumes(gp);
+    m_navigator->trackingGeometry(ctx)->lowestDetachedTrackingVolumes(gp);
   std::vector<const Trk::DetachedTrackingVolume *>::iterator dIter = detVols->begin();
   for (; dIter != detVols->end(); ++dIter) {
     const Trk::Layer *layR = (*dIter)->layerRepresentation();
@@ -914,7 +914,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           ATH_MSG_DEBUG(
             "  [!] WARNING: wrongly assigned static volume ?" << cache.m_currentStatic->volumeName() << "->" <<
             nextVol->volumeName());
-          nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(
+          nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
             nextPar->position() + 0.01 * dir * nextPar->momentum().normalized());
           if (nextVol) {
             ATH_MSG_DEBUG("  new search yields: " << nextVol->volumeName());
@@ -1422,6 +1422,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
   // int                        nEntryLays = 0;
   unsigned int iDest = 0;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
     return &parm;
@@ -1429,7 +1430,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
 
   // bool resolveActive = m_resolveActive;
   if (!cache.m_highestVolume) {
-    cache.m_highestVolume = m_navigator->highestVolume();
+    cache.m_highestVolume = m_navigator->highestVolume(ctx);
   }
 
   emptyGarbageBin(cache,&parm);
@@ -1441,7 +1442,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
 
   // target volume may not be part of tracking geometry
   if (destVol) {
-    const Trk::TrackingVolume *tgVol = m_navigator->trackingGeometry()->trackingVolume(destVol->volumeName());
+    const Trk::TrackingVolume *tgVol = m_navigator->trackingGeometry(ctx)->trackingVolume(destVol->volumeName());
     if (!tgVol || tgVol != destVol) {
       const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >& bounds = destVol->boundarySurfaces();
       for (unsigned int ib = 0; ib < bounds.size(); ib++) {
@@ -1474,11 +1475,11 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
   } else {
     const Amg::Vector3D& gp = parm.position();
     if (!cache.m_currentStatic || !cache.m_currentStatic->inside(gp, m_tolerance)) {
-      cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+      cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
 
       if (!cache.m_currentStatic ||
           !cache.m_currentStatic->inside(currPar->position() + 0.01 * dir * currPar->momentum().normalized(), 0.)) {
-        cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(currPar->position()
+        cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(currPar->position()
                                                                                       + 0.01 * dir *
                                                                                       currPar->momentum().normalized());
       }
@@ -1586,7 +1587,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
     // ATH_MSG_WARNING( " recovering from glitch at the static volume boundary:"<<cache.m_trStaticBounds[0].distance );
 
     Amg::Vector3D gp = currPar->position() + m_tolerance * dir * currPar->momentum().unit();
-    cache.m_currentStatic = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+    cache.m_currentStatic = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
 
     if (cache.m_currentStatic) {
        return transportToVolumeWithPathLimit(cache,parm, timeLim, dir, particle, nextGeoID, destVol);
@@ -1991,7 +1992,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
         ATH_MSG_DEBUG(
           "  [!] WARNING: wrongly assigned static volume ?" << cache.m_currentStatic->volumeName() << "->" <<
           nextVol->volumeName());
-        nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(
+        nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
           nextPar->position() + 0.01 * dir * nextPar->momentum().normalized());
         if (nextVol) {
           ATH_MSG_DEBUG("  new search yields: " << nextVol->volumeName());
@@ -2072,7 +2073,7 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
       if (dIter != cache.m_denseVols.end()) {
         currVol = (*dIter).first;
 
-        if (m_navigator->trackingGeometry()->atVolumeBoundary(nextPos, nextPar->momentum(), currVol, assocVol, dir,
+        if (m_navigator->trackingGeometry(ctx)->atVolumeBoundary(nextPos, nextPar->momentum(), currVol, assocVol, dir,
                                                               m_tolerance)) {
           if (assocVol && assocVol->zOverAtimesRho() != 0.) {
             cache.m_currentDense = assocVol;
@@ -2133,6 +2134,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
   emptyGarbageBin(cache,&parm);
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (!aliTV) {
     return {nullptr, nullptr, nullptr};
   }
@@ -2230,7 +2232,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
         ATH_MSG_DEBUG(
           "  [!] WARNING: wrongly assigned exit volume ?" << cache.m_currentStatic->volumeName() << "->" <<
           attachedVol->volumeName());
-        attachedVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(
+        attachedVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
           gp + 0.01 * dir * currPar->momentum().normalized());
         if (attachedVol) {
           ATH_MSG_DEBUG("  new search yields: " << attachedVol->volumeName());
@@ -2272,7 +2274,7 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
   } if (cache.m_trStaticBounds.size() > 1) {  // hit edge ?
     Amg::Vector3D gp = currPar->position() + (cache.m_trStaticBounds[0].distance + 1.) * dir *
                        currPar->momentum().normalized();
-    nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+    nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
     ATH_MSG_DEBUG("exit volume reassigned:" << nextVol->volumeName());
   }
 
@@ -2453,8 +2455,9 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
   std::vector<unsigned int> solutions;
   // double tol = 0.001;
   // double path = 0.;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if (!cache.m_highestVolume) {
-    cache.m_highestVolume = m_navigator->highestVolume();
+    cache.m_highestVolume = m_navigator->highestVolume(ctx);
   }
 
   emptyGarbageBin(cache,&parm);
@@ -2464,7 +2467,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
   if (vol && vol->inside(gp, m_tolerance)) {
     staticVol = vol;
   } else {
-    currVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);
+    currVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(gp);
     const Trk::TrackingVolume *nextStatVol = nullptr;
     if (m_navigator->atVolumeBoundary(currPar, currVol, dir, nextStatVol, m_tolerance) && nextStatVol != currVol) {
       currVol = nextStatVol;
@@ -2612,7 +2615,7 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
             ATH_MSG_DEBUG(
               "  [!] WARNING: wrongly assigned static volume ?" << cache.m_currentStatic->volumeName() << "->" <<
               nextVol->volumeName());
-            nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(
+            nextVol = m_navigator->trackingGeometry(ctx)->lowestStaticTrackingVolume(
               nextPar->position() + 0.01 * dir * nextPar->momentum().normalized());
             if (nextVol) {
               ATH_MSG_DEBUG("  new search yields: " << nextVol->volumeName());
