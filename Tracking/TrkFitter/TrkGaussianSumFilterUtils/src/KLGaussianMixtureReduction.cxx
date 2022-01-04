@@ -12,7 +12,9 @@
 #include "CxxUtils/vectorize.h"
 //
 #include <limits>
+#include <numeric>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 #if !defined(__GNUC__)
@@ -47,15 +49,15 @@ struct triangularToIJ
 };
 
 /*
- * these are q/P , 
+ * these are q/P ,
  * mean = 1e9 means P=1e-9 MeV
  * 1e-3 ev
  * we want to approximate a delta function
  * at some impossible q/P with a normal.
  */
-constexpr double largeMean = 1e9 ;
+constexpr double largeMean = 1e9;
 constexpr double tinySigma = 1e-15;
-constexpr double invertTinySigma = 1e15 ;
+constexpr double invertTinySigma = 1e15;
 
 /**
  * @brief Helper method to precalucate
@@ -76,8 +78,26 @@ createToIJMaxRowCols()
   }
   return indexMap;
 }
-// We need just one for the full duration of a job so static const
+
+/**
+ * @brief we need one tringular to IJ map for the full job
+ * so precalculate it here, const and static since inside
+ * the anonymous namespace
+ */
 const std::vector<triangularToIJ> convert = createToIJMaxRowCols();
+
+/**
+ * @brief given a number of components n
+ * return the number pairwise distance
+ * padding so as to be a multiple of 8
+ */
+int32_t
+numDistances8(const int32_t n)
+{
+  const int32_t nn = n * (n - 1) / 2;
+  const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
+  return nn2;
+}
 
 /**
  * Based on
@@ -130,10 +150,8 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
   updated.invCov = 1. / sumVariance;
   updated.weight = sumWeight;
   // approximate a delta function
-  // as a Gaussian
-  // with large mean a small sigma
-  // the KL distance to it
-  // will be large
+  // as a Gaussian  with large mean a small sigma
+  // the KL distance to it will always be large
   removed.mean = largeMean;
   removed.cov = tinySigma;
   removed.invCov = invertTinySigma;
@@ -141,9 +159,76 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
 }
 
 /**
- * Recalculate the distances given a merged input
- * and return the minimum index/distance wrt to this
- * new component
+ * @brief Reset the distances wrt to a mini index
+ * @c componentsIn are the input components
+ * @c distancesIn is the array of distances
+ * @c minj is the index of the element we merged from (remove)
+ * @c n is the components before the removal
+ *
+ * 1. We set the distances wrt to minj to a large value
+ * 2. We swap the distances of the last element
+ * with them. So they go to the end of the array
+ *
+ * After this the remaining components are n-1
+ * which we return
+ */
+int32_t
+resetDistances(
+  Component1D* ATH_RESTRICT componentsIn,
+  std::array<int8_t, GSFConstants::maxComponentsAfterConvolution>& mergingIndex,
+  float* ATH_RESTRICT distancesIn,
+  const int32_t minj,
+  const int32_t n)
+{
+  float* distances = static_cast<float*>(
+    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+
+  Component1D* components = static_cast<Component1D*>(
+    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+
+  const int32_t j = minj;
+  const int32_t last = (n - 1);
+  // Look at KLGaussianMixtureReduction.h
+  // for how things are indexed for triangular arrays
+  const int32_t indexOffsetJ = (j - 1) * j / 2;
+  const int32_t indexOffsetLast = (last - 1) * last / 2;
+  int32_t movedElements = 0;
+
+  // Rows
+  for (int32_t i = 0; i < j; ++i, ++movedElements) {
+    distances[indexOffsetJ + i] = std::numeric_limits<float>::max();
+    std::swap(distances[indexOffsetJ + i],
+              distances[indexOffsetLast + movedElements]);
+  }
+
+  // This is for  the distance of the minj
+  // with the last so we do not need swap
+  // Also if minj is the last the element does not exist
+  // as we do not keep distance to self
+  if (j != last) {
+    const int32_t index = indexOffsetLast + j;
+    distances[index] = std::numeric_limits<float>::max();
+    ++movedElements;
+  }
+
+  // The columns
+  for (int32_t i = j + 1; i < last; ++i, ++movedElements) {
+    const int32_t index = (i - 1) * i / 2 + j;
+    distances[index] = std::numeric_limits<float>::max();
+    std::swap(distances[index], distances[indexOffsetLast + movedElements]);
+  }
+  // And now swap the components
+  std::swap(components[minj], components[last]);
+  std::swap(mergingIndex[minj], mergingIndex[last]);
+  return last;
+}
+
+/**
+ * @brief Recalculate the distances given a merged input
+ * @c componentsIn are the input components
+ * @c distancesIn is the array of distances
+ * @c mini is the index of the element we merged to (keep)
+ * @c n is the components before the removal
  */
 void
 recalculateDistances(const Component1D* componentsIn,
@@ -180,7 +265,13 @@ recalculateDistances(const Component1D* componentsIn,
 }
 
 /**
- * Calculate the distances for all component pairs
+ * @brief Calculate the distances for all component pairs
+ * @c componentsIn is the array of componets
+ * @distancesIn is the array of distances to fill
+ * @n is the number of components
+ *
+ * We need this once in the beginning to initialize
+ * the distance map.
  */
 void
 calculateAllDistances(const Component1D* componentsIn,
@@ -204,28 +295,6 @@ calculateAllDistances(const Component1D* componentsIn,
   }
 }
 
-/**
- * Reset the distances wrt to a mini index
- */
-void
-resetDistances(float* distancesIn, const int32_t minj, const int32_t n)
-{
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
-
-  const int32_t j = minj;
-  const int32_t indexConst = (j - 1) * j / 2;
-  // Rows
-  for (int32_t i = 0; i < j; ++i) {
-    distances[indexConst + i] = std::numeric_limits<float>::max();
-  }
-  // Columns
-  for (int32_t i = j + 1; i < n; ++i) {
-    const int32_t index = (i - 1) * i / 2 + j;
-    distances[index] = std::numeric_limits<float>::max();
-  }
-}
-
 } // anonymous namespace
 namespace GSFUtils {
 
@@ -234,49 +303,61 @@ namespace GSFUtils {
  * which componets got merged.
  */
 MergeArray
-findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
+findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
 {
+
   const int32_t n = componentsIn.numComponents;
   // Sanity check. Function  throw on invalid inputs
   if (n < 0 || n > GSFConstants::maxComponentsAfterConvolution ||
       reducedSize > n) {
     throw std::runtime_error("findMerges :Invalid InputSize or reducedSize");
   }
-
+  // copy the array for internal use
+  Component1DArray copyComponents(componentsIn);
   Component1D* components = static_cast<Component1D*>(__builtin_assume_aligned(
-    componentsIn.components.data(), GSFConstants::alignment));
-
+    copyComponents.components.data(), GSFConstants::alignment));
   // Based on the inputSize n allocate enough space for the pairwise distances
-  // We work with a  multiple of 8*floats (32 bytes).
-  const int32_t nn = n * (n - 1) / 2;
-  const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
+  int32_t nn2 = numDistances8(n);
   AlignedDynArray<float, GSFConstants::alignment> distances(
     nn2, std::numeric_limits<float>::max());
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
-  // keep track of where we are
-  int32_t numberOfComponentsLeft = n;
-  // Result to  returned
+  // As we merge keep track where things moved
+  std::array<int8_t, GSFConstants::maxComponentsAfterConvolution> mergingIndex;
+  std::iota(mergingIndex.begin(), mergingIndex.end(), 0);
+  // Result to be returned
   MergeArray result{};
+  int32_t numberOfComponentsLeft = n;
   // merge loop
   while (numberOfComponentsLeft > reducedSize) {
-    // see if we have the next already
+    // find pair with minimum distance
     const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
     const triangularToIJ conversion = convert[minIndex];
-    const int8_t mini = conversion.I;
-    const int8_t minj = conversion.J;
-    // Combine the 2 components
-    combine(components[mini], components[minj]);
-    // Reset all distances wrt  to minj to float max
-    // so they can not be re-found as minimum distances.
-    resetDistances(distances.buffer(), minj, n);
-    // Set minj as merged
-    // re-calculate distances wrt the new component at mini
-    recalculateDistances(components, distances.buffer(), mini, n);
-    // keep track and decrement
-    result.merges[result.numMerges] = { mini, minj };
+    int8_t mini = conversion.I;
+    int8_t minj = conversion.J;
+    // This is the convention we had so retained.
+    if (mergingIndex[mini] < mergingIndex[minj]) {
+      std::swap(mini, minj);
+    }
+    // prepare what to return
+    const int8_t miniToreturn = mergingIndex[mini];
+    const int8_t minjToreturn = mergingIndex[minj];
+    result.merges[result.numMerges] = { miniToreturn, minjToreturn };
     ++result.numMerges;
-    --numberOfComponentsLeft;
+    // do all operation before we reset.
+    // Reset will move things around
+    combine(components[mini], components[minj]);
+    recalculateDistances(
+      components, distances.buffer(), mini, numberOfComponentsLeft);
+    // Call reset this also reduces the number of components left
+    numberOfComponentsLeft = resetDistances(components,
+                                            mergingIndex,
+                                            distances.buffer(),
+                                            minj,
+                                            numberOfComponentsLeft);
+
+    // number of remaining distances dividable by 8
+    nn2 = numDistances8(numberOfComponentsLeft);
   } // end of merge while
   return result;
 }
@@ -289,19 +370,14 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
  * It uses the CxxUtils:vec class which provides
  * a degree of portability.
  *
- * avx2 gives us lanes 8 float wide
  * SSE4.1 gives us efficient blend
  * so we employ function multiversioning
+ * An AVX version could gives us directly
+ * lanes 8 float wide
  *
  * For non-sizeable inputs
  * std::distance(array, std::min_element(array, array + n))
  * can be good enough instead of calling this function.
- *
- * Note than the above "STL"  code in gcc
- * (up to 10.2 at least) emits
- * a cmov which make it considerable slower
- * than the clang when the branch can
- * be well predicted.
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
