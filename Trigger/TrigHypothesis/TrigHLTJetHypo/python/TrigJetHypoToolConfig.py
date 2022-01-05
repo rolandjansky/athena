@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import NoHypoToolCreated
+from TriggerMenuMT.HLT.Menu.MenuComponents import NoHypoToolCreated
 from TrigHLTJetHypo.hypoConfigBuilder import hypotool_from_chaindict
 
 from AthenaCommon.Logging import logging
@@ -101,7 +101,7 @@ def  trigJetEJsHypoToolFromDict(chain_dict):
 import unittest
 class TestStringMethods(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import (
+        from TriggerMenuMT.HLT.Menu.DictFromChainName import (
             dictFromChainName,)
 
         chain_names = (

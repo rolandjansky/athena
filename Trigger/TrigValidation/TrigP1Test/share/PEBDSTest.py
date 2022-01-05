@@ -8,9 +8,9 @@ and executes several chains testing various types of Partial Event Building and 
 '''
 
 from TrigEDMConfig import DataScoutingInfo, TriggerEDMRun3
-from TriggerMenuMT.HLTMenuConfig.Menu import Dev_pp_run3_v1, EventBuildingInfo, StreamInfo
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequences
+from TriggerMenuMT.HLT.Menu import Dev_pp_run3_v1, EventBuildingInfo, StreamInfo
+from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.CommonSequences import EventBuildingSequences
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from libpyeformat_helper import SubDetector
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -31,7 +31,7 @@ DataScoutingInfo.TruncationThresholds[3] = 5*(1024**2) # 5 MB
 def myMenu():
     log.debug('Executing myMenu')
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import ChainStore
+    from TriggerMenuMT.HLT.Menu.SignatureDicts import ChainStore
     chains = ChainStore()
     chains['Egamma'] = [
         # DS+PEB chain (special HLT result and subset of detector data saved)

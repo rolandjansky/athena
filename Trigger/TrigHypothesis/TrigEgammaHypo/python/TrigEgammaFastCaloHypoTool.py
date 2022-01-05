@@ -2,7 +2,7 @@
 
 
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from TriggerMenuMT.HLT.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -346,7 +346,7 @@ def TrigEgammaFastCaloHypoToolFromName( name, conf , tool=None):
     """ To be phased out """
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return TrigEgammaFastCaloHypoToolFromDict( decodedDict , tool=tool)
 

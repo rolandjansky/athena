@@ -10,7 +10,7 @@ from TrigHLTJetHypo.FastReductionAlgToolFactory import toolfactory
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import DEBUG
-from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import extractCleaningsFromPrefilters
+from TriggerMenuMT.HLT.Jet.JetRecoConfiguration import extractCleaningsFromPrefilters
 
 logger = logging.getLogger( __name__)
 logger.setLevel(DEBUG)

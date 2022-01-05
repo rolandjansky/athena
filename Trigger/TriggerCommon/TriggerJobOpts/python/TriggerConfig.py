@@ -198,7 +198,7 @@ def triggerSummaryCfg(flags, hypos):
                     stepChains[chain] = hypoOutputKeys
         allChains.update( stepChains )
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLT.Menu.TriggerConfigHLT import TriggerConfigHLT
     from HLTSeeding.HLTSeedingConfig import mapThresholdToL1DecisionCollection
     if len(TriggerConfigHLT.dicts()) == 0:
         __log.warning("No HLT menu, chains w/o algorithms are not handled")
@@ -635,7 +635,7 @@ def triggerRunCfg( flags, menu=None ):
         endOfEventAlg = conf2toConfigurable(EndOfEventROIConfirmerAlgCfg('EndOfEventROIConfirmerAlg'))
         acc.addEventAlgo( endOfEventAlg, sequenceName="HLTFinalizeSeq" )
         if flags.Trigger.endOfEventProcessing.doLArNoiseBurst:
-            from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
+            from TriggerMenuMT.HLT.CalibCosmicMon.CalibChainConfiguration import getLArNoiseBurstEndOfEvent
             recoSeq, LArNBRoIs = getLArNoiseBurstEndOfEvent()
             endOfEventAlg.RoIs = [LArNBRoIs]
             acc.addSequence( parOR("acceptedEventSeq"), parentName="HLTFinalizeSeq" )

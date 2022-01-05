@@ -6,7 +6,7 @@ from AthenaCommon.SystemOfUnits import GeV
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 #from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable, appendCAtoAthena
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from TriggerMenuMT.HLT.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
 from ROOT import egammaPID
 
 def same( val , tool):
@@ -274,7 +274,7 @@ def TrigEgammaPrecisionElectronHypoToolFromDict( d , tool=None):
                    
     
 def TrigEgammaPrecisionElectronHypoToolFromName(name, conf, tool=None):
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return  TrigEgammaPrecisionElectronHypoToolFromDict( decodedDict , tool=tool )
 

@@ -94,7 +94,7 @@ else:
 from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags))
 
-from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
+from TriggerMenuMT.HLT.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 menu = triggerRunCfg(flags, menu=generateHLTMenu)
 # uncomment to obtain printout of menu (and associated components)

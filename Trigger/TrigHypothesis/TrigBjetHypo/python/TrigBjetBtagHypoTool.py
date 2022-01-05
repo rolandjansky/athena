@@ -50,7 +50,7 @@ def TrigBjetBtagHypoToolFromDict( chainDict ):
 
 def TrigBjetBtagHypoToolFromName( name, conf ):
     """ Configure a b-jet hypo tool from chain name. """
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName( conf )
     decodedDict['chainName'] = name # override
     

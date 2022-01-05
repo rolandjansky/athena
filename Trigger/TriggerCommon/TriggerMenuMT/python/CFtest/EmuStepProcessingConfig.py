@@ -3,7 +3,7 @@
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.Logging import logging
 from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
+from TriggerMenuMT.HLT.Menu.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
 
 ###########################################################################    
@@ -40,9 +40,9 @@ def generateEmuMenu():
      set Emu menu and reproduce generateMT
     """
     log.info("generateEmuMenu")  
-    from TriggerMenuMT.HLTMenuConfig.Menu import Dev_pp_run3_v1
-    from TriggerMenuMT.HLTMenuConfig.Menu import Dev_pp_run3_emu_v1 
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Menu import Dev_pp_run3_v1
+    from TriggerMenuMT.HLT.Menu import Dev_pp_run3_emu_v1 
+    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
 
     # overwrite Dev_pp_run3_v1
     Dev_pp_run3_v1.setupMenu = Dev_pp_run3_emu_v1.setupMenu
