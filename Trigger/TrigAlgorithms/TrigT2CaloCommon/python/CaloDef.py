@@ -2,7 +2,7 @@
 
 from AthenaCommon.CFElements import seqAND, parOR
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TriggerMenuMT.HLTMenuConfig.CommonSequences.FullScanDefs import caloFSRoI
+from TriggerMenuMT.HLT.CommonSequences.FullScanDefs import caloFSRoI
 
 def setMinimalCaloSetup() :
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -255,7 +255,7 @@ def HLTRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
 
 def HLTHIRoITopoRecoSequence(ConfigFlags, RoIs, algSuffix=''):
 
-    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
+    from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import  getTrigEgammaKeys
     TrigEgammaKeys = getTrigEgammaKeys()
     eventShape = TrigEgammaKeys.egEventShape
 

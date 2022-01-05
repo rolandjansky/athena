@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
-from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
+from TriggerMenuMT.HLT.Egamma.TrigEgammaSliceFlags import TrigEgammaSliceFlags
 from ROOT import egammaPID
 
 #

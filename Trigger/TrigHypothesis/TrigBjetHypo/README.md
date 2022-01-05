@@ -26,7 +26,7 @@ Modules in this directory
     * attach object links to decisions
 
 A more detailed documentation of the TrigBjetHypo package can be found at\
-[Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/docs/bjet_configuration.md](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Bjet/docs/bjet_configuration.md#trigbjethypo)
+[Trigger/TriggerCommon/TriggerMenuMT/python/HLT/Bjet/docs/bjet_configuration.md](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLT/Bjet/docs/bjet_configuration.md#trigbjethypo)
 
 
 

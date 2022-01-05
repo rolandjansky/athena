@@ -6,7 +6,7 @@ atlas_subdir( TriggerMenuMT )
 # Install files from the package:
 atlas_install_python_modules( python/*.py
                               python/L1
-                              python/HLTMenuConfig
+                              python/HLT
                               python/TriggerAPI
                               python/CFtest
                               POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
@@ -41,18 +41,18 @@ endforeach()
 
 # Unit tests:
 atlas_add_test( ViewCFTest
-                SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest
+                SCRIPT python -m unittest -v TriggerMenuMT.HLT.Test.ViewCFTest
                 POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( EventBuildingSequences
-                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequences
+                SCRIPT python -m TriggerMenuMT.HLT.CommonSequences.EventBuildingSequences
                 POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
                 POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf checkMenuPrimaries.log" )
 
 atlas_add_test( RecoFragmentsPool
-                SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.RecoFragmentsPoolTest
+                SCRIPT python -m unittest -v TriggerMenuMT.HLT.Test.RecoFragmentsPoolTest
                 POST_EXEC_SCRIPT nopost.sh )
 
 # Test L1/HLT trigger menus:
@@ -88,7 +88,7 @@ atlas_test_hlt_trigger_menu( Dev_HI_run3_v1 )
 
 # New job options test:
 atlas_add_test( generateMenuMT_newJO
-                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.Dev_pp_run3_v1_newJO
+                SCRIPT python -m TriggerMenuMT.HLT.Menu.Dev_pp_run3_v1_newJO
                 PRIVATE_WORKING_DIRECTORY
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )

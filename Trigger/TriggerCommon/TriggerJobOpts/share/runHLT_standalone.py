@@ -505,7 +505,7 @@ if opt.doL1Unpacking:
 # ---------------------------------------------------------------
 if not opt.createHLTMenuExternally:
 
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
     def chainsToGenerate(signame, chain):
