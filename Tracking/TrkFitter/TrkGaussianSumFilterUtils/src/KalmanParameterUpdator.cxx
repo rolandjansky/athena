@@ -239,7 +239,7 @@ calculateFilterStep_T(Trk::TrackParameters& TP,
 
   // get the parameter vector
   const AmgVector(5)& trkPar = TP.parameters();
-  const Trk::ProjectionMatricesSet s_reMatrices(5);
+  static const Trk::ProjectionMatricesSet s_reMatrices(5);
   // reduction matrix
   AmgMatrix(DIM, 5) H =
     s_reMatrices.expansionMatrix(paramKey).block<DIM, 5>(0, 0);
@@ -319,7 +319,7 @@ makeChi2_T(Trk::FitQualityOnSurface& updatedFitQoS,
            int sign)
 
 { // sign: -1 = updated, +1 = predicted parameters.
-  const Trk::ProjectionMatricesSet s_reMatrices(5);
+  static const Trk::ProjectionMatricesSet s_reMatrices(5);
   const AmgMatrix(DIM, 5) H =
     s_reMatrices.expansionMatrix(paramKey).block<DIM, 5>(0, 0);
   const AmgVector(DIM) r = measPar - H * trkPar;
