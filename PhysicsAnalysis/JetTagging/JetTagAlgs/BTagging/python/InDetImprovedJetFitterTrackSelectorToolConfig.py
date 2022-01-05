@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
@@ -43,7 +43,7 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults
                      'useTrackSummaryInfo'          : True,
                      'nHitBLayer'                   : 0,
                      'nHitPix'                      : 1,
-                     'nHitSct'                      : 4,
+                     'nHitSct'                      : 4 if flags.GeoModel.Run in ['RUN1', 'RUN2', 'RUN3'] else 0,
                      'nHitSi'                       : 7,
                      'nHitTrt'                      : 0,
                      'useSharedHitInfo'             : False,
@@ -52,6 +52,7 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults
                      'TrackSummaryTool'             : '' }
         for option in defaults:
             options.setdefault(option, defaults[option])
+
     options['name'] = name
 
     acc = AtlasExtrapolatorCfg(flags)

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
+#include "InDetVKalVxInJetTool/InDetMaterialVeto.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
@@ -72,7 +73,10 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_vertexMergeCut(3.),
     m_trackDetachCut(6.),
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
-    m_trackClassificator("InDet::InDetTrkInJetType",this)
+    m_trackClassificator("InDet::InDetTrkInJetType",this),
+    m_useITkMaterialRejection(false),
+    m_beamPipeMgr(nullptr),
+    m_pixelManager(nullptr)
    {
 //
 // Declare additional interface
@@ -135,6 +139,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     declareProperty("VertexFitterTool",  m_fitterSvc);
     declareProperty("TrackClassTool",  m_trackClassificator);
+
+    declareProperty("useITkMaterialRejection", m_useITkMaterialRejection, "Reject vertices from hadronic interactions in detector material using ITk layout");
 
     m_iflag=0;
     m_massPi  = 139.5702 ;
@@ -386,6 +392,17 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
      if(m_RobustFit>7)m_RobustFit=7;
      if(m_RobustFit<0)m_RobustFit=0;
+
+     if(m_useITkMaterialRejection){
+
+       ATH_CHECK(detStore()->retrieve(m_beamPipeMgr, "BeamPipe"));
+       ATH_CHECK(detStore()->retrieve(m_pixelManager, "ITkPixel"));
+
+       InDetMaterialVeto matVeto(m_beamPipeMgr, m_pixelManager);
+
+       m_ITkPixMaterialMap = matVeto.ITkPixMaterialMap();
+
+     }
 
      return StatusCode::SUCCESS;
 

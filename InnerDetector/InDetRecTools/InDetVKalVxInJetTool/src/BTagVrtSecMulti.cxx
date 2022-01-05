@@ -14,6 +14,7 @@
 #include  "boost/graph/bron_kerbosch_all_cliques.hpp"
 #include  "TMath.h"
 #include  "TH1D.h"
+#include  "TH2D.h"
 #include  "TProfile.h"
 
 #include  <algorithm>
@@ -505,6 +506,14 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 //
 //---  Check interactions on pixel layers
           if(m_fillHist && nth==2){ m_hb_r2d->Fill( curVrt.vertex.perp(), m_w_1);          }
+
+	  if(m_useITkMaterialRejection){
+	    double xvt = curVrt.vertex.x(); double yvt = curVrt.vertex.y();
+	    double zvt = curVrt.vertex.z(); double Rvt = std::hypot(xvt,yvt);
+	    int bin = m_ITkPixMaterialMap->FindBin(zvt,Rvt);
+	    if(m_ITkPixMaterialMap->GetBinContent(bin)>0) continue;
+	  }
+
 //
 //---  Check V0s and conversions
           if(nth==2 && curVrt.vertexCharge==0 && curVrt.detachedTrack<0){

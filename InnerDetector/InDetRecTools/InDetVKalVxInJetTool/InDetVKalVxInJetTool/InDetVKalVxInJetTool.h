@@ -70,6 +70,11 @@ namespace Trk{
   class IVKalState;
 }
 
+class BeamPipeDetectorManager;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
 
 typedef std::vector<double> dvect;
 
@@ -226,6 +231,11 @@ namespace InDet {
       bool m_useEtaDependentCuts = false;
       /** service to get cut values depending on different variable */
       ServiceHandle<InDet::IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc{this, "InDetEtaDependentCutsSvc", ""};
+
+      bool m_useITkMaterialRejection;
+      const BeamPipeDetectorManager*       m_beamPipeMgr;
+      const InDetDD::PixelDetectorManager* m_pixelManager;
+      std::unique_ptr<TH2D> m_ITkPixMaterialMap;
 
       double m_massPi {};
       double m_massP {};
