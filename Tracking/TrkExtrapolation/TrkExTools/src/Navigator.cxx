@@ -385,7 +385,7 @@ Trk::Navigator::closestParameters(const Trk::Track& trk,
                                   const Trk::Surface& sf,
                                   const Trk::IPropagator* propptr) const
 {
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // -- corresponds to Extrapolator::m_searchLevel = 2/3 - search with Propagation
   if (propptr && !m_searchWithDistance) {
     const Trk::TrackParameters *closestTrackParameters = nullptr;
@@ -403,7 +403,7 @@ Trk::Navigator::closestParameters(const Trk::Track& trk,
       }
 
       // const Trk::IntersectionSolution* interSolutions =  propptr->intersect(**it, sf, *highestVolume);
-      const Trk::IntersectionSolution *interSolutions = propptr->intersect(**it, sf, m_fieldProperties);
+      const Trk::IntersectionSolution *interSolutions = propptr->intersect(ctx,**it, sf, m_fieldProperties);
       if (!interSolutions) {
         return nullptr;
       }

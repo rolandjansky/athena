@@ -881,11 +881,14 @@ Trk::STEP_Propagator::intersectSurface(const EventContext&             ctx,
                                                                      direction.phi(),
                                                                      direction.theta(),qOverP,std::nullopt);
 
-  const Trk::IntersectionSolution* solution = qOverP==0? intersect(ctx,
-                                                                   *trackParameters,surface,
-                                                                   Trk::MagneticFieldProperties(Trk::NoField),
-                                                                   particle):intersect(*trackParameters,surface,
-                                                                                       mft,particle,nullptr);
+  const Trk::IntersectionSolution* solution =
+    qOverP == 0
+      ? intersect(ctx,
+                  *trackParameters,
+                  surface,
+                  Trk::MagneticFieldProperties(Trk::NoField),
+                  particle)
+      : intersect(ctx, *trackParameters, surface, mft, particle, nullptr);
 
   delete perigeeSurface;
   if(!solution) return nullptr;
@@ -1738,9 +1741,9 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     if (absPath > maxPath) return false;
 
     // path limit implemented
-    if (cache.m_propagateWithPathLimit>0 && cache.m_pathLimit<= path) { 
-      ++cache.m_propagateWithPathLimit; 
-      return true; 
+    if (cache.m_propagateWithPathLimit>0 && cache.m_pathLimit<= path) {
+      ++cache.m_propagateWithPathLimit;
+      return true;
     }
 
     bool restart = false;
@@ -2008,7 +2011,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         (*vsIter).first = -1; vsIter = vsBeg; restart = true;
         continue;
       }
-      ++sIter; 
+      ++sIter;
       ++ic;
     }
     // if next closest not found, propagation failed

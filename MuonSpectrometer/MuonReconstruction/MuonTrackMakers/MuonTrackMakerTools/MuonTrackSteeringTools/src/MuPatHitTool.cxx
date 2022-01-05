@@ -110,7 +110,8 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" start parameters and measurement expressed at same surface, cloning parameters ");
             } else {
                 // this code does its own manual garbage collection which can probably be omitted now
-                exPars = m_propagator->propagate(pars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
+                exPars = m_propagator->propagate(Gaudi::Hive::currentContext(),
+                                                 pars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
 
                 if (!exPars) {
                     if (!wasPrinted) {
@@ -259,7 +260,9 @@ namespace Muon {
 
                             // this code does its own garbage collection, but this can prob. be simplified now
                             exPars =
-                                m_propagator->propagate(stPars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
+                                m_propagator->propagate(Gaudi::Hive::currentContext(),
+                                                        stPars, meas.associatedSurface(), 
+                                                        Trk::anyDirection, false, m_magFieldProperties);
 
                             // if failed keep old parameters
                             if (!exPars) {

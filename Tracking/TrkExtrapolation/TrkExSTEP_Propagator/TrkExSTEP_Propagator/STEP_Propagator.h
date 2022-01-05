@@ -141,20 +141,10 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
   public:
 
-    /** This following "using" statements can be removed after the methods in IPropagator.h for the
-     * old interfaces WITHOUT EventContext are removed, i.e. only the new ones with EventContext are
-     * used throughout the sw */
-    using IPropagator::propagate;
-    using IPropagator::propagateT;
-    using Trk::IPropagator::propagateM;
-    using Trk::IPropagator::propagateParameters;
-    using Trk::IPropagator::intersect;
-    using Trk::IPropagator::intersectSurface;
-    using Trk::IPropagator::globalPositions;
-
     STEP_Propagator(const std::string&,const std::string&,const IInterface*);
 
-
+    using IPropagator::propagate;
+    using IPropagator::propagateT;
     virtual ~STEP_Propagator ();
 
 

@@ -965,7 +965,8 @@ void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,
 	  
   double step;
   /// propagate from innermost hit to beam spot
-  if (not m_proptool->propagate(TP, beamPosPerigee, TP, Trk::anyDirection, m_fieldprop, step, Trk::pion)) return;
+  if (not m_proptool->propagate(Gaudi::Hive::currentContext(),
+                                TP, beamPosPerigee, TP, Trk::anyDirection, m_fieldprop, step, Trk::pion)) return;
 	      
   const AmgVector(5)& parsAtBeamSpot = TP.parameters();
   if (std::abs(parsAtBeamSpot[0]) > m_imcut) return;
