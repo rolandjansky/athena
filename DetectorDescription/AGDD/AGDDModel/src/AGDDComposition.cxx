@@ -6,7 +6,7 @@
 #include "AGDDModel/AGDDComposition.h"
 #include "AGDDKernel/AGDDBuilder.h"
 
-void AGDDComposition::CreateVolume (const AGDDBuilder& builder)
+void AGDDComposition::CreateVolume (AGDDBuilder& builder)
 {
 	builder.CreateComposition(this);
 }

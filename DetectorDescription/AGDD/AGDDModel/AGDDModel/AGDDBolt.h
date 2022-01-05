@@ -18,7 +18,7 @@ public:
           : AGDDVolume(s,vs,ss),m_length(0),m_headLength(0),
 										 m_diameter(0),m_headDiameter(0) {}
 	~AGDDBolt() {}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	
 	void SetHeadLength(double l) {m_headLength=l;}

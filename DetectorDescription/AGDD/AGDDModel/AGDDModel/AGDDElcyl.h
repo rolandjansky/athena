@@ -22,7 +22,7 @@ public:
 		m_dy=v[1];
 		m_z=v[2];
 	}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	double dx() const {return m_dx;}
 	double dy() const {return m_dy;}
