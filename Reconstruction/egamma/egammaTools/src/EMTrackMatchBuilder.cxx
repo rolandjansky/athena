@@ -180,9 +180,21 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
    *
    * We need anyhow both to be there at the end.
    */
+  std::pair<std::vector<CaloSampling::CaloSample>,
+            std::vector<std::unique_ptr<Trk::Surface>>>
+    layersAndSurfaces =
+      m_extrapolationTool->getClusterLayerSurfaces(cluster, caloDD);
   if (m_extrapolationTool
-        ->getMatchAtCalo(
-          ctx, cluster, trkPB, eta, phi, deltaEta, deltaPhi, caloDD, extrapFrom)
+        ->getMatchAtCalo(ctx,
+                         cluster,
+                         trkPB,
+                         layersAndSurfaces.first,
+                         layersAndSurfaces.second,
+                         eta,
+                         phi,
+                         deltaEta,
+                         deltaPhi,
+                         extrapFrom)
         .isFailure()) {
     return false;
   }
@@ -198,11 +210,12 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
         ->getMatchAtCalo(ctx,
                          cluster,
                          trkPB,
+                         layersAndSurfaces.first,
+                         layersAndSurfaces.second,
                          etaRes,
                          phiRes,
                          deltaEtaRes,
                          deltaPhiRes,
-                         caloDD,
                          extrapFromRes)
         .isFailure()) {
     return false;
@@ -254,11 +267,12 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
         ->getMatchAtCalo(ctx,
                          cluster,
                          trkPB,
+                         layersAndSurfaces.first,
+                         layersAndSurfaces.second,
                          eta1,
                          phi1,
                          deltaEta1,
                          deltaPhi1,
-                         caloDD,
                          extrapFrom1)
         .isFailure()) {
     ATH_MSG_DEBUG("Extrapolation from last measurement failed");

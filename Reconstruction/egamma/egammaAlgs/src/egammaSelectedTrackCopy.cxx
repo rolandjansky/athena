@@ -280,6 +280,10 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
     return false;
   }
 
+  std::pair<std::vector<CaloSampling::CaloSample>,
+            std::vector<std::unique_ptr<Trk::Surface>>>
+    layersAndSurfaces =
+      m_extrapolationTool->getClusterLayerSurfaces(*cluster, caloDD);
   // Extrapolate from last measurement to the four EM layers.
   // Since this is before brem fit last measurement is OK.
   std::array<double, 4> eta = { -999.0, -999.0, -999.0, -999.0 };
@@ -290,11 +294,12 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
         ->getMatchAtCalo(ctx,
                          *cluster,
                          *track,
+                         layersAndSurfaces.first,
+                         layersAndSurfaces.second,
                          eta,
                          phi,
                          deltaEta,
                          deltaPhi,
-                         caloDD,
                          IEMExtrapolationTools::fromLastMeasurement)
         .isFailure()) {
     return false;
@@ -324,11 +329,12 @@ egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
           ->getMatchAtCalo(ctx,
                            *cluster,
                            *track,
+                           layersAndSurfaces.first,
+                           layersAndSurfaces.second,
                            etaRes,
                            phiRes,
                            deltaEtaRes,
                            deltaPhiRes,
-                           caloDD,
                            IEMExtrapolationTools::fromPerigeeRescaled)
           .isFailure()) {
       return false;
