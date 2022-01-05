@@ -47,10 +47,10 @@ public:
                              AGDDMaterialStore& ms);
 	~AGDD2GeoModelBuilder()=default;
 	// elements & materials 
-	GeoElement* CreateElement(const std::string&) const;
-	const GeoMaterial* CreateMaterial(const std::string&) const;
-	virtual void CreateElements() const override;
-	virtual void CreateMaterial() const override;
+	GeoElement* CreateElement(const std::string&);
+	const GeoMaterial* CreateMaterial(const std::string&);
+	virtual void CreateElements() override;
+	virtual void CreateMaterial() override;
 		
 	virtual void CreateBox(AGDDBox*) const override;
 	virtual void CreateTrd(AGDDTrd*) const override;
@@ -69,13 +69,13 @@ public:
 	virtual void CreateIbeam(AGDDIbeam*) const override;
 	virtual void CreateUbeam(AGDDUbeam*) const override;
 	
-	virtual void CreateVolume(AGDDVolume*) const override;
-	virtual void CreateComposition(AGDDComposition*) const override;
+	virtual void CreateVolume(AGDDVolume*) override;
+	virtual void CreateComposition(AGDDComposition*) override;
 
 	virtual void SetMotherVolume(GeoPhysVol *v) {m_mother=v;}
-	virtual void BuildAllVolumes() const;
-	virtual void BuildFromSection(const std::string&) const override;
-	virtual void BuildFromVolume(const std::string&) const override;
+	virtual void BuildAllVolumes();
+	virtual void BuildFromSection(const std::string&) override;
+	virtual void BuildFromVolume(const std::string&) override;
 
         virtual const StoredMaterialManager& GetMaterialManager() const override;
 

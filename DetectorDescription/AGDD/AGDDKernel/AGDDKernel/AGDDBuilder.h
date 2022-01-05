@@ -34,8 +34,8 @@ public:
 	AGDDBuilder() {}
 	virtual ~AGDDBuilder() {}
 	// elements & materials 
-	virtual void CreateElements() const =0;
-	virtual void CreateMaterial() const =0;
+	virtual void CreateElements() =0;
+	virtual void CreateMaterial() =0;
 	
 	// solids, volumes and composition
 	virtual void CreateBox(AGDDBox*) const =0;
@@ -55,11 +55,11 @@ public:
 	virtual void CreateIbeam(AGDDIbeam*) const =0;
 	virtual void CreateUbeam(AGDDUbeam*) const =0;
 	
-	virtual void CreateVolume(AGDDVolume*) const =0;
-	virtual void CreateComposition(AGDDComposition*) const =0;
+	virtual void CreateVolume(AGDDVolume*) =0;
+	virtual void CreateComposition(AGDDComposition*) =0;
 
-	virtual void BuildFromSection(const std::string&) const =0;
-	virtual void BuildFromVolume(const std::string&) const =0;
+	virtual void BuildFromSection(const std::string&) =0;
+	virtual void BuildFromVolume(const std::string&) =0;
 
         virtual const StoredMaterialManager& GetMaterialManager() const = 0;
 };

@@ -29,7 +29,7 @@ void AGDDMuonStation::CreateSolid (const AGDDBuilder& /*builder*/)
 	}
 }
 
-void AGDDMuonStation::CreateVolume (const AGDDBuilder& builder)
+void AGDDMuonStation::CreateVolume (AGDDBuilder& builder)
 {
     std::cout<<"this is AGDDMuonStation::CreateVolume()"<<std::endl;
 	static const GeoMaterial* const air = GetMMMaterial("std::Air");

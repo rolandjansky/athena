@@ -35,7 +35,7 @@ public:
 	double phi0() const {return m_phi0;}
 	double dphi() const {return m_dphi;}
 	double z() const {return m_z;}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 	double m_rin1;
 	double m_rin2;

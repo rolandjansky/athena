@@ -33,7 +33,7 @@ public:
 	double large_x() const {return m_large_x;}
 	double y() const {return m_y;}
 	double z() const {return m_z;}
-        virtual void CreateVolume (const AGDDBuilder& builder) override;
+        virtual void CreateVolume (AGDDBuilder& builder) override;
 	virtual void CreateSolid (const AGDDBuilder& builder) override;
 private:
 	double m_small_x;
