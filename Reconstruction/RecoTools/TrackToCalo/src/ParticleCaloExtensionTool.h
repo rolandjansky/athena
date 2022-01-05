@@ -80,6 +80,20 @@ public:
     PropDirection propDir,
     ParticleHypothesis particleType) const override final;
 
+  std::vector<std::unique_ptr<Trk::Surface>> caloSurfacesFromLayers(
+    const std::vector<CaloSampling::CaloSample>& clusterLayers,
+    double eta,
+    const CaloDetDescrManager& caloDD) const override final;
+
+  virtual std::vector<std::pair<CaloSampling::CaloSample,
+                                std::unique_ptr<const Trk::TrackParameters>>>
+  surfaceCaloExtension(
+    const EventContext& ctx,
+    const TrackParameters& startPars,
+    const std::vector<CaloSampling::CaloSample>& clusterLayers,
+    const std::vector<std::unique_ptr<Trk::Surface>>& caloSurfaces,
+    ParticleHypothesis particleType) const override final;
+
   virtual std::vector<std::pair<CaloSampling::CaloSample,
                                 std::unique_ptr<const Trk::TrackParameters>>>
   layersCaloExtension(
@@ -89,14 +103,6 @@ public:
     double eta,
     const CaloDetDescrManager& caloDD,
     ParticleHypothesis particleType) const override final;
-
-  virtual std::vector<std::pair<CaloSampling::CaloSample,
-                                std::unique_ptr<const Trk::TrackParameters>>>
-  egammaCaloExtension(const EventContext& ctx,
-                      const TrackParameters& startPars,
-                      const xAOD::CaloCluster& cluster,
-                      const CaloDetDescrManager& caloDD,
-                      ParticleHypothesis particleType) const override final;
 
 private:
   /*
