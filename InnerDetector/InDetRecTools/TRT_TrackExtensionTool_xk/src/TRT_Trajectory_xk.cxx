@@ -624,7 +624,7 @@ InDet::TRT_Trajectory_xk::pseudoMeasurements(const Trk::Surface *firstsurf, cons
 
   Trk::PatternTrackParameters P;
   bool Q = m_proptool->propagateParameters
-    (m_parameters,surn,P,Trk::anyDirection,m_fieldprop,Trk::pion);
+    (Gaudi::Hive::currentContext(),m_parameters,surn,P,Trk::anyDirection,m_fieldprop,Trk::pion);
   if(!Q) return std::make_pair(pmon,pmon2);
 
 

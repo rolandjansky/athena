@@ -1035,7 +1035,8 @@ InDet::SiTrajectoryElement_xk::trackPerigeeStateOnSurface ()
   Trk::PerigeeSurface per;
 
   bool Q = m_proptool->propagate
-	(m_parametersUpdatedBackward,per,Tp,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
+	(Gaudi::Hive::currentContext(),
+   m_parametersUpdatedBackward, per,Tp,Trk::anyDirection,m_tools->fieldTool(),step,Trk::pion);
 
   if(Q) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>  typePattern;

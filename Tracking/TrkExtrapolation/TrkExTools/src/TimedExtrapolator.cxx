@@ -810,11 +810,20 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           || m_navigator->atVolumeBoundary(currPar, cache.m_currentDense, dir, assocVol, m_tolerance))) {
       cache.m_currentDense = cache.m_highestVolume;
     }
-    // const Trk::TrackParameters* nextPar =
-    // m_stepPropagator->propagateT(*currPar,cache.m_navigSurfs,dir,*cache.m_currentDense,particle,solutions,cache.m_path,timeLim,true);
-    const Trk::TrackParameters *nextPar = m_stepPropagator->propagateT(*currPar, cache.m_navigSurfs, dir, m_fieldProperties,
-                                                                       particle, solutions, cache.m_path, timeLim, true,
-                                                                       cache.m_currentDense, cache.m_hitVector).release();
+    const Trk::TrackParameters* nextPar = m_stepPropagator
+                                            ->propagateT(ctx,
+                                                         *currPar,
+                                                         cache.m_navigSurfs,
+                                                         dir,
+                                                         m_fieldProperties,
+                                                         particle,
+                                                         solutions,
+                                                         cache.m_path,
+                                                         timeLim,
+                                                         true,
+                                                         cache.m_currentDense,
+                                                         cache.m_hitVector)
+                                            .release();
     ATH_MSG_VERBOSE("  [+] Propagation done. ");
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at " << positionOutput(
@@ -1128,6 +1137,8 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
                                       const BoundaryCheck& bcheck, // bcheck
                                       ParticleHypothesis particle,
                                       bool startingLayer) const {
+
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   // indicate destination layer
   bool isDestinationLayer = false;
   // start and end surface for on-layer navigation
@@ -1172,7 +1183,7 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
     detParameters = (&parm);
   } else if (detSurface) {
     // detParameters = prop.propagate(parm, *detSurface, dir, false, tvol, particle);
-    detParameters = prop.propagate(parm, *detSurface, dir, false, m_fieldProperties, particle).release();
+    detParameters = prop.propagate(ctx,parm, *detSurface, dir, false, m_fieldProperties, particle).release();
   }
 
   // set the surface hit to true, it is anyway overruled
@@ -1227,7 +1238,8 @@ Trk::TimedExtrapolator::overlapSearch(Trk::TimedExtrapolator::Cache &cache,
       for (auto &csf : cSurfaces) {
         // propagate to the compatible surface, return types are (pathLimit failure is excluded by Trk::anyDirection for
         // the moment):
-        const Trk::TrackParameters *overlapParameters = prop.propagate(parm,
+        const Trk::TrackParameters *overlapParameters = prop.propagate(ctx,
+                                                                       parm,
                                                                        *(csf.object),
                                                                        Trk::anyDirection,
                                                                        true,
@@ -2534,9 +2546,20 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
     // type, result,
     //              material collection, intersection collection, path limit, switch for use of path limit, switch for
     // curvilinear on return, current TG volume
-    const Trk::TrackParameters *nextPar = m_stepPropagator->propagateT(*currPar, cache.m_navigSurfs, dir, m_fieldProperties,
-                                                                       particle, solutions, cache.m_path, timeLim, true,
-                                                                       cache.m_currentDense, cache.m_hitVector).release();
+    const Trk::TrackParameters* nextPar = m_stepPropagator
+                                            ->propagateT(ctx,
+                                                         *currPar,
+                                                         cache.m_navigSurfs,
+                                                         dir,
+                                                         m_fieldProperties,
+                                                         particle,
+                                                         solutions,
+                                                         cache.m_path,
+                                                         timeLim,
+                                                         true,
+                                                         cache.m_currentDense,
+                                                         cache.m_hitVector)
+                                            .release();
     ATH_MSG_VERBOSE("  [+] Propagation done. ");
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at " << positionOutput(nextPar->position()));

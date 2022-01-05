@@ -486,7 +486,7 @@ namespace Muon {
 
         // propagate to segment surface
         std::unique_ptr<Trk::TrackParameters> exPars(
-            m_propagator->propagate(*closestPars, seg.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties));
+            m_propagator->propagate(ctx,*closestPars, seg.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties));
 
         if (!exPars) {
             ATH_MSG_WARNING(" Propagation failed!! ");
@@ -855,7 +855,8 @@ namespace Muon {
                 } else {
                     // ownership relinquished, should be treated in createMeasTSOS
                     etaPars =
-                        m_propagator->propagate(*pars, etaCompRot->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties)
+                        m_propagator->propagate(ctx,
+                                                *pars, etaCompRot->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties)
                             .release();
                 }
                 if (!etaPars) {
@@ -1256,7 +1257,8 @@ namespace Muon {
                     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << m_idHelperSvc->toString(id);
                     // unique ptr ownership retained. Original code deleted impactPars
                     auto impactPars =
-                        m_propagator->propagate(*closestPars, meas->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
+                        m_propagator->propagate(Gaudi::Hive::currentContext(), 
+                                                *closestPars, meas->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
                     if (impactPars) {
                         double residual = 1e10;
                         double pull = 1e10;

@@ -246,7 +246,7 @@ StatusCode Trk::RiddersAlgorithm::finalize()
 
 StatusCode Trk::RiddersAlgorithm::execute()
 {
- 
+   const EventContext& ctx = Gaudi::Hive::currentContext();
    // this is fine
    double p = m_minP + m_flatDist->shoot()*(m_maxP-m_minP);
    double charge = (m_flatDist->shoot() > 0.5 ) ? -1. : 1.;   
@@ -306,12 +306,13 @@ StatusCode Trk::RiddersAlgorithm::execute()
    Trk::CylinderSurface estimationCylinder(Amg::Transform3D(), estimationR, 10e10);
 
    ATH_MSG_VERBOSE( "Cylinder to be intersected : " << estimationCylinder );
-
-   auto estimationParameters = m_propagator->propagateParameters(startParameters,
-                                                                                        estimationCylinder,
-                                                                                        Trk::alongMomentum,
-                                                                                        false,
-                                                                                        *m_magFieldProperties);
+   
+   auto estimationParameters = m_propagator->propagateParameters(ctx,
+                                                                 startParameters,
+                                                                 estimationCylinder,
+                                                                 Trk::alongMomentum,
+                                                                 false,
+                                                                 *m_magFieldProperties);
    if (!estimationParameters) {
         ATH_MSG_VERBOSE( "Estimation of intersection did not work - skip event !" );
         return StatusCode::SUCCESS;
@@ -368,13 +369,14 @@ StatusCode Trk::RiddersAlgorithm::execute()
    Trk::TransportJacobian currentStepJacobian(testMatrix);
    double pathLimit = -1.;
 
-   auto trackParameters = m_propagator->propagate(startParameters,
-                                                                         destinationSurface,
-                                                                         Trk::alongMomentum,
-                                                                         false,
-                                                                         *m_magFieldProperties,
-                                                                         transportJacobian,
-                                                                         pathLimit);
+   auto trackParameters = m_propagator->propagate(ctx,
+                                                  startParameters,
+                                                  destinationSurface,
+                                                  Trk::alongMomentum,
+                                                  false,
+                                                  *m_magFieldProperties,
+                                                  transportJacobian,
+                                                  pathLimit);
 
   // --------------------- check if test propagation was successful ------------------------------
   if (trackParameters && transportJacobian){
@@ -446,66 +448,76 @@ StatusCode Trk::RiddersAlgorithm::execute()
          Trk::AtaPlane  startQopPlus(loc1,loc2,phi,theta,qOverP+m_qOpVariations[istep],startSurface);
 
         // the propagations --- 10 times
-        auto endLoc1Minus = m_propagator->propagateParameters(startLoc1Minus,
-                                                                     destinationSurface,
-                                                                     Trk::alongMomentum,
-                                                                     false,
-                                                                     *m_magFieldProperties);
+        auto endLoc1Minus = m_propagator->propagateParameters(ctx,
+                                                              startLoc1Minus,
+                                                              destinationSurface,
+                                                              Trk::alongMomentum,
+                                                              false,
+                                                              *m_magFieldProperties);
 
 
-        auto endLoc1Plus = m_propagator->propagateParameters(startLoc1Plus,
-                                                                     destinationSurface,
-                                                                     Trk::alongMomentum,
-                                                                     false,
-                                                                     *m_magFieldProperties);
+        auto endLoc1Plus = m_propagator->propagateParameters(ctx,
+                                                             startLoc1Plus,
+                                                             destinationSurface,
+                                                             Trk::alongMomentum,
+                                                             false,
+                                                             *m_magFieldProperties);
 
-        auto endLoc2Minus = m_propagator->propagateParameters(startLoc2Minus,
-                                                                     destinationSurface,
-                                                                     Trk::alongMomentum,
-                                                                     false,
-                                                                     *m_magFieldProperties);
+        auto endLoc2Minus = m_propagator->propagateParameters(ctx,
+                                                              startLoc2Minus,
+                                                              destinationSurface,
+                                                              Trk::alongMomentum,
+                                                              false,
+                                                              *m_magFieldProperties);
 
-        auto endLoc2Plus = m_propagator->propagateParameters(startLoc2Plus,
-                                                                      destinationSurface,
-                                                                      Trk::alongMomentum,
-                                                                      false,
-                                                                      *m_magFieldProperties);
+        auto endLoc2Plus = m_propagator->propagateParameters(ctx,
+                                                             startLoc2Plus,
+                                                             destinationSurface,
+                                                             Trk::alongMomentum,
+                                                             false,
+                                                             *m_magFieldProperties);
 
-        auto endPhiMinus = m_propagator->propagateParameters(startPhiMinus,
-                                                                     destinationSurface,
-                                                                     Trk::alongMomentum,
-                                                                     false,
-                                                                     *m_magFieldProperties);
+        auto endPhiMinus = m_propagator->propagateParameters(ctx,
+                                                             startPhiMinus,
+                                                             destinationSurface,
+                                                             Trk::alongMomentum,
+                                                             false,
+                                                             *m_magFieldProperties);
 
-        auto endPhiPlus = m_propagator->propagateParameters(startPhiPlus,
-                                                                      destinationSurface,
-                                                                      Trk::alongMomentum,
-                                                                      false,
-                                                                      *m_magFieldProperties);
+        auto endPhiPlus = m_propagator->propagateParameters(ctx,
+                                                            startPhiPlus,
+                                                            destinationSurface,
+                                                            Trk::alongMomentum,
+                                                            false,
+                                                            *m_magFieldProperties);
 
-        auto endThetaMinus = m_propagator->propagateParameters(startThetaMinus,
-                                                                     destinationSurface,
-                                                                     Trk::alongMomentum,
-                                                                     false,
-                                                                     *m_magFieldProperties);
+        auto endThetaMinus = m_propagator->propagateParameters(ctx,
+                                                               startThetaMinus,
+                                                               destinationSurface,
+                                                               Trk::alongMomentum,
+                                                               false,
+                                                               *m_magFieldProperties);
 
-        auto endThetaPlus = m_propagator->propagateParameters(startThetaPlus,
-                                                                      destinationSurface,
-                                                                      Trk::alongMomentum,
-                                                                      false,
-                                                                      *m_magFieldProperties);
+        auto endThetaPlus = m_propagator->propagateParameters(ctx,
+                                                              startThetaPlus,
+                                                              destinationSurface,
+                                                              Trk::alongMomentum,
+                                                              false,
+                                                              *m_magFieldProperties);
 
-        auto endQopMinus = m_propagator->propagateParameters(startQopMinus,
-                                                                     destinationSurface,
-                                                                     Trk::alongMomentum,
-                                                                     false,
-                                                                     *m_magFieldProperties);
+        auto endQopMinus = m_propagator->propagateParameters(ctx,
+                                                             startQopMinus,
+                                                             destinationSurface,
+                                                             Trk::alongMomentum,
+                                                             false,
+                                                             *m_magFieldProperties);
 
-        auto endQopPlus = m_propagator->propagateParameters(startQopPlus,
-                                                                      destinationSurface,
-                                                                      Trk::alongMomentum,
-                                                                      false,
-                                                                      *m_magFieldProperties);
+        auto endQopPlus = m_propagator->propagateParameters(ctx,
+                                                            startQopPlus,
+                                                            destinationSurface,
+                                                            Trk::alongMomentum,
+                                                            false,
+                                                            *m_magFieldProperties);
         if (endLoc1Minus
           && endLoc1Plus
           && endLoc2Minus

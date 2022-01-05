@@ -3663,6 +3663,7 @@ namespace Trk {
      */
     if (lastsistate->trackParameters() == nullptr) {
       std::unique_ptr<const TrackParameters> tmppar(m_propagator->propagateParameters(
+        ctx,
         *refpar,
         *lastsistate->surface(),
         alongMomentum, false,
@@ -4105,6 +4106,7 @@ namespace Trk {
           PropDirection propdir = alongMomentum;
     
           std::unique_ptr<const TrackParameters> layerpar(m_propagator->propagateParameters(
+            ctx,
             *prevtrackpars,
             calomeots[i].associatedSurface(), 
             propdir,
@@ -4163,6 +4165,7 @@ namespace Trk {
         for (int i = 0; i < (int) calomeots.size(); i++) {
           PropDirection propdir = oppositeMomentum;
           std::unique_ptr<const TrackParameters> layerpar(m_propagator->propagateParameters(
+            ctx,
             *prevtrackpars,
             calomeots[i].associatedSurface(), 
             propdir,
@@ -4311,6 +4314,7 @@ namespace Trk {
             );
           } else {
             std::unique_ptr<const TrackParameters> tmppar(m_propagator->propagateParameters(
+              ctx,
               *muonpar1,
               firstmuonhit->associatedSurface(),
               oppositeMomentum, 

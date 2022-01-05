@@ -511,7 +511,8 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
         ATH_MSG_WARNING("NO propagator!!");
         return FitterStatusCode::BadInput;
       }
-      lastPropagatedPar = propagator->propagate(*it->referenceParameters(),
+      lastPropagatedPar = propagator->propagate(Gaudi::Hive::currentContext(),
+                                                *it->referenceParameters(),
                                                 nextSurface,
                                                 Trk::anyDirection,
                                                 /*bcheck=*/ false,

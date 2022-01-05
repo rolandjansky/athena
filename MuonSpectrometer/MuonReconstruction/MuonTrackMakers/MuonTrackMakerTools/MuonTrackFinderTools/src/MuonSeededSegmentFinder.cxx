@@ -387,7 +387,8 @@ namespace Muon {
 
         // propagate segment parameters to first measurement
         // retain ownership; this code deleted the exPars before
-        auto exPars = m_propagator->propagate(pars, surf, Trk::anyDirection, false, m_magFieldProperties);
+        auto exPars = m_propagator->propagate(Gaudi::Hive::currentContext(),
+                                              pars, surf, Trk::anyDirection, false, m_magFieldProperties);
         if (!exPars) {
             ATH_MSG_DEBUG(" Propagation failed!! ");
             return nullptr;

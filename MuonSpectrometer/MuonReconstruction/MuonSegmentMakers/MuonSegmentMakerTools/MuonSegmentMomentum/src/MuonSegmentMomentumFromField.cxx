@@ -191,9 +191,11 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
       Trk::TransportJacobian *jac=nullptr;
       Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),
  	 		     bestseg->globalDirection().theta(),1/signedMomentum,bestseg->associatedSurface());
-      auto par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
-								      (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
-								      Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
+      auto par=m_propagator->propagateParameters(
+        Gaudi::Hive::currentContext(),
+        startpar,worstseg->associatedSurface(),
+        (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
+        Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
       ATH_MSG_DEBUG("par: " << par.get() << " jac: " << jac );
       if (par && jac && (*jac)(1,4)!=0){
         residual = worstseg->localParameters()[Trk::locY] - par->parameters()[Trk::locY];
@@ -346,9 +348,11 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),bestseg->globalDirection().theta(),
 			   1/signedMomentum,bestseg->associatedSurface());
     Trk::TransportJacobian *jac=nullptr;
-    auto par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
-								      (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
-								      Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
+    auto par=m_propagator->propagateParameters(
+      Gaudi::Hive::currentContext(),
+      startpar,worstseg->associatedSurface(),
+      (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
+      Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
     if (par && jac && (*jac)(1,4)!=0){
       double residual=worstseg->localParameters()[Trk::locY] - par->parameters()[Trk::locY];
       double delta_qoverp=residual/(*jac)(1,4);

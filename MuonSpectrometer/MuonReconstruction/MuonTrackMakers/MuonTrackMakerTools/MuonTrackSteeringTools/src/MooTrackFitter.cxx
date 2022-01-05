@@ -538,6 +538,8 @@ namespace Muon {
 
     bool MooTrackFitter::addFakePhiHits(MooTrackFitter::FitterData& fitterData, const Trk::TrackParameters* startpar,
                                         GarbageContainer& garbage) const {
+
+        const EventContext& ctx = Gaudi::Hive::currentContext();
         // check whether we have enough phi constraints
         unsigned nphiConstraints = hasPhiConstrain(fitterData);
 
@@ -625,7 +627,8 @@ namespace Muon {
                 Trk::AtaPlane segPars1(locx1, locy1, result.phiResult.segmentDirection1.phi(), result.phiResult.segmentDirection1.theta(),
                                        0., segInfo1->segment->associatedSurface());
                 // ownership retained, original code deleted exPars1
-                auto exPars1 = m_propagator->propagate(segPars1, fitterData.measurements.front()->associatedSurface(), Trk::anyDirection,
+                auto exPars1 = m_propagator->propagate(ctx,
+                                                       segPars1, fitterData.measurements.front()->associatedSurface(), Trk::anyDirection,
                                                        false, m_magFieldProperties);
                 if (exPars1) {
                     Amg::Vector3D position = exPars1->position();
@@ -647,7 +650,8 @@ namespace Muon {
                 Trk::AtaPlane segPars2(locx2, locy2, result.phiResult.segmentDirection2.phi(), result.phiResult.segmentDirection2.theta(),
                                        0., segInfo2->segment->associatedSurface());
                 // ownership retained
-                auto exPars2 = m_propagator->propagate(segPars2, fitterData.measurements.back()->associatedSurface(), Trk::anyDirection,
+                auto exPars2 = m_propagator->propagate(ctx,
+                                                       segPars2, fitterData.measurements.back()->associatedSurface(), Trk::anyDirection,
                                                        false, m_magFieldProperties);
                 if (exPars2) {
                     Amg::Vector3D position = exPars2->position();
@@ -806,7 +810,7 @@ namespace Muon {
                         mdtpar.reset(lastmdtpar->clone());
                     else
                         mdtpar =
-                            m_propagator->propagateParameters(*startpar, *lastmdtsurf, Trk::alongMomentum, false, m_magFieldProperties);
+                            m_propagator->propagateParameters(ctx,*startpar, *lastmdtsurf, Trk::alongMomentum, false, m_magFieldProperties);
                     if (mdtpar) {
                         Amg::MatrixX cov(1, 1);
                         cov(0, 0) = 100.;
@@ -831,7 +835,7 @@ namespace Muon {
                 if (phifromextrapolation) {
                     // lifetime of mdtpar managed here
                     auto mdtpar =
-                        m_propagator->propagateParameters(*startpar, *firstmdtsurf, Trk::oppositeMomentum, false, m_magFieldProperties);
+                        m_propagator->propagateParameters(ctx,*startpar, *firstmdtsurf, Trk::oppositeMomentum, false, m_magFieldProperties);
                     if (mdtpar) {
                         Amg::MatrixX cov(1, 1);
                         cov(0, 0) = 100.;
@@ -1686,7 +1690,8 @@ namespace Muon {
         if (m_seedAtStartOfTrack) {
             // not sure whats going on with ownership here, so let this code take care of it
             exPars =
-                m_propagator->propagate(firstPars, firstMeas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties).release();
+                m_propagator->propagate(Gaudi::Hive::currentContext(),
+                                        firstPars, firstMeas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties).release();
             if (!exPars) {
                 ATH_MSG_DEBUG(" Propagation failed in createPerigee!! ");
                 return nullptr;

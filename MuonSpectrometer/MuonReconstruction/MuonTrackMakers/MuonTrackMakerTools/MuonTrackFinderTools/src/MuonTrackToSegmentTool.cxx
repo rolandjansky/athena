@@ -162,7 +162,8 @@ namespace Muon {
         Trk::PlaneSurface* surf = new Trk::PlaneSurface(transform, surfDim, surfDim);
         delete surfaceTransformToBeDeleted;
         // lifetime of exPars is managed in this scope
-        auto exPars = m_propagator->propagate(*closestPars, *surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum, false,
+        auto exPars = m_propagator->propagate(ctx,
+                                              *closestPars, *surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum, false,
                                               Trk::MagneticFieldProperties(Trk::NoField));
         if (!exPars || !exPars->covariance()) {
             ATH_MSG_DEBUG(" propagation failed!!! ");

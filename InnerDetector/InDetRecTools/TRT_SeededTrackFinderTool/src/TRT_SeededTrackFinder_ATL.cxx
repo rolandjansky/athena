@@ -656,7 +656,8 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     const Trk::PerigeeSurface persurf (Amg::Vector3D(0,0,0));
 
     //Get track parameters at the end of SCT to start backwards propagation
-    auto per   = m_proptool->propagate(*upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
+    auto per   = m_proptool->propagate(ctx,
+                                       *upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate
     if(!per){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No extrapolated track parameters!"<<endmsg;
       delete niTP;
@@ -767,7 +768,8 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(MagField::AtlasFieldCache& fieldCache, c
   const Trk::Surface&               surf  = SP->associatedSurface(); //Get the associated surface
   Trk::PropDirection                dir   = Trk::oppositeMomentum;   //Propagate backwards i.e. opposite momentum when filtering
   Trk::ParticleHypothesis           part  = Trk::nonInteracting;     //Choose a non interacting particle
-  auto       eTP   = m_proptool->propagate(*startTP,surf,dir,false,m_fieldprop,part); //Propagate
+  auto       eTP   = m_proptool->propagate(Gaudi::Hive::currentContext(),
+                                           *startTP,surf,dir,false,m_fieldprop,part); //Propagate
 
   if(!eTP){
 

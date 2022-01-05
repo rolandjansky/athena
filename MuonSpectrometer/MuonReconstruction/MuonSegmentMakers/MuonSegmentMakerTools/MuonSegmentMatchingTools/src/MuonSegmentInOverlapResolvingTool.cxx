@@ -516,7 +516,13 @@ MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegmen
 
         // propagate station parameters to segment
         std::unique_ptr<const Trk::TrackParameters> exPars {
-            m_propagator->propagate(segPars, measSurf, Trk::anyDirection, false, m_magFieldProperties)};
+            m_propagator->propagate(
+              Gaudi::Hive::currentContext(),
+              segPars, 
+              measSurf, 
+              Trk::anyDirection, 
+              false, 
+              m_magFieldProperties)};
         if (!exPars) {
             ATH_MSG_WARNING("  Failed to propagate parameter to segment surface" << std::endl
                                                                                  << " pars "
