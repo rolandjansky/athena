@@ -2,7 +2,7 @@
 
 def defineMenu():
 
-    import TriggerMenuMT.L1.Menu.Menu_MC_pp_v8 as mc_menu
+    import TriggerMenuMT.L1.Menu.Menu_MC_pp_run3_v1 as mc_menu
     from TriggerMenuMT.L1.Base.L1MenuFlags import L1MenuFlags
 
     mc_menu.defineMenu()
