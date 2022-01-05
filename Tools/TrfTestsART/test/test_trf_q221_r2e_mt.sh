@@ -14,6 +14,7 @@ Reco_tf.py \
 --triggerConfig "RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2233,87,314" \
 --asetup "RDOtoRDOTrigger:Athena,21.0,latest" \
 --imf="False" \
+--postExec 'FPEAuditor.NStacktracesOnFPE=10' \
 --maxEvents 1000
 
 rc1=$?

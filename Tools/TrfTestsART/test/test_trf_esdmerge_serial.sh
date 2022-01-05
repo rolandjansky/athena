@@ -13,6 +13,7 @@ ESDMerge_tf.py \
     --geometryVersion="all:ATLAS-R2-2016-01-00-01" \
     --runNumber="358031" \
     --outputESD_MRGFile="DESDM_MCP.pool.root" \
+    --postExec 'FPEAuditor.NStacktracesOnFPE=10' \
     --AMITag="p4756" 
 
 rc1=$?
