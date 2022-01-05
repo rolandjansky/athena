@@ -14,6 +14,8 @@
 #include "TEnv.h"
 #include "THashList.h"
 
+// System include(s)
+#include <atomic>
 
 using namespace TauAnalysisTools;
 
@@ -400,7 +402,19 @@ TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
   }
   catch (const std::runtime_error& error)
   {
-    ATH_MSG_ERROR(error.what());
+    // LEGACY: In practical terms this should probably just throw, not
+    // print a warning/error and then continue on.  However, I leave
+    // that to the experts who probably had a reason not to let the
+    // exception escape.  For now I just downgraded it from error to
+    // warning and limited the number of warnings (04 Jan 22).
+    static std::atomic<uint64_t> warning_count (0u);
+    auto mycount = ++ warning_count;
+    if (mycount < 10u)
+    {
+      ATH_MSG_WARNING(error.what());
+      if (mycount == 9u)
+        ATH_MSG_WARNING ("this is your last warning");
+    }
   }
 
   // fill main distributions after all cuts
