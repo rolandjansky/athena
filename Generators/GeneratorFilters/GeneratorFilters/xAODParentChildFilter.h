@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 #ifndef GENERATORFILTERSXAODPARENTCHILDFILTER_H
 #define GENERATORFILTERSXAODPARENTCHILDFILTER_H
@@ -32,10 +32,6 @@ private:
   Gaudi::Property<double> m_PtMinChild{this,"PtMinChild",0.,"Min child Pt"};
   Gaudi::Property<double> m_EtaRangeChild{this,"EtaRangeChild",0.,"Child eta range"};
 
-  double m_EtaMinParent;
-  double m_RapidityRangeParent;
-  double m_RapidityMinParent;
- 
 
   /** calculate the rapidity of a particle */
   inline double getRapidity(HepMC::GenParticle*& p) {
