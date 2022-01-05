@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( APRTests )
@@ -39,7 +39,7 @@ function( _add_test name )
       INCLUDE_DIRS ${CPPUNIT_INCLUDE_DIRS}
       LINK_LIBRARIES ${CPPUNIT_LIBRARIES} PersistencySvc TestTools
       StorageSvc AthContainers  FileCatalog
-      PersistentDataModel TestTools
+      PersistentDataModel TestTools AthenaKernel
       # Need to explicitly link against ROOT libraries to suppress
       # spurious ubsan warnings.
       ${ROOT_LIBRARIES}
