@@ -13,6 +13,7 @@ from .MenuAlignmentTools import MenuAlignment
 from ..CommonSequences import EventBuildingSequences, TLABuildingSequences
 from .ComboHypoHandling import addTopoInfo, comboConfigurator, topoLegIndices
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
@@ -213,7 +214,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         return 
 
 
-    def generateAllChainConfigs(self):
+    def generateAllChainConfigs(self, flags):
         """
         == Obtains chain configs for all chains in menu
         """
@@ -226,6 +227,11 @@ class GenerateMenuMT(object, metaclass=Singleton):
         log.info("Will now get chain dictionaries for each chain")
         self.getChainDicts()
         
+        if flags.Trigger.disableCPS:
+            log.warning('Removing all CPS group because the flag Trigger.disableCPS is set')
+            for chainDict in self.chainDicts:
+                chainDict['groups'] = [g for g in chainDict['groups'] if not g.startswith('RATE:CPS_')]
+
         #import the necessary signatures
         log.info("Importing the necessary signatures")
         self.importSignaturesToGenerate()
@@ -467,7 +473,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         return chainConfigs 
  
 
-    def generateMT(self):
+    def generateMT(self, flags=ConfigFlags):
         """
         == Main function of the class which generates L1, L1Topo and HLT menu
         """
@@ -476,7 +482,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
         # --------------------------------------------------------------------
         # HLT menu generation
         # --------------------------------------------------------------------
-        finalListOfChainConfigs = self.generateAllChainConfigs()
+        finalListOfChainConfigs = self.generateAllChainConfigs(flags)
         log.info("Length of FinalListofChainConfigs %s", len(finalListOfChainConfigs))
  
         # make sure that we didn't generate any steps that are fully empty in all chains

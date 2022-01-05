@@ -2,6 +2,7 @@
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from HLTSeeding.HLTSeedingConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 from TriggerMenuMT.HLT.Menu.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
@@ -49,7 +50,7 @@ def generateEmuMenu():
 
     # Generate the menu
     menu = GenerateMenuMT()
-    menu.generateAllChainConfigs()
+    menu.generateAllChainConfigs(ConfigFlags)
     #menu.generateMT()
 
 

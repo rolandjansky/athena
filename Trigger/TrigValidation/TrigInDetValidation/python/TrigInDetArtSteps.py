@@ -142,6 +142,8 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
+        # disable CPS which may otherwise conflict with the selectChains option (ATR-24744)
+        self.preexec_trig += ';from AthenaConfiguration.AllConfigFlags import ConfigFlags;ConfigFlags.Trigger.disableCPS=True'
         
         AVERSION = ""
         # temporary hack until we get to the bottom of why the tests are really failing
