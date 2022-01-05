@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
  
 #include "InDetSecVxFinderTool/JetFitterV0FinderTool.h"
@@ -8,6 +8,7 @@
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
+#include "InDetVKalVxInJetTool/InDetMaterialVeto.h"
 
 using namespace InDet;
 
@@ -41,6 +42,15 @@ StatusCode JetFitterV0FinderTool::initialize() {
   if ( m_mode3dfinder.retrieve().isFailure() ) {
     ATH_MSG_ERROR( "Cannot retrieve Trk::Mode3dTo1dFinder/Mode3dTo1dFinder" );
     return StatusCode::FAILURE;
+  }
+
+  if(m_useITkMaterialRejection){
+    ATH_CHECK(detStore()->retrieve(m_beamPipeMgr, "BeamPipe"));
+    ATH_CHECK(detStore()->retrieve(m_pixelManager, "ITkPixel"));
+
+    InDetMaterialVeto matVeto(m_beamPipeMgr, m_pixelManager);
+
+    m_ITkPixMaterialMap = matVeto.ITkPixMaterialMap();
   }
 
   return StatusCode::SUCCESS;
@@ -288,25 +298,21 @@ bool JetFitterV0FinderTool::checkCriteriaFirstFit( const xAOD::Vertex& primaryVe
 
   ATH_MSG_DEBUG( "Checking material interaction in layer..." );
   double radius = v0candidate.position().perp();
-  int interactiontype=-1;
+  double z = v0candidate.position().z();
+  bool matinteraction = false;
 
-  if ( (radius > m_firstBeam_min ) && 
-       (radius < m_firstBeam_max) ) {
-    interactiontype=0;
-  } else if ( (radius > m_secondBeam_min ) && 
-	      ( radius < m_secondBeam_max ) ) {
-    interactiontype=1;
-  } else if ( ( radius > m_firstLayer_min ) && 
-	      ( radius < m_firstLayer_max ) ) {
-    interactiontype=2;
-  } else if ( (radius > m_secondLayer_min ) && 
-	      ( radius < m_secondLayer_max ) ) {
-    interactiontype=3;
+  if(m_useITkMaterialRejection){
+    int bin = m_ITkPixMaterialMap->FindBin(z,radius);
+    if(m_ITkPixMaterialMap->GetBinContent(bin)>0) matinteraction = true;
   }
 
+  else{
+    if ( (radius>m_firstLayer_min && radius<m_firstLayer_max)
+	 || (radius>m_secondLayer_min && radius<m_secondLayer_max) )
+      matinteraction = true;
+  }
 
-
-  if ( interactiontype == 2 || interactiontype == 3 ) {
+  if ( matinteraction ) {
     bool signifCutTight = ( TMath::Prob( fabs( compatibiltyTrackA ),2 ) < m_cutCompatibilityToPrimarySingleTrackForMatInteractions ) &&
       ( TMath::Prob( fabs( compatibiltyTrackB ),2 ) < m_cutCompatibilityToPrimarySingleTrackForMatInteractions ) &&
       ( TMath::Prob( fabs( compatibiltyTrackA ) + fabs( compatibiltyTrackB ),4 ) < m_cutCompatibilityToPrimaryBothTracksForMatInteractions );

@@ -40,6 +40,7 @@ def InDetVKalVxInJetToolCfg(ConfigFlags, name, MSV = False, useBTagFlagsDefaults
             acc.merge(IDEtaDependentCuts_SV1_SvcCfg(ConfigFlags, name="IDEtaDepCutsSvc_" + name))
             options.setdefault("InDetEtaDependentCutsSvc", acc.getService("IDEtaDepCutsSvc_" + name))
             options.setdefault("useVertexCleaningPix", False) # Would use hardcoded InDet Pixel geometry
+            options.setdefault("useITkMaterialRejection", True)
 
     options['name'] = name
     acc.setPrivateTools(InDet__InDetVKalVxInJetTool(**options))
