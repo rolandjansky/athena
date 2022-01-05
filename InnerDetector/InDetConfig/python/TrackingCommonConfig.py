@@ -743,7 +743,7 @@ def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
     if flags.InDet.doRobustReco or flags.Beam.Type == 'cosmics':
         kwargs.setdefault('MaxOutliers', 99)
 
-    if flags.Beam.Type == 'cosmics' or flags.InDet.doBeamHalo:
+    if flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamHalo:
         kwargs.setdefault('Acceleration', False)
 
     if flags.InDet.materialInteractions and not flags.BField.solenoidOn:
@@ -838,8 +838,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     kwargs.setdefault("TRTTubeHitCut", 1.75)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives",
-                      flags.InDet.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.doBeamHalo)
+    kwargs.setdefault("RecalculateDerivatives", flags.InDet.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamHalo)
     kwargs.setdefault("TRTExtensionCuts", True)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 
@@ -1047,7 +1046,7 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
     kwargs.setdefault("ScaleHitUncertainty", 2)
     kwargs.setdefault("RoadWidth", 20.)
     kwargs.setdefault("UseParameterization", flags.InDet.Tracking.Pass.useParameterizedTRTCuts)
-    kwargs.setdefault("maxImpactParameter", 500 if flags.InDet.doBeamHalo or flags.InDet.doBeamGas else 50 )  # single beam running, open cuts
+    kwargs.setdefault("maxImpactParameter", 500 if flags.InDet.Tracking.doBeamHalo or flags.InDet.Tracking.doBeamGas else 50 )  # single beam running, open cuts
 
     if flags.InDet.Tracking.Pass.RoISeededBackTracking:
         kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.Pass.minSecondaryPt)
@@ -1174,7 +1173,7 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
         InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
-    have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
+    have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois:
         alg = acc.getPrimaryAndMerge(ROIInfoVecAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )
@@ -1352,7 +1351,7 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     acc = ComponentAccumulator()
     the_name=makeName(name,kwargs)
 
-    have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
+    have_calo_rois = flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo
     if have_calo_rois :
         alg = acc.popToolsAndMerge(ROIInfoVecAlgCfg(flags))
         kwargs.setdefault("CaloROIInfoName", alg.WriteKey )

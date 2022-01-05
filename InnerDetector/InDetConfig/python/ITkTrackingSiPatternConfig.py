@@ -490,10 +490,11 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
 
     else:
         acc.merge(ITkTrkAmbiguityScoreCfg( flags,
-                                           SiSPSeededTrackCollectionKey=SiSPSeededTrackCollectionKey))
+                                           SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
 
         acc.merge(ITkTrkAmbiguitySolverCfg(flags,
-                                           ResolvedTrackCollectionKey=ResolvedTrackCollectionKey))
+                                           ResolvedTrackCollectionKey = ResolvedTrackCollectionKey,
+                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
 
     return acc
 

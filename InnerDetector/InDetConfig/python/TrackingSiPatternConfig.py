@@ -201,11 +201,14 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("useSSSseedsFilter", flags.InDet.doSSSfilter)
     kwargs.setdefault("doMultiTracksProd", True)
     kwargs.setdefault("useBremModel", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "" and flags.Detector.EnableCalo)
-    kwargs.setdefault("doCaloSeededBrem", flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo)
+    kwargs.setdefault("doCaloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
         from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
         acc.merge(CaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.doHadCaloSeededSSS and flags.Detector.EnableCalo)
+    kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.Tracking.doHadCaloSeededSSS and flags.Detector.EnableCalo)
+    if kwargs["doHadCaloSeedSSS"]:
+        from InDetConfig.InDetRecCaloSeededROISelectionConfig import HadCaloClusterROI_SelectorCfg
+        acc.merge(HadCaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("phiWidth", flags.InDet.Tracking.Pass.phiWidthBrem)
     kwargs.setdefault("etaWidth", flags.InDet.Tracking.Pass.etaWidthBrem)
     kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer()
@@ -354,14 +357,14 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 8)  #Minimum number of Si hits to allow splittings for tracks in ROI
         kwargs.setdefault("phiWidth"                  , 0.05)     #Split cluster ROI size
         kwargs.setdefault("etaWidth"                  , 0.05)     #Split cluster ROI size
-        kwargs.setdefault("doEmCaloSeed"              , flags.InDet.doCaloSeededAmbi)   #Only split in cluster in region of interest
+        kwargs.setdefault("doEmCaloSeed"              , flags.InDet.Tracking.doCaloSeededAmbi and flags.Detector.EnableCalo)   #Only split in cluster in region of interest
         kwargs.setdefault("InputEmClusterContainerName", 'InDetCaloClusterROIs')
-        if flags.InDet.doCaloSeededAmbi:
+        if flags.InDet.Tracking.doCaloSeededAmbi:
             from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
             acc.merge(CaloClusterROI_SelectorCfg(flags))
-        kwargs.setdefault("doHadCaloSeed"             , flags.InDet.doCaloSeededAmbi)   #Do special cuts in region of interest
+        kwargs.setdefault("doHadCaloSeed"             , flags.InDet.Tracking.doCaloSeededAmbi)   #Do special cuts in region of interest
         kwargs.setdefault("InputHadClusterContainerName", "InDetHadCaloClusterROIs" + "Bjet")
-        if flags.InDet.doCaloSeededAmbi:
+        if flags.InDet.Tracking.doCaloSeededAmbi:
             from InDetConfig.InDetRecCaloSeededROISelectionConfig import HadCaloClusterROI_SelectorCfg
             acc.merge(HadCaloClusterROI_SelectorCfg(flags))
         kwargs.setdefault("minPtConv"                 , 10000)   #Only allow split clusters on track withe pt greater than this MeV
@@ -495,7 +498,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
     kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "")
-    kwargs.setdefault("caloSeededBrem", flags.InDet.doCaloSeededBrem and flags.InDet.Tracking.Pass.extension != "DBM")
+    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.Pass.extension == "")
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
     kwargs.setdefault("KeepHolesFromBeforeRefit", flags.InDet.useHolesFromPattern)
@@ -541,7 +544,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
     kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "")
-    kwargs.setdefault("caloSeededBrem", flags.InDet.doCaloSeededBrem and flags.InDet.Tracking.Pass.extension != "DBM")
+    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.Pass.extension == "")
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
     kwargs.setdefault("MatEffects", flags.InDet.materialInteractionsType if flags.InDet.materialInteractions else 0)
@@ -631,10 +634,11 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
         # --- load InnerDetector TrackSelectionTool
         #
         acc.merge(TrkAmbiguityScoreCfg( flags,
-                                        SiSPSeededTrackCollectionKey=SiSPSeededTrackCollectionKey))
+                                        SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
 
         acc.merge(TrkAmbiguitySolverCfg(flags,
-                                        ResolvedTrackCollectionKey=ResolvedTrackCollectionKey))
+                                        ResolvedTrackCollectionKey = ResolvedTrackCollectionKey,
+                                        ClusterSplitProbContainer = ClusterSplitProbContainer))
 
     return acc
 

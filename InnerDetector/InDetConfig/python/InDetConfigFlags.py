@@ -24,13 +24,13 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.storeSeparateLargeD0Container", True)
   icf.addFlag("InDet.Tracking.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
   icf.addFlag("InDet.Tracking.doBremRecovery", True) # Turn on running of Brem Recover in tracking
+  icf.addFlag("InDet.Tracking.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
+  icf.addFlag("InDet.Tracking.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
+  icf.addFlag("InDet.Tracking.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
 
-  icf.addFlag("InDet.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
-  icf.addFlag("InDet.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
-  icf.addFlag("InDet.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
-  icf.addFlag("InDet.doCaloSeededRefit", False) # Use Calo ROIs to seed refif for the ambi processor
-  icf.addFlag("InDet.doBeamGas", False) # Turn running of BeamGas second pass on and off
-  icf.addFlag("InDet.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
+  icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
+  icf.addFlag("InDet.Tracking.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
+
   icf.addFlag("InDet.doHeavyIon", False) # Turn running of HeavyIons on and off
   icf.addFlag("InDet.keepParameters", True) # Keep extra parameters on slimmed tracks False to drop them
   icf.addFlag("InDet.keepFirstParameters", False) # Keep the first set of track parameters in addition to the defining ones for TrackParticles. False to drop them
