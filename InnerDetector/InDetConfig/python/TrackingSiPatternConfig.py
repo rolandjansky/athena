@@ -149,7 +149,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     kwargs.setdefault("PixelClusterContainer", "PixelClusters")
     kwargs.setdefault("SCT_ClusterContainer", "SCT_Clusters")
 
-    if flags.InDet.Tracking.extension == "":
+    if flags.InDet.Tracking.Pass.extension == "":
         kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
 
     if flags.Detector.EnablePixel:
@@ -424,7 +424,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityS
         kwargs.setdefault("SplitClusterMap_new", f"SplitClusterAmbiguityMap{flags.InDet.Tracking.Pass.extension}")
 
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", f"SplitProb{flags.InDet.Tracking.extension}")
+    kwargs.setdefault("OutputClusterSplitProbabilityName", f"SplitProb{flags.InDet.Tracking.Pass.extension}")
 
     ScoreProcessorTool = CompFactory.Trk.DenseEnvironmentsAmbiguityScoreProcessorTool
     acc.setPrivateTools(ScoreProcessorTool(f"{name}{flags.InDet.Tracking.Pass.extension}", **kwargs))
@@ -446,7 +446,6 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
 
     fitter_args = {}
     fitter_args.setdefault("nameSuffix", 'Ambi'+flags.InDet.Tracking.Pass.extension)
-    fitter_args.setdefault("SplitClusterMapExtension", flags.InDet.Tracking.Pass.extension)
     fitter_args.setdefault("ClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
 
     if True: #flags.InDet.holeSearchInGX2Fit:
@@ -466,12 +465,10 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
 
     if flags.InDet.doRefitInvalidCov: 
         if not flags.InDet.Tracking.Pass.extension=="":
-            fitter_args = {}
-            fitter_args.setdefault("SplitClusterMapExtension", flags.InDet.Tracking.Pass.extension)
-            KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags, name='KalmanFitter'+flags.InDet.Tracking.Pass.extension, **fitter_args))
+            KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags, name='KalmanFitter'+flags.InDet.Tracking.Pass.extension))
             fitter_list.append(KalmanFitter)
 
-            ReferenceKalmanFitter = acc.popToolsAndMerge(TC.ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter'+flags.InDet.Tracking.Pass.extension, **fitter_args))
+            ReferenceKalmanFitter = acc.popToolsAndMerge(TC.ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter'+flags.InDet.Tracking.Pass.extension))
             fitter_list.append(ReferenceKalmanFitter)
         else:
             KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags))

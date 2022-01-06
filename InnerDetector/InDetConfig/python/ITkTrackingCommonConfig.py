@@ -69,13 +69,13 @@ def ITkPixelClusterOnTrackToolBaseCfg(flags, name="ITkPixelClusterOnTrackTool", 
     from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelOfflineCalibCondAlgCfg
     acc.merge(ITkPixelOfflineCalibCondAlgCfg(flags))
 
-    split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
     if (flags.Beam.Type == "cosmics"):
         kwargs.setdefault("ErrorStrategy", 0)
         kwargs.setdefault("PositionStrategy", 0)
 
     kwargs.setdefault("applyNNcorrection", False )
-    kwargs.setdefault("SplitClusterAmbiguityMap", 'SplitClusterAmbiguityMap' + split_cluster_map_extension )
+    split_cluster_map_extension = flags.ITk.Tracking.Pass.extension if flags.ITk.Tracking.Pass.useTIDE_Ambi else ""
+    kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
     kwargs.setdefault("RunningTIDE_Ambi", True )
 
     kwargs.setdefault("PixelErrorScalingKey", "")
@@ -185,7 +185,7 @@ def ITk_RIO_OnTrackErrorScalingCondAlgCfg(flags, **kwargs):
 
 def ITkRotCreatorCfg(flags, name='ITkRotCreator', **kwargs):
     acc = ComponentAccumulator()
-    strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix']
+    strip_args=['ClusterSplitProbabilityName','nameSuffix']
     pix_cluster_on_track_args = copyArgs(kwargs,strip_args)
     the_name = makeName(name, kwargs)
 
@@ -304,7 +304,7 @@ def ITkMultipleScatteringUpdatorCfg(flags, name = "ITkMultipleScatteringUpdator"
 def ITkMeasRecalibSTCfg(flags, name='ITkMeasRecalibST', **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['ClusterSplitProbabilityName','nameSuffix'])
 
     if 'BroadPixelClusterOnTrackTool' not in kwargs :
         ITkBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkBroadPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
@@ -325,7 +325,7 @@ def ITkMeasRecalibSTCfg(flags, name='ITkMeasRecalibST', **kwargs) :
 def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase',**kwargs) :
     acc = ComponentAccumulator()
     nameSuffix=kwargs.pop('nameSuffix','')
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['ClusterSplitProbabilityName'])
     if len(pix_cluster_on_track_args)>0 and len(nameSuffix)>0 :
         pix_cluster_on_track_args['nameSuffix']=nameSuffix
 
@@ -457,7 +457,7 @@ def ITkBroadRotCreatorCfg(flags, name='ITkBroadRotCreator', **kwargs) :
     acc = ComponentAccumulator()
 
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['ClusterSplitProbabilityName','nameSuffix'])
         ITkBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(ITkBroadPixelClusterOnTrackToolCfg(flags, **pix_cluster_on_track_args))
         kwargs.setdefault('ToolPixelCluster', ITkBroadPixelClusterOnTrackTool)
 
@@ -527,7 +527,7 @@ def ITkReferenceKalmanFitterCfg(flags, name='ITkReferenceKalmanFitter',**kwargs)
 def ITkDistributedKalmanFilterCfg(flags, name="ITkDistributedKalmanFilter", **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['ClusterSplitProbabilityName','nameSuffix'])
 
     if 'ExtrapolatorTool' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
@@ -544,7 +544,7 @@ def ITkDistributedKalmanFilterCfg(flags, name="ITkDistributedKalmanFilter", **kw
 def ITkGlobalChi2FitterCfg(flags, name='ITkGlobalChi2Fitter', **kwargs) :
     acc = ComponentAccumulator()
 
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+    pix_cluster_on_track_args = stripArgs(kwargs,['ClusterSplitProbabilityName','nameSuffix'])
 
     if 'RotCreatorTool' not in kwargs :
         ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, **pix_cluster_on_track_args))
@@ -571,7 +571,6 @@ def ITkGaussianSumFitterCfg(flags, name="ITkGaussianSumFitter", **kwargs):
     pix_cluster_on_track_args = stripArgs(
         kwargs,
         [
-            "SplitClusterMapExtension",
             "ClusterSplitProbabilityName",
             "nameSuffix",
         ],
@@ -678,7 +677,7 @@ def ITkKOLCfg(flags, name = 'ITkKOL', **kwargs):
 def ITkRotCreatorDigitalCfg(flags, name='ITkRotCreatorDigital', **kwargs) :
     acc = ComponentAccumulator()
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['ClusterSplitProbabilityName','nameSuffix'])
 
         ToolPixelCluster = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolDigitalCfg(flags, **pix_cluster_on_track_args))
         kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)

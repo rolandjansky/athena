@@ -367,7 +367,6 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
 
     fitter_args = {}
     fitter_args.setdefault("nameSuffix", 'Ambi'+flags.ITk.Tracking.Pass.extension)
-    fitter_args.setdefault("SplitClusterMapExtension", flags.ITk.Tracking.Pass.extension)
     fitter_args.setdefault("ClusterSplitProbabilityName", 'ITkAmbiguityProcessorSplitProb'+flags.ITk.Tracking.Pass.extension)
 
     fitter_args.setdefault("DoHoleSearch", True)
