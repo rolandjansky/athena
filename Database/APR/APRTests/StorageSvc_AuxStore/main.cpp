@@ -1,13 +1,16 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <exception>
 #include "TestDriver.h"
 #include "TestTools/initGaudi.h"
+#include "AthenaKernel/errorcheck.h"
 
 int main( int argc, char** argv ) {
+  errorcheck::ReportMessage::hideFunctionNames (true);
+
   ISvcLocator* svcloc = nullptr;
   if (!Athena_test::initGaudi (svcloc)) std::abort();
   try {
