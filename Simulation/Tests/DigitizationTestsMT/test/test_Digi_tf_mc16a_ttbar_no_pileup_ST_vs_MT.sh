@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run digitization of an MC16a ttbar sample with 2016 geometry and conditions, without pile-up using Athena and AthenaMT
 # art-type: grid
@@ -26,11 +26,11 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo  "art-result: $rc MTdigi"
+echo "art-result: $rc MTdigi"
 mv log.HITtoRDO log.HITtoRDO_MT
 
 rc2=-9999
-if [ $rc -eq 0 ]
+if [[ $rc -eq 0 ]]
 then
     Digi_tf.py \
     --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1 \
@@ -47,7 +47,7 @@ then
     rc2=$?
     status=$rc2
 fi
-echo  "art-result: $rc2 STdigi"
+echo "art-result: $rc2 STdigi"
 
 rc3=-9999
 if [ $rc2 -eq 0 ]
@@ -56,17 +56,15 @@ then
     rc3=$?
     status=$rc3
 fi
-echo  "art-result: $rc3 comparison"
+echo "art-result: $rc3 comparison"
 
 rc4=-9999
 if [ $rc2 -eq 0 ]
 then
-    ArtPackage=$1
-    ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
+    art.py compare grid --entries 10 "$1" "$2" --mode=semi-detailed --order-trees
     rc4=$?
     status=$rc4
 fi
-echo  "art-result: $rc4 regression"
+echo "art-result: $rc4 regression"
 
 exit $status
