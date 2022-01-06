@@ -77,7 +77,6 @@ class TrigInDetReco(ExecStep):
         flags = ''
         for i in self.slices:
             if (i=='L2muonLRT') :
-                chains += "'HLT_mu26_L1MU14FCH'," # needed to avoid ERROR CPS group RATE:CPS_MU14FCH contains too few chains
                 chains += "'HLT_mu24_LRT_idperf_L1MU14FCH',"
                 chains += "'HLT_mu6_LRT_idperf_L1MU5VF',"
                 chains += "'HLT_mu6_idperf_L1MU5VF',"

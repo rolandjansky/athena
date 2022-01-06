@@ -419,12 +419,9 @@ void TrigTrackSelector::selectTracks( const xAOD::TruthParticleContainer* trutht
 
     // select based on the pdg of the parent or ancestor
     bool gotParentPdgId = true;
-    if (gotPdgId && m_selectParentPdgId!=0) {
-      gotParentPdgId = fromParent(m_selectParentPdgId, (*trackitr))!=nullptr;
-      if ( gotParentPdgId && gotPdgId) {
-	selectTrack( *trackitr, x0, y0);
-      }
-    }
+    if (gotPdgId && m_selectParentPdgId!=0) gotParentPdgId = fromParent(m_selectParentPdgId, (*trackitr))!=nullptr;
+
+    if ( gotParentPdgId && gotPdgId) selectTrack( *trackitr, x0, y0);
 
   } // loop over tracks
     
