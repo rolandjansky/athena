@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EXPRESSION_EVALUATOR_H
@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <map>
+
+namespace AGDD {
 
 typedef std::map< std::string, double> ConstantsTable;
 typedef std::map< std::string, double> PhysicalConstantsTable;
@@ -49,5 +51,7 @@ private:
   	std::vector<std::string> m_real_vars;
 };
 
-#endif // GDML_EXPRESSION_EVALUATOR_H
+} // namespace AGDD
+
+#endif // EXPRESSION_EVALUATOR_H
 
