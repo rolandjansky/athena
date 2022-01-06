@@ -68,7 +68,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
             kwargs.setdefault("maxSizeSP", 200)
             kwargs.setdefault("dImpactCutSlopeUnconfirmedSSS", 1.25)
             kwargs.setdefault("dImpactCutSlopeUnconfirmedPPP", 2.0)
-        
+
     if flags.InDet.Tracking.extension == "R3LargeD0":
         kwargs.setdefault("optimisePhiBinning", False)
         kwargs.setdefault("usePixel", False)
@@ -110,9 +110,9 @@ def SiZvertexMaker_xkCfg(flags, name="InDetZvertexMaker", InputCollections = Non
     kwargs.setdefault("Zmax", flags.InDet.Tracking.maxZImpact)
     kwargs.setdefault("Zmin", -flags.InDet.Tracking.maxZImpact)
     kwargs.setdefault("minRatio", 0.17)
-    
-    InDetSiSpacePointsSeedMaker = acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags, 
-                                                                                 InputCollections = InputCollections ))
+
+    InDetSiSpacePointsSeedMaker = acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags,
+                                                                                 InputCollections=InputCollections))
 
     kwargs.setdefault("SeedMakerTool", InDetSiSpacePointsSeedMaker)
     if flags.InDet.doHeavyIon:
@@ -147,41 +147,44 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     # --- Local track finding using sdCaloSeededSSSpace point seed
     #
     # @TODO ensure that PRD association map is used if usePrdAssociationTool is set
-    is_dbm = flags.InDet.doDBMstandalone or flags.InDet.Tracking.extension == 'DBM'
-    if not is_dbm:
-        rot_creator_digital = acc.popToolsAndMerge(TC.InDetRotCreatorDigitalCfg(flags))
+    dbmMode = flags.InDet.doDBMstandalone or flags.InDet.Tracking.extension == 'DBM'
+    if dbmMode:
+        RotCreator = acc.popToolsAndMerge(TC.InDetRotCreatorDBMCfg(flags))
     else:
-        rot_creator_digital = acc.popToolsAndMerge(TC.InDetRotCreatorDBMCfg(flags))
+        RotCreator = acc.popToolsAndMerge(TC.InDetRotCreatorDigitalCfg(flags))
 
-    acc.addPublicTool(rot_creator_digital)
+    acc.addPublicTool(RotCreator)
+    kwargs.setdefault("RIOonTrackTool", RotCreator)
 
-    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
-    InDetPatternUpdator = acc.getPrimaryAndMerge(TC.InDetPatternUpdatorCfg())
+    kwargs.setdefault("PropagatorTool", acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg()))
+    kwargs.setdefault("UpdatorTool", acc.getPrimaryAndMerge(TC.InDetPatternUpdatorCfg()))
 
     from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
-    boundary_check_tool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
-
-    kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
-    kwargs.setdefault("BoundaryCheckTool", boundary_check_tool)
-    kwargs.setdefault("RIOonTrackTool", rot_creator_digital)
+    kwargs.setdefault("BoundaryCheckTool", acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags)))
+    
     kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
-    kwargs.setdefault("useSCT", flags.Detector.EnableSCT if not is_dbm else False)
-    kwargs.setdefault("PixelClusterContainer", 'PixelClusters') # InDetKeys.PixelClusters()
-    kwargs.setdefault("SCT_ClusterContainer", 'SCT_Clusters') # InDetKeys.SCT_Clusters()
+    kwargs.setdefault("PixelClusterContainer", "PixelClusters")
+    kwargs.setdefault("useSCT", flags.Detector.EnableSCT if not dbmMode else False)
+    kwargs.setdefault("SCT_ClusterContainer", "SCT_Clusters")
 
-    if flags.InDet.Tracking.extension == "": 
+    if flags.InDet.Tracking.extension == "":
         kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
 
-    if is_dbm :
+    if dbmMode:
         kwargs.setdefault("MagneticFieldMode", "NoField")
         kwargs.setdefault("TrackQualityCut", 9.3)
 
-    if flags.Detector.EnableSCT:
-        InDetSCT_ConditionsSummaryTool = CompFactory.SCT_ConditionsSummaryTool(name = 'InDetSCT_ConditionsSummaryTool')
-        kwargs.setdefault("SctSummaryTool", InDetSCT_ConditionsSummaryTool)
+    if flags.Detector.EnablePixel:
+        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+        kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
     else:
-        kwargs.setdefault("SctSummaryTool", None)
+        kwargs.setdefault("PixelSummaryTool", "")
+
+    if flags.Detector.EnableSCT:
+        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+        kwargs.setdefault("SctSummaryTool", acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags)))
+    else:
+        kwargs.setdefault("SctSummaryTool", "")
 
     track_finder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name = name+flags.InDet.Tracking.extension, **kwargs)
     acc.setPrivateTools(track_finder)
@@ -259,7 +262,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
 
     elif flags.InDet.doHeavyIon:
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_HeavyIon')
-    
+
     elif flags.InDet.Tracking.extension == "LowPt":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_LowMomentum')
 
@@ -277,12 +280,14 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
 
     else:
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSPSeededFinder')
-            
+
     if flags.InDet.doStoreTrackSeeds:
-        InDet_SeedToTrackConversion = CompFactory.InDet.SeedToTrackConversionTool(  name = "InDet_SeedToTrackConversion",
-                                                                                    OutputName = 'SiSPSeedSegments' + flags.InDet.Tracking.extension)
-        acc.setPrivateTools(InDet_SeedToTrackConversion)
-        kwargs.setdefault("SeedToTrackConversion", InDet_SeedToTrackConversion)
+        from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
+        kwargs.setdefault("SeedToTrackConversion", CompFactory.InDet.SeedToTrackConversionTool(
+            name="InDet_SeedToTrackConversion",
+            Extrapolator=acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)),
+            OutputName=f"SiSPSeedSegments{flags.InDet.Tracking.extension}",
+        ))
         kwargs.setdefault("SeedSegmentsWrite", True)
 
     InDetSiTrackMaker = CompFactory.InDet.SiTrackMaker_xk(name = name+flags.InDet.Tracking.extension, **kwargs)
@@ -311,10 +316,10 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
 
     InDetSiTrackMaker = acc.popToolsAndMerge(SiTrackMaker_xkCfg(flags,
                                                                 InputCollections = InputCollections ))
- 
+
     InDetTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
-    InDetSiSpacePointsSeedMaker = acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags, 
+    InDetSiSpacePointsSeedMaker = acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags,
                                                                                  InputCollections = InputCollections ))
 
     #
@@ -346,7 +351,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
         kwargs.setdefault("useZvertexTool", flags.InDet.useZvertexTool and flags.InDet.Tracking.extension != "DBM")
         kwargs.setdefault("useNewStrategy", flags.InDet.useNewSiSPSeededTF and flags.InDet.Tracking.extension != "DBM")
         kwargs.setdefault("useZBoundFinding", flags.InDet.Tracking.doZBoundary and flags.InDet.Tracking.extension != "DBM")
-    
+
     if flags.InDet.doHeavyIon :
         kwargs.setdefault("FreeClustersCut",2) #Heavy Ion optimization from Igor
 
@@ -359,7 +364,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
 
 def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **kwargs) :
     acc = ComponentAccumulator()
-    
+
     # ------------------------------------------------------------
     #
     # ---------- Ambiguity solving
@@ -379,7 +384,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         AmbiTrackSelectionTool = CompFactory.InDet.InDetAmbiTrackSelectionTool
 
     if 'UseParameterization' in kwargs and kwargs.get('UseParameterization',False) :
-        InDetTRTDriftCircleCut = acc.getPrimaryAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+        InDetTRTDriftCircleCut = acc.popToolsAndMerge(TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
 
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
@@ -392,7 +397,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     kwargs.setdefault("UseParameterization" , False)
     kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.extension != "DBM")
     kwargs.setdefault("doPixelSplitting"    , flags.InDet.doPixelClusterSplitting and flags.InDet.Tracking.extension != "DBM")
-    
+
     if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
         kwargs.setdefault("sharedProbCut"             , prob1)
         kwargs.setdefault("sharedProbCut2"            , prob2)
@@ -419,7 +424,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         kwargs.setdefault("minPtBjetROI"              , 10000)
         kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size
         kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size
-    
+
     elif flags.InDet.Tracking.extension == "DBM":
         kwargs.setdefault("maxShared"             , 1000)
         kwargs.setdefault("maxTracksPerSharedPRD" , 2)
@@ -435,76 +440,58 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     acc.setPrivateTools(InDetAmbiTrackSelectionTool)
     return acc
 
-def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "InDetAmbiguityScoreProcessor", ClusterSplitProbContainer='', **kwargs) :
+
+def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityScoreProcessor", ClusterSplitProbContainer="", **kwargs):
     acc = ComponentAccumulator()
-    #
-    # --- set up different Scoring Tool for collisions and cosmics
-    #
-    if flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.extension != "DBM":
+    # set up different Scoring Tool for collisions and cosmics
+    if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
-    elif(flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
+    elif flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0:
         # Set up NN config
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
+    kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
 
     from InDetConfig.SiliconPreProcessing import NnPixelClusterSplitProbToolCfg
-    NnPixelClusterSplitProbTool = acc.popToolsAndMerge(NnPixelClusterSplitProbToolCfg(flags))
+    kwargs.setdefault("SplitProbTool", acc.popToolsAndMerge(NnPixelClusterSplitProbToolCfg(flags)) if flags.InDet.doPixelClusterSplitting else "")
 
-    InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
+    kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
+    kwargs.setdefault("AssociationToolNotGanged", acc.popToolsAndMerge(TC.PRDtoTrackMapToolCfg()))
+    kwargs.setdefault("AssociationMapName", f"PRDToTrackMap{flags.InDet.Tracking.extension}")
 
-    PRDtoTrackMapTool = acc.popToolsAndMerge(TC.PRDtoTrackMapToolCfg())
-
-    prob1 = flags.InDet.pixelClusterSplitProb1
-    prob2 = flags.InDet.pixelClusterSplitProb2
-    
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-    if CommonGeometryFlags.Run() == 1:
-        prob1 = flags.InDet.pixelClusterSplitProb1_run1
-        prob2 = flags.InDet.pixelClusterSplitProb2_run1
-
-    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM") :
-        kwargs.setdefault("sharedProbCut", prob1)
-        kwargs.setdefault("sharedProbCut2", prob2)
+    if flags.InDet.doTIDE_Ambi and not (flags.InDet.Tracking.extension == "ForwardTracks" or flags.InDet.Tracking.extension == "DBM"):
+        kwargs.setdefault("sharedProbCut", flags.InDet.pixelClusterSplitProb1)
+        kwargs.setdefault("sharedProbCut2", flags.InDet.pixelClusterSplitProb2)
         if flags.InDet.Tracking.extension == "":
             kwargs.setdefault("SplitClusterMap_old", "")
         elif flags.InDet.Tracking.extension == "Disappearing":
-            kwargs.setdefault("SplitClusterMap_old", 'SplitClusterAmbiguityMap')
-        kwargs.setdefault("SplitClusterMap_new", 'SplitClusterAmbiguityMap'+flags.InDet.Tracking.extension)
+            kwargs.setdefault("SplitClusterMap_old", "SplitClusterAmbiguityMap")
+        kwargs.setdefault("SplitClusterMap_new", f"SplitClusterAmbiguityMap{flags.InDet.Tracking.extension}")
 
-    kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
-    kwargs.setdefault("SplitProbTool", NnPixelClusterSplitProbTool if flags.InDet.doPixelClusterSplitting else None,)
-    kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationToolNotGanged", PRDtoTrackMapTool)
-    kwargs.setdefault("AssociationMapName", 'PRDToTrackMap'+flags.InDet.Tracking.extension)
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'SplitProb'+flags.InDet.Tracking.extension)
+    kwargs.setdefault("OutputClusterSplitProbabilityName", f"SplitProb{flags.InDet.Tracking.extension}")
 
-    # DenseEnvironmentsAmbiguityScoreProcessorTool
     ScoreProcessorTool = CompFactory.Trk.DenseEnvironmentsAmbiguityScoreProcessorTool
-    InDetAmbiguityScoreProcessor = ScoreProcessorTool(name=name+flags.InDet.Tracking.extension, **kwargs)
-
-    acc.setPrivateTools(InDetAmbiguityScoreProcessor)
+    acc.setPrivateTools(ScoreProcessorTool(f"{name}{flags.InDet.Tracking.extension}", **kwargs))
     return acc
 
-def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
+
+def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProcessor", ClusterSplitProbContainer="", **kwargs):
     acc = ComponentAccumulator()
 
     useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "DBM"
-    
-    #
-    # --- set up different Scoring Tool for collisions and cosmics
-    #
-    if flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.extension != "DBM":
+
+    # set up different Scoring Tool for collisions and cosmics
+    if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
-    elif(flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
+    elif flags.InDet.Tracking.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0:
         # Set up NN config
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
+    kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
 
-    use_low_pt_fitter =  True if flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or (flags.InDet.Tracking.extension == "Pixel" and flags.InDet.doMinBias) else False
-    
     fitter_args = {}
     fitter_args.setdefault("nameSuffix", 'Ambi'+flags.InDet.Tracking.extension)
     fitter_args.setdefault("SplitClusterMapExtension", flags.InDet.Tracking.extension)
@@ -517,14 +504,15 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
         fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
 
     fitter_list=[]
-    if not use_low_pt_fitter:
-        InDetTrackFitterAmbi = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, name='InDetTrackFitter'+'Ambi'+flags.InDet.Tracking.extension, **fitter_args))
-        fitter_list.append(InDetTrackFitterAmbi)
-    else:
+    if flags.InDet.Tracking.extension == "LowPt" or flags.InDet.Tracking.extension == "VeryLowPt" or (flags.InDet.Tracking.extension == "Pixel" and flags.InDet.doMinBias):
         InDetTrackFitterLowPt = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, name='InDetTrackFitterLowPt'+flags.InDet.Tracking.extension, **fitter_args))
         fitter_list.append(InDetTrackFitterLowPt)
+    else:
+        InDetTrackFitterAmbi = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, name='InDetTrackFitter'+'Ambi'+flags.InDet.Tracking.extension, **fitter_args))
+        fitter_list.append(InDetTrackFitterAmbi)
 
-    if flags.InDet.doRefitInvalidCov: 
+
+    if flags.InDet.doRefitInvalidCov:
         if len(flags.InDet.Tracking.extension) > 0 :
             fitter_args = {}
             fitter_args.setdefault("SplitClusterMapExtension", flags.InDet.Tracking.extension)
@@ -553,7 +541,6 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("AssociationMapName", 'PRDToTrackMap'+flags.InDet.Tracking.extension)
     kwargs.setdefault("TrackSummaryTool", ambi_track_summary_tool)
-    kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
     kwargs.setdefault("SelectionTool", InDetAmbiTrackSelectionTool)
     kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.InDet.Tracking.extension)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.extension)
@@ -573,7 +560,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProc
 def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", ClusterSplitProbContainer='', **kwargs) :
     acc = ComponentAccumulator()
     useBremMode = flags.InDet.Tracking.extension == "" or flags.InDet.Tracking.extension == "DBM"
-    
+
     #
     # --- set up different Scoring Tool for collisions and cosmics
     #
@@ -664,7 +651,7 @@ def TrkAmbiguitySolverCfg(flags, name="InDetAmbiguitySolver", ResolvedTrackColle
     else:
         InDetAmbiguityProcessor = acc.popToolsAndMerge(SimpleAmbiguityProcessorToolCfg( flags,
                                                                                         ClusterSplitProbContainer=ClusterSplitProbContainer))
-    
+
     #
     # --- configure Ambiguity solver
     #
@@ -705,10 +692,10 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     # ----------- SiSPSeededTrackFinder
     #
     # ------------------------------------------------------------
-    
+
     if flags.InDet.doSiSPSeededTrackFinder:
         acc.merge(SiSPSeededTrackFinderCfg( flags,
-                                            InputCollections = InputCollections, 
+                                            InputCollections = InputCollections,
                                             SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
     # ------------------------------------------------------------
     #

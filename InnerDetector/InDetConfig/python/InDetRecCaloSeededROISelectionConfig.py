@@ -49,7 +49,10 @@ def HadCaloClusterROI_SelectorCfg(ConfigFlags, name="InDetHadCaloClusterROISelec
     kwargs.setdefault("InputClusterContainerName",  InDetKeys.HadCaloClusterContainer())
     kwargs.setdefault("OutputClusterContainerName", InDetKeys.HadCaloClusterROIContainer() + "Bjet")
     if "CaloClusterROIBuilder" not in kwargs:
-        kwargs["CaloClusterROIBuilder"] = CompFactory.InDet.CaloClusterROI_Builder("InDetCaloClusterROIBuilder")
+        kwargs["CaloClusterROIBuilder"] = CompFactory.InDet.CaloClusterROI_Builder(
+            "InDetCaloClusterROIBuilder",
+            EMEnergyOnly=False,
+        )
     if "egammaCaloClusterSelector" not in kwargs:
         kwargs["egammaCaloClusterSelector"] = result.popToolsAndMerge(egammaHadCaloClusterSelectorCfg(ConfigFlags))
     result.addEventAlgo(CompFactory.InDet.CaloClusterROI_Selector(name, **kwargs), primary=True)

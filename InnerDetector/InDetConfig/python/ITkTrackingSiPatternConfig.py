@@ -111,18 +111,17 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     kwargs.setdefault("ITkGeometry", True)
     kwargs.setdefault("doFastTracking", flags.ITk.Tracking.doFastTracking)
 
-    if flags.Detector.EnableITkStrip:
-        from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
-        ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
-        kwargs.setdefault("SctSummaryTool", ITkStripConditionsSummaryTool)
-    else:
-        kwargs.setdefault("SctSummaryTool", None)
-
     if flags.Detector.EnableITkPixel:
         from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
-        kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)) )
+        kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
     else:
         kwargs.setdefault("PixelSummaryTool", None)
+
+    if flags.Detector.EnableITkStrip:
+        from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
+        kwargs.setdefault("SctSummaryTool", acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags)))
+    else:
+        kwargs.setdefault("SctSummaryTool", None)
 
     ITkSiComTrackFinder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)
     acc.setPrivateTools(ITkSiComTrackFinder)
@@ -207,11 +206,10 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
         extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
         acc.addPublicTool(extrapolator)  # TODO: migrate to private?
 
-        ITkSeedToTrackConversion = CompFactory.InDet.SeedToTrackConversionTool(name="ITkSeedToTrackConversion",
-                                                                               OutputName=f"SiSPSeedSegments{flags.ITk.Tracking.Pass.extension}",
-                                                                               Extrapolator=extrapolator)
-        acc.setPrivateTools(ITkSeedToTrackConversion)
-        kwargs.setdefault("SeedToTrackConversion", ITkSeedToTrackConversion)
+        kwargs.setdefault("SeedToTrackConversion", CompFactory.InDet.SeedToTrackConversionTool(
+            name="ITkSeedToTrackConversion",
+            Extrapolator=extrapolator,
+            OutputName=f"SiSPSeedSegments{flags.ITk.Tracking.Pass.extension}"))
         kwargs.setdefault("SeedSegmentsWrite", True)
 
     ITkSiTrackMaker = CompFactory.InDet.SiTrackMaker_xk(name = name+flags.ITk.Tracking.Pass.extension, **kwargs)

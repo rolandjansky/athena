@@ -79,23 +79,23 @@ def LWTNNCondAlgCfg(flags, **kwargs):
     acc.addCondAlgo(CompFactory.InDet.LWTNNCondAlg(kwargs.pop("name", "LWTNNCondAlg"), **kwargs))
     return acc
 
-def NnClusterizationFactoryCfg(flags, name = 'NnClusterizationFactory', **kwargs):
+
+def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
     acc = ComponentAccumulator()
     the_name = makeName(name, kwargs)
 
-    if 'PixelLorentzAngleTool' not in kwargs :
+    if "PixelLorentzAngleTool" not in kwargs:
         from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool
         PixelLorentzAngleTool = PixelLorentzAngleTool(flags, name="PixelLorentzAngleTool", **kwargs)
         kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
 
-    useTTrainedNetworks = flags.InDet.useNNTTrainedNetworks
     do_runI = flags.GeoModel.Run == "RUN1"
 
-    if useTTrainedNetworks :
-        acc.merge(PixelClusterNnCondAlgCfg(flags, name='PixelClusterNnCondAlg', GetInputsInfo = do_runI))
-        acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name = 'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI))
+    if flags.InDet.useNNTTrainedNetworks:
+        acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=do_runI))
+        acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=do_runI))
     else:
-        acc.merge(LWTNNCondAlgCfg(flags, name='LWTNNCondAlg'))
+        acc.merge(LWTNNCondAlgCfg(flags, name="LWTNNCondAlg"))
 
     kwargs.setdefault("doRunI", do_runI)
     kwargs.setdefault("useToT", False if do_runI else flags.InDet.doNNToTCalibration)
@@ -103,87 +103,87 @@ def NnClusterizationFactoryCfg(flags, name = 'NnClusterizationFactory', **kwargs
     kwargs.setdefault("useRecenteringNNWithTracks", False if do_runI else False)
     kwargs.setdefault("correctLorShiftBarrelWithoutTracks", 0)
     kwargs.setdefault("correctLorShiftBarrelWithTracks", 0.030 if do_runI else 0.000)
-    kwargs.setdefault("useTTrainedNetworks", useTTrainedNetworks)
-    kwargs.setdefault("NnCollectionReadKey", 'PixelClusterNN' if useTTrainedNetworks else '')
-    kwargs.setdefault("NnCollectionWithTrackReadKey", 'PixelClusterNNWithTrack' if useTTrainedNetworks else '')
-    kwargs.setdefault("NnCollectionJSONReadKey", '' if useTTrainedNetworks else 'PixelClusterNNJSON')
+    kwargs.setdefault("useTTrainedNetworks", flags.InDet.useNNTTrainedNetworks)
+    kwargs.setdefault("NnCollectionReadKey", "PixelClusterNN" if flags.InDet.useNNTTrainedNetworks else "")
+    kwargs.setdefault("NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack" if flags.InDet.useNNTTrainedNetworks else "")
+    kwargs.setdefault("NnCollectionJSONReadKey", "" if flags.InDet.useNNTTrainedNetworks else "PixelClusterNNJSON")
 
-    NnClusterizationFactory = CompFactory.InDet.NnClusterizationFactory( name = the_name, **kwargs )
-    acc.setPrivateTools( NnClusterizationFactory )
+    acc.setPrivateTools(CompFactory.InDet.NnClusterizationFactory(the_name, **kwargs))
     return acc
+
 
 def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", **kwargs):
     acc = ComponentAccumulator()
     the_name = makeName(name, kwargs)
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))
     if not (flags.InDet.doFatras or flags.InDet.doDBMstandalone):
         acc.merge(PixelDistortionAlgCfg(flags))
 
     split_cluster_map_extension = kwargs.pop('SplitClusterMapExtension','')
-    if (flags.Beam.Type == "cosmics") or flags.InDet.doDBMstandalone:
+    if flags.Beam.Type == "cosmics" or flags.InDet.doDBMstandalone:
         kwargs.setdefault("ErrorStrategy", 0)
         kwargs.setdefault("PositionStrategy", 0)
 
-    kwargs.setdefault("DisableDistortions", flags.InDet.doFatras or flags.InDet.doDBMstandalone )
-    kwargs.setdefault("applyNNcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == 'NeuralNet' )
-    kwargs.setdefault("NNIBLcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == 'NeuralNet' )
-    kwargs.setdefault("SplitClusterAmbiguityMap", 'SplitClusterAmbiguityMap' + split_cluster_map_extension )
-    kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi )
+    kwargs.setdefault("DisableDistortions", flags.InDet.doFatras or flags.InDet.doDBMstandalone)
+    kwargs.setdefault("applyNNcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == "NeuralNet")
+    kwargs.setdefault("NNIBLcorrection", flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == "NeuralNet")
+    kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
+    kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi)
 
     acc.setPrivateTools(CompFactory.InDet.PixelClusterOnTrackTool(the_name, **kwargs))
     return acc
 
-def InDetPixelClusterOnTrackToolDigitalCfg(flags, name='InDetPixelClusterOnTrackToolDigital', **kwargs):
+
+def InDetPixelClusterOnTrackToolDigitalCfg(flags, name="InDetPixelClusterOnTrackToolDigital", **kwargs):
     acc = ComponentAccumulator()
 
-    if 'LorentzAngleTool' not in kwargs :
+    kwargs.setdefault("SplitClusterAmbiguityMap", "")
+
+    if "LorentzAngleTool" not in kwargs:
         from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
         PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
         kwargs.setdefault("LorentzAngleTool", PixelLorentzAngleTool)
 
     if flags.InDet.doDigitalROTCreation:
-        kwargs.setdefault("applyNNcorrection", False )
-        kwargs.setdefault("NNIBLcorrection", False )
-        kwargs.setdefault("ErrorStrategy", 2 )
-        kwargs.setdefault("PositionStrategy", 1 )
-        kwargs.setdefault("SplitClusterAmbiguityMap", "" )
+        kwargs.setdefault("applyNNcorrection", False)
+        kwargs.setdefault("NNIBLcorrection", False)
+        kwargs.setdefault("ErrorStrategy", 2)
+        kwargs.setdefault("PositionStrategy", 1)
     else :
-        kwargs.setdefault("SplitClusterAmbiguityMap", "" )
+        kwargs.setdefault("SplitClusterAmbiguityMap", "")
 
-    PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name=name, **kwargs))
-    acc.setPrivateTools(PixelClusterOnTrackTool)
+    acc.setPrivateTools(acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs)))
     return acc
 
-def InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name='InDetPixelClusterOnTrackToolNNSplitting', **kwargs):
+
+def InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name="InDetPixelClusterOnTrackToolNNSplitting", **kwargs):
     acc = ComponentAccumulator()
 
-    if flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == 'NeuralNet':
-        if 'NnClusterizationFactory' not in kwargs :
-            NnClusterizationFactory = acc.popToolsAndMerge(NnClusterizationFactoryCfg(flags))
-            kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
+    if flags.InDet.doPixelClusterSplitting and flags.InDet.pixelClusterSplittingType == "NeuralNet":
+        if "NnClusterizationFactory" not in kwargs:
+            kwargs.setdefault("NnClusterizationFactory", acc.popToolsAndMerge(NnClusterizationFactoryCfg(flags)))
 
-    tool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name=name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.setPrivateTools(acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs)))
     return acc
 
-def InDetPixelClusterOnTrackToolCfg(flags, name='InDetPixelClusterOnTrackTool', **kwargs):
+
+def InDetPixelClusterOnTrackToolCfg(flags, name="InDetPixelClusterOnTrackTool", **kwargs):
     acc = ComponentAccumulator()
 
-    if 'LorentzAngleTool' not in kwargs :
+    if "LorentzAngleTool" not in kwargs:
         from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
-        kwargs.setdefault("LorentzAngleTool", PixelLorentzAngleTool)
+        kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(PixelLorentzAngleCfg(flags)))
 
-    PixelClusterOnTrackTool = None
     if flags.InDet.doDigitalROTCreation:
-        PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags, name=name, **kwargs))
+        PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags, name, **kwargs))
     else:
-        PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name=name, **kwargs))
+        PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name, **kwargs))
 
     acc.setPrivateTools(PixelClusterOnTrackTool)
     return acc
+
 
 def InDetSCT_ClusterOnTrackToolCfg(flags, name='InDetSCT_ClusterOnTrackTool', **kwargs):
     acc = ComponentAccumulator()
@@ -360,8 +360,7 @@ def InDetTRTDriftCircleCutForPatternRecoCfg(flags, name='InDetTRTDriftCircleCutF
     kwargs.setdefault("MinOffsetDCs", 5)
     kwargs.setdefault("UseNewParameterization", flags.InDet.Tracking.useNewParameterizationTRT)
     kwargs.setdefault("UseActiveFractionSvc", flags.Detector.EnableTRT)
-    tool = CompFactory.InDet.InDetTrtDriftCircleCutTool(the_name, **kwargs)
-    result.addPublicTool( tool, primary=True )
+    result.setPrivateTools(CompFactory.InDet.InDetTrtDriftCircleCutTool(the_name, **kwargs))
     return result
 
 def InDetSummaryHelperNoHoleSearchCfg(flags, name='InDetSummaryHelperNoHoleSearch', **kwargs):
@@ -1031,7 +1030,7 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
         kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
 
     if 'DriftCircleCutTool' not in kwargs :
-        InDetTRTDriftCircleCutForPatternReco = acc.getPrimaryAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+        InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco)
 
     if 'RIOonTrackToolYesDr' not in kwargs :
@@ -1172,7 +1171,7 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
 
     if 'DriftCircleCutTool' not in kwargs :
-        InDetTRTDriftCircleCutForPatternReco = acc.getPrimaryAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+        InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
     have_calo_rois = flags.InDet.doBremRecovery and flags.InDet.doCaloSeededBrem and flags.Detector.EnableCalo
@@ -1363,7 +1362,7 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
 
     if 'DriftCircleCutTool' not in kwargs :
-        InDetTRTDriftCircleCutForPatternReco = acc.getPrimaryAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+        InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
     kwargs.setdefault("nnCutConfig", "dev/TrackingCP/LRTAmbiNetwork/20200727_225401/nn-config.json" )
