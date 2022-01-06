@@ -206,6 +206,9 @@ def createTriggerFlags():
     # name of the trigger menu
     flags.addFlag('Trigger.generateMenuDiagnostics', False)
 
+    # disable Consistent Prescale Sets, for testing only, useful when using selectChains (ATR-24744)
+    flags.addFlag('Trigger.disableCPS', False)
+
     # Switch whether end-of-event sequence running extra algorithms for accepted events should be added
     flags.addFlag('Trigger.endOfEventProcessing.Enabled', True)
     # Run the LArNoiseBurst algorithms in the end-of-event sequence

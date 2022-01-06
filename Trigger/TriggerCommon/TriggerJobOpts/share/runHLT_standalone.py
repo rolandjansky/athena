@@ -517,7 +517,7 @@ if not opt.createHLTMenuExternally:
 
     # generating the HLT structure requires
     # the HLTSeeding to be defined in the topSequence
-    menu.generateMT()
+    menu.generateMT(ConfigFlags)
     # Note this will also create the requested HLTPrescale JSON
     # - the default file (with all prescales set to 1) is not really needed.
     # - If no file is provided all chains are either enabled or disabled,
