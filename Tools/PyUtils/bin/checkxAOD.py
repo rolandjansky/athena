@@ -62,6 +62,7 @@ if __name__ == "__main__":
         "AnalysisMuons" : ["^AnalysisMuons" ],
         "AnalysisJets" : ["^AnalysisJets" ],
         "AnalysisHLT" : ["^AnalysisHLT" ],
+        "AnalysisTrigMatch" : ["^AnalysisTrigMatch" ],
         }
     
     fileNames = []
