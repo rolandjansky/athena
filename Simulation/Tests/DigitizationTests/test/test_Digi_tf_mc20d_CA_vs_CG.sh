@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run a digitization example to compare configuration between ConfGetter and the new ComponentAccumulator approach.
 # art-type: grid
@@ -6,6 +6,7 @@
 # art-output: mc20d_ttbar.CG.RDO.pool.root
 # art-output: mc20d_ttbar.CA.RDO.pool.root
 # art-output: log.*
+# art-output: legacy.*
 # art-output: DigiPUConfig*
 
 Events=3
@@ -20,7 +21,7 @@ LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0Ch
 Digi_tf.py \
 --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHITSFile ${HSHitsFile} \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -37,7 +38,7 @@ Digi_tf.py \
 Digi_tf.py \
 --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
 --digiSeedOffset1 170 --digiSeedOffset2 170 \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --inputHITSFile ${HSHitsFile} \
 --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -53,17 +54,17 @@ Digi_tf.py \
 rc=$?
 status=$rc
 echo "art-result: $rc CGdigi"
-mv runargs.HITtoRDO.py runargs.legacy.HITtoRDO.py 
+mv runargs.HITtoRDO.py runargs.legacy.HITtoRDO.py
 mv log.HITtoRDO legacy.HITtoRDO
 
 rc2=-9999
-if [ $rc -eq 0 ]
+if [[ $rc -eq 0 ]]
 then
     Digi_tf.py \
     --CA \
     --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
     --digiSeedOffset1 170 --digiSeedOffset2 170 \
-    --digiSteeringConf "StandardSignalOnlyTruth" \
+    --digiSteeringConf 'StandardSignalOnlyTruth' \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
     --inputHITSFile ${HSHitsFile} \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -78,11 +79,10 @@ then
     rc2=$?
     status=$rc2
 fi
-
 echo "art-result: $rc2 CAdigi"
 
 rc3=-9999
-if [ $rc2 -eq 0 ]
+if [[ $rc2 -eq 0 ]]
 then
     acmd.py diff-root ${DigiOutFileNameCG} ${DigiOutFileNameCA} \
         --mode=semi-detailed --error-mode resilient --order-trees \
@@ -90,7 +90,6 @@ then
     rc3=$?
     status=$rc3
 fi
-
 echo "art-result: $rc3 comparison"
 
 exit $status

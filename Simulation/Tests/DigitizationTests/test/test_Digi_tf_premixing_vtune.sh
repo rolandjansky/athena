@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # MC16e-like flat pile-up between 50 and 60
 #
 # NOTES: VTune needs to be installed on the local machine and setup
@@ -28,7 +28,7 @@ Digi_tf.py \
 --numberOfHighPtMinBias 0.2595392 \
 --numberOfLowPtMinBias 99.2404608 \
 --outputRDOFile ${DigiOutFileName} \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --postExec 'all:ServiceMgr.VTuneProfilerService.ResumeEvent=2;' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' 'all:PyJobTransforms/HepMcParticleLinkVerbosity.py' \
 --pileupFinalBunch 6 \

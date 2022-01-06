@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 # how do I check if have run "voms-proxy-init --voms atlas" and "asetup" 
