@@ -6,13 +6,14 @@
 # art-include: 21.9/Athena
 # art-include: master/Athena
 # art-type: grid
+# art-athena-mt: 4
 # art-output: test.HITS.pool.root
 # art-output: truth.root
 
 # MC16 setup
 # ATLAS-R2-2016-01-00-01 and OFLCOND-MC16-SDR-14
 
-export ATHENA_PROC_NUMBER=4
+unset ATHENA_CORE_NUMBER
 
 Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
