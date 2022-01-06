@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// This source file implements all of the functions related to <OBJECT>
+// This source file implements all of the functions related to trigger
 // in the SUSYObjDef_xAOD class
 
 // Local include(s):
@@ -128,7 +128,7 @@ bool SUSYObjDef_xAOD::m_emulateHLT(const std::string& triggerName) const {
     int threshold = std::stoi(sm[1] );
     std::string algKey = sm[2];
     std::string metContBaseName = "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET";
-    if (algKey == "") hypos.push_back(std::make_pair(threshold, metContBaseName) );
+    if (algKey.empty()) hypos.push_back(std::make_pair(threshold, metContBaseName) );
     else if (algKey == "mht") hypos.push_back(std::make_pair(threshold, metContBaseName+"_mht") );
     else if (algKey == "pufit") hypos.push_back(std::make_pair(threshold, metContBaseName+"_topocl_PUC") );
     else if (algKey == "pueta") hypos.push_back(std::make_pair(threshold, metContBaseName+"_topocl_PS") );
@@ -141,23 +141,23 @@ bool SUSYObjDef_xAOD::m_emulateHLT(const std::string& triggerName) const {
       // Note, now the L1 part is done in the previous section. However I'm keeping this warning here.
     }
   }
-  while (!temp.empty() );
+  while (!temp.empty());
 
   // Check if we have the containers and construct the lambda
   // Already done the L1 decision - only care about HLT
   std::function<bool()> lambda;
   bool hasRequired = true;
-  if (hypos.size() == 0) lambda = [] () {return false;};
+  if (hypos.empty()) lambda = [] () {return false;};
   else { 
     for (const auto& pair : hypos) {
       if (evtStore()->contains<xAOD::TrigMissingETContainer>(pair.second) ) {
         auto lambda_hypo = [this, pair] () {
-          const xAOD::TrigMissingETContainer* cont(0);
+          const xAOD::TrigMissingETContainer* cont(nullptr);
           if (evtStore()->retrieve(cont, pair.second) ) {
-            if (!cont->size()) return false;
+            if (cont->empty()) return false;
             float ex = cont->front()->ex() * 0.001;
             float ey = cont->front()->ey() * 0.001;
-            float met = sqrt(ex*ex + ey*ey);
+            float met = std::sqrt(ex*ex + ey*ey);
             return met > pair.first;
           }
           else {
@@ -386,7 +386,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
   }
 
   std::vector<const xAOD::Electron*> elec_trig;
-  elec_trig.clear();
   for (const xAOD::Electron* electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (!acc_signal(*electron)) continue;
@@ -394,7 +393,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
   }
 
   std::vector<const xAOD::Muon*> muon_trig;
-  muon_trig.clear();
   for (const xAOD::Muon* muon : muons) {
     if (!acc_passOR(*muon)) continue;
     if (!acc_signal(*muon)) continue;
@@ -432,7 +430,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
   }
 
   return trig_sf;
-
 }
 
 double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySFsys(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const CP::SystematicSet& systConfig, const std::string& trigExpr) {
@@ -472,7 +469,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySFsys(const xAOD::ElectronCont
   }
 
   return sf;
-
 }
 
 //
@@ -488,7 +484,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::PhotonContainer
   }
 
   std::vector<const xAOD::Photon*> ph_trig;
-  ph_trig.clear();
   for (const xAOD::Photon* photon : photons) {
     if (!acc_passOR(*photon)) continue;
     if (!acc_signal(*photon)) continue;
@@ -512,7 +507,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::PhotonContainer
   }
 
   return trig_sf;
-
 }
 
 double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySFsys(const xAOD::PhotonContainer& photons, const CP::SystematicSet& systConfig, const std::string& trigExpr) {
@@ -535,7 +529,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySFsys(const xAOD::PhotonContai
   }
 
   return sf;
-
 }
 
 double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
@@ -549,7 +542,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
   }
 
   std::vector<const xAOD::Electron*> elec_trig;
-  elec_trig.clear();
   for (const xAOD::Electron* electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (!acc_signal(*electron)) continue;
@@ -557,7 +549,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
   }
 
   std::vector<const xAOD::Muon*> muon_trig;
-  muon_trig.clear();
   for (const xAOD::Muon* muon : muons) {
     if (!acc_passOR(*muon)) continue;
     if (!acc_signal(*muon)) continue;
@@ -596,7 +587,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
 
   if (isData()) return trig_eff_data;
   else return trig_eff;
-
 }
 
 //
@@ -613,7 +603,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::PhotonContainer& 
   }
 
   std::vector<const xAOD::Photon*> ph_trig;
-  ph_trig.clear();
   for (const xAOD::Photon* photon : photons) {
     if (!acc_passOR(*photon)) continue;
     if (!acc_signal(*photon)) continue;
@@ -638,7 +627,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::PhotonContainer& 
 
   if (isData()) return trig_eff_data;
   else return trig_eff;
-
 }
 
 }
