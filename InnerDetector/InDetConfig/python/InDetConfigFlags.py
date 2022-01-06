@@ -27,14 +27,10 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.Tracking.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   icf.addFlag("InDet.Tracking.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
-
   icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
   icf.addFlag("InDet.Tracking.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
+  icf.addFlag("InDet.Tracking.doTrackSegmentsPixel", False) # Turn running of track segment creation in pixel on and off
 
-  icf.addFlag("InDet.doHeavyIon", False) # Turn running of HeavyIons on and off
-  icf.addFlag("InDet.keepParameters", True) # Keep extra parameters on slimmed tracks False to drop them
-  icf.addFlag("InDet.keepFirstParameters", False) # Keep the first set of track parameters in addition to the defining ones for TrackParticles. False to drop them
-  icf.addFlag("InDet.doTrackSegmentsPixel", False) # Turn running of track segment creation in pixel on and off
   icf.addFlag("InDet.doTrackSegmentsSCT", False) # Turn running of track segment creation in SCT on and off
   icf.addFlag("InDet.doTrackSegmentsTRT", False) # Turn running of track segment creation in TRT on and off
   icf.addFlag("InDet.useBeamSpotInfoNN", True) # use beam spot service in new tracking

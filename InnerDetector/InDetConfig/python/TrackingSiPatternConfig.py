@@ -10,7 +10,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
     #
     if flags.Beam.Type == 'cosmics':
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_Cosmic
-    elif flags.InDet.doHeavyIon:
+    elif flags.Reco.EnableHI:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_HeavyIon
     elif flags.InDet.Tracking.Pass.isLowPt:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_LowMomentum
@@ -32,7 +32,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
     kwargs.setdefault("radMax", flags.InDet.Tracking.Pass.radMax)
     kwargs.setdefault("RapidityCut",  flags.InDet.Tracking.Pass.maxEta )
 
-    if not flags.InDet.doHeavyIon \
+    if not flags.Reco.EnableHI \
        and (flags.InDet.Tracking.Pass.extension == "" or flags.InDet.Tracking.Pass.extension == "ForwardTracks"):
         kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.Pass.maxdImpactPPSSeeds)
         kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.Pass.maxdImpactSSSSeeds)
@@ -45,7 +45,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
         kwargs.setdefault("dImpactCutSlopeUnconfirmedSSS", 1.25)
         kwargs.setdefault("dImpactCutSlopeUnconfirmedPPP", 2.0)
 
-    if flags.InDet.doHeavyIon:
+    if flags.Reco.EnableHI:
         kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.Pass.maxdImpactPPSSeeds)
         kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.Pass.maxdImpactSSSSeeds)
 
@@ -96,7 +96,7 @@ def SiZvertexMaker_xkCfg(flags, name="InDetZvertexMaker", InputCollections = Non
                                                                                  InputCollections=InputCollections))
 
     kwargs.setdefault("SeedMakerTool", InDetSiSpacePointsSeedMaker)
-    if flags.InDet.doHeavyIon:
+    if flags.Reco.EnableHI:
         kwargs.setdefault("HistSize", 2000)
         kwargs.setdefault("minContent", 30)
 
@@ -229,7 +229,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     elif flags.Beam.Type == 'cosmics':
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_Cosmic')
 
-    elif flags.InDet.doHeavyIon:
+    elif flags.Reco.EnableHI:
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_HeavyIon')
     
     elif flags.InDet.Tracking.Pass.extension == "LowPt":
@@ -294,7 +294,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     if kwargs["useZvertexTool"]:
         kwargs.setdefault("ZvertexTool", acc.popToolsAndMerge(SiZvertexMaker_xkCfg(flags, InputCollections = InputCollections)))
 
-    if flags.InDet.doHeavyIon :
+    if flags.Reco.EnableHI:
         kwargs.setdefault("FreeClustersCut",2) #Heavy Ion optimization from Igor
 
     if flags.InDet.Tracking.Pass.extension == "":

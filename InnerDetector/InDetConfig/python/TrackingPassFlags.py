@@ -870,7 +870,7 @@ def createPixelTrackingPassFlags():
     def _minPt( pcf ):
         if pcf.Beam.Type == "cosmics":
             return 0.5 * Units.GeV
-        if pcf.InDet.doHeavyIon:
+        if pcf.Reco.EnableHI:
             return 0.1 * Units.GeV
         if pcf.InDet.doMinBias:
             if pcf.InDet.doHIP300:
@@ -884,7 +884,7 @@ def createPixelTrackingPassFlags():
 
     def _pick( default, hion, cosmics):
         def _internal( pcf ):
-            if pcf.InDet.doHeavyIon:
+            if pcf.Reco.EnableHI:
                 return hion
             if pcf.Beam.Type == "cosmics":
                 return cosmics

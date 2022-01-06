@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 # TODO : Add some exta levels?
@@ -38,7 +38,6 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.Tracking.perigeeExpression", "BeamLine"   ) # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   itkcf.addFlag("ITk.Tracking.doSharedHits", True) # control if the shared hits are recorded in TrackParticles
   itkcf.addFlag("ITk.Tracking.materialInteractions", True)
-  itkcf.addFlag("ITk.Tracking.KeepFirstParameters", False) # Keep the first set of track parameters in addition to the defining ones for TrackParticles. False to drop them
   
   # config flags for tracking geometry configuration
   from InDetConfig.TrackingGeometryFlags import createITkTrackingGeometryFlags

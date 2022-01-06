@@ -143,7 +143,7 @@ def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **
         kwargs["TrackSummaryTool"] = TrackSummaryTool
     kwargs.setdefault("BadClusterID", flags.ITk.pixelClusterBadClusterID)
     kwargs.setdefault("KeepParameters", True)
-    kwargs.setdefault("KeepFirstParameters", flags.ITk.Tracking.KeepFirstParameters)
+    kwargs.setdefault("KeepFirstParameters", False)
     # need to treat Vertex specifically because at the time of
     # the track particle creation the primary vertex does not yet exist.
     # The problem is solved by first creating track particles wrt. the beam line

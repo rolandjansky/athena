@@ -154,8 +154,8 @@ def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kw
         kwargs["TrackSummaryTool"] = TrackSummaryTool
     p_expr = flags.InDet.perigeeExpression
     kwargs.setdefault("BadClusterID", flags.InDet.pixelClusterBadClusterID)
-    kwargs.setdefault("KeepParameters", flags.InDet.keepParameters)
-    kwargs.setdefault("KeepFirstParameters", flags.InDet.keepFirstParameters)
+    kwargs.setdefault("KeepParameters", True)
+    kwargs.setdefault("KeepFirstParameters", False)
     kwargs.setdefault(
         "PerigeeExpression",
         p_expr if p_expr != "Vertex" else "BeamLine")
@@ -249,27 +249,60 @@ def InDetTrackRecoCfg(flags):
     from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
     result.merge(InDetRecPreProcessingSiliconCfg(flags))
 
+    ClusterSplitProbContainer=''
+    InputCombinedInDetTracks = []
+
+    from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
+    from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+
+    # ------------------------------------------------------------
+    #
+    # ----------- Subdetector pattern from New Tracking
+    #
+    # ------------------------------------------------------------
+    #
+    # --- Pixel track segment finding
+    #
+
+    if flags.InDet.Tracking.doTrackSegmentsPixel:
+        flagsPixel = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.PixelPass")
+        PixelTrackContainer = "ResolvedPixelTracks"
+    
+        result.merge(TrackingSiPatternCfg(flagsPixel,
+                                          InputCollections = [],
+                                          ResolvedTrackCollectionKey = PixelTrackContainer,
+                                          SiSPSeededTrackCollectionKey = "SiSPSeededPixelTracks",
+                                          ClusterSplitProbContainer = ClusterSplitProbContainer))
+        ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + flagsPixel.Tracking.Pass.extension
+
+        if flags.InDet.doTruth:
+            result.merge(InDetTrackTruthCfg(flagsPixel,
+                                            Tracks = PixelTrackContainer,
+                                            DetailedTruth = PixelTrackContainer+"DetailedTruth",
+                                            TracksTruth = PixelTrackContainer+"TruthCollection"))
+
+
     if flags.InDet.Tracking.doHighPileup:
         flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.HighPileupPass")
 
-    from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
     result.merge(TrackingSiPatternCfg(flags,
                                       InputCollections = [],
                                       ResolvedTrackCollectionKey = "ResolvedTracks",
-                                      SiSPSeededTrackCollectionKey = "SiSPSeededTracks"))
+                                      SiSPSeededTrackCollectionKey = "SiSPSeededTracks",
+                                      ClusterSplitProbContainer = ClusterSplitProbContainer))
     ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb"
 
     # TRT extension
     if flags.InDet.doTRTExtension:
         from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
         result.merge(NewTrackingTRTExtensionCfg(flags,
-                                                SiTrackCollection="ResolvedTracks",
-                                                ExtendedTrackCollection="ExtendedTracks",
-                                                ExtendedTracksMap="ExtendedTracksMap",
+                                                SiTrackCollection = "ResolvedTracks",
+                                                ExtendedTrackCollection = "ExtendedTracks",
+                                                ExtendedTracksMap = "ExtendedTracksMap",
                                                 doPhase=False))
-        InputCombinedInDetTracks = ["ExtendedTracks"]
+        InputCombinedInDetTracks += ["ExtendedTracks"]
     else:
-        InputCombinedInDetTracks = ["ResolvedTracks"]
+        InputCombinedInDetTracks += ["ResolvedTracks"]
 
     # TRT segments
     if flags.InDet.doTrtSegments:
@@ -317,7 +350,6 @@ def InDetTrackRecoCfg(flags):
 
         if flags.InDet.Tracking.storeSeparateLargeD0Container:
             if flags.InDet.doTruth:
-                from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
                 result.merge(InDetTrackTruthCfg(flagsLRT,
                                                 Tracks = LRTTrackContainer,
                                                 DetailedTruth = LRTTrackContainer+"DetailedTruth",
