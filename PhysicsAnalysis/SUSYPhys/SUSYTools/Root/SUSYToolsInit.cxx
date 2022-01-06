@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -1402,7 +1402,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         auto tau_trigSF = m_tauTrigEffTool.emplace(m_tauTrigEffTool.end(), "TauAnalysisTools::TauEfficiencyCorrectionsTool/"+toolName);
         ATH_CHECK( tau_trigSF->setProperty("EfficiencyCorrectionTypes", std::vector<int>({TauAnalysisTools::SFTriggerHadTau})) );
         ATH_CHECK( tau_trigSF->setProperty("TriggerName", trigger.first) );
-        ATH_CHECK( tau_trigSF->setProperty("IDLevel", iTauID) );
+        ATH_CHECK( tau_trigSF->setProperty("JetIDLevel", iTauID) );
         ATH_CHECK( tau_trigSF->setProperty("PileupReweightingTool", m_prwTool.getHandle()) );
         ATH_CHECK( tau_trigSF->setProperty("OutputLevel", this->msg().level()) );
         //disable -- not there ATH_CHECK( tau_trigSF->setProperty("isAFII", isAtlfast()) );

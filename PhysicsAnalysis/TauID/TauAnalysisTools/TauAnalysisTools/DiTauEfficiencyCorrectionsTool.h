@@ -1,17 +1,17 @@
 /**
+ *
+ * @copyright Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+ *
  * @file DiTauEfficiencyCorrectionsTool.h
  * @author Guillermo Hamity (ghamity@cern.ch)
  * @author David Kirchmeier
  * @brief Efficiency scale factors and uncertainties for ditau jets
  * @date 2021-02-18
- * 
- * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
- * 
+ *
  */
-// Dear emacs, this is -*- c++ -*-
 
-#ifndef TAUANALYSISTOOLS_DITAUEFFICIENCYTOOL_H
-#define TAUANALYSISTOOLS_DITAUEFFICIENCYTOOL_H
+#ifndef TAUANALYSISTOOLS_DITAUEFFICIENCYCORRECTIONSTOOL_H
+#define TAUANALYSISTOOLS_DITAUEFFICIENCYCORRECTIONSTOOL_H
 
 
 // Framework include(s):
@@ -43,7 +43,7 @@ public:
   virtual StatusCode initialize();
 
   /** Print tool configuration*/
-  virtual void printConfig(bool bAlways = true);
+  virtual void printConfig() const;
 
   /**
    * @brief Get the ditau Efficiency Scale Factor as a return value
@@ -95,16 +95,15 @@ public:
    * @return true if ditau recommendations support this run
    * @note currently no implementaion exists, alwasys returns true
    */
-  virtual bool isSupportedRunNumber( int iRunNumber )
+  virtual bool isSupportedRunNumber( int /*iRunNumber*/ ) const
   {
-    (void) iRunNumber;
     return true;
   };
 
 private:
   StatusCode beginEvent();
 
-  std::string ConvertJetIDToString(const int& iLevel);
+  std::string ConvertJetIDToString(const int iLevel) const;
 
   /** Initialize Moriond 2017 recommendations*/
   StatusCode initializeTools_2017_moriond();
@@ -115,20 +114,16 @@ private:
   std::vector< asg::AnaToolHandle<IDiTauEfficiencyCorrectionsTool>* > m_vCommonEfficiencyTools;
   std::string m_sInputFilePathRecoHadTau;
   std::string m_sInputFilePathJetIDHadTau;
-  std::string m_sVarNameBase;
   std::string m_sVarNameRecoHadTau;
   std::string m_sVarNameJetIDHadTau;
   std::string m_sRecommendationTag;
   bool m_bSkipTruthMatchCheck;
   bool m_bIsData;
   bool m_bIsConfigured;
-  int m_iIDLevel;
+  int m_iJetIDLevel;
 
-  // unsigned int m_iRunNumber;
-
-  std::string m_sEventInfoName;
 }; // class DiTauEfficiencyCorrectionsTool
 
 } // namespace TauAnalysisTools
 
-#endif // TAUANALYSISTOOLS_DITAUEFFICIENCYTOOL_H
+#endif // TAUANALYSISTOOLS_DITAUEFFICIENCYCORRECTIONSTOOL_H

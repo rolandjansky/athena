@@ -1,16 +1,16 @@
 /**
+ * 
+ * @copyright Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+ * 
  * @file ITauEfficiencyCorrectionsTool.h
  * @author Guillermo Hamity (ghamity@cern.ch)
  * @author Dirk Duschinger
  * @brief 
  * @date 2021-02-19
- * 
- * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
- * 
  */
 
-#ifndef TAUANALYSISTOOLS_ITAUEFFICIENCYTOOL_H
-#define TAUANALYSISTOOLS_ITAUEFFICIENCYTOOL_H
+#ifndef TAUANALYSISTOOLS_ITAUEFFICIENCYCORRECTIONSTOOL_H
+#define TAUANALYSISTOOLS_ITAUEFFICIENCYCORRECTIONSTOOL_H
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
@@ -34,18 +34,19 @@ class ITauEfficiencyCorrectionsTool
   ASG_TOOL_INTERFACE( TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
-  /** Get the "tau efficiency" as a return value*/
+  /** Get the tau efficiency scale factor */
   virtual CP::CorrectionCode getEfficiencyScaleFactor( const xAOD::TauJet& xTau,
       double& eff, unsigned int iRunNumber = 0, unsigned int iMu = 0 ) = 0;
 
   /** Decorate the tau with its efficiency*/
   virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau,
       unsigned int iRunNumber = 0, unsigned int iMu = 0 ) = 0;
-  /** check if run number is supperted in recommendations */
-  virtual bool isSupportedRunNumber(int iRunNumber) = 0;
+
+  /** check if run number is supported in recommendations */
+  virtual bool isSupportedRunNumber(int iRunNumber) const = 0;
 
 }; // class ITauEfficiencyCorrectionsTool
 
 } // namespace TauAnalysisTools
 
-#endif // TAUANALYSISTOOLS_ITAUEFFICIENCYTOOL_H
+#endif // TAUANALYSISTOOLS_ITAUEFFICIENCYCORRECTIONSTOOL_H
