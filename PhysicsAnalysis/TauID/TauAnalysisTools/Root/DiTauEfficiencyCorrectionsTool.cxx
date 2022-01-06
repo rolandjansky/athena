@@ -1,10 +1,11 @@
 /**
+ *
+ * @copyright Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+ *
  * @file DiTauEfficiencyCorrectionsTool.cxx
  * @brief Class for ditau efficiency correction scale factors and uncertainties
  * @date 2021-02-18
- * 
- * @copyright Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
- * 
+ *
  */
 
 // EDM include(s):
@@ -26,7 +27,6 @@ DiTauEfficiencyCorrectionsTool::DiTauEfficiencyCorrectionsTool( const std::strin
   , m_vCommonEfficiencyTools()
   , m_bIsData(false)
   , m_bIsConfigured(false)
-  // , m_iRunNumber(0)
 {
   declareProperty( "EfficiencyCorrectionTypes",    m_vEfficiencyCorrectionTypes    = {} );
   declareProperty( "InputFilePathRecoHadTau",      m_sInputFilePathRecoHadTau      = "" );
@@ -34,8 +34,7 @@ DiTauEfficiencyCorrectionsTool::DiTauEfficiencyCorrectionsTool( const std::strin
   declareProperty( "VarNameRecoHadTau",            m_sVarNameRecoHadTau            = "" );
   declareProperty( "VarNameJetIDHadTau",           m_sVarNameJetIDHadTau           = "" );
   declareProperty( "RecommendationTag",            m_sRecommendationTag            = "2017-moriond" );
-  declareProperty( "IDLevel",                      m_iIDLevel                      = (int)JETIDBDTTIGHT );
-  declareProperty( "EventInfoName",                m_sEventInfoName                = "EventInfo" );
+  declareProperty( "JetIDLevel",                   m_iJetIDLevel                   = (int)JETIDBDTTIGHT );
   declareProperty( "SkipTruthMatchCheck",          m_bSkipTruthMatchCheck          = false );
 }
 
@@ -58,7 +57,7 @@ StatusCode DiTauEfficiencyCorrectionsTool::initialize()
     ATH_MSG_WARNING("Truth match check will be skipped. This is ONLY FOR TESTING PURPOSE!");
 
   // configure default set of variations if not set by the constructor using TauSelectionTool or the user
-  if ((m_sRecommendationTag== "2017-moriond") and m_vEfficiencyCorrectionTypes.size() == 0)
+  if ((m_sRecommendationTag== "2017-moriond") and m_vEfficiencyCorrectionTypes.empty())
     m_vEfficiencyCorrectionTypes = {SFJetIDHadTau
                                    };
 
@@ -84,7 +83,7 @@ StatusCode DiTauEfficiencyCorrectionsTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  printConfig(/* bAlways = */ false);
+  printConfig();
 
   return StatusCode::SUCCESS;
 }
@@ -98,40 +97,24 @@ StatusCode DiTauEfficiencyCorrectionsTool::beginEvent()
     const xAOD::EventInfo* xEventInfo = nullptr;
     ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
     m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
-    m_bIsConfigured=true;
+    m_bIsConfigured = true;
   }
-
-  if (m_bIsData)
-    return StatusCode::SUCCESS;
 
   return StatusCode::SUCCESS;
 }
 
 
 //______________________________________________________________________________
-void DiTauEfficiencyCorrectionsTool::printConfig(bool bAlways)
+void DiTauEfficiencyCorrectionsTool::printConfig() const
 {
-  if (bAlways)
-  {
-    ATH_MSG_DEBUG( "DiTauEfficiencyCorrectionsTool with name " << name() << " is configured as follows:" );
-    for (auto iEfficiencyCorrectionType : m_vEfficiencyCorrectionTypes)
-      ATH_MSG_ALWAYS( "  EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
-    ATH_MSG_ALWAYS( "  InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
-    ATH_MSG_ALWAYS( "  InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
-    ATH_MSG_ALWAYS( "  VarNameRecoHadTau " << m_sVarNameRecoHadTau );
-    ATH_MSG_ALWAYS( "  VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
-    ATH_MSG_ALWAYS( "  RecommendationTag " << m_sRecommendationTag );
+  ATH_MSG_DEBUG( "DiTauEfficiencyCorrectionsTool with name " << name() << " is configured as follows:" );
+  for (auto iEfficiencyCorrectionType : m_vEfficiencyCorrectionTypes) {
+    ATH_MSG_DEBUG( "  EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
   }
-  else
-  {
-    ATH_MSG_DEBUG( "DiTauEfficiencyCorrectionsTool with name " << name() << " is configured as follows:" );
-    for (auto iEfficiencyCorrectionType : m_vEfficiencyCorrectionTypes)
-      ATH_MSG_DEBUG( "  EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
-    ATH_MSG_DEBUG( "  InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
-    ATH_MSG_DEBUG( "  VarNameRecoHadTau " << m_sVarNameRecoHadTau );
-    ATH_MSG_DEBUG( "  VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
-    ATH_MSG_DEBUG( "  RecommendationTag " << m_sRecommendationTag );
-  }
+  ATH_MSG_DEBUG( "  InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
+  ATH_MSG_DEBUG( "  VarNameRecoHadTau " << m_sVarNameRecoHadTau );
+  ATH_MSG_DEBUG( "  VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
+  ATH_MSG_DEBUG( "  RecommendationTag " << m_sRecommendationTag );
 }
 
 //______________________________________________________________________________
@@ -220,14 +203,14 @@ StatusCode DiTauEfficiencyCorrectionsTool::applySystematicVariation ( const CP::
 //______________________________________________________________________________
 StatusCode DiTauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
 {
-  std::string sDirectory = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/EfficiencyCorrections/";
+  std::string sDirectory = "TauAnalysisTools/" + std::string(sSharedFilesVersion) + "/EfficiencyCorrections/";
   for (auto iEfficiencyCorrectionType : m_vEfficiencyCorrectionTypes)
   {
     if (iEfficiencyCorrectionType == SFJetIDHadTau)
     {
-      // only set vars if they differ from "", which means they have been configured by the user
+      // only set vars if they have been configured by the user
       if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadDiTau_2017-fall.root";
-      if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "DiTauScaleFactorJetIDHadTau";
+      if (m_sVarNameJetIDHadTau.empty()) m_sVarNameJetIDHadTau = "DiTauScaleFactorJetIDHadTau";
 
       asg::AnaToolHandle<IDiTauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<IDiTauEfficiencyCorrectionsTool>("JetIDHadTauTool", this);
       m_vCommonEfficiencyTools.push_back(tTool);
@@ -235,18 +218,18 @@ StatusCode DiTauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
       ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathJetIDHadTau));
       ATH_CHECK(tTool->setProperty("VarName", m_sVarNameJetIDHadTau));
       ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
-      ATH_CHECK(tTool->setProperty("WP", ConvertJetIDToString(m_iIDLevel)));
+      ATH_CHECK(tTool->setProperty("WP", ConvertJetIDToString(m_iJetIDLevel)));
     }
     else
     {
-      ATH_MSG_WARNING("unsupported EfficiencyCorrectionsType with enum "<<iEfficiencyCorrectionType);
+      ATH_MSG_WARNING("unsupported EfficiencyCorrectionsType with enum " << iEfficiencyCorrectionType);
     }
   }
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-std::string DiTauEfficiencyCorrectionsTool::ConvertJetIDToString(const int& iLevel)
+std::string DiTauEfficiencyCorrectionsTool::ConvertJetIDToString(const int iLevel) const
 {
   switch(iLevel)
   {

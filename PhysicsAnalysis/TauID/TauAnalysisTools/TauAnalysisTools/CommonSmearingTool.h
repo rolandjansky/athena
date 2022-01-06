@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H
@@ -127,4 +127,4 @@ private:
 };
 } // namespace TauAnalysisTools
 
-#endif // TAUANALYSISTOOLS_COMMONEFFICIENCYTOOL_H
+#endif // TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H

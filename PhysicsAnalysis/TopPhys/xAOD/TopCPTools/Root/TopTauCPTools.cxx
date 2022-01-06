@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "TopCPTools/TopTauCPTools.h"
 
@@ -80,27 +80,13 @@ namespace top {
     auto tau_JetIDWP_to_enum = [](const std::string& s) {
                                  if (s == "None") return TauAnalysisTools::JETIDNONE;
 
-                                 if (s == "Loose") return TauAnalysisTools::JETIDBDTLOOSE;
-
-                                 if (s == "Medium") return TauAnalysisTools::JETIDBDTMEDIUM;
-
-                                 if (s == "Tight") return TauAnalysisTools::JETIDBDTTIGHT;
-
-                                 if (s == "LooseNotMedium") return TauAnalysisTools::JETIDBDTLOOSENOTMEDIUM;
-
-                                 if (s == "LooseNotTight") return TauAnalysisTools::JETIDBDTLOOSENOTTIGHT;
-
-                                 if (s == "MediumNotTight") return TauAnalysisTools::JETIDBDTMEDIUMNOTTIGHT;
-
-                                 if (s == "NotLoose") return TauAnalysisTools::JETIDBDTNOTLOOSE;
-
                                  if (s == "RNNLoose") return TauAnalysisTools::JETIDRNNLOOSE;
 
                                  if (s == "RNNMedium") return TauAnalysisTools::JETIDRNNMEDIUM;
 
                                  if (s == "RNNTight") return TauAnalysisTools::JETIDRNNTIGHT;
 
-                                 // If we haven't found the correct WP, then return -1
+                                 // If we haven't found the correct WP, then return 0
                                  return TauAnalysisTools::JETIDNONEUNCONFIGURED;
                                };
 

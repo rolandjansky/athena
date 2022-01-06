@@ -1,19 +1,16 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
-
-// xAOD include(s)
-#include "xAODTruth/TruthParticleContainer.h"
 
 // local include(s)
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 #include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 
 // ROOT include(s)
-#include "TH2F.h"
+#include "TFile.h"
 
 using namespace TauAnalysisTools;
 
@@ -64,7 +61,7 @@ StatusCode TauEfficiencyTriggerTool::initialize()
 CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor, unsigned int /*iRunNumber*/, unsigned int /*iMu*/)
 {
-  // check which true state is requestet
+  // check which true state is requested
   if (!m_bSkipTruthMatchCheck and getTruthParticleType(xTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
@@ -91,12 +88,12 @@ CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD
     return tmpCorrectionCode;
 
   // skip further process if systematic set is empty
-  if (m_sSystematicSet->size() == 0)
+  if (m_sSystematicSet->empty())
     return CP::CorrectionCode::Ok;
 
   // get uncertainties summed in quadrature
-  double dTotalSystematic2 = 0;
-  double dDirection = 0;
+  double dTotalSystematic2 = 0.;
+  double dDirection = 0.;
   for (auto syst : *m_sSystematicSet)
   {
     // check if systematic is available
@@ -106,7 +103,7 @@ CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD
     std::string sDirection = (syst.parameter() > 0) ? "_up" : "_down";
 
     // get uncertainty value
-    double dUncertaintySyst = 0;
+    double dUncertaintySyst = 0.;
     tmpCorrectionCode = getValue(it->second+sDirection+"_"+convertPeriodToStr()+"_"+m_sWP+sProng,
                                  xTau,
                                  dUncertaintySyst);
@@ -126,10 +123,10 @@ CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD
   }
 
   // now use dDirection to use up/down uncertainty
-  dDirection = (dDirection > 0) ? +1 : -1;
+  dDirection = (dDirection > 0.) ? 1. : -1.;
 
   // finally apply uncertainty (eff * ( 1 +/- \sum  )
-  dEfficiencyScaleFactor *= 1 + dDirection * std::sqrt(dTotalSystematic2);
+  dEfficiencyScaleFactor *= 1. + dDirection * std::sqrt(dTotalSystematic2);
 
   return CP::CorrectionCode::Ok;
 }
@@ -184,7 +181,7 @@ StatusCode TauEfficiencyTriggerTool::applySystematicVariation ( const CP::System
 }
 
 //______________________________________________________________________________
-bool TauEfficiencyTriggerTool::isSupportedRunNumber(int iRunNumber)
+bool TauEfficiencyTriggerTool::isSupportedRunNumber(int iRunNumber) const
 {
   if ( m_iMinRunNumber != 0 and m_iMinRunNumber > iRunNumber)
     return false;
@@ -222,32 +219,12 @@ StatusCode TauEfficiencyTriggerTool::setRunNumber(int iRunNumber)
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
-std::string TauEfficiencyTriggerTool::convertPeriodToStr()
+std::string TauEfficiencyTriggerTool::convertPeriodToStr() const
 {
   if (m_ePeriodBinning == PeriodBinningAll)
     return "all";
-  else if (m_ePeriodBinning == PeriodBinningD_EFGH23J)
-  {
-    if (m_ePeriod == PeriodD)
-      return "D";
-    else if (m_ePeriod == PeriodE or m_ePeriod == PeriodF or m_ePeriod == PeriodG or m_ePeriod == PeriodH2 or m_ePeriod == PeriodH3 or m_ePeriod == PeriodJ)
-      return "EFGH23J";
-    else
-      ATH_MSG_ERROR("Could not find a set of data periods, for the passed run number. Did you actually set it?");
+  else {
+    ATH_MSG_WARNING("Period binning not supported");
+    return "";
   }
-  else if (m_ePeriodBinning == PeriodBinningD_EFH23J_G)
-  {
-    if (m_ePeriod == PeriodD)
-      return "D";
-    else if (m_ePeriod == PeriodE or m_ePeriod == PeriodF or m_ePeriod == PeriodG or m_ePeriod == PeriodH2 or m_ePeriod == PeriodH3 or m_ePeriod == PeriodJ)
-      return "EFH23J";
-    else if (m_ePeriod == PeriodG)
-      return "G";
-    else
-      ATH_MSG_ERROR("Could not find a set of data periods, for the passed run number. Did you actually set it?");
-  }
-  else
-    ATH_MSG_ERROR("Period binning unknown");
-  return "";
 }
-

@@ -27,7 +27,7 @@ Package.SUSYToolsTester  INFO    xsec DB initialized
 Package.SUSYToolsTester  INFO     ABOUT TO INITIALIZE SUSYTOOLS 
 SUSYObjDef_xAOD          INFO    Initialising... 
 SUSYObjDef_xAOD          INFO    *****     *****     *****     *****
-SUSYObjDef_xAOD          INFO    Configuring from file /data/CERN/BGF/STr22.nov23.51/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
+SUSYObjDef_xAOD          INFO    Configuring from file /SomeLocalPath/build/x86_64-centos7-gcc11-opt/data/SUSYTools/SUSYTools_Default.conf
 SUSYObjDef_xAOD          INFO    Config file opened
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Jet.InputType with value 9
 SUSYObjDef_xAOD          INFO    readConfig(): Loaded property Muon.Id with value 1
@@ -266,7 +266,7 @@ PathResolver             WARNING Locating dev file dev/PileupReweighting/share/D
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.970874)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=1.010100)...
 Info in <CP::TPileupReweighting::AddLumiCalcFile>: Adding LumiMetaData (scale factor=0.934579)...
-DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xdb83d70
+DefaultWeightTool        INFO    AsgTool DefaultWeightTool @ 0xcf36350
 ToolSvc.JetCalibTool_A...INFO    Initializing ToolSvc.JetCalibTool_AntiKt4EMPFlow...
 ToolSvc.JetCalibTool_A...INFO    ===================================
 ToolSvc.JetCalibTool_A...INFO    Initializing the xAOD Jet Calibration Tool for AntiKt4EMPFlowjets
@@ -691,7 +691,7 @@ ToolSvc.JetVertexTagge...INFO      Reading JVT file from:
     JetMomentTools/JVTlikelihood_20140805.root
 
 ToolSvc.JetVertexTagge...INFO                         resolved in  :
-    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2021-11-23T0524/AnalysisBase/22.2.52/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
+    /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2022-01-05T0524/AnalysisBase/22.2.56/InstallArea/x86_64-centos7-gcc11-opt/data/JetMomentTools/JVTlikelihood_20140805.root
 
 
 ToolSvc.JVTEfficiencyToolINFO     Path found = /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlowJets.root
@@ -816,13 +816,13 @@ ToolSvc.MuonTriggerSca...INFO    AllowZeroSF = 1
 ToolSvc.MuonTriggerSca...INFO    experimental = 0
 ToolSvc.MuonTriggerSca...INFO    useRel27 = 0
 ToolSvc.MuonTriggerSca...INFO    MuonTriggerScaleFactors::initialize
-ToolSvc.EleSelLikeliho...INFO    initialize : WP 15 0
 ToolSvc.EleSelLikeliho...INFO    operating point : TightLHElectron
-ToolSvc.EleSelLikeliho...INFO    initialize : WP 17 0
+ToolSvc.EleSelLikeliho...INFO    Configfile to use  ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf
 ToolSvc.EleSelLikeliho...INFO    operating point : LooseBLLHElectron
-ToolSvc.PhotonSelIsEM_...INFO    initialize : WP 11 0
+ToolSvc.EleSelLikeliho...INFO    Configfile to use  ElectronPhotonSelectorTools/offline/mc20_20210514/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf
+ToolSvc.PhotonSelIsEM_...INFO    Configfile to use  ElectronPhotonSelectorTools/offline/20180825/PhotonIsEMTightSelectorCutDefs.conf
 ToolSvc.PhotonSelIsEM_...INFO    operating point : Tight
-ToolSvc.PhotonSelIsEMB...INFO    initialize : WP 11 0
+ToolSvc.PhotonSelIsEMB...INFO    Configfile to use  ElectronPhotonSelectorTools/offline/20180825/PhotonIsEMTightSelectorCutDefs.conf
 ToolSvc.PhotonSelIsEMB...INFO    operating point : Tight
 SUSYObjDef_xAOD          INFO    Will now set key "RecoKey" to value "Reconstruction" when configuring an AsgElectronEfficiencyCorrectionTool
 SUSYObjDef_xAOD          INFO    Will now set key "IdKey" to value "Tight" when configuring an AsgElectronEfficiencyCorrectionTool
@@ -879,6 +879,7 @@ ToolSvc.EgammaCalibrat...INFO    use uA2MeV correction 2015 1/2 week = 2
 ToolSvc.TauSelectionTo...INFO    Initializing TauSelectionTool
 ToolSvc.TauSelectionTo...INFO    Initializing TauSelectionTool
 ToolSvc.TauEffTool_MediumINFO    Initializing TauEfficiencyCorrectionsTool
+ToolSvc.TauEffTool_MediumWARNING Scale factors for RNN eVeto are not available yet
 ToolSvc.TauEffTool_Med...INFO    Initializing CommonEfficiencyTool
 ToolSvc.TauEffTool_Med...INFO    data loaded from /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-03-16/EfficiencyCorrections/Reco_TrueHadTau_2019-summer.root
 ToolSvc.TauEffTool_Med...INFO    Initializing CommonEfficiencyTool
@@ -976,11 +977,8 @@ CalibrationDataInterface: retrieved container DL1r/AntiKt4EMPFlowJets_BTagging20
 ToolSvc.BTagSF_AntiKt4...INFO    Using systematics model Envelope
 ToolSvc.METMaker_ST_Ti...INFO    Initializing ToolSvc.METMaker_ST_Tight_NOfJVT...
 ToolSvc.METSystTool      INFO    Searching for configFile: TrackSoftTerms-pflow.config
-ToolSvc.METSystTool      INFO    PWD: /data/CERN/BGF/STr22.nov23.51/build/PhysicsAnalysis/SUSYPhys/SUSYTools/CMakeFiles/unitTestRun
-ToolSvc.METSystTool      INFO    CALIBPATH: /data/CERN/BGF/STr22.nov23.51/build/x86_64-centos7-gcc11-opt/data:/data/CERN/BGF/STr22.nov23.51/build/x86_64-centos7-gcc11-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2021-11-23T0524/AnalysisBase/22.2.52/InstallArea/x86_64-centos7-gcc11-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2021-11-23T0524/AnalysisBase/22.2.52/InstallArea/x86_64-centos7-gcc11-opt/share:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2021-11-23T0524/AnalysisBaseExternals/22.2.52/InstallArea/x86_64-centos7-gcc11-opt/data:/cvmfs/atlas-nightlies.cern.ch/repo/sw/master_AnalysisBase_x86_64-centos7-gcc11-opt/2021-11-23T0524/AnalysisBaseExternals/22.2.52/InstallArea/x86_64-centos7-gcc11-opt/share:/sw/DbData/GroupData:/cvmfs/atlas.cern.ch/repo/sw/database/GroupData:/eos/atlas/atlascerngroupdisk/asg-calib:http//cern.ch/atlas-groupdata:http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData
 ToolSvc.METSystTool      INFO    Configuring from file : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/data17_13TeV/prerec_Jan16/TrackSoftTerms-pflow.config
 ToolSvc.METSystTool      INFO    Will read histograms from : METUtilities/data17_13TeV/prerec_Jan16/pre-rec_systematics_EMPFlow.root
-ToolSvc.METSystTool      INFO    Systpath :/
 ToolSvc.METSystTool      INFO    Extracted histogram path : /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/data17_13TeV/prerec_Jan16/pre-rec_systematics_EMPFlow.root
 ToolSvc.METSystTool      INFO    AffectingSystematics are:
 ToolSvc.METSystTool      INFO    MET_SoftTrk_ResoCorr
@@ -1814,9 +1812,9 @@ ToolSvc.TopTagger        WARNING One (or more) tagger input variable has an out-
 Package.SUSYToolsTester  INFO    ===>>>  start processing event #, 110613run #310000 99 events processed so far  <<<===
 Info in <SUSYToolsTester>: ===>>>  done processing event #110613, run #310000 100 events processed so far  <<<===
 Info in <SUSYToolsTester>: Time per event:          (CPU / WALL)
-  Entire loop           - 549.400000 / 549.742880 ms
-  First event           - 670.000000 / 669.010878 ms
-  Excluding first event - 548.181818 / 548.538150 ms
+  Entire loop           - 794.700000 / 794.678919 ms
+  First event           - 1030.000000 / 1032.436848 ms
+  Excluding first event - 792.323232 / 792.277353 ms
 Package.SUSYToolsTester  INFO    -- Dummy Cutflow -- >>>> Variation  <<<<
 Package.SUSYToolsTester  INFO    Cut 0(All)-> el: 100, mu: 100
 Package.SUSYToolsTester  INFO    Cut 1(GRL+Cleaning)-> el: 100, mu: 100
