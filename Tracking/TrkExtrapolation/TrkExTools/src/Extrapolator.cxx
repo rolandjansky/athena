@@ -2225,7 +2225,7 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   }
 
   const Trk::TrackParameters* closestTrackParameters =
-    m_navigator->closestParameters(trk, sf, searchProp);
+    m_navigator->closestParameters(ctx, trk, sf, searchProp);
   if (closestTrackParameters) {
     return (extrapolate(
       ctx, *closestTrackParameters, sf, dir, bcheck, particle, matupmode, extrapolationCache));

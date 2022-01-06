@@ -381,11 +381,11 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters* parms,
 }
 
 const Trk::TrackParameters*
-Trk::Navigator::closestParameters(const Trk::Track& trk,
+Trk::Navigator::closestParameters(const EventContext& ctx,
+                                  const Trk::Track& trk,
                                   const Trk::Surface& sf,
                                   const Trk::IPropagator* propptr) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   // -- corresponds to Extrapolator::m_searchLevel = 2/3 - search with Propagation
   if (propptr && !m_searchWithDistance) {
     const Trk::TrackParameters *closestTrackParameters = nullptr;

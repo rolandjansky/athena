@@ -89,6 +89,7 @@ public:
   /** INavigator interface method - getting the closest TrackParameters from a
    * Track to a Surface */
   virtual const TrackParameters* closestParameters(
+    const EventContext& ctx,
     const Track& trk,
     const Surface& sf,
     const IPropagator* prop = 0) const = 0;
