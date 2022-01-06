@@ -16,6 +16,9 @@
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/TrackFitting/KalmanFitter.hpp"
+#include "Acts/MagneticField/MagneticFieldProvider.hpp"
+#include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/Propagator.hpp"
 
 // PACKAGE
 #include "ActsGeometry/ATLASSourceLink.h"
@@ -104,8 +107,7 @@ public:
     /// @param state The track state to classify
     /// @retval False if the measurement is not an outlier
     /// @retval True if the measurement is an outlier
-    template <typename track_state_t>
-    bool operator()(const track_state_t& state) const {
+    bool operator()(Acts::MultiTrajectory::ConstTrackStateProxy state) const {
       // can't determine an outlier w/o a measurement or predicted parameters
       if (not state.hasCalibrated() or not state.hasPredicted()) {
         return false;
@@ -141,32 +143,29 @@ public:
     /// @param trackState The trackState of the last measurement
     /// @retval False if we don't use the reverse filtering for the smoothing of the track
     /// @retval True if we use the reverse filtering for the smoothing of the track
-    template <typename track_state_t>
-    bool operator()(const track_state_t& trackState) const {
+    bool operator()(Acts::MultiTrajectory::ConstTrackStateProxy trackState) const {
       // can't determine an outlier w/o a measurement or predicted parameters
       auto momentum = fabs(1 / trackState.filtered()[Acts::eBoundQOverP]);
       return (momentum <= momentumMax);
     }
   };
 
-  /// Track fitter function that takes input measurements, initial trackstate
-  //  and fitter options and returns some track-fitter-specific result.
-  using TrackFitterOptions = Acts::KalmanFitterOptions<ATLASSourceLinkCalibrator,
-                                                       ATLASOutlierFinder,
-                                                       ReverseFilteringLogic>;
 
   using TrackFitterResult =
-      Acts::Result<Acts::KalmanFitterResult<ATLASSourceLink>>;
+      Acts::Result<Acts::KalmanFitterResult>;
 
-  using TrackFitterFunction = std::function<TrackFitterResult(
-      const std::vector<ATLASSourceLink>&, const Acts::BoundTrackParameters&,
-      const TrackFitterOptions&)>;
 
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:
   ///////////////////////////////////////////////////////////////////
 private:
+
+  static Acts::Result<void> gainMatrixUpdate(const Acts::GeometryContext& gctx,
+      Acts::MultiTrajectory::TrackStateProxy trackState, Acts::NavigationDirection direction, Acts::LoggerWrapper logger);
+
+  static Acts::Result<void> gainMatrixSmoother(const Acts::GeometryContext& gctx,
+      Acts::MultiTrajectory trajectory, size_t entryIndex, Acts::LoggerWrapper logger);
 
   // Create a track from the fitter result
   std::unique_ptr<Trk::Track> makeTrack(const EventContext& ctx, Acts::GeometryContext& tgContext, TrackFitterResult& fitResult) const;
@@ -175,8 +174,6 @@ private:
   ///
   /// The magnetic field is intentionally given by-value since the variant
   /// contains shared_ptr anyways.
-  static TrackFitterFunction makeTrackFitterFunction(
-      std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry);
 
 
   ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
@@ -197,7 +194,14 @@ private:
 
 
   /// Type erased track fitter function.
-  TrackFitterFunction m_fit;
+    using Fitter = Acts::KalmanFitter<Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>>;
+    std::unique_ptr<Fitter> m_fitter;
+
+    Acts::KalmanFitterExtensions getExtensions();
+
+    ATLASOutlierFinder m_outlierFinder{0};
+    ReverseFilteringLogic m_reverseFilteringLogic{0};
+    Acts::KalmanFitterExtensions m_kfExtensions;
 
   /// Private access to the logger
   const Acts::Logger& logger() const {
