@@ -268,14 +268,16 @@ def ConfigureGeo():
 
     from PyUtils.MetaReaderPeeker import metadata
     if metadata['file_type'] == 'BS':
-        geo="ATLAS-R2-2015-03-01-00" #geo='ATLAS-GEO-20-00-01'
+        geo="ATLAS-R2-2016-01-01-01" 
         project=GetProjectName()
         if "data12" in project:
             geo="ATLAS-R1-2012-03-00-00"
         if "data11" in project:
-            geo="ATLAS-R1-2011-02-00-00"  #'ATLAS-GEO-18-01-01'
+            geo="ATLAS-R1-2011-02-00-00"  
         if "data10" in project or "data09" in project or "data08" in project:
-            geo="ATLAS-R1-2010-02-00-00" #geo='ATLAS-GEO-16-00-01'
+            geo="ATLAS-R1-2010-02-00-00"  
+        if "data15" in project or "data16" in project or "data17" in project or "data18" in project or "data21" in project:
+            geo="ATLAS-R2-2016-01-00-01"
         if metadata['eventTypes'][0] == 'IS_SIMULATION':
             try: geo = metadata['GeoAtlas']
             except Exception:
