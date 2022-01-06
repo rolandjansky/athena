@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXJetAlgo - JetFinder algorithm for gFEX
@@ -563,9 +563,6 @@ void gFEXJetAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 
   int rows = twrs.size();
   int cols = twrs[0].size();
-  int count_total = 0;
-  int count_underflow = 0;
-  int count_overflow = 0;
   for( int irow = 0; irow < rows; irow++ ){
     for(int jcolumn = 0; jcolumn<cols; jcolumn++){
       // zero jet sum here
@@ -590,16 +587,13 @@ void gFEXJetAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
           twrs[irow][jcolumn+1] + twrs[krowUp][jcolumn+1] + twrs[krowDn][jcolumn+1];
         }
         // switch to 800 MeV LSB 
-        count_total += 1;
         gBlkSum[irow][jcolumn] =  gBlkSum[irow][jcolumn]/4;
         // limit result to an unsigned integer of 12 bits ( 2376 GeV) 
         if ( gBlkSum[irow][jcolumn] < 0 ){
           gBlkSum[irow][jcolumn] = 0;
-          count_underflow += 1;
         }
         if ( gBlkSum[irow][jcolumn] > 4091 ){
           gBlkSum[irow][jcolumn] = 4091;
-          count_overflow += 1;
         }  
 
     }
