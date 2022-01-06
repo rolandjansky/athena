@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run MC16 pile-up pre-mixing with 2016d geometry and conditions, 25ns pile-up, MT output containers in AthenaMP
 # art-include: master/Athena
@@ -25,13 +25,13 @@ Digi_tf.py \
 --jobNumber 1 \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileName} \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC16d.py' \
 --skipEvents 0
 
 rc=$?
 status=$rc
-echo  "art-result: $rc Digi_tf.py"
+echo "art-result: $rc Digi_tf.py"
 
 exit $status

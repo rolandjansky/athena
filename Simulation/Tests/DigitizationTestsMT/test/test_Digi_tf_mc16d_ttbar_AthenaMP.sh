@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # art-description: Run digitization of an mc16d ttbar sample with 2016d geometry and conditions, 25ns pile-up in AthenaMP
 # art-include: master/Athena
@@ -25,13 +25,13 @@ Digi_tf.py \
 --jobNumber 1 \
 --maxEvents 25 \
 --outputRDOFile ${DigiOutFileName} \
---digiSteeringConf "StandardSignalOnlyTruth" \
+--digiSteeringConf 'StandardSignalOnlyTruth' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'all:Campaigns/MC16d.py' 'HITtoRDO:Campaigns/PileUpMC16d.py' \
 --skipEvents 0
 
 rc=$?
 status=$rc
-echo  "art-result: $rc Digi_tf.py"
+echo "art-result: $rc Digi_tf.py"
 
 exit $status
