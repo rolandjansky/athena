@@ -108,11 +108,11 @@ namespace ActsTrk {
       Acts::Vector2 covariance(sp.varianceR(), sp.varianceZ());
       return std::make_pair(position, covariance);
     };
-    
+
     std::shared_ptr< Acts::BinFinder< external_spacepoint_t > > bottomBinFinder =
-      std::make_shared< Acts::BinFinder< external_spacepoint_t > >();
+      std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsBottom, 1);
     std::shared_ptr< Acts::BinFinder< external_spacepoint_t > > topBinFinder =
-      std::make_shared< Acts::BinFinder< external_spacepoint_t > >();
+      std::make_shared< Acts::BinFinder< external_spacepoint_t > >(m_zBinNeighborsTop, 1);
     
     std::unique_ptr< Acts::SpacePointGrid< external_spacepoint_t > > grid = 
       Acts::SpacePointGridCreator::createGrid< external_spacepoint_t >(gridCfg);
