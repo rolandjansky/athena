@@ -118,6 +118,7 @@ ConfigFlags.IOVDb.DatabaseInstance="CONDBR2" if run>222222 else "COMP200"
 ConfigFlags.IOVDb.GlobalTag=tag
 ConfigFlags.LAr.doAlign=False
 ConfigFlags.Exec.OutputLevel=8
+ConfigFlags.lock()
 #from AthenaConfiguration.TestDefaults import defaultTestFiles
 #ConfigFlags.Input.Files = defaultTestFiles.RAW
 from RootUtils import PyROOTFixes  # noqa F401
