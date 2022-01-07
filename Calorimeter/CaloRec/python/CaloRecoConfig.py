@@ -51,7 +51,7 @@ def CaloRecoCfg(configFlags, clustersname=None):
     from LArCellRec.LArNoisyROSummaryConfig import LArNoisyROSummaryCfg
     result.merge(LArNoisyROSummaryCfg(configFlags))
 
-    if not configFlags.Input.isMC:
+    if not configFlags.Input.isMC and not configFlags.Overlay.DataOverlay:
         from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
         result.merge(LArFebErrorSummaryMakerCfg(configFlags))
 
@@ -59,11 +59,10 @@ def CaloRecoCfg(configFlags, clustersname=None):
     from TileMuId.TileMuIdConfig import TileLookForMuAlgCfg
     result.merge(TileLookForMuAlgCfg(configFlags))
 
-    if not configFlags.Input.isMC:
+    if not configFlags.Input.isMC and not configFlags.Overlay.DataOverlay:
         #Configure LArDigitsThinner:
         from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
         result.merge(LArDigitThinnerCfg(configFlags))
-
 
     #Configure MBTSTimeDiff
     #Clients are BackgroundWordFiller and (deprecated?) DQTBackgroundMonTool
