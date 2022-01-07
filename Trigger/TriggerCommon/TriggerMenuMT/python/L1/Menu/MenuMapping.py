@@ -19,14 +19,12 @@ menuMap = {
     "Dev_pp_run3_v1_CPSampleProd_prescale"      : ["MC_pp_run3_v1","MC_pp_run3_v1_inputs","MC_pp_run3_v1_inputs_legacy"],
 
     # low mu
-    "PhysicsP1_pp_lowMu_run3_v1"  : ["MC_HI_v1","MC_pp_run3_v1_inputs","MC_HI_v1_inputs_legacy"],
+    "PhysicsP1_pp_lowMu_run3_v1"  : ["MC_HI_run3_v1","MC_pp_run3_v1_inputs","MC_HI_run3_v1_inputs_legacy"],
 
     # cosmics
     "Cosmic_run3_v1"       : ["Physics_pp_run3_v1","MC_pp_run3_v1_inputs","MC_pp_run3_v1_inputs_legacy"],
 
     #HI
-    "Physics_HI_v4"        : ["MC_HI_v1","MC_pp_run3_v1_inputs","MC_HI_v1_inputs_legacy"],
-    "MC_HI_v4"             : ["MC_HI_v1","MC_pp_run3_v1_inputs","MC_HI_v1_inputs_legacy"],
-    "PhysicsP1_HI_run3_v1" : ["MC_HI_v1","MC_pp_run3_v1_inputs","MC_HI_v1_inputs_legacy"],
-    "Dev_HI_run3_v1"       : ["MC_HI_v1","MC_pp_run3_v1_inputs","MC_HI_v1_inputs_legacy"],
+    "PhysicsP1_HI_run3_v1" : ["MC_HI_run3_v1","MC_pp_run3_v1_inputs","MC_HI_run3_v1_inputs_legacy"],
+    "Dev_HI_run3_v1"       : ["MC_HI_run3_v1","MC_pp_run3_v1_inputs","MC_HI_run3_v1_inputs_legacy"],
 }
