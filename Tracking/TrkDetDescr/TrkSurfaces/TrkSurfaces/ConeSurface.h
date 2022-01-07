@@ -93,6 +93,9 @@ public:
   /**Equality operator*/
   virtual bool operator==(const Surface& sf) const override;
 
+  // Needed to prevent ambiguities with c++20.
+  bool operator==(const ConeSurface& cf) const;
+
   /**Implicit Constructor*/
   virtual ConeSurface* clone() const override;
   
