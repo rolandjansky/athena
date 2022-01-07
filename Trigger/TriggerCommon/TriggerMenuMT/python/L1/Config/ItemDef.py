@@ -666,7 +666,7 @@ class ItemDef:
         MenuItem('L1_4J15p0ETA25' ).setLogic( d.J150ETA25.x(4) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_5J15p0ETA25' ).setLogic( d.J150ETA25.x(5) & physcond).setTriggerType(TT.calo)
 
-        if ('Physics_HI_v' in menuName or 'MC_HI_v' in menuName):
+        if ('Physics_HI_run3_v' in menuName or 'MC_HI_run3_v' in menuName):
             MenuItem('L1_ZB', ctpid=240).setLogic(d.ZB_J75  & physcond).setTriggerType(TT.zerobs)
         else:
             MenuItem('L1_ZB', ctpid=240).setLogic(d.ZB_EM15 & physcond).setTriggerType(TT.zerobs)
