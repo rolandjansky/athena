@@ -507,13 +507,13 @@ def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
     acc = ComponentAccumulator()
 
     tool = None
-    if flags.InDet.kalmanUpdator == "fast" :
+    if flags.InDet.Tracking.kalmanUpdator == "fast" :
         tool = CompFactory.Trk.KalmanUpdator_xk(name = the_name, **kwargs)
-    elif flags.InDet.kalmanUpdator == "weight" :
+    elif flags.InDet.Tracking.kalmanUpdator == "weight" :
         tool = CompFactory.Trk.KalmanWeightUpdator(name = the_name, **kwargs)
-    elif flags.InDet.kalmanUpdator == "smatrix" :
+    elif flags.InDet.Tracking.kalmanUpdator == "smatrix" :
         tool = CompFactory.Trk.KalmanUpdatorSMatrix(name = the_name, **kwargs)
-    elif flags.InDet.kalmanUpdator == "amg" :
+    elif flags.InDet.Tracking.kalmanUpdator == "amg" :
         tool = CompFactory.Trk.KalmanUpdatorAmg(name = the_name, **kwargs)
     else :
         tool = CompFactory.Trk.KalmanUpdator(name = the_name, **kwargs)
@@ -1364,7 +1364,7 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
     kwargs.setdefault("nnCutConfig", "dev/TrackingCP/LRTAmbiNetwork/20200727_225401/nn-config.json" )
-    kwargs.setdefault("nnCutThreshold", flags.InDet.nnCutLargeD0Threshold )
+    kwargs.setdefault("nnCutThreshold", flags.InDet.Tracking.nnCutLargeD0Threshold )
     kwargs.setdefault("Extrapolator", InDetExtrapolator )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
     kwargs.setdefault("useAmbigFcn", True )

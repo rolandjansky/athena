@@ -16,14 +16,17 @@ def createInDetConfigFlags():
 
   ### Tracking parameters
 
+  icf.addFlag("InDet.Tracking.kalmanUpdator", "smatrix") # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg")
   icf.addFlag("InDet.Tracking.doRefit", False) # Turn running of refitting on and off
+  icf.addFlag("InDet.Tracking.propagatorType", "RungeKutta") # control which propagator to use ('RungeKutta'/'STEP')
   icf.addFlag("InDet.Tracking.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
   icf.addFlag("InDet.Tracking.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.Tracking.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.Tracking.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   icf.addFlag("InDet.Tracking.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
-  icf.addFlag("InDet.Tracking.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
-
+  icf.addFlag("InDet.Tracking.doBeamHalo", False) # Turn running of BeamHalo second pass on and off / Which second pass?
+  icf.addFlag("InDet.Tracking.useBeamSpotInfoNN", True) # use beam spot position in pixel NN
+  icf.addFlag("InDet.Tracking.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
 
   ### Tracking passes/configurations scheduled
 
@@ -32,7 +35,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doTrackSegmentsTRT", False) # Turn running of track segment creation in TRT on and off
   icf.addFlag("InDet.Tracking.doHighPileup", False) # Turn running of high pile-up reconstruction on and off
   icf.addFlag("InDet.Tracking.doTRTExtension", True) # turn on / off TRT extensions
-  icf.addFlag("InDet.doTrtSegments", lambda prevFlags: prevFlags.InDet.Tracking.doBackTracking or prevFlags.InDet.Tracking.doTRTStandalone) # control to run TRT Segment finding (do it always after new tracking!)
+  icf.addFlag("InDet.Tracking.doTRTSegments", lambda prevFlags: prevFlags.InDet.Tracking.doBackTracking or prevFlags.InDet.Tracking.doTRTStandalone) # control to run TRT Segment finding (do it always after new tracking!)
   icf.addFlag("InDet.Tracking.doBackTracking", True) # Turn running of backtracking on and off
   icf.addFlag("InDet.Tracking.doLargeD0", False)
   icf.addFlag("InDet.Tracking.doR3LargeD0", True)
@@ -45,10 +48,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", True)
   icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
 
-  icf.addFlag("InDet.useBeamSpotInfoNN", True) # use beam spot service in new tracking
-  icf.addFlag("InDet.kalmanUpdator", "smatrix") # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg")
-  icf.addFlag("InDet.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
-  icf.addFlag("InDet.propagatorType", "RungeKutta") # control which propagator to use ('RungeKutta'/'STEP')
   icf.addFlag("InDet.trackFitterType", "GlobalChi2Fitter") # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter'
   icf.addFlag("InDet.useHolesFromPattern", False)
   icf.addFlag("InDet.useZvertexTool", False) # start with Zvertex finding

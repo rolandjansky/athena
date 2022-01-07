@@ -336,7 +336,7 @@ def InDetTrackRecoCfg(flags):
 
     # TRT segments
     # Different from TRT track segments at the top as takes as input previously built track collections
-    if flags.InDet.doTrtSegments:
+    if flags.InDet.Tracking.doTRTSegments:
         from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
         result.merge(TRTSegmentFindingCfg(flags,
                                           extension = "",
