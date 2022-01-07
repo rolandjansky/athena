@@ -551,11 +551,6 @@ if __name__ == "__main__":
     # Disable calo for this test
     ConfigFlags.Detector.EnableCalo = False
 
-    # TODO add these flags in future
-    # ConfigFlags.addFlag('InDet.doAmbiSolving', True)
-    # ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
-    # ConfigFlags.addFlag('InDet.holeSearchInGX2Fit', True)
-
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
     ConfigFlags.lock()

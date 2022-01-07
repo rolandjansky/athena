@@ -141,7 +141,7 @@ def NnPixelClusterSplitProbToolCfg(flags, name="NnPixelClusterSplitProbTool", **
 
     kwargs.setdefault("PriorMultiplicityContent", MultiplicityContent)
     kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
-    kwargs.setdefault("useBeamSpotInfo", flags.InDet.useBeamSpotInfoNN)
+    kwargs.setdefault("useBeamSpotInfo", flags.InDet.Tracking.useBeamSpotInfoNN)
 
     NnPixelClusterSplitProbTool = CompFactory.InDet.NnPixelClusterSplitProbTool(name=name,**kwargs)
 
@@ -158,7 +158,7 @@ def NnPixelClusterSplitterCfg(flags, name="NnPixelClusterSplitter", **kwargs):
     kwargs.setdefault("ThresholdSplittingIntoTwoClusters", 0.5)
     kwargs.setdefault("ThresholdSplittingIntoThreeClusters", 0.25)
     kwargs.setdefault("SplitOnlyOnBLayer", False)
-    kwargs.setdefault("useBeamSpotInfo", flags.InDet.useBeamSpotInfoNN)
+    kwargs.setdefault("useBeamSpotInfo", flags.InDet.Tracking.useBeamSpotInfoNN)
     # --- new NN splitter
     NnPixelClusterSplitter = CompFactory.InDet.NnPixelClusterSplitter(name=name,**kwargs)
 

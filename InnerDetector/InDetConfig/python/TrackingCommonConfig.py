@@ -791,7 +791,7 @@ def InDetTrackFitterCfg(flags, name='InDetTrackFitter', **kwargs) :
             'DistributedKalmanFilter' : DistributedKalmanFilterCfg,
             'GlobalChi2Fitter'        : InDetGlobalChi2FitterCfg,
             'GaussianSumFilter'       : GaussianSumFitterCfg
-    }[flags.InDet.trackFitterType](flags, name=name, **kwargs)
+    }[flags.InDet.Tracking.trackFitterType](flags, name=name, **kwargs)
 
 
 def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
@@ -878,7 +878,7 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
 def InDetTrackFitterTRTCfg(flags, name='InDetTrackFitterTRT', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.trackFitterType != 'GlobalChi2Fitter' :
+    if flags.InDet.Tracking.trackFitterType != 'GlobalChi2Fitter' :
         InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
         acc.setPrivateTools(InDetTrackFitter)
     else :
@@ -913,7 +913,7 @@ def InDetGlobalChi2FitterLowPtCfg(flags, name='InDetGlobalChi2FitterLowPt', **kw
 def InDetTrackFitterLowPt(flags, name='InDetTrackFitter', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.trackFitterType != 'GlobalChi2Fitter' :
+    if flags.InDet.Tracking.trackFitterType != 'GlobalChi2Fitter' :
         InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
         acc.setPrivateTools(InDetTrackFitter)
     else :
@@ -935,7 +935,7 @@ def InDetGlobalChi2FitterBTCfg(flags, name='InDetGlobalChi2FitterBT', **kwargs):
 def InDetTrackFitterBTCfg(flags, name='InDetTrackFitterBT', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.trackFitterType != 'GlobalChi2Fitter' :
+    if flags.InDet.Tracking.trackFitterType != 'GlobalChi2Fitter' :
         InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
         acc.setPrivateTools(InDetTrackFitter)
     else :
@@ -1121,12 +1121,12 @@ def TRT_DetElementsRoadCondAlgCfg(flags, **kwargs):
 
 def InDetTRT_ExtensionToolCfg(flags, **kwargs):
     # @TODO set all names to InDetTRT_ExtensionTool ?
-    if flags.InDet.trtExtensionType == 'xk':
+    if flags.InDet.Tracking.trtExtensionType == 'xk':
         if flags.Beam.Type == "cosmics":
             return InDetTRT_ExtensionToolCosmicsCfg(flags, **kwargs)
         else:
             return InDetTRT_TrackExtensionTool_xkCfg(flags, **kwargs)
-    if flags.InDet.trtExtensionType == 'DAF':
+    if flags.InDet.Tracking.trtExtensionType == 'DAF':
         return InDetTRT_TrackExtensionTool_DAFCfg(flags, name='InDetTRT_ExtensionTool', **kwargs)
 
 #############################################################################################
@@ -1305,7 +1305,7 @@ def InDetAmbiScoringToolSiCfg(flags, name='InDetAmbiScoringToolSi', **kwargs) :
 
 def InDetExtenScoringToolCfg(flags, name='InDetExtenScoringTool', **kwargs) :
     acc = ComponentAccumulator()
-    if flags.InDet.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
+    if flags.InDet.Tracking.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
         kwargs.setdefault("minTRTPrecisionFraction", 0.2)
     kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.Pass.minTRTonTrk)
     kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.Pass.minTRTPrecFrac)

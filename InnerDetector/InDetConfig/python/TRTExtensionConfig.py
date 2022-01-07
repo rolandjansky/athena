@@ -57,7 +57,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     # set output extension map name
     OutputExtendedTracks = ExtendedTracksMap
 
-    if flags.InDet.trtExtensionType == 'DAF' :
+    if flags.InDet.Tracking.trtExtensionType == 'DAF' :
         #
         # --- DAF Fitter setup
         #
@@ -65,11 +65,12 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
         acc.addPublicTool(InDetExtensionFitter)
     else:
         fitter_args = {}
-        if True: #flags.InDet.holeSearchInGX2Fit:
+        if flags.InDet.Tracking.holeSearchInGX2Fit:
             fitter_args.setdefault("DoHoleSearch", True)
             from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
             InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
             fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
+
         if flags.InDet.Tracking.Pass.extension != "LowPt":
             InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.Pass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
@@ -105,7 +106,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery)
     kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
-    kwargs.setdefault("RefitPrds", not (flags.InDet.refitROT or (flags.InDet.trtExtensionType == 'DAF')))
+    kwargs.setdefault("RefitPrds", not (flags.InDet.refitROT or (flags.InDet.Tracking.trtExtensionType == 'DAF')))
     
     if doPhase:
         kwargs.setdefault("Cosmics", True)
@@ -160,12 +161,11 @@ if __name__ == "__main__":
 
     ConfigFlags.Detector.GeometryPixel = True 
     ConfigFlags.Detector.GeometrySCT = True
-    ConfigFlags.Detector.GeometryTRT   = True
+    ConfigFlags.Detector.GeometryTRT = True
 
-    ConfigFlags.addFlag('InDet.doTRTExtension', True)
-    ConfigFlags.addFlag('InDet.doExtensionProcessor', True)
-    ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
-    ConfigFlags.addFlag('InDet.holeSearchInGX2Fit', True)
+    ConfigFlags.InDet.Tracking.doTRTExtension = True
+    ConfigFlags.InDet.Tracking.useHolesFromPattern = False
+    ConfigFlags.InDet.Tracking.holeSearchInGX2Fit = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO
@@ -239,15 +239,14 @@ if __name__ == "__main__":
     top_acc.merge(TRTSegmentFindingCfg( ConfigFlags,
                                         extension = "",
                                         InputCollections = InputCollections,
-                                        BarrelSegments = 'TRTSegments', # InDetKeys.TRT_Segments
+                                        BarrelSegments = 'TRTSegments',
                                         doPhase = False))
 
     ####################### TrackingSiPattern #############################
-    if ConfigFlags.InDet.doSiSPSeededTrackFinder:
-        from InDetConfig.TrackingSiPatternConfig import SiSPSeededTrackFinderCfg
-        top_acc.merge(SiSPSeededTrackFinderCfg( ConfigFlags,
-                                                InputCollections = InputCollections, 
-                                                SiSPSeededTrackCollectionKey = InDetSpSeededTracksKey))
+    from InDetConfig.TrackingSiPatternConfig import SiSPSeededTrackFinderCfg
+    top_acc.merge(SiSPSeededTrackFinderCfg( ConfigFlags,
+                                            InputCollections = InputCollections,
+                                            SiSPSeededTrackCollectionKey = InDetSpSeededTracksKey))
 
     ########################## Clusterization #############################
     from InDetConfig.ClusterizationConfig import InDetClusterizationAlgorithmsCfg

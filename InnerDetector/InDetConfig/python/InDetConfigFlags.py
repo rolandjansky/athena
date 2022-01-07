@@ -16,6 +16,10 @@ def createInDetConfigFlags():
 
   ### Tracking parameters
 
+  icf.addFlag("InDet.Tracking.useHolesFromPattern", False)
+  icf.addFlag("InDet.Tracking.useZvertexTool", False) # start with Zvertex finding
+  icf.addFlag("InDet.Tracking.holeSearchInGX2Fit", True)
+  icf.addFlag("InDet.Tracking.trackFitterType", "GlobalChi2Fitter") # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter'
   icf.addFlag("InDet.Tracking.kalmanUpdator", "smatrix") # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg")
   icf.addFlag("InDet.Tracking.doRefit", False) # Turn running of refitting on and off
   icf.addFlag("InDet.Tracking.propagatorType", "RungeKutta") # control which propagator to use ('RungeKutta'/'STEP')
@@ -27,6 +31,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doBeamHalo", False) # Turn running of BeamHalo second pass on and off / Which second pass?
   icf.addFlag("InDet.Tracking.useBeamSpotInfoNN", True) # use beam spot position in pixel NN
   icf.addFlag("InDet.Tracking.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
+  icf.addFlag("InDet.Tracking.trtExtensionType", 'xk') # which extension type ("xk"/"DAF")
 
   ### Tracking passes/configurations scheduled
 
@@ -48,11 +53,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", True)
   icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
 
-  icf.addFlag("InDet.trackFitterType", "GlobalChi2Fitter") # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter'
-  icf.addFlag("InDet.useHolesFromPattern", False)
-  icf.addFlag("InDet.useZvertexTool", False) # start with Zvertex finding
-  icf.addFlag("InDet.doSiSPSeededTrackFinder", True) # use track finding in silicon
-  icf.addFlag("InDet.trtExtensionType", 'xk') # which extension type ("xk"/"DAF")
   icf.addFlag("InDet.redoTRT_LR", True) # use smart TRT LR/tube hit creator and redo ROTs
   icf.addFlag("InDet.doTRTPhaseCalculation", False) # control to run TRT phase calculation
   icf.addFlag("InDet.doTRTSeededTrackFinder", True) # control running the back tracking

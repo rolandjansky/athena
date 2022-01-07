@@ -150,7 +150,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     kwargs.setdefault("SCT_ClusterContainer", "SCT_Clusters")
 
     if flags.InDet.Tracking.Pass.extension == "":
-        kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
+        kwargs.setdefault("writeHolesFromPattern", flags.InDet.Tracking.useHolesFromPattern)
 
     if flags.Detector.EnablePixel:
         from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -280,11 +280,11 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
         kwargs.setdefault("PRDtoTrackMap", 'InDetPRDtoTrackMap'+ flags.InDet.Tracking.Pass.extension)
 
     if flags.InDet.Tracking.Pass.extension == "ForwardTracks" or flags.InDet.Tracking.Pass.extension == "DBM":
-        kwargs.setdefault("useZvertexTool", flags.InDet.useZvertexTool and flags.InDet.Tracking.Pass.extension == "ForwardTracks")
+        kwargs.setdefault("useZvertexTool", flags.InDet.Tracking.useZvertexTool and flags.InDet.Tracking.Pass.extension == "ForwardTracks")
         kwargs.setdefault("useNewStrategy", False)
         kwargs.setdefault("useZBoundFinding", False)
     else:
-        kwargs.setdefault("useZvertexTool", flags.InDet.useZvertexTool)
+        kwargs.setdefault("useZvertexTool", flags.InDet.Tracking.useZvertexTool)
         kwargs.setdefault("useNewStrategy", flags.InDet.useNewSiSPSeededTF)
         kwargs.setdefault("useZBoundFinding", flags.InDet.Tracking.Pass.doZBoundary)
     
@@ -298,7 +298,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
         kwargs.setdefault("FreeClustersCut",2) #Heavy Ion optimization from Igor
 
     if flags.InDet.Tracking.Pass.extension == "":
-        kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
+        kwargs.setdefault("writeHolesFromPattern", flags.InDet.Tracking.useHolesFromPattern)
 
     InDetSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
     acc.addEventAlgo(InDetSiSPSeededTrackFinder)
@@ -393,7 +393,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityS
     # --- set up different Scoring Tool for collisions and cosmics
     if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.Pass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
-    elif flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0:
+    elif flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
@@ -437,7 +437,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     # --- set up different Scoring Tool for collisions and cosmics
     if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.Pass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
-    elif flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0 :
+    elif flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
@@ -448,7 +448,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     fitter_args.setdefault("nameSuffix", 'Ambi'+flags.InDet.Tracking.Pass.extension)
     fitter_args.setdefault("ClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
 
-    if True: #flags.InDet.holeSearchInGX2Fit:
+    if flags.InDet.Tracking.holeSearchInGX2Fit:
         fitter_args.setdefault("DoHoleSearch", True)
         from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
         InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
@@ -498,7 +498,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.Pass.extension == "")
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
-    kwargs.setdefault("KeepHolesFromBeforeRefit", flags.InDet.useHolesFromPattern)
+    kwargs.setdefault("KeepHolesFromBeforeRefit", flags.InDet.Tracking.useHolesFromPattern)
 
     InDetAmbiguityProcessor = CompFactory.Trk.DenseEnvironmentsAmbiguityProcessorTool(name=name+flags.InDet.Tracking.Pass.extension, **kwargs)
     acc.setPrivateTools(InDetAmbiguityProcessor)
@@ -512,7 +512,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     #
     if flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.Pass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
-    elif(flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.nnCutLargeD0Threshold > 0):
+    elif flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
@@ -617,25 +617,22 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     #
     # ------------------------------------------------------------
 
-    if flags.InDet.doSiSPSeededTrackFinder:
-        acc.merge(SiSPSeededTrackFinderCfg( flags,
-                                            InputCollections = InputCollections,
-                                            SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
+    acc.merge(SiSPSeededTrackFinderCfg( flags,
+                                        InputCollections = InputCollections,
+                                        SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
+
     # ------------------------------------------------------------
     #
     # ---------- Ambiguity solving
     #
     # ------------------------------------------------------------
-    if True: #flags.InDet.doAmbiSolving: is this flag needed
-        #
-        # --- load InnerDetector TrackSelectionTool
-        #
-        acc.merge(TrkAmbiguityScoreCfg( flags,
-                                        SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
 
-        acc.merge(TrkAmbiguitySolverCfg(flags,
-                                        ResolvedTrackCollectionKey = ResolvedTrackCollectionKey,
-                                        ClusterSplitProbContainer = ClusterSplitProbContainer))
+    acc.merge(TrkAmbiguityScoreCfg( flags,
+                                    SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
+
+    acc.merge(TrkAmbiguitySolverCfg(flags,
+                                    ResolvedTrackCollectionKey = ResolvedTrackCollectionKey,
+                                    ClusterSplitProbContainer = ClusterSplitProbContainer))
 
     return acc
 
