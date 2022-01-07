@@ -83,6 +83,11 @@ def getNewConfigFlags():
     from LArConditionsCommon.LArCondFlags import larCondFlags 
     ConfigFlags.LAr.OFCShapeFolder = larCondFlags.OFCShapeFolder()
 
+    # data overlay
+    from AthenaCommon.GlobalFlags import globalflags
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    ConfigFlags.Overlay.DataOverlay = globalflags.isOverlay() and overlayFlags.isDataOverlay()
+
     if rec.doDPD():
         # flags for Physics Validation (ATLASRECTS-6636)
         ConfigFlags.BTagging.SaveSV1Probabilities = True
