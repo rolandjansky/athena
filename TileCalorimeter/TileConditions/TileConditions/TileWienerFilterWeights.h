@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEWIENERFILTERWEIGHTS_H
@@ -24,7 +24,7 @@ class  TileWienerFilterWeights {
   ~TileWienerFilterWeights();
 
   void loadWeights(MsgStream &log);
-  TileWienerFilterWeightsStruct * TileWFstruct() { return m_weights; }
+  const TileWienerFilterWeightsStruct * TileWFstruct() const { return m_weights; }
   bool loaded()    { return m_loaded; }
 
  private:
