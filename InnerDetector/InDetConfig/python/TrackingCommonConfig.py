@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
@@ -811,11 +811,12 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
 
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     from TrkConfig.AtlasExtrapolatorToolsConfig import (
-        AtlasNavigatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg)
+        AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg, InDetPropagatorCfg, InDetMaterialEffectsUpdatorCfg)
 
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     InDetNavigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetNavigator"))
-    InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
+    ELossUpdator = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags))
+    InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
     InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
 
     InDetMultipleScatteringUpdator = acc.popToolsAndMerge(
@@ -828,6 +829,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     kwargs.setdefault("NavigatorTool", InDetNavigator)
     kwargs.setdefault("PropagatorTool", InDetPropagator)
     kwargs.setdefault("MultipleScatteringTool", InDetMultipleScatteringUpdator)
+    kwargs.setdefault("EnergyLossTool", ELossUpdator)
     kwargs.setdefault("MeasurementUpdateTool", InDetUpdator)
     kwargs.setdefault("MaterialUpdateTool", InDetMaterialEffectsUpdator)
     kwargs.setdefault("StraightLine", not flags.BField.solenoidOn)

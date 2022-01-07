@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -32,12 +32,11 @@ def CaloGeoAndNoiseCfg(inputFlags):
 def PFExtrapolatorCfg(flags):
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     result = ComponentAccumulator()
-    extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
-    result.merge(extrapolator_acc)
+    extrapolator = result.popToolsAndMerge(InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator"))
     result.setPrivateTools(
         CompFactory.Trk.ParticleCaloExtensionTool(
             "HLTPF_ParticleCaloExtension",
-            Extrapolator=extrapolator_acc.getPrimary(),
+            Extrapolator=extrapolator,
         )
     )
     return result
@@ -76,8 +75,7 @@ def MuonCaloTagCfg(flags, tracktype, tracksin, extcache, cellsin):
     """
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     result = ComponentAccumulator()
-    extrapolator_acc = InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator")
-    result.merge(extrapolator_acc)
+    extrapolator = result.popToolsAndMerge(InDetExtrapolatorCfg(flags, "InDetTrigExtrapolator"))
     output_tracks = f"PFMuonCaloTagTracks_{tracktype}"
 
     result.addEventAlgo(
@@ -98,7 +96,7 @@ def MuonCaloTagCfg(flags, tracktype, tracksin, extcache, cellsin):
             LooseTagTool=CompFactory.CaloMuonTag("LooseCaloMuonTag", TagMode="Loose"),
             TightTagTool=CompFactory.CaloMuonTag("TightCaloMuonTag", TagMode="Tight"),
             DepositInCaloTool=CompFactory.TrackDepositInCaloTool(
-                ExtrapolatorHandle=extrapolator_acc.getPrimary(),
+                ExtrapolatorHandle=extrapolator,
                 ParticleCaloCellAssociationTool=CompFactory.Rec.ParticleCaloCellAssociationTool(
                     ParticleCaloExtensionTool=result.popToolsAndMerge(PFExtrapolatorCfg(flags)),
                     CaloCellContainer=""

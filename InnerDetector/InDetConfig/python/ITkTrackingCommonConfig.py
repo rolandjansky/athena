@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 from IOVDbSvc.IOVDbSvcConfig                  import addFoldersSplitOnline
@@ -618,12 +618,13 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
         kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, ITkPropagatorCfg, ITkMaterialEffectsUpdatorCfg
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg, ITkPropagatorCfg, ITkMaterialEffectsUpdatorCfg
     from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
 
     Extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     Navigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags))
-    ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
+    ELossUpdator = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags))
+    ITkPropagator = acc.popToolsAndMerge(ITkPropagatorCfg(flags))
     ITkUpdator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
     ITkMultipleScatteringUpdator = acc.popToolsAndMerge(ITkMultipleScatteringUpdatorCfg(flags))
     ITkMaterialEffectsUpdator = acc.popToolsAndMerge(ITkMaterialEffectsUpdatorCfg(flags))
@@ -632,6 +633,7 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
     kwargs.setdefault("NavigatorTool", Navigator)
     kwargs.setdefault("PropagatorTool", ITkPropagator)
     kwargs.setdefault("MultipleScatteringTool", ITkMultipleScatteringUpdator)
+    kwargs.setdefault("EnergyLossTool", ELossUpdator)
     kwargs.setdefault("MeasurementUpdateTool", ITkUpdator)
     kwargs.setdefault("MaterialUpdateTool", ITkMaterialEffectsUpdator)
     kwargs.setdefault("StraightLine", not flags.BField.solenoidOn)

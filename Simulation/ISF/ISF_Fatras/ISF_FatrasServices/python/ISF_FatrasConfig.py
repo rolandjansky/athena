@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "New configuration for the ISF_FatrasSimTool"
 
@@ -354,6 +354,9 @@ def fatrasEnergyLossUpdatorCfg(flags, name="ISF_FatrasEnergyLossUpdator", **kwar
 
     kwargs.setdefault("UsePDG_EnergyLossFormula", True)
     kwargs.setdefault("EnergyLossDistribution", 2)
+
+    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasEnergyLossUpdatorCfg
+    kwargs.setdefault("EnergyLossUpdator", result.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags)))
 
     iFatras__McEnergyLossUpdator = CompFactory.iFatras.McEnergyLossUpdator
     result.setPrivateTools(iFatras__McEnergyLossUpdator(name=name, **kwargs))

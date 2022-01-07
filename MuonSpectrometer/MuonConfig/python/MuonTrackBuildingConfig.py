@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonSTEP_PropagatorCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterTool
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterTool
+from TrkConfig.AtlasExtrapolatorToolsConfig import MuonSTEP_PropagatorCfg
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 
 def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
@@ -241,7 +242,8 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
 
 def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool", **kwargs):
     Muon__MuonSegmentRegionRecoveryTool=CompFactory.Muon.MuonSegmentRegionRecoveryTool
-    from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg, MuonStationIntersectSvcCfg, MuonTrackSummaryToolCfg
+    from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
+    from MuonConfig.MuonRecToolsConfig import MuonStationIntersectSvcCfg, MuonTrackSummaryToolCfg
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L426
     
     result = MuonSeededSegmentFinderCfg(flags)
@@ -349,7 +351,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     result=ComponentAccumulator()
     # Not setting explicitly MuonStationIntersectSvc
 
-    from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
+    from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
     acc = MuonExtrapolatorCfg(flags)
     kwargs.setdefault("Extrapolator", result.popToolsAndMerge(acc))
 

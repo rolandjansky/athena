@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Configure GSF track fitter building"
 
@@ -22,6 +22,11 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
 
         egTrkNavigator = AtlasNavigatorCfg(flags, name="egTrkNavigator")
         kwargs["Navigator"] = acc.popToolsAndMerge(egTrkNavigator)
+
+    if "EnergyLossUpdator" not in kwargs:
+        from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasEnergyLossUpdatorCfg
+        ELossUpdator = AtlasEnergyLossUpdatorCfg(flags)
+        kwargs["EnergyLossUpdator"] = acc.popToolsAndMerge(ELossUpdator)
 
     if "GsfMaterialConvolution" not in kwargs:
         GsfMaterialUpdator = CompFactory.Trk.GsfMaterialMixtureConvolution(

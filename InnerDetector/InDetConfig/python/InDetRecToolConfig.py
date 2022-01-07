@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -134,7 +134,9 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
 
   if 'Extrapolator' not in kwargs :
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    kwargs.setdefault("Extrapolator", result.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
+    InDetExtrapolator = result.popToolsAndMerge(InDetExtrapolatorCfg(flags))
+    result.addPublicTool(InDetExtrapolator)  # TODO: migrate to private?
+    kwargs.setdefault("Extrapolator", InDetExtrapolator)
 
   kwargs.setdefault("CheckActiveAreas", flags.InDet.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDeadRegions", flags.InDet.checkDeadElementsOnTrack)

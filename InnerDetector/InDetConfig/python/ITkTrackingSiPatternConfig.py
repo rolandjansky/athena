@@ -241,7 +241,7 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     ITkSiTrackMaker = acc.popToolsAndMerge(ITkSiTrackMaker_xkCfg(flags,
                                                                  InputCollections = InputCollections ))
     from TrkConfig.AtlasExtrapolatorToolsConfig import ITkPropagatorCfg
-    ITkPropagator = acc.getPrimaryAndMerge(ITkPropagatorCfg(flags))
+    ITkPropagator = acc.popToolsAndMerge(ITkPropagatorCfg(flags))
     ITkTrackSummaryToolNoHoleSearch = acc.getPrimaryAndMerge(TC.ITkTrackSummaryToolNoHoleSearchCfg(flags))
     ITkSiSpacePointsSeedMaker = acc.popToolsAndMerge(ITkSiSpacePointsSeedMakerCfg(flags,
                                                                                   InputCollections = InputCollections ))
