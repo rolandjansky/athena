@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
 from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnlyMVA,  tauMonitoringPrecisionMVA
@@ -68,9 +68,10 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getTauClusterFinder())
             tools.append(taualgs.getTauVertexedClusterDecorator())
 
-            if doTrackBDT:                
-                # BDT track classification
-                tools.append(taualgs.getTauTrackClassifier())
+            from AthenaCommon.Logging import log
+            if doTrackBDT:
+                # BDT track classification is deprecated, RNN track classification feasibility under study
+                log.warning( "BDT track classifier is deprecated and won't be scheduled")
 
             # Calibrate to calo TES
             tools.append(taualgs.getEnergyCalibrationLC())
@@ -88,14 +89,12 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getTauCommonCalcVars())
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
-            #Run either nominal or LLP rnn, not both 
 
-            from AthenaCommon.Logging import log
+            #Run either nominal or LLP RNN ID, not both 
             if doLLP and doRNN:
                log.warning( "WARNING doLLP and doRNN flags both set to True -> will set doRNN to False")
                doRNN = False
                
-
             if doLLP:
                 # RNN tau ID for displaced tau signatures (placeholder configs)
                 tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="llpdev/net_experimental_llz_0p.json",
