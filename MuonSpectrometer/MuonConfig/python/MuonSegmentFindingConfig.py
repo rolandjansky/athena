@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # This file configures the Muon segment finding. It is based on a few files in the old configuration system:
 # Tools, which are configured here: 
@@ -22,7 +22,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 #Local
 from MuonConfig.MuonCalibrationConfig import MdtCalibrationDbToolCfg
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MCTBSLFitterMaterialFromTrackCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterTool
-from MuonConfig.MuonRecToolsConfig import MuonStraightLineExtrapolatorCfg
+from TrkConfig.AtlasExtrapolatorConfig import MuonStraightLineExtrapolatorCfg
 from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtCalibWindowNumber
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
@@ -702,6 +702,7 @@ def MuonSegmentFinderAlgCfg(flags, name="MuonSegmentMaker", **kwargs):
     
     acc = MuonStraightLineExtrapolatorCfg(flags)
     extrapolator = acc.getPrimary()
+    result.addPublicTool(extrapolator)
     result.merge(acc)
 
     acc = MCTBSLFitterMaterialFromTrackCfg(flags)
