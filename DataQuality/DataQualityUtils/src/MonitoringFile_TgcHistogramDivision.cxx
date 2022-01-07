@@ -37,7 +37,7 @@
 namespace dqutils {
   
   void
-  MonitoringFile::TGCRawHistogramDivision(std::string inFilename)
+  MonitoringFile::TGCRawHistogramDivision(const std::string & inFilename)
   {
     PostProcessorFileWrapper mf( inFilename , "TGC Raw Histogram Division");
     if (!mf.IsOpen()) {
@@ -196,7 +196,7 @@ namespace dqutils {
   }
   
   void
-  MonitoringFile::TGCLV1HistogramDivision(std::string inFilename)
+  MonitoringFile::TGCLV1HistogramDivision(const std::string & inFilename)
   {
     PostProcessorFileWrapper mf( inFilename , "TGC LV1 Histogram Division");
     if (!mf.IsOpen()) {

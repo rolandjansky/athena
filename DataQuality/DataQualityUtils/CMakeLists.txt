@@ -22,7 +22,6 @@ atlas_add_library( DataQualityUtils
                    src/MonitoringFile.cxx
                    src/MonitoringFile_CSCPostProcess.cxx
                    src/MonitoringFile_RPCPostProcess.cxx
-                   src/MonitoringFile_MDTPostProcess.cxx
                    src/MonitoringFile_TGCPostProcess.cxx
                    src/MonitoringFile_MDTvsTGCPostProcess.cxx
                    src/MonitoringFile_PPFileWrapper.cxx
@@ -39,7 +38,6 @@ atlas_add_library( DataQualityUtils
                    src/MonitoringFile_HLTJetPostProcess.cxx
                    src/MonitoringFile_HLTMinBiasMonPostProcess.cxx
                    src/MonitoringFile_PixelPostProcess.cxx
-                   src/MonitoringFile_SCTPostProcess.cxx
                    src/MonitoringFile_MuonTrackPostProcess.cxx
                    src/MonitoringFile_MergeAlgs.cxx
                    src/StatusFlagCOOL.cxx

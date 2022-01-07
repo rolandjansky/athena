@@ -37,7 +37,7 @@
 namespace dqutils {
 
   void 
-  MonitoringFile::HLTJetPostProcess( std::string inFilename, bool /* isIncremental */ ) 
+  MonitoringFile::HLTJetPostProcess( const std::string & inFilename, bool /* isIncremental */ ) 
   {
     bool dbgLevel = false;
 

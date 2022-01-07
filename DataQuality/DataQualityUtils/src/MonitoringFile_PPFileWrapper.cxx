@@ -36,7 +36,7 @@
 
 namespace dqutils {
 
-  MonitoringFile::PostProcessorFileWrapper::PostProcessorFileWrapper(std::string inFilename, std::string name) :
+  MonitoringFile::PostProcessorFileWrapper::PostProcessorFileWrapper(const std::string & inFilename, const std::string & name) :
     TFile( inFilename.c_str(), "UPDATE" ),
     m_name(name),
     m_error(0)

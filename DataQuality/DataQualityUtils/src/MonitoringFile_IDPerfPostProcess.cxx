@@ -30,13 +30,12 @@
 #include "RooCBShape.h"
 #include "RooFFTConvPdf.h"
 #include "RooGlobalFunc.h"
-#include "RooPlot.h"
 
 namespace dqutils {
 
 void 
 MonitoringFile::
-fitMergedFile_IDPerfMonManager( std::string inFilename, bool /* isIncremental */ )
+fitMergedFile_IDPerfMonManager( const std::string & inFilename, bool /* isIncremental */ )
 {
   //std::cout << "\n";
   //std::cout << "Running Inner-Detector performance-monitoring analysis\n";
@@ -301,7 +300,7 @@ fitMergedFile_IDPerfMonManager( std::string inFilename, bool /* isIncremental */
 
 void
 MonitoringFile::
-fitMergedFile_IDPerfMonKshort( TFile* f, std::string run_dir, std::string TriggerName )
+fitMergedFile_IDPerfMonKshort( TFile* f, const std::string & run_dir, const std::string & TriggerName )
 {
   std::string path;
   path= run_dir + "IDPerfMon/Kshort/" + TriggerName;
@@ -702,7 +701,7 @@ fitMergedFile_IDPerfMonKshort( TFile* f, std::string run_dir, std::string Trigge
 //Jpsi plots merging 
 void
 MonitoringFile::
-fitMergedFile_IDPerfMonJpsi( TFile* f, std::string run_dir, std::string TriggerName )
+fitMergedFile_IDPerfMonJpsi( TFile* f, const std::string & run_dir, const std::string & TriggerName )
 { 
   std::string path;
   path= run_dir+"IDPerfMon/Jpsi/"+TriggerName;
@@ -1038,7 +1037,7 @@ fitMergedFile_IDPerfMonJpsi( TFile* f, std::string run_dir, std::string TriggerN
 //Upsilon
 void
 MonitoringFile::
-fitMergedFile_IDPerfMonUpsilon( TFile* f, std::string run_dir, std::string TriggerName )
+fitMergedFile_IDPerfMonUpsilon( TFile* f, const std::string & run_dir, const std::string & TriggerName )
 {
   std::string path;
   path=run_dir+"IDPerfMon/Upsilon/"+TriggerName;
@@ -1320,7 +1319,7 @@ fitMergedFile_IDPerfMonUpsilon( TFile* f, std::string run_dir, std::string Trigg
 
 void
 MonitoringFile::
-fitMergedFile_IDPerfMonZee ( TFile* f, std::string run_dir,std::string TriggerName )
+fitMergedFile_IDPerfMonZee ( TFile* f, const std::string & run_dir,const std::string & TriggerName )
 {
 
   std::string path;
@@ -1503,7 +1502,7 @@ fitMergedFile_IDPerfMonZee ( TFile* f, std::string run_dir,std::string TriggerNa
 
 void
 MonitoringFile::
-fitMergedFile_IDPerfMonWenu ( TFile* f, std::string run_dir,std::string TriggerName )
+fitMergedFile_IDPerfMonWenu ( TFile* f, const std::string & run_dir, const std::string & TriggerName )
 {
 
   std::string path;
@@ -1689,7 +1688,7 @@ fitMergedFile_IDPerfMonWenu ( TFile* f, std::string run_dir,std::string TriggerN
 
 void
 MonitoringFile::
-fitMergedFile_IDPerfMonZMM ( TFile* f, std::string run_dir,std::string TriggerName ){
+fitMergedFile_IDPerfMonZMM ( TFile* f, const std::string & run_dir, const std::string & TriggerName ){
 
   std::string path;
   std::vector<TH1F*> hvec;

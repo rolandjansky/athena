@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,8 +398,7 @@ namespace dqutils_mdtdeadnoisy {
     }
   }
 
-  void getNoisyList2( TH1F* h, std::vector<int> & no_betweens_middle, std::vector<int> & no_betweens_middle_aggressive, double num_pct, std::vector<int> & noisylist) {
-    if(false) no_betweens_middle.size();   // just to avoid compilation warnings
+  void getNoisyList2( TH1F* h, [[maybe_unused]] std::vector<int> & no_betweens_middle, std::vector<int> & no_betweens_middle_aggressive, double num_pct, std::vector<int> & noisylist) {
     noisylist.clear();
     double mean = getMean(no_betweens_middle_aggressive); // a fancy median
     if( mean > 0 ) {
@@ -431,8 +430,7 @@ namespace dqutils_mdtdeadnoisy {
     }
   }
 
-  void getIneffList2( TH1F* h, std::vector<int> & no_betweens_middle, std::vector<int> & no_betweens_lowmiddle_aggressive, double num_pct, std::vector<int> & inefflist) {
-    if(false) no_betweens_middle.size();   // just to avoid compilation warnings
+  void getIneffList2( TH1F* h, [[maybe_unused]] std::vector<int> & no_betweens_middle, std::vector<int> & no_betweens_lowmiddle_aggressive, double num_pct, std::vector<int> & inefflist) {
     inefflist.clear();
     double mean = getMean(no_betweens_lowmiddle_aggressive); // a fancy median
     for(int i=1; i<=h->GetNbinsX(); i++) {
@@ -441,8 +439,7 @@ namespace dqutils_mdtdeadnoisy {
     }
   }
 
-  void getIneffList2( std::vector<int> & indices, TH1F* h, std::vector<int> & no_betweens_middle, std::vector<int> & no_betweens_lowmiddle_aggressive, double num_pct, std::vector<int> & inefflist) {
-    if(false) no_betweens_middle.size();   // just to avoid compilation warnings
+  void getIneffList2( std::vector<int> & indices, TH1F* h, [[maybe_unused]] std::vector<int> & no_betweens_middle, std::vector<int> & no_betweens_lowmiddle_aggressive, double num_pct, std::vector<int> & inefflist) {
     inefflist.clear();
     double mean = getMean(no_betweens_lowmiddle_aggressive); // a fancy median
     for(unsigned int i=0; i<indices.size(); ++i) {
@@ -452,8 +449,7 @@ namespace dqutils_mdtdeadnoisy {
     }
   }
 
-  void getIneffList2( TH1F* h, std::vector<int> & no_betweens_middle, std::vector<int> & no_betweens_lowmiddle_aggressive, double num_pct_1, double num_pct_2, std::vector<int> & inefflist) {
-    if(false) no_betweens_middle.size();   // just to avoid compilation warnings
+  void getIneffList2( TH1F* h, [[maybe_unused]] std::vector<int> & no_betweens_middle, std::vector<int> & no_betweens_lowmiddle_aggressive, double num_pct_1, double num_pct_2, std::vector<int> & inefflist) {
     inefflist.clear();
     double mean = getMean(no_betweens_lowmiddle_aggressive); // a fancy median
     for(int i=1; i<=h->GetNbinsX(); i++) {
@@ -946,36 +942,37 @@ namespace dqutils_mdtdeadnoisy {
     int tubeID = firstTubeInML;
 
     // int derived_tube = 1;
-    int derived_layer = 1;
+    // int derived_layer = 1;
     int derived_ML = 1;
 
     // Get Number of X
-    int derived_NumTubePerLayer = 1;
+    // int derived_NumTubePerLayer = 1;
     int derived_NumTubePerML = 1;
-    int derived_NumLayer = 1;
-    int derived_NumLayerPerML = 1;
+    // int derived_NumLayer = 1;
+    // int derived_NumLayerPerML = 1;
     int derived_NumML = 1;
     if( hardware_name(0,4) == "BIS8" /*&& hardware_name(5,2) == "12"*/ ) {
-      derived_NumLayerPerML = 3;
+      //derived_NumLayerPerML = 3;
       derived_NumML = 1;
     }
     else if( /*hardware_name(0,4) == "BIS8" ||*/ hardware_name(0,3) == "BEE" ) {
-      derived_NumLayerPerML = 4;
+      //derived_NumLayerPerML = 4;
       derived_NumML = 1;
     }
     else if( hardware_name(0,2) == "BI" || hardware_name(0,2) == "EI" ) {
-      derived_NumLayerPerML = 4;
+      //derived_NumLayerPerML = 4;
       derived_NumML = 2;
     }
     else {
-      derived_NumLayerPerML = 3;
+      //derived_NumLayerPerML = 3;
       derived_NumML = 2;
     }
 
-    derived_NumLayer = derived_NumLayerPerML * derived_NumML;
+    // derived_NumLayer = derived_NumLayerPerML * derived_NumML;
     derived_NumTubePerML = totalTubes / derived_NumML;
-    derived_NumTubePerLayer = totalTubes / derived_NumLayer;
+    //derived_NumTubePerLayer = totalTubes / derived_NumLayer;
 
+#if 0
     // Corrections for derived_NumTubePerLayer
     if( hardware_name(0,4) == "BMS4" || hardware_name(0,4) == "BMS6" )
       derived_NumTubePerLayer = 48;
@@ -993,12 +990,13 @@ namespace dqutils_mdtdeadnoisy {
     }
 //     if( hardware_name(0,4)=="EIL4" && ( hardware_name(5,2)=="09" || hardware_name(5,2)=="01" ) ) // possible MdtIdHelper problem
 //       derived_NumTubePerLayer = 54;
+#endif
 
     // Now get X
     derived_ML = (tubeID-1)/derived_NumTubePerML + 1;
-    derived_layer = (tubeID-1)/derived_NumTubePerLayer + 1;
+    // derived_layer = (tubeID-1)/derived_NumTubePerLayer + 1;
     // derived_tube = tubeID - (derived_layer - 1) * derived_NumTubePerLayer;
-    if(derived_ML==2) derived_layer -= derived_NumLayerPerML;
+    // if(derived_ML==2) derived_layer -= derived_NumLayerPerML;
 
     // final info  
     int lastTubeInML = -1;
@@ -1432,30 +1430,23 @@ namespace dqutils_mdtdeadnoisy {
 	deviant_ML.push_back(i+1);
     }
     if( deviant_ML.size() > 0 ) {
-      //     std::cout << "Dead MLs: "; displayList(deviant_ML);
     }
 
-    //   if(means.size() == 2) { 
-    //     if(means.at(0) < 0.25*means.at(1)) 
-    //       std::cout << " ML " << 1 << " is dead!" << std::endl; 
-    //     else if(means.at(1) < 0.25*means.at(0)) 
-    //       std::cout << " ML " << 2 << " is dead!" << std::endl; 
-    //   } 
-
+  
     return deviant_ML;
   }
 
-  void FillPDF(std::string inFilename, TH1F* hDead, TH1F* hNoise, TCanvas* c, 
+  void FillPDF(const std::string & inFilename, TH1F* hDead, TH1F* hNoise, TCanvas* c, 
 	       const vector<int>* deadTubes, const vector<int>* deadASD, const vector<int>* deadMEZZ, const vector<int>* deadLayer, const vector<int>* deadML,
 	       const vector<int>* noisyTubes, const vector<int>* noisyASD, const vector<int>* noisyMEZZ, const vector<int>* noisyLayer, const vector<int>* noisyML, 
 	       int deadTubesChamberValidity, int noisyTubesChamberValidity,
 	       bool draw_Mezz_L_ML_guidlines, bool draw_mean, bool draw_masked_tubes, bool separate_dead_noisy_histos, bool draw_validity_message, bool draw_histo_if_nothing_to_report) {
 
-    if(noisyML && !noisyML) return;
-    if(noisyLayer && !noisyLayer) return;
-    if(noisyMEZZ && !noisyMEZZ) return;
-    if(noisyASD && !noisyASD) return;
-    if(deadASD && !deadASD) return;
+    if(!noisyML) return;
+    if(!noisyLayer) return;
+    if(!noisyMEZZ) return;
+    if(!noisyASD) return;
+    if(!deadASD) return;
 
     if( !draw_histo_if_nothing_to_report && deadTubes->size()==0 && noisyTubes->size()==0 && deadML->size()==0 && deadLayer->size()==0 && deadMEZZ->size()==0 ) return;
 
@@ -1469,17 +1460,12 @@ namespace dqutils_mdtdeadnoisy {
     c->SetTitle(chamberName);
 
     vector<int> maskedTubesForDead = GetMaskedTubesForDead(hDead);
-//     vector<int> maskedTubesForNoisy = GetMaskedTubesForNoisy(hNoise);
     TH1F* hOnlyDead = new TH1F(hDead->GetName(), hDead->GetTitle(), hDead->GetNbinsX(), 1, hDead->GetNbinsX());
     TH1F* hOnlyNoise = new TH1F(hNoise->GetName(), hNoise->GetTitle(), hNoise->GetNbinsX(), 1, hNoise->GetNbinsX());
 
     TString maskedStr = hDead->GetName();
     maskedStr += "_masked";
     TH1F* hOnlyMaskedDead = new TH1F(maskedStr, hDead->GetTitle(), hDead->GetNbinsX(), 1, hDead->GetNbinsX());
-
-//     maskedStr = hNoise->GetName();
-//     maskedStr += "_masked";
-//     TH1F* hOnlyMaskedNoisy = new TH1F(maskedStr, hNoise->GetTitle(), hNoise->GetNbinsX(), 1, hNoise->GetNbinsX());
 
     // fill the layer range histo
     std::vector<TLine> rangeLines;
@@ -1697,18 +1683,13 @@ namespace dqutils_mdtdeadnoisy {
     else if(chamberName(0,1)=="E" && chamberName(4,1)=="A") ecapStr = "MDTEADead";
     else if(chamberName(0,1)=="E" && chamberName(4,1)=="C") ecapStr = "MDTECDead";
 
-    //    std::cout << ecapStr << " " << chamberName(0,1) << " " << chamberName(3,1) << std::endl;
     Out << inFilename << "." << ecapStr << ".pdf";
 
     c->Print(Out.str().c_str(), "pdf");
-    //    delete hNoise;
-    // delete hDead;
     delete hOnlyNoise;
     delete hOnlyDead;
-//     delete hOnlyMaskedNoisy;
     delete hOnlyMaskedDead;
 
-//     delete hDeadML; delete hDeadL; delete hDeadMezz; delete hDeadTubes; delete hNoiseTubes;
   }
 
 }

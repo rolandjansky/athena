@@ -32,7 +32,7 @@ namespace dqutils {
 
 void 
 MonitoringFile::
-fitMergedFile_IDAlignMonManager( std::string inFilename, bool /* isIncremental */ )
+fitMergedFile_IDAlignMonManager( const std::string & inFilename, bool /* isIncremental */ )
 {
   /* std::cout << "\n";
   std::cout << "Running Inner-Detector alignment-monitoring analysis\n";
@@ -192,7 +192,7 @@ fitMergedFile_IDAlignMonManager( std::string inFilename, bool /* isIncremental *
 
 void
 MonitoringFile::
-fitMergedFile_IDAlignMonTrackSegments( TFile* file, std::string run_dir, std::string tracksName )
+fitMergedFile_IDAlignMonTrackSegments( TFile* file, const std::string & run_dir, const std::string & tracksName )
 {
 
   //std::cout << "in fitMergedFile_IDAlignMonTrackSegments " << std::endl;
@@ -502,7 +502,7 @@ fitMergedFile_IDAlignMonTrackSegments( TFile* file, std::string run_dir, std::st
 
 void
 MonitoringFile::
-fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tracksName )
+fitMergedFile_IDAlignMonResiduals( TFile* f, const std::string & run_dir, const std::string & tracksName )
 {
 
   const float minSiResMeanWindow = -0.1; 
@@ -2024,7 +2024,7 @@ fitMergedFile_IDAlignMonResiduals( TFile* f, std::string run_dir, std::string tr
 }
 void 
 MonitoringFile::
-fitMergedFile_IDAlignMonGenericTracks (TFile* file, std::string run_dir, std::string tracksName) 
+fitMergedFile_IDAlignMonGenericTracks (TFile* file, const std::string & run_dir, const std::string & tracksName) 
 {
   std::string path;
   path= run_dir + "IDAlignMon/" + tracksName + "/GenericTracks";
@@ -2175,7 +2175,7 @@ fitMergedFile_IDAlignMonGenericTracks (TFile* file, std::string run_dir, std::st
 
 void 
 MonitoringFile::
-fitMergedFile_IDAlignMonPVbiases (TFile* file, std::string run_dir, std::string tracksName) 
+fitMergedFile_IDAlignMonPVbiases (TFile* file, const std::string & run_dir, const std::string & tracksName) 
 {
   std::string path;
   path= run_dir + "IDAlignMon/" + tracksName + "/GenericTracks/PVbiases";
