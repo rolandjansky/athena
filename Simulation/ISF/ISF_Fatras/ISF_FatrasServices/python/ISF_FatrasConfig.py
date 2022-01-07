@@ -398,13 +398,20 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
         kwargs.setdefault("TruthRecordSvc", result.getPrimaryAndMerge(TruthServiceCfg(flags)).name)
 
     # @TODO retire once migration to TrackingGeometry conditions data is complete
-    if flags.Sim.ISF.UseTrackingGeometryCond:
+    if not flags.Sim.ISF.UseTrackingGeometryCond:
+        if 'TrackingGeometrySvc' not in kwargs:
+            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+            acc = TrackingGeometrySvcCfg(flags)
+            kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+            kwargs.setdefault("TrackingGeometryReadKey", '')
+            result.merge(acc)
+    else:
         if 'TrackingGeometryReadKey' not in kwargs:
             from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
             acc = TrackingGeometryCondAlgCfg(flags)
             geom_cond_key = acc.getPrimary().TrackingGeometryWriteKey
             result.merge(acc)
-            kwargs.setdefault("TrackingGeometryKey", geom_cond_key)
+            kwargs.setdefault("TrackingGeometryReadKey", geom_cond_key)
 
     # hadronic interactions
     kwargs.setdefault("HadronicInteraction", True)
