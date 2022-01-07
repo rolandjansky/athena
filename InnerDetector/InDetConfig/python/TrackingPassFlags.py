@@ -999,37 +999,6 @@ def createTRTStandaloneTrackingPassFlags():
 
     return icf
 
-
-######### SCTandTRT mode ###########################
-def createSCTandTRTTrackingPassFlags():
-    icf = createTrackingPassFlags()
-    icf.extension        = "SCTandTRT"
-    icf.minPT            = lambda pcf: 0.5 * Units.GeV if pcf.Beam.Type == "cosmics" else 0.4 * Units.GeV
-    icf.maxDoubleHoles   = 0
-    icf.minSiNotShared   = lambda pcf : 4 if pcf.InDet.doInnerDetectorCommissioning else 5 
-    icf.maxShared        = 0
-    icf.seedFilterLevel  = 2
-    icf.usePixel         = False
-    icf.useTRT           = True
-    icf.maxPrimaryImpact = lambda pcf : 1000. * Units.mm if pcf.Beam.Type == "cosmics" else maxPrimaryImpact_ranges( pcf )            
-    icf.maxZImpact       = lambda pcf : 10000. * Units.mm if pcf.Beam.Type == "cosmics" else maxZImpact_ranges( pcf )    
-    maxHolesDefault     = 2
-    icf.maxHoles         = lambda pcf : 3 if pcf.Beam.Type == "cosmics" else maxHolesDefault
-    icf.maxPixelHoles    = 0
-    icf.maxSctHoles      = lambda pcf : 3 if pcf.Beam.Type == "cosmics" else maxHolesDefault        
-    icf.nHolesMax        = lambda pcf : 3 if pcf.Beam.Type == "cosmics" else maxHolesDefault
-    icf.nHolesGapMax     = lambda pcf : 3 if pcf.Beam.Type == "cosmics" else maxHolesDefault    
-    icf.maxShared        = 0
-    icf.roadWidth        = lambda pcf : 60. if pcf.Beam.Type == "cosmics" else roadWidth_ranges( pcf )
-    icf.seedFilterLevel  = lambda pcf : 3 if pcf.Beam.Type == "cosmics" else 2
-    icf.Xi2max           = lambda pcf : 60.0 if pcf.Beam.Type == "cosmics" else Xi2max_ranges( pcf )
-    icf.Xi2maxNoAdd      = lambda pcf : 100.0 if pcf.Beam.Type == "cosmics" else Xi2maxNoAdd_ranges( pcf )
-    icf.nWeightedClustersMin = lambda pcf : 4 if pcf.InDet.doInnerDetectorCommissioning else 6
-    icf.minClusters      = lambda pcf :  4 if pcf.InDet.doInnerDetectorCommissioning else 7    
-    icf.rejectShortExtensions     = lambda pcf :  False if pcf.InDet.doInnerDetectorCommissioning else rejectShortExtensions_ranges( pcf )
-
-    return icf
-
 ########## DBM mode ################################
 def createDBMTrackingPassFlags():
     icf = createTrackingPassFlags()

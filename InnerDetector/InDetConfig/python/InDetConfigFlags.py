@@ -7,32 +7,44 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createInDetConfigFlags():
   icf=AthConfigFlags()
 
+  ### Detector flags
+
   icf.addFlag("InDet.doDBMstandalone",False)
   icf.addFlag("InDet.doSplitReco", False) # Turn running of the truth seeded pseudo tracking only for pileup on and off. Only makes sense to run on RDO file where SplitDigi was used!
   icf.addFlag("InDet.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
 
+
+  ### Tracking parameters
+
   icf.addFlag("InDet.Tracking.doRefit", False) # Turn running of refitting on and off
-  icf.addFlag("InDet.Tracking.doHighPileup", False) # Turn running of high pile-up reconstruction on and off
-  icf.addFlag("InDet.Tracking.doBackTracking", True) # Turn running of backtracking on and off
-  icf.addFlag("InDet.Tracking.doLowPt", False) # Turn running of doLowPt second pass on and off
-  icf.addFlag("InDet.Tracking.doVeryLowPt", False) # Turn running of doVeryLowPt thrid pass on and off
-  icf.addFlag("InDet.Tracking.doForwardTracks", True) # Turn running of doForwardTracks pass on and off
-  icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", True)
-  icf.addFlag("InDet.Tracking.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
-  icf.addFlag("InDet.Tracking.doLargeD0", False)
-  icf.addFlag("InDet.Tracking.doR3LargeD0", True)
-  icf.addFlag("InDet.Tracking.storeSeparateLargeD0Container", True)
   icf.addFlag("InDet.Tracking.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
   icf.addFlag("InDet.Tracking.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.Tracking.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.Tracking.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   icf.addFlag("InDet.Tracking.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
-  icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
   icf.addFlag("InDet.Tracking.doBeamHalo", False) # Turn running of BeamHalo second pass on and off
-  icf.addFlag("InDet.Tracking.doTrackSegmentsPixel", False) # Turn running of track segment creation in pixel on and off
 
-  icf.addFlag("InDet.doTrackSegmentsSCT", False) # Turn running of track segment creation in SCT on and off
-  icf.addFlag("InDet.doTrackSegmentsTRT", False) # Turn running of track segment creation in TRT on and off
+
+  ### Tracking passes/configurations scheduled
+
+  icf.addFlag("InDet.Tracking.doTrackSegmentsPixel", False) # Turn running of track segment creation in pixel on and off
+  icf.addFlag("InDet.Tracking.doTrackSegmentsSCT", False) # Turn running of track segment creation in SCT on and off
+  icf.addFlag("InDet.Tracking.doTrackSegmentsTRT", False) # Turn running of track segment creation in TRT on and off
+  icf.addFlag("InDet.Tracking.doHighPileup", False) # Turn running of high pile-up reconstruction on and off
+  icf.addFlag("InDet.Tracking.doTRTExtension", True) # turn on / off TRT extensions
+  icf.addFlag("InDet.doTrtSegments", lambda prevFlags: prevFlags.InDet.Tracking.doBackTracking or prevFlags.InDet.Tracking.doTRTStandalone) # control to run TRT Segment finding (do it always after new tracking!)
+  icf.addFlag("InDet.Tracking.doBackTracking", True) # Turn running of backtracking on and off
+  icf.addFlag("InDet.Tracking.doLargeD0", False)
+  icf.addFlag("InDet.Tracking.doR3LargeD0", True)
+  icf.addFlag("InDet.Tracking.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
+  icf.addFlag("InDet.Tracking.storeSeparateLargeD0Container", True)
+  icf.addFlag("InDet.Tracking.doLowPt", False) # Turn running of doLowPt second pass on and off
+  icf.addFlag("InDet.Tracking.doVeryLowPt", False) # Turn running of doVeryLowPt thrid pass on and off
+  icf.addFlag("InDet.Tracking.doTRTStandalone", True) # control TRT Standalone
+  icf.addFlag("InDet.Tracking.doForwardTracks", True) # Turn running of doForwardTracks pass on and off
+  icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", True)
+  icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
+
   icf.addFlag("InDet.useBeamSpotInfoNN", True) # use beam spot service in new tracking
   icf.addFlag("InDet.kalmanUpdator", "smatrix") # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg")
   icf.addFlag("InDet.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
@@ -41,16 +53,13 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.useHolesFromPattern", False)
   icf.addFlag("InDet.useZvertexTool", False) # start with Zvertex finding
   icf.addFlag("InDet.doSiSPSeededTrackFinder", True) # use track finding in silicon
-  icf.addFlag("InDet.doTRTExtension", True) # turn on / off TRT extensions
   icf.addFlag("InDet.trtExtensionType", 'xk') # which extension type ("xk"/"DAF")
   icf.addFlag("InDet.redoTRT_LR", True) # use smart TRT LR/tube hit creator and redo ROTs
-  icf.addFlag("InDet.doTrtSegments", True) # control to run TRT Segment finding (do it always after new tracking!)
   icf.addFlag("InDet.doTRTPhaseCalculation", False) # control to run TRT phase calculation
   icf.addFlag("InDet.doTRTSeededTrackFinder", True) # control running the back tracking
   icf.addFlag("InDet.loadTRTSeededSPFinder", True) # control which SP finder is used exclusive with loadSimpleTRTSeededSPFinder control which SP finder is used
   icf.addFlag("InDet.loadSimpleTRTSeededSPFinder", True)
   icf.addFlag("InDet.doResolveBackTracks", True) # control running the ambi on back tracking
-  icf.addFlag("InDet.doTRTStandalone", True) # control TRT Standalone
   icf.addFlag("InDet.refitROT", True) # control if refit is done from PRD or ROT
   icf.addFlag("InDet.perigeeExpression", "BeamLine") # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   # icf.addFlag("InDet.secondaryVertexCutSetup", "PileUp") # string to store the type of cuts to be used in PV reconstruction: 'StartUp', 'PileUp'
@@ -102,7 +111,7 @@ def createInDetConfigFlags():
     createLowPtTrackingPassFlags, createVeryLowPtTrackingPassFlags, createForwardTracksTrackingPassFlags, createBeamGasTrackingPassFlags, \
     createVtxLumiTrackingPassFlags, createVtxBeamSpotTrackingPassFlags, createCosmicsTrackingPassFlags, createHeavyIonTrackingPassFlags, \
     createPixelTrackingPassFlags, createDisappearingTrackingPassFlags, createSCTTrackingPassFlags, createTRTTrackingPassFlags, \
-    createTRTStandaloneTrackingPassFlags, createSCTandTRTTrackingPassFlags, createDBMTrackingPassFlags
+    createTRTStandaloneTrackingPassFlags, createDBMTrackingPassFlags
 
   icf.addFlagsCategory ("InDet.Tracking.Pass", createTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.IBLPass", createIBLTrackingPassFlags, prefix=True)
@@ -124,7 +133,6 @@ def createInDetConfigFlags():
   icf.addFlagsCategory ("InDet.Tracking.SCTPass", createSCTTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.TRTPass", createTRTTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.TRTStandalonePass", createTRTStandaloneTrackingPassFlags, prefix=True)
-  icf.addFlagsCategory ("InDet.Tracking.SCTandTRTPass", createSCTandTRTTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.DBMPass", createDBMTrackingPassFlags, prefix=True)
 
   from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags, createPriVertexingFlags

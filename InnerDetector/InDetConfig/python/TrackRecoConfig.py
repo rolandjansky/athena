@@ -260,10 +260,8 @@ def InDetTrackRecoCfg(flags):
     # ----------- Subdetector pattern from New Tracking
     #
     # ------------------------------------------------------------
-    #
-    # --- Pixel track segment finding
-    #
 
+    # Pixel track segment finding
     if flags.InDet.Tracking.doTrackSegmentsPixel:
         flagsPixel = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.PixelPass")
         PixelTrackContainer = "ResolvedPixelTracks"
@@ -281,6 +279,38 @@ def InDetTrackRecoCfg(flags):
                                             DetailedTruth = PixelTrackContainer+"DetailedTruth",
                                             TracksTruth = PixelTrackContainer+"TruthCollection"))
 
+    # SCT track segment finding
+    if flags.InDet.Tracking.doTrackSegmentsSCT:
+        flagsSCT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.TrackingSCTPass")
+        SCTTrackContainer = "ResolvedSCTTracks"
+
+        result.merge(TrackingSiPatternCfg(flagsSCT,
+                                          InputCollections = [],
+                                          ResolvedTrackCollectionKey = SCTTrackContainer,
+                                          SiSPSeededTrackCollectionKey = "SiSPSeededSCTTracks",
+                                          ClusterSplitProbContainer = ClusterSplitProbContainer))
+        ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + flagsSCT.Tracking.Pass.extension
+
+    # TRT track segment finding
+    if flags.InDet.Tracking.doTrackSegmentsTRT:
+        flagsTRT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.TrackingTRTPass")
+        from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
+        result.merge(TRTSegmentFindingCfg(flagsTRT,
+                                          extension = "_TRT",
+                                          InputCollections = [],
+                                          BarrelSegments = "TRTSegmentsTRT"))
+
+        from InDetConfig.TRTStandaloneConfig import TRTStandaloneCfg
+        result.merge(TRTStandaloneCfg(flagsTRT,
+                                      extension = "_TRT",
+                                      InputCollections = [],
+                                      BarrelSegments = "TRTSegmentsTRT"))
+
+    # ------------------------------------------------------------
+    #
+    # ----------- Main passes for standard reconstruction
+    #
+    # ------------------------------------------------------------
 
     if flags.InDet.Tracking.doHighPileup:
         flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.HighPileupPass")
@@ -293,7 +323,7 @@ def InDetTrackRecoCfg(flags):
     ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb"
 
     # TRT extension
-    if flags.InDet.doTRTExtension:
+    if flags.InDet.Tracking.doTRTExtension:
         from InDetConfig.TRTExtensionConfig import NewTrackingTRTExtensionCfg
         result.merge(NewTrackingTRTExtensionCfg(flags,
                                                 SiTrackCollection = "ResolvedTracks",
@@ -305,6 +335,7 @@ def InDetTrackRecoCfg(flags):
         InputCombinedInDetTracks += ["ResolvedTracks"]
 
     # TRT segments
+    # Different from TRT track segments at the top as takes as input previously built track collections
     if flags.InDet.doTrtSegments:
         from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
         result.merge(TRTSegmentFindingCfg(flags,
@@ -340,7 +371,7 @@ def InDetTrackRecoCfg(flags):
                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
         ClusterSplitProbContainerLargeD0 = "InDetAmbiguityProcessorSplitProb" + flagsLRT.InDet.Tracking.Pass.extension
 
-        if flags.InDet.doTRTExtension:
+        if flags.InDet.Tracking.doTRTExtension:
             result.merge(NewTrackingTRTExtensionCfg(flagsLRT,
                                                     SiTrackCollection="ResolvedLargeD0Tracks",
                                                     ExtendedTrackCollection="ExtendedLargeD0Tracks",
@@ -373,7 +404,7 @@ def InDetTrackRecoCfg(flags):
                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
         ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb"+flagsLowPt.InDet.Tracking.Pass.extension
 
-        if flags.InDet.doTRTExtension:
+        if flags.InDet.Tracking.doTRTExtension:
             result.merge(NewTrackingTRTExtensionCfg(flagsLowPt,
                                                     SiTrackCollection = LowPtTrackContainer,
                                                     ExtendedTrackCollection = "ExtendedLowPtTracks",
@@ -395,7 +426,8 @@ def InDetTrackRecoCfg(flags):
         InputCombinedInDetTracks += ["ResolvedVeryLowPtTracks"]
 
     # TRT standalone
-    if flags.InDet.doTRTStandalone:
+    # Different from TRT track segments at the top as takes as input previously built track collections
+    if flags.InDet.Tracking.doTRTStandalone:
         flagsTRTStandalone = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.TRTStandalonePass")
         from InDetConfig.TRTStandaloneConfig import TRTStandaloneCfg
         result.merge(TRTStandaloneCfg(flagsTRTStandalone,
@@ -451,7 +483,7 @@ def InDetTrackRecoCfg(flags):
                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
         ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb"+flagsDisappearing.InDet.Tracking.Pass.extension
 
-        if flags.InDet.doTRTExtension:
+        if flags.InDet.Tracking.doTRTExtension:
             result.merge(NewTrackingTRTExtensionCfg(flagsDisappearing,
                                                     SiTrackCollection = DisappearingTrackContainer,
                                                     ExtendedTrackCollection = "ExtendedTracksDisappearing",
@@ -481,7 +513,7 @@ def InDetTrackRecoCfg(flags):
                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
         ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb"+flagsBeamGas.InDet.Tracking.Pass.extension
 
-        if flags.InDet.doTRTExtension:
+        if flags.InDet.Tracking.doTRTExtension:
             result.merge(NewTrackingTRTExtensionCfg(flagsLowPt,
                                                     SiTrackCollection = BeamGasTrackContainer,
                                                     ExtendedTrackCollection = "ExtendedBeamGasTracks",
