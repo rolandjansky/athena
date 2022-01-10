@@ -5,15 +5,15 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def CaloRecoCfg(configFlags, clustersname=None):
-    
-    result=ComponentAccumulator()
-    if not configFlags.Input.isMC:
+
+    result = ComponentAccumulator()
+    if configFlags.Input.Format == 'BS':
         #Data-case: Schedule ByteStream reading for LAr & Tile
         from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg
         result.merge(LArRawDataReadingCfg(configFlags))
 
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        
+
         result.merge(ByteStreamReadCfg(configFlags,type_names=['TileDigitsContainer/TileDigitsCnt',
                                                                'TileRawChannelContainer/TileRawChannelCnt',
                                                                'TileMuonReceiverContainer/TileMuRcvCnt']))
@@ -27,18 +27,18 @@ def CaloRecoCfg(configFlags, clustersname=None):
 
         from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
         result.merge(LArRawChannelBuilderAlgCfg(configFlags))
-        
+
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
         result.merge(TileRawChannelMakerCfg(configFlags))
 
+    if not configFlags.Input.isMC:
         from LArCellRec.LArTimeVetoAlgConfig import LArTimeVetoAlgCfg
         result.merge(LArTimeVetoAlgCfg(configFlags))
 
-              
     #Configure cell-building
     from CaloRec.CaloCellMakerConfig import CaloCellMakerCfg
     result.merge(CaloCellMakerCfg(configFlags))
-    
+
     #Configure topo-cluster builder
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     result.merge(CaloTopoClusterCfg(configFlags, clustersname=clustersname))
@@ -63,9 +63,9 @@ def CaloRecoCfg(configFlags, clustersname=None):
         #Configure LArDigitsThinner:
         from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
         result.merge(LArDigitThinnerCfg(configFlags))
-    
 
-    #Configure MBTSTimeDiff 
+
+    #Configure MBTSTimeDiff
     #Clients are BackgroundWordFiller and (deprecated?) DQTBackgroundMonTool
     #Consider moving to BackgroundWordFiller config
     if configFlags.Detector.GeometryMBTS:
@@ -103,7 +103,7 @@ if __name__=="__main__":
 
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     acc = MainServicesCfg(ConfigFlags)
 
     acc.merge(CaloRecoCfg(ConfigFlags))
