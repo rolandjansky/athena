@@ -1,24 +1,19 @@
 #!/bin/sh
 #
-# art-description: Run simulation using ISF with the FullG4_QS simulator, reading events, writing HITS, using 2015 geometry and conditions
-# art-include: 21.0/Athena
-# art-include: 21.0/AthSimulation
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
+# art-description: MC21-style simulation using FullG4_QS (13 TeV Zprime input - needs updating)
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
 # art-output: test.HITS.pool.root
 
+# RUN3 setup - Frozen Showers currently off by default
+# ATLAS-R3S-2021-02-00-00 and OFLCOND-MC21-SDR-RUN3-03
 Sim_tf.py \
---conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
---physicsList 'FTFP_BERT' \
---truthStrategy 'MC15aPlus' \
+--conditionsTag 'default:OFLCOND-MC21-SDR-RUN3-03' \
 --simulator 'FullG4_QS' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
---DataRunNumber '222525' \
---geometryVersion 'default:ATLAS-R2-2015-03-01-00' \
+--preInclude 'EVNTtoHITS:Campaigns/MC21Simulation.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+--geometryVersion 'default:ATLAS-R3S-2021-02-00-00_VALIDATION' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/EVNT.04607198._000001.pool.root.1" \
 --outputHITSFile "test.HITS.pool.root" \
 --maxEvents 10 \
