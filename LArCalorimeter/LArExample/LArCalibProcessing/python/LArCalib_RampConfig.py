@@ -164,6 +164,7 @@ if __name__ == "__main__":
     for f in ConfigFlags.Input.Files:
         print (f)
 
+    ConfigFlags.lock()
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArRampCfg(ConfigFlags))
 
