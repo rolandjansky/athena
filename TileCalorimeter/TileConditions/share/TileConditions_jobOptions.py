@@ -98,10 +98,10 @@ if not 'TileUseDCS' in dir():
 if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in dir()):
     if rn is None:
         from RecExConfig.AutoConfiguration import GetRunNumber
-        rn=GetRunNumber()
+        rn=GetRunNumber()  # This may return None
     if not 'RunOflOFC' in dir():
         RunOflOFC=314450
-    if rn<RunOflOFC: # use OFC stored in online folder for all runs before 2017
+    if rn and rn<RunOflOFC: # use OFC stored in online folder for all runs before 2017
         from TileConditions.TileCoolMgr import tileCoolMgr
         tileCoolMgr.addSource('OfcOf2Phy', '/TILE/ONL01/FILTER/OF2/PHY', 'TILE', "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
         tileCoolMgr.addSource('OfcOf1Phy', '/TILE/ONL01/FILTER/OF1/PHY', 'TILE', "", '/TILE/ONL01/FILTER/OF1/PHY', 'SplitMC')
