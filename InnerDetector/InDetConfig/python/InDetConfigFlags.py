@@ -32,6 +32,9 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.useBeamSpotInfoNN", True) # use beam spot position in pixel NN
   icf.addFlag("InDet.Tracking.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
   icf.addFlag("InDet.Tracking.trtExtensionType", 'xk') # which extension type ("xk"/"DAF")
+  icf.addFlag("InDet.Tracking.redoTRT_LR", True) # use smart TRT LR/tube hit creator and redo ROTs
+  icf.addFlag("InDet.Tracking.doTRTPhaseCalculation", False) # control to run TRT phase calculation
+  icf.addFlag("InDet.Tracking.loadSimpleTRTSeededSPFinder", False) # control which TRT SP finder is used
 
   ### Tracking passes/configurations scheduled
 
@@ -53,12 +56,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", True)
   icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
 
-  icf.addFlag("InDet.redoTRT_LR", True) # use smart TRT LR/tube hit creator and redo ROTs
-  icf.addFlag("InDet.doTRTPhaseCalculation", False) # control to run TRT phase calculation
-  icf.addFlag("InDet.doTRTSeededTrackFinder", True) # control running the back tracking
-  icf.addFlag("InDet.loadTRTSeededSPFinder", True) # control which SP finder is used exclusive with loadSimpleTRTSeededSPFinder control which SP finder is used
-  icf.addFlag("InDet.loadSimpleTRTSeededSPFinder", True)
-  icf.addFlag("InDet.doResolveBackTracks", True) # control running the ambi on back tracking
   icf.addFlag("InDet.refitROT", True) # control if refit is done from PRD or ROT
   icf.addFlag("InDet.perigeeExpression", "BeamLine") # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   # icf.addFlag("InDet.secondaryVertexCutSetup", "PileUp") # string to store the type of cuts to be used in PV reconstruction: 'StartUp', 'PileUp'

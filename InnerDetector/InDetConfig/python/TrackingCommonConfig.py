@@ -323,7 +323,7 @@ def InDetRefitRotCreatorCfg(flags, name='InDetRefitRotCreator', **kwargs):
     acc = ComponentAccumulator()
     default_ScaleHitUncertainty = 2.5
     ScaleHitUncertainty = kwargs.pop('ScaleHitUncertainty', default_ScaleHitUncertainty)
-    if flags.Detector.EnableTRT and flags.InDet.redoTRT_LR:
+    if flags.Detector.EnableTRT and flags.InDet.Tracking.redoTRT_LR:
         if 'ToolTRT_DriftCircle' not in kwargs :
             ToolTRT_DriftCircle = acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackUniversalToolCfg(ScaleHitUncertainty = ScaleHitUncertainty))
             kwargs.setdefault("ToolTRT_DriftCircle", ToolTRT_DriftCircle)

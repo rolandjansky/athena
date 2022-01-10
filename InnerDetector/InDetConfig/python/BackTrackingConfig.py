@@ -36,12 +36,16 @@ def SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder
     # --- decide if use the association tool
     #
     if len(InputCollections) > 0:
+        usePrdAssociationTool = True
         prefix = 'InDetSegment'
         suffix = ''
-        asso_tool = acc.popToolsAndMerge(TC.ConstPRD_AssociationToolCfg(namePrefix = prefix, nameSuffix = suffix))
-        acc.addPublicTool(asso_tool)
+    else:
+        prefix = ''
+        suffix = ''
+        usePrdAssociationTool = False
 
-    kwargs.setdefault("SpacePointsSCTName", 'SCT_SpacePoints') # InDetKeys.SCT_SpacePoints()
+    kwargs.setdefault("SpacePointsSCTName", 'SCT_SpacePoints')
+    kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else "")
     kwargs.setdefault("PerigeeCut", 1000.)
     kwargs.setdefault("DirectionPhiCut", .3)
     kwargs.setdefault("DirectionEtaCut", 1.)
@@ -100,11 +104,10 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     #
     # --- decide which TRT seed space point finder to use
     #
-    if flags.InDet.loadTRTSeededSPFinder:
-        InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(TRT_SeededSpacePointFinder_ATLCfg(flags, 
-                                                                                                 InputCollections=InputCollections))
-    elif flags.InDet.loadSimpleTRTSeededSPFinder:
+    if flags.InDet.Tracking.loadSimpleTRTSeededSPFinder:
         InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
+    else:
+        InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(TRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
 
     acc.addPublicTool(InDetTRT_SeededSpacePointFinder)
 
@@ -324,21 +327,16 @@ def BackTrackingCfg(flags, InputCollections = None, TrackCollectionKeys=[] , Tra
     #
     # ------------------------------------------------------------
 
-    if flags.InDet.doTRTSeededTrackFinder:
-        #
-        # --- decide which TRT seed space point finder to use
-        #
-        acc.merge(TRT_SeededTrackFinderCfg( flags,
-                                            InputCollections=InputCollections))
+    acc.merge(TRT_SeededTrackFinderCfg(flags,
+                                       InputCollections = InputCollections))
     # ------------------------------------------------------------
     #
-    # --- Resolve back tracking tracks ?
+    # --- Resolve back tracking tracks
     #
     # ------------------------------------------------------------
-    if flags.InDet.doResolveBackTracks:
-        acc.merge(TrkAmbiguityScoreCfg(flags))
-        acc.merge(TrkAmbiguitySolverCfg(flags,
-                                        ClusterSplitProbContainer = ClusterSplitProbContainer))
+    acc.merge(TrkAmbiguityScoreCfg(flags))
+    acc.merge(TrkAmbiguitySolverCfg(flags,
+                                    ClusterSplitProbContainer = ClusterSplitProbContainer))
 
     return acc
 
@@ -379,7 +377,9 @@ if __name__ == "__main__":
 
     if not flags.InDet.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(flags,(not flags.InDet.doTRTPhaseCalculation or flags.Beam.Type =="collisions"),False))
+        top_acc.merge(TRTPreProcessingCfg(flags,
+                                          useTimeInfo = not flags.InDet.Tracking.doTRTPhaseCalculation or flags.Beam.Type=="collisions",
+                                          usePhase = False))
 
     ######################################## TRTSegmentFinding Configuration ###########################################
     InputCollections = []

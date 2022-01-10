@@ -226,12 +226,14 @@ if __name__ == "__main__":
 
     if not flags.InDet.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(flags,(not flags.InDet.doTRTPhaseCalculation or flags.Beam.Type =="collisions"),False))
+        top_acc.merge(TRTPreProcessingCfg(flags,
+                                          useTimeInfo = not flags.InDet.Tracking.doTRTPhaseCalculation or flags.Beam.Type =="collisions",
+                                          usePhase = False))
 
     top_acc.merge(TRTSegmentFindingCfg( flags,
-                                        "",
-                                        InputCombinedInDetTracks,
-                                        'TRTSegments')) # InDetKeys.TRT_Segments
+                                        extension = "",
+                                        InputCollections = InputCombinedInDetTracks,
+                                        BarrelSegments = 'TRTSegments'))
     #############################################################################
 
     iovsvc = top_acc.getService('IOVDbSvc')

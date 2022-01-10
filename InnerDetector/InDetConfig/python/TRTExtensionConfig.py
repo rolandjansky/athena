@@ -232,7 +232,9 @@ if __name__ == "__main__":
     ################# TRTPreProcessing Configuration ######################
     if not ConfigFlags.InDet.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
+        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,
+                                          useTimeInfo = not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type=="collisions",
+                                          usePhase = False))
 
     ################ TRTSegmentFinding Configuration ######################
     from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg

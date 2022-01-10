@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # ------------------------------------------------------------
 #
 # ----------- TRT Data-Preparation stage
@@ -306,7 +306,9 @@ if __name__ == "__main__":
     top_acc.merge( SCT_ReadoutGeometryCfg(ConfigFlags) )
 
     if not ConfigFlags.InDet.doDBMstandalone:
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
+        top_acc.merge(TRTPreProcessingCfg(ConfigFlags,
+                                          useTimeInfo = not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type=="collisions",
+                                          usePhase = False))
 
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
