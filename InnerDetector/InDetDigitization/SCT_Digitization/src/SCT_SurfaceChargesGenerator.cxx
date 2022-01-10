@@ -300,9 +300,9 @@ float SCT_SurfaceChargesGenerator::surfaceDriftTime(float ysurf) const {
 // -------------------------------------------------------------------------------------------
 void SCT_SurfaceChargesGenerator::process(const SiDetectorElement* element,
                                           const TimedHitPtr<SiHit>& phit,
-                                          const ISiSurfaceChargesInserter& inserter,
+                                          ISiSurfaceChargesInserter& inserter,
                                           CLHEP::HepRandomEngine * rndmEngine,
-                                          const EventContext& ctx) const {
+                                          const EventContext& ctx) {
   ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::process starts");
   processSiHit(element, *phit, inserter, phit.eventTime(), phit.eventId(), rndmEngine, ctx);
   return;
@@ -314,11 +314,11 @@ void SCT_SurfaceChargesGenerator::process(const SiDetectorElement* element,
 // -------------------------------------------------------------------------------------------
 void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
                                                const SiHit& phit,
-                                               const ISiSurfaceChargesInserter& inserter,
+                                               ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
                                                unsigned short p_eventId,
                                                CLHEP::HepRandomEngine* rndmEngine,
-                                               const EventContext& ctx) const {
+                                               const EventContext& ctx) {
   const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
@@ -591,7 +591,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
 bool SCT_SurfaceChargesGenerator::chargeIsTrapped(double spess,
                                                   const SiDetectorElement* element,
                                                   double& trap_pos,
-                                                  double& drift_time) const {
+                                                  double& drift_time) {
   if (element==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::chargeIsTrapped element is nullptr");
     return false;

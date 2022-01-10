@@ -303,9 +303,9 @@ float StripSurfaceChargesGenerator::surfaceDriftTime(float ysurf) const {
 // -------------------------------------------------------------------------------------------
 void StripSurfaceChargesGenerator::process(const SiDetectorElement* element,
                                           const TimedHitPtr<SiHit>& phit,
-                                          const ISiSurfaceChargesInserter& inserter,
+                                          ISiSurfaceChargesInserter& inserter,
                                           CLHEP::HepRandomEngine * rndmEngine,
-                                          const EventContext& ctx) const {
+                                          const EventContext& ctx) {
   ATH_MSG_VERBOSE("StripSurfaceChargesGenerator::process starts");
   processSiHit(element, *phit, inserter, phit.eventTime(), phit.eventId(), rndmEngine, ctx);
   return;
@@ -317,7 +317,7 @@ void StripSurfaceChargesGenerator::process(const SiDetectorElement* element,
 // -------------------------------------------------------------------------------------------
 void StripSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
                                                const SiHit& phit,
-                                               const ISiSurfaceChargesInserter& inserter,
+                                               ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
                                                unsigned short p_eventId,
                                                CLHEP::HepRandomEngine* rndmEngine,
