@@ -71,8 +71,8 @@ namespace xAOD {
   iterator   iterator::operator++(int) { iterator tmp = *this; ++m_index; return tmp ; }
   iterator & iterator::operator--() { --m_index; return *this ; }
   iterator   iterator::operator--(int) { iterator tmp = *this; --m_index; return tmp ; }
-  bool iterator::operator==( const iterator & other) { return m_index == other.m_index; }
-  bool iterator::operator!=( const iterator & other) { return m_index != other.m_index; }
+  bool iterator::operator==( const iterator & other) const { return m_index == other.m_index; }
+  bool iterator::operator!=( const iterator & other) const { return m_index != other.m_index; }
   
   const JetConstituent* iterator::operator*() { update4Mom() ; return &m_4mom;}
   const JetConstituent* iterator::operator->(){ update4Mom() ; return &m_4mom;}
