@@ -281,12 +281,15 @@ StatusCode Muon::NSWCalibTool::mmGasProperties(float &vDrift, float &longDiff, f
 
 
 bool Muon::NSWCalibTool::localStripPosition(const Identifier& id, Amg::Vector2D &locPos) const {
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
   if(m_idHelperSvc->isMM(id)){
-    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(id);
+    const MuonGM::MMReadoutElement* detEl = muDetMgr->getMMReadoutElement(id);
     return detEl->stripPosition(id,locPos);
 
   } else if(m_idHelperSvc->issTgc(id)){
-    const MuonGM::sTgcReadoutElement* detEl = m_muonMgr->getsTgcReadoutElement(id);
+    const MuonGM::sTgcReadoutElement* detEl = muDetMgr->getsTgcReadoutElement(id);
     return detEl->stripPosition(id,locPos);
 
   } else {

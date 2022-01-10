@@ -163,10 +163,6 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
                 stripsOfClusterDriftDistErrors.push_back(MMprdsOfLayer.at(idx).localCovariance());
                 stripsOfClusterLocalPos.push_back(MMprdsOfLayer.at(idx).localPosition().x());
             }
-<<<<<<< HEAD
-            auto covN = Amg::MatrixX(1,1);
-            covN.coeffRef(0,0)=sigmaLocalClusterPosition;
-=======
             
             double localClusterPosition=-9999;
             double sigmaLocalClusterPosition=0;
@@ -182,20 +178,15 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
         
 
 
-            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-            covN->coeffRef(0,0)=sigmaLocalClusterPosition;
->>>>>>> 5aa2e54ad6f... implement getCalibratedClusterPosition for MM uTPC
+            auto covN = Amg::MatrixX(1,1);
+            covN.coeffRef(0,0)=sigmaLocalClusterPosition;
             ATH_MSG_DEBUG("Did set covN Matrix");
             int idx = idx_goodStrips[0];
             ATH_MSG_DEBUG("idx_goodStrips[0]: "<<idx << " size: " <<MMprdsOfLayer.size());
             Amg::Vector2D localClusterPositionV(localClusterPosition,MMprdsOfLayer.at(idx).localPosition().y()); // y position is the same for all strips
             ATH_MSG_DEBUG("Did set local position");
 
-<<<<<<< HEAD
             float driftDist = 0.0;
-=======
-	          float driftDist = 0.0;
->>>>>>> 5aa2e54ad6f... implement getCalibratedClusterPosition for MM uTPC
 
             std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(MMprdsOfLayer.at(idx).identify(),
 					    MMprdsOfLayer.at(idx).collectionHash(),
@@ -400,15 +391,9 @@ StatusCode Muon::UTPCMMClusterBuilderTool::applyCrossTalkCut(std::vector<int> &i
 }
 
 
-<<<<<<< HEAD
-StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const{
+StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Identifier>& ids, const std::vector<float>& stripsPos, const std::vector<float>& driftDists, const std::vector<Amg::MatrixX> driftDistErrors, double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const{
     std::unique_ptr<TGraphErrors> fitGraph=std::make_unique<TGraphErrors>();
     std::unique_ptr<TF1> ffit=std::make_unique<TF1>("ffit","pol1");
-=======
-StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Identifier>& ids, const std::vector<float>& stripsPos, const std::vector<float>& driftDists, const std::vector<Amg::MatrixX> driftDistErrors, double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const{
-    std::unique_ptr<TGraphErrors> fitGraph=std::unique_ptr<TGraphErrors>(new TGraphErrors());
-    std::unique_ptr<TF1> ffit=std::unique_ptr<TF1>(new TF1("ffit","pol1"));
->>>>>>> 5aa2e54ad6f... implement getCalibratedClusterPosition for MM uTPC
     
     double xmin = 5000;
     double xmax = -5000;
@@ -426,11 +411,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Identifier
     }
     lf->Eval(); 
 
-<<<<<<< HEAD
-    if(m_idHelperSvc->mmIdHelper().gasGap(mmPrd.at(0).identify())%2==1 || !m_digiHasNegativeAngles){
-=======
-    if(m_mmIdHelper->gasGap(ids.at(0))%2==1 || !m_digiHasNegativeAngles){
->>>>>>> 5aa2e54ad6f... implement getCalibratedClusterPosition for MM uTPC
+    if(m_idHelperSvc->mmIdHelper().gasGap(ids.at(0))%2==1 || !m_digiHasNegativeAngles){
         ffit->SetParLimits(1,-11.5,-0.15); //5 to 81 degree
     }else{
         ffit->SetParLimits(1,0.15,11.5); //5 to 81 degree
