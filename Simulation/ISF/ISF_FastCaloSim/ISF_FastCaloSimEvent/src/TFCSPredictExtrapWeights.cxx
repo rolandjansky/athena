@@ -269,7 +269,7 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
     if(m_input!=nullptr){
       delete m_input;
     }
-    m_input          = new std::string(sin.str());
+    m_input = new std::string(sin.str());
     // Extract relevant layers from the outputs
     m_relevantLayers = new std::vector<int>();
     for(auto name : config.outputs){
