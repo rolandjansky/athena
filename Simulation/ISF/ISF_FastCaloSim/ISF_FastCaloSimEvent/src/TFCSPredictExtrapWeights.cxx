@@ -169,8 +169,8 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(const int p
   auto itr  = std::find(m_normLayers->begin(), m_normLayers->end(), -1);
   int index = std::distance(m_normLayers->begin(), itr);
   inputVariables["etrue"] = ( truthE - (*m_normMeans).at(index) ) / (*m_normStdDevs).at(index);
-  if(pid == 211){
-    inputVariables["pdgId"] = pid;
+  if(pid == 211 || pid == -211){
+    inputVariables["pdgId"] = 2; // one hot enconding
   }
 
   return inputVariables;
