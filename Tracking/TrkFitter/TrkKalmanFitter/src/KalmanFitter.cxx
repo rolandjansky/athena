@@ -1228,9 +1228,9 @@ bool Trk::KalmanFitter::prepareNextIteration(const unsigned int& upcomingIterati
     iFilterBeginState = 1;
     Trk::ProtoTrajectoryUtility::clearFitResultsAfterOutlier(m_trajectory,FQ,iFilterBeginState);
     if (m_forwardFitter->needsReferenceTrajectory()) {
-      AmgVector(5)* x = new AmgVector(5)(newSeedPars->parameters()-ffs->referenceParameters()->parameters());
-      ffs->checkinParametersDifference(x);
-      ffs->checkinParametersCovariance(new AmgSymMatrix(5)(*newSeedPars->covariance()));
+      auto x = std::make_unique<const AmgVector(5)>(newSeedPars->parameters()-ffs->referenceParameters()->parameters());
+      ffs->checkinParametersDifference(std::move(x));
+      ffs->checkinParametersCovariance(std::make_unique<const AmgSymMatrix(5)>(*newSeedPars->covariance()));
     } else ffs->checkinForwardPar(std::move(newSeedPars));
     ATH_MSG_VERBOSE ("made new seed parameters");
     // FIXME consider remaking the reference here
