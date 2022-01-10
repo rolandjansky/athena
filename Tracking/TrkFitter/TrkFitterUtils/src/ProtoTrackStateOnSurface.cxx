@@ -31,11 +31,8 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()
   m_transportJacobian ( nullptr ),
   m_iOwnJacobian ( true ),
   m_referenceParameters ( nullptr ),
-  m_iOwnRefPars( false ),
   m_parametersDifference ( nullptr ),
-  m_iOwnParametersDifference ( true ),
   m_parametersCovariance(nullptr),
-  m_iOwnParametersCovariance(true),
   m_measurementDifferenceVector(nullptr)
 {
   m_identifier.clear();
@@ -66,12 +63,8 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_iOwnJacobian ( rhs.m_iOwnJacobian ),
   m_referenceParameters ( rhs.m_referenceParameters ? rhs.m_referenceParameters->clone() : nullptr ),
   m_iOwnRefPars ( rhs.m_iOwnRefPars ),
-  m_parametersDifference ( rhs.m_iOwnParametersDifference?
-    ( rhs.m_parametersDifference? new AmgVector(5) ( *rhs.m_parametersDifference ) : nullptr ) : rhs.m_parametersDifference),
-  m_iOwnParametersDifference ( rhs.m_iOwnParametersDifference ),
-  m_parametersCovariance ( rhs.m_iOwnParametersCovariance?
-    ( rhs.m_parametersCovariance? new AmgSymMatrix(5) ( *rhs.m_parametersCovariance ) : nullptr ) : rhs.m_parametersCovariance),
-  m_iOwnParametersCovariance ( rhs.m_iOwnParametersCovariance ),
+  m_parametersDifference ( rhs.m_parametersDifference? new AmgVector(5) ( *rhs.m_parametersDifference ) : nullptr ),
+  m_parametersCovariance ( rhs.m_parametersCovariance? new AmgSymMatrix(5) ( *rhs.m_parametersCovariance ) : nullptr ),
   m_measurementDifferenceVector(nullptr)
 {
 }
@@ -102,9 +95,7 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_referenceParameters ( inReferenceParameters ),
   m_iOwnRefPars ( true ),
   m_parametersDifference (nullptr),
-  m_iOwnParametersDifference(true),
   m_parametersCovariance(nullptr),
-  m_iOwnParametersCovariance(true),
   m_measurementDifferenceVector(nullptr)
 {
   m_identifier.clear();
@@ -122,14 +113,8 @@ Trk::ProtoTrackStateOnSurface::~ProtoTrackStateOnSurface()
     delete m_referenceParameters;
     m_referenceParameters =nullptr;
   }
-  if ( m_iOwnParametersDifference ) {
-    delete m_parametersDifference;
-    m_parametersDifference =nullptr;
-  }
   
-  if (m_iOwnParametersCovariance) {
-      delete m_parametersCovariance;
-  }
+  
 }
 
 Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Trk::ProtoTrackStateOnSurface& rhs)
@@ -138,8 +123,6 @@ Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Tr
     if (m_iOwnMeasurement) delete m_measurement;
     if ( m_iOwnJacobian ) delete m_transportJacobian;
     if ( m_iOwnRefPars )  delete m_referenceParameters;
-    if ( m_iOwnParametersDifference ) delete m_parametersDifference;
-    if ( m_iOwnParametersCovariance ) delete m_parametersCovariance;
     m_measurement = rhs.m_iOwnMeasurement
       ? (rhs.m_measurement ? rhs.m_measurement->clone() : nullptr)
       : rhs.m_measurement;
@@ -168,16 +151,11 @@ Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Tr
                               ? rhs.m_referenceParameters->clone() : nullptr )
                          : rhs.m_referenceParameters ;
     m_iOwnRefPars   = rhs.m_iOwnRefPars;
-    m_parametersDifference= rhs.m_iOwnParametersDifference
-                            ? ( rhs.m_parametersDifference
-                                ? new AmgVector(5)(*rhs.m_parametersDifference) : nullptr )
-                            : rhs.m_parametersDifference;
-    m_iOwnParametersDifference= rhs.m_iOwnParametersDifference;
-    m_parametersCovariance= rhs.m_iOwnParametersCovariance
-                            ? ( rhs.m_parametersCovariance
-                                ? new AmgSymMatrix(5)(*rhs.m_parametersCovariance) : nullptr )
-                            : rhs.m_parametersCovariance;
-    m_iOwnParametersCovariance= rhs.m_iOwnParametersCovariance;
+    m_parametersDifference.reset( rhs.m_parametersDifference? 
+                              new AmgVector(5)(*rhs.m_parametersDifference) : nullptr );
+                           
+    m_parametersCovariance.reset(rhs.m_parametersCovariance
+                                ? new AmgSymMatrix(5)(*rhs.m_parametersCovariance) : nullptr );
     m_measurementDifferenceVector.store(nullptr);
   }
   return *this;
@@ -207,14 +185,13 @@ void Trk::ProtoTrackStateOnSurface::swap(ProtoTrackStateOnSurface& rhs) throw ()
     std::swap(this->m_referenceParameters, rhs.m_referenceParameters);
     std::swap(this->m_iOwnRefPars, rhs.m_iOwnRefPars);
     std::swap(this->m_parametersDifference, rhs.m_parametersDifference);
-    std::swap(this->m_iOwnParametersDifference, rhs.m_iOwnParametersDifference);
     std::swap(this->m_parametersCovariance, rhs.m_parametersCovariance);
-    std::swap(this->m_iOwnParametersCovariance, rhs.m_iOwnParametersCovariance);
     std::swap(this->m_measurementDifferenceVector, rhs.m_measurementDifferenceVector);
 }
 
-void Trk::ProtoTrackStateOnSurface::checkinMeasurement(Trk::MeasurementBase* meas,
-                                                       bool classShallOwnMbase) 
+void 
+Trk::ProtoTrackStateOnSurface::checkinMeasurement(Trk::MeasurementBase* meas,
+                                                  bool classShallOwnMbase) 
 {
   if (m_measurement) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinMeasurement!" << std::endl;
@@ -272,7 +249,8 @@ Trk::ProtoTrackStateOnSurface::checkoutMeasurement()
   }
 }
 
-void Trk::ProtoTrackStateOnSurface::checkinTransportJacobian ( const Trk::TransportJacobian* inJacobian,
+void 
+Trk::ProtoTrackStateOnSurface::checkinTransportJacobian ( const Trk::TransportJacobian* inJacobian,
       bool  classShallOwnJacobian ) 
 {
   if ( m_transportJacobian ) {
@@ -283,7 +261,8 @@ void Trk::ProtoTrackStateOnSurface::checkinTransportJacobian ( const Trk::Transp
   m_iOwnJacobian = classShallOwnJacobian;
 }
 
-const Trk::TransportJacobian* Trk::ProtoTrackStateOnSurface::checkoutTransportJacobian() 
+const Trk::TransportJacobian* 
+Trk::ProtoTrackStateOnSurface::checkoutTransportJacobian() 
 {
   if ( !m_transportJacobian ) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutTransportJacobian!" << std::endl;
@@ -293,12 +272,12 @@ const Trk::TransportJacobian* Trk::ProtoTrackStateOnSurface::checkoutTransportJa
   m_transportJacobian = nullptr;
   if ( !m_iOwnJacobian ) return new Trk::TransportJacobian ( *m_transportJacobian );
   else {
-    // not needed : m_iOwnJacobian=false;
     return helper;
   }
 }
 
-void Trk::ProtoTrackStateOnSurface::checkinReferenceParameters ( const Trk::TrackParameters* referenceParameters,
+void 
+Trk::ProtoTrackStateOnSurface::checkinReferenceParameters ( const Trk::TrackParameters* referenceParameters,
       bool  classShallOwnRefPars ) 
 {
   if ( m_referenceParameters ) {
@@ -308,6 +287,13 @@ void Trk::ProtoTrackStateOnSurface::checkinReferenceParameters ( const Trk::Trac
   m_referenceParameters = referenceParameters;
   m_iOwnRefPars         = classShallOwnRefPars;
   m_measurementDifferenceVector.store(nullptr);
+}
+
+void Trk::ProtoTrackStateOnSurface::checkinReferenceParameters(const TrackParameters* pTrackParams){
+  checkinReferenceParameters(pTrackParams, false);
+}
+void Trk::ProtoTrackStateOnSurface::checkinReferenceParameters(std::unique_ptr<const TrackParameters> pTrackParams){
+  checkinReferenceParameters(pTrackParams.release(), true);
 }
 
 const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutReferenceParameters() 
@@ -321,64 +307,43 @@ const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutReferencePara
   m_referenceParameters = nullptr;
   if ( !m_iOwnRefPars ) return helper->clone();
   else {
-    // m_iOwnRefPars=false;
     return helper;
   }
 }
 
-void Trk::ProtoTrackStateOnSurface::checkinParametersDifference ( const AmgVector(5)* inParametersDifference,
-        bool  classShallOwnParametersDifference )
+void 
+Trk::ProtoTrackStateOnSurface::checkinParametersDifference (  std::unique_ptr<const AmgVector(5)> inParametersDifference)
 {
   if ( m_parametersDifference ) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinParametersDifference!" << std::endl;
-    if ( m_iOwnParametersDifference ) delete m_parametersDifference;
   }
-  m_parametersDifference     = inParametersDifference;
-  m_iOwnParametersDifference = classShallOwnParametersDifference;
+  m_parametersDifference     = std::move(inParametersDifference);
 }
 
-const AmgVector(5)* Trk::ProtoTrackStateOnSurface::checkoutParametersDifference()
+
+std::unique_ptr<const AmgVector(5)> 
+Trk::ProtoTrackStateOnSurface::checkoutParametersDifference()
 {
   if ( !m_parametersDifference ) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutParametersDifference!" << std::endl;
     return nullptr;
   }
-  const AmgVector(5)* helper = m_parametersDifference;
-  m_parametersDifference = nullptr;
-  if ( !m_iOwnParametersDifference ) {
-    return new AmgVector(5) ( *helper );
-  } else {
-    // not needed : m_iOwnParametersDifference=false;
-    return helper;
-  }
+  return std::move(m_parametersDifference);
 }
 
-void Trk::ProtoTrackStateOnSurface::checkinParametersCovariance ( const AmgSymMatrix(5)* inCovariance,
-        bool  classShallOwnCovariance )
-{
-  if ( m_parametersCovariance ) {
-    std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkinParametersCovariance!" << std::endl;
-    if ( m_iOwnParametersCovariance ) delete m_parametersCovariance;
-  }
-  m_parametersCovariance     = inCovariance;
-  m_iOwnParametersCovariance = classShallOwnCovariance;
+void 
+Trk::ProtoTrackStateOnSurface::checkinParametersCovariance(std::unique_ptr<const AmgSymMatrix(5)> cov){
+  m_parametersCovariance = std::move(cov);
 }
 
-const AmgSymMatrix(5)* Trk::ProtoTrackStateOnSurface::checkoutParametersCovariance()
+std::unique_ptr<const AmgSymMatrix(5)> 
+Trk::ProtoTrackStateOnSurface::checkoutParametersCovariance()
 {
   if ( !m_parametersCovariance ) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutParametersCovariance!" << std::endl;
     return nullptr;
   }
-  const AmgSymMatrix(5)* helper = m_parametersCovariance;
-  // m_iOwnParametersCovariance=false; // in principle not needed as the pointer is anyhow set to NULL
-  m_parametersCovariance = nullptr;
-  if ( !m_iOwnParametersCovariance ) {
-    return new AmgSymMatrix(5) ( *helper );
-  } else {
-    // not needed :  m_iOwnParametersCovariance=false;
-    return helper;
-  }
+  return std::move(m_parametersCovariance);
 }
 
 
