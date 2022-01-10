@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************************************
@@ -42,11 +42,6 @@ class MeasurementBase;
 class MultiComponentStateOnSurface final : public TrackStateOnSurface
 {
 public:
-  /*
-   * BE CAREFUL: The objects passed in belong to the this object. Never
-   * delete these objects yourself
-   */
-
   /** Default constructor for POOL. This should not be used! */
   MultiComponentStateOnSurface();
 
@@ -57,7 +52,7 @@ public:
      multi-component state */
   MultiComponentStateOnSurface(
     std::unique_ptr<const MeasurementBase>,
-    std::unique_ptr<MultiComponentState>,
+    MultiComponentState&&,
     std::unique_ptr<const FitQualityOnSurface>,
     std::unique_ptr<const MaterialEffectsBase> materialEffectsOnTrack = nullptr,
     double modeQoverP = 0.);
@@ -68,7 +63,7 @@ public:
   MultiComponentStateOnSurface(
     std::unique_ptr<const MeasurementBase>,
     std::unique_ptr<const TrackParameters>,
-    std::unique_ptr<MultiComponentState>,
+    MultiComponentState&&,
     std::unique_ptr<const FitQualityOnSurface>,
     std::unique_ptr<const MaterialEffectsBase> materialEffectsOnTrack = nullptr,
     double modeQoverP = 0.);
@@ -76,7 +71,7 @@ public:
   /** Create TrackStateOnSurface with TrackStateOnSurfaceType. */
   MultiComponentStateOnSurface(
     std::unique_ptr<const MeasurementBase>,
-    std::unique_ptr<MultiComponentState>,
+    MultiComponentState&&,
     std::unique_ptr<const FitQualityOnSurface>,
     std::unique_ptr<const MaterialEffectsBase>,
     const std ::bitset<NumberOfTrackStateOnSurfaceTypes>&,
@@ -88,7 +83,7 @@ public:
   MultiComponentStateOnSurface(
     std::unique_ptr<const MeasurementBase>,
     std::unique_ptr<const TrackParameters>,
-    std::unique_ptr<MultiComponentState>,
+    MultiComponentState&&,
     std::unique_ptr<const FitQualityOnSurface>,
     std::unique_ptr<const MaterialEffectsBase>,
     const std ::bitset<NumberOfTrackStateOnSurfaceTypes>& types,
@@ -96,7 +91,7 @@ public:
 
   /** Constructor without a FitQualityOnSurface. */
   MultiComponentStateOnSurface(std::unique_ptr<const MeasurementBase>,
-                               std::unique_ptr<MultiComponentState>);
+                               MultiComponentState);
 
   /** Copy constructor and assignment*/
   MultiComponentStateOnSurface(const MultiComponentStateOnSurface& other);
@@ -120,17 +115,17 @@ public:
   virtual TrackStateOnSurface::Variety variety() const override final;
 
   /** Method to return a pointer to the multi-component state  const overload*/
-  const MultiComponentState* components() const;
+  const MultiComponentState& components() const;
 
   /** Method to return a pointer to the multi-component state non const
    * overload*/
-  MultiComponentState* components();
+  MultiComponentState& components();
 
   /** Method to return the mode of the multi-component state */
   double mixtureModeQoverP() const;
 
 private:
-  std::unique_ptr<MultiComponentState> m_multiComponentState;
+  MultiComponentState m_multiComponentState{};
   double m_mixtureModeQoverP{};
 };
 

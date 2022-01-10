@@ -143,7 +143,7 @@ Trk::GsfMeasurementUpdator::fitQuality(
   for (; component != updatedState.end(); ++component) {
     const Trk::TrackParameters* trackParameters = component->first.get();
     Trk::FitQualityOnSurface componentFitQuality;
-    m_updator.stateFitQuality(
+    Trk::KalmanParameterUpdator::stateFitQuality(
       componentFitQuality,
       *trackParameters,
       measurement.localParameters(),
@@ -185,7 +185,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
 
     Trk::FitQualityOnSurface fitQuality{};
     /// Update the component in place
-    bool updateSuccess = m_updator.filterStep(
+    bool updateSuccess = Trk::KalmanParameterUpdator::filterStep(
       *(component.first),
       fitQuality,
       measurement.localParameters(),
@@ -241,7 +241,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
     }
     Trk::FitQualityOnSurface componentFitQuality;
     /// Update the component in place
-    bool updateSuccess = m_updator.filterStep(
+    bool updateSuccess = Trk::KalmanParameterUpdator::filterStep(
       *(component.first),
       componentFitQuality,
       measurement.localParameters(),
