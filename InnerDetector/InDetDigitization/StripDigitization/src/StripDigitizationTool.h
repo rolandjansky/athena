@@ -77,7 +77,7 @@ public:
 
 protected:
 
-  bool digitizeElement(const EventContext& ctx, SiChargedDiodeCollectionMap& chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const ; //!
+  bool digitizeElement(const EventContext& ctx, SiChargedDiodeCollectionMap& chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine); //!
   void applyProcessorTools(SiChargedDiodeCollection* chargedDiodes, CLHEP::HepRandomEngine * rndmEngine) const; //!
   void addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const;
 
@@ -115,7 +115,7 @@ private:
   std::unique_ptr<SCT_RDO_Collection> createRDO(SiChargedDiodeCollection* collection) const;
 
   StatusCode getNextEvent(const EventContext& ctx);
-  void       digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const; //!< digitize all hits
+  void       digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine); //!< digitize all hits
   void       digitizeNonHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements, CLHEP::HepRandomEngine * rndmEngine) const;     //!< digitize SCT without hits
 
   /**
