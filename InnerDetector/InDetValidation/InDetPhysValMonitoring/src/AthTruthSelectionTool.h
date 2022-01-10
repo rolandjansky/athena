@@ -55,6 +55,7 @@ private:
   int m_maxBarcode;
   bool m_requireCharged;
   bool m_requireStatus1;
+  int m_requireSiHit;
   // max decay radius for secondaries [mm];
   // set to within (Run2) pixel by default
   double m_maxProdVertRadius;
@@ -85,6 +86,7 @@ private:
   ///Too handle for truth-track extrapolation
   PublicToolHandle<Trk::IExtrapolator> m_extrapolator
      {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};
+
 };
 
 

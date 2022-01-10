@@ -25,6 +25,7 @@ def GetCustomAthArgs():
     IDPVMparser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
     IDPVMparser.add_argument("--HSFlag", help='Hard-scatter flag - decides what is used for truth matching', choices=['HardScatter', 'All', 'PileUp'],default="HardScatter")
     IDPVMparser.add_argument("--ancestorIDList", help='List of ancestor truth IDs to match.', default = [], nargs='+', type=int)
+    IDPVMparser.add_argument("--requiredSiHits", help='Number of required truth sillicon hits', default = 1, type=int)
     return IDPVMparser.parse_args()
 
 # Parse the arguments 
@@ -45,6 +46,7 @@ InDetPhysValFlags.doValidateElectronMatchedTracks.set_Value_and_Lock(MyArgs.doEl
 InDetPhysValFlags.doPerAuthorPlots.set_Value_and_Lock(MyArgs.doPerAuthor)
 InDetPhysValFlags.doHitLevelPlots.set_Value_and_Lock(MyArgs.doHitLevelPlots)
 InDetPhysValFlags.ancestorIDs.set_Value_and_Lock(MyArgs.ancestorIDList)
+InDetPhysValFlags.requiredSiHits.set_Value_and_Lock(MyArgs.requiredSiHits)
 InDetPhysValFlags.hardScatterStrategy.set_Value_and_Lock(int(MyArgs.hardScatterStrategy))
 
 # Print the configuration
@@ -63,6 +65,7 @@ include( "AthenaPython/iread_file.py" )
 # Add our monitoring manager to the topSequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 monMan = AthenaMonManager( "PhysValMonManager",
   FileKey = "M_output",
