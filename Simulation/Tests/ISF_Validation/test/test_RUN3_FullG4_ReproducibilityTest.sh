@@ -1,10 +1,6 @@
 #!/bin/sh
 #
-# art-description: Reading single particle gen events, checking that the SkipEvents argument works, using 2015 geometry and conditions
-# art-include: 21.0/Athena
-# art-include: 21.0/AthSimulation
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
+# art-description: MC21-style simulation using FullG4, checking that the SkipEvents argument works (7 TeV ttbar input - needs updating)
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
@@ -16,14 +12,11 @@
 
 # Run 10 events normally
 Sim_tf.py \
---conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
---physicsList 'FTFP_BERT' \
---truthStrategy 'MC15aPlus' \
+--conditionsTag 'default:OFLCOND-MC21-SDR-RUN3-03' \
 --simulator 'FullG4' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---DataRunNumber '222525' \
---geometryVersion 'default:ATLAS-R2-2015-03-01-00' \
+--preInclude 'EVNTtoHITS:Campaigns/MC21Simulation.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+--geometryVersion 'default:ATLAS-R3S-2021-02-00-00_VALIDATION' \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' \
 --outputHITSFile 'hitsFull.ttbar.pool.root' \
 --maxEvents '10' \
@@ -33,14 +26,11 @@ echo "art-result: $? unsplit-sim"
 
 # Run first 5 events
 Sim_tf.py \
---conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
---physicsList 'FTFP_BERT' \
---truthStrategy 'MC15aPlus' \
+--conditionsTag 'default:OFLCOND-MC21-SDR-RUN3-03' \
 --simulator 'FullG4' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---DataRunNumber '222525' \
---geometryVersion 'default:ATLAS-R2-2015-03-01-00' \
+--preInclude 'EVNTtoHITS:Campaigns/MC21Simulation.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+--geometryVersion 'default:ATLAS-R3S-2021-02-00-00_VALIDATION' \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' \
 --outputHITSFile 'hitsHalf1.ttbar.pool.root' \
 --maxEvents '5' \
@@ -50,14 +40,11 @@ echo "art-result: $? split-sim1"
 
 # Run next 5 events
 Sim_tf.py \
---conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
---physicsList 'FTFP_BERT' \
---truthStrategy 'MC15aPlus' \
+--conditionsTag 'default:OFLCOND-MC21-SDR-RUN3-03' \
 --simulator 'FullG4' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---DataRunNumber '222525' \
---geometryVersion 'default:ATLAS-R2-2015-03-01-00' \
+--preInclude 'EVNTtoHITS:Campaigns/MC21Simulation.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+--geometryVersion 'default:ATLAS-R3S-2021-02-00-00_VALIDATION' \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' \
 --outputHITSFile 'hitsHalf2.ttbar.pool.root' \
 --maxEvents '5' \
