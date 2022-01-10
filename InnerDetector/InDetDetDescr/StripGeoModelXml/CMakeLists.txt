@@ -4,7 +4,7 @@
 atlas_subdir( StripGeoModelXml )
 
 find_package( XercesC )
-find_package( GeoModel COMPONENTS GeoModelKernel GeoModelXml )
+find_package( GeoModel COMPONENTS GeoModelKernel GeoModelXml ExpressionEvaluator )
 
 # Component(s) in the package:
 atlas_add_component( StripGeoModelXml
