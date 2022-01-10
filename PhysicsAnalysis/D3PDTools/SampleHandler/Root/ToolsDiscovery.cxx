@@ -129,14 +129,14 @@ namespace SH
       addGrid (sh, pattern);
     } else
     {
-      std::string type = "DATASET";
+      std::set<std::string> types = {"DATASET", "DIDType.DATASET"};
       if (pattern.back() == '/')
-	type = "CONTAINER";
+	types = {"CONTAINER", "DIDType.CONTAINER"};
 
       auto subresult = rucioListDids (pattern);
       for (auto& ds : subresult)
       {
-	if (ds.type == type)
+	if (types.find (ds.type) != types.end())
 	  addGrid (sh, ds.scope + ":" + ds.name);
       }
     }
@@ -154,7 +154,7 @@ namespace SH
     {
       auto subresult = rucioListDids (pattern);
       bool added = false;
-      for (std::string type : {"CONTAINER", "DATASET"})
+      for (std::string type : {"CONTAINER", "DIDType.CONTAINER", "DATASET", "DIDType.DATASET"})
       {
 	for (auto& ds : subresult)
 	{
