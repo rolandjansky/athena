@@ -273,7 +273,7 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, st
     // Extract relevant layers from the outputs
     m_relevantLayers = new std::vector<int>();
     for(auto name : config.outputs){
-      int layer = std::stoi( name.substr( 1, name.find("_") ) );
+      int layer = std::stoi( name.erase(0, 13) ); // remove "extrapWeight_" and convert to int
       m_relevantLayers->push_back(layer);
     }
   }                
