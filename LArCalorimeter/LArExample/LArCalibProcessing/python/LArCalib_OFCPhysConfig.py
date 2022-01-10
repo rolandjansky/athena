@@ -161,6 +161,7 @@ if __name__ == "__main__":
     from LArCalibProcessing.LArCalibConfigFlags import addLArCalibFlags
     addLArCalibFlags(ConfigFlags)
 
+    ConfigFlags.Input.TypedCollections=[]
     ConfigFlags.LArCalib.Input.RunNumbers=[500000]
     ConfigFlags.LArCalib.Input.Database="/home/wlampl/calibTest/00403758_00403761_00403762_EndCap-EMB-EMEC_HIGH_40_21.0.20_1/poolFiles/myDB200_00403758_00403761_00403762_EB-EMECC_one.db"
     ConfigFlags.LArCalib.Input.SubDet="EM"
@@ -173,6 +174,7 @@ if __name__ == "__main__":
     ConfigFlags.IOVDb.GlobalTag="LARCALIB-RUN2-02"
     #ConfigFlags.Exec.OutputLevel=1
 
+    ConfigFlags.lock()
     cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(LArOFCPhysCfg(ConfigFlags))
 
