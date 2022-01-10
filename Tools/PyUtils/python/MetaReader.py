@@ -173,6 +173,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         'TriggerMenuJson_HLTAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         'TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>',
                         'TriggerMenuJson_L1Aux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'TriggerMenuJson_L1PS': 'DataVector<xAOD::TriggerMenuJson_v1>',
+                        'TriggerMenuJson_L1PSAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
+                        'FileMetaData': '*',
+                        'FileMetaDataAux.': 'xAOD::FileMetaDataAuxInfo_v1',
                         'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_HLT': 'DataVector<xAOD::TriggerMenuJson_v1>', # R3 trigger metadata format ESD
                         'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.': 'xAOD::TriggerMenuJsonAuxContainer_v1',
                         'DataVector<xAOD::TriggerMenuJson_v1>_TriggerMenuJson_L1': 'DataVector<xAOD::TriggerMenuJson_v1>',
@@ -272,6 +276,9 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         except AttributeError:
                             # should not happen, but just ignore missing attributes
                             pass
+                    else:
+                        # convert ROOT.std.string objects to python equivalent
+                        dynamic_fmd_items[key] = str(dynamic_fmd_items[key])
 
                 # clean the meta-dict if the meta_key_filter flag is used, to return only the key of interest
                 if meta_key_filter:
@@ -300,16 +307,14 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         aux = persistent_instances['TriggerMenuAux.']
                     elif key == 'DataVector<xAOD::TriggerMenu_v1>_TriggerMenu' and 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.' in persistent_instances and not has_r3_trig_meta: # ESD case (legacy support, HLT and L1 menus)
                         aux = persistent_instances['xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.']
-                    elif key == 'TriggerMenuAux.' or key == 'xAOD::TriggerMenuAuxContainer_v1_TriggerMenuAux.':
-                        continue # Extracted using the interface object
-                    elif key == 'TriggerMenuJson_HLTAux.' or key == 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_HLTAux.':
-                        continue # Extracted using the interface object
-                    elif key == 'TriggerMenuJson_L1Aux.' or key == 'xAOD::TriggerMenuJsonAuxContainer_v1_TriggerMenuJson_L1Aux.':
-                        continue # Extracted using the interface object
-                    elif key == 'FileMetaData' and 'FileMetaDataAux.' in persistent_instances:
+                    elif (key == 'FileMetaData'
+                          and 'FileMetaDataAux.' in persistent_instances):
                         aux = persistent_instances['FileMetaDataAux.']
-                    elif key == 'xAOD::FileMetaData_v1_FileMetaData' and 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.' in persistent_instances:
+                    elif (key == 'xAOD::FileMetaData_v1_FileMetaData'
+                          and 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.' in persistent_instances):
                         aux = persistent_instances['xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.']
+                    elif 'Menu' in key and key.endswith('Aux.'): # Extracted using the interface object
+                        continue
 
                     return_obj = _convert_value(content, aux)
 
@@ -743,17 +748,18 @@ def _extract_fields_fmd(interface=None, aux=None):
     if not interface or not aux:
         return {}
     interface.setStore(aux)
-    result = {
+    metaContent = {
         "productionRelease": ROOT.std.string(),
         "dataType": ROOT.std.string(),
     }
     # Note: using this for dynamic attributes retruns empty content
-    for k, v in result.items():
+    for k, v in metaContent.items():
         try:
             interface.value(getattr(interface, k), v)
         except AttributeError:
             interface.value(k, v)
-    return result
+    # Now return python objects
+    return {k: str(v) for k, v in metaContent.items()}
 
 """ Note: Deprecated. Legacy support for Run 2 AODs produced in release 21 or in release 22 prior to April 2021
 """
