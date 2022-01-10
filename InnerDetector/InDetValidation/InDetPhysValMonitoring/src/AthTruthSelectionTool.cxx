@@ -53,6 +53,7 @@ AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std:
   declareProperty("maxBarcode", m_maxBarcode = 200e3);
   declareProperty("requireCharged", m_requireCharged = true);
   declareProperty("requireStatus1", m_requireStatus1 = true);
+  declareProperty("requireSiHit", m_requireSiHit = 0);
   declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.);
   declareProperty("pdgId", m_pdgId = -1);
   declareProperty("hasNoGrandparent", m_grandparent = false);
@@ -95,6 +96,13 @@ AthTruthSelectionTool::initialize() {
     m_cutList.add(Accept_t([&m_maxPt = std::as_const(m_maxPt)](const P_t& p) {
       return(p.pt() < m_maxPt);
     }, "max_pt"));
+  }
+  if (m_requireSiHit > 0) {
+    m_cutList.add(Accept_t([&m_requireSiHit = std::as_const(m_requireSiHit)](const P_t& p) {
+      static const SG::AuxElement::ConstAccessor< float > nSilHitsAcc("nSilHits");
+      if (nSilHitsAcc.isAvailable(p)) return (nSilHitsAcc(p) >= m_requireSiHit);
+      else return false;
+    }, "siHit"));
   }
   if (m_maxBarcode > -1) {
     m_cutList.add(Accept_t([&m_maxBarcode = std::as_const(m_maxBarcode)](const P_t& p) {
