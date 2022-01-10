@@ -323,7 +323,7 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
   // As we merge keep track where things moved
-  std::array<int8_t, GSFConstants::maxComponentsAfterConvolution> mergingIndex;
+  std::array<int8_t, GSFConstants::maxComponentsAfterConvolution> mergingIndex{};
   std::iota(mergingIndex.begin(), mergingIndex.end(), 0);
   // Result to be returned
   MergeArray result{};

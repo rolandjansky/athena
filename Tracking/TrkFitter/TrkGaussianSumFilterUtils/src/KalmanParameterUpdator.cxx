@@ -348,7 +348,7 @@ Trk::KalmanParameterUpdator::filterStep(TrackParameters& trackParameters,
                                         Trk::FitQualityOnSurface& fitQos,
                                         const LocalParameters& measurement,
                                         const Amg::MatrixX& measCovariance,
-                                        const int sign) const
+                                        const int sign) 
 {
 
   const AmgSymMatrix(5)* trkCov = trackParameters.covariance();
@@ -418,7 +418,7 @@ Trk::KalmanParameterUpdator::stateFitQuality(
   const TrackParameters& trkPar,
   const LocalParameters& position,
   const Amg::MatrixX& covariance,
-  int predFull) const
+  int predFull) 
 {
   if (!trkPar.covariance()) {
     return false;

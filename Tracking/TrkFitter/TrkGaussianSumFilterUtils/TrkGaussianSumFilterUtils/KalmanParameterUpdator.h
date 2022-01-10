@@ -33,17 +33,17 @@ public:
   /// to represent the predicted state containing
   /// the measurement LocalParameters and covariance.
   /// For prediction sign should be 1 for smoothing -1.
-  bool filterStep(TrackParameters& trackParameters,
+  static bool filterStep(TrackParameters& trackParameters,
                   FitQualityOnSurface& fitQos,
                   const LocalParameters& measurement,
                   const Amg::MatrixX& measCovariance,
-                  const int sign) const;
+                  const int sign) ;
 
-  bool stateFitQuality(FitQualityOnSurface& updatedFitQoS,
+  static bool stateFitQuality(FitQualityOnSurface& updatedFitQoS,
                        const TrackParameters& trkPar,
                        const LocalParameters& position,
                        const Amg::MatrixX& covariance,
-                       int predFull) const;
+                       int predFull) ;
 };
 
 } // end of namespace Trk

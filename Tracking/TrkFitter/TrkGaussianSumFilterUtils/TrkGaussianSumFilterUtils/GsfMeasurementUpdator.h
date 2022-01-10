@@ -53,7 +53,6 @@ private:
     const MeasurementBase&,
     FitQualityOnSurface& fitQoS) const;
 
-  KalmanParameterUpdator m_updator{};
 };
 }
 
