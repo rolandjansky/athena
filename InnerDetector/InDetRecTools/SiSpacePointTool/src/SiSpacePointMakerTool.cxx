@@ -218,6 +218,25 @@ namespace InDet{
         m_element0 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*c0)->identify()));
         m_element1 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*c1)->identify()));
         if(!m_element0 || !m_element1) return false;
+
+        auto shape0 = m_element0->design().shape();
+        auto shape1 = m_element1->design().shape();
+
+        if ((shape0 == InDetDD::PolarAnnulus) || (shape0 == InDetDD::Annulus)){
+            auto pos0 = (*c0)->localPosition();
+            ATH_MSG_DEBUG("Cluster 0 local pos: "<<pos0.x()<<","<<pos0.y() );
+            ATH_MSG_DEBUG("Cluster 0 cellID: "<<m_element0->cellIdOfPosition(pos0) );
+            auto posg0 = (*c0)->globalPosition();
+            ATH_MSG_DEBUG("Cluster 0 global pos: "<<posg0.x()<<","<<posg0.y()<<","<<posg0.z() );
+
+        }
+        if ((shape1 == InDetDD::PolarAnnulus) || (shape1 == InDetDD::Annulus)){
+            auto pos1 = (*c1)->localPosition();
+            ATH_MSG_DEBUG("Cluster 1 local pos: "<<pos1.x()<<","<<pos1.y() );
+            ATH_MSG_DEBUG("Cluster 1 cellID: "<<m_element1->cellIdOfPosition(pos1) );
+            auto posg1 = (*c1)->globalPosition();
+            ATH_MSG_DEBUG("Cluster 1 global pos: "<<posg1.x()<<","<<posg1.y()<<","<<posg1.z() );
+        }
         
         m_stripLengthGapTolerance = 0.;
         if(m_SCTgapParameter!=0.) offset(m_element0,m_element1);

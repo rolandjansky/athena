@@ -625,7 +625,7 @@ namespace InDet{
 
       double V[4]={x*x*(1./12.),0.,0.,COV11};
 
-      if(rotate) {
+      if(rotate) { // Trapezoid or Annulus
         // Find length of strip at centre
         //
         std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(centre));
@@ -634,9 +634,9 @@ namespace InDet{
         double w       = element->phiPitch(localPos)*iphipitch; 
         double sn      = element->sinStereoLocal(localPos); 
         double sn2     = sn*sn;
-        double cs2     = 1.-sn2;
+        double cs2     = 1.0-sn2;
         double v0      = V[0]*w*w;
-        double v1      = stripL*stripL*(1./12.);
+        double v1      = stripL*stripL*(1.0/12.0);
         V[0]           = cs2*v0+sn2*v1;
         V[1]  =  V[2]  = sn*sqrt(cs2)*(v0-v1);
         V[3]           = sn2*v0+cs2*v1;
@@ -658,6 +658,13 @@ namespace InDet{
       // clusters had been split - recalculating HitsInThirdTimeBin too difficult to be worthwhile for this rare corner case..
       //
       if (badStripInClusterOnThisModuleSide) cluster->setHitsInThirdTimeBin(0);
+
+      auto pos_loc = cluster->localPosition();
+      ATH_MSG_DEBUG("cluster local pos: "<<pos_loc);
+
+      auto pos_glo = cluster->globalPosition();
+      ATH_MSG_DEBUG("cluster global pos: "<<pos_glo);
+      
 
       clusterCollection->push_back(cluster); clusterNumber++;
     }
