@@ -61,7 +61,6 @@ atlas_add_test( SimKernelMT_test
                 POST_EXEC_SCRIPT nopost.sh
                 ENVIRONMENT
                 "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
-                POST_EXEC_SCRIPT nopost.sh
                 )
 # Needed for the plugin service to see the test components
 # defined in the test binary.
