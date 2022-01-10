@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """! Utility functions for manipulating LHE files.
 
@@ -191,6 +191,32 @@ def ensure_coloured_quarks(input_event):
                 if int(IDUP) in range(-6, 0):  # this is an anti-quark
                     output_line = "".join(tokens[:9]) + " {0:>5d} {1:>5d}".format(0, initial_colour_flow + 1) + "".join(tokens[13:])
                     is_event_changed = True
+        except ValueError:  # this is not a particle line
+            pass
+        event_lines += output_line if output_line is not None else input_line
+    return (is_event_changed, event_lines)
+
+def mu2tau(input_event):
+    """! 
+    Swap out muons for taus, and muon neutrinos for tau neutrinos.
+    Note no momentum reshuffling is done, but Pythia appears to restore the correct tau mass.
+    """
+    is_event_changed = False
+    event_lines = ""
+    for input_line in input_event.splitlines(True):
+        output_line = None
+        try:  # interpret line as a particle
+            tokens = re.split(r"(\s+)", input_line)
+            if len(tokens) < 25: raise ValueError
+            IDUP = int(tokens[2])
+            if abs(IDUP) == 13 or abs(IDUP) == 14:  # this is a muon or muon neutrino
+                if IDUP > 0:
+                    IDUP += 2
+                else:
+                    IDUP -= 2
+                is_event_changed = True
+                output_line = "".join("".join(tokens[:2])+str(IDUP)+"".join(tokens[3:]))
+                # print "LHE mu2tau swap \n\'"+input_line+"\', for \n\'"+output_line+"\'"
         except ValueError:  # this is not a particle line
             pass
         event_lines += output_line if output_line is not None else input_line

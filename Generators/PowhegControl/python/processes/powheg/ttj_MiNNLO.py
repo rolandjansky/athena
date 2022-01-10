@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 from ..powheg_V2 import PowhegV2
@@ -57,8 +57,8 @@ class ttj_MiNNLO(PowhegV2):
         logger.debug("LD_LIBRARY_PATH (before) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
         VirtualsPath = os.path.dirname(self.executable) + "/Virtuals/obj-gnu"
         ChaplinPath = os.path.dirname(self.executable) + "/../../External/chaplin-1.2/lib"
-        logger.debug("VirtualsPath="+VirtualsPath)
-        logger.debug("ChaplinPath="+ChaplinPath)
+        logger.info("VirtualsPath="+VirtualsPath)
+        logger.info("ChaplinPath="+ChaplinPath)
         ldpath = os.getenv('LD_LIBRARY_PATH')
         ldpath_new = VirtualsPath + ":" + ChaplinPath + ":" + ldpath
         os.environ['LD_LIBRARY_PATH'] = ldpath_new
