@@ -244,7 +244,7 @@ FCSReturnCode TFCSPredictExtrapWeights::simulate_hit(Hit& hit, TFCSSimulationSta
 
 // initializeNetwork()
 // Initialize lwtnn network 
-bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::vector<int> relevantLayers, std::string etaBin, std::string FastCaloNNInputFolderName)
+bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::string etaBin, std::string FastCaloNNInputFolderName)
 {
 
   ATH_MSG_INFO("Using FastCaloNNInputFolderName: " << FastCaloNNInputFolderName );
@@ -270,7 +270,12 @@ bool TFCSPredictExtrapWeights::initializeNetwork(int pid, std::vector<int> relev
       delete m_input;
     }
     m_input          = new std::string(sin.str());
-    m_relevantLayers = new std::vector<int>(relevantLayers);
+    // Extract relevant layers from the outputs
+    m_relevantLayers = new std::vector<int>();
+    for(auto name : config.outputs){
+      int layer = std::stoi( name.substr( 1, name.find("_") ) );
+      m_relevantLayers->push_back(layer);
+    }
   }                
   return true;
 }
@@ -377,8 +382,7 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
   TFCSPredictExtrapWeights NN("NN", "NN");
   NN.setLevel(MSG::VERBOSE);
   const int pid = truth->pdgid();
-  std::vector<int> layers = {0,1,2,3,12};
-  NN.initializeNetwork(pid, layers, etaBin,"/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/json/v23/");
+  NN.initializeNetwork(pid, etaBin,"/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/json/v23/");
   NN.getNormInputs(etaBin, "/eos/atlas/atlascerngroupdisk/proj-simul/AF3_Run3/Jona/lwtnn_inputs/txt/v23/");
 
   // Get extrapWeights and save them as AuxInfo in simulstate
@@ -388,6 +392,7 @@ void TFCSPredictExtrapWeights::unit_test(TFCSSimulationState* simulstate,const T
 
   // Get predicted extrapolation weights
   auto outputs = NN.m_nn->compute(inputVariables);
+  std::vector<int> layers = {0,1,2,3,12};
   for(int ilayer : layers){
     simulstate->setAuxInfo<float>(ilayer,outputs["extrapWeight_"+std::to_string(ilayer)]);
   }

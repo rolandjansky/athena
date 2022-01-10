@@ -38,7 +38,7 @@ public:
   void set_freemem() {SetBit(kfreemem);};
 
   // Initialize Neural Network
-  bool initializeNetwork(int pid, std::vector<int> relevantLayers, std::string etaBin, std::string FastCaloNNInputFolderName);
+  bool initializeNetwork(int pid, std::string etaBin, std::string FastCaloNNInputFolderName);
 
   // Get inputs needed to normalize data
   bool getNormInputs(std::string etaBin, std::string FastCaloTXTInputFolderName);
