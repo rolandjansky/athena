@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 // Written by Dominik Derendarz (dominik.derendarz@cern.ch)
 // Based on MultiBjetFilter by Bill Balunas
@@ -44,8 +44,8 @@ private:
     Gaudi::Property<double> m_bottomEtaMax{this,"BottomEtaMax",3.0,"Maximal bottom eta"};
     Gaudi::Property<int> m_nCJetsMin{this,"NCJetsMin",0,"Minimal c-jet multiplicity"};
     Gaudi::Property<int> m_nCJetsMax{this,"NCJetsMax",-1,"Maximal c-jet multiplicity"};
-    Gaudi::Property<double> m_charmPtMin{this,"BottomPtMin",5000.,"Minimal charm Pt"};
-    Gaudi::Property<double> m_charmEtaMax{this,"BottomEtaMax",3.0,"Maximal charm eta"};
+    Gaudi::Property<double> m_charmPtMin{this,"CharmPtMin",5000.,"Minimal charm Pt"};
+    Gaudi::Property<double> m_charmEtaMax{this,"CharmEtaMax",3.0,"Maximal charm eta"};
     Gaudi::Property<std::string> m_TruthJetContainerName{this,"TruthContainerName","AntiKt4TruthJets","Truht jet container name"};
 
     // Internal bookkeeping variables
