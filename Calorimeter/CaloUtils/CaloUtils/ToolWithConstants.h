@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloUtils/ToolWithConstants.h
@@ -432,8 +432,9 @@ private:
  * Settings from COOL may be overridden with settings from job options.
  * For values that are arrays, the value should be set as a string.
  */
+#define ATH_TWC_REQUIRES ATH_REQUIRES( requires (BASE& b, Gaudi::Property<int>& p) { { b.declareProperty(p) }; } )
 template <class BASE>
-  ATH_REQUIRES( requires (BASE& b, Gaudi::Property<int>& p) { { b.declareProperty(p) }; } )
+  ATH_TWC_REQUIRES
 class ToolWithConstants
   : public extends<BASE, IToolWithConstants>
 {
@@ -545,6 +546,9 @@ private:
 
 
 #include "CaloUtils/ToolWithConstants.icc"
+
+
+#undef ATH_TWC_REQUIRES
 
 
 #endif // not CALOUTILS_TOOLWITHCONSTANTS_H
