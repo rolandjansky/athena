@@ -99,6 +99,19 @@ numDistances8(const int32_t n)
   return nn2;
 }
 
+int32_t
+numDistances8(const int32_t n, float* distancesIn)
+{
+  const int32_t nn = n * (n - 1) / 2;
+  const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
+  // Make sure the extra elements are set to max
+  // set the loop for the minimum can not find them
+  std::fill(
+    distancesIn + nn, distancesIn + nn2, std::numeric_limits<float>::max());
+  return nn2;
+}
+
+
 /**
  * Based on
  * https://www.sciencedirect.com/science/article/pii/089812218990103X
@@ -149,13 +162,6 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
   updated.cov = sumVariance;
   updated.invCov = 1. / sumVariance;
   updated.weight = sumWeight;
-  // approximate a delta function
-  // as a Gaussian  with large mean a small sigma
-  // the KL distance to it will always be large
-  removed.mean = largeMean;
-  removed.cov = tinySigma;
-  removed.invCov = invertTinySigma;
-  removed.weight = -1;
 }
 
 /**
@@ -196,7 +202,6 @@ resetDistances(
 
   // Rows
   for (int32_t i = 0; i < j; ++i, ++movedElements) {
-    distances[indexOffsetJ + i] = std::numeric_limits<float>::max();
     std::swap(distances[indexOffsetJ + i],
               distances[indexOffsetLast + movedElements]);
   }
@@ -206,15 +211,12 @@ resetDistances(
   // Also if minj is the last the element does not exist
   // as we do not keep distance to self
   if (j != last) {
-    const int32_t index = indexOffsetLast + j;
-    distances[index] = std::numeric_limits<float>::max();
     ++movedElements;
   }
 
   // The columns
   for (int32_t i = j + 1; i < last; ++i, ++movedElements) {
     const int32_t index = (i - 1) * i / 2 + j;
-    distances[index] = std::numeric_limits<float>::max();
     std::swap(distances[index], distances[indexOffsetLast + movedElements]);
   }
   // And now swap the components
@@ -357,7 +359,7 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
                                             numberOfComponentsLeft);
 
     // number of remaining distances dividable by 8
-    nn2 = numDistances8(numberOfComponentsLeft);
+    nn2 = numDistances8(numberOfComponentsLeft,distances.buffer());
   } // end of merge while
   return result;
 }
