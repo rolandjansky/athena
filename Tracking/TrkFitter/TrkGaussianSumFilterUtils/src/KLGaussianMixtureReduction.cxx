@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilterUtils/AlignedDynArray.h"
 #include "TrkGaussianSumFilterUtils/GsfConstants.h"
 //
+#include "CxxUtils/assume_aligned.h"
 #include "CxxUtils/features.h"
 #include "CxxUtils/restrict.h"
 #include "CxxUtils/vec.h"
@@ -16,16 +17,6 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
-
-#if !defined(__GNUC__)
-#define __builtin_assume_aligned(X, N) X
-#else
-#if defined(__clang__)
-#if !__has_builtin(__builtin_assume_aligned)
-#define __builtin_assume_aligned(X, N) X
-#endif
-#endif
-#endif
 
 ATH_ENABLE_VECTORIZATION;
 /**
@@ -180,11 +171,11 @@ resetDistances(
   const int32_t minj,
   const int32_t n)
 {
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
-  Component1D* components = static_cast<Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
   const int32_t j = minj;
   const int32_t last = (n - 1);
@@ -236,11 +227,11 @@ recalculateDistances(const Component1D* componentsIn,
                      const int32_t mini,
                      const int32_t n)
 {
-  const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  const Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
   const int32_t j = mini;
   const int32_t indexConst = (j - 1) * j / 2;
@@ -279,11 +270,11 @@ calculateAllDistances(const Component1D* componentsIn,
                       const int32_t n)
 {
 
-  const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  const Component1D* components =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(componentsIn);
 
-  float* distances = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  float* distances =
+    CxxUtils::assume_aligned<GSFConstants::alignment>(distancesIn);
 
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
@@ -314,8 +305,8 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
   }
   // copy the array for internal use
   Component1DArray copyComponents(componentsIn);
-  Component1D* components = static_cast<Component1D*>(__builtin_assume_aligned(
-    copyComponents.components.data(), GSFConstants::alignment));
+  Component1D* components = CxxUtils::assume_aligned<GSFConstants::alignment>(
+    copyComponents.components.data());
   // Based on the inputSize n allocate enough space for the pairwise distances
   int32_t nn2 = numDistances8(n);
   AlignedDynArray<float, GSFConstants::alignment> distances(
@@ -386,8 +377,7 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  const float* array = assume_aligned<GSFConstants::alignment>(distancesIn);
   // Do 2 vectors of 4 elements , so 8 at time
   const vec<int, 4> increment = { 8, 8, 8, 8 };
   vec<int, 4> indices1 = { 0, 1, 2, 3 };
@@ -440,8 +430,7 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = static_cast<float*>(
-    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
+  const float* array = assume_aligned<GSFConstants::alignment>(distancesIn);
   const vec<int, 4> increment = { 8, 8, 8, 8 };
   vec<int, 4> indices1 = { 0, 1, 2, 3 };
   vec<int, 4> indices2 = { 4, 5, 6, 7 };

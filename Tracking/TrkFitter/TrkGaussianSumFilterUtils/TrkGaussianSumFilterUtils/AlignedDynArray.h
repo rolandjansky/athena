@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,19 +11,8 @@
 #define GSFUtils_AlignedDynArray_H
 #include <cstdlib>
 #include <memory>
+#include "CxxUtils/assume_aligned.h"
 namespace GSFUtils {
-
-/*
- * Use GCC and Clang attributes to express that we return aligned ouputs
- * If we have a std implementing ideas from
- * http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0886r0.pdf
- * prb we do not need this.
- */
-#if defined(__GNUC__) && !defined(__CLING__) && !defined(__ICC)
-#define GSF_ALIGN_RETURN(X) __attribute__((assume_aligned(X)))
-#else
-#define GSF_ALIGN_RETURN(X)
-#endif
 
 /**
  * A wrapper around std::aligned_alloc
@@ -88,10 +77,10 @@ struct AlignedDynArray
   ~AlignedDynArray();
 
   /// Get the underlying buffer
-  pointer buffer() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  pointer buffer() noexcept;
 
   /// Get the underlying buffer  (const)
-  const_pointer buffer() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  const_pointer buffer() const noexcept;
 
   /// index array operator
   reference operator[](size_type pos) noexcept;
@@ -100,10 +89,10 @@ struct AlignedDynArray
   const_reference operator[](size_type pos) const noexcept;
 
   /// iterator pointing to the first element
-  iterator begin() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  iterator begin() noexcept;
 
   /// const iterator pointing to the first element
-  const_iterator begin() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  const_iterator begin() const noexcept;
 
   /// iterator pointing to the past-the-end  element
   iterator end() noexcept;
