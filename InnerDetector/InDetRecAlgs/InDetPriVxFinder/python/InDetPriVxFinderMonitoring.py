@@ -17,7 +17,7 @@ def InDetPriVxFinderMonitoringTool():
 
     newMonTool.defineHistogram('allVertexX, allVertexY',path='EXPERT', type='TH2F',
                                                  title="All vertices Y vs X; Vertex X [mm]; Vertex Y [mm]",
-                                                 xbins=200, xmin=-5, xmax=5, ybins=200, ymin=-5, ymax=5, opt='kLBN')
+                                                 xbins=200, xmin=-5, xmax=5, ybins=200, ymin=-5, ymax=5)
 
 
 
@@ -28,7 +28,7 @@ def InDetPriVxFinderMonitoringTool():
 
     newMonTool.defineHistogram('primVertexX, primVertexY',path='EXPERT', type='TH2F',
                                                  title="Primary Vertex Y vs X; Vertex X [mm]; Vertex Y [mm]",
-                                                 xbins=200, xmin=-5, xmax=5, ybins=200, ymin=-5, ymax=5, opt='kLBN')
+                                                 xbins=200, xmin=-5, xmax=5, ybins=200, ymin=-5, ymax=5)
 
     return newMonTool
 
