@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexFitterUtils/TrackToVertexIPEstimator.h"
@@ -7,10 +7,6 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
-#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
 #include "TrkTrackLink/ITrackLink.h"
 
 #include "xAODTracking/TrackParticle.h"
@@ -21,12 +17,8 @@ namespace Trk
 {
 
  TrackToVertexIPEstimator::TrackToVertexIPEstimator(const std::string& t, const std::string& n, const IInterface*  p):
-  AthAlgTool(t,n,p), m_extrapolator("Trk::Extrapolator",this),m_Updator("Trk::KalmanVertexUpdator",this),
-  m_linFactory("Trk::FullLinearizedTrackFactory",this)
+  AthAlgTool(t,n,p) 
  {
-  declareProperty("Extrapolator",            m_extrapolator);
-  declareProperty("VertexUpdator",           m_Updator);
-  declareProperty("LinearizedTrackFactory",  m_linFactory);
   declareInterface<ITrackToVertexIPEstimator>(this);    
  }
 
@@ -39,28 +31,28 @@ namespace Trk
 //extrapolator    
   if ( m_extrapolator.retrieve().isFailure() ) 
   {
-   msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
+   ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
    return StatusCode::FAILURE;
   } 
-   msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
+  ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
   
 
 //updator 
   if ( m_Updator.retrieve().isFailure() ) 
   {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_Updator << endmsg;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_Updator );
     return StatusCode::FAILURE;
   } 
-    msg(MSG::INFO) << "Retrieved tool " << m_Updator << endmsg;
+  ATH_MSG_INFO( "Retrieved tool " << m_Updator );
   
   
 //linearized track factory
   if ( m_linFactory.retrieve().isFailure() ) 
   {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_linFactory << endmsg;
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_linFactory );
     return StatusCode::FAILURE;
   } 
-    msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
+  ATH_MSG_INFO( "Retrieved tool " << m_linFactory );
   
   
    return StatusCode::SUCCESS;  
@@ -73,8 +65,8 @@ namespace Trk
   {
    return estimate(&(track->perigeeParameters()),&(track->perigeeParameters()),vtx,doRemoval); 
   }
-   msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
-   return nullptr;
+  ATH_MSG_INFO( "Empty TrackParticle or Vertex pointer passed. Returning zero " );
+  return nullptr;
   //end of track particle validity check
  }//end of method using track particles
  
@@ -84,7 +76,7 @@ namespace Trk
   {
     return estimate(&(track->perigeeParameters()),&(newtrack->perigeeParameters()),vtx,doRemoval); 
   }
-   msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
+   ATH_MSG_INFO( "Empty TrackParticle or Vertex pointer passed. Returning zero " );
    return nullptr;
   //end of track particle validity check
  }//end of method using track particles
@@ -97,8 +89,8 @@ namespace Trk
    if(track && vtx){
      return estimate(track,track,vtx,doRemoval); 
    }
-     msg(MSG::INFO) << "Empty TrackParticle or Vertex pointer passed. Returning zero " << endmsg;
-     return nullptr;
+   ATH_MSG_INFO( "Empty TrackParticle or Vertex pointer passed. Returning zero " );
+   return nullptr;
    //end of track particle validity check
  
  }//end of parameterBase estimate method     
