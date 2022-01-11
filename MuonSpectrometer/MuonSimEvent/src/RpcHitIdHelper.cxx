@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/RpcHitIdHelper.h"
 
-#include <iomanip> // for std::array
+#include <iomanip>
+#include <array>
 
 RpcHitIdHelper* RpcHitIdHelper::m_help = nullptr;
 
