@@ -228,6 +228,28 @@ def _alias(varname):
         log.warning(message.format(varname))
         return None, None
 
+## Validate user inputs for "opt" argument of defineHistogram
+#
+#  Check that the user-provided option for a specific "opt" argument exists in the
+#  default dictionary, and that it has the expected type.
+#  @param user the option dictionary provided by the user
+#  @param default the default dictionary of options
+def _validateOptions(user, default):
+    for key, userVal in user.items():
+        # (1) Check that the requested key exists
+        assert key in default,\
+            f'Unknown option {key} provided. Choices are [{", ".join(default)}].'
+        # (2) Check that the provided type is correct
+        userType = type(userVal)
+        defaultVal = default[key]
+        defaultType = type(defaultVal)
+        if isinstance(userVal, bool) or isinstance(defaultVal, bool):
+            assert isinstance(userVal, bool) and isinstance(defaultVal, bool),\
+                f'{key} provided {userType}, expected bool.'
+        else:
+            assert isinstance(defaultVal, userType),\
+                f'{key} provided {userType}, expected {defaultType}'
+
 ## Generate dictionary entries for opt strings
 #  @param opt string or dictionary specifying type
 #  @return dictionary full of options
@@ -250,13 +272,8 @@ def _options(opt):
         pass
     elif isinstance(opt, dict):
         # If the user provides a partial dictionary, update the default with user's.
-        # Check that each provided option is valid
-        keyValid = [option in settings for option in opt]
-        assert all(keyValid), 'Unknown option provided in opt dictionary. Choices are'+\
-            '['+', '.join(settings)+'].'
-        typeValid = [isinstance(opt[key], type(val)) for key, val in zip(settings.items())]
-        assert all(typeValid), 'An incorrect type was provided in opt dictionary.'
-        settings.update(opt)
+        _validateOptions(opt, settings) # check validity of user's options
+        settings.update(opt) # update the default dictionary
     elif isinstance(opt, str) and len(opt)>0:
         # If the user provides a comma- or space-separated string of options.
         from argparse import ArgumentParser # a module to parse a string of options
@@ -269,6 +286,8 @@ def _options(opt):
                 settingType = type(settingValue)
                 parser.add_argument('--'+settingName, default=settingValue, type=settingType)
         known, unknown = parser.parse_known_args(opt.replace(',',' ').split(' '))
+        assert len(unknown)==0,\
+            f'Unknown option(s) provided: {", ".join(unknown)}.'
         settings = vars(known)
     return settings
 
