@@ -54,7 +54,7 @@ def _createCfgFlags():
         return collections
 
     def _typedInputCollections(inputFile):
-        if not inputFile:
+        if not inputFile or inputFile==["_ATHENA_GENERIC_INPUTFILE_NAME_"]:
             return []
 
         collections = ['%s#%s' % type_key for type_key in GetFileMD(inputFile).get("itemList",[])]
