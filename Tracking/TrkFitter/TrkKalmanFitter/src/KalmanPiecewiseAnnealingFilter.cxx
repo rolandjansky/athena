@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -735,7 +735,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     // if (it->trackStateType() != Trk::TrackState::ExternalOutlier) {
       if (it->forwardTrackParameters()) itForKF->checkinForwardPar (it->checkoutForwardPar());
       if (it->parametersDifference())
-        itForKF->checkinParametersDifference(std::move(it->checkoutParametersDifference()));
+        itForKF->checkinParametersDifference(it->checkoutParametersDifference());
       if (it->parametersCovariance())
         itForKF->checkinParametersCovariance(it->checkoutParametersCovariance());
       itForKF->setForwardStateFitQuality(it->forwardStateChiSquared(),it->forwardStateNumberDoF());
