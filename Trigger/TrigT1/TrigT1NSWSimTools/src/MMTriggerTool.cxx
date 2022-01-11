@@ -127,10 +127,8 @@ namespace NSWL1 {
   }
 
   StatusCode MMTriggerTool::runTrigger(const bool do_MMDiamonds) {
-    //Retrieve the current run number and event number
-    const EventInfo* pevt = 0;
-    ATH_CHECK( evtStore()->retrieve(pevt) );
-    int event = pevt->event_ID()->event_number();
+    auto ctx = Gaudi::Hive::currentContext();
+    int event = ctx.eventID().event_number();
     ATH_MSG_DEBUG("********************************************************* EVENT NUMBER = " << event);
 
     //////////////////////////////////////////////////////////////
