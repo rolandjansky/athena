@@ -1,22 +1,23 @@
 #!/bin/sh
 #
-# art-description: MC21-style simulation using FullG4_QS (13 TeV Zprime input - needs updating)
+# art-description: Run simulation using ISF with the FullG4MT_QS simulator, reading 13 TeV ttbar events, writing HITS, using 2021 geometry and MC21 conditions
 # art-include: master/Athena
-# art-include: master/AthSimulation
 # art-type: grid
-# art-output: test.HITS.pool.root
-#/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/EVNT.04607198._000001.pool.root.1
+# art-output: *.pool.root
+# art-output: log.*
+# art-output: Config*.pkl
+
 Sim_tf.py \
 --CA True \
 --conditionsTag 'default:OFLCOND-MC21-SDR-RUN3-03' \
 --simulator 'FullG4MT_QS' \
 --postInclude 'PyJobTransforms.TransformUtils.UseFrontier' \
---preInclude 'EVNTtoHITS:Campaigns.MC21Simulation,SimuJobTransforms.SimulationHelpers.enableFrozenShowersFCalOnly' \
+--preInclude 'EVNTtoHITS:Campaigns.MC21Simulation' \
 --DataRunNumber '330000' \
 --geometryVersion 'default:ATLAS-R3S-2021-02-00-00' \
---inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/EVNT.04607198._000001.pool.root.1' \
+--inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1' \
 --outputHITSFile 'test.CA.HITS.pool.root' \
---maxEvents '10' \
+--maxEvents '4' \
 --postExec 'with open("ConfigSimCA.pkl", "wb") as f: cfg.store(f)' \
 --imf False
 
@@ -28,12 +29,12 @@ Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC21-SDR-RUN3-03' \
 --simulator 'FullG4MT_QS' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:Campaigns/MC21Simulation.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
+--preInclude 'EVNTtoHITS:Campaigns/MC21Simulation.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
 --DataRunNumber '330000' \
 --geometryVersion 'default:ATLAS-R3S-2021-02-00-00' \
---inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/EVNT.04607198._000001.pool.root.1' \
+--inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1' \
 --outputHITSFile 'test.CA.HITS.pool.root' \
---maxEvents '10' \
+--maxEvents '4' \
 --imf False \
 --athenaopts '"--config-only=ConfigSimCG.pkl"'
 
@@ -41,12 +42,12 @@ Sim_tf.py \
 --conditionsTag 'default:OFLCOND-MC21-SDR-RUN3-03' \
 --simulator 'FullG4MT_QS' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'EVNTtoHITS:Campaigns/MC21Simulation.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
+--preInclude 'EVNTtoHITS:Campaigns/MC21Simulation.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
 --DataRunNumber '330000' \
 --geometryVersion 'default:ATLAS-R3S-2021-02-00-00' \
---inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/EVNT.04607198._000001.pool.root.1' \
+--inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1' \
 --outputHITSFile 'test.HITS.pool.root' \
---maxEvents '10' \
+--maxEvents '4' \
 --imf False
 
 rc2=$?
@@ -66,7 +67,7 @@ if [ $rc2 -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file=test.HITS.pool.root
+    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --file=test.HITS.pool.root
     rc4=$?
 fi
 echo  "art-result: $rc4 regression"

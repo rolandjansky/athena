@@ -32,7 +32,7 @@ Sim_tf.py \
 
 rc=$?
 rc2=-9999
-echo  "art-result: $rc simulation"
+echo  "art-result: $rc simOLD"
 if [ $rc -eq 0 ]
 then
     ArtPackage=$1

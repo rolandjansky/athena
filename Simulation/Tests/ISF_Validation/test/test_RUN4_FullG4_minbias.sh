@@ -26,7 +26,7 @@ Sim_tf.py \
 
 rc=$?
 status=$rc
-echo "art-result: $rc simulation"
+echo "art-result: $rc simCA"
 
 rc2=-9999
 if [ $rc -eq 0 ]
@@ -41,6 +41,6 @@ then
   status=$rc2
 fi
 
-echo "art-result: $rc2 filtering"
+echo "art-result: $rc2 FilterHitCA"
 
 exit $status
