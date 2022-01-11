@@ -45,10 +45,6 @@ namespace Trig {
       SG::ReadHandleKey<xAOD::TrigDecision>* m_deckey;
       /// Key of the trigger navigation object in the event
       SG::ReadHandleKey<xAOD::TrigNavigation>* m_navikey;
-      /// Cached pointer to the trigger decision object
-      mutable xAOD::TrigDecision const * m_decision;
-      /// Cached pointer to the trigger navigation object
-      mutable xAOD::TrigNavigation const * m_navigation;
 
    }; // class DecisionObjectHandleStandalone
 

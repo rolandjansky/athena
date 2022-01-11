@@ -12,7 +12,6 @@
 #define TrigDecisionTool_DecisionObjectHandleEventInfo_h
 
 #include <string>
-#include "StoreGate/DataHandle.h"
 
 #include "TrigDecisionTool/DecisionObjectHandle.h"
 #include "EventInfo/EventInfo.h"
@@ -26,17 +25,15 @@ namespace Trig {
   /**
    * @brief Decision invalidator for EventInfo (really doing the job)
    **/
-  class DecisionObjectHandleEventInfo : public DecisionObjectHandle<TriggerInfo,void>, 
-					public DataHandle<EventInfo>
+  class DecisionObjectHandleEventInfo : public DecisionObjectHandle<TriggerInfo,void>
   {
   public:
     DecisionObjectHandleEventInfo( SG::ReadHandleKey<EventInfo>* oldEventInfoKey );
-    virtual void reset (bool hard = false) override;
+    virtual void reset (bool hard = false);
     virtual TriggerInfo const * getDecision() const override;
     virtual void const * getNavigation() const override; 
   private:
     SG::ReadHandleKey<EventInfo>* m_oldEventInfoKey;
-    mutable EventInfo const * m_object;
   };
 }
 
