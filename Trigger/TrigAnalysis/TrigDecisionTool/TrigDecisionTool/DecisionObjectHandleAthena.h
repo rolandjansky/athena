@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,7 +13,6 @@
 
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/DecisionObjectHandle.h"
-#include "TrigDecisionTool/EventPtrDef.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 
 #include "StoreGate/DataHandle.h"

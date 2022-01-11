@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigDecisionTool_DecisionObjectHandleStandalone_h
@@ -16,7 +16,6 @@
 
 // Local include(s):
 #include "TrigDecisionTool/DecisionObjectHandle.h"
-#include "TrigDecisionTool/EventPtrDef.h"
 
 #include "AsgDataHandles/ReadHandleKey.h"
 
