@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -1561,10 +1561,10 @@ CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator--()    { ret
 CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator--(int) { return this->prev(); }
 
 /*! \brief Equality comparator */
-bool CaloCluster::MomentStoreIter::operator==(const MomentStoreIter& anOther)
+bool CaloCluster::MomentStoreIter::operator==(const MomentStoreIter& anOther) const
 { return m_iter == anOther.m_iter; }
 /*! \brief Inequality comparator */
-bool CaloCluster::MomentStoreIter::operator!=(const MomentStoreIter& anOther)
+bool CaloCluster::MomentStoreIter::operator!=(const MomentStoreIter& anOther) const
 { return m_iter != anOther.m_iter; }
 
 /*! \brief Operator access to \a CaloClusterMoment */
