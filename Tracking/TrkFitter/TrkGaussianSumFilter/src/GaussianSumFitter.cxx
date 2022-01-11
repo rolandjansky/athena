@@ -351,21 +351,6 @@ Trk::GaussianSumFitter::fit(
   // Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory.begin(), smoothedTrajectory.end());
 
-  // Store only TSOS in tracks instead of MCSOS
-  if (!m_StoreMCSOS) {
-    auto slimmedSmoothedTrajectory = Trk::SmoothedTrajectory();
-    for (const Trk::TrackStateOnSurface* tsos : smoothedTrajectory) {
-      slimmedSmoothedTrajectory.push_back(new Trk::TrackStateOnSurface(*tsos));
-    }
-    // Create new track
-    Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
-    info.setTrackProperties(TrackInfo::BremFit);
-    info.setTrackProperties(TrackInfo::BremFitSuccessful);
-    ++m_fitSuccess;
-    return std::make_unique<Track>(
-      info, std::move(slimmedSmoothedTrajectory), fitQuality.release());
-  }
-
   // Create new track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
@@ -484,21 +469,6 @@ Trk::GaussianSumFitter::fit(
 
   // Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory.begin(), smoothedTrajectory.end());
-
-  // Store only TSOS in tracks instead of MCSOS
-  if (!m_StoreMCSOS) {
-    auto slimmedSmoothedTrajectory = Trk::SmoothedTrajectory();
-    for (const Trk::TrackStateOnSurface* tsos : smoothedTrajectory) {
-      slimmedSmoothedTrajectory.push_back(new Trk::TrackStateOnSurface(*tsos));
-    }
-    // Create new track
-    Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
-    info.setTrackProperties(TrackInfo::BremFit);
-    info.setTrackProperties(TrackInfo::BremFitSuccessful);
-    ++m_fitSuccess;
-    return std::make_unique<Track>(
-      info, std::move(slimmedSmoothedTrajectory), fitQuality.release());
-  }
 
   // Create new track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
