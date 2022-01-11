@@ -91,11 +91,6 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     #
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
-    if flags.InDet.materialInteractions:
-        kwargs.setdefault("matEffects", flags.InDet.materialInteractionsType)
-    else:
-        kwargs.setdefault("matEffects", 0)
-
     kwargs.setdefault("TrackName", SiTrackCollection)
     kwargs.setdefault("ExtensionMap", OutputExtendedTracks)
     kwargs.setdefault("NewTrackName", ForwardTrackCollection)
@@ -106,7 +101,8 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery)
     kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
-    kwargs.setdefault("RefitPrds", not (flags.InDet.refitROT or (flags.InDet.Tracking.trtExtensionType == 'DAF')))
+    kwargs.setdefault("RefitPrds", False)
+    kwargs.setdefault("matEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
     
     if doPhase:
         kwargs.setdefault("Cosmics", True)

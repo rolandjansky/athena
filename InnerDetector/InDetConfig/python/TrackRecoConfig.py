@@ -52,7 +52,7 @@ def SCTClusterizationCfg(flags, name="InDetSCT_Clusterization", **kwargs) :
                                                                     globalPosAlg   = InDetClusterMakerTool,
                                                                     conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
     if flags.InDet.selectSCTIntimeHits :
-       if flags.InDet.InDet25nsec :
+       if flags.Beam.BunchSpacing<=25 and flags.Beam.Type == "collisions":
           InDetSCT_ClusteringTool.timeBins = "01X"
        else:
           InDetSCT_ClusteringTool.timeBins = "X1X"
@@ -152,13 +152,15 @@ def TrackParticleCreatorToolCfg(flags, name="InDetxAODParticleCreatorTool", **kw
         from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
         TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
         kwargs["TrackSummaryTool"] = TrackSummaryTool
-    p_expr = flags.InDet.perigeeExpression
-    kwargs.setdefault("BadClusterID", flags.InDet.pixelClusterBadClusterID)
+    kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("KeepFirstParameters", False)
-    kwargs.setdefault(
-        "PerigeeExpression",
-        p_expr if p_expr != "Vertex" else "BeamLine")
+    # need to treat Vertex specifically because at the time of
+    # the track particle creation the primary vertex does not yet exist.
+    # The problem is solved by first creating track particles wrt. the beam line
+    # and correcting the parameters after the vertex finding.
+    kwargs.setdefault("PerigeeExpression", "BeamLine" if flags.InDet.Tracking.perigeeExpression=="Vertex"
+                      else flags.InDet.Tracking.perigeeExpression)
     result.addPublicTool(CompFactory.Trk.TrackParticleCreatorTool(name, **kwargs), primary = True)
     return result
 
@@ -227,6 +229,27 @@ def TrackParticleCnvAlgCfg(flags, name="TrackParticleCnvAlg", TrackContainerName
     else:
         kwargs.setdefault("AddTruthLink", False)
     result.addEventAlgo(CompFactory.xAODMaker.TrackParticleCnvAlg(name, **kwargs))
+    return result
+
+# Configuration not supported, to be recommissioned if needed
+def ReFitTrackAlgCfg(flags, name="InDetRefitTrack", InputTrackCollection="CombinedInDetTracks", OutputTrackCollection="RefittedTracks", **kwargs):
+    result = ComponentAccumulator()
+
+    from InDetConfig.TrackingCommonConfig import InDetTrackFitterCfg, InDetTrackFitterTRTCfg, InDetTrackSummaryToolSharedHitsCfg, InDetPRDtoTrackMapToolGangedPixelsCfg
+    InDetTrackFitter = result.popToolsAndMerge(InDetTrackFitterCfg(flags))
+    InDetTrackFitterTRT = result.popToolsAndMerge(InDetTrackFitterTRTCfg(flags))
+    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+    InDetPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
+    kwargs.setdefault("FitterTool", InDetTrackFitter)
+    kwargs.setdefault("FitterToolTRT", InDetTrackFitterTRT)
+    kwargs.setdefault("SummaryTool", TrackSummaryTool)
+    kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
+    kwargs.setdefault("TrackName", InputTrackCollection)
+    kwargs.setdefault("NewTrackName", OutputTrackCollection)
+    kwargs.setdefault("useParticleHypothesisFromTrack", True)
+    kwargs.setdefault("matEffects", flags.InDet.materialInteractionsType if flags.InDet.materialInteractions else 0)
+
+    result.addEventAlgo(CompFactory.Trk.ReFitTrack(name, **kwargs))
     return result
 
 def InDetTrackRecoCfg(flags):
@@ -528,8 +551,9 @@ def InDetTrackRecoCfg(flags):
         from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
         result.merge(InDetTrackTruthCfg(flags))
 
-    # TODO add followup algs
     result.merge(TrackParticleCnvAlgCfg(flags))
+
+    # TODO add followup algs
 
     if flags.InDet.PriVertex.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg

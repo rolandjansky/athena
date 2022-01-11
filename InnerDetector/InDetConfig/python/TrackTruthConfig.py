@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 # -------------------------------------------------------------------------
@@ -30,16 +30,11 @@ def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',*
 def InDetTruthMatchToolCfg(flags, name='InDetTruthMatchTool', **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.truthMatchStrategy == 'TruthMatchRatio':
-        InDetTruthMatchTool = CompFactory.Trk.TruthMatchRatio
-    elif flags.InDet.truthMatchStrategy == 'TruthMatchTanimoto':
-        InDetTruthMatchTool = CompFactory.Trk.TruthMatchTanimoto
-
     kwargs.setdefault("WeightPixel", 10.)
     kwargs.setdefault("WeightSCT", 5.)
     kwargs.setdefault("WeightTRT", 1.)
 
-    InDetTruthMatchSimilarityTool = InDetTruthMatchTool(name = name, **kwargs)
+    InDetTruthMatchSimilarityTool = CompFactory.Trk.TruthMatchRatio(name = name, **kwargs)
     acc.setPrivateTools(InDetTruthMatchSimilarityTool)
     return acc
 
@@ -83,8 +78,8 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT   = True
 
-    ConfigFlags.InDet.doPixelClusterSplitting = True
-    ConfigFlags.InDet.useHolesFromPattern =  False
+    ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
+    ConfigFlags.InDet.Tracking.useHolesFromPattern =  False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO

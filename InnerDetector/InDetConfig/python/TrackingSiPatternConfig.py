@@ -316,15 +316,6 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     #
     # --- load InnerDetector TrackSelectionTool
     #
-    if flags.GeoModel.Run == "Run1":
-        prob1 = flags.InDet.pixelClusterSplitProb1_run1
-        prob2 = flags.InDet.pixelClusterSplitProb2_run1
-        nhitsToAllowSplitting = 8
-    else:
-        prob1 = flags.InDet.pixelClusterSplitProb1
-        prob2 = flags.InDet.pixelClusterSplitProb2
-        nhitsToAllowSplitting = 9
-
     if flags.InDet.doTIDE_Ambi and flags.InDet.Tracking.Pass.useTIDE_Ambi:
         AmbiTrackSelectionTool = CompFactory.InDet.InDetDenseEnvAmbiTrackSelectionTool
     else:
@@ -343,15 +334,15 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     kwargs.setdefault("minTRTHits"      , 0) # used for Si only tracking !!!
     kwargs.setdefault("UseParameterization" , False)
     kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.Pass.extension != "DBM")
-    kwargs.setdefault("doPixelSplitting"    , flags.InDet.doPixelClusterSplitting and flags.InDet.Tracking.Pass.extension != "DBM")
+    kwargs.setdefault("doPixelSplitting"    , flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.Pass.extension != "DBM")
 
     if flags.InDet.doTIDE_Ambi and flags.InDet.Tracking.Pass.useTIDE_Ambi:
-        kwargs.setdefault("sharedProbCut"             , prob1)
-        kwargs.setdefault("sharedProbCut2"            , prob2)
-        kwargs.setdefault("minSiHitsToAllowSplitting" , nhitsToAllowSplitting)
+        kwargs.setdefault("sharedProbCut"             , flags.InDet.Tracking.pixelClusterSplitProb1)
+        kwargs.setdefault("sharedProbCut2"            , flags.InDet.Tracking.pixelClusterSplitProb2)
+        kwargs.setdefault("minSiHitsToAllowSplitting" , 8 if flags.GeoModel.Run == "Run1" else 9)
         kwargs.setdefault("minUniqueSCTHits"          , 4)
         kwargs.setdefault("minTrackChi2ForSharedHits" , 3)
-        kwargs.setdefault("minPtSplit"                , flags.InDet.pixelClusterSplitMinPt)       #Only allow split clusters on track withe pt greater than this MeV
+        kwargs.setdefault("minPtSplit"                , 1000)       #Only allow split clusters on track withe pt greater than this MeV
         kwargs.setdefault("maxSharedModulesInROI"     , 3)     #Maximum number of shared modules for tracks in ROI
         kwargs.setdefault("minNotSharedInROI"         , 2)     #Minimum number of unique modules for tracks in ROI
         kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 8)  #Minimum number of Si hits to allow splittings for tracks in ROI
@@ -401,26 +392,15 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityS
     kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
 
     from InDetConfig.SiliconPreProcessing import NnPixelClusterSplitProbToolCfg
-    kwargs.setdefault("SplitProbTool", acc.popToolsAndMerge(NnPixelClusterSplitProbToolCfg(flags)) if flags.InDet.doPixelClusterSplitting else "")
+    kwargs.setdefault("SplitProbTool", acc.popToolsAndMerge(NnPixelClusterSplitProbToolCfg(flags)) if flags.InDet.Tracking.doPixelClusterSplitting else "")
 
     kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
     kwargs.setdefault("AssociationToolNotGanged", acc.popToolsAndMerge(TC.PRDtoTrackMapToolCfg()))
     kwargs.setdefault("AssociationMapName", f"PRDToTrackMap{flags.InDet.Tracking.Pass.extension}")
 
-    if flags.GeoModel.Run == "Run1":
-        prob1 = flags.InDet.pixelClusterSplitProb1_run1
-        prob2 = flags.InDet.pixelClusterSplitProb2_run1
-    else:
-        prob1 = flags.InDet.pixelClusterSplitProb1
-        prob2 = flags.InDet.pixelClusterSplitProb2
-
     if flags.InDet.doTIDE_Ambi and flags.InDet.Tracking.Pass.useTIDE_Ambi:
-        kwargs.setdefault("sharedProbCut", prob1)
-        kwargs.setdefault("sharedProbCut2", prob2)
-        if flags.InDet.Tracking.Pass.extension == "":
-            kwargs.setdefault("SplitClusterMap_old", "")
-        elif flags.InDet.Tracking.Pass.extension == "Disappearing":
-            kwargs.setdefault("SplitClusterMap_old", "SplitClusterAmbiguityMap")
+        kwargs.setdefault("sharedProbCut", flags.InDet.Tracking.pixelClusterSplitProb1)
+        kwargs.setdefault("sharedProbCut2", flags.InDet.Tracking.pixelClusterSplitProb2)
         kwargs.setdefault("SplitClusterMap_new", f"SplitClusterAmbiguityMap{flags.InDet.Tracking.Pass.extension}")
 
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
@@ -544,7 +524,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.Pass.extension == "")
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
-    kwargs.setdefault("MatEffects", flags.InDet.materialInteractionsType if flags.InDet.materialInteractions else 0)
+    kwargs.setdefault("MatEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
 
     if flags.InDet.Tracking.Pass.extension == "Pixel" or flags.InDet.Tracking.Pass.extension == "DBM":
         kwargs.setdefault("SuppressHoleSearch", True)

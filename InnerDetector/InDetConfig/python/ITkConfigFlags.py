@@ -14,7 +14,6 @@ def createITkConfigFlags():
 
   itkcf.addFlag("ITk.doStripModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   itkcf.addFlag("ITk.checkDeadPixelsOnTrack", True) # Enable check for dead modules and FEs
-  itkcf.addFlag("ITk.pixelClusterBadClusterID", 3) # Select the mode to identify suspicous pixel clustering
 
   itkcf.addFlag("ITk.Tracking.doStoreTrackSeeds", False) # Turn on to save the Track Seeds in a xAOD track collecting for development studies
   itkcf.addFlag("ITk.Tracking.doDigitalROTCreation", False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU
@@ -34,7 +33,6 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.Tracking.pixelClusterSplittingType", "Truth") # choose splitter type: NeuralNet, AnalogClus or Truth
   itkcf.addFlag("ITk.Tracking.pixelClusterSplitProb1", 0.55) # Cut value for splitting clusters into two parts
   itkcf.addFlag("ITk.Tracking.pixelClusterSplitProb2", 0.45) # Cut value for splitting clusters into three parts
-  itkcf.addFlag("ITk.Tracking.pixelClusterSplitMinPt", 1000) # Min pt for tracks to try and split hits
   itkcf.addFlag("ITk.Tracking.perigeeExpression", "BeamLine"   ) # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   itkcf.addFlag("ITk.Tracking.doSharedHits", True) # control if the shared hits are recorded in TrackParticles
   itkcf.addFlag("ITk.Tracking.materialInteractions", True)

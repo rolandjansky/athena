@@ -141,7 +141,7 @@ def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **
         from InDetConfig.ITkTrackingCommonConfig import ITkTrackSummaryToolSharedHitsCfg
         TrackSummaryTool = result.getPrimaryAndMerge(ITkTrackSummaryToolSharedHitsCfg(flags))
         kwargs["TrackSummaryTool"] = TrackSummaryTool
-    kwargs.setdefault("BadClusterID", flags.ITk.pixelClusterBadClusterID)
+    kwargs.setdefault("BadClusterID", 3) # Select the mode to identify suspicous pixel cluster
     kwargs.setdefault("KeepParameters", True)
     kwargs.setdefault("KeepFirstParameters", False)
     # need to treat Vertex specifically because at the time of

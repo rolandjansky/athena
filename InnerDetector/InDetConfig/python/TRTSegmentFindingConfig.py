@@ -50,7 +50,7 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("TrackExtensionTool", InDetTRTExtensionTool)
     kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else '')
-    kwargs.setdefault("RemoveNoiseDriftCircles", flags.InDet.removeTRTNoise)
+    kwargs.setdefault("RemoveNoiseDriftCircles", False)
     kwargs.setdefault("MinNumberDriftCircles", MinNumberDCs)
     kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.Pass.TRTSegFinderPtBins)
     kwargs.setdefault("pTmin", pTmin)

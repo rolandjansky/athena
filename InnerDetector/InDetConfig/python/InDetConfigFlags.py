@@ -12,29 +12,40 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doDBMstandalone",False)
   icf.addFlag("InDet.doSplitReco", False) # Turn running of the truth seeded pseudo tracking only for pileup on and off. Only makes sense to run on RDO file where SplitDigi was used!
   icf.addFlag("InDet.doTruth", lambda f: f.Input.isMC) # Turn running of truth matching on and off (by default on for MC off for data)
-
+  icf.addFlag("InDet.selectSCTIntimeHits", True) # defines if the X1X mode is used for the offline or not
+  icf.addFlag("InDet.useDCS", True)
+  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
+  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
 
   ### Tracking parameters
 
+  icf.addFlag("InDet.Tracking.materialInteractions", True)
+  icf.addFlag("InDet.Tracking.materialInteractionsType", 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
   icf.addFlag("InDet.Tracking.useHolesFromPattern", False)
   icf.addFlag("InDet.Tracking.useZvertexTool", False) # start with Zvertex finding
   icf.addFlag("InDet.Tracking.holeSearchInGX2Fit", True)
   icf.addFlag("InDet.Tracking.trackFitterType", "GlobalChi2Fitter") # control which fitter to be used: 'KalmanFitter', 'KalmanDNAFitter', 'DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter'
   icf.addFlag("InDet.Tracking.kalmanUpdator", "smatrix") # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg")
-  icf.addFlag("InDet.Tracking.doRefit", False) # Turn running of refitting on and off
   icf.addFlag("InDet.Tracking.propagatorType", "RungeKutta") # control which propagator to use ('RungeKutta'/'STEP')
+  icf.addFlag("InDet.Tracking.doSharedHits", True) # control if the shared hits are recorded in TrackPatricles
+  icf.addFlag("InDet.Tracking.perigeeExpression", "BeamLine") # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   icf.addFlag("InDet.Tracking.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
   icf.addFlag("InDet.Tracking.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.Tracking.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.Tracking.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
   icf.addFlag("InDet.Tracking.doCaloSeededAmbi", lambda prevFlags: prevFlags.Detector.EnableCalo) # Use Calo ROIs to seed specific cuts for the ambi
   icf.addFlag("InDet.Tracking.doBeamHalo", False) # Turn running of BeamHalo second pass on and off / Which second pass?
+  icf.addFlag("InDet.Tracking.doPixelClusterSplitting", True) # Try to split pixel clusters
+  icf.addFlag("InDet.Tracking.pixelClusterSplittingType", "NeuralNet") # choose splitter type: NeuralNet or AnalogClus
+  icf.addFlag("InDet.Tracking.pixelClusterSplitProb1", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run == 'RUN1' else 0.55) # Cut value for splitting clusters into two parts
+  icf.addFlag("InDet.Tracking.pixelClusterSplitProb2", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run == 'RUN1' else 0.45) # Cut value for splitting clusters into three parts
   icf.addFlag("InDet.Tracking.useBeamSpotInfoNN", True) # use beam spot position in pixel NN
   icf.addFlag("InDet.Tracking.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
   icf.addFlag("InDet.Tracking.trtExtensionType", 'xk') # which extension type ("xk"/"DAF")
   icf.addFlag("InDet.Tracking.redoTRT_LR", True) # use smart TRT LR/tube hit creator and redo ROTs
   icf.addFlag("InDet.Tracking.doTRTPhaseCalculation", False) # control to run TRT phase calculation
   icf.addFlag("InDet.Tracking.loadSimpleTRTSeededSPFinder", False) # control which TRT SP finder is used
+  icf.addFlag("InDet.Tracking.noTRTTiming", False)
 
   ### Tracking passes/configurations scheduled
 
@@ -56,26 +67,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", True)
   icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
 
-  icf.addFlag("InDet.refitROT", True) # control if refit is done from PRD or ROT
-  icf.addFlag("InDet.perigeeExpression", "BeamLine") # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
-  # icf.addFlag("InDet.secondaryVertexCutSetup", "PileUp") # string to store the type of cuts to be used in PV reconstruction: 'StartUp', 'PileUp'
-  # icf.addFlag("InDet.conversionVertexCutSetup", "ConversionPileUp") # string to store the type of cuts to be used in conversion reconstruction: 'ConversionStartUp', 'ConversionPileUp'
-  icf.addFlag("InDet.doSharedHits", True) # control if the shared hits are recorded in TrackPatricles
-  icf.addFlag("InDet.materialInteractions", True)
-  icf.addFlag("InDet.materialInteractionsType", 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.
-  icf.addFlag("InDet.removeTRTNoise", False)
-  icf.addFlag("InDet.noTRTTiming", False)
-  icf.addFlag("InDet.InDet25nsec", True ) # in most of the cases this is True
-  icf.addFlag("InDet.selectSCTIntimeHits", True) # defines if the X1X mode is used for the offline or not
-  icf.addFlag("InDet.useDCS", True)
-  icf.addFlag("InDet.truthMatchStrategy", "TruthMatchRatio") # defines how truth matching is done. possible values TruthMatchRatio (old style) or TruthMatchTanimoto (new style)
-  icf.addFlag("InDet.doFatras", False) # Switch for FATRAS running
-  icf.addFlag("InDet.doPixelClusterSplitting", True) # Try to split pixel clusters
-  icf.addFlag("InDet.pixelClusterSplittingType", "NeuralNet") # choose splitter type: NeuralNet or AnalogClus
-  icf.addFlag("InDet.pixelClusterSplitProb1", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run == 'RUN1' else 0.55) # Cut value for splitting clusters into two parts
-  icf.addFlag("InDet.pixelClusterSplitProb2", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run == 'RUN1' else 0.45) # Cut value for splitting clusters into three parts
-  icf.addFlag("InDet.pixelClusterSplitMinPt", 1000) # Min pt for tracks to try and split hits
-  icf.addFlag("InDet.pixelClusterBadClusterID", 3) # Select the mode to identify suspicous pixel clusteri
+
+
   icf.addFlag("InDet.useBroadClusterErrors", False) # Use broad cluster errors for Pixel/SCT
   #TODO: useBroadPixClusterErrors and ...SCT... were set to none such that they print a warning if they're accessed without being set. None will be interpreted as False (same behavior as old config) but defaults cannot be None
   icf.addFlag("InDet.useBroadPixClusterErrors", False) # Use broad cluster errors for Pixel
@@ -99,8 +92,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doHIP300", False) # Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)
   icf.addFlag("InDet.checkDeadElementsOnTrack", True) # Enable check for dead modules and FEs
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU
-  icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnablePixel))
-  icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.EnableSCT))
 
   from InDetConfig.TrackingPassFlags import createTrackingPassFlags, createIBLTrackingPassFlags, createHighPileupTrackingPassFlags, \
     createMinBiasTrackingPassFlags, createLargeD0TrackingPassFlags, createR3LargeD0TrackingPassFlags, createLowPtLargeD0TrackingPassFlags, \

@@ -233,7 +233,7 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files=defaultTestFiles.RDO
 
-    ConfigFlags.InDet.doPixelClusterSplitting = True
+    ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
 
     numThreads=1
     ConfigFlags.Concurrency.NumThreads=numThreads

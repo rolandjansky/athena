@@ -290,7 +290,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name="ITkAmbiTrackSelectionTool", **kwar
     kwargs.setdefault("minSiHitsToAllowSplitting" , 9)
     kwargs.setdefault("minUniqueSCTHits"          , 4)
     kwargs.setdefault("minTrackChi2ForSharedHits" , 3)
-    kwargs.setdefault("minPtSplit"                , flags.ITk.Tracking.pixelClusterSplitMinPt)       #Only allow split clusters on track withe pt greater than this MeV
+    kwargs.setdefault("minPtSplit"                , 1000)       #Only allow split clusters on track withe pt greater than this MeV
     kwargs.setdefault("maxSharedModulesInROI"     , 3)     #Maximum number of shared modules for tracks in ROI
     kwargs.setdefault("minNotSharedInROI"         , 2)     #Minimum number of unique modules for tracks in ROI
     kwargs.setdefault("minSiHitsToAllowSplittingInROI" , 8)  #Minimum number of Si hits to allow splittings for tracks in ROI
@@ -336,8 +336,6 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
 
     kwargs.setdefault("sharedProbCut",  flags.ITk.Tracking.pixelClusterSplitProb1)
     kwargs.setdefault("sharedProbCut2", flags.ITk.Tracking.pixelClusterSplitProb2)
-    if flags.ITk.Tracking.Pass.extension == "":
-        kwargs.setdefault("SplitClusterMap_old", "")
     kwargs.setdefault("SplitClusterMap_new", 'SplitClusterAmbiguityMap'+flags.ITk.Tracking.Pass.extension)
 
     kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)

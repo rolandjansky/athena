@@ -55,7 +55,7 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     acc.addPublicTool(CalDbTool)
 
     # --- overwrite for uncalibrated DC production
-    if (not useTimeInfo) or flags.InDet.noTRTTiming:
+    if (not useTimeInfo) or flags.InDet.Tracking.noTRTTiming:
         kwargs.setdefault("DummyMode", True)
         kwargs.setdefault("UniversalError", 1.15)
 
@@ -169,7 +169,7 @@ def TRT_DriftCircleToolCfg(flags, useTimeInfo, usePhase, prefix, name = "InDetTR
     kwargs.setdefault("useDriftTimeToTCorrection", True)
 
 
-    if flags.InDet.InDet25nsec and flags.Beam.Type == "collisions":
+    if flags.Beam.BunchSpacing<=25 and flags.Beam.Type == "collisions":
         kwargs.setdefault("ValidityGateSuppression", True)
         kwargs.setdefault("SimpleOutOfTimePileupSupression", False)
 

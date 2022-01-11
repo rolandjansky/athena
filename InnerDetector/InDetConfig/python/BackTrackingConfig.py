@@ -251,7 +251,7 @@ def InDetTRTAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelec
     kwargs.setdefault("minTRTHits", flags.InDet.Tracking.Pass.minSecondaryTRTonTrk)
     kwargs.setdefault("UseParameterization", flags.InDet.Tracking.Pass.useParameterizedTRTCuts)
     kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
-    kwargs.setdefault("doPixelSplitting", flags.InDet.doPixelClusterSplitting)
+    kwargs.setdefault("doPixelSplitting", flags.InDet.Tracking.doPixelClusterSplitting)
 
     acc.setPrivateTools(CompFactory.InDet.InDetAmbiTrackSelectionTool(name, **kwargs))
     return acc
@@ -282,15 +282,11 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     kwargs.setdefault("SelectionTool", InDetTRT_SeededAmbiTrackSelectionTool)
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetTRT_SeededAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
-    kwargs.setdefault("RefitPrds", not flags.InDet.refitROT)
+    kwargs.setdefault("RefitPrds", False)
     kwargs.setdefault("SuppressTrackFit", False)
     kwargs.setdefault("SuppressHoleSearch", False)
     kwargs.setdefault("ScoringTool", InDetTRT_SeededScoringTool)
-
-    if flags.InDet.materialInteractions:
-        kwargs.setdefault("MatEffects", flags.InDet.materialInteractionsType)
-    else:
-        kwargs.setdefault("MatEffects", 0)
+    kwargs.setdefault("MatEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
 
     InDetTRT_SeededAmbiguityProcessor = CompFactory.Trk.SimpleAmbiguityProcessorTool(name = name, **kwargs)
     acc.setPrivateTools(InDetTRT_SeededAmbiguityProcessor)
