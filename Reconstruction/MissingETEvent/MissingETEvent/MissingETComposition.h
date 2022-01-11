@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISSINGETEVENT_MISSINGETCOMPOSITION_H
@@ -247,7 +247,7 @@ namespace MissingETHandlers {
       return *this;
     }
 
-    bool operator==(const Weight& w)
+    bool operator==(const Weight& w) const
     { 
       return 
 	isEqual(w.wpx(),this->wpx()) && 
@@ -255,7 +255,7 @@ namespace MissingETHandlers {
 	isEqual(w.wet(),this->wet()); 
     }
 
-    bool operator!=(const Weight& w)
+    bool operator!=(const Weight& w) const
     { return !(this->operator==)(w); }
 
     Weight& operator=(const Weight& w)
@@ -267,10 +267,10 @@ namespace MissingETHandlers {
       return *this;
     }
 
-    float divide(float x,float y)
+    static float divide(float x,float y)
     { return y != 0. ? x /y : 0.; }
 
-    bool isEqual(float x,float y)
+    static bool isEqual(float x,float y)
     { return fabs(x-y) <= precision()*fabs(x); }
 
   };//class Weight
