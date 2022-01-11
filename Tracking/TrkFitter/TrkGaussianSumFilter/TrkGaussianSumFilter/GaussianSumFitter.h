@@ -183,14 +183,6 @@ private:
     "Maximum number of components"
   };
 
-  Gaudi::Property<bool> m_StoreMCSOS{
-    this,
-    "StoreMCSOS",
-    true,
-    "Store Multicomponent State (preferred if we slim later on) or Single "
-    "state in final trajectory"
-  };
-
   Gaudi::Property<bool> m_reintegrateOutliers{ this,
                                                "ReintegrateOutliers",
                                                true,
