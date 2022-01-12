@@ -25,11 +25,11 @@ RecoMuonTrackPlotOrganizer::RecoMuonTrackPlotOrganizer(PlotBase* pParent, const 
   for (auto p: m_selPlots) {
     switch (p) {
     case TRK_PARAM:
-      m_oTrkParamPlots = new Trk::ParamPlots(this, "/kinematics/", "Reco Muon");
+      m_oTrkParamPlots = new Trk::ParamPlots(this, "/kinematics/", "RecoMuon");
       m_allPlots.push_back(m_oTrkParamPlots);
       break;
     case TRK_RECOINFO:
-      m_oTrkRecoInfoPlots = new Trk::RecoInfoPlots(this, "/parameters/", "Reco Muon");
+      m_oTrkRecoInfoPlots = new Trk::RecoInfoPlots(this, "/parameters/", "RecoMuon");
       m_allPlots.push_back(m_oTrkParamPlots);
       break;      
     case TRK_IMPACT:
