@@ -39,17 +39,6 @@ struct triangularToIJ
   int8_t J = -1;
 };
 
-/*
- * these are q/P ,
- * mean = 1e9 means P=1e-9 MeV
- * 1e-3 ev
- * we want to approximate a delta function
- * at some impossible q/P with a normal.
- */
-constexpr double largeMean = 1e9;
-constexpr double tinySigma = 1e-15;
-constexpr double invertTinySigma = 1e15;
-
 /**
  * @brief Helper method to precalucate
  * the mapping of an triangular array index
