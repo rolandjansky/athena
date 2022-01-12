@@ -328,7 +328,7 @@ float StripSurfaceChargesGenerator::surfaceDriftTime(float ysurf) const {
       }
       return t_surfaceDrift;
     } else {
-      ATH_MSG_WARNING(" ysurf out of range " << ysurf << "(m_distInterStrip = "<<m_distInterStrip<<")");
+      ATH_MSG_INFO(" ysurf out of range " << ysurf);
       return -1.0;
     }
   } else {
@@ -549,7 +549,7 @@ void StripSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element
                   }
                 }
               }
-              ATH_MSG_DEBUG("strip zero charge = " << Q_00); // debug
+              ATH_MSG_INFO("strip zero charge = " << Q_00); // debug
             } // m_doRamo==true
           } // chargeIsTrapped()
         } // m_doTrapping==true
@@ -557,7 +557,6 @@ void StripSurfaceChargesGenerator::processSiHit(const SiDetectorElement* element
           const SiLocalPosition position{element->hitLocalToLocal(xd, yd)};
           if (design->inActiveArea(position)) {
             const float sdist{static_cast<float>(design->scaledDistanceToNearestDiode(position))}; // !< dist on the surface from the hit point to the nearest strip (diode)
-            ATH_MSG_VERBOSE("sdist: "<<sdist);
             const float t_surf{surfaceDriftTime(2.0 * sdist)}; // !< Surface drift time
             const float totaltime{(m_tfix > -998.) ? m_tfix.value() : t_drift + timeOfFlight + t_surf}; // !< Total drift time
             inserter(SiSurfaceCharge(position, SiCharge(q1, totaltime, hitproc, trklink)));
