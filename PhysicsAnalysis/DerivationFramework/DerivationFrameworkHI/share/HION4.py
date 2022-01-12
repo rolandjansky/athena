@@ -388,6 +388,9 @@ HION4SlimmingHelper.SmartCollections = [
 # Add egamma trigger objects
 HION4SlimmingHelper.IncludeEGammaTriggerContent = True
 
+# Add muon trigger objects
+HION4SlimmingHelper.IncludeMuonTriggerContent = True
+
 # Extra variables
 HION4SlimmingHelper.ExtraVariables = ExtraContentAll
 HION4SlimmingHelper.AllVariables = ExtraContainersElectrons
