@@ -1,14 +1,12 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// AfpAnalysisTools include(s):
 #include "AFP_GlobReco/AFP_ProtonRecoAnalytical.h"
 
 
-
 AFP_ProtonRecoAnalytical::AFP_ProtonRecoAnalytical (const std::string &type, const std::string &name, const IInterface *parent)
- : base_class(type, name, parent)
+ : AFP_ProtonRecoBase(type, name, parent)
 {
   ATH_MSG_DEBUG("in AFP_ProtonRecoAnalytical constructor");
 }
@@ -77,7 +75,7 @@ StatusCode AFP_ProtonRecoAnalytical::initialize ()
   
   if(m_parametrizationFileName=="")
   {
-  	m_parametrizationFileName = (m_side) ? "param_mad_b1_def.txt" : "param_mad_b2_def.txt";
+    m_parametrizationFileName = (m_side) ? "param_mad_b1_def.txt" : "param_mad_b2_def.txt";
   }
   
   const std::string parametrization = PathResolver::find_file(m_parametrizationFileName, "DATAPATH", PathResolver::RecursiveSearch);
@@ -88,118 +86,6 @@ StatusCode AFP_ProtonRecoAnalytical::initialize ()
   m_distanceBetweenStations = m_detectorPositionFar - m_detectorPositionNear;
 
   return StatusCode::SUCCESS;
-}
-
-StatusCode AFP_ProtonRecoAnalytical::doProtonReco(std::unique_ptr<xAOD::AFPProtonContainer>& outputContainer, const EventContext& ctx) const 
-{
-  
-  SG::ReadHandle<xAOD::AFPTrackContainer> trackContainer( m_trackContainerKey, ctx );
-  if(!trackContainer.isValid())
-  {
-    // this is allowed, there might be no AFP data in the input
-    return StatusCode::SUCCESS;
-  }
-  
-  const double trackDistanceRadiusSq = m_trackDistance*m_trackDistance;
-
-  // Select tracks in near station
-  std::vector<const xAOD::AFPTrack*> trackNearContainer;
-  const int nearId = m_side + 1;
-  std::copy_if(trackContainer->begin(), trackContainer->end(), std::back_inserter(trackNearContainer),
-      [&nearId](auto track) { return track->stationID() == nearId; });
-
-  // Select tracks in far station
-  std::vector<const xAOD::AFPTrack*> trackFarContainer;
-  const int farId = 3 * m_side;
-  std::copy_if(trackContainer->begin(), trackContainer->end(), std::back_inserter(trackFarContainer),
-      [&farId](auto track) { return track->stationID() == farId; });
-
-  ATH_MSG_DEBUG("trackNearContainer size: " << trackNearContainer.size()<<", side "<<m_side);
-  ATH_MSG_DEBUG("trackFarContainer  size: " << trackFarContainer.size()<<", side "<<m_side);
-
-  // Loop over both containers
-  for (const xAOD::AFPTrack* trackFar : trackFarContainer) {
-    bool foundMatchingTrack = false;
-
-    for (const xAOD::AFPTrack* trackNear : trackNearContainer) {
-      // Apply cuts
-      const double dx = trackFar->xLocal() - trackNear->xLocal();
-      const double dy = trackFar->yLocal() - trackNear->yLocal();
-      const double r2 = dx*dx + dy*dy;
-
-      if (r2 > trackDistanceRadiusSq) {
-        ATH_MSG_DEBUG(
-            "Tracks too far away from each other (xNear, yNear; xFar, yFar; distance) [mm]: "
-            << trackNear->xLocal() << ", " << trackNear->yLocal() << "; "
-            << trackFar->xLocal()  << ", " << trackFar->yLocal()  << "; " << r2);
-
-        continue;
-      }
-
-      // Reconstruct proton and add it to the container
-      xAOD::AFPProton * proton = reco(trackNear, trackFar, outputContainer);
-
-      if (!proton)
-        continue;
-
-      foundMatchingTrack = true;
-
-      // Create link to tracks
-      linkTracksToProton(trackNear, trackContainer, proton);
-      linkTracksToProton(trackFar, trackContainer, proton);
-    }
-
-    // Reconstuct proton using only FAR station if
-    // no matching track on NEAR station was found
-    if (m_allowSingleStationReco and !foundMatchingTrack) {
-      // Apply cuts
-      // none
-
-      xAOD::AFPProton * proton = reco(trackFar, outputContainer);
-
-      if (!proton)
-        continue;
-
-      linkTracksToProton(trackFar, trackContainer, proton);
-    }
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
-
-xAOD::AFPProton * AFP_ProtonRecoAnalytical::createProton(const Momentum& momentum, const Measurement& my_measAFP, std::unique_ptr<xAOD::AFPProtonContainer>& outputContainer) const 
-{
-
-  // Return nullptr if any of momentum components is not a number
-  if ( std::any_of(begin(momentum), end(momentum), [](auto& el) { return !isfinite(el); }) )
-    return nullptr;
-
-  const auto [px, py, pz] = momentum;
-
-  auto * proton = outputContainer->push_back(std::make_unique<xAOD::AFPProton>());
-  
-  // Set proton properties
-  constexpr double protonMass = 0.938; // in GeV
-  
-  proton->setPxPyPzE(px, py, pz, sqrt(px*px + py*py + pz*pz + protonMass*protonMass));
-  proton->setChi2(chi2(px, py, pz, my_measAFP));
-  proton->setSide(m_side);
-  proton->setMethodID(0);
-  
-  ATH_MSG_DEBUG("Reconstructed proton (px, py, pz): " << proton->px() << ", " << proton->py() << ", " << proton->pz()<<", chi2 "<<proton->chi2()<<", side "<<proton->side());
-
-  return proton;
-}
-
-
-void AFP_ProtonRecoAnalytical::linkTracksToProton
-  (const xAOD::AFPTrack* track, SG::ReadHandle<xAOD::AFPTrackContainer>& trackContainer, xAOD::AFPProton * proton) const {
-
-  ElementLink<xAOD::AFPTrackContainer> trackLink;
-
-  trackLink.toContainedElement(*trackContainer, track);
-  proton->addAFPTrackLink(trackLink);
 }
 
 
@@ -244,9 +130,7 @@ double AFP_ProtonRecoAnalytical::bisection (double (AFP_ProtonRecoAnalytical::*f
 }
 
 
-xAOD::AFPProton * AFP_ProtonRecoAnalytical::reco
-  (const xAOD::AFPTrack* trackNear, const xAOD::AFPTrack* trackFar, std::unique_ptr<xAOD::AFPProtonContainer>& outputContainer) const {
-
+xAOD::AFPProton * AFP_ProtonRecoAnalytical::reco (const xAOD::AFPTrack* trackNear, const xAOD::AFPTrack* trackFar, std::unique_ptr<xAOD::AFPProtonContainer>& outputContainer) const {
   
     /// AFP measurement
   const Measurement my_measAFP = Measurement(trackNear->xLocal(), trackNear->yLocal(), trackFar->xLocal(), trackFar->yLocal());
@@ -271,7 +155,7 @@ xAOD::AFPProton * AFP_ProtonRecoAnalytical::reco
   const double py = energy * slopeY;
   const double pz = energy * sqrt(1. - slopeX*slopeX - slopeY*slopeY);
 
-  return createProton({px, py, pz}, my_measAFP, outputContainer);
+  return createProton({px, py, pz}, my_measAFP, xAOD::AFPProtonRecoAlgID::analytical, outputContainer);
 }
 
 
@@ -287,7 +171,7 @@ xAOD::AFPProton * AFP_ProtonRecoAnalytical::reco (const xAOD::AFPTrack* trackFar
 
   const double energy = bisection(&AFP_ProtonRecoAnalytical::singleStation, my_measAFP, my_slopeCalculated, my_positionCalculated);
 
-  return createProton({0., 0., energy}, my_measAFP, outputContainer);
+  return createProton({0., 0., energy}, my_measAFP, xAOD::AFPProtonRecoAlgID::analytical, outputContainer);
 }
 
 
