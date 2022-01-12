@@ -14,10 +14,10 @@ from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasRKPropagatorCfg, MuonCom
 GeV = 1000
 mm = 1
 
-def MuonCombinedTrackSummaryToolCfg(flags, name="CombinedMuonTrackSummary", **kwargs):
+def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.8/Reconstruction/MuonIdentification/MuonCombinedRecExample/python/CombinedMuonTrackSummary.py
     from TrkConfig.AtlasTrackSummaryToolConfig import AtlasTrackSummaryToolCfg
-    result = AtlasTrackSummaryToolCfg(flags, name=name)
+    result = AtlasTrackSummaryToolCfg(flags, name = "CombinedMuonTrackSummary")
     result._privateTools.InDetSummaryHelperTool.name = 'CombinedMuonIDSummaryHelper' # Horrible hack, but just need to change name to match old config
     return result
 

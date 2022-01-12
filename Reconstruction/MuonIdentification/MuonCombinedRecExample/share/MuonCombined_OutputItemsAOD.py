@@ -13,7 +13,7 @@ if DetFlags.detdescr.Calo_on(): # FIXME - check if the objects below still make 
    MuonCombinedAODList+=["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
 
 if DetFlags.detdescr.Muon_on():
-   excludedAuxData = '-clusterAssociation'
+   excludedAuxData = '-caloExtension.-cellAssociation.-clusterAssociation'
    excludedMuonAuxData = ".-"+".-".join(iso_vars())
    # Adding the xAOD content by default
    MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.CombinedFitParticles()]
