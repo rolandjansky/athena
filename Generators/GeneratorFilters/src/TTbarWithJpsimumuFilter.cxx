@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "GeneratorFilters/TTbarWithJpsimumuFilter.h"
 
@@ -50,6 +50,15 @@ StatusCode TTbarWithJpsimumuFilter::filterEvent() {
         // ===========================================
         for(auto part: *genEvt) {
             if(HepMC::barcode(part) > 200000) break;
+            
+            int pdgid = abs(part->pdg_id());
+            // don't loose time checking all if one found
+            if (pdgid == 443) {
+               if(!isLeptonDecay(part,13)) continue;
+            } else {
+               continue;
+            }
+
             if ( !passJpsiSelection(part) ) continue;
             isjpsi=true;
 

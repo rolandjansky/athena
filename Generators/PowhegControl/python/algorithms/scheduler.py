@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 from functools import partial
@@ -32,6 +32,7 @@ class Scheduler(object):
         "PHOTOS", "reweighter",
         "NNLO reweighter",
         "LHE file nominal weight updater",
+        "mu2tau",
         "MadSpin",
         "integration grid tester",
         "cross section calculator",
@@ -69,6 +70,7 @@ class Scheduler(object):
         "PHOTOS": partial(postprocessors.PHOTOS, powheg_LHE_output=powheg_LHE_output),
         "reweighter": partial(postprocessors.reweighter, powheg_LHE_output=powheg_LHE_output),
         "quark colour fixer": partial(postprocessors.quark_colour_fixer, powheg_LHE_output=powheg_LHE_output),
+        "mu2tau": partial(postprocessors.mu2tau, powheg_LHE_output=powheg_LHE_output),
         "LHE file cleaner": partial(postprocessors.lhe_cleaner, powheg_LHE_output=powheg_LHE_output),
         "LHE file nominal weight updater": partial(postprocessors.lhe_nominal_weight_updater, powheg_LHE_output=powheg_LHE_output),
     }
