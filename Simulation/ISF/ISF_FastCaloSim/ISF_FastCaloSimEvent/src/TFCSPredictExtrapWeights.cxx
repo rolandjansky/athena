@@ -167,6 +167,8 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulat
   // Temporary
   if(is_match_pdgid(211) || is_match_pdgid(-211)){
     inputVariables["pdgId"] = 2; // one hot enconding
+  } else if(is_match_pdgid(11) || is_match_pdgid(-11)){
+    inputVariables["pdgId"] = 0; // one hot enconding
   }
 
   return inputVariables;
