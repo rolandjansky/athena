@@ -131,7 +131,7 @@ auto floatAccessors = initAccessors<float>(
   "disTrkCand_refit_chi2sum_br_sct1","disTrkCand_refit_chi2sum_br_sct2","disTrkCand_refit_chi2sum_br_sct3","disTrkCand_refit_chi2sum_br_sct4",
   "disTrkCand_refit_ndofsum_br_ibl","disTrkCand_refit_ndofsum_br_pix1","disTrkCand_refit_ndofsum_br_pix2","disTrkCand_refit_ndofsum_br_pix3",
   "disTrkCand_refit_ndofsum_br_sct1","disTrkCand_refit_ndofsum_br_sct2","disTrkCand_refit_ndofsum_br_sct3","disTrkCand_refit_ndofsum_br_sct4",
-  "ptcone20", "ptvarcone20", "etcone20", "topoetcone20"
+  "ptcone20", "ptvarcone20", "etcone20", "topoetcone20","Timing"
   );
 
 auto doubleAccessors = initAccessors<double>("ptcone02", "ptcone03");
