@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file   GsfMeasurementUpdator.h
  * @date   Friday 25th February 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * @brief  Class for performing updates on multi-component states for the
+ * @brief  Cde for performing updates on multi-component states for the
  * gaussian-sum filter.
  */
 
@@ -22,38 +22,24 @@
 
 namespace Trk {
 
-class GsfMeasurementUpdator
-{
-public:
-  /** Method for updating the multi-state with a new measurement */
-  MultiComponentState update(MultiComponentState&&, const MeasurementBase&)
-    const;
+namespace GsfMeasurementUpdator {
+/** @brief Method for updating the multi-state with a new measurement */
+MultiComponentState
+update(MultiComponentState&&, const MeasurementBase&);
 
-  /** Method for updating the multi-state with a new measurement and calculate
-   * the fit qaulity at the same time*/
-  MultiComponentState update(
-    Trk::MultiComponentState&&,
-    const Trk::MeasurementBase&,
-    FitQualityOnSurface& fitQoS) const;
+/** @brief Method for updating the multi-state with a new measurement and
+ * calculate the fit qaulity at the same time*/
+MultiComponentState
+update(Trk::MultiComponentState&&,
+       const Trk::MeasurementBase&,
+       FitQualityOnSurface& fitQoS);
 
-  /** Method for determining the chi2 of the multi-component state and the
-   * number of degrees of freedom */
-  FitQualityOnSurface fitQuality(
-    const MultiComponentState&,
-    const MeasurementBase&) const;
+/** @brief Method for determining the chi2 of the multi-component state and the
+ * number of degrees of freedom */
+FitQualityOnSurface
+fitQuality(const MultiComponentState&, const MeasurementBase&);
 
-private:
-  MultiComponentState calculateFilterStep(
-    MultiComponentState&&,
-    const MeasurementBase&,
-    int addRemoveFlag) const;
-
-  MultiComponentState calculateFilterStep(
-    MultiComponentState&&,
-    const MeasurementBase&,
-    FitQualityOnSurface& fitQoS) const;
-
-};
-}
+} // end of anonymous namespace
+} // end of namespace Trk
 
 #endif
