@@ -34,7 +34,7 @@ def defineInputsMenu():
                 'BPTX0','BPTX1', # 2x BPTX
                 'LUCID_A', 'LUCID_C', # 2x LUCID 
                 (None,4),
-                'ZDC_A', 'ZDC_C', 'ZDC_AND', # 3x ZDC
+                'ZDC_0', 'ZDC_1', 'ZDC_2', # 3x ZDC
                 'CAL0','CAL1','CAL2', # 3 x CALREQ
             ]
         },

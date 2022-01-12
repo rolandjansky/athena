@@ -89,6 +89,36 @@ class ItemDef:
         MenuItem.currentPartition = 1
 
 
+        # ZDC
+
+        # old Run-3 configurations 
+        #ZDC_A_C = d.ZDC_A & d.ZDC_C
+        #VZDC_A_C = Not(d.ZDC_A) & Not(d.ZDC_C)
+        #VZDC_AORC = Not(d.ZDC_A) | Not(d.ZDC_C)
+
+        # new ZDC configuration for Run-3 (ATR-24734)
+        ZDC_comb0 = Not(d.ZDC_2) & Not(d.ZDC_1) & Not(d.ZDC_0) # this means no signal! to be used ONLY in add with other inputs
+        ZDC_comb1 = Not(d.ZDC_2) & Not(d.ZDC_1) & d.ZDC_0
+        ZDC_comb2 = Not(d.ZDC_2) & d.ZDC_1      & Not(d.ZDC_0)
+        ZDC_comb3 = Not(d.ZDC_2) & d.ZDC_1      & d.ZDC_0
+        ZDC_comb4 = d.ZDC_2      & Not(d.ZDC_1) & Not(d.ZDC_0)
+        ZDC_comb5 = d.ZDC_2      & Not(d.ZDC_1) & d.ZDC_0
+        ZDC_comb6 = d.ZDC_2      & d.ZDC_1      & Not(d.ZDC_0)
+        ZDC_comb7 = d.ZDC_2      & d.ZDC_1      & d.ZDC_0
+
+        # combined signals
+        ZDC_yy    = ZDC_comb0 | ZDC_comb1 | ZDC_comb2 | ZDC_comb3
+        ZDC_had   = ZDC_comb7
+        ZDC_Ay    = ZDC_comb1 | ZDC_comb3 | ZDC_comb4 | ZDC_comb5
+        ZDC_yA    = ZDC_comb2 | ZDC_comb3 | ZDC_comb4 | ZDC_comb6
+        ZDC_yAAy  = ZDC_comb1 | ZDC_comb2 | ZDC_comb3 | ZDC_comb4 | ZDC_comb5 | ZDC_comb6
+        ZDC_A     = ZDC_comb1 | ZDC_comb3 | ZDC_comb4 | ZDC_comb5 | ZDC_comb7
+        ZDC_C     = ZDC_comb2 | ZDC_comb3 | ZDC_comb4 | ZDC_comb6 | ZDC_comb7
+        ZDC_A_C   = ZDC_comb3 | ZDC_comb4 | ZDC_comb7
+        VZDC_A_C  = ZDC_comb0
+        VZDC_AORC = ZDC_comb0 | ZDC_comb1 | ZDC_comb2 | ZDC_comb5 | ZDC_comb6
+        ZDC_AND   = ZDC_A_C
+
         MenuItem('L1_EM3'       ).setLogic( d.EM3        & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM7'       ).setLogic( d.EM7        & physcond).setTriggerType( TT.calo )
         MenuItem('L1_EM10'      ).setLogic( d.EM10       & physcond).setTriggerType( TT.calo )
@@ -199,8 +229,8 @@ class ItemDef:
         MenuItem('L1_2EM8I_J75' ).setLogic( d.EM8I.x(2) & d.J75 & physcond).setTriggerType(TT.calo)
 
         # HI
-        MenuItem('L1_EM3_NZ'             ).setLogic( d.EM3      & Not(d.ZDC_AND) & physcond).setTriggerType( TT.calo )
-        MenuItem('L1_2EM3_NZ'            ).setLogic( d.EM3.x(2) & Not(d.ZDC_AND) & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_EM3_NZ'             ).setLogic( d.EM3      & Not(ZDC_AND) & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_2EM3_NZ'            ).setLogic( d.EM3.x(2) & Not(ZDC_AND) & physcond).setTriggerType( TT.calo )
 
         MenuItem('L1_EM3_NL'             ).setLogic( d.EM3      & Not(d.LUCID_A) & Not(d.LUCID_C) & physcond).setTriggerType( TT.calo )
         MenuItem('L1_2EM3_NL'            ).setLogic( d.EM3.x(2) & Not(d.LUCID_A) & Not(d.LUCID_C) & physcond).setTriggerType( TT.calo )
@@ -716,8 +746,8 @@ class ItemDef:
         MenuItem('L1_MU14FCH_XE30'              ).setLogic( d.MU14FCH & d.XE30 & physcond).setTriggerType(TT.calo) ## ATR-14377
 
         # HI
-        MenuItem('L1_J15_NZ' ).setLogic( d.J15      & Not(d.ZDC_AND) & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_2J15_NZ').setLogic( d.J15.x(2) & Not(d.ZDC_AND) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_J15_NZ' ).setLogic( d.J15      & Not(ZDC_AND) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_2J15_NZ').setLogic( d.J15.x(2) & Not(ZDC_AND) & physcond).setTriggerType(TT.calo)
 
         MenuItem('L1_J15_NL' ).setLogic( d.J15      & Not(d.LUCID_A) & Not(d.LUCID_C) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_2J15_NL').setLogic( d.J15.x(2) & Not(d.LUCID_A) & Not(d.LUCID_C) & physcond).setTriggerType(TT.calo)
@@ -881,7 +911,7 @@ class ItemDef:
         MenuItem('L1_VTE20').setLogic( Not(d.TE20) & physcond).setTriggerType(TT.calo)
         MenuItem('L1_VTE50').setLogic( Not(d.TE50) & physcond).setTriggerType(TT.calo)
 
-        MenuItem('L1_TE5_NZ').setLogic( d.TE5 & Not(d.ZDC_AND) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_TE5_NZ').setLogic( d.TE5 & Not(ZDC_AND) & physcond).setTriggerType(TT.calo)
 
         # MBTS
         MBTS_1   = d.MBTS_A | d.MBTS_C
@@ -997,33 +1027,31 @@ class ItemDef:
 
 
         # ZDC
-        ZDC_A_C = d.ZDC_A & d.ZDC_C
-        VZDC_A_C = Not(d.ZDC_A) & Not(d.ZDC_C)
-        VZDC_AORC = Not(d.ZDC_A) | Not(d.ZDC_C)
-        MenuItem('L1_ZDC'             ).setLogic((d.ZDC_A | d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_A'           ).setLogic( d.ZDC_A & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_C'           ).setLogic( d.ZDC_C & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_AND'         ).setLogic( d.ZDC_AND & physcond).setTriggerType(TT.minb)
+
+        MenuItem('L1_ZDC'             ).setLogic( (ZDC_A | ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_A'           ).setLogic( ZDC_A & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_C'           ).setLogic( ZDC_C & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_AND'         ).setLogic( ZDC_AND & physcond).setTriggerType(TT.minb)
         MenuItem('L1_ZDC_A_C'         ).setLogic( ZDC_A_C & physcond).setTriggerType(TT.minb)
 
         MenuItem('L1_ZDC_A_C_OVERLAY' ).setLogic( ZDC_A_C & physcond).setTriggerType(TT.zerobs)
-        MenuItem('L1_ZDC_A_OVERLAY'   ).setLogic( d.ZDC_A & physcond).setTriggerType(TT.zerobs)
-        MenuItem('L1_ZDC_C_OVERLAY'   ).setLogic( d.ZDC_C & physcond).setTriggerType(TT.zerobs)
+        MenuItem('L1_ZDC_A_OVERLAY'   ).setLogic( ZDC_A & physcond).setTriggerType(TT.zerobs)
+        MenuItem('L1_ZDC_C_OVERLAY'   ).setLogic( ZDC_C & physcond).setTriggerType(TT.zerobs)
         MenuItem('L1_ZDC_A_C_VTE50_OVERLAY').setLogic( ZDC_A_C & Not(d.TE50) & physcond).setTriggerType(TT.zerobs)
         MenuItem('L1_TE5_OVERLAY'     ).setLogic( d.TE5 & physcond).setTriggerType(TT.zerobs)
         MenuItem('L1_TE10_OVERLAY'    ).setLogic( d.TE10 & physcond).setTriggerType(TT.zerobs)
         MenuItem('L1_TE20_OVERLAY'    ).setLogic( d.TE20 & physcond).setTriggerType(TT.zerobs)
         MenuItem('L1_TE50_OVERLAY'    ).setLogic( d.TE50 & physcond).setTriggerType(TT.zerobs)
 
-        MenuItem('L1_ZDC_VTE200'      ).setLogic((d.ZDC_A | d.ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_AND_VTE50'   ).setLogic( d.ZDC_AND & Not(d.TE50) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_VTE200'      ).setLogic((ZDC_A | ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_AND_VTE50'   ).setLogic( ZDC_AND & Not(d.TE50) & physcond).setTriggerType(TT.minb)
         MenuItem('L1_ZDC_A_C_VTE50'   ).setLogic( ZDC_A_C & Not(d.TE50) & physcond).setTriggerType(TT.minb)
         MenuItem('L1_ZDC_A_C_TE50'    ).setLogic( ZDC_A_C & d.TE50 & physcond).setTriggerType(TT.minb)
 
         MenuItem('L1_ZDC_A_C_VTE50_PEB').setLogic( ZDC_A_C & Not(d.TE50) & physcond).setTriggerType(TT.minb)
 
-        MenuItem('L1_ZDC_A_VTE20'      ).setLogic( d.ZDC_A & Not(d.TE20) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_C_VTE20'      ).setLogic( d.ZDC_C & Not(d.TE20) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_A_VTE20'      ).setLogic( ZDC_A & Not(d.TE20) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_C_VTE20'      ).setLogic( ZDC_C & Not(d.TE20) & physcond).setTriggerType(TT.minb)
 
         MenuItem('L1_ZDC_A_C_VTE200'    ).setLogic( ZDC_A_C & Not(d.TE200) & physcond).setTriggerType(TT.minb)
         MenuItem('L1_ZDC_A_C_TE5_VTE200').setLogic( ZDC_A_C & d.TE5 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
@@ -1032,55 +1060,55 @@ class ItemDef:
         MenuItem('L1_VZDC_A_C_TE5_VTE200' ).setLogic( VZDC_A_C & d.TE5 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
         MenuItem('L1_VZDC_A_C_TE20_VTE200').setLogic( VZDC_A_C & d.TE20 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
         MenuItem('L1_VZDC_AORC_TE5_VTE200').setLogic( VZDC_AORC & d.TE5 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_VZDC_A_VZDC_C_TE5_VTE200').setLogic( Not(d.ZDC_A) & Not(d.ZDC_C) & d.TE5 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE20_ZDC_A_VZDC_C_VTE200').setLogic( d.ZDC_A & Not(d.ZDC_C) & d.TE20 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE20_ZDC_C_VZDC_A_VTE200').setLogic( d.ZDC_C & Not(d.ZDC_A) & d.TE20 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_VZDC_A_VZDC_C_TE5_VTE200').setLogic( Not(ZDC_A) & Not(ZDC_C) & d.TE5 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE20_ZDC_A_VZDC_C_VTE200').setLogic( ZDC_A & Not(ZDC_C) & d.TE20 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE20_ZDC_C_VZDC_A_VTE200').setLogic( ZDC_C & Not(ZDC_A) & d.TE20 & Not(d.TE200) & physcond).setTriggerType(TT.minb)
 
-        MenuItem('L1_ZDC_MBTS_1'        ).setLogic((d.ZDC_A | d.ZDC_C) & MBTS_1 & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_MBTS_2'        ).setLogic((d.ZDC_A | d.ZDC_C) & MBTS_2 & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_MBTS_1'        ).setLogic((ZDC_A | ZDC_C) & MBTS_1 & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_MBTS_2'        ).setLogic((ZDC_A | ZDC_C) & MBTS_2 & physcond).setTriggerType(TT.minb)
 
-        MenuItem('L1_ZDC_MBTS_1_1'      ).setLogic((d.ZDC_A | d.ZDC_C) & MBTS_1_1 & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_MBTS_2_2'      ).setLogic((d.ZDC_A | d.ZDC_C) & MBTS_2_2 & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_MBTS_1_1'      ).setLogic((ZDC_A | ZDC_C) & MBTS_1_1 & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_MBTS_2_2'      ).setLogic((ZDC_A | ZDC_C) & MBTS_2_2 & physcond).setTriggerType(TT.minb)
 
-        MenuItem('L1_ZDC_EMPTY'           ).setLogic( (d.ZDC_A | d.ZDC_C) & cosmiccond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_A_EMPTY'           ).setLogic( d.ZDC_A & cosmiccond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_C_EMPTY'           ).setLogic( d.ZDC_C & cosmiccond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_UNPAIRED_ISO'    ).setLogic( (d.ZDC_A | d.ZDC_C) & unpaired_isocond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_UNPAIRED_NONISO' ).setLogic( (d.ZDC_A | d.ZDC_C) & unpaired_nonisocond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_EMPTY'           ).setLogic( (ZDC_A | ZDC_C) & cosmiccond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_A_EMPTY'           ).setLogic( ZDC_A & cosmiccond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_C_EMPTY'           ).setLogic( ZDC_C & cosmiccond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_UNPAIRED_ISO'    ).setLogic( (ZDC_A | ZDC_C) & unpaired_isocond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_UNPAIRED_NONISO' ).setLogic( (ZDC_A | ZDC_C) & unpaired_nonisocond ).setTriggerType(TT.minb)
 
-        MenuItem('L1_ZDC_AND_EMPTY'           ).setLogic( d.ZDC_AND & cosmiccond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_AND_UNPAIRED_ISO'    ).setLogic( d.ZDC_AND & unpaired_isocond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_AND_UNPAIRED_NONISO' ).setLogic( d.ZDC_AND & unpaired_nonisocond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_A_UNPAIRED_NONISO' ).setLogic( d.ZDC_A & unpaired_nonisocond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_C_UNPAIRED_NONISO' ).setLogic( d.ZDC_C & unpaired_nonisocond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_AND_EMPTY'           ).setLogic( ZDC_AND & cosmiccond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_AND_UNPAIRED_ISO'    ).setLogic( ZDC_AND & unpaired_isocond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_AND_UNPAIRED_NONISO' ).setLogic( ZDC_AND & unpaired_nonisocond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_A_UNPAIRED_NONISO' ).setLogic( ZDC_A & unpaired_nonisocond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_C_UNPAIRED_NONISO' ).setLogic( ZDC_C & unpaired_nonisocond ).setTriggerType(TT.minb)
 
         MenuItem('L1_ZDC_A_C_EMPTY'           ).setLogic( ZDC_A_C & cosmiccond ).setTriggerType(TT.minb)
         MenuItem('L1_ZDC_A_C_UNPAIRED_ISO'    ).setLogic( ZDC_A_C & unpaired_isocond ).setTriggerType(TT.minb)
         MenuItem('L1_ZDC_A_C_UNPAIRED_NONISO' ).setLogic( ZDC_A_C & unpaired_nonisocond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_A_UNPAIRED_ISO'    ).setLogic( d.ZDC_A & unpaired_isocond ).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_C_UNPAIRED_ISO'    ).setLogic( d.ZDC_C & unpaired_isocond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_A_UNPAIRED_ISO'    ).setLogic( ZDC_A & unpaired_isocond ).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_C_UNPAIRED_ISO'    ).setLogic( ZDC_C & unpaired_isocond ).setTriggerType(TT.minb)
 
         MenuItem('L1_ZDC_A_C_BGRP9'      ).setLogic( ZDC_A_C & bgrp9cond & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_A_BGRP9'      ).setLogic( d.ZDC_A & bgrp9cond & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_C_BGRP9'      ).setLogic( d.ZDC_C & bgrp9cond & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_A_BGRP9'      ).setLogic( ZDC_A & bgrp9cond & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_C_BGRP9'      ).setLogic( ZDC_C & bgrp9cond & physcond).setTriggerType(TT.minb)
         MenuItem('L1_ZDC_A_C_BGRP11'     ).setLogic( ZDC_A_C & bgrp11cond & physcond).setTriggerType(TT.minb)
 
   # ATR-12470
-        ZDC_XOR = (d.ZDC_A & Not(d.ZDC_C)) | (d.ZDC_C & Not(d.ZDC_A))
-        MenuItem('L1_ZDC_A_VZDC_C'                  ).setLogic(d.ZDC_A & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_C_VZDC_A'                  ).setLogic(d.ZDC_C & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_A_VZDC_C_VTE200'           ).setLogic(d.ZDC_A & Not(d.ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_ZDC_C_VZDC_A_VTE200'           ).setLogic(d.ZDC_C & Not(d.ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MBTS_1_ZDC_A_VZDC_C_VTE200'    ).setLogic(MBTS_1      & d.ZDC_A & Not(d.ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MBTS_1_ZDC_C_VZDC_A_VTE200'    ).setLogic(MBTS_1      & d.ZDC_C & Not(d.ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE3p0ETA49_ZDC_A_VZDC_C_VTE200').setLogic(d.TE30ETA49 & d.ZDC_A & Not(d.ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE3p0ETA49_ZDC_C_VZDC_A_VTE200').setLogic(d.TE30ETA49 & d.ZDC_C & Not(d.ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE4_ZDC_A_VZDC_C_VTE200'       ).setLogic(d.TE4       & d.ZDC_A & Not(d.ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE4_ZDC_C_VZDC_A_VTE200'       ).setLogic(d.TE4       & d.ZDC_C & Not(d.ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE5_ZDC_A_VZDC_C_VTE200'       ).setLogic(d.TE5       & d.ZDC_A & Not(d.ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE5_ZDC_C_VZDC_A_VTE200'       ).setLogic(d.TE5       & d.ZDC_C & Not(d.ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE7p0ETA49_ZDC_A_VZDC_C_VTE200').setLogic(d.TE70ETA49 & d.ZDC_A & Not(d.ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE7p0ETA49_ZDC_C_VZDC_A_VTE200').setLogic(d.TE70ETA49 & d.ZDC_C & Not(d.ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        ZDC_XOR = (ZDC_A & Not(ZDC_C)) | (ZDC_C & Not(ZDC_A))
+        MenuItem('L1_ZDC_A_VZDC_C'                  ).setLogic(ZDC_A & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_C_VZDC_A'                  ).setLogic(ZDC_C & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_A_VZDC_C_VTE200'           ).setLogic(ZDC_A & Not(ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_ZDC_C_VZDC_A_VTE200'           ).setLogic(ZDC_C & Not(ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_1_ZDC_A_VZDC_C_VTE200'    ).setLogic(MBTS_1      & ZDC_A & Not(ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_1_ZDC_C_VZDC_A_VTE200'    ).setLogic(MBTS_1      & ZDC_C & Not(ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE3p0ETA49_ZDC_A_VZDC_C_VTE200').setLogic(d.TE30ETA49 & ZDC_A & Not(ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE3p0ETA49_ZDC_C_VZDC_A_VTE200').setLogic(d.TE30ETA49 & ZDC_C & Not(ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE4_ZDC_A_VZDC_C_VTE200'       ).setLogic(d.TE4       & ZDC_A & Not(ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE4_ZDC_C_VZDC_A_VTE200'       ).setLogic(d.TE4       & ZDC_C & Not(ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE5_ZDC_A_VZDC_C_VTE200'       ).setLogic(d.TE5       & ZDC_A & Not(ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE5_ZDC_C_VZDC_A_VTE200'       ).setLogic(d.TE5       & ZDC_C & Not(ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE7p0ETA49_ZDC_A_VZDC_C_VTE200').setLogic(d.TE70ETA49 & ZDC_A & Not(ZDC_C) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE7p0ETA49_ZDC_C_VZDC_A_VTE200').setLogic(d.TE70ETA49 & ZDC_C & Not(ZDC_A) & Not(d.TE200) & physcond).setTriggerType(TT.minb)
 
 
         MenuItem('L1_ZDC_XOR'                  ).setLogic(ZDC_XOR & physcond).setTriggerType(TT.minb)
@@ -1094,51 +1122,51 @@ class ItemDef:
         MenuItem('L1_ZDC_XOR_VTE200_MBTS_1'    ).setLogic(ZDC_XOR & Not(d.TE200) & MBTS_1 & physcond).setTriggerType(TT.minb)
 
         # ATR-14967
-        MenuItem('L1_EM3_VZDC_A'           ).setLogic( d.EM3 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_EM3_VZDC_C'           ).setLogic( d.EM3 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_2EM3_VZDC_A'          ).setLogic( d.EM3.x(2) & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_2EM3_VZDC_C'          ).setLogic( d.EM3.x(2) & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_EM5_VZDC_A'           ).setLogic( d.EM5 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_EM5_VZDC_C'           ).setLogic( d.EM5 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE5_VZDC_A'           ).setLogic( d.TE5 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE5_VZDC_C'           ).setLogic( d.TE5 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE10_VZDC_A'          ).setLogic( d.TE10 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE10_VZDC_C'          ).setLogic( d.TE10 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE20_VZDC_A'          ).setLogic( d.TE20 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_TE20_VZDC_C'          ).setLogic( d.TE20 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_VTE10_VZDC_A'         ).setLogic( Not(d.TE10) & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_VTE10_VZDC_C'         ).setLogic( Not(d.TE10) & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_J5_VZDC_A'            ).setLogic( d.J5  & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_J5_VZDC_C'            ).setLogic( d.J5  & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_J10_VZDC_A'           ).setLogic( d.J10 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_J10_VZDC_C'           ).setLogic( d.J10 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_J15_VZDC_A'           ).setLogic( d.J15 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_J15_VZDC_C'           ).setLogic( d.J15 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_J20_VZDC_A'           ).setLogic( d.J20 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_J20_VZDC_C'           ).setLogic( d.J20 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MU3V_VZDC_A'          ).setLogic( d.MU3V & Not(d.ZDC_A) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_MU3V_VZDC_C'          ).setLogic( d.MU3V & Not(d.ZDC_C) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_2MU3V_VZDC_A'         ).setLogic( d.MU3V.x(2) & Not(d.ZDC_A) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_2MU3V_VZDC_C'         ).setLogic( d.MU3V.x(2) & Not(d.ZDC_C) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_EM3_VZDC_A'           ).setLogic( d.EM3 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_EM3_VZDC_C'           ).setLogic( d.EM3 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_2EM3_VZDC_A'          ).setLogic( d.EM3.x(2) & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_2EM3_VZDC_C'          ).setLogic( d.EM3.x(2) & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_EM5_VZDC_A'           ).setLogic( d.EM5 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_EM5_VZDC_C'           ).setLogic( d.EM5 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE5_VZDC_A'           ).setLogic( d.TE5 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE5_VZDC_C'           ).setLogic( d.TE5 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE10_VZDC_A'          ).setLogic( d.TE10 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE10_VZDC_C'          ).setLogic( d.TE10 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE20_VZDC_A'          ).setLogic( d.TE20 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_TE20_VZDC_C'          ).setLogic( d.TE20 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_VTE10_VZDC_A'         ).setLogic( Not(d.TE10) & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_VTE10_VZDC_C'         ).setLogic( Not(d.TE10) & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_J5_VZDC_A'            ).setLogic( d.J5  & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_J5_VZDC_C'            ).setLogic( d.J5  & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_J10_VZDC_A'           ).setLogic( d.J10 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_J10_VZDC_C'           ).setLogic( d.J10 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_J15_VZDC_A'           ).setLogic( d.J15 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_J15_VZDC_C'           ).setLogic( d.J15 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_J20_VZDC_A'           ).setLogic( d.J20 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_J20_VZDC_C'           ).setLogic( d.J20 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MU3V_VZDC_A'          ).setLogic( d.MU3V & Not(ZDC_A) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU3V_VZDC_C'          ).setLogic( d.MU3V & Not(ZDC_C) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_2MU3V_VZDC_A'         ).setLogic( d.MU3V.x(2) & Not(ZDC_A) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_2MU3V_VZDC_C'         ).setLogic( d.MU3V.x(2) & Not(ZDC_C) & physcond).setTriggerType(TT.muon)
 
-        MenuItem('L1_MU3V_VTE10_VZDC_A' ).setLogic( d.MU3V      & Not(d.TE10) & Not(d.ZDC_A) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_MU3V_VTE10_VZDC_C' ).setLogic( d.MU3V      & Not(d.TE10) & Not(d.ZDC_C) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_2MU3V_VTE10_VZDC_A').setLogic( d.MU3V.x(2) & Not(d.TE10) & Not(d.ZDC_A) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_2MU3V_VTE10_VZDC_C').setLogic( d.MU3V.x(2) & Not(d.TE10) & Not(d.ZDC_C) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU3V_VTE10_VZDC_A' ).setLogic( d.MU3V      & Not(d.TE10) & Not(ZDC_A) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU3V_VTE10_VZDC_C' ).setLogic( d.MU3V      & Not(d.TE10) & Not(ZDC_C) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_2MU3V_VTE10_VZDC_A').setLogic( d.MU3V.x(2) & Not(d.TE10) & Not(ZDC_A) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_2MU3V_VTE10_VZDC_C').setLogic( d.MU3V.x(2) & Not(d.TE10) & Not(ZDC_C) & physcond).setTriggerType(TT.muon)
 
         MenuItem('L1_MU3V_VZDC_A_C'         ).setLogic( d.MU3V  & VZDC_A_C & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU3V_VZDC_AORC_VTE200' ).setLogic( d.MU3V  & VZDC_AORC & Not(d.TE200) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_MU5VF_VZDC_A'          ).setLogic( d.MU5VF & Not(d.ZDC_A) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_MU5VF_VZDC_C'          ).setLogic( d.MU5VF & Not(d.ZDC_C) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_MU5VF_VTE10_VZDC_A'    ).setLogic( d.MU5VF & Not(d.TE10) & Not(d.ZDC_A) & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_MU5VF_VTE10_VZDC_C'    ).setLogic( d.MU5VF & Not(d.TE10) & Not(d.ZDC_C) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU5VF_VZDC_A'          ).setLogic( d.MU5VF & Not(ZDC_A) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU5VF_VZDC_C'          ).setLogic( d.MU5VF & Not(ZDC_C) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU5VF_VTE10_VZDC_A'    ).setLogic( d.MU5VF & Not(d.TE10) & Not(ZDC_A) & physcond).setTriggerType(TT.muon)
+        MenuItem('L1_MU5VF_VTE10_VZDC_C'    ).setLogic( d.MU5VF & Not(d.TE10) & Not(ZDC_C) & physcond).setTriggerType(TT.muon)
         MenuItem('L1_MU5VF_VZDC_A_C'        ).setLogic( d.MU5VF & VZDC_A_C & physcond).setTriggerType(TT.muon)
-        MenuItem('L1_RD0_FILLED_VZDC_A'    ).setLogic( d.RNDM0 & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_RD0_FILLED_VZDC_C'    ).setLogic( d.RNDM0 & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MBTS_4_C_VZDC_A'      ).setLogic( MBTS_4_C & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MBTS_4_A_VZDC_C'      ).setLogic( MBTS_4_A & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MBTS_2_C_VZDC_A'      ).setLogic( MBTS_2_C & Not(d.ZDC_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MBTS_2_A_VZDC_C'      ).setLogic( MBTS_2_A & Not(d.ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_RD0_FILLED_VZDC_A'    ).setLogic( d.RNDM0 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_RD0_FILLED_VZDC_C'    ).setLogic( d.RNDM0 & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_4_C_VZDC_A'      ).setLogic( MBTS_4_C & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_4_A_VZDC_C'      ).setLogic( MBTS_4_A & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_2_C_VZDC_A'      ).setLogic( MBTS_2_C & Not(ZDC_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MBTS_2_A_VZDC_C'      ).setLogic( MBTS_2_A & Not(ZDC_C) & physcond).setTriggerType(TT.minb)
 
 
 
@@ -1222,9 +1250,9 @@ class ItemDef:
         MenuItem('L1_BPTX1_BGRP0', ctpid=0xf2).setLogic(d.BPTX1 & d.BGRP0).setTriggerType(TT.rand)
 
         # lumi measurements
-        MenuItem('L1_MLZ_A').setLogic( (d.MBTS_A|d.ZDC_A|d.LUCID_A) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MLZ_C').setLogic( (d.MBTS_C|d.ZDC_C|d.LUCID_C) & physcond).setTriggerType(TT.minb)
-        MenuItem('L1_MBLZ' ).setLogic( ( (d.MBTS_A|d.ZDC_A|d.LUCID_A) & (d.MBTS_C|d.ZDC_C|d.LUCID_C) | d.BCM_Wide) & physcond ).setTriggerType(TT.minb)
+        MenuItem('L1_MLZ_A').setLogic( (d.MBTS_A|ZDC_A|d.LUCID_A) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MLZ_C').setLogic( (d.MBTS_C|ZDC_C|d.LUCID_C) & physcond).setTriggerType(TT.minb)
+        MenuItem('L1_MBLZ' ).setLogic( ( (d.MBTS_A|ZDC_A|d.LUCID_A) & (d.MBTS_C|ZDC_C|d.LUCID_C) | d.BCM_Wide) & physcond ).setTriggerType(TT.minb)
 
         MenuItem('L1_CALREQ0', ctpid=0x1fd).setLogic( d.CAL0 & calibcond).setTriggerType(TT.calreq0)
         MenuItem('L1_CALREQ1', ctpid=0x1fe).setLogic( d.CAL1 & calibcond).setTriggerType(TT.calreq1)
