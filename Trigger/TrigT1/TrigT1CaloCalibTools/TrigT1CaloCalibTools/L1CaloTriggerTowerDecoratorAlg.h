@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1CaloTriggerTowerDecoratorAlg.h 728363 2016-03-08 12:45:29Z amazurov $
 #ifndef TRIGGER_TRIGT1_TRIGT1CALOXAODCALIBTOOLS_DECORATETRIGGERTOWERSALG_H
 #define TRIGGER_TRIGT1_TRIGT1CALOXAODCALIBTOOLS_DECORATETRIGGERTOWERSALG_H
 
@@ -18,17 +17,17 @@
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloxAODOfflineTriggerTowerTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
+#include <memory>
+
 namespace LVL1 {
 class L1CaloTriggerTowerDecoratorAlg : public AthAlgorithm {
  public:
   L1CaloTriggerTowerDecoratorAlg(const std::string& name, ISvcLocator* svcLoc);
 
   /// Function initialising the algorithm
-  virtual StatusCode initialize();
-  /// Function finalize the algorithm
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
   /// Function executing the algorithm
-  virtual StatusCode execute();
+  virtual StatusCode execute() override;
 
  private:
   SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerContainerKey
@@ -45,6 +44,14 @@ class L1CaloTriggerTowerDecoratorAlg : public AthAlgorithm {
   std::string m_caloCellETByLayerByReceiver;
 
   ToolHandle<LVL1::IL1CaloxAODOfflineTriggerTowerTools> m_ttTools;
+
+  std::unique_ptr<xAOD::TriggerTower::Decorator<float>> m_caloCellEnergyDecorator;
+  std::unique_ptr<xAOD::TriggerTower::Decorator<float>> m_caloCellETDecorator;
+  std::unique_ptr<xAOD::TriggerTower::Decorator<float>> m_caloCellsQualityDecorator;
+  std::unique_ptr<xAOD::TriggerTower::Decorator<std::vector<float>>> m_caloCellEnergyByLayerDecorator;
+  std::unique_ptr<xAOD::TriggerTower::Decorator<std::vector<float>>> m_caloCellETByLayerDecorator;
+  std::unique_ptr<xAOD::TriggerTower::Decorator<std::vector<std::vector<float>>>> m_caloCellEnergyByLayerByReceiverDecorator;
+  std::unique_ptr<xAOD::TriggerTower::Decorator<std::vector<std::vector<float>>>> m_caloCellETByLayerByReceiverDecorator;
 };
 }
 #endif
