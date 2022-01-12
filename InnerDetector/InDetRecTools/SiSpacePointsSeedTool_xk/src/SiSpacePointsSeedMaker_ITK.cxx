@@ -2305,27 +2305,13 @@ void InDet::SiSpacePointsSeedMaker_ITK::sctInform(Trk::SpacePoint*const& sp,floa
   const InDetDD::SiDetectorElement* d0 = c0->detectorElement(); 
   const InDetDD::SiDetectorElement* d1 = c1->detectorElement(); 
 
-  auto shape0 = d0->design().shape();
-  auto shape1 = d1->design().shape();
-
-  bool annulus0 = (shape0 == InDetDD::Annulus)||(shape0 == InDetDD::PolarAnnulus);
-  bool annulus1 = (shape1 == InDetDD::Annulus)||(shape1 == InDetDD::PolarAnnulus);
-
   Amg::Vector2D lc0 = c0->localPosition();  
   Amg::Vector2D lc1 = c1->localPosition();  
   
   std::pair<Amg::Vector3D, Amg::Vector3D > e0 =
     (d0->endsOfStrip(InDetDD::SiLocalPosition(lc0.y(),lc0.x(),0.))); 
-  if (annulus0) {
-    ATH_MSG_VERBOSE("Cluster 1 Strip End 1: ("<<e0.first.x()<<","<<e0.first.y()<<","<<e0.first.z()<<")");
-    ATH_MSG_VERBOSE("Cluster 1 Strip End 2: ("<<e0.second.x()<<","<<e0.second.y()<<","<<e0.second.z()<<")");
-  }
   std::pair<Amg::Vector3D, Amg::Vector3D > e1 =
     (d1->endsOfStrip(InDetDD::SiLocalPosition(lc1.y(),lc1.x(),0.))); 
-  if (annulus1) {
-    ATH_MSG_VERBOSE("Cluster 2 Strip End 1: ("<<e1.first.x()<<","<<e1.first.y()<<","<<e1.first.z()<<")");
-    ATH_MSG_VERBOSE("Cluster 2 Strip End 2: ("<<e1.second.x()<<","<<e1.second.y()<<","<<e1.second.z()<<")");
-  }
 
   Amg::Vector3D s0(.5*(e0.first+e0.second));
   Amg::Vector3D s1(.5*(e1.first+e1.second));

@@ -43,7 +43,7 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
   m_lengthBF(2. * waferCentreR * std::sin(stereoAngle*0.5)), // Eq. 5 p. 7
   m_usePC(usePC)
 {
-    REPORT_MESSAGE(MSG::DEBUG) << "StripStereoAnnulusDesign called with usePC=" << usePC << std::endl;
+    REPORT_MESSAGE(MSG::INFO) << "StripStereoAnnulusDesign called with usePC=" << usePC << std::endl;
 
     if (nRows < 0) {
         throw std::runtime_error(
@@ -172,14 +172,11 @@ const Trk::SurfaceBounds &StripStereoAnnulusDesign::bounds() const {
 }
 
 SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
-  REPORT_MESSAGE(MSG::VERBOSE) << "cellIdOfPosition("<<pos.xEta()<<","<<pos.xPhi()<<")\n";
-  
 //
 //    Find the row
 //
     double r = pos.r();
     if (r < m_stripStartRadius[0] || r >= m_stripEndRadius.back()) {
-      REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition (radius outside module), returning invalid SiCellId (r="<<r<<", inside="<<m_stripStartRadius[0]<<", outside = "<<m_stripEndRadius.back()<<")\n";
       return SiCellId(); // return an invalid id
     }
 
@@ -206,15 +203,12 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     double phiPrime = atan2(ySF, xSF); 
     int strip = floor(phiPrime / m_pitch[row]) + m_nStrips[row] / 2.0;
     if (strip < 0 || strip >= m_nStrips[row]) { // Outside
-      REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition (conversion to strip frame gave invalid strip), returning invalid SiCellId";
-      REPORT_MESSAGE( MSG::DEBUG ) << "Strip was "<<strip<<", max strip was "<<m_nStrips[row]<<", phiPrime="<<phiPrime<<"\n";
+      REPORT_MESSAGE( MSG::DEBUG ) << "Invalid SiLocalPosition, returning invalid SiCellId \n";
       return SiCellId(); // return an invalid id
     }
 
     int strip1D = strip1Dim(strip, row);
-    SiCellId cellID = SiCellId(strip1D, 0);
-    REPORT_MESSAGE(MSG::DEBUG) << "Cell ID ="<<cellID.word()<<"\n";
-    return cellID;
+    return SiCellId(strip1D, 0);
 }
 
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
@@ -317,17 +311,14 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfClusterPC(SiCellId cons
 
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStrip(SiLocalPosition const &pos) const {
-    REPORT_MESSAGE( MSG::VERBOSE ) << "endsOfStrip("<<pos.xEta()<<","<<pos.xPhi()<<")\n";
+
     SiCellId cellId = cellIdOfPosition(pos);
-    REPORT_MESSAGE( MSG::VERBOSE ) << "cellId: " << cellId.word() << "\n";
+
     int strip, row;
     getStripRow(cellId, &strip, &row);
 
     SiLocalPosition innerEnd = stripPosAtR(strip, row, m_stripStartRadius[row]);
     SiLocalPosition outerEnd = stripPosAtR(strip, row, m_stripEndRadius[row]);
-
-    REPORT_MESSAGE( MSG::DEBUG ) << "Inner End: "<<innerEnd.xEta()<<","<<innerEnd.xPhi()<<")\n";
-    REPORT_MESSAGE( MSG::DEBUG ) << "Outer End: "<<outerEnd.xEta()<<","<<outerEnd.xPhi()<<")\n";
 
     return pair<SiLocalPosition, SiLocalPosition>(innerEnd, outerEnd);
 }
