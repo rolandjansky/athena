@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesGroup.h"
@@ -13,8 +13,8 @@ double RatesCPS::getWeight() const {
   return (1. - m_weight) / m_coherentFactor;
 }
 
-RatesGroup::RatesGroup(const std::string& name, const MsgStream& log, const bool doHistograms, const bool doExtrapolation) :
-  RatesHistoBase(name, log, doHistograms),
+RatesGroup::RatesGroup(const std::string& name, IMessageSvc* msgSvc, const bool doHistograms, const bool doExtrapolation) :
+  RatesHistoBase(name, msgSvc, doHistograms),
   m_name(name),
   m_nameHash(std::hash<std::string>{}(name)),
   m_rateAccumulatorOR(0.),
