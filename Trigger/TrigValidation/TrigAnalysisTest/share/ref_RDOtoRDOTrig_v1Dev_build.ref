@@ -9091,11 +9091,11 @@ HLT_larpsall_L1J12_EMPTY:
 HLT_larpsall_L1J12_FIRSTEMPTY:
   eventCount: 0
 HLT_larpsall_L1J15:
-  eventCount: 13
+  eventCount: 19
   stepCounts:
-    0: 13
+    0: 19
   stepFeatures:
-    0: 13
+    0: 56
 HLT_larpsall_L1J30_EMPTY:
   eventCount: 0
 HLT_larpsall_L1J30_FIRSTEMPTY:
