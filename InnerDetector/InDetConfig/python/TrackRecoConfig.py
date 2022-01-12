@@ -337,6 +337,8 @@ def InDetTrackRecoCfg(flags):
 
     if flags.InDet.Tracking.doHighPileup:
         flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.HighPileupPass")
+    elif flags.InDet.Tracking.doRobustReco:
+        flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.RobustRecoPass")
 
     result.merge(TrackingSiPatternCfg(flags,
                                       InputCollections = [],

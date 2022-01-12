@@ -106,7 +106,7 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
                                                                                                               TRT_ClustersContainer = 'TRT_DriftCircles')) # InDetKeys.TRT_DriftCircles
             acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
 
-            if flags.Detector.EnableCalo and (flags.InDet.doCaloSeededTRTSegments or flags.InDet.Tracking.Pass.RoISeededBackTracking):
+            if flags.Detector.EnableCalo and flags.InDet.Tracking.Pass.RoISeededBackTracking:
                 from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
                 acc.merge(CaloClusterROI_SelectorCfg(flags))
                 kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)

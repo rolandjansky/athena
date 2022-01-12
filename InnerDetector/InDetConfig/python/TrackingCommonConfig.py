@@ -130,7 +130,7 @@ def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", *
     kwargs.setdefault("NNIBLcorrection", flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet")
     split_cluster_map_extension = flags.InDet.Tracking.Pass.extension if flags.InDet.Tracking.Pass.useTIDE_Ambi else ""
     kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
-    kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi)
+    kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.Tracking.doTIDE_Ambi)
 
     acc.setPrivateTools(CompFactory.InDet.PixelClusterOnTrackTool(the_name, **kwargs))
     return acc
@@ -280,8 +280,8 @@ def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
     for an_arg in  strip_args:
         kwargs.pop(an_arg, None)
 
-    use_broad_cluster_pix = flags.InDet.useBroadPixClusterErrors and (not flags.InDet.doDBMstandalone)
-    use_broad_cluster_sct = flags.InDet.useBroadSCTClusterErrors and (not flags.InDet.doDBMstandalone)
+    use_broad_cluster_pix = flags.InDet.Tracking.useBroadPixClusterErrors and (not flags.InDet.doDBMstandalone)
+    use_broad_cluster_sct = flags.InDet.Tracking.useBroadSCTClusterErrors and (not flags.InDet.doDBMstandalone)
 
     if 'ToolPixelCluster' not in kwargs :
         if use_broad_cluster_pix :
@@ -727,14 +727,14 @@ def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
         kwargs.setdefault('TRTExtensionCuts', False)
         kwargs.setdefault('TrackChi2PerNDFCut', 20)
 
-    if flags.InDet.useBroadClusterErrors and not flags.InDet.doDBMstandalone:
+    if (flags.InDet.Tracking.useBroadPixClusterErrors or flags.InDet.Tracking.useBroadSCTClusterErrors) and not flags.InDet.doDBMstandalone:
         kwargs.setdefault('RecalibrateSilicon', False)
 
-    if flags.InDet.doRobustReco:
+    if flags.InDet.Tracking.doRobustReco:
         kwargs.setdefault('OutlierCut', 10.0)
         kwargs.setdefault('TrackChi2PerNDFCut', 20)
 
-    if flags.InDet.doRobustReco or flags.Beam.Type == 'cosmics':
+    if flags.InDet.Tracking.doRobustReco or flags.Beam.Type == 'cosmics':
         kwargs.setdefault('MaxOutliers', 99)
 
     if flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamHalo:
@@ -831,7 +831,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     kwargs.setdefault("TRTTubeHitCut", 1.75)
     kwargs.setdefault("MaxIterations", 40)
     kwargs.setdefault("Acceleration", True)
-    kwargs.setdefault("RecalculateDerivatives", flags.InDet.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamHalo)
+    kwargs.setdefault("RecalculateDerivatives", flags.InDet.Tracking.doMinBias or flags.Beam.Type == 'cosmics' or flags.InDet.Tracking.doBeamHalo)
     kwargs.setdefault("TRTExtensionCuts", True)
     kwargs.setdefault("TrackChi2PerNDFCut", 7)
 
@@ -862,7 +862,7 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
     kwargs.setdefault("TrackChi2PerNDFCut", 999999)
     kwargs.setdefault("Momentum", 1000.*Units.MeV   if flags.InDet.Tracking.materialInteractions and not flags.BField.solenoidOn else  0)
     kwargs.setdefault("OutlierCut", 5)
-    kwargs.setdefault("MaxOutliers", 99 if flags.InDet.doRobustReco or flags.Beam.Type == 'cosmics' else 10)
+    kwargs.setdefault("MaxOutliers", 99 if flags.InDet.Tracking.doRobustReco or flags.Beam.Type == 'cosmics' else 10)
     kwargs.setdefault("ReintegrateOutliers", False)
 
     InDetGlobalChi2FitterBase = acc.popToolsAndMerge(InDetGlobalChi2FitterBaseCfg(flags, name=name, **kwargs))

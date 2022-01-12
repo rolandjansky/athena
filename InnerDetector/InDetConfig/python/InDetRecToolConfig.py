@@ -67,7 +67,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
 
   kwargs.setdefault("PixelToTPIDTool", None)
   kwargs.setdefault("TestBLayerTool", None)
-  kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi)
+  kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.Tracking.doTIDE_Ambi)
   kwargs.setdefault("DoSharedHits", False)
   kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
   kwargs.setdefault("useSCT", flags.Detector.EnableSCT)

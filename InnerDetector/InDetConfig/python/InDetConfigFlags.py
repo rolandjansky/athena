@@ -30,6 +30,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doSharedHits", True) # control if the shared hits are recorded in TrackPatricles
   icf.addFlag("InDet.Tracking.perigeeExpression", "BeamLine") # Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex)
   icf.addFlag("InDet.Tracking.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space
+  icf.addFlag("InDet.Tracking.doTIDE_Ambi", True) # Switch for running TIDE Ambi
   icf.addFlag("InDet.Tracking.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.Tracking.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
   icf.addFlag("InDet.Tracking.doHadCaloSeededSSS", False) # Use Recover SSS to Calo ROIs
@@ -41,6 +42,8 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.pixelClusterSplitProb2", lambda prevFlags: 0.5 if prevFlags.GeoModel.Run == 'RUN1' else 0.45) # Cut value for splitting clusters into three parts
   icf.addFlag("InDet.Tracking.useBeamSpotInfoNN", True) # use beam spot position in pixel NN
   icf.addFlag("InDet.Tracking.nnCutLargeD0Threshold", -1.0) # Enable check for dead modules and FEs
+  icf.addFlag("InDet.Tracking.useBroadPixClusterErrors", False) # Use broad cluster errors for Pixel
+  icf.addFlag("InDet.Tracking.useBroadSCTClusterErrors", False) # Use broad cluster errors for SCT
   icf.addFlag("InDet.Tracking.trtExtensionType", 'xk') # which extension type ("xk"/"DAF")
   icf.addFlag("InDet.Tracking.redoTRT_LR", True) # use smart TRT LR/tube hit creator and redo ROTs
   icf.addFlag("InDet.Tracking.doTRTPhaseCalculation", False) # control to run TRT phase calculation
@@ -66,20 +69,11 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doForwardTracks", True) # Turn running of doForwardTracks pass on and off
   icf.addFlag("InDet.Tracking.doTrackSegmentsDisappearing", True)
   icf.addFlag("InDet.Tracking.doBeamGas", False) # Turn running of BeamGas second pass on and off
+  icf.addFlag("InDet.Tracking.doMinBias", False) # Switch for running MinBias settings
+  icf.addFlag("InDet.Tracking.doRobustReco", False) # Switch for running Robust settings
+  icf.addFlag("InDet.Tracking.doInnerDetectorCommissioning", False) # Switch for running looser settings in ID for commissioning
 
 
-
-  icf.addFlag("InDet.useBroadClusterErrors", False) # Use broad cluster errors for Pixel/SCT
-  #TODO: useBroadPixClusterErrors and ...SCT... were set to none such that they print a warning if they're accessed without being set. None will be interpreted as False (same behavior as old config) but defaults cannot be None
-  icf.addFlag("InDet.useBroadPixClusterErrors", False) # Use broad cluster errors for Pixel
-  icf.addFlag("InDet.useBroadSCTClusterErrors", False) # Use broad cluster errors for SCT
-  icf.addFlag("InDet.doMinBias", False) # Switch for running MinBias settings
-  icf.addFlag("InDet.doRobustReco", False) # Switch for running Robust settings
-  icf.addFlag("InDet.useMBTSTimeDiff", False) # Switch for skipping background events based on MBTS time info
-  icf.addFlag("InDet.useNewSiSPSeededTF", False) # Switch for using new SiSPSeededTrackFinder strategy
-  icf.addFlag("InDet.doCaloSeededTRTSegments", False ) # Switch for running AOD to xAOD conversion algs
-  icf.addFlag("InDet.doInnerDetectorCommissioning", False) # Switch for running looser settings in ID for commissioning
-  icf.addFlag("InDet.doTIDE_Ambi", True) # Switch for running TIDE Ambi
   icf.addFlag("InDet.doRefitInvalidCov", False) # Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices.
   icf.addFlag("InDet.doSSSfilter", True) # Switch for running SSS filter
   icf.addFlag("InDet.ForceCoraCool", False) # Use old (non CoolVectorPayload) SCT Conditions
@@ -98,7 +92,7 @@ def createInDetConfigFlags():
     createLowPtTrackingPassFlags, createVeryLowPtTrackingPassFlags, createForwardTracksTrackingPassFlags, createBeamGasTrackingPassFlags, \
     createVtxLumiTrackingPassFlags, createVtxBeamSpotTrackingPassFlags, createCosmicsTrackingPassFlags, createHeavyIonTrackingPassFlags, \
     createPixelTrackingPassFlags, createDisappearingTrackingPassFlags, createSCTTrackingPassFlags, createTRTTrackingPassFlags, \
-    createTRTStandaloneTrackingPassFlags, createDBMTrackingPassFlags
+    createTRTStandaloneTrackingPassFlags, createDBMTrackingPassFlags, createRobustRecoTrackingPassFlags
 
   icf.addFlagsCategory ("InDet.Tracking.Pass", createTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.IBLPass", createIBLTrackingPassFlags, prefix=True)
@@ -121,6 +115,7 @@ def createInDetConfigFlags():
   icf.addFlagsCategory ("InDet.Tracking.TRTPass", createTRTTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.TRTStandalonePass", createTRTStandaloneTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.DBMPass", createDBMTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.RobustRecoPass", createRobustRecoTrackingPassFlags, prefix=True)
 
   from InDetConfig.VertexFindingFlags import createSecVertexingFlags, createEGammaPileUpSecVertexingFlags, createPriVertexingFlags
   icf.addFlagsCategory("InDet.PriVertex", createPriVertexingFlags, prefix=True)

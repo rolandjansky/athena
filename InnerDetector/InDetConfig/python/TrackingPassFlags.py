@@ -203,7 +203,7 @@ def createTrackingPassFlags():
 
     icf.addFlag("usePrdAssociationTool", False)
     icf.addFlag("isLowPt", False)
-    icf.addFlag("useTIDE_Ambi", True)
+    icf.addFlag("useTIDE_Ambi", lambda pcf: pcf.InDet.Tracking.doTIDE_Ambi)
 
     icf.addFlag("minPT", minPT_ranges )
     icf.addFlag("minSecondaryPt", minSecondaryPT_ranges ) #Pt cut for back tracking + segment finding for these
@@ -220,38 +220,22 @@ def createTrackingPassFlags():
     icf.addFlag("minClusters", lambda pcf:
                     3 if (pcf.Detector.EnablePixel and not pcf.Detector.EnableSCT) else
                     6  if (pcf.Detector.EnableSCT and not pcf.Detector.EnablePixel) else
-                    6 if pcf.InDet.doInnerDetectorCommissioning else
-                    7 if pcf.InDet.doRobustReco else
-                    minClusters_ranges( pcf ) ) # Igor 6, was 7
+                    6 if pcf.InDet.Tracking.doInnerDetectorCommissioning else
+                    minClusters_ranges( pcf ) )
 
     icf.addFlag("minSiNotShared", lambda pcf:
-                    5 if pcf.InDet.doInnerDetectorCommissioning else                    
+                    5 if pcf.InDet.Tracking.doInnerDetectorCommissioning else
                     6)
     
     icf.addFlag("maxShared", 1) # cut is now on number of shared modules
     icf.addFlag("minPixel", 0)
+    icf.addFlag("maxHoles", lambda pcf: maxHoles_ranges( pcf ) )
+    icf.addFlag("maxPixelHoles", lambda pcf: maxPixelHoles_ranges( pcf ) )
+    icf.addFlag("maxSctHoles", 2)
+    icf.addFlag("maxDoubleHoles", 1)
 
-    icf.addFlag("maxHoles", lambda pcf:
-                    5 if pcf.InDet.doRobustReco
-                    else maxHoles_ranges( pcf ) )
-
-    icf.addFlag("maxPixelHoles", lambda pcf:
-                    2 if pcf.InDet.doRobustReco else
-                    maxPixelHoles_ranges( pcf ) )
-    
-    icf.addFlag("maxSctHoles", lambda pcf:
-                    5 if pcf.InDet.doRobustReco else
-                    2) #was 5
-
-    icf.addFlag("maxDoubleHoles", lambda pcf:
-                    4 if pcf.InDet.doRobustReco else
-                    1) #was 2
-
-    icf.addFlag("maxPrimaryImpact", maxPrimaryImpact_ranges ) #low lumi
-    
-    icf.addFlag("maxZImpact", lambda pcf:
-                    500*Units.mm if pcf.InDet.doRobustReco else
-                    maxZImpact_ranges( pcf ) )
+    icf.addFlag("maxPrimaryImpact", maxPrimaryImpact_ranges )
+    icf.addFlag("maxZImpact", lambda pcf: maxZImpact_ranges( pcf ) )
 
     # --- this is for the TRT-extension
     icf.addFlag("minTRTonTrk", 9)
@@ -310,27 +294,15 @@ def createTrackingPassFlags():
     icf.addFlag("minSecondaryTRTonTrk"      , minSecondaryTRTonTrk_ranges)
     icf.addFlag("minSecondaryTRTPrecFrac"   , minSecondaryTRTPrecFrac_ranges)
     
-    icf.addFlag("maxSecondaryHoles"         , lambda pcf:
-                    5 if pcf.InDet.doRobustReco else
-                    maxSecondaryHoles_ranges( pcf ) )
-    
-    icf.addFlag("maxSecondaryPixelHoles"    , lambda pcf:
-                    5 if pcf.InDet.doRobustReco else
-                    maxSecondaryPixelHoles_ranges( pcf ))
-    
-    icf.addFlag("maxSecondarySCTHoles"      , lambda pcf:
-                    5 if pcf.InDet.doRobustReco else
-                    maxSecondarySCTHoles_ranges( pcf ) )
-    
-    icf.addFlag("maxSecondaryDoubleHoles"   , lambda pcf:
-                    2 if pcf.InDet.doRobustReco else
-                    maxSecondaryDoubleHoles_ranges( pcf ) )
-    
+    icf.addFlag("maxSecondaryHoles"         , lambda pcf: maxSecondaryHoles_ranges( pcf ) )
+    icf.addFlag("maxSecondaryPixelHoles"    , lambda pcf: maxSecondaryPixelHoles_ranges( pcf ))
+    icf.addFlag("maxSecondarySCTHoles"      , lambda pcf: maxSecondarySCTHoles_ranges( pcf ) )
+    icf.addFlag("maxSecondaryDoubleHoles"   , lambda pcf: maxSecondaryDoubleHoles_ranges( pcf ) )
     icf.addFlag("SecondarynHolesMax"        , 2 )
     icf.addFlag("SecondarynHolesGapMax"     , 2 )
 
     icf.addFlag("rejectShortExtensions"     , lambda pcf:
-                    False if pcf.InDet.doInnerDetectorCommissioning else
+                    False if pcf.InDet.Tracking.doInnerDetectorCommissioning else
                     rejectShortExtensions_ranges( pcf ) ) # extension finder in back tracking
                     
     icf.addFlag("SiExtensionCuts"           , SiExtensionCuts_ranges) # cut in Si Extensions before fit
@@ -365,24 +337,39 @@ def createTrackingPassFlags():
     icf.addFlag("TrkSel.TRTTrksMinTRTHitsThresholds"    , [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0])  # eta-dep nTRT for TRT conversion tracks (> 15 is applied elsewhere)
     icf.addFlag("TrkSel.TRTTrksMinTRTHitsMuDependencies", [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0])  # eta-dep nTRT, mu dependence for TRT conversion tracks
 
-    # --- ITk flags
-    icf.addFlag("useEtaDepCuts"             , False)
-    icf.addFlag("etaBins"                   , [-1.0, 4.0])
-    icf.addFlag("minPTSeed"                 , 0.9 * Units.GeV)
-    icf.addFlag("maxPrimaryImpactSeed"      , 2.0 * Units.mm)
-    icf.addFlag("maxZImpactSeed"            , 200.0 * Units.mm)
-
     return icf
 
+### RobustReco mode ####################
+def createRobustRecoTrackingPassFlags():
+    icf = createTrackingPassFlags()
+    icf.extension               = ""
+
+    icf.minClusters             = 7
+    icf.maxHoles                = 5
+    icf.maxPixelHoles           = 2
+    icf.maxSctHoles             = 5
+    icf.maxDoubleHoles          = 4
+
+    icf.maxZImpact              = 500*Units.mm
+
+    icf.maxSecondaryHoles       = 5
+    icf.maxSecondaryPixelHoles  = 5
+    icf.maxSecondarySCTHoles    = 5
+    icf.maxSecondaryDoubleHoles = 2
 
 ### ITk mode ####################
 def createITkTrackingPassFlags():
     icf = createTrackingPassFlags()   
     icf.extension               = ""
 
-    icf.useEtaDepCuts           = True
+    # --- ITk flags
+    icf.addFlag("useEtaDepCuts"             , True)
+    icf.addFlag("etaBins"                   , [-1.0, 2.0, 2.6, 4.0])
+    icf.addFlag("minPTSeed"                 , 0.9 * Units.GeV)
+    icf.addFlag("maxPrimaryImpactSeed"      , 2.0 * Units.mm)
+    icf.addFlag("maxZImpactSeed"            , 200.0 * Units.mm)
+
     icf.maxEta                  = 4.0
-    icf.etaBins                 = [-1.0, 2.0, 2.6, 4.0]
     icf.minPT                   = [0.9 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
 
     # --- cluster cuts
@@ -396,9 +383,6 @@ def createITkTrackingPassFlags():
     icf.maxDoubleHoles          = [1]
     icf.maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm]
     icf.maxZImpact              = [200.0 * Units.mm]
-    icf.minPTSeed               = 0.9 * Units.GeV
-    icf.maxPrimaryImpactSeed    = 2.0 * Units.mm
-    icf.maxZImpactSeed          = 200.0 * Units.mm
 
     # --- general pattern cuts for NewTracking
     icf.nHolesMax               = icf.maxHoles
@@ -645,7 +629,7 @@ def createLowPtTrackingPassFlags():
     icf.extension        = "LowPt"
     icf.usePrdAssociationTool = True
     icf.isLowPt          = True
-    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.doMinBias else pcf.InDet.Tracking.Pass.minPT + 0.3) * Units.GeV
+    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.Tracking.doMinBias else pcf.InDet.Tracking.Pass.minPT + 0.3) * Units.GeV
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 5
     icf.minSiNotShared   = 4
@@ -658,7 +642,7 @@ def createLowPtTrackingPassFlags():
     icf.radMax           = 600. * Units.mm
     icf.nHolesMax        = icf.maxHoles
     icf.nHolesGapMax     = icf.maxHoles # not as tight as 2*maxDoubleHoles
-    icf.maxPrimaryImpact = lambda pcf: 100.0 * Units.mm if pcf.InDet.doMinBias else maxPrimaryImpact_ranges( pcf ) 
+    icf.maxPrimaryImpact = lambda pcf: 100.0 * Units.mm if pcf.InDet.Tracking.doMinBias else maxPrimaryImpact_ranges( pcf )
     
     return icf
 
@@ -703,7 +687,7 @@ def createVeryLowPtTrackingPassFlags():
     icf.extension        = "VeryLowPt"
     icf.usePrdAssociationTool = True
     icf.isLowPt          = True
-    icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.doMinBias  else  pcf.InDet.Tracking.Pass.minPT + 0.3) * Units.GeV # some overlap
+    icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.Tracking.doMinBias  else  pcf.InDet.Tracking.Pass.minPT + 0.3) * Units.GeV # some overlap
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 3
     icf.minSiNotShared   = 3
@@ -865,14 +849,14 @@ def createHeavyIonTrackingPassFlags():
 def createPixelTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension        = "Pixel"
-    icf.isLowPt          = lambda pcf : pcf.doMinBias
+    icf.isLowPt          = lambda pcf : pcf.Tracking.doMinBias
 
     def _minPt( pcf ):
         if pcf.Beam.Type == "cosmics":
             return 0.5 * Units.GeV
         if pcf.Reco.EnableHI:
             return 0.1 * Units.GeV
-        if pcf.InDet.doMinBias:
+        if pcf.InDet.Tracking.doMinBias:
             if pcf.InDet.doHIP300:
                 return 0.300 * Units.GeV
             else:
@@ -950,10 +934,11 @@ def createSCTTrackingPassFlags():
         def _internal( pcf ):
             if pcf.Beam.Type == "cosmics":
                 return cosmics
-            if pcf.InDet.doMinBias and pcf.InDet.doHIP300:
-                return hion
-            if pcf.InDet.doMinBias and not pcf.InDet.doHIP300:
-                minbias                
+            if pcf.InDet.Tracking.doMinBias:
+                if pcf.InDet.doHIP300:
+                    return hion
+                else:
+                    return minbias
             return default
         return _internal
 
@@ -971,9 +956,9 @@ def createSCTTrackingPassFlags():
     icf.seedFilterLevel  = lambda pcf: 3 if pcf.Beam.Type == "cosmics" else 2
     icf.Xi2max           = lambda pcf: 60.0 if pcf.Beam.Type == "cosmics" else Xi2max_ranges( pcf )
     icf.Xi2maxNoAdd      = lambda pcf: 100.0 if pcf.Beam.Type == "cosmics" else Xi2maxNoAdd_ranges( pcf )
-    icf.nWeightedClustersMin = lambda pcf: 4 if pcf.InDet.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else 6    
-    icf.minClusters      = lambda pcf: 4 if pcf.InDet.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else minClusters_ranges( pcf ) 
-    icf.minSiNotShared   = lambda pcf: 4 if pcf.InDet.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else 5
+    icf.nWeightedClustersMin = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else 6
+    icf.minClusters      = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else minClusters_ranges( pcf )
+    icf.minSiNotShared   = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type == "cosmics" else 5
     
     return icf
 
