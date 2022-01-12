@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,10 +13,8 @@
 
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/DecisionObjectHandle.h"
-#include "TrigDecisionTool/EventPtrDef.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include <string>
@@ -29,17 +27,15 @@ namespace Trig {
   /**
    * @brief Decision invalidator for Athena (really doing the job)
    **/
-  class DecisionObjectHandleAthena : public DecisionObjectHandle<TrigDec::TrigDecision,TrigDec::TrigDecision>, 
-				     public DataHandle<TrigDec::TrigDecision>
+  class DecisionObjectHandleAthena : public DecisionObjectHandle<TrigDec::TrigDecision,TrigDec::TrigDecision>
   {
   public:
     DecisionObjectHandleAthena( SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey );
-    virtual void reset (bool hard = false) override;
+    virtual void reset (bool hard = false);
     virtual TrigDec::TrigDecision const * getDecision() const override;
     virtual TrigDec::TrigDecision const * getNavigation() const override;
   private:
-      SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecKey;
-    mutable TrigDec::TrigDecision const * m_object;
+    SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecKey;
   };
 }
 #endif // TrigDecisionTool_DecisionObjectHandle_h

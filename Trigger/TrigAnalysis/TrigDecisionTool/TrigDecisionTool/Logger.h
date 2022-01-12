@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigDecisionTool_Logger_h
 #define TrigDecisionTool_Logger_h
 
 #include "AsgTools/AsgTool.h"
+#include "CxxUtils/checker_macros.h"
 #include <stdexcept>
 
 namespace Trig{
@@ -33,7 +34,8 @@ namespace Trig{
     bool msgLvl(const MSG::Level lvl) const { return s_logger && s_logger->msgLvl(lvl); }
 
   private:
-    inline static asg::AsgTool* s_logger{nullptr};
+    // we rely on the AsgTool logging being thread-safe
+    inline static asg::AsgTool* s_logger ATLAS_THREAD_SAFE {nullptr};
   };
 }
 
