@@ -1152,6 +1152,7 @@ namespace top {
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
+    std::string const& muonCalibMode() const {return m_muonCalibMode;}
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
     inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
 
@@ -2550,6 +2551,7 @@ namespace top {
     std::string m_muonIsolationSFLoose;
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
+    std::string m_muonCalibMode; // calibration mode for the muon calibration tool
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
     bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model

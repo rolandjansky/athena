@@ -325,6 +325,15 @@ namespace top {
                  "Failed to set doExtraSmearing for " + name + " tool");
       top::check(asg::setProperty(tool, "do2StationsHighPt", do2StationsHighPt),
                  "Failed to set do2StationsHighPt for " + name + " tool");
+      CP::MuonCalibrationPeriodTool::CalibMode calibMode = CP::MuonCalibrationPeriodTool::CalibMode::noOption;
+      if (m_config->muonCalibMode() == "correctData_CB")
+	calibMode = CP::MuonCalibrationPeriodTool::CalibMode::correctData_CB;
+      else if (m_config->muonCalibMode() == "correctData_IDMS")
+	calibMode = CP::MuonCalibrationPeriodTool::CalibMode::correctData_IDMS;
+      else if (m_config->muonCalibMode() == "notCorrectData_IDMS")
+	calibMode = CP::MuonCalibrationPeriodTool::CalibMode::notCorrectData_IDMS;
+      top::check(asg::setProperty(tool, "calibrationMode", calibMode),
+		 "Failed to set calibrationMode for " + name + " tool");
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }
