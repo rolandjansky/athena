@@ -84,16 +84,16 @@ def defineInputsMenu():
         "legacy" : False,
         "thresholds" : [  # Topo1A: eFex EM, eFex TAU, gJ, gLJ 
             # eEM thresholds for commissioning
-            ('eEM3',3), ('eEM5',3), ('eEM7',3), ('eEM8L',3), 
+            ('eEM5',3), ('eEM7',3), ('eEM9',3), ('eEM10L',3), 
 
             (None,3), (None,3), (None,3), (None,3), 
 
-            'eEM10L', 'eEM12', 'eEM15', 'eEM15L', 'eEM15M',
-            'eEM18M', 'eEM20L', 
+            'eEM12L', 'eEM15', 'eEM18', 'eEM18L', 'eEM18M',
+            'eEM22M', 'eEM24L', 
             'eEMSPARE1', 'eEMSPARE2', 'eEMSPARE3',
 
             # variable eEM  thresholds
-            'eEM20VM', 'eEM22', 'eEM22L', 'eEM22M', 'eEM22T', 'eEM24M', 
+            'eEM24VM', 'eEM26', 'eEM26L', 'eEM26M', 'eEM26T', 'eEM28M', 
 
             # eEM thresholds for production      
             'eEMSPARE4', 'eEMSPARE5', 'eEMSPARE6', 'eEMSPARE7', 
@@ -109,13 +109,13 @@ def defineInputsMenu():
         "legacy" : False,
         "thresholds" : [ # Topo1A: eFex EM, eFex TAU, gJ, gLJ
             # eTAU thresholds for commissioning
-            ('eTAU8',3), ('eTAU12',3), ('eTAUSPARE1',3), 
+            ('eTAU12',3), ('eTAU20',3), ('eTAUSPARE1',3), 
 
             (None,3),
 
-            'eTAU12L', 'eTAU12M', 'eTAU20',
-            'eTAU25', 'eTAU40', 'eTAU60', 'eTAU100',
-            'eTAU30HM', 
+            'eTAU20L', 'eTAU20M', 'eTAU30',
+            'eTAU35', 'eTAU60', 'eTAU80', 'eTAU140',
+            'eTAU40HM', 
          
             # eTAU thresholds for production
             'eTAUSPARE2', 'eTAUSPARE3', 'eTAUSPARE4', 'eTAUSPARE5', 'eTAUSPARE6', 'eTAUSPARE7',
@@ -195,11 +195,11 @@ def defineInputsMenu():
             None, 
 
             # cTAU thresholds for commissioning
-            ('cTAU12M',3), ('cTAUSPARE1',3), 
+            ('cTAU20M',3), ('cTAUSPARE1',3), 
 
             (None,3),
 
-            'cTAU20M', 'cTAU25M', 
+            'cTAU30M', 'cTAU35M', 
             # cTAU thresholds for production
             'cTAUSPARE2',
 
