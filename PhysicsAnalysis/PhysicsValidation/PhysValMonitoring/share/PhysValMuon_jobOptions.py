@@ -63,10 +63,10 @@ tool1.SelectL1MuonItems = [
 ]
 
 #Select Muon Working Points... (empty: all, -1: None, 0: Tight, 1: Medium, 2: Loose, 3: VeryLoose)
-tool1.SelectMuonWorkingPoints = [ 1 ]
+tool1.SelectMuonWorkingPoints = [0, 1, 2 ]
 
-#Select Muon Authors... (empty: all authors, 0: None, 1: combined, 2: STACO, 4: MuTagIMO, 5: Standalone, 6: MuGirl, 8: CaloTag)
-tool1.SelectMuonAuthors = [ 1, 2, 4 ,5, 6, 8, 9 ]
+#Select Muon Authors... (empty: all authors, 0: None, 1: combined, 2: STACO, 4: MuTagIMO, 5: Standalone, 6: MuGirl, 8: CaloTag, 10: CaloScore)
+tool1.SelectMuonAuthors = [ 1, 2, 4, 5, 6, 8, 10 ]
 
 #Select Muon Categories... (origin of muons, empty: all categories, 0: ALL, 1: PROMPT, 2: IN-FLIGHT, 3: NON-ISOLATED, 4: REST)
 tool1.SelectMuonCategories = [ 0, 1 ] # lighter version, good for official validation tasks overriden when in data mode
