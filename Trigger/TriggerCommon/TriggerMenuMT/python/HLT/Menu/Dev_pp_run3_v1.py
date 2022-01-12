@@ -476,13 +476,19 @@ def setupMenu():
         # Emerging Jets test chains ATR-21593
 
         # primary emerging jets chain
-        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p08dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
 
         # backup emerging jets chains to be used for rate refinement in enhanced bias reprocessing
-        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p09dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p1dR1p2_L1J100',  groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p08dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
-        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p08dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p075dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_emergingPTF0p075dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p07dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_emergingPTF0p07dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_preselj200_emergingPTF0p075dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_preselj200_emergingPTF0p075dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_preselj200_emergingPTF0p07dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_preselj200_emergingPTF0p07dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+
 
         # primary dijet emerging jets chain
         ChainProp(name='HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
