@@ -133,7 +133,7 @@ StatusCode RpcTrackAnaAlg::initTrigTag()
     TString tagTrig = tagList->At(i)->GetName();
     if(alllist.find(tagTrig)!=alllist.end())continue;
     alllist.insert(tagTrig);
-    TObjArray* arr = tagTrig.Tokenize(";");
+    std::unique_ptr<TObjArray> arr(tagTrig.Tokenize(";"));
     if(arr->GetEntries()==0)continue;
     TagDef def;
     def.eventTrig = TString(arr->At(0)->GetName());
