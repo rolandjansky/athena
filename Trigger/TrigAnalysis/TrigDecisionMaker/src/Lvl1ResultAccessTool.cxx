@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Lvl1ResultAccessTool.h"
@@ -8,7 +8,7 @@
 #include "CTPfragment/CTPdataformatVersion.h"
 
 #include "TrigConfData/L1Menu.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 
 

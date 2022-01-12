@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
@@ -15,7 +15,7 @@
 #include "xAODTrigger/TrigPassBits.h"
 #include "xAODTrigger/TriggerMenuContainer.h"
 #include "TrigNavStructure/TriggerElement.h"
-#include "TrigConfHLTData/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "AthContainers/debug.h"
 #include "xAODJet/JetContainer.h"
