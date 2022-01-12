@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
@@ -99,7 +99,7 @@ StoreGateSvc::setConst(const void* pObject) {
 
 /// DEPRECATED, use version taking ref to vector
 std::vector<std::string> //FIXME inefficient. Should take ref to vector
-StoreGateSvc::keys(const CLID& id, bool allKeys){
+StoreGateSvc::keys(const CLID& id, bool allKeys) const {
   std::vector<std::string> nullV;
   _SGXCALL( keys, (id, allKeys), nullV );
 }
@@ -372,7 +372,7 @@ StoreGateSvc::setStoreID(StoreID::type id)
 
 void
 StoreGateSvc::keys(const CLID& id, std::vector<std::string>& vkeys, 
-                   bool includeAlias, bool onlyValid) 
+                   bool includeAlias, bool onlyValid) const
 { 
   _SGVOIDCALL(keys,(id, vkeys, includeAlias, onlyValid));
 } 
