@@ -295,7 +295,7 @@ StatusCode jFEXFPGA::execute(jFEXOutputCollection* inputOutputCollection) {
                     m_SRJet_tobwords.push_back( SRtob_aux);
                     
                     //Creating LR TOB
-                    uint32_t LRJet_tobword = formLargeRJetTOB(mphi, meta);
+                    uint32_t LRJet_tobword = formLargeRJetTOB(mphi_LM, meta_LM);
                     std::vector<uint32_t> LRtob_aux{LRJet_tobword,(uint32_t) m_jTowersIDs_Thin[mphi_LM][meta_LM]};
                     if ( LRJet_tobword != 0 ) m_LRJet_tobwords.push_back(LRtob_aux);
                 }
