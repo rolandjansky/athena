@@ -185,7 +185,7 @@ pdr.flag_domain('eflow')
 from eflowRec.eflowRecFlags import jobproperties
 if recAlgs.doEFlow() and jobproperties.eflowRecFlags.usePFFlowElementAssoc:
     try:
-        from eflowRec.PFRun3Config import PFTauFlowElementLinkingCfg
+        from eflowRec.PFCfg import PFTauFlowElementLinkingCfg
         CAtoGlobalWrapper(PFTauFlowElementLinkingCfg,ConfigFlags)        
     except Exception:
         treatException("Could not set up tau-FE links")
