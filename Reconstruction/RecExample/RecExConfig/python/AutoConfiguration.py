@@ -654,6 +654,15 @@ def ConfigureInputType():
         streamsName=[]
         if 'processingTags' in metadata:
             streamsName = metadata['processingTags']
+        
+        try:
+            if metadata['FileMetaData']['dataType'] not in streamsName:
+                streamsName.append(metadata['FileMetaData']['dataType'])
+        except KeyError:
+            logAutoConfiguration.warning(
+                'Input FileMetaData is missing dataType field'
+            )
+
         if streamsName is None:
             streamsName=[]
         logAutoConfiguration.info("Extracted streams %s from input file ", streamsName )
@@ -696,7 +705,7 @@ def ConfigureInputType():
         rec.doAOD=False
         rec.doESD=False
         logAutoConfiguration.info ("setting rec.readAOD=%s ",rec.readAOD() )
-    elif ItemInListStartsWith ("StreamESD", streamsName) or ItemInListStartsWith('StreamDESD',streamsName) or ItemInListStartsWith('StreamD2ESD',streamsName) or OverlapLists(streamsName,listESDtoDPD) or ItemInListStartsWith('DESD',streamsName) or ItemInListStartsWith('D2ESD',streamsName):
+    elif ItemInListStartsWith("StreamESD", streamsName) or ItemInListStartsWith('StreamDESD',streamsName) or ItemInListStartsWith('StreamD2ESD',streamsName) or OverlapLists(streamsName,listESDtoDPD) or ItemInListStartsWith('DESD',streamsName) or ItemInListStartsWith('D2ESD',streamsName):
         logAutoConfiguration.info("Input ESD detected")   
         rec.readRDO=False
         rec.readESD=True
@@ -888,12 +897,22 @@ def ConfigureSimulationOrRealData():
     from PyUtils.MetaReaderPeeker import metadata
     whatIsIt="N/A"
     try:
-        whatIsIt = metadata['eventTypes'][0]
+        if metadata['nentries']:
+            whatIsIt = metadata['eventTypes'][0]
+        else:
+            if ('/Generation/Parameters' in metadata['metadata_items'] or
+                '/Simulation/Parameters' in metadata['metadata_items'] or
+                '/Digitization/Parameters' in metadata['metadata_items']):
+                whatIsIt = 'IS_SIMULATION'
+            elif ('ByteStreamMetadataContainer_p1_ByteStreamMetadata' in metadata['metadata_items'] or
+                  'ByteStreamMetadata' in metadata['metadata_items']):
+                whatIsIt = 'IS_DATA'
+            # This is used all over the place later ... so set it at least
+            metadata['eventTypes'] = [whatIsIt]
     except Exception:
         if metadata['nentries'] == 0:
             logAutoConfiguration.error("Input file has no events: unable to configure SimulationOrRealData.")
             return
-        pass
             
     if whatIsIt=='IS_DATA':
         logAutoConfiguration.info('Input file is real data.')
