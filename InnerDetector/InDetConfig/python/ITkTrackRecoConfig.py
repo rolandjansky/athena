@@ -224,7 +224,7 @@ def ITkTrackRecoCfg(flags):
     result.merge(ITkRecPreProcessingSiliconCfg(flags))
 
     if flags.ITk.Tracking.doFastTracking:
-        flags = flags.cloneAndReplace("ITk.Tracking.Pass", "ITk.Tracking.FastPass")
+        flags = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.FastPass")
 
     from InDetConfig.ITkTrackingSiPatternConfig import ITkTrackingSiPatternCfg
     result.merge(ITkTrackingSiPatternCfg(flags,
@@ -236,9 +236,9 @@ def ITkTrackRecoCfg(flags):
 
     # LRT
     if flags.ITk.Tracking.doLargeD0:
-        flagsLRT = flags.cloneAndReplace("ITk.Tracking.Pass", "ITk.Tracking.LargeD0Pass")
+        flagsLRT = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.LargeD0Pass")
         if flags.ITk.Tracking.doFastTracking:
-            flagsLRT = flags.cloneAndReplace("ITk.Tracking.Pass", "ITk.Tracking.LargeD0FastPass")
+            flagsLRT = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.LargeD0FastPass")
 
         LRTTrackContainer = "ResolvedLargeD0Tracks"
         result.merge(ITkTrackingSiPatternCfg(flagsLRT,
@@ -246,7 +246,7 @@ def ITkTrackRecoCfg(flags):
                                              ResolvedTrackCollectionKey = LRTTrackContainer,
                                              SiSPSeededTrackCollectionKey = "SiSpSeededLargeD0Tracks",
                                              ClusterSplitProbContainer = ClusterSplitProbContainer))
-        ClusterSplitProbContainerLargeD0 = "ITkAmbiguityProcessorSplitProb" + flagsLRT.ITk.Tracking.Pass.extension
+        ClusterSplitProbContainerLargeD0 = "ITkAmbiguityProcessorSplitProb" + flagsLRT.ITk.Tracking.ActivePass.extension
 
         if flags.ITk.Tracking.storeSeparateLargeD0Container:
             if flags.ITk.Tracking.doTruth:
@@ -265,14 +265,14 @@ def ITkTrackRecoCfg(flags):
 
     # Photon conversion tracking reco
     if flags.Detector.EnableCalo and flags.ITk.Tracking.doConversionFinding:
-        flagsConv = flags.cloneAndReplace("ITk.Tracking.Pass", "ITk.Tracking.ConversionFindingPass")
+        flagsConv = flags.cloneAndReplace("ITk.Tracking.ActivePass", "ITk.Tracking.ConversionFindingPass")
         result.merge(ITkTrackingSiPatternCfg(flagsConv,
                                              InputCollections = InputCombinedITkTracks,
                                              ResolvedTrackCollectionKey = "ResolvedROIConvTracks",
                                              SiSPSeededTrackCollectionKey = "SiSpSeededROIConvTracks",
                                              ClusterSplitProbContainer = ClusterSplitProbContainer))
         InputCombinedITkTracks += ["ResolvedROIConvTracks"]
-        ClusterSplitProbContainer = "ITkAmbiguityProcessorSplitProb"+flagsConv.ITk.Tracking.Pass.extension
+        ClusterSplitProbContainer = "ITkAmbiguityProcessorSplitProb"+flagsConv.ITk.Tracking.ActivePass.extension
 
     result.merge(ITkTrackCollectionMergerAlgCfg(flags, InputCombinedTracks=InputCombinedITkTracks))
 

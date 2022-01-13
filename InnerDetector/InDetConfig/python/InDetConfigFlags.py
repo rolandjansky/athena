@@ -90,7 +90,7 @@ def createInDetConfigFlags():
     createPixelTrackingPassFlags, createDisappearingTrackingPassFlags, createSCTTrackingPassFlags, createTRTTrackingPassFlags, \
     createTRTStandaloneTrackingPassFlags, createDBMTrackingPassFlags, createRobustRecoTrackingPassFlags
 
-  icf.addFlagsCategory ("InDet.Tracking.Pass", createTrackingPassFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.Tracking.ActivePass", createTrackingPassFlags, prefix=True) # Set up for first tracking pass, updated for second passes
   icf.addFlagsCategory ("InDet.Tracking.HighPileupPass", createHighPileupTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.MinBiasPass", createMinBiasTrackingPassFlags, prefix=True)
   icf.addFlagsCategory ("InDet.Tracking.LargeD0Pass", createLargeD0TrackingPassFlags, prefix=True)

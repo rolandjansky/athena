@@ -126,7 +126,7 @@ def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", *
     kwargs.setdefault("DisableDistortions", flags.InDet.Tracking.doDBMstandalone)
     kwargs.setdefault("applyNNcorrection", flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet")
     kwargs.setdefault("NNIBLcorrection", flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet")
-    split_cluster_map_extension = flags.InDet.Tracking.Pass.extension if flags.InDet.Tracking.Pass.useTIDE_Ambi else ""
+    split_cluster_map_extension = flags.InDet.Tracking.ActivePass.extension if flags.InDet.Tracking.ActivePass.useTIDE_Ambi else ""
     kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
     kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.Tracking.doTIDE_Ambi)
 
@@ -356,7 +356,7 @@ def InDetTRTDriftCircleCutForPatternRecoCfg(flags, name='InDetTRTDriftCircleCutF
     the_name = makeName( name, kwargs)
     result = ComponentAccumulator()
     kwargs.setdefault("MinOffsetDCs", 5)
-    kwargs.setdefault("UseNewParameterization", flags.InDet.Tracking.Pass.useNewParameterizationTRT)
+    kwargs.setdefault("UseNewParameterization", flags.InDet.Tracking.ActivePass.useNewParameterizationTRT)
     kwargs.setdefault("UseActiveFractionSvc", flags.Detector.EnableTRT)
     result.setPrivateTools(CompFactory.InDet.InDetTrtDriftCircleCutTool(the_name, **kwargs))
     return result
@@ -708,7 +708,7 @@ def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
 
     pix_cluster_on_track_args = stripArgs(kwargs,['ClusterSplitProbabilityName','nameSuffix'])
     # PHF cut during fit iterations to save CPU time
-    kwargs.setdefault('MinPHFCut', flags.InDet.Tracking.Pass.minTRTPrecFrac)
+    kwargs.setdefault('MinPHFCut', flags.InDet.Tracking.ActivePass.minTRTPrecFrac)
 
     if 'RotCreatorTool' not in kwargs :
         InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags, **pix_cluster_on_track_args))
@@ -1033,14 +1033,14 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
     kwargs.setdefault("TRT_ClustersContainer", "TRT_DriftCircles")
     kwargs.setdefault("TrtManagerLocation", "TRT")
     kwargs.setdefault("UseDriftRadius", not flags.InDet.noTRTTiming)
-    kwargs.setdefault("MinNumberDriftCircles", flags.InDet.Tracking.Pass.minTRTonTrk)
+    kwargs.setdefault("MinNumberDriftCircles", flags.InDet.Tracking.ActivePass.minTRTonTrk)
     kwargs.setdefault("ScaleHitUncertainty", 2)
     kwargs.setdefault("RoadWidth", 20.)
-    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.Pass.useParameterizedTRTCuts)
+    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.ActivePass.useParameterizedTRTCuts)
     kwargs.setdefault("maxImpactParameter", 500 if flags.InDet.Tracking.doBeamGas else 50 )  # single beam running, open cuts
 
-    if flags.InDet.Tracking.Pass.RoISeededBackTracking:
-        kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.Pass.minSecondaryPt)
+    if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
+        kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.ActivePass.minSecondaryPt)
 
     acc.merge(TRT_DetElementsRoadCondAlgCfg(flags))
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
@@ -1171,10 +1171,10 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
-    kwargs.setdefault("maxZImp", flags.InDet.Tracking.Pass.maxZImpact )
-    kwargs.setdefault("maxEta", flags.InDet.Tracking.Pass.maxEta )
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.Pass.usePixel )
-    kwargs.setdefault("useSCT", flags.InDet.Tracking.Pass.useSCT )
+    kwargs.setdefault("maxZImp", flags.InDet.Tracking.ActivePass.maxZImpact )
+    kwargs.setdefault("maxEta", flags.InDet.Tracking.ActivePass.maxEta )
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel )
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT )
     kwargs.setdefault("doEmCaloSeed", have_calo_rois )
     acc.setPrivateTools(CompFactory.InDet.InDetAmbiScoringTool(name, **kwargs))
     return acc
@@ -1185,7 +1185,7 @@ def InDetCosmicsScoringToolBaseCfg(flags, name='InDetCosmicsScoringTool', **kwar
 
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
 
-    kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.Pass.nWeightedClustersMin )
+    kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.ActivePass.nWeightedClustersMin )
     kwargs.setdefault("minTRTHits", 0 )
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
 
@@ -1206,7 +1206,7 @@ def InDetTRT_ExtensionToolPhaseCfg(flags, name='InDetTRT_ExtensionToolPhase', **
 def InDetCosmicExtenScoringToolCfg(flags, name='InDetCosmicExtenScoringTool',**kwargs) :
     acc = ComponentAccumulator()
     kwargs.setdefault("nWeightedClustersMin", 0)
-    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.Pass.minTRTonTrk )
+    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.ActivePass.minTRTonTrk )
     acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicsScoringToolBaseCfg(flags, name = 'InDetCosmicExtenScoringTool', **kwargs)))
     return acc
 
@@ -1245,7 +1245,7 @@ def InDetCosmicScoringTool_TRTCfg(flags, name='InDetCosmicExtenScoringTool',**kw
     acc = ComponentAccumulator()
     InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(InDetTrackSummaryToolNoHoleSearchCfg(flags))
 
-    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.Pass.minSecondaryTRTonTrk)
+    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
     kwargs.setdefault("SummaryTool", InDetTrackSummaryToolNoHoleSearch)
 
     acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicExtenScoringToolCfg(flags,
@@ -1257,15 +1257,15 @@ def InDetTRT_SeededScoringToolCfg(flags, name='InDetTRT_SeededScoringTool', **kw
 
     kwargs.setdefault("useAmbigFcn", False)
     kwargs.setdefault("useTRT_AmbigFcn", True)
-    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.Pass.minSecondaryTRTonTrk)
-    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.Pass.minSecondaryTRTPrecFrac)
-    kwargs.setdefault("minPt", flags.InDet.Tracking.Pass.minSecondaryPt)
-    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.Pass.maxSecondaryImpact)
-    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.Pass.minSecondaryClusters)
-    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.Pass.maxSecondaryHoles)
-    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.Pass.maxSecondaryPixelHoles)
-    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.Pass.maxSecondarySCTHoles)
-    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.Pass.maxSecondaryDoubleHoles)
+    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.ActivePass.minSecondaryTRTonTrk)
+    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.ActivePass.minSecondaryTRTPrecFrac)
+    kwargs.setdefault("minPt", flags.InDet.Tracking.ActivePass.minSecondaryPt)
+    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.ActivePass.maxSecondaryImpact)
+    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.ActivePass.minSecondaryClusters)
+    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.ActivePass.maxSecondaryHoles)
+    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.ActivePass.maxSecondaryPixelHoles)
+    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.ActivePass.maxSecondarySCTHoles)
+    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.ActivePass.maxSecondaryDoubleHoles)
 
     acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolBaseCfg(flags, name=name, **kwargs)))
     return acc
@@ -1280,15 +1280,15 @@ def InDetAmbiScoringToolCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("minTRTonTrk", 0 )
     kwargs.setdefault("minTRTPrecisionFraction", 0 )
-    kwargs.setdefault("minPt", flags.InDet.Tracking.Pass.minPT )
-    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.Pass.maxPrimaryImpact )
-    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.Pass.minClusters )
-    kwargs.setdefault("minPixel", flags.InDet.Tracking.Pass.minPixel )
-    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.Pass.maxHoles )
-    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.Pass.maxPixelHoles )
-    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.Pass.maxSctHoles )
-    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.Pass.maxDoubleHoles )
-    acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolBaseCfg(flags, name + flags.InDet.Tracking.Pass.extension, **kwargs)))
+    kwargs.setdefault("minPt", flags.InDet.Tracking.ActivePass.minPT )
+    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.ActivePass.maxPrimaryImpact )
+    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.ActivePass.minClusters )
+    kwargs.setdefault("minPixel", flags.InDet.Tracking.ActivePass.minPixel )
+    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.ActivePass.maxHoles )
+    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.ActivePass.maxPixelHoles )
+    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.ActivePass.maxSctHoles )
+    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.ActivePass.maxDoubleHoles )
+    acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolBaseCfg(flags, name + flags.InDet.Tracking.ActivePass.extension, **kwargs)))
     return acc
 
 def InDetAmbiScoringToolSiCfg(flags, name='InDetAmbiScoringToolSi', **kwargs) :
@@ -1299,8 +1299,8 @@ def InDetExtenScoringToolCfg(flags, name='InDetExtenScoringTool', **kwargs) :
     acc = ComponentAccumulator()
     if flags.InDet.Tracking.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
         kwargs.setdefault("minTRTPrecisionFraction", 0.2)
-    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.Pass.minTRTonTrk)
-    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.Pass.minTRTPrecFrac)
+    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.ActivePass.minTRTonTrk)
+    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.ActivePass.minTRTPrecFrac)
     acc.setPrivateTools(acc.popToolsAndMerge(InDetAmbiScoringToolCfg(flags, name = name,  **kwargs)))
     return acc
 
@@ -1355,10 +1355,10 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
-    kwargs.setdefault("maxZImp", flags.InDet.Tracking.Pass.maxZImpact )
-    kwargs.setdefault("maxEta", flags.InDet.Tracking.Pass.maxEta )
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.Pass.usePixel )
-    kwargs.setdefault("useSCT", flags.InDet.Tracking.Pass.useSCT )
+    kwargs.setdefault("maxZImp", flags.InDet.Tracking.ActivePass.maxZImpact )
+    kwargs.setdefault("maxEta", flags.InDet.Tracking.ActivePass.maxEta )
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel )
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT )
     kwargs.setdefault("doEmCaloSeed", have_calo_rois )
 
     acc.setPrivateTools(CompFactory.InDet.InDetNNScoringTool(name = the_name, **kwargs ))
@@ -1369,16 +1369,16 @@ def InDetNNScoringToolCfg(flags, name='InDetNNScoringTool', **kwargs) :
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("minTRTonTrk", 0 )
     kwargs.setdefault("minTRTPrecisionFraction", 0 )
-    kwargs.setdefault("minPt", flags.InDet.Tracking.Pass.minPT )
-    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.Pass.maxPrimaryImpact )
-    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.Pass.minClusters )
-    kwargs.setdefault("minPixel", flags.InDet.Tracking.Pass.minPixel )
-    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.Pass.maxHoles )
-    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.Pass.maxPixelHoles )
-    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.Pass.maxSctHoles )
-    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.Pass.maxDoubleHoles)
+    kwargs.setdefault("minPt", flags.InDet.Tracking.ActivePass.minPT )
+    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.ActivePass.maxPrimaryImpact )
+    kwargs.setdefault("minSiClusters", flags.InDet.Tracking.ActivePass.minClusters )
+    kwargs.setdefault("minPixel", flags.InDet.Tracking.ActivePass.minPixel )
+    kwargs.setdefault("maxSiHoles", flags.InDet.Tracking.ActivePass.maxHoles )
+    kwargs.setdefault("maxPixelHoles", flags.InDet.Tracking.ActivePass.maxPixelHoles )
+    kwargs.setdefault("maxSCTHoles", flags.InDet.Tracking.ActivePass.maxSctHoles )
+    kwargs.setdefault("maxDoubleHoles", flags.InDet.Tracking.ActivePass.maxDoubleHoles)
 
-    return InDetNNScoringToolBaseCfg(flags, name=name+flags.InDet.Tracking.Pass.extension, **kwargs )
+    return InDetNNScoringToolBaseCfg(flags, name=name+flags.InDet.Tracking.ActivePass.extension, **kwargs )
 
 def InDetNNScoringToolSiCfg(flags, name='InDetNNScoringToolSi', **kwargs) :
     kwargs.setdefault('DriftCircleCutTool','')
@@ -1386,7 +1386,7 @@ def InDetNNScoringToolSiCfg(flags, name='InDetNNScoringToolSi', **kwargs) :
 
 def InDetCosmicsScoringToolCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     return InDetCosmicsScoringToolBaseCfg(flags,
-                                          name=name+flags.InDet.Tracking.Pass.extension)
+                                          name=name+flags.InDet.Tracking.ActivePass.extension)
 
 def FullLinearizedTrackFactoryCfg(flags, name='TrackToVertexIPEstimator', **kwargs):
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg

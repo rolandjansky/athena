@@ -424,7 +424,7 @@ def createITkFastTrackingPassFlags():
 ### ITk LRT mode ####################
 def createITkLargeD0TrackingPassFlags():
 
-    icf = createTrackingPassFlags()
+    icf = createITkTrackingPassFlags()
     icf.extension               = "LargeD0"
     icf.usePrdAssociationTool = True
 
@@ -620,7 +620,7 @@ def createLowPtTrackingPassFlags():
     icf.extension        = "LowPt"
     icf.usePrdAssociationTool = True
     icf.isLowPt          = True
-    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.Tracking.doMinBias else pcf.InDet.Tracking.Pass.minPT + 0.3) * Units.GeV
+    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.Tracking.doMinBias else pcf.InDet.Tracking.ActivePass.minPT + 0.3) * Units.GeV
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 5
     icf.minSiNotShared   = 4
@@ -639,7 +639,7 @@ def createLowPtTrackingPassFlags():
 
 ## ITkConversionFinding mode ########################
 def createITkConversionFindingTrackingPassFlags(): #To be updated
-    icf = createTrackingPassFlags()
+    icf = createITkTrackingPassFlags()
     icf.extension               = "ConversionFinding"
     icf.usePrdAssociationTool = True
 
@@ -678,7 +678,7 @@ def createVeryLowPtTrackingPassFlags():
     icf.extension        = "VeryLowPt"
     icf.usePrdAssociationTool = True
     icf.isLowPt          = True
-    icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.Tracking.doMinBias  else  pcf.InDet.Tracking.Pass.minPT + 0.3) * Units.GeV # some overlap
+    icf.maxPT            = lambda pcf : (1e6 if pcf.InDet.Tracking.doMinBias  else  pcf.InDet.Tracking.ActivePass.minPT + 0.3) * Units.GeV # some overlap
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 3
     icf.minSiNotShared   = 3
@@ -1028,9 +1028,9 @@ if __name__ == "__main__":
   ConfigFlags.loadAllDynamicFlags()
 
   assert ConfigFlags.InDet.Tracking.cutLevel == 19 , "default cut level is wrong"
-  assert ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt == 6000.0 * Units.MeV, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt)
+  assert ConfigFlags.InDet.Tracking.ActivePass.minRoIClusterEt == 6000.0 * Units.MeV, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.ActivePass.minRoIClusterEt)
   ConfigFlags.InDet.Tracking.cutLevel = 2
-  assert ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt == 0.0, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.Pass.minRoIClusterEt)
+  assert ConfigFlags.InDet.Tracking.ActivePass.minRoIClusterEt == 0.0, "wrong cut value {} ".format(ConfigFlags.InDet.Tracking.ActivePass.minRoIClusterEt)
   assert ConfigFlags.InDet.Tracking.BeamGasPass.minRoIClusterEt == 0.0, "wrong cut value {}, not following cutLevel setting ".format(ConfigFlags.InDet.Tracking.BeamGasPass.minRoIClusterEt)
 
   assert ConfigFlags.InDet.Tracking.HeavyIonPass.minSiNotShared == 7, "wrong cut value, overwrite"
@@ -1039,8 +1039,8 @@ if __name__ == "__main__":
   print("ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT",ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT * 1.0)
   print("type(ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT)",type(ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT))
 
-  print("ConfigFlags.InDet.Tracking.Pass.minSecondaryPt",ConfigFlags.InDet.Tracking.Pass.minSecondaryPt * 1.0)
-  print("type(ConfigFlags.InDet.Tracking.Pass.minSecondaryPt)",type(ConfigFlags.InDet.Tracking.Pass.minSecondaryPt))
+  print("ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt",ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt * 1.0)
+  print("type(ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt)",type(ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt))
   
   print("ConfigFlags.InDet.Tracking.SCTandTRTPass.roadWidth",ConfigFlags.InDet.Tracking.SCTandTRTPass.roadWidth * 1.0)
 

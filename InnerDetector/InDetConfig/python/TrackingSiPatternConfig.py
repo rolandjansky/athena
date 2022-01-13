@@ -12,75 +12,75 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_Cosmic
     elif flags.Reco.EnableHI:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_HeavyIon
-    elif flags.InDet.Tracking.Pass.isLowPt:
+    elif flags.InDet.Tracking.ActivePass.isLowPt:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_LowMomentum
-    elif flags.InDet.Tracking.Pass.extension == "BeamGas":
+    elif flags.InDet.Tracking.ActivePass.extension == "BeamGas":
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_BeamGas
     else:
         SiSpacePointsSeedMaker = CompFactory.InDet.SiSpacePointsSeedMaker_ATLxk
 
-    kwargs.setdefault("pTmin", flags.InDet.Tracking.Pass.minPT )
-    kwargs.setdefault("maxdImpact", flags.InDet.Tracking.Pass.maxPrimaryImpact )
-    kwargs.setdefault("maxZ", flags.InDet.Tracking.Pass.maxZImpact )
-    kwargs.setdefault("minZ", -flags.InDet.Tracking.Pass.maxZImpact )
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.Pass.usePixel)
+    kwargs.setdefault("pTmin", flags.InDet.Tracking.ActivePass.minPT )
+    kwargs.setdefault("maxdImpact", flags.InDet.Tracking.ActivePass.maxPrimaryImpact )
+    kwargs.setdefault("maxZ", flags.InDet.Tracking.ActivePass.maxZImpact )
+    kwargs.setdefault("minZ", -flags.InDet.Tracking.ActivePass.maxZImpact )
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel)
     kwargs.setdefault("SpacePointsPixelName", 'PixelSpacePoints') # InDetKeys.PixelSpacePoints()
-    kwargs.setdefault("useSCT", flags.InDet.Tracking.Pass.useSCT and flags.InDet.Tracking.Pass.useSCTSeeding )
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT and flags.InDet.Tracking.ActivePass.useSCTSeeding )
     kwargs.setdefault("SpacePointsSCTName", 'SCT_SpacePoints') # InDetKeys.SCT_SpacePoints()
-    kwargs.setdefault("useOverlapSpCollection", flags.InDet.Tracking.Pass.useSCT and flags.InDet.Tracking.Pass.useSCTSeeding )
+    kwargs.setdefault("useOverlapSpCollection", flags.InDet.Tracking.ActivePass.useSCT and flags.InDet.Tracking.ActivePass.useSCTSeeding )
     kwargs.setdefault("SpacePointsOverlapName", 'OverlapSpacePoints') # InDetKeys.OverlapSpacePoints()
-    kwargs.setdefault("radMax", flags.InDet.Tracking.Pass.radMax)
-    kwargs.setdefault("RapidityCut",  flags.InDet.Tracking.Pass.maxEta )
+    kwargs.setdefault("radMax", flags.InDet.Tracking.ActivePass.radMax)
+    kwargs.setdefault("RapidityCut",  flags.InDet.Tracking.ActivePass.maxEta )
 
     if not flags.Reco.EnableHI \
-       and (flags.InDet.Tracking.Pass.extension == "" or flags.InDet.Tracking.Pass.extension == "ForwardTracks"):
-        kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.Pass.maxdImpactPPSSeeds)
-        kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.Pass.maxdImpactSSSSeeds)
-        kwargs.setdefault("maxSeedsForSpacePointStrips", flags.InDet.Tracking.Pass.maxSeedsPerSP_Strips)
-        kwargs.setdefault("maxSeedsForSpacePointPixels", flags.InDet.Tracking.Pass.maxSeedsPerSP_Pixels)
-        kwargs.setdefault("alwaysKeepConfirmedStripSeeds", flags.InDet.Tracking.Pass.keepAllConfirmedStripSeeds)
-        kwargs.setdefault("alwaysKeepConfirmedPixelSeeds", flags.InDet.Tracking.Pass.keepAllConfirmedPixelSeeds)
+       and (flags.InDet.Tracking.ActivePass.extension == "" or flags.InDet.Tracking.ActivePass.extension == "ForwardTracks"):
+        kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.ActivePass.maxdImpactPPSSeeds)
+        kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.ActivePass.maxdImpactSSSSeeds)
+        kwargs.setdefault("maxSeedsForSpacePointStrips", flags.InDet.Tracking.ActivePass.maxSeedsPerSP_Strips)
+        kwargs.setdefault("maxSeedsForSpacePointPixels", flags.InDet.Tracking.ActivePass.maxSeedsPerSP_Pixels)
+        kwargs.setdefault("alwaysKeepConfirmedStripSeeds", flags.InDet.Tracking.ActivePass.keepAllConfirmedStripSeeds)
+        kwargs.setdefault("alwaysKeepConfirmedPixelSeeds", flags.InDet.Tracking.ActivePass.keepAllConfirmedPixelSeeds)
         kwargs.setdefault("mindRadius", 10)
         kwargs.setdefault("maxSizeSP", 200)
         kwargs.setdefault("dImpactCutSlopeUnconfirmedSSS", 1.25)
         kwargs.setdefault("dImpactCutSlopeUnconfirmedPPP", 2.0)
 
     if flags.Reco.EnableHI:
-        kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.Pass.maxdImpactPPSSeeds)
-        kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.Pass.maxdImpactSSSSeeds)
+        kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.ActivePass.maxdImpactPPSSeeds)
+        kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.ActivePass.maxdImpactSSSSeeds)
 
-    if (len(InputCollections) > 0) and flags.InDet.Tracking.Pass.usePrdAssociationTool:
+    if (len(InputCollections) > 0) and flags.InDet.Tracking.ActivePass.usePrdAssociationTool:
         # not all classes have that property !!!
-        kwargs.setdefault("PRDtoTrackMap", 'InDetPRDtoTrackMap'+ flags.InDet.Tracking.Pass.extension)
+        kwargs.setdefault("PRDtoTrackMap", 'InDetPRDtoTrackMap'+ flags.InDet.Tracking.ActivePass.extension)
 
     if not flags.Beam.Type == 'cosmics':
-        kwargs.setdefault("maxRadius1", 0.75*flags.InDet.Tracking.Pass.radMax)
-        kwargs.setdefault("maxRadius2", flags.InDet.Tracking.Pass.radMax)
-        kwargs.setdefault("maxRadius3", flags.InDet.Tracking.Pass.radMax)
+        kwargs.setdefault("maxRadius1", 0.75*flags.InDet.Tracking.ActivePass.radMax)
+        kwargs.setdefault("maxRadius2", flags.InDet.Tracking.ActivePass.radMax)
+        kwargs.setdefault("maxRadius3", flags.InDet.Tracking.ActivePass.radMax)
 
-    if flags.InDet.Tracking.Pass.isLowPt:
-        kwargs.setdefault("pTmax", flags.InDet.Tracking.Pass.maxPT)
+    if flags.InDet.Tracking.ActivePass.isLowPt:
+        kwargs.setdefault("pTmax", flags.InDet.Tracking.ActivePass.maxPT)
         kwargs.setdefault("mindRadius", 4.0)
 
-    if flags.InDet.Tracking.Pass.extension == "R3LargeD0":
+    if flags.InDet.Tracking.ActivePass.extension == "R3LargeD0":
         kwargs.setdefault("optimisePhiBinning", False)
         kwargs.setdefault("usePixel", False)
-        kwargs.setdefault("etaMax", flags.InDet.Tracking.Pass.maxEta)
-        kwargs.setdefault("maxSeedsForSpacePointStrips", flags.InDet.Tracking.Pass.maxSeedsPerSP_Strips)
-        kwargs.setdefault("alwaysKeepConfirmedStripSeeds", flags.InDet.Tracking.Pass.keepAllConfirmedStripSeeds)
+        kwargs.setdefault("etaMax", flags.InDet.Tracking.ActivePass.maxEta)
+        kwargs.setdefault("maxSeedsForSpacePointStrips", flags.InDet.Tracking.ActivePass.maxSeedsPerSP_Strips)
+        kwargs.setdefault("alwaysKeepConfirmedStripSeeds", flags.InDet.Tracking.ActivePass.keepAllConfirmedStripSeeds)
         kwargs.setdefault("maxdRadius", 150)
         kwargs.setdefault("seedScoreBonusConfirmationSeed", -2000)
-    elif flags.InDet.Tracking.Pass.extension == "ForwardTracks":
+    elif flags.InDet.Tracking.ActivePass.extension == "ForwardTracks":
         kwargs.setdefault("checkEta", True)
-        kwargs.setdefault("etaMin", flags.InDet.Tracking.Pass.minEta)
-        kwargs.setdefault("etaMax", flags.InDet.Tracking.Pass.maxEta)
-        kwargs.setdefault("RapidityCut", flags.InDet.Tracking.Pass.maxEta)
-    elif flags.InDet.Tracking.Pass.extension == "DBM":
-        kwargs.setdefault("etaMin", flags.InDet.Tracking.Pass.minEta)
-        kwargs.setdefault("etaMax", flags.InDet.Tracking.Pass.maxEta)
+        kwargs.setdefault("etaMin", flags.InDet.Tracking.ActivePass.minEta)
+        kwargs.setdefault("etaMax", flags.InDet.Tracking.ActivePass.maxEta)
+        kwargs.setdefault("RapidityCut", flags.InDet.Tracking.ActivePass.maxEta)
+    elif flags.InDet.Tracking.ActivePass.extension == "DBM":
+        kwargs.setdefault("etaMin", flags.InDet.Tracking.ActivePass.minEta)
+        kwargs.setdefault("etaMax", flags.InDet.Tracking.ActivePass.maxEta)
         kwargs.setdefault("useDBM", True)
 
-    InDetSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
 
     acc.setPrivateTools(InDetSiSpacePointsSeedMaker)
     return acc
@@ -88,8 +88,8 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
 def SiZvertexMaker_xkCfg(flags, name="InDetZvertexMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("Zmax", flags.InDet.Tracking.Pass.maxZImpact)
-    kwargs.setdefault("Zmin", -flags.InDet.Tracking.Pass.maxZImpact)
+    kwargs.setdefault("Zmax", flags.InDet.Tracking.ActivePass.maxZImpact)
+    kwargs.setdefault("Zmin", -flags.InDet.Tracking.ActivePass.maxZImpact)
     kwargs.setdefault("minRatio", 0.17)
 
     InDetSiSpacePointsSeedMaker = acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags,
@@ -100,7 +100,7 @@ def SiZvertexMaker_xkCfg(flags, name="InDetZvertexMaker", InputCollections = Non
         kwargs.setdefault("HistSize", 2000)
         kwargs.setdefault("minContent", 30)
 
-    InDetZvertexMaker = CompFactory.InDet.SiZvertexMaker_xk(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetZvertexMaker = CompFactory.InDet.SiZvertexMaker_xk(name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(InDetZvertexMaker)
     return acc
 
@@ -112,13 +112,13 @@ def SiDetElementsRoadMaker_xkCfg(flags, name="InDetSiRoadMaker", **kwargs) :
     InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.Pass.usePixel )
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel )
     kwargs.setdefault("PixManagerLocation", 'Pixel')
-    kwargs.setdefault("useSCT", flags.InDet.Tracking.Pass.useSCT)
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT)
     kwargs.setdefault("SCTManagerLocation", 'SCT')
-    kwargs.setdefault("RoadWidth", flags.InDet.Tracking.Pass.roadWidth)
+    kwargs.setdefault("RoadWidth", flags.InDet.Tracking.ActivePass.roadWidth)
 
-    InDetSiDetElementsRoadMaker = CompFactory.InDet.SiDetElementsRoadMaker_xk(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetSiDetElementsRoadMaker = CompFactory.InDet.SiDetElementsRoadMaker_xk(name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(InDetSiDetElementsRoadMaker)
     return acc
 
@@ -161,43 +161,43 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     else:
         kwargs.setdefault("SctSummaryTool", "")
 
-    track_finder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    track_finder = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(track_finder)
     return acc
 
 def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.Tracking.Pass.usePixel:
+    if flags.InDet.Tracking.ActivePass.usePixel:
         acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name="InDetSiDetElementBoundaryLinksPixelCondAlg",
                                                                               ReadKey="PixelDetectorElementCollection",
                                                                               WriteKey="PixelDetElementBoundaryLinks_xk"))
-    if flags.InDet.Tracking.Pass.useSCT:
+    if flags.InDet.Tracking.ActivePass.useSCT:
         acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name="InDet__SiDetElementsRoadCondAlg_xk"))
 
         acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name="InDetSiDetElementBoundaryLinksSCTCondAlg",
                                                                               ReadKey="SCT_DetectorElementCollection",
                                                                               WriteKey="SCT_DetElementBoundaryLinks_xk"))
 
-    kwargs.setdefault("useSCT", flags.InDet.Tracking.Pass.useSCT)
-    kwargs.setdefault("usePixel", flags.InDet.Tracking.Pass.usePixel)
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT)
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel)
     kwargs.setdefault("RoadTool", acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags)))
     kwargs.setdefault("CombinatorialTrackFinder", acc.popToolsAndMerge(SiCombinatorialTrackFinder_xkCfg(flags)))
-    kwargs.setdefault("pTmin", flags.InDet.Tracking.Pass.minPT)
-    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
-    kwargs.setdefault("pTminSSS", flags.InDet.Tracking.Pass.pT_SSScut)
-    kwargs.setdefault("nClustersMin", flags.InDet.Tracking.Pass.minClusters)
-    kwargs.setdefault("nHolesMax", flags.InDet.Tracking.Pass.nHolesMax)
-    kwargs.setdefault("nHolesGapMax", flags.InDet.Tracking.Pass.nHolesGapMax)
-    kwargs.setdefault("SeedsFilterLevel", flags.InDet.Tracking.Pass.seedFilterLevel)
-    kwargs.setdefault("Xi2max", flags.InDet.Tracking.Pass.Xi2max)
-    kwargs.setdefault("Xi2maxNoAdd", flags.InDet.Tracking.Pass.Xi2maxNoAdd)
-    kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.Pass.nWeightedClustersMin)
+    kwargs.setdefault("pTmin", flags.InDet.Tracking.ActivePass.minPT)
+    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.ActivePass.minPTBrem)
+    kwargs.setdefault("pTminSSS", flags.InDet.Tracking.ActivePass.pT_SSScut)
+    kwargs.setdefault("nClustersMin", flags.InDet.Tracking.ActivePass.minClusters)
+    kwargs.setdefault("nHolesMax", flags.InDet.Tracking.ActivePass.nHolesMax)
+    kwargs.setdefault("nHolesGapMax", flags.InDet.Tracking.ActivePass.nHolesGapMax)
+    kwargs.setdefault("SeedsFilterLevel", flags.InDet.Tracking.ActivePass.seedFilterLevel)
+    kwargs.setdefault("Xi2max", flags.InDet.Tracking.ActivePass.Xi2max)
+    kwargs.setdefault("Xi2maxNoAdd", flags.InDet.Tracking.ActivePass.Xi2maxNoAdd)
+    kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.ActivePass.nWeightedClustersMin)
     kwargs.setdefault("CosmicTrack", flags.Beam.Type == 'cosmics')
-    kwargs.setdefault("Xi2maxMultiTracks", flags.InDet.Tracking.Pass.Xi2max)
+    kwargs.setdefault("Xi2maxMultiTracks", flags.InDet.Tracking.ActivePass.Xi2max)
     kwargs.setdefault("useSSSseedsFilter", True)
     kwargs.setdefault("doMultiTracksProd", True)
-    kwargs.setdefault("useBremModel", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "" and flags.Detector.EnableCalo)
+    kwargs.setdefault("useBremModel", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.ActivePass.extension == "" and flags.Detector.EnableCalo)
     kwargs.setdefault("doCaloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
         from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
@@ -206,13 +206,13 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     if kwargs["doHadCaloSeedSSS"]:
         from InDetConfig.InDetRecCaloSeededROISelectionConfig import HadCaloClusterROI_SelectorCfg
         acc.merge(HadCaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("phiWidth", flags.InDet.Tracking.Pass.phiWidthBrem)
-    kwargs.setdefault("etaWidth", flags.InDet.Tracking.Pass.etaWidthBrem)
+    kwargs.setdefault("phiWidth", flags.InDet.Tracking.ActivePass.phiWidthBrem)
+    kwargs.setdefault("etaWidth", flags.InDet.Tracking.ActivePass.etaWidthBrem)
     kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer()
     kwargs.setdefault("InputHadClusterContainerName", 'InDetHadCaloClusterROIs') # InDetKeys.HadCaloClusterROIContainer()
-    kwargs.setdefault("UseAssociationTool", (len(InputCollections) > 0) and (flags.InDet.Tracking.Pass.usePrdAssociationTool))
+    kwargs.setdefault("UseAssociationTool", (len(InputCollections) > 0) and (flags.InDet.Tracking.ActivePass.usePrdAssociationTool))
 
-    if flags.InDet.Tracking.Pass.extension == "DBM":
+    if flags.InDet.Tracking.ActivePass.extension == "DBM":
         kwargs.setdefault("MagneticFieldMode", "NoField")
         kwargs.setdefault("useBremModel", False)
         kwargs.setdefault("doMultiTracksProd", False)
@@ -229,19 +229,19 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     elif flags.Reco.EnableHI:
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_HeavyIon')
     
-    elif flags.InDet.Tracking.Pass.extension == "LowPt":
+    elif flags.InDet.Tracking.ActivePass.extension == "LowPt":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_LowMomentum')
 
-    elif flags.InDet.Tracking.Pass.extension == "VeryLowPt" or (flags.InDet.Tracking.Pass.extension == "Pixel" and flags.InDet.Tracking.doMinBias):
+    elif flags.InDet.Tracking.ActivePass.extension == "VeryLowPt" or (flags.InDet.Tracking.ActivePass.extension == "Pixel" and flags.InDet.Tracking.doMinBias):
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_VeryLowMomentum')
 
-    elif flags.InDet.Tracking.Pass.extension == "BeamGas":
+    elif flags.InDet.Tracking.ActivePass.extension == "BeamGas":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_BeamGas')
 
-    elif flags.InDet.Tracking.Pass.extension == "ForwardTracks":
+    elif flags.InDet.Tracking.ActivePass.extension == "ForwardTracks":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_ForwardTracks')
 
-    elif flags.InDet.Tracking.Pass.extension == "LargeD0" or flags.InDet.Tracking.Pass.extension == "R3LargeD0" or flags.InDet.Tracking.Pass.extension == "LowPtLargeD0":
+    elif flags.InDet.Tracking.ActivePass.extension == "LargeD0" or flags.InDet.Tracking.ActivePass.extension == "R3LargeD0" or flags.InDet.Tracking.ActivePass.extension == "LowPtLargeD0":
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSpacePointsSeedMaker_LargeD0')
 
     else:
@@ -252,11 +252,11 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
         kwargs.setdefault("SeedToTrackConversion", CompFactory.InDet.SeedToTrackConversionTool(
             name="InDet_SeedToTrackConversion",
             Extrapolator=acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)),
-            OutputName=f"SiSPSeedSegments{flags.InDet.Tracking.Pass.extension}",
+            OutputName=f"SiSPSeedSegments{flags.InDet.Tracking.ActivePass.extension}",
         ))
         kwargs.setdefault("SeedSegmentsWrite", True)
 
-    InDetSiTrackMaker = CompFactory.InDet.SiTrackMaker_xk(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetSiTrackMaker = CompFactory.InDet.SiTrackMaker_xk(name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(InDetSiTrackMaker)
     return acc
 
@@ -272,19 +272,19 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     kwargs.setdefault("SeedsTool", acc.popToolsAndMerge(SiSpacePointsSeedMakerCfg(flags, InputCollections = InputCollections)))
     kwargs.setdefault("useMBTSTimeDiff", flags.Reco.EnableHI) # Heavy-ion config
 
-    if (len(InputCollections) > 0) and flags.InDet.Tracking.Pass.usePrdAssociationTool:
+    if (len(InputCollections) > 0) and flags.InDet.Tracking.ActivePass.usePrdAssociationTool:
         # not all classes have that property !!!
-        kwargs.setdefault("PRDtoTrackMap", 'InDetPRDtoTrackMap'+ flags.InDet.Tracking.Pass.extension)
+        kwargs.setdefault("PRDtoTrackMap", 'InDetPRDtoTrackMap'+ flags.InDet.Tracking.ActivePass.extension)
 
-    if flags.InDet.Tracking.Pass.extension == "ForwardTracks":
+    if flags.InDet.Tracking.ActivePass.extension == "ForwardTracks":
         kwargs.setdefault("useZvertexTool", flags.Reco.EnableHI) # For heavy-ion
         kwargs.setdefault("useZBoundFinding", False)
-    elif flags.InDet.Tracking.Pass.extension == "DBM":
+    elif flags.InDet.Tracking.ActivePass.extension == "DBM":
         kwargs.setdefault("useZvertexTool", False)
         kwargs.setdefault("useZBoundFinding", False)
     else:
         kwargs.setdefault("useZvertexTool", flags.Reco.EnableHI) # For heavy-ion
-        kwargs.setdefault("useZBoundFinding", flags.InDet.Tracking.Pass.doZBoundary)
+        kwargs.setdefault("useZBoundFinding", flags.InDet.Tracking.ActivePass.doZBoundary)
     
     #
     # --- Z-coordinates primary vertices finder (only for collisions)
@@ -295,7 +295,7 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     if flags.Reco.EnableHI:
         kwargs.setdefault("FreeClustersCut",2) #Heavy Ion optimization from Igor
 
-    InDetSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.addEventAlgo(InDetSiSPSeededTrackFinder)
     return acc
 
@@ -311,7 +311,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     #
     # --- load InnerDetector TrackSelectionTool
     #
-    if flags.InDet.Tracking.Pass.useTIDE_Ambi:
+    if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
         AmbiTrackSelectionTool = CompFactory.InDet.InDetDenseEnvAmbiTrackSelectionTool
     else:
         AmbiTrackSelectionTool = CompFactory.InDet.InDetAmbiTrackSelectionTool
@@ -323,15 +323,15 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
 
     kwargs.setdefault("AssociationTool" , InDetPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("minHits"         , flags.InDet.Tracking.Pass.minClusters)
-    kwargs.setdefault("minNotShared"    , flags.InDet.Tracking.Pass.minSiNotShared)
-    kwargs.setdefault("maxShared"       , flags.InDet.Tracking.Pass.maxShared)
+    kwargs.setdefault("minHits"         , flags.InDet.Tracking.ActivePass.minClusters)
+    kwargs.setdefault("minNotShared"    , flags.InDet.Tracking.ActivePass.minSiNotShared)
+    kwargs.setdefault("maxShared"       , flags.InDet.Tracking.ActivePass.maxShared)
     kwargs.setdefault("minTRTHits"      , 0) # used for Si only tracking !!!
     kwargs.setdefault("UseParameterization" , False)
-    kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.Pass.extension != "DBM")
-    kwargs.setdefault("doPixelSplitting"    , flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.Pass.extension != "DBM")
+    kwargs.setdefault("Cosmics"             , flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.ActivePass.extension != "DBM")
+    kwargs.setdefault("doPixelSplitting"    , flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.ActivePass.extension != "DBM")
 
-    if flags.InDet.Tracking.Pass.useTIDE_Ambi:
+    if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
         kwargs.setdefault("sharedProbCut"             , flags.InDet.Tracking.pixelClusterSplitProb1)
         kwargs.setdefault("sharedProbCut2"            , flags.InDet.Tracking.pixelClusterSplitProb2)
         kwargs.setdefault("minSiHitsToAllowSplitting" , 8 if flags.GeoModel.Run == "Run1" else 9)
@@ -358,7 +358,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
         kwargs.setdefault("phiWidthEM"                , 0.05)     #Split cluster ROI size
         kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size
 
-    elif flags.InDet.Tracking.Pass.extension == "DBM":
+    elif flags.InDet.Tracking.ActivePass.extension == "DBM":
         kwargs.setdefault("maxShared"             , 1000)
         kwargs.setdefault("maxTracksPerSharedPRD" , 2)
         kwargs.setdefault("minHits"               , 0)
@@ -369,7 +369,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
     else:
         kwargs.setdefault("sharedProbCut", 0.10)
 
-    InDetAmbiTrackSelectionTool = AmbiTrackSelectionTool(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetAmbiTrackSelectionTool = AmbiTrackSelectionTool(name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(InDetAmbiTrackSelectionTool)
     return acc
 
@@ -377,9 +377,9 @@ def InDetAmbiTrackSelectionToolCfg(flags, name="InDetAmbiTrackSelectionTool", **
 def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityScoreProcessor", ClusterSplitProbContainer="", **kwargs):
     acc = ComponentAccumulator()
     # --- set up different Scoring Tool for collisions and cosmics
-    if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.Pass.extension != "DBM":
+    if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.ActivePass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
-    elif flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
+    elif flags.InDet.Tracking.ActivePass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
@@ -391,18 +391,18 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityS
 
     kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
     kwargs.setdefault("AssociationToolNotGanged", acc.popToolsAndMerge(TC.PRDtoTrackMapToolCfg()))
-    kwargs.setdefault("AssociationMapName", f"PRDToTrackMap{flags.InDet.Tracking.Pass.extension}")
+    kwargs.setdefault("AssociationMapName", f"PRDToTrackMap{flags.InDet.Tracking.ActivePass.extension}")
 
-    if flags.InDet.Tracking.Pass.useTIDE_Ambi:
+    if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
         kwargs.setdefault("sharedProbCut", flags.InDet.Tracking.pixelClusterSplitProb1)
         kwargs.setdefault("sharedProbCut2", flags.InDet.Tracking.pixelClusterSplitProb2)
-        kwargs.setdefault("SplitClusterMap_new", f"SplitClusterAmbiguityMap{flags.InDet.Tracking.Pass.extension}")
+        kwargs.setdefault("SplitClusterMap_new", f"SplitClusterAmbiguityMap{flags.InDet.Tracking.ActivePass.extension}")
 
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", f"SplitProb{flags.InDet.Tracking.Pass.extension}")
+    kwargs.setdefault("OutputClusterSplitProbabilityName", f"SplitProb{flags.InDet.Tracking.ActivePass.extension}")
 
     ScoreProcessorTool = CompFactory.Trk.DenseEnvironmentsAmbiguityScoreProcessorTool
-    acc.setPrivateTools(ScoreProcessorTool(f"{name}{flags.InDet.Tracking.Pass.extension}", **kwargs))
+    acc.setPrivateTools(ScoreProcessorTool(f"{name}{flags.InDet.Tracking.ActivePass.extension}", **kwargs))
     return acc
 
 
@@ -410,9 +410,9 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     acc = ComponentAccumulator()
     
     # --- set up different Scoring Tool for collisions and cosmics
-    if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.Pass.extension != "DBM":
+    if flags.Beam.Type == "cosmics" and flags.InDet.Tracking.ActivePass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
-    elif flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
+    elif flags.InDet.Tracking.ActivePass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
@@ -420,8 +420,8 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
 
     fitter_args = {}
-    fitter_args.setdefault("nameSuffix", 'Ambi'+flags.InDet.Tracking.Pass.extension)
-    fitter_args.setdefault("ClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
+    fitter_args.setdefault("nameSuffix", 'Ambi'+flags.InDet.Tracking.ActivePass.extension)
+    fitter_args.setdefault("ClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension)
 
     if flags.InDet.Tracking.holeSearchInGX2Fit:
         fitter_args.setdefault("DoHoleSearch", True)
@@ -431,19 +431,19 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
 
     fitter_list=[]
 
-    if flags.InDet.Tracking.Pass.isLowPt:
-        InDetTrackFitterLowPt = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, name='InDetTrackFitterLowPt'+flags.InDet.Tracking.Pass.extension, **fitter_args))
+    if flags.InDet.Tracking.ActivePass.isLowPt:
+        InDetTrackFitterLowPt = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, name='InDetTrackFitterLowPt'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
         fitter_list.append(InDetTrackFitterLowPt)
     else:
-        InDetTrackFitterAmbi = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, name='InDetTrackFitterAmbi'+flags.InDet.Tracking.Pass.extension, **fitter_args))
+        InDetTrackFitterAmbi = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, name='InDetTrackFitterAmbi'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
         fitter_list.append(InDetTrackFitterAmbi)
 
     if flags.InDet.Tracking.doRefitInvalidCov:
-        if not flags.InDet.Tracking.Pass.extension=="":
-            KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags, name='KalmanFitter'+flags.InDet.Tracking.Pass.extension))
+        if not flags.InDet.Tracking.ActivePass.extension=="":
+            KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags, name='KalmanFitter'+flags.InDet.Tracking.ActivePass.extension))
             fitter_list.append(KalmanFitter)
 
-            ReferenceKalmanFitter = acc.popToolsAndMerge(TC.ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter'+flags.InDet.Tracking.Pass.extension))
+            ReferenceKalmanFitter = acc.popToolsAndMerge(TC.ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter'+flags.InDet.Tracking.ActivePass.extension))
             fitter_list.append(ReferenceKalmanFitter)
         else:
             KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags))
@@ -456,26 +456,26 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
 
     ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg( flags,
                                                                                   namePrefix                  = 'InDetAmbiguityProcessorSplitProb',
-                                                                                  nameSuffix                  = flags.InDet.Tracking.Pass.extension,
-                                                                                  ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension))
+                                                                                  nameSuffix                  = flags.InDet.Tracking.ActivePass.extension,
+                                                                                  ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension))
 
     InDetAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
 
     kwargs.setdefault("Fitter", fitter_list)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationMapName", 'PRDToTrackMap'+flags.InDet.Tracking.Pass.extension)
+    kwargs.setdefault("AssociationMapName", 'PRDToTrackMap'+flags.InDet.Tracking.ActivePass.extension)
     kwargs.setdefault("TrackSummaryTool", ambi_track_summary_tool)
     kwargs.setdefault("SelectionTool", InDetAmbiTrackSelectionTool)
-    kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.InDet.Tracking.Pass.extension)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
+    kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.InDet.Tracking.ActivePass.extension)
+    kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "")
-    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.Pass.extension == "")
-    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
+    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.ActivePass.extension == "")
+    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.ActivePass.extension == "")
+    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.ActivePass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
     kwargs.setdefault("KeepHolesFromBeforeRefit", False)
 
-    InDetAmbiguityProcessor = CompFactory.Trk.DenseEnvironmentsAmbiguityProcessorTool(name=name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetAmbiguityProcessor = CompFactory.Trk.DenseEnvironmentsAmbiguityProcessorTool(name=name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(InDetAmbiguityProcessor)
     return acc
 
@@ -485,15 +485,15 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     #
     # --- set up different Scoring Tool for collisions and cosmics
     #
-    if flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.Pass.extension != "DBM":
+    if flags.Beam.Type == 'cosmics' and flags.InDet.Tracking.ActivePass.extension != "DBM":
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetCosmicsScoringToolCfg(flags))
-    elif flags.InDet.Tracking.Pass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
+    elif flags.InDet.Tracking.ActivePass.extension == "R3LargeD0" and flags.InDet.Tracking.nnCutLargeD0Threshold > 0:
         # Set up NN config
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetNNScoringToolSiCfg(flags))
     else:
         InDetAmbiScoringTool = acc.popToolsAndMerge(TC.InDetAmbiScoringToolSiCfg(flags))
 
-    if flags.InDet.Tracking.Pass.isLowPt:
+    if flags.InDet.Tracking.ActivePass.isLowPt:
         InDetTrackFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags))
     else:
         InDetTrackFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags))
@@ -502,8 +502,8 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
 
     ambi_track_summary_tool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg( flags,
                                                                                 namePrefix                  = 'InDetAmbiguityProcessorSplitProb',
-                                                                                nameSuffix                  = flags.InDet.Tracking.Pass.extension,
-                                                                                ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension))
+                                                                                nameSuffix                  = flags.InDet.Tracking.ActivePass.extension,
+                                                                                ClusterSplitProbabilityName = 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension))
 
     InDetAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
 
@@ -513,18 +513,18 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
     kwargs.setdefault("SelectionTool", InDetAmbiTrackSelectionTool)
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.Pass.extension)
+    kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "")
-    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.Pass.extension == "")
-    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
+    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.ActivePass.extension == "")
+    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.ActivePass.extension == "")
+    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.ActivePass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
     kwargs.setdefault("MatEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
 
-    if flags.InDet.Tracking.Pass.extension == "Pixel" or flags.InDet.Tracking.Pass.extension == "DBM":
+    if flags.InDet.Tracking.ActivePass.extension == "Pixel" or flags.InDet.Tracking.ActivePass.extension == "DBM":
         kwargs.setdefault("SuppressHoleSearch", True)
 
-    InDetAmbiguityProcessor = CompFactory.Trk.SimpleAmbiguityProcessorTool(name=name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetAmbiguityProcessor = CompFactory.Trk.SimpleAmbiguityProcessorTool(name=name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.setPrivateTools(InDetAmbiguityProcessor)
     return acc
 
@@ -535,7 +535,7 @@ def TrkAmbiguityScoreCfg(flags, name="InDetAmbiguityScore", SiSPSeededTrackColle
     #
     InputTrackCollection = SiSPSeededTrackCollectionKey
 
-    if flags.InDet.Tracking.Pass.useTIDE_Ambi:
+    if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
         InDetAmbiguityScoreProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags))
     else:
         InDetAmbiguityScoreProcessor = None
@@ -544,10 +544,10 @@ def TrkAmbiguityScoreCfg(flags, name="InDetAmbiguityScore", SiSPSeededTrackColle
     # --- configure Ambiguity (score) solver
     #
     kwargs.setdefault("TrackInput" , [ InputTrackCollection ])
-    kwargs.setdefault("TrackOutput", 'ScoredMap'+'InDetAmbiguityScore'+ flags.InDet.Tracking.Pass.extension)
+    kwargs.setdefault("TrackOutput", 'ScoredMap'+'InDetAmbiguityScore'+ flags.InDet.Tracking.ActivePass.extension)
     kwargs.setdefault("AmbiguityScoreProcessor" ,  InDetAmbiguityScoreProcessor ) ## TODO: check the case when it is None object
 
-    InDetAmbiguityScore = CompFactory.Trk.TrkAmbiguityScore(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetAmbiguityScore = CompFactory.Trk.TrkAmbiguityScore(name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.addEventAlgo(InDetAmbiguityScore)
     return acc
 
@@ -555,7 +555,7 @@ def TrkAmbiguitySolverCfg(flags, name="InDetAmbiguitySolver", ResolvedTrackColle
     acc = ComponentAccumulator()
     SiTrackCollection = ResolvedTrackCollectionKey
 
-    if flags.InDet.Tracking.Pass.useTIDE_Ambi:
+    if flags.InDet.Tracking.ActivePass.useTIDE_Ambi:
         InDetAmbiguityProcessor = acc.popToolsAndMerge(DenseEnvironmentsAmbiguityProcessorToolCfg(flags, ClusterSplitProbContainer=ClusterSplitProbContainer))
     else:
         InDetAmbiguityProcessor = acc.popToolsAndMerge(SimpleAmbiguityProcessorToolCfg(flags, ClusterSplitProbContainer=ClusterSplitProbContainer))
@@ -563,11 +563,11 @@ def TrkAmbiguitySolverCfg(flags, name="InDetAmbiguitySolver", ResolvedTrackColle
     #
     # --- configure Ambiguity solver
     #
-    kwargs.setdefault("TrackInput", 'ScoredMap'+'InDetAmbiguityScore'+ flags.InDet.Tracking.Pass.extension)
+    kwargs.setdefault("TrackInput", 'ScoredMap'+'InDetAmbiguityScore'+ flags.InDet.Tracking.ActivePass.extension)
     kwargs.setdefault("TrackOutput", SiTrackCollection)
     kwargs.setdefault( "AmbiguityProcessor", InDetAmbiguityProcessor)
 
-    InDetAmbiguitySolver = CompFactory.Trk.TrkAmbiguitySolver(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
+    InDetAmbiguitySolver = CompFactory.Trk.TrkAmbiguitySolver(name = name+flags.InDet.Tracking.ActivePass.extension, **kwargs)
     acc.addEventAlgo(InDetAmbiguitySolver )
     return acc
 
@@ -581,9 +581,9 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     #
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
-    if (len(InputCollections) > 0) and flags.InDet.Tracking.Pass.usePrdAssociationTool:
+    if (len(InputCollections) > 0) and flags.InDet.Tracking.ActivePass.usePrdAssociationTool:
         acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,namePrefix = 'InDet',
-                                                  nameSuffix = flags.InDet.Tracking.Pass.extension,
+                                                  nameSuffix = flags.InDet.Tracking.ActivePass.extension,
                                                   TracksName = list(InputCollections)))
 
     # ------------------------------------------------------------

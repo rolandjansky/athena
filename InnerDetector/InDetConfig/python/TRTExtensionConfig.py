@@ -61,7 +61,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
         #
         # --- DAF Fitter setup
         #
-        InDetExtensionFitter = acc.popToolsAndMerge(DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF'+ flags.InDet.Tracking.Pass.extension))
+        InDetExtensionFitter = acc.popToolsAndMerge(DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF'+ flags.InDet.Tracking.ActivePass.extension))
         acc.addPublicTool(InDetExtensionFitter)
     else:
         fitter_args = {}
@@ -71,11 +71,11 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
             InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
             fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
 
-        if flags.InDet.Tracking.Pass.extension != "LowPt":
-            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.Pass.extension, **fitter_args))
+        if flags.InDet.Tracking.ActivePass.extension != "LowPt":
+            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
         else:
-            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.Pass.extension, **fitter_args))
+            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, 'InDetTrackFitter_TRTExtension'+flags.InDet.Tracking.ActivePass.extension, **fitter_args))
             acc.addPublicTool(InDetExtensionFitter)
     #
     # --- load scoring for extension
@@ -100,18 +100,18 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     kwargs.setdefault("suppressHoleSearch", False)
     kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery)
     kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
-    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
+    kwargs.setdefault("pTminBrem", flags.InDet.Tracking.ActivePass.minPTBrem)
     kwargs.setdefault("RefitPrds", False)
     kwargs.setdefault("matEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
     
     if doPhase:
         kwargs.setdefault("Cosmics", True)
 
-        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor(name = "InDetExtensionProcessorPhase" + flags.InDet.Tracking.Pass.extension, **kwargs))
+        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor(name = "InDetExtensionProcessorPhase" + flags.InDet.Tracking.ActivePass.extension, **kwargs))
     else:
         kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
 
-        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor("InDetExtensionProcessor" + flags.InDet.Tracking.Pass.extension, **kwargs))
+        acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor("InDetExtensionProcessor" + flags.InDet.Tracking.ActivePass.extension, **kwargs))
 
     return acc
 
@@ -129,12 +129,12 @@ def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCol
     #
     if doPhase:
         acc.merge(TRT_TrackExtensionAlgCfg( flags,
-                                            name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.Pass.extension,
+                                            name = 'InDetTRT_ExtensionPhase' + flags.InDet.Tracking.ActivePass.extension,
                                             SiTrackCollection=SiTrackCollection,
                                             ExtendedTracksMap = ExtendedTracksMap))
     else:
         acc.merge(TRT_TrackExtensionAlgCfg( flags,  
-                                            name = 'InDetTRT_Extension' + flags.InDet.Tracking.Pass.extension,
+                                            name = 'InDetTRT_Extension' + flags.InDet.Tracking.ActivePass.extension,
                                             SiTrackCollection=SiTrackCollection,
                                             ExtendedTracksMap = ExtendedTracksMap,
                                             TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))

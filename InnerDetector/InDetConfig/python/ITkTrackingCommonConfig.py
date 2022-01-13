@@ -23,9 +23,9 @@ def stripArgs(kwargs, copy_list) :
 
 def ITkEtaDependentCutsSvcCfg(flags, name = 'ITkEtaDependentCutsSvc', **kwargs):
     acc = ComponentAccumulator()
-    the_name = name + flags.ITk.Tracking.Pass.extension
+    the_name = name + flags.ITk.Tracking.ActivePass.extension
 
-    cuts = flags.ITk.Tracking.Pass
+    cuts = flags.ITk.Tracking.ActivePass
 
     kwargs.setdefault("etaBins",              cuts.etaBins)
     kwargs.setdefault("etaWidthBrem",         cuts.etaWidthBrem)
@@ -74,7 +74,7 @@ def ITkPixelClusterOnTrackToolBaseCfg(flags, name="ITkPixelClusterOnTrackTool", 
         kwargs.setdefault("PositionStrategy", 0)
 
     kwargs.setdefault("applyNNcorrection", False )
-    split_cluster_map_extension = flags.ITk.Tracking.Pass.extension if flags.ITk.Tracking.Pass.useTIDE_Ambi else ""
+    split_cluster_map_extension = flags.ITk.Tracking.ActivePass.extension if flags.ITk.Tracking.ActivePass.useTIDE_Ambi else ""
     kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
     kwargs.setdefault("RunningTIDE_Ambi", True )
 
@@ -716,9 +716,9 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
     kwargs.setdefault("DriftCircleCutTool", None )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
-    kwargs.setdefault("maxEta", flags.ITk.Tracking.Pass.maxEta )
-    kwargs.setdefault("usePixel", flags.ITk.Tracking.Pass.usePixel )
-    kwargs.setdefault("useSCT", flags.ITk.Tracking.Pass.useSCT )
+    kwargs.setdefault("maxEta", flags.ITk.Tracking.ActivePass.maxEta )
+    kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.usePixel )
+    kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useSCT )
     kwargs.setdefault("doEmCaloSeed", have_calo_rois )
     kwargs.setdefault("useITkAmbigFcn", True )
     kwargs.setdefault("minTRTonTrk", 0 )
@@ -726,9 +726,9 @@ def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
 
     if 'InDetEtaDependentCutsSvc' not in kwargs :
         acc.merge(ITkEtaDependentCutsSvcCfg(flags))
-        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.Pass.extension))
+        kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
 
-    the_name = name + flags.ITk.Tracking.Pass.extension
+    the_name = name + flags.ITk.Tracking.ActivePass.extension
     acc.setPrivateTools(CompFactory.InDet.InDetAmbiScoringTool(name = the_name, **kwargs))
     return acc
 
@@ -738,7 +738,7 @@ def ITkCosmicsScoringToolBaseCfg(flags, name='ITkCosmicsScoringTool', **kwargs) 
 
     ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags))
 
-    kwargs.setdefault("nWeightedClustersMin", flags.ITk.Tracking.Pass.nWeightedClustersMin )
+    kwargs.setdefault("nWeightedClustersMin", flags.ITk.Tracking.ActivePass.nWeightedClustersMin )
     kwargs.setdefault("minTRTHits", 0 )
     kwargs.setdefault("SummaryTool", ITkTrackSummaryTool )
 
@@ -751,7 +751,7 @@ def ITkCosmicExtenScoringToolCfg(flags, name='ITkCosmicExtenScoringTool',**kwarg
     return ITkCosmicsScoringToolBaseCfg(flags, name = 'ITkCosmicExtenScoringTool', **kwargs)
 
 def ITkAmbiScoringToolCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
-    return ITkAmbiScoringToolBaseCfg(flags, name = name + flags.ITk.Tracking.Pass.extension, **kwargs)
+    return ITkAmbiScoringToolBaseCfg(flags, name = name + flags.ITk.Tracking.ActivePass.extension, **kwargs)
 
 
 #############################################################################################
@@ -766,4 +766,4 @@ def ITkPRDtoTrackMapToolCfg(flags, name='ITkPRDtoTrackMapTool',**kwargs) :
 
 def ITkCosmicsScoringToolCfg(flags, name='ITkCosmicsScoringTool', **kwargs) :
     return ITkCosmicsScoringToolBaseCfg(flags,
-                                        name=name+flags.ITk.Tracking.Pass.extension)
+                                        name=name+flags.ITk.Tracking.ActivePass.extension)

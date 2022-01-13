@@ -15,17 +15,17 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', e
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("useAmbigFcn", True)
     kwargs.setdefault("useSigmaChi2", False)
-    kwargs.setdefault("PtMin", flags.InDet.Tracking.Pass.minPT if extension == "_TRT" # TRT track segments
-                               else flags.InDet.Tracking.Pass.minTRTonlyPt # TRT standalone
+    kwargs.setdefault("PtMin", flags.InDet.Tracking.ActivePass.minPT if extension == "_TRT" # TRT track segments
+                               else flags.InDet.Tracking.ActivePass.minTRTonlyPt # TRT standalone
                      )
-    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.Pass.minTRTonly)
+    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.ActivePass.minTRTonly)
     kwargs.setdefault("maxEta", 2.1)
-    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.Pass.useTRTonlyParamCuts)
-    kwargs.setdefault("OldTransitionLogic", flags.InDet.Tracking.Pass.useTRTonlyOldLogic)
-    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.Pass.minSecondaryTRTPrecFrac)
-    kwargs.setdefault("TRTTrksEtaBins", flags.InDet.Tracking.Pass.TrkSel.TRTTrksEtaBins)
-    kwargs.setdefault("TRTTrksMinTRTHitsThresholds", flags.InDet.Tracking.Pass.TrkSel.TRTTrksMinTRTHitsThresholds)
-    kwargs.setdefault("TRTTrksMinTRTHitsMuDependencies", flags.InDet.Tracking.Pass.TrkSel.TRTTrksMinTRTHitsMuDependencies)
+    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.ActivePass.useTRTonlyParamCuts)
+    kwargs.setdefault("OldTransitionLogic", flags.InDet.Tracking.ActivePass.useTRTonlyOldLogic)
+    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.ActivePass.minSecondaryTRTPrecFrac)
+    kwargs.setdefault("TRTTrksEtaBins", flags.InDet.Tracking.ActivePass.TrkSel.TRTTrksEtaBins)
+    kwargs.setdefault("TRTTrksMinTRTHitsThresholds", flags.InDet.Tracking.ActivePass.TrkSel.TRTTrksMinTRTHitsThresholds)
+    kwargs.setdefault("TRTTrksMinTRTHitsMuDependencies", flags.InDet.Tracking.ActivePass.TrkSel.TRTTrksMinTRTHitsMuDependencies)
 
     acc.setPrivateTools(CompFactory.InDet.InDetTrtTrackScoringTool(name, **kwargs))
     return acc
@@ -62,7 +62,7 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
     kwargs.setdefault("ScoringTool", InDetTRT_StandaloneScoringTool)
     kwargs.setdefault("Extrapolator", InDetExtrapolator)
     kwargs.setdefault("FinalRefit", True)
-    kwargs.setdefault("MaxSharedHitsFraction", flags.InDet.Tracking.Pass.maxTRTonlyShared)
+    kwargs.setdefault("MaxSharedHitsFraction", flags.InDet.Tracking.ActivePass.maxTRTonlyShared)
     kwargs.setdefault("SuppressHoleSearch", True)
 
     InDetTRT_SegmentToTrackTool = CompFactory.InDet.TRT_SegmentToTrackTool(name = name, **kwargs)
@@ -87,12 +87,12 @@ def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', 
                                                                                         usePrdAssociationTool = usePrdAssociationTool))
     acc.addPublicTool(InDetTRT_SegmentToTrackTool)
 
-    kwargs.setdefault("MinNumDriftCircles", flags.InDet.Tracking.Pass.minTRTonly)
-    kwargs.setdefault("MinPt", flags.InDet.Tracking.Pass.minTRTonlyPt)
+    kwargs.setdefault("MinNumDriftCircles", flags.InDet.Tracking.ActivePass.minTRTonly)
+    kwargs.setdefault("MinPt", flags.InDet.Tracking.ActivePass.minTRTonlyPt)
     kwargs.setdefault("InputSegmentsLocation", BarrelSegments)
     kwargs.setdefault("MaterialEffects", 0)
     kwargs.setdefault("PRDtoTrackMap", prd_to_track_map)
-    kwargs.setdefault("OldTransitionLogic", flags.InDet.Tracking.Pass.useTRTonlyOldLogic)
+    kwargs.setdefault("OldTransitionLogic", flags.InDet.Tracking.ActivePass.useTRTonlyOldLogic)
     kwargs.setdefault("OutputTracksLocation", TRTStandaloneTracks)
     kwargs.setdefault("TRT_SegToTrackTool", InDetTRT_SegmentToTrackTool)
 
@@ -137,7 +137,7 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', exte
     kwargs.setdefault("SummaryTool", InDetTrackSummaryToolTRTTracks)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels if prd_to_track_map !='' else None,)
     kwargs.setdefault("InputAssociationMapName", prd_to_track_map)
-    kwargs.setdefault("MinNHit", flags.InDet.Tracking.Pass.minTRTonly)
+    kwargs.setdefault("MinNHit", flags.InDet.Tracking.ActivePass.minTRTonly)
     kwargs.setdefault("OutlierRemoval", True)
     kwargs.setdefault("MaterialEffects", False)
 
