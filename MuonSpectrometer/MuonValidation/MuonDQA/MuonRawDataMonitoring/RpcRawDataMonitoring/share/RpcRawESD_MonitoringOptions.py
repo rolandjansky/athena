@@ -8,43 +8,7 @@ if not 'MuonDQAFlags' in dir():
     printfunc ("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
-############# RpcRawDataValAlg #############
 
-rpcRawMonMan = AthenaMonManager(name="RpcRawMonManager",
-                                FileKey             = DQMonFlags.monManFileKey(),
-                                Environment         = DQMonFlags.monManEnvironment(),
-                                OutputLevel         = muonOutputLevel)
-from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RpcRawDataValAlg
-from StoreGate.StoreGateConf import StoreGateSvc
-if not hasattr(topSequence,"RpcClusterBuilderPRD"):
-    from RpcClusterization.RpcClusterizationConf import RpcClusterBuilderPRD
-    topSequence += RpcClusterBuilderPRD(ClusterTimeSpread = 10000,
-                                        OutputLevel = FATAL)
-
-OutputMessageLevel = WARNING
-
-rpcRawDataValAlg = RpcRawDataValAlg(name='rpcRawDataValAlg',
-                                    RpcFile 		  = False,
-                                    DoRpcEsd 		  = True,
-                                    RpcChamberHist 	  = False,
-                                    RpcSectorHist 	  = False,
-                                    RpcReduceNbins 	  = 8,
-                                    RpcReduceNbinsStrip   = 8,
-                                    doLumiPlot            = False,
-                                    LBmax                 = 2500,
-                                    doTriggerHits         = True,
-                                    doCoolDB              = False,
-				    lv1Thres_0            = 99,
-				    lv1Thres_1            = 1,
-				    lv1Thres_2            = 2,
-				    lv1Thres_3            = 3,
-                                    ClusterContainer      ="rpcClusters",
-				    OutputLevel           = OutputMessageLevel,
-                                    LastEvent             = MuonDQAFlags.EvtMax)
-#ToolSvc += rpcRawDataValAlg
-rpcRawMonMan.AthenaMonTools += [ rpcRawDataValAlg ]
-topSequence += rpcRawMonMan
-printfunc (rpcRawMonMan)
 #################### RPCStandaloneTracksMon #######################
 
 rpcTrackMonMan = AthenaMonManager(name="RpcTrackMonManager",
