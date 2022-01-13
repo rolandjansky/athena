@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
 # Dev_pp_run3_v1.py menu for the long shutdown development
