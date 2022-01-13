@@ -1,6 +1,9 @@
 # muon active/passive geometry setup
 from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry import MuonTrackingGeometryBuilder
 
+# atlas tracking geometry service
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+
 # atlas tracking geometry builder
 from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilder
 MuonStandAloneGeometryBuilder = Trk__GeometryBuilder( name = "MuonStandAloneGeometryBuilder",
@@ -54,7 +57,7 @@ MuonTGExtrapolator = Trk__Extrapolator( name = 'MuonTGExtrapolator',
 ToolSvc += MuonTGExtrapolator
 print MuonTGExtrapolator                          
  
-#
+# 
 
 
 from MuonTGRecTools.MuonTGRecToolsConf import Muon__MuonTGMeasurementTool

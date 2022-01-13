@@ -26,14 +26,6 @@ if doMuonHoleSearch:
     MyMuonHolesOnTrackToolGeometryBuilder.switchOffGeometry('Calo') 
     MyMuonHolesOnTrackToolGeometryBuilder.switchOnGeometry('Muon',0) 
     MyMuonHolesOnTrackToolGeometryBuilder.printInfo() 
-
-    # combined tracking geometry options
-    include ("TrkDetDescrSvc/ConfiguredTrackingGeometrySvc.py")
-    MyMuonHolesOnTrackToolTrackingGeometrySvc = ConfiguredTrackingGeometrySvc("MuonTrackingGeometrySvc","MuonTest",\
-                                                                            MyMuonHolesOnTrackToolGeometryBuilder)
-    #MyMuonHolesOnTrackToolTrackingGeometrySvc.buildGeometryAtStartup()  
-    MyMuonHolesOnTrackToolTrackingGeometrySvc.layerMaterialAssociationOff()  
-    MyMuonHolesOnTrackToolTrackingGeometrySvc.printInfo()
     
     # navigator
     include ( 'TrkExTools/ConfiguredNavigator.py' )

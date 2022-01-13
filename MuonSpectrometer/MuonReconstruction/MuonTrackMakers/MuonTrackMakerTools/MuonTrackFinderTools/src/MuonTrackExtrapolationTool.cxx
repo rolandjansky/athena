@@ -37,7 +37,7 @@ namespace Muon {
         if (!m_trackingGeometryReadKey.empty()) {
             ATH_CHECK(m_trackingGeometryReadKey.initialize());
         } else {
-            ATH_CHECK(m_trackingGeometrySvc.retrieve());
+            ATH_MSG_ERROR("Could not retrieve a valid tracking geometry");
         }
         ATH_CHECK(m_fieldCacheCondObjInputKey.initialize());
 

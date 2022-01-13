@@ -427,10 +427,8 @@ if __name__=="__main__":
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
     cfg.merge(AtlasGeometryCfg(ConfigFlags))
-    cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
 
     if ConfigFlags.DQ.Steering.Muon.doTrackMon:
         # do not run in RAW->ESD
