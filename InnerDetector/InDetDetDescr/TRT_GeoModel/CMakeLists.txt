@@ -4,7 +4,7 @@
 atlas_subdir( TRT_GeoModel )
 
 # External dependencies:
-find_package( GeoModel COMPONENTS GeoModelKernel )
+find_package( GeoModel COMPONENTS GeoModelKernel GeoModelDBManager GeoModelRead)
 
 # Component(s) in the package:
 atlas_add_component( TRT_GeoModel
