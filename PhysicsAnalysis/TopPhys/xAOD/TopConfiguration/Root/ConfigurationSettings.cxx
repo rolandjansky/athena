@@ -152,6 +152,7 @@ namespace top {
                       "None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
+    registerParameter("MuonCalibrationMode", "Calibration method for muon momentum.", "correctData_CB", {"correctData_CB", "correctData_IDMS", "notCorrectData_IDMS"});
     registerParameter("MuonDoSmearing2stationHighPt",
                       "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True",
                       "True");
