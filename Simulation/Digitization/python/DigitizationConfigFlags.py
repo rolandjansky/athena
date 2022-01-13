@@ -73,8 +73,12 @@ def createDigitizationCfgFlags():
 
     # Run radiation damage simulation for pixel planar sensors
     flags.addFlag("Digitization.DoPixelPlanarRadiationDamage", False)
+    # Run the template version of the radiation damage
+    flags.addFlag("Digitization.DoPixelPlanarRadiationDamageTemplate", False)
     # Run radiation damage simulation for pixel 3D sensors
     flags.addFlag("Digitization.DoPixel3DRadiationDamage", False)
+    # Run the template version of the radiation damage
+    flags.addFlag("Digitization.DoPixel3DRadiationDamageTemplate", False)
 
     # for PileUp digitization
     # Bunch structure configuration
