@@ -321,9 +321,9 @@ class ThresholdDef:
 
         ## ZDC
         
-        NimThreshold('ZDC_A',   'ZDC')
-        NimThreshold('ZDC_C',   'ZDC')
-        NimThreshold('ZDC_AND', 'ZDC')
+        NimThreshold('ZDC_0',   'ZDC')
+        NimThreshold('ZDC_1',   'ZDC')
+        NimThreshold('ZDC_2',   'ZDC')
 
 
         ## BCM
