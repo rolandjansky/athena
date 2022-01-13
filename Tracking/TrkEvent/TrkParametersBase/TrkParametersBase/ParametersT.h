@@ -128,6 +128,9 @@ public:
   virtual bool operator==(
     const ParametersBase<DIM, T>& rhs) const override final;
 
+  // Needed to avoid ambiguities with c++20.
+  bool operator==(const ParametersT &rhs) const;
+
   /** Virtual clone */
   virtual ParametersT<DIM, T, S>* clone() const override final;
 
