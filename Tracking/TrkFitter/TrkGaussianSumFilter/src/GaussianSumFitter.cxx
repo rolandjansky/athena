@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -64,7 +64,6 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_updator{}
   , m_directionToPerigee(Trk::oppositeMomentum)
   , m_trkParametersComparisonFunction{}
   , m_inputPreparator(nullptr)
@@ -932,7 +931,7 @@ Trk::GaussianSumFitter::stepForwardFit(
   // Here we need to clone as the extrapolated state can be used
   // afterwards
   updatedState =
-    m_updator.update(MultiComponentStateHelpers::clone(extrapolatedState),
+    Trk::GsfMeasurementUpdator::update(MultiComponentStateHelpers::clone(extrapolatedState),
                      *measurement,
                      *fitQuality);
   if (updatedState.empty()) {
@@ -1055,7 +1054,7 @@ Trk::GaussianSumFitter::fit(
     return Trk::SmoothedTrajectory();
   }
   Trk::MultiComponentState firstSmoothedState =
-    m_updator.update(std::move(smootherPredictionMultiState),
+    Trk::GsfMeasurementUpdator::update(std::move(smootherPredictionMultiState),
                      *firstSmootherMeasurementOnTrack,
                      fitQuality);
 
@@ -1098,7 +1097,7 @@ Trk::GaussianSumFitter::fit(
 
   // Perform a measurement update on this new state before loop
   Trk::MultiComponentState updatedState =
-    m_updator.update(std::move(smoothedStateWithScaledError),
+    Trk::GsfMeasurementUpdator::update(std::move(smoothedStateWithScaledError),
                      *(updatedFirstStateOnSurface->measurementOnTrack()));
 
   if (updatedState.empty()) {
@@ -1179,7 +1178,7 @@ Trk::GaussianSumFitter::fit(
     }
 
     (*loopUpdatedState) =
-      m_updator.update(std::move(extrapolatedState), *measurement, fitQuality);
+      Trk::GsfMeasurementUpdator::update(std::move(extrapolatedState), *measurement, fitQuality);
     if (loopUpdatedState->empty()) {
       ATH_MSG_WARNING(
         "Could not update the multi-component state... rejecting track!");
@@ -1222,7 +1221,7 @@ Trk::GaussianSumFitter::fit(
         return Trk::SmoothedTrajectory();
       }
       auto combinedFitQuality = std::make_unique<Trk::FitQualityOnSurface>(
-        m_updator.fitQuality(combinedState2, *measurement));
+        Trk::GsfMeasurementUpdator::fitQuality(combinedState2, *measurement));
       // In the case of combination with forwards state - push back the combined
       // state
       Trk::MultiComponentStateOnSurface* combinedStateOnSurface =
@@ -1427,7 +1426,7 @@ Trk::GaussianSumFitter::addCCOT(
   // Update newly extrapolated state with MeasurementBase measurement
   Trk::FitQualityOnSurface fitQuality;
   Trk::MultiComponentState updatedState =
-    m_updator.update(std::move(extrapolatedState), *ccot, fitQuality);
+    Trk::GsfMeasurementUpdator::update(std::move(extrapolatedState), *ccot, fitQuality);
 
   if (updatedState.empty()) {
     return {};
@@ -1472,7 +1471,7 @@ Trk::GaussianSumFitter::addCCOT(
   std::unique_ptr<Trk::TrackParameters> combinedState =
     MultiComponentStateCombiner::combine(extrapolatedState, true);
   auto combinedFitQuality = std::make_unique<Trk::FitQualityOnSurface>(
-    m_updator.fitQuality(extrapolatedState, *ccot));
+    Trk::GsfMeasurementUpdator::fitQuality(extrapolatedState, *ccot));
 
   // Build a TSOS using the dummy measurement and combined state
   auto finalSOS = std::make_unique<Trk::MultiComponentStateOnSurface>(
