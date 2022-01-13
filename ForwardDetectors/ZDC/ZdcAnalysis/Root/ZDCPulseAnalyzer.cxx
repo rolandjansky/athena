@@ -4,12 +4,6 @@
 
 #include "ZdcAnalysis/ZDCPulseAnalyzer.h"
 
-#include <algorithm>
-#include <sstream>
-#include <cmath>
-#include <memory>
-#include <numeric>
-
 #include "TFitResult.h"
 #include "TFitResultPtr.h"
 #include "TVirtualFitter.h"
@@ -17,6 +11,11 @@
 #include "TList.h"
 #include "TMinuit.h"
 
+#include <algorithm>
+#include <sstream>
+#include <cmath>
+#include <memory>
+#include <numeric>
 
 extern int gErrorIgnoreLevel;
 
@@ -1375,7 +1374,7 @@ std::unique_ptr<TFitter> ZDCPulseAnalyzer::MakeCombinedFitter(TF1* func)
     double parLimitLow, parLimitHigh;
 
     func->GetParLimits(ipar, parLimitLow, parLimitHigh);
-    if (fabs(parLimitHigh / parLimitLow - 1) < 1e-6) {
+    if (std::abs(parLimitHigh / parLimitLow - 1) < 1e-6) {
       double value   = func->GetParameter(ipar);
       double lowLim  = std::min(value * 0.99, value * 1.01);
       double highLim = std::max(value * 0.99, value * 1.01);

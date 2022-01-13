@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _ZDCMsg_h
-#define _ZDCMsg_h
+#ifndef ZDCMsg_h
+#define ZDCMsg_h
 
 namespace ZDCMsg {
     typedef std::function<bool(int, std::string)> MessageFunction;

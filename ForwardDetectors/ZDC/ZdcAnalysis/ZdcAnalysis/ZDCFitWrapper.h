@@ -231,8 +231,6 @@ public:
     double t0 = p[1];
     double deltaT = x[0] - t0;
 
-    // double bckgd = p[2]*x[0];
-
     double expFermi =  amp * m_norm * m_expFermiFunc->operator()(deltaT);
 
     return expFermi; // + bckgd;

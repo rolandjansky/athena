@@ -18,7 +18,6 @@ namespace xAOD {
    }
 
   // simple types
-  //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1, uint64_t, id,setId)
   //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1, uint32_t, id,setId) // remove oct 29, 2021
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,int, id,setId)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(ZdcModule_v1,int,side,setSide)

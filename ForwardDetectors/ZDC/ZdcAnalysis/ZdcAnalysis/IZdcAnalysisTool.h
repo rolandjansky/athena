@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __IZDCANALYSISTOOL_H__
-#define __IZDCANALYSISTOOL_H__
+#ifndef IZDCANALYSISTOOL_H__
+#define IZDCANALYSISTOOL_H__
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODForward/ZdcModuleContainer.h"
