@@ -9,7 +9,7 @@
 
 export ATHENA_CORE_NUMBER=8 # set number of cores used in multithread to 8.
 
-athena.py --threads=8  PFlowUtils/PFlowCalibHitDecorator_jobOptions.py
+python $Athena_DIR/python/PFlowUtils/PFRunCalibHitDecorator_ESDtoAOD_mc20e.py
 rc1=$?
 
 echo "art-result: ${rc1}"
