@@ -165,8 +165,10 @@ std::map<std::string,double> TFCSPredictExtrapWeights::prepareInputs(TFCSSimulat
   int index = std::distance(m_normLayers->begin(), itr);
   inputVariables["etrue"] = ( truthE - (*m_normMeans).at(index) ) / (*m_normStdDevs).at(index);
   // Temporary
-  if(is_match_pdgid(211) || is_match_pdgid(-211)){
-    inputVariables["pdgId"] = 2; // one hot enconding
+  //if(is_match_pdgid(211) || is_match_pdgid(-211)){
+  //  inputVariables["pdgId"] = 2; // one hot enconding
+  if(is_match_pdgid(22)){
+    inputVariables["pdgId"] = 1; // one hot enconding
   } else if(is_match_pdgid(11) || is_match_pdgid(-11)){
     inputVariables["pdgId"] = 0; // one hot enconding
   }
