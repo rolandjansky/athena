@@ -407,9 +407,9 @@ namespace top {
           AnalysisTop_Isol_Tight(*electron) = (m_isolationTool_Tight->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_Loose(*electron) = (m_isolationTool_Loose->accept(*electron) ? 1 : 0);
           AnalysisTop_Isol_TightTrackOnly(*electron) = (m_isolationTool_TightTrackOnly->accept(*electron) ? 1 : 0);
-	  if (ptcone20_TightTTVALooseCone_pt1000.isAvailable(*electron)) {
-	    AnalysisTop_Isol_TightTrackOnly_FixedRad(*electron) = (m_isolationTool_TightTrackOnly_FixedRad->accept(*electron) ? 1 : 0);
-	  }
+          if (ptcone20_TightTTVALooseCone_pt1000.isAvailable(*electron) && neflowisol20.isAvailable(*electron)) {
+            AnalysisTop_Isol_TightTrackOnly_FixedRad(*electron) = (m_isolationTool_TightTrackOnly_FixedRad->accept(*electron) ? 1 : 0);
+          }
         }
         if (ptvarcone30_TightTTVALooseCone_pt500.isAvailable(*electron) && neflowisol20.isAvailable(*electron)) {
           AnalysisTop_Isol_PflowTight(*electron) = (m_isolationTool_PflowTight->accept(*electron) ? 1 : 0);
