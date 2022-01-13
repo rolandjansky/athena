@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_TRACKDEPOSITINCALOTOOL_H
@@ -203,27 +203,33 @@ private:
     std::once_flag mutable m_initializeOnce ATLAS_THREAD_SAFE;
 
     // Histograms
-    TH1F* m_hDepositLayer12{};
-    TH1F* m_hDepositLayer13{};
-    TH1F* m_hDepositLayer14{};
+    struct Hists {
+      StatusCode book (ITHistSvc& histSvc);
 
-    TH2F* m_hParELossEta{};
-    TH2F* m_hParELossSample{};
+      TH1F* m_hDepositLayer12{};
+      TH1F* m_hDepositLayer13{};
+      TH1F* m_hDepositLayer14{};
 
-    ///////////////////////////////
-    TH1F* m_hDeltaEtaLastPar{};
-    TH1F* m_hDeltaRadiusLastPar{};
-    TH1F* m_hDepositsInCore{};
-    TH1F* m_hDepositsInCone{};
-    TH2F* m_hDistDepositsTile{};
-    TH2F* m_hDistDepositsHEC{};
+      TH2F* m_hParELossEta{};
+      TH2F* m_hParELossSample{};
 
-    TH2F* m_hEMB1vsdPhi{};
-    TH2F* m_hEMB2vsdPhi{};
-    TH2F* m_hEMB3vsdPhi{};
-    TH2F* m_hEMB1vsdEta{};
-    TH2F* m_hEMB2vsdEta{};
-    TH2F* m_hEMB3vsdEta{};
+      ///////////////////////////////
+      TH1F* m_hDeltaEtaLastPar{};
+      TH1F* m_hDeltaRadiusLastPar{};
+      TH1F* m_hDepositsInCore{};
+      TH1F* m_hDepositsInCone{};
+      TH2F* m_hDistDepositsTile{};
+      TH2F* m_hDistDepositsHEC{};
+
+      TH2F* m_hEMB1vsdPhi{};
+      TH2F* m_hEMB2vsdPhi{};
+      TH2F* m_hEMB3vsdPhi{};
+      TH2F* m_hEMB1vsdEta{};
+      TH2F* m_hEMB2vsdEta{};
+      TH2F* m_hEMB3vsdEta{};
+    };
+    std::unique_ptr<Hists> m_h;
+    Hists& getHists() const;
 
     const Trk::ParticleMasses m_particlemasses;
 };
