@@ -167,6 +167,7 @@ def setup(TOPQname, stream):
 
     if TOPQname == 'TOPQ1':
         # for TOPQDERIV-62 and TOPQDERIV-98
+        TOPQSlimmingHelper.ExtraVariables += ElectronsAddAmbiguityContent
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ1
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ1
