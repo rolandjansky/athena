@@ -48,7 +48,7 @@ class TopoAlgoDefMultiplicity(object):
             tm.registerTopoAlgo(alg)
 
         emThresholds_2bits = [ 
-            'jEM15', 'jEM15M', 
+            'jEM20', 'jEM20M', 
   
             #spares
             'jEMSPARE1', 
@@ -66,7 +66,7 @@ class TopoAlgoDefMultiplicity(object):
             'eTAUSPARE1', 
         ]
         jtauThresholds_3bits = [ 
-            'jTAU12'
+            'jTAU20'
         ]        
         ctauThresholds_3bits = [ 
             'cTAU20M', 
@@ -81,7 +81,7 @@ class TopoAlgoDefMultiplicity(object):
             'eTAUSPARE2', 'eTAUSPARE3', 'eTAUSPARE4', 'eTAUSPARE5', 'eTAUSPARE6', 'eTAUSPARE7',
         ]
         jtauThresholds_2bits = [ 
-            'jTAU20', 'jTAU20M',
+            'jTAU30', 'jTAU30M',
 
             #spares
             'jTAUSPARE1',
@@ -130,17 +130,17 @@ class TopoAlgoDefMultiplicity(object):
             tm.registerTopoAlgo(alg)
 
         jJThresholds_3bits = [ 
-            'jJ5', 'jJ12', 'jJ12p0ETA25', 'jJ15', 'jJ15p0ETA25', 'jJ20', 'jJ25', 'jJ25p0ETA23', 'jJ30',
+            'jJ20', 'jJ30', 'jJ30p0ETA25', 'jJ40', 'jJ40p0ETA25', 'jJ50', 'jJ55', 'jJ55p0ETA23', 'jJ60',
 
             # spares
             'jJSPARE1', 'jJSPARE2',
         ]
         jJThresholds_2bits = [ 
-            'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA21',
-            'jJ50', 'jJ75',
-            'jJ85', 'jJ100', 'jJ120', 'jJ400',
+            'jJ70p0ETA23', 'jJ80', 'jJ80p0ETA25', 'jJ85p0ETA21',
+            'jJ90', 'jJ125',
+            'jJ140', 'jJ160', 'jJ180', 'jJ500',
 
-            'jJ15p31ETA49', 'jJ20p31ETA49', 'jJ30p31ETA49', 'jJ50p31ETA49', 'jJ75p31ETA49',
+            'jJ40p31ETA49', 'jJ50p31ETA49', 'jJ60p31ETA49', 'jJ90p31ETA49', 'jJ125p31ETA49',
 
             # spares
             'jJSPARE3', 'jJSPARE4', 'jJSPARE5', 'jJSPARE6',
@@ -200,18 +200,18 @@ class TopoAlgoDefMultiplicity(object):
             tm.registerTopoAlgo(alg)
 
         XEThresholds = [ 
-            'gXEJWOJ30', 'gXEJWOJ40', 'gXEJWOJ50',
-            'gXERHO30', 'gXERHO50', 
-            'gXENC30', 'gXENC50',
+            'gXEJWOJ70', 'gXEJWOJ80', 'gXEJWOJ100',
+            'gXERHO70', 'gXERHO100', 
+            'gXENC70', 'gXENC100',
 
-            'jXE30', 'jXE40', 'jXE50', 'jXE55', 'jXE300',
+            'jXE70', 'jXE80', 'jXE100', 'jXE110', 'jXE500',
 
-            'jXEC50', 'jTE200', 'jTEC200', 'jTEFWD100', 'jTEFWDA100', 'jTEFWDC100', 
+            'jXEC100', 'jTE200', 'jTEC200', 'jTEFWD100', 'jTEFWDA100', 'jTEFWDC100', 
             'gTE200',
 
             'gMHT500',
 
-            'jXEPerf50',
+            'jXEPerf100',
 
             #spares (for any energy thresholds)
             'jXESPARE1', 'jXESPARE2', 'jXESPARE3', 'jXESPARE4',

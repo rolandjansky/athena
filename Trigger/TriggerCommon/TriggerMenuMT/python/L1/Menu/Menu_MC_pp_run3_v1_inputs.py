@@ -150,16 +150,16 @@ def defineInputsMenu():
         "legacy" : False,
         "thresholds" : [ # Topo1B: jFex small-R jet, jFex large-R jet, combined eFex/jFex TAU, gFex+jFex EX, gFex+jFex SumET, jFex TAU
             # jJ thresholds for commissioning
-            ('jJ5',3), ('jJ12',3), ('jJ12p0ETA25',3), ('jJ15',3), ('jJ15p0ETA25',3),
-            ('jJ20',3), ('jJ25',3), ('jJ25p0ETA23',3), ('jJ30',3),
+            ('jJ20',3), ('jJ30',3), ('jJ30p0ETA25',3), ('jJ40',3), ('jJ40p0ETA25',3),
+            ('jJ50',3), ('jJ55',3), ('jJ55p0ETA23',3), ('jJ60',3),
             ('jJSPARE1',3), ('jJSPARE2',3),
 
             (None,3),
 
-            'jJ35p0ETA23', 'jJ40', 'jJ40p0ETA25', 'jJ45p0ETA21', 'jJ50', 'jJ75',
-            'jJ85', 'jJ100', 'jJ120', 'jJ400',
+            'jJ70p0ETA23', 'jJ80', 'jJ80p0ETA25', 'jJ85p0ETA21', 'jJ90', 'jJ125',
+            'jJ140', 'jJ160', 'jJ180', 'jJ500',
 
-            'jJ15p31ETA49', 'jJ20p31ETA49', 'jJ30p31ETA49', 'jJ50p31ETA49', 'jJ75p31ETA49',
+            'jJ40p31ETA49', 'jJ50p31ETA49', 'jJ60p31ETA49', 'jJ90p31ETA49', 'jJ125p31ETA49',
 
             # jJ thresholds for production
             'jJSPARE3', 'jJSPARE4', 'jJSPARE5', 'jJSPARE6',
@@ -184,11 +184,11 @@ def defineInputsMenu():
         "legacy" : False,
         "thresholds" : [ # Topo1B: jFex small-R jet, jFex large-R jet, combined eFex/jFex TAU, gFex+jFex EX, gFex+jFex SumET, jFex TAU
             # jTAU thresholds for commissioning
-            ('jTAU12',3), 
+            ('jTAU20',3), 
 
             (None,3),
 
-            'jTAU20', 'jTAU20M',
+            'jTAU30', 'jTAU30M',
             # jTAU thresholds for production
             'jTAUSPARE1',
 
@@ -206,7 +206,7 @@ def defineInputsMenu():
             None,
 
             # jEM thresholds for commissioning
-            'jEM15', 'jEM15M', 
+            'jEM20', 'jEM20M', 
             # jEM thresholds for production
             'jEMSPARE1',
     
@@ -215,11 +215,11 @@ def defineInputsMenu():
             # energy thresholds
             # commissioning
             # jXE
-            ('jXE30',1), ('jXE40',1), ('jXE50',1), ('jXE55',1), ('jXE300',1),
+            ('jXE70',1), ('jXE80',1), ('jXE100',1), ('jXE110',1), ('jXE500',1),
             # gXE
-            ('gXERHO30',1), ('gXERHO50',1),
-            ('gXENC30',1), ('gXENC50',1),
-            ('gXEJWOJ30',1), ('gXEJWOJ40',1), ('gXEJWOJ50',1),
+            ('gXERHO70',1), ('gXERHO100',1),
+            ('gXENC70',1), ('gXENC100',1),
+            ('gXEJWOJ70',1), ('gXEJWOJ80',1), ('gXEJWOJ100',1),
             # gTE
             ('gTE200',1),
 
@@ -227,7 +227,7 @@ def defineInputsMenu():
             ('gMHT500',1),
 
             # test thresholds
-            ('jXEC50',1),
+            ('jXEC100',1),
             ('jTE200',1), ('jTEC200',1), ('jTEFWD100',1), ('jTEFWDA100',1), ('jTEFWDC100',1),
 
             # spare energy thresholds for commissioning
@@ -241,7 +241,7 @@ def defineInputsMenu():
             ('jXESPARE25',1), ('jXESPARE26',1), ('jXESPARE27',1), ('jXESPARE28',1),
 
             # Performance thresholds, should not go in physics menu!
-            ('jXEPerf50',1),
+            ('jXEPerf100',1),
         ]
     })
 
