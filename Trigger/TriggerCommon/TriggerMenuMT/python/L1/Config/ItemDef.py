@@ -401,9 +401,9 @@ class ItemDef:
         MenuItem('L1_eTAU20'  ).setLogic( d.eTAU20   & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU20L' ).setLogic( d.eTAU20L  & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU20M' ).setLogic( d.eTAU20M  & physcond).setTriggerType( TT.calo )
-        MenuItem('L1_jTAU12'  ).setLogic( d.jTAU12   & physcond).setTriggerType( TT.calo )
         MenuItem('L1_jTAU20'  ).setLogic( d.jTAU20   & physcond).setTriggerType( TT.calo )
-        MenuItem('L1_jTAU20M' ).setLogic( d.jTAU20M  & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_jTAU30'  ).setLogic( d.jTAU30   & physcond).setTriggerType( TT.calo )
+        MenuItem('L1_jTAU30M' ).setLogic( d.jTAU30M  & physcond).setTriggerType( TT.calo )
         MenuItem('L1_cTAU20M' ).setLogic( d.cTAU20M  & physcond).setTriggerType( TT.calo )
         MenuItem('L1_eTAU30'  ).setLogic( d.eTAU30   & physcond).setTriggerType( TT.calo )
         MenuItem('L1_cTAU30M' ).setLogic( d.cTAU30M  & physcond).setTriggerType( TT.calo )
@@ -415,8 +415,8 @@ class ItemDef:
         MenuItem('L1_eTAU140' ).setLogic( d.eTAU140  & physcond).setTriggerType( TT.calo )
         # Phase-I 2xTAU
         MenuItem('L1_eTAU80_2eTAU60').setLogic(d.eTAU80 & d.eTAU60.x(2) & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_cTAU30M_2cTAU20M_4jJ12p0ETA25').setLogic(d.cTAU30M & d.cTAU20M.x(2) & d.jJ120ETA25.x(4) & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_cTAU35M_2cTAU30M_2jJ25_3jJ20').setLogic(d.cTAU35M & d.cTAU30M.x(2) & d.jJ25.x(2) & d.jJ20.x(3) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_cTAU30M_2cTAU20M_4jJ30p0ETA25').setLogic(d.cTAU30M & d.cTAU20M.x(2) & d.jJ300ETA25.x(4) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_cTAU35M_2cTAU30M_2jJ55_3jJ50').setLogic(d.cTAU35M & d.cTAU30M.x(2) & d.jJ55.x(2) & d.jJ50.x(3) & physcond).setTriggerType(TT.calo)
 
         #UPC TAU
         MenuItem('L1_2TAU1_VTE50' ).setLogic( d.HA1.x(2)      & Not(d.TE50) & physcond).setTriggerType(TT.calo)
@@ -545,54 +545,54 @@ class ItemDef:
         MenuItem('L1_J400' ).setLogic( d.J400 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J400_LAR' ).setLogic( d.J400 & physcond).setTriggerType(TT.lardemo) # ATR-22344
 
-        MenuItem('L1_jJ12'          ).setLogic( d.jJ12         & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ12p0ETA25'   ).setLogic( d.jJ120ETA25   & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ15'          ).setLogic( d.jJ15         & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ15p0ETA25'   ).setLogic( d.jJ150ETA25   & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ15p31ETA49'  ).setLogic( d.jJ1531ETA49  & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ20'          ).setLogic( d.jJ20         & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ20p31ETA49'  ).setLogic( d.jJ2031ETA49  & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ25'          ).setLogic( d.jJ25         & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ25p0ETA23'   ).setLogic( d.jJ250ETA23   & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ30'          ).setLogic( d.jJ30         & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ30p31ETA49'  ).setLogic( d.jJ3031ETA49  & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ35p0ETA23'   ).setLogic( d.jJ350ETA23   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ30p0ETA25'   ).setLogic( d.jJ300ETA25   & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ40'          ).setLogic( d.jJ40         & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ40p0ETA25'   ).setLogic( d.jJ400ETA25   & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ45p0ETA21'   ).setLogic( d.jJ450ETA21   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ40p31ETA49'  ).setLogic( d.jJ4031ETA49  & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ50'          ).setLogic( d.jJ50         & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jJ50p31ETA49'  ).setLogic( d.jJ5031ETA49  & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ75'          ).setLogic( d.jJ75         & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ75p31ETA49'  ).setLogic( d.jJ7531ETA49  & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ85'          ).setLogic( d.jJ85         & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ100'         ).setLogic( d.jJ100        & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ120'         ).setLogic( d.jJ120        & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ400'         ).setLogic( d.jJ400        & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ400_LAR'     ).setLogic( d.jJ400 & physcond).setTriggerType(TT.lardemo) # ATR-22344
+        MenuItem('L1_jJ55'          ).setLogic( d.jJ55         & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ55p0ETA23'   ).setLogic( d.jJ550ETA23   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ60'          ).setLogic( d.jJ60         & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ60p31ETA49'  ).setLogic( d.jJ6031ETA49  & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ70p0ETA23'   ).setLogic( d.jJ700ETA23   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ80'          ).setLogic( d.jJ80         & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ80p0ETA25'   ).setLogic( d.jJ800ETA25   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ85p0ETA21'   ).setLogic( d.jJ850ETA21   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ90'          ).setLogic( d.jJ90         & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ90p31ETA49'  ).setLogic( d.jJ9031ETA49  & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ125'         ).setLogic( d.jJ125        & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ125p31ETA49' ).setLogic( d.jJ12531ETA49 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ140'         ).setLogic( d.jJ140        & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ160'         ).setLogic( d.jJ160        & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ180'         ).setLogic( d.jJ180        & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ500'         ).setLogic( d.jJ500        & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ500_LAR'     ).setLogic( d.jJ500        & physcond).setTriggerType(TT.lardemo) # ATR-22344
 
-        MenuItem('L1_4jJ15'         ).setLogic( d.jJ15.x(4)    & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_4jJ15p0ETA25'  ).setLogic( d.jJ150ETA25.x(4) & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_5jJ15p0ETA25'  ).setLogic( d.jJ150ETA25.x(5) & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_4jJ20'         ).setLogic( d.jJ20.x(4)    & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_3jJ50'         ).setLogic( d.jJ50.x(3)    & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_3jJ35p0ETA23'  ).setLogic( d.jJ350ETA23.x(3)    & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ85_3jJ30'    ).setLogic( d.jJ85 & d.jJ30.x(3) & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ40p0ETA25_2jJ25_jJ20p31ETA49' ).setLogic( d.jJ400ETA25 & d.jJ25.x(2) & d.jJ2031ETA49   & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ25p0ETA23_2jJ15p31ETA49'      ).setLogic( d.jJ250ETA23 & d.jJ1531ETA49.x(2)            & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jJ45p0ETA21_3jJ15p0ETA25'       ).setLogic( d.jJ450ETA21 & d.jJ150ETA25.x(3)             & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_4jJ40'         ).setLogic( d.jJ40.x(4)    & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_4jJ40p0ETA25'  ).setLogic( d.jJ400ETA25.x(4) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_5jJ40p0ETA25'  ).setLogic( d.jJ400ETA25.x(5) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_4jJ50'         ).setLogic( d.jJ50.x(4)    & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_3jJ90'         ).setLogic( d.jJ90.x(3)    & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_3jJ70p0ETA23'  ).setLogic( d.jJ700ETA23.x(3)    & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ140_3jJ60'   ).setLogic( d.jJ140 & d.jJ60.x(3) & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ80p0ETA25_2jJ55_jJ50p31ETA49' ).setLogic( d.jJ800ETA25 & d.jJ55.x(2) & d.jJ5031ETA49   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ55p0ETA23_2jJ40p31ETA49'      ).setLogic( d.jJ550ETA23 & d.jJ4031ETA49.x(2)            & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jJ85p0ETA21_3jJ40p0ETA25'       ).setLogic( d.jJ850ETA21 & d.jJ400ETA25.x(3)             & physcond).setTriggerType(TT.calo)
 
-        MenuItem('L1_jJ30_EMPTY'     ).setLogic( d.jJ30 & cosmiccond ).setTriggerType(TT.calo)
-        MenuItem('L1_jJ30_FIRSTEMPTY').setLogic( d.jJ30 & firstempty ).setTriggerType(TT.calo)
+        MenuItem('L1_jJ60_EMPTY'     ).setLogic( d.jJ60 & cosmiccond ).setTriggerType(TT.calo)
+        MenuItem('L1_jJ60_FIRSTEMPTY').setLogic( d.jJ60 & firstempty ).setTriggerType(TT.calo)
 
-        MenuItem('L1_MU3V_jJ15'      ).setLogic( d.MU3V & d.jJ15    & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_MU3V_jJ40'      ).setLogic( d.MU3V & d.jJ40    & physcond).setTriggerType(TT.calo)
 
         MenuItem('L1_jLJ80'         ).setLogic( d.jLJ80        & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jLJ100'        ).setLogic( d.jLJ100       & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jLJ140'        ).setLogic( d.jLJ140       & physcond).setTriggerType(TT.calo)
         MenuItem('L1_jLJ160'        ).setLogic( d.jLJ160       & physcond).setTriggerType(TT.calo)
 
-        MenuItem('L1_jEM15'         ).setLogic( d.jEM15        & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jEM15M'        ).setLogic( d.jEM15M       & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jEM20'         ).setLogic( d.jEM20        & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jEM20M'        ).setLogic( d.jEM20M       & physcond).setTriggerType(TT.calo)
 
         MenuItem('L1_J10p31ETA49').setLogic( d.J1031ETA49 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_J75p31ETA49').setLogic( d.J7531ETA49 & physcond).setTriggerType(TT.calo)
@@ -732,22 +732,22 @@ class ItemDef:
         MenuItem('L1_XE70').setLogic( d.XE70 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_XE80').setLogic( d.XE80 & physcond).setTriggerType(TT.calo)
         # phase1
-        MenuItem('L1_gXERHO30').setLogic( d.gXERHO30 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_gXERHO50').setLogic( d.gXERHO50 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_gXENC30').setLogic( d.gXENC30 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_gXENC50').setLogic( d.gXENC50 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_gXEJWOJ30').setLogic( d.gXEJWOJ30 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_gXEJWOJ40').setLogic( d.gXEJWOJ40 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_gXEJWOJ50').setLogic( d.gXEJWOJ50 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_gXERHO70'  ).setLogic( d.gXERHO70   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_gXERHO100' ).setLogic( d.gXERHO100  & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_gXENC70'   ).setLogic( d.gXENC70    & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_gXENC100'  ).setLogic( d.gXENC100   & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_gXEJWOJ70' ).setLogic( d.gXEJWOJ70  & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_gXEJWOJ80' ).setLogic( d.gXEJWOJ80  & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_gXEJWOJ100').setLogic( d.gXEJWOJ100 & physcond).setTriggerType(TT.calo)
         MenuItem('L1_gMHT500').setLogic( d.gMHT500 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jXE30' ).setLogic( d.jXE30 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jXE40' ).setLogic( d.jXE40 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jXE50' ).setLogic( d.jXE50 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jXE55' ).setLogic( d.jXE55 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jXE300').setLogic( d.jXE300 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jXE70' ).setLogic( d.jXE70  & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jXE80' ).setLogic( d.jXE80  & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jXE100').setLogic( d.jXE100 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jXE110').setLogic( d.jXE110 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jXE500').setLogic( d.jXE500 & physcond).setTriggerType(TT.calo)
 
-        MenuItem('L1_jXEC50' ).setLogic( d.jXEC50 & physcond).setTriggerType(TT.calo)
-        MenuItem('L1_jXEPerf50' ).setLogic( d.jXEPerf50 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jXEC100'    ).setLogic( d.jXEC100 & physcond).setTriggerType(TT.calo)
+        MenuItem('L1_jXEPerf100' ).setLogic( d.jXEPerf100 & physcond).setTriggerType(TT.calo)
 
         # phase1 TE
         MenuItem('L1_gTE200'     ).setLogic( d.gTE200 & physcond).setTriggerType(TT.calo)
@@ -1336,8 +1336,8 @@ class ItemDef:
         MenuItem('L1_AFP_A_AND_C_MBTS_2').setLogic( AFP_A & AFP_C & MBTS_2 & physcond )
         MenuItem('L1_AFP_A_OR_C_MBTS_2').setLogic( (AFP_A | AFP_C) & MBTS_2 & physcond )
 
-        MenuItem('L1_AFP_A_AND_C_TOF_CEP-CjJ60').setLogic( AFP_TOF_A & AFP_TOF_C & d.TOPO_CEP_CjJ60s6 & physcond )
-        MenuItem('L1_AFP_A_AND_C_TOF_T0T1_CEP-CjJ60').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.TOPO_CEP_CjJ60s6 & physcond )
+        MenuItem('L1_AFP_A_AND_C_TOF_CEP-CjJ100').setLogic( AFP_TOF_A & AFP_TOF_C & d.TOPO_CEP_CjJ60s6 & physcond ) # TODO: change cuts in l1topo algo once calibration is applied in jJ 
+        MenuItem('L1_AFP_A_AND_C_TOF_T0T1_CEP-CjJ100').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.TOPO_CEP_CjJ60s6 & physcond ) # TODO: change cuts in l1topo algo once calibration is applied in jJ 
 
         MenuItem('L1_AFP_A_AND_C_TOF_J20').setLogic( AFP_TOF_A & AFP_TOF_C & d.J20 & physcond )
         MenuItem('L1_AFP_A_AND_C_TOF_T0T1_J20').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.J20 & physcond )
@@ -1348,14 +1348,14 @@ class ItemDef:
         MenuItem('L1_AFP_A_AND_C_TOF_J75').setLogic( AFP_TOF_A & AFP_TOF_C & d.J75 & physcond )
         MenuItem('L1_AFP_A_AND_C_TOF_T0T1_J75').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.J75 & physcond )
 
-        MenuItem('L1_AFP_A_AND_C_TOF_jJ20').setLogic( AFP_TOF_A & AFP_TOF_C & d.jJ20 & physcond )
-        MenuItem('L1_AFP_A_AND_C_TOF_T0T1_jJ20').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.jJ20 & physcond )
-        MenuItem('L1_AFP_A_AND_C_TOF_jJ30').setLogic( AFP_TOF_A & AFP_TOF_C & d.jJ30 & physcond )
-        MenuItem('L1_AFP_A_AND_C_TOF_T0T1_jJ30').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.jJ30 & physcond )
         MenuItem('L1_AFP_A_AND_C_TOF_jJ50').setLogic( AFP_TOF_A & AFP_TOF_C & d.jJ50 & physcond )
         MenuItem('L1_AFP_A_AND_C_TOF_T0T1_jJ50').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.jJ50 & physcond )
-        MenuItem('L1_AFP_A_AND_C_TOF_jJ75').setLogic( AFP_TOF_A & AFP_TOF_C & d.jJ75 & physcond )
-        MenuItem('L1_AFP_A_AND_C_TOF_T0T1_jJ75').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.jJ75 & physcond )
+        MenuItem('L1_AFP_A_AND_C_TOF_jJ60').setLogic( AFP_TOF_A & AFP_TOF_C & d.jJ60 & physcond )
+        MenuItem('L1_AFP_A_AND_C_TOF_T0T1_jJ60').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.jJ60 & physcond )
+        MenuItem('L1_AFP_A_AND_C_TOF_jJ90').setLogic( AFP_TOF_A & AFP_TOF_C & d.jJ90 & physcond )
+        MenuItem('L1_AFP_A_AND_C_TOF_T0T1_jJ90').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.jJ90 & physcond )
+        MenuItem('L1_AFP_A_AND_C_TOF_jJ125').setLogic( AFP_TOF_A & AFP_TOF_C & d.jJ125 & physcond )
+        MenuItem('L1_AFP_A_AND_C_TOF_T0T1_jJ125').setLogic( (d.AFP_FSA_TOF_T0 | d.AFP_FSA_TOF_T1) & (d.AFP_FSC_TOF_T0 | d.AFP_FSC_TOF_T1) & d.jJ125 & physcond )
 
         ## ALFA Single items
         MenuItem('L1_ALFA_B7L1U').setLogic(d.ALFA_B7L1U & d.BGRP0).setTriggerType(TT.alfa)
@@ -1548,8 +1548,8 @@ class ItemDef:
 
             # Phase-1:
             MenuItem('L1_LAR-ZEE-eEM').setLogic( d.TOPO_ZEE_eEM20sm2 & physcond).setTriggerType( TT.lardemo ) # LAr demo (ATR-23403), # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_LATE-MU8F_jXE30').setLogic( d.TOPO_LATE_MU10s1 & d.jXE30 & physcond)
-            MenuItem('L1_LATE-MU8F_jJ50' ).setLogic( d.TOPO_LATE_MU10s1 & d.jJ50 & physcond)
+            MenuItem('L1_LATE-MU8F_jXE70').setLogic( d.TOPO_LATE_MU10s1 & d.jXE70 & physcond)
+            MenuItem('L1_LATE-MU8F_jJ90' ).setLogic( d.TOPO_LATE_MU10s1 & d.jJ90 & physcond)
             MenuItem('L1_LFV-MU8VF').setLogic( d.TOPO_0DR15_2MU5VFab & d.MU8VF & d.MU5VF.x(2) & physcond)
             MenuItem('L1_LFV-MU5VF' ).setLogic( d.TOPO_0DR15_2MU5VFab & d.MU5VF.x(2) & physcond)
             MenuItem('L1_LFV-eEM10L-MU8VF' ).setLogic( d.TOPO_0INVM10_0DR15_eEM8abl_MU8Fab & d.MU8VF & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
@@ -1597,8 +1597,8 @@ class ItemDef:
             MenuItem('L1_DY-BOX-2MU5VF').setLogic( d.TOPO_5DETA99_5DPHI99_2MU5VFab & physcond)
 
             #ATR-17320
-            MenuItem('L1_CEP-CjJ60').setLogic( d.TOPO_CEP_CjJ60s6 & physcond )
-            MenuItem('L1_CEP-CjJ50').setLogic( d.TOPO_CEP_CjJ50s6 & physcond )
+            MenuItem('L1_CEP-CjJ100').setLogic( d.TOPO_CEP_CjJ60s6 & physcond ) # TODO: change cuts in l1topo algo once calibration is applied in jJ 
+            MenuItem('L1_CEP-CjJ90' ).setLogic( d.TOPO_CEP_CjJ50s6 & physcond ) # TODO: change cuts in l1topo algo once calibration is applied in jJ 
             #ATR-18824
             MenuItem('L1_ZAFB-04DPHI-eEM18M' ).setLogic( d.TOPO_60INVM_04DPHI32_eEM15abm_FjJj15s623ETA49 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
             MenuItem('L1_ZAFB-25DPHI-eEM18M' ).setLogic( d.TOPO_60INVM_25DPHI32_eEM15abm_FjJj15s623ETA49 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
@@ -1619,9 +1619,9 @@ class ItemDef:
             MenuItem('L1_BPH-0M9-eEM9-eEM7').setLogic( d.TOPO_0INVM9_eEM7ab_eEMab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
             MenuItem('L1_BPH-0M9-eEM9-eEM7_MU5VF').setLogic( d.MU5VF & d.TOPO_0INVM9_eEM7ab_eEMab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
             MenuItem('L1_BPH-0M9-eEM9-eEM7_2MU3V').setLogic( d.MU3V.x(2) & d.TOPO_0INVM9_eEM7ab_eEMab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_BPH-0DR3-eEM9jJ15').setLogic( d.TOPO_0DR03_eEM7ab_CjJ15ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_BPH-0DR3-eEM9jJ15_MU5VF').setLogic(  d.MU5VF & d.TOPO_0DR03_eEM7ab_CjJ15ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_BPH-0DR3-eEM9jJ15_2MU3V').setLogic( d.MU3V.x(2) & d.TOPO_0DR03_eEM7ab_CjJ15ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
+            MenuItem('L1_BPH-0DR3-eEM9jJ40').setLogic( d.TOPO_0DR03_eEM7ab_CjJ15ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM, jJ
+            MenuItem('L1_BPH-0DR3-eEM9jJ40_MU5VF').setLogic(  d.MU5VF & d.TOPO_0DR03_eEM7ab_CjJ15ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM, jJ
+            MenuItem('L1_BPH-0DR3-eEM9jJ40_2MU3V').setLogic( d.MU3V.x(2) & d.TOPO_0DR03_eEM7ab_CjJ15ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM, jJ
 
             MenuItem("L1_JPSI-1M5-eEM9" ).setLogic( d.TOPO_1INVM5_eEM7s1_eEMs6  & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
             MenuItem("L1_JPSI-1M5-eEM15").setLogic( d.TOPO_1INVM5_eEM12s1_eEMs6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
@@ -1630,32 +1630,32 @@ class ItemDef:
             MenuItem('L1_LLP-NOMATCH-eEM').setLogic( d.TOPO_NOT_0MATCH_eTAU30si1_eEMall & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
 
             MenuItem('L1_DR25-eTAU30eTAU20').setLogic( d.TOPO_0DR25_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_DR25-eTAU30eTAU20-jJ25').setLogic( d.TOPO_2DISAMB_jJ25ab_0DR25_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
+            MenuItem('L1_DR25-eTAU30eTAU20-jJ55').setLogic( d.TOPO_2DISAMB_jJ25ab_0DR25_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM, jJ
             MenuItem('L1_DR-eTAU30eTAU20').setLogic( d.TOPO_0DR28_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_DR-eTAU30eTAU20-jJ25').setLogic( d.TOPO_2DISAMB_jJ25ab_0DR28_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
+            MenuItem('L1_DR-eTAU30eTAU20-jJ55').setLogic( d.TOPO_2DISAMB_jJ25ab_0DR28_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM, jJ
             MenuItem('L1_DR-eTAU30MeTAU20M').setLogic( d.TOPO_0DR28_eTAU20abm_eTAU12abm & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_DR-eTAU30MeTAU20M-jJ25').setLogic( d.TOPO_2DISAMB_jJ25ab_0DR28_eTAU20abm_eTAU12abm & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
+            MenuItem('L1_DR-eTAU30MeTAU20M-jJ55').setLogic( d.TOPO_2DISAMB_jJ25ab_0DR28_eTAU20abm_eTAU12abm & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM, jJ
             MenuItem('L1_cTAU30M_2cTAU20M_DR-eTAU30MeTAU20M').setLogic( d.cTAU30M & d.cTAU20M.x(2) & d.TOPO_0DR28_eTAU20abm_eTAU12abm & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_cTAU30M_2cTAU20M_DR-eTAU30MeTAU20M-jJ25').setLogic( d.cTAU30M & d.cTAU20M.x(2) & d.TOPO_2DISAMB_jJ25ab_0DR28_eTAU20abm_eTAU12abm & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
+            MenuItem('L1_cTAU30M_2cTAU20M_DR-eTAU30MeTAU20M-jJ55').setLogic( d.cTAU30M & d.cTAU20M.x(2) & d.TOPO_2DISAMB_jJ25ab_0DR28_eTAU20abm_eTAU12abm & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM, jJ
             MenuItem('L1_cTAU30M_2cTAU20M_DR-eTAU30eTAU20').setLogic( d.cTAU30M & d.cTAU20M.x(2) & d.TOPO_0DR28_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_cTAU30M_2cTAU20M_DR-eTAU30eTAU20-jJ25').setLogic( d.cTAU30M & d.cTAU20M.x(2) & d.TOPO_2DISAMB_jJ25ab_0DR28_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
+            MenuItem('L1_cTAU30M_2cTAU20M_DR-eTAU30eTAU20-jJ55').setLogic( d.cTAU30M & d.cTAU20M.x(2) & d.TOPO_2DISAMB_jJ25ab_0DR28_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM, jJ
             MenuItem('L1_eTAU80_2cTAU20M_DR-eTAU30eTAU20').setLogic( d.eTAU80 & d.cTAU20M.x(2) & d.TOPO_0DR28_eTAU20ab_eTAU12ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
 
-            MenuItem('L1_jMJJ-400-NFF-0DPHI20').setLogic( d.TOPO_400INVM_0DPHI20_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_jMJJ-400-NFF-0DPHI22').setLogic( d.TOPO_400INVM_0DPHI22_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_jMJJ-400-NFF-0DPHI24').setLogic( d.TOPO_400INVM_0DPHI24_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_jMJJ-400-NFF-0DPHI26').setLogic( d.TOPO_400INVM_0DPHI26_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_jMJJ-300-NFF').setLogic( d.TOPO_300INVM_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_jMJJ-400-NFF').setLogic( d.TOPO_400INVM_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_jMJJ-500-NFF').setLogic( d.TOPO_500INVM_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_jMJJ-700-NFF').setLogic( d.TOPO_700INVM_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_MU5VF_jMJJ-300-NFF').setLogic( d.MU5VF & d.TOPO_300INVM_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_eEM22M_jMJJ-300-NFF').setLogic( d.eEM22M & d.TOPO_300INVM_jJ30s6_AjJ20s6 & physcond)
-            MenuItem('L1_jHT150-jJ20s5pETA31_jMJJ-400-CF').setLogic( d.TOPO_HT150_jJ20s5pETA31   & d.TOPO_400INVM_AjJ30s6pETA31_AjJ20s6p31ETA49 & physcond)
-            MenuItem('L1_jMJJ-400-CF').setLogic( d.TOPO_400INVM_AjJ30s6pETA31_AjJ20s6p31ETA49 & physcond)
-            MenuItem('L1_jJ50_DETA20-jJ50J').setLogic( d.jJ50 & d.TOPO_0DETA20_jJ50s1_jJs2 & physcond)
-            MenuItem('L1_HT190-jJ15s5pETA21').setLogic( d.TOPO_HT190_jJ15s5pETA21   & physcond)
-            MenuItem('L1_SC111-CjJ15').setLogic(  d.TOPO_SC111_CjJ15abpETA26 & physcond)
+            MenuItem('L1_jMJJ-400-NFF-0DPHI20').setLogic( d.TOPO_400INVM_0DPHI20_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jMJJ-400-NFF-0DPHI22').setLogic( d.TOPO_400INVM_0DPHI22_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jMJJ-400-NFF-0DPHI24').setLogic( d.TOPO_400INVM_0DPHI24_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jMJJ-400-NFF-0DPHI26').setLogic( d.TOPO_400INVM_0DPHI26_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jMJJ-300-NFF').setLogic( d.TOPO_300INVM_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jMJJ-400-NFF').setLogic( d.TOPO_400INVM_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jMJJ-500-NFF').setLogic( d.TOPO_500INVM_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jMJJ-700-NFF').setLogic( d.TOPO_700INVM_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_MU5VF_jMJJ-300-NFF').setLogic( d.MU5VF & d.TOPO_300INVM_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_eEM22M_jMJJ-300-NFF').setLogic( d.eEM22M & d.TOPO_300INVM_jJ30s6_AjJ20s6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jHT150-jJ50s5pETA31_jMJJ-400-CF').setLogic( d.TOPO_HT150_jJ20s5pETA31   & d.TOPO_400INVM_AjJ30s6pETA31_AjJ20s6p31ETA49 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jMJJ-400-CF').setLogic( d.TOPO_400INVM_AjJ30s6pETA31_AjJ20s6p31ETA49 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_jJ90_DETA20-jJ90J').setLogic( d.jJ50 & d.TOPO_0DETA20_jJ50s1_jJs2 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_HT190-jJ40s5pETA21').setLogic( d.TOPO_HT190_jJ15s5pETA21   & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_SC111-CjJ40').setLogic(  d.TOPO_SC111_CjJ15abpETA26 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
 
             # Needed?
             MenuItem('L1_DPHI-2eEM5').setLogic( d.TOPO_27DPHI32_eEMs1_eEMs6 & physcond) # TODO: change cuts in l1topo algo once calibration is applied in eEM
@@ -1663,8 +1663,8 @@ class ItemDef:
             MenuItem('L1_DPHI-2eEM5_VTE5p24ETA49_ALFA_EINE').setLogic( d.TOPO_27DPHI32_eEMs1_eEMs6 & Not(d.TE524ETA49) & ALFA_EINE & physcond).setTriggerType(TT.alfa) # TODO: change cuts in l1topo algo once calibration is applied in eEM
             MenuItem('L1_DPHI-2eEM5_VTE10').setLogic( d.TOPO_27DPHI32_eEMs1_eEMs6 & Not(d.TE10) & physcond).setTriggerType(TT.calo) # TODO: change cuts in l1topo algo once calibration is applied in eEM
             MenuItem('L1_DPHI-2eEM9_VTE50').setLogic( d.eEM9.x(2) & d.TOPO_27DPHI32_eEMs1_eEMs6 & Not(d.TE50) & physcond).setTriggerType(TT.calo) # TODO: change cuts in l1topo algo once calibration is applied in eEM
-            MenuItem('L1_BTAG-MU3VjJ15').setLogic( d.TOPO_0DR04_MU3Vab_CjJ15ab & physcond)
-            MenuItem('L1_BTAG-MU5VFjJ20').setLogic( d.TOPO_0DR04_MU5VFab_CjJ20ab & physcond)
+            MenuItem('L1_BTAG-MU3VjJ40').setLogic( d.TOPO_0DR04_MU3Vab_CjJ15ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
+            MenuItem('L1_BTAG-MU5VFjJ50').setLogic( d.TOPO_0DR04_MU5VFab_CjJ20ab & physcond) # TODO: change cuts in l1topo algo once calibration is applied in jJ
             MenuItem('L1_BPH-8M15-2MU3V-BO'    ).setLogic( d.TOPO_8INVM15_2CMU3Vab & physcond)           # 96% for Upsi
 
         except NameError as ex:
