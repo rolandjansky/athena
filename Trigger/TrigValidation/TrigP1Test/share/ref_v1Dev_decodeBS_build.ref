@@ -2284,15 +2284,23 @@ HLT_j175_320eta490_L1jJ90p31ETA49:
   eventCount: 0
 HLT_j175_a10r_subjesIS_ftf_0eta200_tracklessdR1p2_L1J100:
   eventCount: 0
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_emergingPTF0p075dR1p2_L1J100:
+  eventCount: 0
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_emergingPTF0p07dR1p2_L1J100:
+  eventCount: 0
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_preselj200_emergingPTF0p075dR1p2_L1J100:
+  eventCount: 0
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_preselj200_emergingPTF0p07dR1p2_L1J100:
+  eventCount: 0
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p075dR1p2_L1J100:
+  eventCount: 0
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p07dR1p2_L1J100:
+  eventCount: 0
 HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p08dR1p2_L1J100:
   eventCount: 0
-HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p1dR1p2_L1J100:
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_preselj200_emergingPTF0p075dR1p2_L1J100:
   eventCount: 0
-HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p08dR1p2_L1J100:
-  eventCount: 0
-HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p09dR1p2_L1J100:
-  eventCount: 0
-HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1J100:
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_preselj200_emergingPTF0p07dR1p2_L1J100:
   eventCount: 0
 HLT_j175_a10sd_cssk_pf_jes_ftf_preselj140_L1J50:
   eventCount: 0

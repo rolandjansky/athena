@@ -6441,6 +6441,66 @@ HLT_j175_a10r_subjesIS_ftf_0eta200_tracklessdR1p2_L1J100:
   stepFeatures:
     0: 5
     1: 6
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_emergingPTF0p075dR1p2_L1J100:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 4
+    2: 1
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 1
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_emergingPTF0p07dR1p2_L1J100:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 4
+    2: 1
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 1
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_preselj200_emergingPTF0p075dR1p2_L1J100:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 4
+    2: 1
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 1
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_preselj200_emergingPTF0p07dR1p2_L1J100:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 4
+    2: 1
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 1
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p075dR1p2_L1J100:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 4
+    2: 1
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 1
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p07dR1p2_L1J100:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 4
+    2: 1
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 1
 HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p08dR1p2_L1J100:
   eventCount: 1
   stepCounts:
@@ -6451,7 +6511,7 @@ HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p08dR1p2_L1J100:
     0: 5
     1: 6
     2: 1
-HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p1dR1p2_L1J100:
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_preselj200_emergingPTF0p075dR1p2_L1J100:
   eventCount: 1
   stepCounts:
     0: 5
@@ -6461,27 +6521,7 @@ HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p1dR1p2_L1J100:
     0: 5
     1: 6
     2: 1
-HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p08dR1p2_L1J100:
-  eventCount: 1
-  stepCounts:
-    0: 5
-    1: 4
-    2: 1
-  stepFeatures:
-    0: 5
-    1: 6
-    2: 1
-HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p09dR1p2_L1J100:
-  eventCount: 1
-  stepCounts:
-    0: 5
-    1: 4
-    2: 1
-  stepFeatures:
-    0: 5
-    1: 6
-    2: 1
-HLT_j175_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1J100:
+HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_preselj200_emergingPTF0p07dR1p2_L1J100:
   eventCount: 1
   stepCounts:
     0: 5
