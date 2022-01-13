@@ -197,11 +197,10 @@ namespace Rec {
         ATH_CHECK(m_materialUpdator.retrieve());
         ATH_MSG_DEBUG("Retrieved tool " << m_materialUpdator);
 
-        if (m_trackingGeometryReadKey.empty()) {
-            ATH_CHECK(m_trackingGeometrySvc.retrieve());
-            ATH_MSG_DEBUG("Retrieved Svc " << m_trackingGeometrySvc);
-        } else {
+        if (!m_trackingGeometryReadKey.empty()) {
             ATH_CHECK(m_trackingGeometryReadKey.initialize());
+        } else {
+            ATH_MSG_ERROR("Could not retrieve a valid tracking geometry");
         }
         // need to know which TrackingVolume we are in: indet/calo/spectrometer
         ATH_CHECK(m_trackingVolumesSvc.retrieve());
@@ -3829,15 +3828,12 @@ namespace Rec {
 
     const Trk::TrackingVolume* CombinedMuonTrackBuilder::getVolume(const std::string&& vol_name, const EventContext& ctx) const {
         /// Tracking geometry is provided by the TrackingGeometryAlg
-        if (!m_trackingGeometryReadKey.empty()) {
-            SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
-            if (!handle.isValid()) {
-                ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
-                return nullptr;
-            }
-            return handle.cptr()->trackingVolume(vol_name);
+        SG::ReadCondHandle<Trk::TrackingGeometry> handle(m_trackingGeometryReadKey, ctx);
+        if (!handle.isValid()) {
+            ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+            return nullptr;
         }
-        return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);
+        return handle.cptr()->trackingVolume(vol_name);
     }
     const AtlasFieldCacheCondObj* CombinedMuonTrackBuilder::getFieldCacheObj(const EventContext& ctx) const {
         SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};

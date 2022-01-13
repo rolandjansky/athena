@@ -187,9 +187,6 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
 #--------------------------------------------------------------------------------
 
 # combined tracking geometry service
-def AtlasTrackingGeometrySvc(name="AtlasTrackingGeometrySvc",**kwargs):
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-    return AtlasTrackingGeometrySvc
 
 def TrackingVolumesSvc(name="TrackingVolumesSvc",**kwargs):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
