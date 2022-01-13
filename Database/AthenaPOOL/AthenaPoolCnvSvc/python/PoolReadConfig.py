@@ -66,7 +66,7 @@ def PoolReadCfg(configFlags):
     
     StoreGateSvc=CompFactory.StoreGateSvc
 
-    result.addService(PoolSvc(MaxFilesOpen=0))
+    result.addService(PoolSvc(MaxFilesOpen=configFlags.PoolSvc.MaxFilesOpen))
     apcs=AthenaPoolCnvSvc()
     apcs.InputPoolAttributes += ["DatabaseName = '*'; ContainerName = 'CollectionTree'; TREE_CACHE = '-1'"]
     result.addService(apcs)
