@@ -182,7 +182,7 @@ namespace Muon {
         FitterData fitterData;
 
         // extract hits and geometrical information
-        if (!extractData(entry1, entry2, fitterData, localGarbage)) {
+        if (!extractData(ctx, entry1, entry2, fitterData, localGarbage)) {
             ATH_MSG_DEBUG(" Failed to extract data for initial fit");
             return nullptr;
         }
@@ -205,7 +205,7 @@ namespace Muon {
         ++m_nfailedParsInital;
 
         // clean phi hits and reevaluate hits. Do not run for cosmics
-        bool hasCleaned = m_cleanPhiHits ? cleanPhiHits(startPars->momentum().mag(), fitterData, externalPhiHits, localGarbage) : true;
+        bool hasCleaned = m_cleanPhiHits ? cleanPhiHits(ctx, startPars->momentum().mag(), fitterData, externalPhiHits, localGarbage) : true;
         if (hasCleaned) {
             ATH_MSG_DEBUG(" Cleaned phi hits, re-extracting hits");
             bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
@@ -217,7 +217,7 @@ namespace Muon {
         ++m_nfailedExtractCleaning;
 
         // check whether there are enough phi constraints, if not add fake phi hits
-        if (!addFakePhiHits(fitterData, startPars, localGarbage)) {
+        if (!addFakePhiHits(ctx, fitterData, startPars, localGarbage)) {
             ATH_MSG_DEBUG(" Failed to add fake phi hits for precise fit");
             return nullptr;
         }
@@ -278,7 +278,7 @@ namespace Muon {
             ++m_nfailedExtractPrecise;
 
             // check whether there are enough phi constraints, if not add fake phi hits
-            if (!addFakePhiHits(fitterDataRefit, startPars, localGarbage)) {
+            if (!addFakePhiHits(ctx, fitterDataRefit, startPars, localGarbage)) {
                 ATH_MSG_DEBUG(" Failed to add fake phi hits for precise fit");
                 return nullptr;
             }
@@ -321,7 +321,7 @@ namespace Muon {
         return track;
     }
 
-    bool MooTrackFitter::extractData(const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2,
+    bool MooTrackFitter::extractData(const EventContext& ctx, const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2,
                                      MooTrackFitter::FitterData& fitterData, GarbageContainer& garbage) const {
         // sanity checks on the entries
         if (corruptEntry(entry1)) {
@@ -366,7 +366,7 @@ namespace Muon {
         copyHitList(entry1.hitList(), fitterData.copyHitList1, garbage);
         copyHitList(entry2.hitList(), fitterData.copyHitList2, garbage);
 
-        if (!m_hitHandler->merge(fitterData.copyHitList1, fitterData.copyHitList2, hitList)) return false;
+        if (!m_hitHandler->merge(ctx, fitterData.copyHitList1, fitterData.copyHitList2, hitList)) return false;
 
         bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
         if (msgLvl(MSG::DEBUG)) {
@@ -536,10 +536,9 @@ namespace Muon {
         return true;
     }
 
-    bool MooTrackFitter::addFakePhiHits(MooTrackFitter::FitterData& fitterData, const Trk::TrackParameters* startpar,
+    bool MooTrackFitter::addFakePhiHits(const EventContext& ctx, MooTrackFitter::FitterData& fitterData, const Trk::TrackParameters* startpar,
                                         GarbageContainer& garbage) const {
 
-        const EventContext& ctx = Gaudi::Hive::currentContext();
         // check whether we have enough phi constraints
         unsigned nphiConstraints = hasPhiConstrain(fitterData);
 
@@ -614,7 +613,7 @@ namespace Muon {
                 ATH_MSG_VERBOSE(" Special treatment for tracks with one station, a SL overlap and no phi hits ");
 
                 IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result =
-                    m_overlapResolver->matchResult(*segInfo1->segment, *segInfo2->segment);
+                    m_overlapResolver->matchResult(ctx, *segInfo1->segment, *segInfo2->segment);
 
                 if (!result.goodMatch()) {
                     ATH_MSG_VERBOSE(" Match failed ");
@@ -1412,7 +1411,7 @@ namespace Muon {
         segments.push_back(segSecond);
 
         double momentum = 1.;
-        m_momentumEstimator->fitMomentumVectorSegments(segments, momentum);
+        m_momentumEstimator->fitMomentumVectorSegments(ctx, segments, momentum);
         // momentum = restrictedMomentum(momentum);
 
         if (momentum == 0.) return 0.;
@@ -1421,7 +1420,7 @@ namespace Muon {
         return qOverP;
     }
 
-    double MooTrackFitter::phiSeeding(MooTrackFitter::FitterData& fitterData) const {
+    double MooTrackFitter::phiSeeding(const EventContext& ctx, MooTrackFitter::FitterData& fitterData) const {
         if (m_cosmics) {
             // check whether the first entry is a track, if not consider the second entry for phi seeding
             if (!dynamic_cast<const MuPatTrack*>(fitterData.firstEntry)) {
@@ -1440,7 +1439,7 @@ namespace Muon {
                 Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
                 if (m_idHelperSvc->isMdt(chId)) {
                     IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result =
-                        m_overlapResolver->matchResult(*segInfo1->segment, *segInfo2->segment);
+                        m_overlapResolver->matchResult(ctx, *segInfo1->segment, *segInfo2->segment);
 
                     if (!result.goodMatch()) {
                         ATH_MSG_VERBOSE(" Match failed ");
@@ -1679,7 +1678,7 @@ namespace Muon {
         return perigee;
     }
 
-    Trk::Perigee* MooTrackFitter::createPerigee(const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const {
+    Trk::Perigee* MooTrackFitter::createPerigee(const EventContext& ctx, const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const {
         // const Amg::Vector3D& firstPos = firstMeas.globalPosition();
 
         Amg::Vector3D perpos(0., 0., 0.);
@@ -1690,8 +1689,7 @@ namespace Muon {
         if (m_seedAtStartOfTrack) {
             // not sure whats going on with ownership here, so let this code take care of it
             exPars =
-                m_propagator->propagate(Gaudi::Hive::currentContext(),
-                                        firstPars, firstMeas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties).release();
+                m_propagator->propagate(ctx, firstPars, firstMeas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties).release();
             if (!exPars) {
                 ATH_MSG_DEBUG(" Propagation failed in createPerigee!! ");
                 return nullptr;
@@ -1765,7 +1763,7 @@ namespace Muon {
 
             if (dist < 0.) {
                 ATH_MSG_DEBUG(" start parameters after first hit, shifting them.... ");
-                Trk::Perigee* perigee = createPerigee(startPars, *hits.front());
+                Trk::Perigee* perigee = createPerigee(ctx, startPars, *hits.front());
                 if (perigee) {
                     garbage.push_back(perigee);
                     pars = perigee;
@@ -1823,7 +1821,7 @@ namespace Muon {
         return track;
     }
 
-    bool MooTrackFitter::cleanPhiHits(double momentum, MooTrackFitter::FitterData& fitterData,
+    bool MooTrackFitter::cleanPhiHits(const EventContext& ctx, double momentum, MooTrackFitter::FitterData& fitterData,
                                       const std::vector<const Trk::PrepRawData*>* patternPhiHits, GarbageContainer& garbage) const {
         ATH_MSG_VERBOSE(" cleaning phi hits ");
 
@@ -1984,8 +1982,8 @@ namespace Muon {
         if (!measurementsToBeAdded.empty()) {
             ATH_MSG_VERBOSE(" adding measurements ");
             MuPatHitList newHitList;
-            m_hitHandler->create(fitterData.firstEntry->entryPars(), measurementsToBeAdded, newHitList, garbage);
-            m_hitHandler->merge(newHitList, fitterData.hitList);
+            m_hitHandler->create(ctx, fitterData.firstEntry->entryPars(), measurementsToBeAdded, newHitList, garbage);
+            m_hitHandler->merge(ctx, newHitList, fitterData.hitList);
         }
 
         ATH_MSG_VERBOSE(" done cleaning ");

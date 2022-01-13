@@ -40,14 +40,14 @@ namespace Muon {
                          std::set<const MuonSegment*>& usedSegments, std::vector<MuonStationIndex::StIndex>& inverseSeedLayerOrder,
                          MuonLayerIntersection& layerIntersection) const;
 
-        bool extendCandidatesWithLayers(std::vector<MuonCandidate>& candidates,
+        bool extendCandidatesWithLayers(const EventContext& ctx, std::vector<MuonCandidate>& candidates,
                                         const std::vector<std::vector<MuonLayerIntersection> >& muonLayerRecoDataHashVec,
                                         const std::vector<MuonStationIndex::StIndex>& inverseSeedLayerOrder) const;
 
         void resolveSmallLargeOverlaps(const EventContext& ctx, std::vector<MuonLayerIntersection>& existingLayerIntersections,
                                        const std::vector<MuonLayerIntersection>& newLayerIntersections) const;
 
-        bool match(const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const;
+        bool match(const EventContext& ctx, const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const;
 
         ToolHandle<IMuonSegmentSelectionTool> m_segmentSelector{this, "MuonSegmentSelectionTool",
                                                                 "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"};

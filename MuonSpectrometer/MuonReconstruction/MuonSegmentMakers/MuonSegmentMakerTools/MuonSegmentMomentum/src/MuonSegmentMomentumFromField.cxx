@@ -35,7 +35,7 @@ StatusCode MuonSegmentMomentumFromField::initialize()
   return StatusCode::SUCCESS; 
 }
 
-void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const std::vector <const Muon::MuonSegment*> segments, double & signedMomentum ) const
+void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const EventContext& ctx, const std::vector <const Muon::MuonSegment*> segments, double & signedMomentum ) const
 {
 
   /** Estimate signed momentum from vector of MDT/CSC segments
@@ -51,11 +51,11 @@ void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const std::vector 
   it2++;
   double maxintegral=0;  
   while (it2!=it_end){
-    double integral= m_doOld ? fieldIntegralEstimate_old(*it,*it2) : fieldIntegralEstimate(*it,*it2);
+    double integral= m_doOld ? fieldIntegralEstimate_old(ctx,*it,*it2) : fieldIntegralEstimate(ctx,*it,*it2);
     if (std::abs(integral)>maxintegral){
       maxintegral=std::abs(integral);
-      if( m_doOld ) fitMomentum2Segments_old(*it, *it2, signedMomentum);
-      else          fitMomentum2Segments(*it, *it2, signedMomentum);
+      if( m_doOld ) fitMomentum2Segments_old(ctx, *it, *it2, signedMomentum);
+      else          fitMomentum2Segments(ctx, *it, *it2, signedMomentum);
     }
     it++;
     it2++;
@@ -63,7 +63,7 @@ void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const std::vector 
   ATH_MSG_DEBUG( " Estimated signed momentum " << signedMomentum );
 }
 
-double MuonSegmentMomentumFromField::fieldIntegralEstimate( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const 
+double MuonSegmentMomentumFromField::fieldIntegralEstimate( const EventContext& ctx, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const 
 {
 
   Amg::Vector3D pos1=segment1->globalPosition();
@@ -80,7 +80,7 @@ double MuonSegmentMomentumFromField::fieldIntegralEstimate( const Muon::MuonSegm
   Amg::Vector3D field1,field2,field3;
 
   MagField::AtlasFieldCache fieldCache;
-  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   if (!fieldCondObj) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonSegmentMomentumFromField::fieldIntegralEstimate() - Failed to retrieve AtlasFieldCacheCondObj with key %s", __FILE__, __LINE__, (m_fieldCondObjInputKey.key()).c_str()));
@@ -101,7 +101,7 @@ double MuonSegmentMomentumFromField::fieldIntegralEstimate( const Muon::MuonSegm
   return averagelcrossB*posdiff.mag();
 }
 
-void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const 
+void MuonSegmentMomentumFromField::fitMomentum2Segments( const EventContext& ctx, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const 
 {
   
   /** Estimate signed momentum for two segments
@@ -114,7 +114,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     myseg1=segment2;
     myseg2=segment1;
   }
-  double fieldintegral=fieldIntegralEstimate(myseg1,myseg2);
+  double fieldintegral=fieldIntegralEstimate(ctx, myseg1,myseg2);
   double theta1=myseg1->globalDirection().theta();
   double theta2=myseg2->globalDirection().theta();
   double phi1=myseg1->globalDirection().phi();
@@ -192,8 +192,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
       Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),
  	 		     bestseg->globalDirection().theta(),1/signedMomentum,bestseg->associatedSurface());
       auto par=m_propagator->propagateParameters(
-        Gaudi::Hive::currentContext(),
-        startpar,worstseg->associatedSurface(),
+        ctx, startpar,worstseg->associatedSurface(),
         (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
         Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
       ATH_MSG_DEBUG("par: " << par.get() << " jac: " << jac );
@@ -243,7 +242,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
 }
 
 
-double MuonSegmentMomentumFromField::fieldIntegralEstimate_old( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const 
+double MuonSegmentMomentumFromField::fieldIntegralEstimate_old( const EventContext& ctx, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const 
 {
 
   Amg::Vector3D pos1=segment1->globalPosition();
@@ -260,7 +259,7 @@ double MuonSegmentMomentumFromField::fieldIntegralEstimate_old( const Muon::Muon
   Amg::Vector3D field1,field2,field3;
 
   MagField::AtlasFieldCache fieldCache;
-  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   if (!fieldCondObj) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonSegmentMomentumFromField::fieldIntegralEstimate_old() - Failed to retrieve AtlasFieldCacheCondObj with key %s", __FILE__, __LINE__, (m_fieldCondObjInputKey.key()).c_str()));
@@ -276,7 +275,7 @@ double MuonSegmentMomentumFromField::fieldIntegralEstimate_old( const Muon::Muon
   return averageBcrossl*posdiff.mag();
 }
 
-void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const 
+void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const EventContext& ctx, const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const 
 {
   
   /** Estimate signed momentum for two segments
@@ -289,7 +288,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     myseg1=segment2;
     myseg2=segment1;
   }
-  double fieldintegral=fieldIntegralEstimate(myseg1,myseg2);
+  double fieldintegral=fieldIntegralEstimate(ctx, myseg1,myseg2);
   double theta1=myseg1->globalDirection().theta();
   double theta2=myseg2->globalDirection().theta();
   double phi1=myseg1->globalDirection().phi();
@@ -349,8 +348,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
 			   1/signedMomentum,bestseg->associatedSurface());
     Trk::TransportJacobian *jac=nullptr;
     auto par=m_propagator->propagateParameters(
-      Gaudi::Hive::currentContext(),
-      startpar,worstseg->associatedSurface(),
+      ctx,startpar,worstseg->associatedSurface(),
       (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
       Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
     if (par && jac && (*jac)(1,4)!=0){

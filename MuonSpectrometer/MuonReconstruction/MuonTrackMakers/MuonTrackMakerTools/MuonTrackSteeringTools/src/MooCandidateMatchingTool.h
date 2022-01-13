@@ -93,7 +93,7 @@ namespace Muon {
 
         TrackSegmentMatchCuts getMatchingCuts(const MuPatTrack& entry1, const MuPatSegment& entry2, bool useTightCuts) const;
 
-        bool applyTrackSegmentCuts(MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const;
+        bool applyTrackSegmentCuts(const EventContext& ctx, MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const;
 
         /** @brief check whether two segments are on the same side of the point of
            closest approach to the perigee of the connecting track, or on the same

@@ -117,7 +117,7 @@ MuonSegmentMatchingTool::finalize()
     return StatusCode::SUCCESS;
 }
 bool
-MuonSegmentMatchingTool::match(const MuonSegment& seg1, const MuonSegment& seg2) const {
+MuonSegmentMatchingTool::match(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const {
 
     ATH_MSG_VERBOSE(" match: segments " << std::endl << m_printer->print(seg1) << std::endl << m_printer->print(seg2));
 
@@ -146,7 +146,7 @@ MuonSegmentMatchingTool::match(const MuonSegment& seg1, const MuonSegment& seg2)
                     && ( std::abs(phi1 - phi2) == 1 || (phi1 == 1 && phi2 == 16)
                         || (phi1 == 16 && phi2 == 1)))
                 {
-                    return overlapMatch(seg1, seg2);
+                    return overlapMatch(ctx, seg1, seg2);
                 } else
                     return false;
             }
@@ -211,7 +211,7 @@ MuonSegmentMatchingTool::curvedMatch(const MuonSegment& seg1, const MuonSegment&
 }
 
 bool
-MuonSegmentMatchingTool::overlapMatch(const MuonSegment& seg1, const MuonSegment& seg2) const
+MuonSegmentMatchingTool::overlapMatch(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const
 {
     ++m_overlapMatches;
 
@@ -233,7 +233,7 @@ MuonSegmentMatchingTool::overlapMatch(const MuonSegment& seg1, const MuonSegment
         return true;
     }
 
-    IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result = m_overlapResolvingTool->matchResult(seg1, seg2);
+    IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result = m_overlapResolvingTool->matchResult(ctx, seg1, seg2);
 
     ATH_MSG_VERBOSE(result.toString());
 

@@ -33,7 +33,7 @@ namespace Muon {
         }
 
         /** @brief match two segments */
-        virtual bool match(const MuonSegment& seg1, const MuonSegment& seg2) const = 0;
+        virtual bool match(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const = 0;
 
         virtual ~IMuonSegmentMatchingTool() = default;
     };

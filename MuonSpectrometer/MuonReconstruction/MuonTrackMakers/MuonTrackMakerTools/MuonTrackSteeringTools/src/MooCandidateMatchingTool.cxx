@@ -168,7 +168,7 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    bool MooCandidateMatchingTool::match(const EventContext& , const MuPatSegment& entry1, const MuPatSegment& entry2, bool useTightCuts) const {
+    bool MooCandidateMatchingTool::match(const EventContext& ctx, const MuPatSegment& entry1, const MuPatSegment& entry2, bool useTightCuts) const {
         ++m_segmentMatches;
 
         // same segments should never be matched!
@@ -226,9 +226,9 @@ namespace Muon {
         // call segment matching tool
         bool match = true;
         if (useTightCuts) {
-            match = m_segmentMatchingToolTight->match(*entry1.segment, *entry2.segment);
+            match = m_segmentMatchingToolTight->match(ctx, *entry1.segment, *entry2.segment);
         } else {
-            match = m_segmentMatchingTool->match(*entry1.segment, *entry2.segment);
+            match = m_segmentMatchingTool->match(ctx, *entry1.segment, *entry2.segment);
         }
         if (match) {
             ++m_goodSegmentMatches;
@@ -249,7 +249,7 @@ namespace Muon {
             ATH_MSG_VERBOSE("Failed to create track candidate");
             return false;
         }
-        std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(segment, trash_bin));
+        std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(ctx, segment, trash_bin));
         if (!segInfo) {
             ATH_MSG_VERBOSE("Failed to create segment candidate");
             return false;
@@ -309,7 +309,7 @@ namespace Muon {
             MooTrackSegmentMatchResult info;
             calculateTrackSegmentMatchResult(ctx, entry1, entry2, info);
             TrackSegmentMatchCuts cuts = getMatchingCuts(entry1, entry2, useTightCuts);
-            haveMatch = applyTrackSegmentCuts(info, cuts);
+            haveMatch = applyTrackSegmentCuts(ctx, info, cuts);
             // update counters
             if (haveMatch) {
                 ++m_reasonsForMatchOk[info.reason];
@@ -380,7 +380,7 @@ namespace Muon {
         return cuts;
     }
 
-    bool MooCandidateMatchingTool::applyTrackSegmentCuts(MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const {
+    bool MooCandidateMatchingTool::applyTrackSegmentCuts(const EventContext& ctx, MooTrackSegmentMatchResult& info, const TrackSegmentMatchCuts& cuts) const {
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << MSG::DEBUG << "track segment match:";
 
         if (info.reason == TrackSegmentMatchResult::NoMomentumWithMagField) {
@@ -406,9 +406,9 @@ namespace Muon {
             } else {  // closestSegment
                 // call segment matching tool
                 if (cuts.useTightCuts) {
-                    info.matchOK = m_segmentMatchingToolTight->match(*(closestSegment->segment), *(info.segment));
+                    info.matchOK = m_segmentMatchingToolTight->match(ctx, *(closestSegment->segment), *(info.segment));
                 } else {
-                    info.matchOK = m_segmentMatchingTool->match(*(closestSegment->segment), *(info.segment));
+                    info.matchOK = m_segmentMatchingTool->match(ctx, *(closestSegment->segment), *(info.segment));
                 }
                 if (msgLvl(MSG::DEBUG)) {
                     if (info.matchOK) {

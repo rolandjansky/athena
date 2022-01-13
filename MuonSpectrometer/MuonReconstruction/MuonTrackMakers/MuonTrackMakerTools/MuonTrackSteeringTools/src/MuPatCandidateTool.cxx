@@ -56,7 +56,7 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    std::unique_ptr<MuPatSegment> MuPatCandidateTool::createSegInfo(const MuonSegment& segment, GarbageContainer& trash_bin) const {
+    std::unique_ptr<MuPatSegment> MuPatCandidateTool::createSegInfo(const EventContext& ctx, const MuonSegment& segment, GarbageContainer& trash_bin) const {
         Identifier chid = m_edmHelperSvc->chamberId(segment);
         if (m_idHelperSvc->isTrigger(chid)) {
             ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperSvc->toStringChamber(chid));
@@ -88,7 +88,7 @@ namespace Muon {
         if (!info->segPars) { ATH_MSG_WARNING(" failed to create track parameter for segment "); }
 
         updateHits(*info, info->segment->containedMeasurements(), trash_bin, m_doMdtRecreation, m_doCscRecreation, true);
-        m_hitHandler->create(segment, info->hitList(), trash_bin);
+        m_hitHandler->create(ctx, segment, info->hitList(), trash_bin);
         return info;
     }
 
