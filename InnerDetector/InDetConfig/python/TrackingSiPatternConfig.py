@@ -33,7 +33,7 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
     kwargs.setdefault("RapidityCut",  flags.InDet.Tracking.ActivePass.maxEta )
 
     if not flags.Reco.EnableHI \
-       and (flags.InDet.Tracking.ActivePass.extension == "" or flags.InDet.Tracking.ActivePass.extension == "ForwardTracks"):
+       and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="ForwardTracks" or flags.InDet.Tracking.ActivePass.extension=="BLS"):
         kwargs.setdefault("maxdImpactPPS", flags.InDet.Tracking.ActivePass.maxdImpactPPSSeeds)
         kwargs.setdefault("maxdImpactSSS", flags.InDet.Tracking.ActivePass.maxdImpactSSSSeeds)
         kwargs.setdefault("maxSeedsForSpacePointStrips", flags.InDet.Tracking.ActivePass.maxSeedsPerSP_Strips)
@@ -197,7 +197,8 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("Xi2maxMultiTracks", flags.InDet.Tracking.ActivePass.Xi2max)
     kwargs.setdefault("useSSSseedsFilter", True)
     kwargs.setdefault("doMultiTracksProd", True)
-    kwargs.setdefault("useBremModel", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.ActivePass.extension == "" and flags.Detector.EnableCalo)
+    kwargs.setdefault("useBremModel", flags.InDet.Tracking.doBremRecovery and flags.Detector.EnableCalo
+                      and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="BLS") )
     kwargs.setdefault("doCaloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
         from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
@@ -469,8 +470,8 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     kwargs.setdefault("InputClusterSplitProbabilityName", 'SplitProb'+flags.InDet.Tracking.ActivePass.extension)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.ActivePass.extension == "")
-    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.ActivePass.extension == "")
+    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="BLS") )
+    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.ActivePass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
     kwargs.setdefault("KeepHolesFromBeforeRefit", False)
@@ -515,8 +516,8 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
     kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetAmbiguityProcessorSplitProb'+flags.InDet.Tracking.ActivePass.extension)
     kwargs.setdefault("SuppressHoleSearch", False)
-    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.ActivePass.extension == "")
-    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.ActivePass.extension == "")
+    kwargs.setdefault("tryBremFit", flags.InDet.Tracking.doBremRecovery and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="BLS"))
+    kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.ActivePass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
     kwargs.setdefault("MatEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
