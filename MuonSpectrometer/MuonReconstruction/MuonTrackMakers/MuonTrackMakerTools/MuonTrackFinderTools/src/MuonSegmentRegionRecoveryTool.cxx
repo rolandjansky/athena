@@ -774,7 +774,7 @@ namespace Muon {
                     }
                 }
                 if (prds && exParsFirst) {
-                    std::unique_ptr<Trk::SegmentCollection> segments = m_seededSegmentFinder->find(*exParsFirst, *prds);
+                    std::unique_ptr<Trk::SegmentCollection> segments = m_seededSegmentFinder->find(ctx, *exParsFirst, *prds);
                     if (segments) {
                         if (!segments->empty()) ATH_MSG_DEBUG("found segments " << segments->size());
 

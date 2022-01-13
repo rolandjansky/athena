@@ -36,13 +36,13 @@ public:
 
     virtual StatusCode initialize();
 
-    std::vector<MuonCombined::MuonSegmentInfo> solveAmbiguities(std::vector<MuonCombined::MuonSegmentInfo> mtos) const;
+    std::vector<MuonCombined::MuonSegmentInfo> solveAmbiguities(const EventContext& ctx, std::vector<MuonCombined::MuonSegmentInfo> mtos) const;
 
-    std::vector<MuonCombined::MuonSegmentInfo> selectBestMuTaggedSegments(std::vector<MuonCombined::MuonSegmentInfo> mtss) const;
+    std::vector<MuonCombined::MuonSegmentInfo> selectBestMuTaggedSegments(const EventContext& ctx, std::vector<MuonCombined::MuonSegmentInfo> mtss) const;
 
 private:
     ///////////////////////////////////
-    int ambiguousSegment(const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2) const;
+    int ambiguousSegment(const EventContext& ctx, const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2) const;
     double Rseg(unsigned int nseg) const;
 
     ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{

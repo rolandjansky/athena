@@ -46,7 +46,7 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const EventContext& ctx ,const Trk::TrackParameters &pars,
+    const Trk::TrackParameters *MuonTrackExtrapolationTool::extrapolateToMuonEntryRecord(const EventContext& ctx, const Trk::TrackParameters &pars,
                                                                                          Trk::ParticleHypothesis particleHypo) const {
         if (m_muonExtrapolator.empty()) return nullptr;
         const Trk::TrackingVolume *msEntrance = getVolume(m_msEntranceName, ctx);

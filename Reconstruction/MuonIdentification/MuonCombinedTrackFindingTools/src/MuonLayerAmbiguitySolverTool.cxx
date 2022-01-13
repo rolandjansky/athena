@@ -57,7 +57,7 @@ namespace Muon {
             // create first candidate from seed and extend it
             std::vector<MuonLayerIntersection> layerIntersections = {layerIntersection};
             std::vector<MuonCandidate> candidates = {MuonCandidate(std::move(layerIntersections))};
-            if (extendCandidatesWithLayers(candidates, muonLayerDataHashVec, inverseSeedLayerOrder)) {
+            if (extendCandidatesWithLayers(ctx, candidates, muonLayerDataHashVec, inverseSeedLayerOrder)) {
                 // add candidates to output list
                 ATH_MSG_DEBUG(" Completed seed extension " << candidates.size());
                 if (msgLvl(MSG::VERBOSE)) {
@@ -84,7 +84,8 @@ namespace Muon {
     }
 
     bool MuonLayerAmbiguitySolverTool::extendCandidatesWithLayers(
-        std::vector<MuonCandidate>& candidates, const std::vector<std::vector<MuonLayerIntersection> >& muonLayerDataHashVec,
+        const EventContext& ctx, std::vector<MuonCandidate>& candidates, 
+        const std::vector<std::vector<MuonLayerIntersection> >& muonLayerDataHashVec,
         const std::vector<MuonStationIndex::StIndex>& inverseSeedLayerOrder) const {
         // break recursive call chain once we processed all layers
         if (inverseSeedLayerOrder.empty()) return true;
@@ -106,7 +107,7 @@ namespace Muon {
                 // loop over data in layer
                 for (const auto& layerIntersection : layerIntersections) {
                     // match segment to candidate
-                    if (match(candidate, layerIntersection)) {
+                    if (match(ctx, candidate, layerIntersection)) {
                         // if first add to existing candidate, else create a new candidate
                         if (selectedSegmentsInLayer == 0) {
                             candidate.layerIntersections.push_back(layerIntersection);
@@ -131,13 +132,13 @@ namespace Muon {
         // remove the current layer and call extendCandidatesWithLayers for the next layer
         std::vector<MuonStationIndex::StIndex> newInverseSeedLayerOrder = inverseSeedLayerOrder;
         newInverseSeedLayerOrder.pop_back();
-        return extendCandidatesWithLayers(candidates, muonLayerDataHashVec, newInverseSeedLayerOrder);
+        return extendCandidatesWithLayers(ctx, candidates, muonLayerDataHashVec, newInverseSeedLayerOrder);
     }
 
-    bool MuonLayerAmbiguitySolverTool::match(const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const {
+    bool MuonLayerAmbiguitySolverTool::match(const EventContext& ctx, const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection) const {
         // loop over layers and match each segment to the new one, if any fails, fail the combination
         for (const auto& layer : candidate.layerIntersections) {
-            if (!m_segmentMatchingTool->match(*layer.segment, *layerIntersection.segment)) return false;
+            if (!m_segmentMatchingTool->match(ctx, *layer.segment, *layerIntersection.segment)) return false;
         }
         return true;
     }
@@ -239,7 +240,7 @@ namespace Muon {
                 if (quality1 < m_seedQualityThreshold && quality2 < m_seedQualityThreshold) continue;
 
                 // match segments
-                if (!m_segmentMatchingTool->match(*layerIntersection1.segment, *layerIntersection2.segment)) continue;
+                if (!m_segmentMatchingTool->match(ctx, *layerIntersection1.segment, *layerIntersection2.segment)) continue;
 
                 // build new segment
                 std::shared_ptr<const MuonSegment> newseg{

@@ -453,7 +453,7 @@ MuonSegmentInOverlapResolvingTool::segmentGeometrySummary(const MuonSegment& seg
 }
 
 MuonSegmentInOverlapResolvingTool::SegmentMatchResult
-MuonSegmentInOverlapResolvingTool::matchResult(const MuonSegment& seg1, const MuonSegment& seg2) const
+MuonSegmentInOverlapResolvingTool::matchResult(const EventContext& ctx, const MuonSegment& seg1, const MuonSegment& seg2) const
 {
 
     ATH_MSG_DEBUG(" First segment  " << m_printer->print(seg1) << std::endl
@@ -468,8 +468,8 @@ MuonSegmentInOverlapResolvingTool::matchResult(const MuonSegment& seg1, const Mu
     result.segmentResult2 = bestPositionAlongTubeMatch(seg2, seg1, result.phiResult.segmentDirection2);
 
     // calculate the average pull of the phi hits on the segments with the new parameters
-    result.averagePhiHitPullSegment1 = checkPhiHitConsistency(seg1, result.phiResult, result.segmentResult1);
-    result.averagePhiHitPullSegment2 = checkPhiHitConsistency(seg2, result.phiResult, result.segmentResult2);
+    result.averagePhiHitPullSegment1 = checkPhiHitConsistency(ctx, seg1, result.phiResult, result.segmentResult1);
+    result.averagePhiHitPullSegment2 = checkPhiHitConsistency(ctx, seg2, result.phiResult, result.segmentResult2);
 
     if (result.segmentResult1.goodMatch && result.segmentResult2.goodMatch) {
 
@@ -489,7 +489,7 @@ MuonSegmentInOverlapResolvingTool::matchResult(const MuonSegment& seg1, const Mu
 
 
 double
-MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegment&    segment,
+MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const EventContext& ctx, const Muon::MuonSegment&    segment,
                                                           SegmentPhiMatchResult&      phiMatchResult,
                                                           SegmentPositionMatchResult& posMatchResult) const
 {
@@ -517,7 +517,7 @@ MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegmen
         // propagate station parameters to segment
         std::unique_ptr<const Trk::TrackParameters> exPars {
             m_propagator->propagate(
-              Gaudi::Hive::currentContext(),
+              ctx,
               segPars, 
               measSurf, 
               Trk::anyDirection, 

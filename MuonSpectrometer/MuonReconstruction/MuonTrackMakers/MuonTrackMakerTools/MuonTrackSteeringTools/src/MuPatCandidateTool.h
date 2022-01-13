@@ -118,7 +118,7 @@ namespace Muon {
             @param[in] segment  input segment
             @param[out] the MuPatSegment object, ownership is passed to caller
         */
-        std::unique_ptr<MuPatSegment> createSegInfo(const MuonSegment& segment, GarbageContainer& trash_bin) const;
+        std::unique_ptr<MuPatSegment> createSegInfo(const EventContext& ctx, const MuonSegment& segment, GarbageContainer& trash_bin) const;
 
         /** @brief get list of the readout elements of the hits on the entry */
         std::set<const MuonGM::MuonReadoutElement*> readoutElements(const MuPatCandidateBase& entry) const;
