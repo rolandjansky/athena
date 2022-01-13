@@ -104,11 +104,7 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     #
     # --- decide which TRT seed space point finder to use
     #
-    if flags.InDet.Tracking.loadSimpleTRTSeededSPFinder:
-        InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
-    else:
-        InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(TRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
-
+    InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(TRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
     acc.addPublicTool(InDetTRT_SeededSpacePointFinder)
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
@@ -371,7 +367,7 @@ if __name__ == "__main__":
 
     ########################## TRTPreProcessing Configuration ################################
 
-    if not flags.InDet.doDBMstandalone:
+    if not flags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
         top_acc.merge(TRTPreProcessingCfg(flags,
                                           useTimeInfo = not flags.InDet.Tracking.doTRTPhaseCalculation or flags.Beam.Type=="collisions",

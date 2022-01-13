@@ -316,7 +316,7 @@ def InDetTrackRecoCfg(flags):
 
     # TRT track segment finding
     if flags.InDet.Tracking.doTrackSegmentsTRT:
-        flagsTRT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.TrackingTRTPass")
+        flagsTRT = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.TRTPass")
         from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
         result.merge(TRTSegmentFindingCfg(flagsTRT,
                                           extension = "_TRT",
@@ -335,8 +335,20 @@ def InDetTrackRecoCfg(flags):
     #
     # ------------------------------------------------------------
 
-    if flags.InDet.Tracking.doHighPileup:
+    if flags.InDet.Tracking.doDBMstandalone:
+        flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.DBMPass")
+    elif flags.InDet.Tracking.doVtxLumi:
+        flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.VtxLumiPass")
+    elif flags.InDet.Tracking.doVtxBeamSpot:
+        flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.VtxBeamSpotPass")
+    elif flags.Beam.Type == "cosmics":
+        flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.CosmicsPass")
+    elif flags.Reco.EnableHI:
+        flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.HeavyIonPass")
+    elif flags.InDet.Tracking.doHighPileup:
         flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.HighPileupPass")
+    elif flags.InDet.Tracking.doMinBias:
+        flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.MinBiasPass")
     elif flags.InDet.Tracking.doRobustReco:
         flags = flags.cloneAndReplace("InDet.Tracking.Pass", "InDet.Tracking.RobustRecoPass")
 
@@ -555,7 +567,11 @@ def InDetTrackRecoCfg(flags):
 
     result.merge(TrackParticleCnvAlgCfg(flags))
 
-    # TODO add followup algs
+    if flags.InDet.Tracking.doStoreTrackSeeds:
+        result.merge(TrackParticleCnvAlgCfg(flags,
+                                            name = "SiSPSeedSegmentsCnvAlg",
+                                            TrackContainerName = "SiSPSeedSegments",
+                                            OutputTrackParticleContainer = "SiSPSeedSegmentsTrackParticles"))
 
     if flags.InDet.PriVertex.doVertexFinding:
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg

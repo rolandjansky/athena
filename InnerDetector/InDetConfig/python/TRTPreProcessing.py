@@ -55,7 +55,7 @@ def InDetTRT_DriftFunctionToolCfg(flags, useTimeInfo, usePhase, name = "InDetTRT
     acc.addPublicTool(CalDbTool)
 
     # --- overwrite for uncalibrated DC production
-    if (not useTimeInfo) or flags.InDet.Tracking.noTRTTiming:
+    if (not useTimeInfo) or flags.InDet.noTRTTiming:
         kwargs.setdefault("DummyMode", True)
         kwargs.setdefault("UniversalError", 1.15)
 
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     top_acc.merge( PixelReadoutGeometryCfg(ConfigFlags) )
     top_acc.merge( SCT_ReadoutGeometryCfg(ConfigFlags) )
 
-    if not ConfigFlags.InDet.doDBMstandalone:
+    if not ConfigFlags.InDet.Tracking.doDBMstandalone:
         top_acc.merge(TRTPreProcessingCfg(ConfigFlags,
                                           useTimeInfo = not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type=="collisions",
                                           usePhase = False))

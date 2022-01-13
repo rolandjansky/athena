@@ -93,6 +93,7 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundarySearchTool', **kwargs):
 
   kwargs.setdefault("UsePixel", flags.Detector.EnablePixel)
   kwargs.setdefault("UseSCT", flags.Detector.EnableSCT)
+  kwargs.setdefault("CheckBadSCT", flags.InDet.checkDeadElementsOnTrack)
 
   result.setPrivateTools(CompFactory.InDet.InDetBoundaryCheckTool(name, **kwargs))
   return result

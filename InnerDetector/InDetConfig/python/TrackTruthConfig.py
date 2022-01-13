@@ -79,7 +79,6 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryTRT   = True
 
     ConfigFlags.InDet.Tracking.doPixelClusterSplitting = True
-    ConfigFlags.InDet.Tracking.useHolesFromPattern =  False
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RDO

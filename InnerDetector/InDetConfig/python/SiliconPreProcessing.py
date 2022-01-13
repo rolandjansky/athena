@@ -17,7 +17,7 @@ def SiSpacePointMakerToolCfg(flags, name="InDetSiSpacePointMakerTool", **kwargs)
     # --- SiSpacePointMakerTool (public)
     #
 
-    if flags.Beam.Type == "cosmics" or flags.InDet.Tracking.doBeamHalo:
+    if flags.Beam.Type == "cosmics" or flags.InDet.Tracking.doBeamGas:
         kwargs.setdefault("StripLengthTolerance", 0.05)
         kwargs.setdefault("UsePerpendicularProjection", True)
     
@@ -49,7 +49,7 @@ def InDetSiTrackerSpacePointFinderCfg(flags, name = "InDetSiTrackerSpacePointFin
     kwargs.setdefault("ProcessSCTs", flags.Detector.EnableSCT)
     kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableSCT)
 
-    if flags.InDet.doDBMstandalone:
+    if flags.InDet.Tracking.doDBMstandalone:
         kwargs.setdefault("OverlapLimitEtaMax", 5.0)
         kwargs.setdefault("OverlapLimitEtaMin", 0)
 

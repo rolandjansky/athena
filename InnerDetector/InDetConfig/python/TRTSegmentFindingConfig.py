@@ -224,7 +224,7 @@ if __name__ == "__main__":
     # NewTracking collection keys
     InputCombinedInDetTracks = []
 
-    if not flags.InDet.doDBMstandalone:
+    if not flags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
         top_acc.merge(TRTPreProcessingCfg(flags,
                                           useTimeInfo = not flags.InDet.Tracking.doTRTPhaseCalculation or flags.Beam.Type =="collisions",

@@ -399,7 +399,7 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     kwargs.setdefault("caloSeededBrem", flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("pTminBrem", flags.ITk.Tracking.Pass.minPTBrem[0])
     kwargs.setdefault("RefitPrds", True)
-    kwargs.setdefault("KeepHolesFromBeforeRefit", flags.ITk.Tracking.useHolesFromPattern)
+    kwargs.setdefault("KeepHolesFromBeforeRefit", False)
 
     # DenseEnvironmentsAmbiguityProcessorTool
     ProcessorTool = CompFactory.Trk.DenseEnvironmentsAmbiguityProcessorTool

@@ -229,13 +229,14 @@ def createTrackingPassFlags():
     
     icf.addFlag("maxShared", 1) # cut is now on number of shared modules
     icf.addFlag("minPixel", 0)
-    icf.addFlag("maxHoles", lambda pcf: maxHoles_ranges( pcf ) )
-    icf.addFlag("maxPixelHoles", lambda pcf: maxPixelHoles_ranges( pcf ) )
+    icf.addFlag("maxHoles", maxHoles_ranges )
+    icf.addFlag("maxPixelHoles", maxPixelHoles_ranges )
     icf.addFlag("maxSctHoles", 2)
     icf.addFlag("maxDoubleHoles", 1)
 
-    icf.addFlag("maxPrimaryImpact", maxPrimaryImpact_ranges )
-    icf.addFlag("maxZImpact", lambda pcf: maxZImpact_ranges( pcf ) )
+    icf.addFlag("maxPrimaryImpact", lambda pcf: 10.0 * Units.mm if pcf.InDet.Tracking.doBLS
+                else maxPrimaryImpact_ranges(pcf) )
+    icf.addFlag("maxZImpact", maxZImpact_ranges )
 
     # --- this is for the TRT-extension
     icf.addFlag("minTRTonTrk", 9)
@@ -255,7 +256,8 @@ def createTrackingPassFlags():
     icf.addFlag("seedFilterLevel", seedFilterLevel_ranges )
     icf.addFlag("maxTracksPerSharedPRD", 0)  ## is 0 ok for default??
     icf.addFlag("maxdImpactPPSSeeds", 2)
-    icf.addFlag("maxdImpactSSSSeeds", maxdImpactSSSSeeds_ranges )
+    icf.addFlag("maxdImpactSSSSeeds", lambda pcf: 10.0 * Units.mm if pcf.InDet.Tracking.doBLS
+                else maxdImpactSSSSeeds_ranges(pcf) )
     icf.addFlag("maxZSpacePointsPPPSeeds", 2700.0 * Units.mm )
     icf.addFlag("maxZSpacePointsSSSSeeds", 2700.0 * Units.mm )
     icf.addFlag("maxSeedsPerSP_Pixels", maxSeedsPerSP_Pixels_ranges )
@@ -294,10 +296,10 @@ def createTrackingPassFlags():
     icf.addFlag("minSecondaryTRTonTrk"      , minSecondaryTRTonTrk_ranges)
     icf.addFlag("minSecondaryTRTPrecFrac"   , minSecondaryTRTPrecFrac_ranges)
     
-    icf.addFlag("maxSecondaryHoles"         , lambda pcf: maxSecondaryHoles_ranges( pcf ) )
-    icf.addFlag("maxSecondaryPixelHoles"    , lambda pcf: maxSecondaryPixelHoles_ranges( pcf ))
-    icf.addFlag("maxSecondarySCTHoles"      , lambda pcf: maxSecondarySCTHoles_ranges( pcf ) )
-    icf.addFlag("maxSecondaryDoubleHoles"   , lambda pcf: maxSecondaryDoubleHoles_ranges( pcf ) )
+    icf.addFlag("maxSecondaryHoles"         , maxSecondaryHoles_ranges)
+    icf.addFlag("maxSecondaryPixelHoles"    , maxSecondaryPixelHoles_ranges)
+    icf.addFlag("maxSecondarySCTHoles"      , maxSecondarySCTHoles_ranges)
+    icf.addFlag("maxSecondaryDoubleHoles"   , maxSecondaryDoubleHoles_ranges)
     icf.addFlag("SecondarynHolesMax"        , 2 )
     icf.addFlag("SecondarynHolesGapMax"     , 2 )
 
@@ -490,17 +492,6 @@ def createITkLargeD0FastTrackingPassFlags():
 
     return icf
 
-### IBL mode ####################
-def createIBLTrackingPassFlags():
-    icf = createTrackingPassFlags()
-    icf.extension               = "IBL"
-    icf.seedFilterLevel         = 1
-    icf.minPT                   = 0.900 * Units.GeV
-    icf.minClusters             = 10
-    icf.maxPixelHoles           = 1
-
-    return icf
-
 ### HighPileUP mode ####################
 def createHighPileupTrackingPassFlags():
     icf = createTrackingPassFlags()
@@ -516,7 +507,7 @@ def createHighPileupTrackingPassFlags():
 def createMinBiasTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension                 = "MinBias"
-    icf.minPT = lambda pcf: (0.3 if  pcf.InDet.doHIP300 else 0.1) * Units.GeV
+    icf.minPT = lambda pcf: (0.3 if  pcf.InDet.Tracking.doHIP300 else 0.1) * Units.GeV
 
     icf.minClusters               = 5
     icf.minSecondaryPt            = 0.4 * Units.GeV  # Pt cut for back tracking + segment finding for these
@@ -857,7 +848,7 @@ def createPixelTrackingPassFlags():
         if pcf.Reco.EnableHI:
             return 0.1 * Units.GeV
         if pcf.InDet.Tracking.doMinBias:
-            if pcf.InDet.doHIP300:
+            if pcf.InDet.Tracking.doHIP300:
                 return 0.300 * Units.GeV
             else:
                 return 0.05 * Units.GeV
@@ -935,7 +926,7 @@ def createSCTTrackingPassFlags():
             if pcf.Beam.Type == "cosmics":
                 return cosmics
             if pcf.InDet.Tracking.doMinBias:
-                if pcf.InDet.doHIP300:
+                if pcf.InDet.Tracking.doHIP300:
                     return hion
                 else:
                     return minbias

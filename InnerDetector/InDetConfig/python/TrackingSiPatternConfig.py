@@ -127,7 +127,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     #
     # --- Local track finding using sdCaloSeededSSSpace point seed
     #
-    if flags.InDet.doDBMstandalone or flags.InDet.Tracking.Pass.extension == 'DBM':
+    if flags.InDet.Tracking.doDBMstandalone:
         RotCreator = acc.popToolsAndMerge(TC.InDetRotCreatorDBMCfg(flags))
         kwargs.setdefault("useSCT", False)
         kwargs.setdefault("MagneticFieldMode", "NoField")
@@ -148,9 +148,6 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
     kwargs.setdefault("PixelClusterContainer", "PixelClusters")
     kwargs.setdefault("SCT_ClusterContainer", "SCT_Clusters")
-
-    if flags.InDet.Tracking.Pass.extension == "":
-        kwargs.setdefault("writeHolesFromPattern", flags.InDet.Tracking.useHolesFromPattern)
 
     if flags.Detector.EnablePixel:
         from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -198,7 +195,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     kwargs.setdefault("nWeightedClustersMin", flags.InDet.Tracking.Pass.nWeightedClustersMin)
     kwargs.setdefault("CosmicTrack", flags.Beam.Type == 'cosmics')
     kwargs.setdefault("Xi2maxMultiTracks", flags.InDet.Tracking.Pass.Xi2max)
-    kwargs.setdefault("useSSSseedsFilter", flags.InDet.doSSSfilter)
+    kwargs.setdefault("useSSSseedsFilter", True)
     kwargs.setdefault("doMultiTracksProd", True)
     kwargs.setdefault("useBremModel", flags.InDet.Tracking.doBremRecovery and flags.InDet.Tracking.Pass.extension == "" and flags.Detector.EnableCalo)
     kwargs.setdefault("doCaloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
@@ -250,7 +247,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
     else:
         kwargs.setdefault("TrackPatternRecoInfo", 'SiSPSeededFinder')
 
-    if flags.InDet.doStoreTrackSeeds:
+    if flags.InDet.Tracking.doStoreTrackSeeds:
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault("SeedToTrackConversion", CompFactory.InDet.SeedToTrackConversionTool(
             name="InDet_SeedToTrackConversion",
@@ -279,11 +276,14 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
         # not all classes have that property !!!
         kwargs.setdefault("PRDtoTrackMap", 'InDetPRDtoTrackMap'+ flags.InDet.Tracking.Pass.extension)
 
-    if flags.InDet.Tracking.Pass.extension == "ForwardTracks" or flags.InDet.Tracking.Pass.extension == "DBM":
-        kwargs.setdefault("useZvertexTool", flags.InDet.Tracking.useZvertexTool and flags.InDet.Tracking.Pass.extension == "ForwardTracks")
+    if flags.InDet.Tracking.Pass.extension == "ForwardTracks":
+        kwargs.setdefault("useZvertexTool", flags.Reco.EnableHI) # For heavy-ion
+        kwargs.setdefault("useZBoundFinding", False)
+    elif flags.InDet.Tracking.Pass.extension == "DBM":
+        kwargs.setdefault("useZvertexTool", False)
         kwargs.setdefault("useZBoundFinding", False)
     else:
-        kwargs.setdefault("useZvertexTool", flags.InDet.Tracking.useZvertexTool)
+        kwargs.setdefault("useZvertexTool", flags.Reco.EnableHI) # For heavy-ion
         kwargs.setdefault("useZBoundFinding", flags.InDet.Tracking.Pass.doZBoundary)
     
     #
@@ -294,9 +294,6 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
 
     if flags.Reco.EnableHI:
         kwargs.setdefault("FreeClustersCut",2) #Heavy Ion optimization from Igor
-
-    if flags.InDet.Tracking.Pass.extension == "":
-        kwargs.setdefault("writeHolesFromPattern", flags.InDet.Tracking.useHolesFromPattern)
 
     InDetSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.InDet.Tracking.Pass.extension, **kwargs)
     acc.addEventAlgo(InDetSiSPSeededTrackFinder)
@@ -441,7 +438,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
         InDetTrackFitterAmbi = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, name='InDetTrackFitterAmbi'+flags.InDet.Tracking.Pass.extension, **fitter_args))
         fitter_list.append(InDetTrackFitterAmbi)
 
-    if flags.InDet.doRefitInvalidCov: 
+    if flags.InDet.Tracking.doRefitInvalidCov:
         if not flags.InDet.Tracking.Pass.extension=="":
             KalmanFitter = acc.popToolsAndMerge(TC.KalmanFitterCfg(flags, name='KalmanFitter'+flags.InDet.Tracking.Pass.extension))
             fitter_list.append(KalmanFitter)
@@ -476,7 +473,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
     kwargs.setdefault("caloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo and flags.InDet.Tracking.Pass.extension == "")
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.Pass.minPTBrem)
     kwargs.setdefault("RefitPrds", True)
-    kwargs.setdefault("KeepHolesFromBeforeRefit", flags.InDet.Tracking.useHolesFromPattern)
+    kwargs.setdefault("KeepHolesFromBeforeRefit", False)
 
     InDetAmbiguityProcessor = CompFactory.Trk.DenseEnvironmentsAmbiguityProcessorTool(name=name+flags.InDet.Tracking.Pass.extension, **kwargs)
     acc.setPrivateTools(InDetAmbiguityProcessor)

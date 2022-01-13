@@ -263,7 +263,7 @@ if __name__ == "__main__":
     top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
     top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
     ############################# TRTPreProcessing configuration ############################
-    if not ConfigFlags.InDet.doDBMstandalone:
+    if not ConfigFlags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
         top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
     ########################### TRTSegmentFindingCfg configuration ##########################

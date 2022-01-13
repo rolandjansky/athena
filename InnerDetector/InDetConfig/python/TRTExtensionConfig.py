@@ -160,7 +160,6 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometryTRT = True
 
     ConfigFlags.InDet.Tracking.doTRTExtension = True
-    ConfigFlags.InDet.Tracking.useHolesFromPattern = False
     ConfigFlags.InDet.Tracking.holeSearchInGX2Fit = True
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -226,7 +225,7 @@ if __name__ == "__main__":
     #################### Additional Configuration  ########################
     #######################################################################
     ################# TRTPreProcessing Configuration ######################
-    if not ConfigFlags.InDet.doDBMstandalone:
+    if not ConfigFlags.InDet.Tracking.doDBMstandalone:
         from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
         top_acc.merge(TRTPreProcessingCfg(ConfigFlags,
                                           useTimeInfo = not ConfigFlags.InDet.Tracking.doTRTPhaseCalculation or ConfigFlags.Beam.Type=="collisions",
