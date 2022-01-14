@@ -23,17 +23,17 @@ void PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatios(const s
     if (std::abs(thisCluster.first->e() - clusterEnergyMap[thisCluster.first]) > 0.0001) {
        if ( clusterEnergyMap[thisCluster.first] > 0) {
         ATH_MSG_DEBUG("Subtracted energy ratio is " << thisCluster.first->e()/clusterEnergyMap[thisCluster.first]);
-        clusterSubtractedEnergyRatios.push_back(std::pair(thisCluster.first->e()/clusterEnergyMap[thisCluster.first],clusterEnergyMap[thisCluster.first]-thisCluster.first->e()));
+        clusterSubtractedEnergyRatios.emplace_back(std::pair(thisCluster.first->e()/clusterEnergyMap[thisCluster.first],clusterEnergyMap[thisCluster.first]-thisCluster.first->e()));
        }
        //approximate zero with 0.0001 to avoid FPE and still give a meaningful ratio (e.g -100/0.0001)
        else {
          ATH_MSG_DEBUG("Subtracted energy ratio is " << thisCluster.first->e()/0.0001);
-         clusterSubtractedEnergyRatios.push_back(std::pair(thisCluster.first->e()/0.0001,clusterEnergyMap[thisCluster.first]-thisCluster.first->e()));
+         clusterSubtractedEnergyRatios.emplace_back(std::pair(thisCluster.first->e()/0.0001,clusterEnergyMap[thisCluster.first]-thisCluster.first->e()));
        }
     }
     //else if the cluster enegry did not change then we use NAN to denote that no charged shower subtraction occurred.
     else {
-      clusterSubtractedEnergyRatios.push_back(std::pair(NAN,NAN));
+      clusterSubtractedEnergyRatios.emplace_back(NAN,NAN);
       ATH_MSG_DEBUG("Subtracted energy ratio is NAN ");
     }
   }//Loop over clusterSubtractionList
@@ -55,11 +55,11 @@ void PFSubtractionEnergyRatioCalculator::calculateSubtractedEnergyRatiosForAnnih
     if (0 != clusterEnergyMap[thisCluster.first]) {
       ATH_MSG_DEBUG("Setting cluster energy ratio to zero");
       //We are removing the full energy, so set the subtracted energy to the cluster energy.
-      clusterSubtractedEnergyRatios.push_back(std::pair(0,clusterEnergyMap[thisCluster.first]));
+      clusterSubtractedEnergyRatios.emplace_back(std::pair(0,clusterEnergyMap[thisCluster.first]));
     }
     else {
       ATH_MSG_DEBUG("Setting cluster energy ratio to NAN");
-      clusterSubtractedEnergyRatios.push_back(std::pair(NAN,NAN));
+      clusterSubtractedEnergyRatios.emplace_back(NAN,NAN);
     }
 
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PFCELLLEVELSUBTRACTIONTOOL_H
@@ -57,12 +57,12 @@ public:
 
   void calculateRadialEnergyProfiles(eflowData& data) const;
   void performSubtraction(eflowData& data) const;
-  bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode) const;
+  static bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode) ;
   bool canAnnihilated(double expectedEnergy, double sigma, double clusterEnergy) const;
 
   unsigned int matchAndCreateEflowCaloObj(unsigned int n, eflowData& data) const;
-  std::string printTrack(const xAOD::TrackParticle* track) const;
-  std::string printCluster(const xAOD::CaloCluster* cluster) const;
+  static std::string printTrack(const xAOD::TrackParticle* track) ;
+  static std::string printCluster(const xAOD::CaloCluster* cluster) ;
   void printAllClusters(const eflowRecClusterContainer& recClusterContainer) const;
 
   // Need a track position provider to preselect clusters

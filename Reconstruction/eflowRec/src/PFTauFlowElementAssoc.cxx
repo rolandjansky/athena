@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFTauFlowElementAssoc.h"
@@ -9,7 +9,7 @@
 #include "xAODPFlow/FlowElement.h"
 #include "tauRecTools/HelperFunctions.h"
 
-typedef ElementLink<xAOD::TauJetContainer> TauJetLink_t;
+using TauJetLink_t = ElementLink<xAOD::TauJetContainer>;
 using FELink_t = ElementLink<xAOD::FlowElementContainer>;
 
 PFTauFlowElementAssoc::PFTauFlowElementAssoc(const std::string& name,
@@ -69,7 +69,7 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
   ////////////////////////////////////////////
   for (const xAOD::FlowElement* FE : *neutralFETauWriteDecorHandle) {
     // Check that the flow element cluster exists and is not null
-    if (FE->otherObjects().size() == 0) continue;
+    if (FE->otherObjects().empty()) continue;
     if (FE->otherObjects().at(0) == nullptr) continue;
     // Get the index of the flow element cluster
     size_t FEClusterIndex = FE->otherObjects().at(0)->index();
@@ -116,7 +116,7 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
   ////////////////////////////////////////////
   for (const xAOD::FlowElement* FE : *chargedFETauWriteDecorHandle) {
     // Check that the flow element track exists and is not null
-    if (FE->chargedObjects().size() == 0) continue;
+    if (FE->chargedObjects().empty()) continue;
     if (FE->chargedObjects().at(0) == nullptr) continue;
 
     // Get the index of the flow element track
