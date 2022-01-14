@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFMuonFlowElementAssoc.h"
@@ -16,7 +16,7 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "Identifier/Identifier.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
-typedef ElementLink<xAOD::MuonContainer> MuonLink_t;
+using MuonLink_t = ElementLink<xAOD::MuonContainer>;
 using FlowElementLink_t = ElementLink<xAOD::FlowElementContainer>;
 //
 //      Algorithm created by M.T. Anthony

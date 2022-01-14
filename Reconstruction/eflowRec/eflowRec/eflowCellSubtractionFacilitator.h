@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWCELLSUBTRACTIONFACILITATOR_H
@@ -53,18 +53,18 @@ public:
 
 private:
   bool m_annFlag;
-  CaloClusterCellLink::iterator getCellIterator(
+  static CaloClusterCellLink::iterator getCellIterator(
     xAOD::CaloCluster* thisCluster,
     const CaloCell* thisCell);
  
-  void updateClusterKinematics(
+  static void updateClusterKinematics(
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
-  void updateClusterKinematics(xAOD::CaloCluster*);
+  static void updateClusterKinematics(xAOD::CaloCluster*);
 
-  double getTotalEnergy(
+  static double getTotalEnergy(
     const std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
 
-  double getRingsEnergy(
+  static double getRingsEnergy(
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
     CellIt beginRing,
     CellIt endRing);
@@ -89,7 +89,7 @@ private:
     eflowCellList& orderedCells,
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
 
-  bool subtractCaloCell(double& eSubtracted,
+  static bool subtractCaloCell(double& eSubtracted,
                         const double eExpect,
                         xAOD::CaloCluster* cluster,
                         const CaloCell* cell);
@@ -97,7 +97,7 @@ private:
   void annihilateClusters(
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
 
-  bool subtractReorderedCells(
+  static bool subtractReorderedCells(
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
     double eSubtracted,
     const double eExpect,
