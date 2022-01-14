@@ -30,7 +30,8 @@ def createEgammaConfigFlags():
 
     # do egamma truth association when running on MC
     egcf.addFlag("Egamma.doTruthAssociation",
-                 lambda prevFlags: prevFlags.Input.isMC)
+                 lambda prevFlags: prevFlags.Input.isMC or
+                 prevFlags.Overlay.DataOverlay)
 
     # Do e/gamma track thinning (Although we call the alg slimming...)
     egcf.addFlag("Egamma.doTrackThinning",
