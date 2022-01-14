@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -92,6 +92,7 @@ namespace DerivationFramework {
     recordPropertyS("McstSagittaRelease"       , "_NONE_");
     recordPropertyB("McstDoSagittaMCDistortion", false);
     recordPropertyB("McstSagittaCorrPhaseSpace", true);
+    recordPropertyB("McstDoDirectCBCalib"      , false);
     
     // muon collections
     recordPropertyS("MuonCollection"     , "Muons");
