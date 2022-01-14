@@ -86,7 +86,6 @@ namespace GSFUtils {
 
 /**
  * @brief struct representing 1D component
- * Negative weight means invalidated component
  */
 struct Component1D
 {
@@ -111,7 +110,8 @@ struct Component1DArray
 
 /**
  * @brief struct representing an array or the merges.
- * We merge from the element in 'From' to the element to 'To'
+ * The merge is from the element in positon 'From'
+ * to the element in position 'To'
  */
 struct MergeArray
 {
@@ -141,13 +141,6 @@ struct MergeArray
  */
 MergeArray
 findMerges(const Component1DArray& componentsIn, const int8_t reducedSize);
-
-/**
- * @brief For finding the index of the minumum pairwise distance
- * we opt for SIMD and function multiversioning
- */
-int32_t
-findMinimumIndex(const float* distancesIn, const int32_t n);
 
 } // namespace KLGaussianMixtureReduction
 
