@@ -1,5 +1,5 @@
 /*
-   Copyrightf (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyrightf (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopConfiguration/TopConfig.h"
@@ -1264,12 +1264,10 @@ namespace top {
     this->tauEtaRegions(settings->value("TauEtaRegions"));
     this->tauJetIDWP(settings->value("TauJetIDWP"));
     this->tauJetIDWPLoose(settings->value("TauJetIDWPLoose"));
-    this->tauEleRNNWP(settings->value("TauEleRNNWP"));
-    this->tauEleRNNWPLoose(settings->value("TauEleRNNWPLoose"));
+    this->tauEleIDWP(settings->value("TauEleIDWP"));
+    this->tauEleIDWPLoose(settings->value("TauEleIDWPLoose"));
     this->tauMuOLR((settings->value("TauMuOLR") == "True"));
     this->tauMuOLRLoose((settings->value("TauMuOLRLoose") == "True"));
-    this->tauSFDoRNNID((settings->value("TauSFDoRNNID") == "True"));
-    this->tauSFDoBDTID((settings->value("TauSFDoBDTID") == "True"));
     this->tauJetConfigFile(settings->value("TauJetConfigFile"));
     this->tauJetConfigFileLoose(settings->value("TauJetConfigFileLoose"));
     if (settings->value("ApplyTauMVATES") != "True") throw std::runtime_error {
