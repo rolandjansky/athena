@@ -36,8 +36,6 @@
 
 #include "xAODBTagging/BTagVertex.h"
 
-#include "ParticleJetTools/ParticleToJetAssociator.h"
-
 const double minProb = 1e-9;
 
 namespace Analysis { 
