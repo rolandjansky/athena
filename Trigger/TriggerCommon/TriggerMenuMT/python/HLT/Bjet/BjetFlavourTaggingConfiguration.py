@@ -1,6 +1,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
@@ -84,3 +85,67 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
 
 
     return acc
+
+def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks):
+    """
+    This example tags jets directly: there is no intermediate
+    b-tagging object
+    """
+
+    ca = ComponentAccumulator()
+
+    # first add the track augmentation to define peragee coordinates
+    jet_name = inputJets
+    trackContainer = inputTracks
+    primaryVertexContainer = ''
+    simpleTrackIpPrefix = 'simpleIp_'
+    ca.addEventAlgo(
+        CompFactory.FlavorTagDiscriminants.PoorMansIpAugmenterAlg(
+            'SimpleTrackAugmenter',
+            trackContainer=trackContainer,
+            primaryVertexContainer=primaryVertexContainer,
+            prefix=simpleTrackIpPrefix,
+        )
+    )
+
+    # now we assicoate the tracks to the jet
+    tracksOnJetDecoratorName = "TracksForMinimalJetTag"
+    ca.merge(JetParticleAssociationAlgCfg(
+        flags,
+        JetCollection=jet_name,
+        InputParticleCollection=trackContainer,
+        OutputParticleDecoration=tracksOnJetDecoratorName,
+    ))
+
+    # Now we have to add an algorithm that tags the jets with dips
+    # The input and output remapping is handled via a map in DL2.
+    #
+    # The file above adds dipsLoose20210517_p*, we'll call them
+    # dips_p* on the jet.
+    nnFile = 'BTagging/20210517/dipsLoose/antikt4empflow/network.json'
+    variableRemapping = {
+        'BTagTrackToJetAssociator': tracksOnJetDecoratorName,
+        **{f'dipsLoose20210517_p{x}': f'dipsOnJet_p{x}' for x in 'cub'},
+        'btagIp_': simpleTrackIpPrefix,
+    }
+    ca.addEventAlgo(
+        CompFactory.FlavorTagDiscriminants.JetTagDecoratorAlg(
+            'simpleJetTagAlg',
+            container=jet_name,
+            constituentContainer=trackContainer,
+            decorator=CompFactory.FlavorTagDiscriminants.DL2Tool(
+                'simpleDipsToJet',
+                nnFile=nnFile,
+                variableRemapping=variableRemapping,
+                # note that the tracks are associated to the jet as
+                # and IParticle container.
+                trackLinkType='IPARTICLE',
+            ),
+        )
+    )
+    return ca
+
+
+
+
+

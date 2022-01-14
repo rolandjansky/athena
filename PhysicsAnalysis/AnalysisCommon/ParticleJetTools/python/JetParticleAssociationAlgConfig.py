@@ -29,7 +29,11 @@ def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", InputParticleCol
 
     # setup the associator
     if not jetcol.endswith('Jets'):
-        jetcol += 'Jets'
+        if 'HLT_' in jetcol: # TODO confirm this is easiest & make more graceful
+             if '_b' in jetcol:   # maybe adjust HLT bjet slice to not remove Jets?
+                 jetcol += 'Jets'
+        else:
+            jetcol += 'Jets'
     options['JetContainer'] = jetcol
     options['Decorators'] = [acc.popToolsAndMerge(JetParticleAssociationCfg(ConfigFlags, jetcol, InputParticleCollection, OutputParticleDecoration))]
     options['name'] = (jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
