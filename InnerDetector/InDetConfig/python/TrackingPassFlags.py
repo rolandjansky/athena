@@ -359,6 +359,8 @@ def createRobustRecoTrackingPassFlags():
     icf.maxSecondarySCTHoles    = 5
     icf.maxSecondaryDoubleHoles = 2
 
+    return icf
+
 ### ITk mode ####################
 def createITkTrackingPassFlags():
     icf = createTrackingPassFlags()   
