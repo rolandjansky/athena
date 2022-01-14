@@ -88,14 +88,15 @@ namespace Trig {
           << " is empty! This means that no matching chains were found!");
       return StatusCode::FAILURE;
     }
-    if (!cg->isPassed( rerun 
-                       ? TrigDefs::Physics | TrigDefs::allowResurrectedDecision 
-                       : TrigDefs::Physics) ) {
+    unsigned int condition = TrigDefs::Physics;
+    if (rerun)
+      condition |= TrigDefs::allowResurrectedDecision;
+    if (!cg->isPassed(condition) ) {
       ATH_MSG_DEBUG("Chain: " << chain << " was not passed!");
       return StatusCode::SUCCESS;
     }
     
-    FeatureContainer features = cg->features();
+    FeatureContainer features = cg->features(condition);
     for (const Combination& combo : features.getCombinations() ) {
       // The assumption here is that each combination represents a *single* way
       // in which the trigger could have been passed. This should be true for
