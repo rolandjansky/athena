@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //             Interface for jFEXForwardJetsAlgo - Algorithm for forward Jets in jFEX
@@ -31,6 +31,7 @@ namespace LVL1{
 
       virtual float globalPhi(int) =0;
       virtual float globalEta(int) =0;
+      virtual std::array<float,2> globalEtaPhi(int) =0;
       virtual unsigned int localPhi(int) =0;
       virtual unsigned int localEta(int) =0;
       virtual unsigned int getTTowerET(int) =0;

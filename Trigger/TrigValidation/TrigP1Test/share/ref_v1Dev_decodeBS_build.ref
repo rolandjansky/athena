@@ -4742,7 +4742,7 @@ HLT_noalg_L1jJ55p0ETA23:
 HLT_noalg_L1jJ60:
   eventCount: 16
 HLT_noalg_L1jJ60p31ETA49:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1jJ70p0ETA23:
   eventCount: 12
 HLT_noalg_L1jJ80:
@@ -4754,7 +4754,7 @@ HLT_noalg_L1jJ85p0ETA21:
 HLT_noalg_L1jJ90:
   eventCount: 5
 HLT_noalg_L1jJ90p31ETA49:
-  eventCount: 0
+  eventCount: 1
 HLT_noalg_L1jLJ100:
   eventCount: 2
 HLT_noalg_L1jLJ140:
