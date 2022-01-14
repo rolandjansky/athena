@@ -44,7 +44,7 @@ namespace {
 
 using Cache = Trk::RungeKuttaPropagator::Cache;
 void
-getField(Cache& cache, double* R, double* H)
+getField(Cache& cache, const double* ATH_RESTRICT R, double* ATH_RESTRICT H)
 {
 
   if (cache.m_solenoid) {
@@ -55,7 +55,10 @@ getField(Cache& cache, double* R, double* H)
 }
 
 void
-getFieldGradient(Cache& cache, double* R, double* H, double* dH)
+getFieldGradient(Cache& cache,
+                 const double* ATH_RESTRICT R,
+                 double* ATH_RESTRICT H,
+                 double* ATH_RESTRICT dH)
 {
   if (cache.m_solenoid) {
     cache.m_fieldCache.getFieldZR(R, H, dH);
@@ -99,21 +102,21 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
 
     // First point
     //
-    double H0[3] = { f0[0] * PS2, f0[1] * PS2, f0[2] * PS2 };
-    double A0 = A[1] * H0[2] - A[2] * H0[1];
-    double B0 = A[2] * H0[0] - A[0] * H0[2];
-    double C0 = A[0] * H0[1] - A[1] * H0[0];
-    double A2 = A0 + A[0];
-    double B2 = B0 + A[1];
-    double C2 = C0 + A[2];
-    double A1 = A2 + A[0];
-    double B1 = B2 + A[1];
-    double C1 = C2 + A[2];
+    const double H0[3] = { f0[0] * PS2, f0[1] * PS2, f0[2] * PS2 };
+    const double A0 = A[1] * H0[2] - A[2] * H0[1];
+    const double B0 = A[2] * H0[0] - A[0] * H0[2];
+    const double C0 = A[0] * H0[1] - A[1] * H0[0];
+    const double A2 = A0 + A[0];
+    const double B2 = B0 + A[1];
+    const double C2 = C0 + A[2];
+    const double A1 = A2 + A[0];
+    const double B1 = B2 + A[1];
+    const double C1 = C2 + A[2];
 
     // Second point
     //
     if (!Helix) {
-      double gP[3] = { R[0] + A1 * S4, R[1] + B1 * S4, R[2] + C1 * S4 };
+      const double gP[3] = { R[0] + A1 * S4, R[1] + B1 * S4, R[2] + C1 * S4 };
       getField(cache, gP, f);
     } else {
       f[0] = f0[0];
@@ -121,21 +124,21 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
       f[2] = f0[2];
     }
 
-    double H1[3] = { f[0] * PS2, f[1] * PS2, f[2] * PS2 };
-    double A3 = (A[0] + B2 * H1[2]) - C2 * H1[1];
-    double B3 = (A[1] + C2 * H1[0]) - A2 * H1[2];
-    double C3 = (A[2] + A2 * H1[1]) - B2 * H1[0];
-    double A4 = (A[0] + B3 * H1[2]) - C3 * H1[1];
-    double B4 = (A[1] + C3 * H1[0]) - A3 * H1[2];
-    double C4 = (A[2] + A3 * H1[1]) - B3 * H1[0];
-    double A5 = 2. * A4 - A[0];
-    double B5 = 2. * B4 - A[1];
-    double C5 = 2. * C4 - A[2];
+    const double H1[3] = { f[0] * PS2, f[1] * PS2, f[2] * PS2 };
+    const double A3 = (A[0] + B2 * H1[2]) - C2 * H1[1];
+    const double B3 = (A[1] + C2 * H1[0]) - A2 * H1[2];
+    const double C3 = (A[2] + A2 * H1[1]) - B2 * H1[0];
+    const double A4 = (A[0] + B3 * H1[2]) - C3 * H1[1];
+    const double B4 = (A[1] + C3 * H1[0]) - A3 * H1[2];
+    const double C4 = (A[2] + A3 * H1[1]) - B3 * H1[0];
+    const double A5 = 2. * A4 - A[0];
+    const double B5 = 2. * B4 - A[1];
+    const double C5 = 2. * C4 - A[2];
 
     // Last point
     //
     if (!Helix) {
-      double gP[3] = { R[0] + S * A4, R[1] + S * B4, R[2] + S * C4 };
+      const double gP[3] = { R[0] + S * A4, R[1] + S * B4, R[2] + S * C4 };
       getField(cache, gP, f);
     } else {
       f[0] = f0[0];
@@ -143,10 +146,10 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
       f[2] = f0[2];
     }
 
-    double H2[3] = { f[0] * PS2, f[1] * PS2, f[2] * PS2 };
-    double A6 = B5 * H2[2] - C5 * H2[1];
-    double B6 = C5 * H2[0] - A5 * H2[2];
-    double C6 = A5 * H2[1] - B5 * H2[0];
+    const double H2[3] = { f[0] * PS2, f[1] * PS2, f[2] * PS2 };
+    const double A6 = B5 * H2[2] - C5 * H2[1];
+    const double B6 = C5 * H2[0] - A5 * H2[2];
+    const double C6 = A5 * H2[1] - B5 * H2[0];
 
     // Test approximation quality on give step and possible step reduction
     //
@@ -161,22 +164,22 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
 
     // Parameters calculation
     //
-    double A00 = A[0];
-    double A11 = A[1];
-    double A22 = A[2];
+    const double A00 = A[0];
+    const double A11 = A[1];
+    const double A22 = A[2];
 
-    double Aarr[3]{ A00, A11, A22 };
-    double A0arr[3]{ A0, B0, C0 };
-    double A3arr[3]{ A3, B3, C3 };
-    double A4arr[3]{ A4, B4, C4 };
-    double A6arr[3]{ A6, B6, C6 };
+    const double Aarr[3]{ A00, A11, A22 };
+    const double A0arr[3]{ A0, B0, C0 };
+    const double A3arr[3]{ A3, B3, C3 };
+    const double A4arr[3]{ A4, B4, C4 };
+    const double A6arr[3]{ A6, B6, C6 };
 
     A[0] = 2. * A3 + (A0 + A5 + A6);
     A[1] = 2. * B3 + (B0 + B5 + B6);
     A[2] = 2. * C3 + (C0 + C5 + C6);
 
     double D = (A[0] * A[0] + A[1] * A[1]) + (A[2] * A[2] - 9.);
-    double Sl = 2. / S;
+    const double Sl = 2. / S;
     D = (1. / 3.) - ((1. / 648.) * D) * (12. - D);
 
     R[0] += (A2 + A3 + A4) * S3;
@@ -212,7 +215,7 @@ double
 straightLineStep(bool Jac, double S, double* P)
 {
   double* R = &P[0]; // Start coordinates
-  double* A = &P[3]; // Start directions
+  const double* A = &P[3]; // Start directions
   double* sA = &P[42];
 
   // Track parameters in last point
@@ -279,45 +282,45 @@ rungeKuttaStepWithGradient(Cache& cache, double S, double* ATH_RESTRICT P, bool&
     H0[0] = f0[0] * PS2;
     H0[1] = f0[1] * PS2;
     H0[2] = f0[2] * PS2;
-    double A0 = A[1] * H0[2] - A[2] * H0[1];
-    double B0 = A[2] * H0[0] - A[0] * H0[2];
-    double C0 = A[0] * H0[1] - A[1] * H0[0];
-    double A2 = A[0] + A0;
-    double B2 = A[1] + B0;
-    double C2 = A[2] + C0;
-    double A1 = A2 + A[0];
-    double B1 = B2 + A[1];
-    double C1 = C2 + A[2];
+    const double A0 = A[1] * H0[2] - A[2] * H0[1];
+    const double B0 = A[2] * H0[0] - A[0] * H0[2];
+    const double C0 = A[0] * H0[1] - A[1] * H0[0];
+    const double A2 = A[0] + A0;
+    const double B2 = A[1] + B0;
+    const double C2 = A[2] + C0;
+    const double A1 = A2 + A[0];
+    const double B1 = B2 + A[1];
+    const double C1 = C2 + A[2];
 
     // Second point
     //
-    double gP1[3] = { R[0] + A1 * S4, R[1] + B1 * S4, R[2] + C1 * S4 };
+    const double gP1[3] = { R[0] + A1 * S4, R[1] + B1 * S4, R[2] + C1 * S4 };
     getFieldGradient(cache, gP1, f1, g1);
 
     H1[0] = f1[0] * PS2;
     H1[1] = f1[1] * PS2;
     H1[2] = f1[2] * PS2;
-    double A3 = B2 * H1[2] - C2 * H1[1] + A[0];
-    double B3 = C2 * H1[0] - A2 * H1[2] + A[1];
-    double C3 = A2 * H1[1] - B2 * H1[0] + A[2];
-    double A4 = B3 * H1[2] - C3 * H1[1] + A[0];
-    double B4 = C3 * H1[0] - A3 * H1[2] + A[1];
-    double C4 = A3 * H1[1] - B3 * H1[0] + A[2];
-    double A5 = A4 - A[0] + A4;
-    double B5 = B4 - A[1] + B4;
-    double C5 = C4 - A[2] + C4;
+    const double A3 = B2 * H1[2] - C2 * H1[1] + A[0];
+    const double B3 = C2 * H1[0] - A2 * H1[2] + A[1];
+    const double C3 = A2 * H1[1] - B2 * H1[0] + A[2];
+    const double A4 = B3 * H1[2] - C3 * H1[1] + A[0];
+    const double B4 = C3 * H1[0] - A3 * H1[2] + A[1];
+    const double C4 = A3 * H1[1] - B3 * H1[0] + A[2];
+    const double A5 = A4 - A[0] + A4;
+    const double B5 = B4 - A[1] + B4;
+    const double C5 = C4 - A[2] + C4;
 
     // Last point
     //
-    double gP2[3] = { R[0] + S * A4, R[1] + S * B4, R[2] + S * C4 };
+    const double gP2[3] = { R[0] + S * A4, R[1] + S * B4, R[2] + S * C4 };
     getFieldGradient(cache, gP2, f2, g2);
 
     H2[0] = f2[0] * PS2;
     H2[1] = f2[1] * PS2;
     H2[2] = f2[2] * PS2;
-    double A6 = B5 * H2[2] - C5 * H2[1];
-    double B6 = C5 * H2[0] - A5 * H2[2];
-    double C6 = A5 * H2[1] - B5 * H2[0];
+    const double A6 = B5 * H2[2] - C5 * H2[1];
+    const double B6 = C5 * H2[0] - A5 * H2[2];
+    const double C6 = A5 * H2[1] - B5 * H2[0];
 
     // Test approximation quality on give step and possible step reduction
     //
@@ -504,8 +507,8 @@ std::unique_ptr<Trk::TrackParameters>
 buildTrackParametersWithoutPropagation(const Trk::TrackParameters& Tp, double* Jac)
 {
   Jac[0] = Jac[6] = Jac[12] = Jac[18] = Jac[20] = 1.;
-  Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] = Jac[10] = Jac[11] = Jac[13] =
-    Jac[14] = Jac[15] = Jac[16] = Jac[17] = Jac[19] = 0.;
+  Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] =
+  Jac[10] = Jac[11] = Jac[13] = Jac[14] = Jac[15] = Jac[16] = Jac[17] = Jac[19] = 0.;
   return std::unique_ptr<Trk::TrackParameters>(Tp.clone());
 }
 
@@ -516,8 +519,8 @@ std::unique_ptr<Trk::NeutralParameters>
 buildTrackParametersWithoutPropagation(const Trk::NeutralParameters& Tp, double* Jac)
 {
   Jac[0] = Jac[6] = Jac[12] = Jac[18] = Jac[20] = 1.;
-  Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] = Jac[10] = Jac[11] = Jac[13] =
-    Jac[14] = Jac[15] = Jac[16] = Jac[17] = Jac[19] = 0.;
+  Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] =
+  Jac[10] = Jac[11] = Jac[13] = Jac[14] = Jac[15] = Jac[16] = Jac[17] = Jac[19] = 0.;
   return std::unique_ptr<Trk::NeutralParameters>(Tp.clone());
 }
 
@@ -533,7 +536,7 @@ crossPoint(const Trk::TrackParameters& Tp,
 {
   double* R = &P[0];   // Start coordinates
   double* A = &P[3];   // Start directions
-  double* SA = &P[42]; // d(directions)/dStep
+  const double* SA = &P[42]; // d(directions)/dStep
   double Step = SN.first;
   int N = SN.second;
 
@@ -620,13 +623,13 @@ stepEstimatorWithCurvature(Cache& cache,
   const double* SA = &P[42]; // Start direction
   double S = .5 * Step;
 
-  double Ax = P[3] + S * SA[0];
-  double Ay = P[4] + S * SA[1];
-  double Az = P[5] + S * SA[2];
-  double As = 1. / std::sqrt(Ax * Ax + Ay * Ay + Az * Az);
+  const double Ax = P[3] + S * SA[0];
+  const double Ay = P[4] + S * SA[1];
+  const double Az = P[5] + S * SA[2];
+  const double As = 1. / std::sqrt(Ax * Ax + Ay * Ay + Az * Az);
 
-  double PN[6] = { P[0], P[1], P[2], Ax * As, Ay * As, Az * As };
-  double StepN = Trk::RungeKuttaUtils::stepEstimator(kind, Su, PN, Q);
+  const double PN[6] = { P[0], P[1], P[2], Ax * As, Ay * As, Az * As };
+  const double StepN = Trk::RungeKuttaUtils::stepEstimator(kind, Su, PN, Q);
   if (!Q) {
     Q = true;
     return Step;
