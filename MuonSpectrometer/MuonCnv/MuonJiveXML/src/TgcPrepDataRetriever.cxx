@@ -2,9 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonJiveXML/TgcPrepDataRetriever.h"
+#include "TgcPrepDataRetriever.h"
 
-#include "MuonJiveXML/MuonFullIDHelper.h"
+#include "MuonFullIDHelper.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
