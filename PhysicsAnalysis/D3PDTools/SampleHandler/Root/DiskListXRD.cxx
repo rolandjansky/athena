@@ -22,6 +22,7 @@
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ShellExec.h>
 #include <RootCoreUtils/ThrowMsg.h>
+#include <SampleHandler/MessageCheck.h>
 
 #include <iostream>
 
@@ -54,11 +55,14 @@ namespace SH
   getNext ()
   {
     RCU_CHANGE_INVARIANT (this);
+    using namespace msgScanDir;
 
     if (!m_isRead)
     {
       std::string command = "xrdfs " + m_server + " ls -l " + m_directory;
+      ANA_MSG_DEBUG ("trying XRD command: " << command);
       m_list = RCU::Shell::exec_read (command);
+      ANA_MSG_DEBUG ("XRD command output:\n" << command);
       m_context = "command: " + command + "\n" + m_list;
       m_isRead = true;
     }
@@ -70,6 +74,7 @@ namespace SH
 	split1 = m_list.size();
 
       const std::string line (m_list.substr (0, split1));
+      ANA_MSG_DEBUG ("next XRD list line: " << line);
       m_list = m_list.substr (split1 + 1);
 
       std::string::size_type split2 = line.find ('/');
@@ -78,6 +83,8 @@ namespace SH
       {
 	m_isDir = line[0] == 'd';
 	m_file = line.substr (split2);
+        ANA_MSG_DEBUG ("next XRD file found: " << m_file);
+        ANA_MSG_DEBUG ("XRD file isDir: " << m_isDir);
 	return true;
       }
 
@@ -85,13 +92,9 @@ namespace SH
       {
 	std::string message = "failed to parse line: \"" + line + "\"\n" + m_context;
 
+        ANA_MSG_WARNING (message);
 	if (!m_laxParser)
-	{
-	  RCU_THROW_MSG (message);
-	} else
-	{
-	  RCU_WARN_MSG (message);
-	}
+          throw std::runtime_error (message);
       }
     }
     return false;
