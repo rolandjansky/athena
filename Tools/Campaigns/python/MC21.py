@@ -52,7 +52,7 @@ def MC21Simulation(flags):
     flags.Input.OverrideRunNumber = True
     flags.Input.LumiBlockNumber = [1] # dummy value
 
-    flags.Digitization.TRTRangeCut = 30.0
+    flags.Sim.TRTRangeCut = 30.0
     flags.Sim.TightMuonStepping = True
 
     from SimuJobTransforms.SimulationHelpers import enableBeamPipeKill #, enableFrozenShowersFCalOnly

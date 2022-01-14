@@ -68,10 +68,10 @@ def signalMetadataCheck(flags, simDict, tagInfoDict):
 
     # Set the TRTRangeCut digitizationFlag based on what was used during the simulation.
     if "TRTRangeCut" in simKeys:
-        if not re.match(simDict["TRTRangeCut"], str(flags.Digitization.TRTRangeCut)):
-            flags.Digitization.TRTRangeCut = simDict["TRTRangeCut"]
-            logger.warning("Overlay Digitization.TRTRangeCut does not match the value used in the Signal Simulation step! Assume the value from the Signal Simulation step is correct!")
-            logger.warning("Set Digitization.TRTRangeCut = %s", flags.Digitization.TRTRangeCut)
+        if not re.match(simDict["TRTRangeCut"], str(flags.Sim.TRTRangeCut)):
+            flags.Sim.TRTRangeCut = simDict["TRTRangeCut"]
+            logger.warning("Overlay Sim.TRTRangeCut does not match the value used in the Signal Simulation step! Assume the value from the Signal Simulation step is correct!")
+            logger.warning("Set Sim.TRTRangeCut = %s", flags.Sim.TRTRangeCut)
     else:
         logger.warning("'TRTRangeCut' key not found in Signal Simulation metadata!")
 
