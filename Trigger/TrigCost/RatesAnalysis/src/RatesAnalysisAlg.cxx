@@ -586,7 +586,7 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
 
 StatusCode RatesAnalysisAlg::execute() {  
   ATH_MSG_DEBUG("Executing " << name() << " on event " << m_eventCounter << "...");
-  if (m_eventCounter == 0) { // First time in execute loop - cannot access TDT before this.
+  if (m_eventCounter++ == 0) { // First time in execute loop - cannot access TDT before this.
     ATH_CHECK( populateTriggers() );
   }
 
@@ -643,7 +643,7 @@ StatusCode RatesAnalysisAlg::execute() {
   }
 
   // Some debug info
-  if (++m_eventCounter % 1000 == 0) {
+  if (m_eventCounter % 1000 == 0) {
     ATH_MSG_INFO( "Event " << m_eventCounter << " " << m_weightingValues.print() << " currentWallTime:" << m_ratesDenominator );
   }
 
