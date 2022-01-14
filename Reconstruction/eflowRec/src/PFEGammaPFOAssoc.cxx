@@ -1,5 +1,5 @@
 /*  
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFEGammaPFOAssoc.h" 
@@ -13,7 +13,7 @@
 #include "xAODPFlow/PFOContainer.h" 
 #include "xAODPFlow/PFO.h" 
 
-typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t; 
+using ElectronLink_t = ElementLink<xAOD::ElectronContainer>; 
 using PhotonLink_t = ElementLink<xAOD::PhotonContainer>;
 using PFOLink_t = ElementLink<xAOD::PFOContainer>; 
 

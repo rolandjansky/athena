@@ -1,5 +1,5 @@
 /*  
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/WriteDecorHandle.h" 
@@ -17,7 +17,7 @@
 #include "eflowRec/PFEGamFlowElementAssoc.h" 
 
 
-typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t; 
+using ElectronLink_t = ElementLink<xAOD::ElectronContainer>; 
 using PhotonLink_t = ElementLink<xAOD::PhotonContainer>;
 using FlowElementLink_t = ElementLink<xAOD::FlowElementContainer>; 
 
@@ -111,7 +111,7 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
   for (const xAOD::FlowElement* FE: *neutralFEElectronWriteDecorHandle){
 
     //nullptr catch for removed NFE clusters - only comes up if using AOD where the alg might have some skimmed components
-    if(FE->otherObjects().size()==0){
+    if(FE->otherObjects().empty()){
 	continue;
     }  
     if(FE->otherObjects().at(0)==nullptr){
@@ -191,7 +191,7 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
   ////////////////////////////////////////////////////////
   for (const xAOD::FlowElement* FE: *chargedFEElectronWriteDecorHandle){
       // Charged Flow Element catch for a case where there are removed tracks - should only apply if running from AOD
-      if(FE->chargedObjects().size()==0){
+      if(FE->chargedObjects().empty()){
 	  continue;
       }
       if(FE->chargedObjects().at(0)==nullptr){

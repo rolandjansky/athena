@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -70,7 +70,7 @@ int eflowEEtaBinBase::getEtaBinIndex(double eta) const {
   return getBinIndex(eta, m_etaBinBounds);
 }
 
-int eflowEEtaBinBase::getBinIndex(double x, const std::vector<double>& binBounds) const {
+int eflowEEtaBinBase::getBinIndex(double x, const std::vector<double>& binBounds) {
   int nBins = binBounds.size() - 1;
   int bin = -1;
   for (int i = 0; i < nBins; i++) {

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigOutputHandling )
@@ -13,7 +13,7 @@ atlas_add_library( TrigOutputHandlingLib
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData xAODTrigCalo xAODTrigRinger xAODTrigEgamma xAODEgamma xAODBTagging xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET  xAODTrigMinBias xAODHIEvent xAODForward DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot TrigCompositeUtilsLib TrigCostMonitorLib ByteStreamData
-		           PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
+		           PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigConfHLTUtilsLib PathResolver )
 
 
 atlas_add_component( TrigOutputHandling

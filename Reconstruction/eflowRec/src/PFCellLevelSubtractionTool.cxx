@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFCellLevelSubtractionTool.h"
@@ -158,8 +158,7 @@ unsigned int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(unsigned int
   }
 
   /* Create 3 types eflowCaloObjects: track-only, cluster-only, track-cluster-link */
-  eflowCaloObjectMaker makeCaloObject;
-  unsigned int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(data.tracks, data.clusters, data.caloObjects);
+  unsigned int nCaloObjects = eflowCaloObjectMaker::makeTrkCluCaloObjects(data.tracks, data.clusters, data.caloObjects);
   ATH_MSG_DEBUG("PFCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects.");
 
   // Should move to a common header or similar, as shared with PFRecoverSplitShowersTool
@@ -474,7 +473,7 @@ StatusCode PFCellLevelSubtractionTool::finalize(){
 }
 
 
-bool PFCellLevelSubtractionTool::isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode) const {
+bool PFCellLevelSubtractionTool::isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode) {
   if ((expectedEnergy == 0) && (clusterEnergy > 0)) {
     return false;
   }
@@ -488,13 +487,13 @@ bool PFCellLevelSubtractionTool::canAnnihilated(double expectedEnergy, double si
    return  clusterEnergy - expectedEnergy < m_subtractionSigmaCut * sigma;
 }
 
-std::string PFCellLevelSubtractionTool::printTrack(const xAOD::TrackParticle* track) const {
+std::string PFCellLevelSubtractionTool::printTrack(const xAOD::TrackParticle* track) {
   std::stringstream result;
   result << " track with E, eta and phi "<< track->e() << ", " << track->eta() << " and " << track->phi();
   return result.str();
 }
 
-std::string PFCellLevelSubtractionTool::printCluster(const xAOD::CaloCluster* cluster) const {
+std::string PFCellLevelSubtractionTool::printCluster(const xAOD::CaloCluster* cluster) {
   std::stringstream result;
   result << " cluster with E, eta and phi of " << cluster->e() << ", " << cluster->eta() << " and " << cluster->phi();
   return result.str();

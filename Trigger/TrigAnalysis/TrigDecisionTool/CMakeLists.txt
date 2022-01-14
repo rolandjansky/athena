@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigDecisionTool )
@@ -20,7 +20,7 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools xAODBase xAODTrigger
       TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib
       TrigConfInterfaces TrigDecisionInterface AsgDataHandlesLib
-      TrigCompositeUtilsLib
+      TrigCompositeUtilsLib TrigConfHLTUtilsLib
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent  )
 else()
    if( XAOD_ANALYSIS )
@@ -32,7 +32,7 @@ else()
          LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
          xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
          TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib
-         TrigConfInterfaces TrigDecisionInterface
+         TrigConfInterfaces TrigDecisionInterface TrigConfHLTUtilsLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AsgDataHandlesLib
          TrigSteeringEvent AthenaKernel )
    else()
@@ -46,7 +46,7 @@ else()
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
          TrigRoiConversionLib TrigCompositeUtilsLib TrigConfInterfaces
-         TrigDecisionInterface AsgDataHandlesLib
+         TrigDecisionInterface AsgDataHandlesLib TrigConfHLTUtilsLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES_NOPYTHON} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()
