@@ -373,8 +373,6 @@ Navigation
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
 
-    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
-    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
     * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
 
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_

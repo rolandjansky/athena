@@ -110,7 +110,6 @@ private:
   std::string m_sVarNameTriggerHadTau;
   std::string m_sRecommendationTag;
   std::string m_sTriggerName;
-  std::string m_sTriggerYear;
   std::string m_sTriggerSFMeasurement;
   bool m_bSkipTruthMatchCheck;
   bool m_bUseTauSubstructure;

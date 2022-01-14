@@ -292,13 +292,6 @@ then check the decoration::
     ...
   }
 
-**Question:** I can only find at most one truth matched tau per event. Is this normal?
---------------------------------------------------------------------------------------
-
-**Answer:** No, it isn't. You probably used TauTruthMatchingTool-00-01-06 or
-older for the truth matching. There was a bug in this and older tags, which was
-fixed in TauTruthMatchingTool-00-01-07. So please update.
-
    
 ----------
 Navigation
@@ -310,8 +303,6 @@ Navigation
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
 
-    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
-    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
     * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
 
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
