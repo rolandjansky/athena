@@ -47,18 +47,21 @@ class AFP_ProtonRecoAnalytical : public AFP_ProtonRecoBase {
     /// @brief Reconstructs single proton from pair of tracks
     ///
     /// * Sets up measurement and calculates slopes and postitions
-    /// * Reconstucts energy of proton with bisection method
+    /// * Reconstructs energy of proton with bisection method
     /// * Calculates initial proton slopes
-    /// * Adds proton to outputContainer and sets it's properties
+    /// * Adds proton to outputContainer and sets its properties
     /// 
-    /// @return Poiner to reconstucted AFPProton
-    xAOD::AFPProton * reco(const xAOD::AFPTrack* trkNear, const xAOD::AFPTrack* trkFar, std::unique_ptr<xAOD::AFPProtonContainer>& outputContainer) const;
+    /// @return Pointer to reconstructed AFPProton
+    virtual
+    xAOD::AFPProton * reco(const xAOD::AFPTrack* trkNear, const xAOD::AFPTrack* trkFar, std::unique_ptr<xAOD::AFPProtonContainer>& outputContainer) const override;
 
-    /// Reconstructs single proton using only one track from far staton
-    xAOD::AFPProton * reco (const xAOD::AFPTrack* trkFar, std::unique_ptr<xAOD::AFPProtonContainer>& outputContainer) const;
+    /// Reconstructs single proton using only one track from far station
+    virtual
+    xAOD::AFPProton * reco (const xAOD::AFPTrack* trkFar, std::unique_ptr<xAOD::AFPProtonContainer>& outputContainer) const override;
 
     /// Calculates chi2 for reconstructed proton
-    double chi2(double energy, double sx, double sy, const Measurement& my_measAFP) const;
+    virtual
+    double chi2(double energy, double sx, double sy, const Measurement& my_measAFP) const override;
 
     /// Calculates root of given function
     double bisection(double (AFP_ProtonRecoAnalytical::*fun)(double,const Measurement&,std::vector<double>&, std::vector<double>&) const, const Measurement& my_measAFP, std::vector<double>& my_slopeCalculated, std::vector<double>& my_positionCalculated) const;
