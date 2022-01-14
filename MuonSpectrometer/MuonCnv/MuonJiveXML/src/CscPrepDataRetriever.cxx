@@ -6,30 +6,27 @@
 
 #include "MuonFullIDHelper.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
    CscPrepDataRetriever::CscPrepDataRetriever(const std::string& type, const std::string& name, const IInterface* parent):
-     AthAlgTool(type,name,parent),
-     m_typeName("CSCD")
+     AthAlgTool(type,name,parent)
    {
 
      declareInterface<IDataRetriever>(this);
-     
-     declareProperty("StoreGateKey", m_sgKey = "CSC_Clusters", "name of the CscPrepDataContainer");
+
    }
 
   //--------------------------------------------------------------------------
 
   StatusCode CscPrepDataRetriever::initialize(){
     
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
+    ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
     
+    ATH_CHECK(m_sgKey.initialize());
     ATH_CHECK( m_idHelperSvc.retrieve() );
-
     return StatusCode::SUCCESS;
   }        
                 
@@ -38,13 +35,10 @@ namespace JiveXML {
   StatusCode CscPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
+    ATH_MSG_VERBOSE("Retrieving " << dataTypeName()); 
 
-    const Muon::CscPrepDataContainer *cscContainer=nullptr;
-    if ( evtStore()->retrieve(cscContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::CscPrepDataContainer '" << m_sgKey << "' was not retrieved.");
-      return StatusCode::SUCCESS;
-    }
+    SG::ReadHandle<Muon::CscPrepDataContainer> cscContainer(m_sgKey);
+
 
     int ndata = 0;
     Muon::CscPrepDataContainer::const_iterator containerIt;
@@ -73,7 +67,7 @@ namespace JiveXML {
         Identifier id = data->identify();
           
         if (!element) {
-           if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING("No MuonGM::CscReadoutElement for hit " << id);
+           ATH_MSG_WARNING("No MuonGM::CscReadoutElement for hit " << id);
           continue;
         }
 
@@ -103,14 +97,14 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
+    ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     //forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
     //// Atlantis can't deal with SGkey in xml output in CSCD (freezes)
     //// So not output SGKey for now. jpt 20Aug09
     std::string emptyStr="";
-    return FormatTool->AddToEvent(dataTypeName(), emptyStr, &myDataMap);
+    return FormatTool->AddToEvent(dataTypeName(), m_sgKey.key(), &myDataMap);  
   }
 
   //--------------------------------------------------------------------------

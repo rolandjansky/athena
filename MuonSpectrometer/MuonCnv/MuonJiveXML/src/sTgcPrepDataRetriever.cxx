@@ -18,13 +18,11 @@ namespace JiveXML {
   //--------------------------------------------------------------------------
 
   sTgcPrepDataRetriever::sTgcPrepDataRetriever(const std::string& type,const std::string& name, const IInterface* parent):
-    AthAlgTool(type, name, parent),
-    m_typeName("STGC")
+    AthAlgTool(type, name, parent)
   {
 
     declareInterface<IDataRetriever>(this);
-    
-    declareProperty("StoreGateKey", m_sgKey = "STGC_Measurements", "Storegate key for STGC PredData container");
+
   }
  
   //--------------------------------------------------------------------------
@@ -32,7 +30,7 @@ namespace JiveXML {
   StatusCode sTgcPrepDataRetriever::initialize(){
     
     ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName());
-
+    ATH_CHECK(m_sgKey.initialize());
     ATH_CHECK( m_idHelperSvc.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -45,11 +43,7 @@ namespace JiveXML {
     //be verbose
     ATH_MSG_DEBUG("Retrieving " << dataTypeName());
 
-    const Muon::sTgcPrepDataContainer *stgcContainer=nullptr;
-    if ( evtStore()->retrieve(stgcContainer, m_sgKey).isFailure() ) {
-      ATH_MSG_DEBUG("Muon::sTgcPrepDataContainer '" << m_sgKey << "' was not retrieved.");
-      return StatusCode::SUCCESS;
-    }
+    SG::ReadHandle<Muon::sTgcPrepDataContainer> stgcContainer(m_sgKey);
 
     int ndata = 0;
     for (const auto stgcCollection : *stgcContainer){
@@ -151,6 +145,6 @@ namespace JiveXML {
     // Atlantis can't deal with SGkey in xml output in CSCD (freezes)
     // So not output SGKey for now. jpt 20Aug09
     std::string emptyStr="";
-    return FormatTool->AddToEvent(dataTypeName(), emptyStr, &myDataMap);
+    return FormatTool->AddToEvent(dataTypeName(), m_sgKey.key(), &myDataMap);  
   }
 }

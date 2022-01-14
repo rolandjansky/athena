@@ -6,28 +6,24 @@
 
 #include "MuonFullIDHelper.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
   TgcPrepDataRetriever::TgcPrepDataRetriever(const std::string& type,const std::string& name, const IInterface* parent):
-    AthAlgTool(type, name, parent),
-    m_typeName("TGC")
+    AthAlgTool(type, name, parent)
   {
 
-    declareInterface<IDataRetriever>(this);
-    
-    declareProperty("StoreGateKey", m_sgKey = "TGC_Measurements", "Storegate key for TGC PredData container");
+    declareInterface<IDataRetriever>(this);    
   }
  
   //--------------------------------------------------------------------------
 
   StatusCode TgcPrepDataRetriever::initialize(){
     
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
-
+    ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
+    ATH_CHECK(m_sgKey.initialize());
     ATH_CHECK( m_idHelperSvc.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -38,13 +34,9 @@ namespace JiveXML {
   StatusCode TgcPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
+    ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
 
-    const Muon::TgcPrepDataContainer *tgcContainer=nullptr;
-    if ( evtStore()->retrieve(tgcContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::TgcPrepDataContainer '" << m_sgKey << "' was not retrieved.");
-      return StatusCode::SUCCESS;
-    }
+    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcContainer(m_sgKey);
 
     int ndata = 0;
     Muon::TgcPrepDataContainer::const_iterator containerIt;
@@ -120,13 +112,13 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
+    ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     ////forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
     //// Atlantis can't deal with SGkey in xml output in CSCD (freezes)
     //// So not output SGKey for now. jpt 20Aug09
     std::string emptyStr="";
-    return FormatTool->AddToEvent(dataTypeName(), emptyStr, &myDataMap);
+    return FormatTool->AddToEvent(dataTypeName(), m_sgKey.key(), &myDataMap);  
   }
 }

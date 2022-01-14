@@ -12,6 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
 
 #include <string>
 
@@ -39,7 +40,7 @@ namespace JiveXML {
     const std::string m_typeName;
 
     ///The storegate key for the RPC collection
-    std::string m_sgKey;
+    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_sgKey{this, "StoreGateKey", "RPC_Measurements", "Name of the RpcPrepDataContainer"};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

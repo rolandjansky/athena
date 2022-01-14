@@ -6,20 +6,17 @@
 
 #include "MuonFullIDHelper.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
   MdtPrepDataRetriever::MdtPrepDataRetriever(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type, name, parent),
-    m_typeName("MDT")
+    AthAlgTool(type, name, parent)
   {
 
     declareInterface<IDataRetriever>(this);
 
-    declareProperty("StoreGateKey", m_sgKey = "MDT_DriftCircles", "Storegate key for MDT PredData container");
     declareProperty("AdcCut", m_adcCut = 50, " Some ADC threshold cut");
     declareProperty("ObeyMasked", m_obeyMasked = true, " Use info about masked channels"); 
   }
@@ -28,8 +25,8 @@ namespace JiveXML {
 
   StatusCode MdtPrepDataRetriever::initialize(){
 
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
-
+    ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
+    ATH_CHECK(m_sgKey.initialize());
     ATH_CHECK( m_idHelperSvc.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -40,13 +37,10 @@ namespace JiveXML {
   StatusCode MdtPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
+    ATH_MSG_VERBOSE("Retrieving " << dataTypeName()); 
 
-    const Muon::MdtPrepDataContainer *mdtContainer=nullptr;
-    if ( evtStore()->retrieve(mdtContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::MdtPrepDataContainer '" << m_sgKey << "' was not retrieved.");
-      return StatusCode::SUCCESS;
-    }
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtContainer(m_sgKey);
+
 
     int ndata = 0;
     Muon::MdtPrepDataContainer::const_iterator containerIt;
@@ -77,7 +71,7 @@ namespace JiveXML {
         Identifier id = data->identify();
 
         if (!element) {
-          if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING("No MuonGM::MdtReadoutElement for hit " << id);
+          ATH_MSG_WARNING("No MuonGM::MdtReadoutElement for hit " << id);
           continue;
         }
 
@@ -106,10 +100,10 @@ namespace JiveXML {
           barcode.push_back(DataType(0));
         }
 
-        if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(" MdtPrepData x, y, z, driftR, lenght " << globalPos.x() << " " 
+        ATH_MSG_DEBUG(" MdtPrepData x, y, z, driftR, lenght " << globalPos.x() << " " 
                                                 << globalPos.y() << " " << globalPos.z() << " " << localPos[Trk::driftRadius] 
                                                 << " " << tubeLength << " adc: " << adcCount); 
-        if ( notMasked ){ if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(" *notMasked* "); }
+        if ( notMasked ){ ATH_MSG_DEBUG(" *notMasked* "); }
       }
     }
 
@@ -124,14 +118,14 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
+    ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     //forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
     //// Atlantis problem with track-hits/MDT association when SGKey is set,
     //// so not output SGKey for now. jpt 20Jul12
     std::string emptyStr="";
-    return FormatTool->AddToEvent(dataTypeName(), emptyStr, &myDataMap);
+    return FormatTool->AddToEvent(dataTypeName(), m_sgKey.key(), &myDataMap);  
   }
 
   //--------------------------------------------------------------------------
