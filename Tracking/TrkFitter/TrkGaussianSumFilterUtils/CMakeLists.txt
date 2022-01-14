@@ -13,10 +13,6 @@ atlas_add_library( TrkGaussianSumFilterUtilsLib
        PRIVATE_LINK_LIBRARIES CxxUtils PathResolver TrkExUtils)
 
 #Executables for tests
-atlas_add_executable( GSF_testFindMinimumIndex
-	test/testFindMinimumIndex.cxx 
-        LINK_LIBRARIES CxxUtils TrkGaussianSumFilterUtilsLib)
-
 atlas_add_executable( GSF_testAlignedDynArray
 	test/testAlignedDynArray.cxx 
 	LINK_LIBRARIES TrkGaussianSumFilterUtilsLib)
@@ -31,9 +27,6 @@ atlas_add_executable( GSF_testFindMode
 
 
 #Tests
-atlas_add_test(ut_GSF_testFindMinimumIndex
-	SCRIPT GSF_testFindMinimumIndex)
-
 atlas_add_test(ut_GSF_testAlignedDynArray
 	SCRIPT GSF_testAlignedDynArray)
 
