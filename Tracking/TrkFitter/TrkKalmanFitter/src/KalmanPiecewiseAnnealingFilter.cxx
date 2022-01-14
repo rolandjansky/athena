@@ -337,8 +337,8 @@ Trk::FitterStatusCode
 Trk::KalmanPiecewiseAnnealingFilter::filterTrajectory
 (Trajectory& trajectory, const ParticleHypothesis&   particleType) const
 {
-  const Trk::TrackParameters* predPar = nullptr;
-  const Trk::TrackParameters* updPar  = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> predPar;
+  std::unique_ptr<const Trk::TrackParameters> updPar;
   Trk::Trajectory::iterator  start = Trk::ProtoTrajectoryUtility::firstFittableState(trajectory);
   return this->filterTrajectoryPiece(trajectory, start, updPar, predPar,
                                      trajectory.size(), particleType);
@@ -350,8 +350,8 @@ Trk::FitterStatusCode
 Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 (Trajectory& trajectory,
  Trajectory::iterator& start,
- const TrackParameters*&     start_updatedPar,
- const TrackParameters*&     start_predPar,
+ std::unique_ptr<const Trk::TrackParameters>&     start_updatedPar,
+ std::unique_ptr<const Trk::TrackParameters>&     start_predPar,
  int                         pieceSize,
  const ParticleHypothesis&   particleType) const
 {
@@ -773,19 +773,17 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   } else { // ## case 2: DAF on a subset of trajectory
 
     if (m_forwardFitter->needsReferenceTrajectory()) ATH_MSG_ERROR("Code missing!");
-    if (start_predPar) delete start_predPar;
-    start_predPar =
+    start_predPar.reset(
       m_extrapolator->extrapolate(*lastStateOnPiece->smoothedTrackParameters(),
 				  resumeKfState->measurement()->associatedSurface(),
-				  Trk::alongMomentum, false, particleType);
+				  Trk::alongMomentum, false, particleType));
     if (!start_predPar) {
       ATH_MSG_INFO ("final extrapolation to finish off piecewise filter failed!" <<
 		    " input or internal sorting problem?" );
       m_trajPiece.clear(); return Trk::FitterStatusCode::BadInput;
     }
     if (start_updatedPar) { // only for piecewise-modus
-      delete start_updatedPar;
-      start_updatedPar = lastStateOnPiece->checkoutSmoothedPar().release();
+      start_updatedPar = lastStateOnPiece->checkoutSmoothedPar();
     }
     const Trk::RIO_OnTrack* rot;
     Trk::RoT_Extractor::extract(rot,resumeKfState->measurement());

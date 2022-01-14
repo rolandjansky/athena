@@ -137,8 +137,8 @@ Trk::InDetDynamicNoiseAdjustment::configureWithTools(
 const Trk::DNA_MaterialEffects*
 Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
   Trk::IDynamicNoiseAdjustor::State& state,
-  const TrackParameters*& predPar,    // predicted into next layer
-  const TrackParameters*& updatedPar, // previously updated
+  std::unique_ptr<const TrackParameters> & predPar,    // predicted into next layer
+  std::unique_ptr<const TrackParameters> & updatedPar, // previously updated
   const MeasurementBase* fittableMeasurement,
   const KalmanMatEffectsController& matEff,
   PropDirection direction,
@@ -148,7 +148,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
   if (predPar == nullptr || updatedPar == nullptr ||
       fittableMeasurement == nullptr) {
     ATH_MSG_WARNING("Inconsistent use: inputs are NULL pointers! "
-                    << predPar << ", " << updatedPar << ", "
+                    << predPar.get() << ", " << updatedPar.get() << ", "
                     << fittableMeasurement);
     return nullptr;
   }
@@ -300,8 +300,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
       // Change updatedPar for step one
       const Trk::TrackParameters* clonePars1 =
         CREATE_PARAMETERS(*updatedPar, updatedParameters1, updatedCovariance1).release();
-      delete updatedPar;
-      updatedPar = clonePars1;
+      updatedPar.reset(clonePars1);
       // --- Extrapolate changed updatedPar and calculate chi2 for step one
       auto testPredPars = std::unique_ptr<const Trk::TrackParameters>(
         m_extrapolator->extrapolate(state.eventContext,
@@ -338,8 +337,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
       // --- Change updatedPar for step two
       const Trk::TrackParameters* clonePars2 =
         CREATE_PARAMETERS(*updatedPar, updatedParameters2, std::move(updatedCovariance2)).release();
-      delete updatedPar;
-      updatedPar = clonePars2;
+      updatedPar.reset(clonePars2);
 
       // --- Extrapolate changed updatedPar and calculate chi2 for step two
       testPredPars.reset(m_extrapolator->extrapolate(state.eventContext,
@@ -570,17 +568,15 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
     AmgSymMatrix(5) updatedCovariance = AmgSymMatrix(5)(merr);
     (updatedCovariance)(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
 
-    const Trk::TrackParameters* clonePars =
+    std::unique_ptr<const Trk::TrackParameters> clonePars =
       (updatedPar->associatedSurface())
         .createUniqueTrackParameters(updatedParameters[0],
                                      updatedParameters[1],
                                      updatedParameters[2],
                                      updatedParameters[3],
                                      updatedParameters[4],
-                                     std::move(updatedCovariance))
-        .release();
-    delete updatedPar;
-    updatedPar = clonePars;
+                                     std::move(updatedCovariance));
+    updatedPar = std::move(clonePars);
 
     auto testPredPars =
       std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(
@@ -591,8 +587,7 @@ Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
       return nullptr;
     }
     // now replace by DNA-corrected prediction (delete TPs from KF)
-    delete predPar;
-    predPar = testPredPars.release();
+    predPar = std::move(testPredPars);
 
     // fill estimated material effects based on suspected brem
     estimatedMatEffects =

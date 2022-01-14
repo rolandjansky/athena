@@ -349,19 +349,17 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       Trk::Trajectory::reverse_iterator stateWithNoise
         = Trk::ProtoTrajectoryUtility::previousFittableState(trajectory, rit);
       if (kalMec.doDNA() && stateWithNoise!=trajectory.rend()) {
-        const TrackParameters *predPar_temp=predPar.release();
-        const TrackParameters *updatedPar_temp=updatedPar.release();
+
         Trk::IDynamicNoiseAdjustor::State state{};
         detectedMomentumNoise.reset( m_dynamicNoiseAdjustor->DNA_Adjust(
           state,
-          predPar_temp,        // change according to where meas is
-          updatedPar_temp,     // previous state's pars (start)
+          predPar,        // change according to where meas is
+          updatedPar,     // previous state's pars (start)
           fittableMeasurement, // the meas't
           kalMec,
           Trk::oppositeMomentum,
           stateWithNoise->dnaMaterialEffects()));
-        predPar.reset(predPar_temp);
-        updatedPar.reset(updatedPar_temp);
+
       }
       if (msgLvl(MSG::DEBUG))
         printGlobalParams(rit->positionOnTrajectory(), "  pred", predPar.get(),

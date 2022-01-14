@@ -13,6 +13,7 @@
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include <memory>
 
 namespace Trk 
 {
@@ -47,8 +48,8 @@ namespace Trk
     virtual FitterStatusCode
       filterTrajectoryPiece (Trajectory& trajectory,
                              Trajectory::iterator&,
-                             const TrackParameters*&,
-                             const TrackParameters*&,
+                             std::unique_ptr<const TrackParameters> &,
+                             std::unique_ptr<const TrackParameters> &,
                              int,
                              const ParticleHypothesis& ) const =0;
 
