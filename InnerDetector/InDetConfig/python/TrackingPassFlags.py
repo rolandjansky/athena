@@ -842,7 +842,7 @@ def createHeavyIonTrackingPassFlags():
 def createPixelTrackingPassFlags():
     icf = createTrackingPassFlags()
     icf.extension        = "Pixel"
-    icf.isLowPt          = lambda pcf : pcf.Tracking.doMinBias
+    icf.isLowPt          = lambda pcf : pcf.InDet.Tracking.doMinBias
 
     def _minPt( pcf ):
         if pcf.Beam.Type == "cosmics":
@@ -1038,13 +1038,8 @@ if __name__ == "__main__":
   assert ConfigFlags.InDet.Tracking.HeavyIonPass.minSiNotShared == 7, "wrong cut value, overwrite"
   assert ConfigFlags.InDet.Tracking.HeavyIonPass.minRoIClusterEt == 0.0, "wrong cut value, overwrite"
 
-  print("ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT",ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT * 1.0)
-  print("type(ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT)",type(ConfigFlags.InDet.Tracking.SCTandTRTPass.minPT))
-
   print("ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt",ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt * 1.0)
   print("type(ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt)",type(ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt))
-  
-  print("ConfigFlags.InDet.Tracking.SCTandTRTPass.roadWidth",ConfigFlags.InDet.Tracking.SCTandTRTPass.roadWidth * 1.0)
 
   #ConfigFlags.dump()
   print( "allok" )   
