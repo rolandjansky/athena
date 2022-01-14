@@ -50,7 +50,7 @@ namespace DerivationFramework {
     declareProperty("DRThreshold", m_drThreshold = 0.1,
         "The maximum dR between an offline and an online particle to consider "
         "a match between them.");
-    declareProperty("Rerun", m_rerun = false,
+    declareProperty("Rerun", m_rerun = true,
         "Whether to match triggers in rerun mode.");
     declareProperty("OutputContainerPrefix", m_outputPrefix="TrigMatch_",
         "The prefix to add to the output containers.");
