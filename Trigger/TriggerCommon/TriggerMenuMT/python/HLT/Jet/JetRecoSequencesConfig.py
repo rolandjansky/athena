@@ -4,15 +4,17 @@
 
 """ ComponentAccumulator equivalents for the functions in JetRecoSequences """
 
-from .JetRecoConfiguration import (
+from .JetRecoCommon import (
     interpretRecoAlg,
     defineJets,
-    defineTrackMods,
+    getTrackMods,
     getFilterCut,
-    defineCalibMods,
+    getCalibMods,
     getDecorList,
     defineGroomedJets,
     defineReclusteredJets,
+    isPFlow,
+    doTracking
 )
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -69,18 +71,16 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
     """
 
     acc = ComponentAccumulator()
-    use_tracking = jetRecoDict["trkopt"] != "notrk"
+    use_tracking = doTracking(jetRecoDict)
     if use_tracking and not trkcolls:
         raise ValueError(
             f"No track collections supplied for trkopt {jetRecoDict['trkopt']}"
         )
 
-    is_pflow = jetRecoDict["constitType"] == "pf"
+    is_pflow = isPFlow(jetRecoDict)
 
     # Add PFlow reconstruction if necessary
     if is_pflow:
-        if not use_tracking:
-            raise ValueError("PFlow jet chain requested with no tracking option!")
         from eflowRec.PFHLTConfig import PFCfg
 
         acc.merge(
@@ -115,7 +115,7 @@ def StandardJetBuildCfg(flags, dataSource, clustersKey, trkcolls=None, **jetReco
     if jetRecoDict["recoAlg"] == "a4":
         jetDef.modifiers += ["CaloEnergies"]  # needed for GSC
     if use_tracking:
-        jetDef.modifiers += defineTrackMods(jetRecoDict["trkopt"])
+        jetDef.modifiers += getTrackMods(jetRecoDict["trkopt"])
         
     jetsOut = recordable(jetDef.fullname())
     jetDef = solveDependencies(jetDef)
@@ -195,19 +195,18 @@ def StandardJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoD
 
 
     # If we need JVT rerun the JVT modifier
-    use_tracking = jetRecoDict["trkopt"] != "notrk"
-    is_pflow = jetRecoDict["constitType"] == "pf"
+    use_tracking = doTracking(jetRecoDict)
+    is_pflow = isPFlow(jetRecoDict)
 
-    decorList = getDecorList(use_tracking, is_pflow)
-    decorList += ["Jvt"]
+    decorList = getDecorList(jetRecoDict)
     
-    jetDef.modifiers = defineCalibMods(jetRecoDict, dataSource, rhoKey)
+    jetDef.modifiers = getCalibMods(jetRecoDict, dataSource, rhoKey)
     if use_tracking:
         jetDef.modifiers += [f"JVT:{jetRecoDict['trkopt']}"]
 
     if not is_pflow and jetRecoDict["recoAlg"] == "a4":
         jetDef.modifiers += ["CaloQuality"]
-        from TriggerMenuMT.HLT.Jet.JetRecoConfiguration import cleaningDict
+        from TriggerMenuMT.HLT.Jet.JetRecoCommon import cleaningDict
         jetDef.modifiers += [f'Cleaning:{clean_wp}' for _,clean_wp in cleaningDict.items()]
 
     # make sure all modifiers info is ready before passing jetDef to JetRecConfig helpers
@@ -267,7 +266,7 @@ def GroomedJetRecoCfg(flags, dataSource, clustersKey, trkcolls=None, **jetRecoDi
 
     groomDef = defineGroomedJets(jetRecoDict, ungroomedDef)
     jetsOut = recordable(groomDef.fullname())
-    groomDef.modifiers = defineCalibMods(jetRecoDict, dataSource)
+    groomDef.modifiers = getCalibMods(jetRecoDict, dataSource)
     groomDef.modifiers += [
         "Sort",
         "Filter:{}".format(getFilterCut(jetRecoDict["recoAlg"])),

@@ -113,7 +113,7 @@ def generateCFChains(opt):
     # jet chains
     ##################################################################
 
-    from TriggerMenuMT.HLT.Jet.JetRecoConfiguration import jetRecoDictFromString
+    from TriggerMenuMT.HLT.Jet.JetRecoCommon import jetRecoDictFromString
     def jetCaloHypoMenuSequenceFromString(jet_def_str):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
         from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetCaloHypoMenuSequence

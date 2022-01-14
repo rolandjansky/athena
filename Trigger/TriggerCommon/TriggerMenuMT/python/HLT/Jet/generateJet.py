@@ -6,11 +6,11 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging
 from ..CommonSequences.FullScanDefs import trkFSRoI, em_clusters, caloFSRoI
-from .JetRecoConfiguration import jetRecoDictToString
+from .JetRecoCommon import jetRecoDictToString
 log = logging.getLogger(__name__)
 
 def generateChains( flags, chainDict ):
-    from .JetRecoConfiguration import extractRecoDict
+    from .JetRecoCommon import extractRecoDict
     from .JetChainConfiguration import jetChainParts
 
     jetRecoDict = extractRecoDict(jetChainParts(chainDict["chainParts"]))
@@ -39,7 +39,7 @@ def generateChains( flags, chainDict ):
         else:
             trkcolls = None
 
-        from .JetRecoConfig import JetRecoCfg
+        from .JetRecoSequencesConfig import JetRecoCfg
         jet_acc, jetsOut, jetDef = JetRecoCfg(flags, clustersKey=clustersname, trkcolls=trkcolls, **jetRecoDict)
         InEventReco.mergeReco(jet_acc)
     else:
@@ -52,7 +52,6 @@ def generateChains( flags, chainDict ):
         jet_acc, jetsOut, jetDef = JetHICfg(flags, clustersKey=clustersname, **jetRecoDict)
         InEventReco.mergeReco(jet_acc)
         
-
     acc.merge(InEventReco,stepReco.getName())
     #hypo
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict

@@ -11,8 +11,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2
 
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-from . import JetRecoConfiguration
-from .JetRecoConfiguration import defineHIJets
+from . import JetRecoCommon
 from JetRecConfig.JetDefinition import JetModifier
 from JetRecConfig.JetRecConfig import getJetCopyAlg
 
@@ -137,7 +136,7 @@ def jetHIRecoSequence(configFlags, clustersKey, towerKey, **jetRecoDict):
     jetHIRecSeq += eventShapeMaker 
 
     jetNamePrefix = "HLT_"
-    jetDef = JetRecoConfiguration.defineHIJets(jetRecoDict,clustersKey=clustersKey,prefix=jetNamePrefix,suffix="_Unsubtracted")
+    jetDef = JetRecoCommon.defineHIJets(jetRecoDict,clustersKey=clustersKey,prefix=jetNamePrefix,suffix="_Unsubtracted")
     jetsFullName_Unsub = jetDef.fullname()
 
     # Add the PseudoJetGetter alg to the sequence
@@ -180,7 +179,7 @@ def jetHIRecoSequence(configFlags, clustersKey, towerKey, **jetRecoDict):
          calib_seq += "_Insitu"
 
     # Copy unsubtracted jets: seed0
-    jetDef_seed0 = JetRecoConfiguration.defineHIJets(jetRecoDict,clustersKey=clustersKey,prefix=jetNamePrefix,suffix="_seed0")
+    jetDef_seed0 = JetRecoCommon.defineHIJets(jetRecoDict,clustersKey=clustersKey,prefix=jetNamePrefix,suffix="_seed0")
     jetsFullName_seed0 = jetDef_seed0.fullname()
     jetDef_seed0.modifiers=["HLTHIJetAssoc", "HLTHIJetMaxOverMean", "HLTHIJetDiscrim", "Filter:5000"]
     copySeed0Alg = getJetCopyAlg(jetsin=jetsInUnsub,jetsoutdef=jetDef_seed0,decorations=[],shallowcopy=False,shallowIO=False,monTool=monTool)
@@ -432,7 +431,7 @@ def JetHICfg(flags, clustersKey, **jetRecoDict):
         raise ValueError(f"JetHICfg is called for ion option")
 
     _jetNamePrefix = "HLT_"
-    jetDef = defineHIJets(
+    jetDef = JetRecoCommon.defineHIJets(
         jetRecoDict,
         clustersKey=clustersKey,
         prefix=_jetNamePrefix,
